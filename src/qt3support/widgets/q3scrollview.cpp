@@ -2407,12 +2407,12 @@ void Q3ScrollView::changeFrameRect(const QRect& r)
     if (oldr != r) {
         QRect cr = contentsRect();
         QRegion fr(frameRect());
-        fr = fr.subtract(contentsRect());
+        fr = fr.subtracted(contentsRect());
         setFrameRect(r);
         if (isVisible()) {
-            cr = cr.intersect(contentsRect());
-            fr = fr.unite(frameRect());
-            fr = fr.subtract(cr);
+            cr = cr.intersected(contentsRect());
+            fr = fr.united(frameRect());
+            fr = fr.subtracted(cr);
             if (!fr.isEmpty())
                 update(fr);
         }

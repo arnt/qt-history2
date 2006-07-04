@@ -1573,7 +1573,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                             p->fillRect(itemRect, c);
                         }
                         if (selection)
-                            outlineRect = outlineRect.unite(itemRect);
+                            outlineRect = outlineRect.united(itemRect);
                     }
                 } else { // si.isTab
                     QTextItemInt gf;
@@ -1654,7 +1654,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
             QRectF rect((x + soff).toReal(), (y - line.ascent).toReal(), swidth.toReal(), line.height().toReal());
             if (selection)
-                outlineRect = outlineRect.unite(rect);
+                outlineRect = outlineRect.united(rect);
             p->save();
             p->setClipRect(rect, Qt::IntersectClip);
         }

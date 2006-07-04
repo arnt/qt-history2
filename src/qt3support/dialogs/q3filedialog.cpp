@@ -3785,7 +3785,7 @@ void Q3FileDialog::updateGeometries()
 
     QSize r, t;
 
-    // we really should have a QSize::unite()
+    // we really should use QSize::expandedTo()
 #define RM r.setWidth(qMax(r.width(),t.width())); \
 r.setHeight(qMax(r.height(),t.height()))
 
@@ -6243,12 +6243,12 @@ void Q3FileDialog::doMimeTypeLookup()
             if (files->isVisible()) {
                 QRect ir(files->itemRect(item));
                 if (ir != QRect(0, 0, -1, -1)) {
-                    r = r.unite(ir);
+                    r = r.united(ir);
                 }
             } else {
                 QRect ir(d->moreFiles->itemRect(item->i));
                 if (ir != QRect(0, 0, -1, -1)) {
-                    r = r.unite(ir);
+                    r = r.united(ir);
                 }
             }
         }

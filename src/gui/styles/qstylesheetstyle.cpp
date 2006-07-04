@@ -612,7 +612,7 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
         return;
     QRect aligned = QStyle::alignedRect(dir, (Qt::Alignment)background->position,
                                         bgp.size(), r);
-    QRect inter = aligned.intersect(r);
+    QRect inter = aligned.intersected(r);
 
     switch (background->repeat) {
     case Repeat_None:

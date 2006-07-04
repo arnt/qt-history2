@@ -481,10 +481,10 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
                 CGPathRelease(path);
             }
         } else if(op == Qt::IntersectClip) {
-            d->current.clip = d->current.clip.intersect(clipRegion);
+            d->current.clip = d->current.clip.intersected(clipRegion);
             d->setClip(&d->current.clip);
         } else if(op == Qt::UniteClip) {
-            d->current.clip = d->current.clip.unite(clipRegion);
+            d->current.clip = d->current.clip.united(clipRegion);
             d->setClip(&d->current.clip);
         }
     }
@@ -504,11 +504,11 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
             op = Qt::ReplaceClip;
         d->current.clipEnabled = true;
         if(op == Qt::IntersectClip)
-            d->current.clip = d->current.clip.intersect(clipRegion);
+            d->current.clip = d->current.clip.intersected(clipRegion);
         else if(op == Qt::ReplaceClip)
             d->current.clip = clipRegion;
         else if(op == Qt::UniteClip)
-            d->current.clip = d->current.clip.unite(clipRegion);
+            d->current.clip = d->current.clip.united(clipRegion);
         d->setClip(&d->current.clip);
     }
 }

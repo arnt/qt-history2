@@ -37,7 +37,7 @@ public:
     virtual void setMode(int nw,int nh,int nd);
 
     virtual void setDirty(const QRect& r)
-        { hdr->dirty = true; hdr->update = hdr->update.unite(r); }
+        { hdr->dirty = true; hdr->update = hdr->update.united(r); }
 
     bool success;
     unsigned char *shmrgn;

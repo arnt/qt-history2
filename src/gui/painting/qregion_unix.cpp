@@ -2336,18 +2336,21 @@ QRegion QRegion::copy() const
     Example:
     \code
         QRegion r1(10, 10, 20, 20);
+        r1.isNull();                // false
+        r1.isEmpty();               // false
+
         QRegion r2(40, 40, 20, 20);
         QRegion r3;
-        r1.isNull();             // false
-        r1.isEmpty();            // false
-        r3.isNull();             // true
-        r3.isEmpty();            // true
-        r3 = r1.intersect(r2); // r3 = intersection of r1 and r2
-        r3.isNull();             // false
-        r3.isEmpty();            // true
-        r3 = r1.unite(r2);     // r3 = union of r1 and r2
-        r3.isNull();             // false
-        r3.isEmpty();            // false
+        r3.isNull();                // true
+        r3.isEmpty();               // true
+
+        r3 = r1.intersected(r2);    // r3: intersection of r1 and r2
+        r3.isNull();                // false
+        r3.isEmpty();               // true
+
+        r3 = r1.united(r2);         // r3: union of r1 and r2
+        r3.isNull();                // false
+        r3.isEmpty();               // false
     \endcode
 */
 
@@ -2403,13 +2406,24 @@ void QRegion::translate(int dx, int dy)
 #endif
 }
 
+/*!
+    \fn QRegion QRegion::unite(const QRegion &r) const
+    \obsolete
+
+    Use united(\a r) instead.
+*/
 
 /*!
+    \fn QRegion QRegion::united(const QRegion &r) const
+    \since 4.2
+
     Returns a region which is the union of this region and \a r.
 
     \img runion.png Region Union
 
     The figure shows the union of two elliptical regions.
+
+    \sa intersected(), subtracted(), xored()
 */
 
 QRegion QRegion::unite(const QRegion &r) const
@@ -2421,6 +2435,16 @@ QRegion QRegion::unite(const QRegion &r) const
 }
 
 /*!
+    \fn QRegion QRegion::intersect(const QRegion &r) const
+    \obsolete
+
+    Use intersected(\a r) instead.
+*/
+
+/*!
+    \fn QRegion QRegion::intersected(const QRegion &r) const
+    \since 4.2
+
     Returns a region which is the intersection of this region and \a r.
 
     \img rintersect.png Region Intersection
@@ -2450,12 +2474,24 @@ QRegion QRegion::intersect(const QRegion &r) const
 }
 
 /*!
+    \fn QRegion QRegion::subtract(const QRegion &r) const
+    \obsolete
+
+    Use subtracted(\a r) instead.
+*/
+
+/*!
+    \fn QRegion QRegion::subtracted(const QRegion &r) const
+    \since 4.2
+
     Returns a region which is \a r subtracted from this region.
 
     \img rsubtract.png Region Subtraction
 
     The figure shows the result when the ellipse on the right is
-    subtracted from the ellipse on the left. (\c left-right)
+    subtracted from the ellipse on the left (\c {left - right}).
+
+    \sa intersected(), united(), xored()
 */
 
 QRegion QRegion::subtract(const QRegion &r) const
@@ -2467,12 +2503,24 @@ QRegion QRegion::subtract(const QRegion &r) const
 }
 
 /*!
+    \fn QRegion QRegion::eor(const QRegion &r) const
+    \obsolete
+
+    Use xored(\a r) instead.
+*/
+
+/*!
+    \fn QRegion QRegion::xored(const QRegion &r) const
+    \since 4.2
+
     Returns a region which is the exclusive or (XOR) of this region
     and \a r.
 
     \img rxor.png Region XORed
 
     The figure shows the exclusive or of two elliptical regions.
+
+    \sa intersected(), united(), subtracted()
 */
 
 QRegion QRegion::eor(const QRegion &r) const

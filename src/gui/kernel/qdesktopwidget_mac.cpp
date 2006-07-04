@@ -119,7 +119,7 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
         frame.moveTopLeft(widget->mapToGlobal(QPoint(0,0)));
     int maxSize = -1, maxScreen = -1;
     for(int i = 0; i < d->screenCount; ++i) {
-        QRect sect = d->rects[i].intersect(frame);
+        QRect sect = d->rects[i].intersected(frame);
         int size = sect.width() * sect.height();
         if(size > maxSize && sect.width() > 0 && sect.height() > 0) {
             maxSize = size;

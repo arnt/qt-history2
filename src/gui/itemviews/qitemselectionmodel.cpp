@@ -181,10 +181,17 @@ bool QItemSelectionRange::intersects(const QItemSelectionRange &other) const
 
 /*!
     \fn QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
+    \obsolete
+
+    Use intersected(\a other) instead.
+*/
+
+/*!
+    \fn QItemSelectionRange QItemSelectionRange::intersected(const QItemSelectionRange &other) const
+    \since 4.2
 
     Returns a new selection range containing only the items that are found in
     both the selection range and the \a other selection range.
-
 */
 
 QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
@@ -392,7 +399,7 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
         }
         for (int t = 0; t < count(); ++t) {
             if ((*it).intersects(at(t)))
-                intersections.append(at(t).intersect(*it));
+                intersections.append(at(t).intersected(*it));
         }
         ++it;
     }
@@ -1098,7 +1105,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
                 d->currentSelection.at(i).bottom() >= row)
                 for (int j=0; j<d->ranges.count(); ++j)
                     if (d->ranges.at(j).top() <= row && d->ranges.at(j).bottom() >= row
-                        && d->currentSelection.at(i).intersect(d->ranges.at(j)).isValid())
+                        && d->currentSelection.at(i).intersected(d->ranges.at(j)).isValid())
                         return false;
     }
     // add ranges and currentSelection and check through them all
@@ -1150,7 +1157,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
                 d->currentSelection.at(i).right() >= column) {
                 for (int j = 0; j < d->ranges.count(); ++j) {
                     if (d->ranges.at(j).left() <= column && d->ranges.at(j).right() >= column
-                        && d->currentSelection.at(i).intersect(d->ranges.at(j)).isValid()) {
+                        && d->currentSelection.at(i).intersected(d->ranges.at(j)).isValid()) {
                         return false;
                     }
                 }
@@ -1313,7 +1320,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &newSelectio
     for (int o = 0; o < deselected.count(); ++o) {
         for (int s = 0; s < selected.count(); ++s) {
             if (deselected.at(o).intersects(selected.at(s)))
-                intersections.append(deselected.at(o).intersect(selected.at(s)));
+                intersections.append(deselected.at(o).intersected(selected.at(s)));
         }
     }
 

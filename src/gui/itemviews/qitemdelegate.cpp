@@ -289,7 +289,7 @@ void QItemDelegate::paint(QPainter *painter,
                                    icon.actualSize(option.decorationSize, iconMode, iconState));
         } else {
             pixmap = decoration(opt, value);
-            decorationRect = QRect(QPoint(0, 0), option.decorationSize).intersect(pixmap.rect());
+            decorationRect = QRect(QPoint(0, 0), option.decorationSize).intersected(pixmap.rect());
         }
     }
 
@@ -440,7 +440,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
     Q_ASSERT(index.isValid());
     QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
     QString text = index.data(Qt::DisplayRole).toString();
-    QRect pixmapRect = QRect(QPoint(0, 0), option.decorationSize).intersect(pixmap.rect());
+    QRect pixmapRect = QRect(QPoint(0, 0), option.decorationSize).intersected(pixmap.rect());
     QRect textRect = textRectangle(0, option.rect, option.font, text);
     QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
     QStyleOptionViewItem opt = option;

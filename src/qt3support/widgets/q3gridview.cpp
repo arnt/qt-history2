@@ -206,7 +206,7 @@ void Q3GridView::paintEmptyArea(QPainter *p, int cx ,int cy, int cw, int ch)
     contentsToViewport(cx, cy, cx, cy);
     QRegion reg(QRect(cx, cy, cw, ch));
     // Subtract the table from it
-    reg = reg.subtract(QRect(contentsToViewport(QPoint(0, 0)), gridSize()));
+    reg = reg.subtracted(QRect(contentsToViewport(QPoint(0, 0)), gridSize()));
 
     // And draw the rectangles (transformed as needed)
     QVector<QRect> r = reg.rects();

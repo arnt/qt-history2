@@ -160,14 +160,14 @@ private slots:
     void testAdjust_data();
     void testAdjust();
 
-    void intersectRect_data();
-    void intersectRect();
-    void intersectRectF_data();
-    void intersectRectF();
-    void uniteRect_data();
-    void uniteRect();
-    void uniteRectF_data();
-    void uniteRectF();
+    void intersectedRect_data();
+    void intersectedRect();
+    void intersectedRectF_data();
+    void intersectedRectF();
+    void unitedRect_data();
+    void unitedRect();
+    void unitedRectF_data();
+    void unitedRectF();
     void intersectsRect_data();
     void intersectsRect();
     void intersectsRectF_data();
@@ -4025,7 +4025,7 @@ void tst_QRect::testAdjust()
     }
 }
 
-void tst_QRect::intersectRect_data()
+void tst_QRect::intersectedRect_data()
 {
     QTest::addColumn<QRect>("rect1");
     QTest::addColumn<QRect>("rect2");
@@ -4051,19 +4051,19 @@ void tst_QRect::intersectRect_data()
     QTest::newRow("test 15") << QRect() << QRect() << QRect();
 }
 
-void tst_QRect::intersectRect()
+void tst_QRect::intersectedRect()
 {
     QFETCH(QRect, rect1);
     QFETCH(QRect, rect2);
     QFETCH(QRect, intersect);
 
     if (intersect.isValid())
-        QCOMPARE(rect1.intersect(rect2), intersect);
+        QCOMPARE(rect1.intersected(rect2), intersect);
     else
-        QVERIFY(rect1.intersect(rect2).isEmpty());
+        QVERIFY(rect1.intersected(rect2).isEmpty());
 }
 
-void tst_QRect::intersectRectF_data()
+void tst_QRect::intersectedRectF_data()
 {
     QTest::addColumn<QRectF>("rect1");
     QTest::addColumn<QRectF>("rect2");
@@ -4089,19 +4089,19 @@ void tst_QRect::intersectRectF_data()
     QTest::newRow("test 15") << QRectF() << QRectF() << QRectF();
 }
 
-void tst_QRect::intersectRectF()
+void tst_QRect::intersectedRectF()
 {
     QFETCH(QRectF, rect1);
     QFETCH(QRectF, rect2);
     QFETCH(QRectF, intersect);
 
     if (intersect.isValid())
-        QCOMPARE(rect1.intersect(rect2), intersect);
+        QCOMPARE(rect1.intersected(rect2), intersect);
     else
-        QVERIFY(rect1.intersect(rect2).isEmpty());
+        QVERIFY(rect1.intersected(rect2).isEmpty());
 }
 
-void tst_QRect::uniteRect_data()
+void tst_QRect::unitedRect_data()
 {
     QTest::addColumn<QRect>("rect1");
     QTest::addColumn<QRect>("rect2");
@@ -4127,16 +4127,16 @@ void tst_QRect::uniteRect_data()
     QTest::newRow("test 15") << QRect() << QRect() << QRect();
 }
 
-void tst_QRect::uniteRect()
+void tst_QRect::unitedRect()
 {
     QFETCH(QRect, rect1);
     QFETCH(QRect, rect2);
     QFETCH(QRect, unite);
 
-    QCOMPARE(rect1.unite(rect2), unite);
+    QCOMPARE(rect1.united(rect2), unite);
 }
 
-void tst_QRect::uniteRectF_data()
+void tst_QRect::unitedRectF_data()
 {
     QTest::addColumn<QRectF>("rect1");
     QTest::addColumn<QRectF>("rect2");
@@ -4162,13 +4162,13 @@ void tst_QRect::uniteRectF_data()
     QTest::newRow("test 15") << QRectF() << QRectF() << QRectF();
 }
 
-void tst_QRect::uniteRectF()
+void tst_QRect::unitedRectF()
 {
     QFETCH(QRectF, rect1);
     QFETCH(QRectF, rect2);
     QFETCH(QRectF, unite);
 
-    QCOMPARE(rect1.unite(rect2), unite);
+    QCOMPARE(rect1.united(rect2), unite);
 }
 
 void tst_QRect::intersectsRect_data()

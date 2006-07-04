@@ -858,7 +858,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 response.data.l[0] = 0;
                 last_target_accepted_action = Qt::IgnoreAction;
             }
-            answerRect = me.answerRect().intersect(c->rect());
+            answerRect = me.answerRect().intersected(c->rect());
         }
         answerRect = QRect(c->mapToGlobal(answerRect.topLeft()), answerRect.size());
 

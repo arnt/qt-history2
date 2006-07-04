@@ -2991,7 +2991,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->save();
                     QRegion region(groupBox->rect);
                     bool ltr = groupBox->direction == Qt::LeftToRight;
-                    region -= checkBoxRect.unite(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
+                    region -= checkBoxRect.united(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
                     painter->setClipRegion(region);
                     frame.palette.setBrush(QPalette::Dark, option->palette.mid().color().light(110));
                     drawPrimitive(PE_FrameGroupBox, &frame, painter);

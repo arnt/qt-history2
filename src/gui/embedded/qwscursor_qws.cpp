@@ -530,7 +530,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
                 if (x < 0 && m)
                     x = j*8+b;
                 else if (x >= 0 && !m) {
-                    rgn = rgn.unite(QRect(x, i, w, 1));
+                    rgn = rgn.united(QRect(x, i, w, 1));
                     x = -1;
                     w = 0;
                 }
@@ -539,7 +539,7 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
             }
         }
         if (x >= 0) {
-            rgn = rgn.unite(QRect(x, i, w, 1));
+            rgn = rgn.united(QRect(x, i, w, 1));
             x = -1;
             w = 0;
         }

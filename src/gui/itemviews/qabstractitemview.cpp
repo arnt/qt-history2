@@ -3160,7 +3160,7 @@ QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes,
         rects.append(q->visualRect(indexes.at(i)));
         rect |= rects.at(i);
     }
-    rect = rect.intersect(viewport->rect());
+    rect = rect.intersected(viewport->rect());
     QPixmap pixmap(rect.size());
     pixmap.fill(q->palette().base().color());
     QPainter painter(&pixmap);

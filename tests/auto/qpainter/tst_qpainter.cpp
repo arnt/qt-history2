@@ -684,7 +684,7 @@ void tst_QPainter::saveAndRestore_data()
 
     QTest::newRow("Modified clipRegion, window, viewport")
             << font << pen << brush << backgroundColor << int(backgroundMode)
-	    << brushOrigin << clipRegion.subtract(QRect(10,10,50,30))
+	    << brushOrigin << clipRegion.subtracted(QRect(10,10,50,30))
 	    << QRect(-500, -500, 500, 500 ) << QRect( 0, 0, 50, 50 );
 }
 

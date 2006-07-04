@@ -62,9 +62,9 @@ class Q_COMPAT_EXPORT Q3TableHeader : public Q3Header
 
 public:
     enum SectionState {
-	Normal,
-	Bold,
-	Selected
+        Normal,
+        Bold,
+        Selected
     };
 
     Q3TableHeader(int, Q3Table *t, QWidget* parent=0, const char* name=0);
@@ -72,7 +72,7 @@ public:
     void addLabel(const QString &s, int size);
     void setLabel(int section, const QString & s, int size = -1);
     void setLabel(int section, const QIconSet & iconset, const QString & s,
-		   int size = -1);
+                   int size = -1);
 
     void setLabels(const QStringList & labels);
 
@@ -146,10 +146,10 @@ private:
 struct Q3TablePrivate
 {
     Q3TablePrivate() : hasRowSpan(false), hasColSpan(false),
-		      inMenuMode(false), redirectMouseEvent(false)
+                      inMenuMode(false), redirectMouseEvent(false)
     {
-	hiddenRows.setAutoDelete(true);
-	hiddenCols.setAutoDelete(true);
+        hiddenRows.setAutoDelete(true);
+        hiddenCols.setAutoDelete(true);
     }
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
@@ -256,23 +256,23 @@ void Q3TableSelection::init(int row, int col)
 void Q3TableSelection::expandTo(int row, int col)
 {
     if (!inited)
-	return;
+        return;
     active = true;
 
     if (row < aRow) {
-	tRow = row;
-	bRow = aRow;
+        tRow = row;
+        bRow = aRow;
     } else {
-	tRow = aRow;
-	bRow = row;
+        tRow = aRow;
+        bRow = row;
     }
 
     if (col < aCol) {
-	lCol = col;
-	rCol = aCol;
+        lCol = col;
+        rCol = aCol;
     } else {
-	lCol = aCol;
-	rCol = col;
+        lCol = aCol;
+        rCol = col;
     }
 }
 
@@ -284,8 +284,8 @@ void Q3TableSelection::expandTo(int row, int col)
 bool Q3TableSelection::operator==(const Q3TableSelection &s) const
 {
     return (s.active == active &&
-	     s.tRow == tRow && s.bRow == bRow &&
-	     s.lCol == lCol && s.rCol == rCol);
+             s.tRow == tRow && s.bRow == bRow &&
+             s.lCol == lCol && s.rCol == rCol);
 }
 
 /*!
@@ -416,10 +416,10 @@ int Q3TableSelection::numCols() const
     Example:
     \code
     for (int row = 0; row < table->numRows(); row++) {
-	for (int col = 0; col < table->numCols(); col++) {
-	    table->setItem(row, col,
-		new Q3TableItem(table, Q3TableItem::WhenCurrent, QString::number(row * col)));
-	}
+        for (int col = 0; col < table->numCols(); col++) {
+            table->setItem(row, col,
+                new Q3TableItem(table, Q3TableItem::WhenCurrent, QString::number(row * col)));
+        }
     }
     \endcode
 
@@ -576,7 +576,7 @@ Q3TableItem::Q3TableItem(Q3Table *table, EditType et, const QString &text)
 */
 
 Q3TableItem::Q3TableItem(Q3Table *table, EditType et,
-			const QString &text, const QPixmap &p)
+                        const QString &text, const QPixmap &p)
     : txt(text), pix(p), t(table), edType(et), wordwrap(false),
       tcha(true), rw(-1), cl(-1), rowspan(1), colspan(1)
 {
@@ -595,7 +595,7 @@ Q3TableItem::Q3TableItem(Q3Table *table, EditType et,
 Q3TableItem::~Q3TableItem()
 {
     if (table())
-	table()->takeItem(this);
+        table()->takeItem(this);
 }
 
 int Q3TableItem::RTTI = 0;
@@ -655,9 +655,9 @@ QString Q3TableItem::text() const
 {
     QWidget *w = table()->cellWidget(rw, cl);
     if (w && (edType == Always ||
-		rtti() == Q3ComboTableItem::RTTI ||
-		rtti() == Q3CheckTableItem::RTTI))
-	((Q3TableItem*)this)->setContentFromEditor(w);
+                rtti() == Q3ComboTableItem::RTTI ||
+                rtti() == Q3CheckTableItem::RTTI))
+        ((Q3TableItem*)this)->setContentFromEditor(w);
     return txt;
 }
 
@@ -720,27 +720,27 @@ void Q3TableItem::setText(const QString &str)
 */
 
 void Q3TableItem::paint(QPainter *p, const QColorGroup &cg,
-			const QRect &cr, bool selected)
+                        const QRect &cr, bool selected)
 {
     p->fillRect(0, 0, cr.width(), cr.height(),
-		 selected ? cg.brush(QColorGroup::Highlight)
-			  : cg.brush(QColorGroup::Base));
+                 selected ? cg.brush(QColorGroup::Highlight)
+                          : cg.brush(QColorGroup::Base));
 
     int w = cr.width();
     int h = cr.height();
 
     int x = 0;
     if (!pix.isNull()) {
-	p->drawPixmap(0, (cr.height() - pix.height()) / 2, pix);
-	x = pix.width() + 2;
+        p->drawPixmap(0, (cr.height() - pix.height()) / 2, pix);
+        x = pix.width() + 2;
     }
 
     if (selected)
-	p->setPen(cg.highlightedText());
+        p->setPen(cg.highlightedText());
     else
-	p->setPen(cg.text());
+        p->setPen(cg.text());
     p->drawText(x + 2, 0, w - x - 4, h,
-		 wordwrap ? (alignment() | WordBreak) : alignment(), text());
+                 wordwrap ? (alignment() | WordBreak) : alignment(), text());
 }
 
 /*!
@@ -783,10 +783,10 @@ void Q3TableItem::setContentFromEditor(QWidget *w)
 {
     QLineEdit *le = ::qobject_cast<QLineEdit*>(w);
     if (le) {
-	QString input = le->text();
-	if (le->validator())
-	    le->validator()->fixup(input);
-	setText(input);
+        QString input = le->text();
+        if (le->validator())
+            le->validator()->fixup(input);
+        setText(input);
     }
 }
 
@@ -807,7 +807,7 @@ int Q3TableItem::alignment() const
     bool ok1 = false, ok2 = false;
     (void)text().toInt(&ok1);
     if (!ok1)
-	(void)text().toDouble(&ok2); // ### should be .-aligned
+        (void)text().toDouble(&ok2); // ### should be .-aligned
     num = ok1 || ok2;
 
     return (num ? AlignRight : AlignLeft) | AlignVCenter;
@@ -843,11 +843,11 @@ bool Q3TableItem::wordWrap() const
 void Q3TableItem::updateEditor(int oldRow, int oldCol)
 {
     if (edType != Always)
-	return;
+        return;
     if (oldRow != -1 && oldCol != -1)
-	table()->clearCellWidget(oldRow, oldCol);
+        table()->clearCellWidget(oldRow, oldCol);
     if (rw != -1 && cl != -1)
-	table()->setCellWidget(rw, cl, createEditor());
+        table()->setCellWidget(rw, cl, createEditor());
 }
 
 /*!
@@ -896,7 +896,7 @@ void Q3TableItem::setReplaceable(bool b)
 bool Q3TableItem::isReplaceable() const
 {
     if (rowspan > 1 || colspan > 1)
-	return false;
+        return false;
     return tcha;
 }
 
@@ -925,24 +925,24 @@ QSize Q3TableItem::sizeHint() const
 {
     QSize strutSize = QApplication::globalStrut();
     if (edType == Always && table()->cellWidget(rw, cl))
-	return table()->cellWidget(rw, cl)->sizeHint().expandedTo(strutSize);
+        return table()->cellWidget(rw, cl)->sizeHint().expandedTo(strutSize);
 
     QSize s;
     int x = 0;
     if (!pix.isNull()) {
-	s = pix.size();
-	s.setWidth(s.width() + 2);
-	x = pix.width() + 2;
+        s = pix.size();
+        s.setWidth(s.width() + 2);
+        x = pix.width() + 2;
     }
 
     QString t = text();
     if (!wordwrap && t.find('\n') == -1)
-	return QSize(s.width() + table()->fontMetrics().width(text()) + 10,
-		      QMAX(s.height(), table()->fontMetrics().height())).expandedTo(strutSize);
+        return QSize(s.width() + table()->fontMetrics().width(text()) + 10,
+                      QMAX(s.height(), table()->fontMetrics().height())).expandedTo(strutSize);
 
     QRect r = table()->fontMetrics().boundingRect(x + 2, 0, table()->columnWidth(col()) - x - 4, 0,
-						   wordwrap ? (alignment() | WordBreak) : alignment(),
-						   text());
+                                                   wordwrap ? (alignment() | WordBreak) : alignment(),
+                                                   text());
     r.setWidth(QMAX(r.width() + 10, table()->columnWidth(col())));
     return QSize(r.width(), QMAX(s.height(), r.height())).expandedTo(strutSize);
 }
@@ -966,49 +966,49 @@ QSize Q3TableItem::sizeHint() const
 void Q3TableItem::setSpan(int rs, int cs)
 {
     if (rs == rowspan && cs == colspan)
-	return;
+        return;
 
     if (!table()->d->hasRowSpan)
-	table()->d->hasRowSpan = rs > 1;
+        table()->d->hasRowSpan = rs > 1;
     if (!table()->d->hasColSpan)
-	table()->d->hasColSpan = cs > 1;
+        table()->d->hasColSpan = cs > 1;
     // return if we are thinking too big...
     if (rw + rs > table()->numRows())
-	return;
+        return;
 
     if (cl + cs > table()->numCols())
-	return;
+        return;
 
     if (rw == -1 || cl == -1)
-	return;
+        return;
 
     int rrow = rw;
     int rcol = cl;
     if (rowspan > 1 || colspan > 1) {
-	Q3Table* t = table();
-	t->takeItem(this);
-	t->setItem(rrow, rcol, this);
+        Q3Table* t = table();
+        t->takeItem(this);
+        t->setItem(rrow, rcol, this);
     }
 
     rowspan = rs;
     colspan = cs;
 
     for (int r = 0; r < rowspan; ++r) {
-	for (int c = 0; c < colspan; ++c) {
-	    if (r == 0 && c == 0)
-		continue;
-	    qt_update_cell_widget = false;
-	    table()->setItem(r + rw, c + cl, this);
-	    qt_update_cell_widget = true;
-	    rw = rrow;
-	    cl = rcol;
-	}
+        for (int c = 0; c < colspan; ++c) {
+            if (r == 0 && c == 0)
+                continue;
+            qt_update_cell_widget = false;
+            table()->setItem(r + rw, c + cl, this);
+            qt_update_cell_widget = true;
+            rw = rrow;
+            cl = rcol;
+        }
     }
 
     table()->updateCell(rw, cl);
     QWidget *w = table()->cellWidget(rw, cl);
     if (w)
-	w->resize(table()->cellGeometry(rw, cl).size());
+        w->resize(table()->cellGeometry(rw, cl).size());
 }
 
 /*!
@@ -1101,7 +1101,7 @@ int Q3TableItem::col() const
 void Q3TableItem::setEnabled(bool b)
 {
     if (b == (bool)enabled)
-	return;
+        return;
     enabled = b;
     table()->updateCell(row(), col());
 }
@@ -1183,13 +1183,13 @@ Q3ComboTableItem::Q3ComboTableItem(Q3Table *table, const QStringList &list, bool
 {
     setReplaceable(false);
     if (!Q3ComboTableItem::fakeCombo) {
-	Q3ComboTableItem::fakeComboWidget = new QWidget(0, 0);
-	Q3ComboTableItem::fakeCombo = new QComboBox(false, Q3ComboTableItem::fakeComboWidget, 0);
-	Q3ComboTableItem::fakeCombo->hide();
+        Q3ComboTableItem::fakeComboWidget = new QWidget(0, 0);
+        Q3ComboTableItem::fakeCombo = new QComboBox(false, Q3ComboTableItem::fakeComboWidget, 0);
+        Q3ComboTableItem::fakeCombo->hide();
     }
     ++Q3ComboTableItem::fakeRef;
     if (entries.count())
-	setText(entries.at(current));
+        setText(entries.at(current));
 }
 
 /*!
@@ -1198,9 +1198,9 @@ Q3ComboTableItem::Q3ComboTableItem(Q3Table *table, const QStringList &list, bool
 Q3ComboTableItem::~Q3ComboTableItem()
 {
     if (--Q3ComboTableItem::fakeRef <= 0) {
-	delete Q3ComboTableItem::fakeComboWidget;
-	Q3ComboTableItem::fakeComboWidget = 0;
-	Q3ComboTableItem::fakeCombo = 0;
+        delete Q3ComboTableItem::fakeComboWidget;
+        Q3ComboTableItem::fakeComboWidget = 0;
+        Q3ComboTableItem::fakeCombo = 0;
     }
 }
 
@@ -1214,10 +1214,10 @@ void Q3ComboTableItem::setStringList(const QStringList &l)
     entries = l;
     current = 0;
     if (entries.count())
-	setText(entries.at(current));
+        setText(entries.at(current));
     if (table()->cellWidget(row(), col())) {
-	cb->clear();
-	cb->insertStringList(entries);
+        cb->clear();
+        cb->insertStringList(entries);
     }
     table()->updateCell(row(), col());
 }
@@ -1240,18 +1240,18 @@ void Q3ComboTableItem::setContentFromEditor(QWidget *w)
 {
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb) {
-	entries.clear();
-	for (int i = 0; i < cb->count(); ++i)
-	    entries << cb->text(i);
-	current = cb->currentItem();
-	setText(entries.at(current));
+        entries.clear();
+        for (int i = 0; i < cb->count(); ++i)
+            entries << cb->text(i);
+        current = cb->currentItem();
+        setText(entries.at(current));
     }
 }
 
 /*! \reimp */
 
 void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
-			   const QRect &cr, bool selected)
+                           const QRect &cr, bool selected)
 {
     fakeCombo->resize(cr.width(), cr.height());
 
@@ -1297,13 +1297,13 @@ void Q3ComboTableItem::setCurrentItem(int i)
     QWidget *w = table()->cellWidget(row(), col());
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb) {
-	cb->setCurrentItem(i);
-	current = i;
-	setText(cb->currentText());
+        cb->setCurrentItem(i);
+        current = i;
+        setText(cb->currentText());
     } else {
-	current = i;
-	setText(entries.at(i));
-	table()->updateCell(row(), col());
+        current = i;
+        setText(entries.at(i));
+        table()->updateCell(row(), col());
     }
 }
 
@@ -1320,7 +1320,7 @@ void Q3ComboTableItem::setCurrentItem(const QString &s)
 {
     int i = entries.findIndex(s);
     if (i != -1)
-	setCurrentItem(i);
+        setCurrentItem(i);
 }
 
 /*!
@@ -1334,7 +1334,7 @@ int Q3ComboTableItem::currentItem() const
     QWidget *w = table()->cellWidget(row(), col());
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb)
-	return cb->currentItem();
+        return cb->currentItem();
     return current;
 }
 
@@ -1349,7 +1349,7 @@ QString Q3ComboTableItem::currentText() const
     QWidget *w = table()->cellWidget(row(), col());
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb)
-	return cb->currentText();
+        return cb->currentText();
     return entries.at(current);
 }
 
@@ -1362,7 +1362,7 @@ int Q3ComboTableItem::count() const
     QWidget *w = table()->cellWidget(row(), col());
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb)
-	return cb->count();
+        return cb->count();
     return (int)entries.count();
 }
 
@@ -1377,7 +1377,7 @@ QString Q3ComboTableItem::text(int i) const
     QWidget *w = table()->cellWidget(row(), col());
     QComboBox *cb = ::qobject_cast<QComboBox*>(w);
     if (cb)
-	return cb->text(i);
+        return cb->text(i);
     return entries.at(i);
 }
 
@@ -1490,7 +1490,7 @@ void Q3CheckTableItem::setText(const QString &t)
     QWidget *w = table()->cellWidget(row(), col());
     QCheckBox *cb = ::qobject_cast<QCheckBox*>(w);
     if (cb)
-	cb->setText(t);
+        cb->setText(t);
 }
 
 
@@ -1514,13 +1514,13 @@ void Q3CheckTableItem::setContentFromEditor(QWidget *w)
 {
     QCheckBox *cb = ::qobject_cast<QCheckBox*>(w);
     if (cb)
-	checked = cb->isChecked();
+        checked = cb->isChecked();
 }
 
 /*! \reimp */
 
 void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
-				const QRect &cr, bool selected)
+                                const QRect &cr, bool selected)
 {
     QPalette pal = cg;
 
@@ -1570,7 +1570,7 @@ void Q3CheckTableItem::setChecked(bool b)
     QWidget *w = table()->cellWidget(row(), col());
     QCheckBox *cb = ::qobject_cast<QCheckBox*>(w);
     if (cb)
-	cb->setChecked(b);
+        cb->setChecked(b);
 }
 
 /*!
@@ -1589,7 +1589,7 @@ bool Q3CheckTableItem::isChecked() const
     QWidget *w = table()->cellWidget(row(), col());
     QCheckBox *cb = ::qobject_cast<QCheckBox*>(w);
     if (cb)
-	return cb->isChecked();
+        return cb->isChecked();
     return checked;
 }
 
@@ -1618,11 +1618,11 @@ int Q3CheckTableItem::rtti() const
 QSize Q3CheckTableItem::sizeHint() const
 {
     QSize sz = QSize(table()->style()->pixelMetric(QStyle::PM_IndicatorWidth),
-		      table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
+                      table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
     sz.setWidth(sz.width() + 6);
     QSize sh(Q3TableItem::sizeHint());
     return QSize(sh.width() + sz.width(), QMAX(sh.height(), sz.height())).
-	expandedTo(QApplication::globalStrut());
+        expandedTo(QApplication::globalStrut());
 }
 
 /*!
@@ -2059,18 +2059,18 @@ void Q3Table::init(int rows, int cols)
     topHeader->setTracking(true);
     topHeader->setMovingEnabled(true);
     if (QApplication::reverseLayout())
-	setMargins(0, fontMetrics().height() + 4, 30, 0);
+        setMargins(0, fontMetrics().height() + 4, 30, 0);
     else
-	setMargins(30, fontMetrics().height() + 4, 0, 0);
+        setMargins(30, fontMetrics().height() + 4, 0, 0);
 
     topHeader->setUpdatesEnabled(false);
     leftHeader->setUpdatesEnabled(false);
     // Initialize headers
     int i = 0;
     for (i = 0; i < numCols(); ++i)
-	topHeader->resizeSection(i, QMAX(100, QApplication::globalStrut().height()));
+        topHeader->resizeSection(i, QMAX(100, QApplication::globalStrut().height()));
     for (i = 0; i < numRows(); ++i)
-	leftHeader->resizeSection(i, QMAX(20, QApplication::globalStrut().width()));
+        leftHeader->resizeSection(i, QMAX(20, QApplication::globalStrut().width()));
     topHeader->setUpdatesEnabled(true);
     leftHeader->setUpdatesEnabled(true);
 
@@ -2079,24 +2079,24 @@ void Q3Table::init(int rows, int cols)
 
     // Connect header, table and scrollbars
     connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-	     topHeader, SLOT(setOffset(int)));
+             topHeader, SLOT(setOffset(int)));
     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
-	     leftHeader, SLOT(setOffset(int)));
+             leftHeader, SLOT(setOffset(int)));
     connect(topHeader, SIGNAL(sectionSizeChanged(int)),
-	     this, SLOT(columnWidthChanged(int)));
+             this, SLOT(columnWidthChanged(int)));
     connect(topHeader, SIGNAL(indexChange(int,int,int)),
-	     this, SLOT(columnIndexChanged(int,int,int)));
+             this, SLOT(columnIndexChanged(int,int,int)));
     connect(topHeader, SIGNAL(sectionClicked(int)),
-	     this, SLOT(columnClicked(int)));
+             this, SLOT(columnClicked(int)));
     connect(leftHeader, SIGNAL(sectionSizeChanged(int)),
-	     this, SLOT(rowHeightChanged(int)));
+             this, SLOT(rowHeightChanged(int)));
     connect(leftHeader, SIGNAL(indexChange(int,int,int)),
-	     this, SLOT(rowIndexChanged(int,int,int)));
+             this, SLOT(rowIndexChanged(int,int,int)));
 
     // Initialize variables
     autoScrollTimer = new QTimer(this);
     connect(autoScrollTimer, SIGNAL(timeout()),
-	     this, SLOT(doAutoScroll()));
+             this, SLOT(doAutoScroll()));
     curRow = curCol = 0;
     topHeader->setSectionState(curCol, Q3TableHeader::Bold);
     leftHeader->setSectionState(curRow, Q3TableHeader::Bold);
@@ -2136,10 +2136,10 @@ void Q3Table::setReadOnly(bool b)
 
     Q3TableItem *i = item(curRow, curCol);
     if (readOnly && isEditing()) {
-	endEdit(editRow, editCol, true, false);
+        endEdit(editRow, editCol, true, false);
     } else if (!readOnly && i && (i->editType() == Q3TableItem::WhenCurrent
-				  || i->editType() == Q3TableItem::Always)) {
-	editCell(curRow, curCol);
+                                  || i->editType() == Q3TableItem::Always)) {
+        editCell(curRow, curCol);
     }
 }
 
@@ -2156,18 +2156,18 @@ void Q3Table::setReadOnly(bool b)
 void Q3Table::setRowReadOnly(int row, bool ro)
 {
     if (ro)
-	roRows.replace(row, new int(0));
+        roRows.replace(row, new int(0));
     else
-	roRows.remove(row);
+        roRows.remove(row);
 
     if (curRow == row) {
-	Q3TableItem *i = item(curRow, curCol);
-	if (ro && isEditing()) {
-	    endEdit(editRow, editCol, true, false);
-	} else if (!ro && i && (i->editType() == Q3TableItem::WhenCurrent
-				      || i->editType() == Q3TableItem::Always)) {
-	    editCell(curRow, curCol);
-	}
+        Q3TableItem *i = item(curRow, curCol);
+        if (ro && isEditing()) {
+            endEdit(editRow, editCol, true, false);
+        } else if (!ro && i && (i->editType() == Q3TableItem::WhenCurrent
+                                      || i->editType() == Q3TableItem::Always)) {
+            editCell(curRow, curCol);
+        }
     }
 }
 
@@ -2185,18 +2185,18 @@ void Q3Table::setRowReadOnly(int row, bool ro)
 void Q3Table::setColumnReadOnly(int col, bool ro)
 {
     if (ro)
-	roCols.replace(col, new int(0));
+        roCols.replace(col, new int(0));
     else
-	roCols.remove(col);
+        roCols.remove(col);
 
     if (curCol == col) {
-	Q3TableItem *i = item(curRow, curCol);
-	if (ro && isEditing()) {
-	    endEdit(editRow, editCol, true, false);
-	} else if (!ro && i && (i->editType() == Q3TableItem::WhenCurrent
-				      || i->editType() == Q3TableItem::Always)) {
-	    editCell(curRow, curCol);
-	}
+        Q3TableItem *i = item(curRow, curCol);
+        if (ro && isEditing()) {
+            endEdit(editRow, editCol, true, false);
+        } else if (!ro && i && (i->editType() == Q3TableItem::WhenCurrent
+                                      || i->editType() == Q3TableItem::Always)) {
+            editCell(curRow, curCol);
+        }
     }
 }
 
@@ -2248,15 +2248,15 @@ bool Q3Table::isColumnReadOnly(int col) const
 void Q3Table::setSelectionMode(SelectionMode mode)
 {
     if (mode == selMode)
-	return;
+        return;
     selMode = mode;
     clearSelection();
     if (isRowSelection(selMode) && numRows() > 0 && numCols() > 0) {
-	currentSel = new Q3TableSelection();
-	selections.append(currentSel);
-	currentSel->init(curRow, 0);
-	currentSel->expandTo(curRow, numCols() - 1);
-	repaintSelections(0, currentSel);
+        currentSel = new Q3TableSelection();
+        selections.append(currentSel);
+        currentSel->init(curRow, 0);
+        currentSel->expandTo(curRow, numCols() - 1);
+        repaintSelections(0, currentSel);
     }
 }
 
@@ -2311,19 +2311,19 @@ void Q3Table::updateHeaderStates()
     Q3PtrListIterator<Q3TableSelection> it(selections);
     Q3TableSelection *s;
     while ((s = it.current()) != 0) {
-	++it;
-	if (s->isActive()) {
-	    if (s->leftCol() == 0 &&
-		 s->rightCol() == numCols() - 1) {
-		for (int i = 0; i < s->bottomRow() - s->topRow() + 1; ++i)
-		    leftHeader->setSectionState(s->topRow() + i, Q3TableHeader::Selected);
-	    }
-	    if (s->topRow() == 0 &&
-		 s->bottomRow() == numRows() - 1) {
-		for (int i = 0; i < s->rightCol() - s->leftCol() + 1; ++i)
-		    topHeader->setSectionState(s->leftCol() + i, Q3TableHeader::Selected);
-	    }
-	}
+        ++it;
+        if (s->isActive()) {
+            if (s->leftCol() == 0 &&
+                 s->rightCol() == numCols() - 1) {
+                for (int i = 0; i < s->bottomRow() - s->topRow() + 1; ++i)
+                    leftHeader->setSectionState(s->topRow() + i, Q3TableHeader::Selected);
+            }
+            if (s->topRow() == 0 &&
+                 s->bottomRow() == numRows() - 1) {
+                for (int i = 0; i < s->rightCol() - s->leftCol() + 1; ++i)
+                    topHeader->setSectionState(s->leftCol() + i, Q3TableHeader::Selected);
+            }
+        }
     }
 
     horizontalHeader()->setUpdatesEnabled(true);
@@ -2363,7 +2363,7 @@ Q3Header *Q3Table::verticalHeader() const
 void Q3Table::setShowGrid(bool b)
 {
     if (sGrid == b)
-	return;
+        return;
     sGrid = b;
     updateContents();
 }
@@ -2459,7 +2459,7 @@ void Q3Table::resizeData(int len)
 void Q3Table::swapRows(int row1, int row2, bool swapHeader)
 {
     if (swapHeader)
-	leftHeader->swapSections(row1, row2, false);
+        leftHeader->swapSections(row1, row2, false);
 
     Q3PtrVector<Q3TableItem> tmpContents;
     tmpContents.resize(numCols());
@@ -2470,31 +2470,31 @@ void Q3Table::swapRows(int row1, int row2, bool swapHeader)
     contents.setAutoDelete(false);
     widgets.setAutoDelete(false);
     for (i = 0; i < numCols(); ++i) {
-	Q3TableItem *i1, *i2;
-	i1 = item(row1, i);
-	i2 = item(row2, i);
-	if (i1 || i2) {
-	    tmpContents.insert(i, i1);
-	    contents.remove(indexOf(row1, i));
-	    contents.insert(indexOf(row1, i), i2);
-	    contents.remove(indexOf(row2, i));
-	    contents.insert(indexOf(row2, i), tmpContents[ i ]);
-	    if (contents[ indexOf(row1, i) ])
-		contents[ indexOf(row1, i) ]->setRow(row1);
-	    if (contents[ indexOf(row2, i) ])
-		contents[ indexOf(row2, i) ]->setRow(row2);
-	}
+        Q3TableItem *i1, *i2;
+        i1 = item(row1, i);
+        i2 = item(row2, i);
+        if (i1 || i2) {
+            tmpContents.insert(i, i1);
+            contents.remove(indexOf(row1, i));
+            contents.insert(indexOf(row1, i), i2);
+            contents.remove(indexOf(row2, i));
+            contents.insert(indexOf(row2, i), tmpContents[ i ]);
+            if (contents[ indexOf(row1, i) ])
+                contents[ indexOf(row1, i) ]->setRow(row1);
+            if (contents[ indexOf(row2, i) ])
+                contents[ indexOf(row2, i) ]->setRow(row2);
+        }
 
-	QWidget *w1, *w2;
+        QWidget *w1, *w2;
 	w1 = cellWidget(row1, i);
-	w2 = cellWidget(row2, i);
-	if (w1 || w2) {
-	    tmpWidgets.insert(i, w1);
-	    widgets.remove(indexOf(row1, i));
-	    widgets.insert(indexOf(row1, i), w2);
-	    widgets.remove(indexOf(row2, i));
-	    widgets.insert(indexOf(row2, i), tmpWidgets[ i ]);
-	}
+        w2 = cellWidget(row2, i);
+        if (w1 || w2) {
+            tmpWidgets.insert(i, w1);
+            widgets.remove(indexOf(row1, i));
+            widgets.insert(indexOf(row1, i), w2);
+            widgets.remove(indexOf(row2, i));
+            widgets.insert(indexOf(row2, i), tmpWidgets[ i ]);
+        }
     }
     contents.setAutoDelete(false);
     widgets.setAutoDelete(true);
@@ -2502,13 +2502,13 @@ void Q3Table::swapRows(int row1, int row2, bool swapHeader)
     updateRowWidgets(row1);
     updateRowWidgets(row2);
     if (curRow == row1)
-	curRow = row2;
+        curRow = row2;
     else if (curRow == row2)
-	curRow = row1;
+        curRow = row1;
     if (editRow == row1)
-	editRow = row2;
+        editRow = row2;
     else if (editRow == row2)
-	editRow = row1;
+        editRow = row1;
 }
 
 /*!
@@ -2527,9 +2527,9 @@ void Q3Table::swapRows(int row1, int row2, bool swapHeader)
 void Q3Table::setLeftMargin(int m)
 {
     if (QApplication::reverseLayout())
-	setMargins(leftMargin(), topMargin(), m, bottomMargin());
+        setMargins(leftMargin(), topMargin(), m, bottomMargin());
     else
-	setMargins(m, topMargin(), rightMargin(), bottomMargin());
+        setMargins(m, topMargin(), rightMargin(), bottomMargin());
     updateGeometries();
 }
 
@@ -2568,7 +2568,7 @@ void Q3Table::setTopMargin(int m)
 void Q3Table::swapColumns(int col1, int col2, bool swapHeader)
 {
     if (swapHeader)
-	topHeader->swapSections(col1, col2, false);
+        topHeader->swapSections(col1, col2, false);
 
     Q3PtrVector<Q3TableItem> tmpContents;
     tmpContents.resize(numRows());
@@ -2579,31 +2579,31 @@ void Q3Table::swapColumns(int col1, int col2, bool swapHeader)
     contents.setAutoDelete(false);
     widgets.setAutoDelete(false);
     for (i = 0; i < numRows(); ++i) {
-	Q3TableItem *i1, *i2;
-	i1 = item(i, col1);
-	i2 = item(i, col2);
-	if (i1 || i2) {
-	    tmpContents.insert(i, i1);
-	    contents.remove(indexOf(i, col1));
-	    contents.insert(indexOf(i, col1), i2);
-	    contents.remove(indexOf(i, col2));
-	    contents.insert(indexOf(i, col2), tmpContents[ i ]);
-	    if (contents[ indexOf(i, col1) ])
-		contents[ indexOf(i, col1) ]->setCol(col1);
-	    if (contents[ indexOf(i, col2) ])
-		contents[ indexOf(i, col2) ]->setCol(col2);
-	}
+        Q3TableItem *i1, *i2;
+        i1 = item(i, col1);
+        i2 = item(i, col2);
+        if (i1 || i2) {
+            tmpContents.insert(i, i1);
+            contents.remove(indexOf(i, col1));
+            contents.insert(indexOf(i, col1), i2);
+            contents.remove(indexOf(i, col2));
+            contents.insert(indexOf(i, col2), tmpContents[ i ]);
+            if (contents[ indexOf(i, col1) ])
+                contents[ indexOf(i, col1) ]->setCol(col1);
+            if (contents[ indexOf(i, col2) ])
+                contents[ indexOf(i, col2) ]->setCol(col2);
+        }
 
-	QWidget *w1, *w2;
-	w1 = cellWidget(i, col1);
-	w2 = cellWidget(i, col2);
-	if (w1 || w2) {
-	    tmpWidgets.insert(i, w1);
-	    widgets.remove(indexOf(i, col1));
-	    widgets.insert(indexOf(i, col1), w2);
-	    widgets.remove(indexOf(i, col2));
-	    widgets.insert(indexOf(i, col2), tmpWidgets[ i ]);
-	}
+        QWidget *w1, *w2;
+        w1 = cellWidget(i, col1);
+        w2 = cellWidget(i, col2);
+        if (w1 || w2) {
+            tmpWidgets.insert(i, w1);
+            widgets.remove(indexOf(i, col1));
+            widgets.insert(indexOf(i, col1), w2);
+            widgets.remove(indexOf(i, col2));
+            widgets.insert(indexOf(i, col2), tmpWidgets[ i ]);
+        }
     }
     contents.setAutoDelete(false);
     widgets.setAutoDelete(true);
@@ -2611,13 +2611,13 @@ void Q3Table::swapColumns(int col1, int col2, bool swapHeader)
     columnWidthChanged(col1);
     columnWidthChanged(col2);
     if (curCol == col1)
-	curCol = col2;
+        curCol = col2;
     else if (curCol == col2)
-	curCol = col1;
+        curCol = col1;
     if (editCol == col1)
-	editCol = col2;
+        editCol = col2;
     else if (editCol == col2)
-	editCol = col1;
+        editCol = col1;
 }
 
 /*!
@@ -2641,30 +2641,30 @@ void Q3Table::swapCells(int row1, int col1, int row2, int col2)
     i1 = item(row1, col1);
     i2 = item(row2, col2);
     if (i1 || i2) {
-	Q3TableItem *tmp = i1;
-	contents.remove(indexOf(row1, col1));
-	contents.insert(indexOf(row1, col1), i2);
-	contents.remove(indexOf(row2, col2));
-	contents.insert(indexOf(row2, col2), tmp);
-	if (contents[ indexOf(row1, col1) ]) {
-	    contents[ indexOf(row1, col1) ]->setRow(row1);
-	    contents[ indexOf(row1, col1) ]->setCol(col1);
-	}
-	if (contents[ indexOf(row2, col2) ]) {
-	    contents[ indexOf(row2, col2) ]->setRow(row2);
-	    contents[ indexOf(row2, col2) ]->setCol(col2);
-	}
+        Q3TableItem *tmp = i1;
+        contents.remove(indexOf(row1, col1));
+        contents.insert(indexOf(row1, col1), i2);
+        contents.remove(indexOf(row2, col2));
+        contents.insert(indexOf(row2, col2), tmp);
+        if (contents[ indexOf(row1, col1) ]) {
+            contents[ indexOf(row1, col1) ]->setRow(row1);
+            contents[ indexOf(row1, col1) ]->setCol(col1);
+        }
+        if (contents[ indexOf(row2, col2) ]) {
+            contents[ indexOf(row2, col2) ]->setRow(row2);
+            contents[ indexOf(row2, col2) ]->setCol(col2);
+        }
     }
 
     QWidget *w1, *w2;
     w1 = cellWidget(row1, col1);
     w2 = cellWidget(row2, col2);
     if (w1 || w2) {
-	QWidget *tmp = w1;
-	widgets.remove(indexOf(row1, col1));
-	widgets.insert(indexOf(row1, col1), w2);
-	widgets.remove(indexOf(row2, col2));
-	widgets.insert(indexOf(row2, col2), tmp);
+        QWidget *tmp = w1;
+        widgets.remove(indexOf(row1, col1));
+        widgets.insert(indexOf(row1, col1), w2);
+        widgets.remove(indexOf(row2, col2));
+        widgets.insert(indexOf(row2, col2), tmp);
     }
 
     updateRowWidgets(row1);
@@ -2678,9 +2678,9 @@ void Q3Table::swapCells(int row1, int col1, int row2, int col2)
 static bool is_child_of(QWidget *child, QWidget *parent)
 {
     while (child) {
-	if (child == parent)
-	    return true;
-	child = child->parentWidget();
+        if (child == parent)
+            return true;
+        child = child->parentWidget();
     }
     return false;
 }
@@ -2719,7 +2719,7 @@ void Q3Table::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
     Q3PtrListIterator<Q3TableSelection> it( selections );
     Q3TableSelection *s;
     while ( ( s = it.current() ) != 0 ) {
-	++it;
+        ++it;
         if (s->isActive() &&
              curRow >= s->topRow() &&
              curRow <= s->bottomRow() &&
@@ -2833,10 +2833,10 @@ QRect Q3Table::cellRect(int row, int col) const
 */
 
 void Q3Table::paintCell(QPainter* p, int row, int col,
-			const QRect &cr, bool selected)
+                        const QRect &cr, bool selected)
 {
     if (cr.width() == 0 || cr.height() == 0)
-	return;
+        return;
 #if defined(Q_WS_WIN)
     const QColorGroup &cg = (!drawActiveSelection && style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus) ? palette().inactive() : colorGroup());
 #else
@@ -2846,7 +2846,7 @@ void Q3Table::paintCell(QPainter* p, int row, int col,
     Q3TableItem *itm = item(row, col);
     QColorGroup cg2(cg);
     if (itm && !itm->isEnabled())
-	cg2 = palette().disabled();
+        cg2 = palette().disabled();
 
     paintCell(p, row, col, cr, selected, cg2);
 }
@@ -2885,7 +2885,7 @@ void Q3Table::paintCell(QPainter* p, int row, int col,
 */
 
 void Q3Table::paintCell(QPainter *p, int row, int col,
-			const QRect &cr, bool selected, const QColorGroup &cg)
+                        const QRect &cr, bool selected, const QColorGroup &cg)
 {
     if (focusStl == SpreadSheet && selected &&
          row == curRow &&
@@ -2911,7 +2911,7 @@ void Q3Table::paintCell(QPainter *p, int row, int col,
     if (sGrid) {
         // Draw our lines
         QPen pen(p->pen());
-        int gridColor =	style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
+        int gridColor =        style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
         if (gridColor != -1) {
             if (palette() != pal)
                 p->setPen(pal.mid().color());
@@ -2984,12 +2984,12 @@ void Q3Table::paintEmptyArea(QPainter *p, int cx, int cy, int cw, int ch)
     QRegion reg(QRect(cx, cy, cw, ch));
 
     // Subtract the table from it
-    reg = reg.subtract(QRect(QPoint(0, 0), ts));
+    reg = reg.subtracted(QRect(QPoint(0, 0), ts));
 
     // And draw the rectangles (transformed inc contents coordinates as needed)
     Q3MemArray<QRect> r = reg.rects();
     for (int i = 0; i < (int)r.count(); ++i)
-	p->fillRect(QRect(viewportToContents2(r[i].topLeft()),r[i].size()), viewport()->backgroundBrush());
+        p->fillRect(QRect(viewportToContents2(r[i].topLeft()),r[i].size()), viewport()->backgroundBrush());
 }
 
 /*!
@@ -3008,10 +3008,10 @@ void Q3Table::paintEmptyArea(QPainter *p, int cx, int cy, int cw, int ch)
 Q3TableItem *Q3Table::item(int row, int col) const
 {
     if (row < 0 || col < 0 || row > numRows() - 1 ||
-	 col > numCols() - 1 || row * col >= (int)contents.size())
-	return 0;
+         col > numCols() - 1 || row * col >= (int)contents.size())
+        return 0;
 
-    return contents[ indexOf(row, col) ];	// contents array lookup
+    return contents[ indexOf(row, col) ];        // contents array lookup
 }
 
 /*!
@@ -3029,10 +3029,10 @@ Q3TableItem *Q3Table::item(int row, int col) const
 void Q3Table::setItem(int row, int col, Q3TableItem *item)
 {
     if (!item)
-	return;
+        return;
 
     if ((int)contents.size() != numRows() * numCols())
-	resizeData(numRows() * numCols());
+        resizeData(numRows() * numCols());
 
     int orow = item->row();
     int ocol = item->col();
@@ -3044,11 +3044,11 @@ void Q3Table::setItem(int row, int col, Q3TableItem *item)
     item->t = this;
     updateCell(row, col);
     if (qt_update_cell_widget)
-	item->updateEditor(orow, ocol);
+        item->updateEditor(orow, ocol);
 
     if (row == curRow && col == curCol && item->editType() == Q3TableItem::WhenCurrent) {
-	if (beginEdit(row, col, false))
-	    setEditMode(Editing, row, col);
+        if (beginEdit(row, col, false))
+            setEditMode(Editing, row, col);
     }
 }
 
@@ -3062,7 +3062,7 @@ void Q3Table::setItem(int row, int col, Q3TableItem *item)
 void Q3Table::clearCell(int row, int col)
 {
     if ((int)contents.size() != numRows() * numCols())
-	resizeData(numRows() * numCols());
+        resizeData(numRows() * numCols());
     clearCellWidget(row, col);
     contents.setAutoDelete(true);
     contents.remove(indexOf(row, col));
@@ -3084,13 +3084,13 @@ void Q3Table::setText(int row, int col, const QString &text)
 {
     Q3TableItem *itm = item(row, col);
     if (itm) {
-	itm->setText(text);
-	itm->updateEditor(row, col);
-	updateCell(row, col);
+        itm->setText(text);
+        itm->updateEditor(row, col);
+        updateCell(row, col);
     } else {
-	Q3TableItem *i = new Q3TableItem(this, Q3TableItem::OnTyping,
-					text, QPixmap());
-	setItem(row, col, i);
+        Q3TableItem *i = new Q3TableItem(this, Q3TableItem::OnTyping,
+                                        text, QPixmap());
+        setItem(row, col, i);
     }
 }
 
@@ -3112,12 +3112,12 @@ void Q3Table::setPixmap(int row, int col, const QPixmap &pix)
 {
     Q3TableItem *itm = item(row, col);
     if (itm) {
-	itm->setPixmap(pix);
-	updateCell(row, col);
+        itm->setPixmap(pix);
+        updateCell(row, col);
     } else {
-	Q3TableItem *i = new Q3TableItem(this, Q3TableItem::OnTyping,
-					QString(), pix);
-	setItem(row, col, i);
+        Q3TableItem *i = new Q3TableItem(this, Q3TableItem::OnTyping,
+                                        QString(), pix);
+        setItem(row, col, i);
     }
 }
 
@@ -3132,7 +3132,7 @@ QString Q3Table::text(int row, int col) const
 {
     Q3TableItem *itm = item(row, col);
     if (itm)
-	return itm->text();
+        return itm->text();
     return QString();
 }
 
@@ -3147,7 +3147,7 @@ QPixmap Q3Table::pixmap(int row, int col) const
 {
     Q3TableItem *itm = item(row, col);
     if (itm)
-	return itm->pixmap();
+        return itm->pixmap();
     return QPixmap();
 }
 
@@ -3189,17 +3189,17 @@ void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensur
     Q3TableItem *oldItem = item(curRow, curCol);
 
     if (row > numRows() - 1)
-	row = numRows() - 1;
+        row = numRows() - 1;
     if (col > numCols() - 1)
-	col = numCols() - 1;
+        col = numCols() - 1;
 
     if (curRow == row && curCol == col)
-	return;
+        return;
 
 
     Q3TableItem *itm = oldItem;
     if (itm && itm->editType() != Q3TableItem::Always && itm->editType() != Q3TableItem::Never)
-	endEdit(curRow, curCol, true, false);
+        endEdit(curRow, curCol, true, false);
     int oldRow = curRow;
     int oldCol = curCol;
     curRow = row;
@@ -3211,45 +3211,45 @@ void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensur
     emit currentChanged(row, col);
 
     if (oldCol != curCol) {
-	if (!isColumnSelected(oldCol))
-	    topHeader->setSectionState(oldCol, Q3TableHeader::Normal);
-	else if (isRowSelection(selectionMode()))
-	    topHeader->setSectionState(oldCol, Q3TableHeader::Selected);
-	topHeader->setSectionState(curCol, isColumnSelected(curCol, true) ?
-				    Q3TableHeader::Selected : Q3TableHeader::Bold);
+        if (!isColumnSelected(oldCol))
+            topHeader->setSectionState(oldCol, Q3TableHeader::Normal);
+        else if (isRowSelection(selectionMode()))
+            topHeader->setSectionState(oldCol, Q3TableHeader::Selected);
+        topHeader->setSectionState(curCol, isColumnSelected(curCol, true) ?
+                                    Q3TableHeader::Selected : Q3TableHeader::Bold);
     }
 
     if (oldRow != curRow) {
-	if (!isRowSelected(oldRow))
-	    leftHeader->setSectionState(oldRow, Q3TableHeader::Normal);
-	leftHeader->setSectionState(curRow, isRowSelected(curRow, true) ?
-				     Q3TableHeader::Selected : Q3TableHeader::Bold);
+        if (!isRowSelected(oldRow))
+            leftHeader->setSectionState(oldRow, Q3TableHeader::Normal);
+        leftHeader->setSectionState(curRow, isRowSelected(curRow, true) ?
+                                     Q3TableHeader::Selected : Q3TableHeader::Bold);
     }
 
     itm = item(curRow, curCol);
 
 
     if (cellWidget(oldRow, oldCol) &&
-	 cellWidget(oldRow, oldCol)->hasFocus())
-	viewport()->setFocus();
+         cellWidget(oldRow, oldCol)->hasFocus())
+        viewport()->setFocus();
 
     if (itm && itm->editType() == Q3TableItem::WhenCurrent) {
-	if (beginEdit(curRow, curCol, false))
-	    setEditMode(Editing, row, col);
+        if (beginEdit(curRow, curCol, false))
+            setEditMode(Editing, row, col);
     } else if (itm && itm->editType() == Q3TableItem::Always) {
-	if (cellWidget(itm->row(), itm->col()))
-	    cellWidget(itm->row(), itm->col())->setFocus();
+        if (cellWidget(itm->row(), itm->col()))
+            cellWidget(itm->row(), itm->col())->setFocus();
     }
 
     if (updateSelections && isRowSelection(selectionMode()) &&
-	 !isSelected(curRow, curCol, false)) {
-	if (selectionMode() == Q3Table::SingleRow)
-	    clearSelection();
-	currentSel = new Q3TableSelection();
-	selections.append(currentSel);
-	currentSel->init(curRow, 0);
-	currentSel->expandTo(curRow, numCols() - 1);
-	repaintSelections(0, currentSel);
+         !isSelected(curRow, curCol, false)) {
+        if (selectionMode() == Q3Table::SingleRow)
+            clearSelection();
+        currentSel = new Q3TableSelection();
+        selections.append(currentSel);
+        currentSel->init(curRow, 0);
+        currentSel->expandTo(curRow, numCols() - 1);
+        repaintSelections(0, currentSel);
     }
 }
 
@@ -3261,13 +3261,13 @@ void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensur
 void Q3Table::ensureCellVisible(int row, int col)
 {
     if (!updatesEnabled() || !viewport()->updatesEnabled())
-	return;
+        return;
     int cw = columnWidth(col);
     int rh = rowHeight(row);
     if (cw < visibleWidth())
-	ensureVisible(columnPos(col) + cw / 2, rowPos(row) + rh / 2, cw / 2, rh / 2);
+        ensureVisible(columnPos(col) + cw / 2, rowPos(row) + rh / 2, cw / 2, rh / 2);
     else
-	ensureVisible(columnPos(col), rowPos(row) + rh / 2, 0, rh / 2);
+        ensureVisible(columnPos(col), rowPos(row) + rh / 2, 0, rh / 2);
 }
 
 /*!
@@ -3289,15 +3289,15 @@ bool Q3Table::isSelected(int row, int col, bool includeCurrent) const
     Q3PtrListIterator<Q3TableSelection> it(selections);
     Q3TableSelection *s;
     while ((s = it.current()) != 0) {
-	++it;
-	if (s->isActive() &&
-	     row >= s->topRow() &&
-	     row <= s->bottomRow() &&
-	     col >= s->leftCol() &&
-	     col <= s->rightCol())
-	    return true;
-	if (includeCurrent && row == currentRow() && col == currentColumn())
-	    return true;
+        ++it;
+        if (s->isActive() &&
+             row >= s->topRow() &&
+             row <= s->bottomRow() &&
+             col >= s->leftCol() &&
+             col <= s->rightCol())
+            return true;
+        if (includeCurrent && row == currentRow() && col == currentColumn())
+            return true;
     }
     return false;
 }
@@ -3315,29 +3315,29 @@ bool Q3Table::isSelected(int row, int col, bool includeCurrent) const
 bool Q3Table::isRowSelected(int row, bool full) const
 {
     if (!full) {
-	Q3PtrListIterator<Q3TableSelection> it(selections);
-	Q3TableSelection *s;
-	while ((s = it.current()) != 0) {
-	    ++it;
-	    if (s->isActive() &&
-		 row >= s->topRow() &&
-		 row <= s->bottomRow())
-	    return true;
-	if (row == currentRow())
-	    return true;
-	}
+        Q3PtrListIterator<Q3TableSelection> it(selections);
+        Q3TableSelection *s;
+        while ((s = it.current()) != 0) {
+            ++it;
+            if (s->isActive() &&
+                 row >= s->topRow() &&
+                 row <= s->bottomRow())
+            return true;
+        if (row == currentRow())
+            return true;
+        }
     } else {
-	Q3PtrListIterator<Q3TableSelection> it(selections);
-	Q3TableSelection *s;
-	while ((s = it.current()) != 0) {
-	    ++it;
-	    if (s->isActive() &&
-		 row >= s->topRow() &&
-		 row <= s->bottomRow() &&
-		 s->leftCol() == 0 &&
-		 s->rightCol() == numCols() - 1)
-		return true;
-	}
+        Q3PtrListIterator<Q3TableSelection> it(selections);
+        Q3TableSelection *s;
+        while ((s = it.current()) != 0) {
+            ++it;
+            if (s->isActive() &&
+                 row >= s->topRow() &&
+                 row <= s->bottomRow() &&
+                 s->leftCol() == 0 &&
+                 s->rightCol() == numCols() - 1)
+                return true;
+        }
     }
     return false;
 }
@@ -3356,29 +3356,29 @@ bool Q3Table::isRowSelected(int row, bool full) const
 bool Q3Table::isColumnSelected(int col, bool full) const
 {
     if (!full) {
-	Q3PtrListIterator<Q3TableSelection> it(selections);
-	Q3TableSelection *s;
-	while ((s = it.current()) != 0) {
-	    ++it;
-	    if (s->isActive() &&
-		 col >= s->leftCol() &&
-		 col <= s->rightCol())
-	    return true;
-	if (col == currentColumn())
-	    return true;
-	}
+        Q3PtrListIterator<Q3TableSelection> it(selections);
+        Q3TableSelection *s;
+        while ((s = it.current()) != 0) {
+            ++it;
+            if (s->isActive() &&
+                 col >= s->leftCol() &&
+                 col <= s->rightCol())
+            return true;
+        if (col == currentColumn())
+            return true;
+        }
     } else {
-	Q3PtrListIterator<Q3TableSelection> it(selections);
-	Q3TableSelection *s;
-	while ((s = it.current()) != 0) {
-	    ++it;
-	    if (s->isActive() &&
-		 col >= s->leftCol() &&
-		 col <= s->rightCol() &&
-		 s->topRow() == 0 &&
-		 s->bottomRow() == numRows() - 1)
-		return true;
-	}
+        Q3PtrListIterator<Q3TableSelection> it(selections);
+        Q3TableSelection *s;
+        while ((s = it.current()) != 0) {
+            ++it;
+            if (s->isActive() &&
+                 col >= s->leftCol() &&
+                 col <= s->rightCol() &&
+                 s->topRow() == 0 &&
+                 s->bottomRow() == numRows() - 1)
+                return true;
+        }
     }
     return false;
 }
@@ -3403,7 +3403,7 @@ int Q3Table::numSelections() const
 Q3TableSelection Q3Table::selection(int num) const
 {
     if (num < 0 || num >= (int)selections.count())
-	return Q3TableSelection();
+        return Q3TableSelection();
 
     Q3TableSelection *s = ((Q3Table*)this)->selections.at(num);
     return *s;
@@ -3424,12 +3424,12 @@ Q3TableSelection Q3Table::selection(int num) const
 int Q3Table::addSelection(const Q3TableSelection &s)
 {
     if (!s.isActive())
-	return -1;
+        return -1;
 
     const int maxr = numRows()-1;
     const int maxc = numCols()-1;
     currentSel = new Q3TableSelection(QMIN(s.anchorRow(), maxr), QMIN(s.anchorCol(), maxc),
-				    QMIN(s.bottomRow(), maxr), QMIN(s.rightCol(), maxc));
+                                    QMIN(s.bottomRow(), maxr), QMIN(s.rightCol(), maxc));
 
     selections.append(currentSel);
 
@@ -3451,13 +3451,13 @@ void Q3Table::removeSelection(const Q3TableSelection &s)
 {
     selections.setAutoDelete(false);
     for (Q3TableSelection *sel = selections.first(); sel; sel = selections.next()) {
-	if (s == *sel) {
-	    selections.removeRef(sel);
-	    repaintSelections(sel, 0, true, true);
-	    if (sel == currentSel)
-		currentSel = 0;
-	    delete sel;
-	}
+        if (s == *sel) {
+            selections.removeRef(sel);
+            repaintSelections(sel, 0, true, true);
+            if (sel == currentSel)
+                currentSel = 0;
+            delete sel;
+        }
     }
     selections.setAutoDelete(true);
     emit selectionChanged();
@@ -3474,11 +3474,11 @@ void Q3Table::removeSelection(const Q3TableSelection &s)
 void Q3Table::removeSelection(int num)
 {
     if (num < 0 || num >= (int)selections.count())
-	return;
+        return;
 
     Q3TableSelection *s = selections.at(num);
     if (s == currentSel)
-	currentSel = 0;
+        currentSel = 0;
     selections.removeRef(s);
     repaintContents(false);
 }
@@ -3493,7 +3493,7 @@ void Q3Table::removeSelection(int num)
 int Q3Table::currentSelection() const
 {
     if (!currentSel)
-	return -1;
+        return -1;
     return ((Q3Table*)this)->selections.findRef(currentSel);
 }
 
@@ -3525,7 +3525,7 @@ void Q3Table::selectRow(int row)
 {
     row = QMIN(numRows()-1, row);
     if (row < 0)
-	return;
+        return;
     if (selectionMode() == SingleRow) {
         setCurrentCell(row, currentColumn());
     } else {
@@ -3559,12 +3559,12 @@ void Q3Table::contentsMousePressEventEx(QMouseEvent* e)
 {
     shouldClearSelection = false;
     if (isEditing()) {
-	if (!cellGeometry(editRow, editCol).contains(e->pos())) {
-	    endEdit(editRow, editCol, true, edMode != Editing);
-	} else {
-	    e->ignore();
-	    return;
-	}
+        if (!cellGeometry(editRow, editCol).contains(e->pos())) {
+            endEdit(editRow, editCol, true, edMode != Editing);
+        } else {
+            e->ignore();
+            return;
+        }
     }
 
     d->redirectMouseEvent = false;
@@ -3579,92 +3579,92 @@ void Q3Table::contentsMousePressEventEx(QMouseEvent* e)
     startDragRow = -1;
 
     if (isSelected(tmpRow, tmpCol)) {
-	startDragCol = tmpCol;
-	startDragRow = tmpRow;
-	dragStartPos = e->pos();
+        startDragCol = tmpCol;
+        startDragRow = tmpRow;
+        dragStartPos = e->pos();
     }
 
     Q3TableItem *itm = item(pressedRow, pressedCol);
     if (itm && !itm->isEnabled()) {
-	emit pressed(tmpRow, tmpCol, e->button(), e->pos());
-	return;
+        emit pressed(tmpRow, tmpCol, e->button(), e->pos());
+        return;
     }
 
     if ((e->state() & ShiftButton) == ShiftButton) {
-  	int oldRow = curRow;
-  	int oldCol = curCol;
-	setCurrentCell(tmpRow, tmpCol, selMode == SingleRow, true);
-	if (selMode != NoSelection && selMode != SingleRow) {
-	    if (!currentSel) {
-		currentSel = new Q3TableSelection();
-		selections.append(currentSel);
-		if (!isRowSelection(selectionMode()))
-		    currentSel->init(oldRow, oldCol);
-		else
-		    currentSel->init(oldRow, 0);
-	    }
-	    Q3TableSelection oldSelection = *currentSel;
-	    if (!isRowSelection(selectionMode()))
-		currentSel->expandTo(tmpRow, tmpCol);
-	    else
-		currentSel->expandTo(tmpRow, numCols() - 1);
-	    repaintSelections(&oldSelection, currentSel);
-	    emit selectionChanged();
-	}
+          int oldRow = curRow;
+          int oldCol = curCol;
+        setCurrentCell(tmpRow, tmpCol, selMode == SingleRow, true);
+        if (selMode != NoSelection && selMode != SingleRow) {
+            if (!currentSel) {
+                currentSel = new Q3TableSelection();
+                selections.append(currentSel);
+                if (!isRowSelection(selectionMode()))
+                    currentSel->init(oldRow, oldCol);
+                else
+                    currentSel->init(oldRow, 0);
+            }
+            Q3TableSelection oldSelection = *currentSel;
+            if (!isRowSelection(selectionMode()))
+                currentSel->expandTo(tmpRow, tmpCol);
+            else
+                currentSel->expandTo(tmpRow, numCols() - 1);
+            repaintSelections(&oldSelection, currentSel);
+            emit selectionChanged();
+        }
     } else if ((e->state() & ControlButton) == ControlButton) {
-	setCurrentCell(tmpRow, tmpCol, false, true);
-	if (selMode != NoSelection) {
-	    if (selMode == Single || selMode == SingleRow && !isSelected(tmpRow, tmpCol, false))
-		clearSelection();
-	    if (!(selMode == SingleRow && isSelected(tmpRow, tmpCol, false))) {
-		currentSel = new Q3TableSelection();
-		selections.append(currentSel);
-		if (!isRowSelection(selectionMode())) {
-		    currentSel->init(tmpRow, tmpCol);
-		    currentSel->expandTo(tmpRow, tmpCol);
-		} else {
-		    currentSel->init(tmpRow, 0);
-		    currentSel->expandTo(tmpRow, numCols() - 1);
-		    repaintSelections(0, currentSel);
-		}
-		emit selectionChanged();
-	    }
-	}
+        setCurrentCell(tmpRow, tmpCol, false, true);
+        if (selMode != NoSelection) {
+            if (selMode == Single || selMode == SingleRow && !isSelected(tmpRow, tmpCol, false))
+                clearSelection();
+            if (!(selMode == SingleRow && isSelected(tmpRow, tmpCol, false))) {
+                currentSel = new Q3TableSelection();
+                selections.append(currentSel);
+                if (!isRowSelection(selectionMode())) {
+                    currentSel->init(tmpRow, tmpCol);
+                    currentSel->expandTo(tmpRow, tmpCol);
+                } else {
+                    currentSel->init(tmpRow, 0);
+                    currentSel->expandTo(tmpRow, numCols() - 1);
+                    repaintSelections(0, currentSel);
+                }
+                emit selectionChanged();
+            }
+        }
     } else {
-	setCurrentCell(tmpRow, tmpCol, false, true);
-	Q3TableItem *itm = item(tmpRow, tmpCol);
-	if (itm && itm->editType() == Q3TableItem::WhenCurrent) {
-	    QWidget *w = cellWidget(tmpRow, tmpCol);
-	    if (::qobject_cast<QComboBox*>(w) || ::qobject_cast<QAbstractButton*>(w)) {
-		QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
-				e->globalPos(), e->button(), e->state());
-		QApplication::sendPostedEvents(w, 0);
-		QApplication::sendEvent(w, &ev);
-		d->redirectMouseEvent = true;
-	    }
-	}
-	if (isSelected(tmpRow, tmpCol, false)) {
-	    shouldClearSelection = true;
-	} else {
-	    bool b = signalsBlocked();
-	    if (selMode != NoSelection)
-		blockSignals(true);
-	    clearSelection();
-	    blockSignals(b);
-	    if (selMode != NoSelection) {
-		currentSel = new Q3TableSelection();
-		selections.append(currentSel);
-		if (!isRowSelection(selectionMode())) {
-		    currentSel->init(tmpRow, tmpCol);
-		    currentSel->expandTo(tmpRow, tmpCol);
-		} else {
-		    currentSel->init(tmpRow, 0);
-		    currentSel->expandTo(tmpRow, numCols() - 1);
-		    repaintSelections(0, currentSel);
-		}
-		emit selectionChanged();
-	    }
-	}
+        setCurrentCell(tmpRow, tmpCol, false, true);
+        Q3TableItem *itm = item(tmpRow, tmpCol);
+        if (itm && itm->editType() == Q3TableItem::WhenCurrent) {
+            QWidget *w = cellWidget(tmpRow, tmpCol);
+            if (::qobject_cast<QComboBox*>(w) || ::qobject_cast<QAbstractButton*>(w)) {
+                QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
+                                e->globalPos(), e->button(), e->state());
+                QApplication::sendPostedEvents(w, 0);
+                QApplication::sendEvent(w, &ev);
+                d->redirectMouseEvent = true;
+            }
+        }
+        if (isSelected(tmpRow, tmpCol, false)) {
+            shouldClearSelection = true;
+        } else {
+            bool b = signalsBlocked();
+            if (selMode != NoSelection)
+                blockSignals(true);
+            clearSelection();
+            blockSignals(b);
+            if (selMode != NoSelection) {
+                currentSel = new Q3TableSelection();
+                selections.append(currentSel);
+                if (!isRowSelection(selectionMode())) {
+                    currentSel->init(tmpRow, tmpCol);
+                    currentSel->expandTo(tmpRow, tmpCol);
+                } else {
+                    currentSel->init(tmpRow, 0);
+                    currentSel->expandTo(tmpRow, numCols() - 1);
+                    repaintSelections(0, currentSel);
+                }
+                emit selectionChanged();
+            }
+        }
     }
 
     emit pressed(tmpRow, tmpCol, e->button(), e->pos());
@@ -3676,17 +3676,17 @@ void Q3Table::contentsMousePressEventEx(QMouseEvent* e)
 void Q3Table::contentsMouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
-	return;
+        return;
     if (!isRowSelection(selectionMode()))
-	clearSelection();
+        clearSelection();
     int tmpRow = rowAt(e->pos().y());
     int tmpCol = columnAt(e->pos().x());
     Q3TableItem *itm = item(tmpRow, tmpCol);
     if (itm && !itm->isEnabled())
-	return;
+        return;
     if (tmpRow != -1 && tmpCol != -1) {
-	if (beginEdit(tmpRow, tmpCol, false))
-	    setEditMode(Editing, tmpRow, tmpCol);
+        if (beginEdit(tmpRow, tmpCol, false))
+            setEditMode(Editing, tmpRow, tmpCol);
     }
 
     emit doubleClicked(tmpRow, tmpCol, e->button(), e->pos());
@@ -3713,7 +3713,7 @@ void Q3Table::setEditMode(EditMode mode, int row, int col)
 void Q3Table::contentsMouseMoveEvent(QMouseEvent *e)
 {
     if ((e->state() & MouseButtonMask) == NoButton)
-	return;
+        return;
     int tmpRow = rowAt(e->pos().y());
     int tmpCol = columnAt(e->pos().x());
     fixRow(tmpRow, e->pos().y());
@@ -3721,26 +3721,26 @@ void Q3Table::contentsMouseMoveEvent(QMouseEvent *e)
 
 #ifndef QT_NO_DRAGANDDROP
     if (dragEnabled() && startDragRow != -1 && startDragCol != -1) {
-	if (QPoint(dragStartPos - e->pos()).manhattanLength() > QApplication::startDragDistance())
-	    startDrag();
-	return;
+        if (QPoint(dragStartPos - e->pos()).manhattanLength() > QApplication::startDragDistance())
+            startDrag();
+        return;
     }
 #endif
     if (selectionMode() == MultiRow && (e->state() & ControlButton) == ControlButton)
-	shouldClearSelection = false;
+        shouldClearSelection = false;
 
     if (shouldClearSelection) {
-	clearSelection();
-	if (selMode != NoSelection) {
-	    currentSel = new Q3TableSelection();
-	    selections.append(currentSel);
-	    if (!isRowSelection(selectionMode()))
-		currentSel->init(tmpRow, tmpCol);
-	    else
-		currentSel->init(tmpRow, 0);
-	    emit selectionChanged();
-	}
-	shouldClearSelection = false;
+        clearSelection();
+        if (selMode != NoSelection) {
+            currentSel = new Q3TableSelection();
+            selections.append(currentSel);
+            if (!isRowSelection(selectionMode()))
+                currentSel->init(tmpRow, tmpCol);
+            else
+                currentSel->init(tmpRow, 0);
+            emit selectionChanged();
+        }
+        shouldClearSelection = false;
     }
 
     QPoint pos = mapFromGlobal(e->globalPos());
@@ -3748,7 +3748,7 @@ void Q3Table::contentsMouseMoveEvent(QMouseEvent *e)
     autoScrollTimer->stop();
     doAutoScroll();
     if (pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight())
-	autoScrollTimer->start(100, true);
+        autoScrollTimer->start(100, true);
 }
 
 /*! \internal
@@ -3771,64 +3771,64 @@ void Q3Table::doAutoScroll()
     int tmpRow = curRow;
     int tmpCol = curCol;
     if (pos.y() < 0)
-	tmpRow--;
+        tmpRow--;
     else if (pos.y() > visibleHeight())
-	tmpRow++;
+        tmpRow++;
     if (pos.x() < 0)
-	tmpCol--;
+        tmpCol--;
     else if (pos.x() > visibleWidth())
-	tmpCol++;
+        tmpCol++;
 
     pos += QPoint(contentsX(), contentsY());
     if (tmpRow == curRow)
-	tmpRow = rowAt(pos.y());
+        tmpRow = rowAt(pos.y());
     if (tmpCol == curCol)
-	tmpCol = columnAt(pos.x());
+        tmpCol = columnAt(pos.x());
     pos -= QPoint(contentsX(), contentsY());
 
     fixRow(tmpRow, pos.y());
     fixCol(tmpCol, pos.x());
 
     if (tmpRow < 0 || tmpRow > numRows() - 1)
-	tmpRow = currentRow();
+        tmpRow = currentRow();
     if (tmpCol < 0 || tmpCol > numCols() - 1)
-	tmpCol = currentColumn();
+        tmpCol = currentColumn();
 
     ensureCellVisible(tmpRow, tmpCol);
 
     if (currentSel && selMode != NoSelection) {
-	Q3TableSelection oldSelection = *currentSel;
-	bool useOld = true;
-	if (selMode != SingleRow) {
-	    if (!isRowSelection(selectionMode())) {
-		currentSel->expandTo(tmpRow, tmpCol);
-	    } else {
-		currentSel->expandTo(tmpRow, numCols() - 1);
-	    }
-	} else {
-	    bool currentInSelection = tmpRow == curRow && isSelected(tmpRow, tmpCol);
-	    if (!currentInSelection) {
-		useOld = false;
-		clearSelection();
-		currentSel = new Q3TableSelection();
-		selections.append(currentSel);
-		currentSel->init(tmpRow, 0);
-		currentSel->expandTo(tmpRow, numCols() - 1);
-		repaintSelections(0, currentSel);
-	    } else {
-		currentSel->expandTo(tmpRow, numCols() - 1);
-	    }
-	}
-	setCurrentCell(tmpRow, tmpCol, false, true);
-	repaintSelections(useOld ? &oldSelection : 0, currentSel);
-	if (currentSel && oldSelection != *currentSel)
-	    emit selectionChanged();
+        Q3TableSelection oldSelection = *currentSel;
+        bool useOld = true;
+        if (selMode != SingleRow) {
+            if (!isRowSelection(selectionMode())) {
+                currentSel->expandTo(tmpRow, tmpCol);
+            } else {
+                currentSel->expandTo(tmpRow, numCols() - 1);
+            }
+        } else {
+            bool currentInSelection = tmpRow == curRow && isSelected(tmpRow, tmpCol);
+            if (!currentInSelection) {
+                useOld = false;
+                clearSelection();
+                currentSel = new Q3TableSelection();
+                selections.append(currentSel);
+                currentSel->init(tmpRow, 0);
+                currentSel->expandTo(tmpRow, numCols() - 1);
+                repaintSelections(0, currentSel);
+            } else {
+                currentSel->expandTo(tmpRow, numCols() - 1);
+            }
+        }
+        setCurrentCell(tmpRow, tmpCol, false, true);
+        repaintSelections(useOld ? &oldSelection : 0, currentSel);
+        if (currentSel && oldSelection != *currentSel)
+            emit selectionChanged();
     } else {
-	setCurrentCell(tmpRow, tmpCol, false, true);
+        setCurrentCell(tmpRow, tmpCol, false, true);
     }
 
     if (pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight())
-	autoScrollTimer->start(100, true);
+        autoScrollTimer->start(100, true);
 }
 
 /*! \reimp
@@ -3837,42 +3837,42 @@ void Q3Table::doAutoScroll()
 void Q3Table::contentsMouseReleaseEvent(QMouseEvent *e)
 {
     if (pressedRow == curRow && pressedCol == curCol)
-	emit clicked(curRow, curCol, e->button(), e->pos());
+        emit clicked(curRow, curCol, e->button(), e->pos());
 
     if (e->button() != LeftButton)
-	return;
+        return;
     if (shouldClearSelection) {
-	int tmpRow = rowAt(e->pos().y());
-	int tmpCol = columnAt(e->pos().x());
-	fixRow(tmpRow, e->pos().y());
-	fixCol(tmpCol, e->pos().x());
-	clearSelection();
-	if (selMode != NoSelection) {
-	    currentSel = new Q3TableSelection();
-	    selections.append(currentSel);
-	    if (!isRowSelection(selectionMode())) {
-		currentSel->init(tmpRow, tmpCol);
-	    } else {
-		currentSel->init(tmpRow, 0);
-		currentSel->expandTo(tmpRow, numCols() - 1);
-		repaintSelections(0, currentSel);
-	    }
-	    emit selectionChanged();
-	}
-	shouldClearSelection = false;
+        int tmpRow = rowAt(e->pos().y());
+        int tmpCol = columnAt(e->pos().x());
+        fixRow(tmpRow, e->pos().y());
+        fixCol(tmpCol, e->pos().x());
+        clearSelection();
+        if (selMode != NoSelection) {
+            currentSel = new Q3TableSelection();
+            selections.append(currentSel);
+            if (!isRowSelection(selectionMode())) {
+                currentSel->init(tmpRow, tmpCol);
+            } else {
+                currentSel->init(tmpRow, 0);
+                currentSel->expandTo(tmpRow, numCols() - 1);
+                repaintSelections(0, currentSel);
+            }
+            emit selectionChanged();
+        }
+        shouldClearSelection = false;
     }
     autoScrollTimer->stop();
 
     if (d->redirectMouseEvent && pressedRow == curRow && pressedCol == curCol &&
-	 item(pressedRow, pressedCol) && item(pressedRow, pressedCol)->editType() ==
-	 Q3TableItem::WhenCurrent) {
-	QWidget *w = cellWidget(pressedRow, pressedCol);
-	if (w) {
-	    QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
-			    e->globalPos(), e->button(), e->state());
-	    QApplication::sendPostedEvents(w, 0);
-	    QApplication::sendEvent(w, &ev);
-	}
+         item(pressedRow, pressedCol) && item(pressedRow, pressedCol)->editType() ==
+         Q3TableItem::WhenCurrent) {
+        QWidget *w = cellWidget(pressedRow, pressedCol);
+        if (w) {
+            QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
+                            e->globalPos(), e->button(), e->state());
+            QApplication::sendPostedEvents(w, 0);
+            QApplication::sendEvent(w, &ev);
+        }
     }
 }
 
@@ -3883,16 +3883,16 @@ void Q3Table::contentsMouseReleaseEvent(QMouseEvent *e)
 void Q3Table::contentsContextMenuEvent(QContextMenuEvent *e)
 {
     if (!receivers(SIGNAL(contextMenuRequested(int,int,const QPoint&)))) {
-	e->ignore();
-	return;
+        e->ignore();
+        return;
     }
     if (e->reason() == QContextMenuEvent::Keyboard) {
-	QRect r = cellGeometry(curRow, curCol);
-	emit contextMenuRequested(curRow, curCol, viewport()->mapToGlobal(contentsToViewport(r.center())));
+        QRect r = cellGeometry(curRow, curCol);
+        emit contextMenuRequested(curRow, curCol, viewport()->mapToGlobal(contentsToViewport(r.center())));
     } else {
-	int tmpRow = rowAt(e->pos().y());
-	int tmpCol = columnAt(e->pos().x());
-	emit contextMenuRequested(tmpRow, tmpCol, e->globalPos());
+        int tmpRow = rowAt(e->pos().y());
+        int tmpCol = columnAt(e->pos().x());
+        emit contextMenuRequested(tmpRow, tmpCol, e->globalPos());
     }
 }
 
@@ -3904,110 +3904,110 @@ bool Q3Table::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::KeyPress: {
-	Q3TableItem *itm = item(curRow, curCol);
+        Q3TableItem *itm = item(curRow, curCol);
         QWidget *editorWidget = cellWidget(editRow, editCol);
 
-	if (isEditing() && editorWidget && o == editorWidget) {
-	    itm = item(editRow, editCol);
-	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if (ke->key() == Key_Escape) {
-		if (!itm || itm->editType() == Q3TableItem::OnTyping)
-		    endEdit(editRow, editCol, false, edMode != Editing);
-		return true;
-	    }
+        if (isEditing() && editorWidget && o == editorWidget) {
+            itm = item(editRow, editCol);
+            QKeyEvent *ke = (QKeyEvent*)e;
+            if (ke->key() == Key_Escape) {
+                if (!itm || itm->editType() == Q3TableItem::OnTyping)
+                    endEdit(editRow, editCol, false, edMode != Editing);
+                return true;
+            }
 
-	    if ((ke->state() == NoButton || ke->state() == Keypad)
-		&& (ke->key() == Key_Return || ke->key() == Key_Enter)) {
-		if (!itm || itm->editType() == Q3TableItem::OnTyping)
-		    endEdit(editRow, editCol, true, edMode != Editing);
-		activateNextCell();
-		return true;
-	    }
+            if ((ke->state() == NoButton || ke->state() == Keypad)
+                && (ke->key() == Key_Return || ke->key() == Key_Enter)) {
+                if (!itm || itm->editType() == Q3TableItem::OnTyping)
+                    endEdit(editRow, editCol, true, edMode != Editing);
+                activateNextCell();
+                return true;
+            }
 
-	    if (ke->key() == Key_Tab || ke->key() == Key_BackTab) {
-		if (ke->state() & Qt::ControlButton)
-		    return false;
-		if (!itm || itm->editType() == Q3TableItem::OnTyping)
-		    endEdit(editRow, editCol, true, edMode != Editing);
-		if ((ke->key() == Key_Tab) && !(ke->state() & ShiftButton)) {
-		    if (currentColumn() >= numCols() - 1)
-			return true;
-		    int cc  = QMIN(numCols() - 1, currentColumn() + 1);
-		    while (cc < numCols()) {
-			Q3TableItem *i = item(currentRow(), cc);
-			if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
-			    break;
-			++cc;
-		    }
-		    setCurrentCell(currentRow(), cc);
-		} else { // Key_BackTab
-		    if (currentColumn() == 0)
-			return true;
-		    int cc  = QMAX(0, currentColumn() - 1);
-		    while (cc >= 0) {
-			Q3TableItem *i = item(currentRow(), cc);
-			if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
-			    break;
-			--cc;
-		    }
-		    setCurrentCell(currentRow(), cc);
-		}
-		itm = item(curRow, curCol);
-		if (beginEdit(curRow, curCol, false))
-		    setEditMode(Editing, curRow, curCol);
-		return true;
-	    }
+            if (ke->key() == Key_Tab || ke->key() == Key_BackTab) {
+                if (ke->state() & Qt::ControlButton)
+                    return false;
+                if (!itm || itm->editType() == Q3TableItem::OnTyping)
+                    endEdit(editRow, editCol, true, edMode != Editing);
+                if ((ke->key() == Key_Tab) && !(ke->state() & ShiftButton)) {
+                    if (currentColumn() >= numCols() - 1)
+                        return true;
+                    int cc  = QMIN(numCols() - 1, currentColumn() + 1);
+                    while (cc < numCols()) {
+                        Q3TableItem *i = item(currentRow(), cc);
+                        if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                            break;
+                        ++cc;
+                    }
+                    setCurrentCell(currentRow(), cc);
+                } else { // Key_BackTab
+                    if (currentColumn() == 0)
+                        return true;
+                    int cc  = QMAX(0, currentColumn() - 1);
+                    while (cc >= 0) {
+                        Q3TableItem *i = item(currentRow(), cc);
+                        if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                            break;
+                        --cc;
+                    }
+                    setCurrentCell(currentRow(), cc);
+                }
+                itm = item(curRow, curCol);
+                if (beginEdit(curRow, curCol, false))
+                    setEditMode(Editing, curRow, curCol);
+                return true;
+            }
 
-	    if ((edMode == Replacing ||
-		   itm && itm->editType() == Q3TableItem::WhenCurrent) &&
-		 (ke->key() == Key_Up || ke->key() == Key_Prior ||
-		   ke->key() == Key_Home || ke->key() == Key_Down ||
-		   ke->key() == Key_Next || ke->key() == Key_End ||
-		   ke->key() == Key_Left || ke->key() == Key_Right)) {
-		if (!itm || itm->editType() == Q3TableItem::OnTyping) {
-		    endEdit(editRow, editCol, true, edMode != Editing);
-		}
-		keyPressEvent(ke);
-		return true;
-	    }
-	} else {
+            if ((edMode == Replacing ||
+                   itm && itm->editType() == Q3TableItem::WhenCurrent) &&
+                 (ke->key() == Key_Up || ke->key() == Key_Prior ||
+                   ke->key() == Key_Home || ke->key() == Key_Down ||
+                   ke->key() == Key_Next || ke->key() == Key_End ||
+                   ke->key() == Key_Left || ke->key() == Key_Right)) {
+                if (!itm || itm->editType() == Q3TableItem::OnTyping) {
+                    endEdit(editRow, editCol, true, edMode != Editing);
+                }
+                keyPressEvent(ke);
+                return true;
+            }
+        } else {
             QObjectList l = viewport()->queryList("QWidget");
             if (l.contains(o)) {
-		QKeyEvent *ke = (QKeyEvent*)e;
-		if ((ke->state() & ControlButton) == ControlButton ||
-		     (ke->key() != Key_Left && ke->key() != Key_Right &&
-		       ke->key() != Key_Up && ke->key() != Key_Down &&
-		       ke->key() != Key_Prior && ke->key() != Key_Next &&
-		       ke->key() != Key_Home && ke->key() != Key_End))
-		    return false;
-		keyPressEvent((QKeyEvent*)e);
-		return true;
-	    }
-	}
+                QKeyEvent *ke = (QKeyEvent*)e;
+                if ((ke->state() & ControlButton) == ControlButton ||
+                     (ke->key() != Key_Left && ke->key() != Key_Right &&
+                       ke->key() != Key_Up && ke->key() != Key_Down &&
+                       ke->key() != Key_Prior && ke->key() != Key_Next &&
+                       ke->key() != Key_Home && ke->key() != Key_End))
+                    return false;
+                keyPressEvent((QKeyEvent*)e);
+                return true;
+            }
+        }
 
-	} break;
+        } break;
     case QEvent::FocusOut: {
         QWidget *editorWidget = cellWidget(editRow, editCol);
-	if (isEditing() && editorWidget && o == editorWidget && ((QFocusEvent*)e)->reason() != Qt::PopupFocusReason) {
-	    Q3TableItem *itm = item(editRow, editCol);
-	    if (!itm || itm->editType() == Q3TableItem::OnTyping) {
-		endEdit(editRow, editCol, true, edMode != Editing);
-		return true;
-	    }
-	}
-	break;
+        if (isEditing() && editorWidget && o == editorWidget && ((QFocusEvent*)e)->reason() != Qt::PopupFocusReason) {
+            Q3TableItem *itm = item(editRow, editCol);
+            if (!itm || itm->editType() == Q3TableItem::OnTyping) {
+                endEdit(editRow, editCol, true, edMode != Editing);
+                return true;
+            }
+        }
+        break;
     }
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-	if (o == this || o == viewport()) {
-	    QWheelEvent* we = (QWheelEvent*)e;
-	    scrollBy(0, -we->delta());
-	    we->accept();
-	    return true;
-	}
+        if (o == this || o == viewport()) {
+            QWheelEvent* we = (QWheelEvent*)e;
+            scrollBy(0, -we->delta());
+            we->accept();
+            return true;
+        }
 #endif
     default:
-	break;
+        break;
     }
 
     return Q3ScrollView::eventFilter(o, e);
@@ -4016,34 +4016,34 @@ bool Q3Table::eventFilter(QObject *o, QEvent *e)
 void Q3Table::fixCell(int &row, int &col, int key)
 {
     if (rowHeight(row) > 0 && columnWidth(col) > 0)
-	return;
+        return;
     if (rowHeight(row) <= 0) {
-	if (key == Key_Down ||
-	     key == Key_Next ||
-	     key == Key_End) {
-	    while (row < numRows() && rowHeight(row) <= 0)
-		row++;
-	    if (rowHeight(row) <= 0)
-		row = curRow;
-	} else if (key == Key_Up ||
-		    key == Key_Prior ||
-		    key == Key_Home)
-	    while (row >= 0 && rowHeight(row) <= 0)
-		row--;
-	    if (rowHeight(row) <= 0)
-		row = curRow;
+        if (key == Key_Down ||
+             key == Key_Next ||
+             key == Key_End) {
+            while (row < numRows() && rowHeight(row) <= 0)
+                row++;
+            if (rowHeight(row) <= 0)
+                row = curRow;
+        } else if (key == Key_Up ||
+                    key == Key_Prior ||
+                    key == Key_Home)
+            while (row >= 0 && rowHeight(row) <= 0)
+                row--;
+            if (rowHeight(row) <= 0)
+                row = curRow;
     } else if (columnWidth(col) <= 0) {
-	if (key == Key_Left) {
-	    while (col >= 0 && columnWidth(col) <= 0)
-		col--;
-	    if (columnWidth(col) <= 0)
-		col = curCol;
-	} else if (key == Key_Right) {
-	    while (col < numCols() && columnWidth(col) <= 0)
-		col++;
-	    if (columnWidth(col) <= 0)
-		col = curCol;
-	}
+        if (key == Key_Left) {
+            while (col >= 0 && columnWidth(col) <= 0)
+                col--;
+            if (columnWidth(col) <= 0)
+                col = curCol;
+        } else if (key == Key_Right) {
+            while (col < numCols() && columnWidth(col) <= 0)
+                col++;
+            if (columnWidth(col) <= 0)
+                col = curCol;
+        }
     }
 }
 
@@ -4053,8 +4053,8 @@ void Q3Table::fixCell(int &row, int &col, int key)
 void Q3Table::keyPressEvent(QKeyEvent* e)
 {
     if (isEditing() && item(editRow, editCol) &&
-	 item(editRow, editCol)->editType() == Q3TableItem::OnTyping)
-	return;
+         item(editRow, editCol)->editType() == Q3TableItem::OnTyping)
+        return;
 
     int tmpRow = curRow;
     int tmpCol = curCol;
@@ -4065,151 +4065,151 @@ void Q3Table::keyPressEvent(QKeyEvent* e)
     int r;
     switch (e->key()) {
     case Key_Left:
-	tmpCol = QMAX(0, tmpCol - 1);
-	navigationKey = true;
-	break;
+        tmpCol = QMAX(0, tmpCol - 1);
+        navigationKey = true;
+        break;
     case Key_Right:
-	tmpCol = QMIN(numCols() - 1, tmpCol + 1);
-	navigationKey = true;
-	break;
+        tmpCol = QMIN(numCols() - 1, tmpCol + 1);
+        navigationKey = true;
+        break;
     case Key_Up:
-	tmpRow = QMAX(0, tmpRow - 1);
-	navigationKey = true;
-	break;
+        tmpRow = QMAX(0, tmpRow - 1);
+        navigationKey = true;
+        break;
     case Key_Down:
-	tmpRow = QMIN(numRows() - 1, tmpRow + 1);
-	navigationKey = true;
-	break;
+        tmpRow = QMIN(numRows() - 1, tmpRow + 1);
+        navigationKey = true;
+        break;
     case Key_Prior:
-	r = QMAX(0, rowAt(rowPos(tmpRow) - visibleHeight()));
-	if (r < tmpRow || tmpRow < 0)
-	    tmpRow = r;
-	navigationKey = true;
-	break;
+        r = QMAX(0, rowAt(rowPos(tmpRow) - visibleHeight()));
+        if (r < tmpRow || tmpRow < 0)
+            tmpRow = r;
+        navigationKey = true;
+        break;
     case Key_Next:
-	r = QMIN(numRows() - 1, rowAt(rowPos(tmpRow) + visibleHeight()));
-	if (r > tmpRow)
-	    tmpRow = r;
-	else
-	    tmpRow = numRows() - 1;
-	navigationKey = true;
-	break;
+        r = QMIN(numRows() - 1, rowAt(rowPos(tmpRow) + visibleHeight()));
+        if (r > tmpRow)
+            tmpRow = r;
+        else
+            tmpRow = numRows() - 1;
+        navigationKey = true;
+        break;
     case Key_Home:
-	tmpRow = 0;
-	navigationKey = true;
-	break;
+        tmpRow = 0;
+        navigationKey = true;
+        break;
     case Key_End:
-	tmpRow = numRows() - 1;
-	navigationKey = true;
-	break;
+        tmpRow = numRows() - 1;
+        navigationKey = true;
+        break;
     case Key_F2:
-	if (beginEdit(tmpRow, tmpCol, false))
-	    setEditMode(Editing, tmpRow, tmpCol);
-	break;
+        if (beginEdit(tmpRow, tmpCol, false))
+            setEditMode(Editing, tmpRow, tmpCol);
+        break;
     case Key_Enter: case Key_Return:
-	activateNextCell();
-	return;
+        activateNextCell();
+        return;
     case Key_Tab: case Key_BackTab:
-	if ((e->key() == Key_Tab) && !(e->state() & ShiftButton)) {
-	    if (currentColumn() >= numCols() - 1)
-		return;
-	    int cc  = QMIN(numCols() - 1, currentColumn() + 1);
-	    while (cc < numCols()) {
-		Q3TableItem *i = item(currentRow(), cc);
-		if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
-		    break;
-		++cc;
-	    }
-	    setCurrentCell(currentRow(), cc);
-	} else { // Key_BackTab
-	    if (currentColumn() == 0)
-		return;
-	    int cc  = QMAX(0, currentColumn() - 1);
-	    while (cc >= 0) {
-		Q3TableItem *i = item(currentRow(), cc);
-		if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
-		    break;
-		--cc;
-	    }
-	    setCurrentCell(currentRow(), cc);
-	}
-	return;
+        if ((e->key() == Key_Tab) && !(e->state() & ShiftButton)) {
+            if (currentColumn() >= numCols() - 1)
+                return;
+            int cc  = QMIN(numCols() - 1, currentColumn() + 1);
+            while (cc < numCols()) {
+                Q3TableItem *i = item(currentRow(), cc);
+                if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                    break;
+                ++cc;
+            }
+            setCurrentCell(currentRow(), cc);
+        } else { // Key_BackTab
+            if (currentColumn() == 0)
+                return;
+            int cc  = QMAX(0, currentColumn() - 1);
+            while (cc >= 0) {
+                Q3TableItem *i = item(currentRow(), cc);
+                if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                    break;
+                --cc;
+            }
+            setCurrentCell(currentRow(), cc);
+        }
+        return;
     case Key_Escape:
-	e->ignore();
-	return;
+        e->ignore();
+        return;
     default: // ... or start in-place editing
-	if (e->text()[ 0 ].isPrint()) {
-	    Q3TableItem *itm = item(tmpRow, tmpCol);
-	    if (!itm || itm->editType() == Q3TableItem::OnTyping) {
-		QWidget *w = beginEdit(tmpRow, tmpCol,
-					itm ? itm->isReplaceable() : true);
-		if (w) {
-		    setEditMode((!itm || itm && itm->isReplaceable()
-				   ? Replacing : Editing), tmpRow, tmpCol);
-		    QApplication::sendEvent(w, e);
-		    return;
-		}
-	    }
-	}
-	e->ignore();
-	return;
+        if (e->text()[ 0 ].isPrint()) {
+            Q3TableItem *itm = item(tmpRow, tmpCol);
+            if (!itm || itm->editType() == Q3TableItem::OnTyping) {
+                QWidget *w = beginEdit(tmpRow, tmpCol,
+                                        itm ? itm->isReplaceable() : true);
+                if (w) {
+                    setEditMode((!itm || itm && itm->isReplaceable()
+                                   ? Replacing : Editing), tmpRow, tmpCol);
+                    QApplication::sendEvent(w, e);
+                    return;
+                }
+            }
+        }
+        e->ignore();
+        return;
     }
 
     if (navigationKey) {
-	fixCell(tmpRow, tmpCol, e->key());
-	if ((e->state() & ShiftButton) == ShiftButton &&
-	     selMode != NoSelection && selMode != SingleRow) {
-	    bool justCreated = false;
-	    setCurrentCell(tmpRow, tmpCol, false, true);
-	    if (!currentSel) {
-		justCreated = true;
-		currentSel = new Q3TableSelection();
-		selections.append(currentSel);
-		if (!isRowSelection(selectionMode()))
-		    currentSel->init(oldRow, oldCol);
-		else
-		    currentSel->init(oldRow < 0 ? 0 : oldRow, 0);
-	    }
-	    Q3TableSelection oldSelection = *currentSel;
-	    if (!isRowSelection(selectionMode()))
-		currentSel->expandTo(tmpRow, tmpCol);
-	    else
-		currentSel->expandTo(tmpRow, numCols() - 1);
-	    repaintSelections(justCreated ? 0 : &oldSelection, currentSel);
-	    emit selectionChanged();
-	} else {
-	    setCurrentCell(tmpRow, tmpCol, false, true);
-	    if (!isRowSelection(selectionMode())) {
-		clearSelection();
-	    } else {
-		bool currentInSelection = tmpRow == oldRow && isSelected(tmpRow, tmpCol, false);
-		if (!currentInSelection) {
-		    bool hasOldSel = false;
-		    Q3TableSelection oldSelection;
-		    if (selectionMode() == MultiRow) {
-			bool b = signalsBlocked();
-			blockSignals(true);
-			clearSelection();
-			blockSignals(b);
-		    } else {
-			if (currentSel) {
-			    oldSelection = *currentSel;
-			    hasOldSel = true;
-			    selections.removeRef(currentSel);
-			    leftHeader->setSectionState(oldSelection.topRow(), Q3TableHeader::Normal);
-			}
-		    }
-		    currentSel = new Q3TableSelection();
-		    selections.append(currentSel);
-		    currentSel->init(tmpRow, 0);
-		    currentSel->expandTo(tmpRow, numCols() - 1);
-		    repaintSelections(hasOldSel ? &oldSelection : 0, currentSel, !hasOldSel);
-		    emit selectionChanged();
-		}
-	    }
-	}
+        fixCell(tmpRow, tmpCol, e->key());
+        if ((e->state() & ShiftButton) == ShiftButton &&
+             selMode != NoSelection && selMode != SingleRow) {
+            bool justCreated = false;
+            setCurrentCell(tmpRow, tmpCol, false, true);
+            if (!currentSel) {
+                justCreated = true;
+                currentSel = new Q3TableSelection();
+                selections.append(currentSel);
+                if (!isRowSelection(selectionMode()))
+                    currentSel->init(oldRow, oldCol);
+                else
+                    currentSel->init(oldRow < 0 ? 0 : oldRow, 0);
+            }
+            Q3TableSelection oldSelection = *currentSel;
+            if (!isRowSelection(selectionMode()))
+                currentSel->expandTo(tmpRow, tmpCol);
+            else
+                currentSel->expandTo(tmpRow, numCols() - 1);
+            repaintSelections(justCreated ? 0 : &oldSelection, currentSel);
+            emit selectionChanged();
+        } else {
+            setCurrentCell(tmpRow, tmpCol, false, true);
+            if (!isRowSelection(selectionMode())) {
+                clearSelection();
+            } else {
+                bool currentInSelection = tmpRow == oldRow && isSelected(tmpRow, tmpCol, false);
+                if (!currentInSelection) {
+                    bool hasOldSel = false;
+                    Q3TableSelection oldSelection;
+                    if (selectionMode() == MultiRow) {
+                        bool b = signalsBlocked();
+                        blockSignals(true);
+                        clearSelection();
+                        blockSignals(b);
+                    } else {
+                        if (currentSel) {
+                            oldSelection = *currentSel;
+                            hasOldSel = true;
+                            selections.removeRef(currentSel);
+                            leftHeader->setSectionState(oldSelection.topRow(), Q3TableHeader::Normal);
+                        }
+                    }
+                    currentSel = new Q3TableSelection();
+                    selections.append(currentSel);
+                    currentSel->init(tmpRow, 0);
+                    currentSel->expandTo(tmpRow, numCols() - 1);
+                    repaintSelections(hasOldSel ? &oldSelection : 0, currentSel, !hasOldSel);
+                    emit selectionChanged();
+                }
+            }
+        }
     } else {
-	setCurrentCell(tmpRow, tmpCol, false, true);
+        setCurrentCell(tmpRow, tmpCol, false, true);
     }
 }
 
@@ -4224,7 +4224,7 @@ void Q3Table::focusInEvent(QFocusEvent*)
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelections();
     if (isEditing() && editorWidget)
-	editorWidget->setFocus();
+        editorWidget->setFocus();
 
 }
 
@@ -4236,11 +4236,11 @@ void Q3Table::focusOutEvent(QFocusEvent *e)
 {
     updateCell(curRow, curCol);
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
-	d->inMenuMode =
-	    e->reason() == Qt::PopupFocusReason ||
-	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
-	if (!d->inMenuMode)
-	    repaintSelections();
+        d->inMenuMode =
+            e->reason() == Qt::PopupFocusReason ||
+            (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
+        if (!d->inMenuMode)
+            repaintSelections();
     }
 }
 
@@ -4250,21 +4250,21 @@ void Q3Table::focusOutEvent(QFocusEvent *e)
 QSize Q3Table::sizeHint() const
 {
     if (cachedSizeHint().isValid())
-	return cachedSizeHint();
+        return cachedSizeHint();
 
     constPolish();
 
     QSize s = tableSize();
     QSize sh;
     if (s.width() < 500 && s.height() < 500) {
-	sh = QSize(tableSize().width() + VERTICALMARGIN + 5,
-		    tableSize().height() + topMargin() + 5);
+        sh = QSize(tableSize().width() + VERTICALMARGIN + 5,
+                    tableSize().height() + topMargin() + 5);
     } else {
-    	sh = Q3ScrollView::sizeHint();
-    	if (!topHeader->isHidden())
-		sh.setHeight(sh.height() + topHeader->height());
-    	if (!leftHeader->isHidden())
-		sh.setWidth(sh.width() + leftHeader->width());
+            sh = Q3ScrollView::sizeHint();
+            if (!topHeader->isHidden())
+                sh.setHeight(sh.height() + topHeader->height());
+            if (!leftHeader->isHidden())
+                sh.setWidth(sh.width() + leftHeader->width());
     }
     setCachedSizeHint(sh);
     return sh;
@@ -4315,11 +4315,11 @@ static bool inUpdateCell = false;
 void Q3Table::updateCell(int row, int col)
 {
     if (inUpdateCell || row < 0 || col < 0)
-	return;
+        return;
     inUpdateCell = true;
     QRect cg = cellGeometry(row, col);
     QRect r(contentsToViewport(QPoint(cg.x() - 2, cg.y() - 2)),
-	     QSize(cg.width() + 4, cg.height() + 4));
+             QSize(cg.width() + 4, cg.height() + 4));
     viewport()->update(r);
     inUpdateCell = false;
 }
@@ -4327,10 +4327,10 @@ void Q3Table::updateCell(int row, int col)
 void Q3Table::repaintCell(int row, int col)
 {
     if (row == -1 || col == -1)
-	return;
+        return;
     QRect cg = cellGeometry(row, col);
     QRect r(QPoint(cg.x() - 2, cg.y() - 2),
-	     QSize(cg.width() + 4, cg.height() + 4));
+             QSize(cg.width() + 4, cg.height() + 4));
     repaintContents(r, false);
 }
 
@@ -4344,13 +4344,13 @@ void Q3Table::contentsToViewport2(int x, int y, int& vx, int& vy)
 QPoint Q3Table::contentsToViewport2(const QPoint &p)
 {
     return QPoint(p.x() - contentsX(),
-		   p.y() - contentsY());
+                   p.y() - contentsY());
 }
 
 QPoint Q3Table::viewportToContents2(const QPoint& vp)
 {
     return QPoint(vp.x() + contentsX(),
-		   vp.y() + contentsY());
+                   vp.y() + contentsY());
 }
 
 void Q3Table::viewportToContents2(int vx, int vy, int& x, int& y)
@@ -4370,23 +4370,23 @@ void Q3Table::columnWidthChanged(int col)
 {
     int p = columnPos(col);
     if (d->hasColSpan)
-	p = contentsX();
+        p = contentsX();
     updateContents(p, contentsY(), contentsWidth(), visibleHeight());
     QSize s(tableSize());
     int w = contentsWidth();
     resizeContents(s.width(), s.height());
     if (contentsWidth() < w)
-	repaintContents(s.width(), contentsY(),
-			 w - s.width() + 1, visibleHeight(), true);
+        repaintContents(s.width(), contentsY(),
+                         w - s.width() + 1, visibleHeight(), true);
     else
-	repaintContents(w, contentsY(),
-			 s.width() - w + 1, visibleHeight(), false);
+        repaintContents(w, contentsY(),
+                         s.width() - w + 1, visibleHeight(), false);
 
     // update widgets that are affected by this change
     if (widgets.size()) {
         int last = isHidden() ? numCols() - 1 : d->lastVisCol;
-	for (int c = col; c <= last; ++c)
-	    updateColWidgets(c);
+        for (int c = col; c <= last; ++c)
+            updateColWidgets(c);
     }
     delayedUpdateGeometries();
 }
@@ -4401,25 +4401,25 @@ void Q3Table::rowHeightChanged(int row)
 {
     int p = rowPos(row);
     if (d->hasRowSpan)
-	p = contentsY();
+        p = contentsY();
     updateContents(contentsX(), p, visibleWidth(), contentsHeight());
     QSize s(tableSize());
     int h = contentsHeight();
     resizeContents(s.width(), s.height());
     if (contentsHeight() < h) {
-	repaintContents(contentsX(), contentsHeight(),
-			 visibleWidth(), h - s.height() + 1, true);
+        repaintContents(contentsX(), contentsHeight(),
+                         visibleWidth(), h - s.height() + 1, true);
     } else {
-	repaintContents(contentsX(), h,
-			 visibleWidth(), s.height() - h + 1, false);
+        repaintContents(contentsX(), h,
+                         visibleWidth(), s.height() - h + 1, false);
     }
 
     // update widgets that are affected by this change
     if (widgets.size()) {
-	d->lastVisRow = rowAt(contentsY() + visibleHeight() + (s.height() - h + 1));
+        d->lastVisRow = rowAt(contentsY() + visibleHeight() + (s.height() - h + 1));
         int last = isHidden() ? numRows() - 1 : d->lastVisRow;
-	for (int r = row; r <= last; ++r)
-	    updateRowWidgets(r);
+        for (int r = row; r <= last; ++r)
+            updateRowWidgets(r);
     }
     delayedUpdateGeometries();
 }
@@ -4429,11 +4429,11 @@ void Q3Table::rowHeightChanged(int row)
 void Q3Table::updateRowWidgets(int row)
 {
     for (int i = 0; i < numCols(); ++i) {
-	QWidget *w = cellWidget(row, i);
-	if (!w)
-	    continue;
-	moveChild(w, columnPos(i), rowPos(row));
-	w->resize(columnWidth(i) - 1, rowHeight(row) - 1);
+        QWidget *w = cellWidget(row, i);
+        if (!w)
+            continue;
+        moveChild(w, columnPos(i), rowPos(row));
+        w->resize(columnWidth(i) - 1, rowHeight(row) - 1);
     }
 }
 
@@ -4442,11 +4442,11 @@ void Q3Table::updateRowWidgets(int row)
 void Q3Table::updateColWidgets(int col)
 {
     for (int i = 0; i < numRows(); ++i) {
-	QWidget *w = cellWidget(i, col);
-	if (!w)
-	    continue;
-	moveChild(w, columnPos(col), rowPos(i));
-	w->resize(columnWidth(col) - 1, rowHeight(i) - 1);
+        QWidget *w = cellWidget(i, col);
+        if (!w)
+            continue;
+        moveChild(w, columnPos(col), rowPos(i));
+        w->resize(columnWidth(col) - 1, rowHeight(i) - 1);
     }
 }
 
@@ -4464,9 +4464,9 @@ void Q3Table::updateColWidgets(int col)
 void Q3Table::columnIndexChanged(int, int fromIndex, int toIndex)
 {
     if (doSort && lastSortCol == fromIndex && topHeader)
-	topHeader->setSortIndicator(toIndex, topHeader->sortIndicatorOrder());
+        topHeader->setSortIndicator(toIndex, topHeader->sortIndicatorOrder());
     repaintContents(contentsX(), contentsY(),
-		     visibleWidth(), visibleHeight(), false);
+                     visibleWidth(), visibleHeight(), false);
 }
 
 /*!
@@ -4483,7 +4483,7 @@ void Q3Table::columnIndexChanged(int, int fromIndex, int toIndex)
 void Q3Table::rowIndexChanged(int, int, int)
 {
     repaintContents(contentsX(), contentsY(),
-		     visibleWidth(), visibleHeight(), false);
+                     visibleWidth(), visibleHeight(), false);
 }
 
 /*!
@@ -4494,13 +4494,13 @@ void Q3Table::rowIndexChanged(int, int, int)
 void Q3Table::columnClicked(int col)
 {
     if (!sorting())
-	return;
+        return;
 
     if (col == lastSortCol) {
-	asc = !asc;
+        asc = !asc;
     } else {
-	lastSortCol = col;
-	asc = true;
+        lastSortCol = col;
+        asc = true;
     }
     sortColumn(lastSortCol, asc);
 }
@@ -4516,7 +4516,7 @@ void Q3Table::setSorting(bool b)
 {
     doSort = b;
     if (topHeader)
- 	topHeader->setSortIndicator(b ? lastSortCol : -1);
+         topHeader->setSortIndicator(b ? lastSortCol : -1);
 }
 
 bool Q3Table::sorting() const
@@ -4544,20 +4544,20 @@ void Q3Table::updateGeometriesSlot()
 void Q3Table::updateGeometries()
 {
     if (inUpdateGeometries)
-	return;
+        return;
     inUpdateGeometries = true;
     QSize ts = tableSize();
     if (topHeader->offset() &&
-	 ts.width() < topHeader->offset() + topHeader->width())
-	horizontalScrollBar()->setValue(ts.width() - topHeader->width());
+         ts.width() < topHeader->offset() + topHeader->width())
+        horizontalScrollBar()->setValue(ts.width() - topHeader->width());
     if (leftHeader->offset() &&
-	 ts.height() < leftHeader->offset() + leftHeader->height())
-	verticalScrollBar()->setValue(ts.height() - leftHeader->height());
+         ts.height() < leftHeader->offset() + leftHeader->height())
+        verticalScrollBar()->setValue(ts.height() - leftHeader->height());
 
     leftHeader->setGeometry(QStyle::visualRect(layoutDirection(), rect(), QRect(frameWidth(), topMargin() + frameWidth(),
-			     VERTICALMARGIN, visibleHeight())));
+                             VERTICALMARGIN, visibleHeight())));
     topHeader->setGeometry(QStyle::visualRect(layoutDirection(), rect(), QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
-						      visibleWidth(), topMargin())));
+                                                      visibleWidth(), topMargin())));
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     topHeader->updateStretches();
@@ -4644,22 +4644,22 @@ QRect Q3Table::cellGeometry(int row, int col) const
     Q3TableItem *itm = item(row, col);
 
     if (!itm || itm->rowSpan() == 1 && itm->colSpan() == 1)
-	return QRect(columnPos(col), rowPos(row),
-		      columnWidth(col), rowHeight(row));
+        return QRect(columnPos(col), rowPos(row),
+                      columnWidth(col), rowHeight(row));
 
     while (row != itm->row())
-	row--;
+        row--;
     while (col != itm->col())
-	col--;
+        col--;
 
     QRect rect(columnPos(col), rowPos(row),
-		columnWidth(col), rowHeight(row));
+                columnWidth(col), rowHeight(row));
 
     for (int r = 1; r < itm->rowSpan(); ++r)
-	rect.setHeight(rect.height() + rowHeight(r + row));
+        rect.setHeight(rect.height() + rowHeight(r + row));
 
     for (int c = 1; c < itm->colSpan(); ++c)
-	rect.setWidth(rect.width() + columnWidth(c + col));
+        rect.setWidth(rect.width() + columnWidth(c + col));
 
     return rect;
 }
@@ -4674,7 +4674,7 @@ QRect Q3Table::cellGeometry(int row, int col) const
 QSize Q3Table::tableSize() const
 {
     return QSize(columnPos(numCols() - 1) + columnWidth(numCols() - 1),
-		  rowPos(numRows() - 1) + rowHeight(numRows() - 1));
+                  rowPos(numRows() - 1) + rowHeight(numRows() - 1));
 }
 
 /*!
@@ -4702,52 +4702,52 @@ int Q3Table::numCols() const
 }
 
 void Q3Table::saveContents(Q3PtrVector<Q3TableItem> &tmp,
-			   Q3PtrVector<Q3Table::TableWidget> &tmp2)
+                           Q3PtrVector<Q3Table::TableWidget> &tmp2)
 {
     int nCols = numCols();
     if (editRow != -1 && editCol != -1)
-	endEdit(editRow, editCol, false, edMode != Editing);
+        endEdit(editRow, editCol, false, edMode != Editing);
     tmp.resize(contents.size());
     tmp2.resize(widgets.size());
     int i;
     for (i = 0; i < (int)tmp.size(); ++i) {
-	Q3TableItem *item = contents[ i ];
-	if (item && (item->row() * nCols) + item->col() == i)
-	    tmp.insert(i, item);
-	else
-	    tmp.insert(i, 0);
+        Q3TableItem *item = contents[ i ];
+        if (item && (item->row() * nCols) + item->col() == i)
+            tmp.insert(i, item);
+        else
+            tmp.insert(i, 0);
     }
     for (i = 0; i < (int)tmp2.size(); ++i) {
-	QWidget *w = widgets[ i ];
-	if (w)
-	    tmp2.insert(i, new TableWidget(w, i / nCols, i % nCols));
-	else
-	    tmp2.insert(i, 0);
+        QWidget *w = widgets[ i ];
+        if (w)
+            tmp2.insert(i, new TableWidget(w, i / nCols, i % nCols));
+        else
+            tmp2.insert(i, 0);
     }
 }
 
 void Q3Table::updateHeaderAndResizeContents(Q3TableHeader *header,
-					    int num, int rowCol,
-					    int width, bool &updateBefore)
+                                            int num, int rowCol,
+                                            int width, bool &updateBefore)
 {
     updateBefore = rowCol < num;
     if (rowCol > num) {
-	header->Q3Header::resizeArrays(rowCol);
-	header->Q3TableHeader::resizeArrays(rowCol);
-	int old = num;
-	clearSelection(false);
-	int i = 0;
-	for (i = old; i < rowCol; ++i)
-	    header->addLabel(QString(), width);
+        header->Q3Header::resizeArrays(rowCol);
+        header->Q3TableHeader::resizeArrays(rowCol);
+        int old = num;
+        clearSelection(false);
+        int i = 0;
+        for (i = old; i < rowCol; ++i)
+            header->addLabel(QString(), width);
     } else {
-	clearSelection(false);
-	if (header == leftHeader) {
-	    while (numRows() > rowCol)
-		header->removeLabel(numRows() - 1);
-	} else {
-	    while (numCols() > rowCol)
-		header->removeLabel(numCols() - 1);
-	}
+        clearSelection(false);
+        if (header == leftHeader) {
+            while (numRows() > rowCol)
+                header->removeLabel(numRows() - 1);
+        } else {
+            while (numCols() > rowCol)
+                header->removeLabel(numCols() - 1);
+        }
     }
 
     contents.setAutoDelete(false);
@@ -4761,50 +4761,50 @@ void Q3Table::updateHeaderAndResizeContents(Q3TableHeader *header,
     // keep numStretches in sync
     int n = 0;
     for (uint i = 0; i < header->stretchable.size(); i++)
-	n += (header->stretchable.at(i) & 1); // avoid cmp
+        n += (header->stretchable.at(i) & 1); // avoid cmp
      header->numStretches = n;
 }
 
 void Q3Table::restoreContents(Q3PtrVector<Q3TableItem> &tmp,
-			      Q3PtrVector<Q3Table::TableWidget> &tmp2)
+                              Q3PtrVector<Q3Table::TableWidget> &tmp2)
 {
     int i;
     int nCols = numCols();
     for (i = 0; i < (int)tmp.size(); ++i) {
-	Q3TableItem *it = tmp[ i ];
-	if (it) {
-	    int idx = (it->row() * nCols) + it->col();
-	    if ((uint)idx < contents.size() &&
-		 it->row() == idx /  nCols && it->col() == idx % nCols) {
-		contents.insert(idx, it);
-		if (it->rowSpan() > 1 || it->colSpan() > 1) {
-		    int ridx, iidx;
-		    for (int irow = 0; irow < it->rowSpan(); irow++) {
-			ridx = idx + irow * nCols;
-			for (int icol = 0; icol < it->colSpan(); icol++) {
-			    iidx = ridx + icol;
-			    if (idx != iidx && (uint)iidx < contents.size())
-				contents.insert(iidx, it);
-			}
-		    }
+        Q3TableItem *it = tmp[ i ];
+        if (it) {
+            int idx = (it->row() * nCols) + it->col();
+            if ((uint)idx < contents.size() &&
+                 it->row() == idx /  nCols && it->col() == idx % nCols) {
+                contents.insert(idx, it);
+                if (it->rowSpan() > 1 || it->colSpan() > 1) {
+                    int ridx, iidx;
+                    for (int irow = 0; irow < it->rowSpan(); irow++) {
+                        ridx = idx + irow * nCols;
+                        for (int icol = 0; icol < it->colSpan(); icol++) {
+                            iidx = ridx + icol;
+                            if (idx != iidx && (uint)iidx < contents.size())
+                                contents.insert(iidx, it);
+                        }
+                    }
 
-		}
-	    } else {
-		delete it;
-	    }
-	}
+                }
+            } else {
+                delete it;
+            }
+        }
     }
     for (i = 0; i < (int)tmp2.size(); ++i) {
-	TableWidget *w = tmp2[ i ];
-	if (w) {
-	    int idx = (w->row * nCols) + w->col;
-	    if ((uint)idx < widgets.size() &&
-		 w->row == idx / nCols && w->col == idx % nCols)
-		widgets.insert(idx, w->wid);
-	    else
-		delete w->wid;
-	    delete w;
-	}
+        TableWidget *w = tmp2[ i ];
+        if (w) {
+            int idx = (w->row * nCols) + w->col;
+            if ((uint)idx < widgets.size() &&
+                 w->row == idx / nCols && w->col == idx % nCols)
+                widgets.insert(idx, w->wid);
+            else
+                delete w->wid;
+            delete w;
+        }
     }
 }
 
@@ -4814,30 +4814,30 @@ void Q3Table::finishContentsResze(bool updateBefore)
     resizeContents(r.right() + 1, r.bottom() + 1);
     updateGeometries();
     if (updateBefore)
-	repaintContents(contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), true);
+        repaintContents(contentsX(), contentsY(),
+                         visibleWidth(), visibleHeight(), true);
     else
-	repaintContents(contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), false);
+        repaintContents(contentsX(), contentsY(),
+                         visibleWidth(), visibleHeight(), false);
 
     if (isRowSelection(selectionMode())) {
-	int r = curRow;
-	curRow = -1;
-	setCurrentCell(r, curCol);
+        int r = curRow;
+        curRow = -1;
+        setCurrentCell(r, curCol);
     }
 }
 
 void Q3Table::setNumRows(int r)
 {
     if (r < 0)
-	return;
+        return;
 
     if (r < numRows()) {
-	// Removed rows are no longer hidden, and should thus be removed from "hiddenRows"
-	for (int rr = numRows()-1; rr >= r; --rr) {
-	    if (d->hiddenRows.find(rr))
-		d->hiddenRows.remove(rr);
-	}
+        // Removed rows are no longer hidden, and should thus be removed from "hiddenRows"
+        for (int rr = numRows()-1; rr >= r; --rr) {
+            if (d->hiddenRows.find(rr))
+                d->hiddenRows.remove(rr);
+        }
     }
 
     fontChange(font()); // invalidate the sizeHintCache
@@ -4855,7 +4855,7 @@ void Q3Table::setNumRows(int r)
 
     int w = fontMetrics().width(QString::number(r) + "W");
     if (VERTICALMARGIN > 0 && w > VERTICALMARGIN)
-	setLeftMargin(w);
+        setLeftMargin(w);
 
     restoreContents(tmp, tmp2);
 
@@ -4863,32 +4863,32 @@ void Q3Table::setNumRows(int r)
     finishContentsResze(updateBefore);
     if (updatesEnabled) {
         leftHeader->setUpdatesEnabled(true);
-	leftHeader->update();
+        leftHeader->update();
     }
     leftHeader->updateCache();
     if (curRow >= numRows()) {
-	curRow = numRows() - 1;
-	if (curRow < 0)
-	    curCol = -1;
-	else
-	    repaintCell(curRow, curCol);
+        curRow = numRows() - 1;
+        if (curRow < 0)
+            curCol = -1;
+        else
+            repaintCell(curRow, curCol);
     }
 
     if (curRow > numRows())
-	curRow = numRows();
+        curRow = numRows();
 }
 
 void Q3Table::setNumCols(int c)
 {
     if (c < 0)
-	return;
+        return;
 
     if (c < numCols()) {
-	// Removed columns are no longer hidden, and should thus be removed from "hiddenCols"
-	for (int cc = numCols()-1; cc >= c; --cc) {
-	    if (d->hiddenCols.find(cc))
-		d->hiddenCols.remove(cc);
-	}
+        // Removed columns are no longer hidden, and should thus be removed from "hiddenCols"
+        for (int cc = numCols()-1; cc >= c; --cc) {
+            if (d->hiddenCols.find(cc))
+                d->hiddenCols.remove(cc);
+        }
     }
 
     fontChange(font()); // invalidate the sizeHintCache
@@ -4910,15 +4910,15 @@ void Q3Table::setNumCols(int c)
     finishContentsResze(updateBefore);
     if (updatesEnabled) {
         topHeader->setUpdatesEnabled(true);
-	topHeader->update();
+        topHeader->update();
     }
     topHeader->updateCache();
     if (curCol >= numCols()) {
-	curCol = numCols() - 1;
-	if (curCol < 0)
-	    curRow = -1;
-	else
-	    repaintCell(curRow, curCol);
+        curCol = numCols() - 1;
+        if (curCol < 0)
+            curRow = -1;
+        else
+            repaintCell(curRow, curCol);
     }
 }
 
@@ -4962,10 +4962,10 @@ void Q3Table::setColumnLabels(const QStringList &labels)
     \code
     Q3TableItem *i = item(row, col);
     if (initFromCell || (i && !i->isReplaceable()))
-	// If we had a Q3TableItem ask the base class to create the editor
-	return Q3Table::createEditor(row, col, initFromCell);
+        // If we had a Q3TableItem ask the base class to create the editor
+        return Q3Table::createEditor(row, col, initFromCell);
     else
-	return ...(create your own editor)
+        return ...(create your own editor)
     \endcode
     Ownership of the editor widget is transferred to the caller.
 
@@ -4979,27 +4979,27 @@ void Q3Table::setColumnLabels(const QStringList &labels)
 QWidget *Q3Table::createEditor(int row, int col, bool initFromCell) const
 {
     if (isReadOnly() || isRowReadOnly(row) || isColumnReadOnly(col))
-	return 0;
+        return 0;
 
     QWidget *e = 0;
 
     // the current item in the cell should be edited if possible
     Q3TableItem *i = item(row, col);
     if (initFromCell || (i && !i->isReplaceable())) {
-	if (i) {
-	    if (i->editType() == Q3TableItem::Never)
-		return 0;
+        if (i) {
+            if (i->editType() == Q3TableItem::Never)
+                return 0;
 
-	    e = i->createEditor();
-	    if (!e)
-		return 0;
-	}
+            e = i->createEditor();
+            if (!e)
+                return 0;
+        }
     }
 
     // no contents in the cell yet, so open the default editor
     if (!e) {
-	e = new QLineEdit(viewport(), "qt_lineeditor");
-	((QLineEdit*)e)->setFrame(false);
+        e = new QLineEdit(viewport(), "qt_lineeditor");
+        ((QLineEdit*)e)->setFrame(false);
     }
 
     return e;
@@ -5022,18 +5022,18 @@ QWidget *Q3Table::createEditor(int row, int col, bool initFromCell) const
 QWidget *Q3Table::beginEdit(int row, int col, bool replace)
 {
     if (isReadOnly() || isRowReadOnly(row) || isColumnReadOnly(col))
-	return 0;
+        return 0;
     if ( row < 0 || row >= numRows() || col < 0 || col >= numCols() )
         return 0;
     Q3TableItem *itm = item(row, col);
     if (itm && !itm->isEnabled())
-	return 0;
+        return 0;
     if (cellWidget(row, col))
-	return 0;
+        return 0;
     ensureCellVisible(row, col);
     QWidget *e = createEditor(row, col, !replace);
     if (!e)
-	return 0;
+        return 0;
     setCellWidget(row, col, e);
     e->setActiveWindow();
     e->setFocus();
@@ -5067,38 +5067,38 @@ void Q3Table::endEdit(int row, int col, bool accept, bool replace)
 {
     QWidget *editor = cellWidget(row, col);
     if (!editor)
-	return;
+        return;
 
     if (!accept) {
-	if (row == editRow && col == editCol)
-	    setEditMode(NotEditing, -1, -1);
-	clearCellWidget(row, col);
-	updateCell(row, col);
-	viewport()->setFocus();
-	updateCell(row, col);
-	return;
+        if (row == editRow && col == editCol)
+            setEditMode(NotEditing, -1, -1);
+        clearCellWidget(row, col);
+        updateCell(row, col);
+        viewport()->setFocus();
+        updateCell(row, col);
+        return;
     }
 
     Q3TableItem *i = item(row, col);
     QString oldContent;
     if (i)
-	oldContent = i->text();
+        oldContent = i->text();
 
     if (!i || replace) {
-	setCellContentFromEditor(row, col);
-	i = item(row, col);
+        setCellContentFromEditor(row, col);
+        i = item(row, col);
     } else {
-	i->setContentFromEditor(editor);
+        i->setContentFromEditor(editor);
     }
 
     if (row == editRow && col == editCol)
-	setEditMode(NotEditing, -1, -1);
+        setEditMode(NotEditing, -1, -1);
 
     viewport()->setFocus();
     updateCell(row, col);
 
     if (!i || (oldContent != i->text()))
-	emit valueChanged(row, col);
+        emit valueChanged(row, col);
 
     clearCellWidget(row, col);
 }
@@ -5125,15 +5125,15 @@ void Q3Table::setCellContentFromEditor(int row, int col)
 {
     QWidget *editor = cellWidget(row, col);
     if (!editor)
-	return;
+        return;
 
     Q3TableItem *i = item(row, col);
     if (i) {
-	i->setContentFromEditor(editor);
+        i->setContentFromEditor(editor);
     } else {
-	QLineEdit *le = ::qobject_cast<QLineEdit*>(editor);
-	if (le)
-	    setText(row, col, le->text());
+        QLineEdit *le = ::qobject_cast<QLineEdit*>(editor);
+        if (le)
+            setText(row, col, le->text());
     }
 }
 
@@ -5195,63 +5195,63 @@ int Q3Table::indexOf(int row, int col) const
 */
 
 void Q3Table::repaintSelections(Q3TableSelection *oldSelection,
-				Q3TableSelection *newSelection,
-				bool updateVertical, bool updateHorizontal)
+                                Q3TableSelection *newSelection,
+                                bool updateVertical, bool updateHorizontal)
 {
     if (!oldSelection && !newSelection)
-	return;
+        return;
     if (oldSelection && newSelection && *oldSelection == *newSelection)
-	return;
+        return;
     if (oldSelection && !oldSelection->isActive())
- 	oldSelection = 0;
+         oldSelection = 0;
 
     bool optimizeOld = false;
     bool optimizeNew = false;
 
     QRect old;
     if (oldSelection)
-	old = rangeGeometry(oldSelection->topRow(),
-			     oldSelection->leftCol(),
-			     oldSelection->bottomRow(),
-			     oldSelection->rightCol(),
-			     optimizeOld);
+        old = rangeGeometry(oldSelection->topRow(),
+                             oldSelection->leftCol(),
+                             oldSelection->bottomRow(),
+                             oldSelection->rightCol(),
+                             optimizeOld);
     else
-	old = QRect(0, 0, 0, 0);
+        old = QRect(0, 0, 0, 0);
 
     QRect cur;
     if (newSelection)
-	cur = rangeGeometry(newSelection->topRow(),
-			     newSelection->leftCol(),
-			     newSelection->bottomRow(),
-			     newSelection->rightCol(),
-			     optimizeNew);
+        cur = rangeGeometry(newSelection->topRow(),
+                             newSelection->leftCol(),
+                             newSelection->bottomRow(),
+                             newSelection->rightCol(),
+                             optimizeNew);
     else
-	cur = QRect(0, 0, 0, 0);
+        cur = QRect(0, 0, 0, 0);
     int i;
 
     if (!optimizeOld || !optimizeNew ||
-	 old.width() > SHRT_MAX || old.height() > SHRT_MAX ||
-	 cur.width() > SHRT_MAX || cur.height() > SHRT_MAX) {
-	QRect rr = cur.unite(old);
-	repaintContents(rr, false);
+         old.width() > SHRT_MAX || old.height() > SHRT_MAX ||
+         cur.width() > SHRT_MAX || cur.height() > SHRT_MAX) {
+        QRect rr = cur.united(old);
+        repaintContents(rr, false);
     } else {
-	old = QRect(contentsToViewport2(old.topLeft()), old.size());
-	cur = QRect(contentsToViewport2(cur.topLeft()), cur.size());
-	QRegion r1(old);
-	QRegion r2(cur);
- 	QRegion r3 = r1.subtract(r2);
- 	QRegion r4 = r2.subtract(r1);
+        old = QRect(contentsToViewport2(old.topLeft()), old.size());
+        cur = QRect(contentsToViewport2(cur.topLeft()), cur.size());
+        QRegion r1(old);
+        QRegion r2(cur);
+        QRegion r3 = r1.subtracted(r2);
+        QRegion r4 = r2.subtracted(r1);
 
-	for (i = 0; i < (int)r3.rects().count(); ++i) {
-	    QRect r(r3.rects()[ i ]);
-	    r = QRect(viewportToContents2(r.topLeft()), r.size());
-	    repaintContents(r, false);
-	}
-	for (i = 0; i < (int)r4.rects().count(); ++i) {
-	    QRect r(r4.rects()[ i ]);
-	    r = QRect(viewportToContents2(r.topLeft()), r.size());
-	    repaintContents(r, false);
-	}
+        for (i = 0; i < (int)r3.rects().count(); ++i) {
+            QRect r(r3.rects()[ i ]);
+            r = QRect(viewportToContents2(r.topLeft()), r.size());
+            repaintContents(r, false);
+        }
+        for (i = 0; i < (int)r4.rects().count(); ++i) {
+            QRect r(r4.rects()[ i ]);
+            r = QRect(viewportToContents2(r.topLeft()), r.size());
+            repaintContents(r, false);
+        }
     }
 
     int top, left, bottom, right;
@@ -5280,31 +5280,31 @@ void Q3Table::repaintSelections(Q3TableSelection *oldSelection,
     }
 
     if (updateHorizontal && numCols() > 0 && left >= 0 && !isRowSelection(selectionMode())) {
-	register int *s = &topHeader->states.data()[left];
-	for (i = left; i <= right; ++i) {
-	    if (!isColumnSelected(i))
-		*s = Q3TableHeader::Normal;
-	    else if (isColumnSelected(i, true))
-		*s = Q3TableHeader::Selected;
-	    else
-		*s = Q3TableHeader::Bold;
-	    ++s;
-	}
-	topHeader->repaint(false);
+        register int *s = &topHeader->states.data()[left];
+        for (i = left; i <= right; ++i) {
+            if (!isColumnSelected(i))
+                *s = Q3TableHeader::Normal;
+            else if (isColumnSelected(i, true))
+                *s = Q3TableHeader::Selected;
+            else
+                *s = Q3TableHeader::Bold;
+            ++s;
+        }
+        topHeader->repaint(false);
     }
 
     if (updateVertical && numRows() > 0 && top >= 0) {
-	register int *s = &leftHeader->states.data()[top];
-	for (i = top; i <= bottom; ++i) {
-	    if (!isRowSelected(i))
-		*s = Q3TableHeader::Normal;
-	    else if (isRowSelected(i, true))
-		*s = Q3TableHeader::Selected;
-	    else
-		*s = Q3TableHeader::Bold;
-	    ++s;
-	}
-	leftHeader->repaint(false);
+        register int *s = &leftHeader->states.data()[top];
+        for (i = top; i <= bottom; ++i) {
+            if (!isRowSelected(i))
+                *s = Q3TableHeader::Normal;
+            else if (isRowSelected(i, true))
+                *s = Q3TableHeader::Selected;
+            else
+                *s = Q3TableHeader::Bold;
+            ++s;
+        }
+        leftHeader->repaint(false);
     }
 }
 
@@ -5315,15 +5315,15 @@ void Q3Table::repaintSelections(Q3TableSelection *oldSelection,
 void Q3Table::repaintSelections()
 {
     if (selections.isEmpty())
-	return;
+        return;
 
     QRect r;
     for (Q3TableSelection *s = selections.first(); s; s = selections.next()) {
-	bool b;
-	r = r.unite(rangeGeometry(s->topRow(),
-				    s->leftCol(),
-				    s->bottomRow(),
-				    s->rightCol(), b));
+        bool b;
+        r = r.united(rangeGeometry(s->topRow(),
+                                    s->leftCol(),
+                                    s->bottomRow(),
+                                    s->rightCol(), b));
     }
 
     repaintContents(r, false);
@@ -5339,29 +5339,29 @@ void Q3Table::repaintSelections()
 void Q3Table::clearSelection(bool repaint)
 {
     if (selections.isEmpty())
-	return;
+        return;
     bool needRepaint = !selections.isEmpty();
 
     QRect r;
     for (Q3TableSelection *s = selections.first(); s; s = selections.next()) {
-	bool b;
-	r = r.unite(rangeGeometry(s->topRow(),
-				    s->leftCol(),
-				    s->bottomRow(),
-				    s->rightCol(), b));
+        bool b;
+        r = r.united(rangeGeometry(s->topRow(),
+                                   s->leftCol(),
+                                   s->bottomRow(),
+                                   s->rightCol(), b));
     }
 
     currentSel = 0;
     selections.clear();
 
     if (needRepaint && repaint)
-	repaintContents(r, false);
+        repaintContents(r, false);
 
     leftHeader->setSectionStateToAll(Q3TableHeader::Normal);
     leftHeader->repaint(false);
     if (!isRowSelection(selectionMode())) {
-	topHeader->setSectionStateToAll(Q3TableHeader::Normal);
-	topHeader->repaint(false);
+        topHeader->setSectionStateToAll(Q3TableHeader::Normal);
+        topHeader->repaint(false);
     }
     topHeader->setSectionState(curCol, Q3TableHeader::Bold);
     leftHeader->setSectionState(curRow, Q3TableHeader::Bold);
@@ -5372,25 +5372,25 @@ void Q3Table::clearSelection(bool repaint)
 */
 
 QRect Q3Table::rangeGeometry(int topRow, int leftCol,
-			     int bottomRow, int rightCol, bool &optimize)
+                             int bottomRow, int rightCol, bool &optimize)
 {
     topRow = QMAX(topRow, rowAt(contentsY()));
     leftCol = QMAX(leftCol, columnAt(contentsX()));
     int ra = rowAt(contentsY() + visibleHeight());
     if (ra != -1)
-	bottomRow = QMIN(bottomRow, ra);
+        bottomRow = QMIN(bottomRow, ra);
     int ca = columnAt(contentsX() + visibleWidth());
     if (ca != -1)
-	rightCol = QMIN(rightCol, ca);
+        rightCol = QMIN(rightCol, ca);
     optimize = true;
     QRect rect;
     for (int r = topRow; r <= bottomRow; ++r) {
-	for (int c = leftCol; c <= rightCol; ++c) {
-	    rect = rect.unite(cellGeometry(r, c));
-	    Q3TableItem *i = item(r, c);
-	    if (i && (i->rowSpan() > 1 || i->colSpan() > 1))
-		optimize = false;
-	}
+        for (int c = leftCol; c <= rightCol; ++c) {
+            rect = rect.united(cellGeometry(r, c));
+            Q3TableItem *i = item(r, c);
+            if (i && (i->rowSpan() > 1 || i->colSpan() > 1))
+                optimize = false;
+        }
     }
     return rect;
 }
@@ -5408,32 +5408,32 @@ void Q3Table::activateNextCell()
 {
     int firstRow = 0;
     while (d->hiddenRows.find(firstRow))
-	firstRow++;
+        firstRow++;
     int firstCol = 0;
     while (d->hiddenCols.find(firstCol))
-	firstCol++;
+        firstCol++;
     int nextRow = curRow;
     int nextCol = curCol;
     while (d->hiddenRows.find(++nextRow));
     if (nextRow >= numRows()) {
-	nextRow = firstRow;
-	while (d->hiddenCols.find(++nextCol));
-	if (nextCol >= numCols())
-	    nextCol = firstCol;
+        nextRow = firstRow;
+        while (d->hiddenCols.find(++nextCol));
+        if (nextCol >= numCols())
+            nextCol = firstCol;
     }
 
     if (!currentSel || !currentSel->isActive() ||
-	 (currentSel->leftCol() == currentSel->rightCol() &&
-	   currentSel->topRow() == currentSel->bottomRow())) {
-	clearSelection();
-	setCurrentCell(nextRow, nextCol);
+         (currentSel->leftCol() == currentSel->rightCol() &&
+           currentSel->topRow() == currentSel->bottomRow())) {
+        clearSelection();
+        setCurrentCell(nextRow, nextCol);
     } else {
-	if (curRow < currentSel->bottomRow())
-	    setCurrentCell(nextRow, curCol);
-	else if (curCol < currentSel->rightCol())
-	    setCurrentCell(currentSel->topRow(), nextCol);
-	else
-	    setCurrentCell(currentSel->topRow(), currentSel->leftCol());
+        if (curRow < currentSel->bottomRow())
+            setCurrentCell(nextRow, curCol);
+        else if (curCol < currentSel->rightCol())
+            setCurrentCell(currentSel->topRow(), nextCol);
+        else
+            setCurrentCell(currentSel->topRow(), currentSel->leftCol());
     }
 
 }
@@ -5444,10 +5444,10 @@ void Q3Table::activateNextCell()
 void Q3Table::fixRow(int &row, int y)
 {
     if (row == -1) {
-	if (y < 0)
-	    row = 0;
-	else
-	    row = numRows() - 1;
+        if (y < 0)
+            row = 0;
+        else
+            row = numRows() - 1;
     }
 }
 
@@ -5457,10 +5457,10 @@ void Q3Table::fixRow(int &row, int y)
 void Q3Table::fixCol(int &col, int x)
 {
     if (col == -1) {
-	if (x < 0)
-	    col = 0;
-	else
-	    col = numCols() - 1;
+        if (x < 0)
+            col = 0;
+        else
+            col = numCols() - 1;
     }
 }
 
@@ -5480,7 +5480,7 @@ static int cmpTableItems(const void *n1, const void *n2)
 #endif
 {
     if (!n1 || !n2)
-	return 0;
+        return 0;
 
     SortableTableItem *i1 = (SortableTableItem *)n1;
     SortableTableItem *i2 = (SortableTableItem *)n2;
@@ -5510,21 +5510,21 @@ void Q3Table::sortColumn(int col, bool ascending, bool wholeRows)
 {
     int filledRows = 0, i;
     for (i = 0; i < numRows(); ++i) {
-	Q3TableItem *itm = item(i, col);
-	if (itm)
-	    filledRows++;
+        Q3TableItem *itm = item(i, col);
+        if (itm)
+            filledRows++;
     }
 
     if (!filledRows)
-	return;
+        return;
 
     SortableTableItem *items = new SortableTableItem[ filledRows ];
     int j = 0;
     for (i = 0; i < numRows(); ++i) {
-	Q3TableItem *itm = item(i, col);
-	if (!itm)
-	    continue;
-	items[ j++ ].item = itm;
+        Q3TableItem *itm = item(i, col);
+        if (!itm)
+            continue;
+        items[ j++ ].item = itm;
     }
 
     qsort(items, filledRows, sizeof(SortableTableItem), cmpTableItems);
@@ -5533,36 +5533,36 @@ void Q3Table::sortColumn(int col, bool ascending, bool wholeRows)
     if (updatesWereEnabled)
         setUpdatesEnabled(false);
     for (i = 0; i < numRows(); ++i) {
-	if (i < filledRows) {
-	    if (ascending) {
-		if (items[ i ].item->row() == i)
-		    continue;
-		if (wholeRows)
-		    swapRows(items[ i ].item->row(), i);
-		else
-		    swapCells(items[ i ].item->row(), col, i, col);
-	    } else {
-		if (items[ i ].item->row() == filledRows - i - 1)
-		    continue;
-		if (wholeRows)
-		    swapRows(items[ i ].item->row(), filledRows - i - 1);
-		else
-		    swapCells(items[ i ].item->row(), col,
-			       filledRows - i - 1, col);
-	    }
-	}
+        if (i < filledRows) {
+            if (ascending) {
+                if (items[ i ].item->row() == i)
+                    continue;
+                if (wholeRows)
+                    swapRows(items[ i ].item->row(), i);
+                else
+                    swapCells(items[ i ].item->row(), col, i, col);
+            } else {
+                if (items[ i ].item->row() == filledRows - i - 1)
+                    continue;
+                if (wholeRows)
+                    swapRows(items[ i ].item->row(), filledRows - i - 1);
+                else
+                    swapCells(items[ i ].item->row(), col,
+                               filledRows - i - 1, col);
+            }
+        }
     }
     if (updatesWereEnabled)
         setUpdatesEnabled(true);
     if (topHeader)
- 	topHeader->setSortIndicator(col, ascending ? Qt::Ascending : Qt::Descending);
+         topHeader->setSortIndicator(col, ascending ? Qt::Ascending : Qt::Descending);
 
     if (!wholeRows)
-	repaintContents(columnPos(col), contentsY(),
-			 columnWidth(col), visibleHeight(), false);
+        repaintContents(columnPos(col), contentsY(),
+                         columnWidth(col), visibleHeight(), false);
     else
-	repaintContents(contentsX(), contentsY(),
-			 visibleWidth(), visibleHeight(), false);
+        repaintContents(contentsX(), contentsY(),
+                         visibleWidth(), visibleHeight(), false);
 
     delete [] items;
 }
@@ -5576,20 +5576,20 @@ void Q3Table::sortColumn(int col, bool ascending, bool wholeRows)
 void Q3Table::hideRow(int row)
 {
     if (d->hiddenRows.find(row))
-	return;
+        return;
     d->hiddenRows.replace(row, new int(leftHeader->sectionSize(row)));
     leftHeader->resizeSection(row, 0);
     leftHeader->setResizeEnabled(false, row);
     if (isRowStretchable(row))
-	leftHeader->numStretches--;
+        leftHeader->numStretches--;
     rowHeightChanged(row);
     if (curRow == row) {
-	int r = curRow;
-	int c = curCol;
-	int k = (r >= numRows() - 1 ? Key_Up : Key_Down);
-	fixCell(r, c, k);
-	if (numRows() > 0)
-	    setCurrentCell(r, c);
+        int r = curRow;
+        int c = curCol;
+        int k = (r >= numRows() - 1 ? Key_Up : Key_Down);
+        fixCell(r, c, k);
+        if (numRows() > 0)
+            setCurrentCell(r, c);
     }
 }
 
@@ -5602,20 +5602,20 @@ void Q3Table::hideRow(int row)
 void Q3Table::hideColumn(int col)
 {
     if (!numCols() || d->hiddenCols.find(col))
-	return;
+        return;
     d->hiddenCols.replace(col, new int(topHeader->sectionSize(col)));
     topHeader->resizeSection(col, 0);
     topHeader->setResizeEnabled(false, col);
     if (isColumnStretchable(col))
-	topHeader->numStretches--;
+        topHeader->numStretches--;
     columnWidthChanged(col);
     if (curCol == col) {
-	int r = curRow;
-	int c = curCol;
-	int k = (c >= numCols() - 1 ? Key_Left : Key_Right);
-	fixCell(r, c, k);
-	if (numCols() > 0)
-	    setCurrentCell(r, c);
+        int r = curRow;
+        int c = curCol;
+        int k = (c >= numCols() - 1 ? Key_Left : Key_Right);
+        fixCell(r, c, k);
+        if (numCols() > 0)
+            setCurrentCell(r, c);
     }
 }
 
@@ -5629,13 +5629,13 @@ void Q3Table::showRow(int row)
 {
     int *h = d->hiddenRows.find(row);
     if (h) {
-	int rh = *h;
-	d->hiddenRows.remove(row);
-	setRowHeight(row, rh);
-	if (isRowStretchable(row))
-	    leftHeader->numStretches++;
+        int rh = *h;
+        d->hiddenRows.remove(row);
+        setRowHeight(row, rh);
+        if (isRowStretchable(row))
+            leftHeader->numStretches++;
     } else if (rowHeight(row) == 0) {
-	setRowHeight(row, 20);
+        setRowHeight(row, 20);
     }
     leftHeader->setResizeEnabled(true, row);
 }
@@ -5650,13 +5650,13 @@ void Q3Table::showColumn(int col)
 {
     int *w = d->hiddenCols.find(col);
     if (w) {
-	int cw = *w;
-	d->hiddenCols.remove(col);
-	setColumnWidth(col, cw);
-	if (isColumnStretchable(col))
-	    topHeader->numStretches++;
+        int cw = *w;
+        d->hiddenCols.remove(col);
+        setColumnWidth(col, cw);
+        if (isColumnStretchable(col))
+            topHeader->numStretches++;
     } else if (columnWidth(col) == 0) {
-	setColumnWidth(col, 20);
+        setColumnWidth(col, 20);
     }
     topHeader->setResizeEnabled(true, col);
 }
@@ -5693,10 +5693,10 @@ void Q3Table::setColumnWidth(int col, int w)
 {
     int *ow = d->hiddenCols.find(col);
     if (ow) {
-	d->hiddenCols.replace(col, new int(w));
+        d->hiddenCols.replace(col, new int(w));
     } else {
-	topHeader->resizeSection(col, w);
-	columnWidthChanged(col);
+        topHeader->resizeSection(col, w);
+        columnWidthChanged(col);
     }
 }
 
@@ -5710,10 +5710,10 @@ void Q3Table::setRowHeight(int row, int h)
 {
     int *oh = d->hiddenRows.find(row);
     if (oh) {
-	d->hiddenRows.replace(row, new int(h));
+        d->hiddenRows.replace(row, new int(h));
     } else {
-	leftHeader->resizeSection(row, h);
-	rowHeightChanged(row);
+        leftHeader->resizeSection(row, h);
+        rowHeightChanged(row);
     }
 }
 
@@ -5735,20 +5735,20 @@ void Q3Table::adjustColumn(int col)
         w = topHeader->sectionSizeHint( col, fontMetrics() ).width();
     }
     if (topHeader->iconSet(col))
-	w += topHeader->iconSet(col)->pixmap().width();
+        w += topHeader->iconSet(col)->pixmap().width();
     w = QMAX(w, 20);
     for (int i = 0; i < numRows(); ++i) {
-	Q3TableItem *itm = item(i, col);
-	if (!itm) {
-	    QWidget *widget = cellWidget(i, col);
-	    if (widget)
-		w = QMAX(w, widget->sizeHint().width());
-	} else {
-	    if (itm->colSpan() > 1)
-		w = QMAX(w, itm->sizeHint().width() / itm->colSpan());
-	    else
-		w = QMAX(w, itm->sizeHint().width());
-	}
+        Q3TableItem *itm = item(i, col);
+        if (!itm) {
+            QWidget *widget = cellWidget(i, col);
+            if (widget)
+                w = QMAX(w, widget->sizeHint().width());
+        } else {
+            if (itm->colSpan() > 1)
+                w = QMAX(w, itm->sizeHint().width() / itm->colSpan());
+            else
+                w = QMAX(w, itm->sizeHint().width());
+        }
     }
     w = QMAX(w, QApplication::globalStrut().width());
     setColumnWidth(col, w);
@@ -5766,19 +5766,19 @@ void Q3Table::adjustRow(int row)
     int h = 20;
     h = QMAX(h, leftHeader->sectionSizeHint(row, leftHeader->fontMetrics()).height());
     if (leftHeader->iconSet(row))
-	h = QMAX(h, leftHeader->iconSet(row)->pixmap().height());
+        h = QMAX(h, leftHeader->iconSet(row)->pixmap().height());
     for (int i = 0; i < numCols(); ++i) {
-	Q3TableItem *itm = item(row, i);
-	if (!itm) {
-	    QWidget *widget = cellWidget(row, i);
-	    if (widget)
-		h = QMAX(h, widget->sizeHint().height());
-	} else {
-	    if (itm->rowSpan() > 1)
-		h = QMAX(h, itm->sizeHint().height() / itm->rowSpan());
-	    else
-		h = QMAX(h, itm->sizeHint().height());
-	}
+        Q3TableItem *itm = item(row, i);
+        if (!itm) {
+            QWidget *widget = cellWidget(row, i);
+            if (widget)
+                h = QMAX(h, widget->sizeHint().height());
+        } else {
+            if (itm->rowSpan() > 1)
+                h = QMAX(h, itm->sizeHint().height() / itm->rowSpan());
+            else
+                h = QMAX(h, itm->sizeHint().height());
+        }
     }
     h = QMAX(h, QApplication::globalStrut().height());
     setRowHeight(row, h);
@@ -5801,7 +5801,7 @@ void Q3Table::setColumnStretchable(int col, bool stretch)
     topHeader->setSectionStretchable(col, stretch);
 
     if (stretch && d->hiddenCols.find(col))
-	topHeader->numStretches--;
+        topHeader->numStretches--;
 }
 
 /*!
@@ -5821,7 +5821,7 @@ void Q3Table::setRowStretchable(int row, bool stretch)
     leftHeader->setSectionStretchable(row, stretch);
 
     if (stretch && d->hiddenRows.find(row))
-	leftHeader->numStretches--;
+        leftHeader->numStretches--;
 }
 
 /*!
@@ -5864,18 +5864,18 @@ bool Q3Table::isRowStretchable(int row) const
 void Q3Table::takeItem(Q3TableItem *i)
 {
     if (!i)
-	return;
+        return;
     QRect rect = cellGeometry(i->row(), i->col());
     contents.setAutoDelete(false);
     int bottom = i->row() + i->rowSpan();
     if (bottom > numRows())
-	bottom = numRows();
+        bottom = numRows();
     int right = i->col() + i->colSpan();
     if (right > numCols())
-	right = numCols();
+        right = numCols();
     for (int r = i->row(); r < bottom; ++r) {
-	for (int c = i->col(); c < right; ++c)
-	    contents.remove(indexOf(r, c));
+        for (int c = i->col(); c < right; ++c)
+            contents.remove(indexOf(r, c));
     }
     contents.setAutoDelete(true);
     repaintContents(rect, false);
@@ -5909,16 +5909,16 @@ void Q3Table::takeItem(Q3TableItem *i)
 void Q3Table::setCellWidget(int row, int col, QWidget *e)
 {
     if (!e || row >= numRows() || col >= numCols())
-	return;
+        return;
 
     QWidget *w = cellWidget(row, col);
     if (w && row == editRow && col == editCol)
-	endEdit(editRow, editCol, false, edMode != Editing);
+        endEdit(editRow, editCol, false, edMode != Editing);
 
     e->installEventFilter(this);
     clearCellWidget(row, col);
     if (e->parent() != viewport())
-	e->reparent(viewport(), QPoint(0,0));
+        e->reparent(viewport(), QPoint(0,0));
     Q3TableItem *itm = item(row, col);
     if (itm && itm->row() >= 0 && itm->col() >= 0) { // get the correct row and col if the item is spanning
         row = itm->row();
@@ -5943,10 +5943,10 @@ void Q3Table::setCellWidget(int row, int col, QWidget *e)
 void Q3Table::insertWidget(int row, int col, QWidget *w)
 {
     if (row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1)
-	return;
+        return;
 
     if ((int)widgets.size() != numRows() * numCols())
-	widgets.resize(numRows() * numCols());
+        widgets.resize(numRows() * numCols());
 
     widgets.insert(indexOf(row, col), w);
 }
@@ -5964,10 +5964,10 @@ void Q3Table::insertWidget(int row, int col, QWidget *w)
 QWidget *Q3Table::cellWidget(int row, int col) const
 {
     if (row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1)
-	return 0;
+        return 0;
 
     if ((int)widgets.size() != numRows() * numCols())
-	((Q3Table*)this)->widgets.resize(numRows() * numCols());
+        ((Q3Table*)this)->widgets.resize(numRows() * numCols());
 
     return widgets[ indexOf(row, col) ];
 }
@@ -5989,15 +5989,15 @@ QWidget *Q3Table::cellWidget(int row, int col) const
 void Q3Table::clearCellWidget(int row, int col)
 {
     if (row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1)
-	return;
+        return;
 
     if ((int)widgets.size() != numRows() * numCols())
-	widgets.resize(numRows() * numCols());
+        widgets.resize(numRows() * numCols());
 
     QWidget *w = cellWidget(row, col);
     if (w) {
-	w->removeEventFilter(this);
-	w->deleteLater();
+        w->removeEventFilter(this);
+        w->deleteLater();
     }
     widgets.setAutoDelete(false);
     widgets.remove(indexOf(row, col));
@@ -6044,16 +6044,16 @@ void Q3Table::insertRows(int row, int count)
     // special case, so a call like insertRow(currentRow(), 1) also
     // works, when we have 0 rows and currentRow() is -1
     if (row == -1 && curRow == -1)
-	row = 0;
+        row = 0;
     if (row < 0 || count <= 0)
-	return;
+        return;
 
     if (curRow >= row && curRow < row + count)
-	curRow = row + count;
+        curRow = row + count;
 
     --row;
     if (row >= numRows())
-	return;
+        return;
 
     bool updatesWereEnabled = updatesEnabled();
     if (updatesWereEnabled)
@@ -6066,7 +6066,7 @@ void Q3Table::insertRows(int row, int count)
     setNumRows(numRows() + count);
 
     for (int i = numRows() - count - 1; i > row; --i)
-	leftHeader->swapSections(i, i + count);
+        leftHeader->swapSections(i, i + count);
 
     if (leftHeaderUpdatesEnabled)
         leftHeader->setUpdatesEnabled(leftHeaderUpdatesEnabled);
@@ -6077,23 +6077,23 @@ void Q3Table::insertRows(int row, int count)
     int cr = QMAX(0, currentRow());
     int cc = QMAX(0, currentColumn());
     if (curRow > row)
-	curRow -= count; // this is where curRow was
+        curRow -= count; // this is where curRow was
     setCurrentCell(cr, cc, true, false); // without ensureCellVisible
 
     // Repaint the header
     if (leftHeaderUpdatesEnabled) {
-	int y = rowPos(row) - contentsY();
-	if (leftMargin() != oldLeftMargin || d->hasRowSpan)
-	    y = 0; // full repaint
-	QRect rect(0, y, leftHeader->width(), contentsHeight());
-	leftHeader->update(rect);
+        int y = rowPos(row) - contentsY();
+        if (leftMargin() != oldLeftMargin || d->hasRowSpan)
+            y = 0; // full repaint
+        QRect rect(0, y, leftHeader->width(), contentsHeight());
+        leftHeader->update(rect);
     }
 
     if (updatesWereEnabled) {
-	int p = rowPos(row);
-	if (d->hasRowSpan)
-	    p = contentsY();
-	updateContents(contentsX(), p, visibleWidth(), contentsHeight() + 1);
+        int p = rowPos(row);
+        if (d->hasRowSpan)
+            p = contentsY();
+        updateContents(contentsX(), p, visibleWidth(), contentsHeight() + 1);
     }
 }
 
@@ -6107,16 +6107,16 @@ void Q3Table::insertColumns(int col, int count)
 {
     // see comment in insertRows()
     if (col == -1 && curCol == -1)
-	col = 0;
+        col = 0;
     if (col < 0 || count <= 0)
-	return;
+        return;
 
     if (curCol >= col && curCol < col + count)
-	curCol = col + count;
+        curCol = col + count;
 
     --col;
     if (col >= numCols())
-	return;
+        return;
 
     bool updatesWereEnabled = updatesEnabled();
     if (updatesWereEnabled)
@@ -6129,7 +6129,7 @@ void Q3Table::insertColumns(int col, int count)
     setNumCols(numCols() + count);
 
     for (int i = numCols() - count - 1; i > col; --i)
-	topHeader->swapSections(i, i + count);
+        topHeader->swapSections(i, i + count);
 
     if (topHeaderUpdatesEnabled)
         topHeader->setUpdatesEnabled(true);
@@ -6139,23 +6139,23 @@ void Q3Table::insertColumns(int col, int count)
     int cr = QMAX(0, currentRow());
     int cc = QMAX(0, currentColumn());
     if (curCol > col)
-	curCol -= count; // this is where curCol was
+        curCol -= count; // this is where curCol was
     setCurrentCell(cr, cc, true, false); // without ensureCellVisible
 
     // Repaint the header
     if (topHeaderUpdatesEnabled) {
-	int x = columnPos(col) - contentsX();
-	if (topMargin() != oldTopMargin || d->hasColSpan)
-	    x = 0; // full repaint
-	QRect rect(x, 0, contentsWidth(), topHeader->height());
-	topHeader->update(rect);
+        int x = columnPos(col) - contentsX();
+        if (topMargin() != oldTopMargin || d->hasColSpan)
+            x = 0; // full repaint
+        QRect rect(x, 0, contentsWidth(), topHeader->height());
+        topHeader->update(rect);
     }
 
     if (updatesWereEnabled) {
-	int p = columnPos(col);
-	if (d->hasColSpan)
-	    p = contentsX();
-	updateContents(p, contentsY(), contentsWidth() + 1, visibleHeight());
+        int p = columnPos(col);
+        if (d->hasColSpan)
+            p = contentsX();
+        updateContents(p, contentsY(), contentsWidth() + 1, visibleHeight());
     }
 }
 
@@ -6169,13 +6169,13 @@ void Q3Table::insertColumns(int col, int count)
 void Q3Table::removeRow(int row)
 {
     if (row < 0 || row >= numRows())
-	return;
+        return;
     if (row < numRows() - 1) {
-	if (d->hiddenRows.find(row))
-	    d->hiddenRows.remove(row);
+        if (d->hiddenRows.find(row))
+            d->hiddenRows.remove(row);
 
-	for (int i = row; i < numRows() - 1; ++i)
-	    ((Q3TableHeader*)verticalHeader())->swapSections(i, i + 1);
+        for (int i = row; i < numRows() - 1; ++i)
+            ((Q3TableHeader*)verticalHeader())->swapSections(i, i + 1);
     }
     setNumRows(numRows() - 1);
 }
@@ -6194,16 +6194,16 @@ void Q3Table::removeRow(int row)
 void Q3Table::removeRows(const Q3MemArray<int> &rows)
 {
     if (rows.count() == 0)
-	return;
+        return;
     int i;
     for (i = 0; i < (int)rows.count() - 1; ++i) {
-	for (int j = rows[i] - i; j < rows[i + 1] - i - 1; j++) {
-	    ((Q3TableHeader*)verticalHeader())->swapSections(j, j + i + 1);
-	}
+        for (int j = rows[i] - i; j < rows[i + 1] - i - 1; j++) {
+            ((Q3TableHeader*)verticalHeader())->swapSections(j, j + i + 1);
+        }
     }
 
     for (int j = rows[i] - i; j < numRows() - (int)rows.size(); j++)
-	((Q3TableHeader*)verticalHeader())->swapSections(j, j + rows.count());
+        ((Q3TableHeader*)verticalHeader())->swapSections(j, j + rows.count());
 
     setNumRows(numRows() - rows.count());
 }
@@ -6219,13 +6219,13 @@ void Q3Table::removeRows(const Q3MemArray<int> &rows)
 void Q3Table::removeColumn(int col)
 {
     if (col < 0 || col >= numCols())
-	return;
+        return;
     if (col < numCols() - 1) {
-	if (d->hiddenCols.find(col))
-	    d->hiddenCols.remove(col);
+        if (d->hiddenCols.find(col))
+            d->hiddenCols.remove(col);
 
-	for (int i = col; i < numCols() - 1; ++i)
-	    ((Q3TableHeader*)horizontalHeader())->swapSections(i, i + 1);
+        for (int i = col; i < numCols() - 1; ++i)
+            ((Q3TableHeader*)horizontalHeader())->swapSections(i, i + 1);
     }
     setNumCols(numCols() - 1);
 }
@@ -6245,16 +6245,16 @@ void Q3Table::removeColumn(int col)
 void Q3Table::removeColumns(const Q3MemArray<int> &cols)
 {
     if (cols.count() == 0)
-	return;
+        return;
     int i;
     for (i = 0; i < (int)cols.count() - 1; ++i) {
-	for (int j = cols[i] - i; j < cols[i + 1] - i - 1; j++) {
-	    ((Q3TableHeader*)horizontalHeader())->swapSections(j, j + i + 1);
-	}
+        for (int j = cols[i] - i; j < cols[i + 1] - i - 1; j++) {
+            ((Q3TableHeader*)horizontalHeader())->swapSections(j, j + i + 1);
+        }
     }
 
     for (int j = cols[i] - i; j < numCols() - (int)cols.size(); j++)
-	((Q3TableHeader*)horizontalHeader())->swapSections(j, j + cols.count());
+        ((Q3TableHeader*)horizontalHeader())->swapSections(j, j + cols.count());
 
     setNumCols(numCols() - cols.count());
 }
@@ -6273,12 +6273,12 @@ void Q3Table::removeColumns(const Q3MemArray<int> &cols)
 void Q3Table::editCell(int row, int col, bool replace)
 {
     if (row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1)
-	return;
+        return;
 
     if (beginEdit(row, col, replace)) {
-	edMode = Editing;
-	editRow = row;
-	editCol = col;
+        edMode = Editing;
+        editRow = row;
+        editCol = col;
     }
 }
 
@@ -6301,7 +6301,7 @@ void Q3Table::contentsDragEnterEvent(QDragEnterEvent *e)
     fixRow(tmpRow, e->pos().y());
     fixCol(tmpCol, e->pos().x());
     if (e->source() != (QObject*)cellWidget(currentRow(), currentColumn()))
-	setCurrentCell(tmpRow, tmpCol, false, true);
+        setCurrentCell(tmpRow, tmpCol, false, true);
     e->accept();
 }
 
@@ -6320,7 +6320,7 @@ void Q3Table::contentsDragMoveEvent(QDragMoveEvent *e)
     fixRow(tmpRow, e->pos().y());
     fixCol(tmpCol, e->pos().x());
     if (e->source() != (QObject*)cellWidget(currentRow(), currentColumn()))
-	setCurrentCell(tmpRow, tmpCol, false, true);
+        setCurrentCell(tmpRow, tmpCol, false, true);
     e->accept();
 }
 
@@ -6374,13 +6374,13 @@ Q3DragObject *Q3Table::dragObject()
 void Q3Table::startDrag()
 {
     if (startDragRow == -1 || startDragCol == -1)
-	return;
+        return;
 
     startDragRow = startDragCol = -1;
 
     Q3DragObject *drag = dragObject();
     if (!drag)
-	return;
+        return;
 
     drag->drag();
 }
@@ -6391,13 +6391,13 @@ void Q3Table::startDrag()
 void Q3Table::windowActivationChange(bool oldActive)
 {
     if (oldActive && autoScrollTimer)
-	autoScrollTimer->stop();
+        autoScrollTimer->stop();
 
     if (!isVisible())
-	return;
+        return;
 
     if (palette().active() != palette().inactive())
-	updateContents();
+        updateContents();
 }
 
 /*!
@@ -6406,9 +6406,9 @@ void Q3Table::windowActivationChange(bool oldActive)
 void Q3Table::setEnabled(bool b)
 {
     if (!b) {
-	// editor will lose focus, causing a crash deep in setEnabled(),
-	// so we'll end the edit early.
-	endEdit(editRow, editCol, true, edMode != Editing);
+        // editor will lose focus, causing a crash deep in setEnabled(),
+        // so we'll end the edit early.
+        endEdit(editRow, editCol, true, edMode != Editing);
     }
     Q3ScrollView::setEnabled(b);
 }
@@ -6444,7 +6444,7 @@ void Q3Table::setEnabled(bool b)
 */
 
 Q3TableHeader::Q3TableHeader(int i, Q3Table *t,
-			    QWidget *parent, const char *name)
+                            QWidget *parent, const char *name)
     : Q3Header(i, parent, name), mousePressed(false), startPos(-1),
       table(t), caching(false), resizedSection(-1),
       numStretches(0)
@@ -6457,7 +6457,7 @@ Q3TableHeader::Q3TableHeader(int i, Q3Table *t,
     stretchable.fill(false, -1);
     autoScrollTimer = new QTimer(this);
     connect(autoScrollTimer, SIGNAL(timeout()),
-	     this, SLOT(doAutoScroll()));
+             this, SLOT(doAutoScroll()));
 #ifndef NO_LINE_WIDGET
     line1 = new QWidget(table->viewport(), "qt_line1");
     line1->hide();
@@ -6472,16 +6472,16 @@ Q3TableHeader::Q3TableHeader(int i, Q3Table *t,
     d->oldLinePos = -1; //outside, in contents coords
 #endif
     connect(this, SIGNAL(sizeChange(int,int,int)),
-	     this, SLOT(sectionWidthChanged(int,int,int)));
+             this, SLOT(sectionWidthChanged(int,int,int)));
     connect(this, SIGNAL(indexChange(int,int,int)),
-	     this, SLOT(indexChanged(int,int,int)));
+             this, SLOT(indexChanged(int,int,int)));
 
     stretchTimer = new QTimer(this);
     widgetStretchTimer = new QTimer(this);
     connect(stretchTimer, SIGNAL(timeout()),
-	     this, SLOT(updateStretches()));
+             this, SLOT(updateStretches()));
     connect(widgetStretchTimer, SIGNAL(timeout()),
-	     this, SLOT(updateWidgetStretches()));
+             this, SLOT(updateWidgetStretches()));
     startPos = -1;
 }
 
@@ -6496,13 +6496,13 @@ void Q3TableHeader::addLabel(const QString &s , int size)
 {
     Q3Header::addLabel(s, size);
     if (count() > (int)states.size()) {
-	int s = states.size();
-	states.resize(count());
-	stretchable.resize(count());
-	for (; s < count(); ++s) {
-	    states[ s ] = Normal;
-	    stretchable[ s ] = false;
-	}
+        int s = states.size();
+        states.resize(count());
+        stretchable.resize(count());
+        for (; s < count(); ++s) {
+            states[ s ] = Normal;
+            stretchable[ s ] = false;
+        }
     }
 }
 
@@ -6510,8 +6510,8 @@ void Q3TableHeader::removeLabel(int section)
 {
     Q3Header::removeLabel(section);
     if (section == (int)states.size() - 1) {
-	states.resize(states.size() - 1);
-	stretchable.resize(stretchable.size() - 1);
+        states.resize(states.size() - 1);
+        stretchable.resize(stretchable.size() - 1);
     }
 }
 
@@ -6521,10 +6521,10 @@ void Q3TableHeader::resizeArrays(int n)
     states.resize(n);
     stretchable.resize(n);
     if (n > old) {
-	for (int i = old; i < n; ++i) {
-	    stretchable[ i ] = false;
-	    states[ i ] = Normal;
-	}
+        for (int i = old; i < n; ++i) {
+            stretchable[ i ] = false;
+            states[ i ] = Normal;
+        }
     }
 }
 
@@ -6535,7 +6535,7 @@ void Q3TableHeader::setLabel(int section, const QString & s, int size)
 }
 
 void Q3TableHeader::setLabel(int section, const QIconSet & iconset,
-			     const QString & s, int size)
+                             const QString & s, int size)
 {
     Q3Header::setLabel(section, iconset, s, size);
     sectionLabelChanged(section);
@@ -6550,46 +6550,46 @@ void Q3TableHeader::setLabel(int section, const QIconSet & iconset,
 void Q3TableHeader::setSectionState(int s, SectionState astate)
 {
     if (s < 0 || s >= (int)states.count())
-	return;
+        return;
     if (states.data()[ s ] == astate)
-	return;
+        return;
     if (isRowSelection(table->selectionMode()) && orientation() == Horizontal)
-	return;
+        return;
 
     states.data()[ s ] = astate;
     if (updatesEnabled()) {
-	if (orientation() == Horizontal)
-	    repaint(sectionPos(s) - offset(), 0, sectionSize(s), height(), false);
-	else
-	    repaint(0, sectionPos(s) - offset(), width(), sectionSize(s), false);
+        if (orientation() == Horizontal)
+            repaint(sectionPos(s) - offset(), 0, sectionSize(s), height(), false);
+        else
+            repaint(0, sectionPos(s) - offset(), width(), sectionSize(s), false);
     }
 }
 
 void Q3TableHeader::setSectionStateToAll(SectionState state)
 {
     if (isRowSelection(table->selectionMode()) && orientation() == Horizontal)
-	return;
+        return;
 
     register int *d = (int *) states.data();
     int n = count();
 
     while (n >= 4) {
-	d[0] = state;
-	d[1] = state;
-	d[2] = state;
-	d[3] = state;
-	d += 4;
-	n -= 4;
+        d[0] = state;
+        d[1] = state;
+        d[2] = state;
+        d[3] = state;
+        d += 4;
+        n -= 4;
     }
 
     if (n > 0) {
-	d[0] = state;
-	if (n > 1) {
-	    d[1] = state;
-	    if (n > 2) {
-		d[2] = state;
-	    }
-	}
+        d[0] = state;
+        if (n > 1) {
+            d[1] = state;
+            if (n > 2) {
+                d[2] = state;
+            }
+        }
     }
 }
 
@@ -6612,36 +6612,36 @@ void Q3TableHeader::paintEvent(QPaintEvent *e)
     QPainter p(this);
     p.setPen(colorGroup().buttonText());
     int pos = orientation() == Horizontal
-		     ? e->rect().left()
-		     : e->rect().top();
+                     ? e->rect().left()
+                     : e->rect().top();
     int id = mapToIndex(sectionAt(pos + offset()));
     if (id < 0) {
-	if (pos > 0)
-	    return;
-	else
-	    id = 0;
+        if (pos > 0)
+            return;
+        else
+            id = 0;
     }
 
     QRegion reg = e->region();
     for (int i = id; i < count(); i++) {
-	QRect r = sRect(i);
-	reg -= r;
-	p.save();
-	if (!(orientation() == Horizontal && isRowSelection(table->selectionMode())) &&
-	     (sectionState(i) == Bold || sectionState(i) == Selected)) {
-	    QFont f(font());
-	    f.setBold(true);
-	    p.setFont(f);
-	}
-	paintSection(&p, i, r);
-	p.restore();
-	if (orientation() == Horizontal && r. right() >= e->rect().right() ||
-	     orientation() == Vertical && r. bottom() >= e->rect().bottom())
-	    return;
+        QRect r = sRect(i);
+        reg -= r;
+        p.save();
+        if (!(orientation() == Horizontal && isRowSelection(table->selectionMode())) &&
+             (sectionState(i) == Bold || sectionState(i) == Selected)) {
+            QFont f(font());
+            f.setBold(true);
+            p.setFont(f);
+        }
+        paintSection(&p, i, r);
+        p.restore();
+        if (orientation() == Horizontal && r. right() >= e->rect().right() ||
+             orientation() == Vertical && r. bottom() >= e->rect().bottom())
+            return;
     }
     p.end();
     if (!reg.isEmpty())
-	erase(reg);
+        erase(reg);
 }
 
 /*!
@@ -6655,11 +6655,11 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
 {
     int section = mapToSection(index);
     if (section < 0 || cellSize(section) <= 0)
-	return;
+        return;
 
    if (sectionState(index) != Selected ||
-	 orientation() == Horizontal && isRowSelection(table->selectionMode())) {
-	Q3Header::paintSection(p, index, fr);
+         orientation() == Horizontal && isRowSelection(table->selectionMode())) {
+        Q3Header::paintSection(p, index, fr);
    } else {
        QStyleOptionHeader opt;
        opt.palette = palette();
@@ -6685,7 +6685,7 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
 static int real_pos(const QPoint &p, Qt::Orientation o)
 {
     if (o == Qt::Horizontal)
-	return p.x();
+        return p.x();
     return p.y();
 }
 
@@ -6695,12 +6695,12 @@ static int real_pos(const QPoint &p, Qt::Orientation o)
 void Q3TableHeader::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
-	return;
+        return;
     Q3Header::mousePressEvent(e);
     mousePressed = true;
     pressPos = real_pos(e->pos(), orientation());
     if (!table->currentSel || (e->state() & ShiftButton) != ShiftButton)
-	startPos = -1;
+        startPos = -1;
     setCaching(true);
     resizedSection = -1;
 #ifdef QT_NO_CURSOR
@@ -6708,7 +6708,7 @@ void Q3TableHeader::mousePressEvent(QMouseEvent *e)
 #else
     isResizing = cursor().shape() != ArrowCursor;
     if (!isResizing && sectionAt(pressPos) != -1)
-	doSelection(e);
+        doSelection(e);
 #endif
 }
 
@@ -6723,13 +6723,13 @@ void Q3TableHeader::mouseMoveEvent(QMouseEvent *e)
 #endif
          || ((e->state() & ControlButton) == ControlButton &&
               (orientation() == Horizontal
-	     ? table->columnMovingEnabled() : table->rowMovingEnabled()))) {
-	Q3Header::mouseMoveEvent(e);
-	return;
+             ? table->columnMovingEnabled() : table->rowMovingEnabled()))) {
+        Q3Header::mouseMoveEvent(e);
+        return;
     }
 
     if (!doSelection(e))
-	Q3Header::mouseMoveEvent(e);
+        Q3Header::mouseMoveEvent(e);
 }
 
 bool Q3TableHeader::doSelection(QMouseEvent *e)
@@ -6737,83 +6737,83 @@ bool Q3TableHeader::doSelection(QMouseEvent *e)
     int p = real_pos(e->pos(), orientation()) + offset();
 
     if (isRowSelection(table->selectionMode())) {
-	if (orientation() == Horizontal)
-	    return true;
-	if (table->selectionMode() == Q3Table::SingleRow) {
-	    int secAt = sectionAt(p);
-	    if (secAt == -1)
-		return true;
-	    table->setCurrentCell(secAt, table->currentColumn());
-	    return true;
-	}
+        if (orientation() == Horizontal)
+            return true;
+        if (table->selectionMode() == Q3Table::SingleRow) {
+            int secAt = sectionAt(p);
+            if (secAt == -1)
+                return true;
+            table->setCurrentCell(secAt, table->currentColumn());
+            return true;
+        }
     }
 
     if (startPos == -1) {
- 	int secAt = sectionAt(p);
-	if ((e->state() & ControlButton) != ControlButton &&
-	     (e->state() & ShiftButton) != ShiftButton ||
-	     table->selectionMode() == Q3Table::Single ||
-	     table->selectionMode() == Q3Table::SingleRow) {
-	    startPos = p;
-	    bool b = table->signalsBlocked();
-	    table->blockSignals(true);
-	    table->clearSelection();
-	    table->blockSignals(b);
-	}
-	saveStates();
+         int secAt = sectionAt(p);
+        if ((e->state() & ControlButton) != ControlButton &&
+             (e->state() & ShiftButton) != ShiftButton ||
+             table->selectionMode() == Q3Table::Single ||
+             table->selectionMode() == Q3Table::SingleRow) {
+            startPos = p;
+            bool b = table->signalsBlocked();
+            table->blockSignals(true);
+            table->clearSelection();
+            table->blockSignals(b);
+        }
+        saveStates();
 
-	if (table->selectionMode() != Q3Table::NoSelection) {
-	    startPos = p;
-	    Q3TableSelection *oldSelection = table->currentSel;
+        if (table->selectionMode() != Q3Table::NoSelection) {
+            startPos = p;
+            Q3TableSelection *oldSelection = table->currentSel;
 
-	    if (orientation() == Vertical) {
-		if (!table->isRowSelected(secAt, true)) {
-		    table->currentSel = new Q3TableSelection();
-		    table->selections.append(table->currentSel);
-		    table->currentSel->init(secAt, 0);
-		    table->currentSel->expandTo(secAt, table->numCols() - 1);
+            if (orientation() == Vertical) {
+                if (!table->isRowSelected(secAt, true)) {
+                    table->currentSel = new Q3TableSelection();
+                    table->selections.append(table->currentSel);
+                    table->currentSel->init(secAt, 0);
+                    table->currentSel->expandTo(secAt, table->numCols() - 1);
                     emit table->selectionChanged();
-		}
-		table->setCurrentCell(secAt, 0);
-	    } else { // orientation == Horizontal
-		if (!table->isColumnSelected(secAt, true)) {
-		    table->currentSel = new Q3TableSelection();
-		    table->selections.append(table->currentSel);
-		    table->currentSel->init(0, secAt);
-		    table->currentSel->expandTo(table->numRows() - 1, secAt);
+                }
+                table->setCurrentCell(secAt, 0);
+            } else { // orientation == Horizontal
+                if (!table->isColumnSelected(secAt, true)) {
+                    table->currentSel = new Q3TableSelection();
+                    table->selections.append(table->currentSel);
+                    table->currentSel->init(0, secAt);
+                    table->currentSel->expandTo(table->numRows() - 1, secAt);
                     emit table->selectionChanged();
-		}
-		table->setCurrentCell(0, secAt);
-	    }
+                }
+                table->setCurrentCell(0, secAt);
+            }
 
             if (orientation() == Horizontal && table->isColumnSelected(secAt) ||
                  orientation() == Vertical && table->isRowSelected(secAt)) {
                 setSectionState(secAt, Selected);
             }
 
- 	    table->repaintSelections(oldSelection, table->currentSel,
- 				      orientation() == Horizontal,
- 				      orientation() == Vertical);
-	    if (sectionAt(p) != -1)
- 		endPos = p;
+             table->repaintSelections(oldSelection, table->currentSel,
+                                       orientation() == Horizontal,
+                                       orientation() == Vertical);
+            if (sectionAt(p) != -1)
+                 endPos = p;
 
- 	    return true;
-	}
+             return true;
+        }
     }
 
     if (sectionAt(p) != -1)
-	endPos = p;
+        endPos = p;
     if (startPos != -1) {
-	updateSelections();
-	p -= offset();
-	if (orientation() == Horizontal && (p < 0 || p > width())) {
-	    doAutoScroll();
-	    autoScrollTimer->start(100, true);
-	} else if (orientation() == Vertical && (p < 0 || p > height())) {
-	    doAutoScroll();
-	    autoScrollTimer->start(100, true);
-	}
-	return true;
+        updateSelections();
+        p -= offset();
+        if (orientation() == Horizontal && (p < 0 || p > width())) {
+            doAutoScroll();
+            autoScrollTimer->start(100, true);
+        } else if (orientation() == Vertical && (p < 0 || p > height())) {
+            doAutoScroll();
+            autoScrollTimer->start(100, true);
+        }
+        return true;
     }
     return table->selectionMode() == Q3Table::NoSelection;
 }
@@ -6833,13 +6833,13 @@ void Q3TableHeader::sectionLabelChanged(int section)
 
     // this does not really belong here
     if (orientation() == Horizontal) {
-	int h = sizeHint().height();
-	if (h != height() && mayOverwriteMargin(table->topMargin(), h))
-	    table->setTopMargin(h);
+        int h = sizeHint().height();
+        if (h != height() && mayOverwriteMargin(table->topMargin(), h))
+            table->setTopMargin(h);
     } else {
-	int w = sizeHint().width();
-	if (w != width() && mayOverwriteMargin((QApplication::reverseLayout() ? table->rightMargin() : table->leftMargin()), w))
-	    table->setLeftMargin(w);
+        int w = sizeHint().width();
+        if (w != width() && mayOverwriteMargin((QApplication::reverseLayout() ? table->rightMargin() : table->leftMargin()), w))
+            table->setLeftMargin(w);
     }
 }
 
@@ -6847,7 +6847,7 @@ void Q3TableHeader::sectionLabelChanged(int section)
 void Q3TableHeader::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
-	return;
+        return;
     autoScrollTimer->stop();
     mousePressed = false;
     setCaching(false);
@@ -6857,27 +6857,27 @@ void Q3TableHeader::mouseReleaseEvent(QMouseEvent *e)
     line2->hide();
 #else
     if (d->oldLinePos >= 0)
-	if (orientation() == Horizontal)
-	    table->updateContents(d->oldLinePos, table->contentsY(),
-				   1, table->visibleHeight());
-	else
-	    table->updateContents( table->contentsX(), d->oldLinePos,
-				    table->visibleWidth(), 1);
+        if (orientation() == Horizontal)
+            table->updateContents(d->oldLinePos, table->contentsY(),
+                                   1, table->visibleHeight());
+        else
+            table->updateContents( table->contentsX(), d->oldLinePos,
+                                    table->visibleWidth(), 1);
     d->oldLinePos = -1;
 #endif
     if (resizedSection != -1) {
-	emit sectionSizeChanged(resizedSection);
-	updateStretches();
+        emit sectionSizeChanged(resizedSection);
+        updateStretches();
     }
 
     //Make sure all newly selected sections are painted one last time
     QRect selectedRects;
     for (int i = 0; i < count(); i++) {
-	if(sectionState(i) == Selected)
-	    selectedRects |= sRect(i);
+        if(sectionState(i) == Selected)
+            selectedRects |= sRect(i);
     }
     if(!selectedRects.isNull())
-	repaint(selectedRects);
+        repaint(selectedRects);
 }
 
 /*! \reimp
@@ -6886,39 +6886,39 @@ void Q3TableHeader::mouseReleaseEvent(QMouseEvent *e)
 void Q3TableHeader::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() != LeftButton)
-	return;
+        return;
     if (isResizing) {
-	int p = real_pos(e->pos(), orientation()) + offset();
-	int section = sectionAt(p);
-	if (section == -1)
-	    return;
-	section--;
-	if (p >= sectionPos(count() - 1) + sectionSize(count() - 1))
-	    ++section;
-	while (sectionSize(section) == 0)
-	    section--;
-	if (section < 0)
-	    return;
-	int oldSize = sectionSize(section);
-	if (orientation() == Horizontal) {
-	    table->adjustColumn(section);
-	    int newSize = sectionSize(section);
-	    if (oldSize != newSize)
-		emit sizeChange(section, oldSize, newSize);
-	    for (int i = 0; i < table->numCols(); ++i) {
-		if (table->isColumnSelected(i) && sectionSize(i) != 0)
-		    table->adjustColumn(i);
-	    }
-	} else {
-	    table->adjustRow(section);
-	    int newSize = sectionSize(section);
-	    if (oldSize != newSize)
-		emit sizeChange(section, oldSize, newSize);
-	    for (int i = 0; i < table->numRows(); ++i) {
-		if (table->isRowSelected(i)  && sectionSize(i) != 0)
-		    table->adjustRow(i);
-	    }
-	}
+        int p = real_pos(e->pos(), orientation()) + offset();
+        int section = sectionAt(p);
+        if (section == -1)
+            return;
+        section--;
+        if (p >= sectionPos(count() - 1) + sectionSize(count() - 1))
+            ++section;
+        while (sectionSize(section) == 0)
+            section--;
+        if (section < 0)
+            return;
+        int oldSize = sectionSize(section);
+        if (orientation() == Horizontal) {
+            table->adjustColumn(section);
+            int newSize = sectionSize(section);
+            if (oldSize != newSize)
+                emit sizeChange(section, oldSize, newSize);
+            for (int i = 0; i < table->numCols(); ++i) {
+                if (table->isColumnSelected(i) && sectionSize(i) != 0)
+                    table->adjustColumn(i);
+            }
+        } else {
+            table->adjustRow(section);
+            int newSize = sectionSize(section);
+            if (oldSize != newSize)
+                emit sizeChange(section, oldSize, newSize);
+            for (int i = 0; i < table->numRows(); ++i) {
+                if (table->isRowSelected(i)  && sectionSize(i) != 0)
+                    table->adjustRow(i);
+            }
+        }
     }
 }
 
@@ -6931,38 +6931,38 @@ void Q3TableHeader::resizeEvent(QResizeEvent *e)
     widgetStretchTimer->stop();
     Q3Header::resizeEvent(e);
     if (numStretches == 0)
-	return;
+        return;
     stretchTimer->start(0, true);
 }
 
 void Q3TableHeader::updateStretches()
 {
     if (numStretches == 0)
-	return;
+        return;
 
     int dim = orientation() == Horizontal ? width() : height();
     if (sectionPos(count() - 1) + sectionSize(count() - 1) == dim)
-	return;
+        return;
     int i;
     int pd = dim - (sectionPos(count() - 1)
-		     + sectionSize(count() - 1));
+                     + sectionSize(count() - 1));
     bool block = signalsBlocked();
     blockSignals(true);
     for (i = 0; i < (int)stretchable.count(); ++i) {
-	if (!stretchable[i] ||
-	     (stretchable[i] && table->d->hiddenCols[i]))
-	    continue;
-	pd += sectionSize(i);
+        if (!stretchable[i] ||
+             (stretchable[i] && table->d->hiddenCols[i]))
+            continue;
+        pd += sectionSize(i);
     }
     pd /= numStretches;
     for (i = 0; i < (int)stretchable.count(); ++i) {
-	if (!stretchable[i] ||
-	     (stretchable[i] && table->d->hiddenCols[i]))
-	    continue;
-	if (i == (int)stretchable.count() - 1 &&
-	     sectionPos(i) + pd < dim)
-	    pd = dim - sectionPos(i);
-	resizeSection(i, QMAX(20, pd));
+        if (!stretchable[i] ||
+             (stretchable[i] && table->d->hiddenCols[i]))
+            continue;
+        if (i == (int)stretchable.count() - 1 &&
+             sectionPos(i) + pd < dim)
+            pd = dim - sectionPos(i);
+        resizeSection(i, QMAX(20, pd));
     }
     blockSignals(block);
     table->repaintContents(false);
@@ -6974,37 +6974,37 @@ void Q3TableHeader::updateWidgetStretches()
     QSize s = table->tableSize();
     table->resizeContents(s.width(), s.height());
     for (int i = 0; i < table->numCols(); ++i)
-	table->updateColWidgets(i);
+        table->updateColWidgets(i);
 }
 
 void Q3TableHeader::updateSelections()
 {
     if (table->selectionMode() == Q3Table::NoSelection ||
-	 (isRowSelection(table->selectionMode()) && orientation() != Vertical ))
-	return;
+         (isRowSelection(table->selectionMode()) && orientation() != Vertical ))
+        return;
     int a = sectionAt(startPos);
     int b = sectionAt(endPos);
     int start = QMIN(a, b);
     int end = QMAX(a, b);
     register int *s = states.data();
     for (int i = 0; i < count(); ++i) {
-	if (i < start || i > end)
-	    *s = oldStates.data()[ i ];
-	else
-	    *s = Selected;
-	++s;
+        if (i < start || i > end)
+            *s = oldStates.data()[ i ];
+        else
+            *s = Selected;
+        ++s;
     }
     repaint(false);
 
     if (table->currentSel) {
-	Q3TableSelection oldSelection = *table->currentSel;
-	if (orientation() == Vertical)
-	    table->currentSel->expandTo(b, table->horizontalHeader()->count() - 1);
-	else
-	    table->currentSel->expandTo(table->verticalHeader()->count() - 1, b);
-	table->repaintSelections(&oldSelection, table->currentSel,
-				  orientation() == Horizontal,
-				  orientation() == Vertical);
+        Q3TableSelection oldSelection = *table->currentSel;
+        if (orientation() == Vertical)
+            table->currentSel->expandTo(b, table->horizontalHeader()->count() - 1);
+        else
+            table->currentSel->expandTo(table->verticalHeader()->count() - 1, b);
+        table->repaintSelections(&oldSelection, table->currentSel,
+                                  orientation() == Horizontal,
+                                  orientation() == Vertical);
     }
     emit table->selectionChanged();
 }
@@ -7015,9 +7015,9 @@ void Q3TableHeader::saveStates()
     register int *s = states.data();
     register int *s2 = oldStates.data();
     for (int i = 0; i < count(); ++i) {
-	*s2 = *s;
-	++s2;
-	++s;
+        *s2 = *s;
+        ++s2;
+        ++s;
     }
 }
 
@@ -7026,11 +7026,11 @@ void Q3TableHeader::doAutoScroll()
     QPoint pos = mapFromGlobal(QCursor::pos());
     int p = real_pos(pos, orientation()) + offset();
     if (sectionAt(p) != -1)
-	endPos = p;
+        endPos = p;
     if (orientation() == Horizontal)
-	table->ensureVisible(endPos, table->contentsY());
+        table->ensureVisible(endPos, table->contentsY());
     else
-	table->ensureVisible(table->contentsX(), endPos);
+        table->ensureVisible(table->contentsX(), endPos);
     updateSelections();
     autoScrollTimer->start(100, true);
 }
@@ -7040,60 +7040,60 @@ void Q3TableHeader::sectionWidthChanged(int col, int, int)
     resizedSection = col;
     if (orientation() == Horizontal) {
 #ifndef NO_LINE_WIDGET
-	table->moveChild(line1, Q3Header::sectionPos(col) - 1,
-			  table->contentsY());
-	line1->resize(1, table->visibleHeight());
-	line1->show();
-	line1->raise();
-	table->moveChild(line2,
-			  Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1,
-			  table->contentsY());
-	line2->resize(1, table->visibleHeight());
-	line2->show();
-	line2->raise();
+        table->moveChild(line1, Q3Header::sectionPos(col) - 1,
+                          table->contentsY());
+        line1->resize(1, table->visibleHeight());
+        line1->show();
+        line1->raise();
+        table->moveChild(line2,
+                          Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1,
+                          table->contentsY());
+        line2->resize(1, table->visibleHeight());
+        line2->show();
+        line2->raise();
 #else
-	QPainter p(table->viewport());
-	int lx = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
-	int ly = table->contentsY();
+        QPainter p(table->viewport());
+        int lx = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
+        int ly = table->contentsY();
 
-	if (lx != d->oldLinePos) {
-	    QPoint pt = table->contentsToViewport(QPoint(lx, ly));
-	    p.drawLine(pt.x(), pt.y()+1,
-			pt.x(), pt.y()+ table->visibleHeight());
-	    if (d->oldLinePos >= 0)
-		table->repaintContents(d->oldLinePos, table->contentsY(),
-				       1, table->visibleHeight());
+        if (lx != d->oldLinePos) {
+            QPoint pt = table->contentsToViewport(QPoint(lx, ly));
+            p.drawLine(pt.x(), pt.y()+1,
+                        pt.x(), pt.y()+ table->visibleHeight());
+            if (d->oldLinePos >= 0)
+                table->repaintContents(d->oldLinePos, table->contentsY(),
+                                       1, table->visibleHeight());
 
-	    d->oldLinePos = lx;
-	}
+            d->oldLinePos = lx;
+        }
 #endif
     } else {
 #ifndef NO_LINE_WIDGET
-	table->moveChild(line1, table->contentsX(),
-			  Q3Header::sectionPos(col) - 1);
-	line1->resize(table->visibleWidth(), 1);
-	line1->show();
-	line1->raise();
-	table->moveChild(line2, table->contentsX(),
-			  Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1);
-	line2->resize(table->visibleWidth(), 1);
-	line2->show();
-	line2->raise();
+        table->moveChild(line1, table->contentsX(),
+                          Q3Header::sectionPos(col) - 1);
+        line1->resize(table->visibleWidth(), 1);
+        line1->show();
+        line1->raise();
+        table->moveChild(line2, table->contentsX(),
+                          Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1);
+        line2->resize(table->visibleWidth(), 1);
+        line2->show();
+        line2->raise();
 
 #else
-	QPainter p(table->viewport());
-	int lx = table->contentsX();
-	int ly = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
+        QPainter p(table->viewport());
+        int lx = table->contentsX();
+        int ly = Q3Header::sectionPos(col) + Q3Header::sectionSize(col) - 1;
 
-	if (ly != d->oldLinePos) {
-	    QPoint pt = table->contentsToViewport(QPoint(lx, ly));
-	    p.drawLine(pt.x()+1, pt.y(),
-			pt.x() + table->visibleWidth(), pt.y());
-	    if (d->oldLinePos >= 0)
-		table->repaintContents( table->contentsX(), d->oldLinePos,
-					table->visibleWidth(), 1);
-	    d->oldLinePos = ly;
-	}
+        if (ly != d->oldLinePos) {
+            QPoint pt = table->contentsToViewport(QPoint(lx, ly));
+            p.drawLine(pt.x()+1, pt.y(),
+                        pt.x() + table->visibleWidth(), pt.y());
+            if (d->oldLinePos >= 0)
+                table->repaintContents( table->contentsX(), d->oldLinePos,
+                                        table->visibleWidth(), 1);
+            d->oldLinePos = ly;
+        }
 
 #endif
     }
@@ -7109,9 +7109,9 @@ void Q3TableHeader::sectionWidthChanged(int col, int, int)
 int Q3TableHeader::sectionSize(int section) const
 {
     if (count() <= 0 || section < 0 || section >= count())
-	return -1;
+        return -1;
     if (caching && section < (int)sectionSizes.count())
-	 return sectionSizes[ section ];
+         return sectionSizes[ section ];
     return Q3Header::sectionSize(section);
 }
 
@@ -7127,9 +7127,9 @@ int Q3TableHeader::sectionSize(int section) const
 int Q3TableHeader::sectionPos(int section) const
 {
     if (count() <= 0 || section < 0 || section >= count())
-	return -1;
+        return -1;
     if (caching && section < (int)sectionPoses.count())
-	return sectionPoses[ section ];
+        return sectionPoses[ section ];
     return Q3Header::sectionPos(section);
 }
 
@@ -7145,22 +7145,22 @@ int Q3TableHeader::sectionPos(int section) const
 int Q3TableHeader::sectionAt(int pos) const
 {
     if (!caching || sectionSizes.count() <= 0 || sectionPoses.count() <= 0)
-	return Q3Header::sectionAt(pos);
+        return Q3Header::sectionAt(pos);
     if (count() <= 0 || pos > sectionPoses[ count() - 1 ] + sectionSizes[ count() - 1 ])
-	return -1;
+        return -1;
     int l = 0;
     int r = count() - 1;
     int i = ((l+r+1) / 2);
     while (r - l) {
-	if (sectionPoses[i] > pos)
-	    r = i -1;
-	else
-	    l = i;
-	i = ((l+r+1) / 2);
+        if (sectionPoses[i] > pos)
+            r = i -1;
+        else
+            l = i;
+        i = ((l+r+1) / 2);
     }
     if (sectionPoses[i] <= pos &&
-	 pos <= sectionPoses[i] + sectionSizes[ mapToSection(i) ])
-	return mapToSection(i);
+         pos <= sectionPoses[i] + sectionSizes[ mapToSection(i) ])
+        return mapToSection(i);
     return -1;
 }
 
@@ -7169,25 +7169,25 @@ void Q3TableHeader::updateCache()
     sectionPoses.resize(count());
     sectionSizes.resize(count());
     if (!caching)
-	return;
+        return;
     for (int i = 0; i < count(); ++i) {
-	sectionSizes[ i ] = Q3Header::sectionSize(i);
-	sectionPoses[ i ] = Q3Header::sectionPos(i);
+        sectionSizes[ i ] = Q3Header::sectionSize(i);
+        sectionPoses[ i ] = Q3Header::sectionPos(i);
     }
 }
 
 void Q3TableHeader::setCaching(bool b)
 {
     if (caching == b)
-	return;
+        return;
     caching = b;
     sectionPoses.resize(count());
     sectionSizes.resize(count());
     if (b) {
-	for (int i = 0; i < count(); ++i) {
-	    sectionSizes[ i ] = Q3Header::sectionSize(i);
-	    sectionPoses[ i ] = Q3Header::sectionPos(i);
-	}
+        for (int i = 0; i < count(); ++i) {
+            sectionSizes[ i ] = Q3Header::sectionSize(i);
+            sectionPoses[ i ] = Q3Header::sectionPos(i);
+        }
     }
 }
 
@@ -7201,12 +7201,12 @@ void Q3TableHeader::setCaching(bool b)
 void Q3TableHeader::setSectionStretchable(int s, bool b)
 {
     if (stretchable[ s ] == b)
-	return;
+        return;
     stretchable[ s ] = b;
     if (b)
-	numStretches++;
+        numStretches++;
     else
-	numStretches--;
+        numStretches--;
 }
 
 /*!
@@ -7228,9 +7228,9 @@ void Q3TableHeader::swapSections(int oldIdx, int newIdx, bool swapTable)
 
     QIconSet oldIconSet, newIconSet;
     if (iconSet(oldIdx))
-	oldIconSet = *iconSet(oldIdx);
+        oldIconSet = *iconSet(oldIdx);
     if (iconSet(newIdx))
-	newIconSet = *iconSet(newIdx);
+        newIconSet = *iconSet(newIdx);
     QString oldLabel = label(oldIdx);
     QString newLabel = label(newIdx);
     bool sectionsHasContent = !(oldIconSet.isNull() && newIconSet.isNull()
@@ -7266,24 +7266,24 @@ void Q3TableHeader::indexChanged(int sec, int oldIdx, int newIdx)
 {
     newIdx = mapToIndex(sec);
     if (oldIdx > newIdx)
-	moveSection(sec, oldIdx + 1);
+        moveSection(sec, oldIdx + 1);
     else
-	moveSection(sec, oldIdx);
+        moveSection(sec, oldIdx);
 
     if (oldIdx < newIdx) {
-	while (oldIdx < newIdx) {
-	    swapSections(oldIdx, oldIdx + 1);
-	    oldIdx++;
-	}
+        while (oldIdx < newIdx) {
+            swapSections(oldIdx, oldIdx + 1);
+            oldIdx++;
+        }
     } else {
-	while (oldIdx > newIdx) {
-	    swapSections(oldIdx - 1, oldIdx);
-	    oldIdx--;
-	}
+        while (oldIdx > newIdx) {
+            swapSections(oldIdx - 1, oldIdx);
+            oldIdx--;
+        }
     }
 
     table->repaintContents(table->contentsX(), table->contentsY(),
-			    table->visibleWidth(), table->visibleHeight());
+                            table->visibleWidth(), table->visibleHeight());
 }
 
 void Q3TableHeader::setLabels(const QStringList & labels)
@@ -7294,14 +7294,14 @@ void Q3TableHeader::setLabels(const QStringList & labels)
     if (updates)
         setUpdatesEnabled(false);
     for (QStringList::ConstIterator it = labels.begin(); i < c; ++i, ++it) {
-	if (i == c - 1) {
+        if (i == c - 1) {
             if (updates)
                 setUpdatesEnabled(true);
-	    setLabel(i, *it);
-	} else {
-	    Q3Header::setLabel(i, *it);
-	    emit sectionSizeChanged(i);
-	}
+            setLabel(i, *it);
+        } else {
+            Q3Header::setLabel(i, *it);
+            emit sectionSizeChanged(i);
+        }
     }
 }
 

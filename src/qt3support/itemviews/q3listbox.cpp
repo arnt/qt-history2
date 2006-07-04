@@ -3510,8 +3510,8 @@ void Q3ListBox::refreshSlot()
         while (i && row < numRows() && d->rowPos[row] <
                 y + visibleHeight()) {
             if (i->dirty)
-                r = r.unite(QRect(d->columnPos[col] - x, d->rowPos[row] - y,
-                                    cw, d->rowPos[row+1] - d->rowPos[row]));
+                r = r.united(QRect(d->columnPos[col] - x, d->rowPos[row] - y,
+                                   cw, d->rowPos[row+1] - d->rowPos[row]));
             row++;
             i = i->n;
         }
@@ -3574,14 +3574,14 @@ void Q3ListBox::viewportPaintEvent(QPaintEvent * e)
             int ch = d->rowPos[row+1] - d->rowPos[row];
             QRect itemRect(d->columnPos[col]-x, d->rowPos[row]-y, cw, ch);
             QRegion tempRegion(itemRect);
-            QRegion itemPaintRegion(tempRegion.intersect(r ));
+            QRegion itemPaintRegion(tempRegion.intersected(r ));
             if (!itemPaintRegion.isEmpty()) {
                 p.save();
                 p.setClipRegion(itemPaintRegion);
                 p.translate(d->columnPos[col]-x, d->rowPos[row]-y);
                 paintCell(&p, row, col);
                 p.restore();
-                r = r.subtract(itemPaintRegion);
+                r = r.subtracted(itemPaintRegion);
             }
             row++;
             if (i->dirty) {
@@ -4148,12 +4148,12 @@ void Q3ListBox::doRubberSelection(const QRect &old, const QRect &rubber)
             continue;
         if (i->isSelected() && !ir.intersects(rubber) && ir.intersects(old)) {
             i->s = false;
-            pr = pr.unite(ir);
+            pr = pr.united(ir);
             changed = true;
         } else if (!i->isSelected() && ir.intersects(rubber)) {
             if (i->isSelectable()) {
                 i->s = true;
-                pr = pr.unite(ir);
+                pr = pr.united(ir);
                 changed = true;
             }
         }

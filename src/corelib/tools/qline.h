@@ -169,6 +169,7 @@ public:
     QLineF unitVector() const;
     QLineF normalVector() const;
 
+    // ### Qt 5: rename intersects() or intersection() and rename IntersectType IntersectionType
     IntersectType intersect(const QLineF &l, QPointF *intersectionPoint) const;
 
     qreal angle(const QLineF &l) const;

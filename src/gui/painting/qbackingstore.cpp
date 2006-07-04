@@ -344,9 +344,9 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
     QRect clipR = pd->clipRect();
     QRect newRect = rect.translated(dx,dy);
 
-    QRect destRect = rect.intersect(clipR);
+    QRect destRect = rect.intersected(clipR);
     if (destRect.isValid())
-        destRect = destRect.translated(dx,dy).intersect(clipR);
+        destRect = destRect.translated(dx,dy).intersected(clipR);
     QRect sourceRect = destRect.translated(-dx, -dy);
 
     bool accelerateMove = accelEnv &&  isOpaque() && !isOverlapped(sourceRect)
@@ -431,7 +431,7 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
     } else {
         QRect scrollRect = rect & clipRect();
 
-        QRect destRect = scrollRect.isValid() ? scrollRect.translated(dx,dy).intersect(scrollRect) : QRect();
+        QRect destRect = scrollRect.isValid() ? scrollRect.translated(dx,dy).intersected(scrollRect) : QRect();
         QRect sourceRect = destRect.translated(-dx, -dy);
 
         QPoint toplevelOffset = q->mapTo(tlw, QPoint());

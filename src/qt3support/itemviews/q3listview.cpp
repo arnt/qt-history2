@@ -2785,7 +2785,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
         QRect br(cx - ox, cy - oy, cw, ch);
         for (int i = 0; i < d->dirtyItems.size(); ++i) {
             const Q3ListViewItem * item = d->dirtyItems.at(i);
-            QRect ir = itemRect(item).intersect(viewport()->rect());
+            QRect ir = itemRect(item).intersected(viewport()->rect());
             if (ir.isEmpty() || br.contains(ir))
                 // we're painting this one, or it needs no painting: forget it
                 d->dirtyItems.removeAt(i);
@@ -3593,8 +3593,8 @@ void Q3ListView::updateDirtyItems()
         return;
     QRect ir;
     for (int i = 0; i < d->dirtyItems.size(); ++i) {
-        const Q3ListViewItem * item = d->dirtyItems.at(i);
-        ir = ir.unite(itemRect(item));
+        const Q3ListViewItem *item = d->dirtyItems.at(i);
+        ir = ir.united(itemRect(item));
     }
     if (!ir.isEmpty())  {                      // rectangle to be repainted
         if (ir.x() < 0)

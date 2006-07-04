@@ -979,7 +979,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 int pixw = pixmap.width();
 
                 QRect aligned = alignedRect(header->direction, QFlag(header->iconAlignment), pixmap.size(), rect);
-                QRect inter = aligned.intersect(rect);
+                QRect inter = aligned.intersected(rect);
                 p->drawPixmap(inter.x(), inter.y(), pixmap, inter.x() - aligned.x(), inter.y() - aligned.y(), inter.width(), inter.height());
 
                 if (header->direction == Qt::LeftToRight)
@@ -1573,7 +1573,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             }
             r = iconRect | textRect;
             r.adjust(-3, -2, 3, 2);
-            r = r.intersect(btn->rect);
+            r = r.intersected(btn->rect);
             r = visualRect(btn->direction, btn->rect, r);
         }
         break;
@@ -1620,7 +1620,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             }
             r = iconRect | textRect;
             r.adjust(-3, -2, 3, 2);
-            r = r.intersect(btn->rect);
+            r = r.intersected(btn->rect);
             r = visualRect(btn->direction, btn->rect, r);
         }
         break;
@@ -1633,7 +1633,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                 r.setRect(0, tickOffset - 1, slider->rect.width(), thickness + 2);
             else
                 r.setRect(tickOffset - 1, 0, thickness + 2, slider->rect.height());
-            r = r.intersect(slider->rect);
+            r = r.intersected(slider->rect);
             r = visualRect(opt->direction, opt->rect, r);
         }
         break;
@@ -2596,7 +2596,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QRegion region(groupBox->rect);
                 if (!groupBox->text.isEmpty()) {
                     bool ltr = groupBox->direction == Qt::LeftToRight;
-                    QRect finalRect = checkBoxRect.unite(textRect);
+                    QRect finalRect = checkBoxRect.united(textRect);
                     if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox)
                         finalRect.adjust(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
                     region -= finalRect;

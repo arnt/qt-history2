@@ -49,12 +49,12 @@ void Q3Frame::paintEvent(QPaintEvent * event)
     QPainter paint(this);
     if (!contentsRect().contains(event->rect())) {
         paint.save();
-        paint.setClipRegion(event->region().intersect(frameRect()));
+        paint.setClipRegion(event->region().intersected(frameRect()));
         drawFrame(&paint);
         paint.restore();
     }
     if (event->rect().intersects(contentsRect())) {
-        paint.setClipRegion(event->region().intersect(contentsRect()));
+        paint.setClipRegion(event->region().intersected(contentsRect()));
         drawContents(&paint);
     }
 }

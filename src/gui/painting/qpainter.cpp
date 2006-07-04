@@ -147,11 +147,11 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     if (state->clipInfo.size() != 0) {
         QPainterPath clipPath = q->clipPath() * q->deviceMatrix();
-        QRectF r = clipPath.boundingRect().intersect(absPathRect);
+        QRectF r = clipPath.boundingRect().intersected(absPathRect);
         absPathRect.setCoords((int) floor(r.left()), (int) floor(r.top()),
                               (int) ceil(r.right()), (int) ceil(r.bottom()));
     }
-    absPathRect = absPathRect.intersect(QRect(0, 0, device->width(), device->height()));
+    absPathRect = absPathRect.intersected(QRect(0, 0, device->width(), device->height()));
 
 
 //     qDebug("\nQPainterPrivate::draw_helper(), x=%d, y=%d, w=%d, h=%d",

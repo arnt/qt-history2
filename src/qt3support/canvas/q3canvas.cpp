@@ -1160,7 +1160,7 @@ void Q3Canvas::setAllChanged()
 */
 void Q3Canvas::setChanged(const QRect& area)
 {
-    QRect thearea = area.intersect(QRect(0,0,width(),height()));
+    QRect thearea = area.intersected(QRect(0, 0, width(), height()));
 
     int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
     int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
@@ -1187,7 +1187,7 @@ void Q3Canvas::setChanged(const QRect& area)
 */
 void Q3Canvas::setUnchanged(const QRect& area)
 {
-    QRect thearea = area.intersect(QRect(0,0,width(),height()));
+    QRect thearea = area.intersected(QRect(0, 0, width(), height()));
 
     int mx = (thearea.x()+thearea.width()+chunksize)/chunksize;
     int my = (thearea.y()+thearea.height()+chunksize)/chunksize;
@@ -1213,7 +1213,7 @@ void Q3Canvas::setUnchanged(const QRect& area)
 */
 QRect Q3Canvas::changeBounds(const QRect& inarea)
 {
-    QRect area=inarea.intersect(QRect(0,0,width(),height()));
+    QRect area = inarea.intersected(QRect(0, 0, width(), height()));
 
     int mx = (area.x()+area.width()+chunksize)/chunksize;
     int my = (area.y()+area.height()+chunksize)/chunksize;
@@ -1283,7 +1283,7 @@ void Q3Canvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 */
 void Q3Canvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool /*double_buffer*/)
 {
-    QRect area=inarea.intersect(QRect(0,0,width(),height()));
+    QRect area=inarea.intersected(QRect(0,0,width(),height()));
 
     if (!p) return; // Nothing to do.
 
@@ -2171,7 +2171,7 @@ bool qt_testCollision(const Q3CanvasSprite* s1, const Q3CanvasSprite* s2)
 
     QRect s1area = s1->boundingRectAdvanced();
 
-    QRect ourarea = s1area.intersect(cyourarea);
+    QRect ourarea = s1area.intersected(cyourarea);
 
     if (ourarea.isEmpty())
 	return false;
@@ -3701,7 +3701,7 @@ public:
     {
 	QRect pixelbounds = pa.boundingRect();
 	int cs = canvas->chunkSize();
-    QRect canvasbounds = pixelbounds.intersect(canvas->rect());
+    QRect canvasbounds = pixelbounds.intersected(canvas->rect());
     bounds.setLeft(canvasbounds.left()/cs);
     bounds.setRight(canvasbounds.right()/cs);
     bounds.setTop(canvasbounds.top()/cs);

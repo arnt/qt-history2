@@ -31,8 +31,8 @@ private slots:
     void ellipseRegion();
     void polygonRegion();
     void bitmapRegion();
-    void intersect_data();
-    void intersect();
+    void intersected_data();
+    void intersected();
     void emptyPolygonRegion_data();
     void emptyPolygonRegion();
 };
@@ -303,7 +303,7 @@ void tst_QRegion::bitmapRegion()
     }
 }
 
-void tst_QRegion::intersect_data()
+void tst_QRegion::intersected_data()
 {
     QTest::addColumn<QRegion>("r1");
     QTest::addColumn<QRegion>("r2");
@@ -317,14 +317,14 @@ void tst_QRegion::intersect_data()
     QTest::newRow("task30716") << QRegion(ps1) << QRegion(ps2) << TRUE;
 }
 
-void tst_QRegion::intersect()
+void tst_QRegion::intersected()
 {
     QFETCH(QRegion, r1);
     QFETCH(QRegion, r2);
     QFETCH(bool, intersects);
 
-    QRegion interReg = r1.intersect(r2);
-    QVERIFY(interReg.isEmpty() != intersects );
+    QRegion interReg = r1.intersected(r2);
+    QVERIFY(interReg.isEmpty() != intersects);
     // Need a way to test the intersected QRegion is right
 }
 

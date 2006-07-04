@@ -2582,8 +2582,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (maxedOut) {
                 theme.rect = subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
-                theme.rect = theme.rect.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
-                theme.rect = theme.rect.unite(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
+                theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarSubPage, widget));
+                theme.rect = theme.rect.united(subControlRect(CC_ScrollBar, option, SC_ScrollBarAddPage, widget));
                 partId = bar->orientation() == Qt::Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                 stateId = SCRBS_DISABLED;
                 theme.partId = partId;

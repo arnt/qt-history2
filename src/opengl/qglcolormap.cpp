@@ -18,6 +18,7 @@
 
     \module OpenGL
     \ingroup multimedia
+    \ingroup shared
 
     QGLColormap provides a platform independent way of specifying and
     installing indexed colormaps into QGLWidgets. QGLColormap is

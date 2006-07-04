@@ -61,10 +61,16 @@ public:
     QRegion translated(int dx, int dy) const;
     inline QRegion translated(const QPoint &p) const { return translated(p.x(), p.y()); }
 
+    // ### Qt 5: make these four functions QT4_SUPPORT
     QRegion unite(const QRegion &r) const;
     QRegion intersect(const QRegion &r) const;
     QRegion subtract(const QRegion &r) const;
     QRegion eor(const QRegion &r) const;
+
+    inline QRegion united(const QRegion &r) const { return unite(r); }
+    inline QRegion intersected(const QRegion &r) const { return intersect(r); }
+    inline QRegion subtracted(const QRegion &r) const { return subtract(r); }
+    inline QRegion xored(const QRegion &r) const { return eor(r); }
 
     QRect boundingRect() const;
     QVector<QRect> rects() const;

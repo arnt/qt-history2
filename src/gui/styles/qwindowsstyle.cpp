@@ -2237,7 +2237,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 QRect clip = rect;
                 clip.setLeft(clip.left() + margin);
                 clip.setRight(clip.right() - margin);
-                QRegion intersection = prevClip.intersect(clip);
+                QRegion intersection = prevClip.intersected(clip);
 
                 int x0 = reverse ? rect.right() - unit_width*(step) - unit_width  : margin + unit_width * step;
                 int x = 0;

@@ -122,9 +122,11 @@ public:
     bool contains(const QPoint &p, bool proper=false) const;
     bool contains(int x, int y) const; // inline methods, _don't_ merge these
     bool contains(int x, int y, bool proper) const;
-    bool contains(const QRect &r, bool proper=false) const;
-    QRect unite(const QRect &r) const;
-    QRect intersect(const QRect &r) const;
+    bool contains(const QRect &r, bool proper = false) const;
+    QRect unite(const QRect &r) const;  // ### Qt 5: make QT4_SUPPORT
+    inline QRect united(const QRect &other) const { return unite(other); }
+    QRect intersect(const QRect &r) const;  // ### Qt 5: make QT4_SUPPORT
+    inline QRect intersected(const QRect &other) const { return intersect(other); }
     bool intersects(const QRect &r) const;
 
     friend Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
@@ -545,8 +547,10 @@ public:
     bool contains(const QPointF &p) const;
     bool contains(qreal x, qreal y) const;
     bool contains(const QRectF &r) const;
-    QRectF unite(const QRectF &r) const;
-    QRectF intersect(const QRectF &r) const;
+    QRectF unite(const QRectF &r) const;  // ### Qt 5: make QT4_SUPPORT
+    inline QRectF united(const QRectF &other) const { return unite(other); }
+    QRectF intersect(const QRectF &r) const;  // ### Qt 5: make QT4_SUPPORT
+    inline QRectF intersected(const QRectF &other) const { return intersect(other); }
     bool intersects(const QRectF &r) const;
 
     friend Q_CORE_EXPORT inline bool operator==(const QRectF &, const QRectF &);

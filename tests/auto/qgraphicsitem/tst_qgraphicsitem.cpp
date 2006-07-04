@@ -1006,7 +1006,7 @@ void tst_QGraphicsItem::shape()
     pixmap.fill(Qt::green);
     QGraphicsPixmapItem pixmapItem(pixmap);
     QRegion region(QRegion(QRect(0, 0, 300, 200)));
-    region.subtract(QRect(50, 50, 200, 100));
+    region.subtracted(QRect(50, 50, 200, 100));
     path = QPainterPath();
     path.addRegion(region);
     QCOMPARE(pixmapItem.shape(), path);

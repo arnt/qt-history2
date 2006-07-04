@@ -913,7 +913,7 @@ QSize QTabBar::sizeHint() const
         const_cast<QTabBarPrivate*>(d)->layoutTabs();
     QRect r;
     for (int i = 0; i < d->tabList.count(); ++i)
-        r = r.unite(d->tabList.at(i).maxRect);
+        r = r.united(d->tabList.at(i).maxRect);
     QSize sz = QApplication::globalStrut();
     return r.size().expandedTo(sz);
 }
@@ -926,7 +926,7 @@ QSize QTabBar::minimumSizeHint() const
     if (!d->useScrollButtons) {
         QRect r;
         for (int i = 0; i < d->tabList.count(); ++i)
-            r = r.unite(d->tabList.at(i).minRect);
+            r = r.united(d->tabList.at(i).minRect);
         return r.size().expandedTo(QApplication::globalStrut());
     }
     if (verticalTabs(d->shape))

@@ -458,7 +458,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
                             const QPixmap &pixmap) const
 {
     QRect aligned = alignedRect(QApplication::layoutDirection(), QFlag(alignment), pixmap.size(), rect);
-    QRect inter = aligned.intersect(rect);
+    QRect inter = aligned.intersected(rect);
 
     painter->drawPixmap(inter.x(), inter.y(), pixmap, inter.x() - aligned.x(), inter.y() - aligned.y(), inter.width(), inter.height());
 }

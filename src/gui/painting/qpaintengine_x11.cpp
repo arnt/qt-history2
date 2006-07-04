@@ -907,7 +907,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             QRect r(rects[i]);
             if (d->txop == QPainterPrivate::TxTranslate)
                 r.translate(offset);
-            r = r.intersect(clip);
+            r = r.intersected(clip);
             if (r.isEmpty())
                 continue;
             if (d->has_texture || d->has_pattern) {
@@ -928,7 +928,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 QRect r(rects[i]);
                 if (d->txop == QPainterPrivate::TxTranslate)
                     r.translate(offset);
-                r = r.intersect(clip);
+                r = r.intersected(clip);
                 if (r.isEmpty())
                     continue;
                 d->setupAdaptedOrigin(r.topLeft());
@@ -945,7 +945,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 QRect r(rects[i]);
                 if (d->txop == QPainterPrivate::TxTranslate)
                     r.translate(offset);
-                r = r.intersect(clip);
+                r = r.intersected(clip);
                 if (r.isEmpty()) {
                     --numClipped;
                     continue;
@@ -1417,7 +1417,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     QRect r(rect);
     if (d->txop == QPainterPrivate::TxTranslate)
         r.translate(qRound(d->matrix.dx()), qRound(d->matrix.dy()));
-    if (d->use_path_fallback || devclip.intersect(r) != r) {
+    if (d->use_path_fallback || devclip.intersected(r) != r) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);
@@ -1983,14 +1983,14 @@ void QX11PaintEngine::updateClipRegion_dev(const QRegion &clipRegion, Qt::ClipOp
         // fall through
     case Qt::ReplaceClip:
         if (!sysClip.isEmpty())
-            d->crgn = clipRegion.intersect(sysClip);
+            d->crgn = clipRegion.intersected(sysClip);
         else
             d->crgn = clipRegion;
         break;
     case Qt::UniteClip:
         d->crgn |= clipRegion;
         if (!sysClip.isEmpty())
-            d->crgn = d->crgn.intersect(sysClip);
+            d->crgn = d->crgn.intersected(sysClip);
         break;
     default:
         break;

@@ -6079,7 +6079,7 @@ void QWidget::leaveEvent(QEvent *)
     Qt also tries to speed up painting by merging multiple paint
     events into one. When update() is called several times or the
     window system sends several paint events, Qt merges these events
-    into one event with a larger region (see QRegion::unite()).
+    into one event with a larger region (see QRegion::united()).
     repaint() does not permit this optimization, so we suggest using
     update() whenever possible.
 
@@ -6928,7 +6928,7 @@ void QWidget::repaint(int x, int y, int w, int h)
         w = data->crect.width()  - x;
     if (h < 0)
         h = data->crect.height() - y;
-    repaint(d->clipRect().intersect(QRect(x, y, w, h)));
+    repaint(d->clipRect().intersected(QRect(x, y, w, h)));
 }
 
 /*! \overload
@@ -6938,7 +6938,7 @@ void QWidget::repaint(int x, int y, int w, int h)
 void QWidget::repaint(const QRect &r)
 {
     Q_D(QWidget);
-    repaint(QRegion(d->clipRect().intersect(r)));
+    repaint(QRegion(d->clipRect().intersected(r)));
 }
 
 /*! \fn void QWidget::repaint(const QRegion &rgn)
