@@ -106,16 +106,20 @@ void QMenuBarPrivate::updateGeometries()
                       + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
         int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q)
                       + q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
-        if(leftWidget && leftWidget->isVisible()) {
+        if (leftWidget && leftWidget->isVisible()) {
             QSize sz = leftWidget->sizeHint();
             q_width -= sz.width();
             q_start = sz.width();
-            leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin), sz));
+            QPoint pos(hmargin, vmargin);
+            QRect vRect = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(pos, sz));
+            leftWidget->setGeometry(vRect);
         }
-        if(rightWidget && rightWidget->isVisible()) {
+        if (rightWidget && rightWidget->isVisible()) {
             QSize sz = rightWidget->sizeHint();
             q_width -= sz.width();
-            rightWidget->setGeometry(QRect(QPoint(q->width() - sz.width() - hmargin, vmargin), sz));
+            QPoint pos(q->width() - sz.width() - hmargin, vmargin);
+            QRect vRect = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(pos, sz));
+            rightWidget->setGeometry(vRect);
         }
     }
 
