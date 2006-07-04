@@ -209,9 +209,14 @@ QWidget *QStackedWidget::currentWidget() const
 
     \sa currentWidget(), setCurrentIndex()
  */
-void QStackedWidget::setCurrentWidget(QWidget *w)
+void QStackedWidget::setCurrentWidget(QWidget *widget)
 {
-    d_func()->layout->setCurrentWidget(w);
+    Q_D(QStackedWidget);
+    if (d->layout->indexOf(widget) == -1) {
+        qWarning("QStackedWidget::setCurrentWidget: widget %p not contained in stack", widget);
+        return;
+    }
+    d->layout->setCurrentWidget(widget);
 }
 
 /*!
