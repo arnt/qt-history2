@@ -236,9 +236,9 @@ QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *event)
 }
 
 enum { MaxBits = sizeof(uint) * 8 };
-static void translateKeySym(KeySym keysym, uint xmodifiers,
-                            int &code, Qt::KeyboardModifiers &modifiers,
-                            QString &text);
+static QString translateKeySym(KeySym keysym, uint xmodifiers,
+                               int &code, Qt::KeyboardModifiers &modifiers,
+                               QByteArray &chars, int &count);
 
 QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
 {
@@ -255,12 +255,16 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
     QList<int> result;
 
     // translate sym -> code
-    QString text;
     Qt::KeyboardModifiers baseModifiers = 0;
     int baseCode = -1;
-    translateKeySym(baseKeySym, xmodifiers, baseCode, baseModifiers, text);
-    if (baseCode == -1)
-        return QList<int>();
+    QByteArray chars;
+    int count = 0;
+    QString text = translateKeySym(baseKeySym, xmodifiers, baseCode, baseModifiers, chars, count);
+    if (baseCode == -1) {
+        if (text.isEmpty())
+            return QList<int>();
+        baseCode = text.at(0).unicode();
+    }
 
     if (baseCode && baseCode < 0xfffe)
         baseCode = QChar(baseCode).toUpper().unicode();
@@ -295,10 +299,15 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
         // translate sym -> code
         Qt::KeyboardModifiers modifiers = 0;
         int code = -1;
+        chars.clear();
+        count = 0;
         // mask out the modifiers needed to translate keycode
-        translateKeySym(sym, xmodifiers & ~val, code, modifiers, text);
-        if (code == -1)
-            continue;
+        text = translateKeySym(sym, xmodifiers & ~val, code, modifiers, chars, count);
+        if (code == -1) {
+            if (text.isEmpty())
+                continue;
+            code = text.at(0).unicode();
+        }
 
         if (code && code < 0xfffe)
             code = QChar(code).toUpper().unicode();
@@ -332,12 +341,16 @@ QList<int> QKeyMapperPrivate::possibleKeysCore(QKeyEvent *event)
     QList<int> result;
 
     // translate sym -> code
-    QString text;
     Qt::KeyboardModifiers baseModifiers = 0;
     int baseCode = -1;
-    translateKeySym(baseKeySym, xmodifiers, baseCode, baseModifiers, text);
-    if (baseCode == -1)
-        return QList<int>();
+    QByteArray chars;
+    int count = 0;
+    QString text = translateKeySym(baseKeySym, xmodifiers, baseCode, baseModifiers, chars, count);
+    if (baseCode == -1) {
+        if (text.isEmpty())
+            return QList<int>();
+        baseCode = text.at(0).unicode();
+    }
 
     if (baseCode && baseCode < 0xfffe)
         baseCode = QChar(baseCode).toUpper().unicode();
@@ -372,10 +385,15 @@ QList<int> QKeyMapperPrivate::possibleKeysCore(QKeyEvent *event)
         // translate sym -> code
         Qt::KeyboardModifiers modifiers = 0;
         int code = -1;
+        chars.clear();
+        count = 0;
         // mask out the modifiers needed to translate keycode
-        translateKeySym(sym, xmodifiers & ~val, code, modifiers, text);
-        if (code == -1)
-            continue;
+        text = translateKeySym(sym, xmodifiers & ~val, code, modifiers, chars, count);
+        if (code == -1) {
+            if (text.isEmpty())
+                continue;
+            code = text.at(0).unicode();
+        }
 
         if (code && code < 0xfffe)
             code = QChar(code).toUpper().unicode();
@@ -922,49 +940,6 @@ static int translateKeySym(uint key)
     return code;
 }
 
-static void translateKeySym(KeySym keysym, uint xmodifiers,
-                            int &code, Qt::KeyboardModifiers &modifiers,
-                            QString &text)
-{
-    modifiers = X11->translateModifiers(xmodifiers);
-
-    // Commentary in X11/keysymdef says that X codes match ASCII, so it
-    // is safe to use the locale functions to process X codes in ISO8859-1.
-    //
-    // This is mainly for compatibility - applications should not use the
-    // Qt keycodes between 128 and 255, but should rather use the
-    // QKeyEvent::text().
-    //
-    extern QTextCodec *qt_input_mapper; // from qapplication_x11.cpp
-    if (keysym < 128 || (keysym < 256 && (!qt_input_mapper || qt_input_mapper->mibEnum()==4))) {
-        // upper-case key, if known
-        code = isprint((int)keysym) ? toupper((int)keysym) : 0;
-    } else if (keysym >= XK_F1 && keysym <= XK_F35) {
-        // function keys
-        code = Qt::Key_F1 + ((int)keysym - XK_F1);
-    } else if (keysym >= XK_KP_Space && keysym <= XK_KP_9) {
-        if (keysym >= XK_KP_0) {
-            // numeric keypad keys
-            code = Qt::Key_0 + ((int)keysym - XK_KP_0);
-        } else {
-            code = translateKeySym(keysym);
-        }
-        modifiers |= Qt::KeypadModifier;
-    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(keysym >= XK_dead_grave && keysym <= XK_dead_horn)) {
-        code = text.unicode()->toUpper().unicode();
-    } else {
-        // any other keys
-        code = translateKeySym(keysym);
-
-        if (code == Qt::Key_Tab && (modifiers & Qt::ShiftModifier)) {
-            // map shift+tab to shift+backtab, QShortcutMap knows about it
-            // and will handle it.
-            code = Qt::Key_Backtab;
-            text = QString();
-        }
-    }
-}
-
 #if !defined(QT_NO_XIM)
 static const unsigned short katakanaKeysymsToUnicode[] = {
     0x0000, 0x3002, 0x300C, 0x300D, 0x3001, 0x30FB, 0x30F2, 0x30A1,
@@ -1126,61 +1101,15 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
-bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
-                                                  const XEvent *event,
-                                                  KeySym &keysym,
-                                                  int& count,
-                                                  QString& text,
-                                                  Qt::KeyboardModifiers &modifiers,
-                                                  int& code,
-                                                  QEvent::Type &type,
-                                                  bool statefulTranslation)
+static QString translateKeySym(KeySym keysym, uint xmodifiers,
+                               int &code, Qt::KeyboardModifiers &modifiers,
+                               QByteArray &chars, int &count)
 {
-    XKeyEvent xkeyevent = event->xkey;
-    int keycode = event->xkey.keycode;
-    // save the modifier state, we will use the keystate uint later by passing
-    // it to translateButtonState
-    uint keystate = event->xkey.state;
-
-    type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
-
-    static int directionKeyEvent = 0;
-    static unsigned int lastWinId = 0;
-    extern bool qt_use_rtl_extensions; // from qapplication_x11.cpp
-
-    // translate pending direction change
-    if (statefulTranslation && qt_use_rtl_extensions && type == QEvent::KeyRelease) {
-        if (directionKeyEvent == Qt::Key_Direction_R || directionKeyEvent == Qt::Key_Direction_L) {
-            type = QEvent::KeyPress;
-            code = directionKeyEvent;
-            text = QString();
-            directionKeyEvent = 0;
-	    lastWinId = 0;
-            return true;
-        } else {
-            directionKeyEvent = 0;
-	    lastWinId = 0;
-        }
-    }
-
-    // some XmbLookupString implementations don't return buffer overflow correctly,
-    // so we increase the input buffer to allow for long strings...
-    // 256 chars * 2 bytes + 1 null-term == 513 bytes
-    QByteArray chars;
-    chars.resize(513);
-    QChar converted;
-
-    count = XLookupString(&xkeyevent, chars.data(), chars.size(), &keysym, 0);
-    if (count && !keycode) {
-        extern int qt_ximComposingKeycode; // from qapplication_x11.cpp
-        keycode = qt_ximComposingKeycode;
-        qt_ximComposingKeycode = 0;
-    }
-
     // all keysyms smaller than 0xff00 are actally keys that can be mapped to unicode chars
 
     extern QTextCodec *qt_input_mapper; // from qapplication_x11.cpp
     QTextCodec *mapper = qt_input_mapper;
+    QChar converted;
 
     if (count == 0 && keysym < 0xff00) {
         unsigned char byte3 = (unsigned char)(keysym >> 8);
@@ -1223,6 +1152,8 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
         }
         if (mib != -1) {
             mapper = QTextCodec::codecForMib(mib);
+            if (chars.isEmpty())
+                chars.resize(1);
             chars[0] = (unsigned char) (keysym & 0xff); // get only the fourth bit for conversion later
             count++;
         }
@@ -1233,16 +1164,110 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
     if (count < (int)chars.size()-1)
         chars[count] = '\0';
 
-    // convert chars (8bit) to text (unicode).
-    if (mapper)
-        text = mapper->toUnicode(chars.data(), count, 0);
-    else if (!mapper && converted.unicode() != 0x0)
+    QString text;
+    if (!mapper && converted.unicode() != 0x0) {
         text = converted;
-    else
-        text = QString::fromLatin1(chars);
+    } else if (!chars.isEmpty()) {
+        // convert chars (8bit) to text (unicode).
+        if (mapper)
+            text = mapper->toUnicode(chars.data(), count, 0);
+        else
+            text = QString::fromLatin1(chars);
+    }
+
+    modifiers = X11->translateModifiers(xmodifiers);
+
+    // Commentary in X11/keysymdef says that X codes match ASCII, so it
+    // is safe to use the locale functions to process X codes in ISO8859-1.
+    //
+    // This is mainly for compatibility - applications should not use the
+    // Qt keycodes between 128 and 255, but should rather use the
+    // QKeyEvent::text().
+    //
+    extern QTextCodec *qt_input_mapper; // from qapplication_x11.cpp
+    if (keysym < 128 || (keysym < 256 && (!qt_input_mapper || qt_input_mapper->mibEnum()==4))) {
+        // upper-case key, if known
+        code = isprint((int)keysym) ? toupper((int)keysym) : 0;
+    } else if (keysym >= XK_F1 && keysym <= XK_F35) {
+        // function keys
+        code = Qt::Key_F1 + ((int)keysym - XK_F1);
+    } else if (keysym >= XK_KP_Space && keysym <= XK_KP_9) {
+        if (keysym >= XK_KP_0) {
+            // numeric keypad keys
+            code = Qt::Key_0 + ((int)keysym - XK_KP_0);
+        } else {
+            code = translateKeySym(keysym);
+        }
+        modifiers |= Qt::KeypadModifier;
+    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(keysym >= XK_dead_grave && keysym <= XK_dead_horn)) {
+        code = text.unicode()->toUpper().unicode();
+    } else {
+        // any other keys
+        code = translateKeySym(keysym);
+
+        if (code == Qt::Key_Tab && (modifiers & Qt::ShiftModifier)) {
+            // map shift+tab to shift+backtab, QShortcutMap knows about it
+            // and will handle it.
+            code = Qt::Key_Backtab;
+            text = QString();
+        }
+    }
+
+    return text;
+}
+
+bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
+                                                  const XEvent *event,
+                                                  KeySym &keysym,
+                                                  int& count,
+                                                  QString& text,
+                                                  Qt::KeyboardModifiers &modifiers,
+                                                  int& code,
+                                                  QEvent::Type &type,
+                                                  bool statefulTranslation)
+{
+    XKeyEvent xkeyevent = event->xkey;
+    int keycode = event->xkey.keycode;
+    // save the modifier state, we will use the keystate uint later by passing
+    // it to translateButtonState
+    uint keystate = event->xkey.state;
+
+    type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
+
+    static int directionKeyEvent = 0;
+    static unsigned int lastWinId = 0;
+    extern bool qt_use_rtl_extensions; // from qapplication_x11.cpp
+
+    // translate pending direction change
+    if (statefulTranslation && qt_use_rtl_extensions && type == QEvent::KeyRelease) {
+        if (directionKeyEvent == Qt::Key_Direction_R || directionKeyEvent == Qt::Key_Direction_L) {
+            type = QEvent::KeyPress;
+            code = directionKeyEvent;
+            text = QString();
+            directionKeyEvent = 0;
+	    lastWinId = 0;
+            return true;
+        } else {
+            directionKeyEvent = 0;
+	    lastWinId = 0;
+        }
+    }
+
+    // some XmbLookupString implementations don't return buffer overflow correctly,
+    // so we increase the input buffer to allow for long strings...
+    // 256 chars * 2 bytes + 1 null-term == 513 bytes
+    QByteArray chars;
+    chars.resize(513);
+
+    count = XLookupString(&xkeyevent, chars.data(), chars.size(), &keysym, 0);
+    if (count && !keycode) {
+        extern int qt_ximComposingKeycode; // from qapplication_x11.cpp
+        keycode = qt_ximComposingKeycode;
+        qt_ximComposingKeycode = 0;
+    }
 
     // translate the keysym + xmodifiers to Qt::Key_* + Qt::KeyboardModifiers
-    translateKeySym(keysym, keystate, code, modifiers, text);
+    text = translateKeySym(keysym, keystate, code, modifiers, chars, count);
 
     // Watch for keypresses and if its a key belonging to the Ctrl-Shift
     // direction-changing accel, remember it.
