@@ -123,6 +123,7 @@ private slots:
     void render_data();
     void render();
     void contextMenuEvent();
+    void update();
 };
 
 void tst_QGraphicsScene::construction()
@@ -1898,6 +1899,35 @@ void tst_QGraphicsScene::contextMenuEvent()
         QApplication::sendEvent(view.viewport(), &event);
         QCOMPARE(item->eventTypes.last(), QEvent::GraphicsSceneContextMenu);
     }
+}
+
+void tst_QGraphicsScene::update()
+{
+    QGraphicsScene scene;
+
+    QGraphicsRectItem *rect = new QGraphicsRectItem(0, 0, 100, 100);
+    scene.addItem(rect);
+    rect->setPos(-100, -100);
+
+    // This function forces indexing
+    scene.itemAt(0, 0);
+
+    qRegisterMetaType<QList<QRectF> >("QList<QRectF>");
+    QSignalSpy spy(&scene, SIGNAL(changed(QList<QRectF>)));
+
+    // When deleted, the item will lazy-remove itself
+    delete rect;
+
+    // This function forces a purge, which will post an update signal
+    scene.itemAt(0, 0);
+
+    // This will process the pending update
+    QApplication::instance()->processEvents();
+
+    // Check that the update region is correct
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(qVariantValue<QList<QRectF> >(spy.at(0).at(0)).at(0),
+             QRectF(-100, -100, 200, 200));
 }
 
 QTEST_MAIN(tst_QGraphicsScene)
