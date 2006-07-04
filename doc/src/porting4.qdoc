@@ -592,6 +592,7 @@
 
     The \c QAsyncIO class was used internally in Qt 2.x in
     conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
+
     \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QBackInsertIterator
@@ -1123,19 +1124,21 @@
 
     The \c QDataPump class was used internally in Qt 2.x in
     conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
-    \include porting4-obsoletedmechanism.qdocinc
+
+    \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataSink
 
     The \c QDataSink class was used internally in Qt 2.x in conjunction
     with QImageConsumer. It was obsoleted in Qt 3.0.
-    \include porting4-obsoletedmechanism.qdocinc
+
+    \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataSource
 
     The \c QDataSource class was used internally in Qt 2.x in
     conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
-    \include porting4-obsoletedmechanism.qdocinc
+    \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataTable
 
@@ -1996,7 +1999,7 @@
 
     The QIODeviceSource class was used internally in Qt 2.x in
     conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
-    \include porting4-obsoletedmechanism.qdocinc
+    \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QLabel
 
@@ -3858,7 +3861,9 @@
        QVariant::ByteArray.
     \endlist
 
-    Also,
+    Also, the QVariant(bool, int) constructor has been replaced by QVariant(bool).
+    Old code like QVariant(true, 0) should be replaced with QVariant(true); otherwise,
+    the QVariant(int, void *) overload might accidentally be triggered.
 
     \section1 QVBox
 
