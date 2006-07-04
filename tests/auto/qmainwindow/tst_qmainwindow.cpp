@@ -67,22 +67,22 @@ void tst_QMainWindow::getSetCheck()
     QMainWindow obj1;
     // QMenuBar * QMainWindow::menuBar()
     // void QMainWindow::setMenuBar(QMenuBar *)
-    QMenuBar *var1 = new QMenuBar;
+    QPointer<QMenuBar> var1 = new QMenuBar;
     obj1.setMenuBar(var1);
-    QCOMPARE(var1, obj1.menuBar());
+    QCOMPARE(static_cast<QMenuBar *>(var1), obj1.menuBar());
     obj1.setMenuBar((QMenuBar *)0);
-    QVERIFY(var1 != obj1.menuBar());
-    QVERIFY((QMenuBar *)0 != obj1.menuBar()); // QMainWindow creates aQ MenuBar on menuBar()
+    QVERIFY(obj1.menuBar());
+    QVERIFY(!var1);
     // delete var1; // No delete, since QMainWindow takes ownership
 
     // QStatusBar * QMainWindow::statusBar()
     // void QMainWindow::setStatusBar(QStatusBar *)
-    QStatusBar *var2 = new QStatusBar;
+    QPointer<QStatusBar> var2 = new QStatusBar;
     obj1.setStatusBar(var2);
-    QCOMPARE(var2, obj1.statusBar());
+    QCOMPARE(static_cast<QStatusBar *>(var2), obj1.statusBar());
     obj1.setStatusBar((QStatusBar *)0);
-    QVERIFY(var2 != obj1.statusBar());
-    QVERIFY((QStatusBar *)0 != obj1.statusBar()); // QMainWindow creates a QStatusBar on statusBar()
+    QVERIFY(obj1.statusBar());
+    QVERIFY(!var2);
     // delete var2; // No delete, since QMainWindow takes ownership
 
     // QWidget * QMainWindow::centralWidget()
