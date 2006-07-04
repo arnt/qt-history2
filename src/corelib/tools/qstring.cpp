@@ -5326,10 +5326,8 @@ QString QString::number(double n, char f, int prec)
     anywhere in the string, split() returns a single-element list
     containing this string.
 
-    If \a cs is true, the string is only split only where characters
-    are found that match \a sep exactly. If \a cs is false, the string
-    is split where characters are found that match \a sep case
-    insensitively (e.g. "and" matches "AND").
+    \a cs specifies whether \a sep should be matched case
+    sensitively or case insensitively.
 
     If \a behavior is QString::SkipEmptyParts, empty entries don't
     appear in the result. By default, empty entries are kept.
