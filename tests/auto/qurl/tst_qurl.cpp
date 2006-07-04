@@ -3067,7 +3067,7 @@ void tst_QUrl::tldRestrictions_data()
 
 void tst_QUrl::tldRestrictions()
 {
-#if QT_VERSION <= 0x040200
+#if QT_VERSION < 0x040200
     QSKIP("New feature in Qt 4.2.0", SkipAll);
 #else
     QFETCH(QString, tld);
