@@ -21,6 +21,8 @@
     \brief The QX11Info class provides information about the X display
     configuration.
 
+    \ingroup shared
+
     The class provides two APIs: a set of non-static functions that
     provide information about a specific widget or pixmap, and a set
     of static functions that provide the default information for the

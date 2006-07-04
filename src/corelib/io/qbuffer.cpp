@@ -108,7 +108,7 @@ void QBufferPrivate::_q_emitSignals()
     arrived. QBuffer also emits bytesWritten() every time new data
     has been written to the buffer.
 
-    \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
+    \sa QFile, QDataStream, QTextStream, QByteArray
 */
 
 #ifdef QT_NO_QOBJECT

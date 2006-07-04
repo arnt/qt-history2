@@ -30,7 +30,7 @@
 #include "qdebug.h"
 
 /*!
-    \class QPicture qpicture.h
+    \class QPicture
     \brief The QPicture class is a paint device that records and
     replays QPainter commands.
 
@@ -53,8 +53,6 @@
     WYSIWYG print preview. QPicture runs in the default system dpi,
     and scales the painter to match differences in resolution
     depending on the window system.
-
-    QPicture is an \link shclass.html implicitly shared\endlink class.
 
     Example of how to record a picture:
     \quotefromfile snippets/picture/picture.cpp
@@ -118,7 +116,9 @@ QPicture::QPicture(int formatVersion)
 }
 
 /*!
-    Constructs a \link shclass.html shallow copy\endlink of \a pic.
+    Constructs a copy of \a pic.
+
+    This constructor is fast thanks to \l{implicit sharing}.
 */
 
 QPicture::QPicture(const QPicture &pic)

@@ -60,6 +60,7 @@ QString QSqlRecordPrivate::createField(int index, const QString &prefix) const
     \brief The QSqlRecord class encapsulates a database record.
 
     \ingroup database
+    \ingroup shared
     \module sql
 
     The QSqlRecord class encapsulates the functionality and

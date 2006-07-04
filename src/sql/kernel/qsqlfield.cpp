@@ -73,6 +73,7 @@ public:
     and views.
 
     \ingroup database
+    \ingroup shared
     \module sql
 
     QSqlField represents the characteristics of a single column in a

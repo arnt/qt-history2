@@ -21,7 +21,7 @@
 #include <qhash.h>
 
 /*!
-    \class QTextLength qtextformat.h
+    \class QTextLength
     \brief The QTextLength class encapsulates the different types of length
     used in a QTextDocument.
 
@@ -332,11 +332,12 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 }
 
 /*!
-    \class QTextFormat qtextformat.h
+    \class QTextFormat
     \brief The QTextFormat class provides formatting information for a
     QTextDocument.
 
     \ingroup text
+    \ingroup shared
 
     A QTextFormat is a generic class used for describing the format of
     parts of a QTextDocument. The derived classes QTextCharFormat,
@@ -1006,7 +1007,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 }
 
 /*!
-    \class QTextCharFormat qtextformat.h
+    \class QTextCharFormat
     \brief The QTextCharFormat class provides formatting information for
     characters in a QTextDocument.
 
@@ -1440,7 +1441,7 @@ QFont QTextCharFormat::font() const
 }
 
 /*!
-    \class QTextBlockFormat qtextformat.h
+    \class QTextBlockFormat
     \brief The QTextBlockFormat class provides formatting information for
     blocks of text in a QTextDocument.
 
@@ -1657,7 +1658,7 @@ QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
 
 /*!
-    \class QTextListFormat qtextformat.h
+    \class QTextListFormat
     \brief The QTextListFormat class provides formatting information for
     lists in a QTextDocument.
 
@@ -1892,7 +1893,7 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 */
 
 /*!
-    \class QTextTableFormat qtextformat.h
+    \class QTextTableFormat
     \brief The QTextTableFormat class provides formatting information for
     tables in a QTextDocument.
 
@@ -2087,7 +2088,7 @@ QTextTableFormat::QTextTableFormat()
 
 
 /*!
-    \class QTextImageFormat qtextformat.h
+    \class QTextImageFormat
     \brief The QTextImageFormat class provides formatting information for
     images in a QTextDocument.
 

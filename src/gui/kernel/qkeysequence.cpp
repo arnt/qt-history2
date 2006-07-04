@@ -48,6 +48,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     by shortcuts.
 
     \ingroup misc
+    \ingroup shared
     \mainclass
 
     A key sequence consists of up to four keyboard codes, each

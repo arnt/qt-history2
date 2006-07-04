@@ -306,6 +306,7 @@ void QDirPrivate::detach(bool createFileEngine)
     \brief The QDir class provides access to directory structures and their contents.
 
     \ingroup io
+    \ingroup shared
     \reentrant
     \mainclass
 

@@ -25,6 +25,7 @@
     \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
 
     \ingroup multimedia
+    \ingroup shared
 
     The QBitmap class is a monochrome off-screen paint device used
     mainly for creating custom QCursor and QBrush objects,

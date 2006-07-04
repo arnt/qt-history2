@@ -1228,6 +1228,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
     \ingroup objectmodel
     \ingroup misc
+    \ingroup shared
     \mainclass
 
     Because C++ forbids unions from including types that have

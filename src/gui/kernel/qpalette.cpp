@@ -379,9 +379,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     You can copy a palette using the copy constructor and test to see
     if two palettes are \e identical using isCopyOf().
 
-    QPalette is optimized by the use of \link shclass.html implicit
-    sharing\endlink, so it is very efficient to pass QPalette objects as
-    arguments.
+    QPalette is optimized by the use of \l{implicit sharing},
+    so it is very efficient to pass QPalette objects as arguments.
 
     \sa QApplication::setPalette(), QWidget::setPalette(), QColor
 */
@@ -613,7 +612,7 @@ QPalette::QPalette(const QColor &button, const QColor &window)
 /*!
     Constructs a copy of \a p.
 
-    This constructor is fast because of \link shclass.html implicit sharing\endlink.
+    This constructor is fast thanks to \l{implicit sharing}.
 */
 QPalette::QPalette(const QPalette &p)
 {
@@ -643,7 +642,7 @@ void QPalette::init() {
     Assigns \a p to this palette and returns a reference to this
     palette.
 
-    This operation is fast because of \link shclass.html implicit sharing\endlink.
+    This operation is fast thanks to \l{implicit sharing}.
 */
 QPalette &QPalette::operator=(const QPalette &p)
 {
@@ -742,13 +741,6 @@ bool QPalette::isBrushSet(ColorGroup cg, ColorRole cr) const
 
 /*!
     \internal
-    \fn void QPalette::detach()
-    Detaches this palette from any other QPalette objects with which
-    it might implicitly share QColorGroup objects. In essence, does
-    the copying part of copy-on-write.
-
-    Calling this should generally not be necessary; QPalette calls it
-    itself when necessary.
 */
 void QPalette::detach()
 {
@@ -849,7 +841,7 @@ bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2)
     The serial number is intended for caching. Its value may not be
     used for anything other than equality testing.
 
-    Note that QPalette uses implicit sharing, and the serial number changes
+    Note that QPalette uses \l{implicit sharing}, and the serial number changes
     during the lazy copy operation (when the palette is actually modified), not
     during a shallow copy (copy constructor or assignment).
 

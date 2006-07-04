@@ -58,7 +58,7 @@
         }
     \endcode
 
-    QRegion is an \link shclass.html implicitly shared\endlink class.
+    QRegion is an \l{implicitly shared class}.
 
     \warning Due to window system limitations, the whole coordinate space for a
     region is limited to the points between -32767 and 32767 on Windows
@@ -186,10 +186,7 @@ QRegion::QRegion(const QPolygon &pa, bool winding)
 #endif
 
 /*!
-    Detaches from shared region data to make sure that this region is
-    the only one referring to the data.
-
-    \sa copy(), \link shclass.html shared classes\endlink
+    \internal
 */
 
 void QRegion::detach()

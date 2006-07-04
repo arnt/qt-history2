@@ -68,6 +68,7 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     manipulating SQL statements.
 
     \ingroup database
+    \ingroup shared
     \mainclass
     \module sql
 

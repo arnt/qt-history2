@@ -685,10 +685,11 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocu
 }
 
 /*!
-    \class QTextCursor qtextcursor.h
+    \class QTextCursor
     \brief The QTextCursor class offers an API to access and modify QTextDocuments.
 
     \ingroup text
+    \ingroup shared
     \mainclass
 
     Text cursors are objects that are used to access and modify the contents

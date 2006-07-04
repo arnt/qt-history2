@@ -1093,6 +1093,7 @@ static QLocalePrivate *system_lp = 0;
     \brief The QSystemLocale class can be used to finetune the system locale
     of the user.
     \since 4.2
+
     \ingroup i18n
 
     \warning This class is only useful in very rare cases. Usually QLocale offers
@@ -1254,6 +1255,7 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
     \reentrant
     \ingroup i18n
     \ingroup text
+    \ingroup shared
     \mainclass
 
     QLocale is initialized with a language/country pair in its

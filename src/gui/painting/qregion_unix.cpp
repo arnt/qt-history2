@@ -2303,9 +2303,7 @@ QRegion &QRegion::operator=(const QRegion &r)
 
 
 /*!
-    Returns a \link shclass.html deep copy\endlink of the region.
-
-    \sa detach()
+    \internal
 */
 
 QRegion QRegion::copy() const

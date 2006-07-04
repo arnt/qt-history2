@@ -20,6 +20,7 @@
     \reentrant
     \ingroup io
     \ingroup misc
+    \ingroup shared
     \mainclass
 
     It can parse and construct URLs in both encoded and unencoded
