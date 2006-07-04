@@ -1178,13 +1178,17 @@ bool QPainter::begin(QPaintDevice *pd)
     d->state->bgOrigin = QPointF();
 
     d->device = pd;
+    if (pd->devType() == QInternal::Pixmap)
+        static_cast<QPixmap *>(pd)->detach();
+    else if (pd->devType() == QInternal::Image)
+        static_cast<QImage *>(pd)->detach();
+
     d->engine = pd->paintEngine();
 
     if (!d->engine) {
         qWarning("QPainter::begin: Paint device returned engine == 0, type: %d", pd->devType());
         return true;
     }
-
     switch (pd->devType()) {
         case QInternal::Widget:
         {
@@ -1208,8 +1212,22 @@ bool QPainter::begin(QPaintDevice *pd)
                 qWarning("QPainter::begin: Cannot paint on a null pixmap");
                 return false;
             }
-            const_cast<QPixmap *>(pm)->detach();
+
             if (pm->depth() == 1) {
+                d->state->pen = QPen(Qt::color1);
+                d->state->brush = QBrush(Qt::color0);
+            }
+            break;
+        }
+        case QInternal::Image:
+        {
+            const QImage *img = static_cast<const QImage *>(pd);
+            Q_ASSERT(img);
+            if (img->isNull()) {
+                qWarning("QPainter::begin: Cannot paint on a null image");
+                return false;
+            }
+            if (img->depth() == 1) {
                 d->state->pen = QPen(Qt::color1);
                 d->state->brush = QBrush(Qt::color0);
             }
@@ -1218,7 +1236,6 @@ bool QPainter::begin(QPaintDevice *pd)
         default:
             break;
     }
-
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
 
@@ -2198,7 +2215,7 @@ void QPainter::drawPath(const QPainterPath &path)
 #endif
 
     if (!isActive())
-	return;
+        return;
 
     Q_D(QPainter);
     d->updateState(d->state);
