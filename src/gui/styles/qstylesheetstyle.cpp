@@ -843,11 +843,12 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         w->setAttribute(Qt::WA_Hover);
 
     struct ruleRoleMap {
-        QStyle::State state;
+        QStyle::StateFlag state;
         QPalette::ColorGroup group;
-    } map[2] = {
+    };
+    ruleRoleMap map[2] = {
         { QStyle::State_Enabled, QPalette::Active },
-        { QStyle::State(0/*disabled*/), QPalette::Disabled }
+        { QStyle::State_None, QPalette::Disabled }
     };
 
     QPalette p = qApp->palette(w);
