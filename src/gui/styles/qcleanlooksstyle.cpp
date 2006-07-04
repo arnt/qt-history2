@@ -3295,7 +3295,6 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     switch (type) {
     case CT_GroupBox:
     case CT_RadioButton:
-    case CT_HeaderSection:
     case CT_CheckBox:
         newSize += QSize(0, 1);
         break;
@@ -3308,7 +3307,6 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_LineEdit:
         newSize += QSize(0, 6);
         break;
-    case CT_PushButton:
     case CT_ComboBox:
         newSize += QSize(0, 4);
         break;
