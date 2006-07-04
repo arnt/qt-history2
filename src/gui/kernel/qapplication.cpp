@@ -1617,7 +1617,7 @@ void QApplication::setWindowIcon(const QIcon &icon)
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
 #ifdef Q_WS_MAC
         void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
-        QSize size = QApplicationPrivate::app_icon->actualSize(QSize(64, 64));
+        QSize size = QApplicationPrivate::app_icon->actualSize(QSize(128, 128));
         qt_mac_set_app_icon(QApplicationPrivate::app_icon->pixmap(size));
 #endif
         QEvent e(QEvent::ApplicationWindowIconChange);

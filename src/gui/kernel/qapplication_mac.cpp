@@ -254,9 +254,7 @@ void qt_mac_set_app_icon(const QPixmap &pixmap)
     if(pixmap.isNull()) {
         RestoreApplicationDockTileImage();
     } else {
-        QPixmap scaled_pixmap = pixmap.scaled(40, 40);
-        CGImageRef ir = (CGImageRef)scaled_pixmap.macCGHandle();
-        SetApplicationDockTileImage(ir);
+        SetApplicationDockTileImage(CGImageRef(pixmap.macCGHandle()));
     }
 }
 
