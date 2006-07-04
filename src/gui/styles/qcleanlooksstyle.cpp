@@ -3387,6 +3387,26 @@ void QCleanlooksStyle::polish(QPalette &pal)
 void QCleanlooksStyle::unpolish(QWidget *widget)
 {
     Q_UNUSED(widget);
+    if (qobject_cast<QAbstractButton*>(widget)
+#ifndef QT_NO_COMBOBOX
+        || qobject_cast<QComboBox *>(widget)
+#endif
+#ifndef QT_NO_PROGRESSBAR
+        || qobject_cast<QProgressBar *>(widget)
+#endif
+#ifndef QT_NO_SCROLLBAR
+        || qobject_cast<QScrollBar *>(widget)
+#endif
+#ifndef QT_NO_SPLITTER
+        || qobject_cast<QSplitterHandle *>(widget)
+#endif
+        || qobject_cast<QAbstractSlider *>(widget)
+        || qobject_cast<QAbstractSpinBox *>(widget)
+        || (widget->inherits("QDockSeparator"))
+        || (widget->inherits("QDockWidgetSeparator"))
+        ) {
+        widget->setAttribute(Qt::WA_Hover, false);
+    }
 }
 
 /*!

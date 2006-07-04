@@ -1334,7 +1334,18 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
         // already in the map might be old (other style).
         d->cleanupHandleMap();
     }
-
+    if (qobject_cast<QAbstractButton*>(widget)
+        || qobject_cast<QToolButton*>(widget)
+        || qobject_cast<QTabBar*>(widget)
+        || qobject_cast<QComboBox*>(widget)
+        || qobject_cast<QScrollBar*>(widget)
+        || qobject_cast<QSlider*>(widget)
+        || qobject_cast<QHeaderView*>(widget)
+        || qobject_cast<QAbstractSpinBox*>(widget)
+        || qobject_cast<QSpinBox*>(widget)
+        || widget->inherits("QWorkspaceChild")
+        || widget->inherits("Q3TitleBar"))
+        widget->setAttribute(Qt::WA_Hover, false);
     QWindowsStyle::unpolish(widget);
 }
 
