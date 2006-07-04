@@ -71,6 +71,8 @@ private slots:
     void task109149();
 
     void style();
+
+    void allWidgets();
 private:
     inline QChar pathSeparator(void)
     {
@@ -1115,6 +1117,19 @@ void tst_QApplication::style()
     qApp->setStyleSheet("");
     QVERIFY(sss.isNull()); // should have disappeared
     QVERIFY(qApp->style() == style1);
+}
+
+void tst_QApplication::allWidgets()
+{
+    int argc = 1;
+    QApplication app(argc, &argv0);
+    QWidget *w = new QWidget;
+    QVERIFY(app.allWidgets().contains(w)); // uncreate widget test
+    WId wid = w->winId();
+    QVERIFY(app.allWidgets().contains(w)); // created widget test
+    delete w;
+    w = 0;
+    QVERIFY(!app.allWidgets().contains(w)); // removal test
 }
 
 //QTEST_APPLESS_MAIN(tst_QApplication)
