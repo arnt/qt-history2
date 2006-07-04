@@ -1199,6 +1199,16 @@ QTreeWidgetItem::QTreeWidgetItem(const QStringList &strings, int type)
 }
 
 /*!
+    \fn QTreeWidgetItem::QTreeWidgetItem(const QString &text, int type)
+
+    Constructs a tree widget item of the specified \a type. The item
+    must be inserted into a tree widget.
+
+    The given \a text will be set as the item text for the first column
+    of the item.
+*/
+
+/*!
     \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, int type)
 
     Constructs a tree widget item of the specified \a type and appends it
@@ -1248,6 +1258,16 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
         values.reserve(model->columnCount());
     }
 }
+
+/*!
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, const QString &text, int type)
+
+    Constructs a tree widget item of the specified \a type and appends
+    it to the items in the given \a parent. 
+
+    The given \a text will be set as the item text for the first column
+    of the item.
+*/
 
 /*!
     \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, QTreeWidgetItem *preceding, int type)
@@ -1312,6 +1332,16 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &str
         parent->addChild(this);
 
 }
+
+/*!
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QString &text, int type)
+
+    Constructs a tree widget item of the specified \a type and appends
+    it to the given \a parent. 
+
+    The given \a text will be set as the item text for the first column
+    of the item.
+*/
 
 /*!
     \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *preceding, int type)

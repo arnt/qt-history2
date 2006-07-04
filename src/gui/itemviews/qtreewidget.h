@@ -38,11 +38,14 @@ public:
     enum ItemType { Type = 0, UserType = 1000 };
     QTreeWidgetItem(int type = Type);
     QTreeWidgetItem(const QStringList &strings, int type = Type);
+    inline QTreeWidgetItem(const QString &text, int type = Type);
     explicit QTreeWidgetItem(QTreeWidget *view, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, int type = Type);
+    inline QTreeWidgetItem(QTreeWidget *view, const QString &text, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type = Type);
     explicit QTreeWidgetItem(QTreeWidgetItem *parent, int type = Type);
     QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &strings, int type = Type);
+    inline QTreeWidgetItem(QTreeWidgetItem *parent, const QString &text, int type = Type);
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type = Type);
     QTreeWidgetItem(const QTreeWidgetItem &other);
     virtual ~QTreeWidgetItem();
@@ -160,6 +163,15 @@ private:
     Qt::ItemFlags itemFlags;
 };
 
+inline QTreeWidgetItem::QTreeWidgetItem(const QString &atext, int atype)
+{ QTreeWidgetItem(QStringList(atext), atype); }
+
+inline QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *aview, const QString &atext, int atype)
+{ QTreeWidgetItem(aview, QStringList(atext), atype); }
+
+inline QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *aparent, const QString &atext, int atype)
+{ QTreeWidgetItem(aparent, QStringList(atext), atype); }
+
 inline void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags)
 { itemFlags = aflags; itemChanged(); }
 
@@ -225,6 +237,7 @@ public:
     QTreeWidgetItem *headerItem() const;
     void setHeaderItem(QTreeWidgetItem *item);
     void setHeaderLabels(const QStringList &labels);
+    inline void setHeaderLabel(const QString &label);
 
     QTreeWidgetItem *currentItem() const;
     int currentColumn() const;
@@ -311,6 +324,9 @@ private:
 
 inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
+
+inline void QTreeWidget::setHeaderLabel(const QString &alabel)
+{ setHeaderLabels(QStringList(alabel)); }
 
 inline void QTreeWidgetItem::setSelected(bool aselect)
 { if (view) view->setItemSelected(this, aselect); }
