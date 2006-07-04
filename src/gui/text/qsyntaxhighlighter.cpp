@@ -40,7 +40,8 @@ public:
         if (!rehighlightPending)
             return;
         rehighlightPending = false;
-        return q_func()->rehighlight();
+        q_func()->rehighlight();
+        return;
     }
 
     void applyFormatChanges();
