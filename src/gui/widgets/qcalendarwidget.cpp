@@ -1004,7 +1004,7 @@ void QCalendarWidget::showNextYear()
 {
     int year = yearShown();
     int month = monthShown();
-    --year;
+    ++year;
     setCurrentPage(year, month);
 }
 
@@ -1020,7 +1020,7 @@ void QCalendarWidget::showPreviousYear()
 {
     int year = yearShown();
     int month = monthShown();
-    year--;
+    --year;
     setCurrentPage(year, month);
 }
 
