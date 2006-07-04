@@ -320,8 +320,12 @@ int QStackedLayout::currentIndex() const
  */
 void QStackedLayout::setCurrentWidget(QWidget *widget)
 {
-    Q_ASSERT_X(indexOf(widget) >= 0, "QStackedLayout::setCurrentWidget", "widget not contained in stack");
-    setCurrentIndex(indexOf(widget));
+    int index = indexOf(widget);
+	if (index == -1) {
+		qWarning("QStackedLayout::setCurrentWidget: widget %p not contained in stack", widget);
+		return;
+	}
+    setCurrentIndex(index);
 }
 
 
