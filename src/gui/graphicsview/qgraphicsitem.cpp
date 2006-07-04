@@ -3555,8 +3555,10 @@ QPainterPath QGraphicsEllipseItem::shape() const
 {
     Q_D(const QGraphicsEllipseItem);
     QPainterPath path;
-    path.moveTo(d->rect.center());
-    path.arcTo(d->rect, d->startAngle / 16.0, d->spanAngle / 16.0);
+    if (!d->rect.isNull()) {
+        path.moveTo(d->rect.center());
+        path.arcTo(d->rect, d->startAngle / 16.0, d->spanAngle / 16.0);
+    }
     return path;
 }
 
@@ -3578,7 +3580,11 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     Q_UNUSED(widget);
     painter->setPen(d->pen);
     painter->setBrush(d->brush);
-    painter->drawPie(d->rect, d->startAngle, d->spanAngle);
+    if (d->spanAngle != 360 * 10) {
+        painter->drawEllipse(d->rect);
+    } else {
+        painter->drawPie(d->rect, d->startAngle, d->spanAngle);
+    }
 
     if (option->state & QStyle::State_Selected) {
         painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
