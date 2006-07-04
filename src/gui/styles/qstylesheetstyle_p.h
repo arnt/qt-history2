@@ -137,6 +137,8 @@ private:
     mutable QSharedDataPointer<QStyleSheetBackgroundData> bg;
 };
 
+class QFrame;
+
 class QStyleSheetStyle : public QCommonStyle
 {
     typedef QCommonStyle ParentStyle;
@@ -194,10 +196,14 @@ private:
     bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
     void update(const QList<QWidget *>& widgets);
 
-    static void setPalette(QWidget *);
-    static void computeStyleSheet(QWidget *widget);
-    static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt);
-    static QRenderRule renderRule(QWidget *w, QStyle::State state);
+    void setPalette(QWidget *);
+    void unsetPalette(QWidget *);
+    QVector<QCss::StyleRule> computeStyleSheet(QWidget *widget);
+    QHash<QFrame *, int> frameStyles;
+
+    QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
+    QRenderRule renderRule(QWidget *w, QStyle::State state) const;
+
     static QHash<QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
     static QHash<QWidget *, QHash<int, QRenderRule> > renderRulesCache;
 };

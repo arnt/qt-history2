@@ -28,6 +28,7 @@
 #include <qcombobox.h>
 #include <qwindowsstyle.h>
 #include <qplastiquestyle.h>
+#include <qframe.h>
 #include "private/qcssparser_p.h"
 
 using namespace QCss;
@@ -784,7 +785,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QRenderRule QStyleSheetStyle::renderRule(QWidget *w, QStyle::State state)
+QRenderRule QStyleSheetStyle::renderRule(QWidget *w, QStyle::State state) const
 {
     int pseudoState = (state & QStyle::State_Enabled)
                                 ? PseudoState_Enabled : PseudoState_Disabled;
@@ -819,23 +820,29 @@ QRenderRule QStyleSheetStyle::renderRule(QWidget *w, QStyle::State state)
     return newRule;
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt) const
 {
     if (!w)
         return QRenderRule();
 
-    if (!styleRulesCache.contains(const_cast<QWidget *>(w)))
-        computeStyleSheet(const_cast<QWidget *>(w));
+    QWidget *wid = const_cast<QWidget *>(w);
+
+#ifndef QT_NO_DEBUG
+    Q_ASSERT(styleRulesCache.contains(wid));
+#else
+    if (!styleRulesCache.concrete(wid))
+        computeStyleSheet(wid);
+#endif
 
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
 
     // Add hacks for <w, opt> here
 #ifndef QT_NO_LINEEDIT
-    if (qobject_cast<const QLineEdit *>(w))
+    if (qobject_cast<QLineEdit *>(wid))
         state &= ~QStyle::State_Sunken;
 #endif
 
-    return renderRule(const_cast<QWidget *>(w), state);
+    return renderRule(wid, state);
 }
 
 void QStyleSheetStyle::setPalette(QWidget *w)
@@ -873,15 +880,30 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         } else if (qobject_cast<QLineEdit *>(w)) {
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
 #endif
-        } else if (QFrame *frame = qobject_cast<QFrame *>(w)) {
-            if (rule.hasBox())
-                frame->setFrameStyle(QFrame::StyledPanel);
+        } else if (QFrame *frame = qobject_cast<QFrame *>(w))
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
+    }
+
+    if (QFrame *frame = qobject_cast<QFrame *>(w)) {
+        if (renderRule(w, QStyle::State_Enabled).hasBox()) {
+            frameStyles[frame] = frame->frameStyle();
+            frame->setFrameStyle(QFrame::StyledPanel);
         }
     }
+
     w->setPalette(p);
 }
 
+void QStyleSheetStyle::unsetPalette(QWidget *w)
+{
+    w->setPalette(qApp->palette(w));
+    if (QFrame *frame = qobject_cast<QFrame *>(w)) {
+        if (frameStyles.contains(frame)) {
+            frame->setFrameStyle(frameStyles[frame]);
+            frameStyles.remove(frame);
+        }
+    }
+}
 
 void QStyleSheetStyle::repolish(QWidget *w)
 {
@@ -900,8 +922,8 @@ void QStyleSheetStyle::update(const QList<QWidget *>& widgets)
     QEvent e(QEvent::StyleChange);
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *widget = widgets.at(i);
-        widget->setPalette(qApp->palette(widget));
-        computeStyleSheet(widget);
+        unpolish(widget);
+        polish(widget);
         QApplication::sendEvent(widget, &e);
     }
 }
@@ -909,10 +931,18 @@ void QStyleSheetStyle::update(const QList<QWidget *>& widgets)
 void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);
-    computeStyleSheet(w);
+    renderRulesCache.remove(w);
+    QVector<QCss::StyleRule> rules = computeStyleSheet(w);
+    qDebug() << w << " stylsheet was computed";
+    styleRulesCache[w] = rules;
+    if (rules.isEmpty()) {
+        unsetPalette(w);
+    } else {
+        setPalette(w);
+    }
 }
 
-void QStyleSheetStyle::computeStyleSheet(QWidget *w)
+QVector<QCss::StyleRule> QStyleSheetStyle::computeStyleSheet(QWidget *w)
 {
     QStyleSheetStyleSelector styleSelector;
     StyleSheet appSs;
@@ -951,16 +981,14 @@ void QStyleSheetStyle::computeStyleSheet(QWidget *w)
 
     StyleSelector::NodePtr n;
     n.ptr = w;
-    const QVector<StyleRule>& rules = styleSelector.styleRulesForNode(n);
-    styleRulesCache[w] = rules;
-    renderRulesCache.remove(w);
-    setPalette(w);
+    return styleSelector.styleRulesForNode(n);
 }
 
 void QStyleSheetStyle::polish(QApplication *app)
 {
     styleRulesCache.clear();
     renderRulesCache.clear();
+    frameStyles.clear();
     baseStyle()->polish(app);
 }
 
@@ -974,6 +1002,12 @@ void QStyleSheetStyle::unpolish(QWidget *widget)
     styleRulesCache.remove(widget);
     renderRulesCache.remove(widget);
     baseStyle()->unpolish(widget);
+    if (QFrame *frame = qobject_cast<QFrame *>(widget)) {
+        if (frameStyles.contains(frame)) {
+            frame->setFrameStyle(frameStyles[frame]);
+            frameStyles.remove(frame);
+        }
+    }
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
@@ -981,6 +1015,10 @@ void QStyleSheetStyle::unpolish(QApplication *app)
     styleRulesCache.clear();
     renderRulesCache.clear();
     baseStyle()->unpolish(app);
+    QList<QFrame *> frames = frameStyles.keys();
+    for (int i = 0; i < frames.count(); i++)
+        frames.at(i)->setFrameStyle(frameStyles[frames.at(i)]);
+    frameStyles.clear();
 }
 
 bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const QRenderRule& rule) const
