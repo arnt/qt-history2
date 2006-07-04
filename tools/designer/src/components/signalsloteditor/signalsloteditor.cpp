@@ -73,8 +73,17 @@ static void merge(QDesignerFormWindowInterface *form, QStringList *lst, const QL
 
 QStringList objectNameList(QDesignerFormWindowInterface *form)
 {
-    QDesignerFormWindowCursorInterface *cursor = form->cursor();
     QStringList result;
+    if (form->mainContainer()) {
+        QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension *>(
+                    form->core()->extensionManager(), form->mainContainer());
+        if (c) {
+            for (int i = 0 ; i < c->count(); i++)
+                result.append(c->widget(i)->objectName().trimmed());
+        }
+    }
+
+    QDesignerFormWindowCursorInterface *cursor = form->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
         QString name = cursor->widget(i)->objectName().trimmed();
         if (!name.isEmpty())
