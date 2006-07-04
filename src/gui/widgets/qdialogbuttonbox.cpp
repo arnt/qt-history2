@@ -114,7 +114,7 @@
 enum { AcceptRole = QDialogButtonBox::AcceptRole, RejectRole = QDialogButtonBox::RejectRole,
        DestructiveRole = QDialogButtonBox::DestructiveRole,
        ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole, AlternateRole,
-       Stretch = 0x10000000, MacSpacer = 0x20000000, EOL = 0x40000000, Reverse = 0x80000000 };
+       Stretch = 0x10000000, EOL = 0x40000000, Reverse = 0x80000000 };
 
 static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton button)
 {
@@ -166,7 +166,7 @@ static const int layouts[2][5][9] =
         { Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ActionRole, HelpRole, EOL, EOL },
 
         // MacLayout
-        { HelpRole, ActionRole, Stretch, DestructiveRole | Reverse, MacSpacer, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
+        { HelpRole, ActionRole, Stretch, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
 
         // KdeLayout
         { HelpRole, Stretch, AcceptRole, AlternateRole, ActionRole, DestructiveRole, RejectRole, EOL, EOL },
@@ -184,7 +184,7 @@ static const int layouts[2][5][9] =
         { ActionRole, AcceptRole, AlternateRole, DestructiveRole, RejectRole, HelpRole, Stretch, EOL, EOL },
 
         // MacLayout
-        { AcceptRole, RejectRole, AlternateRole, MacSpacer, DestructiveRole, Stretch, ActionRole, HelpRole, EOL },
+        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, Stretch, ActionRole, HelpRole, EOL },
 
         // KdeLayout
         { ActionRole, Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, HelpRole, EOL, EOL },
@@ -200,9 +200,9 @@ static const int layouts[2][5][9] =
 class QDialogButtonBoxPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QDialogButtonBox)
+
 public:
     QDialogButtonBoxPrivate(Qt::Orientation orient);
-    ~QDialogButtonBoxPrivate();
 
     QList<QAbstractButton *> buttonLists[QDialogButtonBox::NRoles];
     QHash<QPushButton *, QDialogButtonBox::StandardButton> standardButtonHash;
@@ -221,20 +221,12 @@ public:
     void addButton(QAbstractButton *button, QDialogButtonBox::ButtonRole role, bool doLayout = true);
     void _q_handleButtonDestroyed();
     void _q_handleButtonClicked();
-    void addButtonsToLayout(int start, int stop, int dir, const QList<QAbstractButton *> buttonList);
+    void addButtonsToLayout(const QList<QAbstractButton *> &buttonList, bool reverse);
 };
 
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
     : orientation(orient), skipDisconnect(false)
 {
-}
-
-QDialogButtonBoxPrivate::~QDialogButtonBoxPrivate()
-{
-    // Just clear the lists, since I can't really guarantee when those other things will be deleted
-    standardButtonHash.clear();
-    for (int i = 0; i < QDialogButtonBox::NRoles; ++i)
-        buttonLists[i].clear();
 }
 
 void QDialogButtonBoxPrivate::initLayout()
@@ -245,15 +237,9 @@ void QDialogButtonBoxPrivate::initLayout()
         buttonLayout = new QHBoxLayout(q);
     else
         buttonLayout = new QVBoxLayout(q);
-    switch (layoutPolicy) {
-    case QDialogButtonBox::MacLayout:
-        buttonLayout->setMargin(0);
+    if (layoutPolicy == QDialogButtonBox::MacLayout)
         buttonLayout->setSpacing(0);
-        break;
-    default:
-        buttonLayout->setMargin(0);
-        break;
-    }
+    buttonLayout->setMargin(0);
 }
 
 void QDialogButtonBoxPrivate::resetLayout()
@@ -263,19 +249,25 @@ void QDialogButtonBoxPrivate::resetLayout()
     layoutButtons();
 }
 
-void QDialogButtonBoxPrivate::addButtonsToLayout(int start, int stop, int dir,
-                                                 const QList<QAbstractButton *> buttonList)
+void QDialogButtonBoxPrivate::addButtonsToLayout(const QList<QAbstractButton *> &buttonList,
+                                                 bool reverse)
+
 {
-    while (start != stop) {
-        QAbstractButton *button = buttonList.at(start);
+    int start = reverse ? buttonList.count() - 1 : 0;
+    int end = reverse ? -1 : buttonList.count();
+    int step = reverse ? -1 : 1;
+
+    for (int i = start; i != end; i += step) {
+        QAbstractButton *button = buttonList.at(i);
         buttonLayout->addWidget(button);
         button->show();
-        start += dir;
     }
 }
 
 void QDialogButtonBoxPrivate::layoutButtons()
 {
+    const int MacGap = 19;
+
     for (int i = buttonLayout->count() - 1; i >= 0; --i) {
         QLayoutItem *item = buttonLayout->takeAt(i);
         if (QWidget *widget = item->widget())
@@ -302,58 +294,58 @@ void QDialogButtonBoxPrivate::layoutButtons()
     const int *currentLayout = layouts[orientation == Qt::Vertical][tmpPolicy];
 
     while (*currentLayout != EOL) {
-        switch (*currentLayout & ~Reverse) {
+        int role = (*currentLayout & ~Reverse);
+        bool reverse = (*currentLayout & Reverse);
+
+        switch (role) {
         case Stretch:
             buttonLayout->addStretch();
-            break;
-        case MacSpacer:
-            buttonLayout->addSpacing(19);
             break;
         case AcceptRole: {
             const QList<QAbstractButton *> &list = buttonLists[AcceptRole];
             if (list.isEmpty())
                 break;
             // Only the first one
-            QAbstractButton *button = list.at(0);
+            QAbstractButton *button = list.first();
             buttonLayout->addWidget(button);
             button->show();
         }
             break;
         case AlternateRole: {
-            const QList<QAbstractButton *> &list = buttonLists[AcceptRole];
+            QList<QAbstractButton *> list = buttonLists[AcceptRole];
             if (list.size() < 2)
                 break;
-            int start,
-                stop,
-                dir;
-            if (*currentLayout & Reverse) {
-                start = list.size() - 1;
-                stop = 0;
-                dir = -1;
-            } else {
-                start = dir = 1;
-                stop = list.size();
-            }
-            addButtonsToLayout(start, stop, dir, list);
+            list.removeFirst();
+            addButtonsToLayout(list, reverse);
         }
             break;
         case RejectRole:
         case DestructiveRole:
         case ActionRole:
         case HelpRole: {
-            const QList<QAbstractButton *> &list = buttonLists[*currentLayout & ~Reverse];
-            int start,
-                stop,
-                dir;
-            if (*currentLayout & Reverse) {
-                start = list.size() - 1;
-                stop = dir = -1;
-            } else {
-                start = 0;
-                stop = list.size();
-                dir = 1;
-            }
-            addButtonsToLayout(start, stop, dir, list);
+            const QList<QAbstractButton *> &list = buttonLists[role];
+
+            /*
+                Mac: Insert a gap on the left of the destructive
+                buttons to ensure that they don't get too close to
+                the help and action buttons (but only if there are
+                some buttons to the left of the destructive buttons
+                (and the stretch, whence buttonLayout->count > 1 and
+                not 0)).
+            */
+            if (tmpPolicy == QDialogButtonBox::MacLayout && role == DestructiveRole
+                    && !list.isEmpty() && buttonLayout->count() > 1)
+                buttonLayout->addSpacing(MacGap);
+
+            addButtonsToLayout(list, reverse);
+
+            /*
+                Insert a gap between the destructive buttons and the
+                accept and reject buttons.
+            */
+            if (tmpPolicy == QDialogButtonBox::MacLayout && role == DestructiveRole
+                    && !list.isEmpty())
+                buttonLayout->addSpacing(MacGap);
         }
             break;
         default:
@@ -567,6 +559,7 @@ QDialogButtonBox::~QDialogButtonBox()
 
 /*!
     \enum QDialogButtonBox::ButtonLayout
+    \internal
 
     This enum describes the layout policy to be used when arranging the buttons
     contained in the button box.
