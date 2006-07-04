@@ -1847,9 +1847,26 @@ void tst_QGraphicsScene::render()
 
     QString fileName = QString("testData/render/%1.png").arg(QTest::currentDataTag());
     QImage original(fileName);
-#if 1
+    QVERIFY(!original.isNull());
+    
     // Compare
-    if (original != bigImage) {
+    int wrongPixels = 0;
+    for (int y = 0; y < original.height(); ++y) {
+        for (int x = 0; x < original.width(); ++x) {
+            if (bigImage.pixel(x, y) != original.pixel(x, y))
+                ++wrongPixels;
+        }
+    }
+
+    // This is a pixmap compare test - because of rounding errors on diverse
+    // platforms, and especially because tests are compiled in release mode,
+    // we set a 95% acceptance threshold for comparing images. This number may
+    // have to be adjusted if this test fails.
+    qreal threshold = 0.95;
+    qreal similarity = (1 - (wrongPixels / qreal(original.width() * original.height())));
+    if (similarity < threshold) {
+#if 1
+        // fail
         QLabel *expectedLabel = new QLabel;
         expectedLabel->setPixmap(QPixmap::fromImage(original));
 
@@ -1870,12 +1887,11 @@ void tst_QGraphicsScene::render()
         QTestEventLoop::instance().enterLoop(1);
 
         QFAIL("Images are not identical.");
-    }
 #else
-    // Generate
-    if (original != bigImage)
+        // generate
         qDebug() << "Updating" << QTest::currentDataTag() << ":" << bigImage.save(fileName, "png");
 #endif
+    }
 }
 
 void tst_QGraphicsScene::contextMenuEvent()
