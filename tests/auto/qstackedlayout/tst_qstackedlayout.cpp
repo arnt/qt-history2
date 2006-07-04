@@ -67,8 +67,9 @@ void tst_QStackedLayout::getSetCheck()
     // has no problem handling out-of-bounds indices.
     // ("convenience function" => "just another way of achieving the
     // same goal")
+	QTest::ignoreMessage(QtWarningMsg, "QStackedLayout::setCurrentWidget: widget (nil) not contained in stack");
     obj1.setCurrentWidget((QWidget *)0);
-    QCOMPARE((QWidget *)0, obj1.currentWidget());
+    QCOMPARE(obj1.currentWidget(), var2);
 #endif
     delete var2;
 }
