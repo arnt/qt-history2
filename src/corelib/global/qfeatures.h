@@ -508,6 +508,11 @@
 #define QT_NO_TREEVIEW
 #endif
 
+// QCalendarWidget
+#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW))
+#define QT_NO_CALENDARWIDGET
+#endif
+
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_SPINBOX))
 #define QT_NO_COLORDIALOG

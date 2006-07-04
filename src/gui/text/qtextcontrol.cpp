@@ -95,7 +95,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
-    
+
 
     if (e == QKeySequence::MoveToNextChar) {
             op = QTextCursor::Right;
@@ -203,7 +203,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     }
     else if (e == QKeySequence::MoveToEndOfDocument) {
             op = QTextCursor::End;
-    } 
+    }
     else {
         return false;
     }
@@ -216,7 +216,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 // Option + Left/Right -- Move one word Left/right.
 //        + Up/Down  -- Begin/End of Paragraph.
 // Home/End Top/Bottom of file. (usually don't move the cursor, but will select)
-   
+
     const bool moved = cursor.movePosition(op, mode);
     q->ensureCursorVisible();
 
@@ -1019,7 +1019,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             e->accept();
             q->copy();
             return;
-    } 
+    }
 
     if (interactionFlags & Qt::TextSelectableByKeyboard
         && cursorMoveKeyEvent(e))
@@ -1067,7 +1067,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
     // example)
     repaintSelection();
 
-    if (!e->modifiers()) { 
+    if (!e->modifiers()) {
         switch (e->key()) {
         case Qt::Key_Backspace:
         {
@@ -1095,7 +1095,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             break;
         }
     }
-    
+
     if (e == QKeySequence::Undo) {
             q->undo();
     }
@@ -1108,7 +1108,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
     }
     else if (e == QKeySequence::Paste) {
            q->paste();
-    }    
+    }
 #endif
     else if (e == QKeySequence::Delete) {
         cursor.deleteChar();
@@ -1133,7 +1133,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         goto process;
     }
     goto accept;
-    
+
 process:
     {
         QString text = e->text();
@@ -1154,7 +1154,7 @@ process:
     }
 
  accept:
- 
+
     e->accept();
     cursorOn = true;
 
@@ -1165,8 +1165,13 @@ process:
 
 QVariant QTextControl::loadResource(int type, const QUrl &name)
 {
+#ifdef QT_NO_TEXTEDIT
+    Q_UNUSED(type);
+    Q_UNUSED(name);
+#else
     if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(parent()))
         return textEdit->loadResource(type, name);
+#endif
     return QVariant();
 }
 
@@ -1876,6 +1881,8 @@ void QTextControl::setAcceptRichText(bool accept)
     d->acceptRichText = accept;
 }
 
+#ifndef QT_NO_TEXTEDIT
+
 void QTextControl::setExtraSelections(const QList<QTextEdit::ExtraSelection> &selections)
 {
     Q_D(QTextControl);
@@ -1928,6 +1935,8 @@ QList<QTextEdit::ExtraSelection> QTextControl::extraSelections() const
     }
     return selections;
 }
+
+#endif // QT_NO_TEXTEDIT
 
 void QTextControl::setTextWidth(qreal width)
 {

@@ -25,10 +25,10 @@
 // We mean it.
 //
 
-#ifndef QT_NO_SCROLLAREA
-
 #include "private/qframe_p.h"
 #include "qabstractscrollarea.h"
+
+#ifndef QT_NO_SCROLLAREA
 
 class QScrollBar;
 class QAbstractScrollAreaScrollBarContainer;
@@ -86,7 +86,7 @@ class QAbstractScrollAreaScrollBarContainer : public QWidget
 {
 public:
     enum LogicalPosition { LogicalLeft = 1, LogicalRight = 2 };
-    
+
     QAbstractScrollAreaScrollBarContainer(Qt::Orientation orientation, QWidget *parent);
     void addWidget(QWidget *widget, LogicalPosition position);
     QWidgetList widgets(LogicalPosition position);
@@ -96,7 +96,7 @@ public:
     QBoxLayout *layout;
 private:
     int scrollBarLayoutIndex() const;
-    
+
     Qt::Orientation orientation;
 };
 

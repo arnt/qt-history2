@@ -463,6 +463,13 @@ Requires:
 Name: QSizeGrip
 SeeAlso: ???
 
+Feature: CALENDARWIDGET
+Description: Provides a monthly based calendar widget allowing the user to select a date.
+Section: Widgets
+Requires: TABLEVIEW
+Name: QCalendarWidget
+SeeAlso: ???
+
 # Dialogs
 
 Feature: MESSAGEBOX

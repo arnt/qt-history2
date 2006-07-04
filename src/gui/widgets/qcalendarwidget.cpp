@@ -11,8 +11,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_CALENDARWIDGET
 #include "qcalendarwidget.h"
+
+#ifndef QT_NO_CALENDARWIDGET
+
 #include <qabstractitemmodel.h>
 #include <qdatetime.h>
 #include <qtableview.h>

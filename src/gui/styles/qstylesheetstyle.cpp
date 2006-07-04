@@ -230,21 +230,21 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
         switch (edge) {
         case TopEdge:
         case BottomEdge:
-            qDrawRoundedCorners(p, x1, y1, x2, y1+wby3, edge, 
+            qDrawRoundedCorners(p, x1, y1, x2, y1+wby3, edge,
                                 b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x1, y2-wby3, x2, y2, edge, 
+            qDrawRoundedCorners(p, x1, y2-wby3, x2, y2, edge,
                                 b, BorderStyle_Solid, r1, r2);
             break;
         case LeftEdge:
-            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, LeftEdge, 
+            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, LeftEdge,
                                 b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, LeftEdge, 
+            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, LeftEdge,
                                 b, BorderStyle_Solid, r1, r2);
             break;
         case RightEdge:
-            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, RightEdge, 
+            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, RightEdge,
                                 b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, RightEdge, 
+            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, RightEdge,
                                 b, BorderStyle_Solid, r1, r2);
             break;
         default:
@@ -381,13 +381,13 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
             qreal dw2by3 = dw2/3;
             switch (edge) {
             case TopEdge:
-                qDrawEdge(p, x1, y1, x2, y1 + wby3, TopEdge, c, 
+                qDrawEdge(p, x1, y1, x2, y1 + wby3, TopEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
                 qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, TopEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
                 break;
             case LeftEdge:
-                qDrawEdge(p, x1, y1, x1 + wby3, y2, LeftEdge, c, 
+                qDrawEdge(p, x1, y1, x1 + wby3, y2, LeftEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
                 qDrawEdge(p, x2 - wby3, y1 + dw1 - dw1by3, x2, y2 - dw2 + dw2by3, LeftEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
@@ -395,13 +395,13 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
             case BottomEdge:
                 qDrawEdge(p, x1 + dw1 - dw1by3, y1, x2 - dw2 + dw2by3, y1 + wby3, BottomEdge,
                           c, BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1, y2 - wby3, x2, y2 , BottomEdge, c, 
+                qDrawEdge(p, x1, y2 - wby3, x2, y2 , BottomEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
                 break;
             case RightEdge:
-                qDrawEdge(p, x2 - wby3, y1, x2, y2, RightEdge, c, 
+                qDrawEdge(p, x2 - wby3, y1, x2, y2, RightEdge, c,
                           BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, RightEdge, 
+                qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, RightEdge,
                           c, BorderStyle_Solid, dw1by3, dw2by3);
                 break;
             default:
@@ -424,27 +424,27 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
         qreal wby2 = width/2;
         switch (edge) {
         case TopEdge:
-            qDrawEdge(p, x1, y1, x2, y1 + wby2, 
+            qDrawEdge(p, x1, y1, x2, y1 + wby2,
                       TopEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + dw1by2, y1 + wby2, x2 - dw2by2, y2, 
+            qDrawEdge(p, x1 + dw1by2, y1 + wby2, x2 - dw2by2, y2,
                       TopEdge, c, s2, dw1by2, dw2by2);
             break;
         case BottomEdge:
-            qDrawEdge(p, x1, y1 + wby2, x2, y2, 
+            qDrawEdge(p, x1, y1 + wby2, x2, y2,
                       BottomEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + dw1by2, y1, x2 - dw2by2, y1 + wby2, 
+            qDrawEdge(p, x1 + dw1by2, y1, x2 - dw2by2, y1 + wby2,
                       BottomEdge, c, s2, dw1by2, dw2by2);
             break;
         case LeftEdge:
-            qDrawEdge(p, x1, y1, x1 + wby2, y2, 
+            qDrawEdge(p, x1, y1, x1 + wby2, y2,
                       LeftEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + wby2, y1 + dw1by2, x2, y2 - dw2by2, 
+            qDrawEdge(p, x1 + wby2, y1 + dw1by2, x2, y2 - dw2by2,
                       LeftEdge, c, s2, dw1by2, dw2by2);
             break;
         case RightEdge:
-            qDrawEdge(p, x1 + wby2, y1, x2, y2, 
+            qDrawEdge(p, x1 + wby2, y1, x2, y2,
                       RightEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1, y1 + dw1by2, x1 + wby2, y2 - dw2by2, 
+            qDrawEdge(p, x1, y1 + dw1by2, x1 + wby2, y2 - dw2by2,
                       RightEdge, c, s2, dw1by2, dw2by2);
             break;
         default:
@@ -505,7 +505,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
         if (bi->topEdgeRect.isValid())
             p->drawPixmap(QRect(br.x() + l, br.y(), pr.width(), t), pix, bi->topEdgeRect);
         if (bi->bottomEdgeRect.isValid())
-            p->drawPixmap(QRect(br.x() + l, br.y() + br.height() - b, pr.width(), b), 
+            p->drawPixmap(QRect(br.x() + l, br.y() + br.height() - b, pr.width(), b),
                           pix, bi->bottomEdgeRect);
         if (bi->middleRect.isValid()) {
             if (bi->vertStretch == TileMode_Stretch)
@@ -554,7 +554,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
         if (bi->leftEdgeRect.isValid())
              p->drawPixmap(QRect(br.x(), br.y() + t, l, pr.height()), pix, bi->leftEdgeRect);
         if (bi->rightEdgeRect.isValid())
-            p->drawPixmap(QRect(br.x() + br.width()- r, br.y() + t, r, pr.height()), 
+            p->drawPixmap(QRect(br.x() + br.width()- r, br.y() + t, r, pr.height()),
                           pix, bi->rightEdgeRect);
         break;
     case TileMode_Repeat:
@@ -683,7 +683,7 @@ static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
     if (styles[RightEdge] != BorderStyle_None) {
         bool trc = rounded_corners && trr.height() != 0;
         bool brc = rounded_corners && brr.height() != 0;
-        int dw1 = (trc || qPaintsOver(RightEdge, styles[RightEdge], TopEdge, 
+        int dw1 = (trc || qPaintsOver(RightEdge, styles[RightEdge], TopEdge,
                                       styles[TopEdge])) ? 0 : pr.y() - br.y();
         int dw2 = (brc || qPaintsOver(RightEdge, styles[RightEdge], BottomEdge,
                                       styles[BottomEdge])) ? 0 : br.bottom() - pr.bottom();
@@ -765,7 +765,7 @@ public:
             : WIDGET(node)->property(name.toLatin1()).toString();
     }
     bool hasAttribute(NodePtr node, const QString& name) const
-    { return name == "class" 
+    { return name == "class"
              || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1; }
     bool hasAttributes(NodePtr) const
     { return true; }
@@ -858,11 +858,19 @@ void QStyleSheetStyle::setPalette(QWidget *w)
 
         if (qobject_cast<QMenu *>(w)) {
             qConfigurePalette(&p, rule, QPalette::ButtonText, QPalette::Button);
-        } else if (qobject_cast<QComboBox *>(w)
-                   || qobject_cast<QMenuBar *>(w)) {
+        } else if (false
+#ifndef QT_NO_COMBOBOX
+                   || qobject_cast<QComboBox *>(w)
+#endif
+#ifndef QT_NO_MENUBAR
+                   || qobject_cast<QMenuBar *>(w)
+#endif
+            ) {
                     // FIXME adjust the palette here.
+#ifndef QT_NO_LINEEDIT
         } else if (qobject_cast<QLineEdit *>(w)) {
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
+#endif
         } else if (QFrame *frame = qobject_cast<QFrame *>(w)) {
             if (rule.hasBox())
                 frame->setFrameStyle(QFrame::StyledPanel);

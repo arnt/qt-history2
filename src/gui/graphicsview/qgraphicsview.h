@@ -51,7 +51,7 @@ public:
         CacheBackground = 0x1
     };
     Q_DECLARE_FLAGS(CacheMode, CacheModeFlag)
-    
+
     enum DragMode {
         NoDrag,
         ScrollHandDrag,
@@ -165,7 +165,9 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+#ifndef QT_NO_WHEELEVENT
     void wheelEvent(QWheelEvent *event);
+#endif
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);

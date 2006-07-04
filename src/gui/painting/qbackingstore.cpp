@@ -696,6 +696,8 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
                     QPainter p(q);
                     QRect backgroundRect = toBePainted.boundingRect();
+
+#ifndef QT_NO_SCROLLAREA
                     if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(q->parent())) {
                         if (scrollArea->viewport() == q) {
                             QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
@@ -704,6 +706,7 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
                             backgroundRect.translate(offset);
                         }
                     }
+#endif // QT_NO_SCROLLAREA
                     paintBackground(&p, backgroundRect, asRoot || onScreen);
                 }
                 if (q->testAttribute(Qt::WA_TintedBackground)

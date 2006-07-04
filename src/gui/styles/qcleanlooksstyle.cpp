@@ -2559,6 +2559,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
         }
         painter->restore();
         break;
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         painter->save();
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
@@ -2817,6 +2818,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
         }
         painter->restore();
         break;;
+#endif // QT_NO_SCROLLBAR
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         painter->save();

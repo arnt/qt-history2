@@ -118,8 +118,10 @@ public:
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
 
+#ifndef QT_NO_TEXTEDIT
     void setExtraSelections(const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections() const;
+#endif
 
     void setTextWidth(qreal width);
     qreal textWidth() const;

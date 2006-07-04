@@ -2150,6 +2150,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     QApplication::sendEvent(d->scene, &mouseEvent);
 }
 
+#ifndef QT_NO_WHEELEVENT
 /*!
     \reimp
 */
@@ -2177,6 +2178,7 @@ void QGraphicsView::wheelEvent(QWheelEvent *event)
     if (!event->isAccepted())
         QAbstractScrollArea::wheelEvent(event);
 }
+#endif // QT_NO_WHEELEVENT
 
 /*!
     \reimp
@@ -2388,7 +2390,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     Q_D(QGraphicsView);
     if (isRightToLeft())
         dx = -dx;
-        
+
     if (d->accelerateScrolling)
         viewport()->scroll(dx, dy);
     else
