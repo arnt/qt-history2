@@ -176,6 +176,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
             dropIndicator->hide();
     } break;
 
+    case QEvent::DragEnter:
     case QEvent::DragMove: {
         QDragMoveEvent *de = static_cast<QDragMoveEvent*>(e);
 
