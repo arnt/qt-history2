@@ -44,7 +44,7 @@ bool QLibraryPrivate::load_sys()
     if (!pHnd) {
         qWarning("QLibrary::load_sys: Cannot load %s (%s)",
                  QFile::encodeName(fileName).constData(),
-                 qt_error_string(GetLastError()).latin1());
+                 qt_error_string(GetLastError()).toLatin1().data());
     }
 #endif
     if (pHnd)
@@ -77,7 +77,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
         qWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s (%s)",
                  symbol,
                  QFile::encodeName(fileName).constData(),
-                 qt_error_string(GetLastError()).latin1());
+                 qt_error_string(GetLastError()).toLatin1().data());
 #endif
     return address;
 }
