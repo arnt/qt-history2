@@ -1886,8 +1886,8 @@ const QGLContext* QGLContext::currentContext()
 
     QGLWidget provides functionality for displaying OpenGL graphics integrated into
     a Qt application. It is very simple to use. You inherit from it and use the
-    subclass like any other QWidget, except that instead of drawing the widget's
-    contents using QPainter you use the standard OpenGL rendering commands.
+    subclass like any other QWidget, except that you have the choice between
+    using QPainter and standard OpenGL rendering commands.
 
     QGLWidget provides three convenient virtual functions that you can
     reimplement in your subclass to perform the typical OpenGL tasks:
