@@ -362,12 +362,11 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
             continue;           // problem parsing
 
         metaTypes[0] = returnType;
-        int hasMessage = false;
+        bool hasMessage = false;
         if (inputCount > 0 &&
             metaTypes.at(inputCount) == QDBusMetaTypeId::message) {
             // "no input parameters" is allowed as long as the message meta type is there
             hasMessage = true;
-            isScriptable = true; // pretend it's scriptable
             --inputCount;
         }
 
