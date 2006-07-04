@@ -50,7 +50,7 @@ struct QWaitConditionPrivate {
     QWaitCondition allows a thread to tell other threads that some
     sort of condition has been met. One or many threads can block
     waiting for a QWaitCondition to set a condition with wakeOne() or
-    wakeAll(). Use wakeOne() to wake one randomly selected event or
+    wakeAll(). Use wakeOne() to wake one randomly selected condition or
     wakeAll() to wake them all.
 
     For example, let's suppose that we have three tasks that should
@@ -191,7 +191,7 @@ void QWaitCondition::wakeAll()
 }
 
 /*!
-    Releases the locked \a mutex and wait on the thread event object.
+    Releases the locked \a mutex and wait on the wait condition.
     The \a mutex must be initially locked by the calling thread. If
     \a mutex is not in a locked state, this function returns
     immediately. If \a mutex is a recursive mutex, this function
