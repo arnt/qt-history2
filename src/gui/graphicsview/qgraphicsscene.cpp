@@ -357,7 +357,7 @@ void QGraphicsScenePrivate::_q_emitUpdated()
     Q_Q(QGraphicsScene);
     calledEmitUpdated = false;
     QList<QRectF> oldUpdatedRects;
-    oldUpdatedRects = updateAll ? (QList<QRectF>() << q->sceneRect()) : updatedRects;
+    oldUpdatedRects = updateAll ? (QList<QRectF>() << growingItemsBoundingRect) : updatedRects;
     updateAll = false;
     updatedRects.clear();
     emit q->changed(oldUpdatedRects);
@@ -410,9 +410,6 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
     // Remove all children recursively.
     foreach (QGraphicsItem *child, item->children())
         _q_removeItemLater(child);
-
-    // We have no locality information; all we can do is update everything.
-    q->update();
 }
 
 /*!
@@ -422,6 +419,8 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
 */
 void QGraphicsScenePrivate::purgeRemovedItems()
 {
+    Q_Q(QGraphicsScene);
+
     if (removedItemsIndexes.isEmpty())
         return;
 
@@ -435,6 +434,9 @@ void QGraphicsScenePrivate::purgeRemovedItems()
 
     // Purge this list.
     removedItemsIndexes.clear();
+
+    // No locality info for the items; update the whole scene.
+    q->update();
 }
 
 /*!
