@@ -503,6 +503,7 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
     tmp.sprintf("%s-%d-%d-%d-%dx%d", key.toLatin1().constData(), uint(option->state),
                 complexOption ? uint(complexOption->activeSubControls) : uint(0),
                 option->palette.serialNumber(), size.width(), size.height());
+#ifndef QT_NO_SPINBOX
     if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
         tmp.append(QLatin1Char('-'));
         tmp.append(QString::number(spinBox->buttonSymbols));
@@ -511,6 +512,7 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
         tmp.append(QLatin1Char('-'));
         tmp.append(QLatin1Char(spinBox->frame ? '1' : '0'));
     }
+#endif // QT_NO_SPINBOX
     return tmp;
 }
 
@@ -3365,7 +3367,9 @@ void QCleanlooksStyle::polish(QWidget *widget)
         || qobject_cast<QSplitterHandle *>(widget)
 #endif
         || qobject_cast<QAbstractSlider *>(widget)
+#ifndef QT_NO_SPINBOX
         || qobject_cast<QAbstractSpinBox *>(widget)
+#endif
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))
         ) {
@@ -3401,7 +3405,9 @@ void QCleanlooksStyle::unpolish(QWidget *widget)
         || qobject_cast<QSplitterHandle *>(widget)
 #endif
         || qobject_cast<QAbstractSlider *>(widget)
+#ifndef QT_NO_SPINBOX
         || qobject_cast<QAbstractSpinBox *>(widget)
+#endif
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))
         ) {

@@ -504,7 +504,7 @@ SeeAlso: ???
 Feature: PRINTDIALOG
 Description: Supports a dialog widget for specifying printer configuration.
 Section: Dialogs
-Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW
+Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW STACKEDWIDGET
 Name: QPrintDialog
 SeeAlso: ???
 

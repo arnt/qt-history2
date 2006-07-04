@@ -830,8 +830,10 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
 
     // Add hacks for <w, opt> here
+#ifndef QT_NO_LINEEDIT
     if (qobject_cast<const QLineEdit *>(w))
         state &= ~QStyle::State_Sunken;
+#endif
 
     return renderRule(const_cast<QWidget *>(w), state);
 }

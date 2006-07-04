@@ -24,8 +24,12 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 extern QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
+#ifndef QT_NO_SCROLLBAR
 extern QStyleOptionSlider Q_GUI_EXPORT qt_qscrollbarStyleOption(QScrollBar *scrollBar);
+#endif
+#ifndef QT_NO_SLIDER
 extern QStyleOptionSlider Q_GUI_EXPORT qt_qsliderStyleOption(QSlider *slider);
+#endif
 
 #ifndef QT_NO_SPINBOX
 /*!
@@ -257,7 +261,7 @@ QRect QAccessibleScrollBar::rect(int child) const
         subControl = QStyle::SC_ScrollBarSlider;
         break;
     case PageDown:
-        subControl = QStyle::SC_ScrollBarAddPage;        
+        subControl = QStyle::SC_ScrollBarAddPage;
         break;
     case LineDown:
         subControl = QStyle::SC_ScrollBarAddLine;
@@ -265,11 +269,11 @@ QRect QAccessibleScrollBar::rect(int child) const
     default:
         return QAccessibleWidget::rect(child);
     }
-    
+
     const QStyleOptionSlider option = qt_qscrollbarStyleOption(scrollBar());
     const QRect rect = scrollBar()->style()->subControlRect(QStyle::CC_ScrollBar, &option,
                                                        subControl, scrollBar());
-    
+
     const QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
     return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
 }
@@ -328,10 +332,10 @@ QAccessible::Role QAccessibleScrollBar::role(int child) const
 QAccessible::State QAccessibleScrollBar::state(int child) const
 {
     const State parentState = QAccessibleWidget::state(0);
-    
+
     if (child == 0)
         return parentState;
-    
+
     // Inherit the Invisible state from parent.
     State state = parentState & QAccessible::Invisible;
 
@@ -423,7 +427,7 @@ QRect QAccessibleSlider::rect(int child) const
     const QStyleOptionSlider option = qt_qsliderStyleOption(slider());
     QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
                                                     QStyle::SC_SliderHandle, slider());
-    
+
     switch (child) {
     case PageLeft:
         if (slider()->orientation() == Qt::Vertical)
@@ -498,10 +502,10 @@ QAccessible::Role QAccessibleSlider::role(int child) const
 QAccessible::State QAccessibleSlider::state(int child) const
 {
     const State parentState = QAccessibleWidget::state(0);
-    
+
     if (child == 0)
         return parentState;
-    
+
     // Inherit the Invisible state from parent.
     State state = parentState & QAccessible::Invisible;
 
