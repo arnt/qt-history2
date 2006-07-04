@@ -100,6 +100,7 @@ private slots:
     void icon();
     void hideWhenFocusWidgetIsChild();
     void normalGeometry();
+    void setGeometry();
     void windowOpacity();
     void raise();
     void lower();
@@ -128,8 +129,8 @@ class MyInputContext : public QInputContext
 {
 public:
     MyInputContext() : QInputContext() {}
-    QString identifierName() { return QString("NoName"); }       
-    QString language() { return QString("NoLanguage"); }       
+    QString identifierName() { return QString("NoName"); }
+    QString language() { return QString("NoLanguage"); }
     void reset() {}
     bool isComposing() const { return false; }
 };
@@ -1545,6 +1546,23 @@ void tst_QWidget::normalGeometry()
     QCOMPARE(parent.normalGeometry(), geom);
 }
 
+
+void tst_QWidget::setGeometry()
+{
+    QWidget tlw;
+    QWidget child(&tlw);
+
+    QRect tr(100,100,200,200);
+    QRect cr(50,50,50,50);
+    tlw.setGeometry(tr);
+    child.setGeometry(cr);
+    tlw.show();
+    QTest::qWait(50);
+    QCOMPARE(tlw.geometry().size(), tr.size());
+    QCOMPARE(child.geometry(), cr);
+
+}
+
 void tst_QWidget::windowOpacity()
 {
 #if defined(Q_WS_X11) && QT_VERSION < 0x040200
@@ -2129,7 +2147,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     w->close();
     QVERIFY(w == 0);
-    
+
     // focusOut (crashes)
     //w = new Widget;
     //w->show();
@@ -2247,7 +2265,7 @@ void tst_QWidget::style()
     window1->setStyleSheet(":y { }");
     QCOMPARE(window1->style()->className(), "QStyleSheetStyle"); // it is a proxy
     QVERIFY(proxy->baseStyle() == &style1); // must have been replaced with the new one
-    
+
     // Remove the stylesheet
     proxy = (QStyleSheetStyle *)window1->style();
     window1->setStyleSheet("");
