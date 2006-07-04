@@ -831,7 +831,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     Q_ASSERT(styleRulesCache.contains(wid));
 #else
     if (!styleRulesCache.concrete(wid))
-        computeStyleSheet(wid);
+        polish(wid);
 #endif
 
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
