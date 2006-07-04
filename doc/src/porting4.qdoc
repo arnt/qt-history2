@@ -3662,6 +3662,16 @@
     See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
+    \section1 QTextIStream
+
+    The QTextIStream convenience class is no longer provided in Qt 4. Use
+    QTextStream directly instead.
+
+    \section1 QTextOStream
+
+    The QTextOStream convenience class is no longer provided in Qt 4. Use
+    QTextStream directly instead.
+
     \section1 QTextOStreamIterator
 
     The undocumented \c QTextOStreamIterator class has been removed
