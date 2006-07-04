@@ -86,7 +86,7 @@ public:
 
     void render(QPainter *painter,
                 const QRectF &target = QRectF(), const QRectF &source = QRectF(),
-                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
+                Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio);
 
     ItemIndexMethod itemIndexMethod() const;
     void setItemIndexMethod(ItemIndexMethod method);

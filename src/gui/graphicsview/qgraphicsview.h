@@ -109,7 +109,7 @@ public:
                    Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
 
     void render(QPainter *painter, const QRectF &target = QRectF(), const QRect &source = QRect(),
-                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
+                Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio);
 
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;

@@ -1146,7 +1146,7 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
 
     The source rect contents will be transformed according to \a
     aspectRatioMode to fit into the target rect. By default, the aspect ratio
-    is ignored, and \a source is scaled to fit tightly in \a target.
+    is kept, and \a source is scaled to fit in \a target.
 
     \sa QGraphicsScene::render()
 */
