@@ -51,7 +51,7 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBorderImageData : public QSharedData
 struct Q_AUTOTEST_EXPORT QStyleSheetBackgroundData : public QSharedData
 {
     QStyleSheetBackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
-                        origin(QCss::PaddingOrigin), repeat(QCss::RepeatXY) { }
+                        origin(QCss::Origin_Padding), repeat(QCss::Repeat_XY) { }
     QPixmap pixmap;
     Qt::Alignment position;
     QCss::Origin origin;
@@ -64,7 +64,7 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
     {
         for (int i = 0; i < 4; i++) {
             margins[i] = borders[i] = paddings[i] = 0;
-            styles[i] = QCss::None;
+            styles[i] = QCss::BorderStyle_None;
             colors[i] = Qt::transparent;
         }
     }
@@ -192,7 +192,7 @@ private:
         PushButton, LineEdit, ComboBox, GroupBox, Frame
     };
     bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
-    void update(QList<QWidget *>& widgets);
+    void update(const QList<QWidget *>& widgets);
 
     static void setPalette(QWidget *);
     static void computeStyleSheet(QWidget *widget);

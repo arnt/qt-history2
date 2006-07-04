@@ -163,31 +163,31 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "unchecked" , PseudoState_Unchecked }
 };
 
-static const QCssKnownValue borderStyles[NumKnownStyles - 1] = {
-    { "dashed", Dashed },
-    { "dotdash", DotDash },
-    { "dotdotdash", DotDotDash },
-    { "dotted", Dotted },
-    { "double", Double },
-    { "groove", Groove },
-    { "inset", Inset },
-    { "none", None },
-    { "outset", Outset },
-    { "ridge", Ridge },
-    { "solid", Solid }
+static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
+    { "dashed", BorderStyle_Dashed },
+    { "dotdash", BorderStyle_DotDash },
+    { "dotdotdash", BorderStyle_DotDotDash },
+    { "dotted", BorderStyle_Dotted },
+    { "double", BorderStyle_Double },
+    { "groove", BorderStyle_Groove },
+    { "inset", BorderStyle_Inset },
+    { "none", BorderStyle_None },
+    { "outset", BorderStyle_Outset },
+    { "ridge", BorderStyle_Ridge },
+    { "solid", BorderStyle_Solid }
 };
 
 static const QCssKnownValue origins[NumKnownOrigins - 1] = {
-    { "border", BorderOrigin },
-    { "content", ContentOrigin },
-    { "padding", PaddingOrigin }
+    { "border", Origin_Border },
+    { "content", Origin_Content },
+    { "padding", Origin_Padding }
 };
 
 static const QCssKnownValue repeats[NumKnownRepeats - 1] = {
-    { "no-repeat", NoRepeat },
-    { "repeat-x", RepeatX },
-    { "repeat-xy", RepeatXY },
-    { "repeat-y", RepeatY }
+    { "no-repeat", Repeat_None },
+    { "repeat-x", Repeat_X },
+    { "repeat-xy", Repeat_XY },
+    { "repeat-y", Repeat_Y }
 };
 
 static const QCssKnownValue positions[5] = {
@@ -199,9 +199,9 @@ static const QCssKnownValue positions[5] = {
 };
 
 static const QCssKnownValue tileModes[NumKnownTileModes - 1] = {
-    { "repeat", RepeatMode },
-    { "round", RoundMode },
-    { "stretch", StretchMode },
+    { "repeat", TileMode_Repeat },
+    { "round", TileMode_Round },
+    { "stretch", TileMode_Stretch },
 };
 
 static bool operator<(const QString &name, const QCssKnownValue &prop)
@@ -352,14 +352,14 @@ void Declaration::colorValues(QColor *c) const
 BorderStyle Declaration::styleValue() const
 {
     if (values.count() != 1)
-        return None;
+        return BorderStyle_None;
     return styleValue(values.first());
 }
 
 BorderStyle Declaration::styleValue(Value v) const
 {
     return static_cast<BorderStyle>(findKnownValue(v.variant.toString(), 
-                                                borderStyles, NumKnownStyles));
+                                        borderStyles, NumKnownBorderStyles));
 }
 
 void Declaration::styleValues(BorderStyle *s) const
@@ -367,7 +367,7 @@ void Declaration::styleValues(BorderStyle *s) const
     int i;
     for (i = 0; i < qMin(values.count(), 4); i++)
         s[i] = styleValue(values.at(i));
-    if (i == 0) s[0] = s[1] = s[2] = s[3] = None;
+    if (i == 0) s[0] = s[1] = s[2] = s[3] = BorderStyle_None;
     else if (i == 1) s[3] = s[2] = s[1] = s[0];
     else if (i == 2) s[2] = s[0], s[3] = s[1];
     else if (i == 3) s[3] = s[1];
@@ -397,7 +397,7 @@ void Declaration::radiusValue(QSize *radius, const char *unit) const
 Repeat Declaration::repeatValue() const
 {
     if (values.count() != 1)
-        return UnknownRepeat;
+        return Repeat_Unknown;
     return static_cast<Repeat>(findKnownValue(values.first().variant.toString(), 
                                 repeats, NumKnownRepeats));
 }
@@ -405,7 +405,7 @@ Repeat Declaration::repeatValue() const
 Origin Declaration::originValue() const
 {
     if (values.count() != 1)
-        return UnknownOrigin;
+        return Origin_Unknown;
     return static_cast<Origin>(findKnownValue(values.first().variant.toString(),
                                origins, NumKnownOrigins));
 }
@@ -437,7 +437,7 @@ void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
 {
     *pixmap = QPixmap(uriValue());
     for (int i = 0; i < 4; i++) cuts[i] = -1;
-    *h = *v = StretchMode;
+    *h = *v = TileMode_Stretch;
 
     if (values.count() < 2)
         return;

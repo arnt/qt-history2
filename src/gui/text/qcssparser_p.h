@@ -124,24 +124,25 @@ enum KnownValue {
 };
 
 enum BorderStyle {
-    UnknownStyle,
-    None,
-    Dotted,
-    Dashed,
-    Solid,
-    Double,
-    DotDash,
-    DotDotDash,
-    Groove,
-    Ridge,
-    Inset,
-    Outset,
-    NumKnownStyles
+    BorderStyle_Unknown,
+    BorderStyle_None,
+    BorderStyle_Dotted,
+    BorderStyle_Dashed,
+    BorderStyle_Solid,
+    BorderStyle_Double,
+    BorderStyle_DotDash,
+    BorderStyle_DotDotDash,
+    BorderStyle_Groove,
+    BorderStyle_Ridge,
+    BorderStyle_Inset,
+    BorderStyle_Outset,
+    NumKnownBorderStyles
 };
 
 struct BorderStyles 
 {
-    BorderStyles() : left(None), right(None), top(None), bottom(None) { }
+    BorderStyles() : left(BorderStyle_None), right(BorderStyle_None), 
+                     top(BorderStyle_None), bottom(BorderStyle_None) { }
     BorderStyle left, right, top, bottom;
 };
 
@@ -159,34 +160,34 @@ enum Edge {
 };
 
 enum Corner {
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight
+    TopLeftCorner,
+    TopRightCorner,
+    BottomLeftCorner,
+    BottomRightCorner
 };
 
 enum TileMode {
-    UnknownMode,
-    RoundMode,
-    StretchMode,
-    RepeatMode,
+    TileMode_Unknown,
+    TileMode_Round,
+    TileMode_Stretch,
+    TileMode_Repeat,
     NumKnownTileModes
 };
 
 enum Repeat {
-    UnknownRepeat,
-    NoRepeat,
-    RepeatX,
-    RepeatY,
-    RepeatXY,
+    Repeat_Unknown,
+    Repeat_None,
+    Repeat_X,
+    Repeat_Y,
+    Repeat_XY,
     NumKnownRepeats
 };
 
 enum Origin {
-    UnknownOrigin,
-    PaddingOrigin,
-    BorderOrigin,
-    ContentOrigin,
+    Origin_Unknown,
+    Origin_Padding,
+    Origin_Border,
+    Origin_Content,
     NumKnownOrigins
 };
 
