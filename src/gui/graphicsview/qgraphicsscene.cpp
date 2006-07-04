@@ -848,7 +848,7 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
 
     The source rect contents will be transformed according to \a
     aspectRatioMode to fit into the target rect. By default, the aspect ratio
-    is ignored, and \a source is scaled to fit tightly in \a target.
+    is kept, and \a source is scaled to fit in \a target.
 
     \sa QGraphicsView::render()
 */
@@ -890,6 +890,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     int numItems = itemList.size();
     for (int i = 0; i < numItems; ++i)
         itemArray[numItems - i - 1] = itemList.at(i);
+    itemList.clear();
 
     painter->save();
 
@@ -900,9 +901,9 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     painter->translate(-sourceRect.left(), -sourceRect.top());
 
     // Generate the style options
-    QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[itemList.size()];
-    for (int i = 0; i < itemList.size(); ++i) {
-        QGraphicsItem *item = itemList.at(i);
+    QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
+    for (int i = 0; i < numItems; ++i) {
+        QGraphicsItem *item = itemArray[i];
 
         QStyleOptionGraphicsItem option;
         option.state = QStyle::State_None;
