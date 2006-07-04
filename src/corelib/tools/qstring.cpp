@@ -198,11 +198,14 @@ const QString::Null QString::null = QString::Null();
     \reentrant
 
     QString stores a string of 16-bit \l{QChar}s, where each QChar
-    stores one Unicode 4.0 character. \l{Unicode} is an international
-    standard that supports most of the writing systems in use today.
-    It is a superset of ASCII and Latin-1 (ISO 8859-1), and all the
-    ASCII/Latin-1 characters are available at the same code
-    positions.
+    corresponds one Unicode 4.0 character. (Unicode characters
+    with code values above 65535 are stored using surrogate pairs,
+    i.e., two consecutive \l{QChar}s.)
+
+    \l{Unicode} is an international standard that supports most of
+    the writing systems in use today. It is a superset of ASCII and
+    Latin-1 (ISO 8859-1), and all the ASCII/Latin-1 characters are
+    available at the same code positions.
 
     Behind the scenes, QString uses \l{implicit sharing}
     (copy-on-write) to reduce memory usage and to avoid the needless
@@ -5644,11 +5647,8 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     \skipto QString i
     \printuntil .arg(i).arg(total).arg(fileName)
 
-    It is generally fine to use file names and numbers as we have done
-    in the example above. But note that using arg() to construct
-    natural language sentences does not usually translate well into
-    other languages because sentence structure and word order often
-    differ between languages.
+    One advantage of using arg() over sprintf() is that the order of arguments
+    may need to change in other languages, when the application is translated.
 
     If there is no place marker (\c %1, \c %2, etc.), a warning
     message is output and the result is undefined.  Note that only
