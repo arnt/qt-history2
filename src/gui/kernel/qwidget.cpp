@@ -733,7 +733,8 @@ void QWidget::setAutoFillBackground(bool enabled)
 */
 
 
-QWidgetMapper *QWidgetPrivate::mapper = 0;                // app global widget mapper
+QWidgetMapper *QWidgetPrivate::mapper = 0;                // widget with wid
+QWidgetSet *QWidgetPrivate::uncreatedWidgets = 0;         // widgets with no wid
 
 
 /*****************************************************************************
@@ -883,6 +884,9 @@ void QWidgetPrivate::adjustFlags(Qt::WindowFlags &flags, QWidget *w)
 void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
+
+    Q_ASSERT(uncreatedWidgets);
+    uncreatedWidgets->insert(q);
 
     QWidget *desktopWidget = 0;
     if (parentWidget && parentWidget->windowType() == Qt::Desktop) {
@@ -1141,6 +1145,9 @@ QWidget::~QWidget()
 
     --QWidgetPrivate::instanceCounter;
 
+    if (QWidgetPrivate::uncreatedWidgets) // might have been deleted by ~QApplication
+        QWidgetPrivate::uncreatedWidgets->remove(this);
+
     QEvent e(QEvent::Destroy);
     QCoreApplication::sendEvent(this, &e);
 }
@@ -1151,15 +1158,19 @@ int QWidgetPrivate::maxInstances = 0;     // Maximum number of widget instances
 void QWidgetPrivate::setWinId(WId id)                // set widget identifier
 {
     Q_Q(QWidget);
-    if (mapper && data.winid)
+    if (mapper && data.winid) {
         mapper->remove(data.winid);
+        uncreatedWidgets->insert(q);
+    }
 
     data.winid = id;
 #if defined(Q_WS_X11)
     hd = id; // X11: hd == ident
 #endif
-    if (mapper && id)
+    if (mapper && id) {
         mapper->insert(data.winid, q);
+        uncreatedWidgets->remove(q);
+    }
 }
 
 void QWidgetPrivate::createTLExtra()

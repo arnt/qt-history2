@@ -126,6 +126,9 @@ struct QWSEvent;
 template<class K, class V> class QHash;
 typedef QHash<WId, QWidget *> QWidgetMapper;
 
+template<class V> class QSet;
+typedef QSet<QWidget *> QWidgetSet;
+
 #if defined(QT_NEEDS_QMAIN)
 #define main qMain
 #endif

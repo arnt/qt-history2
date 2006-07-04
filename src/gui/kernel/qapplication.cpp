@@ -751,6 +751,7 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
 void QApplicationPrivate::initialize()
 {
     QWidgetPrivate::mapper = new QWidgetMapper;
+    QWidgetPrivate::uncreatedWidgets = new QWidgetSet;
     if (qt_appType != QApplication::Tty)
         (void) QApplication::style();  // trigger creation of application style
     // trigger registering of QVariant's GUI types
@@ -866,10 +867,22 @@ QApplication::~QApplication()
         QWidgetPrivate::mapper = 0;
         for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
             register QWidget *w = *it;
-            if (!w->parent())                        // widget is a parent
+            if (!w->parent())                        // window
                 w->destroy(true, true);
         }
         delete myMapper;
+    }
+
+    // delete uncreated widgets
+    if (QWidgetPrivate::uncreatedWidgets) {
+        QWidgetSet *mySet = QWidgetPrivate::uncreatedWidgets;
+        QWidgetPrivate::uncreatedWidgets = 0;
+        for (QWidgetSet::Iterator it = mySet->begin(); it != mySet->end(); ++it) {
+            register QWidget *w = *it;
+            if (!w->parent())                        // window
+                w->destroy(true, true);
+        }
+        delete mySet;
     }
 
     delete QApplicationPrivate::app_pal;
@@ -1164,10 +1177,12 @@ void QApplication::setStyle(QStyle *style)
     if (!style || style == QApplicationPrivate::app_style)
         return;
 
+    QWidgetList all = allWidgets();
+
     // clean up the old style
     if (QApplicationPrivate::app_style) {
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-            for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
+            for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!(w->windowType() == Qt::Desktop) &&        // except desktop
                      w->testAttribute(Qt::WA_WState_Polished)) { // has been polished
@@ -1211,14 +1226,14 @@ void QApplication::setStyle(QStyle *style)
 
     // re-polish existing widgets if necessary
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-        for (QWidgetMapper::ConstIterator it1 = QWidgetPrivate::mapper->constBegin(); it1 != QWidgetPrivate::mapper->constEnd(); ++it1) {
+        for (QWidgetList::ConstIterator it1 = all.constBegin(); it1 != all.constEnd(); ++it1) {
             register QWidget *w = *it1;
             if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
                 && !w->testAttribute(Qt::WA_SetStyle))
                     QApplicationPrivate::app_style->polish(w);                // repolish
         }
 
-        for (QWidgetMapper::ConstIterator it2 = QWidgetPrivate::mapper->constBegin(); it2 != QWidgetPrivate::mapper->constEnd(); ++it2) {
+        for (QWidgetList::ConstIterator it2 = all.constBegin(); it2 != all.constEnd(); ++it2) {
             register QWidget *w = *it2;
             if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
                 && !w->testAttribute(Qt::WA_SetStyle)) {
@@ -1466,8 +1481,8 @@ void QApplicationPrivate::setPalette_helper(const QPalette &palette, const char*
 
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationPaletteChange);
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it) {
+        QWidgetList wids = QApplication::allWidgets();
+        for (QWidgetList::ConstIterator it = wids.constBegin(); it != wids.constEnd(); ++it) {
             register QWidget *w = *it;
             if (all || (!className && w->isWindow()) || w->inherits(className)) // matching class
                 QApplication::sendEvent(w, &e);
@@ -1589,8 +1604,8 @@ void QApplication::setFont(const QFont &font, const char* className)
     }
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         QEvent e(QEvent::ApplicationFontChange);
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it) {
+        QWidgetList wids = QApplication::allWidgets();
+        for (QWidgetList::ConstIterator it = wids.constBegin(); it != wids.constEnd(); ++it) {
             register QWidget *w = *it;
             if (all || (!className && w->isWindow()) || w->inherits(className)) // matching class
                 sendEvent(w, &e);
@@ -1621,8 +1636,8 @@ void QApplication::setWindowIcon(const QIcon &icon)
         qt_mac_set_app_icon(QApplicationPrivate::app_icon->pixmap(size));
 #endif
         QEvent e(QEvent::ApplicationWindowIconChange);
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it) {
+        QWidgetList all = QApplication::allWidgets();
+        for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
             register QWidget *w = *it;
             if (w->isWindow())
                 sendEvent(w, &e);
@@ -1654,13 +1669,12 @@ void QApplication::setWindowIcon(const QIcon &icon)
 QWidgetList QApplication::topLevelWidgets()
 {
     QWidgetList list;
-    if (QWidgetPrivate::mapper) {
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it) {
-            QWidget *w = *it;
-            if (w->isWindow() && w->windowType() != Qt::Desktop)
-                list.append(w);
-        }
+    QWidgetList all = allWidgets();
+
+    for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
+        QWidget *w = *it;
+        if (w->isWindow() && w->windowType() != Qt::Desktop)
+            list.append(w);
     }
     return list;
 }
@@ -1687,11 +1701,10 @@ QWidgetList QApplication::topLevelWidgets()
 QWidgetList QApplication::allWidgets()
 {
     QWidgetList list;
-    if (QWidgetPrivate::mapper) {
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it)
-            list.append(*it);
-    }
+    if (QWidgetPrivate::mapper)
+        list += QWidgetPrivate::mapper->values();
+    if (QWidgetPrivate::uncreatedWidgets)
+        list += QWidgetPrivate::uncreatedWidgets->toList();
     return list;
 }
 

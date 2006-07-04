@@ -322,7 +322,10 @@ public:
 #if !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
+    // All widgets are initially added into the uncreatedWidgets set. Once
+    // they receive a window id they are removed and added to the mapper
     static QWidgetMapper *mapper;
+    static QWidgetSet *uncreatedWidgets;
 
     int leftmargin, topmargin, rightmargin, bottommargin;
     // ### TODO: reorganize private/extra/topextra to save memory

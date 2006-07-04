@@ -2219,7 +2219,8 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
 {
     qApp->d_func()->cursor_list.prepend(cursor);
 
-    for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
+    QWidgetList all = allWidgets();
+    for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
         register QWidget *w = *it;
         if (w->testAttribute(Qt::WA_SetCursor))
             qt_x11_enforce_cursor(w);
@@ -2245,8 +2246,8 @@ void QApplication::restoreOverrideCursor()
     qApp->d_func()->cursor_list.removeFirst();
 
     if (QWidgetPrivate::mapper != 0 && !closingDown()) {
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
-             it != QWidgetPrivate::mapper->constEnd(); ++it) {
+        QWidgetList all = allWidgets();
+        for (QWidgetList::ConstIterator it = all.constBegin(); it != all.constEnd(); ++it) {
             register QWidget *w = *it;
             if (w->testAttribute(Qt::WA_SetCursor))
                 qt_x11_enforce_cursor(w);
