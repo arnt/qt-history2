@@ -567,6 +567,10 @@ int QGLFormat::samples() const
 */
 void QGLFormat::setSamples(int numSamples)
 {
+    if (numSamples < 0) {
+        qWarning("QGLFormat::setSamples: Cannot have negative number of samples per pixel %d", numSamples);
+        return;
+    }
     d->numSamples = numSamples;
 }
 
@@ -694,6 +698,10 @@ bool QGLFormat::testOption(QGL::FormatOptions opt) const
 */
 void QGLFormat::setDepthBufferSize(int size)
 {
+    if (size < 0) {
+        qWarning("QGLFormat::setDepthBufferSize: Cannot set negative depth buffer size %d", size);
+        return;
+    }
     d->depthSize = size;
 }
 
@@ -714,6 +722,10 @@ int QGLFormat::depthBufferSize() const
 */
 void QGLFormat::setAlphaBufferSize(int size)
 {
+    if (size < 0) {
+        qWarning("QGLFormat::setAlphaBufferSize: Cannot set negative alpha buffer size %d", size);
+        return;
+    }
     d->alphaSize = size;
 }
 
@@ -735,6 +747,10 @@ int QGLFormat::alphaBufferSize() const
 */
 void QGLFormat::setAccumBufferSize(int size)
 {
+    if (size < 0) {
+        qWarning("QGLFormat::setAccumBufferSize: Cannot set negative accumulate buffer size %d", size);
+        return;
+    }
     d->accumSize = size;
 }
 
@@ -755,6 +771,10 @@ int QGLFormat::accumBufferSize() const
 */
 void QGLFormat::setStencilBufferSize(int size)
 {
+    if (size < 0) {
+        qWarning("QGLFormat::setStencilBufferSize: Cannot set negative stencil buffer size %d", size);
+        return;
+    }
     d->stencilSize = size;
 }
 
