@@ -991,8 +991,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     int item_min_size = (orientation == Qt::Horizontal) ? d->iconSize.width() : d->iconSize.height();
     if (!d->items.isEmpty()) {
         QSize sz(d->items[0].widget->sizeHint());
+#ifndef QT_NO_MENUBAR
         if (qobject_cast<QMenuBar *>(d->items[0].widget))
             sz = d->items[0].widget->minimumSizeHint();
+#endif
         item_min_size = (orientation == Qt::Horizontal) ? sz.width() : sz.height();
     }
     if (orientation == Qt::Horizontal) {
