@@ -32,6 +32,14 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     interfaceFont = tree->font();
     interfaceFont.setItalic(true);
 
+    refreshAction = new QAction(tr("&Refresh"), tree);
+    refreshAction->setData(42); // increase the amount of 42 used as magic number by one
+    refreshAction->setShortcut(QKeySequence::Refresh);
+    connect(refreshAction, SIGNAL(triggered()), this, SLOT(refreshChildren()));
+
+    QShortcut *refreshShortcut = new QShortcut(QKeySequence::Refresh, tree);
+    connect(refreshShortcut, SIGNAL(activated()), this, SLOT(refreshChildren()));
+
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     log = new QTextEdit;
     log->setReadOnly(true);
@@ -285,29 +293,29 @@ void QDBusViewer::showContextMenu(const QPoint &point)
     sig.mName = item->data(0, MethodNameRole).toString();
 
     QMenu menu;
+    menu.addAction(refreshAction);
+
     switch (item->type()) {
     case SignalItem: {
         QAction *action = new QAction("&Connect", &menu);
-        action->setData(0);
+        action->setData(1);
         menu.addAction(action);
         break; }
     case MethodItem: {
         QAction *action = new QAction("&Call", &menu);
-        action->setData(1);
+        action->setData(2);
         menu.addAction(action);
         break; }
 #if 0
     case PropertyItem: {
         QAction *actionSet = new QAction("&Set value", &menu);
-        actionSet->setData(2);
+        actionSet->setData(3);
         QAction *actionGet = new QAction("&Get value", &menu);
-        actionGet->setData(3);
+        actionGet->setData(4);
         menu.addAction(actionSet);
         menu.addAction(actionGet);
         break; }
 #endif
-    default:
-        return;
     }
 
     QAction *selectedAction = menu.exec(tree->viewport()->mapToGlobal(point));
@@ -315,10 +323,10 @@ void QDBusViewer::showContextMenu(const QPoint &point)
         return;
 
     switch (selectedAction->data().toInt()) {
-    case 0:
+    case 1:
         connectionRequested(sig);
         break;
-    case 1:
+    case 2:
         callMethod(sig);
         break;
     }
@@ -362,12 +370,19 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
     if (!args.isEmpty()) {
         out += "&nbsp;&nbsp;Parameters: ";
         foreach (QVariant arg, args) {
-            if (!arg.canConvert(QVariant::String)) {
+            if (arg.canConvert(QVariant::String)) {
+                out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
+            } else if (arg.canConvert(QVariant::StringList)) {
+                out += "<b>{ </b>";
+                QStringList list = arg.toStringList();
+                foreach (QString item, list)
+                    out += "<b>\"</b>" + Qt::escape(item) + "<b>\", </b>";
+                out.chop(1);
+                out += "<b>}</b>";
+            } else {
                 out += "[";
                 out += arg.typeName();
                 out += "]";
-            } else {
-                out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
             }
             out += ", ";
         }
@@ -412,5 +427,29 @@ void QDBusViewer::serviceOwnerChanged(const QString &name, const QString &oldOwn
         delete item;
         serviceRegistered(name);
     }
+}
+
+void QDBusViewer::refreshChildren()
+{
+    QTreeWidgetItem *item = tree->currentItem();
+
+    // find nearest path item
+    while (item && item->type() != PathItem)
+        item = item->parent();
+
+    // refresh the toplevel item
+    if (!item) {
+        serviceChanged(services->currentItem());
+        return;
+    }
+
+    // mark it as "to be prefetched"
+    item->setData(0, PrefetchRole, false);
+
+    // clear all children
+    while (item->childCount())
+        delete item->child(0);
+
+    prefetchChildren(item);
 }
 

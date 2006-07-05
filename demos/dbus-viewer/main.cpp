@@ -15,13 +15,25 @@
 #include <QtDBus/qdbusconnection.h>
 #include "qdbusviewer.h"
 
+#include <stdio.h>
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QDBusViewer viewer(QDBus::sessionBus());
-//    QDBusViewer viewer(QDBus::systemBus());
+    QStringList arguments = app.arguments();
+    if (arguments.contains("--help")) {
+        printf("Arguments:\n");
+        printf("    --system    Use system bus\n");
+        printf("    --help      This help\n");
+        return 0;
+    }
+
+    bool showSystemBus = app.arguments().contains(QLatin1String("--system"));
+
+    QDBusViewer viewer(showSystemBus ? QDBus::systemBus() : QDBus::sessionBus());
     viewer.show();
 
     return app.exec();
 }
+

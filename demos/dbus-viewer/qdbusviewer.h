@@ -42,6 +42,7 @@ private slots:
     void connectionRequested(const BusSignature &sig);
     void callMethod(const BusSignature &sig);
     void dumpMessage(const QDBusMessage &msg);
+    void refreshChildren();
 
     void serviceRegistered(const QString &service);
     void serviceUnregistered(const QString &service);
@@ -59,6 +60,7 @@ private:
     QString currentService;
     QFont interfaceFont;
     QTreeWidget *tree;
+    QAction *refreshAction;
     QTreeWidget *services;
     QTextEdit *log;
 };
