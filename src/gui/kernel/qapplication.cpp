@@ -3029,6 +3029,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::MouseMove:
         {
             QWidget* w = static_cast<QWidget *>(receiver);
+
             QMouseEvent* mouse = static_cast<QMouseEvent*>(e);
             QPoint relpos = mouse->pos();
 
@@ -3056,6 +3057,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
 
             bool eventAccepted = mouse->isAccepted();
+
+            QPointer<QWidget> pw = w;
             while (w) {
                 QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(),
                                mouse->modifiers());
@@ -3094,9 +3097,13 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 relpos += w->pos();
                 w = w->parentWidget();
             }
+
             mouse->setAccepted(eventAccepted);
 
             if (e->type() == QEvent::MouseMove) {
+                if (!pw)
+                    break;
+
                 w = static_cast<QWidget *>(receiver);
                 relpos = mouse->pos();
                 QPoint diff = relpos - w->mapFromGlobal(d->hoverGlobalPos);
@@ -3111,6 +3118,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     w = w->parentWidget();
                 }
             }
+
             d->hoverGlobalPos = mouse->globalPos();
         }
         break;
