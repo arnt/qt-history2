@@ -51,6 +51,9 @@ private slots:
 #endif
     void setPixel_data();
     void setPixel();
+
+    void setNumColors();
+    void setColor();
 };
 
 tst_QImage::tst_QImage()
@@ -609,6 +612,21 @@ void tst_QImage::convertToFormatPreserveDotsPrMeter()
 
     QCOMPARE(img.dotsPerMeterX(), dpmx);
     QCOMPARE(img.dotsPerMeterY(), dpmy);
+}
+
+void tst_QImage::setNumColors()
+{
+    QImage img(0, 0, QImage::Format_Indexed8);
+    QTest::ignoreMessage(QtWarningMsg, "QImage::setNumColors: null image");
+    img.setNumColors(256);
+    QCOMPARE(img.numColors(), 0);
+}
+
+void tst_QImage::setColor()
+{
+    QImage img(0, 0, QImage::Format_Indexed8);
+    QTest::ignoreMessage(QtWarningMsg, "QImage::setColor: Index out of bound 0");
+    img.setColor(0, qRgba(18, 219, 108, 128));
 }
 
 QTEST_MAIN(tst_QImage)
