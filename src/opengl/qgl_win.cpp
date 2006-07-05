@@ -1221,6 +1221,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
     }
 }
 
+static void qStoreColors(HPALETTE cmap, const QGLColormap & cols);
 
 bool QGLWidget::event(QEvent *e)
 {
@@ -1239,7 +1240,16 @@ bool QGLWidget::event(QEvent *e)
         } else {
             d->olcx = 0;
         }
+    } else if (e->type() == QEvent::Show
+               && d->cmap.handle() && !format().rgba())
+    {
+        HDC hdc = GetDC(winId());
+        SelectPalette(hdc, (HPALETTE) d->cmap.handle(), TRUE);
+        qStoreColors((HPALETTE) d->cmap.handle(), d->cmap);
+        RealizePalette(hdc);
+        ReleaseDC(winId(), hdc);
     }
+
     return QWidget::event(e);
 }
 
@@ -1396,8 +1406,6 @@ void QGLWidget::setColormap(const QGLColormap & c)
 {
     Q_D(QGLWidget);
     d->cmap = c;
-    if (!d->cmap.handle())
-        return;
 
     if (d->cmap.handle()) { // already have an allocated cmap
         HDC hdc = GetDC(winId());
@@ -1412,14 +1420,6 @@ void QGLWidget::setColormap(const QGLColormap & c)
         lpal->palVersion    = 0x300;
         lpal->palNumEntries = c.size();
         d->cmap.setHandle(CreatePalette(lpal));
-
-        if (d->cmap.handle()) {
-            HDC hdc = GetDC(winId());
-            SelectPalette(hdc, (HPALETTE) d->cmap.handle(), FALSE);
-            qStoreColors((HPALETTE) d->cmap.handle(), c);
-            RealizePalette(hdc);
-            ReleaseDC(winId(), hdc);
-        }
         free(lpal);
     }
 }
