@@ -97,22 +97,22 @@ void tst_Q3TextEdit::getSetCheck()
     // int Q3TextEdit::maxLogLines()
     // void Q3TextEdit::setMaxLogLines(int)
     obj1.setMaxLogLines(0);
-    QCOMPARE(0, obj1.maxLogLines());
+    QCOMPARE(obj1.maxLogLines(), 0);
     obj1.setMaxLogLines(INT_MIN);
-    QCOMPARE(-1, obj1.maxLogLines());
+    QCOMPARE(obj1.maxLogLines(), -1);
     obj1.setMaxLogLines(INT_MAX);
-    QCOMPARE(INT_MAX, obj1.maxLogLines());
+    QCOMPARE(obj1.maxLogLines(), INT_MAX);
 
     // Q3TextDocument * Q3TextEdit::document()
     // void Q3TextEdit::setDocument(Q3TextDocument *)
     Q3TextDocument *var2 = new Q3TextDocument(0);
     obj1.setDocument(var2);
-    QCOMPARE(var2, obj1.document());
+    QCOMPARE(obj1.document(), var2);
 #if QT_VERSION >= 0x040200
-    // Should do as QTextEdit, and create a new document, if you setDocument(0)
+    // Should've done as QTextEdit, and created a new document, if you setDocument(0).
+    // Unfortunately it doesn't, and we cannot change it.
     obj1.setDocument((Q3TextDocument *)0);
-    QVERIFY((Q3TextDocument *)0 != obj1.document());
-    QVERIFY(var2 != obj1.document());
+    QCOMPARE(obj1.document(), var2);
 #endif
     // delete var2; // No delete, since Q3TextEdit takes ownership
 }
