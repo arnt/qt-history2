@@ -253,7 +253,7 @@ QtGradientEditor::QtGradientEditor(QWidget *parent)
                 this, SLOT(slotTypeChanged(int)));
 
     QStringList spreads;
-    spreads << tr("Pad") << tr("Repead") << tr("Reflect");
+    spreads << tr("Pad") << tr("Repeat") << tr("Reflect");
     d_ptr->m_ui.spreadLinearComboBox->addItems(spreads);
     d_ptr->m_ui.spreadRadialComboBox->addItems(spreads);
 
