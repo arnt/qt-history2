@@ -103,108 +103,108 @@ void tst_QColor::getSetCheck()
     // int QColor::alpha()
     // void QColor::setAlpha(int)
     obj1.setAlpha(0);
-    QCOMPARE(0, obj1.alpha());
+    QCOMPARE(obj1.alpha(), 0);
     obj1.setAlpha(-1);
-    QCOMPARE(0, obj1.alpha()); // range<0, 255>
+    QCOMPARE(obj1.alpha(), 0); // range<0, 255>
     obj1.setAlpha(INT_MIN);
-    QCOMPARE(0, obj1.alpha()); // range<0, 255>
+    QCOMPARE(obj1.alpha(), 0); // range<0, 255>
     obj1.setAlpha(255);
-    QCOMPARE(255, obj1.alpha()); // range<0, 255>
+    QCOMPARE(obj1.alpha(), 255); // range<0, 255>
     obj1.setAlpha(INT_MAX);
-    QCOMPARE(255, obj1.alpha()); // range<0, 255>
+    QCOMPARE(obj1.alpha(), 255); // range<0, 255>
 
     // qreal QColor::alphaF()
     // void QColor::setAlphaF(qreal)
     obj1.setAlphaF(0.0);
-    QCOMPARE(0.0, obj1.alphaF()); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), 0.0); // range<0.0, 1.0>
     obj1.setAlphaF(-0.2);
-    QCOMPARE(0.0, obj1.alphaF()); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), 0.0); // range<0.0, 1.0>
     obj1.setAlphaF(1.0);
-    QCOMPARE(1.0, obj1.alphaF()); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), 1.0); // range<0.0, 1.0>
     obj1.setAlphaF(1.1);
-    QCOMPARE(1.0, obj1.alphaF()); // range<0.0, 1.0>
+    QCOMPARE(obj1.alphaF(), 1.0); // range<0.0, 1.0>
 
     // int QColor::red()
     // void QColor::setRed(int)
     obj1.setRed(0);
-    QCOMPARE(0, obj1.red());
+    QCOMPARE(obj1.red(), 0);
     obj1.setRed(-1);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.red(), 0); // range<0, 255>
     obj1.setRed(INT_MIN);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.red(), 0); // range<0, 255>
     obj1.setRed(255);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.red(), 255); // range<0, 255>
     obj1.setRed(INT_MAX);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.red(), 255); // range<0, 255>
 
     // int QColor::green()
     // void QColor::setGreen(int)
     obj1.setGreen(0);
-    QCOMPARE(0, obj1.red());
+    QCOMPARE(obj1.green(), 0);
     obj1.setGreen(-1);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.green(), 0); // range<0, 255>
     obj1.setGreen(INT_MIN);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.green(), 0); // range<0, 255>
     obj1.setGreen(255);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.green(), 255); // range<0, 255>
     obj1.setGreen(INT_MAX);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.green(), 255); // range<0, 255>
 
     // int QColor::blue()
     // void QColor::setBlue(int)
     obj1.setBlue(0);
-    QCOMPARE(0, obj1.red());
+    QCOMPARE(obj1.blue(), 0);
     obj1.setBlue(-1);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.blue(), 0); // range<0, 255>
     obj1.setBlue(INT_MIN);
-    QCOMPARE(0, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.blue(), 0); // range<0, 255>
     obj1.setBlue(255);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.blue(), 255); // range<0, 255>
     obj1.setBlue(INT_MAX);
-    QCOMPARE(255, obj1.red()); // range<0, 255>
+    QCOMPARE(obj1.blue(), 255); // range<0, 255>
 
     // qreal QColor::redF()
     // void QColor::setRedF(qreal)
     obj1.setRedF(0.0);
-    QCOMPARE(0.0, obj1.redF());
+    QCOMPARE(obj1.redF(), 0.0);
     obj1.setRedF(-0.2);
-    QCOMPARE(0.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.redF(), 0.0); // range<0.0, 1.0
     obj1.setRedF(1.1);
-    QCOMPARE(1.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.redF(), 1.0); // range<0.0, 1.0
 
     // qreal QColor::greenF()
     // void QColor::setGreenF(qreal)
     obj1.setGreenF(0.0);
-    QCOMPARE(0.0, obj1.redF());
+    QCOMPARE(obj1.greenF(), 0.0);
     obj1.setGreenF(-0.2);
-    QCOMPARE(0.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.greenF(), 0.0); // range<0.0, 1.0
     obj1.setGreenF(1.1);
-    QCOMPARE(1.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.greenF(), 1.0); // range<0.0, 1.0
 
     // qreal QColor::blueF()
     // void QColor::setBlueF(qreal)
     obj1.setBlueF(0.0);
-    QCOMPARE(0.0, obj1.redF());
+    QCOMPARE(obj1.blueF(), 0.0);
     obj1.setBlueF(-0.2);
-    QCOMPARE(0.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.blueF(), 0.0); // range<0.0, 1.0
     obj1.setBlueF(1.1);
-    QCOMPARE(1.0, obj1.redF()); // range<0.0, 1.0
+    QCOMPARE(obj1.blueF(), 1.0); // range<0.0, 1.0
 
     // QRgb QColor::rgba()
     // void QColor::setRgba(QRgb)
     QRgb var9(qRgba(10, 20, 30, 40));
     obj1.setRgba(var9);
-    QCOMPARE(var9, obj1.rgba());
+    QCOMPARE(obj1.rgba(), var9);
     obj1.setRgba(QRgb(0));
-    QCOMPARE(QRgb(0), obj1.rgba());
+    QCOMPARE(obj1.rgba(), QRgb(0));
 
     // QRgb QColor::rgb()
     // void QColor::setRgb(QRgb)
     QRgb var10(qRgb(10, 20, 30));
     obj1.setRgb(var10);
-    QCOMPARE(var10, obj1.rgb());
+    QCOMPARE(obj1.rgb(), var10);
     obj1.setRgb(QRgb(0));
-    QCOMPARE(QRgb(0), obj1.rgb());
+    QCOMPARE(obj1.rgb(), qRgb(0, 0, 0));
 }
 
 Q_DECLARE_METATYPE(QColor)
