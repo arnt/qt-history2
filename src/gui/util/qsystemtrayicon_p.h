@@ -79,7 +79,6 @@ protected:
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
     void mousePressEvent(QMouseEvent *e);
-    bool eventFilter(QObject *o, QEvent *e);
     void timerEvent(QTimerEvent *e);
 
 private:

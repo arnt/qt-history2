@@ -507,13 +507,6 @@ void QBalloonTip::timerEvent(QTimerEvent *e)
     QWidget::timerEvent(e);
 }
 
-bool QBalloonTip::eventFilter(QObject *o, QEvent *e)
-{
-    if (e->type() == QEvent::MouseButtonPress)
-        mousePressEvent(static_cast<QMouseEvent *>(e));
-    return QWidget::eventFilter(o, e);
-}
-
 void qtsystray_sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }
 
 #endif // QT_NO_SYSTEMTRAYICON
