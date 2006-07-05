@@ -2136,6 +2136,7 @@ public:
     void mouseDoubleClickEvent(QMouseEvent *) { if (deleteThis) delete this; }
     void mousePressEvent(QMouseEvent *) { if (deleteThis) delete this; }
     void mouseReleaseEvent(QMouseEvent *) { if (deleteThis) delete this; }
+    void mouseMoveEvent(QMouseEvent *) { if (deleteThis) delete this; }
 
     bool deleteThis;
 };
@@ -2210,6 +2211,13 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->show();
     w->deleteThis = true;
     w->setMouseTracking(true);
+    QVERIFY(w == 0);
+
+    w = new Widget;
+    w->setMouseTracking(true);
+    w->show();
+    w->deleteThis = true;
+    QTest::mouseMove(w, QPoint(0,0));
     QVERIFY(w == 0);
 }
 
