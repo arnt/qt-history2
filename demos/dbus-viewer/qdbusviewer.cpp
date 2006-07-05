@@ -451,5 +451,6 @@ void QDBusViewer::refreshChildren()
         delete item->child(0);
 
     prefetchChildren(item);
+    prefetchGrandChildren(item);
 }
 
