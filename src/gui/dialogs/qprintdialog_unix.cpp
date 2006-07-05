@@ -1419,21 +1419,25 @@ void PPDOptionsModel::parseGroups(OptionTreeItem* parent)
 
         const ppd_file_t* ppdFile = reinterpret_cast<const ppd_file_t*>(parent->ptr);
 
-        for (int i = 0; i < ppdFile->num_groups; ++i) {
-            OptionTreeItem* group = new OptionTreeItem(OptionTreeItem::Group, i, &ppdFile->groups[i], ppdFile->groups[i].text, parent);
-            parent->childItems.append(group);
-            parseGroups(group); // parse possible subgroups
-            parseOptions(group); // parse options
+        if (ppdFile) {
+            for (int i = 0; i < ppdFile->num_groups; ++i) {
+                OptionTreeItem* group = new OptionTreeItem(OptionTreeItem::Group, i, &ppdFile->groups[i], ppdFile->groups[i].text, parent);
+                parent->childItems.append(group);
+                parseGroups(group); // parse possible subgroups
+                parseOptions(group); // parse options
+            }
         }
     } else if (parent->type == OptionTreeItem::Group) {
 
         const ppd_group_t* group = reinterpret_cast<const ppd_group_t*>(parent->ptr);
 
-        for (int i = 0; i < group->num_subgroups; ++i) {
-            OptionTreeItem* subgroup = new OptionTreeItem(OptionTreeItem::Group, i, &group->subgroups[i], group->subgroups[i].text, parent);
-            parent->childItems.append(subgroup);
-            parseGroups(subgroup); // parse possible subgroups
-            parseOptions(subgroup); // parse options
+        if (group) {
+            for (int i = 0; i < group->num_subgroups; ++i) {
+                OptionTreeItem* subgroup = new OptionTreeItem(OptionTreeItem::Group, i, &group->subgroups[i], group->subgroups[i].text, parent);
+                parent->childItems.append(subgroup);
+                parseGroups(subgroup); // parse possible subgroups
+                parseOptions(subgroup); // parse options
+            }
         }
     }
 }
