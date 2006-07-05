@@ -58,7 +58,7 @@ Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcP
 {
     Key key = qMakePair(filePath, qrcPath);
     typename KeyToItemMap::const_iterator it = m_key_to_item.constFind(key);
-    if (it != m_key_to_item.end())
+    if (it != m_key_to_item.constEnd())
         return *it;
 
     QString real_path;
