@@ -191,11 +191,11 @@ static const QCssKnownValue repeats[NumKnownRepeats - 1] = {
 };
 
 static const QCssKnownValue positions[5] = {
+    { "bottom", Qt::AlignBottom },
+    { "center", Qt::AlignCenter },
     { "left", Qt::AlignLeft },
     { "right", Qt::AlignRight },
     { "top", Qt::AlignTop },
-    { "bottom", Qt::AlignBottom },
-    { "center", Qt::AlignCenter },
 };
 
 static const QCssKnownValue tileModes[NumKnownTileModes - 1] = {
