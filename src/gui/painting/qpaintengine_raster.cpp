@@ -3478,6 +3478,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 goto flush_and_return;
 
             while (x < x2) {
+                ++x;
                 if (d > 0) {
                     if (spans[current].len > 0)
                         ++current;
@@ -3498,7 +3499,6 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 } else {
                     d += incrE;
                 }
-                ++x;
 
                 if (x < 0 || y < 0)
                     continue;
@@ -3523,6 +3523,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 goto flush_and_return;
 
             while (x < x2) {
+                ++x;
                 if (d < 0) {
                     if (spans[NSPANS - 1 - current].len > 0)
                         ++current;
@@ -3544,7 +3545,6 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 } else {
                     d += incrE;
                 }
-                ++x;
 
                 if (x < 0 || y > y1)
                     continue;
