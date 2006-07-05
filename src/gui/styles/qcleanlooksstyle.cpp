@@ -1400,7 +1400,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             painter->drawRect(r);
 
             if (!dwOpt->title.isEmpty()) {
-                const int indent = painter->fontMetrics().descent();
+                const int indent = painter->fontMetrics().descent() + 2;
                 drawItemText(painter, r.adjusted(indent + 1, 0, - indent - 1, -1),
                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
@@ -3217,6 +3217,9 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
 {
     int ret = -1;
     switch (metric) {
+    case PM_ButtonDefaultIndicator:
+        ret = 0;
+        break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
         ret = 0;
@@ -3250,7 +3253,7 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 32;
         break;
     case PM_DockWidgetTitleMargin:
-        ret = 4;
+        ret = 2;
         break;
     case PM_MenuBarVMargin:
         ret = 1;
@@ -3304,10 +3307,8 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_SpinBox:
         newSize += QSize(0, -2);
         break;
-    case CT_LineEdit:
-        newSize += QSize(0, 6);
-        break;
     case CT_ComboBox:
+    case CT_LineEdit:
         newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
@@ -3793,8 +3794,6 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
     case SE_PushButtonFocusRect:
         r.adjust(0, 1, 0, -1);
         break;
-    case SE_PushButtonContents:
-        r.translate(0, 1);
     default:
         break;
     }
