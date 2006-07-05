@@ -8,16 +8,14 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QWidget>
 #include <qtranslator.h>
 #include <qfile.h>
-
-
-
 
 //TESTED_CLASS=
 //TESTED_FILES=corelib/kernel/qtranslator.h corelib/kernel/qtranslator.cpp
 
-class tst_QTranslator : public QObject
+class tst_QTranslator : public QWidget
 {
     Q_OBJECT
 
@@ -25,19 +23,29 @@ public:
     tst_QTranslator();
     virtual ~tst_QTranslator();
 
-
 public slots:
     void init();
     void cleanup();
+
+protected:
+    bool event(QEvent *event);
+
 private slots:
     void load();
     void load2();
-    void threadeLoad();
+    void threadLoad();
+    void testLanguageChange();
+
+private:
+    int languageChangeEventCounter;
 };
 
 
 tst_QTranslator::tst_QTranslator()
+    : languageChangeEventCounter(0)
 {
+    show();
+    hide();
 }
 
 tst_QTranslator::~tst_QTranslator()
@@ -50,6 +58,13 @@ void tst_QTranslator::init()
 
 void tst_QTranslator::cleanup()
 {
+}
+
+bool tst_QTranslator::event(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange)
+        ++languageChangeEventCounter;
+    return QWidget::event(event);
 }
 
 void tst_QTranslator::load()
@@ -86,11 +101,73 @@ class TranslatorThread : public QThread
 };
 
 
-void tst_QTranslator::threadeLoad()
+void tst_QTranslator::threadLoad()
 {
     TranslatorThread thread;
     thread.start();
     QVERIFY(thread.wait(10 * 1000));
+}
+
+void tst_QTranslator::testLanguageChange()
+{
+    languageChangeEventCounter = 0;
+
+    QTranslator *tor = new QTranslator;
+    tor->load("hellotr_la.qm");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 0);
+
+    tor->load("doesn't exist, same as clearing");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 0);
+
+    tor->load("hellotr_la.qm");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 0);
+
+    qApp->installTranslator(tor);
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 1);
+
+    tor->load("doesn't exist, same as clearing");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 2);
+
+    tor->load("hellotr_la.qm");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 3);
+
+    qApp->removeTranslator(tor);
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 4);
+
+    tor->load("doesn't exist, same as clearing");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 4);
+
+    qApp->installTranslator(tor);
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 4);
+
+    tor->load("hellotr_la.qm");
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 5);
+
+    delete tor;
+    tor = 0;
+    qApp->sendPostedEvents();
+    qApp->sendPostedEvents();
+    QCOMPARE(languageChangeEventCounter, 6);
 }
 
 QTEST_MAIN(tst_QTranslator)

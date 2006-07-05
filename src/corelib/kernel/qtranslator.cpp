@@ -20,6 +20,7 @@
 #include "qfileinfo.h"
 #include "qstring.h"
 #include "qcoreapplication.h"
+#include "qcoreapplication_p.h"
 #include "qdatastream.h"
 #include "qfile.h"
 #include "qmap.h"
@@ -347,9 +348,9 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
     if (!ok) {
         QFile file(realname);
-        if (!file.exists())
-            return false;
         d->unmapLength = file.size();
+        if (!d->unmapLength)
+            return false;
         d->unmapPointer = new char[d->unmapLength];
 
         if (file.open(QIODevice::ReadOnly))
@@ -403,10 +404,8 @@ static quint32 read32(const uchar *data)
 
 bool QTranslatorPrivate::do_load(const uchar *data, int len)
 {
-    if (len < MagicLength || memcmp(data, magic, MagicLength) != 0) {
-        clear();
+    if (!data || len < MagicLength || memcmp(data, magic, MagicLength) != 0)
         return false;
-    }
 
     bool ok = true;
     const uchar *end = data + len;
@@ -449,18 +448,18 @@ bool QTranslatorPrivate::do_load(const uchar *data, int len)
 
 void QTranslatorPrivate::clear()
 {
+    Q_Q(QTranslator);
     if (unmapPointer && unmapLength) {
 #if defined(QT_USE_MMAP)
-        if(used_mmap)
+        if (used_mmap)
             munmap(unmapPointer, unmapLength);
         else
-#else
-            delete [] unmapPointer;
 #endif
-        unmapPointer = 0;
-        unmapLength = 0;
+            delete [] unmapPointer;
     }
 
+    unmapPointer = 0;
+    unmapLength = 0;
     messageArray = 0;
     contextArray = 0;
     offsetArray = 0;
@@ -468,11 +467,9 @@ void QTranslatorPrivate::clear()
     contextLength = 0;
     offsetLength = 0;
 
-    QCoreApplication * const application = QCoreApplication::instance();
-    if (application) {
-        QEvent * const event = new QEvent(QEvent::LanguageChange);
-        QCoreApplication::postEvent(application, event);
-    }
+    if (QCoreApplicationPrivate::isTranslatorInstalled(q))
+        QCoreApplication::postEvent(QCoreApplication::instance(),
+                                    new QEvent(QEvent::LanguageChange));
 }
 
 

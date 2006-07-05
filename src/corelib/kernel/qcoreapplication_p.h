@@ -36,6 +36,7 @@ class QAbstractEventDispatcher;
 class Q_CORE_EXPORT QCoreApplicationPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QCoreApplication)
+
 public:
     QCoreApplicationPrivate(int &aargc,  char **aargv);
     ~QCoreApplicationPrivate();
@@ -69,6 +70,8 @@ public:
     QCoreApplication::EventFilter eventFilter;
 
     bool in_exec;
+
+    static bool isTranslatorInstalled(QTranslator *translator);
 
     static QAbstractEventDispatcher *eventDispatcher;
     static bool is_app_running;

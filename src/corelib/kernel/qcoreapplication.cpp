@@ -1340,6 +1340,13 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 #endif
         return QString::fromLatin1(sourceText);
 }
+
+bool QCoreApplicationPrivate::isTranslatorInstalled(QTranslator *translator)
+{
+    return QCoreApplication::self
+           && QCoreApplication::self->d_func()->translators.contains(translator);
+}
+
 #endif //QT_NO_TRANSLATE
 
 /*!
