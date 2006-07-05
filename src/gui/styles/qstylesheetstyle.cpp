@@ -830,8 +830,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 #ifndef QT_NO_DEBUG
     Q_ASSERT(styleRulesCache.contains(wid));
 #else
-    if (!styleRulesCache.concrete(wid))
-        polish(wid);
+    if (!styleRulesCache.contains(wid))
+        polish(const_cast<QWidget *>(wid));
 #endif
 
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
@@ -880,7 +880,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         } else if (qobject_cast<QLineEdit *>(w)) {
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
 #endif
-        } else if (QFrame *frame = qobject_cast<QFrame *>(w))
+        } else if (qobject_cast<QFrame *>(w))
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
     }
 
