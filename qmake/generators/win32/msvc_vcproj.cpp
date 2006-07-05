@@ -557,8 +557,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                             for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
                                 const QStringList fileList = tmp_proj.variables().value(*iit);
                                 if (!fileList.isEmpty()) {
-                                    QString dep = tmp_proj.first((*it) + ".commands");
-                                    newDep->dependencies << dep.section(Option::dir_sep, -1);
+                                    QString dep = tmp_proj.first((*it) + ".commands").section('/', -1).section('\\', -1);
+                                    if (!newDep->dependencies.contains(dep))
+                                        newDep->dependencies << dep;
                                 }
                             }
                         }
