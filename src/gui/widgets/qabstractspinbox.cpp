@@ -594,6 +594,7 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
     d->edit->setFrame(false);
     d->edit->setAttribute(Qt::WA_InputMethodEnabled, false);
     d->edit->setFocusProxy(this);
+    d->edit->setAcceptDrops(false);
 
     if (d->type != QVariant::Invalid) {
         connect(d->edit, SIGNAL(textChanged(QString)),
