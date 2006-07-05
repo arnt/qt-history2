@@ -1362,10 +1362,20 @@ void tst_QGraphicsView::cursor()
     QCOMPARE(view.viewport()->cursor().shape(), QCursor().shape());
     view.viewport()->setCursor(Qt::PointingHandCursor);
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
-    QTest::mouseMove(view.viewport(), view.mapFromScene(0, 0));
+
+    QMouseEvent event(QEvent::MouseMove,
+                      view.mapFromScene(0, 0),
+                      Qt::NoButton, 0, 0);
+    QApplication::sendEvent(view.viewport(), &event);
+
     qApp->processEvents();
     QCOMPARE(view.viewport()->cursor().shape(), Qt::IBeamCursor);
-    QTest::mouseMove(view.viewport(), QPoint(5, 5));
+
+    QMouseEvent event2(QEvent::MouseMove,
+                       QPoint(5, 5),
+                       Qt::NoButton, 0, 0);
+    QApplication::sendEvent(view.viewport(), &event2);
+
     qApp->processEvents();
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 }
