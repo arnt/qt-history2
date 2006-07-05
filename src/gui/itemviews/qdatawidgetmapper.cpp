@@ -232,10 +232,10 @@ void QDataWidgetMapperPrivate::_q_modelDestroyed()
     mapper->addMapping(mySpinBox, 0);
     mapper->addMapping(myLineEdit, 1);
     mapper->addMapping(myCountryChooser, 2);
-    mapper->first();
+    mapper->toFirst();
     \endcode
 
-    After the call to first(), \c mySpinBox displays the value \c{1}, \c myLineEdit
+    After the call to toFirst(), \c mySpinBox displays the value \c{1}, \c myLineEdit
     displays \c {$TROLLTECH$} and \c myCountryChooser displays \c{Oslo}. The
     navigational functions toFirst(), toNext(), toPrevious(), toLast() and setCurrentIndex()
     can be used to navigate in the model and update the widgets with contents from
