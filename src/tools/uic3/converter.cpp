@@ -869,6 +869,8 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 {
     QString objectName;
 
+    bool wordWrapFound = false;
+
     for (QDomElement e=n.firstChild().toElement(); !e.isNull(); e = e.nextSibling().toElement()) {
         if (e.tagName().toLower() == QLatin1String("property")) {
             QString name = e.attribute(QLatin1String("name"));
@@ -977,12 +979,8 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             if (className == QLatin1String("QLabel") && name == QLatin1String("alignment")) {
                 QString v = prop->elementSet();
 
-                if (v.contains(QRegExp("\\bWordBreak\\b"))) {
-                    DomProperty *wordWrap = new DomProperty();
-                    wordWrap->setAttributeName(QLatin1String("wordWrap"));
-                    wordWrap->setElementBool(QLatin1String("true"));
-                    properties->append(wordWrap);
-                }
+                if (v.contains(QRegExp("\\bWordBreak\\b")))
+                    wordWrapFound = true;
             }
 
 
@@ -1042,6 +1040,15 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 properties->append(prop);
             }
         }
+    }
+    if (className == QLatin1String("QLabel")) {
+        DomProperty *wordWrap = new DomProperty();
+        wordWrap->setAttributeName(QLatin1String("wordWrap"));
+        if (wordWrapFound)
+            wordWrap->setElementBool(QLatin1String("true"));
+        else
+            wordWrap->setElementBool(QLatin1String("false"));
+        properties->append(wordWrap);
     }
 }
 
