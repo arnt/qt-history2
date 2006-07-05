@@ -290,8 +290,12 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 
     // Generate solution file
     if(project->first("TEMPLATE") == "vcsubdirs") {
-        debug_msg(1, "Generator: MSVC.NET: Writing solution file");
-        writeSubDirs(t);
+        if (!project->isActiveConfig("build_pass")) {
+            debug_msg(1, "Generator: MSVC.NET: Writing solution file");
+            writeSubDirs(t);
+        } else {
+            debug_msg(1, "Generator: MSVC.NET: Not writing solution file for build_pass configs");
+        }
         return true;
     } else
     // Generate single configuration project file
@@ -461,10 +465,14 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
     for(int i = 0; i < subdirs.size(); ++i) {
         QString tmp = subdirs.at(i);
-        if(!project->isEmpty(tmp + ".file"))
+        if(!project->isEmpty(tmp + ".file")) {
+            if(!project->isEmpty(tmp + ".subdir"))
+                warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
+                         tmp.toLatin1().constData());
             tmp = project->first(tmp + ".file");
-        else if(!project->isEmpty(tmp + ".subdir"))
+        } else if(!project->isEmpty(tmp + ".subdir")) {
             tmp = project->first(tmp + ".subdir");
+        }
         QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
         if(fi.exists()) {
             if(fi.isDir()) {
@@ -488,7 +496,19 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         continue;
                     }
                     if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
-                        subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
+                        QStringList tmp_proj_subdirs = tmp_proj.variables()["SUBDIRS"];
+                        for(int x = 0; x < tmp_proj_subdirs.size(); ++x) {
+                            QString tmpdir = tmp_proj_subdirs.at(x);
+                            if(!tmp_proj.isEmpty(tmpdir + ".file")) {
+                                if(!tmp_proj.isEmpty(tmpdir + ".subdir"))
+                                    warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
+                                            tmpdir.toLatin1().constData());
+                                tmpdir = tmp_proj.first(tmpdir + ".file");
+                            } else if(!tmp_proj.isEmpty(tmpdir + ".subdir")) {
+                                tmpdir = tmp_proj.first(tmpdir + ".subdir");
+                            }
+                            subdirs += fileFixify(tmpdir);
+                        }
                     } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
                         // Initialize a 'fake' project to get the correct variables
                         // and to be able to extract all the dependencies
