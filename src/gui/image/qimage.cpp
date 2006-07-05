@@ -1541,8 +1541,11 @@ QRgb QImage::color(int i) const
 */
 void QImage::setColor(int i, QRgb c)
 {
+    if (i < 0 || i >= numColors()) {
+        qWarning("QImage::setColor: Index out of bound %d", i);
+        return;
+    }
     detach();
-    Q_ASSERT(i < numColors());
     d->colortable[i] = c;
     d->has_alpha_clut |= (qAlpha(c) != 255);
 }
@@ -1753,8 +1756,10 @@ void QImage::invertPixels(InvertMode mode)
 
 void QImage::setNumColors(int numColors)
 {
-    if (!d)
+    if (!d) {
+        qWarning("QImage::setNumColors: null image");
         return;
+    }
 
     detach();
     if (numColors == d->colortable.size())
