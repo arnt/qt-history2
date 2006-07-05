@@ -121,25 +121,23 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   the native Mac OS X file dialog.
 
   \code
-    QString s = QFileDialog::getOpenFileName(
-                    this,
-                    "Choose a file",
-                    "/home",
-                    "Images (*.png *.xpm *.jpg)");
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                   "/home/jana",
+                                                   tr("Images (*.png *.xpm *.jpg)"));
   \endcode
 
   In the above example, a modal QFileDialog is created using a static
-  function. The dialog initially displays the contents of the "/home"
+  function. The dialog initially displays the contents of the "/home/jana"
   directory, and displays files matching the patterns given in the
   string "Images (*.png *.xpm *.jpg)". The parent of the file dialog
   is set to \e this, and the dialog is named "open file dialog".
-  The caption at the top of file dialog is set to "Choose a file"
-  instead of the default.
+  The window title is set to "Open File".
 
   If you want to use multiple filters, separate each one with
   \e two semicolons. For example:
+
   \code
-  "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
+    "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
   \endcode
 
   You can create your own QFileDialog without using the static
@@ -147,8 +145,8 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   select in the dialog:
 
   \code
-    QFileDialog *fd = new QFileDialog(this);
-    fd->setFileMode(QFileDialog::AnyFile);
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
   \endcode
 
   In the above example, the mode of the file dialog is set to
@@ -162,7 +160,7 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   the dialog's file filter. For example:
 
   \code
-    fd->setFilter( "Images (*.png *.xpm *.jpg)" );
+    dialog.setFilter(tr("Images (*.png *.xpm *.jpg)"));
   \endcode
 
   In the above example, the filter is set to "Images (*.png *.xpm
@@ -180,7 +178,7 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   Set the mode with setViewMode().
 
   \code
-    fd->setViewMode(QFileDialog::Detail);
+    dialog.setViewMode(QFileDialog::Detail);
   \endcode
 
   The last important function you will need to use when creating your
@@ -495,10 +493,10 @@ QStringList QFileDialog::selectedFiles() const
   the filter. This means that these calls are all equivalent:
 
   \code
-     fd->setFilter("All C++ files (*.cpp *.cc *.C *.cxx *.c++)");
-     fd->setFilter("*.cpp *.cc *.C *.cxx *.c++");
-     fd->setFilter("All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)");
-     fd->setFilter("*.cpp;*.cc;*.C;*.cxx;*.c++");
+     dialog.setFilter("All C++ files (*.cpp *.cc *.C *.cxx *.c++)");
+     dialog.setFilter("*.cpp *.cc *.C *.cxx *.c++");
+     dialog.setFilter("All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)");
+     dialog.setFilter("*.cpp;*.cc;*.C;*.cxx;*.c++");
   \endcode
 
   \sa setFilters()
@@ -516,13 +514,14 @@ void QFileDialog::setFilter(const QString &filter)
   Sets the \a filters used in the file dialog.
 
   \code
-    QStringList types;
-    types << "Image files (*.png *.xpm *.jpg)"
-              << "Text files (*.txt)"
-              << "Any files (*)";
-    QFileDialog fd = new QFileDialog( this );
-    fd->setFilters( types );
-    fd->show();
+    QStringList filters;
+    filters << "Image files (*.png *.xpm *.jpg)"
+            << "Text files (*.txt)"
+            << "Any files (*)";
+
+    QFileDialog dialog(this);
+    dialog.setFilters(filters);
+    dialog.exec();
   \endcode
 */
 
@@ -2046,11 +2045,9 @@ QString QFileDialogPrivate::initialSelection(const QString &path)
   string.
 
   \code
-    QString s = QFileDialog::getOpenFileName(
-                    this,
-                    "Choose a file to open",
-                    "/home",
-                    "Images (*.png *.xpm *.jpg)");
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    "/home",
+                                                    tr("Images (*.png *.xpm *.jpg)"));
   \endcode
 
   The function creates a modal file dialog with the given \a parent widget.
@@ -2149,11 +2146,9 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   widget.
 
   \code
-    QString s = QFileDialog::getSaveFileName(
-                    this,
-                    "Choose a filename to save under",
-                    "/home",
-                    "Images (*.png *.xpm *.jpg)");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+                               "/home/jana/untitled.png",
+                               tr("Images (*.png *.xpm *.jpg)"));
   \endcode
 
   The file dialog's working directory will be set to \a dir. If \a
@@ -2180,7 +2175,6 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
   entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
   the file dialog will treat symlinks as regular directories.
-
 
   \sa getOpenFileName(), getOpenFileNames(), getExistingDirectory()
 */
@@ -2245,11 +2239,10 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   directory selected by the user.
 
   \code
-    QString s = QFileDialog::getExistingDirectory(
-                    this,
-                    "Choose a directory",
-                    "/home",
-                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
   \endcode
 
   This function creates a modal file dialog with the given \a parent
