@@ -379,6 +379,9 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
                     out += "<b>\"</b>" + Qt::escape(item) + "<b>\", </b>";
                 out.chop(1);
                 out += "<b>}</b>";
+            } else if (qVariantCanConvert<QDBusArgument>(arg)) {
+                out += "[QDBusArgument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
+                out += "]";
             } else {
                 out += "[";
                 out += arg.typeName();
