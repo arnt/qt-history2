@@ -316,7 +316,8 @@ void tst_QFile::seek()
     file.open(QIODevice::WriteOnly);
     QCOMPARE(file.size(), qint64(0));
     QCOMPARE(file.pos(), qint64(0));
-    QVERIFY(!file.seek(10));
+    QVERIFY(file.seek(10));
+    QCOMPARE(file.pos(), qint64(10));
     QCOMPARE(file.size(), qint64(0));
     QFile::remove("newfile.txt");
 }
