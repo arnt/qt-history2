@@ -186,13 +186,13 @@ else
     # one of commercial editions
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
-    
+
     # fix license file to quote the right side
     newlicense=`cat "$HOME"/.qt-license | sed -e 's/=\([^\"]\)/=\"\1/g' -e 's/\([^\"]\)$/\1\"/g' `
     cat > "$HOME"/.qt-license-temp <<EOF
 $newlicense
 EOF
-    
+
     # read in the license file
     if [ -f "$HOME"/.qt-license ]; then
         . "$HOME"/.qt-license >/dev/null 2>&1
@@ -415,7 +415,7 @@ echo
 SYSTEM_VARIABLES="CC CXX CFLAGS CXXFLAGS LDFLAGS"
 for varname in $SYSTEM_VARIABLES; do
     cmd=`echo \
-'if [ -n "\$'${varname}'" ]; then 
+'if [ -n "\$'${varname}'" ]; then
     QMakeVar set QMAKE_'${varname}' "\$'${varname}'"
 fi'`
     eval "$cmd"
@@ -521,7 +521,7 @@ CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
 CFG_SXE=no
-CFG_PREFIX_INSTALL=yes 
+CFG_PREFIX_INSTALL=yes
 CFG_SDK=
 D_FLAGS=
 I_FLAGS=
@@ -1333,7 +1333,7 @@ while [ "$#" -gt 0 ]; do
                 [ "$VAR" = "decoration" ] && QMakeVar del "${VAR}s" "$VAL"
                 [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
                 [ "$VAR" = "mouse" ] && QMakeVar del "${VAR}s" "$VAL"
-                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"` && CFG_MOUSE_PLUGIN="$CFG_MOUSE_PLUGIN ${VAL}"		
+                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"` && CFG_MOUSE_PLUGIN="$CFG_MOUSE_PLUGIN ${VAL}"
                 VAR="${VAR}-${OPT}"
             else
                 if [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "decoration" ] || [ "$VAR" = "mouse" ]; then
@@ -2125,7 +2125,7 @@ fi
 
 #x11 tests are done after qmake is built
 
-# embedded 
+# embedded
 if [ "$PLATFORM_QWS" = "yes" ]; then
 
     # No OpenGL for Qtopia Core
@@ -2138,7 +2138,7 @@ fi # QWS
 #setup the build parts
 if [ -z "$CFG_BUILD_PARTS" ]; then
     CFG_BUILD_PARTS="$QT_DEFAULT_BUILD_PARTS"
-    
+
     # don't build tools by default when cross-compiling
     if [ "$PLATFORM" != "$XPLATFORM" ]; then
 	CFG_BUILD_PARTS=`echo "$CFG_BUILD_PARTS" | sed "s, tools,,g"`
@@ -2247,7 +2247,7 @@ QT_INSTALL_TRANSLATIONS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_TRANS
 #settings
 if [ -z "$QT_INSTALL_SETTINGS" ]; then #default
     if [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_SETTINGS=/Library/Preferences/Qt 
+	QT_INSTALL_SETTINGS=/Library/Preferences/Qt
     else
 	QT_INSTALL_SETTINGS=/etc/xdg
     fi
@@ -2392,7 +2392,7 @@ Installation options:
 Configure options:
 
  The defaults (*) are usually acceptable. A plus (+) denotes a default value
- that needs to be evaluated. If the evaluation succeeds, the feature is 
+ that needs to be evaluated. If the evaluation succeeds, the feature is
  included. Here is a short explanation of each option:
 
     -release ........... Compile and link Qt with debugging turned off.
@@ -2730,13 +2730,13 @@ Qtopia Core only:
 
     -qt-mouse-<driver> ... Enable a mouse <driver> in the QtGui library.
                            Possible values for <driver>: [ $CFG_MOUSE_AVAILABLE ]
-    -plugin-mouse-<driver> Enable mouse <driver> as a plugin to be 
+    -plugin-mouse-<driver> Enable mouse <driver> as a plugin to be
                            linked to at runtime.
                            Possible values for <driver>: [ $CFG_MOUSE_PLUGIN_AVAILABLE ]
     -no-mouse-<driver> ... Disable mouse <driver> entirely.
                            Possible values for <driver>: [ $CFG_MOUSE_AVAILABLE ]
 
-    -iwmmxt............. Compile using the iWMMXt instruction set 
+    -iwmmxt............. Compile using the iWMMXt instruction set
                          (available on some XScale CPUs).
 
 EOF
@@ -4437,7 +4437,7 @@ else
 fi
 
 echo '/* Machine Architecture */' >>"$outpath/src/corelib/global/qconfig.h.new"
-ARCH_STR=`echo $ARCH | tr 'a-z' 'A-Z'`
+ARCH_STR=`echo $ARCH | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
 echo "#define QT_ARCH_${ARCH_STR}" >>"$outpath/src/corelib/global/qconfig.h.new"
 
 echo '/* Compile time features */' >>"$outpath/src/corelib/global/qconfig.h.new"
@@ -5171,7 +5171,7 @@ rm -f .projects .projects.3
 if [ "$PLATFORM_X11" = "yes" ] && [ "$CFG_XSHAPE" = "no" ]; then
     cat <<EOF
 
-	NOTICE: Qt will not be built with XShape support. 
+	NOTICE: Qt will not be built with XShape support.
 
 	As a result, drag-and-drop in the Qt Designer will NOT
 	work. We recommend that you enable XShape support by passing
