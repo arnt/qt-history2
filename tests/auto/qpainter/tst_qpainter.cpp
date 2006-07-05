@@ -60,6 +60,7 @@ private slots:
 
     void drawLine_data();
     void drawLine();
+    void drawLine_task121143();
 
     void drawRect_data() { fillData(); }
     void drawRect();
@@ -899,6 +900,25 @@ void tst_QPainter::drawLine()
     const QImage unclipped = pixmapUnclipped.toImage();
     const QImage clipped = pixmapClipped.toImage();
     QCOMPARE(unclipped, clipped);
+}
+
+void tst_QPainter::drawLine_task121143()
+{
+    QPen pen(Qt::black);
+
+    QImage image(5, 5, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0xffffffff);
+    QPainter p(&image);
+    p.setPen(pen);
+    p.drawLine(QLine(0, 0+4, 0+4, 0));
+    p.end();
+
+    QImage expected(5, 5, QImage::Format_ARGB32_Premultiplied);
+    expected.fill(0xffffffff);
+    for (int x = 0; x < 5; ++x)
+        expected.setPixel(x, 5-x-1, pen.color().rgb());
+
+    QCOMPARE(image, expected);
 }
 
 void tst_QPainter::drawRect()
