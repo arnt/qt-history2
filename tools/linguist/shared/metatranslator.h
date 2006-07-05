@@ -95,6 +95,7 @@ public:
 	QTextCodec *codecForTr() const { return codec; }
     QString toUnicode( const char *str, bool utf8 ) const;
 
+    QString languageCode() const;
     QList<MetaTranslatorMessage> messages() const;
     QList<MetaTranslatorMessage> translatedMessages() const;
 
@@ -107,6 +108,7 @@ private:
     TMM mm;
     QByteArray codecName;
     QTextCodec *codec;
+    QString m_language;
 };
 
 /*

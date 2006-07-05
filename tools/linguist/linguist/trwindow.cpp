@@ -101,7 +101,7 @@ QPixmap *TrWindow::pxEmpty = 0;
 enum Ending {End_None, End_FullStop, End_Interrobang, End_Colon,
               End_Ellipsis};
 
-static Ending ending(QString str)
+static Ending ending(QString str, QLocale::Language lang)
 {
     str = str.simplified();
     int ch = 0;
@@ -131,6 +131,8 @@ static Ending ending(QString str)
     case 0x2049: // exclamation question mark
     case 0x2762: // heavy exclamation mark ornament
         return End_Interrobang;
+    case 0x003b: // greek 'compatibility' questionmark
+        return lang == QLocale::Greek ? End_Interrobang : End_None;
     case 0x003a: // colon
         return End_Colon;
     case 0x2026: // horizontal ellipsis
@@ -278,6 +280,7 @@ void TrWindow::openFile( const QString& name )
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
+
     MessageItem *m;
     for (MessageModel::iterator it = cmdl->begin() ; m = it.current() ; ++it) {
         updateDanger(m);
@@ -1638,7 +1641,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
         }
     }
     if (m_ui.actionEndingPunctuation->isChecked()) {
-        if (ending(source) != ending(translation)) {
+        if (ending(source, cmdl->language()) != ending(translation, cmdl->language())) {
             if (verbose)
                 statusBar()->showMessage(tr("Translation does not end with the"
                     " same punctuation as the source text."), ErrorMS);

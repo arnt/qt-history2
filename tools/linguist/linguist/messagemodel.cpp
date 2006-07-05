@@ -602,6 +602,19 @@ bool MessageModel::load(const QString &fileName)
                 ++messageCount;
             }
         }
+
+        QString lang = tor.languageCode();
+        if (lang.isEmpty()) {
+            int pos_sep = fileName.indexOf(QChar('_'));
+            if (pos_sep + 3 <= fileName.length()) {
+                lang = fileName.mid(pos_sep + 1, 2);
+            }
+        }
+        QLocale locale(lang);
+        m_language = locale.language();
+        // locale will be 'C' if we could not find the language in the ts file nor 
+        // guestimate the language from the filename
+
         m_numMessages = messageCount;
         updateAll();
         setModified(false);
@@ -663,6 +676,11 @@ void MessageModel::doCharCounting(const QString& text, int& trW, int& trC, int& 
         if (!text[i].isSpace())
             trC++;
     }
+}
+
+QLocale::Language MessageModel::language() const
+{
+    return m_language;
 }
 
 void MessageModel::updateStatistics()

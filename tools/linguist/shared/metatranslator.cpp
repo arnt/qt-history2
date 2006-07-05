@@ -52,10 +52,12 @@ public:
     virtual bool characters( const QString& ch );
     virtual bool fatalError( const QXmlParseException& exception );
 
+    QString language() const { return m_language; }
 private:
     MetaTranslator *tor;
     MetaTranslatorMessage::Type type;
     bool inMessage;
+    QString m_language;
     QString context;
     QString source;
     QString comment;
@@ -89,7 +91,9 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
             }
         }
     } else {
-        if ( qName == QString("context") ) {
+        if ( qName == QString("TS") ) {
+            m_language = atts.value(QLatin1String("language"));
+        } else if ( qName == QString("context") ) {
             context.truncate( 0 );
             source.truncate( 0 );
             comment.truncate( 0 );
@@ -368,14 +372,15 @@ bool MetaTranslator::load( const QString& filename )
     QXmlSimpleReader reader;
     reader.setFeature( "http://xml.org/sax/features/namespaces", false );
     reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
-    QXmlDefaultHandler *hand = new TsHandler( this );
-    reader.setContentHandler( hand );
-    reader.setErrorHandler( hand );
+    TsHandler *hand = new TsHandler( this );
+    reader.setContentHandler( static_cast<QXmlDefaultHandler*>(hand) );
+    reader.setErrorHandler( static_cast<QXmlDefaultHandler*>(hand) );
 
     bool ok = reader.parse( in );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
 
+    m_language = hand->language();
     makeFileNamesAbsolute(QFileInfo(filename).absoluteDir());
 
     delete hand;
@@ -538,6 +543,11 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
                 untranslated, untranslated == 1 ? "" : "s");
     }
     return saved;
+}
+
+QString MetaTranslator::languageCode() const
+{
+    return m_language;
 }
 
 bool MetaTranslator::contains( const char *context, const char *sourceText,

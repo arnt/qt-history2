@@ -19,6 +19,7 @@
 #include <QList>
 #include <QHash>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QLocale>
 
 class ContextItem;
 class QIODevice;
@@ -275,6 +276,7 @@ public:
     QTranslator *translator();
     MessageItem *findMessage(const char *context, const char *sourcetext, const char *comment = 0) const;
 
+    QLocale::Language language() const;
     void doCharCounting(const QString& text, int& trW, int& trC, int& trCS);
     void updateStatistics();
 
@@ -316,6 +318,7 @@ private:
     int m_srcCharsSpc;
 
     friend class iterator;
+    QLocale::Language m_language;
 };
 
 #endif //MESSAGEMODEL_H
