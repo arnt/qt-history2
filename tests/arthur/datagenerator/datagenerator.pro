@@ -1,5 +1,5 @@
 # -*- Mode: makefile -*-
-COMMON_FOLDER = ../common
+COMMON_FOLDER = $$PWD/../common
 include(../arthurtester.pri)
 CONFIG+=debug
 TEMPLATE = app
