@@ -28,6 +28,7 @@
 #include "qtextformat.h"
 #include "qvector.h"
 #include "qdebug.h"
+#include "private/qcssparser_p.h"
 
 #include <math.h>
 
@@ -1321,20 +1322,23 @@ static bool parseStyle(QSvgNode *node,
                        const QXmlAttributes &attributes,
                        QSvgHandler *);
 
-static bool parseCSStoXMLAttrs(const QString &css,
+static bool parseCSStoXMLAttrs(QString css,
                                QXmlAttributes &attributes)
 {
-    QStringList lst = css.split(QLatin1Char(';'), QString::SkipEmptyParts);
-    QRegExp rx(QLatin1String("\\/\\*.+\\*\\/"));
-    rx.setMinimal(true);
-
-    QStringList::iterator itr = lst.begin();
-    for ( ; itr != lst.end(); ++itr) {
-        QString prop = (*itr).remove(rx).trimmed();
-        if (prop.isEmpty())
+    css.prepend(QLatin1String("dummy {"));
+    css.append(QLatin1Char('}'));
+    QCss::StyleSheet sheet;
+    QCss::Parser(css).parse(&sheet);
+    if (sheet.styleRules.count() != 1)
+        return false;
+    for (int i = 0; i < sheet.styleRules.at(0).declarations.count(); ++i) {
+        const QCss::Declaration &decl = sheet.styleRules.at(0).declarations.at(i);
+        if (decl.property.isEmpty())
             continue;
-        QStringList props = prop.split(QLatin1Char(':'), QString::SkipEmptyParts);
-        attributes.append(props[0], QString(), props[0], props[1]);
+        if (decl.values.count() != 1)
+            continue;
+        attributes.append(decl.property, QString(),
+                          decl.property, decl.values.first().variant.toString());
     }
     return attributes.count();
 }
