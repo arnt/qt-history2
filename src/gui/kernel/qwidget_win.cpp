@@ -819,7 +819,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::activateWindow()
 {
-    Q_ASSERT(window()->testAttribute(Qt::WA_WState_Created));
+    window()->createWinId();
     SetForegroundWindow(window()->internalWinId());
 }
 
