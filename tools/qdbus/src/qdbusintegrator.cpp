@@ -42,6 +42,8 @@ typedef void (*QDBusSpyHook)(const QDBusMessage&);
 typedef QVarLengthArray<QDBusSpyHook, 4> QDBusSpyHookList;
 Q_GLOBAL_STATIC(QDBusSpyHookList, qDBusSpyHookList)
 
+Q_GLOBAL_STATIC(QStringList, qDBusServicesRegisteredByThread)
+
 struct QDBusPendingCall
 {
     QPointer<QObject> receiver;
@@ -1052,7 +1054,7 @@ bool QDBusConnectionPrivate::handleObjectCall(const QDBusMessage &msg)
     if (applyForObject(&rootNode, msg.path(), apply))
         return apply.returnVal;
 
-    //qDebug("Call failed: no object found at %s", qPrintable(msg.path()));
+    // qDebug("Call failed: no object found at %s", qPrintable(msg.path()));
     return false;
 }
 
@@ -1263,21 +1265,30 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
             return QDBusMessage();
         }
 
-        qDBusDebug() << "sending message:" << message;
-        DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg,
-                                                                       timeout, &error);
-        handleError();
-        dbus_message_unref(msg);
+	QDBusMessage amsg;
+	if (isServiceRegistered(message.service())) {
+            qWarning("QDBusConnection: error: the sender and receiver are in the same thread");
+            dbus_message_unref(msg);
+	    //### we should do the call internally here to avoid blocking
+	    amsg.sendError(QString::fromLocal8Bit("InternalError"),
+			   QString::fromLocal8Bit("the sender and receiver are in the same thread"));
+	} else {
+            qDBusDebug() << "sending message:" << message;
+            DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, timeout, &error);
+         
+	    handleError();
+            dbus_message_unref(msg);
 
-        if (lastError.isValid())
-            return QDBusMessagePrivate::fromError(lastError);
+            if (lastError.isValid())
+                return QDBusMessagePrivate::fromError(lastError);
 
-        QDBusMessage amsg = QDBusMessagePrivate::fromDBusMessage(reply, QDBusConnection(name));
-        dbus_message_unref(reply);
-        qDBusDebug() << "got message:" << amsg;
+            amsg = QDBusMessagePrivate::fromDBusMessage(reply, QDBusConnection(name));
+           dbus_message_unref(reply);
+           qDBusDebug() << "got message:" << amsg;
 
-        if (dbus_connection_get_dispatch_status(connection) == DBUS_DISPATCH_DATA_REMAINS)
-            QMetaObject::invokeMethod(this, "doDispatch", Qt::QueuedConnection);
+           if (dbus_connection_get_dispatch_status(connection) == DBUS_DISPATCH_DATA_REMAINS)
+               QMetaObject::invokeMethod(this, "doDispatch", Qt::QueuedConnection);
+	}
         return amsg;
     } else {                    // use the event loop
         QDBusReplyWaiter waiter;
@@ -1525,6 +1536,28 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
 
     // release the lock and return
     return QDBusMetaObject::createMetaObject(interface, xml, cachedMetaObjects, lastError);
+}
+
+void QDBusConnectionPrivate::registerService(const QString &serviceName)
+{
+    qDBusServicesRegisteredByThread()->append(serviceName);
+}
+
+void QDBusConnectionPrivate::unregisterService(const QString &serviceName)
+{
+    qDBusServicesRegisteredByThread()->removeAll(serviceName);
+}
+
+bool QDBusConnectionPrivate::isServiceRegistered(const QString &serviceName) const
+{
+    return (serviceName == baseService() || qDBusServicesRegisteredByThread()->contains(serviceName));
+}
+
+QString QDBusConnectionPrivate::baseService() const
+{
+    return connection ?
+           QString::fromUtf8(dbus_bus_get_unique_name(connection))
+           : QString();
 }
 
 void QDBusReplyWaiter::reply(const QDBusMessage &msg)

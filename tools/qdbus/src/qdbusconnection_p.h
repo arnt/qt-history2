@@ -156,6 +156,10 @@ public:
     QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
                                     const QString &interface);        
 
+    void registerService(const QString &serviceName);
+    void unregisterService(const QString &serviceName);
+    bool isServiceRegistered(const QString &serviceName) const;
+    QString baseService() const;
 protected:
     virtual void customEvent(QEvent *event);
 

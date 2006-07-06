@@ -664,9 +664,7 @@ QDBusError QDBusConnection::lastError() const
 */
 QString QDBusConnection::baseService() const
 {
-    return d && d->connection ?
-            QString::fromUtf8(dbus_bus_get_unique_name(d->connection))
-            : QString();
+    return d->baseService();
 }
 
 /*!
@@ -678,6 +676,7 @@ QString QDBusConnection::baseService() const
 */
 bool QDBusConnection::registerService(const QString &serviceName)
 {
+    if (d) d->registerService(serviceName);
     return interface()->registerService(serviceName);
 }
 
@@ -690,6 +689,7 @@ bool QDBusConnection::registerService(const QString &serviceName)
 */
 bool QDBusConnection::unregisterService(const QString &serviceName)
 {
+    if (d) d->unregisterService(serviceName);
     return interface()->unregisterService(serviceName);
 }
 
