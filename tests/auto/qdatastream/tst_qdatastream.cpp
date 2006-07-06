@@ -143,6 +143,9 @@ private slots:
     void stream_QWMatrix_data();
     void stream_QWMatrix();
 
+    void stream_QIcon_data();
+    void stream_QIcon();
+
     void stream_atEnd_data();
     void stream_atEnd();
 
@@ -210,6 +213,7 @@ private:
     void writeHash(QDataStream* dev);
     void writeqint64(QDataStream *s);
     void writeQWMatrix(QDataStream *s);
+    void writeQIcon(QDataStream *s);
 
     void readbool(QDataStream *s);
     void readQBool(QDataStream *s);
@@ -238,6 +242,7 @@ private:
     void readHash(QDataStream *s);
     void readqint64(QDataStream *s);
     void readQWMatrix(QDataStream *s);
+    void readQIcon(QDataStream *s);
 };
 
 // Testing get/set functions
@@ -1638,7 +1643,17 @@ void tst_QDataStream::stream_QPixmap_data()
 
 void tst_QDataStream::stream_QPixmap()
 {
-    STREAM_IMPL(QPixmap);
+    STREAM_IMPL(QIcon);
+}
+
+void tst_QDataStream::stream_QIcon_data()
+{
+    stream_data(1);
+}
+
+void tst_QDataStream::stream_QIcon()
+{
+    STREAM_IMPL(QIcon);
 }
 
 void tst_QDataStream::writeQPixmap(QDataStream *s)
@@ -1662,6 +1677,23 @@ void tst_QDataStream::readQPixmap(QDataStream *s)
     if (Q3PaintDeviceMetrics(&pm).depth() < 24)
         QSKIP("Don't do pixmap comparison when depth < 24", SkipAll);
     QCOMPARE(d16, QPixmap(pm));
+}
+
+void tst_QDataStream::writeQIcon(QDataStream *s)
+{
+    QPixmap pm(open_xpm);
+    QIcon d16(pm);
+    *s << d16;
+}
+
+void tst_QDataStream::readQIcon(QDataStream *s)
+{
+    QPixmap pm(open_xpm);
+    QIcon icon(pm);
+    QIcon d16;
+    *s >> d16;
+    QVERIFY(!d16.isNull() && !icon.isNull());
+    QCOMPARE(d16.pixmap(100), pm);
 }
 
 // ************************************
@@ -2245,7 +2277,7 @@ protected:
         offset += ret;
         return ret;
     }
-    
+
 private:
     int offset;
 };
