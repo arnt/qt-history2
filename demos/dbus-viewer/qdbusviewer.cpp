@@ -108,7 +108,11 @@ QDomDocument QDBusViewer::introspect(const QString &path)
     QDBusReply<QString> xml = iface.call("Introspect");
 
     if (!xml.isValid()) {
-        logError(QString("Invalid XML received from object %1 at %2\n").arg(path).arg(currentService));
+        QDBusError err(xml.error());
+	if (err.isValid())
+	  logError(QString("Call to object %1 at %2:\n  %3 (%4) failed\n").arg(path).arg(currentService).arg(err.name()).arg(err.message()));
+	else
+	  logError(QString("Invalid XML received from object %1 at %2\n").arg(path).arg(currentService));
         return doc;
     }
 
