@@ -8,14 +8,7 @@ contains(QT_CONFIG, embedded):CONFIG += embedded
 	DEFINES += QT_SHARED
 }
 
-CONFIG(debug, debug|release) {
-    unix:TARGET = QtDBus_debug
-    else:TARGET = QtDBusd
-    OBJECTS_DIR = tmp/debug
-} else {
-    TARGET = QtDBus
-    OBJECTS_DIR = tmp/release
-}
+TARGET = QtDBus
 
 CONFIG += create_prl link_pkgconfig
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QDBUS_MAKEDLL DBUS_API_SUBJECT_TO_CHANGE
@@ -67,6 +60,13 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
       	  FRAMEWORK_HEADERS.path = Headers
       }
       QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+   }
+}
+
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      unix:TARGET = $$member(TARGET, 0)_debug
+      else:TARGET = $$member(TARGET, 0)d
    }
 }
 

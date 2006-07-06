@@ -8,14 +8,7 @@ contains(QT_CONFIG, embedded):CONFIG += embedded
 	DEFINES += QT_SHARED
 }
 
-CONFIG(debug, debug|release) {
-    unix:TARGET = QtTest_debug
-    else:TARGET = QtTestd
-    OBJECTS_DIR = tmp/debug
-} else {
-    TARGET = QtTest
-    OBJECTS_DIR = tmp/release
-}
+TARGET = QtTest
 
 QT       = core
 
@@ -63,6 +56,13 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
       	  FRAMEWORK_HEADERS.path = Headers
       }
       QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+   }
+}
+
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      unix:TARGET = $$member(TARGET, 0)_debug
+      else:TARGET = $$member(TARGET, 0)d
    }
 }
 
