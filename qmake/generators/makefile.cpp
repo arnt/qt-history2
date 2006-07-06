@@ -58,6 +58,7 @@ QString MakefileGenerator::mkdir_p_asstring(const QString &dir, bool escape) con
         ret += escapeFilePath(dir);
     else
         ret += dir;
+    ret += " ";
     return ret;
 }
 
@@ -1454,7 +1455,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     t <<  " FORCE";
                 t << "\n\t"
                   << uninst.join("") << "\n\t"
-                  << "-$(DEL_DIR) " << filePrefixRoot(root, dst) << endl << endl;
+                  << "-$(DEL_DIR) " << filePrefixRoot(root, dst) << " " << endl << endl;
             }
             t << endl;
 
