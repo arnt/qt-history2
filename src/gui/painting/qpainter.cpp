@@ -168,6 +168,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     QPainter p(&image);
 
+    p.d_ptr->original_device = original_device;
     p.setOpacity(state->opacity);
     p.translate(-absPathRect.x(), -absPathRect.y());
     p.setMatrix(state->matrix, true);
