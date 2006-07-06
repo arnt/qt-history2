@@ -199,7 +199,7 @@ struct GPostEventSource
     QEventLoop::ProcessEventsFlags flags;
 };
 
-static gboolean postEventSourcePrepare(GSource *, gint *timeout)
+static gboolean postEventSourcePrepare(GSource *s, gint *timeout)
 {
     QThreadData *data = QThreadData::get(QThread::currentThread());
     if (!data)
@@ -207,12 +207,15 @@ static gboolean postEventSourcePrepare(GSource *, gint *timeout)
     gint dummy;
     if (!timeout)
         timeout = &dummy;
-    return (*timeout = data->canWait ? -1 : 0) == 0;
+    *timeout = data->canWait ? -1 : 0;
+    return (!data->canWait
+            || !(reinterpret_cast<GPostEventSource *>(s)->flags & QEventLoop::WaitForMoreEvents));
 }
 
 static gboolean postEventSourceCheck(GSource *source)
 {
-    return postEventSourcePrepare(0, 0) || reinterpret_cast<GPostEventSource *>(source)->pollfd.revents != 0;
+    return (postEventSourcePrepare(source, 0)
+            || reinterpret_cast<GPostEventSource *>(source)->pollfd.revents != 0);
 }
 
 static gboolean postEventSourceDispatch(GSource *s, GSourceFunc, gpointer)
@@ -240,10 +243,12 @@ static GSourceFuncs postEventSourceFuncs = {
 QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate()
 {
     QCoreApplication *app = QCoreApplication::instance();
-    mainContext = (app && QThread::currentThread() == app->thread()
-                   ? g_main_context_default()
-                   : g_main_context_new());
-    g_main_context_ref(mainContext);
+    if (app && QThread::currentThread() == app->thread()) {
+        mainContext = g_main_context_default();
+        g_main_context_ref(mainContext);
+    } else {
+        mainContext = g_main_context_new();
+    }
 
     postEventSource = reinterpret_cast<GPostEventSource *>(g_source_new(&postEventSourceFuncs,
                                                                         sizeof(GPostEventSource)));
