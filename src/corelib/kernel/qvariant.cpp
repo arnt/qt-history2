@@ -132,7 +132,8 @@ static void construct(QVariant::Private *x, const void *copy)
     default:
         x->is_shared = true;
         x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
-        Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
+        if (!x->data.shared->ptr)
+             Q_ASSERT_X(x->type > 62, "QVariant::construct()", "Unknown datatype");
         break;
     }
     x->is_null = !copy;
@@ -384,7 +385,9 @@ static void load(QVariant::Private *d, QDataStream &s)
                 qFatal("QVariant::load: no streaming operators registered for type %d.", d->type);
             break;
         } else {
-            qFatal("QVariant::load: type %d unknown to QVariant.", d->type);
+            if (d->type < 62)
+                qFatal("QVariant::load: type %d unknown to QVariant.", d->type);
+            qWarning("QVariant::load: type %d unknown to QVariant.", d->type);
         }
     }
 }
