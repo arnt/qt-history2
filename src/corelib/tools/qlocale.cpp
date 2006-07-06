@@ -1831,7 +1831,7 @@ static const int locale_data_size = sizeof(locale_data)/sizeof(QLocalePrivate) -
 
 static const QLocalePrivate *dataPointer(void *v)
 {
-    quint16 index = reinterpret_cast<quint32>(v) & 0xFFFF;
+    quint16 index = reinterpret_cast<quintptr>(v) & 0xFFFF;
 
 #ifndef QT_NO_SYSTEMLOCALE
     Q_ASSERT(index <= locale_data_size);
@@ -1846,14 +1846,14 @@ static const QLocalePrivate *dataPointer(void *v)
 
 static int numberOptions(void *v)
 {
-    quint16 opt = (reinterpret_cast<quint32>(v) >> 16) & 0xFFFF;
+    quint16 opt = (reinterpret_cast<quintptr>(v) >> 16) & 0xFFFF;
 
     return opt;
 }
 
 static void setDataPointer(void **v, const QLocalePrivate *p)
 {
-    quint32 i = reinterpret_cast<quint32>(*v);
+    quint32 i = reinterpret_cast<quintptr>(*v);
 
 #ifndef QT_NO_SYSTEMLOCALE
     Q_ASSERT(p >= locale_data && p - locale_data < locale_data_size
@@ -1872,7 +1872,7 @@ static void setDataPointer(void **v, const QLocalePrivate *p)
 
 static void setNumberOptions(void **v, int _opts)
 {
-    quint32 i = reinterpret_cast<quint32>(*v);
+    quint32 i = reinterpret_cast<quintptr>(*v);
 
     quint32 opts = quint32(_opts) << 16;
     i &= 0xFFFF;
