@@ -377,11 +377,12 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
             if (arg.canConvert(QVariant::String)) {
                 out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
             } else if (arg.canConvert(QVariant::StringList)) {
-                out += "<b>{ </b>";
+                out += "<b>{</b>";
                 QStringList list = arg.toStringList();
                 foreach (QString item, list)
-                    out += "<b>\"</b>" + Qt::escape(item) + "<b>\", </b>";
-                out.chop(1);
+                    out += "<b>\"</b>" + Qt::escape(item) + "<b>\"</b>, ";
+                if (!list.isEmpty())
+                    out.chop(2);
                 out += "<b>}</b>";
             } else if (qVariantCanConvert<QDBusArgument>(arg)) {
                 out += "[QDBusArgument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
