@@ -42,6 +42,8 @@ class QDockWidgetItem;
 class QDockWidgetBoxLayout : public QVBoxLayout
 {
 public:
+    QDockWidgetBoxLayout(QWidget *parent = 0)
+        : QVBoxLayout(parent) {}
 #ifdef Q_NO_USING_KEYWORD
     inline void addChildWidget(QWidget *widget) { QVBoxLayout::addChildWidget(widget); }
     inline void insertItem(int index, QLayoutItem *item) { QVBoxLayout::insertItem(index, item); }

@@ -41,6 +41,8 @@ class ColorSwatch : public QDockWidget
     QAction *topAction;
     QAction *bottomAction;
 
+    QAction *changeSizeHintsAction;
+
 public:
     ColorSwatch(const QString &colorName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 

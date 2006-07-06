@@ -158,14 +158,9 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
 void QDockWidgetPrivate::init() {
     Q_Q(QDockWidget);
 
-    top = new QGridLayout(q);
-    top->setMargin(0);
-    top->setSpacing(0);
-
-    box = new QDockWidgetBoxLayout;
+    box = new QDockWidgetBoxLayout(q);
     box->setMargin(0);
     box->setSpacing(0);
-    top->addLayout(box, 1, 0);
 
     topSpacer = new QSpacerItem(0, 20, QSizePolicy::Ignored, QSizePolicy::Fixed);
     box->addItem(topSpacer);
@@ -310,8 +305,8 @@ void QDockWidgetPrivate::relayout()
     }
 
     topSpacer->changeSize(minWidth, 0 + titleArea.height(), QSizePolicy::Expanding, QSizePolicy::Fixed);
-    top->setMargin(fw);
-    top->invalidate();
+    box->setMargin(fw);
+    box->invalidate();
 }
 
 void QDockWidgetPrivate::_q_toggleTopLevel()

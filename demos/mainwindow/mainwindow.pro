@@ -3,8 +3,10 @@ HEADERS += colorswatch.h mainwindow.h toolbar.h
 SOURCES += colorswatch.cpp mainwindow.cpp toolbar.cpp main.cpp
 build_all:!build_pass {
     CONFIG -= build_all
-    CONFIG += release
+#    CONFIG += release
 }
+
+CONFIG += debug
 
 RESOURCES += mainwindow.qrc
 

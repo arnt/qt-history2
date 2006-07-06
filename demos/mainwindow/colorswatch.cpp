@@ -21,7 +21,13 @@
 #include <QPainter>
 #include <QImage>
 #include <QColor>
+#include <QDialog>
+#include <QGridLayout>
+#include <QSpinBox>
+#include <QLabel>
 #include <QPainterPath>
+#include <QPushButton>
+#include <QHBoxLayout>
 #include <QtDebug>
 
 QColor bgColorForName(const QString &name)
@@ -60,25 +66,137 @@ QColor fgColorForName(const QString &name)
 
 class ColorDock : public QFrame
 {
+    Q_OBJECT
 public:
-    ColorDock(const QString &c, QWidget *parent)
-        : QFrame(parent)
-        , color(c)
-    {
-    }
+    ColorDock(const QString &c, QWidget *parent);
+
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
+
+public slots:
+    void changeSizeHints();
 
 protected:
-    void paintEvent(QPaintEvent *) {
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), bgColorForName(color));
-
-        extern void render_qt_text(QPainter *, int, int, const QColor &);
-        render_qt_text(&p, width(), height(), fgColorForName(color));
-    }
-
+    void paintEvent(QPaintEvent *);
     QString color;
+    QSize szHint, minSzHint;
 };
+
+ColorDock::ColorDock(const QString &c, QWidget *parent)
+    : QFrame(parent) , color(c)
+{
+    QFont font = this->font();
+    font.setPointSize(8);
+    setFont(font);
+    szHint = QSize(-1, -1);
+    minSzHint = QSize(125, 75);
+}
+
+QSize ColorDock::sizeHint() const
+{
+    return szHint;
+}
+
+QSize ColorDock::minimumSizeHint() const
+{
+    return minSzHint;
+}
+
+void ColorDock::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.fillRect(rect(), bgColorForName(color));
+
+    p.save();
+
+    extern void render_qt_text(QPainter *, int, int, const QColor &);
+    render_qt_text(&p, width(), height(), fgColorForName(color));
+
+    p.restore();
+    p.setRenderHint(QPainter::Antialiasing, false);
+
+    QSize sz = size();
+    QSize szHint = sizeHint();
+    QSize minSzHint = minimumSizeHint();
+    QSize pMinSzHint = parentWidget() == 0
+                        ? QSize(-1, -1) : parentWidget()->minimumSizeHint();
+    QString text = QString::fromLatin1("sz: %1x%2\nszHint: %3x%4\nminSzHint: %5x%6\n"
+                                        "pMinSzHint: %8x%9")
+                    .arg(sz.width()).arg(sz.height())
+                    .arg(szHint.width()).arg(szHint.height())
+                    .arg(minSzHint.width()).arg(minSzHint.height())
+                    .arg(pMinSzHint.width()).arg(pMinSzHint.height());
+
+    QRect r = fontMetrics().boundingRect(rect(), Qt::AlignLeft|Qt::AlignTop, text);
+    r.adjust(-2, -2, 1, 1);
+    p.translate(4, 4);
+    QColor bg = Qt::yellow;
+    bg.setAlpha(120);
+    p.setBrush(bg);
+    p.setPen(Qt::black);
+    p.drawRect(r);
+    p.drawText(rect(), Qt::AlignLeft|Qt::AlignTop, text);
+}
+
+static QSpinBox *createSpinBox(int value, QWidget *parent)
+{
+    QSpinBox *result = new QSpinBox(parent);
+    result->setMinimum(-1);
+    result->setMaximum(1000);
+    result->setValue(value);
+    return result;
+}
+
+void ColorDock::changeSizeHints()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle(color);
+
+    QVBoxLayout *topLayout = new QVBoxLayout(&dialog);
+
+    QGridLayout *inputLayout = new QGridLayout();
+    topLayout->addLayout(inputLayout);
+
+    inputLayout->addWidget(new QLabel(tr("Size Hint:"), &dialog), 0, 0);
+    inputLayout->addWidget(new QLabel(tr("Min. Size Hint:"), &dialog), 1, 0);
+
+    QSpinBox *szHintW = createSpinBox(szHint.width(), &dialog);
+    inputLayout->addWidget(szHintW, 0, 1);
+    QSpinBox *szHintH = createSpinBox(szHint.height(), &dialog);
+    inputLayout->addWidget(szHintH, 0, 2);
+
+    QSpinBox *minSzHintW = createSpinBox(minSzHint.width(), &dialog);
+    inputLayout->addWidget(minSzHintW, 1, 1);
+    QSpinBox *minSzHintH = createSpinBox(minSzHint.height(), &dialog);
+    inputLayout->addWidget(minSzHintH, 1, 2);
+
+
+    inputLayout->setColumnStretch(1, 1);
+    inputLayout->setColumnStretch(2, 1);
+
+    topLayout->addStretch();
+
+    QHBoxLayout *buttonBox = new QHBoxLayout();
+    topLayout->addLayout(buttonBox);
+
+    QPushButton *okButton = new QPushButton(tr("Ok"), &dialog);
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"), &dialog);
+    connect(okButton, SIGNAL(clicked()), &dialog, SLOT(accept()));
+    connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
+    buttonBox->addStretch();
+    buttonBox->addWidget(cancelButton);
+    buttonBox->addWidget(okButton);
+
+
+    if (!dialog.exec())
+        return;
+
+    szHint = QSize(szHintW->value(), szHintH->value());
+    minSzHint = QSize(minSzHintW->value(), minSzHintH->value());
+    updateGeometry();
+    update();
+}
 
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFlags flags)
     : QDockWidget(parent, flags)
@@ -88,9 +206,11 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
 
     QFrame *swatch = new ColorDock(colorName, this);
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    swatch->setMinimumSize(125, 75);
 
     setWidget(swatch);
+
+    changeSizeHintsAction = new QAction(tr("Change Size Hints"), this);
+    connect(changeSizeHintsAction, SIGNAL(triggered()), swatch, SLOT(changeSizeHints()));
 
     closableAction = new QAction(tr("Closable"), this);
     closableAction->setCheckable(true);
@@ -167,6 +287,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
 
     menu = new QMenu(colorName, this);
     menu->addAction(toggleViewAction());
+    menu->addAction(changeSizeHintsAction);
     menu->addSeparator();
     menu->addAction(closableAction);
     menu->addAction(movableAction);
@@ -311,3 +432,5 @@ void ColorSwatch::placeTop(bool p)
 
 void ColorSwatch::placeBottom(bool p)
 { place(Qt::BottomDockWidgetArea, p); }
+
+#include "colorswatch.moc"
