@@ -30,6 +30,8 @@ public:
 
     void setBrushManager(QDesignerBrushManagerInterface *manager);
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *e);
 signals:
     void textureChooserActivated(QWidget *parent, const QBrush &initialBrush);
 private:

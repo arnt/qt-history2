@@ -19,6 +19,8 @@
 #include <qitemdelegate.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
+#include <QContextMenuEvent>
+#include <QMenu>
 
 class QtBrushEditorPrivate
 {
@@ -273,7 +275,7 @@ QtBrushEditor::QtBrushEditor(QWidget *parent)
     //d_ptr->m_ui.listWidget->setSpacing(2);
     d_ptr->m_ui.listWidget->setIconSize(QSize(64, 64));
     d_ptr->m_ui.listWidget->setItemDelegate(new QtBrushDelegate(this));
-    //d_ptr->m_ui.listWidget->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    d_ptr->m_ui.listWidget->setEditTriggers(QAbstractItemView::EditKeyPressed);
 
     connect(d_ptr->m_ui.listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
                 this, SLOT(slotItemActivated(QListWidgetItem *)));
@@ -377,5 +379,23 @@ void QtBrushEditor::setBrushManager(QDesignerBrushManagerInterface *manager)
             this, SLOT(slotCurrentBrushChanged(const QString &, const QBrush &)));
 
 }
+
+void QtBrushEditor::contextMenuEvent(QContextMenuEvent *e)
+{
+    QPoint p = d_ptr->m_ui.listWidget->mapFromGlobal(e->globalPos());
+    if (!d_ptr->m_ui.listWidget->rect().contains(p))
+        return;
+
+    QListWidgetItem *item = d_ptr->m_ui.listWidget->itemAt(p);
+    if (!item)
+        return;
+
+    QMenu menu(d_ptr->m_ui.listWidget);
+    QAction *renameAction = new QAction(tr("Rename\tF2"), &menu);
+    menu.addAction(renameAction);
+    if (menu.exec(e->globalPos(), renameAction) == renameAction)
+        d_ptr->m_ui.listWidget->editItem(item);
+}
+
 
 #include "moc_qtbrusheditor.cpp"
