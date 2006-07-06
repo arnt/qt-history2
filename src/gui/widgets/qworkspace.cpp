@@ -940,14 +940,17 @@ QWorkspacePrivate::init()
 
 #ifndef QT_NO_SHORTCUT
     // Set up shortcut bindings (id -> slot), most used first
-    shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_Tab), "activateNextWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab), "activatePreviousWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_F4), "closeActiveWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::ALT + Qt::Key_Minus), "_q_showOperationMenu");
-    shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_F6), "activateNextWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_F6), "activatePreviousWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::Key_Forward), "activateNextWindow");
-    shortcutMap.insert(q->grabShortcut(Qt::Key_Back), "activatePreviousWindow");
+    QList <QKeySequence> shortcuts = QKeySequence::keyBindings(QKeySequence::NextChild);
+    foreach (QKeySequence seq, shortcuts)
+        shortcutMap.insert(q->grabShortcut(seq), "activateNextWindow");
+    
+    shortcuts = QKeySequence::keyBindings(QKeySequence::PreviousChild);
+    foreach (QKeySequence seq, shortcuts)
+        shortcutMap.insert(q->grabShortcut(seq), "activatePreviousWindow");
+    
+    shortcuts = QKeySequence::keyBindings(QKeySequence::Close);
+    foreach (QKeySequence seq, shortcuts)
+        shortcutMap.insert(q->grabShortcut(seq), "closeActiveWindow");
 #endif // QT_NO_SHORTCUT
 
     q->setBackgroundRole(QPalette::Dark);
@@ -3084,7 +3087,7 @@ QRect QWorkspacePrivate::updateWorkspace()
             QWorkspaceChild *child = *it;
             ++it;
             if (!child->isHidden())
-                r = r.united(child->geometry());
+                r = r.unite(child->geometry());
         }
         vbar->blockSignals(true);
         hbar->blockSignals(true);
