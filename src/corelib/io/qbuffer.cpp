@@ -337,6 +337,11 @@ qint64 QBuffer::size() const
 */
 bool QBuffer::seek(qint64 pos)
 {
+    Q_D(QBuffer);
+    if (pos < 0 || pos >= d->buf->size() + 1) {
+        qWarning("QBuffer::seek: Invalid pos: %d", int(pos));
+        return false;
+    }
     return QIODevice::seek(pos);
 }
 
