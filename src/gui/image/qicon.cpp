@@ -85,7 +85,7 @@ struct QPixmapIconEngineEntry
     bool isNull() const {return (fileName.isEmpty() && pixmap.isNull()); }
 };
 
-class QPixmapIconEngine : public QIconEngine{
+class QPixmapIconEngine : public QIconEngine {
 public:
     QPixmapIconEngine();
     ~QPixmapIconEngine();
@@ -98,6 +98,8 @@ public:
 private:
     QPixmapIconEngineEntry *tryMatch(const QSize &size, QIcon::Mode mode, QIcon::State state);
     QVector<QPixmapIconEngineEntry> pixmaps;
+
+    friend QDataStream &operator<<(QDataStream &s, const QIcon &icon);
 };
 
 QPixmapIconEngine::QPixmapIconEngine()
@@ -629,6 +631,83 @@ void QIcon::addFile(const QString &fileName, const QSize &size, Mode mode, State
     d->engine->addFile(fileName, size, mode, state);
 }
 
+/*****************************************************************************
+  QIcon stream functions
+ *****************************************************************************/
+#if !defined(QT_NO_DATASTREAM)
+/*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QIcon &icon)
+    \relates QIcon
+
+    Writes the given \a icon to the the given \a stream as a PNG
+    image. If the icon contains more than one image, all images will
+    be written to the stream. Note that writing the stream to a file
+    will not produce a valid image file.
+*/
+
+QDataStream &operator<<(QDataStream &s, const QIcon &icon)
+{
+    if (s.version() >= QDataStream::Qt_4_2) {
+        if (icon.isNull()) {
+            s << 0;
+        } else {
+            QPixmapIconEngine *engine = static_cast<QPixmapIconEngine *>(icon.d->engine);
+            int num_entries = engine->pixmaps.size();
+            s << num_entries;
+            for (int i=0; i < num_entries; ++i) {
+                s << engine->pixmaps.at(i).pixmap;
+                s << engine->pixmaps.at(i).fileName;
+                s << engine->pixmaps.at(i).size;
+                s << (uint) engine->pixmaps.at(i).mode;
+                s << (uint) engine->pixmaps.at(i).state;
+            }
+        }
+    } else {
+        s << QPixmap(icon.pixmap(22,22));
+    }
+    return s;
+}
+
+/*!
+    \fn QDataStream &operator>>(QDataStream &stream, QIcon &icon)
+    \relates QIcon
+
+    Reads an image, or a set of images, from the given \a stream into
+    the given \a icon.
+*/
+
+QDataStream &operator>>(QDataStream &s, QIcon &icon)
+{
+    if (s.version() >= QDataStream::Qt_4_2) {
+        icon = QIcon();
+        int num_entries;
+        QPixmap pm;
+        QString fileName;
+        QSize sz;
+        uint mode;
+        uint state;
+
+        s >> num_entries;
+        for (int i=0; i < num_entries; ++i) {
+            s >> pm;
+            s >> fileName;
+            s >> sz;
+            s >> mode;
+            s >> state;
+            if (pm.isNull())
+                icon.addFile(fileName, sz, QIcon::Mode(mode), QIcon::State(state));
+            else
+                icon.addPixmap(pm, QIcon::Mode(mode), QIcon::State(state));
+        }
+    } else {
+        QPixmap pm;
+        s >> pm;
+        icon.addPixmap(pm);
+    }
+    return s;
+}
+
+#endif //QT_NO_DATASTREAM
 
 
 #ifdef QT3_SUPPORT

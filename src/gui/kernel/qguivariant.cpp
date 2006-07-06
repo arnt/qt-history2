@@ -237,7 +237,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         s >> *v_cast<QCursor>(d);
         break;
 #endif
-    case QVariant::Bitmap: 
+    case QVariant::Bitmap:
         s >> *v_cast<QBitmap>(d);
         break;
     case QVariant::Region:
@@ -271,9 +271,7 @@ static void load(QVariant::Private *d, QDataStream &s)
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon: {
-        QPixmap x;
-        s >> x;
-        *v_cast<QIcon>(d) = QIcon(x);
+        s >> *v_cast<QIcon>(d);
         break;
     }
 #endif
@@ -355,8 +353,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        //### add stream operator to icon
-        s << v_cast<QIcon>(d)->pixmap(QSize(22, 22)); //FIXME
+        s << *v_cast<QIcon>(d);
         break;
 #endif
     case QVariant::TextFormat:
