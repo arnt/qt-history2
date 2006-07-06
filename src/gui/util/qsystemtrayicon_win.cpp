@@ -354,7 +354,8 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
 	    case WM_RBUTTONUP:
                 if (q->contextMenu()) {
                     q->contextMenu()->popup(gpos);
-                    q->contextMenu()->activateWindow(); //this ensures correct popup behaviour:
+                    q->contextMenu()->activateWindow(); 
+                    //Must be activated for proper keyboardfocus and menu closing on windows:
                 }
                 emit q->activated(QSystemTrayIcon::Context);
                 break;
