@@ -524,10 +524,10 @@ void QSystemTrayIconPrivate::showMessage(const QString &title, const QString &me
         //use fallbacks
         QPoint iconPos = sys->findIconPosition(0);
         if(iconPos != QPoint(-1, -1)) {
-            QBalloonTip::showBalloon(type, message, title, sys->q, iconPos, uSecs, true);
+            QBalloonTip::showBalloon(type, title, message, sys->q, iconPos, uSecs, true);
         } else {
             QRect trayRect = sys->findTrayGeometry();
-            QBalloonTip::showBalloon(type, message, title, sys->q, QPoint(trayRect.left(),
+            QBalloonTip::showBalloon(type, title, message, sys->q, QPoint(trayRect.left(),
                                      trayRect.center().y()), uSecs, false);
         }
     }
