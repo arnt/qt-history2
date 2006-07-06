@@ -345,8 +345,10 @@ QWSLock* QWSDisplay::Data::getClientLock()
 void QWSDisplay::Data::flush()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (csocket)
+    if (csocket) {
+        csocket->waitForReadyRead(0);
         csocket->flush();
+   }
 #endif
 }
 
