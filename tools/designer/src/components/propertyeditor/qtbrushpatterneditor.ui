@@ -69,6 +69,14 @@
       </property>
       <item>
        <widget class="QtColorLine" name="saturationColorLine" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy" >
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -115,6 +123,14 @@
       </property>
       <item>
        <widget class="QtColorLine" name="valueColorLine" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy" >
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -140,6 +156,14 @@
       </property>
       <item>
        <widget class="QtColorLine" name="hueColorLine" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy" >
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -165,6 +189,14 @@
       </property>
       <item>
        <widget class="QtColorLine" name="alphaColorLine" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="focusPolicy" >
          <enum>Qt::StrongFocus</enum>
         </property>
@@ -293,11 +325,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtColorButton</class>
-   <extends>QToolButton</extends>
-   <header>qtcolorbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>QtBrushWidget</class>
    <extends>QFrame</extends>
    <header>qtbrushwidget.h</header>
@@ -306,6 +333,11 @@
    <class>QtColorLine</class>
    <extends>QFrame</extends>
    <header>qtcolorline.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header>qtcolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
