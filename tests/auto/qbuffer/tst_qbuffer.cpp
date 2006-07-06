@@ -214,7 +214,7 @@ void tst_QBuffer::seek()
     buffer.open(QIODevice::WriteOnly);
     QCOMPARE(buffer.size(), qint64(0));
     QCOMPARE(buffer.pos(), qint64(0));
-    QTest::ignoreMessage(QtWarningMsg, "QIODevice::seek: Invalid pos: 10");
+    QTest::ignoreMessage(QtWarningMsg, "QBuffer::seek: Invalid pos: 10");
     QVERIFY(!buffer.seek(10));
     QCOMPARE(buffer.size(), qint64(0));
 }
@@ -252,9 +252,9 @@ void tst_QBuffer::seekTest()
     QByteArray data = str.toLatin1();
     QCOMPARE(buf.write( data.constData(), data.size() ), qint64(data.size()));
  
-    QTest::ignoreMessage(QtWarningMsg, "QIODevice::seek: Invalid pos: -1");
+    QTest::ignoreMessage(QtWarningMsg, "QBuffer::seek: Invalid pos: -1");
     DO_INVALID_SEEK(-1);
-    QTest::ignoreMessage(QtWarningMsg, (QByteArray("QIODevice::seek: Invalid pos: ")
+    QTest::ignoreMessage(QtWarningMsg, (QByteArray("QBuffer::seek: Invalid pos: ")
                                         + QByteArray::number(ba.size() + 1)).data());
     DO_INVALID_SEEK(str.size()+1);
 
