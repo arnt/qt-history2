@@ -132,6 +132,8 @@ static const QCssKnownValue properties[NumProperties - 1] = {
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
     { "bold", Value_Bold },
+    { "bottom", Value_Bottom },
+    { "center", Value_Center },
     { "italic", Value_Italic },
     { "large", Value_Large },
     { "left", Value_Left },
@@ -147,6 +149,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "small" , Value_Small },
     { "sub", Value_Sub },
     { "super", Value_Super },
+    { "top", Value_Top },
     { "underline", Value_Underline },
     { "x-large", Value_XLarge },
     { "xx-large", Value_XXLarge }
@@ -188,14 +191,6 @@ static const QCssKnownValue repeats[NumKnownRepeats - 1] = {
     { "repeat-x", Repeat_X },
     { "repeat-xy", Repeat_XY },
     { "repeat-y", Repeat_Y }
-};
-
-static const QCssKnownValue positions[5] = {
-    { "bottom", Qt::AlignBottom },
-    { "center", Qt::AlignCenter },
-    { "left", Qt::AlignLeft },
-    { "right", Qt::AlignRight },
-    { "top", Qt::AlignTop },
 };
 
 static const QCssKnownValue tileModes[NumKnownTileModes - 1] = {
@@ -419,17 +414,28 @@ QString Declaration::uriValue() const
 
 Qt::Alignment Declaration::alignmentValue() const
 {
-    Qt::Alignment align;
     if (values.isEmpty() || values.count() > 2)
-        return align;
-    align |= Qt::Alignment(
-                    findKnownValue(values.at(0).variant.toString(), 
-                                   positions, 5));
-    if (values.count() > 1)
-        align |= Qt::Alignment
-                    (findKnownValue(values.at(1).variant.toString(), 
-                                    positions, 5));
-    return align;
+        return Qt::AlignLeft | Qt::AlignTop;
+
+    Qt::Alignment a[2];
+    for (int i = 0; i < qMin(2, values.count()); i++) {
+        if (values.at(i).type != Value::KnownIdentifier)
+            break;
+        switch (values.at(i).variant.toInt()) {
+        case Value_Left: a[i] = Qt::AlignLeft; break;
+        case Value_Right: a[i] = Qt::AlignRight; break;
+        case Value_Top: a[i] = Qt::AlignTop; break;
+        case Value_Bottom: a[i] = Qt::AlignBottom; break;
+        case Value_Center: a[i] = Qt::AlignCenter; break;
+        default: break;
+        }
+    }
+
+    if (a[0] == Qt::AlignCenter && a[1] != 0 && a[1] != Qt::AlignCenter)
+        a[0] = (a[1] == Qt::AlignLeft || a[1] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
+    if ((a[1] == 0 || a[1] == Qt::AlignCenter) && a[0] != Qt::AlignCenter)
+        a[1] = (a[0] == Qt::AlignLeft || a[0] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
+    return a[0] | a[1];
 }
 
 void Declaration::borderImageValue(QPixmap *pixmap, int *cuts, 

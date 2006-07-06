@@ -120,6 +120,9 @@ enum KnownValue {
     Value_Super,
     Value_Left,
     Value_Right,
+    Value_Top,
+    Value_Bottom,
+    Value_Center,
     NumKnownValues
 };
 
