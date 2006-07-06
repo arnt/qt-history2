@@ -8,12 +8,12 @@ build_all:!build_pass {
 }
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/translator.h \
-                  ../shared/findsourcesvisitor.h \
+                  ../shared/profileevaluator.h \
                   ../shared/proparser.h
 SOURCES         = main.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/translator.cpp \
-                  ../shared/findsourcesvisitor.cpp \
+                  ../shared/profileevaluator.cpp \
                   ../shared/proparser.cpp
 
 QT += xml

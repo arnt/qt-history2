@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "proparser.h"
-#include "findsourcesvisitor.h"
+#include "profileevaluator.h"
 #include <stdio.h>
 #include <proreader.h>
 
@@ -58,7 +58,7 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
         ok = pro->Accept(visitor);
     }
     if (ok) {
-        if (visitor->templateType() == FindSourcesVisitor::TT_Subdirs) {
+        if (visitor->templateType() == ProFileEvaluator::TT_Subdirs) {
             QString oldPath = QDir::currentPath();
             QFileInfo fi(fileName);
             QDir::setCurrent(fi.absolutePath());

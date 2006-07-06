@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "findsourcesvisitor.h"
+#include "profileevaluator.h"
 #include "proreader.h"
 #include <QtCore/QString>
 #include <QtCore/QSet>
@@ -32,7 +32,7 @@
 #define QT_POPEN popen
 #endif
 
-QStringList FindSourcesVisitor::qmake_feature_paths(/*QMakeProperty *prop=0*/)
+QStringList ProFileEvaluator::qmake_feature_paths(/*QMakeProperty *prop=0*/)
 {
     QStringList concat;
     {
@@ -100,7 +100,7 @@ QStringList FindSourcesVisitor::qmake_feature_paths(/*QMakeProperty *prop=0*/)
     return feature_roots;
 }
 
-ProFile *FindSourcesVisitor::currentProFile() const
+ProFile *ProFileEvaluator::currentProFile() const
 {
     if (m_profileStack.count() > 0) {
         return m_profileStack.top();
@@ -108,14 +108,14 @@ ProFile *FindSourcesVisitor::currentProFile() const
     return 0;
 }
 
-QString FindSourcesVisitor::currentFileName() const
+QString ProFileEvaluator::currentFileName() const
 {
     ProFile *pro = currentProFile();
     if (pro) return pro->fileName();
     return QString();
 }
 
-QString FindSourcesVisitor::getcwd() const
+QString ProFileEvaluator::getcwd() const
 {
     //if (m_profileStack.count()) {
         ProFile *cur = m_profileStack.top();
@@ -126,16 +126,16 @@ QString FindSourcesVisitor::getcwd() const
     //}
 }
 
-FindSourcesVisitor::FindSourcesVisitor()
+ProFileEvaluator::ProFileEvaluator()
 {
     Option::init();
 }
 
-FindSourcesVisitor::~FindSourcesVisitor()
+ProFileEvaluator::~ProFileEvaluator()
 {
 }
 
-bool FindSourcesVisitor::visitBeginProFile(ProFile * pro)
+bool ProFileEvaluator::visitBeginProFile(ProFile * pro)
 {
     PRE(pro);
     bool ok = true;
@@ -156,7 +156,7 @@ bool FindSourcesVisitor::visitBeginProFile(ProFile * pro)
     return ok;
 }
 
-bool FindSourcesVisitor::visitEndProFile(ProFile * pro)
+bool ProFileEvaluator::visitEndProFile(ProFile * pro)
 {
     PRE(pro);
     bool ok = true;
@@ -168,7 +168,7 @@ bool FindSourcesVisitor::visitEndProFile(ProFile * pro)
     return ok;
 }
 
-bool FindSourcesVisitor::visitProValue(ProValue *value)
+bool ProFileEvaluator::visitProValue(ProValue *value)
 {
     PRE(value);
     m_lineNo = value->getLineNumber();
@@ -242,7 +242,7 @@ bool FindSourcesVisitor::visitProValue(ProValue *value)
 }
 
 
-bool FindSourcesVisitor::visitProFunction(ProFunction *func)
+bool ProFileEvaluator::visitProFunction(ProFunction *func)
 {
     m_lineNo = func->getLineNumber();
     bool result = true;
@@ -258,7 +258,7 @@ bool FindSourcesVisitor::visitProFunction(ProFunction *func)
     return ok;
 }
 
-QString FindSourcesVisitor::expandVariableReferences(const QString &str)
+QString ProFileEvaluator::expandVariableReferences(const QString &str)
 {
     bool fOK;
     bool *ok = &fOK;
@@ -416,7 +416,7 @@ QString FindSourcesVisitor::expandVariableReferences(const QString &str)
     return ret;
 }
 
-QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const QString &arguments)
+QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const QString &arguments)
 {
     const char field_sep = ' ';
 
@@ -648,7 +648,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
     return ret;
 }
 
-bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result)
+bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result)
 {
     QStringList args = split_arg_list(arguments);
     for (int i = 0; i < args.count(); ++i) {
@@ -852,12 +852,12 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
     return ok;
 }
 
-bool FindSourcesVisitor::contains(const QString &variableName) const
+bool ProFileEvaluator::contains(const QString &variableName) const
 {
     return m_valuemap.contains(variableName.toAscii());
 }
 
-QStringList FindSourcesVisitor::values(const QString &variableName) const
+QStringList ProFileEvaluator::values(const QString &variableName) const
 {
     if (variableName == QLatin1String("PWD")) {
         return QStringList(getcwd());
@@ -866,7 +866,7 @@ QStringList FindSourcesVisitor::values(const QString &variableName) const
 }
 
 
-bool FindSourcesVisitor::evaluateFile(const QString &fileName, bool *result)
+bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
 {
     bool ok = true;
 
@@ -912,7 +912,7 @@ bool FindSourcesVisitor::evaluateFile(const QString &fileName, bool *result)
 }
 
 
-bool FindSourcesVisitor::evaluateFeatureFile(const QString &fileName, bool *result)
+bool ProFileEvaluator::evaluateFeatureFile(const QString &fileName, bool *result)
 {
     QString fn;
     QStringList feature_paths = qmake_feature_paths();
@@ -931,7 +931,7 @@ bool FindSourcesVisitor::evaluateFeatureFile(const QString &fileName, bool *resu
     return fn.isEmpty() ? false : evaluateFile(fn, result);
 }
 
-FindSourcesVisitor::TemplateType FindSourcesVisitor::templateType()
+ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
 {
     QStringList templ = m_valuemap.value("TEMPLATE");
     if (templ.count() >= 1) {
@@ -944,7 +944,7 @@ FindSourcesVisitor::TemplateType FindSourcesVisitor::templateType()
 }
 
 
-QStringList FindSourcesVisitor::absFileNames(const QString &variableName)
+QStringList ProFileEvaluator::absFileNames(const QString &variableName)
 {
     QStringList vpaths = values(QLatin1String("VPATH"))
         + values(QLatin1String("QMAKE_ABSOLUTE_SOURCE_PATH"))
@@ -977,24 +977,24 @@ QStringList FindSourcesVisitor::absFileNames(const QString &variableName)
     return sources_out;
 }
 
-ProFile *FindSourcesVisitor::queryProFile(const QString &filename)
+ProFile *ProFileEvaluator::queryProFile(const QString &filename)
 {
     ProReader pr;
     pr.setEnableBackSlashFixing(false);
     return pr.read(filename);
 }
 
-void FindSourcesVisitor::releaseProFile(ProFile *pro)
+void ProFileEvaluator::releaseProFile(ProFile *pro)
 {
     delete pro;
 }
 
-QString FindSourcesVisitor::propertyValue(const QString &val) const
+QString ProFileEvaluator::propertyValue(const QString &val) const
 {
     return getPropertyValue(val);
 }
 
-void FindSourcesVisitor::logMessage(const QString &message, MessageType mt)
+void ProFileEvaluator::logMessage(const QString &message, MessageType mt)
 {
     QByteArray text = message.toAscii();
     switch (mt) {
@@ -1021,7 +1021,7 @@ void FindSourcesVisitor::logMessage(const QString &message, MessageType mt)
     }
 }
 
-void FindSourcesVisitor::logMessage(MessageType mt, const char *msg, ...)
+void ProFileEvaluator::logMessage(MessageType mt, const char *msg, ...)
 {
 #define MAX_MESSAGE_LENGTH 1024
     char buf[MAX_MESSAGE_LENGTH];
@@ -1037,7 +1037,7 @@ void FindSourcesVisitor::logMessage(MessageType mt, const char *msg, ...)
 /*
   should return a string of type 'filename.pro(1234):'
 */
-QString FindSourcesVisitor::locationSpecifier() const
+QString ProFileEvaluator::locationSpecifier() const
 {
     ProFile *pro = currentProFile();
     if (pro) {

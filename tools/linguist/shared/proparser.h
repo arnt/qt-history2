@@ -14,23 +14,23 @@
 #ifndef PROPARSER_H
 #define PROPARSER_H
 
-#include "findsourcesvisitor.h"
+#include "profileevaluator.h"
 
 // Subclass it to intercept the logMessage method
-class ProFileTranslationsScanner : public FindSourcesVisitor {
+class ProFileTranslationsScanner : public ProFileEvaluator {
 public:
-    ProFileTranslationsScanner(bool verbose) : FindSourcesVisitor() 
+    ProFileTranslationsScanner(bool verbose) : ProFileEvaluator() 
     {
         m_verbose = verbose;
     }
 
 private:
     /* reimp */
-    void logMessage(const QString &message, FindSourcesVisitor::MessageType mt) {
-        if (m_verbose && (mt == FindSourcesVisitor::MT_DebugLevel1)) {
+    void logMessage(const QString &message, ProFileEvaluator::MessageType mt) {
+        if (m_verbose && (mt == ProFileEvaluator::MT_DebugLevel1)) {
             Q_UNUSED(message);
             Q_UNUSED(mt);
-            FindSourcesVisitor::logMessage(message, mt);
+            ProFileEvaluator::logMessage(message, mt);
         }
     }
 

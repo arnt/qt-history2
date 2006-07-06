@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef FINDSOURCESVISITOR_H
-#define FINDSOURCESVISITOR_H
+#ifndef PROFILEEVALUATOR_H
+#define PROFILEEVALUATOR_H
 #include "proitems.h"
 #include "abstractproitemvisitor.h"
 #include <QtCore/QIODevice>
@@ -22,7 +22,7 @@
 
 class ProFile;
 
-class FindSourcesVisitor : public AbstractProItemVisitor {
+class ProFileEvaluator : public AbstractProItemVisitor {
 public:
     typedef enum {
         TT_Unknown = 0,
@@ -40,8 +40,8 @@ public:
         MT_ProError,                // output of error(string). In this implementation, processing will not stop.
     } MessageType;
 
-    FindSourcesVisitor();
-    ~FindSourcesVisitor();
+    ProFileEvaluator();
+    ~ProFileEvaluator();
 
     bool visitBeginProBlock(ProBlock * /*block*/)
     {
@@ -82,7 +82,7 @@ public:
         return true;
     }
 
-    FindSourcesVisitor::TemplateType templateType();
+    ProFileEvaluator::TemplateType templateType();
     bool contains(const QString &variableName) const;
     QStringList values(const QString &variableName) const;
     QStringList absFileNames(const QString &variableName);
@@ -118,7 +118,7 @@ private:
     QString m_oldPath;                              // To restore the current path to the path
     QString m_origfile;
 
-}; //class FindSourcesVisitor
+}; //class ProFileEvaluator
 
-#endif // FINDSOURCESVISITOR_H
+#endif // PROFILEEVALUATOR_H
 

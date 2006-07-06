@@ -11,7 +11,7 @@ build_all:!build_pass {
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/translator.h \
                   ../shared/proparser.h \
-                  ../shared/findsourcesvisitor.h \
+                  ../shared/profileevaluator.h \
                   ../shared/proparserutils.h \
                   ../shared/simtexth.h
 
@@ -23,7 +23,7 @@ SOURCES         = fetchtr.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/translator.cpp \
                   ../shared/proparser.cpp \
-                  ../shared/findsourcesvisitor.cpp \
+                  ../shared/profileevaluator.cpp \
                   ../shared/simtexth.cpp
 
 PROPARSERPATH = ../shared
