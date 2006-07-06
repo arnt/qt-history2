@@ -43,7 +43,7 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern CGImageRef qt_mac_create_imagemask(const QPixmap &px); //qpixmap_mac.cpp
+extern CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr); //qpixmap_mac.cpp
 extern QPoint qt_mac_posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
@@ -220,7 +220,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
             if(pat->data.pixmap.depth() == 1) {
-                pat->image = qt_mac_create_imagemask(pat->data.pixmap);
+                pat->image = qt_mac_create_imagemask(pat->data.pixmap, pat->data.pixmap.rect());
             } else {
                 pat->image = (CGImageRef)pat->data.pixmap.macCGHandle();
                 CGImageRetain(pat->image);
@@ -620,20 +620,13 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     if(pm.isNull())
         return;
 
-    bool differentSize = (QRectF(0, 0, pm.width(), pm.height()) != sr);
-    CGRect rect;
+    bool differentSize = (QRectF(0, 0, pm.width(), pm.height()) != sr), doRestore = false;
+    CGRect rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     QCFType<CGImageRef> image;
     if(pm.depth() == 1) {
-        if (differentSize) {
-            CGContextSaveGState(d->hd);
+        doRestore = true;
+        CGContextSaveGState(d->hd);
 
-            QRegion rgn(r.toRect());
-            qt_mac_clip_cg(d->hd, rgn, 0, 0);
-        }
-
-        const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
-        CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy),
-                                 pm.width()*sx, pm.height()*sy);
         if(d->current.bg.mode == Qt::OpaqueMode) {
             d->setFillBrush(d->current.bg.brush);
             CGContextFillRect(d->hd, qt_mac_compose_rect(r, 0));
@@ -644,39 +637,29 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
                 qt_mac_convert_color_to_cg(col.blue()),
                 qt_mac_convert_color_to_cg(col.alpha()));
 
-        image = qt_mac_create_imagemask(pm);
-        HIViewDrawCGImage(d->hd, &rect, image);
-        if (differentSize)
-            CGContextRestoreGState(d->hd);
-    } else {
-        rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
-        if (!differentSize) {
-            image = CGImageRef(pm.macCGHandle());
-        } else {
+        image = qt_mac_create_imagemask(pm, sr);
+    } else if (differentSize) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-                image = CGImageCreateWithImageInRect(CGImageRef(pm.macCGHandle()),
-                                                     CGRectMake(sr.x(), sr.y(),
-                                                     sr.width(), sr.height()));
-            } else
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            image = CGImageCreateWithImageInRect(CGImageRef(pm.macCGHandle()),
+                                                 CGRectMake(sr.x(), sr.y(), sr.width(), sr.height()));
+        } else
 #endif
-            {
-                int sx = qRound(sr.x());
-                int sy = qRound(sr.y());
-                int sw = qRound(sr.width());
-                int sh = qRound(sr.height());
-                quint32 *pantherData = pm.data->pixels + (sy * pm.width() + sx);
-                QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(0,
-                                                                   pantherData, sw*sh*sizeof(uint),
-                                                                   0);
-                image = CGImageCreate(sw, sh, 8, 32, pm.width() * sizeof(uint),
-                                QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
-                                kCGImageAlphaPremultipliedFirst, provider, 0, 0,
-                                kCGRenderingIntentDefault);
-            }
+        {
+            const int sx = qRound(sr.x()), sy = qRound(sr.y()), sw = qRound(sr.width()), sh = qRound(sr.height());
+            quint32 *pantherData = pm.data->pixels + (sy * pm.width() + sx);
+            QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(0, pantherData, sw*sh*sizeof(uint), 0);
+            image = CGImageCreate(sw, sh, 8, 32, pm.width() * sizeof(uint),
+                                  QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                  kCGImageAlphaPremultipliedFirst, provider, 0, 0,
+                                  kCGRenderingIntentDefault);
         }
-        HIViewDrawCGImage(d->hd, &rect, image);
+    } else {
+        image = CGImageRef(pm.macCGHandle());
     }
+    HIViewDrawCGImage(d->hd, &rect, image);
+    if (doRestore)
+        CGContextRestoreGState(d->hd);
 }
 
 static void drawImageReleaseData (void *info, const void *, size_t)
