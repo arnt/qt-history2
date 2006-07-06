@@ -611,8 +611,7 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
     const QPixmap& bgp = background->pixmap;
     if (bgp.isNull())
         return;
-    QRect aligned = QStyle::alignedRect(dir, (Qt::Alignment)background->position,
-                                        bgp.size(), r);
+    QRect aligned = QStyle::alignedRect(dir, background->position, bgp.size(), r);
     QRect inter = aligned.intersected(r);
 
     switch (background->repeat) {
@@ -884,25 +883,12 @@ void QStyleSheetStyle::setPalette(QWidget *w)
             qConfigurePalette(&p, rule, QPalette::Text, QPalette::Base);
     }
 
-    if (QFrame *frame = qobject_cast<QFrame *>(w)) {
-        if (renderRule(w, QStyle::State_Enabled).hasBox()) {
-            frameStyles[frame] = frame->frameStyle();
-            frame->setFrameStyle(QFrame::StyledPanel);
-        }
-    }
-
     w->setPalette(p);
 }
 
 void QStyleSheetStyle::unsetPalette(QWidget *w)
 {
     w->setPalette(qApp->palette(w));
-    if (QFrame *frame = qobject_cast<QFrame *>(w)) {
-        if (frameStyles.contains(frame)) {
-            frame->setFrameStyle(frameStyles[frame]);
-            frameStyles.remove(frame);
-        }
-    }
 }
 
 void QStyleSheetStyle::repolish(QWidget *w)
@@ -922,7 +908,8 @@ void QStyleSheetStyle::update(const QList<QWidget *>& widgets)
     QEvent e(QEvent::StyleChange);
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *widget = widgets.at(i);
-        unpolish(widget);
+        styleRulesCache.remove(widget);
+        renderRulesCache.remove(widget);
         polish(widget);
         QApplication::sendEvent(widget, &e);
     }
@@ -988,7 +975,6 @@ void QStyleSheetStyle::polish(QApplication *app)
 {
     styleRulesCache.clear();
     renderRulesCache.clear();
-    frameStyles.clear();
     baseStyle()->polish(app);
 }
 
@@ -1002,12 +988,6 @@ void QStyleSheetStyle::unpolish(QWidget *widget)
     styleRulesCache.remove(widget);
     renderRulesCache.remove(widget);
     baseStyle()->unpolish(widget);
-    if (QFrame *frame = qobject_cast<QFrame *>(widget)) {
-        if (frameStyles.contains(frame)) {
-            frame->setFrameStyle(frameStyles[frame]);
-            frameStyles.remove(frame);
-        }
-    }
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
@@ -1015,10 +995,6 @@ void QStyleSheetStyle::unpolish(QApplication *app)
     styleRulesCache.clear();
     renderRulesCache.clear();
     baseStyle()->unpolish(app);
-    QList<QFrame *> frames = frameStyles.keys();
-    for (int i = 0; i < frames.count(); i++)
-        frames.at(i)->setFrameStyle(frameStyles[frames.at(i)]);
-    frameStyles.clear();
 }
 
 bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const QRenderRule& rule) const
@@ -1302,8 +1278,9 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
 
     case PE_Frame:
+        qDrawBackground(p, rule, opt->rect, opt->direction);
         if (rule.hasBox())
-            qDrawFrame(p, rule, opt->rect, opt->direction);
+            qDrawBorder(p, rule, opt->rect);
         else
             baseStyle()->drawPrimitive(pe, opt, p, w);
         return;

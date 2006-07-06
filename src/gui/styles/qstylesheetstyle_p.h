@@ -199,7 +199,6 @@ private:
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
     QVector<QCss::StyleRule> computeStyleSheet(QWidget *widget);
-    QHash<QFrame *, int> frameStyles;
 
     QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
     QRenderRule renderRule(QWidget *w, QStyle::State state) const;
