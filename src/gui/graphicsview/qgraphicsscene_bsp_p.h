@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPTREE_P_H
-#define QBSPTREE_P_H
+#ifndef QGRAPHICSSCENEBSPTREE_P_H
+#define QGRAPHICSSCENEBSPTREE_P_H
 
 //
 //  W A R N I N G
@@ -25,66 +25,76 @@
 // We mean it.
 //
 
-#include <qvector.h>
-#include <qrect.h>
-#include <qset.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qset.h>
+#include <QtCore/qvector.h>
+
+class QGraphicsItem;
+class QGraphicsSceneBspTreeVisitor;
+class QGraphicsSceneInsertItemBspTreeVisitor;
+class QGraphicsSceneRemoveItemBspTreeVisitor;
+class QGraphicsSceneFindItemBspTreeVisitor;
 
 class QGraphicsSceneBspTree
 {
 public:
-
     struct Node
     {
-        enum Type { None = 0, VerticalPlane = 1, HorizontalPlane = 2, Both = 3 };
-        inline Node() : pos(0), type(None) {}
-        qreal pos;
+        enum Type { Horizontal, Vertical, Leaf };
+        union {
+            qreal offset;
+            int leafIndex;
+        };
         Type type;
     };
-    typedef Node::Type NodeType;
-
-    struct Data
-    {
-        Data(void *p) : ptr(p) {}
-        Data(int n) : i(n) {}
-        union {
-            void *ptr;
-            int i;
-        };
-    };
-    typedef QGraphicsSceneBspTree::Data QGraphicsSceneBspTreeData;
-    typedef void callback(QVector<int> &leaf, const QRectF &area, uint visited, QGraphicsSceneBspTreeData data);
 
     QGraphicsSceneBspTree();
+    ~QGraphicsSceneBspTree();
 
-    void create(int n, int d = -1);
-    void destroy();
+    void initialize(const QRectF &rect, int depth);
+    void clear();
 
-    inline void init(const QRectF &area, NodeType type) { init(area, depth, type, 0); }
+    void insertItem(QGraphicsItem *item, const QRectF &rect);
+    void removeItem(QGraphicsItem *item, const QRectF &rect);
+    void removeItems(const QSet<QGraphicsItem *> &items);
 
-    void climbTree(const QRectF &rect, callback *function, QGraphicsSceneBspTreeData data);
+    QList<QGraphicsItem *> items(const QRectF &rect);
+    QList<QGraphicsItem *> items(const QPointF &pos);
+    int leafCount() const;
 
-    inline int leafCount() const { return leaves.count(); }
-    inline QVector<int> &leaf(int i) { return leaves[i]; }
-    inline void insertLeaf(const QRectF &r, int i) { climbTree(r, &insert, i, 0); }
-    inline void removeLeaf(const QRectF &r, int i) { climbTree(r, &remove, i, 0); }
+    inline int firstChildIndex(int index) const
+    { return index * 2 + 1; }
 
-    void removeIndexes(const QSet<int> &indexes);
+    inline int parentIndex(int index) const
+    { return index > 0 ? ((index & 1) ? ((index - 1) / 2) : ((index - 2) / 2)) : -1; }
 
-protected:
-    void init(const QRectF &area, int depth, NodeType type, int index);
-    void climbTree(const QRectF &rect, callback *function, QGraphicsSceneBspTreeData data, int index);
-
-    inline int parentIndex(int i) const { return (i & 1) ? ((i - 1) / 2) : ((i - 2) / 2); }
-    inline int firstChildIndex(int i) const { return ((i * 2) + 1); }
-
-    static void insert(QVector<int> &leaf, const QRectF &area, uint visited, QGraphicsSceneBspTreeData data);
-    static void remove(QVector<int> &leaf, const QRectF &area, uint visited, QGraphicsSceneBspTreeData data);
+    QString debug(int index) const;
 
 private:
-    uint depth;
-    mutable uint visited;
+    void initialize(const QRectF &rect, int depth, int index);
+    void climbTree(QGraphicsSceneBspTreeVisitor *visitor, const QPointF &pos, int index = 0);
+    void climbTree(QGraphicsSceneBspTreeVisitor *visitor, const QRectF &rect, int index = 0);
+
+    void findItems(QList<QGraphicsItem *> *foundItems, const QRectF &rect, int index);
+    void findItems(QList<QGraphicsItem *> *foundItems, const QPointF &pos, int index);
+    QRectF rectForIndex(int index) const;
+
     QVector<Node> nodes;
-    mutable QVector< QVector<int> > leaves; // the leaves are just indices into the items
+    QVector<QList<QGraphicsItem *> > leaves;
+    int leafCnt;
+    QRectF rect;
+
+    QGraphicsSceneInsertItemBspTreeVisitor *insertVisitor;
+    QGraphicsSceneRemoveItemBspTreeVisitor *removeVisitor;
+    QGraphicsSceneFindItemBspTreeVisitor *findVisitor;
 };
 
-#endif // QBSPTREE_P_H
+class QGraphicsSceneBspTreeVisitor
+{
+public:
+    virtual ~QGraphicsSceneBspTreeVisitor() { }
+    virtual void visit(QList<QGraphicsItem *> *items) = 0;
+};
+
+#endif // QGRAPHICSSCENEBSPTREE_P_H

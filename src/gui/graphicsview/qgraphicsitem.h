@@ -271,6 +271,7 @@ private:
     friend class QGraphicsItemGroup;
     friend class QGraphicsScene;
     friend class QGraphicsScenePrivate;
+    friend class QGraphicsSceneFindItemBspTreeVisitor;
     friend class QGraphicsView;
     friend bool qt_closestLeaf(const QGraphicsItem *, const QGraphicsItem *);
     friend bool qt_closestItemFirst(const QGraphicsItem *, const QGraphicsItem *);

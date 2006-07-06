@@ -68,7 +68,7 @@ public:
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
     void _q_removeItemLater(QGraphicsItem *item);
-    QSet<int> removedItemsIndexes;
+    QSet<QGraphicsItem *> removedItems;
     void purgeRemovedItems();
 
     QBrush backgroundBrush;

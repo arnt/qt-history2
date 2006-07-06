@@ -177,13 +177,6 @@ static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
     return path.contains(rect)|| path.intersects(rect);
 };
 
-static void qt_itemsForRectCallback(QVector<int> &leaf, const QRectF & /* area */,
-                                 uint /* visited */, QGraphicsSceneBspTree::Data data)
-{
-    QVector<int> *listPtr = (QVector<int> *)data.ptr;
-    *listPtr += leaf;
-}
-
 /*!
     \internal
 */
@@ -201,34 +194,25 @@ QGraphicsScenePrivate::QGraphicsScenePrivate()
 QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &rect) const
 {
     Q_Q(const QGraphicsScene);
-
-    QList<QGraphicsItem *> itemsInRect;
     const_cast<QGraphicsScenePrivate *>(this)->purgeRemovedItems();
 
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
         QGraphicsScenePrivate *that = const_cast<QGraphicsScenePrivate *>(this);
         that->_q_generateBspTree();
-        QVector<int> itemIndexes;
-        that->bspTree.climbTree(rect.toRect(), &qt_itemsForRectCallback, QGraphicsSceneBspTree::Data(&itemIndexes));
-        for (int i = 0; i < itemIndexes.size(); ++i) {
-            int itemIndex = itemIndexes.at(i);
-            QGraphicsItem *item = allItems.at(itemIndexes.at(i));
-            if (!item->d_func()->itemDiscovered) {
-                item->d_func()->itemDiscovered = 1;
-                itemsInRect << allItems.at(itemIndex);
-            }
-        }
-        for (int i = 0; i < itemIndexes.size(); ++i)
-            allItems.at(itemIndexes.at(i))->d_func()->itemDiscovered = 0;
-        itemsInRect += newItems;
-    } else {
-        foreach (QGraphicsItem *item, q->items()) {
-            QRectF boundingRect = item->sceneBoundingRect();
-            if (boundingRect.intersects(rect) || boundingRect.contains(rect))
-                itemsInRect << item;
-        }
+
+        QList<QGraphicsItem *> items = that->bspTree.items(rect);
+        for (int i = 0; i < items.size(); ++i)
+            items.at(i)->d_func()->itemDiscovered = 0;
+
+        return items;
     }
 
+    QList<QGraphicsItem *> itemsInRect;
+    foreach (QGraphicsItem *item, q->items()) {
+        QRectF boundingRect = item->sceneBoundingRect();
+        if (boundingRect.intersects(rect) || boundingRect.contains(rect))
+            itemsInRect << item;
+    }
     return itemsInRect;
 }
 
@@ -240,7 +224,7 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
     Q_Q(QGraphicsScene);
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
         if (item->d_func()->index != -1) {
-            bspTree.insertLeaf(item->sceneBoundingRect(), item->d_func()->index);
+            bspTree.insertItem(item, item->sceneBoundingRect());
             foreach (QGraphicsItem *child, item->children())
                 child->addToIndex();
         } else {
@@ -262,7 +246,7 @@ void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
 {
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
         if (item->d_func()->index != -1) {
-            bspTree.removeLeaf(item->sceneBoundingRect(), item->d_func()->index);
+            bspTree.removeItem(item, item->sceneBoundingRect());
             foreach (QGraphicsItem *child, item->children())
                 child->removeFromIndex();
         }
@@ -277,7 +261,7 @@ void QGraphicsScenePrivate::resetIndex()
     Q_Q(QGraphicsScene);
     purgeRemovedItems();
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
-        bspTree.destroy();
+        bspTree.clear();
         newItems = q->items();
         allItems.clear();
         freeItemIndexes.clear();
@@ -325,21 +309,18 @@ void QGraphicsScenePrivate::_q_generateBspTree()
     QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
     growingItemsBoundingRect |= newItemsBoundingRect;
     
-    int oldDepth = qMax(int(::log(float(oldItemCount))), 15);
-    int newDepth = qMax(int(::log(float(allItems.size()))), 15);
+    int oldDepth = qMax(int(::log(float(oldItemCount))), 5);
+    int newDepth = qMax(int(::log(float(allItems.size()))), 5);
+
     if (bspTree.leafCount() == 0 || oldDepth != newDepth) {
         // Recreate the bsptree if the depth has changed.
-        bspTree.destroy();
-        bspTree.create(allItems.size(), newDepth);        
-        bspTree.init(q->sceneRect(), QGraphicsSceneBspTree::Node::Both);
+        bspTree.initialize(q->sceneRect(), newDepth);
         newItems = allItems;
     }
 
     for (int i = 0; i < newItems.size(); ++i) {
-        if (QGraphicsItem *item = newItems.at(i)) {
-            QRectF boundingRect = item->sceneBoundingRect();
-            bspTree.insertLeaf(boundingRect, item->d_func()->index);
-        }
+        if (QGraphicsItem *item = newItems.at(i))
+            bspTree.insertItem(item, item->sceneBoundingRect());
     }
     newItems.clear();
 
@@ -377,7 +358,6 @@ void QGraphicsScenePrivate::_q_emitUpdated()
 */
 void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
 {
-    Q_Q(QGraphicsScene);
     if (QGraphicsItem *parent = item->d_func()->parent) {
         QVariant variant;
         qVariantSetValue<QGraphicsItem *>(variant, item);
@@ -390,7 +370,7 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
         // Important: The index is useless until purgeRemovedItems() is
         // called.
         allItems[index] = (QGraphicsItem *)0;
-        removedItemsIndexes << index;
+        removedItems << item;
     } else {
         // Recently added items are purged immediately. newItems() never
         // contains stale items.
@@ -421,19 +401,15 @@ void QGraphicsScenePrivate::purgeRemovedItems()
 {
     Q_Q(QGraphicsScene);
 
-    if (removedItemsIndexes.isEmpty())
+    if (removedItems.isEmpty())
         return;
 
     // Remove stale items from the BSP tree.
     if (indexMethod != QGraphicsScene::NoIndex)
-        bspTree.removeIndexes(removedItemsIndexes);
-
-    // Allow these indexes to be reused.
-    foreach (int index, removedItemsIndexes)
-        freeItemIndexes << index;
+        bspTree.removeItems(removedItems);
 
     // Purge this list.
-    removedItemsIndexes.clear();
+    removedItems.clear();
 
     // No locality info for the items; update the whole scene.
     q->update();
@@ -769,7 +745,7 @@ QGraphicsScene::~QGraphicsScene()
     }
     for (int i = 0; i < d->allItems.size(); ++i) {
         if (QGraphicsItem *item = d->allItems[i]) {
-            if (!d->removedItemsIndexes.contains(i)) {
+            if (!d->removedItems.contains(item)) {
                 d->allItems[i] = 0;
                 d->removeFromIndex(item);
                 item->d_func()->scene = 0;
