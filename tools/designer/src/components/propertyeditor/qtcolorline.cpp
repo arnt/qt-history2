@@ -13,6 +13,7 @@
 
 #include <QPainter>
 #include <QPaintEvent>
+#include <QStyleOption>
 #include "qtcolorline.h"
 #include "qdrawutil.h"
 
@@ -98,7 +99,7 @@ QtColorLinePrivate::QtColorLinePrivate()
     : m_color(Qt::black), m_component(QtColorLine::Value),
         m_flipped(false), m_backgroundTransparent(true), m_orientation(Qt::Horizontal), m_dragging(false)
 {
-    m_indicatorSize = 30;
+    m_indicatorSize = 22;
     m_indicatorSpace = 0;
     m_pixmapSize = QSize(0, 0);
     m_point = pointFromColor(m_color);
@@ -619,10 +620,6 @@ void QtColorLinePrivate::paintEvent(QPaintEvent *)
 
     QColor cBack = q_ptr->palette().color(QPalette::Active, QPalette::Window);
     QColor c = colorFromPoint(m_point);
-    QColor cMix = QColor::fromRgbF(cBack.redF() * (1.0 - c.alphaF()) + c.redF() * c.alphaF(),
-                                    cBack.greenF() * (1.0 - c.alphaF()) + c.greenF() * c.alphaF(),
-                                    cBack.blueF() * (1.0 - c.alphaF()) + c.blueF() * c.alphaF());
-
 
     QPixmap pix(rect.size());
 
@@ -673,30 +670,36 @@ void QtColorLinePrivate::paintEvent(QPaintEvent *)
             p.setBrushOrigin(r[2].topLeft() - r2.topLeft());
             p.drawRect(r[2]);
         }
+        QPen pen(c);
+        p.setPen(pen);
+        p.setBrush(Qt::NoBrush);
+        if (r[1].isValid()) {
+            p.drawRect(r[1].adjusted(0, 0, -1, -1));
+            p.drawRect(r[1].adjusted(1, 1, -2, -2));
+        }
+        p.setPen(Qt::NoPen);
 
-        if (r[1].isValid())
-            p.fillRect(r[1], c);
-
-        p.end();
-        p.begin(q_ptr);
-        p.setPen(Qt::black);
-        if ((0.3 * cMix.redF() + 0.59 * cMix.greenF() + 0.11 * cMix.blueF()) < 0.5)
-            p.setPen(Qt::white);
         if (!m_backgroundTransparent)
             p.fillRect(rect, pix);
-    } else {
-        p.end();
-        p.begin(q_ptr);
-        p.setPen(q_ptr->palette().color(QPalette::Disabled, QPalette::Text));
     }
 
     p.setBrush(Qt::NoBrush);
-
     int lw = 2;
     int br = 1;
     r[1].adjust(br, br, -br, -br);
     if (r[1].adjusted(lw, lw, -lw, -lw).isValid()) {
-        qDrawShadePanel(&p, r[1], q_ptr->palette(), m_dragging, lw);
+        QStyleOptionFrame opt;
+        opt.init(q_ptr);
+        opt.rect = r[1];
+        opt.lineWidth = 2;
+        opt.midLineWidth = 1;
+        if (m_dragging)
+            opt.state |= QStyle::State_Sunken;
+        else
+            opt.state |= QStyle::State_Raised;
+        q_ptr->style()->drawPrimitive(QStyle::PE_Frame, &opt, &p, q_ptr);
+        if (q_ptr->isEnabled())
+            p.fillRect(r[1].adjusted(lw, lw, -lw, -lw), c);
     }
 }
 
