@@ -191,7 +191,7 @@ private:
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 #ifdef Q_WS_MAC
     friend CGContextRef qt_mac_cg_context(const QPaintDevice *);
-    friend CGImageRef qt_mac_create_imagemask(const QPixmap &);
+    friend CGImageRef qt_mac_create_imagemask(const QPixmap &, const QRectF &rect);
     friend IconRef qt_mac_create_iconref(const QPixmap &);
     friend QPixmap qt_mac_unmultiplyPixmapAlpha(const QPixmap &);
 #endif

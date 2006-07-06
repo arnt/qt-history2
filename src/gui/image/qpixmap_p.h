@@ -84,7 +84,8 @@ struct QPixmapData { // internal pixmap data
     void macQDUpdateAlpha();
     quint32 *pixels;
     uint nbytes;
-    CGImageRef cg_data;
+    QRectF cg_mask_rect;
+    CGImageRef cg_data, cg_mask;
     GWorldPtr qd_data, qd_alpha;
 #endif
     QPaintEngine *paintEngine;
