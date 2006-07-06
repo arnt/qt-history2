@@ -181,7 +181,7 @@ static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
     \internal
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
-    : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false),
+    : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false), lastItemCount(0),
       hasSceneRect(false), updateAll(false), calledEmitUpdated(false), hasFocus(false),
       focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
       lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
@@ -288,8 +288,6 @@ void QGraphicsScenePrivate::_q_generateBspTree()
 
     purgeRemovedItems();
 
-    int oldItemCount = allItems.size();
-
     // Add newItems to allItems
     QRectF newItemsBoundingRect;
     for (int i = 0; i < newItems.size(); ++i) {
@@ -309,13 +307,15 @@ void QGraphicsScenePrivate::_q_generateBspTree()
     QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
     growingItemsBoundingRect |= newItemsBoundingRect;
     
-    int oldDepth = qMax(int(::log(float(oldItemCount))), 5);
+    int oldDepth = qMax(int(::log(float(lastItemCount))), 5);
     int newDepth = qMax(int(::log(float(allItems.size()))), 5);
+    static const int slack = 100;
 
-    if (bspTree.leafCount() == 0 || oldDepth != newDepth) {
+    if (bspTree.leafCount() == 0 || (oldDepth != newDepth && qAbs(lastItemCount - allItems.size()) > slack)) {
         // Recreate the bsptree if the depth has changed.
         bspTree.initialize(q->sceneRect(), newDepth);
         newItems = allItems;
+        lastItemCount = allItems.size();
     }
 
     for (int i = 0; i < newItems.size(); ++i) {

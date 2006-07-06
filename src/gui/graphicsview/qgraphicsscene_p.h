@@ -53,6 +53,7 @@ public:
     QGraphicsSceneBspTree bspTree;
     mutable bool generatingBspTree;
     void _q_generateBspTree();
+    int lastItemCount;
 
     QRectF sceneRect;
     bool hasSceneRect;
