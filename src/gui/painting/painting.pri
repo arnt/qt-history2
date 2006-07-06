@@ -118,7 +118,9 @@ embedded {
 	SOURCES += \
 		painting/qcolormap_qws.cpp \
 		painting/qpaintdevice_qws.cpp
-} else:mac {
+} 
+
+mac {
 
 } else:sse|win32-g++ {
     sse_compiler.commands = $$QMAKE_CXX -c -msse $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
