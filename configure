@@ -2341,9 +2341,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
         [-qt-libmng] [-system-libmng] [-system-sqlite] [-no-nis]
         [-nis] [-no-cups] [-cups] [-no-iconv] [-iconv] [-no-largefile]
         [-largefile] [-no-stl] [-stl] [-no-pch] [-pch] [-Istring]
-        [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
-        [-with-<module setting>] [-without-<module setting>] [-fast]
-        [-no-fast]
+        [-lstring] [-Lstring] [-Rstring] [-fast] [-no-fast]
 
 Installation options:
 
