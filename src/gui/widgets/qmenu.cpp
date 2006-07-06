@@ -34,11 +34,13 @@
 
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
-#include "qdebug.h"
 #include "qwidgetaction.h"
 #include <private/qaction_p.h>
 #ifdef QT3_SUPPORT
 #include <qmenudata.h>
+#ifdef Q_WS_X11
+#include <private/qt_x11_p.h>
+#endif
 
 #endif // QT3_SUPPORT
 
@@ -83,6 +85,21 @@ public:
 };
 #include "qmenu.moc"
 
+//Windows and KDE allows menus to cover the taskbar, while GNOME and Mac don't
+const QRect QMenuPrivate::popupGeometry(int screen = -1) const
+{
+#ifdef Q_WS_WIN
+    return QApplication::desktop()->screenGeometry(screen);
+#elif defined Q_WS_X11
+    if (X11->desktopEnvironment == DE_KDE)
+        return QApplication::desktop()->screenGeometry(screen);
+    else
+        return QApplication::desktop()->availableGeometry(screen);
+#else
+        return QApplication::desktop()->availableGeometry(screen);
+#endif
+}
+
 void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
 {
     Q_Q(const QMenu);
@@ -95,7 +112,10 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     actionRects.clear();
     actionList.clear();
     QList<QAction*> items = filterActions(q->actions());
-    int max_column_width = 0, dh = QApplication::desktop()->availableGeometry(q).height(), ncols = 1, y = 0;
+    int max_column_width = 0, 
+        dh = popupGeometry(QApplication::desktop()->screenNumber(q)).height(), 
+        ncols = 1, 
+        y = 0;
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuHMargin, 0, q),
               vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q),
               icone = q->style()->pixelMetric(QStyle::PM_SmallIconSize, 0, q);
@@ -515,7 +535,7 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
                                                          || !(scroll->scrollFlags & QMenuScroller::ScrollDown)))
         newOffset -= scrollHeight;
 
-    QRect screen = QApplication::desktop()->availableGeometry(q);
+    QRect screen = popupGeometry(QApplication::desktop()->screenNumber(q));
     const int desktopFrame = q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
     if (q->height() < screen.height()-(desktopFrame*2)-1) {
         QRect geom = q->geometry();
@@ -1357,7 +1377,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     d->updateActions();
     QPoint pos = p;
     QSize size = sizeHint();
-    QRect screen = QApplication::desktop()->availableGeometry(p);
+    QRect screen = d->popupGeometry(QApplication::desktop()->screenNumber(p));
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
     if (d->ncols > 1) {
         pos.setY(screen.top()+desktopFrame);
@@ -2397,7 +2417,7 @@ void QMenu::internalDelayedPopup()
 
     QPoint pos(rightPos);
     QMenu *caused = qobject_cast<QMenu*>(d->activeMenu->d_func()->causedPopup.widget);
-    const QRect availGeometry(QApplication::desktop()->availableGeometry(caused));
+    const QRect availGeometry(d->popupGeometry(QApplication::desktop()->screenNumber(caused)));
     if (isRightToLeft()) {
         pos = leftPos;
         if (caused && caused->x() < x() || pos.x() < availGeometry.left()) {
