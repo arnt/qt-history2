@@ -999,14 +999,16 @@ void tst_QGraphicsItem::shape()
     QGraphicsPathItem pathItem(path);
     QCOMPARE(pathItem.shape(), path);
 
-    QPixmap pixmap(300, 200);
-    QPainter painter(&pixmap);
-    painter.fillRect(50, 50, 200, 100, Qt::transparent);
-    painter.end();
-    pixmap.fill(Qt::green);
-    QGraphicsPixmapItem pixmapItem(pixmap);
     QRegion region(QRegion(QRect(0, 0, 300, 200)));
-    region.subtracted(QRect(50, 50, 200, 100));
+    region = region.subtracted(QRect(50, 50, 200, 100));
+
+    QPixmap pixmap(300, 200);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setClipRegion(region);
+    painter.fillRect(0, 0, 300, 200, Qt::green);
+    painter.end();
+    QGraphicsPixmapItem pixmapItem(pixmap);
     path = QPainterPath();
     path.addRegion(region);
     QCOMPARE(pixmapItem.shape(), path);
