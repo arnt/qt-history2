@@ -228,7 +228,7 @@ void tst_QFtp::connectToHost_data()
 
     QTest::newRow( "ok01" ) << QString("smokesignal.troll.no") << (uint)21 << (int)QFtp::Connected;
 
-    QTest::newRow( "error01" ) << QString("smokesignal.troll.no") << (uint)2121 << (int)QFtp::Unconnected;
+    QTest::newRow( "error01" ) << QString("shusaku.troll.no") << (uint)2121 << (int)QFtp::Unconnected;
     QTest::newRow( "error02" ) << QString("foo.bar") << (uint)21 << (int)QFtp::Unconnected;
 }
 
@@ -1368,7 +1368,7 @@ void tst_QFtp::proxy()
     QFETCH( QString, dir );
 
     ftp = newFtp();
-    addCommand( QFtp::SetProxy, ftp->setProxy( "shusaku.troll.no", 2121 ) );
+    addCommand( QFtp::SetProxy, ftp->setProxy( "smokesignal.troll.no", 2121 ) );
     addCommand( QFtp::ConnectToHost, ftp->connectToHost( host, port ) );
     addCommand( QFtp::Login, ftp->login( user, password ) );
     addCommand( QFtp::Cd, ftp->cd( dir ) );
