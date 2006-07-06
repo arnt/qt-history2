@@ -82,19 +82,25 @@ public:
         return true;
     }
 
-    FindSourcesVisitor::TemplateType getTemplateType();
-    QStringList getVariable(const QString &variableName) const;
-    QStringList expandVariableToAbsoluteFileNames(const QString &variableName, const QString &originProfile);
+    FindSourcesVisitor::TemplateType templateType();
+    bool contains(const QString &variableName) const;
+    QStringList values(const QString &variableName) const;
+    QStringList absFileNames(const QString &variableName);
 
 protected:
+    virtual ProFile *queryProFile(const QString &filename);
+    virtual void releaseProFile(ProFile *pro);
+    virtual QString propertyValue(const QString &val) const;
+
     virtual void logMessage(const QString &message, MessageType messagetype = MT_DebugLevel2);
+
 private:
     void logMessage(MessageType mt, const char *msg, ...);
     QString expandVariableReferences(const QString &value);
     QString evaluateExpandFunction(const QByteArray &func, const QString &arguments);
+
     bool evaluateConditionalFunction(const QByteArray &function, const QString &arguments, bool *result);
-    bool evaluateFile(const QString &fileName, bool enableBackSlashFixing, bool readFeatures,
-                                    bool mustexist, bool *result);
+    bool evaluateFile(const QString &fileName, bool *result);
     bool evaluateFeatureFile(const QString &fileName, bool *result);
 
     QString currentFileName() const;
@@ -110,6 +116,7 @@ private:
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
     int m_lineNo;                                   // Error reporting
     QString m_oldPath;                              // To restore the current path to the path
+    QString m_origfile;
 
 }; //class FindSourcesVisitor
 

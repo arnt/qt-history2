@@ -242,7 +242,7 @@ bool ProOperator::Accept(AbstractProItemVisitor *visitor)
 
 // --------------- ProFile ----------------
 ProFile::ProFile(const QString &fileName)
-    : ProBlock(0)
+    : QObject(), ProBlock(0)
 {
     m_modified = false;
     setBlockKind(ProBlock::ProFileKind);
@@ -269,10 +269,7 @@ QString ProFile::fileName() const
 
 void ProFile::setModified(bool modified)
 {
-    if (m_modified != modified) {
-        m_modified = modified;
-        emit modificationChanged(m_modified);
-    }
+    m_modified = modified;
 }
 
 bool ProFile::isModified() const

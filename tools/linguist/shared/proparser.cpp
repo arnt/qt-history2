@@ -58,11 +58,11 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
         ok = pro->Accept(visitor);
     }
     if (ok) {
-        if (visitor->getTemplateType() == FindSourcesVisitor::TT_Subdirs) {
+        if (visitor->templateType() == FindSourcesVisitor::TT_Subdirs) {
             QString oldPath = QDir::currentPath();
             QFileInfo fi(fileName);
             QDir::setCurrent(fi.absolutePath());
-            QStringList subdirs = visitor->getVariable("SUBDIRS");
+            QStringList subdirs = visitor->values("SUBDIRS");
             for (int is = 0; is < subdirs.count() && ok; ++is) {
                 QString subdir = subdirs[is];
                 QDir dir( subdir );
@@ -76,12 +76,12 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
                     QString tmpPath = QDir::currentPath();
                     ok = pro->Accept(subvisitor);
                     if (ok) {
-                        sourceFiles += subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("SOURCES"), profile);
-                        sourceFiles += subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("HEADERS"), profile);
+                        sourceFiles += subvisitor->absFileNames(QLatin1String("SOURCES"));
+                        sourceFiles += subvisitor->absFileNames(QLatin1String("HEADERS"));
 
-                        QStringList forms = subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("INTERFACES"), profile)
-                            + subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS"), profile)
-                            + subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS3"), profile);
+                        QStringList forms = subvisitor->absFileNames(QLatin1String("INTERFACES"))
+                            + subvisitor->absFileNames(QLatin1String("FORMS"))
+                            + subvisitor->absFileNames(QLatin1String("FORMS3"));
                         sourceFiles << forms;
                     }
                     delete subvisitor;
@@ -90,24 +90,24 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
             QDir::setCurrent(oldPath);
         } else {
             // app/lib template
-            sourceFiles += visitor->expandVariableToAbsoluteFileNames(QLatin1String("SOURCES"), fileName);
-            sourceFiles += visitor->expandVariableToAbsoluteFileNames(QLatin1String("HEADERS"), fileName);
+            sourceFiles += visitor->absFileNames(QLatin1String("SOURCES"));
+            sourceFiles += visitor->absFileNames(QLatin1String("HEADERS"));
 
-            tsFileNames << visitor->getVariable("TRANSLATIONS");
+            tsFileNames << visitor->values("TRANSLATIONS");
 
-            QStringList trcodec = visitor->getVariable(QLatin1String("CODEC"))
-                + visitor->getVariable(QLatin1String("DEFAULTCODEC"))
-                + visitor->getVariable(QLatin1String("CODECFORTR"));
+            QStringList trcodec = visitor->values(QLatin1String("CODEC"))
+                + visitor->values(QLatin1String("DEFAULTCODEC"))
+                + visitor->values(QLatin1String("CODECFORTR"));
             if (!trcodec.isEmpty())
                 codecForTr = trcodec.last().toLatin1();
 
-            QStringList srccodec = visitor->getVariable(QLatin1String("CODECFORSRC"));
+            QStringList srccodec = visitor->values(QLatin1String("CODECFORSRC"));
             if (!srccodec.isEmpty()) 
                 codecForSource = srccodec.last().toLatin1();
             
-            QStringList forms = visitor->expandVariableToAbsoluteFileNames(QLatin1String("INTERFACES"), fileName)
-                + visitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS"), fileName)
-                + visitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS3"), fileName);
+            QStringList forms = visitor->absFileNames(QLatin1String("INTERFACES"))
+                + visitor->absFileNames(QLatin1String("FORMS"))
+                + visitor->absFileNames(QLatin1String("FORMS3"));
             sourceFiles << forms;
         }
     }

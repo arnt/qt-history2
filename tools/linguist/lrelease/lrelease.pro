@@ -1,7 +1,7 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on console
 CONFIG          -= app_bundle
-DEFINES         *= PROPARSER_STORE_LINENUMBERS
+
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release

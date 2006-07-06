@@ -20,7 +20,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
 #include <QtCore/QDir>
-#include <QtCore/QLibraryInfo>
 #include "proparserutils.h"
 
 #ifdef Q_OS_UNIX
@@ -92,11 +91,11 @@ QStringList FindSourcesVisitor::qmake_feature_paths(/*QMakeProperty *prop=0*/)
     //}
     for(QStringList::Iterator concat_it = concat.begin();
         concat_it != concat.end(); ++concat_it)
-        feature_roots << (QLibraryInfo::location(QLibraryInfo::PrefixPath) +
+        feature_roots << (propertyValue("QT_INSTALL_PREFIX") + 
                           mkspecs_concat + (*concat_it));
     for(QStringList::Iterator concat_it = concat.begin();
         concat_it != concat.end(); ++concat_it)
-        feature_roots << (QLibraryInfo::location(QLibraryInfo::DataPath) +
+        feature_roots << (propertyValue("QT_INSTALL_DATA") + 
                           mkspecs_concat + (*concat_it));
     return feature_roots;
 }
@@ -150,6 +149,10 @@ bool FindSourcesVisitor::visitBeginProFile(ProFile * pro)
         QString fn = pro->fileName();
         ok = QDir::setCurrent(QFileInfo(fn).absolutePath());
     }
+
+    if (m_origfile.isEmpty())
+        m_origfile = pro->fileName();
+
     return ok;
 }
 
@@ -382,13 +385,13 @@ QString FindSourcesVisitor::expandVariableReferences(const QString &str)
                 if(var_type == ENVIRON) {
                     replacement = QString::fromLocal8Bit(qgetenv(var.toLatin1().constData()));
                 } else if(var_type == PROPERTY) {
-                    replacement = getPropertyValue(var);
+                    replacement = propertyValue(var);
                     //if(prop)
                     //    replacement = QStringList(prop->value(var));
                 } else if(var_type == FUNCTION) {
                     replacement = evaluateExpandFunction( var.toAscii(), args );
                 } else if(var_type == VAR) {
-                    replacement = getVariable(var).join(" ");
+                    replacement = values(var).join(" ");
                 }
                 if(!(replaced++) && start_var)
                     current = str.left(start_var);
@@ -492,7 +495,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                 }
             }
             if(!var.isNull()) {
-                const QStringList l = getVariable(var);
+                const QStringList l = values(var);
                 for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
                     QString separator = sep;
                     if(!ret.isEmpty())
@@ -515,7 +518,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                     before = args[2];
                 if(args.count() == 4)
                     after = args[3];
-                const QStringList &var = getVariable(args.first());
+                const QStringList &var = values(args.first());
                 if(!var.isEmpty())
                     ret = before + var.join(glue) + after;
             }
@@ -527,7 +530,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                 QString sep = args[1], join = QString(field_sep);
                 if(args.count() == 3)
                     join = args[2];
-                QStringList var = getVariable(args.first());
+                QStringList var = values(args.first());
                 for(QStringList::ConstIterator vit = var.begin(); vit != var.end(); ++vit) {
                     QStringList lst = (*vit).split(sep);
                     for(QStringList::ConstIterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
@@ -545,7 +548,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                     locationSpecifier()));
             } else {
                 bool ok = true;
-                const QStringList var = getVariable(args.first());
+                const QStringList var = values(args.first());
                 int start = 0, end = 0;
                 if(args.count() >= 2) {
                     QString start_str = args[1];
@@ -600,7 +603,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                 logMessage(QString::fromAscii("%1: %2(var) requires one argument.\n").arg(
                                             locationSpecifier()).arg(QString(func)));
             } else {
-                const QStringList var = getVariable(args.first());
+                const QStringList var = values(args.first());
                 if(!var.isEmpty()) {
                     if(func_t == E_FIRST)
                         ret = var[0];
@@ -620,7 +623,7 @@ QString FindSourcesVisitor::evaluateExpandFunction(const QByteArray &func, const
                 if(args.count() > 1)
                     singleLine = (args[1].toLower() == "true");
                 while(proc && !feof(proc)) {
-                    int read_in = fread(buff, 1, 255, proc);
+                    int read_in = int(fread(buff, 1, 255, proc));
                     if(!read_in)
                         break;
                     for(int i = 0; i < read_in; i++) {
@@ -701,7 +704,7 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
             }
 
             QRegExp regx(args[1]);
-            const QStringList &l = getVariable(args.first());
+            const QStringList &l = values(args.first());
             if(args.count() == 2) {
                 for(int i = 0; i < l.size(); ++i) {
                     const QString val = l[i];
@@ -734,15 +737,15 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
             if(args.count() == 3) {
                 QString comp = args[2];
                 if(comp == ">" || comp == "greaterThan") {
-                    cond = getVariable(args.first()).count() > args[1].toInt();
+                    cond = values(args.first()).count() > args[1].toInt();
                 } else if(comp == ">=") {
-                    cond = getVariable(args.first()).count() >= args[1].toInt();
+                    cond = values(args.first()).count() >= args[1].toInt();
                 } else if(comp == "<" || comp == "lessThan") {
-                    cond = getVariable(args.first()).count() < args[1].toInt();
+                    cond = values(args.first()).count() < args[1].toInt();
                 } else if(comp == "<=") {
-                    cond = getVariable(args.first()).count() <= args[1].toInt();
+                    cond = values(args.first()).count() <= args[1].toInt();
                 } else if(comp == "equals" || comp == "isEqual" || comp == "=" || comp == "==") {
-                    cond = getVariable(args.first()).count() == args[1].toInt();
+                    cond = values(args.first()).count() == args[1].toInt();
                 } else {
                     ok = false;
                     logMessage(QString::fromAscii("%1: unexpected modifier to count(%2)\n").arg(
@@ -750,7 +753,7 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
                 }
                 break;
             }
-            cond = getVariable(args.first()).count() == args[1].toInt();
+            cond = values(args.first()).count() == args[1].toInt();
             break; }
         case CF_INCLUDE: {
             QString parseInto;
@@ -762,7 +765,7 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
                 ok = false;
                 break;
             }
-            ok = evaluateFile(args.first(), false, false, false, &ok);
+            ok = evaluateFile(args.first(), &ok);
             break; }
         case CF_LOAD: {
             QString parseInto;
@@ -808,7 +811,7 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
                 ok = false;
                 break;
             }
-            QStringList sl = getVariable(args.first());
+            QStringList sl = values(args.first());
             if (sl.count() == 0) {
                 cond = true;
             }else if (sl.count() > 0) {
@@ -849,8 +852,12 @@ bool FindSourcesVisitor::evaluateConditionalFunction(const QByteArray &function,
     return ok;
 }
 
+bool FindSourcesVisitor::contains(const QString &variableName) const
+{
+    return m_valuemap.contains(variableName.toAscii());
+}
 
-QStringList FindSourcesVisitor::getVariable(const QString &variableName) const
+QStringList FindSourcesVisitor::values(const QString &variableName) const
 {
     if (variableName == QLatin1String("PWD")) {
         return QStringList(getcwd());
@@ -859,41 +866,38 @@ QStringList FindSourcesVisitor::getVariable(const QString &variableName) const
 }
 
 
-bool FindSourcesVisitor::evaluateFile(const QString &fileName, bool enableBackSlashFixing, bool readFeatures,
-                                    bool mustexist, bool *result)
+bool FindSourcesVisitor::evaluateFile(const QString &fileName, bool *result)
 {
     bool ok = true;
-    ProReader pr;
-    pr.setEnableBackSlashFixing(enableBackSlashFixing);
 
     QString fn = fileName;
 
     QFileInfo fi(fn);
     if (fi.exists()) {
         logMessage(QString::fromAscii("%1: Reading %2\n").arg(locationSpecifier()).arg(fileName), MT_DebugLevel3);
-        ProFile *pro = pr.read(fi.absoluteFilePath());
+        ProFile *pro = queryProFile(fi.absoluteFilePath());
         if (ok) {
             m_profileStack.push_back(pro);
             ok &= currentProFile() ? pro->Accept(this) : false;
             if (ok) {
                 if (m_profileStack.count() > 0) {
                     ProFile *pro = m_profileStack.pop();
-                    delete pro;
+                    releaseProFile(pro);
                 }
             }
         }
         if (result) *result = true;
     }else{
-        if (mustexist) {
+/*        if (mustexist) {
             logMessage(QString::fromAscii("%1: Could not open %1\n").arg(locationSpecifier().arg(fileName)), MT_Error);
             ok = false;
-        } else {
+        } else { */
             if (result) *result = false;
-        }
+//        }
     }
 
-    if (ok && readFeatures) {
-        QStringList configs = getVariable("CONFIG");
+/*    if (ok && readFeatures) {
+        QStringList configs = values("CONFIG");
         QSet<QString> processed;
         for (QStringList::iterator it = configs.begin(); it != configs.end(); ++it) {
             QString fn = *it;
@@ -902,7 +906,7 @@ bool FindSourcesVisitor::evaluateFile(const QString &fileName, bool enableBackSl
                 evaluateFeatureFile(fn, 0);
             }
         }
-    }
+    } */
 
     return ok;
 }
@@ -924,10 +928,10 @@ bool FindSourcesVisitor::evaluateFeatureFile(const QString &fileName, bool *resu
             break;
         }
     }
-    return fn.isEmpty() ? false : evaluateFile(fn, false, false, false, result);
+    return fn.isEmpty() ? false : evaluateFile(fn, result);
 }
 
-FindSourcesVisitor::TemplateType FindSourcesVisitor::getTemplateType()
+FindSourcesVisitor::TemplateType FindSourcesVisitor::templateType()
 {
     QStringList templ = m_valuemap.value("TEMPLATE");
     if (templ.count() >= 1) {
@@ -940,16 +944,16 @@ FindSourcesVisitor::TemplateType FindSourcesVisitor::getTemplateType()
 }
 
 
-QStringList FindSourcesVisitor::expandVariableToAbsoluteFileNames(const QString &variableName, const QString &originProfile)
+QStringList FindSourcesVisitor::absFileNames(const QString &variableName)
 {
-    QStringList vpaths = getVariable(QLatin1String("VPATH"))
-        + getVariable(QLatin1String("QMAKE_ABSOLUTE_SOURCE_PATH"))
-        + getVariable(QLatin1String("DEPENDPATH"))
-        + getVariable(QLatin1String("VPATH_SOURCES"));
+    QStringList vpaths = values(QLatin1String("VPATH"))
+        + values(QLatin1String("QMAKE_ABSOLUTE_SOURCE_PATH"))
+        + values(QLatin1String("DEPENDPATH"))
+        + values(QLatin1String("VPATH_SOURCES"));
 
     QStringList sources_out;
-    QStringList sources = getVariable(variableName);
-    QFileInfo fi(originProfile);
+    QStringList sources = values(variableName);
+    QFileInfo fi(m_origfile);
     QDir dir(fi.absoluteDir());
     for (int i = 0; i < sources.count(); ++i) {
         QString fn = sources[i];
@@ -971,6 +975,23 @@ QStringList FindSourcesVisitor::expandVariableToAbsoluteFileNames(const QString 
         }
     }
     return sources_out;
+}
+
+ProFile *FindSourcesVisitor::queryProFile(const QString &filename)
+{
+    ProReader pr;
+    pr.setEnableBackSlashFixing(false);
+    return pr.read(filename);
+}
+
+void FindSourcesVisitor::releaseProFile(ProFile *pro)
+{
+    delete pro;
+}
+
+QString FindSourcesVisitor::propertyValue(const QString &val) const
+{
+    return getPropertyValue(val);
 }
 
 void FindSourcesVisitor::logMessage(const QString &message, MessageType mt)

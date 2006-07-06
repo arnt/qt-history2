@@ -37,16 +37,12 @@ public:
     QByteArray comment() const;
 
     virtual bool Accept(AbstractProItemVisitor *visitor) = 0;
-#ifdef PROPARSER_STORE_LINENUMBERS
     int getLineNumber() { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
-#endif
 
 private:
     QByteArray m_comment;
-#ifdef PROPARSER_STORE_LINENUMBERS
     int m_lineNumber;
-#endif
 };
 
 class ProBlock : public ProItem {
@@ -186,8 +182,6 @@ public:
     bool isModified() const;
     
     virtual bool Accept(AbstractProItemVisitor *visitor);
-signals:
-    void modificationChanged(bool changed);
 
 private:
     QString m_fileName;

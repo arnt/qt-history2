@@ -38,9 +38,7 @@ void ProReader::cleanup()
 
 ProFile *ProReader::read(QIODevice *device, const QString &name)
 {
-#ifdef PROPARSER_STORE_LINENUMBERS
     m_currentLineNumber = 1;
-#endif
     ProFile *pf = new ProFile(name);
     m_blockstack.push(pf);
 
@@ -53,9 +51,7 @@ ProFile *ProReader::read(QIODevice *device, const QString &name)
             cleanup();
             return 0;
         }
-#ifdef PROPARSER_STORE_LINENUMBERS
         ++m_currentLineNumber;
-#endif
     }
 
     cleanup();
@@ -178,7 +174,7 @@ void ProReader::insertVariable()
     ProBlock *block = m_blockstack.top();
     m_proitem = m_proitem.trimmed();
     ProVariable *variable = new ProVariable(m_proitem, block);
-    ASSIGN_LINENUMBER(variable);
+    variable->setLineNumber(m_currentLineNumber);
     variable->setVariableOperator(opkind);
     block->appendItem(variable);
     m_block = variable;
@@ -210,7 +206,7 @@ void ProReader::insertOperator(const char op)
 
     ProBlock *block = currentBlock();
     ProOperator *proOp = new ProOperator(opkind);
-    ASSIGN_LINENUMBER(proOp);
+    proOp->setLineNumber(m_currentLineNumber);
     block->appendItem(proOp);
     m_commentItem = proOp;
 }
@@ -244,7 +240,7 @@ void ProReader::enterScope(bool multiLine)
 
     ProBlock *parent = currentBlock();
     ProBlock *block = new ProBlock(parent);
-    ASSIGN_LINENUMBER(block);
+    block->setLineNumber(m_currentLineNumber);
     parent->setBlockKind(ProBlock::ScopeKind);
 
     parent->appendItem(block);
@@ -272,7 +268,7 @@ ProBlock *ProReader::currentBlock()
 
     ProBlock *parent = m_blockstack.top();
     m_block = new ProBlock(parent);
-    ASSIGN_LINENUMBER(m_block);
+    m_block->setLineNumber(m_currentLineNumber);
     parent->appendItem(m_block);
 
     if (!m_pendingComment.isEmpty()) {
@@ -300,7 +296,7 @@ void ProReader::updateItem()
     } else {
         m_commentItem = new ProCondition(m_proitem);
     }
-    ASSIGN_LINENUMBER(m_commentItem);
+    m_commentItem->setLineNumber(m_currentLineNumber);
     block->appendItem(m_commentItem);
 
     m_proitem.clear();

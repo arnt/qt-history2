@@ -14,6 +14,8 @@
 #ifndef PROPARSERUTILS_H
 #define PROPARSERUTILS_H
 
+#include <QtCore/QLibraryInfo>
+
 // Pre- and postcondition macros
 #define PRE(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)
 #define POST(cond) do {if(!(cond))qt_assert(#cond,__FILE__,__LINE__);} while (0)

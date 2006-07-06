@@ -51,13 +51,8 @@ private:
     ProItem *m_commentItem;
     QByteArray m_proitem;
     QByteArray m_pendingComment;
-    bool    m_fixBackSlashes;
-#ifdef PROPARSER_STORE_LINENUMBERS
-# define ASSIGN_LINENUMBER(item) item->setLineNumber(m_currentLineNumber)
+    bool m_fixBackSlashes;
     int m_currentLineNumber;
-#else 
-# define ASSIGN_LINENUMBER(item)
-#endif
 };
 
 #endif //PROREADER_H
