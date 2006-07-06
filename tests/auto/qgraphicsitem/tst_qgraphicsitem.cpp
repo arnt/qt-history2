@@ -2051,12 +2051,16 @@ void tst_QGraphicsItem::cursor()
         QApplication::sendEvent(view.viewport(), &event);
     }
 
+    QTest::qWait(250);
+
     QCOMPARE(view.viewport()->cursor().shape(), cursor.shape());
 
     {
         QMouseEvent event(QEvent::MouseMove, QPoint(25, 25), Qt::NoButton, 0, 0);
         QApplication::sendEvent(view.viewport(), &event);
     }
+
+    QTest::qWait(250);
 
     QCOMPARE(view.viewport()->cursor().shape(), item1->cursor().shape());
 
@@ -2065,12 +2069,16 @@ void tst_QGraphicsItem::cursor()
         QApplication::sendEvent(view.viewport(), &event);
     }
     
+    QTest::qWait(250);
+
     QCOMPARE(view.viewport()->cursor().shape(), item2->cursor().shape());
 
     {
         QMouseEvent event(QEvent::MouseMove, QPoint(100, 25), Qt::NoButton, 0, 0);
         QApplication::sendEvent(view.viewport(), &event);
     }
+
+    QTest::qWait(250);
 
     QCOMPARE(view.viewport()->cursor().shape(), cursor.shape());
 }
