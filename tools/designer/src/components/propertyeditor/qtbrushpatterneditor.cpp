@@ -29,6 +29,12 @@ public:
     void slotChangeSaturation(const QColor &color);
     void slotChangeValue(const QColor &color);
     void slotChangeAlpha(const QColor &color);
+    void slotChangeHue(int color);
+    void slotChangeSaturation(int color);
+    void slotChangeValue(int color);
+    void slotChangeAlpha(int color);
+
+    void setColorSpinBoxes(const QColor &color);
 
     QBrush m_brush;
 
@@ -43,6 +49,7 @@ void QtBrushPatternEditorPrivate::slotHsvClicked()
     m_ui.hueColorLine->setColorComponent(QtColorLine::Hue);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Saturation);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Value);
+    setColorSpinBoxes(m_ui.colorButton->color());
 }
 
 void QtBrushPatternEditorPrivate::slotRgbClicked()
@@ -53,6 +60,7 @@ void QtBrushPatternEditorPrivate::slotRgbClicked()
     m_ui.hueColorLine->setColorComponent(QtColorLine::Red);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Green);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Blue);
+    setColorSpinBoxes(m_ui.colorButton->color());
 }
 
 void QtBrushPatternEditorPrivate::slotPatternChanged(int pattern)
@@ -76,11 +84,31 @@ void QtBrushPatternEditorPrivate::slotChangeHue(const QColor &color)
     q_ptr->setBrush(brush);
 }
 
+void QtBrushPatternEditorPrivate::slotChangeHue(int color)
+{
+    QColor c = m_ui.hueColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF((qreal)color / 360.0, c.saturationF(), c.valueF(), c.alphaF());
+    else
+        c.setRed(color);
+    slotChangeHue(c);
+}
+
 void QtBrushPatternEditorPrivate::slotChangeSaturation(const QColor &color)
 {
     QBrush brush = m_brush;
     brush.setColor(color);
     q_ptr->setBrush(brush);
+}
+
+void QtBrushPatternEditorPrivate::slotChangeSaturation(int color)
+{
+    QColor c = m_ui.saturationColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), (qreal)color / 255, c.valueF(), c.alphaF());
+    else
+        c.setGreen(color);
+    slotChangeSaturation(c);
 }
 
 void QtBrushPatternEditorPrivate::slotChangeValue(const QColor &color)
@@ -90,6 +118,16 @@ void QtBrushPatternEditorPrivate::slotChangeValue(const QColor &color)
     q_ptr->setBrush(brush);
 }
 
+void QtBrushPatternEditorPrivate::slotChangeValue(int color)
+{
+    QColor c = m_ui.valueColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), c.saturationF(), (qreal)color / 255, c.alphaF());
+    else
+        c.setBlue(color);
+    slotChangeValue(c);
+}
+
 void QtBrushPatternEditorPrivate::slotChangeAlpha(const QColor &color)
 {
     QBrush brush = m_brush;
@@ -97,6 +135,47 @@ void QtBrushPatternEditorPrivate::slotChangeAlpha(const QColor &color)
     q_ptr->setBrush(brush);
 }
 
+void QtBrushPatternEditorPrivate::slotChangeAlpha(int color)
+{
+    QColor c = m_ui.alphaColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), c.saturationF(), c.valueF(), (qreal)color / 255);
+    else
+        c.setAlpha(color);
+    slotChangeAlpha(c);
+}
+
+void QtBrushPatternEditorPrivate::setColorSpinBoxes(const QColor &color)
+{
+    m_ui.hueSpinBox->blockSignals(true);
+    m_ui.saturationSpinBox->blockSignals(true);
+    m_ui.valueSpinBox->blockSignals(true);
+    m_ui.alphaSpinBox->blockSignals(true);
+    if (m_ui.hsvRadioButton->isChecked()) {
+        if (m_ui.hueSpinBox->maximum() != 359)
+            m_ui.hueSpinBox->setMaximum(359);
+        if (m_ui.hueSpinBox->value() != color.hue())
+            m_ui.hueSpinBox->setValue(color.hue());
+        if (m_ui.saturationSpinBox->value() != color.saturation())
+            m_ui.saturationSpinBox->setValue(color.saturation());
+        if (m_ui.valueSpinBox->value() != color.value())
+            m_ui.valueSpinBox->setValue(color.value());
+    } else {
+        if (m_ui.hueSpinBox->maximum() != 255)
+            m_ui.hueSpinBox->setMaximum(255);
+        if (m_ui.hueSpinBox->value() != color.red())
+            m_ui.hueSpinBox->setValue(color.red());
+        if (m_ui.saturationSpinBox->value() != color.green())
+            m_ui.saturationSpinBox->setValue(color.green());
+        if (m_ui.valueSpinBox->value() != color.blue())
+            m_ui.valueSpinBox->setValue(color.blue());
+    }
+    m_ui.alphaSpinBox->setValue(color.alpha());
+    m_ui.hueSpinBox->blockSignals(false);
+    m_ui.saturationSpinBox->blockSignals(false);
+    m_ui.valueSpinBox->blockSignals(false);
+    m_ui.alphaSpinBox->blockSignals(false);
+}
 QtBrushPatternEditor::QtBrushPatternEditor(QWidget *parent)
     : QWidget(parent)
 {
@@ -129,6 +208,15 @@ QtBrushPatternEditor::QtBrushPatternEditor(QWidget *parent)
                 this, SLOT(slotChangeAlpha(const QColor &)));
     connect(d_ptr->m_ui.colorButton, SIGNAL(colorChanged(const QColor &)),
                 this, SLOT(slotChangeColor(const QColor &)));
+
+    connect(d_ptr->m_ui.hueSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeHue(int)));
+    connect(d_ptr->m_ui.saturationSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeSaturation(int)));
+    connect(d_ptr->m_ui.valueSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeValue(int)));
+    connect(d_ptr->m_ui.alphaSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeAlpha(int)));
 
     connect(d_ptr->m_ui.hsvRadioButton, SIGNAL(clicked()),
                 this, SLOT(slotHsvClicked()));
@@ -164,6 +252,7 @@ void QtBrushPatternEditor::setBrush(const QBrush &brush)
     d_ptr->m_ui.saturationColorLine->setColor(d_ptr->m_brush.color());
     d_ptr->m_ui.valueColorLine->setColor(d_ptr->m_brush.color());
     d_ptr->m_ui.alphaColorLine->setColor(d_ptr->m_brush.color());
+    d_ptr->setColorSpinBoxes(d_ptr->m_brush.color());
 }
 
 QBrush QtBrushPatternEditor::brush() const

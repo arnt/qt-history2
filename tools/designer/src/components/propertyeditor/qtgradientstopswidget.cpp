@@ -267,7 +267,7 @@ QtGradientStopsWidget::QtGradientStopsWidget(QWidget *parent)
     d_ptr->q_ptr = this;
     d_ptr->m_backgroundTransparent = true;
     d_ptr->m_model = 0;
-    d_ptr->m_handleSize = 50.0;
+    d_ptr->m_handleSize = 25.0;
     d_ptr->m_scaleFactor = 1000;
     d_ptr->m_dragging = false;
     d_ptr->m_zoom = 1;

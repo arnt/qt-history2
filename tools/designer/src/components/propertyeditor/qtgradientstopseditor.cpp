@@ -39,6 +39,10 @@ public:
     void slotChangeSaturation(const QColor &color);
     void slotChangeValue(const QColor &color);
     void slotChangeAlpha(const QColor &color);
+    void slotChangeHue(int color);
+    void slotChangeSaturation(int color);
+    void slotChangeValue(int color);
+    void slotChangeAlpha(int color);
     void slotChangePosition();
 
     void slotChangeZoom();
@@ -47,6 +51,7 @@ public:
     void slotZoomAll();
 
     void enableCurrent(bool enable);
+    void setColorSpinBoxes(const QColor &color);
     QMap<double, QColor> stopsData(const QMap<double, QtGradientStop *> &stops) const;
     QGradientStops makeGradientStops(const QMap<double, QColor> &data) const;
     void updateZoom();
@@ -72,6 +77,11 @@ void QtGradientStopsEditorPrivate::enableCurrent(bool enable)
     m_ui.saturationColorLine->setEnabled(enable);
     m_ui.valueColorLine->setEnabled(enable);
     m_ui.alphaColorLine->setEnabled(enable);
+
+    m_ui.hueSpinBox->setEnabled(enable);
+    m_ui.saturationSpinBox->setEnabled(enable);
+    m_ui.valueSpinBox->setEnabled(enable);
+    m_ui.alphaSpinBox->setEnabled(enable);
 }
 
 QMap<double, QColor> QtGradientStopsEditorPrivate::stopsData(const QMap<double, QtGradientStop *> &stops) const
@@ -124,6 +134,7 @@ void QtGradientStopsEditorPrivate::slotHsvClicked()
     m_ui.hueColorLine->setColorComponent(QtColorLine::Hue);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Saturation);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Value);
+    setColorSpinBoxes(m_ui.colorButton->color());
 }
 
 void QtGradientStopsEditorPrivate::slotRgbClicked()
@@ -134,6 +145,39 @@ void QtGradientStopsEditorPrivate::slotRgbClicked()
     m_ui.hueColorLine->setColorComponent(QtColorLine::Red);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Green);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Blue);
+    setColorSpinBoxes(m_ui.colorButton->color());
+}
+
+void QtGradientStopsEditorPrivate::setColorSpinBoxes(const QColor &color)
+{
+    m_ui.hueSpinBox->blockSignals(true);
+    m_ui.saturationSpinBox->blockSignals(true);
+    m_ui.valueSpinBox->blockSignals(true);
+    m_ui.alphaSpinBox->blockSignals(true);
+    if (m_ui.hsvRadioButton->isChecked()) {
+        if (m_ui.hueSpinBox->maximum() != 359)
+            m_ui.hueSpinBox->setMaximum(359);
+        if (m_ui.hueSpinBox->value() != color.hue())
+            m_ui.hueSpinBox->setValue(color.hue());
+        if (m_ui.saturationSpinBox->value() != color.saturation())
+            m_ui.saturationSpinBox->setValue(color.saturation());
+        if (m_ui.valueSpinBox->value() != color.value())
+            m_ui.valueSpinBox->setValue(color.value());
+    } else {
+        if (m_ui.hueSpinBox->maximum() != 255)
+            m_ui.hueSpinBox->setMaximum(255);
+        if (m_ui.hueSpinBox->value() != color.red())
+            m_ui.hueSpinBox->setValue(color.red());
+        if (m_ui.saturationSpinBox->value() != color.green())
+            m_ui.saturationSpinBox->setValue(color.green());
+        if (m_ui.valueSpinBox->value() != color.blue())
+            m_ui.valueSpinBox->setValue(color.blue());
+    }
+    m_ui.alphaSpinBox->setValue(color.alpha());
+    m_ui.hueSpinBox->blockSignals(false);
+    m_ui.saturationSpinBox->blockSignals(false);
+    m_ui.valueSpinBox->blockSignals(false);
+    m_ui.alphaSpinBox->blockSignals(false);
 }
 
 void QtGradientStopsEditorPrivate::slotCurrentStopChanged(QtGradientStop *stop)
@@ -151,6 +195,7 @@ void QtGradientStopsEditorPrivate::slotCurrentStopChanged(QtGradientStop *stop)
     m_ui.saturationColorLine->setColor(stop->color());
     m_ui.valueColorLine->setColor(stop->color());
     m_ui.alphaColorLine->setColor(stop->color());
+    setColorSpinBoxes(stop->color());
 }
 
 void QtGradientStopsEditorPrivate::slotStopMoved(QtGradientStop *stop, qreal newPos)
@@ -191,6 +236,7 @@ void QtGradientStopsEditorPrivate::slotStopChanged(QtGradientStop *stop, const Q
         m_ui.saturationColorLine->setColor(newColor);
         m_ui.valueColorLine->setColor(newColor);
         m_ui.alphaColorLine->setColor(newColor);
+        setColorSpinBoxes(newColor);
     }
 
     QMap<double, QColor> stops = stopsData(m_model->stops());
@@ -286,6 +332,16 @@ void QtGradientStopsEditorPrivate::slotChangeHue(const QColor &color)
     }
 }
 
+void QtGradientStopsEditorPrivate::slotChangeHue(int color)
+{
+    QColor c = m_ui.hueColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF((qreal)color / 360.0, c.saturationF(), c.valueF(), c.alphaF());
+    else
+        c.setRed(color);
+    slotChangeHue(c);
+}
+
 void QtGradientStopsEditorPrivate::slotChangeSaturation(const QColor &color)
 {
     QtGradientStop *stop = m_model->currentStop();
@@ -309,6 +365,16 @@ void QtGradientStopsEditorPrivate::slotChangeSaturation(const QColor &color)
             m_model->changeStop(s, c);
         }
     }
+}
+
+void QtGradientStopsEditorPrivate::slotChangeSaturation(int color)
+{
+    QColor c = m_ui.saturationColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), (qreal)color / 255, c.valueF(), c.alphaF());
+    else
+        c.setGreen(color);
+    slotChangeSaturation(c);
 }
 
 void QtGradientStopsEditorPrivate::slotChangeValue(const QColor &color)
@@ -336,6 +402,16 @@ void QtGradientStopsEditorPrivate::slotChangeValue(const QColor &color)
     }
 }
 
+void QtGradientStopsEditorPrivate::slotChangeValue(int color)
+{
+    QColor c = m_ui.valueColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), c.saturationF(), (qreal)color / 255, c.alphaF());
+    else
+        c.setBlue(color);
+    slotChangeValue(c);
+}
+
 void QtGradientStopsEditorPrivate::slotChangeAlpha(const QColor &color)
 {
     QtGradientStop *stop = m_model->currentStop();
@@ -359,6 +435,16 @@ void QtGradientStopsEditorPrivate::slotChangeAlpha(const QColor &color)
             m_model->changeStop(s, c);
         }
     }
+}
+
+void QtGradientStopsEditorPrivate::slotChangeAlpha(int color)
+{
+    QColor c = m_ui.alphaColorLine->color();
+    if (m_ui.hsvRadioButton->isChecked())
+        c.setHsvF(c.hueF(), c.saturationF(), c.valueF(), (qreal)color / 255);
+    else
+        c.setAlpha(color);
+    slotChangeAlpha(c);
 }
 
 void QtGradientStopsEditorPrivate::slotChangePosition()
@@ -449,6 +535,15 @@ QtGradientStopsEditor::QtGradientStopsEditor(QWidget *parent)
                 this, SLOT(slotChangeAlpha(const QColor &)));
     connect(d_ptr->m_ui.colorButton, SIGNAL(colorChanged(const QColor &)),
                 this, SLOT(slotChangeColor(const QColor &)));
+
+    connect(d_ptr->m_ui.hueSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeHue(int)));
+    connect(d_ptr->m_ui.saturationSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeSaturation(int)));
+    connect(d_ptr->m_ui.valueSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeValue(int)));
+    connect(d_ptr->m_ui.alphaSpinBox, SIGNAL(valueChanged(int)),
+                this, SLOT(slotChangeAlpha(int)));
 
     connect(d_ptr->m_ui.positionSpinBox, SIGNAL(editingFinished()),
                 this, SLOT(slotChangePosition()));

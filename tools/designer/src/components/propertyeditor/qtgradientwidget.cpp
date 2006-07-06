@@ -171,7 +171,7 @@ QtGradientWidget::QtGradientWidget(QWidget *parent)
     d_ptr->m_angleConical = 0;
     d_ptr->m_dragHandle = QtGradientWidgetPrivate::NoHandle;
 
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 }
 
 QtGradientWidget::~QtGradientWidget()
@@ -181,12 +181,12 @@ QtGradientWidget::~QtGradientWidget()
 
 QSize QtGradientWidget::sizeHint() const
 {
-    return QSize(256, 256);
+    return QSize(176, 176);
 }
 
 QSize QtGradientWidget::minimumSizeHint() const
 {
-    return QSize(200, 200);
+    return QSize(128, 128);
 }
 
 int QtGradientWidget::heightForWidth(int w) const

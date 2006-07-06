@@ -38,6 +38,10 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotChangeSaturation(const QColor &color));
     Q_PRIVATE_SLOT(d_func(), void slotChangeValue(const QColor &color));
     Q_PRIVATE_SLOT(d_func(), void slotChangeAlpha(const QColor &color));
+    Q_PRIVATE_SLOT(d_func(), void slotChangeHue(int color));
+    Q_PRIVATE_SLOT(d_func(), void slotChangeSaturation(int color));
+    Q_PRIVATE_SLOT(d_func(), void slotChangeValue(int color));
+    Q_PRIVATE_SLOT(d_func(), void slotChangeAlpha(int color));
 };
 
 #endif
