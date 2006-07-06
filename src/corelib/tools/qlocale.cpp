@@ -1827,52 +1827,58 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
     locale specified; otherwise returns false.
 */
 
-struct PackedVoid
-{
-    ushort numberOpts;
-    ushort dataIndex;
-};
-
 static const int locale_data_size = sizeof(locale_data)/sizeof(QLocalePrivate) - 1;
 
 static const QLocalePrivate *dataPointer(void *v)
 {
-    volatile PackedVoid &pv = reinterpret_cast<volatile PackedVoid&>(v);
+    quint16 index = reinterpret_cast<quint32>(v) & 0xFFFF;
 
 #ifndef QT_NO_SYSTEMLOCALE
-    Q_ASSERT(pv.dataIndex <= locale_data_size);
-    if (pv.dataIndex == locale_data_size)
+    Q_ASSERT(index <= locale_data_size);
+    if (index == locale_data_size)
         return system_lp;
 #else
-    Q_ASSERT(pv.dataIndex < locale_data_size);
+    Q_ASSERT(index < locale_data_size);
 #endif
 
-    return &locale_data[pv.dataIndex];
+    return &locale_data[index];
 }
 
 static int numberOptions(void *v)
 {
-    volatile PackedVoid &pv = reinterpret_cast<volatile PackedVoid&>(v);
-    return pv.numberOpts;
+    quint16 opt = (reinterpret_cast<quint32>(v) >> 16) & 0xFFFF;
+
+    return opt;
 }
 
 static void setDataPointer(void **v, const QLocalePrivate *p)
 {
-    volatile PackedVoid &pv = reinterpret_cast<volatile PackedVoid&>(*v);
+    quint32 i = reinterpret_cast<quint32>(*v);
+
 #ifndef QT_NO_SYSTEMLOCALE
     Q_ASSERT(p >= locale_data && p - locale_data < locale_data_size
                 || p != 0 && p == system_lp);
-    pv.dataIndex = p == system_lp ? locale_data_size : p - locale_data;
+    quint16 index = p == system_lp ? locale_data_size : p - locale_data;
 #else
     Q_ASSERT(p >= locale_data && p - locale_data < locale_data_size);
-    pv.dataIndex = p - locale_data;
+    quint16 index = p - locale_data;
 #endif
+
+    i &= 0xFFFF0000;
+    i |= index & 0xFFFF;
+
+    *v = reinterpret_cast<void*>(i);
 }
 
-static void setNumberOptions(void **v, int opts)
+static void setNumberOptions(void **v, int _opts)
 {
-    volatile PackedVoid &pv = reinterpret_cast<volatile PackedVoid&>(*v);
-    pv.numberOpts = opts;
+    quint32 i = reinterpret_cast<quint32>(*v);
+
+    quint32 opts = quint32(_opts) << 16;
+    i &= 0xFFFF;
+    i |= opts & 0xFFFF0000;
+
+    *v = reinterpret_cast<void*>(i);
 }
 
 /*!
