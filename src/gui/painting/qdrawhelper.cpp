@@ -1210,6 +1210,11 @@ static void blend_color_generic(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
+    QWS_CALLBACK_IF_NONBUFFERED(data, {}, {
+        data->rasterEngine->drawColorSpans(spans, count, data->solid.color);
+        return;
+    })
+
     uint buffer[buffer_size];
     Operator op = getOperator(data);
     if (!op.funcSolid)
@@ -1419,18 +1424,18 @@ static void blend_untransformed_generic(int count, const QSpan *spans, void *use
             if (sx + length > image_width)
                 length = image_width - sx;
             if (length > 0) {
+                const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
                 while (length) {
                     int l = qMin(buffer_size, length);
                     const uint *src = op.src_fetch(src_buffer, &op, data, sy, sx, l);
                     QWS_CALLBACK_IF_NONBUFFERED(data, {
                         uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
-                        op.func(dest, src, l,
-                                (spans->coverage * data->texture.const_alpha) >> 8);
+                        op.func(dest, src, l, coverage);
                         if (op.dest_store)
                             op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
                     },  {
                         data->rasterEngine->drawBufferSpan(src, l, x, spans->y,
-                                                           l, spans->coverage);
+                                                           l, coverage);
                     })
                     x += l;
                     sx += l;
@@ -1474,13 +1479,14 @@ static void blend_untransformed_argb(int count, const QSpan *spans, void *userDa
             if (sx + length > image_width)
                 length = image_width - sx;
             if (length > 0) {
+                const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
                 const uint *src = (uint *)data->texture.scanLine(sy) + sx;
                 QWS_CALLBACK_IF_NONBUFFERED(data, {
                     uint *dest = ((uint *)data->rasterBuffer->scanLine(spans->y)) + x;
-                    op.func(dest, src, length, (spans->coverage*data->texture.const_alpha) >> 8);
+                    op.func(dest, src, length, coverage);
                 }, {
                     data->rasterEngine->drawBufferSpan(src, length, x,
-                                                       spans->y, length, spans->coverage);
+                                                       spans->y, length, coverage);
                 })
             }
         }
@@ -1616,6 +1622,7 @@ static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
         if (sy < 0)
             sy += image_height;
 
+        const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
         while (length) {
             int l = qMin(image_width - sx, length);
             if (buffer_size < l)
@@ -1623,12 +1630,12 @@ static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
             const uint *src = op.src_fetch(src_buffer, &op, data, sy, sx, l);
             QWS_CALLBACK_IF_NONBUFFERED(data, {
                 uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
-                op.func(dest, src, l, (spans->coverage * data->texture.const_alpha) >> 8);
+                op.func(dest, src, l, coverage);
                 if (op.dest_store)
                     op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
             }, {
                 data->rasterEngine->drawBufferSpan(src, l, x, spans->y, l,
-                                                   spans->coverage);
+                                                   coverage);
             })
             x += l;
             sx += l;
@@ -1673,6 +1680,7 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
         if (sy < 0)
             sy += image_height;
 
+        const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
         while (length) {
             int l = qMin(image_width - sx, length);
             if (buffer_size < l)
@@ -1680,10 +1688,10 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
             const uint *src = (uint *)data->texture.scanLine(sy) + sx;
             QWS_CALLBACK_IF_NONBUFFERED(data, {
                 uint *dest = ((uint *)data->rasterBuffer->scanLine(spans->y)) + x;
-                op.func(dest, src, l, (spans->coverage * data->texture.const_alpha) >> 8);
+                op.func(dest, src, l, coverage);
             }, {
                 data->rasterEngine->drawBufferSpan(src, buffer_size,
-                                                   x, spans->y, l, spans->coverage);
+                                                   x, spans->y, l, coverage);
             })
 
             x += l;
@@ -1835,11 +1843,20 @@ static void blend_texture_generic(int count, const QSpan *spans, void *userData)
         int length = spans->len;
         while (length) {
             int l = qMin(buffer_size, length);
-            uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
             const uint *src = op.src_fetch(src_buffer, &op, data, spans->y, x, l);
-            op.func(dest, src, l, (spans->coverage*data->texture.const_alpha) >> 8);
-            if (op.dest_store)
-                op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
+            const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
+            QWS_CALLBACK_IF_NONBUFFERED(data, {
+                uint *dest = op.dest_fetch ? op.dest_fetch(buffer, data->rasterBuffer, x, spans->y, l) : buffer;
+                if (op.dest_store)
+                    op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
+
+                op.func(dest, src, l, coverage);
+            }, {
+                data->rasterEngine->drawBufferSpan(src, buffer_size,
+                                                   x, spans->y, l, coverage);
+            })
+
+
             x += l;
             length -= l;
         }
@@ -1880,6 +1897,7 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                      + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale) - half_point;
 
         int length = spans->len;
+        const int coverage = (data->texture.const_alpha * spans->coverage) >> 8;
         while (length) {
             int l = qMin(length, buffer_size);
             const uint *end = buffer + l;
@@ -1923,7 +1941,13 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
                 x += fdx;
                 y += fdy;
             }
-            func(target, buffer, l, (data->texture.const_alpha * spans->coverage) >> 8);
+            QWS_CALLBACK_IF_NONBUFFERED(data, {
+                func(target, buffer, l, coverage);
+            }, {
+                data->rasterEngine->drawBufferSpan(buffer, buffer_size,
+                                                   spans->x + spans->len - length,
+                                                   spans->y, l, coverage);
+            })
             target += l;
             length -= l;
         }
@@ -1963,6 +1987,7 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
                      + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale) - half_point;
 
         int length = spans->len;
+        const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
         while (length) {
             int l = qMin(length, buffer_size);
             const uint *end = buffer + l;
@@ -2016,11 +2041,11 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
                 y += fdy;
             }
             QWS_CALLBACK_IF_NONBUFFERED(data, {
-                func(target, buffer, l, (spans->coverage * data->texture.const_alpha) >> 8);
+                func(target, buffer, l, coverage);
             }, {
                 data->rasterEngine->drawBufferSpan(buffer, buffer_size,
                                                    spans->x + spans->len - length,
-                                                   spans->y, l, spans->coverage);
+                                                   spans->y, l, coverage);
             })
             target += l;
             length -= l;
@@ -2062,6 +2087,7 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
                      + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         int length = spans->len;
+        const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
         while (length) {
             int l = qMin(length, buffer_size);
             const uint *end = buffer + l;
@@ -2079,7 +2105,13 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
                 y += fdy;
                 ++b;
             }
-            func(target, buffer, l, (data->texture.const_alpha * spans->coverage) >> 8);
+            QWS_CALLBACK_IF_NONBUFFERED(data, {
+                func(target, buffer, l, coverage);
+            }, {
+                data->rasterEngine->drawBufferSpan(buffer, buffer_size,
+                                                   spans->x + spans->len - length,
+                                                   spans->y, l, coverage);
+            })
             target += l;
             length -= l;
         }
@@ -2118,6 +2150,7 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
         int y = int((data->m22 * (spans->y + 0.5)
                      + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
+        const int coverage = (spans->coverage * data->texture.const_alpha) >> 8;
         int length = spans->len;
         while (length) {
             int l = qMin(length, buffer_size);
@@ -2141,11 +2174,11 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
                 ++b;
             }
             QWS_CALLBACK_IF_NONBUFFERED(data, {
-                func(target, buffer, l, (spans->coverage * data->texture.const_alpha) >> 8);
+                func(target, buffer, l, coverage);
             }, {
                 data->rasterEngine->drawBufferSpan(buffer, buffer_size,
                                                    spans->x + spans->len - length,
-                                                   spans->y, l, spans->coverage);
+                                                   spans->y, l, coverage);
             })
             target += l;
             length -= l;
