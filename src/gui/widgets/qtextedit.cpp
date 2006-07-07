@@ -987,16 +987,10 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QTextEdit);
 
-    if (!(d->control->textInteractionFlags() & Qt::TextEditable)) {
+    bool readOnly = !(d->control->textInteractionFlags() & Qt::TextEditable);
+    
+    if (readOnly) {
         switch (e->key()) {
-            case Qt::Key_Home:
-                e->accept();
-                d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
-                break;
-            case Qt::Key_End:
-                e->accept();
-                d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
-                break;
             case Qt::Key_Space:
                 e->accept();
                 if (e->modifiers() & Qt::ShiftModifier)
@@ -1012,19 +1006,38 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         }
         return;
     }
+
+    if (e == QKeySequence::MoveToStartOfLine) {
+        if (readOnly) {
+            e->accept();
+            d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
+            return;
+        }
+    } else if (e == QKeySequence::MoveToEndOfLine) {
+        if (readOnly) {
+            e->accept();
+            d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
+            return;
+        }
+    } else if (e == QKeySequence::MoveToPreviousPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Up, QTextCursor::MoveAnchor);
+            return;
+    } else if (e == QKeySequence::MoveToNextPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Down, QTextCursor::MoveAnchor);
+            return;
+    } else if (e == QKeySequence::SelectPreviousPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
+            return;
+    } else if (e ==QKeySequence::SelectNextPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Down, QTextCursor::KeepAnchor);
+            return;
+    }
+    
     switch (e->key()) {
-        case Qt::Key_PageDown:
-            e->accept();
-            d->pageUpDown(QTextCursor::Down, e->modifiers() & Qt::ShiftModifier
-                                             ? QTextCursor::KeepAnchor
-                                             : QTextCursor::MoveAnchor);
-            return;
-        case Qt::Key_PageUp:
-            e->accept();
-            d->pageUpDown(QTextCursor::Up, e->modifiers() & Qt::ShiftModifier
-                                           ? QTextCursor::KeepAnchor
-                                           : QTextCursor::MoveAnchor);
-            return;
 #ifdef QT_KEYPAD_NAVIGATION
         case Qt::Key_Select:
             if (QApplication::keypadNavigationEnabled())
