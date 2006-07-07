@@ -829,12 +829,8 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 
     QWidget *wid = const_cast<QWidget *>(w);
 
-#ifndef QT_NO_DEBUG
-    Q_ASSERT(styleRulesCache.contains(wid));
-#else
-    if (!styleRulesCache.contains(wid))
+    if (!w->testAttribute(Qt::WA_WState_Polished))
         const_cast<QStyleSheetStyle *>(this)->polish(const_cast<QWidget *>(wid));
-#endif
 
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
 
