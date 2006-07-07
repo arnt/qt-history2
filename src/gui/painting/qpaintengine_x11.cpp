@@ -50,6 +50,37 @@ extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
+#undef X11 // defined in qt_x11_p.h
+/*!
+    Returns the X11 specific pen GC for the painter \a p. Note that
+    QPainter::begin() must be called before this function returns a
+    valid GC.
+*/
+GC qt_x11_get_pen_gc(QPainter *p)
+{
+    if (p && p->paintEngine()
+        && p->paintEngine()->isActive()
+        && p->paintEngine()->type() == QPaintEngine::X11) {
+        return static_cast<QX11PaintEngine *>(p->paintEngine())->d_func()->gc;
+    }
+    return 0;
+}
+
+/*!
+    Returns the X11 specific brush GC for the painter \a p. Note that
+    QPainter::begin() must be called before this function returns a
+    valid GC.
+*/
+GC qt_x11_get_brush_gc(QPainter *p)
+{
+    if (p && p->paintEngine()
+        && p->paintEngine()->isActive()
+        && p->paintEngine()->type() == QPaintEngine::X11) {
+        return static_cast<QX11PaintEngine *>(p->paintEngine())->d_func()->gc_brush;
+    }
+    return 0;
+}
+#define X11 qt_x11Data
 
 #ifndef QT_NO_XRENDER
 static const int compositionModeToRenderOp[QPainter::CompositionMode_Xor + 1] = {
@@ -717,7 +748,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     QRect devClipRect(-BUFFERZONE, -BUFFERZONE,
                       pdev->width() + 2*BUFFERZONE, pdev->height() + 2*BUFFERZONE);
     d->polygonClipper.setBoundingRect(devClipRect);
-    setActive(true);
 
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
 
@@ -2313,3 +2343,4 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     ft->unlockFace();
 }
 #endif // !QT_NO_XRENDER
+

@@ -101,10 +101,10 @@ protected:
     void core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint glyph);
 #endif
 
-    friend void qt_cleanup();
-    friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w, int h);
     friend class QPixmap;
     friend class QFontEngineBox;
+    friend GC qt_x11_get_pen_gc(QPainter *);
+    friend GC qt_x11_get_brush_gc(QPainter *);
 
 private:
     Q_DISABLE_COPY(QX11PaintEngine)
