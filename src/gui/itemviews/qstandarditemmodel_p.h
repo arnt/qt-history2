@@ -82,6 +82,8 @@ public:
     bool insertRows(int row, int count, const QList<QStandardItem*> &items);
     bool insertColumns(int column, int count, const QList<QStandardItem*> &items);
 
+    void sortChildren(int column, Qt::SortOrder order);
+
     QStandardItemModel *model;
     QStandardItem *parent;
     QVector<QWidgetItemData> values;

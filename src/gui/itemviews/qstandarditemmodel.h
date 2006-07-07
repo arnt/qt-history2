@@ -189,6 +189,8 @@ public:
     QList<QStandardItem*> takeRow(int row);
     QList<QStandardItem*> takeColumn(int column);
 
+    void sortChildren(int column, Qt::SortOrder order);
+
     virtual QStandardItem *clone() const;
 
     enum ItemType { Type = 0, UserType = 1000 };

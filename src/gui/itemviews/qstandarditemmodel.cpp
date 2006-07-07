@@ -184,6 +184,75 @@ const QMap<int, QVariant> QStandardItemPrivate::itemData() const
 /*!
   \internal
 */
+void QStandardItemPrivate::sortChildren(int column, Qt::SortOrder order)
+{
+    Q_Q(QStandardItem);
+    if (column >= columnCount())
+        return;
+
+    QVector<QPair<QStandardItem*, int> > sortable;
+    QVector<int> unsortable;
+
+    sortable.reserve(rowCount());
+    unsortable.reserve(rowCount());
+
+    for (int row = 0; row < rowCount(); ++row) {
+        QStandardItem *itm = q->child(row, column);
+        if (itm)
+            sortable.append(QPair<QStandardItem*,int>(itm, row));
+        else
+            unsortable.append(row);
+    }
+
+    if (order == Qt::AscendingOrder) {
+        QStandardItemModelLessThan lt;
+        qStableSort(sortable.begin(), sortable.end(), lt);
+    } else {
+        QStandardItemModelGreaterThan gt;
+        qStableSort(sortable.begin(), sortable.end(), gt);
+    }
+
+    QModelIndexList oldPersistentIndexes;
+    if (model)
+        oldPersistentIndexes = model->persistentIndexList();
+    QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;
+    QVector<QStandardItem*> sorted_children(children.count());
+    for (int i = 0; i < rowCount(); ++i) {
+        int r = (i < sortable.count()
+                 ? sortable.at(i).second
+                 : unsortable.at(i - sortable.count()));
+        for (int c = 0; c < columnCount(); ++c) {
+            QStandardItem *itm = q->child(r, c);
+            sorted_children[childIndex(i, c)] = itm;
+            if (model) {
+                QModelIndex from = model->createIndex(r, c, q);
+                if (oldPersistentIndexes.contains(from)) {
+                    QModelIndex to = model->createIndex(i, c, q);
+                    changedPersistentIndexes.append(
+                        QPair<QModelIndex, QModelIndex>(from, to));
+                }
+            }
+        }
+    }
+
+    children = sorted_children;
+
+    if (model) {
+        QPair<QModelIndex, QModelIndex> indexPair;
+        foreach (indexPair, changedPersistentIndexes)
+            model->changePersistentIndex(indexPair.first, indexPair.second);
+    }
+
+    QVector<QStandardItem*>::iterator it;
+    for (it = children.begin(); it != children.end(); ++it) {
+        if (*it)
+            (*it)->d_func()->sortChildren(column, order);
+    }
+}
+
+/*!
+  \internal
+*/
 QStandardItemModelPrivate::QStandardItemModelPrivate()
     : root(new QStandardItem),
       itemPrototype(0)
@@ -313,69 +382,6 @@ bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QSta
     if (model)
         model->d_func()->columnsInserted(q, column, count);
     return true;
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::sort(QStandardItem *parent,
-                                     int column, Qt::SortOrder order)
-{
-    Q_Q(QStandardItemModel);
-    if (!parent || (column >= parent->columnCount()))
-        return;
-
-    QModelIndexList oldPersistentIndexes = q->persistentIndexList();
-
-    QVector<QPair<QStandardItem*, int> > sortable;
-    QVector<int> unsortable;
-
-    sortable.reserve(parent->rowCount());
-    unsortable.reserve(parent->rowCount());
-
-    for (int row = 0; row < parent->rowCount(); ++row) {
-        QStandardItem *itm = parent->child(row, column);
-        if (itm)
-            sortable.append(QPair<QStandardItem*,int>(itm, row));
-        else
-            unsortable.append(row);
-    }
-
-    if (order == Qt::AscendingOrder) {
-        QStandardItemModelLessThan lt;
-        qStableSort(sortable.begin(), sortable.end(), lt);
-    } else {
-        QStandardItemModelGreaterThan gt;
-        qStableSort(sortable.begin(), sortable.end(), gt);
-    }
-
-    QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;
-    QVector<QStandardItem*> sorted_children(parent->d_func()->children.count());
-    for (int i = 0; i < q->rowCount(); ++i) {
-        int r = (i < sortable.count()
-                 ? sortable.at(i).second
-                 : unsortable.at(i - sortable.count()));
-        for (int c = 0; c < q->columnCount(); ++c) {
-            QStandardItem *itm = parent->child(r, c);
-            sorted_children[parent->d_func()->childIndex(i, c)] = itm;
-            QModelIndex from = createIndex(r, c, parent);
-            if (oldPersistentIndexes.contains(from)) {
-                QModelIndex to = createIndex(i, c, parent);
-                changedPersistentIndexes.append(
-                    QPair<QModelIndex, QModelIndex>(from, to));
-            }
-        }
-    }
-
-    parent->d_func()->children = sorted_children;
-
-    QPair<QModelIndex, QModelIndex> indexPair;
-    foreach (indexPair, changedPersistentIndexes)
-        q->changePersistentIndex(indexPair.first, indexPair.second);
-
-    QVector<QStandardItem*>::iterator it;
-    for (it = sorted_children.begin(); it != sorted_children.end(); ++it)
-        sort(*it, column, order);
 }
 
 /*!
@@ -1668,6 +1674,22 @@ bool QStandardItem::operator<(const QStandardItem &other) const
 }
 
 /*!
+    Sorts the children of the item using the given \a order,
+    by the values in the given \a column.
+*/
+void QStandardItem::sortChildren(int column, Qt::SortOrder order)
+{
+    Q_D(QStandardItem);
+    if ((column < 0) || (rowCount() == 0))
+        return;
+    if (d->model)
+        emit d->model->layoutAboutToBeChanged();
+    d->sortChildren(column, order);
+    if (d->model)
+        emit d->model->layoutChanged();
+}
+
+/*!
     Returns a copy of this item.
 
     When subclassing QStandardItem, you can reimplement this function
@@ -2689,11 +2711,7 @@ bool QStandardItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 void QStandardItemModel::sort(int column, Qt::SortOrder order)
 {
     Q_D(QStandardItemModel);
-    if (column < 0)
-        return;
-    emit layoutAboutToBeChanged();
-    d->sort(d->root, column, order);
-    emit layoutChanged();
+    d->root->sortChildren(column, order);
 }
 
 #include "moc_qstandarditemmodel.cpp"
