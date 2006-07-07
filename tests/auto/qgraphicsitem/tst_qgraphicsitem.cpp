@@ -999,7 +999,7 @@ void tst_QGraphicsItem::shape()
     QGraphicsPathItem pathItem(path);
     QCOMPARE(pathItem.shape(), path);
 
-    QRegion region(QRegion(QRect(0, 0, 300, 200)));
+    QRegion region(QRect(0, 0, 300, 200));
     region = region.subtracted(QRect(50, 50, 200, 100));
 
     QPixmap pixmap(300, 200);
