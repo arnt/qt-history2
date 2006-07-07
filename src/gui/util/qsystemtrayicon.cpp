@@ -420,17 +420,16 @@ void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
     sh  = sizeHint();
 
     int ml, mr, mt, mb;
-    pixmap = QPixmap(sizeHint());
-    pixmap.fill(Qt::white);
+    QSize sz = sizeHint();
     if (!arrowAtTop) {
         ml = mt = 0;
-        mr = pixmap.width() - 1;
-        mb = pixmap.height() - ah - 1;
+        mr = sz.width() - 1;
+        mb = sz.height() - ah - 1;
     } else {
         ml = 0;
         mt = ah;
-        mr = pixmap.width() - 1;
-        mb = pixmap.height() - 1;
+        mr = sz.width() - 1;
+        mb = sz.height() - 1;
     }
 
     QPainterPath path;
@@ -475,15 +474,22 @@ void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
     path.lineTo(ml, mt + rc);
     path.arcTo(QRect(ml, mt, rc*2, rc*2), 180, -90);
 
-    QPainter painter(&pixmap);
-    painter.setPen(QPen(Qt::black, border));
-    painter.setBrush(palette().color(QPalette::Window));
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.translate(0.5, 0.5);
-    painter.drawPath(path);
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-    setMask(pixmap.createHeuristicMask());
-#endif
+    // Set the mask
+    QBitmap bitmap = QBitmap(sizeHint());
+    bitmap.fill(Qt::color0);
+    QPainter painter1(&bitmap);
+    painter1.setPen(QPen(Qt::color1, border));
+    painter1.setBrush(QBrush(Qt::color1));
+    painter1.drawPath(path);
+    setMask(bitmap);
+
+    // Draw the border
+    pixmap = QPixmap(sz);
+    QPainter painter2(&pixmap);
+    painter2.setPen(QPen(Qt::black, border));
+    painter2.setBrush(palette().color(QPalette::Window));
+    painter2.drawPath(path);
+
     if (msecs > 0)
         timerId = startTimer(msecs);
     show();
