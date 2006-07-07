@@ -24,7 +24,7 @@
     the word list is static, you can use QStringListModel.)
 
     A QCompleter is used typically with a QLineEdit, QComboBox or a
-    QTextEdit. For example,
+    QTextEdit. For example to provide auto completions from a simple word list,
 
     \code
         QStringList completions;
@@ -32,7 +32,7 @@
         QLineEdit *lineEdit = new QLineEdit(this);
         QCompleter *completer = new QCompleter(completions, this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
-        completer->setCompleter(completer);
+        lineEdit->setCompleter(completer);
     \endcode
 
     A QDirModel can be used to provide autocompletion of filenames. For
@@ -45,16 +45,17 @@
     \endcode
 
     To set the model on which QCompleter should operate, call
-    setModel(). By default, QCompleter will attempt to match the completionPrefix()
-    against the Qt::EditRole data stored in column 0 in the model case sensitively.
-    This can be changed using setCompletionRole(), setCompletionColumn(),
-    and setCaseSensitivity().
+    setModel(). By default, QCompleter will attempt to match the 
+    completionPrefix() against the Qt::EditRole data stored in column 0 in the 
+    model case sensitively. This can be changed using setCompletionRole(), 
+    setCompletionColumn(), and setCaseSensitivity().
 
     If the model is sorted on the column and role that are used for completion,
-    you can call setModelSorting() with either QtCompletor::CaseSensitivelySortedModel
-    or QCompleter::CaseInsensitivelySortedModel as the argument. On large models,
-    this can lead to significant performance improvements, because QCompleter can
-    then use binary search instead of linear search.
+    you can call setModelSorting() with either 
+    QtCompletor::CaseSensitivelySortedModel or 
+    QCompleter::CaseInsensitivelySortedModel as the argument. On large models,
+    this can lead to significant performance improvements, because QCompleter 
+    can then use binary search instead of linear search.
 
     The model can be a \l{QAbstractListModel}{list model},
     a \l{QAbstractTableModel}{table model}, or a
@@ -62,30 +63,32 @@
     is slightly more involved and is covered in the \l{Handling
     Tree Models} section below.
 
-    The completionMode() determines the mode used to provide completions to the user.
+    The completionMode() determines the mode used to provide completions to 
+    the user.
 
     \tableofcontents
     \section1 Iterating through completions
 
-    To retrieve a single candidate string, call setCompletionPrefix() with the text
-    that needs to be completed and then use currentCompletion(). You can use setCurrentRow()
-    and currentCompletion() to navigate to and access any completion.  You can iterate
-    through the list of completions as below:
+    To retrieve a single candidate string, call setCompletionPrefix() with the 
+    text that needs to be completed and then use currentCompletion(). You can 
+    use setCurrentRow() and currentCompletion() to navigate to and access any 
+    completion.  You can iterate through the list of completions as below:
 
     \code
         for (int i = 0; completer->setCurrentRow(i); i++)
             qDebug() << completer->currentCompletion() << " is match number " << i;
     \endcode
 
-    completionCount() returns the total number of completions for the current prefix.
-    Using completionCount() must be avoided, if posible, since it requires a scan of
-    the entire model.
+    completionCount() returns the total number of completions for the current 
+    prefix. Using completionCount() must be avoided, if posible, since it 
+    requires a scan of the entire model.
 
     \section1 The completion model
 
     completionModel() return a list model that contains all possible
     completions for the current completion prefix, in the order in which
-    they appear in the model. Calling setCompletionPrefix() automatically
+    they appear in the model. This model can be used to display the current
+    completions in a custom view. Calling setCompletionPrefix() automatically
     refreshes the completion model.
 
     \section1 Handling Tree Models
@@ -108,10 +111,10 @@
     The default implementation of splitPath(), splits the completionPrefix
     using QDir::separator() if the model is a QDirModel.
 
-    To provide completions, QCompleter needs to know the path from an index. This
-    is provided by pathFromIndex().The default implementation, returns the data for
-    the completionRole() for list models and the absolute file path if the mode
-    is a QDirModel.
+    To provide completions, QCompleter needs to know the path from an index. 
+    This is provided by pathFromIndex(). The default implementation of 
+    pathFromIndex(), returns the data for the completionRole() for list models 
+    and the absolute file path if the mode is a QDirModel.
 */
 
 #include "qcompleter_p.h"
@@ -811,9 +814,10 @@ QCompleter::~QCompleter()
 }
 
 /*!
-    Sets the widget for which completion are provided for to \a widget. The
-    widget is set automatically when a QCompleter is set on a QLineEdit using
-    QLineEdit::setCompleter(). The widget needs to be set explicity when
+    Sets the widget for which completion are provided for to \a widget. This
+    function is automatically called when a QCompleter is set on a QLineEdit 
+    using QLineEdit::setCompleter() or on a QComboBox using 
+    QComboBox::setCompleter(). The widget needs to be set explicity when
     providing completions for custom widgets.
 
     \sa widget(), setModel(), setPopup()
@@ -884,9 +888,8 @@ QAbstractItemModel *QCompleter::model() const
     This enum specifies how completions are provided to the user.
 
     \value PopupCompletion            Current completions are displayed in a popup window.
-    \value InlineCompletion           Completions appear inline.
-    \value UnfilteredPopupCompletion  All possible completions are displayed in a popup window
-                                      with the most likely suggestion selected.
+    \value InlineCompletion           Completions appear inline (as selected text).
+    \value UnfilteredPopupCompletion  All possible completions are displayed in a popup window with the most likely suggestion selected.
 */
 
 /*!
@@ -919,16 +922,17 @@ QCompleter::CompletionMode QCompleter::completionMode() const
 }
 
 /*!
-    Sets the popup used to display completions to \a popup. QCompleter takes ownership
-    of the view.
+    Sets the popup used to display completions to \a popup. QCompleter takes 
+    ownership of the view.
 
     A QListView is automatically created when the completionMode() is set to
-    QCompleter::PopupCompletion or QCompleter::UnfilteredPopupCompletion. The default
-    popup displays the completionColumn().
+    QCompleter::PopupCompletion or QCompleter::UnfilteredPopupCompletion. The 
+    default popup displays the completionColumn().
 
-    Ensure that this function is called before the view settings are modified. This is
-    required since view's properties may require that a model has been set on the view
-    (for example, hiding columns in the view requires a model to be set on the view).
+    Ensure that this function is called before the view settings are modified. 
+    This is required since view's properties may require that a model has been 
+    set on the view (for example, hiding columns in the view requires a model 
+    to be set on the view).
 
     \sa popup()
 */
@@ -1088,13 +1092,14 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    For QCompleter::PopupCompletion andr QCompletion::UnfilteredPopupCompletion modes,
-    calling this function displays the popup displaying the current completions. By default,
-    if \a rect is not specified, the popup is displayed on the bottom of the widget().
-    If \a rect is specified the popup is displayed on the left edge of the rectangle.
+    For QCompleter::PopupCompletion and QCompletion::UnfilteredPopupCompletion 
+    modes, calling this function displays the popup displaying the current 
+    completions. By default, if \a rect is not specified, the popup is displayed 
+    on the bottom of the widget(). If \a rect is specified the popup is 
+    displayed on the left edge of the rectangle.
 
-    For QCompleter::InlineCompletion mode, the highlighted() signal is fired with
-    the current completion.
+    For QCompleter::InlineCompletion mode, the highlighted() signal is fired 
+    with the current completion.
 */
 void QCompleter::complete(const QRect& rect)
 {
@@ -1120,8 +1125,9 @@ void QCompleter::complete(const QRect& rect)
 }
 
 /*!
-    Sets the current row to the \a row specified. This function may be used along with
-    currentCompletion() to iterate through all the possible completions.
+    Sets the current row to the \a row specified. This function may be used 
+    along with currentCompletion() to iterate through all the possible 
+    completions.
 
     \sa currentCompletion(), completionCount()
 */
@@ -1143,9 +1149,9 @@ int QCompleter::currentRow() const
 }
 
 /*!
-    Returns the number of completions for the current prefix. For an unsorted model with
-    a large number of items this can be expensive. Use setCurrentRow() and
-    currentCompletion() to iterate through all the completions.
+    Returns the number of completions for the current prefix. For an unsorted 
+    model with a large number of items this can be expensive. Use setCurrentRow() 
+    and currentCompletion() to iterate through all the completions.
 */
 int QCompleter::completionCount() const
 {
@@ -1172,7 +1178,7 @@ int QCompleter::completionCount() const
     By default, no assumptions are made about the order of the items
     in the model that provides the completions.
 
-    If the model's data for the matchColumn() and matchRole() is sorted in
+    If the model's data for the completionColumn() and completionRole() is sorted in
     ascending order, you can set this property to \l CaseSensitivelySortedModel
     or \l CaseInsensitivelySortedModel. On large models, this can lead to
     significant performance improvements because the completer object can
@@ -1321,8 +1327,8 @@ QString QCompleter::currentCompletion() const
 }
 
 /*!
-    Returns the completion model. The completion model is a read-only list model that
-    contains all the possible matches for the current completion prefix.
+    Returns the completion model. The completion model is a read-only list model 
+    that contains all the possible matches for the current completion prefix.
     The completion model is auto-updated to reflect the current completions.
 
     \sa completionPrefix, model()
@@ -1334,11 +1340,12 @@ QAbstractItemModel *QCompleter::completionModel() const
 }
 
 /*!
-    Returns the path for the given \a index. The completer object uses this to obtain
-    the completion text from the underlying model.
+    Returns the path for the given \a index. The completer object uses this to 
+    obtain the completion text from the underlying model.
 
-    The default implementation returns the \l{Qt::EditRole}{edit role} of the item for
-    list models. It returns the absolute file path if the model is a QDirModel.
+    The default implementation returns the \l{Qt::EditRole}{edit role} of the 
+    item for list models. It returns the absolute file path if the model is a 
+    QDirModel.
 
     \sa splitPath()
 */
@@ -1374,13 +1381,14 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 }
 
 /*!
-    Splits the given \a path into strings that are used to match at each level in the
-    model().
+    Splits the given \a path into strings that are used to match at each level 
+    in the model().
 
     The default implementation of splitPath() splits a file system path based on
     QDir::separator() when the sourceModel() is a QDirModel.
 
-    When used with list models, the first item in the returned list is used for matching.
+    When used with list models, the first item in the returned list is used for 
+    matching.
 
     \sa pathFromIndex(), {Handling Tree Models}
 */
