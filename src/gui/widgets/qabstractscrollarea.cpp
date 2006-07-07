@@ -945,28 +945,28 @@ void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractScrollArea::keyPressEvent(QKeyEvent * e)
 {
     Q_D(QAbstractScrollArea);
-    switch (e->key()) {
-    case Qt::Key_PageUp:
+    if (e == QKeySequence::MoveToPreviousPage) {
         d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
-        break;
-    case Qt::Key_PageDown:
+    } else if (e == QKeySequence::MoveToNextPage) {
         d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
-        break;
-    case Qt::Key_Up:
-        d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
-        break;
-    case Qt::Key_Down:
-        d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
-        break;
-    case Qt::Key_Left:
-        d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
-        break;
-    case Qt::Key_Right:
-        d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
-        break;
-    default:
-        e->ignore();
-        return;
+    } else {
+        switch (e->key()) {
+        case Qt::Key_Up:
+            d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
+            break;
+        case Qt::Key_Down:
+            d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
+            break;
+        case Qt::Key_Left:
+            d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
+            break;
+        case Qt::Key_Right:
+            d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
+            break;
+        default:
+            e->ignore();
+            return;
+        }
     }
     e->accept();
 }
