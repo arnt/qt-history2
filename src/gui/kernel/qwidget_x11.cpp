@@ -968,7 +968,7 @@ void QWidgetPrivate::updateSystemBackground()
                              QColormap::instance(xinfo.screen()).pixel(brush.color()));
 }
 
-void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &)
 {
     Q_Q(QWidget);
     qt_x11_enforce_cursor(q);
