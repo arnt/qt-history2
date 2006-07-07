@@ -865,11 +865,17 @@ QImage QImageReader::read()
         return QImage();
 
     // set the handler specific options.
-    if (d->handler->supportsOption(QImageIOHandler::ClipRect))
+    if (d->handler->supportsOption(QImageIOHandler::ScaledSize) && d->scaledSize.isValid()) {
+        if ((d->handler->supportsOption(QImageIOHandler::ClipRect) && !d->clipRect.isNull())
+            || d->clipRect.isNull()) {
+            // Only enable the ScaledSize option if there is no clip rect, or
+            // if the handler also supports ClipRect.
+            d->handler->setOption(QImageIOHandler::ScaledSize, d->scaledSize);
+        }
+    }
+    if (d->handler->supportsOption(QImageIOHandler::ClipRect) && !d->clipRect.isNull())
         d->handler->setOption(QImageIOHandler::ClipRect, d->clipRect);
-    if (d->handler->supportsOption(QImageIOHandler::ScaledSize))
-        d->handler->setOption(QImageIOHandler::ScaledSize, d->scaledSize);
-    if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect))
+    if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull())
         d->handler->setOption(QImageIOHandler::ScaledClipRect, d->scaledClipRect);
     if (d->handler->supportsOption(QImageIOHandler::Quality))
         d->handler->setOption(QImageIOHandler::Quality, d->quality);
@@ -884,21 +890,20 @@ QImage QImageReader::read()
 
     // provide default implementations for any unsupported image
     // options
-    if (d->handler->supportsOption(QImageIOHandler::ClipRect)) {
-        if (d->handler->supportsOption(QImageIOHandler::ScaledSize)) {
-            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect)) {
+    if (d->handler->supportsOption(QImageIOHandler::ClipRect) && !d->clipRect.isNull()) {
+        if (d->handler->supportsOption(QImageIOHandler::ScaledSize) && d->scaledSize.isValid()) {
+            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull()) {
                 // all features are supported by the handler; nothing to do.
             } else {
                 // the image is already scaled, so apply scaled clipping.
-                if (d->scaledClipRect.isValid()) {
+                if (!d->scaledClipRect.isNull())
                     image = image.copy(d->scaledClipRect);
-                }
             }
         } else {
-            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect)) {
+            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull()) {
                 // supports scaled clipping but not scaling, most
                 // likely a broken handler.
-          } else {
+            } else {
                 if (d->scaledSize.isValid()) {
                     image = image.scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 }
@@ -908,12 +913,12 @@ QImage QImageReader::read()
             }
         }
     } else {
-        if (d->handler->supportsOption(QImageIOHandler::ScaledSize)) {
+        if (d->handler->supportsOption(QImageIOHandler::ScaledSize) && d->scaledSize.isValid()) {
             // in this case, there's nothing we can do. if the
             // plugin supports scaled size but not ClipRect, then
             // we have to ignore ClipRect."
 
-            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect)) {
+            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull()) {
                 // nothing to do (ClipRect is ignored!)
             } else {
                 // provide all workarounds.
@@ -922,7 +927,7 @@ QImage QImageReader::read()
                 }
             }
         } else {
-            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect)) {
+            if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull()) {
                 // this makes no sense; a handler that supports
                 // ScaledClipRect but not ScaledSize is broken, and we
                 // can't work around it.
