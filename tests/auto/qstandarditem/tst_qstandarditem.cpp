@@ -58,6 +58,7 @@ private slots:
     void streamItem();
     void deleteItem();
     void clone();
+    void sortChildren();
 };
 
 tst_QStandardItem::tst_QStandardItem()
@@ -932,6 +933,65 @@ void tst_QStandardItem::clone()
     QCOMPARE(clone->flags(), item.flags());
     QVERIFY(!(*clone < item));
     delete clone;
+}
+
+void tst_QStandardItem::sortChildren()
+{
+    for (int x = 0; x < 2; ++x) {
+        QStandardItemModel *model = new QStandardItemModel;
+        QStandardItem *item = (x == 0) ? new QStandardItem : model->topLevelParent();
+        QStandardItem *one = new QStandardItem;
+        one->appendRow(new QStandardItem(QLatin1String("a")));
+        one->appendRow(new QStandardItem(QLatin1String("b")));
+        one->appendRow(new QStandardItem(QLatin1String("c")));
+        QStandardItem *two = new QStandardItem;
+        two->appendRow(new QStandardItem(QLatin1String("f")));
+        two->appendRow(new QStandardItem(QLatin1String("d")));
+        two->appendRow(new QStandardItem(QLatin1String("e")));
+        item->appendRow(one);
+        item->appendRow(two);
+        
+        QSignalSpy layoutAboutToBeChangedSpy(
+            model, SIGNAL(layoutAboutToBeChanged()));
+        QSignalSpy layoutChangedSpy(
+            model, SIGNAL(layoutChanged()));
+
+        one->sortChildren(0, Qt::DescendingOrder);
+        // verify sorted
+        QCOMPARE(one->child(0)->text(), QLatin1String("c"));
+        QCOMPARE(one->child(1)->text(), QLatin1String("b"));
+        QCOMPARE(one->child(2)->text(), QLatin1String("a"));
+        // verify siblings unaffected
+        QCOMPARE(two->child(0)->text(), QLatin1String("f"));
+        QCOMPARE(two->child(1)->text(), QLatin1String("d"));
+        QCOMPARE(two->child(2)->text(), QLatin1String("e"));
+        
+        two->sortChildren(0, Qt::AscendingOrder);
+        // verify sorted
+        QCOMPARE(two->child(0)->text(), QLatin1String("d"));
+        QCOMPARE(two->child(1)->text(), QLatin1String("e"));
+        QCOMPARE(two->child(2)->text(), QLatin1String("f"));
+        // verify siblings unaffected
+        QCOMPARE(one->child(0)->text(), QLatin1String("c"));
+        QCOMPARE(one->child(1)->text(), QLatin1String("b"));
+        QCOMPARE(one->child(2)->text(), QLatin1String("a"));
+        
+        item->sortChildren(0, Qt::AscendingOrder);
+        // verify everything sorted
+        QCOMPARE(one->child(0)->text(), QLatin1String("a"));
+        QCOMPARE(one->child(1)->text(), QLatin1String("b"));
+        QCOMPARE(one->child(2)->text(), QLatin1String("c"));
+        QCOMPARE(two->child(0)->text(), QLatin1String("d"));
+        QCOMPARE(two->child(1)->text(), QLatin1String("e"));
+        QCOMPARE(two->child(2)->text(), QLatin1String("f"));
+
+        QCOMPARE(layoutAboutToBeChangedSpy.count(), (x == 0) ? 0 : 3);
+        QCOMPARE(layoutChangedSpy.count(), (x == 0) ? 0 : 3);
+
+        if (x == 0)
+            delete item;
+        delete model;
+    }
 }
 
 QTEST_MAIN(tst_QStandardItem)
