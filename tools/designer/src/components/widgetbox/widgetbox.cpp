@@ -233,6 +233,7 @@ WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget
     : QTreeWidget(parent)
 {
     setFocusPolicy(Qt::NoFocus);
+    setIconSize(QSize(22, 22));
 
     setItemDelegate(new WidgetBoxItemDelegate(this, this));
     setRootIsDecorated(false);
