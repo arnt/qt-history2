@@ -247,7 +247,7 @@ QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
     QSize s = m_actionRepository->iconSize();
     item->setSizeHint(QSize(s.width()*3, s.height()*2));
-    item->setText(fixActionText(action->text()));
+    item->setText(fixActionText(action->objectName()));
     item->setIcon(fixActionIcon(action->icon()));
 
     QVariant itemData;
@@ -319,7 +319,7 @@ void ActionEditor::slotActionChanged()
         delete item;
     } else {
         // action text or icon changed, update item
-        item->setText(fixActionText(action->text()));
+        item->setText(fixActionText(action->objectName()));
         item->setIcon(fixActionIcon(action->icon()));
     }
 }
@@ -390,7 +390,7 @@ void ActionEditor::slotNewAction()
     if (dlg.exec() == QDialog::Accepted) {
         QAction *action = new QAction(formWindow());
         action->setObjectName(dlg.actionName());
-        action->setText(dlg.actionText());
+        action->setText(dlg.actionName());
         action->setIcon(dlg.actionIcon());
 
         AddActionCommand *cmd = new AddActionCommand(formWindow());

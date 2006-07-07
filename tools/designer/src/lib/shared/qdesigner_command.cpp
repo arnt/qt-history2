@@ -227,10 +227,17 @@ void SetPropertyCommand::redo()
                                                                  // the child is the active widget.
     }
 
+    QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && qobject_cast<QAction *>(m_object)) {
+                m_propertyName == QLatin1String("icon") && act) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
+    }
+
+    if (m_propertyName == QLatin1String("objectName") && act) {
+        // emit act->changed(); cannot emit, signal is protected
+        act->setData(QVariant(true)); // it triggers signal "changed" in QAction
+        act->setData(QVariant(false));
     }
 }
 
@@ -259,10 +266,17 @@ void SetPropertyCommand::undo()
                                                                  // the child is the active widget.
     }
 
+    QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && qobject_cast<QAction *>(m_object)) {
+                m_propertyName == QLatin1String("icon") && act) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
+    }
+
+    if (m_propertyName == QLatin1String("objectName") && act) {
+        // emit act->changed(); cannot emit, signal is protected
+        act->setData(QVariant(true)); // it triggers signal "changed" in QAction
+        act->setData(QVariant(false));
     }
 }
 
