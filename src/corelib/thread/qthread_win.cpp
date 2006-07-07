@@ -15,9 +15,11 @@
 #include "qthread_p.h"
 #include "qthreadstorage.h"
 
-#include <private/qeventdispatcher_win_p.h>
 #include <qcoreapplication.h>
 #include <qpointer.h>
+
+#include <private/qcoreapplication_p.h>
+#include <private/qeventdispatcher_win_p.h>
 
 #include <windows.h>
 #include <assert.h>
@@ -29,28 +31,35 @@
 #include <process.h>
 #endif
 
-static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
+static DWORD qt_current_thread_data_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
-    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES)
+    if (qt_current_thread_data_tls_index != TLS_OUT_OF_INDEXES)
         return;
     static QMutex mutex;
     QMutexLocker locker(&mutex);
-    qt_current_thread_tls_index = TlsAlloc();
+    qt_current_thread_data_tls_index = TlsAlloc();
 }
 
-
-
+/*
+    QThreadData
+*/
+QThreadData *QThreadData::current()
+{
+    qt_create_tls();
+    QThreadData *threadData = reinterpret_cast<QThreadData *>(TlsGetValue(qt_current_thread_data_tls_index));
+    if (!threadData) {
+        threadData = new QThreadData;
+        TlsSetValue(qt_current_thread_data_tls_index, threadData);
+        threadData->thread = new QAdoptedThread;
+        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
+    }
+    return threadData;
+}
 
 /**************************************************************************
  ** QThreadPrivate
  *************************************************************************/
-
-void QThreadPrivate::setCurrentThread(QThread *thread)
-{
-    qt_create_tls();
-    TlsSetValue(qt_current_thread_tls_index, thread);
-}
 
 void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
@@ -60,14 +69,14 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
 
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
-    qt_create_tls();
-    TlsSetValue(qt_current_thread_tls_index, arg);
     QThread::setTerminationEnabled(false);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadPrivate::setCurrentThread(thr);
+    QThreadData *data = QThreadData::get2(thr);
 
-    QThreadData *data = &thr->d_func()->data;
+    qt_create_tls();
+    TlsSetValue(qt_current_thread_data_tls_index, data);
+
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
     createEventDispatcher(data);
@@ -84,7 +93,6 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadPrivate *d = thr->d_func();
-    QThreadData *data = &d->data;
 
     if (lockAnyway)
         d->mutex.lock();
@@ -96,15 +104,15 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
     d->terminated = false;
     emit thr->finished();
 
-    if (data->eventDispatcher) {
-        data->eventDispatcher->closingDown();
-        QAbstractEventDispatcher *eventDispatcher = data->eventDispatcher;
-        data->eventDispatcher = 0;
+    if (d->data->eventDispatcher) {
+        d->data->eventDispatcher->closingDown();
+        QAbstractEventDispatcher *eventDispatcher = d->data->eventDispatcher;
+        d->data->eventDispatcher = 0;
         delete eventDispatcher;
     }
 
-    QThreadStorageData::finish(data->tls);
-    data->tls = 0;
+    QThreadStorageData::finish(d->data->tls);
+    d->data->tls = 0;
 
     if (!d->waiters) {
         CloseHandle(d->handle);
@@ -125,15 +133,6 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 Qt::HANDLE QThread::currentThreadId()
 {
     return (Qt::HANDLE)GetCurrentThreadId();
-}
-
-QThread *QThread::currentThread()
-{
-    QThread *current = reinterpret_cast<QThread *>(TlsGetValue(qt_current_thread_tls_index));
-    if (!current && QThreadPrivate::adoptCurrentThreadEnabled) {
-        current = QThreadPrivate::adoptCurrentThread();
-    }
-    return current;
 }
 
 void QThread::sleep(unsigned long secs)
