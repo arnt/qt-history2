@@ -409,7 +409,7 @@ void QBalloonTip::resizeEvent(QResizeEvent *ev)
 
 void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
 {
-    QRect scr = QApplication::desktop()->screenGeometry();
+    QRect scr = QApplication::desktop()->screenGeometry(pos);
     QSize sh = sizeHint();
     const int border = 1;
     const int ah = 18, ao = 18, aw = 18, rc = 7;
