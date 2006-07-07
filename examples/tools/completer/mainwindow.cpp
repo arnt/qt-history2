@@ -16,12 +16,11 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), completer(0)
+    : QMainWindow(parent), completer(0), comboBox(0), lineEdit(0)
 {
     createMenu();
 
     QWidget *centralWidget = new QWidget;
-    lineEdit = new QLineEdit;
     
     QLabel *modelLabel = new QLabel;
     modelLabel->setText(tr("Model"));
@@ -54,28 +53,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     contentsLabel = new QLabel;
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    progressLabel = new QLabel;
-
-    progressBar = new QProgressBar;
-    progressBar->setMinimum(0);
-    progressBar->hide();
 
     connect(modelCombo, SIGNAL(activated(int)), this, SLOT(updateModel()));
     connect(modeCombo, SIGNAL(activated(int)), this, SLOT(changeMode(int)));
     connect(caseCombo, SIGNAL(activated(int)), this, SLOT(changeCase(int)));
-
+    
     QGridLayout *layout = new QGridLayout; 
     layout->addWidget(modelLabel, 0, 0); layout->addWidget(modelCombo, 0, 1);
     layout->addWidget(modeLabel, 1, 0);  layout->addWidget(modeCombo, 1, 1);
     layout->addWidget(caseLabel, 2, 0);  layout->addWidget(caseCombo, 2, 1);
     layout->addWidget(contentsLabel, 3, 0, 1, 2);
-    layout->addWidget(lineEdit, 4, 0, 1, 2);
-    layout->addWidget(progressLabel, 5, 0, 1, 2);
-    layout->addWidget(progressBar, 6, 0, 1, 2);
-
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
+    useComboBox(false);
     updateModel();
     changeCase(caseCombo->currentIndex());
     changeMode(modeCombo->currentIndex());
@@ -85,15 +76,20 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::createMenu()
 {
+    QAction *comboAction = new QAction(tr("Show QComboBox"), this);
+    comboAction->setCheckable(true);
     QAction *exitAction = new QAction(tr("Exit"), this);
     QAction *aboutAct = new QAction(tr("About"), this);
     QAction *aboutQtAct = new QAction(tr("About Qt"), this);
 
+    connect(comboAction, SIGNAL(toggled(bool)), this, SLOT(useComboBox(bool)));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
     QMenu* fileMenu = menuBar()->addMenu(tr("File"));
+    fileMenu->addAction(comboAction);
+    fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
 
     QMenu* helpMenu = menuBar()->addMenu(tr("About"));
@@ -120,31 +116,15 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     if (!file.open(QFile::ReadOnly))
         return new QStringListModel(completer);
 
-    int sz = file.size();
-    int est_words = sz/10; 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    progressLabel->setText(tr("Reading model data"));
-    progressBar->setMinimum(0);
-    progressBar->setMaximum(est_words);
-    progressBar->setValue(0);
-    progressLabel->show();
-    progressBar->show();
-    qApp->processEvents(0);
-
     QStringList words;
     
-    for(int num_words = 0;;++num_words) {
+    while (!file.atEnd()) {
         QByteArray line = file.readLine();
-        if (line.isEmpty())
-            break;
-        words << line.trimmed();
-        if (num_words % 300) {
-            progressBar->setValue(num_words);
-        }
+        if (!line.isEmpty())
+            words << line.trimmed();
     }
 
-    progressLabel->hide();
-    progressBar->hide();
     QApplication::restoreOverrideCursor();
 
     if (!fileName.contains(QLatin1String("countries.txt")))
@@ -168,11 +148,11 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
 void MainWindow::updateModel()
 {
     if (completer) {
-        lineEdit->setCompleter(0);
+        comboBox ? comboBox->setCompleter(0) : lineEdit->setCompleter(0);
         delete completer;
     }
     completer = new QCompleter(this);
-    lineEdit->setCompleter(completer);
+    comboBox ? comboBox->setCompleter(completer) : lineEdit->setCompleter(completer);
 
     switch (modelCombo->currentIndex()) {
     default:
@@ -212,6 +192,26 @@ void MainWindow::updateModel()
 
     changeCase(caseCombo->currentIndex());
     changeMode(modeCombo->currentIndex());
+}
+
+void MainWindow::useComboBox(bool combo)
+{
+    if ((comboBox && combo) || (lineEdit && !combo))
+        return;
+    if (combo) {
+        delete lineEdit;
+        lineEdit = 0;
+        comboBox = new QComboBox;
+        comboBox->setEditable(true);
+        comboBox->setCompleter(completer);
+        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(comboBox, 4, 0, 1, 2);
+    } else {
+        delete comboBox;
+        comboBox = 0;
+        lineEdit = new QLineEdit;
+        lineEdit->setCompleter(completer);
+        (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(lineEdit, 4, 0, 1, 2);
+    }
 }
 
 void MainWindow::about()

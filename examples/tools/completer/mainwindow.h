@@ -35,6 +35,7 @@ private slots:
     void changeCase(int);
     void changeMode(int);
     void updateModel();
+    void useComboBox(bool);
 
 private:
     void createMenu();
@@ -45,9 +46,8 @@ private:
     QComboBox *modelCombo;
     QCompleter *completer;
     QLabel *contentsLabel;
-    QLabel *progressLabel;
+    QComboBox *comboBox;
     QLineEdit *lineEdit;
-    QProgressBar *progressBar;
 };
 
 #endif // MAINWINDOW_H
