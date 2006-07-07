@@ -621,15 +621,18 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
         break;
     case Repeat_Y:
         p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp,
-                           0, qMax(((inter.y() - r.y()) % bgp.height()) - 1, 0));
+                           inter.x() - aligned.x(), 
+                           bgp.height() - (aligned.y() - r.y()) % bgp.height());
         break;
     case Repeat_X:
         p->drawTiledPixmap(r.x(), inter.y(), r.width(), inter.height(), bgp,
-                           qMax(((inter.x() - r.x()) % bgp.width()) - 1, 0), 0);
+                           bgp.width() - (aligned.x() - r.x())%bgp.width(), 
+                           inter.y() - aligned.y());
         break;
     case Repeat_XY:
-        p->drawTiledPixmap(r, bgp, QPoint(qMax(((inter.x() - r.x()) % bgp.width()) - 1, 0),
-                                          qMax(((inter.y() - r.y()) % bgp.height()) - 1, 0)));
+        p->drawTiledPixmap(r, bgp, 
+                           QPoint(bgp.width() - (aligned.x() - r.x())% bgp.width(),
+                                  bgp.height() - ((aligned.y() - r.y())%bgp.height())));
         break;
     default:
         break;
@@ -920,7 +923,6 @@ void QStyleSheetStyle::polish(QWidget *w)
     baseStyle()->polish(w);
     renderRulesCache.remove(w);
     QVector<QCss::StyleRule> rules = computeStyleSheet(w);
-    qDebug() << w << " stylsheet was computed";
     styleRulesCache[w] = rules;
     if (rules.isEmpty()) {
         unsetPalette(w);
