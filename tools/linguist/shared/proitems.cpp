@@ -82,7 +82,8 @@ bool ProBlock::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitBeginProBlock(this);
     for (QList<ProItem *>::iterator it = m_proitems.begin(); it != m_proitems.end(); ++it) {
-        (*it)->Accept(visitor);
+        if (!(*it)->Accept(visitor))
+            return false;
     }
     return visitor->visitEndProBlock(this);
 }
@@ -120,7 +121,8 @@ bool ProVariable::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitBeginProVariable(this);
     for (QList<ProItem *>::iterator it = m_proitems.begin(); it != m_proitems.end(); ++it) {
-        (*it)->Accept(visitor);
+        if (!(*it)->Accept(visitor))
+            return false;
     }
     return visitor->visitEndProVariable(this);
 }
@@ -282,7 +284,8 @@ bool ProFile::Accept(AbstractProItemVisitor *visitor)
 {
     visitor->visitBeginProFile(this);
     for (QList<ProItem *>::iterator it = m_proitems.begin(); it != m_proitems.end(); ++it) {
-        (*it)->Accept(visitor);
+        if (!(*it)->Accept(visitor))
+            return false;
     }
     return visitor->visitEndProFile(this);
 }

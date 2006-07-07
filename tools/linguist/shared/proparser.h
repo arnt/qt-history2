@@ -24,13 +24,16 @@ public:
         m_verbose = verbose;
     }
 
+    ProFile *queryProFile(const QString &filename) {
+        return ProFileEvaluator::queryProFile(filename);
+    }
+
 private:
     /* reimp */
-    void logMessage(const QString &message, ProFileEvaluator::MessageType mt) {
-        if (m_verbose && (mt == ProFileEvaluator::MT_DebugLevel1)) {
-            Q_UNUSED(message);
-            Q_UNUSED(mt);
-            ProFileEvaluator::logMessage(message, mt);
+    void logMessage(const LogMessage &msg) {
+        if (m_verbose && (msg.m_type == ProFileEvaluator::MT_DebugLevel1
+            || msg.m_type == ProFileEvaluator::MT_Error)) {
+            ProFileEvaluator::logMessage(msg);
         }
     }
 

@@ -207,11 +207,11 @@ int main( int argc, char **argv )
                          argv[i] );
             }
         } else if (QString(argv[i]).endsWith(".pro", Qt::CaseInsensitive)) {
-            bool ok;
-
             QMap<QByteArray, QStringList> variables;
 
-            ok = evaluateProFile(QLatin1String(argv[i]), verbose, &variables);
+            if(!evaluateProFile(QLatin1String(argv[i]), verbose, &variables))
+                return 2;
+
             sourceFiles = variables.value("SOURCES");
             metSomething |= !sourceFiles.isEmpty();
 

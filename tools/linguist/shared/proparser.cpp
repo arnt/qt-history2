@@ -54,8 +54,11 @@ bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStr
     ok = fi.exists();
     if (ok) {
         rootPath.setPath(fi.absolutePath());
-        ProFile *pro = pr.read(fi.absoluteFilePath());
-        ok = pro->Accept(visitor);
+        ProFile *pro = visitor->queryProFile(fi.absoluteFilePath());
+        if (!pro)
+            ok = false;
+        else
+            ok = pro->Accept(visitor);
     }
     if (ok) {
         if (visitor->templateType() == ProFileEvaluator::TT_Subdirs) {

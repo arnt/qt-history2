@@ -28,6 +28,7 @@ public:
     ProReader();
     ProFile *read(const QString &fileName);
     void setEnableBackSlashFixing(bool enable);
+    inline int currentLine() const { return m_currentLineNumber; }
 
 protected:
     ProFile *read(QIODevice *device, const QString &name = QLatin1String("device"));
@@ -36,7 +37,7 @@ protected:
     ProBlock *currentBlock();
     void updateItem();
     bool parseline(QByteArray line);
-    void insertVariable();
+    void insertVariable(const QByteArray &line, int *i);
     void insertOperator(const char op);
     void insertComment(const QByteArray &comment);
     void enterScope(bool multiLine);
@@ -51,6 +52,7 @@ private:
     ProItem *m_commentItem;
     QByteArray m_proitem;
     QByteArray m_pendingComment;
+    bool m_syntaxerror;
     bool m_fixBackSlashes;
     int m_currentLineNumber;
 };

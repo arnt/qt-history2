@@ -38,6 +38,7 @@ void ProReader::cleanup()
 
 ProFile *ProReader::read(QIODevice *device, const QString &name)
 {
+    m_syntaxerror = false;
     m_currentLineNumber = 1;
     ProFile *pf = new ProFile(name);
     m_blockstack.push(pf);
@@ -82,7 +83,7 @@ bool ProReader::parseline(QByteArray line)
     bool contNextLine = false;
     line = line.simplified();
 
-    for(int i=0; i<line.length(); ++i) {
+    for(int i=0; !m_syntaxerror && i<line.length(); ++i) {
         const char c = line.at(i);
         if (quote && c == quote)
             quote = 0;
@@ -105,10 +106,11 @@ bool ProReader::parseline(QByteArray line)
                 contNextLine = true;
                 continue;
             } else if (m_block && (m_block->blockKind() & ProBlock::VariableKind)) {
-                if (c == ' ')
+                if (c == ' ') {
                     updateItem();
-                else
+                } else {
                     m_proitem += c;
+                }
                 continue;
             } else if (c == ':') {
                 enterScope(false);
@@ -120,7 +122,7 @@ bool ProReader::parseline(QByteArray line)
                 leaveScope();
                 continue;
             } else if (c == '=') {
-                insertVariable();
+                insertVariable(line, &i);
                 continue;
             } else if (c == '|' || c == '!') {
                 insertOperator(c);
@@ -131,22 +133,27 @@ bool ProReader::parseline(QByteArray line)
         m_proitem += c;
     }
 
-    updateItem();
-    if (!contNextLine)
-        finalizeBlock();
-
-    return true;
+    if (!m_syntaxerror) {
+        updateItem();
+        if (!contNextLine)
+            finalizeBlock();
+    }
+    return !m_syntaxerror;
 }
 
 void ProReader::finalizeBlock()
 {
-    if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
-        leaveScope();
-    m_block = 0;
-    m_commentItem = 0;
+    if (m_blockstack.isEmpty()) {
+        m_syntaxerror = true;
+    } else {
+        if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
+            leaveScope();
+        m_block = 0;
+        m_commentItem = 0;
+    }
 }
 
-void ProReader::insertVariable()
+void ProReader::insertVariable(const QByteArray &line, int *i)
 {
     ProVariable::VariableOperator opkind;
 
@@ -186,6 +193,26 @@ void ProReader::insertVariable()
     m_commentItem = variable;
 
     m_proitem.clear();
+
+    if (opkind == ProVariable::ReplaceOperator) {
+        // skip util end of line or comment
+        while (1) {
+            ++(*i);
+
+            // end of line?
+            if (*i >= line.count())
+                break;
+
+            // comment?
+            if (line.at(*i) == '#') {
+                --(*i);
+                break;
+            }
+
+            m_proitem += line.at(*i);
+        }
+        m_proitem = m_proitem.trimmed();
+    }
 }
 
 void ProReader::insertOperator(const char op)

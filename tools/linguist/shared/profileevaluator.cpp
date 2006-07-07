@@ -199,13 +199,11 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
                 QChar sep = val.at(1);
                 QStringList func = val.split(sep);
                 if (func.count() < 3 || func.count() > 4) {
-                    logMessage(QString::fromAscii("%1: ~= operator (function s///) expects 3 or 4 arguments.\n").arg(
-                        locationSpecifier()), MT_DebugLevel1);
+                    logMessage(QString::fromAscii("~= operator (function s///) expects 3 or 4 arguments.\n"), MT_DebugLevel1);
                     return false;
                 }
                 if (func[0] != QLatin1String("s")) {
-                    logMessage(QString::fromAscii("%1: ~= operator can only handle s/// function.\n").arg(
-                        locationSpecifier()), MT_DebugLevel1);
+                    logMessage(QString::fromAscii("~= operator can only handle s/// function.\n"), MT_DebugLevel1);
                     return false;
                 }
                 bool global = false, quote = false, case_sense = false;
@@ -471,8 +469,8 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             int beg=0, end=-1;
             if(func_t == E_SECTION) {
                 if(args.count() != 3 && args.count() != 4) {
-                    logMessage(QString::fromAscii("%1: %2(var) section(var, sep, begin, end) requires three arguments.\n").arg(
-                        locationSpecifier()).arg(QString(func)));
+                    logMessage(QString::fromAscii("%2(var) section(var, sep, begin, end) requires three arguments.\n").arg(
+                        QString(func)));
                 } else {
                     var = args[0];
                     sep = args[1];
@@ -482,8 +480,8 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                 }
             } else {
                 if(args.count() != 1) {
-                    logMessage(QString::fromAscii("%1: %2(var) requires one argument.\n").arg(
-                        locationSpecifier()).arg(QString(func)));
+                    logMessage(QString::fromAscii("%2(var) requires one argument.\n").arg(
+                        QString(func)));
                 } else {
                     var = args[0];
                     regexp = true;
@@ -509,7 +507,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             break; }
         case E_JOIN: {
             if(args.count() < 1 || args.count() > 4) {
-                logMessage(QString::fromAscii("%1: join(var, glue, before, after) requires four arguments.\n").arg(locationSpecifier()));
+                logMessage(QString::fromAscii("join(var, glue, before, after) requires four arguments.\n"));
             } else {
                 QString glue, before, after;
                 if(args.count() >= 2)
@@ -525,7 +523,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             break; }
         case E_SPLIT: {
             if(args.count() < 2 || args.count() > 3) {
-                logMessage(QString::fromAscii("%1: split(var, sep, join) requires three arguments\n").arg(locationSpecifier()));
+                logMessage(QString::fromAscii("split(var, sep, join) requires three arguments\n"));
             } else {
                 QString sep = args[1], join = QString(field_sep);
                 if(args.count() == 3)
@@ -544,8 +542,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
 
         case E_MEMBER: {
             if(args.count() < 1 || args.count() > 3) {
-                logMessage(QString::fromAscii("%1: member(var, start, end) requires three arguments.\n").arg(
-                    locationSpecifier()));
+                logMessage(QString::fromAscii("member(var, start, end) requires three arguments.\n"));
             } else {
                 bool ok = true;
                 const QStringList var = values(args.first());
@@ -563,15 +560,15 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
                             }
                         }
                         if(!ok)
-                            logMessage(QString::fromAscii("%1: member() argument 2 (start) '%2' invalid.\n").arg(
-                                                        locationSpecifier()).arg(start_str), MT_DebugLevel1 );
+                            logMessage(QString::fromAscii("member() argument 2 (start) '%2' invalid.\n").arg(
+                                                        start_str), MT_DebugLevel1 );
                     } else {
                         end = start;
                         if(args.count() == 3)
                             end = args[2].toInt(&ok);
                         if(!ok)
-                            logMessage(QString::fromAscii("%1: member() argument 3 (end) '%2' invalid.\n").arg(
-                            locationSpecifier()).arg(args[2]), MT_DebugLevel1 );
+                            logMessage(QString::fromAscii("member() argument 3 (end) '%2' invalid.\n").arg(
+                            args[2]), MT_DebugLevel1 );
                     }
                 }
                 if(ok) {
@@ -600,8 +597,8 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
         case E_FIRST:
         case E_LAST: {
             if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: %2(var) requires one argument.\n").arg(
-                                            locationSpecifier()).arg(QString(func)));
+                logMessage(QString::fromAscii("%2(var) requires one argument.\n").arg(
+                                            QString(func)));
             } else {
                 const QStringList var = values(args.first());
                 if(!var.isEmpty()) {
@@ -615,7 +612,7 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
 
         case E_SYSTEM: {
             if(args.count() < 1 || args.count() > 2) {
-                logMessage(QString::fromAscii("%1: system(execut) requires one or two arguments.\n").arg(locationSpecifier()));
+                logMessage(QString::fromAscii("system(execut) requires one or two arguments.\n"));
             } else {
                 char buff[256];
                 FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
@@ -636,12 +633,10 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             }
             break; }
         case 0: {
-            QByteArray loc = locationSpecifier().toAscii();
-            logMessage(MT_DebugLevel2, "%s: '%s' is not a function\n", loc.data(), func.data());
+            logMessage(MT_DebugLevel2, "'%s' is not a function\n", func.data());
             break; }
         default: {
-            QByteArray loc = locationSpecifier().toAscii();
-            logMessage(MT_DebugLevel2, "%s: Function '%s' is not implemented\n", loc.data(), func.data());
+            logMessage(MT_DebugLevel2, "Function '%s' is not implemented\n", func.data());
             break; }
     }
 
@@ -675,8 +670,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
     switch (func_t) {
         case CF_CONFIG: {
             if(args.count() < 1 || args.count() > 2) {
-                logMessage(QString::fromAscii("%1: CONFIG(config) requires one or two arguments.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("CONFIG(config) requires one or two arguments.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -697,8 +691,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
             break; }
         case CF_CONTAINS: {
             if(args.count() < 2 || args.count() > 3) {
-                logMessage(QString::fromAscii("%1: contains(var, val) requires at least two arguments.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("contains(var, val) requires at least two arguments.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -729,8 +722,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
             break; }
         case CF_COUNT: {
             if(args.count() != 2 && args.count() != 3) {
-                logMessage(QString::fromAscii("%1: count(var, count) requires at least two arguments.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("count(var, count) requires at least two arguments.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -748,8 +740,8 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
                     cond = values(args.first()).count() == args[1].toInt();
                 } else {
                     ok = false;
-                    logMessage(QString::fromAscii("%1: unexpected modifier to count(%2)\n").arg(
-                        locationSpecifier()).arg(comp), MT_DebugLevel1);
+                    logMessage(QString::fromAscii("unexpected modifier to count(%2)\n").arg(
+                        comp), MT_DebugLevel1);
                 }
                 break;
             }
@@ -760,8 +752,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
             if(args.count() == 2) {
                 parseInto = args[1];
             } else if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: include(file) requires one argument.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("include(file) requires one argument.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -774,8 +765,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
                 QString sarg = args[1];
                 ignore_error = (sarg.toLower() == "true" || sarg.toInt());
             } else if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: load(feature) requires one argument.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("load(feature) requires one argument.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -784,8 +774,8 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
 
         case CF_MESSAGE: {
             if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: %2(message) requires one argument.\n").arg(
-                    locationSpecifier()).arg(QString(function)), MT_DebugLevel1);
+                logMessage(QString::fromAscii("%2(message) requires one argument.\n").arg(
+                    QString(function)), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -796,8 +786,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
 
         case CF_SYSTEM: {
             if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: system(exec) requires one argument.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("system(exec) requires one argument.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -806,8 +795,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
 
         case CF_ISEMPTY: {
             if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: isEmpty(var) requires one argument.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("isEmpty(var) requires one argument.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -821,8 +809,7 @@ bool ProFileEvaluator::evaluateConditionalFunction(const QByteArray &function, c
             break; }
         case CF_EXISTS: {
             if(args.count() != 1) {
-                logMessage(QString::fromAscii("%1: exists(file) requires one argument.\n").arg(
-                    locationSpecifier()), MT_DebugLevel1);
+                logMessage(QString::fromAscii("exists(file) requires one argument.\n"), MT_DebugLevel1);
                 ok = false;
                 break;
             }
@@ -874,7 +861,7 @@ bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
 
     QFileInfo fi(fn);
     if (fi.exists()) {
-        logMessage(QString::fromAscii("%1: Reading %2\n").arg(locationSpecifier()).arg(fileName), MT_DebugLevel3);
+        logMessage(QString::fromAscii("Reading %2\n").arg(fileName), MT_DebugLevel3);
         ProFile *pro = queryProFile(fi.absoluteFilePath());
         if (ok) {
             m_profileStack.push_back(pro);
@@ -889,7 +876,7 @@ bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
         if (result) *result = true;
     }else{
 /*        if (mustexist) {
-            logMessage(QString::fromAscii("%1: Could not open %1\n").arg(locationSpecifier().arg(fileName)), MT_Error);
+            logMessage(QString::fromAscii("Could not open %1\n").arg(locationSpecifier().arg(fileName)), MT_Error);
             ok = false;
         } else { */
             if (result) *result = false;
@@ -981,7 +968,18 @@ ProFile *ProFileEvaluator::queryProFile(const QString &filename)
 {
     ProReader pr;
     pr.setEnableBackSlashFixing(false);
-    return pr.read(filename);
+
+    ProFile *pro = pr.read(filename);
+    if (!pro) {
+        LogMessage msg;
+        msg.m_msg = QLatin1String("parse failure.");
+        msg.m_filename = filename;
+        msg.m_linenumber = pr.currentLine();
+        msg.m_type = MT_Error;
+        logMessage(msg);
+    }
+
+    return pro;
 }
 
 void ProFileEvaluator::releaseProFile(ProFile *pro)
@@ -994,31 +992,48 @@ QString ProFileEvaluator::propertyValue(const QString &val) const
     return getPropertyValue(val);
 }
 
-void ProFileEvaluator::logMessage(const QString &message, MessageType mt)
+void ProFileEvaluator::logMessage(const ProFileEvaluator::LogMessage &msg)
 {
-    QByteArray text = message.toAscii();
-    switch (mt) {
+    QByteArray locstr = QString("%1(%2):").arg(msg.m_filename).arg(msg.m_linenumber).toAscii();
+    QByteArray text = msg.m_msg.toAscii();
+    switch (msg.m_type) {
         case MT_DebugLevel3:
-            fprintf(stderr, "profileevaluator information:    %s", text.data());
+            fprintf(stderr, "%s profileevaluator information:    %s", locstr.data(), text.data());
             break;
         case MT_DebugLevel2:
-            fprintf(stderr, "profileevaluator warning:        %s", text.data());
+            fprintf(stderr, "%s profileevaluator warning:        %s", locstr.data(), text.data());
             break;
         case MT_DebugLevel1:
-            fprintf(stderr, "profileevaluator critical error: %s", text.data());
+            fprintf(stderr, "%s profileevaluator critical error: %s", locstr.data(), text.data());
             break;
         case MT_ProMessage:
-            fprintf(stderr, "Project MESSAGE: %s", text.data());
+            fprintf(stderr, "%s Project MESSAGE: %s", locstr.data(), text.data());
             break;
         case MT_ProError:
-            fprintf(stderr, "Project ERROR: %s", text.data());
+            fprintf(stderr, "%s Project ERROR: %s", locstr.data(), text.data());
             break;
         case MT_Error:
-            fprintf(stderr, "ERROR: %s", text.data());
+            fprintf(stderr, "%s ERROR: %s", locstr.data(), text.data());
             break;
-
-        break;
     }
+}
+
+void ProFileEvaluator::logMessage(const QString &message, MessageType mt)
+{
+    LogMessage msg;
+    msg.m_msg = message;
+    msg.m_type = mt;
+    
+    ProFile *pro = currentProFile();
+    if (pro) {
+        msg.m_filename = pro->fileName();
+        msg.m_linenumber = m_lineNo;
+    } else {
+        msg.m_filename = "Not a file";
+        msg.m_linenumber = 0;
+    }
+
+    logMessage(msg);
 }
 
 void ProFileEvaluator::logMessage(MessageType mt, const char *msg, ...)
@@ -1032,19 +1047,3 @@ void ProFileEvaluator::logMessage(MessageType mt, const char *msg, ...)
     buf[MAX_MESSAGE_LENGTH - 1] = '\0';
     logMessage(QString::fromAscii(buf), mt);
 }
-
-
-/*
-  should return a string of type 'filename.pro(1234):'
-*/
-QString ProFileEvaluator::locationSpecifier() const
-{
-    ProFile *pro = currentProFile();
-    if (pro) {
-        QString fn = pro->fileName();
-        fn.append(QString::fromAscii("(%1)").arg(m_lineNo));
-        return fn;
-    }
-    return QByteArray("Not a file");
-}
-

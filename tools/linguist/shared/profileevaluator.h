@@ -40,6 +40,13 @@ public:
         MT_ProError,                // output of error(string). In this implementation, processing will not stop.
     } MessageType;
 
+    struct LogMessage {
+        QString m_msg;
+        QString m_filename;
+        int m_linenumber;
+        MessageType m_type;
+    };
+
     ProFileEvaluator();
     ~ProFileEvaluator();
 
@@ -92,9 +99,10 @@ protected:
     virtual void releaseProFile(ProFile *pro);
     virtual QString propertyValue(const QString &val) const;
 
-    virtual void logMessage(const QString &message, MessageType messagetype = MT_DebugLevel2);
+    virtual void logMessage(const LogMessage &msg);
 
 private:
+    void logMessage(const QString &msg, MessageType mt = MT_DebugLevel2);
     void logMessage(MessageType mt, const char *msg, ...);
     QString expandVariableReferences(const QString &value);
     QString evaluateExpandFunction(const QByteArray &func, const QString &arguments);
@@ -106,7 +114,6 @@ private:
     QString currentFileName() const;
     QString getcwd() const;
     ProFile *currentProFile() const;
-    QString locationSpecifier() const;              // error reporting
 
     QStringList qmake_feature_paths();
     QByteArray m_lastVarName;
