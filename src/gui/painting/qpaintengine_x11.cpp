@@ -56,7 +56,7 @@ extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
     QPainter::begin() must be called before this function returns a
     valid GC.
 */
-GC qt_x11_get_pen_gc(QPainter *p)
+Q_GUI_EXPORT GC qt_x11_get_pen_gc(QPainter *p)
 {
     if (p && p->paintEngine()
         && p->paintEngine()->isActive()
@@ -71,7 +71,7 @@ GC qt_x11_get_pen_gc(QPainter *p)
     QPainter::begin() must be called before this function returns a
     valid GC.
 */
-GC qt_x11_get_brush_gc(QPainter *p)
+Q_GUI_EXPORT GC qt_x11_get_brush_gc(QPainter *p)
 {
     if (p && p->paintEngine()
         && p->paintEngine()->isActive()
