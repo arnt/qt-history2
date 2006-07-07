@@ -241,6 +241,16 @@ void qt_mac_update_ignore_mouseevents(QWidget *w)
             ChangeWindowAttributes(qt_mac_window_for(w), kWindowIgnoreClicksAttribute, 0);
         else
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
+        ReshapeCustomWindow(qt_mac_window_for(w));
+    } else {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+            if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
+                HIViewChangeFeatures(qt_mac_hiview_for(w), kHIViewFeatureIgnoresClicks, 0);
+            else
+                HIViewChangeFeatures(qt_mac_hiview_for(w), 0, kHIViewFeatureIgnoresClicks);
+            HIViewReshapeStructure(qt_mac_hiview_for(w));
+#endif
     }
 }
 
@@ -573,6 +583,16 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 ControlPartCode part;
                 GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0,
                                   sizeof(part), 0, &part);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                if(part == kControlClickableMetaPart && widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+                    RgnHandle rgn;
+                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
+                                      sizeof(rgn), 0, &rgn);
+                    SetEmptyRgn(rgn);
+                    handled_event = true;
+                } else
+#endif
+
                 if(part == kControlStructureMetaPart
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                    || part == kControlClickableMetaPart
