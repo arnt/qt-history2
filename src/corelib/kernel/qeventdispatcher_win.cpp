@@ -355,7 +355,7 @@ QEventDispatcherWin32::~QEventDispatcherWin32()
 bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherWin32);
-    
+
     d->interrupt = false;
     emit awake();
 
@@ -435,7 +435,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
 
         // still nothing - wait for message or signalled objects
-        QThreadData *data = QThreadData::get(thread());
+        QThreadData *data = d->threadData;
         canWait = (!retVal
                    && data->canWait
                    && !d->interrupt

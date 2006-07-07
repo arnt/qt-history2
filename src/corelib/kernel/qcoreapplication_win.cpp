@@ -232,10 +232,7 @@ bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows 
 
 void QCoreApplicationPrivate::removePostedTimerEvent(QObject *object, int timerId)
 {
-    QThread *thread = object->thread();
-    if (!thread)
-        return;
-    QThreadData *data = QThreadData::get(thread);
+    QThreadData *data = object->d_func()->threadData;
 
     QMutexLocker locker(&data->postEventList.mutex);
     if (data->postEventList.size() == 0)

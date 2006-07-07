@@ -90,6 +90,9 @@ public:
     inline QT3_SUPPORT bool running() const { return isRunning(); }
 #endif
 
+protected:
+    QThread(QThreadPrivate &dd, QObject *parent = 0);
+
 private:
     Q_OBJECT
     Q_DECLARE_PRIVATE(QThread)
@@ -109,7 +112,7 @@ public:
     static Qt::HANDLE currentThreadId() { return Qt::HANDLE(currentThread()); }
     static QThread* currentThread()
     { if (!instance) instance = new QThread(); return instance; }
-    
+
 private:
     QThread();
     static QThread *instance;

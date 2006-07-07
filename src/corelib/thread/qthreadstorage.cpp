@@ -74,23 +74,21 @@ QThreadStorageData::~QThreadStorageData()
 
 void **QThreadStorageData::get() const
 {
-    QThread *thread = QThread::currentThread();
-    if (!thread) {
+    QThreadData *data = QThreadData::current();
+    if (!data) {
         qWarning("QThreadStorage::get: QThreadStorage can only be used with threads started with QThread");
         return 0;
     }
-    QThreadData *data = QThreadData::get(thread);
     return data->tls && data->tls[id] ? &data->tls[id] : 0;
 }
 
 void **QThreadStorageData::set(void *p)
 {
-    QThread *thread = QThread::currentThread();
-    if (!thread) {
+    QThreadData *data = QThreadData::current();
+    if (!data) {
         qWarning("QThreadStorage::set: QThreadStorage can only be used with threads started with QThread");
         return 0;
     }
-    QThreadData *data = QThreadData::get(thread);
     if (!data->tls) {
         DEBUG("QThreadStorageData: Allocating storage %d for thread %p",
               id, QThread::currentThread());

@@ -62,13 +62,19 @@ public:
 
 class Q_CORE_EXPORT QThreadData
 {
+    QAtomic _ref;
+
 public:
     QThreadData();
     ~QThreadData();
 
-    static QThreadData *get(QThread *thread);
+    static QThreadData *current();
+    static QThreadData *get2(QThread *thread);
 
-    int id;
+    void ref();
+    void deref();
+
+    QThread *thread;
     bool quitNow;
     QAbstractEventDispatcher *eventDispatcher;
     QStack<QEventLoop *> eventLoops;
@@ -83,7 +89,8 @@ class QThreadPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QThread)
 
 public:
-    QThreadPrivate();
+    QThreadPrivate(QThreadData *d = 0);
+    ~QThreadPrivate();
 
     mutable QMutex mutex;
 
@@ -93,8 +100,6 @@ public:
 
     uint stackSize;
     QThread::Priority priority;
-
-    static void setCurrentThread(QThread *thread);
 
     static QThread *threadForId(int id);
 
@@ -116,32 +121,26 @@ public:
     static void finish(void *, bool lockAnyway=true);
 #endif // Q_OS_WIN32
 
-    QThreadData data;
+    QThreadData *data;
 
     static void createEventDispatcher(QThreadData *data);
-    static QThread *adoptCurrentThread();
-    static bool adoptCurrentThreadEnabled;
 };
 
 // thread wrapper for the main() thread
 class QAdoptedThread : public QThread
 {
     Q_DECLARE_PRIVATE(QThread)
+
 public:
-    inline QAdoptedThread()
-    {
-        // thread should be running and not finished for the lifetime
-        // of the application (even if QCoreApplication goes away)
-        d_func()->running = true;
-        d_func()->finished = false;
-    }
+    QAdoptedThread(QThreadData *data = 0);
     ~QAdoptedThread();
+
 private:
     inline void run()
     {
         // this function should never be called, it is implemented
         // only so that we can instantiate the object
-        qFatal("QAdoptedThread: internal error");
+        qFatal("QAdoptedThread::run(): Internal error, this implementation should never be called.");
     }
 };
 

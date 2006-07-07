@@ -66,9 +66,9 @@ public:
     virtual ~QObjectPrivate();
 
     // id of the thread that owns the object
-    int thread;
-    void moveToThread_helper(QThread *targetThread);
-    void setThreadId_helper(QThreadData *currentData, QThreadData *targetData, int id);
+    QThreadData *threadData;
+    void moveToThread_helper();
+    void setThreadData_helper(QThreadData *currentData, QThreadData *targetData);
     void _q_reregisterTimers(void *pointer);
 
     // object currently activating the object

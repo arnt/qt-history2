@@ -22,7 +22,7 @@
 #include <qmutex.h>
 #include <qwaitcondition.h>
 #include <private/qwineventnotifier_p.h>
-#include <qabstracteventdispatcher.h>
+#include <private/qthread_p.h>
 #include <qdebug.h>
 
 #include "private/qfsfileengine_p.h" // for longFileName and win95FileName
@@ -272,7 +272,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
                 creation = OPEN_ALWAYS;
             else
                 creation = CREATE_ALWAYS;
-            
+
             QT_WA({
                 channel.pipe[1] =
                     CreateFileW((TCHAR*)QFSFileEnginePrivate::longFileName(channel.file).utf16(),
@@ -330,7 +330,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
                 CloseHandle(tmpHandle);
                 return true;
             }
-                
+
             Q_ASSERT(source == &stdoutChannel);
             Q_ASSERT(sink->process == this && sink->type == Channel::PipeSink);
 
@@ -343,7 +343,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
             // we are the sink;
             source = &channel.process->stdoutChannel;
             sink = &channel;
- 
+
             if (sink->pipe[0] != INVALID_Q_PIPE) {
                 // already constructed by the source
                 // make it inheritable
@@ -492,7 +492,7 @@ void QProcessPrivate::startProcess()
     emit q->stateChanged(processState);
 
     if (!createChannel(stdinChannel) ||
-        !createChannel(stdoutChannel) || 
+        !createChannel(stdoutChannel) ||
         !createChannel(stderrChannel))
         return;
 
@@ -574,7 +574,7 @@ void QProcessPrivate::startProcess()
 
     processState = QProcess::Running;
 
-    if (QAbstractEventDispatcher::instance(q->thread())) {
+    if (threadData->eventDispatcher) {
         processFinishedNotifier = new QWinEventNotifier(pid->hProcess, q);
         QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(_q_processDied()));
         processFinishedNotifier->setEnabled(true);
@@ -882,7 +882,7 @@ void QProcessPrivate::_q_notified()
 
     if (bytesAvailableFromStderr())
         _q_canReadStandardError();
-    
+
     if (processState != QProcess::NotRunning)
         notifier->start(NOTIFYTIMEOUT);
 }

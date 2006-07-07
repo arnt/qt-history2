@@ -59,8 +59,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <private/qcore_mac_p.h>
 #endif
 
-#include <qabstracteventdispatcher.h>
 #include <private/qcoreapplication_p.h>
+#include <private/qthread_p.h>
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -275,7 +275,7 @@ void QProcessManager::remove(QProcess *process)
 #if defined (QPROCESS_DEBUG)
     qDebug() << "QProcessManager::remove() removing pid" << info->pid << "process" << info->process;
 #endif
-    
+
     children.remove(serial);
     delete info;
 }
@@ -343,7 +343,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
         qt_create_pipe(channel.pipe);
 
         // create the socket notifiers
-        if (QAbstractEventDispatcher::instance(q->thread())) {
+        if (threadData->eventDispatcher) {
             if (&channel == &stdinChannel) {
                 channel.notifier = new QSocketNotifier(channel.pipe[1],
                                                        QSocketNotifier::Write, q);
@@ -362,7 +362,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
                                  q, receiver);
             }
         }
-        
+
         return true;
     } else if (channel.type == Channel::Redirect) {
         // we're redirecting the channel to/from a file
@@ -381,7 +381,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
                 mode |= O_APPEND;
             else
                 mode |= O_TRUNC;
-            
+
             channel.pipe[0] = -1;
             if ( (channel.pipe[1] = open(fname, mode, 0666)) != -1)
                 return true; // success
@@ -445,7 +445,7 @@ void QProcessPrivate::startProcess()
 
     // Initialize pipes
     qt_create_pipe(childStartedPipe);
-    if (QAbstractEventDispatcher::instance(q->thread())) {
+    if (threadData->eventDispatcher) {
         startupSocketNotifier = new QSocketNotifier(childStartedPipe[0],
                                                     QSocketNotifier::Read, q);
         QObject::connect(startupSocketNotifier, SIGNAL(activated(int)),
@@ -455,7 +455,7 @@ void QProcessPrivate::startProcess()
     qt_create_pipe(deathPipe);
     ::fcntl(deathPipe[0], F_SETFD, FD_CLOEXEC);
     ::fcntl(deathPipe[1], F_SETFD, FD_CLOEXEC);
-    if (QAbstractEventDispatcher::instance(q->thread())) {
+    if (threadData->eventDispatcher) {
         deathNotifier = new QSocketNotifier(deathPipe[0],
                                             QSocketNotifier::Read, q);
         QObject::connect(deathNotifier, SIGNAL(activated(int)),
@@ -463,7 +463,7 @@ void QProcessPrivate::startProcess()
     }
 
     if (!createChannel(stdinChannel) ||
-        !createChannel(stdoutChannel) || 
+        !createChannel(stdoutChannel) ||
         !createChannel(stderrChannel))
         return;
 
@@ -527,7 +527,7 @@ void QProcessPrivate::startProcess()
 void QProcessPrivate::execChild(const QByteArray &programName)
 {
     ::signal(SIGPIPE, SIG_DFL);         // reset the signal that we ignored
-    
+
     QByteArray encodedProgramName = programName;
     Q_Q(QProcess);
 
@@ -1043,11 +1043,11 @@ void QProcessPrivate::findExitCode()
 bool QProcessPrivate::waitForDeadChild()
 {
     Q_Q(QProcess);
-    
+
     // read a byte from the death pipe
     char c;
     qt_native_read(deathPipe[0], &c, 1);
-    
+
     // check if our process is dead
     int exitStatus;
     pid_t waitResult = waitpid(pid_t(pid), &exitStatus, WNOHANG);
@@ -1080,7 +1080,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     // To catch the startup of the child
     int startedPipe[2];
     ::pipe(startedPipe);
-    
+
     pid_t childPid = fork();
     if (childPid == 0) {
         ::setsid();
@@ -1091,7 +1091,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
         pid_t doubleForkPid = fork();
         if (doubleForkPid == 0) {
             ::fcntl(startedPipe[1], F_SETFD, FD_CLOEXEC);
-            
+
             char **argv = new char *[arguments.size() + 2];
             for (int i = 0; i < arguments.size(); ++i) {
 #ifdef Q_OS_MAC

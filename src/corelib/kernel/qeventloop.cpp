@@ -80,10 +80,12 @@ public:
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {
-    if (!QCoreApplication::instance())
+    Q_D(QEventLoop);
+    if (!QCoreApplication::instance()) {
         qWarning("QEventLoop: Cannot be used without QApplication");
-    else if (!thread())
-        qWarning("QEventLoop: Can only be used with threads started with QThread");
+    } else if (!d->threadData->eventDispatcher) {
+        QThreadPrivate::createEventDispatcher(d->threadData);
+    }
 }
 
 /*!
@@ -107,11 +109,10 @@ QEventLoop::~QEventLoop()
 */
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
-    QThread *thr = thread();
-    if (!thr)
+    Q_D(QEventLoop);
+    if (!d->threadData->eventDispatcher)
         return false;
-
-    return QAbstractEventDispatcher::instance(thr)->processEvents(flags);
+    return d->threadData->eventDispatcher->processEvents(flags);
 }
 
 /*!
@@ -139,21 +140,17 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 */
 int QEventLoop::exec(ProcessEventsFlags flags)
 {
-    QThread *thr = thread();
-    if (!thr)
-        return -1;
-    QThreadData *data = QThreadData::get(thr);
-    if (data->quitNow)
+    Q_D(QEventLoop);
+    if (d->threadData->quitNow)
         return -1;
 
-    Q_D(QEventLoop);
     if (d->inExec) {
         qWarning("QEventLoop::exec: instance %p has already called exec()", this);
         return -1;
     }
     d->inExec = true;
     d->exit = false;
-    data->eventLoops.push(this);
+    d->threadData->eventLoops.push(this);
 
 #if defined(QT_NO_EXCEPTIONS)
     while (!d->exit)
@@ -169,7 +166,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     }
 #endif
 
-    QEventLoop *eventLoop = data->eventLoops.pop();
+    QEventLoop *eventLoop = d->threadData->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
     Q_UNUSED(eventLoop); // --release warning
 
@@ -196,8 +193,8 @@ int QEventLoop::exec(ProcessEventsFlags flags)
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
-    QThread *thr = thread();
-    if (!thr)
+    Q_D(QEventLoop);
+    if (!d->threadData->eventDispatcher)
         return;
 
     QTime start;
@@ -225,16 +222,13 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 */
 void QEventLoop::exit(int returnCode)
 {
-    QThread *thr = thread();
-    if (!thr)
+    Q_D(QEventLoop);
+    if (!d->threadData->eventDispatcher)
         return;
 
-    Q_D(QEventLoop);
     d->returnCode = returnCode;
     d->exit = true;
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
-    if (eventDispatcher)
-        eventDispatcher->interrupt();
+    d->threadData->eventDispatcher->interrupt();
 }
 
 /*!
@@ -257,13 +251,10 @@ bool QEventLoop::isRunning() const
 */
 void QEventLoop::wakeUp()
 {
-    QThread *thr = thread();
-    if (!thr)
+    Q_D(QEventLoop);
+    if (!d->threadData->eventDispatcher)
         return;
-
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
-    if (eventDispatcher)
-        eventDispatcher->wakeUp();
+    d->threadData->eventDispatcher->wakeUp();
 }
 
 /*!

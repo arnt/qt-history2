@@ -36,19 +36,10 @@ static int nextTimerId()
 void QAbstractEventDispatcherPrivate::init()
 {
     Q_Q(QAbstractEventDispatcher);
-    QThread *thread = q->thread();
-    if (!thread) {
-        if (!QCoreApplicationPrivate::eventDispatcher) {
-            QCoreApplicationPrivate::eventDispatcher = q;
-        } else {
-            Q_ASSERT_X(false, "QAbstractEventDispatcher",
-                       "An event dispatcher has already been created for the application");
-        }
+    if (threadData->eventDispatcher != 0) {
+        qWarning("QAbstractEventDispatcher: An event dispatcher has already been created for this thread");
     } else {
-        QThreadData *data = QThreadData::get(thread);
-        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
-                   "An event dispatcher has already been created for this thread");
-        Q_UNUSED(data);
+        threadData->eventDispatcher = q;
     }
 }
 
@@ -130,14 +121,11 @@ QAbstractEventDispatcher::~QAbstractEventDispatcher()
  */
 QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 {
-    if (!thread)
-        thread = QThread::currentThread();
-    if (!thread)
-        return 0;
-    return QThreadData::get(thread)->eventDispatcher;
+    QThreadData *data = thread ? QThreadData::get2(thread) : QThreadData::current();
+    return data->eventDispatcher;
 }
 
-/*! 
+/*!
     \fn bool QAbstractEventDispatcher::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     Processes pending events that match \a flags until there are no
@@ -239,7 +227,7 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
     \sa awake()
 */
 
-/*! 
+/*!
     \fn void QAbstractEventDispatcher::interrupt()
 
     Interrupts event dispatching; i.e. the event dispatcher will

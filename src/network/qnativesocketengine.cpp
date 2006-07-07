@@ -72,6 +72,8 @@
 #include <qabstracteventdispatcher.h>
 #include <qsocketnotifier.h>
 
+#include <private/qthread_p.h>
+
 #define Q_VOID
 
 // Common constructs
@@ -879,7 +881,7 @@ void QNativeSocketEngine::setReadNotificationEnabled(bool enable)
     Q_D(QNativeSocketEngine);
     if (d->readNotifier) {
         d->readNotifier->setEnabled(enable);
-    } else if (enable && QAbstractEventDispatcher::instance(thread())) {
+    } else if (enable && d->threadData->eventDispatcher) {
         d->readNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Read, this);
         QObject::connect(d->readNotifier, SIGNAL(activated(int)),
@@ -899,7 +901,7 @@ void QNativeSocketEngine::setWriteNotificationEnabled(bool enable)
     Q_D(QNativeSocketEngine);
     if (d->writeNotifier) {
         d->writeNotifier->setEnabled(enable);
-    } else if (enable && QAbstractEventDispatcher::instance(thread())) {
+    } else if (enable && d->threadData->eventDispatcher) {
         d->writeNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Write, this);
         QObject::connect(d->writeNotifier, SIGNAL(activated(int)),
@@ -919,7 +921,7 @@ void QNativeSocketEngine::setExceptionNotificationEnabled(bool enable)
     Q_D(QNativeSocketEngine);
     if (d->exceptNotifier) {
         d->exceptNotifier->setEnabled(enable);
-    } else if (enable && QAbstractEventDispatcher::instance(thread())) {
+    } else if (enable && d->threadData->eventDispatcher) {
         d->exceptNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Exception, this);
         QObject::connect(d->exceptNotifier, SIGNAL(activated(int)),

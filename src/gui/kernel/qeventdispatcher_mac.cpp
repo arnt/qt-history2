@@ -479,8 +479,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     bool retVal = false;
     for (;;) {
-        QThreadData *threadData = QThreadData::get(thread());
-        if (threadData->postEventList.size() > 0)
+        if (d->threadData->postEventList.size() > 0)
             retVal = true;
 
         QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
@@ -520,7 +519,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()) > 0);
 
         bool canWait = (!retVal
-                        && threadData->canWait
+                        && d->threadData->canWait
                         && !d->interrupt
                         && (flags & QEventLoop::WaitForMoreEvents)
                         && !d->zero_timer_count);

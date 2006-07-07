@@ -118,10 +118,7 @@ bool QCoreApplicationPrivate::is_app_closing = false;
 
 Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 {
-    QThread *currentThread = QThread::currentThread();
-    if (!currentThread)
-        return 0;
-    return QThreadData::get(currentThread)->postEventList.size();
+    return QThreadData::current()->postEventList.size();
 }
 
 
@@ -130,17 +127,6 @@ QAbstractEventDispatcher *QCoreApplicationPrivate::eventDispatcher = 0;
 
 #ifdef Q_OS_UNIX
 Qt::HANDLE qt_application_thread_id = 0;
-#endif
-
-#ifndef QT_NO_THREAD
-Q_GLOBAL_STATIC(QAdoptedThread, actual_mainThread);
-static QThread *the_mainThread = 0;
-static QThread *mainThread() {
-    return the_mainThread ? the_mainThread : actual_mainThread();
-}
-
-#else
-static QThread* mainThread() { return QThread::currentThread(); }
 #endif
 
 struct QCoreApplicationData {
@@ -179,23 +165,20 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     qt_application_thread_id = QThread::currentThreadId();
 #endif
 
-    QThread *thr = mainThread();
-    QThreadPrivate::setCurrentThread(thr);
-    QObjectPrivate::thread = QThreadData::get(thr)->id;
+    if (QThread::currentThread() != mainThread())
+        qWarning("WARNING: QApplication was not created in the main() thread.");
 }
 
 QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
-    QThreadData *data = QThreadData::get(mainThread());
 #ifndef QT_NO_THREAD
-    QThreadStorageData::finish(data->tls);
+    QThreadStorageData::finish(threadData->tls);
 #endif
-    QThreadPrivate::setCurrentThread(0);
 
     // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
-    QMutexLocker locker(&data->postEventList.mutex);
-    for (int i = 0; i < data->postEventList.size(); ++i) {
-        const QPostEvent &pe = data->postEventList.at(i);
+    QMutexLocker locker(&threadData->postEventList.mutex);
+    for (int i = 0; i < threadData->postEventList.size(); ++i) {
+        const QPostEvent &pe = threadData->postEventList.at(i);
         if (pe.event) {
             --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
@@ -206,9 +189,9 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
             delete pe.event;
         }
     }
-    data->postEventList.clear();
-    data->postEventList.recursion = 0;
-    data->quitNow = false;
+    threadData->postEventList.clear();
+    threadData->postEventList.recursion = 0;
+    threadData->quitNow = false;
 }
 
 void QCoreApplicationPrivate::createEventDispatcher()
@@ -228,38 +211,39 @@ void QCoreApplicationPrivate::createEventDispatcher()
 #endif
 }
 
+QThread *QCoreApplicationPrivate::theMainThread = 0;
 QThread *QCoreApplicationPrivate::mainThread()
-{ return ::mainThread(); }
+{
+    Q_ASSERT(theMainThread != 0);
+    return theMainThread;
+}
 
 #ifdef QT3_SUPPORT
 void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver, QObject *child)
 {
-    QThread *currentThread = QThread::currentThread();
-    if (currentThread) {
-        QThreadData *data = QThreadData::get(currentThread);
-        QMutexLocker locker(&data->postEventList.mutex);
+    QThreadData *data = receiver->d_func()->threadData;
+    QMutexLocker locker(&data->postEventList.mutex);
 
-        // the QObject destructor calls QObject::removeChild, which calls
-        // QCoreApplication::sendEvent() directly.  this can happen while the event
-        // loop is in the middle of posting events, and when we get here, we may
-        // not have any more posted events for this object.
+    // the QObject destructor calls QObject::removeChild, which calls
+    // QCoreApplication::sendEvent() directly.  this can happen while the event
+    // loop is in the middle of posting events, and when we get here, we may
+    // not have any more posted events for this object.
 
-        // if this is a child remove event and the child insert
-        // hasn't been dispatched yet, kill that insert
-        for (int i = 0; i < data->postEventList.size(); ++i) {
-            const QPostEvent &pe = data->postEventList.at(i);
-            if (pe.event && pe.receiver == receiver) {
-                if (pe.event->type() == QEvent::ChildInserted
-                    && ((QChildEvent*)pe.event)->child() == child) {
-                    --receiver->d_func()->postedEvents;
-                    --receiver->d_func()->postedChildInsertedEvents;
-                    Q_ASSERT(receiver->d_func()->postedEvents >= 0);
-                    Q_ASSERT(receiver->d_func()->postedChildInsertedEvents >= 0);
-                    pe.event->posted = false;
-                    delete pe.event;
-                    const_cast<QPostEvent &>(pe).event = 0;
-                    const_cast<QPostEvent &>(pe).receiver = 0;
-                }
+    // if this is a child remove event and the child insert
+    // hasn't been dispatched yet, kill that insert
+    for (int i = 0; i < data->postEventList.size(); ++i) {
+        const QPostEvent &pe = data->postEventList.at(i);
+        if (pe.event && pe.receiver == receiver) {
+            if (pe.event->type() == QEvent::ChildInserted
+                && ((QChildEvent*)pe.event)->child() == child) {
+                --receiver->d_func()->postedEvents;
+                --receiver->d_func()->postedChildInsertedEvents;
+                Q_ASSERT(receiver->d_func()->postedEvents >= 0);
+                Q_ASSERT(receiver->d_func()->postedChildInsertedEvents >= 0);
+                pe.event->posted = false;
+                delete pe.event;
+                const_cast<QPostEvent &>(pe).event = 0;
+                const_cast<QPostEvent &>(pe).receiver = 0;
             }
         }
     }
@@ -417,6 +401,23 @@ void QCoreApplication::init()
     Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object");
     QCoreApplication::self = this;
 
+#ifndef QT_NO_THREAD
+    QThread::initialize();
+#endif
+
+    // use the event dispatcher created by the app programmer (if any)
+    if (!QCoreApplicationPrivate::eventDispatcher)
+        QCoreApplicationPrivate::eventDispatcher = d->threadData->eventDispatcher;
+    // otherwise we create one
+    if (!QCoreApplicationPrivate::eventDispatcher)
+        d->createEventDispatcher();
+    Q_ASSERT(QCoreApplicationPrivate::eventDispatcher != 0);
+
+    if (!QCoreApplicationPrivate::eventDispatcher->parent())
+        QCoreApplicationPrivate::eventDispatcher->moveToThread(d->threadData->thread);
+
+    d->threadData->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
+
 #ifndef QT_NO_LIBRARY
     if (!coreappdata()->app_libpaths) {
         // make sure that library paths is initialized
@@ -425,20 +426,6 @@ void QCoreApplication::init()
         d->appendApplicationPathToLibraryPaths();
     }
 #endif
-
-
-#ifndef QT_NO_THREAD
-    QThread::initialize();
-#endif
-
-    if (!QCoreApplicationPrivate::eventDispatcher)
-        d->createEventDispatcher();
-    Q_ASSERT(QCoreApplicationPrivate::eventDispatcher != 0);
-    if (!QCoreApplicationPrivate::eventDispatcher->parent())
-        QCoreApplicationPrivate::eventDispatcher->moveToThread(mainThread());
-
-    QThreadData *data = QThreadData::get(mainThread());
-    data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
 
 #if defined(Q_OS_UNIX) && !(defined(QT_NO_PROCESS))
     // Make sure the process manager thread object is created in the main
@@ -469,7 +456,7 @@ QCoreApplication::~QCoreApplication()
     QThread::cleanup();
 #endif
 
-    QThreadData::get(mainThread())->eventDispatcher = 0;
+    d_func()->threadData->eventDispatcher = 0;
     if (QCoreApplicationPrivate::eventDispatcher)
         QCoreApplicationPrivate::eventDispatcher->closingDown();
     QCoreApplicationPrivate::eventDispatcher = 0;
@@ -612,10 +599,10 @@ bool QCoreApplication::closingDown()
 */
 void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
-    QThread *currentThread = QThread::currentThread();
-    if (!currentThread)
+    QThreadData *data = QThreadData::current();
+    if (!data->eventDispatcher)
         return;
-    QThreadData::get(currentThread)->eventDispatcher->processEvents(flags);
+    data->eventDispatcher->processEvents(flags);
 }
 
 /*!
@@ -631,10 +618,9 @@ void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 */
 void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags, int maxtime)
 {
-    QThread *currentThread = QThread::currentThread();
-    if (!currentThread)
+    QThreadData *data = QThreadData::current();
+    if (!data->eventDispatcher)
         return;
-    QThreadData *data = QThreadData::get(currentThread);
     QTime start;
     start.start();
     while (data->eventDispatcher->processEvents(flags & ~QEventLoop::WaitForMoreEvents)) {
@@ -667,21 +653,22 @@ int QCoreApplication::exec()
 {
     if (!QCoreApplicationPrivate::checkInstance("exec"))
         return -1;
-    QThread *currentThread = QThread::currentThread();
-    if (currentThread != self->thread()) {
-        qWarning("QCoreApplication::exec: Must be called from the main thread");
+
+    QThreadData *threadData = self->d_func()->threadData;
+    if (threadData != QThreadData::current()) {
+        qWarning("%s::exec: Must be called from the main thread", self->metaObject()->className());
         return -1;
     }
-    QThreadData *data = QThreadData::get(currentThread);
-    if (!data->eventLoops.isEmpty()) {
+    if (!threadData->eventLoops.isEmpty()) {
         qWarning("QCoreApplication::exec: The event loop is already running");
         return -1;
     }
-    data->quitNow = false;
+
+    threadData->quitNow = false;
     QEventLoop eventLoop;
     self->d_func()->in_exec = true;
     int returnCode = eventLoop.exec();
-    data->quitNow = false;
+    threadData->quitNow = false;
     if (self) {
         self->d_func()->in_exec = false;
         emit self->aboutToQuit();
@@ -710,7 +697,7 @@ void QCoreApplication::exit(int returnCode)
 {
     if (!self)
         return;
-    QThreadData *data = QThreadData::get(self->thread());
+    QThreadData *data = self->d_func()->threadData;
     data->quitNow = true;
     for (int i = 0; i < data->eventLoops.size(); ++i) {
         QEventLoop *eventLoop = data->eventLoops.at(i);
@@ -765,21 +752,12 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
     }
 
 #ifndef QT_NO_THREAD
-    // uberhack for enabling some threading features for (mumble)
+    // uberhack for enabling some threading features for Qt Jambi
     if (receiver == (QObject *) 0xfeedface && event == (QEvent *) 0xc0ffee) {
-        QThreadPrivate::adoptCurrentThreadEnabled = true;
-        if (!the_mainThread)
-            the_mainThread = new QAdoptedThread();
+        QCoreApplicationPrivate::theMainThread = QThread::currentThread();
         return;
     }
 #endif
-
-    /*
-      avoid a deadlock when trying to create the mainThread() when
-      posting the very first event in an application with a
-      QCoreApplication
-    */
-    (void) mainThread();
 
     QReadLocker locker(QObjectPrivate::readWriteLock());
     if (!QObjectPrivate::isValidObject(receiver)) {
@@ -788,15 +766,12 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
-    QThread *thread = receiver->thread();
-    if (!thread)
-        thread = mainThread();
-    if (!thread) {
+    QThreadData *data = receiver->d_func()->threadData;
+    if (!data) {
         // posting during destruction? just delete the event to prevent a leak
         delete event;
         return;
     }
-    QThreadData *data = QThreadData::get(thread);
 
     {
         QMutexLocker locker(&data->postEventList.mutex);
@@ -894,25 +869,13 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         event_type = 0;
     }
 
-    QThread *currentThread = QThread::currentThread();
-    if (self) {
-        // allow sendPostedEvents() to be called when QCoreApplication
-        // is not instantiated
-        Q_ASSERT_X(currentThread != 0, "QCoreApplication::sendPostedEvents",
-                   "Posted events can only be send from threads started with QThread");
-        if (!currentThread)
-            return;
-    }
+    QThreadData *data = QThreadData::current();
 
-    if (receiver) {
-        QThread *thr = receiver->thread();
-        Q_ASSERT_X(thr == currentThread || !thr, "QCoreApplication::sendPostedEvents",
-                   "Cannot send posted events for object created in another thread");
-        if (thr == 0 || thr != currentThread)
-            return;
+    if (receiver && receiver->d_func()->threadData != data) {
+        qWarning("QCoreApplication::sendPostedEvents: Cannot send "
+                 "posted events for objects in another thread");
+        return;
     }
-
-    QThreadData *data = QThreadData::get(currentThread);
 
     ++data->postEventList.recursion;
 
@@ -1057,12 +1020,8 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 {
     if (!receiver)
         return;
-    QThread *thr = receiver->thread();
-    if (!thr)
-        thr = mainThread();
-    if (!thr)
-        return;
-    QThreadData *data = QThreadData::get(thr);
+
+    QThreadData *data = receiver->d_func()->threadData;
 
     QMutexLocker locker(&data->postEventList.mutex);
 
@@ -1121,10 +1080,7 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
     if (!event || !event->posted)
         return;
 
-    QThread *thread = QThread::currentThread();
-    if (!thread)
-        return;
-    QThreadData *data = QThreadData::get(thread);
+    QThreadData *data = QThreadData::current();
 
     QMutexLocker locker(&data->postEventList.mutex);
 
@@ -1882,8 +1838,9 @@ bool QCoreApplication::hasPendingEvents()
 */
 int QCoreApplication::enter_loop()
 {
-    QThread *currentThread = QThread::currentThread();
-    if (currentThread != mainThread()) {
+    if (!QCoreApplicationPrivate::checkInstance("enter_loop"))
+        return -1;
+    if (QThreadData::current() != self->d_func()->threadData) {
         qWarning("QCoreApplication::enter_loop: Must be called from the main thread");
         return -1;
     }
@@ -1899,12 +1856,13 @@ int QCoreApplication::enter_loop()
 */
 void QCoreApplication::exit_loop()
 {
-    QThread *currentThread = QThread::currentThread();
-    if (currentThread != mainThread()) {
+    if (!QCoreApplicationPrivate::checkInstance("exit_loop"))
+        return;
+    QThreadData *data = QThreadData::current();
+    if (data != self->d_func()->threadData) {
         qWarning("QCoreApplication::exit_loop: Must be called from the main thread");
         return;
     }
-    QThreadData *data = QThreadData::get(currentThread);
     if (!data->eventLoops.isEmpty())
         data->eventLoops.top()->exit();
 }
@@ -1915,11 +1873,9 @@ void QCoreApplication::exit_loop()
 */
 int QCoreApplication::loopLevel()
 {
-    QThread *thr = mainThread();
-    if (!thr)
+    if (!QCoreApplicationPrivate::checkInstance("loopLevel"))
         return -1;
-    QThreadData *data = QThreadData::get(thr);
-    return data->eventLoops.size();
+    return self->d_func()->threadData->eventLoops.size();
 }
 #endif
 

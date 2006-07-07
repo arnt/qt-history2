@@ -608,82 +608,89 @@ void tst_QApplication::postEventRace()
 
 void tst_QApplication::thread()
 {
+    QThread *currentThread = QThread::currentThread();
+    // no app, but still have a valid thread
+    QVERIFY(currentThread != 0);
+
+    // the thread should be running and not finished
+    QVERIFY(currentThread->isRunning());
+    QVERIFY(!currentThread->isFinished());
+
     // this should probably be in the tst_QObject::thread() test, but
     // we put it here since we want to make sure that objects created
-    // *before* the QApplication have no thread
+    // *before* the QApplication has a thread
     QObject object;
     QObject child(&object);
-    QVERIFY(object.thread() == 0);
-    QVERIFY(child.thread() == 0);
-
-
-    QThread *currentThread = QThread::currentThread();
-    // no app, no current thread
-    QVERIFY(currentThread == 0);
+    QVERIFY(object.thread() == currentThread);
+    QVERIFY(child.thread() == currentThread);
 
     {
         int argc = 0;
         QApplication app(argc, 0, QApplication::GuiServer);
-        currentThread = QThread::currentThread();
-        // should have a current thread
-        QVERIFY(currentThread != 0);
+
+        // current thread still valid
+        QVERIFY(QThread::currentThread() != 0);
+        // thread should be the same as before
+        QCOMPARE(QThread::currentThread(), currentThread);
+
         // app's thread should be the current thread
         QCOMPARE(app.thread(), currentThread);
-        // the thread should be running and not finished
+
+        // the thread should still be running and not finished
         QVERIFY(currentThread->isRunning());
         QVERIFY(!currentThread->isFinished());
-
-        // even though the application has been created, the object
-        // created above should still have no thread
-        QVERIFY(object.thread() == 0);
-        QVERIFY(child.thread() == 0);
 
         QTestEventLoop::instance().enterLoop(1);
     }
 
-    // app dead, no current thread
-    QVERIFY(QThread::currentThread() == 0);
+    // app dead, current thread still valid
+    QVERIFY(QThread::currentThread != 0);
+    QCOMPARE(QThread::currentThread(), currentThread);
 
     // the thread should still be running and not finished
     QVERIFY(currentThread->isRunning());
     QVERIFY(!currentThread->isFinished());
 
-    // should still have no thread
-    QVERIFY(object.thread() == 0);
-    QVERIFY(child.thread() == 0);
+    // should still have a thread
+    QVERIFY(object.thread() == currentThread);
+    QVERIFY(child.thread() == currentThread);
 
     // do the test again, making sure that the thread is the same as
     // before
     {
         int argc = 0;
         QApplication app(argc, 0, QApplication::GuiServer);
-        // should have a current thread
+
+        // current thread still valid
         QVERIFY(QThread::currentThread() != 0);
         // thread should be the same as before
         QCOMPARE(QThread::currentThread(), currentThread);
+
         // app's thread should be the current thread
         QCOMPARE(app.thread(), currentThread);
+
         // the thread should be running and not finished
         QVERIFY(currentThread->isRunning());
         QVERIFY(!currentThread->isFinished());
 
-        // should still have no thread
-        QVERIFY(object.thread() == 0);
-        QVERIFY(child.thread() == 0);
+        // should still have a thread
+        QVERIFY(object.thread() == currentThread);
+        QVERIFY(child.thread() == currentThread);
 
         QTestEventLoop::instance().enterLoop(1);
     }
 
-    // app dead, no current thread
-    QVERIFY(QThread::currentThread() == 0);
+    // app dead, current thread still valid
+    QVERIFY(QThread::currentThread() != 0);
+    QCOMPARE(QThread::currentThread(), currentThread);
 
     // the thread should still be running and not finished
     QVERIFY(currentThread->isRunning());
     QVERIFY(!currentThread->isFinished());
 
-    // should still have no thread
-    QVERIFY(object.thread() == 0);
-    QVERIFY(child.thread() == 0);
+    // should still have a thread
+    QVERIFY(object.thread() == currentThread);
+    QVERIFY(child.thread() == currentThread);
 }
 
 class DeleteLaterWidget : public QWidget
@@ -1099,7 +1106,7 @@ void tst_QApplication::style()
     // Set the stylesheet
     qApp->setStyleSheet("whatever");
     QPointer<QStyleSheetStyle> sss = (QStyleSheetStyle *)qApp->style();
-    QVERIFY(!sss.isNull()); 
+    QVERIFY(!sss.isNull());
     QCOMPARE(sss->metaObject()->className(), "QStyleSheetStyle"); // must be our proxy now
     QVERIFY(!style2.isNull()); // this should exist
     QVERIFY(sss->baseStyle() == style2);
@@ -1107,12 +1114,12 @@ void tst_QApplication::style()
     qApp->setStyle(style1);
     QVERIFY(style2.isNull()); // should disappear automatically
     QVERIFY(sss->baseStyle() == style1); // and replaced with the new one
-    
+
     // Update the stylesheet and check nothing changes
     qApp->setStyleSheet("whatever2");
     QVERIFY(qApp->style() == sss);
     QVERIFY(sss->baseStyle() == style1);
-    
+
     // Revert the stylesheet
     qApp->setStyleSheet("");
     QVERIFY(sss.isNull()); // should have disappeared

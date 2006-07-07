@@ -50,6 +50,7 @@ public:
     static void removePostedTimerEvent(QObject *object, int timerId);
 #endif
 
+    static QThread *theMainThread;
     static QThread *mainThread();
     static bool checkInstance(const char *method);
 

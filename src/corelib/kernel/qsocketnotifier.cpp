@@ -18,6 +18,8 @@
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
 
+#include "qobject_p.h"
+#include <private/qthread_p.h>
 
 /*!
     \class QSocketNotifier
@@ -117,11 +119,11 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
     sntype = type;
     snenabled = true;
 
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
-    if (!eventDispatcher) {
+    Q_D(QObject);
+    if (!d->threadData->eventDispatcher) {
         qWarning("QSocketNotifier: Can only be used with threads started with QThread");
     } else {
-        eventDispatcher->registerSocketNotifier(this);
+        d->threadData->eventDispatcher->registerSocketNotifier(this);
     }
 }
 
@@ -155,11 +157,11 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
     sntype = type;
     snenabled = true;
 
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
-    if (!eventDispatcher) {
+    Q_D(QObject);
+    if (!d->threadData->eventDispatcher) {
         qWarning("QSocketNotifier: Can only be used with threads started with QThread");
     } else {
-        eventDispatcher->registerSocketNotifier(this);
+        d->threadData->eventDispatcher->registerSocketNotifier(this);
     }
 }
 #endif
@@ -233,13 +235,13 @@ void QSocketNotifier::setEnabled(bool enable)
         return;
     snenabled = enable;
 
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
-    if (!eventDispatcher) // perhaps application/thread is shutting down
+    Q_D(QObject);
+    if (!d->threadData->eventDispatcher) // perhaps application/thread is shutting down
         return;
     if (snenabled)
-        eventDispatcher->registerSocketNotifier(this);
+        d->threadData->eventDispatcher->registerSocketNotifier(this);
     else
-        eventDispatcher->unregisterSocketNotifier(this);
+        d->threadData->eventDispatcher->unregisterSocketNotifier(this);
 }
 
 

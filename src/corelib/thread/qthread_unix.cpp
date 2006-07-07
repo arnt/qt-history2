@@ -17,10 +17,12 @@
 
 #include "qplatformdefs.h"
 
+#include <private/qcoreapplication_p.h>
 #if !defined(QT_NO_GLIB)
 #  include "../kernel/qeventdispatcher_glib_p.h"
 #endif
 #include <private/qeventdispatcher_unix_p.h>
+
 #include "qthreadstorage.h"
 
 #include "qthread_p.h"
@@ -29,6 +31,32 @@
 #include <errno.h>
 #include <string.h>
 
+
+static pthread_once_t current_thread_data_once = PTHREAD_ONCE_INIT;
+static pthread_key_t current_thread_data_key;
+
+static void destroy_current_thread_data(void *p)
+{
+    reinterpret_cast<QThreadData *>(p)->deref();
+}
+
+static void create_current_thread_data_key()
+{
+    pthread_key_create(&current_thread_data_key, destroy_current_thread_data);
+}
+
+QThreadData *QThreadData::current()
+{
+    pthread_once(&current_thread_data_once, create_current_thread_data_key);
+    QThreadData *data = reinterpret_cast<QThreadData *>(pthread_getspecific(current_thread_data_key));
+    if (!data) {
+        data = new QThreadData;
+        pthread_setspecific(current_thread_data_key, data);
+        data->thread = new QAdoptedThread(data);
+        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+    }
+    return data;
+}
 
 /*
    QThreadPrivate
@@ -44,12 +72,6 @@ typedef void*(*QtThreadCallback)(void*);
 }
 #endif
 
-static pthread_once_t current_thread_key_once = PTHREAD_ONCE_INIT;
-static pthread_key_t current_thread_key;
-static void create_current_thread_key()
-{ pthread_key_create(&current_thread_key, NULL); }
-
-
 void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
 #if !defined(QT_NO_GLIB)
@@ -61,23 +83,20 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
     data->eventDispatcher->startingUp();
 }
 
-void QThreadPrivate::setCurrentThread(QThread *thread)
-{
-    pthread_once(&current_thread_key_once, create_current_thread_key);
-    pthread_setspecific(current_thread_key, thread);
-}
-
 void *QThreadPrivate::start(void *arg)
 {
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
-
-    QThread *thr = reinterpret_cast<QThread *>(arg);
-    setCurrentThread(thr);
-
     pthread_cleanup_push(QThreadPrivate::finish, arg);
 
-    QThreadData *data = QThreadData::get(thr);
+    QThread *thr = reinterpret_cast<QThread *>(arg);
+    QThreadData *data = QThreadData::get2(thr);
+
+    pthread_once(&current_thread_data_once, create_current_thread_data_key);
+    pthread_setspecific(current_thread_data_key, data);
+
+    data->ref();
     data->quitNow = false;
+
     // ### TODO: allow the user to create a custom event dispatcher
     createEventDispatcher(data);
 
@@ -94,7 +113,6 @@ void QThreadPrivate::finish(void *arg)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadPrivate *d = thr->d_func();
-    QThreadData *data = &d->data;
     QMutexLocker locker(&d->mutex);
 
     d->priority = QThread::InheritPriority;
@@ -105,13 +123,13 @@ void QThreadPrivate::finish(void *arg)
     d->terminated = false;
     emit thr->finished();
 
-    data->eventDispatcher->closingDown();
-    QAbstractEventDispatcher *eventDispatcher = data->eventDispatcher;
-    data->eventDispatcher = 0;
+    d->data->eventDispatcher->closingDown();
+    QAbstractEventDispatcher *eventDispatcher = d->data->eventDispatcher;
+    d->data->eventDispatcher = 0;
     delete eventDispatcher;
 
-    QThreadStorageData::finish(data->tls);
-    data->tls = 0;
+    QThreadStorageData::finish(d->data->tls);
+    d->data->tls = 0;
 
     d->thread_id = 0;
     d->thread_done.wakeAll();
@@ -149,13 +167,9 @@ Qt::HANDLE QThread::currentThreadId()
 */
 QThread *QThread::currentThread()
 {
-    pthread_once(&current_thread_key_once, create_current_thread_key);
-    QThread *current = reinterpret_cast<QThread *>(pthread_getspecific(current_thread_key));
-    if (!current && QThreadPrivate::adoptCurrentThreadEnabled) {
-        current = QThreadPrivate::adoptCurrentThread();
-    }
-    return current;
-
+    QThreadData *data = QThreadData::current();
+    Q_ASSERT(data != 0);
+    return data->thread;
 }
 
 /*  \internal

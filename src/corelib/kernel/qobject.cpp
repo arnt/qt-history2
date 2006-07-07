@@ -276,7 +276,7 @@ bool QObjectPrivate::isValidObject(QObject *object)
 }
 
 QObjectPrivate::QObjectPrivate(int version)
-    : thread(0), currentSender(0), currentSenderSignalIdStart(-1), currentSenderSignalIdEnd(-1)
+    : threadData(0), currentSender(0), currentSenderSignalIdStart(-1), currentSenderSignalIdEnd(-1)
 {
     if (version != QObjectPrivateVersion)
         qFatal("Cannot mix incompatible Qt libraries");
@@ -603,12 +603,12 @@ QObject::QObject(QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    QThread *currentThread = QThread::currentThread();
-    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
-               "Cannot create children for a parent that is in a different thread.");
-    if (parent && parent->d_func()->thread != d->thread)
+    d->threadData = QThreadData::current();
+    d->threadData->ref();
+    if (parent && parent->d_func()->threadData != d->threadData) {
+        qWarning("QObject: Cannot create children for a parent that is in a different thread.");
         parent = 0;
+    }
     setParent(parent);
 }
 
@@ -624,12 +624,12 @@ QObject::QObject(QObject *parent, const char *name)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    QThread *currentThread = QThread::currentThread();
-    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
-               "Cannot create children for a parent that is in a different thread.");
-    if (parent && parent->d_func()->thread != d->thread)
+    d->threadData = QThreadData::current();
+    d->threadData->ref();
+    if (parent && parent->d_func()->threadData != d->threadData) {
+        qWarning("QObject: Cannot create children for a parent that is in a different thread.");
         parent = 0;
+    }
     setParent(parent);
     setObjectName(QString::fromAscii(name));
 }
@@ -642,12 +642,12 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    QThread *currentThread = QThread::currentThread();
-    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
-               "Cannot create children for a parent that is in a different thread.");
-    if (parent && parent->d_func()->thread != d->thread)
+    d->threadData = QThreadData::current();
+    d->threadData->ref();
+    if (parent && parent->d_func()->threadData != d->threadData) {
+        qWarning("QObject: Cannot create children for a parent that is in a different thread.");
         parent = 0;
+    }
     if (d->isWidget) {
         if (parent) {
             d->parent = parent;
@@ -708,14 +708,9 @@ QObject::~QObject()
     }
 
     if (d->pendTimer) {
-        // have pending timers
-        QThread *thr = thread();
-        if (thr || d->thread == 0) {
-            // don't unregister timers in the wrong thread
-            QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
-            if (eventDispatcher)
-                eventDispatcher->unregisterTimers(this);
-        }
+        // unregister pending timers
+        if (d->threadData->eventDispatcher)
+            d->threadData->eventDispatcher->unregisterTimers(this);
     }
 
     d->eventFilters.clear();
@@ -748,6 +743,8 @@ QObject::~QObject()
 
     if (d->parent)        // remove it from parent object
         d->setParent_helper(0);
+
+    d->threadData->deref();
 
     delete d;
     d_ptr = 0;
@@ -1034,10 +1031,9 @@ bool QObject::event(QEvent *e)
         }
 
     case QEvent::ThreadChange: {
-        QThread *objectThread = thread();
-        if (objectThread) {
-            QThreadData *threadData = QThreadData::get(objectThread);
-            QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
+        QThreadData *threadData = d_func()->threadData;
+        QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
+        if (eventDispatcher) {
             QList<QPair<int, int> > timers = eventDispatcher->registeredTimers(this);
             if (!timers.isEmpty()) {
                 eventDispatcher->unregisterTimers(this);
@@ -1230,7 +1226,9 @@ bool QObject::blockSignals(bool block)
     \sa moveToThread()
 */
 QThread *QObject::thread() const
-{ return QThreadPrivate::threadForId(d_func()->thread); }
+{
+    return d_func()->threadData->thread;
+}
 
 /*!
     Changes the thread affinity for this object and its children. The
@@ -1260,31 +1258,36 @@ QThread *QObject::thread() const
 void QObject::moveToThread(QThread *targetThread)
 {
     Q_D(QObject);
-    QThread *objectThread = thread();
-    if (objectThread == targetThread)
-        return;
-    Q_ASSERT_X(d->parent == 0, "QObject::moveToThread",
-               "Cannot move objects with a parent");
-    if (d->parent != 0)
-        return;
-    Q_ASSERT_X(!d->isWidget, "QObject::moveToThread",
-               "Widgets cannot be moved to a new thread");
-    if (d->isWidget)
-        return;
-    QThread *currentThread = QThread::currentThread();
-    Q_ASSERT_X(d->thread == -1 || objectThread == currentThread, "QObject::moveToThread",
-               "Current thread is not the object's thread");
-    if (d->thread != -1 && objectThread != currentThread)
-        return;
 
-    d->moveToThread_helper(targetThread);
+    if (d->threadData->thread == targetThread) {
+        // object is already in this thread
+        return;
+    }
+
+    if (d->parent != 0) {
+        qWarning("QObject::moveToThread: Cannot move objects with a parent");
+        return;
+    }
+    if (d->isWidget) {
+        qWarning("QObject::moveToThread: Widgets cannot be moved to a new thread");
+        return;
+    }
+
+    QThreadData *currentData = QThreadData::current();
+    QThreadData *targetData = targetThread ? QThreadData::get2(targetThread) : new QThreadData();
+    if (d->threadData->thread == 0 && currentData == targetData) {
+        // one exception to the rule: we allow moving objects with no thread affinity to the current thread
+        currentData = d->threadData;
+    } else if (d->threadData != currentData) {
+        qWarning("QObject::moveToThread: Current thread (%p) is not the object's thread (%p).\n"
+                 "Cannot move to target thread (%p)\n",
+                 d->threadData->thread, currentData->thread, targetData->thread);
+        return;
+    }
+
+    d->moveToThread_helper();
 
     QWriteLocker locker(QObjectPrivate::readWriteLock());
-    QThreadData *currentData = 0;
-    if (currentThread)
-        currentData = QThreadData::get(currentThread);
-    QThreadData *targetData =
-        QThreadData::get(targetThread ? targetThread : QCoreApplicationPrivate::mainThread());
     if (currentData != targetData) {
         targetData->postEventList.mutex.lock();
         while (currentData && !currentData->postEventList.mutex.tryLock()) {
@@ -1292,8 +1295,7 @@ void QObject::moveToThread(QThread *targetThread)
             targetData->postEventList.mutex.lock();
         }
     }
-    d_func()->setThreadId_helper(currentData, targetData,
-                                 targetThread ? QThreadData::get(targetThread)->id : -1);
+    d_func()->setThreadData_helper(currentData, targetData);
     if (currentData != targetData) {
         targetData->postEventList.mutex.unlock();
         if (currentData)
@@ -1301,61 +1303,56 @@ void QObject::moveToThread(QThread *targetThread)
     }
 }
 
-void QObjectPrivate::moveToThread_helper(QThread *targetThread)
+void QObjectPrivate::moveToThread_helper()
 {
     Q_Q(QObject);
     QEvent e(QEvent::ThreadChange);
     QCoreApplication::sendEvent(q, &e);
     for (int i = 0; i < children.size(); ++i) {
         QObject *child = children.at(i);
-        child->d_func()->moveToThread_helper(targetThread);
+        child->d_func()->moveToThread_helper();
     }
 }
 
-void QObjectPrivate::setThreadId_helper(QThreadData *currentData, QThreadData *targetData,
-                                      int newThreadId)
+void QObjectPrivate::setThreadData_helper(QThreadData *currentData, QThreadData *targetData)
 {
     Q_Q(QObject);
 
-    if (currentData && currentData != targetData) {
-        // move posted events
-        int eventsMoved = 0;
-        for (int i = 0; i < currentData->postEventList.size(); ++i) {
-            const QPostEvent &pe = currentData->postEventList.at(i);
-            if (!pe.event)
-                continue;
-            if (pe.receiver == q) {
-                // move this post event to the targetList
-                targetData->postEventList.append(pe);
-                const_cast<QPostEvent &>(pe).event = 0;
-                ++eventsMoved;
-            }
+    // move posted events
+    int eventsMoved = 0;
+    for (int i = 0; i < currentData->postEventList.size(); ++i) {
+        const QPostEvent &pe = currentData->postEventList.at(i);
+        if (!pe.event)
+            continue;
+        if (pe.receiver == q) {
+            // move this post event to the targetList
+            targetData->postEventList.append(pe);
+            const_cast<QPostEvent &>(pe).event = 0;
+            ++eventsMoved;
         }
-        if (eventsMoved > 0 && targetData->eventDispatcher)
-            targetData->eventDispatcher->wakeUp();
     }
+    if (eventsMoved > 0 && targetData->eventDispatcher)
+        targetData->eventDispatcher->wakeUp();
 
-    // set new thread id
-    thread = newThreadId;
+    // set new thread data
+    targetData->ref();
+    threadData->deref();
+    threadData = targetData;
+
     for (int i = 0; i < children.size(); ++i) {
         QObject *child = children.at(i);
-        child->d_func()->setThreadId_helper(currentData, targetData, newThreadId);
+        child->d_func()->setThreadData_helper(currentData, targetData);
     }
 }
 
 void QObjectPrivate::_q_reregisterTimers(void *pointer)
 {
     Q_Q(QObject);
-    QThread *objectThread = q->thread();
-    QList<QPair<int, int> > *timerList =
-        reinterpret_cast<QList<QPair<int, int> > *>(pointer);
-    if (objectThread) {
-        QThreadData *threadData = QThreadData::get(objectThread);
-        QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
-        for (int i = 0; i < timerList->size(); ++i) {
-            const QPair<int, int> &pair = timerList->at(i);
-            eventDispatcher->registerTimer(pair.first, pair.second, q);
-        }
+    QList<QPair<int, int> > *timerList = reinterpret_cast<QList<QPair<int, int> > *>(pointer);
+    QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
+    for (int i = 0; i < timerList->size(); ++i) {
+        const QPair<int, int> &pair = timerList->at(i);
+        eventDispatcher->registerTimer(pair.first, pair.second, q);
     }
     delete timerList;
 }
@@ -1427,23 +1424,19 @@ void QObjectPrivate::_q_reregisterTimers(void *pointer)
 int QObject::startTimer(int interval)
 {
     Q_D(QObject);
-    QThread *thr = thread();
-    if (!thr && d->thread != 0) {
-        qWarning("QObject::startTimer: QTimer can only be used with a valid thread");
-        return 0;
-    }
+
     if (interval < 0) {
         qWarning("QObject::startTimer: QTimer cannot have a negative interval");
         return 0;
     }
 
     d->pendTimer = true;                                // set timer flag
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
-    if (!eventDispatcher) {
+
+    if (!d->threadData->eventDispatcher) {
         qWarning("QObject::startTimer: QTimer can only be used with threads started with QThread");
         return 0;
     }
-    return eventDispatcher->registerTimer(interval, this);
+    return d->threadData->eventDispatcher->registerTimer(interval, this);
 }
 
 /*!
@@ -1458,15 +1451,8 @@ int QObject::startTimer(int interval)
 void QObject::killTimer(int id)
 {
     Q_D(QObject);
-    QThread *thr = thread();
-    if (!thr && d->thread != 0) {
-        qWarning("QObject::killTimer: QTimer can only be used with a valid thread");
-        return;
-    }
-
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
-    if (eventDispatcher)
-        eventDispatcher->unregisterTimer(id);
+    if (d->threadData->eventDispatcher)
+        d->threadData->eventDispatcher->unregisterTimer(id);
 }
 
 
@@ -1785,8 +1771,11 @@ void QObjectPrivate::setParent_helper(QObject *o)
     parent = o;
     if (parent) {
         // object hierarchies are constrained to a single thread
-        Q_ASSERT_X(thread == parent->d_func()->thread, "QObject::setParent",
-                   "New parent must be in the same thread as the previous parent");
+        if (threadData != parent->d_func()->threadData) {
+            qWarning("QObject::setParent: New parent must be in the same thread as the previous parent");
+            parent = 0;
+            return;
+        }
         parent->d_func()->children.append(q);
         if(sendChildEvents && parent->d_func()->receiveChildEvents) {
             if (!isWidget) {
@@ -2750,8 +2739,7 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         return;
     }
 
-    QThread * const currentThread = QThread::currentThread();
-    const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
+    QThreadData *currentThreadData = QThreadData::current();
 
     // QVarLengthArray doesn't use the same growth strategy as the rest of the Tulip classes, so we need to
     // determine the exact number of connections
@@ -2777,8 +2765,8 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         // determine if this connection should be sent immediately or
         // put into the event queue
         if ((c.type == Qt::AutoConnection
-             && (currentQThreadId != sender->d_func()->thread
-                 || c.receiver->d_func()->thread != sender->d_func()->thread))
+             && (currentThreadData != sender->d_func()->threadData
+                 || c.receiver->d_func()->threadData != sender->d_func()->threadData))
             || (c.type == Qt::QueuedConnection)) {
             ::queued_activate(sender, c, argv, from_signal_index, to_signal_index);
             continue;

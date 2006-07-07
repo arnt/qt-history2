@@ -258,6 +258,8 @@
 #include <qpointer.h>
 #include <qtimer.h>
 
+#include <private/qthread_p.h>
+
 #ifdef QABSTRACTSOCKET_DEBUG
 #include <qdebug.h>
 #endif
@@ -423,7 +425,7 @@ bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstract
         return false;
     }
 
-    if (QAbstractEventDispatcher::instance(q->thread()))
+    if (threadData->eventDispatcher)
         setupSocketNotifiers();
 
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -756,7 +758,7 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
         }
 
         // Start the connect timer.
-        if (QAbstractEventDispatcher::instance(q->thread())) {
+        if (threadData->eventDispatcher) {
             if (!connectTimer) {
                 connectTimer = new QTimer(q);
                 QObject::connect(connectTimer, SIGNAL(timeout()),
@@ -779,8 +781,7 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
 */
 void QAbstractSocketPrivate::_q_testConnection()
 {
-    Q_Q(QAbstractSocket);
-    if (QAbstractEventDispatcher::instance(q->thread())) {
+    if (threadData->eventDispatcher) {
         if (connectTimer)
             connectTimer->stop();
     }
@@ -1046,7 +1047,7 @@ void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint
         info.setAddresses(QList<QHostAddress>() << temp);
         d->_q_startConnecting(info);
     } else {
-        if (QAbstractEventDispatcher::instance(thread()))
+        if (d->threadData->eventDispatcher)
             d->hostLookupId = QHostInfo::lookupHost(hostName, this, SLOT(_q_startConnecting(QHostInfo)));
     }
 
@@ -1231,7 +1232,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
         return false;
     }
 
-    if (QAbstractEventDispatcher::instance(thread()))
+    if (d->threadData->eventDispatcher)
         d->setupSocketNotifiers();
 
     setOpenMode(openMode);

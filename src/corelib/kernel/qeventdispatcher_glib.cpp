@@ -201,7 +201,7 @@ struct GPostEventSource
 
 static gboolean postEventSourcePrepare(GSource *s, gint *timeout)
 {
-    QThreadData *data = QThreadData::get(QThread::currentThread());
+    QThreadData *data = QThreadData::current();
     if (!data)
         return false;
     gint dummy;
