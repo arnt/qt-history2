@@ -2583,10 +2583,10 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
 
                 QStringList replacement;
                 if(var_type == ENVIRON) {
-                    replacement = QStringList(QString::fromLocal8Bit(qgetenv(var.toLatin1().constData())));
+                    replacement = split_value_list(QString::fromLocal8Bit(qgetenv(var.toLatin1().constData())));
                 } else if(var_type == PROPERTY) {
                     if(prop)
-                        replacement = QStringList(prop->value(var));
+                        replacement = split_value_list(prop->value(var));
                 } else if(var_type == FUNCTION) {
                     replacement = doProjectExpand(var, args, place);
                 } else if(var_type == VAR) {
