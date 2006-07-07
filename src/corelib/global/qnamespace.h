@@ -1352,7 +1352,8 @@ public:
         Printer       = 0x04,
         Picture       = 0x05,
         Pbuffer       = 0x06,    // GL pbuffer
-        FramebufferObject = 0x07 // GL framebuffer object
+        FramebufferObject = 0x07, // GL framebuffer object
+        CustomRaster  = 0x08
     };
     enum RelayoutType {
         RelayoutNormal,

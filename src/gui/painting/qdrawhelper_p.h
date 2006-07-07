@@ -71,8 +71,12 @@ extern const CompositionFunctionSolid qt_functionForModeSolid_SSE[];
 
 
 void qInitDrawhelperAsm();
+#ifdef Q_WS_QWS
+void qResetDrawhelper();
+#endif
 
 class QRasterBuffer;
+class QRasterPaintEngine;
 
 struct SolidData
 {
@@ -150,6 +154,9 @@ struct TextureData
 struct QSpanData
 {
     QRasterBuffer *rasterBuffer;
+#ifdef Q_WS_QWS
+    QRasterPaintEngine *rasterEngine;
+#endif
     ProcessSpans blend;
     ProcessSpans unclipped_blend;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
@@ -168,7 +175,7 @@ struct QSpanData
         GradientData gradient;
         TextureData texture;
     };
-    void init(QRasterBuffer *rb);
+    void init(QRasterBuffer *rb, QRasterPaintEngine *pe = 0);
     void setup(const QBrush &brush, int alpha);
     void setupMatrix(const QMatrix &matrix, int txop, int bilinear);
     void initTexture(const QImage *image, int alpha, TextureData::Type = TextureData::Plain);

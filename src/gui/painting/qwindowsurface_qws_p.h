@@ -32,7 +32,7 @@
 
 class QWSWindowSurfacePrivate;
 
-class QWSWindowSurface : public QWindowSurface
+class Q_GUI_EXPORT QWSWindowSurface : public QWindowSurface
 {
 public:
     QWSWindowSurface();

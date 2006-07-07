@@ -723,6 +723,11 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             qWarning("QRasterPaintEngine::begin: Unsupported image format (%d)", format);
             return false;
         }
+#ifdef Q_WS_QWS
+    } else if (device->devType() == QInternal::CustomRaster) {
+        QCustomRasterPaintDevice *dev = static_cast<QCustomRasterPaintDevice*>(device);
+        d->rasterBuffer->prepare(dev);
+#endif
     } else {
         d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
     }
@@ -743,12 +748,12 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         d->brush = QBrush(Qt::NoBrush);
     }
 
-    d->penData.init(d->rasterBuffer);
+    d->penData.init(d->rasterBuffer, this);
     d->penData.setup(d->pen.brush(), d->opacity);
     d->stroker = &d->basicStroker;
     d->basicStroker.setClipRect(d->deviceRect);
 
-    d->brushData.init(d->rasterBuffer);
+    d->brushData.init(d->rasterBuffer, this);
     d->brushData.setup(d->brush, d->opacity);
 
     updateClipPath(QPainterPath(), Qt::NoClip);
@@ -773,6 +778,10 @@ bool QRasterPaintEngine::end()
     }
 
     setActive(false);
+
+#ifdef Q_WS_QWS
+    qResetDrawhelper();
+#endif
 
     return true;
 }
@@ -1151,6 +1160,7 @@ static void fillRect(const QRect &r, QSpanData *data)
                 spans[i].coverage = 255;
                 ++i;
             }
+
             data->blend(n, spans, data);
             y += n;
         }
@@ -1509,7 +1519,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
 
     Q_D(QRasterPaintEngine);
     QSpanData textureData;
-    textureData.init(d->rasterBuffer);
+    textureData.init(d->rasterBuffer, this);
     textureData.type = QSpanData::Texture;
     textureData.initTexture(&img, d->opacity);
 
@@ -1555,7 +1565,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         image = pixmap.toImage();
 
     QSpanData textureData;
-    textureData.init(d->rasterBuffer);
+    textureData.init(d->rasterBuffer, this);
     textureData.type = QSpanData::Texture;
     textureData.initTexture(&image, d->opacity, TextureData::Tiled);
 
@@ -1925,7 +1935,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         }
     } else if (clearType) {
         QSpanData data;
-        data.init(d->rasterBuffer);
+        data.init(d->rasterBuffer, this);
         data.type = QSpanData::Texture;
         data.texture.type = TextureData::Plain;
         data.texture.imageData = d->fontRasterBuffer->buffer();
@@ -2245,6 +2255,30 @@ QPoint QRasterPaintEngine::coordinateOffset() const
     Q_D(const QRasterPaintEngine);
     return QPoint(d->deviceRect.x(), d->deviceRect.y());
 }
+
+#ifdef Q_WS_QWS
+void QRasterPaintEngine::drawColorSpans(const QSpan *spans, int count, uint color)
+{
+    Q_UNUSED(spans);
+    Q_UNUSED(count);
+    Q_UNUSED(color);
+    qFatal("QRasterPaintEngine::drawColorSpans must be reimplemented on "
+           "a non memory-mapped device");
+}
+
+void QRasterPaintEngine::drawBufferSpan(const uint *buffer, int bufsize,
+                                        int x, int y, int length, uint const_alpha)
+{
+    Q_UNUSED(buffer);
+    Q_UNUSED(bufsize);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(length);
+    Q_UNUSED(const_alpha);
+    qFatal("QRasterPaintEngine::drawBufferSpan must be reimplemented on "
+           "a non memory-mapped device");
+}
+#endif // Q_WS_QWS
 
 void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm, QSpanData *fg)
 {
@@ -2764,12 +2798,44 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     CGDataProviderRelease(provider);
 }
 #elif defined(Q_WS_QWS)
+
+void QRasterBuffer::prepare(QCustomRasterPaintDevice *device)
+{
+    m_buffer = reinterpret_cast<uchar*>(device->memory());
+    m_width = device->width();
+    m_height = device->height();
+    bytes_per_line = device->bytesPerLine();
+
+    if (!m_buffer)
+        qResetDrawhelper();
+
+    format = device->format();
+    drawHelper = qDrawHelper + format;
+}
+
 void QRasterBuffer::prepareBuffer(int /*width*/, int /*height*/)
 {
     qFatal("QRasterBuffer::prepareBuffer not implemented on embedded");
     m_buffer = 0;
 }
-#endif
+class MetricAccessor : public QWidget {
+public:
+    int metric(PaintDeviceMetric m) {
+        return QWidget::metric(m);
+    }
+};
+
+int QCustomRasterPaintDevice::metric(PaintDeviceMetric m) const
+{
+    Q_ASSERT(widget);
+    return (static_cast<MetricAccessor*>(widget)->metric(m));
+}
+
+int QCustomRasterPaintDevice::bytesPerLine() const
+{
+    return (width() * depth() + 7) / 8;
+}
+#endif // Q_WS_QWS
 
 
 QClipData::QClipData(int height)
@@ -3006,9 +3072,14 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
     }
 }
 
-void QSpanData::init(QRasterBuffer *rb)
+void QSpanData::init(QRasterBuffer *rb, QRasterPaintEngine *pe)
 {
     rasterBuffer = rb;
+#ifdef Q_WS_QWS
+    rasterEngine = pe;
+#else
+    Q_UNUSED(pe);
+#endif
     type = None;
     txop = 0;
     bilinear = false;
