@@ -220,7 +220,8 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
     image.setDotsPerMeterX(bi.biXPelsPerMeter);
     image.setDotsPerMeterY(bi.biYPelsPerMeter);
 
-    d->seek(startpos + BMP_FILEHDR_SIZE + bi.biSize); // goto start of colormap
+    if (!d->isSequential())
+        d->seek(startpos + BMP_FILEHDR_SIZE + bi.biSize); // goto start of colormap
 
     if (ncols > 0) {                                // read color table
         uchar rgb[4];
@@ -266,9 +267,11 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
     }
 
     // offset can be bogus, be careful
-    if (offset>=0 && startpos + offset > d->pos())
-        d->seek(startpos + offset);                // start of image data
-
+    if (offset>=0 && startpos + offset > d->pos()) {
+        if (!d->isSequential())
+            d->seek(startpos + offset);                // start of image data
+    }
+    
     int             bpl = image.bytesPerLine();
 #ifdef Q_WS_QWS
     //
@@ -287,8 +290,10 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
             if (d->read((char*)(data + h*bpl), bpl) != bpl)
                 break;
 #ifdef Q_WS_QWS
-            if (pad > 0)
-                d->seek(d->pos()+pad);
+            if (pad > 0) {
+                if (!d->isSequential())
+                    d->seek(d->pos()+pad);
+            }
 #endif
         }
         if (ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)))
@@ -448,8 +453,10 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
                 if (d->read((char *)data + h*bpl, bpl) != bpl)
                     break;
 #ifdef Q_WS_QWS
-                if (pad > 0)
-                    d->seek(d->pos()+pad);
+                if (pad > 0) {
+                    if (!d->isSequential())
+                        d->seek(d->pos()+pad);
+                }
 #endif
             }
         }
