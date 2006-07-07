@@ -733,6 +733,7 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     default:
         break;
     }
+    d_func()->layout->removeWidget(dockwidget); // in case it was already in here
     addDockWidget(area, dockwidget, orientation);
 
 #ifdef Q_WS_MAC     //drawer support
