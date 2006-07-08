@@ -213,20 +213,16 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-        HIViewFeatures bits;
-        HIViewRef hiview = qt_mac_hiview_for(w);
-        HIViewGetFeatures(hiview, &bits);
-        if ((bits & kHIViewIsOpaque) == o)
-            return;
-        if(o) {
-            HIViewChangeFeatures(hiview, kHIViewIsOpaque, 0);
-        } else {
-            HIViewChangeFeatures(hiview, 0, kHIViewIsOpaque);
-        }
+    HIViewFeatures bits;
+    HIViewRef hiview = qt_mac_hiview_for(w);
+    HIViewGetFeatures(hiview, &bits);
+    if ((bits & kHIViewIsOpaque) == o)
+        return;
+    if(o) {
+        HIViewChangeFeatures(hiview, kHIViewIsOpaque, 0);
+    } else {
+        HIViewChangeFeatures(hiview, 0, kHIViewIsOpaque);
     }
-#endif
     if (w->isVisible())
         HIViewReshapeStructure(qt_mac_hiview_for(w));
 }
@@ -243,14 +239,11 @@ void qt_mac_update_ignore_mouseevents(QWidget *w)
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
         ReshapeCustomWindow(qt_mac_window_for(w));
     } else {
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-            if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
-                HIViewChangeFeatures(qt_mac_hiview_for(w), kHIViewFeatureIgnoresClicks, 0);
-            else
-                HIViewChangeFeatures(qt_mac_hiview_for(w), 0, kHIViewFeatureIgnoresClicks);
-            HIViewReshapeStructure(qt_mac_hiview_for(w));
-#endif
+        if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
+            HIViewChangeFeatures(qt_mac_hiview_for(w), kHIViewFeatureIgnoresClicks, 0);
+        else
+            HIViewChangeFeatures(qt_mac_hiview_for(w), 0, kHIViewFeatureIgnoresClicks);
+        HIViewReshapeStructure(qt_mac_hiview_for(w));
     }
 }
 
@@ -583,21 +576,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 ControlPartCode part;
                 GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0,
                                   sizeof(part), 0, &part);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(part == kControlClickableMetaPart && widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
                     RgnHandle rgn;
                     GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
                                       sizeof(rgn), 0, &rgn);
                     SetEmptyRgn(rgn);
                     handled_event = true;
-                } else
-#endif
-
-                if(part == kControlStructureMetaPart
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                   || part == kControlClickableMetaPart
-#endif
-                    ) {
+                } else if(part == kControlStructureMetaPart || part == kControlClickableMetaPart) {
                     RgnHandle rgn;
                     GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, 0,
                                       sizeof(rgn), 0, &rgn);
@@ -637,15 +622,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     handled_event = true;
                 }
             }
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                if(ekind == kEventControlDragEnter) {
-                    const Boolean wouldAccept = drag_allowed ? true : false;
-                    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
-                                      sizeof(wouldAccept), &wouldAccept);
-                }
+            if(ekind == kEventControlDragEnter) {
+                const Boolean wouldAccept = drag_allowed ? true : false;
+                SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
+                        sizeof(wouldAccept), &wouldAccept);
             }
-#endif
         }
         break; }
     default:
@@ -908,11 +889,7 @@ void QWidgetPrivate::determineWindowClass()
         // (or lack) of the border.
         if(flags & Qt::FramelessWindowHint) {
             if(wclass == kDocumentWindowClass) {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
                 wclass = kSimpleWindowClass;
-#else
-                wclass = kPlainWindowClass;
-#endif
             } else if(wclass == kFloatingWindowClass) {
                 wclass = kToolbarWindowClass;
             }
@@ -1062,10 +1039,7 @@ void QWidgetPrivate::createWindow_sys()
                 "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
     if (!desktop)
         SetAutomaticControlDragTrackingEnabledForWindow(windowRef, true);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
-        HIWindowChangeFeatures(windowRef, kWindowCanCollapse, 0);
-#endif
+    HIWindowChangeFeatures(windowRef, kWindowCanCollapse, 0);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
         if (wattr & kWindowHideOnSuspendAttribute)
