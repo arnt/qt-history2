@@ -3381,7 +3381,8 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                     if (interval == 0)
                         interval = 1;
                 }
-                int numMarks = (slider->maximum - slider->minimum + 1) / interval;
+                int numMarks = 1 + ((slider->maximum - slider->minimum + 1) / interval);
+
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     // They asked for both, so we'll give it to them.
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
