@@ -866,8 +866,10 @@ bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hoo
     hook.obj = receiver;
 
     // build the D-Bus signal name and signature
+    // This should not happen for QDBusConnection::connect, use buildSignature here, since 
+    // QDBusConnection::connect passes false and everything else uses true
     QString mname = name;
-    if (mname.isNull()) {
+    if (buildSignature && mname.isNull()) {
         normalizedName.truncate(normalizedName.indexOf('('));        
         mname = QString::fromUtf8(normalizedName);
     }
