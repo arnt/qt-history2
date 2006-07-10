@@ -2183,13 +2183,8 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
         return;
     }
 
-    QRegion region;
-    region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
-
-    const QByteArray data(cmd->surfaceData, cmd->simpleData.surfacedatalength);
-    const QString key = QString::fromUtf8(cmd->surfaceKey,
-                                          cmd->simpleData.surfacekeylength);
-    request_region(cmd->simpleData.windowid, key, data, region);
+    request_region(cmd->simpleData.windowid, cmd->surfaceKey, cmd->surfaceData,
+                   cmd->region);
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -2600,7 +2595,7 @@ void QWSServerPrivate::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
 #endif
 
 void QWSServerPrivate::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
-                                    QWSClient *)
+                                           QWSClient *)
 {
     QRegion r;
     r.setRects(cmd->rectangles,cmd->simpleData.nrectangles);

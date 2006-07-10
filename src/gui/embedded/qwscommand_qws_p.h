@@ -37,6 +37,9 @@
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qrect.h>
+#include <QtGui/qregion.h>
+#include <QtCore/qvector.h>
+#include <QtCore/qvarlengtharray.h>
 #include "qwsprotocolitem_qws.h"
 #include "qwsmemid_qws.h"
 
@@ -203,14 +206,41 @@ struct QWSRegionCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
+
         char *ptr = rawDataPtr;
 
-        rectangles = reinterpret_cast<QRect*>(ptr);
+        region.setRects(reinterpret_cast<QRect*>(ptr), simpleData.nrectangles);
         ptr += simpleData.nrectangles * sizeof(QRect);
-        surfaceKey = ptr;
-        ptr += simpleData.surfacekeylength;
-        surfaceData = ptr;
-        ptr += simpleData.surfacedatalength;
+
+        surfaceKey = QString(reinterpret_cast<QChar*>(ptr),
+                             simpleData.surfacekeylength);
+        ptr += simpleData.surfacekeylength * sizeof(QChar);
+
+        surfaceData = QByteArray(ptr, simpleData.surfacedatalength);
+    }
+
+    void setData(int id, const QString &key, const QByteArray &data,
+                 const QRegion &reg)
+    {
+        surfaceKey = key;
+        surfaceData = data;
+        region = reg;
+
+        const QVector<QRect> rects = reg.rects();
+
+        simpleData.windowid = id;
+        simpleData.surfacekeylength = key.size();
+        simpleData.surfacedatalength = data.size();
+        simpleData.nrectangles = rects.count();
+
+        QVarLengthArray<char, 256> buffer;
+        buffer.append(reinterpret_cast<const char*>(rects.constData()),
+                      rects.count() * sizeof(QRect));
+        buffer.append(reinterpret_cast<const char*>(key.constData()),
+                      key.size() * sizeof(QChar));
+        buffer.append(data, data.size());
+
+        QWSCommand::setData(buffer.constData(), buffer.size(), true);
     }
 
     /* XXX this will pad out in a compiler dependent way,
@@ -225,9 +255,9 @@ struct QWSRegionCommand : public QWSCommand
         int nrectangles;
     } simpleData;
 
-    char *surfaceKey;
-    char *surfaceData;
-    QRect *rectangles;
+    QString surfaceKey;
+    QByteArray surfaceData;
+    QRegion region;
 };
 
 struct QWSSetOpacityCommand : public QWSCommand
