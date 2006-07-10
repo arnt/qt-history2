@@ -5460,7 +5460,7 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     }
     case Double: {
         QDomElement child = doc.createElement(QLatin1String("double"));
-        QDomText text = doc.createTextNode(QString::number(elementDouble()));
+        QDomText text = doc.createTextNode(QString::number(elementDouble(), 'g', 15));
         child.appendChild(text);
         e.appendChild(child);
         break;
