@@ -58,13 +58,6 @@ public:
     void _q_sourceColumnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void _q_sourceColumnsRemoved(const QModelIndex &parent, int first, int last);
 
-    struct QProxyModelIndex
-    {
-        int r, c;
-        void *p;
-        const QAbstractItemModel *m;
-    };
-
     QProxyModelPrivate() : QAbstractItemModelPrivate(), model(0) {}
     QAbstractItemModel *model;
     QEmptyModel empty;

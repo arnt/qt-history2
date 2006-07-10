@@ -372,7 +372,7 @@ QModelIndex QProxyModel::setProxyModel(const QModelIndex &source_index) const
 {
     QModelIndex proxy_index = source_index;
     if (proxy_index.isValid())
-        reinterpret_cast<QProxyModelPrivate::QProxyModelIndex*>(&proxy_index)->m = this;
+        proxy_index.m = this;
     return proxy_index;
 }
 
@@ -384,7 +384,7 @@ QModelIndex QProxyModel::setSourceModel(const QModelIndex &proxy_index) const
 {
     Q_D(const QProxyModel);
     QModelIndex source_index = proxy_index;
-    reinterpret_cast<QProxyModelPrivate::QProxyModelIndex*>(&source_index)->m = d->model;
+    source_index.m = d->model;
     return source_index;
 }
 
