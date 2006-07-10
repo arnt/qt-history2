@@ -409,7 +409,9 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
                                                            &opt, ev->pos(), this);
         SliderAction action = SliderNoAction;
         if (d->pressedControl == QStyle::SC_SliderGroove) {
-            int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos()));
+            const QRect sliderRect = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
+            int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos() - sliderRect.center() + sliderRect.topLeft()));
+            d->pressValue = pressValue;
             if (pressValue > d->value)
                 action = SliderPageStepAdd;
             else if (pressValue < d->value)

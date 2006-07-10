@@ -446,19 +446,6 @@ QSize QScrollBar::sizeHint() const
 /*!\reimp */
 void QScrollBar::sliderChange(SliderChange change)
 {
-    Q_D(QScrollBar);
-
-    if (change == SliderValueChange && repeatAction()) {
-       QStyleOptionSlider opt = d->getStyleOption();
-        if((d->pressedControl == QStyle::SC_ScrollBarAddPage
-            || d->pressedControl == QStyle::SC_ScrollBarSubPage)
-           && style()->styleHint(QStyle::SH_ScrollBar_StopMouseOverSlider, 0, this)
-           && style()->hitTestComplexControl(QStyle::CC_ScrollBar, &opt,
-                                             mapFromGlobal(QCursor::pos()),
-                                             this) == QStyle::SC_ScrollBarSlider) {
-            setRepeatAction(SliderNoAction);
-        }
-    }
     QAbstractSlider::sliderChange(change);
 }
 
@@ -520,6 +507,9 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
     QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                        QStyle::SC_ScrollBarSlider, this);
     QPoint click = e->pos();
+    QPoint pressValue = click - sr.center() + sr.topLeft();
+    d->pressValue = d->orientation == Qt::Horizontal ? d->pixelPosToRangeValue(pressValue.x()) :
+        d->pixelPosToRangeValue(pressValue.y());
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
         d->clickOffset = HORIZONTAL ? (click.x()-sr.x()) : (click.y()-sr.y());
         d->snapBackPosition = d->position;

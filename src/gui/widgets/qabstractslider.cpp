@@ -182,7 +182,7 @@
 
 QAbstractSliderPrivate::QAbstractSliderPrivate()
     : minimum(0), maximum(99), singleStep(1), pageStep(10),
-      value(0), position(0), tracking(true), blocktracking(false), pressed(false),
+      value(0), position(0), pressValue(-1), tracking(true), blocktracking(false), pressed(false),
       invertedAppearance(false), invertedControls(false),
       orientation(Qt::Horizontal), repeatAction(QAbstractSlider::SliderNoAction)
 {
@@ -223,7 +223,6 @@ void QAbstractSliderPrivate::setSteps(int single, int page)
     q->sliderChange(QAbstractSlider::SliderStepsChange);
 }
 
-
 /*!
     Constructs an abstract slider.
 
@@ -251,7 +250,6 @@ QAbstractSlider::~QAbstractSlider()
 {
 }
 
-
 /*!
     \property QAbstractSlider::orientation
     \brief the orientation of the slider
@@ -259,7 +257,6 @@ QAbstractSlider::~QAbstractSlider()
     The orientation must be \l Qt::Vertical (the default) or \l
     Qt::Horizontal.
 */
-
 void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 {
     Q_D(QAbstractSlider);
@@ -566,10 +563,10 @@ void QAbstractSlider::triggerAction(SliderAction action)
         setSliderPosition(d->value - d->singleStep);
         break;
     case SliderPageStepAdd:
-        setSliderPosition(d->value + d->pageStep);
+        d->setAdjustedSliderPosition(d->value + d->pageStep);
         break;
     case SliderPageStepSub:
-        setSliderPosition(d->value - d->pageStep);
+        d->setAdjustedSliderPosition(d->value - d->pageStep);
         break;
     case SliderToMinimum:
         setSliderPosition(d->minimum);

@@ -1457,7 +1457,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_TitleBar_NoBorder  The title bar has no border.
 
-    \value SH_ScrollBar_StopMouseOverSlider  Stops auto-repeat when
+    \value SH_ScrollBar_StopMouseOverSlider  Obsolete. Use
+        SH_Slider_StopMouseOverSlider instead.
+
+    \value SH_Slider_StopMouseOverSlider  Stops auto-repeat when
         the slider reaches the mouse position.
 
     \value SH_BlinkCursorWhenTextSelected  Whether cursor should blink

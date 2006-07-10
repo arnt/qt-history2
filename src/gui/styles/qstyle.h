@@ -540,7 +540,8 @@ public:
         SH_Workspace_FillSpaceOnMaximize,
         SH_ComboBox_Popup,
         SH_TitleBar_NoBorder,
-        SH_ScrollBar_StopMouseOverSlider,
+        SH_ScrollBar_StopMouseOverSlider, // obsolete
+        SH_Slider_StopMouseOverSlider = SH_ScrollBar_StopMouseOverSlider,
         SH_BlinkCursorWhenTextSelected,
         SH_RichText_FullWidthSelection,
         SH_Menu_Scrollable,
