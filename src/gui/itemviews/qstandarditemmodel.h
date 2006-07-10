@@ -41,8 +41,8 @@ public:
     QStandardItem(int rows, int columns = 1);
     virtual ~QStandardItem();
 
-    virtual QVariant data(int role) const;
-    virtual void setData(int role, const QVariant &value);
+    virtual QVariant data(int role = Qt::UserRole + 1) const;
+    virtual void setData(const QVariant &value, int role = Qt::UserRole + 1);
 
     inline QString text() const {
         return qvariant_cast<QString>(data(Qt::DisplayRole));
@@ -189,7 +189,7 @@ public:
     QList<QStandardItem*> takeRow(int row);
     QList<QStandardItem*> takeColumn(int column);
 
-    void sortChildren(int column, Qt::SortOrder order);
+    void sortChildren(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
     virtual QStandardItem *clone() const;
 
@@ -215,49 +215,49 @@ private:
 };
 
 inline void QStandardItem::setText(const QString &atext)
-{ setData(Qt::DisplayRole, atext); }
+{ setData(atext, Qt::DisplayRole); }
 
 inline void QStandardItem::setIcon(const QIcon &aicon)
-{ setData(Qt::DecorationRole, aicon); }
+{ setData(aicon, Qt::DecorationRole); }
 
 #ifndef QT_NO_TOOLTIP
 inline void QStandardItem::setToolTip(const QString &atoolTip)
-{ setData(Qt::ToolTipRole, atoolTip); }
+{ setData(atoolTip, Qt::ToolTipRole); }
 #endif
 
 #ifndef QT_NO_STATUSTIP
 inline void QStandardItem::setStatusTip(const QString &astatusTip)
-{ setData(Qt::StatusTipRole, astatusTip); }
+{ setData(astatusTip, Qt::StatusTipRole); }
 #endif
 
 #ifndef QT_NO_WHATSTHIS
 inline void QStandardItem::setWhatsThis(const QString &awhatsThis)
-{ setData(Qt::WhatsThisRole, awhatsThis); }
+{ setData(awhatsThis, Qt::WhatsThisRole); }
 #endif
 
 inline void QStandardItem::setSizeHint(const QSize &asizeHint)
-{ setData(Qt::SizeHintRole, asizeHint); }
+{ setData(asizeHint, Qt::SizeHintRole); }
 
 inline void QStandardItem::setFont(const QFont &afont)
-{ setData(Qt::FontRole, afont); }
+{ setData(afont, Qt::FontRole); }
 
 inline void QStandardItem::setTextAlignment(Qt::Alignment atextAlignment)
-{ setData(Qt::TextAlignmentRole, int(atextAlignment)); }
+{ setData(int(atextAlignment), Qt::TextAlignmentRole); }
 
 inline void QStandardItem::setBackgroundColor(const QColor &abackgroundColor)
-{ setData(Qt::BackgroundColorRole, abackgroundColor); }
+{ setData(abackgroundColor, Qt::BackgroundColorRole); }
 
 inline void QStandardItem::setTextColor(const QColor &atextColor)
-{ setData(Qt::TextColorRole, atextColor); }
+{ setData(atextColor, Qt::TextColorRole); }
 
 inline void QStandardItem::setCheckState(Qt::CheckState acheckState)
-{ setData(Qt::CheckStateRole, acheckState); }
+{ setData(acheckState, Qt::CheckStateRole); }
 
 inline void QStandardItem::setAccessibleText(const QString &aaccessibleText)
-{ setData(Qt::AccessibleTextRole, aaccessibleText); }
+{ setData(aaccessibleText, Qt::AccessibleTextRole); }
 
 inline void QStandardItem::setAccessibleDescription(const QString &aaccessibleDescription)
-{ setData(Qt::AccessibleDescriptionRole, aaccessibleDescription); }
+{ setData(aaccessibleDescription, Qt::AccessibleDescriptionRole); }
 
 inline void QStandardItem::setChild(int arow, QStandardItem *aitem)
 { setChild(arow, 0, aitem); }
@@ -362,7 +362,9 @@ public:
     const QStandardItem *itemPrototype() const;
     void setItemPrototype(const QStandardItem *item);
 
-    QList<QStandardItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
+    QList<QStandardItem*> findItems(const QString &text,
+                                    Qt::MatchFlags flags = Qt::MatchExactly,
+                                    int column = 0) const;
 
     int sortRole() const;
     void setSortRole(int role);

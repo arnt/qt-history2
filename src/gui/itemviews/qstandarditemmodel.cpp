@@ -536,8 +536,7 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
     corresponding checkState() function indicates whether the item is
     currently checked.
 
-    You can store application-specific data in an item by calling setData()
-    with a unique user role (see Qt::UserRole).
+    You can store application-specific data in an item by calling setData().
 
     Each item can have a two-dimensional table of child items. This makes it
     possible to build hierarchies of items. The typical hierarchy is the tree,
@@ -706,7 +705,7 @@ QStandardItem *QStandardItem::parent() const
 
     \sa Qt::ItemDataRole, data(), itemChanged(), setFlags()
 */
-void QStandardItem::setData(int role, const QVariant &value)
+void QStandardItem::setData(const QVariant &value, int role)
 {
     Q_D(QStandardItem);
     role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
@@ -2678,7 +2677,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
     QStandardItem *item = itemFromIndex(index);
     if (item == 0)
         return false;
-    item->setData(role, value);
+    item->setData(value, role);
     return true;
 }
 
@@ -2710,7 +2709,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
         }
     }
     if (headerItem) {
-        headerItem->setData(role, value);
+        headerItem->setData(value, role);
         return true;
     }
     return false;
