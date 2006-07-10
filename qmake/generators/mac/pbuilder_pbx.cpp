@@ -706,7 +706,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             if(added && !(added % 3))
                                 mkt << "\\\n\t";
                             ++added;
-                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), QString());
+                            const QString file_name = fileFixify(files.at(file), Option::output_dir, Option::output_dir);
+                            mkt << " " << replaceExtraCompilerVariables(tmp_out, file_name, QString());
                         }
                     }
                 }
