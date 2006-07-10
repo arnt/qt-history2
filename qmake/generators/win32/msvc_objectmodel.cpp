@@ -1096,9 +1096,9 @@ bool VCLinkerTool::parseOption(const char* option)
 #ifdef USE_DISPLAY_HASH
     // Sub options
     displayHash("UNLOAD"); displayHash("NOBIND"); displayHash("no"); displayHash("NOSTATUS"); displayHash("STATUS");
-    displayHash("AM33"); displayHash("ARM"); displayHash("CEE"); displayHash("IA64"); displayHash("X86"); displayHash("M32R");
+    displayHash("AM33"); displayHash("ARM"); displayHash("CEE"); displayHash("EBC"); displayHash("IA64"); displayHash("X86"); displayHash("X64"); displayHash("M32R");
     displayHash("MIPS"); displayHash("MIPS16"); displayHash("MIPSFPU"); displayHash("MIPSFPU16"); displayHash("MIPSR41XX"); displayHash("PPC");
-    displayHash("SH3"); displayHash("SH4"); displayHash("SH5"); displayHash("THUMB"); displayHash("TRICORE"); displayHash("EXPORTS");
+    displayHash("SH3"); displayHash("SH3DSP"); displayHash("SH4"); displayHash("SH5"); displayHash("THUMB"); displayHash("TRICORE"); displayHash("EXPORTS");
     displayHash("LINES"); displayHash("REF"); displayHash("NOREF"); displayHash("ICF"); displayHash("WIN98"); displayHash("NOWIN98");
     displayHash("CONSOLE"); displayHash("EFI_APPLICATION"); displayHash("EFI_BOOT_SERVICE_DRIVER"); displayHash("EFI_ROM"); displayHash("EFI_RUNTIME_DRIVER"); displayHash("NATIVE");
     displayHash("POSIX"); displayHash("WINDOWS"); displayHash("WINDOWSCE"); displayHash("NET"); displayHash("CD"); displayHash("NO");
@@ -1202,9 +1202,11 @@ bool VCLinkerTool::parseOption(const char* option)
         switch (elfHash(option+9)) {
             // Very limited documentation on all options but X86,
             // so we put the others in AdditionalOptions...
+        case 0x0005b94: // X64
         case 0x0046063: // AM33
         case 0x000466d: // ARM
         case 0x0004795: // CEE
+        case 0x0004963: // EBC
         case 0x004d494: // IA64
         case 0x0050672: // M32R
         case 0x0051e53: // MIPS
@@ -1214,6 +1216,7 @@ bool VCLinkerTool::parseOption(const char* option)
         case 0x5852738: // MIPSR41XX
         case 0x0005543: // PPC
         case 0x00057b3: // SH3
+        case 0x57b7980: // SH3DSP
         case 0x00057b4: // SH4
         case 0x00057b5: // SH5
         case 0x058da12: // THUMB
