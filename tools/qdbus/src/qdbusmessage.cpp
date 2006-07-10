@@ -323,7 +323,7 @@ bool QDBusMessage::isReplyRequired() const
 
     \sa isDelayedReply
 */
-void QDBusMessage::setDelayedReply(bool enable)
+void QDBusMessage::setDelayedReply(bool enable) const
 {
     d_ptr->delayedReply = enable;
 }

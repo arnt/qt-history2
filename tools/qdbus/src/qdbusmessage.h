@@ -56,7 +56,7 @@ public:
     bool isReplyRequired() const;
     QString signature() const;
 
-    void setDelayedReply(bool enable);
+    void setDelayedReply(bool enable) const;
     bool isDelayedReply() const;
 
     void setArguments(const QList<QVariant> &arguments);
