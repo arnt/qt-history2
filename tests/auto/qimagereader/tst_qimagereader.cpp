@@ -199,6 +199,12 @@ void tst_QImageReader::readImage()
     QImageReader io3("images/" + fileName.left(fileName.lastIndexOf(QLatin1Char('.'))));
     QVERIFY2(!io3.read().isNull(), io.errorString().toLatin1().constData());
 
+    // Read into \a image2
+    QImage image2;
+    QImageReader image2Reader("images/" + fileName, format);
+    QVERIFY(image2Reader.read(&image2));
+    QCOMPARE(image, image2);
+
     do {
         QVERIFY2(!image.isNull(), io.errorString().toLatin1().constData());
     } while (!(image = io.read()).isNull());
