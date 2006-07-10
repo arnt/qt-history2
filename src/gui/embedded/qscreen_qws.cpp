@@ -1467,16 +1467,25 @@ static inline bool isWidgetOpaque(const QWidget *w)
     return (brush.style() == Qt::NoBrush || brush.isOpaque());
 }
 
-/*!
-    Creates a new QWSWindowSurface for \a widget.
-*/
-QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
+static inline bool isWidgetPaintOnScreen(const QWidget *w)
 {
     static int doOnScreen = -1;
     if (doOnScreen == -1)
         doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
 
-    if (doOnScreen && isWidgetOpaque(widget) && base())
+    if (doOnScreen > 0)
+        return true;
+
+    Q_ASSERT(w->isWindow());
+    return w->testAttribute(Qt::WA_PaintOnScreen);
+}
+
+/*!
+    Creates a new QWSWindowSurface for \a widget.
+*/
+QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
+{
+    if (isWidgetPaintOnScreen(widget) && isWidgetOpaque(widget) && base())
         return new QWSOnScreenSurface(widget);
     else if (QApplication::type() == QApplication::GuiServer)
         return new QWSLocalMemSurface(widget);
