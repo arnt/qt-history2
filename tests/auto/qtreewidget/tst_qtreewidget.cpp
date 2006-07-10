@@ -65,6 +65,8 @@ private slots:
     void match();
     void columnCount();
     void setHeaderLabels();
+    void setHeaderItem();
+
 #if QT_VERSION >= 0x040200
     void insertItemsWithSorting_data();
     void insertItemsWithSorting();
@@ -1249,6 +1251,28 @@ void tst_QTreeWidget::setHeaderLabels()
     QStringList list = QString("a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z").split(",");
     testWidget->setHeaderLabels(list);
     QCOMPARE(testWidget->header()->count(), list.count());
+}
+
+void tst_QTreeWidget::setHeaderItem()
+{
+    testWidget->setHeaderItem(0);
+
+    testWidget->setColumnCount(0);
+    QCOMPARE(testWidget->header()->count(), 0);
+    QCOMPARE(testWidget->columnCount(), 0);
+
+    QTreeWidgetItem *headerItem = new QTreeWidgetItem();
+    headerItem->setText(0, "0");
+    headerItem->setText(1, "1");
+    testWidget->setHeaderItem(headerItem);
+    QCOMPARE(testWidget->headerItem(), headerItem);
+    
+    QCOMPARE(testWidget->header()->count(), 2);
+    QCOMPARE(testWidget->columnCount(), 2);
+
+    headerItem->setText(2, "2");
+    QCOMPARE(testWidget->header()->count(), 3);
+    QCOMPARE(testWidget->columnCount(), 3);
 }
 
 #if QT_VERSION >= 0x040200
