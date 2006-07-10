@@ -897,6 +897,13 @@ void QStyleSheetStyle::repolish(QWidget *w)
     update(children);
 }
 
+/*!\reimp*/
+QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                                   const QWidget *widget) const
+{
+    return QCommonStyle::standardIconImplementation(standardIcon, opt, widget);
+}
+
 void QStyleSheetStyle::repolish(QApplication *)
 {
     update(styleRulesCache.keys());

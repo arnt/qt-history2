@@ -58,10 +58,14 @@ public:
 
     QPalette standardPalette() const;
 
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                                     const QWidget *widget = 0) const;
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
     void timerEvent(QTimerEvent *event);
-    
+
 private:
     QPlastiqueStylePrivate *d;
     Q_DISABLE_COPY(QPlastiqueStyle)

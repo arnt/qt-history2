@@ -2892,7 +2892,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 }
 
 QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
-                                         const QWidget *widget) const
+                                                const QWidget *widget) const
 {
     QIcon icon;
     QPixmap pixmap;
@@ -2906,7 +2906,6 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
         }
         break;
-        
     case SP_DirLinkIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             QPixmap link = loadIconFromShell32(30, size);
@@ -2925,14 +2924,12 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
             }
         }
         break;
-        
     case SP_FileIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(1, size);
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-    
     case SP_ComputerIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(16, size);
@@ -2946,7 +2943,6 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-    
     case SP_DriveCDIcon:
     case SP_DriveDVDIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
@@ -2954,28 +2950,24 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-        
     case SP_DriveNetIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(10, size);
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-    
     case SP_DriveHDIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(9, size);
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-    
     case SP_DriveFDIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             pixmap = loadIconFromShell32(7, size);
             icon.addPixmap(pixmap, QIcon::Normal);
         }
         break;
-    
     case SP_FileLinkIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
             QPixmap link;
@@ -2988,7 +2980,6 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
             }
         }
         break;
-        
     default:
         break;
     }
@@ -2996,8 +2987,6 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
 
     if (icon.isNull())
         icon = QIcon(standardPixmap(standardIcon, option, widget));
-    
-    
     return icon;
 }
 

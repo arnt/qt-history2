@@ -5460,6 +5460,13 @@ void QPlastiqueStyle::unpolish(QApplication *app)
     QWindowsStyle::unpolish(app);
 }
 
+/*!\reimp*/
+QIcon QPlastiqueStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                                  const QWidget *widget) const
+{
+    return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
+}
+
 /*!
     \reimp
 */

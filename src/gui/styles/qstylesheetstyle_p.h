@@ -21,7 +21,6 @@
 #include "QtCore/qvector.h"
 #include "QtCore/qshareddata.h"
 #include "QtGui/qapplication.h"
-
 #include "private/qcssparser_p.h"
 
 //
@@ -186,6 +185,10 @@ public:
 
     void repolish(QWidget *widget);
     void repolish(QApplication *app);
+
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                                     const QWidget *widget = 0) const;
 
 private:
     QStyle *bs;

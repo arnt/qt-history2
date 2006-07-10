@@ -150,7 +150,12 @@ bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
     return QStyle::eventFilter(o, e);
 }
 
-
+/*!\reimp*/
+QIcon QMotifStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                              const QWidget *widget) const
+{
+    return QCommonStyle::standardIconImplementation(standardIcon, opt, widget);
+}
 
 /*!
     \reimp

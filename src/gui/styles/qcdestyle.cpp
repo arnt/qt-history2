@@ -91,7 +91,7 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
                            const QWidget *widget) const
                            */
 {
-    int ret;
+    int ret = 0;
 
     switch(metric) {
     case PM_MenuBarPanelWidth:
@@ -119,7 +119,7 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     \reimp
 */
 void QCDEStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                             const QWidget *widget) const
+                            const QWidget *widget) const
 {
 
     switch(element) {
@@ -144,8 +144,6 @@ void QCDEStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
         QMotifStyle::drawControl(element, opt, p, widget);
     break;
     }
-
-
 }
 
 /*!
@@ -229,7 +227,6 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->setPen(oldPen);
             p->setBrush(oldBrush);
         } break;
-
     default:
         QMotifStyle::drawPrimitive(pe, opt, p, widget);
     }
@@ -248,6 +245,13 @@ QPalette QCDEStyle::standardPalette() const
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Base, background);
     return palette;
+}
+
+/*!\reimp*/
+QIcon QCDEStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                            const QWidget *widget) const
+{
+    return QMotifStyle::standardIconImplementation(standardIcon, opt, widget);
 }
 
 #endif
