@@ -1698,8 +1698,8 @@ void QWidget::setStyleSheet(const QString& styleSheet)
 QStyle *QWidget::style() const
 {
     Q_D(const QWidget);
-    if (!testAttribute(Qt::WA_WState_Polished))
-        qWarning() << "WARNING: " << this << " accesses its style pointer when it has not been polished yet";
+//    if (!testAttribute(Qt::WA_WState_Polished))
+//        qWarning() << "WARNING: " << this << " accesses its style pointer when it has not been polished yet";
 
     if (d->extra && d->extra->style)
         return d->extra->style;
