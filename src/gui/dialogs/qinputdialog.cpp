@@ -257,6 +257,7 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
     sb->setRange(minValue, maxValue);
     sb->setSingleStep(step);
     sb->setValue(value);
+    sb->selectAll();
 
     bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
