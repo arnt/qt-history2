@@ -69,13 +69,13 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
 
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
-    QThread::setTerminationEnabled(false);
-
     QThread *thr = reinterpret_cast<QThread *>(arg);
     QThreadData *data = QThreadData::get2(thr);
 
     qt_create_tls();
     TlsSetValue(qt_current_thread_data_tls_index, data);
+
+    QThread::setTerminationEnabled(false);    
 
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
