@@ -1423,6 +1423,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     switch(role) {
     case Qt::EditRole:
     case Qt::DisplayRole:
+        if (model && this == model->header)
+            model->setColumnCount(column + 1);
         if (values.count() <= column)
             values.resize(column + 1);
         if (display.count() <= column) {
@@ -1460,7 +1462,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
             if (!found)
                 values[column].append(QWidgetItemData(role, value));
         } else {
-            if (this == model->header)
+            if (model && this == model->header)
                 model->setColumnCount(column + 1);
             else
                 values.resize(column + 1);
@@ -2299,10 +2301,22 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
     Q_D(QTreeWidget);
     if (!item)
         return;
-    delete d->model()->header;
     item->view = this;
+
+    int oldCount = d->model()->header->columnCount();
+    if (oldCount < item->columnCount())
+         d->model()->beginInsertColumns(QModelIndex(), oldCount, item->columnCount());
+    else
+         d->model()->beginRemoveColumns(QModelIndex(), item->columnCount(), oldCount);
+    delete d->model()->header;
     d->model()->header = item;
+    if (oldCount < item->columnCount())
+        d->model()->endInsertColumns();
+    else
+        d->model()->endRemoveColumns();
+    d->model()->headerDataChanged(Qt::Horizontal, 0, oldCount);
 }
+
 
 /*!
   Adds a column in the header for each item in the \a labels list, and sets
