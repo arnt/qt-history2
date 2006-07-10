@@ -2107,6 +2107,7 @@ void QDir::setNameFilter(const QString &nameFilter)
 /*!
     \fn QStringList QDir::entryList(const QString &nameFilter, Filters filters,
                                     SortFlags sort) const
+    \overload
 
     Use the overload that takes a name filter string list as first
     argument instead.
@@ -2115,6 +2116,7 @@ void QDir::setNameFilter(const QString &nameFilter)
 /*!
     \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, Filters filters,
                                           SortFlags sort) const
+    \overload
 
     Use the overload that takes a name filter string list as first
     argument instead.
