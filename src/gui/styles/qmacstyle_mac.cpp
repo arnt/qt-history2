@@ -652,7 +652,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         tdi->value = tdi->max - slider->sliderPosition;
     }
 
-    tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
+    tdi->enableState = (slider->state & QStyle::State_Enabled) ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
     if (!(slider->state & QStyle::State_Active))
         tdi->enableState = kThemeTrackInactive;
@@ -3843,11 +3843,12 @@ QStyle::SubControl QMacStyle::hitTestComplexControl(ComplexControl cc,
             if (!(sb->state & State_Active))
                 sbi.enableState = kThemeTrackInactive;
             else if (sb->state & State_Enabled)
-                sbi.enableState = kThemeTrackDisabled;
-            else
                 sbi.enableState = kThemeTrackActive;
+            else
+                sbi.enableState = kThemeTrackDisabled;
             sbi.viewsize = sb->pageStep;
             HIPoint pos = CGPointMake(pt.x(), pt.y());
+
             HIRect macSBRect = qt_hirectForQRect(sb->rect);
             ControlPartCode part;
             bool reverseHorizontal = (sb->direction == Qt::RightToLeft
@@ -3864,6 +3865,8 @@ QStyle::SubControl QMacStyle::hitTestComplexControl(ComplexControl cc,
             } else {
                 HIThemeTrackDrawInfo tdi;
                 getSliderInfo(cc, sb, &tdi, widget);
+                if(tdi.enableState == kThemeTrackInactive)
+                    tdi.enableState = kThemeTrackActive;
                 if (HIThemeHitTestTrack(&tdi, &pos, &part)) {
                     if (part == kControlPageUpPart)
                         sc = reverseHorizontal ? SC_ScrollBarAddPage
