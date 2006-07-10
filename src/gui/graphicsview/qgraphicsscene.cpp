@@ -1229,6 +1229,8 @@ QGraphicsItemGroup *QGraphicsScene::createItemGroup(const QList<QGraphicsItem *>
 
     // Create a new group at that level
     QGraphicsItemGroup *group = new QGraphicsItemGroup(commonAncestor);
+    if (!commonAncestor)
+        addItem(group);
     foreach (QGraphicsItem *item, items)
         group->addToGroup(item);
     return group;
