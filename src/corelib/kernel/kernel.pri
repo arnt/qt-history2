@@ -23,6 +23,7 @@ HEADERS += \
 	kernel/qcoreapplication_p.h \
 	kernel/qobjectcleanuphandler.h \
         kernel/qvariant_p.h \
+        kernel/qmetaobject_p.h \
         kernel/qobject_p.h
 
 SOURCES += \
