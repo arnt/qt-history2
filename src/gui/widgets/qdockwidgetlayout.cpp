@@ -185,8 +185,13 @@ bool QDockAreaLayoutItem::expansive(Qt::Orientation o) const
 
 QSize QDockAreaLayoutItem::sizeHint() const
 {
-    if (widgetItem != 0)
-        return widgetItem->sizeHint() + adjustForFrame(widgetItem->widget());
+    if (widgetItem != 0) {
+        QSize result = gap
+                ? widgetItem->widget()->sizeHint()
+                : widgetItem->sizeHint();
+        result += adjustForFrame(widgetItem->widget());
+        return result;
+    }
     if (subinfo != 0)
         return subinfo->sizeHint();
     return QSize(-1, -1);
