@@ -88,7 +88,12 @@ private:
     int a;
     int s;
     T *ptr;
-    qint64 array[((Prealloc * sizeof(T)) / sizeof(qint64)) + 1];
+    union {
+        // ### Qt 5: Use 'Prealloc * sizeof(T)' as array size
+        char array[sizeof(qint64) * (((Prealloc * sizeof(T)) / sizeof(qint64)) + 1)];
+        qint64 q_for_alignment_1;
+        double q_for_alignment_2;
+    };
 };
 
 template <class T, int Prealloc>
