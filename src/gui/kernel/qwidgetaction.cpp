@@ -50,6 +50,9 @@
     only in the first toolbar the action was added to. QWidgetAction takes
     over ownership of the default widget.
 
+    Note that it is up to the widget to activate the action, for example by
+    re-implementing mouse event handlers and calling QAction::trigger().
+
     \bold {Mac OS X}: If you add widgets to a menu in the application's menu
     bar on Mac OS X, the widget will be added and function but there are some
     limitations:
