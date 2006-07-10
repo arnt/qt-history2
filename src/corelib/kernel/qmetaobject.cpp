@@ -800,28 +800,10 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
     return result;
 }
 
-/*!
-    Normalizes the signature of the given \a method.
-
-    Qt uses normalized signatures to decide whether two given signals
-    and slots are compatible. Normalization reduces whitespace to a
-    minimum, moves 'const' to the front where appropriate, removes
-    'const' from value types and replaces const references with
-    values.
-
-    \sa checkConnectArgs()
- */
-QByteArray QMetaObject::normalizedSignature(const char *method)
+static void qRemoveWhitespace(const char *s, char *d)
 {
-    const char *s = method;
-    if (!s || !*s)
-        return "";
-    int len = qstrlen(s);
-    char stackbuf[64];
-    char *buf = (len >= 64 ? new char[len+1] : stackbuf);
-    char *d = buf;
     char last = 0;
-    while(*s && is_space(*s))
+    while (*s && is_space(*s))
         s++;
     while (*s) {
         while (*s && !is_space(*s))
@@ -832,27 +814,85 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
             last = *d++ = ' ';
     }
     *d = '\0';
-    d = buf;
+}
 
+static char *qNormalizeType(char *d, int &templdepth, QByteArray &result)
+{
+    const char *t = d;
+    while (*d && (templdepth
+                   || (*d != ',' && *d != ')'))) {
+        if (*d == '<')
+            ++templdepth;
+        if (*d == '>')
+            --templdepth;
+        ++d;
+    }
+    if (strncmp("void", t, d - t) != 0)
+        result += normalizeTypeInternal(t, d);
+
+    return d;
+}
+
+
+/*!
+    Normalizes a \a type.
+
+    See QMetaObject::normalizedSignature() for a description on how
+    Qt normalizes.
+
+    Example:
+
+    \code
+    QByteArray normType = QMetaObject::normalizedType(" int    const  *");
+    // normType is now "const int*"
+    \endcode
+
+    \sa normalizedSignature()
+ */
+QByteArray QMetaObject::normalizedType(const char *type)
+{
     QByteArray result;
+
+    if (!type || !*type)
+        return result;
+
+    QVarLengthArray<char> stackbuf(strlen(type));
+    qRemoveWhitespace(type, stackbuf.data());
+    int templdepth = 0;
+    qNormalizeType(stackbuf.data(), templdepth, result);
+
+    return result;
+}
+
+/*!
+    Normalizes the signature of the given \a method.
+
+    Qt uses normalized signatures to decide whether two given signals
+    and slots are compatible. Normalization reduces whitespace to a
+    minimum, moves 'const' to the front where appropriate, removes
+    'const' from value types and replaces const references with
+    values.
+
+    \sa checkConnectArgs(), normalizedType()
+ */
+QByteArray QMetaObject::normalizedSignature(const char *method)
+{
+    QByteArray result;
+    if (!method || !*method)
+        return result;
+    int len = strlen(method);
+    char stackbuf[64];
+    char *buf = (len >= 64 ? new char[len+1] : stackbuf);
+    qRemoveWhitespace(method, buf);
+    char *d = buf;
+
     result.reserve(len);
 
     int argdepth = 0;
     int templdepth = 0;
     while (*d) {
-        if (argdepth == 1) {
-            const char *t = d;
-            while (*d&& (templdepth
-                           || (*d != ',' && *d != ')'))) {
-                if (*d == '<')
-                    ++templdepth;
-                if (*d == '>')
-                    --templdepth;
-                d++;
-            }
-            if (strncmp("void", t, d - t) != 0)
-                result += normalizeTypeInternal(t, d);
-        }
+        if (argdepth == 1)
+            d = qNormalizeType(d, templdepth, result);
         if (*d == '(')
             ++argdepth;
         if (*d == ')')
