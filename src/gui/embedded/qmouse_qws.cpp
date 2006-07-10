@@ -157,7 +157,6 @@
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition)
 {
-    QWSServer::setMouseHandler(this);
 }
 
 /*!

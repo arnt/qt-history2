@@ -1768,6 +1768,8 @@ QWSMouseHandler *QWSServer::mouseHandler()
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
+    if (!mh)
+        return;
     qwsServerPrivate->mousehandlers.removeAll(mh);
     qwsServerPrivate->mousehandlers.prepend(mh);
 }
@@ -2819,21 +2821,20 @@ void QWSServer::closeMouse()
 void QWSServer::openMouse()
 {
     Q_D(QWSServer);
-    QByteArray mice = qgetenv("QWS_MOUSE_PROTO");
-    if (mice.isEmpty()) {
+    QString mice = QString::fromLatin1(qgetenv("QWS_MOUSE_PROTO"));
 #if defined(QT_QWS_CASSIOPEIA)
-        mice = "TPanel:/dev/tpanel";
+    if (mice.isEmpty())
+        mice = QLatin1String("TPanel:/dev/tpanel");
 #endif
-        if (mice.isEmpty())
-            mice = defaultMouse;
-    }
+    if (mice.isEmpty())
+        mice = defaultMouse;
     closeMouse();
     bool needviscurs = true;
-    if (mice != "None") {
-        QList<QByteArray> mouse = mice.split(' ');
-        for (QList<QByteArray>::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
-            QString ms = *m;
-            (void)d->newMouseHandler(ms); // QWSMouseHandler::QWSMouseHandler calls setMouseHandler()
+    if (mice != QLatin1String("None")) {
+        const QStringList mouse = mice.split(QLatin1Char(' '));
+        for (int i = mouse.size() - 1; i >= 0; --i) {
+            QWSMouseHandler *handler = d->newMouseHandler(mouse.at(i));
+            setMouseHandler(handler);
             /* XXX handle mouse cursor visibility sensibly
                if (!h->inherits("QCalibratedMouseHandler"))
                needviscurs = true;
@@ -2875,11 +2876,6 @@ void QWSServer::resumeMouse()
 
 QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
 {
-    static int init=0;
-    if (!init && qt_screen) {
-        init = 1;
-    }
-
     int c = spec.indexOf(QLatin1Char(':'));
     QString mouseProto;
     QString mouseDev;
@@ -2933,6 +2929,9 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
 */
 void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 {
+    if (!kh)
+        return;
+    qwsServerPrivate->keyboardhandlers.removeAll(kh);
     qwsServerPrivate->keyboardhandlers.prepend(kh);
 }
 
@@ -2946,22 +2945,22 @@ void QWSServer::openKeyboard()
 {
     Q_D(QWSServer);
     QString keyboards = QString::fromLatin1(qgetenv("QWS_KEYBOARD"));
-    if (keyboards.isEmpty()) {
 #if defined(QT_QWS_CASSIOPEIA)
-        keyboards = "Buttons";
+    if (keyboards.isEmpty())
+        keyboards = QLatin1String("Buttons");
 #endif
-        if (keyboards.isEmpty()) {
-            keyboards = QString::fromLatin1(defaultKeyboard); // last resort
-        }
-    }
+    if (keyboards.isEmpty())
+        keyboards = QString::fromLatin1(defaultKeyboard);
+
     closeKeyboard();
     if (keyboards == QLatin1String("None"))
         return;
+
     QString device;
     QString type;
     QStringList keyboard = keyboards.split(QLatin1Char(' '));
-    for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
-        QString spec = *k;
+    for (int i = keyboard.size() - 1; i >= 0; --i) {
+        const QString spec = keyboard.at(i);
         int colon=spec.indexOf(QLatin1Char(':'));
         if (colon>=0) {
             type = spec.left(colon);
@@ -2969,8 +2968,8 @@ void QWSServer::openKeyboard()
         } else {
             type = spec;
         }
-        QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device);
-        d->keyboardhandlers.append(kh);
+        QWSKeyboardHandler *handler = QKbdDriverFactory::create(type, device);
+        setKeyboardHandler(handler);
     }
 }
 
