@@ -2301,7 +2301,7 @@ void tst_QSettings::testEscapes()
     testVariant(QByteArray("Hello World!"), QString("@ByteArray(Hello World!)"), toString);
     testVariant(QByteArray("@Hello World!"), QString("@ByteArray(@Hello World!)"), toString);
     testVariant(QVariant(100), QString("100"), toString);
-    testVariant(QStringList() << "ene" << "due" << "rike", QString::fromLatin1("@Variant(\x0\x0\x0\xb\x0\x0\x0\x3\x0\x0\x0\x6\x0\x65\x0n\x0\x65\x0\x0\x0\x6\x0\x64\x0u\x0\x65\x0\x0\x0\x8\x0r\x0i\x0k\x0\x65)", 50), toStringList);
+    testVariant(QStringList() << "ene" << "due" << "rike", QString::fromLatin1("@Variant(\0\0\0\v\0\0\0\0\3\0\0\0\6\0e\0n\0e\0\0\0\6\0d\0u\0e\0\0\0\10\0r\0i\0k\0e)", 51), toStringList);
     testVariant(QRect(1, 2, 3, 4), QString("@Rect(1 2 3 4)"), toRect);
     testVariant(QSize(5, 6), QString("@Size(5 6)"), toSize);
     testVariant(QPoint(7, 8), QString("@Point(7 8)"), toPoint);
