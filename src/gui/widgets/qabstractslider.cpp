@@ -15,6 +15,7 @@
 #include "qabstractslider.h"
 #include "qevent.h"
 #include "qabstractslider_p.h"
+#include "qdebug.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -669,9 +670,11 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     int prevValue = d->value;
     d->position = d->value + int(offset); // value will be updated by triggerAction()
     triggerAction(SliderMove);
-    if (prevValue != d->value) {
-        e->accept();
+    if (prevValue == d->value) {
+        offset = 0;
+    } else {
         offset -= int(offset);
+        e->accept();
     }
 }
 #endif
