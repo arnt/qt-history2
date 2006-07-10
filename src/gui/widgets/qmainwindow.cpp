@@ -918,7 +918,7 @@ bool QMainWindow::event(QEvent *event)
         d->layout->dockWidgetLayout.paintSeparators(&p, this,
                         static_cast<QPaintEvent*>(event)->region(),
                         d->hoverPos);
-        return true;
+        //return true;
     } else if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *e = static_cast<QMouseEvent*>(event);
         d->layout->startSeparatorMove(e->pos());
