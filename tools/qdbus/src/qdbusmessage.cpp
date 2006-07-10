@@ -21,6 +21,7 @@
 #include "qdbusargument_p.h"
 #include "qdbuserror.h"
 #include "qdbusmessage_p.h"
+#include "qdbusmetatype.h"
 
 static inline const char *data(const QByteArray &arr)
 {
@@ -29,7 +30,7 @@ static inline const char *data(const QByteArray &arr)
 
 QDBusMessagePrivate::QDBusMessagePrivate()
     : connection(QString()), msg(0), reply(0), type(DBUS_MESSAGE_TYPE_INVALID),
-      timeout(-1), ref(1), delayedReply(false)
+      timeout(-1), ref(1), delayedReply(false), localMessage(false)
 {
 }
 
@@ -128,6 +129,24 @@ QDBusMessage QDBusMessagePrivate::fromDBusMessage(DBusMessage *dmsg, const QDBus
     return message;
 }
 
+QDBusMessage QDBusMessagePrivate::updateSignature(const QDBusMessage &message, DBusMessage *dmsg)
+{
+    QDBusMessage messageWithSignature = message; // no signature
+    QString signature = QString::fromUtf8(dbus_message_get_signature(dmsg));
+    messageWithSignature.d_ptr->signature = signature;
+    return messageWithSignature;
+}
+
+void QDBusMessagePrivate::setLocal(QDBusMessage *message, bool local)
+{
+    Q_ASSERT(message);
+    message->d_ptr->localMessage = local;
+}
+
+bool QDBusMessagePrivate::isLocal(const QDBusMessage &message)
+{
+    return message.d_ptr->localMessage;
+}
 
 ///////////////
 /*!

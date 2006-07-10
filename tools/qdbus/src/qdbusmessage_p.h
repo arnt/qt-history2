@@ -45,11 +45,16 @@ public:
     int timeout;
     QAtomic ref;
 
-    bool delayedReply : 1;
+    uint delayedReply : 1;
+    uint localMessage : 1;
 
     static DBusMessage *toDBusMessage(const QDBusMessage &message);
     static QDBusMessage fromDBusMessage(DBusMessage *dmsg, const QDBusConnection &connection);
     static QDBusMessage fromError(const QDBusError& error);
+    static QDBusMessage updateSignature(const QDBusMessage &message, DBusMessage *dmsg);
+
+    static void setLocal(QDBusMessage *message, bool local);
+    static bool isLocal(const QDBusMessage &message);
 };
 
 #endif

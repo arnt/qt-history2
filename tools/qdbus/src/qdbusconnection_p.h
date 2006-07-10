@@ -149,6 +149,7 @@ public:
     bool activateObject(const ObjectTreeNode *node, const QDBusMessage &msg);
     bool activateInternalFilters(const ObjectTreeNode *node, const QDBusMessage &msg);
 
+    void sendCallDeliveryEvent(CallDeliveryEvent *data);
     void postCallDeliveryEvent(CallDeliveryEvent *data);
     CallDeliveryEvent *postedCallDeliveryEvent();
     void deliverCall(const CallDeliveryEvent &data) const;
@@ -158,7 +159,7 @@ public:
 
     void registerService(const QString &serviceName);
     void unregisterService(const QString &serviceName);
-    bool isServiceRegistered(const QString &serviceName) const;
+    bool isServiceRegisteredByThread(const QString &serviceName) const;
     QString baseService() const;
 protected:
     virtual void customEvent(QEvent *event);
