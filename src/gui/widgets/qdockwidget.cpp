@@ -287,7 +287,7 @@ void QDockWidgetPrivate::relayout()
     if (closeButton) {
         //### Fix this properly in Qt 4.2
         closeButton->setGeometry(QStyle::visualRect(
-				    qApp->layoutDirection(),
+				    q->layoutDirection(),
                                     titleArea, QRect(posX - closeSize.width() - mw + buttonOffset.x(),
                                     titleArea.center().y() - closeSize.height() / 2 + + buttonOffset.y(),
                                     closeSize.width(), closeSize.height())));
@@ -297,7 +297,7 @@ void QDockWidgetPrivate::relayout()
     if (floatButton) {
         //### Fix this properly in Qt 4.2
         floatButton->setGeometry(QStyle::visualRect(
-				    qApp->layoutDirection(),
+				    q->layoutDirection(),
                                     titleArea, QRect(posX - floatSize.width() - mw + buttonOffset.x(),
                                     titleArea.center().y() - floatSize.height() / 2 + buttonOffset.y(),
                                     floatSize.width(), floatSize.height())));
@@ -743,6 +743,8 @@ bool QDockWidget::event(QEvent *event)
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
 #endif
+    case QEvent::ApplicationLayoutDirectionChange:
+    case QEvent::LayoutDirectionChange:
     case QEvent::StyleChange:
         d->updateButtons();
         break;

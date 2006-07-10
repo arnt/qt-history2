@@ -36,6 +36,7 @@ public slots:
     void saveLayout();
     void loadLayout();
     void setCorner(int id);
+    void switchLayoutDirection();
 
 private:
     void setupToolBar();

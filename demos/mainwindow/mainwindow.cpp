@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBoxEx>
 #include <QSignalMapper>
+#include <QApplication>
 #include <qdebug.h>
 
 static const char * const message =
@@ -86,6 +87,9 @@ void MainWindow::setupMenuBar()
 
     action = menu->addAction(tr("Load layout..."));
     connect(action, SIGNAL(triggered()), this, SLOT(loadLayout()));
+
+    action = menu->addAction(tr("Switch layout direction"));
+    connect(action, SIGNAL(triggered()), this, SLOT(switchLayoutDirection()));
 
     menu->addSeparator();
 
@@ -293,4 +297,12 @@ void MainWindow::setCorner(int id)
             QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
             break;
     }
+}
+
+void MainWindow::switchLayoutDirection()
+{
+    if (layoutDirection() == Qt::LeftToRight)
+        qApp->setLayoutDirection(Qt::RightToLeft);
+    else
+        qApp->setLayoutDirection(Qt::LeftToRight);
 }
