@@ -50,7 +50,7 @@ QList<int> QKeyMapper::possibleKeys(QKeyEvent *e)
 {
     QList<int> result;
 
-    if (!e->hasExtendedInfo()) {
+    if (!e->nativeScanCode()) {
         if (e->key() && (e->key() != Qt::Key_unknown))
             result << int(e->key() + e->modifiers());
         else if (!e->text().isEmpty())
