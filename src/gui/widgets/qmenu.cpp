@@ -38,11 +38,11 @@
 #include <private/qaction_p.h>
 #ifdef QT3_SUPPORT
 #include <qmenudata.h>
+#endif // QT3_SUPPORT
+
 #ifdef Q_WS_X11
 #include <private/qt_x11_p.h>
 #endif
-
-#endif // QT3_SUPPORT
 
 
 QBasicTimer QMenuPrivate::menuDelayTimer;
