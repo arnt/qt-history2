@@ -6861,12 +6861,13 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 #endif
         }
 
-        // propagate enabled state
-        if (!testAttribute(Qt::WA_ForceDisabled))
-            d->setEnabled_helper(parent ? parent->isEnabled() : true);
-        // propgate updates enabled state
-        if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
-            d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
+        // propagate enabled updates enabled state to non-windows
+        if (!isWindow()) {
+            if (!testAttribute(Qt::WA_ForceDisabled))
+                d->setEnabled_helper(parent ? parent->isEnabled() : true);
+            if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
+                d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
+        }
 
 //### already hidden above ---> must probably do something smart on the mac
 // #ifdef Q_WS_MAC
