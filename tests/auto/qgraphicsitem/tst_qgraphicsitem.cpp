@@ -666,9 +666,14 @@ void tst_QGraphicsItem::selected_group()
     leaf->setParentItem(item2);
 
     QGraphicsItemGroup *group = scene.createItemGroup(QList<QGraphicsItem *>() << item1 << item2);
+    QCOMPARE(group->scene(), &scene);
     group->setFlag(QGraphicsItem::ItemIsSelectable);
-    foreach (QGraphicsItem *item, scene.items())
-        QCOMPARE(item->group(), group);
+    foreach (QGraphicsItem *item, scene.items()) {
+        if (item == group)
+            QVERIFY(!item->group());
+        else
+            QCOMPARE(item->group(), group);
+    }
 
     QVERIFY(group->handlesChildEvents());
     QVERIFY(!group->isSelected());
@@ -1702,6 +1707,8 @@ void tst_QGraphicsItem::nestedGroups()
     QCOMPARE(rect2->group(), group1);
     QCOMPARE(group1->group(), (QGraphicsItemGroup *)0);
     QVERIFY(group2->children().isEmpty());
+
+    delete group2;
 }
 
 void tst_QGraphicsItem::warpChildrenIntoGroup()
