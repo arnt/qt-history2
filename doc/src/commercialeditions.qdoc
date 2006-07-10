@@ -38,8 +38,8 @@
     commercial editions:
 
     \table 75%
-    \header \o{1,2} Features                 \o{3,1} Editions
-    \header                                  \o Qt Console \o Qt Desktop Light \o Qt Desktop
+    \header \o Features                      \o{3,1} Editions
+    \header \o                               \o Qt Console \o Qt Desktop Light \o Qt Desktop
     \row    \o \l{QtCore}{Qt Core classes}   \o \bold{X}   \o \bold{X}         \o \bold{X}
     \row    \o \l{QtGui}{Qt GUI classes}     \o            \o \bold{X}         \o \bold{X}
     \row    \o \l{QtNetwork}{Networking}     \o \bold{X}   \o                  \o \bold{X}
