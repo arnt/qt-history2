@@ -29,6 +29,8 @@ private slots:
 
     void registerObject();
 
+    void callSelf();
+
 public:
     bool callMethod(const QDBusConnection &conn, const QString &path);
 };
@@ -63,8 +65,7 @@ void tst_QDBusConnection::noConnection()
     QVERIFY(reply.type() == QDBusMessage::ErrorMessage);
 
     QDBusReply<void> voidreply(reply);
-    QVERIFY(voidreply.isError());
-    QVERIFY(!voidreply.isSuccess());
+    QVERIFY(!voidreply.isValid());
 
     QDBusConnection::closeConnection("testconnection");
 }
@@ -271,6 +272,35 @@ bool tst_QDBusConnection::callMethod(const QDBusConnection &conn, const QString 
 
     return reply.type() == QDBusMessage::ReplyMessage;
 }    
+
+class TestObject : public QObject
+{
+  Q_OBJECT
+public:
+  TestObject(QObject *parent = 0) : QObject(parent) {}
+  ~TestObject() {}
+
+public slots:
+  void test0() { qDebug() << "test0"; }
+  void test1(int i) { qDebug() << "test1" << i; }
+  int test2() { qDebug() << "test2"; return 1; }
+};
+
+void tst_QDBusConnection::callSelf()
+{
+  TestObject testObject;
+  QDBusConnection connection = QDBus::sessionBus();
+  QVERIFY(connection.registerObject("/test", &testObject,
+			 	    QDBusConnection::ExportContents
+				    |QDBusConnection::ExportNonScriptableContents));
+  QVERIFY(connection.registerService("com.trolltech.Qt.Autotests.ToSelf"));
+  QDBusInterface interface("com.trolltech.Qt.Autotests.ToSelf","/test");
+  QVERIFY(interface.isValid());
+  
+  interface.call(QDBus::Block, "test0");
+  interface.call(QDBus::Block, "test1", 0);
+  interface.call(QDBus::Block, "test2");
+}
 
 QTEST_MAIN(tst_QDBusConnection)
 
