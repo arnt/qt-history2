@@ -38,8 +38,6 @@
 
 #include <ctype.h>
 
-extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
-
 static void getLocaleAndDirection(QLocale *locale,
                                   Qt::LayoutDirection *direction,
                                   const QByteArray &layoutName,
@@ -67,6 +65,7 @@ extern uchar qt_super_mask;
 extern uchar qt_hyper_mask;
 extern uchar qt_mode_switch_mask;
 uchar qt_num_lock_mask = 0;
+extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
 
 #define SETMASK(sym, mask)                                              \
     do {                                                                \
