@@ -739,10 +739,11 @@ QString::QString(int size, QChar ch)
         d->clean = d->asciiCache = d->simpletext = d->righttoleft = 0;
         d->data = d->array;
         d->array[size] = '\0';
-        QChar *i = (QChar*)d->array + size;
-        QChar *b = (QChar*)d->array;
+        ushort *i = d->array + size;
+        ushort *b = d->array;
+        const ushort value = ch.unicode();
         while (i != b)
-           *--i = ch;
+            *--i = value;
     }
 }
 
