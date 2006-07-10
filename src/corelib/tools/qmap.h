@@ -37,8 +37,8 @@ struct Q_CORE_EXPORT QMapData
     };
     enum { LastLevel = 11, Sparseness = 3 };
 
-    Node *backward;
-    Node *forward[QMapData::LastLevel + 1];
+    QMapData *backward;
+    QMapData *forward[QMapData::LastLevel + 1];
     QBasicAtomic ref;
     int topLevel;
     int size;

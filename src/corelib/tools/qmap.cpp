@@ -16,17 +16,16 @@
 #include <stdlib.h>
 
 QMapData QMapData::shared_null = {
-    reinterpret_cast<Node *>(&shared_null),
-    { reinterpret_cast<Node *>(&shared_null), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0,
-    0, 0, false, true
+    &shared_null,
+    { &shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0, 0, 0, false, true
 };
 
 QMapData *QMapData::createData()
 {
     QMapData *d = new QMapData;
     Node *e = reinterpret_cast<Node *>(d);
-    d->backward = e;
-    d->forward[0] = e;
+    e->backward = e;
+    e->forward[0] = e;
     d->ref.init(1);
     d->topLevel = 0;
     d->size = 0;
@@ -39,7 +38,7 @@ QMapData *QMapData::createData()
 void QMapData::continueFreeData(int offset)
 {
     Node *e = reinterpret_cast<Node *>(this);
-    Node *cur = forward[0];
+    Node *cur = e->forward[0];
     Node *prev;
     while (cur != e) {
         prev = cur;
