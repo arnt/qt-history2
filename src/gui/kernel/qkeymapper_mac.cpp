@@ -462,8 +462,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                                   string);
         if (err == noErr) {
             *qtKey = get_uniKey(*outModifiers, QChar(string[0]), keyCode);
-            if (ekind != kEventRawKeyUp)
-                *outChar = QChar(string[0]);
+            *outChar = QChar(string[0]);
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
                      err, __FILE__, __LINE__);
@@ -508,9 +507,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
                     tmp_mod | keyCode, &tmp_state);
         }
-        /* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
-           is this a bug on X11? --Sam */
-        if (ekind != kEventRawKeyUp) {
+        {
             UInt32 unilen = 0;
             if (GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
                     == noErr && unilen == 2) {
