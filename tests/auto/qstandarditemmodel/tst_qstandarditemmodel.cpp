@@ -878,7 +878,7 @@ void tst_QStandardItemModel::sortRole()
     for (int i = 0; i < initialText.count(); ++i) {
         QStandardItem *item = new QStandardItem;
         item->setText(initialText.at(i));
-        item->setData(initialData.at(i));
+        item->setData(initialData.at(i), Qt::UserRole);
         model.appendRow(item);
     }
     model.setSortRole(sortRole);
@@ -886,7 +886,7 @@ void tst_QStandardItemModel::sortRole()
     for (int i = 0; i < expectedText.count(); ++i) {
         QStandardItem *item = model.item(i);
         QCOMPARE(item->text(), expectedText.at(i));
-        QCOMPARE(item->data(), expectedData.at(i));
+        QCOMPARE(item->data(Qt::UserRole), expectedData.at(i));
     }
 }
 
