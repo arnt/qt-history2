@@ -571,11 +571,12 @@ void tst_QItemView::indexAt()
     while (view->model()->hasChildren(index))
         index = view->model()->index(0, 0, index);
     QCOMPARE(view->model()->hasChildren(index), false);
+    QVERIFY(index.isValid());
     view->setRootIndex(index);
     //qDebug() << view->indexAt(QPoint(view->width()/2, view->height()/2)) << view->rootIndex();
     QPoint p(1, view->height()/2);
     QModelIndex idx = view->indexAt(p);
-    QCOMPARE(idx, view->rootIndex());
+    QCOMPARE(idx, QModelIndex());
 #endif
 }
 
