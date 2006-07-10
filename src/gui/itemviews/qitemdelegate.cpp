@@ -855,7 +855,9 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
         default: {
             QString text = value.toString();
             value = index.data(Qt::FontRole);
-            QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
+            QFont fnt = option.font;
+            if (value.isValid())
+                fnt = fnt.resolve(qvariant_cast<QFont>(value));
             return textRectangle(0, option.rect, fnt, text); }
         }
     }
@@ -1012,7 +1014,8 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
     // set font
     QVariant value = index.data(Qt::FontRole);
     if (value.isValid()){
-        opt.font = qvariant_cast<QFont>(value);
+        opt.font.setBold(false);
+        opt.font = opt.font.resolve(qvariant_cast<QFont>(value));
         opt.fontMetrics = QFontMetrics(opt.font);
     }
 
