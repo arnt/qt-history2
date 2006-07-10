@@ -680,14 +680,14 @@ bool QTreeView::isAnimationsEnabled() const
 void QTreeView::keyboardSearch(const QString &search)
 {
     Q_D(QTreeView);
-    if (!d->model->rowCount(rootIndex()) || !d->model->columnCount(rootIndex()))
+    if (!d->model->rowCount(d->root) || !d->model->columnCount(d->root))
         return;
 
     QModelIndex start;
     if (currentIndex().isValid())
         start = currentIndex();
     else
-        start = d->model->index(0, 0, rootIndex());
+        start = d->model->index(0, 0, d->root);
 
     QTime now(QTime::currentTime());
     bool skipRow = false;
@@ -713,7 +713,7 @@ void QTreeView::keyboardSearch(const QString &search)
         if (indexBelow(start).isValid())
             start = indexBelow(start);
         else
-            start = d->model->index(0, start.column(), rootIndex());
+            start = d->model->index(0, start.column(), d->root);
     }
 
     int startIndex = d->viewIndex(start);
@@ -1356,7 +1356,7 @@ void QTreeView::doItemsLayout()
 {
     Q_D(QTreeView);
     d->viewItems.clear(); // prepare for new layout
-    QModelIndex parent = rootIndex();
+    QModelIndex parent = d->root;
     if (d->model->hasChildren(parent)) {
         QModelIndex index = d->model->index(0, 0, parent);
         d->defaultItemHeight = indexRowSizeHint(index);
@@ -1442,7 +1442,7 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MoveDown:
 #ifdef QT_KEYPAD_NAVIGATION
         if (vi == d->viewItems.count()-1 && QApplication::keypadNavigationEnabled())
-            return d->model->index(0, 0, rootIndex());
+            return d->model->index(0, 0, d->root);
 #endif
         return d->modelIndex(d->below(vi));
     case MovePrevious:
@@ -1469,7 +1469,7 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     case MovePageDown:
         return d->modelIndex(d->pageDown(vi));
     case MoveHome:
-        return d->model->index(0, 0, rootIndex());
+        return d->model->index(0, 0, d->root);
     case MoveEnd:
         return d->modelIndex(d->viewItems.count() - 1);
     }
@@ -1672,7 +1672,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
 
     setState(CollapsingState);
 
-    if (parent == rootIndex()) {
+    if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
         return;
@@ -1705,7 +1705,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     if (d->viewItems.isEmpty())
         return;
 
-    if (parent == rootIndex()) {
+    if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
         return;
@@ -2117,7 +2117,7 @@ void QTreeViewPrivate::layout(int i)
 {
     Q_Q(QTreeView);
     QModelIndex current;
-    QModelIndex parent = modelIndex(i);
+    QModelIndex parent = (i < 0) ? (QModelIndex)root : modelIndex(i);
 
     int count = 0;
     if (model->hasChildren(parent))
@@ -2153,7 +2153,6 @@ void QTreeViewPrivate::layout(int i)
     if (hidden > 0)
         viewItems.remove(last + 1, hidden); // collapse
 
-    QModelIndex root = q->rootIndex();
     while (parent != root) {
         Q_ASSERT(i > -1);
         viewItems[i].total += count - hidden;
@@ -2363,7 +2362,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 QModelIndex QTreeViewPrivate::modelIndex(int i) const
 {
     return ((i < 0 || i >= viewItems.count())
-            ? (QModelIndex)root : viewItems.at(i).index);
+            ? QModelIndex() : viewItems.at(i).index);
 }
 
 int QTreeViewPrivate::firstVisibleItem(int *offset) const
@@ -2518,7 +2517,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
         || cx < (itemIndentation - indent) || cx > itemIndentation)
         return -1; // pos is outside the decoration rect
 
-    if (!rootDecoration && index.parent() == q->rootIndex())
+    if (!rootDecoration && index.parent() == root)
         return -1; // no decoration at root
 
     QRect rect;

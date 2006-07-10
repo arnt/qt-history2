@@ -1184,34 +1184,25 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         if (!isActiveWindow())
             break;
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QModelIndex index = indexAt(he->pos());
-        if (index.isValid()) {
-            QString tooltip = d->model->data(index, Qt::ToolTipRole).toString();
-            QToolTip::showText(he->globalPos(), tooltip, this);
+        QVariant tooltip = d->model->data(indexAt(he->pos()), Qt::ToolTipRole);
+        if (qVariantCanConvert<QString>(tooltip)) {
+            QToolTip::showText(he->globalPos(), tooltip.toString(), this);
             return true;
-        }
-        else {
-            QString emptyString;
-            QToolTip::showText(he->globalPos(), emptyString, this);
         }
         break;}
 #endif
 #ifndef QT_NO_WHATSTHIS
     case QEvent::QueryWhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QModelIndex index = indexAt(he->pos());
-        if (index.isValid() && d->model->data(index, Qt::WhatsThisRole).isValid())
+        if (d->model->data(indexAt(he->pos()), Qt::WhatsThisRole).isValid())
             return true;
         break ; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QModelIndex index = indexAt(he->pos());
-        if (index.isValid()) {
-            QVariant whatsthis = d->model->data(index, Qt::WhatsThisRole);
-            if (whatsthis.isValid()) {
-                QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
-                return true;
-            }
+        QVariant whatsthis = d->model->data(indexAt(he->pos()), Qt::WhatsThisRole);
+        if (qVariantCanConvert<QString>(whatsthis)) {
+            QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
+            return true;
         }
         break ; }
 #endif
