@@ -83,6 +83,9 @@ private slots:
 
     void description_data();
     void description();
+
+    void readFromResources_data();
+    void readFromResources();
     
 #if QT_VERSION > 0x040100
     void sizeBeforeRead_data();
@@ -809,6 +812,121 @@ void tst_QImageReader::description()
     foreach (QString key, description.keys())
         QCOMPARE(reader.text(key), description.value(key));
     QCOMPARE(reader.textKeys(), QStringList(description.keys()));
+}
+
+void tst_QImageReader::readFromResources_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QByteArray>("format");
+    QTest::addColumn<QSize>("size");
+
+    QTest::newRow("images/16bpp.bmp") << QString("images/16bpp.bmp") << QByteArray("bmp") << QSize(320, 240);
+    QTest::newRow("images/4bpp-rle.bmp") << QString("images/4bpp-rle.bmp") << QByteArray("bmp") << QSize(640, 480);
+    QTest::newRow("images/away.png") << QString("images/away.png") << QByteArray("png") << QSize(16, 16);
+    QTest::newRow("images/ball.mng") << QString("images/ball.mng") << QByteArray("mng") << QSize(32, 32);
+    QTest::newRow("images/bat1.gif") << QString("images/bat1.gif") << QByteArray("gif") << QSize(32, 32);
+    QTest::newRow("images/bat2.gif") << QString("images/bat2.gif") << QByteArray("gif") << QSize(32, 32);
+    QTest::newRow("images/beavis.jpg") << QString("images/beavis.jpg") << QByteArray("jpg") << QSize(350, 350);
+    QTest::newRow("images/black.png") << QString("images/black.png") << QByteArray("png") << QSize(48, 48);
+    QTest::newRow("images/black.xpm") << QString("images/black.xpm") << QByteArray("xpm") << QSize(48, 48);
+    QTest::newRow("images/colorful.bmp") << QString("images/colorful.bmp") << QByteArray("bmp") << QSize(320, 200);
+    QTest::newRow("images/corrupt.bmp") << QString("images/corrupt.bmp") << QByteArray("bmp") << QSize(-1, -1);
+    QTest::newRow("images/corrupt-colors.xpm") << QString("images/corrupt-colors.xpm") << QByteArray("xpm") << QSize(-1, -1);
+    QTest::newRow("images/corrupt.gif") << QString("images/corrupt.gif") << QByteArray("gif") << QSize(-1, -1);
+    QTest::newRow("images/corrupt.jpg") << QString("images/corrupt.jpg") << QByteArray("jpg") << QSize(-1, -1);
+    QTest::newRow("images/corrupt.mng") << QString("images/corrupt.mng") << QByteArray("mng") << QSize(-1, -1);
+    QTest::newRow("images/corrupt-pixels.xpm") << QString("images/corrupt-pixels.xpm") << QByteArray("xpm") << QSize(-1, -1);
+    QTest::newRow("images/corrupt.png") << QString("images/corrupt.png") << QByteArray("png") << QSize(-1, -1);
+//    QTest::newRow("images/corrupt.xbm") << QString("images/corrupt.xbm") << QByteArray("xbm") << QSize(-1, -1);
+    QTest::newRow("images/crash-signed-char.bmp") << QString("images/crash-signed-char.bmp") << QByteArray("bmp") << QSize(360, 280);
+    QTest::newRow("images/earth.gif") << QString("images/earth.gif") << QByteArray("gif") << QSize(320, 200);
+    QTest::newRow("images/fire.mng") << QString("images/fire.mng") << QByteArray("mng") << QSize(30, 60);
+    QTest::newRow("images/font.bmp") << QString("images/font.bmp") << QByteArray("bmp") << QSize(240, 8);
+    QTest::newRow("images/gnus.xbm") << QString("images/gnus.xbm") << QByteArray("xbm") << QSize(271, 273);
+    QTest::newRow("images/image.pbm") << QString("images/image.pbm") << QByteArray("pbm") << QSize(16, 6);
+    QTest::newRow("images/image.pgm") << QString("images/image.pgm") << QByteArray("pgm") << QSize(24, 7);
+    QTest::newRow("images/image.png") << QString("images/image.png") << QByteArray("png") << QSize(22, 22);
+    QTest::newRow("images/image.ppm") << QString("images/image.ppm") << QByteArray("ppm") << QSize(4, 4);
+    QTest::newRow("images/kollada.png") << QString("images/kollada.png") << QByteArray("png") << QSize(436, 160);
+    QTest::newRow("images/marble.xpm") << QString("images/marble.xpm") << QByteArray("xpm") << QSize(240, 240);
+    QTest::newRow("images/namedcolors.xpm") << QString("images/namedcolors.xpm") << QByteArray("xpm") << QSize(8, 8);
+    QTest::newRow("images/negativeheight.bmp") << QString("images/negativeheight.bmp") << QByteArray("bmp") << QSize(127, 64);
+    QTest::newRow("images/noclearcode.bmp") << QString("images/noclearcode.bmp") << QByteArray("bmp") << QSize(29, 18);
+    QTest::newRow("images/noclearcode.gif") << QString("images/noclearcode.gif") << QByteArray("gif") << QSize(29, 18);
+    QTest::newRow("images/nontransparent.xpm") << QString("images/nontransparent.xpm") << QByteArray("xpm") << QSize(8, 8);
+    QTest::newRow("images/pngwithcompressedtext.png") << QString("images/pngwithcompressedtext.png") << QByteArray("png") << QSize(32, 32);
+    QTest::newRow("images/pngwithtext.png") << QString("images/pngwithtext.png") << QByteArray("png") << QSize(32, 32);
+    QTest::newRow("images/teapot.ppm") << QString("images/teapot.ppm") << QByteArray("ppm") << QSize(256, 256);
+    QTest::newRow("images/test.xpm") << QString("images/test.xpm") << QByteArray("xpm") << QSize(256, 256);
+    QTest::newRow("images/transparent.xpm") << QString("images/transparent.xpm") << QByteArray("xpm") << QSize(8, 8);
+    QTest::newRow("images/trolltech.gif") << QString("images/trolltech.gif") << QByteArray("gif") << QSize(128, 64);
+    QTest::newRow("images/YCbCr_cmyk.jpg") << QString("images/YCbCr_cmyk.jpg") << QByteArray("jpg") << QSize(75, 50);
+    QTest::newRow("images/YCbCr_cmyk.png") << QString("images/YCbCr_cmyk.png") << QByteArray("png") << QSize(75, 50);
+    QTest::newRow("images/YCbCr_rgb.jpg") << QString("images/YCbCr_rgb.jpg") << QByteArray("jpg") << QSize(75, 50);
+}
+
+void tst_QImageReader::readFromResources()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QByteArray, format);
+    QFETCH(QSize, size);
+
+    for (int i = 0; i < 2; ++i) {
+        QString file = i ? (":/" + fileName) : fileName;
+        {
+            // 1) full filename, no format
+            QImageReader reader(file);
+            QImage image = reader.read();
+            if (!size.isValid())
+                QVERIFY(image.isNull());
+            else
+                QVERIFY(!image.isNull());
+            QCOMPARE(image.size(), size);
+        }
+        {
+            // 2) full filename, with format
+            QImageReader reader(file, format);
+            QImage image = reader.read();
+            if (!size.isValid())
+                QVERIFY(image.isNull());
+            else
+                QVERIFY(!image.isNull());
+            QCOMPARE(image.size(), size);
+        }
+        {
+            // 3) full filename, with uppercase format
+            QImageReader reader(file, format.toUpper());
+            QImage image = reader.read();
+            if (!size.isValid())
+                QVERIFY(image.isNull());
+            else
+                QVERIFY(!image.isNull());
+            QCOMPARE(image.size(), size);
+        }
+        {
+            // 4) chopped filename, with format
+            QImageReader reader(file.left(file.lastIndexOf(QLatin1Char('.'))), format);
+            QImage image = reader.read();
+            if (!size.isValid())
+                QVERIFY(image.isNull());
+            else
+                QVERIFY(!image.isNull());
+            QCOMPARE(image.size(), size);
+        }
+        {
+            // 5) chopped filename, with uppercase format
+            QImageReader reader(file.left(file.lastIndexOf(QLatin1Char('.'))), format.toUpper());
+            QImage image = reader.read();
+            if (!size.isValid())
+                QVERIFY(image.isNull());
+            else
+                QVERIFY(!image.isNull());
+            QCOMPARE(image.size(), size);
+        }
+    }
+
+    // Check that the results are identical
+    QCOMPARE(QImageReader(fileName).read(), QImageReader(":/" + fileName).read());
 }
 
 #if QT_VERSION >= 0x040200
