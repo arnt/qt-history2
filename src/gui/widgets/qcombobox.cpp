@@ -1834,7 +1834,7 @@ void QComboBox::showPopup()
     else
         listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
     listRect.setHeight(listRect.height() + 2*container->spacing()
-                       + style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2);
+                       + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 
     // make sure the widget fits on screen
     //### do horizontally as well
