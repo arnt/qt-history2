@@ -49,6 +49,7 @@ struct QMenuMergeItem
     QMacMenuAction *action;
 };
 typedef QList<QMenuMergeItem> QMenuMergeList;
+#define QT_MAC_MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
 
 const UInt32 kMenuCreatorQt = 'cute';
 enum {
@@ -302,24 +303,22 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
         ret = kHICommandPreferences;
         break;
     case QAction::TextHeuristicRole: {
-#define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
-        QString aboutString = MENU_TRANSLATE("About").toLower();
+        QString aboutString = QT_MAC_MENU_TRANSLATE("About").toLower();
         if (t.startsWith(aboutString) || t.endsWith(aboutString)) {
             if (t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
                 ret = kHICommandAbout;
             else
                 ret = kHICommandAboutQt;
-        } else if (t.startsWith(MENU_TRANSLATE("Config").toLower())
-                   || t.startsWith(MENU_TRANSLATE("Preference").toLower())
-                   || t.startsWith(MENU_TRANSLATE("Options").toLower())
-                   || t.startsWith(MENU_TRANSLATE("Setting").toLower())
-                   || t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
+        } else if (t.startsWith(QT_MAC_MENU_TRANSLATE("Config").toLower())
+                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Preference").toLower())
+                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Options").toLower())
+                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Setting").toLower())
+                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Setup").toLower())) {
             ret = kHICommandPreferences;
-        } else if (t.startsWith(MENU_TRANSLATE("Quit").toLower())
-                   || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
+        } else if (t.startsWith(QT_MAC_MENU_TRANSLATE("Quit").toLower())
+                   || t.startsWith(QT_MAC_MENU_TRANSLATE("Exit").toLower())) {
             ret = kHICommandQuit;
         }
-#undef MENU_TRANSLATE
     }
         break;
     }
@@ -352,13 +351,13 @@ static QString qt_mac_menu_merge_text(QMacMenuAction *action)
     if (action->action->menuRole() == QAction::ApplicationSpecificRole)
         ret = action->action->text();
     else if (action->command == kHICommandAbout)
-        ret = QLatin1String("About ") + QString(qAppName());
+        ret = QT_MAC_MENU_TRANSLATE("About") + QLatin1String(" ") + QString(qAppName());
     else if (action->command == kHICommandAboutQt)
-        ret = QLatin1String("About Qt");
+        ret = QT_MAC_MENU_TRANSLATE("About Qt");
     else if (action->command == kHICommandPreferences)
-        ret = QLatin1String("Preferences");
+        ret = QT_MAC_MENU_TRANSLATE("Preferences");
     else if (action->command == kHICommandQuit)
-        ret = QLatin1String("Quit ") + QString(qAppName());
+        ret = QT_MAC_MENU_TRANSLATE("Quit") + QLatin1String(" ") + QString(qAppName());
     return ret;
 }
 
