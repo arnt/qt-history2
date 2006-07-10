@@ -31,12 +31,13 @@
 #define XK_XKB_KEYS
 #include <X11/keysymdef.h>
 
+#include <ctype.h>
+
 #ifndef QT_NO_XKB
 
 // bring in the auto-generated xkbLayoutData
 #include "qkeymapper_x11_p.cpp"
 
-#include <ctype.h>
 
 static void getLocaleAndDirection(QLocale *locale,
                                   Qt::LayoutDirection *direction,
