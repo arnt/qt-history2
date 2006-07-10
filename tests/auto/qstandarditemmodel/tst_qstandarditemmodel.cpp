@@ -82,6 +82,8 @@ private slots:
 #if QT_VERSION >= 0x040200
     void sort_data();
     void sort();
+    void sortRole_data();
+    void sortRole();
     void findItems();
     void getSetHeaderItem();
     void indexFromItem();
@@ -111,6 +113,7 @@ Q_DECLARE_METATYPE(QModelIndex)
 Q_DECLARE_METATYPE(QStandardItem*)
 #endif
 Q_DECLARE_METATYPE(Qt::Orientation)
+Q_DECLARE_METATYPE(QVariantList)
 
 tst_QStandardItemModel::tst_QStandardItemModel() : model(0), rcParent(8), rcFirst(8,0), rcLast(8,0)
 {
@@ -834,6 +837,56 @@ void tst_QStandardItemModel::sort()
     for (int row = 0; row < model.rowCount(QModelIndex()); ++row) {
         QModelIndex index = model.index(row, 0, QModelIndex());
         QCOMPARE(model.data(index, Qt::DisplayRole).toString(), expected.at(row));
+    }
+}
+
+void tst_QStandardItemModel::sortRole_data()
+{
+    QTest::addColumn<QStringList>("initialText");
+    QTest::addColumn<QVariantList>("initialData");
+    QTest::addColumn<int>("sortRole");
+    QTest::addColumn<int>("sortOrder");
+    QTest::addColumn<QStringList>("expectedText");
+    QTest::addColumn<QVariantList>("expectedData");
+
+    QTest::newRow("sort ascending with Qt::DisplayRole")
+        << (QStringList() << "b" << "a" << "c")
+        << (QVariantList() << 2 << 3 << 1)
+        << static_cast<int>(Qt::DisplayRole)
+        << static_cast<int>(Qt::AscendingOrder)
+        << (QStringList() << "a" << "b" << "c")
+        << (QVariantList() << 3 << 2 << 1);
+    QTest::newRow("sort ascending with Qt::UserRole")
+        << (QStringList() << "a" << "b" << "c")
+        << (QVariantList() << 3 << 2 << 1)
+        << static_cast<int>(Qt::UserRole)
+        << static_cast<int>(Qt::AscendingOrder)
+        << (QStringList() << "c" << "b" << "a")
+        << (QVariantList() << 1 << 2 << 3);
+}
+
+void tst_QStandardItemModel::sortRole()
+{
+    QFETCH(QStringList, initialText);
+    QFETCH(QVariantList, initialData);
+    QFETCH(int, sortRole);
+    QFETCH(int, sortOrder);
+    QFETCH(QStringList, expectedText);
+    QFETCH(QVariantList, expectedData);
+
+    QStandardItemModel model;
+    for (int i = 0; i < initialText.count(); ++i) {
+        QStandardItem *item = new QStandardItem;
+        item->setText(initialText.at(i));
+        item->setData(Qt::UserRole, initialData.at(i));
+        model.appendRow(item);
+    }
+    model.setSortRole(sortRole);
+    model.sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    for (int i = 0; i < expectedText.count(); ++i) {
+        QStandardItem *item = model.item(i);
+        QCOMPARE(item->text(), expectedText.at(i));
+        QCOMPARE(item->data(Qt::UserRole), expectedData.at(i));
     }
 }
 
