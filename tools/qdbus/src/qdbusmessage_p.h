@@ -53,8 +53,9 @@ public:
     static QDBusMessage fromError(const QDBusError& error);
     static QDBusMessage updateSignature(const QDBusMessage &message, DBusMessage *dmsg);
 
-    static void setLocal(QDBusMessage *message, bool local);
+    static void setLocal(const QDBusMessage *message, bool local);
     static bool isLocal(const QDBusMessage &message);
+    static void setArguments(const QDBusMessage *message, const QList<QVariant> &arguments);
 };
 
 #endif

@@ -642,6 +642,11 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
 
     // do we create a reply? Only if the caller is waiting for a reply and one hasn't been sent
     // yet.
+    if (QDBusMessagePrivate::isLocal(msg) && !fail) {
+	QDBusMessagePrivate::setArguments(&msg, outputArgs);
+	return;
+    }
+
     if (!msg.isReplyRequired() && !msg.isDelayedReply()) {
         if (!fail) {
             // normal reply

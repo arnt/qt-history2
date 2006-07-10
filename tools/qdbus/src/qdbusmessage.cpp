@@ -137,7 +137,7 @@ QDBusMessage QDBusMessagePrivate::updateSignature(const QDBusMessage &message, D
     return messageWithSignature;
 }
 
-void QDBusMessagePrivate::setLocal(QDBusMessage *message, bool local)
+void QDBusMessagePrivate::setLocal(const QDBusMessage *message, bool local)
 {
     Q_ASSERT(message);
     message->d_ptr->localMessage = local;
@@ -146,6 +146,12 @@ void QDBusMessagePrivate::setLocal(QDBusMessage *message, bool local)
 bool QDBusMessagePrivate::isLocal(const QDBusMessage &message)
 {
     return message.d_ptr->localMessage;
+}
+
+void QDBusMessagePrivate::setArguments(const QDBusMessage *message, const QList<QVariant> &arguments)
+{
+  Q_ASSERT(message);
+  message->d_ptr->arguments = arguments;
 }
 
 ///////////////
