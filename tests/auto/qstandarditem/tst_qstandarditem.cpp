@@ -201,19 +201,19 @@ void tst_QStandardItem::getSetData()
             QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleTextRole)), accessibleText);
             QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleDescriptionRole)), accessibleDescription);
         }
-        item.setData(Qt::DisplayRole, QVariant());
-        item.setData(Qt::DecorationRole, QVariant());
-        item.setData(Qt::ToolTipRole, QVariant());
-        item.setData(Qt::StatusTipRole, QVariant());
-        item.setData(Qt::WhatsThisRole, QVariant());
-        item.setData(Qt::SizeHintRole, QVariant());
-        item.setData(Qt::FontRole, QVariant());
-        item.setData(Qt::TextAlignmentRole, QVariant());
-        item.setData(Qt::BackgroundColorRole, QVariant());
-        item.setData(Qt::TextColorRole, QVariant());
-        item.setData(Qt::CheckStateRole, QVariant());
-        item.setData(Qt::AccessibleTextRole, QVariant());
-        item.setData(Qt::AccessibleDescriptionRole, QVariant());
+        item.setData(QVariant(), Qt::DisplayRole);
+        item.setData(QVariant(), Qt::DecorationRole);
+        item.setData(QVariant(), Qt::ToolTipRole);
+        item.setData(QVariant(), Qt::StatusTipRole);
+        item.setData(QVariant(), Qt::WhatsThisRole);
+        item.setData(QVariant(), Qt::SizeHintRole);
+        item.setData(QVariant(), Qt::FontRole);
+        item.setData(QVariant(), Qt::TextAlignmentRole);
+        item.setData(QVariant(), Qt::BackgroundColorRole);
+        item.setData(QVariant(), Qt::TextColorRole);
+        item.setData(QVariant(), Qt::CheckStateRole);
+        item.setData(QVariant(), Qt::AccessibleTextRole);
+        item.setData(QVariant(), Qt::AccessibleDescriptionRole);
         
         QCOMPARE(item.data(Qt::DisplayRole), QVariant());
         QCOMPARE(item.data(Qt::DecorationRole), QVariant());

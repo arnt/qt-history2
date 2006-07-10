@@ -878,7 +878,7 @@ void tst_QStandardItemModel::sortRole()
     for (int i = 0; i < initialText.count(); ++i) {
         QStandardItem *item = new QStandardItem;
         item->setText(initialText.at(i));
-        item->setData(Qt::UserRole, initialData.at(i));
+        item->setData(initialData.at(i));
         model.appendRow(item);
     }
     model.setSortRole(sortRole);
@@ -886,7 +886,7 @@ void tst_QStandardItemModel::sortRole()
     for (int i = 0; i < expectedText.count(); ++i) {
         QStandardItem *item = model.item(i);
         QCOMPARE(item->text(), expectedText.at(i));
-        QCOMPARE(item->data(Qt::UserRole), expectedData.at(i));
+        QCOMPARE(item->data(), expectedData.at(i));
     }
 }
 
@@ -1135,7 +1135,7 @@ void tst_QStandardItemModel::itemDataChanged()
     args = itemChangedSpy.takeFirst();
     QCOMPARE(qvariant_cast<QStandardItem*>(args.at(0)), &item);
 
-    item.setData(Qt::DisplayRole, QLatin1String("foo"));
+    item.setData(QLatin1String("foo"), Qt::DisplayRole);
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(itemChangedSpy.count(), 1);
     args = dataChangedSpy.takeFirst();
@@ -1144,7 +1144,7 @@ void tst_QStandardItemModel::itemDataChanged()
     args = itemChangedSpy.takeFirst();
     QCOMPARE(qvariant_cast<QStandardItem*>(args.at(0)), &item);
 
-    item.setData(Qt::DisplayRole, item.data(Qt::DisplayRole));
+    item.setData(item.data(Qt::DisplayRole), Qt::DisplayRole);
     QCOMPARE(dataChangedSpy.count(), 0);
     QCOMPARE(itemChangedSpy.count(), 0);
 
