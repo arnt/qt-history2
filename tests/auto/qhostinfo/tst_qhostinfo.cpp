@@ -410,7 +410,7 @@ void tst_QHostInfo::resultsReady(const QHostInfo &hi)
     lookupResults = hi;
 
 #if !defined QT_NO_THREAD
-    QThreadData *data = QThreadData::get(QThread::currentThread());
+    QThreadData *data = QThreadData::current();
     if(!data->eventLoops.isEmpty())
         data->eventLoops.top()->exit();
     //QCoreApplication::instance()->exit_loop();
