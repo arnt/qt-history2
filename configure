@@ -1040,7 +1040,7 @@ while [ "$#" -gt 0 ]; do
         ;;
     feature-*)
         if [ "$PLATFORM_QWS" = "yes" ]; then
-            FEATURE=`echo $VAR | sed "s,^[^-]*-\([^-]*\),\1," | tr '[:lower:]-' '[:upper:]_'`
+            FEATURE=`echo $VAR | sed "s,^[^-]*-\([^-]*\),\1," | tr 'abcdefghijklmnopqrstuvwxyz-' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
             if [ "$VAL" = "no" ]; then
                 QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_$FEATURE"
             elif [ "$VAL" = "yes" ] || [ "$VAL" = "unknown" ]; then
@@ -4460,7 +4460,7 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 
     # Add excluded decorations to $QCONFIG_FLAGS
     grep '^decorations -=' "$QMAKE_VARS_FILE" | while read decor; do
-        NODECORATION=`echo $decor | tr '[:lower:]' '[:upper:]'`
+        NODECORATION=`echo $decor | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
     done
 
@@ -4481,17 +4481,17 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     done
 
     for DRIVER in $CFG_GFX_OFF; do
-        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        NODRIVER=`echo $DRIVER | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_$NODRIVER"
     done
 
     for DRIVER in $CFG_KBD_OFF; do
-        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        NODRIVER=`echo $DRIVER | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_KBD_$NODRIVER"
     done
 
     for DRIVER in $CFG_MOUSE_OFF; do
-        NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        NODRIVER=`echo $DRIVER | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MOUSE_$NODRIVER"
     done
 fi # QWS
@@ -4501,7 +4501,7 @@ for DRIVER in $CFG_SQL_AVAILABLE; do
     eval "VAL=\$CFG_SQL_$DRIVER"
     case "$VAL" in
     qt)
-        ONDRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
+        ONDRIVER=`echo $DRIVER | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_SQL_$ONDRIVER"
         SQL_DRIVERS="$SQL_DRIVERS $DRIVER"
     ;;
