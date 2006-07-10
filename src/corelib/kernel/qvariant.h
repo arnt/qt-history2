@@ -298,6 +298,7 @@ class Q_CORE_EXPORT QVariant
         {}
         union Data
         {
+            char c;
             int i;
             uint u;
             bool b;
