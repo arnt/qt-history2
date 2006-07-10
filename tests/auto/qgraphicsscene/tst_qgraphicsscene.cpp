@@ -221,6 +221,7 @@ void tst_QGraphicsScene::items()
     scene.itemAt(0, 0); // trigger indexing
 
     scene.removeItem(items.at(5));
+    delete items.at(5);
     QVERIFY(!scene.items().contains(0));
     delete items.at(7);
     QVERIFY(!scene.items().contains(0));
@@ -717,6 +718,7 @@ void tst_QGraphicsScene::removeItem()
     QCOMPARE(scene.itemAt(0, 0), item); // forces indexing
     scene.removeItem(item);
     QCOMPARE(scene.itemAt(0, 0), (QGraphicsItem *)0);
+    delete item;
 
     QGraphicsItem *item2 = scene.addRect(QRectF(0, 0, 10, 10));
     QCOMPARE(scene.itemAt(0, 0), item2);
@@ -898,6 +900,7 @@ void tst_QGraphicsScene::mouseGrabberItem()
     QApplication::sendEvent(&scene, &moveEvent);
     QCOMPARE(scene.mouseGrabberItem(), item2);
     scene.removeItem(item2);
+    delete item2;
     QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)0);
 }
 
