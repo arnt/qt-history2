@@ -139,6 +139,7 @@ public:
     QVector<QStandardItem*> rowHeaderItems;
     QStandardItem *root;
     const QStandardItem *itemPrototype;
+    int sortRole;
 };
 
 #endif // QT_NO_STANDARDITEMMODEL

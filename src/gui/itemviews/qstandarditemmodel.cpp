@@ -255,7 +255,8 @@ void QStandardItemPrivate::sortChildren(int column, Qt::SortOrder order)
 */
 QStandardItemModelPrivate::QStandardItemModelPrivate()
     : root(new QStandardItem),
-      itemPrototype(0)
+      itemPrototype(0),
+      sortRole(Qt::DisplayRole)
 {
 }
 
@@ -1644,7 +1645,8 @@ QList<QStandardItem*> QStandardItem::takeColumn(int column)
 */
 bool QStandardItem::operator<(const QStandardItem &other) const
 {
-    const QVariant l = data(Qt::DisplayRole), r = other.data(Qt::DisplayRole);
+    const int role = model() ? model()->sortRole() : Qt::DisplayRole;
+    const QVariant l = data(role), r = other.data(role);
     // this code is copied from QSortFilterProxyModel::lessThan()
     switch (l.type()) {
     case QVariant::Invalid:
@@ -2470,6 +2472,27 @@ QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
         d->rowHeaderItems.replace(row, 0);
     }
     return headerItem;
+}
+
+/*!
+    \since 4.2
+    \property QStandardItemModel::sortRole
+    \brief the item role that is used to query the model's data when sorting items
+
+    The default value is Qt::DisplayRole.
+
+    \sa {QStandardItem::operator<()}
+*/
+int QStandardItemModel::sortRole() const
+{
+    Q_D(const QStandardItemModel);
+    return d->sortRole;
+}
+
+void QStandardItemModel::setSortRole(int role)
+{
+    Q_D(QStandardItemModel);
+    d->sortRole = role;
 }
 
 /*!

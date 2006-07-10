@@ -279,6 +279,8 @@ class QStandardItemModelPrivate;
 class Q_GUI_EXPORT QStandardItemModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_PROPERTY(int sortRole READ sortRole WRITE setSortRole)
+
 public:
     explicit QStandardItemModel(QObject *parent = 0);
     QStandardItemModel(int rows, int columns, QObject *parent = 0);
@@ -361,6 +363,9 @@ public:
     void setItemPrototype(const QStandardItem *item);
 
     QList<QStandardItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
+
+    int sortRole() const;
+    void setSortRole(int role);
 
 Q_SIGNALS:
     void itemChanged(QStandardItem *item);
