@@ -856,10 +856,12 @@ static bool read_xpm_body(
     // create it in correct format (Format_RGB32 vs Format_ARGB32,
     // depending on absence or presence of "c none", respectively)
     if (ncols <= 256) {
-        image = QImage(w, h, QImage::Format_Indexed8);
+        if (image.size() != QSize(w, h) || image.format() != QImage::Format_Indexed8) {
+            image = QImage(w, h, QImage::Format_Indexed8);
+            if (image.isNull())
+                return false;
+        }
         image.setNumColors(ncols);
-        if (image.isNull())
-            return false;
     }
 
     QMap<quint64, int> colorMap;
@@ -927,9 +929,11 @@ static bool read_xpm_body(
         // Now we can create 32-bit image of appropriate format
         QImage::Format format = hasTransparency ?
                                 QImage::Format_ARGB32 : QImage::Format_RGB32;
-        image = QImage(w, h, format);
-        if (image.isNull())
-            return false;
+        if (image.size() != QSize(w, h) || image.format() != format) {
+            image = QImage(w, h, format);
+            if (image.isNull())
+                return false;
+        }
     }
 
     // Read pixels

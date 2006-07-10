@@ -208,9 +208,11 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
     if (bi.biHeight < 0)
         h = -h;                  // support images with negative height
 
-    image = QImage(w, h, format);
-    if (image.isNull())                        // could not create image
-        return false;
+    if (image.size() != QSize(w, h) || image.format() != format) {
+        image = QImage(w, h, format);
+        if (image.isNull())                        // could not create image
+            return false;
+    }
 
     if (depth != 32) {
         ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
@@ -691,6 +693,11 @@ bool QBmpHandler::read(QImage *image)
     if (state == Error)
         return false;
 
+    if (!image) {
+        qWarning("QBmpHandler::read: cannot read into null pointer");
+        return false;
+    }
+
     if (state == Ready && !readHeader()) {
         state = Error;
         return false;
@@ -703,12 +710,8 @@ bool QBmpHandler::read(QImage *image)
     s.setByteOrder(QDataStream::LittleEndian);
 
     // read image
-    QImage tmpImage;
-    if (!read_dib_body(s, infoHeader, fileHeader.bfOffBits, startpos, tmpImage))
+    if (!read_dib_body(s, infoHeader, fileHeader.bfOffBits, startpos, *image))
         return false;
-
-    if (image)
-        *image = tmpImage;
 
     state = Ready;
     return true;

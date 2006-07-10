@@ -78,6 +78,7 @@ public:
 
     bool canRead() const;
     QImage read();
+    bool read(QImage *image);
 
     bool jumpToNextImage();
     bool jumpToImage(int imageNumber);

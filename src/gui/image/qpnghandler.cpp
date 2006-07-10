@@ -130,9 +130,11 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
         if (bit_depth == 1 && info_ptr->channels == 1) {
             png_set_invert_mono(png_ptr);
             png_read_update_info(png_ptr, info_ptr);
-            image = QImage(width, height, QImage::Format_Mono);
-            if (image.isNull())
-                return;
+            if (image.size() != QSize(width, height) || image.format() != QImage::Format_Mono) {
+                image = QImage(width, height, QImage::Format_Mono);
+                if (image.isNull())
+                    return;
+            }
             image.setNumColors(2);
             image.setColor(1, qRgb(0,0,0));
             image.setColor(0, qRgb(255,255,255));
@@ -140,9 +142,11 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             png_set_expand(png_ptr);
             png_set_strip_16(png_ptr);
             png_set_gray_to_rgb(png_ptr);
-            image = QImage(width, height, QImage::Format_ARGB32);
-            if (image.isNull())
-                return;
+            if (image.size() != QSize(width, height) || image.format() != QImage::Format_ARGB32) {
+                image = QImage(width, height, QImage::Format_ARGB32);
+                if (image.isNull())
+                    return;
+            }
             if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
                 png_set_swap_alpha(png_ptr);
 
@@ -154,9 +158,11 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
                 png_set_packing(png_ptr);
             int ncols = bit_depth < 8 ? 1 << bit_depth : 256;
             png_read_update_info(png_ptr, info_ptr);
-            image = QImage(width, height, QImage::Format_Indexed8);
-            if (image.isNull())
-                return;
+            if (image.size() != QSize(width, height) || image.format() != QImage::Format_Indexed8) {
+                image = QImage(width, height, QImage::Format_Indexed8);
+                if (image.isNull())
+                    return;
+            }
             image.setNumColors(ncols);
             for (int i=0; i<ncols; i++) {
                 int c = i*255/(ncols-1);
@@ -178,9 +184,12 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             png_set_packing(png_ptr);
         png_read_update_info(png_ptr, info_ptr);
         png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, 0, 0, 0);
-        image = QImage(width, height, bit_depth == 1 ? QImage::Format_Mono : QImage::Format_Indexed8);
-        if (image.isNull())
-            return;
+        QImage::Format format = bit_depth == 1 ? QImage::Format_Mono : QImage::Format_Indexed8;
+        if (image.size() != QSize(width, height) || image.format() != format) {
+            image = QImage(width, height, format);
+            if (image.isNull())
+                return;
+        }
         image.setNumColors(info_ptr->num_palette);
         int i = 0;
         if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -224,9 +233,11 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             // We want 4 bytes, but it isn't an alpha channel
             format = QImage::Format_RGB32;
         }
-        image = QImage(width, height, format);
-        if (image.isNull())
-            return;
+        if (image.size() != QSize(width, height) || image.format() != format) {
+            image = QImage(width, height, format);
+            if (image.isNull())
+                return;
+        }
 
         if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
             png_set_swap_alpha(png_ptr);
@@ -373,10 +384,9 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
         return false;
     }
 
-    QImage image;
-    setup_qt(image, png_ptr, info_ptr, gamma);
+    setup_qt(*outImage, png_ptr, info_ptr, gamma);
 
-    if (image.isNull()) {
+    if (outImage->isNull()) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         png_ptr = 0;
         state = Error;
@@ -390,8 +400,8 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
                  0, 0, 0);
 
-    uchar *data = image.bits();
-    int bpl = image.bytesPerLine();
+    uchar *data = outImage->bits();
+    int bpl = outImage->bytesPerLine();
     row_pointers=new png_bytep[height];
 
     for (uint y = 0; y < height; y++)
@@ -401,7 +411,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
 
 #if 0 // libpng takes care of this.
     png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
-        if (image.depth()==32 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+        if (outImage->depth()==32 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
             QRgb trans = 0xFF000000 | qRgb(
                 (info_ptr->trans_values.red << 8 >> bit_depth)&0xff,
                 (info_ptr->trans_values.green << 8 >> bit_depth)&0xff,
@@ -417,32 +427,30 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
         }
 #endif
 
-    image.setDotsPerMeterX(png_get_x_pixels_per_meter(png_ptr,info_ptr));
-    image.setDotsPerMeterY(png_get_y_pixels_per_meter(png_ptr,info_ptr));
+    outImage->setDotsPerMeterX(png_get_x_pixels_per_meter(png_ptr,info_ptr));
+    outImage->setDotsPerMeterY(png_get_y_pixels_per_meter(png_ptr,info_ptr));
 
 #ifndef QT_NO_IMAGE_TEXT
     png_textp text_ptr;
     int num_text=0;
     png_get_text(png_ptr,info_ptr,&text_ptr,&num_text);
     while (num_text--) {
-        image.setText(text_ptr->key,0,QString::fromAscii(text_ptr->text));
+        outImage->setText(text_ptr->key,0,QString::fromAscii(text_ptr->text));
         text_ptr++;
     }
 
     foreach (QString pair, description.split(QLatin1String("\n\n"))) {
         int index = pair.indexOf(QLatin1Char(':'));
         if (index >= 0 && pair.indexOf(QLatin1Char(' ')) < index) {
-            image.setText(QLatin1String("Description"), pair.simplified());
+            outImage->setText(QLatin1String("Description"), pair.simplified());
         } else {
             QString key = pair.left(index);
-            image.setText(key, pair.mid(index + 2).simplified());
+            outImage->setText(key, pair.mid(index + 2).simplified());
         }
     }
 #endif
 
     delete [] row_pointers;
-
-    *outImage = image;
 
     png_read_end(png_ptr, end_info);
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);

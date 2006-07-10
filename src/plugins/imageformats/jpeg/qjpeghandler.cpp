@@ -601,8 +601,6 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
     Q_UNUSED( scaledSize );
 #endif
 
-    QImage image;
-
     struct jpeg_decompress_struct cinfo;
 
     struct my_jpeg_source_mgr *iod_src = new my_jpeg_source_mgr(device);
@@ -640,11 +638,18 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
             // Create QImage but don't read the pixels
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
+                if (outImage->size() != QSize(cinfo.output_width, cinfo.output_height)
+                    || outImage->format() != QImage::Format_RGB32) {
+                    *outImage = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
+                }
             } else if (cinfo.output_components == 1) {
-                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
+                if (outImage->size() != QSize(cinfo.output_width, cinfo.output_height)
+                    || outImage->format() != QImage::Format_Indexed8) {
+                    *outImage = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
+                }
             } else {
                 // Unsupported format
+                return false;
             }
 
 
@@ -674,23 +679,25 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 //            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(sWidth, sHeight, QImage::Format_RGB32);
+                if (outImage->size() != QSize(sWidth, sHeight) || outImage->format() != QImage::Format_RGB32)
+                    *outImage = QImage(sWidth, sHeight, QImage::Format_RGB32);
             } else if (cinfo.output_components == 1) {
-                image = QImage(sWidth, sHeight, QImage::Format_Indexed8);
-                image.setNumColors(256);
+                if (outImage->size() != QSize(sWidth, sHeight) || outImage->format() != QImage::Format_Indexed8)
+                    *outImage = QImage(sWidth, sHeight, QImage::Format_Indexed8);
+                outImage->setNumColors(256);
                 for (int i=0; i<256; i++)
-                    image.setColor(i, qRgb(i,i,i));
+                    outImage->setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
-            if (image.isNull())
+            if (outImage->isNull())
                 return false;
 
-            if (!image.isNull()) {
+            if (!outImage->isNull()) {
                 QImage tmpImage(cinfo.output_width, 1, QImage::Format_RGB32);
                 uchar* inData = tmpImage.bits();
-                uchar* outData = image.bits();
-                int out_bpl = image.bytesPerLine();
+                uchar* outData = outImage->bits();
+                int out_bpl = outImage->bytesPerLine();
                 while (cinfo.output_scanline < cinfo.output_height) {
                     int outputLine = sHeight * cinfo.output_scanline / cinfo.output_height;
                     (void) jpeg_read_scanlines(&cinfo, &inData, 1);
@@ -740,25 +747,31 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
             jpegSmoothScaler scaler(&cinfo, QString().sprintf("Scale( %d, %d, ScaleFree )",
                                                               scaledSize.width(),
                                                               scaledSize.height()).toLatin1().data());
-            image = scaler.scale();
+            *outImage = scaler.scale();
 #endif
         } else {
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
+                if (outImage->size() != QSize(cinfo.output_width, cinfo.output_height)
+                    || outImage->format() != QImage::Format_RGB32) {
+                    *outImage = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
+                }
             } else if (cinfo.output_components == 1) {
-                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
-                image.setNumColors(256);
+                if (outImage->size() != QSize(cinfo.output_width, cinfo.output_height)
+                    || outImage->format() != QImage::Format_Indexed8) {
+                    *outImage = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
+                }
+                outImage->setNumColors(256);
                 for (int i=0; i<256; i++)
-                    image.setColor(i, qRgb(i,i,i));
+                    outImage->setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
-            if (image.isNull())
+            if (outImage->isNull())
                 return false;
 
-            if (!image.isNull()) {
-                uchar* data = image.bits();
-                int bpl = image.bytesPerLine();
+            if (!outImage->isNull()) {
+                uchar* data = outImage->bits();
+                int bpl = outImage->bytesPerLine();
                 while (cinfo.output_scanline < cinfo.output_height) {
                     uchar *d = data + cinfo.output_scanline * bpl;
                     (void) jpeg_read_scanlines(&cinfo,
@@ -770,8 +783,8 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                 if (cinfo.output_components == 3) {
                     // Expand 24->32 bpp.
                     for (uint j=0; j<cinfo.output_height; j++) {
-                        uchar *in = image.scanLine(j) + cinfo.output_width * 3;
-                        QRgb *out = (QRgb*)image.scanLine(j);
+                        uchar *in = outImage->scanLine(j) + cinfo.output_width * 3;
+                        QRgb *out = (QRgb*)outImage->scanLine(j);
 
                         for (uint i=cinfo.output_width; i--;) {
                             in-=3;
@@ -780,8 +793,8 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                     }
                 } else if (cinfo.out_color_space == JCS_CMYK) {
                     for (uint j = 0; j < cinfo.output_height; ++j) {
-                        uchar *in = image.scanLine(j) + cinfo.output_width * 4;
-                        QRgb *out = (QRgb*)image.scanLine(j);
+                        uchar *in = outImage->scanLine(j) + cinfo.output_width * 4;
+                        QRgb *out = (QRgb*)outImage->scanLine(j);
 
                         for (uint i = cinfo.output_width; i--; ) {
                             in-=4;
@@ -791,21 +804,19 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                     }
                 }
                 if (cinfo.density_unit == 1) {
-                    image.setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
-                    image.setDotsPerMeterY(int(100. * cinfo.Y_density / 2.54));
+                    outImage->setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
+                    outImage->setDotsPerMeterY(int(100. * cinfo.Y_density / 2.54));
                 } else if (cinfo.density_unit == 2) {
-                    image.setDotsPerMeterX(int(100. * cinfo.X_density));
-                    image.setDotsPerMeterY(int(100. * cinfo.Y_density));
+                    outImage->setDotsPerMeterX(int(100. * cinfo.X_density));
+                    outImage->setDotsPerMeterY(int(100. * cinfo.Y_density));
                 }
             }
         }
-
-        *outImage = image;
     }
 
     jpeg_destroy_decompress(&cinfo);
     delete iod_src;
-    return !image.isNull();
+    return !outImage->isNull();
 }
 
 

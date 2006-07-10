@@ -920,8 +920,47 @@ bool QImageReader::canRead() const
 */
 QImage QImageReader::read()
 {
+    // Because failed image reading might have side effects, we explicitly
+    // return a null image instead of the image we've just created.
+    QImage image;
+    return read(&image) ? image : QImage();
+}
+
+/*!
+    \overload
+
+    Reads an image from the device into \a image, which must point to a
+    QImage. Returns true on success; otherwise, returns false.
+
+    If \a image has same format and size as the image data that is about to be
+    read, this function may not need to allocate a new image before
+    reading. Because of this, it can be faster than the other read() overload,
+    which always constructs a new image; especially when reading several
+    images with the same format and size.
+
+    \code
+        QImage icon(64, 64, QImage::Format_RGB32);
+        QImageReader reader("icon_64x64.bmp");
+        if (reader.read(&icon)) {
+            // Display icon
+        }
+    \endcode
+
+    For image formats that support animation, calling read() repeatedly will
+    return the next frame. When all frames have been read, a null image will
+    be returned.
+
+    \sa canRead(), supportedImageFormats(), supportsAnimation(), QMovie
+*/
+bool QImageReader::read(QImage *image)
+{
+    if (!image) {
+        qWarning("QImageReader::read: cannot read into null pointer");
+        return false;
+    }
+
     if (!d->handler && !d->initHandler())
-        return QImage();
+        return false;
 
     // set the handler specific options.
     if (d->handler->supportsOption(QImageIOHandler::ScaledSize) && d->scaledSize.isValid()) {
@@ -940,11 +979,10 @@ QImage QImageReader::read()
         d->handler->setOption(QImageIOHandler::Quality, d->quality);
 
     // read the image
-    QImage image;
-    if (!d->handler->read(&image)) {
+    if (!d->handler->read(image)) {
         d->imageReaderError = InvalidDataError;
         d->errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unable to read image data"));
-        return QImage();
+        return false;
     }
 
     // provide default implementations for any unsupported image
@@ -956,7 +994,7 @@ QImage QImageReader::read()
             } else {
                 // the image is already scaled, so apply scaled clipping.
                 if (!d->scaledClipRect.isNull())
-                    image = image.copy(d->scaledClipRect);
+                    *image = image->copy(d->scaledClipRect);
             }
         } else {
             if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect) && !d->scaledClipRect.isNull()) {
@@ -964,10 +1002,10 @@ QImage QImageReader::read()
                 // likely a broken handler.
             } else {
                 if (d->scaledSize.isValid()) {
-                    image = image.scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    *image = image->scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 }
                 if (d->scaledClipRect.isValid()) {
-                    image = image.copy(d->scaledClipRect);
+                    *image = image->copy(d->scaledClipRect);
                 }
             }
         }
@@ -982,7 +1020,7 @@ QImage QImageReader::read()
             } else {
                 // provide all workarounds.
                 if (d->scaledClipRect.isValid()) {
-                    image = image.copy(d->scaledClipRect);
+                    *image = image->copy(d->scaledClipRect);
                 }
             }
         } else {
@@ -993,16 +1031,16 @@ QImage QImageReader::read()
             } else {
                 // provide all workarounds.
                 if (d->clipRect.isValid())
-                    image = image.copy(d->clipRect);
+                    *image = image->copy(d->clipRect);
                 if (d->scaledSize.isValid())
-                    image = image.scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    *image = image->scaled(d->scaledSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 if (d->scaledClipRect.isValid())
-                    image = image.copy(d->scaledClipRect);
+                    *image = image->copy(d->scaledClipRect);
             }
         }
     }
 
-    return image;
+    return true;
 }
 
 /*!
