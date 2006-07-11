@@ -1,5 +1,4 @@
 <ui version="4.0" >
- <author></author>
  <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -12,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
@@ -33,7 +31,7 @@
      <x>0</x>
      <y>0</y>
      <width>673</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPhrases" >
@@ -61,15 +59,6 @@
     <addaction name="separator" />
     <addaction name="menuEditPhraseBook" />
     <addaction name="menuPrintPhraseBook" />
-   </widget>
-   <widget class="QMenu" name="menuHelp" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="actionManual" />
-    <addaction name="actionAbout" />
-    <addaction name="actionAboutQt" />
-    <addaction name="actionWhatsThis" />
    </widget>
    <widget class="QMenu" name="menuFile" >
     <property name="title" >
@@ -129,23 +118,34 @@
     <addaction name="actionPhraseMatches" />
     <addaction name="actionPlaceMarkerMatches" />
    </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Too&amp;ls</string>
+    </property>
+    <addaction name="actionBatchTranslation" />
+    <addaction name="actionPreviewForm" />
+   </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionManual" />
+    <addaction name="actionAbout" />
+    <addaction name="actionAboutQt" />
+    <addaction name="actionWhatsThis" />
+   </widget>
    <widget class="QMenu" name="menuView" >
     <property name="title" >
      <string>&amp;View</string>
     </property>
-    <widget class="QMenu" name="menuToolbars" >
-     <property name="title" >
-      <string>&amp;Toolbars</string>
-     </property>
-     <addaction name="actionFile" />
-     <addaction name="actionEdit" />
-     <addaction name="actionTranslation" />
-     <addaction name="actionValidation" />
-     <addaction name="actionHelp" />
-    </widget>
     <widget class="QMenu" name="menuViewViews" >
      <property name="title" >
       <string>Vie&amp;ws</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuToolbars" >
+     <property name="title" >
+      <string>&amp;Toolbars</string>
      </property>
     </widget>
     <addaction name="actionRevertSorting" />
@@ -154,13 +154,6 @@
     <addaction name="separator" />
     <addaction name="menuToolbars" />
     <addaction name="menuViewViews" />
-   </widget>
-   <widget class="QMenu" name="menuTools" >
-    <property name="title" >
-     <string>Too&amp;ls</string>
-    </property>
-    <addaction name="actionBatchTranslation" />
-    <addaction name="actionPreviewForm" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuEdit" />
@@ -753,7 +746,6 @@
    </property>
   </action>
  </widget>
- <pixmapfunction></pixmapfunction>
  <resources/>
  <connections>
   <connection>
