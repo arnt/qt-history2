@@ -112,9 +112,9 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     actionRects.clear();
     actionList.clear();
     QList<QAction*> items = filterActions(q->actions());
-    int max_column_width = 0, 
-        dh = popupGeometry(QApplication::desktop()->screenNumber(q)).height(), 
-        ncols = 1, 
+    int max_column_width = 0,
+        dh = popupGeometry(QApplication::desktop()->screenNumber(q)).height(),
+        ncols = 1,
         y = 0;
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuHMargin, 0, q),
               vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q),
@@ -2130,7 +2130,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Qt::Key_Space:
-        if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this) || !d->searchBuffer.isEmpty())
+        if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
             break;
         // for motif, fall through
 #ifdef QT_KEYPAD_NAVIGATION
