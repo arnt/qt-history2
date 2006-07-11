@@ -89,7 +89,7 @@ void QDBusViewer::refresh()
     services->clear();
 
     QStringList names = c.interface()->registeredServiceNames();
-    names.removeAll(c.baseService()); // don't show the viewer itself
+    //names.removeAll(c.baseService()); // don't show the viewer itself
     foreach (QString service, names)
         new QTreeWidgetItem(services, QStringList(service));
 }
