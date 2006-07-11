@@ -45,7 +45,9 @@ public:
     QList<int> hoverSeparator;
     QPoint hoverPos;
 
+#ifndef QT_NO_DOCKWIDGET
     QCursor separatorCursor(const QList<int> &path) const;
+#endif
 };
 
 void QMainWindowPrivate::init()
@@ -870,6 +872,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     return restored;
 }
 
+#ifndef QT_NO_DOCKWIDGET
 QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 {
     QDockAreaLayoutInfo *info = layout->dockWidgetLayout.info(path);
@@ -882,6 +885,7 @@ QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
     return info->o == Qt::Horizontal
             ? Qt::SplitHCursor : Qt::SplitVCursor;
 }
+#endif
 
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
