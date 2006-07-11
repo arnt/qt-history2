@@ -2274,6 +2274,8 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
 
     \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
     currently not supported.
+
+    \sa applicationFontFamilies()
 */
 int QFontDatabase::addApplicationFont(const QString &fileName)
 {
@@ -2301,12 +2303,20 @@ int QFontDatabase::addApplicationFont(const QString &fileName)
 
     \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
     currently not supported.
+
+    \sa applicationFontFamilies()
 */
 int QFontDatabase::addApplicationFontFromData(const QByteArray &fontData)
 {
     return privateDb()->addAppFont(fontData, /*fileName*/QString());
 }
 
+/*!
+    \since 4.2
+
+    Returns a list of font families for the given application font identified by
+    \a id, as returned by a addApplicationFont().
+*/
 QStringList QFontDatabase::applicationFontFamilies(int id)
 {
     return privateDb()->applicationFonts.value(id).families;
