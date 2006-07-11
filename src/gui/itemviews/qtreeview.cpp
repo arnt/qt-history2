@@ -1606,7 +1606,6 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->defaultItemHeight;
     int maxDeltaY = qMin(d->viewItems.count(), viewCount);
-
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (qAbs(dy) > qAbs(maxDeltaY) && d->editors.isEmpty()) {
         verticalScrollBar()->repaint();
@@ -1622,11 +1621,15 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         const QVector<QTreeViewItem> viewItems = d->viewItems;
         dy = 0;
         if (previousViewIndex < currentViewIndex) { // scrolling down
-            for (int i = previousViewIndex; i < currentViewIndex; ++i)
-                dy -= d->itemHeight(i);
+            for (int i = previousViewIndex; i < currentViewIndex; ++i) {
+                if (i < d->viewItems.count())
+                    dy -= d->itemHeight(i);
+            }
         } else if (previousViewIndex > currentViewIndex) { // scrolling up
-            for (int i = previousViewIndex - 1; i >= currentViewIndex; --i)
-                dy += d->itemHeight(i);
+            for (int i = previousViewIndex - 1; i >= currentViewIndex; --i) {
+                if (i < d->viewItems.count())
+                    dy += d->itemHeight(i);
+            }
         }
     }
 
