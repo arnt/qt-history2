@@ -413,12 +413,27 @@ int QDBusMessage::count() const
 
 /*!
     Returns the argument at position \a index in the argument list. The value of
-    \a index must be larger than or equal to 0 and less than argumentCount(). This
+    \a index must be larger than or equal to 0 and less than count(). This
     is equivalent to calling QList::at() on the value returned by arguments().
+
+    \sa value(), count()
 */
 const QVariant &QDBusMessage::at(int index) const
 {
     return d_ptr->arguments.at(index);
+}
+
+/*!
+    Returns the argument at position \a index in the argument list. If no such
+    argument exists, the function returns \a defaultValue.
+
+    This is equivalent to calling QList::value() on the value returned by arguments().
+
+    \sa at()
+ */
+QVariant QDBusMessage::value(int index, const QVariant &defaultValue) const
+{
+    return d_ptr->arguments.value(index, defaultValue);
 }
 
 /*!

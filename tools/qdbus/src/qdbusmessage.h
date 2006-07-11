@@ -65,6 +65,7 @@ public:
     int count() const;
     inline bool isEmpty() const { return count() == 0; }
     const QVariant &at(int index) const;
+    QVariant value(int index, const QVariant &defaultValue = QVariant()) const;
 
     inline QDBusMessage &operator<<(const QVariant &arg)
     { append(arg); return *this; }

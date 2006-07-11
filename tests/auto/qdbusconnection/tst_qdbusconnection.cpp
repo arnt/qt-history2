@@ -286,6 +286,7 @@ public slots:
     void test0() { func = "test0"; }
     void test1(int i) { func = "test1 " + QString::number(i); }
     int test2() { func = "test2"; return 43; }
+    int test3(int i) { func = "test2"; return i + 1; }
 };
 
 void tst_QDBusConnection::callSelf()
@@ -305,14 +306,13 @@ void tst_QDBusConnection::callSelf()
     QCOMPARE(testObject.func, QString("test1 42"));
     QDBusMessage reply = interface.call(QDBus::Block, "test2");
     QCOMPARE(testObject.func, QString("test2"));
-    QCOMPARE(reply.count(), 1);
-    QCOMPARE(reply.at(0).toInt(), 43);
+    QCOMPARE(reply.value(0).toInt(), 43);
 
     QDBusMessage msg = QDBusMessage::methodCall("com.trolltech.Qt.Autotests.ToSelf", "/test",
-            "com.trolltech.Qt.Autotests.ToSelf", "test2", connection);
+            "com.trolltech.Qt.Autotests.ToSelf", "test3", connection);
+    msg << 44;
     reply = connection.call(msg);
-    QCOMPARE(reply.count(), 1);
-    QCOMPARE(reply.at(0).toInt(), 43);
+    QCOMPARE(reply.value(0).toInt(), 45);
 }
 
 QTEST_MAIN(tst_QDBusConnection)
