@@ -281,7 +281,7 @@ bool Declaration::realValue(qreal *real, const char *unit) const
         return false;
     Value v = values.first();
     if (unit && v.type != Value::Length) {
-        if (v.type != Value::Number || stricmp(unit, "px") != 0)
+        if (v.type != Value::Number || qstricmp(unit, "px") != 0)
             return false;
         unit = 0;
     }
@@ -308,7 +308,7 @@ bool Declaration::intValue(int *i, const char *unit) const
 bool Declaration::intValue(Value v, int *i, const char *unit) const
 {
     if (unit && v.type != Value::Length) {
-        if (v.type != Value::Number || stricmp(unit, "px") != 0)
+        if (v.type != Value::Number || qstricmp(unit, "px") != 0)
             return false;
         unit = 0;
     }
