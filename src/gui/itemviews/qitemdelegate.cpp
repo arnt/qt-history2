@@ -1014,7 +1014,6 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
     // set font
     QVariant value = index.data(Qt::FontRole);
     if (value.isValid()){
-        opt.font.setBold(false);
         opt.font = opt.font.resolve(qvariant_cast<QFont>(value));
         opt.fontMetrics = QFontMetrics(opt.font);
     }
