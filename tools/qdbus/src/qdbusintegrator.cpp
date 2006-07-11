@@ -1322,15 +1322,20 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
 	if (sendMode == QDBus::Block && isServiceRegisteredByThread(message.service())) {
 	    QDBusMessage messageWithSignature = QDBusMessagePrivate::updateSignature(message, msg);
 	    QDBusMessagePrivate::setLocal(&messageWithSignature, true);
-            dbus_message_unref(msg);
-	    if (handleObjectCall(messageWithSignature)) {
-		return messageWithSignature;
-	    } else {
-		QDBusMessage error;
-		error.sendError(QString::fromLocal8Bit("InternalError"),
-				QString::fromLocal8Bit("the sender and receiver are in the same thread"));
-		return error;
-	    }
+	    bool handled = false;
+	    int type = dbus_message_get_type(msg);
+	    if (type == DBUS_MESSAGE_TYPE_SIGNAL)
+	        handled = handleSignal(messageWithSignature);
+	    else if (type == DBUS_MESSAGE_TYPE_METHOD_CALL)
+	        handled = handleObjectCall(messageWithSignature);
+ 	    if (handled) {
+ 		return messageWithSignature;
+ 	    } else {
+ 		QDBusMessage error;
+ 		error.sendError(QString::fromLocal8Bit("InternalError"),
+ 				QString::fromLocal8Bit("the sender and receiver are in the same thread"));
+ 		return error;
+ 	    }
 	} else {
 	  
 	    QDBusMessage amsg;
