@@ -1223,7 +1223,7 @@ while [ "$#" -gt 0 ]; do
         ;;
     iconv)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-            CFG_CUPS="$VAL"
+            CFG_ICONV="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
