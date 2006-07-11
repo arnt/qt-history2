@@ -129,13 +129,8 @@ QVFbScreen::~QVFbScreen()
 }
 
 
-static int QVFb_dummy;
-
 bool QVFbScreen::connect(const QString &displaySpec)
 {
-    screen_optype=&QVFb_dummy;
-    screen_lastop=&QVFb_dummy;
-
     if (displaySpec.indexOf(QLatin1String(":Gray")) >= 0)
         grayscale = true;
 
