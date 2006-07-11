@@ -278,7 +278,11 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     if (!ct || !typeName || !destructor || !constructor)
         return -1;
 
+#ifdef QT_NO_QOBJECT
+    ::QByteArray normalizedTypeName = typeName;
+#else
     ::QByteArray normalizedTypeName = QMetaObject::normalizedType(typeName);
+#endif
 
     QWriteLocker locker(customTypesLock());
     static int currentIdx = User;
@@ -326,7 +330,11 @@ bool QMetaType::isRegistered(int type)
 */
 int QMetaType::type(const char *typeName)
 {
+#ifdef QT_NO_QOBJECT
+    const ::QByteArray normalizedTypeName = typeName;
+#else
     const ::QByteArray normalizedTypeName = QMetaObject::normalizedType(typeName);
+#endif
 
     QReadLocker locker(customTypesLock());
     return qMetaTypeType_unlocked(normalizedTypeName.constData());
@@ -639,7 +647,7 @@ void QMetaType::destroy(int type, void *data)
     \internal
 */
 
-/*!     
+/*!
     \fn int qRegisterMetaType()
     \relates QMetaType
     \threadsafe
