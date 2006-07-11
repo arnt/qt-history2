@@ -1256,7 +1256,8 @@ bool QFont::rawMode() const
 }
 
 /*!
-    Returns a new QFont that has attributes copied from \a other.
+    Returns a new QFont that has attributes copied from \a other that
+    have not been previously set on this font.
 */
 QFont QFont::resolve(const QFont &other) const
 {
