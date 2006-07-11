@@ -302,11 +302,11 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
                     // make sure that the signal and slot are present in Qt4
                     if (!WidgetInfo::isValidSignal(senderClass, signal)) {
-                        errorInvalidSignal(signal, sender, senderClass);
+                        errorInvalidSignal(signal, sender, senderClass, n2.lineNumber(), n2.columnNumber());
                         delete connection;
                     }
                     else if (!WidgetInfo::isValidSlot(receiverClass, slot)) {
-                        errorInvalidSlot(slot, receiver, receiverClass);
+                        errorInvalidSlot(slot, receiver, receiverClass, n2.lineNumber(), n2.columnNumber());
                         delete connection;
                     } else {
                         connection->setElementSignal(signal);
@@ -426,7 +426,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         } else if (isActionGroup && name == QLatin1String("exclusive")) {
             // continue
         } else if (isActionGroup) {
-            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"));
+            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"), -1, -1);
             delete prop;
             it.remove();
         } else if (name == QLatin1String("menuText")) {
@@ -442,7 +442,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         } else if (name == QLatin1String("on")) {
             prop->setAttributeName(QLatin1String("checked"));
         } else if (!WidgetInfo::isValidProperty(QLatin1String("QAction"), name)) {
-            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"));
+            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"), -1, -1);
             delete prop;
             it.remove();
         }
@@ -883,20 +883,20 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 || name == QLatin1String("backgroundOrigin")
                 || name == QLatin1String("paletteBackgroundPixmap")
                 || name == QLatin1String("backgroundBrush")) {
-                errorInvalidProperty(name, objectName, className);
+                errorInvalidProperty(name, objectName, className, n.lineNumber(), n.columnNumber());
                 continue;
             }
 
             // changes in QFrame
             if (name == QLatin1String("contentsRect")) {
-                errorInvalidProperty(name, objectName, className);
+                errorInvalidProperty(name, objectName, className, n.lineNumber(), n.columnNumber());
                 continue;
             }
 
             // changes in QWidget
             if (name == QLatin1String("underMouse")
                 || name == QLatin1String("ownFont")) {
-                errorInvalidProperty(name, objectName, className);
+                errorInvalidProperty(name, objectName, className, n.lineNumber(), n.columnNumber());
                 continue;
             }
 
@@ -1037,7 +1037,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 && !(name == QLatin1String("frameworkCode"))
                 && !(name == QLatin1String("database"))) {
                 if (!WidgetInfo::isValidProperty(className, name)) {
-                    errorInvalidProperty(name, objectName, className);
+                    errorInvalidProperty(name, objectName, className, n.lineNumber(), n.columnNumber());
                     delete prop;
                 } else {
                     properties->append(prop);

@@ -29,22 +29,39 @@
 
 bool Ui3Reader::isMainWindow = false;
 
-void Ui3Reader::errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass)
+static QString lineColDebug(int line, int col)
 {
-    fprintf(stderr, "uic3: property `%s' for widget `%s' of type `%s' is not supported\n",
-        propertyName.toLatin1().constData(), widgetName.toLatin1().constData(), widgetClass.toLatin1().constData());
+    if (line >= 0) {
+        const QString ret("Line: %1%2");
+        return ret.arg(line).arg(col >= 0 ? QString(" Column: %1").arg(col) : QString());
+    }
+    return QString();
 }
 
-void Ui3Reader::errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass)
+void Ui3Reader::errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass, int line, int col)
 {
-    fprintf(stderr, "uic3: signal `%s' for widget `%s' of type `%s' is not supported\n",
-        signal.toLatin1().constData(), widgetName.toLatin1().constData(), widgetClass.toLatin1().constData());
+    fprintf(stderr, "uic3: property `%s' for widget `%s' of type `%s' is not supported. %s\n",
+            propertyName.toLatin1().constData(),
+            widgetName.toLatin1().constData(),
+            widgetClass.toLatin1().constData(),
+            lineColDebug(line, col).toLocal8Bit().constData());
 }
 
-void Ui3Reader::errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass)
+void Ui3Reader::errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass, int line, int col)
 {
-    fprintf(stderr, "uic3: slot `%s' for widget `%s' of type `%s' is not supported\n",
-        slot.toLatin1().constData(), widgetName.toLatin1().constData(), widgetClass.toLatin1().constData());
+    fprintf(stderr, "uic3: signal `%s' for widget `%s' of type `%s' is not supported. %s\n",
+            signal.toLatin1().constData(), widgetName.toLatin1().constData(),
+            widgetClass.toLatin1().constData(),
+            lineColDebug(line, col).toLocal8Bit().constData());
+}
+
+void Ui3Reader::errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass, int line, int col)
+{
+    fprintf(stderr, "uic3: slot `%s' for widget `%s' of type `%s' is not supported. %s\n",
+            slot.toLatin1().constData(),
+            widgetName.toLatin1().constData(),
+            widgetClass.toLatin1().constData(),
+            lineColDebug(line, col).toLocal8Bit().constData());
 }
 
 QString Ui3Reader::getComment(const QDomNode& n)

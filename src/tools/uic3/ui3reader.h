@@ -82,9 +82,12 @@ public:
 private:
     void init();
 
-    void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass);
-    void errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass);
-    void errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass);
+    void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass,
+                              int line, int col);
+    void errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass,
+                            int line, int col);
+    void errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass,
+                          int line, int col);
 
     DomUI *generateUi4(const QDomElement &e);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString());
