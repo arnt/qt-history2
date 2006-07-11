@@ -278,13 +278,16 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     if (!ct || !typeName || !destructor || !constructor)
         return -1;
 
+    ::QByteArray normalizedTypeName = QMetaObject::normalizedType(typeName);
+
     QWriteLocker locker(customTypesLock());
     static int currentIdx = User;
-    int idx = qMetaTypeType_unlocked(typeName);
+    int idx = qMetaTypeType_unlocked(normalizedTypeName.constData());
 
     if (idx) {
         if (idx < User) {
-            qWarning("QMetaType: Cannot re-register basic type '%s'", typeName);
+            qWarning("QMetaType: Cannot re-register basic type '%s'",
+                    normalizedTypeName.constData());
             return -1;
         }
         QCustomTypeInfo &inf = (*ct)[idx - User];
@@ -294,7 +297,7 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
         idx = currentIdx++;
         ct->resize(ct->count() + 1);
         QCustomTypeInfo &inf = (*ct)[idx - User];
-        inf.typeName = typeName;
+        inf.typeName = normalizedTypeName;
         inf.constr = constructor;
         inf.destr = destructor;
     }
@@ -323,8 +326,10 @@ bool QMetaType::isRegistered(int type)
 */
 int QMetaType::type(const char *typeName)
 {
+    const ::QByteArray normalizedTypeName = QMetaObject::normalizedType(typeName);
+
     QReadLocker locker(customTypesLock());
-    return qMetaTypeType_unlocked(typeName);
+    return qMetaTypeType_unlocked(normalizedTypeName.constData());
 }
 
 #ifndef QT_NO_DATASTREAM

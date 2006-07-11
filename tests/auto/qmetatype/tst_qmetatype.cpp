@@ -34,6 +34,7 @@ private slots:
     void namespaces();
     void qMetaTypeId();
     void properties();
+    void normalizedTypes();
 };
 
 struct Foo { int i; };
@@ -138,6 +139,34 @@ void tst_QMetaType::properties()
     QVERIFY(setProperty("prop", values));
     v = property("prop");
     QCOMPARE(v.toList().count(), 4);
+}
+
+template <typename T>
+struct Whity { T t; };
+
+Q_DECLARE_METATYPE( Whity < int > )
+Q_DECLARE_METATYPE(Whity<double>)
+
+void tst_QMetaType::normalizedTypes()
+{
+    int WhityIntId = ::qMetaTypeId<Whity<int> >();
+    int WhityDoubleId = ::qMetaTypeId<Whity<double> >();
+
+    QCOMPARE(QMetaType::type("Whity<int>"), WhityIntId);
+    QCOMPARE(QMetaType::type(" Whity < int > "), WhityIntId);
+    QCOMPARE(QMetaType::type("Whity<int >"), WhityIntId);
+
+    QCOMPARE(QMetaType::type("Whity<double>"), WhityDoubleId);
+    QCOMPARE(QMetaType::type(" Whity< double > "), WhityDoubleId);
+    QCOMPARE(QMetaType::type("Whity<double >"), WhityDoubleId);
+
+    QCOMPARE(qRegisterMetaType<Whity<int> >(" Whity < int > "), WhityIntId);
+    QCOMPARE(qRegisterMetaType<Whity<int> >("Whity<int>"), WhityIntId);
+    QCOMPARE(qRegisterMetaType<Whity<int> >("Whity<int > "), WhityIntId);
+
+    QCOMPARE(qRegisterMetaType<Whity<double> >(" Whity < double > "), WhityDoubleId);
+    QCOMPARE(qRegisterMetaType<Whity<double> >("Whity<double>"), WhityDoubleId);
+    QCOMPARE(qRegisterMetaType<Whity<double> >("Whity<double > "), WhityDoubleId);
 }
 
 QTEST_MAIN(tst_QMetaType)
