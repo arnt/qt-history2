@@ -121,6 +121,7 @@ public:
     { if (!fr) fr = new QStyleSheetFocusRectData(); return fr; }
 
     void cutBorderImage();
+    void fixup();
 
     inline bool hasPalette() const { return pal != 0; }
     inline bool hasBackground() const { return bg != 0; }

@@ -30,6 +30,7 @@
 #include <qplastiquestyle.h>
 #include <qframe.h>
 #include "private/qcssparser_p.h"
+#include "private/qmath_p.h"
 
 using namespace QCss;
 
@@ -107,6 +108,7 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
         }
     }
 
+    // FIXME: This should not be here!
     if (hasBorderImage) {
         // inspect the border image
         QStyleSheetBorderImageData *borderImage = box()->borderImage();
@@ -156,6 +158,19 @@ QRect QRenderRule::boxRect(const QRect& cr) const
                        -p[TopEdge] - b[TopEdge] - m[TopEdge],
                         p[RightEdge] + b[RightEdge] + m[RightEdge],
                         p[BottomEdge] + b[BottomEdge] + m[BottomEdge]);
+}
+
+void QRenderRule::fixup()
+{
+    if (b == 0)
+        return;
+    // ignore the color, border of edges that have none border-style
+    for (int i = 0; i < 4; i++) {
+        if (b->styles[i] != BorderStyle_None)
+            continue;
+        b->colors[i] = QColor();
+        b->borders[i] = 0;
+    }
 }
 
 void QStyleSheetBorderImageData::cutBorderImage()
@@ -218,12 +233,12 @@ static QPen qPenFromStyle(const QBrush& b, qreal width, BorderStyle s)
         break;
     }
 
-    return QPen(b, width, ps);
+    return QPen(b, width, ps, Qt::FlatCap);
 }
 
 static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
-                                Edge edge, const QColor& b, BorderStyle s,
-                                const QSizeF& r1, const QSizeF& r2)
+                                const QSizeF& r1, const QSizeF& r2,
+                                Edge edge, BorderStyle s, QColor c)
 {
     const qreal pw = (edge == TopEdge || edge == BottomEdge) ? y2-y1 : x2-x1;
     if (s == BorderStyle_Double) {
@@ -231,58 +246,83 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
         switch (edge) {
         case TopEdge:
         case BottomEdge:
-            qDrawRoundedCorners(p, x1, y1, x2, y1+wby3, edge,
-                                b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x1, y2-wby3, x2, y2, edge,
-                                b, BorderStyle_Solid, r1, r2);
+            qDrawRoundedCorners(p, x1, y1, x2, y1+wby3, r1, r2, edge, BorderStyle_Solid, c);
+            qDrawRoundedCorners(p, x1, y2-wby3, x2, y2, r1, r2, edge, BorderStyle_Solid, c);
             break;
         case LeftEdge:
-            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, LeftEdge,
-                                b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, LeftEdge,
-                                b, BorderStyle_Solid, r1, r2);
+            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, r1, r2, LeftEdge, BorderStyle_Solid, c);
+            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, r1, r2, LeftEdge, BorderStyle_Solid, c);
             break;
         case RightEdge:
-            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, RightEdge,
-                                b, BorderStyle_Solid, r1, r2);
-            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, RightEdge,
-                                b, BorderStyle_Solid, r1, r2);
+            qDrawRoundedCorners(p, x1, y1+1, x1+wby3, y2, r1, r2, RightEdge, BorderStyle_Solid, c);
+            qDrawRoundedCorners(p, x2-wby3, y1+1, x2, y2, r1, r2, RightEdge, BorderStyle_Solid, c);
             break;
         default:
             break;
         }
         return;
-    }
-
+    } else if (s == BorderStyle_Ridge || s == BorderStyle_Groove) {
+        BorderStyle s1, s2;
+        if (s == BorderStyle_Groove) {
+            s1 = BorderStyle_Inset;
+            s2 = BorderStyle_Outset;
+        } else {
+            s1 = BorderStyle_Outset;
+            s2 = BorderStyle_Inset;
+        }
+        int pwby2 = qRound(pw/2);
+        switch (edge) {
+        case TopEdge:
+            qDrawRoundedCorners(p, x1, y1, x2, y1 + pwby2, r1, r2, TopEdge, s1, c);
+            qDrawRoundedCorners(p, x1, y1 + pwby2, x2, y2, r1, r2, TopEdge, s2, c);
+            break;
+        case BottomEdge:
+            qDrawRoundedCorners(p, x1, y1 + pwby2, x2, y2, r1, r2, BottomEdge, s1, c);
+            qDrawRoundedCorners(p, x1, y1, x2, y2-pwby2, r1, r2, BottomEdge, s2, c);
+            break;
+        case LeftEdge:
+            qDrawRoundedCorners(p, x1, y1, x1 + pwby2, y2, r1, r2, LeftEdge, s1, c);
+            qDrawRoundedCorners(p, x1 + pwby2, y1, x2, y2, r1, r2, LeftEdge, s2, c);
+            break;
+        case RightEdge:
+            qDrawRoundedCorners(p, x1 + pwby2, y1, x2, y2, r1, r2, RightEdge, s1, c);
+            qDrawRoundedCorners(p, x1, y1, x2 - pwby2, y2, r1, r2, RightEdge, s2, c);
+            break;
+        default:
+            break;
+        }
+    } else if ((s == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge))
+            || (s == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
+            c = c.light();
+    
     p->save();
-    p->setRenderHint(QPainter::Antialiasing);
-    qreal pwby2 = pw/2;
+    int pwby2 = qFloor(pw/2);
     p->setBrush(Qt::NoBrush);
-    p->setPen(qPenFromStyle(b, pw, s));
+    p->setPen(qPenFromStyle(c, pw, s));
     switch (edge) {
     case TopEdge:
         if (!r1.isEmpty())
             p->drawArc(QRectF(x1 - r1.width() + pwby2, y1 + pwby2,
-                       2*r1.width() - pw, 2*r1.height() - pw), 90 * 16, 45 * 16);
+                              2*r1.width() - pw + 1, 2*r1.height() - pw + 1), 90 * 16, 45 * 16);
         if (!r2.isEmpty())
             p->drawArc(QRectF(x2 - r2.width() + pwby2, y1 + pwby2,
                        2*r2.width() - pw, 2*r2.height() - pw), 45* 16, 45 * 16);
         break;
     case BottomEdge:
         if (!r1.isEmpty())
-            p->drawArc(QRectF(x1 - r1.width() + pwby2, y2 - 2 * r1.height() + pwby2,
+            p->drawArc(QRectF(x1 - r1.width() + pwby2, y2 - 2*r1.height() + pwby2,
                               2*r1.width() - pw, 2*r1.height() - pw), -90 * 16, -45 * 16);
         if (!r2.isEmpty())
-            p->drawArc(QRectF(x2 - r2.width() + pwby2, y2 - 2 * r2.height() + pwby2,
+            p->drawArc(QRectF(x2 - r2.width() + pwby2, y2 - 2*r2.height() + pwby2,
                        2*r2.width() - pw, 2*r2.height() - pw), -90 * 16, 45 * 16);
         break;
     case LeftEdge:
         if (!r1.isEmpty())
             p->drawArc(QRectF(x1 + pwby2, y1 - r1.height() + pwby2,
-                       2*r1.width() - pw, 2*r1.height() - pw), 135 * 16, 45 * 16);
+                       2*r1.width() - pw, 2*r1.height() - pw), 135*16, 45*16);
         if (!r2.isEmpty())
             p->drawArc(QRectF(x1 + pwby2, y2 - r2.height() + pwby2,
-                       2*r2.width() - pw, 2*r2.height() - pw), 180 * 16, 45 * 16);
+                       2*r2.width() - pw, 2*r2.height() - pw), 180*16, 45*16);
         break;
     case RightEdge:
         if (!r1.isEmpty())
@@ -298,44 +338,46 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
     p->restore();
 }
 
-// Draws edge for the rect (x1, y1) - (x2 - 1, y2 - 1)
-void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
-                Edge edge, QColor c, BorderStyle style, qreal dw1, qreal dw2)
+
+void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2, 
+               Edge edge, BorderStyle style, QColor c)
 {
     p->save();
-    p->setRenderHint(QPainter::Antialiasing);
-    const qreal width = (edge == TopEdge || edge == BottomEdge) ? y2-y1 : x2-x1;
+    const qreal width = (edge == TopEdge || edge == BottomEdge) ? (y2-y1) : (x2-x1);
+
+    if (width <= 2 && style == BorderStyle_Double)
+        style = BorderStyle_Solid;
 
     switch (style) {
     case BorderStyle_Inset:
     case BorderStyle_Outset:
-        if (style == BorderStyle_Inset && (edge == TopEdge || edge == LeftEdge)
-            || (style == BorderStyle_Outset && (edge == BottomEdge || edge == RightEdge)))
-            c = c.dark();
+        if (style == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge)
+            || (style == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
+            c = c.light();
         // fall through!
     case BorderStyle_Solid: {
         p->setPen(Qt::NoPen);
         p->setBrush(c);
-        if (dw1 == 0 && dw2 == 0) {
-            p->drawRect(QRectF(x1, y1, x2 - x1, y2 - y1));
-        } else { // draw trapezoids
+        if (width == 1 || (dw1 == 0 && dw2 == 0)) {
+            p->drawRect(QRectF(x1, y1, x2-x1, y2-y1));
+        } else { // draw trapezoid
             QPolygonF quad;
             switch (edge) {
             case TopEdge:
                 quad << QPointF(x1, y1) << QPointF(x1 + dw1, y2)
-                    << QPointF(x2 - dw2, y2) << QPointF(x2, y1);
+                     << QPointF(x2 - dw2, y2) << QPointF(x2, y1);
                 break;
             case BottomEdge:
                 quad << QPointF(x1 + dw1, y1) << QPointF(x1, y2)
-                    << QPointF(x2, y2) << QPointF(x2 - dw2, y1);
+                     << QPointF(x2, y2) << QPointF(x2 - dw2, y1);
                 break;
             case LeftEdge:
                 quad << QPointF(x1, y1) << QPointF(x1, y2)
-                    << QPointF(x2, y2 - dw2) << QPointF(x2, y1 + dw1);
+                     << QPointF(x2, y2 - dw2) << QPointF(x2, y1 + dw1);
                 break;
             case RightEdge:
                 quad << QPointF(x1, y1 + dw1) << QPointF(x1, y2 - dw2)
-                    << QPointF(x2, y2) << QPointF(x2, y1);
+                     << QPointF(x2, y2) << QPointF(x2, y1);
                 break;
             default:
                 break;
@@ -349,65 +391,41 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
     case BorderStyle_DotDash:
     case BorderStyle_DotDotDash:
         p->setPen(qPenFromStyle(c, width, style));
-        if (edge == TopEdge || edge == BottomEdge)
+        if (width == 1)
+            p->drawLine(QLineF(x1, y1, x2 - 1, y2 - 1));
+        else if (edge == TopEdge || edge == BottomEdge)
             p->drawLine(QLineF(x1 + width/2, (y1 + y2)/2, x2 - width/2, (y1 + y2)/2));
         else
             p->drawLine(QLineF((x1+x2)/2, y1 + width/2, (x1+x2)/2, y2 - width/2));
         break;
 
     case BorderStyle_Double: {
-        qreal wby3 = width/3;
-        if (dw1 == 0 && dw2 == 0) { // not a trapezoid
-            p->setBrush(c);
-            p->setPen(Qt::NoPen);
-            switch(edge) {
-            case TopEdge:
-            case BottomEdge:
-                p->drawRect(QRectF(x1, y1, x2-x1, wby3));
-                p->drawRect(QRectF(x1, y2-wby3, x2-x1, wby3));
-                break;
-            case LeftEdge:
-                p->drawRect(QRectF(x1, y1+1, wby3, y2-y1-1));
-                p->drawRect(QRectF(x2-wby3, y1+1, wby3, y2-y1-1));
-                break;
-            case RightEdge:
-                p->drawRect(QRectF(x1, y1+1, wby3, y2-y1-1));
-                p->drawRect(QRectF(x2-wby3, y1+1, wby3, y2-y1-1));
-                break;
-            default:
-                break;
-            }
-        } else {
-            qreal dw1by3 = dw1/3;
-            qreal dw2by3 = dw2/3;
-            switch (edge) {
-            case TopEdge:
-                qDrawEdge(p, x1, y1, x2, y1 + wby3, TopEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, TopEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                break;
-            case LeftEdge:
-                qDrawEdge(p, x1, y1, x1 + wby3, y2, LeftEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x2 - wby3, y1 + dw1 - dw1by3, x2, y2 - dw2 + dw2by3, LeftEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                break;
-            case BottomEdge:
-                qDrawEdge(p, x1 + dw1 - dw1by3, y1, x2 - dw2 + dw2by3, y1 + wby3, BottomEdge,
-                          c, BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1, y2 - wby3, x2, y2 , BottomEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                break;
-            case RightEdge:
-                qDrawEdge(p, x2 - wby3, y1, x2, y2, RightEdge, c,
-                          BorderStyle_Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, RightEdge,
-                          c, BorderStyle_Solid, dw1by3, dw2by3);
-                break;
-            default:
-                break;
-            }
+        int wby3 = qRound(width/3);
+        int dw1by3 = qRound(dw1/3);
+        int dw2by3 = qRound(dw2/3);
+        switch (edge) {
+        case TopEdge:
+            qDrawEdge(p, x1, y1, x2, y1 + wby3, dw1by3, dw2by3, TopEdge, BorderStyle_Solid, c);
+            qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, 
+                      dw1by3, dw2by3, TopEdge, BorderStyle_Solid, c);
+            break;
+        case LeftEdge:
+            qDrawEdge(p, x1, y1, x1 + wby3, y2, dw1by3, dw2by3, LeftEdge, BorderStyle_Solid, c);
+            qDrawEdge(p, x2 - wby3, y1 + dw1 - dw1by3, x2, y2 - dw2 + dw2by3, dw1by3, dw2by3,
+                      LeftEdge, BorderStyle_Solid, c);
+            break;
+        case BottomEdge:
+            qDrawEdge(p, x1 + dw1 - dw1by3, y1, x2 - dw2 + dw2by3, y1 + wby3, dw1by3, dw2by3,
+                      BottomEdge, BorderStyle_Solid, c);
+            qDrawEdge(p, x1, y2 - wby3, x2, y2, dw1by3, dw2by3, BottomEdge, BorderStyle_Solid, c);
+            break;
+        case RightEdge:
+            qDrawEdge(p, x2 - wby3, y1, x2, y2, dw1by3, dw2by3, RightEdge, BorderStyle_Solid, c);
+            qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, dw1by3, dw2by3, 
+                      RightEdge, BorderStyle_Solid, c);
+            break;
+        default:
+            break;
         }
         break;
     }
@@ -421,51 +439,49 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
             s1 = BorderStyle_Outset;
             s2 = BorderStyle_Inset;
         }
-        qreal dw1by2 = dw1/2, dw2by2 = dw2/2;
-        qreal wby2 = width/2;
+        int dw1by2 = qFloor(dw1/2), dw2by2 = qFloor(dw2/2);
+        int wby2 = qRound(width/2);
         switch (edge) {
         case TopEdge:
-            qDrawEdge(p, x1, y1, x2, y1 + wby2,
-                      TopEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + dw1by2, y1 + wby2, x2 - dw2by2, y2,
-                      TopEdge, c, s2, dw1by2, dw2by2);
+            qDrawEdge(p, x1, y1, x2, y1 + wby2, dw1by2, dw2by2, TopEdge, s1, c);
+            qDrawEdge(p, x1 + dw1by2, y1 + wby2, x2 - dw2by2, y2, dw1by2, dw2by2, TopEdge, s2, c);
             break;
         case BottomEdge:
-            qDrawEdge(p, x1, y1 + wby2, x2, y2,
-                      BottomEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + dw1by2, y1, x2 - dw2by2, y1 + wby2,
-                      BottomEdge, c, s2, dw1by2, dw2by2);
+            qDrawEdge(p, x1, y1 + wby2, x2, y2, dw1by2, dw2by2, BottomEdge, s1, c);
+            qDrawEdge(p, x1 + dw1by2, y1, x2 - dw2by2, y1 + wby2, dw1by2, dw2by2, BottomEdge, s2, c);
             break;
         case LeftEdge:
-            qDrawEdge(p, x1, y1, x1 + wby2, y2,
-                      LeftEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1 + wby2, y1 + dw1by2, x2, y2 - dw2by2,
-                      LeftEdge, c, s2, dw1by2, dw2by2);
+            qDrawEdge(p, x1, y1, x1 + wby2, y2, dw1by2, dw2by2, LeftEdge, s1, c);
+            qDrawEdge(p, x1 + wby2, y1 + dw1by2, x2, y2 - dw2by2, dw1by2, dw2by2, LeftEdge, s2, c);
             break;
         case RightEdge:
-            qDrawEdge(p, x1 + wby2, y1, x2, y2,
-                      RightEdge, c, s1, dw1by2, dw2by2);
-            qDrawEdge(p, x1, y1 + dw1by2, x1 + wby2, y2 - dw2by2,
-                      RightEdge, c, s2, dw1by2, dw2by2);
+            qDrawEdge(p, x1 + wby2, y1, x2, y2, dw1by2, dw2by2, RightEdge, s1, c);
+            qDrawEdge(p, x1, y1 + dw1by2, x1 + wby2, y2 - dw2by2, dw1by2, dw2by2, RightEdge, s2, c);
             break;
         default:
             break;
         }
     }
-    case BorderStyle_None:
-    case BorderStyle_Unknown:
     default:
         break;
     }
     p->restore();
 }
 
-// Determines if Edge e1 with Style s1 paints over Edge e2 with Style s2
-static bool qPaintsOver(Edge e1, BorderStyle s1, Edge, BorderStyle)
+// Determines if Edge e1 draws over Edge e2. Depending on this trapezoids or rectanges are drawn
+static bool qPaintsOver(const QRenderRule &rule, Edge e1, Edge e2)
 {
-    // Outset always wins
-    return (s1 == BorderStyle_Outset && (e1 == TopEdge || e1 == LeftEdge))
-            || (s1== BorderStyle_Inset && (e1 == BottomEdge || e1 == RightEdge));
+    const QStyleSheetBoxData *box = rule.box();
+    BorderStyle s1 = box->styles[e1];
+    BorderStyle s2 = box->styles[e2];
+
+    if (s2 == BorderStyle_None)
+        return true;
+
+    if (s1 == BorderStyle_Solid && s2 == BorderStyle_Solid && box->colors[e1] == box->colors[e2])
+        return true;
+
+    return false;
 }
 
 // FIXME:
@@ -641,7 +657,6 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
 
 static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
 {
-    const QRect br = rule.borderRect(rect);
     QStyleSheetBoxData *box = rule.box();
     if (box->hasBorderImage()) {
         qDrawBorderImage(p, rule, rect);
@@ -649,9 +664,9 @@ static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
     }
 
     const BorderStyle *styles = box->styles;
+    const int *borders = box->borders;
     const QColor *colors = box->colors;
-    const QRect pr = rule.paddingRect(rect);
-    bool rounded_corners = false;
+    const QRect br = rule.borderRect(rect);
 
     QSize tlr(0, 0), trr(0, 0), brr(0, 0), blr(0, 0);
     if (box->radii[0].isValid()) {
@@ -659,68 +674,62 @@ static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
         trr = box->radii[1];
         blr = box->radii[2];
         brr = box->radii[3];
-        int rw = qMax(tlr.width() + trr.width(), blr.width() + brr.width());
-        int rh = qMax(tlr.height() + trr.height(), blr.height() + brr.height());
-        if (br.height() >= rh && br.width() >= rw)
-            rounded_corners = true;
+        if (tlr.width() + trr.width() > br.width()
+            || blr.width() + brr.width() > br.width())
+            tlr = blr = QSize(0, 0);
+        if (tlr.height() + trr.height() > br.height()
+            || blr.height() + brr.height() > br.height())
+            trr = brr = QSize(0, 0);
     }
 
-    // Drawn in order of precendence
+    // Drawn in increasing order of precendence
     if (styles[BottomEdge] != BorderStyle_None) {
-        bool blc = rounded_corners && blr.width() != 0;
-        bool brc = rounded_corners && brr.width() != 0;
-        int dw1 = (blc || qPaintsOver(BottomEdge, styles[BottomEdge], LeftEdge,
-                                      styles[LeftEdge])) ? 0 : pr.x() - br.x();
-        int dw2 = (brc || qPaintsOver(BottomEdge, styles[BottomEdge], RightEdge,
-                                      styles[RightEdge])) ? 0 : br.right() - pr.right();
+        qreal dw1 = (blr.width() || qPaintsOver(rule, BottomEdge, LeftEdge)) ? 0 : borders[LeftEdge];
+        qreal dw2 = (brr.width() || qPaintsOver(rule, BottomEdge, RightEdge)) ? 0 : borders[RightEdge];
+        qreal x1 = br.x() + blr.width();
+        qreal y1 = br.y() + br.height() - borders[BottomEdge];
+        qreal x2 = br.x() + br.width() - brr.width();
+        qreal y2 = br.y() + br.height() ;
 
-        int x1 = br.x() + (blc ? blr.width() : 0);
-        int x2 = br.x() + br.width() - (brc ? brr.width() : 0);
-
-        qDrawEdge(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge,
-                  colors[BottomEdge], styles[BottomEdge], dw1, dw2);
-        if (blc || brc)
-            qDrawRoundedCorners(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge,
-                                 colors[BottomEdge], styles[BottomEdge], blr, brr);
+        qDrawEdge(p, x1, y1, x2, y2, dw1, dw2, BottomEdge, styles[BottomEdge], colors[BottomEdge]);
+        if (blr.width() || brr.width())
+            qDrawRoundedCorners(p, x1, y1, x2, y2, blr, brr, BottomEdge, styles[BottomEdge], colors[BottomEdge]);
     }
     if (styles[RightEdge] != BorderStyle_None) {
-        bool trc = rounded_corners && trr.height() != 0;
-        bool brc = rounded_corners && brr.height() != 0;
-        int dw1 = (trc || qPaintsOver(RightEdge, styles[RightEdge], TopEdge,
-                                      styles[TopEdge])) ? 0 : pr.y() - br.y();
-        int dw2 = (brc || qPaintsOver(RightEdge, styles[RightEdge], BottomEdge,
-                                      styles[BottomEdge])) ? 0 : br.bottom() - pr.bottom();
-        int y1 = br.y() + (trc ? trr.height() : 0);
-        int y2 = br.y() + br.height() - (brc ? brr.height() : 0);
+        qreal dw1 = (trr.height() || qPaintsOver(rule, RightEdge, TopEdge)) ? 0 : borders[TopEdge];
+        qreal dw2 = (brr.height() || qPaintsOver(rule, RightEdge, BottomEdge)) ? 0 : borders[BottomEdge];
+        qreal x1 = br.x() + br.width() - borders[RightEdge];
+        qreal y1 = br.y() + trr.height();
+        qreal x2 = br.x() + br.width();
+        qreal y2 = br.y() + br.height() - brr.height();
 
-        qDrawEdge(p, pr.x() + pr.width(), y1, br.x() + br.width(), y2, RightEdge, colors[RightEdge], styles[RightEdge], dw1, dw2);
-        if (trc || brc)
-            qDrawRoundedCorners(p, pr.right(), y1, br.right(), y2, RightEdge, colors[RightEdge],
-                                 styles[RightEdge], trr, brr);
+        qDrawEdge(p, x1, y1, x2, y2, dw1, dw2, RightEdge, styles[RightEdge], colors[RightEdge]);
+        if (trr.height() || brr.height())
+            qDrawRoundedCorners(p, x1, y1, x2, y2, trr, brr, RightEdge, styles[RightEdge], colors[RightEdge]);
     }
     if (styles[LeftEdge] != BorderStyle_None) {
-        bool tlc = rounded_corners && tlr.height() != 0;
-        bool blc = rounded_corners && blr.height() != 0;
-        int dw1 = (tlc || qPaintsOver(LeftEdge, styles[LeftEdge], TopEdge, styles[TopEdge])) ? 0 : pr.y() - br.y();
-        int dw2 = (blc || qPaintsOver(LeftEdge, styles[LeftEdge], BottomEdge, styles[BottomEdge])) ? 0 : br.bottom() - pr.bottom();
-        int y1 = br.y() + (tlc ? tlr.height() : 0);
-        int y2 = br.y() + br.height() - (blc ? blr.height() : 0);
+        qreal dw1 = (tlr.height() || qPaintsOver(rule, LeftEdge, TopEdge)) ? 0 : borders[TopEdge];
+        qreal dw2 = (blr.height() || qPaintsOver(rule, LeftEdge, BottomEdge)) ? 0 : borders[BottomEdge];
+        qreal x1 = br.x();
+        qreal y1 = br.y() + tlr.height();
+        qreal x2 = br.x() + borders[LeftEdge];
+        qreal y2 = br.y() + br.height() - blr.height();
 
-        qDrawEdge(p, br.x(), y1, pr.x(), y2, LeftEdge, colors[LeftEdge], styles[LeftEdge], dw1, dw2);
-        if (tlc || blc)
-            qDrawRoundedCorners(p, br.x(), y1, pr.x(), y2, LeftEdge, colors[LeftEdge], styles[LeftEdge], tlr, blr);
+        qDrawEdge(p, x1, y1, x2, y2, dw1, dw2, LeftEdge, styles[LeftEdge], colors[LeftEdge]);
+        if (tlr.height() || blr.height())
+            qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, blr, LeftEdge, styles[LeftEdge], colors[LeftEdge]);
     }
     if (styles[TopEdge] != BorderStyle_None) {
-        bool tlc = rounded_corners && tlr.width() != 0;
-        bool trc = rounded_corners && trr.width() != 0;
-        int dw1 = (tlc || qPaintsOver(TopEdge, styles[TopEdge], LeftEdge, styles[LeftEdge])) ? 0 : pr.x() - br.x();
-        int dw2 = (trc || qPaintsOver(TopEdge, styles[TopEdge], RightEdge, styles[RightEdge])) ? 0 : br.right() - pr.right();
-        int x1 = br.x() + (tlc ? tlr.width() : 0);
-        int x2 = br.x() + br.width() - (trc ? trr.width() : 0);
+        qreal dw1 = (tlr.width() || qPaintsOver(rule, TopEdge, LeftEdge)) ? 0 : borders[LeftEdge];
+        qreal dw2 = (trr.width() || qPaintsOver(rule, TopEdge, RightEdge)) ? 0 : borders[RightEdge];
+        qreal x1 = br.x() + tlr.width();
+        qreal y1 = br.y();
+        qreal x2 = br.left() + br.width() - trr.width();
+        qreal y2 = br.y() + borders[TopEdge];
 
-        qDrawEdge(p, x1, br.y(), x2, pr.y(), TopEdge, colors[TopEdge], styles[TopEdge], dw1, dw2);
-        if (tlc || trc)
-            qDrawRoundedCorners(p, x1, br.y(), x2, pr.y(), TopEdge, colors[TopEdge], styles[TopEdge], tlr, trr);
+        qDrawEdge(p, x1, y1, x2, y2, dw1, dw2, TopEdge, styles[TopEdge], colors[TopEdge]);
+        if (tlr.width() || trr.width())
+            qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
 }
 
@@ -818,6 +827,7 @@ QRenderRule QStyleSheetStyle::renderRule(QWidget *w, QStyle::State state) const
             newRule.merge(rules.at(i).declarations);
     }
 
+    newRule.fixup();
     renderingRules[pseudoState] = newRule;
     return newRule;
 }
