@@ -38,6 +38,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMessageBoxEx>
 #include <QtGui/QIcon>
 
 #include <QtCore/QLibraryInfo>
@@ -490,29 +491,56 @@ void QDesignerActions::createForm()
 
 bool QDesignerActions::openForm()
 {
-    QString fileName = QFileDialog::getOpenFileName(
-            core()->topLevel(),
-            tr("Open Form"), m_openDirectory,
-            tr("Designer UI files (*.ui)"), 0, QFileDialog::DontUseSheet);
+    QString fileName;
+    QString dir = m_openDirectory;
+    while (1) {
+        fileName = QFileDialog::getOpenFileName(
+                core()->topLevel(),
+                tr("Open Form"), dir,
+                tr("Designer UI files (*.ui)"), 0, QFileDialog::DontUseSheet);
+        if (fileName.isEmpty())
+            return false;
+        if (QFileInfo(fileName).suffix() != QLatin1String("ui"))
+            fileName.append(QLatin1String(".ui"));
+        QFileInfo fi(fileName);
+        if (fi.exists())
+            break;
 
-    if (!fileName.isEmpty()) {
-        return readInForm(fileName);
+        QMessageBoxEx::warning(core()->topLevel(), tr("Open"), tr("%1\nFile not found.\nPlease verify the "
+                                "correct file name was given.").arg(fi.fileName()));
+        //dir = fi.absolutePath();
+        dir = fileName;
     }
-    return false;
+
+    return readInForm(fileName);
 }
 
 bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
 {
     QString fileName = fw->fileName().isEmpty() ? QDir::current().absolutePath()
             + QLatin1String("/untitled.ui") : fw->fileName();
-    QString saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-            fileName,
-            tr("Designer UI files (*.ui)"));
-    if (saveFile.isEmpty())
-        return false;
+    QString saveFile;
+    QString dir = fileName;
+    while (1) {
+        saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                dir,
+                tr("Designer UI files (*.ui)"), 0, QFileDialog::DontConfirmOverwrite);
+        if (saveFile.isEmpty())
+            return false;
 
-    if (QFileInfo(saveFile).suffix() != QLatin1String("ui"))
-        saveFile.append(QLatin1String(".ui"));
+        if (QFileInfo(saveFile).suffix() != QLatin1String("ui"))
+            saveFile.append(QLatin1String(".ui"));
+
+        QFileInfo fi(saveFile);
+        if (!fi.exists())
+            break;
+
+        if (QMessageBoxEx::warning(fw, tr("Save"), tr("%1 already exists.\nDo you want to replace it?")
+                    .arg(fi.fileName()), QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::Yes)
+            break;
+
+        dir = saveFile;
+    }
 
     fw->setFileName(saveFile);
     return writeOutForm(fw, saveFile);
@@ -639,21 +667,25 @@ void QDesignerActions::fixActionContext()
 
 bool QDesignerActions::readInForm(const QString &fileName)
 {
+    QString fn = fileName;
+    if (QFileInfo(fn).suffix() != QLatin1String("ui"))
+        fn.append(QLatin1String(".ui"));
+
     // First make sure that we don't have this one open already.
     QDesignerFormWindowManagerInterface *formWindowManager = core()->formWindowManager();
     int totalWindows = formWindowManager->formWindowCount();
     for (int i = 0; i < totalWindows; ++i) {
         QDesignerFormWindowInterface *w = formWindowManager->formWindow(i);
-        if (w->fileName() == fileName) {
+        if (w->fileName() == fn) {
             w->raise();
             formWindowManager->setActiveFormWindow(w);
-            addRecentFile(fileName);
+            addRecentFile(fn);
             return true;
         }
     }
 
     // Otherwise load it.
-    QFile f(fileName);
+    QFile f(fn);
     if (!f.open(QFile::ReadOnly)) {
         QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
                 .arg(f.fileName()).arg(f.errorString()));
@@ -664,10 +696,10 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
     if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
-        editor->setFileName(fileName);
+        editor->setFileName(fn);
         editor->setContents(&f);
         Q_ASSERT(editor->mainContainer() != 0);
-        formWindow->updateWindowTitle(fileName);
+        formWindow->updateWindowTitle(fn);
         formWindow->resize(editor->mainContainer()->size());
         formWindowManager->setActiveFormWindow(editor);
     }
