@@ -176,8 +176,8 @@ public:
 #endif
     int findAmPm(QString &str1, int index, int *used = 0) const;
     int maxChange(int s) const;
-    int potentialValue(const QString &str, int min, int max, int index, const QVariant &currentValue) const;
-    int potentialValueHelper(const QString &str, int min, int max, int size) const;
+    int potentialValue(const QString &str, int min, int max, int index, const QVariant &currentValue, int insert) const;
+    int potentialValueHelper(const QString &str, int min, int max, int size, int insert) const;
 
     QString sectionName(int s) const;
     QString stateName(int s) const;
@@ -190,6 +190,7 @@ public:
 #ifndef QT_NO_DATESTRING
     virtual QVariant getMinimum() const;
     virtual QVariant getMaximum() const;
+    virtual int cursorPosition() const { return -1; }
 #endif
     virtual QString displayText() const { return text; }
     virtual QString getAmPmText(AmPm ap, Case cs) const;

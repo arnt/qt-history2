@@ -69,6 +69,7 @@ public:
     QString valueToText(const QVariant &var) const { return textFromValue(var); }
     QString getAmPmText(AmPm ap, Case cs) const;
     bool isRightToLeft() const { return qApp->layoutDirection() == Qt::RightToLeft; }
+    int cursorPosition() const { return edit ? edit->cursorPosition() : -1; }
 
     static QDateTimeEdit::Sections convertSections(QDateTimeParser::Sections s);
     static QDateTimeEdit::Section convertToPublic(QDateTimeParser::Section s);
@@ -1103,7 +1104,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (v != d->value) {
         ret |= QAbstractSpinBox::StepDownEnabled;
     }
-    
+
     return ret;
 }
 
@@ -1726,7 +1727,11 @@ void QDateTimeEditPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos
         QString tmp = displayText();
         int pos = edit->cursorPosition();
         if (q->validate(tmp, pos) != QValidator::Acceptable) {
-            interpret(EmitIfChanged);
+            if (correctionMode == QAbstractSpinBox::CorrectToPreviousValue) {
+                setValue(value, EmitIfChanged);
+            } else {
+                interpret(EmitIfChanged);
+            }
             if (c == -1) {
                 setSelected(s, true);
             } else {

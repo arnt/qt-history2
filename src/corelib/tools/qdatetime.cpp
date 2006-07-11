@@ -3290,8 +3290,8 @@ int QDateTimeParser::absoluteMin(int s) const
     case Hour12Section:
     case MinuteSection:
     case SecondSection:
-    case MSecSection: return 0;
-    case YearSection: return -4712;
+    case MSecSection:
+    case YearSection: return 0;
     case MonthSection:
     case DaySection: return 1;
     case AmPmSection: return 0;
@@ -3316,8 +3316,6 @@ QDateTimeParser::SectionNode QDateTimeParser::sectionNode(int sectionIndex) cons
     } else if (sectionIndex == NoSectionIndex) {
         return none;
     }
-    if (sectionIndex < 0 || sectionIndex >= sectionNodes.size())
-        qDebug() << sectionIndex << sectionNodes.size();
     Q_ASSERT(sectionIndex >= 0 && sectionIndex < sectionNodes.size());
     return sectionNodes.at(sectionIndex);
 }
@@ -4269,7 +4267,7 @@ int QDateTimeParser::maxChange(int index) const
     case MonthSection: return 365 - 31;
     case YearSection: return sn.count == 2
             ? 100 * 365
-            : (9999 - (-4713)) * 365;
+            : 9999 * 365;
     default: qFatal("%s passed to maxChange. This should never happen", sectionName(sectionType(index)).toLatin1().constData());
     }
     return -1;
@@ -4336,7 +4334,7 @@ QString QDateTimeParser::sectionFormat(Section s, int count) const
 */
 
 int QDateTimeParser::potentialValue(const QString &str, int min, int max, int index,
-                                    const QVariant &currentValue) const
+                                    const QVariant &currentValue, int insert) const
 {
     const SectionNode sn = sectionNode(index);
 
@@ -4345,22 +4343,14 @@ int QDateTimeParser::potentialValue(const QString &str, int min, int max, int in
     min -= add;
     max -= add; // doesn't matter if max is -1 checking for < 0
 
-    QString simplified = str.simplified();
+    const QString simplified = str.simplified();
     if (simplified.isEmpty()) {
         return min + add;
     } else if (simplified.toInt() > max && max >= 0) {
         return -1;
-    } else {
-        const QString temp = simplified.leftJustified(size, QLatin1Char('9'));
-        const int t = temp.toInt();
-        if (t < min) {
-            return -1;
-        } else if (t <= max || max < 0) {
-            return t + add;
-        }
     }
 
-    const int ret = potentialValueHelper(simplified, min, max, size);
+    const int ret = potentialValueHelper(simplified, min, max, size, insert);
     if (ret == -1)
         return -1;
     return ret + add;
@@ -4370,7 +4360,7 @@ int QDateTimeParser::potentialValue(const QString &str, int min, int max, int in
   \internal internal helper function called by potentialValue
 */
 
-int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, int size) const
+int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, int size, int insert) const
 {
     if (str.size() == size) {
         const int val = str.toInt();
@@ -4382,9 +4372,16 @@ int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, 
 
     for (int i=0; i<=str.size(); ++i) {
         for (int j=0; j<10; ++j) {
-            const int ret = potentialValueHelper(str + QLatin1Char('0' + j), min, max, size);
-            if (ret != -1)
+            int ret = potentialValueHelper(str + QLatin1Char('0' + j), min, max, size, insert);
+            if (ret != -1) {
                 return ret;
+            } else if (insert >= 0) {
+                QString tmp = str;
+                tmp.insert(insert, QLatin1Char('0' + j));
+                ret = potentialValueHelper(tmp, min, max, size, insert);
+                if (ret != -1)
+                    return ret;
+            }
         }
     }
     return -1;
@@ -4470,7 +4467,10 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
 
                 int min = getDigit(minimum, sn.type);
                 int max = toMax != -1 ? getDigit(maximum, sn.type) : -1;
-                int tmp = potentialValue(t, min, max, i, dt);
+                int pos = cursorPosition() - sn.pos;
+                if (pos < 0 || pos >= t.size())
+                    pos = -1;
+                int tmp = potentialValue(t, min, max, i, dt, pos);
                 QDTPDEBUG << tmp << t << min << max << sectionName(sn.type)
                           << minimum.toDate() << maximum.toDate();
                 if (tmp == -1) {
