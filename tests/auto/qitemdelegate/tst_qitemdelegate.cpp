@@ -19,6 +19,7 @@
 #include <qitemeditorfactory.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
+#include <qtablewidget.h>
 
 // ok evil, but I want to go home, will fix next week
 #define protected public
@@ -52,10 +53,9 @@ public:
 
 private slots:
     void getSetCheck();
-#if QT_VERSION >= 0x040200
     void textRectangle();
     void editorGetsEnterKeyPress();
-#endif
+    void fontResolving();
 };
 
 // Testing get/set functions
@@ -80,7 +80,6 @@ tst_QItemDelegate::~tst_QItemDelegate()
 {
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QItemDelegate::textRectangle()
 {
     QItemDelegate qitemdelegate(0);
@@ -119,7 +118,61 @@ void tst_QItemDelegate::editorGetsEnterKeyPress()
     QCOMPARE(model.data(model.index(0, 0)).toString(), QLatin1String("foo"));
 }
 
-#endif // QT_VERSION
+class TestDelegate : public QItemDelegate
+{
+public:
+    inline TestDelegate(QObject *parent = 0) : QItemDelegate(parent), displayedSomething(false) {}
+
+    virtual void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,
+                             const QRect &rect, const QString &text) const
+    {
+        if (text == QLatin1String("Foo")) {
+            displayedSomething = true;
+            lastUsedFont = option.font;
+        }
+        QItemDelegate::drawDisplay(painter, option, rect, text);
+    }
+
+    mutable bool displayedSomething;
+    mutable QFont lastUsedFont;
+};
+
+void tst_QItemDelegate::fontResolving()
+{
+    QTableWidget *table = new QTableWidget(0);
+
+    table->setRowCount(2);
+    table->setColumnCount(2);
+
+    QFont font;
+    font.setItalic(false);
+
+    QTableWidgetItem *item = new QTableWidgetItem;
+    item->setText("Foo");
+    item->setFont(font);
+    table->setItem(0, 0, item);
+    item = new QTableWidgetItem;
+    item->setText("Bar");
+    item->setFont(font);
+    table->setItem(0, 1, item);
+
+    font.setItalic(true);
+    table->setFont(font);
+
+    TestDelegate *delegate = new TestDelegate(table);
+    table->setItemDelegate(delegate);
+
+    table->resize(800, 600);
+    table->show();
+
+    QApplication::processEvents();
+
+    QVERIFY(delegate->displayedSomething);
+    // model overrides view
+    QVERIFY(!delegate->lastUsedFont.italic());
+
+    delete table;
+}
 
 QTEST_MAIN(tst_QItemDelegate)
 #include "tst_qitemdelegate.moc"
