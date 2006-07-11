@@ -242,7 +242,7 @@ void tst_QDBusConnection::registerObject()
         QVERIFY(con.registerObject("/p1/q2", &obj, QDBusConnection::ExportSlots));
         QVERIFY(callMethod(con, "/p1/q2"));
         QCOMPARE(obj.path, QString("/p1/q2"));
-        
+
         // now try removing things around it:
         con.unregisterObject("/p2");
         QVERIFY(callMethod(con, "/p1/q2")); // unrelated object shouldn't affect
@@ -271,35 +271,43 @@ bool tst_QDBusConnection::callMethod(const QDBusConnection &conn, const QString 
     QDBusMessage reply = conn.call(msg, QDBus::BlockWithGui);
 
     return reply.type() == QDBusMessage::ReplyMessage;
-}    
+}
 
 class TestObject : public QObject
 {
-  Q_OBJECT
+Q_OBJECT
 public:
-  TestObject(QObject *parent = 0) : QObject(parent) {}
-  ~TestObject() {}
+    TestObject(QObject *parent = 0) : QObject(parent) {}
+    ~TestObject() {}
+
+    QString func;
 
 public slots:
-  void test0() { qDebug() << "test0"; }
-  void test1(int i) { qDebug() << "test1" << i; }
-  int test2() { qDebug() << "test2"; return 1; }
+    void test0() { func = "test0"; }
+    void test1(int i) { func = "test1 " + QString::number(i); }
+    int test2() { func = "test2"; return 43; }
 };
 
 void tst_QDBusConnection::callSelf()
 {
-  TestObject testObject;
-  QDBusConnection connection = QDBus::sessionBus();
-  QVERIFY(connection.registerObject("/test", &testObject,
-			 	    QDBusConnection::ExportContents
-				    |QDBusConnection::ExportNonScriptableContents));
-  QVERIFY(connection.registerService("com.trolltech.Qt.Autotests.ToSelf"));
-  QDBusInterface interface("com.trolltech.Qt.Autotests.ToSelf","/test");
-  QVERIFY(interface.isValid());
-  
-  interface.call(QDBus::Block, "test0");
-  interface.call(QDBus::Block, "test1", 0);
-  interface.call(QDBus::Block, "test2");
+    TestObject testObject;
+    QDBusConnection connection = QDBus::sessionBus();
+    QVERIFY(connection.registerObject("/test", &testObject,
+                QDBusConnection::ExportContents
+                |QDBusConnection::ExportNonScriptableContents));
+    QVERIFY(connection.registerService("com.trolltech.Qt.Autotests.ToSelf"));
+    QDBusInterface interface("com.trolltech.Qt.Autotests.ToSelf","/test");
+    QVERIFY(interface.isValid());
+
+    interface.call(QDBus::Block, "test0");
+    QCOMPARE(testObject.func, QString("test0"));
+    interface.call(QDBus::Block, "test1", 42);
+    QCOMPARE(testObject.func, QString("test1 42"));
+    QDBusMessage reply = interface.call(QDBus::Block, "test2");
+    qDebug() << reply;
+    QCOMPARE(testObject.func, QString("test2"));
+    QCOMPARE(reply.count(), 1);
+    QCOMPARE(reply.at(0).toInt(), 43);
 }
 
 QTEST_MAIN(tst_QDBusConnection)
