@@ -516,10 +516,9 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
         wrgn.translate(offs);
     }
 
-    if ( wbs->windowSurface ) {
-        QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+    if (surface)
         surface->setDirty(wrgn);
-    }
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
