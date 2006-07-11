@@ -785,6 +785,7 @@ void generateManualRules()
     addRenamedHeaderRule("qobjectlist.h", "qobject.h");
     addRenamedHeaderRule("qwidgetlist.h", "qwidget.h");
     addRenamedHeaderRule("qapp.h", "qapplication.h");
+    addRenamedHeaderRule("qmsgbox.h", "qmessagebox.h");
 
     // corresponds to the renamed classes
     addRenamedHeaderRule("qiconset.h", "qicon.h");
