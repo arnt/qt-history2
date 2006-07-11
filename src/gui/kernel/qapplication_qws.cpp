@@ -1922,13 +1922,14 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     mouseInWidget = new QPointer<QWidget>;
 
-    //We only support 10 displays, so the string should be ".*:[0-9]"
-    //    QRegExp r(":[0-9]");  // only supports 10 displays
-    QString disp(qws_display_spec);
-    //    int m = r.match(QString(qws_display_spec) , 0, &len);
-    if (disp[disp.length()-2] == ':' &&
-         disp[disp.length()-1].digitValue() >= 0) {
-        qws_display_id = disp[disp.length()-1].digitValue();
+    const QString disp(qws_display_spec);
+    QRegExp regexp(":(\\d+)");
+    if (regexp.lastIndexIn(disp) != -1) {
+        const QString capture = regexp.cap(1);
+        bool ok = false;
+        int id = capture.toInt(&ok);
+        if (ok)
+            qws_display_id = id;
     }
 
     if (type == QApplication::GuiServer) {
