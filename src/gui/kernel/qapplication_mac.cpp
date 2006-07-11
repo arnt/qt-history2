@@ -93,15 +93,15 @@ static struct {
     EventTime last_time;
 } qt_mac_dblclick = { false, 0, 0, 0, -2 };
 
-struct mac_enum_mapper
+struct qt_mac_enum_mapper
 {
     int mac_code;
     int qt_code;
 #if defined(DEBUG_MOUSE_MAPS)
-#   define MAP_MAC_ENUM(x) x, #x
+#   define QT_MAC_MAP_ENUM(x) x, #x
     const char *desc;
 #else
-#   define MAP_MAC_ENUM(x) x
+#   define QT_MAC_MAP_ENUM(x) x
 #endif
 };
 
@@ -146,7 +146,7 @@ inline QTLWExtra* QETWidget::topData() { return d_func()->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern Qt::KeyboardModifiers get_modifiers(int keys); //qkeymapper_mac.cpp
+extern Qt::KeyboardModifiers qt_mac_get_modifiers(int keys); //qkeymapper_mac.cpp
 extern bool qt_mac_can_clickThrough(const QWidget *); //qwidget_mac.cpp
 extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
@@ -261,40 +261,40 @@ void qt_mac_set_app_icon(const QPixmap &pixmap)
 Q_GUI_EXPORT void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; }
 
 //mouse buttons
-static mac_enum_mapper mouse_symbols[] = {
-    { kEventMouseButtonPrimary, MAP_MAC_ENUM(Qt::LeftButton) },
-    { kEventMouseButtonSecondary, MAP_MAC_ENUM(Qt::RightButton) },
-    { kEventMouseButtonTertiary, MAP_MAC_ENUM(Qt::MidButton) },
-    { 0, MAP_MAC_ENUM(0) }
+static qt_mac_enum_mapper qt_mac_mouse_symbols[] = {
+    { kEventMouseButtonPrimary, QT_MAC_MAP_ENUM(Qt::LeftButton) },
+    { kEventMouseButtonSecondary, QT_MAC_MAP_ENUM(Qt::RightButton) },
+    { kEventMouseButtonTertiary, QT_MAC_MAP_ENUM(Qt::MidButton) },
+    { 0, QT_MAC_MAP_ENUM(0) }
 };
-static Qt::MouseButtons get_buttons(int buttons)
+static Qt::MouseButtons qt_mac_get_buttons(int buttons)
 {
 #ifdef DEBUG_MOUSE_MAPS
     qDebug("Qt: internal: **Mapping buttons: %d (0x%04x)", buttons, buttons);
 #endif
     Qt::MouseButtons ret = Qt::NoButton;
-    for(int i = 0; mouse_symbols[i].qt_code; i++) {
-        if(buttons & (0x01<<(mouse_symbols[i].mac_code-1))) {
+    for(int i = 0; qt_mac_mouse_symbols[i].qt_code; i++) {
+        if(buttons & (0x01<<(qt_mac_mouse_symbols[i].mac_code-1))) {
 #ifdef DEBUG_MOUSE_MAPS
-            qDebug("Qt: internal: got button: %s", mouse_symbols[i].desc);
+            qDebug("Qt: internal: got button: %s", qt_mac_mouse_symbols[i].desc);
 #endif
-            ret |= Qt::MouseButtons(mouse_symbols[i].qt_code);
+            ret |= Qt::MouseButtons(qt_mac_mouse_symbols[i].qt_code);
         }
     }
     return ret;
 }
-static Qt::MouseButton get_button(EventMouseButton button)
+static Qt::MouseButton qt_mac_get_button(EventMouseButton button)
 {
 #ifdef DEBUG_MOUSE_MAPS
     qDebug("Qt: internal: **Mapping button: %d (0x%04x)", button, button);
 #endif
     Qt::MouseButtons ret = 0;
-    for(int i = 0; mouse_symbols[i].qt_code; i++) {
-        if(button == mouse_symbols[i].mac_code) {
+    for(int i = 0; qt_mac_mouse_symbols[i].qt_code; i++) {
+        if(button == qt_mac_mouse_symbols[i].mac_code) {
 #ifdef DEBUG_MOUSE_MAPS
-            qDebug("Qt: internal: got button: %s", mouse_symbols[i].desc);
+            qDebug("Qt: internal: got button: %s", qt_mac_mouse_symbols[i].desc);
 #endif
-            return Qt::MouseButton(mouse_symbols[i].qt_code);
+            return Qt::MouseButton(qt_mac_mouse_symbols[i].qt_code);
         }
     }
     return Qt::NoButton;
@@ -1537,14 +1537,14 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             UInt32 mac_modifiers = 0;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(mac_modifiers), 0, &mac_modifiers);
-            modifiers = get_modifiers(mac_modifiers);
+            modifiers = qt_mac_get_modifiers(mac_modifiers);
         }
         Qt::MouseButtons buttons;
         {
             UInt32 mac_buttons = 0;
             GetEventParameter(event, kEventParamMouseChord, typeUInt32, 0,
                               sizeof(mac_buttons), 0, &mac_buttons);
-            buttons = get_buttons(mac_buttons);
+            buttons = qt_mac_get_buttons(mac_buttons);
         }
         int wheel_delta=0;
         if(ekind == kEventMouseWheelMoved) {
@@ -1559,7 +1559,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             EventMouseButton mac_button = 0;
             GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0,
                               sizeof(mac_button), 0, &mac_button);
-            button = get_button(mac_button);
+            button = qt_mac_get_button(mac_button);
         }
 
         switch(ekind) {

@@ -24,6 +24,7 @@
   QKeyMapper debug facilities
  *****************************************************************************/
 //#define DEBUG_KEY_BINDINGS
+//#define DEBUG_KEY_BINDINGS_MODIFIERS
 //#define DEBUG_KEY_MAPS
 
 /*****************************************************************************
@@ -92,58 +93,58 @@ static const Qt::KeyboardModifiers ModsTbl[] = {
 };
 
 /* key maps */
-struct mac_enum_mapper
+struct qt_mac_enum_mapper
 {
     int mac_code;
     int qt_code;
 #if defined(DEBUG_KEY_BINDINGS)
-#   define MAP_MAC_ENUM(x) x, #x
+#   define QT_MAC_MAP_ENUM(x) x, #x
     const char *desc;
 #else
-#   define MAP_MAC_ENUM(x) x
+#   define QT_MAC_MAP_ENUM(x) x
 #endif
 };
 
 //modifiers
-static mac_enum_mapper modifier_symbols[] = {
-    { shiftKey, MAP_MAC_ENUM(Qt::ShiftModifier) },
-    { rightShiftKey, MAP_MAC_ENUM(Qt::ShiftModifier) },
-    { controlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
-    { rightControlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
-    { cmdKey, MAP_MAC_ENUM(Qt::ControlModifier) },
-    { optionKey, MAP_MAC_ENUM(Qt::AltModifier) },
-    { rightOptionKey, MAP_MAC_ENUM(Qt::AltModifier) },
-    { kEventKeyModifierNumLockMask, MAP_MAC_ENUM(Qt::KeypadModifier) },
-    { 0, MAP_MAC_ENUM(0) }
+static qt_mac_enum_mapper qt_mac_modifier_symbols[] = {
+    { shiftKey, QT_MAC_MAP_ENUM(Qt::ShiftModifier) },
+    { rightShiftKey, QT_MAC_MAP_ENUM(Qt::ShiftModifier) },
+    { controlKey, QT_MAC_MAP_ENUM(Qt::MetaModifier) },
+    { rightControlKey, QT_MAC_MAP_ENUM(Qt::MetaModifier) },
+    { cmdKey, QT_MAC_MAP_ENUM(Qt::ControlModifier) },
+    { optionKey, QT_MAC_MAP_ENUM(Qt::AltModifier) },
+    { rightOptionKey, QT_MAC_MAP_ENUM(Qt::AltModifier) },
+    { kEventKeyModifierNumLockMask, QT_MAC_MAP_ENUM(Qt::KeypadModifier) },
+    { 0, QT_MAC_MAP_ENUM(0) }
 };
-Qt::KeyboardModifiers get_modifiers(int keys)
+Qt::KeyboardModifiers qt_mac_get_modifiers(int keys)
 {
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
     qDebug("Qt: internal: **Mapping modifiers: %d (0x%04x)", keys, keys);
 #endif
     Qt::KeyboardModifiers ret = Qt::NoModifier;
-    for(int i = 0; modifier_symbols[i].qt_code; i++) {
-        if(keys & modifier_symbols[i].mac_code) {
-#ifdef DEBUG_KEY_BINDINGS
-            qDebug("Qt: internal: got modifier: %s", modifier_symbols[i].desc);
+    for(int i = 0; qt_mac_modifier_symbols[i].qt_code; i++) {
+        if(keys & qt_mac_modifier_symbols[i].mac_code) {
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
+            qDebug("Qt: internal: got modifier: %s", qt_mac_modifier_symbols[i].desc);
 #endif
-            ret |= Qt::KeyboardModifier(modifier_symbols[i].qt_code);
+            ret |= Qt::KeyboardModifier(qt_mac_modifier_symbols[i].qt_code);
         }
     }
     return ret;
 }
-static int get_mac_modifiers(Qt::KeyboardModifiers keys)
+static int qt_mac_get_mac_modifiers(Qt::KeyboardModifiers keys)
 {
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
     qDebug("Qt: internal: **Mapping modifiers: %d (0x%04x)", (int)keys, (int)keys);
 #endif
     int ret = 0;
-    for(int i = 0; modifier_symbols[i].qt_code; i++) {
-        if(keys & modifier_symbols[i].qt_code) {
-#ifdef DEBUG_KEY_BINDINGS
-            qDebug("Qt: internal: got modifier: %s", modifier_symbols[i].desc);
+    for(int i = 0; qt_mac_modifier_symbols[i].qt_code; i++) {
+        if(keys & qt_mac_modifier_symbols[i].qt_code) {
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
+            qDebug("Qt: internal: got modifier: %s", qt_mac_modifier_symbols[i].desc);
 #endif
-            ret |= modifier_symbols[i].mac_code;
+            ret |= qt_mac_modifier_symbols[i].mac_code;
         }
     }
     return ret;
@@ -156,17 +157,17 @@ void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
     cachedModifiers = modifiers;
 
     //check the bits
-    static mac_enum_mapper modifier_key_symbols[] = {
-        { shiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) },
-        { rightShiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) }, //???
-        { controlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) },
-        { rightControlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) }, //???
-        { cmdKeyBit, MAP_MAC_ENUM(Qt::Key_Control) },
-        { optionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) },
-        { rightOptionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) }, //???
-        { alphaLockBit, MAP_MAC_ENUM(Qt::Key_CapsLock) },
-        { kEventKeyModifierNumLockBit, MAP_MAC_ENUM(Qt::Key_NumLock) },
-        {   0, MAP_MAC_ENUM(0) } };
+    static qt_mac_enum_mapper modifier_key_symbols[] = {
+        { shiftKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Shift) },
+        { rightShiftKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Shift) }, //???
+        { controlKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Meta) },
+        { rightControlKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Meta) }, //???
+        { cmdKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Control) },
+        { optionKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Alt) },
+        { rightOptionKeyBit, QT_MAC_MAP_ENUM(Qt::Key_Alt) }, //???
+        { alphaLockBit, QT_MAC_MAP_ENUM(Qt::Key_CapsLock) },
+        { kEventKeyModifierNumLockBit, QT_MAC_MAP_ENUM(Qt::Key_NumLock) },
+        {   0, QT_MAC_MAP_ENUM(0) } };
     for(int i = 0; i <= 32; i++) { //just check each bit
         if(!(changedModifiers & (1 << i)))
             continue;
@@ -176,7 +177,7 @@ void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
         int key = 0;
         for(uint x = 0; modifier_key_symbols[x].mac_code; x++) {
             if(modifier_key_symbols[x].mac_code == i) {
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
                 qDebug("got modifier changed: %s", modifier_key_symbols[x].desc);
 #endif
                 key = modifier_key_symbols[x].qt_code;
@@ -184,96 +185,99 @@ void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
             }
         }
         if(!key) {
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
             qDebug("could not get modifier changed: %d", i);
 #endif
             continue;
         }
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
         qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - 0x%08x",
                etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                object ? object->metaObject()->className() : "none",
                object ? object->objectName().toLatin1().constData() : "",
                key, (int)modifiers);
 #endif
-        QKeyEvent ke(etype, key, get_modifiers(modifiers ^ (1 << i)), "");
+        QKeyEvent ke(etype, key, qt_mac_get_modifiers(modifiers ^ (1 << i)), "");
         qt_sendSpontaneousEvent(object, &ke);
     }
 }
 
 //keyboard keys (non-modifiers)
-static mac_enum_mapper keyboard_symbols[] = {
-    { kHomeCharCode, MAP_MAC_ENUM(Qt::Key_Home) },
-    { kEnterCharCode, MAP_MAC_ENUM(Qt::Key_Enter) },
-    { kEndCharCode, MAP_MAC_ENUM(Qt::Key_End) },
-    { kBackspaceCharCode, MAP_MAC_ENUM(Qt::Key_Backspace) },
-    { kTabCharCode, MAP_MAC_ENUM(Qt::Key_Tab) },
-    { kPageUpCharCode, MAP_MAC_ENUM(Qt::Key_PageUp) },
-    { kPageDownCharCode, MAP_MAC_ENUM(Qt::Key_PageDown) },
-    { kReturnCharCode, MAP_MAC_ENUM(Qt::Key_Return) },
-    { kEscapeCharCode, MAP_MAC_ENUM(Qt::Key_Escape) },
-    { kLeftArrowCharCode, MAP_MAC_ENUM(Qt::Key_Left) },
-    { kRightArrowCharCode, MAP_MAC_ENUM(Qt::Key_Right) },
-    { kUpArrowCharCode, MAP_MAC_ENUM(Qt::Key_Up) },
-    { kDownArrowCharCode, MAP_MAC_ENUM(Qt::Key_Down) },
-    { kHelpCharCode, MAP_MAC_ENUM(Qt::Key_Help) },
-    { kDeleteCharCode, MAP_MAC_ENUM(Qt::Key_Delete) },
+static qt_mac_enum_mapper qt_mac_keyboard_symbols[] = {
+    { kHomeCharCode, QT_MAC_MAP_ENUM(Qt::Key_Home) },
+    { kEnterCharCode, QT_MAC_MAP_ENUM(Qt::Key_Enter) },
+    { kEndCharCode, QT_MAC_MAP_ENUM(Qt::Key_End) },
+    { kBackspaceCharCode, QT_MAC_MAP_ENUM(Qt::Key_Backspace) },
+    { kTabCharCode, QT_MAC_MAP_ENUM(Qt::Key_Tab) },
+    { kPageUpCharCode, QT_MAC_MAP_ENUM(Qt::Key_PageUp) },
+    { kPageDownCharCode, QT_MAC_MAP_ENUM(Qt::Key_PageDown) },
+    { kReturnCharCode, QT_MAC_MAP_ENUM(Qt::Key_Return) },
+    { kEscapeCharCode, QT_MAC_MAP_ENUM(Qt::Key_Escape) },
+    { kLeftArrowCharCode, QT_MAC_MAP_ENUM(Qt::Key_Left) },
+    { kRightArrowCharCode, QT_MAC_MAP_ENUM(Qt::Key_Right) },
+    { kUpArrowCharCode, QT_MAC_MAP_ENUM(Qt::Key_Up) },
+    { kDownArrowCharCode, QT_MAC_MAP_ENUM(Qt::Key_Down) },
+    { kHelpCharCode, QT_MAC_MAP_ENUM(Qt::Key_Help) },
+    { kDeleteCharCode, QT_MAC_MAP_ENUM(Qt::Key_Delete) },
 //ascii maps, for debug
-    { ':', MAP_MAC_ENUM(Qt::Key_Colon) },
-    { ';', MAP_MAC_ENUM(Qt::Key_Semicolon) },
-    { '<', MAP_MAC_ENUM(Qt::Key_Less) },
-    { '=', MAP_MAC_ENUM(Qt::Key_Equal) },
-    { '>', MAP_MAC_ENUM(Qt::Key_Greater) },
-    { '?', MAP_MAC_ENUM(Qt::Key_Question) },
-    { '@', MAP_MAC_ENUM(Qt::Key_At) },
-    { ' ', MAP_MAC_ENUM(Qt::Key_Space) },
-    { '!', MAP_MAC_ENUM(Qt::Key_Exclam) },
-    { '"', MAP_MAC_ENUM(Qt::Key_QuoteDbl) },
-    { '#', MAP_MAC_ENUM(Qt::Key_NumberSign) },
-    { '$', MAP_MAC_ENUM(Qt::Key_Dollar) },
-    { '%', MAP_MAC_ENUM(Qt::Key_Percent) },
-    { '&', MAP_MAC_ENUM(Qt::Key_Ampersand) },
-    { '\'', MAP_MAC_ENUM(Qt::Key_Apostrophe) },
-    { '(', MAP_MAC_ENUM(Qt::Key_ParenLeft) },
-    { ')', MAP_MAC_ENUM(Qt::Key_ParenRight) },
-    { '*', MAP_MAC_ENUM(Qt::Key_Asterisk) },
-    { '+', MAP_MAC_ENUM(Qt::Key_Plus) },
-    { ',', MAP_MAC_ENUM(Qt::Key_Comma) },
-    { '-', MAP_MAC_ENUM(Qt::Key_Minus) },
-    { '.', MAP_MAC_ENUM(Qt::Key_Period) },
-    { '/', MAP_MAC_ENUM(Qt::Key_Slash) },
-    { '[', MAP_MAC_ENUM(Qt::Key_BracketLeft) },
-    { ']', MAP_MAC_ENUM(Qt::Key_BracketRight) },
-    { '\\', MAP_MAC_ENUM(Qt::Key_Backslash) },
-    { '_', MAP_MAC_ENUM(Qt::Key_Underscore) },
-    { '`', MAP_MAC_ENUM(Qt::Key_QuoteLeft) },
-    { '{', MAP_MAC_ENUM(Qt::Key_BraceLeft) },
-    { '}', MAP_MAC_ENUM(Qt::Key_BraceRight) },
-    { '|', MAP_MAC_ENUM(Qt::Key_Bar) },
-    { '~', MAP_MAC_ENUM(Qt::Key_AsciiTilde) },
-    { '^', MAP_MAC_ENUM(Qt::Key_AsciiCircum) },
-    {   0, MAP_MAC_ENUM(0) }
+    { ':', QT_MAC_MAP_ENUM(Qt::Key_Colon) },
+    { ';', QT_MAC_MAP_ENUM(Qt::Key_Semicolon) },
+    { '<', QT_MAC_MAP_ENUM(Qt::Key_Less) },
+    { '=', QT_MAC_MAP_ENUM(Qt::Key_Equal) },
+    { '>', QT_MAC_MAP_ENUM(Qt::Key_Greater) },
+    { '?', QT_MAC_MAP_ENUM(Qt::Key_Question) },
+    { '@', QT_MAC_MAP_ENUM(Qt::Key_At) },
+    { ' ', QT_MAC_MAP_ENUM(Qt::Key_Space) },
+    { '!', QT_MAC_MAP_ENUM(Qt::Key_Exclam) },
+    { '"', QT_MAC_MAP_ENUM(Qt::Key_QuoteDbl) },
+    { '#', QT_MAC_MAP_ENUM(Qt::Key_NumberSign) },
+    { '$', QT_MAC_MAP_ENUM(Qt::Key_Dollar) },
+    { '%', QT_MAC_MAP_ENUM(Qt::Key_Percent) },
+    { '&', QT_MAC_MAP_ENUM(Qt::Key_Ampersand) },
+    { '\'', QT_MAC_MAP_ENUM(Qt::Key_Apostrophe) },
+    { '(', QT_MAC_MAP_ENUM(Qt::Key_ParenLeft) },
+    { ')', QT_MAC_MAP_ENUM(Qt::Key_ParenRight) },
+    { '*', QT_MAC_MAP_ENUM(Qt::Key_Asterisk) },
+    { '+', QT_MAC_MAP_ENUM(Qt::Key_Plus) },
+    { ',', QT_MAC_MAP_ENUM(Qt::Key_Comma) },
+    { '-', QT_MAC_MAP_ENUM(Qt::Key_Minus) },
+    { '.', QT_MAC_MAP_ENUM(Qt::Key_Period) },
+    { '/', QT_MAC_MAP_ENUM(Qt::Key_Slash) },
+    { '[', QT_MAC_MAP_ENUM(Qt::Key_BracketLeft) },
+    { ']', QT_MAC_MAP_ENUM(Qt::Key_BracketRight) },
+    { '\\', QT_MAC_MAP_ENUM(Qt::Key_Backslash) },
+    { '_', QT_MAC_MAP_ENUM(Qt::Key_Underscore) },
+    { '`', QT_MAC_MAP_ENUM(Qt::Key_QuoteLeft) },
+    { '{', QT_MAC_MAP_ENUM(Qt::Key_BraceLeft) },
+    { '}', QT_MAC_MAP_ENUM(Qt::Key_BraceRight) },
+    { '|', QT_MAC_MAP_ENUM(Qt::Key_Bar) },
+    { '~', QT_MAC_MAP_ENUM(Qt::Key_AsciiTilde) },
+    { '^', QT_MAC_MAP_ENUM(Qt::Key_AsciiCircum) },
+    {   0, QT_MAC_MAP_ENUM(0) }
 };
 
-static mac_enum_mapper keyvkey_symbols[] = { //real scan codes
-    { 122, MAP_MAC_ENUM(Qt::Key_F1) },
-    { 120, MAP_MAC_ENUM(Qt::Key_F2) },
-    { 99,  MAP_MAC_ENUM(Qt::Key_F3) },
-    { 118, MAP_MAC_ENUM(Qt::Key_F4) },
-    { 96,  MAP_MAC_ENUM(Qt::Key_F5) },
-    { 97,  MAP_MAC_ENUM(Qt::Key_F6) },
-    { 98,  MAP_MAC_ENUM(Qt::Key_F7) },
-    { 100, MAP_MAC_ENUM(Qt::Key_F8) },
-    { 101, MAP_MAC_ENUM(Qt::Key_F9) },
-    { 109, MAP_MAC_ENUM(Qt::Key_F10) },
-    { 103, MAP_MAC_ENUM(Qt::Key_F11) },
-    { 111, MAP_MAC_ENUM(Qt::Key_F12) },
-    {   0, MAP_MAC_ENUM(0) }
+static qt_mac_enum_mapper qt_mac_keyvkey_symbols[] = { //real scan codes
+    { 122, QT_MAC_MAP_ENUM(Qt::Key_F1) },
+    { 120, QT_MAC_MAP_ENUM(Qt::Key_F2) },
+    { 99,  QT_MAC_MAP_ENUM(Qt::Key_F3) },
+    { 118, QT_MAC_MAP_ENUM(Qt::Key_F4) },
+    { 96,  QT_MAC_MAP_ENUM(Qt::Key_F5) },
+    { 97,  QT_MAC_MAP_ENUM(Qt::Key_F6) },
+    { 98,  QT_MAC_MAP_ENUM(Qt::Key_F7) },
+    { 100, QT_MAC_MAP_ENUM(Qt::Key_F8) },
+    { 101, QT_MAC_MAP_ENUM(Qt::Key_F9) },
+    { 109, QT_MAC_MAP_ENUM(Qt::Key_F10) },
+    { 103, QT_MAC_MAP_ENUM(Qt::Key_F11) },
+    { 111, QT_MAC_MAP_ENUM(Qt::Key_F12) },
+    {   0, QT_MAC_MAP_ENUM(0) }
 };
 
-
-static int get_uniKey(int modif, const QChar &key, int virtualKey)
+static int qt_mac_get_key(int modif, const QChar &key, int virtualKey)
 {
+#ifdef DEBUG_KEY_BINDINGS
+    qDebug("**Mapping key: %d (0x%04x) - %d (0x%04x)", key.unicode(), key.unicode(), virtualKey, virtualKey);
+#endif
+
     if (key == kClearCharCode && virtualKey == 0x47)
         return Qt::Key_Clear;
 
@@ -290,10 +294,17 @@ static int get_uniKey(int modif, const QChar &key, int virtualKey)
 #endif
         return (key.toUpper().unicode() - 'A') + Qt::Key_A;
     }
-    for(int i = 0; keyboard_symbols[i].qt_code; i++) {
-        if(keyboard_symbols[i].mac_code == key) {
+    if(key.isSymbol()) {
+#ifdef DEBUG_KEY_BINDINGS
+        qDebug("%d: got key: %d", __LINE__, (key.unicode()));
+#endif
+        return key.unicode();
+    }
+
+    for(int i = 0; qt_mac_keyboard_symbols[i].qt_code; i++) {
+        if(qt_mac_keyboard_symbols[i].mac_code == key) {
             /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
-            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftModifier)) {
+            if(qt_mac_keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftModifier)) {
 #ifdef DEBUG_KEY_BINDINGS
                 qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
 #endif
@@ -301,90 +312,25 @@ static int get_uniKey(int modif, const QChar &key, int virtualKey)
             }
 
 #ifdef DEBUG_KEY_BINDINGS
-            qDebug("%d: got key: %s", __LINE__, keyboard_symbols[i].desc);
+            qDebug("%d: got key: %s", __LINE__, qt_mac_keyboard_symbols[i].desc);
 #endif
-            return keyboard_symbols[i].qt_code;
+            return qt_mac_keyboard_symbols[i].qt_code;
         }
     }
 
     //last ditch try to match the scan code
-    for(int i = 0; keyvkey_symbols[i].qt_code; i++) {
-        if(keyvkey_symbols[i].mac_code == virtualKey) {
+    for(int i = 0; qt_mac_keyvkey_symbols[i].qt_code; i++) {
+        if(qt_mac_keyvkey_symbols[i].mac_code == virtualKey) {
 #ifdef DEBUG_KEY_BINDINGS
-            qDebug("%d: got key: %s", __LINE__, keyvkey_symbols[i].desc);
+            qDebug("%d: got key: %s", __LINE__, qt_mac_keyvkey_symbols[i].desc);
 #endif
-            return keyvkey_symbols[i].qt_code;
+            return qt_mac_keyvkey_symbols[i].qt_code;
         }
     }
 
     //oh well
 #ifdef DEBUG_KEY_BINDINGS
-    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key.toLatin1(), virtualKey);
-#endif
-    return Qt::Key_unknown;
-}
-
-
-static int get_key(int modif, int key, int virtualKey)
-{
-#ifdef DEBUG_KEY_BINDINGS
-    qDebug("**Mapping key: %d (0x%04x) - %d (0x%04x)", key, key, virtualKey, virtualKey);
-#endif
-
-    //special case for clear key
-    if(key == kClearCharCode && virtualKey == 0x47) {
-#ifdef DEBUG_KEY_BINDINGS
-        qDebug("%d: got key: Qt::Key_Clear", __LINE__);
-#endif
-        return Qt::Key_Clear;
-    }
-
-    //general cases..
-    if(key >= '0' && key <= '9') {
-#ifdef DEBUG_KEY_BINDINGS
-        qDebug("%d: General case Qt::Key_%c", __LINE__, key);
-#endif
-        return (key - '0') + Qt::Key_0;
-    }
-
-    if((key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z')) {
-        char tup = toupper(key);
-#ifdef DEBUG_KEY_BINDINGS
-        qDebug("%d: General case Qt::Key_%c %d", __LINE__, tup, (tup - 'A') + Qt::Key_A);
-#endif
-        return (tup - 'A') + Qt::Key_A;
-    }
-
-    for(int i = 0; keyboard_symbols[i].qt_code; i++) {
-        if(keyboard_symbols[i].mac_code == key) {
-            /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
-            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftModifier)) {
-#ifdef DEBUG_KEY_BINDINGS
-                qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
-#endif
-                return Qt::Key_Backtab;
-            }
-
-#ifdef DEBUG_KEY_BINDINGS
-            qDebug("%d: got key: %s", __LINE__, keyboard_symbols[i].desc);
-#endif
-            return keyboard_symbols[i].qt_code;
-        }
-    }
-
-    //last ditch try to match the scan code
-    for(int i = 0; keyvkey_symbols[i].qt_code; i++) {
-        if(keyvkey_symbols[i].mac_code == virtualKey) {
-#ifdef DEBUG_KEY_BINDINGS
-            qDebug("%d: got key: %s", __LINE__, keyvkey_symbols[i].desc);
-#endif
-            return keyvkey_symbols[i].qt_code;
-        }
-    }
-
-    //oh well
-#ifdef DEBUG_KEY_BINDINGS
-    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key, virtualKey);
+    qDebug("Unknown case.. %s:%d %d[%d] %d", __FILE__, __LINE__, key.unicode(), key.toLatin1(), virtualKey);
 #endif
     return Qt::Key_unknown;
 }
@@ -404,11 +350,11 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         UInt32 mac_modifiers = 0;
         GetEventParameter(keyEvent, kEventParamKeyModifiers, typeUInt32, 0,
                           sizeof(mac_modifiers), 0, &mac_modifiers);
-#ifdef DEBUG_KEY_BINDINGS
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
         qDebug("************ Mapping modifiers and key ***********");
 #endif
-        *outModifiers = get_modifiers(mac_modifiers);
-#ifdef DEBUG_KEY_BINDINGS
+        *outModifiers = qt_mac_get_modifiers(mac_modifiers);
+#ifdef DEBUG_KEY_BINDINGS_MODIFIERS
         qDebug("------------ Mapping modifiers and key -----------");
 #endif
     }
@@ -433,6 +379,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         }
     }
 
+    *qtKey = Qt::Key_unknown;
     if (uchrData) {
         static UInt32 deadKeyState;
         if (prevKeyLayoutRef != keyLayoutRef) {
@@ -461,20 +408,23 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                                   kUCKeyTranslateNoDeadKeysBit, &tmp_unused_state, 4, &actualLength,
                                   string);
         if (err == noErr) {
-            *qtKey = get_uniKey(*outModifiers, QChar(string[0]), keyCode);
             *outChar = QChar(string[0]);
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
                      err, __FILE__, __LINE__);
         }
     } else {
-        // The road less travelled, Try to get the unichar, using the
-        // given the "mac" keyboard resource.
-        char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-                (GetCurrentEventKeyModifiers() &
-                 (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
-                  rightShiftKey|alphaLock)) | keyCode,
-                &tmp_unused_state);
+        // The road less travelled, Use KeyTranslate
+        void *keyboard_layout;
+        KeyboardLayoutRef keyLayoutRef = 0;
+        KLGetCurrentKeyboardLayout(&keyLayoutRef);
+        err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
+                                  const_cast<const void **>(reinterpret_cast<void **>(&keyboard_layout)));
+
+        char translatedChar = KeyTranslate(keyboard_layout, (GetCurrentEventKeyModifiers() &
+                                                             (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
+                                                              rightShiftKey|alphaLock)) | keyCode,
+                                           &tmp_unused_state);
         if(!translatedChar) {
             if (outHandled) {
                 qt_mac_eat_unicode_key = false;
@@ -485,7 +435,6 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         }
 
         //map it into qt keys
-        *qtKey = get_key(*outModifiers, translatedChar, keyCode);
         if(*outModifiers & (Qt::AltModifier | Qt::ControlModifier)) {
             if(translatedChar & (1 << 7)) //high ascii
                 translatedChar = 0;
@@ -504,8 +453,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                 tmp_mod |= optionKey;
             if(*outModifiers & Qt::KeypadModifier)
                 tmp_mod |= kEventKeyModifierNumLockMask;
-            translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-                    tmp_mod | keyCode, &tmp_state);
+            translatedChar = KeyTranslate(keyboard_layout, tmp_mod | keyCode, &tmp_state);
         }
         {
             UInt32 unilen = 0;
@@ -517,9 +465,13 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                 if (!c)
                     c = QTextCodec::codecForName("Apple Roman");
                 *outChar = c->toUnicode(&translatedChar, 1).at(0);
+            } else {
+                *qtKey = qt_mac_get_key(*outModifiers, QChar(translatedChar), keyCode);
             }
         }
     }
+    if(*qtKey == Qt::Key_unknown)
+        *qtKey = qt_mac_get_key(*outModifiers, *outChar, keyCode);
     return true;
 }
 
@@ -772,18 +724,18 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
         UniCharCount out_buffer_size = 0;
         keyLayout[macVirtualKey]->qtKey[i] = 0;
         if(keyboard_mode == UnicodeMode) {
-            const UInt32 keyModifier = ((get_mac_modifiers(ModsTbl[i]) >> 8) & 0xFF);
+            const UInt32 keyModifier = ((qt_mac_get_mac_modifiers(ModsTbl[i]) >> 8) & 0xFF);
             OSStatus err = UCKeyTranslate(keyboard_layout_format.unicode, macVirtualKey, kUCKeyActionDown, keyModifier,
                                           keyboard_kind, 0, &keyboard_dead, buffer_size, &out_buffer_size, buffer);
             if(err == noErr && out_buffer_size) {
                 const QChar unicode(buffer[0]);
-                int qtkey = get_uniKey(keyModifier, unicode, macVirtualKey);
+                int qtkey = qt_mac_get_key(keyModifier, unicode, macVirtualKey);
                 if(qtkey == Qt::Key_unknown)
                     qtkey = unicode.unicode();
                 keyLayout[macVirtualKey]->qtKey[i] = qtkey;
             }
         } else {
-            const UInt32 keyModifier = (get_mac_modifiers(ModsTbl[i]));
+            const UInt32 keyModifier = (qt_mac_get_mac_modifiers(ModsTbl[i]));
 
             uchar translatedChar = KeyTranslate(keyboard_layout_format.other, keyModifier | macVirtualKey, &keyboard_dead);
             if(translatedChar) {
@@ -791,7 +743,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
                 if (!c)
                     c = QTextCodec::codecForName("Apple Roman");
                 const QChar unicode(c->toUnicode((const char *)&translatedChar, 1).at(0));
-                int qtkey = get_uniKey(keyModifier, unicode, macVirtualKey);
+                int qtkey = qt_mac_get_key(keyModifier, unicode, macVirtualKey);
                 if(qtkey == Qt::Key_unknown)
                     qtkey = unicode.unicode();
                 keyLayout[macVirtualKey]->qtKey[i] = qtkey;
@@ -799,7 +751,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
         }
     }
 #ifdef DEBUG_KEY_MAPS
-    qDebug("updatePossibleKeyCodes for virtual key = 0x%02x!", (uint)macVirtualKey);
+    qDebug("updateKeyMap for virtual key = 0x%02x!", (uint)macVirtualKey);
     for (int i = 0; i < 16; ++i) {
         qDebug("    [%d] (%d,0x%02x,'%c')", i,
                keyLayout[macVirtualKey]->qtKey[i],
@@ -827,7 +779,7 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
             QKeyEventEx accel_ev(Qt::ShortcutOverride, code, modifiers, text, autorepeat, qMax(1, text.length()),
                                  nativeScanCode, nativeVirtualKey, nativeModifiers);
             if(QApplicationPrivate::instance()->qt_tryAccelEvent(widget, &accel_ev)) {
-#ifdef DEBUG_KEY_BINDINGS
+#if defined(DEBUG_KEY_BINDINGS) || defined(DEBUG_KEY_BINDINGS_MODIFIERS)
                 qDebug("KeyEvent: %s::%s consumed Accel: %s %d",
                        widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().toLatin1().constData() : "",
@@ -836,7 +788,7 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
                 key_event = false;
             } else {
                 if(accel_ev.isAccepted()) {
-#ifdef DEBUG_KEY_BINDINGS
+#if defined(DEBUG_KEY_BINDINGS) || defined(DEBUG_KEY_BINDINGS_MODIFIERS)
                     qDebug("KeyEvent: %s::%s overrode Accel: %s %d",
                            widget ? widget->metaObject()->className() : "none",
                            widget ? widget->objectName().toLatin1().constData() : "",
@@ -847,7 +799,7 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
         }
 #endif // QT3_SUPPORT && !QT_NO_SHORTCUT
         if(key_event) {
-#ifdef DEBUG_KEY_BINDINGS
+#if defined(DEBUG_KEY_BINDINGS) || defined(DEBUG_KEY_BINDINGS_MODIFIERS)
             qDebug("KeyEvent: Sending %s to %s::%s: %s 0x%08x%s",
                    type == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                    widget ? widget->metaObject()->className() : "none",
