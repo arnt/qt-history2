@@ -391,7 +391,7 @@ QIODevice::OpenMode QIODevice::openMode() const
 }
 
 /*!
-    Sets the OpenMode of the device to \a openMode. Reimplement this
+    Sets the OpenMode of the device to \a openMode. Call this
     function to set the open mode when reimplementing open().
 
     \sa openMode() OpenMode
