@@ -877,12 +877,12 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             // changes in QPalette
             if (name == QLatin1String("colorGroup")
-                    || name == QLatin1String("paletteForegroundColor")
-                    || name == QLatin1String("paletteBackgroundColor")
-                    || name == QLatin1String("backgroundMode")
-                    || name == QLatin1String("backgroundOrigin")
-                    || name == QLatin1String("paletteBackgroundPixmap")
-                    || name == QLatin1String("backgroundBrush")) {
+                || name == QLatin1String("paletteForegroundColor")
+                || name == QLatin1String("paletteBackgroundColor")
+                || name == QLatin1String("backgroundMode")
+                || name == QLatin1String("backgroundOrigin")
+                || name == QLatin1String("paletteBackgroundPixmap")
+                || name == QLatin1String("backgroundBrush")) {
                 errorInvalidProperty(name, objectName, className);
                 continue;
             }
@@ -895,7 +895,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             // changes in QWidget
             if (name == QLatin1String("underMouse")
-                    || name == QLatin1String("ownFont")) {
+                || name == QLatin1String("ownFont")) {
                 errorInvalidProperty(name, objectName, className);
                 continue;
             }
@@ -923,8 +923,14 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 }
             }
 
+            // objectName
+            if (name == QLatin1String("name")) {
+                objectName = prop->elementCstring();
+                continue;
+            }
+
             if (className == QLatin1String("Line")
-                    && prop->attributeName() == QLatin1String("orientation")) {
+                && prop->attributeName() == QLatin1String("orientation")) {
                 delete prop;
                 continue;
             }
@@ -1026,10 +1032,10 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
 
             if (className.size()
-                    && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))
-                    && !(name == QLatin1String("buttonGroupId"))
-                    && !(name == QLatin1String("frameworkCode"))
-                    && !(name == QLatin1String("database"))) {
+                && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))
+                && !(name == QLatin1String("buttonGroupId"))
+                && !(name == QLatin1String("frameworkCode"))
+                && !(name == QLatin1String("database"))) {
                 if (!WidgetInfo::isValidProperty(className, name)) {
                     errorInvalidProperty(name, objectName, className);
                     delete prop;
