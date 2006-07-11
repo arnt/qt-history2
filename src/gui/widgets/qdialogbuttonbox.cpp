@@ -169,7 +169,7 @@ static const int layouts[2][5][9] =
         { HelpRole, ActionRole, Stretch, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
 
         // KdeLayout
-        { HelpRole, Stretch, AcceptRole, AlternateRole, ActionRole, DestructiveRole, RejectRole, EOL, EOL },
+        { HelpRole, DestructiveRole, Stretch, ActionRole, AcceptRole, AlternateRole, RejectRole, EOL, EOL },
 
         // GnomeLayout
         { HelpRole, Stretch, ActionRole | Reverse, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
