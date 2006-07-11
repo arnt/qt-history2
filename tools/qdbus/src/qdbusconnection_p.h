@@ -58,7 +58,7 @@ class QDBusConnectionPrivate: public QObject
     Q_OBJECT
 public:
     // structs and enums
-    enum ConnectionMode { InvalidMode, ServerMode, ClientMode };
+    enum ConnectionMode { InvalidMode, ServerMode, ClientMode }; // LocalMode
 
     struct Watcher
     {
@@ -126,7 +126,7 @@ public:
     void closeConnection();
     void timerEvent(QTimerEvent *e);
 
-    QString getNameOwner(const QString &service);    
+    QString getNameOwner(const QString &service);
 
     int send(const QDBusMessage &message) const;
     QDBusMessage sendWithReply(const QDBusMessage &message, int mode, int timeout = -1);
@@ -208,8 +208,7 @@ public:
     static DBusHandlerResult messageFilter(DBusConnection *, DBusMessage *, void *);
     static void messageResultReceived(DBusPendingCall *, void *);
 
-    static QDBusConnectionPrivate *d(const QDBusConnection& q)
-    { return q.d; }
+    static QDBusConnectionPrivate *d(const QDBusConnection& q) { return q.d; }
 };
 
 class QDBusReplyWaiter: public QEventLoop

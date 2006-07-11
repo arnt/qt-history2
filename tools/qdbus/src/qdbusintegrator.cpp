@@ -916,7 +916,7 @@ bool QDBusConnectionPrivate::activateInternalFilters(const ObjectTreeNode *node,
 
     if (msg.interface().isEmpty() || msg.interface() == QLatin1String(DBUS_INTERFACE_INTROSPECTABLE)) {
         if (msg.member() == QLatin1String("Introspect") && msg.signature().isEmpty())
-            qDBusIntrospectObject(node, msg);
+	    qDBusIntrospectObject(node, msg);
         if (msg.interface() == QLatin1String(DBUS_INTERFACE_INTROSPECTABLE))
             return true;
     }
@@ -1322,12 +1322,16 @@ QDBusMessage QDBusConnectionPrivate::sendWithReply(const QDBusMessage &message,
 	if (sendMode == QDBus::Block && isServiceRegisteredByThread(message.service())) {
 	    QDBusMessage messageWithSignature = QDBusMessagePrivate::updateSignature(message, msg);
 	    QDBusMessagePrivate::setLocal(&messageWithSignature, true);
+
 	    bool handled = false;
-	    int type = dbus_message_get_type(msg);
+            int type = dbus_message_get_type(msg);
 	    if (type == DBUS_MESSAGE_TYPE_SIGNAL)
 	        handled = handleSignal(messageWithSignature);
 	    else if (type == DBUS_MESSAGE_TYPE_METHOD_CALL)
 	        handled = handleObjectCall(messageWithSignature);
+	    if (!handled)
+		handled = activateInternalFilters(&rootNode, message);
+
  	    if (handled) {
  		return messageWithSignature;
  	    } else {

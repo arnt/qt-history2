@@ -23,6 +23,7 @@
 #include "qdbusconnection.h"
 #include "qdbusextratypes.h"
 #include "qdbusmessage.h"
+#include "qdbusmessage_p.h"
 #include "qdbusutil_p.h"
 
 // defined in qdbusxmlgenerator.cpp
@@ -135,7 +136,11 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
 void qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node,
                            const QDBusMessage &msg)
 {
-    msg.sendReply(qDBusIntrospectObject(node));
+    QString xml = qDBusIntrospectObject(node);
+    if (QDBusMessagePrivate::isLocal(msg))
+      QDBusMessagePrivate::setArguments(&msg, QVariantList() << xml);
+    else
+        msg.sendReply(xml);
 }
 
 // implement the D-Bus interface org.freedesktop.DBus.Properties
