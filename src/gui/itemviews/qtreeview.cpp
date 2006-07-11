@@ -1279,17 +1279,19 @@ void QTreeView::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Asterisk: {
             QStack<QModelIndex> parents;
             parents.push(current);
-            while (!parents.isEmpty()) {
-                QModelIndex parent = parents.pop();
-                for (int row = 0; row < d->model->rowCount(parent); ++row) {
-                    QModelIndex child = d->model->index(row, 0, parent);
-                    if (!d->indexValid(child))
-                        break;
-                    parents.push(child);
-                    expand(child);
+            if (d->itemsExpandable) {
+                while (!parents.isEmpty()) {
+                    QModelIndex parent = parents.pop();
+                    for (int row = 0; row < d->model->rowCount(parent); ++row) {
+                        QModelIndex child = d->model->index(row, 0, parent);
+                        if (!d->indexValid(child))
+                            break;
+                        parents.push(child);
+                        expand(child);
+                    }
                 }
+                expand(current);
             }
-            expand(current);
             break; }
         case Qt::Key_Plus:
             expand(current);
@@ -2460,11 +2462,14 @@ void QTreeViewPrivate::updateScrollBars()
         if (uniformRowHeights) {
             itemsInViewport = viewportSize.height() / defaultItemHeight;
         } else {
-            int y = viewportSize.height();
-            int i = viewItems.count();
-            while (y > 0 && i > 0)
-                y -= itemHeight(--i);
-            itemsInViewport = (i > 0 ? (viewItems.count() - i - 1) : viewItems.count());
+            const int itemsCount = viewItems.count();
+            const int viewportHeight = viewportSize.height();
+            for (int height = 0, item = itemsCount - 1; item >= 0; --item) {
+                height += itemHeight(item);
+                if (height > viewportHeight)
+                    break;
+                ++itemsInViewport;
+            }
         }
         q->verticalScrollBar()->setRange(0, viewItems.count() - itemsInViewport);
         q->verticalScrollBar()->setPageStep(itemsInViewport);
@@ -2499,7 +2504,7 @@ void QTreeViewPrivate::updateScrollBars()
         if (maxSize.width() >= horizontalLength && q->verticalScrollBar()->maximum() <= 0)
             viewportSize = maxSize;
         q->horizontalScrollBar()->setPageStep(viewportSize.width());
-        q->horizontalScrollBar()->setRange(0, horizontalLength - viewportSize.width());
+        q->horizontalScrollBar()->setRange(0, qMax(horizontalLength - viewportSize.width(), 0));
     }
 }
 
