@@ -280,8 +280,11 @@ bool Declaration::realValue(qreal *real, const char *unit) const
     if (values.count() != 1)
         return false;
     Value v = values.first();
-    if (unit && v.type != Value::Length)
-        return false;
+    if (unit && v.type != Value::Length) {
+        if (v.type != Value::Number || stricmp(unit, "px") != 0)
+            return false;
+        unit = 0;
+    }
     QString s = v.variant.toString();
     if (unit) {
         if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
@@ -295,17 +298,20 @@ bool Declaration::realValue(qreal *real, const char *unit) const
     return ok;
 }
 
-bool Declaration::intValue(int *real, const char *unit) const
+bool Declaration::intValue(int *i, const char *unit) const
 {
     if (values.count() != 1)
         return false;
-    return intValue(values.first(), real, unit);
+    return intValue(values.first(), i, unit);
 }
 
-bool Declaration::intValue(Value v, int *real, const char *unit) const
+bool Declaration::intValue(Value v, int *i, const char *unit) const
 {
-    if (unit && v.type != Value::Length)
-        return false;
+    if (unit && v.type != Value::Length) {
+        if (v.type != Value::Number || stricmp(unit, "px") != 0)
+            return false;
+        unit = 0;
+    }
     QString s = v.variant.toString();
     if (unit) {
         if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
@@ -315,14 +321,14 @@ bool Declaration::intValue(Value v, int *real, const char *unit) const
     bool ok = false;
     int val = s.toInt(&ok);
     if (ok)
-        *real = val;
+        *i = val;
     return ok;
 }
 
 void Declaration::marginValues(int *m, const char *unit, int offset) const
 {
     int i;
-    for (i = 0; i < qMin(values.count(), 4); i++) {
+    for (i = 0; i < qMin(values.count()-offset, 4); i++) {
         const Value& v = values.at(i+offset);
         if (!intValue(v, &m[i], unit))
             break;

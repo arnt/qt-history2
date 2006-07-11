@@ -25,6 +25,8 @@ private slots:
     void malformedDeclarations_data();
     void malformedDeclarations();
     void invalidAtKeywords();
+    void marginValue();
+    void marginValue_data();
     void colorValue_data();
     void colorValue();
     void styleSelector_data();
@@ -730,6 +732,38 @@ void tst_CssParser::colorValue()
     const QColor col = decl.colorValue();
     QVERIFY(col.isValid());
     QCOMPARE(col, expectedColor);
+}
+
+void tst_CssParser::marginValue_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QString>("unit");
+    QTest::addColumn<QString>("expectedMargin");
+
+    QTest::newRow("one value") << "margin: 1px" << "px" << "1 1 1 1";
+    QTest::newRow("two values") << "margin: 1px 2px" << "px" << "1 2 1 2";
+    QTest::newRow("three value") << "margin: 1px 2px 3px" << "px" << "1 2 3 2";
+    QTest::newRow("four values") << "margin: 1px 2px 3px 4px" << "px" << "1 2 3 4";
+    QTest::newRow("default px") << "margin: 1 2 3 4" << "px" << "1 2 3 4";
+    QTest::newRow("no unit") << "margin: 1 2 3 4" << QString() << "1 2 3 4";
+    QTest::newRow("em") << "margin: 1em 2em 3em 4em" << "em" << "1 2 3 4";
+    QTest::newRow("em") << "margin: 1em 2em 3px 4px" << "em" << "1 2 1 2"; // Fix later
+    QTest::newRow("em") << "margin: crap" << "em" << "0 0 0 0";
+}
+
+void tst_CssParser::marginValue()
+{
+    QFETCH(QString, css);
+    QFETCH(QString, unit);
+    QFETCH(QString, expectedMargin);
+
+    QCss::Parser parser(css);
+    QCss::Declaration decl;
+    QVERIFY(parser.parseNextDeclaration(&decl));
+    int m[4];
+    decl.marginValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
+    QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
+    QCOMPARE(str, expectedMargin);
 }
 
 class DomStyleSelector : public QCss::StyleSelector
