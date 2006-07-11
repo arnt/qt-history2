@@ -2274,8 +2274,9 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
         return -1;
     if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights) {
-            Q_ASSERT(defaultItemHeight != 0);
-            return (coordinate + q->verticalScrollBar()->value()) / defaultItemHeight;
+            Q_ASSERT(defaultItemHeight > 0);
+            const int viewItemIndex = (coordinate + q->verticalScrollBar()->value()) / defaultItemHeight;
+            return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
         // ### optimize
         int viewItemCoordinate = 0;
@@ -2288,7 +2289,7 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
     } else { // ScrollPerItem
         int topViewItemIndex = q->verticalScrollBar()->value();
         if (uniformRowHeights) {
-            Q_ASSERT(defaultItemHeight != 0);
+            Q_ASSERT(defaultItemHeight > 0);
             const int viewItemIndex = topViewItemIndex + (coordinate / defaultItemHeight);
             return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
