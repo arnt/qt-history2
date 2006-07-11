@@ -92,7 +92,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-QDebug operator<<(QDebug, const QDBusMessage &);
+QDBUS_EXPORT QDebug operator<<(QDebug, const QDBusMessage &);
 #endif
 
 QT_END_HEADER
