@@ -44,6 +44,8 @@ public:
     void init();
     QList<int> hoverSeparator;
     QPoint hoverPos;
+
+    QCursor separatorCursor(const QList<int> &path) const;
 };
 
 void QMainWindowPrivate::init()
@@ -868,101 +870,139 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     return restored;
 }
 
+QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
+{
+    QDockAreaLayoutInfo *info = layout->dockWidgetLayout.info(path);
+    Q_ASSERT(info != 0);
+    if (path.size() == 1) {
+        return info->o == Qt::Horizontal
+                ? Qt::SplitVCursor : Qt::SplitHCursor;
+    }
+
+    return info->o == Qt::Horizontal
+            ? Qt::SplitHCursor : Qt::SplitVCursor;
+}
+
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 {
     Q_D(QMainWindow);
+    switch (event->type()) {
+
 #ifndef QT_NO_DOCKWIDGET
-    if (event->type() == QEvent::HoverMove) {
-        if (d->layout->savedDockWidgetLayout.isValid()) {
-            d->hoverSeparator.clear();
-            d->hoverPos = QPoint(0, 0);
-            return true;
+        case QEvent::HoverMove: {
+            if (d->layout->savedDockWidgetLayout.isValid()) {
+                d->hoverSeparator.clear();
+                d->hoverPos = QPoint(0, 0);
+                // We're in the middle of adjusting the layout to a hovering
+                // dock widget, eat this event
+                event->accept();
+                return true;
+            }
+
+            QHoverEvent *e = static_cast<QHoverEvent *>(event);
+            d->hoverPos = e->pos();
+            QList<int> pathToSeparator
+                = d->layout->dockWidgetLayout.findSeparator(e->pos());
+            if (pathToSeparator != d->hoverSeparator) {
+                if (!d->hoverSeparator.isEmpty())
+                    update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+
+                d->hoverSeparator = pathToSeparator;
+
+                if (d->hoverSeparator.isEmpty()) {
+                    unsetCursor();
+                } else {
+                    update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+                    setCursor(d->separatorCursor(d->hoverSeparator));
+                }
+            }
+
+            break;
         }
-        QHoverEvent *e = static_cast<QHoverEvent *>(event);
-        QList<int> pathToSeparator
-            = d->layout->dockWidgetLayout.findSeparator(e->pos());
-        if (pathToSeparator != d->hoverSeparator) {
+
+        case QEvent::HoverLeave:
             if (!d->hoverSeparator.isEmpty())
                 update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-            d->hoverSeparator = pathToSeparator;
-            if (d->hoverSeparator.isEmpty()) {
-                unsetCursor();
-            } else {
-                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-                QDockAreaLayoutInfo *info = d->layout->dockWidgetLayout.info(d->hoverSeparator);
-                Q_ASSERT(info != 0);
-                QCursor cursor;
-                if (d->hoverSeparator.size() == 1)
-                    cursor = info->o == Qt::Horizontal ? Qt::SplitVCursor : Qt::SplitHCursor;
-                else
-                    cursor = info->o == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor;
-                setCursor(cursor);
-            }
-        }
-        d->hoverPos = e->pos();
-        return true;
-    } else if (event->type() == QEvent::HoverLeave) {
-        if (d->layout->savedDockWidgetLayout.isValid()) {
             d->hoverSeparator.clear();
             d->hoverPos = QPoint(0, 0);
+            break;
+
+        case QEvent::Paint: {
+            QPainter p(this);
+            d->layout->dockWidgetLayout.paintSeparators(&p, this,
+                            static_cast<QPaintEvent*>(event)->region(),
+                            d->hoverPos);
+            break;
+        }
+
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+            if (d->layout->startSeparatorMove(e->pos())) {
+                // The click was on a separator, eat this event
+                e->accept();
+                return true;
+            }
+            break;
+        }
+
+        case QEvent::MouseMove: {
+            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+            if (d->layout->separatorMove(e->pos())) {
+                // We're moving a separator, eat this event
+                e->accept();
+                return true;
+            }
+            break;
+        }
+
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+            if (d->layout->endSeparatorMove(e->pos())) {
+                // We've released a separator, eat this event
+                e->accept();
+                return true;
+            }
+            break;
+        }
+#endif
+
+#ifndef QT_NO_TOOLBAR
+        case QEvent::ToolBarChange: {
+            QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+            QSize minimumSize = d->layout->minimumSize();
+            for (int i = 0; i < toolbars.size(); ++i) {
+                QToolBar *toolbar = toolbars.at(i);
+                toolbar->setVisible(!toolbar->isVisible());
+            }
+            QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
+            QSize newMinimumSize = d->layout->minimumSize();
+            QSize delta = newMinimumSize - minimumSize;
+            resize(size() + delta);
             return true;
         }
-        if (!d->hoverSeparator.isEmpty())
-            update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-        d->hoverSeparator.clear();
-        d->hoverPos = QPoint(0, 0);
-        return true;
-    } else if (event->type() == QEvent::Paint) {
-        QPainter p(this);
-        d->layout->dockWidgetLayout.paintSeparators(&p, this,
-                        static_cast<QPaintEvent*>(event)->region(),
-                        d->hoverPos);
-        //return true;
-    } else if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *e = static_cast<QMouseEvent*>(event);
-        d->layout->startSeparatorMove(e->pos());
-        return true;
-    } else if (event->type() == QEvent::MouseMove) {
-        QMouseEvent *e = static_cast<QMouseEvent*>(event);
-        d->layout->separatorMove(e->pos());
-        return true;
-    } else if (event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *e = static_cast<QMouseEvent*>(event);
-        d->layout->endSeparatorMove(e->pos());
-        return true;
-    } else
 #endif
-#ifndef QT_NO_TOOLBAR
-    if (event->type() == QEvent::ToolBarChange) {
-        QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
-        QSize minimumSize = d->layout->minimumSize();
-        for (int i = 0; i < toolbars.size(); ++i) {
-            QToolBar *toolbar = toolbars.at(i);
-            toolbar->setVisible(!toolbar->isVisible());
-        }
-        QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
-        QSize newMinimumSize = d->layout->minimumSize();
-        QSize delta = newMinimumSize - minimumSize;
-        resize(size() + delta);
-        return true;
-    } else
-#endif
+
 #ifndef QT_NO_STATUSTIP
-    if (event->type() == QEvent::StatusTip) {
+        case QEvent::StatusTip:
 #ifndef QT_NO_STATUSBAR
-        if (QStatusBar *sb = d->layout->statusBar())
-            sb->showMessage(static_cast<QStatusTipEvent*>(event)->tip());
-        else
+            if (QStatusBar *sb = d->layout->statusBar())
+                sb->showMessage(static_cast<QStatusTipEvent*>(event)->tip());
+            else
 #endif
-            static_cast<QStatusTipEvent*>(event)->ignore();
-        return true;
-    } else
+                static_cast<QStatusTipEvent*>(event)->ignore();
+            return true;
 #endif // QT_NO_STATUSTIP
-    if (event->type() == QEvent::StyleChange) {
-        if (!d->explicitIconSize)
-            setIconSize(QSize());
+
+        case QEvent::StyleChange:
+            if (!d->explicitIconSize)
+                setIconSize(QSize());
+            break;
+
+        default:
+            break;
     }
+
     return QWidget::event(event);
 }
 

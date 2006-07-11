@@ -1483,12 +1483,13 @@ bool QMainWindowLayout::startSeparatorMove(const QPoint &pos)
     return true;
 }
 
-void QMainWindowLayout::separatorMove(const QPoint &pos)
+bool QMainWindowLayout::separatorMove(const QPoint &pos)
 {
     if (movingSeparator.isEmpty())
-        return;
+        return false;
     movingSeparatorPos = pos;
     separatorMoveTimer->start();
+    return true;
 }
 
 void QMainWindowLayout::doSeparatorMove()
@@ -1505,11 +1506,13 @@ void QMainWindowLayout::doSeparatorMove()
     movingSeparatorPos = movingSeparatorOrigin;
 }
 
-void QMainWindowLayout::endSeparatorMove(const QPoint&)
+bool QMainWindowLayout::endSeparatorMove(const QPoint&)
 {
+    bool result = !movingSeparator.isEmpty();
     movingSeparator.clear();
     savedDockWidgetLayout.clear();
     separatorMoveCache.clear();
+    return result;
 }
 
 #endif // QT_NO_DOCKWIDGET

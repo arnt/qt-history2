@@ -122,8 +122,8 @@ public:
     QRect pluggingRect;
 
     bool startSeparatorMove(const QPoint &pos);
-    void separatorMove(const QPoint &pos);
-    void endSeparatorMove(const QPoint &pos);
+    bool separatorMove(const QPoint &pos);
+    bool endSeparatorMove(const QPoint &pos);
     QList<int> movingSeparator;
     QPoint movingSeparatorOrigin, movingSeparatorPos;
     QTimer *separatorMoveTimer;
