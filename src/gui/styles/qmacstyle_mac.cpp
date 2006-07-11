@@ -1645,6 +1645,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_Menu_KeyboardSearch:
         ret = true;
         break;
+    case SH_Menu_SpaceActivatesItem:
+        ret = true;
+        break;
     case SH_Slider_AbsoluteSetButtons:
         ret = Qt::LeftButton|Qt::MidButton;
         break;
