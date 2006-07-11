@@ -304,8 +304,13 @@ void tst_QDBusConnection::callSelf()
     interface.call(QDBus::Block, "test1", 42);
     QCOMPARE(testObject.func, QString("test1 42"));
     QDBusMessage reply = interface.call(QDBus::Block, "test2");
-    qDebug() << reply;
     QCOMPARE(testObject.func, QString("test2"));
+    QCOMPARE(reply.count(), 1);
+    QCOMPARE(reply.at(0).toInt(), 43);
+
+    QDBusMessage msg = QDBusMessage::methodCall("com.trolltech.Qt.Autotests.ToSelf", "/test",
+            "com.trolltech.Qt.Autotests.ToSelf", "test2", connection);
+    reply = connection.call(msg);
     QCOMPARE(reply.count(), 1);
     QCOMPARE(reply.at(0).toInt(), 43);
 }
