@@ -33,7 +33,7 @@ public:
                            const char *comment, const QString &fileName,
                            int lineNumber,
                            const QString& translation = QString(),
-                           bool utf8 = false, Type type = Unfinished );
+                           bool utf8 = false, Type type = Unfinished, bool plural = false );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
 
     MetaTranslatorMessage& operator=( const MetaTranslatorMessage& m );
@@ -41,6 +41,7 @@ public:
     void setType( Type nt ) { ty = nt; }
     Type type() const { return ty; }
     bool utf8() const { return utfeight; }
+    bool isPlural() const { return m_plural; }
 
     bool operator==( const MetaTranslatorMessage& m ) const;
     bool operator!=( const MetaTranslatorMessage& m ) const
@@ -56,6 +57,7 @@ public:
 private:
     bool utfeight;
     Type ty;
+    bool m_plural;
 };
 
 class MetaTranslator

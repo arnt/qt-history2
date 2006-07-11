@@ -625,8 +625,11 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
             yyTok = getToken();
             if ( match(Tok_LeftParen) && matchString(&text) ) {
                 com = "";
+                bool plural = false;
                 if ( match(Tok_RightParen) || (match(Tok_Comma) &&
-                        matchStringOrNull(&com) && match(Tok_RightParen)) ) {
+                    matchStringOrNull(&com) && (match(Tok_RightParen) || 
+                    (match(Tok_Comma) && (plural = match(Tok_Ident)) && match(Tok_RightParen)))) ) {
+
                     if ( prefix.isNull() ) {
                         context = functionContext;
                         if ( !namespaces.isEmpty() )
@@ -640,7 +643,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                     if ( qualifiedContexts.contains(context) )
                         context = qualifiedContexts[context];
                     tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
-                                                       QString(), utf8) );
+                        QString(), utf8, MetaTranslatorMessage::Unfinished, plural) );
 
                     if ( lacks_Q_OBJECT.contains(context) ) {
                         qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",

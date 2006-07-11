@@ -42,7 +42,7 @@ public:
     TsHandler( MetaTranslator *translator )
         : tor( translator ), type( MetaTranslatorMessage::Finished ),
           inMessage( false ), ferrorCount( 0 ), contextIsUtf8( false ),
-          messageIsUtf8( false ) { }
+          messageIsUtf8( false ), m_isPlural(false) { }
 
     virtual bool startElement( const QString& namespaceURI,
                                const QString& localName, const QString& qName,
@@ -69,6 +69,7 @@ private:
     int ferrorCount;
     bool contextIsUtf8;
     bool messageIsUtf8;
+    bool m_isPlural;
 };
 
 bool TsHandler::startElement( const QString& /* namespaceURI */,
@@ -106,6 +107,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
             comment.truncate( 0 );
             translation.truncate( 0 );
             messageIsUtf8 = encodingIsUtf8( atts );
+            m_isPlural = atts.value(QLatin1String("plurals")).compare(QLatin1String("yes")) == 0;
         } else if (qName == QString("location") && inMessage) {
             bool bOK;
             int lineNo = atts.value(QString("line")).toInt(&bOK);
@@ -161,11 +163,11 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
         if ( messageIsUtf8 )
             tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
                                             comment.toUtf8(), m_fileName, m_lineNumber, 
-                                            translation, true, type) );
+                                            translation, true, type, m_isPlural) );
         else
             tor->insert( MetaTranslatorMessage(context.toAscii(), source.toAscii(),
                                             comment.toAscii(), m_fileName, m_lineNumber, 
-                                            translation, false, type) );
+                                            translation, false, type, m_isPlural) );
         inMessage = false;
     }
     return true;
@@ -251,7 +253,7 @@ static QString evilBytes( const QByteArray& str, bool utf8 )
 }
 
 MetaTranslatorMessage::MetaTranslatorMessage()
-    : utfeight( false ), ty( Unfinished )
+    : utfeight( false ), ty( Unfinished ), m_plural(false)
 {
 }
 
@@ -261,9 +263,9 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                                               const QString &fileName,
                                               int lineNumber,
                                               const QString& translation,
-                                              bool utf8, Type type )
+                                              bool utf8, Type type, bool plural )
     : TranslatorMessage( context, sourceText, comment, fileName, lineNumber, translation ),
-      utfeight( false ), ty( type )
+      utfeight( false ), ty( type ), m_plural(plural)
 {
     /*
       Don't use UTF-8 if it makes no difference. UTF-8 should be
@@ -307,7 +309,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
 
 
 MetaTranslatorMessage::MetaTranslatorMessage( const MetaTranslatorMessage& m )
-    : TranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty )
+    : TranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty ), m_plural(m.m_plural)
 {
 }
 
@@ -317,6 +319,7 @@ MetaTranslatorMessage& MetaTranslatorMessage::operator=(
     TranslatorMessage::operator=( m );
     utfeight = m.utfeight;
     ty = m.ty;
+    m_plural = m.m_plural;
     return *this;
 }
 
@@ -442,6 +445,8 @@ bool MetaTranslator::save( const QString& filename) const
             t << "    <message";
             if ( msg.utf8() )
                 t << " encoding=\"UTF-8\"";
+            if ( msg.isPlural() )
+                t << " plurals=\"yes\"";
             t << ">\n";
             if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) {
                 QDir tsPath = QFileInfo(filename).absoluteDir();
