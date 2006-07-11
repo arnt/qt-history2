@@ -338,7 +338,7 @@ void tst_QVariant::canConvert_data()
 	<< var << N << N << N << N << Y << Y << Y << N << N << N << N << Y << N << N << N << Y << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << Y << N << N << Y << Y;
     var = qVariantFromValue(QColor());
     QTest::newRow("Color")
-	<< var << N << N << N << N << Y << Y << Y << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N;
+	<< var << N << N << N << Y << Y << Y << Y << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N;
     var = qVariantFromValue(QColorGroup());
     QTest::newRow("ColorGroup")
 	<< var << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N;
@@ -389,7 +389,7 @@ void tst_QVariant::canConvert_data()
 	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << N;
     var = qVariantFromValue(QPixmap());
     QTest::newRow("Pixmap")
-	<< var << N << Y << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N;
+	<< var << N << Y << N << Y << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N;
     var = qVariantFromValue(QPolygon());
     QTest::newRow("PointArray")
 	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N;

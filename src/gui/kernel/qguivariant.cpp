@@ -519,6 +519,15 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
             return true;
         }
         break;
+    case QVariant::Brush:
+        if (d->type == QVariant::Color) {
+            *static_cast<QBrush *>(result) = QBrush(*v_cast<QColor>(d));
+            return true;
+        } else if (d->type == QVariant::Pixmap) {
+            *static_cast<QBrush *>(result) = QBrush(*v_cast<QPixmap>(d));
+            return true;
+        }
+        break;
 #ifndef QT_NO_SHORTCUT
     case QVariant::KeySequence: {
         QKeySequence *seq = static_cast<QKeySequence *>(result);
@@ -570,6 +579,8 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
         return d->type == QVariant::String;
     case QVariant::Color:
         return d->type == QVariant::String || d->type == QVariant::ByteArray;
+    case QVariant::Brush:
+        return d->type == QVariant::Color || d->type == QVariant::Pixmap;
     default:
         break;
     }
