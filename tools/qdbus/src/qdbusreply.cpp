@@ -46,7 +46,7 @@
 
     QDBusReply objects are used for remote calls that have no output arguments or return values
     (i.e., they have a "void" return type). In this case, you can only test if the reply succeeded
-    or not, by calling isError() and isSuccess(), and inspecting the error condition by calling
+    or not, by calling !isValid(), and isValid() inspecting the error condition by calling
     error(). You cannot call value().
 
     \sa QDBusMessage, QDBusInterface
@@ -86,18 +86,6 @@
     is of the correct type. If it's not of the same type as this
     QDBusError object, this function will instead set an error code
     indicating a type mismatch.
-*/
-
-/*!
-    \fn QDBusReply::isError() const
-    Returns true if this reply is an error reply. You can extract the error contents using the
-    error() function.
-*/
-
-/*!
-    \fn QDBusReply::isSuccess() const
-    Returns true if this reply is a normal error reply (not an error). You can extract the returned
-    value with value()
 */
 
 /*!
