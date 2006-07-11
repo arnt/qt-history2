@@ -1368,7 +1368,7 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
     Q_D(const QPSPrintEngine);
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (d->cups.isAvailable()) {
+    if (d->cups.isAvailable() && d->cups.currentPPD()) {
         if (key == PPK_PaperRect)
             return QVariant(d->cups.paperRect());
         else if (key == PPK_PageRect)
