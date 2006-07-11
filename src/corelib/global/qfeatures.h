@@ -318,11 +318,6 @@
 #define QT_NO_STYLE_CDE
 #endif
 
-// QCleanLooksStyle
-#if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_CLEANLOOKS
-#endif
-
 // QWindowsXPStyle
 #if !defined(QT_NO_STYLE_WINDOWSXP) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_WINDOWSXP
@@ -401,6 +396,11 @@
 // QSpinBox
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX
+#endif
+
+// QCleanLooksStyle
+#if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
+#define QT_NO_STYLE_CLEANLOOKS
 #endif
 
 // QPlastiqueStyle
@@ -604,7 +604,7 @@
 #endif
 
 // QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
 #define QT_NO_FILEDIALOG
 #endif
 

@@ -480,6 +480,14 @@ Requires:
 Name: QMessageBox
 SeeAlso: ???
 
+Feature MESSAGEBOXEX
+Description: Provides a modal dialog with a short message, an icon, and buttons 
+laid out depending on the current style.
+Section: Dialogs
+Requires:
+Name QMessageBoxEx
+SeeAlso: ???
+
 Feature: COLORDIALOG
 Description: Supports a dialog widget for specifying colors.
 Section: Dialogs
@@ -490,7 +498,7 @@ SeeAlso: ???
 Feature: FILEDIALOG
 Description: Supports a dialog widget for selecting files or directories. 
 Section: Dialogs
-Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
+Requires: DIRMODEL TREEVIEW COMBOBOX TOOLBUTTON BUTTONGROUP 
 Name: QFileDialog
 SeeAlso: ???
 
@@ -650,7 +658,7 @@ SeeAlso: ???
 Feature: STYLE_CLEANLOOKS
 Description: Supports a Gnome CleanLooks-like look and feel.
 Section: Styles
-Requires: STYLE_WINDOWS
+Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
 Name: QCleanLooksStyle
 SeeAlso: ???
 
