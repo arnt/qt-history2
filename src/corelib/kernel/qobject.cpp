@@ -715,12 +715,8 @@ QObject::~QObject()
 
     d->eventFilters.clear();
 
-    // delete children objects
-    if (!d->children.isEmpty()) {
-        qDeleteAll(d->children);
-        d->children.clear();
-    }
-
+    if (!d->children.isEmpty())
+        d->deleteChildren();
 
     {
         QWriteLocker locker(QObjectPrivate::readWriteLock());
@@ -1756,16 +1752,45 @@ void QObject::setParent(QObject *parent)
     d->setParent_helper(parent);
 }
 
+void QObjectPrivate::deleteChildren()
+{
+    const bool reallyWasDeleted = wasDeleted;
+    wasDeleted = true;
+    // delete children objects
+    // don't use qDeleteAll as the destructor of the child might
+    // delete siblings
+    for (int i = 0; i < children.count(); ++i) {
+        currentChildBeingDeleted = children.at(i);
+        children[i] = 0;
+        delete currentChildBeingDeleted;
+    }
+    children.clear();
+    currentChildBeingDeleted = 0;
+    wasDeleted = reallyWasDeleted;
+}
 
 void QObjectPrivate::setParent_helper(QObject *o)
 {
     Q_Q(QObject);
     if (o == parent)
         return;
-    if (parent && !parent->d_func()->wasDeleted && parent->d_func()->children.removeAll(q)) {
-        if(sendChildEvents && parent->d_func()->receiveChildEvents) {
-            QChildEvent e(QEvent::ChildRemoved, q);
-            QCoreApplication::sendEvent(parent, &e);
+    if (parent) {
+        QObjectPrivate *parentD = parent->d_func();
+        if (parentD->wasDeleted && wasDeleted
+            && parentD->currentChildBeingDeleted == q) {
+            // don't do anything since QObjectPrivate::deleteChildren() already
+            // cleared our entry in parentD->children.
+        } else {
+            const int index = parentD->children.indexOf(q);
+            if (parentD->wasDeleted) {
+                parentD->children[index] = 0;
+            } else {
+                parentD->children.removeAt(index);
+                if (sendChildEvents && parentD->receiveChildEvents) {
+                    QChildEvent e(QEvent::ChildRemoved, q);
+                    QCoreApplication::sendEvent(parent, &e);
+                }
+            }
         }
     }
     parent = o;

@@ -66,6 +66,7 @@ private slots:
     void declareInterface();
     void qpointerResetBeforeDestroyedSignal();
     void testUserData();
+    void childDeletesItsSibling();
 
     void property();
 
@@ -1828,6 +1829,28 @@ void tst_QObject::connectSignalsToSignalsWithDefaultArguments()
 
 }
 
+class SiblingDeleter : public QObject
+{
+public:
+    inline SiblingDeleter(QObject *sibling, QObject *parent)
+        : QObject(parent), sibling(sibling) {}
+    inline virtual ~SiblingDeleter() { delete sibling; }
+
+private:
+    QPointer<QObject> sibling;
+};
+
+
+void tst_QObject::childDeletesItsSibling()
+{
+    QObject *commonParent = new QObject(0);
+    QPointer<QObject> child = new QObject(0);
+    QPointer<QObject> siblingDeleter = new SiblingDeleter(child, commonParent);
+    child->setParent(commonParent);
+    delete commonParent; // don't crash
+    QVERIFY(!child);
+    QVERIFY(!siblingDeleter);
+}
 
 QTEST_MAIN(tst_QObject)
 #include "tst_qobject.moc"

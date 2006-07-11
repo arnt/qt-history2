@@ -121,6 +121,8 @@ private slots:
     void testDeletionInEventHandlers();
     void style();
 
+    void childDeletesItsSibling();
+
 private:
     QWidget *testWidget;
 };
@@ -2433,6 +2435,30 @@ void tst_QWidget::retainHIView()
 }
 
 #endif
+
+class SiblingDeleter : public QWidget
+{
+public:
+    inline SiblingDeleter(QWidget *sibling, QWidget *parent)
+        : QWidget(parent), sibling(sibling) {}
+    inline virtual ~SiblingDeleter() { delete sibling; }
+
+private:
+    QPointer<QWidget> sibling;
+};
+
+
+void tst_QWidget::childDeletesItsSibling()
+{
+    QWidget *commonParent = new QWidget(0);
+    QPointer<QWidget> child = new QWidget(0);
+    QPointer<QWidget> siblingDeleter = new SiblingDeleter(child, commonParent);
+    child->setParent(commonParent);
+    delete commonParent; // don't crash
+    QVERIFY(!child);
+    QVERIFY(!siblingDeleter);
+
+}
 
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"

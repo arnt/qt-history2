@@ -1133,11 +1133,8 @@ QWidget::~QWidget()
     // set all QPointers for this object to zero
     QObjectPrivate::clearGuards(this);
 
-    // A parent widget must destroy all its children before destroying itself
-    if (!d->children.isEmpty()) {
-        qDeleteAll(d->children);
-        d->children.clear();
-    }
+    if (!d->children.isEmpty())
+        d->deleteChildren();
 
     QApplication::removePostedEvents(this);
 

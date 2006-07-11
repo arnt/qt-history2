@@ -72,7 +72,10 @@ public:
     void _q_reregisterTimers(void *pointer);
 
     // object currently activating the object
-    QObject *currentSender;
+    union {
+        QObject *currentSender;
+        QObject *currentChildBeingDeleted;
+    };
     int currentSenderSignalIdStart;
     int currentSenderSignalIdEnd;
 
@@ -83,6 +86,8 @@ public:
     QList<QPointer<QObject> > eventFilters;
 
     void setParent_helper(QObject *);
+
+    void deleteChildren();
 
     static void clearGuards(QObject *);
 
