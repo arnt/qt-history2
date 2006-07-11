@@ -237,7 +237,7 @@
     is only sent when the item's local position changes, relative to its
     parent, has changed (i.e., as a result of calling setPos() or
     moveBy()). The value argument is the new position (i.e., a QPointF).
-    can call pos() to get the original position. Do not call setPos() or
+    You can call pos() to get the original position. Do not call setPos() or
     moveBy() in itemChange() as this notification is delivered; instead, you
     can return the new, adjusted position from itemChange().
 
