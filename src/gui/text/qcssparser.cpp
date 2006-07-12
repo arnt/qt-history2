@@ -275,11 +275,15 @@ QColor Declaration::colorValue(Value v) const
                   colorDigits.at(4).variant.toInt());
 }
 
-bool Declaration::realValue(qreal *real, const char *unit) const
+bool Declaration::realValue(qreal *r, const char *unit) const
 {
     if (values.count() != 1)
         return false;
-    Value v = values.first();
+    return realValue(values.first(), r, unit);
+}
+
+bool Declaration::realValue(Value v, qreal *real, const char *unit) const
+{
     if (unit && v.type != Value::Length) {
         if (v.type != Value::Number || qstricmp(unit, "px") != 0)
             return false;
@@ -325,7 +329,21 @@ bool Declaration::intValue(Value v, int *i, const char *unit) const
     return ok;
 }
 
-void Declaration::marginValues(int *m, const char *unit, int offset) const
+void Declaration::realValues(qreal *m, const char *unit, int offset) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count()-offset, 4); i++) {
+        const Value& v = values.at(i+offset);
+        if (!realValue(v, &m[i], unit))
+            break;
+    }
+    if (i == 0) m[0] = m[1] = m[2] = m[3] = 0;
+    else if (i == 1) m[3] = m[2] = m[1] = m[0];
+    else if (i == 2) m[2] = m[0], m[3] = m[1];
+    else if (i == 3) m[3] = m[1];
+}
+
+void Declaration::intValues(int *m, const char *unit, int offset) const
 {
     int i;
     for (i = 0; i < qMin(values.count()-offset, 4); i++) {
@@ -455,7 +473,7 @@ void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
         return;
 
     if (values.at(1).type == Value::Number) // cuts!
-        marginValues(cuts, 0, 1);
+        intValues(cuts, 0, 1);
 
     if (values.last().type == Value::Identifier) {
         *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(), 

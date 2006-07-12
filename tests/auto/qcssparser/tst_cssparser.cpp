@@ -760,10 +760,18 @@ void tst_CssParser::marginValue()
     QCss::Parser parser(css);
     QCss::Declaration decl;
     QVERIFY(parser.parseNextDeclaration(&decl));
+    {
     int m[4];
-    decl.marginValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
+    decl.intValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
     QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
     QCOMPARE(str, expectedMargin);
+    }
+    {
+    qreal m[4];
+    decl.realValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
+    QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
+    QCOMPARE(str, expectedMargin);
+    }
 }
 
 class DomStyleSelector : public QCss::StyleSelector

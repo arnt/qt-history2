@@ -230,9 +230,11 @@ struct Q_AUTOTEST_EXPORT Declaration
     void colorValues(QColor *c) const;
     QBrush brushValue() const;
     bool realValue(qreal *value, const char *unit = 0) const;
+    bool realValue(Value v, qreal *real, const char *unit = 0) const;
     bool intValue(int *value, const char *unit = 0) const;
     bool intValue(Value v, int *real, const char *unit = 0) const;
-    void marginValues(int *margins, const char *unit = 0, int offset = 0) const;
+    void realValues(qreal *reals, const char *unit = 0, int offset = 0) const;
+    void intValues(int *ints, const char *unit = 0, int offset = 0) const;
     BorderStyle styleValue() const;
     BorderStyle styleValue(Value v) const;
     void styleValues(BorderStyle *s) const;
