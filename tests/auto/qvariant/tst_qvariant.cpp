@@ -21,6 +21,7 @@
 #include <qimage.h>
 #include <qicon.h>
 #include <qmap.h>
+#include <qmatrix.h>
 #include <q3cstring.h>
 #include <qpen.h>
 #include <qpolygon.h>
@@ -146,6 +147,8 @@ private slots:
     void toLocale();
 
     void toRegExp();
+
+    void matrix();
 
     void url();
 
@@ -1227,6 +1230,15 @@ void tst_QVariant::toRegExp()
     rx = variant.toRegExp();
 }
 
+void tst_QVariant::matrix()
+{
+    QVariant variant;
+    QMatrix matrix = qVariantValue<QMatrix>(variant);
+    QVERIFY(matrix.isIdentity());
+    qVariantSetValue(variant, QMatrix().rotate(90));
+    QCOMPARE(QMatrix().rotate(90), qVariantValue<QMatrix>(variant));
+}
+
 void tst_QVariant::writeToReadFromDataStream_data()
 {
 
@@ -1533,6 +1545,7 @@ void tst_QVariant::typeName_data()
     QTest::newRow("42") << int(QVariant::PointF) << QByteArray("QPointF");
     QTest::newRow("43") << int(QVariant::RegExp) << QByteArray("QRegExp");
     QTest::newRow("44") << int(QVariant::UserType) << QByteArray("UserType");
+    QTest::newRow("45") << int(QVariant::Matrix) << QByteArray("QMatrix");
 }
 
 void tst_QVariant::typeName()
@@ -1550,7 +1563,7 @@ void tst_QVariant::typeToName()
     QVERIFY( QVariant::typeToName( v.type() ) == 0 ); // Invalid
     // assumes that QVariant::Type contains consecutive values
 
-    int max = QVariant::TextFormat;
+    int max = QVariant::Matrix;
     for ( int t = 1; t <= max; t++ ) {
 	const char *n = QVariant::typeToName( (QVariant::Type)t );
         if (n)
