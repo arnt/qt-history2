@@ -444,7 +444,11 @@ void tst_QDirModel::rowsAboutToBeRemoved()
     model.setReadOnly(false);
 
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    QSignalSpy spy(&model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)));
+
+    // NOTE: QDirModel will call refres() when a file is removed. refresh() will reread the entire directory,
+    // and emit layoutAboutToBeChanged and layoutChange. So, instead of checking for
+    // rowsAboutToBeRemoved/rowsRemoved we check for layoutAboutToBeChanged/layoutChanged
+    QSignalSpy spy(&model, SIGNAL(layoutAboutToBeChanged()));
 
     QModelIndex parent = model.index(test_path);
     QVERIFY(parent.isValid());
