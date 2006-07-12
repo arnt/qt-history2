@@ -98,7 +98,7 @@ void InvokeMethod::on_comboMethods_activated(const QString &method)
     QList<QByteArray> pnames = slot.parameterNames();
     QList<QByteArray> ptypes = slot.parameterTypes();
 
-    for (int p = ptypes.count()-1; p >= 0; --p) {
+    for (int p = 0; p < ptypes.count(); ++p) {
 	QString ptype(ptypes.at(p));
 	if (ptype.isEmpty())
 	    continue;
