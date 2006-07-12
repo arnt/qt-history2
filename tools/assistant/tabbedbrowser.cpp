@@ -333,13 +333,17 @@ void TabbedBrowser::keyPressEvent(QKeyEvent *e)
 			// Return/Enter key events are not accepted by QLineEdit
 			return;
 		default:
-			if (text.isEmpty())
-				return QWidget::keyPressEvent(e);
+			if (text.isEmpty()) {
+				QWidget::keyPressEvent(e);
+                                return;
+                        }
 			ttf += text;
 		}
 	} else {
-		if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint())
-			return QWidget::keyPressEvent(e);
+		if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint()) {
+			QWidget::keyPressEvent(e);
+                        return;
+                }
         if (text.startsWith(QLatin1Char('/'))) {
             ui.editFind->clear();
             find();
