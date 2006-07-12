@@ -18,6 +18,7 @@
 #include <q3paintdevicemetrics.h>
 #include <qvariant.h>
 #include <qpainter.h>
+#include <qprintengine.h>
 
 #include <math.h>
 
@@ -377,6 +378,18 @@ void tst_QPrinter::testNonExistentPrinter()
     printer.orientation();
     printer.fullPage();
     printer.printerName();
+    
+    // nor metrics
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmWidth), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmHeight), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmWidthMM), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmHeightMM), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmNumColors), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmDepth), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmDpiX), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmDpiY), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmPhysicalDpiX), 0);
+    QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmPhysicalDpiY), 0);
 
     QVERIFY(!painter.begin(&printer));     
 #endif
