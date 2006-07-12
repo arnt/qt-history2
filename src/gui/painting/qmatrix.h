@@ -26,6 +26,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QPainterPath;
+class QVariant;
 
 class Q_GUI_EXPORT QMatrix // 2D transform matrix
 {
@@ -80,6 +81,8 @@ public:
     QMatrix operator*(const QMatrix &o) const;
 
     QMatrix &operator=(const QMatrix &);
+
+    operator QVariant() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QMatrix invert(bool *invertible=0) const { return inverted(invertible); }

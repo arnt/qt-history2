@@ -85,7 +85,7 @@ static const char* const core_type_map[CoreTypeCount] =
     "QRegExp"
 };
 
-enum { GuiTypeCount = 79 - 63 + 1 };
+enum { GuiTypeCount = 80 - 63 + 1 };
 static const char* const gui_type_map[GuiTypeCount] =
 {
     "QColorGroup",
@@ -104,7 +104,8 @@ static const char* const gui_type_map[GuiTypeCount] =
     "QKeySequence",
     "QPen",
     "QTextLength",
-    "QTextFormat"
+    "QTextFormat",
+    "QMatrix"
 };
 
 int qvariant_nameToType(const char* name)

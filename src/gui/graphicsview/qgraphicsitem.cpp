@@ -306,7 +306,6 @@
 #include <math.h>
 
 Q_DECLARE_METATYPE(QGraphicsItem *)
-Q_DECLARE_METATYPE(QMatrix)
 
 /*!
     \internal

@@ -1354,6 +1354,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Locale  a QLocale
     \value LongLong a \l qlonglong
     \value Map  a QVariantMap
+    \value Matrix  a QMatrix
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1872,7 +1873,7 @@ static const char* const core_type_map[CoreTypeCount] =
     "QRegExp"
 };
 
-enum { GuiTypeCount = QVariant::TextFormat - QVariant::Font + 2 };
+enum { GuiTypeCount = QVariant::Matrix - QVariant::Font + 2 };
 static const char* const gui_type_map[GuiTypeCount] =
 {
     "QColorGroup",
@@ -1891,7 +1892,8 @@ static const char* const gui_type_map[GuiTypeCount] =
     "QKeySequence",
     "QPen",
     "QTextLength",
-    "QTextFormat"
+    "QTextFormat",
+    "QMatrix"
 };
 
 
@@ -1905,7 +1907,7 @@ const char *QVariant::typeToName(Type typ)
         return "UserType";
     if (typ < int(CoreTypeCount))
         return core_type_map[typ];
-    if (typ >= QVariant::Font - 1 && typ <= QVariant::TextFormat)
+    if (typ >= QVariant::Font - 1 && typ <= QVariant::Matrix)
         return gui_type_map[int(typ) - QVariant::Font + 1];
     if (typ > QVariant::UserType )
         return QMetaType::typeName(typ);

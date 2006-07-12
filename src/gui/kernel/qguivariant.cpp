@@ -23,6 +23,7 @@
 #include "qicon.h"
 #include "qimage.h"
 #include "qkeysequence.h"
+#include "qmatrix.h"
 #include "qpalette.h"
 #include "qpen.h"
 #include "qpixmap.h"
@@ -80,6 +81,9 @@ static void construct(QVariant::Private *x, const void *copy)
         v_construct<QIcon>(x, copy);
         break;
 #endif
+    case QVariant::Matrix:
+        v_construct<QMatrix>(x, copy);
+        break;
     case QVariant::TextFormat:
         v_construct<QTextFormat>(x, copy);
         break;
@@ -160,6 +164,9 @@ static void clear(QVariant::Private *d)
         v_clear<QIcon>(d);
         break;
 #endif
+    case QVariant::Matrix:
+        v_clear<QMatrix>(d);
+        break;
     case QVariant::TextFormat:
         v_clear<QTextFormat>(d);
         break;
@@ -205,6 +212,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Icon:
         return v_cast<QIcon>(d)->isNull();
 #endif
+    case QVariant::Matrix:
     case QVariant::TextFormat:
     case QVariant::TextLength:
     case QVariant::Cursor:
@@ -275,6 +283,12 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     }
 #endif
+    case QVariant::Matrix: {
+        QMatrix x;
+        s >> x;
+        *v_cast<QMatrix>(d) = x;
+        break;
+    }
     case QVariant::TextFormat: {
         QTextFormat x;
         s >> x;
@@ -359,6 +373,9 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::TextFormat:
         s << *v_cast<QTextFormat>(d);
         break;
+    case QVariant::Matrix:
+        s << *v_cast<QMatrix>(d);
+        break;
     case QVariant::TextLength:
         s << *v_cast<QTextLength>(d);
         break;
@@ -418,6 +435,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::Icon:
         return false; // #### FIXME
 #endif
+    case QVariant::Matrix:
+        return *v_cast<QMatrix>(a) == *v_cast<QMatrix>(b);
     case QVariant::TextFormat:
         return *v_cast<QTextFormat>(a) == *v_cast<QTextFormat>(b);
     case QVariant::TextLength:
@@ -607,6 +626,9 @@ static void streamDebug(QDebug dbg, const QVariant &v)
         break;
     case QVariant::Font:
 //        dbg.nospace() << qvariant_cast<QFont>(v);  //FIXME
+        break;
+    case QVariant::Matrix:
+        dbg.nospace() << qvariant_cast<QMatrix>(v);
         break;
     case QVariant::Pixmap:
 //        dbg.nospace() << qvariant_cast<QPixmap>(v); //FIXME

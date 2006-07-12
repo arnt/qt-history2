@@ -32,6 +32,7 @@ class QDateTime;
 class QLine;
 class QLineF;
 class QLocale;
+class QMatrix;
 class QStringList;
 class QTime;
 class QPoint;
@@ -115,6 +116,7 @@ class Q_CORE_EXPORT QVariant
         Pen = 77,
         TextLength = 78,
         TextFormat = 79,
+        Matrix = 80,
         UserType = 127,
 #ifdef QT3_SUPPORT
         IconSet = Icon,
@@ -465,6 +467,9 @@ inline int qt_variant_metatype_id(QTextLength *) { return QVariant::TextLength; 
 class QTextFormat;
 template<>
 inline int qt_variant_metatype_id(QTextFormat *) { return QVariant::TextFormat; }
+class QMatrix;
+template<>
+inline int qt_variant_metatype_id(QMatrix *) { return QVariant::Matrix; }
 template<>
 inline int qt_variant_metatype_id(QLocale *) { return QVariant::Locale; }
 template<>
