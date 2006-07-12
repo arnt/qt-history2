@@ -467,13 +467,15 @@ CFG_FONTCONFIG=auto
 CFG_QWS_FREETYPE=auto
 CFG_LIBFREETYPE=auto
 CFG_SQL_AVAILABLE=
-CFG_GFX_AVAILABLE=""
-CFG_GFX_ON=""
-CFG_GFX_OFF=""
 QT_DEFAULT_BUILD_PARTS="libs tools examples"
 CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
 
+CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc"
+CFG_GFX_ON="linuxfb"
+CFG_GFX_PLUGIN_AVAILABLE=
+CFG_GFX_PLUGIN=
+CFG_GFX_OFF=
 CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx qvfb"
 CFG_KBD_ON="tty"    #default, see QMakeVar above
 CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
@@ -600,7 +602,6 @@ CFG_GFX_PLUGIN_AVAILABLE=""
 if [ -d "$relpath/src/plugins/gfxdrivers" ]; then
     CFG_GFX_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/gfxdrivers/* -prune -type d -exec basename {} \;`
     CFG_GFX_PLUGIN_AVAILABLE=`echo $CFG_GFX_PLUGIN_AVAILABLE` # normalize whitespace
-    CFG_GFX_AVAILABLE="$CFG_GFX_AVAILABLE $CFG_GFX_PLUGIN_AVAILABLE"
     CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
 fi
 
@@ -1290,6 +1291,9 @@ while [ "$#" -gt 0 ]; do
             ;;
         gfx)
             avail="$CFG_GFX_AVAILABLE"
+	    if [ "$OPT" = "plugin" ]; then
+		avail="$CFG_GFX_PLUGIN_AVAILABLE"
+	    fi
             ;;
         decoration)
             avail="$CFG_DECORATION_AVAILABLE"
@@ -1334,6 +1338,8 @@ while [ "$#" -gt 0 ]; do
                 [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
                 [ "$VAR" = "mouse" ] && QMakeVar del "${VAR}s" "$VAL"
                 [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"` && CFG_MOUSE_PLUGIN="$CFG_MOUSE_PLUGIN ${VAL}"
+                [ "$VAR" = "gfx" ] && QMakeVar del "${VAR}s" "$VAL"
+                [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"` && CFG_GFX_PLUGIN="${CFG_GFX_PLUGIN} ${VAL}"
                 VAR="${VAR}-${OPT}"
             else
                 if [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "decoration" ] || [ "$VAR" = "mouse" ]; then
@@ -2715,10 +2721,11 @@ Qtopia Core only:
                                Possible values for <style>: [ $CFG_DECORATION_AVAILABLE ]
 
     -qt-gfx-<driver> ... Enable a graphics <driver> in the QtGui library.
+                         Possible values for <driver>: [ $CFG_GFX_AVAILABLE ]
     -plugin-gfx-<driver> Enable graphics <driver> as a plugin to be
                          linked to at run time.
+                         Possible values for <driver>: [ $CFG_GFX_PLUGIN_AVAILABLE ]
     -no-gfx-<driver> ... Disable graphics <driver> entirely.
-
                          Possible values for <driver>: [ $CFG_GFX_AVAILABLE ]
 
     -qt-kbd-<driver> ... Enable a keyboard <driver> in the QtGui library.
@@ -4869,6 +4876,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 	echo "Freetype2 support ... $CFG_QWS_FREETYPE"
     fi
     # Normalize the decoration output first
+    CFG_GFX_ON=`echo ${CFG_GFX_ON}`
+    CFG_GFX_PLUGIN=`echo ${CFG_GFX_PLUGIN}`
+    echo "Graphics (qt) ....... ${CFG_GFX_ON}"
+    echo "Graphics (plugin) ... ${CFG_GFX_PLUGIN}"
     CFG_DECORATION_ON=`echo ${CFG_DECORATION_ON}`
     CFG_DECORATION_PLUGIN=`echo ${CFG_DECORATION_PLUGIN}`
     echo "Decorations (qt) .... $CFG_DECORATION_ON"
