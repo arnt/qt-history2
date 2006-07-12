@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qaxobject.h"
-#include <activeqt/qaxfactory.h>
+#include <ActiveQt/qaxfactory.h>
 
 #include <qt_windows.h>
 

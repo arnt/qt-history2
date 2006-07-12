@@ -21,7 +21,7 @@
 #ifndef GLOBJWIN_H
 #define GLOBJWIN_H
 
-#include <QWidget.h>
+#include <qwidget.h>
 
 class GLObjectWindow : public QWidget
 {

@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qaxwidget.h"
-#include <activeqt/qaxaggregated.h>
+#include <ActiveQt/qaxaggregated.h>
 
 #include <qabstracteventdispatcher.h>
 #include <qapplication.h>
