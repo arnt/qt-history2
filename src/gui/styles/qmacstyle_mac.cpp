@@ -2410,7 +2410,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
             if (header->sortIndicator != QStyleOptionHeader::None) {
                 bdi.value = kThemeButtonOn;
-                if (header->sortIndicator == QStyleOptionHeader::SortUp)
+                if (header->sortIndicator == QStyleOptionHeader::SortDown)
                     bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
             }
             if (flags & State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
