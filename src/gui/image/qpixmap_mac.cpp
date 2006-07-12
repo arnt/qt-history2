@@ -432,12 +432,11 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
             }
         } else {
             for (int x=0; x < w; ++x) {
+                const uchar alpha = qGray(qRed(*(srow+x)), qGreen(*(srow+x)), qBlue(*(srow+x)));
+                const uchar destAlpha = qt_div_255(alpha * qAlpha(*(drow+x)));
 #if 1
-                *(drow+x) = (*(drow+x) & RGB_MASK) |
-                            (qGray(qRed(*(srow+x)), qGreen(*(srow+x)), qBlue(*(srow+x))) << 24);
+                *(drow+x) = (*(drow+x) & RGB_MASK) | (destAlpha << 24);
 #else
-                const char alpha = qGray(qRed(*(srow+x)), qGreen(*(srow+x)), qBlue(*(srow+x)));
-                const char destAlpha = qt_div_255(alpha * INV_PREMUL(qAlpha(*(drow+x))));
                 *(drow+x) = qRgba(qt_div_255(qRed(*(drow+x) * alpha)),
                                   qt_div_255(qGreen(*(drow+x) * alpha)),
                                   qt_div_255(qBlue(*(drow+x) * alpha)), destAlpha);
