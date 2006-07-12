@@ -996,7 +996,7 @@ void QComboBox::setMaxCount(int max)
 {
     Q_D(QComboBox);
     if (max < 0) {
-        qWarning("QComboBox::setMaxCount: Invalid count (%d) must be > 1", max);
+        qWarning("QComboBox::setMaxCount: Invalid count (%d) must be >= 0", max);
         return;
     }
 
