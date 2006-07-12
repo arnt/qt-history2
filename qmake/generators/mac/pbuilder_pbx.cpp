@@ -754,14 +754,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
-        QStringList &libdirs = project->values("QMAKE_PBX_LIBPATHS");
-        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_LIBS", QString() };
+        QStringList &libdirs = project->values("QMAKE_PBX_LIBPATHS"),
+              &frameworkdirs = project->values("QMAKE_FRAMEWORKDIR");
+        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_FRAMEWORKDIR_FLAGS",
+                           "QMAKE_LIBS", QString() };
         for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->values(libs[i]);
             for(int x = 0; x < tmp.count();) {
                 bool remove = false;
                 QString library, name, opt = tmp[x].trimmed();
-                if(opt.length() >= 2 && (opt[0] == '"' || opt[0] == '\'') && opt[(int) opt.length()-1] == opt[0])
+                if(opt.length() >= 2 && (opt[0] == '"' || opt[0] == '\'') &&
+                   opt[(int) opt.length()-1] == opt[0])
                     opt = opt.mid(1, opt.length()-2);
                 if(opt.startsWith("-L")) {
                     QString r = opt.right(opt.length() - 2);
@@ -808,13 +811,25 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             }
                         }
                     }
+                } else if(opt.startsWith("-F")) {
+                    QString r;
+                    if(opt.size() > 2) {
+                        r = opt.right(opt.length() - 2);
+                    } else {
+                        if(x == tmp.count()-1)
+                            break;
+                        r = tmp[++x];
+                    }
+                    if(!r.isEmpty()) {
+                        fixForOutput(r);
+                        frameworkdirs.append(r);
+                    }
                 } else if(opt == "-framework") {
                     if(x == tmp.count()-1)
                         break;
-                    QStringList &fdirs = project->values("QMAKE_FRAMEWORKDIR");
-                    if(fdirs.isEmpty())
-                        fdirs << "/System/Library/Frameworks/" << "/Library/Frameworks/";
                     const QString framework = tmp[x+1];
+                    QStringList fdirs = frameworkdirs;
+                    fdirs << "/System/Library/Frameworks/" << "/Library/Frameworks/";
                     for(int fdir = 0; fdir < fdirs.count(); fdir++) {
                         if(exists(fdirs[fdir] + QDir::separator() + framework + ".framework")) {
                             tmp.removeAt(x);
