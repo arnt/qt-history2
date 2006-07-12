@@ -28,11 +28,10 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-
-QT_BEGIN_HEADER
-
 class QDomDocument;
 class QDomElement;
+
+#include <QtCore/qglobal.h>
 
 #define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
 #define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
@@ -143,45 +142,73 @@ public:
     // child element accessors
     inline QString elementAuthor() { return m_author; }
     void setElementAuthor(const QString& a);
+    inline bool hasElementAuthor() const { return m_children & Author; }
+    void clearElementAuthor();
 
     inline QString elementComment() { return m_comment; }
     void setElementComment(const QString& a);
+    inline bool hasElementComment() const { return m_children & Comment; }
+    void clearElementComment();
 
     inline QString elementExportMacro() { return m_exportMacro; }
     void setElementExportMacro(const QString& a);
+    inline bool hasElementExportMacro() const { return m_children & ExportMacro; }
+    void clearElementExportMacro();
 
     inline QString elementClass() { return m_class; }
     void setElementClass(const QString& a);
+    inline bool hasElementClass() const { return m_children & Class; }
+    void clearElementClass();
 
     inline DomWidget* elementWidget() { return m_widget; }
     void setElementWidget(DomWidget* a);
+    inline bool hasElementWidget() const { return m_children & Widget; }
+    void clearElementWidget();
 
     inline DomLayoutDefault* elementLayoutDefault() { return m_layoutDefault; }
     void setElementLayoutDefault(DomLayoutDefault* a);
+    inline bool hasElementLayoutDefault() const { return m_children & LayoutDefault; }
+    void clearElementLayoutDefault();
 
     inline DomLayoutFunction* elementLayoutFunction() { return m_layoutFunction; }
     void setElementLayoutFunction(DomLayoutFunction* a);
+    inline bool hasElementLayoutFunction() const { return m_children & LayoutFunction; }
+    void clearElementLayoutFunction();
 
     inline QString elementPixmapFunction() { return m_pixmapFunction; }
     void setElementPixmapFunction(const QString& a);
+    inline bool hasElementPixmapFunction() const { return m_children & PixmapFunction; }
+    void clearElementPixmapFunction();
 
     inline DomCustomWidgets* elementCustomWidgets() { return m_customWidgets; }
     void setElementCustomWidgets(DomCustomWidgets* a);
+    inline bool hasElementCustomWidgets() const { return m_children & CustomWidgets; }
+    void clearElementCustomWidgets();
 
     inline DomTabStops* elementTabStops() { return m_tabStops; }
     void setElementTabStops(DomTabStops* a);
+    inline bool hasElementTabStops() const { return m_children & TabStops; }
+    void clearElementTabStops();
 
     inline DomImages* elementImages() { return m_images; }
     void setElementImages(DomImages* a);
+    inline bool hasElementImages() const { return m_children & Images; }
+    void clearElementImages();
 
     inline DomIncludes* elementIncludes() { return m_includes; }
     void setElementIncludes(DomIncludes* a);
+    inline bool hasElementIncludes() const { return m_children & Includes; }
+    void clearElementIncludes();
 
     inline DomResources* elementResources() { return m_resources; }
     void setElementResources(DomResources* a);
+    inline bool hasElementResources() const { return m_children & Resources; }
+    void clearElementResources();
 
     inline DomConnections* elementConnections() { return m_connections; }
     void setElementConnections(DomConnections* a);
+    inline bool hasElementConnections() const { return m_children & Connections; }
+    void clearElementConnections();
 
 private:
     QString m_text;
@@ -195,6 +222,7 @@ private:
     bool m_has_attr_stdSetDef;
 
     // child element data
+    uint m_children;
     QString m_author;
     QString m_comment;
     QString m_exportMacro;
@@ -209,26 +237,21 @@ private:
     DomIncludes* m_includes;
     DomResources* m_resources;
     DomConnections* m_connections;
-
-    union {
-        uint bits;
-
-        struct {
-            uint author: 1;
-            uint comment: 1;
-            uint exportMacro: 1;
-            uint klass: 1;
-            uint widget: 1;
-            uint layoutDefault: 1;
-            uint layoutFunction: 1;
-            uint pixmapFunction: 1;
-            uint customWidgets: 1;
-            uint tabStops: 1;
-            uint images: 1;
-            uint includes: 1;
-            uint resources: 1;
-            uint connections: 1;
-        } bit;
+    enum Child {
+        Author = 1,
+        Comment = 2,
+        ExportMacro = 4,
+        Class = 8,
+        Widget = 16,
+        LayoutDefault = 32,
+        LayoutFunction = 64,
+        PixmapFunction = 128,
+        CustomWidgets = 256,
+        TabStops = 512,
+        Images = 1024,
+        Includes = 2048,
+        Resources = 4096,
+        Connections = 8192,
     };
 
     DomUI(const DomUI &other);
@@ -257,14 +280,6 @@ private:
     // attribute data
     // child element data
     QList<DomInclude*> m_include;
-
-    union {
-        uint bits;
-
-        struct {
-            uint include: 1;
-        } bit;
-    };
 
     DomIncludes(const DomIncludes &other);
     void operator = (const DomIncludes&other);
@@ -304,9 +319,6 @@ private:
     bool m_has_attr_impldecl;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomInclude(const DomInclude &other);
     void operator = (const DomInclude&other);
@@ -343,14 +355,6 @@ private:
     // child element data
     QList<DomResource*> m_include;
 
-    union {
-        uint bits;
-
-        struct {
-            uint include: 1;
-        } bit;
-    };
-
     DomResources(const DomResources &other);
     void operator = (const DomResources&other);
 };
@@ -381,9 +385,6 @@ private:
     bool m_has_attr_location;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomResource(const DomResource &other);
     void operator = (const DomResource&other);
@@ -432,17 +433,6 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
-    union {
-        uint bits;
-
-        struct {
-            uint action: 1;
-            uint actionGroup: 1;
-            uint property: 1;
-            uint attribute: 1;
-        } bit;
-    };
-
     DomActionGroup(const DomActionGroup &other);
     void operator = (const DomActionGroup&other);
 };
@@ -490,16 +480,6 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
-
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-            uint attribute: 1;
-        } bit;
-    };
-
     DomAction(const DomAction &other);
     void operator = (const DomAction&other);
 };
@@ -531,10 +511,6 @@ private:
 
     // child element data
 
-    union {
-        uint bits;
-    };
-
     DomActionRef(const DomActionRef &other);
     void operator = (const DomActionRef&other);
 };
@@ -562,15 +538,6 @@ private:
     // child element data
     QList<DomImage*> m_image;
 
-
-    union {
-        uint bits;
-
-        struct {
-            uint image: 1;
-        } bit;
-    };
-
     DomImages(const DomImages &other);
     void operator = (const DomImages&other);
 };
@@ -594,6 +561,8 @@ public:
     // child element accessors
     inline DomImageData* elementData() { return m_data; }
     void setElementData(DomImageData* a);
+    inline bool hasElementData() const { return m_children & Data; }
+    void clearElementData();
 
 private:
     QString m_text;
@@ -604,14 +573,10 @@ private:
     bool m_has_attr_name;
 
     // child element data
+    uint m_children;
     DomImageData* m_data;
-
-    union {
-        uint bits;
-
-        struct {
-            uint data: 1;
-        } bit;
+    enum Child {
+        Data = 1,
     };
 
     DomImage(const DomImage &other);
@@ -653,10 +618,6 @@ private:
 
     // child element data
 
-    union {
-        uint bits;
-    };
-
     DomImageData(const DomImageData &other);
     void operator = (const DomImageData&other);
 };
@@ -683,14 +644,6 @@ private:
     // attribute data
     // child element data
     QList<DomCustomWidget*> m_customWidget;
-
-    union {
-        uint bits;
-
-        struct {
-            uint customWidget: 1;
-        } bit;
-    };
 
     DomCustomWidgets(const DomCustomWidgets &other);
     void operator = (const DomCustomWidgets&other);
@@ -723,10 +676,6 @@ private:
 
     // child element data
 
-    union {
-        uint bits;
-    };
-
     DomHeader(const DomHeader &other);
     void operator = (const DomHeader&other);
 };
@@ -745,27 +694,43 @@ public:
     // child element accessors
     inline QString elementClass() { return m_class; }
     void setElementClass(const QString& a);
+    inline bool hasElementClass() const { return m_children & Class; }
+    void clearElementClass();
 
     inline QString elementExtends() { return m_extends; }
     void setElementExtends(const QString& a);
+    inline bool hasElementExtends() const { return m_children & Extends; }
+    void clearElementExtends();
 
     inline DomHeader* elementHeader() { return m_header; }
     void setElementHeader(DomHeader* a);
+    inline bool hasElementHeader() const { return m_children & Header; }
+    void clearElementHeader();
 
     inline DomSize* elementSizeHint() { return m_sizeHint; }
     void setElementSizeHint(DomSize* a);
+    inline bool hasElementSizeHint() const { return m_children & SizeHint; }
+    void clearElementSizeHint();
 
     inline int elementContainer() { return m_container; }
     void setElementContainer(int a);
+    inline bool hasElementContainer() const { return m_children & Container; }
+    void clearElementContainer();
 
     inline DomSizePolicyData* elementSizePolicy() { return m_sizePolicy; }
     void setElementSizePolicy(DomSizePolicyData* a);
+    inline bool hasElementSizePolicy() const { return m_children & SizePolicy; }
+    void clearElementSizePolicy();
 
     inline QString elementPixmap() { return m_pixmap; }
     void setElementPixmap(const QString& a);
+    inline bool hasElementPixmap() const { return m_children & Pixmap; }
+    void clearElementPixmap();
 
     inline DomProperties* elementProperties() { return m_properties; }
     void setElementProperties(DomProperties* a);
+    inline bool hasElementProperties() const { return m_children & Properties; }
+    void clearElementProperties();
 
 private:
     QString m_text;
@@ -773,6 +738,7 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     QString m_class;
     QString m_extends;
     DomHeader* m_header;
@@ -781,20 +747,15 @@ private:
     DomSizePolicyData* m_sizePolicy;
     QString m_pixmap;
     DomProperties* m_properties;
-
-    union {
-        uint bits;
-
-        struct {
-            uint klass: 1;
-            uint extends: 1;
-            uint header: 1;
-            uint sizeHint: 1;
-            uint container: 1;
-            uint sizePolicy: 1;
-            uint pixmap: 1;
-            uint properties: 1;
-        } bit;
+    enum Child {
+        Class = 1,
+        Extends = 2,
+        Header = 4,
+        SizeHint = 8,
+        Container = 16,
+        SizePolicy = 32,
+        Pixmap = 64,
+        Properties = 128,
     };
 
     DomCustomWidget(const DomCustomWidget &other);
@@ -823,14 +784,6 @@ private:
     // attribute data
     // child element data
     QList<DomPropertyData*> m_property;
-
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-        } bit;
-    };
 
     DomProperties(const DomProperties &other);
     void operator = (const DomProperties&other);
@@ -863,10 +816,6 @@ private:
 
     // child element data
 
-    union {
-        uint bits;
-    };
-
     DomPropertyData(const DomPropertyData &other);
     void operator = (const DomPropertyData&other);
 };
@@ -885,9 +834,13 @@ public:
     // child element accessors
     inline int elementHorData() { return m_horData; }
     void setElementHorData(int a);
+    inline bool hasElementHorData() const { return m_children & HorData; }
+    void clearElementHorData();
 
     inline int elementVerData() { return m_verData; }
     void setElementVerData(int a);
+    inline bool hasElementVerData() const { return m_children & VerData; }
+    void clearElementVerData();
 
 private:
     QString m_text;
@@ -895,16 +848,12 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_horData;
     int m_verData;
-
-    union {
-        uint bits;
-
-        struct {
-            uint horData: 1;
-            uint verData: 1;
-        } bit;
+    enum Child {
+        HorData = 1,
+        VerData = 2,
     };
 
     DomSizePolicyData(const DomSizePolicyData &other);
@@ -945,9 +894,6 @@ private:
     bool m_has_attr_margin;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomLayoutDefault(const DomLayoutDefault &other);
     void operator = (const DomLayoutDefault&other);
@@ -987,9 +933,6 @@ private:
     bool m_has_attr_margin;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomLayoutFunction(const DomLayoutFunction &other);
     void operator = (const DomLayoutFunction&other);
@@ -1017,14 +960,6 @@ private:
     // attribute data
     // child element data
     QStringList m_tabStop;
-
-    union {
-        uint bits;
-
-        struct {
-            uint tabStop: 1;
-        } bit;
-    };
 
     DomTabStops(const DomTabStops &other);
     void operator = (const DomTabStops&other);
@@ -1068,16 +1003,6 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
     QList<DomLayoutItem*> m_item;
-
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-            uint attribute: 1;
-            uint item: 1;
-        } bit;
-    };
 
     DomLayout(const DomLayout &other);
     void operator = (const DomLayout&other);
@@ -1177,14 +1102,6 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-        } bit;
-    };
-
     DomRow(const DomRow &other);
     void operator = (const DomRow&other);
 };
@@ -1211,14 +1128,6 @@ private:
     // attribute data
     // child element data
     QList<DomProperty*> m_property;
-
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-        } bit;
-    };
 
     DomColumn(const DomColumn &other);
     void operator = (const DomColumn&other);
@@ -1266,15 +1175,6 @@ private:
     // child element data
     QList<DomProperty*> m_property;
     QList<DomItem*> m_item;
-
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-            uint item: 1;
-        } bit;
-    };
 
     DomItem(const DomItem &other);
     void operator = (const DomItem&other);
@@ -1359,24 +1259,6 @@ private:
     QList<DomActionGroup*> m_actionGroup;
     QList<DomActionRef*> m_addAction;
 
-    union {
-        uint bits;
-
-        struct {
-            uint klass: 1;
-            uint property: 1;
-            uint attribute: 1;
-            uint row: 1;
-            uint column: 1;
-            uint item: 1;
-            uint layout: 1;
-            uint widget: 1;
-            uint action: 1;
-            uint actionGroup: 1;
-            uint addAction: 1;
-        } bit;
-    };
-
     DomWidget(const DomWidget &other);
     void operator = (const DomWidget&other);
 };
@@ -1412,14 +1294,6 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
-    union {
-        uint bits;
-
-        struct {
-            uint property: 1;
-        } bit;
-    };
-
     DomSpacer(const DomSpacer &other);
     void operator = (const DomSpacer&other);
 };
@@ -1443,12 +1317,18 @@ public:
     // child element accessors
     inline int elementRed() { return m_red; }
     void setElementRed(int a);
+    inline bool hasElementRed() const { return m_children & Red; }
+    void clearElementRed();
 
     inline int elementGreen() { return m_green; }
     void setElementGreen(int a);
+    inline bool hasElementGreen() const { return m_children & Green; }
+    void clearElementGreen();
 
     inline int elementBlue() { return m_blue; }
     void setElementBlue(int a);
+    inline bool hasElementBlue() const { return m_children & Blue; }
+    void clearElementBlue();
 
 private:
     QString m_text;
@@ -1459,18 +1339,14 @@ private:
     bool m_has_attr_alpha;
 
     // child element data
+    uint m_children;
     int m_red;
     int m_green;
     int m_blue;
-
-    union {
-        uint bits;
-
-        struct {
-            uint red: 1;
-            uint green: 1;
-            uint blue: 1;
-        } bit;
+    enum Child {
+        Red = 1,
+        Green = 2,
+        Blue = 4,
     };
 
     DomColor(const DomColor &other);
@@ -1496,6 +1372,8 @@ public:
     // child element accessors
     inline DomColor* elementColor() { return m_color; }
     void setElementColor(DomColor* a);
+    inline bool hasElementColor() const { return m_children & Color; }
+    void clearElementColor();
 
 private:
     QString m_text;
@@ -1506,14 +1384,10 @@ private:
     bool m_has_attr_position;
 
     // child element data
+    uint m_children;
     DomColor* m_color;
-
-    union {
-        uint bits;
-
-        struct {
-            uint color: 1;
-        } bit;
+    enum Child {
+        Color = 1,
     };
 
     DomGradientStop(const DomGradientStop &other);
@@ -1647,14 +1521,6 @@ private:
     // child element data
     QList<DomGradientStop*> m_gradientStop;
 
-    union {
-        uint bits;
-
-        struct {
-            uint gradientStop: 1;
-        } bit;
-    };
-
     DomGradient(const DomGradient &other);
     void operator = (const DomGradient&other);
 };
@@ -1725,6 +1591,8 @@ public:
     // child element accessors
     inline DomBrush* elementBrush() { return m_brush; }
     void setElementBrush(DomBrush* a);
+    inline bool hasElementBrush() const { return m_children & Brush; }
+    void clearElementBrush();
 
 private:
     QString m_text;
@@ -1735,14 +1603,10 @@ private:
     bool m_has_attr_role;
 
     // child element data
+    uint m_children;
     DomBrush* m_brush;
-
-    union {
-        uint bits;
-
-        struct {
-            uint brush: 1;
-        } bit;
+    enum Child {
+        Brush = 1,
     };
 
     DomColorRole(const DomColorRole &other);
@@ -1776,15 +1640,6 @@ private:
     QList<DomColorRole*> m_colorRole;
     QList<DomColor*> m_color;
 
-    union {
-        uint bits;
-
-        struct {
-            uint colorRole: 1;
-            uint color: 1;
-        } bit;
-    };
-
     DomColorGroup(const DomColorGroup &other);
     void operator = (const DomColorGroup&other);
 };
@@ -1803,12 +1658,18 @@ public:
     // child element accessors
     inline DomColorGroup* elementActive() { return m_active; }
     void setElementActive(DomColorGroup* a);
+    inline bool hasElementActive() const { return m_children & Active; }
+    void clearElementActive();
 
     inline DomColorGroup* elementInactive() { return m_inactive; }
     void setElementInactive(DomColorGroup* a);
+    inline bool hasElementInactive() const { return m_children & Inactive; }
+    void clearElementInactive();
 
     inline DomColorGroup* elementDisabled() { return m_disabled; }
     void setElementDisabled(DomColorGroup* a);
+    inline bool hasElementDisabled() const { return m_children & Disabled; }
+    void clearElementDisabled();
 
 private:
     QString m_text;
@@ -1816,18 +1677,14 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     DomColorGroup* m_active;
     DomColorGroup* m_inactive;
     DomColorGroup* m_disabled;
-
-    union {
-        uint bits;
-
-        struct {
-            uint active: 1;
-            uint inactive: 1;
-            uint disabled: 1;
-        } bit;
+    enum Child {
+        Active = 1,
+        Inactive = 2,
+        Disabled = 4,
     };
 
     DomPalette(const DomPalette &other);
@@ -1848,24 +1705,38 @@ public:
     // child element accessors
     inline QString elementFamily() { return m_family; }
     void setElementFamily(const QString& a);
+    inline bool hasElementFamily() const { return m_children & Family; }
+    void clearElementFamily();
 
     inline int elementPointSize() { return m_pointSize; }
     void setElementPointSize(int a);
+    inline bool hasElementPointSize() const { return m_children & PointSize; }
+    void clearElementPointSize();
 
     inline int elementWeight() { return m_weight; }
     void setElementWeight(int a);
+    inline bool hasElementWeight() const { return m_children & Weight; }
+    void clearElementWeight();
 
     inline bool elementItalic() { return m_italic; }
     void setElementItalic(bool a);
+    inline bool hasElementItalic() const { return m_children & Italic; }
+    void clearElementItalic();
 
     inline bool elementBold() { return m_bold; }
     void setElementBold(bool a);
+    inline bool hasElementBold() const { return m_children & Bold; }
+    void clearElementBold();
 
     inline bool elementUnderline() { return m_underline; }
     void setElementUnderline(bool a);
+    inline bool hasElementUnderline() const { return m_children & Underline; }
+    void clearElementUnderline();
 
     inline bool elementStrikeOut() { return m_strikeOut; }
     void setElementStrikeOut(bool a);
+    inline bool hasElementStrikeOut() const { return m_children & StrikeOut; }
+    void clearElementStrikeOut();
 
 private:
     QString m_text;
@@ -1873,6 +1744,7 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     QString m_family;
     int m_pointSize;
     int m_weight;
@@ -1880,19 +1752,14 @@ private:
     bool m_bold;
     bool m_underline;
     bool m_strikeOut;
-
-    union {
-        uint bits;
-
-        struct {
-            uint family: 1;
-            uint pointSize: 1;
-            uint weight: 1;
-            uint italic: 1;
-            uint bold: 1;
-            uint underline: 1;
-            uint strikeOut: 1;
-        } bit;
+    enum Child {
+        Family = 1,
+        PointSize = 2,
+        Weight = 4,
+        Italic = 8,
+        Bold = 16,
+        Underline = 32,
+        StrikeOut = 64,
     };
 
     DomFont(const DomFont &other);
@@ -1913,9 +1780,13 @@ public:
     // child element accessors
     inline int elementX() { return m_x; }
     void setElementX(int a);
+    inline bool hasElementX() const { return m_children & X; }
+    void clearElementX();
 
     inline int elementY() { return m_y; }
     void setElementY(int a);
+    inline bool hasElementY() const { return m_children & Y; }
+    void clearElementY();
 
 private:
     QString m_text;
@@ -1923,16 +1794,12 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_x;
     int m_y;
-
-    union {
-        uint bits;
-
-        struct {
-            uint x: 1;
-            uint y: 1;
-        } bit;
+    enum Child {
+        X = 1,
+        Y = 2,
     };
 
     DomPoint(const DomPoint &other);
@@ -1953,15 +1820,23 @@ public:
     // child element accessors
     inline int elementX() { return m_x; }
     void setElementX(int a);
+    inline bool hasElementX() const { return m_children & X; }
+    void clearElementX();
 
     inline int elementY() { return m_y; }
     void setElementY(int a);
+    inline bool hasElementY() const { return m_children & Y; }
+    void clearElementY();
 
     inline int elementWidth() { return m_width; }
     void setElementWidth(int a);
+    inline bool hasElementWidth() const { return m_children & Width; }
+    void clearElementWidth();
 
     inline int elementHeight() { return m_height; }
     void setElementHeight(int a);
+    inline bool hasElementHeight() const { return m_children & Height; }
+    void clearElementHeight();
 
 private:
     QString m_text;
@@ -1969,20 +1844,16 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_x;
     int m_y;
     int m_width;
     int m_height;
-
-    union {
-        uint bits;
-
-        struct {
-            uint x: 1;
-            uint y: 1;
-            uint width: 1;
-            uint height: 1;
-        } bit;
+    enum Child {
+        X = 1,
+        Y = 2,
+        Width = 4,
+        Height = 8,
     };
 
     DomRect(const DomRect &other);
@@ -2003,15 +1874,23 @@ public:
     // child element accessors
     inline int elementHSizeType() { return m_hSizeType; }
     void setElementHSizeType(int a);
+    inline bool hasElementHSizeType() const { return m_children & HSizeType; }
+    void clearElementHSizeType();
 
     inline int elementVSizeType() { return m_vSizeType; }
     void setElementVSizeType(int a);
+    inline bool hasElementVSizeType() const { return m_children & VSizeType; }
+    void clearElementVSizeType();
 
     inline int elementHorStretch() { return m_horStretch; }
     void setElementHorStretch(int a);
+    inline bool hasElementHorStretch() const { return m_children & HorStretch; }
+    void clearElementHorStretch();
 
     inline int elementVerStretch() { return m_verStretch; }
     void setElementVerStretch(int a);
+    inline bool hasElementVerStretch() const { return m_children & VerStretch; }
+    void clearElementVerStretch();
 
 private:
     QString m_text;
@@ -2019,20 +1898,16 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_hSizeType;
     int m_vSizeType;
     int m_horStretch;
     int m_verStretch;
-
-    union {
-        uint bits;
-
-        struct {
-            uint hSizeType: 1;
-            uint vSizeType: 1;
-            uint horStretch: 1;
-            uint verStretch: 1;
-        } bit;
+    enum Child {
+        HSizeType = 1,
+        VSizeType = 2,
+        HorStretch = 4,
+        VerStretch = 8,
     };
 
     DomSizePolicy(const DomSizePolicy &other);
@@ -2053,9 +1928,13 @@ public:
     // child element accessors
     inline int elementWidth() { return m_width; }
     void setElementWidth(int a);
+    inline bool hasElementWidth() const { return m_children & Width; }
+    void clearElementWidth();
 
     inline int elementHeight() { return m_height; }
     void setElementHeight(int a);
+    inline bool hasElementHeight() const { return m_children & Height; }
+    void clearElementHeight();
 
 private:
     QString m_text;
@@ -2063,16 +1942,12 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_width;
     int m_height;
-
-    union {
-        uint bits;
-
-        struct {
-            uint width: 1;
-            uint height: 1;
-        } bit;
+    enum Child {
+        Width = 1,
+        Height = 2,
     };
 
     DomSize(const DomSize &other);
@@ -2093,12 +1968,18 @@ public:
     // child element accessors
     inline int elementYear() { return m_year; }
     void setElementYear(int a);
+    inline bool hasElementYear() const { return m_children & Year; }
+    void clearElementYear();
 
     inline int elementMonth() { return m_month; }
     void setElementMonth(int a);
+    inline bool hasElementMonth() const { return m_children & Month; }
+    void clearElementMonth();
 
     inline int elementDay() { return m_day; }
     void setElementDay(int a);
+    inline bool hasElementDay() const { return m_children & Day; }
+    void clearElementDay();
 
 private:
     QString m_text;
@@ -2106,18 +1987,14 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_year;
     int m_month;
     int m_day;
-
-    union {
-        uint bits;
-
-        struct {
-            uint year: 1;
-            uint month: 1;
-            uint day: 1;
-        } bit;
+    enum Child {
+        Year = 1,
+        Month = 2,
+        Day = 4,
     };
 
     DomDate(const DomDate &other);
@@ -2138,12 +2015,18 @@ public:
     // child element accessors
     inline int elementHour() { return m_hour; }
     void setElementHour(int a);
+    inline bool hasElementHour() const { return m_children & Hour; }
+    void clearElementHour();
 
     inline int elementMinute() { return m_minute; }
     void setElementMinute(int a);
+    inline bool hasElementMinute() const { return m_children & Minute; }
+    void clearElementMinute();
 
     inline int elementSecond() { return m_second; }
     void setElementSecond(int a);
+    inline bool hasElementSecond() const { return m_children & Second; }
+    void clearElementSecond();
 
 private:
     QString m_text;
@@ -2151,18 +2034,14 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_hour;
     int m_minute;
     int m_second;
-
-    union {
-        uint bits;
-
-        struct {
-            uint hour: 1;
-            uint minute: 1;
-            uint second: 1;
-        } bit;
+    enum Child {
+        Hour = 1,
+        Minute = 2,
+        Second = 4,
     };
 
     DomTime(const DomTime &other);
@@ -2183,21 +2062,33 @@ public:
     // child element accessors
     inline int elementHour() { return m_hour; }
     void setElementHour(int a);
+    inline bool hasElementHour() const { return m_children & Hour; }
+    void clearElementHour();
 
     inline int elementMinute() { return m_minute; }
     void setElementMinute(int a);
+    inline bool hasElementMinute() const { return m_children & Minute; }
+    void clearElementMinute();
 
     inline int elementSecond() { return m_second; }
     void setElementSecond(int a);
+    inline bool hasElementSecond() const { return m_children & Second; }
+    void clearElementSecond();
 
     inline int elementYear() { return m_year; }
     void setElementYear(int a);
+    inline bool hasElementYear() const { return m_children & Year; }
+    void clearElementYear();
 
     inline int elementMonth() { return m_month; }
     void setElementMonth(int a);
+    inline bool hasElementMonth() const { return m_children & Month; }
+    void clearElementMonth();
 
     inline int elementDay() { return m_day; }
     void setElementDay(int a);
+    inline bool hasElementDay() const { return m_children & Day; }
+    void clearElementDay();
 
 private:
     QString m_text;
@@ -2205,24 +2096,20 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_hour;
     int m_minute;
     int m_second;
     int m_year;
     int m_month;
     int m_day;
-
-    union {
-        uint bits;
-
-        struct {
-            uint hour: 1;
-            uint minute: 1;
-            uint second: 1;
-            uint year: 1;
-            uint month: 1;
-            uint day: 1;
-        } bit;
+    enum Child {
+        Hour = 1,
+        Minute = 2,
+        Second = 4,
+        Year = 8,
+        Month = 16,
+        Day = 32,
     };
 
     DomDateTime(const DomDateTime &other);
@@ -2251,14 +2138,6 @@ private:
     // attribute data
     // child element data
     QStringList m_string;
-
-    union {
-        uint bits;
-
-        struct {
-            uint string: 1;
-        } bit;
-    };
 
     DomStringList(const DomStringList &other);
     void operator = (const DomStringList&other);
@@ -2298,9 +2177,6 @@ private:
     bool m_has_attr_alias;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomResourcePixmap(const DomResourcePixmap &other);
     void operator = (const DomResourcePixmap&other);
@@ -2340,9 +2216,6 @@ private:
     bool m_has_attr_comment;
 
     // child element data
-    union {
-        uint bits;
-    };
 
     DomString(const DomString &other);
     void operator = (const DomString&other);
@@ -2362,9 +2235,13 @@ public:
     // child element accessors
     inline double elementX() { return m_x; }
     void setElementX(double a);
+    inline bool hasElementX() const { return m_children & X; }
+    void clearElementX();
 
     inline double elementY() { return m_y; }
     void setElementY(double a);
+    inline bool hasElementY() const { return m_children & Y; }
+    void clearElementY();
 
 private:
     QString m_text;
@@ -2372,16 +2249,12 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     double m_x;
     double m_y;
-
-    union {
-        uint bits;
-
-        struct {
-            uint x: 1;
-            uint y: 1;
-        } bit;
+    enum Child {
+        X = 1,
+        Y = 2,
     };
 
     DomPointF(const DomPointF &other);
@@ -2402,15 +2275,23 @@ public:
     // child element accessors
     inline double elementX() { return m_x; }
     void setElementX(double a);
+    inline bool hasElementX() const { return m_children & X; }
+    void clearElementX();
 
     inline double elementY() { return m_y; }
     void setElementY(double a);
+    inline bool hasElementY() const { return m_children & Y; }
+    void clearElementY();
 
     inline double elementWidth() { return m_width; }
     void setElementWidth(double a);
+    inline bool hasElementWidth() const { return m_children & Width; }
+    void clearElementWidth();
 
     inline double elementHeight() { return m_height; }
     void setElementHeight(double a);
+    inline bool hasElementHeight() const { return m_children & Height; }
+    void clearElementHeight();
 
 private:
     QString m_text;
@@ -2418,20 +2299,16 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     double m_x;
     double m_y;
     double m_width;
     double m_height;
-
-    union {
-        uint bits;
-
-        struct {
-            uint x: 1;
-            uint y: 1;
-            uint width: 1;
-            uint height: 1;
-        } bit;
+    enum Child {
+        X = 1,
+        Y = 2,
+        Width = 4,
+        Height = 8,
     };
 
     DomRectF(const DomRectF &other);
@@ -2452,9 +2329,13 @@ public:
     // child element accessors
     inline double elementWidth() { return m_width; }
     void setElementWidth(double a);
+    inline bool hasElementWidth() const { return m_children & Width; }
+    void clearElementWidth();
 
     inline double elementHeight() { return m_height; }
     void setElementHeight(double a);
+    inline bool hasElementHeight() const { return m_children & Height; }
+    void clearElementHeight();
 
 private:
     QString m_text;
@@ -2462,16 +2343,12 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     double m_width;
     double m_height;
-
-    union {
-        uint bits;
-
-        struct {
-            uint height: 1;
-            uint width: 1;
-        } bit;
+    enum Child {
+        Width = 1,
+        Height = 2,
     };
 
     DomSizeF(const DomSizeF &other);
@@ -2492,6 +2369,8 @@ public:
     // child element accessors
     inline int elementUnicode() { return m_unicode; }
     void setElementUnicode(int a);
+    inline bool hasElementUnicode() const { return m_children & Unicode; }
+    void clearElementUnicode();
 
 private:
     QString m_text;
@@ -2499,14 +2378,10 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     int m_unicode;
-
-    union {
-        uint bits;
-
-        struct {
-            uint unicode: 1;
-        } bit;
+    enum Child {
+        Unicode = 1,
     };
 
     DomChar(const DomChar &other);
@@ -2527,6 +2402,8 @@ public:
     // child element accessors
     inline DomString* elementString() { return m_string; }
     void setElementString(DomString* a);
+    inline bool hasElementString() const { return m_children & String; }
+    void clearElementString();
 
 private:
     QString m_text;
@@ -2534,14 +2411,10 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     DomString* m_string;
-
-    union {
-        uint bits;
-
-        struct {
-            uint string: 1;
-        } bit;
+    enum Child {
+        String = 1,
     };
 
     DomUrl(const DomUrl &other);
@@ -2726,14 +2599,6 @@ private:
     // child element data
     QList<DomConnection*> m_connection;
 
-    union {
-        uint bits;
-
-        struct {
-            uint connection: 1;
-        } bit;
-    };
-
     DomConnections(const DomConnections &other);
     void operator = (const DomConnections&other);
 };
@@ -2752,18 +2617,28 @@ public:
     // child element accessors
     inline QString elementSender() { return m_sender; }
     void setElementSender(const QString& a);
+    inline bool hasElementSender() const { return m_children & Sender; }
+    void clearElementSender();
 
     inline QString elementSignal() { return m_signal; }
     void setElementSignal(const QString& a);
+    inline bool hasElementSignal() const { return m_children & Signal; }
+    void clearElementSignal();
 
     inline QString elementReceiver() { return m_receiver; }
     void setElementReceiver(const QString& a);
+    inline bool hasElementReceiver() const { return m_children & Receiver; }
+    void clearElementReceiver();
 
     inline QString elementSlot() { return m_slot; }
     void setElementSlot(const QString& a);
+    inline bool hasElementSlot() const { return m_children & Slot; }
+    void clearElementSlot();
 
     inline DomConnectionHints* elementHints() { return m_hints; }
     void setElementHints(DomConnectionHints* a);
+    inline bool hasElementHints() const { return m_children & Hints; }
+    void clearElementHints();
 
 private:
     QString m_text;
@@ -2771,22 +2646,18 @@ private:
 
     // attribute data
     // child element data
+    uint m_children;
     QString m_sender;
     QString m_signal;
     QString m_receiver;
     QString m_slot;
     DomConnectionHints* m_hints;
-
-    union {
-        uint bits;
-
-        struct {
-            uint sender: 1;
-            uint signal: 1;
-            uint receiver: 1;
-            uint slot: 1;
-            uint hints: 1;
-        } bit;
+    enum Child {
+        Sender = 1,
+        Signal = 2,
+        Receiver = 4,
+        Slot = 8,
+        Hints = 16,
     };
 
     DomConnection(const DomConnection &other);
@@ -2815,13 +2686,6 @@ private:
     // attribute data
     // child element data
     QList<DomConnectionHint*> m_hint;
-    union {
-        uint bits;
-
-        struct {
-            uint hint: 1;
-        } bit;
-    };
 
     DomConnectionHints(const DomConnectionHints &other);
     void operator = (const DomConnectionHints&other);
@@ -2846,9 +2710,13 @@ public:
     // child element accessors
     inline int elementX() { return m_x; }
     void setElementX(int a);
+    inline bool hasElementX() const { return m_children & X; }
+    void clearElementX();
 
     inline int elementY() { return m_y; }
     void setElementY(int a);
+    inline bool hasElementY() const { return m_children & Y; }
+    void clearElementY();
 
 private:
     QString m_text;
@@ -2859,16 +2727,12 @@ private:
     bool m_has_attr_type;
 
     // child element data
+    uint m_children;
     int m_x;
     int m_y;
-
-    union {
-        uint bits;
-
-        struct {
-            uint x: 1;
-            uint y: 1;
-        } bit;
+    enum Child {
+        X = 1,
+        Y = 2,
     };
 
     DomConnectionHint(const DomConnectionHint &other);
@@ -2879,7 +2743,5 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
-
-QT_END_HEADER
 
 #endif // UI4_H
