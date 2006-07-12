@@ -450,7 +450,8 @@ void QScrollArea::setAlignment(Qt::Alignment alignment)
 {
     Q_D(QScrollArea);
     d->alignment = alignment;
-    d->updateWidgetPosition();
+    if (d->widget)
+        d->updateWidgetPosition();
 }
 
 Qt::Alignment QScrollArea::alignment() const
