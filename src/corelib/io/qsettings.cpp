@@ -706,7 +706,7 @@ StNormal:
                 goto StSkipSpaces;
             }
             // fallthrough
-        default:
+        default: {
             int j = i + 1;
             while (j < to) {
                 ch = str.at(j);
@@ -721,6 +721,7 @@ StNormal:
             for (int k = i; k < j; ++k)
                 *resultData++ = QLatin1Char(str.at(k));
             i = j;
+        }
         }
     }
     goto end;
