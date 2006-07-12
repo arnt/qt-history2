@@ -64,11 +64,6 @@
                         <xsl:value-of select="@name"/>
                         <xsl:text> = 0.0;&endl;</xsl:text>
                     </xsl:when>
-                    <xsl:when test="@type = 'xs:float'">
-                        <xsl:text>    m_</xsl:text>
-                        <xsl:value-of select="@name"/>
-                        <xsl:text> = 0.0;&endl;</xsl:text>
-                    </xsl:when>
                     <xsl:when test="@type = 'xs:boolean'">
                         <xsl:text>    m_</xsl:text>
                         <xsl:value-of select="@name"/>
@@ -90,6 +85,10 @@
 
         <xsl:if test="boolean($node/xs:choice)">
             <xsl:text>    m_kind = Unknown;&endl;&endl;</xsl:text>
+        </xsl:if>
+
+        <xsl:if test="boolean($node/xs:sequence/xs:element) and not($node/xs:sequence/@maxOccurs = 'unbounded')">
+            <xsl:text>    m_children = 0;&endl;</xsl:text>
         </xsl:if>
 
         <xsl:call-template name="ctor-init-attributes">
@@ -218,6 +217,10 @@
 
         <xsl:if test="boolean($node/xs:choice)">
             <xsl:text>    m_kind = Unknown;&endl;&endl;</xsl:text>
+        </xsl:if>
+
+        <xsl:if test="boolean($node/xs:sequence/xs:element) and not($node/xs:sequence/@maxOccurs = 'unbounded')">
+            <xsl:text>    m_children = 0;&endl;</xsl:text>
         </xsl:if>
 
         <xsl:for-each select="$node/xs:choice">
@@ -567,16 +570,16 @@
                     <xsl:text>    }&endl;</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
+                    <xsl:text>    if (m_children &amp; </xsl:text>
+                    <xsl:value-of select="$cap-name"/>
+                    <xsl:text>) {&endl;</xsl:text>
                     <xsl:choose>
                         <xsl:when test="$xs-type-cat = 'pointer'">
-                            <xsl:text>    if (m_</xsl:text>
-                            <xsl:value-of select="@name"/>
-                            <xsl:text> != 0)&endl;</xsl:text>
                             <xsl:text>        e.appendChild(m_</xsl:text>
                             <xsl:value-of select="@name"/>
                             <xsl:text>->write(doc, QLatin1String("</xsl:text>
                             <xsl:value-of select="$lower-name"/>
-                            <xsl:text>")));&endl;&endl;</xsl:text>
+                            <xsl:text>")));&endl;</xsl:text>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:variable name="qstring-func">
@@ -585,15 +588,16 @@
                                     <xsl:with-param name="val" select="concat('m_', @name)"/>
                                 </xsl:call-template>
                             </xsl:variable>
-                            <xsl:text>    child = doc.createElement(QLatin1String("</xsl:text>
+                            <xsl:text>        child = doc.createElement(QLatin1String("</xsl:text>
                             <xsl:value-of select="$lower-name"/>
                             <xsl:text>"));&endl;</xsl:text>
-                            <xsl:text>    child.appendChild(doc.createTextNode(</xsl:text>
+                            <xsl:text>        child.appendChild(doc.createTextNode(</xsl:text>
                             <xsl:value-of select="$qstring-func"/>
                             <xsl:text>));&endl;</xsl:text>
-                            <xsl:text>    e.appendChild(child);&endl;&endl;</xsl:text>
+                            <xsl:text>        e.appendChild(child);&endl;</xsl:text>
                         </xsl:otherwise>
                     </xsl:choose>
+                    <xsl:text>    }&endl;&endl;</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:for-each>
@@ -648,6 +652,7 @@
         <xsl:param name="name"/>
         <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
         <xsl:variable name="make-kind-enum" select="name($node) = 'xs:choice'"/>
+        <xsl:variable name="make-child-enum" select="name($node) = 'xs:sequence' and not($node/@maxOccurs = 'unbounded')"/>
 
         <xsl:for-each select="$node/xs:element">
             <xsl:variable name="cap-name">
@@ -696,6 +701,11 @@
                     <xsl:text>;&endl;</xsl:text>
                 </xsl:when>
             </xsl:choose>
+            <xsl:if test="$make-child-enum">
+                <xsl:text>    m_children |= </xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>;&endl;</xsl:text>
+            </xsl:if>
             <xsl:text>    m_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text> = a;&endl;</xsl:text>
@@ -720,8 +730,52 @@
                 <xsl:with-param name="name" select="$name"/>
             </xsl:call-template>
         </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="child-clear-impl">
+        <xsl:param name="node"/>
+
+        <xsl:variable name="name" select="concat('Dom', $node/@name)"/>
+        <xsl:variable name="array" select="$node/xs:sequence/@maxOccurs = 'unbounded'"/>
+        <xsl:variable name="make-child-enum" select="boolean($node/xs:sequence) and not($array)"/>
+
+        <xsl:if test="$make-child-enum">
+            <xsl:for-each select="$node/xs:sequence/xs:element">
+                <xsl:variable name="cap-name">
+                    <xsl:call-template name="cap-first-char">
+                        <xsl:with-param name="text" select="@name"/>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:variable name="xs-type-cat">
+                    <xsl:call-template name="xs-type-category">
+                        <xsl:with-param name="xs-type" select="@type"/>
+                        <xsl:with-param name="array" select="$array"/>
+                    </xsl:call-template>
+                </xsl:variable>
+
+                <xsl:text>void </xsl:text>
+                <xsl:value-of select="$name"/>
+                <xsl:text>::clearElement</xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>()&endl;</xsl:text>
+                <xsl:text>{&endl;</xsl:text>
+                <xsl:if test="$xs-type-cat = 'pointer'">
+                    <xsl:text>    delete m_</xsl:text>
+                    <xsl:value-of select="@name"/>
+                    <xsl:text>;&endl;</xsl:text>
+                    <xsl:text>    m_</xsl:text>
+                    <xsl:value-of select="@name"/>
+                    <xsl:text> = 0;&endl;</xsl:text>
+                </xsl:if>
+                <xsl:text>    m_children &amp;= ~</xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>;&endl;</xsl:text>
+                <xsl:text>}&endl;&endl;</xsl:text>
+            </xsl:for-each>
+        </xsl:if>
 
     </xsl:template>
+
 
 <!-- Implementation -->
 
@@ -752,6 +806,10 @@
             <xsl:with-param name="node" select="$node"/>
         </xsl:call-template>
 
+        <xsl:call-template name="child-clear-impl">
+            <xsl:with-param name="node" select="$node"/>
+        </xsl:call-template>
+
     </xsl:template>
 
 <!-- Root -->
@@ -771,7 +829,7 @@
 **
 ****************************************************************************/
 </xsl:text>
-        <xsl:text>#include "ui4.h"&endl;</xsl:text>
+        <xsl:text>#include "ui4_p.h"&endl;</xsl:text>
         <xsl:text>#include &lt;QDomDocument&gt;&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
 

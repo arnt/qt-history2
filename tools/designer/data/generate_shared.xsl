@@ -28,6 +28,22 @@
         </xsl:if>
     </xsl:template>
 
+    <xsl:template name="powers-of-two">
+        <xsl:param name="num"/>
+
+        <xsl:choose>
+            <xsl:when test="$num=0">1</xsl:when>
+            <xsl:otherwise>
+                <xsl:variable name="x">
+                    <xsl:call-template name="powers-of-two">
+                        <xsl:with-param name="num" select="$num - 1"/>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:value-of select="2*$x"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
 <!-- Convenience templates: xs-types to c++ types conversions -->
 
     <xsl:template name="xs-type-from-qstring-func">

@@ -26,6 +26,7 @@
         <xsl:param name="node"/>
         <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
         <xsl:variable name="make-kind-enum" select="name($node) = 'xs:choice'"/>
+        <xsl:variable name="make-child-enum" select="not(boolean($array)) and name($node)='xs:sequence' and boolean($node/xs:element)"/>
 
         <xsl:if test="$make-kind-enum">
             <xsl:text>    enum Kind { Unknown = 0</xsl:text>
@@ -79,7 +80,20 @@
             <xsl:value-of select="$cap-name"/>
             <xsl:text>(</xsl:text>
             <xsl:value-of select="$argument-cpp-type"/>
-            <xsl:text> a);&endl;&endl;</xsl:text>
+            <xsl:text> a);&endl;</xsl:text>
+
+            <xsl:if test="$make-child-enum">
+                <xsl:text>    inline bool hasElement</xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>() const { return m_children &amp; </xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>; }&endl;</xsl:text>
+                <xsl:text>    void clearElement</xsl:text>
+                <xsl:value-of select="$cap-name"/>
+                <xsl:text>();&endl;</xsl:text>
+            </xsl:if>
+            <xsl:text>&endl;</xsl:text>
+
         </xsl:for-each>
     </xsl:template>
 
@@ -88,6 +102,7 @@
     <xsl:template name="child-element-data">
         <xsl:param name="node"/>
         <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
+        <xsl:variable name="make-child-enum" select="not(boolean($array)) and name($node)='xs:sequence' and boolean($node/xs:element)"/>
 
         <xsl:for-each select="$node/xs:element">
             <xsl:variable name="cpp-type">
@@ -102,6 +117,22 @@
             <xsl:value-of select="@name"/>
             <xsl:text>;&endl;</xsl:text>
         </xsl:for-each>
+
+        <xsl:if test="$make-child-enum">
+            <xsl:text>    enum Child {&endl;</xsl:text>
+            <xsl:for-each select="$node/xs:element">
+                <xsl:text>        </xsl:text>
+                <xsl:call-template name="cap-first-char">
+                    <xsl:with-param name="text" select="@name"/>
+                </xsl:call-template>
+                <xsl:text> = </xsl:text>
+                <xsl:call-template name="powers-of-two">
+                    <xsl:with-param name="num" select="position() - 1"/>
+                </xsl:call-template>
+                <xsl:text>,&endl;</xsl:text>
+            </xsl:for-each>
+            <xsl:text>    };&endl;</xsl:text>
+        </xsl:if>
     </xsl:template>
 
 <!-- Class declaration: attribute accessors -->
@@ -222,6 +253,9 @@
         <xsl:text>    // child element data&endl;</xsl:text>
         <xsl:if test="boolean($node/xs:choice)">
             <xsl:text>    Kind m_kind;&endl;</xsl:text>
+        </xsl:if>
+        <xsl:if test="boolean($node/xs:sequence/xs:element) and not($node/xs:sequence/@maxOccurs='unbounded')">
+            <xsl:text>    uint m_children;&endl;</xsl:text>
         </xsl:if>
         <xsl:for-each select="$node/xs:choice">
             <xsl:call-template name="child-element-data">
