@@ -469,10 +469,12 @@ bool QAxFactory::isService() const
     This enum specifies the different types of servers that can be
     started with startServer.
 
-    \value SingleInstance The server can create only one instance of each
-    supplied class.
+    \value SingleInstance The server process can create only one instance of each
+    exported class. COM starts a new process for each request. This is typically
+    used in servers that export only one creatable class.
     \value MultipleInstances The server can create multiple instances of
-    each supplied class.
+    each exported class. This is the default. All instances will live in the same
+    thread, and will share static resources.
 */
 
 /*!
@@ -484,9 +486,18 @@ bool QAxFactory::isService() const
     Calling this function if the server is already running (or for an
     in-process server) does nothing and returns true.
 
-    The server is started automatically with \a type set to MultipleUse
+    The server is started automatically with \a type set to \c MultipleInstances
     if the server executable has been started with the \c -activex
-    command line parameter.
+    command line parameter. To switch to SingleInstance, call 
+    
+    \code
+    if (QAxFactory::isServer()) {
+        QAxFactory::stopServer();
+        QAxFactory::startServer(QAxFactory::SingleInstance);
+    }
+    \endcode
+
+    in your own main() entry point function.
 */
 
 /*!
