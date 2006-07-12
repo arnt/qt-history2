@@ -1476,6 +1476,7 @@ void tst_QVariant::operator_eq_eq()
     QFETCH( QVariant, left );
     QFETCH( QVariant, right );
     QFETCH( bool, equal );
+    QEXPECT_FAIL("nullint", "See task 118496", Continue);
     QCOMPARE( left == right, equal );
 }
 
