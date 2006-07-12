@@ -31,13 +31,15 @@
 #include "QtCore/qstringlist.h"
 #include "QtCore/qlist.h"
 
-#define QTIME_MIN QTime(0, 0, 0, 0)
-#define QTIME_MAX QTime(23, 59, 59, 999)
-#define QDATE_MIN QDate(1752, 9, 14)
-#define QDATE_MAX QDate(7999, 12, 31)
-#define QDATETIME_MIN QDateTime(QDATE_MIN, QTIME_MIN)
-#define QDATETIME_MAX QDateTime(QDATE_MAX, QTIME_MAX)
-#define QDATE_INITIAL QDate(2000, 1, 1)
+#define QDATETIMEEDIT_TIME_MIN QTime(0, 0, 0, 0)
+#define QDATETIMEEDIT_TIME_MAX QTime(23, 59, 59, 999)
+#define QDATETIMEEDIT_DATE_MIN QDate(100, 1, 1)
+#define QDATETIMEEDIT_COMPAT_DATE_MIN QDate(1752, 9, 14)
+#define QDATETIMEEDIT_DATE_MAX QDate(7999, 12, 31)
+#define QDATETIMEEDIT_DATETIME_MIN QDateTime(QDATETIMEEDIT_DATE_MIN, QDATETIMEEDIT_TIME_MIN)
+#define QDATETIMEEDIT_COMPAT_DATETIME_MIN QDateTime(QDATETIMEEDIT_COMPAT_DATE_MIN, QDATETIMEEDIT_TIME_MIN)
+#define QDATETIMEEDIT_DATETIME_MAX QDateTime(QDATETIMEEDIT_DATE_MAX, QDATETIMEEDIT_TIME_MAX)
+#define QDATETIMEEDIT_DATE_INITIAL QDate(2000, 1, 1)
 
 
 class QDateTimePrivate
@@ -114,11 +116,11 @@ public:
     }; // duplicated from qdatetimeedit.h
     Q_DECLARE_FLAGS(Sections, Section)
 
-    struct SectionNode {
-        Section type;
-        mutable int pos;
-        int count;
-    };
+        struct SectionNode {
+            Section type;
+            mutable int pos;
+            int count;
+        };
 
     enum State { // duplicated from QValidator
         Invalid,
@@ -185,7 +187,14 @@ public:
     QString sectionFormat(int index) const;
     QString sectionFormat(Section s, int count) const;
 
-    bool isFixedNumericSection(int index) const;
+    enum FieldInfoFlag {
+        Numeric = 0x01,
+        FixedWidth = 0x02,
+        AllowPartial = 0x04
+    };
+    Q_DECLARE_FLAGS(FieldInfo, FieldInfoFlag);
+
+    FieldInfo fieldInfo(int index) const;
 
 #ifndef QT_NO_DATESTRING
     virtual QVariant getMinimum() const;
@@ -215,6 +224,8 @@ public:
 Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2);
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeParser::Sections)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeParser::FieldInfo)
+
 
 #endif // QT_BOOTSTRAPPED
 
