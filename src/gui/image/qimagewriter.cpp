@@ -91,7 +91,7 @@
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
 #endif
-    
+
 static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &format)
 {
     QByteArray form = format.toLower();
@@ -102,9 +102,9 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
     // check if any plugins can write the image
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
+    int suffixPluginIndex = -1;
 #endif
 
-    int suffixPluginIndex = -1;
     if (device && format.isEmpty()) {
         // if there's no format, see if \a device is a file, and if so, find
         // the file suffix and find support for that format among our plugins.
@@ -122,6 +122,7 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
 
     QByteArray testFormat = !form.isEmpty() ? form : suffix;
 
+#ifndef QT_NO_LIBRARY
     if (suffixPluginIndex != -1) {
         // when format is missing, check if we can find a plugin for the
         // suffix.
@@ -129,6 +130,7 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
         if (plugin && (plugin->capabilities(device, suffix) & QImageIOPlugin::CanWrite))
             handler = plugin->create(device, suffix);
     }
+#endif // Q_NO_LIBRARY
 
     // check if any built-in handlers can write the image
     if (!handler && !testFormat.isEmpty()) {
@@ -412,7 +414,7 @@ float QImageWriter::gamma() const
     \obsolete
 
     Use setText() instead.
-    
+
     This is an image format specific function that sets the
     description of the image to \a description. For image formats that
     do not support setting the description, this value is ignored.
@@ -430,9 +432,9 @@ void QImageWriter::setDescription(const QString &description)
     \obsolete
 
     Use QImageReader::text() instead.
-    
+
     Returns the description of the image.
-    
+
     \sa setDescription()
 */
 QString QImageWriter::description() const

@@ -184,8 +184,8 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     // check if we have plugins that support the image format
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
-    QByteArray suffix;
 #endif
+    QByteArray suffix;
 
 #ifdef QIMAGEREADER_DEBUG
     qDebug() << "QImageReader::createReadHandler( device =" << (void *)device << ", format =" << format << "),"
@@ -193,6 +193,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 #endif
 
     int suffixPluginIndex = -1;
+#ifndef QT_NO_LIBRARY
     if (device && format.isEmpty()) {
         // if there's no format, see if \a device is a file, and if so, find
         // the file suffix and find support for that format among our plugins.
@@ -202,7 +203,6 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             qDebug() << "QImageReader::createReadHandler: device is a file:" << file->fileName();
 #endif
             if (!(suffix = QFileInfo(file->fileName()).suffix().toLower().toLatin1()).isEmpty()) {
-#ifndef QT_NO_LIBRARY
                 int index = keys.indexOf(suffix);
                 if (index != -1) {
 #ifdef QIMAGEREADER_DEBUG
@@ -211,13 +211,13 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 #endif
                     suffixPluginIndex = index;
                 }
-#endif
             }
         }
     }
+#endif // QT_NO_LIBRARY
 
     QByteArray testFormat = !form.isEmpty() ? form : suffix;
-    
+
 #ifndef QT_NO_LIBRARY
     if (device && suffixPluginIndex != -1) {
         // check if the plugin that claims support for this format can load
@@ -381,7 +381,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 #endif
                 break;
             }
-            
+
             --numFormats;
             ++currentFormat;
             currentFormat %= _qt_NumFormats;
@@ -476,7 +476,7 @@ bool QImageReaderPrivate::initHandler()
             if (currentFormatIndex > 0)
                 extensions.swap(0, currentFormatIndex);
         }
-        
+
         int currentExtension = 0;
 
         QFile *file = static_cast<QFile *>(device);
@@ -676,7 +676,7 @@ QString QImageReader::fileName() const
 
 /*!
     \since 4.2
-    
+
     This is an image format specific function that sets the quality
     level of the image to \a quality. For image formats that do not
     support setting the quality, this value is ignored.
@@ -758,7 +758,7 @@ QStringList QImageReader::textKeys() const
 QString QImageReader::text(const QString &key) const
 {
     d->getText();
-    return d->text.value(key);    
+    return d->text.value(key);
 }
 
 /*!
@@ -1261,7 +1261,7 @@ QList<QByteArray> QImageReader::supportedImageFormats()
         if (plugin && plugin->capabilities(0, keys.at(i).toLatin1()) & QImageIOPlugin::CanRead)
             formats << keys.at(i).toLatin1();
     }
-#endif // QT_NO_LIBRARY    
+#endif // QT_NO_LIBRARY
 
     QList<QByteArray> sortedFormats;
     for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
