@@ -760,7 +760,9 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     this means the area of the scene that you can navigate using the scroll
     bars.
 
-    If unset, this property has the same value as QGraphicsScene::sceneRect().
+    If unset, this property has the same value as QGraphicsScene::sceneRect,
+    and it changes with QGraphicsScene::sceneRect. Otherwise, the view's scene
+    rect is unaffected by the scene.
 
     Note: The maximum size of the view's scene rect is limited by the range of
     QAbstractScrollArea's scrollbars, which operate in integer coordinates.
@@ -1634,15 +1636,18 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
 
 /*!
     Notifies QGraphicsView that the scene's scene rect has changed.  \a rect
-    is the new scene rect.
+    is the new scene rect. If the view already has an explicitly set scene
+    rect, this function does nothing.
 
     \sa sceneRect, QGraphicsScene::sceneRectChanged()
 */
 void QGraphicsView::updateSceneRect(const QRectF &rect)
 {
     Q_D(QGraphicsView);
-    d->sceneRect = rect;
-    d->recalculateContentSize();
+    if (!d->hasSceneRect) {
+        d->sceneRect = rect;
+        d->recalculateContentSize();
+    }
 }
 
 /*!
