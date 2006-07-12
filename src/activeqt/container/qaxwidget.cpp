@@ -1670,12 +1670,19 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     slots and signals. The base class QAxBase provides an API to
     access the ActiveX directly through the \c IUnknown pointer.
 
-    QAxWidget is a QWidget and can be used as such, e.g. it can be
-    organized in a widget hierarchy, receive events or act as an event
-    filter. Standard widget properties, e.g. \link QWidget::enabled
+    QAxWidget is a QWidget and can mostly be used as such, e.g. it can be
+    organized in a widget hierarchy and layouts or act as an event filter. 
+    Standard widget properties, e.g. \link QWidget::enabled
     enabled \endlink are supported, but it depends on the ActiveX
     control to implement support for ambient properties like e.g.
     palette or font. QAxWidget tries to provide the necessary hints.
+
+    However, you cannot reimplement Qt-specific event handlers like 
+    mousePressEvent or keyPressEvent and expect them to be called reliably.
+    The embedded control covers the QAxWidget completely, and usually
+    handles the user interface itself. Use control-specific APIs (i.e. listen
+    to the signals of the control), or use standard COM techniques like
+    window procedure subclassing.
 
     QAxWidget also inherits most of its ActiveX-related functionality
     from QAxBase, notably dynamicCall() and querySubObject().
@@ -1736,15 +1743,19 @@ QAxWidget::~QAxWidget()
 }
 
 /*!
-    \reimp
+    Calls QAxBase::initialize(), and embeds the control in this widget by
+    calling createHostWindow(false) if successful 
+
+    To initialize the control before it is activated, reimplement this 
+    function and add your initialization code before you call
+    createHostWindow(true).
 */
 bool QAxWidget::initialize(IUnknown **ptr)
 {
     if (!QAxBase::initialize(ptr))
         return false;
 
-    HRESULT hres = S_OK; // assume that control is not initialized
-    return createHostWindow(hres == S_FALSE);
+    return createHostWindow(false); // assume that control is not initialized
 }
 
 /*!
