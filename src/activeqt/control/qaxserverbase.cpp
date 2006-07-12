@@ -1274,9 +1274,15 @@ bool QAxServerBase::internalCreate()
 
     internalConnect();
     // install an event filter for stock events
-    if (isWidget)
-	qt.object->installEventFilter(this);
-
+    if (isWidget) {
+        qt.object->installEventFilter(this);
+        const QList<QWidget*> children = qFindChildren<QWidget*>(qt.object);
+        QList<QWidget*>::ConstIterator it = children.constBegin();
+        while (it != children.constEnd()) {
+            (*it)->installEventFilter(this);
+            ++it;
+        }
+    }
     return true;
 }
 
@@ -4033,16 +4039,10 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     }
     switch (e->type()) {
     case QEvent::ChildAdded:
-	if (hasStockEvents) {
-	    QChildEvent *ce = (QChildEvent*)e;
-	    ce->child()->installEventFilter(this);
-	}
+	static_cast<QChildEvent*>(e)->child()->installEventFilter(this);
 	break;
     case QEvent::ChildRemoved:
-	if (hasStockEvents) {
-	    QChildEvent *ce = (QChildEvent*)e;
-	    ce->child()->removeEventFilter(this);
-	}
+	static_cast<QChildEvent*>(e)->child()->removeEventFilter(this);
 	break;
     case QEvent::KeyPress:
 	if (o == qt.object && hasStockEvents) {
@@ -4113,6 +4113,10 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	}
 	break;
     case QEvent::MouseButtonPress:
+        if (m_spInPlaceSite && !isUIActive) {
+            m_spInPlaceSite->OnUIActivate();
+            isUIActive = true;
+        }
 	if (o == qt.widget && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    int button = me->button();
