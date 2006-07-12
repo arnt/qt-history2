@@ -140,9 +140,11 @@ void tst_QComboBox::getSetCheck()
     // void QComboBox::setMaxVisibleItems(int)
     obj1.setMaxVisibleItems(100);
     QCOMPARE(100, obj1.maxVisibleItems());
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxVisibleItems: Invalid count (0) must be > 0");
     obj1.setMaxVisibleItems(0);
     QVERIFY(0 != obj1.maxVisibleItems()); // Cannot be set to 0 => old value
     QCOMPARE(100, obj1.maxVisibleItems());
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxVisibleItems: Invalid count (-2147483648) must be > 0");
     obj1.setMaxVisibleItems(INT_MIN);
     QCOMPARE(100, obj1.maxVisibleItems()); // Cannot be set to something negative => old value
     obj1.setMaxVisibleItems(INT_MAX);
@@ -153,6 +155,7 @@ void tst_QComboBox::getSetCheck()
     obj1.setMaxCount(0);
     QCOMPARE(0, obj1.maxCount());
 #ifndef QT_DEBUG
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxCount: Invalid count (-2147483648) must be > 1");
     obj1.setMaxCount(INT_MIN);
     QCOMPARE(0, obj1.maxCount()); // Setting a value below 0 makes no sense, and shouldn't be allowed
 #endif 
@@ -931,7 +934,7 @@ void tst_QComboBox::currentIndex()
     QFETCH(int, expectedSignalCount);
 
     // test both editable/non-editable combobox
-    for (int edit=0; edit<1; ++edit) {
+    for (int edit = 0; edit < 2; ++edit) {
         testWidget->clear();
         testWidget->setEditable(edit ? true : false);
         if (edit)
@@ -978,6 +981,25 @@ void tst_QComboBox::currentIndex()
         if (indexChangedString.count())
             QCOMPARE(indexChangedString.at(indexChangedString.count() - 1).at(0).toString(),
                      testWidget->currentText());
+
+        if (edit) {
+            testWidget->setCurrentIndex(-1);
+            testWidget->setInsertPolicy(QComboBox::InsertAtBottom);
+            QTest::mouseClick(testWidget, Qt::LeftButton);
+            QVERIFY(testWidget->hasFocus());
+            QTest::keyPress(testWidget, 'a');
+            QTest::keyPress(testWidget, 'b');
+            QCOMPARE(testWidget->currentText(), QString("ab"));
+            QCOMPARE(testWidget->currentIndex(), -1);
+            int numItems = testWidget->count();
+            QTest::keyPress(testWidget, Qt::Key_Return);
+            QCOMPARE(testWidget->count(), numItems + 1);
+            QCOMPARE(testWidget->currentIndex(), numItems);
+            testWidget->setCurrentIndex(-1);
+            QTest::keyPress(testWidget, 'a');
+            QTest::keyPress(testWidget, 'b');
+            QCOMPARE(testWidget->currentIndex(), -1);
+        }
     }
 }
 
