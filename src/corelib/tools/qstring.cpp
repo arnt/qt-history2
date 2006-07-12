@@ -4736,13 +4736,6 @@ qint64 QString::toLongLong(bool *ok, int base) const
         return result;
     }
 
-    // If the default was not "C", try the "C" locale
-    if (def_locale.language() == QLocale::C) {
-        if (ok != 0)
-            *ok = false;
-        return 0;
-    }
-
     QLocale c_locale(QLocale::C);
     return c_locale.d()->stringToLongLong(*this, base, ok, QLocalePrivate::FailOnGroupSeparators);
 }
@@ -4785,13 +4778,6 @@ quint64 QString::toULongLong(bool *ok, int base) const
         if (ok != 0)
             *ok = true;
         return result;
-    }
-
-    // If the default was not "C", try the "C" locale
-    if (def_locale.language() == QLocale::C) {
-        if (ok != 0)
-            *ok = false;
-        return 0;
     }
 
     QLocale c_locale(QLocale::C);
@@ -5054,13 +5040,6 @@ double QString::toDouble(bool *ok) const
         if (ok != 0)
             *ok = true;
         return result;
-    }
-
-    // If the default was not "C", try the "C" locale
-    if (def_locale.language() == QLocale::C) {
-        if (ok != 0)
-            *ok = false;
-        return 0.0;
     }
 
     QLocale c_locale(QLocale::C);
