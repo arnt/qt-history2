@@ -624,14 +624,14 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         if (path.isEmpty()) {
             QList<int> old_path = savedDockWidgetLayout.indexOf(w, IndexOfFindsAll);
             if (old_path.isEmpty()) {
-                qWarning() << "QMainWindowLayout::restoreState(): failed to find" << w
-                            << "in the old layout";
+                qWarning("QMainWindowLayout::restoreState(): failed to find %p "
+                         "in the old layout", w);
                 continue;
             }
             QDockAreaLayoutInfo *info = dockWidgetLayout.info(old_path);
             if (info == 0) {
-                qWarning() << "QMainWindowLayout::restoreState(): failed to find location for " << w
-                            << "in the new layout";
+                qWarning("QMainWindowLayout::restoreState(): failed to find location for %p "
+                         "in the new layout", w);
                 continue;
             }
             info->item_list.append(QDockAreaLayoutItem(new QWidgetItem(w)));

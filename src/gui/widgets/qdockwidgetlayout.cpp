@@ -61,6 +61,8 @@ static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
     }
 }
 
+#ifndef QT_NO_TEXTSTREAM
+
 static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
 void dump(QDebug debug, const QDockWidgetLayout &layout);
 
@@ -98,6 +100,7 @@ void dump(QDebug debug, const QDockWidgetLayout &layout)
     debug << "Right " << layout.docks[QDockWidgetLayout::RightPos].rect << "\n";
     dump(debug, layout.docks[QDockWidgetLayout::RightPos], QString());
 }
+#endif // QT_NO_TEXTSTREAM
 
 /******************************************************************************
 ** QDockAreaLayoutItem
@@ -1148,8 +1151,8 @@ void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
             QWidget *w = item.widgetItem->widget();
             QString name = w->objectName();
             if (name.isEmpty()) {
-                qWarning() << "QMainWindow::saveState(): 'objectName' not set for QDockWidget"
-                            << w << w->windowTitle();
+                qWarning("QMainWindow::saveState(): 'objectName' not set for QDockWidget %p '%s;",
+                         w, qPrintable(w->windowTitle()));
             }
             stream << name;
 
@@ -1196,8 +1199,8 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             uchar flags;
             stream >> name >> flags;
             if (name.isEmpty()) {
-                qWarning() << "QMainWindow::restoreState: Cannot restore "
-                                "a QDockWidget with an empty 'objectName'";
+                qWarning("QMainWindow::restoreState: Cannot restore "
+                         "a QDockWidget with an empty 'objectName'");
                 int dummy;
                 stream >> dummy >> dummy >> dummy >> dummy;
                 continue;
@@ -1211,8 +1214,9 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
                 }
             }
             if (widget == 0) {
-                qWarning() << "QMainWindow::restoreState(): cannot find a QDockWidget with "
-                                "matching 'objectName' (looking for " << name << ").";
+                qWarning("QMainWindow::restoreState(): cannot find a QDockWidget with "
+                         "matching 'objectName' (looking for \"%s\").",
+                         qPrintable(name));
                 int dummy;
                 stream >> dummy >> dummy >> dummy >> dummy;
                 continue;

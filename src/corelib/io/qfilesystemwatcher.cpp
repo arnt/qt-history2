@@ -206,7 +206,7 @@ void QFileSystemWatcherPrivate::_q_directoryChanged(const QString &path, bool re
 
 
 
-/*! 
+/*!
     \class QFileSystemWatcher
     \brief The QFileSystemWatcher class provides an interface for monitoring files and directories for modications.
     \ingroup io
@@ -332,10 +332,11 @@ void QFileSystemWatcher::addPaths(const QStringList &paths)
         }
         p = d->poller->addPaths(p, &d->files, &d->directories);
     } else{
-        qDebug() << "QFileSystemWatcher: skipping polling engine, using only native engine";
+        qDebug("QFileSystemWatcher: skipping polling engine, using only native engine");
     }
     if (!p.isEmpty())
-        qWarning() << "QFileSystemWatcher: failed to add paths" << p;
+        qWarning("QFileSystemWatcher: failed to add paths: %s",
+                 qPrintable(p.join(", ")));
 }
 
 /*!
