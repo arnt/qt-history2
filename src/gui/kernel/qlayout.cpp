@@ -1332,3 +1332,33 @@ QSize QLayout::closestAcceptableSize(const QWidget *widget, const QSize &size)
     Use sizeConstraint() instead.
 */
 
+#ifndef QT_NO_DATASTREAM
+/*!
+    \relates QSizePolicy
+    \since 4.2
+
+    Writes the size \a policy to the data stream \a stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+QDataStream &operator<<(QDataStream &stream, const QSizePolicy &policy)
+{
+    stream << policy.data;
+    return stream;
+}
+
+/*!
+    \relates QSizePolicy
+    \since 4.2
+
+    Reads the size \a policy from the data stream \a stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+QDataStream &operator>>(QDataStream &stream, QSizePolicy &policy)
+{
+    stream >> policy.data;
+    return stream;
+}
+#endif
+

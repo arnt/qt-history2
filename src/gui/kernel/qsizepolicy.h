@@ -131,10 +131,18 @@ public:
 #endif
 
 private:
+#ifndef QT_NO_DATASTREAM
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizePolicy &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizePolicy &);
+#endif
     QSizePolicy(int i) : data(i) { }
 
     quint32 data;
 };
+
+// implemented in qlayout.cpp
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizePolicy &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizePolicy &);
 
 inline void QSizePolicy::transpose() {
     Policy hData = horizontalPolicy();
