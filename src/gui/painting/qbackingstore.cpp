@@ -681,12 +681,13 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
             //clip away the new area
             bool flushed = qt_flushPaint(q, toBePainted);
-            QPainter::setRedirected(q, pdev, -offset);
-            QRegion wrgn = toBePainted;
-            wrgn.translate(offset);
 
             QPaintEngine *paintEngine = pdev->paintEngine();
             if (paintEngine) {
+                QPainter::setRedirected(q, pdev, -offset);
+
+                QRegion wrgn = toBePainted;
+                wrgn.translate(offset);
                 paintEngine->setSystemRect(q->data->crect);
                 paintEngine->setSystemClip(wrgn);
 
