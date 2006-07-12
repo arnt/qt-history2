@@ -2020,9 +2020,11 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
         setState(NoState);
         d->removeEditor(editor);
         bool hadFocus = editor->hasFocus();
-        d->releaseEditor(editor);
+        editor->removeEventFilter(d->itemDelegate);
         if (hadFocus)
-            setFocus();
+            setFocus(); // this will send a focusLost event to the editor
+        QApplication::sendPostedEvents(editor, 0);
+        d->releaseEditor(editor);
     }
 
     // The EndEditHint part
