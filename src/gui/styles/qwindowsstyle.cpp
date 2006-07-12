@@ -1841,12 +1841,12 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
+                    p->setPen(background.color());
                     p->drawLine(x1, y2 - 1, x2, y2 - 1);
                     p->drawLine(x1, y2, x2, y2);
                 }
 
-                p->setPen(light);
+                p->setPen(light.color());
                 bool needLeft = (firstTab || selected || onlyOne || !previousSelected);
                 bool needRight = (lastTab || selected || onlyOne || !nextSelected);
                 int topBegin = x1 + (previousSelected ? 0 : 2);
@@ -1879,16 +1879,16 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->drawPath(path);
                 // Draw the shading...
                 if (use2000style) {
-                    p->setPen(midlight);
+                    p->setPen(midlight.color());
                     if (needLeft)
                         p->drawLine(x1 + 1, y1 + 2, x1 + 1, leftOffset);
                     p->drawLine(topBegin, y1 + 1, topEnd, y1 + 1);
                 }
                 if (needRight) {
-                    p->setPen(shadow);
+                    p->setPen(shadow.color());
                     p->drawLine(x2, y1 + 2, x2, y2 - rightOffset);
                     p->drawPoint(x2 - 1, y1 + 1);
-                    p->setPen(dark);
+                    p->setPen(dark.color());
                     p->drawLine(x2 - 1, y1 + 2, x2 - 1, y2 - rightOffset);
                 }
                 break; }
@@ -1900,7 +1900,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
+                    p->setPen(background.color());
                     p->drawLine(x1, y1 + 1, x2, y1 + 1);
                     p->drawLine(x1, y1, x2, y1);
                 }
@@ -1912,7 +1912,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 bool needLeft = firstTab || selected || onlyOne || !previousSelected;
                 bool needRight = lastTab || selected || onlyOne || !nextSelected;
 
-                p->setPen(light);
+                p->setPen(light.color());
 
                 if (needLeft) {
                     path.moveTo(x1, y1 + leftOffset);
@@ -1941,16 +1941,16 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 // Draw shading
                 if (!use2000style && needLeft) {
-                    p->setPen(midlight);
+                    p->setPen(midlight.color());
                     p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 + leftOffset);
                 }
-                p->setPen(shadow);
+                p->setPen(shadow.color());
                 p->drawLine(beginBottom, y2, endBottom, y2);
                 if (needRight) {
                     p->drawLine(x2, y2 - 2, x2, y1 + rightOffset);
                     p->drawPoint(x2 - 1, y2 - 1);
                 }
-                p->setPen(dark);
+                p->setPen(dark.color());
                 p->drawLine(beginBottom, y2 - 1, endBottom, y2 - 1);
                 if (needRight)
                     p->drawLine(x2 - 1, y2 - 2, x2 - 1, y1 + rightOffset);
@@ -1963,7 +1963,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
+                    p->setPen(background.color());
                     p->drawLine(x2 - 1, y1, x2 - 1, y2);
                     p->drawLine(x2, y1, x2, y2);
                 }
@@ -1975,7 +1975,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int beginLeft = y1 + (previousSelected ? 0 : 2);
                 int endLeft = y2 - (nextSelected ? 0 : 2);
 
-                p->setPen(light);
+                p->setPen(light.color());
                 if (needTop) {
                     path.moveTo(x2 - topOffset, y1);
                     path.lineTo(x1 + 2, y1);
@@ -2002,18 +2002,18 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 if (!use2000style) {
                     if (needTop) {
-                        p->setPen(midlight);
+                        p->setPen(midlight.color());
                         p->drawLine(x1 + 2, y1 + 1, x2 - topOffset, y1 + 1);
                     }
-                    p->setPen(midlight);
+                    p->setPen(midlight.color());
                     p->drawLine(x1 + 1, beginLeft, x1 + 1, endLeft);
                 }
 
                 if (needBottom) {
-                    p->setPen(shadow);
+                    p->setPen(shadow.color());
                     p->drawLine(x1 + 3, y2, x2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2);
                     p->drawPoint(x1 + 2, y2 - 1);
-                    p->setPen(dark);
+                    p->setPen(dark.color());
                     p->drawLine(x1 + 3, y2 - 1, x2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
                     p->drawPoint(x1 + 1, y2 - 1);
                     p->drawPoint(x1 + 2, y2);
@@ -2028,7 +2028,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 // Delete border
                 if (selected) {
-                    p->setPen(background);
+                    p->setPen(background.color());
                     p->drawLine(x1 + 1, y1, x1 + 1, y2);
                     p->drawLine(x1, y1, x1, y2);
                 }
@@ -2040,7 +2040,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int beginRight = y1 + (previousSelected ? 0 : 2);
                 int endRight = y2 - (nextSelected ? 0 : 2);
 
-                p->setPen(light);
+                p->setPen(light.color());
 
                 if (needTop) {
                     path.moveTo(x1 + topOffset, y1);
@@ -2067,17 +2067,17 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 p->drawPath(path);
                 if (!use2000style && needTop) {
-                    p->setPen(midlight);
+                    p->setPen(midlight.color());
                     p->drawLine(x2 - 3, y1 + 1, x1 + topOffset, y1 + 1);
                     p->drawPoint(x2 - 1, y1);
                 }
-                p->setPen(shadow);
+                p->setPen(shadow.color());
                 p->drawLine(x2, beginRight, x2, endRight);
                 if (needBottom) {
                     p->drawLine(x2 - 2, y2, x1 + bottomOffset, y2);
                     p->drawPoint(x2 - 1, y2 - 1);
                 }
-                p->setPen(dark);
+                p->setPen(dark.color());
                 p->drawLine(x2 - 1, beginRight, x2 - 1, endRight);
                 if (needBottom)
                     p->drawLine(x2 - 2, y2 - 1, x1 + bottomOffset, y2 - 1);

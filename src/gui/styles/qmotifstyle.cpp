@@ -967,7 +967,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     p->rotate(90);
                     topExtra = 1;
                 }
-                p->setPen(tabLight);
+                p->setPen(tabLight.color());
                 p->setBrush(tab->palette.window());
 
                 bool selected = (tab->state & State_Selected);
@@ -992,7 +992,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                 tabRect.right() - 2, tabRect.top()+1);
                 }
 
-                p->setPen(tabDark);
+                p->setPen(tabDark.color());
                 p->drawLine(tabRect.right() - 1, tabRect.top() + 2,
                             tabRect.right() - 1, tabRect.bottom() - 1 +
                             ((opt->state & State_Selected) ? frame_offset : -frame_offset));
