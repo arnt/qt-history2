@@ -40,6 +40,7 @@ private slots:
     void showMinimized();
     void showFullScreen();
     void showAsTool();
+    void toolDialogPosition();
 
 private:
     QDialog *testWidget;
@@ -313,6 +314,18 @@ void tst_QDialog::showAsTool()
     testWidget->activateWindow();
     dialog.exec();
     QCOMPARE(dialog.wasActive(), true);
+}
+
+// Verify that pos() returns the same before and after show()
+// for a dialog with the Tool window type.
+void tst_QDialog::toolDialogPosition()
+{
+	QDialog dialog(0, Qt::Tool);
+	dialog.move(QPoint(100,100));
+    const QPoint beforeShowPosition = dialog.pos();
+	dialog.show();
+    const QPoint afterShowPosition = dialog.pos();
+    QCOMPARE(afterShowPosition, beforeShowPosition);
 }
 
 QTEST_MAIN(tst_QDialog)
