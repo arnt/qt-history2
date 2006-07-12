@@ -777,8 +777,7 @@ void QGraphicsItem::setVisible(bool visible)
         if (isSelected())
             setSelected(false);
     }
-    d_ptr->visible = quint32(visible);
-    d_ptr->visible = itemChange(ItemVisibleChange, d_ptr->visible).toBool();
+    d_ptr->visible = itemChange(ItemVisibleChange, quint32(visible)).toBool();
     update();
 
     foreach (QGraphicsItem *child, children())
@@ -845,8 +844,7 @@ void QGraphicsItem::setEnabled(bool enabled)
         if (isSelected())
             setSelected(false);
     }
-    d_ptr->enabled = quint32(enabled);
-    d_ptr->enabled = itemChange(ItemEnabledChange, d_ptr->enabled).toBool();
+    d_ptr->enabled = itemChange(ItemEnabledChange, quint32(enabled)).toBool();
     update();
 
     foreach (QGraphicsItem *child, children())
@@ -905,8 +903,7 @@ void QGraphicsItem::setSelected(bool selected)
     if (d_ptr->selected == selected)
         return;
 
-    d_ptr->selected = quint32(selected);
-    d_ptr->selected = itemChange(ItemSelectedChange, d_ptr->selected).toBool();
+    d_ptr->selected = itemChange(ItemSelectedChange, quint32(selected)).toBool();
 
     update();
     if (selected && d_ptr->scene)
@@ -1182,8 +1179,7 @@ void QGraphicsItem::setPos(const QPointF &pos)
         qt_graphicsItem_fullUpdate(this);
         removeFromIndex();
     }
-    d_ptr->pos = pos;
-    d_ptr->pos = itemChange(ItemPositionChange, d_ptr->pos).toPointF();
+    d_ptr->pos = itemChange(ItemPositionChange, pos).toPointF();
     if (d_ptr->scene) {
         qt_graphicsItem_fullUpdate(this);
         addToIndex();
@@ -1313,9 +1309,8 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
     removeFromIndex();
     QVariant variant;
     qVariantSetValue<QMatrix>(variant, newMatrix);
-    d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix, variant);
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraMatrix,
-                itemChange(ItemMatrixChange, variant));
+                    itemChange(ItemMatrixChange, variant));
     addToIndex();
     qt_graphicsItem_fullUpdate(this);
 }
