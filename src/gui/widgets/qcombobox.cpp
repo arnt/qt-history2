@@ -102,9 +102,7 @@ void QComboBoxPrivate::_q_modelReset()
         updateLineEditGeometry();
     }
     q->update();
-
 }
-
 
 void QComboBoxPrivate::_q_modelDestroyed()
 {
@@ -960,7 +958,6 @@ QComboBox::~QComboBox()
     This property is ignored for non-editable comboboxes in Mac
     style.
 */
-
 int QComboBox::maxVisibleItems() const
 {
     Q_D(const QComboBox);
@@ -970,15 +967,17 @@ int QComboBox::maxVisibleItems() const
 void QComboBox::setMaxVisibleItems(int maxItems)
 {
     Q_D(QComboBox);
-    if (maxItems > 0)
-        d->maxVisibleItems = maxItems;
+    if (maxItems <= 0) {
+        qWarning("QComboBox::setMaxVisibleItems: Invalid count (%d) must be > 0", maxItems);
+        return;
+    }
+    d->maxVisibleItems = maxItems;
 }
 
 /*!
     \property QComboBox::count
     \brief the number of items in the combobox
 */
-
 int QComboBox::count() const
 {
     return model()->rowCount(rootModelIndex());
@@ -993,11 +992,13 @@ int QComboBox::count() const
     truncated. This also applies if you have set an external model on
     the combobox.
 */
-
 void QComboBox::setMaxCount(int max)
 {
     Q_D(QComboBox);
-    Q_ASSERT(max >= 0);
+    if (max < 0) {
+        qWarning("QComboBox::setMaxCount: Invalid count (%d) must be > 1", max);
+        return;
+    }
 
     if (max < count())
         model()->removeRows(max, count() - max, rootModelIndex());
@@ -1023,7 +1024,6 @@ int QComboBox::maxCount() const
 
     \sa editable
 */
-
 bool QComboBox::autoCompletion() const
 {
     Q_D(const QComboBox);
@@ -1062,7 +1062,6 @@ void QComboBox::setAutoCompletion(bool enable)
 
     \sa autoCompletion
 */
-
 Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
 {
     Q_D(const QComboBox);
@@ -1086,7 +1085,6 @@ void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity
     Note that it is always possible to programatically insert duplicate items into the
     combobox.
 */
-
 bool QComboBox::duplicatesEnabled() const
 {
     Q_D(const QComboBox);
@@ -1185,7 +1183,6 @@ void QComboBox::setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy policy)
 
     \sa sizeAdjustPolicy
 */
-
 int QComboBox::minimumContentsLength() const
 {
     Q_D(const QComboBox);
@@ -1240,7 +1237,6 @@ void QComboBox::setIconSize(const QSize &size)
     \property QComboBox::editable
     \brief whether the combobox can be edited by the user
 */
-
 bool QComboBox::isEditable() const
 {
     Q_D(const QComboBox);
@@ -1351,7 +1347,6 @@ void QComboBox::setValidator(const QValidator *v)
 
     \sa editable
 */
-
 const QValidator *QComboBox::validator() const
 {
     Q_D(const QComboBox);
@@ -1438,7 +1433,6 @@ QAbstractItemModel *QComboBox::model() const
 
     \sa clear()
 */
-
 void QComboBox::setModel(QAbstractItemModel *model)
 {
     Q_D(QComboBox);
@@ -1513,7 +1507,6 @@ QModelIndex QComboBox::rootModelIndex() const
 
     \sa rootModelIndex()
 */
-
 void QComboBox::setRootModelIndex(const QModelIndex &index)
 {
     Q_D(QComboBox);
@@ -1528,7 +1521,6 @@ void QComboBox::setRootModelIndex(const QModelIndex &index)
     can change when inserting or removing items. Returns -1 if no
     current item is set or the combobox is empty.
 */
-
 int QComboBox::currentIndex() const
 {
     Q_D(const QComboBox);
@@ -1557,7 +1549,6 @@ void QComboBox::setCurrentIndex(int index)
     \property QComboBox::currentText
     \brief the text of the current item
 */
-
 QString QComboBox::currentText() const
 {
     Q_D(const QComboBox);
@@ -1572,7 +1563,6 @@ QString QComboBox::currentText() const
 /*!
     Returns the text for the given \a index in the combobox.
 */
-
 QString QComboBox::itemText(int index) const
 {
     Q_D(const QComboBox);
@@ -1714,7 +1704,6 @@ void QComboBox::removeItem(int index)
 /*!
     Sets the \a text for the item on the given \a index in the combobox.
 */
-
 void QComboBox::setItemText(int index, const QString &text)
 {
     Q_D(const QComboBox);
@@ -1727,7 +1716,6 @@ void QComboBox::setItemText(int index, const QString &text)
 /*!
     Sets the \a icon for the item on the given \a index in the combobox.
 */
-
 void QComboBox::setItemIcon(int index, const QIcon &icon)
 {
     Q_D(const QComboBox);
@@ -1897,7 +1885,6 @@ void QComboBox::hidePopup()
     Note: If you have set an external model on the combobox this model
     will still be cleared when calling this function.
 */
-
 void QComboBox::clear()
 {
     model()->removeRows(0, model()->rowCount(rootModelIndex()), rootModelIndex());
@@ -1912,7 +1899,6 @@ void QComboBox::clear()
 /*!
     Clears the contents of the line edit used for editing in the combobox.
 */
-
 void QComboBox::clearEditText()
 {
     Q_D(QComboBox);
@@ -1923,7 +1909,6 @@ void QComboBox::clearEditText()
 /*!
     Sets the \a text in the combobox's text edit.
 */
-
 void QComboBox::setEditText(const QString &text)
 {
     Q_D(QComboBox);
@@ -1934,7 +1919,6 @@ void QComboBox::setEditText(const QString &text)
 /*!
     \reimp
 */
-
 void QComboBox::focusInEvent(QFocusEvent *e)
 {
     Q_D(QComboBox);
@@ -1946,7 +1930,6 @@ void QComboBox::focusInEvent(QFocusEvent *e)
 /*!
     \reimp
 */
-
 void QComboBox::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QComboBox);
@@ -1988,7 +1971,6 @@ void QComboBox::changeEvent(QEvent *e)
 /*!
     \reimp
 */
-
 void QComboBox::resizeEvent(QResizeEvent *)
 {
     Q_D(QComboBox);
@@ -1998,7 +1980,6 @@ void QComboBox::resizeEvent(QResizeEvent *)
 /*!
     \reimp
 */
-
 void QComboBox::paintEvent(QPaintEvent *)
 {
     Q_D(QComboBox);
@@ -2096,7 +2077,6 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 /*!
     \reimp
 */
-
 void QComboBox::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QComboBox);
@@ -2203,7 +2183,6 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 /*!
     \reimp
 */
-
 void QComboBox::keyReleaseEvent(QKeyEvent *e)
 {
     Q_D(QComboBox);
@@ -2425,7 +2404,6 @@ void QComboBox::setFrame(bool enable)
     \property QComboBox::modelColumn
     \brief the column in the model that is visible
 */
-
 int QComboBox::modelColumn() const
 {
     Q_D(const QComboBox);
