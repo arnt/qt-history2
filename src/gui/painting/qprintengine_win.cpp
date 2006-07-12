@@ -418,6 +418,10 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
     Q_D(const QWin32PrintEngine);
+
+    if (!d->hdc)
+        return 0;
+
     int val;
     int res = d->resolution;
 
