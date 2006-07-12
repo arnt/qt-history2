@@ -684,7 +684,12 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     mat.eM11.fract = mat.eM22.fract = 0;
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
-    uint glyphFormat = GGO_NATIVE | GGO_UNHINTED;
+    uint glyphFormat = GGO_NATIVE;
+	if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)
+        && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
+		glyphFormat |= GGO_UNHINTED;
+	}
+
     if (ttf)
         glyphFormat |= GGO_GLYPH_INDEX;
 
