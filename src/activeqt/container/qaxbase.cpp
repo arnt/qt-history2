@@ -2362,12 +2362,6 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         if (!funcdesc)
             break;
 
-        // ignore hidden functions
-        if (funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) {
-            typeinfo->ReleaseFuncDesc(funcdesc);
-            continue;
-        }
-
         QByteArray function;
         QByteArray type;
         QByteArray prototype;
@@ -2413,7 +2407,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                     int flags = Readable;
                     if (funcdesc->invkind != INVOKE_PROPERTYGET)
                         flags |= Writable;
-                    if (!(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE))
+                    if (!(funcdesc->wFuncFlags & (FUNCFLAG_FNONBROWSABLE | FUNCFLAG_FHIDDEN)))
                         flags |= Designable;
                     if (!(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED))
                         flags |= Scriptable;
@@ -2534,8 +2528,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
             break;
 
         // no use if it's not a dispatched variable
-        if (vardesc->varkind != VAR_DISPATCH ||
-            vardesc->wVarFlags & VARFLAG_FHIDDEN) {
+        if (vardesc->varkind != VAR_DISPATCH) {
             typeinfo->ReleaseVarDesc(vardesc);
             continue;
         }
@@ -2565,7 +2558,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
             flags = Readable;
             if (!(vardesc->wVarFlags & VARFLAG_FREADONLY))
                 flags |= Writable;
-            if (!(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE))
+            if (!(vardesc->wVarFlags & (VARFLAG_FNONBROWSABLE | VARFLAG_FHIDDEN)))
                 flags |= Designable;
             if (!(vardesc->wVarFlags & VARFLAG_FRESTRICTED))
                 flags |= Scriptable;
