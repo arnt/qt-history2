@@ -849,8 +849,8 @@ public:
             qax_ownQApp = true;
             int argc = 0;
             QApplication *app = new QApplication(argc, 0);
-            app->setQuitOnLastWindowClosed(false);
         }
+        qApp->setQuitOnLastWindowClosed(false);
 
         if (qAxOutProcServer)
             QAbstractEventDispatcher::instance()->setEventFilter(qax_winEventFilter);
