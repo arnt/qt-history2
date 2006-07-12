@@ -75,10 +75,11 @@ public:
         BrushStroke               = 0x00000800, // Can render brush based pens
         ConstantOpacity           = 0x00001000, // Can render at constant opacity
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
-
         /*                          0x10000000, // Used for emulating
                                     QGradient::StretchToDevice,
                                     defined in qpainter.cpp
+
+                                    0x40000000, // Used internally for emulating opaque backgrounds
         */
 
         AllFeatures               = 0xffffffff  // For convenience

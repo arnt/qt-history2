@@ -41,6 +41,7 @@
 #include <math.h>
 
 #define QGradient_StretchToDevice 0x10000000
+#define QPaintEngine_OpaqueBackground 0x40000000
 
 // #define QT_DEBUG_DRAW
 #ifdef QT_DEBUG_DRAW
@@ -69,6 +70,16 @@ static inline bool check_gradient(const QBrush &brush)
     return false;
 }
 
+static inline bool is_brush_transparent(const QBrush &brush) {
+    Qt::BrushStyle s = brush.style();
+    return ((s >= Qt::Dense1Pattern && s <= Qt::DiagCrossPattern)
+            || (s == Qt::TexturePattern && brush.texture().isQBitmap()));
+}
+
+static inline bool is_pen_transparent(const QPen &pen) {
+    return pen.style() > Qt::SolidLine || is_brush_transparent(pen.brush());
+}
+
 /* Discards the emulation flags that are not relevant for line drawing
    and returns the result
 */
@@ -79,7 +90,8 @@ static inline uint line_emulation(uint emulation)
                         | QPaintEngine::Antialiasing
                         | QPaintEngine::BrushStroke
                         | QPaintEngine::ConstantOpacity
-                        | QGradient_StretchToDevice);
+                        | QGradient_StretchToDevice
+                        | QPaintEngine_OpaqueBackground);
 }
 
 
@@ -97,6 +109,9 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     if (state->emulationSpecifier == QGradient_StretchToDevice) {
         drawStretchToDevice(originalPath, op);
+        return;
+    } else if (state->emulationSpecifier & QPaintEngine_OpaqueBackground) {
+        drawOpaqueBackground(originalPath, op);
         return;
     }
 
@@ -194,6 +209,33 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
                  image,
                  QRectF(0, 0, absPathRect.width(), absPathRect.height()),
                  Qt::OrderedDither | Qt::OrderedAlphaDither);
+    q->restore();
+}
+
+void QPainterPrivate::drawOpaqueBackground(const QPainterPath &path, DrawOperation op)
+{
+    Q_Q(QPainter);
+
+    q->save();
+    q->setBackgroundMode(Qt::TransparentMode);
+    if (op & StrokeDraw && state->pen.style() != Qt::NoPen)
+        q->setPen(QPen(state->bgBrush.color(), state->pen.width()));
+    else
+        q->setPen(Qt::NoPen);
+
+    if (op & FillDraw && state->brush.style() != Qt::NoBrush)
+        q->setBrush(state->bgBrush.color());
+    else
+        q->setBrush(Qt::NoBrush);
+
+    q->drawPath(path);
+    q->restore();
+
+    q->save();
+    q->setBackgroundMode(Qt::TransparentMode);
+    if ((op & StrokeDraw) == 0) q->setPen(Qt::NoPen);
+    if ((op & FillDraw) == 0) q->setBrush(Qt::NoBrush);
+    q->drawPath(path);
     q->restore();
 }
 
@@ -369,7 +411,9 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
                           || s->brush.style() == Qt::TexturePattern));
     }
 
-    if (s->state() & (QPaintEngine::DirtyHints | QPaintEngine::DirtyOpacity)) {
+    if (s->state() & (QPaintEngine::DirtyHints
+                      | QPaintEngine::DirtyOpacity
+                      | QPaintEngine::DirtyBackgroundMode)) {
         skip = false;
     }
 
@@ -459,6 +503,13 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier |= QGradient_StretchToDevice;
     else
         s->emulationSpecifier &= ~QGradient_StretchToDevice;
+
+    // Opaque backgrounds...
+    if (s->bgMode == Qt::OpaqueMode &&
+        (is_pen_transparent(s->pen) || is_brush_transparent(s->brush)))
+        s->emulationSpecifier |= QPaintEngine_OpaqueBackground;
+    else
+        s->emulationSpecifier &= ~QPaintEngine_OpaqueBackground;
 }
 
 
@@ -490,6 +541,9 @@ void QPainterPrivate::updateState(QPainterState *newState)
             newState->changeFlags |= newState->dirtyFlags;
 
         updateEmulationSpecifier(newState);
+
+        // Unset potential dirty background mode
+        newState->dirtyFlags &= ~(QPaintEngine::DirtyBackgroundMode);
 
         engine->state = newState;
         engine->updateState(*newState);
@@ -3933,7 +3987,6 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     Q_D(QPainter);
     if (!isActive() || pm.isNull())
         return;
-    d->updateState(d->state);
 
     qreal x = r.x();
     qreal y = r.y();
@@ -3971,6 +4024,13 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
     if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
+    // Emulate opaque background for bitmaps
+    if (d->state->bgMode == Qt::OpaqueMode && pm.isQBitmap()) {
+        fillRect(x, y, w, h, d->state->bgBrush.color());
+    }
+
+    d->updateState(d->state);
+
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
         || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity)))
@@ -3978,7 +4038,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         save();
         translate(x, y);
         scale(w / sw, h / sh);
-
+        setBackgroundMode(Qt::TransparentMode);
         setPen(Qt::NoPen);
         setBrush(QPixmap(pm));
         setBrushOrigin(QPointF(-sx, -sy));
