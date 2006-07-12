@@ -350,7 +350,11 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 QFontEngine::Properties QFontEngine::properties() const
 {
     Properties p;
+#ifndef QT_NO_PRINTER
     QByteArray psname = QPdf::stripSpecialCharacters(fontDef.family.toUtf8());
+#else
+    QByteArray psname = fontDef.family.toUtf8();
+#endif
     p.postscriptName = psname;
     p.ascent = ascent();
     p.descent = descent();

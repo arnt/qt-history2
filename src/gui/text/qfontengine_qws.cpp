@@ -531,7 +531,11 @@ QFontEngine::Properties QFontEngineFT::properties() const
     if (psname.isEmpty()) {
         fontDef.family.toUtf8();
     }
+#ifndef QT_NO_PRINTER
     p.postscriptName = QPdf::stripSpecialCharacters(psname);
+#else
+    p.postscriptName = psname;
+#endif
 #if 0 // doesn't link somehow, but who would want Type1 fonts on embedded anyway.
     PS_FontInfoRec font_info;
     if (FT_Get_PS_Font_Info(face, &font_info) == 0)
