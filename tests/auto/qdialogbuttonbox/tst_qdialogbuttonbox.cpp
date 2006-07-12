@@ -403,10 +403,10 @@ void tst_QDialogButtonBox::testStandardButtonMapping_data()
                                                     << QDialogButtonBox::tr("Discard");
     }
     QTest::newRow("QDialogButtonBox::Apply") << QDialogButtonBox::Apply
-                                             << QDialogButtonBox::ActionRole
+                                             << QDialogButtonBox::ApplyRole
                                              << QDialogButtonBox::tr("Apply");
     QTest::newRow("QDialogButtonBox::Reset") << QDialogButtonBox::Reset
-                                             << QDialogButtonBox::ActionRole
+                                             << QDialogButtonBox::ResetRole
                                              << QDialogButtonBox::tr("Reset");
     QTest::newRow("QDialogButtonBox::Help") << QDialogButtonBox::Help
                                             << QDialogButtonBox::HelpRole

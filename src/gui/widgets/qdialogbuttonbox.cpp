@@ -113,20 +113,18 @@
 
 enum { AcceptRole = QDialogButtonBox::AcceptRole, RejectRole = QDialogButtonBox::RejectRole,
        DestructiveRole = QDialogButtonBox::DestructiveRole,
-       ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole, AlternateRole,
-       Stretch = 0x10000000, EOL = 0x40000000, Reverse = 0x80000000 };
+       ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole,
+       ApplyRole = QDialogButtonBox::ApplyRole, ResetRole = QDialogButtonBox::ResetRole,
+       Stretch = 0x10000000,  AlternateRole = 0x20000000, EOL = 0x40000000, Reverse = 0x80000000 };
 
 static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton button)
 {
     switch (button) {
     case QDialogButtonBox::Ok:
-        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Save:
-        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Open:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Cancel:
-        return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::Close:
         return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::Discard:
@@ -134,66 +132,65 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     case QDialogButtonBox::Help:
         return QDialogButtonBox::HelpRole;
     case QDialogButtonBox::Apply:
-        return QDialogButtonBox::ActionRole;
+        return QDialogButtonBox::ApplyRole;
+    case QDialogButtonBox::RestoreDefaults:
+        return QDialogButtonBox::ResetRole;
     case QDialogButtonBox::Reset:
-        return QDialogButtonBox::ActionRole;
+        return QDialogButtonBox::ResetRole;
     case QDialogButtonBox::Yes:
-        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::YesToAll:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::No:
-        return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::NoToAll:
         return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::SaveAll:
-        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Abort:
-        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Retry:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Ignore:
         return QDialogButtonBox::RejectRole;
-    default:
-        return QDialogButtonBox::InvalidRole;
+    case QDialogButtonBox::NoButton:
+        ;
     }
+    return QDialogButtonBox::InvalidRole;
 }
 
-static const int layouts[2][5][9] =
+static const int layouts[2][5][11] =
 {
     // Qt::Horizontal
     {
         // WinLayout
-        { Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ActionRole, HelpRole, EOL, EOL },
+        { ResetRole, Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ApplyRole, ActionRole, HelpRole, EOL, EOL },
 
         // MacLayout
-        { HelpRole, ActionRole, Stretch, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
+        { HelpRole, ResetRole, ApplyRole, ActionRole, Stretch, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
 
         // KdeLayout
-        { HelpRole, DestructiveRole, Stretch, ActionRole, AcceptRole, AlternateRole, RejectRole, EOL, EOL },
+        { HelpRole, ResetRole, Stretch, ActionRole, AcceptRole, AlternateRole, ApplyRole, DestructiveRole, RejectRole, EOL, EOL },
 
         // GnomeLayout
-        { HelpRole, Stretch, ActionRole | Reverse, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
+        { HelpRole, ResetRole, Stretch, ActionRole | Reverse, ApplyRole | Reverse, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
 
         // Mac modeless
-        { ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL }
+        { ResetRole, ApplyRole, ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL }
     },
 
     // Qt::Vertical
     {
         // WinLayout
-        { ActionRole, AcceptRole, AlternateRole, DestructiveRole, RejectRole, HelpRole, Stretch, EOL, EOL },
+        { ActionRole, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ApplyRole, ResetRole, HelpRole, Stretch, EOL, EOL },
 
         // MacLayout
-        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, Stretch, ActionRole, HelpRole, EOL },
+        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, Stretch, ActionRole, ApplyRole, ResetRole, HelpRole, EOL },
 
         // KdeLayout
-        { ActionRole, Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, HelpRole, EOL, EOL },
+        { AcceptRole, AlternateRole, ApplyRole, ActionRole, Stretch, ResetRole, DestructiveRole, RejectRole, HelpRole, EOL, EOL },
 
         // GnomeLayout
-        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, ActionRole, Stretch, HelpRole, EOL, EOL },
+        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, ApplyRole, ActionRole, Stretch, ResetRole, HelpRole, EOL, EOL },
 
         // Mac modeless
-        { ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL }
+        { ActionRole, ApplyRole, ResetRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL }
     }
 };
 
@@ -322,6 +319,8 @@ void QDialogButtonBoxPrivate::layoutButtons()
         case RejectRole:
         case DestructiveRole:
         case ActionRole:
+        case ApplyRole:
+        case ResetRole:
         case HelpRole: {
             const QList<QAbstractButton *> &list = buttonLists[role];
 
@@ -428,9 +427,11 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
     case QDialogButtonBox::Ignore:
         buttonText = QDialogButtonBox::tr("Ignore");
         break;
-    default:
-        icon = 0;
+    case QDialogButtonBox::RestoreDefaults:
+        buttonText = QDialogButtonBox::tr("Restore Defaults");
         break;
+    case QDialogButtonBox::NoButton:
+        ;
     }
 
     if (buttonText.isEmpty())
@@ -527,7 +528,11 @@ QDialogButtonBox::~QDialogButtonBox()
     \value ActionRole Clicking the button causes changes to the elements in
            the dialog (e.g. reset all the values or read defaults).
     \value HelpRole The button can be clicked to request help.
+    \value ApplyRole The button applies current changes.
+    \value ResetRole The button resets the dialog's fields to default values.
     \omitvalue NRoles
+
+    \sa StandardButton
 */
 
 /*!
@@ -543,8 +548,9 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Close A "Close" button defined with the \l RejectRole.
     \value Discard A "Discard" or "Don't Save" button, depending on the platform,
                     defined with the \l DestructiveRole.
-    \value Apply An "Apply" button defined with the \l ActionRole.
-    \value Reset A "Reset" button defined with the \l ActionRole.
+    \value Apply An "Apply" button defined with the \l ApplyRole.
+    \value Reset A "Reset" button defined with the \l ResetRole.
+    \value RestoreDefaults A "Restore Defaults" button defined with the \l ResetRole.
     \value Help A "Help" button defined with the \l HelpRole.
     \value SaveAll A "Save All" button defined with the \l AcceptRole
     \value Yes A "Yes" button defined with the \l AcceptRole
@@ -555,11 +561,12 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Retry A "Retry" button defined with the \l AcceptRole
     \value Ignore An "Ignore" button defined with the \l AcceptRole
     \omitvalue NoButtons
+
+    \sa ButtonRole
 */
 
 /*!
     \enum QDialogButtonBox::ButtonLayout
-    \internal
 
     This enum describes the layout policy to be used when arranging the buttons
     contained in the button box.

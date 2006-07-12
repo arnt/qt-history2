@@ -38,6 +38,8 @@ public:
         DestructiveRole,
         ActionRole,
         HelpRole,
+        ResetRole,
+        ApplyRole,
         NRoles
     };
 
@@ -59,7 +61,8 @@ public:
         Discard            = 0x00002000,
         Help               = 0x00004000,
         Apply              = 0x00008000,
-        Reset              = 0x00010000
+        Reset              = 0x00010000,
+        RestoreDefaults    = 0x00020000
     };
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
