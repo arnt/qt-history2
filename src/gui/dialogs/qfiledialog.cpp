@@ -2066,7 +2066,8 @@ QString QFileDialogPrivate::initialSelection(const QString &path)
   specified then a default caption will be used.
 
   Under Windows and Mac OS X, this static function will use the native
-  file dialog and not a QFileDialog.
+  file dialog and not a QFileDialog. On Mac OS X, the \a dir argument
+  is ignored, the native dialog always displays the last visited directory.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
@@ -2256,6 +2257,10 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
+  Under Windows and Mac OS X, this static function will use the native
+  file dialog and not a QFileDialog. On Mac OS X, the \a dir argument
+  is ignored, the native dialog always displays the last visited directory.
+
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
   \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
@@ -2343,7 +2348,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   specified then a default caption will be used.
 
   Under Windows and Mac OS X, this static function will use the native
-  file dialog and not a QFileDialog.
+  file dialog and not a QFileDialog. On Mac OS X, the \a dir argument
+  is ignored, the native dialog always displays the last visited directory.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
