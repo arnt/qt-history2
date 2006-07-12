@@ -62,6 +62,7 @@ private:
 
 class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
+    Q_OBJECT
     friend class QTDSResult;
 public:
     explicit QTDSDriver(QObject* parent = 0);

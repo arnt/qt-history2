@@ -56,6 +56,7 @@ private:
 
 class Q_EXPORT_SQLDRIVER_DB2 QDB2Driver : public QSqlDriver
 {
+    Q_OBJECT
 public:
     explicit QDB2Driver(QObject* parent = 0);
     QDB2Driver(Qt::HANDLE env, Qt::HANDLE con, QObject* parent = 0);

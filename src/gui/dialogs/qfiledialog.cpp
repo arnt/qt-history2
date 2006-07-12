@@ -1435,12 +1435,12 @@ void QFileDialogPrivate::_q_deleteCurrent()
     QString fileName = model->fileName(index);
     if (!model->fileInfo(index).isWritable()
         && (QMessageBoxEx::warning(q_func(), q_func()->windowTitle(),
-                                tr("'%1' is write protected.\nDo you want to delete it anyway?")
+                                QFileDialog::tr("'%1' is write protected.\nDo you want to delete it anyway?")
                                 .arg(fileName),
                                  QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::No))
         return;
     else if (QMessageBoxEx::warning(q_func(), q_func()->windowTitle(),
-                                  tr("Are sure you want to delete '%1'?")
+                                  QFileDialog::tr("Are sure you want to delete '%1'?")
                                   .arg(fileName),
                                   QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::No)
         return;
@@ -1448,7 +1448,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
     if (model->isDir(index)) {
         if (!model->rmdir(index)) {
             QMessageBoxEx::warning(q, q->windowTitle(),
-                                   tr("Could not delete directory."));
+                                QFileDialog::tr("Could not delete directory."));
         }
     } else {
         model->remove(index);

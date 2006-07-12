@@ -90,6 +90,7 @@ private:
 
 class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
 {
+    Q_OBJECT
 public:
     explicit QODBCDriver(QObject *parent=0);
     QODBCDriver(SQLHANDLE env, SQLHANDLE con, QObject * parent=0);

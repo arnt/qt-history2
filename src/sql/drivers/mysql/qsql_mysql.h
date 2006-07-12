@@ -68,6 +68,7 @@ private:
 
 class Q_EXPORT_SQLDRIVER_MYSQL QMYSQLDriver : public QSqlDriver
 {
+    Q_OBJECT
     friend class QMYSQLResult;
 public:
     explicit QMYSQLDriver(QObject *parent=0);
