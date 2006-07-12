@@ -735,6 +735,7 @@ void QProcess::setReadChannelMode(ProcessChannelMode mode)
 }
 
 /*!
+    \since 4.2
     Returns the channel mode of the QProcess standard output and
     standard error channels.
 
@@ -747,6 +748,7 @@ QProcess::ProcessChannelMode QProcess::processChannelMode() const
 }
 
 /*!
+    \since 4.2
     Sets the channel mode of the QProcess standard output and standard
     error channels to the \a mode specified.
     This mode will be used the next time start() is called. For example:
