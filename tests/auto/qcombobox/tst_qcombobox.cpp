@@ -155,7 +155,7 @@ void tst_QComboBox::getSetCheck()
     obj1.setMaxCount(0);
     QCOMPARE(0, obj1.maxCount());
 #ifndef QT_DEBUG
-    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxCount: Invalid count (-2147483648) must be > 1");
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxCount: Invalid count (-2147483648) must be >= 0");
     obj1.setMaxCount(INT_MIN);
     QCOMPARE(0, obj1.maxCount()); // Setting a value below 0 makes no sense, and shouldn't be allowed
 #endif 
