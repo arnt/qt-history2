@@ -80,5 +80,9 @@ void ControlInfo::setControl(QWidget *activex)
 	item = new QTreeWidgetItem(group);
         item->setText(0, property.name());
         item->setText(1, property.typeName());
+        if (!property.isDesignable()) {
+            item->setTextColor(0, Qt::gray);
+            item->setTextColor(1, Qt::gray);
+        }
     }
 }

@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     layout->setMargin(0);
 
     connect(workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(updateGUI()));
-    connect(actionFileExit, SIGNAL(activated()), qApp, SLOT(quit()));
+    connect(actionFileExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 }
 
 MainWindow::~MainWindow()
