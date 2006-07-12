@@ -364,6 +364,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             QByteArray a;
             {
                 QDataStream s(&a, QIODevice::WriteOnly);
+                s.setVersion(QDataStream::Qt_4_0);
                 s << v;
             }
 
@@ -391,6 +392,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
 #ifndef QT_NO_DATASTREAM
                 QByteArray a(s.toLatin1().mid(9));
                 QDataStream stream(&a, QIODevice::ReadOnly);
+                stream.setVersion(QDataStream::Qt_4_0);
                 QVariant result;
                 stream >> result;
                 return result;
