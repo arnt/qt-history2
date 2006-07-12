@@ -47,6 +47,7 @@ private slots:
     void scene();
     void sceneRect();
     void sceneRect_growing();
+    void setSceneRect();
     void viewport();
     void dragMode_scrollHand();
     void dragMode_rubberBand();
@@ -321,6 +322,35 @@ void tst_QGraphicsView::sceneRect_growing()
         QCOMPARE(view.mapToScene(0, 0), topLeft);
         view.setSceneRect(QRectF());
     }
+}
+
+void tst_QGraphicsView::setSceneRect()
+{
+    QRectF rect1(-100, -100, 200, 200);
+    QRectF rect2(-300, -300, 150, 150);
+    
+    QGraphicsScene scene;
+    QGraphicsView view(&scene);
+
+    scene.setSceneRect(rect1);
+    QCOMPARE(scene.sceneRect(), rect1);
+    QCOMPARE(view.sceneRect(), rect1);
+
+    scene.setSceneRect(rect2);
+    QCOMPARE(scene.sceneRect(), rect2);
+    QCOMPARE(view.sceneRect(), rect2);
+
+    view.setSceneRect(rect1);
+    QCOMPARE(scene.sceneRect(), rect2);
+    QCOMPARE(view.sceneRect(), rect1);
+
+    view.setSceneRect(rect2);
+    QCOMPARE(scene.sceneRect(), rect2);
+    QCOMPARE(view.sceneRect(), rect2);
+    
+    scene.setSceneRect(rect1);
+    QCOMPARE(scene.sceneRect(), rect1);
+    QCOMPARE(view.sceneRect(), rect2);
 }
 
 void tst_QGraphicsView::viewport()
