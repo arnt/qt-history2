@@ -1102,8 +1102,13 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 {
     Q_D(QWin32PrintEngine);
     switch (key) {
-    case PPK_CollateCopies:
-        d->doReinit();
+    case PPK_CollateCopies: 
+        {
+            short collate = value.toBool() ? DMCOLLATE_TRUE : DMCOLLATE_FALSE;
+            QT_WA( { d->devModeW()->dmCollate = collate; }, 
+                   { d->devModeA()->dmCollate = collate; }); 
+            d->doReinit();
+        }
         break;
 
     case PPK_ColorMode:
@@ -1135,7 +1140,9 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_NumberOfCopies:
         d->num_copies = value.toInt();
-
+        QT_WA( { d->devModeW()->dmCopies = d->num_copies; }, 
+               { d->devModeA()->dmCopies = d->num_copies; });
+        d->doReinit();
         break;
 
     case PPK_Orientation:
