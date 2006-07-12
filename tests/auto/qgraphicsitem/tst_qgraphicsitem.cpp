@@ -2164,11 +2164,41 @@ public:
     QVariant itemChangeReturnValue;
     QList<GraphicsItemChange> changes;
     QList<QVariant> values;
+    QList<QVariant> oldValues;
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value)
     {
         changes << change;
         values << value;
+        switch (change) {
+        case QGraphicsItem::ItemPositionChange:
+            oldValues << pos();
+            break;
+        case QGraphicsItem::ItemMatrixChange: {
+            QVariant variant;
+            qVariantSetValue<QMatrix>(variant, matrix());
+            oldValues << variant;
+        }
+            break;
+        case QGraphicsItem::ItemVisibleChange:
+            oldValues << isVisible();
+            break;
+        case QGraphicsItem::ItemEnabledChange:
+            oldValues << isEnabled();
+            break;
+        case QGraphicsItem::ItemSelectedChange:
+            oldValues << isSelected();
+            break;
+        case QGraphicsItem::ItemParentChange:
+            oldValues << parentItem();
+            break;
+        case QGraphicsItem::ItemChildAddedChange:
+            oldValues << children().size();
+            break;
+        case QGraphicsItem::ItemChildRemovedChange:
+            oldValues << children().size();
+            break;
+        }
         return itemChangeReturnValue.isValid() ? itemChangeReturnValue : value;
     }
 };
@@ -2188,6 +2218,7 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.changes.size(), ++changeCount);
         QCOMPARE(tester.changes.last(), QGraphicsItem::ItemEnabledChange);
         QCOMPARE(tester.values.last(), QVariant(false));
+        QCOMPARE(tester.oldValues.last(), QVariant(true));
         QCOMPARE(tester.isEnabled(), true);
     }
     {
@@ -2198,6 +2229,9 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.changes.last(), QGraphicsItem::ItemMatrixChange);
         QCOMPARE(qVariantValue<QMatrix>(tester.values.last()),
                  QMatrix().translate(50, 0));
+        QVariant variant;
+        qVariantSetValue<QMatrix>(variant, QMatrix());
+        QCOMPARE(tester.oldValues.last(), variant);
         QCOMPARE(tester.matrix(), QMatrix().rotate(90));
     }
     {
@@ -2207,6 +2241,7 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.changes.size(), ++changeCount);
         QCOMPARE(tester.changes.last(), QGraphicsItem::ItemPositionChange);
         QCOMPARE(tester.values.last(), QVariant(QPointF(0, 42)));
+        QCOMPARE(tester.oldValues.last(), QVariant(QPointF()));
         QCOMPARE(tester.pos(), QPointF(42, 0));
     }
     {
@@ -2219,6 +2254,7 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.changes.size(), ++changeCount);
         QCOMPARE(tester.changes.last(), QGraphicsItem::ItemSelectedChange);
         QCOMPARE(tester.values.last(), QVariant(true));
+        QCOMPARE(tester.oldValues.last(), QVariant(false));
         QCOMPARE(tester.isSelected(), false);
     }
     {
@@ -2237,6 +2273,7 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(tester.changes.size(), ++changeCount);
         QCOMPARE(tester.changes.last(), QGraphicsItem::ItemParentChange);
         QCOMPARE(qVariantValue<QGraphicsItem *>(tester.values.last()), (QGraphicsItem *)&testerHelper);
+        QCOMPARE(qVariantValue<QGraphicsItem *>(tester.oldValues.last()), (QGraphicsItem *)0);
         QCOMPARE(tester.parentItem(), (QGraphicsItem *)0);
     }
     {
