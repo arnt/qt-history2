@@ -717,6 +717,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     setWindowTitle("Affine Transformations");
 
     view = new XFormView(this);
+    view->setMinimumSize(200, 200);
 
     QGroupBox *mainGroup = new QGroupBox(this);
     mainGroup->setFixedWidth(180);
