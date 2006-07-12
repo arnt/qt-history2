@@ -932,66 +932,61 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             const int default_frame = pixelMetric(PM_DefaultFrameWidth, tab, widget);
             const int frame_offset =  (default_frame > 1) ? 1 : 0;
-
-            if (tab->shape == QTabBar::RoundedNorth || tab->shape == QTabBar::RoundedEast ||
-                tab->shape == QTabBar::RoundedSouth || tab->shape == QTabBar::RoundedWest) {
+            switch (tab->shape) {
+            default:
+                QCommonStyle::drawControl(element, opt, p, widget);
+                break;
+            case QTabBar::RoundedNorth:
+            case QTabBar::RoundedEast:
+            case QTabBar::RoundedSouth:
+            case QTabBar::RoundedWest: {
                 p->save();
                 QRect tabRect = opt->rect;
-                QColor tabLight = opt->palette.light().color();
-                QColor tabDark = opt->palette.dark().color();
+                QBrush tabLight = opt->palette.light();
+                QBrush tabDark = opt->palette.dark();
+                int topExtra = 0;
+                int bottomExtra = 0;
                 if(tab->shape == QTabBar::RoundedWest) {
-                    tabDark = opt->palette.light().color();
-                    tabLight = opt->palette.dark().color();
+                    tabDark = opt->palette.light();
+                    tabLight = opt->palette.dark();
                     tabRect = QRect(0, 0, tabRect.height(), tabRect.width());
                     p->translate(opt->rect.left(), opt->rect.bottom());
                     p->rotate(-90);
+                    topExtra = 1;
+                    bottomExtra = 1;
                 } else if(tab->shape == QTabBar::RoundedSouth) {
-                    tabDark = opt->palette.light().color();
-                    tabLight = opt->palette.dark().color();
-                    tabRect = QRect(0, 0, tabRect.width(), tabRect.height());
+                    tabDark = opt->palette.light();
+                    tabLight = opt->palette.dark();
+                    tabRect = QRect(0, 0, tabRect.width() , tabRect.height());
                     p->translate(opt->rect.right(), opt->rect.bottom());
                     p->rotate(180);
+                    topExtra = 1;
                 } else if(tab->shape == QTabBar::RoundedEast) {
                     tabRect = QRect(0, 0, tabRect.height(), tabRect.width());
                     p->translate(opt->rect.right(), opt->rect.top());
                     p->rotate(90);
+                    topExtra = 1;
                 }
+                p->setPen(tabLight);
+                p->setBrush(tab->palette.window());
+
+                bool selected = (tab->state & State_Selected);
+                int bottomStart = selected ? tabRect.bottom() + bottomExtra : tabRect.bottom() + bottomExtra - 2;
+
+                QPainterPath path(QPoint(tabRect.left(), bottomStart));
+                path.lineTo(tabRect.left(), tabRect.top() + 2 + topExtra);
+                path.lineTo(tabRect.left() + 2, tabRect.top() + topExtra);
+                path.lineTo(tabRect.right() - 2, tabRect.top() + topExtra);
+                path.lineTo(tabRect.right() - 1, tabRect.top() + 2 + topExtra);
+                path.lineTo(tabRect.right() - 1, bottomStart);
+                p->drawPath(path);
 
                 if (default_frame > 1) {
-                    p->setPen(tabLight);
-                    p->drawLine(tabRect.left(), tabRect.bottom(),
-                                tabRect.right(), tabRect.bottom());
-                    p->setPen(tabLight);
-                    p->drawLine(tabRect.left(), tabRect.bottom()-1,
-                                tabRect.right(), tabRect.bottom()-1);
-                    if (tabRect.left() == 0)
-                        p->drawPoint(tabRect.bottomLeft());
-                } else {
-                    p->setPen(tabLight);
-                    p->drawLine(tabRect.left(), tabRect.bottom(),
-                                tabRect.right(), tabRect.bottom());
-                }
-
-                if (opt->state & State_Selected) {
-                    p->fillRect(QRect(tabRect.left()+1, tabRect.bottom()-frame_offset,
-                                      tabRect.width()-3, 2),
-                                tab->palette.brush(QPalette::Active, QPalette::Background));
-                    p->setPen(tab->palette.background().color());
-                    p->drawLine(tabRect.left()+1, tabRect.bottom(),
-                                tabRect.left()+1, tabRect.top()+2);
-                    p->setPen(tabLight);
-                } else {
-                    p->setPen(tabLight);
-                }
-                p->drawLine(tabRect.left(), tabRect.bottom()-1,
-                            tabRect.left(), tabRect.top() + 2);
-                p->drawPoint(tabRect.left()+1, tabRect.top() + 1);
-                p->drawLine(tabRect.left()+2, tabRect.top(),
-                            tabRect.right() - 2, tabRect.top());
-                p->drawPoint(tabRect.left(), tabRect.bottom());
-
-                if (default_frame > 1) {
-                    p->drawLine(tabRect.left()+1, tabRect.bottom(),
+                    if (!selected) {
+                        p->drawLine(tabRect.left(), tabRect.bottom()-1,
+                                    tabRect.right(), tabRect.bottom()-1);
+                    }
+                    p->drawLine(tabRect.left()+1, tabRect.bottom() - (selected ? 0 : 1),
                                 tabRect.left()+1, tabRect.top() + 2);
                     p->drawLine(tabRect.left()+2, tabRect.top()+1,
                                 tabRect.right() - 2, tabRect.top()+1);
@@ -1001,6 +996,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 p->drawLine(tabRect.right() - 1, tabRect.top() + 2,
                             tabRect.right() - 1, tabRect.bottom() - 1 +
                             ((opt->state & State_Selected) ? frame_offset : -frame_offset));
+
                 if (default_frame > 1) {
                     p->drawPoint(tabRect.right() - 1, tabRect.top() + 1);
                     p->drawLine(tabRect.right(), tabRect.top() + 2, tabRect.right(),
@@ -1010,8 +1006,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     p->drawPoint(tabRect.right() - 1, tabRect.top() + 1);
                 }
                 p->restore();
-            } else {
-                QCommonStyle::drawControl(element, opt, p, widget);
+            }
+                break;
             }
             break; }
 #endif // QT_NO_TABBAR

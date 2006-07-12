@@ -28,6 +28,7 @@
 #include "qprogressbar.h"
 #include "qrubberband.h"
 #include "qstyleoption.h"
+#include "qpainterpath.h"
 #include "qtabbar.h"
 #include "qwidget.h"
 #include "qdebug.h"
@@ -1811,11 +1812,15 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                                  || (rtlHorTabs
                                          && tabBarAlignment == Qt::AlignLeft);
 
-            QColor light = tab->palette.light().color();
-            QColor midlight = tab->palette.midlight().color();
-            QColor dark = tab->palette.dark().color();
-            QColor shadow = tab->palette.shadow().color();
-            QColor background = tab->palette.background().color();
+            QBrush light = tab->palette.light();
+            QBrush midlight = tab->palette.midlight();
+            QBrush dark = tab->palette.dark();
+            QBrush shadow = tab->palette.shadow();
+            QBrush background = tab->palette.background();
+            QBrush oldBrush = p->brush();
+            QPen oldPen = p->pen();
+            p->setBrush(background);
+            QPainterPath path;
             int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             if (selected)
                 borderThinkness /= 2;
@@ -1840,34 +1845,51 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawLine(x1, y2 - 1, x2, y2 - 1);
                     p->drawLine(x1, y2, x2, y2);
                 }
-                // Left
-                if (firstTab || selected || onlyOne || !previousSelected) {
-                    p->setPen(light);
-                    p->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
-                    p->drawPoint(x1 + 1, y1 + 1);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(x1 + 1, y1 + 2, x1 + 1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
-                    }
+
+                p->setPen(light);
+                bool needLeft = (firstTab || selected || onlyOne || !previousSelected);
+                bool needRight = (lastTab || selected || onlyOne || !nextSelected);
+                int topBegin = x1 + (previousSelected ? 0 : 2);
+                int topEnd = x2 - (nextSelected ? 0 : 2);
+                int leftOffset = ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness);
+                int rightOffset = ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness);
+
+                if (needLeft) {
+                    path.moveTo(x1, y2 - leftOffset);
+                    path.lineTo(x1, y1 + 2);
+                    path.lineTo(x1 + 1, y1 + 1);
+                } else {
+                    path.moveTo(x1 - 1, y2 - rightOffset);
+                    path.lineTo(x1 - 1, y1);
                 }
+
                 // Top
                 {
-                    int beg = x1 + (previousSelected ? 0 : 2);
-                    int end = x2 - (nextSelected ? 0 : 2);
-                    p->setPen(light);
-                    p->drawLine(beg, y1, end, y1);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(beg, y1 + 1, end, y1 + 1);
-                    }
+                    path.lineTo(topBegin, y1);
+                    path.lineTo(topEnd, y1);
                 }
-                // Right
-                if (lastTab || selected || onlyOne || !nextSelected) {
+
+                if (needRight) {
+                    path.lineTo(x2, y1 + 2);
+                    path.lineTo(x2, y2 - rightOffset);
+                } else {
+                    path.lineTo(x2 + 1, y1);
+                    path.lineTo(x2 + 1, y2 - leftOffset);
+                }
+                p->drawPath(path);
+                // Draw the shading...
+                if (use2000style) {
+                    p->setPen(midlight);
+                    if (needLeft)
+                        p->drawLine(x1 + 1, y1 + 2, x1 + 1, leftOffset);
+                    p->drawLine(topBegin, y1 + 1, topEnd, y1 + 1);
+                }
+                if (needRight) {
                     p->setPen(shadow);
-                    p->drawLine(x2, y1 + 2, x2, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2, y1 + 2, x2, y2 - rightOffset);
                     p->drawPoint(x2 - 1, y1 + 1);
                     p->setPen(dark);
-                    p->drawLine(x2 - 1, y1 + 2, x2 - 1, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2 - 1, y1 + 2, x2 - 1, y2 - rightOffset);
                 }
                 break; }
             case QTabBar::RoundedSouth: {
@@ -1882,33 +1904,56 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawLine(x1, y1 + 1, x2, y1 + 1);
                     p->drawLine(x1, y1, x2, y1);
                 }
-                // Left
-                if (firstTab || selected || onlyOne || !previousSelected) {
-                    p->setPen(light);
-                    p->drawLine(x1, y2 - 2, x1, y1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
-                    p->drawPoint(x1 + 1, y2 - 1);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
-                    }
+
+                int beginBottom = x1 + (previousSelected ? 0 : 2);
+                int endBottom = x2 - (nextSelected ? 0 : 2);
+                int rightOffset = ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness);
+                int leftOffset = ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness);
+                bool needLeft = firstTab || selected || onlyOne || !previousSelected;
+                bool needRight = lastTab || selected || onlyOne || !nextSelected;
+
+                p->setPen(light);
+
+                if (needLeft) {
+                    path.moveTo(x1, y1 + leftOffset);
+                    path.lineTo(x1, y2 - 2);
+                    path.lineTo(x1 + 1, y2 - 1);
+                } else {
+                    path.moveTo(x1 - 1, y1 + rightOffset);
+                    path.lineTo(x1 - 1, y2);
                 }
+
                 // Bottom
                 {
-                    int beg = x1 + (previousSelected ? 0 : 2);
-                    int end = x2 - (nextSelected ? 0 : 2);
-                    p->setPen(shadow);
-                    p->drawLine(beg, y2, end, y2);
-                    p->setPen(dark);
-                    p->drawLine(beg, y2 - 1, end, y2 - 1);
+                    path.lineTo(beginBottom, y2);
+                    path.lineTo(endBottom, y2);
                 }
-                // Right
-                if (lastTab || selected || onlyOne || !nextSelected) {
-                    p->setPen(shadow);
-                    p->drawLine(x2, y2 - 2, x2, y1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
+
+                if (needRight) {
+                    path.lineTo(x2 - 1, y2 - 1);
+                    path.lineTo(x2, y1 + rightOffset);
+                } else {
+                    path.lineTo(x2 + 2, y2);
+                    path.lineTo(x2 + 2, y1 + leftOffset);
+                }
+
+                p->drawPath(path);
+
+                // Draw shading
+                if (!use2000style && needLeft) {
+                    p->setPen(midlight);
+                    p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 + leftOffset);
+                }
+                p->setPen(shadow);
+                p->drawLine(beginBottom, y2, endBottom, y2);
+                if (needRight) {
+                    p->drawLine(x2, y2 - 2, x2, y1 + rightOffset);
                     p->drawPoint(x2 - 1, y2 - 1);
-                    p->setPen(dark);
-                    p->drawLine(x2 - 1, y2 - 2, x2 - 1, y1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                 }
+                p->setPen(dark);
+                p->drawLine(beginBottom, y2 - 1, endBottom, y2 - 1);
+                if (needRight)
+                    p->drawLine(x2 - 1, y2 - 2, x2 - 1, y1 + rightOffset);
                 break; }
             case QTabBar::RoundedWest: {
                 if (!selected) {
@@ -1922,29 +1967,49 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawLine(x2 - 1, y1, x2 - 1, y2);
                     p->drawLine(x2, y1, x2, y2);
                 }
-                // Top
-                if (firstTab || selected || onlyOne || !previousSelected) {
-                    p->setPen(light);
-                    p->drawLine(x1 + 2, y1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
-                    p->drawPoint(x1 + 1, y1 + 1);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(x1 + 2, y1 + 1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
-                    }
+
+                bool needTop = firstTab || selected || onlyOne || !previousSelected;
+                bool needBottom = lastTab || selected || onlyOne || !nextSelected;
+                int topOffset = ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness);
+                int bottomOffset = ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness);
+                int beginLeft = y1 + (previousSelected ? 0 : 2);
+                int endLeft = y2 - (nextSelected ? 0 : 2);
+
+                p->setPen(light);
+                if (needTop) {
+                    path.moveTo(x2 - topOffset, y1);
+                    path.lineTo(x1 + 2, y1);
+                } else {
+                    path.moveTo(x2 - bottomOffset, y1);
+                    path.lineTo(x1, y1);
                 }
+
                 // Left
                 {
-                    int beg = y1 + (previousSelected ? 0 : 2);
-                    int end = y2 - (nextSelected ? 0 : 2);
-                    p->setPen(light);
-                    p->drawLine(x1, beg, x1, end);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(x1 + 1, beg, x1 + 1, end);
-                    }
+                    path.lineTo(x1, beginLeft);
+                    path.lineTo(x1, endLeft);
                 }
-                // Bottom
-                if (lastTab || selected || onlyOne || !nextSelected) {
+
+                if (needBottom) {
+                    path.lineTo(x1 + 3, y2);
+                    path.lineTo(x2 - bottomOffset, y2);
+                } else {
+                    path.lineTo(x1, y2 + 1);
+                    path.lineTo(x2 - topOffset, y2 + 1);
+                }
+
+                p->drawPath(path);
+
+                if (!use2000style) {
+                    if (needTop) {
+                        p->setPen(midlight);
+                        p->drawLine(x1 + 2, y1 + 1, x2 - topOffset, y1 + 1);
+                    }
+                    p->setPen(midlight);
+                    p->drawLine(x1 + 1, beginLeft, x1 + 1, endLeft);
+                }
+
+                if (needBottom) {
                     p->setPen(shadow);
                     p->drawLine(x1 + 3, y2, x2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2);
                     p->drawPoint(x1 + 2, y2 - 1);
@@ -1953,6 +2018,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawPoint(x1 + 1, y2 - 1);
                     p->drawPoint(x1 + 2, y2);
                 }
+
                 break; }
             case QTabBar::RoundedEast: {
                 if (!selected) {
@@ -1966,36 +2032,59 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawLine(x1 + 1, y1, x1 + 1, y2);
                     p->drawLine(x1, y1, x1, y2);
                 }
-                // Top
-                if (firstTab || selected || onlyOne || !previousSelected) {
-                    p->setPen(light);
-                    p->drawLine(x2 - 2, y1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
-                    p->drawPoint(x2 - 1, y1 + 1);
-                    if (!use2000style) {
-                        p->setPen(midlight);
-                        p->drawLine(x2 - 3, y1 + 1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
-                        p->drawPoint(x2 - 1, y1);
-                    }
+
+                bool needTop = firstTab || selected || onlyOne || !previousSelected;
+                bool needBottom = lastTab || selected || onlyOne || !nextSelected;
+                int topOffset = ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness);
+                int bottomOffset = ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness);
+                int beginRight = y1 + (previousSelected ? 0 : 2);
+                int endRight = y2 - (nextSelected ? 0 : 2);
+
+                p->setPen(light);
+
+                if (needTop) {
+                    path.moveTo(x1 + topOffset, y1);
+                    path.lineTo(x2 - 2, y1);
+                    path.lineTo(x2 - 1, y1 + 1);
+                } else {
+                    path.moveTo(x1 + bottomOffset, y1 - 1);
+                    path.lineTo(x2, y1 - 1);
                 }
-                // Right
+
                 {
-                    int beg = y1 + (previousSelected ? 0 : 2);
-                    int end = y2 - (nextSelected ? 0 : 2);
-                    p->setPen(shadow);
-                    p->drawLine(x2, beg, x2, end);
-                    p->setPen(dark);
-                    p->drawLine(x2 - 1, beg, x2 - 1, end);
+                    path.lineTo(x2, beginRight);
+                    path.lineTo(x2, endRight);
                 }
-                // Bottom
-                if (lastTab || selected || onlyOne || !nextSelected) {
-                    p->setPen(shadow);
-                    p->drawLine(x2 - 2, y2, x1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2);
+
+                if (needBottom) {
+                    path.lineTo(x2 - 1, y2 - 1);
+                    path.lineTo(x2 - 2, y2);
+                    path.lineTo(x1 + bottomOffset, y2);
+                } else {
+                    path.lineTo(x2, y2 + 1);
+                    path.lineTo(x1 + topOffset, y2 + 1);
+                }
+
+                p->drawPath(path);
+                if (!use2000style && needTop) {
+                    p->setPen(midlight);
+                    p->drawLine(x2 - 3, y1 + 1, x1 + topOffset, y1 + 1);
+                    p->drawPoint(x2 - 1, y1);
+                }
+                p->setPen(shadow);
+                p->drawLine(x2, beginRight, x2, endRight);
+                if (needBottom) {
+                    p->drawLine(x2 - 2, y2, x1 + bottomOffset, y2);
                     p->drawPoint(x2 - 1, y2 - 1);
-                    p->setPen(dark);
-                    p->drawLine(x2 - 2, y2 - 1, x1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
                 }
+                p->setPen(dark);
+                p->drawLine(x2 - 1, beginRight, x2 - 1, endRight);
+                if (needBottom)
+                    p->drawLine(x2 - 2, y2 - 1, x1 + bottomOffset, y2 - 1);
                 break; }
             }
+            p->setPen(oldPen);
+            p->setBrush(oldBrush);
         }
         break;
 #endif // QT_NO_TABBAR
