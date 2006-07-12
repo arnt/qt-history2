@@ -68,9 +68,9 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
         }
     }
 
-    int margins[4];
-    int borders[4];
-    int paddings[4];
+    qreal margins[4];
+    qreal borders[4];
+    qreal paddings[4];
     QCss::BorderStyle styles[4];
     QColor colors[4];
 
@@ -110,6 +110,11 @@ public:
     QRect paddingRect(const QRect& r) const;
     QRect contentsRect(const QRect& r) const;
     QRect boxRect(const QRect& r) const;
+
+    QRectF borderRect(const QRectF& r) const;
+    QRectF paddingRect(const QRectF& r) const;
+    QRectF contentsRect(const QRectF& r) const;
+    QRectF boxRect(const QRectF& r) const;
 
     inline QStyleSheetPalette *palette() const 
     { if (!pal) pal = new QStyleSheetPalette(); return pal; }

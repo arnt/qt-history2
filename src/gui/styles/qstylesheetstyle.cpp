@@ -41,7 +41,6 @@ QHash<QWidget *, QHash<int, QRenderRule> > QStyleSheetStyle::renderRulesCache;
 
 void QRenderRule::merge(const QVector<Declaration>& decls)
 {
-    bool hasBorderImage = false;
     for (int i = 0; i < decls.count(); i++) {
         const Declaration& decl = decls.at(i);
         switch (decl.propertyId) {
@@ -50,23 +49,23 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
         case SelectionForeground:palette()->selectionForeground = decl.brushValue(); break;
         case SelectionBackground: palette()->selectionBackground = decl.brushValue(); break;
 
-        case PaddingLeft: decl.intValue(&box()->paddings[LeftEdge], "px"); break;
-        case PaddingRight: decl.intValue(&box()->paddings[RightEdge], "px"); break;
-        case PaddingTop: decl.intValue(&box()->paddings[TopEdge], "px"); break;
-        case PaddingBottom: decl.intValue(&box()->paddings[BottomEdge], "px"); break;
-        case Padding: decl.marginValues(box()->paddings, "px"); break;
+        case PaddingLeft: decl.realValue(&box()->paddings[LeftEdge], "px"); break;
+        case PaddingRight: decl.realValue(&box()->paddings[RightEdge], "px"); break;
+        case PaddingTop: decl.realValue(&box()->paddings[TopEdge], "px"); break;
+        case PaddingBottom: decl.realValue(&box()->paddings[BottomEdge], "px"); break;
+        case Padding: decl.realValues(box()->paddings, "px"); break;
 
-        case MarginLeft: decl.intValue(&box()->margins[LeftEdge], "px"); break;
-        case MarginRight: decl.intValue(&box()->margins[RightEdge], "px"); break;
-        case MarginTop: decl.intValue(&box()->margins[TopEdge], "px"); break;
-        case MarginBottom: decl.intValue(&box()->margins[BottomEdge], "px"); break;
-        case Margin: decl.marginValues(box()->margins, "px"); break;
+        case MarginLeft: decl.realValue(&box()->margins[LeftEdge], "px"); break;
+        case MarginRight: decl.realValue(&box()->margins[RightEdge], "px"); break;
+        case MarginTop: decl.realValue(&box()->margins[TopEdge], "px"); break;
+        case MarginBottom: decl.realValue(&box()->margins[BottomEdge], "px"); break;
+        case Margin: decl.realValues(box()->margins, "px"); break;
 
-        case BorderLeftWidth: decl.intValue(&box()->borders[LeftEdge], "px"); break;
-        case BorderRightWidth: decl.intValue(&box()->borders[RightEdge], "px"); break;
-        case BorderTopWidth: decl.intValue(&box()->borders[TopEdge], "px"); break;
-        case BorderBottomWidth: decl.intValue(&box()->borders[BottomEdge], "px"); break;
-        case BorderWidth: decl.marginValues(box()->borders, "px"); break;
+        case BorderLeftWidth: decl.realValue(&box()->borders[LeftEdge], "px"); break;
+        case BorderRightWidth: decl.realValue(&box()->borders[RightEdge], "px"); break;
+        case BorderTopWidth: decl.realValue(&box()->borders[TopEdge], "px"); break;
+        case BorderBottomWidth: decl.realValue(&box()->borders[BottomEdge], "px"); break;
+        case BorderWidth: decl.realValues(box()->borders, "px"); break;
 
         case BorderLeftColor: box()->colors[LeftEdge] = decl.colorValue(); break;
         case BorderRightColor: box()->colors[RightEdge] = decl.colorValue(); break;
@@ -95,7 +94,6 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
                                                 box()->borderImage()->cuts,
                                                 &box()->borderImage()->horizStretch,
                                                 &box()->borderImage()->vertStretch);
-                          hasBorderImage = true;
                           break;
         default:
             if (decl.property.compare("exclusive-indicator", Qt::CaseInsensitive) == 0) {
@@ -107,53 +105,53 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
             break;
         }
     }
-
-    // FIXME: This should not be here!
-    if (hasBorderImage) {
-        // inspect the border image
-        QStyleSheetBorderImageData *borderImage = box()->borderImage();
-        const QPixmap& pixmap = borderImage->pixmap;
-        if (pixmap.isNull()) {
-            box()->bi = 0; // delete it
-            return;
-        }
-
-        if (borderImage->cuts[0] == -1) {
-            for (int i = 0; i < 4; i++) // cut = border
-                borderImage->cuts[i] = box()->borders[i];
-        } else {
-            for (int i = 0; i < 4; i++) // border = cut
-                box()->borders[i] = borderImage->cuts[i];
-        }
-        borderImage->cutBorderImage();
-    }
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
 {
-    const int* m = box()->margins;
-    return r.adjusted(m[LeftEdge], m[TopEdge], -m[RightEdge], -m[BottomEdge]);
+    return borderRect(QRectF(r)).toRect();
 }
 
 QRect QRenderRule::paddingRect(const QRect& r) const
 {
-    QRect br = borderRect(r);
-    const int *b= box()->borders;
-    return br.adjusted(b[LeftEdge], b[TopEdge], -b[RightEdge], -b[BottomEdge]);
+    return paddingRect(QRectF(r)).toRect();
 }
 
 QRect QRenderRule::contentsRect(const QRect& r) const
 {
-    QRect pr = paddingRect(r);
-    const int *p = box()->paddings;
+    return contentsRect(QRectF(r)).toRect();
+}
+
+QRect QRenderRule::boxRect(const QRect& r) const
+{
+    return boxRect(QRectF(r)).toRect();
+}
+
+QRectF QRenderRule::borderRect(const QRectF& r) const
+{
+    const qreal* m = box()->margins;
+    return r.adjusted(m[LeftEdge], m[TopEdge], -m[RightEdge], -m[BottomEdge]);
+}
+
+QRectF QRenderRule::paddingRect(const QRectF& r) const
+{
+    QRectF br = borderRect(r);
+    const qreal *b= box()->borders;
+    return br.adjusted(b[LeftEdge], b[TopEdge], -b[RightEdge], -b[BottomEdge]);
+}
+
+QRectF QRenderRule::contentsRect(const QRectF& r) const
+{
+    QRectF pr = paddingRect(r);
+    const qreal *p = box()->paddings;
     return pr.adjusted(p[LeftEdge], p[TopEdge], -p[RightEdge], -p[BottomEdge]);
 }
 
-QRect QRenderRule::boxRect(const QRect& cr) const
+QRectF QRenderRule::boxRect(const QRectF& cr) const
 {
-    const int *m = box()->margins;
-    const int *b = box()->borders;
-    const int *p = box()->paddings;
+    const qreal *m = box()->margins;
+    const qreal *b = box()->borders;
+    const qreal *p = box()->paddings;
     return cr.adjusted(-p[LeftEdge] - b[LeftEdge] - m[LeftEdge],
                        -p[TopEdge] - b[TopEdge] - m[TopEdge],
                         p[RightEdge] + b[RightEdge] + m[RightEdge],
@@ -163,7 +161,7 @@ QRect QRenderRule::boxRect(const QRect& cr) const
 void QRenderRule::fixup()
 {
     if (b == 0)
-        return;
+         return;
     // ignore the color, border of edges that have none border-style
     for (int i = 0; i < 4; i++) {
         if (b->styles[i] != BorderStyle_None)
@@ -171,6 +169,23 @@ void QRenderRule::fixup()
         b->colors[i] = QColor();
         b->borders[i] = 0;
     }
+
+    if (b->bi == 0)
+        return;
+
+    // inspect the border image
+    QStyleSheetBorderImageData *borderImage = box()->borderImage();
+    const QPixmap& pixmap = borderImage->pixmap;
+    if (pixmap.isNull()) {
+        box()->bi = 0; // delete it
+        return;
+    }
+
+    if (borderImage->cuts[0] == -1) {
+        for (int i = 0; i < 4; i++) // assume, cut = border
+            borderImage->cuts[i] = int(box()->borders[i]);
+    }
+    borderImage->cutBorderImage();
 }
 
 void QStyleSheetBorderImageData::cutBorderImage()
@@ -180,7 +195,6 @@ void QStyleSheetBorderImageData::cutBorderImage()
     const int &l = cuts[LeftEdge], &r = cuts[RightEdge],
               &t = cuts[TopEdge], &b = cuts[BottomEdge];
 
-    // Perform step 1
     topEdgeRect = QRect(l, 0, w - r - l, t);
     bottomEdgeRect = QRect(l, h - b, w - l - r, b);
     if (horizStretch != TileMode_Stretch) {
@@ -484,117 +498,124 @@ static bool qPaintsOver(const QRenderRule &rule, Edge e1, Edge e2)
     return false;
 }
 
-// FIXME:
-// 1. Middle image with Round
-// 2. Should Repeat centerize the tile?
+static void qDrawCenterTiledPixmap(QPainter *p, const QRectF& r, const QPixmap& pix)
+{
+    p->drawTiledPixmap(r, pix, QPoint(pix.width() - int(r.width())%pix.width(),
+                                      pix.height() - int(r.height())%pix.height()));
+}
+
+// Note: Round is not supported
 static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& rect)
 {
-    const QRect br = rule.borderRect(rect);
-    const QRect pr = rule.paddingRect(rect);
+    const QRectF br = rule.borderRect(rect);
+    const QRectF pr = rule.paddingRect(rect);
     const QStyleSheetBorderImageData* bi = rule.box()->borderImage();
-    const int *borders = rule.box()->borders;
-    const int& l = borders[LeftEdge];
-    const int& r = borders[RightEdge];
-    const int& t = borders[TopEdge];
-    const int& b = borders[BottomEdge];
+    const qreal *borders = rule.box()->borders;
+    const qreal& l = borders[LeftEdge];
+    const qreal& r = borders[RightEdge];
+    const qreal& t = borders[TopEdge];
+    const qreal& b = borders[BottomEdge];
 
     const QPixmap& pix = bi->pixmap;
 
     const int *c = bi->cuts;
-    QRect tlc = QRect(0, 0, c[LeftEdge], c[TopEdge]);
+    QRectF tlc(0, 0, c[LeftEdge], c[TopEdge]);
     if (tlc.isValid())
-        p->drawPixmap(QRect(br.topLeft(), QSize(l, t)), pix, tlc);
-    QRect trc = QRect(pix.width() - c[RightEdge], 0, c[RightEdge], c[LeftEdge]);
+        p->drawPixmap(QRectF(br.topLeft(), QSizeF(l, t)), pix, tlc);
+    QRectF trc(pix.width() - c[RightEdge], 0, c[RightEdge], c[LeftEdge]);
     if (trc.isValid())
-        p->drawPixmap(QRect(br.left() + br.width() - r, br.y(), l, t), pix, trc);
-    QRect blc = QRect(0, pix.height() - c[BottomEdge], c[LeftEdge], c[BottomEdge]);
+        p->drawPixmap(QRectF(br.left() + br.width() - r, br.y(), l, t), pix, trc);
+    QRectF blc(0, pix.height() - c[BottomEdge], c[LeftEdge], c[BottomEdge]);
     if (blc.isValid())
-        p->drawPixmap(QRect(br.x(), br.y() + br.height() - b, l, b), pix, blc);
-    QRect brc = QRect(pix.width() - c[RightEdge], pix.height() - c[BottomEdge],
-                      c[RightEdge], c[BottomEdge]);
+        p->drawPixmap(QRectF(br.x(), br.y() + br.height() - b, l, b), pix, blc);
+    QRectF brc(pix.width() - c[RightEdge], pix.height() - c[BottomEdge],
+               c[RightEdge], c[BottomEdge]);
     if (brc.isValid())
-        p->drawPixmap(QRect(br.x() + br.width() - r, br.y() + br.height() - b, r, b), pix, brc);
+        p->drawPixmap(QRectF(br.x() + br.width() - r, br.y() + br.height() - b, r, b), 
+                      pix, brc);
 
-    int rwh, blank;
+    QRectF topEdgeRect(br.x() + l, br.y(), pr.width(), t);
+    QRectF bottomEdgeRect(br.x() + l, br.y() + br.height() - b, pr.width(), b);
 
     switch (bi->horizStretch) {
     case TileMode_Stretch:
         if (bi->topEdgeRect.isValid())
-            p->drawPixmap(QRect(br.x() + l, br.y(), pr.width(), t), pix, bi->topEdgeRect);
+            p->drawPixmap(topEdgeRect, pix, bi->topEdgeRect);
         if (bi->bottomEdgeRect.isValid())
-            p->drawPixmap(QRect(br.x() + l, br.y() + br.height() - b, pr.width(), b),
-                          pix, bi->bottomEdgeRect);
+            p->drawPixmap(bottomEdgeRect, pix, bi->bottomEdgeRect);
         if (bi->middleRect.isValid()) {
             if (bi->vertStretch == TileMode_Stretch)
                 p->drawPixmap(pr, pix, bi->middleRect);
             else if (bi->vertStretch == TileMode_Repeat) {
-                QPixmap scaled = bi->middle.scaled(pr.width(), bi->middle.height());
-                p->drawTiledPixmap(pr, scaled);
+                QPixmap scaled = bi->middle.scaled(int(pr.width()), bi->middle.height());
+                qDrawCenterTiledPixmap(p, pr, scaled);
             }
         }
         break;
     case TileMode_Repeat:
         if (!bi->topEdge.isNull())
-            p->drawTiledPixmap(QRect(br.x() + l, br.y(), pr.width(), t), bi->topEdge);
+            qDrawCenterTiledPixmap(p, topEdgeRect, bi->topEdge);
         if (!bi->bottomEdge.isNull())
-            p->drawTiledPixmap(QRect(br.x() + l, br.y() + br.height() -b, pr.width(), b),
-                               bi->bottomEdge);
-        if (bi->vertStretch == TileMode_Repeat && !bi->middle.isNull()) {
-            p->drawTiledPixmap(pr, bi->middle);
-        } else if (bi->vertStretch == TileMode_Stretch && bi->middleRect.isValid()) {
-            QPixmap scaled = bi->middle.scaled(bi->middle.width(), pr.height());
-            p->drawTiledPixmap(pr, scaled);
+            qDrawCenterTiledPixmap(p, bottomEdgeRect, bi->bottomEdge);
+        if (bi->middleRect.isValid()) {
+            if (bi->vertStretch == TileMode_Repeat) {
+                qDrawCenterTiledPixmap(p, pr, bi->middle);
+            } else if (bi->vertStretch == TileMode_Stretch) {
+                QPixmap scaled = bi->middle.scaled(bi->middle.width(), int(pr.height()));
+                qDrawCenterTiledPixmap(p, pr, scaled);
+            }
         }
         break;
     case TileMode_Round:
         if (!bi->topEdge.isNull()) {
-            rwh = pr.width()/ceil(pr.width()/bi->topEdge.width());
+            int rwh = (int)pr.width()/ceil(pr.width()/bi->topEdge.width());
             QPixmap scaled = bi->topEdge.scaled(rwh, bi->topEdge.height());
-            blank = pr.width() % rwh;
+            int blank = int(pr.width()) % rwh;
             p->drawTiledPixmap(QRectF(br.x() + l + blank/2, br.y(), pr.width() - blank, t),
                                scaled);
         }
         if (!bi->bottomEdge.isNull()) {
-            rwh = pr.width()/ceil(pr.width()/bi->bottomEdge.width());
+            int rwh = (int) pr.width()/ceil(pr.width()/bi->bottomEdge.width());
             QPixmap scaled = bi->bottomEdge.scaled(rwh, bi->bottomEdge.height());
-            blank = pr.width() % rwh;
-            p->drawTiledPixmap(QRectF(br.x() + l+ blank/2, br.y()+br.height()-b, pr.width() - blank, b),
-                               scaled);
+            int blank = int(pr.width()) % rwh;
+            p->drawTiledPixmap(QRectF(br.x() + l+ blank/2, br.y()+br.height()-b, 
+                                      pr.width() - blank, b), scaled);
         }
         break;
     default:
         break;
     }
 
+    QRectF leftEdgeRect(br.x(), br.y() + t, l, pr.height());
+    QRectF rightEdgeRect(br.x() + br.width()- r, br.y() + t, r, pr.height());
+
     switch (bi->vertStretch) {
     case TileMode_Stretch:
         if (bi->leftEdgeRect.isValid())
-             p->drawPixmap(QRect(br.x(), br.y() + t, l, pr.height()), pix, bi->leftEdgeRect);
+             p->drawPixmap(leftEdgeRect, pix, bi->leftEdgeRect);
         if (bi->rightEdgeRect.isValid())
-            p->drawPixmap(QRect(br.x() + br.width()- r, br.y() + t, r, pr.height()),
-                          pix, bi->rightEdgeRect);
+            p->drawPixmap(rightEdgeRect, pix, bi->rightEdgeRect);
         break;
     case TileMode_Repeat:
         if (!bi->leftEdge.isNull())
-            p->drawTiledPixmap(QRect(br.x(), br.y() + t, l, pr.height()), bi->leftEdge);
+            qDrawCenterTiledPixmap(p, leftEdgeRect, bi->leftEdge);
         if (!bi->rightEdge.isNull())
-            p->drawTiledPixmap(QRect(br.x() + br.width() - r, br.y() + t, r, pr.height()),
-                                bi->rightEdge);
+            qDrawCenterTiledPixmap(p, rightEdgeRect, bi->rightEdge);
         break;
     case TileMode_Round:
         if (!bi->leftEdge.isNull()) {
-            rwh = pr.height()/ceil(pr.height()/bi->leftEdge.height());
+            int rwh = (int) pr.height()/ceil(pr.height()/bi->leftEdge.height());
             QPixmap scaled = bi->leftEdge.scaled(bi->leftEdge.width(), rwh);
-            blank = pr.height() % rwh;
+            int blank = int(pr.height()) % rwh;
             p->drawTiledPixmap(QRectF(br.x(), br.y() + t + blank/2, l, pr.height() - blank),
                                scaled);
         }
         if (!bi->rightEdge.isNull()) {
-            rwh = pr.height()/ceil(pr.height()/bi->rightEdge.height());
+            int rwh = (int) pr.height()/ceil(pr.height()/bi->rightEdge.height());
             QPixmap scaled = bi->rightEdge.scaled(bi->rightEdge.width(), rwh);
-            blank = pr.height() % rwh;
-            p->drawTiledPixmap(QRectF(br.x() + br.width() - r, br.y()+t+blank/2, r, pr.height() - blank),
-                               scaled);
+            int blank = int(pr.height()) % rwh;
+            p->drawTiledPixmap(QRectF(br.x() + br.width() - r, br.y()+t+blank/2, r, 
+                                      pr.height() - blank), scaled);
         }
         break;
     default:
@@ -638,17 +659,17 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
     case Repeat_Y:
         p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp,
                            inter.x() - aligned.x(), 
-                           bgp.height() - (aligned.y() - r.y()) % bgp.height());
+                           bgp.height() - int(aligned.y() - r.y()) % bgp.height());
         break;
     case Repeat_X:
         p->drawTiledPixmap(r.x(), inter.y(), r.width(), inter.height(), bgp,
-                           bgp.width() - (aligned.x() - r.x())%bgp.width(), 
+                           bgp.width() - int(aligned.x() - r.x())%bgp.width(), 
                            inter.y() - aligned.y());
         break;
     case Repeat_XY:
         p->drawTiledPixmap(r, bgp, 
-                           QPoint(bgp.width() - (aligned.x() - r.x())% bgp.width(),
-                                  bgp.height() - ((aligned.y() - r.y())%bgp.height())));
+                           QPoint(bgp.width() - int(aligned.x() - r.x())% bgp.width(),
+                                  bgp.height() - int(aligned.y() - r.y())%bgp.height()));
         break;
     default:
         break;
@@ -664,9 +685,9 @@ static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
     }
 
     const BorderStyle *styles = box->styles;
-    const int *borders = box->borders;
+    const qreal *borders = box->borders;
     const QColor *colors = box->colors;
-    const QRect br = rule.borderRect(rect);
+    const QRectF br = rule.borderRect(rect);
 
     QSize tlr(0, 0), trr(0, 0), brr(0, 0), blr(0, 0);
     if (box->radii[0].isValid()) {
@@ -1406,7 +1427,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_MenuPanelWidth:
     case PM_MenuBarPanelWidth: // support only one border
         if (rule.box())
-            return rule.box()->borders[LeftEdge];
+            return qRound(rule.box()->borders[LeftEdge]);
         break;
     case PM_MenuHMargin:
     case PM_MenuVMargin:
@@ -1482,7 +1503,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         // FIXME
         QPixmap downArrow = rule.pixmaps.value("down-arrow");
         QRect br = rule.boxRect(QRect(0, 0, csz.width() + downArrow.width() + 23,
-                                       qMax(csz.height(), downArrow.height())));
+                                      qMax(csz.height(), downArrow.height())));
         return br.size();
                       }
     default:
