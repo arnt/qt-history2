@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QStringList>
+#include <QLocale>
 #include <QTranslator>
 
 #include <private/qtranslator_p.h>
@@ -135,29 +136,315 @@ private:
     TranslatorPrivate *d;
 };
 
-static const uchar hungarianRules[] = { };
-static const uchar danishRules[] =
+static const uchar englishStyleRules[] =
     { EQ, 1 };
-static const uchar frenchRules[] =
+static const uchar frenchStyleRules[] =
     { LEQ, 1 };
 static const uchar latvianRules[] =
     { MOD_10 | EQ, 1, AND, MOD_100 | NEQ, 11, NEWRULE,
       NEQ, 0 };
-static const uchar gaeligeRules[] =
+static const uchar irishStyleRules[] =
     { EQ, 1, NEWRULE,
       EQ, 2 };
+static const uchar czechRules[] =
+    { MOD_100 | EQ, 1, NEWRULE,
+      MOD_100 | BETWEEN, 2, 4 };
+static const uchar slovakRules[] =
+    { EQ, 1, NEWRULE,
+      BETWEEN, 2, 4 };
+static const uchar macedonianRules[] =
+    { MOD_10 | EQ, 1, NEWRULE,
+      MOD_10 | EQ, 2 };
 static const uchar lithuanianRules[] =
     { MOD_10 | EQ, 1, AND, MOD_100 | NEQ, 11, NEWRULE,
-      MOD_10 | EQ, 2, AND, MOD_100 | NOT_IN, 10, 19 };
-static const uchar croatianRules[] =
+      MOD_10 | EQ, 2, AND, MOD_100 | NOT_BETWEEN, 10, 19 };
+static const uchar russianStyleRules[] =
     { MOD_10 | EQ, 1, AND, MOD_100 | NEQ, 11, NEWRULE,
-      MOD_10 | IN, 2, 4, AND, MOD_100 | NOT_IN, 10, 19 };
+      MOD_10 | BETWEEN, 2, 4, AND, MOD_100 | NOT_BETWEEN, 10, 19 };
 static const uchar polishRules[] =
     { EQ, 1, NEWRULE,
-      MOD_10 | IN, 2, 4, AND, MOD_100 | NOT_IN, 10, 19 };
+      MOD_10 | BETWEEN, 2, 4, AND, MOD_100 | NOT_BETWEEN, 10, 19 };
+static const uchar romanianRules[] =
+    { EQ, 1, NEWRULE,
+      EQ, 0, OR, MOD_100 | BETWEEN, 1, 19 };
 static const uchar slovenianRules[] =
     { MOD_100 | EQ, 1, NEWRULE,
       MOD_100 | EQ, 2, NEWRULE,
-      MOD_100 | IN, 3, 4 };
+      MOD_100 | BETWEEN, 3, 4 };
+static const uchar malteseRules[] =
+    { EQ, 1, NEWRULE,
+      EQ, 0, OR, MOD_100 | BETWEEN, 1, 10, NEWRULE,
+      MOD_100 | BETWEEN, 11, 19 };
+static const uchar welshRules[] =
+    { EQ, 0, NEWRULE,
+      EQ, 1, NEWRULE,
+      BETWEEN, 2, 5, NEWRULE,
+      EQ, 6 };
+static const uchar arabicRules[] =
+    { EQ, 0, NEWRULE,
+      EQ, 1, NEWRULE,
+      EQ, 2, NEWRULE,
+      MOD_100 | BETWEEN, 3, 10, NEWRULE,
+      MOD_100 | NEQ, 0 };
+
+static const char * const japaneseStyleForms[] = { "Unique Form", 0 };
+static const char * const englishStyleForms[] = { "Singular", "Plural", 0 };
+static const char * const frenchStyleForms[] = { "Singular", "Plural", 0 };
+static const char * const latvianForms[] = { "Singular", "Plural", "Nullar", 0 };
+static const char * const irishStyleForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const czechForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const slovakForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const macedonianForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const lithuanianForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const russianStyleForms[] = { "Singular", "Dual", "Plural", 0 };
+static const char * const polishForms[] = { "Singular", "Paucal", "Plural", 0 };
+static const char * const romanianForms[] =
+    { "Singular", "Plural Form for 2 to 19", "Plural", 0 };
+static const char * const slovenianForms[] = { "Singular", "Dual", "Trial", "Plural", 0 };
+static const char * const malteseForms[] =
+    { "Singular", "Plural Form for 2 to 10", "Plural Form for 11 to 19", "Plural", 0 };
+static const char * const welshForms[] =
+    { "Nullar", "Singular", "Dual", "Sexal", "Plural", 0 };
+static const char * const arabicForms[] =
+    { "Nullar", "Singular", "Dual", "Minority Plural", "Plural", "Plural Form for 100, 200, ..." };
+
+#define EOL QLocale::C
+
+static const QLocale::Language japaneseStyleLanguages[] = {
+    QLocale::Afan,
+    QLocale::Armenian,
+    QLocale::Bhutani,
+    QLocale::Bislama,
+    QLocale::Burmese,
+    QLocale::Chinese,
+    QLocale::FijiLanguage,
+    QLocale::Guarani,
+    QLocale::Hungarian,
+    QLocale::Indonesian,
+    QLocale::Japanese,
+    QLocale::Javanese,
+    QLocale::Korean,
+    QLocale::Malay,
+    QLocale::NauruLanguage,
+    QLocale::Persian,
+    QLocale::Sundanese,
+    QLocale::Thai,
+    QLocale::Tibetan,
+    QLocale::Vietnamese,
+    QLocale::Yoruba,
+    QLocale::Zhuang,
+    EOL
+};
+
+static const QLocale::Language englishStyleLanguages[] = {
+    QLocale::Abkhazian,
+    QLocale::Afar,
+    QLocale::Afrikaans,
+    QLocale::Albanian,
+    QLocale::Amharic,
+    QLocale::Assamese,
+    QLocale::Aymara,
+    QLocale::Azerbaijani,
+    QLocale::Bashkir,
+    QLocale::Basque,
+    QLocale::Bengali,
+    QLocale::Bihari,
+    // Missing: Bokmal,
+    QLocale::Bulgarian,
+    QLocale::Cambodian,
+    QLocale::Catalan,
+    QLocale::Cornish,
+    QLocale::Corsican,
+    QLocale::Danish,
+    QLocale::Dutch,
+    QLocale::English,
+    QLocale::Esperanto,
+    QLocale::Estonian,
+    QLocale::Faroese,
+    QLocale::Finnish,
+    // Missing: Friulian,
+    QLocale::Frisian,
+    QLocale::Galician,
+    QLocale::Georgian,
+    QLocale::German,
+    QLocale::Greek,
+    QLocale::Greenlandic,
+    QLocale::Gujarati,
+    QLocale::Hausa,
+    QLocale::Hebrew,
+    QLocale::Hindi,
+    QLocale::Icelandic,
+    QLocale::Interlingua,
+    QLocale::Interlingue,
+    QLocale::Italian,
+    QLocale::Kannada,
+    QLocale::Kashmiri,
+    QLocale::Kazakh,
+    QLocale::Kinyarwanda,
+    QLocale::Kirghiz,
+    QLocale::Kurdish,
+    QLocale::Kurundi,
+    QLocale::Laothian,
+    QLocale::Latin,
+    // Missing: Letzeburgesch,
+    QLocale::Lingala,
+    QLocale::Malagasy,
+    QLocale::Malayalam,
+    QLocale::Marathi,
+    QLocale::Mongolian,
+    // Missing: Nahuatl,
+    QLocale::Nepali,
+    // Missing: Northern Sotho,
+    QLocale::Norwegian,
+    QLocale::Nynorsk,
+    QLocale::Occitan,
+    QLocale::Oriya,
+    QLocale::Pashto,
+    QLocale::Portuguese,
+    QLocale::Punjabi,
+    QLocale::Quechua,
+    QLocale::RhaetoRomance,
+    QLocale::Sesotho,
+    QLocale::Setswana,
+    QLocale::Shona,
+    QLocale::Sindhi,
+    QLocale::Singhalese,
+    QLocale::Siswati,
+    QLocale::Somali,
+    QLocale::Spanish,
+    QLocale::Swahili,
+    QLocale::Swedish,
+    QLocale::Tagalog,
+    QLocale::Tajik,
+    QLocale::Tamil,
+    QLocale::Tatar,
+    QLocale::Telugu,
+    QLocale::TongaLanguage,
+    QLocale::Tsonga,
+    QLocale::Turkish,
+    QLocale::Turkmen,
+    QLocale::Twi,
+    QLocale::Uigur,
+    QLocale::Uzbek,
+    QLocale::Volapuk,
+    QLocale::Wolof,
+    QLocale::Xhosa,
+    QLocale::Yiddish,
+    QLocale::Zulu,
+    EOL
+};
+static const QLocale::Language frenchStyleLanguages[] = {
+    // keep synchronized with frenchStyleCountries
+    QLocale::Breton,
+    QLocale::French,
+    QLocale::Portuguese,
+    // Missing: Filipino,
+    QLocale::Tigrinya,
+    // Missing: Walloon
+    EOL
+};
+static const QLocale::Language latvianLanguage[] = { QLocale::Latvian, EOL };
+static const QLocale::Language irishStyleLanguages[] = {
+    QLocale::Divehi,
+    QLocale::Gaelic,
+    QLocale::Inuktitut,
+    QLocale::Inupiak,
+    QLocale::Irish,
+    QLocale::Manx,
+    QLocale::Maori,
+    // Missing: Sami,
+    QLocale::Samoan,
+    QLocale::Sanskrit,
+    EOL
+};
+static const QLocale::Language czechLanguage[] = { QLocale::Czech, EOL };
+static const QLocale::Language slovakLanguage[] = { QLocale::Slovak, EOL };
+static const QLocale::Language macedonianLanguage[] = { QLocale::Macedonian, EOL };
+static const QLocale::Language lithuanianLanguage[] = { QLocale::Lithuanian, EOL };
+static const QLocale::Language russianStyleLanguages[] = {
+    QLocale::Bosnian,
+    QLocale::Byelorussian,
+    QLocale::Croatian,
+    QLocale::Russian,
+    QLocale::Serbian,
+    QLocale::SerboCroatian,
+    QLocale::Ukrainian,
+    EOL
+};
+static const QLocale::Language polishLanguage[] = { QLocale::Polish, EOL };
+static const QLocale::Language romanianLanguages[] = {
+    QLocale::Moldavian,
+    QLocale::Romanian,
+    EOL
+};
+static const QLocale::Language slovenianLanguage[] = { QLocale::Slovenian, EOL };
+static const QLocale::Language malteseLanguage[] = { QLocale::Maltese, EOL };
+static const QLocale::Language welshLanguage[] = { QLocale::Welsh, EOL };
+static const QLocale::Language arabicLanguage[] = { QLocale::Arabic, EOL };
+
+static const QLocale::Country frenchStyleCountries[] = {
+    // keep synchronized with frenchStyleLanguages
+    QLocale::AnyCountry,
+    QLocale::AnyCountry,
+    QLocale::Brazil,
+    QLocale::AnyCountry
+};
+
+struct NumerusTableEntry {
+    const uchar *rules;
+    int rulesSize;
+    const char * const *forms;
+    const QLocale::Language *languages;
+    const QLocale::Country *countries;
+};
+
+static const NumerusTableEntry numerusTable[] = {
+    { 0, 0, japaneseStyleForms, japaneseStyleLanguages, 0 },
+    { englishStyleRules, sizeof(englishStyleRules), englishStyleForms, englishStyleLanguages, 0 },
+    { frenchStyleRules, sizeof(frenchStyleRules), frenchStyleForms, frenchStyleLanguages,
+      frenchStyleCountries },
+    { latvianRules, sizeof(latvianRules), latvianForms, latvianLanguage, 0 },
+    { irishStyleRules, sizeof(irishStyleRules), irishStyleForms, irishStyleLanguages, 0 },
+    { czechRules, sizeof(czechRules), czechForms, czechLanguage, 0 },
+    { slovakRules, sizeof(slovakRules), slovakForms, slovakLanguage, 0 },
+    { macedonianRules, sizeof(macedonianRules), macedonianForms, macedonianLanguage, 0 },
+    { lithuanianRules, sizeof(lithuanianRules), lithuanianForms, lithuanianLanguage, 0 },
+    { russianStyleRules, sizeof(russianStyleRules), russianStyleForms, russianStyleLanguages, 0 },
+    { polishRules, sizeof(polishRules), polishForms, polishLanguage, 0 },
+    { romanianRules, sizeof(romanianRules), romanianForms, romanianLanguages, 0 },
+    { slovenianRules, sizeof(slovenianRules), slovenianForms, slovenianLanguage, 0 },
+    { malteseRules, sizeof(malteseRules), malteseForms, malteseLanguage, 0 },
+    { welshRules, sizeof(welshRules), welshForms, welshLanguage, 0 },
+    { arabicRules, sizeof(arabicRules), arabicForms, arabicLanguage, 0 }
+};
+
+static const int NumerusTableSize = sizeof(numerusTable) / sizeof(numerusTable[0]);
+
+static bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
+                           QByteArray &rules, QStringList &forms)
+{
+    forever {
+        for (int i = 0; i < NumerusTableSize; ++i) {
+            const NumerusTableEntry &entry = numerusTable[i];
+            for (int j = 0; entry.languages[j] != EOL; ++j) {
+                if (entry.languages[j] == language
+                        && ((!entry.countries && country == QLocale::AnyCountry)
+                            || entry.countries[j] == country)) {
+                    rules = QByteArray::fromRawData(reinterpret_cast<const char *>(entry.rules),
+                                                    entry.rulesSize);
+                    forms.clear();
+                    for (int k = 0; entry.forms[k]; ++k)
+                        forms.append(QLatin1String(entry.forms[k]));
+                    return true;
+                }
+            }
+        }
+
+        if (country == QLocale::AnyCountry)
+            break;
+        country = QLocale::AnyCountry;
+    }
+    return false;
+}
 
 #endif // TRANSLATOR_H
