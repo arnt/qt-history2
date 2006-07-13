@@ -74,22 +74,19 @@ private slots:
     void ctrlAltInput();
     void noPropertiesOnDefaultTextEditCharFormat();
     void setPlainTextShouldUseCurrentCharFormat();
-#if QT_VERSION >= 0x040102
     void setPlainTextShouldEmitTextChangedOnce();
-#endif
     void overwriteMode();
     void shiftDownInLineLastShouldSelectToEnd_data();
     void shiftDownInLineLastShouldSelectToEnd();
     void undoRedoShouldRepositionTextEditCursor();
     void lineWrapModes();
     void mouseCursorShape();
-#if QT_VERSION >= 0x040200
     void implicitClear();
     void undoRedoAfterSetContent();
     void numPadKeyNavigation();
     void moveCursor();
-#endif
     void mimeDataReimplementations();
+    void ctrlEnterShouldInsertLineSeparator();
 
 private:
     void createSelection();
@@ -788,7 +785,6 @@ void tst_QTextEdit::setPlainTextShouldUseCurrentCharFormat()
     QCOMPARE(cursor.charFormat().fontUnderline(), true);
 }
 
-#if QT_VERSION >= 0x040102
 void tst_QTextEdit::setPlainTextShouldEmitTextChangedOnce()
 {
     QSignalSpy spy(ed, SIGNAL(textChanged()));
@@ -797,7 +793,6 @@ void tst_QTextEdit::setPlainTextShouldEmitTextChangedOnce()
     ed->setPlainText("");
     QCOMPARE(spy.count(), 2);
 }
-#endif
 
 void tst_QTextEdit::overwriteMode()
 {
@@ -959,7 +954,6 @@ void tst_QTextEdit::mouseCursorShape()
     QVERIFY(ed->viewport()->cursor().shape() == Qt::IBeamCursor);
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTextEdit::implicitClear()
 {
     // test that QTextEdit::setHtml, etc. avoid calling clear() but instead call
@@ -1021,8 +1015,6 @@ void tst_QTextEdit::moveCursor()
     QCOMPARE(cursorMovedSpy.count(), 2);
     QCOMPARE(ed->textCursor().selectedText(), QString("e"));
 }
-
-#endif
 
 class MyTextEdit : public QTextEdit
 {
@@ -1087,6 +1079,18 @@ void tst_QTextEdit::mimeDataReimplementations()
     QCOMPARE(ed.createMimeDataCallCount, 1);
     QCOMPARE(ed.canInsertCallCount, 1);
     QCOMPARE(ed.insertCallCount, 1);
+}
+
+void tst_QTextEdit::ctrlEnterShouldInsertLineSeparator()
+{
+    QTest::keyClick(ed, Qt::Key_A);
+    QTest::keyClick(ed, Qt::Key_Enter, Qt::ControlModifier);
+    QTest::keyClick(ed, Qt::Key_B);
+    QString expected;
+    expected += 'a';
+    expected += QChar::LineSeparator;
+    expected += 'b';
+    QCOMPARE(ed->textCursor().block().text(), expected);
 }
 
 QTEST_MAIN(tst_QTextEdit)

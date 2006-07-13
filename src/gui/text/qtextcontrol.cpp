@@ -1067,33 +1067,25 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
     // example)
     repaintSelection();
 
-    if (!e->modifiers()) {
-        switch (e->key()) {
-        case Qt::Key_Backspace:
-        {
-            QTextBlockFormat blockFmt = cursor.blockFormat();
-            QTextList *list = cursor.currentList();
-            if (list && cursor.atBlockStart()) {
-                list->remove(cursor.block());
-            } else if (cursor.atBlockStart() && blockFmt.indent() > 0) {
-                blockFmt.setIndent(blockFmt.indent() - 1);
-                cursor.setBlockFormat(blockFmt);
-            } else {
-                cursor.deletePreviousChar();
-            }
-            goto accept;
+    if (e->key() == Qt::Key_Backspace && !e->modifiers()) {
+        QTextBlockFormat blockFmt = cursor.blockFormat();
+        QTextList *list = cursor.currentList();
+        if (list && cursor.atBlockStart()) {
+            list->remove(cursor.block());
+        } else if (cursor.atBlockStart() && blockFmt.indent() > 0) {
+            blockFmt.setIndent(blockFmt.indent() - 1);
+            cursor.setBlockFormat(blockFmt);
+        } else {
+            cursor.deletePreviousChar();
         }
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
-            if (e->modifiers() & Qt::ControlModifier)
-                cursor.insertText(QString(QChar::LineSeparator));
-            else
-                cursor.insertBlock();
-            e->accept();
-            goto accept;
-        default:
-            break;
-        }
+        goto accept;
+    } else if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+        if (e->modifiers() & Qt::ControlModifier)
+            cursor.insertText(QString(QChar::LineSeparator));
+        else
+            cursor.insertBlock();
+        e->accept();
+        goto accept;
     }
 
     if (e == QKeySequence::Undo) {
