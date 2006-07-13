@@ -709,7 +709,7 @@ bool QTextHtmlImporter::closeTag(int i)
                 Table &t = tables.last();
                 if (t.isTextFrame)
                     cursor = t.frame->lastCursorPosition();
-                else
+                else if (!t.currentCell.atEnd())
                     cursor = t.currentCell.cell().lastCursorPosition();
             }
 
