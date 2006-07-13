@@ -69,6 +69,4 @@ private:
 
 #endif // QT_NO_DATETIMEEDIT
 
-QT_END_HEADER
-
 #endif // QDATETIMEEDIT_P_H
