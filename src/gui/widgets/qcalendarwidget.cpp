@@ -615,7 +615,7 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() == 0) {
         // allow mouse tracking move events as long as a
-        // button is pressed. 
+        // button is pressed.
         return;
     }
 
@@ -637,7 +637,7 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
     }
     else
         event->ignore();
-    
+
 }
 
 void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
@@ -651,7 +651,7 @@ void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
     if (event->buttons())
         return;
 
-    if (readOnly) 
+    if (readOnly)
         return;
 
     if (validDateClicked) {
@@ -714,7 +714,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
 
     prevMonth = new QPushButton(q->style()->standardPixmap(QStyle::SP_CalendarWidgetPrev),
                                 QString(), headerBackground);
-    nextMonth = new QPushButton(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext), 
+    nextMonth = new QPushButton(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext),
                                 QString(), headerBackground);
     QFont font = q->font();
     font.setBold(true);
@@ -737,7 +737,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->addWidget(prevMonth);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(monthLabel);
-    headerLayout->addWidget(yearEdit); 
+    headerLayout->addWidget(yearEdit);
     headerLayout->addWidget(yearLabel);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
@@ -750,7 +750,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     prevMonth->setFocusPolicy(Qt::StrongFocus);
     nextMonth->setFocusPolicy(Qt::StrongFocus);
 
-    QStringList months; 
+    QStringList months;
     int width = 0;
     QFontMetrics fm=monthLabel->fontMetrics();
     for(int i=1; i<=12; i++) {
@@ -793,7 +793,7 @@ void QCalendarWidgetPrivate::handleMousePressEvent(QMouseEvent *event)
         yearEdit->show();
         yearEdit->setFocus(Qt::MouseFocusReason);
         event->accept();
-    } 
+    }
     else if (monthLabel->underMouse()&& !yearEdit->isVisible()) {
         monthLabel->parentWidget()->setFocus();
         int beg = 1, end = 12;
@@ -810,7 +810,7 @@ void QCalendarWidgetPrivate::handleMousePressEvent(QMouseEvent *event)
         QAction *act = monthMenu->exec(event->globalPos());
         if (act) {
             monthLabel->setText(act->text());
-            QDate newDate = m_model->date.addMonths(act->data().asInt()-m_model->date.month());
+            QDate newDate = m_model->date.addMonths(act->data().toInt()-m_model->date.month());
             _q_slotChangeDate(newDate, true);
         }
         event->accept();
@@ -981,9 +981,9 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
             this, SLOT(_q_editingFinished()));
 
     connect(d->prevMonth, SIGNAL(clicked(bool)),
-            this, SLOT(_q_prevMonthClicked())); 
+            this, SLOT(_q_prevMonthClicked()));
     connect(d->nextMonth, SIGNAL(clicked(bool)),
-            this, SLOT(_q_nextMonthClicked())); 
+            this, SLOT(_q_nextMonthClicked()));
     connect(d->yearEdit, SIGNAL(valueChanged(int)),
             this, SLOT(_q_yearChanged(int)));
     connect(d->yearEdit, SIGNAL(editingFinished()),
