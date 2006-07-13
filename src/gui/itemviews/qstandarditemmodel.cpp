@@ -554,6 +554,8 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
     correspondingly, a column can be removed with removeColumn() or
     takeColumn().
 
+    An item's children can be sorted by calling sortChildren().
+
     \section1 Subclassing
 
     When subclassing QStandardItem to provide custom items, it is possible to
@@ -572,8 +574,8 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
     represented in their serialized form.
     
     Reimplement \l{operator<()} if you want to control the semantics of item
-    comparison. \l{operator<()} determines the sorted order when sorting items in
-    a QStandardItemModel.
+    comparison. \l{operator<()} determines the sorted order when sorting items
+    with sortChildren() or with QStandardItemModel::sort().
 
     \sa QStandardItemModel, {Item View Convenience Classes}, {Model/View Programming}
 */
@@ -1635,12 +1637,14 @@ QList<QStandardItem*> QStandardItem::takeColumn(int column)
 /*!
     Returns true if this item is less than \a other; otherwise returns false.
 
-    The default implementation uses the data for the item's Qt::DisplayRole
-    (text()) to perform the comparison.
+    The default implementation uses the data for the item's sort role (see
+    QStandardItemModel::sortRole) to perform the comparison if the item
+    belongs to a model; otherwise, the data for the item's Qt::DisplayRole
+    (text()) is used to perform the comparison.
 
-    QStandardItemModel uses this function when sorting items. If you want
-    custom sorting, you can subclass QStandardItem and reimplement this
-    function.
+    sortChildren() and QStandardItemModel::sort() use this function when
+    sorting items. If you want custom sorting, you can subclass QStandardItem
+    and reimplement this function.
 */
 bool QStandardItem::operator<(const QStandardItem &other) const
 {
@@ -1677,6 +1681,8 @@ bool QStandardItem::operator<(const QStandardItem &other) const
 /*!
     Sorts the children of the item using the given \a order,
     by the values in the given \a column.
+
+    \sa {operator<()}
 */
 void QStandardItem::sortChildren(int column, Qt::SortOrder order)
 {
@@ -2480,7 +2486,7 @@ QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
 
     The default value is Qt::DisplayRole.
 
-    \sa {QStandardItem::operator<()}
+    \sa sort(), QStandardItem::sortChildren()
 */
 int QStandardItemModel::sortRole() const
 {
@@ -2563,7 +2569,8 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
 }
 
 /*!
-    QStandardItemModel supports both copy and move
+  Returns the supported drop actions.
+  QStandardItemModel supports both copy and move.
   */
 Qt::DropActions QStandardItemModel::supportedDropActions () const
 {
