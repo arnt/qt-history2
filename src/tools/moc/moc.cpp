@@ -61,7 +61,8 @@ bool Moc::parseClassHead(ClassDef *def)
             return false;
     } while (token);
 
-    next(IDENTIFIER);
+    if (!test(IDENTIFIER)) // typedef struct { ... }
+        return false;
     QByteArray name = lexem();
 
     // support "class IDENT name" and "class IDENT(IDENT) name"

@@ -55,6 +55,10 @@ namespace Int
     typedef int Type;
 }
 
+typedef struct {
+    int doNotConfuseMoc;
+} OldStyleCStruct;
+
 class Sender : public QObject
 {
     Q_OBJECT
