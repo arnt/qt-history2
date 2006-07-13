@@ -45,12 +45,18 @@
     <file>images/mac/up.png</file>
     <file>images/qtlogo.png</file>
     <file>images/resetproperty.png</file>
+    <file>images/widgets/calendarwidget.png</file>
     <file>images/widgets/checkbox.png</file>
     <file>images/widgets/combobox.png</file>
     <file>images/widgets/datetimeedit.png</file>
     <file>images/widgets/dial.png</file>
+    <file>images/widgets/dialogbuttonbox.png</file>
+    <file>images/widgets/fontcombobox.png</file>
     <file>images/widgets/frame.png</file>
+    <file>images/widgets/graphicsview.png</file>
     <file>images/widgets/groupbox.png</file>
+    <file>images/widgets/hscrollbar.png</file>
+    <file>images/widgets/hslider.png</file>
     <file>images/widgets/hsplit.png</file>
     <file>images/widgets/label.png</file>
     <file>images/widgets/lcdnumber.png</file>
@@ -61,10 +67,6 @@
     <file>images/widgets/progress.png</file>
     <file>images/widgets/pushbutton.png</file>
     <file>images/widgets/radiobutton.png</file>
-    <file>images/widgets/vscrollbar.png</file>
-    <file>images/widgets/hscrollbar.png</file>
-    <file>images/widgets/vslider.png</file>
-    <file>images/widgets/hslider.png</file>
     <file>images/widgets/spacer.png</file>
     <file>images/widgets/spinbox.png</file>
     <file>images/widgets/table.png</file>
@@ -72,6 +74,8 @@
     <file>images/widgets/textedit.png</file>
     <file>images/widgets/toolbox.png</file>
     <file>images/widgets/toolbutton.png</file>
+    <file>images/widgets/vscrollbar.png</file>
+    <file>images/widgets/vslider.png</file>
     <file>images/widgets/vspacer.png</file>
     <file>images/widgets/widgetstack.png</file>
     <file>images/win/adjustsize.png</file>

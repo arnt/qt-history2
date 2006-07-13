@@ -132,7 +132,7 @@
                 <string notr="true">checkBox</string>
             </property>
         </widget>
-        <widget class="QDialogButtonBox" name="Button Box" icon="widgets/frame.png">
+        <widget class="QDialogButtonBox" name="Button Box" icon="widgets/dialogbuttonbox.png">
             <property name="standardButtons" >
                 <set>QDialogButtonBox::Ok|QDialogButtonBox::Cancel</set>
             </property>
@@ -358,7 +358,7 @@
             </property>
         </widget>
 
-        <widget class="QFontComboBox" name="Font Combo Box" icon="widgets/combobox.png">
+        <widget class="QFontComboBox" name="Font Combo Box" icon="widgets/fontcombobox.png">
             <property name="geometry" >
                 <rect>
                     <x>119</x>
@@ -572,7 +572,7 @@
             </property>
         </widget>
 
-        <widget class="QGraphicsView" name="Graphics View" icon="widgets/frame.png">
+        <widget class="QGraphicsView" name="Graphics View" icon="widgets/graphicsview.png">
             <property name="objectName">
                 <string notr="true">graphicsView</string>
             </property>
@@ -586,7 +586,7 @@
             </property>
         </widget>
 
-        <widget class="QCalendarWidget" name="Calendar" icon="widgets/frame.png">
+        <widget class="QCalendarWidget" name="Calendar" icon="widgets/calendarwidget.png">
             <property name="objectName">
                 <string notr="true">calendarWidget</string>
             </property>
