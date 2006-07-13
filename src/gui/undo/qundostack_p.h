@@ -43,6 +43,8 @@ public:
     int id;
 };
 
+#ifndef QT_NO_UNDOSTACK
+
 class QUndoStackPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QUndoStack)
@@ -69,4 +71,5 @@ private:
     QString m_prefix;
 };
 
+#endif // QT_NO_UNDOSTACK
 #endif // QUNDOSTACK_P_H

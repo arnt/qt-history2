@@ -333,11 +333,6 @@
 #define QT_NO_SYSTEMTRAYICON
 #endif
 
-// QUndoGroup
-#if !defined(QT_NO_UNDOGROUP) && (defined(QT_NO_UNDOCOMMAND))
-#define QT_NO_UNDOGROUP
-#endif
-
 // QUndoStack
 #if !defined(QT_NO_UNDOSTACK) && (defined(QT_NO_UNDOCOMMAND))
 #define QT_NO_UNDOSTACK
@@ -416,6 +411,11 @@
 // QTextEdit
 #if !defined(QT_NO_TEXTEDIT) && (defined(QT_NO_SCROLLAREA))
 #define QT_NO_TEXTEDIT
+#endif
+
+// QUndoGroup
+#if !defined(QT_NO_UNDOGROUP) && (defined(QT_NO_UNDOCOMMAND) || defined(QT_NO_UNDOSTACK))
+#define QT_NO_UNDOGROUP
 #endif
 
 // QErrorMessage
@@ -558,11 +558,6 @@
 #define QT_NO_TOOLBAR
 #endif
 
-// QUndoView
-#if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOCOMMAND) || defined(QT_NO_LISTVIEW))
-#define QT_NO_UNDOVIEW
-#endif
-
 // QDockwidget
 #if !defined(QT_NO_DOCKWIDGET) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_MAINWINDOW))
 #define QT_NO_DOCKWIDGET
@@ -571,6 +566,11 @@
 // QToolBox
 #if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICON) || defined(QT_NO_TOOLTIP) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_SCROLLAREA))
 #define QT_NO_TOOLBOX
+#endif
+
+// QUndoView
+#if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOSTACK) || defined(QT_NO_LISTVIEW))
+#define QT_NO_UNDOVIEW
 #endif
 
 // QComboBox

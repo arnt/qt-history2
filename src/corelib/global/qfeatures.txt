@@ -931,30 +931,30 @@ Name: QSystemTrayIcon
 SeeAlso: ???
 
 Feature: UNDOCOMMAND
-Description:
+Description: Applies (redo or) undo of a single change in a document.
 Section: Utilities
 Requires:
 Name: QUndoCommand
 SeeAlso: ???
 
 Feature: UNDOSTACK
-Description:
+Description: Provides the ability to (redo or) undo a list of changes in a document.
 Section: Utilities
 Requires: UNDOCOMMAND
 Name: QUndoStack
 SeeAlso: ???
 
 Feature: UNDOGROUP
-Description:
+Description: 
 Section: Utilities
-Requires: UNDOCOMMAND
+Requires: UNDOCOMMAND UNDOSTACK
 Name: QUndoGroup
 SeeAlso: ???
 
 Feature: UNDOVIEW
-Description:
+Description: A widget which shows the contents of an undo stack.
 Section: Utilities
-Requires: UNDOCOMMAND LISTVIEW
+Requires: UNDOSTACK LISTVIEW
 Name: QUndoView
 SeeAlso: ???
 
