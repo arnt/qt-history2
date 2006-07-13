@@ -20,7 +20,7 @@
     The \l QDataStream allows you to serialize some of the Qt data types.
     The table below lists the data types that QDataStream can serialize
     and how they are represented. The format described below is
-    \l{QDataStream::setVersion()}{version 7}.
+    \l{QDataStream::setVersion()}{version 8}.
 
     It is always best to cast integers to a Qt integer type, such as
     qint16 or quint32, when reading and writing. This ensures that
@@ -241,7 +241,8 @@
     \row \o QVariant
          \o \list
             \o The type of the data (quint32)
-            \o The data of the specified type
+            \o The null flag (qint8)
+            \o The data of the specified type, if the variant is non-null
             \endlist
     \row \o QVector<T>
          \o \list
