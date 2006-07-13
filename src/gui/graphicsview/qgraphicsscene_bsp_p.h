@@ -26,6 +26,9 @@
 //
 
 #include <QtCore/qlist.h>
+
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
 #include <QtCore/qvector.h>
@@ -97,4 +100,5 @@ public:
     virtual void visit(QList<QGraphicsItem *> *items) = 0;
 };
 
+#endif // QT_NO_GRAPHICSVIEW
 #endif // QGRAPHICSSCENEBSPTREE_P_H

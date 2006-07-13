@@ -13,6 +13,8 @@
 
 #include "qgraphicsscene_bsp_p.h"
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include <QtCore/qstring.h>
 #include <private/qgraphicsitem_p.h>
 
@@ -20,7 +22,7 @@ class QGraphicsSceneInsertItemBspTreeVisitor : public QGraphicsSceneBspTreeVisit
 {
 public:
     QGraphicsItem *item;
-    
+
     void visit(QList<QGraphicsItem *> *items)
     { items->prepend(item); }
 };
@@ -29,7 +31,7 @@ class QGraphicsSceneRemoveItemBspTreeVisitor : public QGraphicsSceneBspTreeVisit
 {
 public:
     QGraphicsItem *item;
-    
+
     void visit(QList<QGraphicsItem *> *items)
     { items->removeAll(item); }
 };
@@ -37,7 +39,7 @@ public:
 class QGraphicsSceneFindItemBspTreeVisitor : public QGraphicsSceneBspTreeVisitor
 {
 public:
-    QList<QGraphicsItem *> *foundItems;    
+    QList<QGraphicsItem *> *foundItems;
 
     void visit(QList<QGraphicsItem *> *items)
     {
@@ -72,7 +74,7 @@ void QGraphicsSceneBspTree::initialize(const QRectF &rect, int depth)
     leafCnt = 0;
     nodes.resize((1 << (depth + 1)) - 1);
     leaves.resize(1 << depth);
-        
+
     initialize(rect, depth, 0);
 }
 
@@ -163,7 +165,7 @@ void QGraphicsSceneBspTree::initialize(const QRectF &rect, int depth, int index)
         node->type = Node::Horizontal;
         node->offset = rect.center().x();
     }
-        
+
     if (depth) {
         Node::Type type;
         QRectF rect1, rect2;
@@ -184,7 +186,7 @@ void QGraphicsSceneBspTree::initialize(const QRectF &rect, int depth, int index)
         }
 
         int childIndex = firstChildIndex(index);
-            
+
         Node *child = &nodes[childIndex];
         child->offset = offset1;
         child->type = type;
@@ -264,7 +266,7 @@ void QGraphicsSceneBspTree::climbTree(QGraphicsSceneBspTreeVisitor *visitor, con
         }
     }
 }
-    
+
 QRectF QGraphicsSceneBspTree::rectForIndex(int index) const
 {
     if (index <= 0)
@@ -288,3 +290,5 @@ QRectF QGraphicsSceneBspTree::rectForIndex(int index) const
 
     return rect;
 }
+
+#endif // QT_NO_GRAPHICSVIEW
