@@ -468,25 +468,29 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
             PaletteMap("QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive),
             PaletteMap("QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive),
             PaletteMap("QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive),
+            PaletteMap("QTextEdit", 0, 0),
+            PaletteMap("QTextControl", 0, 0),
             PaletteMap(0, 0, 0) };
         QColor qc;
         RGBColor c;
         for(int i = 0; mac_widget_colors[i].qt_class; i++) {
             QPalette pal;
-            if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
-                qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-                pal.setColor(QPalette::Active, QPalette::Text, qc);
-                pal.setColor(QPalette::Active, QPalette::Foreground, qc);
-                pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
-            }
-            if(!GetThemeTextColor(mac_widget_colors[i].inactive, 32, true, &c)) {
-                qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-                pal.setColor(QPalette::Inactive, QPalette::Text, qc);
-                pal.setColor(QPalette::Disabled, QPalette::Text, qc);
-                pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
-                pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
-                pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
-                pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
+            if (mac_widget_colors[i].active == 0) {
+                if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
+                    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
+                    pal.setColor(QPalette::Active, QPalette::Text, qc);
+                    pal.setColor(QPalette::Active, QPalette::Foreground, qc);
+                    pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
+                }
+                if(!GetThemeTextColor(mac_widget_colors[i].inactive, 32, true, &c)) {
+                    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
+                    pal.setColor(QPalette::Inactive, QPalette::Text, qc);
+                    pal.setColor(QPalette::Disabled, QPalette::Text, qc);
+                    pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
+                    pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
+                    pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
+                    pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
+                }
             }
             if(!strcmp(mac_widget_colors[i].qt_class, "QMenu")) {
                 GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
@@ -512,9 +516,15 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                 GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
                 pal.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
                 pal.setBrush(QPalette::Inactive, QPalette::Text,
-                              pal.brush(QPalette::Active, QPalette::WindowText));
+                              pal.brush(QPalette::Active, QPalette::Text));
                 pal.setBrush(QPalette::Inactive, QPalette::HighlightedText,
-                              pal.brush(QPalette::Active, QPalette::WindowText));
+                              pal.brush(QPalette::Active, QPalette::Text));
+            } else if (!strcmp(mac_widget_colors[i].qt_class, "QTextEdit")
+                       || !strcmp(mac_widget_colors[i].qt_class, "QTextControl")) {
+                pal.setBrush(QPalette::Inactive, QPalette::Text,
+                              pal.brush(QPalette::Active, QPalette::Text));
+                pal.setBrush(QPalette::Inactive, QPalette::HighlightedText,
+                              pal.brush(QPalette::Active, QPalette::Text));
             }
 
             bool set_palette = true;
