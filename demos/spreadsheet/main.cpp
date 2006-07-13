@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include "popupwidget.h"
-
 #include <QtGui>
 
 static QString encode_pos(int row, int col) {
@@ -23,86 +21,6 @@ static void decode_pos(const QString &pos, int *row, int *col)
 {
     *col = pos.at(0).toLatin1() - 'A';
     *row = pos.right(pos.size() - 1).toInt() - 1;
-}
-
-//Widget with calender widget and controls for month & year.
-class CalendarPopup : public QWidget
-{
-    Q_OBJECT
-public:
-    CalendarPopup(const QDate &date, QWidget * parent = 0);
-    QDate selectedDate(){return myDate;}; 
-signals:
-    void done();
-public slots:
-    void calendarPageChanged(int year, int month);
-    void dateSelected(const QDate &date);
-    void monthChanged(int month);
-    void yearChanged(int year);
-private:
-    QComboBox *monthsCombo;
-    QSpinBox *yearEdit;
-    QCalendarWidget *calendar;
-    QDate myDate;
-};
-
-CalendarPopup::CalendarPopup(const QDate &date, QWidget * parent)
-: QWidget(parent), myDate(date)
-{
-    monthsCombo = new QComboBox(this);
-    yearEdit = new QSpinBox(this);
-    calendar = new QCalendarWidget(this);
-    yearEdit->setMaximum(9999);
-    yearEdit->setMinimum(1);
-
-    QHBoxLayout *controlLayout = new QHBoxLayout;
-    controlLayout->setMargin(0);
-    controlLayout->addWidget(monthsCombo);
-    controlLayout->addSpacing(5);
-    controlLayout->addWidget(yearEdit);
-    controlLayout->insertStretch(controlLayout->count());
-
-    QStringList months;
-    for(int i=1; i<=12; i++)
-        months.append(QDate::longMonthName(i));
-    monthsCombo->addItems(months);
-    monthsCombo->setCurrentIndex(myDate.month()-1);
-    yearEdit->setValue(myDate.year());
-    calendar->setSelectedDate(myDate);
-
-    QVBoxLayout *widgetLayout = new QVBoxLayout(this);
-    widgetLayout->setMargin(0);
-    widgetLayout->setSpacing(0);
-    widgetLayout->addItem(controlLayout);
-    widgetLayout->addWidget(calendar);
-
-    connect(monthsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(monthChanged(int)));
-    connect(yearEdit, SIGNAL(valueChanged(int)), this, SLOT(yearChanged(int)));
-    connect(calendar, SIGNAL(currentPageChanged(int, int)), this, SLOT(calendarPageChanged(int, int)));
-    connect(calendar, SIGNAL(activated(const QDate&)), this, SLOT(dateSelected(const QDate&)));
-}
-
-void CalendarPopup::calendarPageChanged(int year, int month)
-{
-    monthsCombo->setCurrentIndex(month-1);
-    yearEdit->setValue(year);
-}
-
-void CalendarPopup::dateSelected(const QDate &date)
-{
-    myDate = date;
-    //'done' signal has to be conneted with PopupWidget's 'closePopup' Slot.
-    emit done();
-}
-
-void CalendarPopup::monthChanged(int month)
-{
-    calendar->setCurrentPage(yearEdit->text().toInt(), month+1);
-}
-
-void CalendarPopup::yearChanged(int year) 
-{
-    calendar->setCurrentPage(year, monthsCombo->currentIndex()+1);
 }
 
 class SpreadSheetDelegate : public QItemDelegate
@@ -125,9 +43,12 @@ SpreadSheetDelegate::SpreadSheetDelegate(QObject *parent)
 QWidget *SpreadSheetDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,
     const QModelIndex &index) const
 {
-    //ignore the column '1', we handle that in doubleclick of the table
-    if(index.column() == 1) 
-        return 0;
+    if(index.column() == 1){
+        QDateTimeEdit *editor = new QDateTimeEdit(parent);
+        editor->setDisplayFormat("dd/M/yyyy");
+        editor->setCalendarPopup(true);
+        return editor;
+    }
     QLineEdit *editor = new QLineEdit(parent);
     //create a completer with the strings in the column as model.
     QStringList allStrings;
@@ -155,6 +76,12 @@ void SpreadSheetDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
     if (edit) {
         edit->setText(index.model()->data(index, Qt::EditRole).toString());
     }
+    else {
+        QDateTimeEdit *dateEditor = qobject_cast<QDateTimeEdit *>(editor);
+        if (dateEditor) {
+            dateEditor->setDate(QDate::fromString(index.model()->data(index, Qt::EditRole).toString(), "d/M/yyyy"));
+        }
+    }
 }
 
 void SpreadSheetDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
@@ -163,6 +90,12 @@ void SpreadSheetDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
     QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
     if (edit) {
         model->setData(index, edit->text());
+    }
+    else {
+        QDateTimeEdit *dateEditor = qobject_cast<QDateTimeEdit *>(editor);
+        if (dateEditor) {
+            model->setData(index, dateEditor->date().toString("dd/M/yyyy"));
+        }
     }
 }
 
@@ -307,7 +240,6 @@ public slots:
     void actionAdd();
     void actionMultiply();
     void actionDivide();
-    void dateChangeRequest(int row, int column);
 
 protected:
     void setupContextMenu();
@@ -383,34 +315,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(formulaInput, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
-    connect(table, SIGNAL(cellDoubleClicked(int, int)),
-            this, SLOT(dateChangeRequest(int, int)));
-
     setWindowTitle(tr("Spreadsheet"));
-}
-
-void SpreadSheet::dateChangeRequest(int row, int column)
-{
-    if(column == 1){
-        SpreadSheetItem *item = (SpreadSheetItem *)table->item(row, column);
-        QDate selected = QDate::fromString(item->display().toString(),QString("dd/M/yyyy"));
-        //find the position of the item.
-        QRect itemRect = table->visualItemRect(item);
-        //map the point to screen coordinates
-        QPoint startPos(itemRect.topLeft());
-        startPos = table->viewport()->mapToGlobal(startPos);
-        //create popup in this position.
-        PopupWidget *popup = new PopupWidget(this);
-        CalendarPopup *calPopup = new CalendarPopup(selected, popup);
-        popup->setWidget(calPopup);
-        //add the 'date selected' signal to PopupWidget's close slot 
-        connect(calPopup, SIGNAL(done()), popup, SLOT(closePopup()));
-        if(popup->exec(QRect(startPos, itemRect.size()))) {
-            selected = calPopup->selectedDate();
-            item->setData(Qt::DisplayRole, selected.toString(QString("dd/M/yyyy")));
-        }
-        delete popup;
-    }
 }
 
 void SpreadSheet::createActions()
