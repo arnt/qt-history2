@@ -1031,12 +1031,12 @@ HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
     QList<QAction*> actions = menuBar->actions();
     for (int i = 0; i < actions.count(); ++i) {
         QAction *action = actions.at(i);
-	QString text = action->text();
-	if (text == "&File") {
+	QString text = action->text().remove('&');
+	if (text == QLatin1String("File")) {
             fileMenu = action->menu();
-	} else if (text == "&View") {
+	} else if (text == QLatin1String("View")) {
 	    viewMenu = action->menu();
-	} else if (text == "&Window") {
+	} else if (text == QLatin1String("Window")) {
 	    windowMenu = action->menu();
 	}
     }
@@ -1108,7 +1108,7 @@ QMenu *QAxClientSite::generatePopup(HMENU subMenu, QWidget *parent)
 	    popupMenu = item.hSubMenu ? generatePopup(item.hSubMenu, popup) : 0;
 	    int res = menuItemEntry(subMenu, i, item, text, icon);
 
-	    int lastSep = text.lastIndexOf(QRegExp("[\\s]"));
+	    int lastSep = text.lastIndexOf(QRegExp(QLatin1String("[\\s]")));
 	    if (lastSep != -1) {
 		QString keyString = text.right(text.length() - lastSep);
 		accel = keyString;
@@ -1458,9 +1458,7 @@ void QAxClientSite::windowActivationChange()
 QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
 : QWidget(parent), setFocusTimer(0), hasFocus(false), axhost(ax)
 {
-//    setAttribute(Qt::WA_NoBackground);
-//    setAttribute(Qt::WA_NoSystemBackground);
-    setObjectName("QAxHostWidget");
+    setObjectName(parent->objectName() + QLatin1String(" - QAxHostWidget"));
 }
 
 QAxHostWidget::~QAxHostWidget()
