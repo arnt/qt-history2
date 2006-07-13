@@ -5192,9 +5192,9 @@ QRegion QWidget::visibleRegion() const
     Adjusts the size of the widget to fit the contents.
 
     Uses sizeHint() if valid (i.e if the size hint's width and height
-    are \>= 0), otherwise sets the size to the children rectangle (the
-    union of all child widget geometries). For toplevel widgets, the
-    function also takes the screen size into account.
+    are \>= 0); otherwise sets the size to the children rectangle that
+    covers all child widgets (the union of all child widget rectangles).
+    For top-level widgets, the screen size is also taken into account.
 
     \sa sizeHint(), childrenRect()
 */
