@@ -10,10 +10,8 @@
 #include <QtGui/QtGui>
 #include <QtTest/QtTest>
 
-
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qtableview.h gui/itemviews/qtableview.cpp
-
 
 class tst_QTableView : public QObject
 {
@@ -23,164 +21,244 @@ public:
     tst_QTableView();
     virtual ~tst_QTableView();
 
-
 public slots:
     void initTestCase();
     void cleanupTestCase();
     void init();
     void cleanup();
+
 private slots:
     void getSetCheck();
     void noModel();
     void emptyModel();
+
+    void removeRows_data();
     void removeRows();
+
+    void removeColumns_data();
+    void removeColumns();
+
+    void keyboardNavigation_data();
     void keyboardNavigation();
+
+    void headerSections_data();
     void headerSections();
     void headerSections_unhideRow();
+
     void moveCursor2();
+
     void moveCursor_data();
     void moveCursor();
-    //void moveCursorDownInOpenEditor();
+
     void hideRows();
     void hideColumns();
+
     void selectRow_data();
     void selectRow();
+
     void selectColumn_data();
     void selectColumn();
+
     void visualRect_data();
     void visualRect();
+    
     void fetchMore();
     void setHeaders();
-    void resizeColumnsToContents();
+
+    void resizeRowsToContents_data();
     void resizeRowsToContents();
+
+    void resizeColumnsToContents_data();
+    void resizeColumnsToContents();
+
+    void rowViewportPosition_data();
+    void rowViewportPosition();
+    
+    void rowAt_data();
+    void rowAt();
+
+    void rowHeight_data();
+    void rowHeight();
+
+    void columnViewportPosition_data();
+    void columnViewportPosiiton();
+
+    void columnAt_data();
+    void columnAt();
+
+    void columnWidth_data();
+    void columnWidth();
+
+    void hiddeRow_data();
+    void hiddeRow();
+
+    void hiddeColumn_data();
+    void hiddnColumn();
+
+    void sortingEnabled_data();
+    void sortingEnabled();
+
+    void scrollTo_data();
+    void scrollTo();
+
+    void indexAt_data();
+    void indexAt();
+
+    void rowSpan_data();
+    void rowSpan();
+    
+    void columnSpan_data();
+    void columnSpan();
 };
 
 // Testing get/set functions
 void tst_QTableView::getSetCheck()
 {
     QTableView obj1;
-    // QHeaderView * QTableView::horizontalHeader()
-    // void QTableView::setHorizontalHeader(QHeaderView *)
     QHeaderView *var1 = new QHeaderView(Qt::Horizontal);
     obj1.setHorizontalHeader(var1);
     QCOMPARE(var1, obj1.horizontalHeader());
 #if QT_VERSION >= 0x040200
-    // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
     obj1.setHorizontalHeader((QHeaderView *)0);
-    //QCOMPARE((QHeaderView *)0, obj1.horizontalHeader());
     QCOMPARE(var1, obj1.horizontalHeader());
 #endif
     delete var1;
 
-    // QHeaderView * QTableView::verticalHeader()
-    // void QTableView::setVerticalHeader(QHeaderView *)
     QHeaderView *var2 = new QHeaderView(Qt::Vertical);
     obj1.setVerticalHeader(var2);
     QCOMPARE(var2, obj1.verticalHeader());
 #if QT_VERSION >= 0x040200
-    // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
     obj1.setVerticalHeader((QHeaderView *)0);
-    //QCOMPARE((QHeaderView *)0, obj1.verticalHeader());
     QCOMPARE(var2, obj1.verticalHeader());
 #endif
     delete var2;
 
-    // bool QTableView::showGrid()
-    // void QTableView::setShowGrid(bool)
     obj1.setShowGrid(false);
     QCOMPARE(false, obj1.showGrid());
     obj1.setShowGrid(true);
     QCOMPARE(true, obj1.showGrid());
 }
 
-class QtTestModel: public QAbstractTableModel
+class QtTestTableModel: public QAbstractTableModel
 {
+    Q_OBJECT
+
+signals:
+    void invalidIndexEncountered() const;
+    
 public:
-    QtTestModel(QObject *parent = 0): QAbstractTableModel(parent),
-       cols(0), rows(0), canfetchmore(false), wrongIndex(false), fetchMoreCount(0) {}
-    int rowCount(const QModelIndex&) const { return rows; }
-    int columnCount(const QModelIndex&) const { return cols; }
+    QtTestTableModel(int rows = 0, int columns = 0, QObject *parent = 0)
+        : QAbstractTableModel(parent),
+          row_count(rows),
+          column_count(columns),
+          can_fetch_more(false),
+          fetch_more_count(0) {}
+
+    int rowCount(const QModelIndex& = QModelIndex()) const { return row_count; }
+    int columnCount(const QModelIndex& = QModelIndex()) const { return column_count; }
     bool isEditable(const QModelIndex &) const { return true; }
 
     QVariant data(const QModelIndex &idx, int role) const
     {
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (idx.row() < 0 || idx.column() < 0 || idx.column() >= cols || idx.row() >= rows) {
-                wrongIndex = true;
-                qWarning("Invalid modelIndex [%d,%d,%p]", idx.row(), idx.column(), idx.internalPointer());
-            }
-            return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(0);//idx.data());
-        } else {
+        if (!idx.isValid() || idx.row() >= row_count || idx.column() >= column_count) {
+            qWarning() << "Invalid modelIndex [%d,%d,%p]" << idx;
+            emit invalidIndexEncountered();
             return QVariant();
         }
+
+        if (role == Qt::DisplayRole || role == Qt::EditRole)
+            return QString("[%1,%2,%3]").arg(idx.row()).arg(idx.column()).arg(0);
+        
+        return QVariant();
     }
 
     void removeLastRow()
     {
-        beginRemoveRows(QModelIndex(), rows - 1, rows - 1);
-        --rows;
+        beginRemoveRows(QModelIndex(), row_count - 1, row_count - 1);
+        --row_count;
         endRemoveRows();
     }
 
     void removeAllRows()
     {
-        beginRemoveRows(QModelIndex(), 0, rows - 1);
-        rows = 0;
+        beginRemoveRows(QModelIndex(), 0, row_count - 1);
+        row_count = 0;
         endRemoveRows();
     }
 
     void removeLastColumn()
     {
-        beginRemoveColumns(QModelIndex(), cols - 1, cols - 1);
-        --cols;
+        beginRemoveColumns(QModelIndex(), column_count - 1, column_count - 1);
+        --column_count;
         endRemoveColumns();
     }
 
     void removeAllColumns()
     {
-        beginRemoveColumns(QModelIndex(), 0, cols - 1);
-        cols = 0;
+        beginRemoveColumns(QModelIndex(), 0, column_count - 1);
+        column_count = 0;
         endRemoveColumns();
     }
 
     bool canFetchMore(const QModelIndex &) const
     {
-        return canfetchmore;
+        return can_fetch_more;
     }
 
     void fetchMore(const QModelIndex &)
     {
-        ++fetchMoreCount;
+        ++fetch_more_count;
     }
 
-
-    int cols, rows;
-    bool canfetchmore;
-    mutable bool wrongIndex;
-
-    int fetchMoreCount;
+    int row_count;
+    int column_count;
+    bool can_fetch_more;
+    int fetch_more_count;
 };
 
-class MoveCursorTableView : public QTableView {
-    public:
-    typedef enum {
-        MoveUp = 0,
-        MoveDown,
-        MoveLeft,
-        MoveRight,
-        MoveHome,
-        MoveEnd,
-        MovePageUp,
-        MovePageDown,
-        MoveNext,
-        MovePrevious
-    } CursorAction;
+class QtTestTableView : public QTableView
+{
+public:
+    enum CursorAction {
+        MoveUp       = QAbstractItemView::MoveUp,
+        MoveDown     = QAbstractItemView::MoveDown,
+        MoveLeft     = QAbstractItemView::MoveLeft,
+        MoveRight    = QAbstractItemView::MoveRight,
+        MoveHome     = QAbstractItemView::MoveHome,
+        MoveEnd      = QAbstractItemView::MoveEnd,
+        MovePageUp   = QAbstractItemView::MovePageUp,
+        MovePageDown = QAbstractItemView::MovePageDown,
+        MoveNext     = QAbstractItemView::MoveNext,
+        MovePrevious = QAbstractItemView::MovePrevious
+    };
 
-    QModelIndex moveCursor(MoveCursorTableView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers) {
+    QModelIndex moveCursor(QtTestTableView::CursorAction cursorAction,
+                           Qt::KeyboardModifiers modifiers)
+    {
         return QTableView::moveCursor((QAbstractItemView::CursorAction)cursorAction, modifiers);
     }
+
+    int columnWidthHint(int column) const
+    {
+        return sizeHintForColumn(column);
+    }
+    
+    int rowHeightHint(int row) const
+    {
+        return sizeHintForRow(row);
+    }
 };
 
+class QtTestItemDelegate : public QItemDelegate
+{
+public:
+    QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const
+    {
+        return hint;
+    }
+
+    QSize hint;
+};
 
 tst_QTableView::tst_QTableView()
 {
@@ -214,27 +292,73 @@ void tst_QTableView::noModel()
 
 void tst_QTableView::emptyModel()
 {
-    QtTestModel model;
+    QtTestTableModel model;
     QTableView view;
+    QSignalSpy spy(&model, SIGNAL(invalidIndexEncountered()));
     view.setModel(&model);
     view.show();
-    QVERIFY(!model.wrongIndex);
+    QCOMPARE(spy.count(), 0);
+}
+
+void tst_QTableView::removeRows_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+
+    QTest::newRow("2x2 model") << 2 << 2;
+    QTest::newRow("10x10 model") << 10  << 10;
 }
 
 void tst_QTableView::removeRows()
 {
-    QtTestModel model(0);
-    model.rows = model.cols = 10;
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    
+    QtTestTableModel model(rowCount, columnCount);
+    QSignalSpy spy(&model, SIGNAL(invalidIndexEncountered()));
 
     QTableView view;
     view.setModel(&model);
     view.show();
 
     model.removeLastRow();
-    QVERIFY(!model.wrongIndex);
+    QCOMPARE(spy.count(), 0);
 
     model.removeAllRows();
-    QVERIFY(!model.wrongIndex);
+    QCOMPARE(spy.count(), 0);
+}
+
+void tst_QTableView::removeColumns_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+
+    QTest::newRow("2x2 model") << 2 << 2;
+    QTest::newRow("10x10 model") << 10  << 10;
+}
+
+void tst_QTableView::removeColumns()
+{
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+
+    QtTestTableModel model(rowCount, columnCount);
+    QSignalSpy spy(&model, SIGNAL(invalidIndexEncountered()));
+
+    QTableView view;
+    view.setModel(&model);
+    view.show();
+
+    model.removeLastColumn();
+    QCOMPARE(spy.count(), 0);
+
+    model.removeAllColumns();
+    QCOMPARE(spy.count(), 0);
+}
+
+void tst_QTableView::keyboardNavigation_data()
+{
+
 }
 
 void tst_QTableView::keyboardNavigation()
@@ -263,7 +387,7 @@ void tst_QTableView::keyboardNavigation()
              << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up
              << Qt::Key_Left << Qt::Key_Left << Qt::Key_Up << Qt::Key_Down;
 
-    int row    = rows - 1;
+    int row = rows - 1;
     int column = columns - 1;
     QModelIndex index = model.index(row, column);
     view.setCurrentIndex(index);
@@ -297,20 +421,14 @@ void tst_QTableView::keyboardNavigation()
     }
 }
 
-class Dmodel : public QDirModel
+void tst_QTableView::headerSections_data()
 {
-public:
-    int columnCount(const QModelIndex &parent) const
-    {
-	if (parent == index(QDir::currentPath()))
-	    return 1;
-	return QDirModel::columnCount(parent);
-    }
-};
+
+}
 
 void tst_QTableView::headerSections()
 {
-    Dmodel model;
+    QtTestTableModel model(10, 10);
 
     QTableView view;
     QHeaderView *hheader = view.horizontalHeader();
@@ -319,25 +437,21 @@ void tst_QTableView::headerSections()
     view.setModel(&model);
     view.show();
 
-    QModelIndex index = model.index(QDir::currentPath());
-    view.setRootIndex(index);
-    QApplication::processEvents();
-    QCOMPARE(hheader->count(), model.columnCount(index));
-    QCOMPARE(vheader->count(), model.rowCount(index));
+    hheader->doItemsLayout();
+    vheader->doItemsLayout();
+
+    QCOMPARE(hheader->count(), model.columnCount());
+    QCOMPARE(vheader->count(), model.rowCount());
 }
 
-// Originated from task #82987
 void tst_QTableView::headerSections_unhideRow()
 {
-    QtTestModel model;
-    model.rows = model.cols = 10;
-
+    QtTestTableModel model(10, 10);
     QTableView view;
 
     view.setModel(&model);
     view.setRowHidden(0, true);
     view.show();
-    QApplication::processEvents();  // Important. This would issue QHeaderView::doItemsLayout() which then clear the hiddenSectionSize information.
 
     // should go back to old size
     view.setRowHidden(0, false);
@@ -347,10 +461,9 @@ void tst_QTableView::headerSections_unhideRow()
 
 void tst_QTableView::moveCursor2()
 {
-    QtTestModel model;
-    model.rows = model.cols = 10;
-
+    QtTestTableModel model(10, 10);
     QTableView view;
+    
     view.setModel(&model);
 
     QTest::keyClick(&view, Qt::Key_Down);
@@ -362,482 +475,389 @@ void tst_QTableView::moveCursor2()
 
     QTest::keyClick(&view, Qt::Key_Down);
     QCOMPARE(view.selectionModel()->currentIndex(), model.index(1, 1));
-
 }
-
-#if 0
-// This test is disabled because the changing of focus is dependent on the window manager,
-// so this test will produce different results on different window managers, and may even fail
-// randomly on others (metacity being one of them)
-// Possibly a candidate for squish testing
-void tst_QTableView::moveCursorDownInOpenEditor()
-{
-    QStandardItemModel model(10, 10, this);
-    for (int i = 0; i < 10; ++i)
-        for (int j = 0; j < 10; ++j)
-            model.setData(model.index(i,j), QString("[%1, %2]").arg(j).arg(i));
-
-    QTableView view;
-    view.setModel(&model);
-    QModelIndex idx00 = model.index(0,0);
-    view.setCurrentIndex(idx00);
-    view.setFocus(Qt::MouseFocusReason);
-    view.show();
-
-    QCOMPARE(view.currentIndex(), idx00);
-    QTest::keyClick(&view, Qt::Key_F2);
-    qApp->processEvents();      // Allow focus to change
-    QWidget *fw = qApp->focusWidget();
-    QVERIFY(fw); // fw should now be the editor
-    // Note that this test fails from time to time for some reason
-    // it seems that the focus is not set on the editor fast enough
-
-    QTest::keyClick(fw, Qt::Key_9);
-    qApp->processEvents();
-    QWidget *editor = view.focusWidget();
-
-    QTest::keyClick(qApp->focusWidget(), Qt::Key_Down);
-    qApp->processEvents();
-    QVariant val = model.data(idx00, Qt::DisplayRole);
-    QCOMPARE(val.toString(), QString("[0, 0]9"));
-    QCOMPARE(view.currentIndex(), model.index(1,0));
-
-    QTest::keyClick(qApp->focusWidget(), Qt::Key_Down);
-    qApp->processEvents();
-    QCOMPARE(view.currentIndex(), model.index(2,0));
-
-    // And finally, the focusWidget should be the view, not the editor.
-    QCOMPARE((void*)qApp->focusWidget(), (void*)&view);
-}
-#endif
 
 void tst_QTableView::moveCursor_data()
 {
-    QTest::addColumn<int>("startx");
-    QTest::addColumn<int>("starty");
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("hideRow");
+    QTest::addColumn<int>("hideColumn");
+    
+    QTest::addColumn<int>("startRow");
+    QTest::addColumn<int>("startColumn");
+
     QTest::addColumn<int>("cursorMoveAction");
     QTest::addColumn<int>("modifier");
-    QTest::addColumn<int>("resultx");
-    QTest::addColumn<int>("resulty");
-    QTest::addColumn<int>("hideColumn");
-    QTest::addColumn<int>("hideRow");
+
+    QTest::addColumn<int>("expectedRow");
+    QTest::addColumn<int>("expectedColumn");
 
     // MoveRight
-    QTest::newRow("MoveRight (0,0)")
-        << 0 << 0
-        << int(MoveCursorTableView::MoveRight)
-        << int(Qt::NoModifier)
-        << 1 << 0
-        << -1 << -1;
+    QTest::newRow("MoveRight (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0 
+        << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
+        << 0 << 1;
 
-    QTest::newRow("MoveRight (3,0)")
+    QTest::newRow("MoveRight (3, 0)")
+        << 4 << 4 << -1 << -1
         << 3 << 0
-        << (int)MoveCursorTableView::MoveRight
-        << (int)Qt::NoModifier << -1 << -1
-        << -1 << -1;
+        << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
+        << 3 << 1;
 
-    QTest::newRow("MoveRight (3,3)")
+    QTest::newRow("MoveRight (3, 3)")
+        << 4 << 4 << -1 << -1
         << 3 << 3
-        << int(MoveCursorTableView::MoveRight)
-        << int(Qt::NoModifier)
-        << -1 << -1
-        << -1 << -1;
+        << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
+        << -1 << -1; // ###
 
-    QTest::newRow("MoveRight, hidden column (0,0)")
+    QTest::newRow("MoveRight, hidden column 1 (0, 0)")
+        << 4 << 4 << -1 << 1
         << 0 << 0
-        << int(MoveCursorTableView::MoveRight)
-        << int(Qt::NoModifier)
-        << 2 << 0
-        << 1 << -1;
+        << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
+        << 0 << 2;
 
-    QTest::newRow("MoveRight, hidden column (2,0)")
-        << 2 << 0
-        << int(MoveCursorTableView::MoveRight)
-        << int(Qt::NoModifier)
-        << -1 << -1
-        << 3 << -1;
+    QTest::newRow("MoveRight, hidden column 3 (0, 2)")
+        << 4 << 4 << -1 << 3
+        << 0 << 2
+        << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
+        << -1 << -1; // ###
 
     // MoveNext should in addition wrap
-    QTest::newRow("MoveNext (0,0)")
+    QTest::newRow("MoveNext (0, 0)")
+        << 4 << 4 << -1 << -1
         << 0 << 0
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 1 << 0
-        << -1 << -1;
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 1;
 
-    QTest::newRow("MoveNext (2,0)")
-        << 2 << 0
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 3 << 0
-        << -1 << -1;
+    QTest::newRow("MoveNext (0, 2)")
+        << 4 << 4 << -1 << -1
+        << 0 << 2
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 3;
 
-    QTest::newRow("MoveNext, wrapx (3,0)")
-        << 3 << 0
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 0 << 1
-        << -1 << -1;
+    QTest::newRow("MoveNext, wrap (0, 3)")
+        << 4 << 4 << -1 << -1
+        << 0 << 3
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 1 << 0;
 
-    QTest::newRow("MoveNext, wrapy, wrapx (3,3)")
+    QTest::newRow("MoveNext, wrap (3, 3)")
+        << 4 << 4 << -1 << -1
         << 3 << 3
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveNext, hidden column 1 (0, 0)")
+        << 4 << 4 << -1 << 1
         << 0 << 0
-        << -1 << -1;
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 2;
 
-    QTest::newRow("MoveNext, hidden column (0,0)")
-        << 0 << 0
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 2 << 0
-        << 1 << -1;
+    QTest::newRow("MoveNext, wrap, hidden column 3 (0, 2)")
+        << 4 << 4 << -1 << 3
+        << 0 << 2
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 1 << 0;
 
-    QTest::newRow("MoveNext, wrapx, hidden column (2,0)")
-        << 2 << 0
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 0 << 1
-        << 3 << -1;
+    QTest::newRow("MoveNext, wrap, hidden column 3 (3, 2)")
+        << 4 << 4 << -1 << 3
+        << 3 << 2
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 0;
 
-    QTest::newRow("MoveNext, wrapy, wrapx, hidden column (2,3)")
-        << 2 << 3
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 0 << 0
-        << 3 << -1;
-
-    QTest::newRow("MoveNext, wrapy, wrapx, hidden column, hidden row (2,2)")
+    QTest::newRow("MoveNext, wrapy, wrapx, hidden column 3, hidden row 3 (2, 2)")
+        << 4 << 4 << 3 << 3
         << 2 << 2
-        << int(MoveCursorTableView::MoveNext)
-        << int(Qt::NoModifier)
-        << 0 << 0
-        << 3 << 3;
+        << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
+        << 0 << 0;
 
     // MoveLeft
-    QTest::newRow("MoveLeft (0,0)")
+    QTest::newRow("MoveLeft (0, 0)")
+        << 4 << 4 << -1 << -1
         << 0 << 0
-        << (int)MoveCursorTableView::MoveLeft
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
+        << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
+        << -1 << -1; // ###
 
-    QTest::newRow("MoveLeft (3,0)")
-        << 3 << 0
-        << (int)MoveCursorTableView::MoveLeft
-        << (int)Qt::NoModifier
-        << 2 << 0
-        << -1 << -1;
+    QTest::newRow("MoveLeft (0, 3)")
+        << 4 << 4 << -1 << -1
+        << 0 << 3
+        << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
+        << 0 << 2;
 
-    QTest::newRow("MoveLeft (0,1)")
-        << 0 << 1
-        << (int)MoveCursorTableView::MoveLeft
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
-
-    QTest::newRow("MoveLeft, hidden column (2,0)")
-        << 2 << 0
-        << (int)MoveCursorTableView::MoveLeft
-        << (int)Qt::NoModifier
-        << 0 << 0
-        << 1 << -1;
-
-    QTest::newRow("MoveLeft, hidden column (1,0)")
+    QTest::newRow("MoveLeft (1, 0)")
+        << 4 << 4 << -1 << -1
         << 1 << 0
-        << (int)MoveCursorTableView::MoveLeft
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << 0 << -1;
+        << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
+        << -1 << -1; // ###
+
+    QTest::newRow("MoveLeft, hidden column 0 (0, 2)")
+        << 4 << 4 << -1 << 1
+        << 0 << 2
+        << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveLeft, hidden column 0 (0, 1)")
+        << 4 << 4 << -1 << 0
+        << 0 << 1
+        << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
+        << -1 << -1;
 
     // MovePrevious should in addition wrap
-    QTest::newRow("MovePrevious (3,0)")
-        << 3 << 0
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 2 << 0
-        << -1 << -1;
+    QTest::newRow("MovePrevious (0, 3)")
+        << 4 << 4 << -1 << -1
+        << 0 << 3
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 0 << 2;
 
-    QTest::newRow("MovePrevious (1,0)")
-        << 1 << 0
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 0 << 0
-        << -1 << -1;
-
-    QTest::newRow("MovePrevious, wrapx (0,1)")
+    QTest::newRow("MovePrevious (0, 1)")
+        << 4 << 4 << -1 << -1
         << 0 << 1
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 3 << 0
-        << -1 << -1;
-
-    QTest::newRow("MovePrevious, wrapy, wrapx (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 3 << 3
-        << -1 << -1;
-
-    QTest::newRow("MovePrevious, hidden column (2,0)")
-        << 2 << 0
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 0 << 0
-        << 1 << -1;
-
-    QTest::newRow("MovePrevious, wrapx, hidden column (0,1)")
-        << 0 << 1
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 2 << 0
-        << 3 << -1;
-
-    QTest::newRow("MovePrevious, wrapy, wrapx, hidden column (1,0)")
-        << 1 << 0
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 3 << 3
-        << 0 << -1;
-
-    QTest::newRow("MovePrevious, wrapy, wrapx, hidden column, hidden row (1,1)")
-        << 1 << 1
-        << (int)MoveCursorTableView::MovePrevious
-        << (int)Qt::NoModifier
-        << 3 << 3
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 0;
 
-    // MoveDown
-    QTest::newRow("MoveDown (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveDown
-        << (int)Qt::NoModifier
-        << 0 << 1
-        << -1 << -1;
-
-    QTest::newRow("MoveDown (0,3)")
-        << 0 << 3
-        << (int)MoveCursorTableView::MoveDown
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
-
-    QTest::newRow("MoveDown (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveDown
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
-
-    QTest::newRow("MoveDown, hidden row (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveDown
-        << (int)Qt::NoModifier
-        << 0 << 2
-        << -1 << 1;
-
-    QTest::newRow("MoveDown, hidden row (0,2)")
-        << 0 << 2
-        << (int)MoveCursorTableView::MoveDown
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << 3;
-
-    // MoveUp
-    QTest::newRow("MoveUp (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveUp
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
-
-    QTest::newRow("MoveUp (0,3)")
-        << 0 << 3
-        << (int)MoveCursorTableView::MoveUp
-        << (int)Qt::NoModifier
-        << 0 << 2
-        << -1 << -1;
-
-    QTest::newRow("MoveUp (1,0)")
+    QTest::newRow("MovePrevious, wrap (1, 0)")
+        << 4 << 4 << -1 << -1
         << 1 << 0
-        << (int)MoveCursorTableView::MoveUp
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << -1;
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 0 << 3;
 
-    QTest::newRow("MoveUp, hidden row (0,2)")
-        << 0 << 2
-        << (int)MoveCursorTableView::MoveUp
-        << (int)Qt::NoModifier
+    QTest::newRow("MovePrevious, wrap, (0, 0)")
+        << 4 << 4 << -1 << -1
         << 0 << 0
-        << -1 << 1;
-
-    QTest::newRow("MoveUp, hidden row (0,1)")
-        << 0 << 1
-        << (int)MoveCursorTableView::MoveUp
-        << (int)Qt::NoModifier
-        << -1 << -1
-        << -1 << 0;
-
-    // MoveHome
-    QTest::newRow("MoveHome (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::NoModifier
-        << 0 << 0
-        << -1 << -1;
-
-    QTest::newRow("MoveHome (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::NoModifier
-        << 0 << 3
-        << -1 << -1;
-
-    QTest::newRow("MoveHome, hidden column (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::NoModifier
-        << 1 << 3
-        << 0 << -1;
-
-    // Use Ctrl modifier
-    QTest::newRow("MoveHome + Ctrl (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::ControlModifier
-        << 0 << 0
-        << -1 << -1;
-
-    QTest::newRow("MoveHome + Ctrl (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::ControlModifier
-        << 0 << 0
-        << -1 << -1;
-
-    QTest::newRow("MoveHome + Ctrl, hidden column, hidden row (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveHome
-        << (int)Qt::ControlModifier
-        << 1 << 1
-        << 0 << 0;
-
-    // MoveEnd
-    QTest::newRow("MoveEnd (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::NoModifier
-        << 3 << 0
-        << -1 << -1;
-
-    QTest::newRow("MoveEnd (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::NoModifier
-        << 3 << 3
-        << -1 << -1;
-
-    QTest::newRow("MoveEnd, hidden column (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::NoModifier
-        << 2 << 0
-        << 3 << -1;
-
-    // Use Ctrl modifier
-    QTest::newRow("MoveEnd + Ctrl (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::ControlModifier
-        << 3 << 3
-        << -1 << -1;
-
-    QTest::newRow("MoveEnd + Ctrl (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::ControlModifier
-        << 3 << 3
-        << -1 << -1;
-
-    QTest::newRow("MoveEnd + Ctrl, hidden column (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::ControlModifier
-        << 2 << 3
-        << 3 << -1;
-
-    QTest::newRow("MoveEnd + Ctrl, hidden column, hidden row (0,0)")
-        << 0 << 0
-        << (int)MoveCursorTableView::MoveEnd
-        << (int)Qt::ControlModifier
-        << 2 << 2
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 3 << 3;
 
-    QTest::newRow("MovePageUp (0,0)")
+    QTest::newRow("MovePrevious, hidden column 1 (0, 2)")
+        << 4 << 4 << -1 << 1
+        << 0 << 2
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 0 << 0;
+
+    QTest::newRow("MovePrevious, wrap, hidden column 3 (0, 2)")
+        << 4 << 4 << -1 << 3
+        << 0 << 2
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 0 << 1;
+
+    QTest::newRow("MovePrevious, wrapy, hidden column 0 (0, 1)")
+        << 4 << 4 << -1 << 0
+        << 0 << 1
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 3 << 3;
+
+    QTest::newRow("MovePrevious, wrap, hidden column 0, hidden row 0 (1, 1)")
+        << 4 << 4 << 0 << 0
+        << 1 << 1
+        << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
+        << 3 << 3;
+
+    // MoveDown
+    QTest::newRow("MoveDown (0, 0)")
+        << 4 << 4 << -1 << -1
         << 0 << 0
-        << (int)MoveCursorTableView::MovePageUp
-        << 0
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
+        << 1 << 0;
+
+    QTest::newRow("MoveDown (3, 0)")
+        << 4 << 4 << -1 << -1
+        << 3 << 0
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
+        << -1 << -1; // ###
+
+    QTest::newRow("MoveDown (3, 3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
+        << -1 << -1; // ###
+
+    QTest::newRow("MoveDown, hidden row 1 (0, 0)")
+        << 4 << 4 << 1 << -1
         << 0 << 0
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
+        << 2 << 0;
+
+    QTest::newRow("MoveDown, hidden row 3 (2, 0)")
+        << 4 << 4 << 3 << -1
+        << 2 << 0
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MovePageUp (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MovePageUp
-        << 0
+    // MoveUp
+    QTest::newRow("MoveUp (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
+        << -1 << -1;
+
+    QTest::newRow("MoveUp (3, 0)")
+        << 4 << 4 << -1 << -1
         << 3 << 0
+        << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
+        << 2 << 0;
+
+    QTest::newRow("MoveUp (0, 1)")
+        << 4 << 4 << -1 << -1
+        << 0 << 1
+        << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << -1 << -1;
 
-#if QT_VERSION > 0x040100
-    QTest::newRow("MovePageDown (3,3)")
-        << 3 << 3
-        << (int)MoveCursorTableView::MovePageDown
-        << 0
-        << 3 << 3
+    QTest::newRow("MoveUp, hidden row 1 (2, 0)")
+        << 4 << 4 << 1 << -1
+        << 2 << 0
+        << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveUp, hidden row (1, 0)")
+        << 4 << 4 << 0 << -1
+        << 1 << 0
+        << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MovePageDown (3,0)")
-        << 3 << 0
-        << (int)MoveCursorTableView::MovePageDown
-        << 0
+    // MoveHome
+    QTest::newRow("MoveHome (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveHome (3, 3)")
+        << 4 << 4 << -1 << -1
         << 3 << 3
-        << -1 << -1;
-#endif // QT_VERSION
+        << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
+        << 3 << 0;
+
+    QTest::newRow("MoveHome, hidden column 0 (3, 3)")
+        << 4 << 4 << -1 << 0
+        << 3 << 3
+        << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
+        << 3 << 1;
+
+    // Use Ctrl modifier
+    QTest::newRow("MoveHome + Ctrl (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveHome + Ctrl (3, 3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
+        << 0 << 0;
+
+    QTest::newRow("MoveHome + Ctrl, hidden column 0, hidden row 0 (3, 3)")
+        << 4 << 4 << 0 << 0
+        << 3 << 3
+        << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
+        << 1 << 1;
+
+    // MoveEnd
+    QTest::newRow("MoveEnd (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
+        << 0 << 3;
+
+    QTest::newRow("MoveEnd (3, 3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
+        << 3 << 3;
+
+    QTest::newRow("MoveEnd, hidden column (0, 0)")
+        << 4 << 4 << -1 << 3
+        << 0 << 0
+        << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
+        << 0<< 2;
+
+    // Use Ctrl modifier
+    QTest::newRow("MoveEnd + Ctrl (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
+        << 3 << 3;
+
+    QTest::newRow("MoveEnd + Ctrl (3,3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
+        << 3 << 3;
+
+    QTest::newRow("MoveEnd + Ctrl, hidden column 3 (0, 0)")
+        << 4 << 4 << -1 << 3
+        << 0 << 0
+        << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
+        << 3 << 2;
+
+    QTest::newRow("MoveEnd + Ctrl, hidden column 3, hidden row 3 (0,0)")
+        << 4 << 4 << 3 << 3
+        << 0 << 0
+        << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
+        << 2 << 2;
+
+    QTest::newRow("MovePageUp (0, 0)")
+        << 4 << 4 << -1 << -1
+        << 0 << 0
+        << int(QtTestTableView::MovePageUp) << 0
+        << 0 << 0;
+
+    QTest::newRow("MovePageUp (3, 3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MovePageUp) << 0
+        << 0 << 3;
+
+    QTest::newRow("MovePageDown (3, 3)")
+        << 4 << 4 << -1 << -1
+        << 3 << 3
+        << int(QtTestTableView::MovePageDown) << 0
+        << 3 << 3;
+
+    QTest::newRow("MovePageDown (0, 3)")
+        << 4 << 4 << -1 << -1
+        << 0 << 3
+        << int(QtTestTableView::MovePageDown) << 0
+        << 3 << 3;
 }
 
 void tst_QTableView::moveCursor()
 {
-    QtTestModel model;
-    model.rows = model.cols = 4;
-
-    QFETCH(int, startx);
-    QFETCH(int, starty);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, hideRow);
+    QFETCH(int, hideColumn);
+    QFETCH(int, startRow);
+    QFETCH(int, startColumn);
     QFETCH(int, cursorMoveAction);
     QFETCH(int, modifier);
-    QFETCH(int, resultx);
-    QFETCH(int, resulty);
-    QFETCH(int, hideColumn);
-    QFETCH(int, hideRow);
+    QFETCH(int, expectedRow);
+    QFETCH(int, expectedColumn);
 
-    MoveCursorTableView view1;
-    view1.setModel(&model);
-    if (hideColumn != -1) view1.setColumnHidden(hideColumn, true);
-    if (hideRow != -1) view1.setRowHidden(hideRow, true);
-    view1.show();
+    QtTestTableModel model(rowCount, columnCount);
+    QtTestTableView view;
 
-    QModelIndex index = model.index(starty,startx);
-    view1.setCurrentIndex(index);
-    QModelIndex newIndex = view1.moveCursor((MoveCursorTableView::CursorAction)cursorMoveAction, (Qt::KeyboardModifiers)modifier);
-    QCOMPARE(newIndex.column(), resultx);
-    QCOMPARE(newIndex.row(), resulty);
+    view.setModel(&model);
+    view.hideRow(hideRow);
+    view.hideColumn(hideColumn);
+    view.show();
+
+    QModelIndex index = model.index(startRow, startColumn);
+    view.setCurrentIndex(index);
+    
+    QModelIndex newIndex = view.moveCursor((QtTestTableView::CursorAction)cursorMoveAction,
+                                           (Qt::KeyboardModifiers)modifier);
+
+    QCOMPARE(newIndex.row(), expectedRow);
+    QCOMPARE(newIndex.column(), expectedColumn);
 }
 
 void tst_QTableView::hideRows()
 {
-    QtTestModel model;
-    model.rows = model.cols = 10;
-
+    QtTestTableModel model(10, 10);
     QTableView view;
+
     view.setModel(&model);
 
     view.setRowHidden(0, true);
@@ -853,8 +873,7 @@ void tst_QTableView::hideRows()
 
 void tst_QTableView::hideColumns()
 {
-    QtTestModel model;
-    model.rows = model.cols = 10;
+    QtTestTableModel model(10, 10);
 
     QTableView view;
     view.setModel(&model);
@@ -958,10 +977,9 @@ void tst_QTableView::selectRow()
     QFETCH(int, behavior);
     QFETCH(bool, selectionExpected);
 
-    QtTestModel model;
-    model.rows = model.cols = 10;
-
+    QtTestTableModel model(10, 10);
     QTableView view;
+
     view.setModel(&model);
     view.setSelectionMode((QAbstractItemView::SelectionMode)mode);
     view.setSelectionBehavior((QAbstractItemView::SelectionBehavior)behavior);
@@ -974,7 +992,7 @@ void tst_QTableView::selectRow()
     QCOMPARE(view.selectionModel()->selectedIndexes().count(), selectionExpected ? 10 : 0);
     //test that all 10 items are in the same row
     for (int i = 0; selectionExpected && i < 10; ++i)
-            QCOMPARE(view.selectionModel()->selectedIndexes().at(i).row(), row);
+        QCOMPARE(view.selectionModel()->selectedIndexes().at(i).row(), row);
 }
 
 void tst_QTableView::selectColumn_data()
@@ -1064,8 +1082,7 @@ void tst_QTableView::selectColumn()
     QFETCH(int, behavior);
     QFETCH(bool, selectionExpected);
 
-    QtTestModel model;
-    model.rows = model.cols = 10;
+    QtTestTableModel model(10, 10);
 
     QTableView view;
     view.setModel(&model);
@@ -1080,7 +1097,7 @@ void tst_QTableView::selectColumn()
     QCOMPARE(view.selectionModel()->selectedIndexes().count(), selectionExpected ? 10 : 0);
     //test that all 10 items are in the same column
     for (int i = 0; selectionExpected && i < 10; ++i)
-            QCOMPARE(view.selectionModel()->selectedIndexes().at(i).column(), column);
+        QCOMPARE(view.selectionModel()->selectedIndexes().at(i).column(), column);
 }
 
 Q_DECLARE_METATYPE(QRect)
@@ -1111,8 +1128,7 @@ void tst_QTableView::visualRect()
     QFETCH(int, col);
     QFETCH(QRect, expectedRect);
 
-    QtTestModel model;
-    model.rows = model.cols = 10;
+    QtTestTableModel model(10, 10);
 
     QTableView view;
     view.setModel(&model);
@@ -1131,44 +1147,44 @@ void tst_QTableView::visualRect()
 
     QRect rect = view.visualRect(model.index(row,col));
     QCOMPARE(rect, expectedRect);
-
 }
 
 void tst_QTableView::fetchMore()
 {
-    QtTestModel model;
-    model.rows = model.cols = 64;
-    model.canfetchmore = true;
+    QtTestTableModel model(64, 64);
+
+    model.can_fetch_more = true;
 
     QTableView view;
     view.setModel(&model);
     view.show();
 
-    QCOMPARE(model.fetchMoreCount, 0);
+    QCOMPARE(model.fetch_more_count, 0);
     view.verticalScrollBar()->setValue(view.verticalScrollBar()->maximum());
-    QVERIFY(model.fetchMoreCount > 0);
+    QVERIFY(model.fetch_more_count > 0);
 
-    model.fetchMoreCount = 0; //reset
+    model.fetch_more_count = 0; //reset
     view.scrollToTop();
-    QCOMPARE(model.fetchMoreCount, 0);
+    QCOMPARE(model.fetch_more_count, 0);
 
     view.scrollToBottom();
-    QVERIFY(model.fetchMoreCount > 0);
+    QVERIFY(model.fetch_more_count > 0);
 
-    model.fetchMoreCount = 0; //reset
+    model.fetch_more_count = 0; //reset
     view.scrollToTop();
     view.setCurrentIndex(model.index(0, 0));
-    QCOMPARE(model.fetchMoreCount, 0);
+    QCOMPARE(model.fetch_more_count, 0);
 
     for (int i = 0; i < 64; ++i)
         QTest::keyClick(&view, Qt::Key_Down);
     QCOMPARE(view.currentIndex(), model.index(63, 0));
-    QVERIFY(model.fetchMoreCount > 0);
+    QVERIFY(model.fetch_more_count > 0);
 }
 
 void tst_QTableView::setHeaders()
 {
     QTableView view;
+
     // Make sure we don't delete ourselves
     view.setVerticalHeader(view.verticalHeader());
     view.verticalHeader()->count();
@@ -1186,69 +1202,200 @@ void tst_QTableView::setHeaders()
 
 }
 
-class MyTableView : public QTableView
+void tst_QTableView::resizeRowsToContents_data()
 {
-    Q_OBJECT
-public:
-    MyTableView(QWidget *parent = 0) : QTableView(parent) { }
-    int columnWidthHint(int column) const
-        { return sizeHintForColumn(column); }
-    int rowHeightHint(int row) const
-        { return sizeHintForRow(row); }
-};
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<bool>("showGrid");
+    QTest::addColumn<int>("cellWidth");
+    QTest::addColumn<int>("cellHeight");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
 
-void tst_QTableView::resizeColumnsToContents()
-{
-    MyTableView view;
-    const int rows = 2;
-    const int columns = 8;
-    QStandardItemModel model(rows, columns);
-    view.setModel(&model);
-    for (int c = 0; c < columns; ++c)
-        view.setColumnWidth(c, 1);
-    view.show();
-    QApplication::instance()->processEvents();
+    QTest::newRow("10x10 grid shown 40x40")
+        << 10 << 10 << false << 40 << 40 << 40 << 40;
 
-    QList<int> hints;
-    for (int c = 0; c < columns; ++c) {
-        QString s((c+1)*8, QLatin1Char('M'));
-        model.setData(model.index(0, c), s, Qt::DisplayRole);
-        hints.append(view.columnWidthHint(c));
-    }
-    QSignalSpy resizedSpy(view.horizontalHeader(), SIGNAL(sectionResized(int, int, int)));
-    view.resizeColumnsToContents();
-    QApplication::instance()->processEvents();
-
-    QCOMPARE(resizedSpy.count(), columns);
-    for (int c = 0; c < columns; ++c)
-        QCOMPARE(view.columnWidth(c), hints.at(c));
+    QTest::newRow("10x10 grid not shown 40x40")
+        << 10 << 10 << true << 40 << 40 << 41 << 41;
 }
 
 void tst_QTableView::resizeRowsToContents()
 {
-    MyTableView view;
-    const int rows = 8;
-    const int columns = 2;
-    QStandardItemModel model(rows, columns);
-    view.setModel(&model);
-    for (int r = 0; r < rows; ++r)
-        view.setRowHeight(r, 1);
-    view.show();
-    QApplication::instance()->processEvents();
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(bool, showGrid);
+    QFETCH(int, cellWidth);
+    QFETCH(int, cellHeight);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
+    Q_UNUSED(columnWidth);
+    
+    QtTestTableModel model(rowCount, columnCount);
+    QtTestTableView view;
+    QtTestItemDelegate delegate;
 
-    QList<int> hints;
-    for (int r = 0; r < rows; ++r) {
-        QString s((r+1)*4, QLatin1Char('\n'));
-        model.setData(model.index(r, 0), s, Qt::DisplayRole);
-        hints.append(view.rowHeightHint(r));
-    }
+    view.setModel(&model);
+    view.setItemDelegate(&delegate);
+    view.setShowGrid(showGrid); // the grid will add to the row height
+
+    delegate.hint = QSize(cellWidth, cellHeight);
+    
     QSignalSpy resizedSpy(view.verticalHeader(), SIGNAL(sectionResized(int, int, int)));
     view.resizeRowsToContents();
-    QApplication::instance()->processEvents();
 
-    QCOMPARE(resizedSpy.count(), rows);
-    for (int r = 0; r < rows; ++r)
-        QCOMPARE(view.rowHeight(r), hints.at(r));
+    QCOMPARE(resizedSpy.count(), model.rowCount());
+    for (int r = 0; r < model.rowCount(); ++r)
+        QCOMPARE(view.rowHeight(r), rowHeight);
+}
+
+void tst_QTableView::resizeColumnsToContents_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<bool>("showGrid");
+    QTest::addColumn<int>("cellWidth");
+    QTest::addColumn<int>("cellHeight");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
+
+    QTest::newRow("10x10 grid shown 40x40")
+        << 10 << 10 << false << 40 << 40 << 40 << 40;
+
+    QTest::newRow("10x10 grid not shown 40x40")
+        << 10 << 10 << true << 40 << 40 << 41 << 41;
+}
+
+void tst_QTableView::resizeColumnsToContents()
+{
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(bool, showGrid);
+    QFETCH(int, cellWidth);
+    QFETCH(int, cellHeight);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
+    Q_UNUSED(rowHeight);
+    
+    QtTestTableModel model(rowCount, columnCount);
+    QtTestTableView view;
+    QtTestItemDelegate delegate;
+
+    view.setModel(&model);
+    view.setItemDelegate(&delegate);
+    view.setShowGrid(showGrid); // the grid will add to the row height
+
+    delegate.hint = QSize(cellWidth, cellHeight);
+    
+    QSignalSpy resizedSpy(view.horizontalHeader(), SIGNAL(sectionResized(int, int, int)));
+    view.resizeColumnsToContents();
+
+    QCOMPARE(resizedSpy.count(), model.columnCount());
+    for (int c = 0; c < model.columnCount(); ++c)
+        QCOMPARE(view.columnWidth(c), columnWidth);
+}
+
+void tst_QTableView::rowViewportPosition_data()
+{
+}
+
+void tst_QTableView::rowViewportPosition()
+{
+}
+    
+void tst_QTableView::rowAt_data()
+{
+}
+
+void tst_QTableView::rowAt()
+{
+}
+
+void tst_QTableView::rowHeight_data()
+{
+}
+
+void tst_QTableView::rowHeight()
+{
+}
+
+void tst_QTableView::columnViewportPosition_data()
+{
+}
+
+void tst_QTableView::columnViewportPosiiton()
+{
+}
+
+void tst_QTableView::columnAt_data()
+{
+}
+
+void tst_QTableView::columnAt()
+{
+}
+
+void tst_QTableView::columnWidth_data()
+{
+}
+
+void tst_QTableView::columnWidth()
+{
+}
+
+void tst_QTableView::hiddeRow_data()
+{
+}
+
+void tst_QTableView::hiddeRow()
+{
+}
+
+void tst_QTableView::hiddeColumn_data()
+{
+}
+
+void tst_QTableView::hiddnColumn()
+{
+}
+
+void tst_QTableView::sortingEnabled_data()
+{
+}
+
+void tst_QTableView::sortingEnabled()
+{
+}
+
+void tst_QTableView::scrollTo_data()
+{
+}
+
+void tst_QTableView::scrollTo()
+{
+}
+
+void tst_QTableView::indexAt_data()
+{
+}
+
+void tst_QTableView::indexAt()
+{
+}
+
+void tst_QTableView::rowSpan_data()
+{
+}
+
+void tst_QTableView::rowSpan()
+{
+}
+    
+void tst_QTableView::columnSpan_data()
+{
+}
+
+void tst_QTableView::columnSpan()
+{
 }
 
 QTEST_MAIN(tst_QTableView)
