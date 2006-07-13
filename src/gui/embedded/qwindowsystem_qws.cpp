@@ -2303,9 +2303,10 @@ void QWSServerPrivate::setFocus(QWSWindow* changingw, bool gain)
             bestw = changingw; // must be the only one
         }
         focusw = bestw;
-        if (focusw)
+        if (focusw) {
             focusw->focus(1);
-        emit q->windowEvent(focusw, QWSServer::Active);
+            emit q->windowEvent(focusw, QWSServer::Active);
+        }
     }
 }
 
