@@ -32,7 +32,7 @@ public:
     MetaTranslatorMessage( const char *context, const char *sourceText,
                            const char *comment, const QString &fileName,
                            int lineNumber,
-                           const QString& translation = QString(),
+                           const QStringList& translations = QStringList(),
                            bool utf8 = false, Type type = Unfinished, bool plural = false );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
 

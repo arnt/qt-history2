@@ -643,7 +643,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                     if ( qualifiedContexts.contains(context) )
                         context = qualifiedContexts[context];
                     tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
-                        QString(), utf8, MetaTranslatorMessage::Unfinished, plural) );
+                        QStringList(), utf8, MetaTranslatorMessage::Unfinished, plural) );
 
                     if ( lacks_Q_OBJECT.contains(context) ) {
                         qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",
@@ -672,7 +672,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                        matchEncoding(&utf8) &&
                        match(Tok_RightParen))) )
                     tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
-                                                       QString(), utf8) );
+                                                       QStringList(), utf8) );
             }
             break;
         case Tok_Q_OBJECT:
@@ -699,7 +699,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                     context = com.left( k );
                     com.remove( 0, k + 1 );
                     tor->insert( MetaTranslatorMessage(context, "", com, yyFileName, yyLineNo,
-                                                       QString(), false) );
+                                                       QStringList(), false) );
                 }
 
                 /*
@@ -909,7 +909,7 @@ void UiHandler::flush()
     if ( !context.isEmpty() && !source.isEmpty() )
         tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
                                            comment.toUtf8(), QString(fname), m_lineNumber,
-                                           QString(), true) );
+                                           QStringList(), true) );
     source.truncate( 0 );
     comment.truncate( 0 );
 }

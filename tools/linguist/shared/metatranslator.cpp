@@ -61,7 +61,7 @@ private:
     QString context;
     QString source;
     QString comment;
-    QString translation;
+    QStringList translations;
     QString m_fileName;
     int     m_lineNumber;
 
@@ -95,19 +95,19 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
         if ( qName == QString("TS") ) {
             m_language = atts.value(QLatin1String("language"));
         } else if ( qName == QString("context") ) {
-            context.truncate( 0 );
-            source.truncate( 0 );
-            comment.truncate( 0 );
-            translation.truncate( 0 );
+            context.clear();
+            source.clear();
+            comment.clear();
+            translations.clear();
             contextIsUtf8 = encodingIsUtf8( atts );
         } else if ( qName == QString("message") ) {
             inMessage = true;
             type = MetaTranslatorMessage::Finished;
-            source.truncate( 0 );
-            comment.truncate( 0 );
-            translation.truncate( 0 );
+            source.clear();
+            comment.clear();
+            translations.clear();
             messageIsUtf8 = encodingIsUtf8( atts );
-            m_isPlural = atts.value(QLatin1String("plurals")).compare(QLatin1String("yes")) == 0;
+            m_isPlural = atts.value(QLatin1String("numerus")).compare(QLatin1String("yes")) == 0;
         } else if (qName == QString("location") && inMessage) {
             bool bOK;
             int lineNo = atts.value(QString("line")).toInt(&bOK);
@@ -126,7 +126,7 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
                 }
             }
         }
-        accum.truncate( 0 );
+        accum.clear();
     }
     return true;
 }
@@ -149,25 +149,28 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
             if ( contextIsUtf8 )
                 tor->insert( MetaTranslatorMessage(context.toUtf8(),
                              ContextComment, accum.toUtf8(), QString(), 0,
-                             QString(), true,
+                             QStringList(), true,
                              MetaTranslatorMessage::Unfinished) );
             else
                 tor->insert( MetaTranslatorMessage(context.toAscii(),
                              ContextComment, accum.toAscii(), QString(), 0,
-                             QString(), false,
+                             QStringList(), false,
                              MetaTranslatorMessage::Unfinished) );
         }
+    } else if ( qName == QString("numerusform") ) {
+        translations.append(accum);
     } else if ( qName == QString("translation") ) {
-        translation = accum;
+        if (translations.isEmpty())
+            translations.append(accum);
     } else if ( qName == QString("message") ) {
         if ( messageIsUtf8 )
             tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
                                             comment.toUtf8(), m_fileName, m_lineNumber, 
-                                            translation, true, type, m_isPlural) );
+                                            translations, true, type, m_isPlural) );
         else
             tor->insert( MetaTranslatorMessage(context.toAscii(), source.toAscii(),
                                             comment.toAscii(), m_fileName, m_lineNumber, 
-                                            translation, false, type, m_isPlural) );
+                                            translations, false, type, m_isPlural) );
         inMessage = false;
     }
     return true;
@@ -262,9 +265,9 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                                               const char *comment,
                                               const QString &fileName,
                                               int lineNumber,
-                                              const QString& translation,
+                                              const QStringList& translations,
                                               bool utf8, Type type, bool plural )
-    : TranslatorMessage( context, sourceText, comment, fileName, lineNumber, translation ),
+    : TranslatorMessage( context, sourceText, comment, fileName, lineNumber, translations ),
       utfeight( false ), ty( type ), m_plural(plural)
 {
     /*
@@ -446,7 +449,7 @@ bool MetaTranslator::save( const QString& filename) const
             if ( msg.utf8() )
                 t << " encoding=\"UTF-8\"";
             if ( msg.isPlural() )
-                t << " plurals=\"yes\"";
+                t << " numerus=\"yes\"";
             t << ">\n";
             if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) {
                 QDir tsPath = QFileInfo(filename).absoluteDir();
@@ -463,8 +466,18 @@ bool MetaTranslator::save( const QString& filename) const
                 t << " type=\"unfinished\"";
             else if ( (*i).type() == MetaTranslatorMessage::Obsolete )
                 t << " type=\"obsolete\"";
-            t << ">" << protect( (*i).translation().toUtf8() )
-              << "</translation>\n";
+            t << ">";
+
+            if (msg.isPlural()) {
+                t << "\n";
+                for (int j = 0; j < qMax(1, (*i).translations().count()); ++j)
+                    t << "            <numerusform>" << (*i).translations().value(j) << "</numerusform>\n";
+                t << "        ";
+            } else {
+                t << protect( (*i).translation().toUtf8() );
+            }
+
+            t << "</translation>\n";
             t << "    </message>\n";
         }
         t << "</context>\n";
@@ -492,6 +505,8 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
               Translator::SaveMode mode /*= Translator::Stripped */) const
 {
     Translator tor( 0 );
+//    tor.setNumerusRules(QByteArray(reinterpret_cast<const char *>(slovenianRules),
+//                                   sizeof(slovenianRules)));
     int finished = 0;
     int unfinished = 0;
     int untranslated = 0;
@@ -512,7 +527,7 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
             QByteArray context = m.key().context();
             QByteArray sourceText = m.key().sourceText();
             QByteArray comment = m.key().comment();
-            QString translation = m.key().translation();
+            QStringList translations = m.key().translations();
 
             if ( !ignoreUnfinished
                 || typ != MetaTranslatorMessage::Unfinished ) {
@@ -531,7 +546,7 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
                     tor.insert( m.key() );
                 } else {
                     tor.insert( TranslatorMessage(context, sourceText, "",
-                                                   QString(), -1, translation) );    //filename and lineNumbers will be ignored from now.
+                                                   QString(), -1, translations) );    //filename and lineNumbers will be ignored from now.
                 }
             }
         }

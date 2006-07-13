@@ -36,6 +36,7 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
     int neww = 0;
     int obsoleted = 0;
     int UntranslatedObsoleted = 0;
+    int similarTextHeuristicCount = 0;
     TML all = tor->messages();
     TML::Iterator it;
 
@@ -49,7 +50,6 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
 
         // skip context comment
         if ( !QByteArray(m.sourceText()).isEmpty() ) {
-            bool found = false;
             MetaTranslatorMessage mv = virginTor->find(m.context(), m.sourceText(), m.comment());
             if ( mv.isNull() ) {
                 mv = virginTor->find(m.context(), m.comment(), m.fileName(), m.lineNumber());
@@ -61,33 +61,23 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                 } else {
                     // Do not just accept it if its on the same line number, but different source text.
                     // Also check if the texts are more or less similar before we consider them to represent the same message...
+                    // ### The QString() cast is evil
                     if (getSimilarityScore(QString(m.sourceText()), mv.sourceText()) >= textSimilarityThreshold) {
                         // It is just slightly modified, assume that it is the same string
-                        m = MetaTranslatorMessage(m.context(), mv.sourceText(), m.comment(), m.fileName(), m.lineNumber(), m.translation());
+                        m = MetaTranslatorMessage(m.context(), mv.sourceText(), m.comment(), m.fileName(), m.lineNumber(), m.translations());
 
                         // Mark it as unfinished. (Since the source text was changed it might require re-translating...)
                         newType = MetaTranslatorMessage::Unfinished;
-                        found = true;
+                        ++similarTextHeuristicCount;
                     } else {
                         // The virgin and vernacular sourceTexts are so different that we could not find it.
                         newType = MetaTranslatorMessage::Obsolete;
                         if ( m.type() != MetaTranslatorMessage::Obsolete )
                             obsoleted++;
                     }
+                    neww++;
                 }
             } else {
-                found = true;
-                // Always get the filename and linenumber info from the virgin Translator, in case it has changed location.
-                // This should also enable us to read a file that does not have the <location> element.
-                m.setFileName(mv.fileName());
-                m.setLineNumber(mv.lineNumber());
-            }
-
-            if (newType == MetaTranslatorMessage::Obsolete && m.translation().isEmpty()) {
-                ++UntranslatedObsoleted;
-            }
-
-            if (found) {
                 switch ( m.type() ) {
                 case MetaTranslatorMessage::Finished:
                 default:
@@ -102,7 +92,17 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                     newType = MetaTranslatorMessage::Unfinished;
                     neww++;
                 }
+
+                // Always get the filename and linenumber info from the virgin Translator, in case it has changed location.
+                // This should also enable us to read a file that does not have the <location> element.
+                m.setFileName(mv.fileName());
+                m.setLineNumber(mv.lineNumber());
             }
+
+            if (newType == MetaTranslatorMessage::Obsolete && !m.isTranslated()) {
+                ++UntranslatedObsoleted;
+            }
+
             m.setType(newType);
             outTor->insert(m);
         }
@@ -169,10 +169,12 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
 
         if (sameNumberHeuristicCount) 
             fprintf( stderr, "    Number heuristic provided %d translation%s\n", 
-            sameNumberHeuristicCount, sameNumberHeuristicCount == 1 ? "" : "s" );
+                     sameNumberHeuristicCount, sameNumberHeuristicCount == 1 ? "" : "s" );
         if (sameTextHeuristicCount) 
             fprintf( stderr, "    Same-text heuristic provided %d translation%s\n", 
-            sameTextHeuristicCount, sameTextHeuristicCount == 1 ? "" : "s" );
-
+                     sameTextHeuristicCount, sameTextHeuristicCount == 1 ? "" : "s" );
+        if (similarTextHeuristicCount)
+            fprintf( stderr, "    Similar-text heuristic provided %d translation%s\n", 
+                     similarTextHeuristicCount, similarTextHeuristicCount == 1 ? "" : "s" );
     }
 }

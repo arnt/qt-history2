@@ -204,11 +204,12 @@ int applyNumberHeuristic( MetaTranslator *tor )
     int inserted = 0;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
+        bool hasTranslation = (*it).isTranslated();
         if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
-            if ( (*it).translation().isEmpty() )
+            if ( !hasTranslation )
                 untranslated.insert(QByteArray((*it).context()) + "\n" + (*it).sourceText() + "\n"
                                     + (*it).comment(), *it);
-        } else if ( !(*it).translation().isEmpty() ) {
+        } else if ( hasTranslation && (*it).translations().count() == 1 ) {
             translated.insert( zeroKey((*it).sourceText()), *it );
         }
     }
