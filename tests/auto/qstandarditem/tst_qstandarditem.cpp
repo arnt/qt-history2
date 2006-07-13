@@ -154,8 +154,8 @@ void tst_QStandardItem::getSetData()
             QCOMPARE(item.textAlignment(), textAlignment);
             
             QColor backgroundColor((i == 1) ? Qt::blue : Qt::yellow);
-            item.setBackgroundColor(backgroundColor);
-            QCOMPARE(item.backgroundColor(), backgroundColor);
+            item.setBackground(backgroundColor);
+            QCOMPARE(item.background().color(), backgroundColor);
             
             QColor textColor((i == i) ? Qt::green : Qt::cyan);
             item.setTextColor(textColor);
@@ -181,7 +181,7 @@ void tst_QStandardItem::getSetData()
             QCOMPARE(item.sizeHint(), sizeHint);
             QCOMPARE(item.font(), font);
             QCOMPARE(item.textAlignment(), textAlignment);
-            QCOMPARE(item.backgroundColor(), backgroundColor);
+            QCOMPARE(item.background().color(), backgroundColor);
             QCOMPARE(item.textColor(), textColor);
             QCOMPARE(item.checkState(), checkState);
             QCOMPARE(item.accessibleText(), accessibleText);
@@ -195,11 +195,16 @@ void tst_QStandardItem::getSetData()
             QCOMPARE(qvariant_cast<QSize>(item.data(Qt::SizeHintRole)), sizeHint);
             QCOMPARE(qvariant_cast<QFont>(item.data(Qt::FontRole)), font);
             QCOMPARE(qvariant_cast<int>(item.data(Qt::TextAlignmentRole)), int(textAlignment));
-            QCOMPARE(qvariant_cast<QColor>(item.data(Qt::BackgroundColorRole)), backgroundColor);
+            QCOMPARE(qvariant_cast<QBrush>(item.data(Qt::BackgroundColorRole)), QBrush(backgroundColor));
+            QCOMPARE(qvariant_cast<QBrush>(item.data(Qt::BackgroundRole)), QBrush(backgroundColor));
             QCOMPARE(qvariant_cast<QColor>(item.data(Qt::TextColorRole)), textColor);
             QCOMPARE(qvariant_cast<int>(item.data(Qt::CheckStateRole)), int(checkState));
             QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleTextRole)), accessibleText);
             QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleDescriptionRole)), accessibleDescription);
+
+            item.setBackground(pixmap);
+            QCOMPARE(item.background().texture(), pixmap);
+            QCOMPARE(qvariant_cast<QBrush>(item.data(Qt::BackgroundRole)).texture(), pixmap);
         }
         item.setData(QVariant(), Qt::DisplayRole);
         item.setData(QVariant(), Qt::DecorationRole);
@@ -224,6 +229,7 @@ void tst_QStandardItem::getSetData()
         QCOMPARE(item.data(Qt::FontRole), QVariant());
         QCOMPARE(item.data(Qt::TextAlignmentRole), QVariant());
         QCOMPARE(item.data(Qt::BackgroundColorRole), QVariant());
+        QCOMPARE(item.data(Qt::BackgroundRole), QVariant());
         QCOMPARE(item.data(Qt::TextColorRole), QVariant());
         QCOMPARE(item.data(Qt::CheckStateRole), QVariant());
         QCOMPARE(item.data(Qt::AccessibleTextRole), QVariant());
@@ -849,7 +855,7 @@ void tst_QStandardItem::streamItem()
     item.setSizeHint(QSize(64, 48));
     item.setFont(QFont());
     item.setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
-    item.setBackgroundColor(QColor(Qt::blue));
+    item.setBackground(QColor(Qt::blue));
     item.setTextColor(QColor(Qt::green));
     item.setCheckState(Qt::PartiallyChecked);
     item.setAccessibleText(QLatin1String("accessibleText"));
@@ -871,7 +877,7 @@ void tst_QStandardItem::streamItem()
         QCOMPARE(streamedItem.sizeHint(), item.sizeHint());
         QCOMPARE(streamedItem.font(), item.font());
         QCOMPARE(streamedItem.textAlignment(), item.textAlignment());
-        QCOMPARE(streamedItem.backgroundColor(), item.backgroundColor());
+        QCOMPARE(streamedItem.background(), item.background());
         QCOMPARE(streamedItem.textColor(), item.textColor());
         QCOMPARE(streamedItem.checkState(), item.checkState());
         QCOMPARE(streamedItem.accessibleText(), item.accessibleText());
@@ -910,7 +916,7 @@ void tst_QStandardItem::clone()
     item.setSizeHint(QSize(64, 48));
     item.setFont(QFont());
     item.setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
-    item.setBackgroundColor(QColor(Qt::blue));
+    item.setBackground(QColor(Qt::blue));
     item.setTextColor(QColor(Qt::green));
     item.setCheckState(Qt::PartiallyChecked);
     item.setAccessibleText(QLatin1String("accessibleText"));
@@ -925,7 +931,7 @@ void tst_QStandardItem::clone()
     QCOMPARE(clone->sizeHint(), item.sizeHint());
     QCOMPARE(clone->font(), item.font());
     QCOMPARE(clone->textAlignment(), item.textAlignment());
-    QCOMPARE(clone->backgroundColor(), item.backgroundColor());
+    QCOMPARE(clone->background(), item.background());
     QCOMPARE(clone->textColor(), item.textColor());
     QCOMPARE(clone->checkState(), item.checkState());
     QCOMPARE(clone->accessibleText(), item.accessibleText());
