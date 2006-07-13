@@ -140,13 +140,12 @@ void tst_QComboBox::getSetCheck()
     // void QComboBox::setMaxVisibleItems(int)
     obj1.setMaxVisibleItems(100);
     QCOMPARE(100, obj1.maxVisibleItems());
-    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxVisibleItems: Invalid count (0) must be > 0");
     obj1.setMaxVisibleItems(0);
-    QVERIFY(0 != obj1.maxVisibleItems()); // Cannot be set to 0 => old value
-    QCOMPARE(100, obj1.maxVisibleItems());
-    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxVisibleItems: Invalid count (-2147483648) must be > 0");
+    QCOMPARE(obj1.maxVisibleItems(), 0);
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxVisibleItems: "
+                         "Invalid max visible items (-2147483648) must be >= 0");
     obj1.setMaxVisibleItems(INT_MIN);
-    QCOMPARE(100, obj1.maxVisibleItems()); // Cannot be set to something negative => old value
+    QCOMPARE(obj1.maxVisibleItems(), 0); // Cannot be set to something negative => old value
     obj1.setMaxVisibleItems(INT_MAX);
     QCOMPARE(INT_MAX, obj1.maxVisibleItems());
 
