@@ -523,9 +523,9 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
 
     Items usually contain text, icons, or checkboxes.
 
-    Each item can have its own background color which is set with the
-    setBackgroundColor() function. The current background color can be found
-    with backgroundColor().  The text label for each item can be rendered with
+    Each item can have its own background brush which is set with the
+    setBackground() function. The current background brush can be found
+    with background().  The text label for each item can be rendered with
     its own font and text color. These are specified with the setFont() and
     setTextColor() functions, and read with font() and textColor().
 
@@ -875,19 +875,19 @@ Qt::ItemFlags QStandardItem::flags() const
 */
 
 /*!
-    \fn QColor QStandardItem::backgroundColor() const
+    \fn QBrush QStandardItem::background() const
 
-    Returns the color used to render the item's background.
+    Returns the brush used to render the item's background.
 
-    \sa textColor() setBackgroundColor()
+    \sa textColor() setBackground()
 */
 
 /*!
-    \fn void QStandardItem::setBackgroundColor(const QColor &color)
+    \fn void QStandardItem::setBackground(const QBrush &brush)
 
-    Sets the item's background color to the specified \a color.
+    Sets the item's background brush to the specified \a brush.
 
-    \sa backgroundColor() setTextColor()
+    \sa background() setTextColor()
 */
 
 /*!
@@ -895,7 +895,7 @@ Qt::ItemFlags QStandardItem::flags() const
 
     Returns the color used to render the item's text.
 
-    \sa backgroundColor() setTextColor()
+    \sa background() setTextColor()
 */
 
 /*!

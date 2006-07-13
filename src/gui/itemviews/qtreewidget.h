@@ -101,6 +101,11 @@ public:
     inline void setBackgroundColor(int column, const QColor &color)
         { setData(column, Qt::BackgroundColorRole, color); }
 
+    inline QBrush background(int column) const
+        { return qvariant_cast<QBrush>(data(column, Qt::BackgroundRole)); }
+    virtual void setBackground(int column, const QBrush &brush)
+        { setData(column, Qt::BackgroundRole, brush); }
+
     inline QColor textColor(int column) const
         { return qvariant_cast<QColor>(data(column, Qt::TextColorRole)); }
     inline void setTextColor(int column, const QColor &color)

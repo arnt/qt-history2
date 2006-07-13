@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_ITEMVIEWS
 #include <qbitarray.h>
+#include <qbrush.h>
 #include <qdebug.h>
 #include <qevent.h>
 #include <qpainter.h>
@@ -1942,11 +1943,11 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                     Qt::TextColorRole);
     if (textColor.isValid() && qvariant_cast<QColor>(textColor).isValid())
         opt.palette.setColor(QPalette::ButtonText, qvariant_cast<QColor>(textColor));
-    QVariant backgroundColor = d->model->headerData(logicalIndex, orientation(),
-                                    Qt::BackgroundColorRole);
-    if (backgroundColor.isValid() && qvariant_cast<QColor>(backgroundColor).isValid()) {
-        opt.palette.setColor(QPalette::Button, qvariant_cast<QColor>(backgroundColor));
-        opt.palette.setColor(QPalette::Window, qvariant_cast<QColor>(backgroundColor));
+    QVariant backgroundBrush = d->model->headerData(logicalIndex, orientation(),
+                                                    Qt::BackgroundRole);
+    if (qVariantCanConvert<QBrush>(backgroundBrush)) {
+        opt.palette.setBrush(QPalette::Button, qvariant_cast<QBrush>(backgroundBrush));
+        opt.palette.setBrush(QPalette::Window, qvariant_cast<QBrush>(backgroundBrush));
     }
 
     // the section position

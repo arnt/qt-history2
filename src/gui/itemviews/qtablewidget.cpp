@@ -985,9 +985,9 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     \skipto QTableWidgetItem *newItem
     \printuntil tableWidget->setItem(
 
-    Each item can have its own background color which is set with
-    the setBackgroundColor() function. The current background color can be
-    found with backgroundColor().
+    Each item can have its own background brush which is set with
+    the setBackground() function. The current background brush can be
+    found with background().
     The text label for each item can be rendered with its own font and text
     color. These are specified with the setFont() and setTextColor() functions,
     and read with font() and textColor().
@@ -1206,18 +1206,34 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
 /*!
     \fn QColor QTableWidgetItem::backgroundColor() const
+    \obsolete
 
-    Returns the color used to render the item's background.
-
-    \sa textColor() setBackgroundColor()
+    This function is deprecated. Use background() instead.
 */
 
 /*!
     \fn void QTableWidgetItem::setBackgroundColor(const QColor &color)
+    \obsolete
 
-    Sets the item's background color to the specified \a color.
+    This function is deprecated. Use setBackground() instead.
+*/
 
-    \sa backgroundColor() setTextColor()
+/*!
+    \fn QBrush QTableWidgetItem::background() const
+    \since 4.2
+
+    Returns the brush used to render the item's background.
+
+    \sa textColor() setBackground()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setBackground(const QBrush &brush)
+    \since 4.2
+
+    Sets the item's background brush to the specified \a brush.
+
+    \sa background() setTextColor()
 */
 
 /*!

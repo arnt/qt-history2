@@ -485,7 +485,7 @@ Qt::DropActions QListModel::supportedDropActions() const
 
     List items are typically used to display text() and an icon(). These are
     set with the setText() and setIcon() functions. The appearance of the text
-    can be customized with setFont(), setTextColor(), and setBackgroundColor().
+    can be customized with setFont(), setTextColor(), and setBackground().
     List items can be aligned using the setAlignment() function.
     Tooltips, status tips and "What's This?" help can be added to list items
     with setToolTip(), setStatusTip(), and setWhatsThis().
@@ -858,10 +858,18 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 
 /*!
     \fn QColor QListWidgetItem::backgroundColor() const
+    \obsolete
 
-    Returns the color used to display the list item's background.
+    This function is deprecated. Use background() instead.
+*/
 
-    \sa setBackgroundColor() textColor()
+/*!
+    \fn QBrush QListWidgetItem::background() const
+    \since 4.2
+
+    Returns the brush used to display the list item's background.
+
+    \sa setBackground() textColor()
 */
 
 /*!
@@ -966,10 +974,18 @@ void QListWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
 /*!
     \fn void QListWidgetItem::setBackgroundColor(const QColor &color)
+    \obsolete
 
-    Sets the background color of the list item to the given \a color.
+    This function is deprecated. Use setBackground() instead.
+*/
 
-    \sa backgroundColor() setTextColor()
+/*!
+    \fn void QListWidgetItem::setBackground(const QBrush &brush)
+    \since 4.2
+
+    Sets the background brush of the list item to the given \a brush.
+
+    \sa background() setTextColor()
 */
 
 /*!

@@ -1257,6 +1257,7 @@ public:
         FontRole = 6,
         TextAlignmentRole = 7,
         BackgroundColorRole = 8,
+        BackgroundRole = 8,
         TextColorRole = 9,
         CheckStateRole = 10,
         // Accessibility

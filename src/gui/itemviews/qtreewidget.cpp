@@ -808,9 +808,9 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
   \skipto QTreeWidgetItem *planets
   \printuntil planets->setText(0
 
-  Each column in an item can have its own background color which is set with
-  the setBackgroundColor() function. The current background color can be
-  found with backgroundColor().
+  Each column in an item can have its own background brush which is set with
+  the setBackground() function. The current background brush can be
+  found with background().
   The text label for each column can be rendered with its own font and text
   color. These are specified with the setFont() and setTextColor() functions,
   and read with font() and textColor().
@@ -1049,19 +1049,35 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
 /*!
     \fn QColor QTreeWidgetItem::backgroundColor(int column) const
+    \obsolete
 
-    Returns the color used to render the background of the specified \a column.
-
-    \sa textColor() setBackgroundColor()
+    This function is deprecated. Use background() instead.
 */
 
 /*!
     \fn void QTreeWidgetItem::setBackgroundColor(int column, const QColor &color)
+    \obsolete
 
-    Sets the background color of the label in the given \a column to the
-    specified \a color.
+    This function is deprecated. Use setBackground() instead.
+*/
 
-    \sa backgroundColor() setTextColor()
+/*!
+    \fn QBrush QTreeWidgetItem::background(int column) const
+    \since 4.2
+
+    Returns the brush used to render the background of the specified \a column.
+
+    \sa textColor() setBackground()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setBackground(int column, const QBrush &brush)
+    \since 4.2
+
+    Sets the background brush of the label in the given \a column to the
+    specified \a brush.
+
+    \sa background() setTextColor()
 */
 
 /*!

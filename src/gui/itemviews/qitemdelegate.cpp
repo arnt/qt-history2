@@ -16,6 +16,7 @@
 #ifndef QT_NO_ITEMVIEWS
 #include <qabstractitemmodel.h>
 #include <qapplication.h>
+#include <qbrush.h>
 #include <qlineedit.h>
 #include <qpainter.h>
 #include <qpalette.h>
@@ -155,7 +156,8 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     \row    \o \l Qt::AccessibleDescriptionRole \o QString
     \row    \o \l Qt::AccessibleTextRole \o QString
     \endomit
-    \row    \o \l Qt::BackgroundColorRole \o QColor
+    \row    \o \l Qt::BackgroundRole \o QBrush
+    \row    \o \l Qt::BackgroundColorRole \o QColor (obsolete; use Qt::BackgroundRole instead)
     \row    \o \l Qt::CheckStateRole \o Qt::CheckState
     \row    \o \l Qt::DecorationRole \o QIcon and QColor
     \row    \o \l Qt::DisplayRole \o QString and types with a string representation
@@ -623,10 +625,9 @@ void QItemDelegate::drawBackground(QPainter *painter,
 
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
-        QVariant value = index.data(Qt::BackgroundColorRole);
-        QColor color = qvariant_cast<QColor>(value);
-        if (value.isValid() && color.isValid())
-            painter->fillRect(option.rect, color);
+        QVariant value = index.data(Qt::BackgroundRole);
+        if (qVariantCanConvert<QBrush>(value))
+            painter->fillRect(option.rect, qvariant_cast<QBrush>(value));
     }
 }
 

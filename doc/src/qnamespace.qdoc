@@ -1950,8 +1950,9 @@
                                delegate.
     \value TextAlignmentRole   The alignment of the text for items rendered with the
                                default delegate.
-    \value BackgroundColorRole The background color used for items rendered with
+    \value BackgroundRole      The background brush used for items rendered with
                                the default delegate.
+    \value BackgroundColorRole This role is obsolete. Use BackgroundRole instead.
     \value TextColorRole       The text color used for items rendered with
                                the default delegate.
     \value CheckStateRole      This role is used to obtain the checked state of

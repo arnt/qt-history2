@@ -15,6 +15,7 @@
 #define QSTANDARDITEMMODEL_H
 
 #include <QtCore/qabstractitemmodel.h>
+#include <QtGui/qbrush.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qicon.h>
 #ifndef QT_NO_DATASTREAM
@@ -90,10 +91,10 @@ public:
     }
     inline void setTextAlignment(Qt::Alignment textAlignment);
 
-    inline QColor backgroundColor() const {
-        return qvariant_cast<QColor>(data(Qt::BackgroundColorRole));
+    inline QBrush background() const {
+        return qvariant_cast<QBrush>(data(Qt::BackgroundRole));
     }
-    inline void setBackgroundColor(const QColor &backgroundColor);
+    inline void setBackground(const QBrush &backgroundBrush);
 
     inline QColor textColor() const {
         return qvariant_cast<QColor>(data(Qt::TextColorRole));
@@ -244,8 +245,8 @@ inline void QStandardItem::setFont(const QFont &afont)
 inline void QStandardItem::setTextAlignment(Qt::Alignment atextAlignment)
 { setData(int(atextAlignment), Qt::TextAlignmentRole); }
 
-inline void QStandardItem::setBackgroundColor(const QColor &abackgroundColor)
-{ setData(abackgroundColor, Qt::BackgroundColorRole); }
+inline void QStandardItem::setBackground(const QBrush &abackgroundBrush)
+{ setData(abackgroundBrush, Qt::BackgroundRole); }
 
 inline void QStandardItem::setTextColor(const QColor &atextColor)
 { setData(atextColor, Qt::TextColorRole); }
