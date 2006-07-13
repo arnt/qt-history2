@@ -54,7 +54,7 @@ Qt::ItemFlags PiecesModel::flags(const QModelIndex &index) const
 {
     if (index.isValid()) {
         return (Qt::ItemIsEnabled | Qt::ItemIsSelectable
-              | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
+              | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable);
     }
 
     return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
@@ -123,11 +123,12 @@ bool PiecesModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
     int endRow;
 
-    if (!parent.isValid() && row < 0)
-        endRow = pixmaps.size();
-    else if (!parent.isValid())
-        endRow = qMin(row, pixmaps.size());
-    else
+    if (!parent.isValid()) {
+        if (row < 0)
+            endRow = pixmaps.size();
+        else
+            endRow = qMin(row, pixmaps.size());
+    } else
         endRow = parent.row();
 
     QByteArray encodedData = data->data("image/x-puzzle-piece");
