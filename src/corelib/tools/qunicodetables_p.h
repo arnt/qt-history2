@@ -41,7 +41,6 @@ namespace QUnicodeTables {
         uint joining : 2;
         signed short caseDiff /* 14 needed */;
     };
-    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);
     Q_CORE_EXPORT const Properties * QT_FASTCALL properties(uint ucs4);
 
     // see http://www.unicode.org/reports/tr14/tr14-13.html
@@ -71,28 +70,66 @@ namespace QUnicodeTables {
         return (utf16 >= 0xdc00 && utf16 < 0xe000);
     }
 
-    Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(ushort ucs2);
-    Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(ushort ucs2);
-    Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(ushort ucs2);
-    Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(ushort ucs2);
-
     Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(uint ucs4);
+    inline QChar::Category category(const QChar &c) {
+        return category(c.unicode());
+    }
+
     Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(uint ucs4);
+    inline unsigned char combiningClass(const QChar &ch) {
+        return QUnicodeTables::combiningClass(ch.unicode());
+    }
     Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(uint ucs4);
+    inline QChar::Direction direction(const QChar &c) {
+        return QUnicodeTables::direction(c.unicode());
+    }
+
     Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);
+    inline int lineBreakClass(const QChar &ch) {
+        return QUnicodeTables::lineBreakClass(ch.unicode());
+    }
 
     Q_CORE_EXPORT int QT_FASTCALL script(uint ucs4);
-    Q_CORE_EXPORT int QT_FASTCALL script(ushort ucs2);
     Q_CORE_EXPORT inline int QT_FASTCALL script(const QChar &ch) {
         return script(ch.unicode());
     }
 
     Q_CORE_EXPORT QChar::UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4);
     Q_CORE_EXPORT QChar::Joining QT_FASTCALL joining(uint ucs4);
+    inline QChar::Joining joining(const QChar &c) {
+        return QUnicodeTables::joining(c.unicode());
+    }
+
     Q_CORE_EXPORT bool QT_FASTCALL mirrored(uint ucs4);
+    inline bool mirrored(const QChar &c) {
+        return QUnicodeTables::mirrored(c.unicode());
+    }
     Q_CORE_EXPORT int QT_FASTCALL mirroredChar(uint ucs4);
+    inline QChar mirroredChar(const QChar &c) {
+        return QUnicodeTables::mirroredChar(c.unicode());
+    }
     Q_CORE_EXPORT int QT_FASTCALL upper(uint ucs4);
+    inline QChar upper(const QChar &c) {
+        return QChar(QUnicodeTables::upper(c.unicode()));
+    }
+
     Q_CORE_EXPORT int QT_FASTCALL lower(uint ucs4);
+    inline QChar lower(const QChar &c) {
+        return QChar(QUnicodeTables::lower(c.unicode()));
+    }
+
+
+    inline bool isMark(const QChar &ch) {
+        QChar::Category c = QUnicodeTables::category(ch.unicode());
+        return c >= QChar::Mark_NonSpacing && c <= QChar::Mark_Enclosing;
+    }
+    inline bool isSpace(const QChar &ch) {
+        if(ch.unicode() >= 9 && ch.unicode() <=13) return true;
+        QChar::Category c = QUnicodeTables::category(ch.unicode());
+        return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
+    }
+
+
     Q_CORE_EXPORT int QT_FASTCALL digitValue(uint ucs4);
     Q_CORE_EXPORT QString QT_FASTCALL decomposition(uint ucs4);
     Q_CORE_EXPORT QChar::Decomposition QT_FASTCALL decompositionTag(uint ucs4);
@@ -106,63 +143,9 @@ namespace QUnicodeTables {
 }
 
 
-inline QChar::Category category(const QChar &c)
-{
-    return QUnicodeTables::category(c.unicode());
-}
-
-inline QChar lower(const QChar &c)
-{
-    return QChar(QUnicodeTables::lower(c.unicode()));
-}
-
-inline QChar upper(const QChar &c)
-{
-    return QChar(QUnicodeTables::upper(c.unicode()));
-}
-
-inline QChar::Direction direction(const QChar &c)
-{
-    return QUnicodeTables::direction(c.unicode());
-}
-
-inline bool mirrored(const QChar &c)
-{
-    return QUnicodeTables::mirrored(c.unicode());
-}
 
 
-inline QChar mirroredChar(const QChar &c)
-{
-    return QUnicodeTables::mirroredChar(c.unicode());
-}
 
-inline QChar::Joining joining(const QChar &c)
-{
-    return QUnicodeTables::joining(c.unicode());
-}
 
-inline bool isMark(const QChar &ch)
-{
-    QChar::Category c = QUnicodeTables::category(ch.unicode());
-    return c >= QChar::Mark_NonSpacing && c <= QChar::Mark_Enclosing;
-}
-
-inline unsigned char combiningClass(const QChar &ch)
-{
-    return QUnicodeTables::combiningClass(ch.unicode());
-}
-
-inline bool isSpace(const QChar &ch)
-{
-    if(ch.unicode() >= 9 && ch.unicode() <=13) return true;
-    QChar::Category c = QUnicodeTables::category(ch.unicode());
-    return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
-}
-
-inline int lineBreakClass(const QChar &ch)
-{
-    return QUnicodeTables::lineBreakClass(ch.unicode());
-}
 
 #endif // QUNICODETABLES_P_H

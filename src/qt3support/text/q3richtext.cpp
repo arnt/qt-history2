@@ -5809,7 +5809,7 @@ int Q3TextFormatterBreakWords::format(Q3TextDocument *doc, Q3TextParagraph *para
         }
 
         // ignore non spacing marks for column count.
-        if (col != 0 && ::category(c->c) == QChar::Mark_NonSpacing)
+        if (col != 0 && QUnicodeTables::category(c->c) == QChar::Mark_NonSpacing)
             --col;
 
 #ifndef QT_NO_TEXTCUSTOMITEM

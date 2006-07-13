@@ -194,7 +194,7 @@ int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *g
         } else if (ttf) {
             for (int i = 0; i < numChars; ++i) {
                 unsigned int uc = getChar(str, i, numChars);
-                glyphs->glyph = getGlyphIndex(cmap, ::mirroredChar(uc).unicode());
+                glyphs->glyph = getGlyphIndex(cmap, QUnicodeTables::mirroredChar(uc).unicode());
                 glyphs++;
             }
         } else {
@@ -207,7 +207,7 @@ int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *g
                 last = tm.a.tmLastChar;
             });
             for (int i = 0; i < numChars; ++i) {
-                uint ucs = ::mirroredChar(getChar(str, i, numChars)).unicode();
+                uint ucs = QUnicodeTables::mirroredChar(getChar(str, i, numChars)).unicode();
                 if (ucs >= first && ucs <= last)
                     glyphs->glyph = ucs;
                 else

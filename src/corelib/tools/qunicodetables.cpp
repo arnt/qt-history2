@@ -28,36 +28,10 @@ static inline const QUnicodeTables::Properties *qGetProp(ushort ucs2)
     return uc_properties + index;
 }
 
-Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(ushort ucs2)
-{
-    int index = GET_PROP_INDEX_UCS2(ucs2);
-    return uc_properties + index;
-}
-
 Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(uint ucs4)
 {
     int index = GET_PROP_INDEX(ucs4);
     return uc_properties + index;
-}
-
-Q_CORE_EXPORT QChar::Category QUnicodeTables::category(ushort ucs2)
-{
-    return (QChar::Category) qGetProp(ucs2)->category;
-}
-
-Q_CORE_EXPORT unsigned char QUnicodeTables::combiningClass(ushort ucs2)
-{
-    return (unsigned char) qGetProp(ucs2)->combiningClass;
-}
-
-Q_CORE_EXPORT QChar::Direction QUnicodeTables::direction(ushort ucs2)
-{
-    return (QChar::Direction) qGetProp(ucs2)->direction;
-}
-
-Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(ushort ucs2)
-{
-    return (QUnicodeTables::LineBreakClass) qGetProp(ucs2)->line_break_class;
 }
 
 Q_CORE_EXPORT QChar::Category QUnicodeTables::category(uint ucs4)
@@ -383,16 +357,6 @@ int QUnicodeTables::script(unsigned int uc)
 {
     if (uc > 0xffff)
         return Common;
-    int script = uc_scripts[uc >> 7];
-    if (script < ScriptSentinel)
-        return script;
-    script = (((script - ScriptSentinel) * UnicodeBlockSize) + UnicodeBlockCount);
-    script = uc_scripts[script + (uc & 0x7f)];
-    return script;
-}
-
-int QUnicodeTables::script(unsigned short uc)
-{
     int script = uc_scripts[uc >> 7];
     if (script < ScriptSentinel)
         return script;

@@ -801,7 +801,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                 r = res.indexOf(QLatin1Char('\n'), l);
                 if (r < 0)
                     r = resl;
-                while (::isSpace(res.at(l)))
+                while (QUnicodeTables::isSpace(res.at(l)))
                     l++;
                 bool mine = false;
                 QChar sc = res.at(l + 1);

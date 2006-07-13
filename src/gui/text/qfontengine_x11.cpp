@@ -713,7 +713,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
         if (haveNbsp || mirrored) {
             for (int i = 0; i < len; i++)
                 chars[i] = (str[i].unicode() == 0xa0 ? 0x20 :
-                            (mirrored ? ::mirroredChar(str[i]).unicode() : str[i].unicode()));
+                            (mirrored ? QUnicodeTables::mirroredChar(str[i]).unicode() : str[i].unicode()));
         } else {
             for (int i = 0; i < len; i++)
                 chars[i] = str[i].unicode();
@@ -738,7 +738,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
         const QChar *c = str + len;
         if (mirrored) {
             while (c != str)
-                (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : ::mirroredChar(*c).unicode();
+                (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : QUnicodeTables::mirroredChar(*c).unicode();
         } else {
             while (c != str)
                 (--g)->glyph = (--c)->unicode() == 0xa0 ? 0x20 : c->unicode();

@@ -241,7 +241,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
     glyphs[0].attributes.dontPrint = (uc[0].unicode() == 0x00ad || qIsControlChar(uc[0].unicode()));
 
     int pos = 0;
-    int lastCat = ::category(uc[0]);
+    int lastCat = QUnicodeTables::category(uc[0]);
     for (int i = 1; i < length; ++i) {
         if (logClusters[i] == pos)
             // same glyph
@@ -468,7 +468,7 @@ static bool hebrew_shape(QShaperItem *item)
         }
         if (!shaped) {
             shapedChars[slen] = uc[i];
-            if (::category(uc[i]) != QChar::Mark_NonSpacing) {
+            if (QUnicodeTables::category(uc[i]) != QChar::Mark_NonSpacing) {
                 glyphs[slen].attributes.clusterStart = true;
                 glyphs[slen].attributes.mark = false;
                 glyphs[slen].attributes.combiningClass = 0;
@@ -477,7 +477,7 @@ static bool hebrew_shape(QShaperItem *item)
             } else {
                 glyphs[slen].attributes.clusterStart = false;
                 glyphs[slen].attributes.mark = true;
-                glyphs[slen].attributes.combiningClass = ::combiningClass(uc[i]);
+                glyphs[slen].attributes.combiningClass = QUnicodeTables::combiningClass(uc[i]);
             }
             ++slen;
         }
@@ -700,7 +700,7 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
         return (ArabicGroup) arabic_group[uc-0x600];
     else if (uc == 0x200d)
         return Center;
-    else if (::category(uc) == QChar::Separator_Space)
+    else if (QUnicodeTables::category(uc) == QChar::Separator_Space)
         return ArabicSpace;
     else
         return ArabicNone;
@@ -1265,7 +1265,7 @@ static inline const QChar prevChar(const QString *str, int pos)
     pos--;
     const QChar *ch = str->unicode() + pos;
     while(pos > -1) {
-        if(::category(*ch) != QChar::Mark_NonSpacing)
+        if(QUnicodeTables::category(*ch) != QChar::Mark_NonSpacing)
             return *ch;
         pos--;
         ch--;
@@ -1280,7 +1280,7 @@ static inline const QChar nextChar(const QString *str, int pos)
     const QChar *ch = str->unicode() + pos;
     while(pos < len) {
         //qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-        if(::category(*ch) != QChar::Mark_NonSpacing)
+        if(QUnicodeTables::category(*ch) != QChar::Mark_NonSpacing)
             return *ch;
         // assume it's a transparent char, this might not be 100% correct
         pos++;
@@ -1330,7 +1330,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
                     goto skip;
             }
             if (reverse)
-                *data = mirroredChar(*ch);
+                *data = QUnicodeTables::mirroredChar(*ch);
             else
                 *data = *ch;
         } else {
@@ -1376,7 +1376,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
         }
         // ##### Fixme
         //glyphs[gpos].attributes.zeroWidth = zeroWidth;
-        if (::category(*ch) == QChar::Mark_NonSpacing) {
+        if (QUnicodeTables::category(*ch) == QChar::Mark_NonSpacing) {
             glyphs[gpos].attributes.mark = true;
 //             qDebug("glyph %d (char %d) is mark!", gpos, i);
         } else {
@@ -1384,7 +1384,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
             clusterStart = data - shapeBuffer;
         }
         glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
-        glyphs[gpos].attributes.combiningClass = combiningClass(*ch);
+        glyphs[gpos].attributes.combiningClass = QUnicodeTables::combiningClass(*ch);
         glyphs[gpos].attributes.justification = properties[i].justification;
 //         qDebug("data[%d] = %x (from %x)", gpos, (uint)data->unicode(), ch->unicode());
         data++;

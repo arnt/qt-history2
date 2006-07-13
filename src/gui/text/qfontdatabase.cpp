@@ -58,11 +58,11 @@ static int ucstricmp(const QString &as, const QString &bs)
     if (b == 0)
         return -1;
     int l=qMin(as.length(),bs.length());
-    while (l-- && ::lower(*a) == ::lower(*b))
+    while (l-- && QUnicodeTables::lower(*a) == QUnicodeTables::lower(*b))
         a++,b++;
     if (l==-1)
         return (as.length()-bs.length());
-    return ::lower(*a).unicode() - ::lower(*b).unicode();
+    return QUnicodeTables::lower(*a).unicode() - QUnicodeTables::lower(*b).unicode();
 }
 
 static int getFontWeight(const QString &weightString)

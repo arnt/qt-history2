@@ -86,11 +86,11 @@ static int ucstricmp(const QString &as, const QString &bs)
     if (b == 0)
         return -1;
     int l=qMin(as.length(),bs.length());
-    while (l-- && ::lower(*a) == ::lower(*b))
+    while (l-- && QUnicodeTables::lower(*a) == QUnicodeTables::lower(*b))
         a++,b++;
     if (l==-1)
         return (as.length()-bs.length());
-    return ::lower(*a).unicode() - ::lower(*b).unicode();
+    return QUnicodeTables::lower(*a).unicode() - QUnicodeTables::lower(*b).unicode();
 }
 
 static int ucstrncmp(const QChar *a, const QChar *b, int l)
@@ -104,11 +104,11 @@ static int ucstrncmp(const QChar *a, const QChar *b, int l)
 
 static int ucstrnicmp(const QChar *a, const QChar *b, int l)
 {
-    while (l-- && ::lower(*a) == ::lower(*b))
+    while (l-- && QUnicodeTables::lower(*a) == QUnicodeTables::lower(*b))
         a++,b++;
     if (l==-1)
         return 0;
-    return ::lower(*a).unicode() - ::lower(*b).unicode();
+    return QUnicodeTables::lower(*a).unicode() - QUnicodeTables::lower(*b).unicode();
 }
 
 
@@ -1387,9 +1387,9 @@ QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
             else
                 i++;
     } else {
-        ch = ::lower(ch);
+        ch = QUnicodeTables::lower(ch);
         while (i < d->size)
-            if (::lower(*((const QChar*)d->data + i)) == ch)
+            if (QUnicodeTables::lower(*((const QChar*)d->data + i)) == ch)
                 remove(i, 1);
             else
                 i++;
@@ -1609,9 +1609,9 @@ QString& QString::replace(QChar before, QChar after, Qt::CaseSensitivity cs)
                 if (*i == before)
                    * i = after;
         } else {
-            before = ::lower(before);
+            before = QUnicodeTables::lower(before);
             for (; i != e; ++i)
-                if (::lower(*i) == before)
+                if (QUnicodeTables::lower(*i) == before)
                    * i = after;
         }
     }
@@ -2005,19 +2005,19 @@ int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
     } else {
         for (idx = 0; idx < sl; ++idx) {
             hashNeedle = ((hashNeedle<<1) +
-                          ::lower(needle[idx].unicode()).unicode());
+                          QUnicodeTables::lower(needle[idx].unicode()));
             hashHaystack = ((hashHaystack<<1) +
-                            ::lower(haystack[idx].unicode()).unicode());
+                            QUnicodeTables::lower(haystack[idx].unicode()));
         }
 
-        hashHaystack -= ::lower(*(haystack+sl_minus_1)).unicode();
+        hashHaystack -= QUnicodeTables::lower(*(haystack+sl_minus_1)).unicode();
         while (haystack <= end) {
-            hashHaystack += ::lower(*(haystack+sl_minus_1)).unicode();
+            hashHaystack += QUnicodeTables::lower(*(haystack+sl_minus_1)).unicode();
             if (hashHaystack == hashNeedle
                  && ucstrnicmp(needle, haystack, sl) == 0)
                 return haystack-unicode();
 
-            REHASH(::lower(*haystack).unicode());
+            REHASH(QUnicodeTables::lower(*haystack).unicode());
             ++haystack;
         }
     }
@@ -2043,9 +2043,9 @@ int QString::indexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
                 if (*n == ch)
                     return  n - (const QChar*)d->data;
         } else {
-            ch = ::lower(ch);
+            ch = QUnicodeTables::lower(ch);
             while (++n != e)
-                if (::lower(*n) == ch)
+                if (QUnicodeTables::lower(*n) == ch)
                     return  n - (const QChar*)d->data;
         }
     }
@@ -2117,19 +2117,19 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
     } else {
         for (idx = 0; idx < sl; ++idx) {
             hashNeedle = ((hashNeedle<<1)
-                          + ::lower((n-idx)->unicode()).unicode());
+                          + QUnicodeTables::lower((n-idx)->unicode()));
             hashHaystack = ((hashHaystack<<1)
-                            + ::lower((h-idx)->unicode()).unicode());
+                            + QUnicodeTables::lower((h-idx)->unicode()));
         }
-        hashHaystack -= ::lower(*haystack).unicode();
+        hashHaystack -= QUnicodeTables::lower(*haystack).unicode();
 
         while (haystack >= end) {
-            hashHaystack += ::lower(*haystack).unicode();
+            hashHaystack += QUnicodeTables::lower(*haystack).unicode();
             if (hashHaystack == hashNeedle
                  && ucstrnicmp(needle, haystack, sl) == 0)
                 return haystack-unicode();
             --haystack;
-            REHASH(::lower(*(haystack+sl)).unicode());
+            REHASH(QUnicodeTables::lower(*(haystack+sl)).unicode());
         }
     }
     return -1;
@@ -2154,9 +2154,9 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
                 if (*n == ch)
                     return  n - b;
         } else {
-            ch = ::lower(ch);
+            ch = QUnicodeTables::lower(ch);
             for (; n >= b; --n)
-                if (::lower(*n) == ch)
+                if (QUnicodeTables::lower(*n) == ch)
                     return  n - b;
         }
     }
@@ -2358,9 +2358,9 @@ int QString::count(QChar ch, Qt::CaseSensitivity cs) const
             if (*--i == ch)
                 ++num;
     } else {
-        ch = ::lower(ch);
+        ch = QUnicodeTables::lower(ch);
         while (i != b)
-            if (::lower(*--i) == ch)
+            if (QUnicodeTables::lower(*--i) == ch)
                 ++num;
     }
     return num;
@@ -2792,7 +2792,7 @@ bool QString::startsWith(const QString& s, Qt::CaseSensitivity cs) const
         return memcmp((char*)d->data, (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < s.d->size; ++i)
-            if (::lower(d->data[i]) != ::lower(s.d->data[i]))
+            if (QUnicodeTables::lower(d->data[i]) != QUnicodeTables::lower(s.d->data[i]))
                 return false;
     }
     return true;
@@ -2864,7 +2864,7 @@ bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
         return memcmp((char*)&d->data[pos], (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < s.length(); i++)
-            if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
+            if (QUnicodeTables::lower(d->data[pos+i]) != QUnicodeTables::lower(s.d->data[i]))
                 return false;
     }
     return true;
@@ -4248,7 +4248,7 @@ QString QString::toLower() const
             while (l) {
                 bool different;
                 if (p->unicode() & 0xFF80)
-                    different = (*p != ::lower(*p));
+                    different = (*p != QUnicodeTables::lower(*p));
                 else
                     different = ((uint)p->cell() - 'A' < 26);
 
@@ -4256,7 +4256,7 @@ QString QString::toLower() const
                     QString s(*this);
                     p = (QChar*)s.data() + (p - (QChar*)d->data);
                     while (l) {
-                        *p = ::lower(*p);
+                        *p = QUnicodeTables::lower(*p);
                         l--;
                         p++;
                     }
@@ -4290,7 +4290,7 @@ QString QString::toUpper() const
             while (l) {
                 bool different;
                 if (p->unicode() & 0xFF80)
-                    different = (*p != ::upper(*p));
+                    different = (*p != QUnicodeTables::upper(*p));
                 else
                     different = ((uint)p->cell() - 'a' < 26);
 
@@ -4298,7 +4298,7 @@ QString QString::toUpper() const
                     QString s(*this);
                     p = s.data() + (p - (QChar*)d->data);
                     while (l) {
-                        *p = ::upper(*p);
+                        *p = QUnicodeTables::upper(*p);
                         l--;
                         p++;
                     }
@@ -6006,7 +6006,7 @@ void QString::updateProperties() const
     p = d->data;
     d->righttoleft = false;
     while (p < end) {
-        switch(::direction(*p))
+        switch(QUnicodeTables::direction(*p))
         {
         case QChar::DirL:
         case QChar::DirLRO:
