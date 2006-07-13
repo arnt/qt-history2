@@ -567,7 +567,8 @@ Objects on the form are selected by clicking on them with the left mouse
 button. When an object is selected, resize handles are shown at each corner
 and at the midpoint of each side, indicating that it can be resized.
 
-If more than one object is selected, the current object will be displayed
+To select additional objects, hold down the \gui{Shift} key and click on
+them. If more than one object is selected, the current object will be displayed
 with resize handles that are colored differently to the others.
 \endtable
 
@@ -705,7 +706,7 @@ to indicate where the object will be added.
 The form's top level layout can be set by clearing the selection (click
 the left mouse button on the form itself) and applying a layout.
 
-\target HoizontalAndVerticalLayouts
+\target HorizontalAndVerticalLayouts
 \section2 Horizontal and Vertical Layouts
 
 The simplest way to arrange objects on a form is to place them in a
@@ -728,6 +729,44 @@ This kind of layout gives the form designer much more freedom to arrange
 widgets on the form, but can result in a much less flexible layout.
 However, for some kinds of form layout, a grid arrangement is much more
 suitable than a nested arrangement of horizontal and vertical layouts.
+
+\section2 Splitter Layouts
+
+Another common way to manage the layout of objects on a form is to place
+them in a splitter. These arrange the objects horizontally or vertically
+in the same way as normal layouts, but also allow the user to adjust the
+amount of space allocated to each object.
+
+\image designer-splitter-layout.png Applying a splitter layout to selected widgets.
+
+Although QSplitter is a container widget, \QD treats them as layouts that
+are applied to existing widgets. To place a group of widgets into a
+splitter, select them \l{#SelectingObjects}{as described above} then
+apply the splitter layout by using the appropriate toolbar button, keyboard
+shortcut, or \gui{Lay out} context menu entry.
+
+\section2 Shortcut Keys
+
+In addition to the standard toolbar and context menu entries, \QD defines a
+set of keyboard shortcuts for applying layouts to widgets.
+
+\target LayoutShortcuts
+\table
+\header \i Layout       \i Shortcut     \i Description
+\row    \i Horizontal   \i \key{Ctrl+1} \i Places the selected objects in a
+horizontal layout.
+\row    \i Vertical     \i \key{Ctrl+2} \i Places the selected objects in a
+vertical layout.
+\row    \i Grid         \i \key{Ctrl+5} \i Places the selected objects in a
+grid layout.
+\row    \i Horizontal splitter \i \key{Ctrl+3} \i Creates a horizontal splitter
+and places the selected objects inside it.
+\row    \i Vertical splitter \i \key{Ctrl+4} \i Creates a vertical splitter
+and places the selected objects inside it.
+\row    \i Adjust size  \i \key{Ctrl+J} \i Adjusts the size of the layout
+to ensure that each child object has sufficient space to display its contents.
+See QWidget::adjustSize() for more information.
+\endtable
 
 \target PreviewingForms
 \section1 Previewing Forms
