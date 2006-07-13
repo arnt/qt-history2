@@ -187,6 +187,8 @@ private slots:
 
     void readOnlyStyleOption();
 
+    void validateOnFocusOut();
+
 protected slots:
 #ifdef QT3_SUPPORT
     void lostFocus();
@@ -2896,6 +2898,20 @@ void tst_QLineEdit::readOnlyStyleOption()
 
     testWidget->setReadOnly(wasReadOnly);
     testWidget->setStyle(oldStyle);
+}
+
+void tst_QLineEdit::validateOnFocusOut()
+{
+    QSignalSpy editingFinishedSpy(testWidget, SIGNAL(editingFinished()));
+    testWidget->setValidator(new QIntValidator(100, 999, 0));
+    QTest::keyPress(testWidget, '1');
+    QTest::keyPress(testWidget, '0');
+    testWidget->clearFocus();
+    QCOMPARE(editingFinishedSpy.count(), 0);
+    testWidget->setFocus();
+    QTest::keyPress(testWidget, '0');
+    testWidget->clearFocus();
+    QCOMPARE(editingFinishedSpy.count(), 1);
 }
 
 QTEST_MAIN(tst_QLineEdit)
