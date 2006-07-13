@@ -537,7 +537,7 @@ struct QMetaTypeGuiHelper
     QMetaType::LoadOperator loadOp;
 #endif
 };
-extern const QMetaTypeGuiHelper *qMetaTypeGuiHelper;
+extern Q_DECL_IMPORT const QMetaTypeGuiHelper *qMetaTypeGuiHelper;
 
 
 #ifdef QT_NO_DATASTREAM
