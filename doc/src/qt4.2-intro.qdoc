@@ -15,7 +15,7 @@
   A list of other Qt 4 features can be found on the
   \bold{\l{What's New in Qt 4}} page.
 
-  Highlights
+  \bold{Highlights}
 
   \tableofcontents
 
@@ -96,7 +96,7 @@
   To enable \bold{closer integration with the GNOME deskop environment} and tools,
   Qt 4.2 now contains support for the Glib eventloop. This makes it possible
   for Qt applications to use plugins made using other Glib-based frameworks,
-  and even Qt plugins for .
+  and even enables Qt plugins to be created for use with non-Qt applications.
 
   \raw HTML
   <div align="center">
@@ -274,15 +274,16 @@
   applications, and avoids the need to provide sufficiently high resolution
   images to cover all possible icon sizes.
 
-  Support for detection and reporting of network interfaces is provided by the
-  QNetworkInterface class.
+  Support for \bold{detection and reporting of network interfaces} is provided by
+  the QNetworkInterface class.
 
-  Qt's keyboard handling has been improved to support physical key recognition.
+  Qt's keyboard handling has been improved to support
+  \bold{physical key recognition}.
   This allows keyboard shortcuts to be created that specify the keys that users
   see on their keyboard instead of generic logical key assignments.
 
-  QKeySequence now provides a range of standard shortcuts that developers can
-  use when creating actions. These describe commonly-used high-level actions,
+  QKeySequence now provides \bold{a range of standard shortcuts} that developers
+  can use when creating actions. These describe commonly-used high-level actions,
   such as \gui{Undo}, \gui{Copy}, and \gui{Paste}, and enable shortcuts to be
   specified in a true cross-platform way.
 
@@ -291,16 +292,17 @@
   Many improvements in Qt are specific to Qtopia Core and are concerned with
   graphics support and rendering performance.
 
-  Direct painting to the screen can be enabled on by
+  \bold{Direct painting to the screen} can be enabled on by
   \l{Performance Tuning#Bypassing the Backing Store}{bypassing the backing store}
   on a per-application basis.
 
-  Support for 18 and 24 bits-per-pixel color depths has been added to the paint
+  \bold{Support for 18 and 24 bits-per-pixel color depths} has been added to the paint
   system. Color depths that assign 6 bits to each color (or alpha) channel are
   commonly used on mobile devices.
 
-  Alongside many general improvements and optimizations, the transformed screen
-  driver has been optimized to improve performance when rendering rotated content.
+  Alongside many general improvements and optimizations, the \bold{transformed
+  screen driver has been optimized} to improve performance when rendering rotated
+  content.
   \omit
 
   \section1 Other Improvements
