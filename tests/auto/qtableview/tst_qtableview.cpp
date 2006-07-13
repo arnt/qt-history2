@@ -13,6 +13,9 @@
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qtableview.h gui/itemviews/qtableview.cpp
 
+typedef QList<int> IntList;
+Q_DECLARE_METATYPE(IntList)
+
 class tst_QTableView : public QObject
 {
     Q_OBJECT
@@ -43,12 +46,14 @@ private slots:
 
     void headerSections_data();
     void headerSections();
-    void headerSections_unhideRow();
 
     void moveCursor_data();
     void moveCursor();
 
+    void hideRows_data();
     void hideRows();
+
+    void hideColumns_data();
     void hideColumns();
 
     void selectRow_data();
@@ -361,65 +366,77 @@ void tst_QTableView::removeColumns()
 
 void tst_QTableView::keyboardNavigation_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<IntList>("keyPresses");
 
+    QTest::newRow("16x16 model") << 16  << 16
+                                 << (IntList()
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Right
+                                     << Qt::Key_Right
+                                     << Qt::Key_Up
+                                     << Qt::Key_Left
+                                     << Qt::Key_Left
+                                     << Qt::Key_Up
+                                     << Qt::Key_Down
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Up
+                                     << Qt::Key_Left
+                                     << Qt::Key_Left
+                                     << Qt::Key_Up
+                                     << Qt::Key_Down);
 }
 
 void tst_QTableView::keyboardNavigation()
 {
-    int rows = 16;
-    int columns = 16;
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(IntList, keyPresses);
 
-    QStandardItemModel model(rows, columns);
+    QtTestTableModel model(rowCount, columnCount);
     QTableView view;
     view.setModel(&model);
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
-            QModelIndex index = model.index(i, j);
-            model.setData(index, QString("[%1,%2]").arg(i).arg(j));
-            view.setCurrentIndex(index);
-            QApplication::instance()->processEvents();
-            QCOMPARE(view.currentIndex(), index);
-        }
-    }
     view.show();
 
-    QVector<Qt::Key> keymoves;
-    keymoves << Qt::Key_Up << Qt::Key_Up << Qt::Key_Right << Qt::Key_Right << Qt::Key_Up
-             << Qt::Key_Left << Qt::Key_Left << Qt::Key_Up << Qt::Key_Down << Qt::Key_Up
-             << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up
-             << Qt::Key_Left << Qt::Key_Left << Qt::Key_Up << Qt::Key_Down;
-
-    int row = rows - 1;
-    int column = columns - 1;
-    QModelIndex index = model.index(row, column);
+    QModelIndex index = model.index(rowCount - 1, columnCount - 1);
     view.setCurrentIndex(index);
+
     QApplication::instance()->processEvents();
-    for (int i = 0; i < keymoves.size(); ++i) {
-        Qt::Key key = keymoves.at(i);
-        QTest::keyClick(&view, key);
+
+    int row = rowCount - 1;
+    int column = columnCount - 1;
+    for (int i = 0; i < keyPresses.count(); ++i) {
+
+        Qt::Key key = (Qt::Key)keyPresses.at(i);
+
         switch (key) {
         case Qt::Key_Up:
             row = qMax(0, row - 1);
             break;
         case Qt::Key_Down:
-            row = qMin(rows - 1, row + 1);
+            row = qMin(rowCount - 1, row + 1);
             break;
         case Qt::Key_Left:
             column = qMax(0, column - 1);
             break;
         case Qt::Key_Right:
-            column = qMin(columns - 1, column + 1);
+            column = qMin(columnCount - 1, column + 1);
             break;
         default:
-            QVERIFY(false);
+            break;
         }
 
+        QTest::keyClick(&view, key);
         QApplication::instance()->processEvents();
 
         QModelIndex index = model.index(row, column);
-        QCOMPARE(view.currentIndex().row(), row);
-        QCOMPARE(view.currentIndex().column(), column);
         QCOMPARE(view.currentIndex(), index);
     }
 }
@@ -428,16 +445,22 @@ void tst_QTableView::headerSections_data()
 {
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<int>("columnCount");
-    QTest::addColumn<int>("hideRow");
-    QTest::addColumn<int>("hideColumn");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
+
+    QTest::newRow("") << 10 << 10 << 5 << 5 << 30 << 30;
 }
 
 void tst_QTableView::headerSections()
 {
     QFETCH(int, rowCount);
     QFETCH(int, columnCount);
-    QFETCH(int, hideRow);
-    QFETCH(int, hideColumn);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
     
     QtTestTableModel model(rowCount, columnCount);
 
@@ -453,21 +476,20 @@ void tst_QTableView::headerSections()
 
     QCOMPARE(hheader->count(), model.columnCount());
     QCOMPARE(vheader->count(), model.rowCount());
-}
 
-void tst_QTableView::headerSections_unhideRow()
-{
-    QtTestTableModel model(10, 10);
-    QTableView view;
+    view.setRowHeight(row, rowHeight);
+    QCOMPARE(view.rowHeight(row), rowHeight);
+    view.hideRow(row);
+    QCOMPARE(view.rowHeight(row), 0);
+    view.showRow(row);
+    QCOMPARE(view.rowHeight(row), rowHeight);
 
-    view.setModel(&model);
-    view.setRowHidden(0, true);
-    view.show();
-
-    // should go back to old size
-    view.setRowHidden(0, false);
-    QVERIFY(view.verticalHeader()->sectionSize(0) > 0);
-
+    view.setColumnWidth(column, columnWidth);
+    QCOMPARE(view.columnWidth(column), columnWidth);
+    view.hideColumn(column);
+    QCOMPARE(view.columnWidth(column), 0);
+    view.showColumn(column);
+    QCOMPARE(view.columnWidth(column), columnWidth);
 }
 
 void tst_QTableView::moveCursor_data()
@@ -853,40 +875,70 @@ void tst_QTableView::moveCursor()
     QCOMPARE(newIndex.column(), expectedColumn);
 }
 
+void tst_QTableView::hideRows_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("showRow"); // hide, then show
+    QTest::addColumn<int>("hideRow"); // hide only
+
+    QTest::newRow("") << 10 << 10 << 0 << 3;
+}
+
 void tst_QTableView::hideRows()
 {
-    QtTestTableModel model(10, 10);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, showRow);
+    QFETCH(int, hideRow);
+    
+    QtTestTableModel model(rowCount, columnCount);
     QTableView view;
 
     view.setModel(&model);
 
-    view.setRowHidden(0, true);
-    QVERIFY(view.isRowHidden(0));
+    view.hideRow(showRow);
+    QVERIFY(view.isRowHidden(showRow));
 
-    view.setRowHidden(3, true);
-    QVERIFY(view.isRowHidden(3));
+    view.hideRow(hideRow);
+    QVERIFY(view.isRowHidden(hideRow));
 
-    view.setRowHidden(0, false);
-    QVERIFY(!view.isRowHidden(0));
-    QVERIFY(view.isRowHidden(3));
+    view.showRow(showRow);
+    QVERIFY(!view.isRowHidden(showRow));
+    QVERIFY(view.isRowHidden(hideRow));
+}
+
+void tst_QTableView::hideColumns_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("showColumn"); // hide, then show
+    QTest::addColumn<int>("hideColumn"); // hide only
+
+    QTest::newRow("") << 10 << 10 << 0 << 3;
 }
 
 void tst_QTableView::hideColumns()
 {
-    QtTestTableModel model(10, 10);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, showColumn);
+    QFETCH(int, hideColumn);
+    
+    QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
     view.setModel(&model);
 
-    view.setColumnHidden(0, true);
-    QVERIFY(view.isColumnHidden(0));
+    view.hideColumn(showColumn);
+    QVERIFY(view.isColumnHidden(showColumn));
 
-    view.setColumnHidden(3, true);
-    QVERIFY(view.isColumnHidden(3));
+    view.hideColumn(hideColumn);
+    QVERIFY(view.isColumnHidden(hideColumn));
 
-    view.setColumnHidden(0, false);
-    QVERIFY(!view.isColumnHidden(0));
-    QVERIFY(view.isColumnHidden(3));
+    view.showColumn(showColumn);
+    QVERIFY(!view.isColumnHidden(showColumn));
+    QVERIFY(view.isColumnHidden(hideColumn));
 }
 
 
