@@ -722,10 +722,7 @@ bool QTextHtmlImporter::closeTag(int i)
             if (!t.isTextFrame)
                 ++tables.last().currentCell;
             blockTagClosed = true;
-        } else if (closedNode->isListStart) {
-
-            Q_ASSERT(!lists.isEmpty());
-
+        } else if (closedNode->isListStart && !lists.isEmpty()) {
             lists.resize(lists.size() - 1);
             --indent;
             blockTagClosed = true;
