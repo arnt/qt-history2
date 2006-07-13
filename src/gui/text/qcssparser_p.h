@@ -194,7 +194,7 @@ enum Origin {
     NumKnownOrigins
 };
 
-struct Q_AUTOTEST_EXPORT Value
+struct Q_GUI_EXPORT Value
 {
     enum Type {
         Unknown,
@@ -215,7 +215,7 @@ struct Q_AUTOTEST_EXPORT Value
     QVariant variant;
 };
 
-struct Q_AUTOTEST_EXPORT Declaration
+struct Q_GUI_EXPORT Declaration
 {
     inline Declaration() : propertyId(UnknownProperty), important(false) {}
     QString property;
@@ -262,14 +262,14 @@ enum PseudoState
     NumPseudos = 9
 };
 
-struct Q_AUTOTEST_EXPORT PseudoClass
+struct Q_GUI_EXPORT PseudoClass
 {
     PseudoState type;
     QString name;
     QString function;
 };
 
-struct Q_AUTOTEST_EXPORT AttributeSelector
+struct Q_GUI_EXPORT AttributeSelector
 {
     enum ValueMatchType {
         NoMatch,
@@ -284,7 +284,7 @@ struct Q_AUTOTEST_EXPORT AttributeSelector
     ValueMatchType valueMatchCriterium;
 };
 
-struct Q_AUTOTEST_EXPORT BasicSelector
+struct Q_GUI_EXPORT BasicSelector
 {
     inline BasicSelector() : relationToNext(NoRelation) {}
 
@@ -304,7 +304,7 @@ struct Q_AUTOTEST_EXPORT BasicSelector
     Relation relationToNext;
 };
 
-struct Q_AUTOTEST_EXPORT Selector
+struct Q_GUI_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
     int specificity() const;
@@ -318,31 +318,31 @@ struct ImportRule;
 
 void extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment);
 
-struct Q_AUTOTEST_EXPORT StyleRule
+struct Q_GUI_EXPORT StyleRule
 {
     QVector<Selector> selectors;
     QVector<Declaration> declarations;
 };
 
-struct Q_AUTOTEST_EXPORT MediaRule
+struct Q_GUI_EXPORT MediaRule
 {
     QStringList media;
     QVector<StyleRule> styleRules;
 };
 
-struct Q_AUTOTEST_EXPORT PageRule
+struct Q_GUI_EXPORT PageRule
 {
     QString selector;
     QVector<Declaration> declarations;
 };
 
-struct Q_AUTOTEST_EXPORT ImportRule
+struct Q_GUI_EXPORT ImportRule
 {
     QString href;
     QStringList media;
 };
 
-struct Q_AUTOTEST_EXPORT StyleSheet
+struct Q_GUI_EXPORT StyleSheet
 {
     QVector<StyleRule> styleRules;
     QVector<MediaRule> mediaRules;
@@ -350,7 +350,7 @@ struct Q_AUTOTEST_EXPORT StyleSheet
     QVector<ImportRule> importRules;
 };
 
-class Q_AUTOTEST_EXPORT StyleSelector
+class Q_GUI_EXPORT StyleSelector
 {
 public:
     virtual ~StyleSelector();
@@ -447,7 +447,7 @@ public:
     static const char *tokenName(TokenType t);
 };
 
-class Q_AUTOTEST_EXPORT Parser
+class Q_GUI_EXPORT Parser
 {
 public:
     explicit Parser(const QString &css);
