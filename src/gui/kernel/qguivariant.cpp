@@ -236,170 +236,6 @@ static bool isNull(const QVariant::Private *d)
     return d->is_null;
 }
 
-#ifndef QT_NO_DATASTREAM
-static void load(QVariant::Private *d, QDataStream &s)
-{
-    switch (d->type) {
-#ifndef QT_NO_CURSOR
-    case QVariant::Cursor:
-        s >> *v_cast<QCursor>(d);
-        break;
-#endif
-    case QVariant::Bitmap:
-        s >> *v_cast<QBitmap>(d);
-        break;
-    case QVariant::Region:
-        s >> *v_cast<QRegion>(d);
-        break;
-    case QVariant::Polygon:
-        s >> *v_cast<QPolygon>(d);
-        break;
-    case QVariant::Font:
-        s >> *v_cast<QFont>(d);
-        break;
-    case QVariant::Pixmap:
-        s >> *v_cast<QPixmap>(d);
-        break;
-    case QVariant::Image:
-        s >> *v_cast<QImage>(d);
-        break;
-    case QVariant::Brush:
-        s >> *v_cast<QBrush>(d);
-        break;
-    case QVariant::Color:
-        s >> *v_cast<QColor>(d);
-        break;
-    case QVariant::Palette:
-        s >> *v_cast<QPalette>(d);
-        break;
-#ifdef QT3_SUPPORT
-    case QVariant::ColorGroup:
-        qt_stream_in_qcolorgroup(s, *v_cast<QColorGroup>(d));
-        break;
-#endif
-#ifndef QT_NO_ICON
-    case QVariant::Icon: {
-        s >> *v_cast<QIcon>(d);
-        break;
-    }
-#endif
-    case QVariant::Matrix: {
-        QMatrix x;
-        s >> x;
-        *v_cast<QMatrix>(d) = x;
-        break;
-    }
-    case QVariant::TextFormat: {
-        QTextFormat x;
-        s >> x;
-        *v_cast<QTextFormat>(d) = x;
-        break;
-    }
-    case QVariant::TextLength: {
-        QTextLength x;
-        s >> x;
-        *v_cast<QTextLength>(d) = x;
-        break;
-    }
-    case QVariant::SizePolicy: {
-        int h, v;
-        qint8 hfw;
-        s >> h >> v >> hfw;
-        QSizePolicy *sp = v_cast<QSizePolicy>(d);
-        *sp = QSizePolicy(QSizePolicy::Policy(h), QSizePolicy::Policy(v));
-        sp->setHeightForWidth(bool(hfw));
-        break;
-    }
-#ifndef QT_NO_SHORTCUT
-    case QVariant::KeySequence:
-        s >> *v_cast<QKeySequence>(d);
-        break;
-#endif // QT_NO_SHORTCUT
-    case QVariant::Pen:
-        s >> *v_cast<QPen>(d);
-        break;
-    default:
-        qcoreVariantHandler()->load(d, s);
-        return;
-    }
-}
-
-
-static void save(const QVariant::Private *d, QDataStream &s)
-{
-    switch (d->type) {
-#ifndef QT_NO_CURSOR
-    case QVariant::Cursor:
-        s << *v_cast<QCursor>(d);
-        break;
-#endif
-    case QVariant::Bitmap:
-        s << *v_cast<QBitmap>(d);
-        break;
-    case QVariant::Polygon:
-        s << *v_cast<QPolygon>(d);
-        break;
-    case QVariant::Region:
-        s << *v_cast<QRegion>(d);
-        break;
-    case QVariant::Font:
-        s << *v_cast<QFont>(d);
-        break;
-    case QVariant::Pixmap:
-        s << *v_cast<QPixmap>(d);
-        break;
-    case QVariant::Image:
-        s << *v_cast<QImage>(d);
-        break;
-    case QVariant::Brush:
-        s << *v_cast<QBrush>(d);
-        break;
-    case QVariant::Color:
-        s << *v_cast<QColor>(d);
-        break;
-    case QVariant::Palette:
-        s << *v_cast<QPalette>(d);
-        break;
-#ifdef QT3_SUPPORT
-    case QVariant::ColorGroup:
-        qt_stream_out_qcolorgroup(s, *v_cast<QColorGroup>(d));
-        break;
-#endif
-#ifndef QT_NO_ICON
-    case QVariant::Icon:
-        s << *v_cast<QIcon>(d);
-        break;
-#endif
-    case QVariant::TextFormat:
-        s << *v_cast<QTextFormat>(d);
-        break;
-    case QVariant::Matrix:
-        s << *v_cast<QMatrix>(d);
-        break;
-    case QVariant::TextLength:
-        s << *v_cast<QTextLength>(d);
-        break;
-    case QVariant::SizePolicy:
-    {
-        const QSizePolicy *p = v_cast<QSizePolicy>(d);
-        s << (int) p->horizontalPolicy() << (int) p->verticalPolicy()
-          << (qint8) p->hasHeightForWidth();
-    }
-    break;
-#ifndef QT_NO_SHORTCUT
-    case QVariant::KeySequence:
-        s << *v_cast<QKeySequence>(d);
-        break;
-#endif
-    case QVariant::Pen:
-        s << *v_cast<QPen>(d);
-        break;
-    default:
-        qcoreVariantHandler()->save(d, s);
-    }
-}
-#endif // QT_NO_DATASTREAM
-
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
     Q_ASSERT(a->type == b->type);
@@ -682,10 +518,6 @@ const QVariant::Handler qt_gui_variant_handler = {
     construct,
     clear,
     isNull,
-#ifndef QT_NO_DATASTREAM
-    load,
-    save,
-#endif
     compare,
     convert,
     canConvert,
@@ -696,9 +528,100 @@ const QVariant::Handler qt_gui_variant_handler = {
 #endif
 };
 
+struct QMetaTypeGuiHelper
+{
+    QMetaType::Constructor constr;
+    QMetaType::Destructor destr;
+#ifndef QT_NO_DATASTREAM
+    QMetaType::SaveOperator saveOp;
+    QMetaType::LoadOperator loadOp;
+#endif
+};
+extern const QMetaTypeGuiHelper *qMetaTypeGuiHelper;
+
+
+#ifdef QT_NO_DATASTREAM
+#  define Q_DECL_METATYPE_HELPER(TYPE) \
+     typedef void *(*QConstruct##TYPE)(const TYPE *); \
+     static const QConstruct##TYPE qConstruct##TYPE = qMetaTypeConstructHelper<TYPE>; \
+     typedef void (*QDestruct##TYPE)(TYPE *); \
+     static const QDestruct##TYPE qDestruct##TYPE = qMetaTypeDeleteHelper<TYPE>;
+#else
+#  define Q_DECL_METATYPE_HELPER(TYPE) \
+     typedef void *(*QConstruct##TYPE)(const TYPE *); \
+     static const QConstruct##TYPE qConstruct##TYPE = qMetaTypeConstructHelper<TYPE>; \
+     typedef void (*QDestruct##TYPE)(TYPE *); \
+     static const QDestruct##TYPE qDestruct##TYPE = qMetaTypeDeleteHelper<TYPE>; \
+     typedef void (*QSave##TYPE)(QDataStream &, const TYPE *); \
+     static const QSave##TYPE qSave##TYPE = qMetaTypeSaveHelper<TYPE>; \
+     typedef void (*QLoad##TYPE)(QDataStream &, TYPE *); \
+     static const QLoad##TYPE qLoad##TYPE = qMetaTypeLoadHelper<TYPE>;
+#endif
+
+#ifdef QT3_SUPPORT
+Q_DECL_METATYPE_HELPER(QColorGroup)
+#endif
+Q_DECL_METATYPE_HELPER(QFont)
+Q_DECL_METATYPE_HELPER(QPixmap)
+Q_DECL_METATYPE_HELPER(QBrush)
+Q_DECL_METATYPE_HELPER(QColor)
+Q_DECL_METATYPE_HELPER(QPalette)
+Q_DECL_METATYPE_HELPER(QIcon)
+Q_DECL_METATYPE_HELPER(QImage)
+Q_DECL_METATYPE_HELPER(QPolygon)
+Q_DECL_METATYPE_HELPER(QRegion)
+Q_DECL_METATYPE_HELPER(QBitmap)
+Q_DECL_METATYPE_HELPER(QCursor)
+Q_DECL_METATYPE_HELPER(QSizePolicy)
+Q_DECL_METATYPE_HELPER(QKeySequence)
+Q_DECL_METATYPE_HELPER(QPen)
+Q_DECL_METATYPE_HELPER(QTextLength)
+Q_DECL_METATYPE_HELPER(QTextFormat)
+Q_DECL_METATYPE_HELPER(QMatrix)
+
+#ifdef QT_NO_DATASTREAM
+#  define Q_IMPL_METATYPE_HELPER(TYPE) \
+     { reinterpret_cast<QMetaType::Constructor>(qConstruct##TYPE), \
+       reinterpret_cast<QMetaType::Destructor>(qDestruct##TYPE) }
+#else
+#  define Q_IMPL_METATYPE_HELPER(TYPE) \
+     { reinterpret_cast<QMetaType::Constructor>(qConstruct##TYPE), \
+       reinterpret_cast<QMetaType::Destructor>(qDestruct##TYPE), \
+       reinterpret_cast<QMetaType::SaveOperator>(qSave##TYPE), \
+       reinterpret_cast<QMetaType::LoadOperator>(qLoad##TYPE) \
+     }
+#endif
+
+static const QMetaTypeGuiHelper qVariantGuiHelper[] = {
+#ifdef QT3_SUPPORT
+    Q_IMPL_METATYPE_HELPER(QColorGroup),
+#else
+    {0, 0, 0, 0},
+#endif
+    Q_IMPL_METATYPE_HELPER(QFont),
+    Q_IMPL_METATYPE_HELPER(QPixmap),
+    Q_IMPL_METATYPE_HELPER(QBrush),
+    Q_IMPL_METATYPE_HELPER(QColor),
+    Q_IMPL_METATYPE_HELPER(QPalette),
+    Q_IMPL_METATYPE_HELPER(QIcon),
+    Q_IMPL_METATYPE_HELPER(QImage),
+    Q_IMPL_METATYPE_HELPER(QPolygon),
+    Q_IMPL_METATYPE_HELPER(QRegion),
+    Q_IMPL_METATYPE_HELPER(QBitmap),
+    Q_IMPL_METATYPE_HELPER(QCursor),
+    Q_IMPL_METATYPE_HELPER(QSizePolicy),
+    Q_IMPL_METATYPE_HELPER(QKeySequence),
+    Q_IMPL_METATYPE_HELPER(QPen),
+    Q_IMPL_METATYPE_HELPER(QTextLength),
+    Q_IMPL_METATYPE_HELPER(QTextFormat),
+    Q_IMPL_METATYPE_HELPER(QMatrix)
+};
+
 int qRegisterGuiVariant()
 {
     QVariant::handler = &qt_gui_variant_handler;
+    qMetaTypeGuiHelper = qVariantGuiHelper;
+
     return 1;
 }
 

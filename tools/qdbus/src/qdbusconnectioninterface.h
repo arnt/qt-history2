@@ -82,8 +82,7 @@ Q_SIGNALS:
 #endif
 };
 
-template<> inline int qt_variant_metatype_id(QDBusConnectionInterface::RegisterServiceReply *)
-{ return QVariant::UInt; }
+Q_DECLARE_BUILTIN_METATYPE(QDBusConnectionInterface::RegisterServiceReply, UInt)
 
 QT_END_HEADER
 

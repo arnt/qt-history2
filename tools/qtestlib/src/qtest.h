@@ -26,8 +26,6 @@
 
 QT_BEGIN_HEADER
 
-Q_DECLARE_METATYPE(QStringList)
-
 namespace QTest
 {
 

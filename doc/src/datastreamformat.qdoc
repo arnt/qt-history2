@@ -242,7 +242,7 @@
          \o \list
             \o The type of the data (quint32)
             \o The null flag (qint8)
-            \o The data of the specified type, if the variant is non-null
+            \o The data of the specified type
             \endlist
     \row \o QVector<T>
          \o \list

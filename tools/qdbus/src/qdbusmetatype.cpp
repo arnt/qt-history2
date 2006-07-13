@@ -47,11 +47,11 @@ public:
 };
 
 template<typename T>
-inline static void registerHelper(T * ptr = 0)
+inline static void registerHelper(T * = 0)
 {
     void (*mf)(QDBusArgument &, const T *) = qDBusMarshallHelper<T>;
     void (*df)(const QDBusArgument &, T *) = qDBusDemarshallHelper<T>;
-    QDBusMetaType::registerMarshallOperators(qt_variant_metatype_id(ptr),
+    QDBusMetaType::registerMarshallOperators(qMetaTypeId<T>(),
         reinterpret_cast<QDBusMetaType::MarshallFunction>(mf),
         reinterpret_cast<QDBusMetaType::DemarshallFunction>(df));
 }

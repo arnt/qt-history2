@@ -41,12 +41,10 @@ struct Foo { int i; };
 
 void tst_QMetaType::defined()
 {
-#if QT_VERSION >= 0x040100
-    QCOMPARE(int(QMetaTypeId<QString>::Defined), 1);
-    QCOMPARE(int(QMetaTypeId<Foo>::Defined), 0);
-    QCOMPARE(int(QMetaTypeId<void*>::Defined), 1);
-    QCOMPARE(int(QMetaTypeId<int*>::Defined), 0);
-#endif
+    QCOMPARE(int(QMetaTypeId2<QString>::Defined), 1);
+    QCOMPARE(int(QMetaTypeId2<Foo>::Defined), 0);
+    QCOMPARE(int(QMetaTypeId2<void*>::Defined), 1);
+    QCOMPARE(int(QMetaTypeId2<int*>::Defined), 0);
 }
 
 struct Bar

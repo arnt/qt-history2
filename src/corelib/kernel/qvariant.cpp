@@ -38,6 +38,26 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
+static const void *constData(const QVariant::Private &d)
+{
+    switch (d.type) {
+    case QVariant::Int:
+        return &d.data.i;
+    case QVariant::UInt:
+        return &d.data.u;
+    case QVariant::Bool:
+        return &d.data.b;
+    case QVariant::LongLong:
+        return &d.data.ll;
+    case QVariant::ULongLong:
+        return &d.data.ull;
+    case QVariant::Double:
+        return &d.data.d;
+    default:
+        return d.is_shared ? d.data.shared->ptr : reinterpret_cast<const void *>(&d.data.ptr);
+    }
+}
+
 static void construct(QVariant::Private *x, const void *copy)
 {
     x->is_shared = false;
@@ -281,217 +301,6 @@ static bool isNull(const QVariant::Private *d)
     }
     return d->is_null;
 }
-
-#ifndef QT_NO_DATASTREAM
-static void load(QVariant::Private *d, QDataStream &s)
-{
-    switch (d->type) {
-    case QVariant::Invalid: {
-        // Since we wrote something, we should read something
-        QString x;
-        s >> x;
-        d->is_null = true;
-        break;
-    }
-    case QVariant::Map:
-        s >> *v_cast<QVariantMap>(d);
-        break;
-    case QVariant::List:
-        s >> *v_cast<QVariantList>(d);
-        break;
-    case QVariant::String:
-        s >> *v_cast<QString>(d);
-        break;
-    case QVariant::Char:
-        s >> *v_cast<QChar>(d);
-        break;
-    case QVariant::StringList:
-        s >> *v_cast<QStringList>(d);
-        break;
-#ifndef QT_NO_GEOM_VARIANT
-    case QVariant::Size:
-        s >> *v_cast<QSize>(d);
-        break;
-    case QVariant::SizeF:
-        s >> *v_cast<QSizeF>(d);
-        break;
-    case QVariant::Rect:
-        s >> *v_cast<QRect>(d);
-        break;
-    case QVariant::Line:
-        s >> *v_cast<QLine>(d);
-        break;
-    case QVariant::LineF:
-        s >> *v_cast<QLineF>(d);
-        break;
-    case QVariant::RectF:
-        s >> *v_cast<QRectF>(d);
-        break;
-    case QVariant::Point:
-        s >> *v_cast<QPoint>(d);
-        break;
-    case QVariant::PointF:
-        s >> *v_cast<QPointF>(d);
-        break;
-#endif
-    case QVariant::Url:
-        s >> *v_cast<QUrl>(d);
-        break;
-    case QVariant::Locale:
-        s >> *v_cast<QLocale>(d);
-        break;
-    case QVariant::RegExp:
-        s >> *v_cast<QRegExp>(d);
-        break;
-    case QVariant::Int:
-        s >> d->data.i;
-        break;
-    case QVariant::UInt:
-        s >> d->data.u;
-        break;
-    case QVariant::LongLong:
-        s >> d->data.ll;
-        break;
-    case QVariant::ULongLong:
-        s >> d->data.ull;
-        break;
-    case QVariant::Bool: {
-        qint8 x;
-        s >> x;
-        d->data.b = x;
-    }
-        break;
-    case QVariant::Double:
-        s >> d->data.d;
-        break;
-    case QVariant::Date:
-        s >> *v_cast<QDate>(d);
-        break;
-    case QVariant::Time:
-        s >> *v_cast<QTime>(d);
-        break;
-    case QVariant::DateTime:
-        s >> *v_cast<QDateTime>(d);
-        break;
-    case QVariant::ByteArray:
-        s >> *v_cast<QByteArray>(d);
-        break;
-    case QVariant::BitArray:
-        s >> *v_cast<QBitArray>(d);
-        break;
-    default:
-        if (QMetaType::isRegistered(d->type)) {
-            if (!QMetaType::load(s, d->type, d->data.shared->ptr))
-                qFatal("QVariant::load: no streaming operators registered for type %d.", d->type);
-            break;
-        } else {
-            if (d->type < 62)
-                qFatal("QVariant::load: type %d unknown to QVariant.", d->type);
-            qWarning("QVariant::load: type %d unknown to QVariant.", d->type);
-        }
-    }
-}
-
-static void save(const QVariant::Private *d, QDataStream &s)
-{
-    switch (d->type) {
-    case QVariant::List:
-        s << *v_cast<QVariantList>(d);
-        break;
-    case QVariant::Map:
-        s << *v_cast<QVariantMap>(d);
-        break;
-    case QVariant::String:
-        s << *v_cast<QString>(d);
-        break;
-    case QVariant::Char:
-        s << *v_cast<QChar>(d);
-        break;
-    case QVariant::StringList:
-        s << *v_cast<QStringList>(d);
-        break;
-#ifndef QT_NO_GEOM_VARIANT
-    case QVariant::Size:
-        s << *v_cast<QSize>(d);
-        break;
-    case QVariant::SizeF:
-        s << *v_cast<QSizeF>(d);
-        break;
-    case QVariant::Point:
-        s << *v_cast<QPoint>(d);
-        break;
-    case QVariant::PointF:
-        s << *v_cast<QPointF>(d);
-        break;
-    case QVariant::Rect:
-        s << *v_cast<QRect>(d);
-        break;
-    case QVariant::Line:
-        s << *v_cast<QLine>(d);
-        break;
-    case QVariant::LineF:
-        s << *v_cast<QLineF>(d);
-        break;
-    case QVariant::RectF:
-        s << *v_cast<QRectF>(d);
-        break;
-#endif
-    case QVariant::Url:
-        s << *v_cast<QUrl>(d);
-        break;
-    case QVariant::Locale:
-        s << *v_cast<QLocale>(d);
-        break;
-    case QVariant::RegExp:
-        s << *v_cast<QRegExp>(d);
-        break;
-    case QVariant::Int:
-        s << d->data.i;
-        break;
-    case QVariant::UInt:
-        s << d->data.u;
-        break;
-    case QVariant::LongLong:
-        s << d->data.ll;
-        break;
-    case QVariant::ULongLong:
-        s << d->data.ull;
-        break;
-    case QVariant::Bool:
-        s << qint8(d->data.b);
-        break;
-    case QVariant::Double:
-        s << d->data.d;
-        break;
-    case QVariant::Date:
-        s << *v_cast<QDate>(d);
-        break;
-    case QVariant::Time:
-        s << *v_cast<QTime>(d);
-        break;
-    case QVariant::DateTime:
-        s << *v_cast<QDateTime>(d);
-        break;
-    case QVariant::ByteArray:
-        s << *v_cast<QByteArray>(d);
-        break;
-    case QVariant::BitArray:
-        s << *v_cast<QBitArray>(d);
-        break;
-    case QVariant::Invalid:
-        s << QString();
-        break;
-    default:
-        if (QMetaType::isRegistered(d->type)) {
-            if (!QMetaType::save(s, d->type, d->data.shared->ptr))
-                qFatal("QVariant::save: no streaming operators registered for type %d.", d->type);
-            break;
-        } else {
-            qFatal("QVariant::save: type %d unknown to QVariant.", d->type);
-        }
-    }
-}
-#endif // QT_NO_DATASTREAM
 
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
@@ -1203,10 +1012,6 @@ const QVariant::Handler qt_kernel_variant_handler = {
     construct,
     clear,
     isNull,
-#ifndef QT_NO_DATASTREAM
-    load,
-    save,
-#endif
     compare,
     convert,
     canConvert,
@@ -2010,7 +1815,7 @@ void QVariant::load(QDataStream &s)
             return;
         u = map_from_three[u];
     }
-    bool is_null = false;
+    qint8 is_null = false;
     if (s.version() >= QDataStream::Qt_4_2)
         s >> is_null;
     if (u >= QVariant::UserType) {
@@ -2022,7 +1827,20 @@ void QVariant::load(QDataStream &s)
     }
     create(static_cast<int>(u), 0);
     d.is_null = is_null;
-    handler->load(&d, s);
+
+    if (d.type == QVariant::Invalid) {
+        // Since we wrote something, we should read something
+        QString x;
+        s >> x;
+        d.is_null = true;
+        return;
+    }
+
+    // const cast is save since we operate on a newly constructed variant
+    if (!QMetaType::load(s, d.type, const_cast<void *>(::constData(d)))) {
+        Q_ASSERT_X(false, "QVariant::load", "Invalid type to load");
+        qWarning("QVariant::load: unable to load type %d.", d.type);
+    }
 }
 
 /*!
@@ -2049,11 +1867,20 @@ void QVariant::save(QDataStream &s) const
     }
     s << tp;
     if (s.version() >= QDataStream::Qt_4_2)
-        s << bool(d.is_null);
+        s << qint8(d.is_null);
     if (tp == QVariant::UserType) {
         s << QMetaType::typeName(userType());
     }
-    handler->save(&d, s);
+
+    if (d.type == QVariant::Invalid) {
+        s << QString();
+        return;
+    }
+
+    if (!QMetaType::save(s, d.type, ::constData(d))) {
+        Q_ASSERT_X(false, "QVariant::save", "Invalid type to save");
+        qWarning("QVariant::save: unable to save type %d.", d.type);
+    }
 }
 
 /*!
@@ -2654,22 +2481,7 @@ bool QVariant::cmp(const QVariant &v) const
 
 const void *QVariant::constData() const
 {
-    switch(d.type) {
-    case Int:
-        return &d.data.i;
-    case UInt:
-        return &d.data.u;
-    case Bool:
-        return &d.data.b;
-    case LongLong:
-        return &d.data.ll;
-    case ULongLong:
-        return &d.data.ull;
-    case Double:
-        return &d.data.d;
-    default:
-        return d.is_shared ? d.data.shared->ptr : reinterpret_cast<const void *>(&d.data.ptr);
-    }
+    return ::constData(d);
 }
 
 /*!
@@ -2682,7 +2494,7 @@ const void *QVariant::constData() const
 void* QVariant::data()
 {
     detach();
-    return const_cast<void *>(constData());
+    return const_cast<void *>(::constData(d));
 }
 
 

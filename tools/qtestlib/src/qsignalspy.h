@@ -93,45 +93,8 @@ private:
     {
         QList<QVariant> list;
         for (int i = 0; i < args.count(); ++i) {
-            bool handled = false;
-            switch (static_cast<QMetaType::Type>(args.at(i))) {
-            case QMetaType::Void:
-                list << QVariant();
-                handled = true;
-                break;
-            case QMetaType::VoidStar:
-                list << QVariant(QVariant::UserType, *reinterpret_cast<void **>(a[i+1]));
-                handled = true;
-                break;
-            case QMetaType::Int:
-            case QMetaType::UInt:
-            case QMetaType::Bool:
-            case QMetaType::Double:
-            case QMetaType::QByteArray:
-            case QMetaType::QString:
-            case QMetaType::QObjectStar:
-            case QMetaType::QWidgetStar:
-            case QMetaType::Long:
-            case QMetaType::Short:
-            case QMetaType::Char:
-            case QMetaType::ULong:
-            case QMetaType::UShort:
-            case QMetaType::UChar:
-            case QMetaType::Float:
-            case QMetaType::QChar:
-                list << QVariant(args.at(i), a[i+1]);
-                handled = true;
-                break;
-            case QMetaType::User:
-                break;
-            // no default statement so that we get warnings for unhandled types
-            }
-            if (!handled) {
-                Q_ASSERT(args.at(i) >= QMetaType::User);
-                int tp = QVariant::nameToType(QMetaType::typeName(args.at(i)));
-                Q_ASSERT(tp != QVariant::Invalid);
-                list << QVariant((tp == QVariant::UserType ? args.at(i) : tp), a[i+1]);
-            }
+            QMetaType::Type type = static_cast<QMetaType::Type>(args.at(i));
+            list << QVariant(type, a[i + 1]);
         }
         append(list);
     }

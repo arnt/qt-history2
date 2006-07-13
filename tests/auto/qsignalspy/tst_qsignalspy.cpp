@@ -22,6 +22,7 @@ private slots:
     void spyWithPointers();
     void spyWithQtClasses();
     void spyWithBasicQtClasses();
+    void spyWithQtTypedefs();
 };
 
 class QtTestObject: public QObject
@@ -151,6 +152,36 @@ void tst_QSignalSpy::spyWithQtClasses()
     QSignalSpy spy3(&obj, SIGNAL(sig4(QChar)));
     emit obj.sig4(QChar('A'));
     QCOMPARE(qvariant_cast<QChar>(spy3.value(0).value(0)), QChar('A'));
+}
+
+class QtTestObject3: public QObject
+{
+    Q_OBJECT
+    friend class tst_QSignalSpy;
+
+signals:
+    void sig1(quint16);
+    void sig2(qlonglong, qulonglong);
+    void sig3(qint64, quint64);
+};
+
+void tst_QSignalSpy::spyWithQtTypedefs()
+{
+    QtTestObject3 obj;
+
+//    QSignalSpy spy1(&obj, SIGNAL(sig1(quint16)));
+//    emit obj.sig1(42);
+//    QCOMPARE(spy1.value(0).value(0).toInt(), 42);
+
+    QSignalSpy spy2(&obj, SIGNAL(sig2(qlonglong,qulonglong)));
+    emit obj.sig2(42, 43);
+    QCOMPARE(spy2.value(0).value(0).toInt(), 42);
+    QCOMPARE(spy2.value(0).value(1).toInt(), 43);
+
+//    QSignalSpy spy3(&obj, SIGNAL(sig3(qint64,quint64)));
+//    emit obj.sig3(44, 45);
+//    QCOMPARE(spy3.value(0).value(0).toInt(), 44);
+//    QCOMPARE(spy3.value(0).value(1).toInt(), 45);
 }
 
 QTEST_APPLESS_MAIN(tst_QSignalSpy)

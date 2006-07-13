@@ -1292,6 +1292,10 @@ void tst_QVariant::matrix()
     QVERIFY(matrix.isIdentity());
     qVariantSetValue(variant, QMatrix().rotate(90));
     QCOMPARE(QMatrix().rotate(90), qVariantValue<QMatrix>(variant));
+
+    void *mmatrix = QMetaType::construct(QVariant::Matrix, 0);
+    QVERIFY(mmatrix);
+    QMetaType::destroy(QVariant::Matrix, mmatrix);
 }
 
 void tst_QVariant::writeToReadFromDataStream_data()
@@ -2066,7 +2070,7 @@ void tst_QVariant::globalColor()
     QVERIFY(variant.type() == QVariant::Color);
     QVERIFY(qVariantValue<QColor>(variant) == QColor(Qt::blue));
 #else
-    QSKIP("Implemented/fixed in main", SkipSingle);
+    QSKIP("Implemented/fixed in 4.2", SkipSingle);
 #endif
 }
 
