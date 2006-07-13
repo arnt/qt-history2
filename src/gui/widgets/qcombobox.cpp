@@ -967,8 +967,9 @@ int QComboBox::maxVisibleItems() const
 void QComboBox::setMaxVisibleItems(int maxItems)
 {
     Q_D(QComboBox);
-    if (maxItems <= 0) {
-        qWarning("QComboBox::setMaxVisibleItems: Invalid count (%d) must be > 0", maxItems);
+    if (maxItems < 0) {
+        qWarning("QComboBox::setMaxVisibleItems: "
+                 "Invalid max visible items (%d) must be >= 0", maxItems);
         return;
     }
     d->maxVisibleItems = maxItems;
