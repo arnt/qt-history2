@@ -45,8 +45,6 @@ private slots:
     void headerSections();
     void headerSections_unhideRow();
 
-    void moveCursor2();
-
     void moveCursor_data();
     void moveCursor();
 
@@ -208,6 +206,11 @@ public:
     void fetchMore(const QModelIndex &)
     {
         ++fetch_more_count;
+    }
+
+    void reset()
+    {
+        QAbstractTableModel::reset();
     }
 
     int row_count;
@@ -423,12 +426,20 @@ void tst_QTableView::keyboardNavigation()
 
 void tst_QTableView::headerSections_data()
 {
-
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("hideRow");
+    QTest::addColumn<int>("hideColumn");
 }
 
 void tst_QTableView::headerSections()
 {
-    QtTestTableModel model(10, 10);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, hideRow);
+    QFETCH(int, hideColumn);
+    
+    QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
     QHeaderView *hheader = view.horizontalHeader();
@@ -457,24 +468,6 @@ void tst_QTableView::headerSections_unhideRow()
     view.setRowHidden(0, false);
     QVERIFY(view.verticalHeader()->sectionSize(0) > 0);
 
-}
-
-void tst_QTableView::moveCursor2()
-{
-    QtTestTableModel model(10, 10);
-    QTableView view;
-    
-    view.setModel(&model);
-
-    QTest::keyClick(&view, Qt::Key_Down);
-
-    view.setModel(0);
-    view.setModel(&model);
-    view.setRowHidden(0, true);
-    view.setColumnHidden(0, true);
-
-    QTest::keyClick(&view, Qt::Key_Down);
-    QCOMPARE(view.selectionModel()->currentIndex(), model.index(1, 1));
 }
 
 void tst_QTableView::moveCursor_data()
@@ -578,7 +571,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << -1 << -1;
 
     QTest::newRow("MoveLeft (0, 3)")
         << 4 << 4 << -1 << -1
@@ -590,7 +583,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 1 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << -1 << -1;
 
     QTest::newRow("MoveLeft, hidden column 0 (0, 2)")
         << 4 << 4 << -1 << 1
@@ -664,13 +657,13 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 3 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << -1 << -1;
 
     QTest::newRow("MoveDown (3, 3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << -1 << -1;
 
     QTest::newRow("MoveDown, hidden row 1 (0, 0)")
         << 4 << 4 << 1 << -1
@@ -683,6 +676,13 @@ void tst_QTableView::moveCursor_data()
         << 2 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << -1 << -1;
+
+    QTest::newRow("MoveDown, hidden row 0 hidden column 0 (0, 0)")
+        << 4 << 4 << 0 << 0
+        << 0 << 0
+        << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
+        << -1 << -1; // ###
+    
 
     // MoveUp
     QTest::newRow("MoveUp (0, 0)")
@@ -892,78 +892,92 @@ void tst_QTableView::hideColumns()
 
 void tst_QTableView::selectRow_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("row");
     QTest::addColumn<int>("mode");
     QTest::addColumn<int>("behavior");
     QTest::addColumn<bool>("selectionExpected");
 
     QTest::newRow("SingleSelection and SelectItems")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::SingleSelection
         << (int)QAbstractItemView::SelectItems
         << false;
 
     QTest::newRow("SingleSelection and SelectRows")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::SingleSelection
         << (int)QAbstractItemView::SelectRows
         << true;
 
     QTest::newRow("SingleSelection and SelectColumns")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::SingleSelection
         << (int)QAbstractItemView::SelectColumns
         << false;
 
     QTest::newRow("MultiSelection and SelectItems")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::MultiSelection
         << (int)QAbstractItemView::SelectItems
         << true;
 
     QTest::newRow("MultiSelection and SelectRows")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::MultiSelection
         << (int)QAbstractItemView::SelectRows
         << true;
 
     QTest::newRow("MultiSelection and SelectColumns")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::MultiSelection
         << (int)QAbstractItemView::SelectColumns
         << false;
 
     QTest::newRow("ExtendedSelection and SelectItems")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ExtendedSelection
         << (int)QAbstractItemView::SelectItems
         << true;
 
     QTest::newRow("ExtendedSelection and SelectRows")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ExtendedSelection
         << (int)QAbstractItemView::SelectRows
         << true;
 
     QTest::newRow("ExtendedSelection and SelectColumns")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ExtendedSelection
         << (int)QAbstractItemView::SelectColumns
         << false;
 
     QTest::newRow("ContiguousSelection and SelectItems")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ContiguousSelection
         << (int)QAbstractItemView::SelectItems
         << true;
 
     QTest::newRow("ContiguousSelection and SelectRows")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ContiguousSelection
         << (int)QAbstractItemView::SelectRows
         << true;
 
     QTest::newRow("ContiguousSelection and SelectColumns")
+        << 10 << 10
         << 0
         << (int)QAbstractItemView::ContiguousSelection
         << (int)QAbstractItemView::SelectColumns
@@ -972,12 +986,14 @@ void tst_QTableView::selectRow_data()
 
 void tst_QTableView::selectRow()
 {
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
     QFETCH(int, row);
     QFETCH(int, mode);
     QFETCH(int, behavior);
     QFETCH(bool, selectionExpected);
 
-    QtTestTableModel model(10, 10);
+    QtTestTableModel model(rowCount, columnCount);
     QTableView view;
 
     view.setModel(&model);
@@ -997,78 +1013,92 @@ void tst_QTableView::selectRow()
 
 void tst_QTableView::selectColumn_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("column");
     QTest::addColumn<int>("mode");
     QTest::addColumn<int>("behavior");
     QTest::addColumn<bool>("selectionExpected");
 
         QTest::newRow("SingleSelection and SelectItems")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::SingleSelection
             << (int)QAbstractItemView::SelectItems
             << false;
 
         QTest::newRow("SingleSelection and SelectRows")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::SingleSelection
             << (int)QAbstractItemView::SelectRows
             << false;
 
         QTest::newRow("SingleSelection and SelectColumns")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::SingleSelection
             << (int)QAbstractItemView::SelectColumns
             << true;
 
         QTest::newRow("MultiSelection and SelectItems")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::MultiSelection
             << (int)QAbstractItemView::SelectItems
             << true;
 
         QTest::newRow("MultiSelection and SelectRows")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::MultiSelection
             << (int)QAbstractItemView::SelectRows
             << false;
 
         QTest::newRow("MultiSelection and SelectColumns")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::MultiSelection
             << (int)QAbstractItemView::SelectColumns
             << true;
 
         QTest::newRow("ExtendedSelection and SelectItems")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ExtendedSelection
             << (int)QAbstractItemView::SelectItems
             << true;
 
         QTest::newRow("ExtendedSelection and SelectRows")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ExtendedSelection
             << (int)QAbstractItemView::SelectRows
             << false;
 
         QTest::newRow("ExtendedSelection and SelectColumns")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ExtendedSelection
             << (int)QAbstractItemView::SelectColumns
             << true;
 
         QTest::newRow("ContiguousSelection and SelectItems")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ContiguousSelection
             << (int)QAbstractItemView::SelectItems
             << true;
 
         QTest::newRow("ContiguousSelection and SelectRows")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ContiguousSelection
             << (int)QAbstractItemView::SelectRows
             << false;
 
         QTest::newRow("ContiguousSelection and SelectColumns")
+            << 10 << 10
             << 0
             << (int)QAbstractItemView::ContiguousSelection
             << (int)QAbstractItemView::SelectColumns
@@ -1077,12 +1107,14 @@ void tst_QTableView::selectColumn_data()
 
 void tst_QTableView::selectColumn()
 {
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
     QFETCH(int, column);
     QFETCH(int, mode);
     QFETCH(int, behavior);
     QFETCH(bool, selectionExpected);
 
-    QtTestTableModel model(10, 10);
+    QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
     view.setModel(&model);
@@ -1093,59 +1125,101 @@ void tst_QTableView::selectColumn()
 
     view.selectColumn(column);
 
-    //test we have 10 items selected
-    QCOMPARE(view.selectionModel()->selectedIndexes().count(), selectionExpected ? 10 : 0);
-    //test that all 10 items are in the same column
-    for (int i = 0; selectionExpected && i < 10; ++i)
+    QCOMPARE(view.selectionModel()->selectedIndexes().count(), selectionExpected ? columnCount : 0);
+    for (int i = 0; selectionExpected && i < columnCount; ++i)
         QCOMPARE(view.selectionModel()->selectedIndexes().at(i).column(), column);
 }
 
 Q_DECLARE_METATYPE(QRect)
 void tst_QTableView::visualRect_data()
 {
-    QTest::addColumn<int>("hiderow");
-    QTest::addColumn<int>("hidecolumn");
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("hideRow");
+    QTest::addColumn<int>("hideColumn");
     QTest::addColumn<int>("row");
-    QTest::addColumn<int>("col");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
     QTest::addColumn<QRect>("expectedRect");
 
-    // MoveRight
-    QTest::newRow("(0,0)") << -1 << -1 << 0 << 0 << QRect(0,0,29,19);
-    QTest::newRow("(0,0), hidden row") << 0 << -1 << 0 << 0 << QRect();
-    QTest::newRow("(0,0), hidden column") << -1 << 0 << 0 << 0 << QRect();
-    QTest::newRow("(0,0), hidden row and column") << 0 << 0 << 0 << 0 << QRect();
-    QTest::newRow("(0,0), out of bounds") << -1 << -1 << 20 << 20 << QRect();
-    QTest::newRow("(5,5), hidden row") << 5 << -1 << 5 << 5 << QRect();
-    QTest::newRow("(9,9)") << -1 << -1 << 9 << 9 << QRect(30*9,20*9,29,19);
+    QTest::newRow("(0, 0)")
+        << 10 << 10
+        << -1 << -1
+        << 0 << 0
+        << 20 << 30
+        << QRect(0, 0, 29, 19);
 
+    QTest::newRow("(0, 0), hidden row")
+        << 10 << 10
+        << 0 << -1
+        << 0 << 0
+        << 20 << 30
+        << QRect();
+
+    QTest::newRow("(0, 0), hidden column")
+        << 10 << 10
+        << -1 << 0
+        << 0 << 0
+        << 20 << 30
+        << QRect();
+
+    QTest::newRow("(0, 0), hidden row and column")
+        << 10 << 10
+        << 0 << 0
+        << 0 << 0
+        << 20 << 30
+        << QRect();
+
+    QTest::newRow("(0, 0), out of bounds")
+        << 10 << 10
+        << -1 << -1
+        << 20 << 20
+        << 20 << 30
+        << QRect();
+
+    QTest::newRow("(5, 5), hidden row")
+        << 10 << 10
+        << 5 << -1
+        << 5 << 5
+        << 20 << 30
+        << QRect();
+
+    QTest::newRow("(9, 9)")
+        << 10 << 10
+        << -1 << -1
+        << 9 << 9
+        << 20 << 30
+        << QRect(30*9, 20*9, 29, 19);
 }
 
 void tst_QTableView::visualRect()
 {
-    QFETCH(int, hiderow);
-    QFETCH(int, hidecolumn);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, hideRow);
+    QFETCH(int, hideColumn);
     QFETCH(int, row);
-    QFETCH(int, col);
+    QFETCH(int, column);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
     QFETCH(QRect, expectedRect);
 
-    QtTestTableModel model(10, 10);
+    QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
     view.setModel(&model);
     // Make sure that it has 1 pixel between each cell.
     view.setGridStyle(Qt::SolidLine);
-    int i;
-    for (i = 0; i < view.horizontalHeader()->count(); i++) {
-        view.horizontalHeader()->resizeSection(i,30);
-    }
-    for (i = 0; i < view.verticalHeader()->count(); i++) {
-        view.verticalHeader()->resizeSection(i,20);
-    }
+    for (int i = 0; i < view.verticalHeader()->count(); ++i)
+        view.verticalHeader()->resizeSection(i, rowHeight);
+    for (int i = 0; i < view.horizontalHeader()->count(); ++i)
+        view.horizontalHeader()->resizeSection(i, columnWidth);
 
-    if (hiderow >= 0) view.setRowHidden(hiderow, true);
-    if (hidecolumn >= 0) view.setColumnHidden(hidecolumn, true);
+    view.hideRow(hideRow);
+    view.hideColumn(hideColumn);
 
-    QRect rect = view.visualRect(model.index(row,col));
+    QRect rect = view.visualRect(model.index(row, column));
     QCOMPARE(rect, expectedRect);
 }
 
