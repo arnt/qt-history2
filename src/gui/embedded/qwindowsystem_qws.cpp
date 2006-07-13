@@ -1231,7 +1231,7 @@ void QWSServerPrivate::_q_clientClosed()
             w->c = 0; //so we don't send events to it anymore
             releaseMouse(w);
             releaseKeyboard(w);
-            exposed += w->requestedRegion(); //### too much, but how often do we do this...
+            exposed += w->allocatedRegion();
 //                rgnMan->remove(w->allocationIndex());
             if (focusw == w)
                 setFocus(focusw,0);
@@ -1857,7 +1857,7 @@ QWSWindow *QWSServer::windowAt(const QPoint& pos)
     Q_D(QWSServer);
     for (int i=0; i<d->windows.size(); ++i) {
         QWSWindow* w = d->windows.at(i);
-        if (w->requested_region.contains(pos))
+        if (w->allocated_region.contains(pos))
             return w;
     }
     return 0;
@@ -2325,8 +2325,8 @@ void QWSServerPrivate::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClie
     }
 
     int altitude = windows.indexOf(changingw);
-    changingw->_opacity = opacity;
-    exposeRegion(changingw->requested_region, altitude);
+    changingw->_opacity = opacity; // XXX: need to recalculate regions?
+    exposeRegion(changingw->allocated_region, altitude);
 }
 
 void QWSServerPrivate::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
@@ -2494,7 +2494,7 @@ void QWSServerPrivate::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient
             nextCursor = curs;
         else
             setCursor(curs);
-    } else if (win && win->requestedRegion().contains(QWSServer::mousePosition)) { //##################### cursor
+    } else if (win && win->allocatedRegion().contains(QWSServer::mousePosition)) { //##################### cursor
         // A non-grabbing window can only set the cursor shape if the
         // cursor is within its allocated region.
         setCursor(curs);
@@ -2681,8 +2681,10 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     }
 
     if (windowPos != newPos) {
+        const QRegion oldRegion = changingw->allocatedRegion();
         update_regions();
-        exposeRegion(changingw->requestedRegion(), newPos); //### exposes too much, including what was already visible
+        const QRegion newRegion = changingw->allocatedRegion();
+        exposeRegion(newRegion - oldRegion, newPos);
     }
     emit q->windowEvent(changingw, QWSServer::Raise);
 }
@@ -2697,8 +2699,10 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     windows.move(i,windows.size()-1);
 
     QRegion exposed = changingw->requestedRegion(); //### exposes too much, including what was already visible
+    const QRegion oldRegion = changingw->allocatedRegion();
     update_regions();
-    exposeRegion(exposed, i);
+    const QRegion newRegion = changingw->allocatedRegion();
+    exposeRegion(oldRegion - newRegion, i);
     emit q->windowEvent(changingw, QWSServer::Lower);
 }
 
@@ -2756,13 +2760,13 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     if (!changingw)
         return;
 
-    const QRegion oldRegion(changingw->requested_region);
+    const QRegion oldRegion(changingw->allocated_region);
     changingw->requested_region.translate(dx, dy);
-
     update_regions();
+    const QRegion newRegion(changingw->allocated_region);
 
     int idx = windows.indexOf(changingw);
-    exposeRegion(oldRegion + changingw->requested_region, idx);
+    exposeRegion(oldRegion + newRegion, idx);
 }
 
 /*!
@@ -2778,13 +2782,14 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
 
     if (changingw->requested_region == r)
         return;
-    QRegion oldRegion(changingw->requested_region);
-    changingw->requested_region = r;
 
+    const QRegion oldRegion(changingw->allocated_region);
+    changingw->requested_region = r;
     update_regions();
+    const QRegion newRegion(changingw->allocated_region);
 
     int idx = windows.indexOf(changingw);
-    exposeRegion(oldRegion - changingw->requested_region, idx);
+    exposeRegion(oldRegion - newRegion, idx);
 }
 
 
