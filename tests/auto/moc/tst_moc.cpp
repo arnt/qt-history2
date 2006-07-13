@@ -118,6 +118,12 @@ public slots:
     { }
 };
 
+struct StructQObject : public QObject
+{
+    Q_OBJECT
+public:
+};
+
 class TestClass : public MyNamespace::TestSuperClass, public DONT_CONFUSE_MOC(MyStruct),
                   public DONT_CONFUSE_MOC_EVEN_MORE(MyStruct2, dummy, ignored)
 {
@@ -247,7 +253,7 @@ public slots:
 #if QT_VERSION >= 0x040200
 private:
      myNS::Points m_points;
-#endif 
+#endif
 
 private slots:
      inline virtual void blub1() {}
@@ -308,10 +314,9 @@ private slots:
     void blackslashNewlines();
     void slotWithSillyConst();
     void testExtraData();
-#if QT_VERSION >= 0x040200
     void namespaceTypeProperty();
-#endif
     void slotsWithVoidTemplate();
+    void structQObject();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -395,7 +400,7 @@ void tst_Moc::warnOnExtraSignalSlotQualifiaction()
     QByteArray mocOut = proc.readAllStandardOutput();
     QVERIFY(!mocOut.isEmpty());
     QString mocWarning = QString::fromLocal8Bit(proc.readAllStandardError());
-    QCOMPARE(mocWarning, QString(SRCDIR) + 
+    QCOMPARE(mocWarning, QString(SRCDIR) +
                 QString("/extraqualification.h:13: Warning: Function declaration Test::badFunctionDeclaration contains extra qualification. Ignoring as signal or slot.\n") +
                 QString(SRCDIR) + QString("/extraqualification.h:16: Warning: parsemaybe: Function declaration Test::anotherOne contains extra qualification. Ignoring as signal or slot.\n"));
 #else
@@ -462,7 +467,7 @@ void tst_Moc::userProperties()
     QMetaProperty property = mobj->property(mobj->indexOfProperty("user1"));
     QVERIFY(property.isValid());
     QVERIFY(property.isUser());
-    
+
     property = mobj->property(mobj->indexOfProperty("user2"));
     QVERIFY(property.isValid());
     QVERIFY(!property.isUser());
@@ -516,7 +521,7 @@ void tst_Moc::classinfoWithEscapes()
     QMetaMethod mm = mobj->method(mobj->methodOffset());
     QCOMPARE(mm.signature(), "slotWithAReallyLongName(int)");
 }
-             
+
 void tst_Moc::trNoopInClassInfo()
 {
 #if QT_VERSION >= 0x040101
@@ -596,7 +601,6 @@ void tst_Moc::testExtraData()
     QCOMPARE(QByteArray(en.name()), QByteArray("TestEnum"));
 }
 
-#if QT_VERSION >= 0x040200
 void tst_Moc::namespaceTypeProperty()
 {
     qRegisterMetaType<myNS::Points>("myNS::Points");
@@ -614,7 +618,6 @@ void tst_Moc::namespaceTypeProperty()
     QCOMPARE(p.p1, pp.p1);
     QCOMPARE(p.p2, pp.p2);
 }
-#endif
 
 void tst_Moc::slotsWithVoidTemplate()
 {
@@ -623,6 +626,12 @@ void tst_Moc::slotsWithVoidTemplate()
                              &test, SLOT(dummySlot(void))));
     QVERIFY(QObject::connect(&test, SIGNAL(mySignal(const TestTemplate<void> &)),
                              &test, SLOT(anotherSlot(const TestTemplate<void> &))));
+}
+
+void tst_Moc::structQObject()
+{
+    StructQObject o;
+    QCOMPARE(QByteArray(o.metaObject()->className()), QByteArray("StructQObject"));
 }
 
 QTEST_MAIN(tst_Moc)

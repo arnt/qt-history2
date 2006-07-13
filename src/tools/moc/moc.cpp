@@ -287,7 +287,7 @@ bool Moc::parseFunction(FunctionDef *def, bool inMacro)
         def->name = tempType.name;
         scopedFunctionName = tempType.isScoped;
     }
-    
+
     // we don't support references as return types, it's too dangerous
     if (def->type.referenceType == Type::Reference)
         def->type = Type("void");
@@ -337,7 +337,7 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
     def->type = parseType();
     if (def->type.name.isEmpty())
         return false;
-    bool scopedFunctionName = false;    
+    bool scopedFunctionName = false;
     if (test(LPAREN)) {
         def->name = def->type.name;
         scopedFunctionName = def->type.isScoped;
@@ -448,7 +448,7 @@ void Moc::parse()
                 break;
             default: break;
         }
-        if (t != CLASS || currentFilenames.size() > 1)
+        if ((t != CLASS && t != STRUCT)|| currentFilenames.size() > 1)
             continue;
         ClassDef def;
         FunctionDef::Access access = FunctionDef::Private;
