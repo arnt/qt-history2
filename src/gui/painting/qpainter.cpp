@@ -1044,9 +1044,8 @@ QPaintDevice *QPainter::device() const
 bool QPainter::isActive() const
 {
     Q_D(const QPainter);
-    if (d->engine) {
-        return d->engine->isActive();
-    }
+    if (d->engine)
+        return true;
     return false;
 }
 
