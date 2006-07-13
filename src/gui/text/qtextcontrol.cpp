@@ -1696,6 +1696,7 @@ void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
 
 void QTextControlPrivate::focusEvent(QFocusEvent *e)
 {
+    emit q_func()->updateRequest(selectionRect());
     if (e->gotFocus()) {
         cursorOn = (interactionFlags & Qt::TextSelectableByKeyboard);
         if (interactionFlags & Qt::TextEditable) {
@@ -1718,7 +1719,6 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
             && e->reason() != Qt::ActiveWindowFocusReason
             && e->reason() != Qt::PopupFocusReason
             && cursor.hasSelection()) {
-            emit q_func()->updateRequest(selectionRect());
             cursor.clearSelection();
         }
     }
@@ -2392,8 +2392,9 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
             QPen outline(ctx.palette.color(QPalette::Text), 1, Qt::DotLine);
             selection.format.setProperty(QTextFormat::OutlinePen, outline);
         } else {
-            selection.format.setBackground(ctx.palette.brush(QPalette::Highlight));
-            selection.format.setForeground(ctx.palette.brush(QPalette::HighlightedText));
+            QPalette::ColorGroup cg = d->hasFocus ? QPalette::Active : QPalette::Inactive;
+            selection.format.setBackground(ctx.palette.brush(cg, QPalette::Highlight));
+            selection.format.setForeground(ctx.palette.brush(cg, QPalette::HighlightedText));
         }
         ctx.selections.append(selection);
     }

@@ -1621,9 +1621,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QAbstractItemView);
     QAbstractScrollArea::focusInEvent(event);
-    QModelIndex index = currentIndex();
-    if (index.isValid())
-        d->viewport->update(visualRect(index));
+    d->viewport->update();
 }
 
 /*!
@@ -1636,9 +1634,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *event)
 {
     Q_D(QAbstractItemView);
     QAbstractScrollArea::focusOutEvent(event);
-    QModelIndex index = currentIndex();
-    if (index.isValid())
-        d->viewport->update(visualRect(index));
+    d->viewport->update();
 }
 
 /*!
@@ -2604,6 +2600,9 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     QStyleOptionViewItem option;
     option.init(this);
     option.font = font();
+    if (!hasFocus())
+        option.state &= ~QStyle::State_Active;
+
     option.state &= ~QStyle::State_HasFocus;
     if (d->iconSize.isValid()) {
         option.decorationSize = d->iconSize;

@@ -510,7 +510,11 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                     pal.setBrush(QPalette::Active, QPalette::Highlight,
                             QColor(c.red / 256, c.green / 256, c.blue / 256));
                 GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
-                pal.setBrush(QPalette::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+                pal.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+                pal.setBrush(QPalette::Inactive, QPalette::Text,
+                              pal.brush(QPalette::Active, QPalette::WindowText));
+                pal.setBrush(QPalette::Inactive, QPalette::HighlightedText,
+                              pal.brush(QPalette::Active, QPalette::WindowText));
             }
 
             bool set_palette = true;
