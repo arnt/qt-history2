@@ -44,6 +44,8 @@ Q_DECLARE_METATYPE(QLine)
 Q_DECLARE_METATYPE(QLineF)
 Q_DECLARE_METATYPE(QPoint)
 Q_DECLARE_METATYPE(QRect)
+Q_DECLARE_METATYPE(QPixmap)
+Q_DECLARE_METATYPE(QBrush)
 
 
 
@@ -143,6 +145,12 @@ private slots:
 
     void toColor_data();
     void toColor();
+
+    void toPixmap_data();
+    void toPixmap();
+
+    void toBrush_data();
+    void toBrush();
 
     void toLocale();
 
@@ -332,7 +340,7 @@ void tst_QVariant::canConvert_data()
 	<< var << N << N << Y << N << N << N << N << N << N << N << N << Y << N << N << N << Y << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << Y << N << N << Y << Y;
     var = qVariantFromValue(QBrush());
     QTest::newRow("Brush")
-	<< var << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N;
+	<< var << N << N << N << Y << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N;
     var = QVariant(QByteArray());
     QTest::newRow("ByteArray")
 	<< var << N << N << N << N << Y << Y << Y << N << N << N << N << Y << N << N << N << Y << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << Y << N << N << Y << Y;
@@ -834,6 +842,7 @@ void tst_QVariant::toColor_data()
 
     QColor c("red");
     QTest::newRow( "string" ) << QVariant( QString( "red" ) ) << c;
+    QTest::newRow( "solid brush" ) << QVariant( QBrush(c) ) << c;
 }
 
 void tst_QVariant::toColor()
@@ -843,6 +852,52 @@ void tst_QVariant::toColor()
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::Color ) );
     QColor d = value.value<QColor>();
+    QCOMPARE( d, result );
+}
+
+void tst_QVariant::toPixmap_data()
+{
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<QPixmap>("result");
+
+    QPixmap pm(30, 30);
+    pm.fill(Qt::red);
+    QTest::newRow( "image" ) << QVariant( pm.toImage() ) << pm;
+
+    QBitmap bm(30, 30);
+    bm.fill(Qt::color1);
+    QTest::newRow( "bitmap" ) << QVariant( bm ) << QPixmap(bm);
+}
+
+void tst_QVariant::toPixmap()
+{
+    QFETCH( QVariant, value );
+    QFETCH( QPixmap, result );
+    QVERIFY( value.isValid() );
+    QVERIFY( value.canConvert( QVariant::Pixmap ) );
+    QPixmap d = value.value<QPixmap>();
+    QCOMPARE( d, result );
+}
+
+void tst_QVariant::toBrush_data()
+{
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<QBrush>("result");
+
+    QColor c(Qt::red);
+    QTest::newRow( "color" ) << QVariant( c ) << QBrush(c);
+    QPixmap pm(30, 30);
+    pm.fill(c);
+    QTest::newRow( "pixmap" ) << QVariant( pm ) << QBrush(pm);
+}
+
+void tst_QVariant::toBrush()
+{
+    QFETCH( QVariant, value );
+    QFETCH( QBrush, result );
+    QVERIFY( value.isValid() );
+    QVERIFY( value.canConvert( QVariant::Brush ) );
+    QBrush d = value.value<QBrush>();
     QCOMPARE( d, result );
 }
 

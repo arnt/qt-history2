@@ -493,6 +493,11 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
         } else if (d->type == QVariant::Bitmap) {
             *static_cast<QPixmap *>(result) = *v_cast<QBitmap>(d);
             return true;
+        } else if (d->type == QVariant::Brush) {
+            if (v_cast<QBrush>(d)->style() == Qt::TexturePattern) {
+                *static_cast<QPixmap *>(result) = v_cast<QBrush>(d)->texture();
+                return true;
+            }
         }
         break;
     case QVariant::Image:
@@ -536,6 +541,11 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
             static_cast<QColor *>(result)->setNamedColor(QString::fromLatin1(
                                 *v_cast<QByteArray>(d)));
             return true;
+        } else if (d->type == QVariant::Brush) {
+            if (v_cast<QBrush>(d)->style() == Qt::SolidPattern) {
+                *static_cast<QColor *>(result) = v_cast<QBrush>(d)->color();
+                return true;
+            }
         }
         break;
     case QVariant::Brush:
@@ -581,7 +591,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     case QVariant::Image:
         return d->type == QVariant::Pixmap || d->type == QVariant::Bitmap;
     case QVariant::Pixmap:
-        return d->type == QVariant::Image || d->type == QVariant::Bitmap;
+        return d->type == QVariant::Image || d->type == QVariant::Bitmap || d->type == QVariant::Brush;
     case QVariant::Bitmap:
         return d->type == QVariant::Pixmap || d->type == QVariant::Image;
     case QVariant::ByteArray:
@@ -597,7 +607,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     case QVariant::Font:
         return d->type == QVariant::String;
     case QVariant::Color:
-        return d->type == QVariant::String || d->type == QVariant::ByteArray;
+        return d->type == QVariant::String || d->type == QVariant::ByteArray || d->type == QVariant::Brush;
     case QVariant::Brush:
         return d->type == QVariant::Color || d->type == QVariant::Pixmap;
     default:
