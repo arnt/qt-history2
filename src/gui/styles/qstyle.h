@@ -654,6 +654,8 @@ public:
         SP_StandardButtonDiscard,
         SP_StandardButtonYes,
         SP_StandardButtonNo,
+        SP_CalendarWidgetPrev,
+        SP_CalendarWidgetNext,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000

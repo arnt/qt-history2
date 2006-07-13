@@ -3742,10 +3742,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *,
-                                     const QWidget *) const
+QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
+                                     const QWidget *w) const
 {
-    switch (standardPixmap) {
+    switch (sp) {
 #ifndef QT_NO_IMAGEFORMAT_XPM
     case SP_ToolBarHorizontalExtensionButton:
         if (QApplication::layoutDirection() == Qt::RightToLeft) {
@@ -3817,6 +3817,10 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_StandardButtonNo:
         // Nothing for the moment, until we get new icons
         break;
+    case SP_CalendarWidgetPrev:
+        return standardPixmap(SP_FileDialogBack, opt, w);
+    case SP_CalendarWidgetNext:
+        return standardPixmap(SP_FileDialogBack, opt, w).transformed(QMatrix().scale(-1, 1));
     default:
         break;
     }

@@ -23,6 +23,10 @@
 #include <qtextformat.h>
 #include <qheaderview.h>
 #include <private/qwidget_p.h>
+#include <qpushbutton.h>
+#include <qlabel.h>
+#include <qspinbox.h>
+#include <qmenu.h>
 
 enum {
     RowCount = 6,
@@ -478,6 +482,7 @@ QCalendarView::QCalendarView(QWidget *parent)
     readOnly(false),
     validDateClicked(false)
 {
+    setMouseTracking(true);
     setShowGrid(false);
     verticalHeader()->setVisible(false);
     horizontalHeader()->setVisible(false);
@@ -602,11 +607,18 @@ void QCalendarView::mousePressEvent(QMouseEvent *event)
         emit changeDate(date, false);
     } else {
         validDateClicked = false;
+        event->ignore();
     }
 }
 
 void QCalendarView::mouseMoveEvent(QMouseEvent *event)
 {
+    if (event->buttons() == 0) {
+        // allow mouse tracking move events as long as a
+        // button is pressed. 
+        return;
+    }
+
     QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mouseMoveEvent(event);
@@ -616,12 +628,16 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
     if (readOnly)
         return;
 
-    if (validDateClicked) {
-        QDate date = handleMouseEvent(event);
+    if (validDateClicked || (event->buttons() & Qt::LeftButton)) {
+       QDate date = handleMouseEvent(event);
         if (date.isValid()) {
+            validDateClicked = true;
             emit changeDate(date, false);
         }
     }
+    else
+        event->ignore();
+    
 }
 
 void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
@@ -632,12 +648,18 @@ void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    if (readOnly)
+    if (event->buttons())
+        return;
+
+    if (readOnly) 
         return;
 
     if (validDateClicked) {
         emit changeDate(calendarModel->date, true);
+        emit editingFinished();
     }
+    else
+        event->ignore();
 }
 
 
@@ -656,8 +678,22 @@ public:
     void _q_slotChangeDate(const QDate &date, bool changeMonth);
     void _q_editingFinished();
 
+    void _q_prevMonthClicked();
+    void _q_nextMonthClicked();
+    void _q_yearChanged(int);
+    void _q_yearEditingFinished();
+
+    void createHeader(QWidget *widget);
+    void handleMousePressEvent(QMouseEvent *event);
+
     QCalendarModel *m_model;
     QCalendarView *m_view;
+    QPushButton *nextMonth;
+    QPushButton *prevMonth;
+    QLabel *yearLabel;
+    QLabel *monthLabel;
+    QSpinBox *yearEdit;
+    QWidget *headerBackground;
     QItemSelectionModel *m_selection;
 };
 
@@ -669,16 +705,129 @@ QCalendarWidgetPrivate::QCalendarWidgetPrivate()
     m_selection = 0;
 }
 
+void QCalendarWidgetPrivate::createHeader(QWidget *widget)
+{
+    Q_Q(QCalendarWidget);
+    headerBackground = new QWidget(widget);
+    headerBackground->setAutoFillBackground(true);
+    headerBackground->setBackgroundRole(QPalette::Highlight);
+
+    prevMonth = new QPushButton(q->style()->standardPixmap(QStyle::SP_CalendarWidgetPrev),
+                                QString(), headerBackground);
+    nextMonth = new QPushButton(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext), 
+                                QString(), headerBackground);
+    QFont font = q->font();
+    font.setBold(true);
+
+    monthLabel = new QLabel(headerBackground);
+    yearLabel = new QLabel(headerBackground);
+    yearEdit = new QSpinBox(headerBackground);
+
+    monthLabel->setFont(font);
+    yearLabel->setFont(font);
+    yearEdit->setFrame(false);
+    yearEdit->setMinimum(m_model->minimumDate.year());
+    yearEdit->setMaximum(m_model->maximumDate.year());
+    prevMonth->setAutoRepeat(true);
+    nextMonth->setAutoRepeat(true);
+    monthLabel->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+
+    QHBoxLayout *headerLayout = new QHBoxLayout(headerBackground);
+    headerLayout->setMargin(2);
+    headerLayout->addWidget(prevMonth);
+    headerLayout->insertStretch(headerLayout->count());
+    headerLayout->addWidget(monthLabel);
+    headerLayout->addWidget(yearEdit); 
+    headerLayout->addWidget(yearLabel);
+    headerLayout->insertStretch(headerLayout->count());
+    headerLayout->addWidget(nextMonth);
+
+    QSize yearSize = yearEdit->sizeHint();
+    yearLabel->setMinimumSize(yearSize);
+    yearEdit->hide();
+
+    yearEdit->setFocusPolicy(Qt::StrongFocus);
+    prevMonth->setFocusPolicy(Qt::StrongFocus);
+    nextMonth->setFocusPolicy(Qt::StrongFocus);
+
+    QStringList months; 
+    int width = 0;
+    QFontMetrics fm=monthLabel->fontMetrics();
+    for(int i=1; i<=12; i++) {
+        width = qMax(width, fm.boundingRect(QDate::longMonthName(i)).width());
+    }
+    monthLabel->setMinimumWidth(width);
+    showMonth(m_model->date.year(),m_model->date.month());
+ }
+
+void QCalendarWidgetPrivate::_q_prevMonthClicked()
+{
+    QDate currentDate = m_model->date.addMonths(-1);
+    _q_slotChangeDate(currentDate, true);
+}
+
+void QCalendarWidgetPrivate::_q_nextMonthClicked()
+{
+    QDate currentDate = m_model->date.addMonths(1);
+    _q_slotChangeDate(currentDate, true);
+}
+
+void QCalendarWidgetPrivate::_q_yearChanged(int year)
+{
+    QDate currentDate = m_model->date.addYears(year - m_model->date.year());
+    _q_slotChangeDate(currentDate, true);
+}
+
+void QCalendarWidgetPrivate::_q_yearEditingFinished()
+{
+    yearEdit->hide();
+    yearLabel->show();
+    yearLabel->setText(yearEdit->text());
+}
+
+void QCalendarWidgetPrivate::handleMousePressEvent(QMouseEvent *event)
+{
+    event->ignore();
+    if (yearLabel->underMouse()) {
+        yearLabel->hide();
+        yearEdit->show();
+        yearEdit->setFocus(Qt::MouseFocusReason);
+        event->accept();
+    } 
+    else if (monthLabel->underMouse()&& !yearEdit->isVisible()) {
+        monthLabel->parentWidget()->setFocus();
+        int beg = 1, end = 12;
+        if (m_model->date.year() <= m_model->minimumDate.year())
+            beg = m_model->minimumDate.month();
+        if (m_model->date.year() == m_model->maximumDate.year())
+            end = m_model->maximumDate.month();
+        QMenu *monthMenu = new QMenu(monthLabel);
+        for(int i=beg; i<=end; i++) {
+            QString monthName(QDate::longMonthName(i));
+            QAction *act = monthMenu->addAction(monthName);
+            act->setData(i);
+        }
+        QAction *act = monthMenu->exec(event->globalPos());
+        if (act) {
+            monthLabel->setText(act->text());
+            QDate newDate = m_model->date.addMonths(act->data().asInt()-m_model->date.month());
+            _q_slotChangeDate(newDate, true);
+        }
+        event->accept();
+    }
+}
+
 void QCalendarWidgetPrivate::showMonth(int year, int month)
 {
+    monthLabel->setText(QDate::longMonthName(month));
+    yearLabel->setText(QString::number(year));
+    yearEdit->setValue(year);
+
     if (m_model->shownYear == year && m_model->shownMonth == month)
         return;
     Q_Q(QCalendarWidget);
-
     m_model->showMonth(year, month);
-
     emit q->currentPageChanged(year, month);
-
     m_view->internalUpdate();
     update();
 }
@@ -800,6 +949,9 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
 {
     Q_D(QCalendarWidget);
 
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Window);
+
     QVBoxLayout *layoutV = new QVBoxLayout(this);
     layoutV->setMargin(0);
     d->m_model = new QCalendarModel(this);
@@ -817,6 +969,8 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_view->verticalHeader()->setResizeMode(QHeaderView::Stretch);
     d->m_view->verticalHeader()->setClickable(false);
     d->m_selection = d->m_view->selectionModel();
+    d->createHeader(this);
+    d->m_view->setFrameStyle(QFrame::NoFrame);
     d->update();
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -826,6 +980,18 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     connect(d->m_view, SIGNAL(editingFinished()),
             this, SLOT(_q_editingFinished()));
 
+    connect(d->prevMonth, SIGNAL(clicked(bool)),
+            this, SLOT(_q_prevMonthClicked())); 
+    connect(d->nextMonth, SIGNAL(clicked(bool)),
+            this, SLOT(_q_nextMonthClicked())); 
+    connect(d->yearEdit, SIGNAL(valueChanged(int)),
+            this, SLOT(_q_yearChanged(int)));
+    connect(d->yearEdit, SIGNAL(editingFinished()),
+            this, SLOT(_q_yearEditingFinished()));
+
+    layoutV->setMargin(0);
+    layoutV->setSpacing(0);
+    layoutV->addWidget(d->headerBackground);
     layoutV->addWidget(d->m_view);
 }
 
@@ -879,7 +1045,13 @@ QSize QCalendarWidget::minimumSizeHint() const
 
     w += 12; // add some space (heuristic)
     h += 8;
-    return QSize(w * cols, h * rows);
+
+    //add the size of the header.
+    QSize headerSize = d->headerBackground->layout()->sizeHint();
+    w *= cols;
+    w = qMax(headerSize.width(), w);
+    h = (h * rows) + headerSize.height();
+    return QSize(w , h);
 }
 
 /*!
@@ -1094,6 +1266,7 @@ void QCalendarWidget::setMinimumDate(const QDate &date)
 
     QDate oldDate = d->m_model->date;
     d->m_model->setMinimumDate(date);
+    d->yearEdit->setMinimum(d->m_model->minimumDate.year());
     QDate newDate = d->m_model->date;
     if (oldDate != newDate) {
         d->update();
@@ -1146,6 +1319,7 @@ void QCalendarWidget::setMaximumDate(const QDate &date)
 
     QDate oldDate = d->m_model->date;
     d->m_model->setMaximumDate(date);
+    d->yearEdit->setMaximum(d->m_model->maximumDate.year());
     QDate newDate = d->m_model->date;
     if (oldDate != newDate) {
         d->update();
@@ -1199,6 +1373,8 @@ void QCalendarWidget::setDateRange(const QDate &min, const QDate &max)
 
     QDate oldDate = d->m_model->date;
     d->m_model->setRange(min, max);
+    d->yearEdit->setMinimum(d->m_model->minimumDate.year());
+    d->yearEdit->setMaximum(d->m_model->maximumDate.year());
     QDate newDate = d->m_model->date;
     if (oldDate != newDate) {
         d->update();
@@ -1464,6 +1640,21 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     \sa setCurrentPage()
 */
 
+
+/*!
+  \reimp
+*/
+
+void QCalendarWidget::mousePressEvent(QMouseEvent *event)
+{
+    Q_D(QCalendarWidget);
+    d->handleMousePressEvent(event);
+    if (!event->isAccepted()) {
+        setAttribute(Qt::WA_NoMouseReplay);
+        QWidget::mousePressEvent(event);
+        setFocus();
+    }
+}
 #include "qcalendarwidget.moc"
 #include "moc_qcalendarwidget.cpp"
 

@@ -102,6 +102,8 @@ public:
     QMap<QDate, QTextCharFormat> dateTextFormat() const;
     QTextCharFormat dateTextFormat(const QDate &date) const;
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
+protected:
+    void mousePressEvent(QMouseEvent *event);
 
 public Q_SLOTS:
     void setSelectedDate(const QDate &date);
@@ -125,6 +127,10 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void _q_slotChangeDate(const QDate &date, bool changeMonth))
     Q_PRIVATE_SLOT(d_func(), void _q_editingFinished())
+    Q_PRIVATE_SLOT(d_func(), void _q_prevMonthClicked())
+    Q_PRIVATE_SLOT(d_func(), void _q_nextMonthClicked())
+    Q_PRIVATE_SLOT(d_func(), void _q_yearChanged(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_yearEditingFinished())
 
 };
 
