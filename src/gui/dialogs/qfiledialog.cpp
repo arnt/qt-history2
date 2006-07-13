@@ -156,8 +156,9 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   existing file, or \l Directory if only a directory may be selected.
   See the \l QFileDialog::FileMode enum for the complete list of modes.
 
-  You can retrieve the dialog's mode with mode(). Use setFilter() to set
-  the dialog's file filter. For example:
+  The fileMode property contains the mode of operation for the dialog;
+  this indicates what types of objects the user is expected to select.
+  Use setFilter() to set the dialog's file filter. For example:
 
   \code
     dialog.setFilter(tr("Images (*.png *.xpm *.jpg)"));
