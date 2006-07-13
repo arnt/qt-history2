@@ -18,6 +18,7 @@ HEADERS += \
 	kernel/qsocketnotifier.h \
 	kernel/qtimer.h \
 	kernel/qtranslator.h \
+        kernel/qtranslator_p.h \
         kernel/qvariant.h \
 	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \

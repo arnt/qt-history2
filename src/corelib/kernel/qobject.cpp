@@ -1952,15 +1952,66 @@ void QObject::deleteLater()
 }
 
 /*!
-    \fn QString QObject::tr(const char *sourceText, const char * comment)
+    \fn QString QObject::tr(const char *sourceText, const char *comment, int n)
     \reentrant
 
     Returns a translated version of \a sourceText, or \a sourceText
     itself if there is no appropriate translated version. The
     translation context is Object with \a comment (0 by default).
-    All Object subclasses using the Q_OBJECT macro automatically have
+    All QObject subclasses using the Q_OBJECT macro automatically have
     a reimplementation of this function with the subclass name as
     context.
+
+    Example:
+
+    \code
+        MyWindow::MyWindow()
+        {
+            QLabel *nameLabel = new QLabel(tr("Name:"));
+            QLabel *addressLabel = new QLabel(tr("Address:", "i.e. a postal address"));
+            ...
+        }
+    \endcode
+
+    If \a n >= 0, all occurrences of \c %n in the resulting string
+    are replaced with a decimal representation of \a n. In addition,
+    depending on \a n's value, the translation text may vary.
+
+    Example:
+
+    \code
+        int n = messages.count();
+        showMessage(tr("%n message(s) saved", "", n));
+    \endcode
+
+    The table below shows what string is returned depending on the
+    active translation:
+
+    \table
+    \header \o      \o{3,1} Active Translation
+    \header \o \a n \o No Translation        \o French                                 \o English
+    \row    \o 0    \o "0 message(s) saved"  \o "0 message sauvegard\unicode{0xE9}"    \o "0 message\bold{s} saved"
+    \row    \o 1    \o "1 message(s) saved"  \o "1 message sauvegard\unicode{0xE9}"    \o "1 message saved"
+    \row    \o 2    \o "2 message(s) saved"  \o "2 message\bold{s} sauvegard\unicode{0xE9}\bold{s}"  \o "2 message\bold{s} saved"
+    \row    \o 37   \o "37 message(s) saved" \o "37 message\bold{s} sauvegard\unicode{0xE9}\bold{s}" \o "37 message\bold{s} saved"
+    \endtable
+
+    This idiom is more flexible than the traditional approach, i.e.,
+
+    \code
+        n == 1 ? tr("%n message saved") : tr("%n messages saved")
+    \endcode
+
+    because it also works with target languages that have several
+    plural forms (e.g., Irish has a special "dual" form that should
+    be used when \c n is 2), and it handles the \e n == 0 case
+    correctly for languages such as French that require the singular.
+    See the \l{Qt Linguist Manual} for details.
+
+    Instead of \c %n, you can use \c %Ln to produce a localized
+    representation of \a n. The conversion uses the default local,
+    set using QLocal::setDefault(). (If no default locale was
+    specified, the "C" locale is used.)
 
     \warning This method is reentrant only if all translators are
     installed \e before calling this method. Installing or removing
@@ -1971,7 +2022,7 @@ void QObject::deleteLater()
 */
 
 /*!
-    \fn QString QObject::trUtf8(const char *sourceText, const char *comment)
+    \fn QString QObject::trUtf8(const char *sourceText, const char *comment, int n)
     \reentrant
 
     Returns a translated version of \a sourceText, or

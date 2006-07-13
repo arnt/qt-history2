@@ -35,7 +35,12 @@ public:
 #endif
     ~QTranslator();
 
-    virtual QString translate(const char *context, const char *sourceText, const char *comment = 0) const;
+    // ### Qt 5: Merge (with "int n = -1")
+    virtual QString translate(const char *context, const char *sourceText,
+                              const char *comment = 0) const;
+    QString translate(const char *context, const char *sourceText, const char *comment,
+                      int n) const;
+
     virtual bool isEmpty() const;
 
     bool load(const QString & filename,

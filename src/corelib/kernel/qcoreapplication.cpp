@@ -1131,8 +1131,8 @@ bool QCoreApplication::event(QEvent *e)
   This enum type defines the 8-bit encoding of character string
   arguments to translate():
 
-  \value DefaultCodec  The encoding specified by
-  QTextCodec::codecForTr() (Latin1 if none has been set)
+  \value CodecForTr  The encoding specified by
+  QTextCodec::codecForTr() (Latin-1 if none has been set)
   \value UnicodeUTF8  UTF-8
 
   \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
@@ -1180,29 +1180,29 @@ void QCoreApplication::quit()
 
 #ifndef QT_NO_TRANSLATION
 /*!
-  Adds the message file \a messageFile to the list of message files to be used
-  for translations.
+    Adds the translation file \a translationFile to the list of
+    translation files to be used for translations.
 
-  Multiple message files can be installed. Translations are searched
-  for in the last installed message file, then the one from last, and
-  so on, back to the first installed message file. The search stops as
-  soon as a matching translation is found.
+    Multiple translation files can be installed. Translations are
+    searched for in the last installed translation file on, back to
+    the first installed translation file. The search stops as soon as
+    a matching translation is found.
 
   \sa removeTranslator() translate() QTranslator::load()
 */
 
-void QCoreApplication::installTranslator(QTranslator * messageFile)
+void QCoreApplication::installTranslator(QTranslator *translationFile)
 {
-    if (!messageFile)
+    if (!translationFile)
         return;
 
     if (!QCoreApplicationPrivate::checkInstance("installTranslator"))
         return;
     QCoreApplicationPrivate *d = self->d_func();
-    d->translators.prepend(messageFile);
+    d->translators.prepend(translationFile);
 
 #ifndef QT_NO_TRANSLATION_BUILDER
-    if (messageFile->isEmpty())
+    if (translationFile->isEmpty())
         return;
 #endif
 
@@ -1211,90 +1211,124 @@ void QCoreApplication::installTranslator(QTranslator * messageFile)
 }
 
 /*!
-  Removes the message file \a messageFile from the list of message files used by
-  this application. (It does not delete the message file from the file
-  system.)
+    Removes the translation file \a translationFile from the list of
+    translation files used by this application. (It does not delete the
+    translation file from the file system.)
 
-  \sa installTranslator() translate(), QObject::tr()
+    \sa installTranslator() translate(), QObject::tr()
 */
 
-void QCoreApplication::removeTranslator(QTranslator * messageFile)
+void QCoreApplication::removeTranslator(QTranslator *translationFile)
 {
-    if (!messageFile)
+    if (!translationFile)
         return;
     if (!QCoreApplicationPrivate::checkInstance("removeTranslator"))
         return;
     QCoreApplicationPrivate *d = self->d_func();
-    if (d->translators.removeAll(messageFile) && !self->closingDown()) {
+    if (d->translators.removeAll(translationFile) && !self->closingDown()) {
         QEvent ev(QEvent::LanguageChange);
         QCoreApplication::sendEvent(self, &ev);
     }
 }
 
-/*! \reentrant
-  Returns the translation text for \a sourceText, by querying the
-  installed messages files. The message files are searched from the most
-  recently installed message file back to the first installed message
-  file.
-
-  QObject::tr() and QObject::trUtf8() provide this functionality more
-  conveniently.
-
-  \a context is typically a class name (e.g., "MyDialog") and
-  \a sourceText is either English text or a short identifying text, if
-  the output text will be very long (as for help texts).
-
-  \a comment is a disambiguating comment, for when the same \a
-  sourceText is used in different roles within the same context. By
-  default, it is null. \a encoding indicates the 8-bit encoding of
-  character stings
-
-  See the \l QTranslator documentation for more information about
-  contexts and comments.
-
-  If none of the message files contain a translation for \a
-  sourceText in \a context, this function returns a QString
-  equivalent of \a sourceText. The encoding of \a sourceText is
-  specified by \e encoding; it defaults to \c DefaultCodec.
-
-  This function is not virtual. You can use alternative translation
-  techniques by subclassing \l QTranslator.
-
-  \warning This method is reentrant only if all translators are
-  installed \e before calling this method. Installing or removing
-  translators while performing translations is not supported. Doing
-  so will most likely result in crashes or other undesirable behavior.
-
-  \sa QObject::tr() installTranslator() QTextCodec::codecForTr()
+/*!
+    \overload
 */
-
 QString QCoreApplication::translate(const char *context, const char *sourceText,
                                     const char *comment, Encoding encoding)
 {
+    return translate(context, sourceText, comment, encoding, -1);
+}
+
+/*!
+    \reentrant
+
+    Returns the translation text for \a sourceText, by querying the
+    installed translation files. The translation files are searched
+    from the most recently installed file back to the first
+    installed file.
+
+    QObject::tr() and QObject::trUtf8() provide this functionality
+    more conveniently.
+
+    \a context is typically a class name (e.g., "MyDialog") and \a
+    sourceText is either English text or a short identifying text.
+
+    \a comment is a disambiguating comment, for when the same \a
+    sourceText is used in different roles within the same context. By
+    default, it is null. \a encoding indicates the 8-bit encoding of
+    character stings See the \l QTranslator documentation for more
+    information about contexts and comments.
+
+    \a n is used in conjunction with \c %n to support plural forms.
+    See QObject::tr() for details.
+
+    If none of the translation files contain a translation for \a
+    sourceText in \a context, this function returns a QString
+    equivalent of \a sourceText. The encoding of \a sourceText is
+    specified by \e encoding; it defaults to CodecForTr.
+
+    This function is not virtual. You can use alternative translation
+    techniques by subclassing \l QTranslator.
+
+    \warning This method is reentrant only if all translators are
+    installed \e before calling this method. Installing or removing
+    translators while performing translations is not supported. Doing
+    so will most likely result in crashes or other undesirable
+    behavior.
+
+    \sa QObject::tr() installTranslator() QTextCodec::codecForTr()
+*/
+
+
+QString QCoreApplication::translate(const char *context, const char *sourceText,
+                                    const char *comment, Encoding encoding, int n)
+{
+    QString result;
+
     if (!sourceText)
-        return QString();
+        return result;
 
     if (self && !self->d_func()->translators.isEmpty()) {
         QList<QTranslator*>::ConstIterator it;
-        QTranslator *messageFile;
-        QString result;
+        QTranslator *translationFile;
         for (it = self->d_func()->translators.constBegin(); it != self->d_func()->translators.constEnd(); ++it) {
-            messageFile = *it;
-            result = messageFile->translate(context, sourceText, comment);
+            translationFile = *it;
+            result = translationFile->translate(context, sourceText, comment, n);
             if (!result.isEmpty())
-                return result;
+                break;
         }
     }
+
+    if (result.isEmpty()) {
 #ifdef QT_NO_TEXTCODEC
-    Q_UNUSED(encoding)
+        Q_UNUSED(encoding)
 #else
-    if (encoding == UnicodeUTF8)
-        return QString::fromUtf8(sourceText);
-    else if (QTextCodec::codecForTr() != 0)
-        return QTextCodec::codecForTr()->toUnicode(sourceText);
-    else
+        if (encoding == UnicodeUTF8)
+            result = QString::fromUtf8(sourceText);
+        else if (QTextCodec::codecForTr() != 0)
+            result = QTextCodec::codecForTr()->toUnicode(sourceText);
+        else
 #endif
-        return QString::fromLatin1(sourceText);
+            result = QString::fromLatin1(sourceText);
+    }
+
+    if (n >= 0) {
+        int percentPos = -1;
+        while ((percentPos = result.indexOf(QLatin1Char('%'), percentPos + 1)) != -1) {
+            int len = 1;
+            QString fmt(QLatin1String("%1"));
+            if (result.mid(percentPos + len, 1).startsWith(QLatin1Char('L'))) {
+                ++len;
+                fmt = QLatin1String("%L1");
+            }
+            if (result.mid(percentPos + len, 1).startsWith(QLatin1Char('n'))) {
+                ++len;
+                result.replace(percentPos, len, fmt.arg(n));
+            }
+        }
+    }
+    return result;
 }
 
 bool QCoreApplicationPrivate::isTranslatorInstalled(QTranslator *translator)

@@ -98,16 +98,16 @@ public:
     virtual bool eventFilter(QObject *, QEvent *);
 
 #ifdef qdoc
-    static QString tr(const char *, const char *);
-    static QString trUtf8(const char *, const char *);
+    static QString tr(const char *sourceText, const char *comment = 0, int n = -1);
+    static QString trUtf8(const char *sourceText, const char *comment = 0, int n = -1);
     virtual const QMetaObject *metaObject() const;
     static const QMetaObject staticMetaObject;
 #endif
 #ifdef QT_NO_TRANSLATION
-    static QString tr(const char *sourceText, const char * = 0)
+    static QString tr(const char *sourceText, const char * = 0, int = -1)
         { return QString::fromLatin1(sourceText); }
 #ifndef QT_NO_TEXTCODEC
-    static QString trUtf8(const char *sourceText, const char * = 0)
+    static QString trUtf8(const char *sourceText, const char * = 0, int = -1)
         { return QString::fromUtf8(sourceText); }
 #endif
 #endif //QT_NO_TRANSLATION
@@ -274,11 +274,9 @@ public:
 };
 #endif
 
-
 Q_CORE_EXPORT void qt_qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
-                         const QMetaObject &mo, QList<void*> *list);
+                                           const QMetaObject &mo, QList<void *> *list);
 Q_CORE_EXPORT QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo);
-
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
@@ -291,7 +289,7 @@ inline QList<T> qFindChildren(const QObject *o, const QString &name, T)
 {
     QList<T> list;
     qt_qFindChildren_helper(o, name, 0, ((T)0)->staticMetaObject,
-                        reinterpret_cast<QList<void *>*>(&list));
+                            reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 
@@ -317,7 +315,7 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re, T)
 {
     QList<T> list;
     qt_qFindChildren_helper(o, 0, &re, ((T)0)->staticMetaObject,
-                        reinterpret_cast<QList<void*>*>(&list));
+                            reinterpret_cast<QList<void *> *>(&list));
     return list;
 }
 
@@ -365,7 +363,7 @@ inline QList<T> qFindChildren(const QObject *o, const QString &name)
 {
     QList<T> list;
     qt_qFindChildren_helper(o, name, 0, reinterpret_cast<T>(0)->staticMetaObject,
-                         reinterpret_cast<QList<void *>*>(&list));
+                            reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 
@@ -375,7 +373,7 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 {
     QList<T> list;
     qt_qFindChildren_helper(o, 0, &re, reinterpret_cast<T>(0)->staticMetaObject,
-                        reinterpret_cast<QList<void*>*>(&list));
+                            reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 #endif

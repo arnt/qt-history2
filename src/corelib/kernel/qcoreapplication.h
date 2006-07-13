@@ -92,11 +92,16 @@ public:
     static void installTranslator(QTranslator * messageFile);
     static void removeTranslator(QTranslator * messageFile);
 #endif
-    enum Encoding { DefaultCodec, UnicodeUTF8 };
+    enum Encoding { CodecForTr, UnicodeUTF8, DefaultCodec = CodecForTr };
+    // ### merge in Qt 5
     static QString translate(const char * context,
                              const char * key,
                              const char * comment = 0,
-                             Encoding encoding = DefaultCodec);
+                             Encoding encoding = CodecForTr);
+    static QString translate(const char * context,
+                             const char * key,
+                             const char * comment,
+                             Encoding encoding, int n);
 
     static void flush();
 
@@ -180,8 +185,22 @@ inline QString QCoreApplication::translate(const char *, const char *sourceText,
 #endif
     return QString::fromLatin1(sourceText);
 }
+
+// Simple versions
+inline QString QCoreApplication::translate(const char *, const char *sourceText,
+                                           const char *, Encoding encoding, int)
+{
+#ifndef QT_NO_TEXTCODEC
+    if (encoding == UnicodeUTF8)
+        return QString::fromUtf8(sourceText);
+#else
+    Q_UNUSED(encoding)
+#endif
+    return QString::fromLatin1(sourceText);
+}
 #endif
 
+// ### merge the four functions into two (using "int n = -1")
 #define Q_DECLARE_TR_FUNCTIONS(context) \
 public: \
     static inline QString tr(const char *sourceText, const char *comment = 0) \
@@ -189,6 +208,12 @@ public: \
     static inline QString trUtf8(const char *sourceText, const char *comment = 0) \
         { return QCoreApplication::translate(#context, sourceText, comment, \
                                              QCoreApplication::UnicodeUTF8); } \
+    static inline QString tr(const char *sourceText, const char *comment, int n) \
+        { return QCoreApplication::translate(#context, sourceText, comment, \
+                                             QCoreApplication::CodecForTr, n); } \
+    static inline QString trUtf8(const char *sourceText, const char *comment, int n) \
+        { return QCoreApplication::translate(#context, sourceText, comment, \
+                                             QCoreApplication::UnicodeUTF8, n); } \
 private:
 
 typedef void (*QtCleanUpFunction)();

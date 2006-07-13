@@ -189,31 +189,36 @@ QObject *QMetaObject::cast(QObject *obj) const
 #ifndef QT_NO_TRANSLATION
 /*!
     \internal
-
-    Forwards a tr() call from the Q_OBJECT macro to the QApplication.
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
-    if (QCoreApplication::instance())
-        return QCoreApplication::instance()->translate(d.stringdata, s, c, QCoreApplication::DefaultCodec);
-    else
-        return QString::fromLatin1(s);
+    return QCoreApplication::translate(d.stringdata, s, c, QCoreApplication::CodecForTr);
 }
+
 /*!
     \internal
+*/
+QString QMetaObject::tr(const char *s, const char *c, int n) const
+{
+    return QCoreApplication::translate(d.stringdata, s, c, QCoreApplication::CodecForTr, n);
+}
 
-    Forwards a trUtf8() call from the Q_OBJECT macro to the
-    QApplication.
+/*!
+    \internal
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
 {
-    if (QCoreApplication::instance())
-        return QCoreApplication::instance()->translate(d.stringdata, s, c, QCoreApplication::UnicodeUTF8);
-    else
-        return QString::fromUtf8(s);
+    return QCoreApplication::translate(d.stringdata, s, c, QCoreApplication::UnicodeUTF8);
+}
+
+/*!
+    \internal
+*/
+QString QMetaObject::trUtf8(const char *s, const char *c, int n) const
+{
+    return QCoreApplication::translate(d.stringdata, s, c, QCoreApplication::UnicodeUTF8, n);
 }
 #endif // QT_NO_TRANSLATION
-
 
 /*!
     Returns the method offset for this class; i.e. the index position
