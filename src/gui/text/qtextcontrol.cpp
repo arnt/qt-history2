@@ -355,6 +355,8 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
     bool clearDocument = true;
     if (!doc) {
+        palette = QApplication::palette("QTextControl");
+
         if (document) {
             doc = document;
             clearDocument = false;
