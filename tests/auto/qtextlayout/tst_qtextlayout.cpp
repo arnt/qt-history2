@@ -378,9 +378,8 @@ void tst_QTextLayout::defaultWordSeparators_data()
 
     QString separators(".,:;-<>[](){}");
     separators += QChar(QChar::Nbsp);
-#if QT_VERSION >= 0x040200
     separators += QLatin1String("!?");
-#endif
+    separators += QLatin1Char('\t');
     for (int i = 0; i < separators.count(); ++i) {
         QTest::newRow(QString::number(i).toAscii().data())
             << QString::fromLatin1("abcd") + separators.at(i) + QString::fromLatin1("efgh") 
