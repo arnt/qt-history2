@@ -371,8 +371,10 @@ void QUndoStackPrivate::setIndex(int idx, bool clean)
 QUndoStack::QUndoStack(QObject *parent)
     : QObject(*(new QUndoStackPrivate), parent)
 {
+#ifndef QT_NO_UNDOGROUP
     if (QUndoGroup *group = qobject_cast<QUndoGroup*>(parent))
         group->addStack(this);
+#endif
 }
 
 /*!
@@ -384,9 +386,11 @@ QUndoStack::QUndoStack(QObject *parent)
 
 QUndoStack::~QUndoStack()
 {
+#ifndef QT_NO_UNDOGROUP
     Q_D(QUndoStack);
     if (d->group != 0)
         d->group->removeStack(this);
+#endif
     clear();
 }
 
@@ -891,6 +895,9 @@ QString QUndoStack::text(int idx) const
 
 void QUndoStack::setActive(bool active)
 {
+#ifdef QT_NO_UNDOGROUP
+    Q_UNUSED(active);
+#else
     Q_D(QUndoStack);
 
     if (d->group != 0) {
@@ -899,12 +906,17 @@ void QUndoStack::setActive(bool active)
         else if (d->group->activeStack() == this)
             d->group->setActiveStack(0);
     }
+#endif
 }
 
 bool QUndoStack::isActive() const
 {
+#ifdef QT_NO_UNDOGROUP
+    return true;
+#else
     Q_D(const QUndoStack);
     return d->group == 0 || d->group->activeStack() == this;
+#endif
 }
 
 /*!

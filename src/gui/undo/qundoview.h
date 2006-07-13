@@ -38,11 +38,15 @@ class Q_GUI_EXPORT QUndoView : public QListView
 public:
     explicit QUndoView(QWidget *parent = 0);
     explicit QUndoView(QUndoStack *stack, QWidget *parent = 0);
+#ifndef QT_NO_UNDOGROUP
     explicit QUndoView(QUndoGroup *group, QWidget *parent = 0);
+#endif
     ~QUndoView();
 
     QUndoStack *stack() const;
+#ifndef QT_NO_UNDOGROUP
     QUndoGroup *group() const;
+#endif
 
     void setEmptyLabel(const QString &label);
     QString emptyLabel() const;
@@ -52,7 +56,9 @@ public:
 
 public Q_SLOTS:
     void setStack(QUndoStack *stack);
+#ifndef QT_NO_UNDOGROUP
     void setGroup(QUndoGroup *group);
+#endif
 
 private:
     Q_DISABLE_COPY(QUndoView)

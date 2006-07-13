@@ -241,9 +241,15 @@ class QUndoViewPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QUndoView)
 public:
-    QUndoViewPrivate() : group(0), model(0) {}
+    QUndoViewPrivate() :
+#ifndef QT_NO_UNDOGROUP
+        group(0),
+#endif
+        model(0) {}
 
+#ifndef QT_NO_UNDOGROUP
     QPointer<QUndoGroup> group;
+#endif
     QUndoModel *model;
 
     void init();
@@ -281,6 +287,8 @@ QUndoView::QUndoView(QUndoStack *stack, QWidget *parent)
     setStack(stack);
 }
 
+#ifndef QT_NO_UNDOGROUP
+
 /*!
     Constructs a new view with parent \a parent and sets the observed group to \a group.
 
@@ -294,6 +302,8 @@ QUndoView::QUndoView(QUndoGroup *group, QWidget *parent)
     d->init();
     setGroup(group);
 }
+
+#endif // QT_NO_UNDOGROUP
 
 /*!
     Destroys this view.
@@ -328,9 +338,13 @@ QUndoStack *QUndoView::stack() const
 void QUndoView::setStack(QUndoStack *stack)
 {
     Q_D(QUndoView);
+#ifndef QT_NO_UNDOGROUP
     setGroup(0);
+#endif
     d->model->setStack(stack);
 }
+
+#ifndef QT_NO_UNDOGROUP
 
 /*!
     Sets the group displayed by this view to \a group. If \a group is 0, the view will
@@ -377,6 +391,8 @@ QUndoGroup *QUndoView::group() const
     Q_D(const QUndoView);
     return d->group;
 }
+
+#endif // QT_NO_UNDOGROUP
 
 /*!
     \property QUndoView::emptyLabel
