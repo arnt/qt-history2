@@ -2125,11 +2125,11 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     if (reason != Qt::PopupFocusReason
         && !(QApplication::activePopupWidget() && QApplication::activePopupWidget()->parentWidget() == this)) {
         if (!d->emitingEditingFinished) {
-            if (!hasAcceptableInput())
-                d->fixup();
-            d->emitingEditingFinished = true;
-            emit editingFinished();
-            d->emitingEditingFinished = false;
+            if (hasAcceptableInput() || d->fixup()) {
+                d->emitingEditingFinished = true;
+                emit editingFinished();
+                d->emitingEditingFinished = false;
+            }
         }
 #ifdef QT3_SUPPORT
         emit lostFocus();
