@@ -2949,7 +2949,6 @@ void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 */
 void QWSServer::openKeyboard()
 {
-    Q_D(QWSServer);
     QString keyboards = QString::fromLatin1(qgetenv("QWS_KEYBOARD"));
 #if defined(QT_QWS_CASSIOPEIA)
     if (keyboards.isEmpty())
