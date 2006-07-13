@@ -1345,7 +1345,7 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     either being inserted as children of the item specified by \a row, \a column,
     and \a parent, or as siblings of the item.
 
-    \sa supportedDropActions()
+    \sa supportedDropActions(), {Using Drag and Drop with Item Views}
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                       int row, int column, const QModelIndex &parent)
