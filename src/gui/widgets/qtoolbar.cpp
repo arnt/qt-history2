@@ -176,18 +176,9 @@ void QToolBarPrivate::init()
     q->setBackgroundRole(QPalette::Button);
 
 
-    QStyleOptionToolBar opt = getStyleOption(q);
-
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
-    QStyle *style = q->style();
-
-    int e = style->pixelMetric(QStyle::PM_ToolBarIconSize);
-    iconSize = QSize(e, e);
-
+ 
     layout->setAlignment(Qt::AlignLeft);
-    layout->setMargin(style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q)
-                      + style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, q));
-    layout->setSpacing(style->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
 
     handle = new QToolBarHandle(q);
     QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
@@ -297,6 +288,18 @@ int QToolBarPrivate::indexOf(QAction *action) const
     }
     return -1;
 }
+
+void QToolBarPrivate::updateLayoutMetrics()
+{
+    Q_Q(QToolBar);
+
+    QStyle *s = q->style();
+    QStyleOptionToolBar opt = getStyleOption(q);
+    layout->setMargin(s->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q)
+                         + s->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, q));
+    layout->setSpacing(s->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
+}
+
 
 /*!
     \class QToolBar
@@ -559,11 +562,16 @@ Qt::Orientation QToolBar::orientation() const
 */
 
 QSize QToolBar::iconSize() const
-{ Q_D(const QToolBar); return d->iconSize; }
+{
+    Q_D(const QToolBar);
+    ensurePolished();    
+    return d->iconSize;
+}
 
 void QToolBar::setIconSize(const QSize &iconSize)
 {
     Q_D(QToolBar);
+    ensurePolished();
     QSize sz = iconSize;
     if (!sz.isValid()) {
         QMainWindow *mw = qobject_cast<QMainWindow *>(parentWidget());
@@ -876,14 +884,6 @@ void QToolBar::changeEvent(QEvent *event)
     case QEvent::WindowTitleChange:
         d->toggleViewAction->setText(windowTitle());
         break;
-    case QEvent::StyleChange:
-        {
-            QStyleOptionToolBar opt = getStyleOption(this);
-            d->layout->setMargin(style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, this)
-                                 + style()->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, this));
-            d->layout->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, this));
-            break;
-        }
     default:
         break;
     }
@@ -1111,7 +1111,18 @@ bool QToolBar::event(QEvent *event)
     case QEvent::StyleChange:
         if (!d->explicitIconSize)
             setIconSize(QSize());
+        d->updateLayoutMetrics();
         break;
+    case QEvent::Polish:
+        QWidget::event(event);
+ 
+        if (!d->explicitIconSize) {
+            int e = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+            d->iconSize = QSize(e, e);
+        }
+        d->updateLayoutMetrics();
+
+        return true;
     default:
         break;
     }
