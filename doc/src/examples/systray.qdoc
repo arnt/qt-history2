@@ -1,5 +1,5 @@
 /*!
-  \example desktop/systray.qdoc
+  \example desktop/systray
   \title System Tray Icon Example
 
   The System Tray Icon example shows how to add an icon to a desktop environment's
