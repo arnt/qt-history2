@@ -308,7 +308,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
     } else if ((s == BorderStyle_Outset && (edge == TopEdge || edge == LeftEdge))
             || (s == BorderStyle_Inset && (edge == BottomEdge || edge == RightEdge)))
             c = c.light();
-    
+
     p->save();
     int pwby2 = qFloor(pw/2);
     p->setBrush(Qt::NoBrush);
@@ -353,7 +353,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
 }
 
 
-void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2, 
+void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, qreal dw2,
                Edge edge, BorderStyle style, QColor c)
 {
     p->save();
@@ -420,7 +420,7 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, q
         switch (edge) {
         case TopEdge:
             qDrawEdge(p, x1, y1, x2, y1 + wby3, dw1by3, dw2by3, TopEdge, BorderStyle_Solid, c);
-            qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, 
+            qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2,
                       dw1by3, dw2by3, TopEdge, BorderStyle_Solid, c);
             break;
         case LeftEdge:
@@ -435,7 +435,7 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, qreal dw1, q
             break;
         case RightEdge:
             qDrawEdge(p, x2 - wby3, y1, x2, y2, dw1by3, dw2by3, RightEdge, BorderStyle_Solid, c);
-            qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, dw1by3, dw2by3, 
+            qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, dw1by3, dw2by3,
                       RightEdge, BorderStyle_Solid, c);
             break;
         default:
@@ -531,7 +531,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
     QRectF brc(pix.width() - c[RightEdge], pix.height() - c[BottomEdge],
                c[RightEdge], c[BottomEdge]);
     if (brc.isValid())
-        p->drawPixmap(QRectF(br.x() + br.width() - r, br.y() + br.height() - b, r, b), 
+        p->drawPixmap(QRectF(br.x() + br.width() - r, br.y() + br.height() - b, r, b),
                       pix, brc);
 
     QRectF topEdgeRect(br.x() + l, br.y(), pr.width(), t);
@@ -578,7 +578,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
             int rwh = (int) pr.width()/ceil(pr.width()/bi->bottomEdge.width());
             QPixmap scaled = bi->bottomEdge.scaled(rwh, bi->bottomEdge.height());
             int blank = int(pr.width()) % rwh;
-            p->drawTiledPixmap(QRectF(br.x() + l+ blank/2, br.y()+br.height()-b, 
+            p->drawTiledPixmap(QRectF(br.x() + l+ blank/2, br.y()+br.height()-b,
                                       pr.width() - blank, b), scaled);
         }
         break;
@@ -614,7 +614,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
             int rwh = (int) pr.height()/ceil(pr.height()/bi->rightEdge.height());
             QPixmap scaled = bi->rightEdge.scaled(bi->rightEdge.width(), rwh);
             int blank = int(pr.height()) % rwh;
-            p->drawTiledPixmap(QRectF(br.x() + br.width() - r, br.y()+t+blank/2, r, 
+            p->drawTiledPixmap(QRectF(br.x() + br.width() - r, br.y()+t+blank/2, r,
                                       pr.height() - blank), scaled);
         }
         break;
@@ -658,16 +658,16 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
         break;
     case Repeat_Y:
         p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp,
-                           inter.x() - aligned.x(), 
+                           inter.x() - aligned.x(),
                            bgp.height() - int(aligned.y() - r.y()) % bgp.height());
         break;
     case Repeat_X:
         p->drawTiledPixmap(r.x(), inter.y(), r.width(), inter.height(), bgp,
-                           bgp.width() - int(aligned.x() - r.x())%bgp.width(), 
+                           bgp.width() - int(aligned.x() - r.x())%bgp.width(),
                            inter.y() - aligned.y());
         break;
     case Repeat_XY:
-        p->drawTiledPixmap(r, bgp, 
+        p->drawTiledPixmap(r, bgp,
                            QPoint(bgp.width() - int(aligned.x() - r.x())% bgp.width(),
                                   bgp.height() - int(aligned.y() - r.y())%bgp.height()));
         break;
@@ -894,9 +894,12 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         const QRenderRule& rule = renderRule(w, map[i].state);
         p.setCurrentColorGroup(map[i].group);
 
+#ifndef QT_NO_MENU
         if (qobject_cast<QMenu *>(w)) {
             qConfigurePalette(&p, rule, QPalette::ButtonText, QPalette::Button);
-        } else if (false
+        } else
+#endif
+            if (false
 #ifndef QT_NO_COMBOBOX
                    || qobject_cast<QComboBox *>(w)
 #endif

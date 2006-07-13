@@ -838,7 +838,9 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 */
 void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
-#ifndef QT_NO_CONTEXTMENU
+#ifdef QT_NO_CONTEXTMENU
+    Q_UNUSED(ev);
+#else
     Q_D(QLabel);
     if (!d->doc) {
         ev->ignore();

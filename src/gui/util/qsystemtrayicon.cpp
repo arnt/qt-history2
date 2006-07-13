@@ -116,6 +116,8 @@ QSystemTrayIcon::~QSystemTrayIcon()
     d->remove();
 }
 
+#ifndef QT_NO_MENU
+
 /*!
     Sets the specified \a menu to be the context menu for the system tray icon.
 
@@ -137,6 +139,8 @@ QMenu* QSystemTrayIcon::contextMenu() const
     Q_D(const QSystemTrayIcon);
     return d->menu;
 }
+
+#endif // QT_NO_MENU
 
 /*!
     \property QSystemTrayIcon::icon

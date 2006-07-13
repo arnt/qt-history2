@@ -51,8 +51,10 @@ public:
         Trigger
     };
 
+#ifndef QT_NO_MENU
     void setContextMenu(QMenu *menu);
     QMenu *contextMenu() const;
+#endif
 
     QIcon icon() const;
     void setIcon(const QIcon &icon);
