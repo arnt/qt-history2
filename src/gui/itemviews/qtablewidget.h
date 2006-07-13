@@ -112,7 +112,7 @@ public:
 
     inline QBrush background() const
         { return qvariant_cast<QBrush>(data(Qt::BackgroundRole)); }
-    virtual void setBackground(const QBrush &brush)
+    inline void setBackground(const QBrush &brush)
         { setData(Qt::BackgroundRole, brush); }
 
     inline QColor textColor() const
