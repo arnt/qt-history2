@@ -162,7 +162,7 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
     case QEvent::Hide:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
             d->bars.removeAll(bar);
-            if (d->bars.isEmpty()) {
+            if (d->bars.isEmpty() && d->animateTimer) {
                 killTimer(d->animateTimer);
                 d->animateTimer = 0;
             }
