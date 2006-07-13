@@ -599,6 +599,23 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
 #endif
 }
 
+/*
+    Returns cutoff sizes for scroll bars.
+    thumbIndicatorCutoff is the smallest size where the thumb indicator is drawn.
+    scrollButtonsCutoff is the smallest size where the up/down buttons is drawn.
+*/
+enum ScrollBarCutoffType { thumbIndicatorCutoff = 0, scrollButtonsCutoff = 1 };
+static int scrollButtonsCutoffSize(ScrollBarCutoffType cutoffType, QMacStyle::WidgetSizePolicy widgetSize)
+{
+    // Mini scrollbars does not exist as of version 10.4.
+    if (widgetSize ==  QMacStyle::SizeMini)
+        return 0;
+
+    const int sizeIndex = (widgetSize == QMacStyle::SizeSmall) ? 1 : 0;
+    static const int sizeTable[2][2] = {61, 56, 49, 44};
+    return sizeTable[sizeIndex][cutoffType];
+}
+
 static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *slider,
                           HIThemeTrackDrawInfo *tdi, const QWidget *needToRemoveMe)
 {
@@ -3373,6 +3390,21 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 HIShapeGetBounds(shape, &macRect);
                 tdi.value = slider->sliderValue;
             }
+
+            // Remove controls from the scroll bar if it is to short to draw them correctly.
+            // This is done in two stages: first the thumb indicator is removed when it is
+            // no longer possible to move it, second the up/down buttons are removed when
+            // there is not enough space for them.
+            if (cc == CC_ScrollBar) {
+                const int scrollBarLenght = (slider->orientation == Qt::Horizontal) 
+                    ? slider->rect.width() : slider->rect.height(); 
+                const QMacStyle::WidgetSizePolicy sizePolicy = widgetSizePolicy(widget);
+                if (scrollBarLenght < scrollButtonsCutoffSize(thumbIndicatorCutoff, sizePolicy))
+                    tdi.attributes &= ~kThemeTrackShowThumb;
+                if (scrollBarLenght < scrollButtonsCutoffSize(scrollButtonsCutoff, sizePolicy))
+                    tdi.enableState = kThemeTrackNothingToScroll;
+            }
+
             HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, cg,
                              kHIThemeOrientationNormal);
             if (cc == CC_Slider && slider->subControls & SC_SliderTickmarks) {
@@ -3849,6 +3881,14 @@ QStyle::SubControl QMacStyle::hitTestComplexControl(ComplexControl cc,
                 sbi.enableState = kThemeTrackActive;
             else
                 sbi.enableState = kThemeTrackDisabled;
+
+            // The arrow buttons are not drawn if the scroll bar is to short,
+            // exclude them from the hit test.
+            const int scrollBarLenght = (sb->orientation == Qt::Horizontal) 
+                ? sb->rect.width() : sb->rect.height(); 
+            if (scrollBarLenght < scrollButtonsCutoffSize(scrollButtonsCutoff, widgetSizePolicy(widget)))
+                sbi.enableState = kThemeTrackNothingToScroll;
+
             sbi.viewsize = sb->pageStep;
             HIPoint pos = CGPointMake(pt.x(), pt.y());
 
@@ -4301,6 +4341,16 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         // Hmm... the size is too big on the bottom, but I don't have anyway to correct
         // this in QMenu, so correct it here.
         sz.rheight() -= 4;
+        break;
+    case CT_ScrollBar :
+        // Make sure that the scroll bar is large enough to display the thumb indicator.
+        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
+            const int minimumSize = scrollButtonsCutoffSize(thumbIndicatorCutoff, widgetSizePolicy(widget));
+            if (slider->orientation == Qt::Horizontal)
+                sz = sz.expandedTo(QSize(minimumSize, sz.height()));
+            else
+                sz = sz.expandedTo(QSize(sz.width(), minimumSize));
+        }
         break;
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
