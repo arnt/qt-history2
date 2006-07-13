@@ -848,6 +848,7 @@ int QHeaderView::count() const
 {
     Q_D(const QHeaderView);
     //Q_ASSERT(d->sectionCount == d->headerSectionCount());
+    d->executePostedLayout();
     return d->sectionCount;
 }
 
