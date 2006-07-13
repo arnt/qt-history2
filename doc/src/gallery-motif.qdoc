@@ -18,53 +18,41 @@
 <tr>
 <td align="center">
 \endraw
-\inlineimage motif-.png
-\raw HTML
-</td>
-<td align="center">
-\endraw
 \inlineimage motif-pushbutton.png
 \raw HTML
 </td>
-</tr><tr>
-<td halign="justify" valign="top">
-\endraw
-\raw HTML
-</td>
-<td halign="justify" valign="top">
-\endraw
-The QPushButton widget provides a command button.\raw HTML
-</td>
-</tr>
-<tr>
 <td align="center">
 \endraw
 \inlineimage motif-toolbutton.png
 \raw HTML
 </td>
-<td align="center">
-\endraw
-\inlineimage motif-checkbox.png
-\raw HTML
-</td>
 </tr><tr>
+<td halign="justify" valign="top">
+\endraw
+The QPushButton widget provides a command button.\raw HTML
+</td>
 <td halign="justify" valign="top">
 \endraw
 The QToolButton class provides a quick-access button to commands
        or options, usually used inside a QToolBar.\raw HTML
 </td>
-<td halign="justify" valign="top">
-\endraw
-The QCheckBox widget provides a checkbox with a text label.\raw HTML
-</td>
 </tr>
 <tr>
+<td align="center">
+\endraw
+\inlineimage motif-checkbox.png
+\raw HTML
+</td>
 <td align="center">
 \endraw
 \inlineimage motif-radiobutton.png
 \raw HTML
 </td>
 </tr><tr>
+<td halign="justify" valign="top">
+\endraw
+The QCheckBox widget provides a checkbox with a text label.\raw HTML
+</td>
 <td halign="justify" valign="top">
 \endraw
 The QRadioButton widget provides a radio button with a text or pixmap label.\raw HTML
