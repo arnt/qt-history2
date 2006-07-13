@@ -29,7 +29,7 @@ enum {
     EQ          = 0x01,
     LT          = 0x02,
     LEQ         = 0x03,
-    IN          = 0x04,
+    BETWEEN     = 0x04,
 
     NOT         = 0x08,
     MOD_10      = 0x10,
@@ -44,7 +44,7 @@ enum {
     NEQ         = NOT | EQ,
     GT          = NOT | LEQ,
     GEQ         = NOT | LT,
-    NOT_IN      = NOT | IN
+    NOT_BETWEEN = NOT | BETWEEN
 };
 
 #endif

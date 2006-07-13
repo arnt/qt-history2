@@ -135,7 +135,7 @@ static int numerus(int n, const uchar *rules, int rulesSize)
                 case LEQ:
                     truthValue = (leftOperand <= rightOperand);
                     break;
-                case IN:
+		case BETWEEN:
                     int bottom = rightOperand;
                     CHECK_RANGE;
                     int top = rules[i++];
