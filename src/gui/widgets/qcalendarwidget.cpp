@@ -481,6 +481,8 @@ QCalendarView::QCalendarView(QWidget *parent)
     setShowGrid(false);
     verticalHeader()->setVisible(false);
     horizontalHeader()->setVisible(false);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 QModelIndex QCalendarView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
@@ -870,10 +872,12 @@ QSize QCalendarWidget::minimumSizeHint() const
         cols = 7;
     }
     QFontMetrics fm(d->m_model->formatForCell(1, 1).font());
-    for (int i = 1; i <= end; i++)
+    for (int i = 1; i <= end; i++) {
         w = qMax(w, fm.width(QString::number(i)));
+        h = qMax(h, fm.height());
+    }
 
-    w += 6; // add some space (heuristic)
+    w += 12; // add some space (heuristic)
     h += 8;
     return QSize(w * cols, h * rows);
 }
