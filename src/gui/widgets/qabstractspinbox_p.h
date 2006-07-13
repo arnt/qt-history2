@@ -88,11 +88,11 @@ public:
     void _q_editorTextChanged(const QString &);
     virtual void _q_editorCursorPositionChanged(int oldpos, int newpos);
 
-    QStyle::SubControl newHoverControl(const QPoint &pos);
+    virtual QStyle::SubControl newHoverControl(const QPoint &pos);
     bool updateHoverControl(const QPoint &pos);
 
     void clearCache() const;
-    void updateEditFieldGeometry();
+    virtual void updateEditFieldGeometry();
 
     static int variantCompare(const QVariant &arg1, const QVariant &arg2);
     static QVariant variantBound(const QVariant &min, const QVariant &value, const QVariant &max);

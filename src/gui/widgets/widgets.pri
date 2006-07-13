@@ -13,6 +13,7 @@ HEADERS += \
         widgets/qcombobox.h \
         widgets/qcombobox_p.h \
         widgets/qdatetimeedit.h \
+        widgets/qdatetimeedit_p.h \
         widgets/qdial.h \
         widgets/qdialogbuttonbox.h \
         widgets/qdockwidget.h \

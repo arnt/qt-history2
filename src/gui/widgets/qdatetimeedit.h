@@ -40,6 +40,7 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(Section currentSection READ currentSection WRITE setCurrentSection)
     Q_PROPERTY(Sections displayedSections READ displayedSections)
     Q_PROPERTY(QString displayFormat READ displayFormat WRITE setDisplayFormat)
+    Q_PROPERTY(bool calendarPopup READ calendarPopup WRITE setCalendarPopup)
 
 public:
     enum Section {
@@ -98,6 +99,9 @@ public:
     QString displayFormat() const;
     void setDisplayFormat(const QString &format);
 
+    bool calendarPopup() const;
+    void setCalendarPopup(bool enable);
+
     QSize sizeHint() const;
 
     virtual void clear();
@@ -127,10 +131,14 @@ protected:
     virtual QDateTime dateTimeFromText(const QString &text) const;
     virtual QString textFromDateTime(const QDateTime &dt) const;
     virtual StepEnabled stepEnabled() const;
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void paintEvent(QPaintEvent *e);
 
 private:
     Q_DECLARE_PRIVATE(QDateTimeEdit)
     Q_DISABLE_COPY(QDateTimeEdit)
+
+    Q_PRIVATE_SLOT(d_func(), void _q_resetButton())
 };
 
 class Q_GUI_EXPORT QTimeEdit : public QDateTimeEdit

@@ -20,6 +20,9 @@
 #include <qlocale.h>
 #include <qlayout.h>
 #include <qeventloop.h>
+#include <qstyle.h>
+#include <qstyle.h>
+#include <QStyleOptionSpinBox>
 
 #ifdef Q_OS_WIN
 # include <windows.h>
@@ -134,6 +137,7 @@ private slots:
     void task98554();
 
     void cursorPos();
+    void calendarPopup();
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
@@ -2585,6 +2589,37 @@ void tst_QDateTimeEdit::wrapping()
     dt.setStyle(&enableOnBoundsStyle);
     QCOMPARE(dt.wrapping(), false);
 }
+
+void tst_QDateTimeEdit::calendarPopup()
+{
+    testWidget->setDisplayFormat("dd/MM/yyyy"); 
+    testWidget->setDateTime(QDateTime(QDate(2000, 1, 1), QTime(0, 0)));
+    testWidget->show();
+    testWidget->setCalendarPopup(true);
+    QCOMPARE(testWidget->calendarPopup(), true);
+    QStyle *style = testWidget->style();
+    QStyleOptionComboBox opt;
+    opt.initFrom(testWidget);
+    opt.subControls = QStyle::SC_ComboBoxArrow;
+    QRect rect = style->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, testWidget);
+    QTest::mouseClick(testWidget, Qt::LeftButton, 0, QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()/2));
+    QWidget *wid = testWidget->findChild<QWidget *>("qt_datetimedit_calendar");
+    QVERIFY(wid != 0);
+    testWidget->hide();
+
+    QTimeEdit *timeEdit = new QTimeEdit();
+    timeEdit->setCalendarPopup(true);
+    timeEdit->show();
+
+    opt.initFrom(timeEdit);
+    opt.subControls = QStyle::SC_ComboBoxArrow;
+    rect = style->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, timeEdit);
+    QTest::mouseClick(timeEdit, Qt::LeftButton, 0, QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()/2));
+    QWidget *wid2 = timeEdit->findChild<QWidget *>("qt_datetimedit_calendar");
+    QVERIFY(wid2 == 0);
+    timeEdit->hide();
+}
+
 #endif
 QTEST_MAIN(tst_QDateTimeEdit)
 #include "tst_qdatetimeedit.moc"
