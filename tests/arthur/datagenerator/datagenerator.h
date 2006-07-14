@@ -19,7 +19,7 @@ public:
 
     void run(int argc, char **argv);
 private:
-    void processArguments(int argc, char **argv);
+    bool processArguments(int argc, char **argv);
     void testEngines(XMLGenerator &generator, const QString &file,
                      const QString &refUrl);
     void testDirectory(const QString &dirname, const QString &refUrl);

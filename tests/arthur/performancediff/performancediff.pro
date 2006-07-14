@@ -7,6 +7,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = ../bin
 
+CONFIG += console
+
 QT += xml opengl svg
 
 # Input

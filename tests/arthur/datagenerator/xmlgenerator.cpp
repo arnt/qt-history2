@@ -154,7 +154,12 @@ void XMLGenerator::generateOutput(const QString &baseDir)
     foreach(XMLEngine *engine, engines) {
         QFile file(QString("%1/%2/data.xml").arg(dir.absolutePath())
                    .arg(engine->name));
+
+        dir.mkpath(QFileInfo(file).absolutePath());
+
         if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
+            fprintf(stderr, "Failed to open output file '%s' for writing\n",
+                    qPrintable(QFileInfo(file).absoluteFilePath()));
             return;
         }
         QTextStream out(&file);

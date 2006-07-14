@@ -1,7 +1,7 @@
 # -*- Mode: makefile -*-
 COMMON_FOLDER = $$PWD/../common
 include(../arthurtester.pri)
-CONFIG+=debug
+CONFIG += debug console
 TEMPLATE = app
 TARGET = datagenerator
 DEPENDPATH += .

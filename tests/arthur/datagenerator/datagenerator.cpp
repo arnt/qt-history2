@@ -76,7 +76,8 @@ DataGenerator::~DataGenerator()
 
 void DataGenerator::run(int argc, char **argv)
 {
-    processArguments(argc, argv);
+    if (!processArguments(argc, argv))
+        return;
 
     if (!fileName.isEmpty()) {
         testGivenFile();
@@ -184,7 +185,7 @@ void DataGenerator::prepareDirs()
     }
 }
 
-void DataGenerator::processArguments(int argc, char **argv)
+bool DataGenerator::processArguments(int argc, char **argv)
 {
     QString frameworkFile;
     for (int i=1; i < argc; ++i) {
@@ -221,9 +222,24 @@ void DataGenerator::processArguments(int argc, char **argv)
         dir.mkpath(outputDirName);
     }
 
+    if (!engineName.isEmpty()) {
+        QList<QEngine *> engines = QtEngines::self()->engines();
+        bool found = false;
+        for (int i=0; i<engines.size(); ++i)
+            found |= engines.at(i)->name() == engineName;
+        if (!found) {
+            qDebug("No such engine: '%s'\nAvailable engines are:", qPrintable(engineName));
+            for (int i=0; i<engines.size(); ++i)
+                qDebug("  %s", qPrintable(engines.at(i)->name()));
+            return false;
+        }
+    }
+
     if (!fileName.isEmpty()) {
         baseDataDir = QFileInfo(fileName).absoluteDir().absolutePath();
     }
+
+    return true;
 }
 
 void DataGenerator::testGivenFile()
