@@ -1333,7 +1333,7 @@ QWidget *QWidget::keyboardGrabber()
 
     On Windows, if you are calling this when the application is not
     currently the active one then it will not make it the active
-    window.  It will change the color of the task bar entry to indicate
+    window.  It will change the color of the taskbar entry to indicate
     that the window has changed in some way. This is because Microsoft
     do not allow an application to interrupt what the user is currently
     doing in another application.
