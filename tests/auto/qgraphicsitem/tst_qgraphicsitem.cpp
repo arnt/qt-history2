@@ -112,6 +112,7 @@ private slots:
     //void textControlGetterSetter();
     void defaultItemTest_QGraphicsPixmapItem();
     void itemChange();
+    void sceneEventFilter();
 };
 
 void tst_QGraphicsItem::construction()
@@ -2302,6 +2303,89 @@ void tst_QGraphicsItem::itemChange()
         QCOMPARE(parent.changes.last(), QGraphicsItem::ItemChildRemovedChange);
         QCOMPARE(qVariantValue<QGraphicsItem *>(parent.values.last()), (QGraphicsItem *)child); 
     }
+}
+
+class EventFilterTesterItem : public QGraphicsLineItem
+{
+public:
+    QList<QEvent::Type> filteredEvents;
+    QList<QGraphicsItem *> filteredEventReceivers;
+    bool handlesSceneEvents;
+
+    QList<QEvent::Type> receivedEvents;
+
+protected:
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+    {
+        qDebug() << "EventFilterTesterItem::sceneEventFilter:" << watched << event;
+        filteredEvents << event->type();
+        filteredEventReceivers << watched;
+        return handlesSceneEvents;
+    }
+
+    bool sceneEvent(QEvent *event)
+    {
+        qDebug() << "EventFilterTesterItem::sceneEvent:" << event;
+        return QGraphicsLineItem::sceneEvent(event);
+    }
+};
+
+void tst_QGraphicsItem::sceneEventFilter()
+{
+    QGraphicsScene scene;
+    QGraphicsView view(&scene);
+    view.show();
+    
+    QGraphicsTextItem *text1 = scene.addText(QLatin1String("Text1"));
+    QGraphicsTextItem *text2 = scene.addText(QLatin1String("Text2"));
+    QGraphicsTextItem *text3 = scene.addText(QLatin1String("Text3"));
+    text1->setFlag(QGraphicsItem::ItemIsFocusable);
+    text2->setFlag(QGraphicsItem::ItemIsFocusable);
+    text3->setFlag(QGraphicsItem::ItemIsFocusable);
+
+    EventFilterTesterItem *tester = new EventFilterTesterItem;
+    scene.addItem(tester);
+
+    QVERIFY(!text1->hasFocus());
+    text1->installSceneEventFilter(tester);
+    text1->setFocus();
+    QVERIFY(text1->hasFocus());
+
+    QCOMPARE(tester->filteredEvents.size(), 1);
+    QCOMPARE(tester->filteredEvents.at(0), QEvent::FocusIn);
+    QCOMPARE(tester->filteredEventReceivers.at(0), text1);
+
+    text2->installSceneEventFilter(tester);
+    text3->installSceneEventFilter(tester);
+
+    text2->setFocus();
+    text3->setFocus();
+
+    QCOMPARE(tester->filteredEvents.size(), 5);
+    QCOMPARE(tester->filteredEvents.at(1), QEvent::FocusOut);
+    QCOMPARE(tester->filteredEventReceivers.at(1), text1);
+    QCOMPARE(tester->filteredEvents.at(2), QEvent::FocusIn);
+    QCOMPARE(tester->filteredEventReceivers.at(2), text2);
+    QCOMPARE(tester->filteredEvents.at(3), QEvent::FocusOut);
+    QCOMPARE(tester->filteredEventReceivers.at(3), text2);
+    QCOMPARE(tester->filteredEvents.at(4), QEvent::FocusIn);
+    QCOMPARE(tester->filteredEventReceivers.at(4), text3);
+
+    text1->removeSceneEventFilter(tester);
+    text1->setFocus();
+
+    QCOMPARE(tester->filteredEvents.size(), 6);
+    QCOMPARE(tester->filteredEvents.at(5), QEvent::FocusOut);
+    QCOMPARE(tester->filteredEventReceivers.at(5), text3);
+
+    tester->handlesSceneEvents = true;
+    text2->setFocus();
+
+    QCOMPARE(tester->filteredEvents.size(), 7);
+    QCOMPARE(tester->filteredEvents.at(6), QEvent::FocusIn);
+    QCOMPARE(tester->filteredEventReceivers.at(6), text2);
+
+    QVERIFY(text2->hasFocus());
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
