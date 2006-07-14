@@ -1437,6 +1437,39 @@ void tst_QTableView::rowViewportPosition_data()
 
     QTest::newRow("row 1, scroll per item, 1")
         << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 1 << 0;
+
+    QTest::newRow("row 5, scroll per item, 0")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerItem) << 0 << 5 * 40;
+
+    QTest::newRow("row 5, scroll per item, 5")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerItem) << 5 << 0;
+
+    QTest::newRow("row 9, scroll per item, 0")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 0 << 9 * 40;
+
+    QTest::newRow("row 9, scroll per item, 5")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 5 << 4 * 40;
+    
+    QTest::newRow("row 0, scroll per pixel 0")
+        << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerPixel) << 0 << 0;
+
+    QTest::newRow("row 1, scroll per pixel, 0")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerPixel) << 0 << 1 * 40;
+
+    QTest::newRow("row 1, scroll per pixel, 1")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerPixel) << 1 * 40 << 0;
+
+    QTest::newRow("row 5, scroll per pixel, 0")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerPixel) << 0 << 5 * 40;
+
+    QTest::newRow("row 5, scroll per pixel, 5")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerPixel) << 5 * 40 << 0;
+
+    QTest::newRow("row 9, scroll per pixel, 0")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerPixel) << 0 << 9 * 40;
+
+    QTest::newRow("row 9, scroll per pixel, 5")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerPixel) << 5 * 40 << 4 * 40;
 }
 
 void tst_QTableView::rowViewportPosition()
@@ -1450,6 +1483,8 @@ void tst_QTableView::rowViewportPosition()
 
     QtTestTableModel model(rowCount, 1);
     QtTestTableView view;
+    view.resize(100, 2 * rowHeight);
+    view.show();
 
     view.setModel(&model);
     for (int r = 0; r < rowCount; ++r)
@@ -1463,10 +1498,16 @@ void tst_QTableView::rowViewportPosition()
     
 void tst_QTableView::rowAt_data()
 {
+//     QTest::addColumn<int>("rowCount");
+//     QTest::addColumn<int>("rowHeight");
+//     QTest::addColumn<int>("row");
 }
 
 void tst_QTableView::rowAt()
 {
+//     QFETCH(int, rowCount);
+//     QFETCH(int, rowHeight);
+//     QFETCH(int, row);
 }
 
 void tst_QTableView::rowHeight_data()
@@ -1494,6 +1535,39 @@ void tst_QTableView::columnViewportPosition_data()
 
     QTest::newRow("column 1, scroll per item, 1")
         << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 1 << 0;
+
+    QTest::newRow("column 5, scroll per item, 0")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerItem) << 0 << 5 * 40;
+
+    QTest::newRow("column 5, scroll per item, 5")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerItem) << 5 << 0;
+
+    QTest::newRow("column 9, scroll per item, 0")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 0 << 9 * 40;
+
+    QTest::newRow("column 9, scroll per item, 5")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerItem) << 5 << 4 * 40;
+    
+    QTest::newRow("column 0, scroll per pixel 0")
+        << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerPixel) << 0 << 0;
+
+    QTest::newRow("column 1, scroll per pixel 0")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerPixel) << 0 << 1 * 40;
+
+    QTest::newRow("column 1, scroll per pixel 1")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerPixel) << 1 * 40 << 0;
+
+    QTest::newRow("column 5, scroll per pixel 0")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerPixel) << 0 << 5 * 40;
+
+    QTest::newRow("column 5, scroll per pixel 5")
+        << 10 << 40 << 5 << int(QAbstractItemView::ScrollPerPixel) << 5 * 40 << 0;
+
+    QTest::newRow("column 9, scroll per pixel 0")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerPixel) << 0 << 9 * 40;
+
+    QTest::newRow("column 9, scroll per pixel 5")
+        << 10 << 40 << 9 << int(QAbstractItemView::ScrollPerPixel) << 5 * 40 << 4 * 40;
 }
 
 void tst_QTableView::columnViewportPosition()
@@ -1507,6 +1581,8 @@ void tst_QTableView::columnViewportPosition()
 
     QtTestTableModel model(1, columnCount);
     QtTestTableView view;
+    view.resize(2 * columnWidth, 100);
+    view.show();
 
     view.setModel(&model);
     for (int c = 0; c < columnCount; ++c)
