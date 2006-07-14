@@ -204,6 +204,16 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 */
 
 /*!
+  \enum QDBusConnection::CallMode
+  The mode for calling a method:
+
+  \value NoBlock    send the message and return without waiting for an answer
+  \value Block      send the message and block the thread while waiting for an answer
+
+  \sa call()
+*/
+
+/*!
     Creates a QDBusConnection object attached to the connection with name \a name.
 
     This does not open the connection. You have to call QDBusConnection::addConnection to open it.
