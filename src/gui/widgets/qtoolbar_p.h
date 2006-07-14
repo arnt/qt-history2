@@ -61,8 +61,7 @@ public:
     void _q_updateToolButtonStyle(Qt::ToolButtonStyle style);
     QToolBarItem createItem(QAction *action);
     int indexOf(QAction *action) const;
-    void updateLayoutMetrics();
-    
+
     bool explicitIconSize;
     bool explicitToolButtonStyle;
     bool movable;
