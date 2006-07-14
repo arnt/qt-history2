@@ -60,7 +60,7 @@ public:
     void translateExpose(QWSRegionModifiedEvent *re, const QPoint &p);
 #endif
     void init();
-    void reinit();
+    void reinit( const QString& newAppName );
     void create(int n = 1);
 
     void sendCommand(QWSCommand & cmd);

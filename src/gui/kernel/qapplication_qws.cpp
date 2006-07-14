@@ -453,36 +453,42 @@ void QWSDisplay::Data::setMouseFilter(void (*filter)(QWSMouseEvent*))
 QWSLock* QWSDisplay::Data::clientLock = 0;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-int qt_fork_qapplication()
+void qt_app_reinit( const QString& newAppName )
 {
-    int rv = ::fork();
-    if(0 == rv)
-        qt_fbdpy->d->reinit();
-    return rv;
+    qt_fbdpy->d->reinit( newAppName );
 }
+
 #endif
 
 class QDesktopWidget;
 extern QDesktopWidget *qt_desktopWidget;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void QWSDisplay::Data::reinit()
+void QWSDisplay::Data::reinit( const QString& newAppName )
 {
     Q_ASSERT(csocket);
 
+    delete connected_event;
     connected_event = 0;
 //    region_ack = 0;
+    delete mouse_event;
     mouse_event = 0;
 //    region_event = 0;
     region_offset_window = 0;
 #ifndef QT_NO_COP
+    delete qcop_response;
     qcop_response = 0;
 #endif
+    delete current_event;
     current_event = 0;
 #ifdef QAPPLICATION_EXTRA_DEBUG
     mouse_event_count = 0;
 #endif
     mouseFilter = 0;
+
+    qt_desktopWidget = 0;
+    delete QWSDisplay::Data::clientLock;
+    QWSDisplay::Data::clientLock = 0;
 
     QString pipe = qws_qtePipeFilename();
 
@@ -490,10 +496,16 @@ void QWSDisplay::Data::reinit()
     // Cleanup all cached ids
     unused_identifiers.clear();
     delete csocket;
+
+    appName = newAppName;
+    qApp->setObjectName( appName );
+
     csocket = new QWSSocket();
     QObject::connect(csocket, SIGNAL(disconnected()),
                      qApp, SLOT(quit()));
     csocket->connectToLocalFile(pipe);
+
+    QWSDisplay::Data::clientLock = new QWSLock();
 
     QWSIdentifyCommand cmd;
     cmd.setId(appName, QWSDisplay::Data::clientLock->id());
@@ -505,6 +517,7 @@ void QWSDisplay::Data::reinit()
             QTransportAuth::Trusted,
             csocket->socketDescriptor());
     QAuthDevice *ad = a->authBuf( d, csocket );
+    ad->setClient( reinterpret_cast<void*>(csocket) );
 
     cmd.write(ad);
 #else
@@ -516,10 +529,6 @@ void QWSDisplay::Data::reinit()
 
     qws_client_id = connected_event->simpleData.clientId;
 
-    delete qt_desktopWidget;
-    qt_desktopWidget = 0;
-    qApp->desktop();
-
     if (!QWSDisplay::initLock(pipe, false))
         qFatal("Cannot get display lock");
 
@@ -530,6 +539,9 @@ void QWSDisplay::Data::reinit()
         perror("QWSDisplay::Data::init");
         qFatal("Client can't attach to main ram memory.");
     }
+
+    qApp->desktop();
+
     sharedRam = static_cast<uchar *>(shm.address());
 
     sharedRamSize -= sizeof(int);

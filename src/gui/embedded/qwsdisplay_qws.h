@@ -125,6 +125,7 @@ public:
 
 private:
     friend int qt_fork_qapplication();
+    friend void qt_app_reinit( const QString& newAppName );
     friend class QApplication;
     friend class QCopChannel;
     class Data;
