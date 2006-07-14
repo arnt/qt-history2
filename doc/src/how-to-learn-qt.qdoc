@@ -21,15 +21,13 @@
     We assume that you already know C++.
 
     The best way to learn Qt is to read the official Qt book,
-    \l{http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/}{C++
-    GUI Programming with Qt 3} (ISBN 0-13-124072-2). This book is also
-    available \l{http://phptr.com/content/images/0131240722/downloads/blanchette_book.pdf}{online (PDF, 21.8 MB)}.
-    This book provides comprehensive coverage of Qt programming all the
-    way from "Hello Qt" to advanced features like multithreading, 2D and
-    3D graphics, networking, and XML. The book covers Qt 3; a Qt 4 version
-    of the book is in the works. See
-    \l{http://www.trolltech.com/developer/books.html}{Qt Programming Books}
-    for a complete list of Qt books, including translations.
+    \l{http://www.amazon.com/gp/product/0131872494/ref=ase_trolltech/}{C++
+    GUI Programming with Qt 4} (ISBN 0-13-187249-4). This book
+    provides comprehensive coverage of Qt programming all the way
+    from "Hello Qt" to advanced features like multithreading, 2D and
+    3D graphics, networking, item view classes, and XML. See
+    \l{http://www.trolltech.com/developer/books.html}{Qt Programming
+    Books} for a complete list of Qt books, including translations.
 
     If you want to program purely in C++, designing your interfaces
     in code without the aid of any design tools, read the
