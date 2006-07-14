@@ -795,7 +795,8 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     be 32-bit aligned.
 
     The buffer must remain valid throughout the life of the
-    QImage. The image does not delete the buffer at destruction.
+    QImage and all copies that have not been modified or otherwise detached from
+    the original buffer. The image does not delete the buffer at destruction.
 
     If the image is in an indexed color format, set the color table
     for the image using setColorTable().
