@@ -1395,6 +1395,8 @@ void tst_QGraphicsView::cursor()
     view.viewport()->setCursor(Qt::PointingHandCursor);
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
 
+    QTest::mouseMove(&view, view.mapFromScene(0, 0));
+
     QMouseEvent event(QEvent::MouseMove,
                       view.mapFromScene(0, 0),
                       Qt::NoButton, 0, 0);
