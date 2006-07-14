@@ -777,8 +777,12 @@ void QGraphicsItem::setVisible(bool visible)
         if (isSelected())
             setSelected(false);
     }
+
+    if (!visible)
+        update();
     d_ptr->visible = itemChange(ItemVisibleChange, quint32(visible)).toBool();
-    update();
+    if (visible)
+        update();
 
     foreach (QGraphicsItem *child, children())
         child->setVisible(visible);
