@@ -82,6 +82,7 @@ int showHelp(const char *argv0, const QString &error)
             "  -compress level   compress input files by level\n"
             "  -root path        prefix resource access path with root path\n"
             "  -no-compress      disable all compression\n"
+            "  -binary           output a binary file for use as a dynamic resource\n"
             "  -version          display version\n"
             "  -help             display this information\n",
             argv0);
