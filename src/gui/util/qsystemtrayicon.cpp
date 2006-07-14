@@ -242,8 +242,8 @@ bool QSystemTrayIcon::event(QEvent *e)
      \value Unknown     Unknown reason
      \value Context     The context menu for the system tray entry was requested
      \value DoubleClick The system tray entry was double clicked
-     \value Trigger     The system tray entray was clicked
-     \value MiddleClick The system tray entray was clicked with the middle mouse button
+     \value Trigger     The system tray entry was clicked
+     \value MiddleClick The system tray entry was clicked with the middle mouse button
 
      \sa activated()
 */
