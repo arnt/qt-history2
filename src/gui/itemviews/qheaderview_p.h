@@ -106,7 +106,8 @@ public:
     }
 
     inline void setDefaultValues(Qt::Orientation o) {
-        defaultSectionSize = (o == Qt::Horizontal ? 100 : 30);
+        defaultSectionSize = (o == Qt::Horizontal ? 100
+                              : qMax(q_func()->minimumSectionSize(), 30));
         defaultAlignment = (o == Qt::Horizontal
                             ? Qt::Alignment(Qt::AlignCenter)
                             : Qt::AlignLeft|Qt::AlignVCenter);
