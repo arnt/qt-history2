@@ -1548,85 +1548,20 @@ void QVariant::clear()
     d.is_shared = false;
 }
 
-/* Attention!
-
-   For dependency reasons, this table is duplicated in moc's
-   generator.cpp. If you change one, change both.
-
-   (Search for the word 'Attention' in generator.cpp)
-*/
-enum { CoreTypeCount = QVariant::RegExp + 1 };
-static const char* const core_type_map[CoreTypeCount] =
-{
-    0,
-    "bool",
-    "int",
-    "uint",
-    "qlonglong",
-    "qulonglong",
-    "double",
-    "QChar",
-    "QVariantMap",
-    "QVariantList",
-    "QString",
-    "QStringList",
-    "QByteArray",
-    "QBitArray",
-    "QDate",
-    "QTime",
-    "QDateTime",
-    "QUrl",
-    "QLocale",
-    "QRect",
-    "QRectF",
-    "QSize",
-    "QSizeF",
-    "QLine",
-    "QLineF",
-    "QPoint",
-    "QPointF",
-    "QRegExp"
-};
-
-enum { GuiTypeCount = QVariant::Matrix - QVariant::Font + 2 };
-static const char* const gui_type_map[GuiTypeCount] =
-{
-    "QColorGroup",
-    "QFont",
-    "QPixmap",
-    "QBrush",
-    "QColor",
-    "QPalette",
-    "QIcon",
-    "QImage",
-    "QPolygon",
-    "QRegion",
-    "QBitmap",
-    "QCursor",
-    "QSizePolicy",
-    "QKeySequence",
-    "QPen",
-    "QTextLength",
-    "QTextFormat",
-    "QMatrix"
-};
-
-
 /*!
     Converts the enum representation of the storage type, \a typ, to
     its string representation.
+
+    Returns a null pointer if the type is QVariant::Invalid or doesn't exist.
 */
 const char *QVariant::typeToName(Type typ)
 {
+    if (typ == Invalid)
+        return 0;
     if (typ == UserType)
         return "UserType";
-    if (typ < int(CoreTypeCount))
-        return core_type_map[typ];
-    if (typ >= QVariant::Font - 1 && typ <= QVariant::Matrix)
-        return gui_type_map[int(typ) - QVariant::Font + 1];
-    if (typ > QVariant::UserType )
-        return QMetaType::typeName(typ);
-    return 0;
+
+    return QMetaType::typeName(typ);
 }
 
 
@@ -1639,9 +1574,7 @@ const char *QVariant::typeToName(Type typ)
 */
 QVariant::Type QVariant::nameToType(const char *name)
 {
-    if (!name)
-        return Invalid;
-    if (name[0] == '\0')
+    if (!name || !*name)
         return Invalid;
     if (strcmp(name, "Q3CString") == 0)
         return ByteArray;
@@ -1653,18 +1586,9 @@ QVariant::Type QVariant::nameToType(const char *name)
         return Icon;
     if (strcmp(name, "UserType") == 0)
         return UserType;
-    int i;
-    for (i = 1; i < CoreTypeCount; ++i) {
-        if (strcmp(core_type_map[i], name) == 0)
-            return Type(i);
-    }
-    for (i = 0; i < GuiTypeCount; ++i) {
-        if (strcmp(gui_type_map[i], name) == 0)
-            return Type(i + QVariant::Font - 1);
-    }
-    if (QMetaType::type(name))
-        return UserType;
-    return Invalid;
+
+    int metaType = QMetaType::type(name);
+    return metaType <= int(LastGuiType) ? QVariant::Type(metaType) : UserType;
 }
 
 #ifndef QT_NO_DATASTREAM

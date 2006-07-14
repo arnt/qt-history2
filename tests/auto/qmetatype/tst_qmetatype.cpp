@@ -14,6 +14,8 @@
 # include <pthread.h>
 #endif
 
+Q_DECLARE_METATYPE(QMetaType::Type)
+
 class tst_QMetaType: public QObject
 {
     Q_OBJECT
@@ -35,6 +37,8 @@ private slots:
     void qMetaTypeId();
     void properties();
     void normalizedTypes();
+    void typeName_data();
+    void typeName();
 };
 
 struct Foo { int i; };
@@ -165,6 +169,30 @@ void tst_QMetaType::normalizedTypes()
     QCOMPARE(qRegisterMetaType<Whity<double> >(" Whity < double > "), WhityDoubleId);
     QCOMPARE(qRegisterMetaType<Whity<double> >("Whity<double>"), WhityDoubleId);
     QCOMPARE(qRegisterMetaType<Whity<double> >("Whity<double > "), WhityDoubleId);
+}
+
+void tst_QMetaType::typeName_data()
+{
+    QTest::addColumn<QMetaType::Type>("aType");
+    QTest::addColumn<QString>("aTypeName");
+
+    QTest::newRow("void") << QMetaType::Void << "void";
+    QTest::newRow("int") << QMetaType::Int << "int";
+    QTest::newRow("double") << QMetaType::Double << "double";
+    QTest::newRow("qlonglong") << QMetaType::LongLong << "qlonglong";
+    QTest::newRow("QRegExp") << QMetaType::QRegExp << "QRegExp";
+    QTest::newRow("QColorGroup") << QMetaType::Type(63) << "QColorGroup";
+    QTest::newRow("void*") << QMetaType::VoidStar << "void*";
+    QTest::newRow("ulong") << QMetaType::ULong << "ulong";
+    QTest::newRow("QWidget*") << QMetaType::QWidgetStar << "QWidget*";
+}
+
+void tst_QMetaType::typeName()
+{
+    QFETCH(QMetaType::Type, aType);
+    QFETCH(QString, aTypeName);
+
+    QCOMPARE(QString::fromLatin1(QMetaType::typeName(aType)), aTypeName);
 }
 
 QTEST_MAIN(tst_QMetaType)

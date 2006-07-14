@@ -1574,7 +1574,7 @@ void tst_QVariant::typeName()
 void tst_QVariant::typeToName()
 {
     QVariant v;
-    QVERIFY( QVariant::typeToName( v.type() ) == 0 ); // Invalid
+    QCOMPARE( QVariant::typeToName( v.type() ), (const char*)0 ); // Invalid
     // assumes that QVariant::Type contains consecutive values
 
     int max = QVariant::Matrix;

@@ -118,6 +118,8 @@ class Q_CORE_EXPORT QVariant
         TextLength = 78,
         TextFormat = 79,
         Matrix = 80,
+        LastGuiType = Matrix,
+
         UserType = 127,
 #ifdef QT3_SUPPORT
         IconSet = Icon,

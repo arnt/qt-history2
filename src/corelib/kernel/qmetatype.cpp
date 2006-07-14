@@ -31,8 +31,6 @@
 #include "qline.h"
 #endif
 
-enum { QFirstVariantGuiType = 63 /* QColorGroup */, QLastVariantGuiType = QMetaType::QMatrix };
-
 /*!
     \macro Q_DECLARE_METATYPE(Type)
     \relates QMetaType
@@ -162,31 +160,23 @@ enum { QFirstVariantGuiType = 63 /* QColorGroup */, QLastVariantGuiType = QMetaT
     \sa Q_DECLARE_METATYPE(), QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */
 
+/* Note: these MUST be in the order of the enums */
 static const struct { const char * typeName; int type; } types[] = {
-    {"void*", QMetaType::VoidStar},
-    {"long", QMetaType::Long},
-    {"int", QMetaType::Int},
-    {"short", QMetaType::Short},
-    {"char", QMetaType::Char},
-    {"ulong", QMetaType::ULong},
-    {"unsigned long", QMetaType::ULong},
-    {"uint", QMetaType::UInt},
-    {"unsigned int", QMetaType::UInt},
-    {"ushort", QMetaType::UShort},
-    {"unsigned short", QMetaType::UShort},
-    {"uchar", QMetaType::UChar},
-    {"unsigned char", QMetaType::UChar},
+
+    /* All Core types */
+    {"void", QMetaType::Void},
     {"bool", QMetaType::Bool},
-    {"float", QMetaType::Float},
-    {"double", QMetaType::Double},
+    {"int", QMetaType::Int},
+    {"uint", QMetaType::UInt},
     {"qlonglong", QMetaType::LongLong},
     {"qulonglong", QMetaType::ULongLong},
+    {"double", QMetaType::Double},
     {"QChar", QMetaType::QChar},
     {"QVariantMap", QMetaType::QVariantMap},
     {"QVariantList", QMetaType::QVariantList},
-    {"QByteArray", QMetaType::QByteArray},
     {"QString", QMetaType::QString},
     {"QStringList", QMetaType::QStringList},
+    {"QByteArray", QMetaType::QByteArray},
     {"QBitArray", QMetaType::QBitArray},
     {"QDate", QMetaType::QDate},
     {"QTime", QMetaType::QTime},
@@ -202,8 +192,9 @@ static const struct { const char * typeName; int type; } types[] = {
     {"QPoint", QMetaType::QPoint},
     {"QPointF", QMetaType::QPointF},
     {"QRegExp", QMetaType::QRegExp},
-    {"QObject*", QMetaType::QObjectStar},
-    {"QWidget*", QMetaType::QWidgetStar},
+
+    /* All GUI types */
+    {"QColorGroup", QMetaType::QColorGroup},
     {"QFont", QMetaType::QFont},
     {"QPixmap", QMetaType::QPixmap},
     {"QBrush", QMetaType::QBrush},
@@ -221,8 +212,25 @@ static const struct { const char * typeName; int type; } types[] = {
     {"QTextLength", QMetaType::QTextLength},
     {"QTextFormat", QMetaType::QTextFormat},
     {"QMatrix", QMetaType::QMatrix},
-    {"void", QMetaType::Void},
-    {"", QMetaType::Void},
+
+    /* All Metatype builtins */
+    {"void*", QMetaType::VoidStar},
+    {"long", QMetaType::Long},
+    {"short", QMetaType::Short},
+    {"char", QMetaType::Char},
+    {"ulong", QMetaType::ULong},
+    {"ushort", QMetaType::UShort},
+    {"uchar", QMetaType::UChar},
+    {"float", QMetaType::Float},
+    {"QObject*", QMetaType::QObjectStar},
+    {"QWidget*", QMetaType::QWidgetStar},
+
+    /* Type aliases - order doesn't matter */
+    {"unsigned long", QMetaType::ULong},
+    {"unsigned int", QMetaType::UInt},
+    {"unsigned short", QMetaType::UShort},
+    {"unsigned char", QMetaType::UChar},
+
     {0, QMetaType::Void}
 };
 
@@ -287,22 +295,22 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 */
 const char *QMetaType::typeName(int type)
 {
-    if (type >= User) {
-        if (!isRegistered(type))
-            return 0;
+    enum { GuiTypeCount = LastGuiType - FirstGuiType };
 
+    if (type >= 0 && type <= LastCoreType) {
+        return types[type].typeName;
+    } else if (type >= FirstGuiType && type <= LastGuiType) {
+        return types[type - FirstGuiType + LastCoreType + 1].typeName;
+    } else if (type >= FirstCoreExtType && type <= LastCoreExtType) {
+        return types[type - FirstCoreExtType + GuiTypeCount + LastCoreType + 2].typeName;
+    } else if (type >= User) {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
-        if (!ct)
-            return 0;
         QReadLocker locker(customTypesLock());
-        return ct->at(type - User).typeName.constData();
+        return ct && ct->count() > type - User
+                ? ct->at(type - User).typeName.constData()
+                : static_cast<const char *>(0);
     }
-    int i = 0;
-    while (types[i].typeName) {
-        if (types[i].type == type)
-            return types[i].typeName;
-        ++i;
-    }
+
     return 0;
 }
 
@@ -544,7 +552,7 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     case QMetaType::QMatrix:
         if (!qMetaTypeGuiHelper)
             return false;
-        qMetaTypeGuiHelper[type - QFirstVariantGuiType].saveOp(stream, data);
+        qMetaTypeGuiHelper[type - FirstGuiType].saveOp(stream, data);
         break;
     default: {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
@@ -722,7 +730,7 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     case QMetaType::QMatrix:
         if (!qMetaTypeGuiHelper)
             return false;
-        qMetaTypeGuiHelper[type - QFirstVariantGuiType].loadOp(stream, data);
+        qMetaTypeGuiHelper[type - FirstGuiType].loadOp(stream, data);
         break;
     default: {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
@@ -917,10 +925,10 @@ void *QMetaType::construct(int type, const void *copy)
     }
 
     Constructor constr = 0;
-    if (type >= QFirstVariantGuiType && type <= QLastVariantGuiType) {
+    if (type >= FirstGuiType && type <= LastGuiType) {
         if (!qMetaTypeGuiHelper)
             return 0;
-        constr = qMetaTypeGuiHelper[type - QFirstVariantGuiType].constr;
+        constr = qMetaTypeGuiHelper[type - FirstGuiType].constr;
     } else {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
         QReadLocker locker(customTypesLock());
@@ -1057,12 +1065,12 @@ void QMetaType::destroy(int type, void *data)
     default: {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
         Destructor destr = 0;
-        if (type >= QFirstVariantGuiType && type <= QLastVariantGuiType) {
+        if (type >= FirstGuiType && type <= LastGuiType) {
             Q_ASSERT(qMetaTypeGuiHelper);
 
             if (!qMetaTypeGuiHelper)
                 return;
-            destr = qMetaTypeGuiHelper[type - QFirstVariantGuiType].destr;
+            destr = qMetaTypeGuiHelper[type - FirstGuiType].destr;
         } else {
             QReadLocker locker(customTypesLock());
             if (type < User || !ct || ct->count() <= type - User)
