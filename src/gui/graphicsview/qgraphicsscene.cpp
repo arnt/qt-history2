@@ -457,43 +457,53 @@ void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouse
 /*!
     \internal
 */
-void QGraphicsScenePrivate::installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
+void QGraphicsScenePrivate::installSceneEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
-    eventFilters.insert(watched, filter);
+    sceneEventFilters.insert(watched, filter);
 }
 
 /*!
     \internal
 */
-void QGraphicsScenePrivate::removeEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
+void QGraphicsScenePrivate::removeSceneEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
-    if (!eventFilters.contains(watched))
+    if (!sceneEventFilters.contains(watched))
         return;
 
-    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = eventFilters.lowerBound(watched);
-    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = eventFilters.upperBound(watched);
+    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = sceneEventFilters.lowerBound(watched);
+    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = sceneEventFilters.upperBound(watched);
     do {
         if (it.value() == filter)
-            eventFilters.erase(it);
+            sceneEventFilters.erase(it);
     } while (++it != end);
 }
 
 /*!
     \internal
 */
-bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QGraphicsSceneEvent *event)
+bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QEvent *event)
 {
-    if (!eventFilters.contains(item))
+    if (item && !sceneEventFilters.contains(item))
         return false;
 
-    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = eventFilters.lowerBound(item);
-    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = eventFilters.upperBound(item);
+    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = sceneEventFilters.lowerBound(item);
+    QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = sceneEventFilters.upperBound(item);
     while (it != end) {
         if (it.value()->sceneEventFilter(it.key(), event))
             return true;
         ++it;
     }
     return false;
+}
+
+/*!
+    \internal
+*/
+bool QGraphicsScenePrivate::sendEvent(QGraphicsItem *item, QEvent *event)
+{
+    if (filterEvent(item, event))
+        return false;
+    return item ? item->sceneEvent(event) : false;
 }
 
 /*!
@@ -522,7 +532,7 @@ void QGraphicsScenePrivate::sendDragDropEvent(QGraphicsItem *item,
                                               QGraphicsSceneDragDropEvent *dragDropEvent)
 {
     dragDropEvent->setPos(item->mapFromScene(dragDropEvent->scenePos()));
-    item->sceneEvent(dragDropEvent);
+    sendEvent(item, dragDropEvent);
 }
 
 /*!
@@ -536,7 +546,7 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
     event.setPos(item->mapFromScene(hoverEvent->scenePos()));
     event.setScenePos(hoverEvent->scenePos());
     event.setScreenPos(hoverEvent->screenPos());
-    item->sceneEvent(&event);
+    sendEvent(item, &event);
 }
 
 /*!
@@ -554,7 +564,7 @@ void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
     mouseEvent->setPos(mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
     mouseEvent->setLastPos(mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
-    mouseGrabberItem->sceneEvent(mouseEvent);
+    sendEvent(mouseGrabberItem, mouseEvent);
 }
 
 /*!
@@ -1601,7 +1611,7 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
 
     if (d->focusItem) {
         QFocusEvent event(QEvent::FocusOut, focusReason);
-        d->focusItem->sceneEvent(&event);
+        d->sendEvent(d->focusItem, &event);
         d->lastFocusItem = d->focusItem;
         d->focusItem = 0;
         d->lastFocusItem->update();
@@ -1610,7 +1620,7 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
     if (item) {
         d->focusItem = item;
         QFocusEvent event(QEvent::FocusIn, focusReason);
-        item->sceneEvent(&event);
+        d->sendEvent(item, &event);
         item->update();
     }
 }
@@ -1944,9 +1954,10 @@ bool QGraphicsScene::event(QEvent *event)
 */
 void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
 {
+    Q_D(QGraphicsScene);
     if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
         contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
-        item->sceneEvent(contextMenuEvent);
+        d->sendEvent(item, contextMenuEvent);
     }
 }
 
@@ -2099,6 +2110,7 @@ void QGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 void QGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
 {
     Q_D(QGraphicsScene);
+
     d->hasFocus = true;
     if (d->lastFocusItem) {
         // Set focus on the last focus item
@@ -2233,8 +2245,9 @@ void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEv
 */
 void QGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
 {
+    Q_D(QGraphicsScene);
     if (QGraphicsItem *item = focusItem())
-        item->sceneEvent(keyEvent);
+        d->sendEvent(item, keyEvent);
     else
         keyEvent->ignore();
 }
@@ -2248,8 +2261,9 @@ void QGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
 */
 void QGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
+    Q_D(QGraphicsScene);
     if (QGraphicsItem *item = focusItem())
-        item->sceneEvent(keyEvent);
+        d->sendEvent(item, keyEvent);
     else
         keyEvent->ignore();
 }
@@ -2378,10 +2392,11 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 */
 void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
 {
+    Q_D(QGraphicsScene);
     foreach (QGraphicsItem *item, items(wheelEvent->scenePos())) {
         wheelEvent->setPos(item->mapFromScene(wheelEvent->scenePos()));
         wheelEvent->accept();
-        item->sceneEvent(wheelEvent);
+        d->sendEvent(item, wheelEvent);
         if (wheelEvent->isAccepted())
             break;
     }
@@ -2401,7 +2416,7 @@ void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
     Q_D(QGraphicsScene);
     if (!d->focusItem)
         return;
-    d->focusItem->sceneEvent(event);
+    d->sendEvent(d->focusItem, event);
 }
 
 /*!

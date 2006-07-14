@@ -2197,10 +2197,10 @@ int QGraphicsItem::type() const
         QGraphicsEllipseItem *ellipse = scene.addEllipse(QRectF(-10, -10, 20, 20));
         QGraphicsLineItem *line = scene.addLine(QLineF(-10, -10, 20, 20));
 
-        line->installEventFilter(ellipse);
+        line->installSceneEventFilter(ellipse);
         // line's events are filtered by ellipse's sceneEventFilter() function.
 
-        ellipse->installEventFilter(line);
+        ellipse->installSceneEventFilter(line);
         // ellipse's events are filtered by line's sceneEventFilter() function.
     \endcode
 
@@ -2208,33 +2208,33 @@ int QGraphicsItem::type() const
     scene. Also, an item cannot filter its own events; instead, you
     can reimplement sceneEvent() directly.
 
-    \sa removeEventFilter(), sceneEventFilter(), sceneEvent()
+    \sa removeSceneEventFilter(), sceneEventFilter(), sceneEvent()
 */
-void QGraphicsItem::installEventFilter(QGraphicsItem *filterItem)
+void QGraphicsItem::installSceneEventFilter(QGraphicsItem *filterItem)
 {
     if (!d_ptr->scene) {
-        qWarning("QGraphicsItem::installEventFilter: event filters can only be installed"
+        qWarning("QGraphicsItem::installSceneEventFilter: event filters can only be installed"
                  " on items in a scene.");
         return;
     }
     if (d_ptr->scene != filterItem->scene()) {
-        qWarning("QGraphicsItem::installEventFilter: event filters can only be installed"
+        qWarning("QGraphicsItem::installSceneEventFilter: event filters can only be installed"
                  " on items in the same scene.");
         return;
     }
-    d_ptr->scene->d_func()->installEventFilter(filterItem, this);
+    d_ptr->scene->d_func()->installSceneEventFilter(this, filterItem);
 }
 
 /*!
     Removes an event filter on this item from \a filterItem.
 
-    \sa installEventFilter()
+    \sa installSceneEventFilter()
 */
-void QGraphicsItem::removeEventFilter(QGraphicsItem *filterItem)
+void QGraphicsItem::removeSceneEventFilter(QGraphicsItem *filterItem)
 {
     if (!d_ptr->scene || d_ptr->scene != filterItem->scene())
         return;
-    d_ptr->scene->d_func()->removeEventFilter(filterItem, this);
+    d_ptr->scene->d_func()->removeSceneEventFilter(this, filterItem);
 }
 
 /*!
@@ -2245,7 +2245,7 @@ void QGraphicsItem::removeEventFilter(QGraphicsItem *filterItem)
 
     \sa installEventFilter()
 */
-bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event)
+bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
     Q_UNUSED(watched);
     Q_UNUSED(event);

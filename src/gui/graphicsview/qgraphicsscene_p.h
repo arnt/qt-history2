@@ -91,10 +91,11 @@ public:
 
     QList<QGraphicsView *> views;
 
-    QMultiMap<QGraphicsItem *, QGraphicsItem *> eventFilters;
-    void installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
-    void removeEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
-    bool filterEvent(QGraphicsItem *item, QGraphicsSceneEvent *event);
+    QMultiMap<QGraphicsItem *, QGraphicsItem *> sceneEventFilters;
+    void installSceneEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
+    void removeSceneEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
+    bool filterEvent(QGraphicsItem *item, QEvent *event);
+    bool sendEvent(QGraphicsItem *item, QEvent *event);
 
     void dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent);
 

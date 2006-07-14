@@ -221,11 +221,11 @@ public:
     };
     virtual int type() const;
 
-    void installEventFilter(QGraphicsItem *filterItem);
-    void removeEventFilter(QGraphicsItem *filterItem);
+    void installSceneEventFilter(QGraphicsItem *filterItem);
+    void removeSceneEventFilter(QGraphicsItem *filterItem);
 
 protected:
-    virtual bool sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event);
+    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
     virtual bool sceneEvent(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
