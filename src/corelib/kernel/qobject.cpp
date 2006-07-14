@@ -2309,6 +2309,12 @@ bool QObject::connect(const QObject *sender, const char *signal,
                       const QObject *receiver, const char *method,
                       Qt::ConnectionType type)
 {
+    {
+        const void *cbdata[] = { sender, signal, receiver, method, &type };
+        if (QInternal::activateCallbacks(QInternal::ConnectCallback, (void **) cbdata))
+            return true;
+    }
+
 #ifndef QT_NO_DEBUG
     bool warnCompat = true;
 #endif
@@ -2506,6 +2512,12 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     if (sender == 0 || (receiver == 0 && method != 0)) {
         qWarning("Object::disconnect: Unexpected null parameter");
         return false;
+    }
+
+    {
+        const void *cbdata[] = { sender, signal, receiver, method };
+        if (QInternal::activateCallbacks(QInternal::DisconnectCallback, (void **) cbdata))
+            return true;
     }
 
     QByteArray signal_name;

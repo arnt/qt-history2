@@ -1343,6 +1343,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MatchFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::TextInteractionFlags)
 
+typedef bool (*qInternalCallback)(void **);
+
 class Q_CORE_EXPORT QInternal {
 public:
     enum PaintDeviceFlags {
@@ -1361,6 +1363,17 @@ public:
         RelayoutDragging,
         RelayoutDropped
     };
+
+
+    enum Callback {
+        ConnectCallback,
+        DisconnectCallback,
+        LastCallback
+    };
+    static bool registerCallback(Callback, qInternalCallback);
+    static bool unregisterCallback(Callback, qInternalCallback);
+
+    static bool activateCallbacks(Callback, void **);
 };
 
 #ifdef QT3_SUPPORT
