@@ -1399,7 +1399,6 @@ bool QUnixSocket::waitForReadyRead(int msec)
         return false;
 
     if(d->messageValid) {
-        qWarning("x1");
         return true;
     }
 
