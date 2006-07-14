@@ -206,7 +206,7 @@ static const char * const malteseForms[] =
 static const char * const welshForms[] =
     { "Nullar", "Singular", "Dual", "Sexal", "Plural", 0 };
 static const char * const arabicForms[] =
-    { "Nullar", "Singular", "Dual", "Minority Plural", "Plural", "Plural Form for 100, 200, ..." };
+    { "Nullar", "Singular", "Dual", "Minority Plural", "Plural", "Plural Form for 100, 200, ...", 0 };
 
 #define EOL QLocale::C
 
@@ -421,7 +421,7 @@ static const NumerusTableEntry numerusTable[] = {
 static const int NumerusTableSize = sizeof(numerusTable) / sizeof(numerusTable[0]);
 
 static bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
-                           QByteArray &rules, QStringList &forms)
+                           QByteArray *rules, QStringList *forms)
 {
     forever {
         for (int i = 0; i < NumerusTableSize; ++i) {
@@ -429,12 +429,16 @@ static bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
             for (int j = 0; entry.languages[j] != EOL; ++j) {
                 if (entry.languages[j] == language
                         && ((!entry.countries && country == QLocale::AnyCountry)
-                            || entry.countries[j] == country)) {
-                    rules = QByteArray::fromRawData(reinterpret_cast<const char *>(entry.rules),
+                            || (entry.countries && entry.countries[j] == country))) {
+                    if (rules) {
+                        *rules = QByteArray::fromRawData(reinterpret_cast<const char *>(entry.rules),
                                                     entry.rulesSize);
-                    forms.clear();
-                    for (int k = 0; entry.forms[k]; ++k)
-                        forms.append(QLatin1String(entry.forms[k]));
+                    }
+                    if (forms) {
+                        forms->clear();
+                        for (int k = 0; entry.forms[k]; ++k)
+                            forms->append(QLatin1String(entry.forms[k]));
+                    }
                     return true;
                 }
             }
