@@ -848,6 +848,7 @@ int QHeaderView::count() const
 {
     Q_D(const QHeaderView);
     //Q_ASSERT(d->sectionCount == d->headerSectionCount());
+    // ### this may affect the lazy layout
     d->executePostedLayout();
     return d->sectionCount;
 }
@@ -1211,9 +1212,10 @@ int QHeaderView::minimumSectionSize() const
     Q_D(const QHeaderView);
     if (d->minimumSectionSize == -1) {
         QSize strut = QApplication::globalStrut();
-        return (orientation() == Qt::Horizontal
-                ? qMax(strut.width(), fontMetrics().maxWidth())
-                : qMax(strut.height(), fontMetrics().height()));
+        int margin = style()->pixelMetric(QStyle::PM_HeaderMargin);
+        if (orientation() == Qt::Horizontal)
+            return qMax(strut.width(), (fontMetrics().maxWidth() + margin));
+        return qMax(strut.height(), (fontMetrics().lineSpacing() + margin));
     }
     return d->minimumSectionSize;
 }
