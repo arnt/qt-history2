@@ -51,7 +51,7 @@ QThreadData *QThreadData::current()
     if (!threadData) {
         threadData = new QThreadData;
         TlsSetValue(qt_current_thread_data_tls_index, threadData);
-        threadData->thread = new QAdoptedThread;
+        threadData->thread = new QAdoptedThread(threadData);
         (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
     }
     return threadData;
