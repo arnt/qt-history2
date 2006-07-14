@@ -286,9 +286,7 @@ void tst_QVariant::canConvert_data()
     QTest::addColumn<bool>("ByteArrayCast");
     QTest::addColumn<bool>("CStringCast");
     QTest::addColumn<bool>("ColorCast");
-#ifndef QT_NO_COMPAT
     QTest::addColumn<bool>("ColorGroupCast");
-#endif
     QTest::addColumn<bool>("CursorCast");
     QTest::addColumn<bool>("DateCast");
     QTest::addColumn<bool>("DateTimeCast");
@@ -424,7 +422,7 @@ void tst_QVariant::canConvert_data()
 	<< var << N << N << Y << N << Y << Y << Y << N << N << Y << Y << Y << Y << N << N << Y << N << Y << N << Y << N << N << N << N << N << N << N << N << N << N << Y << Y << Y << Y << Y;
    var = QVariant(QStringList());
     QTest::newRow("StringList")
-	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N;
+	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << N << N << N << N << N << N << N << N << N << N << Y << Y << N << N << N;
     var = QVariant(QTime());
     QTest::newRow("Time")
 	<< var << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << N << Y << N << Y << N << N;
@@ -447,13 +445,9 @@ void tst_QVariant::canConvert()
     QFETCH(bool, BoolCast);
     QFETCH(bool, BrushCast);
     QFETCH(bool, ByteArrayCast);
-#ifndef QT_NO_COMPAT
     QFETCH(bool, CStringCast);
-#endif
     QFETCH(bool, ColorCast);
-#ifndef QT_NO_COMPAT
     QFETCH(bool, ColorGroupCast);
-#endif
     QFETCH(bool, CursorCast);
     QFETCH(bool, DateCast);
     QFETCH(bool, DateTimeCast);
@@ -482,43 +476,41 @@ void tst_QVariant::canConvert()
     QFETCH(bool, UIntCast);
     QFETCH(bool, ULongLongCast);
 
-    QVERIFY(val.canConvert(QVariant::BitArray) == BitArrayCast);
-    QVERIFY(val.canConvert(QVariant::Bitmap) == BitmapCast);
-    QVERIFY(val.canConvert(QVariant::Bool) == BoolCast);
-    QVERIFY(val.canConvert(QVariant::Brush) == BrushCast);
-    QVERIFY(val.canConvert(QVariant::ByteArray) == ByteArrayCast);
-    QVERIFY(val.canConvert(QVariant::CString) == CStringCast);
-    QVERIFY(val.canConvert(QVariant::Color) == ColorCast);
-#ifndef QT_NO_COMPAT
-    QVERIFY(val.canConvert(QVariant::ColorGroup) == ColorGroupCast);
-#endif
-    QVERIFY(val.canConvert(QVariant::Cursor) == CursorCast);
-    QVERIFY(val.canConvert(QVariant::Date) == DateCast);
-    QVERIFY(val.canConvert(QVariant::DateTime) == DateTimeCast);
-    QVERIFY(val.canConvert(QVariant::Double) == DoubleCast);
-    QVERIFY(val.canConvert(QVariant::Font) == FontCast);
-    QVERIFY(val.canConvert(QVariant::IconSet) == IconSetCast);
-    QVERIFY(val.canConvert(QVariant::Image) == ImageCast);
-    QVERIFY(val.canConvert(QVariant::Int) == IntCast);
-    QVERIFY(val.canConvert(QVariant::Invalid) == InvalidCast);
-    QVERIFY(val.canConvert(QVariant::KeySequence) == KeySequenceCast);
-    QVERIFY(val.canConvert(QVariant::List) == ListCast);
-    QVERIFY(val.canConvert(QVariant::LongLong) == LongLongCast);
-    QVERIFY(val.canConvert(QVariant::Map) == MapCast);
-    QVERIFY(val.canConvert(QVariant::Palette) == PaletteCast);
-    QVERIFY(val.canConvert(QVariant::Pen) == PenCast);
-    QVERIFY(val.canConvert(QVariant::Pixmap) == PixmapCast);
-    QVERIFY(val.canConvert(QVariant::PointArray) == PointArrayCast);
-    QVERIFY(val.canConvert(QVariant::Point) == PointCast);
-    QVERIFY(val.canConvert(QVariant::Rect) == RectCast);
-    QVERIFY(val.canConvert(QVariant::Region) == RegionCast);
-    QVERIFY(val.canConvert(QVariant::Size) == SizeCast);
-    QVERIFY(val.canConvert(QVariant::SizePolicy) == SizePolicyCast);
-    QVERIFY(val.canConvert(QVariant::String) == StringCast);
-    QVERIFY(val.canConvert(QVariant::StringList) == StringListCast);
-    QVERIFY(val.canConvert(QVariant::Time) == TimeCast);
-    QVERIFY(val.canConvert(QVariant::UInt) == UIntCast);
-    QVERIFY(val.canConvert(QVariant::ULongLong) == ULongLongCast);
+    QCOMPARE(val.canConvert(QVariant::BitArray), BitArrayCast);
+    QCOMPARE(val.canConvert(QVariant::Bitmap), BitmapCast);
+    QCOMPARE(val.canConvert(QVariant::Bool), BoolCast);
+    QCOMPARE(val.canConvert(QVariant::Brush), BrushCast);
+    QCOMPARE(val.canConvert(QVariant::ByteArray), ByteArrayCast);
+    QCOMPARE(val.canConvert(QVariant::CString), CStringCast);
+    QCOMPARE(val.canConvert(QVariant::Color), ColorCast);
+    QCOMPARE(val.canConvert(QVariant::ColorGroup), ColorGroupCast);
+    QCOMPARE(val.canConvert(QVariant::Cursor), CursorCast);
+    QCOMPARE(val.canConvert(QVariant::Date), DateCast);
+    QCOMPARE(val.canConvert(QVariant::DateTime), DateTimeCast);
+    QCOMPARE(val.canConvert(QVariant::Double), DoubleCast);
+    QCOMPARE(val.canConvert(QVariant::Font), FontCast);
+    QCOMPARE(val.canConvert(QVariant::IconSet), IconSetCast);
+    QCOMPARE(val.canConvert(QVariant::Image), ImageCast);
+    QCOMPARE(val.canConvert(QVariant::Int), IntCast);
+    QCOMPARE(val.canConvert(QVariant::Invalid), InvalidCast);
+    QCOMPARE(val.canConvert(QVariant::KeySequence), KeySequenceCast);
+    QCOMPARE(val.canConvert(QVariant::List), ListCast);
+    QCOMPARE(val.canConvert(QVariant::LongLong), LongLongCast);
+    QCOMPARE(val.canConvert(QVariant::Map), MapCast);
+    QCOMPARE(val.canConvert(QVariant::Palette), PaletteCast);
+    QCOMPARE(val.canConvert(QVariant::Pen), PenCast);
+    QCOMPARE(val.canConvert(QVariant::Pixmap), PixmapCast);
+    QCOMPARE(val.canConvert(QVariant::PointArray), PointArrayCast);
+    QCOMPARE(val.canConvert(QVariant::Point), PointCast);
+    QCOMPARE(val.canConvert(QVariant::Rect), RectCast);
+    QCOMPARE(val.canConvert(QVariant::Region), RegionCast);
+    QCOMPARE(val.canConvert(QVariant::Size), SizeCast);
+    QCOMPARE(val.canConvert(QVariant::SizePolicy), SizePolicyCast);
+    QCOMPARE(val.canConvert(QVariant::String), StringCast);
+    QCOMPARE(val.canConvert(QVariant::StringList), StringListCast);
+    QCOMPARE(val.canConvert(QVariant::Time), TimeCast);
+    QCOMPARE(val.canConvert(QVariant::UInt), UIntCast);
+    QCOMPARE(val.canConvert(QVariant::ULongLong), ULongLongCast);
 }
 
 void tst_QVariant::toInt_data()
@@ -1067,7 +1059,6 @@ void tst_QVariant::asType_data()
 
 void tst_QVariant::asType()
 {
-#ifndef QT_NO_COMPAT
     QFETCH( QVariant, value );
     QVariant::Type type = value.type();
 
@@ -1085,9 +1076,6 @@ void tst_QVariant::asType()
 
     copy = value;
     QCOMPARE( value.type(), type );
-#else
-    QSKIP("Not tested without compat", SkipSingle);
-#endif
 }
 
 void tst_QVariant::toByteArray_data()
@@ -1163,42 +1151,15 @@ void tst_QVariant::toString()
 
 void tst_QVariant::toCString_data()
 {
-#ifndef QT_NO_COMPAT
     QTest::addColumn<QVariant>("value");
     QTest::addColumn<Q3CString>("result");
 
     QTest::newRow( "qstring" ) << QVariant( Q3CString( "Test" ) ) << Q3CString( "Test" );
     QTest::newRow( "qcstring") << QVariant( Q3CString( "Test\0" ) ) << Q3CString( "Test" );
-
-/*  not supported any longer...
-    QByteArray ba(5);
-    ba[0] = 'T';
-    ba[1] = 'e';
-    ba[2] = 's';
-    ba[3] = 't';
-    ba[4] = '\0';
-    QTest::newRow( "qbytearray" ) << QVariant( ba ) << Q3CString( "Test" );
-    QTest::newRow( "int" ) << QVariant( -123 ) << Q3CString( "-123" );
-    QTest::newRow( "uint" ) << QVariant( (uint)123 ) << Q3CString( "123" );
-    QTest::newRow( "double" ) << QVariant( 123.456 ) << Q3CString( "123.456" );
-    QTest::newRow( "bool" ) << QVariant( true, 0 ) << Q3CString( "true" );
-    QTest::newRow( "qdate" ) << QVariant( QDate( 2002, 1, 1 ) ) << Q3CString( "2002-01-01" );
-    QTest::newRow( "qtime" ) << QVariant( QTime( 12, 34, 56 ) ) << Q3CString( "12:34:56" );
-    QTest::newRow( "qdatetime" ) << QVariant( QDateTime( QDate( 2002, 1, 1 ), QTime( 12, 34, 56 ) ) ) << Q3CString( "2002-01-01T12:34:56" );
-    QTest::newRow( "qkeysequence" ) << QVariant( QKeySequence( Qt::CTRL + Qt::Key_A ) ) << Q3CString( "Ctrl+A" );
-
-    QFont font( "times", 12 );
-    QTest::newRow( "qfont" ) << QVariant( font ) << Q3CString(font.toString().latin1());
-    QTest::newRow( "qcolor" ) << QVariant( QColor( 10, 10, 10 ) ) << Q3CString( "#0a0a0a" );
-    QTest::newRow( "llong" ) << QVariant( (qlonglong)Q_INT64_C(123456789012) ) <<
-	Q3CString( "123456789012" );
-*/
-#endif
 }
 
 void tst_QVariant::toCString()
 {
-#ifndef QT_NO_COMPAT
     QFETCH( QVariant, value );
     QFETCH( Q3CString, result );
     QVERIFY( value.isValid() );
@@ -1206,9 +1167,6 @@ void tst_QVariant::toCString()
     Q3CString str = value.toCString();
 
     QCOMPARE( str, result );
-#else
-    QSKIP("Not tested without compat", SkipSingle);
-#endif
 }
 
 void tst_QVariant::toDate_data()
@@ -1379,10 +1337,8 @@ void tst_QVariant::writeToReadFromDataStream_data()
     QTest::newRow( "sizepolicy_valid" ) << qVariantFromValue( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) ) << false;
     QTest::newRow( "string_invalid" ) << QVariant( QString() ) << true;
     QTest::newRow( "string_valid" ) << QVariant( QString( "Test" ) ) << false;
-#ifndef QT_NO_COMPAT
     QTest::newRow( "cstring_invalid" ) << QVariant( Q3CString() ) << true;
     QTest::newRow( "cstring_valid" ) << QVariant( Q3CString( "Test" ) ) << false;
-#endif
     QStringList stringlist;
     stringlist << "One" << "Two" << "Three";
     QTest::newRow( "stringlist_valid" ) << QVariant( stringlist ) << false;
@@ -1571,9 +1527,7 @@ void tst_QVariant::typeName_data()
     QTest::newRow("9") << int(QVariant::Size) << QByteArray("QSize");
     QTest::newRow("10") << int(QVariant::Color) << QByteArray("QColor");
     QTest::newRow("11") << int(QVariant::Palette) << QByteArray("QPalette");
-#ifndef QT_NO_COMPAT
     QTest::newRow("12") << int(QVariant::ColorGroup) << QByteArray("QColorGroup");
-#endif
     QTest::newRow("13") << int(QVariant::IconSet) << QByteArray("QIcon");
     QTest::newRow("14") << int(QVariant::Point) << QByteArray("QPoint");
     QTest::newRow("15") << int(QVariant::Image) << QByteArray("QImage");
