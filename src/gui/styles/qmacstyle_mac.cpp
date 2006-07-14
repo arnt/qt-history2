@@ -3319,6 +3319,10 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             break;
         }
         break;
+   case SE_LineEditContents:
+        rect = QWindowsStyle::subElementRect(sr, opt, widget);
+        rect.adjust(0, +2, 0, 0);
+        break;
     default:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
         break;
