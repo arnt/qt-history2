@@ -63,15 +63,6 @@ private:
     QLabel *m_label;
 };
 
-class TransTextEdit : public QTextEdit
-{
-    Q_OBJECT
-public:
-    TransTextEdit(QWidget *parent = 0) : QTextEdit(parent) {
-        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    }
-};
-
 class SourceTextEdit : public QTextEdit
 {
     Q_OBJECT
@@ -202,10 +193,7 @@ public:
     EditorPage(MessageEditor *parent = 0, const char *name = 0);
     QTextEdit *activeTransText() const;
     int activeTranslationNumerus() const;
-
-    QList<TransEditor*> m_transTexts;
     QStringList translations() const;
-
     void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
 
 protected:
@@ -216,18 +204,20 @@ protected:
     void fontChange(const QFont &);
 
 private:
+    void addPluralForm(const QString &label);
+    void adjustTranslationFieldHeights();
+
     PageCurl *pageCurl;
     QLabel *srcTextLbl;
     SourceTextEdit *srcText;
     QTextEdit *cmtText;
-    void addPluralForm(const QString &label);
     QStringList m_numerusForms;
     QString     m_invariantForm;
     bool        m_pluralEditMode;
+    QList<TransEditor*> m_transTexts;
     friend class MessageEditor;
 
 private slots:
-    void adjustTranslationFieldHeights();
     void handleSourceChanges();
     void handleCommentChanges();
     void sourceSelectionChanged();

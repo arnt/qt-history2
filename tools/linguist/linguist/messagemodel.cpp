@@ -13,7 +13,7 @@
 
 #include "messagemodel.h"
 #include "trwindow.h"
-#include "translator.h"
+
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
@@ -626,7 +626,7 @@ bool MessageModel::load(const QString &fileName)
         if (lang.isEmpty()) {
             int pos_sep = fileName.indexOf(QChar('_'));
             if (pos_sep + 3 <= fileName.length()) {
-                lang = fileName.mid(pos_sep + 1);
+                lang = fileName.mid(pos_sep + 1, 2);
             }
         }
         QLocale::Language l;
@@ -741,9 +741,8 @@ void MessageModel::setCountry(QLocale::Country country)
 // 3. plural form 2 (all others)
 int MessageModel::grammaticalNumerus() const
 {
-    QByteArray rules;
     QStringList forms;
-    getNumerusInfo(m_language, m_country, &rules, &forms);
+    getNumerusInfo(m_language, m_country, 0, &forms);
     return forms.count();
 }
 
