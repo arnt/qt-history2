@@ -1249,7 +1249,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
         return;
 
     QRect rect(d->pressedPosition - offset, pos);
-    setSelection(rect.normalized(), command);
+    setSelection(rect, command);
 
     if (index.isValid())
         d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
@@ -1717,7 +1717,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
             if (d->pressedPosition == QPoint(-1, -1))
                 d->pressedPosition = visualRect(oldCurrent).center();
             QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
-            setSelection(rect.normalized(), command);
+            setSelection(rect, command);
         } else {
             d->selectionModel->setCurrentIndex(newCurrent, command);
             d->pressedPosition = visualRect(newCurrent).center() + d->offset();
