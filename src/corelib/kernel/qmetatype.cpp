@@ -194,7 +194,9 @@ static const struct { const char * typeName; int type; } types[] = {
     {"QRegExp", QMetaType::QRegExp},
 
     /* All GUI types */
+#ifdef QT3_SUPPORT
     {"QColorGroup", QMetaType::QColorGroup},
+#endif
     {"QFont", QMetaType::QFont},
     {"QPixmap", QMetaType::QPixmap},
     {"QBrush", QMetaType::QBrush},
