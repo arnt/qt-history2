@@ -84,7 +84,7 @@ private slots:
     void rowHeight();
 
     void columnViewportPosition_data();
-    void columnViewportPosiiton();
+    void columnViewportPosition();
 
     void columnAt_data();
     void columnAt();
@@ -1422,10 +1422,43 @@ void tst_QTableView::resizeColumnsToContents()
 
 void tst_QTableView::rowViewportPosition_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("verticalScrollMode");
+    QTest::addColumn<int>("verticalScrollValue");
+    QTest::addColumn<int>("rowViewportPosition");
+
+    QTest::newRow("row 0, scroll per item 0")
+        << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerItem) << 0 << 0;
+
+    QTest::newRow("row 1, scroll per item, 0")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 0 << 1 * 40;
+
+    QTest::newRow("row 1, scroll per item, 1")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 1 << 0;
 }
 
 void tst_QTableView::rowViewportPosition()
 {
+    QFETCH(int, rowCount);
+    QFETCH(int, rowHeight);
+    QFETCH(int, row);
+    QFETCH(int, verticalScrollMode);
+    QFETCH(int, verticalScrollValue);
+    QFETCH(int, rowViewportPosition);
+
+    QtTestTableModel model(rowCount, 1);
+    QtTestTableView view;
+
+    view.setModel(&model);
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHeight(r, rowHeight);
+
+    view.setVerticalScrollMode((QAbstractItemView::ScrollMode)verticalScrollMode);
+    view.verticalScrollBar()->setValue(verticalScrollValue);
+
+    QCOMPARE(view.rowViewportPosition(row), rowViewportPosition);
 }
     
 void tst_QTableView::rowAt_data()
@@ -1446,10 +1479,43 @@ void tst_QTableView::rowHeight()
 
 void tst_QTableView::columnViewportPosition_data()
 {
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("columnWidth");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("horizontalScrollMode");
+    QTest::addColumn<int>("horizontalScrollValue");
+    QTest::addColumn<int>("columnViewportPosition");
+
+    QTest::newRow("column 0, scroll per item 0")
+        << 10 << 40 << 0 << int(QAbstractItemView::ScrollPerItem) << 0 << 0;
+
+    QTest::newRow("column 1, scroll per item, 0")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 0 << 1 * 40;
+
+    QTest::newRow("column 1, scroll per item, 1")
+        << 10 << 40 << 1 << int(QAbstractItemView::ScrollPerItem) << 1 << 0;
 }
 
-void tst_QTableView::columnViewportPosiiton()
+void tst_QTableView::columnViewportPosition()
 {
+    QFETCH(int, columnCount);
+    QFETCH(int, columnWidth);
+    QFETCH(int, column);
+    QFETCH(int, horizontalScrollMode);
+    QFETCH(int, horizontalScrollValue);
+    QFETCH(int, columnViewportPosition);
+
+    QtTestTableModel model(1, columnCount);
+    QtTestTableView view;
+
+    view.setModel(&model);
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnWidth(c, columnWidth);
+
+    view.setHorizontalScrollMode((QAbstractItemView::ScrollMode)horizontalScrollMode);
+    view.horizontalScrollBar()->setValue(horizontalScrollValue);
+
+    QCOMPARE(view.columnViewportPosition(column), columnViewportPosition);
 }
 
 void tst_QTableView::columnAt_data()
