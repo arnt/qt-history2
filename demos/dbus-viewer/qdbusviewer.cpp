@@ -12,12 +12,9 @@
 ****************************************************************************/
 
 #include "qdbusviewer.h"
+#include "qdbusmodel.h"
 
 #include <QtXml/QtXml>
-
-enum { PrefetchRole = 4242, PathRole, MethodNameRole, InterfaceRole };
-enum { InterfaceItem = QTreeWidgetItem::UserType + 1, PathItem, MethodItem,
-       SignalItem, PropertyItem };
 
 QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     : QWidget(parent), c(connection)
@@ -26,11 +23,8 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     services->setRootIsDecorated(false);
     services->setHeaderLabels(QStringList("Services"));
 
-    tree = new QTreeWidget;
+    tree = new QTreeView;
     tree->setContextMenuPolicy(Qt::CustomContextMenu);
-    tree->setHeaderLabels(QStringList("Methods"));
-    interfaceFont = tree->font();
-    interfaceFont.setItalic(true);
 
     refreshAction = new QAction(tr("&Refresh"), tree);
     refreshAction->setData(42); // increase the amount of 42 used as magic number by one
@@ -53,8 +47,6 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
 
     connect(services, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(serviceChanged(QTreeWidgetItem*)));
-    connect(tree, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-            this, SLOT(prefetchGrandChildren(QTreeWidgetItem*)));
     connect(tree, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showContextMenu(QPoint)));
 
@@ -88,136 +80,9 @@ void QDBusViewer::refresh()
 {
     services->clear();
 
-    QStringList names = c.interface()->registeredServiceNames();
-    //names.removeAll(c.baseService()); // don't show the viewer itself
-    foreach (QString service, names)
+    const QStringList serviceNames = c.interface()->registeredServiceNames();
+    foreach (QString service, serviceNames)
         new QTreeWidgetItem(services, QStringList(service));
-}
-
-QDomDocument QDBusViewer::introspect(const QString &path)
-{
-    QDomDocument doc;
-
-    QDBusInterface iface(currentService, path, "org.freedesktop.DBus.Introspectable", c);
-    if (!iface.isValid()) {
-        QDBusError err(iface.lastError());
-        logError(QString("Cannot introspect object %1 at %2:\n  %3 (%4)\n").arg(path).arg(currentService).arg(err.name()).arg(err.message()));
-        return doc;
-    }
-
-    QDBusReply<QString> xml = iface.call("Introspect");
-
-    if (!xml.isValid()) {
-        QDBusError err(xml.error());
-	if (err.isValid())
-	  logError(QString("Call to object %1 at %2:\n  %3 (%4) failed\n").arg(path).arg(currentService).arg(err.name()).arg(err.message()));
-	else
-	  logError(QString("Invalid XML received from object %1 at %2\n").arg(path).arg(currentService));
-        return doc;
-    }
-
-    doc.setContent(xml);
-    return doc;
-}
-
-void QDBusViewer::addMethods(QTreeWidgetItem *parent, const QDomElement &iface)
-{
-    QDomElement child = iface.firstChildElement();
-    while (!child.isNull()) {
-        QTreeWidgetItem *item = 0;
-        if (child.tagName() == QLatin1String("method")) {
-            item = new QTreeWidgetItem(parent,
-                    QStringList("Method: " + child.attribute("name")), MethodItem);
-        } else if (child.tagName() == QLatin1String("signal")) {
-            item = new QTreeWidgetItem(parent,
-                    QStringList("Signal: " + child.attribute("name")), SignalItem);
-        } else if (child.tagName() == QLatin1String("property")) {
-            item = new QTreeWidgetItem(parent,
-                    QStringList("Property: " + child.attribute("name")), PropertyItem);
-        } else {
-            qDebug() << "addMethods: unknown tag:" << child.tagName();
-        }
-        if (item) {
-            item->setData(0, MethodNameRole, child.attribute("name"));
-            item->setData(0, PathRole, parent->data(0, PathRole));
-            item->setData(0, InterfaceRole, parent->data(0, InterfaceRole));
-        }
-
-        child = child.nextSiblingElement();
-    }
-}
-
-void QDBusViewer::addPath(QTreeWidgetItem *parent)
-{
-    QString path;
-    if (parent)
-        path = parent->data(0, PathRole).toString();
-
-    QDomDocument doc = introspect(path.isEmpty() ? QString::fromLatin1("/") : path);
-    QDomElement node = doc.documentElement();
-    QDomElement child = node.firstChildElement();
-    while (!child.isNull()) {
-        if (child.tagName() == QLatin1String("node")) {
-            QString sub = child.attribute("name") + QLatin1Char('/');
-            QTreeWidgetItem *item;
-            if (parent)
-                item = new QTreeWidgetItem(parent, QStringList(sub), PathItem);
-            else
-                item = new QTreeWidgetItem(tree, QStringList(sub), PathItem);
-            item->setData(0, PathRole, path + QLatin1Char('/') + child.attribute("name"));
-            addMethods(item, child);
-        } else if (child.tagName() == QLatin1String("interface")) {
-            QString ifaceName = child.attribute("name");
-            QTreeWidgetItem *item;
-            if (parent)
-                item = new QTreeWidgetItem(parent, QStringList(ifaceName), InterfaceItem);
-            else
-                item = new QTreeWidgetItem(tree, QStringList(ifaceName), InterfaceItem);
-            item->setFont(0, interfaceFont);
-            item->setData(0, PathRole, path);
-            item->setData(0, InterfaceRole, ifaceName);
-            addMethods(item, child);
-        } else {
-            qDebug() << "addPath: Unknown tag name:" << child.tagName();
-        }
-        child = child.nextSiblingElement();
-    }
-}
-
-void QDBusViewer::serviceChanged(QTreeWidgetItem *item)
-{
-    tree->clear();
-
-    currentService.clear();
-    if (!item)
-        return;
-    currentService = item->text(0);
-
-    addPath(0);
-    for (int i = 0; i < tree->topLevelItemCount(); ++i)
-        prefetchChildren(tree->topLevelItem(i));
-}
-
-void QDBusViewer::prefetchGrandChildren(QTreeWidgetItem *item)
-{
-    if (!item)
-        return;
-
-    for (int i = 0; i < item->childCount(); ++i)
-        prefetchChildren(item->child(i));
-}
-
-void QDBusViewer::prefetchChildren(QTreeWidgetItem *item)
-{
-    if (!item || item->data(0, PrefetchRole).toBool())
-        return;
-
-    item->setData(0, PrefetchRole, true);
-
-    if (item->type() != PathItem)
-        return;
-
-    addPath(item);
 }
 
 void QDBusViewer::callMethod(const BusSignature &sig)
@@ -284,28 +149,28 @@ void QDBusViewer::callMethod(const BusSignature &sig)
 
 void QDBusViewer::showContextMenu(const QPoint &point)
 {
-    QTreeWidgetItem *item = tree->itemAt(point);
-    if (!item)
+    QModelIndex item = tree->indexAt(point);
+    if (!item.isValid())
         return;
+
+    QDBusModel *model = static_cast<const QDBusModel *>(item.model());
 
     BusSignature sig;
     sig.mService = currentService;
-    sig.mPath = item->data(0, PathRole).toString();
-    if (sig.mPath.isEmpty())
-        sig.mPath = "/";
-    sig.mInterface = item->data(0, InterfaceRole).toString();
-    sig.mName = item->data(0, MethodNameRole).toString();
+    sig.mPath = model->dBusPath(item);
+    sig.mInterface = model->dBusInterface(item);
+    sig.mName = model->dBusMethodName(item);
 
     QMenu menu;
     menu.addAction(refreshAction);
 
-    switch (item->type()) {
-    case SignalItem: {
+    switch (model->itemType(item)) {
+    case QDBusModel::SignalItem: {
         QAction *action = new QAction("&Connect", &menu);
         action->setData(1);
         menu.addAction(action);
         break; }
-    case MethodItem: {
+    case QDBusModel::MethodItem: {
         QAction *action = new QAction("&Call", &menu);
         action->setData(2);
         menu.addAction(action);
@@ -320,6 +185,8 @@ void QDBusViewer::showContextMenu(const QPoint &point)
         menu.addAction(actionGet);
         break; }
 #endif
+    default:
+        break;
     }
 
     QAction *selectedAction = menu.exec(tree->viewport()->mapToGlobal(point));
@@ -338,12 +205,16 @@ void QDBusViewer::showContextMenu(const QPoint &point)
 
 void QDBusViewer::connectionRequested(const BusSignature &sig)
 {
-    c.connect(sig.mService, sig.mPath, sig.mInterface, sig.mName, this,
-              SLOT(dumpMessage(QDBusMessage)));
+    if (!c.connect(sig.mService, QString(), sig.mInterface, sig.mName, this,
+              SLOT(dumpMessage(QDBusMessage)))) {
+        logError(QString("Unable to connect to service %1, path %2, interface %3, signal %4").arg(
+                    sig.mService).arg(sig.mPath).arg(sig.mInterface).arg(sig.mName));
+    }
 }
 
 void QDBusViewer::dumpMessage(const QDBusMessage &message)
 {
+    qDebug("dumpMessage");
     QList<QVariant> args = message.arguments();
     QString out = "Received ";
 
@@ -400,6 +271,19 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
     log->append(out);
 }
 
+void QDBusViewer::serviceChanged(QTreeWidgetItem *item)
+{
+    delete tree->model();
+
+    currentService.clear();
+    if (!item)
+        return;
+    currentService = item->text(0);
+
+    tree->setModel(new QDBusModel(currentService, c));
+    connect(tree->model(), SIGNAL(busError(QString)), this, SLOT(logError(QString)));
+}
+
 void QDBusViewer::serviceRegistered(const QString &service)
 {
     if (service == c.baseService())
@@ -439,26 +323,9 @@ void QDBusViewer::serviceOwnerChanged(const QString &name, const QString &oldOwn
 
 void QDBusViewer::refreshChildren()
 {
-    QTreeWidgetItem *item = tree->currentItem();
-
-    // find nearest path item
-    while (item && item->type() != PathItem)
-        item = item->parent();
-
-    // refresh the toplevel item
-    if (!item) {
-        serviceChanged(services->currentItem());
+    QDBusModel *model = qobject_cast<QDBusModel *>(tree->model());
+    if (!model)
         return;
-    }
-
-    // mark it as "to be prefetched"
-    item->setData(0, PrefetchRole, false);
-
-    // clear all children
-    while (item->childCount())
-        delete item->child(0);
-
-    prefetchChildren(item);
-    prefetchGrandChildren(item);
+    model->refresh(tree->currentIndex());
 }
 

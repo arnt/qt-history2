@@ -17,7 +17,7 @@
 #include <QtGui/QtGui>
 #include <QtDBus/QtDBus>
 
-class QTreeWidget;
+class QTreeView;
 class QDomDocument;
 class QDomElement;
 
@@ -37,7 +37,6 @@ public slots:
 
 private slots:
     void serviceChanged(QTreeWidgetItem *item);
-    void prefetchGrandChildren(QTreeWidgetItem *item);
     void showContextMenu(const QPoint &);
     void connectionRequested(const BusSignature &sig);
     void callMethod(const BusSignature &sig);
@@ -48,18 +47,14 @@ private slots:
     void serviceUnregistered(const QString &service);
     void serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
 
-private:
-    void prefetchChildren(QTreeWidgetItem *item);
-    void addPath(QTreeWidgetItem *parent);
-    QDomDocument introspect(const QString &path);
-    void addMethods(QTreeWidgetItem *parent, const QDomElement &iface);
-    void logMessage(const QString &msg);
     void logError(const QString &msg);
+
+private:
+    void logMessage(const QString &msg);
 
     QDBusConnection c;
     QString currentService;
-    QFont interfaceFont;
-    QTreeWidget *tree;
+    QTreeView *tree;
     QAction *refreshAction;
     QTreeWidget *services;
     QTextEdit *log;
