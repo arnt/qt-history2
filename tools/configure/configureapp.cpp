@@ -2028,6 +2028,8 @@ void Configure::generateMakefiles()
                     txt << "\t" << args.join(" ") << "\n";
                     txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
                     txt << "first: all\n";
+                    txt << "qmake:\n";
+                    txt << "\t" << args.join(" ") << "\n";
                 }
             }
         }
