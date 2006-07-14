@@ -47,7 +47,7 @@ There are three parts to it.
    manually inspect the results.
 
    Example command line:
-   ./bin/htmlgenerator -framework data/framework.ini sampleout -engine [ENGINE]
+   ./bin/htmlgenerator -framework data/framework.ini sampleout
 
 3) performancediff. diffs the performance data between two output
    directories. so assuming you already have data for all the engines,

@@ -314,12 +314,11 @@ void HTMLGenerator::run(int argc, char **argv)
     processArguments(argc, argv);
 
     QDir dir;
-    dir.setFilter(QDir::Dirs | QDir::NoSymLinks);
+    dir.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     QFileInfoList list = dir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
-        if (fileInfo.fileName() == "..")
-            continue;
+
         QString dataFile = QString("%1/data.xml")
                            .arg(fileInfo.absoluteFilePath());
         if (QFile::exists(dataFile)) {
@@ -397,8 +396,11 @@ void HTMLGenerator::convertToHtml()
                 HTMLImage image;
                 image.file = file->output;
                 image.generatorName = engine->name;
-                image.details = QString::number(
-                    file->data.last().timeToRender/file->data.last().iterations);
+
+                image.details = file->data.last().iterations == 0
+                                ? QString::number(-1)
+                                : QString::number(file->data.last().timeToRender
+                                                  / file->data.last().iterations);
                 image.flags = Normal;
 
                 if (file->data.last().timeToRender == 0)
