@@ -832,95 +832,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
     return true;
 }
 
-static bool canConvert(const QVariant::Private *d, QVariant::Type t)
-{
-    if (d->type == uint(t))
-        return true;
-
-    switch (t) {
-    case QVariant::Bool:
-        return d->type == QVariant::Double || d->type == QVariant::Int
-            || d->type == QVariant::UInt || d->type == QVariant::LongLong
-            || d->type == QVariant::ULongLong || d->type == QVariant::String
-            || d->type == QVariant::Char;
-    case QVariant::Int:
-        return d->type == QVariant::String || d->type == QVariant::Double
-            || d->type == QVariant::Bool || d->type == QVariant::UInt
-            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
-    case QVariant::UInt:
-        return d->type == QVariant::String || d->type == QVariant::Double
-            || d->type == QVariant::Bool || d->type == QVariant::Int
-            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
-    case QVariant::LongLong:
-        return d->type == QVariant::String || d->type == QVariant::Double
-            || d->type == QVariant::Bool || d->type == QVariant::Int
-            || d->type == QVariant::UInt || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
-    case QVariant::ULongLong:
-        return d->type == QVariant::String || d->type == QVariant::Double
-            || d->type == QVariant::Bool || d->type == QVariant::Int
-            || d->type == QVariant::UInt || d->type == QVariant::LongLong
-            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
-    case QVariant::Double:
-        return d->type == QVariant::String || d->type == QVariant::Int
-            || d->type == QVariant::Bool || d->type == QVariant::UInt
-            || d->type == QVariant::LongLong || d->type == QVariant::ByteArray || d->type == QVariant::ULongLong;
-    case QVariant::String:
-        if (d->type == QVariant::StringList && v_cast<QStringList>(d)->count() == 1)
-            return true;
-        return d->type == QVariant::ByteArray || d->type == QVariant::Int
-            || d->type == QVariant::UInt || d->type == QVariant::Bool
-            || d->type == QVariant::Double || d->type == QVariant::Date
-            || d->type == QVariant::Time || d->type == QVariant::DateTime
-            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char;
-    case QVariant::Char:
-        return d->type == QVariant::Int || d->type == QVariant::UInt || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
-    case QVariant::ByteArray:
-        return d->type == QVariant::String || d->type == QVariant::Int|| d->type == QVariant::UInt || d->type == QVariant::Double|| d->type == QVariant::LongLong|| d->type == QVariant::ULongLong;
-    case QVariant::Date:
-        return d->type == QVariant::String || d->type == QVariant::DateTime;
-    case QVariant::Time:
-        return d->type == QVariant::String || d->type == QVariant::DateTime;
-    case QVariant::DateTime:
-        return d->type == QVariant::String || d->type == QVariant::Date;
-    case QVariant::List:
-        return d->type == QVariant::StringList;
-    case QVariant::StringList:
-        if (d->type == QVariant::List) {
-            const QVariantList &varlist = *v_cast<QVariantList >(d);
-            for (int i = 0; i < varlist.size(); ++i) {
-                if (!varlist.at(i).canConvert(QVariant::String))
-                    return false;
-            }
-            return true;
-        } else if (d->type == QVariant::String) {
-            return true;
-        }
-        return false;
-    case QVariant::RectF:
-        return d->type == QVariant::Rect;
-    case QVariant::Size:
-        return d->type == QVariant::SizeF;
-    case QVariant::SizeF:
-        return d->type == QVariant::Size;
-    case QVariant::Line:
-        return d->type == QVariant::LineF;
-    case QVariant::LineF:
-        return d->type == QVariant::Line;
-    case QVariant::PointF:
-        return d->type == QVariant::Point;
-    case QVariant::Point:
-        return d->type == QVariant::PointF;
-    case QVariant::Rect:
-        return d->type == QVariant::RectF;
-    default:
-        return false;
-    }
-}
-
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
 static void streamDebug(QDebug dbg, const QVariant &v)
 {
@@ -1014,7 +925,6 @@ const QVariant::Handler qt_kernel_variant_handler = {
     isNull,
     compare,
     convert,
-    canConvert,
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
     streamDebug
 #else
@@ -2353,6 +2263,84 @@ QVariantList QVariant::toList() const
     Use convert() instead.
 */
 
+
+static const quint32 qCanConvertMatrix[QVariant::LastCoreType + 1] =
+{
+/*Invalid*/     0,
+
+/*Bool*/          1 << QVariant::Double     | 1 << QVariant::Int        | 1 << QVariant::UInt
+                | 1 << QVariant::LongLong   | 1 << QVariant::ULongLong
+                | 1 << QVariant::String     | 1 << QVariant::Char,
+
+/*Int*/           1 << QVariant::UInt       | 1 << QVariant::String     | 1 << QVariant::Double
+                | 1 << QVariant::Bool       | 1 << QVariant::LongLong   | 1 << QVariant::ULongLong
+                | 1 << QVariant::Char       | 1 << QVariant::ByteArray,
+
+/*UInt*/          1 << QVariant::Int        | 1 << QVariant::String     | 1 << QVariant::Double
+                | 1 << QVariant::Bool       | 1 << QVariant::LongLong   | 1 << QVariant::ULongLong
+                | 1 << QVariant::Char       | 1 << QVariant::ByteArray,
+
+/*LLong*/         1 << QVariant::Int        | 1 << QVariant::String     | 1 << QVariant::Double
+                | 1 << QVariant::Bool       | 1 << QVariant::UInt       | 1 << QVariant::ULongLong
+                | 1 << QVariant::Char       | 1 << QVariant::ByteArray,
+
+/*ULlong*/        1 << QVariant::Int        | 1 << QVariant::String     | 1 << QVariant::Double
+                | 1 << QVariant::Bool       | 1 << QVariant::UInt       | 1 << QVariant::LongLong
+                | 1 << QVariant::Char       | 1 << QVariant::ByteArray,
+
+/*double*/        1 << QVariant::Int        | 1 << QVariant::String     | 1 << QVariant::ULongLong
+                | 1 << QVariant::Bool       | 1 << QVariant::UInt       | 1 << QVariant::LongLong
+                | 1 << QVariant::ByteArray,
+
+/*QChar*/         1 << QVariant::Int        | 1 << QVariant::UInt       | 1 << QVariant::LongLong
+                | 1 << QVariant::ULongLong,
+
+/*QMap*/          0,
+
+/*QList*/         1 << QVariant::StringList,
+
+/*QString*/       1 << QVariant::StringList | 1 << QVariant::ByteArray  | 1 << QVariant::Int
+                | 1 << QVariant::UInt       | 1 << QVariant::Bool       | 1 << QVariant::Double
+                | 1 << QVariant::Date       | 1 << QVariant::Time       | 1 << QVariant::DateTime
+                | 1 << QVariant::LongLong   | 1 << QVariant::ULongLong  | 1 << QVariant::Char,
+
+/*QStringList*/   1 << QVariant::List       | 1 << QVariant::String,
+
+/*QByteArray*/    1 << QVariant::String     | 1 << QVariant::Int        | 1 << QVariant::UInt
+                | 1 << QVariant::Double     | 1 << QVariant::LongLong   | 1 << QVariant::ULongLong,
+
+/*QBitArray*/     0,
+
+/*QDate*/         1 << QVariant::String     | 1 << QVariant::DateTime,
+
+/*QTime*/         1 << QVariant::String     | 1 << QVariant::DateTime,
+
+/*QDateTime*/     1 << QVariant::String     | 1 << QVariant::Date,
+
+/*QUrl*/          0,
+
+/*QLocale*/       0,
+
+/*QRect*/         1 << QVariant::RectF,
+
+/*QRectF*/        1 << QVariant::Rect,
+
+/*QSize*/         1 << QVariant::SizeF,
+
+/*QSizeF*/        1 << QVariant::Size,
+
+/*QLine*/         1 << QVariant::LineF,
+
+/*QLineF*/        1 << QVariant::Line,
+
+/*QPoint*/        1 << QVariant::PointF,
+
+/*QPointF*/       1 << QVariant::Point,
+
+/*QRegExp*/       0
+
+};
+
 /*!
     Returns true if the variant's type can be cast to the requested
     type, \a t. Such casting is done automatically when calling the
@@ -2389,7 +2377,40 @@ QVariantList QVariant::toList() const
 */
 bool QVariant::canConvert(Type t) const
 {
-    return handler->canConvert(&d, t);
+    if (d.type == uint(t))
+        return true;
+
+    if (d.type > QVariant::LastCoreType || t > QVariant::LastCoreType) {
+        switch (t) {
+        case QVariant::Int:
+            return d.type == QVariant::KeySequence;
+        case QVariant::Image:
+            return d.type == QVariant::Pixmap || d.type == QVariant::Bitmap;
+        case QVariant::Pixmap:
+            return d.type == QVariant::Image || d.type == QVariant::Bitmap
+                              || d.type == QVariant::Brush;
+        case QVariant::Bitmap:
+            return d.type == QVariant::Pixmap || d.type == QVariant::Image;
+        case QVariant::ByteArray:
+            return d.type == QVariant::Color;
+        case QVariant::String:
+            return d.type == QVariant::KeySequence || d.type == QVariant::Font
+                              || d.type == QVariant::Color;
+        case QVariant::KeySequence:
+            return d.type == QVariant::String || d.type == QVariant::Int;
+        case QVariant::Font:
+            return d.type == QVariant::String;
+        case QVariant::Color:
+            return d.type == QVariant::String || d.type == QVariant::ByteArray
+                              || d.type == QVariant::Brush;
+        case QVariant::Brush:
+            return d.type == QVariant::Color || d.type == QVariant::Pixmap;
+        default:
+            return false;
+        }
+    }
+
+    return qCanConvertMatrix[t] & (1 << d.type);
 }
 
 /*!
@@ -2411,7 +2432,7 @@ bool QVariant::convert(Type t)
     QVariant oldValue = *this;
 
     clear();
-    if (!handler->canConvert(&oldValue.d, t))
+    if (!oldValue.canConvert(t))
         return false;
 
     create(t, 0);

@@ -414,44 +414,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
     return qcoreVariantHandler()->convert(d, t, result, ok);
 }
 
-static bool canConvert(const QVariant::Private *d, QVariant::Type t)
-{
-    if (d->type == uint(t))
-        return true;
-
-    switch (t) {
-    case QVariant::Int:
-        if (d->type == QVariant::KeySequence)
-            return true;
-        break;
-    case QVariant::Image:
-        return d->type == QVariant::Pixmap || d->type == QVariant::Bitmap;
-    case QVariant::Pixmap:
-        return d->type == QVariant::Image || d->type == QVariant::Bitmap || d->type == QVariant::Brush;
-    case QVariant::Bitmap:
-        return d->type == QVariant::Pixmap || d->type == QVariant::Image;
-    case QVariant::ByteArray:
-        if (d->type == QVariant::Color)
-            return true;
-        break;
-    case QVariant::String:
-        if (d->type == QVariant::KeySequence || d->type == QVariant::Font || d->type == QVariant::Color)
-            return true;
-        break;
-    case QVariant::KeySequence:
-        return d->type == QVariant::String || d->type == QVariant::Int;
-    case QVariant::Font:
-        return d->type == QVariant::String;
-    case QVariant::Color:
-        return d->type == QVariant::String || d->type == QVariant::ByteArray || d->type == QVariant::Brush;
-    case QVariant::Brush:
-        return d->type == QVariant::Color || d->type == QVariant::Pixmap;
-    default:
-        break;
-    }
-    return qcoreVariantHandler()->canConvert(d, t);
-}
-
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
 static void streamDebug(QDebug dbg, const QVariant &v)
 {
@@ -520,7 +482,6 @@ const QVariant::Handler qt_gui_variant_handler = {
     isNull,
     compare,
     convert,
-    canConvert,
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
     streamDebug
 #else

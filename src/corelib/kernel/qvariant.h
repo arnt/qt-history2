@@ -95,6 +95,7 @@ class Q_CORE_EXPORT QVariant
         Point = 25,
         PointF = 26,
 	RegExp = 27,
+        LastCoreType = RegExp,
 
         // value 62 is internally reserved
 #ifdef QT3_SUPPORT
@@ -320,7 +321,6 @@ class Q_CORE_EXPORT QVariant
     typedef bool (*f_null)(const Private *);
     typedef bool (*f_compare)(const Private *, const Private *);
     typedef bool (*f_convert)(const QVariant::Private *d, Type t, void *, bool *);
-    typedef bool (*f_canConvert)(const QVariant::Private *d, Type t);
     typedef void (*f_debugStream)(QDebug, const QVariant &);
     struct Handler {
         f_construct construct;
@@ -328,7 +328,6 @@ class Q_CORE_EXPORT QVariant
         f_null isNull;
         f_compare compare;
         f_convert convert;
-        f_canConvert canConvert;
         f_debugStream debugStream;
     };
 #endif
