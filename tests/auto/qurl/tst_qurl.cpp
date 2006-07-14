@@ -142,6 +142,8 @@ private slots:
     void setPort();
     void toEncoded_data();
     void toEncoded();
+    void setAuthority_data();
+    void setAuthority();
 };
 
 // Testing get/set functions
@@ -3024,7 +3026,6 @@ void tst_QUrl::nameprep_testsuite()
                  "Investigate further", Continue);
     QEXPECT_FAIL("Larger test (expanding)",
                  "Investigate further", Continue);
-    
     QCOMPARE(qt_nameprep(in), out);
 }
 
@@ -3305,6 +3306,27 @@ void tst_QUrl::toEncoded()
     QFETCH(QByteArray, encoded);
 
     QCOMPARE(QUrl::fromEncoded(url).toEncoded(options), encoded);
+}
+
+void tst_QUrl::setAuthority_data()
+{
+    QTest::addColumn<QString>("authority");
+    QTest::addColumn<QString>("url");
+    QTest::newRow("Plain auth") << QString("62.70.27.22:21") << QString("//62.70.27.22:21");
+    QTest::newRow("Auth with empty port") << QString("62.70.27.22:") << QString("//62.70.27.22:");
+    QTest::newRow("Yet another plain auth") << QString("192.168.1.1:21") << QString("//192.168.1.1:21");
+    QTest::newRow("Auth without port") << QString("192.168.1.1") << QString("//192.168.1.1");
+    QTest::newRow("Empty auth") << QString() << QString();
+    QTest::newRow("Single") << QString(":") << QString("//:");
+}
+
+void tst_QUrl::setAuthority()
+{
+    QUrl u;
+    QFETCH(QString, authority);
+    QFETCH(QString, url);
+    u.setAuthority(authority);
+    QCOMPARE(u.toString(), url);
 }
 
 QTEST_MAIN(tst_QUrl)
