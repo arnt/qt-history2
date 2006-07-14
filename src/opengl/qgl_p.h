@@ -125,6 +125,7 @@ public:
     QMap<QString, int> displayListCache;
 
 #if defined(Q_WS_WIN)
+    void updateColormap();
     QGLContext *olcx;
 #elif defined(Q_WS_X11)
     QGLOverlayWidget *olw;
