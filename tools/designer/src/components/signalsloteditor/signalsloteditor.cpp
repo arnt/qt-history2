@@ -21,6 +21,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
 #include <QtGui/QListWidget>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QItemDelegate>
@@ -234,6 +235,7 @@ private slots:
 
 private:
     QListWidget *m_signal_list, *m_slot_list;
+    QDialogButtonBox *m_buttonBox;
     QPushButton *m_ok_button;
     QWidget *m_source, *m_destination;
     QDesignerFormEditorInterface *m_core;
@@ -387,14 +389,18 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
                 SLOT(selectSlot(QListWidgetItem*)));
     m_slot_list->setEnabled(false);
 
-    m_ok_button = new QPushButton(tr("OK"), this);
-    connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
-    QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
-    connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                       Qt::Horizontal, this);
+    m_ok_button = m_buttonBox->button(QDialogButtonBox::Ok);
+    m_ok_button->setDefault(true);
     m_ok_button->setEnabled(false);
-    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"), this);
+    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"));
     m_show_all_checkbox->setChecked(false);
     connect(m_show_all_checkbox, SIGNAL(toggled(bool)), this, SLOT(populateSignalList()));
+    m_buttonBox->addButton(m_show_all_checkbox, QDialogButtonBox::ActionRole);
+
 
     QLabel *source_label = new QLabel(this);
     source_label->setText(widgetLabel(core, source));
@@ -418,18 +424,7 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     l4->addWidget(destination_label);
     l4->addWidget(m_slot_list);
 
-    QHBoxLayout *l5 = new QHBoxLayout();
-    l1->addLayout(l5);
-
-    l5->addWidget(m_show_all_checkbox);
-    l5->addStretch();
-#ifdef Q_WS_MAC
-    l5->addWidget(cancel_button);
-    l5->addWidget(m_ok_button);
-#else
-    l5->addWidget(m_ok_button);
-    l5->addWidget(cancel_button);
-#endif
+    l1->addWidget(m_buttonBox);
 
     setWindowTitle(tr("Configure Connection"));
 
