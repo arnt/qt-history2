@@ -425,6 +425,13 @@ public:
 
     void setEmbedded();
 
+    void emitError(QX11EmbedWidget::Error error) {
+        Q_Q(QX11EmbedWidget);
+
+        lastError = error;
+        emit q->error(error);
+    }
+
     enum FocusWidgets {
         FirstFocusWidget,
         LastFocusWidget
@@ -438,6 +445,9 @@ public:
 
     WId container;
     QPointer<QWidget> currentFocus;
+
+    QX11EmbedWidget::Error lastError;
+
 };
 
 /*!
@@ -482,6 +492,10 @@ QX11EmbedWidget::~QX11EmbedWidget()
     }
 }
 
+QX11EmbedWidget::Error QX11EmbedWidget::error() const {
+    return d_func()->lastError;
+}
+
 /*!
     When this function is called, the widget embeds itself into the
     container whose window ID is \a id.
@@ -495,10 +509,10 @@ void QX11EmbedWidget::embedInto(WId id)
     d->container = id;
     switch (XReparentWindow(x11Info().display(), internalWinId(), d->container, 0, 0)) {
     case BadWindow:
-        emit error(InvalidWindowID);
+        d->emitError(InvalidWindowID);
         break;
     case BadMatch:
-        emit error(Internal);
+        d->emitError(Internal);
         break;
     case Success:
     default:
@@ -941,12 +955,20 @@ public:
 
     WId topLevelParentWinId() const;
 
+    void emitError(QX11EmbedContainer::Error error) {
+        Q_Q(QX11EmbedContainer);
+        lastError = error;
+        emit q->error(error);
+    }
+
     WId client;
     QWidget *focusProxy;
     bool clientIsXEmbed;
     bool xgrab;
     QRect clientOriginalRect;
     QSize wmMinimumSizeHint;
+
+    QX11EmbedContainer::Error lastError;
 };
 
 /*!
@@ -1012,6 +1034,12 @@ QX11EmbedContainer::~QX11EmbedContainer()
 	XUngrabButton(x11Info().display(), AnyButton, AnyModifier, internalWinId());
 }
 
+
+QX11EmbedContainer::Error QX11EmbedContainer::error() const {
+    return d_func()->lastError;
+}
+
+
 /*! \reimp
 */
 void QX11EmbedContainer::paintEvent(QPaintEvent *)
@@ -1061,8 +1089,10 @@ WId QX11EmbedContainer::clientWinId() const
 */
 void QX11EmbedContainer::embedClient(WId id)
 {
+    Q_D(QX11EmbedContainer);
+
     if (id == 0) {
-	emit error(InvalidWindowID);
+	d->emitError(InvalidWindowID);
 	return;
     }
 
@@ -1075,7 +1105,7 @@ void QX11EmbedContainer::embedClient(WId id)
     do {
         if (XQueryTree(x11Info().display(), thisId, &rootReturn,
                        &parentReturn, &childrenReturn, &nchildrenReturn) == 0) {
-	    emit error(InvalidWindowID);
+	    d->emitError(InvalidWindowID);
 	    return;
         }
         if (childrenReturn) {
@@ -1085,7 +1115,7 @@ void QX11EmbedContainer::embedClient(WId id)
 
         thisId = parentReturn;
         if (id == thisId) {
-	    emit error(InvalidWindowID);
+	    d->emitError(InvalidWindowID);
 	    return;
         }
     } while (thisId != rootReturn);
@@ -1094,7 +1124,7 @@ void QX11EmbedContainer::embedClient(WId id)
     XGrabServer(x11Info().display());
     XWindowAttributes attrib;
     if (!XGetWindowAttributes(x11Info().display(), id, &attrib)) {
-	emit error(InvalidWindowID);
+	d->emitError(InvalidWindowID);
 	return;
     }
     XSelectInput(x11Info().display(), id, attrib.your_event_mask | PropertyChangeMask);
@@ -1150,7 +1180,7 @@ void QX11EmbedContainer::embedClient(WId id)
     switch (XReparentWindow(x11Info().display(), id, internalWinId(), 0, 0)) {
     case BadWindow:
     case BadMatch:
-	emit error(InvalidWindowID);
+	d->emitError(InvalidWindowID);
 	break;
     default:
 	break;
