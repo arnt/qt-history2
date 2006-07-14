@@ -3848,7 +3848,7 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
             num = parseSection(index, input, pos, tmpstate, &used);
             QDTPDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
                       << "pos" << pos << "used" << used << stateName(tmpstate);
-            if (fixup && tmpstate == Intermediate && (fieldInfo(index) & (Numeric|FixedWidth) == (Numeric|FixedWidth)) && used < sn.count) {
+            if (fixup && tmpstate == Intermediate && (fieldInfo(index) & (Numeric|FixedWidth)) == (Numeric|FixedWidth) && used < sn.count) {
                 input.insert(pos, QString().fill(QLatin1Char('0'), sn.count - used)); // ### ltor?
                 num = parseSection(index, input, pos, tmpstate, &used);
             }
