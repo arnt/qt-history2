@@ -447,8 +447,6 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::_q_canReadNotification()");
 #endif
-    if (!isBuffered)
-        socketEngine->setReadNotificationEnabled(false);
 
     // Prevent recursive calls
     if (readSocketNotifierCalled) {
@@ -459,6 +457,9 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         }
     }
     readSocketNotifierCalled = true;
+
+    if (!isBuffered)
+        socketEngine->setReadNotificationEnabled(false);
 
     // If buffered, read data from the socket into the read buffer
     qint64 newBytes = 0;
@@ -491,8 +492,14 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         }
     }
 
-    // only emit readyRead() when not recursing.
-    if (!emittedReadyRead && (!isBuffered || newBytes > 0)) {
+    // only emit readyRead() when not recursing, and only if there is data available
+#ifdef Q_OS_WIN
+    bool hasData = newBytes > 0 || (!isBuffered && socketEngine && socketEngine->hasPendingDatagrams());
+#else
+    bool hasData = newBytes > 0 || !isBuffered;
+#endif
+
+    if (!emittedReadyRead && hasData) {
         emittedReadyRead = true;
         emit q->readyRead();
         emittedReadyRead = false;
@@ -507,6 +514,11 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         readSocketNotifierCalled = false;
         return true;
     }
+
+#ifdef Q_OS_WIN
+    if (!hasData && socketEngine)
+        socketEngine->setReadNotificationEnabled(true);
+#endif
 
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
