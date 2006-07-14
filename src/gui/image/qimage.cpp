@@ -86,6 +86,7 @@ struct QImageData {        // internal image data
     qreal  dpmy;                // dots per meter Y (or 0)
     QPoint  offset;           // offset in pixels
     uint own_data : 1;
+    uint ro_data : 1;
     uint has_alpha_clut : 1;
 
 #ifndef QT_NO_IMAGE_TEXT
@@ -156,6 +157,7 @@ QImageData::QImageData()
     nbytes = 0;
     data = 0;
     own_data = true;
+    ro_data = false;
 #ifdef QT3_SUPPORT
     jumptable = 0;
 #endif
@@ -787,6 +789,45 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 }
 
 /*!
+    Constructs an image with the given \a width, \a height and \a
+    format, that uses an existing read-only memory buffer, \a data. The \a width
+    and \a height must be specified in pixels, and that \a data must
+    be 32-bit aligned.
+
+    The buffer must remain valid throughout the life of the
+    QImage. The image does not delete the buffer at destruction.
+
+    If the image is in an indexed color format, set the color table
+    for the image using setColorTable().
+
+    Unlike the similar QImage constructor that takes a non-const data buffer,
+    this version will never alter the contents of the buffer.  For example,
+    calling QImage::bits() will return a deep copy of the image, rather than
+    the buffer passed to the constructor.  This allows for the efficiency of 
+    constructing a QImage from raw data, without the possibility of the raw
+    data being changed.
+*/
+QImage::QImage(const uchar* data, int width, int height, Format format)
+    : QPaintDevice()
+{
+    d = 0;
+    if (format == Format_Invalid || width <= 0 || height <= 0 || !data)
+        return;                                        // invalid parameter(s)
+    d = new QImageData;
+    d->ref.ref();
+
+    d->own_data = false;
+    d->ro_data = true;
+    d->data = (uchar *)data;
+    d->width = width;
+    d->height = height;
+    d->depth = depthForFormat(format);
+    d->format = format;
+
+    d->bytes_per_line = ((width * d->depth + 31)/32) * 4;
+    d->nbytes = d->bytes_per_line * height;
+}
+/*!
     Constructs an image and tries to load the image from the file with
     the given \a fileName.
 
@@ -1143,7 +1184,7 @@ void QImage::detach()
 {
     if (d) {
         ++d->detach_no;
-        if (d->ref != 1)
+        if (d->ref != 1 || d->ro_data)
             *this = copy();
     }
 }

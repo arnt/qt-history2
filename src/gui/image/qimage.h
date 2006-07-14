@@ -84,6 +84,7 @@ public:
     QImage(const QSize &size, Format format);
     QImage(int width, int height, Format format);
     QImage(uchar *data, int width, int height, Format format);
+    QImage(const uchar *data, int width, int height, Format format);
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
     explicit QImage(const char * const xpm[]);
