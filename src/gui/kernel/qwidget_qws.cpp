@@ -158,6 +158,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 
     if (topLevel) {
         createTLExtra();
+
 #ifndef QT_NO_QWS_MANAGER
         if (hasFrame) {
             // get size of wm decoration and make the old crect the new frect
@@ -170,8 +171,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
                                                   br.bottom() - cr.bottom());
             data.crect.translate(extra->topextra->frameStrut.left(),
                                  extra->topextra->frameStrut.top());
-            if (!topData()->qwsManager)
+            if (!topData()->qwsManager) {
                 topData()->qwsManager = new QWSManager(q);
+                if(q->data->window_state & Qt::WindowMaximized)
+                    topData()->qwsManager->maximize();
+            }
+
         } else if (topData()->qwsManager) {
             delete topData()->qwsManager;
             topData()->qwsManager = 0;
