@@ -670,7 +670,10 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                       (match(Tok_RightParen) ||
                        match(Tok_Comma) &&
                        matchEncoding(&utf8) &&
-                       match(Tok_RightParen))) )
+                       (match(Tok_RightParen) ||
+                        match(Tok_Comma) &&
+                        (match(Tok_Ident) || match(Tok_Integer)) &&
+                        match(Tok_RightParen)))) )
                     tor->insert( MetaTranslatorMessage(context, text, com, yyFileName, yyLineNo,
                                                        QStringList(), utf8) );
             }

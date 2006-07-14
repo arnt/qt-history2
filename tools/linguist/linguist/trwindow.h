@@ -21,7 +21,7 @@
 #include <QHash>
 #include <QPrinter>
 #include <QtCore/QPointer>
-
+#include <QtCore/QLocale>
 class QModelIndex;
 class QStringList;
 class QPixmap;
@@ -44,6 +44,7 @@ class ContextItem;
 class FindDialog;
 class TranslateDialog;
 class BatchTranslationDialog;
+class TranslationSettingsDialog;
 class MessageEditor;
 class Statistics;
 
@@ -87,6 +88,7 @@ private slots:
     void findAgain();
     void showTranslateDialog();
     void showBatchTranslateDialog();
+    void showTranslationSettings();
     void translateAndFindNext(const QString& findWhat, const QString &translateTo, int matchOption, int mode, bool markFinished);
     void translate(int mode);
     void newPhraseBook();
@@ -107,7 +109,7 @@ private slots:
     
     // To synchronize from the contextmodel to the MetaTranslator...
     // Operates on the selected item
-    void updateTranslation(const QString &translation);
+    void updateTranslation(const QStringList &translations);
     void updateFinished(bool finished);
     // Operates on the given item
     void updateTranslation(int context, int message, const QString &translation);
@@ -126,7 +128,7 @@ private slots:
     void onWhatsThis();
     void finishedBatchTranslation();
     void previewForm();
-
+    void updateLanguage(QLocale::Language);
 private:
 
     typedef QHash<QString, PhraseBook> PBD;
@@ -156,8 +158,7 @@ private:
     void updateProgress();
     void updatePhraseDict();
     PhraseBook getPhrases(const QString &source);
-    bool danger(const QString &source, const QString &translation,
-        bool verbose = false);
+    bool danger(const MessageItem *message, bool verbose = false);
 
     void printDanger(MessageItem *m);
     bool updateDanger(MessageItem *m, bool verbose = false);
@@ -187,6 +188,7 @@ private:
     int foundOffset;
     TranslateDialog *m_translatedlg;
     BatchTranslationDialog *m_batchTranslateDlg;
+    TranslationSettingsDialog *m_translationSettingsDialog;
     QString m_translateTo;
     bool m_findMatchSubstring;
     bool m_markFinished;

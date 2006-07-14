@@ -39,6 +39,39 @@ class MetaTranslator;
 class QMenu;
 class MessageEditor;
 
+
+class TransEditor : public QWidget
+{
+    Q_OBJECT
+public:
+    TransEditor(QWidget *parent = 0);
+
+    void setLabel(const QString &text);
+    QTextEdit *editor() const { return m_editor; }
+    QLabel *label() const { return m_label; }
+
+    void calculateFieldHeight();
+    QString translation() const { return m_editor->toPlainText(); }
+public slots:
+    void handleTranslationChanges();
+
+signals:
+    void heightUpdated(int height);
+
+private:
+    QTextEdit *m_editor;
+    QLabel *m_label;
+};
+
+class TransTextEdit : public QTextEdit
+{
+    Q_OBJECT
+public:
+    TransTextEdit(QWidget *parent = 0) : QTextEdit(parent) {
+        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    }
+};
+
 class SourceTextEdit : public QTextEdit
 {
     Q_OBJECT
@@ -167,6 +200,13 @@ class EditorPage : public QFrame
     Q_OBJECT
 public:
     EditorPage(MessageEditor *parent = 0, const char *name = 0);
+    QTextEdit *activeTransText() const;
+    int activeTranslationNumerus() const;
+
+    QList<TransEditor*> m_transTexts;
+    QStringList translations() const;
+
+    void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -178,19 +218,21 @@ protected:
 private:
     PageCurl *pageCurl;
     QLabel *srcTextLbl;
-    QLabel *transLbl;
     SourceTextEdit *srcText;
     QTextEdit *cmtText;
-    QTextEdit *transText;
-
+    void addPluralForm(const QString &label);
+    QStringList m_numerusForms;
+    QString     m_invariantForm;
+    bool        m_pluralEditMode;
     friend class MessageEditor;
 
 private slots:
-    void handleTranslationChanges();
+    void adjustTranslationFieldHeights();
     void handleSourceChanges();
     void handleCommentChanges();
     void sourceSelectionChanged();
     void translationSelectionChanged();
+    void updateHeight(int h);
 
 signals:
     void pageHeightUpdated(int height);
@@ -207,13 +249,14 @@ public:
 
     void showNothing();
     void showMessage(const QString &text, const QString &comment,
-        const QString &fullContext, const QString &translation,
+        const QString &fullContext, const QStringList &translation,
         MetaTranslatorMessage::Type type,
         const QList<Phrase> &phrases);
+    void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
     bool eventFilter(QObject *, QEvent *);
 
 signals:
-    void translationChanged(const QString &translation);
+    void translationChanged(const QStringList &translations);
     void finished(bool finished);
     void prevUnfinished();
     void nextUnfinished();
@@ -258,12 +301,11 @@ private:
     static const char * const friendlyBackTab[];
 
     void visualizeBackTabs(const QString &text, QTextEdit *te);
-    void setTranslation(const QString &translation, bool emitt);
+    void setTranslation(const QString &translation, int numerus, bool emitt);
     void setEditionEnabled(bool enabled);
 
-    //QTreeView *srcTextView;
     MessageModel *srcMdl;
-    QDockWidget /* *topDockWnd, */*bottomDockWnd;
+    QDockWidget *bottomDockWnd;
     EditorPage *editorPage;
 
     QLabel * phraseLbl;

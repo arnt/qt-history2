@@ -20,6 +20,7 @@
 #include "finddialog.h"
 #include "translatedialog.h"
 #include "batchtranslationdialog.h"
+#include "translationsettingsdialog.h"
 #include "msgedit.h"
 #include "phrasebookbox.h"
 #include "printout.h"
@@ -27,7 +28,7 @@
 #include "statistics.h"
 #include "messagemodel.h"
 #include "phrasemodel.h"
-
+#include "translator.h"
 #include "previewtool/trpreviewtool.h"
 
 #include <QAction>
@@ -206,8 +207,11 @@ TrWindow::TrWindow()
     connect(tv->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
              this, SLOT(showNewCurrent(QModelIndex,QModelIndex)));
 
+    connect(cmdl, SIGNAL(languageChanged(QLocale::Language)), this, SLOT(updateLanguage(QLocale::Language)));
+
     m_translatedlg = new TranslateDialog(this);
     m_batchTranslateDlg = new BatchTranslationDialog(cmdl, this);
+    m_translationSettingsDialog = 0;
     finddlg = new FindDialog(this);
     findMatchCase = false;
     findWhere = 0;
@@ -233,8 +237,8 @@ TrWindow::TrWindow()
 
     connect(tv, SIGNAL(clicked(QModelIndex)),
         this, SLOT(toggleFinished(QModelIndex)));
-    connect(me, SIGNAL(translationChanged(QString)),
-        this, SLOT(updateTranslation(QString)));
+    connect(me, SIGNAL(translationChanged(QStringList)),
+        this, SLOT(updateTranslation(QStringList)));
     connect(me, SIGNAL(finished(bool)), this, SLOT(updateFinished(bool)));
     connect(me, SIGNAL(prevUnfinished()), this, SLOT(prevUnfinished()));
     connect(me, SIGNAL(nextUnfinished()), this, SLOT(nextUnfinished()));
@@ -257,6 +261,15 @@ TrWindow::TrWindow()
     stats = 0;
 
     QWidget::setTabOrder(ptv, tv);
+}
+
+void TrWindow::updateLanguage(QLocale::Language lang)
+{
+    QStringList forms;
+    QByteArray rules;
+
+    getNumerusInfo(lang, cmdl->country(), &rules, &forms);
+    me->setNumerusForms(tr("Translation"), forms);
 }
 
 TrWindow::~TrWindow()
@@ -295,6 +308,7 @@ void TrWindow::openFile( const QString& name )
     updateCaption();
 
     me->showNothing();
+
     m_ui.actionDoneAndNext->setEnabled(false);
     m_ui.actionDoneAndNextAlt->setEnabled(false);
     m_ui.actionPreviewForm->setEnabled(true);
@@ -306,6 +320,9 @@ void TrWindow::openFile( const QString& name )
     if (cmdl->contextsInList() > 0) {
         m_ui.actionFind->setEnabled(true);
         m_ui.actionFindNext->setEnabled(false);
+        m_ui.actionTranslationFileSettings->setEnabled(true);
+        m_ui.actionBatchTranslation->setEnabled(true);
+        m_ui.actionSearchAndTranslate->setEnabled(true);
     }
 
     addRecentlyOpenedFile(name, recentFiles);
@@ -948,8 +965,9 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         MessageItem *m = cmdl->messageItem(current);
         ContextItem *c = cmdl->contextItem(current);
         if (m && c) {
+            QStringList translations  = cmdl->getTranslations(*m);
             me->showMessage(m->sourceText(), m->comment(), c->fullContext(),
-                m->translation(), m->message().type(), getPhrases(m->sourceText()));
+                translations, m->message().type(), getPhrases(m->sourceText()));
             if (m->danger())
                 printDanger(m);
             else
@@ -972,7 +990,7 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
     Q_UNUSED(old);
 }
 
-void TrWindow::updateTranslation(const QString &translation)
+void TrWindow::updateTranslation(const QStringList &translations)
 {
     QModelIndex item = tv->currentIndex();
     if (!item.isValid())
@@ -980,9 +998,8 @@ void TrWindow::updateTranslation(const QString &translation)
 
     MessageItem *m = cmdl->messageItem(item);
     if (m) {
-        if (translation != m->translation()) {
-            m->setTranslation(translation);
-
+        if (translations != m->translations()) {
+            m->setTranslations(translations);
             updateDanger(m, true);
             cmdl->updateItem(item);
 
@@ -1356,6 +1373,8 @@ void TrWindow::setupMenuBar()
     connect(m_ui.actionSearchAndTranslate, SIGNAL(triggered()), this, SLOT(showTranslateDialog()));
     connect(m_ui.actionBatchTranslation, SIGNAL(triggered()), this, SLOT(showBatchTranslateDialog()));
     
+    connect( m_ui.actionTranslationFileSettings, SIGNAL(triggered()), this, SLOT(showTranslationSettings()) );
+
     // Translation menu
     // when updating the accelerators, remember the status bar
     connect(m_ui.actionPrevUnfinished, SIGNAL(triggered()), this, SLOT(prevUnfinished()));
@@ -1608,12 +1627,12 @@ PhraseBook TrWindow::getPhrases(const QString &source)
 
 void TrWindow::printDanger(MessageItem *m)
 {
-    danger(m->sourceText(), m->translation(), true);
+    danger(m, true);
 }
 
 bool TrWindow::updateDanger(MessageItem *m, bool verbose)
 {
-    bool dngr = danger(m->sourceText(), m->translation(), verbose);
+    bool dngr = danger(m, verbose);
 
     if (dngr != m->danger())
         m->setDanger(dngr);
@@ -1621,12 +1640,17 @@ bool TrWindow::updateDanger(MessageItem *m, bool verbose)
     return dngr;
 }
 
-bool TrWindow::danger( const QString& source, const QString& translation,
+bool TrWindow::danger( const MessageItem *m,
                        bool verbose )
 {
+    QString source = m->sourceText();
+    QStringList translations = m->translations();
     if (m_ui.actionAccelerators->isChecked()) {
         bool sk = source.contains(Qt::Key_Ampersand);
-        bool tk = translation.contains(Qt::Key_Ampersand);
+        bool tk = true;
+        for (int i = 0; i < translations.count() && tk; ++i) {
+            tk &= bool(translations[i].contains(Qt::Key_Ampersand));
+        }
 
         if (!sk && tk) {
             if (verbose)
@@ -1641,7 +1665,12 @@ bool TrWindow::danger( const QString& source, const QString& translation,
         }
     }
     if (m_ui.actionEndingPunctuation->isChecked()) {
-        if (ending(source, cmdl->language()) != ending(translation, cmdl->language())) {
+        bool endingok = true;
+        for (int i = 0; i < translations.count() && endingok; ++i) {
+            endingok &= ending( source, cmdl->language()) == ending(translations[i], cmdl->language() );
+        }
+
+        if (!endingok) {
             if (verbose)
                 statusBar()->showMessage(tr("Translation does not end with the"
                     " same punctuation as the source text."), ErrorMS);
@@ -1650,7 +1679,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
     }
     if (m_ui.actionPhraseMatches->isChecked()) {
         QString fsource = friendlyString(source);
-        QString ftranslation = friendlyString(translation);
+        QString ftranslation = friendlyString(translations.first());
         QStringList lookupWords = fsource.split(QChar(' '));
 
         bool phraseFound;
@@ -1684,10 +1713,13 @@ bool TrWindow::danger( const QString& source, const QString& translation,
         // When finished, all elements should have returned to a count of 0, if not there is a mismatch
         // between place markers in the source text and the translation text.
         QVector<int> placeMarkerIndexes;
-        for (int pass = 0; pass < 2; ++pass) {
+        QString translation;
+        int numTranslations = translations.count();
+        for (int pass = 0; pass < numTranslations + 1; ++pass) {
             const QChar *uc_begin = source.unicode();
             const QChar *uc_end = uc_begin + source.length();
-            if (pass == 1) {
+            if (pass >= 1) {
+                translation = translations[pass - 1];
                 uc_begin = translation.unicode();
                 uc_end = uc_begin + translation.length();
             }
@@ -1703,7 +1735,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
                         if (markerIndex >= placeMarkerIndexes.size()) {
                             placeMarkerIndexes.resize(markerIndex + 1);
                         }
-                        placeMarkerIndexes[markerIndex]+= (pass == 0 ? 1 : -1);
+                        placeMarkerIndexes[markerIndex]+= (pass == 0 ? numTranslations : -1);
                     }
                 }
                 ++c;
@@ -1883,4 +1915,13 @@ void TrWindow::previewForm()
         m_previewTool->reloadTranslations();
     }
     m_previewTool->show();
+}
+
+void TrWindow::showTranslationSettings()
+{
+    if (!m_translationSettingsDialog) {
+        m_translationSettingsDialog = new TranslationSettingsDialog(this);
+    }
+    m_translationSettingsDialog->setMessageModel(cmdl);
+    m_translationSettingsDialog->exec();
 }

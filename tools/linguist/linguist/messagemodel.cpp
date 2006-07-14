@@ -13,7 +13,7 @@
 
 #include "messagemodel.h"
 #include "trwindow.h"
-
+#include "translator.h"
 static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
@@ -201,6 +201,25 @@ MessageItem *MessageModel::messageItem(const QModelIndex &indx) const
     }
 
     return 0;
+}
+
+QStringList MessageModel::getTranslations(const MessageItem &m) const
+{
+    QStringList translations = m.translations();
+    int numTranslations = 1;
+    if (m.message().isPlural()) {
+        numTranslations = grammaticalNumerus();
+    }
+
+    // make sure that the stringlist always have the size of the language's current numerus, or 1 if its not plural
+    if (translations.count() > numTranslations) {
+        for (int i = translations.count(); i >  numTranslations; --i)
+            translations.removeLast();
+    } else if (translations.count() < numTranslations) {
+        for (int i = translations.count(); i < numTranslations; ++i)
+            translations << QString();
+    }
+    return translations;
 }
 
 QModelIndex MessageModel::index(int row, int column, const QModelIndex &parent /*= QModelIndex()*/) const
@@ -607,11 +626,14 @@ bool MessageModel::load(const QString &fileName)
         if (lang.isEmpty()) {
             int pos_sep = fileName.indexOf(QChar('_'));
             if (pos_sep + 3 <= fileName.length()) {
-                lang = fileName.mid(pos_sep + 1, 2);
+                lang = fileName.mid(pos_sep + 1);
             }
         }
-        QLocale locale(lang);
-        m_language = locale.language();
+        QLocale::Language l;
+        QLocale::Country c;
+        MetaTranslator::languageAndCountry(lang, &l, &c);
+        setLanguage(l);
+        setCountry(c);
         // locale will be 'C' if we could not find the language in the ts file nor 
         // guestimate the language from the filename
 
@@ -628,6 +650,16 @@ bool MessageModel::save(const QString &fileName)
     MessageItem *m;
     for (iterator it = begin(); m = it.current(); ++it) {
         tor.insert(m->message());
+    }
+    QLocale locale(m_language, m_country);
+    if (m_country == QLocale::AnyCountry) {
+        QString languageCode = locale.name().section(QLatin1Char('_'), 0, 0);
+        if (languageCode.length() <= 3) {
+            tor.setLanguageCode(languageCode);
+        }
+    }else {
+        QString languageCode = locale.name();
+        tor.setLanguageCode(languageCode);
     }
     bool ok = tor.save(fileName);
     if (ok) setModified(false);
@@ -681,6 +713,38 @@ void MessageModel::doCharCounting(const QString& text, int& trW, int& trC, int& 
 QLocale::Language MessageModel::language() const
 {
     return m_language;
+}
+
+void MessageModel::setLanguage(QLocale::Language lang)
+{
+    if (m_language != lang) {
+        m_language = lang;
+        emit languageChanged(m_language);
+    }
+}
+
+QLocale::Country MessageModel::country() const
+{
+    return m_country;
+}
+
+void MessageModel::setCountry(QLocale::Country country)
+{
+    m_country = country;
+}
+
+// the grammatical numerus is the number of plural forms + singular forms.
+// i.e english has two forms: singular og plural
+// and polish has three forms: 
+// 1. singular (1), 
+// 2. plural form 1 (numbers that ends with 2,3,4 except 12,13,14)
+// 3. plural form 2 (all others)
+int MessageModel::grammaticalNumerus() const
+{
+    QByteArray rules;
+    QStringList forms;
+    getNumerusInfo(m_language, m_country, &rules, &forms);
+    return forms.count();
 }
 
 void MessageModel::updateStatistics()

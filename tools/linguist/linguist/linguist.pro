@@ -13,6 +13,7 @@ include(previewtool/previewtool.pri)
 SOURCES        += finddialog.cpp \
 	translatedialog.cpp \
         batchtranslationdialog.cpp \
+        translationsettingsdialog.cpp \
 	about.cpp \
 	statistics.cpp \
 	messagemodel.cpp \
@@ -30,6 +31,7 @@ SOURCES        += finddialog.cpp \
 HEADERS        += finddialog.h \
 	translatedialog.h \
         batchtranslationdialog.h \
+        translationsettingsdialog.h \
 	about.cpp \
         about.h \
 	statistics.h \
@@ -78,6 +80,7 @@ FORMS    += about.ui \
             batchtranslation.ui \
             translatedialog.ui \
             mainwindow.ui \
+            translationsettings.ui \
             finddialog.ui
 INCLUDEPATH        += ../shared ../../assistant/lib
 RESOURCES += linguist.qrc

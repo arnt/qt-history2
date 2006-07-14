@@ -98,6 +98,8 @@ public:
     QString toUnicode( const char *str, bool utf8 ) const;
 
     QString languageCode() const;
+    static void languageAndCountry(const QString &languageCode, QLocale::Language *lang, QLocale::Country *country);
+    void setLanguageCode(const QString &languageCode);
     QList<MetaTranslatorMessage> messages() const;
     QList<MetaTranslatorMessage> translatedMessages() const;
 
@@ -110,7 +112,14 @@ private:
     TMM mm;
     QByteArray codecName;
     QTextCodec *codec;
-    QString m_language;
+    QString m_language;     // A string beginning with a 2 or 3 letter language code (ISO 639-1 or ISO-639-2),
+                            // followed by the optional country variant to distinguist between country-specific variations
+                            // of the language. The language code and country code are always separated by '_'
+                            // Note that the language part can also be a 3-letter ISO 639-2 code.
+                            // Legal examples:
+                            // 'pt'         portuguese, assumes portuguese from portugal
+                            // 'pt_BR'      Brazilian portuguese (ISO 639-1 language code)
+                            // 'por_BR'     Brazilian portuguese (ISO 639-2 language code)
 };
 
 /*

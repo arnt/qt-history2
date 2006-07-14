@@ -44,6 +44,9 @@ public:
     inline QString sourceText() const {return tx;}
     inline QString comment() const {return com;}
     inline QString translation() const {return m.translation();}
+    inline QStringList translations() const { return m.translations(); }
+    inline void setTranslations(const QStringList &translations) { m.setTranslations(translations); }
+
     inline bool finished() const {return m.type() == MetaTranslatorMessage::Finished;}
     inline MetaTranslatorMessage message() const {return m;}
     bool compare(const QString &findText, bool matchSubstring, Qt::CaseSensitivity cs)
@@ -277,6 +280,12 @@ public:
     MessageItem *findMessage(const char *context, const char *sourcetext, const char *comment = 0) const;
 
     QLocale::Language language() const;
+    void setLanguage(QLocale::Language lang);
+    QLocale::Country country() const;
+    void setCountry(QLocale::Country country);
+    int grammaticalNumerus() const;
+
+    QStringList getTranslations(const MessageItem &m) const;
     void doCharCounting(const QString& text, int& trW, int& trC, int& trCS);
     void updateStatistics();
 
@@ -300,6 +309,7 @@ public:
 signals:
     void statsChanged(int words, int characters, int cs, int words2, int characters2, int cs2);
     void progressChanged(int finishedCount, int oldFinishedCount);
+    void languageChanged(QLocale::Language lang);
 
 private:
     Qt::SortOrder sortOrder;
@@ -317,8 +327,8 @@ private:
     int m_srcChars;
     int m_srcCharsSpc;
 
-    friend class iterator;
     QLocale::Language m_language;
+    QLocale::Country m_country;
 };
 
 #endif //MESSAGEMODEL_H

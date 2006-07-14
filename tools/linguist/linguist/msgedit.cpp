@@ -53,6 +53,54 @@ const char * const MessageEditor::friendlyBackTab[] = {
         QT_TRANSLATE_NOOP("MessageEditor", "tab")
     };
 
+
+TransEditor::TransEditor(QWidget *parent /*= 0*/) 
+: QWidget(parent)
+{
+    QVBoxLayout *lout = new QVBoxLayout(this);
+    lout->setSpacing(2);
+    lout->setMargin(0);
+    m_label = new QLabel(this);
+    lout->addWidget(m_label);
+    m_editor = new QTextEdit(this);
+    lout->addWidget(m_editor);
+    setLayout(lout);
+
+    connect(m_editor->document(), SIGNAL(contentsChanged()),
+             this, SLOT(handleTranslationChanges()));
+
+    if (parent) {
+        QFont fnt = parent->font();
+        fnt.setBold(true);
+        m_label->setFont(fnt);
+    }
+}
+
+void TransEditor::setLabel(const QString &text)
+{
+    m_label->setText(text);
+}
+
+void TransEditor::handleTranslationChanges()
+{
+    calculateFieldHeight();
+}
+
+void TransEditor::calculateFieldHeight()
+{
+    QTextEdit *field = m_editor;
+    int contentsHeight = qRound(field->document()->documentLayout()->documentSize().height());
+    if (contentsHeight != field->height()) {
+        int oldHeight = field->height();
+        if(contentsHeight < 30)
+            contentsHeight = 30;
+
+        resize(width(), m_label->height() + 6 + 2 + contentsHeight);
+        emit heightUpdated(height() + (field->height() - oldHeight));
+    }
+
+}
+
 void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
 {
     te->clear();
@@ -261,12 +309,10 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
     parent->setPalette(p);
 
     srcTextLbl = new QLabel(tr("Source text"), this);
-    transLbl   = new QLabel(tr("Translation"), this);
 
     QFont fnt = font();
     fnt.setBold(true);
     srcTextLbl->setFont(fnt);
-    transLbl->setFont(fnt);
 
     srcText = new SourceTextEdit(this);
     srcText->setFrameStyle(QFrame::NoFrame);
@@ -298,35 +344,63 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
 	cmtText->setReadOnly(true);
     connect(cmtText->document(), SIGNAL(contentsChanged()), SLOT(handleCommentChanges()));
 
-    transText = new QTextEdit(this);
-    transText->setObjectName("translation editor");
-    transText->setFrameStyle(QFrame::NoFrame);
-    transText->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
-                                             QSizePolicy::MinimumExpanding));
-    transText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    transText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    transText->setAutoFormatting(QTextEdit::AutoNone);
-    transText->setLineWrapMode(QTextEdit::WidgetWidth);
-    p = transText->palette();
-    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
-    transText->setPalette(p);
-    connect(transText->document(), SIGNAL(contentsChanged()),
-             SLOT(handleTranslationChanges()));
-    connect(transText, SIGNAL(selectionChanged()),
-             SLOT(translationSelectionChanged()));
+    m_pluralEditMode = false;
+    addPluralForm(m_invariantForm);
 
     pageCurl = new PageCurl(this);
 
     // Focus
-    setFocusPolicy(Qt::StrongFocus);
-    parent->setFocusProxy(transText);
-    transLbl->setFocusProxy(transText);
-    srcTextLbl->setFocusProxy(transText);
-    srcText->setFocusProxy(transText);
-    cmtText->setFocusProxy(transText);
-    setFocusProxy(transText);
+    //setFocusPolicy(Qt::StrongFocus);
+    //parent->setFocusProxy(transText);
+    //transLbl->setFocusProxy(transText);
+    //srcTextLbl->setFocusProxy(transText);
+    //srcText->setFocusProxy(transText);
+    //cmtText->setFocusProxy(transText);
+    //setFocusProxy(transText);
 
     updateCommentField();
+    layoutWidgets();
+
+}
+
+void EditorPage::addPluralForm(const QString &label)
+{
+    TransEditor *te = new TransEditor(this);
+    te->setLabel(label);
+    if (m_transTexts.count()) {
+        te->setVisible(false);
+    }
+    te->label()->adjustSize();
+    
+    te->editor()->setObjectName("translation editor");
+    te->editor()->setFrameStyle(QFrame::NoFrame);
+    te->editor()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
+                                             QSizePolicy::MinimumExpanding));
+    te->editor()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    te->editor()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    te->editor()->setAutoFormatting(QTextEdit::AutoNone);
+    te->editor()->setLineWrapMode(QTextEdit::WidgetWidth);
+    QPalette p = te->editor()->palette();
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
+    te->editor()->setPalette(p);
+    connect(te, SIGNAL(heightUpdated(int)), this, SLOT(updateHeight(int)));
+    connect(te->editor(), SIGNAL(selectionChanged()),
+             SLOT(translationSelectionChanged()));
+    m_transTexts << te;
+}
+
+void EditorPage::updateHeight(int /*h*/)
+{
+    layoutWidgets();
+}
+
+QStringList EditorPage::translations() const
+{
+    QStringList translations;
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        translations << m_transTexts[i]->translation();
+    }
+    return translations;
 }
 
 /*
@@ -347,6 +421,7 @@ void EditorPage::updateCommentField()
 */
 void EditorPage::layoutWidgets()
  {
+
     int margin = 6;
     int space  = 2;
     int w = width();
@@ -360,44 +435,42 @@ void EditorPage::layoutWidgets()
     srcText->move(margin, srcTextLbl->y() + srcTextLbl->height() + space);
     srcText->resize(w - margin*2, srcText->height());
 
-    cmtText->move(margin, srcText->y() + srcText->height() + space);
-    cmtText->resize(w - margin*2, cmtText->height());
+    int ypos = srcText->y() + srcText->height() + space;
+    if (cmtText->isVisible()) {
+        cmtText->move(margin, ypos);
+        cmtText->resize(w - margin*2, cmtText->height());
+        ypos+=cmtText->height() + space;
+    }
 
-    if (cmtText->isHidden())
-        transLbl->move(margin, srcText->y() + srcText->height() + space);
-    else
-        transLbl->move(margin, cmtText->y() + cmtText->height() + space);
-    transLbl->resize( w - margin*2, transLbl->height() );
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        TransEditor *te = m_transTexts[i];
+        te->resize(w - margin * 2, te->height());
+        te->move(margin, ypos);
+        if (te->isVisible()) {
+            ypos += te->height() + space;
+        }
+    }
 
-    transText->move(margin, transLbl->y() + transLbl->height() + space);
-    transText->resize(w - margin*2, transText->height());
+    int totHeight = ypos + margin - srcTextLbl->y();
 
-    // Calculate the total height for the editor page - emit a signal
-    // if the actual page size is larger/smaller
-    int totHeight = margin + srcTextLbl->height() +
-                    srcText->height() + space +
-                    transLbl->height() + space +
-                    transText->height() + space +
-                    frameWidth()*lineWidth()*2 + space * 3;
-
-    if (!cmtText->isHidden())
-        totHeight += cmtText->height() + space;
-
-     if (height() != totHeight)
-         emit pageHeightUpdated(totHeight);
+    if (height() != totHeight)
+        emit pageHeightUpdated(totHeight);
 }
 
 void EditorPage::resizeEvent(QResizeEvent *)
 {
-    handleTranslationChanges();
+    adjustTranslationFieldHeights();
     handleSourceChanges();
     handleCommentChanges();
+
     layoutWidgets();
 }
 
-void EditorPage::handleTranslationChanges()
+void EditorPage::adjustTranslationFieldHeights()
 {
-    calculateFieldHeight(transText);
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        m_transTexts[i]->calculateFieldHeight();
+    }
     if (srcText->textCursor().hasSelection())
         translationSelectionChanged();
 }
@@ -415,11 +488,11 @@ void EditorPage::handleCommentChanges()
 // makes sure only one of the textedits has a selection
 void EditorPage::sourceSelectionChanged()
 {
-    bool oldBlockState = transText->blockSignals(true);
-    QTextCursor c = transText->textCursor();
+    bool oldBlockState = m_transTexts[0]->editor()->blockSignals(true);
+    QTextCursor c = m_transTexts[0]->editor()->textCursor();
     c.clearSelection();
-    transText->setTextCursor(c);
-    transText->blockSignals(oldBlockState);
+    m_transTexts[0]->editor()->setTextCursor(c);
+    m_transTexts[0]->editor()->blockSignals(oldBlockState);
     emit selectionChanged();
 }
 
@@ -431,6 +504,55 @@ void EditorPage::translationSelectionChanged()
     srcText->setTextCursor(c);
     srcText->blockSignals(oldBlockState);
     emit selectionChanged();
+}
+
+int EditorPage::activeTranslationNumerus() const
+{
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        if (m_transTexts[i]->editor()->hasFocus()) {
+            return i;
+        }
+    }
+    //### hmmm.....
+    if (m_transTexts.count()) return 0;
+    return -1;
+}
+
+void EditorPage::setNumerusForms(const QString &invariantForm, const QStringList &numerusForms)
+{
+    m_invariantForm = invariantForm;
+    m_numerusForms = numerusForms;
+
+    if (!m_pluralEditMode) {
+        m_transTexts[0]->setLabel(invariantForm);
+    } else {
+        m_transTexts[0]->setLabel(tr("Translation (%1)").arg(m_numerusForms[0]));
+    }
+    int i;
+    for (i = 1; i < m_numerusForms.count(); ++i) {
+        QString label = tr("Translation (%1)").arg(m_numerusForms[i]);
+        if (i >= m_transTexts.count()) {
+            addPluralForm(label);
+        } else {
+            m_transTexts[i]->setLabel(label);
+        }
+        m_transTexts[i]->setVisible(m_pluralEditMode);
+    }
+    for (int j = m_transTexts.count() - i; j > 0; --j) {
+        TransEditor *te = m_transTexts.takeLast();
+        delete te;
+        ++i;
+    }
+    layoutWidgets();
+}
+
+QTextEdit *EditorPage::activeTransText() const
+{
+    int numerus = activeTranslationNumerus();
+    if (numerus != -1) {
+        return m_transTexts[numerus]->editor();
+    }
+    return 0;
 }
 
 /*
@@ -459,8 +581,11 @@ void EditorPage::fontChange(const QFont &)
     QFontMetrics fm(fnt);
     srcTextLbl->setFont(fnt);
     srcTextLbl->resize(fm.width(srcTextLbl->text()), srcTextLbl->height());
-    transLbl->setFont(fnt);
-    transLbl->resize(fm.width(transLbl->text()), transLbl->height());
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        QLabel *transLbl = m_transTexts[i]->label();
+        transLbl->setFont(fnt);
+        transLbl->resize(fm.width(transLbl->text()), transLbl->height());
+    }
     update();
 }
 
@@ -508,7 +633,8 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     vl->addWidget(phraseLbl);
     vl->addWidget(phraseTv);
 
-    for (int i = 0; i < 9; ++i) {
+    int i;
+    for (i = 0; i < 9; ++i) {
         (void) new GuessShortcut(i, this, SLOT(guessActivated(int)));
     }
 
@@ -529,7 +655,6 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
 
     setWidget(sw);
     defFormat = editorPage->srcText->currentCharFormat();
-    editorPage->transText->installEventFilter(this);
 
     // Signals
     connect(editorPage->pageCurl, SIGNAL(nextPage()),
@@ -537,13 +662,11 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     connect(editorPage->pageCurl, SIGNAL(prevPage()),
         SIGNAL(prevUnfinished()));
 
-    connect(editorPage->transText->document(), SIGNAL(contentsChanged()),
-        this, SLOT(emitTranslationChanged()));
-    connect(editorPage->transText->document(), SIGNAL(contentsChanged()),
+    connect(editorPage->activeTransText()->document(), SIGNAL(contentsChanged()),
         this, SLOT(updateButtons()));
-    connect(editorPage->transText->document(), SIGNAL(undoAvailable(bool)),
+    connect(editorPage->activeTransText()->document(), SIGNAL(undoAvailable(bool)),
         this, SIGNAL(undoAvailable(bool)));
-    connect(editorPage->transText->document(), SIGNAL(redoAvailable(bool)),
+    connect(editorPage->activeTransText()->document(), SIGNAL(redoAvailable(bool)),
         this, SIGNAL(redoAvailable(bool)));
     connect(editorPage, SIGNAL(selectionChanged()),
         this, SLOT(updateCutAndCopy()));
@@ -561,8 +684,6 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     editorPage->cmtText->setWhatsThis(tr("This area shows a comment that"
                         " may guide you, and the context in which the text"
                         " occurs.") );
-    editorPage->transText->setWhatsThis(tr("This is where you can enter or modify"
-                        " the translation of some source text.") );
 
     showNothing();
 }
@@ -586,7 +707,12 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
             return false;
         }
 
-        if (o == editorPage->transText
+        bool isTransEditor = false;
+        for (int i = 0; i < editorPage->m_transTexts.count(); ++i) {
+            isTransEditor = (o == editorPage->m_transTexts[i]->editor());
+            if (isTransEditor) break;
+        }
+        if (isTransEditor
             && ke->modifiers() & Qt::ControlModifier)
         {
             if ((ke->key() == Qt::Key_A) &&
@@ -630,10 +756,11 @@ void MessageEditor::showNothing()
     setEditionEnabled(false);
     sourceText.clear();
     editorPage->cmtText->clear();
-    setTranslation(QString(), false);
+    setTranslation(QString(), 0, false);
+    setTranslation(QString(), 1, false);
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
-    editorPage->handleTranslationChanges();
+    editorPage->adjustTranslationFieldHeights();
     editorPage->updateCommentField();
 }
 
@@ -686,7 +813,7 @@ static CandidateList similarTextHeuristicCandidates( MessageModel::iterator it,
 void MessageEditor::showMessage(const QString &text,
                                 const QString &comment,
                                 const QString &fullContext,
-                                const QString &translation,
+                                const QStringList &translations,
                                 MetaTranslatorMessage::Type type,
                                 const QList<Phrase> &phrases)
 {
@@ -708,7 +835,24 @@ void MessageEditor::showMessage(const QString &text,
     else
         editorPage->cmtText->clear();
 
-    setTranslation(translation, false);
+    editorPage->m_pluralEditMode = translations.count() > 1;
+    if (!editorPage->m_pluralEditMode) {
+        editorPage->m_transTexts[0]->setLabel(editorPage->m_invariantForm);
+    } else {
+        editorPage->m_transTexts[0]->setLabel(tr("Translation (%1)").arg(editorPage->m_numerusForms.first()));
+    }
+    int i;
+    for (i = 0; i < editorPage->m_numerusForms.count(); ++i) {
+        bool shouldShow = i < translations.count();
+        if (shouldShow) {
+            setTranslation(translations[i], i, false);
+        } else {
+            setTranslation(QString(), i, false);
+        }
+        if (i >= 1) {
+            editorPage->m_transTexts[i]->setVisible(shouldShow);
+        }
+    }
     phrMdl->removePhrases();
 
     foreach(Phrase p, phrases) {
@@ -734,26 +878,50 @@ void MessageEditor::showMessage(const QString &text,
     phrMdl->resort();
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
-    editorPage->handleTranslationChanges();
+    editorPage->adjustTranslationFieldHeights();
     editorPage->updateCommentField();
 }
 
-void MessageEditor::setTranslation(const QString &translation, bool emitt)
+void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringList &numerusForms)
 {
+    // uninstall the emitTranslationChanged slots and remove event filters
+    for (int i = 0; i  < editorPage->m_transTexts.count(); ++i) {
+        QTextEdit *transText = editorPage->m_transTexts[i]->editor();
+        disconnect( transText->document(), SIGNAL(contentsChanged()), this, SLOT(emitTranslationChanged()) );
+        transText->removeEventFilter(this);
+    }
+    editorPage->setNumerusForms(invariantForm, numerusForms);
+
+    // reinstall event filters and set up the emitTranslationChanged slot
+    for (int i = 0; i  < editorPage->m_transTexts.count(); ++i) {
+        QTextEdit *transText = editorPage->m_transTexts[i]->editor();
+        transText->installEventFilter(this);
+        connect(transText->document(), SIGNAL(contentsChanged()),
+            this, SLOT(emitTranslationChanged()));
+        // What's this
+        transText->setWhatsThis(tr("This is where you can enter or modify"
+                                " the translation of some source text.") );
+    }
+}
+
+void MessageEditor::setTranslation(const QString &translation, int numerus, bool emitt)
+{
+    if (numerus >= editorPage->m_transTexts.count()) numerus = 0;
+    QTextEdit *transText = editorPage->m_transTexts[numerus]->editor();
     // Block signals so that a signal is not emitted when
     // for example a new source text item is selected and *not*
     // the actual translation.
     if (!emitt)
-        editorPage->transText->document()->blockSignals(true);
+        transText->document()->blockSignals(true);
 
     if (translation.isNull())
-        editorPage->transText->clear();
+        transText->clear();
     else
-        editorPage->transText->setPlainText(translation);
+        transText->setPlainText(translation);
 
     if (!emitt)
     {
-        editorPage->transText->document()->blockSignals(false);
+        transText->document()->blockSignals(false);
 
         //don't undo the change
         emit undoAvailable(false);
@@ -766,8 +934,11 @@ void MessageEditor::setTranslation(const QString &translation, bool emitt)
 
 void MessageEditor::setEditionEnabled(bool enabled)
 {
-    editorPage->transLbl->setEnabled(enabled);
-    editorPage->transText->setReadOnly(!enabled);
+    for (int i = 0; i < editorPage->m_transTexts.count(); ++i) {
+        TransEditor* te = editorPage->m_transTexts[i];
+        te->label()->setEnabled(enabled);
+        te->editor()->setReadOnly(!enabled);
+    }
 
     phraseLbl->setEnabled(enabled);
     phraseTv->setEnabled(enabled);
@@ -776,42 +947,42 @@ void MessageEditor::setEditionEnabled(bool enabled)
 
 void MessageEditor::undo()
 {
-    editorPage->transText->document()->undo();
+    editorPage->activeTransText()->document()->undo();
 }
 
 void MessageEditor::redo()
 {
-    editorPage->transText->document()->redo();
+    editorPage->activeTransText()->document()->redo();
 }
 
 void MessageEditor::cut()
 {
-    if (editorPage->transText->textCursor().hasSelection())
-        editorPage->transText->cut();
+    if (editorPage->activeTransText()->textCursor().hasSelection())
+        editorPage->activeTransText()->cut();
 }
 
 void MessageEditor::copy()
 {
     if (editorPage->srcText->textCursor().hasSelection()) {
         editorPage->srcText->copySelection();
-    } else if (editorPage->transText->textCursor().hasSelection()) {
-        editorPage->transText->copy();
+    } else if (editorPage->activeTransText()->textCursor().hasSelection()) {
+        editorPage->activeTransText()->copy();
     }
 }
 
 void MessageEditor::paste()
 {
-    editorPage->transText->paste();
+    editorPage->activeTransText()->paste();
 }
 
 void MessageEditor::selectAll()
 {
-    editorPage->transText->selectAll();
+    editorPage->activeTransText()->selectAll();
 }
 
 void MessageEditor::emitTranslationChanged()
 {
-    emit translationChanged(editorPage->transText->toPlainText());
+    emit translationChanged( editorPage->translations());
 }
 
 void MessageEditor::guessActivated(int key)
@@ -831,27 +1002,28 @@ void MessageEditor::guessActivated(int key)
 
 void MessageEditor::insertPhraseInTranslation(const QModelIndex &index)
 {
-    if (!editorPage->transText->isReadOnly())
+    if (!editorPage->activeTransText()->isReadOnly())
     {
-        editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
-        emit translationChanged(editorPage->transText->toPlainText());
+        editorPage->activeTransText()->textCursor().insertText(phrMdl->phrase(index).target());
+        emitTranslationChanged();
     }
 }
 
 void MessageEditor::insertPhraseInTranslationAndLeave(const QModelIndex &index)
 {
-    if (!editorPage->transText->isReadOnly())
+    if (!editorPage->activeTransText()->isReadOnly())
     {
-        editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
-        emit translationChanged(editorPage->transText->toPlainText());
-        editorPage->transText->setFocus();
+        editorPage->activeTransText()->textCursor().insertText(phrMdl->phrase(index).target());
+        
+        emitTranslationChanged();
+        editorPage->activeTransText()->setFocus();
     }
 }
 
 void MessageEditor::updateButtons()
 {
-    bool overwrite = (!editorPage->transText->isReadOnly() &&
-             (editorPage->transText->toPlainText().trimmed().isEmpty() ||
+    bool overwrite = (!editorPage->activeTransText()->isReadOnly() &&
+             (editorPage->activeTransText()->toPlainText().trimmed().isEmpty() ||
               mayOverwriteTranslation));
     mayOverwriteTranslation = false;
     emit updateActions(overwrite);
@@ -860,7 +1032,9 @@ void MessageEditor::updateButtons()
 void MessageEditor::beginFromSource()
 {
     mayOverwriteTranslation = true;
-    setTranslation(sourceText, true);
+    for ( int i = 0; i < editorPage->m_transTexts.count(); ++i) {
+        setTranslation(sourceText, i, true);
+    }
     setEditorFocus();
 }
 
@@ -876,7 +1050,7 @@ void MessageEditor::updateCutAndCopy()
     bool newCutState = false;
     if (editorPage->srcText->textCursor().hasSelection()) {
         newCopyState = true;
-    } else if (editorPage->transText->textCursor().hasSelection()) {
+    } else if (editorPage->activeTransText()->textCursor().hasSelection()) {
         newCopyState = true;
         newCutState = true;
     }
@@ -895,7 +1069,7 @@ void MessageEditor::updateCutAndCopy()
 void MessageEditor::updateCanPaste()
 {
     bool oldCanPaste = canPaste;
-    canPaste = (!editorPage->transText->isReadOnly() &&
+    canPaste = (!editorPage->activeTransText()->isReadOnly() &&
         !qApp->clipboard()->text().isNull());
     if (canPaste != oldCanPaste)
         emit pasteAvailable(canPaste);

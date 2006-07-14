@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "metatranslator.h"
+#include "translator.h"
 
 #include <QApplication>
 #include <QByteArray>
@@ -406,7 +407,11 @@ bool MetaTranslator::save( const QString& filename) const
     //### The xml prolog allows processors to easily detect the correct encoding
     t << "<?xml version=\"1.0\"";
     t << " encoding=\"utf-8\"";
-    t << "?>\n<!DOCTYPE TS><TS version=\"1.1\">\n";
+    t << "?>\n<!DOCTYPE TS><TS version=\"1.1\"";
+    if (!languageCode().isEmpty() && languageCode() != QLatin1String("C"))
+        t << " language=\"" << languageCode() << "\"";
+
+    t << ">\n";
     if ( codecName != "ISO-8859-1" )
         t << "<defaultcodec>" << codecName << "</defaultcodec>\n";
     TMM::ConstIterator m = mm.begin();
@@ -471,7 +476,7 @@ bool MetaTranslator::save( const QString& filename) const
             if (msg.isPlural()) {
                 t << "\n";
                 for (int j = 0; j < qMax(1, (*i).translations().count()); ++j)
-                    t << "            <numerusform>" << (*i).translations().value(j) << "</numerusform>\n";
+                    t << "            <numerusform>" << protect( (*i).translations().value(j).toUtf8() ) << "</numerusform>\n";
                 t << "        ";
             } else {
                 t << protect( (*i).translation().toUtf8() );
@@ -500,13 +505,34 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
     return false;
 }
 
+void MetaTranslator::languageAndCountry(const QString &languageCode, QLocale::Language *lang, QLocale::Country *country)
+{
+    QLocale locale(languageCode);
+    if (lang) 
+        *lang = locale.language();
+
+    if (country) {
+        if (languageCode.indexOf(QLatin1Char('_')) != -1) {
+            *country = locale.country();
+        } else {
+            *country = QLocale::AnyCountry;
+        }
+    }
+}
+
 bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
               bool ignoreUnfinished /*= false*/,
               Translator::SaveMode mode /*= Translator::Stripped */) const
 {
     Translator tor( 0 );
-//    tor.setNumerusRules(QByteArray(reinterpret_cast<const char *>(slovenianRules),
-//                                   sizeof(slovenianRules)));
+    QLocale::Language l;
+    QLocale::Country c;
+    languageAndCountry(m_language, &l, &c);
+    QByteArray rules;
+    if (getNumerusInfo(l, c, &rules, 0)) {
+        tor.setNumerusRules(rules);
+    }
+
     int finished = 0;
     int unfinished = 0;
     int untranslated = 0;
@@ -568,6 +594,11 @@ bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
 QString MetaTranslator::languageCode() const
 {
     return m_language;
+}
+
+void MetaTranslator::setLanguageCode(const QString &languageCode)
+{
+    m_language = languageCode;
 }
 
 bool MetaTranslator::contains( const char *context, const char *sourceText,
