@@ -337,12 +337,11 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
 	{
             RECT r;
             GetWindowRect(winId(), &r);
-	    QEvent *e = 0;
+            QEvent *e = 0;
             Qt::KeyboardModifiers keys = QApplication::keyboardModifiers();
-	    QPoint gpos = QCursor::pos();
+            QPoint gpos = QCursor::pos();
 
             switch (m->lParam) {
-// LeftButton
             case WM_LBUTTONDBLCLK:
                 emit q->activated(QSystemTrayIcon::DoubleClick);
                 break;
@@ -350,8 +349,8 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
             case WM_LBUTTONUP:
                 emit q->activated(QSystemTrayIcon::Trigger);
                 break;
-// Right Button
-	    case WM_RBUTTONUP:
+            
+            case WM_RBUTTONUP:
                 if (q->contextMenu()) {
                     q->contextMenu()->popup(gpos);
                     q->contextMenu()->activateWindow(); 
@@ -364,8 +363,12 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
                 emit q->messageClicked();
                 break;
 
+            case WM_MBUTTONUP:
+                emit q->activated(QSystemTrayIcon::MiddleClick);
+                break;
+
             default:
-		break;
+		        break;
 	    }
 	    if (e) {
 		bool res = QApplication::sendEvent(q, e);

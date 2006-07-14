@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setToolTip("System trayIcon example");
     trayIcon->setContextMenu(menu);
-    QObject::connect(trayIcon, SIGNAL(activated(int)),
-                     this, SLOT(activated(int)));
+    QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+                     this, SLOT(activated(QSystemTrayIcon::ActivationReason)));
     QObject::connect(trayIcon, SIGNAL(messageClicked()), 
                      this, SLOT(balloonClicked()));
     changeIcon(0); // set the first icon
@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     icons << "16x16 icon" << "22x22 icon" << "32x32 icon";
     iconPicker->addItems(icons);
     QObject::connect(iconPicker, SIGNAL(activated(int)),
-		     this, SLOT(changeIcon(int)));
+                     this, SLOT(changeIcon(int)));
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(titleLabel, 0, 0); layout->addWidget(titleEdit, 0, 1);
@@ -105,7 +105,7 @@ void MainWindow::balloonClicked()
     info->append(tr("Balloon message was clicked"));
 }
 
-void MainWindow::activated(int reason)
+void MainWindow::activated(QSystemTrayIcon::ActivationReason reason)
 {
     QString r;
     switch (reason) {
@@ -120,6 +120,9 @@ void MainWindow::activated(int reason)
             break;
         case QSystemTrayIcon::Trigger:
             r = tr("Trigger");
+            break;
+        case QSystemTrayIcon::MiddleClick:
+            r = tr("MiddleClick");
             break;
     }
     info->append(QString("Activated - Reason %1").arg(r));

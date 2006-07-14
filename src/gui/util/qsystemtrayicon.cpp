@@ -243,6 +243,7 @@ bool QSystemTrayIcon::event(QEvent *e)
      \value Context     The context menu for the system tray entry was requested
      \value DoubleClick The system tray entry was double clicked
      \value Trigger     The system tray entray was clicked
+     \value MiddleClick The system tray entray was clicked with the middle mouse button
 
      \sa activated()
 */
@@ -517,6 +518,9 @@ void QBalloonTip::timerEvent(QTimerEvent *e)
     QWidget::timerEvent(e);
 }
 
-void qtsystray_sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }
+void qtsystray_sendActivated(QSystemTrayIcon *i, int r) 
+{ 
+    emit i->activated((QSystemTrayIcon::ActivationReason)r);
+}
 
 #endif // QT_NO_SYSTEMTRAYICON

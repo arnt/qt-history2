@@ -48,7 +48,8 @@ public:
         Unknown,
         Context,
         DoubleClick,
-        Trigger
+        Trigger,
+        MiddleClick
     };
 
 #ifndef QT_NO_MENU
@@ -76,7 +77,7 @@ public Q_SLOTS:
     inline void hide() { setVisible(false); }
 
 Q_SIGNALS:
-    void activated(int reason);
+    void activated(QSystemTrayIcon::ActivationReason reason);
     void messageClicked();
 
 protected:

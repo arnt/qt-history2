@@ -29,7 +29,7 @@ private slots:
     void toggleVisibility();
     void showMessage();
     void balloonClicked();
-    void activated(int);
+    void activated(QSystemTrayIcon::ActivationReason);
     void changeIcon(int);
 
 private:
