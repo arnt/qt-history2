@@ -1532,12 +1532,16 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
             uchar *convoluted = new uchar[bitmap.rows*bitmap.pitch];
             uchar *c = convoluted;
             // convolute the bitmap with a triangle filter to get rid of color fringes
+            // If we take account for a gamma value of 2, we end up with
+            // weights of 1, 4, 9, 4, 1. We use an approximation of 1, 3, 8, 3, 1 here,
+            // as this nicely sums up to 16 :)
             int h = info.height;
             while (h--) {
                 c[0] = c[1] = 0;
+                //
                 for (int x = 2; x < bitmap.width - 2; ++x) {
-                    uint sum = src[x-2] + 2*src[x-1] + 3*src[x] + 2*src[x+1] + src[x+2];
-                    c[x] = (uchar) (sum/9);
+                    uint sum = src[x-2] + 3*src[x-1] + 8*src[x] + 3*src[x+1] + src[x+2];
+                    c[x] = (uchar) (sum >> 4);
                 }
                 c[bitmap.width - 2] = c[bitmap.width -1] = 0;
                 src += bitmap.pitch;
