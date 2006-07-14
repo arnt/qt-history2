@@ -2596,15 +2596,15 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     if (qApp->d_func()->inPopupMode()) {                        // in popup mode
         replayPopupMouseEvent = false;
         QWidget* activePopupWidget = qApp->activePopupWidget();
-        QWidget *popup = activePopupWidget;
+        QWidget *target = activePopupWidget;
 
-        if (popup != this) {
+        if (target != this) {
             if ((windowType() == Qt::Popup) && rect().contains(pos))
-                popup = this;
+                target = this;
             else                                // send to last popup
-                pos = popup->mapFromGlobal(QPoint(gpos.x, gpos.y));
+                pos = target->mapFromGlobal(QPoint(gpos.x, gpos.y));
         }
-        QWidget *popupChild = popup->childAt(pos);
+        QWidget *popupChild = target->childAt(pos);
         bool releaseAfter = false;
         switch (type) {
             case QEvent::MouseButtonPress:
@@ -2618,18 +2618,22 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 break;                                // nothing for mouse move
         }
 
-        if (popupButtonFocus)
-            popup = popupButtonFocus;
-        else if (popupChild)
-            popup = popupChild;
+        if (popupButtonFocus) {
+            target = popupButtonFocus;
+        } else if (popupChild) {
+            // forward mouse events to the popup child. mouse move events
+            // are only forwarded to popup children that enable mouse tracking.
+            if (type != QEvent::MouseMove || popupChild->hasMouseTracking())
+                target = popupChild;
+        }
 
         QPoint globalPos(gpos.x, gpos.y);
-        pos = popup->mapFromGlobal(globalPos);
+        pos = target->mapFromGlobal(globalPos);
 	QMouseEvent e(type, pos, globalPos,
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
                       Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
-	res = QApplication::sendSpontaneousEvent(popup, &e);
+	res = QApplication::sendSpontaneousEvent(target, &e);
         res = res && e.isAccepted();
 
         if (releaseAfter) {
@@ -2655,7 +2659,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                    && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
 	    QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
-	    bool res2 = QApplication::sendSpontaneousEvent( popup, &e2 );
+	    bool res2 = QApplication::sendSpontaneousEvent( target, &e2 );
             if (!res) // RMB not accepted
                 res = res2 && e2.isAccepted();
         }
