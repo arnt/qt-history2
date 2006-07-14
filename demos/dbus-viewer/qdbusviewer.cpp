@@ -153,7 +153,7 @@ void QDBusViewer::showContextMenu(const QPoint &point)
     if (!item.isValid())
         return;
 
-    QDBusModel *model = static_cast<const QDBusModel *>(item.model());
+    const QDBusModel *model = static_cast<const QDBusModel *>(item.model());
 
     BusSignature sig;
     sig.mService = currentService;
