@@ -216,6 +216,8 @@ void QSystemTrayIconSys::mousePressEvent(QMouseEvent *ev)
         emit q->activated(QSystemTrayIcon::Trigger);
     else if (ev->button() == Qt::RightButton)
         emit q->activated(QSystemTrayIcon::Context);
+    else if (ev->button() == Qt::MidButton)
+        emit q->activated(QSystemTrayIcon::MiddleClick);
 }
 
 void QSystemTrayIconSys::mouseDoubleClickEvent(QMouseEvent *ev)
