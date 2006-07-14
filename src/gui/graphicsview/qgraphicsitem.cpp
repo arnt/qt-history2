@@ -3891,7 +3891,7 @@ QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGr
                                      QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
 {
-    setLine(x1, y2, x2, y2);
+    setLine(x1, y1, x2, y2);
 }
 
 
