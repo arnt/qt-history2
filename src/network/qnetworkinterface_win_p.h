@@ -27,6 +27,7 @@
 
 #include <winsock2.h>
 #include <windows.h>
+#include <time.h>
 
 #ifndef GAA_FLAG_INCLUDE_ALL_INTERFACES
 # define GAA_FLAG_INCLUDE_ALL_INTERFACES 0
