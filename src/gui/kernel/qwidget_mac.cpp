@@ -239,6 +239,9 @@ void qt_mac_update_ignore_mouseevents(QWidget *w)
             ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
         ReshapeCustomWindow(qt_mac_window_for(w));
     } else {
+#ifndef kHIViewFeatureIgnoresClicks
+#define kHIViewFeatureIgnoresClicks kHIViewIgnoresClicks
+#endif
         if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
             HIViewChangeFeatures(qt_mac_hiview_for(w), kHIViewFeatureIgnoresClicks, 0);
         else
