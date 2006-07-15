@@ -987,14 +987,18 @@ void tst_QPainter::drawEllipse()
 
     const int offset = 10;
     QRect rect(QPoint(offset, offset), size);
-    QPixmap pixmap(size.width() + 2 * offset, size.height() + 2 * offset);
 
-    pixmap.fill(Qt::white);
-    QPainter p(&pixmap);
+    QImage image(size.width() + 2 * offset, size.height() + 2 * offset,
+                 QImage::Format_ARGB32_Premultiplied);
+    image.fill(QColor(Qt::white).rgb());
+
+    QPainter p(&image);
     p.setPen(usePen ? QPen(Qt::black) : QPen(Qt::NoPen));
     p.setBrush(Qt::black);
     p.drawEllipse(rect);
     p.end();
+
+    QPixmap pixmap = QPixmap::fromImage(image);
 
     QRect painted;
     getPaintedSize(&pixmap, &painted, Qt::white);
@@ -1009,8 +1013,8 @@ void tst_QPainter::drawClippedEllipse_data()
 {
     QTest::addColumn<QRect>("rect");
 
-    for (int w = 20; w < 200; w += 7) {
-        for (int h = w/2; h < qMin(2*w, 200); h += 13) {
+    for (int w = 20; w < 128; w += 7) {
+        for (int h = w/2; h < qMin(2*w, 128); h += 13) {
             QString s = QString("%1x%2").arg(w).arg(h);
             QTest::newRow(s + " top") << QRect(0, -h/2, w, h);
             QTest::newRow(s + " topright") << QRect(w/2, -h/2, w, h);
@@ -1028,16 +1032,18 @@ void tst_QPainter::drawClippedEllipse()
 {
     QFETCH(QRect, rect);
 
-    QPixmap pixmap(rect.width() + 1, rect.height() + 1);
+    QImage image(rect.width() + 1, rect.height() + 1,
+                 QImage::Format_ARGB32_Premultiplied);
     QRect expected = QRect(rect.x(), rect.y(), rect.width()+1, rect.height()+1)
-                     & QRect(0, 0, pixmap.width(), pixmap.height());
+                     & QRect(0, 0, image.width(), image.height());
 
 
-    pixmap.fill(Qt::white);
-    QPainter p(&pixmap);
+    image.fill(QColor(Qt::white).rgb());
+    QPainter p(&image);
     p.drawEllipse(rect);
     p.end();
 
+    QPixmap pixmap = QPixmap::fromImage(image);
     QRect painted;
     getPaintedSize(&pixmap, &painted, Qt::white);
 
