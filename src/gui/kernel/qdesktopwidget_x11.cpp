@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qvariant.h"
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qt_x11_p.h"
