@@ -294,12 +294,15 @@ QObjectPrivate::QObjectPrivate(int version)
 #ifdef QT3_SUPPORT
     postedChildInsertedEvents = 0;
 #endif
+    extraData = 0;
 }
 
 QObjectPrivate::~QObjectPrivate()
 {
 #ifndef QT_NO_USERDATA
-    qDeleteAll(userData);
+    if (extraData)
+        qDeleteAll(extraData->userData);
+    delete extraData;
 #endif
 }
 
@@ -2940,21 +2943,54 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
 /*!
   Sets the value of the object's \a name property to \a value.
 
-  Returns true if the operation was successful; otherwise returns
-  false.
+  If the property is defined in the class using Q_PROPERTY then
+  true is returned on success and false otherwise. If the property
+  is not defined using Q_PROPERTY and therefore not listed in the
+  meta object it is added as dynamic property and false is returned.
 
   Information about all available properties is provided through the
-  metaObject().
+  metaObject() and dynamicPropertyNames().
 
-  \sa property(), metaObject()
+  Dynamic properties can be queried again using property() and can be
+  removed by setting the property value to an invalid QVariant.
+  Changing the value of a dynamic property causes a QDynamicPropertyChangeEvent
+  to be sent to the object.
+
+  \sa property(), metaObject(), dynamicProperties()
 */
 bool QObject::setProperty(const char *name, const QVariant &value)
 {
+    Q_D(QObject);
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
         return false;
 
     int id = meta->indexOfProperty(name);
+    if (id < 0) {
+        if (!d->extraData)
+            d->extraData = new QObjectPrivate::ExtraData;
+
+        const int idx = d->extraData->propertyNames.indexOf(name);
+
+        if (value.isNull()) {
+            if (idx == -1)
+                return false;
+            d->extraData->propertyNames.removeAt(idx);
+            d->extraData->propertyValues.removeAt(idx);
+        } else {
+            if (idx == -1) {
+                d->extraData->propertyNames.append(name);
+                d->extraData->propertyValues.append(value);
+            } else {
+                d->extraData->propertyValues[idx] = value;
+            }
+        }
+
+        QDynamicPropertyChangeEvent ev(name);
+        QCoreApplication::sendEvent(this, &ev);
+
+        return false;
+    }
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isWritable())
@@ -2970,17 +3006,24 @@ bool QObject::setProperty(const char *name, const QVariant &value)
   If no such property exists, the returned variant is invalid.
 
   Information about all available properties is provided through the
-  metaObject().
+  metaObject() and dynamicPropertyNames().
 
-  \sa setProperty(), QVariant::isValid(), metaObject()
+  \sa setProperty(), QVariant::isValid(), metaObject(), dynamicPropertyNames()
 */
 QVariant QObject::property(const char *name) const
 {
+    Q_D(const QObject);
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
         return QVariant();
 
     int id = meta->indexOfProperty(name);
+    if (id < 0) {
+        if (!d->extraData)
+            return QVariant();
+        const int i = d->extraData->propertyNames.indexOf(name);
+        return d->extraData->propertyValues.value(i);
+    }
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isReadable())
@@ -2988,6 +3031,20 @@ QVariant QObject::property(const char *name) const
                  metaObject()->className(), name);
 #endif
     return p.read(this);
+}
+
+/*!
+    \since 4.2
+
+    Returns the names of all properties that were dynamically added to
+    the object, using setProperty.
+*/
+QList<QByteArray> QObject::dynamicPropertyNames() const
+{
+    Q_D(const QObject);
+    if (d->extraData)
+        return d->extraData->propertyNames;
+    return QList<QByteArray>();
 }
 
 #endif // QT_NO_PROPERTIES
@@ -3089,10 +3146,12 @@ QObjectUserData::~QObjectUserData()
 void QObject::setUserData(uint id, QObjectUserData* data)
 {
     Q_D(QObject);
+    if (!d->extraData)
+        d->extraData = new QObjectPrivate::ExtraData;
 
-    if (d->userData.size() <= (int) id)
-        d->userData.resize((int) id + 1);
-    d->userData[id] = data;
+    if (d->extraData->userData.size() <= (int) id)
+        d->extraData->userData.resize((int) id + 1);
+    d->extraData->userData[id] = data;
 }
 
 /*!\internal
@@ -3100,8 +3159,10 @@ void QObject::setUserData(uint id, QObjectUserData* data)
 QObjectUserData* QObject::userData(uint id) const
 {
     Q_D(const QObject);
-    if ((int)id < d->userData.size())
-        return d->userData.at(id);
+    if (!d->extraData)
+        return 0;
+    if ((int)id < d->extraData->userData.size())
+        return d->extraData->userData.at(id);
     return 0;
 }
 

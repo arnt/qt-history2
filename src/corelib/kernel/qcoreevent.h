@@ -15,6 +15,7 @@
 #define QCOREEVENT_H
 
 #include <QtCore/qnamespace.h>
+#include <QtCore/qbytearray.h>
 
 QT_BEGIN_HEADER
 
@@ -199,6 +200,8 @@ public:
 
         KeyboardLayoutChange = 169,             // keyboard layout changed
 
+        DynamicPropertyChange = 170,            // A dynamic property was changed through setProperty/property
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };
@@ -272,6 +275,18 @@ public:
     QT3_SUPPORT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };
 #endif
+
+class Q_CORE_EXPORT QDynamicPropertyChangeEvent : public QEvent
+{
+public:
+    QDynamicPropertyChangeEvent(const QByteArray &name);
+    ~QDynamicPropertyChangeEvent();
+
+    inline QByteArray propertyName() const { return n; }
+
+private:
+    QByteArray n;
+};
 
 QT_END_HEADER
 

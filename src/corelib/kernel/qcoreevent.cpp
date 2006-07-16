@@ -451,4 +451,40 @@ QCustomEvent::~QCustomEvent()
     A child has been inserted if the event's type() is ChildInserted.
 */
 
+/*!
+    \class QDynamicPropertyChangeEvent
+    \since 4.2
+    \brief The QDynamicPropertyChangeEvent class contains event parameters for dynamic
+    property change events.
 
+    \ingroup events
+
+    Dynamic property change events are sent to objects when properties are
+    dynamically added, changed or removed using QObject::setProperty().
+*/
+
+/*!
+    Constructs a
+*/
+/*!
+    Constructs a dynamic property change event object with the property name set to
+    \a name.
+*/
+QDynamicPropertyChangeEvent::QDynamicPropertyChangeEvent(const QByteArray &name)
+    : QEvent(QEvent::DynamicPropertyChange), n(name)
+{
+}
+
+/*!
+    \internal
+*/
+QDynamicPropertyChangeEvent::~QDynamicPropertyChangeEvent()
+{
+}
+
+/*!
+    \fn QByteArray QDynamicPropertyChangeEvent::propertyName() const
+
+    Returns the name of the dynamic property that was added, changed or
+    removed.
+*/

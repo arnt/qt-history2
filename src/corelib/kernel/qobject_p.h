@@ -31,7 +31,9 @@
 #include "QtCore/qlist.h"
 #include "QtCore/qvector.h"
 #include "QtCore/qreadwritelock.h"
+#include "QtCore/qvariant.h"
 
+class QVariant;
 class QThreadData;
 
 /* mirrored in QtTestLib, DON'T CHANGE without prior warning */
@@ -91,9 +93,15 @@ public:
 
     static void clearGuards(QObject *);
 
+    struct ExtraData
+    {
 #ifndef QT_NO_USERDATA
-    QVector<QObjectUserData *> userData;
+        QVector<QObjectUserData *> userData;
 #endif
+        QList<QByteArray> propertyNames;
+        QList<QVariant> propertyValues;
+    };
+    ExtraData *extraData;
 
     QString objectName;
 };

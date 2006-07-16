@@ -67,6 +67,7 @@ private slots:
     void qpointerResetBeforeDestroyedSignal();
     void testUserData();
     void childDeletesItsSibling();
+    void dynamicProperties();
 
     void property();
 
@@ -944,7 +945,7 @@ void tst_QObject::emitToManyReceivers()
     SimpleSenderObject sender;
     int elapsed = 0;
     const int increase = 3000;
-    const int base = 5000; 
+    const int base = 5000;
 
     for (int i = 0; i < 4; ++i) {
         const int size = base + i * increase;
@@ -1850,6 +1851,55 @@ void tst_QObject::childDeletesItsSibling()
     delete commonParent; // don't crash
     QVERIFY(!child);
     QVERIFY(!siblingDeleter);
+}
+
+class DynamicPropertyObject : public PropertyObject
+{
+public:
+    inline DynamicPropertyObject() {}
+
+    inline virtual bool event(QEvent *e) {
+        if (e->type() == QEvent::DynamicPropertyChange) {
+            changedDynamicProperties.append(static_cast<QDynamicPropertyChangeEvent *>(e)->propertyName());
+        }
+        return QObject::event(e);
+    }
+
+    QList<QByteArray> changedDynamicProperties;
+};
+
+void tst_QObject::dynamicProperties()
+{
+    DynamicPropertyObject obj;
+
+    QVERIFY(obj.dynamicPropertyNames().isEmpty());
+
+    QVERIFY(obj.setProperty("number", 42));
+    QVERIFY(obj.changedDynamicProperties.isEmpty());
+    QCOMPARE(obj.property("number").toInt(), 42);
+
+    QVERIFY(!obj.setProperty("number", "invalid string"));
+    QVERIFY(obj.changedDynamicProperties.isEmpty());
+
+    QVERIFY(!obj.setProperty("myuserproperty", "Hello"));
+    QCOMPARE(obj.changedDynamicProperties.count(), 1);
+    QCOMPARE(obj.changedDynamicProperties.first(), QByteArray("myuserproperty"));
+    obj.changedDynamicProperties.clear();
+
+    QCOMPARE(obj.property("myuserproperty").toString(), QString("Hello"));
+
+    QCOMPARE(obj.dynamicPropertyNames().count(), 1);
+    QCOMPARE(obj.dynamicPropertyNames().first(), QByteArray("myuserproperty"));
+
+    QVERIFY(!obj.setProperty("myuserproperty", QVariant()));
+
+    QCOMPARE(obj.changedDynamicProperties.count(), 1);
+    QCOMPARE(obj.changedDynamicProperties.first(), QByteArray("myuserproperty"));
+    obj.changedDynamicProperties.clear();
+
+    QVERIFY(obj.property("myuserproperty").isNull());
+
+    QVERIFY(obj.dynamicPropertyNames().isEmpty());
 }
 
 QTEST_MAIN(tst_QObject)

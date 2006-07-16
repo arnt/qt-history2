@@ -188,6 +188,7 @@ public:
 #ifndef QT_NO_PROPERTIES
     bool setProperty(const char *name, const QVariant &value);
     QVariant property(const char *name) const;
+    QList<QByteArray> dynamicPropertyNames() const;
 #endif // QT_NO_PROPERTIES
 
 #ifndef QT_NO_USERDATA

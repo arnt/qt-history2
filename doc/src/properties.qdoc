@@ -219,5 +219,14 @@
     Like other meta-data, class information is accessible at run-time
     through the meta-object; see QMetaObject::classInfo() for details.
 
+    \section1 Dynamic Properties
+
+    In addition to properties defined using Q_PROPERTY in a class it is possible
+    to dynamically add and remove properties to any QObject at run-time.
+
+    If setProperty is called with a property not statically defined using Q_PROPERTY
+    it is automatically added as dynamic property and its value is stored in the object.
+    The value can be queried using the property() method, just like with static properties.
+
     \sa {Meta-Object System}, {Signals and Slots}
 */
