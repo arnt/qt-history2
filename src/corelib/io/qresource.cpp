@@ -48,8 +48,6 @@ public:
     int findNode(const QString &path) const;
     inline bool isContainer(int node) const { return flags(node) & Directory; }
     inline bool isCompressed(int node) const { return flags(node) & Compressed; }
-    virtual QString mappingRoot() const { return QString(); }
-
     const uchar *data(int node, qint64 *size) const;
     QStringList children(int node) const;
     inline bool operator==(const QResourceRoot &other) const
@@ -146,124 +144,6 @@ QResourcePrivate::clear()
     related.clear();
 }
 
-class QDynamicResourceRoot: public QResourceRoot
-{
-    // for mmap'ed files, this is what needs to be unmapped.
-    uchar *unmapPointer;
-    unsigned int unmapLength;
-    bool fromMM;
-    QString resourceRoot;
-
-public:
-    inline QDynamicResourceRoot() : unmapPointer(0), unmapLength(0) { }
-    ~QDynamicResourceRoot() {
-        if (unmapPointer && unmapLength) {
-#if defined(QT_USE_MMAP)
-            if(fromMM)
-                munmap(unmapPointer, unmapLength);
-            else
-#endif
-                delete [] unmapPointer;
-            unmapPointer = 0;
-            unmapLength = 0;
-        }
-    }
-
-    bool load(const QString &filename, const QString &resourceRoot) {
-        bool ok = false;
-#ifdef QT_USE_MMAP
-
-#ifndef MAP_FILE
-#define MAP_FILE 0
-#endif
-#ifndef MAP_FAILED
-#define MAP_FAILED -1
-#endif
-
-        int fd = QT_OPEN(QFile::encodeName(filename), O_RDONLY,
-#if defined(Q_OS_WIN)
-                         _S_IREAD | _S_IWRITE
-#else
-                         0666
-#endif
-            );
-        if (fd >= 0) {
-            struct stat st;
-            if (!fstat(fd, &st)) {
-                uchar *ptr;
-                ptr = reinterpret_cast<uchar *>(
-                    mmap(0, st.st_size,             // any address, whole file
-                         PROT_READ,                 // read-only memory
-                         MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
-                         fd, 0));                   // from offset 0 of fd
-                if (ptr && ptr != reinterpret_cast<uchar *>(MAP_FAILED)) {
-                    unmapPointer = ptr;
-                    unmapLength = st.st_size;
-                    fromMM = true;
-                    ok = true;
-                }
-            }
-            ::close(fd);
-        }
-#endif // QT_USE_MMAP
-        if(!ok) {
-            QFile file(filename);
-            if (!file.exists())
-                return false;
-            unmapLength = file.size();
-            unmapPointer = new uchar[unmapLength];
-
-            if (file.open(QIODevice::ReadOnly))
-                ok = (unmapLength == (uint)file.read((char*)unmapPointer, unmapLength));
-
-            if (!ok) {
-                delete [] unmapPointer;
-                unmapPointer = 0;
-                unmapLength = 0;
-                return false;
-            }
-            fromMM = false;
-        }
-        if(!ok)
-            return false;
-
-        //setup the data now
-        int offset = 0;
-
-        //magic number
-        if(unmapPointer[offset+0] != 'q' || unmapPointer[offset+1] != 'r' ||
-           unmapPointer[offset+2] != 'e' || unmapPointer[offset+3] != 's') {
-            return false;
-        }
-        offset += 4;
-
-        const int version = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                         (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int tree_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int data_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        const int name_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
-                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
-        offset += 4;
-
-        if(version == 0x01) {
-            setSource(unmapPointer+tree_offset, unmapPointer+name_offset, unmapPointer+data_offset);
-            this->resourceRoot = resourceRoot;
-            return true;
-        }
-        return false;
-    }
-
-    virtual QString mappingRoot() const { return resourceRoot; }
-};
-
 bool
 QResourcePrivate::load(const QString &file)
 {
@@ -271,18 +151,7 @@ QResourcePrivate::load(const QString &file)
     const ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResourceRoot *res = list->at(i);
-
-        int node = -1;
-
-        QString root = res->mappingRoot();
-        if(root.isEmpty()) {
-            node == res->findNode(file);
-        } else if(file.length() > root.length() + 1 && 
-                  file.startsWith(root) && 
-                  QChar('/') == file.at(root.length())) {
-            node = res->findNode(file.mid(root.length()));
-        }
-
+        const int node = res->findNode(file);
         if(node != -1) {
             if(related.isEmpty()) {
                 container = res->isContainer(node);
@@ -773,6 +642,120 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 #include <errno.h>
 #endif
 
+class QDynamicResourceRoot: public QResourceRoot
+{
+    // for mmap'ed files, this is what needs to be unmapped.
+    uchar *unmapPointer;
+    unsigned int unmapLength;
+    bool fromMM;
+
+public:
+    inline QDynamicResourceRoot() : unmapPointer(0), unmapLength(0) { }
+    ~QDynamicResourceRoot() {
+        if (unmapPointer && unmapLength) {
+#if defined(QT_USE_MMAP)
+            if(fromMM)
+                munmap(unmapPointer, unmapLength);
+            else
+#endif
+                delete [] unmapPointer;
+            unmapPointer = 0;
+            unmapLength = 0;
+        }
+    }
+
+    bool load(const QString &filename) {
+        bool ok = false;
+#ifdef QT_USE_MMAP
+
+#ifndef MAP_FILE
+#define MAP_FILE 0
+#endif
+#ifndef MAP_FAILED
+#define MAP_FAILED -1
+#endif
+
+        int fd = QT_OPEN(QFile::encodeName(filename), O_RDONLY,
+#if defined(Q_OS_WIN)
+                         _S_IREAD | _S_IWRITE
+#else
+                         0666
+#endif
+            );
+        if (fd >= 0) {
+            struct stat st;
+            if (!fstat(fd, &st)) {
+                uchar *ptr;
+                ptr = reinterpret_cast<uchar *>(
+                    mmap(0, st.st_size,             // any address, whole file
+                         PROT_READ,                 // read-only memory
+                         MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
+                         fd, 0));                   // from offset 0 of fd
+                if (ptr && ptr != reinterpret_cast<uchar *>(MAP_FAILED)) {
+                    unmapPointer = ptr;
+                    unmapLength = st.st_size;
+                    fromMM = true;
+                    ok = true;
+                }
+            }
+            ::close(fd);
+        }
+#endif // QT_USE_MMAP
+        if(!ok) {
+            QFile file(filename);
+            if (!file.exists())
+                return false;
+            unmapLength = file.size();
+            unmapPointer = new uchar[unmapLength];
+
+            if (file.open(QIODevice::ReadOnly))
+                ok = (unmapLength == (uint)file.read((char*)unmapPointer, unmapLength));
+
+            if (!ok) {
+                delete [] unmapPointer;
+                unmapPointer = 0;
+                unmapLength = 0;
+                return false;
+            }
+            fromMM = false;
+        }
+        if(!ok)
+            return false;
+
+        //setup the data now
+        int offset = 0;
+
+        //magic number
+        if(unmapPointer[offset+0] != 'q' || unmapPointer[offset+1] != 'r' ||
+           unmapPointer[offset+2] != 'e' || unmapPointer[offset+3] != 's') {
+            return false;
+        }
+        offset += 4;
+
+        const int version = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                         (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int tree_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int data_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int name_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        if(version == 0x01) {
+            setSource(unmapPointer+tree_offset, unmapPointer+name_offset, unmapPointer+data_offset);
+            return true;
+        }
+        return false;
+    }
+};
+
 /*!
    A resource can be left out of your binary and then loaded at runtime,
    this can often be useful to load a large set of icons into your
@@ -788,11 +771,10 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 */
 
 bool
-QResource::registerResource(const QString &rccFilename, 
-                            const QString &mapRoot)
+QResource::registerResource(const QString &rccFilename)
 {
     QDynamicResourceRoot *root = new QDynamicResourceRoot;
-    if(root->load(rccFilename, mapRoot)) {
+    if(root->load(rccFilename)) {
         root->ref.ref();
         resourceList()->append(root);
         return true;
@@ -814,10 +796,8 @@ QResource::registerResource(const QString &rccFilename,
 */
 
 bool
-QResource::unregisterResource(const QString &rccFilename, 
-                              const QString &mapRoot)
+QResource::unregisterResource(const QString &rccFilename)
 {
-    Q_UNUSED(mapRoot);
     Q_UNUSED(rccFilename); //### implement!
     return false;
 }
