@@ -514,7 +514,7 @@ public:
 
 // Keyboard map private ----------------------------------------------------------------[ start ]---
 
-/*!
+/*
     \internal
     A Windows KeyboardLayoutItem has 8 possible states:
         1. Unmodified

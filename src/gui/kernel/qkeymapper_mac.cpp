@@ -46,7 +46,7 @@ Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
     }
 }
 
-/*!
+/*
     \internal
     A Mac KeyboardLayoutItem has 8 possible states:
         1. Unmodified

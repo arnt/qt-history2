@@ -30,7 +30,7 @@
 */
 
 /*!
-    \reimp
+    Constructs a key mapper.
 */
 QKeyMapper::QKeyMapper()
     : QObject(*new QKeyMapperPrivate, 0)
