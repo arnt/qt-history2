@@ -15,6 +15,8 @@
 #include <qmatrix.h>
 #include <stdio.h>
 
+#include <qpainter.h>
+
 //TESTED_CLASS=
 //TESTED_FILES=gui/image/qimage.h gui/image/qimage.cpp
 
@@ -54,6 +56,8 @@ private slots:
 
     void setNumColors();
     void setColor();
+
+    void rasterClipping();
 };
 
 tst_QImage::tst_QImage()
@@ -627,6 +631,37 @@ void tst_QImage::setColor()
     QImage img(0, 0, QImage::Format_Indexed8);
     QTest::ignoreMessage(QtWarningMsg, "QImage::setColor: Index out of bound 0");
     img.setColor(0, qRgba(18, 219, 108, 128));
+}
+
+/* Just some sanity checking that we don't draw outside the buffer of
+ * the image. Hopefully this will create crashes or at least some
+ * random test fails when broken.
+ */
+void tst_QImage::rasterClipping()
+{
+    QImage image(10, 10, QImage::Format_RGB32);
+    image.fill(0xffffffff);
+
+    QPainter p(&image);
+
+    p.drawLine(-1000, 5, 5, 5);
+    p.drawLine(-1000, 5, 1000, 5);
+    p.drawLine(5, 5, 1000, 5);
+
+    p.drawLine(5, -1000, 5, 5);
+    p.drawLine(5, -1000, 5, 1000);
+    p.drawLine(5, 5, 5, 1000);
+
+    p.setBrush(Qt::red);
+
+    p.drawEllipse(3, 3, 4, 4);
+    p.drawEllipse(-100, -100, 210, 210);
+
+    p.drawEllipse(-1000, 0, 2010, 2010);
+    p.drawEllipse(0, -1000, 2010, 2010);
+    p.drawEllipse(-2010, -1000, 2010, 2010);
+    p.drawEllipse(-1000, -2010, 2010, 2010);
+    QVERIFY(true);
 }
 
 QTEST_MAIN(tst_QImage)
