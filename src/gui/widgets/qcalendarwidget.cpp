@@ -937,6 +937,18 @@ void QCalendarWidgetPrivate::_q_editingFinished()
 */
 
 /*!
+    \enum QCalendarWidget::SelectionMode
+
+    This enum describes the types of selection offered to the user for
+    selecting dates in the calendar.
+
+    \value NoSelection      Dates cannot be selected.
+    \value SingleSelection  Single dates can be selected.
+
+    \sa selectionMode
+*/
+
+/*!
     Constructs a calendar widget with the given \a parent.
 
     The widget is initialized with the current month and year, and the
@@ -1492,15 +1504,17 @@ void QCalendarWidget::setGridVisible(bool show)
 }
 
 /*!
-    \property QCalendarWidget::selectable
-    \brief whether the user can select a date in the calendar.
+    \property QCalendarWidget::selectionMode
+    \brief the type of selection the user can make in the calendar
 
-    When this property is set to true the user can select a date
-    within the specified date range, using both mouse and
-    keyboard. Otherwise the user is prohibited from selecting any
-    date.
+    When this property is set to SingleSelection, the user can select a date
+    within the minimum and maximum allowed dates, using either the mouse or
+    the keyboard.
 
-    The default value is true.
+    When the property is set to NoSelection, the user will be unable to select
+    dates, but they can still be selected programmatically.
+
+    The default value is SingleSelection.
 */
 
 QCalendarWidget::SelectionMode QCalendarWidget::selectionMode() const
@@ -1611,33 +1625,11 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
 
 
 /*!
-    \fn void QCalendarWidget::selectedDateChanged(const QDate &date)
-
-    This signal is emitted when the currently selected date is
-    changed, passing the new \a date as parameter.
-
-    The currently selected date can be changed by the user using the
-    mouse or keyboard, or by the programmer using the setSelectedDate()
-    function.
-
-    \sa setSelectedDate()
-*/
-
-/*!
     \fn void QCalendarWidget::activated(const QDate &date)
 
     This signal is emitted whenever the user presses the Return or
     Enter key, the space bar or double-clicks a \a date in the calendar
     widget.
-*/
-
-/*!
-    \fn void QCalendarWidget::currentMonthChanged(int year, int month)
-
-    This signal is emitted when the currently shown month is changed,
-    passing the new \a month and \a year as parameters.
-
-    \sa setCurrentPage()
 */
 
 

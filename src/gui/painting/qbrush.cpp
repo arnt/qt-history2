@@ -665,7 +665,7 @@ void QBrush::setMatrix(const QMatrix &mat)
 
 
 /*!
-    \fn void QBrush::matrix()
+    \fn void QBrush::matrix() const
     \since 4.2
 
     Returns the current transformation matrix for the brush.

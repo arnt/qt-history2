@@ -1573,7 +1573,7 @@ const ppd_option_t* QCUPSSupport::ppdOption(const char *key) const
 {
     for (int gr = 0; gr < currPPD->num_groups; ++gr) {
         for (int opt = 0; opt < currPPD->groups[gr].num_options; ++opt) {
-            if (currPPD->groups[gr].options[opt].keyword == key)
+            if (strcmp(currPPD->groups[gr].options[opt].keyword, key) == 0)
                 return &currPPD->groups[gr].options[opt];
         }
     }

@@ -131,7 +131,7 @@
     number is specified by \a logicalIndex, the old size by \a oldSize, and the
     new size by \a newSize.
 
-    \sa resizeSection
+    \sa resizeSection()
 */
 
 /*!
@@ -645,7 +645,7 @@ void QHeaderView::moveSection(int from, int to)
   \since 4.2
   Swaps the section at visual index \a first with the section at visual index \a second.
 
-  \sa moveSection
+  \sa moveSection()
 */
 void QHeaderView::swapSections(int first, int second)
 {
@@ -689,9 +689,11 @@ void QHeaderView::swapSections(int first, int second)
 }
 
 /*!
-    Resizes the given \a logicalIndex to the given \a size.
+    \fn void QHeaderView::resizeSection(int logicalIndex, int size)
 
-    \sa sectionResized() resizeMode()
+    Resizes the section specified by \a logicalIndex to the \a size measured in pixels.
+
+    \sa sectionResized(), resizeMode()
 */
 
 void QHeaderView::resizeSection(int logical, int size)

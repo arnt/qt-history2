@@ -407,11 +407,6 @@ QWSWindow::~QWSWindow()
     delete surface;
 }
 
-/*!
-    \fn QWSBackingStore *QWSWindow::backingStore()
-    \internal
-*/
-
 
 /*********************************************************************
  *
@@ -3893,60 +3888,6 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     The window to which the event has occurred and the event's type
     are passed in the \a window and \a eventType parameters,
     respectively.
-*/
-
-/*!
-    \fn QWSServer::keyMap()
-
-    Returns the keyboard mapping table used to convert keyboard
-    scancodes to Qt keycodes and Unicode values.
-
-    \sa KeyMap
-*/
-
-/*!
-    \class QWSServer::KeyMap
-    \ingroup qws
-
-    \brief The KeyMap class is used for mapping scancodes.
-
-    The data from a keyboard comes mainly in the form of scancodes,
-    produced by key presses or used in the protocol with the computer.
-    Qtopia Core maintains a keyboard mapping table which it uses to
-    convert the scancode data to Qt::Key and Unicode values.
-
-    The mapping table is a collection of KeyMap objects, each object
-    records the mapping between a single keyboard scancode and its
-    Qt::Key and Unicode values.
-
-    \sa QWSServer::keyMap()
-*/
-
-/*!
-    \variable QWSServer::KeyMap::ctrl_unicode
-
-    \brief the unicode value identifying the combination of the Ctrl
-    key and the keyboard scancode associated with this KeyMap object
-*/
-
-/*!
-    \variable  QWSServer::KeyMap::key_code
-
-    \brief the Qt::Key value identfying the keyboard scancode
-    associated with this KeyMap object
-*/
-/*!
-    \variable QWSServer::KeyMap::shift_unicode
-
-    \brief the unicode value identifying the combination of the Shift
-    key and the keyboard scancode associated with this KeyMap object
-*/
-
-/*!
-    \variable QWSServer::KeyMap::unicode
-
-    \brief the unicode value identfying the keyborad scancode
-    associated with this KeyMap object
 */
 
 /*!

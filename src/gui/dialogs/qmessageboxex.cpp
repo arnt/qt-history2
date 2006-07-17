@@ -256,7 +256,7 @@ int QMessageBoxEx::addButton(const QString& text, ButtonRole role)
     \value Abort An "Abort" button defined with the \l RejectRole
     \value Retry A "Retry" button defined with the \l ActionRole
     \value Ignore An "Ignore" button defined with the \l ActionRole
-    \omitvalue NoButtons
+    \omitvalue NoButton
 */
 
 /*!
