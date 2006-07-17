@@ -134,7 +134,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     Opens the given \a url in the appropriate web browser for the user's desktop
     environment, and returns true if successful; otherwise returns false.
 
-    If the \a url is a reference to a local file (i.e. the URL scheme is "file") then
+    If the URL is a reference to a local file (i.e. the URL scheme is "file") then
     it will be opened with a suitable application instead of a web browser.
 
     If a \c mailto URL is specified, the user's e-mail client will be used to open a

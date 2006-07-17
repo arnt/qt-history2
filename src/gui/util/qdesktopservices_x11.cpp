@@ -25,15 +25,6 @@ inline static bool launch(const QUrl &url, const QString &client)
     return (QProcess::startDetached(client + " " + url.toEncoded()));
 }
 
-/*!
-    \fn bool QDesktopServices::openUrl(const QUrl &url)
-
-    Opens the specified \a file by asking the desktop environment to open it in a
-    suitable application. Returns true if the file is handled successfully; otherwise
-    returns false.
-
-    \sa setUrlHandler()
-*/
 static bool openDocument(const QUrl &url)
 {
     if (!url.isValid())
