@@ -60,6 +60,7 @@ private slots:
     void remove();
     void mkdir_data();
     void mkdir();
+    void mkdir2();
     void rmdir();
     void rename_data();
     void rename();
@@ -830,6 +831,44 @@ void tst_QFtp::mkdir()
     QCOMPARE( it.value().success, 1 );
 
 QVERIFY( !dirExists( host, port, user, password, cdDir, dirToCreate ) );
+}
+
+void tst_QFtp::mkdir2()
+{
+    QFtp ftp;
+    ftp.connectToHost("smokesignal.troll.no");
+    ftp.login();
+    ftp.cd("kake/test");
+
+    QEventLoop loop;
+    connect(&ftp, SIGNAL(done(bool)), &loop, SLOT(quit()));
+    QTimer::singleShot(5000, &loop, SLOT(quit()));
+
+    QSignalSpy commandStartedSpy(&ftp, SIGNAL(commandStarted(int)));
+    QSignalSpy commandFinishedSpy(&ftp, SIGNAL(commandFinished(int, bool)));
+    
+    loop.exec();
+
+    QCOMPARE(commandStartedSpy.count(), 3); // connect, login, cd
+    QCOMPARE(commandFinishedSpy.count(), 3);
+
+    ftp.mkdir("kake/test");
+    loop.exec();
+
+    QCOMPARE(commandStartedSpy.count(), 4); // connect, login, cd, mkdir
+    QCOMPARE(commandFinishedSpy.count(), 4);
+
+    QEventLoop loop2;
+    connect(&ftp, SIGNAL(done(bool)), &loop2, SLOT(quit()));
+    QTimer::singleShot(5000, &loop2, SLOT(quit()));
+
+    for (int i = 0; i < 4; ++i)
+        QCOMPARE(commandFinishedSpy.at(i).at(0), commandStartedSpy.at(i).at(0));
+
+    QVERIFY(!commandFinishedSpy.at(0).at(1).toBool());
+    QVERIFY(!commandFinishedSpy.at(1).at(1).toBool());
+    QVERIFY(commandFinishedSpy.at(2).at(1).toBool());
+    QVERIFY(commandFinishedSpy.at(3).at(1).toBool());
 }
 
 void tst_QFtp::rmdir()
