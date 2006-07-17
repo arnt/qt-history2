@@ -12,7 +12,7 @@ const outputDir = System.getenv("PWD");
 const validPlatforms = ["win", "x11", "mac", "core"];
 const validLicenses = ["opensource", "commercial", "preview-opensource", "preview-commercial", "eval"];
 const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
-const validVars = ["branch", "version"]; // variables with arbitrary values, set by -foo value
+const validVars = ["branch", "version", "label"]; // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
                           "jpg", "bmp", "any", "pic", "ppm",
@@ -493,7 +493,11 @@ function preparePerforce()
     
     // check that the label exists
     if (options["snapshots"]) {
-        p4Label = startDate.toString().replace(/-/g, "/").replace(/T/g, ":");
+        if (options["label"]) {
+            p4Label = options["label"];
+        } else {
+            p4Label = startDate.toString().replace(/-/g, "/").replace(/T/g, ":");
+        }
     } else {
         p4Label = "qt/" + options["version"];
         execute([p4Command, "labels", p4BranchPath + "/configure"]);
