@@ -1036,7 +1036,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const bool allColumnsShowFocus = d->allColumnsShowFocus;
 
     bool currentRowHasFocus = false;
-    if (allColumnsShowFocus) { // check if the focus index is before or after the visible columns
+    if (allColumnsShowFocus && focus) { // check if the focus index is before or after the visible columns
         const int r = index.row();
         for (int c = 0; c < left && !currentRowHasFocus; ++c)
             currentRowHasFocus = (index.sibling(r, c) == current);
