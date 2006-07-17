@@ -54,7 +54,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
 
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
-    Q_PROPERTY(bool modelColumn READ modelColumn WRITE setModelColumn)
+    Q_PROPERTY(int modelColumn READ modelColumn WRITE setModelColumn)
 
 public:
     explicit QComboBox(QWidget *parent = 0);
