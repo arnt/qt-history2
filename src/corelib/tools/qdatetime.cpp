@@ -2793,11 +2793,13 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
 */
 
 /*!
-    \fn QTime QTime::currentTime(Qt::TimeSpec spec)
+    \fn QTime QTime::currentTime(Qt::TimeSpec specification)
 
-    If \a spec is Qt::LocalTime, use the currentDate() overload that
-    takes no parameters instead; otherwise, use
-    QDateTime::currentDateTime().
+    Returns the current time for the given \a specification.
+
+    To replace uses of this function where the \a specification is Qt::LocalTime,
+    use the currentDate() overload that takes no parameters instead; otherwise,
+    use QDateTime::currentDateTime() and convert the result to a UTC measurement.
 
     \oldcode
         QTime localTime = QTime::currentTime(Qt::LocalTime);
@@ -2808,13 +2810,6 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
     \endcode
 
     \sa QDateTime::toUtc()
-*/
-
-/*!
-    \fn QTime QTime::currentTime(Qt::TimeSpec spec)
-
-    Use the currentTime() overload that takes no parameters; or
-    extract from currentDateTime() instead.
 */
 
 /*!

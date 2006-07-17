@@ -1078,7 +1078,7 @@ QLocale QSystemLocale::fallbackLocale() const
     return QLocale(QLatin1String(envVarLocale()));
 }
 
-/*! \fn QVariant QSystemLocale::query(QueryType type, QVariant in)
+/*! \fn QVariant QSystemLocale::query(QueryType type, QVariant in) const
 
   Queries the system locale for customized values or conversion. If the method
   returns a null QVariant, the comversion of the fallbackLocale() will be used.
@@ -1117,7 +1117,7 @@ static QLocalePrivate *system_lp = 0;
 */
 
 /*!
-  \enum QueryType
+  \enum QSystemLocale::QueryType
 
   Specifies the type of information queried by query(). For each value
   the type of information to return from the query() method is listed.

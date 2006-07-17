@@ -1961,13 +1961,6 @@ QRectF QRectF::operator&(const QRectF &r) const
 
 /*!
     \fn QRectF QRectF::intersected(const QRectF &rectangle) const
-    \obsolete
-
-    Use intersected(\a rectangle) instead.
-*/
-
-/*!
-    \fn QRectF QRectF::intersected(const QRectF &rectangle) const
     \since 4.2
 
     Returns the intersection of this rectangle and the given \a
