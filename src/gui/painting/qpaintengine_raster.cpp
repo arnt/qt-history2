@@ -4184,7 +4184,7 @@ static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
             continue;
         }
         if (spans[i].x < minx) {
-            spans[n].len = spans[i].len - (minx - spans[i].x);
+            spans[n].len = qMin(spans[i].len - (minx - spans[i].x), maxx - minx + 1);
             spans[n].x = minx;
         } else {
             spans[n].x = spans[i].x;
