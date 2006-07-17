@@ -24,6 +24,7 @@
 #include "qt_windows.h"
 #endif
 #include "qdebug.h"
+#include "private/qlayoutengine_p.h"
 
 #define RANGE 4
 
@@ -105,6 +106,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
                 widget->grabMouse();
 #  endif // QT_NO_CURSOR
 #endif // Q_WS_X11
+            buttonDown = false;
             emit activate();
             bool me = movingEnabled;
             movingEnabled = (me && o == widget);
@@ -140,6 +142,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     case QEvent::MouseMove: {
         if (w->isMaximized())
             break;
+        buttonDown &= (e->state() & Qt::LeftButton); // safety, state machine broken!
         bool me = movingEnabled;
         movingEnabled = (me && o == widget && buttonDown);
         mouseMoveEvent(e);
@@ -186,8 +189,10 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
             mode = Left;
         else if ( pos.x() >= widget->width()-range)
             mode = Right;
-        else
+        else if (widget->geometry().contains(pos))
             mode = Center;
+        else
+            mode = Nowhere;
 
         if (widget->isMinimized() || !isActive(Resize))
             mode = Center;
@@ -220,10 +225,9 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
-    int mw = qMax(childWidget->minimumSizeHint().width(),
-                   childWidget->minimumWidth());
-    int mh = qMax(childWidget->minimumSizeHint().height(),
-                   childWidget->minimumHeight());
+    QSize ms = qSmartMinSize(childWidget);
+    int mw = ms.width();
+    int mh = ms.height();
     if (childWidget != widget) {
         mw += 2 * fw;
         mh += 2 * fw + extrahei;

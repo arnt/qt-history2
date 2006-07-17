@@ -36,6 +36,7 @@
 #include "qdebug.h"
 #include <private/qwidget_p.h>
 #include <private/qwidgetresizehandler_p.h>
+#include <private/qlayoutengine_p.h>
 
 class QWorkspaceTitleBarPrivate;
 class QWorkspaceTitleBar : public QWidget
@@ -943,11 +944,11 @@ QWorkspacePrivate::init()
     QList <QKeySequence> shortcuts = QKeySequence::keyBindings(QKeySequence::NextChild);
     foreach (QKeySequence seq, shortcuts)
         shortcutMap.insert(q->grabShortcut(seq), "activateNextWindow");
-    
+
     shortcuts = QKeySequence::keyBindings(QKeySequence::PreviousChild);
     foreach (QKeySequence seq, shortcuts)
         shortcutMap.insert(q->grabShortcut(seq), "activatePreviousWindow");
-    
+
     shortcuts = QKeySequence::keyBindings(QKeySequence::Close);
     foreach (QKeySequence seq, shortcuts)
         shortcutMap.insert(q->grabShortcut(seq), "closeActiveWindow");
@@ -1051,7 +1052,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WindowFlags flags)
     int x = w->x();
     int y = w->y();
     bool hasPos = w->testAttribute(Qt::WA_Moved);
-    QSize s = w->size().expandedTo(w->minimumSizeHint());
+    QSize s = w->size().expandedTo(qSmartMinSize(w));
     if (!hasSize && w->sizeHint().isValid())
         w->adjustSize();
 
@@ -2182,10 +2183,10 @@ void QWorkspace::cascade()
         QWorkspaceChild *child = *it;
         ++it;
 
-        QSize prefSize = child->windowWidget()->sizeHint().expandedTo(child->windowWidget()->minimumSizeHint());
+        QSize prefSize = child->windowWidget()->sizeHint().expandedTo(qSmartMinSize(child->windowWidget()));
         if (!prefSize.isValid())
             prefSize = child->windowWidget()->size();
-        prefSize = prefSize.expandedTo(child->windowWidget()->minimumSize()).boundedTo(child->windowWidget()->maximumSize());
+        prefSize = prefSize.expandedTo(qSmartMinSize(child->windowWidget()));
         if (prefSize.isValid())
             prefSize += QSize(child->baseSize().width(), child->baseSize().height());
 
@@ -2365,16 +2366,6 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::Window
             window->setParent(this, flags & ~Qt::WindowType_Mask);
         else
             window->setParent(this);
-        switch (window->focusPolicy()) {
-        case Qt::NoFocus:
-            window->setFocusPolicy(Qt::ClickFocus);
-            break;
-        case Qt::TabFocus:
-            window->setFocusPolicy(Qt::StrongFocus);
-            break;
-        default:
-            break;
-        }
     }
 
     if (window && (flags & (Qt::WindowTitleHint
@@ -2791,9 +2782,12 @@ void QWorkspaceChild::setActive(bool b)
                     QWidget *w = wl.at(i);
                     if(w->focusPolicy() != Qt::NoFocus) {
                         w->setFocus();
+                        hasFocus = true;
                         break;
                     }
                 }
+                if (!hasFocus)
+                    setFocus();
             }
         }
     } else {
