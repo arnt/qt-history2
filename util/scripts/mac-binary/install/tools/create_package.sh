@@ -85,30 +85,7 @@ EOF
 	../libraries/fix_config_paths.pl -data "/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}" "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
 	rm -f "/tmp/tmp.exe"
-    elif [ "$a" = "assistant" ]; then
-        mkdir -p "$OUTDIR/usr/lib"
 
-        #copy assistant library
-	[ -e "${BINDIR}/lib/libQtAssistantClient.a" ] && cp "${BINDIR}/lib/libQtAssistantClient.a" "$OUTDIR/usr/lib/libQtAssistantClient.a"
-
-        #copy assistant headers
-        mkdir -p "$OUTDIR/usr/include/QtAssistant"
-        for header in `find "${BINDIR}/include/QtAssistant" -type f`; do
-            if [ `basename "$header"` == "headers.pri" ]; then
-                continue
-            fi
-            copyHeader "$header" "$OUTDIR/usr/include/QtAssistant"
-        done
-    elif [ "$a" = "Designer" ]; then
-	mkdir -p "$OUTDIR/usr/lib/"
-	[ -e "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner.${VERSION_MAJOR}.dylib"
-	[ -e "${BINDIR}/lib/libQtDesignerComponents.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesignerComponents.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesignerComponents.${VERSION_MAJOR}.dylib"
-	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
-	cp "/tmp/tmp.exe" "$EXE"
-        rm -f /tmp/tmp.exe
-
-        #copy designer headers
-        copyHeaderDir "$BINDIR/include/QtDesigner" "$OUTDIR/usr/include/QtDesigner"
     else
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
@@ -120,19 +97,32 @@ EOF
     chmod a+x "$EXE" 
 done
 
+# Do the tool frameworks (Gah, this is copy-past from the libraries create_package.sh).
+FRAMEWORK_DIR="$OUTDIR/Library/Frameworks"
+mkdir -p "$FRAMEWORK_DIR"
+for lib in QtDesigner QtDesignerComponents QtTest QtAssistantClient; do
+    if [ ! -d "$BINDIR/lib/${lib}.framework" ]; then
+	echo "No framework for $lib!"
+        continue
+    fi
+
+    cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
+    ../libraries/fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" 
+    ../libraries/fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/$lib" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/$lib" 
+
+    # Remove the debug libraries (they are part of another package)
+    find "$FRAMEWORK_DIR/${lib}.framework/" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+done
+
 #copy q3porting.xml. qt3to4 looks for it in QLibraryInfo::DataPath and QLibraryInfo::PrefixPath
 cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}/q3porting.xml
-
-#Handle the qtestlib
-[ -e "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest.${VERSION_MAJOR}.dylib"
-
-#copy QTest headers
-copyHeaderDir "${BINDIR}/include/QtTest" "$OUTDIR/usr/include/QtTest"
 
 # Finally handle QtUiTools
 [ -e "${BINDIR}/lib/libQtUiTools.a" ] && cp "${BINDIR}/lib/libQtUiTools.a" "$OUTDIR/usr/lib/libQtUiTools.a"
 
-# Copy it's headers as well
+# Copy its headers as well
 copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"
 
 exit 0

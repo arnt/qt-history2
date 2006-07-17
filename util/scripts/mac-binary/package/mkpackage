@@ -12,7 +12,7 @@ COMMAND_PAX="/System/Library/PrivateFrameworks/Installation.framework/Resources/
 README=
 LICENSE=
 LICENSE_US=
-LICENSETYPE=commercial
+LICENSETYPE=
 MAKE_META=
 MAKE_IMAGE=
 
@@ -149,6 +149,15 @@ while [ -n "$1" ]; do
    esac  
 done
 
+# No license type specified, so try to get it from the package. If we don't have a package,
+# default to commercial
+if [ -z "$LICENSETYPE" ]; then
+   if [ ! -z "$SOURCE_PACKAGE" ]; then
+        LICENSETYPE=`echo "$SOURCE_PACKAGE" | cut -d - -f 3`
+   else
+        LICENSETYPE="commercial"
+   fi
+fi
 
 #get the QTDIR setup
 [ -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ] && BINARY_DIR="$QTDIR"

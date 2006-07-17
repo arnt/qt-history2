@@ -24,14 +24,14 @@ done
 FRAMEWORK_DIR="$OUTDIR/Library/Frameworks"
 mkdir -p "$FRAMEWORK_DIR"
 
-for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg; do
+for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support QtSvg QtAssistantClient QtDesigner QtDesignerComponents QtTest; do
     if [ ! -d "$BINDIR/lib/${lib}.framework" ]; then
 	echo "No framework for $lib!"
         continue
     fi
     cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
-    ../libraries/fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" 
-    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.0/${lib}_debug" 
+    ../libraries/fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}_debug.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}/${lib}_debug" 
     ../libraries/fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" 
     mv "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" 
     # Remove the normal libraries and headers (they are part of another package)
@@ -44,12 +44,8 @@ done
 mkdir -p "$OUTDIR/usr/lib"
 
 #first QtAssistantClient, and QtUiTools since they are static
-for lib in libQtAssistantClient_debug.a libQtUiTools.a; do
+for lib in libQtUiTools.a; do
     [ -e  "$BINDIR/lib/${lib}" ] && cp "$BINDIR/lib/${lib}" "$OUTDIR/usr/lib/${lib}"
-done
-
-for lib in libQtDesignerComponents_debug libQtDesigner_debug libQtTest_debug; do
-	[ -e "${BINDIR}/lib/${lib}.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/${lib}.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/${lib}.${VERSION_MAJOR}.dylib"
 done
 
 # Now for the plugins
