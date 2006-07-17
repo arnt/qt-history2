@@ -41,6 +41,27 @@
 #define TT_PRIM_CSPLINE 3
 #endif
 
+// Copy a LOGFONTW struct into a LOGFONTA by converting the face name to an 8 bit value.
+// This is needed when calling CreateFontIndirect on non-unicode windowses.
+inline static void wa_copy_logfont(LOGFONTW *lfw, LOGFONTA *lfa)
+{
+    lfa->lfHeight = lfw->lfHeight;
+    lfa->lfWidth = lfw->lfWidth;
+    lfa->lfEscapement = lfw->lfEscapement;
+    lfa->lfOrientation = lfw->lfOrientation;
+    lfa->lfWeight = lfw->lfWeight;
+    lfa->lfItalic = lfw->lfItalic;
+    lfa->lfUnderline = lfw->lfUnderline;
+    lfa->lfCharSet = lfw->lfCharSet;
+    lfa->lfOutPrecision = lfw->lfOutPrecision;
+    lfa->lfClipPrecision = lfw->lfClipPrecision;
+    lfa->lfQuality = lfw->lfQuality;
+    lfa->lfPitchAndFamily = lfw->lfPitchAndFamily;
+   
+    QString fam = QString::fromUtf16(lfw->lfFaceName);
+    memcpy(lfa->lfFaceName, fam.toLocal8Bit().constData(), fam.length() + 1);
+}
+
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
 typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
@@ -307,7 +328,14 @@ HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
 {
     LOGFONT f = logfont;
     f.lfHeight = unitsPerEm;
-    HFONT designFont = CreateFontIndirect(&f);
+    HFONT designFont;
+    QT_WA({
+        designFont = CreateFontIndirectW(&f);
+    }, {
+        LOGFONTA fa;
+        wa_copy_logfont(&f, &fa);
+        designFont = CreateFontIndirectA(&fa);
+    });
     HGDIOBJ oldFont = SelectObject(shared_dc, designFont);
 
     if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
@@ -840,9 +868,17 @@ int QFontEngineWin::synthesized() const
 
 QFontEngine::Properties QFontEngineWin::properties() const
 {
+
     LOGFONT lf = logfont;
     lf.lfHeight = unitsPerEm;
-    HFONT hf = CreateFontIndirect(&lf);
+    HFONT hf;
+    QT_WA({        
+        hf = CreateFontIndirectW(&lf);
+    }, {
+        LOGFONTA lfa;
+        wa_copy_logfont(&lf, &lfa);
+        hf = CreateFontIndirectA(&lfa);
+    });
     HGDIOBJ oldfont = SelectObject(shared_dc, hf);
     OUTLINETEXTMETRICA *otm = getOutlineTextMetric(shared_dc);
     Properties p;
@@ -872,7 +908,14 @@ void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;
     lf.lfWidth = 0;
-    HFONT hf = CreateFontIndirect(&lf);
+    HFONT hf; 
+    QT_WA({
+        hf = CreateFontIndirectW(&lf);
+    }, {
+        LOGFONTA lfa;
+        wa_copy_logfont(&lf, &lfa);
+        hf = CreateFontIndirectA(&lfa);
+    });
     HGDIOBJ oldfont = SelectObject(shared_dc, hf);
     QFixedPoint p;
     p.x = 0;
@@ -924,7 +967,7 @@ void QFontEngineMultiWin::loadEngine(int at)
     HFONT hfont;
     QT_WA({
         memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
-        hfont = CreateFontIndirect(&lf);
+        hfont = CreateFontIndirectW(&lf);
     } , {
         // LOGFONTA and LOGFONTW are binary compatible
         QByteArray lname = fam.toLocal8Bit();
