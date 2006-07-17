@@ -329,6 +329,8 @@ private:
 
     QLocale::Language m_language;
     QLocale::Country m_country;
+
+    friend class iterator;
 };
 
 #endif //MESSAGEMODEL_H
