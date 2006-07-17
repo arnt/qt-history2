@@ -321,9 +321,11 @@
     \endtable
 
     \value MiterJoin  The outer edges of the lines are extended to
-	meet at an angle, and this area is filled.
+	   meet at an angle, and this area is filled.
     \value BevelJoin  The triangular notch between the two lines is filled.
     \value RoundJoin  A circular arc between the two lines is filled.
+    \value SvgMiterJoin A miter join corresponding to the definition of
+           a miter join in the \l{SVG 1.2 Tiny} specification.
     \omitvalue MPenJoinStyle
 
     \sa QPen
@@ -1261,6 +1263,13 @@
     \value Key_No
     \value Key_Select
     \value Key_Yes
+
+    \value Key_Execute
+    \value Key_Printer
+    \value Key_Play
+    \value Key_Sleep
+    \value Key_Zoom
+    \value Key_Cancel
 
     \sa QKeyEvent::key()
 */
