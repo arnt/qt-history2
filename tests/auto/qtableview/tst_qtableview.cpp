@@ -1498,24 +1498,58 @@ void tst_QTableView::rowViewportPosition()
     
 void tst_QTableView::rowAt_data()
 {
-//     QTest::addColumn<int>("rowCount");
-//     QTest::addColumn<int>("rowHeight");
-//     QTest::addColumn<int>("row");
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("coordinate");
+    QTest::addColumn<int>("row");
+    
+    QTest::newRow("row at 100") << 5 << 40 << 100 << 2;
+    QTest::newRow("row at 180") << 5 << 40 << 180 << 4;
+    QTest::newRow("row at 20") << 5 << 40 << 20 << 0;
 }
 
 void tst_QTableView::rowAt()
 {
-//     QFETCH(int, rowCount);
-//     QFETCH(int, rowHeight);
-//     QFETCH(int, row);
+    QFETCH(int, rowCount);
+    QFETCH(int, rowHeight);
+    QFETCH(int, coordinate);
+    QFETCH(int, row);
+
+    QtTestTableModel model(rowCount, 1);
+    QtTestTableView view;
+    view.resize(100, 2 * rowHeight);
+
+    view.setModel(&model);
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHeight(r, rowHeight);
+
+    QCOMPARE(view.rowAt(coordinate), row);
 }
 
 void tst_QTableView::rowHeight_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<IntList>("rowHeights");
+
+    QTest::newRow("increasing") << 5 << (IntList() << 20 << 30 << 40 << 50 << 60);
+    QTest::newRow("decreasing") << 5 << (IntList() << 60 << 50 << 40 << 30 << 20);
+    QTest::newRow("random") << 5 << (IntList() << 87 << 34 << 68 << 91 << 27);
 }
 
 void tst_QTableView::rowHeight()
 {
+    QFETCH(int, rowCount);
+    QFETCH(IntList, rowHeights);
+    
+    QtTestTableModel model(rowCount, 1);
+    QtTestTableView view;
+
+    view.setModel(&model);
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHeight(r, rowHeights.at(r));
+
+    for (int r = 0; r < rowCount; ++r)
+        QCOMPARE(view.rowHeight(r), rowHeights.at(r));
 }
 
 void tst_QTableView::columnViewportPosition_data()
@@ -1596,18 +1630,58 @@ void tst_QTableView::columnViewportPosition()
 
 void tst_QTableView::columnAt_data()
 {
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("columnWidth");
+    QTest::addColumn<int>("coordinate");
+    QTest::addColumn<int>("column");
+    
+    QTest::newRow("column at 100") << 5 << 40 << 100 << 2;
+    QTest::newRow("column at 180") << 5 << 40 << 180 << 4;
+    QTest::newRow("column at 20") << 5 << 40 << 20 << 0;
 }
 
 void tst_QTableView::columnAt()
 {
+    QFETCH(int, columnCount);
+    QFETCH(int, columnWidth);
+    QFETCH(int, coordinate);
+    QFETCH(int, column);
+    
+    QtTestTableModel model(1, columnCount);
+    QtTestTableView view;
+    view.resize(2 * columnWidth, 100);
+
+    view.setModel(&model);
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnWidth(c, columnWidth);
+
+    QCOMPARE(view.columnAt(coordinate), column);
 }
 
 void tst_QTableView::columnWidth_data()
 {
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<IntList>("columnWidths");
+
+    QTest::newRow("increasing") << 5 << (IntList() << 20 << 30 << 40 << 50 << 60);
+    QTest::newRow("decreasing") << 5 << (IntList() << 60 << 50 << 40 << 30 << 20);
+    QTest::newRow("random") << 5 << (IntList() << 87 << 34 << 68 << 91 << 27);
 }
 
 void tst_QTableView::columnWidth()
 {
+    QFETCH(int, columnCount);
+    QFETCH(IntList, columnWidths);
+    
+    QtTestTableModel model(1, columnCount);
+    QtTestTableView view;
+
+    view.setModel(&model);
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnWidth(c, columnWidths.at(c));
+
+    for (int c = 0; c < columnCount; ++c)
+        QCOMPARE(view.columnWidth(c), columnWidths.at(c));
 }
 
 void tst_QTableView::hiddeRow_data()
