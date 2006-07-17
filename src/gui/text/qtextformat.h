@@ -346,7 +346,7 @@ public:
     { setProperty(FontFixedPitch, fixedPitch); }
     inline bool fontFixedPitch() const
     { return boolProperty(FontFixedPitch); }
-    
+
     void setUnderlineStyle(UnderlineStyle style);
     inline UnderlineStyle underlineStyle() const
     { return static_cast<UnderlineStyle>(intProperty(TextUnderlineStyle)); }
@@ -407,7 +407,7 @@ public:
 
     inline void setAlignment(Qt::Alignment alignment);
     inline Qt::Alignment alignment() const
-    { return QFlag(intProperty(BlockAlignment)); }
+    { int a = intProperty(BlockAlignment); if (a == 0) a = Qt::AlignLeft; return QFlag(a); }
 
     inline void setTopMargin(qreal margin)
     { setProperty(BlockTopMargin, margin); }

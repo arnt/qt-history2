@@ -27,6 +27,7 @@ public:
 
 private slots:
     void getSetCheck();
+    void defaultAlignment();
 };
 
 tst_QTextFormat::tst_QTextFormat()
@@ -49,6 +50,14 @@ void tst_QTextFormat::getSetCheck()
     QCOMPARE(INT_MIN, obj1.objectIndex());
     obj1.setObjectIndex(INT_MAX);
     QCOMPARE(INT_MAX, obj1.objectIndex());
+}
+
+void tst_QTextFormat::defaultAlignment()
+{
+    QTextBlockFormat fmt;
+    QVERIFY(!fmt.hasProperty(QTextFormat::BlockAlignment));
+    QCOMPARE(fmt.intProperty(QTextFormat::BlockAlignment), 0);
+    QVERIFY(fmt.alignment() == Qt::AlignLeft);
 }
 
 QTEST_MAIN(tst_QTextFormat)
