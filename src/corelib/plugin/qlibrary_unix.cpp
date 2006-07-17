@@ -26,6 +26,7 @@
 #if defined(QT_AOUT_UNDERSCORE)
 #include <string.h>
 #endif
+//#define QT_DEBUG_COMPONENT
 
 #if defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
 

@@ -17,6 +17,7 @@
 #include "qfileinfo.h"
 
 #include "qt_windows.h"
+//#define QT_DEBUG_COMPONENT
 
 extern QString qt_error_string(int code);
 
