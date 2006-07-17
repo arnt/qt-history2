@@ -1709,7 +1709,8 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 /*!
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, int id) const
 
-    Creates a model index for the given \a row and \a column with the internal identifier \a id.
+    Creates a model index for the given \a row and \a column with the internal
+    identifier, \a id.
 
     This function provides a consistent interface that model subclasses must
     use to create model indexes.
@@ -2422,11 +2423,4 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 
     Returns true if this model index is smaller than the \a other
     model index; otherwise returns false.
-*/
-
-/*!
-    \typedef QModelIndexList
-    \relates QModelIndex
-
-    Synonym for QList<QModelIndex>.
 */
