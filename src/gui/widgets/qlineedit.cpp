@@ -67,6 +67,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     Q_Q(const QLineEdit);
     QStyleOptionFrame opt;
     opt.init(q);
+    opt.rect = q->contentsRect();
     opt.lineWidth = frame ? q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     opt.midLineWidth = 0;
     opt.state |= QStyle::State_Sunken;
@@ -629,8 +630,10 @@ QSize QLineEdit::sizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm(font());
-    int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin;
-    int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin; // "some"
+    int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin 
+            + d->topmargin + d->bottommargin;
+    int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin
+            + d->leftmargin + d->rightmargin; // "some"
     QStyleOptionFrame opt = d->getStyleOption();
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
@@ -648,8 +651,9 @@ QSize QLineEdit::minimumSizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    int h = fm.height() + qMax(2*horizontalMargin, fm.leading());
-    int w = fm.maxWidth();
+    int h = fm.height() + qMax(2*horizontalMargin, fm.leading())
+            + d->topmargin + d->bottommargin;
+    int w = fm.maxWidth() + d->leftmargin + d->rightmargin;
     QStyleOptionFrame opt = d->getStyleOption();
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
@@ -2513,9 +2517,9 @@ int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
 QRect QLineEditPrivate::cursorRect() const
 {
     Q_Q(const QLineEdit);
-    QRect cr = q->contentsRect();
-    int frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    int cix = cr.x() + frameWidth - hscroll + horizontalMargin;
+    QStyleOptionFrame opt = getStyleOption();
+    QRect cr = q->style()->subElementRect(QStyle::SE_LineEditContents, &opt, q);
+    int cix = cr.x() - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
     int c = cursor;
     if (preeditCursor != -1)
