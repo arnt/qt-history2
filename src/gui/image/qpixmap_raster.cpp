@@ -262,6 +262,11 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &mask)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setMask: Cannot set mask while pixmap is being painted on");
+        return;
+    }
+
     if (mask.size().isEmpty()) {
         if (depth() != 1) {
             detach();
@@ -605,6 +610,11 @@ QPaintEngine *QPixmap::paintEngine() const
 
 void QPixmap::setAlphaChannel(const QPixmap &alphaChannel)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setAlphaChannel: Cannot set alpha channel while pixmap is being painted on");
+        return;
+    }
+
     detach();
     data->image.setAlphaChannel(alphaChannel.toImage());
 }

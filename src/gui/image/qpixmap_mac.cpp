@@ -284,6 +284,10 @@ QPixmap QPixmap::alphaChannel() const
 
 void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setAlphaChannel: Should not set alpha channel while pixmap is being painted on");
+    }
+
     if (data == alpha.data) // trying to selfalpha
         return;
 
@@ -308,6 +312,10 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setMask: Should not set mask while pixmap is being painted on");
+    }
+
     if (data == newmask.data) // trying to selfmask
         return;
 

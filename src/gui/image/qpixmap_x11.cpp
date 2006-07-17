@@ -465,11 +465,18 @@ QPixmap QPixmap::alphaChannel() const
     by converting the \a alphaChannel into 32 bit and using the
     intensity of the RGB pixel values.
 
+    The effect of this function is undefined when the pixmap is being
+    painted on.
+
     \sa alphaChannel(), {QPixmap#Pixmap Transformations}{Pixmap
     Transformations}
  */
 void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setAlphaChannel: Should not set alpha channel while pixmap is being painted on");
+    }
+
     if (alpha.isNull())
         return;
 
@@ -526,11 +533,18 @@ QBitmap QPixmap::mask() const
 
     Setting a null mask resets the mask.
 
+    The effect of this function is undefined when the pixmap is being
+    painted on.
+
     \sa mask(), {QPixmap#Pixmap Transformations}{Pixmap
     Transformations}, QBitmap
 */
 void QPixmap::setMask(const QBitmap &newmask)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::setMask: Should not set mask while pixmap is being painted on");
+    }
+
     if (data == newmask.data)
         // trying to selfmask
         return;
