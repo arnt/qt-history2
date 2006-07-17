@@ -404,26 +404,8 @@ void QDirPrivate::detach(bool createFileEngine)
     A program that lists all the files in the current directory
     (excluding symbolic links), sorted by size, smallest first:
 
-    \code
-        #include <QDir>
-
-        #include <stdio.h>
-
-        int main(int argc, char *argv[])
-        {
-            QDir dir;
-            dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-            dir.setSorting(QDir::Size | QDir::Reversed);
-
-            QFileInfoList list = dir.entryInfoList();
-            printf("     Bytes Filename\n");
-            for (int i = 0; i < list.size(); ++i) {
-                QFileInfo fileInfo = list.at(i);
-                printf("%10li %s\n", fileInfo.size(), qPrintable(fileInfo.fileName()));
-            }
-            return 0;
-        }
-    \endcode
+    \quotefromfile snippets/qdir-listfiles/main.cpp
+    \printuntil /^\}/
 
     \sa QFileInfo, QFile, QFileDialog, QApplication::applicationDirPath(), {Find Files Example}
 */
@@ -862,6 +844,17 @@ QStringList QDir::nameFilters() const
 /*!
     Sets the name filters used by entryList() and entryInfoList() to the
     list of filters specified by \a nameFilters.
+
+    Each name filter is a wildcard (globbing) filter that understands
+    \c{*} and \c{?} wildcards. (See \l{QRegExp wildcard matching}.)
+
+    For example, the following code sets three name filters on a QDir
+    to ensure that only files with extensions typically used for C++
+    source files are listed:
+
+    \quotefromfile snippets/qdir-namefilters/main.cpp
+    \skipto QStringList
+    \printuntil setNameFilters
 
     \sa nameFilters(), setFilter()
 */
