@@ -3123,6 +3123,7 @@ void Q3ListView::clear()
     d->dirtyItems.clear();
     d->dirtyItemTimer->stop();
 
+    d->highlighted = 0;
     d->focusItem = 0;
     d->selectAnchor = 0;
     d->pressedItem = 0;
