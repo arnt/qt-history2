@@ -62,6 +62,7 @@ private slots:
     void textAlign(QAction *a);
 
     void currentCharFormatChanged(const QTextCharFormat &format);
+    void cursorPositionChanged();
 
     void clipboardDataChanged();
 

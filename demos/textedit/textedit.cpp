@@ -59,6 +59,8 @@ TextEdit::TextEdit(QWidget *parent)
     textEdit = new QTextEdit(this);
     connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
+    connect(textEdit, SIGNAL(cursorPositionChanged()),
+            this, SLOT(cursorPositionChanged()));
 
     setCentralWidget(textEdit);
     textEdit->setFocus();
@@ -556,6 +558,10 @@ void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
+}
+
+void TextEdit::cursorPositionChanged()
+{
     alignmentChanged(textEdit->alignment());
 }
 
@@ -582,13 +588,14 @@ void TextEdit::colorChanged(const QColor &c)
 
 void TextEdit::alignmentChanged(Qt::Alignment a)
 {
-    if (a & Qt::AlignLeft)
+    if (a & Qt::AlignLeft) {
         actionAlignLeft->setChecked(true);
-    else if (a & Qt::AlignHCenter)
+    } else if (a & Qt::AlignHCenter) {
         actionAlignCenter->setChecked(true);
-    else if (a & Qt::AlignRight)
+    } else if (a & Qt::AlignRight) {
         actionAlignRight->setChecked(true);
-    else if (a & Qt::AlignJustify)
+    } else if (a & Qt::AlignJustify) {
         actionAlignJustify->setChecked(true);
+    }
 }
 
