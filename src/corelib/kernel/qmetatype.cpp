@@ -14,15 +14,19 @@
 #include "qmetatype.h"
 #include "qobjectdefs.h"
 #include "qdatetime.h"
-#include "qbitarray.h"
 #include "qbytearray.h"
 #include "qreadwritelock.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qvector.h"
-#include "qurl.h"
 #include "qlocale.h"
+
+#ifndef QT_BOOTSTRAPPED
+#include "qbitarray.h"
+#include "qurl.h"
 #include "qvariant.h"
+#define QT_NO_GEOM_VARIANT
+#endif
 
 #ifndef QT_NO_GEOM_VARIANT
 #include "qsize.h"
@@ -468,12 +472,14 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     case QMetaType::QChar:
         stream << *static_cast<const ::QChar *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QVariantMap:
         stream << *static_cast<const ::QVariantMap *>(data);
         break;
     case QMetaType::QVariantList:
         stream << *static_cast<const ::QVariantList *>(data);
         break;
+#endif
     case QMetaType::QByteArray:
         stream << *static_cast<const ::QByteArray *>(data);
         break;
@@ -483,9 +489,11 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     case QMetaType::QStringList:
         stream << *static_cast<const ::QStringList *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QBitArray:
         stream << *static_cast<const ::QBitArray *>(data);
         break;
+#endif
     case QMetaType::QDate:
         stream << *static_cast<const ::QDate *>(data);
         break;
@@ -495,9 +503,11 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     case QMetaType::QDateTime:
         stream << *static_cast<const ::QDateTime *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QUrl:
         stream << *static_cast<const ::QUrl *>(data);
         break;
+#endif
     case QMetaType::QLocale:
         stream << *static_cast<const ::QLocale *>(data);
         break;
@@ -527,9 +537,11 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
         stream << *static_cast<const ::QPointF *>(data);
         break;
 #endif
+#ifndef QT_NO_REGEXP
     case QMetaType::QRegExp:
         stream << *static_cast<const ::QRegExp *>(data);
         break;
+#endif
 #ifdef QT3_SUPPORT
     case QMetaType::QColorGroup:
 #endif
@@ -646,12 +658,14 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     case QMetaType::QChar:
         stream >> *static_cast< ::QChar *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QVariantMap:
         stream >> *static_cast< ::QVariantMap *>(data);
         break;
     case QMetaType::QVariantList:
         stream >> *static_cast< ::QVariantList *>(data);
         break;
+#endif
     case QMetaType::QByteArray:
         stream >> *static_cast< ::QByteArray *>(data);
         break;
@@ -661,9 +675,11 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     case QMetaType::QStringList:
         stream >> *static_cast< ::QStringList *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QBitArray:
         stream >> *static_cast< ::QBitArray *>(data);
         break;
+#endif
     case QMetaType::QDate:
         stream >> *static_cast< ::QDate *>(data);
         break;
@@ -673,9 +689,11 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     case QMetaType::QDateTime:
         stream >> *static_cast< ::QDateTime *>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QUrl:
         stream >> *static_cast< ::QUrl *>(data);
         break;
+#endif
     case QMetaType::QLocale:
         stream >> *static_cast< ::QLocale *>(data);
         break;
@@ -705,9 +723,11 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
         stream >> *static_cast< ::QPointF *>(data);
         break;
 #endif
+#ifndef QT_NO_REGEXP
     case QMetaType::QRegExp:
         stream >> *static_cast< ::QRegExp *>(data);
         break;
+#endif
 #ifdef QT3_SUPPORT
     case QMetaType::QColorGroup:
 #endif
@@ -794,26 +814,32 @@ void *QMetaType::construct(int type, const void *copy)
             return new double(*static_cast<const double*>(copy));
         case QMetaType::QChar:
             return new ::QChar(*static_cast<const ::QChar*>(copy));
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QVariantMap:
             return new ::QVariantMap(*static_cast<const ::QVariantMap*>(copy));
         case QMetaType::QVariantList:
             return new ::QVariantList(*static_cast<const ::QVariantList*>(copy));
+#endif
         case QMetaType::QByteArray:
             return new ::QByteArray(*static_cast<const ::QByteArray*>(copy));
         case QMetaType::QString:
             return new ::QString(*static_cast<const ::QString*>(copy));
         case QMetaType::QStringList:
             return new ::QStringList(*static_cast<const ::QStringList *>(copy));
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QBitArray:
             return new ::QBitArray(*static_cast<const ::QBitArray *>(copy));
+#endif
         case QMetaType::QDate:
             return new ::QDate(*static_cast<const ::QDate *>(copy));
         case QMetaType::QTime:
             return new ::QTime(*static_cast<const ::QTime *>(copy));
         case QMetaType::QDateTime:
             return new ::QDateTime(*static_cast<const ::QDateTime *>(copy));
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QUrl:
             return new ::QUrl(*static_cast<const ::QUrl *>(copy));
+#endif
         case QMetaType::QLocale:
             return new ::QLocale(*static_cast<const ::QLocale *>(copy));
 #ifndef QT_NO_GEOM_VARIANT
@@ -834,8 +860,10 @@ void *QMetaType::construct(int type, const void *copy)
         case QMetaType::QPointF:
             return new ::QPointF(*static_cast<const ::QPointF *>(copy));
 #endif
+#ifndef QT_NO_REGEXP
         case QMetaType::QRegExp:
             return new ::QRegExp(*static_cast<const ::QRegExp *>(copy));
+#endif
         case QMetaType::Void:
             return 0;
         default:
@@ -875,26 +903,32 @@ void *QMetaType::construct(int type, const void *copy)
             return new double;
         case QMetaType::QChar:
             return new ::QChar;
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QVariantMap:
             return new ::QVariantMap;
         case QMetaType::QVariantList:
             return new ::QVariantList;
+#endif
         case QMetaType::QByteArray:
             return new ::QByteArray;
         case QMetaType::QString:
             return new ::QString;
         case QMetaType::QStringList:
             return new ::QStringList;
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QBitArray:
             return new ::QBitArray;
+#endif
         case QMetaType::QDate:
             return new ::QDate;
         case QMetaType::QTime:
             return new ::QTime;
         case QMetaType::QDateTime:
             return new ::QDateTime;
+#ifndef QT_BOOTSTRAPPED
         case QMetaType::QUrl:
             return new ::QUrl;
+#endif
         case QMetaType::QLocale:
             return new ::QLocale;
 #ifndef QT_NO_GEOM_VARIANT
@@ -915,8 +949,10 @@ void *QMetaType::construct(int type, const void *copy)
         case QMetaType::QPointF:
             return new ::QPointF;
 #endif
+#ifndef QT_NO_REGEXP
         case QMetaType::QRegExp:
             return new ::QRegExp;
+#endif
         case QMetaType::Void:
             return 0;
         default:
@@ -998,12 +1034,14 @@ void QMetaType::destroy(int type, void *data)
     case QMetaType::QChar:
         delete static_cast< ::QChar*>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QVariantMap:
         delete static_cast< ::QVariantMap*>(data);
         break;
     case QMetaType::QVariantList:
         delete static_cast< ::QVariantList*>(data);
         break;
+#endif
     case QMetaType::QByteArray:
         delete static_cast< ::QByteArray*>(data);
         break;
@@ -1013,9 +1051,11 @@ void QMetaType::destroy(int type, void *data)
     case QMetaType::QStringList:
         delete static_cast< ::QStringList*>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QBitArray:
         delete static_cast< ::QBitArray*>(data);
         break;
+#endif
     case QMetaType::QDate:
         delete static_cast< ::QDate*>(data);
         break;
@@ -1025,8 +1065,10 @@ void QMetaType::destroy(int type, void *data)
     case QMetaType::QDateTime:
         delete static_cast< ::QDateTime*>(data);
         break;
+#ifndef QT_BOOTSTRAPPED
     case QMetaType::QUrl:
         delete static_cast< ::QUrl*>(data);
+#endif
         break;
     case QMetaType::QLocale:
         delete static_cast< ::QLocale*>(data);
@@ -1057,9 +1099,11 @@ void QMetaType::destroy(int type, void *data)
         delete static_cast< ::QPointF*>(data);
         break;
 #endif
+#ifndef QT_NO_REGEXP
     case QMetaType::QRegExp:
         delete static_cast< ::QRegExp*>(data);
         break;
+#endif
     case QMetaType::Void:
         break;
     default: {

@@ -14,6 +14,7 @@
 #include "generator.h"
 #include "outputrevision.h"
 #include "utils.h"
+#include <QtCore/qmetatype.h>
 #include <stdio.h>
 
 // if the flags change, you MUST to change it in qmetaobject.cpp too
@@ -48,92 +49,24 @@ enum MethodFlags {
     MethodScriptable = 0x40
 };
 
-/*
-  Attention!  This table is copied from qvariant.cpp. If you
-  change one, change both.
-*/
-enum { CoreTypeCount = 28 };
-static const char* const core_type_map[CoreTypeCount] =
-{
-    0,
-    "bool",
-    "int",
-    "uint",
-    "qlonglong",
-    "qulonglong",
-    "double",
-    "QChar",
-    "QVariantMap",
-    "QVariantList",
-    "QString",
-    "QStringList",
-    "QByteArray",
-    "QBitArray",
-    "QDate",
-    "QTime",
-    "QDateTime",
-    "QUrl",
-    "QLocale",
-    "QRect",
-    "QRectF",
-    "QSize",
-    "QSizeF",
-    "QLine",
-    "QLineF",
-    "QPoint",
-    "QPointF",
-    "QRegExp"
-};
-
-enum { GuiTypeCount = 80 - 63 + 1 };
-static const char* const gui_type_map[GuiTypeCount] =
-{
-    "QColorGroup",
-    "QFont",
-    "QPixmap",
-    "QBrush",
-    "QColor",
-    "QPalette",
-    "QIcon",
-    "QImage",
-    "QPolygon",
-    "QRegion",
-    "QBitmap",
-    "QCursor",
-    "QSizePolicy",
-    "QKeySequence",
-    "QPen",
-    "QTextLength",
-    "QTextFormat",
-    "QMatrix"
-};
-
 int qvariant_nameToType(const char* name)
 {
-    if (name) {
-        if (strcmp(name, "QVariant") == 0)
-            return 0xffffffff;
+    if (!name)
+        return 0;
 
-        if (strcmp(name, "QCString") == 0)
-            name = "QByteArray";
-        else if (strcmp(name, "Q_LLONG") == 0)
-            name = "qlonglong";
-        else if (strcmp(name, "Q_ULLONG") == 0)
-            name = "qulonglong";
-        else if (strcmp(name, "QIconSet") == 0)
-            name = "QIcon";
+    if (strcmp(name, "QVariant") == 0)
+        return 0xffffffff;
+    if (strcmp(name, "QCString") == 0)
+        return QMetaType::QByteArray;
+    if (strcmp(name, "Q_LLONG") == 0)
+        return QMetaType::LongLong;
+    if (strcmp(name, "Q_ULLONG") == 0)
+        return QMetaType::ULongLong;
+    if (strcmp(name, "QIconSet") == 0)
+        return QMetaType::QIcon;
 
-        int i;
-        for (i = 1; i < CoreTypeCount; ++i) {
-            if (strcmp(core_type_map[i], name) == 0)
-                return i;
-        }
-        for (i = 0; i < GuiTypeCount; ++i) {
-            if (strcmp(gui_type_map[i], name) == 0)
-                return (i + 63);
-        }
-    }
-    return 0;
+    int tp = QMetaType::type(name);
+    return tp < QMetaType::User ? tp : 0;
 }
 
 /*
@@ -523,12 +456,12 @@ void Generator::generateProperties()
             flags |= ResolveEditable;
         else if (p.editable != "false")
             flags |= Editable;
-        
+
         if (p.user.isEmpty())
             flags |= ResolveUser;
         else if (p.user != "false")
             flags |= User;
-        
+
         fprintf(out, "    %4d, %4d, 0x%.8x,\n",
                  strreg(p.name),
                  strreg(p.type),
@@ -806,7 +739,7 @@ void Generator::generateMetacall()
                 "        _id -= %d;\n"
                 "    }", cdef->propertyList.count());
 
-        
+
         fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::QueryPropertyUser) {\n");
         if (needUser) {
@@ -825,7 +758,7 @@ void Generator::generateMetacall()
                 "        _id -= %d;\n"
                 "    }", cdef->propertyList.count());
 
-        
+
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
