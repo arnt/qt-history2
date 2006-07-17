@@ -1386,7 +1386,9 @@ void tst_QString::append_bytearray_data()
     // byte array with only a 0
     ba.resize( 1 );
     ba[0] = 0;
-    QTest::newRow( "emptyString" ) << QString("foobar ") << ba << QString("foobar ");
+    QByteArray ba2("foobar ");
+    ba2.append('\0');
+    QTest::newRow( "emptyString" ) << QString("foobar ") << ba << QString(ba2);
 
     // empty byte array
     ba.resize( 0 );
@@ -1478,17 +1480,19 @@ void tst_QString::prepend_bytearray_data()
 
 	ba.resize( 8 );
     }
-#endif
     // no 0 termination
     ba.resize( 4 );
     QTest::newRow( "notTerminated_0" ) << QString() << ba << QString("abcd");
     QTest::newRow( "notTerminated_1" ) << QString("") << ba << QString("abcd");
     QTest::newRow( "notTerminated_2" ) << QString(" foobar") << ba << QString("abcd foobar");
+#endif
 
     // byte array with only a 0
     ba.resize( 1 );
     ba[0] = 0;
-    QTest::newRow( "emptyString" ) << QString(" foobar") << ba << QString(" foobar");
+    QByteArray ba2(" foobar");
+    ba2.insert(0, '\0');
+    QTest::newRow( "emptyString" ) << QString(" foobar") << ba << QString(ba2);
 
     // empty byte array
     ba.resize( 0 );
@@ -1501,9 +1505,10 @@ void tst_QString::prepend_bytearray()
 	QFETCH( QString, str );
 	QFETCH( QByteArray, ba );
 
-	str.prepend( ba );
+    str.prepend( ba );
 
-	QTEST( str, "res" );
+	QFETCH( QString, res );
+	QCOMPARE( str, res );
     }
     {
 	QFETCH( QString, str );
