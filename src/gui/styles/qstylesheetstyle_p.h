@@ -47,9 +47,9 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBorderImageData : public QSharedData
     void cutBorderImage();
 };
 
-struct Q_AUTOTEST_EXPORT QStyleSheetBackgroundData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetBackgroundImageData : public QSharedData
 {
-    QStyleSheetBackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
+    QStyleSheetBackgroundImageData() : position(Qt::AlignTop | Qt::AlignLeft),
                         origin(QCss::Origin_Padding), repeat(QCss::Repeat_XY) { }
     QPixmap pixmap;
     Qt::Alignment position;
@@ -57,28 +57,56 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBackgroundData : public QSharedData
     QCss::Repeat repeat;
 };
 
-struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetBorderData : public QSharedData
 {
-    QStyleSheetBoxData() : bi(0)
+    QStyleSheetBorderData() : bi(0)
     {
         for (int i = 0; i < 4; i++) {
-            margins[i] = borders[i] = paddings[i] = 0;
+            borders[i] = 0;
             styles[i] = QCss::BorderStyle_None;
             colors[i] = Qt::transparent;
         }
     }
 
-    qreal margins[4];
     qreal borders[4];
-    qreal paddings[4];
-    QCss::BorderStyle styles[4];
     QColor colors[4];
-
+    QCss::BorderStyle styles[4];
     QSize radii[4]; // topleft, topright, bottomleft, bottomright
-    QStyleSheetBorderImageData *borderImage() 
+
+    const QStyleSheetBorderImageData *borderImage() const
+    { return bi; }
+    QStyleSheetBorderImageData *_borderImage()
     { if (!bi) bi = new QStyleSheetBorderImageData; return bi; }
     bool hasBorderImage() const { return bi!=0; }
+
     QSharedDataPointer<QStyleSheetBorderImageData> bi;
+};
+
+struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
+{
+    QStyleSheetBoxData()
+    {
+        for (int i = 0; i < 4; i++)
+            margins[i] = paddings[i] = 0;
+    }
+
+    qreal margins[4];
+    qreal paddings[4];
+
+    QSizeF marginSizeF() const { 
+        return QSizeF(margins[QCss::LeftEdge] + margins[QCss::RightEdge],
+                      margins[QCss::TopEdge] + margins[QCss::BottomEdge]); 
+    }
+    QSize marginSize() const {
+        return marginSizeF().toSize();
+    }
+    QSizeF paddingSizeF() const { 
+        return QSizeF(paddings[QCss::LeftEdge] + paddings[QCss::RightEdge],
+                      paddings[QCss::TopEdge] + paddings[QCss::BottomEdge]); 
+    }
+    QSize paddingSize() const {
+        return paddingSizeF().toSize();
+    }
 };
 
 struct Q_AUTOTEST_EXPORT QStyleSheetFocusRectData : public QSharedData
@@ -100,11 +128,11 @@ struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
 class Q_AUTOTEST_EXPORT QRenderRule
 {
 public:
-    inline QRenderRule() : pal(0), b(0), fr(0), bg(0) { }
+    inline QRenderRule() : pal(0), b(0), fr(0), bg(0), bd(0) { }
     inline ~QRenderRule() { }
 
     void merge(const QVector<QCss::Declaration>& declarations);
-    bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0; }
+    bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0; }
 
     QRect borderRect(const QRect& r) const;
     QRect paddingRect(const QRect& r) const;
@@ -116,30 +144,40 @@ public:
     QRectF contentsRect(const QRectF& r) const;
     QRectF boxRect(const QRectF& r) const;
 
-    inline QStyleSheetPalette *palette() const 
+    const QStyleSheetPalette *palette() const { return pal; }
+    const QStyleSheetBoxData *box() const { return b; }
+    const QStyleSheetBackgroundImageData *backgroundImage() const { return bg; }
+    const QStyleSheetFocusRectData *focusRect() const { return fr; }
+    const QStyleSheetBorderData *border() const { return bd; }
+
+    QStyleSheetPalette *_palette()
     { if (!pal) pal = new QStyleSheetPalette(); return pal; }
-    inline QStyleSheetBoxData *box() const 
+    QStyleSheetBoxData *_box()
     { if (!b) b = new QStyleSheetBoxData(); return b; }
-    inline QStyleSheetBackgroundData *background() const 
-    { if (!bg) bg = new QStyleSheetBackgroundData(); return bg; }
-    inline QStyleSheetFocusRectData *focusRect() const 
+    QStyleSheetBackgroundImageData *_backgroundImage()
+    { if (!bg) bg = new QStyleSheetBackgroundImageData(); return bg; }
+    QStyleSheetFocusRectData *_focusRect()
     { if (!fr) fr = new QStyleSheetFocusRectData(); return fr; }
+    QStyleSheetBorderData *_border()
+    { if (!bd) bd = new QStyleSheetBorderData(); return bd; }
 
     void cutBorderImage();
-    void fixup();
+    void fixupBorder();
 
     inline bool hasPalette() const { return pal != 0; }
-    inline bool hasBackground() const { return bg != 0; }
+    inline bool hasBackgroundImage() const { return bg != 0; }
     inline bool hasBox() const { return b != 0; }
+    inline bool hasBorder() const { return bd != 0; }
     inline bool hasFocusRect() const { return fr != 0; }
 
     QHash<QString, QPixmap> pixmaps;
 
 private:
-    mutable QSharedDataPointer<QStyleSheetPalette> pal;
-    mutable QSharedDataPointer<QStyleSheetBoxData> b;
-    mutable QSharedDataPointer<QStyleSheetFocusRectData> fr;
-    mutable QSharedDataPointer<QStyleSheetBackgroundData> bg;
+    QSharedDataPointer<QStyleSheetPalette> pal;
+    QSharedDataPointer<QStyleSheetBoxData> b;
+    QSharedDataPointer<QStyleSheetFocusRectData> fr;
+    QSharedDataPointer<QStyleSheetBackgroundImageData> bg;
+    QSharedDataPointer<QStyleSheetBorderData> bd;
 };
 
 class QFrame;
