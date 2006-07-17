@@ -133,6 +133,9 @@ QFontPrivate::QFontPrivate()
 #ifdef Q_WS_X11
     screen = QX11Info::appScreen();
 #endif
+#ifdef Q_WS_WIN
+    hdc = 0;
+#endif
 }
 
 QFontPrivate::QFontPrivate(const QFontPrivate &other)
@@ -141,6 +144,9 @@ QFontPrivate::QFontPrivate(const QFontPrivate &other)
       strikeOut(other.strikeOut), kerning(other.kerning)
 {
     ref = 1;
+#ifdef Q_WS_WIN
+    hdc = other.hdc;
+#endif
 }
 
 QFontPrivate::~QFontPrivate()
@@ -434,6 +440,10 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
         d = font.d;
         d->ref.ref();
     }
+#ifdef Q_WS_WIN
+    if (pd->getDC())
+        d->hdc = pd->getDC();
+#endif
 }
 
 /*!

@@ -664,7 +664,7 @@ static void initFontInfo(QFontEngine *fe, const QFontDef &request, const QFontPr
 {
     fe->fontDef = request;                                // most settings are equal
 
-    HDC dc = shared_dc;
+    HDC dc = ((request.styleStrategy & QFont::PreferDevice) && fp->hdc) ? fp->hdc : shared_dc;
     SelectObject(dc, fe->hfont);
     QT_WA({
         TCHAR n[64];
@@ -756,7 +756,15 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
 
+    bool useDevice = (request.styleStrategy & QFont::PreferDevice) && fp->hdc;
+
     HDC hdc = shared_dc;
+    QString font_name = desc->family->rawName;
+
+    if (useDevice) {
+        hdc = fp->hdc;
+        font_name = request.family;
+    }
 
     bool stockFont = false;
 
@@ -875,7 +883,8 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
         lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
         lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
 
-        QString fam = desc->family->rawName;
+        QString fam = font_name;
+
 	if(fam.isEmpty())
 	    fam = "MS Sans Serif";
 
@@ -938,7 +947,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
 #endif
 
     }
-    QFontEngine *fe = new QFontEngineWin(desc->family->name, hfont, stockFont, lf);
+    QFontEngine *fe = new QFontEngineWin(font_name, hfont, stockFont, lf);
     initFontInfo(fe, request, fp);
     if(script == QUnicodeTables::Common
        && !(request.styleStrategy & QFont::NoFontMerging)

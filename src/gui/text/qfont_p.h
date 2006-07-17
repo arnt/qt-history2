@@ -166,6 +166,10 @@ public:
     int dpi;
     int screen;
 
+#ifdef Q_WS_WIN
+    HDC hdc;
+#endif
+
     uint rawMode    :  1;
     uint underline  :  1;
     uint overline   :  1;
