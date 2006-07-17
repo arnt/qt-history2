@@ -76,6 +76,8 @@ private slots:
 
     void initFrom();
 
+    void setWindow();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -743,10 +745,10 @@ QBitmap tst_QPainter::getBitmap( const QString &dir, const QString &filename, bo
     return bm;
 }
 
-static void getPaintedSize(QPixmap *pm, QRect *rect, const QColor &background)
+static QRect getPaintedSize(const QPixmap &pm, const QColor &background)
 {
     // not the fastest but at least it works..
-    QImage image = pm->toImage();
+    QImage image = pm.toImage();
     int xmin = image.width() + 1;
     int xmax = -1;
     int ymin = image.height() +1;
@@ -767,8 +769,7 @@ static void getPaintedSize(QPixmap *pm, QRect *rect, const QColor &background)
 	}
     }
 
-    Q_ASSERT(rect);
-    *rect = QRect(xmin, ymin, xmax - xmin + 1, ymax - ymin + 1);
+    return QRect(xmin, ymin, xmax - xmin + 1, ymax - ymin + 1);
 }
 
 void tst_QPainter::initFrom()
@@ -829,8 +830,7 @@ void tst_QPainter::drawLine()
         p.drawLine(line);
         p.end();
 
-        QRect painted;
-        getPaintedSize(&pixmapUnclipped, &painted, Qt::white);
+        const QRect painted = getPaintedSize(pixmapUnclipped, Qt::white);
 
         QLine l = line;
         l.translate(offset, offset);
@@ -899,8 +899,7 @@ void tst_QPainter::drawRect()
 
         int increment = usePen ? 1 : 0;
 
-        QRect painted;
-        getPaintedSize(&pixmap, &painted, Qt::white);
+        const QRect painted = getPaintedSize(pixmap, Qt::white);
         QCOMPARE(painted.width(), rect.width() + increment);
         QCOMPARE(painted.height(), rect.height() + increment);
     }
@@ -915,8 +914,7 @@ void tst_QPainter::drawRect()
         p.drawRect(rect);
         p.end();
 
-        QRect painted;
-        getPaintedSize(&pixmap, &painted, Qt::white);
+        const QRect painted = getPaintedSize(pixmap, Qt::white);
 
         QCOMPARE(painted.width(), rect.width());
         QCOMPARE(painted.height(), rect.height());
@@ -961,8 +959,7 @@ void tst_QPainter::drawEllipse()
 
     QPixmap pixmap = QPixmap::fromImage(image);
 
-    QRect painted;
-    getPaintedSize(&pixmap, &painted, Qt::white);
+    const QRect painted = getPaintedSize(pixmap, Qt::white);
 
     QCOMPARE(painted.x(), rect.x());
     QCOMPARE(painted.y(), rect.y() + (usePen ? 0 : 1));
@@ -1005,8 +1002,7 @@ void tst_QPainter::drawClippedEllipse()
     p.end();
 
     QPixmap pixmap = QPixmap::fromImage(image);
-    QRect painted;
-    getPaintedSize(&pixmap, &painted, Qt::white);
+    const QRect painted = getPaintedSize(pixmap, Qt::white);
 
     QCOMPARE(painted.x(), expected.x());
     QCOMPARE(painted.y(), expected.y());
@@ -1032,8 +1028,7 @@ void tst_QPainter::drawRoundRect()
 
         int increment = usePen ? 1 : 0;
 
-        QRect painted;
-        getPaintedSize(&pixmap, &painted, Qt::white);
+        const QRect painted = getPaintedSize(pixmap, Qt::white);
         QCOMPARE(painted.width(), rect.width() + increment);
         QCOMPARE(painted.height(), rect.height() + increment);
     }
@@ -1046,8 +1041,7 @@ void tst_QPainter::drawRoundRect()
         p.drawRoundRect(rect);
         p.end();
 
-        QRect painted;
-        getPaintedSize(&pixmap, &painted, Qt::white);
+        const QRect painted = getPaintedSize(pixmap, Qt::white);
 
         QCOMPARE(painted.width(), rect.width());
         QCOMPARE(painted.height(), rect.height());
@@ -1098,6 +1092,23 @@ void tst_QPainter::fillData()
                 << QRect(x, y, w, h) << false;
         }
     }
+}
+
+/*
+    Test that drawline works properly after setWindow has been called.
+*/
+void tst_QPainter::setWindow()
+{
+    QPixmap pixmap(600, 600);
+    pixmap.fill(QColor(Qt::white));
+
+    QPainter painter(&pixmap);
+    painter.setWindow(0, 0, 3, 3);
+    painter.drawLine(1, 1, 2, 2);
+
+    const QRect painted = getPaintedSize(pixmap, Qt::white);
+    QVERIFY(195 < painted.y() && painted.y() < 205); // correct value is around 200 
+    QVERIFY(195 < painted.height() && painted.height() < 205); // correct value is around 200 
 }
 
 QTEST_MAIN(tst_QPainter)
