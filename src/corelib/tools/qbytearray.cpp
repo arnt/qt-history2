@@ -98,7 +98,7 @@ char *qstrcpy(char *dst, const char *src)
 
 /*! \relates QByteArray
 
-    A safe strncpy() function.
+    A safe \c strncpy() function.
 
     Copies at most \a len bytes from \a src (stopping at \a len or the
     terminating '\\0' whichever comes first) into \a dst and returns a
@@ -125,29 +125,33 @@ char *qstrncpy(char *dst, const char *src, uint len)
     return dst;
 }
 
-/*! \fn uint qstrlen(const char *str);
+/*! \fn uint qstrlen(const char *str)
 
     \relates QByteArray
 
-    A safe strlen() function.
+    A safe \c strlen() function.
 
     Returns the number of characters that precede the terminating '\\0',
     or 0 if \a str is 0.
+
+    \sa qstrnlen()
 */
 
-/*! \fn uint qstrnlen(const char *str, uint maxlen);
+/*! \fn uint qstrnlen(const char *str, uint maxlen)
 
     \relates QByteArray
 
-    A safe strlen() function.
+    A safe \c strnlen() function.
 
-    Returns the number of characters that precede the terminating '\\0',
-    or 0 if \a str is 0. \a maxlen is the maximum number of characters in \a str.
+    Returns the number of characters that precede the terminating '\\0', but
+    at most \a maxlen. If \a str is 0, returns 0.
+
+    \sa qstrlen()
 */
 
 /*! \relates QByteArray
 
-    A safe strcmp() function.
+    A safe \c strcmp() function.
 
     Compares \a str1 and \a str2. Returns a negative value if \a str1
     is less than \a str2, 0 if \a str1 is equal to \a str2 or a
@@ -158,8 +162,7 @@ char *qstrncpy(char *dst, const char *src, uint len)
     Special case 2: Returns a random non-zero value if \a str1 is 0
     or \a str2 is 0 (but not both).
 
-    \sa qstrncmp(), qstricmp(), qstrnicmp(),
-        {Note on 8-bit character comparisons}
+    \sa qstrncmp(), qstricmp(), qstrnicmp(), {Note on 8-bit character comparisons}
 */
 int qstrcmp(const char *str1, const char *str2)
 {
@@ -171,7 +174,7 @@ int qstrcmp(const char *str1, const char *str2)
 
     \relates QByteArray
 
-    A safe strncmp() function.
+    A safe \c strncmp() function.
 
     Compares at most \a len bytes of \a str1 and \a str2.
 
@@ -190,7 +193,7 @@ int qstrcmp(const char *str1, const char *str2)
 
 /*! \relates QByteArray
 
-    A safe stricmp() function.
+    A safe \c stricmp() function.
 
     Compares \a str1 and \a str2 ignoring the case of the
     characters. The encoding of the strings is assumed to be Latin-1.
@@ -224,7 +227,7 @@ int qstricmp(const char *str1, const char *str2)
 
 /*! \relates QByteArray
 
-    A safe strnicmp() function.
+    A safe \c strnicmp() function.
 
     Compares at most \a len bytes of \a str1 and \a str2 ignoring the
     case of the characters. The encoding of the strings is assumed to
