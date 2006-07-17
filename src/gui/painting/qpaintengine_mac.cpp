@@ -23,6 +23,7 @@
 #include <qtextcodec.h>
 #include <qwidget.h>
 #include <qvarlengtharray.h>
+#include <qdebug.h>
 
 #include <private/qfont_p.h>
 #include <private/qfontengine_p.h>
@@ -446,6 +447,8 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 
     d->complexXForm = (matrix.m11() != 1 || matrix.m22() != 1
             || matrix.m12() != 0 || matrix.m21() != 0);
+
+    d->yOffset = d->userSpaceYOffset(d->hd);
 }
 
 void
@@ -555,7 +558,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
     for(int i=0; i < pointCount; i++) {
         float x = points[i].x(), y = points[i].y();
         CGPathMoveToPoint(path, 0, x, y + 1);
-        CGPathAddLineToPoint(path, 0, x + 0.01, y+1);
+        CGPathAddLineToPoint(path, 0, x + 0.01, y + d->yOffset);
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     CGPathRelease(path);
@@ -583,11 +586,11 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, 0, points[0].x(), points[0].y()+1);
+    CGPathMoveToPoint(path, 0, points[0].x(), points[0].y() + d->yOffset);
     for(int x = 1; x < pointCount; ++x)
-        CGPathAddLineToPoint(path, 0, points[x].x(), points[x].y()+1);
+        CGPathAddLineToPoint(path, 0, points[x].x(), points[x].y() + d->yOffset);
     if(mode != PolylineMode && points[0] != points[pointCount-1])
-        CGPathAddLineToPoint(path, 0, points[0].x(), points[0].y()+1);
+        CGPathAddLineToPoint(path, 0, points[0].x(), points[0].y() + d->yOffset);
     uint op = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if (mode != PolylineMode)
         op |= mode == OddEvenMode ? QCoreGraphicsPaintEnginePrivate::CGEOFill
@@ -605,8 +608,8 @@ QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
     CGMutablePathRef path = CGPathCreateMutable();
     for(int i = 0; i < lineCount; i++) {
         const QPointF start = lines[i].p1(), end = lines[i].p2();
-        CGPathMoveToPoint(path, 0, start.x(), start.y()+1);
-        CGPathAddLineToPoint(path, 0, end.x(), end.y()+1);
+        CGPathMoveToPoint(path, 0, start.x(), start.y() + d->yOffset);
+        CGPathAddLineToPoint(path, 0, end.x(), end.y() + d->yOffset);
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     CGPathRelease(path);
@@ -857,6 +860,27 @@ QCoreGraphicsPaintEnginePrivate::penOffset()
             ret = 0.0f;
     }
     return ret;
+}
+
+/*
+    Returns the amount of user space offset that gives a 1 unit device space offset
+    in the y direction.
+*/
+float QCoreGraphicsPaintEnginePrivate::userSpaceYOffset(CGContextRef context)
+{
+    CGPoint p1;  p1.x = 0;  p1.y = 0;
+    CGPoint p2;  p2.x = 0;  p2.y = 1;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    const float offset = CGContextConvertPointToUserSpace(context, p2).y -
+                         CGContextConvertPointToUserSpace(context, p1).y;
+    return offset;
+#else
+    const CGAffineTransform invertedCurrentTransform = CGAffineTransformInvert(CGContextGetCTM(context));
+    // The order of the points is switched in this case, this is not a bug :)
+    const float offset = CGPointApplyAffineTransform(p1, invertedCurrentTransform).y -
+                         CGPointApplyAffineTransform(p2, invertedCurrentTransform).y;
+    return offset;
+# endif 
 }
 
 void

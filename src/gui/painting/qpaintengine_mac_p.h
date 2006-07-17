@@ -110,6 +110,7 @@ public:
         shading = 0;
         complexXForm = false;
         cosmeticPen = true;
+        yOffset = 1;
     }
 
 
@@ -134,6 +135,7 @@ public:
     CGShadingRef shading;
     bool complexXForm;
     bool cosmeticPen;
+    float yOffset;
 
     //internal functions
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
@@ -142,6 +144,7 @@ public:
     void setFillBrush(const QBrush &brush, const QPointF &origin=QPoint());
     void setStrokePen(const QPen &pen);
     float penOffset();
+    float userSpaceYOffset(CGContextRef context);
     inline void setTransform(const QMatrix *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
