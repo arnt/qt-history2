@@ -236,9 +236,10 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 #if !defined(Q_WS_MAC)
     int cStart = 0;
 #endif
+    const bool symbolFont = item->font->symbol;
     glyphs[0].attributes.mark = false;
     glyphs[0].attributes.clusterStart = true;
-    glyphs[0].attributes.dontPrint = (uc[0].unicode() == 0x00ad || qIsControlChar(uc[0].unicode()));
+    glyphs[0].attributes.dontPrint = (!symbolFont && uc[0].unicode() == 0x00ad) || qIsControlChar(uc[0].unicode());
 
     int pos = 0;
     int lastCat = QUnicodeTables::category(uc[0]);
@@ -255,7 +256,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             ++pos;
         }
         // hide soft-hyphens by default
-        if (uc[i].unicode() == 0x00ad || qIsControlChar(uc[i].unicode()))
+        if ((!symbolFont && uc[i].unicode() == 0x00ad) || qIsControlChar(uc[i].unicode()))
             glyphs[pos].attributes.dontPrint = true;
         const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[i].unicode());
         int cat = prop->category;
