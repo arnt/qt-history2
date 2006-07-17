@@ -16,6 +16,9 @@
 typedef QList<int> IntList;
 Q_DECLARE_METATYPE(IntList)
 
+typedef QList<bool> BoolList;
+Q_DECLARE_METATYPE(BoolList)
+
 class tst_QTableView : public QObject
 {
     Q_OBJECT
@@ -92,11 +95,11 @@ private slots:
     void columnWidth_data();
     void columnWidth();
 
-    void hiddeRow_data();
-    void hiddeRow();
+    void hiddenRow_data();
+    void hiddenRow();
 
-    void hiddeColumn_data();
-    void hiddnColumn();
+    void hiddenColumn_data();
+    void hiddenColumn();
 
     void sortingEnabled_data();
     void sortingEnabled();
@@ -1500,18 +1503,22 @@ void tst_QTableView::rowAt_data()
 {
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<IntList>("hiddenRows");
     QTest::addColumn<int>("coordinate");
     QTest::addColumn<int>("row");
     
-    QTest::newRow("row at 100") << 5 << 40 << 100 << 2;
-    QTest::newRow("row at 180") << 5 << 40 << 180 << 4;
-    QTest::newRow("row at 20") << 5 << 40 << 20 << 0;
+    QTest::newRow("row at 100") << 5 << 40 << IntList() << 100 << 2;
+    QTest::newRow("row at 180") << 5 << 40 << IntList() << 180 << 4;
+    QTest::newRow("row at 20")  << 5 << 40 << IntList() <<  20 << 0;
+
+    // ### expand the dataset to include hidden rows
 }
 
 void tst_QTableView::rowAt()
 {
     QFETCH(int, rowCount);
     QFETCH(int, rowHeight);
+    QFETCH(IntList, hiddenRows);
     QFETCH(int, coordinate);
     QFETCH(int, row);
 
@@ -1520,8 +1527,12 @@ void tst_QTableView::rowAt()
     view.resize(100, 2 * rowHeight);
 
     view.setModel(&model);
+
     for (int r = 0; r < rowCount; ++r)
         view.setRowHeight(r, rowHeight);
+
+    for (int i = 0; i < hiddenRows.count(); ++i)
+        view.hideRow(hiddenRows.at(i));
 
     QCOMPARE(view.rowAt(coordinate), row);
 }
@@ -1530,26 +1541,45 @@ void tst_QTableView::rowHeight_data()
 {
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<IntList>("rowHeights");
+    QTest::addColumn<BoolList>("hiddenRows");
 
-    QTest::newRow("increasing") << 5 << (IntList() << 20 << 30 << 40 << 50 << 60);
-    QTest::newRow("decreasing") << 5 << (IntList() << 60 << 50 << 40 << 30 << 20);
-    QTest::newRow("random") << 5 << (IntList() << 87 << 34 << 68 << 91 << 27);
+    QTest::newRow("increasing") << 5
+                                << (IntList() << 20 << 30 << 40 << 50 << 60)
+                                << (BoolList() << false << false << false << false << false);
+
+    QTest::newRow("decreasing") << 5
+                                << (IntList() << 60 << 50 << 40 << 30 << 20)
+                                << (BoolList() << false << false << false << false << false);
+
+    QTest::newRow("random")     << 5
+                                << (IntList() << 87 << 34 << 68 << 91 << 27)
+                                << (BoolList() << false << false << false << false << false);
+
+    // ### expand the dataset to include hidden rows
 }
 
 void tst_QTableView::rowHeight()
 {
     QFETCH(int, rowCount);
     QFETCH(IntList, rowHeights);
+    QFETCH(BoolList, hiddenRows);
     
     QtTestTableModel model(rowCount, 1);
     QtTestTableView view;
 
     view.setModel(&model);
-    for (int r = 0; r < rowCount; ++r)
-        view.setRowHeight(r, rowHeights.at(r));
 
-    for (int r = 0; r < rowCount; ++r)
-        QCOMPARE(view.rowHeight(r), rowHeights.at(r));
+    for (int r = 0; r < rowCount; ++r) {
+        view.setRowHeight(r, rowHeights.at(r));
+        view.setRowHidden(r, hiddenRows.at(r));
+    }
+
+    for (int r = 0; r < rowCount; ++r) {
+        if (hiddenRows.at(r))
+            QCOMPARE(view.rowHeight(r), 0);
+        else
+            QCOMPARE(view.rowHeight(r), rowHeights.at(r));
+    }
 }
 
 void tst_QTableView::columnViewportPosition_data()
@@ -1632,18 +1662,22 @@ void tst_QTableView::columnAt_data()
 {
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("columnWidth");
+    QTest::addColumn<IntList>("hiddenColumns");
     QTest::addColumn<int>("coordinate");
     QTest::addColumn<int>("column");
     
-    QTest::newRow("column at 100") << 5 << 40 << 100 << 2;
-    QTest::newRow("column at 180") << 5 << 40 << 180 << 4;
-    QTest::newRow("column at 20") << 5 << 40 << 20 << 0;
+    QTest::newRow("column at 100") << 5 << 40 << IntList() << 100 << 2;
+    QTest::newRow("column at 180") << 5 << 40 << IntList() << 180 << 4;
+    QTest::newRow("column at 20")  << 5 << 40 << IntList() <<  20 << 0;
+
+    // ### expand the dataset to include hidden coumns
 }
 
 void tst_QTableView::columnAt()
 {
     QFETCH(int, columnCount);
     QFETCH(int, columnWidth);
+    QFETCH(IntList, hiddenColumns);
     QFETCH(int, coordinate);
     QFETCH(int, column);
     
@@ -1652,8 +1686,12 @@ void tst_QTableView::columnAt()
     view.resize(2 * columnWidth, 100);
 
     view.setModel(&model);
+
     for (int c = 0; c < columnCount; ++c)
         view.setColumnWidth(c, columnWidth);
+
+    for (int i = 0; i < hiddenColumns.count(); ++i)
+        view.hideColumn(hiddenColumns.at(i));
 
     QCOMPARE(view.columnAt(coordinate), column);
 }
@@ -1662,42 +1700,77 @@ void tst_QTableView::columnWidth_data()
 {
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<IntList>("columnWidths");
+    QTest::addColumn<BoolList>("hiddenColumns");
 
-    QTest::newRow("increasing") << 5 << (IntList() << 20 << 30 << 40 << 50 << 60);
-    QTest::newRow("decreasing") << 5 << (IntList() << 60 << 50 << 40 << 30 << 20);
-    QTest::newRow("random") << 5 << (IntList() << 87 << 34 << 68 << 91 << 27);
+    QTest::newRow("increasing") << 5
+                                << (IntList() << 20 << 30 << 40 << 50 << 60)
+                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("decreasing") << 5
+                                << (IntList() << 60 << 50 << 40 << 30 << 20)
+                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("random")     << 5
+                                << (IntList() << 87 << 34 << 68 << 91 << 27)
+                                << (BoolList() << false << false << false << false << false);
+
+    // ### expand the dataset to include hidden columns
 }
 
 void tst_QTableView::columnWidth()
 {
     QFETCH(int, columnCount);
     QFETCH(IntList, columnWidths);
+    QFETCH(BoolList, hiddenColumns);
     
     QtTestTableModel model(1, columnCount);
     QtTestTableView view;
 
     view.setModel(&model);
-    for (int c = 0; c < columnCount; ++c)
+
+    for (int c = 0; c < columnCount; ++c) {
         view.setColumnWidth(c, columnWidths.at(c));
+        view.setColumnHidden(c, hiddenColumns.at(c));
+    }
 
-    for (int c = 0; c < columnCount; ++c)
-        QCOMPARE(view.columnWidth(c), columnWidths.at(c));
+    for (int c = 0; c < columnCount; ++c) {
+        if (hiddenColumns.at(c))
+            QCOMPARE(view.columnWidth(c), 0);
+        else
+            QCOMPARE(view.columnWidth(c), columnWidths.at(c));
+    }
 }
 
-void tst_QTableView::hiddeRow_data()
+void tst_QTableView::hiddenRow_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<BoolList>("hiddenRows");
+
+    QTest::newRow("first hidden") << 5
+                                  << (BoolList() << true << false << false << false << false);
+    QTest::newRow("last hidden")  << 5
+                                  << (BoolList() << false << false << false << false << true);
 }
 
-void tst_QTableView::hiddeRow()
+void tst_QTableView::hiddenRow()
 {
+    QFETCH(int, rowCount);
+    QFETCH(BoolList, hiddenRows);
 }
 
-void tst_QTableView::hiddeColumn_data()
+void tst_QTableView::hiddenColumn_data()
 {
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<BoolList>("hiddenColumns");
+
+    QTest::newRow("first hidden") << 5
+                                  << (BoolList() << true << false << false << false << false);
+    QTest::newRow("last hidden")  << 5
+                                  << (BoolList() << false << false << false << false << true);
 }
 
-void tst_QTableView::hiddnColumn()
+void tst_QTableView::hiddenColumn()
 {
+    QFETCH(int, columnCount);
+    QFETCH(BoolList, hiddenColumns);
 }
 
 void tst_QTableView::sortingEnabled_data()
