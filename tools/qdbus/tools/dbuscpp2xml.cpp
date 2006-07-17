@@ -19,12 +19,12 @@
 #include <QMetaObject>
 #include <QList>
 #include <QRegExp>
+#include <QCoreApplication>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
 #include <stdlib.h>
 
 #include "qdbusconnection.h"    // for the Export* flags
@@ -42,8 +42,7 @@ extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const 
 #define PROGRAMVERSION  "0.1"
 #define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech AS. All rights reserved."
 
-static const char cmdlineOptions[] = "psmaPSMAo:hV";
-static const char *outputFile;
+static QString outputFile;
 static int flags;
 
 static const char help[] =
@@ -77,7 +76,7 @@ public:
 
     QList<QMetaObject> objects;
 };
-    
+
 void MocParser::parseError()
 {
     fprintf(stderr, PROGRAMNAME ": error parsing input file '%s' line %d \n", filename, lineNumber);
@@ -191,7 +190,7 @@ void MocParser::loadStringData(char *&stringdata)
                             parseError();
                         array.append(char(line.mid(start + 1, 2).toInt(0, 16)));
                         break;
-                        
+
                     default:
                         array.append(c.toLatin1());
                         fprintf(stderr, PROGRAMNAME ": warning: invalid escape sequence '\\%c' found in input",
@@ -210,7 +209,7 @@ void MocParser::loadStringData(char *&stringdata)
     }
 
     parseError();
-}                    
+}
 
 void MocParser::parse(const char *fname, QIODevice *io, int lineNum)
 {
@@ -269,13 +268,19 @@ static void showVersion()
     exit(0);
 }
 
-static void parseCmdLine(int argc, char **argv)
+static void parseCmdLine(QStringList &arguments)
 {
-    int c;
-    opterr = true;
-    while ((c = getopt(argc, argv, cmdlineOptions)) != -1)
-        switch (c)
-        {
+    for (int i = 1; i < arguments.count(); ++i) {
+        const QString arg = arguments.at(i);
+
+        if (arg == QLatin1String("--help"))
+            showHelp();
+
+        if (!arg.startsWith(QLatin1Char('-')))
+            continue;
+
+        char c = arg.count() == 2 ? arg.at(1).toLatin1() : char(0);
+        switch (c) {
         case 'P':
             flags |= QDBusConnection::ExportNonScriptableProperties;
             // fall through
@@ -305,10 +310,15 @@ static void parseCmdLine(int argc, char **argv)
             break;
 
         case 'o':
-            outputFile = optarg;
+            if (arguments.count() < i + 2 || arguments.at(i + 1).startsWith(QLatin1Char('-'))) {
+                printf("-o expects a filename\n");
+                exit(1);
+            }
+            outputFile = arguments.takeAt(i + 1);
             break;
 
         case 'h':
+        case '?':
             showHelp();
             break;
 
@@ -316,11 +326,11 @@ static void parseCmdLine(int argc, char **argv)
             showVersion();
             break;
 
-        case '?':
-            exit(1);
         default:
-            abort();
+            printf("unknown option: \"%s\"\n", qPrintable(arg));
+            exit(1);
         }
+    }
 
     if (flags == 0)
         flags = QDBusConnection::ExportContents | QDBusConnection::ExportNonScriptableContents;
@@ -328,19 +338,24 @@ static void parseCmdLine(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    MocParser parser;
-    parseCmdLine(argc, argv);
+    QCoreApplication app(argc, argv);
+    QStringList args = app.arguments();
 
-    for (int i = optind; i < argc; ++i) {
-        FILE *in = fopen(argv[i], "r");
-        if (in == 0) {
+    MocParser parser;
+    parseCmdLine(args);
+
+    for (int i = 1; i < args.count(); ++i) {
+        const QString arg = args.at(i);
+        if (arg.startsWith(QLatin1Char('-')))
+            continue;
+
+        QFile f(arg);
+        if (!f.open(QIODevice::ReadOnly)) {
             fprintf(stderr, PROGRAMNAME ": could not open '%s': %s\n",
-                    argv[i], strerror(errno));
+                    qPrintable(arg), qPrintable(f.errorString()));
             return 1;
         }
 
-        QFile f;
-        f.open(in, QIODevice::ReadOnly);
         f.readLine();
 
         QByteArray line = f.readLine();
@@ -351,7 +366,7 @@ int main(int argc, char **argv)
             // run moc on this file
             QProcess proc;
             proc.start(QLatin1String("moc"), QStringList() << QFile::decodeName(argv[i]));
-            
+
             if (!proc.waitForStarted()) {
                 fprintf(stderr, PROGRAMNAME ": could not execute moc! Aborting.\n");
                 return 1;
@@ -372,28 +387,29 @@ int main(int argc, char **argv)
         }
 
         f.close();
-        fclose(in);
     }
 
-    FILE *output = stdout;
-    if (outputFile != 0) {
-        output = fopen(outputFile, "w");
-        if (output == 0) {
+    QFile output;
+    if (outputFile.isEmpty()) {
+        output.open(stdout, QIODevice::WriteOnly);
+    } else {
+        output.setFileName(outputFile);
+        if (!output.open(QIODevice::WriteOnly)) {
             fprintf(stderr, PROGRAMNAME ": could not open output file '%s': %s",
-                    outputFile, strerror(errno));
+                    qPrintable(outputFile), strerror(errno));
             return 1;
         }
     }
 
-    fprintf(output, "%s<node>\n", docTypeHeader);
+    output.write(docTypeHeader);
+    output.write("<node>\n");
     foreach (QMetaObject mo, parser.objects) {
         QString xml = qDBusGenerateMetaObjectXml(QString(), &mo, &QObject::staticMetaObject,
                                                  flags);
-        fprintf(output, "%s", qPrintable(xml));
+        output.write(xml.toLocal8Bit());
     }
-    fprintf(output, "</node>\n");
+    output.write("</node>\n");
 
-    if (output != stdout)
-        fclose(output);
+    return 0;
 }
 

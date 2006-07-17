@@ -22,9 +22,9 @@
 #include <QtDBus>
 #include <private/qdbusutil_p.h>
 
-QDBusConnection connection("");
+static QDBusConnection connection("");
 
-void listObjects(const QString &service, const QString &path)
+static void listObjects(const QString &service, const QString &path)
 {
     QDBusInterface iface(service, path.isEmpty() ? "/" : path,
                          "org.freedesktop.DBus.Introspectable", connection);
@@ -54,7 +54,7 @@ void listObjects(const QString &service, const QString &path)
     }
 }
 
-void listInterface(const QString &service, const QString &path, const QString &interface)
+static void listInterface(const QString &service, const QString &path, const QString &interface)
 {
     QDBusInterface iface(service, path, interface, connection);
     if (!iface.isValid()) {
@@ -108,7 +108,7 @@ void listInterface(const QString &service, const QString &path, const QString &i
     }
 }
 
-void listAllInterfaces(const QString &service, const QString &path)
+static void listAllInterfaces(const QString &service, const QString &path)
 {
     QDBusInterface iface(service, path, "org.freedesktop.DBus.Introspectable", connection);
     if (!iface.isValid()) {
@@ -141,20 +141,19 @@ void listAllInterfaces(const QString &service, const QString &path)
     }
 }
 
-QStringList readList(int &argc, const char *const *&argv)
+static QStringList readList(QStringList &args)
 {
-    --argc;
-    ++argv;
+    args.takeFirst();
 
     QStringList retval;
-    while (argc && QLatin1String(argv[0]) != ")")
-        retval += QString::fromLocal8Bit(argv[0]);
+    while (!args.isEmpty() && args.at(0) != QLatin1String(")"))
+        retval += args.takeFirst();
 
     return retval;
 }
 
-void placeCall(const QString &service, const QString &path, const QString &interface,
-               const QString &member, int argc, const char *const *argv)
+static void placeCall(const QString &service, const QString &path, const QString &interface,
+               const QString &member, QStringList args)
 {
     QDBusInterface iface(service, path, interface, connection);
     if (!iface.isValid()) {
@@ -195,10 +194,10 @@ void placeCall(const QString &service, const QString &path, const QString &inter
             while (types.count() > i)
                 types.removeLast();
             break;
-        }        
+        }
 
     QVariantList params;
-    for (int i = 0; argc && i < types.count(); ++i) {
+    for (int i = 0; !args.isEmpty() && i < types.count(); ++i) {
         int id = QVariant::nameToType(types.at(i));
         if ((id == QVariant::UserType || id == QVariant::Map) && types.at(i) != "QDBusVariant") {
             fprintf(stderr, "Sorry, can't pass arg of type %s yet\n",
@@ -211,17 +210,19 @@ void placeCall(const QString &service, const QString &path, const QString &inter
         Q_ASSERT(id);
 
         QVariant p;
-        if ((id == QVariant::List || id == QVariant::StringList) && QLatin1String("(") == argv[0])
-            p = readList(argc, argv);
+        QString argument;
+        if ((id == QVariant::List || id == QVariant::StringList)
+                && args.at(0) == QLatin1String("("))
+            p = readList(args);
         else
-            p = QString::fromLocal8Bit(argv[0]);
+            p = argument = args.takeFirst();
 
         if (id < int(QVariant::UserType)) {
             // avoid calling it for QVariant
-            p.convert( QVariant::Type(id) );
+            p.convert(QVariant::Type(id));
             if (p.type() == QVariant::Invalid) {
                 fprintf(stderr, "Could not convert '%s' to type '%s'.\n",
-                        argv[0], types.at(i).constData());
+                        qPrintable(argument), types.at(i).constData());
                 exit(1);
             }
         } else if (types.at(i) == "QDBusVariant") {
@@ -229,10 +230,8 @@ void placeCall(const QString &service, const QString &path, const QString &inter
             p = qVariantFromValue(tmp);
         }
         params += p;
-        --argc;
-        ++argv;
     }
-    if (params.count() != types.count() || argc != 0) {
+    if (params.count() != types.count() || !args.isEmpty()) {
         fprintf(stderr, "Invalid number of parameters\n");
         exit(1);
     }
@@ -246,7 +245,7 @@ void placeCall(const QString &service, const QString &path, const QString &inter
         fprintf(stderr, "Invalid reply type %d\n", int(reply.type()));
         exit(1);
     }
-    
+
     foreach (QVariant v, reply.arguments()) {
         if (v.userType() == QVariant::StringList) {
             foreach (QString s, v.toStringList())
@@ -261,7 +260,7 @@ void placeCall(const QString &service, const QString &path, const QString &inter
     exit(0);
 }
 
-bool splitInterfaceAndName(const QString &interfaceAndName, const char *type,
+static bool splitInterfaceAndName(const QString &interfaceAndName, const char *type,
                            QString &interface, QString &member)
 {
     interface = interfaceAndName;
@@ -284,12 +283,15 @@ bool splitInterfaceAndName(const QString &interfaceAndName, const char *type,
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-    if (argc >= 1 && qstrcmp(argv[1], "--system") == 0) {
+    QStringList args = app.arguments();
+    args.takeFirst();
+
+    if (args.value(0) == QLatin1String("--system")) {
         connection = QDBus::systemBus();
-        --argc;
-        ++argv;
-    } else
+        args.takeFirst();
+    } else {
         connection = QDBus::sessionBus();
+    }
 
     if (!connection.isConnected()) {
         fprintf(stderr, "Could not connect to D-Bus server: %s: %s\n",
@@ -299,14 +301,14 @@ int main(int argc, char **argv)
     }
     QDBusConnectionInterface *bus = connection.interface();
 
-    if (argc == 1) {
+    if (args.isEmpty()) {
         QStringList names = bus->registeredServiceNames();
         foreach (QString name, names)
             printf("%s\n", qPrintable(name));
         exit(0);
     }
-    
-    QString service = QLatin1String(argv[1]);
+
+    QString service = args.takeFirst();
     if (!QDBusUtil::isValidBusName(service)) {
         fprintf(stderr, "Service '%s' is not a valid name.\n", qPrintable(service));
         exit(1);
@@ -316,23 +318,23 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if (argc == 2) {
+    if (args.isEmpty()) {
         printf("/\n");
         listObjects(service, QString());
         exit(0);
     }
 
-    QString path = QLatin1String(argv[2]);
+    QString path = args.takeFirst();
     if (!QDBusUtil::isValidObjectPath(path)) {
         fprintf(stderr, "Path '%s' is not a valid path name.\n", qPrintable(path));
         exit(1);
     }
-    if (argc == 3) {
+    if (args.isEmpty()) {
         listAllInterfaces(service, path);
         exit(0);
     }
 
-    QString interface = QLatin1String(argv[3]);
+    QString interface = args.takeFirst();
     QString member;
     int pos = interface.lastIndexOf(QLatin1Char('.'));
     if (pos == -1) {
@@ -351,6 +353,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    placeCall(service, path, interface, member, argc - 4, argv + 4);
+    placeCall(service, path, interface, member, args);
 }
 
