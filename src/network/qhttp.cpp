@@ -2224,7 +2224,7 @@ void QHttpPrivate::_q_slotSendRequest()
         proxyUrl.setScheme(QLatin1String("http"));
         proxyUrl.setHost(hostName);
         if (port && port != 80) proxyUrl.setPort(port);
-        QString request = QString::fromAscii(proxyUrl.resolved(QUrl(header.path())).toEncoded());
+        QString request = QString::fromAscii(proxyUrl.resolved(QUrl::fromEncoded(header.path().toLatin1())).toEncoded());
 
         header.setRequest(header.method(), request, header.majorVersion(), header.minorVersion());
 
