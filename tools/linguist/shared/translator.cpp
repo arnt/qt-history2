@@ -374,7 +374,7 @@ TranslatorMessage Translator::findMessage(const char *context, const char *sourc
         return TranslatorMessage();
     }
 
-    qFatal("Cannot look up stuff");
+    qWarning("Cannot look up stuff");
 
     return TranslatorMessage();
 }
