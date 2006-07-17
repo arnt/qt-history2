@@ -37,6 +37,7 @@ Qt {
     Q_ENUMS(DockWidgetArea)
     Q_ENUMS(TextElideMode)
     Q_ENUMS(TextInteractionFlags)
+    Q_ENUMS(WindowModality)
 public:
 #endif
     enum GlobalColor {
