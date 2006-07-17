@@ -135,6 +135,16 @@ char *qstrncpy(char *dst, const char *src, uint len)
     or 0 if \a str is 0.
 */
 
+/*! \fn uint qstrnlen(const char *str, uint maxlen);
+
+    \relates QByteArray
+
+    A safe strlen() function.
+
+    Returns the number of characters that precede the terminating '\\0',
+    or 0 if \a str is 0. \a maxlen is the maximum number of characters in \a str.
+*/
+
 /*! \relates QByteArray
 
     A safe strcmp() function.

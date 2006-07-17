@@ -37,6 +37,16 @@ Q_CORE_EXPORT char *qstrdup(const char *);
 inline uint qstrlen(const char *str)
 { return str ? uint(strlen(str)) : 0; }
 
+inline uint qstrnlen(const char *str, uint maxlen)
+{
+    uint length = 0;
+    if (str) {
+        while (length < maxlen && *str++)
+            length++;
+    }
+    return length;
+}
+
 Q_CORE_EXPORT char *qstrcpy(char *dst, const char *src);
 Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
 
