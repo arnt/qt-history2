@@ -221,6 +221,13 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(false, obj1.itemsExpandable());
     obj1.setItemsExpandable(true);
     QCOMPARE(true, obj1.itemsExpandable());
+
+    // bool QTreeView::allColumnsShowFocus
+    // void QTreeView::setAllColumnsShowFocus
+    obj1.setAllColumnsShowFocus(false);
+    QCOMPARE(false, obj1.allColumnsShowFocus());
+    obj1.setAllColumnsShowFocus(true);
+    QCOMPARE(true, obj1.allColumnsShowFocus());
 }
 
 tst_QTreeView::tst_QTreeView()
