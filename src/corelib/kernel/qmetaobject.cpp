@@ -1791,7 +1791,7 @@ bool QMetaProperty::isDesignable(const QObject *object) const
     otherwise returns false.
 
     If no \a object is given, the function returns false if the
-    \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise returns
+    \c{Q_PROPERTY()}'s \c SCRIPTABLE attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
     \sa isDesignable(), isStored(), isEditable()
