@@ -999,6 +999,8 @@ QStyleOptionViewItem QListView::viewOptions() const
 void QListView::paintEvent(QPaintEvent *e)
 {
     Q_D(QListView);
+    if (!d->itemDelegate)
+        return;
     QStyleOptionViewItem option = viewOptions();
     QPainter painter(d->viewport);
     QRect area = e->rect();
@@ -2251,12 +2253,15 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
 
 QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if (!uniformItemSizes)
-        return delegateForIndex(index)->sizeHint(option, index);
+    if (!uniformItemSizes) {
+        const QAbstractItemDelegate *delegate = delegateForIndex(index);
+        return delegate ? delegate->sizeHint(option, index) : QSize();
+    }
     if (!cachedItemSize.isValid()) { // the last item is probaly the largest, so we use its size
         int row = model->rowCount(root) - 1;
         QModelIndex sample = model->index(row, column, root);
-        cachedItemSize = delegateForIndex(sample)->sizeHint(option, sample);
+        const QAbstractItemDelegate *delegate = delegateForIndex(sample);
+        cachedItemSize = delegate ? delegate->sizeHint(option, sample) : QSize();
     }
     return cachedItemSize;
 }

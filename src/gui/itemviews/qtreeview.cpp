@@ -948,7 +948,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
     Q_D(const QTreeView);
     const QVector<QTreeViewItem> viewItems = d->viewItems;
 
-    if (viewItems.count() == 0 || d->header->count() == 0) {
+    if (viewItems.count() == 0 || d->header->count() == 0 || !d->itemDelegate) {
         painter->fillRect(region.boundingRect(), palette().brush(QPalette::Base));
         return;
     }
@@ -1656,7 +1656,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         }
     }
 
-    if (d->viewItems.isEmpty())
+    if (d->viewItems.isEmpty() || d->defaultItemHeight == 0)
         return;
 
     // guestimate the number of items in the viewport
@@ -1943,8 +1943,8 @@ int QTreeView::sizeHintForColumn(int column) const
 int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!d->indexValid(index))
-        return -1;
+    if (!d->indexValid(index) || !d->itemDelegate)
+        return 0;
 
     int start = -1;
     int end = -1;
@@ -2328,9 +2328,10 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
     const int itemCount = viewItems.count();
     if (itemCount == 0)
         return -1;
+    if (uniformRowHeights && defaultItemHeight <= 0)
+        return -1;
     if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights) {
-            Q_ASSERT(defaultItemHeight > 0);
             const int viewItemIndex = (coordinate + q->verticalScrollBar()->value()) / defaultItemHeight;
             return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
@@ -2345,7 +2346,6 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
     } else { // ScrollPerItem
         int topViewItemIndex = q->verticalScrollBar()->value();
         if (uniformRowHeights) {
-            Q_ASSERT(defaultItemHeight > 0);
             const int viewItemIndex = topViewItemIndex + (coordinate / defaultItemHeight);
             return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
@@ -2514,7 +2514,10 @@ void QTreeViewPrivate::updateScrollBars()
     if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         int itemsInViewport = 0;
         if (uniformRowHeights) {
-            itemsInViewport = viewportSize.height() / defaultItemHeight;
+            if (defaultItemHeight == 0)
+                itemsInViewport = viewItems.count();
+            else
+                itemsInViewport = viewportSize.height() / defaultItemHeight;
         } else {
             const int itemsCount = viewItems.count();
             const int viewportHeight = viewportSize.height();

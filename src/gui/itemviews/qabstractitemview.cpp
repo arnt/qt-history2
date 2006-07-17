@@ -1931,6 +1931,8 @@ void QAbstractItemView::updateEditorData()
 void QAbstractItemView::updateEditorGeometries()
 {
     Q_D(QAbstractItemView);
+    if (!d->itemDelegate)
+        return;
     QStyleOptionViewItem option = viewOptions();
     _q_abstractitemview_editor_iterator it = d->editors.begin();
     while (it != d->editors.end()) {
@@ -2064,7 +2066,7 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 void QAbstractItemView::commitData(QWidget *editor)
 {
     Q_D(QAbstractItemView);
-    if (!editor)
+    if (!editor || !d->itemDelegate)
         return;
     QModelIndex index = d->indexForEditor(editor);
     QAbstractItemDelegate *delegate = d->delegateForIndex(index);
@@ -2202,7 +2204,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 {
     Q_D(const QAbstractItemView);
-    if (!d->indexValid(index))
+    if (!d->indexValid(index) || !d->itemDelegate)
         return QSize();
     return d->itemDelegate->sizeHint(viewOptions(), index);
 }
@@ -2377,6 +2379,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 {
     // Single item changed
     Q_D(QAbstractItemView);
+    if (!d->itemDelegate)
+        return;
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->hasEditor(topLeft))
             d->itemDelegate->setEditorData(d->editorForIndex(topLeft), topLeft);
@@ -2996,7 +3000,6 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
     Q_Q(QAbstractItemView);
     if (!itemDelegate)
         return 0;
-
     QWidget *w = editorForIndex(index);
     if (!w) {
         w = itemDelegate->createEditor(viewport, options, index);
@@ -3019,6 +3022,8 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 void QAbstractItemViewPrivate::updateEditorData(const QModelIndex &tl, const QModelIndex &br)
 {
     // we are counting on having relatively few editors
+    if (!itemDelegate)
+        return;
     const bool checkIndexes = tl.isValid() && br.isValid();
     const QModelIndex parent = tl.parent();
     _q_abstractitemview_editor_iterator it = editors.begin();
@@ -3113,6 +3118,8 @@ void QAbstractItemViewPrivate::addEditor(const QModelIndex &index, QWidget *edit
 bool QAbstractItemViewPrivate::sendDelegateEvent(const QModelIndex &index, QEvent *event) const
 {
     Q_Q(const QAbstractItemView);
+    if (!itemDelegate)
+        return false;
     QModelIndex buddy = model->buddy(index);
     QStyleOptionViewItem options = q->viewOptions();
     options.rect = q->visualRect(buddy);
