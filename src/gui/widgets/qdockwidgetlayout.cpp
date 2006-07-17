@@ -64,7 +64,7 @@ static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
 #ifndef QT_NO_TEXTSTREAM
 
 static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
-void dump(QDebug debug, const QDockWidgetLayout &layout);
+static void dump(QDebug debug, const QDockWidgetLayout &layout);
 
 static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
 {
