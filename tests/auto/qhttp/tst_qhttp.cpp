@@ -457,6 +457,9 @@ void tst_QHttp::proxy_data()
     QTest::newRow("shusaku.troll.no") << QString::fromLatin1("shusaku.troll.no") << 3128
                                  << QString::fromLatin1("www.vg.no") << QString::fromLatin1("/")
                                  << QString::fromLatin1("") << QString::fromLatin1("");
+    QTest::newRow("shusaku.troll.no pct") << QString::fromLatin1("shusaku.troll.no") << 3128
+                                 << QString::fromLatin1("www.vg.no") << QString::fromLatin1("/%69ndex.html")
+                                 << QString::fromLatin1("") << QString::fromLatin1("");
 }
 
 void tst_QHttp::proxy()
