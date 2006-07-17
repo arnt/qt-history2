@@ -192,7 +192,7 @@ public:
         FixedWidth = 0x02,
         AllowPartial = 0x04
     };
-    Q_DECLARE_FLAGS(FieldInfo, FieldInfoFlag);
+    Q_DECLARE_FLAGS(FieldInfo, FieldInfoFlag)
 
     FieldInfo fieldInfo(int index) const;
 
