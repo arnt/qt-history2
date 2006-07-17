@@ -133,8 +133,8 @@ public:
     };
 
     // Utility functions
-    void HIThemeDrawColorlessButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
-                                       QPainter *p, const QStyleOption *opt) const;
+    void drawColorlessButton(const HIRect &macRect, HIThemeButtonDrawInfo *bdi,
+                             QPainter *p, const QStyleOption *opt) const;
 
     void drawPantherTab(const QStyleOptionTab *tab, QPainter *p, const QWidget *w = 0) const;
 
@@ -612,7 +612,7 @@ static int scrollButtonsCutoffSize(ScrollBarCutoffType cutoffType, QMacStyle::Wi
         return 0;
 
     const int sizeIndex = (widgetSize == QMacStyle::SizeSmall) ? 1 : 0;
-    static const int sizeTable[2][2] = {61, 56, 49, 44};
+    static const int sizeTable[2][2] = { { 61, 56 }, { 49, 44 } };
     return sizeTable[sizeIndex][cutoffType];
 }
 
@@ -1120,17 +1120,18 @@ bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
     return true;
 }
 
-void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
-                                                     const HIThemeButtonDrawInfo &bdi,
-                                                     QPainter *p, const QStyleOption *opt) const
+void QMacStylePrivate::drawColorlessButton(const HIRect &macRect, HIThemeButtonDrawInfo *bdi,
+                                           QPainter *p, const QStyleOption *opt) const
 {
     int xoff = 0,
         yoff = 0,
         extraWidth = 0,
         extraHeight = 0,
         finalyoff = 0;
-    if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-        if(combo->editable)
+
+    const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt);
+    if (combo) {
+        if (combo->editable)
             extraHeight = 3;
         else
             extraHeight = 1;
@@ -1140,49 +1141,89 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
     int width = int(macRect.size.width) + extraWidth;
     int height = int(macRect.size.height) + extraHeight;
 
-    QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi.kind) + QLatin1Char('_')
-                  + QString::number(bdi.value) + QLatin1Char('_') + QString::number(width)
+    QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi->kind) + QLatin1Char('_')
+                  + QString::number(bdi->value) + QLatin1Char('_') + QString::number(width)
                   + QLatin1Char('_') + QString::number(height);
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
-        QPixmap pix(width, height);
-        pix.fill(Qt::transparent);
+        QPixmap activePixmap(width, height);
+        activePixmap.fill(Qt::transparent);
         {
-            QMacCGContext cg(&pix);
+            QMacCGContext cg(&activePixmap);
             HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
-            HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+            HIThemeDrawButton(&newRect, bdi, cg, kHIThemeOrientationNormal, 0);
         }
-        QImage pix_img = pix.toImage();
 
-        for (int y = 0; y < height; ++y) {
-            QRgb *scanline = (QRgb*)pix_img.scanLine(y);
-            for (int x = 0; x < width; ++x) {
-                uint pixel = scanline[x];
-                int distance = qAbs(qRed(pixel) - qGreen(pixel)) +
-                               qAbs(qRed(pixel) - qBlue(pixel)) +
-                               qAbs(qGreen(pixel) - qBlue(pixel));
-                if (distance > 20) {
-                    int tmp;
-                    if (qRed(pixel) > qGreen(pixel) && qRed(pixel) > qBlue(pixel))
-                        tmp = qRed(pixel);
-                    else if (qGreen(pixel) > qRed(pixel) && qGreen(pixel) > qBlue(pixel))
-                        tmp = qGreen(pixel);
-                    else
-                        tmp = qBlue(pixel);
-                    pixel = qRgba(tmp, tmp, tmp, qAlpha(pixel));
-                    scanline[x] = pixel;
+        if (!combo && bdi->value == kThemeButtonOff) {
+            pm = activePixmap;
+        } else if (combo) {
+            QImage image = activePixmap.toImage();
+
+            for (int y = 0; y < height; ++y) {
+                QRgb *scanLine = reinterpret_cast<QRgb *>(image.scanLine(y));
+
+                for (int x = 0; x < width; ++x) {
+                    QRgb &pixel = scanLine[x];
+
+                    int darkest = qRed(pixel);
+                    int mid = qGreen(pixel);
+                    int lightest = qBlue(pixel);
+                        
+                    if (darkest > mid)
+                        qSwap(darkest, mid);
+                    if (mid > lightest)
+                        qSwap(mid, lightest);
+                    if (darkest > mid)
+                        qSwap(darkest, mid);
+
+                    int gray = (mid + 2 * lightest) / 3;
+                    pixel = qRgba(gray, gray, gray, qAlpha(pixel));
                 }
             }
-        }
+            pm = QPixmap::fromImage(image);
+        } else {
+            QImage activeImage = activePixmap.toImage();
+            QImage colorlessImage;
+            {
+                QPixmap colorlessPixmap(width, height);
+                colorlessPixmap.fill(Qt::transparent);
 
-        pm = QPixmap::fromImage(pix_img);
+                QMacCGContext cg(&colorlessPixmap);
+                HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
+                int oldValue = bdi->value;
+                bdi->value = kThemeButtonOff;
+                HIThemeDrawButton(&newRect, bdi, cg, kHIThemeOrientationNormal, 0);
+                bdi->value = oldValue;
+                colorlessImage = colorlessPixmap.toImage();
+            }
+
+            for (int y = 0; y < height; ++y) {
+                QRgb *colorlessScanLine = reinterpret_cast<QRgb *>(colorlessImage.scanLine(y));
+                const QRgb *activeScanLine = reinterpret_cast<const QRgb *>(activeImage.scanLine(y));
+
+                for (int x = 0; x < width; ++x) {
+                    QRgb &colorlessPixel = colorlessScanLine[x];
+                    QRgb activePixel = activeScanLine[x];
+
+                    if (activePixel != colorlessPixel) {
+                        int max = qMax(qMax(qRed(activePixel), qGreen(activePixel)),
+                                       qBlue(activePixel));
+                        QRgb newPixel = qRgba(max, max, max, qAlpha(activePixel));
+                        if (qGray(newPixel) < qGray(colorlessPixel)
+                                || qAlpha(newPixel) > qAlpha(colorlessPixel))
+                            colorlessPixel = newPixel;
+                    }
+                }
+            }
+            pm = QPixmap::fromImage(colorlessImage);
+        }
         QPixmapCache::insert(key, pm);
     }
     p->drawPixmap(int(macRect.origin.x), int(macRect.origin.y) + finalyoff, width, height, pm);
 }
 
 /*!
-    \class QMacStyle qmacstyle_mac.h
+    \class QMacStyle
     \brief The QMacStyle class provides a Mac OS X style using the Apple Appearance Manager.
 
     \ingroup appearance
@@ -2179,7 +2220,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     case PE_IndicatorRadioButton:
     case PE_IndicatorCheckBox: {
         bool drawColorless = (!(opt->state & State_Active))
-                                        && opt->palette.currentColorGroup() == QPalette::Active;
+                              && opt->palette.currentColorGroup() == QPalette::Active;
         HIThemeButtonDrawInfo bdi;
         bdi.version = qt_mac_hitheme_version;
         bdi.state = tds;
@@ -2226,7 +2267,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         if (!drawColorless)
             HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
         else
-            d->HIThemeDrawColorlessButton(macRect, bdi, p, opt);
+            d->drawColorlessButton(macRect, &bdi, p, opt);
         break; }
     case PE_FrameFocusRect:
         // Use the our own focus widget stuff.
@@ -3319,7 +3360,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             break;
         }
         break;
-   case SE_LineEditContents:
+    case SE_LineEditContents:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
         rect.adjust(0, +2, 0, 0);
         break;
@@ -3599,7 +3640,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             if (!drawColorless)
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             else
-                d->HIThemeDrawColorlessButton(hirect, bdi, p, opt);
+                d->drawColorlessButton(hirect, &bdi, p, opt);
         }
         break;
     case CC_TitleBar:
