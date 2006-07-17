@@ -49,7 +49,8 @@ public:
           header(0), indent(20), lastViewedItem(0), defaultItemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
-          animationsEnabled(false), columnResizeTimerID(0)  {}
+          allColumnsShowFocus(false), animationsEnabled(false),
+          columnResizeTimerID(0) {}
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -122,6 +123,7 @@ public:
     bool rootDecoration;
     bool itemsExpandable;
     bool sortingEnabled;
+    bool allColumnsShowFocus;
 
     // used for drawing
     mutable QPair<int,int> leftAndRight;

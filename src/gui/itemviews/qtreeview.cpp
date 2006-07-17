@@ -675,6 +675,32 @@ bool QTreeView::isAnimationsEnabled() const
 }
 
 /*!
+    \since 4.2
+    \property QTreeView::allColumnsShowFocus
+    \brief whether items should show keyboard focus using all columns
+
+    If this property is true all columns will show focus and selection
+    states, otherwise only one column will show focus.
+
+    The default is false.
+*/
+
+void QTreeView::setAllColumnsShowFocus(bool enable)
+{
+    Q_D(QTreeView);
+    if (d->allColumnsShowFocus == enable)
+        return;
+    d->allColumnsShowFocus = enable;
+    d->viewport->update();
+}
+
+bool QTreeView::allColumnsShowFocus() const
+{
+    Q_D(const QTreeView);
+    return d->allColumnsShowFocus;
+}
+
+/*!
   \reimp
  */
 void QTreeView::keyboardSearch(const QString &search)
@@ -1007,6 +1033,16 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const int right = d->leftAndRight.second;
     const bool alternate = d->alternatingColors;
     const bool enabled = (state & QStyle::State_Enabled) != 0;
+    const bool allColumnsShowFocus = d->allColumnsShowFocus;
+
+    bool currentRowHasFocus = false;
+    if (allColumnsShowFocus) { // check if the focus index is before or after the visible columns
+        const int r = index.row();
+        for (int c = 0; c < left && !currentRowHasFocus; ++c)
+            currentRowHasFocus = (index.sibling(r, c) == current);
+        for (int c = right; c < header->count() && !currentRowHasFocus; ++c)
+            currentRowHasFocus = (index.sibling(r, c) == current);
+    }
 
     // ### special case: treeviews with multiple columns draw
     // the selections differently than with only one column
@@ -1033,10 +1069,14 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             continue;
         }
 
-        if (selectionModel()->isSelected(modelIndex))
+        if (d->selectionModel->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
-        if (focus && current == modelIndex)
-            opt.state |= QStyle::State_HasFocus;
+        if (focus && current == modelIndex) {
+            if (allColumnsShowFocus)
+                currentRowHasFocus = true;
+            else
+                opt.state |= QStyle::State_HasFocus;
+        }
         if (modelIndex == hover)
             opt.state |= QStyle::State_MouseOver;
         else
@@ -1066,7 +1106,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
 
         if (headerSection == 0) {
-            int i = d->indentationForItem(d->current);
+            const int i = d->indentationForItem(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             painter->fillRect(opt.rect, fill);
             QRect branches(reverse ? position + width - i : position, y, i, height);
@@ -1085,6 +1125,20 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             painter->fillRect(opt.rect, fill);
         }
         itemDelegate()->paint(painter, opt, modelIndex);
+    }
+    
+    if (currentRowHasFocus) {
+        const int x = (option.showDecorationSelected ? 0 : d->indentationForItem(d->current));
+        const int width = header->length() - x;
+        QStyleOptionFocusRect o;
+        o.QStyleOption::operator=(option);
+        o.rect.setRect(x - header->offset(), y, width, height);
+        o.state |= QStyle::State_KeyboardFocusChange;
+        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
+                                  ? QPalette::Normal : QPalette::Disabled;
+        o.backgroundColor = option.palette.color(cg, d->selectionModel->isSelected(index)
+                                                 ? QPalette::Highlight : QPalette::Background);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
     }
 }
 

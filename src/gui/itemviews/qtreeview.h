@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool itemsExpandable READ itemsExpandable WRITE setItemsExpandable)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(bool animationsEnabled READ isAnimationsEnabled WRITE setAnimationsEnabled)
+    Q_PROPERTY(bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus)
 
 public:
     explicit QTreeView(QWidget *parent = 0);
@@ -77,6 +78,9 @@ public:
 
     void setAnimationsEnabled(bool enable);
     bool isAnimationsEnabled() const;
+
+    void setAllColumnsShowFocus(bool enable);
+    bool allColumnsShowFocus() const;
 
     void keyboardSearch(const QString &search);
 
