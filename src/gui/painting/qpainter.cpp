@@ -2722,7 +2722,7 @@ void QPainter::setPen(const QPen &pen)
 
     // Do some checks to see if we are the same pen.
     Qt::PenStyle currentStyle = d->state->pen.style();
-    if (currentStyle == pen.style()) {
+    if (currentStyle == pen.style() && currentStyle != Qt::CustomDashLine) {
         if (currentStyle == Qt::NoPen ||
             (d->state->pen.isSolid() && pen.isSolid()
              && d->state->pen.color() == pen.color()
