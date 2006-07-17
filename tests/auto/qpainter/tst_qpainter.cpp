@@ -616,9 +616,9 @@ void tst_QPainter::drawPixmap_QRect_data()
 	QPixmap src;
 	QPixmap dst;
 	QPixmap res;
-	QVERIFY( src.load( "drawPixmap_QRect/task25257/src.png" ) );
-	QVERIFY( dst.load( "drawPixmap_QRect/task25257/dst.png" ) );
-	QVERIFY( res.load( "drawPixmap_QRect/task25257/res.png" ) );
+	src.load( "drawPixmap_QRect/task25257/src.png" );
+	dst.load( "drawPixmap_QRect/task25257/dst.png" );
+	res.load( "drawPixmap_QRect/task25257/res.png" );
 
 	QTest::newRow( "Task 25257" ) << src << dst << QRect(4, 8, 20, 20) << res;
     }
@@ -633,6 +633,10 @@ void tst_QPainter::drawPixmap_QRect()
     QFETCH( QRect, rect );
     QFETCH( QPixmap, res );
 
+    QVERIFY(src.isNull() == false);
+    QVERIFY(dst.isNull() == false);
+    QVERIFY(res.isNull() == false);
+    
     QPainter p( &dst );
     p.drawPixmap( rect, src );
     p.end();
