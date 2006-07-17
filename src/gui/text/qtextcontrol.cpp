@@ -487,7 +487,8 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
         differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
         emit q->updateRequest(selectionRect(differenceSelection));
     } else {
-        emit q->updateRequest(selectionRect(oldSelection));
+        if (!oldSelection.isNull())
+            emit q->updateRequest(selectionRect(oldSelection));
         emit q->updateRequest(selectionRect());
     }
 }
