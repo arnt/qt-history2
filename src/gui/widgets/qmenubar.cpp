@@ -1501,8 +1501,10 @@ void QMenuBarPrivate::_q_updateLayout()
 {
     Q_Q(QMenuBar);
     itemsDirty = true;
-    updateGeometries();
-    q->update();
+    if (q->isVisible()) {
+        updateGeometries();
+        q->update();
+    }
 }
 
 /*!
