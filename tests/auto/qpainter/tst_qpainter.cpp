@@ -53,8 +53,6 @@ private slots:
     void qt_format_text_boundingRect();
     void drawPixmap_comp_data();
     void drawPixmap_comp();
-    void drawPixmap_QRect_data();
-    void drawPixmap_QRect();
     void saveAndRestore_data();
     void saveAndRestore();
 
@@ -604,47 +602,6 @@ void tst_QPainter::drawPixmap_comp()
 
     QVERIFY(!different);
 }
-
-void tst_QPainter::drawPixmap_QRect_data()
-{
-    QTest::addColumn<QPixmap>("src");
-    QTest::addColumn<QPixmap>("dst");
-    QTest::addColumn<QRect>("rect");
-    QTest::addColumn<QPixmap>("res");
-
-    {
-	QPixmap src;
-	QPixmap dst;
-	QPixmap res;
-	src.load( "drawPixmap_QRect/task25257/src.png" );
-	dst.load( "drawPixmap_QRect/task25257/dst.png" );
-	res.load( "drawPixmap_QRect/task25257/res.png" );
-
-	QTest::newRow( "Task 25257" ) << src << dst << QRect(4, 8, 20, 20) << res;
-    }
-}
-
-/* Tests QPainter::drawPixmap( const QRect&, const QPixmap& )
-*/
-void tst_QPainter::drawPixmap_QRect()
-{
-    QFETCH( QPixmap, src );
-    QFETCH( QPixmap, dst );
-    QFETCH( QRect, rect );
-    QFETCH( QPixmap, res );
-
-    QVERIFY(src.isNull() == false);
-    QVERIFY(dst.isNull() == false);
-    QVERIFY(res.isNull() == false);
-    
-    QPainter p( &dst );
-    p.drawPixmap( rect, src );
-    p.end();
-
-//     QVERIFY( pixmapsAreEqual( &dst, &res ) );
-    QSKIP( "Needs fixing...", SkipAll);
-}
-
 
 void tst_QPainter::saveAndRestore_data()
 {
