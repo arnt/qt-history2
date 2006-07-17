@@ -39,7 +39,7 @@ public:
         QBitArray = 13, QDate = 14, QTime = 15, QDateTime = 16, QUrl = 17,
         QLocale = 18, QRect = 19, QRectF = 20, QSize = 21, QSizeF = 22,
         QLine = 23, QLineF = 24, QPoint = 25, QPointF = 26, QRegExp = 27,
-        LastCoreType = QRegExp,
+        LastCoreType = 27,
 
         FirstGuiType = 63,
 #ifdef QT3_SUPPORT
@@ -49,12 +49,12 @@ public:
         QIcon = 69, QImage = 70, QPolygon = 71, QRegion = 72, QBitmap = 73,
         QCursor = 74, QSizePolicy = 75, QKeySequence = 76, QPen = 77,
         QTextLength = 78, QTextFormat = 79, QMatrix = 80,
-        LastGuiType = QMatrix,
+        LastGuiType = 80, 
 
         FirstCoreExtType = 128 /* VoidStar */,
         VoidStar = 128, Long = 129, Short = 130, Char = 131, ULong = 132,
         UShort = 133, UChar = 134, Float = 135, QObjectStar = 136, QWidgetStar = 137,
-        LastCoreExtType = QWidgetStar,
+        LastCoreExtType = 137,
         User = 256
     };
 
