@@ -33,7 +33,7 @@ struct ushortarray {
             memcpy(points, array, sizeof(points));
     }
 
-    unsigned short points[100];    
+    unsigned short points[100];
 };
 
 Q_DECLARE_METATYPE(ushortarray)
@@ -109,10 +109,8 @@ private slots:
     void isRelative_data();
     void isRelative();
     void queryItems();
-#if QT_VERSION >= 0x040200    
     void hasQuery_data();
     void hasQuery();
-#endif
     void hasQueryItem_data();
     void hasQueryItem();
     void nameprep();
@@ -131,10 +129,8 @@ private slots:
     void tldRestrictions_data();
     void tldRestrictions();
     void emptyQueryOrFragment();
-#if QT_VERSION >= 0x040200    
     void hasFragment_data();
     void hasFragment();
-#endif
     void fromEncoded();
     void stripTrailingSlash();
     void hosts_data();
@@ -166,7 +162,6 @@ void tst_QUrl::getSetCheck()
     obj1.setPort(1234);
     QCOMPARE(1234, obj1.port());
 
-#if QT_VERSION >= 0x040200
     // static QStringList QUrl::idnWhitelist()
     // static void QUrl::setIdnWhitelist(QStringList)
     QStringList original = QUrl::idnWhitelist(); // save for later
@@ -186,7 +181,6 @@ void tst_QUrl::getSetCheck()
     // reset to the original
     QUrl::setIdnWhitelist(original);
     QCOMPARE(QUrl::idnWhitelist(), original);
-#endif
 }
 
 tst_QUrl::tst_QUrl()
@@ -207,7 +201,7 @@ void tst_QUrl::cleanup()
 }
 
 void tst_QUrl::constructing()
-{ 
+{
     QUrl url;
     QVERIFY(!url.isValid());
     QVERIFY(url.isEmpty());
@@ -405,12 +399,7 @@ void tst_QUrl::setUrl()
     {
         QUrl url("file:/usr/local/src/kde2/////kdelibs/kio");
         QVERIFY(url.isValid());
-
-#if QT_VERSION >= 0x040100
         QCOMPARE(url.toString(), QString::fromLatin1("file:///usr/local/src/kde2/////kdelibs/kio"));
-#else
-        QCOMPARE(url.toString(), QString::fromLatin1("file:/usr/local/src/kde2/////kdelibs/kio"));
-#endif
     }
 
     {
@@ -432,24 +421,15 @@ void tst_QUrl::setUrl()
         QVERIFY(url.isValid());
 
         QUrl url2("../../////kdebase/konqueror");
-#if QT_VERSION >= 0x040100
         QCOMPARE(url.resolved(url2).toString(),
                 QString::fromLatin1("file:///usr/local/src/kde2/////kdebase/konqueror"));
-#else
-        QCOMPARE(url.resolved(url2).toString(),
-                QString::fromLatin1("file:/usr/local/src/kde2/////kdebase/konqueror"));
-#endif
     }
 
     {
         QString u1 = "file:/home/dfaure/my#myref";
         QUrl url = u1;
         QVERIFY(url.isValid());
-#if QT_VERSION >= 0x040100
         QCOMPARE(url.toString(), QString::fromLatin1("file:///home/dfaure/my#myref"));
-#else
-        QCOMPARE(url.toString(), QString::fromLatin1("file:/home/dfaure/my#myref"));
-#endif
         QCOMPARE(url.fragment(), QString::fromLatin1("myref"));
     }
 
@@ -458,11 +438,7 @@ void tst_QUrl::setUrl()
         QUrl url = u1;
         QVERIFY(url.isValid());
 
-#if QT_VERSION >= 0x040100
         QCOMPARE(url.toString(), QString::fromLatin1("file:///home/dfaure/my#myref"));
-#else
-        QCOMPARE(url.toString(), QString::fromLatin1("file:/home/dfaure/my#myref"));
-#endif
         QCOMPARE(url.fragment(), QString::fromLatin1("myref"));
     }
 
@@ -529,11 +505,7 @@ void tst_QUrl::setUrl()
     {
         QUrl url("file:/home/dfaure/my%20tar%20file.tgz#gzip:/#tar:/README");
         QVERIFY(url.isValid());
-#if QT_VERSION >= 0x040100
         QCOMPARE(url.toString(), QString::fromLatin1("file:///home/dfaure/my tar file.tgz#gzip:/#tar:/README"));
-#else
-        QCOMPARE(url.toString(), QString::fromLatin1("file:/home/dfaure/my%20tar%20file.tgz#gzip:/#tar:/README"));
-#endif
     }
 
     {
@@ -545,12 +517,8 @@ void tst_QUrl::setUrl()
         QUrl notPretty2;
         notPretty2.setEncodedUrl("file:/home/test/directory%20with%20spaces");
         QVERIFY(notPretty2.isValid());
-#if QT_VERSION >= 0x040100
         QCOMPARE(notPretty2.toString(), QString::fromLatin1("file:///home/test/directory with spaces"));
-#else
-        QCOMPARE(notPretty2.toString(), QString::fromLatin1("file:/home/test/directory with spaces"));
-#endif
-        
+
         QUrl notPretty3("fish://foo/%23README%23");
         QVERIFY(notPretty3.isValid());
         QCOMPARE(notPretty3.toString(), QString::fromLatin1("fish://foo/%23README%23"));
@@ -586,11 +554,7 @@ void tst_QUrl::setUrl()
 
         udir = QUrl::fromLocalFile("/home/dfaure/file.txt");
         QCOMPARE(udir.path(), QString::fromLatin1("/home/dfaure/file.txt"));
-#if QT_VERSION >= 0x040100
         QCOMPARE(udir.toEncoded(), QByteArray("file:///home/dfaure/file.txt"));
-#else
-        QCOMPARE(udir.toEncoded(), QByteArray("file:/home/dfaure/file.txt"));
-#endif
     }
 
     {
@@ -605,7 +569,6 @@ void tst_QUrl::setUrl()
         QCOMPARE(url.host().toLower(), bigStr.toLower());
     }
 
-#if QT_VERSION >= 0x040101
     {
         QUrl url;
         url.setUrl("hello.com#?");
@@ -614,7 +577,6 @@ void tst_QUrl::setUrl()
         QVERIFY(!url.toString().contains(QLatin1Char('#')));
         QVERIFY(!url.toString().contains(QLatin1Char('?')));
     }
-#endif
 
 /*
     ### File / directory specifics
@@ -1340,8 +1302,7 @@ void tst_QUrl::setUrl()
 void tst_QUrl::i18n_data()
 {
     QTest::addColumn<QString>("input");
-    QTest::addColumn<QByteArray>("punyOutput");
-    
+    QTest::addColumn<QByteArray>("punyOutput"); 
 
     QTest::newRow("øl") << QString::fromLatin1("http://ole:passord@www.øl.no/index.html?ole=æsemann&ilder gud=hei#top")
                      <<          QByteArray("http://ole:passord@www.xn--l-4ga.no/index.html?ole=%C3%A6semann&ilder%20gud=hei#top");
@@ -1366,9 +1327,7 @@ void tst_QUrl::i18n()
 
     QCOMPARE(url.toEncoded().constData(), punyOutput.constData());
     QCOMPARE(QUrl::fromEncoded(punyOutput), url);
-#if QT_VERSION >= 0x040100
     QCOMPARE(QUrl::fromEncoded(punyOutput).toString(), input);
-#endif
 }
 
 
@@ -1618,13 +1577,8 @@ void tst_QUrl::toString_constructed_data()
     QTest::newRow("data1") << n << n << n << QString::fromLatin1("www.trolltech.com") << -1 << QString::fromLatin1("index.html")
 	                << QByteArray() << n << QString::fromLatin1("//www.trolltech.com/index.html")
 			<< QByteArray("//www.trolltech.com/index.html");
-#if QT_VERSION >= 0x040100
     QTest::newRow("data2") << QString::fromLatin1("file") << n << n << n << -1 << QString::fromLatin1("/root") << QByteArray()
                         << n << QString::fromLatin1("file:///root") << QByteArray("file:///root");
-#else
-    QTest::newRow("data2") << QString::fromLatin1("file") << n << n << n << -1 << QString::fromLatin1("/root") << QByteArray()
-                        << n << QString::fromLatin1("file:/root") << QByteArray("file:/root");
-#endif
 }
 
 void tst_QUrl::toString_constructed()
@@ -1704,17 +1658,10 @@ void tst_QUrl::fromLocalFile_data()
     QTest::addColumn<QString>("theUrl");
     QTest::addColumn<QString>("thePath");
 
-#if QT_VERSION >= 0x040100
     QTest::newRow("data0")	<< QString::fromLatin1("/a.txt") << QString::fromLatin1("file:///a.txt") << QString::fromLatin1("/a.txt");
     QTest::newRow("data1")	<< QString::fromLatin1("a.txt") << QString::fromLatin1("file:///a.txt") << QString::fromLatin1("a.txt");
     QTest::newRow("data2")	<< QString::fromLatin1("/a/b.txt") << QString::fromLatin1("file:///a/b.txt") << QString::fromLatin1("/a/b.txt");
     QTest::newRow("data3")	<< QString::fromLatin1("c:/a.txt") << QString::fromLatin1("file:///c:/a.txt") << QString::fromLatin1("/c:/a.txt");
-#else
-    QTest::newRow("data0")	<< QString::fromLatin1("/a.txt") << QString::fromLatin1("file:/a.txt") << QString::fromLatin1("/a.txt");
-    QTest::newRow("data1")	<< QString::fromLatin1("a.txt") << QString::fromLatin1("file:a.txt") << QString::fromLatin1("a.txt");
-    QTest::newRow("data2")	<< QString::fromLatin1("/a/b.txt") << QString::fromLatin1("file:/a/b.txt") << QString::fromLatin1("/a/b.txt");
-    QTest::newRow("data3")	<< QString::fromLatin1("c:/a.txt") << QString::fromLatin1("file:/c:/a.txt") << QString::fromLatin1("/c:/a.txt");
-#endif
     QTest::newRow("data4")	<< QString::fromLatin1("//somehost/somedir/somefile") << QString::fromLatin1("file://somehost/somedir/somefile")
 	                << QString::fromLatin1("/somedir/somefile");
     QTest::newRow("data5")	<< QString::fromLatin1("//somehost") << QString::fromLatin1("file://somehost")
@@ -1739,11 +1686,7 @@ void tst_QUrl::compat_legacy()
 {
     {
 	QUrl u( "file:bar" );
-#if QT_VERSION >= 0x040100
 	QCOMPARE( u.toString(QUrl::RemoveScheme), QString("///bar") );
-#else
-        QCOMPARE( u.toString(QUrl::RemoveScheme), QString("bar") );
-#endif
     }
 
     /* others
@@ -1863,23 +1806,10 @@ void tst_QUrl::compat_constructor_03_data()
     QTest::newRow( "local07" )  << QString( "foo/bar/" ) << QString( "foo/bar/" );
     QTest::newRow( "local09" )  << QString( "" ) << QString( "" );
 
-#if QT_VERSION >= 0x040100
     QTest::newRow( "file00" )  << QString( "file:/foo" ) << QString( "file:///foo" );
     QTest::newRow( "file01" )  << QString( "file:/foo/" ) << QString( "file:///foo/" );
     QTest::newRow( "file02" )  << QString( "file:/foo/bar" ) << QString( "file:///foo/bar" );
     QTest::newRow( "file03" )  << QString( "file:/foo/bar/" ) << QString( "file:///foo/bar/" );
-#else
-    QTest::newRow( "file00" )  << QString( "file:/foo" ) << QString( "file:/foo" );
-    QTest::newRow( "file01" )  << QString( "file:/foo/" ) << QString( "file:/foo/" );
-    QTest::newRow( "file02" )  << QString( "file:/foo/bar" ) << QString( "file:/foo/bar" );
-    QTest::newRow( "file03" )  << QString( "file:/foo/bar/" ) << QString( "file:/foo/bar/" );
-#endif
-#if QT_VERSION < 0x040100
-    QTest::newRow( "file04" )  << QString( "file:foo" ) << QString( "file:foo" );
-    QTest::newRow( "file05" )  << QString( "file:foo/" ) << QString( "file:foo/" );
-    QTest::newRow( "file06" )  << QString( "file:foo/bar" ) << QString( "file:foo/bar" );
-    QTest::newRow( "file07" )  << QString( "file:foo/bar/" ) << QString( "file:foo/bar/" );
-#endif
     QTest::newRow( "relProtocol00" )  << QString( "foo:bar" ) << QString( "foo:bar" );
     QTest::newRow( "relProtocol01" )  << QString( "foo:/bar" ) << QString( "foo:/bar" );
 
@@ -2165,7 +2095,7 @@ void tst_QUrl::symmetry()
 
     QUrl onlyHost("//www.trolltech.com");
     QCOMPARE(onlyHost.toString(), QString::fromLatin1("//www.trolltech.com"));
-    
+
     {
         QString urlString = QString::fromLatin1("http://desktop:33326/upnp/{32f525a6-6f31-426e-91ca-01c2e6c2c57e}");
         QUrl urlPreviewList(urlString);
@@ -2173,8 +2103,8 @@ void tst_QUrl::symmetry()
         QByteArray b = urlPreviewList.toEncoded();
         QCOMPARE(b.constData(), "http://desktop:33326/upnp/%7B32f525a6-6f31-426e-91ca-01c2e6c2c57e%7D");
         QCOMPARE(QUrl::fromEncoded(b).toString(), urlString);
-        
-    }{   
+
+    }{
         QString urlString = QString::fromLatin1("http://desktop:53423/deviceDescription?uuid={7977c17b-00bf-4af9-894e-fed28573c3a9}");
         QUrl urlPreviewList(urlString);
         QCOMPARE(urlPreviewList.toString(), urlString);
@@ -2290,18 +2220,16 @@ void tst_QUrl::isRelative()
 void tst_QUrl::queryItems()
 {
     QUrl url;
-#if QT_VERSION >= 0x040200
     QVERIFY(!url.hasQuery());
-#endif
 
     QList<QPair<QString, QString> > newItems;
     newItems += qMakePair(QString("2"), QString("b"));
     newItems += qMakePair(QString("1"), QString("a"));
     newItems += qMakePair(QString("3"), QString("c"));
+    newItems += qMakePair(QString("4"), QString("a b"));
+    newItems += qMakePair(QString("foo bar"), QString("hello world"));
     url.setQueryItems(newItems);
-#if QT_VERSION >= 0x040200
     QVERIFY(url.hasQuery());
-#endif
 
     QList<QPair<QString, QString> > setItems = url.queryItems();
     QVERIFY(newItems == setItems);
@@ -2325,9 +2253,13 @@ void tst_QUrl::queryItems()
 
     url.removeAllQueryItems("1");
     QVERIFY(!url.hasQueryItem("1"));
+
+    QCOMPARE(url.queryItemValue("4").toLatin1().constData(), "a b");
+    QCOMPARE(url.queryItemValue("foo bar").toLatin1().constData(), "hello world");
+    url.setUrl("http://www.google.com/search?q=a+b");
+    QCOMPARE(url.queryItemValue("q"), QString("a b"));
 }
 
-#if QT_VERSION >= 0x040200    
 void tst_QUrl::hasQuery_data()
 {
     QTest::addColumn<QString>("url");
@@ -2356,7 +2288,6 @@ void tst_QUrl::hasQuery()
     QCOMPARE(qurl.hasQuery(), trueFalse);
     QCOMPARE(qurl.encodedQuery().isNull(), !trueFalse);
 }
-#endif
 
 void tst_QUrl::hasQueryItem_data()
 {
@@ -2381,9 +2312,7 @@ void tst_QUrl::hasQueryItem()
 
 void tst_QUrl::nameprep()
 {
-#if QT_VERSION < 0x040100
     QSKIP("QUrl doesn't support NAMEPREP in Qt 4.0", SkipAll);
-#endif
     QUrl url(QString::fromUtf8("http://www.fu""\xc3""\x9f""ball.de/"));
     QUrl url2 = QUrl::fromEncoded("http://www.xn--fuball-cta.de/");
     QCOMPARE(url2.toString(), QString::fromLatin1("http://www.fussball.de/"));
@@ -2444,10 +2373,6 @@ void tst_QUrl::schemeValidator_data()
 
 void tst_QUrl::schemeValidator()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Scheme support was added in Qt 4.1", SkipAll);
-#endif
-
     QFETCH(QByteArray, encodedUrl);
     QFETCH(bool, result);
     QFETCH(QString, toString);
@@ -2458,37 +2383,26 @@ void tst_QUrl::schemeValidator()
 
 void tst_QUrl::tolerantParser()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Tolerant parsing support was added in Qt 4.1", SkipAll);
-#endif
-
     {
         QUrl url("http://www.example.com/path%20with spaces.html");
         QVERIFY(url.isValid());
         QCOMPARE(url.path(), QString("/path with spaces.html"));
         QCOMPARE(url.toEncoded(), QByteArray("http://www.example.com/path%20with%20spaces.html"));
-
-#if QT_VERSION >= 0x040100        
         url.setUrl("http://www.example.com/path%20with spaces.html", QUrl::StrictMode);
         QVERIFY(url.isValid());
         QCOMPARE(url.toEncoded(), QByteArray("http://www.example.com/path%2520with%20spaces.html"));
-#endif
     }
     {
         QUrl url = QUrl::fromEncoded("http://www.example.com/path%20with spaces.html");
         QVERIFY(url.isValid());
         QCOMPARE(url.path(), QString("/path with spaces.html"));
-
-#if QT_VERSION >= 0x040100        
         url.setEncodedUrl("http://www.example.com/path%20with spaces.html", QUrl::StrictMode);
         QVERIFY(!url.isValid());
-#endif        
     }
 
     QUrl url15581("http://alain.knaff.linux.lu/bug-reports/kde/percentage%in%url.htm>");
     QVERIFY(url15581.isValid());
 
-#if QT_VERSION >= 0x040101
     {
         QUrl url;
         url.setUrl("http://foo.bar/[image][1].jpg");
@@ -2535,7 +2449,6 @@ void tst_QUrl::tolerantParser()
         url.setEncodedUrl("//[::56:56:56:56:56:56:56]?[]");
         QCOMPARE(url.toEncoded(), QByteArray("//[::56:56:56:56:56:56:56]?%5B%5D"));
     }
-#endif
 }
 
 void tst_QUrl::correctEncodedMistakes_data()
@@ -2557,10 +2470,6 @@ void tst_QUrl::correctEncodedMistakes_data()
 
 void tst_QUrl::correctEncodedMistakes()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Autocorrecting mistakes was added in Qt 4.1", SkipAll);
-#endif
-
     QFETCH(QByteArray, encodedUrl);
     QFETCH(bool, result);
     QFETCH(QString, toString);
@@ -2569,8 +2478,8 @@ void tst_QUrl::correctEncodedMistakes()
     QUrl url = QUrl::fromEncoded(encodedUrl);
     QCOMPARE(url.isValid(), result);
     if (url.isValid()) {
-        QCOMPARE(url.toString(), toString);        
-        QCOMPARE(url.toEncoded(), toEncoded);        
+        QCOMPARE(url.toString(), toString);
+        QCOMPARE(url.toEncoded(), toEncoded);
     }
 }
 
@@ -2593,10 +2502,6 @@ void tst_QUrl::correctDecodedMistakes_data()
 
 void tst_QUrl::correctDecodedMistakes()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("Autocorrecting mistakes was added in Qt 4.1", SkipAll);
-#endif
-
     QFETCH(QString, decodedUrl);
     QFETCH(bool, result);
     QFETCH(QString, toString);
@@ -2605,8 +2510,8 @@ void tst_QUrl::correctDecodedMistakes()
     QUrl url(decodedUrl);
     QCOMPARE(url.isValid(), result);
     if (url.isValid()) {
-        QCOMPARE(url.toString(), toString);        
-        QCOMPARE(url.toEncoded(), toEncoded);        
+        QCOMPARE(url.toString(), toString);
+        QCOMPARE(url.toEncoded(), toEncoded);
     }
 }
 
@@ -2759,7 +2664,7 @@ void tst_QUrl::idna_testsuite()
     QFETCH(int, numchars);
     QFETCH(ushortarray, unicode);
     QFETCH(QByteArray, punycode);
-    
+
     QString s = QString::fromUtf16(unicode.points, numchars);
     QCOMPARE(punycode, QUrl::toPunycode(s));
 }
@@ -3068,9 +2973,6 @@ void tst_QUrl::tldRestrictions_data()
 
 void tst_QUrl::tldRestrictions()
 {
-#if QT_VERSION < 0x040200
-    QSKIP("New feature in Qt 4.2.0", SkipAll);
-#else
     QFETCH(QString, tld);
 
     // www.brød.tld
@@ -3079,7 +2981,6 @@ void tst_QUrl::tldRestrictions()
     QString encoded = QUrl::fromAce(ascii);
     QTEST(!encoded.contains(".xn--"), "encode");
     QTEST(encoded == unicode, "encode");
-#endif
 }
 
 void tst_QUrl::emptyQueryOrFragment()
@@ -3091,7 +2992,6 @@ void tst_QUrl::emptyQueryOrFragment()
     QCOMPARE(qurl.toEncoded().constData(), "http://www.kde.org/cgi/test.cgi#");
     QCOMPARE(qurl.toString(), QString("http://www.kde.org/cgi/test.cgi#"));
 
-#if QT_VERSION >= 0x040200
     {
         // start with an empty one
         QUrl url("http://www.foo.bar/baz");
@@ -3143,10 +3043,8 @@ void tst_QUrl::emptyQueryOrFragment()
         QVERIFY(!url.encodedQuery().isNull());
         QCOMPARE(url.toString(), QString(QLatin1String("http://www.foo.bar/baz?")));
     }
-#endif    
 }
 
-#if QT_VERSION >= 0x040200    
 void tst_QUrl::hasFragment_data()
 {
     QTest::addColumn<QString>("url");
@@ -3173,7 +3071,6 @@ void tst_QUrl::hasFragment()
     QCOMPARE(qurl.hasFragment(), trueFalse);
     QCOMPARE(qurl.fragment().isNull(), !trueFalse);
 }
-#endif
 
 void tst_QUrl::fromEncoded()
 {
@@ -3267,7 +3164,6 @@ void tst_QUrl::hosts()
 
 void tst_QUrl::setPort()
 {
-#if QT_VERSION >= 0x040102
     {
         QUrl url;
         QVERIFY(url.toString().isEmpty());
@@ -3278,15 +3174,10 @@ void tst_QUrl::setPort()
         QCOMPARE(url.port(), -1);
         QVERIFY(url.toString().isEmpty());
         url.setPort(80);
-#if QT_VERSION < 0x040200
-        QTest::ignoreMessage(QtWarningMsg, "QUrl::setPort() called with out of range port");
-#else
         QTest::ignoreMessage(QtWarningMsg, "QUrl::setPort: Out of range");
-#endif
         url.setPort(65536);
         QCOMPARE(url.port(), -1);
     }
-#endif
 }
 
 void tst_QUrl::toEncoded_data()
