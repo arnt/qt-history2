@@ -110,7 +110,9 @@ struct RCCFileInfo
     };
 
     inline RCCFileInfo(QString name = QString(), QFileInfo fileInfo = QFileInfo(),
-                       QLocale locale = QLocale(), uint flags = NoFlags,
+                       QLocale::Language language = QLocale::C, 
+                       QLocale::Country country = QLocale::AnyCountry,
+                       uint flags = NoFlags,
                        int compressLevel = CONSTANT_COMPRESSLEVEL_DEFAULT, int compressThreshold = CONSTANT_COMPRESSTHRESHOLD_DEFAULT);
     ~RCCFileInfo() { qDeleteAll(children); }
     inline QString resourceName() {
@@ -122,7 +124,8 @@ struct RCCFileInfo
 
     int flags;
     QString name;
-    QLocale locale;
+    QLocale::Language language;
+    QLocale::Country country;
     QFileInfo fileInfo;
     RCCFileInfo *parent;
     QHash<QString, RCCFileInfo*> children;
@@ -135,12 +138,13 @@ struct RCCFileInfo
     bool   writeDataInfo(FILE *out, RCCResourceLibrary::Format format);
 };
 
-inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale, uint flags,
+inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale::Language language, QLocale::Country country, uint flags,
                                 int compressLevel, int compressThreshold)
 {
     this->name = name;
     this->fileInfo = fileInfo;
-    this->locale = locale;
+    this->language = language;
+    this->country = country;
     this->flags = flags;
     this->parent = 0;
     this->nameOffset = this->dataOffset = this->childOffset = 0;
