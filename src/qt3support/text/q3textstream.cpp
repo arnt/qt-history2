@@ -2148,7 +2148,8 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 */
 
 /*!
-    \overload int Q3TextStream::fill( int f )
+    \fn int Q3TextStream::fill( int f )
+    \overload
 
     Sets the fill character to \a f. Returns the previous fill character.
 */
