@@ -1044,9 +1044,7 @@ QPaintDevice *QPainter::device() const
 bool QPainter::isActive() const
 {
     Q_D(const QPainter);
-    if (d->engine)
-        return true;
-    return false;
+    return d->engine;
 }
 
 /*!
@@ -1301,6 +1299,7 @@ bool QPainter::begin(QPaintDevice *pd)
     bool begun = d->engine->begin(pd);
     if (!begun) {
         qWarning("QPainter::begin(): Returned false");
+        end();
         return false;
     } else {
         d->engine->setActive(begun);
@@ -1368,13 +1367,17 @@ bool QPainter::end()
                  d->states.size());
     }
 
-    bool ended = d->engine->end();
-    d->updateState(0);
+    bool ended = true;
 
-    --d->device->painters;
-    if (d->device->painters == 0) {
-        d->engine->setPaintDevice(0);
-        d->engine->setActive(false);
+    if (d->engine->isActive()) {
+        ended = d->engine->end();
+        d->updateState(0);
+
+        --d->device->painters;
+        if (d->device->painters == 0) {
+            d->engine->setPaintDevice(0);
+            d->engine->setActive(false);
+        }
     }
 
     if (d->engine->autoDestruct()) {
@@ -5055,6 +5058,8 @@ void QPainter::eraseRect(const QRectF &r)
 */
 void QPainter::fillRect(const QRectF &r, const QBrush &brush)
 {
+    if (!isActive())
+        return;
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;
     if (swap)
@@ -5069,6 +5074,8 @@ void QPainter::fillRect(const QRectF &r, const QBrush &brush)
 
 void QPainter::fillRect(const QRect &r, const QBrush &brush)
 {
+    if (!isActive())
+        return;
     QPen oldPen   = pen();
     bool swap = oldPen.style() != Qt::NoPen;
     if (swap)
