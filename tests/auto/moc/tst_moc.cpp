@@ -122,11 +122,23 @@ public slots:
     { }
 };
 
+struct ForwardDeclaredStruct;
+
 struct StructQObject : public QObject
 {
     Q_OBJECT
 public:
+    void foo(struct ForwardDeclaredStruct *);
 };
+
+void StructQObject::foo(struct ForwardDeclaredStruct *)
+{
+    struct Inner {
+        bool field;
+    };
+
+    struct Inner unusedVariable;
+}
 
 class TestClass : public MyNamespace::TestSuperClass, public DONT_CONFUSE_MOC(MyStruct),
                   public DONT_CONFUSE_MOC_EVEN_MORE(MyStruct2, dummy, ignored)

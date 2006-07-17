@@ -103,12 +103,13 @@ bool Moc::parseClassHead(ClassDef *def)
             }
         } while (test(COMMA));
     }
-    next(LBRACE);
+    if (!test(LBRACE))
+        return false;
     def->begin = index - 1;
-    until(RBRACE);
-    def->end = index ;
+    bool foundRBrace = until(RBRACE);
+    def->end = index;
     index = def->begin + 1;
-    return true;
+    return foundRBrace;
 }
 
 Type Moc::parseType()
