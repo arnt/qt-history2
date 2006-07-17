@@ -4153,11 +4153,14 @@ QList<QPair<QString, QString> > QUrl::queryItems() const
         for (int i = 0; i < items.count(); ++i) {
             QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
             if (keyValuePair.size() == 1) {
-                itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
+                itemMap += qMakePair(QString(QUrl::fromPercentEncoding(
+                                     keyValuePair.at(0))).replace('+', ' '),
                                      QString());
             } else if (keyValuePair.size() == 2) {
-                itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
-                                     QUrl::fromPercentEncoding(keyValuePair.at(1)));
+                itemMap += qMakePair(QString(QUrl::fromPercentEncoding(
+                                     keyValuePair.at(0))).replace('+', ' '),
+                                     QString(QUrl::fromPercentEncoding(
+                                     keyValuePair.at(1))).replace('+', ' '));
             }
         }
     }
