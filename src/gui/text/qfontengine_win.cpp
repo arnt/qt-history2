@@ -57,8 +57,8 @@ inline static void wa_copy_logfont(LOGFONTW *lfw, LOGFONTA *lfa)
     lfa->lfClipPrecision = lfw->lfClipPrecision;
     lfa->lfQuality = lfw->lfQuality;
     lfa->lfPitchAndFamily = lfw->lfPitchAndFamily;
-   
-    QString fam = QString::fromUtf16(lfw->lfFaceName);
+
+    QString fam = QString::fromUtf16((const ushort*)lfw->lfFaceName);
     memcpy(lfa->lfFaceName, fam.toLocal8Bit().constData(), fam.length() + 1);
 }
 
@@ -872,7 +872,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
     LOGFONT lf = logfont;
     lf.lfHeight = unitsPerEm;
     HFONT hf;
-    QT_WA({        
+    QT_WA({
         hf = CreateFontIndirectW(&lf);
     }, {
         LOGFONTA lfa;
@@ -908,7 +908,7 @@ void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_m
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;
     lf.lfWidth = 0;
-    HFONT hf; 
+    HFONT hf;
     QT_WA({
         hf = CreateFontIndirectW(&lf);
     }, {
