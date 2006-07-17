@@ -1,7 +1,11 @@
 TEMPLATE        = lib
 QT += network
 TARGET                = QtAssistantClient
-VERSION                = 1.0
+isEmpty(QT_MAJOR_VERSION) {
+   VERSION=4.3.0
+} else {
+   VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
+}
 
 CONFIG                += qt warn_on
 CONFIG                += debug_and_release
