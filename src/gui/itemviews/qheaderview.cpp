@@ -1946,11 +1946,14 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                     Qt::TextColorRole);
     if (textColor.isValid() && qvariant_cast<QColor>(textColor).isValid())
         opt.palette.setColor(QPalette::ButtonText, qvariant_cast<QColor>(textColor));
+
+    QPointF oldBO = painter->brushOrigin();
     QVariant backgroundBrush = d->model->headerData(logicalIndex, orientation(),
                                                     Qt::BackgroundRole);
     if (qVariantCanConvert<QBrush>(backgroundBrush)) {
         opt.palette.setBrush(QPalette::Button, qvariant_cast<QBrush>(backgroundBrush));
         opt.palette.setBrush(QPalette::Window, qvariant_cast<QBrush>(backgroundBrush));
+        painter->setBrushOrigin(opt.rect.topLeft());
     }
 
     // the section position
@@ -1978,6 +1981,8 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         opt.selectedPosition = QStyleOptionHeader::NotAdjacent;
     // draw the section
     style()->drawControl(QStyle::CE_Header, &opt, painter, this);
+
+    painter->setBrushOrigin(oldBO);
 }
 
 /*!

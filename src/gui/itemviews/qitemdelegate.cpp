@@ -626,8 +626,12 @@ void QItemDelegate::drawBackground(QPainter *painter,
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
         QVariant value = index.data(Qt::BackgroundRole);
-        if (qVariantCanConvert<QBrush>(value))
+        if (qVariantCanConvert<QBrush>(value)) {
+            QPointF oldBO = painter->brushOrigin();
+            painter->setBrushOrigin(option.rect.topLeft());
             painter->fillRect(option.rect, qvariant_cast<QBrush>(value));
+            painter->setBrushOrigin(oldBO);
+        }
     }
 }
 
