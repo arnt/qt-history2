@@ -48,7 +48,7 @@ public:
     int findNode(const QString &path) const;
     inline bool isContainer(int node) const { return flags(node) & Directory; }
     inline bool isCompressed(int node) const { return flags(node) & Compressed; }
-    inline virtual bool isDynamicRoot() const { return false; }
+    virtual QString mappingRoot() const { return QString(); }
 
     const uchar *data(int node, qint64 *size) const;
     QStringList children(int node) const;
@@ -261,8 +261,7 @@ public:
         return false;
     }
 
-    const QString & mappingRoot() const { return resourceRoot; }
-    inline virtual bool isDynamicRoot() const { return true; }
+    virtual QString mappingRoot() const { return resourceRoot; }
 };
 
 bool
@@ -275,23 +274,13 @@ QResourcePrivate::load(const QString &file)
 
         int node = -1;
 
-        if(res->isDynamicRoot()) {
-            const QString & dresRoot = 
-                static_cast<QDynamicResourceRoot *>(res)->mappingRoot();
-            
-            // We will use this dynamic resource if file starts with dresRoot
-            // followed by a "/" or if dresRoot is an empty string (root rooted)
-            if(dresRoot.isEmpty() || 
-               (file.length() > dresRoot.length() + 1 && 
-                file.startsWith(dresRoot) && 
-                QChar('/') == file.at(dresRoot.length()))) {
-
-                // Non-root rooted dynamic mapping
-                node = res->findNode(file.mid(dresRoot.length()));
-            } 
-
-        } else {
-            node = res->findNode(file); // Normal mapping - root rooted
+        QString root = res->mappingRoot();
+        if(root.isEmpty()) {
+            node == res->findNode(file);
+        } else if(file.length() > root.length() + 1 && 
+                  file.startsWith(root) && 
+                  QChar('/') == file.at(root.length())) {
+            node = res->findNode(file.mid(root.length()));
         }
 
         if(node != -1) {
