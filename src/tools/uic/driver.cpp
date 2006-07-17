@@ -97,7 +97,7 @@ QString Driver::normalizedName(const QString &name)
     QString result = name;
     result.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
     return result;
-};
+}
 
 QString Driver::unique(const QString &instanceName, const QString &className)
 {
@@ -195,7 +195,14 @@ bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
     m_output = out != 0 ? out : &m_stdout;
 
     Uic tool(this);
-    bool rtn = tool.write(ui);
+    bool rtn = false;
+#ifdef QT_UIC_CPP_GENERATOR
+    rtn = tool.write(ui);
+#else
+    Q_UNUSED(ui);
+    fprintf(stderr, "uic: option to generate cpp code not compiled in [%s:%d]\n",
+            __FILE__, __LINE__);
+#endif
 
     m_output = oldOutput;
 

@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "writedeclaration.h"
-#include "writeicondeclaration.h"
-#include "writeinitialization.h"
-#include "writeiconinitialization.h"
+#include "cppwritedeclaration.h"
+#include "cppwriteicondeclaration.h"
+#include "cppwriteinitialization.h"
+#include "cppwriteiconinitialization.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
@@ -22,6 +22,8 @@
 #include "customwidgetsinfo.h"
 
 #include <QTextStream>
+
+namespace CPP {
 
 WriteDeclaration::WriteDeclaration(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -176,3 +178,5 @@ void WriteDeclaration::acceptAction(DomAction *node)
 
     TreeWalker::acceptAction(node);
 }
+
+} // namespace CPP

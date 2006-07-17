@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEICONDATA_H
-#define WRITEICONDATA_H
+#ifndef CPPWRITEICONDATA_H
+#define CPPWRITEICONDATA_H
 
 #include "treewalker.h"
 
@@ -21,6 +21,8 @@ class Driver;
 class Uic;
 
 struct Option;
+
+namespace CPP {
 
 class WriteIconData : public TreeWalker
 {
@@ -37,4 +39,6 @@ private:
     const Option &option;
 };
 
-#endif // WRITEICONDATA_H
+} // namespace CPP
+
+#endif // CPPWRITEICONDATA_H

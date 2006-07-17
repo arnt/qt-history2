@@ -17,8 +17,16 @@
 #include "option.h"
 #include "treewalker.h"
 #include "validator.h"
-#include "writeincludes.h"
-#include "writedeclaration.h"
+
+#ifdef QT_UIC_CPP_GENERATOR
+#include "cppwriteincludes.h"
+#include "cppwritedeclaration.h"
+#endif
+
+#ifdef QT_UIC_JAVA_GENERATOR
+#include "javawriteincludes.h"
+#include "javawritedeclaration.h"
+#endif
 
 #include <QDomDocument>
 #include <QFileInfo>
@@ -112,6 +120,11 @@ bool Uic::write(QIODevice *in)
     if (!doc.setContent(in))
         return false;
 
+    if (option().generator == Option::JavaGenerator) {
+         // the Java generator ignores header protection
+        opt.headerProtection = false;
+    }
+
     QDomElement root = doc.firstChild().toElement();
     DomUI *ui = new DomUI();
     ui->read(root);
@@ -124,14 +137,32 @@ bool Uic::write(QIODevice *in)
         return false;
     }
 
-    bool rtn = write(ui);
+    bool rtn = false;
+
+    if (option().generator == Option::JavaGenerator) {
+#ifdef QT_UIC_JAVA_GENERATOR
+        rtn = jwrite (ui);
+#else
+        fprintf(stderr, "uic: option to generate java code not compiled in\n");
+#endif
+    } else {
+#ifdef QT_UIC_CPP_GENERATOR
+        rtn = write (ui);
+#else
+        fprintf(stderr, "uic: option to generate cpp code not compiled in\n");
+#endif
+    }
+
     delete ui;
 
     return rtn;
 }
 
+#ifdef QT_UIC_CPP_GENERATOR
 bool Uic::write(DomUI *ui)
 {
+    using namespace CPP;
+
     if (!ui || !ui->elementWidget())
         return false;
 
@@ -161,6 +192,37 @@ bool Uic::write(DomUI *ui)
 
     return true;
 }
+#endif
+
+#ifdef QT_UIC_JAVA_GENERATOR
+bool Uic::jwrite(DomUI *ui)
+{
+    using namespace Java;
+
+    if (!ui || !ui->elementWidget())
+        return false;
+
+    if (opt.copyrightHeader)
+        writeCopyrightHeader(ui);
+
+    pixFunction = ui->elementPixmapFunction();
+    if (pixFunction == QLatin1String("QPixmap::fromMimeSource"))
+        pixFunction = QLatin1String("qPixmapFromMimeSource");
+
+    externalPix = ui->elementImages() == 0;
+
+    info.acceptUI(ui);
+    cWidgetsInfo.acceptUI(ui);
+    WriteIncludes(this).acceptUI(ui);
+
+    Validator(this).acceptUI(ui);
+    WriteDeclaration(this).acceptUI(ui);
+
+    return true;
+}
+#endif
+
+#ifdef QT_UIC_CPP_GENERATOR
 
 void Uic::writeHeaderProtectionStart()
 {
@@ -174,6 +236,7 @@ void Uic::writeHeaderProtectionEnd()
     QString h = drv->headerFileName();
     out << "#endif // " << h << "\n";
 }
+#endif
 
 bool Uic::isMainWindow(const QString &className) const
 {

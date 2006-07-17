@@ -22,6 +22,7 @@ INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
 DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io ../../corelib/codecs ../../xml
 
 include(uic.pri)
+include(cpp/cpp.pri)
 
 SOURCES += main.cpp
 

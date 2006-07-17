@@ -11,14 +11,16 @@
 **
 ****************************************************************************/
 
-#include "writeiconinitialization.h"
-#include "writeicondata.h"
+#include "cppwriteiconinitialization.h"
+#include "cppwriteicondata.h"
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
 #include "uic.h"
 
 #include <QTextStream>
+
+namespace CPP {
 
 WriteIconInitialization::WriteIconInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -71,3 +73,5 @@ void WriteIconInitialization::acceptImage(DomImage *image)
         output << " { QImage img; img.loadFromData(" << imageData << ", sizeof(" << imageData << "), " << fixString(fmt, ind) << "); return QPixmap::fromImage(img); }\n";
     }
 }
+
+} // namespace CPP

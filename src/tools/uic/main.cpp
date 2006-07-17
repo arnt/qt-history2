@@ -33,6 +33,7 @@ void showHelp(const char *appName)
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
             "  -p, -no-protection        disable header protection\n"
+            "  -g <name>                 change generator\n"
             "\n", appName);
 }
 
@@ -83,6 +84,14 @@ int main(int argc, char *argv[])
                 return 1;
             }
             driver.option().translateFunction = QLatin1String(argv[arg]);
+        } else if (opt == QLatin1String("-g") || opt == QLatin1String("-generator")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            QString name = QString::fromLocal8Bit(argv[arg]).toLower ();
+            driver.option().generator = (name == QLatin1String ("java")) ? Option::JavaGenerator : Option::CppGenerator;
         } else if (!fileName) {
             fileName = argv[arg];
         } else {

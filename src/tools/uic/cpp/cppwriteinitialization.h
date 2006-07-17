@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEINITIALIZATION_H
-#define WRITEINITIALIZATION_H
+#ifndef CPPWRITEINITIALIZATION_H
+#define CPPWRITEINITIALIZATION_H
 
 #include "treewalker.h"
 #include <QPair>
@@ -24,6 +24,8 @@ class Driver;
 class Uic;
 class DomBrush;
 struct Option;
+
+namespace CPP {
 
 struct WriteInitialization : public TreeWalker
 {
@@ -159,4 +161,6 @@ private:
     QTextStream actionOut;
 };
 
-#endif // WRITEINITIALIZATION_H
+} // namespace CPP
+
+#endif // CPPWRITEINITIALIZATION_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEINCLUDES_H
-#define WRITEINCLUDES_H
+#ifndef CPPWRITEINCLUDES_H
+#define CPPWRITEINCLUDES_H
 
 #include "treewalker.h"
 #include <QMap>
@@ -23,6 +23,8 @@ class Driver;
 class Uic;
 
 struct Option;
+
+namespace CPP {
 
 struct WriteIncludes : public TreeWalker
 {
@@ -60,4 +62,6 @@ private:
     QMap<QString, QString> m_oldHeaderToNewHeader;
 };
 
-#endif // WRITEINCLUDES_H
+} // namespace CPP
+
+#endif // CPPWRITEINCLUDES_H

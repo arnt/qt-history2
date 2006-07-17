@@ -11,13 +11,15 @@
 **
 ****************************************************************************/
 
-#include "writeincludes.h"
+#include "cppwriteincludes.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
 #include "databaseinfo.h"
 
 #include <QTextStream>
+
+namespace CPP {
 
 struct ClassInfoEntry
 {
@@ -162,3 +164,5 @@ void WriteIncludes::acceptInclude(DomInclude *node)
         global = node->attributeLocation() == QLatin1String("global");
     m_includes.insert(node->text(), global);
 }
+
+} // namespace CPP

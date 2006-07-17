@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEDECLARATION_H
-#define WRITEDECLARATION_H
+#ifndef CPPWRITEDECLARATION_H
+#define CPPWRITEDECLARATION_H
 
 #include "treewalker.h"
 
@@ -21,6 +21,8 @@ class Driver;
 class Uic;
 
 struct Option;
+
+namespace CPP {
 
 struct WriteDeclaration : public TreeWalker
 {
@@ -40,4 +42,6 @@ private:
     const Option &option;
 };
 
-#endif // WRITEDECLARATION_H
+} // namespace CPP
+
+#endif // CPPWRITEDECLARATION_H

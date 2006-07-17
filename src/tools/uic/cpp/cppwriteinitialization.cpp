@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "writeinitialization.h"
+#include "cppwriteinitialization.h"
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
@@ -23,6 +23,8 @@
 #include <QtDebug>
 
 #include <limits.h>
+
+namespace CPP {
 
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
@@ -781,9 +783,9 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::SizeF: {
-             DomSizeF *sf = p->elementSizeF();
-              propertyValue = QString::fromLatin1("QSizeF(%1, %2)")
-                             .arg(sf->elementWidth()).arg(sf->elementHeight());
+            DomSizeF *sf = p->elementSizeF();
+             propertyValue = QString::fromLatin1("QSizeF(%1, %2)")
+                            .arg(sf->elementWidth()).arg(sf->elementHeight());
             break;
         }
         case DomProperty::String: {
@@ -964,11 +966,11 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
         }
 
         output << option.indent << gradientName << ".setSpread(QGradient::"
-                << gradient->attributeSpread() << ");\n";
+            << gradient->attributeSpread() << ");\n";
 
         if (gradient->hasAttributeCoordinateMode()) {
             output << option.indent << gradientName << ".setCoordinateMode(QGradient::"
-                    << gradient->attributeCoordinateMode() << ");\n";
+                << gradient->attributeCoordinateMode() << ");\n";
         }
 
         QList<DomGradientStop *> stops = gradient->elementGradientStop();
@@ -1419,7 +1421,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
     if (columns.size() != 0) {
         refreshOut << option.indent << "if (" << varName << "->columnCount() < " << columns.size() << ")\n"
-                << option.indent << option.indent << varName << "->setColumnCount(" << columns.size() << ");\n";
+            << option.indent << option.indent << varName << "->setColumnCount(" << columns.size() << ");\n";
     }
 
     for (int i = 0; i < columns.size(); ++i) {
@@ -1451,7 +1453,7 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
     if (rows.size() != 0) {
         refreshOut << option.indent << "if (" << varName << "->rowCount() < " << rows.size() << ")\n"
-                << option.indent << option.indent << varName << "->setRowCount(" << rows.size() << ");\n";
+            << option.indent << option.indent << varName << "->setRowCount(" << rows.size() << ");\n";
     }
 
     for (int i = 0; i < rows.size(); ++i) {
@@ -1692,3 +1694,5 @@ void WriteInitialization::acceptImage(DomImage *image)
 
     m_registeredImages.insert(image->attributeName(), image);
 }
+
+} // namespace CPP
