@@ -338,6 +338,7 @@ void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
 
     d->shortcut = primary;
     d->alternateShortcuts = listCopy;
+    d->redoGrab(qApp->d_func()->shortcutMap);
     d->redoGrabAlternate(qApp->d_func()->shortcutMap);
     d->sendDataChanged();
 }
