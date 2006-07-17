@@ -108,6 +108,7 @@ private slots:
     void fill();
     void truncate();
     void constructor();
+    void constructorQByteArray_data();
     void constructorQByteArray();
     void STL();
     void isEmpty();
@@ -661,34 +662,49 @@ void tst_QString::constructor()
     QVERIFY( empty.isEmpty() );
 }
 
+
+
+void tst_QString::constructorQByteArray_data()
+{
+    QTest::addColumn<QByteArray>("src" );
+    QTest::addColumn<QString>("expected" );
+
+    QByteArray ba( 4, 0 );
+    ba[0] = 'C';
+    ba[1] = 'O';
+    ba[2] = 'M';
+    ba[3] = 'P';
+
+    QTest::newRow( "1" ) << ba << QString("COMP");
+
+    QByteArray ba1( 7, 0 );
+    ba1[0] = 'a';
+    ba1[1] = 'b';
+    ba1[2] = 'c';
+    ba1[3] = '\0';
+    ba1[4] = 'd';
+    ba1[5] = 'e';
+    ba1[6] = 'f';
+
+    QTest::newRow( "2" ) << ba1 << QString("abc");
+
+    QTest::newRow( "3" ) << QByteArray::fromRawData("abcd", 3) << QString("abc");    
+}
+
 void tst_QString::constructorQByteArray()
 {
-    {
-	QByteArray ba( 4, 0 );
-	ba[0] = 'C';
-	ba[1] = 'O';
-	ba[2] = 'M';
-	ba[3] = 'P';
+    QFETCH(QByteArray, src);
+    QFETCH(QString, expected);
 
-	QString str("COMP");
-	QString strBA(ba);
+    QString str1(src);
+    QCOMPARE(str1.length(), expected.length());
+    QCOMPARE( str1, expected );
+        
+    QTextCodec::setCodecForCStrings( QTextCodec::codecForMib(4) ); // Latin 1
+    QString strBA(src);
+    QTextCodec::setCodecForCStrings( 0 );
 
-	QCOMPARE( str, strBA );
-    }
-    {
-	QByteArray ba( 4, 0 );
-	ba[0] = 'C';
-	ba[1] = 'O';
-	ba[2] = 'M';
-	ba[3] = 'P';
-
-	QString str("COMP");
-	QTextCodec::setCodecForCStrings( QTextCodec::codecForMib(4) ); // Latin 1
-	QString strBA(ba);
-	QTextCodec::setCodecForCStrings( 0 );
-
-	QCOMPARE( str, strBA );
-    }
+    QCOMPARE( strBA, expected );
 }
 
 void tst_QString::STL()
@@ -1490,10 +1506,8 @@ void tst_QString::prepend_bytearray_data()
     // byte array with only a 0
     ba.resize( 1 );
     ba[0] = 0;
-    QByteArray ba2(" foobar");
-    ba2.insert(0, '\0');
-    QTest::newRow( "emptyString" ) << QString(" foobar") << ba << QString(ba2);
-
+    QTest::newRow( "emptyString" ) << QString("foobar ") << ba << QString("foobar ");
+    
     // empty byte array
     ba.resize( 0 );
     QTest::newRow( "emptyByteArray" ) << QString(" foobar") << ba << QString(" foobar");

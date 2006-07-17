@@ -47,6 +47,8 @@ private slots:
     void base64_data();
     void base64();
     void qvsnprintf();
+    void qstrlen();
+    void qstrnlen();
     void qstrcpy();
     void qstrncpy();
     void qstricmp_data();
@@ -408,6 +410,24 @@ void tst_QByteArray::qvsnprintf()
     qMemSet(buf, 42, sizeof(buf));
     QCOMPARE(::qsnprintf(buf, 10, ""), 0);
 #endif
+}
+
+
+void tst_QByteArray::qstrlen()
+{
+    const char *src = "Something about ... \0 a string.";
+    QCOMPARE(::qstrlen((char*)0), (uint)0);
+    QCOMPARE(::qstrlen(src), (uint)20);
+}
+    
+void tst_QByteArray::qstrnlen()
+{
+    const char *src = "Something about ... \0 a string.";
+    QCOMPARE(::qstrnlen((char*)0, 1), (uint)0);
+    QCOMPARE(::qstrnlen(src, 31), (uint)20);
+    QCOMPARE(::qstrnlen(src, 19), (uint)19);
+    QCOMPARE(::qstrnlen(src, 21), (uint)20);
+    QCOMPARE(::qstrnlen(src, 20), (uint)20);
 }
 
 void tst_QByteArray::qstrcpy()
