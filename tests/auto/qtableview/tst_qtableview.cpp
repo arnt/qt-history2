@@ -35,6 +35,7 @@ public slots:
 
 private slots:
     void getSetCheck();
+    void noDelegate();
     void noModel();
     void emptyModel();
 
@@ -293,6 +294,15 @@ void tst_QTableView::init()
 
 void tst_QTableView::cleanup()
 {
+}
+
+void tst_QTableView::noDelegate()
+{
+    QtTestTableModel model(10, 10);
+    QTableView view;
+    view.setModel(&model);
+    view.setItemDelegate(0);
+    view.show();
 }
 
 void tst_QTableView::noModel()
@@ -1748,12 +1758,37 @@ void tst_QTableView::hiddenRow_data()
                                   << (BoolList() << true << false << false << false << false);
     QTest::newRow("last hidden")  << 5
                                   << (BoolList() << false << false << false << false << true);
-}
+    QTest::newRow("none hidden")  << 5
+                                  << (BoolList() << false << false << false << false << false);
+    QTest::newRow("all hidden")   << 5
+                                  << (BoolList() << true << true << true << true << true);
+ }
 
 void tst_QTableView::hiddenRow()
 {
     QFETCH(int, rowCount);
     QFETCH(BoolList, hiddenRows);
+
+    
+    QtTestTableModel model(rowCount, 1);
+    QtTestTableView view;
+
+    view.setModel(&model);
+
+    for (int r = 0; r < rowCount; ++r)
+        QVERIFY(!view.isRowHidden(r));
+
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHidden(r, hiddenRows.at(r));
+
+    for (int r = 0; r < rowCount; ++r)
+        QCOMPARE(view.isRowHidden(r), hiddenRows.at(r));
+
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHidden(r, false);
+
+    for (int r = 0; r < rowCount; ++r)
+        QVERIFY(!view.isRowHidden(r));
 }
 
 void tst_QTableView::hiddenColumn_data()
@@ -1765,20 +1800,46 @@ void tst_QTableView::hiddenColumn_data()
                                   << (BoolList() << true << false << false << false << false);
     QTest::newRow("last hidden")  << 5
                                   << (BoolList() << false << false << false << false << true);
+    QTest::newRow("none hidden")  << 5
+                                  << (BoolList() << false << false << false << false << false);
+    QTest::newRow("all hidden")   << 5
+                                  << (BoolList() << true << true << true << true << true);
 }
 
 void tst_QTableView::hiddenColumn()
 {
     QFETCH(int, columnCount);
     QFETCH(BoolList, hiddenColumns);
+
+    QtTestTableModel model(1, columnCount);
+    QtTestTableView view;
+
+    view.setModel(&model);
+
+    for (int c = 0; c < columnCount; ++c)
+        QVERIFY(!view.isColumnHidden(c));
+
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnHidden(c, hiddenColumns.at(c));
+
+    for (int c = 0; c < columnCount; ++c)
+        QCOMPARE(view.isColumnHidden(c), hiddenColumns.at(c));
+
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnHidden(c, false);
+
+    for (int c = 0; c < columnCount; ++c)
+        QVERIFY(!view.isColumnHidden(c));
 }
 
 void tst_QTableView::sortingEnabled_data()
 {
+//    QTest::addColumn<int>("columnCount");
 }
 
 void tst_QTableView::sortingEnabled()
 {
+//    QFETCH(int, columnCount);
 }
 
 void tst_QTableView::scrollTo_data()

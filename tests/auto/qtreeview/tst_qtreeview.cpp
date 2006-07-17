@@ -54,6 +54,7 @@ public slots:
     void cleanup();
 private slots:
     void getSetCheck();
+    void noDelegate();
     void noModel();
     void emptyModel();
     void removeRows();
@@ -252,6 +253,17 @@ void tst_QTreeView::init()
 
 void tst_QTreeView::cleanup()
 {
+}
+
+
+void tst_QTreeView::noDelegate()
+{
+    QtTestModel model;
+    model.rows = model.cols = 10;
+    QTreeView view;
+    view.setModel(&model);
+    view.setItemDelegate(0);
+    view.show();
 }
 
 void tst_QTreeView::noModel()

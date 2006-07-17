@@ -38,6 +38,8 @@ public slots:
     void cleanup();
 private slots:
     void getSetCheck();
+    void noDelegate();
+    void noModel();
     void emptyModel();
     void removeRows();
     void cursorMove();
@@ -186,6 +188,24 @@ void tst_QListView::init()
 
 void tst_QListView::cleanup()
 {
+}
+
+
+void tst_QListView::noDelegate()
+{
+    QtTestModel model(0);
+    model.rCount = model.colCount = 10;
+    QListView view;
+    view.setModel(&model);
+    view.setItemDelegate(0);
+    view.show();
+}
+
+void tst_QListView::noModel()
+{
+    QListView view;
+    view.show();
+    view.setRowHidden(0, true);
 }
 
 void tst_QListView::emptyModel()
