@@ -376,7 +376,7 @@ void tst_QTextLayout::defaultWordSeparators_data()
     QTest::addColumn<int>("startPos");
     QTest::addColumn<int>("endPos");
 
-    QString separators(".,:;-<>[](){}");
+    QString separators(".,:;-<>[](){}=");
     separators += QChar(QChar::Nbsp);
     separators += QLatin1String("!?");
     separators += QLatin1Char('\t');
