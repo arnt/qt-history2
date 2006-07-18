@@ -1037,8 +1037,8 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             return;
     }
     
-    switch (e->key()) {
 #ifdef QT_KEYPAD_NAVIGATION
+    switch (e->key()) {
         case Qt::Key_Select:
             if (QApplication::keypadNavigationEnabled())
                 setEditFocus(!hasEditFocus());
@@ -1051,9 +1051,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                 return;
             }
             break;
-#endif
         default:
-#ifdef QT_KEYPAD_NAVIGATION
             if (QApplication::keypadNavigationEnabled()) {
                 if (!hasEditFocus() && !(e->modifiers() & Qt::ControlModifier)) {
                     if (e->text()[0].isPrint()) {
@@ -1065,9 +1063,9 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                     }
                 }
             }
-#endif
             break;
     }
+#endif
 
     {
         QTextCursor cursor = d->control->textCursor();
