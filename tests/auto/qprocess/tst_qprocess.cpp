@@ -81,13 +81,11 @@ private slots:
     void spaceInName();
     void lockupsInStartDetached();
     void waitForReadyReadForNonexistantProcess();
-#if QT_VERSION >= 0x040200
     void setStandardInputFile();
     void setStandardOutputFile_data();
     void setStandardOutputFile();
     void setStandardOutputProcess_data();
     void setStandardOutputProcess();
-#endif
 
 protected slots:
     void readFromProcess();
@@ -1231,11 +1229,7 @@ void tst_QProcess::failToStartWithEventLoop()
 //-----------------------------------------------------------------------------
 void tst_QProcess::systemEnvironment()
 {
-#if QT_VERSION < 0x040100
-    QSKIP("QProcess::systemEnvironment() was added in 4.1.", SkipSingle);
-#else
     QVERIFY(!QProcess::systemEnvironment().isEmpty());
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1251,9 +1245,6 @@ void tst_QProcess::spaceInName()
 //-----------------------------------------------------------------------------
 void tst_QProcess::lockupsInStartDetached()
 {
-#if QT_VERSION < 0x040101
-    QSKIP("Up until Qt 4.1.1, QProcess::startDetached() locked up a lot", SkipSingle);
-#endif
     QHostInfo::lookupHost(QString("something.invalid"), 0, 0);
     QProcess::execute("yjhbrty");
     QProcess::startDetached("yjhbrty");
@@ -1289,7 +1280,6 @@ void tst_QProcess::waitForReadyReadForNonexistantProcess()
     QVERIFY(!process.waitForReadyRead()); // used to crash
 }
 
-#if QT_VERSION >= 0x040200
 //-----------------------------------------------------------------------------
 void tst_QProcess::setStandardInputFile()
 {
@@ -1434,7 +1424,6 @@ void tst_QProcess::setStandardOutputProcess()
         // shivery typing...
         QCOMPARE(all, QByteArray("HHeelllloo,,  WWoorrlldd"));
 }
-#endif  // QTVERSION >= 0x040200
 
 QTEST_MAIN(tst_QProcess)
 #include "tst_qprocess.moc"
