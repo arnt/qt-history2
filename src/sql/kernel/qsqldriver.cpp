@@ -501,11 +501,12 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
             break;
 #endif
         case QVariant::String:
+        case QVariant::Char:
         {
             QString result = field.value().toString();
             if (trimStrings) {
                 int end = result.length() - 1;
-                while (end && result[end].isSpace()) /* skip white space from end */
+                while (end && result.at(end).isSpace()) /* skip white space from end */
                     end--;
                 result.truncate(end);
             }
