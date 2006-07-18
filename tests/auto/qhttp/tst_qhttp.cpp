@@ -54,6 +54,7 @@ private slots:
     void reconnect();
     void setSocket();
     void unexpectedRemoteClose();
+    void pctEncodedPath();
 
 protected slots:
     void stateChanged( int );
@@ -912,6 +913,13 @@ void tst_QHttp::unexpectedRemoteClose()
     QVERIFY(!finishedSpy.at(3).at(1).toBool());
     QCOMPARE(doneSpy.count(), 1);
     QVERIFY(!doneSpy.at(0).at(0).toBool());
+}
+
+void tst_QHttp::pctEncodedPath()
+{
+    QHttpRequestHeader header;
+    header.setRequest("GET", "/index.asp/a=%20&b=%20&c=%20");
+    QCOMPARE(header.toString(), QString("GET /index.asp/a=%20&b=%20&c=%20 HTTP/1.1\r\n\r\n"));
 }
 
 QTEST_MAIN(tst_QHttp)
