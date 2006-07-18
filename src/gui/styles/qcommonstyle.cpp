@@ -3074,7 +3074,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 frameRect.setTop(topMargin);
                 ret = frameRect;
 
-                if (SC_GroupBoxFrame)
+                if (sc == SC_GroupBoxFrame)
                     break;
 
                 int frameWidth = 0;
