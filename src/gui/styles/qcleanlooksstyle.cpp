@@ -3777,7 +3777,7 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
         ret = Qt::TextBrowserInteraction;
         break;
     case SH_DialogButtonBox_ButtonsHaveIcons:
-        ret = 0; // Wait until we have new icons...
+        ret = true;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
