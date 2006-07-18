@@ -658,7 +658,9 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
                                   kCGRenderingIntentDefault);
         }
     } else {
-        image = CGImageRef(pm.macCGHandle());
+        CGImageRef pixmapImage = CGImageRef(pm.macCGHandle());
+        CFRetain(pixmapImage);
+        image = pixmapImage;
     }
     HIViewDrawCGImage(d->hd, &rect, image);
     if (doRestore)
