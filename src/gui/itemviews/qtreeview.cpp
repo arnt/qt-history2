@@ -1729,13 +1729,14 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     if (d->viewItems.isEmpty())
         return;
 
-    setState(CollapsingState);
-
     if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
         return;
     }
+
+    d->executePostedLayout();
+    setState(CollapsingState);
 
     // collapse the parent
     bool expanded = isExpanded(parent);
