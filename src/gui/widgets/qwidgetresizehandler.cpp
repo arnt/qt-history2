@@ -142,7 +142,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     case QEvent::MouseMove: {
         if (w->isMaximized())
             break;
-        buttonDown &= (e->modifiers() & Qt::LeftButton); // safety, state machine broken!
+        buttonDown = buttonDown & (e->modifiers() & Qt::LeftButton); // safety, state machine broken!
         bool me = movingEnabled;
         movingEnabled = (me && o == widget && buttonDown);
         mouseMoveEvent(e);
