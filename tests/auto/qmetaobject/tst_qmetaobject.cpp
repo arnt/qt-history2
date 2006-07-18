@@ -48,6 +48,8 @@ private slots:
     void qtMetaObjectInheritance();
     void normalizedSignature_data();
     void normalizedSignature();
+    void normalizedType_data();
+    void normalizedType();
 
     void stdSet();
 };
@@ -460,6 +462,15 @@ void tst_QMetaObject::normalizedSignature_data()
     QTest::newRow("const rettype") << "const QString *foo()" << "const QString*foo()";
     QTest::newRow("const ref") << "const QString &foo()" << "const QString&foo()";
     QTest::newRow("reference") << "QString &foo()" << "QString&foo()";
+    QTest::newRow("const2") << "void foo(QString const *)" << "void foo(const QString*)";
+    QTest::newRow("const2") << "void foo(QString * const)" << "void foo(QString*const)";
+    QTest::newRow("const3") << "void foo(QString const &)" << "void foo(QString)";
+    QTest::newRow("const4") << "void foo(const int)" << "void foo(int)";
+    QTest::newRow("const5") << "void foo(const int, int const, const int &, int const &)"
+                            << "void foo(int,int,int,int)";
+    QTest::newRow("const6") << "void foo(QList<const int>)" << "void foo(QList<const int>)";
+    QTest::newRow("const7") << "void foo(QList<const int*>)" << "void foo(QList<const int*>)";
+    QTest::newRow("const7") << "void foo(QList<int const*>)" << "void foo(QList<const int*>)";
 }
 
 void tst_QMetaObject::normalizedSignature()
@@ -468,6 +479,31 @@ void tst_QMetaObject::normalizedSignature()
     QFETCH(QString, result);
 
     QCOMPARE(QString::fromLatin1(QMetaObject::normalizedSignature(signature.toLatin1())), result);
+}
+
+void tst_QMetaObject::normalizedType_data()
+{
+    QTest::addColumn<QString>("type");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("simple") << "int" << "int";
+    QTest::newRow("white") << "  int  " << "int";
+    QTest::newRow("const1") << "int const *" << "const int*";
+    QTest::newRow("const2") << "const int *" << "const int*";
+    QTest::newRow("template1") << "QList<int const *>" << "QList<const int*>";
+    QTest::newRow("template2") << "QList<const int *>" << "QList<const int*>";
+    QTest::newRow("template3") << "QMap<QString, int>" << "QMap<QString,int>";
+    QTest::newRow("template4") << "const QMap<QString, int> &" << "QMap<QString,int>";
+    QTest::newRow("value1") << "const QString &" << "QString";
+    QTest::newRow("value2") << "QString const &" << "QString";
+}
+
+void tst_QMetaObject::normalizedType()
+{
+    QFETCH(QString, type);
+    QFETCH(QString, result);
+
+    QCOMPARE(QString::fromLatin1(QMetaObject::normalizedType(type.toLatin1())), result);
 }
 
 QTEST_MAIN(tst_QMetaObject)
