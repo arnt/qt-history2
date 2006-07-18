@@ -173,7 +173,10 @@ public:
 };
 
 /*!
-    Constructs a QNetworkProxy with QNetworkProxy::DefaultProxy type.
+    Constructs a QNetworkProxy with DefaultProxy type; the proxy type is
+    determined by applicationProxy(), which defaults to NoProxy.
+
+    \sa setType(), setApplicationProxy()
 */
 QNetworkProxy::QNetworkProxy()
  : d_ptr(new QNetworkProxyPrivate)
