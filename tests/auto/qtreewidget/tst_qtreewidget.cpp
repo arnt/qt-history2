@@ -1256,23 +1256,41 @@ void tst_QTreeWidget::setHeaderLabels()
 void tst_QTreeWidget::setHeaderItem()
 {
     testWidget->setHeaderItem(0);
+    QTreeWidgetItem *headerItem = new QTreeWidgetItem();
 
     testWidget->setColumnCount(0);
     QCOMPARE(testWidget->header()->count(), 0);
     QCOMPARE(testWidget->columnCount(), 0);
 
-    QTreeWidgetItem *headerItem = new QTreeWidgetItem();
     headerItem->setText(0, "0");
     headerItem->setText(1, "1");
     testWidget->setHeaderItem(headerItem);
     QCOMPARE(testWidget->headerItem(), headerItem);
-    
+
     QCOMPARE(testWidget->header()->count(), 2);
     QCOMPARE(testWidget->columnCount(), 2);
 
     headerItem->setText(2, "2");
     QCOMPARE(testWidget->header()->count(), 3);
     QCOMPARE(testWidget->columnCount(), 3);
+
+    delete headerItem;
+    testWidget->setColumnCount(3);
+    testWidget->setColumnCount(5);
+    QCOMPARE(testWidget->model()->headerData(0, Qt::Horizontal, Qt::DisplayRole).toString(), QString("1"));
+    QCOMPARE(testWidget->model()->headerData(1, Qt::Horizontal, Qt::DisplayRole).toString(), QString("2"));
+    QCOMPARE(testWidget->model()->headerData(2, Qt::Horizontal, Qt::DisplayRole).toString(), QString("3"));
+    QCOMPARE(testWidget->model()->headerData(3, Qt::Horizontal, Qt::DisplayRole).toString(), QString("4"));
+    QCOMPARE(testWidget->model()->headerData(4, Qt::Horizontal, Qt::DisplayRole).toString(), QString("5"));
+
+    headerItem = new QTreeWidgetItem();
+    testWidget->setHeaderItem(headerItem);
+    testWidget->model()->insertColumns(0, 5, QModelIndex());
+    QCOMPARE(testWidget->model()->headerData(0, Qt::Horizontal, Qt::DisplayRole).toString(), QString("1"));
+    QCOMPARE(testWidget->model()->headerData(1, Qt::Horizontal, Qt::DisplayRole).toString(), QString("2"));
+    QCOMPARE(testWidget->model()->headerData(2, Qt::Horizontal, Qt::DisplayRole).toString(), QString("3"));
+    QCOMPARE(testWidget->model()->headerData(3, Qt::Horizontal, Qt::DisplayRole).toString(), QString("4"));
+    QCOMPARE(testWidget->model()->headerData(4, Qt::Horizontal, Qt::DisplayRole).toString(), QString("5"));
 }
 
 #if QT_VERSION >= 0x040200
