@@ -113,6 +113,7 @@ private slots:
     void defaultItemTest_QGraphicsPixmapItem();
     void itemChange();
     void sceneEventFilter();
+    void prepareGeometryChange();
 };
 
 void tst_QGraphicsItem::construction()
@@ -2386,6 +2387,22 @@ void tst_QGraphicsItem::sceneEventFilter()
     QCOMPARE(tester->filteredEventReceivers.at(6), text2);
 
     QVERIFY(text2->hasFocus());
+}
+
+class GeometryChanger : public QGraphicsItem
+{
+public:
+    void changeGeometry()
+    { prepareGeometryChange(); }
+};
+
+void tst_QGraphicsItem::prepareGeometryChange()
+{
+    {
+        QGraphicsScene scene;
+        QGraphicsItem *item = scene.addRect(QRectF(0, 0, 100, 100));
+        ((GeometryChanger *)item)->changeGeometry();
+    }
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
