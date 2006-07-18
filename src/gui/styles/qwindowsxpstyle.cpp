@@ -1457,7 +1457,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         partId = BP_PUSHBUTTON;
         if (!(flags & State_Enabled))
             stateId = PBS_DISABLED;
-        else if (flags & State_Sunken)
+        else if ((flags & State_Sunken) || (flags & State_On))
             stateId = PBS_PRESSED;
         else if (flags & State_MouseOver)
             stateId = PBS_HOT;
