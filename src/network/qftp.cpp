@@ -1028,8 +1028,10 @@ bool QFtpPI::processReply()
             } else {
                 emit error(QFtp::UnknownError, replyText);
             }
-            state = Idle;
-            startNextCmd();
+            if (state != Waiting) {
+                state = Idle;
+                startNextCmd();
+            }
             break;
     }
 #if defined(QFTPPI_DEBUG)
