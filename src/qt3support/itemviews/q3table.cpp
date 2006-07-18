@@ -26,7 +26,8 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qicon.h>
-#include <qcombobox.h>
+#include <q3combobox.h>
+#include <qstyleoption.h>
 #include <qcheckbox.h>
 #include <q3dragobject.h>
 #include <qevent.h>
@@ -1159,10 +1160,10 @@ bool Q3TableItem::isEnabled() const
 
     \img qtableitems.png Table Items
 
-    \sa Q3CheckTableItem Q3TableItem QComboBox
+    \sa Q3CheckTableItem Q3TableItem Q3ComboBox
 */
 
-QComboBox *Q3ComboTableItem::fakeCombo = 0;
+Q3ComboBox *Q3ComboTableItem::fakeCombo = 0;
 QWidget *Q3ComboTableItem::fakeComboWidget = 0;
 int Q3ComboTableItem::fakeRef = 0;
 
@@ -1184,7 +1185,7 @@ Q3ComboTableItem::Q3ComboTableItem(Q3Table *table, const QStringList &list, bool
     setReplaceable(false);
     if (!Q3ComboTableItem::fakeCombo) {
         Q3ComboTableItem::fakeComboWidget = new QWidget(0, 0);
-        Q3ComboTableItem::fakeCombo = new QComboBox(false, Q3ComboTableItem::fakeComboWidget, 0);
+        Q3ComboTableItem::fakeCombo = new Q3ComboBox(false, Q3ComboTableItem::fakeComboWidget, 0);
         Q3ComboTableItem::fakeCombo->hide();
     }
     ++Q3ComboTableItem::fakeRef;
@@ -1227,7 +1228,7 @@ void Q3ComboTableItem::setStringList(const QStringList &l)
 QWidget *Q3ComboTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
-    ((Q3ComboTableItem*)this)->cb = new QComboBox(edit, table()->viewport(), "qt_editor_cb");
+    ((Q3ComboTableItem*)this)->cb = new Q3ComboBox(edit, table()->viewport(), "qt_editor_cb");
     cb->insertStringList(entries);
     cb->setCurrentItem(current);
     QObject::connect(cb, SIGNAL(activated(int)), table(), SLOT(doValueChanged()));
@@ -1238,7 +1239,7 @@ QWidget *Q3ComboTableItem::createEditor() const
 
 void Q3ComboTableItem::setContentFromEditor(QWidget *w)
 {
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb) {
         entries.clear();
         for (int i = 0; i < cb->count(); ++i)
@@ -1295,7 +1296,7 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
 void Q3ComboTableItem::setCurrentItem(int i)
 {
     QWidget *w = table()->cellWidget(row(), col());
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb) {
         cb->setCurrentItem(i);
         current = i;
@@ -1332,7 +1333,7 @@ void Q3ComboTableItem::setCurrentItem(const QString &s)
 int Q3ComboTableItem::currentItem() const
 {
     QWidget *w = table()->cellWidget(row(), col());
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->currentItem();
     return current;
@@ -1347,7 +1348,7 @@ int Q3ComboTableItem::currentItem() const
 QString Q3ComboTableItem::currentText() const
 {
     QWidget *w = table()->cellWidget(row(), col());
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->currentText();
     return entries.at(current);
@@ -1360,7 +1361,7 @@ QString Q3ComboTableItem::currentText() const
 int Q3ComboTableItem::count() const
 {
     QWidget *w = table()->cellWidget(row(), col());
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->count();
     return (int)entries.count();
@@ -1375,7 +1376,7 @@ int Q3ComboTableItem::count() const
 QString Q3ComboTableItem::text(int i) const
 {
     QWidget *w = table()->cellWidget(row(), col());
-    QComboBox *cb = ::qobject_cast<QComboBox*>(w);
+    Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->text(i);
     return entries.at(i);
@@ -3635,7 +3636,7 @@ void Q3Table::contentsMousePressEventEx(QMouseEvent* e)
         Q3TableItem *itm = item(tmpRow, tmpCol);
         if (itm && itm->editType() == Q3TableItem::WhenCurrent) {
             QWidget *w = cellWidget(tmpRow, tmpCol);
-            if (::qobject_cast<QComboBox*>(w) || ::qobject_cast<QAbstractButton*>(w)) {
+            if (::qobject_cast<Q3ComboBox*>(w) || ::qobject_cast<QAbstractButton*>(w)) {
                 QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
                                 e->globalPos(), e->button(), e->state());
                 QApplication::sendPostedEvents(w, 0);

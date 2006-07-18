@@ -34,7 +34,7 @@ class Q3Table;
 class QPaintEvent;
 class QTimer;
 class QResizeEvent;
-class QComboBox;
+class Q3ComboBox;
 class QCheckBox;
 class Q3DragObject;
 
@@ -165,11 +165,11 @@ public:
     QSize sizeHint() const;
 
 private:
-    QComboBox *cb;
+    Q3ComboBox *cb;
     QStringList entries;
     int current;
     bool edit;
-    static QComboBox *fakeCombo;
+    static Q3ComboBox *fakeCombo;
     static QWidget *fakeComboWidget;
     static int fakeRef;
 
