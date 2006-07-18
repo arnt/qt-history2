@@ -133,8 +133,11 @@ public:
     QTreeWidgetItem &operator=(const QTreeWidgetItem &other);
 
     inline QTreeWidgetItem *parent() const { return par; }
-    inline QTreeWidgetItem *child(int index) const
-        { if (index < 0 || index >= children.size()) return 0; return children.at(index); }
+    inline QTreeWidgetItem *child(int index) const {
+        if (index < 0 || index >= children.size())
+            return 0;
+        return children.at(index);
+    }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
     inline int indexOfChild(QTreeWidgetItem *child) const;
@@ -151,6 +154,7 @@ public:
     inline void sortChildren(int column, Qt::SortOrder order)
         { sortChildren(column, order, false); }
 private:
+    // Qt 5 add private class and move private data into it
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
     void itemChanged();
@@ -256,7 +260,8 @@ public:
     bool isItemSelected(const QTreeWidgetItem *item) const;
     void setItemSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
-    QList<QTreeWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
+    QList<QTreeWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags,
+                                      int column = 0) const;
 
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);
@@ -265,7 +270,8 @@ public:
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
 public Q_SLOTS:
-    void scrollToItem(const QTreeWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);
+    void scrollToItem(const QTreeWidgetItem *item,
+                      QAbstractItemView::ScrollHint hint = EnsureVisible);
     void expandItem(const QTreeWidgetItem *item);
     void collapseItem(const QTreeWidgetItem *item);
     void clear();
