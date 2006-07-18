@@ -2544,7 +2544,16 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
         rasterBuffer->resetClip();
         rasterBuffer->clipEnabled = false;
         goto end;
-    } else if (op == Qt::ReplaceClip || (op == Qt::IntersectClip && path.isEmpty())) {
+    } else if (path.isEmpty()) {
+        if (op == Qt::ReplaceClip || op == Qt::IntersectClip) {
+            rasterBuffer->resetClip();
+            QClipData *clip = rasterBuffer->clip = new QClipData(rasterBuffer->height());
+            for (int i=0; i<clip->clipSpanHeight; ++i) {
+                clip->appendSpan(0, i, 0, 0);
+            }
+            clip->fixup();
+        }
+    } else if (op == Qt::ReplaceClip) {
         rasterBuffer->resetClip();
     } else if (op == Qt::IntersectClip && !rasterBuffer->clip) {
         return;
