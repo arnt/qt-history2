@@ -22,6 +22,7 @@
 #include <qtextobject.h>
 
 #include <qabstracttextdocumentlayout.h>
+#include <qtextdocumentfragment.h>
 
 class QTextEdit;
 
@@ -87,6 +88,8 @@ private slots:
     void moveCursor();
     void mimeDataReimplementations();
     void ctrlEnterShouldInsertLineSeparator();
+    void selectWordsFromStringsContainingSeparators_data();
+    void selectWordsFromStringsContainingSeparators();
 
 private:
     void createSelection();
@@ -1091,6 +1094,32 @@ void tst_QTextEdit::ctrlEnterShouldInsertLineSeparator()
     expected += QChar::LineSeparator;
     expected += 'b';
     QCOMPARE(ed->textCursor().block().text(), expected);
+}
+
+void tst_QTextEdit::selectWordsFromStringsContainingSeparators_data()
+{
+    QTest::addColumn<QString>("testString");
+    QTest::addColumn<QString>("selectedWord");
+
+    QStringList wordSeparators;
+    wordSeparators << "." << "," << "?" << "!" << ":" << ";" << "-" << "<" << ">" << "["
+                   << "]" << "(" << ")" << "{" << "}" << "=" << "\t"<< QString(QChar::Nbsp);
+
+    foreach (QString s, wordSeparators)
+        QTest::newRow("separator: " + s) << QString("foo") + s + QString("bar") << QString("foo");
+}
+
+void tst_QTextEdit::selectWordsFromStringsContainingSeparators()
+{
+    QFETCH(QString, testString);
+    QFETCH(QString, selectedWord);
+    ed->setText(testString);
+    QTextCursor cursor = ed->textCursor();
+    cursor.movePosition(QTextCursor::StartOfLine);
+    cursor.select(QTextCursor::WordUnderCursor);
+    QVERIFY(cursor.hasSelection());
+    QCOMPARE(cursor.selection().toPlainText(), selectedWord);
+    cursor.clearSelection();
 }
 
 QTEST_MAIN(tst_QTextEdit)
