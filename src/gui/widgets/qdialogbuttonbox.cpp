@@ -123,9 +123,17 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     case QDialogButtonBox::Ok:
     case QDialogButtonBox::Save:
     case QDialogButtonBox::Open:
+    case QDialogButtonBox::Yes:
+    case QDialogButtonBox::YesToAll:
+    case QDialogButtonBox::SaveAll:
+    case QDialogButtonBox::Abort:
+    case QDialogButtonBox::Retry:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Cancel:
     case QDialogButtonBox::Close:
+    case QDialogButtonBox::No:
+    case QDialogButtonBox::NoToAll:
+    case QDialogButtonBox::Ignore:
         return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::Discard:
         return QDialogButtonBox::DestructiveRole;
@@ -134,22 +142,9 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     case QDialogButtonBox::Apply:
         return QDialogButtonBox::ApplyRole;
     case QDialogButtonBox::RestoreDefaults:
-        return QDialogButtonBox::ResetRole;
     case QDialogButtonBox::Reset:
         return QDialogButtonBox::ResetRole;
-    case QDialogButtonBox::Yes:
-    case QDialogButtonBox::YesToAll:
-        return QDialogButtonBox::AcceptRole;
-    case QDialogButtonBox::No:
-    case QDialogButtonBox::NoToAll:
-        return QDialogButtonBox::RejectRole;
-    case QDialogButtonBox::SaveAll:
-    case QDialogButtonBox::Abort:
-    case QDialogButtonBox::Retry:
-        return QDialogButtonBox::AcceptRole;
-    case QDialogButtonBox::Ignore:
-        return QDialogButtonBox::RejectRole;
-    case QDialogButtonBox::NoButton:
+    case QDialogButtonBox::NoButton:    // NoButton means zero buttons, not "No" button
         ;
     }
     return QDialogButtonBox::InvalidRole;
@@ -237,6 +232,14 @@ void QDialogButtonBoxPrivate::initLayout()
     if (layoutPolicy == QDialogButtonBox::MacLayout)
         buttonLayout->setSpacing(0);
     buttonLayout->setMargin(0);
+
+    if (!q->testAttribute(Qt::WA_WState_OwnSizePolicy)) {
+        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        if (orientation == Qt::Vertical)
+            sp.transpose();
+        q->setSizePolicy(sp);
+        q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+    }
 }
 
 void QDialogButtonBoxPrivate::resetLayout()
