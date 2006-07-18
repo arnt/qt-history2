@@ -55,6 +55,7 @@ private slots:
     void setSocket();
     void unexpectedRemoteClose();
     void pctEncodedPath();
+    void caseInsensitiveKeys();
 
 protected slots:
     void stateChanged( int );
@@ -920,6 +921,24 @@ void tst_QHttp::pctEncodedPath()
     QHttpRequestHeader header;
     header.setRequest("GET", "/index.asp/a=%20&b=%20&c=%20");
     QCOMPARE(header.toString(), QString("GET /index.asp/a=%20&b=%20&c=%20 HTTP/1.1\r\n\r\n"));
+}
+
+void tst_QHttp::caseInsensitiveKeys()
+{
+    QHttpResponseHeader header("HTTP/1.1 200 OK\r\nContent-Length: 213\r\nX-Been-There: True\r\nLocation: http://www.TrollTech.com/\r\n\r\n");
+    QVERIFY(header.hasKey("Content-Length"));
+    QVERIFY(header.hasKey("X-Been-There"));
+    QVERIFY(header.hasKey("Location"));
+    QVERIFY(header.hasKey("content-length"));
+    QVERIFY(header.hasKey("x-been-there"));
+    QVERIFY(header.hasKey("location"));
+    QCOMPARE(header.value("Content-Length"), QString("213"));
+    QCOMPARE(header.value("X-Been-There"), QString("True"));
+    QCOMPARE(header.value("Location"), QString("http://www.TrollTech.com/"));
+    QCOMPARE(header.value("content-length"), QString("213"));
+    QCOMPARE(header.value("x-been-there"), QString("True"));
+    QCOMPARE(header.value("location"), QString("http://www.TrollTech.com/"));
+    QCOMPARE(header.allValues("location"), QStringList("http://www.TrollTech.com/"));
 }
 
 QTEST_MAIN(tst_QHttp)
