@@ -314,70 +314,162 @@ void QDirPrivate::detach(bool createFileEngine)
     regarding paths and files, and manipulate the underlying file
     system. It can also be used to access Qt's \l{resource system}.
 
+    Qt uses "/" as a universal directory separator in the same way
+    that "/" is used as a path separator in URLs. If you always use
+    "/" as a directory separator, Qt will translate your paths to
+    conform to the underlying operating system.
+
     A QDir can point to a file using either a relative or an absolute
-    path. Absolute paths begin with the directory separator "/"
-    (optionally preceded by a drive specification under Windows). If
-    you always use "/" as a directory separator, Qt will translate
-    your paths to conform to the underlying operating system. Relative
-    file names begin with a directory name or a file name and specify
-    a path relative to the current directory.
+    path. Absolute paths begin with the directory separator
+    (optionally preceded by a drive specification under Windows).
+    Relative file names begin with a directory name or a file name and
+    specify a path relative to the current directory.
 
-    An example of an absolute path is the string "/tmp/quartz", a
-    relative path might look like "src/fatlib". You can use the
-    isRelative() or isAbsolute() functions to check if a QDir is using
-    a relative or an absolute file path. Call makeAbsolute() to
-    convert a relative QDir to an absolute one. For a simplified path
-    use cleanPath(). To obtain a path which has no symbolic links or
-    redundant ".." elements use canonicalPath(). The path can be set
-    with setPath(), and changed with cd() and cdUp().
+    Examples of absolute paths:
 
-    The current() path (and currentPath()), refers to the application's
-    working directory. A QDir's own path is set and retrieved with
-    setPath() and path().
+    \code
+    QDir("/home/user/Documents")
+    QDir("C:/Documents and Settings")
+    \endcode
 
-    QDir provides several static convenience functions, for example,
-    setCurrent() to set the application's working directory and
-    current() and currentPath() to retrieve the application's working
-    directory. Access to some common paths is provided with the static
-    functions, home(), root(), and temp() which return QDir objects or
-    homePath(), rootPath(), and tempPath() which return the path as a
-    string. For the application's directory, see
-    \l{QApplication::applicationDirPath()}.
+    On Windows, the second of the examples above will be translated to
+    \c{C:\My Documents} when used to access files.
 
-    The number of entries in a directory is returned by count(). You
-    can obtain a string list of the names of all the files and
-    directories in a directory with entryList(). If you prefer a list
-    of QFileInfo pointers use entryInfoList(). Both these functions
-    can apply a name filter, an attributes filter (e.g. read-only,
-    files not directories, etc.), and a sort order. The filters and
-    sort may be set with calls to setNameFilters(), setFilter() and
-    setSorting(). They may also be specified in the entryList() and
-    entryInfoList()'s arguments. You can test to see if a filename
-    matches a filter using match().
+    Examples of relative paths:
 
-    Create a new directory with mkdir(), rename a directory with
-    rename() and remove an existing directory with rmdir(). Remove a
-    file with remove(). You can query a directory with exists(),
-    isReadable(), isAbsolute(), isRelative(), and isRoot(). You can
-    use refresh() to re-read the directory's data from disk.
+    \code
+    QDir("images/landscape.png")
+    \endcode
 
-    To get a path with a filename use filePath(), and to get a
-    directory name use dirName(); neither of these functions checks
-    for the existence of the file or directory. The path() (changeable
-    with setPath()), absolutePath(), absoluteFilePath(), and
-    canonicalPath() are also available.
+    You can use the isRelative() or isAbsolute() functions to check if
+    a QDir is using a relative or an absolute file path. Call
+    makeAbsolute() to convert a relative QDir to an absolute one.
 
-    The list of root directories is provided by drives(); on Unix
-    systems this returns a list containing a single root directory,
-    "/"; on Windows the list will usually contain "C:/", and possibly
-    "D:/", etc.
+    \section1 Navigation and Directory Operations
 
-    It is easiest to work with "/" separators in Qt code. If you need
-    to present a path to the user or need a path in a form suitable
-    for a function in the underlying operating system use
-    convertSeparators().
+    A directory's path can be obtained with the path() function, and
+    a new path set with the setPath() function. The absolute path to
+    a directory is found by calling absolutePath().
 
-    Example (check if a directory exists):
+    The name of a directory is found using the dirName() function. This
+    typically returns the last element in the absolute path that specifies
+    the location of the directory. However, it can also return "." if
+    the QDir represents the current directory.
+
+    \code
+    QDir("Documents/Letters/Applications").dirName() // "Applications"
+    QDir().dirName()                                 // "."
+    \endcode
+
+    The path for a directory can also be changed with the cd() and cdUp()
+    functions, both of which operate like familiar shell commands.
+    When cd() is called with the name of an existing directory, the QDir
+    object changes directory so that it represents that directory instead.
+    The cdUp() function changes the directory of the QDir object so that
+    it refers to its parent directory; i.e. cd("..") is equivalent to
+    cdUp().
+
+    Directories can be created with mkdir(), renamed with rename(), and
+    removed with rmdir().
+
+    You can test for the presence of a directory with a given name by
+    using exists(), and the properties of a directory can be tested with
+    isReadable(), isAbsolute(), isRelative(), and isRoot().
+
+    The refresh() function re-reads the directory's data from disk.
+
+    \section1 Files and Directory Contents
+
+    Directories contain a number of entries, representing files,
+    directories, and symbolic links. The number of entries in a
+    directory is returned by count().
+    A string list of the names of all the entries in a directory can be
+    obtained with entryList(). If you need information about each
+    entry, use entryInfoList() to obtain a list of QFileInfo objects.
+
+    Paths to files and directories within a directory can be
+    constructed using filePath() and absoluteFilePath().
+    The filePath() function returns a path to the specified file
+    or directory relative to the path of the QDir object;
+    absoluteFilePath() returns an absolute path to the specified
+    file or directory. Neither of these functions checks for the
+    existence of files or directory; they only construct paths.
+
+    \code
+    QDir directory("Documents/Letters");
+    QString path = directory.filePath("contents.txt");
+    QString absolutePath = directory.absoluteFilePath("contents.txt");
+    \endcode
+
+    Files can be removed by using the remove() function. Directories
+    cannot be removed in the same way as files; use rmdir() to remove
+    them instead.
+
+    It is possible to reduce the number of entries returned by
+    entryList() and entryInfoList() by applying filters to a QDir object.
+    You can apply a name filter to specify a pattern with wildcards that
+    file names need to match, an attribute filter that selects properties
+    of entries and can distinguish between files and directories, and a
+    sort order.
+
+    Name filters are lists of strings that are passed to setNameFilters().
+    Attribute filters consist of a bitwise OR combination of Filters, and
+    these are specified when calling setFilter().
+    The sort order is specified using setSorting() with a bitwise OR
+    combination of SortFlags.
+
+    You can test to see if a filename matches a filter using the match()
+    function.
+
+    Filter and sort order flags may also be specified when calling
+    entryList() and entryInfoList() in order to override previously defined
+    behavior.
+
+    \section1 The Current Directory and Other Special Paths
+
+    Access to some common directories is provided with a number of static
+    functions that return QDir objects. There are also corresponding functions
+    for these that return strings:
+
+    \table
+    \header \o QDir      \o QString         \o Return Value
+    \row    \o current() \o currentPath()   \o The application's working directory
+    \row    \o home()    \o homePath()      \o The user's home directory
+    \row    \o root()    \o rootPath()      \o The root directory
+    \row    \o temp()    \o tempPath()      \o The system's temporary directory
+    \endtable
+
+    The setCurrent() static function can also be used to set the application's
+    working directory. 
+
+    If you want to find the directory containing the application's executable,
+    see \l{QCoreApplication::applicationDirPath()}.
+
+    The drives() static function provides a list of root directories for each
+    device that contains a filing system. On Unix systems this returns a list
+    containing a single root directory "/"; on Windows the list will usually
+    contain \c{C:/}, and possibly other drive letters such as \c{D:/}, depending
+    on the configuration of the user's system.
+
+    \section1 Path Manipulation and Strings
+
+    Paths containing "." elements that reference the current directory at that
+    point in the path, ".." elements that reference the parent directory, and
+    symbolic links can be reduced to a canonical form using the canonicalPath()
+    function.
+
+    Paths can also be simplified by using cleanPath() to remove redundant "/"
+    and ".." elements.
+
+    It is sometimes necessary to be able to show a path in the native
+    representation for the user's platform. The static convertSeparators()
+    function returns a copy of the specified path in which each directory
+    separator is replaced by the appropriate separator for the underlying
+    operating system.
+
+    \section1 Examples
+
+    Check if a directory exists:
 
     \code
         QDir dir("example");
@@ -388,7 +480,7 @@ void QDirPrivate::detach(bool createFileEngine)
     (We could also use the static convenience function
     QFile::exists().)
 
-    Example (traversing directories and reading a file):
+    Traversing directories and reading a file:
 
     \code
         QDir dir = QDir::root();                 // "/"
@@ -1073,14 +1165,15 @@ QString QDir::operator[](int pos) const
     \overload
 
     Returns a list of the names of all the files and directories in
-    the directory, ordered in accordance with setSorting() and
-    filtered in accordance with setFilter() and setNameFilters().
+    the directory, ordered according to the name and attribute filters
+    previously set with setNameFilters() and setFilter(), and sorted according
+    to the flags set with setSorting().
 
-    The filter and sorting specifications can be overridden using the
+    The attribute filter and sorting specifications can be overridden using the
     \a filters and \a sort arguments.
 
-    Returns an empty list if the directory is unreadable or does not
-    exist or if nothing matches the specification.
+    Returns an empty list if the directory is unreadable, does not
+    exist, or if nothing matches the specification.
 
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
@@ -1096,16 +1189,16 @@ QStringList QDir::entryList(Filters filters, SortFlags sort) const
 /*!
     \overload
 
-    Returns a list of QFileInfo objects for all the files and
-    directories in the directory, ordered in accordance with
-    setSorting() and filtered in accordance with setFilter() and
-    setNameFilters().
+    Returns a list of QFileInfo objects for all the files and directories in
+    the directory, ordered according to the name and attribute filters
+    previously set with setNameFilters() and setFilter(), and sorted according
+    to the flags set with setSorting().
 
-    The filter and sorting specifications can be overridden using the
+    The attribute filter and sorting specifications can be overridden using the
     \a filters and \a sort arguments.
 
-    Returns an empty list if the directory is unreadable or does not
-    exist or if nothing matches the specification.
+    Returns an empty list if the directory is unreadable, does not
+    exist, or if nothing matches the specification.
 
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
@@ -1118,16 +1211,18 @@ QFileInfoList QDir::entryInfoList(Filters filters, SortFlags sort) const
 }
 
 /*!
-    Returns a list of the names of all the files and directories in
-    the directory, ordered in accordance with setSorting() and
-    filtered in accordance with setFilter() and setNameFilters().
+    Returns a list of the names of all the files and
+    directories in the directory, ordered according to the name
+    and attribute filters previously set with setNameFilters()
+    and setFilter(), and sorted according to the flags set with
+    setSorting().
 
-    The name filter, file attributes filter, and the sorting
-    specifications can be overridden using the \a nameFilters, \a
-    filters and \a sort arguments.
+    The name filter, file attribute filter, and sorting specification
+    can be overridden using the \a nameFilters, \a filters, and \a sort
+    arguments.
 
-    Returns an empty list if the directory is unreadable or does not
-    exist or if nothing matches the specification.
+    Returns an empty list if the directory is unreadable, does not
+    exist, or if nothing matches the specification.
 
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
@@ -1157,16 +1252,17 @@ QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
 
 /*!
     Returns a list of QFileInfo objects for all the files and
-    directories in the directory, ordered in accordance with
-    setSorting() and filtered in accordance with setFilter() and
-    setNameFilters().
+    directories in the directory, ordered according to the name
+    and attribute filters previously set with setNameFilters()
+    and setFilter(), and sorted according to the flags set with
+    setSorting().
 
-    The name filter, file attributes filter, and sorting
-    specifications can be overridden using the \a nameFilters, \a
-    filters, and \a sort arguments.
+    The name filter, file attribute filter, and sorting specification
+    can be overridden using the \a nameFilters, \a filters, and \a sort
+    arguments.
 
-    Returns an empty list if the directory is unreadable or does not
-    exist or if nothing matches the specification.
+    Returns an empty list if the directory is unreadable, does not
+    exist, or if nothing matches the specification.
 
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
@@ -1583,10 +1679,13 @@ bool QDir::exists(const QString &name) const
 }
 
 /*!
-    Returns a list of the root directories on this system. On Windows
-    this returns a number of QFileInfo objects containing "C:/",
-    "D:/", etc. On other operating systems, it returns a list
-    containing just one root directory (i.e. "/").
+    Returns a list of the root directories on this system.
+
+    On Windows this returns a list of QFileInfo objects containing "C:/",
+    "D:/", etc. On other operating systems, it returns a list containing
+    just one root directory (i.e. "/").
+
+    \sa root(), rootPath()
 */
 
 QFileInfoList QDir::drives()
@@ -1634,16 +1733,18 @@ bool QDir::setCurrent(const QString &path)
 /*!
     \fn QDir QDir::current()
 
-    Returns the absolute path of the application's current directory.
-    See currentPath() for details.
+    Returns the application's current directory.
 
-    \sa drives() homePath() rootPath() tempPath()
+    The directory is constructed using the absolute path of the current directory,
+    ensuring that its path() will be the same as its absolutePath().
+
+    \sa currentPath(), home(), root(), temp()
 */
 
 /*!
     Returns the absolute path of the application's current directory.
 
-    \sa current() drives() homePath() rootPath() tempPath()
+    \sa current(), homePath(), rootPath(), tempPath()
 */
 
 QString QDir::currentPath()
@@ -1654,13 +1755,18 @@ QString QDir::currentPath()
 /*!
     \fn QDir QDir::home()
 
-    Returns the user's home directory. See homePath() for details.
+    Returns the user's home directory.
 
-    \sa drives() currentPath() rootPath() tempPath()
+    The directory is constructed using the absolute path of the home directory,
+    ensuring that its path() will be the same as its absolutePath().
+
+    See homePath() for details.
+
+    \sa drives(), current(), root(), temp()
 */
 
 /*!
-    Returns the user's home directory.
+    Returns the absolute path of the user's home directory.
 
     Under Windows this function will return the directory of the
     current user's profile. Typically, this is:
@@ -1670,7 +1776,7 @@ QString QDir::currentPath()
     \endcode
 
     If the directory of the current user's profile does not exist or
-    cannot be retrieved, the following alternatives will be probed (in
+    cannot be retrieved, the following alternatives will be checked (in
     the given order) until an existing and available path is found:
 
     \list 1
@@ -1680,14 +1786,14 @@ QString QDir::currentPath()
     \o The path specified by the \c HOME environment variable.
     \o The path returned by the rootPath() function (which uses the \c SystemDrive
     environment variable)
-    \o  The "C:\" directory.
+    \o  The \c{C:\} directory.
     \endlist
 
     Under non-Windows operating systems the \c HOME environment
     variable is used if it exists, otherwise the path returned by the
     rootPath() function is used.
 
-    \sa home() drives() currentPath() rootPath() tempPath()
+    \sa home(), currentPath(), rootPath(), tempPath()
 */
 
 QString QDir::homePath()
@@ -1698,19 +1804,23 @@ QString QDir::homePath()
 /*!
     \fn QDir QDir::temp()
 
-    Returns the system's temporary directory. See tempPath() for
-    details.
+    Returns the system's temporary directory.
 
-    \sa drives() currentPath() homePath() rootPath()
+    The directory is constructed using the absolute path of the temporary directory,
+    ensuring that its path() will be the same as its absolutePath().
+
+    See tempPath() for details.
+
+    \sa drives(), current(), home(), root()
 */
 
 /*!
-    Returns the system's temporary directory.
+    Returns the absolute path of the system's temporary directory.
 
     On Unix/Linux systems this is usually \c{/tmp}; on Windows this is
     usually the path in the \c TEMP or \c TMP environment variable.
 
-    \sa temp() drives() currentPath() homePath() rootPath()
+    \sa temp(), currentPath(), homePath(), rootPath()
 */
 QString QDir::tempPath()
 {
@@ -1720,18 +1830,23 @@ QString QDir::tempPath()
 /*!
     \fn QDir QDir::root()
 
-    Returns the root directory. See rootPath() for details.
+    Returns the root directory.
 
-    \sa drives() current() home() temp()
+    The directory is constructed using the absolute path of the root directory,
+    ensuring that its path() will be the same as its absolutePath().
+
+    See rootPath() for details.
+
+    \sa drives(), current(), home(), temp()
 */
 
 /*!
-    Returns the absolute path for the root directory.
+    Returns the absolute path of the root directory.
 
     For Unix operating systems this returns "/". For Windows file
     systems this normally returns "c:/".
 
-    \sa root() drives() currentPath() homePath() tempPath()
+    \sa root(), drives(), currentPath(), homePath(), tempPath()
 */
 
 QString QDir::rootPath()
@@ -2103,7 +2218,7 @@ void QDir::setNameFilter(const QString &nameFilter)
     \overload
 
     Use the overload that takes a name filter string list as first
-    argument instead.
+    argument instead of a combination of attribute filter flags.
 */
 
 /*!
@@ -2112,7 +2227,7 @@ void QDir::setNameFilter(const QString &nameFilter)
     \overload
 
     Use the overload that takes a name filter string list as first
-    argument instead.
+    argument instead of a combination of attribute filter flags.
 */
 
 /*!
