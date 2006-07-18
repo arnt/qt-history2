@@ -886,9 +886,10 @@ void QLabel::keyPressEvent(QKeyEvent *ev)
 */
 bool QLabel::event(QEvent *e)
 {
-#ifndef QT_NO_SHORTCUT
     Q_D(QLabel);
     QEvent::Type type = e->type();
+    
+#ifndef QT_NO_SHORTCUT
     if (type == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
@@ -902,10 +903,14 @@ bool QLabel::event(QEvent *e)
                 window()->setAttribute(Qt::WA_KeyboardFocusChange);
             return true;
         }
-    } else if (e->type() == QEvent::Resize && d->doc) {
-        d->doc->setTextWidth(d->documentRect().width());
-    }
+    } else 
 #endif
+    if (e->type() == QEvent::Resize && d->doc) {
+        d->doc->setTextWidth(d->documentRect().width());
+    } else if (e->type() == QEvent::StyleChange) {
+        d->updateLabel();
+    }
+
     return QFrame::event(e);
 }
 
