@@ -68,8 +68,13 @@
     QTcpSocket and QUdpSocket provide notification through signals, so
     there is normally no need to use a QSocketNotifier on them.
 
-    \bold{Note for Windows users:} The socket passed to QSocketNotifier
+    \bold{Notes for Windows users:} The socket passed to QSocketNotifier
     will become non-blocking, even if it was created as a blocking socket.
+    The activated() signal is sometimes triggered by high general activity
+    on the host, even if there is nothing to read. A subsequent read from
+    the socket can then fail, the error indicating that there is no data
+    available (e.g., WSAEWOULDBLOCK). This is an operating system
+    limitation, and not a bug in QSocketNotifier.
 
     \sa QFile, QProcess, QTcpSocket, QUdpSocket
 */
