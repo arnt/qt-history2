@@ -188,37 +188,51 @@ void QOleDropSource::createCursors()
                 h = y2-y1+1;
             }
 
+            QRect srcRect = pm.rect();
+            QPoint pmDest = QPoint(qMax(0, -hotSpot.x()), qMax(0, -hotSpot.y()));
+            QPoint newHotSpot = hotSpot;
+
 #ifndef Q_OS_TEMP
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
                 // Limited cursor size
                 int reqw = GetSystemMetrics(SM_CXCURSOR);
                 int reqh = GetSystemMetrics(SM_CYCURSOR);
+
+                QPoint hotspotInPM = newHotSpot - pmDest;
                 if (reqw < w) {
                     // Not wide enough - move objectpm right
-                    hotSpot.setX(hotSpot.x()-w+reqw);
+                    qreal r = qreal(newHotSpot.x()) / w;
+                    newHotSpot = QPoint(r * reqw, newHotSpot.y()); 
+                    if (newHotSpot.x() + cpm.width() > reqw)
+                        newHotSpot.setX(reqw - cpm.width());
+
+                    srcRect = QRect(QPoint(hotspotInPM.x() - newHotSpot.x(), srcRect.top()), QSize(reqw, srcRect.height()));
                 }
                 if (reqh < h) {
-                    // Not tall enough - move objectpm down
-                    hotSpot.setY(hotSpot.y()-h+reqh);
+                    qreal r = qreal(newHotSpot.y()) / h;
+                    newHotSpot = QPoint(newHotSpot.x(), r * reqh);
+                    if (newHotSpot.y() + cpm.height() > reqh)
+                        newHotSpot.setY(reqh - cpm.height());
+                    
+                    srcRect = QRect(QPoint(srcRect.left(), hotspotInPM.y() - newHotSpot.y()), QSize(srcRect.width(), reqh));
                 }
                 // Always use system cursor size
                 w = reqw;
                 h = reqh;
             }
-#endif
-
+#endif            
             QPixmap newCursor(w, h);
             if (!pm.isNull()) {
                 newCursor.fill(QColor(0, 0, 0, 0));
-                QPainter p(&newCursor);
-                p.drawPixmap(qMax(0,-hotSpot.x()),qMax(0,-hotSpot.y()),pm);
-                p.drawPixmap(qMax(0,hotSpot.x()),qMax(0,hotSpot.y()),cpm);
+                QPainter p(&newCursor);                
+                p.drawPixmap(pmDest, pm, srcRect);
+                p.drawPixmap(qMax(0,newHotSpot.x()),qMax(0,newHotSpot.y()),cpm);
             } else {
                 newCursor = cpm;
             }
 
-            cursors[actions.at(cnum)] = QCursor(newCursor, pm.isNull() ? 0 : qMax(0,hotSpot.x()),
-                                                pm.isNull() ? 0 : qMax(0,hotSpot.y()));
+            cursors[actions.at(cnum)] = QCursor(newCursor, pm.isNull() ? 0 : qMax(0,newHotSpot.x()),
+                                                pm.isNull() ? 0 : qMax(0,newHotSpot.y()));
         }
     }
 }
