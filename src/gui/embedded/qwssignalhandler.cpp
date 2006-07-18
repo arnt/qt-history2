@@ -39,5 +39,6 @@ void QWSSignalHandler::handleSignal(int signum)
     for (int i = 0; i < h->semaphores.size(); ++i)
         semctl(h->semaphores.at(i), 0, IPC_RMID, 0);
 
-    exit(-1);
+    signal(signum, SIG_DFL);
+    raise(signum);
 }
