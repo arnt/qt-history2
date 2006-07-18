@@ -347,7 +347,10 @@ static QList<QNetworkInterfacePrivate *> interfaceListing()
                 iface = *if_it;
                 break;
             }
-        Q_ASSERT(iface);
+        if (!iface) {
+            // skip all non-IP interfaces
+            continue;
+        }
 
         QNetworkAddressEntry entry;
         entry.setIp(addressFromSockaddr(ptr->ifa_addr));
