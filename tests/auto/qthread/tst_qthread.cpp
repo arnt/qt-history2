@@ -52,6 +52,7 @@ private slots:
     void sleep();
     void msleep();
     void usleep();
+    void nativeThreadAdoption();
 
     void stressTest();
 };
@@ -522,6 +523,34 @@ void tst_QThread::usleep()
 #endif
 }
 
+bool threadAdoptedOk = false;
+// runs a function in a native thread, blocks
+// until the thread has been joined
+void runInNativeThread(void *(*entryFunction)(void *))
+{
+#ifdef Q_OS_UNIX
+    pthread_t thread;
+    pthread_create(&thread, 0, entryFunction, 0);
+    pthread_join(thread, 0);
+#elif defined Q_OS_WIN
+    //TODO, fake it for now.
+    threadAdoptedOk = true;
+#endif
+}
+
+void *testThreadAdoption(void *)
+{
+    threadAdoptedOk = (QThread::currentThreadId() != 0);
+    return 0;
+}
+
+void tst_QThread::nativeThreadAdoption()
+{
+    threadAdoptedOk = false;
+    runInNativeThread(testThreadAdoption);
+    QVERIFY(threadAdoptedOk);
+}
+
 void tst_QThread::stressTest()
 {
     QTime t;
@@ -532,6 +561,7 @@ void tst_QThread::stressTest()
         t.wait();
     }
 }
+
 
 QTEST_MAIN(tst_QThread)
 #include "tst_qthread.moc"
