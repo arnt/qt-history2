@@ -2124,7 +2124,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         }
         break;
     case PE_PanelTipLabel:
-        p->fillRect(opt->rect, QColor(255, 255, 199));
+        p->fillRect(opt->rect, opt->palette.brush(QPalette::Window));
         break;
     case PE_FrameGroupBox:
         if (const QStyleOptionFrame *groupBox = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {

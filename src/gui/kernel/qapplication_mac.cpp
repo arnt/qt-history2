@@ -38,6 +38,7 @@
 #include "qwidget.h"
 #include "qcolormap.h"
 #include "qdir.h"
+#include "qtooltip.h"
 #include "qdebug.h"
 #include "private/qmacinputcontext_p.h"
 #include "private/qpaintengine_mac_p.h"
@@ -470,6 +471,7 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
             PaletteMap("QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive),
             PaletteMap("QTextEdit", 0, 0),
             PaletteMap("QTextControl", 0, 0),
+            PaletteMap("QToolTip", 0, 0),
             PaletteMap(0, 0, 0) };
         QColor qc;
         RGBColor c;
@@ -525,6 +527,9 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                               pal.brush(QPalette::Active, QPalette::Text));
                 pal.setBrush(QPalette::Inactive, QPalette::HighlightedText,
                               pal.brush(QPalette::Active, QPalette::Text));
+            } else if (!strcmp(mac_widget_colors[i].qt_class, "QToolTip")) {
+                pal.setBrush(QPalette::Window, QColor(255, 255, 199));
+                QToolTip::setPalette(pal);
             }
 
             bool set_palette = true;
