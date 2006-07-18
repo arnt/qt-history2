@@ -2901,12 +2901,11 @@ void QGraphicsItem::removeFromIndex()
 void QGraphicsItem::prepareGeometryChange()
 {
     if (d_ptr->scene) {
+        update();
+
         QGraphicsScenePrivate *scenePrivate = d_ptr->scene->d_func();
-        if (d_ptr->index != -1) {
-            update();
-            scenePrivate->removeFromIndex(this);
-        }
-        scenePrivate->newItems << this;
+        scenePrivate->removeFromIndex(this);
+
         if (!scenePrivate->calledEmitUpdated) {
             scenePrivate->calledEmitUpdated = true;
             QTimer::singleShot(0, d_ptr->scene, SLOT(_q_emitUpdated()));

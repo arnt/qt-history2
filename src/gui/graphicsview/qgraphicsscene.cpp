@@ -245,8 +245,14 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
 void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
 {
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
-        if (item->d_func()->index != -1) {
+        int index = item->d_func()->index;
+        if (index != -1) {
             bspTree.removeItem(item, item->sceneBoundingRect());
+            freeItemIndexes << index;
+            allItems[index] = 0;
+            item->d_func()->index = -1;
+            newItems << item;
+
             foreach (QGraphicsItem *child, item->children())
                 child->removeFromIndex();
         }
