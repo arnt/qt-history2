@@ -100,7 +100,9 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     static QPalette palette(const QWidget *);
     static QPalette palette(const char *className);
     static void setPalette(const QPalette &, const char* className = 0);
-    static QFont font(const QWidget* = 0);
+    static QFont font();
+    static QFont font(const QWidget*);
+    static QFont font(const char *className);
     static void setFont(const QFont &, const char* className = 0);
     static QFontMetrics fontMetrics();
 

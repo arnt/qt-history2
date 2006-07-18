@@ -1545,8 +1545,21 @@ void QApplicationPrivate::setSystemPalette(const QPalette &pal)
 /*!
   \fn QFont QApplication::font(const QWidget *widget)
 
-  Returns the default font for the \a widget, or the default
-  application font if \a widget is 0.
+  Returns the default application font.
+
+  \sa setFont(), fontMetrics(), QWidget::font()
+*/
+QFont QApplication::font()
+{
+    if (!QApplicationPrivate::app_font)
+        QApplicationPrivate::app_font = new QFont(QLatin1String("Helvetica"));
+    return *QApplicationPrivate::app_font;
+}
+
+/*! \overload
+  \fn QFont QApplication::font(const QWidget *widget)
+
+  Returns the default font for the \a widget.
 
   \sa setFont(), fontMetrics(), QWidget::font()
 */
@@ -1563,10 +1576,27 @@ QFont QApplication::font(const QWidget *w)
                 return it.value();
         }
     }
-    if (!QApplicationPrivate::app_font)
-        QApplicationPrivate::app_font = new QFont(QLatin1String("Helvetica"));
-    return *QApplicationPrivate::app_font;
+    return font();
 }
+
+/*!
+    \overload
+
+    Returns the font for widgets of the given \a className.
+
+    \sa setFont(), QWidget::font()
+*/
+QFont QApplication::font(const char *className)
+{
+    FontHash *hash = app_fonts();
+    if (className && hash && hash->size()) {
+        QHash<QByteArray, QFont>::ConstIterator it = hash->constFind(className);
+        if (it != hash->constEnd())
+            return *it;
+    }
+    return font();
+}
+
 
 /*! Changes the default application font to \a font.  If \a className
   is passed, the change applies only to classes that inherit \a

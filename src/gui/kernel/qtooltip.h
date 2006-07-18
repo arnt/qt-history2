@@ -30,6 +30,9 @@ public:
     static inline void hideText() { showText(QPoint(), QString()); }
 
     static QPalette palette();
+    static void setPalette(const QPalette &);
+    static QFont font();
+    static void setFont(const QFont &);
 #ifdef QT3_SUPPORT
     static inline QT3_SUPPORT void add(QWidget *w, const QString &s) { w->setToolTip(s); }
     static inline QT3_SUPPORT void add(QWidget *w, const QRect &, const QString &s)

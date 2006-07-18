@@ -55,6 +55,9 @@
     text you want to display. The \l{widgets/tooltips}{Tooltips}
     example illustrates this technique.
 
+    The default tooltip color and font can be customized with
+    setPalette() and setFont().
+
     \sa QWidget::toolTip, QAction::toolTip, {Tooltips Example}
 */
 
@@ -103,11 +106,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     qApp->installEventFilter(this);
     hideTimer.start(10000, this);
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
-    // No resources for this yet (unlike on Windows).
-    QPalette pal(Qt::black, QColor(255,255,220),
-                  QColor(96,96,96), Qt::black, Qt::black,
-                  Qt::black, QColor(255,255,220));
-    setPalette(pal);
+    setPalette(QToolTip::palette());
 }
 
 void QTipLabel::paintEvent(QPaintEvent *ev)
@@ -174,7 +173,10 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
     Shows \a text as a tool tip, at global position \a pos. The
     optional widget argument, \a w, is used to determine the
     appropriate screen on multi-head systems. If \a text is empty the
-    tool tip is hidden.
+    tool tip is hidden. If the text is the same as the currently shown
+    tooltip, the tip will \e not move. You can force moving by first
+    hiding the tip with an empty text, and then showing the new tip at
+    the new position.
 */
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 {
@@ -254,17 +256,43 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
     \sa showText()
 */
 
+
+Q_GLOBAL_STATIC_WITH_ARGS(QPalette, tooltip_palette, (Qt::black, QColor(255,255,220),
+                                                      QColor(96,96,96), Qt::black, Qt::black,
+                                                      Qt::black, QColor(255,255,220)))
+
 /*!
     Returns the palette used to render tooltips.
 */
 QPalette QToolTip::palette()
 {
-    if (QTipLabel::instance)
-        return QTipLabel::instance->palette();
-    return QPalette(Qt::black, QColor(255,255,220),
-                    QColor(96,96,96), Qt::black, Qt::black,
-                    Qt::black, QColor(255,255,220));
+    return *tooltip_palette();
 }
+
+/*!
+    Returns the font used to render tooltips.
+*/
+QFont QToolTip::font()
+{
+    return QApplication::font("QTipLabel");
+}
+
+/*!
+    Sets the \a palette used to render tooltips.
+*/
+void QToolTip::setPalette(const QPalette &palette)
+{
+    *tooltip_palette() = palette;
+}
+
+/*!
+    Sets the \a font used to render tooltips.
+*/
+void QToolTip::setFont(const QFont &font)
+{
+    QApplication::setFont(font, "QTipLabel");
+}
+
 
 /*!
     \fn void QToolTip::add(QWidget *widget, const QString &text)

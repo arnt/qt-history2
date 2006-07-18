@@ -32,6 +32,7 @@
 #include "qwidget.h"
 #include "qcolormap.h"
 #include "qlayout.h"
+#include "qtooltip.h"
 #include "qt_windows.h"
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
@@ -493,7 +494,7 @@ static void qt_set_windows_resources()
         tiplabel.setColor(QPalette::Disabled, QPalette::Text, disabled);
         tiplabel.setColor(QPalette::Disabled, QPalette::Base, Qt::white);
         tiplabel.setColor(QPalette::Disabled, QPalette::BrightText, Qt::white);
-        QApplication::setPalette(tiplabel, "QTipLabel");
+        QToolTip::setPalette(tiplabel);
     }
 }
 
