@@ -295,6 +295,11 @@ public:
     inline PropertyTestClass::TestEnum foo() const { return PropertyTestClass::One; }
 };
 
+// Task #119503
+#define _TASK_119503
+#if !_TASK_119503
+#endif
+
 static QString srcify(const char *path)
 {
     return QString(SRCDIR) + QLatin1Char('/') + QLatin1String(path);
