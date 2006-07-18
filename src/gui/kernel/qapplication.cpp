@@ -2979,6 +2979,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::KeyRelease:
     case QEvent::FocusOut:
     case QEvent::FocusIn:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
         d->toolTipWakeUp.stop();
         d->toolTipFallAsleep.stop();
         break;
@@ -3074,7 +3077,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     }
                 }
 
-                if (e->type() == QEvent::MouseMove) {
+                if (e->type() == QEvent::MouseMove && mouse->buttons() == 0) {
                     d->toolTipWidget = w;
                     d->toolTipPos = relpos;
                     d->toolTipGlobalPos = mouse->globalPos();
