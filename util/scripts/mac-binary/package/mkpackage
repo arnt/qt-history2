@@ -464,10 +464,9 @@ for package in $PACKAGES; do
         cp -r "$INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle" "$plugin_dir"
         cp "$INSTALLERPANE_PATH/InstallerSections.plist" "$plugin_dir"
 
-        if [ "$package" != "debuglibraries" ]; then
-            PKG_CREATED="$PKG_CREATED $package_dir"
-        fi
-    else
+    fi
+
+    if [ "$package" != "debuglibraries" ]; then
         PKG_CREATED="$PKG_CREATED $package_dir"
     fi
 done
@@ -539,9 +538,6 @@ if [ "$MAKE_META" = "yes" ]; then
         package_type=selected
         if [ "$package_name" = "Qt_libraries.pkg" ] || [ "$package_name" = "Qt_tools.pkg" ]; then
             package_type=required
-        elif [ "$package_name" = "Qt_debuglibraries.pkg" ]; then
-            package_type=unselected
-        fi
         cat >"${PACKAGE_DICT}.tmp" <<EOF
            <dict>
               <key>IFPkgFlagPackageLocation</key>

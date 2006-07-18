@@ -120,9 +120,11 @@ done
 cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}/q3porting.xml
 
 # Finally handle QtUiTools
-[ -e "${BINDIR}/lib/libQtUiTools.a" ] && cp "${BINDIR}/lib/libQtUiTools.a" "$OUTDIR/usr/lib/libQtUiTools.a"
-
-# Copy its headers as well
-copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"
+if [ -e "${BINDIR}/lib/libQtUiTools.a" ]; then
+    mkdir -p "$OUTDIR/usr/lib"
+    cp "${BINDIR}/lib/libQtUiTools.a" "$OUTDIR/usr/lib/libQtUiTools.a"
+    # Copy its headers as well
+    copyHeaderDir "${BINDIR}/include/QtUiTools" "$OUTDIR/usr/include/QtUiTools"
+fi
 
 exit 0
