@@ -112,7 +112,8 @@ static void parseCmdLine(QStringList args)
 {
     args.takeFirst();
 
-    commandLine = args.join(QLatin1String(" "));
+    commandLine = QLatin1String(PROGRAMNAME " ");
+    commandLine += args.join(QLatin1String(" "));
 
     int i = 0;
     while (i < args.count()) {
