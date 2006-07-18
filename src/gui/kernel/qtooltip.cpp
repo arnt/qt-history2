@@ -104,7 +104,10 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
 
     resize(sizeHint() + extra);
     qApp->installEventFilter(this);
-    hideTimer.start(10000, this);
+
+    int time = 10000 + 40 * qMax(0, text.length()-100);
+    qDebug() << time;
+    hideTimer.start(time, this);
     setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
     setPalette(QToolTip::palette());
 }
