@@ -95,6 +95,17 @@ static inline uint line_emulation(uint emulation)
 }
 
 
+QMatrix QPainterPrivate::viewMatrix() const
+{
+    QMatrix m;
+    if (state->VxF) {
+        qreal scaleW = qreal(state->vw)/qreal(state->ww);
+        qreal scaleH = qreal(state->vh)/qreal(state->wh);
+        m.setMatrix(scaleW, 0, 0, scaleH, state->vx - state->wx*scaleW, state->vy - state->wy*scaleH);
+    }
+    return m;
+}
+
 
 void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op)
 {
@@ -308,19 +319,7 @@ void QPainterPrivate::init()
 
 void QPainterPrivate::updateMatrix()
 {
-    QMatrix m;
-    if (state->VxF) {
-        qreal scaleW = qreal(state->vw)/qreal(state->ww);
-        qreal scaleH = qreal(state->vh)/qreal(state->wh);
-        m.setMatrix(scaleW, 0, 0, scaleH, state->vx - state->wx*scaleW, state->vy - state->wy*scaleH);
-    }
-    if (state->WxF) {
-        if (state->VxF)
-            m = state->worldMatrix * m;
-        else
-            m = state->worldMatrix;
-    }
-    state->matrix = m;
+    state->matrix = state->worldMatrix * viewMatrix();
 
     txinv = false;                                // no inverted matrix
     state->txop  = TxNone;
@@ -644,7 +643,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \o brushOrigin() defines the origin of the tiled brushes, normally
        the origin of widget's background.
 
-    \o viewport(), window(), matrix() make up the painter's coordinate
+    \o viewport(), window(), worldMatrix() make up the painter's coordinate
         transformation system. For more information, see the \l
         {Coordinate Transformations} section and the \l {The Coordinate
         System} documentation.
@@ -848,28 +847,29 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \endtable
 
     All the tranformation operations operate on the transformation
-    matrix(). A matrix transforms a point in the plane to another
+    worldMatrix(). A matrix transforms a point in the plane to another
     point. For more information about the transformation matrix, see
     the \l {The Coordinate System} and QMatrix documentation.
 
-    The setMatrix() function can replace or add to the currently set
-    matrix(). The resetMatrix() function resets any transformations
-    that were made using translate(), scale(), shear(), rotate(),
-    setMatrix(), setViewport() and setWindow() functions. The
-    deviceMatrix() returns the matrix that transforms from logical
-    coordinates to device coordinates of the platform dependent paint
-    device. The latter function is only needed when using platform
-    painting commands on the platform dependent handle, and the
-    platform does not do transformations nativly.
+    The setWorldMatrix() function can replace or add to the currently
+    set worldMatrix(). The resetMatrix() function resets any
+    transformations that were made using translate(), scale(),
+    shear(), rotate(), setWorldMatrix(), setViewport() and setWindow()
+    functions. The deviceMatrix() returns the matrix that transforms
+    from logical coordinates to device coordinates of the platform
+    dependent paint device. The latter function is only needed when
+    using platform painting commands on the platform dependent handle,
+    and the platform does not do transformations nativly.
 
     When drawing with QPainter, we specify points using logical
     coordinates which then are converted into the physical coordinates
     of the paint device. The mapping of the logical coordinates to the
-    physical coordinates are handled by QPainter's viewport() and
-    window() and world matrix().  The viewport() represents the
-    physical coordinates specifying an arbitrary rectangle, the
-    window() describes the same rectangle in logical coordinates, and
-    the world matrix() is identical with the transformation matrix.
+    physical coordinates are handled by QPainter's combinedMatrix(), a
+    combination of viewport() and window() and worldMatrix().  The
+    viewport() represents the physical coordinates specifying an
+    arbitrary rectangle, the window() describes the same rectangle in
+    logical coordinates, and the worldMatrix() is identical with the
+    transformation matrix.
 
     See also \l {The Coordinate System} documentation.
 
@@ -1896,18 +1896,18 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     \i rotate()
     \endlist
 
-    They operate on the painter's matrix() and are implemented like this:
+    They operate on the painter's worldMatrix() and are implemented like this:
 
     \code
         void QPainter::rotate(qreal angle)
         {
             QMatrix matrix;
             matrix.rotate(angle);
-            setMatrix(matrix, true);
+            setWorldMatrix(matrix, true);
         }
     \endcode
 
-    Note that when using setMatrix() function you should always have
+    Note that when using setWorldMatrix() function you should always have
     \a combine be true when you are drawing into a QPicture. Otherwise
     it may not be possible to replay the picture with additional
     transformations; using the translate(), scale(), etc. convenience
@@ -1917,16 +1917,12 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     and window-viewport conversion, see \l {The Coordinate System}
     documentation.
 
-    \sa matrix(), matrixEnabled(), QMatrix
+    \sa setWorldMatrix(), worldMatrixEnabled(), QMatrix
 */
 
-void QPainter::setMatrix(const QMatrix &matrix, bool combine)
+void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 {
     Q_D(QPainter);
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::setMatrix(), combine=%d\n", combine);
-#endif
 
    if (!isActive()) {
         qWarning("QPainter::setMatrix: Painter not active");
@@ -1947,14 +1943,53 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
 /*!
     Returns the world transformation matrix.
 
-    \sa setMatrix(), {QPainter#Coordinate Transformations}{Coordinate
+    \sa setWorldMatrix(), {QPainter#Coordinate Transformations}{Coordinate
     Transformations}, {The Coordinate System}
+*/
+
+const QMatrix &QPainter::worldMatrix() const
+{
+    Q_D(const QPainter);
+    return d->state->worldMatrix;
+}
+
+/*!
+    \obsolete
+
+    Use setWorldMatrix() instead.
+
+    \se setWorldMatrix()
+*/
+
+void QPainter::setMatrix(const QMatrix &matrix, bool combine)
+{
+    setWorldMatrix(matrix, combine);
+}
+
+/*!
+    \obsolete
+
+    Use worldMatrix() instead.
+
+    \sa worldMatrix()
 */
 
 const QMatrix &QPainter::matrix() const
 {
+    return worldMatrix();
+}
+
+
+/*!
+    Returns the transformation matrix combining the current
+    window/viewport and world transformation.
+
+    \sa setWorldMatrix(), setWindow(), setViewport()
+*/
+QMatrix QPainter::combinedMatrix() const
+{
     Q_D(const QPainter);
-    return d->state->worldMatrix;
+    return d->state->worldMatrix * d->viewMatrix();
 }
 
 
@@ -1970,7 +2005,7 @@ const QMatrix &QPainter::matrix() const
     determine whether the platform performs the transformations or
     not.
 
-    \sa matrix(), QPaintEngine::hasFeature(),
+    \sa worldMatrix(), QPaintEngine::hasFeature(),
 */
 const QMatrix &QPainter::deviceMatrix() const
 {
@@ -1980,7 +2015,7 @@ const QMatrix &QPainter::deviceMatrix() const
 
 /*!
     Resets any transformations that were made using translate(), scale(),
-    shear(), rotate(), setMatrix(), setViewport() and
+    shear(), rotate(), setWorldMatrix(), setViewport() and
     setWindow().
 
     \sa {QPainter#Coordinate Transformations}{Coordinate
@@ -2014,11 +2049,11 @@ void QPainter::resetMatrix()
     transformations if \a enable is false. The world transformation
     matrix is not changed.
 
-    \sa matrixEnabled(), matrix(), {QPainter#Coordinate
+    \sa worldMatrixEnabled(), worldMatrix(), {QPainter#Coordinate
     Transformations}{Coordinate Transformations}
 */
 
-void QPainter::setMatrixEnabled(bool enable)
+void QPainter::setWorldMatrixEnabled(bool enable)
 {
     Q_D(QPainter);
 #ifdef QT_DEBUG_DRAW
@@ -2041,19 +2076,45 @@ void QPainter::setMatrixEnabled(bool enable)
     Returns true if world transformation is enabled; otherwise returns
     false.
 
-    \sa setMatrixEnabled(), matrix(), {The Coordinate System}
+    \sa setWorldMatrixEnabled(), worldMatrix(), {The Coordinate System}
 */
 
-bool QPainter::matrixEnabled() const
+bool QPainter::worldMatrixEnabled() const
 {
     Q_D(const QPainter);
     return d->state->WxF;
 }
 
 /*!
+    \obsolete
+
+    Use setWorldMatrixEnabled() instead.
+
+    \sa setWorldMatrixEnabled()
+*/
+
+void QPainter::setMatrixEnabled(bool enable)
+{
+    setWorldMatrixEnabled(enable);
+}
+
+/*!
+    \obsolete
+
+    Use worldMatrixEnabled() instead
+
+    \sa worldMatrixEnabled()
+*/
+
+bool QPainter::matrixEnabled() const
+{
+    return worldMatrixEnabled();
+}
+
+/*!
     Scales the coordinate system by (\a{sx}, \a{sy}).
 
-    \sa setMatrix() {QPainter#Coordinate Transformations}{Coordinate
+    \sa setWorldMatrix() {QPainter#Coordinate Transformations}{Coordinate
     Transformations}
 */
 
@@ -2072,7 +2133,7 @@ void QPainter::scale(qreal sx, qreal sy)
 /*!
     Shears the coordinate system by (\a{sh}, \a{sv}).
 
-    \sa setMatrix(), {QPainter#Coordinate Transformations}{Coordinate
+    \sa setWorldMatrix(), {QPainter#Coordinate Transformations}{Coordinate
     Transformations}
 */
 
@@ -2092,7 +2153,7 @@ void QPainter::shear(qreal sh, qreal sv)
 
     Rotates the coordinate system the given \a angle clockwise.
 
-    \sa setMatrix(), {QPainter#Coordinate Transformations}{Coordinate
+    \sa setWorldMatrix(), {QPainter#Coordinate Transformations}{Coordinate
     Transformations}
 */
 
@@ -2111,7 +2172,7 @@ void QPainter::rotate(qreal a)
     Translates the coordinate system by the given \a offset; i.e. the
     given \a offset is added to points.
 
-    \sa setMatrix(), {QPainter#Coordinate Transformations}{Coordinate
+    \sa setWorldMatrix(), {QPainter#Coordinate Transformations}{Coordinate
     Transformations}
 */
 void QPainter::translate(const QPointF &offset)
@@ -5152,7 +5213,7 @@ QPainter::RenderHints QPainter::renderHints() const
     Returns true if view transformation is enabled; otherwise returns
     false.
 
-    \sa setViewTransformEnabled(), matrix()
+    \sa setViewTransformEnabled(), worldMatrix()
 */
 
 bool QPainter::viewTransformEnabled() const
@@ -5307,24 +5368,11 @@ QRect QPainter::viewport() const
     Use setViewTransformEnabled() instead.
 */
 
-/*! \fn void QPainter::setWorldMatrix(const QMatrix &wm, bool combine=false)
-    \compat
-
-    Use setMatrix() instead.
-*/
-
 /*! \fn void QPainter::setWorldXForm(bool enabled)
     \compat
 
     Use setMatrixEnabled() instead.
 */
-
-/*! \fn const QMatrix &QPainter::worldMatrix() const
-    \compat
-
-    Use matrix() instead.
-*/
-
 /*!
     Enables view transformations if \a enable is true, or disables
     view transformations if \a enable is false.

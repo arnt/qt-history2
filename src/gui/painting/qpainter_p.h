@@ -76,7 +76,7 @@ public:
     QPainter::RenderHints renderHints;
     QList<QPainterClipInfo> clipInfo;
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
-    QMatrix matrix;            // Complete transformation matrix, including win and view.
+    QMatrix matrix;            // Complete transformation matrix,
     int txop;
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
@@ -149,6 +149,8 @@ public:
     int rectSubtraction() const {
         return state->pen.style() != Qt::NoPen && state->pen.width() == 0 ? 1 : 0;
     }
+
+    QMatrix viewMatrix() const;
 
     QPaintDevice *device;
     QPaintDevice *original_device;

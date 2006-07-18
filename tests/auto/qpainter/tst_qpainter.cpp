@@ -78,6 +78,8 @@ private slots:
 
     void setWindow();
 
+    void combinedMatrix();
+
 private:
     void fillData();
     QColor baseColor( int k, int intensity=255 );
@@ -1107,8 +1109,26 @@ void tst_QPainter::setWindow()
     painter.drawLine(1, 1, 2, 2);
 
     const QRect painted = getPaintedSize(pixmap, Qt::white);
-    QVERIFY(195 < painted.y() && painted.y() < 205); // correct value is around 200 
-    QVERIFY(195 < painted.height() && painted.height() < 205); // correct value is around 200 
+    QVERIFY(195 < painted.y() && painted.y() < 205); // correct value is around 200
+    QVERIFY(195 < painted.height() && painted.height() < 205); // correct value is around 200
+}
+
+void tst_QPainter::combinedMatrix()
+{
+    QPixmap pm(64, 64);
+
+    QPainter p(&pm);
+    p.setWindow(0, 0, 1, 1);
+    p.setViewport(32, 0, 32, 32);
+
+    p.translate(0.5, 0.5);
+
+    QMatrix cm = p.combinedMatrix();
+
+    QPointF pt = QPointF(0, 0) * cm;
+
+    QCOMPARE(pt.x(), 48.0);
+    QCOMPARE(pt.y(), 16.0);
 }
 
 QTEST_MAIN(tst_QPainter)

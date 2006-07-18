@@ -142,8 +142,16 @@ public:
     const QMatrix &deviceMatrix() const;
     void resetMatrix();
 
+    void setWorldMatrix(const QMatrix &matrix, bool combine = false);
+    const QMatrix &worldMatrix() const;
+
+    QMatrix combinedMatrix() const;
+
     void setMatrixEnabled(bool enabled);
     bool matrixEnabled() const;
+
+    void setWorldMatrixEnabled(bool enabled);
+    bool worldMatrixEnabled() const;
 
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);
@@ -369,8 +377,6 @@ public:
     static inline QT3_SUPPORT QPaintDevice *redirect(QPaintDevice *pdev)
     { return const_cast<QPaintDevice*>(redirected(pdev)); }
 
-    inline QT3_SUPPORT void setWorldMatrix(const QMatrix &wm, bool combine=false) { setMatrix(wm, combine); }
-    inline QT3_SUPPORT const QMatrix &worldMatrix() const { return matrix(); }
     inline QT3_SUPPORT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
     inline QT3_SUPPORT bool hasWorldXForm() const { return matrixEnabled(); }
     inline QT3_SUPPORT void resetXForm() { resetMatrix(); }
