@@ -1020,6 +1020,8 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
     SetErrorMode(SetErrorMode(0) | SEM_NOGPFAULTERRORBOX);
 #endif
 
+    QTestResult::reset();
+
     QTEST_ASSERT(testObject);
     QTEST_ASSERT(!currentTestObject);
     currentTestObject = testObject;

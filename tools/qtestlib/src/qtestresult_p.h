@@ -45,6 +45,7 @@ public:
     static const char *currentDataTag();
     static const char *currentGlobalDataTag();
     static void finishedCurrentTestFunction();
+    static void reset();
 
     static int passCount();
     static int failCount();

@@ -39,6 +39,24 @@ namespace QTest
     static int expectFailMode = 0;
 };
 
+void QTestResult::reset()
+{
+    QTest::currentTestData = 0;
+    QTest::currentGlobalTestData = 0;
+    QTest::currentTestFunc = 0;
+    QTest::currentTestObjectName = 0;
+    QTest::failed = false;
+    QTest::dataFailed = false;
+    QTest::location = QTestResult::NoWhere;
+
+    QTest::fails = 0;
+    QTest::passes = 0;
+    QTest::skips = 0;
+
+    QTest::expectFailComment = 0;
+    QTest::expectFailMode = 0;
+}
+
 bool QTestResult::allDataPassed()
 {
     return !QTest::failed;
