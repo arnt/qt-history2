@@ -39,6 +39,7 @@ private slots:
     void normalizedTypes();
     void typeName_data();
     void typeName();
+    void construct();
 };
 
 struct Foo { int i; };
@@ -193,6 +194,15 @@ void tst_QMetaType::typeName()
     QFETCH(QString, aTypeName);
 
     QCOMPARE(QString::fromLatin1(QMetaType::typeName(aType)), aTypeName);
+}
+
+void tst_QMetaType::construct()
+{
+    QSize x(1, 1);
+    void *size = QMetaType::construct(QMetaType::QSize, &x);
+    QVERIFY(size);
+    QCOMPARE(static_cast<QSize *>(size)->width(), 1);
+    QMetaType::destroy(QMetaType::QSize, size);
 }
 
 QTEST_MAIN(tst_QMetaType)

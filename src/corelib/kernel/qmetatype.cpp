@@ -21,11 +21,12 @@
 #include "qvector.h"
 #include "qlocale.h"
 
-#ifndef QT_BOOTSTRAPPED
-#include "qbitarray.h"
-#include "qurl.h"
-#include "qvariant.h"
-#define QT_NO_GEOM_VARIANT
+#ifdef QT_BOOTSTRAPPED
+#  define QT_NO_GEOM_VARIANT
+#else
+#  include "qbitarray.h"
+#  include "qurl.h"
+#  include "qvariant.h"
 #endif
 
 #ifndef QT_NO_GEOM_VARIANT
