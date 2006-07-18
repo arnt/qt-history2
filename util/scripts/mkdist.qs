@@ -382,7 +382,7 @@ function initialize()
 {
     // checks that all valid vars are specified
     for (var i in validVars)
-        if (!(validVars[i] in options))
+        if ((!(validVars[i] in options)) && (validVars[i] != "label"))
             throw "%1 was not specified.".arg(validVars[i]);
 
     // by default turn off all valid switches that were not defined
