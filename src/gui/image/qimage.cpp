@@ -919,11 +919,9 @@ QImage::QImage(const char * const xpm[])
     : QPaintDevice()
 {
     d = 0;
-    if (!qt_read_xpm_image_or_array(0, xpm, *this)) {
-        // We use a qFatal rather than disabling the whole function,
-        // as this constructor may be ambiguous.
-        qFatal("QImage::QImage(), XPM is not supported");
-    }
+    if (!qt_read_xpm_image_or_array(0, xpm, *this))
+        // Issue: Warning because the constructor may be ambigious
+        qWarning("QImage::QImage(), XPM is not supported");
 }
 #endif // QT_NO_IMAGEFORMAT_XPM
 
