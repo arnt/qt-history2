@@ -121,8 +121,12 @@ MakefileGenerator::verifyCompilers()
         bool error = false;
         QString comp = quc.at(i);
         if(v[comp + ".output"].isEmpty()) {
-            error = true;
-            warn_msg(WarnLogic, "Compiler: %s: No output file specified", comp.toLatin1().constData());
+            if(!v[comp + ".output_function"].isEmpty()) {
+                v[comp + ".output"].append("${QMAKE_FUNC_FILE_IN_" + v[comp + ".output_function"].first() + "}");
+            } else {
+                error = true;
+                warn_msg(WarnLogic, "Compiler: %s: No output file specified", comp.toLatin1().constData());
+            }
         } else if(v[comp + ".input"].isEmpty()) {
             error = true;
             warn_msg(WarnLogic, "Compiler: %s: No input variable specified", comp.toLatin1().constData());
@@ -467,7 +471,7 @@ MakefileGenerator::init()
                         else
                             state.pop();
                     } else if(state.isEmpty() || state.top() == IN_CONDITION) {
-                        contents += project->expand(line);
+                        contents += project->expand(line).join(QString(Option::field_sep));
                     }
                 }
                 if(out.exists() && out.open(QFile::ReadOnly)) {
@@ -513,32 +517,29 @@ MakefileGenerator::init()
             compilers.append(compiler);
         }
         for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-            if(!v[(*it) + ".output"].isEmpty()) {
-                const QStringList &inputs = v[(*it) + ".input"];
-                for(x = 0; x < inputs.size(); ++x) {
-                    Compiler compiler;
-                    compiler.variable_in = inputs.at(x);
-                    compiler.flags = Compiler::CompilerNoFlags;
-                    if(v[(*it) + ".CONFIG"].indexOf("ignore_no_exist") != -1)
-                        compiler.flags |= Compiler::CompilerRemoveNoExist;
-                    if(v[(*it) + ".CONFIG"].indexOf("no_dependencies") != -1)
-                        compiler.flags |= Compiler::CompilerNoCheckDeps;
+            const QStringList &inputs = v[(*it) + ".input"];
+            for(x = 0; x < inputs.size(); ++x) {
+                Compiler compiler;
+                compiler.variable_in = inputs.at(x);
+                compiler.flags = Compiler::CompilerNoFlags;
+                if(v[(*it) + ".CONFIG"].indexOf("ignore_no_exist") != -1)
+                    compiler.flags |= Compiler::CompilerRemoveNoExist;
+                if(v[(*it) + ".CONFIG"].indexOf("no_dependencies") != -1)
+                    compiler.flags |= Compiler::CompilerNoCheckDeps;
 
-                    QString dep_type;
-                    if(!project->isEmpty((*it) + ".dependency_type"))
-                        dep_type = project->first((*it) + ".dependency_type");
-                    if (dep_type.isEmpty())
-                        compiler.type = QMakeSourceFileInfo::TYPE_UNKNOWN;
-                    else if(dep_type == "TYPE_UI")
-                        compiler.type = QMakeSourceFileInfo::TYPE_UI;
-                    else
-                        compiler.type = QMakeSourceFileInfo::TYPE_C;
-                    compilers.append(compiler);
-                }
+                QString dep_type;
+                if(!project->isEmpty((*it) + ".dependency_type"))
+                    dep_type = project->first((*it) + ".dependency_type");
+                if (dep_type.isEmpty())
+                    compiler.type = QMakeSourceFileInfo::TYPE_UNKNOWN;
+                else if(dep_type == "TYPE_UI")
+                    compiler.type = QMakeSourceFileInfo::TYPE_UI;
+                else
+                    compiler.type = QMakeSourceFileInfo::TYPE_C;
+                compilers.append(compiler);
             }
         }
     }
-
     { //do the path fixifying
         QStringList paths;
         for(x = 0; x < compilers.count(); ++x) {
@@ -1581,25 +1582,36 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         QString val;
         const QString var = ret.mid(rep + 2, reg_var.matchedLength() - 3);
         bool filePath = false;
-        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_")))
-            val = project->values(var.mid(10)).join(" ");
-        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_")))
-            val = project->first(var.mid(12));
+        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_"))) {
+            const QString varname = var.mid(10);
+            val = project->values(varname).join(QString(Option::field_sep));
+        }
+        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_"))) {
+            const QString varname = var.mid(12);
+            val = project->first(varname);
+        }
         if(val.isNull() && !in.isNull()) {
-            if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
+            if(var.startsWith(QLatin1String("QMAKE_FUNC_FILE_IN_"))) {
+                filePath = true;
+                const QString funcname = var.mid(19);
+                val = project->expand(funcname, QStringList() << in).join(QString(Option::field_sep));
+            } else if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
                 filePath = true;
                 QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
                 val = fi.completeBaseName();
                 if(val.isNull())
                     val = fi.fileName();
-            }
-            if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN")) {
+            } else if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN")) {
                 filePath = true;
                 val = fileInfo(Option::fixPathToLocalOS(in)).filePath();
             }
         }
         if(val.isNull() && !out.isNull()) {
-            if(var == QLatin1String("QMAKE_FILE_OUT")) {
+            if(var.startsWith(QLatin1String("QMAKE_FUNC_FILE_OUT_"))) {
+                filePath = true;
+                const QString funcname = var.mid(20);
+                val = project->expand(funcname, QStringList() << out).join(QString(Option::field_sep));
+            } else if(var == QLatin1String("QMAKE_FILE_OUT")) {
                 filePath = true;
                 val = out;
             }

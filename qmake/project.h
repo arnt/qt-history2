@@ -101,7 +101,8 @@ public:
     QString configFile();
     inline QMakeProperty *properities() { return prop; }
 
-    QString expand(const QString &v);
+    QStringList expand(const QString &v);
+    QStringList expand(const QString &func, const QStringList &args);
     bool test(const QString &v);
     bool test(const QString &func, const QStringList &args);
     bool isActiveConfig(const QString &x, bool regex=false,

@@ -2456,14 +2456,22 @@ QMakeProject::test(const QString &func, const QStringList &args)
     return doProjectTest(func, args, tmp);
 }
 
-QString
+QStringList
 QMakeProject::expand(const QString &str)
 {
+    bool ok;
     QMap<QString, QStringList> tmp = vars;
-    QString ret = str;
-    if(!doVariableReplace(ret, tmp))
-        return str;
+    const QStringList ret = doVariableReplaceExpand(str, tmp, &ok);
+    if(ok)
     return ret;
+    return QStringList();
+}
+
+QStringList
+QMakeProject::expand(const QString &func, const QStringList &args)
+{
+    QMap<QString, QStringList> tmp = vars;
+    return doProjectExpand(func, args, tmp);
 }
 
 bool
