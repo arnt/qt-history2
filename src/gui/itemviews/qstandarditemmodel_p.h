@@ -32,6 +32,7 @@
 #include <private/qwidgetitemdata_p.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qpair.h>
+#include <QtCore/qstack.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
@@ -65,14 +66,29 @@ public:
     void childDeleted(QStandardItem *child);
 
     inline void setModel(QStandardItemModel *mod) {
-        model = mod;
+        if (children.isEmpty()) {
+            model = mod;
+        } else {
+            QStack<QStandardItem*> stack;
+            stack.push(q_ptr);
+            while (!stack.isEmpty()) {
+                QStandardItem *itm = stack.pop();
+                itm->d_func()->model = mod;
+                const QVector<QStandardItem*> &childs = itm->d_func()->children;
+                for (int i = 0; i < childs.count(); ++i) {
+                    QStandardItem *chi = childs.at(i);
+                    if (chi)
+                        stack.push(chi);
+                }
+            }
+        }
     }
 
     inline void setParentAndModel(
         QStandardItem *par,
         QStandardItemModel *mod) {
         parent = par;
-        model = mod;
+        setModel(mod);
     }
 
     void changeFlags(bool enable, Qt::ItemFlags f);
@@ -114,7 +130,7 @@ public:
         if (!index.isValid())
             return root;
         if (index.model() != q)
-        return 0;
+            return 0;
         QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
         if (parent == 0)
             return 0;

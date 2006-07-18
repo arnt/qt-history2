@@ -96,6 +96,7 @@ private slots:
     void takeHeaderItem();
     void useCase1();
     void useCase2();
+    void useCase3();
 #endif
 
 private:
@@ -918,16 +919,20 @@ void tst_QStandardItemModel::getSetHeaderItem()
     model.setHorizontalHeaderItem(0, hheader);
     QCOMPARE(model.columnCount(), 1);
     QCOMPARE(model.horizontalHeaderItem(0), hheader);
+    QCOMPARE(hheader->model(), &model);
     model.setHorizontalHeaderItem(0, 0);
     QCOMPARE(model.horizontalHeaderItem(0), static_cast<QStandardItem*>(0));
+    QCOMPARE(hheader->model(), static_cast<QStandardItemModel*>(0));
 
     QCOMPARE(model.verticalHeaderItem(0), static_cast<QStandardItem*>(0));
     QStandardItem *vheader = new QStandardItem();
     model.setVerticalHeaderItem(0, vheader);
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.verticalHeaderItem(0), vheader);
+    QCOMPARE(vheader->model(), &model);
     model.setVerticalHeaderItem(0, 0);
     QCOMPARE(model.verticalHeaderItem(0), static_cast<QStandardItem*>(0));
+    QCOMPARE(vheader->model(), static_cast<QStandardItemModel*>(0));
 }
 
 void tst_QStandardItemModel::indexFromItem()
@@ -938,11 +943,13 @@ void tst_QStandardItemModel::indexFromItem()
 
     QStandardItem *item = new QStandardItem;
     model.setItem(10, 20, item);
+    QCOMPARE(item->model(), &model);
     QModelIndex itemIndex = model.indexFromItem(item);
     QVERIFY(itemIndex.isValid());
     QCOMPARE(itemIndex.row(), 10);
     QCOMPARE(itemIndex.column(), 20);
     QCOMPARE(itemIndex.parent(), QModelIndex());
+    QCOMPARE(itemIndex.model(), &model);
 
     QStandardItem *child = new QStandardItem;
     item->setChild(4, 2, child);
@@ -1035,7 +1042,7 @@ void tst_QStandardItemModel::getSetItemData()
     Qt::Alignment textAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     roles.insert(Qt::TextAlignmentRole, int(textAlignment));
     QColor backgroundColor(Qt::blue);
-    roles.insert(Qt::BackgroundColorRole, backgroundColor);
+    roles.insert(Qt::BackgroundRole, backgroundColor);
     QColor textColor(Qt::green);
     roles.insert(Qt::TextColorRole, textColor);
     Qt::CheckState checkState(Qt::PartiallyChecked);
@@ -1173,6 +1180,8 @@ void tst_QStandardItemModel::takeHeaderItem()
     // take header items
     QCOMPARE(model.takeHorizontalHeaderItem(0), hheader);
     QCOMPARE(model.takeVerticalHeaderItem(0), vheader);
+    QCOMPARE(hheader->model(), static_cast<QStandardItemModel*>(0));
+    QCOMPARE(vheader->model(), static_cast<QStandardItemModel*>(0));
     QCOMPARE(model.takeHorizontalHeaderItem(0), static_cast<QStandardItem*>(0));
     QCOMPARE(model.takeVerticalHeaderItem(0), static_cast<QStandardItem*>(0));
     delete hheader;
@@ -1192,6 +1201,7 @@ void tst_QStandardItemModel::useCase1()
             model.setItem(i, j, item);
             QCOMPARE(item->row(), i);
             QCOMPARE(item->column(), j);
+            QCOMPARE(item->model(), &model);
 
             QModelIndex index = model.indexFromItem(item);
             QCOMPARE(index, model.index(i, j, QModelIndex()));
@@ -1236,6 +1246,41 @@ void tst_QStandardItemModel::useCase2()
     QStandardItemModel model;
     model.setColumnCount(2);
     createChildren(&model, model.topLevelParent(), 0);
+}
+
+void tst_QStandardItemModel::useCase3()
+{
+    // create the tree structure first
+    QStandardItem *childItem = 0;
+    for (int i = 0; i < 100; ++i) {
+        QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
+        if (childItem)
+            item->appendRow(childItem);
+        childItem = item;
+    }
+
+    // add to model as last step
+    QStandardItemModel model;
+    model.appendRow(childItem);
+
+    // make sure each item has the correct model and parent
+    QStandardItem *parentItem = model.topLevelParent();
+    while (childItem) {
+        QCOMPARE(childItem->model(), &model);
+        QCOMPARE(childItem->parent(), parentItem);
+        parentItem = childItem;
+        childItem = childItem->child(0);
+    }
+
+    // take the item, make sure model is set to 0, but that parents are the same
+    childItem = model.takeItem(0);
+    parentItem = 0;
+    while (childItem) {
+        QCOMPARE(childItem->model(), static_cast<QStandardItemModel*>(0));
+        QCOMPARE(childItem->parent(), parentItem);
+        parentItem = childItem;
+        childItem = childItem->child(0);
+    }
 }
 
 #endif // QT_VERSION >= 0x040200
