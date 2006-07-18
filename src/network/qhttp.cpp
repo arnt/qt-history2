@@ -670,9 +670,10 @@ void QHttpHeader::setValid(bool v)
 QString QHttpHeader::value(const QString &key) const
 {
     Q_D(const QHttpHeader);
+    QString lowercaseKey = key.toLower();
     QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
     while (it != d->values.constEnd()) {
-        if ((*it).first == key)
+        if ((*it).first == lowercaseKey)
             return (*it).second;
         ++it;
     }
@@ -686,10 +687,11 @@ QString QHttpHeader::value(const QString &key) const
 QStringList QHttpHeader::allValues(const QString &key) const
 {
     Q_D(const QHttpHeader);
+    QString lowercaseKey = key.toLower();
     QStringList valueList;
     QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
     while (it != d->values.constEnd()) {
-        if ((*it).first == key)
+        if ((*it).first == lowercaseKey)
             valueList.append((*it).second);
         ++it;
     }
@@ -723,9 +725,10 @@ QStringList QHttpHeader::keys() const
 bool QHttpHeader::hasKey(const QString &key) const
 {
     Q_D(const QHttpHeader);
+    QString lowercaseKey = key.toLower();
     QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
     while (it != d->values.constEnd()) {
-        if ((*it).first == key)
+        if ((*it).first == lowercaseKey)
             return true;
         ++it;
     }
