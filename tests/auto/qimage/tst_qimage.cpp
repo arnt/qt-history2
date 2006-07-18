@@ -29,6 +29,7 @@ public:
 
 private slots:
     void create();
+    void createInvalidXPM();
     void convertBitOrder();
     void formatHadlersInput_data();
     void formatHadlersInput();
@@ -81,6 +82,14 @@ void tst_QImage::create()
     }
 #endif
     QVERIFY( !cr );
+}
+
+void tst_QImage::createInvalidXPM()
+{
+    QTest::ignoreMessage(QtWarningMsg, "QImage::QImage(), XPM is not supported");
+    const char *xpm[] = {};
+    QImage invalidXPM(xpm);
+    QVERIFY(invalidXPM.isNull());
 }
 
 void tst_QImage::convertBitOrder()
