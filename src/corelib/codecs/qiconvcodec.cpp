@@ -45,6 +45,11 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
 
     iconv_t cd = createIconv_t("UTF-16", 0);
     if (cd == reinterpret_cast<iconv_t>(-1)) {
+#ifdef Q_OS_HPUX
+#warning Temporary fix submitted by Andreas to prevent flooding stderr on HP-UX
+        static int reported = 0;
+        if (!reported++)
+#endif
         fprintf(stderr, "QIconvCodec::convertToUnicode: using ASCII for conversion, iconv_open failed\n");
         return QString::fromAscii(chars, len);
     }
@@ -101,6 +106,11 @@ QByteArray QIconvCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 {
     iconv_t cd = createIconv_t(0, "UTF-16");
     if (cd == reinterpret_cast<iconv_t>(-1)) {
+#ifdef Q_OS_HPUX
+#warning Temporary fix submitted by Andreas to prevent flooding stderr on HP-UX
+        static int reported = 0;
+        if (!reported++)
+#endif
         fprintf(stderr, "QIconvCodec::convertFromUnicode: using ASCII for conversion, iconv_open failed\n");
         return QString(uc, len).toAscii();
     }
