@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
 
 #include "qdbusconnection.h"    // for the Export* flags
@@ -396,7 +395,7 @@ int main(int argc, char **argv)
         output.setFileName(outputFile);
         if (!output.open(QIODevice::WriteOnly)) {
             fprintf(stderr, PROGRAMNAME ": could not open output file '%s': %s",
-                    qPrintable(outputFile), strerror(errno));
+                    qPrintable(outputFile), qPrintable(output.errorString()));
             return 1;
         }
     }

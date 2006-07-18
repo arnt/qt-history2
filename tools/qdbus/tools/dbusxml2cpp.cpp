@@ -11,10 +11,6 @@
 **
 ****************************************************************************/
 
-#include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <QtCore/qbytearray.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdatetime.h>
@@ -28,6 +24,10 @@
 #include <QtDBus>
 #include "private/qdbusmetaobject_p.h"
 #include "private/qdbusintrospection_p.h"
+
+#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define PROGRAMNAME     "dbusxml2cpp"
 #define PROGRAMVERSION  "0.6"
