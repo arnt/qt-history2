@@ -172,7 +172,10 @@ void QWindowsPipeWriter::run()
         qint64 totalWritten = 0;
         while ((!quitNow) && totalWritten < maxlen) {
             DWORD written = 0;
-            if (!WriteFile(writePipe, ptrData + totalWritten, qMin<int>(8192, maxlen - totalWritten), &written, 0)) {
+            // Write 2k at a time to prevent flooding the pipe. If you
+            // write too much (4k-8k), the pipe can close
+            // unexpectedly.
+            if (!WriteFile(writePipe, ptrData + totalWritten, qMin<int>(2048, maxlen - totalWritten), &written, 0)) {
                 if (GetLastError() == 0xE8 /*NT_STATUS_INVALID_USER_BUFFER*/) {
                     // give the os a rest
                     msleep(100);
@@ -371,7 +374,6 @@ bool QProcessPrivate::createChannel(Channel &channel)
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 {
     if (pipe[0] == stdinChannel.pipe[0] && pipe[1] == stdinChannel.pipe[1] && pipeWriter) {
-        pipeWriter->waitForWrite(ULONG_MAX);
         delete pipeWriter;
         pipeWriter = 0;
     }
@@ -845,6 +847,11 @@ void QProcessPrivate::findExitCode()
     }
 }
 
+void QProcessPrivate::flushPipeWriter()
+{
+    if (pipeWriter)
+        pipeWriter->waitForWrite(ULONG_MAX);
+}
 
 qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {

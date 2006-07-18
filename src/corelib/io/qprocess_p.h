@@ -175,6 +175,9 @@ public:
 #ifdef Q_OS_UNIX
     bool waitForDeadChild();
 #endif
+#ifdef Q_OS_WIN
+    void flushPipeWriter();
+#endif
 
     static bool startDetached(const QString &program, const QStringList &arguments);
 

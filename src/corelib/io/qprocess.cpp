@@ -26,7 +26,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 {
     if (!data) return "(null)";
     QByteArray out;
-    for (int i = 0; i < len; ++i) {
+    for (int i = 0; i < len && i < maxSize; ++i) {
         char c = data[i];
         if (isprint(c)) {
             out += c;
@@ -35,9 +35,10 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
         case '\r': out += "\\r"; break;
         case '\t': out += "\\t"; break;
         default:
-            QString tmp;
-            tmp.sprintf("\\%o", c);
-            out += tmp.toLatin1();
+            char buf[5];
+            qsnprintf(buf, sizeof(buf), "\\%3o", c);
+            buf[4] = '\0';
+            out += QString::fromLatin1(buf);
         }
     }
 
@@ -678,6 +679,11 @@ void QProcessPrivate::closeWriteChannel()
         delete stdinChannel.notifier;
         stdinChannel.notifier = 0;
     }
+#ifdef Q_OS_WIN
+    // ### Find a better fix, feeding the process little by little
+    // instead.
+    flushPipeWriter();
+#endif
     destroyPipe(stdinChannel.pipe);
 }
 
@@ -1285,14 +1291,14 @@ qint64 QProcess::readData(char *data, qint64 maxlen)
         if (c == -1) {
 #if defined QPROCESS_DEBUG
             qDebug("QProcess::readData(%p \"%s\", %d) == -1",
-                   data, qt_prettyDebug(data, maxlen, 1).constData(), 1);
+                   data, qt_prettyDebug(data, 1, maxlen).constData(), 1);
 #endif
             return -1;
         }
         *data = (char) c;
 #if defined QPROCESS_DEBUG
         qDebug("QProcess::readData(%p \"%s\", %d) == 1",
-               data, qt_prettyDebug(data, maxlen, 1).constData(), 1);
+               data, qt_prettyDebug(data, 1, maxlen).constData(), 1);
 #endif
         return 1;
     }
