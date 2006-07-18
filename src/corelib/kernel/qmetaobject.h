@@ -83,6 +83,7 @@ public:
     const char *name() const;
     const char *typeName() const;
     QVariant::Type type() const;
+    int userType() const;
 
     bool isReadable() const;
     bool isWritable() const;

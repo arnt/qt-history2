@@ -1530,7 +1530,7 @@ const char *QMetaProperty::typeName() const
     Returns this property's type. The return value is one
     of the values of the QVariant::Type enumeration.
 
-    \sa typeName(), name()
+    \sa userType(), typeName(), name()
 */
 QVariant::Type QMetaProperty::type() const
 {
@@ -1546,6 +1546,23 @@ QVariant::Type QMetaProperty::type() const
         return QVariant::Int;
 
     return QVariant::UserType;
+}
+
+/*!
+    \since 4.2
+
+    Returns this property's user type. The return value is one
+    of the values that are registered with QMetaType, or 0 if
+    the type is not registered.
+
+    \sa type(), QMetaType, typeName()
+ */
+int QMetaProperty::userType() const
+{
+    QVariant::Type tp = type();
+    if (tp != QVariant::UserType)
+        return tp;
+    return QMetaType::type(typeName());
 }
 
 /*!

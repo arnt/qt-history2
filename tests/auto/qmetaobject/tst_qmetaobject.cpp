@@ -16,12 +16,18 @@
 //TESTED_CLASS=
 //TESTED_FILES=corelib/kernel/qmetaobject.h corelib/kernel/qmetaobject.cpp
 
+struct MyStruct
+{
+    int i;
+};
+
 class tst_QMetaObject : public QObject
 {
     Q_OBJECT
     Q_ENUMS(EnumType)
     Q_PROPERTY(EnumType value WRITE setValue READ getValue)
     Q_PROPERTY(EnumType value2 WRITE set_value READ get_value)
+    Q_PROPERTY(MyStruct value3 WRITE setVal3 READ val3)
 
 public:
     enum EnumType { EnumType1 };
@@ -34,6 +40,9 @@ public:
 
     void set_value(EnumType) {}
     EnumType get_value() const { return EnumType1; }
+
+    void setVal3(MyStruct) {}
+    MyStruct val3() const { MyStruct s = {42}; return s; }
 
 public slots:
     void initTestCase();
@@ -50,6 +59,7 @@ private slots:
     void normalizedSignature();
     void normalizedType_data();
     void normalizedType();
+    void customPropertyType();
 
     void stdSet();
 };
@@ -504,6 +514,17 @@ void tst_QMetaObject::normalizedType()
     QFETCH(QString, result);
 
     QCOMPARE(QString::fromLatin1(QMetaObject::normalizedType(type.toLatin1())), result);
+}
+
+void tst_QMetaObject::customPropertyType()
+{
+    QMetaProperty prop = metaObject()->property(metaObject()->indexOfProperty("value3"));
+
+    QCOMPARE(prop.type(), QVariant::UserType);
+    QCOMPARE(prop.userType(), 0);
+
+    qRegisterMetaType<MyStruct>("MyStruct");
+    QCOMPARE(prop.userType(), QMetaType::type("MyStruct"));
 }
 
 QTEST_MAIN(tst_QMetaObject)
