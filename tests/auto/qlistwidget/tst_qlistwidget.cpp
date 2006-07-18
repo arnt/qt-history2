@@ -8,6 +8,7 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
+#include <QtGui/QtGui>
 #include <qeventloop.h>
 #include <qlist.h>
 
@@ -40,8 +41,28 @@ public slots:
     void cleanupTestCase();
     void init();
     void cleanup();
+
 private slots:
-    void getSetCheck();
+    void addItem();
+    void addItem2();
+    void addItems();
+    void openPersistentEditor();
+    void closePersistentEditor();
+    void count();
+    void currentItem();
+    void setCurrentItem_data();
+    void setCurrentItem();
+    void currentRow();
+    void setCurrentRow_data();
+    void setCurrentRow();
+    void editItem_data();
+    void editItem();
+    void findItems();
+    void insertItem_data();
+    void insertItem();
+    void insertItems_data();
+    void insertItems();
+
     void itemAssignment();
     void item_data();
     void item();
@@ -50,10 +71,6 @@ private slots:
     void setItemHidden();
     void selectedItems_data();
     void selectedItems();
-    void insertItem_data();
-    void insertItem();
-    void insertItems_data();
-    void insertItems();
     void removeItems_data();
     void removeItems();
     void itemStreaming_data();
@@ -95,40 +112,17 @@ private:
     QVector<QModelIndex> rcParent;
     QVector<int> rcFirst;
     QVector<int> rcLast;
+
+    void populate();
+    void checkDefaultValues();
 };
 
-// Testing get/set functions
-void tst_QListWidget::getSetCheck()
-{
-    QListWidget obj1;
-    QListWidgetItem *var1 = new QListWidgetItem(&obj1);
-    new QListWidgetItem(&obj1);
-    // QListWidgetItem * QListWidget::currentItem()
-    // void QListWidget::setCurrentItem(QListWidgetItem *)
-    obj1.setCurrentItem(var1);
-    QCOMPARE(var1, obj1.currentItem());
-#if QT_VERSION >= 0x040200
-    // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
-    obj1.setCurrentItem((QListWidgetItem *)0);
-    QCOMPARE((QListWidgetItem *)0, obj1.currentItem());
-#endif
-    // int QListWidget::currentRow()
-    // void QListWidget::setCurrentRow(int)
-    obj1.setCurrentRow(0);
-    QCOMPARE(0, obj1.currentRow());
-    obj1.setCurrentRow(INT_MIN);
-    QCOMPARE(-1, obj1.currentRow()); // Model contains no INT_MIN row => -1 (invalid index)
-    obj1.setCurrentRow(INT_MAX);
-    QCOMPARE(-1, obj1.currentRow()); // Model contains no INT_MAX row => -1 (invalid index)
-    obj1.setCurrentRow(1);
-    QCOMPARE(1, obj1.currentRow());
-}
 
 typedef QList<int> IntList;
 Q_DECLARE_METATYPE(IntList)
 Q_DECLARE_METATYPE(QVariantList)
 
-    tst_QListWidget::tst_QListWidget(): testWidget(0), rcParent(8), rcFirst(8,0), rcLast(8,0)
+tst_QListWidget::tst_QListWidget(): testWidget(0), rcParent(8), rcFirst(8,0), rcLast(8,0)
 {
 }
 
@@ -158,6 +152,8 @@ void tst_QListWidget::initTestCase()
             this, SLOT(columnsAboutToBeRemoved(QModelIndex, int, int)));
     connect(testWidget->model(), SIGNAL(columnsRemoved(QModelIndex, int, int)),
             this, SLOT(columnsRemoved(QModelIndex, int, int)));
+
+    checkDefaultValues();
 }
 
 void tst_QListWidget::cleanupTestCase()
@@ -168,196 +164,306 @@ void tst_QListWidget::cleanupTestCase()
 void tst_QListWidget::init()
 {
     testWidget->clear();
+
+    if (testWidget->viewport()->children().count() > 0) {
+        QEventLoop eventLoop;
+        for (int i=0; i < testWidget->viewport()->children().count(); ++i)
+            connect(testWidget->viewport()->children().at(i), SIGNAL(destroyed()), &eventLoop, SLOT(quit()));
+        QTimer::singleShot(100, &eventLoop, SLOT(quit()));
+        eventLoop.exec();
+    }
+}
+
+void tst_QListWidget::checkDefaultValues()
+{
+    QCOMPARE(testWidget->currentItem(), (QListWidgetItem *)0);
+    QCOMPARE(testWidget->currentRow(), -1);
+    QCOMPARE(testWidget->count(), 0);
 }
 
 void tst_QListWidget::cleanup()
 {
 }
 
-void tst_QListWidget::itemAssignment()
+void tst_QListWidget::populate()
 {
-    QListWidgetItem itemInWidget("inWidget", testWidget);
-    itemInWidget.setFlags(itemInWidget.flags() | Qt::ItemIsTristate);
-    QListWidgetItem itemOutsideWidget("outsideWidget");
+    addItem();
+    addItem2();
+    addItems();
+    setItemHidden();
 
-    QVERIFY(itemInWidget.listWidget());
-    QCOMPARE(itemInWidget.text(), QString("inWidget"));
-    QVERIFY(itemInWidget.flags() & Qt::ItemIsTristate);
+    testWidget->setCurrentIndex(testWidget->model()->index(0,0));
 
-    QVERIFY(!itemOutsideWidget.listWidget());
-    QCOMPARE(itemOutsideWidget.text(), QString("outsideWidget"));
-    QVERIFY(!(itemOutsideWidget.flags() & Qt::ItemIsTristate));
-
-    itemOutsideWidget = itemInWidget;
-    QVERIFY(!itemOutsideWidget.listWidget());
-    QCOMPARE(itemOutsideWidget.text(), QString("inWidget"));
-    QVERIFY(itemOutsideWidget.flags() & Qt::ItemIsTristate);
+    // setCurrentItem();
+    // setCurrentRow();
 }
 
-void tst_QListWidget::item_data()
+void tst_QListWidget::addItem()
 {
-    QTest::addColumn<int>("row");
-    QTest::addColumn<bool>("outOfBounds");
-
-    QTest::newRow("First item, row: 0") << 0 << false;
-    QTest::newRow("Middle item, row: 1") << 1 << false;
-    QTest::newRow("Last item, row: 2") << 2 << false;
-    QTest::newRow("Out of bounds, row: -1") << -1 << true;
-    QTest::newRow("Out of bounds, row: 3") << 3 << true;
+    int count = testWidget->count();
+    QString label = QString("%1").arg(count);
+    testWidget->addItem(label);
+    QCOMPARE(testWidget->count(), ++count);
+    QCOMPARE(testWidget->item(testWidget->count()-1)->text(), label);
 }
 
-void tst_QListWidget::item()
+void tst_QListWidget::addItem2()
 {
-    QFETCH(int, row);
-    QFETCH(bool, outOfBounds);
+    int count = testWidget->count();
 
-    (new QListWidgetItem(testWidget))->setText("item0");
-    (new QListWidgetItem(testWidget))->setText("item1");
-    (new QListWidgetItem(testWidget))->setText("item2");
+    // Boundry Checking
+    testWidget->addItem(0);
+    QCOMPARE(testWidget->count(), count);
 
-    QCOMPARE(testWidget->count(), 3);
-
-    QListWidgetItem *item = testWidget->item(row);
-    if (outOfBounds) {
-        QCOMPARE(item, static_cast<QListWidgetItem*>(0));
-        QCOMPARE(testWidget->count(), 3);
-    } else {
-        QCOMPARE(item->text(), QString("item%1").arg(row));
-        QCOMPARE(testWidget->count(), 3);
-    }
+    QListWidgetItem *item = new QListWidgetItem(QString("%1").arg(count));
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+    testWidget->addItem(item);
+    QCOMPARE(testWidget->count(), ++count);
+    QCOMPARE(testWidget->item(testWidget->count()-1), item);
+    QCOMPARE(testWidget->isItemHidden(item), false);
 }
 
-void tst_QListWidget::takeItem_data()
+void tst_QListWidget::addItems()
 {
-    QTest::addColumn<int>("row");
-    QTest::addColumn<bool>("outOfBounds");
+    int count = testWidget->count();
 
-    QTest::newRow("First item, row: 0") << 0 << false;
-    QTest::newRow("Middle item, row: 1") << 1 << false;
-    QTest::newRow("Last item, row: 2") << 2 << false;
-    QTest::newRow("Out of bounds, row: -1") << -1 << true;
-    QTest::newRow("Out of bounds, row: 3") << 3 << true;
+    // Boundry Checking
+    testWidget->addItems(QStringList());
+    QCOMPARE(testWidget->count(), count);
+
+    QStringList stringList;
+    QString label = QString("%1").arg(count);
+    stringList << QString("%1").arg(testWidget->count() + 1)
+               << QString("%1").arg(testWidget->count() + 2)
+               << QString("%1").arg(testWidget->count() + 3)
+               << label;
+    testWidget->addItems(stringList);
+    QCOMPARE(testWidget->count(), count + stringList.count());
+    QCOMPARE(testWidget->item(testWidget->count()-1)->text(), label);
 }
 
-void tst_QListWidget::takeItem()
+
+void tst_QListWidget::openPersistentEditor()
 {
-    QFETCH(int, row);
-    QFETCH(bool, outOfBounds);
+    // Boundry checking
+    testWidget->openPersistentEditor(0);
+    QListWidgetItem *item = new QListWidgetItem(QString("%1").arg(testWidget->count()));
+    testWidget->openPersistentEditor(item);
 
-    (new QListWidgetItem(testWidget))->setText("item0");
-    (new QListWidgetItem(testWidget))->setText("item1");
-    (new QListWidgetItem(testWidget))->setText("item2");
+    int childCount = testWidget->viewport()->children().count();
+    testWidget->addItem(item);
+    testWidget->openPersistentEditor(item);
+    QCOMPARE(childCount + 1, testWidget->viewport()->children().count());
+}
 
-    QCOMPARE(testWidget->count(), 3);
+void tst_QListWidget::closePersistentEditor()
+{
+    // Boundry checking
+    int childCount = testWidget->viewport()->children().count();
+    testWidget->closePersistentEditor(0);
+    QListWidgetItem *item = new QListWidgetItem(QString("%1").arg(testWidget->count()));
+    testWidget->closePersistentEditor(item);
+    QCOMPARE(childCount, testWidget->viewport()->children().count());
 
-    QListWidgetItem *item = testWidget->takeItem(row);
-    if (outOfBounds) {
-        QCOMPARE(item, static_cast<QListWidgetItem*>(0));
-        QCOMPARE(testWidget->count(), 3);
-    } else {
-        QCOMPARE(item->text(), QString("item%1").arg(row));
-        QCOMPARE(testWidget->count(), 2);
-    }
+    // Create something
+    testWidget->addItem(item);
+    testWidget->openPersistentEditor(item);
 
-    delete item;
+    // actual test
+    childCount = testWidget->viewport()->children().count();
+    testWidget->closePersistentEditor(item);
+    // Spin the event loop and hopefully it will die.
+    QEventLoop eventLoop;
+    for (int i=0; i < childCount; ++i)
+        connect(testWidget->viewport()->children().at(i), SIGNAL(destroyed()), &eventLoop, SLOT(quit()));
+    QTimer::singleShot(100, &eventLoop, SLOT(quit()));
+    eventLoop.exec();
+    QCOMPARE(testWidget->viewport()->children().count(), childCount - 1);
 }
 
 void tst_QListWidget::setItemHidden()
 {
-    QListWidgetItem *item1 = new QListWidgetItem(testWidget);
-    QListWidgetItem *item2 = new QListWidgetItem(testWidget);
+    // Boundry checking
+    testWidget->setItemHidden(0, true);
+    testWidget->setItemHidden(0, false);
 
-    QCOMPARE(testWidget->count(), 2);
+    int totalHidden = 0;
+    for (int i = 0; i < testWidget->model()->rowCount(); ++i)
+        if (testWidget->isItemHidden(testWidget->item(i)))
+            totalHidden++;
 
-    QVERIFY(!testWidget->isItemHidden(item1));
-    QVERIFY(!testWidget->isItemHidden(item2));
+    QListWidgetItem *item = new QListWidgetItem(QString("%1").arg(testWidget->count()));
+    testWidget->addItem(item);
 
-    testWidget->setItemHidden(item1, true);
+    // Check that nothing else changed
+    int newTotal = 0;
+    for (int i = 0; i < testWidget->model()->rowCount(); ++i)
+        if (testWidget->isItemHidden(testWidget->item(i)))
+            newTotal++;
+    QCOMPARE(newTotal, totalHidden);
 
-    QVERIFY(testWidget->isItemHidden(item1));
-    QVERIFY(!testWidget->isItemHidden(item2));
+    testWidget->setItemHidden(item, true);
+    QCOMPARE(testWidget->isItemHidden(item), true);
+
+    // Check that nothing else changed
+    newTotal = 0;
+    for (int i = 0; i < testWidget->model()->rowCount(); ++i)
+        if (testWidget->isItemHidden(testWidget->item(i)))
+            newTotal++;
+    QCOMPARE(newTotal, totalHidden + 1);
+
+    testWidget->setItemHidden(item, false);
+    QCOMPARE(testWidget->isItemHidden(item), false);
+
+    // Check that nothing else changed
+    newTotal = 0;
+    for (int i = 0; i < testWidget->model()->rowCount(); ++i)
+        if (testWidget->isItemHidden(testWidget->item(i)))
+            newTotal++;
+    QCOMPARE(newTotal, totalHidden);
+
+    testWidget->setItemHidden(item, true);
 }
 
-void tst_QListWidget::selectedItems_data()
+void tst_QListWidget::setCurrentItem_data()
 {
-    QTest::addColumn<int>("itemCount");
-    QTest::addColumn<IntList>("hiddenRows");
-    QTest::addColumn<IntList>("selectedRows");
-    QTest::addColumn<IntList>("expectedRows");
-
-
-    QTest::newRow("none hidden, none selected")
-        << 3
-        << IntList()
-        << IntList()
-        << IntList();
-
-    QTest::newRow("none hidden, all selected")
-        << 3
-        << IntList()
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2);
-
-    QTest::newRow("first hidden, all selected")
-        << 3
-        << (IntList() << 0)
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2);
-
-    QTest::newRow("last hidden, all selected")
-        << 3
-        << (IntList() << 2)
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2);
-
-    QTest::newRow("middle hidden, all selected")
-        << 3
-        << (IntList() << 1)
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2);
-
-    QTest::newRow("all hidden, all selected")
-        << 3
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2)
-        << (IntList() << 0 << 1 << 2);
+    QTest::addColumn<int>("fill");
+    QTest::newRow("HasItems: 0") << 0;
+    QTest::newRow("HasItems: 1") << 1;
+    QTest::newRow("HasItems: 2") << 2;
+    QTest::newRow("HasItems: 3") << 3;
 }
 
-void tst_QListWidget::selectedItems()
+void tst_QListWidget::setCurrentItem()
 {
-    QFETCH(int, itemCount);
-    QFETCH(IntList, hiddenRows);
-    QFETCH(IntList, selectedRows);
-    QFETCH(IntList, expectedRows);
+    QFETCH(int, fill);
+    for (int i = 0; i < fill; ++i)
+        testWidget->addItem(QString("%1").arg(i));
 
-    QVERIFY(testWidget->count() == 0);
+    // Boundry checking
+    testWidget->setCurrentItem((QListWidgetItem *)0);
+    QCOMPARE((QListWidgetItem *)0, testWidget->currentItem());
+    QListWidgetItem item;
+    testWidget->setCurrentItem(&item);
+    QCOMPARE((QListWidgetItem *)0, testWidget->currentItem());
 
-    //insert items
-    for (int i=0; i<itemCount; ++i)
-        new QListWidgetItem(QString("Item%1").arg(i), testWidget);
-
-    //verify items are inserted
-    QCOMPARE(testWidget->count(), itemCount);
-    // hide items
-    foreach (int row, hiddenRows)
-        testWidget->setItemHidden(testWidget->item(row), true);
-    // select items
-    foreach (int row, selectedRows)
-        testWidget->setItemSelected(testWidget->item(row), true);
-
-    // check that the correct number of items and the expected items are there
-    QList<QListWidgetItem *> selectedItems = testWidget->selectedItems();
-    QCOMPARE(selectedItems.count(), expectedRows.count());
-    foreach (int row, expectedRows)
-        QVERIFY(selectedItems.contains(testWidget->item(row)));
-
-    //check that isSelected agrees with selectedItems
-    for (int i=0; i<itemCount; ++i) {
-        QListWidgetItem *item = testWidget->item(i);
-        if (testWidget->isItemSelected(item))
-            QVERIFY(selectedItems.contains(item));
+    // Make sure that currentItem changes to what is passed into setCurrentItem
+    for (int i = 0; i < testWidget->count(); ++i) {
+        testWidget->setCurrentItem(testWidget->item(i));
+        for (int j = 0; j < testWidget->count(); ++j) {
+            testWidget->setCurrentItem(testWidget->item(j));
+            QCOMPARE(testWidget->item(j), testWidget->currentItem());
+        }
     }
 }
+
+void tst_QListWidget::setCurrentRow_data()
+{
+    QTest::addColumn<int>("fill");
+    QTest::newRow("HasItems: 0") << 0;
+    QTest::newRow("HasItems: 1") << 1;
+    QTest::newRow("HasItems: 2") << 2;
+    QTest::newRow("HasItems: 3") << 3;
+}
+
+void tst_QListWidget::setCurrentRow()
+{
+    QFETCH(int, fill);
+    for (int i = 0; i < fill; ++i)
+        testWidget->addItem(QString("%1").arg(i));
+
+    // Boundry checking
+    testWidget->setCurrentRow(-1);
+    QCOMPARE(-1, testWidget->currentRow());
+    testWidget->setCurrentRow(testWidget->count());
+    QCOMPARE(-1, testWidget->currentRow());
+
+    // Make sure that currentRow changes to what is passed into setCurrentRow
+    for (int i = 0; i < testWidget->count(); ++i) {
+        testWidget->setCurrentRow(i);
+        for (int j = 0; j < testWidget->count(); ++j) {
+            testWidget->setCurrentRow(j);
+            QCOMPARE(j, testWidget->currentRow());
+        }
+    }
+}
+
+void tst_QListWidget::count()
+{
+    populate();
+
+    // actual test
+    QCOMPARE(testWidget->model()->rowCount(), testWidget->count());
+}
+
+void tst_QListWidget::currentItem()
+{
+    populate();
+
+    // actual test
+    QModelIndex currentIndex = testWidget->selectionModel()->currentIndex();
+    if (currentIndex.isValid())
+        QVERIFY(testWidget->currentItem() == testWidget->item(currentIndex.row()));
+    else
+        QVERIFY(testWidget->currentItem() == (QListWidgetItem*)0);
+}
+
+void tst_QListWidget::currentRow()
+{
+    populate();
+
+    // actual test
+    QModelIndex currentIndex = testWidget->selectionModel()->currentIndex();
+    if (currentIndex.isValid())
+        QCOMPARE(testWidget->currentRow(), currentIndex.row());
+    else
+        QCOMPARE(testWidget->currentRow(), -1);
+}
+
+void tst_QListWidget::editItem_data()
+{
+    QTest::addColumn<bool>("editable");
+    QTest::newRow("editable") << true;
+    QTest::newRow("not editable") << false;
+}
+
+void tst_QListWidget::editItem()
+{
+    // Boundry checking
+    testWidget->editItem(0);
+    QListWidgetItem *item = new QListWidgetItem(QString("%1").arg(testWidget->count()));
+    testWidget->editItem(item);
+
+    QFETCH(bool, editable);
+    if (editable)
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+    testWidget->addItem(item);
+
+    int childCount = testWidget->viewport()->children().count();
+    QWidget *existsAlready = testWidget->indexWidget(testWidget->model()->index(testWidget->row(item), 0));
+    testWidget->editItem(item);
+    Qt::ItemFlags flags = item->flags();
+
+    // There doesn't seem to be a way to detect if the item has already been edited...
+    if (!existsAlready && flags & Qt::ItemIsEditable && flags & Qt::ItemIsEnabled)
+        QCOMPARE(testWidget->viewport()->children().count(), childCount + 1);
+    else
+        QCOMPARE(testWidget->viewport()->children().count(), childCount);
+}
+
+void tst_QListWidget::findItems()
+{
+    // This really just tests that the items that are returned are converted from index's to items correctly.
+
+    // Boundry checking
+    QCOMPARE(testWidget->findItems("GirlsCanWearJeansAndCutTheirHairShort", Qt::MatchExactly).count(), 0);
+
+    populate();
+
+    for (int i=0; i < testWidget->count(); ++i)
+        QCOMPARE(testWidget->findItems( (testWidget->item(i)->text()), Qt::MatchExactly).count(), 1);
+}
+
 
 void tst_QListWidget::insertItem_data()
 {
@@ -455,6 +561,175 @@ void tst_QListWidget::insertItems()
     // make sure all items have view set correctly
     for (int i=0; i<testWidget->count(); ++i)
         QCOMPARE(testWidget->item(i)->listWidget(), testWidget);
+}
+
+void tst_QListWidget::itemAssignment()
+{
+    QListWidgetItem itemInWidget("inWidget", testWidget);
+    itemInWidget.setFlags(itemInWidget.flags() | Qt::ItemIsTristate);
+    QListWidgetItem itemOutsideWidget("outsideWidget");
+
+    QVERIFY(itemInWidget.listWidget());
+    QCOMPARE(itemInWidget.text(), QString("inWidget"));
+    QVERIFY(itemInWidget.flags() & Qt::ItemIsTristate);
+
+    QVERIFY(!itemOutsideWidget.listWidget());
+    QCOMPARE(itemOutsideWidget.text(), QString("outsideWidget"));
+    QVERIFY(!(itemOutsideWidget.flags() & Qt::ItemIsTristate));
+
+    itemOutsideWidget = itemInWidget;
+    QVERIFY(!itemOutsideWidget.listWidget());
+    QCOMPARE(itemOutsideWidget.text(), QString("inWidget"));
+    QVERIFY(itemOutsideWidget.flags() & Qt::ItemIsTristate);
+}
+
+void tst_QListWidget::item_data()
+{
+    QTest::addColumn<int>("row");
+    QTest::addColumn<bool>("outOfBounds");
+
+    QTest::newRow("First item, row: 0") << 0 << false;
+    QTest::newRow("Middle item, row: 1") << 1 << false;
+    QTest::newRow("Last item, row: 2") << 2 << false;
+    QTest::newRow("Out of bounds, row: -1") << -1 << true;
+    QTest::newRow("Out of bounds, row: 3") << 3 << true;
+}
+
+void tst_QListWidget::item()
+{
+    QFETCH(int, row);
+    QFETCH(bool, outOfBounds);
+
+    (new QListWidgetItem(testWidget))->setText("item0");
+    (new QListWidgetItem(testWidget))->setText("item1");
+    (new QListWidgetItem(testWidget))->setText("item2");
+
+    QCOMPARE(testWidget->count(), 3);
+
+    QListWidgetItem *item = testWidget->item(row);
+    if (outOfBounds) {
+        QCOMPARE(item, static_cast<QListWidgetItem*>(0));
+        QCOMPARE(testWidget->count(), 3);
+    } else {
+        QCOMPARE(item->text(), QString("item%1").arg(row));
+        QCOMPARE(testWidget->count(), 3);
+    }
+}
+
+void tst_QListWidget::takeItem_data()
+{
+    QTest::addColumn<int>("row");
+    QTest::addColumn<bool>("outOfBounds");
+
+    QTest::newRow("First item, row: 0") << 0 << false;
+    QTest::newRow("Middle item, row: 1") << 1 << false;
+    QTest::newRow("Last item, row: 2") << 2 << false;
+    QTest::newRow("Out of bounds, row: -1") << -1 << true;
+    QTest::newRow("Out of bounds, row: 3") << 3 << true;
+}
+
+void tst_QListWidget::takeItem()
+{
+    QFETCH(int, row);
+    QFETCH(bool, outOfBounds);
+
+    (new QListWidgetItem(testWidget))->setText("item0");
+    (new QListWidgetItem(testWidget))->setText("item1");
+    (new QListWidgetItem(testWidget))->setText("item2");
+
+    QCOMPARE(testWidget->count(), 3);
+
+    QListWidgetItem *item = testWidget->takeItem(row);
+    if (outOfBounds) {
+        QCOMPARE(item, static_cast<QListWidgetItem*>(0));
+        QCOMPARE(testWidget->count(), 3);
+    } else {
+        QCOMPARE(item->text(), QString("item%1").arg(row));
+        QCOMPARE(testWidget->count(), 2);
+    }
+
+    delete item;
+}
+
+void tst_QListWidget::selectedItems_data()
+{
+    QTest::addColumn<int>("itemCount");
+    QTest::addColumn<IntList>("hiddenRows");
+    QTest::addColumn<IntList>("selectedRows");
+    QTest::addColumn<IntList>("expectedRows");
+
+
+    QTest::newRow("none hidden, none selected")
+        << 3
+        << IntList()
+        << IntList()
+        << IntList();
+
+    QTest::newRow("none hidden, all selected")
+        << 3
+        << IntList()
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2);
+
+    QTest::newRow("first hidden, all selected")
+        << 3
+        << (IntList() << 0)
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2);
+
+    QTest::newRow("last hidden, all selected")
+        << 3
+        << (IntList() << 2)
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2);
+
+    QTest::newRow("middle hidden, all selected")
+        << 3
+        << (IntList() << 1)
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2);
+
+    QTest::newRow("all hidden, all selected")
+        << 3
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2)
+        << (IntList() << 0 << 1 << 2);
+}
+
+void tst_QListWidget::selectedItems()
+{
+    QFETCH(int, itemCount);
+    QFETCH(IntList, hiddenRows);
+    QFETCH(IntList, selectedRows);
+    QFETCH(IntList, expectedRows);
+
+    QVERIFY(testWidget->count() == 0);
+
+    //insert items
+    for (int i=0; i<itemCount; ++i)
+        new QListWidgetItem(QString("Item%1").arg(i), testWidget);
+
+    //verify items are inserted
+    QCOMPARE(testWidget->count(), itemCount);
+    // hide items
+    foreach (int row, hiddenRows)
+        testWidget->setItemHidden(testWidget->item(row), true);
+    // select items
+    foreach (int row, selectedRows)
+        testWidget->setItemSelected(testWidget->item(row), true);
+
+    // check that the correct number of items and the expected items are there
+    QList<QListWidgetItem *> selectedItems = testWidget->selectedItems();
+    QCOMPARE(selectedItems.count(), expectedRows.count());
+    foreach (int row, expectedRows)
+        QVERIFY(selectedItems.contains(testWidget->item(row)));
+
+    //check that isSelected agrees with selectedItems
+    for (int i=0; i<itemCount; ++i) {
+        QListWidgetItem *item = testWidget->item(i);
+        if (testWidget->isItemSelected(item))
+            QVERIFY(selectedItems.contains(item));
+    }
 }
 
 void tst_QListWidget::removeItems_data()
