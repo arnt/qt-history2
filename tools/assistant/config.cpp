@@ -51,6 +51,7 @@ Config *Config::loadConfig(const QString &profileFileName)
 
     if (profileFileName.isEmpty()) { // no profile
         config->profil = Profile::createDefaultProfile();
+        config->saveProfile(config->profil);
         config->load();
         config->loadDefaultProfile();
         return config;
