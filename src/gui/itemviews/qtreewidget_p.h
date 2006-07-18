@@ -26,6 +26,7 @@
 
 #include "QtCore/qabstractitemmodel.h"
 #include "QtCore/qpair.h"
+#include "QtGui/qtreewidget.h"
 
 #ifndef QT_NO_TREEWIDGET
 
@@ -45,13 +46,16 @@ public:
     QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
 
+    inline QTreeWidget *view() const
+        { return qobject_cast<QTreeWidget*>(QObject::parent()); }
+
     void clear();
     void setColumnCount(int columns);
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
     void itemChanged(QTreeWidgetItem *item);
 
-    QModelIndex index(QTreeWidgetItem *item, int column) const;
+    QModelIndex index(const QTreeWidgetItem *item, int column) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
@@ -107,9 +111,8 @@ protected:
     void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
 private:
-    QList<QTreeWidgetItem*> tree;
-    QTreeWidgetItem *header;
-    Qt::SortOrder sorting;
+    QList<QTreeWidgetItem*> topLevelItems;
+    QTreeWidgetItem *headerItem;
 
     // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
