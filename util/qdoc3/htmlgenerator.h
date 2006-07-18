@@ -117,6 +117,7 @@ private:
     NavigationBar currentNavigationBar;
 #endif
     QMap<QString, QString> refMap;
+    int codeIndent;
     DcfSection dcfClassesRoot;
     DcfSection dcfOverviewsRoot;
     DcfSection dcfExamplesRoot;

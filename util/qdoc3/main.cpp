@@ -32,6 +32,7 @@ static const struct {
     const char *key;
     const char *value;
 } defaults[] = {
+    { CONFIG_CODEINDENT, "4" },
     { CONFIG_FALSEHOODS, "0" },
     { CONFIG_LANGUAGE, "Cpp" },
     { CONFIG_OUTPUTFORMATS, "HTML" },

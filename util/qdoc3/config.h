@@ -70,6 +70,7 @@ private:
 
 #define CONFIG_ALIAS                    "alias"
 #define CONFIG_BASE                     "base"      // ### don't document for now
+#define CONFIG_CODEINDENT               "codeindent"
 #define CONFIG_DEFINES                  "defines"
 #define CONFIG_DESCRIPTION              "description"
 #define CONFIG_EDITION                  "edition"

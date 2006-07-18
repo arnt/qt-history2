@@ -90,6 +90,8 @@ void HtmlGenerator::initializeGenerator(const Config &config)
         Config::copyFile(config.location(), filePath, filePath, outputDir());
         ++styleIter;
     }
+
+    codeIndent = config.getInt(CONFIG_CODEINDENT);
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -221,23 +223,23 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
         break;
     case Atom::Code:
-        out() << "<pre>" << trimmedTrailing(protectPreformatted(plainCode(indent(4, atom->string()))))
+        out() << "<pre>" << trimmedTrailing(protectPreformatted(plainCode(indent(codeIndent, atom->string()))))
               << "</pre>\n";
         break;
     case Atom::CodeBad:
         out() << "<pre><font color=\"#404040\">"
-              << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+              << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
               << "</font></pre>\n";
         break;
     case Atom::CodeNew:
         out() << "<p>you can rewrite it as</p>\n"
-              << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+              << "<pre>" << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
               << "</pre>\n";
         break;
     case Atom::CodeOld:
         out() << "<p>For example, if you have code like</p>\n"
               << "<pre><font color=\"#404040\">"
-              << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+              << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
               << "</font></pre>\n";
         break;
     case Atom::FootnoteLeft:
