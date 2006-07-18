@@ -2505,6 +2505,13 @@ void QTreeViewPrivate::updateScrollBars()
 
     QSize viewportSize = viewport->size();
 
+    // ### asserts if removed
+    if (!viewport->isVisible()) {
+        q->verticalScrollBar()->setRange(0, 0);
+        q->verticalScrollBar()->setPageStep(0);
+        return;
+    }
+
     if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         int itemsInViewport = 0;
         if (uniformRowHeights) {
