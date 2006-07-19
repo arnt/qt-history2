@@ -190,6 +190,8 @@ private slots:
     void saveLoadCustomTypes();
 
     void globalColor();
+
+    void variantMap();
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -2026,6 +2028,23 @@ void tst_QVariant::globalColor()
 #else
     QSKIP("Implemented/fixed in 4.2", SkipSingle);
 #endif
+}
+
+void tst_QVariant::variantMap()
+{
+    QMap<QString, QVariant> map;
+    map["test"] = 42;
+
+    QVariant v = map;
+    QVariantMap map2 = qvariant_cast<QVariantMap>(v);
+
+    QCOMPARE(map2.value("test").toInt(), 42);
+
+    QVariant v2 = QVariant(QMetaType::type("QVariantMap"), &map);
+    QCOMPARE(qvariant_cast<QVariantMap>(v2).value("test").toInt(), 42);
+
+    QVariant v3 = QVariant(QMetaType::type("QMap<QString, QVariant>"), &map);
+    QCOMPARE(qvariant_cast<QVariantMap>(v3).value("test").toInt(), 42);
 }
 
 QTEST_MAIN(tst_QVariant)

@@ -235,6 +235,8 @@ static const struct { const char * typeName; int type; } types[] = {
     {"unsigned int", QMetaType::UInt},
     {"unsigned short", QMetaType::UShort},
     {"unsigned char", QMetaType::UChar},
+    {"QList<QVariant>", QMetaType::QVariantList},
+    {"QMap<QString,QVariant>", QMetaType::QVariantMap},
 
     {0, QMetaType::Void}
 };
