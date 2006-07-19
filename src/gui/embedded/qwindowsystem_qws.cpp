@@ -172,6 +172,12 @@ static bool force_reject_strokeIM = false;
     \sa QWSServer::screenSaverActivate(), restore()
 */
 
+class QWSWindowPrivate
+{
+public:
+    QRegion allocatedRegion;
+};
+
 /*!
     \class QWSWindow
     \ingroup qws
@@ -239,17 +245,6 @@ static bool force_reject_strokeIM = false;
     including any window decorations.
 */
 
-/*
-    \fn QRegion QWSWindow::allocatedRegion() const
-    \internal
-
-    Returns the region that the window is allowed to draw onto,
-    including any window decorations but excluding regions covered by
-    other windows.
-
-    \sa requestedRegion()
-*/
-
 /*!
     \fn bool QWSWindow::isVisible() const
 
@@ -294,7 +289,8 @@ static bool force_reject_strokeIM = false;
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
-          onTop(false), c(client), last_focus_time(0), _opacity(255), opaque(true), d(0)
+          onTop(false), c(client), last_focus_time(0), _opacity(255),
+          opaque(true), d(new QWSWindowPrivate)
 {
     surface = 0;
 }
@@ -398,8 +394,25 @@ QWSWindow::~QWSWindow()
         current_IM_composing_win = 0;
 #endif
     delete surface;
+    delete d;
 }
 
+/*
+    Returns the region that the window is allowed to draw onto,
+    including any window decorations but excluding regions covered by
+    other windows.
+
+    \sa requestedRegion()
+*/
+inline const QRegion QWSWindow::allocatedRegion() const
+{
+    return d->allocatedRegion;
+}
+
+inline void QWSWindow::setAllocatedRegion(const QRegion &region)
+{
+    d->allocatedRegion = region;
+}
 
 /*********************************************************************
  *
@@ -1845,7 +1858,7 @@ QWSWindow *QWSServer::windowAt(const QPoint& pos)
     Q_D(QWSServer);
     for (int i=0; i<d->windows.size(); ++i) {
         QWSWindow* w = d->windows.at(i);
-        if (w->allocated_region.contains(pos))
+        if (w->allocatedRegion().contains(pos))
             return w;
     }
     return 0;
@@ -2315,7 +2328,7 @@ void QWSServerPrivate::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClie
 
     int altitude = windows.indexOf(changingw);
     changingw->_opacity = opacity; // XXX: need to recalculate regions?
-    exposeRegion(changingw->allocated_region, altitude);
+    exposeRegion(changingw->allocatedRegion(), altitude);
 }
 
 void QWSServerPrivate::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
@@ -2720,11 +2733,11 @@ void QWSServerPrivate::update_regions()
         QWSWindowSurface *surface = w->windowSurface();
         if (surface && !surface->isBuffered())
             unbuffered += r;
-        if (r == w->allocated_region)
+        if (r == w->allocatedRegion())
             continue;
 
-        w->allocated_region = r;
-        w->client()->sendRegionEvent(w->winId(), w->allocated_region,
+        w->setAllocatedRegion(r);
+        w->client()->sendRegionEvent(w->winId(), r,
                                      QWSRegionEvent::Allocation);
     }
 
@@ -2733,11 +2746,11 @@ void QWSServerPrivate::update_regions()
         QWSWindow *w = transparentWindows.at(i);
         const QRegion r = transparentRegions.at(i) - unbuffered;
 
-        if (r == w->allocated_region)
+        if (r == w->allocatedRegion())
             continue;
 
-        w->allocated_region = r;
-        w->client()->sendRegionEvent(w->winId(), w->allocated_region,
+        w->setAllocatedRegion(r);
+        w->client()->sendRegionEvent(w->winId(), r,
                                      QWSRegionEvent::Allocation);
     }
 
@@ -2749,10 +2762,10 @@ void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
     if (!changingw)
         return;
 
-    const QRegion oldRegion(changingw->allocated_region);
+    const QRegion oldRegion(changingw->allocatedRegion());
     changingw->requested_region.translate(dx, dy);
     update_regions();
-    const QRegion newRegion(changingw->allocated_region);
+    const QRegion newRegion(changingw->allocatedRegion());
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion + newRegion, idx);
@@ -2772,10 +2785,10 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
     if (changingw->requested_region == r)
         return;
 
-    const QRegion oldRegion(changingw->allocated_region);
+    const QRegion oldRegion(changingw->allocatedRegion());
     changingw->requested_region = r;
     update_regions();
-    const QRegion newRegion(changingw->allocated_region);
+    const QRegion newRegion(changingw->allocatedRegion());
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion - newRegion, idx);
