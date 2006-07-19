@@ -105,7 +105,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         toolTip(0),
 #endif
-        act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
+        act(0), window(0), movable(1), pressed(0), autoraise(0), moving(0)
     {
     }
 
@@ -121,7 +121,7 @@ public:
     bool movable            :1;
     bool pressed            :1;
     bool autoraise          :1;
-    bool inevent : 1;
+    bool moving : 1;
 
     int titleBarState() const;
     QStyleOptionTitleBar getStyleOption() const;
@@ -364,6 +364,7 @@ void QWorkspaceTitleBar::mouseReleaseEvent(QMouseEvent *e)
         if (d->pressed) {
             update();
             d->pressed = false;
+            d->moving = false;
         }
         if (ctrl == d->buttonDown) {
             d->buttonDown = QStyle::SC_None;
@@ -439,7 +440,8 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
         break;
     case QStyle::SC_TitleBarLabel:
         if (d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed) {
-            if ((d->moveOffset - mapToParent(e->pos())).manhattanLength() >= 4) {
+            if (d->moving || (d->moveOffset - mapToParent(e->pos())).manhattanLength() >= 4) {
+                d->moving = true;
                 QPoint p = mapFromGlobal(e->globalPos());
 
                 QWidget *parent = d->window ? d->window->parentWidget() : 0;
@@ -952,6 +954,8 @@ QWorkspacePrivate::init()
     shortcuts = QKeySequence::keyBindings(QKeySequence::Close);
     foreach (QKeySequence seq, shortcuts)
         shortcutMap.insert(q->grabShortcut(seq), "closeActiveWindow");
+
+    shortcutMap.insert(q->grabShortcut(QKeySequence("ALT+-")), "_q_showOperationMenu");
 #endif // QT_NO_SHORTCUT
 
     q->setBackgroundRole(QPalette::Dark);

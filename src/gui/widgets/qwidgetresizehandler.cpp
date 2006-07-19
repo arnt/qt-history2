@@ -144,7 +144,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
             break;
         buttonDown = buttonDown && (e->buttons() & Qt::LeftButton); // safety, state machine broken!
         bool me = movingEnabled;
-        movingEnabled = (me && o == widget && buttonDown);
+        movingEnabled = (me && o == widget && (buttonDown || moveResizeMode));
         mouseMoveEvent(e);
         movingEnabled = me;
         if (mode == Center) {
@@ -461,7 +461,6 @@ void QWidgetResizeHandler::doResize()
         return;
 
     moveResizeMode = true;
-    buttonDown = true;
     moveOffset = widget->mapFromGlobal(QCursor::pos());
     if (moveOffset.x() < widget->width()/2) {
         if (moveOffset.y() < widget->height()/2)
@@ -493,7 +492,6 @@ void QWidgetResizeHandler::doMove()
 
     mode = Center;
     moveResizeMode = true;
-    buttonDown = true;
     moveOffset = widget->mapFromGlobal(QCursor::pos());
     invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
 #ifndef QT_NO_CURSOR
