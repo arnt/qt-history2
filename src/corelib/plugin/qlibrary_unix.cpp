@@ -141,7 +141,7 @@ bool QLibraryPrivate::load_sys()
     }
 #ifdef Q_OS_MAC
     if (!pHnd) {
-        if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
+        if (CFBundleRef bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
             pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);

@@ -55,8 +55,21 @@
 
 #include "qstring.h"
 
+
+/*
+    Helper class that automates refernce counting for CFtypes.
+    After constructing the QCFType object, it can be copied like a 
+    value-based type. 
+    
+    Note that you must own the object you are wrapping.
+    This is typically the case if you get the object from a Core 
+    Foundation function with the word "Create" or "Copy" in it. If 
+    you got the object from a "Get" function, either retain it or use 
+    constructFromGet(). One exception to this rule is the 
+    HIThemeGet*Shape functions, which in reality are "Copy" functions. 
+*/
 template <typename T>
-class QCFType
+class Q_CORE_EXPORT QCFType
 {
 public:
     inline QCFType(const T &t = 0) : type(t) {}
@@ -74,6 +87,11 @@ public:
 	return *this;
     }
     inline T *operator&() { return &type; }
+    static QCFType constructFromGet(const T &t)
+    {
+        CFRetain(t);  
+        return QCFType<T>(t);
+    }
 protected:
     T type;
 };

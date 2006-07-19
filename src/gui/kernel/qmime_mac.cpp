@@ -573,7 +573,7 @@ QString QMacPasteBoardMimeQt3Any::flavorFor(const QString &mime)
         if(type_count) {
             if(type_count > 1)
                 qDebug("Can't happen!");
-            return QCFString((CFStringRef)CFArrayGetValueAtIndex(ids, 0));
+            return QCFString::toQString((CFStringRef)CFArrayGetValueAtIndex(ids, 0));
         }
     }
     return QString();
