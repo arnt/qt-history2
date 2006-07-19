@@ -49,7 +49,8 @@
     children. Similarily, you can enable or disable an item by calling
     setEnabled(). If you disable an item, all its children will also be
     disabled. By default, items are both visible and enabled. To toggle
-    whether an item is selected or not, call setSelected(). Normally,
+    whether an item is selected or not, first enable selection by setting
+    the ItemIsSelectable flag, and then call setSelected(). Normally,
     selection is toggled by the scene, as a result of user interaction.
 
     To write your own graphics item, you first create a subclass of
@@ -584,7 +585,7 @@ QList<QGraphicsItem *> QGraphicsItem::children() const
     of the item are enabled and not. For example, if the flags include
     ItemIsFocusable, the item can accept input focus.
 
-    By default, only ItemIsSelectable is enabled.
+    By default, no flags are enabled.
 
     \sa setFlags(), setFlag()
 */
@@ -616,7 +617,7 @@ void QGraphicsItem::setFlag(GraphicsItemFlag flag, bool enabled)
     item was selected, and \a flags does not enabled ItemIsSelectable, the
     item is automatically unselected.
 
-    By default, only ItemIsSelectable is enabled.
+    By default, no flags are enabled.
 
     \sa flags(), setFlag()
 */
