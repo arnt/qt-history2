@@ -35,7 +35,7 @@
 #include <QTextList>
 #include <QtDebug>
 #include <QCloseEvent>
-#include <QMessageBoxEx>
+#include <QMessageBox>
 
 #ifdef Q_WS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -347,15 +347,15 @@ bool TextEdit::maybeSave()
         return true;
     if (fileName.startsWith(QLatin1String(":/")))
         return true;
-    QMessageBoxEx::StandardButton ret;
-    ret = QMessageBoxEx::warning(this, tr("Application"),
-                                   tr("The document has been modified.\n"
-                                      "Do you want to save your changes?"),
-                                   QMessageBoxEx::Save | QMessageBoxEx::Discard
-                                   | QMessageBoxEx::Cancel);
-    if (ret == QMessageBoxEx::Save)
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, tr("Application"),
+                               tr("The document has been modified.\n"
+                                  "Do you want to save your changes?"),
+                               QMessageBox::Save | QMessageBox::Discard
+                               | QMessageBox::Cancel);
+    if (ret == QMessageBox::Save)
         return fileSave();
-    else if (ret == QMessageBoxEx::Cancel)
+    else if (ret == QMessageBox::Cancel)
         return false;
     return true;
 }

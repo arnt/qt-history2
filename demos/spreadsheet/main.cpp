@@ -808,7 +808,7 @@ const char *htmlText =
 
 void SpreadSheet::showAbout()
 {
-    QMessageBoxEx::about(this, "About Spreadsheet", htmlText);
+    QMessageBox::about(this, "About Spreadsheet", htmlText);
 }
 
 int main(int argc, char** argv) {
