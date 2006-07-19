@@ -535,7 +535,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
 
 #ifndef QT_NO_XRENDER
-static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, bool opaque_bg)
+static Picture getPatternFill(int screen, const QBrush &b)
 {
     if (!X11->use_xrender)
         return XNone;
@@ -543,14 +543,11 @@ static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, boo
     XRenderColor color = X11->preMultiply(b.color());
     XRenderColor bg_color;
 
-    if (opaque_bg)
-        bg_color = X11->preMultiply(bg.color());
-    else
-        bg_color = X11->preMultiply(QColor(0, 0, 0, 0));
+    bg_color = X11->preMultiply(QColor(0, 0, 0, 0));
 
     for (int i = 0; i < X11->pattern_fill_count; ++i) {
         if (X11->pattern_fills[i].screen == screen
-            && X11->pattern_fills[i].opaque == opaque_bg
+            && X11->pattern_fills[i].opaque == false
             && X11->pattern_fills[i].style == b.style()
             && X11->pattern_fills[i].color.alpha == color.alpha
             && X11->pattern_fills[i].color.red == color.red
@@ -583,7 +580,7 @@ static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, boo
     X11->pattern_fills[i].screen = screen;
     X11->pattern_fills[i].color = color;
     X11->pattern_fills[i].bg_color = bg_color;
-    X11->pattern_fills[i].opaque = opaque_bg;
+    X11->pattern_fills[i].opaque = false;
     X11->pattern_fills[i].style = b.style();
 
     XRenderFillRectangle(X11->display, PictOpSrc, X11->pattern_fills[i].picture, &bg_color, 0, 0, 8, 8);
@@ -603,13 +600,8 @@ static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, boo
 
 static void qt_render_bitmap(Display *dpy, int scrn, Picture src, Picture dst,
                       int sx, int sy, int x, int y, int sw, int sh,
-                      const QPen &pen, const QBrush &brush, bool opaque_bg)
+                      const QPen &pen)
 {
-    if (opaque_bg) {
-        Picture fill_bg = X11->getSolidFill(scrn, brush.color());
-        XRenderComposite(dpy, PictOpOver,
-                         fill_bg, 0, dst, sx, sy, sx, sy, x, y, sw, sh);
-    }
     Picture fill_fg = X11->getSolidFill(scrn, pen.color());
     XRenderComposite(dpy, PictOpOver,
                      fill_fg, src, dst, sx, sy, sx, sy, x, y, sw, sh);
@@ -720,8 +712,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->dpy = d->xinfo->display(); // get display variable
     d->scrn = d->xinfo->screen(); // get screen variable
 
-    d->bg_col = Qt::white;
-    d->bg_mode = Qt::TransparentMode;
     d->crgn = QRegion();
     d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
@@ -1119,8 +1109,6 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     }
 
     if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & (DirtyBackground | DirtyBackgroundMode))
-        updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyPen) updatePen(state.pen());
     if (flags & (DirtyBrush | DirtyBrushOrigin)) updateBrush(state.brush(), state.brushOrigin());
     if (flags & DirtyFont) updateFont(state.font());
@@ -1281,15 +1269,15 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     vals.graphics_exposures = false;
     if (d->pdev_depth == 1) {
         vals.foreground = qGray(pen.color().rgb()) > 127 ? 0 : 1;
-        vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
+        vals.background = qGray(QColor(Qt::transparent).rgb()) > 127 ? 0 : 1;
     } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev_depth == 32
         && X11->use_xrender) {
         vals.foreground = pen.color().rgba();
-        vals.background = d->bg_col.rgba();
+        vals.background = QColor(Qt::transparent).rgba();
     } else {
         QColormap cmap = QColormap::instance(d->scrn);
         vals.foreground = cmap.pixel(pen.color());
-        vals.background = cmap.pixel(d->bg_col);
+        vals.background = cmap.pixel(QColor(Qt::transparent));
     }
 
 
@@ -1341,15 +1329,15 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     vals.graphics_exposures = false;
     if (d->pdev_depth == 1) {
         vals.foreground = qGray(d->cbrush.color().rgb()) > 127 ? 0 : 1;
-        vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
+        vals.background = qGray(QColor(Qt::transparent).rgb()) > 127 ? 0 : 1;
     } else if (X11->use_xrender && d->pdev->devType() == QInternal::Pixmap
                && d->pdev_depth == 32) {
         vals.foreground = d->cbrush.color().rgba();
-        vals.background = d->bg_col.rgba();
+        vals.background = QColor(Qt::transparent).rgba();
     } else {
         QColormap cmap = QColormap::instance(d->scrn);
         vals.foreground = cmap.pixel(d->cbrush.color());
-        vals.background = cmap.pixel(d->bg_col);
+        vals.background = cmap.pixel(QColor(Qt::transparent));
 
         if (!d->has_pattern && !brush.isOpaque()) {
             QPixmap pattern = qt_patternForAlpha(brush.color().alpha());
@@ -1381,15 +1369,11 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         if (pm.depth() == 1) {
             mask |= GCStipple;
             vals.stipple = pm.handle();
-            s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
+            s = FillStippled;
 #if !defined(QT_NO_XRENDER)
             if (X11->use_xrender) {
                 d->bitmap_texture = QPixmap(pm.size());
-
-                if (d->bg_mode == Qt::OpaqueMode)
-                    d->bitmap_texture.fill(d->bg_brush.color());
-                else
-                    d->bitmap_texture.fill(Qt::transparent);
+                d->bitmap_texture.fill(Qt::transparent);
 
                 ::Picture src  = X11->getSolidFill(d->scrn, d->cbrush.color());
                 XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
@@ -1552,7 +1536,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         if (has_fill_texture)
             src = fill.texture().x11PictureHandle();
         else if (has_fill_pattern)
-            src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
+            src = getPatternFill(scrn, fill);
         else
             src = X11->getSolidFill(scrn, fill.color());
 #endif
@@ -1844,10 +1828,9 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 #ifndef QT_NO_XRENDER
     ::Picture src_pict = pixmap.data->picture;
     if (src_pict && d->picture) {
-        if (pixmap.data->d == 1 && (d->has_alpha_pen || d->bg_brush != Qt::NoBrush)) {
+        if (pixmap.data->d == 1 && (d->has_alpha_pen)) {
             qt_render_bitmap(d->dpy, d->scrn, src_pict, d->picture,
-                             sx, sy, x, y, sw, sh, d->cpen, d->bg_brush,
-                             d->bg_mode == Qt::OpaqueMode);
+                             sx, sy, x, y, sw, sh, d->cpen);
             return;
         } else if (pixmap.data->d != 1 && (pixmap.data->d == 32 || pixmap.data->d != d->pdev_depth)) {
             XRenderComposite(d->dpy, d->composition_mode,
@@ -1885,14 +1868,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 
     if (mono_src) {
-        if (d->bg_mode == Qt::OpaqueMode) {
-            if (mono_dst)
-                XSetForeground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
-            else
-                XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
-            XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
-        }
-
         if (!d->crgn.isEmpty()) {
             Pixmap comb = XCreatePixmap(d->dpy, d->hd, sw, sh, 1);
             GC cgc = XCreateGC(d->dpy, comb, 0, 0);
@@ -1913,11 +1888,9 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         }
 
         if (mono_dst) {
-            XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
             XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
         } else {
             QColormap cmap = QColormap::instance(d->scrn);
-            XSetBackground(d->dpy, d->gc, cmap.pixel(d->bg_brush.color()));
             XSetForeground(d->dpy, d->gc, cmap.pixel(d->cpen.color()));
         }
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
@@ -1952,22 +1925,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         else
             XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
     }
-}
-
-void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
-{
-    Q_ASSERT(isActive());
-    Q_D(QX11PaintEngine);
-    d->bg_mode = mode;
-    d->bg_brush = bgBrush;
-    if (d->opacity < 1.0) {
-        QColor c = d->bg_brush.color();
-        c.setAlpha(qRound(c.alpha()*d->opacity));
-        d->bg_brush.setColor(c);
-    }
-    d->bg_col = d->bg_brush.color();
-    updatePen(d->cpen);
-    updateBrush(d->cbrush, d->bg_origin);
 }
 
 void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
@@ -2073,8 +2030,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                     drawW = x + w - xPos;
                 if (pixmap.depth() == 1) {
                     qt_render_bitmap(d->dpy, d->scrn, pixmap.x11PictureHandle(), d->picture,
-                                     xOff, yOff, xPos, yPos, drawW, drawH, d->cpen, d->bg_brush,
-                                     d->bg_mode == Qt::OpaqueMode);
+                                     xOff, yOff, xPos, yPos, drawW, drawH, d->cpen);
                 } else {
                     XRenderComposite(d->dpy, d->composition_mode,
                                      pixmap.x11PictureHandle(), XNone, d->picture,

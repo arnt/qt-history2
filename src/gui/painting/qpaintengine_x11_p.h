@@ -59,7 +59,6 @@ public:
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateRenderHints(QPainter::RenderHints hints);
     void updateFont(const QFont &font);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion_dev(const QRegion &region, Qt::ClipOperation op);
 
@@ -119,8 +118,6 @@ public:
         scrn = -1;
         hd = 0;
         picture = 0;
-        bg_col = Qt::white;                             // default background color
-        bg_mode = Qt::TransparentMode;                  // default background mode
         gc = gc_brush = 0;
         dpy  = 0;
         xinfo = 0;
@@ -168,11 +165,8 @@ public:
     GC gc;
     GC gc_brush;
 
-    QColor bg_col;
-    uchar bg_mode;
     QPen cpen;
     QBrush cbrush;
-    QBrush bg_brush;
     QRegion crgn;
     QMatrix matrix;
     qreal opacity;
