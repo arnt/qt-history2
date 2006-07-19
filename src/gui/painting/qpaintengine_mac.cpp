@@ -194,11 +194,10 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAff
 
 //pattern handling (tiling)
 struct QMacPattern {
-    QMacPattern() : opaque(true), as_mask(false), image(0) { data.bytes = 0; }
+    QMacPattern() : as_mask(false), image(0) { data.bytes = 0; }
     ~QMacPattern() { CGImageRelease(image); }
     //input
-    QColor background, foreground;
-    bool opaque;
+    QColor foreground;
     bool as_mask;
     struct {
         QPixmap pixmap;
@@ -236,13 +235,6 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     CGRect rect = CGRectMake(0, 0, w, h);
     CGContextSaveGState(c);
     if(CGImageIsMask(pat->image)) {
-        if(pat->opaque) {
-            CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(pat->background.red()),
-                    qt_mac_convert_color_to_cg(pat->background.green()),
-                    qt_mac_convert_color_to_cg(pat->background.blue()),
-                    qt_mac_convert_color_to_cg(pat->background.alpha()));
-            CGContextFillRect(c, rect);
-        }
         CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(pat->foreground.red()),
                 qt_mac_convert_color_to_cg(pat->foreground.green()),
                 qt_mac_convert_color_to_cg(pat->foreground.blue()),
@@ -365,8 +357,7 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
     if(flags & DirtyTransform)
         updateMatrix(state.matrix());
-    if(flags & (DirtyBackground|DirtyBackgroundMode))
-        updateBackground(state.backgroundMode(), state.backgroundBrush());
+
     if(flags & DirtyPen)
         updatePen(state.pen());
     if(flags & (DirtyBrush|DirtyBrushOrigin))
@@ -405,8 +396,6 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->current.brush = brush;
-    d->current.bg.origin = brushOrigin;
-
     if(d->shading) {
         CGShadingRelease(d->shading);
         d->shading = 0;
@@ -427,15 +416,6 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     updatePen(d->current.pen);
-}
-
-void
-QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
-{
-    Q_D(QCoreGraphicsPaintEngine);
-    Q_ASSERT(isActive());
-    d->current.bg.mode = mode;
-    d->current.bg.brush = brush;
 }
 
 void
@@ -630,10 +610,6 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         doRestore = true;
         CGContextSaveGState(d->hd);
 
-        if(d->current.bg.mode == Qt::OpaqueMode) {
-            d->setFillBrush(d->current.bg.brush);
-            CGContextFillRect(d->hd, qt_mac_compose_rect(r, 0));
-        }
         const QColor &col = d->current.pen.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                 qt_mac_convert_color_to_cg(col.green()),
@@ -772,9 +748,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->data.pixmap = pixmap;
-    qpattern->opaque = (d->current.bg.mode == Qt::OpaqueMode);
     qpattern->foreground = d->current.pen.color();
-    qpattern->background = d->current.bg.brush.color();
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
@@ -882,7 +856,7 @@ float QCoreGraphicsPaintEnginePrivate::userSpaceYOffset(CGContextRef context)
     const float offset = CGPointApplyAffineTransform(p1, invertedCurrentTransform).y -
                          CGPointApplyAffineTransform(p2, invertedCurrentTransform).y;
     return offset;
-# endif 
+# endif
 }
 
 void
@@ -1015,10 +989,7 @@ QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF
             components[2] = qt_mac_convert_color_to_cg(col.blue());
             base_colorspace = CGColorSpaceCreateDeviceRGB();
         }
-        //qpattern->offset = offset.toPoint();
-        qpattern->opaque = (current.bg.mode == Qt::OpaqueMode);
         qpattern->foreground = brush.color();
-        qpattern->background = current.bg.brush.color();
 
         CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
         CGContextSetFillColorSpace(hd, fill_colorspace);

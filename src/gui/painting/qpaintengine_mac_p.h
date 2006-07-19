@@ -51,7 +51,6 @@ public:
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateOpacity(qreal opacity);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
@@ -120,11 +119,6 @@ public:
         uint clipEnabled : 1;
         QRegion clip;
         QMatrix matrix;
-        struct {
-            QPointF origin;
-            Qt::BGMode mode;
-            QBrush brush;
-        } bg;
    } current;
 
     //state info (shared with QD)
