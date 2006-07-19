@@ -23,12 +23,14 @@ QT_MODULE(Gui)
 class QAbstractButton;
 class QPushButton;
 class QDialogButtonBoxPrivate;
+
 class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
     Q_FLAGS(StandardButtons)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
+    Q_PROPERTY(bool centerButtons READ centerButtons WRITE setCenterButtons)
 
 public:
     enum ButtonRole {
@@ -39,8 +41,11 @@ public:
         DestructiveRole,
         ActionRole,
         HelpRole,
+        YesRole,
+        NoRole,
         ResetRole,
         ApplyRole,
+
         NRoles
     };
 
@@ -101,6 +106,9 @@ public:
     StandardButtons standardButtons() const;
     StandardButton standardButton(QAbstractButton *button) const;
     QPushButton *button(StandardButton which) const;
+
+    void setCenterButtons(bool center);
+    bool centerButtons() const;
 
 Q_SIGNALS:
     void clicked(QAbstractButton *button);
