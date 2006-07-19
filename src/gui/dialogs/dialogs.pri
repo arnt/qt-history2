@@ -16,8 +16,7 @@ HEADERS += \
 	dialogs/qmessagebox.h \
 	dialogs/qpagesetupdialog.h \
 	dialogs/qprintdialog.h \
-	dialogs/qprogressdialog.h \
-    dialogs/qmessageboxex.h
+	dialogs/qprogressdialog.h
 
 !embedded:mac:SOURCES	+= dialogs/qcolordialog_mac.cpp \
                            dialogs/qfiledialog_mac.cpp
@@ -50,6 +49,4 @@ SOURCES += \
 	dialogs/qfontdialog.cpp \
 	dialogs/qinputdialog.cpp \
 	dialogs/qmessagebox.cpp \
-	dialogs/qprogressdialog.cpp \
-    dialogs/qmessageboxex.cpp
-
+	dialogs/qprogressdialog.cpp

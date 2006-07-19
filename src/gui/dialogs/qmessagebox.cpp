@@ -11,50 +11,25 @@
 **
 ****************************************************************************/
 
-#include "qglobal.h"
+#ifndef QT_NO_MESSAGEBOXEX
 
-#ifndef QT_NO_MESSAGEBOX
-
-#include "qmessagebox.h"
-#include "qbuffer.h"
-#include "qimagereader.h"
-#include "qevent.h"
-#include "qdesktopwidget.h"
-#include "qlabel.h"
-#include "qpushbutton.h"
-#include "qimage.h"
-#include "qapplication.h"
-#include "qcursor.h"
-#include "qicon.h"
-#include "qstyle.h"
-#include "qtextdocument.h"
-#ifndef QT_NO_ACCESSIBILITY
-#include "qaccessible.h"
-#endif
-#if defined QT_NON_COMMERCIAL
-#include "qnc_win.h"
-#endif
-
+#include "qmessageboxex.h"
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QLabel>
+#include <QtCore/QList>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleOption>
+#include <QtGui/QGridLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QAccessible>
+#include <QtGui/QIcon>
+#include <QtGui/QMessageBoxEx>
+#include <QtGui/QTextDocument>
 #include "qdialog_p.h"
 
-class QMessageBoxPrivate : public QDialogPrivate
-{
-    Q_DECLARE_PUBLIC(QMessageBox)
-public:
-    QMessageBoxPrivate() {}
-    void _q_buttonClicked();
-    void init(int, int, int);
-    int indexOf(int) const;
-    QLabel *label;
-
-    int                 numButtons;             // number of buttons
-    QMessageBox::Icon   icon;                   // message box icon
-    QLabel              *iconLabel;              // label holding any icon
-    int                 button[3];              // button types
-    int                 defButton;              // default button (index)
-    int                 escButton;              // escape button (index)
-    QPushButton        *pb[3];                  // buttons
-};
+enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5, Old_Retry = 6,
+              Old_Ignore = 7, Old_YesAll = 8, Old_NoAll = 9, Old_ButtonMask = 0xFF,
+              NewButtonFlag = 0xFFFFFC00 };
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 /* XPM */
@@ -133,218 +108,525 @@ static const char * const qtlogo_xpm[] = {
 };
 #endif // QT_NO_IMAGEFORMAT_XPM
 
+class QMessageBoxExPrivate : public QDialogPrivate
+{
+    Q_DECLARE_PUBLIC(QMessageBoxEx)
+
+public:
+    QMessageBoxExPrivate() : escapeButton(0), defaultButton(0), clickedButton(0) { }
+
+    void init(const QString &title = QString(), const QString &text = QString());
+    void _q_buttonClicked(QAbstractButton *);
+
+    QAbstractButton *findButton(int button0, int button1, int button2, int flags);
+    void addOldButtons(int button0, int button1, int button2);
+
+    static int showOldMessageBox(QWidget *parent, QMessageBoxEx::Icon icon,
+                                 const QString &title, const QString &text,
+                                 int button0, int button1, int button2);
+    static int showOldMessageBox(QWidget *parent, QMessageBoxEx::Icon icon,
+                                 const QString &title, const QString &text,
+                                 const QString &button0Text,
+                                 const QString &button1Text,
+                                 const QString &button2Text,
+                                 int defaultButtonNumber,
+                                 int escapeButtonNumber);
+
+    static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent, 
+                QMessageBoxEx::Icon icon, const QString& title, const QString& text,
+                QMessageBoxEx::StandardButtons buttons, QMessageBoxEx::StandardButton defaultButton);
+
+    QLabel *label;
+    QMessageBoxEx::Icon icon;
+    QLabel *iconLabel;
+    QDialogButtonBox *buttonBox;
+    QList<QAbstractButton *> buttonList;
+    QAbstractButton *escapeButton;
+    QPushButton *defaultButton;
+    QAbstractButton *clickedButton;
+};
+
+static QString *translatedTextAboutQt = 0;
+
+void QMessageBoxExPrivate::init(const QString &title, const QString &text)
+{
+    Q_Q(QMessageBoxEx);
+
+    if (!translatedTextAboutQt) {
+        translatedTextAboutQt = new QString;
+
+#if defined(QT_NON_COMMERCIAL)
+    QT_NC_MSGBOX
+#else
+        *translatedTextAboutQt = QMessageBoxEx::tr(
+            "<h3>About Qt</h3>"
+            "%1<p>Qt is a C++ toolkit for cross-platform "
+            "application development.</p>"
+            "<p>Qt provides single-source "
+            "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
+            "Linux, and all major commercial Unix variants. Qt is also"
+            " available for embedded devices as Qtopia Core.</p>"
+            "<p>Qt is a Trolltech product. See "
+            "<a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a> for more information.</p>"
+           )
+#if QT_EDITION != QT_EDITION_OPENSOURCE
+           .arg(QMessageBoxEx::tr("<p>This program uses Qt version %1.</p>"))
+#else
+           .arg(QMessageBoxEx::tr("<p>This program uses Qt Open Source Edition version %1.</p>"
+                   "<p>Qt Open Source Edition is intended for the development "
+                   "of Open Source applications. You need a commercial Qt "
+                   "license for development of proprietary (closed source) "
+                   "applications.</p>"
+                   "<p>Please see <a href=\"http://www.trolltech.com/company/model.html\">www.trolltech.com/company/model.html</a> "
+                   "for an overview of Qt licensing.</p>"))
+#endif
+           .arg(QLatin1String(QT_VERSION_STR));
+#endif
+    }
+
+    label = new QLabel;
+    label->setObjectName(QLatin1String("qt_msgboxex_label"));
+    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
+    label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
+
+    icon = QMessageBoxEx::NoIcon;
+    iconLabel = new QLabel;
+    iconLabel->setObjectName(QLatin1String("qt_msgboxex_icon_label"));
+    iconLabel->setPixmap(QPixmap());
+
+    buttonBox = new QDialogButtonBox;
+    buttonBox->setObjectName(QLatin1String("qt_msgboxex_buttonbox"));
+    QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton *)),
+                     q, SLOT(_q_buttonClicked(QAbstractButton *)));
+
+    QGridLayout *grid = new QGridLayout;
+    grid->addWidget(iconLabel, 0, 0, 1, 1);
+    grid->addWidget(label, 0, 1, 1, 1);
+    grid->addWidget(buttonBox, 1, 0, 1, 2);
+    q->setLayout(grid);
+
+    if (!title.isEmpty() || !text.isEmpty()) {
+#ifdef Q_WS_MAC
+        // Make our message box look a little more mac like.
+        QString finalText = QLatin1String("<p><b>") + title + QLatin1String("</b></p>");
+        if (Qt::mightBeRichText(text))
+            finalText += QLatin1String("<br><br>") + text;
+        else
+            finalText += Qt::convertFromPlainText(text);
+
+        q->setText(finalText);
+#else
+        q->setWindowTitle(title);
+        q->setText(text);
+#endif
+    }
+    q->setModal(true);
+}
+
+void QMessageBoxExPrivate::_q_buttonClicked(QAbstractButton *button)
+{
+    Q_Q(QMessageBoxEx);
+    clickedButton = button;
+    q->done(buttonList.indexOf(button)); // does not trigger closeEvent
+}
 
 /*!
-    \class QMessageBox
-    \obsolete
-    \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
+    \class QMessageBoxEx
+    \brief The QMessageBoxEx class provides a modal dialog with a short message,
+           an icon, and buttons laid out depending on the current style.
     \ingroup dialogs
     \mainclass
 
-    \e{As of Qt 4.2, QMessageBoxEx provides identical functionality to this 
-    class with a more advanced API. We recommend that you use that class 
-    instead.}
+    Message boxes are used to provide informative messages and to ask simple questions.
+    
+    QMessageBox supports four severity levels, indicated by an icon:
 
-    Message boxes are used to provide informative messages and to ask
-    simple questions.
-
-    QMessageBox provides a range of different messages, arranged
-    roughly along two axes: severity and complexity.
-
-    Severity is
     \table
     \row
-    \i \img qmessagebox-quest.png
-    \i Question
-    \i For message boxes that ask a question as part of normal
+    \o \img qmessagebox-quest.png
+    \o \l Question
+    \o For message boxes that ask a question as part of normal
     operation. Some style guides recommend using Information for this
     purpose.
     \row
-    \i \img qmessagebox-info.png
-    \i Information
-    \i For message boxes that are part of normal operation.
+    \o \img qmessagebox-info.png
+    \o \l Information
+    \o For message boxes that are part of normal operation.
     \row
-    \i \img qmessagebox-warn.png
-    \i Warning
-    \i For message boxes that tell the user about unusual errors.
+    \o \img qmessagebox-warn.png
+    \o \l Warning
+    \o For message boxes that tell the user about unusual errors.
     \row
-    \i \img qmessagebox-crit.png
-    \i Critical
-    \i For message boxes that tell the user about critical errors.
+    \o \img qmessagebox-crit.png
+    \o \l Critical
+    \o For message boxes that tell the user about critical errors.
     \endtable
 
-    The message box has a different icon for each of the severity levels.
-
-    Complexity is one button (OK) for simple messages, or two or even
-    three buttons for questions.
-
-    There are static functions for the most common cases.
-
-    Examples:
-
-    If a program is unable to find a supporting file, but can do perfectly
-    well without it:
+    The easiest way to pop up a message box in Qt is to call one
+    of the static functions QMessageBoxEx::information(),
+    QMessageBoxEx::question(), QMessageBoxEx::critical(),
+    and QMessageBoxEx::warning(). For example:
 
     \code
-    QMessageBox::information(this, "Application name",
-    "Unable to find the user preferences file.\n"
-    "The factory default will be used instead.");
+        int ret = QMessageBoxEx::warning(this, tr("My Application"),
+                          tr("The document has been modified.\n"
+                             "Do you want to save your changes?"),
+                          QMessageBoxEx::Save | QMessageBoxEx::Discard
+                          | QMessageBoxEx::Cancel,
+                          QMessageBoxEx::Save);
     \endcode
 
-    question() is useful for simple yes/no questions:
 
-    \quotefromfile snippets/dialogs/dialogs.cpp
-    \skipto if (QFile::exists(filename) &&
-    \printuntil return false;
 
-    warning() can be used to tell the user about unusual errors, or
-    errors which can't be easily fixed:
 
-    \skipto switch(QMessageBox::warning(this, "Application name",
-    \printuntil }
+    The order of the buttons is platform-dependent.
 
-    The text part of all message box messages can be either rich text or plain
-    text. With certain strings that contain XML meta characters, the auto-rich
-    text detection may fail, interpreting plain text incorrectly as rich text.
-    In these rare cases, use Qt::convertFromPlainText() to convert your plain
-    text string to a visually equivalent rich text string or set the text
-    format explicitly with setTextFormat().
 
-    Links in messageboxes are opened automatically using QDesktopServices::openUrl().
+    The text part of all message box messages can be either rich text
+    or plain text. With certain strings that contain XML meta characters,
+    the auto-rich text detection may fail, interpreting plain text
+    incorrectly as rich text. In these rare cases, use Qt::convertFromPlainText()
+    to convert your plain text string to a visually equivalent rich text string
+    or set the text format explicitly with setTextFormat().
 
     Note that the Microsoft Windows User Interface Guidelines
-    recommend using the application name as the window's caption.
-
-    Below are more examples of how to use the static member functions.
-    After these examples you will find an overview of the non-static
-    member functions.
-
-    Exiting a program is part of its normal operation. If there is
-    unsaved data the user probably should be asked if they want to
-    save the data. For example:
-
-    \skipto switch(QMessageBox::information(this, "Application name here",
-    \printuntil }
-
-    The Escape button cancels the entire exit operation, and pressing
-    Enter causes the changes to be saved before the exit occurs.
-
-    Disk full errors are unusual and they certainly can be hard to
-    correct. This example uses predefined buttons instead of
-    hard-coded button texts:
-
-    \skipto switch(QMessageBox::warning(this, "Application name here",
-    \printuntil }
-
-    The critical() function should be reserved for critical errors. In
-    this example errorDetails is a QString or const char*, and QString
-    is used to concatenate several strings:
-
-    \skipto QMessageBox::critical(0, "Application name here",
-    \printuntil "\n\nApplication will now exit.");
-
-    In this example an OK button is displayed.
-
-    QMessageBox provides a very simple About box which displays an
-    appropriate icon and the string you provide:
-
-    \skipto QMessageBox::about(this, "About <Application>",
-    \printuntil "http://www.such-and-such.com/Application/\n");
-
-    See about() for more information.
-
-    If you want your users to know that the application is built using
-    Qt (so they know that you use high quality tools) you might like
-    to add an "About Qt" menu option under the Help menu to invoke
-    aboutQt().
+    recommend using the application name as the window's title.
 
     If none of the standard message boxes is suitable, you can create a
-    QMessageBox from scratch and use custom button texts:
-
-    \skipto QMessageBox mb("Application name here",
-    \printuntil }
-
-    QMessageBox defines two enum types: Icon and an unnamed button type.
-    Icon defines the \l Question, \l Information, \l Warning, and \l
-    Critical icons for each GUI style. It is used by the constructor
-    and by the static member functions question(), information(),
-    warning() and critical(). A function called standardIcon() gives
-    you access to the various icons.
-
-    The button types are:
-    \list
-    \i Ok - the default for single-button message boxes
-    \i Cancel - note that this is \e not automatically Escape
-    \i Yes
-    \i No
-    \i Abort
-    \i Retry
-    \i Ignore
-    \i YesAll
-    \i NoAll
-    \endlist
-
-    Button types can be combined with two modifiers by using OR, '|':
-    \list
-    \i Default - makes pressing Enter equivalent to
-    clicking this button. Normally used with Ok, Yes or similar.
-    \i Escape - makes pressing Escape equivalent to clicking this button.
-    Normally used with Abort, Cancel or similar.
-    \endlist
+    QMessageBoxEx from scratch. You can use QMessageBoxEx::addButton() to add
+    the standard buttons in QMessageBoxEx::StandardButton. QMessageBoxEx::addButton()
+    has an additional overload, that takes a custom text and the button role
+    as an argument. The button role is used to automatically determine the
+    position of the button within the dialog box.
 
     The text(), icon() and iconPixmap() functions provide access to the
     current text and pixmap of the message box. The setText(), setIcon()
     and setIconPixmap() let you change it. The difference between
     setIcon() and setIconPixmap() is that the former accepts a
-    QMessageBox::Icon and can be used to set standard icons, whereas the
+    QMessageBoxEx::Icon and can be used to set standard icons, whereas the
     latter accepts a QPixmap and can be used to set custom icons.
 
     setButtonText() and buttonText() provide access to the buttons.
 
-    QMessageBox has no signals or slots.
+    QMessageBoxEx has no signals or slots.
 
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
-    how to use QMessageBox as well as other built-in Qt dialogs.
+    how to use QMessageBoxEx as well as other built-in Qt dialogs.
 
-    \image plastique-messagebox.png A message box shown in the Plastique widget style.
+    \sa QDialogButtonBox, QMessageBoxEx, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}, {Application Example}
+*/
 
-    \sa QDialogButtonBox, QErrorMessage, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}, {Application Example}
+
+/*!
+    Constructs a message box with no text and no buttons.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    The \a parent argument is passed to the QDialog constructor.
+*/
+QMessageBoxEx::QMessageBoxEx(QWidget *parent)
+: QDialog(*new QMessageBoxExPrivate, parent, Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+{
+    Q_D(QMessageBoxEx);
+    d->init();
+}
+
+/*!
+    Constructs a message box with the given \a icon, \a title, \a text,
+    and standard \a buttons. (Buttons can also be added at any time
+    using addButton().)
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    The \a parent and \a f arguments are passed to the QDialog constructor.
+
+    \sa setWindowTitle(), setText(), setIcon(), setStandardButtons()
+*/
+QMessageBoxEx::QMessageBoxEx(Icon icon, const QString &title, const QString &text,
+                             StandardButtons buttons, QWidget *parent, Qt::WindowFlags f)
+: QDialog(*new QMessageBoxExPrivate, parent, f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+{
+    Q_D(QMessageBoxEx);
+    d->init(title, text);
+    setIcon(icon);
+    setStandardButtons(buttons);
+}
+
+/*!
+    Destroys the message box.
+*/
+QMessageBoxEx::~QMessageBoxEx()
+{
+}
+
+/*!
+    \enum QMessageBoxEx::ButtonRole
+
+    This enum describes the roles that can be used to describe buttons in
+    the message box. Combinations of these roles are as flags used to
+    describe different aspects of their behavior.
+
+    \value InvalidRole The button is invalid.
+    \value AcceptRole Clicking the button causes the dialog to be accepted
+           (e.g. OK).
+    \value RejectRole Clicking the button causes the dialog to be rejected
+           (e.g. Cancel).
+    \value DestructiveRole Clicking the button causes a destructive change
+           (e.g. for Discarding Changes).
+    \value ActionRole Clicking the button causes changes to the elements in
+           the dialog (e.g. reset all the values or read defaults).
+    \value HelpRole The button can be clicked to request help.
+    \omitvalue NRoles
 */
 
 /*!
-    \enum QMessageBox::Button
+    \enum QMessageBoxEx::StandardButton
 
-    This enum describes the predefined buttons and button flags you can assign
-    to a QMessageBox.
+    These enums describe flags for standard buttons. Each button has a
+    defined \l ButtonRole.
 
-    \value Ok An "Ok" button.
-    \value Cancel A "Cancel" button.
-    \value Yes A "Yes" button.
-    \value No A "No" button.
-    \value Abort An "Abort" button.
-    \value Retry A "Retry" button.
-    \value Ignore An "Ignore" button.
-    \value YesAll A "Yes to all" button.
-    \value NoAll A "No to all" button.
-
-    The following values are flags that can be OR'ed with the button values.
-
-    \value Default The button is default (i.e., QPushButton::default).
-    \value Escape The button is activated by pressing the Escape key.
-
-    The following values are masks that can be used to separate buttons from
-    flags.
-
-    \value ButtonMask A bitmask that covers all button types.
-    \value FlagMask A bitmask that covers all button flags.
-
-    Finally, the last value is often used as a default value.
-
-    \value NoButton
+    \value Ok An "OK" button defined with the \l AcceptRole.
+    \value Open A "Open" button defined with the \l AcceptRole.
+    \value Save A "Save" button defined with the \l AcceptRole.
+    \value Cancel A "Cancel" button defined with the \l RejectRole.
+    \value Close A "Close" button defined with the \l RejectRole.
+    \value Discard A "Discard" or "Don't Save" button, depending on the platform,
+                    defined with the \l DestructiveRole.
+    \value Apply An "Apply" button defined with the \l ActionRole.
+    \value Reset A "Reset" button defined with the \l ActionRole.
+    \value Help A "Help" button defined with the \l HelpRole.
+    \value SaveAll A "Save All" button defined with the \l AcceptRole
+    \value Yes A "Yes" button defined with the \l AcceptRole
+    \value YesToAll A "Yes to All" button defined with the \l AcceptRole
+    \value No A "No" button defined with the \l RejectRole
+    \value NoToAll A "No to All" button defined with the \l RejectRole
+    \value Abort An "Abort" button defined with the \l RejectRole
+    \value Retry A "Retry" button defined with the \l ActionRole
+    \value Ignore An "Ignore" button defined with the \l ActionRole
+    \omitvalue NoButton
 */
 
 /*!
-    \enum QMessageBox::Icon
+    Creates a button with the given \a text, adds it to the message box for the
+    specified \a role, and returns it.
+
+    \sa removeButton(), button(), setStandardButtons()
+*/
+void QMessageBoxEx::addButton(QAbstractButton *button, ButtonRole role)
+{
+    Q_D(QMessageBoxEx);
+    if (!button)
+        return;
+    removeButton(button);
+    d->buttonBox->addButton(button, (QDialogButtonBox::ButtonRole)role);
+    d->buttonList.append(button);
+}
+
+/*!
+    \overload
+
+    Creates a button with the given \a text, adds it to the message box for the
+    specified \a role, and returns it.
+*/
+QPushButton *QMessageBoxEx::addButton(const QString& text, ButtonRole role)
+{
+    QPushButton *pushButton = new QPushButton(text);
+    addButton(pushButton, role);
+    return pushButton;
+}
+
+/*!
+    \overload
+
+    Adds a standard \a button to the message box if it is valid to do so, and
+    returns the push button.
+*/
+QPushButton *QMessageBoxEx::addButton(StandardButton button)
+{
+    Q_D(QMessageBoxEx);
+    QPushButton *pushButton = d->buttonBox->addButton((QDialogButtonBox::StandardButton)button);
+    if (pushButton)
+        d->buttonList.append(pushButton);
+    return pushButton;
+}
+
+/*!
+    Removes \a button from the button box without deleting it.
+
+    \sa addButton(), setStandardButtons()
+*/
+void QMessageBoxEx::removeButton(QAbstractButton *button)
+{
+    Q_D(QMessageBoxEx);
+    d->buttonList.removeAll(button);
+    if (d->escapeButton == button)
+        d->escapeButton = 0;
+    if (d->defaultButton == button)
+        d->defaultButton = 0;
+    d->buttonBox->removeButton(button);
+}
+
+/*!
+    \property QMessageBoxEx::standardButtons
+    \brief collection of standard buttons in the message box
+
+    This property controls which standard buttons are used by the message box.
+
+    \sa addButton()
+*/
+void QMessageBoxEx::setStandardButtons(StandardButtons buttons)
+{
+    Q_D(QMessageBoxEx);
+    d->buttonBox->setStandardButtons(QDialogButtonBox::StandardButtons(int(buttons)));
+    d->buttonList = d->buttonBox->buttons();
+
+    if (!d->buttonList.contains(d->escapeButton))
+        d->escapeButton = 0;
+    if (!d->buttonList.contains(d->defaultButton))
+        d->defaultButton = 0;
+}
+
+QMessageBoxEx::StandardButtons QMessageBoxEx::standardButtons() const
+{
+    Q_D(const QMessageBoxEx);
+    return QMessageBoxEx::StandardButtons(int(d->buttonBox->standardButtons()));
+}
+
+/*!
+    Returns the standard button enum value corresponding to the given \a button,
+    or NoButton if the given \a button isn't a standard button.
+
+    \sa button(), buttons(), standardButtons()
+*/
+QMessageBoxEx::StandardButton QMessageBoxEx::standardButton(QAbstractButton *button) const
+{
+    Q_D(const QMessageBoxEx);
+    return (QMessageBoxEx::StandardButton)d->buttonBox->standardButton(button);
+}
+
+/*!
+    Returns a pointer corresponding to the standard button \a which,
+    or 0 if the standard button doesn't exist in this message box.
+
+    \sa standardButtons, buttons()
+*/
+QAbstractButton *QMessageBoxEx::button(StandardButton which) const
+{
+    Q_D(const QMessageBoxEx);
+    return d->buttonBox->button(QDialogButtonBox::StandardButton(which));
+}
+
+/*!
+    Returns the button that is activated when escape is presed.  Returns 0
+    if no escape button was set.
+
+    \sa addButton()
+*/
+QAbstractButton *QMessageBoxEx::escapeButton() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->escapeButton;
+}
+
+/*!
+    Sets the button that gets activated when the \key Escape key is
+    pressed to \a button.
+
+    \sa addButton(), clickedButton()
+*/
+void QMessageBoxEx::setEscapeButton(QAbstractButton *button)
+{
+    Q_D(QMessageBoxEx);
+    if (d->buttonList.contains(button))
+        d->escapeButton = button;
+}
+
+/*!
+    Returns the button that was clicked by the user,
+    or 0 if the user hit the \key Escape key and
+    no \l{setEscapeButton()}{escape button} was set.
+
+    If exec() hasn't been called yet, returns 0.
+
+    Example:
+
+    \code
+        QMessageBox messageBox(this);
+        ...
+        messageBox.exec();
+        if (messageBox.clickedButton() == okButton) {
+            ...
+        }
+    \endcode
+
+    \sa standardButton(), button() 
+*/
+QAbstractButton *QMessageBoxEx::clickedButton() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->clickedButton;
+}
+
+/*!
+    Returns the button that should be the message box's
+    \l{QPushButton::setDefaultButton()}{default button}. Returns 0
+    if no default button was set.
+
+    \sa addButton(), setDefaultButton()
+*/
+QPushButton *QMessageBoxEx::defaultButton() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->defaultButton;
+}
+
+/*!
+    Sets the message box's \l{QPushButton::setDefaultButton()}{default button}
+    to \a button.
+
+    \sa addButton(), defaultButton()
+*/
+void QMessageBoxEx::setDefaultButton(QPushButton *button)
+{
+    Q_D(QMessageBoxEx);
+    if (!d->buttonList.contains(button))
+        return;
+    d->defaultButton = button;
+    button->setDefault(true);
+    button->setFocus();
+}
+
+/*!
+    \property QMessageBoxEx::text
+    \brief the message box text to be displayed.
+
+    The text will be interpreted either as a plain text or as rich
+    text, depending on the text format setting (\l
+    QMessageBoxEx::textFormat). The default setting is Qt::AutoText, i.e.
+    the message box will try to auto-detect the format of the text.
+
+    The default value of this property is an empty string.
+
+    \sa textFormat
+*/
+QString QMessageBoxEx::text() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->label->text();
+}
+
+void QMessageBoxEx::setText(const QString &text)
+{
+    Q_D(QMessageBoxEx);
+    d->label->setText(text);
+}
+
+/*!
+    \enum QMessageBoxEx::Icon
 
     This enum has the following values:
 
@@ -364,88 +646,555 @@ static const char * const qtlogo_xpm[] = {
 
 */
 
-static const int LastButton = QMessageBox::NoAll;
+/*!
+    \property QMessageBoxEx::icon
+    \brief the message box's icon
 
-/*
-  NOTE: The table of button texts correspond to the button enum.
+    The icon of the message box can be one of the following predefined
+    icons:
+    \list
+    \i QMessageBoxEx::NoIcon
+    \i QMessageBoxEx::Question
+    \i QMessageBoxEx::Information
+    \i QMessageBoxEx::Warning
+    \i QMessageBoxEx::Critical
+    \endlist
+
+    The actual pixmap used for displaying the icon depends on the
+    current \link QWidget::style() GUI style\endlink. You can also set
+    a custom pixmap icon using the \l QMessageBoxEx::iconPixmap
+    property. The default icon is QMessageBoxEx::NoIcon.
+
+    \sa iconPixmap
 */
+QMessageBoxEx::Icon QMessageBoxEx::icon() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->icon;
+}
 
-#ifndef Q_OS_TEMP
-static const char * const mb_texts[] = {
-#else
-const char * mb_texts[] = {
-#endif
-    0,
-    QT_TRANSLATE_NOOP("QMessageBox","OK"),
-    QT_TRANSLATE_NOOP("QMessageBox","Cancel"),
-    QT_TRANSLATE_NOOP("QMessageBox","&Yes"),
-    QT_TRANSLATE_NOOP("QMessageBox","&No"),
-    QT_TRANSLATE_NOOP("QMessageBox","&Abort"),
-    QT_TRANSLATE_NOOP("QMessageBox","&Retry"),
-    QT_TRANSLATE_NOOP("QMessageBox","&Ignore"),
-    QT_TRANSLATE_NOOP("QMessageBox","Yes to &All"),
-    QT_TRANSLATE_NOOP("QMessageBox","N&o to All"),
-    0
-};
+void QMessageBoxEx::setIcon(Icon icon)
+{
+    Q_D(QMessageBoxEx);
+    setIconPixmap(QMessageBoxEx::standardIcon((QMessageBoxEx::Icon)icon));
+    d->icon = icon;
+}
 
 /*!
-    Constructs a message box with no text and a button with the label
-    "OK".
+    \property QMessageBoxEx::iconPixmap
+    \brief the current icon
+
+    The icon currently used by the message box. Note that it's often
+    hard to draw one pixmap that looks appropriate in all GUI styles;
+    you may want to supply a different pixmap for each platform.
+
+    \sa icon
+*/
+QPixmap QMessageBoxEx::iconPixmap() const
+{
+    Q_D(const QMessageBoxEx);
+    return *d->iconLabel->pixmap();
+}
+
+void QMessageBoxEx::setIconPixmap(const QPixmap &pixmap)
+{
+    Q_D(QMessageBoxEx);
+    d->iconLabel->setPixmap(pixmap);
+    d->iconLabel->setFixedSize(d->iconLabel->sizeHint());
+    d->icon = NoIcon;
+}
+
+/*!
+    \property QMessageBoxEx::textFormat
+    \brief the format of the text displayed by the message box
+
+    The current text format used by the message box. See the \l
+    Qt::TextFormat enum for an explanation of the possible options.
+
+    The default format is Qt::AutoText.
+
+    \sa setText()
+*/
+Qt::TextFormat QMessageBoxEx::textFormat() const
+{
+    Q_D(const QMessageBoxEx);
+    return d->label->textFormat();
+}
+
+void QMessageBoxEx::setTextFormat(Qt::TextFormat format)
+{
+    Q_D(QMessageBoxEx);
+    d->label->setTextFormat(format);
+    bool wordwrap = format == Qt::RichText
+                || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text()));
+    d->label->setWordWrap(wordwrap);
+}
+
+/*!\reimp
+*/
+void QMessageBoxEx::resizeEvent(QResizeEvent *event)
+{
+    QDialog::resizeEvent(event);
+}
+
+/*!\reimp
+*/
+void QMessageBoxEx::closeEvent(QCloseEvent *e)
+{
+    Q_D(QMessageBoxEx);
+    QDialog::closeEvent(e);
+    d->clickedButton = d->escapeButton;
+    setResult(d->buttonList.indexOf(d->escapeButton));
+}
+
+/*!\reimp
+*/
+void QMessageBoxEx::changeEvent(QEvent *ev)
+{
+    Q_D(QMessageBoxEx);
+    if (ev->type() == QEvent::StyleChange) {
+        if (d->icon != NoIcon)
+            setIcon(d->icon);
+    }
+    QDialog::changeEvent(ev);
+}
+
+/*!\reimp
+*/
+void QMessageBoxEx::keyPressEvent(QKeyEvent *e)
+{
+    Q_D(QMessageBoxEx);
+    if (e->key() == Qt::Key_Escape
+#ifdef Q_WS_MAC
+        || (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period)
+#endif
+        ) {
+        if (d->escapeButton)
+            d->escapeButton->animateClick();
+        e->accept();
+        close();
+        return;
+    }
+    // Ask trenton if this fits better in QDialogButtonBox
+#ifndef QT_NO_SHORTCUT
+    if (!(e->modifiers() & Qt::AltModifier)) {
+        int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
+        if (key) {
+            for (int i = 0; i < d->buttonList.size(); ++i) {
+                QAbstractButton *pb = d->buttonList.at(i);
+                int acc = pb->shortcut() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
+                if (acc == key) {
+                    pb->animateClick();
+                    return;
+                }
+            }
+        }
+    }
+#endif
+    QDialog::keyPressEvent(e);
+}
+
+/*!\reimp
+*/
+void QMessageBoxEx::showEvent(QShowEvent *e)
+{
+    Q_D(QMessageBoxEx);
+    if (d->buttonList.isEmpty())
+        addButton(Ok);
+#ifndef QT_NO_ACCESSIBILITY
+    QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
+#endif
+    QDialog::showEvent(e);
+}
+
+static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent,
+    QMessageBoxEx::Icon icon,
+    const QString& title, const QString& text,
+    QMessageBoxEx::StandardButtons buttons,
+    QMessageBoxEx::StandardButton defaultButton)
+{
+    // necessary for source compatibility with Qt 4.0 and 4.1
+    // handles (Yes, No) and (Yes|Default, No)
+    if (defaultButton && !(buttons & defaultButton))
+        return (QMessageBoxEx::StandardButton) 
+                    QMessageBoxExPrivate::showOldMessageBox(parent, icon, title, 
+                                                            text, int(buttons), 
+                                                            int(defaultButton), 0);
+
+    QMessageBoxEx msgBox(icon, title, text, QMessageBoxEx::NoButton, parent);
+    QDialogButtonBox *buttonBox = qFindChild<QDialogButtonBox*>(&msgBox);
+    Q_ASSERT(buttonBox != 0);
+
+    uint mask = QMessageBoxEx::FirstButton;
+    while (mask <= QMessageBoxEx::LastButton) {
+        uint sb = buttons & mask;
+        mask <<= 1;
+        if (!sb)
+            continue;
+        QPushButton *button = msgBox.addButton((QMessageBoxEx::StandardButton)sb);
+        // Choose the first accept role as the default
+        if (msgBox.defaultButton())
+            continue;
+        if ((defaultButton == QMessageBoxEx::NoButton && buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
+            || (defaultButton != QMessageBoxEx::NoButton && sb == defaultButton))
+            msgBox.setDefaultButton(button);
+    }
+    if (msgBox.exec() == -1)
+        return QMessageBoxEx::Cancel;
+    return msgBox.standardButton(msgBox.clickedButton());
+}
+
+/*!
+    Opens an information message box with the title \a title and
+    the text \a text. The standard buttons \a buttons is added to the
+    message box. \a defaultButton specifies the button be used as the
+    defaultButton. If the \a defaultButton is set to QMessageBoxEx::NoButton,
+    QMessageBoxEx picks a suitable default automatically.
+
+    Returns the identity of the standard button that was activated. If escape
+    was pressed, returns QMessageBoxEx::Cancel.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    The \a parent argument is passed to the QDialog
-    constructor.
+    \sa question(), warning(), critical()
 */
-
-QMessageBox::QMessageBox(QWidget *parent)
-    : QDialog(*new QMessageBoxPrivate, parent,
-              Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+QMessageBoxEx::StandardButton QMessageBoxEx::information(QWidget *parent, const QString &title,
+                               const QString& text, StandardButtons buttons,
+                               StandardButton defaultButton)
 {
-    Q_D(QMessageBox);
-    setModal(true);
-    d->init(Ok, 0, 0);
+    return showMessageBoxEx(parent, Information, title, text, buttons,
+                            defaultButton);
+}
+
+
+/*!
+    Opens a question message box with the title \a title and
+    the text \a text. The standard buttons \a buttons is added to the
+    message box. \a defaultButton specifies the button be used as the
+    defaultButton. If the \a defaultButton is set to QMessageBoxEx::NoButton,
+    QMessageBoxEx picks a suitable default automatically.
+
+    Returns the identity of the standard button that was activated. If escape
+    was pressed, returns QMessageBoxEx::Cancel.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa information(), warning(), critical()
+*/
+QMessageBoxEx::StandardButton QMessageBoxEx::question(QWidget *parent, const QString &title,
+                            const QString& text, StandardButtons buttons,
+                            StandardButton defaultButton)
+{
+    return showMessageBoxEx(parent, Question, title, text, buttons, defaultButton);
 }
 
 /*!
+    Opens a warning message box with the title \a title and
+    the text \a text. The standard buttons \a buttons is added to the
+    message box. \a defaultButton specifies the button be used as the
+    defaultButton.  If the \a defaultButton is set to QMessageBoxEx::NoButton,
+    QMessageBoxEx picks a suitable default automatically.
+
+    Returns the identity of the standard button that was activated. If escape
+    was pressed, returns QMessageBoxEx::Cancel.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa question(), information(), critical()
+*/
+QMessageBoxEx::StandardButton QMessageBoxEx::warning(QWidget *parent, const QString &title,
+                        const QString& text, StandardButtons buttons,
+                        StandardButton defaultButton)
+{
+    return showMessageBoxEx(parent, Warning, title, text, buttons, defaultButton);
+}
+
+/*!
+    Opens a critical message box with the title \a title and
+    the text \a text. The standard buttons \a buttons is added to the
+    message box. \a defaultButton specifies the button be used as the
+    defaultButton. If the \a defaultButton is set to QMessageBoxEx::NoButton,
+    QMessageBoxEx picks a suitable default automatically.
+
+    Returns the identity of the standard button that was activated. If escape
+    was pressed, returns QMessageBoxEx::Cancel.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa question(), warning(), information()
+*/
+QMessageBoxEx::StandardButton QMessageBoxEx::critical(QWidget *parent, const QString &title,
+                         const QString& text, StandardButtons buttons,
+                         StandardButton defaultButton)
+{
+    return showMessageBoxEx(parent, Critical, title, text, buttons, defaultButton);
+}
+
+/*!
+    Displays a simple about box with title \a title and text \a
+    text. The about box's parent is \a parent.
+
+    about() looks for a suitable icon in four locations:
+    \list 1
+    \i It prefers \link QWidget::windowIcon() parent->icon() \endlink
+    if that exists.
+    \i If not, it tries the top-level widget containing \a parent.
+    \i If that fails, it tries the \link
+    QApplication::activeWindow() active window. \endlink
+    \i As a last resort it uses the Information icon.
+    \endlist
+
+    The about box has a single button labelled "OK".
+
+    \sa QWidget::windowIcon() QApplication::activeWindow()
+*/
+void QMessageBoxEx::about(QWidget *parent, const QString &title, 
+                          const QString &text)
+{
+    QMessageBoxEx mb(title, text, Information, Ok + Default, 0, 0, parent);
+    QIcon icon = mb.windowIcon();
+    QSize size = icon.actualSize(QSize(64, 64));
+    mb.setIconPixmap(icon.pixmap(size));
+    mb.exec();
+}
+
+/*!
+    Displays a simple message box about Qt, with caption \a caption
+    and centered over \a parent (if \a parent is not 0). The message
+    includes the version number of Qt being used by the application.
+
+    This is useful for inclusion in the Help menu of an application.
+    See the examples/menu/menu.cpp example.
+
+    QApplication provides this functionality as a slot.
+
+    \sa QApplication::aboutQt()
+*/
+void QMessageBoxEx::aboutQt(QWidget *parent, const QString &title)
+{
+    QMessageBoxEx mb(parent);
+
+    QString c = title;
+    if (c.isEmpty())
+        c = tr("About Qt");
+    mb.setWindowTitle(c);
+    mb.setText(*translatedTextAboutQt);
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    QImage logo(qtlogo_xpm);
+#else
+    QImage logo;
+#endif
+
+    if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
+        qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))
+    {
+        // light on dark, adjust some colors
+        logo.setColor(0, 0xffffffff);
+        logo.setColor(1, 0xff666666);
+        logo.setColor(2, 0xffcccc66);
+        logo.setColor(4, 0xffcccccc);
+        logo.setColor(6, 0xffffff66);
+        logo.setColor(7, 0xff999999);
+        logo.setColor(8, 0xff3333ff);
+        logo.setColor(9, 0xffffff33);
+        logo.setColor(11, 0xffcccc99);
+    }
+    QPixmap pm = QPixmap::fromImage(logo);
+    if (!pm.isNull())
+        mb.setIconPixmap(pm);
+    mb.addButton(QMessageBoxEx::Ok);
+    mb.exec();
+}
+
+// for binary compatibility
+QSize QMessageBoxEx::sizeHint() const
+{
+    return QDialog::sizeHint();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Source and binary compatibility routines for 4.0 and 4.1
+
+static QMessageBoxEx::StandardButton newButton(int button)
+{
+    // this is needed for source compatibility with Qt 4.0 and 4.1
+    if (button == QMessageBoxEx::NoButton || (button & NewButtonFlag))
+        return QMessageBoxEx::StandardButton(button & QMessageBoxEx::ButtonMask);
+
+#if QT_VERSION < 0x050000
+    // this is needed for binary compatibility with Qt 4.0 and 4.1
+    switch (button & Old_ButtonMask) {
+    case Old_Ok:
+        return QMessageBoxEx::Ok;
+    case Old_Cancel:
+        return QMessageBoxEx::Cancel;
+    case Old_Yes:
+        return QMessageBoxEx::Yes;
+    case Old_No:
+        return QMessageBoxEx::No;
+    case Old_Abort:
+        return QMessageBoxEx::Abort;
+    case Old_Retry:
+        return QMessageBoxEx::Retry;
+    case Old_Ignore:
+        return QMessageBoxEx::Ignore;
+    case Old_YesAll:
+        return QMessageBoxEx::YesToAll;
+    case Old_NoAll:
+        return QMessageBoxEx::NoToAll;
+    default:
+        return QMessageBoxEx::NoButton;
+    }
+#endif
+}
+
+static int oldButton(int button)
+{
+    switch (button & Old_ButtonMask) {
+    case QMessageBoxEx::Ok:
+        return Old_Ok;
+    case QMessageBoxEx::Cancel:
+        return Old_Cancel;
+    case QMessageBoxEx::Yes:
+        return Old_Yes;
+    case QMessageBoxEx::No:
+        return Old_No;
+    case QMessageBoxEx::Abort:
+        return Old_Abort;
+    case QMessageBoxEx::Retry:
+        return Old_Retry;
+    case QMessageBoxEx::Ignore:
+        return Old_Ignore;
+    case QMessageBoxEx::YesToAll:
+        return Old_YesAll;
+    case QMessageBoxEx::NoToAll:
+        return Old_NoAll;
+    default:
+        return 0;
+    }
+}
+
+static inline int cleanButton(int button)
+{
+    return button & QMessageBoxEx::ButtonMask;
+}
+
+QAbstractButton *QMessageBoxExPrivate::findButton(int button0, int button1, int button2, int flags)
+{
+    int index = -1;
+
+    if (button0 & flags) {
+        index = 0;
+    } else if (button1 & flags) {
+        index = 1;
+    } else if (button2 & flags) {
+        index = 2;
+    }
+    return buttonList.value(index);
+}
+
+void QMessageBoxExPrivate::addOldButtons(int button0, int button1, int button2)
+{
+    Q_Q(QMessageBoxEx);
+    q->addButton(newButton(button0));
+    q->addButton(newButton(button1));
+    q->addButton(newButton(button2));
+    q->setDefaultButton(
+        static_cast<QPushButton *>(findButton(button0, button1, button2, QMessageBoxEx::Default)));
+    q->setEscapeButton(findButton(button0, button1, button2, QMessageBoxEx::Escape));
+}
+
+int QMessageBoxExPrivate::showOldMessageBox(QWidget *parent, QMessageBoxEx::Icon icon,
+                                            const QString &title, const QString &text,
+                                            int button0, int button1, int button2)
+{
+    QMessageBoxEx messageBox(icon, title, text, QMessageBoxEx::NoButton, parent);
+    messageBox.d_func()->addOldButtons(button0, button1, button2);
+    int result = messageBox.exec();
+
+    switch (result) {
+    case 0:
+        return cleanButton(button0);
+    case 1:
+        return cleanButton(button1);
+    case 2:
+        return cleanButton(button2);
+    default:
+        return -1;
+    }
+}
+
+int QMessageBoxExPrivate::showOldMessageBox(QWidget *parent, QMessageBoxEx::Icon icon,
+                                            const QString &title, const QString &text,
+                                            const QString &button0Text,
+                                            const QString &button1Text,
+                                            const QString &button2Text,
+                                            int defaultButtonNumber,
+                                            int escapeButtonNumber)
+{
+    QMessageBoxEx messageBox(icon, title, text, QMessageBoxEx::NoButton, parent);
+    QString myButton0Text = button0Text;
+    if (myButton0Text.isEmpty())
+        myButton0Text = QDialogButtonBox::tr("OK");
+    messageBox.addButton(myButton0Text, QMessageBoxEx::ActionRole);
+    if (!button1Text.isEmpty())
+        messageBox.addButton(button1Text, QMessageBoxEx::ActionRole);
+    if (!button2Text.isEmpty())
+        messageBox.addButton(button2Text, QMessageBoxEx::ActionRole);
+
+    const QList<QAbstractButton *> &buttonList = messageBox.d_func()->buttonList;
+    messageBox.setDefaultButton(static_cast<QPushButton *>(buttonList.value(defaultButtonNumber)));
+    messageBox.setEscapeButton(buttonList.value(escapeButtonNumber));
+
+    return messageBox.exec();
+}
+
+/*!
+    \obsolete
     Constructs a message box with a \a caption, a \a text, an \a icon,
     and up to three buttons.
 
     The \a icon must be one of the following:
     \list
-    \i QMessageBox::NoIcon
-    \i QMessageBox::Question
-    \i QMessageBox::Information
-    \i QMessageBox::Warning
-    \i QMessageBox::Critical
+    \i QMessageBoxEx::NoIcon
+    \i QMessageBoxEx::Question
+    \i QMessageBoxEx::Information
+    \i QMessageBoxEx::Warning
+    \i QMessageBoxEx::Critical
     \endlist
 
     Each button, \a button0, \a button1 and \a button2, can have one
     of the following values:
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \i QMessageBoxEx::NoButton
+    \i QMessageBoxEx::Ok
+    \i QMessageBoxEx::Cancel
+    \i QMessageBoxEx::Yes
+    \i QMessageBoxEx::No
+    \i QMessageBoxEx::Abort
+    \i QMessageBoxEx::Retry
+    \i QMessageBoxEx::Ignore
+    \i QMessageBoxEx::YesAll
+    \i QMessageBoxEx::NoAll
     \endlist
 
-    Use QMessageBox::NoButton for the later parameters to have fewer
+    Use QMessageBoxEx::NoButton for the later parameters to have fewer
     than three buttons in your message box. If you don't specify any
     buttons at all, QMessageBox will provide an Ok button.
 
-    One of the buttons can be OR-ed with the QMessageBox::Default
+    One of the buttons can be OR-ed with the QMessageBoxEx::Default
     flag to make it the default button (clicked when Enter is
     pressed).
 
-    One of the buttons can be OR-ed with the QMessageBox::Escape
+    One of the buttons can be OR-ed with the QMessageBoxEx::Escape
     flag to make it the cancel or close button (clicked when Escape is
     pressed).
 
@@ -463,635 +1212,45 @@ QMessageBox::QMessageBox(QWidget *parent)
 
     \sa setWindowTitle(), setText(), setIcon()
 */
-
-QMessageBox::QMessageBox(const QString& caption,
-                          const QString &text, Icon icon,
-                          int button0, int button1, int button2,
-                          QWidget *parent, Qt::WindowFlags f)
-    : QDialog(*new QMessageBoxPrivate, parent,
+QMessageBoxEx::QMessageBoxEx(const QString &title, const QString &text, Icon icon,
+                             int button0, int button1, int button2, QWidget *parent,
+                             Qt::WindowFlags f)
+    : QDialog(*new QMessageBoxExPrivate, parent,
               f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
-    Q_D(QMessageBox);
-    d->init(button0, button1, button2);
-#ifdef Q_WS_MAC
-    // Make our message box look a little more mac like.
-    QString finalText = QLatin1String("<p><b>") + caption + QLatin1String("</b></p>");
-    if (Qt::mightBeRichText(text))
-        finalText += QLatin1String("<br><br>") + text;
-    else
-        finalText += Qt::convertFromPlainText(text);
-
-    setText(finalText);
-#else
-    setWindowTitle(caption);
-    setText(text);
-#endif
+    Q_D(QMessageBoxEx);
+    d->init(title, text);
     setIcon(icon);
-}
-
-
-
-/*!
-    Destroys the message box.
-*/
-
-QMessageBox::~QMessageBox()
-{
-}
-
-static QString * translatedTextAboutQt = 0;
-
-void QMessageBoxPrivate::init(int button0, int button1, int button2)
-{
-    Q_Q(QMessageBox);
-    if (!translatedTextAboutQt) {
-        translatedTextAboutQt = new QString;
-
-#if defined(QT_NON_COMMERCIAL)
-    QT_NC_MSGBOX
-#else
-        *translatedTextAboutQt = QMessageBox::tr(
-            "<h3>About Qt</h3>"
-            "%1<p>Qt is a C++ toolkit for cross-platform "
-            "application development.</p>"
-            "<p>Qt provides single-source "
-            "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
-            "Linux, and all major commercial Unix variants. Qt is also"
-            " available for embedded devices as Qtopia Core.</p>"
-            "<p>Qt is a Trolltech product. See "
-            "<a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a> for more information.</p>"
-           )
-#if QT_EDITION != QT_EDITION_OPENSOURCE
-           .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
-#else
-           .arg(QMessageBox::tr("<p>This program uses Qt Open Source Edition version %1.</p>"
-                   "<p>Qt Open Source Edition is intended for the development "
-                   "of Open Source applications. You need a commercial Qt "
-                   "license for development of proprietary (closed source) "
-                   "applications.</p>"
-                   "<p>Please see <a href=\"http://www.trolltech.com/company/model.html\">www.trolltech.com/company/model.html</a> "
-                   "for an overview of Qt licensing.</p>"))
-#endif
-           .arg(QLatin1String(QT_VERSION_STR));
-#endif
-    }
-    label = new QLabel(q);
-    label->setObjectName(QLatin1String("qt_msgbox_label"));
-    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
-    label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
-    label->setOpenExternalLinks(true);
-
-    if ((button2 && !button1) || (button1 && !button0)) {
-        qWarning("QMessageBox: Inconsistent button parameters");
-        button0 = button1 = button2 = 0;
-    }
-    icon = QMessageBox::NoIcon;
-    iconLabel = new QLabel(q);
-    iconLabel->setObjectName(QLatin1String("qt_msgbox_icon_label"));
-
-    iconLabel->setPixmap(QPixmap());
-    numButtons = 0;
-    button[0] = button0;
-    button[1] = button1;
-    button[2] = button2;
-    defButton = -1;
-    escButton = -1;
-    int i;
-    for (i=0; i<3; i++) {
-        int b = button[i];
-        if ((b & QMessageBox::Default)) {
-            if (defButton >= 0) {
-                qWarning("QMessageBox: There can be at most one default button");
-            } else {
-                defButton = i;
-            }
-        }
-        if ((b & QMessageBox::Escape)) {
-            if (escButton >= 0) {
-                qWarning("QMessageBox: There can be at most one escape button");
-            } else {
-                escButton = i;
-            }
-        }
-        b &= QMessageBox::ButtonMask;
-        if (b == 0) {
-            if (i == 0)                       // no buttons, add an Ok button
-                b = QMessageBox::Ok;
-        } else if (b < 0 || b > LastButton) {
-            qWarning("QMessageBox: Invalid button specifier");
-            b = QMessageBox::Ok;
-        } else {
-            if (i > 0 && button[i-1] == 0) {
-                qWarning("QMessageBox: Inconsistent button parameters; "
-                           "button %d defined but not button %d",
-                           i+1, i);
-                b = 0;
-            }
-        }
-        button[i] = b;
-        if (b)
-            numButtons++;
-    }
-    for (i=0; i<3; i++) {
-        if (i >= numButtons) {
-            pb[i] = 0;
-        } else {
-            pb[i] = new QPushButton(QMessageBox::tr(mb_texts[button[i]]), q);
-            pb[i]->setObjectName(QLatin1String(mb_texts[button[i]]));
-            if (defButton == i) {
-                pb[i]->setDefault(true);
-                pb[i]->setFocus();
-            }
-            pb[i]->setAutoDefault(true);
-            pb[i]->setFocusPolicy(Qt::StrongFocus);
-            q->connect(pb[i], SIGNAL(clicked()), SLOT(_q_buttonClicked()));
-        }
-    }
-}
-
-
-int QMessageBoxPrivate::indexOf(int button) const
-{
-    int index = -1;
-    for (int i = 0; i < numButtons; i++) {
-        if (this->button[i] == button) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-
-/*!
-    \property QMessageBox::text
-    \brief the message box text to be displayed.
-
-    The text will be interpreted either as a plain text or as rich
-    text, depending on the text format setting (\l
-    QMessageBox::textFormat). The default setting is Qt::AutoText, i.e.
-    the message box will try to auto-detect the format of the text.
-
-    The default value of this property is an empty string.
-
-    \sa textFormat
-*/
-QString QMessageBox::text() const
-{
-    Q_D(const QMessageBox);
-    return d->label->text();
-}
-
-
-void QMessageBox::setText(const QString &text)
-{
-    Q_D(QMessageBox);
-    d->label->setText(text);
-    bool wordwrap = d->label->textFormat() == Qt::RichText
-                    || (d->label->textFormat() == Qt::AutoText && Qt::mightBeRichText(text));
-    d->label->setWordWrap(wordwrap);
-}
-
-
-/*!
-    \property QMessageBox::icon
-    \brief the message box's icon
-
-    The icon of the message box can be one of the following predefined
-    icons:
-    \list
-    \i QMessageBox::NoIcon
-    \i QMessageBox::Question
-    \i QMessageBox::Information
-    \i QMessageBox::Warning
-    \i QMessageBox::Critical
-    \endlist
-
-    The actual pixmap used for displaying the icon depends on the
-    current \link QWidget::style() GUI style\endlink. You can also set
-    a custom pixmap icon using the \l QMessageBox::iconPixmap
-    property. The default icon is QMessageBox::NoIcon.
-
-    \sa iconPixmap
-*/
-
-QMessageBox::Icon QMessageBox::icon() const
-{
-    Q_D(const QMessageBox);
-    return d->icon;
-}
-
-void QMessageBox::setIcon(Icon icon)
-{
-    Q_D(QMessageBox);
-    setIconPixmap(standardIcon(icon));
-    d->icon = icon;
-}
-
-#ifdef QT3_SUPPORT
-/*!
-    \compat
-
-    Constructs a message box with the given \a parent, \a name, and
-    window flags, \a f.
-    The window title is specified by \a caption, and the message box
-    displays message text and an icon specified by \a text and \a icon.
-
-    The buttons that the user can access to respond to the message are
-    defined by \a button0, \a button1, and \a button2.
-*/
-QMessageBox::QMessageBox(const QString& caption,
-                          const QString &text, Icon icon,
-                          int button0, int button1, int button2,
-                          QWidget *parent, const char *name,
-                          bool modal, Qt::WindowFlags f)
-    : QDialog(*new QMessageBoxPrivate, parent,
-              f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
-{
-    Q_D(QMessageBox);
-    setObjectName(QString::fromAscii(name));
-    setModal(modal);
-    d->init(button0, button1, button2);
-#ifdef Q_WS_MAC
-    setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
-#else
-    setWindowTitle(caption);
-    setText(text);
-#endif
-    setIcon(icon);
+    d->addOldButtons(button0, button1, button2);
 }
 
 /*!
-    Constructs a message box with the given \a parent and \a name.
-*/
-QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(*new QMessageBoxPrivate, parent,
-              Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
-{
-    Q_D(QMessageBox);
-    setObjectName(QString::fromAscii(name));
-    setModal(true);
-    d->init(Ok, 0, 0);
-}
-
-/*!
-  \obsolete
-
-  Returns the pixmap used for a standard icon. This
-  allows the pixmaps to be used in more complex message boxes.
-  \a icon specifies the required icon, e.g. QMessageBox::Information,
-  QMessageBox::Warning or QMessageBox::Critical.
-
-  \a style is unused.
-*/
-
-QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
-{
-    Q_UNUSED(style);
-    return QMessageBox::standardIcon(icon);
-}
-#endif
-
-
-/*!
-    Returns the pixmap used for a standard icon. This allows the
-    pixmaps to be used in more complex message boxes. \a icon
-    specifies the required icon, e.g. QMessageBox::Question,
-    QMessageBox::Information, QMessageBox::Warning or
-    QMessageBox::Critical.
-*/
-
-QPixmap QMessageBox::standardIcon(Icon icon)
-{
-    int iconSize = QApplication::style()->pixelMetric(QStyle::PM_MessageBoxIconSize);
-    QIcon tmpIcon;
-    switch (icon) {
-    case Information:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
-        break;
-    case Warning:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
-        break;
-    case Critical:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
-        break;
-    case Question:
-        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion);
-    default:
-        break;
-    }
-    if (!tmpIcon.isNull())
-        return tmpIcon.pixmap(iconSize, iconSize);
-    return QPixmap();
-}
-
-
-/*!
-    \property QMessageBox::iconPixmap
-    \brief the current icon
-
-    The icon currently used by the message box. Note that it's often
-    hard to draw one pixmap that looks appropriate in all GUI styles;
-    you may want to supply a different pixmap for each platform.
-
-    \sa icon
-*/
-
-QPixmap QMessageBox::iconPixmap() const
-{
-    Q_D(const QMessageBox);
-    return *d->iconLabel->pixmap();
-}
-
-
-void QMessageBox::setIconPixmap(const QPixmap &pixmap)
-{
-    Q_D(QMessageBox);
-    d->iconLabel->setPixmap(pixmap);
-    d->icon = NoIcon;
-}
-
-
-/*!
-    Returns the text of the message box button \a button, or
-    an empty string if the message box does not contain the button.
-
-    \sa setButtonText()
-*/
-
-QString QMessageBox::buttonText(int button) const
-{
-    Q_D(const QMessageBox);
-    int index = d->indexOf(button);
-    return index >= 0 && d->pb[index] ? d->pb[index]->text() : QString();
-}
-
-
-/*!
-    Sets the text of the message box button \a button to \a text.
-    Setting the text of a button that is not in the message box is
-    silently ignored.
-
-    \sa buttonText()
-*/
-
-void QMessageBox::setButtonText(int button, const QString &text)
-{
-    Q_D(QMessageBox);
-    int index = d->indexOf(button);
-    if (index >= 0 && d->pb[index]) {
-        d->pb[index]->setText(text);
-        QResizeEvent e(size(), size());
-        event(&e);
-    }
-}
-
-
-/*!
-    \internal
-    Internal slot to handle button clicks.
-*/
-
-void QMessageBoxPrivate::_q_buttonClicked()
-{
-    Q_Q(QMessageBox);
-
-    int reply = 0;
-    const QObject *s = q->sender();
-    for (int i = 0; i < numButtons; i++) {
-        if (pb[i] == s)
-            reply = button[i];
-    }
-    q->done(reply);
-}
-
-
-/*!\reimp
-*/
-QSize QMessageBox::sizeHint() const
-{
-    Q_D(const QMessageBox);
-    ensurePolished();
-    QRect screen = QApplication::desktop()->screenGeometry(pos());
-    d->label->adjustSize();
-    QSize labelSize(d->label->size());
-    if (labelSize.width() > screen.width()*2/3) {
-        // try again with wordbreak instead of cropping off text
-        // (see also QWidget::adjustSize)
-        d->label->setWordWrap(true);
-        d->label->adjustSize();
-        labelSize = d->label->size();
-    }
-    QSize maxButtonSizeHint;
-    int n  = d->numButtons;
-    for (int i = 0; i < n; i++)
-        maxButtonSizeHint = maxButtonSizeHint.expandedTo(d->pb[i]->sizeHint());
-    int bw = maxButtonSizeHint.width();
-    int bh = maxButtonSizeHint.height();
-    int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
-    if (border <= 0)
-        border = 10;
-    int btn_spacing = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing)
-                      ? border : 7;
-#ifndef Q_OS_TEMP
-    int buttons = d->numButtons * bw + (n-1) * btn_spacing;
-    int h = bh;
-#else
-    int visibleButtons = 0;
-    for (int i = 0; i < d->numButtons; ++i)
-        visibleButtons += d->pb[i]->isVisible() ? 1 : 0;
-    int buttons = visibleButtons == 0 ? 0 : visibleButtons * bw + (visibleButtons-1) * btn_spacing;
-    int h = visibleButtons == 0 ? 0 : bh;
-    n = visibleButtons;
-#endif
-    if (labelSize.height())
-        h += labelSize.height() + 3*border;
-    else
-        h += 2*border;
-    int lmargin = 0;
-    if (d->iconLabel->pixmap() && d->iconLabel->pixmap()->width())  {
-        d->iconLabel->adjustSize();
-        lmargin += d->iconLabel->width() + border;
-        if (h < d->iconLabel->height() + 3*border + bh && n)
-            h = d->iconLabel->height() + 3*border + bh;
-    }
-    int w = qMax(buttons, labelSize.width() + lmargin) + 2*border;
-    if (w > screen.width())
-        w = screen.width();
-    return QSize(w,h);
-}
-
-
-/*!\reimp
-*/
-void QMessageBox::resizeEvent(QResizeEvent *)
-{
-    Q_D(QMessageBox);
-    int i;
-    QSize maxButtonSizeHint;
-    int n  = d->numButtons;
-    for (i = 0; i < n; i++)
-        maxButtonSizeHint = maxButtonSizeHint.expandedTo(d->pb[i]->sizeHint());
-    int bw = maxButtonSizeHint.width();
-    int bh = maxButtonSizeHint.height();
-#ifdef Q_OS_TEMP
-    int visibleButtons = 0;
-    for (i = 0; i < n; ++i)
-        visibleButtons += d->pb[i]->isVisible() ? 1 : 0;
-    n  = visibleButtons;
-    bw = visibleButtons == 0 ? 0 : bw;
-    bh = visibleButtons == 0 ? 0 : bh;
-#endif
-    int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
-    if (border <= 0)
-        border = 10;
-    bool useBorder = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing);
-    int btn_spacing = useBorder ? border : 7;
-    int lmargin = 0;
-    d->iconLabel->adjustSize();
-    bool rtl = layoutDirection() == Qt::RightToLeft;
-    if (rtl)
-        d->iconLabel->move(width() - border - d->iconLabel->width(), border);
-    else
-        d->iconLabel->move(border, border);
-    if (d->iconLabel->pixmap() && d->iconLabel->pixmap()->width())
-        lmargin += d->iconLabel->width() + border;
-    d->label->setGeometry((rtl ? 0 : lmargin) + border,
-                          border,
-                          width() - lmargin -2*border,
-                          height() - 3*border - bh);
-    int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
-    if (n)
-        bw = qMin(bw, (width() - 2 *border) / n);
-    if (useBorder) {
-        for (i=0; i<n; i++)
-            d->pb[rtl ? n - i - 1 : i]->setGeometry(border + i*bw + qMax(0,i*btn_spacing + extra_space*(i+1)/(n+1)),
-                                                    height() - border - bh, bw, bh);
-    } else {
-        for (i=0; i<n; i++)
-            d->pb[rtl ? n - i - 1 : i]->setGeometry(border + i*bw + qMax(0,extra_space/2 + i*btn_spacing),
-                                                    height() - border - bh, bw, bh);
-    }
-}
-
-
-/*!\reimp
-*/
-void QMessageBox::keyPressEvent(QKeyEvent *e)
-{
-    Q_D(QMessageBox);
-    if (e->key() == Qt::Key_Escape) {
-        if (d->escButton >= 0) {
-            QPushButton *pb = d->pb[d->escButton];
-            pb->animateClick();
-            e->accept();
-            return;
-        }
-    }
-#ifndef QT_NO_SHORTCUT
-    if (!(e->modifiers() & Qt::AltModifier)) {
-        int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
-        if (key) {
-            QList<QPushButton *> list = qFindChildren<QPushButton *>(this);
-            for (int i = 0; i < list.size(); ++i) {
-                QPushButton *pb = list.at(i);
-                int acc = pb->shortcut() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
-                if (acc == key) {
-                    emit pb->animateClick();
-                    return;
-                }
-            }
-        }
-    }
-#endif
-    QDialog::keyPressEvent(e);
-}
-
-/*!\reimp
-*/
-void QMessageBox::showEvent(QShowEvent *e)
-{
-#ifndef QT_NO_ACCESSIBILITY
-    QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
-#endif
-    QDialog::showEvent(e);
-}
-
-/*!\reimp
-*/
-void QMessageBox::closeEvent(QCloseEvent *e)
-{
-    Q_D(QMessageBox);
-    QDialog::closeEvent(e);
-    if (d->escButton != -1)
-        setResult(d->button[d->escButton]);
-}
-
-/*****************************************************************************
-  Static QMessageBox functions
- *****************************************************************************/
-
-/*!
-    \fn int QMessageBox::message(const QString &caption,
-                        const QString& text,
-                        const QString& buttonText,
-                        QWidget *parent, const char *name)
-
-  \obsolete
-
-  Opens a modal message box with the given \a caption and showing the
-  given \a text. The message box has a single button which has the
-  given \a buttonText (or tr("OK")). The message box is centred over
-  its \a parent and is called \a name.
-
-  Use information(), warning(), question(), or critical() instead.
-*/
-
-/*!
-    \fn bool QMessageBox::query(const QString &caption,
-                       const QString& text,
-                       const QString& yesButtonText,
-                       const QString& noButtonText,
-                       QWidget *parent, const char *name)
-
-  \obsolete
-
-  Queries the user using a modal message box with up to two buttons.
-  The message box has the given \a caption (although some window
-  managers don't show it), and shows the given \a text. The left
-  button has the \a yesButtonText (or tr("OK")), and the right button
-  has the \a noButtonText (or isn't shown). The message box is centred
-  over its \a parent and is called \a name.
-
-  Use information(), question(), warning(), or critical() instead.
-*/
-
-/*!
+    \obsolete
     Opens an information message box with the caption \a caption and
     the text \a text. The dialog may have up to three buttons. Each of
     the buttons, \a button0, \a button1 and \a button2 may be set to
     one of the following values:
 
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \i QMessageBoxEx::NoButton
+    \i QMessageBoxEx::Ok
+    \i QMessageBoxEx::Cancel
+    \i QMessageBoxEx::Yes
+    \i QMessageBoxEx::No
+    \i QMessageBoxEx::Abort
+    \i QMessageBoxEx::Retry
+    \i QMessageBoxEx::Ignore
+    \i QMessageBoxEx::YesAll
+    \i QMessageBoxEx::NoAll
     \endlist
 
     If you don't want all three buttons, set the last button, or last
-    two buttons to QMessageBox::NoButton.
+    two buttons to QMessageBoxEx::NoButton.
 
-    One button can be OR-ed with QMessageBox::Default, and one
-    button can be OR-ed with QMessageBox::Escape.
+    One button can be OR-ed with QMessageBoxEx::Default, and one
+    button can be OR-ed with QMessageBoxEx::Escape.
 
-    Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
+    Returns the identity (QMessageBoxEx::Ok, or QMessageBoxEx::No, etc.)
     of the button that was clicked.
 
     If \a parent is 0, the message box becomes an application-global
@@ -1100,247 +1259,29 @@ void QMessageBox::closeEvent(QCloseEvent *e)
 
     \sa question(), warning(), critical()
 */
-
-int QMessageBox::information(QWidget *parent, const QString& caption, const QString& text,
-                             int button0, int button1, int button2)
+int QMessageBoxEx::information(QWidget *parent, const QString &title, const QString& text, 
+                               int button0, int button1, int button2)
 {
-    QMessageBox mb(caption, text, Information, button0, button1, button2, parent);
-#ifdef Q_WS_MAC
-    mb.setFixedSize(mb.sizeHint());
-#endif
-    return mb.exec();
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Information, title, text, 
+                                                   button0, button1, button2);
 }
 
 /*!
-    Opens a question message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    buttons, \a button0, \a button1 and \a button2 may be set to one
-    of the following values:
+    \internal
 
-    \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
-    \endlist
-
-    If you don't want all three buttons, set the last button, or last
-    two buttons to QMessageBox::NoButton.
-
-    One button can be OR-ed with QMessageBox::Default, and one
-    button can be OR-ed with QMessageBox::Escape.
-
-    Returns the identity (QMessageBox::Yes, or QMessageBox::No, etc.)
-    of the button that was clicked.
-
-    If \a parent is 0, the message box becomes an application-global
-    modal dialog box. If \a parent is a widget, the message box
-    becomes modal relative to \a parent.
-
-    \sa information(), warning(), critical()
+    For source compatibility for the following cases
+    1. Yes|Default, No|Escape
+    2. Yes, No|Escape
 */
-
-int QMessageBox::question(QWidget *parent,
-                           const QString& caption, const QString& text,
-                           int button0, int button1, int button2)
+int QMessageBoxEx::information(QWidget *parent, const QString &title, const QString& text,
+                               StandardButtons button0, int button1, int button2)
 {
-    QMessageBox mb(caption, text, Question, button0, button1, button2, parent);
-#ifdef Q_WS_MAC
-    mb.setFixedSize(mb.sizeHint());
-#endif
-    return mb.exec();
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Information, title, text, 
+                                                   button0, button1, button2);
 }
-
-
-/*!
-    Opens a warning message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    button parameters, \a button0, \a button1 and \a button2 may be
-    set to one of the following values:
-
-    \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
-    \endlist
-
-    If you don't want all three buttons, set the last button, or last
-    two buttons to QMessageBox::NoButton.
-
-    One button can be OR-ed with QMessageBox::Default, and one
-    button can be OR-ed with QMessageBox::Escape.
-
-    Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
-    of the button that was clicked.
-
-    If \a parent is 0, the message box becomes an application-global
-    modal dialog box. If \a parent is a widget, the message box
-    becomes modal relative to \a parent.
-
-    \sa information(), question(), critical()
-*/
-
-int QMessageBox::warning(QWidget *parent,
-                          const QString& caption, const QString& text,
-                          int button0, int button1, int button2)
-{
-    QMessageBox mb(caption, text, Warning, button0, button1, button2, parent);
-#ifdef Q_WS_MAC
-    mb.setFixedSize(mb.sizeHint());
-#endif
-    return mb.exec();
-}
-
-
-/*!
-    Opens a critical message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    button parameters, \a button0, \a button1 and \a button2 may be
-    set to one of the following values:
-
-    \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
-    \endlist
-
-    If you don't want all three buttons, set the last button, or last
-    two buttons to QMessageBox::NoButton.
-
-    One button can be OR-ed with QMessageBox::Default, and one
-    button can be OR-ed with QMessageBox::Escape.
-
-    Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
-    of the button that was clicked.
-
-    If \a parent is 0, the message box becomes an application-global
-    modal dialog box. If \a parent is a widget, the message box
-    becomes modal relative to \a parent.
-
-    \sa information(), question(), warning()
-*/
-
-int QMessageBox::critical(QWidget *parent,
-                           const QString& caption, const QString& text,
-                           int button0, int button1, int button2)
-{
-    QMessageBox mb(caption, text, Critical, button0, button1, button2, parent);
-#ifdef Q_WS_MAC
-    mb.setFixedSize(mb.sizeHint());
-#endif
-    return mb.exec();
-}
-
 
 /*!
     \obsolete
-
-    Displays a simple about box with caption \a caption and text \a
-    text. The about box's parent is \a parent.
-
-    about() looks for a suitable icon in four locations:
-    \list 1
-    \i It prefers \link QWidget::windowIcon() parent->icon() \endlink
-    if that exists.
-    \i If not, it tries the top-level widget containing \a parent.
-    \i If that fails, it tries the \link
-    QApplication::activeWindow() active window. \endlink
-    \i As a last resort it uses the Information icon.
-    \endlist
-
-    The about box has a single button labelled "OK".
-
-    \sa QWidget::windowIcon() QApplication::activeWindow()
-*/
-
-void QMessageBox::about(QWidget *parent, const QString &caption,
-                         const QString& text)
-{
-    QMessageBox mb(caption, text, Information, Ok + Default, 0, 0, parent);
-    QIcon icon = mb.windowIcon();
-    QSize size = icon.actualSize(QSize(64, 64));
-    mb.setIconPixmap(icon.pixmap(size));
-    mb.exec();
-}
-
-
-/*! \reimp
-*/
-void QMessageBox::changeEvent(QEvent *ev)
-{
-    Q_D(QMessageBox);
-    if(ev->type() == QEvent::StyleChange) {
-        if (d->icon != NoIcon) {
-            // Reload icon for new style
-            setIcon(d->icon);
-        }
-    }
-    QWidget::changeEvent(ev);
-}
-
-
-static int textBox(QWidget *parent, QMessageBox::Icon severity,
-                   const QString& caption, const QString& text,
-                   const QString& button0Text,
-                   const QString& button1Text,
-                   const QString& button2Text,
-                   int defaultButtonNumber,
-                   int escapeButtonNumber)
-{
-    int b[3];
-    b[0] = 1;
-    b[1] = button1Text.isEmpty() ? 0 : 2;
-    b[2] = button2Text.isEmpty() ? 0 : 3;
-
-    int i;
-    for(i=0; i<3; i++) {
-        if (b[i] && defaultButtonNumber == i)
-            b[i] += QMessageBox::Default;
-        if (b[i] && escapeButtonNumber == i)
-            b[i] += QMessageBox::Escape;
-    }
-
-    QMessageBox mb(caption, text, severity, b[0], b[1], b[2], parent);
-    if (button0Text.isEmpty())
-        mb.setButtonText(1, QMessageBox::tr(mb_texts[QMessageBox::Ok]));
-    else
-        mb.setButtonText(1, button0Text);
-    if (b[1])
-        mb.setButtonText(2, button1Text);
-    if (b[2])
-        mb.setButtonText(3, button2Text);
-
-#ifndef QT_NO_CURSOR
-    mb.setCursor(Qt::ArrowCursor);
-#endif
-#ifdef Q_WS_MAC
-    mb.setFixedSize(mb.sizeHint());
-#endif
-    return mb.exec() - 1;
-}
-
-
-/*!
     \overload
 
     Displays an information message box with caption \a caption, text
@@ -1370,20 +1311,70 @@ static int textBox(QWidget *parent, QMessageBox::Icon severity,
     \sa question(), warning(), critical()
 */
 
-int QMessageBox::information(QWidget *parent, const QString &caption,
-                              const QString& text,
-                              const QString& button0Text,
-                              const QString& button1Text,
-                              const QString& button2Text,
-                              int defaultButtonNumber,
-                              int escapeButtonNumber)
+int QMessageBoxEx::information(QWidget *parent, const QString &title, const QString& text,
+                               const QString& button0Text, const QString& button1Text,
+                               const QString& button2Text, int defaultButtonNumber,
+                               int escapeButtonNumber)
 {
-    return textBox(parent, Information, caption, text,
-                    button0Text, button1Text, button2Text,
-                    defaultButtonNumber, escapeButtonNumber);
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Information, title, text, 
+                                                   button0Text, button1Text, button2Text,
+                                                   defaultButtonNumber, escapeButtonNumber);
 }
 
 /*!
+    \obsolete
+    Opens a question message box with the caption \a caption and the
+    text \a text. The dialog may have up to three buttons. Each of the
+    buttons, \a button0, \a button1 and \a button2 may be set to one
+    of the following values:
+
+    \list
+    \i QMessageBoxEx::NoButton
+    \i QMessageBoxEx::Ok
+    \i QMessageBoxEx::Cancel
+    \i QMessageBoxEx::Yes
+    \i QMessageBoxEx::No
+    \i QMessageBoxEx::Abort
+    \i QMessageBoxEx::Retry
+    \i QMessageBoxEx::Ignore
+    \i QMessageBoxEx::YesAll
+    \i QMessageBoxEx::NoAll
+    \endlist
+
+    If you don't want all three buttons, set the last button, or last
+    two buttons to QMessageBoxEx::NoButton.
+
+    One button can be OR-ed with QMessageBoxEx::Default, and one
+    button can be OR-ed with QMessageBoxEx::Escape.
+
+    Returns the identity (QMessageBoxEx::Yes, or QMessageBoxEx::No, etc.)
+    of the button that was clicked.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa information(), warning(), critical()
+*/
+int QMessageBoxEx::question(QWidget *parent, const QString &title, const QString& text,
+                            int button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Question, title, text, 
+                                                   button0, button1, button2);
+}
+
+/*!
+    \internal
+*/
+int QMessageBoxEx::question(QWidget *parent, const QString &title, const QString& text,
+                               StandardButtons button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Question, title, text, 
+                                                   button0, button1, button2);
+}
+
+/*!
+    \obsolete
     \overload
 
     Displays a question message box with caption \a caption, text \a
@@ -1412,21 +1403,71 @@ int QMessageBox::information(QWidget *parent, const QString &caption,
 
     \sa information(), warning(), critical()
 */
-int QMessageBox::question(QWidget *parent, const QString &caption,
-                           const QString& text,
-                           const QString& button0Text,
-                           const QString& button1Text,
-                           const QString& button2Text,
-                           int defaultButtonNumber,
-                           int escapeButtonNumber)
+int QMessageBoxEx::question(QWidget *parent, const QString &title, const QString& text,
+                            const QString& button0Text, const QString& button1Text,
+                            const QString& button2Text, int defaultButtonNumber,
+                            int escapeButtonNumber)
 {
-    return textBox(parent, Question, caption, text,
-                    button0Text, button1Text, button2Text,
-                    defaultButtonNumber, escapeButtonNumber);
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Question, title, text, 
+                                                   button0Text, button1Text, button2Text,
+                                                   defaultButtonNumber, escapeButtonNumber);
 }
 
 
 /*!
+    \obsolete
+    Opens a warning message box with the caption \a caption and the
+    text \a text. The dialog may have up to three buttons. Each of the
+    button parameters, \a button0, \a button1 and \a button2 may be
+    set to one of the following values:
+
+    \list
+    \i QMessageBoxEx::NoButton
+    \i QMessageBoxEx::Ok
+    \i QMessageBoxEx::Cancel
+    \i QMessageBoxEx::Yes
+    \i QMessageBoxEx::No
+    \i QMessageBoxEx::Abort
+    \i QMessageBoxEx::Retry
+    \i QMessageBoxEx::Ignore
+    \i QMessageBoxEx::YesAll
+    \i QMessageBoxEx::NoAll
+    \endlist
+
+    If you don't want all three buttons, set the last button, or last
+    two buttons to QMessageBoxEx::NoButton.
+
+    One button can be OR-ed with QMessageBoxEx::Default, and one
+    button can be OR-ed with QMessageBoxEx::Escape.
+
+    Returns the identity (QMessageBoxEx::Ok, or QMessageBoxEx::No, etc.)
+    of the button that was clicked.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa information(), question(), critical()
+*/
+int QMessageBoxEx::warning(QWidget *parent, const QString &title, const QString& text,
+                           int button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Warning, title, text, 
+                                                   button0, button1, button2);
+}
+
+/*!
+    \internal
+*/
+int QMessageBoxEx::warning(QWidget *parent, const QString &title, const QString& text,
+                           StandardButtons button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Warning, title, text, 
+                                                   button0, button1, button2);
+}
+
+/*!
+    \obsolete
     \overload
 
     Displays a warning message box with a caption, a text, and 1, 2 or
@@ -1455,22 +1496,71 @@ int QMessageBox::question(QWidget *parent, const QString &caption,
 
     \sa information(), question(), critical()
 */
-
-int QMessageBox::warning(QWidget *parent, const QString &caption,
-                                 const QString& text,
-                                 const QString& button0Text,
-                                 const QString& button1Text,
-                                 const QString& button2Text,
-                                 int defaultButtonNumber,
-                                 int escapeButtonNumber)
+int QMessageBoxEx::warning(QWidget *parent, const QString &title, const QString& text,
+                           const QString& button0Text, const QString& button1Text,
+                           const QString& button2Text, int defaultButtonNumber,
+                           int escapeButtonNumber)
 {
-    return textBox(parent, Warning, caption, text,
-                    button0Text, button1Text, button2Text,
-                    defaultButtonNumber, escapeButtonNumber);
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Warning, title, text, 
+                                                   button0Text, button1Text, button2Text,
+                                                   defaultButtonNumber, escapeButtonNumber);
 }
 
+/*!
+    \obsolete
+    Opens a critical message box with the caption \a caption and the
+    text \a text. The dialog may have up to three buttons. Each of the
+    button parameters, \a button0, \a button1 and \a button2 may be
+    set to one of the following values:
+
+    \list
+    \i QMessageBoxEx::NoButton
+    \i QMessageBoxEx::Ok
+    \i QMessageBoxEx::Cancel
+    \i QMessageBoxEx::Yes
+    \i QMessageBoxEx::No
+    \i QMessageBoxEx::Abort
+    \i QMessageBoxEx::Retry
+    \i QMessageBoxEx::Ignore
+    \i QMessageBoxEx::YesAll
+    \i QMessageBoxEx::NoAll
+    \endlist
+
+    If you don't want all three buttons, set the last button, or last
+    two buttons to QMessageBoxEx::NoButton.
+
+    One button can be OR-ed with QMessageBoxEx::Default, and one
+    button can be OR-ed with QMessageBoxEx::Escape.
+
+    Returns the identity (QMessageBoxEx::Ok, or QMessageBoxEx::No, etc.)
+    of the button that was clicked.
+
+    If \a parent is 0, the message box becomes an application-global
+    modal dialog box. If \a parent is a widget, the message box
+    becomes modal relative to \a parent.
+
+    \sa information(), question(), warning()
+*/
+
+int QMessageBoxEx::critical(QWidget *parent, const QString &title, const QString& text,
+                            int button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Critical, title, text, 
+                                                   button0, button1, button2);
+}
 
 /*!
+    \internal
+*/
+int QMessageBoxEx::critical(QWidget *parent, const QString &title, const QString& text,
+                           StandardButtons button0, int button1, int button2)
+{
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Critical, title, text, 
+                                                   button0, button1, button2);
+}
+
+/*!
+    \obsolete
     \overload
 
     Displays a critical error message box with a caption, a text, and
@@ -1495,109 +1585,150 @@ int QMessageBox::warning(QWidget *parent, const QString &caption,
 
     \sa information(), question(), warning()
 */
-
-int QMessageBox::critical(QWidget *parent, const QString &caption,
-                                  const QString& text,
-                                  const QString& button0Text,
-                                  const QString& button1Text,
-                                  const QString& button2Text,
-                                  int defaultButtonNumber,
-                                  int escapeButtonNumber)
+int QMessageBoxEx::critical(QWidget *parent, const QString &title, const QString& text,
+                            const QString& button0Text, const QString& button1Text,
+                            const QString& button2Text, int defaultButtonNumber,
+                            int escapeButtonNumber)
 {
-    return textBox(parent, Critical, caption, text,
-                    button0Text, button1Text, button2Text,
-                    defaultButtonNumber, escapeButtonNumber);
+    return QMessageBoxExPrivate::showOldMessageBox(parent, Critical, title, text, 
+                                                   button0Text, button1Text, button2Text,
+                                                   defaultButtonNumber, escapeButtonNumber);
 }
 
-#ifndef QT_NO_IMAGEFORMAT_XPM
-// helper
-extern void qt_read_xpm_image_or_array(QImageReader *, const char * const *, QImage &);
+/*!
+    \obsolete
+
+    Returns the text of the message box button \a button, or
+    an empty string if the message box does not contain the button.
+
+    Use button() and QPushButton::text() instead.
+*/
+QString QMessageBoxEx::buttonText(int button) const
+{
+    Q_D(const QMessageBoxEx);
+    if (QAbstractButton *abstractButton = d->buttonList.value(button)) {
+        return abstractButton->text();
+    } else if (button == 0) {
+        return QDialogButtonBox::tr("OK");
+    }
+    return QString();
+}
+
+/*!
+    \obsolete
+
+    Sets the text of the message box button \a button to \a text.
+    Setting the text of a button that is not in the message box is
+    silently ignored.
+
+    Use addButton() instead.
+*/
+void QMessageBoxEx::setButtonText(int button, const QString &text)
+{
+    Q_D(QMessageBoxEx);
+    if (QAbstractButton *abstractButton = d->buttonList.value(button)) {
+        abstractButton->setText(text);
+    } else if (button == 0) {
+        addButton(text, QMessageBoxEx::ActionRole);
+    }
+}
+
+#ifdef QT3_SUPPORT
+/*!
+    \compat
+
+    Constructs a message box with the given \a parent, \a name, and
+    window flags, \a f.
+    The window title is specified by \a title, and the message box
+    displays message text and an icon specified by \a text and \a icon.
+
+    The buttons that the user can access to respond to the message are
+    defined by \a button0, \a button1, and \a button2.
+*/
+QMessageBoxEx::QMessageBoxEx(const QString& title,
+                          const QString &text, Icon icon,
+                          int button0, int button1, int button2,
+                          QWidget *parent, const char *name,
+                          bool modal, Qt::WindowFlags f)
+    : QDialog(*new QMessageBoxExPrivate, parent,
+              f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+{
+    Q_D(QMessageBoxEx);
+    setObjectName(QString::fromAscii(name));
+    d->init(title, text);
+    d->addOldButtons(button0, button1, button2);
+    setModal(modal);
+    setIcon(icon);
+}
+
+/*!
+    \compat 
+    Constructs a message box with the given \a parent and \a name.
+*/
+QMessageBoxEx::QMessageBoxEx(QWidget *parent, const char *name)
+    : QDialog(*new QMessageBoxExPrivate, parent,
+              Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+{
+    Q_D(QMessageBoxEx);
+    setObjectName(QString::fromAscii(name));
+    d->init();
+}
+
+/*!
+  \obsolete
+
+  Returns the pixmap used for a standard icon. This
+  allows the pixmaps to be used in more complex message boxes.
+  \a icon specifies the required icon, e.g. QMessageBoxEx::Information,
+  QMessageBoxEx::Warning or QMessageBoxEx::Critical.
+
+  \a style is unused.
+*/
+
+QPixmap QMessageBoxEx::standardIcon(Icon icon, Qt::GUIStyle style)
+{
+    Q_UNUSED(style);
+    return QMessageBoxEx::standardIcon(icon);
+}
 #endif
 
 /*!
     \obsolete
 
-    Displays a simple message box about Qt, with caption \a caption
-    and centered over \a parent (if \a parent is not 0). The message
-    includes the version number of Qt being used by the application.
+    Returns the pixmap used for a standard icon. This allows the
+    pixmaps to be used in more complex message boxes. \a icon
+    specifies the required icon, e.g. QMessageBoxEx::Question,
+    QMessageBoxEx::Information, QMessageBoxEx::Warning or
+    QMessageBoxEx::Critical.
 
-    This is useful for inclusion in the Help menu of an application.
-    See the examples/menu/menu.cpp example.
-
-    QApplication provides this functionality as a slot.
-
-    \sa QApplication::aboutQt()
+    Call QStyle::pixelMetric() with QStyle::SP_MessageBoxInformation etc.
+    instead.
 */
 
-void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
+QPixmap QMessageBoxEx::standardIcon(Icon icon)
 {
-    QMessageBox mb(parent);
-
-    QString c = caption;
-    if (c.isEmpty())
-        c = tr("About Qt");
-    mb.setWindowTitle(c);
-    mb.setText(*translatedTextAboutQt);
-#ifndef QT_NO_IMAGEFORMAT_XPM
-    QImage logo(qtlogo_xpm);
-#else
-    QImage logo;
-#endif
-
-    if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
-        qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))
-    {
-        // light on dark, adjust some colors
-        logo.setColor(0, 0xffffffff);
-        logo.setColor(1, 0xff666666);
-        logo.setColor(2, 0xffcccc66);
-        logo.setColor(4, 0xffcccccc);
-        logo.setColor(6, 0xffffff66);
-        logo.setColor(7, 0xff999999);
-        logo.setColor(8, 0xff3333ff);
-        logo.setColor(9, 0xffffff33);
-        logo.setColor(11, 0xffcccc99);
+    int iconSize = QApplication::style()->pixelMetric(QStyle::PM_MessageBoxIconSize);
+    QIcon tmpIcon;
+    switch (icon) {
+    case Information:
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
+        break;
+    case Warning:
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
+        break;
+    case Critical:
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
+        break;
+    case Question:
+        tmpIcon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion);
+    default:
+        break;
     }
-    QPixmap pm = QPixmap::fromImage(logo);
-    if (!pm.isNull())
-        mb.setIconPixmap(pm);
-    mb.setButtonText(0, tr("OK"));
-    if (mb.d_func()->pb[0]) {
-        mb.d_func()->pb[0]->setAutoDefault(true);
-        mb.d_func()->pb[0]->setFocusPolicy(Qt::StrongFocus);
-        mb.d_func()->pb[0]->setDefault(true);
-        mb.d_func()->pb[0]->setFocus();
-    }
-    mb.exec();
+    if (!tmpIcon.isNull())
+        return tmpIcon.pixmap(iconSize, iconSize);
+    return QPixmap();
 }
 
-/*!
-    \property QMessageBox::textFormat
-    \brief the format of the text displayed by the message box
-
-    The current text format used by the message box. See the \l
-    Qt::TextFormat enum for an explanation of the possible options.
-
-    The default format is Qt::AutoText.
-
-    \sa setText()
-*/
-
-Qt::TextFormat QMessageBox::textFormat() const
-{
-    Q_D(const QMessageBox);
-    return d->label->textFormat();
-}
-
-
-void QMessageBox::setTextFormat(Qt::TextFormat format)
-{
-    Q_D(QMessageBox);
-    d->label->setTextFormat(format);
-    bool wordwrap = format == Qt::RichText
-                    || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text()));
-    d->label->setWordWrap(wordwrap);
-}
 
 /*!
     \macro QT_REQUIRE_VERSION(int argc, char **argv, const char *version)
@@ -1630,5 +1761,5 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     \endcode
 */
 
-#include "moc_qmessagebox.cpp"
-#endif
+#include "moc_qmessageboxex.cpp"
+#endif // QT_NO_MESSAGEBOXEX
