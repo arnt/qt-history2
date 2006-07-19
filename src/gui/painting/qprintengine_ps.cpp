@@ -350,7 +350,6 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 #endif
 {
     postscript = true;
-    backgroundMode = Qt::TransparentMode;
 
     firstPage = true;
     resolution = 72;
@@ -1153,12 +1152,6 @@ void QPSPrintEngine::drawImageInternal(const QRectF &r, QImage image, bool bitma
     *d->currentPage << "q\n" << QPdf::generateMatrix(d->stroker.matrix);
     QBrush b = d->brush;
     if (image.depth() == 1) {
-        if (d->backgroundMode == Qt::OpaqueMode) {
-            // draw background
-            d->brush = d->backgroundBrush;
-            setBrush();
-            *d->currentPage << r.x() << r.y() << r.width() << r.height() << "re f\n";
-        }
         // set current pen as brush
         d->brush = d->pen.brush();
         setBrush();
