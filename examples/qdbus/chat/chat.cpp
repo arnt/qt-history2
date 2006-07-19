@@ -15,8 +15,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMessageBox>
 
-#include "chatadaptor.h"
-#include "chatinterface.h"
+#include "chat_adaptor.h"
+#include "chat_interface.h"
 
 ChatMainWindow::ChatMainWindow()
     : m_nickname(QLatin1String("nickname"))
@@ -32,11 +32,11 @@ ChatMainWindow::ChatMainWindow()
     connect(qApp, SIGNAL(lastWindowClosed()), this, SLOT(exiting()));
 
     // add our D-Bus interface and connect to D-Bus
-    new ChatInterfaceAdaptor(this);
+    new ChatAdaptor(this);
     QDBus::systemBus().registerObject("/", this);
 
-    com::trolltech::ChatInterface *iface;
-    iface = new com::trolltech::ChatInterface(QString(), QString(), QDBus::systemBus(), this);
+    com::trolltech::chat *iface;
+    iface = new com::trolltech::chat(QString(), QString(), QDBus::systemBus(), this);
     connect(iface, SIGNAL(message(QString,QString)), this, SLOT(messageSlot(QString,QString)));
     connect(iface, SIGNAL(action(QString,QString)), this, SLOT(actionSlot(QString,QString)));
 
