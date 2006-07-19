@@ -31,7 +31,6 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qabstractprintdialog.h>
 #include <QtGui/qitemdelegate.h>
-#include <QtGui/qmessageboxex.h>
 
 #include "ui_qprintdialog.h"
 #include "ui_qprintpropertiesdialog.h"
@@ -1127,20 +1126,19 @@ bool QPrintDialogPrivate::setupPrinter()
     // printer or file name
     if (ui.chbPrintToFile->isChecked()) {
         QString file = ui.leFile->text();
-#ifndef QT_NO_MESSAGEBOXEX
+#ifndef QT_NO_MESSAGEBOX
         QFile f(file);
         QFileInfo fi(f);
         bool exists = fi.exists();
         if((exists && !fi.isWritable()) || !f.open(QFile::WriteOnly)) {
-            QMessageBoxEx::warning(q, q->windowTitle(),
-                                   q->tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
+            QMessageBox::warning(q, q->windowTitle(),
+                                 q->tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
             return false;
         } else if (exists) {
-            QMessageBoxEx::StandardButton button
-                    = QMessageBoxEx::question(q, q->windowTitle(),
-                                              q->tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
-                                              QMessageBoxEx::Yes|QMessageBoxEx::No, QMessageBoxEx::No);
-            if (button == QMessageBoxEx::No)
+            int ret = QMessageBox::question(q, q->windowTitle(),
+                                            q->tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
+                                            QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+            if (ret == QMessageBox::No)
                 return false;
         }
 #endif

@@ -79,7 +79,7 @@
     \value Warning     A standard warning icon is shown.
     \value Critical    A critical warning icon is shown.
 
-    \sa QMessageBoxEx
+    \sa QMessageBox
 */
 
 /*!

@@ -108,7 +108,7 @@
     has an AcceptRole, RejectRole, or HelpRole, the accepted(), rejected(), or
     helpRequested() signals are emitted respectively.
 
-    \sa QMessageBoxEx, QPushButton, QDialog
+    \sa QMessageBox, QPushButton, QDialog
 */
 
 enum {

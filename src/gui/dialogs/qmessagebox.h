@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMESSAGEBOXEX_H
-#define QMESSAGEBOXEX_H
+#ifndef QMESSAGEBOX_H
+#define QMESSAGEBOX_H
 
 #include <QtGui/qdialog.h>
 
@@ -20,13 +20,13 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_MESSAGEBOXEX
+#ifndef QT_NO_MESSAGEBOX
 
 class QLabel;
-class QMessageBoxExPrivate;
+class QMessageBoxPrivate;
 class QAbstractButton;
 
-class Q_GUI_EXPORT QMessageBoxEx : public QDialog
+class Q_GUI_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
     Q_ENUMS(Icon)
@@ -98,11 +98,11 @@ public:
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
 
-    explicit QMessageBoxEx(QWidget *parent = 0);
-    QMessageBoxEx(Icon icon, const QString &title, const QString &text,
+    explicit QMessageBox(QWidget *parent = 0);
+    QMessageBox(Icon icon, const QString &title, const QString &text,
                   StandardButtons buttons = NoButton, QWidget *parent = 0,
                   Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-    ~QMessageBoxEx();
+    ~QMessageBox();
 
     void addButton(QAbstractButton *button, ButtonRole role);
     QPushButton *addButton(const QString &text, ButtonRole role);
@@ -165,7 +165,7 @@ public:
 
     // the following functions are obsolete:
 
-    QMessageBoxEx(const QString &title, const QString &text, Icon icon,
+    QMessageBox(const QString &title, const QString &text, Icon icon,
                   int button0, int button1, int button2,
                   QWidget *parent = 0,
                   Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
@@ -231,18 +231,18 @@ public:
     void setButtonText(int button, const QString &text);
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QMessageBoxEx(const QString &title, const QString &text, Icon icon,
+    QT3_SUPPORT_CONSTRUCTOR QMessageBox(const QString &title, const QString &text, Icon icon,
                                           int button0, int button1, int button2,
                                           QWidget *parent, const char *name, bool modal,
                                            Qt::WindowFlags f =  Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-    QT3_SUPPORT_CONSTRUCTOR QMessageBoxEx(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
 
     static QT3_SUPPORT QPixmap standardIcon(Icon icon, Qt::GUIStyle);
     static QT3_SUPPORT int message(const QString &title,
                                    const QString& text,
                                    const QString& buttonText=QString(),
                                    QWidget *parent = 0, const char * = 0) {
-        return QMessageBoxEx::information(parent, title, text,
+        return QMessageBox::information(parent, title, text,
                                         buttonText.isEmpty() ? tr("OK") : buttonText) == 0;
     }
     static QT3_SUPPORT bool query(const QString &title,
@@ -250,7 +250,7 @@ public:
                                   const QString& yesButtonText = QString(),
                                   const QString& noButtonText = QString(),
                                   QWidget *parent = 0, const char * = 0) {
-        return QMessageBoxEx::information(parent, title, text,
+        return QMessageBox::information(parent, title, text,
                                         yesButtonText.isEmpty() ? tr("OK") : yesButtonText,
                                         noButtonText) == 0;
     }
@@ -268,11 +268,11 @@ protected:
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_buttonClicked(QAbstractButton *))
 
-    Q_DISABLE_COPY(QMessageBoxEx)
-    Q_DECLARE_PRIVATE(QMessageBoxEx)
+    Q_DISABLE_COPY(QMessageBox)
+    Q_DECLARE_PRIVATE(QMessageBox)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QMessageBoxEx::StandardButtons)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMessageBox::StandardButtons)
 
 #define QT_REQUIRE_VERSION(argc, argv, str) { QString s = QString::fromLatin1(str);\
 QString sq = qVersion(); if ((sq.section('.',0,0).toInt()<<16)+\
@@ -283,8 +283,8 @@ QApplication(argc,argv);} QString s = QApplication::tr("Executable '%1' requires
 str)).arg(qVersion()); QMessageBox::critical(0, QApplication::tr(\
 "Incompatible Qt Library Error"), s, QMessageBox::Abort,0); qFatal(s.toLatin1().data()); }}
 
-#endif // QT_NO_MESSAGEBOXEX
+#endif // QT_NO_MESSAGEBOX
 
 QT_END_HEADER
 
-#endif // QMESSAGEBOXEX_H
+#endif // QMESSAGEBOX_H

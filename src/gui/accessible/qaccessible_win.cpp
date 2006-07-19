@@ -18,7 +18,6 @@
 #include "qapplication.h"
 #include "qlibrary.h"
 #include "qmessagebox.h" // ### dependency
-#include "qmessageboxex.h" // ### more dependency
 #include "qt_windows.h"
 #include "qwidget.h"
 
@@ -76,23 +75,6 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
                 }
             } else
 #endif // QT_NO_MESSAGEBOX
-#ifndef QT_NO_MESSAGEBOXEX
-            if (QMessageBoxEx *mbex = ::qobject_cast<QMessageBoxEx*>(o)) {
-                switch (mbex->icon()) {
-                case QMessageBoxEx::Warning:
-                    soundName = "SystemExclamation";
-                    break;
-                case QMessageBoxEx::Critical:
-                    soundName = "SystemHand";
-                    break;
-                case QMessageBoxEx::Information:
-                    soundName = "SystemAsterisk";
-                    break;
-                default:
-                    break;
-                }
-            } else
-#endif // QT_NO_MESSAGEBOXEX
             {
                 soundName = "SystemAsterisk";
             }
