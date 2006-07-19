@@ -22,7 +22,7 @@ BookWindow::BookWindow()
     ui.setupUi(this);
 
     if (!QSqlDatabase::drivers().contains("QSQLITE"))
-        QMessageBoxEx::critical(this, "Unable to load database", "This demo needs the SQLITE driver");
+        QMessageBox::critical(this, "Unable to load database", "This demo needs the SQLITE driver");
 
     // initialize the database
     QSqlError err = initDb();
@@ -86,7 +86,7 @@ BookWindow::BookWindow()
 
 void BookWindow::showError(const QSqlError &err)
 {
-    QMessageBoxEx::critical(this, "Unable to initialize Database",
+    QMessageBox::critical(this, "Unable to initialize Database",
                 "Error initializing database: " + err.text());
 }
 
