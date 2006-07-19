@@ -24,6 +24,7 @@
 #include <QtGui/qtreeview.h>
 #include <QtGui/qlistview.h>
 #include <QtGui/qevent.h>
+#include <QtGui/qmessagebox.h>
 #include "qprintdialog.h"
 #include "qfiledialog.h"
 #include <QtCore/qdebug.h>

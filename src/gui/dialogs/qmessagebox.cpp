@@ -13,17 +13,18 @@
 
 #ifndef QT_NO_MESSAGEBOX
 
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QLabel>
-#include <QtCore/QList>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOption>
-#include <QtGui/QGridLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QAccessible>
-#include <QtGui/QIcon>
-#include <QtGui/QTextDocument>
-#include <QtGui/QMessageBox>
+#include <QtGui/qdialogbuttonbox.h>
+#include <QtGui/qlabel.h>
+#include <QtCore/qlist.h>
+#include <QtGui/qstyle.h>
+#include <QtGui/qstyleoption.h>
+#include <QtGui/qgridlayout.h>
+#include <QtGui/qpushbutton.h>
+#include <QtGui/qaccessible.h>
+#include <QtGui/qicon.h>
+#include <QtGui/qtextdocument.h>
+#include <QtGui/qmessagebox.h>
+#include <QtGui/qapplication.h>
 #include "qdialog_p.h"
 
 enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5, Old_Retry = 6,
@@ -131,7 +132,7 @@ public:
                                  int defaultButtonNumber,
                                  int escapeButtonNumber);
 
-    static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent, 
+    static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent,
                 QMessageBox::Icon icon, const QString& title, const QString& text,
                 QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
@@ -237,7 +238,7 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
     \mainclass
 
     Message boxes are used to provide informative messages and to ask simple questions.
-    
+
     QMessageBox supports four severity levels, indicated by an icon:
 
     \table
@@ -562,7 +563,7 @@ void QMessageBox::setEscapeButton(QAbstractButton *button)
         }
     \endcode
 
-    \sa standardButton(), button() 
+    \sa standardButton(), button()
 */
 QAbstractButton *QMessageBox::clickedButton() const
 {
@@ -815,9 +816,9 @@ static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent,
     // necessary for source compatibility with Qt 4.0 and 4.1
     // handles (Yes, No) and (Yes|Default, No)
     if (defaultButton && !(buttons & defaultButton))
-        return (QMessageBox::StandardButton) 
-                    QMessageBoxPrivate::showOldMessageBox(parent, icon, title, 
-                                                            text, int(buttons), 
+        return (QMessageBox::StandardButton)
+                    QMessageBoxPrivate::showOldMessageBox(parent, icon, title,
+                                                            text, int(buttons),
                                                             int(defaultButton), 0);
 
     QMessageBox msgBox(icon, title, text, QMessageBox::NoButton, parent);
@@ -955,7 +956,7 @@ QMessageBox::StandardButton QMessageBox::critical(QWidget *parent, const QString
 
     \sa QWidget::windowIcon() QApplication::activeWindow()
 */
-void QMessageBox::about(QWidget *parent, const QString &title, 
+void QMessageBox::about(QWidget *parent, const QString &title,
                           const QString &text)
 {
     QMessageBox mb(title, text, Information, Ok + Default, 0, 0, parent);
@@ -1258,10 +1259,10 @@ QMessageBox::QMessageBox(const QString &title, const QString &text, Icon icon,
 
     \sa question(), warning(), critical()
 */
-int QMessageBox::information(QWidget *parent, const QString &title, const QString& text, 
+int QMessageBox::information(QWidget *parent, const QString &title, const QString& text,
                                int button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1275,7 +1276,7 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
 int QMessageBox::information(QWidget *parent, const QString &title, const QString& text,
                                StandardButtons button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1315,7 +1316,7 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
                                const QString& button2Text, int defaultButtonNumber,
                                int escapeButtonNumber)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text,
                                                    button0Text, button1Text, button2Text,
                                                    defaultButtonNumber, escapeButtonNumber);
 }
@@ -1358,7 +1359,7 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
 int QMessageBox::question(QWidget *parent, const QString &title, const QString& text,
                             int button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1368,7 +1369,7 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
 int QMessageBox::question(QWidget *parent, const QString &title, const QString& text,
                                StandardButtons button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1407,7 +1408,7 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
                             const QString& button2Text, int defaultButtonNumber,
                             int escapeButtonNumber)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text,
                                                    button0Text, button1Text, button2Text,
                                                    defaultButtonNumber, escapeButtonNumber);
 }
@@ -1451,7 +1452,7 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
 int QMessageBox::warning(QWidget *parent, const QString &title, const QString& text,
                            int button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1461,7 +1462,7 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
 int QMessageBox::warning(QWidget *parent, const QString &title, const QString& text,
                            StandardButtons button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1500,7 +1501,7 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
                            const QString& button2Text, int defaultButtonNumber,
                            int escapeButtonNumber)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text,
                                                    button0Text, button1Text, button2Text,
                                                    defaultButtonNumber, escapeButtonNumber);
 }
@@ -1544,7 +1545,7 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
 int QMessageBox::critical(QWidget *parent, const QString &title, const QString& text,
                             int button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1554,7 +1555,7 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
 int QMessageBox::critical(QWidget *parent, const QString &title, const QString& text,
                            StandardButtons button0, int button1, int button2)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text,
                                                    button0, button1, button2);
 }
 
@@ -1589,7 +1590,7 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
                             const QString& button2Text, int defaultButtonNumber,
                             int escapeButtonNumber)
 {
-    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text, 
+    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text,
                                                    button0Text, button1Text, button2Text,
                                                    defaultButtonNumber, escapeButtonNumber);
 }
@@ -1661,7 +1662,7 @@ QMessageBox::QMessageBox(const QString& title,
 }
 
 /*!
-    \compat 
+    \compat
     Constructs a message box with the given \a parent and \a name.
 */
 QMessageBox::QMessageBox(QWidget *parent, const char *name)
