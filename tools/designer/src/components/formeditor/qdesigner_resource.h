@@ -54,8 +54,8 @@ public:
     QList<QWidget*> paste(QIODevice *dev, QWidget *parentWidget);
 
 protected:
-    using QAbstractFormBuilder::create;
-    using QAbstractFormBuilder::createDom;
+    using QSimpleResource::create;
+    using QSimpleResource::createDom;
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
