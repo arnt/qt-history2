@@ -190,7 +190,9 @@ void Q3ButtonGroup::setExclusive(bool enable)
 int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 {
     remove(button);
-    group.addButton(button);
+    if (isExclusive() || !qobject_cast<QRadioButton*>(button))
+        group.addButton(button);
+
     static int seq_no = -2;
     if (id < -1)
         id = seq_no--;
@@ -208,7 +210,7 @@ int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 */
 int Q3ButtonGroup::count() const
 {
-    return group.buttons().count();
+    return buttonIds.count();
 }
 
 /*!
@@ -401,7 +403,8 @@ bool Q3ButtonGroup::event(QEvent * e)
         QChildEvent * ce = (QChildEvent *) e;
         if (QAbstractButton *button = qobject_cast<QAbstractButton*>(ce->child())) {
             button->setAutoExclusive(false);
-            if (group.exclusive() || (radio_excl && qobject_cast<QRadioButton*>(button))) {
+            if (group.exclusive() || qobject_cast<QRadioButton*>(button)) {
+                button->setAutoExclusive(true);
                 QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
                 while (it != buttonIds.constEnd()) {
                     if (it.value() == button)
