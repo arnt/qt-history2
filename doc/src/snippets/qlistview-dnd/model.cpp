@@ -40,10 +40,12 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
 
     int beginRow;
 
-    if (!parent.isValid())
+    if (row != -1)
         beginRow = row;
-    else
+    else if (parent.isValid())
         beginRow = parent.row();
+    else
+        beginRow = rowCount(QModelIndex());
 
     QByteArray encodedData = data->data("application/vnd.text.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
