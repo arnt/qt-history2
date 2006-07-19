@@ -1131,6 +1131,10 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 
     The default value is false.
 
+    \bold{Note:} The horizontal headers provided by QTreeView are configured with
+    this property set to true, ensuring that the view does not waste any of the
+    space assigned to it for its header.
+
     \sa setResizeMode()
 */
 bool QHeaderView::stretchLastSection() const
