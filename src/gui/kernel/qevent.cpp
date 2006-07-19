@@ -133,9 +133,9 @@ QMouseEvent::~QMouseEvent()
 
 #ifdef QT3_SUPPORT
 /*!
-    Use QMouseEvent(\a type, \a pos, \a button, \c mouseButtons, \c
-    keyboardModifiers) instead, where \c mouseButton is \a state &
-    Qt::MouseButtonMask and \c keyboardModifiers is \a state &
+    Use QMouseEvent(\a type, \a pos, \a button, \c buttons, \c
+    modifiers) instead, where \c buttons is \a state &
+    Qt::MouseButtonMask and \c modifiers is \a state &
     Qt::KeyButtonMask.
 */
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state)
@@ -148,9 +148,9 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, i
 
 /*!
     Use QMouseEvent(\a type, \a pos, \a globalPos, \a button,
-    \c mouseButtons, \c keyboardModifiers) instead, where
-    \c mouseButton is \a state & Qt::MouseButtonMask and
-    \c keyboardModifiers is \a state & Qt::KeyButtonMask.
+    \c buttons, \c modifiers) instead, where
+    \c buttons is \a state & Qt::MouseButtonMask and
+    \c modifiers is \a state & Qt::KeyButtonMask.
 */
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                          Qt::ButtonState button, int state)
