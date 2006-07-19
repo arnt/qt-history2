@@ -166,6 +166,7 @@ public:
     QGraphicsViewPrivate();
 
     void recalculateContentSize();
+    void centerView(QGraphicsView::ViewportAnchor anchor);
 
     QPainter::RenderHints renderHints;
 
@@ -202,6 +203,9 @@ public:
     QPointF lastCenterPoint;
     Qt::Alignment alignment;
 
+    QGraphicsView::ViewportAnchor transformationAnchor;
+    QGraphicsView::ViewportAnchor resizeAnchor;
+
     QGraphicsScene *scene;
     QRubberBand *rubberBand;
     bool rubberBanding;
@@ -236,6 +240,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       leftIndent(0), topIndent(0), lastItemUnderCursor(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
+      transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
       scene(0), rubberBand(0), rubberBanding(false),
       handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
@@ -326,6 +331,33 @@ void QGraphicsViewPrivate::recalculateContentSize()
     if (cacheMode & QGraphicsView::CacheBackground) {
         // Invalidate the background pixmap
         mustResizeBackgroundPixmap = true;
+    }
+}
+
+/*!
+    \internal
+*/
+void QGraphicsViewPrivate::centerView(QGraphicsView::ViewportAnchor anchor)
+{
+    Q_Q(QGraphicsView);
+    switch (anchor) {
+    case QGraphicsView::AnchorUnderMouse: {
+        if (q->underMouse()) {
+            // Last scene pos: lastMouseMoveScenePoint
+            // Current mouse pos:
+            QPointF transformationDiff = q->mapToScene(q->viewport()->rect().center())
+                                         - q->mapToScene(q->mapFromGlobal(QCursor::pos()));
+            q->centerOn(lastMouseMoveScenePoint + transformationDiff);;
+        } else {
+            q->centerOn(lastCenterPoint);
+        }
+        break;
+    }
+    case QGraphicsView::AnchorViewCenter:
+        q->centerOn(lastCenterPoint);
+        break;
+    case QGraphicsView::NoAnchor:
+        break;
     }
 }
 
@@ -582,6 +614,62 @@ void QGraphicsView::setAlignment(Qt::Alignment alignment)
         d->alignment = alignment;
         d->recalculateContentSize();
     }
+}
+
+/*!
+    \property QGraphicsView::transformationAnchor
+    \brief how the view should position the scene during transformations.
+
+    QGraphicsView uses this property to decide how to position the scene in
+    the viewport when the transformation matrix changes, and the coordinate
+    system of the view is transformed. The default behavior, AnchorViewCenter,
+    ensures that the scene point at the center of the view remains unchanged
+    during transformations (e.g., when rotating, the scene will appear to
+    rotate around the center of the view).
+
+    Note that the effect of this property is noticable when only a part of the
+    scene is visible (i.e., when there are scrollbars). Otherwise, if the
+    whole scene fits in the view, QGraphicsScene uses the view \l alignment to
+    position the scene in the view.
+
+    \sa aligment, resizeAnchor
+*/
+QGraphicsView::ViewportAnchor QGraphicsView::transformationAnchor() const
+{
+    Q_D(const QGraphicsView);
+    return d->transformationAnchor;
+}
+void QGraphicsView::setTransformationAnchor(ViewportAnchor anchor)
+{
+    Q_D(QGraphicsView);
+    d->transformationAnchor = anchor;
+}
+
+/*!
+    \property QGraphicsView::resizeAnchor
+    \brief how the view should position the scene when the view is resized.
+
+    QGraphicsView uses this property to decide how to position the scene in
+    the viewport when the viewport widget's size changes. The default
+    behavior, NoAnchor, leaves the scene's position unchanged during a resize;
+    the top-left corner of the view will appear to be anchored while resizing.
+
+    Note that the effect of this property is noticable when only a part of the
+    scene is visible (i.e., when there are scrollbars). Otherwise, if the
+    whole scene fits in the view, QGraphicsScene uses the view \l alignment to
+    position the scene in the view.
+
+    \sa aligment, transformationAnchor, Qt::WNorthWestGravity
+*/
+QGraphicsView::ViewportAnchor QGraphicsView::resizeAnchor() const
+{
+    Q_D(const QGraphicsView);
+    return d->resizeAnchor;
+}
+void QGraphicsView::setResizeAnchor(ViewportAnchor anchor)
+{
+    Q_D(QGraphicsView);
+    d->resizeAnchor = anchor;
 }
 
 /*!
@@ -844,7 +932,7 @@ void QGraphicsView::setMatrix(const QMatrix &matrix, bool combine)
 
     if (d->scene) {
         d->recalculateContentSize();
-        centerOn(d->lastCenterPoint);
+        d->centerView(d->transformationAnchor);
     } else {
         d->updateLastCenterPoint();
     }
@@ -1675,7 +1763,7 @@ void QGraphicsView::setupViewport(QWidget *widget)
 
     if (d->scene) {
         d->recalculateContentSize();
-        centerOn(d->lastCenterPoint);
+        d->centerView(d->transformationAnchor);
     }
 
     widget->setMouseTracking(true);
@@ -2031,7 +2119,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     Q_D(QGraphicsView);
     if (!d->sceneInteractionAllowed)
         return;
-
+    
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         d->storeMouseEvent(event);
         if (d->rubberBanding) {
@@ -2379,7 +2467,7 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
 
     // Restore the center point again.
     d->lastCenterPoint = oldLastCenterPoint;
-    centerOn(d->lastCenterPoint);
+    d->centerView(d->resizeAnchor);
 
     if (d->cacheMode & CacheBackground) {
         // Invalidate the background pixmap
@@ -2440,7 +2528,7 @@ void QGraphicsView::showEvent(QShowEvent *event)
 {
     Q_D(QGraphicsView);
     d->recalculateContentSize();
-    centerOn(d->lastCenterPoint);
+    d->centerView(d->transformationAnchor);
     QAbstractScrollArea::showEvent(event);
 }
 

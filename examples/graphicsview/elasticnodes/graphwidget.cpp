@@ -30,6 +30,8 @@ GraphWidget::GraphWidget()
     setScene(scene);
     setCacheMode(CacheBackground);
     setRenderHint(QPainter::Antialiasing);
+    setTransformationAnchor(AnchorUnderMouse);
+    setResizeAnchor(AnchorViewCenter);
 
     Node *node1 = new Node(this);
     Node *node2 = new Node(this);

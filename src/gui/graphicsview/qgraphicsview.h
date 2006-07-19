@@ -44,8 +44,16 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(QPainter::RenderHints renderHints READ renderHints WRITE setRenderHints)
     Q_PROPERTY(DragMode dragMode READ dragMode WRITE setDragMode)
     Q_PROPERTY(CacheMode cacheMode READ cacheMode WRITE setCacheMode)
+    Q_PROPERTY(ViewportAnchor transformationAnchor READ transformationAnchor WRITE setTransformationAnchor)
+    Q_PROPERTY(ViewportAnchor resizeAnchor READ resizeAnchor WRITE setResizeAnchor)
 
 public:
+    enum ViewportAnchor {
+        NoAnchor,
+        AnchorViewCenter,
+        AnchorUnderMouse
+    };
+    
     enum CacheModeFlag {
         CacheNone = 0x0,
         CacheBackground = 0x1
@@ -71,6 +79,12 @@ public:
     Qt::Alignment alignment() const;
     void setAlignment(Qt::Alignment alignment);
 
+    ViewportAnchor transformationAnchor() const;
+    void setTransformationAnchor(ViewportAnchor anchor);
+
+    ViewportAnchor resizeAnchor() const;
+    void setResizeAnchor(ViewportAnchor anchor);
+    
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 
