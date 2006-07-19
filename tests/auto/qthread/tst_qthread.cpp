@@ -17,6 +17,10 @@
 #include <qwaitcondition.h>
 
 
+#ifdef Q_OS_WIN
+#include <process.h>
+#include <windows.h>
+#endif
 
 //TESTED_CLASS=QThread
 //TESTED_FILES=corelib/thread/qthread.h corelib/thread/qthread.cpp
@@ -524,31 +528,29 @@ void tst_QThread::usleep()
 }
 
 bool threadAdoptedOk = false;
-// runs a function in a native thread, blocks
-// until the thread has been joined
-void runInNativeThread(void *(*entryFunction)(void *))
+void testThreadAdoptionWin(void *)
 {
-#ifdef Q_OS_UNIX
-    pthread_t thread;
-    pthread_create(&thread, 0, entryFunction, 0);
-    pthread_join(thread, 0);
-#elif defined Q_OS_WIN
-    //TODO, fake it for now.
-    threadAdoptedOk = true;
-#endif
+    threadAdoptedOk =(QThread::currentThreadId() != 0);
 }
-
-void *testThreadAdoption(void *)
+void *testThreadAdoptionUnix(void *)
 {
-    threadAdoptedOk = (QThread::currentThreadId() != 0);
+    testThreadAdoptionWin(0);
     return 0;
 }
 
 void tst_QThread::nativeThreadAdoption()
 {
     threadAdoptedOk = false;
-    runInNativeThread(testThreadAdoption);
-    QVERIFY(threadAdoptedOk);
+#ifdef Q_OS_UNIX
+    pthread_t thread;
+    pthread_create(&thread, 0, testThreadAdoptionUnix, 0);
+    pthread_join(thread, 0);
+#elif defined Q_OS_WIN
+    HANDLE thread;
+    thread = (HANDLE)_beginthread(testThreadAdoptionWin, 0, NULL);
+    WaitForSingleObject(thread, INFINITE);
+#endif
+	QVERIFY(threadAdoptedOk);
 }
 
 void tst_QThread::stressTest()
