@@ -823,14 +823,17 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
                 compilerDepends += inputList;
             }
 
-            QString fileOut(compilerOutput.first());
+            QString fileOut = compilerOutput.first();
+            QString fileOutBase = QFileInfo(fileOut).completeBaseName();
             fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
+            fileOut.replace("${QMAKE_FILE_OUT_BASE}", fileOutBase);
             fileOut.replace('/', '\\');
 
             BuildStep step;
             for (int i2 = 0; i2 < compilerDepends.count(); ++i2) {
                 QString dependency = compilerDepends.at(i2);
                 dependency.replace("${QMAKE_FILE_BASE}", fileBase);
+                dependency.replace("${QMAKE_FILE_OUT_BASE}", fileOutBase);
                 dependency.replace('/', '\\');
                 if (!step.deps.contains(dependency, Qt::CaseInsensitive))
                     step.deps << dependency;
@@ -869,6 +872,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             command.replace("${QMAKE_FILE_IN}", config->escapeFilePath(fileIn));
             command.replace("${QMAKE_FILE_IN}", config->escapeFilePath(fileIn));
             command.replace("${QMAKE_FILE_BASE}", config->escapeFilePath(fileBase));
+            command.replace("${QMAKE_FILE_OUT_BASE}", config->escapeFilePath(fileOutBase));
             command.replace("${QMAKE_FILE_OUT}", config->escapeFilePath(fileOut));
 
             command = config->replaceExtraCompilerVariables(command, fileIn, fileOut);

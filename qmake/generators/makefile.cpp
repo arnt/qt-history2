@@ -1614,7 +1614,14 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             } else if(var == QLatin1String("QMAKE_FILE_OUT")) {
                 filePath = true;
                 val = out;
+            } else if(var == QLatin1String("QMAKE_FILE_OUT_BASE")) {
+                filePath = true;
+                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(out)));
+                val = fi.completeBaseName();
+                if(val.isNull())
+                    val = fi.fileName();
             }
+
         }
         if(!val.isNull()) {
             QString fullVal = val;
