@@ -55,8 +55,11 @@ public:
         DestructiveRole,
         ActionRole,
         HelpRole,
+        YesRole,
+        NoRole,
         ResetRole,
         ApplyRole,
+
         NRoles
     };
 
