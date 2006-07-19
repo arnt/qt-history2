@@ -1697,7 +1697,7 @@ void QStandardItem::sortChildren(int column, Qt::SortOrder order)
 }
 
 /*!
-    Returns a copy of this item.
+    Returns a copy of this item. The item's children are not copied.
 
     When subclassing QStandardItem, you can reimplement this function
     to provide QStandardItemModel with a factory that it can use to
