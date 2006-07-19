@@ -123,7 +123,12 @@ static void parseCmdLine(QStringList args)
             continue;
         }
         QString arg = args.takeAt(i);
-        char c = arg.length() == 2 ? arg.at(1).toLatin1() : '\0';
+
+        char c = '\0';
+        if (arg.length() == 2)
+            c = arg.at(1).toLatin1();
+        else if (arg == QLatin1String("--help"))
+            c = 'h';
 
         switch (c) {
         case 'a':
