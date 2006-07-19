@@ -404,7 +404,7 @@ QWSWindow::~QWSWindow()
 
     \sa requestedRegion()
 */
-inline const QRegion QWSWindow::allocatedRegion() const
+inline QRegion QWSWindow::allocatedRegion() const
 {
     return d->allocatedRegion;
 }
