@@ -83,7 +83,7 @@ inline void v_clear(QVariant::Private *d, T* = 0)
         delete v_cast<T>(d);
         delete d->data.shared;
     } else {
-        reinterpret_cast<T *>(&d->data.ptr)->~T();
+        v_cast<T>(d)->~T();
     }
 }
 
