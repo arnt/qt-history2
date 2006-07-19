@@ -861,11 +861,22 @@ void QWidgetPrivate::determineWindowClass()
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
 
+    bool desktop = (type == Qt::Desktop);
     bool popup = (type == Qt::Popup);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
+    QWidget *parentWidget = q->parentWidget();
 
     if (type == Qt::ToolTip)
-        flags |= Qt::FramelessWindowHint;
+        flags |= Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint;
+
+    if(parentWidget && (parentWidget->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
+        flags |= Qt::WindowStaysOnTopHint;
+
+    if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Look at this, again!
+            && !(flags & Qt::CustomizeWindowHint)
+            && !(desktop || popup)) {
+        flags &= ~(Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+    }
 
     WindowClass wclass = kSheetWindowClass;
     if(qt_mac_is_macdrawer(q))
@@ -1170,9 +1181,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
 
-    if (type == Qt::ToolTip)
-        flags |= Qt::FramelessWindowHint;
-
     if (desktop) {
         int w = 0, h = 0;
         for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
@@ -1205,18 +1213,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if(!window)                              // always initialize
         initializeWindow=true;
-    if(topLevel && parentWidget) { // if our parent has Qt::WStyle_StaysOnTop, so must we
-        QWidget *ptl = parentWidget->window();
-        if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
-            flags |= Qt::WindowStaysOnTopHint;
-    }
-
-    if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Trenton: Look at this, again!
-            && !(flags & Qt::CustomizeWindowHint)
-            && !(desktop || popup)) {
-        flags &= ~(Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-    }
-
 
     hd = 0;
     cg_hd = 0;
