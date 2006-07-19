@@ -1144,7 +1144,7 @@ static TextureBlendType getBlendType(const QSpanData *data)
     return ft;
 }
 
-static inline Operator getOperator(const QSpanData *data)
+static inline Operator getOperator(const QSpanData *data, const QSpan *spans, int spanCount)
 {
     Operator op;
     bool solidSource = false;
@@ -1188,8 +1188,19 @@ static inline Operator getOperator(const QSpanData *data)
             // this one sets up the pointer correctly so we save one copy
             op.dest_fetch = destFetchProc[QImage::Format_ARGB32_Premultiplied];
             break;
-        default:
-            op.dest_fetch = 0;
+        default: {
+            const QSpan *lastSpan = spans + spanCount;
+            bool alphaSpans = false;
+            while (spans < lastSpan) {
+                if (spans->coverage != 255) {
+                    alphaSpans = true;
+                    break;
+                }
+                ++spans;
+            }
+            if (!alphaSpans)
+                op.dest_fetch = 0;
+        }
         }
     }
 
@@ -1216,7 +1227,7 @@ static void blend_color_generic(int count, const QSpan *spans, void *userData)
     })
 
     uint buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.funcSolid)
         return;
 
@@ -1245,7 +1256,7 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
         return;
     })
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.funcSolid)
         return;
 
@@ -1286,7 +1297,7 @@ static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.funcSolid)
         return;
 
@@ -1335,7 +1346,7 @@ static void blend_src_generic(int count, const QSpan *spans, void *userData)
 
     uint buffer[buffer_size];
     uint src_buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1367,7 +1378,7 @@ static void blend_src_argb(int count, const QSpan *spans, void *userData)
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
     uint src_buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1401,7 +1412,7 @@ static void blend_untransformed_generic(int count, const QSpan *spans, void *use
 
     uint buffer[buffer_size];
     uint src_buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1456,7 +1467,7 @@ static void blend_untransformed_argb(int count, const QSpan *spans, void *userDa
         return;
     }
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1504,7 +1515,7 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
         return;
     }
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1598,7 +1609,7 @@ static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
 
     uint buffer[buffer_size];
     uint src_buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1656,7 +1667,7 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
         return;
     }
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1712,7 +1723,7 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
         return;
     }
 
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
@@ -1834,7 +1845,7 @@ static void blend_texture_generic(int count, const QSpan *spans, void *userData)
 
     uint buffer[buffer_size];
     uint src_buffer[buffer_size];
-    Operator op = getOperator(data);
+    Operator op = getOperator(data, spans, count);
     if (!op.func)
         return;
 
