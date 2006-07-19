@@ -735,7 +735,7 @@ QKeyEventEx::~QKeyEventEx()
     after the event occurred.
 
     \warning This function cannot always be trusted. The user can
-    confuse it by pressing both \key{Shift} keys simulatenously and
+    confuse it by pressing both \key{Shift} keys simultaneously and
     releasing one of them, for example.
 
     \sa QApplication::keyboardModifiers()
