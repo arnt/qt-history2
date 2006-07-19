@@ -116,8 +116,8 @@ public:
     QVector<qreal> columnPositions;
     QVector<qreal> rowPositions;
     // rows that appear at the top of a page after a page break
-    QVector<int> rowPageBreaks;
-    QVector<qreal> rowPositionsBeforePageBreak;
+    QVector<int> rowsAfterPageBreak;
+    QVector<qreal> rowPositionsWithoutPageBreak;
 
     inline qreal cellWidth(int column, int colspan) const
     { return columnPositions.at(column + colspan - 1) + widths.at(column + colspan - 1)
@@ -136,7 +136,7 @@ public:
     inline QPointF cellPosition(const QTextTableCell &cell) const
     { return cellPosition(cell.row(), cell.column()); }
 
-    void updateSize();
+    void updateTableSize();
 };
 
 static QTextFrameData *createData(QTextFrame *f)
@@ -158,7 +158,7 @@ static inline QTextFrameData *data(QTextFrame *f)
     return data;
 }
 
-void QTextTableData::updateSize()
+void QTextTableData::updateTableSize()
 {
     const qreal effectiveMargin = this->margin + border + padding;
     qreal height = contentsHeight == -1
@@ -358,8 +358,8 @@ public:
 
     QVector<QCheckPoint> checkPoints;
 
-    QTextFrame::Iterator iteratorForYPosition(qreal y) const;
-    QTextFrame::Iterator iteratorForTextPosition(int position) const;
+    QTextFrame::Iterator frameIteratorForYPosition(qreal y) const;
+    QTextFrame::Iterator frameIteratorForTextPosition(int position) const;
 
     void ensureLayouted(qreal y) const;
     void ensureLayoutedByPosition(int position) const;
@@ -379,7 +379,7 @@ QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
       lastPageCount(-1)
 {}
 
-QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
+QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(qreal y) const
 {
     Q_Q(const QTextDocumentLayout);
 
@@ -398,10 +398,10 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) c
         --checkPoint;
 
     const int position = rootFrame->firstPosition() + checkPoint->positionInFrame;
-    return iteratorForTextPosition(position);
+    return frameIteratorForTextPosition(position);
 }
 
-QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForTextPosition(int position) const
+QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForTextPosition(int position) const
 {
     Q_Q(const QTextDocumentLayout);
     const QTextDocumentPrivate *doc = q->document()->docHandle();
@@ -465,7 +465,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
     QTextFrame::Iterator it = frame->begin();
 
     if (frame == rootFrame) {
-        it = iteratorForYPosition(relativePoint.y());
+        it = frameIteratorForYPosition(relativePoint.y());
 
         Q_ASSERT(it.parentFrame() == frame);
 
@@ -705,10 +705,10 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             selectedTableCells[i * 4 + 3] = num_cols;
         }
 
-        if (td->rowPageBreaks.isEmpty()) {
+        if (td->rowsAfterPageBreak.isEmpty()) {
             drawFrameDecoration(painter, frame, fd, context.clip, frameRect);
         } else {
-            Q_ASSERT(td->rowPageBreaks.first() > 0);
+            Q_ASSERT(td->rowsAfterPageBreak.first() > 0);
             QRectF rect = frameRect;
 
             const qreal extraTableHeight = td->padding + td->border + td->cellSpacing // inter cell spacing
@@ -720,15 +720,15 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             if (headerRowCount > 0)
                 tableHeaderHeight = td->rowPositions.at(headerRowCount) - td->rowPositions.at(0);
 
-            int lastVisibleRow = td->rowPageBreaks.first() - 1;
+            int lastVisibleRow = td->rowsAfterPageBreak.first() - 1;
 
             rect.setHeight(td->rowPositions.at(lastVisibleRow) + td->heights.at(lastVisibleRow) + extraTableHeight);
             drawFrameDecoration(painter, frame, fd, context.clip, rect);
 
-            for (int i = 0; i < td->rowPageBreaks.count(); ++i) {
-                const int firstVisibleRow = td->rowPageBreaks.at(i);
-                if (i < td->rowPageBreaks.count() - 1)
-                    lastVisibleRow = td->rowPageBreaks.at(i + 1) - 1;
+            for (int i = 0; i < td->rowsAfterPageBreak.count(); ++i) {
+                const int firstVisibleRow = td->rowsAfterPageBreak.at(i);
+                if (i < td->rowsAfterPageBreak.count() - 1)
+                    lastVisibleRow = td->rowsAfterPageBreak.at(i + 1) - 1;
                 else
                     lastVisibleRow = rows - 1;
 
@@ -835,7 +835,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         QTextFrame::Iterator it = frame->begin();
 
         if (frame == q->document()->rootFrame())
-            it = iteratorForYPosition(context.clip.top());
+            it = frameIteratorForYPosition(context.clip.top());
 
         drawFlow(off, painter, context, it, &cursorBlockNeedingRepaint);
     }
@@ -1281,7 +1281,7 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
     td->maxWidths.resize(columns);
     td->maxWidths.fill(INT_MAX);
 
-    td->rowPageBreaks.clear();
+    td->rowsAfterPageBreak.clear();
 
     // calculate minimum and maximum sizes of the columns
     for (int i = 0; i < columns; ++i) {
@@ -1483,9 +1483,9 @@ QRectF QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom
             td->maximumWidth += td->maxWidths.at(i) + td->border + cellSpacing + td->border;
     td->maximumWidth += margin - td->border;
 
-    td->rowPositionsBeforePageBreak = td->rowPositions;
+    td->rowPositionsWithoutPageBreak = td->rowPositions;
 
-    td->updateSize();
+    td->updateTableSize();
     td->sizeDirty = false;
     return QRectF(); // invalid rect -> update everything
 }
@@ -1693,7 +1693,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     layoutStruct->pageBottom = (page + 1) * layoutStruct->pageHeight - layoutStruct->pageMargin;
                 }
 
-                it = iteratorForTextPosition(checkPoint->positionInFrame);
+                it = frameIteratorForTextPosition(checkPoint->positionInFrame);
                 checkPoints.resize(checkPoint - checkPoints.begin() + 1);
 
                 if (checkPoint != checkPoints.begin()) {
@@ -1792,10 +1792,10 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                     // (due to lazy layouting) then we need to reset the row positions
                     // and the table height (from the row positions) and call
                     // pageBreakInsideTable again.
-                    if (!td->rowPageBreaks.isEmpty()) {
-                        td->rowPageBreaks.clear();
-                        td->rowPositions = td->rowPositionsBeforePageBreak;
-                        td->updateSize();
+                    if (!td->rowsAfterPageBreak.isEmpty()) {
+                        td->rowsAfterPageBreak.clear();
+                        td->rowPositions = td->rowPositionsWithoutPageBreak;
+                        td->updateTableSize();
                     }
                 }
 
@@ -2095,7 +2095,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
     const qreal extraTableHeight = td->padding + td->border + td->cellSpacing // inter cell spacing
                                    + td->margin + td->border + td->padding; // effective table margin
 
-    td->rowPageBreaks.clear();
+    td->rowsAfterPageBreak.clear();
 
     qreal tableHeaderHeight = 0;
     const QTextTableFormat format = table->format();
@@ -2121,20 +2121,20 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayout
             layoutStruct->newPage();
             td->rowPositions[r - 1] = layoutStruct->y + extraTableHeight + tableHeaderHeight - td->position.y();
 
-            td->rowPageBreaks.append(r - 1);
+            td->rowsAfterPageBreak.append(r - 1);
             pageBottom = layoutStruct->pageBottom - td->position.y();
         }
         td->rowPositions[r] += offset;
     }
 
     if (rows > 1 && td->rowPositions.last() + td->heights.last() + extraTableHeight > pageBottom) {
-        td->rowPageBreaks.append(rows - 1);
+        td->rowsAfterPageBreak.append(rows - 1);
         layoutStruct->newPage();
         td->rowPositions.last() = layoutStruct->y + extraTableHeight - td->position.y();
     }
 
     // calc new total height of table
-    td->updateSize();
+    td->updateTableSize();
     layoutStruct->y = origY + td->size.height();
 }
 
