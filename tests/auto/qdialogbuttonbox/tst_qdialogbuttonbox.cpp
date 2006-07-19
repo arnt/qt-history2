@@ -129,7 +129,7 @@ void tst_QDialogButtonBox::testConstructor3_data()
             << 3;
     QTest::newRow("everything") << int(Qt::Vertical)
             << (QDialogButtonBox::StandardButtons)UINT_MAX
-            << 17;
+            << 18;
 }
 
 void tst_QDialogButtonBox::testConstructor3()
@@ -561,6 +561,7 @@ void tst_QDialogButtonBox::setStandardButtons_data()
                                    | QDialogButtonBox::Abort
                                    | QDialogButtonBox::Retry
                                    | QDialogButtonBox::Ignore
+                                   | QDialogButtonBox::RestoreDefaults
                                    );
     QTest::newRow("Simple thing") << QDialogButtonBox::StandardButtons(QDialogButtonBox::Help)
                                   << QDialogButtonBox::StandardButtons(QDialogButtonBox::Help);
