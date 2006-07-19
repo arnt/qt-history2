@@ -2052,6 +2052,7 @@ void tst_QGraphicsItem::cursor()
     QGraphicsView view(&scene);
     view.setFixedSize(200, 100);
     view.show();
+    QTest::mouseMove(&view, view.rect().center());
 
     QTest::qWait(250);
 
