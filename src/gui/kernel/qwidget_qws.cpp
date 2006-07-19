@@ -633,6 +633,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             raise();
             needShow = true;
         } else if (newstate & Qt::WindowMaximized) {
+            createWinId();
 #ifndef QT_NO_QWS_MANAGER
             if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
                 d->extra->topextra->qwsManager->maximize();
