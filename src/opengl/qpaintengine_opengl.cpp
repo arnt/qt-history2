@@ -327,8 +327,7 @@ class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
     QOpenGLPaintEnginePrivate()
-        : bgmode(Qt::TransparentMode)
-        , opacity(1)
+        : opacity(1)
         , has_fast_pen(false)
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
@@ -368,8 +367,6 @@ public:
 
     QPen cpen;
     QBrush cbrush;
-    QBrush bgbrush;
-    Qt::BGMode bgmode;
     QRegion crgn;
     Qt::BrushStyle brush_style;
     Qt::BrushStyle pen_brush_style;
@@ -952,10 +949,6 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         updateBrush(state.brush(), state.brushOrigin());
     }
 
-    if (flags & DirtyBackground) {
-        updateBackground(state.backgroundMode(), state.backgroundBrush());
-    }
-
     if (flags & DirtyFont) {
         updateFont(state.font());
     }
@@ -1131,15 +1124,6 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
 {
-}
-
-void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
-{
-    Q_D(QOpenGLPaintEngine);
-    const QColor &c = bgBrush.color();
-    glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
-    d->bgmode = bgMode;
-    d->bgbrush = bgBrush;
 }
 
 void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
@@ -1541,7 +1525,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     Q_D(QOpenGLPaintEngine);
     if (pm.depth() == 1) {
         QPixmap tpx(pm.size());
-        tpx.fill(d->bgbrush.color());
+        tpx.fill(Qt::transparent);
         QPainter p(&tpx);
         p.setPen(d->cpen);
         p.drawPixmap(0, 0, pm);

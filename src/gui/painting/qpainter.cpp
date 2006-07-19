@@ -227,27 +227,19 @@ void QPainterPrivate::drawOpaqueBackground(const QPainterPath &path, DrawOperati
 {
     Q_Q(QPainter);
 
-    q->save();
     q->setBackgroundMode(Qt::TransparentMode);
-    if (op & StrokeDraw && state->pen.style() != Qt::NoPen)
-        q->setPen(QPen(state->bgBrush.color(), state->pen.width()));
-    else
-        q->setPen(Qt::NoPen);
 
-    if (op & FillDraw && state->brush.style() != Qt::NoBrush)
-        q->setBrush(state->bgBrush.color());
-    else
-        q->setBrush(Qt::NoBrush);
+    if (op & FillDraw && state->brush.style() != Qt::NoBrush) {
+        q->fillPath(path, state->bgBrush.color());
+        q->fillPath(path, state->brush);
+    }
 
-    q->drawPath(path);
-    q->restore();
+    if (op & StrokeDraw && state->pen.style() != Qt::NoPen) {
+        q->strokePath(path, QPen(state->bgBrush.color(), state->pen.width()));
+        q->strokePath(path, state->pen);
+    }
 
-    q->save();
-    q->setBackgroundMode(Qt::TransparentMode);
-    if ((op & StrokeDraw) == 0) q->setPen(Qt::NoPen);
-    if ((op & FillDraw) == 0) q->setBrush(Qt::NoBrush);
-    q->drawPath(path);
-    q->restore();
+    q->setBackgroundMode(Qt::OpaqueMode);
 }
 
 
@@ -542,7 +534,8 @@ void QPainterPrivate::updateState(QPainterState *newState)
         updateEmulationSpecifier(newState);
 
         // Unset potential dirty background mode
-        newState->dirtyFlags &= ~(QPaintEngine::DirtyBackgroundMode);
+        newState->dirtyFlags &= ~(QPaintEngine::DirtyBackgroundMode
+                                  | QPaintEngine::DirtyBackground);
 
         engine->state = newState;
         engine->updateState(*newState);

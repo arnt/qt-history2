@@ -344,13 +344,11 @@ void prepare(QCustomRasterPaintDevice *device);
     QClipData *clip;
     QClipData *disabled_clip;
     bool clipEnabled;
-    bool opaqueBackground;
 
     QPainter::CompositionMode compositionMode;
     QImage::Format format;
     DrawHelper *drawHelper;
     QImage tempImage;
-    QBrush bgBrush;
     QImage colorizeBitmap(const QImage &image, const QColor &color);
 
     void resetClip() { delete clip; clip = 0; }

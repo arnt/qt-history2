@@ -958,14 +958,6 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         flags |= DirtyBrush;
     }
 
-    if (flags & DirtyBackgroundMode) {
-        d->rasterBuffer->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
-    }
-
-    if (flags & DirtyBackground) {
-        d->rasterBuffer->bgBrush = state.backgroundBrush();
-    }
-
     if (flags & DirtyPen) {
         update_fast_pen = true;
         d->pen = state.pen();
@@ -1469,7 +1461,6 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
     if (pixmap.depth() == 1) {
         if (d->txop <= QPainterPrivate::TxTranslate
-            && !d->rasterBuffer->opaqueBackground
             && r.size() == sr.size()
             && r.size() == pixmap.size()) {
             d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &d->penData);
@@ -2591,7 +2582,7 @@ QImage QRasterBuffer::colorizeBitmap(const QImage &image, const QColor &color)
     QImage dest = QImage(sourceImage.size(), QImage::Format_ARGB32_Premultiplied);
 
     QRgb fg = PREMUL(color.rgba());
-    QRgb bg = opaqueBackground ? PREMUL(bgBrush.color().rgba()) : 0;
+    QRgb bg = 0;
 
     int height = sourceImage.height();
     int width = sourceImage.width();
@@ -2632,7 +2623,6 @@ QRasterBuffer::~QRasterBuffer()
 void QRasterBuffer::init()
 {
     clipEnabled = false;
-    opaqueBackground = false;
     disabled_clip = 0;
 
     compositionMode = QPainter::CompositionMode_SourceOver;
@@ -2640,7 +2630,6 @@ void QRasterBuffer::init()
     clip = 0;
     format = QImage::Format_ARGB32_Premultiplied;
     drawHelper = qDrawHelper + QImage::Format_ARGB32_Premultiplied;
-    bgBrush = Qt::white;
 }
 
 
