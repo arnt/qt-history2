@@ -295,9 +295,11 @@ public:
     inline PropertyTestClass::TestEnum foo() const { return PropertyTestClass::One; }
 };
 
+#if defined(Q_MOC_RUN)
 // Task #119503
 #define _TASK_119503
 #if !_TASK_119503
+#endif
 #endif
 
 static QString srcify(const char *path)
