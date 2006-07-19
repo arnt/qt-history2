@@ -97,17 +97,10 @@ extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 extern QList<QWSCommand*> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
-static const char *defaultMouse =
-#if defined(QT_QWS_CASSIOPEIA) || defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX) || defined(QT_QWS_YOPY) || defined(QWS_CUSTOMTOUCHPANEL)
-    "TPanel"
-#else
-    "Auto"
-#endif
-#if defined(QT_QWS_CASSIOPEIA)
-    "/dev/tpanel"
-#endif
-    ;
-static const char *defaultKeyboard = "TTY";
+
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, ("Auto"));
+Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, ("TTY"));
+
 static int qws_keyModifiers = 0;
 
 static QWSWindow *keyboardGrabber;
@@ -1579,7 +1572,7 @@ void QWSServerPrivate::sendMaxWindowRectEvents()
 */
 void QWSServer::setDefaultMouse(const char *m)
 {
-    defaultMouse = m;
+    *defaultMouse() = QString::fromAscii(m);
 }
 
 /*!
@@ -1593,7 +1586,7 @@ void QWSServer::setDefaultMouse(const char *m)
 */
 void QWSServer::setDefaultKeyboard(const char *k)
 {
-    defaultKeyboard = k;
+    *defaultKeyboard() = QString::fromAscii(k);
 }
 
 #ifndef QT_NO_QWS_CURSOR
@@ -2828,7 +2821,7 @@ void QWSServer::openMouse()
         mice = QLatin1String("TPanel:/dev/tpanel");
 #endif
     if (mice.isEmpty())
-        mice = defaultMouse;
+        mice = *defaultMouse();
     closeMouse();
     bool needviscurs = true;
     if (mice != QLatin1String("None")) {
@@ -2887,8 +2880,24 @@ QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
         mouseProto = spec;
     }
 
+    int screen = -1;
+    const QList<QRegExp> regexps = QList<QRegExp>()
+                                   << QRegExp(":screen=(\\d+)\\b")
+                                   << QRegExp("\\bscreen=(\\d+):");
+    for (int i = 0; i < regexps.size(); ++i) {
+        QRegExp regexp = regexps.at(i);
+        if (regexp.indexIn(mouseDev) == -1)
+            continue;
+        screen = regexp.cap(1).toInt();
+        mouseDev.remove(regexp.pos(0), regexp.matchedLength());
+        break;
+    }
+
     QWSMouseHandler *handler = 0;
     handler = QMouseDriverFactory::create(mouseProto, mouseDev);
+    if (screen != -1)
+        handler->setScreen(qt_screen->subScreens().at(screen));
+
     return handler;
 }
 
@@ -2950,7 +2959,7 @@ void QWSServer::openKeyboard()
         keyboards = QLatin1String("Buttons");
 #endif
     if (keyboards.isEmpty())
-        keyboards = QString::fromLatin1(defaultKeyboard);
+        keyboards = *defaultKeyboard();
 
     closeKeyboard();
     if (keyboards == QLatin1String("None"))

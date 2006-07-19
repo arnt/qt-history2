@@ -54,7 +54,9 @@ public:
     bool success;
     QVNCServer *vncServer;
     unsigned char *shmrgn;
+#ifndef QT_NO_QWS_MULTIPROCESS
     QSharedMemory *shm;
+#endif
     QVNCHeader *hdr;
     bool virtualBuffer;
 };

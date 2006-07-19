@@ -16,6 +16,7 @@
 
 #include <QtCore/qnamespace.h>
 #include <QtCore/qpoint.h>
+#include <QtCore/qlist.h>
 #include <QtGui/qrgb.h>
 #include <QtCore/qrect.h>
 #include <QtGui/qimage.h>
@@ -149,6 +150,8 @@ public:
 };
 
 class QScreen;
+class QScreenPrivate;
+
 extern QScreen *qt_screen;
 typedef void(*ClearCacheFunc)(QScreen *obj, int);
 
@@ -239,6 +242,13 @@ public:
     virtual QWSWindowSurface* createSurface(QWidget *widget) const;
     virtual QWSWindowSurface* createSurface(const QString &key) const;
 
+    virtual QList<QScreen*> subScreens() const { return QList<QScreen*>(); }
+    virtual QRegion region() const { return QRect(offset(), QSize(w, h)); }
+    int subScreenIndexAt(const QPoint &p) const;
+
+    void setOffset(const QPoint &p);
+    QPoint offset() const;
+
 protected:
 
     // Only used without QT_NO_QWS_REPEATER, but included so that
@@ -290,6 +300,8 @@ protected:
 private:
     void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
+
+    QScreenPrivate *d_ptr;
 };
 
 // This lives in loadable modules

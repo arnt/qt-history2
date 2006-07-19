@@ -23,6 +23,8 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_QVFB
 
+class QVFbScreenPrivate;
+
 class Q_GUI_EXPORT QVFbScreen : public QScreen
 {
 public:
@@ -36,12 +38,14 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    virtual void setDirty(const QRect& r)
-        { hdr->dirty = true; hdr->update = hdr->update.united(r); }
+    virtual void setDirty(const QRect& r);
 
     bool success;
     unsigned char *shmrgn;
     QVFbHeader *hdr;
+
+private:
+    QVFbScreenPrivate *d_ptr;
 };
 
 #endif // QT_NO_QWS_QVFB

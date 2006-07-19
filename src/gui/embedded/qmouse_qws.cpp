@@ -18,6 +18,7 @@
 #include "qtextstream.h"
 #include "qfile.h"
 #include "qdebug.h"
+#include "qscreen_qws.h"
 
 /*!
     \class QWSPointerCalibrationData
@@ -62,6 +63,14 @@
     \value Center            Index of the center of the screen.
     \value LastLocation   Last index in the pointer arrays.
 */
+
+class QWSMouseHandlerPrivate
+{
+public:
+    QWSMouseHandlerPrivate() : screen(qt_screen) {}
+
+    const QScreen *screen;
+};
 
 /*!
     \class QWSMouseHandler
@@ -155,7 +164,7 @@
     arguments are passed by the QWS_MOUSE_PROTO environment variable.
 */
 QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
-    : mousePos(QWSServer::mousePosition)
+    : mousePos(QWSServer::mousePosition), d_ptr(new QWSMouseHandlerPrivate)
 {
 }
 
@@ -167,6 +176,7 @@ QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -178,10 +188,17 @@ QWSMouseHandler::~QWSMouseHandler()
 
 void QWSMouseHandler::limitToScreen(QPoint &position)
 {
-    position.setX(qMin(qt_screen->deviceWidth() - 1, qMax(0, position.x())));
-    position.setY(qMin(qt_screen->deviceHeight() - 1, qMax(0, position.y())));
+    position.setX(qMin(d_ptr->screen->deviceWidth() - 1, qMax(0, position.x())));
+    position.setY(qMin(d_ptr->screen->deviceHeight() - 1, qMax(0, position.y())));
 }
 
+/*!
+    Set the screen of the QWSMouseHandler to \a screen.
+*/
+void QWSMouseHandler::setScreen(const QScreen *screen)
+{
+    d_ptr->screen = (screen ? screen : qt_screen);
+}
 
 /*!
     Notifies the system of a new mouse event.
@@ -203,8 +220,8 @@ void QWSMouseHandler::limitToScreen(QPoint &position)
 */
 void QWSMouseHandler::mouseChanged(const QPoint &position, int state, int wheel)
 {
-    mousePos = position;
-    QWSServer::sendMouseEvent(position, state, wheel);
+    mousePos = position + d_ptr->screen->offset();
+    QWSServer::sendMouseEvent(mousePos, state, wheel);
 }
 
 /*!

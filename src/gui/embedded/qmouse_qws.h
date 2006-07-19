@@ -21,6 +21,9 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+class QWSMouseHandlerPrivate;
+class QScreen;
+
 class Q_GUI_EXPORT QWSPointerCalibrationData
 {
 public:
@@ -48,8 +51,11 @@ public:
     void mouseChanged(const QPoint& pos, int bstate, int wheel = 0);
     const QPoint &pos() const { return mousePos; }
 
+    void setScreen(const QScreen *screen);
+
 protected:
     QPoint &mousePos;
+    QWSMouseHandlerPrivate *d_ptr;
 };
 
 

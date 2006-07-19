@@ -84,7 +84,7 @@ void QVFbMouseHandler::readMouseData()
         mb += sizeof(int);
         int wheel = *reinterpret_cast<int *>(mb);
 //        limitToScreen(mousePos);
-        QWSServer::sendMouseEvent(mousePos, bstate, wheel);
+        mouseChanged(mousePos, bstate, wheel);
         idx += packetsize;
     }
 

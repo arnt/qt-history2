@@ -483,8 +483,8 @@ void QWSManager::maximize()
 {
     Q_D(QWSManager);
     // find out how much space the decoration needs
-    extern QRect qt_maxWindowRect;
-    QRect desk = qt_maxWindowRect;
+    const int screen = QApplication::desktop()->screenNumber(d->managed);
+    const QRect desk = QApplication::desktop()->availableGeometry(screen);
     QRect dummy(0, 0, 1, 1);
     QRect nr;
     QRegion r = QApplication::qwsDecoration().region(d->managed, dummy);

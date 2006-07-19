@@ -40,8 +40,6 @@ struct QVNCHeader
     uchar map[MAP_HEIGHT][MAP_WIDTH];
 };
 
-static QVNCScreen *qvnc_screen = 0;
-
 //===========================================================================
 
 class QRfbRect
@@ -149,8 +147,8 @@ class QVNCServer : public QObject
 {
     Q_OBJECT
 public:
-    QVNCServer();
-    QVNCServer(int id);
+    QVNCServer(QVNCScreen *screen);
+    QVNCServer(QVNCScreen *screen, int id);
     ~QVNCServer();
 
     enum ClientMsg { SetPixelFormat = 0,
@@ -199,6 +197,7 @@ private:
     bool wantUpdate;
     int nibble;
     bool sameEndian;
+    QVNCScreen *qvnc_screen;
 };
 
 //===========================================================================
@@ -469,12 +468,14 @@ bool QRfbClientCutText::read(QTcpSocket *s)
 
 /*
  */
-QVNCServer::QVNCServer()
+QVNCServer::QVNCServer(QVNCScreen *screen)
+    : qvnc_screen(screen)
 {
     init(5900);
 }
 
-QVNCServer::QVNCServer(int id)
+QVNCServer::QVNCServer(QVNCScreen *screen, int id)
+    : qvnc_screen(screen)
 {
     init(5900 + id);
 }
@@ -717,7 +718,7 @@ void QVNCServer::frameBufferUpdateRequest()
         if (!ev.incremental) {
             QWSDisplay::grab(true);
             QRect r(ev.rect.x, ev.rect.y, ev.rect.w, ev.rect.h);
-            qvnc_screen->setDirty(r);
+            qvnc_screen->setDirty(r.translated(qvnc_screen->offset()));
             QWSDisplay::ungrab();
         }
         wantUpdate = true;
@@ -730,7 +731,8 @@ void QVNCServer::pointerEvent()
 {
     QRfbPointerEvent ev;
     if (ev.read(client)) {
-        QWSServer::sendMouseEvent(QPoint(ev.x, ev.y), ev.buttons);
+        const QPoint offset = qvnc_screen->offset();
+        QWSServer::sendMouseEvent(offset + QPoint(ev.x, ev.y), ev.buttons);
         handleMsg = false;
     }
 }
@@ -1198,8 +1200,10 @@ void QVNCServer::discardClient()
 QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
 {
     virtualBuffer = false;
-    qvnc_screen = this;
+#ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
+#endif
+    shmrgn = 0;
 }
 
 /*!
@@ -1207,11 +1211,19 @@ QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
 */
 QVNCScreen::~QVNCScreen()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     delete shm;
+#else
+    delete[] shmrgn;
+#endif
 }
 
-void QVNCScreen::setDirty(const QRect& r)
+void QVNCScreen::setDirty(const QRect& rect)
 {
+    if (rect.isEmpty())
+        return;
+
+    const QRect r = rect.translated(-offset());
     hdr->dirty = true;
     int x1 = r.x()/MAP_TILE_SIZE;
     int y1 = r.y()/MAP_TILE_SIZE;
@@ -1224,10 +1236,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
 {
     int vsize = 0;
 
-    if (displaySpec.contains(QLatin1String("Fb")))
-        virtualBuffer = false;
-    else
-        virtualBuffer = true;
+    virtualBuffer = !displaySpec.contains(QLatin1String("Fb"));
 
     if (virtualBuffer) {
         d = qgetenv("QWS_DEPTH").toInt();
@@ -1259,12 +1268,17 @@ bool QVNCScreen::connect(const QString &displaySpec)
         VNCSCREEN_BASE::connect(tmpSpec);
     }
 
-    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename(), 'a');
+#ifndef QT_NO_QWS_MULTIPROCESS
+    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8,
+                            qws_qtePipeFilename(), displayId);
     if (!shm->create())
         qDebug("QVNCScreen could not create shared memory");
     if (!shm->attach())
         qDebug("QVNCScreen could not attach to shared memory");
     shmrgn = (unsigned char*)shm->base();
+#else
+    shmrgn = new uchar[sizeof(QVNCHeader) + vsize + 8];
+#endif
 
     hdr = (QVNCHeader *) shmrgn;
 
@@ -1277,7 +1291,11 @@ void QVNCScreen::disconnect()
 {
     if (!virtualBuffer)
         VNCSCREEN_BASE::disconnect();
+#ifndef QT_NO_QWS_MULTIPROCESS
     shm->detach();
+#else
+    delete[] shmrgn;
+#endif
 }
 
 bool QVNCScreen::initDevice()
@@ -1291,10 +1309,10 @@ bool QVNCScreen::initDevice()
             screenclut[idx]=qRgb(val, val, val);
         }
     }
-    vncServer = new QVNCServer();
+    vncServer = new QVNCServer(this, displayId);
 
     hdr->dirty = false;
-    memset(qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT);
+    memset(hdr->map, 0, MAP_WIDTH * MAP_HEIGHT);
 
 #ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
@@ -1308,8 +1326,10 @@ void QVNCScreen::shutdownDevice()
     delete vncServer;
     if (!virtualBuffer)
         VNCSCREEN_BASE::shutdownDevice();
+#ifndef QT_NO_QWS_MULTIPROCESS
     if (shm)
         shm->destroy();
+#endif
 }
 
 

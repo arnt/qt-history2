@@ -30,6 +30,29 @@
 #include <qsocketnotifier.h>
 #include <qapplication.h>
 #include <qscreen_qws.h>
+#include <qmousedriverfactory_qws.h>
+#include <qkbddriverfactory_qws.h>
+
+class QVFbScreenPrivate
+{
+public:
+    QVFbScreenPrivate();
+    ~QVFbScreenPrivate();
+
+    QWSMouseHandler *mouse;
+    QWSKeyboardHandler *keyboard;
+};
+
+QVFbScreenPrivate::QVFbScreenPrivate()
+    : mouse(0), keyboard(0)
+{
+}
+
+QVFbScreenPrivate::~QVFbScreenPrivate()
+{
+    delete mouse;
+    delete keyboard;
+}
 
 /*!
     \class QVFbScreen
@@ -114,7 +137,8 @@
     Constructs a QVNCScreen object. The \a displayId argument
     identifies the Qtopia Core server to connect to.
 */
-QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
+QVFbScreen::QVFbScreen(int display_id)
+    : QScreen(display_id), d_ptr(new QVFbScreenPrivate)
 {
     shmrgn = 0;
     hdr = 0;
@@ -126,8 +150,8 @@ QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
 */
 QVFbScreen::~QVFbScreen()
 {
+    delete d_ptr;
 }
-
 
 bool QVFbScreen::connect(const QString &displaySpec)
 {
@@ -166,23 +190,17 @@ bool QVFbScreen::connect(const QString &displaySpec)
     memcpy(screenclut, hdr->clut, sizeof(QRgb) * screencols);
 
     if (qApp->type() == QApplication::GuiServer) {
-        QString mouseDev = QLatin1String("QVFbMouse:");
-        mouseDev += QT_VFB_MOUSE_PIPE;
-        QString keyboardDev = "QVFbKbd:";
-        keyboardDev += QT_VFB_KEYBOARD_PIPE;
+        const QString mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(displayId);
+        d_ptr->mouse = QMouseDriverFactory::create("QVFbMouse", mouseDev);
+        qwsServer->setDefaultMouse("None");
+        d_ptr->mouse->setScreen(this);
 
-        static char mDevBuffer[200];
-        static char kDevBuffer[200];
+        const QString keyboardDev = QString(QT_VFB_KEYBOARD_PIPE).arg(displayId);
+        d_ptr->keyboard = QKbdDriverFactory::create("QVFbKbd", keyboardDev);
+        qwsServer->setDefaultKeyboard("None");
 
-        strncpy(mDevBuffer, mouseDev.arg(displayId).toLatin1().constData(), 200);
-        strncpy(kDevBuffer, keyboardDev.arg(displayId).toLatin1().constData(), 200);
-
-        qwsServer->setDefaultMouse(mDevBuffer);
-        qwsServer->setDefaultKeyboard(kDevBuffer);
-
-        if (hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
+        if (hdr->dataoffset >= (int)sizeof(QVFbHeader))
             hdr->serverVersion = QT_VERSION;
-        }
     }
 
     return true;
@@ -264,6 +282,14 @@ void QVFbScreen::save()
 void QVFbScreen::restore()
 {
 }
+void QVFbScreen::setDirty(const QRect& rect)
+{
+    const QRect r = rect.translated(-offset());
+    hdr->dirty = true;
+    hdr->update = hdr->update.united(r);
+}
+
+
 
 #endif // QT_NO_QWS_QVFB
 

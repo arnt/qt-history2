@@ -64,9 +64,6 @@ private:
     Q_DECLARE_PRIVATE(QDesktopWidget)
 
     friend class QApplication;
-#ifdef Q_WS_QWS
-    friend class QWSDisplay;
-#endif
 };
 
 QT_END_HEADER

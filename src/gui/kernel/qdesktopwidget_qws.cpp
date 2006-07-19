@@ -12,31 +12,10 @@
 ****************************************************************************/
 
 #include "qdesktopwidget.h"
-#include "qvector.h"
-#include "qwidget_p.h"
-
-class QDesktopWidgetPrivate : public QWidgetPrivate
-{
-public:
-    QDesktopWidgetPrivate();
-
-    int appScreen;
-    int screenCount;
-
-    QVector<QRect> rects;
-};
-
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
-{
-    appScreen = 0;
-    screenCount = 1;
-
-    rects.resize(screenCount);
-    //### Get the rects for the different screens and put them into rects
-}
+#include "qscreen_qws.h"
 
 QDesktopWidget::QDesktopWidget()
-: QWidget(*new QDesktopWidgetPrivate, 0, Qt::Desktop)
+    : QWidget(0, Qt::Desktop)
 {
     setObjectName(QLatin1String("desktop"));
 }
@@ -52,12 +31,17 @@ bool QDesktopWidget::isVirtualDesktop() const
 
 int QDesktopWidget::primaryScreen() const
 {
-    return d_func()->appScreen;
+    return 0;
 }
 
 int QDesktopWidget::numScreens() const
 {
-    return d_func()->screenCount;
+    QScreen *screen = QScreen::instance();
+    if (!screen)
+        return 0;
+
+    const QList<QScreen*> subScreens = screen->subScreens();
+    return qMax(subScreens.size(), 1);
 }
 
 QWidget *QDesktopWidget::screen(int)
@@ -65,27 +49,51 @@ QWidget *QDesktopWidget::screen(int)
     return this;
 }
 
-const QRect QDesktopWidget::availableGeometry(int) const
+const QRect QDesktopWidget::availableGeometry(int screenNo) const
 {
-    extern QRect qt_maxWindowRect;
-    QRect r = qt_maxWindowRect;
-    return r;
+    const QScreen *screen = QScreen::instance();
+    if (screenNo == -1)
+        screenNo = 0;
+    if (!screen || screenNo < 0)
+        return QRect();
+
+    const QList<QScreen*> subScreens = screen->subScreens();
+    if (subScreens.size() == 0 && screenNo == 0)
+        return screen->region().boundingRect();
+
+    if (screenNo >= subScreens.size())
+        return QRect();
+
+    return subScreens.at(screenNo)->region().boundingRect();
 }
 
-const QRect QDesktopWidget::screenGeometry(int) const
+const QRect QDesktopWidget::screenGeometry(int screen) const
 {
-    QRect r = frameGeometry();
-    return r;
+    return availableGeometry(screen);
 }
 
-int QDesktopWidget::screenNumber(const QWidget *) const
+int QDesktopWidget::screenNumber(const QWidget *w) const
 {
-    return d_func()->appScreen;
+    const QPoint midpoint = (w->frameGeometry().topLeft()
+                             + w->frameGeometry().bottomRight()) / 2;
+    return screenNumber(midpoint);
 }
 
-int QDesktopWidget::screenNumber(const QPoint &) const
+int QDesktopWidget::screenNumber(const QPoint &p) const
 {
-    return d_func()->appScreen;
+    const QScreen *screen = QScreen::instance();
+    if (!screen || !screen->region().contains(p))
+        return -1;
+
+    const QList<QScreen*> subScreens = screen->subScreens();
+    if (subScreens.size() == 0)
+        return 0;
+
+    for (int i = 0; i < subScreens.size(); ++i)
+        if (subScreens.at(i)->region().contains(p))
+            return i;
+
+    return -1;
 }
 
 void QDesktopWidget::resizeEvent(QResizeEvent *)

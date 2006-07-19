@@ -14,6 +14,7 @@ embedded {
 		    embedded/qdirectpainter_qws.h \
 		    embedded/qlock_p.h \
 		    embedded/qscreen_qws.h \
+		    embedded/qscreenmulti_qws_p.h \
 		    embedded/qwindowsystem_qws.h \
 		    embedded/qwindowsystem_p.h \
 		    embedded/qwscommand_qws_p.h \
@@ -41,6 +42,7 @@ embedded {
 		    embedded/qdirectpainter_qws.cpp \
 		    embedded/qlock.cpp \
 		    embedded/qscreen_qws.cpp \
+		    embedded/qscreenmulti_qws.cpp \
 		    embedded/qwindowsystem_qws.cpp \
 		    embedded/qwscommand_qws.cpp \
 		    embedded/qwscursor_qws.cpp \

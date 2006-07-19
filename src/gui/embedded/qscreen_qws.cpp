@@ -210,21 +210,12 @@ void QScreenCursor::initSoftwareCursor()
 */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class QScreenPrivate
+{
+public:
+    QPoint offset;
+    QList<QScreen*> subScreens;
+};
 
 /*!
     \class QScreen
@@ -621,6 +612,7 @@ void QScreenCursor::initSoftwareCursor()
 */
 
 QScreen::QScreen(int display_id)
+    : d_ptr(new QScreenPrivate)
 {
     pixeltype=NormalPixel;
     data = 0;
@@ -638,6 +630,7 @@ QScreen::QScreen(int display_id)
 
 QScreen::~QScreen()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -883,22 +876,13 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     bool foundDriver = false;
     QString driverName = driver;
 
-    QStringList driverList = QScreenDriverFactory::keys();
-    QStringList::Iterator it;
-    for (it = driverList.begin(); it != driverList.end(); ++it) {
-        if (driver.isEmpty() || QString(*it) == driver) {
-            driverName = *it;
-            qt_screen = QScreenDriverFactory::create(driverName, display_id);
-            if (qt_screen) {
-                foundDriver = true;
-                if (qt_screen->connect(spec)) {
-                    return qt_screen;
-                } else {
-                    delete qt_screen;
-                    qt_screen = 0;
-                }
-            }
-        }
+    qt_screen = QScreenDriverFactory::create(driverName, display_id);
+    if (qt_screen) {
+        foundDriver = true;
+        if (qt_screen->connect(spec))
+            return qt_screen;
+        delete qt_screen;
+        qt_screen = 0;
     }
 
     if (driver.isNull())
@@ -927,11 +911,11 @@ QScreen *qt_get_screen(int display_id, const char *spec)
 */
 void QScreen::exposeRegion(QRegion r, int changing)
 {
+    r &= region();
     if (r.isEmpty())
         return;
 
-    r &= QRect(0, 0, w, h);
-    QRect bounds = r.boundingRect();
+    const QRect bounds = r.boundingRect();
     QRegion blendRegion;
     QImage blendBuffer;
 
@@ -953,7 +937,7 @@ void QScreen::exposeRegion(QRegion r, int changing)
         QPoint topLeft = blendRegion.boundingRect().topLeft();
         blit(blendBuffer, topLeft, blendRegion);
     }
-    qt_screen->setDirty(r.boundingRect());
+    setDirty(r.boundingRect());
 }
 
 struct blit_data {
@@ -1036,6 +1020,26 @@ static void blit_16_to_16(const blit_data *data)
     }
 }
 #endif // QT_QWS_DEPTH_16
+
+#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
+static void blit_16_to_32(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine() / sizeof(quint16);
+    const int dbpl = data->lineStep / sizeof(quint32);
+
+    const quint16 *src = reinterpret_cast<const quint16 *>(data->img->bits())
+                         + data->sy * sbpl + data->sx;
+    quint32 *dest = reinterpret_cast<quint32 *>(data->data)
+                    + data->dy * dbpl + data->dx;
+
+    for (int y = 0; y < data->h; ++y) {
+        for (int x = 0; x < data->w; ++x)
+            dest[x] = qt_conv16ToRgb(src[x]);
+        src += sbpl;
+        dest += dbpl;
+    }
+}
+#endif
 
 #ifdef QT_QWS_DEPTH_8
 static inline uchar qt_32_to_8(uint rgb)
@@ -1156,7 +1160,7 @@ static void blit_32_to_18(const blit_data *data)
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
 
-    Copies the given \a region in the given \a image to the point
+    Copies the given region \a reg in the given \a image to the point
     specified by \a topLeft using device coordinates.
 
     Reimplement this function to use accelerated hardware. Note that
@@ -1165,11 +1169,10 @@ static void blit_32_to_18(const blit_data *data)
 
     \sa exposeRegion(), {Adding an Accelerated Graphics Driver}
 */
-void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
+void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
 {
-    QVector<QRect> rects = region.rects();
-    QRect bound(0, 0, dw, dh);
-    bound &= QRect(topLeft, img.size());
+    const QVector<QRect> rects = reg.rects();
+    const QRect bound = (region() & QRect(topLeft, img.size())).boundingRect();
     blit_data data;
     data.img = &img;
     data.data = this->data;
@@ -1178,7 +1181,10 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
     switch(d) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
-        func = blit_32_to_32;
+        if (img.depth() == 16)
+            func = blit_16_to_32;
+        else
+            func = blit_32_to_32;
         break;
 #endif
 #ifdef QT_QWS_DEPTH_24
@@ -1223,8 +1229,8 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
             continue;
         data.sx = r.x() - topLeft.x();
         data.sy = r.y() - topLeft.y();
-        data.dx = r.x();
-        data.dy = r.y();
+        data.dx = r.x() - offset().x();
+        data.dy = r.y() - offset().y();
         func(&data);
     }
     QWSDisplay::ungrab();
@@ -1382,8 +1388,8 @@ static void fill_8(const fill_data *data)
 // the base class implementation works in device coordinates, so that transformed drivers can use it
 void QScreen::solidFill(const QColor &color, const QRegion &region)
 {
-    QVector<QRect> rects = region.rects();
-    QRect bound(0, 0, dw, dh);
+    const QVector<QRect> rects = region.rects();
+    const QRect bound(offset(), QSize(dw, dh));
     fill_data data;
     data.color = color.rgba();
     data.data = this->data;
@@ -1428,8 +1434,8 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
         data.h = r.height();
         if (data.w <= 0 || data.h <= 0)
             continue;
-        data.x = r.x();
-        data.y = r.y();
+        data.x = r.x() - offset().x();
+        data.y = r.y() - offset().y();
         func(&data);
     }
     QWSDisplay::ungrab();
@@ -1527,7 +1533,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         QSize blendSize = blend.boundingRect().size();
         if (!blendSize.isNull()) {
             blendbuffer = QImage(blendSize,
-                                 qt_screen->depth() <= 16 ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied);
+                                 depth() <= 16 ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied);
         }
     }
 
@@ -1925,7 +1931,27 @@ void QScreen::resumeUpdates()
 }
 
 
+void QScreen::setOffset(const QPoint &p)
+{
+    d_ptr->offset = p;
+}
 
+QPoint QScreen::offset() const
+{
+    return d_ptr->offset;
+}
+
+int QScreen::subScreenIndexAt(const QPoint &p) const
+{
+    const QList<QScreen*> screens = subScreens();
+    const int n = screens.count();
+    for (int i = 0; i < n; ++i) {
+        if (screens.at(i)->region().contains(p))
+            return i;
+    }
+
+    return -1;
+}
 
 #if 0
 #ifdef QT_LOADABLE_MODULES
