@@ -2331,9 +2331,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
     if (sender == 0 || receiver == 0 || signal == 0 || method == 0) {
         qWarning("QObject::connect: Cannot connect %s::%s to %s::%s",
                  sender ? sender->metaObject()->className() : "(null)",
-                 signal ? signal+1 : "(null)",
+                 (signal && *signal) ? signal+1 : "(null)",
                  receiver ? receiver->metaObject()->className() : "(null)",
-                 method ? method+1 : "(null)");
+                 (method && *method) ? method+1 : "(null)");
         return false;
     }
     QByteArray tmp_signal_name;
