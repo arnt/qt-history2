@@ -1029,8 +1029,9 @@ void QFileDialogPrivate::_q_navigateToParent()
 void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
 {
     Q_Q(QFileDialog);
+
     // if it is "My Computer" or a directory, enter it
-    QPersistentModelIndex persistent(index);
+    QPersistentModelIndex persistent(index.sibling(index.row(), 0));
     if (!persistent.isValid() || model->isDir(persistent)) {
         QString path = model->filePath(rootIndex());
         history.push_back(path);
