@@ -890,7 +890,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     vinfo.bits_per_pixel=nd;
 
     if (ioctl(fd, FBIOPUT_VSCREENINFO, &vinfo)) {
-        qFatal("Error writing variable information in mode change");
+        qCritical("Error writing variable information in mode change");
     }
 
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
