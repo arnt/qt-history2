@@ -3,6 +3,7 @@ include(../../qpluginbase.pri)
 
 CONFIG  += warn_on
 DESTDIR  = $$QT_BUILD_TREE/plugins/codecs
+QT = core
 
 HEADERS  = qbig5codec.h
 
