@@ -30,6 +30,7 @@
 #include "qimagereader.h"
 #include "qimagewriter.h"
 #include "qdebug.h"
+#include "qpaintengine.h"
 
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
@@ -644,10 +645,23 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non null");
     Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
 
-    QImage image = dst->toImage();
-    QPainter p(&image);
-    p.setCompositionMode(QPainter::CompositionMode_Source);
-    p.drawImage(dx, dy, src->toImage(), sx, sy, sw, sh);
-    *dst = QPixmap::fromImage(image);
+    if (src->hasAlphaChannel()) {
+        if (dst->paintEngine()->hasFeature(QPaintEngine::PorterDuff)) {
+            QPainter p(dst);
+            p.setCompositionMode(QPainter::CompositionMode_Source);
+            p.drawPixmap(dx, dy, *src, sx, sy, sw, sh);
+        } else {
+            QImage image = dst->toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            QPainter p(&image);
+            p.setCompositionMode(QPainter::CompositionMode_Source);
+            p.drawPixmap(dx, dy, *src, sx, sy, sw, sh);
+            p.end();
+            *dst = QPixmap::fromImage(image);
+        }
+    } else {
+        QPainter p(dst);
+        p.drawPixmap(dx, dy, *src, sx, sy, sw, sh);
+    }
+
 }
 #endif
