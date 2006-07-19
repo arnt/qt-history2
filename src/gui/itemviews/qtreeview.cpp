@@ -2502,15 +2502,9 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
 void QTreeViewPrivate::updateScrollBars()
 {
     Q_Q(QTreeView);
-
     QSize viewportSize = viewport->size();
-
-    // ### asserts if removed
-    if (!viewport->isVisible()) {
-        q->verticalScrollBar()->setRange(0, 0);
-        q->verticalScrollBar()->setPageStep(0);
-        return;
-    }
+    if (!viewportSize.isValid())
+        viewportSize = QSize(0, 0);
 
     if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         int itemsInViewport = 0;
@@ -2529,6 +2523,8 @@ void QTreeViewPrivate::updateScrollBars()
                 ++itemsInViewport;
             }
         }
+        if (!viewItems.isEmpty())
+            itemsInViewport = qMax(1, itemsInViewport);
         q->verticalScrollBar()->setRange(0, viewItems.count() - itemsInViewport);
         q->verticalScrollBar()->setPageStep(itemsInViewport);
     } else { // scroll per pixel
@@ -2554,6 +2550,8 @@ void QTreeViewPrivate::updateScrollBars()
                 break;
             ++columnsInViewport;
         }
+        if (columnCount > 0)
+            columnsInViewport = qMax(1, columnsInViewport);
         q->horizontalScrollBar()->setRange(0, columnCount - columnsInViewport);
         q->horizontalScrollBar()->setPageStep(columnsInViewport);
     } else { // scroll per pixel
