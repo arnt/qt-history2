@@ -7,7 +7,7 @@ TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
    #fallback defaults
 #  SUBDIRS = qmake
-   SUBDIRS += src
+   include(src/src.pro)
    !cross_compile:SUBDIRS += tools
    else:SUBDIRS += tools/qtestlib
    SUBDIRS += demos examples
@@ -34,7 +34,7 @@ isEmpty(QT_PROJECTS) {
        } else:isEqual(PROJECT, examples) {
           SUBDIRS += demos examples
        } else:isEqual(PROJECT, libs) {
-          SUBDIRS += src
+          include(src/src.pro)
        } else:isEqual(PROJECT, qmake) {
 #         SUBDIRS += qmake
        } else {
