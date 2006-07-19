@@ -164,7 +164,7 @@ static const int layouts[2][5][11] =
         { HelpRole, ResetRole, Stretch, ActionRole, AcceptRole, AlternateRole, ApplyRole, DestructiveRole, RejectRole, EOL, EOL },
 
         // GnomeLayout
-        { HelpRole, ResetRole, Stretch, ActionRole | Reverse, ApplyRole | Reverse, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
+        { HelpRole, ResetRole, Stretch, ActionRole, ApplyRole | Reverse, DestructiveRole | Reverse, AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
 
         // Mac modeless
         { ResetRole, ApplyRole, ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL }
@@ -461,8 +461,8 @@ void QDialogButtonBoxPrivate::addButton(QAbstractButton *button, QDialogButtonBo
 
 void QDialogButtonBoxPrivate::createStandardButtons(QDialogButtonBox::StandardButtons buttons)
 {
-    uint i = QDialogButtonBox::Ok;
-    while (i <= QDialogButtonBox::Reset) {
+    uint i = QDialogButtonBox::FirstButton;
+    while (i <= QDialogButtonBox::LastButton) {
         if (i & buttons) {
             createButton(QDialogButtonBox::StandardButton(i), false);
         }
@@ -698,8 +698,7 @@ QDialogButtonBox::ButtonRole QDialogButtonBox::buttonRole(QAbstractButton *butto
 }
 
 /*!
-    Removes \a button from the button box without deleting it. This is
-    typically done when you want to change the parent of a button.
+    Removes \a button from the button box without deleting it.
 
     \sa clear(), buttons(), addButton()
 */
@@ -808,19 +807,27 @@ QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
 }
 
 /*!
-    Returns a pointer corresponding to the standard button \a which,
+    Returns the QPushButton corresponding to the standard button \a which,
     or 0 if the standard button doesn't exist in this button box.
 
-    If there are several occurrences of \a which in the box (which
-    happens if you call addButton(\a which) several times), it is not
-    specified which button is returned.
-
-    \sa standardButtons, buttons()
+    \sa standardButton(), standardButtons(), buttons()
 */
 QPushButton *QDialogButtonBox::button(StandardButton which) const
 {
     Q_D(const QDialogButtonBox);
     return d->standardButtonHash.key(which);
+}
+
+/*!
+    Returns the standard button enum value corresponding to the given \a button,
+    or NoButton if the given \a button isn't a standard button.
+
+    \sa button(), buttons(), standardButtons()
+*/
+QDialogButtonBox::StandardButton QDialogButtonBox::standardButton(QAbstractButton *button) const
+{
+    Q_D(const QDialogButtonBox);
+    return d->standardButtonHash.value(static_cast<QPushButton *>(button));
 }
 
 void QDialogButtonBoxPrivate::_q_handleButtonClicked()
