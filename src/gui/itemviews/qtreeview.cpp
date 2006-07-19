@@ -2499,6 +2499,7 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
             ++it;
         }
     }
+    qSort(toBeExpanded.begin(), toBeExpanded.end(), qGreater<int>());
     for (int i = 0; i < toBeExpanded.count(); ++i)
         expand(toBeExpanded.at(i), false);
 }
