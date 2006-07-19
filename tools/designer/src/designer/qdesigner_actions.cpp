@@ -38,7 +38,6 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QMessageBoxEx>
 #include <QtGui/QIcon>
 
 #include <QtCore/QLibraryInfo>
@@ -506,7 +505,7 @@ bool QDesignerActions::openForm()
         if (fi.exists())
             break;
 
-        QMessageBoxEx::warning(core()->topLevel(), tr("Open"), tr("%1\nFile not found.\nPlease verify the "
+        QMessageBox::warning(core()->topLevel(), tr("Open"), tr("%1\nFile not found.\nPlease verify the "
                                 "correct file name was given.").arg(fi.fileName()));
         //dir = fi.absolutePath();
         dir = fileName;
@@ -535,8 +534,8 @@ bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
         if (!fi.exists())
             break;
 
-        if (QMessageBoxEx::warning(fw, tr("Save"), tr("%1 already exists.\nDo you want to replace it?")
-                    .arg(fi.fileName()), QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::Yes)
+        if (QMessageBox::warning(fw, tr("Save"), tr("%1 already exists.\nDo you want to replace it?")
+                    .arg(fi.fileName()), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
             break;
 
         dir = saveFile;
