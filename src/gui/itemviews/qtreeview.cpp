@@ -2036,7 +2036,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
 
     q->setState(QAbstractItemView::ExpandingState);
     const QModelIndex index = viewItems.at(item).index;
-        expandedIndexes.append(index);
+    expandedIndexes.append(index);
     viewItems[item].expanded = true;
     layout(item);
     if (model->hasChildren(index))
@@ -2481,22 +2481,26 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
     if (!model)
         return;
     // ### optimize
-    QVector<QPersistentModelIndex> o = expandedIndexes;
-    for (int j = 0; j < o.count(); ++j) {
-        QModelIndex index = o.at(j);
-        if (!index.isValid()){
-            int k = expandedIndexes.indexOf(index);
-            if (k >= 0)
-                expandedIndexes.remove(k);
+    QVector<int> toBeExpanded;
+    QVector<QPersistentModelIndex>::iterator it;
+    for (it = expandedIndexes.begin(); it != expandedIndexes.end(); ) {
+        QModelIndex index = *it;
+        if (!index.isValid()) {
+            it = expandedIndexes.erase(it);
         } else if (model->parent(index) == parent) {
             int v = viewIndex(index);
-            if (v < 0)
-                continue;
-            int k = expandedIndexes.indexOf(index);
-            expandedIndexes.remove(k);
-            expand(v, false);
+            if (v >= 0) {
+                toBeExpanded.append(v);
+                it = expandedIndexes.erase(it);
+            } else {
+                ++it;
+            }
+        } else {
+            ++it;
         }
     }
+    for (int i = 0; i < toBeExpanded.count(); ++i)
+        expand(toBeExpanded.at(i), false);
 }
 
 void QTreeViewPrivate::updateScrollBars()
