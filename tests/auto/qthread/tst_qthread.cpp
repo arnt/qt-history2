@@ -16,7 +16,9 @@
 #include <qtimer.h>
 #include <qwaitcondition.h>
 
-
+#ifdef Q_OS_UNIX
+#include <pthread.h>
+#endif
 #ifdef Q_OS_WIN
 #include <process.h>
 #include <windows.h>
@@ -538,16 +540,21 @@ void *testThreadAdoptionUnix(void *)
     return 0;
 }
 
+/*
+
+*/
 void tst_QThread::nativeThreadAdoption()
 {
     threadAdoptedOk = false;
 #ifdef Q_OS_UNIX
     pthread_t thread;
-    pthread_create(&thread, 0, testThreadAdoptionUnix, 0);
+    const int state = pthread_create(&thread, 0, testThreadAdoptionUnix, 0);
+    QCOMPARE(state, 0);
     pthread_join(thread, 0);
 #elif defined Q_OS_WIN
     HANDLE thread;
     thread = (HANDLE)_beginthread(testThreadAdoptionWin, 0, NULL);
+    QVERIFY(thread);
     WaitForSingleObject(thread, INFINITE);
 #endif
 	QVERIFY(threadAdoptedOk);
