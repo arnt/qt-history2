@@ -1958,7 +1958,7 @@ const QMatrix &QPainter::worldMatrix() const
 
     Use setWorldMatrix() instead.
 
-    \se setWorldMatrix()
+    \sa setWorldMatrix()
 */
 
 void QPainter::setMatrix(const QMatrix &matrix, bool combine)
