@@ -76,6 +76,8 @@ private slots:
     void mapFromScenePath();
     void sendEvent();
     void cursor();
+    void transformationAnchor();
+    void resizeAnchor();
 };
 
 void tst_QGraphicsView::construction()
@@ -101,6 +103,8 @@ void tst_QGraphicsView::construction()
     QCOMPARE(view.mapFromScene(QPointF()), QPoint());
     QCOMPARE(view.mapFromScene(QRectF()), QPolygon());
     QCOMPARE(view.mapFromScene(QPolygonF()), QPolygon());
+    QCOMPARE(view.transformationAnchor(), QGraphicsView::AnchorViewCenter);
+    QCOMPARE(view.resizeAnchor(), QGraphicsView::NoAnchor);
     view.show();
     QTest::qWait(25);
 }
@@ -1412,6 +1416,86 @@ void tst_QGraphicsView::cursor()
 
     qApp->processEvents();
     QCOMPARE(view.viewport()->cursor().shape(), Qt::PointingHandCursor);
+}
+
+void tst_QGraphicsView::transformationAnchor()
+{
+    QGraphicsScene scene(-1000, -1000, 2000, 2000);
+    scene.addRect(QRectF(-50, -50, 100, 100), QPen(Qt::black), QBrush(Qt::blue));
+
+    QGraphicsView view(&scene);
+
+    for (int i = 0; i < 2; ++i) {
+        view.resize(100, 100);
+        view.show();
+
+        if (i == 0) {
+            QCOMPARE(view.transformationAnchor(), QGraphicsView::AnchorViewCenter);
+        } else {
+            view.setTransformationAnchor(QGraphicsView::NoAnchor);
+        }
+        view.centerOn(0, 0);
+        view.horizontalScrollBar()->setValue(100);
+        QTest::qWait(100);
+
+        QPointF center = view.mapToScene(view.viewport()->rect().center());
+
+        view.scale(10, 10);
+
+        QPointF newCenter = view.mapToScene(view.viewport()->rect().center());
+
+        if (i == 0) {
+            qreal slack = 3;
+            QVERIFY(qAbs(newCenter.x() - center.x()) < slack);
+            QVERIFY(qAbs(newCenter.y() - center.y()) < slack);
+        } else {
+            qreal slack = 0.3;
+            QVERIFY(qAbs(newCenter.x() - center.x() / 10) < slack);
+            QVERIFY(qAbs(newCenter.y() - center.y() / 10) < slack);
+        }
+    }
+}
+
+void tst_QGraphicsView::resizeAnchor()
+{
+    QGraphicsScene scene(-1000, -1000, 2000, 2000);
+    scene.addRect(QRectF(-50, -50, 100, 100), QPen(Qt::black), QBrush(Qt::blue));
+
+    QGraphicsView view(&scene);
+
+    for (int i = 0; i < 2; ++i) {
+        view.resize(100, 100);
+        view.show();
+
+        if (i == 0) {
+            QCOMPARE(view.resizeAnchor(), QGraphicsView::NoAnchor);
+        } else {
+            view.setResizeAnchor(QGraphicsView::AnchorViewCenter);
+        }
+        view.centerOn(0, 0);
+        QTest::qWait(100);
+        
+        QPointF f = view.mapToScene(50, 50);
+        QPointF center = view.mapToScene(view.viewport()->rect().center());
+        
+        QTest::qWait(100);
+        
+        for (int size = 200; size <= 400; size += 25) {
+            view.resize(size, size);
+            if (i == 0) {
+                QCOMPARE(view.mapToScene(50, 50), f);
+                QVERIFY(view.mapToScene(view.viewport()->rect().center()) != center);
+            } else {
+                QVERIFY(view.mapToScene(50, 50) != f);
+
+                QPointF newCenter = view.mapToScene(view.viewport()->rect().center());
+                int slack = 3;
+                QVERIFY(qAbs(newCenter.x() - center.x()) < slack);
+                QVERIFY(qAbs(newCenter.y() - center.y()) < slack);
+            }
+            QTest::qWait(100);
+        }
+    }
 }
 
 QTEST_MAIN(tst_QGraphicsView)
