@@ -748,7 +748,7 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr)
 {
     if(px.data->cg_mask) {
         if(px.data->cg_mask_rect == sr) {
-            CGImageRetain(px.data->cg_mask);
+            CGImageRetain(px.data->cg_mask); //reference for the caller
             return px.data->cg_mask;
         }
         CGImageRelease(px.data->cg_mask);
@@ -768,6 +768,7 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px, const QRectF &sr)
     QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(dptr, dptr, nbytes, qt_mac_cgimage_data_free);
     px.data->cg_mask = CGImageMaskCreate(sw, sh, 8, 8, nbytes / sh, provider, 0, 0);
     px.data->cg_mask_rect = sr;
+    CGImageRetain(px.data->cg_mask); //reference for the caller
     return px.data->cg_mask;
 }
 
