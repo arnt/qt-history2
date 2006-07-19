@@ -39,9 +39,9 @@ void MainWindow::openImage(const QString &path)
     if (!fileName.isEmpty()) {
         QPixmap newImage;
         if (!newImage.load(fileName)) {
-            QMessageBoxEx::warning(this, tr("Open Image"),
+            QMessageBox::warning(this, tr("Open Image"),
                                  tr("The image file could not be loaded."),
-                                 QMessageBoxEx::Cancel);
+                                 QMessageBox::Cancel);
             return;
         }
         puzzleImage = newImage;
@@ -51,10 +51,10 @@ void MainWindow::openImage(const QString &path)
 
 void MainWindow::setCompleted()
 {
-    QMessageBoxEx::information(this, tr("Puzzle Completed"),
+    QMessageBox::information(this, tr("Puzzle Completed"),
         tr("Congratulations! You have completed the puzzle!\n"
            "Click OK to start again."),
-        QMessageBoxEx::Ok);
+        QMessageBox::Ok);
 
     setupPuzzle();
 }

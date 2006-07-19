@@ -15,7 +15,7 @@
 #include <QAction>
 #include <QAxFactory>
 #include <QMenuBar>
-#include <QMessageBoxEx>
+#include <QMessageBox>
 #include <QTextEdit>
 #include <QPixmap>
 
@@ -140,11 +140,11 @@ void QMenus::editAdvancedStyle()
 
 void QMenus::helpAbout()
 {
-    QMessageBoxEx::about(this, "About QMenus", 
+    QMessageBox::about(this, "About QMenus", 
 			"This example implements an in-place ActiveX control with menus and status messages.");
 }
 
 void QMenus::helpAboutQt()
 {
-    QMessageBoxEx::aboutQt(this);
+    QMessageBox::aboutQt(this);
 }

@@ -114,12 +114,12 @@ void MainWindow::printImage()
 {
     if (model->rowCount(QModelIndex())*model->columnCount(QModelIndex())
         > 90000) {
-	    QMessageBoxEx::StandardButton answer;
-	    answer = QMessageBoxEx::question(this, tr("Large Image Size"),
+	    QMessageBox::StandardButton answer;
+	    answer = QMessageBox::question(this, tr("Large Image Size"),
             tr("The printed image may be very large. Are you sure that "
                "you want to print it?"),
-            QMessageBoxEx::Yes | QMessageBoxEx::No);
-        if (answer == QMessageBoxEx::No)
+            QMessageBox::Yes | QMessageBox::No);
+        if (answer == QMessageBox::No)
             return;
     }
 
@@ -179,14 +179,14 @@ void MainWindow::printImage()
     painter.end();
 
     if (progress.wasCanceled()) {
-        QMessageBoxEx::information(this, tr("Printing canceled"),
-            tr("The printing process was canceled."), QMessageBoxEx::Cancel);
+        QMessageBox::information(this, tr("Printing canceled"),
+            tr("The printing process was canceled."), QMessageBox::Cancel);
     }
 }
 
 void MainWindow::showAboutBox()
 {
-    QMessageBoxEx::about(this, tr("About the Pixelator example"),
+    QMessageBox::about(this, tr("About the Pixelator example"),
         tr("This example demonstrates how a standard view and a custom\n"
            "delegate can be used to produce a specialized representation\n"
            "of data in a simple custom model."));

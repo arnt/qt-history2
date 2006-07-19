@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
 {
     if (!QSystemTrayIcon::isSystemTrayAvailable())
-	    QMessageBoxEx::warning(0, tr("System tray is unavailable"), 
+	    QMessageBox::warning(0, tr("System tray is unavailable"), 
                                    tr("System tray unavailable"));
 
     // Create the menu that will be used for the context menu

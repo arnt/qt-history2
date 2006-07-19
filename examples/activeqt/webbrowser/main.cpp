@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <QApplication>
-#include <QMessageBoxEx>
+#include <QMessageBox>
 #include <QProgressBar>
 #include <QStatusBar>
 #include <QMainWindow>
@@ -117,7 +117,7 @@ void MainWindow::on_actionNewWindow_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBoxEx::about(this, tr("About WebBrowser"),
+    QMessageBox::about(this, tr("About WebBrowser"),
 		tr("This Example has been created using the ActiveQt integration into Qt Designer.\n"
 		   "It demonstrates the use of QAxWidget to embed the Internet Explorer ActiveX\n"
 		   "control into a Qt application."));
@@ -125,7 +125,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionAboutQt_triggered()
 {
-    QMessageBoxEx::aboutQt(this, tr("About Qt"));
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
 

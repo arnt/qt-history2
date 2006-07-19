@@ -60,7 +60,7 @@ void TableEditor::submit()
         model->database().commit();
     } else {
         model->database().rollback();
-        QMessageBoxEx::warning(this, tr("Cached Table"),
+        QMessageBox::warning(this, tr("Cached Table"),
                              tr("The database reported an error: %1")
                              .arg(model->lastError().text()));
     }

@@ -92,7 +92,7 @@ bool XbelHandler::characters(const QString &str)
 
 bool XbelHandler::fatalError(const QXmlParseException &exception)
 {
-    QMessageBoxEx::information(treeWidget->window(), QObject::tr("SAX Bookmarks"),
+    QMessageBox::information(treeWidget->window(), QObject::tr("SAX Bookmarks"),
                              QObject::tr("Parse error at line %1, column %2:\n"
                                          "%3")
                              .arg(exception.lineNumber())

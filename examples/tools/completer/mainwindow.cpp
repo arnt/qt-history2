@@ -216,7 +216,7 @@ void MainWindow::useComboBox(bool combo)
 
 void MainWindow::about()
 {
-    QMessageBoxEx::about(this, tr("About"), tr("This example demonstrates the "
+    QMessageBox::about(this, tr("About"), tr("This example demonstrates the "
         "different features of the QCompleter class."));
 }
 

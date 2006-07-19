@@ -39,7 +39,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 
 void MainWindow::about()
 {
-    QMessageBoxEx::about(this, tr("About Simple Text Viewer"),
+    QMessageBox::about(this, tr("About Simple Text Viewer"),
                          tr("This example demonstrates how to use\n" \
                             "Qt Assistant as help system for your\n" \
                             "own application."));

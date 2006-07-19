@@ -145,7 +145,7 @@ void MainWindow::setParagraphSpacing()
 void MainWindow::about()
 {
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
-    QMessageBoxEx::about(this, tr("About Menu"),
+    QMessageBox::about(this, tr("About Menu"),
             tr("The <b>Menu</b> example shows how to create "
                "menu-bar menus and context menus."));
 }

@@ -81,7 +81,7 @@ void Dialog::rotateWidgets()
 
 void Dialog::help()
 {
-    QMessageBoxEx::information(this, tr("Dynamic Layouts Help"),
+    QMessageBox::information(this, tr("Dynamic Layouts Help"),
                                tr("This example shows how to change layouts "
                                   "dynamically."));
 }

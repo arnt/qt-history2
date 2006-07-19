@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::about()
 {
-    QMessageBoxEx::about(this, tr("About Syntax Highlighter"),
+    QMessageBox::about(this, tr("About Syntax Highlighter"),
                 tr("<p>The <b>Syntax Highlighter</b> example shows how " \
                    "to perform simple syntax highlighting by subclassing " \
                    "the QSyntaxHighlighter class and describing " \

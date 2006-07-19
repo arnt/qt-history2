@@ -302,7 +302,7 @@ void MainWindow::torrentError(TorrentClient::Error)
     jobs.removeAt(row);
 
     // Display the warning.
-    QMessageBoxEx::warning(this, tr("Error"),
+    QMessageBox::warning(this, tr("Error"),
                          tr("An error occurred while downloading %0: %1")
                          .arg(fileName)
                          .arg(client->errorString()));
@@ -317,7 +317,7 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
     // Check if the torrent is already being downloaded.
     foreach (Job job, jobs) {
         if (job.torrentFileName == fileName && job.destinationDirectory == destinationFolder) {
-            QMessageBoxEx::warning(this, tr("Already downloading"),
+            QMessageBox::warning(this, tr("Already downloading"),
                                  tr("The torrent file you have selected is "
                                     "already being downloaded."));
             return false;
@@ -327,7 +327,7 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
     // Create a new torrent client and attempt to parse the torrent data.
     TorrentClient *client = new TorrentClient(this);
     if (!client->setTorrent(fileName)) {
-        QMessageBoxEx::warning(this, tr("Error"),
+        QMessageBox::warning(this, tr("Error"),
                              tr("The torrent file you have selected can not be opened."));
         delete client;
         return false;

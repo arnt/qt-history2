@@ -39,7 +39,7 @@ bool XbelTree::read(QIODevice *device)
 
     if (!domDocument.setContent(device, true, &errorStr, &errorLine,
                                 &errorColumn)) {
-        QMessageBoxEx::information(window(), tr("DOM Bookmarks"),
+        QMessageBox::information(window(), tr("DOM Bookmarks"),
                                  tr("Parse error at line %1, column %2:\n%3")
                                  .arg(errorLine)
                                  .arg(errorColumn)
@@ -49,12 +49,12 @@ bool XbelTree::read(QIODevice *device)
 
     QDomElement root = domDocument.documentElement();
     if (root.tagName() != "xbel") {
-        QMessageBoxEx::information(window(), tr("DOM Bookmarks"),
+        QMessageBox::information(window(), tr("DOM Bookmarks"),
                                  tr("The file is not an XBEL file."));
         return false;
     } else if (root.hasAttribute("version")
                && root.attribute("version") != "1.0") {
-        QMessageBoxEx::information(window(), tr("DOM Bookmarks"),
+        QMessageBox::information(window(), tr("DOM Bookmarks"),
                                  tr("The file is not an XBEL version 1.0 "
                                     "file."));
         return false;

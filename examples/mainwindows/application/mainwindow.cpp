@@ -80,7 +80,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::about()
 {
-   QMessageBoxEx::about(this, tr("About Application"),
+   QMessageBox::about(this, tr("About Application"),
             tr("The <b>Application</b> example demonstrates how to "
                "write modern GUI applications using Qt, with a menu bar, "
                "toolbars, and a status bar."));
@@ -210,14 +210,14 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (textEdit->document()->isModified()) {
-        QMessageBoxEx::StandardButton ret;
-        ret = QMessageBoxEx::warning(this, tr("Application"),
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, tr("Application"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
-                     QMessageBoxEx::Save | QMessageBoxEx::Discard | QMessageBoxEx::Cancel);
-        if (ret == QMessageBoxEx::Save)
+                     QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        if (ret == QMessageBox::Save)
             return save();
-        else if (ret == QMessageBoxEx::Cancel)
+        else if (ret == QMessageBox::Cancel)
             return false;
     }
     return true;
@@ -227,7 +227,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -247,7 +247,7 @@ bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));

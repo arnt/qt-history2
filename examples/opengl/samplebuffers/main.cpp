@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <QtGui/QApplication>
-#include <QtGui/QMessageBoxEx>
+#include <QtGui/QMessageBox>
 #include "glwidget.h"
 
 int main(int argc, char **argv)
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     f.setSampleBuffers(true);
     QGLFormat::setDefaultFormat(f);
     if (!QGLFormat::hasOpenGL()) {
-	QMessageBoxEx::information(0, "OpenGL samplebuffers",
+	QMessageBox::information(0, "OpenGL samplebuffers",
 				 "This system does not support OpenGL.");
         return 0;
     }
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     GLWidget widget(0);
 
     if (!widget.format().sampleBuffers()) {
-	QMessageBoxEx::information(0, "OpenGL samplebuffers",
+	QMessageBox::information(0, "OpenGL samplebuffers",
 				 "This system does not have sample buffer support.");
         return 0;
     }

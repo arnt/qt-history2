@@ -74,7 +74,7 @@ void MainWindow::penWidth()
 
 void MainWindow::about()
 {
-    QMessageBoxEx::about(this, tr("About Scribble"),
+    QMessageBox::about(this, tr("About Scribble"),
             tr("<p>The <b>Scribble</b> example shows how to use QMainWindow as the "
                "base widget for an application, and how to reimplement some of "
                "QWidget's event handlers to receive the events generated for "
@@ -159,15 +159,15 @@ void MainWindow::createMenus()
 bool MainWindow::maybeSave()
 {
     if (scribbleArea->isModified()) {
-       QMessageBoxEx::StandardButton ret;
-       ret = QMessageBoxEx::warning(this, tr("Scribble"),
+       QMessageBox::StandardButton ret;
+       ret = QMessageBox::warning(this, tr("Scribble"),
                           tr("The image has been modified.\n"
                              "Do you want to save your changes?"),
-                          QMessageBoxEx::Save | QMessageBoxEx::Discard
-			  | QMessageBoxEx::Cancel);
-        if (ret == QMessageBoxEx::Save) {
+                          QMessageBox::Save | QMessageBox::Discard
+			  | QMessageBox::Cancel);
+        if (ret == QMessageBox::Save) {
             return saveFile("png");
-        } else if (ret == QMessageBoxEx::Cancel) {
+        } else if (ret == QMessageBox::Cancel) {
             return false;
         }
     }

@@ -37,7 +37,7 @@ bool MdiChild::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("MDI"),
+        QMessageBox::warning(this, tr("MDI"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -80,7 +80,7 @@ bool MdiChild::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("MDI"),
+        QMessageBox::warning(this, tr("MDI"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -118,16 +118,16 @@ void MdiChild::documentWasModified()
 bool MdiChild::maybeSave()
 {
     if (document()->isModified()) {
-	QMessageBoxEx::StandardButton ret;
-        ret = QMessageBoxEx::warning(this, tr("MDI"),
+	QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, tr("MDI"),
                      tr("'%1' has been modified.\n"
                         "Do you want to save your changes?")
                      .arg(userFriendlyCurrentFile()),
-                     QMessageBoxEx::Save | QMessageBoxEx::Discard
-		     | QMessageBoxEx::Cancel);
-        if (ret == QMessageBoxEx::Save)
+                     QMessageBox::Save | QMessageBox::Discard
+		     | QMessageBox::Cancel);
+        if (ret == QMessageBox::Save)
             return save();
-        else if (ret == QMessageBoxEx::Cancel)
+        else if (ret == QMessageBox::Cancel)
             return false;
     }
     return true;

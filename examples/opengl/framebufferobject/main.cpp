@@ -12,14 +12,14 @@
 ****************************************************************************/
 
 #include <QtGui/QApplication>
-#include <QtGui/QMessageBoxEx>
+#include <QtGui/QMessageBox>
 #include "glwidget.h"
 
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
     if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-	QMessageBoxEx::information(0, "OpenGL framebuffer objects",
+	QMessageBox::information(0, "OpenGL framebuffer objects",
 				 "This system does not support OpenGL/framebuffer objects.");
         return -1;
     }

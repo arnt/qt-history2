@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <QApplication>
-#include <QMessageBoxEx>
+#include <QMessageBox>
 #include <QTimer>
 #include <QWSServer>
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         qFatal("No mouse handler installed");
 
     {
-        QMessageBoxEx message;
+        QMessageBox message;
         message.setText("<p>Please press once at each of the marks "
                         "shown in the next screen.</p>"
                         "<p>This messagebox will timout after 10 seconds "
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     cal.exec();
 
     {
-        QMessageBoxEx message;
+        QMessageBox message;
         message.setText("<p>The next screen will let you test the calibration "
                         "by drawing into a widget.</p><p>This program will "
                         "automaticly close after 20 seconds.<p>");

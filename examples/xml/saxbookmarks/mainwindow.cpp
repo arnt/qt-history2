@@ -54,7 +54,7 @@ void MainWindow::open()
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("SAX Bookmarks"),
+        QMessageBox::warning(this, tr("SAX Bookmarks"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -77,7 +77,7 @@ void MainWindow::saveAs()
 
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBoxEx::warning(this, tr("SAX Bookmarks"),
+        QMessageBox::warning(this, tr("SAX Bookmarks"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -91,7 +91,7 @@ void MainWindow::saveAs()
 
 void MainWindow::about()
 {
-   QMessageBoxEx::about(this, tr("About SAX Bookmarks"),
+   QMessageBox::about(this, tr("About SAX Bookmarks"),
             tr("The <b>SAX Bookmarks</b> example demonstrates how to use Qt's "
                "SAX classes to read XML documents and how to generate XML by "
                "hand."));

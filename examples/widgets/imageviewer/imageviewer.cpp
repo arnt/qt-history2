@@ -41,7 +41,7 @@ void ImageViewer::open()
     if (!fileName.isEmpty()) {
         QImage image(fileName);
         if (image.isNull()) {
-            QMessageBoxEx::information(this, tr("Image Viewer"),
+            QMessageBox::information(this, tr("Image Viewer"),
                                      tr("Cannot load %1.").arg(fileName));
             return;
         }
@@ -101,7 +101,7 @@ void ImageViewer::fitToWindow()
 
 void ImageViewer::about()
 {
-    QMessageBoxEx::about(this, tr("About Image Viewer"),
+    QMessageBox::about(this, tr("About Image Viewer"),
             tr("<p>The <b>Image Viewer</b> example shows how to combine QLabel "
                "and QScrollArea to display an image. QLabel is typically used "
                "for displaying a text, but it can also display an image. "

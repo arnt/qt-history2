@@ -40,7 +40,7 @@ void MainWindow::open()
     if (!fileName.isEmpty()) {
         QFile file(fileName);
         if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBoxEx::warning(this, tr("Codecs"),
+            QMessageBox::warning(this, tr("Codecs"),
                                  tr("Cannot read file %1:\n%2")
                                  .arg(fileName)
                                  .arg(file.errorString()));
@@ -61,7 +61,7 @@ void MainWindow::save()
     if (!fileName.isEmpty()) {
         QFile file(fileName);
         if (!file.open(QFile::WriteOnly | QFile::Text)) {
-            QMessageBoxEx::warning(this, tr("Codecs"),
+            QMessageBox::warning(this, tr("Codecs"),
                                  tr("Cannot write file %1:\n%2")
                                  .arg(fileName)
                                  .arg(file.errorString()));
@@ -79,7 +79,7 @@ void MainWindow::save()
 
 void MainWindow::about()
 {
-    QMessageBoxEx::about(this, tr("About Codecs"),
+    QMessageBox::about(this, tr("About Codecs"),
             tr("The <b>Codecs</b> example demonstrates how to read and write "
                "files using various encodings."));
 }

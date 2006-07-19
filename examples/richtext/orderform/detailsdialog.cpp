@@ -102,12 +102,12 @@ void DetailsDialog::verify()
         return;
     }
 
-    QMessageBoxEx::StandardButton answer;
-    answer = QMessageBoxEx::warning(this, tr("Incomplete Form"),
+    QMessageBox::StandardButton answer;
+    answer = QMessageBox::warning(this, tr("Incomplete Form"),
         tr("The form does not contain all the necessary information.\n"
            "Do you want to discard it?"),
-        QMessageBoxEx::Yes | QMessageBoxEx::No);
+        QMessageBox::Yes | QMessageBox::No);
 
-    if (answer == QMessageBoxEx::Yes)
+    if (answer == QMessageBox::Yes)
         reject();
 }
