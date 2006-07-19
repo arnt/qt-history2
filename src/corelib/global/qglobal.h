@@ -544,6 +544,8 @@
 
 /*
    Size-dependent types (architechture-dependent byte order)
+
+   Make sure to update QMetaType when changing these typedefs
 */
 
 typedef signed char qint8;         /* 8 bit signed */

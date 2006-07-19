@@ -40,6 +40,7 @@ private slots:
     void typeName_data();
     void typeName();
     void construct();
+    void typedefs();
 };
 
 struct Foo { int i; };
@@ -131,7 +132,7 @@ void tst_QMetaType::properties()
 
     QVariant v = property("prop");
 
-    QCOMPARE(v.typeName(), "QList<QVariant>");
+    QCOMPARE(v.typeName(), "QVariantList");
 
     QList<QVariant> values = v.toList();
     QCOMPARE(values.count(), 2);
@@ -203,6 +204,18 @@ void tst_QMetaType::construct()
     QVERIFY(size);
     QCOMPARE(static_cast<QSize *>(size)->width(), 1);
     QMetaType::destroy(QMetaType::QSize, size);
+}
+
+void tst_QMetaType::typedefs()
+{
+    QCOMPARE(QMetaType::type("qint8"), int(QMetaType::Char));
+    QCOMPARE(QMetaType::type("quint8"), int(QMetaType::UChar));
+    QCOMPARE(QMetaType::type("qint16"), int(QMetaType::Short));
+    QCOMPARE(QMetaType::type("quint16"), int(QMetaType::UShort));
+    QCOMPARE(QMetaType::type("qint32"), int(QMetaType::Int));
+    QCOMPARE(QMetaType::type("quint32"), int(QMetaType::UInt));
+    QCOMPARE(QMetaType::type("qint64"), int(QMetaType::LongLong));
+    QCOMPARE(QMetaType::type("quint64"), int(QMetaType::ULongLong));
 }
 
 QTEST_MAIN(tst_QMetaType)
