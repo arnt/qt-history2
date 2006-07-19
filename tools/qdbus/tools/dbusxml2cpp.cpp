@@ -101,7 +101,7 @@ static void showVersion()
 static QString nextArg(QStringList &args, int i, char opt)
 {
     QString arg = args.value(i);
-    if (arg.isEmpty() || arg.startsWith(QLatin1Char('-'))) {
+    if (arg.isEmpty()) {
         printf("-%c needs at least one argument\n", opt);
         exit(1);
     }
@@ -220,11 +220,12 @@ static void cleanInterfaces(QDBusIntrospection::Interfaces &interfaces)
 // produce a header name from the file name
 static QString header(const QString &name)
 {
-    if (name.isEmpty() || (name == QLatin1String("-")))
-        return QString();
-
     QStringList parts = name.split(QLatin1Char(':'));
     QString retval = parts.first();
+
+    if (retval.isEmpty() || retval == QLatin1String("-"))
+        return retval;
+
     if (!retval.endsWith(QLatin1String(".h")) && !retval.endsWith(QLatin1String(".cpp")) &&
         !retval.endsWith(QLatin1String(".cc")))
         retval.append(QLatin1String(".h"));
@@ -235,11 +236,12 @@ static QString header(const QString &name)
 // produce a cpp name from the file name
 static QString cpp(const QString &name)
 {
-    if (name.isEmpty() || name == QLatin1String("-"))
-        return QString();
-
     QStringList parts = name.split(QLatin1Char(':'));
     QString retval = parts.last();
+
+    if (retval.isEmpty() || retval == QLatin1String("-"))
+        return retval;
+
     if (!retval.endsWith(QLatin1String(".h")) && !retval.endsWith(QLatin1String(".cpp")) &&
         !retval.endsWith(QLatin1String(".cc")))
         retval.append(QLatin1String(".cpp"));
@@ -445,16 +447,30 @@ static QString stringify(const QString &data)
     return retval;
 }
 
+static void openFile(const QString &fileName, QFile &file)
+{
+    if (fileName.isEmpty())
+        return;
+
+    bool isOk = false;
+    if (fileName == QLatin1String("-")) {
+        isOk = file.open(stdout, QIODevice::WriteOnly | QIODevice::Text);
+    } else {
+        file.setFileName(fileName);
+        isOk = file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    }
+
+    if (!isOk)
+        fprintf(stderr, "Unable to open '%s': %s\n", qPrintable(fileName),
+                qPrintable(file.errorString()));
+}
+
 static void writeProxy(const QString &filename, const QDBusIntrospection::Interfaces &interfaces)
 {
     // open the file
     QString headerName = header(filename);
-    QFile file(headerName);
-    if (!headerName.isEmpty())
-        file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-    else
-        file.open(stdout, QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream hs(&file);
+    QByteArray headerData;
+    QTextStream hs(&headerData);
 
     QString cppName = cpp(filename);
     QByteArray cppData;
@@ -462,10 +478,12 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
     // write the header:
     writeHeader(hs, true);
+    if (cppName != headerName)
+        writeHeader(cs, false);
 
     // include guards:
     QString includeGuard;
-    if (!headerName.isEmpty()) {
+    if (!headerName.isEmpty() && headerName != QLatin1String("-")) {
         includeGuard = headerName.toUpper().replace(QLatin1Char('.'), QLatin1Char('_'));
         int pos = includeGuard.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
@@ -486,15 +504,17 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
        << includeList
        << "#include <QtDBus/QtDBus>" << endl;
 
-    foreach (QString include, includes)
+    foreach (QString include, includes) {
         hs << "#include \"" << include << "\"" << endl;
+        if (headerName.isEmpty())
+            cs << "#include \"" << include << "\"" << endl;
+    }
 
     hs << endl;
 
     if (cppName != headerName) {
-        writeHeader(cs, false);
-        cs << "#include \"" << headerName << "\"" << endl
-           << endl;
+        if (!headerName.isEmpty() && headerName != QLatin1String("-"))
+            cs << "#include \"" << headerName << "\"" << endl << endl;
     }
 
     foreach (const QDBusIntrospection::Interface *interface, interfaces) {
@@ -718,13 +738,17 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
     cs.flush();
     hs.flush();
-    if (headerName == cppName)
+
+    QFile file;
+    openFile(headerName, file);
+    file.write(headerData);
+
+    if (headerName == cppName) {
         file.write(cppData);
-    else {
-        // write to cpp file
-        QFile f(cppName);
-        f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-        f.write(cppData);
+    } else {
+        QFile cppFile;
+        openFile(cppName, cppFile);
+        cppFile.write(cppData);
     }
 }
 
@@ -732,12 +756,8 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
 {
     // open the file
     QString headerName = header(filename);
-    QFile file(headerName);
-    if (!headerName.isEmpty())
-        file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-    else
-        file.open(stdout, QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream hs(&file);
+    QByteArray headerData;
+    QTextStream hs(&headerData);
 
     QString cppName = cpp(filename);
     QByteArray cppData;
@@ -745,10 +765,12 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
 
     // write the headers
     writeHeader(hs, false);
+    if (cppName != headerName)
+        writeHeader(cs, true);
 
     // include guards:
     QString includeGuard;
-    if (!headerName.isEmpty()) {
+    if (!headerName.isEmpty() && headerName != QLatin1String("-")) {
         includeGuard = headerName.toUpper().replace(QLatin1Char('.'), QLatin1Char('_'));
         int pos = includeGuard.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
@@ -771,13 +793,17 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
            << "#include <QtCore/QVariant>" << endl;
     hs << "#include <QtDBus/QtDBus>" << endl;
 
-    foreach (QString include, includes)
+    foreach (QString include, includes) {
         hs << "#include \"" << include << "\"" << endl;
+        if (headerName.isEmpty())
+            cs << "#include \"" << include << "\"" << endl;
+    }
 
     if (cppName != headerName) {
-        writeHeader(cs, false);
-        cs << "#include \"" << headerName << "\"" << endl
-           << "#include <QtCore/QMetaObject>" << endl
+        if (!headerName.isEmpty() && headerName != QLatin1String("-"))
+            cs << "#include \"" << headerName << "\"" << endl;
+
+        cs << "#include <QtCore/QMetaObject>" << endl
            << includeList
            << endl;
         hs << forwardDeclarations;
@@ -1014,13 +1040,17 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
 
     cs.flush();
     hs.flush();
-    if (headerName == cppName)
+
+    QFile file;
+    openFile(headerName, file);
+    file.write(headerData);
+
+    if (headerName == cppName) {
         file.write(cppData);
-    else {
-        // write to cpp file
-        QFile f(cppName);
-        f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-        f.write(cppData);
+    } else {
+        QFile cppFile;
+        openFile(cppName, cppFile);
+        cppFile.write(cppData);
     }
 }
 
