@@ -761,8 +761,6 @@ void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
     Returns true if the screen supports the specified color \a depth;
     otherwise returns false.
 
-    Possible values are 1,4,8,16 and 32.
-
     \sa clut()
 */
 
