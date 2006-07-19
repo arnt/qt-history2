@@ -4977,7 +4977,9 @@ bool QImage::hasAlphaChannel() const
 {
     return d && (d->format == Format_ARGB32_Premultiplied
                  || d->format == Format_ARGB32
-                 || (d->format == Format_Indexed8 && d->has_alpha_clut));
+                 || (d->has_alpha_clut && (d->format == Format_Indexed8
+                                           || d->format == Format_Mono
+                                           || d->format == Format_MonoLSB)));
 }
 
 

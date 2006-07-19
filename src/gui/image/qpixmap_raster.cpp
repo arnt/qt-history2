@@ -408,7 +408,9 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
     switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
-        pixmap.data->image = image.convertToFormat(QImage::Format_RGB32);
+        pixmap.data->image = image.hasAlphaChannel()
+                             ? image.convertToFormat(QImage::Format_ARGB32_Premultiplied)
+                             : image.convertToFormat(QImage::Format_RGB32);
         break;
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32_Premultiplied:
