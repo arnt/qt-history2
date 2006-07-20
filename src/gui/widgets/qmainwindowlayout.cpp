@@ -22,6 +22,7 @@
 #include "qmainwindow.h"
 #include "qtoolbar.h"
 #include "qwidgetanimator_p.h"
+#include "qrubberband.h"
 
 #include <qapplication.h>
 #include <qdebug.h>
@@ -164,29 +165,28 @@ public:
 QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     : QLayout(mainwindow), statusbar(0)
 #ifndef QT_NO_DOCKWIDGET
-    , dockWidgetLayout(mainwindow, new QWidgetAnimator(this)),
-    savedDockWidgetLayout(mainwindow, dockWidgetLayout.widgetAnimator)
+    , dockWidgetLayout(mainwindow), savedDockWidgetLayout(mainwindow)
 #endif
 #ifndef QT_NO_TOOLBAR
       , save_tb_layout_info(0)
 #endif
 {
 #ifndef QT_NO_DOCKWIDGET
+    gapIndicator = new QRubberBand(QRubberBand::Rectangle, mainwindow);
+    gapIndicator->hide();
     pluggingWidget = 0;
     dockNestingEnabled = false;
     animationEnabled = true;
-    widgetAnimator = dockWidgetLayout.widgetAnimator;
     separatorMoveTimer = new QTimer(this);
     separatorMoveTimer->setSingleShot(true);
     separatorMoveTimer->setInterval(0);
     connect(separatorMoveTimer, SIGNAL(timeout()), this, SLOT(doSeparatorMove()));
+    widgetAnimator = new QWidgetAnimator(this);
     connect(widgetAnimator, SIGNAL(finished(QWidget*)),
             this, SLOT(animationFinished(QWidget*)), Qt::QueuedConnection);
     connect(widgetAnimator, SIGNAL(finishedAll()),
             this, SLOT(allAnimationsFinished()));
     setObjectName(mainwindow->objectName() + QLatin1String("_layout"));
-
-    widgetAnimator = dockWidgetLayout.widgetAnimator;
 #else
     centralWidgetItem = 0;
 #endif
@@ -1320,7 +1320,44 @@ void QMainWindowLayout::invalidate()
 #ifndef QT_NO_DOCKWIDGET
 void QMainWindowLayout::applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool animate)
 {
+    QSet<QTabBar*> used = newLayout.usedTabBars();
+    QSet<QTabBar*> retired = usedTabBars - used;
+    QSet<QTabBar*> fresh = used - usedTabBars;
+    usedTabBars = used;
+    foreach (QTabBar *tab_bar, retired) {
+        tab_bar->hide();
+        while (tab_bar->count() > 0)
+            tab_bar->removeTab(0);
+        unusedTabBars.append(tab_bar);
+    }
+
     newLayout.apply(animationEnabled && animate);
+}
+
+QTabBar *QMainWindowLayout::getTabBar()
+{
+    QTabBar *result = 0;
+    if (!unusedTabBars.isEmpty()) {
+        result = unusedTabBars.takeLast();
+    } else {
+        result = new QTabBar(parentWidget());
+        result->setShape(QTabBar::RoundedSouth);
+        connect(result, SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
+    }
+
+    usedTabBars.insert(result);
+    return result;
+}
+
+void QMainWindowLayout::tabChanged()
+{
+    QTabBar *tb = qobject_cast<QTabBar*>(sender());
+    if (tb == 0)
+        return;
+    QDockAreaLayoutInfo *info = dockWidgetLayout.info(tb);
+    if (info == 0)
+        return;
+    info->apply(false);
 }
 
 QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
@@ -1341,29 +1378,25 @@ QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
 
     QWidgetItem *dockWidgetItem = dockWidgetLayout.convertToGap(pathToDockWidget);
     currentGapPos = pathToDockWidget;
+    updateGapIndicator();
 
 //    dump(qDebug() << "QMainWindowLayout::unplug()", savedDockWidgetLayout);
 
     return dockWidgetItem;
 }
 
-#if 0
-static QString dumpSize(const QSize &size)
+void QMainWindowLayout::updateGapIndicator()
 {
-    return QString::number(size.width()) + 'x' + QString::number(size.height());
+    if (widgetAnimator->animating() || currentGapPos.isEmpty()) {
+        gapIndicator->hide();
+    } else {
+        QRect r = dockWidgetLayout.gapRect(currentGapPos);
+        if (gapIndicator->geometry() != r)
+            gapIndicator->setGeometry(r);
+        if (!gapIndicator->isVisible())
+            gapIndicator->show();
+    }
 }
-
-static QString dumpInfo(const QDockWidgetLayout &l)
-{
-    return
-        "top: " + dumpSize(l.docks[QDockWidgetLayout::TopPos].minimumSize())
-        + " bottom: " + dumpSize(l.docks[QDockWidgetLayout::BottomPos].minimumSize())
-        + " left: " + dumpSize(l.docks[QDockWidgetLayout::LeftPos].minimumSize())
-        + " right: " + dumpSize(l.docks[QDockWidgetLayout::RightPos].minimumSize())
-        + " center:" + dumpSize(l.centralWidgetItem->minimumSize())
-        + " total:" + dumpSize(l.minimumSize());
-}
-#endif
 
 QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &mousePos)
 {
@@ -1376,38 +1409,40 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
         savedDockWidgetLayout = dockWidgetLayout;
 
     QList<int> pathToGap = savedDockWidgetLayout.gapIndex(pos, dockNestingEnabled);
+
+//    qDebug() << "QMainWindowLayout::hover():" << pathToGap;
+
     if (pathToGap == currentGapPos)
         return currentGapPos; // the gap is already there
 
     currentGapPos = pathToGap;
-    if (!pathToGap.isEmpty()) {
-        QDockWidgetLayout newLayout = savedDockWidgetLayout;
-
-        if (!newLayout.insertGap(pathToGap, dockWidgetItem)) {
-            restore(); // not enough space
-            return QList<int>();
-        }
-        QSize min = newLayout.minimumSize();
-        QSize size = newLayout.rect.size();
-        newLayout.fitLayout();
-
-        if (min.width() > size.width() || min.height() > size.height()) {
-            restore();
-            return QList<int>();
-        }
-
-        parentWidget()->update(dockWidgetLayout.separatorRegion());
-        dockWidgetLayout = newLayout;
-        applyDockWidgetLayout(dockWidgetLayout);
-
-//        dump(qDebug() << "QMainWindowLayout::hover(3)", dockWidgetLayout);
-
-        return pathToGap;
+    if (pathToGap.isEmpty()) {
+        restore();
+        return QList<int>();
     }
 
-    restore();
-//    dump(qDebug() << "QMainWindowLayout::hover(4)", dockWidgetLayout);
-    return QList<int>();
+    QDockWidgetLayout newLayout = savedDockWidgetLayout;
+
+    if (!newLayout.insertGap(pathToGap, dockWidgetItem)) {
+        restore(); // not enough space
+        return QList<int>();
+    }
+    QSize min = newLayout.minimumSize();
+    QSize size = newLayout.rect.size();
+    newLayout.fitLayout();
+
+    if (min.width() > size.width() || min.height() > size.height()) {
+        restore();
+        return QList<int>();
+    }
+
+    parentWidget()->update(dockWidgetLayout.separatorRegion());
+    dockWidgetLayout = newLayout;
+    applyDockWidgetLayout(dockWidgetLayout);
+
+    updateGapIndicator();
+
+    return pathToGap;
 }
 
 
@@ -1417,21 +1452,23 @@ void QMainWindowLayout::plug(QWidgetItem *dockWidgetItem, const QList<int> &path
     Q_ASSERT(dockWidget != 0);
 
     QList<int> previousPath = dockWidgetLayout.indexOf(dockWidget, IndexOfFindsInvisible);
-    pluggingRect = dockWidgetLayout.convertToWidget(pathToGap, dockWidgetItem);
+    QRect gapRect = dockWidgetLayout.gapRect(pathToGap);
+    dockWidgetLayout.convertToWidget(pathToGap, dockWidgetItem);
     if (!previousPath.isEmpty())
         dockWidgetLayout.remove(previousPath);
 
     if (animationEnabled) {
         pluggingWidget = dockWidget;
-        QRect globalRect = pluggingRect;
+        QRect globalRect = gapRect;
         globalRect.moveTopLeft(parentWidget()->mapToGlobal(globalRect.topLeft()));
         widgetAnimator->animate(dockWidget, globalRect, animationEnabled);
     } else {
-        dockWidget->d_func()->plug(pluggingRect);
+        dockWidget->d_func()->plug(gapRect);
         applyDockWidgetLayout(dockWidgetLayout);
         savedDockWidgetLayout.clear();
         currentGapPos.clear();
         parentWidget()->update(dockWidgetLayout.separatorRegion());
+        updateGapIndicator();
 //        dump(qDebug() << "QMainWindowLayout::plug()", dockWidgetLayout);
     }
 }
@@ -1439,6 +1476,13 @@ void QMainWindowLayout::plug(QWidgetItem *dockWidgetItem, const QList<int> &path
 void QMainWindowLayout::allAnimationsFinished()
 {
     parentWidget()->update(dockWidgetLayout.separatorRegion());
+
+    if (!currentGapPos.isEmpty()) {
+        updateGapIndicator();
+        QDockAreaLayoutInfo *info = dockWidgetLayout.info(currentGapPos);
+        if (info->tabbed)
+            info->tabBar->show();
+    }
 }
 
 void QMainWindowLayout::animationFinished(QWidget *widget)
@@ -1446,14 +1490,19 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
     if (widget != pluggingWidget)
         return;
 
-    pluggingWidget->d_func()->plug(pluggingRect);
+    QRect gapRect = dockWidgetLayout.gapRect(currentGapPos);
+    pluggingWidget->d_func()->plug(gapRect);
 
-    applyDockWidgetLayout(dockWidgetLayout);
+    applyDockWidgetLayout(dockWidgetLayout, false);
+    QDockAreaLayoutInfo *info = dockWidgetLayout.info(widget);
+    Q_ASSERT(info != 0);
+    info->setCurrentTab(widget);
     savedDockWidgetLayout.clear();
+
     currentGapPos.clear();
     pluggingWidget = 0;
     parentWidget()->update(dockWidgetLayout.separatorRegion());
-//    dump(qDebug() << "QMainWindowLayout::animationFinished()", dockWidgetLayout);
+    updateGapIndicator();
 }
 
 void QMainWindowLayout::restore()
@@ -1465,6 +1514,7 @@ void QMainWindowLayout::restore()
     applyDockWidgetLayout(dockWidgetLayout);
     savedDockWidgetLayout.clear();
     currentGapPos.clear();
+    updateGapIndicator();
 
 //    dump(qDebug() << "QMainWindowLayout::restore()", dockWidgetLayout);
 }

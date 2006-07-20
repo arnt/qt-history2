@@ -39,7 +39,9 @@ class QDockAreaLayoutInfo;
 class QDockWidget;
 class QMainWindow;
 class QWidgetAnimator;
+class QMainWindowLayout;
 struct QLayoutStruct;
+class QTabBar;
 
 enum IndexOfFlag {
     IndexOfFindsVisible,
@@ -73,8 +75,7 @@ class QDockAreaLayoutInfo
 {
 public:
     QDockAreaLayoutInfo();
-    QDockAreaLayoutInfo(int _sep, Qt::Orientation _o,
-                                QWidgetAnimator *animator);
+    QDockAreaLayoutInfo(int _sep, Qt::Orientation _o, int tbhape, QMainWindow *window);
 
     QSize minimumSize() const;
     QSize maximumSize() const;
@@ -90,6 +91,7 @@ public:
     void split(int index, Qt::Orientation orientation, QWidgetItem *dockWidgetItem);
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
+    QDockAreaLayoutInfo *info(QWidget *widget);
 
     enum { // sentinel values used to validate state data
         Marker = 0xfc,
@@ -125,11 +127,28 @@ public:
     QLayoutItem *takeAt(int *x, int index);
     void deleteAllLayoutItems();
 
+    QMainWindowLayout *mainWindowLayout() const;
+
     int sep;
     Qt::Orientation o;
     QRect rect;
-    QWidgetAnimator *widgetAnimator;
+    QMainWindow *mainWindow;
     QList<QDockAreaLayoutItem> item_list;
+
+    quintptr currentTabId() const;
+    void setCurrentTab(QWidget *widget);
+    void setCurrentTabId(quintptr id);
+    QRect tabContentRect() const;
+    bool tabbed;
+    QTabBar *tabBar;
+    QSize tabBarMin, tabBarHint;
+    int tabBarShape;
+
+    void updateTabBar() const;
+    QSize tabBarMinimumSize() const;
+    QSize tabBarSizeHint() const;
+
+    QSet<QTabBar*> usedTabBars() const;
 };
 
 // utilities
@@ -180,16 +199,17 @@ public:
         RightPos,
         TopPos,
         BottomPos,
-        PosCount
+        PosCount,
+        CenterPos = PosCount
     };
     enum { EmptyDropAreaSize = 80 }; // when a dock area is empty, how "wide" is it?
 
     Qt::DockWidgetArea corners[4]; // use a Qt::Corner for indexing
     QRect rect;
     QWidgetItem *centralWidgetItem;
-    QWidgetAnimator *widgetAnimator;
+    QMainWindow *mainWindow;
     QRect centralWidgetRect;
-    QDockWidgetLayout(QMainWindow *win, QWidgetAnimator *animator);
+    QDockWidgetLayout(QMainWindow *win);
     QDockAreaLayoutInfo docks[4];
     int sep; // separator extent
 
@@ -205,6 +225,7 @@ public:
 
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
+    QDockAreaLayoutInfo *info(QWidget *widget);
     QRect itemRect(QList<int> path) const;
     QRect separatorRect(int index) const;
     QRect separatorRect(QList<int> path) const;
@@ -241,6 +262,10 @@ public:
                     QVector<QLayoutStruct> *hor_struct_list);
     void setGrid(QVector<QLayoutStruct> *ver_struct_list,
                     QVector<QLayoutStruct> *hor_struct_list);
+
+    QRect gapRect(QList<int> path);
+
+    QSet<QTabBar*> usedTabBars() const;
 };
 
 // void dump(QDebug debug, const QDockWidgetLayout &layout);

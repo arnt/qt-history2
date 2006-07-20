@@ -277,6 +277,8 @@ void MainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
+    QAction *action = fileMenu->addAction(tr("Switch layout direction"));
+    connect(action, SIGNAL(triggered()), this, SLOT(switchLayoutDirection()));
     fileMenu->addAction(exitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -344,4 +346,12 @@ MdiChild *MainWindow::findMdiChild(const QString &fileName)
             return mdiChild;
     }
     return 0;
+}
+
+void MainWindow::switchLayoutDirection()
+{
+    if (layoutDirection() == Qt::LeftToRight)
+        qApp->setLayoutDirection(Qt::RightToLeft);
+    else
+        qApp->setLayoutDirection(Qt::LeftToRight);
 }

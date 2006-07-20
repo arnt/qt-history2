@@ -31,12 +31,15 @@
 
 #include "QtGui/qlayout.h"
 #include "QtCore/qvector.h"
+#include "QtCore/qset.h"
 #include "private/qlayoutengine_p.h"
 
 #include "qdockwidgetlayout_p.h"
 
 class QToolBar;
 class QWidgetAnimator;
+class QTabBar;
+class QRubberBand;
 
 class QMainWindowLayout : public QLayout
 {
@@ -119,7 +122,9 @@ public:
     void restore();
     QList<int> currentGapPos;
     QDockWidget *pluggingWidget;
-    QRect pluggingRect;
+    QRubberBand *gapIndicator;
+    void updateGapIndicator();
+    void paintDropIndicator(QPainter *p, QWidget *widget, const QRegion &clip);
 
     bool startSeparatorMove(const QPoint &pos);
     bool separatorMove(const QPoint &pos);
@@ -128,10 +133,16 @@ public:
     QPoint movingSeparatorOrigin, movingSeparatorPos;
     QTimer *separatorMoveTimer;
     QVector<QLayoutStruct> separatorMoveCache;
+
+    QTabBar *getTabBar();
+    QSet<QTabBar*> usedTabBars;
+    QList<QTabBar*> unusedTabBars;
+
 private slots:
     void animationFinished(QWidget *widget);
     void allAnimationsFinished();
     void doSeparatorMove();
+    void tabChanged();
 public:
 #else
     QLayoutItem *centralWidgetItem; // a window compiled with QT_NO_TOOLBAR still needs

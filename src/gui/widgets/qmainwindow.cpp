@@ -29,6 +29,7 @@
 
 #include <private/qwidget_p.h>
 #include "qtoolbar_p.h"
+#include "qwidgetanimator_p.h"
 
 class QMainWindowPrivate : public QWidgetPrivate
 {
@@ -934,9 +935,8 @@ bool QMainWindow::event(QEvent *event)
 
         case QEvent::Paint: {
             QPainter p(this);
-            d->layout->dockWidgetLayout.paintSeparators(&p, this,
-                            static_cast<QPaintEvent*>(event)->region(),
-                            d->hoverPos);
+            QRegion r = static_cast<QPaintEvent*>(event)->region();
+            d->layout->dockWidgetLayout.paintSeparators(&p, this, r, d->hoverPos);
             break;
         }
 

@@ -44,6 +44,7 @@ private slots:
     void updateMenus();
     void updateWindowMenu();
     MdiChild *createMdiChild();
+    void switchLayoutDirection();
 
 private:
     void createActions();
