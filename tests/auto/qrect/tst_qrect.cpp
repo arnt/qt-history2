@@ -4061,6 +4061,10 @@ void tst_QRect::intersectedRect()
         QCOMPARE(rect1.intersected(rect2), intersect);
     else
         QVERIFY(rect1.intersected(rect2).isEmpty());
+
+    QRect wayOutside(rect1.right() + 100, rect1.bottom() + 100, 10, 10);
+    QRect empty = rect1 & wayOutside;
+    QVERIFY(empty.intersected(rect2).isEmpty());
 }
 
 void tst_QRect::intersectedRectF_data()
@@ -4099,6 +4103,10 @@ void tst_QRect::intersectedRectF()
         QCOMPARE(rect1.intersected(rect2), intersect);
     else
         QVERIFY(rect1.intersected(rect2).isEmpty());
+
+    QRectF wayOutside(rect1.right() + 100.0, rect1.bottom() + 100.0, 10.0, 10.0);
+    QRectF empty = rect1 & wayOutside;
+    QVERIFY(empty.intersected(rect2).isEmpty());
 }
 
 void tst_QRect::unitedRect_data()
