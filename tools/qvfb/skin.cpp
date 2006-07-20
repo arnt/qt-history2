@@ -542,11 +542,7 @@ void Skin::setupDefaultButtons()
     QFileInfo dst(destDir + "defaultbuttons.conf");
     unlink(dst.absoluteFilePath().toLatin1().constData());
     if (src.exists()) {
-	QString srcFile = src.absoluteFilePath();
-	QString origDir = QDir::current().absolutePath();
-	QDir::setCurrent(destDir);
-	symlink(srcFile.toLatin1().constData(), dst.fileName().toLatin1().constData());
-	QDir::setCurrent(origDir);
+        QFile::copy(src.absoluteFilePath(), dst.absoluteFilePath());
     }
 }
 
