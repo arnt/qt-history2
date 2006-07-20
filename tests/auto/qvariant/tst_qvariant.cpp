@@ -1976,6 +1976,18 @@ void tst_QVariant::variant_to()
     QCOMPARE(qvariant_cast<Foo>(v5).i, 0);
 
     QCOMPARE(qvariant_cast<int>(v1), 4);
+
+    QVariant n = qVariantFromValue<short>(42);
+    QCOMPARE(qvariant_cast<int>(n), 42);
+    QCOMPARE(qvariant_cast<uint>(n), 42u);
+    QCOMPARE(qvariant_cast<double>(n), 42.0);
+    QCOMPARE(qvariant_cast<short>(n), short(42));
+
+    n = qVariantFromValue(43l);
+    QCOMPARE(qvariant_cast<int>(n), 43);
+    QCOMPARE(qvariant_cast<uint>(n), 43u);
+    QCOMPARE(qvariant_cast<double>(n), 43.0);
+    QCOMPARE(qvariant_cast<long>(n), 43l);
 }
 
 void tst_QVariant::saveLoadCustomTypes()
