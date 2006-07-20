@@ -319,5 +319,7 @@
   * Linguist improvements
 
   * Text control (not 100% certain we'll have a public API)
+
+  * \l{Qt's Property System#Dynamic Properties}{Dynamic property support}
   \endomit
 */
