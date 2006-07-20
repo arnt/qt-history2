@@ -628,6 +628,8 @@ void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
 
 void QTreeModel::insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items)
 {
+    if (items.isEmpty())
+        return;
     if (view() && view()->isSortingEnabled()) {
         // sorted insertion
         for (int n = 0; n < items.count(); ++n)
@@ -2288,10 +2290,12 @@ void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &
 {
     Q_D(QTreeWidget);
     QStack<QTreeWidgetItem*> stack;
+    QList<QTreeWidgetItem*> itemsToInsert;
     for (int n = 0; n < items.count(); ++n) {
         QTreeWidgetItem *item = items.at(n);
         if (item->view || item->par)
             continue;
+        itemsToInsert.append(item);
         if (item->children.count() == 0) {
             item->view = this;
         } else {
@@ -2304,7 +2308,7 @@ void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &
         for (int c = 0; c < i->children.count(); ++c)
             stack.push(i->children.at(c));
     }
-    d->model()->insertListInTopLevel(index, items);
+    d->model()->insertListInTopLevel(index, itemsToInsert);
 }
 
 /*!
