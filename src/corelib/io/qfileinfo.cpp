@@ -784,6 +784,11 @@ QFileInfo::fileName() const
         QString base = fi.baseName();  // base = "archive"
     \endcode
 
+
+    The base name of a file is computed equally on all platforms, independent
+    of file naming conventions (e.g., ".bashrc" on Unix has an empty base
+    name, and the suffix is "bashrc").
+
     \sa fileName(), suffix(), completeSuffix(), completeBaseName()
 */
 
@@ -861,6 +866,10 @@ QFileInfo::completeSuffix() const
         QFileInfo fi("/tmp/archive.tar.gz");
         QString ext = fi.suffix();  // ext = "gz"
     \endcode
+
+    The suffix of a file is computed equally on all platforms, independent of
+    file naming conventions (e.g., ".bashrc" on Unix has an empty base name,
+    and the suffix is "bashrc").
 
     \sa fileName(), completeSuffix(), baseName(), completeBaseName()
 */
