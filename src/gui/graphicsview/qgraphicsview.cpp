@@ -259,7 +259,6 @@ void QGraphicsViewPrivate::recalculateContentSize()
 
     int width = q->viewport()->width();
     int height = q->viewport()->height();
-    int margin = 4;
     QRectF viewRect = matrix.mapRect(q->sceneRect());
 
     // Setting the ranges of these scroll bars can/will cause the values to
@@ -278,10 +277,10 @@ void QGraphicsViewPrivate::recalculateContentSize()
 
         switch (alignment & Qt::AlignHorizontal_Mask) {
         case Qt::AlignLeft:
-            leftIndent = -viewRect.left() + margin;
+            leftIndent = -viewRect.left();
             break;
         case Qt::AlignRight:
-            leftIndent = width - viewRect.width() - viewRect.left() - margin;
+            leftIndent = width - viewRect.width() - viewRect.left();
             break;
         case Qt::AlignHCenter:
         default:
@@ -289,8 +288,8 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        q->horizontalScrollBar()->setRange(int(viewRect.left() - margin),
-                                           int(viewRect.right() - width + margin));
+        q->horizontalScrollBar()->setRange(int(viewRect.left()),
+                                           int(viewRect.right() - width));
         q->horizontalScrollBar()->setPageStep(width);
         q->horizontalScrollBar()->setSingleStep(width / 20);
         leftIndent = 0;
@@ -303,10 +302,10 @@ void QGraphicsViewPrivate::recalculateContentSize()
 
         switch (alignment & Qt::AlignVertical_Mask) {
         case Qt::AlignTop:
-            topIndent = -viewRect.top() + margin;
+            topIndent = -viewRect.top();
             break;
         case Qt::AlignBottom:
-            topIndent = height - viewRect.height() - viewRect.top() - margin;
+            topIndent = height - viewRect.height() - viewRect.top();
             break;
         case Qt::AlignVCenter:
         default:
@@ -314,8 +313,8 @@ void QGraphicsViewPrivate::recalculateContentSize()
             break;
         }
     } else {
-        q->verticalScrollBar()->setRange(int(viewRect.top() - margin),
-                                         int(viewRect.bottom() - height + margin));
+        q->verticalScrollBar()->setRange(int(viewRect.top()),
+                                         int(viewRect.bottom() - height));
         q->verticalScrollBar()->setPageStep(height);
         q->verticalScrollBar()->setSingleStep(height / 20);
         topIndent = 0;
