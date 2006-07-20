@@ -299,10 +299,11 @@ void Dialog::questionMessage()
 
 void Dialog::warningMessage()
 {
-    QMessageBox msgBox(tr("QMessageBox::warning()"), MESSAGE, QMessageBox::Warning, this);
-    int saveButton = msgBox.addButton(tr("Save &Again"), QMessageBox::AcceptRole);
+    QMessageBox msgBox(QMessageBox::Warning, tr("QMessageBox::warning()"),
+                       MESSAGE, 0, this);
+    msgBox.addButton(tr("Save &Again"), QMessageBox::AcceptRole);
     msgBox.addButton(tr("&Continue"), QMessageBox::RejectRole);
-    if (msgBox.exec() == saveButton)
+    if (msgBox.exec() == QMessageBox::AcceptRole)
         warningLabel->setText(tr("Save Again"));
     else
         warningLabel->setText(tr("Continue"));
