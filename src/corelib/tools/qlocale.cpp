@@ -2008,6 +2008,9 @@ QLocale::NumberOptions QLocale::numberOptions() const
     return static_cast<NumberOption>(::numberOptions(v));
 }
 
+/*!
+    Sets the default locale for the application to the given \a locale.
+*/
 void QLocale::setDefault(const QLocale &locale)
 {
     default_lp = locale.d();
