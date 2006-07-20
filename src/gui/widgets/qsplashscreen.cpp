@@ -56,23 +56,16 @@ public:
 
    The most common usage is to show a splash screen before the main
    widget is displayed on the screen. This is illustrated in the
-   following code snippet.
+   following code snippet in which a splash screen is displayed and
+   some initialization tasks are performed before the application's
+   main window is shown:
 
-   \code
-   int main(int argc, char **argv)
-   {
-       QApplication app(argc, argv);
-       QPixmap pixmap("splash.png");
-       QSplashScreen *splash = new QSplashScreen(pixmap);
-       splash->show();
-       QMainWindow *mainWin = new QMainWindow;
-       ...
-       mainWin->show();
-       splash->finish(mainWin);
-       delete splash;
-       return app.exec();
-   }
-   \endcode
+   \quotefromfile snippets/qsplashscreen/main.cpp
+   \skipto main(
+   \printuntil app.processEvents();
+   \dots
+   \skipto MainWindow
+   \printuntil /^\}/
 
    It is sometimes useful to update the splash screen with messages,
    for example, announcing connections established or modules loaded
