@@ -4924,7 +4924,6 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     if (!isActive() || pixmap.isNull() || r.isEmpty())
         return;
     Q_D(QPainter);
-    d->updateState(d->state);
 
     qreal sw = pixmap.width();
     qreal sh = pixmap.height();
@@ -4939,6 +4938,10 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     else
         sy = qRound(sy) % qRound(sh);
 
+    if (d->state->bgMode == Qt::OpaqueMode)
+        fillRect(r, d->state->bgBrush);
+
+    d->updateState(d->state);
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap pm;
@@ -4952,8 +4955,6 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
         p.setPen(pen());
-        p.setBackground(background());
-        p.setBackgroundMode(backgroundMode());
         p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
         p.end();
         if (backgroundMode() == Qt::TransparentMode && pixmap.depth() == 1) {
