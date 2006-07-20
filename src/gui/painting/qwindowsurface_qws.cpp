@@ -112,16 +112,17 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     if (isBuffered()) {
         expose &= d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
+    }
 #ifndef QT_NO_QWS_MANAGER
-    } else  if (window() && !expose.isEmpty()) {
+    if (window() && !expose.isEmpty()) {
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
         QWSManager *manager = topextra->qwsManager;
         if (manager) {
             const QRegion r = manager->region().translated(
-                -window()->geometry().topLeft());
-            if (!(r & expose).isEmpty())
-                manager->d_func()->dirtyRegion(QDecoration::All,
-                                               QDecoration::Normal);
+                -window()->geometry().topLeft()) & expose;
+            if (!r.isEmpty())
+                 manager->d_func()->dirtyRegion(QDecoration::All,
+                                                QDecoration::Normal, r);
         }
 #endif
     }
@@ -202,7 +203,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
     QWSManager *manager = topextra->qwsManager;
     if (manager)
-        toFlush += manager->d_func()->paint(paintDevice());
+        manager->d_func()->paint(paintDevice(), toFlush);
 #endif
 
     flushUpdate(widget, toFlush, QPoint(0, 0));

@@ -75,8 +75,9 @@ public:
     { return cached_region.regionType; }
 
     void dirtyRegion(int decorationRegion,
-                     QDecoration::DecorationState state);
-    QRegion paint(QPaintDevice *paintDevice);
+                     QDecoration::DecorationState state,
+                     const QRegion &clip = QRegion());
+    void paint(QPaintDevice *paintDevice, const QRegion &region);
 
     QList<int> dirtyRegions;
     QList<QDecoration::DecorationState> dirtyStates;

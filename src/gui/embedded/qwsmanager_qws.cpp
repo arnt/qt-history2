@@ -356,7 +356,8 @@ void QWSManager::paintEvent(QPaintEvent *)
 }
 
 void QWSManagerPrivate::dirtyRegion(int decorationRegion,
-                                    QDecoration::DecorationState state)
+                                    QDecoration::DecorationState state,
+                                    const QRegion &clip)
 {
     if (decorationRegion == QDecoration::All) {
         dirtyRegions.clear();
@@ -375,10 +376,12 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
     QWidgetBackingStore *bs = topextra->backingStore;
     const QRect clipRect = managed->rect().translated(bs->topLevelOffset());
     QDecoration &dec = QApplication::qwsDecoration();
-    QRegion clipRegion = dec.region(managed, clipRect, decorationRegion);
+    QRegion decRegion = dec.region(managed, clipRect, decorationRegion);
 
-    clipRegion.translate(-bs->topLevelOffset());
-    managed->d_func()->dirtyWidget_sys(clipRegion);
+    decRegion.translate(-bs->topLevelOffset());
+    if (!clip.isEmpty())
+        decRegion &= clip;
+    managed->d_func()->dirtyWidget_sys(decRegion);
 }
 
 /*!
@@ -387,10 +390,10 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
     Paints all the dirty regions into \a pixmap.
     Returns the regions that have been repainted.
 */
-QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
+void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
 {
     if (dirtyRegions.empty())
-        return QRegion();
+        return;
 
     QTLWExtra *topextra = managed->d_func()->extra->topextra;
     Q_ASSERT(topextra && topextra->backingStore);
@@ -401,14 +404,13 @@ QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
 
     QWSWindowSurface *surface;
     surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
-    const QRegion surfaceClip = surface->clipRegion().translated(bs->topLevelOffset());
-    if (!surface->isBuffered())
-        paintDevice->paintEngine()->setSystemClip(surfaceClip);
+    const QRegion surfaceClip = region.translated(bs->topLevelOffset());
+    paintDevice->paintEngine()->setSystemClip(surfaceClip);
 
-    QRegion updated;
     QPainter painter(paintDevice);
     painter.setFont(qApp->font());
     painter.translate(bs->topLevelOffset());
+
     for (int i = 0; i < dirtyRegions.size(); ++i) {
         int region = dirtyRegions.takeFirst();
         QDecoration::DecorationState state = dirtyStates.takeFirst();
@@ -418,10 +420,8 @@ QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
         painter.setClipRegion(clipRegion);
 
         dec.paint(&painter, managed, region, state);
-        updated += clipRegion;
     }
     painter.end();
-    return updated;
 }
 
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
