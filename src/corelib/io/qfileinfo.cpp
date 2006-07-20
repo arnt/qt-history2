@@ -875,10 +875,6 @@ QFileInfo::suffix() const
     int lastDot = fileName.lastIndexOf(QLatin1Char('.'));
     if (lastDot == -1)
         return QLatin1String("");
-#ifdef Q_OS_UNIX
-    if (lastDot == 0)
-        return QLatin1String("");
-#endif
     return fileName.mid(lastDot + 1);
 }
 
