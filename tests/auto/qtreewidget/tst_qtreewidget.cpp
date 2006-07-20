@@ -240,10 +240,8 @@ void tst_QTreeWidget::addTopLevelItem()
                 tops << new TreeItem(QStringList() << QString("%0").arg(j));
             tree.addTopLevelItems(tops);
             QCOMPARE(tree.topLevelItemCount(), count + i);
-            for (int j = 0; j < count; ++j) {
-                // ### items are added in reverse order (task 118101)
-                QCOMPARE(tree.topLevelItem(i+j), tops.at(tops.count() - 1 - j));
-            }
+            for (int j = 0; j < count; ++j)
+                QCOMPARE(tree.topLevelItem(i+j), tops.at(j));
             
             tree.addTopLevelItems(tops);
             QCOMPARE(tree.topLevelItemCount(), count + i);

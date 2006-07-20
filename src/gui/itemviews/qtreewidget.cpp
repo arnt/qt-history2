@@ -637,7 +637,7 @@ void QTreeModel::insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &it
     } else {
         beginInsertRows(QModelIndex(), row, row + items.count() - 1);
         for (int n = 0; n < items.count(); ++n)
-            topLevelItems.insert(row, items.at(n));
+            topLevelItems.insert(row + n, items.at(n));
         endInsertRows();
     }
 }
