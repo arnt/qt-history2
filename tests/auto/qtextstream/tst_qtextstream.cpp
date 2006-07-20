@@ -1131,6 +1131,8 @@ void tst_QTextStream::seek()
 // ------------------------------------------------------------------------------
 void tst_QTextStream::pos()
 {
+    int argc = 1;
+    QCoreApplication app(argc, 0);
     {
         // Strings
         QString str("this is a test");
