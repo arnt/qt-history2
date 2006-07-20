@@ -866,7 +866,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
                 y = y / 2;
             while (y > 0 && item > 0)
                 y -= d->itemHeight(item--);
-            item = ++item + ((y < 0) ? 1 : 0);
+            item += 1 + ((y < 0) ? 1 : 0);
             verticalScrollBar()->setValue(item);
         }
     } else { // ScrollPerPixel
