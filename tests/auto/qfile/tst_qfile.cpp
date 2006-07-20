@@ -124,6 +124,9 @@ private slots:
     void textFile();
     void readPastEnd();
 
+    void rename_data();
+    void rename();
+
 public:
 // disabled this test for the moment... it hangs
     void invalidFile_data();
@@ -1662,6 +1665,43 @@ void tst_QFile::readPastEnd()
     char c;
     QVERIFY(!file.getChar(&c));
     QCOMPARE(file.read(&c, 1), qint64(0)); // not -1
+}
+
+void tst_QFile::rename_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("destination");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("a -> b") << QString("a") << QString("b") << false;
+    QTest::newRow("a -> .") << QString("a") << QString(".") << false;
+    QTest::newRow("renamefile -> renamefile") << QString("renamefile") << QString("renamefile") << false;
+    QTest::newRow("renamefile -> Makefile") << QString("renamefile") << QString("resources") << false;
+#ifdef Q_OS_UNIX
+    QTest::newRow("renamefile -> /etc/renamefile") << QString("renamefile") << QString("/etc/renamefile") << false;
+#endif
+    QTest::newRow("renamefile -> renamedfile") << QString("renamefile") << QString("renamedfile") << true;
+    QTest::newRow("renamefile -> ..") << QString("renamefile") << QString("..") << false;
+}
+
+void tst_QFile::rename()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, destination);
+    QFETCH(bool, result);
+
+    QFile f("renamefile");
+    f.open(QFile::WriteOnly);
+    f.close();
+
+    QFile file(source);
+    QCOMPARE(file.rename(destination), result);
+    if (result)
+        QCOMPARE(file.error(), QFile::NoError);
+    else
+        QCOMPARE(file.error(), QFile::RenameError);
+
+    QFile::remove("renamefile");
 }
 
 QTEST_MAIN(tst_QFile)
