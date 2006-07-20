@@ -620,6 +620,7 @@ QFile::rename(const QString &newName)
         // ### Race condition. If a file is moved in after this, it /will/ be
         // overwritten. On Unix, the proper solution is to use hardlinks:
         // return ::link(old, new) && ::remove(old);
+        d->setError(QFile::RenameError, QLatin1String("Destination file exists"));
         return false;
     }
     close();
@@ -638,11 +639,12 @@ QFile::rename(const QString &newName)
                 while (!in.atEnd()) {
                     qint64 read = in.read(block, 1024);
                     if (read == -1) {
+                        d->setError(QFile::RenameError, in.errorString());
                         error = true;
                         break;
                     }
                     if (read != out.write(block, read)) {
-                        d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
+                        d->setError(QFile::RenameError, out.errorString());
                         error = true;
                         break;
                     }
@@ -652,7 +654,7 @@ QFile::rename(const QString &newName)
                 return !error;
             }
         }
-        d->setError(QFile::RenameError, errno);
+        d->setError(QFile::RenameError, out.isOpen() ? in.errorString() : out.errorString());
     }
     return false;
 }
