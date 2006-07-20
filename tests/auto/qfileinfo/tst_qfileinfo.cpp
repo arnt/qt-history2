@@ -408,17 +408,6 @@ void tst_QFileInfo::suffix_data()
     QTest::newRow("data3") << "/path/file.tar" << "tar";
     QTest::newRow("resource1") << ":/tst_qfileinfo/resources/file1.ext1" << "ext1";
     QTest::newRow("resource2") << ":/tst_qfileinfo/resources/file1.ext1.ext2" << "ext2";
-#ifdef Q_OS_UNIX
-    QTest::newRow("hidden1") << ".ext1" << "";
-    QTest::newRow("hidden1") << ".ext" << "";
-    QTest::newRow("hidden1") << ".ex" << "";
-    QTest::newRow("hidden1") << ".e" << "";
-    QTest::newRow("hidden2") << ".ext1.ext2" << "ext2";
-    QTest::newRow("hidden2") << ".ext.ext2" << "ext2";
-    QTest::newRow("hidden2") << ".ex.ext2" << "ext2";
-    QTest::newRow("hidden2") << ".e.ext2" << "ext2";
-    QTest::newRow("hidden2") << "..ext2" << "ext2";
-#else
     QTest::newRow("hidden1") << ".ext1" << "ext1";
     QTest::newRow("hidden1") << ".ext" << "ext";
     QTest::newRow("hidden1") << ".ex" << "ex";
@@ -428,7 +417,6 @@ void tst_QFileInfo::suffix_data()
     QTest::newRow("hidden2") << ".ex.ext2" << "ext2";
     QTest::newRow("hidden2") << ".e.ext2" << "ext2";
     QTest::newRow("hidden2") << "..ext2" << "ext2";
-#endif
 }
 
 void tst_QFileInfo::suffix()
