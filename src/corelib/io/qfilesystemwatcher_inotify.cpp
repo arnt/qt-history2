@@ -14,6 +14,8 @@
 #include "qfilesystemwatcher.h"
 #include "qfilesystemwatcher_inotify_p.h"
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
@@ -199,9 +201,9 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
         QString path = it.next();
         QFileInfo fi(path);
         bool isDir = fi.isDir();
-        int wd = inotify_add_watch(inotifyFd, 
+        int wd = inotify_add_watch(inotifyFd,
                                    QFile::encodeName(path),
-                                   (isDir 
+                                   (isDir
                                     ? (0
                                        | IN_ATTRIB
                                        | IN_MOVE
@@ -234,7 +236,7 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
     }
 
     start();
-   
+
     return p;
 }
 
@@ -321,3 +323,5 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
         ev += sizeof(inotify_event) + ev->len;
     }
 }
+
+#endif // QT_NO_FILESYSTEMWATCHER

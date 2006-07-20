@@ -151,6 +151,14 @@ Requires:
 Name: Document Object Model
 SeeAlso: ???
 
+Feature: FILESYSTEMWATCHER
+Description: Provides an interface for monitoring files and directories 
+for modications.
+Section: File I/O
+Requires: THREAD
+Name: QFileSystemWatcher
+SeeAlso: ???
+
 # Widgets
 
 Feature: TREEWIDGET
@@ -464,7 +472,8 @@ Name: QSizeGrip
 SeeAlso: ???
 
 Feature: CALENDARWIDGET
-Description: Provides a monthly based calendar widget allowing the user to select a date.
+Description: Provides a monthly based calendar widget allowing the user to select 
+a date.
 Section: Widgets
 Requires: TABLEVIEW
 Name: QCalendarWidget
@@ -478,14 +487,6 @@ informative messages and simple questions.
 Section: Dialogs
 Requires:
 Name: QMessageBox
-SeeAlso: ???
-
-Feature MESSAGEBOXEX
-Description: Provides a modal dialog with a short message, an icon, and buttons 
-laid out depending on the current style.
-Section: Dialogs
-Requires:
-Name QMessageBoxEx
 SeeAlso: ???
 
 Feature: COLORDIALOG

@@ -27,6 +27,8 @@
 
 #include "qfilesystemwatcher.h"
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 #include <private/qobject_p.h>
 
 #include <QStringList>
@@ -80,4 +82,5 @@ public:
     void _q_directoryChanged(const QString &path, bool removed);
 };
 
+#endif // QT_NO_FILESYSTEMWATCHER
 #endif // QFILESYSTEMWATCHER_P_H

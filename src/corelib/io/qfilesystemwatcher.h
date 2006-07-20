@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Core)
@@ -51,4 +53,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_FILESYSTEMWATCHER
 #endif // QFILESYSTEMWATCHER_H

@@ -243,6 +243,11 @@
 #define QT_NO_DIAL
 #endif
 
+// QFileSystemWatcher
+#if !defined(QT_NO_FILESYSTEMWATCHER) && (defined(QT_NO_THREAD))
+#define QT_NO_FILESYSTEMWATCHER
+#endif
+
 // QHostInfo
 #if !defined(QT_NO_HOSTINFO) && (defined(QT_NO_TEXTSTREAM))
 #define QT_NO_HOSTINFO

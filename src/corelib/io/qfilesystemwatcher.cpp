@@ -14,6 +14,8 @@
 #include "qfilesystemwatcher.h"
 #include "qfilesystemwatcher_p.h"
 
+#ifndef QT_NO_FILESYSTEMWATCHER
+
 #include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
@@ -400,3 +402,5 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
 
 #include "moc_qfilesystemwatcher.cpp"
 #include "qfilesystemwatcher.moc"
+
+#endif // QT_NO_FILESYSTEMWATCHER
