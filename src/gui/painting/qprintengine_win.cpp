@@ -957,14 +957,15 @@ void QWin32PrintEnginePrivate::initialize()
     } );
 
     Q_ASSERT(hPrinter);
-    Q_ASSERT(devMode);
     Q_ASSERT(pInfo);
 
-    QT_WA( {
-        num_copies = devModeW()->dmCopies;
-    }, {
-        num_copies = devModeA()->dmCopies;
-    } );
+    if (devMode) {
+        QT_WA( {
+            num_copies = devModeW()->dmCopies;
+        }, {
+            num_copies = devModeA()->dmCopies;
+        } );
+    }
 
     initHDC();
 
@@ -1102,11 +1103,13 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 {
     Q_D(QWin32PrintEngine);
     switch (key) {
-    case PPK_CollateCopies: 
+    case PPK_CollateCopies:
         {
+            if (!d->devMode)
+                break;
             short collate = value.toBool() ? DMCOLLATE_TRUE : DMCOLLATE_FALSE;
-            QT_WA( { d->devModeW()->dmCollate = collate; }, 
-                   { d->devModeA()->dmCollate = collate; }); 
+            QT_WA( { d->devModeW()->dmCollate = collate; },
+                   { d->devModeA()->dmCollate = collate; } );
             d->doReinit();
         }
         break;
@@ -1140,7 +1143,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_NumberOfCopies:
         d->num_copies = value.toInt();
-        QT_WA( { d->devModeW()->dmCopies = d->num_copies; }, 
+        QT_WA( { d->devModeW()->dmCopies = d->num_copies; },
                { d->devModeA()->dmCopies = d->num_copies; });
         d->doReinit();
         break;
