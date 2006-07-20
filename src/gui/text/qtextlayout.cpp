@@ -47,6 +47,29 @@ static QFixed alignLine(QTextEngine *eng, const QScriptLine &line)
 }
 
 /*!
+    \class QTextLayout::FormatRange
+    \brief The QTextLayout::FormatRange structure is used to apply extra formatting information
+    for a specified area in the text layout's content.
+
+    \sa QTextLayout::setAdditionalFormats(), QTextLayout::draw()
+*/
+
+/*!
+    \variable QTextLayout::FormatRange::start
+    Specifies the beginning of the format range within the text layout's text.
+*/
+
+/*!
+    \variable QTextLayout::FormatRange::length
+    Specifies the numer of characters the format range spans.
+*/
+
+/*!
+    \variable QTextLayout::FormatRange::format
+    Specifies the format to apply.
+*/
+
+/*!
     \class QTextInlineObject
     \brief The QTextInlineObject class represents an inline object in
     a QTextLayout.
