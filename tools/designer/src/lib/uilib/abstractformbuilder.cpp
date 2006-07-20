@@ -1395,6 +1395,17 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
         children = widget->children();
     }
 
+    if (qobject_cast<QMainWindow *>(widget) && widget->parent() && widget->parent()->metaObject()->className() == QLatin1String("qdesigner_internal::QDesignerPromotedWidget")) {
+        // add actions of parent promoted widget
+        QObjectList list = widget->parent()->children();
+        QListIterator<QObject *> it(list);
+        while (it.hasNext()) {
+            QObject *obj = it.next();
+            if (qobject_cast<QAction *>(obj) || qobject_cast<QActionGroup *>(obj))
+                children.append(obj);
+        }
+    }
+
     foreach (QObject *obj, children) {
         if (QWidget *childWidget = qobject_cast<QWidget*>(obj)) {
             if (m_laidout.contains(childWidget) || recursive == false)
