@@ -49,7 +49,7 @@ enum MethodFlags {
     MethodScriptable = 0x40
 };
 
-int qvariant_nameToType(const char* name)
+uint qvariant_nameToType(const char* name)
 {
     if (!name)
         return 0;
@@ -65,7 +65,7 @@ int qvariant_nameToType(const char* name)
     if (strcmp(name, "QIconSet") == 0)
         return QMetaType::QIcon;
 
-    int tp = QMetaType::type(name);
+    uint tp = QMetaType::type(name);
     return tp < QMetaType::User ? tp : 0;
 }
 
@@ -418,7 +418,7 @@ void Generator::generateProperties()
         fprintf(out, "\n // properties: name, type, flags\n");
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
         const PropertyDef &p = cdef->propertyList.at(i);
-        int flags = Invalid;
+        uint flags = Invalid;
         if (!isVariantType(p.type)) {
             flags |= EnumOrFlag;
         } else {

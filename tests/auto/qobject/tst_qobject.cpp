@@ -68,7 +68,7 @@ private slots:
     void testUserData();
     void childDeletesItsSibling();
     void dynamicProperties();
-
+    void floatProperty();
     void property();
 
 protected:
@@ -1108,6 +1108,7 @@ class PropertyObject : public QObject
     Q_PROPERTY(QString string READ string WRITE setString)
     Q_PROPERTY(QVariant variant READ variant WRITE setVariant)
     Q_PROPERTY(CustomType* custom READ custom WRITE setCustom)
+    Q_PROPERTY(float myFloat READ myFloat WRITE setMyFloat);
 
 public:
     enum Alpha {
@@ -1117,7 +1118,7 @@ public:
     };
 
     PropertyObject()
-        : m_alpha(Alpha0), m_number(0), m_custom(0)
+        : m_alpha(Alpha0), m_number(0), m_custom(0), m_float(42)
     {}
 
     Alpha alpha() const { return m_alpha; }
@@ -1135,12 +1136,16 @@ public:
     CustomType *custom() const { return m_custom; }
     void setCustom(CustomType *custom) { m_custom = custom; }
 
+    void setMyFloat(float value) { m_float = value; }
+    inline float myFloat() const { return m_float; }
+
 private:
     Alpha m_alpha;
     int m_number;
     QString m_string;
     QVariant m_variant;
     CustomType *m_custom;
+    float m_float;
 };
 
 void tst_QObject::threadSignalEmissionCrash()
@@ -1851,6 +1856,21 @@ void tst_QObject::childDeletesItsSibling()
     delete commonParent; // don't crash
     QVERIFY(!child);
     QVERIFY(!siblingDeleter);
+}
+
+void tst_QObject::floatProperty()
+{
+    PropertyObject obj;
+    const int idx = obj.metaObject()->indexOfProperty("myFloat");
+    QVERIFY(idx > 0);
+    QMetaProperty prop = obj.metaObject()->property(idx);
+    QVERIFY(prop.isValid());
+    QVERIFY(prop.type() == uint(QMetaType::type("float")));
+    QVERIFY(!prop.write(&obj, QVariant("Hello")));
+    QVERIFY(prop.write(&obj, qVariantFromValue(128.0f)));
+    QVariant v = prop.read(&obj);
+    QVERIFY(int(v.userType()) == QMetaType::Float);
+    QVERIFY(qVariantValue<float>(v) == 128.0f);
 }
 
 class DynamicPropertyObject : public PropertyObject

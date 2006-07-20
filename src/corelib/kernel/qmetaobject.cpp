@@ -934,7 +934,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
             // so that we can call normalizedSignature() and avoid duplicating code
             QByteArray unnormalized;
             int len = qstrlen(ret.name());
- 
+
             unnormalized.reserve(len + 3);
             unnormalized = "_(";        // the function is called "_"
             unnormalized.append(ret.name());
@@ -1537,7 +1537,7 @@ QVariant::Type QMetaProperty::type() const
     if (!mobj)
         return QVariant::Invalid;
     int handle = priv(mobj->d.data)->propertyData + 3*idx;
-    int flags = mobj->d.data[handle + 2];
+    uint flags = mobj->d.data[handle + 2];
 
     QVariant::Type type = QVariant::Type(flags >> 24);
     if (type)
@@ -1638,7 +1638,7 @@ QVariant QMetaProperty::read(const QObject *object) const
     int  t = QVariant::Int;
     if (!isEnumType()) {
         int handle = priv(mobj->d.data)->propertyData + 3*idx;
-        int flags = mobj->d.data[handle + 2];
+        uint flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = (flags >> 24);
         if (t == QVariant::Invalid)
@@ -1693,7 +1693,7 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
         v.convert(QVariant::Int);
     } else {
         int handle = priv(mobj->d.data)->propertyData + 3*idx;
-        int flags = mobj->d.data[handle + 2];
+        uint flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = flags >> 24;
         if (t == QVariant::Invalid) {
@@ -1705,7 +1705,7 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
         }
         if (t == QVariant::Invalid)
             return false;
-        if (t != QVariant::LastType && t != (uint)value.userType() && (t < QVariant::UserType && !v.convert((QVariant::Type)t)))
+        if (t != QVariant::LastType && t != (uint)value.userType() && (t < QMetaType::User && !v.convert((QVariant::Type)t)))
             return false;
     }
 
