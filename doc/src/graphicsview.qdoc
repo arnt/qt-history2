@@ -319,7 +319,8 @@
         QGraphicsView keeps the center of the view aligned when you transform
         the view.
 
-        \sa \l{Elastic Nodes Example}
+        See also the \l{Elastic Nodes Example}{Elastic Nodes} example for
+        code that shows how to implement basic zooming features.
 
       \section2 Printing
 
@@ -412,7 +413,9 @@
         QGraphicsItem::dragMoveEvent(), QGraphicsItem::dragLeaveEvent(), and
         QGraphicsItem::dropEvent().
 
-        \sa \l{Drag and Drop Robot Example}
+        See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot} example
+        for a demonstration of Graphics View's support for drag and drop
+        operations.
 
       \section2 Cursors and Tooltips
 
@@ -425,7 +428,8 @@
         You can also set a default cursor directly on the view by calling
         QGraphicsView::setCursor().
 
-        \sa \l{Drag and Drop Robot Example}
+        See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot}
+        example for code that implements tooltips and cursor shape handling.
 
       \section2 Animation
 
@@ -447,7 +451,8 @@
         QGraphicsScene::advance(), which in turn calls
         QGraphicsItem::advance().
 
-        \sa \l{Drag and Drop Robot Example}
+        See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot}
+        example for an illustration of timeline-based animation techniques.
 
       \section2 OpenGL
 
