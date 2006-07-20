@@ -1702,25 +1702,33 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
         return;
     }
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-    if (model) model->beginInsertItems(this, index, children.count());
+    QStack<QTreeWidgetItem*> stack;
+    QList<QTreeWidgetItem*> itemsToInsert;
     for (int n = 0; n < children.count(); ++n) {
         QTreeWidgetItem *child = children.at(n);
         if (child->view || child->par)
             continue;
+        itemsToInsert.append(child);
         if (view && model) {
-            QStack<QTreeWidgetItem*> stack;
-            stack.push(child);
-            children.at(n)->par = this;
-            while (!stack.isEmpty()) {
-                QTreeWidgetItem *i = stack.pop();
-                i->view = view;
-                for (int c = 0; c < i->children.count(); ++c)
-                    stack.push(i->children.at(c));
-            }
+            if (child->childCount() == 0)
+                child->view = view;
+            else
+                stack.push(child);
         }
-        this->children.insert(index + n, child);
+        child->par = this;
     }
-    if (model) model->endInsertItems();
+    if (!itemsToInsert.isEmpty()) {
+        while (!stack.isEmpty()) {
+            QTreeWidgetItem *i = stack.pop();
+            i->view = view;
+            for (int c = 0; c < i->children.count(); ++c)
+                stack.push(i->children.at(c));
+        }
+        if (model) model->beginInsertItems(this, index, itemsToInsert.count());
+        for (int n = 0; n < itemsToInsert.count(); ++n)
+            this->children.insert(index + n, itemsToInsert.at(n));
+        if (model) model->endInsertItems();
+    }
 }
 
 /*!
