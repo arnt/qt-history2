@@ -186,8 +186,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
     QAbstractItemView::setModel(model);
 
     // QAbstractItemView connects to a private slot
-    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
-               this, SLOT(rowsRemoved(QModelIndex, int, int)));
+    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
     // QTreeView has a public slot for this
     connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
             this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
@@ -1729,12 +1729,15 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_D(QTreeView);
-    if (d->viewItems.isEmpty())
+    if (d->viewItems.isEmpty()) {
+        QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
         return;
+    }
 
     if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
+        QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
         return;
     }
 
@@ -1784,9 +1787,10 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
             d->expandedIndexes.append(parent);
         }
     }
-
-    setState(NoState);
-    d->updateScrollBars();
+    if (d->expandParent.isEmpty()) {
+        setState(NoState);
+        d->updateScrollBars();
+    }
 }
 
 /*!
