@@ -1453,8 +1453,10 @@ QWSWindowSurface* QScreen::createSurface(const QString &key) const
         return new QWSOnScreenSurface;
     else if (key == QLatin1String("mem"))
         return new QWSLocalMemSurface;
+#ifndef QT_NO_QWS_MULTIPROCESS
     else if (key == QLatin1String("shm"))
         return new QWSSharedMemSurface;
+#endif
     else if (key == QLatin1String("Yellow"))
         return new QWSYellowSurface;
 #ifndef QT_NO_DIRECTPAINTER
@@ -1493,8 +1495,10 @@ QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
         return new QWSOnScreenSurface(widget);
     else if (QApplication::type() == QApplication::GuiServer)
         return new QWSLocalMemSurface(widget);
+#ifndef QT_NO_QWS_MULTIPROCESS
     else
         return new QWSSharedMemSurface(widget);
+#endif
 
     return 0;
 }

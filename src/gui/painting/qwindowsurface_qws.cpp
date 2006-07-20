@@ -435,6 +435,8 @@ void QWSLocalMemSurface::detach()
     memsize = 0;
 }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 QWSSharedMemSurface::QWSSharedMemSurface()
     : QWSMemorySurface()
 {
@@ -537,6 +539,8 @@ const QByteArray QWSSharedMemSurface::data() const
            << surfaceFlags();
     return array;
 }
+
+#endif // QT_NO_QWS_MULTIPROCESS
 
 QWSOnScreenSurface::QWSOnScreenSurface(QWidget *w)
     : QWSMemorySurface(w)

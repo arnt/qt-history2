@@ -140,6 +140,7 @@ protected:
     int memsize;
 };
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 class QWSSharedMemSurface : public QWSMemorySurface
 {
 public:
@@ -161,6 +162,7 @@ private:
 
     QSharedMemory mem;
 };
+#endif // QT_NO_QWS_MULTIPROCESS
 
 class QWSOnScreenSurface : public QWSMemorySurface
 {
