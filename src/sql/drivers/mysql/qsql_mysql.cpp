@@ -1005,6 +1005,10 @@ bool QMYSQLDriver::open(const QString& db,
         setOpenError(true);
         return false;
     }
+#if MYSQL_VERSION_ID >= 50007
+    // force the communication to be utf8
+    mysql_set_character_set(d->mysql, "utf8");
+#endif
     d->tc = codec(d->mysql);
 
 #if MYSQL_VERSION_ID >= 40108
