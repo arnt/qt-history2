@@ -1011,7 +1011,7 @@ QRect QRect::operator&(const QRect &r) const
     tmp.x2 = qMin(r1.x2, r2.x2);
     tmp.y1 = qMax(r1.y1, r2.y1);
     tmp.y2 = qMin(r1.y2, r2.y2);
-    return tmp;
+    return tmp.isEmpty() ? QRect() : tmp;
 }
 
 /*!
@@ -1956,7 +1956,7 @@ QRectF QRectF::operator&(const QRectF &r) const
     tmp.yp = qMax(r1.yp, r2.yp);
     tmp.w = qMin(r1.xp + r1.w, r2.xp + r2.w) - tmp.xp;
     tmp.h = qMin(r1.yp + r1.h, r2.yp + r2.h) - tmp.yp;
-    return tmp;
+    return tmp.isEmpty() ? QRectF() : tmp;
 }
 
 /*!
