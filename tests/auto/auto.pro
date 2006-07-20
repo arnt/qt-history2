@@ -165,7 +165,6 @@ SUBDIRS += bic \
            qmenu \
            qmenubar \
            qmessageboxex \
-           qmetacall \
            qmetaobject \
            qmetatype \
            qmouseevent \
