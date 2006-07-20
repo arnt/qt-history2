@@ -1892,6 +1892,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_SpellCheckUnderlineStyle:
         ret = QTextCharFormat::DashUnderline;
         break;
+    case SH_MessageBox_CenterButtons:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

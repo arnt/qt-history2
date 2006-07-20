@@ -570,7 +570,7 @@ public:
         SH_ToolButton_PopupDelay,
         SH_FocusFrame_Mask,
         SH_RubberBand_Mask,
-	SH_WindowFrame_Mask,
+        SH_WindowFrame_Mask,
         SH_SpinControls_DisableOnBounds,
         SH_Dial_BackgroundRole,
         SH_ComboBox_LayoutDirection,
@@ -588,6 +588,7 @@ public:
         SH_MessageBox_TextInteractionFlags,
         SH_DialogButtonBox_ButtonsHaveIcons,
         SH_SpellCheckUnderlineStyle,
+        SH_MessageBox_CenterButtons,
 
         // Add new style hint values here
 

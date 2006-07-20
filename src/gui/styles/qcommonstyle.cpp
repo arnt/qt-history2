@@ -3748,6 +3748,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_SpellCheckUnderlineStyle:
         ret = QTextCharFormat::WaveUnderline;
         break;
+    case SH_MessageBox_CenterButtons:
+        ret = true;
+        break;
     default:
         ret = 0;
         break;

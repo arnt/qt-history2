@@ -196,13 +196,16 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 
     buttonBox = new QDialogButtonBox;
     buttonBox->setObjectName(QLatin1String("qt_msgboxex_buttonbox"));
+    buttonBox->setCenterButtons(q->style()->styleHint(QStyle::SH_MessageBox_CenterButtons));
     QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton *)),
                      q, SLOT(_q_buttonClicked(QAbstractButton *)));
 
     QGridLayout *grid = new QGridLayout;
-    grid->addWidget(iconLabel, 0, 0, 1, 1);
+    grid->addWidget(iconLabel, 0, 0, 1, 1, Qt::AlignTop);
     grid->addWidget(label, 0, 1, 1, 1);
-    grid->addWidget(buttonBox, 1, 0, 1, 2);
+    grid->addItem(new QSpacerItem(0, 10), 1, 0, 1, 2);
+    grid->addWidget(buttonBox, 2, 0, 1, 2);
+    grid->setSizeConstraint(QLayout::SetFixedSize);
     q->setLayout(grid);
 
     if (!title.isEmpty() || !text.isEmpty()) {
@@ -623,6 +626,9 @@ void QMessageBox::setText(const QString &text)
 {
     Q_D(QMessageBox);
     d->label->setText(text);
+    bool wordwrap = d->label->textFormat() == Qt::RichText
+                    || (d->label->textFormat() == Qt::AutoText && Qt::mightBeRichText(text));
+    d->label->setWordWrap(wordwrap);
 }
 
 /*!
@@ -1054,32 +1060,6 @@ static QMessageBox::StandardButton newButton(int button)
         return QMessageBox::NoButton;
     }
 #endif
-}
-
-static int oldButton(int button)
-{
-    switch (button & Old_ButtonMask) {
-    case QMessageBox::Ok:
-        return Old_Ok;
-    case QMessageBox::Cancel:
-        return Old_Cancel;
-    case QMessageBox::Yes:
-        return Old_Yes;
-    case QMessageBox::No:
-        return Old_No;
-    case QMessageBox::Abort:
-        return Old_Abort;
-    case QMessageBox::Retry:
-        return Old_Retry;
-    case QMessageBox::Ignore:
-        return Old_Ignore;
-    case QMessageBox::YesToAll:
-        return Old_YesAll;
-    case QMessageBox::NoToAll:
-        return Old_NoAll;
-    default:
-        return 0;
-    }
 }
 
 static inline int cleanButton(int button)

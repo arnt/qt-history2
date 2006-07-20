@@ -3779,6 +3779,9 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     case SH_DialogButtonBox_ButtonsHaveIcons:
         ret = true;
         break;
+    case SH_MessageBox_CenterButtons:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
