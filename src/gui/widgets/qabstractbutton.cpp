@@ -530,13 +530,9 @@ void QAbstractButton::setText(const QString &text)
         return;
     d->text = text;
 #ifndef QT_NO_SHORTCUT
-    if (d->shortcutId) {
-        releaseShortcut(d->shortcutId);
-        d->shortcutId = 0;
-    }
     QKeySequence newMnemonic = QKeySequence::mnemonic(text);
     if (!newMnemonic.isEmpty())
-        d->shortcutId = grabShortcut(newMnemonic);
+        setShortcut(newMnemonic);
 #endif
     update();
     updateGeometry();

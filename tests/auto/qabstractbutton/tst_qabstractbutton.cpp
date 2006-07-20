@@ -331,6 +331,7 @@ void tst_QAbstractButton::setText()
     QCOMPARE( testWidget->text(), QString("simple") );
     testWidget->setText("&ampersand");
     QCOMPARE( testWidget->text(), QString("&ampersand") );
+    QCOMPARE( testWidget->shortcut(), QKeySequence("ALT+A"));
     testWidget->setText("te&st");
     QCOMPARE( testWidget->text(), QString("te&st") );
 }
