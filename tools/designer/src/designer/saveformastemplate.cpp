@@ -88,7 +88,7 @@ void SaveFormAsTemplate::accept()
 
     QDesignerSettings().setFormTemplatePaths(sl);
 
-    accept();
+    QDialog::accept();
 }
 
 void SaveFormAsTemplate::updateOKButton(const QString &str)
