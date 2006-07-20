@@ -1570,7 +1570,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
     }
     StateNode tmp = parse(input, value, fixup);
     input = tmp.input;
-    state = *reinterpret_cast<QValidator::State *>(&tmp.state);
+    state = QValidator::State(int(tmp.state));
     if (state == QValidator::Acceptable) {
         if (tmp.conflicts && conflictGuard != tmp.value) {
             conflictGuard = tmp.value;
