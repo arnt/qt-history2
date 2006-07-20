@@ -98,7 +98,7 @@ void QDBusViewer::callMethod(const BusSignature &sig)
             method = mo->method(i);
     }
     if (!method.signature()) {
-        QMessageBoxEx::warning(this, "Unable to find method",
+        QMessageBox::warning(this, "Unable to find method",
                 QString("Unable to find method %1 on path %2 in interface %3").arg(
                     sig.mName).arg(sig.mPath).arg(sig.mInterface));
         return;
@@ -107,7 +107,7 @@ void QDBusViewer::callMethod(const BusSignature &sig)
     QList<QByteArray> paramTypes = method.parameterTypes();
     foreach (QByteArray paramType, paramTypes) {
         if (!QVariant(QVariant::nameToType(paramType)).canConvert(QVariant::String)) {
-            QMessageBoxEx::warning(this, "Unable to call method",
+            QMessageBox::warning(this, "Unable to call method",
                     QString("Cannot marshall parameter of type %1").arg(
                         QVariant::nameToType(paramType)));
         }
