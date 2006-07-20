@@ -1,5 +1,5 @@
 #include <QtTest/QtTest>
-#include <QMessageBoxEx>
+#include <QMessageBox>
 #include <QDebug>
 #include <QPair>
 #include <QList>
@@ -8,12 +8,12 @@
 #include <QApplication>
 #include <QPushButton>
 
-class tst_QMessageBoxEx : public QObject
+class tst_QMessageBox : public QObject
 {
     Q_OBJECT
 public:
-    tst_QMessageBoxEx();
-    int exec(QMessageBoxEx *msgBox, int key = -1);
+    tst_QMessageBox();
+    int exec(QMessageBox *msgBox, int key = -1);
 
 public slots:
     void sendKey();
@@ -26,6 +26,8 @@ private slots:
     void statics();
     void about();
 
+    void shortcut();
+
     void staticSourceCompat();
     void staticBinaryCompat();
 
@@ -33,11 +35,11 @@ private:
     int keyToSend;
 };
 
-tst_QMessageBoxEx::tst_QMessageBoxEx() : keyToSend(-1)
+tst_QMessageBox::tst_QMessageBox() : keyToSend(-1)
 {
 }
 
-int tst_QMessageBoxEx::exec(QMessageBoxEx *msgBox, int key)
+int tst_QMessageBox::exec(QMessageBox *msgBox, int key)
 {
     if (key == -1) {
         QTimer::singleShot(1000, msgBox, SLOT(close()));
@@ -48,7 +50,7 @@ int tst_QMessageBoxEx::exec(QMessageBoxEx *msgBox, int key)
     return msgBox->exec();
 }
 
-void tst_QMessageBoxEx::sendKey()
+void tst_QMessageBox::sendKey()
 {
     if (keyToSend == -2) {
         QApplication::activeModalWidget()->close();
@@ -61,12 +63,12 @@ void tst_QMessageBoxEx::sendKey()
     keyToSend = -1;
 }
 
-void tst_QMessageBoxEx::sanityTest()
+void tst_QMessageBox::sanityTest()
 {
-    QMessageBoxEx msgBox;
+    QMessageBox msgBox;
     msgBox.setText("This is insane");
     for (int i = 0; i < 10; i++)
-        msgBox.setIcon(QMessageBoxEx::Icon(i));
+        msgBox.setIcon(QMessageBox::Icon(i));
     msgBox.setIconPixmap(QPixmap());
     msgBox.setIconPixmap(QPixmap("whatever.png"));
     msgBox.setTextFormat(Qt::RichText);
@@ -74,39 +76,39 @@ void tst_QMessageBoxEx::sanityTest()
     exec(&msgBox);
 }
 
-void tst_QMessageBoxEx::button()
+void tst_QMessageBox::button()
 {
-    QMessageBoxEx msgBox;
-    msgBox.addButton("retry", QMessageBoxEx::DestructiveRole);
-    QVERIFY(msgBox.button(QMessageBoxEx::Ok) == 0); // not added yet
-    QPushButton *b1 = msgBox.addButton(QMessageBoxEx::Ok);
-    QCOMPARE(msgBox.button(QMessageBoxEx::Ok), b1);  // just added
-    QCOMPARE(msgBox.standardButton(b1), QMessageBoxEx::Ok);
-    msgBox.addButton(QMessageBoxEx::Cancel);
-    QCOMPARE(msgBox.standardButtons(), QMessageBoxEx::Ok | QMessageBoxEx::Cancel);
+    QMessageBox msgBox;
+    msgBox.addButton("retry", QMessageBox::DestructiveRole);
+    QVERIFY(msgBox.button(QMessageBox::Ok) == 0); // not added yet
+    QPushButton *b1 = msgBox.addButton(QMessageBox::Ok);
+    QCOMPARE(msgBox.button(QMessageBox::Ok), b1);  // just added
+    QCOMPARE(msgBox.standardButton(b1), QMessageBox::Ok);
+    msgBox.addButton(QMessageBox::Cancel);
+    QCOMPARE(msgBox.standardButtons(), QMessageBox::Ok | QMessageBox::Cancel);
     
     // remove the cancel, should not exist anymore
-    msgBox.setStandardButtons(QMessageBoxEx::Yes | QMessageBoxEx::No);
-    QVERIFY(msgBox.button(QMessageBoxEx::Cancel) == 0); 
-    QVERIFY(msgBox.button(QMessageBoxEx::Yes) != 0);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    QVERIFY(msgBox.button(QMessageBox::Cancel) == 0); 
+    QVERIFY(msgBox.button(QMessageBox::Yes) != 0);
 
     // should not crash
     QPushButton *b4 = new QPushButton;
-    msgBox.addButton(b4, QMessageBoxEx::DestructiveRole);
-    msgBox.addButton(0, QMessageBoxEx::ActionRole);
+    msgBox.addButton(b4, QMessageBox::DestructiveRole);
+    msgBox.addButton(0, QMessageBox::ActionRole);
 }
 
-void tst_QMessageBoxEx::defaultButton()
+void tst_QMessageBox::defaultButton()
 {
-    QMessageBoxEx msgBox;
+    QMessageBox msgBox;
     QVERIFY(msgBox.defaultButton() == 0);
-    msgBox.addButton(QMessageBoxEx::Ok);
-    msgBox.addButton(QMessageBoxEx::Cancel);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.addButton(QMessageBox::Cancel);
     QVERIFY(msgBox.defaultButton() == 0);
     QPushButton pushButton;
     msgBox.setDefaultButton(&pushButton);
     QVERIFY(msgBox.defaultButton() == 0); // we have not added it yet
-    QPushButton *retryButton = msgBox.addButton(QMessageBoxEx::Retry);
+    QPushButton *retryButton = msgBox.addButton(QMessageBox::Retry);
     msgBox.setDefaultButton(retryButton);
     QCOMPARE(msgBox.defaultButton(), retryButton);
     exec(&msgBox);
@@ -116,17 +118,17 @@ void tst_QMessageBoxEx::defaultButton()
     QCOMPARE(msgBox.clickedButton(), retryButton);
 }
 
-void tst_QMessageBoxEx::escapeButton()
+void tst_QMessageBox::escapeButton()
 {
-    QMessageBoxEx msgBox;
+    QMessageBox msgBox;
     QVERIFY(msgBox.escapeButton() == 0);
-    msgBox.addButton(QMessageBoxEx::Ok);
-    msgBox.addButton(QMessageBoxEx::Cancel);
+    msgBox.addButton(QMessageBox::Ok);
+    msgBox.addButton(QMessageBox::Cancel);
     QVERIFY(msgBox.escapeButton() == 0);
     QPushButton invalidButton;
     msgBox.setEscapeButton(&invalidButton);
     QVERIFY(msgBox.escapeButton() == 0);
-    QPushButton *retryButton = msgBox.addButton(QMessageBoxEx::Retry);
+    QPushButton *retryButton = msgBox.addButton(QMessageBox::Retry);
 
     exec(&msgBox);
     QVERIFY(msgBox.clickedButton() == 0);
@@ -143,57 +145,66 @@ void tst_QMessageBoxEx::escapeButton()
     QCOMPARE(msgBox.clickedButton(), retryButton);
 }
 
-void tst_QMessageBoxEx::statics()
+void tst_QMessageBox::statics()
 {
-    QMessageBoxEx::StandardButton (*statics[4])(QWidget *, const QString &,
-         const QString&, QMessageBoxEx::StandardButtons buttons, 
-         QMessageBoxEx::StandardButton);
+    QMessageBox::StandardButton (*statics[4])(QWidget *, const QString &,
+         const QString&, QMessageBox::StandardButtons buttons, 
+         QMessageBox::StandardButton);
 
-    statics[0] = QMessageBoxEx::information;
-    statics[1] = QMessageBoxEx::critical;
-    statics[2] = QMessageBoxEx::question;
-    statics[3] = QMessageBoxEx::warning;
+    statics[0] = QMessageBox::information;
+    statics[1] = QMessageBox::critical;
+    statics[2] = QMessageBox::question;
+    statics[3] = QMessageBox::warning;
 
     for (int i = 0; i < 4; i++) {
         keyToSend = Qt::Key_Escape;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
-        QMessageBoxEx::StandardButton sb = (*statics[i])(0, "caption", 
-           "text", QMessageBoxEx::Yes | QMessageBoxEx::No | QMessageBoxEx::Help,
-           QMessageBoxEx::NoButton);
-        QCOMPARE(sb, QMessageBoxEx::Cancel);
+        QMessageBox::StandardButton sb = (*statics[i])(0, "caption", 
+           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+           QMessageBox::NoButton);
+        QCOMPARE(sb, QMessageBox::Cancel);
 
         keyToSend = -2; // close()
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         sb = (*statics[i])(0, "caption", 
-           "text", QMessageBoxEx::Yes | QMessageBoxEx::No | QMessageBoxEx::Help,
-           QMessageBoxEx::NoButton);
-        QCOMPARE(sb, QMessageBoxEx::Cancel);
+           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+           QMessageBox::NoButton);
+        QCOMPARE(sb, QMessageBox::Cancel);
 
         keyToSend = Qt::Key_Enter;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         sb = (*statics[i])(0, "caption", 
-           "text", QMessageBoxEx::Yes | QMessageBoxEx::No | QMessageBoxEx::Help,
-           QMessageBoxEx::NoButton);
-        QCOMPARE(sb, QMessageBoxEx::Yes);
+           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+           QMessageBox::NoButton);
+        QCOMPARE(sb, QMessageBox::Yes);
 
         keyToSend = Qt::Key_Enter;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         sb = (*statics[i])(0, "caption", 
-           "text", QMessageBoxEx::Yes | QMessageBoxEx::No | QMessageBoxEx::Help,
-            QMessageBoxEx::No);
-        QCOMPARE(sb, QMessageBoxEx::No);
+           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+            QMessageBox::No);
+        QCOMPARE(sb, QMessageBox::No);
     }
 }
 
-void tst_QMessageBoxEx::about()
+void tst_QMessageBox::shortcut()
+{
+    QMessageBox msgBox;
+    msgBox.addButton("O&k", QMessageBox::YesRole);
+    msgBox.addButton("&No", QMessageBox::YesRole);
+    msgBox.addButton("&Maybe", QMessageBox::YesRole);
+    QVERIFY(exec(&msgBox, Qt::Key_M), 2);
+}
+
+void tst_QMessageBox::about()
 {
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    QMessageBoxEx::about(0, "Caption", "This is an auto test");
+    QMessageBox::about(0, "Caption", "This is an auto test");
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    QMessageBoxEx::aboutQt(0, "Caption");
+    QMessageBox::aboutQt(0, "Caption");
 }
 
 // Old message box enums
@@ -209,72 +220,72 @@ const int Old_NoAll = 9;
 const int Old_Default = 0x100;
 const int Old_Escape = 0x200;
 
-void tst_QMessageBoxEx::staticSourceCompat()
+void tst_QMessageBox::staticSourceCompat()
 {
     int ret;
 
     // source compat tests for < 4.2
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", QMessageBoxEx::Yes, QMessageBoxEx::No);
-    QCOMPARE(ret, int(QMessageBoxEx::Yes));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes, QMessageBox::No);
+    QCOMPARE(ret, int(QMessageBox::Yes));
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", QMessageBoxEx::Yes | QMessageBoxEx::Default, QMessageBoxEx::No);
-    QCOMPARE(ret, int(QMessageBoxEx::Yes));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No);
+    QCOMPARE(ret, int(QMessageBox::Yes));
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", QMessageBoxEx::Yes, QMessageBoxEx::No | QMessageBoxEx::Default);
-    QCOMPARE(ret, int(QMessageBoxEx::No));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes, QMessageBox::No | QMessageBox::Default);
+    QCOMPARE(ret, int(QMessageBox::No));
     
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", QMessageBoxEx::Yes | QMessageBoxEx::Default, QMessageBoxEx::No | QMessageBoxEx::Escape);
-    QCOMPARE(ret, int(QMessageBoxEx::Yes));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No | QMessageBox::Escape);
+    QCOMPARE(ret, int(QMessageBox::Yes));
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", QMessageBoxEx::Yes | QMessageBoxEx::Escape, QMessageBoxEx::No | QMessageBoxEx::Default);
-    QCOMPARE(ret, int(QMessageBoxEx::No));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes | QMessageBox::Escape, QMessageBox::No | QMessageBox::Default);
+    QCOMPARE(ret, int(QMessageBox::No));
 }
 
-void tst_QMessageBoxEx::staticBinaryCompat()
+void tst_QMessageBox::staticBinaryCompat()
 {
     int ret;
 
     // binary compat tests for < 4.2
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes, Old_No, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No, 0);
     QCOMPARE(ret, int(Old_Yes));
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes, Old_No, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No, 0);
     QCOMPARE(ret, -1);
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes | Old_Default, Old_No, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Default, Old_No, 0);
     QCOMPARE(ret, int(Old_Yes));
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes, Old_No | Old_Default, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No | Old_Default, 0);
     QCOMPARE(ret, -1);
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes | Old_Escape, Old_No | Old_Default, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Escape, Old_No | Old_Default, 0);
     QCOMPARE(ret, Old_Yes);
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBoxEx::information(0, "title", "text", Old_Yes | Old_Default, Old_No | Old_Escape, 0);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Default, Old_No | Old_Escape, 0);
     QCOMPARE(ret, Old_No);
 }
 
-QTEST_MAIN(tst_QMessageBoxEx)
+QTEST_MAIN(tst_QMessageBox)
 #include "tst_qmessageboxex.moc"
