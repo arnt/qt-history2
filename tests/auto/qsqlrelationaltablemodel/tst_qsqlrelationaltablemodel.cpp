@@ -33,6 +33,7 @@ public slots:
     void cleanupTestCase();
     void init();
     void cleanup();
+
 private slots:
     void data();
     void setData();
@@ -40,6 +41,7 @@ private slots:
     void insertRecord();
     void insertWithStrategies();
     void removeColumn();
+    void filter();
 };
 
 
@@ -271,6 +273,24 @@ void tst_QSqlRelationalTableModel::removeColumn()
     QCOMPARE(model.columnCount(), 1);
     QCOMPARE(model.data(model.index(0, 0)).toInt(), 1);
     QCOMPARE(model.data(model.index(0, 1)), QVariant());
+}
+
+void tst_QSqlRelationalTableModel::filter()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlRelationalTableModel model(0, db);
+
+    model.setTable(qTableName("reltest1"));
+    model.setRelation(2, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+    model.setFilter("title = 'herr'");
+    QVERIFY2(model.select(), model.lastError().text().toLatin1());
+
+    QCOMPARE(model.rowCount(), 2);
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(1, 2)).toString(), QString("herr"));
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)
