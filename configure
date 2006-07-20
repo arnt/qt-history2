@@ -4230,7 +4230,11 @@ if [ '!' -z "$I_FLAGS" ]; then
 fi
 
 # turn off exceptions for the compilers that support it
-COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+if [ "$PLATFORM_QWS" = "yes" ]; then
+    COMPILER=`echo $PLATFORM | cut -f 3- -d-`
+else
+    COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+fi
 if [ "$CFG_EXCEPTIONS" = "unspecified" -a "$PLATFORM_QWS" = "yes" ]; then
     CFG_EXCEPTIONS=no
 fi
