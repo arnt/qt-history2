@@ -79,7 +79,12 @@
 /*!
     \fn void QButtonGroup::buttonClicked(QAbstractButton *button)
 
-    This signal is emitted when the given \a button is clicked.
+    This signal is emitted when the given \a button is clicked. A
+    button is clicked when it is first pressed and then released, when
+    its shortcut key is typed, or programmatically when
+    QAbstractButton::click() or QAbstractButton::animateClick() is
+    called.
+
 
     \sa checkedButton(), QAbstractButton::clicked()
 */

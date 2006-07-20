@@ -113,8 +113,8 @@ the mouse cursor is inside the button.
 \i released() is emitted when the left mouse button is released.
 
 \i clicked() is emitted when the button is first pressed and then
-released when the shortcut key is typed, or when animateClick()
-is called.
+released, when the shortcut key is typed, or when click() or
+animateClick() is called.
 
 \i toggled(bool) is emitted when the state of a toggle button
 changes.
