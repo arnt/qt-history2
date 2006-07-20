@@ -187,7 +187,8 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label = new QLabel;
     label->setObjectName(QLatin1String("qt_msgboxex_label"));
     label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
-    label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
+    label->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+    label->setIndent(15);
 
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel;
@@ -781,7 +782,6 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         close();
         return;
     }
-    // Ask trenton if this fits better in QDialogButtonBox
 #ifndef QT_NO_SHORTCUT
     if (!(e->modifiers() & Qt::AltModifier)) {
         int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
