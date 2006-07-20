@@ -856,26 +856,28 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     // vertical
     bool above = (hint == EnsureVisible && rect.top() < area.top());
     bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
-    if (hint == PositionAtTop || above) {
-        int i = d->viewIndex(index);
-        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem)
-            verticalScrollBar()->setValue(i);
-        else
-            verticalScrollBar()->setValue(d->coordinateForItem(i));
-    } else if (hint == PositionAtCenter || hint == PositionAtBottom || below) {
-        int i = d->viewIndex(index);
-        if (i < 0) {
-            qWarning("scrollTo: item index was illegal: %d", i);
-            return;
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
+        int item = d->viewIndex(index);
+        if (hint == PositionAtTop || above) {
+            verticalScrollBar()->setValue(item);
+        } else if (hint == PositionAtCenter || hint == PositionAtBottom || below) {
+            int y = area.height();
+            if (hint == PositionAtCenter)
+                y = y / 2;
+            while (y > 0 && item > 0)
+                y -= d->itemHeight(item--);
+            item = ++item + ((y < 0) ? 1 : 0);
+            verticalScrollBar()->setValue(item);
         }
-        int y = area.height();
-        if (hint == PositionAtCenter)
-            y = y / 2;
-        while (y > 0 && i > 0)
-            y -= d->itemHeight(i--);
-        int h = d->itemHeight(i);
-        int a = (-y) / (h ? h : 1);
-        verticalScrollBar()->setValue(++i + a); // ### FIXME
+    } else { // ScrollPerPixel
+        int verticalValue = verticalScrollBar()->value();
+        if (hint == PositionAtTop || above)
+            verticalValue += rect.top();
+        else if (hint == PositionAtBottom || below)
+            verticalValue += rect.bottom() - area.height();
+        else if (hint == PositionAtCenter)
+            verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
+        verticalScrollBar()->setValue(verticalValue);
     }
 
     // horizontal
