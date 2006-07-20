@@ -498,11 +498,11 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
     hot.setY(hy);
 
     cursor  =  QImage(width,height, QImage::Format_Indexed8);
-    cursor.setNumColors(3);
 
     if (!width || !height || !data || !mask)
         return;
 
+    cursor.setNumColors(3);
     cursor.setColor(0, 0xff000000);
     cursor.setColor(1, 0xffffffff);
     cursor.setColor(2, 0x00000000);
