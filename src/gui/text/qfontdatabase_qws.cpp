@@ -137,7 +137,7 @@ static void initializeDb()
 #endif
 
         QString familyname = dir[i].left(u0);
-        int pointSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
+        int pixelSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
         bool italic = dir[i].mid(u2-1,1) == "i";
         int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
         QtFontFamily *f = db->family(familyname, true);
@@ -152,7 +152,7 @@ static void initializeDb()
         styleKey.stretch = 100;
         QtFontStyle *style = foundry->style(styleKey,  true);
         style->smoothScalable = false;
-        style->pixelSize(pointSize, true);
+        style->pixelSize(pixelSize, true);
     }
 
 #ifdef QFONTDATABASE_DEBUG
