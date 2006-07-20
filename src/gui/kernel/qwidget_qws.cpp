@@ -143,8 +143,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         else
             hasFrame = !(flags & Qt::FramelessWindowHint);
     }
-    q->setAttribute(Qt::WA_MouseTracking, true);
-    q->setMouseTracking(false);                        // also sets event mask
     if (desktop) {
         q->setAttribute(Qt::WA_WState_Visible);
     } else if (topLevel) {                        // set X cursor
@@ -910,6 +908,24 @@ QRegion QWidgetPrivate::localRequestedRegion() const
     if (extra && !extra->mask.isEmpty())
         r &= extra->mask;
 
+    return r;
+}
+
+QRegion QWidgetPrivate::localAllocatedRegion() const
+{
+    Q_Q(const QWidget);
+
+    QWidgetBackingStore *wbs = q->window()->d_func()->maybeBackingStore();
+
+    QWindowSurface *ws = wbs ? wbs->windowSurface : 0;
+    if (!ws)
+        return QRegion();
+    QRegion r = static_cast<QWSWindowSurface*>(ws)->clipRegion();
+    if (!q->isWindow()) {
+        QPoint off = q->mapTo(q->window(), QPoint());
+        r &= localRequestedRegion().translated(off);
+        r.translate(-off);
+    }
     return r;
 }
 

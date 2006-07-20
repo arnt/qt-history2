@@ -293,6 +293,7 @@ public:
 
 #if defined(Q_WS_QWS)
     QRegion localRequestedRegion() const;
+    QRegion localAllocatedRegion() const;
 
     void blitToScreen(const QRegion &globalrgn);
 #ifndef QT_NO_CURSOR

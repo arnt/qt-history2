@@ -2323,21 +2323,20 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
     //### QWSDisplay::windowAt() is currently only implemented in the server process
     int winId = QPaintDevice::qwsDisplay()->windowAt(pos);
-    QWidget *w = QWidget::find(winId);
-    if (w && winId !=0 && w->isWindow())
-        return w;
+    if (winId !=0)
+        return QWidget::find(winId);
 
 #if 1
     // fallback implementation for client processes
-//######### This is very wrong: we have no guarantee that the list is in stacking order.
-//### and, of course, it ignores windows from other applications.
+//### This is slightly wrong: we have no guarantee that the list is in
+//### stacking order, so if the topmost window is transparent, we may
+//### return the wrong widget
 
     QWidgetList list = topLevelWidgets();
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
-             w->isVisible() && w->geometry().contains(pos)
-            && w->d_func()->localRequestedRegion().contains(w->mapFromParent(pos)) //was alloc_region
+             w->isVisible() && w->d_func()->localAllocatedRegion().contains(w->mapFromParent(pos))
             )
             return w;
     }
