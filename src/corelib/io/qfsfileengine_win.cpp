@@ -15,6 +15,7 @@
 #include "qplatformdefs.h"
 #include "qabstractfileengine.h"
 #include "private/qfsfileengine_p.h"
+#include <qdebug.h>
 
 #include "qfile.h"
 #include "qdir.h"
@@ -562,7 +563,15 @@ bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) con
     if (createParentDirectories) {
         dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
         // We spefically search for / so \ would break it..
-        for (int oldslash = -1, slash=0; slash != -1; oldslash = slash) {
+        int oldslash = -1;
+        if (dirName.startsWith(QString("\\\\"))) {
+            // Don't try to create the root path of a UNC path;
+            // CreateDirectory() will just return ERROR_INVALID_NAME.
+            oldslash = dirName.indexOf(QRegExp("[^\\\\]"), 2);
+            if (oldslash != -1)
+                oldslash = dirName.indexOf(QDir::separator(), oldslash);
+        }
+        for (int slash=0; slash != -1; oldslash = slash) {
             slash = dirName.indexOf(QDir::separator(), oldslash+1);
             if (slash == -1) {
                 if(oldslash == dirName.length())
