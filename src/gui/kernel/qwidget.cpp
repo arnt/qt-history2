@@ -7514,7 +7514,9 @@ void QWidget::updateMicroFocus()
 HDC QWidget::getDC() const
 {
     Q_D(const QWidget);
-    return (HDC) d->hd;
+    if (d->hd)
+        return (HDC) d->hd;
+    return GetDC(winId());
 }
 
 /*!
@@ -7525,7 +7527,11 @@ HDC QWidget::getDC() const
 void QWidget::releaseDC(HDC hdc) const
 {
     Q_D(const QWidget);
-    Q_ASSERT(d->hd == hdc);
+    // If its the widgets own dc, it will be released elsewhere. If
+    // its a different HDC we release it and issue a warning if it
+    // fails.
+    if (hdc != d->hd && !ReleaseDC(winId(), hdc))
+        qErrnoWarning("QWidget::releaseDC(): failed to release HDC");
 }
 #else
 /*!

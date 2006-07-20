@@ -7,4 +7,4 @@ QT += qt3support
 aix-g++*:QMAKE_CXXFLAGS+=-fpermissive
 
 CONFIG += x11inc
-win32: LIBS += -luser32
+win32: LIBS += -luser32 -lgdi32

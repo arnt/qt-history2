@@ -123,6 +123,10 @@ private slots:
 
     void childDeletesItsSibling();
 
+#ifdef Q_WS_WIN
+    void getDC();
+#endif
+
 private:
     QWidget *testWidget;
 };
@@ -2460,5 +2464,17 @@ void tst_QWidget::childDeletesItsSibling()
 
 }
 
+#ifdef Q_WS_WIN
+void tst_QWidget::getDC()
+{
+    QWidget widget;
+    widget.setGeometry(0, 0, 2, 4);
+
+    HDC dc = widget.getDC();
+    QVERIFY(dc != 0);
+
+    widget.releaseDC(dc);
+}
+#endif
 QTEST_MAIN(tst_QWidget)
 #include "tst_qwidget.moc"
