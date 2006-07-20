@@ -51,11 +51,14 @@ public:
  */
 ViewsToTest::ViewsToTest()
 {
-    tests.append(test("QTreeView", DisplayRoot));
-    tests.append(test("QListView", DisplayRoot));
+    tests.append(test("QTreeView_ScrollPerItem", DisplayRoot));
+    tests.append(test("QTreeView_ScrollPerPixel", DisplayRoot));
+    tests.append(test("QListView_ScrollPerItem", DisplayRoot));
+    tests.append(test("QListView_ScrollPerPixel", DisplayRoot));
     tests.append(test("QHeaderViewHorizontal", DisplayNone));
     tests.append(test("QHeaderViewVertical", DisplayNone));
-    tests.append(test("QTableView", DisplayRoot));
+    tests.append(test("QTableView_ScrollPerItem", DisplayRoot));
+    tests.append(test("QTableView_ScrollPerPixel", DisplayRoot));
     tests.append(test("QTableViewNoGrid", DisplayRoot));
 }
 
@@ -65,21 +68,39 @@ ViewsToTest::ViewsToTest()
 QAbstractItemView *ViewsToTest::createView(const QString &viewType)
 {
     QAbstractItemView *view = 0;
-    if (viewType == "QListView")
+    if (viewType == "QListView_ScrollPerItem") {
         view = new QListView();
-    else if (viewType == "QHeaderViewHorizontal")
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    } else if (viewType == "QListView_ScrollPerPixel") {
+        view = new QListView();
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    } else if (viewType == "QHeaderViewHorizontal") {
         view = new QHeaderView(Qt::Horizontal);
-    else if (viewType == "QHeaderViewVertical")
+    } else if (viewType == "QHeaderViewVertical") {
         view = new QHeaderView(Qt::Vertical);
-    else if (viewType == "QTableView")
+    } else if (viewType == "QTableView_ScrollPerItem") {
         view = new QTableView();
-    else if (viewType == "QTableViewNoGrid") {
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    } else if (viewType == "QTableView_ScrollPerPixel") {
+        view = new QTableView();
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    } else if (viewType == "QTableViewNoGrid") {
         QTableView *table = new QTableView();
         table->setShowGrid(false);
         view = table;
-    }
-    else if (viewType == "QTreeView")
+    } else if (viewType == "QTreeView_ScrollPerItem") {
         view = new QTreeView();
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    } else if (viewType == "QTreeView_ScrollPerPixel") {
+        view = new QTreeView();
+        view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    }
     Q_ASSERT(view);
     return view;
 }

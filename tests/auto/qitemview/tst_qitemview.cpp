@@ -168,7 +168,7 @@ void tst_QItemView::setupWithNoTestData()
     }
     for (int i = 0; i < testViews.tests.size(); ++i) {
         QString view = testViews.tests.at(i).viewType;
-        QString test = view + " ScrolPerItem";
+        QString test = view + " ScrollPerItem";
         bool displayIndexes = (testViews.tests.at(i).display == ViewsToTest::DisplayRoot);
         QTest::newRow(test.toLatin1().data()) << view << displayIndexes
 #if QT_VERSION >= 0x040200
