@@ -530,9 +530,12 @@ void tst_QThread::usleep()
 }
 
 bool threadAdoptedOk = false;
+QThread *mainThread;
 void testThreadAdoptionWin(void *)
 {
-    threadAdoptedOk =(QThread::currentThreadId() != 0);
+    threadAdoptedOk = (QThread::currentThreadId() != 0
+                       && QThread::currentThread() != 0
+                       && QThread::currentThread() != mainThread);
 }
 void *testThreadAdoptionUnix(void *)
 {
@@ -540,12 +543,10 @@ void *testThreadAdoptionUnix(void *)
     return 0;
 }
 
-/*
-
-*/
 void tst_QThread::nativeThreadAdoption()
 {
     threadAdoptedOk = false;
+    mainThread = QThread::currentThread();
 #ifdef Q_OS_UNIX
     pthread_t thread;
     const int state = pthread_create(&thread, 0, testThreadAdoptionUnix, 0);
