@@ -94,8 +94,7 @@ public:
         Default            = 0x00000100,        // obsolete
         Escape             = 0x00000200,        // obsolete
         FlagMask           = 0x00000300,        // obsolete
-        ButtonMask         = ~FlagMask,         // obsolete
-        Escaped            = 0xFFFFFFFF         // internal
+        ButtonMask         = ~FlagMask          // obsolete
     };
     typedef StandardButton Button;  // obsolete
 
