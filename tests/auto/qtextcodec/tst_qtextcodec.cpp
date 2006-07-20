@@ -105,6 +105,7 @@ void tst_QTextCodec::codecForName_data()
     QTest::newRow("data2") << "iso88592" << "ISO-8859-2";
     QTest::newRow("data3") << " IsO(8)8/5*9-2 " << "ISO-8859-2";
     QTest::newRow("data4") << " IsO(8)8/5*2-9 " << "";
+    QTest::newRow("data5") << "latin2" << "ISO-8859-2";
 }
 
 void tst_QTextCodec::codecForName()
