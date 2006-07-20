@@ -843,6 +843,8 @@ void QComboBoxPrivate::_q_returnPressed()
 {
     Q_Q(QComboBox);
     if (lineEdit && !lineEdit->text().isEmpty()) {
+        lineEdit->deselect();
+        lineEdit->end(false);
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
         int index = -1;
