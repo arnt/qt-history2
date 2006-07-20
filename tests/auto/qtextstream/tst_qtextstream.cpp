@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(qulonglong)
 Q_DECLARE_METATYPE(QList<int>)
 
 template<> struct QMetaTypeId<QIODevice::OpenModeFlag>
-{ static inline int qt_metatype_id() { return QMetaType::Int; } };
+{ enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 
 //TESTED_CLASS=QTextStream
 //TESTED_FILES=corelib/io/qtextstream.h corelib/io/qtextstream.cpp
