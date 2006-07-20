@@ -277,6 +277,14 @@
 */
 
 /*!
+    \fn bool QFlags::testFlag(Enum flag) const
+
+    \since 4.2
+
+    Returns true if the \a flag is set, otherwise false.
+*/
+
+/*!
     \macro Q_DECLARE_FLAGS(Flags, Enum)
     \relates QFlags
 

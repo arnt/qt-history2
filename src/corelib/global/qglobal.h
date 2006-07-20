@@ -1592,6 +1592,8 @@ public:
     inline QFlags operator~() const { QFlags g; g.i = ~i; return g; }
 
     inline bool operator!() const { return !i; }
+
+    inline bool testFlag(Enum f) const { return i & f; }
 };
 
 #define Q_DECLARE_FLAGS(Flags, Enum)\
