@@ -199,6 +199,7 @@ public Q_SLOTS:
 
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
+    void setText(const QString &text);
 
 #ifndef QT_NO_CLIPBOARD
     void cut();
@@ -304,7 +305,6 @@ public:
 
     QT3_SUPPORT void doKeyboardAction(KeyboardAction action);
 
-    QT3_SUPPORT void setText(const QString &text);
     QT3_SUPPORT QString text() const;
     QT3_SUPPORT void setTextFormat(Qt::TextFormat);
     QT3_SUPPORT Qt::TextFormat textFormat() const;

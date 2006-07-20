@@ -988,7 +988,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     Q_D(QTextEdit);
 
     bool readOnly = !(d->control->textInteractionFlags() & Qt::TextEditable);
-    
+
     if (readOnly) {
         switch (e->key()) {
             case Qt::Key_Space:
@@ -1036,7 +1036,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             d->pageUpDown(QTextCursor::Down, QTextCursor::KeepAnchor);
             return;
     }
-    
+
 #ifdef QT_KEYPAD_NAVIGATION
     switch (e->key()) {
         case Qt::Key_Select:
@@ -2085,6 +2085,23 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
     cursor changed.
 */
 
+/*!
+    Sets the text edit's \a text. The text can be plain text or HTML
+    and the text edit will try to guess the right format.
+
+    Use setHtml() or setPlainText() directly to avoid text edit's guessing.
+*/
+void QTextEdit::setText(const QString &text)
+{
+    Q_D(QTextEdit);
+    if (d->textFormat == Qt::AutoText)
+        d->textFormat = Qt::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
+    if (d->textFormat == Qt::RichText || d->textFormat == Qt::LogText)
+        setHtml(text);
+    else
+        setPlainText(text);
+}
+
 #ifdef QT3_SUPPORT
 /*!
     Use the QTextCursor class instead.
@@ -2161,23 +2178,6 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
             break;
     }
     d->control->setTextCursor(cursor);
-}
-
-/*!
-    Sets the text edit's \a text. The text can be plain text or HTML
-    and the text edit will try to guess the right format.
-
-    Use setHtml() or setPlainText() directly to avoid text edit's guessing.
-*/
-void QTextEdit::setText(const QString &text)
-{
-    Q_D(QTextEdit);
-    if (d->textFormat == Qt::AutoText)
-        d->textFormat = Qt::mightBeRichText(text) ? Qt::RichText : Qt::PlainText;
-    if (d->textFormat == Qt::RichText || d->textFormat == Qt::LogText)
-        setHtml(text);
-    else
-        setPlainText(text);
 }
 
 /*!
