@@ -137,8 +137,10 @@ void QTreeModel::setColumnCount(int columns)
     } else {
         beginInsertColumns(QModelIndex(), count, columns - 1);
         headerItem->values.resize(columns);
-        for (int i = count; i < columns; ++i) // insert data without emitting the dataChanged signal
-            headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
+        for (int i = count; i < columns; ++i) {// insert data without emitting the dataChanged signal
+            headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i + 1)));
+            headerItem->display.append(QString::number(i + 1));
+        }
         endInsertColumns();
     }
 }
@@ -355,8 +357,10 @@ bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
     int oldCount = columnCount(parent);
     column = qBound(0, column, oldCount);
     headerItem->values.resize(oldCount + count);
-    for (int i = oldCount; i < oldCount + count; ++i)
-        headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
+    for (int i = oldCount; i < oldCount + count; ++i) {
+        headerItem->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i + 1)));
+        headerItem->display.append(QString::number(i + 1));
+    }
 
     QStack<QTreeWidgetItem*> itemstack;
     itemstack.push(0);
@@ -418,7 +422,7 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
     if (headerItem)
         return headerItem->data(section, role);
     if (role == Qt::DisplayRole)
-        return section + 1;
+        return QString::number(section + 1);
     return QVariant();
 }
 
