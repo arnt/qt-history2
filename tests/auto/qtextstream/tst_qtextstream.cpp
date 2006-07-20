@@ -1236,8 +1236,11 @@ void tst_QTextStream::pos()
         stream >> strtmp;
         QCOMPARE(strtmp, QString("Shift-JIS"));
         stream >> strtmp;
-        QCOMPARE(strtmp, QString::fromUtf8("\305\217\352\202\275"));
+        QCOMPARE(strtmp, QString::fromUtf8("\343\201\247\346\233\270\343\201\213\343\202\214\343\201\237"));
         QCOMPARE(stream.pos(), qint64(43345));
+        stream >> strtmp;
+        QCOMPARE(strtmp, QString("POD"));
+        QCOMPARE(stream.pos(), qint64(43349));
     }
 }
 
