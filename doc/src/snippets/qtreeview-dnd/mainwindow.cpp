@@ -14,7 +14,7 @@ MainWindow::MainWindow()
 
 //  For convenient quoting:
     QTreeView *treeView = new QTreeView(this);
-    treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+    treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     treeView->setDragEnabled(true);
     treeView->setAcceptDrops(true);
     treeView->setDropIndicatorShown(true);
@@ -41,8 +41,7 @@ void MainWindow::setupItems()
 
     DragDropModel *model = new DragDropModel(items, this);
     QModelIndex index = model->index(0, 0, QModelIndex());
-    qDebug() << index;
-    qDebug() << model->insertRows(2, 3, index);
+    model->insertRows(2, 3, index);
     index = model->index(0, 0, QModelIndex());
     index = model->index(2, 0, index);
     model->setData(index, QVariant("QFrame"));
