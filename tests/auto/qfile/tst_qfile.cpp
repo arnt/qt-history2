@@ -1690,6 +1690,7 @@ void tst_QFile::rename()
     QFETCH(QString, destination);
     QFETCH(bool, result);
 
+    QFile::remove("renamedfile");
     QFile f("renamefile");
     f.open(QFile::WriteOnly);
     f.close();
