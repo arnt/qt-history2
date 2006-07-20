@@ -423,6 +423,7 @@ done
 
 QMakeVar add styles "cde mac motif plastique cleanlooks windows"
 QMakeVar add decorations "default windows styled"
+QMakeVar add gfx-drivers "linuxfb"
 QMakeVar add kbd-drivers "tty"
 QMakeVar add mouse-drivers "pc"
 
