@@ -22,7 +22,7 @@
 #include <qapplication.h>
 #include <qnamespace.h>
 #include <q3accel.h>
-#include <qmessageboxex.h>
+#include <qmessagebox.h>
 #include <q3scrollview.h>
 #include <qdir.h>
 #include <QGraphicsItem>
