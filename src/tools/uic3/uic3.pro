@@ -11,6 +11,7 @@ QT += xml qt3support
 DESTDIR = ../../../bin
 
 include(../uic/uic.pri)
+include(../uic/cpp/cpp.pri)
 
 INCLUDEPATH += .
 
