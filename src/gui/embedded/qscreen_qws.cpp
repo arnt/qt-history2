@@ -874,13 +874,22 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     bool foundDriver = false;
     QString driverName = driver;
 
-    qt_screen = QScreenDriverFactory::create(driverName, display_id);
-    if (qt_screen) {
-        foundDriver = true;
-        if (qt_screen->connect(spec))
-            return qt_screen;
-        delete qt_screen;
-        qt_screen = 0;
+    QStringList driverList = QScreenDriverFactory::keys();
+    QStringList::Iterator it;
+    for (it = driverList.begin(); it != driverList.end(); ++it) {
+        if (driver.isEmpty() || QString(*it) == driver) {
+            driverName = *it;
+            qt_screen = QScreenDriverFactory::create(driverName, display_id);
+            if (qt_screen) {
+                foundDriver = true;
+                if (qt_screen->connect(spec)) {
+                    return qt_screen;
+                } else {
+                    delete qt_screen;
+                    qt_screen = 0;
+                }
+            }
+        }
     }
 
     if (driver.isNull())
