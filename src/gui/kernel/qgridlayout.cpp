@@ -257,8 +257,8 @@ int QGridLayoutPrivate::heightForWidth(int w, int margin, int spacing)
     if (!has_hfw)
         return -1;
     if (w + 2*margin != hfw_width) {
-        qGeomCalc(colData, 0, cc, 0, w+2*margin, spacing);
-        recalcHFW(w+2*margin, spacing);
+        qGeomCalc(colData, 0, cc, 0, w - 2*margin, spacing);
+        recalcHFW(w - 2*margin, spacing);
     }
     return hfw_height + 2*margin;
 }
