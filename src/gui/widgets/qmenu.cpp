@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_MENU
 
+#include "qdebug.h"
 #include "qstyle.h"
 #include "qevent.h"
 #include "qtimer.h"
@@ -1418,12 +1419,12 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
         if (pos.x() < screen.left()+desktopFrame)
             pos.setX(qMax(p.x(), screen.left()+desktopFrame));
-        else if (pos.x()+size.width() > screen.right()-desktopFrame)
+        if (pos.x()+size.width() > screen.right()-desktopFrame)
             pos.setX(qMax(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
     } else {
         if (pos.x()+size.width() > screen.right()-desktopFrame)
             pos.setX(qMin(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
-        else if (pos.x() < screen.left()+desktopFrame)
+        if (pos.x() < screen.left()+desktopFrame)
             pos.setX(qMax(p.x(), screen.left() + desktopFrame));
     }
     if (pos.y() + size.height() > screen.bottom() - desktopFrame) {
