@@ -99,6 +99,7 @@ SUBDIRS += bic \
            qdbusxmlparser \
            qdeepcopy \
            qdesktopservices \
+           qdesktopwidget \
            qdial \
            qdialog \
            qdialogbuttonbox \
