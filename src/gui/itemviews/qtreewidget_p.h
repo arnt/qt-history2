@@ -24,9 +24,9 @@
 // We mean it.
 //
 
-#include "QtCore/qabstractitemmodel.h"
-#include "QtCore/qpair.h"
-#include "QtGui/qtreewidget.h"
+#include <QtCore/qabstractitemmodel.h>
+#include <QtCore/qpair.h>
+#include <QtGui/qtreewidget.h>
 
 #ifndef QT_NO_TREEWIDGET
 
@@ -43,7 +43,7 @@ class QTreeModel : public QAbstractItemModel
     friend class QTreeWidgetItemIteratorPrivate;
 
 public:
-    QTreeModel(int columns = 0, QObject *parent = 0);
+    QTreeModel(int columns = 0, QTreeWidget *parent = 0);
     ~QTreeModel();
 
     inline QTreeWidget *view() const
@@ -102,7 +102,7 @@ public:
     QMimeData *internalMimeData()  const;
 
 protected:
-    QTreeModel(QTreeModelPrivate &, QObject *parent = 0);
+    QTreeModel(QTreeModelPrivate &, QTreeWidget *parent = 0);
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
     void endInsertItems();

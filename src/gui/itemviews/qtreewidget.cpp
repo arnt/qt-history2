@@ -14,7 +14,6 @@
 #include "qtreewidget.h"
 
 #ifndef QT_NO_TREEWIDGET
-#include <qapplication.h>
 #include <qheaderview.h>
 #include <qpainter.h>
 #include <qitemdelegate.h>
@@ -65,10 +64,10 @@ public:
   number of \a columns.
 */
 
-QTreeModel::QTreeModel(int columns, QObject *parent)
+QTreeModel::QTreeModel(int columns, QTreeWidget *parent)
     : QAbstractItemModel(parent), headerItem(new QTreeWidgetItem)
 {
-    headerItem->view = view();
+    headerItem->view = parent;
     setColumnCount(columns);
 }
 
@@ -77,10 +76,10 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 
 */
 
-QTreeModel::QTreeModel(QTreeModelPrivate &dd, QObject *parent)
+QTreeModel::QTreeModel(QTreeModelPrivate &dd, QTreeWidget *parent)
     : QAbstractItemModel(dd, parent), headerItem(new QTreeWidgetItem)
 {
-    headerItem->view = view();
+    headerItem->view = parent;
 }
 
 /*!
@@ -127,7 +126,7 @@ void QTreeModel::setColumnCount(int columns)
         headerItem = new QTreeWidgetItem();
         headerItem->view = view();
     }
-    int count = headerItem->columnCount();
+    int count = columnCount();
     if (count == columns)
         return;
 
@@ -205,7 +204,7 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
     // children
     QTreeWidgetItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
-        QTreeWidgetItem *itm = static_cast<QTreeWidgetItem*>(parentItem->child(row));
+        QTreeWidgetItem *itm = parentItem->child(row);
         if (itm)
             return createIndex(row, column, itm);
         return QModelIndex();
@@ -226,7 +225,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
         return QModelIndex();
-    QTreeWidgetItem *itm = reinterpret_cast<QTreeWidgetItem *>(child.internalPointer());
+    QTreeWidgetItem *itm = static_cast<QTreeWidgetItem *>(child.internalPointer());
     if (!itm)
         return QModelIndex();
     QTreeWidgetItem *parent = itm->parent();
@@ -242,12 +241,13 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid()) {
-        QTreeWidgetItem *parentItem = item(parent);
-        if (parentItem)
-            return parentItem->childCount();
-    }
-    return topLevelItems.count();
+    if (!parent.isValid())
+        return topLevelItems.count();
+
+    QTreeWidgetItem *parentItem = item(parent);
+    if (parentItem)
+        return parentItem->childCount();
+    return 0;
 }
 
 /*!
@@ -326,8 +326,8 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
         return false;
 
     beginInsertRows(parent, row, row + count - 1);
+    QTreeWidgetItem *par = item(parent);
     while (count > 0) {
-        QTreeWidgetItem *par = item(parent);
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->view = view();
         item->par = par;
@@ -347,7 +347,7 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 */
 bool QTreeModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    if (count < 1 || column < 0 || column > columnCount(parent) || parent.column() > 0)
+    if (count < 1 || column < 0 || column > columnCount(parent) || parent.column() > 0 || !headerItem)
         return false;
 
     beginInsertColumns(parent, column, column + count - 1);
@@ -383,13 +383,13 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
         return false;
 
-    beginRemoveRows(parent, row, row + count -1);
+    beginRemoveRows(parent, row, row + count - 1);
 
     bool blockSignal = signalsBlocked();
     blockSignals(true);
 
     QTreeWidgetItem *itm = item(parent);
-    for (int i = row+count-1; i >= row; --i) {
+    for (int i = row + count - 1; i >= row; --i) {
         QTreeWidgetItem *child = itm ? itm->takeChild(i) : topLevelItems.takeAt(i);
         Q_ASSERT(child);
         child->view = 0;
@@ -412,14 +412,13 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
 
 QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (!headerItem)
-        return section;
-    if (orientation == Qt::Horizontal) {
-        if (headerItem)
-            return headerItem->data(section, role);
-        if (role == Qt::DisplayRole)
-            return section + 1;
-    }
+    if (orientation != Qt::Horizontal)
+        return QVariant();
+
+    if (headerItem)
+        return headerItem->data(section, role);
+    if (role == Qt::DisplayRole)
+        return section + 1;
     return QVariant();
 }
 
@@ -436,14 +435,11 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                const QVariant &value, int role)
 {
-    if (section < 0 || (orientation == Qt::Horizontal && headerItem->columnCount() <= section))
+    if (section < 0 || orientation != Qt::Horizontal || !headerItem)
         return false;
 
-    if (orientation == Qt::Horizontal && headerItem) {
-        headerItem->setData(section, role, value);
-        return true;
-    }
-    return false;
+    headerItem->setData(section, role, value);
+    return true;
 }
 
 /*!
@@ -471,7 +467,7 @@ Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 
 void QTreeModel::sort(int column, Qt::SortOrder order)
 {
-    if (headerItem && (column < 0 || column >= headerItem->columnCount()))
+    if (column < 0 || column >= columnCount())
         return;
 
     emit layoutAboutToBeChanged();
@@ -493,7 +489,7 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
                               int start, int end, const QModelIndex &parent)
 {
-    if (headerItem && (column < 0 || column >= headerItem->columnCount()))
+    if (column < 0 || column >= columnCount())
         return;
 
     QTreeWidgetItem *itm = item(parent);
@@ -658,7 +654,8 @@ QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
             items << item(indexes.at(i));
     }
 
-    // cachedIndexes is a little hack to avoid copying from QModelIndexList to QList<QTreeWidgetItem*> and back again in the view
+    // cachedIndexes is a little hack to avoid copying from QModelIndexList to
+    // QList<QTreeWidgetItem*> and back again in the view
     cachedIndexes = indexes;
     QMimeData *mimeData = view()->mimeData(items);
     cachedIndexes.clear();
@@ -687,8 +684,8 @@ void QTreeModel::itemChanged(QTreeWidgetItem *item)
 
 /*!
   \internal
-
-  Emits the dataChanged() signal for the given \a item.
+    Emits the dataChanged() signal for the given \a item.
+    if column is -1 then all columns have changed
 */
 
 void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
@@ -697,19 +694,22 @@ void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
         return;
 
     if (headerItem == item && column < item->columnCount()) {
-        emit headerDataChanged(Qt::Horizontal, column, column);
+        if (column == -1)
+            emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+        else
+            emit headerDataChanged(Qt::Horizontal, column, column);
         return;
     }
 
-    QModelIndex br, tl;
-    if (column == -1) { // the whole row
-        tl = index(item, 0);
-        br = createIndex(tl.row(), columnCount() - 1, item);
-    } else { // single cell
-        tl = index(item, column);
-        br = tl;
+    QModelIndex bottomRight, topLeft;
+    if (column == -1) {
+        topLeft = index(item, 0);
+        bottomRight = createIndex(topLeft.row(), columnCount() - 1, item);
+    } else {
+        topLeft = index(item, column);
+        bottomRight = topLeft;
     }
-    emit dataChanged(tl, br);
+    emit dataChanged(topLeft, bottomRight);
 }
 
 void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
@@ -724,6 +724,8 @@ void QTreeModel::endInsertItems()
 
 void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
 {
+    Q_ASSERT(row >= 0);
+    Q_ASSERT(count > 0);
     beginRemoveRows(index(parent, 0), row, row + count - 1);
     // now update the iterators
     for (int i = 0; i < iterators.count(); ++i) {
@@ -744,8 +746,9 @@ void QTreeModel::endRemoveItems()
     endRemoveRows();
 }
 
-void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::SortOrder order)
+void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order)
 {
+    Q_UNUSED(column);
     // store the original order of indexes
     QVector< QPair<QTreeWidgetItem*,int> > sorting(items->count());
     for (int i = 0; i < sorting.count(); ++i) {
@@ -757,7 +760,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qStableSort(sorting.begin(), sorting.end(), compare);
 
-    int colCount = headerItem->columnCount();
+    int colCount = columnCount();
     for (int r = 0; r < sorting.count(); ++r) {
         QTreeWidgetItem *item = sorting.at(r).first;
         items->replace(r, item);
@@ -1367,11 +1370,14 @@ QTreeWidgetItem::~QTreeWidgetItem()
             model->endRemoveItems();
         }
     }
-    // at this point the persistent indexes for the children should also be invalidated since we invalidated the parent
+    // at this point the persistent indexes for the children should also be invalidated
+    // since we invalidated the parent
     for (int i = 0; i < children.count(); ++i) {
         QTreeWidgetItem *child = children.at(i);
-        child->par = 0; // make sure the child doesn't try to remove itself from children list
-        child->view = 0; // make sure the child doesn't try to remove itself from the top level list
+        // make sure the child does not try to remove itself from our children list
+        child->par = 0;
+        // make sure the child does not try to remove itself from the top level list
+        child->view = 0;
         delete child;
     }
 
@@ -1430,7 +1436,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         return;
 
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-    switch(role) {
+    switch (role) {
     case Qt::EditRole:
     case Qt::DisplayRole:
         if (model && this == model->headerItem)
@@ -2335,7 +2341,7 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
         return;
     item->view = this;
 
-    int oldCount = d->model()->headerItem->columnCount();
+    int oldCount = columnCount();
     if (oldCount < item->columnCount())
          d->model()->beginInsertColumns(QModelIndex(), oldCount, item->columnCount());
     else
@@ -2823,7 +2829,7 @@ void QTreeWidget::dropEvent(QDropEvent *event) {
 
             // Remove the items
             QList<QTreeWidgetItem *> taken;
-            for (int i = indexes.count()-1; i >=0; --i) {
+            for (int i = indexes.count() - 1; i >= 0; --i) {
                 QTreeWidgetItem *parent = itemFromIndex(indexes.at(i));
                 if (!parent || !parent->parent()) {
                     taken.append(takeTopLevelItem(indexes.at(i).row()));
