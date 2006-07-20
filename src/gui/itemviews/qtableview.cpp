@@ -66,6 +66,7 @@ void QTableViewPrivate::init()
     tabKeyNavigation = true;
 
     cornerWidget = new QTableCornerButton(q);
+    cornerWidget->setFocusPolicy(Qt::NoFocus);
     QObject::connect(cornerWidget, SIGNAL(clicked()), q, SLOT(selectAll()));
 }
 
