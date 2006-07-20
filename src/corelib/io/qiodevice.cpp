@@ -472,7 +472,8 @@ bool QIODevice::isWritable() const
 }
 
 /*!
-    Opens the device and sets its OpenMode to \a mode.
+    Opens the device and sets its OpenMode to \a mode. Returns true if successful;
+    otherwise returns false.
 
     \sa openMode() OpenMode
 */
