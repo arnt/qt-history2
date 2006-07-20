@@ -72,5 +72,9 @@
 <file>images/standardbutton-yes-16.png</file>
 <file>images/standardbutton-yes-32.png</file>
 <file>images/standardbutton-yes-64.png</file>
+<file>images/back-16.png</file>
+<file>images/back-32.png</file>
+<file>images/back-64.png</file>
+<file>images/back-128.png</file>
 </qresource>
 </RCC>
