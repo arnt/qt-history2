@@ -97,11 +97,12 @@ void QFontPrivate::load(int)
     QFontDef req = request;
     int script = QUnicodeTables::Common;
 
-    // 75 dpi on embedded
+    // 72 dpi on embedded
+    const int dpi = 72;
     if (req.pixelSize == -1)
-        req.pixelSize = qRound(req.pointSize);
+        req.pixelSize = qRound(req.pointSize*dpi/72);
     if (req.pointSize < 0)
-        req.pointSize = req.pixelSize;
+        req.pointSize = req.pixelSize*72.0/dpi;
 
     if (! engineData) {
         QFontCache::Key key(req, script);
