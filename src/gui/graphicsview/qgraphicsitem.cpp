@@ -4111,17 +4111,62 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     Graphics View Framework}
 */
 
+/*!
+    \enum QGraphicsPixmapItem::ShapeMode
+
+    This enum describes how QGraphicsPixmapItem calculates its shape.
+
+    The default value is MaskShape.
+
+    \value MaskShape The shape is determined by calling QPixmap::mask().
+    This shape includes only the opaque pixels of the pixmap.
+    Because the shape is more complex, however, it can be slower than the other modes,
+    and uses more memory.
+
+    \value BoundingRectShape The shape is determined by tracing the outline of
+    the pixmap. This is the fastest shape mode, but it does not take into account
+    any transparent areas on the pixmap.
+
+    \value HeuristicMaskShape The shape is determine by calling
+    QPixmap::createHeuristicMask().  The performance and memory consumption
+    is similar to MaskShape.
+*/
+
 class QGraphicsPixmapItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPixmapItem)
 public:
     QGraphicsPixmapItemPrivate()
-        : transformationMode(Qt::FastTransformation)
+        : transformationMode(Qt::FastTransformation),
+          shapeMode(QGraphicsPixmapItem::MaskShape)
     {}
 
     QPixmap pixmap;
     Qt::TransformationMode transformationMode;
     QPointF offset;
+    QGraphicsPixmapItem::ShapeMode shapeMode;
+    QPainterPath shape;
+
+    void updateShape()
+    {
+        shape = QPainterPath();
+        switch (shapeMode) {
+        case QGraphicsPixmapItem::MaskShape: {
+            QBitmap mask = pixmap.mask();
+            if (!mask.isNull()) {
+                shape.addRegion(QRegion(pixmap.mask()).translated(offset.toPoint()));
+                break;
+            }
+            // FALL THROUGH
+        }
+        case QGraphicsPixmapItem::BoundingRectShape:
+            shape.addRect(QRectF(offset.x(), offset.y(), pixmap.width(), pixmap.height()));
+            break;
+        case QGraphicsPixmapItem::HeuristicMaskShape:
+            shape.addRegion(QRegion(pixmap.createHeuristicMask()).translated(offset.toPoint()));
+            break;
+        }
+    }
 };
 
 /*!
@@ -4161,6 +4206,7 @@ void QGraphicsPixmapItem::setPixmap(const QPixmap &pixmap)
     Q_D(QGraphicsPixmapItem);
     removeFromIndex();
     d->pixmap = pixmap;
+    d->updateShape();
     addToIndex();
 }
 
@@ -4250,14 +4296,7 @@ QRectF QGraphicsPixmapItem::boundingRect() const
 */
 QPainterPath QGraphicsPixmapItem::shape() const
 {
-    Q_D(const QGraphicsPixmapItem);
-    QPainterPath path;
-    QBitmap mask = d->pixmap.mask();
-    if (mask.isNull())
-        path.addRect(QRectF(d->offset.x(), d->offset.y(), d->pixmap.width(), d->pixmap.height()));
-    else
-        path.addRegion(QRegion(mask).translated(d->offset.toPoint()));
-    return path;
+    return d_func()->shape;
 }
 
 /*!
@@ -4299,6 +4338,32 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 int QGraphicsPixmapItem::type() const
 {
     return Type;
+}
+
+/*!
+    Returns the item's shape mode. The shape mode describes how
+    QGraphicsPixmapItem calculates its shape. The default mode is MaskShape.
+
+    \sa setShapeMode(), ShapeMode
+*/
+QGraphicsPixmapItem::ShapeMode QGraphicsPixmapItem::shapeMode() const
+{
+    return d_func()->shapeMode;
+}
+
+/*!
+    Sets the item's shape mode to \a mode. The shape mode describes how
+    QGraphicsPixmapItem calculates its shape. The default mode is MaskShape.
+
+    \sa shapeMode(), ShapeMode
+*/
+void QGraphicsPixmapItem::setShapeMode(ShapeMode mode)
+{
+    Q_D(QGraphicsPixmapItem);
+    if (d->shapeMode == mode)
+        return;
+    d->shapeMode = mode;
+    d->updateShape();
 }
 
 /*!

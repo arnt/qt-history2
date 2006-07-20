@@ -477,6 +477,12 @@ class QGraphicsPixmapItemPrivate;
 class Q_GUI_EXPORT QGraphicsPixmapItem : public QGraphicsItem
 {
 public:
+    enum ShapeMode {
+        MaskShape,
+        BoundingRectShape,
+        HeuristicMaskShape
+    };
+
     QGraphicsPixmapItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     QGraphicsPixmapItem(const QPixmap &pixmap, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     ~QGraphicsPixmapItem();
@@ -498,6 +504,9 @@ public:
 
     enum { Type = 7 };
     int type() const;
+
+    ShapeMode shapeMode() const;
+    void setShapeMode(ShapeMode mode);
 
 protected:
     bool supportsExtension(Extension extension) const;
