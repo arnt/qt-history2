@@ -1444,7 +1444,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
     switch (role) {
     case Qt::EditRole:
-    case Qt::DisplayRole:
+    case Qt::DisplayRole: {
+        const QString text = value.toString();
         if (model && this == model->headerItem)
             model->setColumnCount(column + 1);
         if (values.count() <= column)
@@ -1452,11 +1453,13 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         if (display.count() <= column) {
             for (int i = display.count() - 1; i < column - 1; ++i)
                 display.append(QString());
-            display.append(value.toString());
+            display.append(text);
+        } else if (display[column] != text) {
+            display[column] = text;
         } else {
-            display[column] = value.toString();
+            return; // value is unchanged
         }
-        break;
+    } break;
     case Qt::CheckStateRole:
         if (itemFlags & Qt::ItemIsTristate) {
             for (int i = 0; i < children.count(); ++i) {
@@ -1476,6 +1479,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
             QVector<QWidgetItemData> column_values = values.at(column);
             for (int i = 0; i < column_values.count(); ++i) {
                 if (column_values.at(i).role == role) {
+                    if (column_values.at(i).value == value)
+                        return; // value is unchanged
                     values[column][i].value = value;
                     found = true;
                     break;
