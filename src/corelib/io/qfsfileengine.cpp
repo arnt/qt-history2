@@ -59,8 +59,8 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
 #ifdef Q_OS_UNIX
     need_lstat = 1;
     is_link = 0;
-    is_readonly = 0;
 #endif
+    is_readonly = 0;
     fd = -1;
     fh = 0;
     lastIOCommand = IOFlushCommand;
@@ -158,8 +158,11 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
 
     if (flags & QFile::Append)
         flags |= QFile::WriteOnly;
-#ifdef Q_OS_UNIX
-    d->fh = QT_FOPEN(QFile::encodeName(d->file).constData(),
+
+#ifdef Q_OS_WIN
+    if (d->file.startsWith("//./")) {
+#endif
+    d->fh = QT_FOPEN(QFile::encodeName(QDir::convertSeparators(d->file)).constData(),
                      openModeToFopenMode(flags, d->file).constData());
     if (!d->fh) {
         setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
@@ -181,10 +184,16 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
 
     QT_STATBUF st;
     if (QT_FSTAT(QT_FILENO(d->fh), &st) != 0)
+#ifdef Q_OS_UNIX
         return false;
+#endif
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
     return true;
-#else
+
+#ifdef Q_OS_WIN
+    } else {
+#endif
+
     int oflags = QT_OPEN_RDONLY;
     if ((flags & QFile::ReadWrite) == QFile::ReadWrite) {
         oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
@@ -221,6 +230,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
     }
     setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, qt_error_string(errno));
     return false;
+
+#ifdef Q_OS_WIN
+    }
 #endif
 }
 

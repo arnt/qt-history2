@@ -53,8 +53,8 @@ public:
 #ifdef Q_OS_UNIX
     mutable uint need_lstat : 1;
     mutable uint is_link : 1;
-    mutable uint is_readonly : 1;
 #endif
+    mutable uint is_readonly : 1;
 #ifdef Q_WS_WIN
     mutable DWORD fileAttrib;
 #else
