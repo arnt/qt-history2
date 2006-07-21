@@ -127,7 +127,11 @@ void QMainWindowContainer::addWidget(QWidget *widget)
     else if (widget) {
         m_widgets.prepend(widget);
 
-        if (widget != m_mainWindow->centralWidget ()) {
+        if (widget != m_mainWindow->centralWidget()) {
+            // note that qmainwindow will delete the current central widget if you
+            // call setCentralWidget(), we end up with dangeling pointers in m_widgets list
+            m_widgets.removeAll(m_mainWindow->centralWidget());
+
             widget->setParent(m_mainWindow);
             m_mainWindow->setCentralWidget(widget);
         }
