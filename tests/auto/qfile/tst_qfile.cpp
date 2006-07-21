@@ -272,13 +272,17 @@ void tst_QFile::open_data()
                                   << (bool)FALSE << QFile::OpenError;
     QTest::newRow("noreadfile") << QString("noreadfile") << int(QIODevice::ReadOnly)
                                 << (bool)FALSE << QFile::OpenError;
+#ifdef Q_OS_WIN
+    QTest::newRow("//./PhysicalDrive0") << QString("//./PhysicalDrive0") << int(QIODevice::ReadOnly)
+                                        << (bool)TRUE << QFile::NoError;
+#endif
 }
 
 void tst_QFile::open()
 {
     QFETCH( QString, filename );
     QFETCH( int, mode );
-
+    
     QFile f( filename );
 
     QFETCH( bool, ok );
