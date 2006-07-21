@@ -1567,6 +1567,14 @@ void tst_QWidget::setGeometry()
     QCOMPARE(tlw.geometry().size(), tr.size());
     QCOMPARE(child.geometry(), cr);
 
+    tlw.setParent(0, Qt::Window|Qt::FramelessWindowHint);
+    tr = QRect(0,0,100,100);
+    tlw.setGeometry(tr);
+    QCOMPARE(tlw.geometry(), tr);
+    tlw.show();
+    QTest::qWait(50);
+    QCOMPARE(tlw.geometry(), tr);
+
 }
 
 void tst_QWidget::windowOpacity()
