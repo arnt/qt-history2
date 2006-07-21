@@ -5,6 +5,8 @@
 
 #include <qdebug.h>
 
+#ifndef QT_NO_QWS_CURSOR
+
 // Unresolve issues:
 // Some functions does not indicate which subscreen to forward request to
 // (e.g mapFrom/To)
@@ -109,15 +111,28 @@ void QMultiScreenCursor::addCursor(QScreenCursor *cursor)
     cursors.append(cursor);
 }
 
+#endif
+
 class QMultiScreenPrivate
 {
 public:
-    QMultiScreenPrivate() : cursor(0) {}
-    ~QMultiScreenPrivate() { delete cursor; }
+    QMultiScreenPrivate()
+#ifndef QT_NO_QWS_CURSOR
+        : cursor(0)
+#endif
+    {}
+    ~QMultiScreenPrivate()
+    {
+#ifndef QT_NO_QWS_CURSOR
+        delete cursor;
+#endif
+    }
 
     QList<QScreen*> screens;
     QRegion region;
+#ifndef QT_NO_QWS_CURSOR
     QMultiScreenCursor *cursor;
+#endif
 };
 
 QMultiScreen::QMultiScreen(int displayId)
@@ -134,17 +149,23 @@ bool QMultiScreen::initDevice()
 {
     bool ok = true;
 
+#ifndef QT_NO_QWS_CURSOR
     d_ptr->cursor = new QMultiScreenCursor;
+#endif
 
     const int n = d_ptr->screens.count();
     for (int i = 0; i < n; ++i) {
         QScreen *s = d_ptr->screens.at(i);
         ok = s->initDevice() && ok;
+#ifndef QT_NO_QWS_CURSOR
         d_ptr->cursor->addCursor(qt_screencursor); // XXX
+#endif
     }
 
+#ifndef QT_NO_QWS_CURSOR
     // XXX
     qt_screencursor = d_ptr->cursor;
+#endif
 
     return ok;
 }
