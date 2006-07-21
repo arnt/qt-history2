@@ -58,13 +58,13 @@ bool QWSPropertyManager::setProperty(int winId, int property, int mode, const ch
 
     switch (mode) {
     case PropReplace:
-        it.value() = QByteArray(data, len);
+        d->properties[winId][property] = QByteArray(data, len);
         break;
     case PropAppend:
-        it.value().append(data);
+        d->properties[winId][property].append(data);
         break;
     case PropPrepend:
-        it.value().prepend(data);
+        d->properties[winId][property].prepend(data);
         break;
     }
     return true;
@@ -80,12 +80,13 @@ bool QWSPropertyManager::removeProperty(int winId, int property)
     QWSPropertyManager::Data::PropertyHash::iterator it = d->properties.find(winId);
     if (it == d->properties.end())
         return false;
-    return it.value().remove(property);
+    return d->properties[winId].remove( property );
 }
 
 bool QWSPropertyManager::addProperty(int winId, int property)
 {
-    d->properties[winId][property] = QByteArray();
+    if( !d->properties[winId].contains(property) )
+	d->properties[winId][property] = QByteArray(); // only add if it doesn't exist
     return true;
 }
 
