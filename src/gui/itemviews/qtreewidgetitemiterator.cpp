@@ -24,12 +24,19 @@
   \brief The QTreeWidgetItemIterator class provides a way to iterate over the 
   items in a QTreeWidget instance.
 
-  The iterator will walk the items in a pre-order traversal order, thus visiting the parent
-  node \e before it continues to the child nodes.
+  The iterator will walk the items in a pre-order traversal order, thus visiting the
+  parent node \e before it continues to the child nodes.
 
-  It is possible to filter out certain types of node by passing certain
+  For example, the following code examples each item in a tree, checking the
+  text in the first column against a user-specified search string:
+
+  \quotefromfile snippets/qtreewidgetitemiterator-using/mainwindow.cpp
+  \skipto findItems(
+  \skipto QTreeWidgetItemIterator
+  \printuntil }
+
+  It is also possible to filter out certain types of node by passing certain
   \l{IteratorFlag}{flags} to the constructor of QTreeWidgetItemIterator.
-
 
   \sa QTreeWidget, {Model/View Programming}, QTreeWidgetItem
 */
