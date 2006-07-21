@@ -822,7 +822,7 @@ QPoint QPaintEngine::coordinateOffset() const
 void QPaintEngine::setSystemClip(const QRegion &region)
 {
     if (isActive()) {
-        qWarning("QPaintEngine::setSystemClip: Should not be changed while engine is active");
+        qFatal("QPaintEngine::setSystemClip: Should not be changed while engine is active");
         return;
     }
     d_func()->systemClip = region;

@@ -177,9 +177,11 @@ void QTabWidgetPrivate::init()
 {
     Q_Q(QTabWidget);
     stack = new QStackedWidget(q);
+    stack->setObjectName(QLatin1String("qt_tabwidget_stackedwidget"));
     stack->setLineWidth(0);
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(_q_removeTab(int)));
     QTabBar *tabBar = new QTabBar(q);
+    tabBar->setObjectName(QLatin1String("qt_tabwidget_tabbar"));
     tabBar->setDrawBase(false);
     q->setTabBar(tabBar);
 
