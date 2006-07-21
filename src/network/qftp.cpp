@@ -881,9 +881,11 @@ bool QFtpPI::processReply()
         qDebug("QFtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2]);
 #endif
 
+    int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
+
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
-    if (100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226) {
+    if (replyCodeInt == 226) {
         if (dtp.state() != QTcpSocket::UnconnectedState) {
             waitForDtpToClose = true;
             return false;
@@ -928,7 +930,10 @@ bool QFtpPI::processReply()
                 state = t[replyCode[0] - 1];
             }
 #else
-            state = table[replyCode[0] - 1];
+            if (replyCodeInt == 202)
+                state = Failure;
+            else
+                state = table[replyCode[0] - 1];
 #endif
             break;
         default:
@@ -940,7 +945,6 @@ bool QFtpPI::processReply()
 #endif
 
     // special actions on certain replies
-    int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
     emit rawFtpReply(replyCodeInt, replyText);
     if (rawCommand) {
         rawCommand = false;
