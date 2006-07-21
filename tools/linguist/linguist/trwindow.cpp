@@ -965,7 +965,7 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         MessageItem *m = cmdl->messageItem(current);
         ContextItem *c = cmdl->contextItem(current);
         if (m && c) {
-            QStringList translations  = cmdl->getTranslations(*m);
+            QStringList translations  = cmdl->normalizedTranslations(*m);
             me->showMessage(m->sourceText(), m->comment(), c->fullContext(),
                 translations, m->message().type(), getPhrases(m->sourceText()));
             if (m->danger())

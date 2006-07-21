@@ -102,6 +102,9 @@ public:
     void setLanguageCode(const QString &languageCode);
     QList<MetaTranslatorMessage> messages() const;
     QList<MetaTranslatorMessage> translatedMessages() const;
+    static int grammaticalNumerus(QLocale::Language language, QLocale::Country country);
+    static QStringList normalizedTranslations(const MetaTranslatorMessage& m, 
+                    QLocale::Language lang, QLocale::Country country);
 
 private:
     void makeFileNamesAbsolute(const QDir &oldPath);

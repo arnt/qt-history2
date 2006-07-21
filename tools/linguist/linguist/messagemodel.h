@@ -283,9 +283,8 @@ public:
     void setLanguage(QLocale::Language lang);
     QLocale::Country country() const;
     void setCountry(QLocale::Country country);
-    int grammaticalNumerus() const;
 
-    QStringList getTranslations(const MessageItem &m) const;
+    QStringList normalizedTranslations(const MessageItem &m) const;
     void doCharCounting(const QString& text, int& trW, int& trC, int& trCS);
     void updateStatistics();
 

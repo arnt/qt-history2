@@ -475,8 +475,12 @@ bool MetaTranslator::save( const QString& filename) const
 
             if (msg.isPlural()) {
                 t << "\n";
-                for (int j = 0; j < qMax(1, (*i).translations().count()); ++j)
-                    t << "            <numerusform>" << protect( (*i).translations().value(j).toUtf8() ) << "</numerusform>\n";
+                QLocale::Language l;
+                QLocale::Country c;
+                languageAndCountry(m_language, &l, &c);
+                QStringList translns = normalizedTranslations(*i, l, c);
+                for (int j = 0; j < qMax(1, translns.count()); ++j)
+                    t << "            <numerusform>" << protect( translns.value(j).toUtf8() ) << "</numerusform>\n";
                 t << "        ";
             } else {
                 t << protect( (*i).translation().toUtf8() );
@@ -758,4 +762,39 @@ QList<MetaTranslatorMessage> MetaTranslator::translatedMessages() const
             val.append( m.key() );
     }
     return val;
+}
+
+// the grammatical numerus is the number of plural forms + singular forms.
+// i.e english has two forms: singular og plural.
+// and polish has three forms: 
+// 1. singular (1), 
+// 2. plural form 1 (numbers that ends with 2,3,4 except 12,13,14)
+// 3. plural form 2 (all others)
+// Thus, english returns 2, polish returns 3
+int MetaTranslator::grammaticalNumerus(QLocale::Language language, QLocale::Country country)
+{
+    QStringList forms;
+    getNumerusInfo(language, country, 0, &forms);
+    return forms.count();
+}
+
+QStringList MetaTranslator::normalizedTranslations(const MetaTranslatorMessage& m, 
+                                                   QLocale::Language language, 
+                                                   QLocale::Country country)
+{
+    QStringList translations = m.translations();
+    int numTranslations = 1;
+    if (m.isPlural()) {
+        numTranslations = grammaticalNumerus(language, country);
+    }
+
+    // make sure that the stringlist always have the size of the language's current numerus, or 1 if its not plural
+    if (translations.count() > numTranslations) {
+        for (int i = translations.count(); i >  numTranslations; --i)
+            translations.removeLast();
+    } else if (translations.count() < numTranslations) {
+        for (int i = translations.count(); i < numTranslations; ++i)
+            translations << QString();
+    }
+    return translations;    
 }
