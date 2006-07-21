@@ -82,7 +82,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
 {
     Q_D(QProxyModel);
     if (d->model && d->model != &d->empty)
-        disconnectFromModel(model);
+        disconnectFromModel(d->model);
     if (model) {
         d->model = model;
         connectToModel(model);
