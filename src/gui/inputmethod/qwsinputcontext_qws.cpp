@@ -111,12 +111,19 @@ bool QWSInputContext::isComposing() const
 
 bool QWSInputContext::translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e)
 {
-    QVariant result = w->inputMethodQuery(static_cast<Qt::InputMethodQuery>(e->simpleData.property));
+    Qt::InputMethodQuery type = static_cast<Qt::InputMethodQuery>(e->simpleData.property);
+    QVariant result = w->inputMethodQuery(type);
     QWidget *tlw = w->window();
     int winId = tlw->winId();
 
-    QPaintDevice::qwsDisplay()->sendIMResponse(winId, e->simpleData.property, result);
+    if ( type == Qt::ImMicroFocus ) {
+        // translate to relative to tlw
+        QRect mf = result.toRect();
+        mf.moveTopLeft(w->mapTo(tlw,mf.topLeft()));
+        result = mf;
+    }
 
+    QPaintDevice::qwsDisplay()->sendIMResponse(winId, e->simpleData.property, result);
 
     return false;
 }
