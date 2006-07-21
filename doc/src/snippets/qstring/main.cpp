@@ -555,6 +555,8 @@ void Widget::toDoubleFunction()
     bool ok;
     double d;
 
+    d = QString( "1234.56e-02" ).toDouble(&ok); // ok == true, d == 12.3456
+
     QLocale::setDefault(QLocale::C);
     d = QString( "1234,56" ).toDouble(&ok); // ok == false
     d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56

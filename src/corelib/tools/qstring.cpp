@@ -5001,6 +5001,14 @@ ushort QString::toUShort(bool *ok, int base) const
     \skipto QString str
     \printuntil double val
 
+    Various string formats for floating point numbers can be converted
+    to double values:
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toDoubleFunction()
+    \skipto bool ok
+    \printuntil toDouble
+
     This function tries to interpret the string according to the
     current locale. The current locale is determined from the
     system at application startup and can be changed by calling
@@ -5010,7 +5018,7 @@ ushort QString::toUShort(bool *ok, int base) const
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::toDoubleFunction()
-    \skipto bool ok
+    \skipto QLocale::setDefault(QLocale::C);
     \printto QLocale::setDefault(QLocale::German);
     \printto QLocale::setDefault(QLocale::C);
 
