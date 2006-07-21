@@ -930,9 +930,15 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
     return TT_Unknown;
 }
 
-
+/*
+ * Lookup of files are done in this order:
+ *  1. look in pwd
+ *  2. look in vpaths
+ *  3. expand wild card files relative from the profiles folder
+ **/
 QStringList ProFileEvaluator::absFileNames(const QString &variableName)
 {
+
     QStringList vpaths = values(QLatin1String("VPATH"))
         + values(QLatin1String("QMAKE_ABSOLUTE_SOURCE_PATH"))
         + values(QLatin1String("DEPENDPATH"))
@@ -959,6 +965,51 @@ QStringList ProFileEvaluator::absFileNames(const QString &variableName)
         }
         if (found) {
             sources_out+=fi.canonicalFilePath();
+        } else {
+
+            QString val = fn;
+            QString dir, regex = val, real_dir;
+            if(regex.lastIndexOf(QLatin1Char('/')) != -1) {
+                dir = regex.left(regex.lastIndexOf(QLatin1Char('/')) + 1);
+                real_dir = dir;
+                //if(!(flags & VPATH_NoFixify))
+                //    real_dir = fileFixify(real_dir, qmake_getpwd(), Option::output_dir);
+                regex = regex.right(regex.length() - dir.length());
+            }
+            if(real_dir.isEmpty() || QFileInfo(real_dir).exists()) {
+                QStringList files = QDir(real_dir).entryList(QStringList(regex));
+                if(files.isEmpty()) {
+                    logMessage(MT_DebugLevel2, "%s:%d Failure to find %s in vpath (%s)",
+                              __FILE__, __LINE__,
+                              val.toLatin1().constData(), vpaths.join("::").toLatin1().constData());
+                    //if(flags & VPATH_RemoveMissingFiles)
+                    //    remove_file = true;
+                    //else if(flags & VPATH_WarnMissingFiles)
+                    //    warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
+                } else {
+                    //l.removeAt(val_it);
+                    QString a;
+                    for(int i = (int)files.count()-1; i >= 0; i--) {
+                        if(files[i] == "." || files[i] == "..")
+                            continue;
+                        a = dir + files[i];
+                        //if(!(flags & VPATH_NoFixify))
+                        //    a = fileFixify(a);
+                        sources_out+=a;
+                        //l.insert(val_it, a);
+                    }
+                }
+            } else {
+                logMessage(MT_DebugLevel2, "%s:%d Cannot match %s%c%s, as %s does not exist.",
+                          __FILE__, __LINE__, real_dir.toLatin1().constData(),
+                          QDir::separator().toLatin1(),
+                          regex.toLatin1().constData(), real_dir.toLatin1().constData());
+                //if(flags & VPATH_RemoveMissingFiles)
+                //    remove_file = true;
+                //else if(flags & VPATH_WarnMissingFiles)
+                //    warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
+            }
+
         }
     }
     return sources_out;
