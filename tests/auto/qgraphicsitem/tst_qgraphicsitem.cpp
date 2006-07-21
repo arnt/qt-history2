@@ -91,6 +91,7 @@ private slots:
     void collidesWith_item();
     void collidesWith_path_data();
     void collidesWith_path();
+    void isObscuredBy();
     void mapFromToParent();
     void mapFromToScene();
     void mapFromToItem();
@@ -1154,6 +1155,95 @@ void tst_QGraphicsItem::collidesWith_path()
         QVERIFY(ellipse.collidesWithPath(mappedShape));
     else
         QVERIFY(!ellipse.collidesWithPath(mappedShape));
+}
+
+class MyItem : public QGraphicsEllipseItem
+{
+public:
+    bool isObscuredBy(const QGraphicsItem *item) const
+    {
+        const MyItem *myItem = dynamic_cast<const MyItem*>(item);
+        if (myItem) {
+            if (item->zValue() > zValue()) {
+                QRectF r = rect();
+                QPointF topMid = (r.topRight()+r.topLeft())/2;
+                QPointF botMid = (r.bottomRight()+r.bottomLeft())/2; 
+                QPointF leftMid = (r.topLeft()+r.bottomLeft())/2;
+                QPointF rightMid = (r.topRight()+r.bottomRight())/2;
+                
+                QPainterPath mappedShape = item->mapToItem(this, item->opaqueShape());
+                
+                if (mappedShape.contains(topMid) &&
+                    mappedShape.contains(botMid) &&
+                    mappedShape.contains(leftMid) &&
+                    mappedShape.contains(rightMid))
+                    return true;
+                else
+                    return false;
+            }
+            else return false;
+        }
+        else
+            return QGraphicsItem::isObscuredBy(item);
+    }
+        
+    QPainterPath opaqueShape() const
+    {
+        return shape();
+    }
+};
+
+
+class MyRectItem : public QGraphicsRectItem
+{
+public:
+    QPainterPath opaqueShape() const
+    { return shape(); }
+};
+
+void tst_QGraphicsItem::isObscuredBy()
+{
+    QGraphicsScene scene;
+    
+    MyItem myitem1, myitem2;
+
+    myitem1.setRect(QRectF(50, 50, 40, 200));
+    myitem1.rotate(67);
+
+    myitem2.setRect(QRectF(25, 25, 20, 20));
+    myitem2.setZValue(-1.0);
+    scene.addItem(&myitem1);
+    scene.addItem(&myitem2);
+    
+    QVERIFY(!myitem2.isObscuredBy(&myitem1));
+    QVERIFY(!myitem1.isObscuredBy(&myitem2));
+
+    myitem2.setRect(QRectF(-50, 85, 20, 20));
+    QVERIFY(myitem2.isObscuredBy(&myitem1));
+    QVERIFY(!myitem1.isObscuredBy(&myitem2));
+
+    myitem2.setRect(QRectF(-30, 70, 20, 20));
+    QVERIFY(!myitem2.isObscuredBy(&myitem1));
+    QVERIFY(!myitem1.isObscuredBy(&myitem2));
+
+    MyRectItem rect1, rect2;
+
+    rect1.setRect(QRectF(-40, -40, 50, 50));
+    rect2.setRect(QRectF(-30, -20, 20, 20));    
+    rect2.setZValue(-1.0);
+    
+    QVERIFY(rect2.isObscuredBy(&rect1));
+    QVERIFY(!rect1.isObscuredBy(&rect2));
+
+    rect2.setPos(QPointF(-20, -25));
+
+    QVERIFY(!rect2.isObscuredBy(&rect1));
+    QVERIFY(!rect1.isObscuredBy(&rect2));
+
+    rect2.setPos(QPointF(-100, -100));
+
+    QVERIFY(!rect2.isObscuredBy(&rect1));
+    QVERIFY(!rect1.isObscuredBy(&rect2));
 }
 
 void tst_QGraphicsItem::mapFromToParent()
