@@ -671,6 +671,8 @@ bool MessageModel::release(QIODevice *iod,
 {
     MetaTranslator tor;
     MessageItem *m;
+    QLocale locale(m_language, m_country);
+    tor.setLanguageCode(locale.name());
     for (MessageModel::iterator it = begin() ; m = it.current() ; ++it) {
         tor.insert(m->message());
     }
