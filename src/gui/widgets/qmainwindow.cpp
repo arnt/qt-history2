@@ -48,6 +48,7 @@ public:
 
 #ifndef QT_NO_DOCKWIDGET
     QCursor separatorCursor(const QList<int> &path) const;
+    void adjustCursor(const QPoint &pos);
 #endif
 };
 
@@ -59,7 +60,7 @@ void QMainWindowPrivate::init()
     iconSize = QSize(metric, metric);
     explicitIconSize = false;
 
-    q->setMouseTracking(true);
+    q->setAttribute(Qt::WA_Hover);
 }
 
 /*
@@ -888,6 +889,38 @@ QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 }
 #endif
 
+void QMainWindowPrivate::adjustCursor(const QPoint &pos)
+{
+    Q_Q(QMainWindow);
+
+    hoverPos = pos;
+
+    if (pos == QPoint(0, 0)) {
+        if (!hoverSeparator.isEmpty())
+            q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+        hoverSeparator.clear();
+        q->unsetCursor();
+    } else {
+        QList<int> pathToSeparator
+            = layout->dockWidgetLayout.findSeparator(pos);
+
+        if (pathToSeparator != hoverSeparator) {
+            if (!hoverSeparator.isEmpty())
+                q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+
+            hoverSeparator = pathToSeparator;
+
+            if (hoverSeparator.isEmpty()) {
+                q->unsetCursor();
+            } else {
+                q->update(layout->dockWidgetLayout.separatorRect(hoverSeparator));
+                QCursor cursor = separatorCursor(hoverSeparator);
+                q->setCursor(cursor);
+            }
+        }
+    }
+}
+
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 {
@@ -902,9 +935,18 @@ bool QMainWindow::event(QEvent *event)
             break;
         }
 
+        case QEvent::HoverMove:  {
+            d->adjustCursor(static_cast<QHoverEvent*>(event)->pos());
+            break;
+        }
+
+        case QEvent::HoverLeave:
+            d->adjustCursor(QPoint(0, 0));
+            break;
+
         case QEvent::MouseButtonPress: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
-            if (d->layout->startSeparatorMove(e->pos())) {
+            if (e->button() == Qt::LeftButton && d->layout->startSeparatorMove(e->pos())) {
                 // The click was on a separator, eat this event
                 e->accept();
                 return true;
@@ -915,37 +957,13 @@ bool QMainWindow::event(QEvent *event)
         case QEvent::MouseMove: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
 
+            d->adjustCursor(e->pos());
+
             if (e->buttons() & Qt::LeftButton) {
                 if (d->layout->separatorMove(e->pos())) {
                     // We're moving a separator, eat this event
                     e->accept();
                     return true;
-                }
-            } else {
-                if (d->layout->savedDockWidgetLayout.isValid()) {
-                    d->hoverSeparator.clear();
-                    d->hoverPos = QPoint(0, 0);
-                    // We're in the middle of adjusting the layout to a hovering
-                    // dock widget, eat this event
-                    event->accept();
-                    return true;
-                }
-
-                d->hoverPos = e->pos();
-                QList<int> pathToSeparator
-                    = d->layout->dockWidgetLayout.findSeparator(e->pos());
-                if (pathToSeparator != d->hoverSeparator) {
-                    if (!d->hoverSeparator.isEmpty())
-                        update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-
-                    d->hoverSeparator = pathToSeparator;
-
-                    if (d->hoverSeparator.isEmpty()) {
-                        unsetCursor();
-                    } else {
-                        update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-                        setCursor(d->separatorCursor(d->hoverSeparator));
-                    }
                 }
             }
 
@@ -961,13 +979,6 @@ bool QMainWindow::event(QEvent *event)
             }
             break;
         }
-
-        case QEvent::Leave:
-            if (!d->hoverSeparator.isEmpty())
-                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-            d->hoverSeparator.clear();
-            d->hoverPos = QPoint(0, 0);
-            break;
 
 #endif
 
