@@ -195,7 +195,7 @@ static QPoint filterDisplayOffset(QString &spec)
 bool QMultiScreen::connect(const QString &displaySpec)
 {
     QString dSpec = displaySpec;
-    if (dSpec.startsWith("Multi:"))
+    if (dSpec.startsWith("Multi:", Qt::CaseInsensitive))
         dSpec = dSpec.mid(QString("Multi:").size());
 
     const QString displayIdSpec = QString(" :%1").arg(displayId);
@@ -228,7 +228,6 @@ bool QMultiScreen::connect(const QString &displaySpec)
 
     // XXXXX
     qt_screen = this;
-    // XXXXX
 
     return true;
 }
