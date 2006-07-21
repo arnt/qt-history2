@@ -1675,6 +1675,51 @@ QList<QGraphicsItem *> QGraphicsItem::collidingItems() const
 }
 
 /*!
+    Returns true if this item's bounding rect is completely obscured by the
+    opaque shape of any of its colliding items. This function returns false if
+    all the colliding items are at the same zValue() as this item.
+
+  \sa opaqueShape()
+*/
+bool QGraphicsItem::isObscured() const
+{
+    foreach (QGraphicsItem *item, collidingItems()) {
+        if (item->zValue() > zValue() && isObscuredBy(item))
+            return true;
+    }
+    return false;
+}
+
+/*!
+    Returns true if this item's bounding rect is completely obscured by the
+    opaque shape of \a item.
+
+    \sa opaqueShape(), isObscured()
+*/
+bool QGraphicsItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return item->mapToItem(this, item->opaqueShape()).contains(boundingRect());
+}
+
+/*!
+    This virtual function returns a shape representing the area where this
+    item is opaque. An area is opaque if it is filled using an opaque brush or
+    color (i.e., not transparent).
+
+    This function is used by isObscuredBy(), which is called by underlying
+    items to determine if they are obscured by this item.
+
+    The default implementation returns an empty QPainterPath, indicating that
+    this item is completely transparent and does not obscure any other items.
+
+    \sa isObscuredBy(), isObscured(), shape()
+*/
+QPainterPath QGraphicsItem::opaqueShape() const
+{
+    return QPainterPath();
+}
+
+/*!
     \fn virtual void QGraphicsItem::paint(QPainter *painter, const
     QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0
 
@@ -3025,6 +3070,22 @@ void QAbstractGraphicsShapeItem::setBrush(const QBrush &brush)
 }
 
 /*!
+    \reimp
+*/
+bool QAbstractGraphicsShapeItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QAbstractGraphicsShapeItem::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
+}
+
+/*!
     \class QGraphicsPathItem
     \brief The QGraphicsPathItem class provides a path item that you
     can add to a QGraphicsScene.
@@ -3154,6 +3215,22 @@ void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsPathItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QAbstractGraphicsShapeItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsPathItem::opaqueShape() const
+{
+    return QAbstractGraphicsShapeItem::opaqueShape();   
 }
 
 /*!
@@ -3342,6 +3419,22 @@ void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsRectItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QAbstractGraphicsShapeItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsRectItem::opaqueShape() const
+{
+    return QAbstractGraphicsShapeItem::opaqueShape();   
 }
 
 /*!
@@ -3612,6 +3705,22 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 /*!
     \reimp
 */
+bool QGraphicsEllipseItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QAbstractGraphicsShapeItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsEllipseItem::opaqueShape() const
+{
+    return QAbstractGraphicsShapeItem::opaqueShape();   
+}
+
+/*!
+    \reimp
+*/
 int QGraphicsEllipseItem::type() const
 {
     return Type;
@@ -3805,6 +3914,22 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsPolygonItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QAbstractGraphicsShapeItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsPolygonItem::opaqueShape() const
+{
+    return QAbstractGraphicsShapeItem::opaqueShape();   
 }
 
 /*!
@@ -4046,6 +4171,22 @@ void QGraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
         painter->drawRect(QRectF(leftMostX, topMostY, width, height));
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsLineItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsLineItem::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
 }
 
 /*!
@@ -4339,6 +4480,22 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 /*!
     \reimp
 */
+bool QGraphicsPixmapItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsPixmapItem::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
+}
+
+/*!
+    \reimp
+*/
 int QGraphicsPixmapItem::type() const
 {
     return Type;
@@ -4591,6 +4748,22 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(dd->boundingRect);
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsTextItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsTextItem::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
 }
 
 /*!
@@ -5223,6 +5396,22 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
 /*!
     \reimp
 */
+bool QGraphicsSimpleTextItem::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsSimpleTextItem::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
+}
+
+/*!
+    \reimp
+*/
 int QGraphicsSimpleTextItem::type() const
 {
     return Type;
@@ -5368,6 +5557,22 @@ void QGraphicsItemGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(d->itemsBoundingRect);
     }
+}
+
+/*!
+    \reimp
+*/
+bool QGraphicsItemGroup::isObscuredBy(const QGraphicsItem *item) const
+{
+    return QGraphicsItem::isObscuredBy(item);
+}
+
+/*!
+    \reimp
+*/
+QPainterPath QGraphicsItemGroup::opaqueShape() const
+{
+    return QGraphicsItem::opaqueShape();   
 }
 
 /*!

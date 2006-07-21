@@ -163,6 +163,9 @@ public:
     virtual bool collidesWithItem(QGraphicsItem *other) const;
     virtual bool collidesWithPath(const QPainterPath &path) const;
     QList<QGraphicsItem *> collidingItems() const;
+    bool isObscured() const;
+    virtual bool isObscuredBy(const QGraphicsItem *item) const;
+    virtual QPainterPath opaqueShape() const;
 
     // Drawing
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
@@ -292,6 +295,9 @@ public:
     QBrush brush() const;
     void setBrush(const QBrush &brush);
 
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
+
 protected:
     QAbstractGraphicsShapeItem(QAbstractGraphicsShapeItemPrivate &dd,
                                QGraphicsItem *parent, QGraphicsScene *scene);
@@ -317,6 +323,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 2 };
     int type() const;
@@ -350,6 +359,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 3 };
     int type() const;
@@ -390,6 +402,9 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
+
     enum { Type = 4 };
     int type() const;
 
@@ -423,6 +438,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 5 };
     int type() const;
@@ -459,6 +477,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 6 };
     int type() const;
@@ -501,6 +522,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 7 };
     int type() const;
@@ -546,6 +570,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 8 };
     int type() const;
@@ -628,6 +655,9 @@ public:
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 9 };
     int type() const;
@@ -654,6 +684,9 @@ public:
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    bool isObscuredBy(const QGraphicsItem *item) const;
+    QPainterPath opaqueShape() const;
 
     enum { Type = 10 };
     int type() const;
