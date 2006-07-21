@@ -69,6 +69,7 @@ private:
     QShortcutMapPrivate *d_ptr;
 
     QKeySequence::SequenceMatch find(QKeyEvent *e);
+    QKeySequence::SequenceMatch matches(const QKeySequence &seq1, const QKeySequence &seq2) const;
     QVector<const QShortcutEntry *> matches() const;
     void createNewSequences(QKeyEvent *e, QVector<QKeySequence> &ksl);
     void clearSequence(QVector<QKeySequence> &ksl);

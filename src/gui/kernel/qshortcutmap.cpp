@@ -388,7 +388,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         do {
             if (it == itEnd)
                 break;
-            tempRes = entry.keyseq.matches((*it).keyseq);
+            tempRes = matches(entry.keyseq, (*it).keyseq);
             oneKSResult = qMax(oneKSResult, tempRes);
             if (tempRes != QKeySequence::NoMatch && correctContext(*it)) {
                 if (tempRes == QKeySequence::ExactMatch) {
@@ -416,7 +416,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         if (oneKSResult > result) {
             okEntries.clear();
 #if defined(DEBUG_QSHORTCUTMAP)
-            qDebug() << "Found better match (" << singleResult << "), clearing keysequence list";
+            qDebug() << "Found better match (" << newEntries << "), clearing keysequence list";
 #endif
         }
         if (oneKSResult && oneKSResult >= result) {
@@ -495,6 +495,39 @@ void QShortcutMap::createNewSequences(QKeyEvent *e, QVector<QKeySequence> &ksl)
             curKsl.setKey(possibleKeys.at(pkNum) & 0xdfffffff, index);
         }
     }
+}
+
+/*! \internal
+    Basically the same function as QKeySequence::matches(const QKeySequence &seq) const
+    only that is specially handles Key_hyphen as Key_Minus, as people mix these up all the time and
+    they conceptually the same.
+*/
+QKeySequence::SequenceMatch QShortcutMap::matches(const QKeySequence &seq1,
+                                                  const QKeySequence &seq2) const
+{
+    uint userN = seq1.count(),
+        seqN = seq2.count();
+
+    if (userN > seqN)
+        return QKeySequence::NoMatch;
+
+    // If equal in length, we have a potential ExactMatch sequence,
+    // else we already know it can only be partial.
+    QKeySequence::SequenceMatch match = (userN == seqN
+                                            ? QKeySequence::ExactMatch
+                                            : QKeySequence::PartialMatch);
+
+    for (uint i = 0; i < userN; ++i) {
+        int userKey = seq1[i],
+            sequenceKey = seq2[i];
+        if ((userKey & Qt::Key_unknown) == Qt::Key_hyphen)
+            userKey = userKey & Qt::KeyboardModifierMask | Qt::Key_Minus;
+        if ((sequenceKey & Qt::Key_unknown) == Qt::Key_hyphen)
+            sequenceKey = sequenceKey & Qt::KeyboardModifierMask | Qt::Key_Minus;
+        if (userKey != sequenceKey)
+            return QKeySequence::NoMatch;
+    }
+    return match;
 }
 
 /*! \internal
