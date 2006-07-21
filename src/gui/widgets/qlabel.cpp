@@ -710,10 +710,10 @@ int QLabel::heightForWidth(int w) const
 
     Specifies whether QLabel should automatically open links using
     QDesktopServices::openUrl() instead of emitting the
-    anchorClicked signal.
+    anchorClicked() signal.
 
-    Note: The textInteractionFlags need to have LinksAccessibleByMouse
-    or the LinksAccessibleByKeyboard set.
+    \bold{Note:} The textInteractionFlags set on the label need to include
+    either LinksAccessibleByMouse or LinksAccessibleByKeyboard.
 
     The default value is false.
 
