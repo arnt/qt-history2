@@ -1009,15 +1009,18 @@ void tst_QGraphicsItem::shape()
     QRegion region(QRect(0, 0, 300, 200));
     region = region.subtracted(QRect(50, 50, 200, 100));
 
-    QPixmap pixmap(300, 200);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
+    QImage image(300, 200, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0);
+    QPainter painter(&image);
     painter.setClipRegion(region);
     painter.fillRect(0, 0, 300, 200, Qt::green);
     painter.end();
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     QGraphicsPixmapItem pixmapItem(pixmap);
     path = QPainterPath();
     path.addRegion(region);
+
     QCOMPARE(pixmapItem.shape(), path);
 
     QPolygonF poly;
