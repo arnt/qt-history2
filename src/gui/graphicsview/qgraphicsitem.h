@@ -171,38 +171,38 @@ public:
     { update(QRectF(x, y, width, height)); }
 
     // Coordinate mapping
-    QPointF mapToItem(QGraphicsItem *item, const QPointF &point) const;
+    QPointF mapToItem(const QGraphicsItem *item, const QPointF &point) const;
     QPointF mapToParent(const QPointF &point) const;
     QPointF mapToScene(const QPointF &point) const;
-    QPolygonF mapToItem(QGraphicsItem *item, const QRectF &rect) const;
+    QPolygonF mapToItem(const QGraphicsItem *item, const QRectF &rect) const;
     QPolygonF mapToParent(const QRectF &rect) const;
     QPolygonF mapToScene(const QRectF &rect) const;
-    QPolygonF mapToItem(QGraphicsItem *item, const QPolygonF &polygon) const;
+    QPolygonF mapToItem(const QGraphicsItem *item, const QPolygonF &polygon) const;
     QPolygonF mapToParent(const QPolygonF &polygon) const;
     QPolygonF mapToScene(const QPolygonF &polygon) const;
-    QPainterPath mapToItem(QGraphicsItem *item, const QPainterPath &path) const;
+    QPainterPath mapToItem(const QGraphicsItem *item, const QPainterPath &path) const;
     QPainterPath mapToParent(const QPainterPath &path) const;
     QPainterPath mapToScene(const QPainterPath &path) const;
-    QPointF mapFromItem(QGraphicsItem *item, const QPointF &point) const;
+    QPointF mapFromItem(const QGraphicsItem *item, const QPointF &point) const;
     QPointF mapFromParent(const QPointF &point) const;
     QPointF mapFromScene(const QPointF &point) const;
-    QPolygonF mapFromItem(QGraphicsItem *item, const QRectF &rect) const;
+    QPolygonF mapFromItem(const QGraphicsItem *item, const QRectF &rect) const;
     QPolygonF mapFromParent(const QRectF &rect) const;
     QPolygonF mapFromScene(const QRectF &rect) const;
-    QPolygonF mapFromItem(QGraphicsItem *item, const QPolygonF &polygon) const;
+    QPolygonF mapFromItem(const QGraphicsItem *item, const QPolygonF &polygon) const;
     QPolygonF mapFromParent(const QPolygonF &polygon) const;
     QPolygonF mapFromScene(const QPolygonF &polygon) const;
-    QPainterPath mapFromItem(QGraphicsItem *item, const QPainterPath &path) const;
+    QPainterPath mapFromItem(const QGraphicsItem *item, const QPainterPath &path) const;
     QPainterPath mapFromParent(const QPainterPath &path) const;
     QPainterPath mapFromScene(const QPainterPath &path) const;
 
-    inline QPointF mapToItem(QGraphicsItem *item, qreal x, qreal y) const
+    inline QPointF mapToItem(const QGraphicsItem *item, qreal x, qreal y) const
     { return mapToItem(item, QPointF(x, y)); }
     inline QPointF mapToParent(qreal x, qreal y) const
     { return mapToParent(QPointF(x, y)); }
     inline QPointF mapToScene(qreal x, qreal y) const
     { return mapToScene(QPointF(x, y));  }
-    inline QPointF mapFromItem(QGraphicsItem *item, qreal x, qreal y) const
+    inline QPointF mapFromItem(const QGraphicsItem *item, qreal x, qreal y) const
     { return mapFromItem(item, QPointF(x, y)); }
     inline QPointF mapFromParent(qreal x, qreal y) const
     { return mapFromParent(QPointF(x, y));  }

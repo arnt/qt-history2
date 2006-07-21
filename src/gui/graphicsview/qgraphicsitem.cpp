@@ -1745,7 +1745,7 @@ void QGraphicsItem::update(const QRectF &rect)
     \sa mapToParent(), mapToScene(), matrix(), mapFromItem(), {The Graphics
     View Coordinate System}
 */
-QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) const
+QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPointF &point) const
 {
     return item ? item->mapFromScene(mapToScene(point)) : mapToScene(point);
 }
@@ -1808,7 +1808,7 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
     \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
     Coordinate System}
 */
-QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QRectF &rect) const
+QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QRectF &rect) const
 {
     return item ? item->mapFromScene(mapToScene(rect)) : mapToScene(rect);
 }
@@ -1848,7 +1848,7 @@ QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
     \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
     Coordinate System}
 */
-QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPolygonF &polygon) const
+QPolygonF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPolygonF &polygon) const
 {
     return item ? item->mapFromScene(mapToScene(polygon)) : mapToScene(polygon);
 }
@@ -1888,7 +1888,7 @@ QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
     \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
     Coordinate System}
 */
-QPainterPath QGraphicsItem::mapToItem(QGraphicsItem *item, const QPainterPath &path) const
+QPainterPath QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPainterPath &path) const
 {
     return item ? item->mapFromScene(mapToScene(path)) : mapToScene(path);
 }
@@ -1928,7 +1928,7 @@ QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
     \sa mapFromParent(), mapFromScene(), matrix(), mapToItem(), {The Graphics
     View Coordinate System}
 */
-QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) const
+QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPointF &point) const
 {
     return item ? mapFromScene(item->mapToScene(point)) : mapFromScene(point);
 }
@@ -1993,7 +1993,7 @@ QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
     \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
     System}
 */
-QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QRectF &rect) const
+QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QRectF &rect) const
 {
     return mapFromScene(item ? item->mapToScene(rect) : rect);
 }
@@ -2033,7 +2033,7 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
     \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
     System}
 */
-QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPolygonF &polygon) const
+QPolygonF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPolygonF &polygon) const
 {
     return mapFromScene(item ? item->mapToScene(polygon) : polygon);
 }
@@ -2071,7 +2071,7 @@ QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
     \sa mapFromParent(), mapFromScene(), mapToItem(), {The Graphics View
     Coordinate System}
 */
-QPainterPath QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPainterPath &path) const
+QPainterPath QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPainterPath &path) const
 {
     return mapFromScene(item ? item->mapToScene(path) : path);
 }
