@@ -669,7 +669,7 @@ void tst_QTcpSocket::downloadBigFile()
         QFAIL("Network operation timed out");
     }
 
-    QCOMPARE(bytesAvailable, qint64(10000271));
+    QCOMPARE(bytesAvailable, qint64(10000281));
 
     QVERIFY(tmpSocket->state() == QAbstractSocket::ConnectedState);
 
@@ -692,7 +692,7 @@ void tst_QTcpSocket::exitLoopSlot()
 void tst_QTcpSocket::downloadBigFileSlot()
 {
     bytesAvailable += tmpSocket->readAll().size();
-    if (bytesAvailable == 10000271)
+    if (bytesAvailable == 10000281)
         QTestEventLoop::instance().exitLoop();
 }
 
