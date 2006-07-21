@@ -27,6 +27,8 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpixmap_p.h>
 
+#include <qhash.h>
+
 #ifdef QT_RASTER_IMAGEENGINE
 #include <private/qpaintengine_raster_p.h>
 #else
@@ -2931,16 +2933,97 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     return QImage();
 }
 
+
+
+static inline int pixel_distance(QRgb p1, QRgb p2) {
+    int r1 = qRed(p1);
+    int g1 = qGreen(p1);
+    int b1 = qBlue(p1);
+    int a1 = qAlpha(p1);
+
+    int r2 = qRed(p2);
+    int g2 = qGreen(p2);
+    int b2 = qBlue(p2);
+    int a2 = qAlpha(p2);
+
+    return abs(r1 - r2) + abs(g1 - g2) + abs(b1 - b2) + abs(a1 - a2);
+}
+
+static inline int closestMatch(QRgb pixel, const QVector<QRgb> &clut) {
+    int idx = 0;
+    int current_distance = INT_MAX;
+    for (int i=0; i<clut.size(); ++i) {
+        int dist = pixel_distance(pixel, clut.at(i));
+        if (dist < current_distance) {
+            current_distance = dist;
+            idx = i;
+        }
+    }
+    return idx;
+}
+
+static QImage convertWithPalette(const QImage &src, QImage::Format format,
+                                 const QVector<QRgb> &clut) {
+    QImage dest(src.size(), format);
+    dest.setColorTable(clut);
+
+    int h = src.height();
+    int w = src.width();
+
+    QHash<QRgb, int> cache;
+
+    if (format == QImage::Format_Indexed8) {
+        for (int y=0; y<h; ++y) {
+            QRgb *src_pixels = (QRgb *) src.scanLine(y);
+            uchar *dest_pixels = (uchar *) dest.scanLine(y);
+            for (int x=0; x<w; ++x) {
+                int src_pixel = src_pixels[x];
+                int value = cache.value(src_pixel, -1);
+                if (value == -1) {
+                    value = closestMatch(src_pixel, clut);
+                    cache.insert(src_pixel, value);
+                }
+                dest_pixels[x] = (uchar) value;
+            }
+        }
+    } else {
+        QVector<QRgb> table = clut;
+        table.resize(2);
+        for (int y=0; y<h; ++y) {
+            QRgb *src_pixels = (QRgb *) src.scanLine(y);
+            for (int x=0; x<w; ++x) {
+                int src_pixel = src_pixels[x];
+                int value = cache.value(src_pixel, -1);
+                if (value == -1) {
+                    value = closestMatch(src_pixel, table);
+                    cache.insert(src_pixel, value);
+                }
+                dest.setPixel(x, y, value);
+            }
+        }
+    }
+
+    return dest;
+}
+
 /*!
     \overload
 
     Returns a copy of the image converted to the given \a format,
     using the specified \a colorTable.
+
+    Conversion from 32 bit to 8 bit indexed is a slow operation and
+    will use a straightforward nearest color approach, with no
+    dithering.
 */
 QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags) const
 {
     if (d->format == format)
         return *this;
+
+    if (format <= QImage::Format_Indexed8 && depth() == 32) {
+        return convertWithPalette(*this, format, colorTable);
+    }
 
     const Image_Converter *converterPtr = &converter_map[d->format][format];
     Image_Converter converter = *converterPtr;
@@ -2948,8 +3031,6 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
         return QImage();
 
     QImage image(d->width, d->height, format);
-    if (image.d->depth <= 8)
-        image.d->colortable = colorTable;
     converter(image.d, d, flags);
     return image;
 }
