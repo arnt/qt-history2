@@ -143,6 +143,7 @@ public:
     QTabBar *tabBar;
     QSize tabBarMin, tabBarHint;
     int tabBarShape;
+    bool tabBarVisible;
 
     void updateTabBar() const;
     QSize tabBarMinimumSize() const;

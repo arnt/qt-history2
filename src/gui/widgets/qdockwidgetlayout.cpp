@@ -1243,9 +1243,9 @@ void QDockAreaLayoutInfo::apply(bool animate)
     QWidgetAnimator *widgetAnimator = mainWindowLayout()->widgetAnimator;
 
     if (tabbed) {
-        QSize tbh = tabBarSizeHint();
         QRect tab_rect;
-        if (!tbh.isNull()) {
+        QSize tbh = tabBarSizeHint();
+        if (tabBarVisible) {
             switch (tabBarShape) {
                 case QTabBar::RoundedNorth:
                     tab_rect = QRect(rect.left(), rect.top(),
@@ -1623,10 +1623,9 @@ void QDockAreaLayoutInfo::updateTabBar() const
 
     tabBar->blockSignals(blocked);
 
-    if (!gap && tabBar->count() <= 1) {
-        that->tabBarMin = QSize(0, 0);
-        that->tabBarHint = QSize(0, 0);
-    } else if (gap || changed) {
+    that->tabBarVisible = gap || tabBar->count() > 1;
+
+    if (changed) {
         that->tabBarMin = tabBar->minimumSizeHint();
         that->tabBarHint = tabBar->sizeHint();
     }
@@ -1680,21 +1679,23 @@ QRect QDockAreaLayoutInfo::tabContentRect() const
     QRect result = rect;
     QSize tbh = tabBarSizeHint();
 
-    switch (tabBarShape) {
-        case QTabBar::RoundedNorth:
-            result.adjust(0, tbh.height(), 0, 0);
-            break;
-        case QTabBar::RoundedSouth:
-            result.adjust(0, 0, 0, -tbh.height());
-            break;
-        case QTabBar::RoundedEast:
-            result.adjust(0, 0, -tbh.width(), 0);
-            break;
-        case QTabBar::RoundedWest:
-            result.adjust(tbh.width(), 0, 0, 0);
-            break;
-        default:
-            break;
+    if (tabBarVisible) {
+        switch (tabBarShape) {
+            case QTabBar::RoundedNorth:
+                result.adjust(0, tbh.height(), 0, 0);
+                break;
+            case QTabBar::RoundedSouth:
+                result.adjust(0, 0, 0, -tbh.height());
+                break;
+            case QTabBar::RoundedEast:
+                result.adjust(0, 0, -tbh.width(), 0);
+                break;
+            case QTabBar::RoundedWest:
+                result.adjust(tbh.width(), 0, 0, 0);
+                break;
+            default:
+                break;
+        }
     }
 
     return result;
