@@ -2124,6 +2124,7 @@ bool QAxServerBase::emitRequestPropertyChange(const char *property)
 	}
 	cpoint->Release();
     }
+    dirtyflag = true;
     return true;
 }
 
@@ -2168,6 +2169,7 @@ void QAxServerBase::emitPropertyChanged(const char *property)
 	}
 	cpoint->Release();
     }
+    dirtyflag = true;
 }
 
 //**** IProvideClassInfo
@@ -2554,31 +2556,31 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     }
 
     // maybe calling a setter? Notify client about changes
-    if ( m_spAdviseSink ) switch(wFlags) {
-         case DISPATCH_METHOD:
-         case DISPATCH_PROPERTYPUT:
-         case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
-             {
-                 m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, -1 );
+    switch(wFlags) {
+     case DISPATCH_METHOD:
+     case DISPATCH_PROPERTYPUT:
+     case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
+         if (m_spAdviseSink) {
+             m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
 
-                 FORMATETC fmt;
-                 fmt.cfFormat = 0;
-                 fmt.ptd = 0;
-                 fmt.dwAspect = DVASPECT_CONTENT;
-                 fmt.lindex = -1;
-                 fmt.tymed = TYMED_NULL;
+             FORMATETC fmt;
+             fmt.cfFormat = 0;
+             fmt.ptd = 0;
+             fmt.dwAspect = DVASPECT_CONTENT;
+             fmt.lindex = -1;
+             fmt.tymed = TYMED_NULL;
 
-                 STGMEDIUM stg;
-                 stg.tymed = TYMED_NULL;
-                 stg.pUnkForRelease = 0;
-                 stg.hBitmap = 0; // initializes the whole union
+             STGMEDIUM stg;
+             stg.tymed = TYMED_NULL;
+             stg.pUnkForRelease = 0;
+             stg.hBitmap = 0; // initializes the whole union
 
-                 m_spAdviseSink->OnDataChange( &fmt, &stg );
-             }
-             dirtyflag = true;
-             break;
-         default:
-             break;
+             m_spAdviseSink->OnDataChange(&fmt, &stg);
+         }
+         dirtyflag = true;
+         break;
+     default:
+         break;
     }
 
     if (index != -1 && uniqueIndex)
@@ -2740,7 +2742,6 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
         QDataStream qtstream(&qtbuffer);
         qtstream << qtstream.version();
 
-
         for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	    if (!isPropertyExposed(prop))
 	        continue;
@@ -2757,7 +2758,6 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
         }
 
         qtstream << int(0);
-
         qtbuffer.close();
     }
 
@@ -2771,6 +2771,8 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
     pStm->Write(data, qtarray.size(), &written);
     pStm->Commit(STGC_ONLYIFCURRENT);
 
+    if (clearDirty)
+        dirtyflag = false;
     return S_OK;
 }
 
