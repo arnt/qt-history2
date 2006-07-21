@@ -304,7 +304,7 @@ void Translator::unsqueeze()
     if (!d->messages.isEmpty() || d->messageArray.isEmpty())
         return;
 
-    qFatal("Cannot unsqueeze");
+    qFatal("Cannot unsqueeze (bug in Linguist?)");
 }
 
 
@@ -373,8 +373,6 @@ TranslatorMessage Translator::findMessage(const char *context, const char *sourc
         }
         return TranslatorMessage();
     }
-
-    qWarning("Cannot look up stuff");
 
     return TranslatorMessage();
 }
