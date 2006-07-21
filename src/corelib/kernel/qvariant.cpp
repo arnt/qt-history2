@@ -2526,7 +2526,8 @@ bool QVariant::convert(Type t)
         return false;
 
     bool isOk = true;
-    handler->convert(&oldValue.d, t, data(), &isOk);
+    if (!handler->convert(&oldValue.d, t, data(), &isOk))
+        isOk = false;
     d.is_null = !isOk;
     return isOk;
 }
