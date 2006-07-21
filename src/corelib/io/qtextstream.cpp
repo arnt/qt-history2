@@ -2374,7 +2374,7 @@ QTextStream &QTextStream::operator<<(const void *ptr)
     NumberFlags oldFlags = d->numberFlags;
     d->integerBase = 16;
     d->numberFlags |= ShowBase;
-    d->putNumber(reinterpret_cast<qint64>(ptr), false);
+    d->putNumber(reinterpret_cast<quintptr>(ptr), false);
     d->integerBase = oldBase;
     d->numberFlags = oldFlags;
     return *this;
