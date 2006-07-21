@@ -39,6 +39,7 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
     int similarTextHeuristicCount = 0;
     TML all = tor->messages();
     TML::Iterator it;
+    outTor->setLanguageCode(tor->languageCode());
 
     /*
       The types of all the messages from the vernacular translator
