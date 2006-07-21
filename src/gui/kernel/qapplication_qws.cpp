@@ -1935,7 +1935,7 @@ void qt_init(QApplicationPrivate *priv, int type)
     mouseInWidget = new QPointer<QWidget>;
 
     const QString disp(qws_display_spec);
-    QRegExp regexp(":(\\d+)\\$");
+    QRegExp regexp(":(\\d+)$");
     if (regexp.lastIndexIn(disp) != -1) {
         const QString capture = regexp.cap(1);
         bool ok = false;
