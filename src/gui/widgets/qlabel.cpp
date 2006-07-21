@@ -335,7 +335,7 @@ void QLabelPrivate::init()
     textformat = Qt::AutoText;
     doc = 0;
     control = 0;
-    textInteractionFlags = Qt::NoTextInteraction;
+    textInteractionFlags = Qt::LinksAccessibleByMouse;
 
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
@@ -712,7 +712,12 @@ int QLabel::heightForWidth(int w) const
     QDesktopServices::openUrl() instead of emitting the
     anchorClicked signal.
 
+    Note: The textInteractionFlags need to have LinksAccessibleByMouse
+    or the LinksAccessibleByKeyboard set.
+
     The default value is false.
+
+    \sa textInteractionFlags()
 */
 bool QLabel::openExternalLinks() const
 {
@@ -735,6 +740,8 @@ void QLabel::setOpenExternalLinks(bool open)
 
     If the flags contain either Qt::LinksAccessibleByKeyboard or Qt::TextSelectableByKeyboard
     then the focus policy is also automatically set to Qt::ClickFocus.
+
+    The default value is Qt::LinksAccessibleByMouse
 */
 void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
