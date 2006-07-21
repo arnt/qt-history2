@@ -1212,7 +1212,8 @@ void QVNCServer::discardClient()
     Constructs a QVNCScreen object. The \a displayId argument
     identifies the Qtopia Core server to connect to.
 */
-QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
+QVNCScreen::QVNCScreen(int display_id)
+    : VNCSCREEN_BASE(display_id), d_ptr(new QVNCScreenPrivate)
 {
     d_ptr->virtualBuffer = false;
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -1231,6 +1232,7 @@ QVNCScreen::~QVNCScreen()
 #else
     delete[] d_ptr->shmrgn;
 #endif
+    delete d_ptr;
 }
 
 void QVNCScreen::setDirty(const QRect& rect)
