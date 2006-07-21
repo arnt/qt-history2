@@ -46,9 +46,10 @@ public:
    networking applications that take time to establish connections) to
    provide the user with feedback that the application is loading.
 
-   The splash screen appears centered on the screen. It may be useful to add
-   the Qt::WStyle_StaysOnTop if you desire to keep above all the windows in the
-   GUI.
+   The splash screen appears in the center of the screen. It may be
+   useful to add the Qt::WindowStaysOnTopHint to the splash widget's
+   window flags if you want to keep it above all the other windows on
+   the desktop.
 
    Some X11 window managers do not support the "stays on top" flag. A
    solution is to set up a timer that periodically calls raise() on
