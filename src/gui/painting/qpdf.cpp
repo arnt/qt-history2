@@ -919,7 +919,7 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyTransform)
         d->stroker.matrix = state.matrix();
-    
+
     if (flags & DirtyPen) {
         d->pen = state.pen();
         d->hasPen = d->pen.style() != Qt::NoPen;
@@ -933,11 +933,6 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->brushOrigin = state.brushOrigin();
         flags |= DirtyBrush;
     }
-
-    if (flags & DirtyBackground)
-        d->backgroundBrush = state.backgroundBrush();
-    if (flags & DirtyBackgroundMode)
-        d->backgroundMode = state.backgroundMode();
 
     bool ce = d->clipEnabled;
     if (flags & DirtyClipPath) {
@@ -1065,8 +1060,6 @@ QPdfBaseEnginePrivate::QPdfBaseEnginePrivate()
 
     currentPage = new QPdfPage;
     stroker.stream = currentPage;
-
-    backgroundMode = Qt::TransparentMode;
 }
 
 QPdfBaseEnginePrivate::~QPdfBaseEnginePrivate()

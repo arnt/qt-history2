@@ -87,7 +87,7 @@ namespace QPdf {
     QByteArray ascii85Encode(const QByteArray &input);
 
     const char *toHex(ushort u, char *buffer);
-    const char *toHex(uchar u, char *buffer);    
+    const char *toHex(uchar u, char *buffer);
 
 
     struct PaperSize {
@@ -152,7 +152,7 @@ class QPdfBaseEnginePrivate : public QPaintEnginePrivate
 public:
     QPdfBaseEnginePrivate();
     ~QPdfBaseEnginePrivate();
-    
+
     void drawTextItem(const QPointF &p, const QTextItemInt &ti);
     inline uint requestObject() { return currentObject++; }
 
@@ -162,8 +162,6 @@ public:
     QPdfPage* currentPage;
     QPdf::Stroker stroker;
 
-    Qt::BGMode backgroundMode;
-    QBrush backgroundBrush;
     QPointF brushOrigin;
     QBrush brush;
     QPen pen;

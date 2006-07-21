@@ -283,12 +283,6 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     bool bitmap = true;
     int object = d->addImage(image, &bitmap, qt_pixmap_id(pm));
     if (bitmap) {
-        if (d->backgroundMode == Qt::OpaqueMode) {
-            // draw background
-            d->brush = d->backgroundBrush;
-            setBrush();
-            *d->currentPage << "0 0 " << rectangle.width() << rectangle.height() << "re f\n";
-        }
         // set current pen as d->brush
         d->brush = d->pen.brush();
         setBrush();
@@ -330,17 +324,6 @@ void QPdfEngine::drawTiledPixmap (const QRectF &rectangle, const QPixmap &pixmap
     bool hb = d->hasBrush;
     d->hasBrush = true;
 
-    if (bitmap) {
-        if (d->backgroundMode == Qt::OpaqueMode) {
-            // draw background
-            d->brush = d->backgroundBrush;
-            setBrush();
-            *d->currentPage << "q\n";
-            *d->currentPage
-                << QPdf::generateMatrix(d->stroker.matrix);
-            *d->currentPage << rectangle.x() << rectangle.y() << rectangle.width() << rectangle.height() << "re f Q\n";
-        }
-    }
     d->brush = QBrush(pixmap);
     if (bitmap)
         // #### fix bitmap case where we have a brush pen
