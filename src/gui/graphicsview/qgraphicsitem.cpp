@@ -4163,7 +4163,11 @@ public:
             shape.addRect(QRectF(offset.x(), offset.y(), pixmap.width(), pixmap.height()));
             break;
         case QGraphicsPixmapItem::HeuristicMaskShape:
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
             shape.addRegion(QRegion(pixmap.createHeuristicMask()).translated(offset.toPoint()));
+#else
+            shape.addRect(QRectF(offset.x(), offset.y(), pixmap.width(), pixmap.height()));
+#endif
             break;
         }
     }
