@@ -166,6 +166,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
     default:
         break;
     }
+
     return false;
 }
 
@@ -189,7 +190,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
             mode = Left;
         else if ( pos.x() >= widget->width()-range)
             mode = Right;
-        else if (widget->geometry().contains(pos))
+        else if (widget->rect().contains(pos))
             mode = Center;
         else
             mode = Nowhere;

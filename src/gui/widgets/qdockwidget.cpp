@@ -436,7 +436,7 @@ void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
         if (!plugged) {
             q->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
             updateButtons();
-            resizer->setActive(true);
+            resizer->setActive(QWidgetResizeHandler::Resize, true);
             q->show();
         }
     }
@@ -453,7 +453,7 @@ void QDockWidgetPrivate::unplug(const QRect &rect)
     r.moveTopLeft(q->mapToGlobal(r.topLeft()));
     q->hide();
     q->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::X11BypassWindowManagerHint);
-    resizer->setActive(false);
+    resizer->setActive(QWidgetResizeHandler::Resize, false);
     q->setGeometry(r);
     q->show();
     updateButtons();
@@ -644,7 +644,7 @@ void QDockWidget::setFloating(bool floating)
 
 
     d->updateButtons();
-    d->resizer->setActive(floating);
+    d->resizer->setActive(QWidgetResizeHandler::Resize, floating);
 
     if (visible)
         show();

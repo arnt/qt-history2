@@ -59,7 +59,7 @@ void QMainWindowPrivate::init()
     iconSize = QSize(metric, metric);
     explicitIconSize = false;
 
-    q->setAttribute(Qt::WA_Hover);
+    q->setMouseTracking(true);
 }
 
 /*
@@ -895,44 +895,6 @@ bool QMainWindow::event(QEvent *event)
     switch (event->type()) {
 
 #ifndef QT_NO_DOCKWIDGET
-        case QEvent::HoverMove: {
-            if (d->layout->savedDockWidgetLayout.isValid()) {
-                d->hoverSeparator.clear();
-                d->hoverPos = QPoint(0, 0);
-                // We're in the middle of adjusting the layout to a hovering
-                // dock widget, eat this event
-                event->accept();
-                return true;
-            }
-
-            QHoverEvent *e = static_cast<QHoverEvent *>(event);
-            d->hoverPos = e->pos();
-            QList<int> pathToSeparator
-                = d->layout->dockWidgetLayout.findSeparator(e->pos());
-            if (pathToSeparator != d->hoverSeparator) {
-                if (!d->hoverSeparator.isEmpty())
-                    update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-
-                d->hoverSeparator = pathToSeparator;
-
-                if (d->hoverSeparator.isEmpty()) {
-                    unsetCursor();
-                } else {
-                    update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-                    setCursor(d->separatorCursor(d->hoverSeparator));
-                }
-            }
-
-            break;
-        }
-
-        case QEvent::HoverLeave:
-            if (!d->hoverSeparator.isEmpty())
-                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
-            d->hoverSeparator.clear();
-            d->hoverPos = QPoint(0, 0);
-            break;
-
         case QEvent::Paint: {
             QPainter p(this);
             QRegion r = static_cast<QPaintEvent*>(event)->region();
@@ -952,11 +914,41 @@ bool QMainWindow::event(QEvent *event)
 
         case QEvent::MouseMove: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
-            if (d->layout->separatorMove(e->pos())) {
-                // We're moving a separator, eat this event
-                e->accept();
-                return true;
+
+            if (e->buttons() & Qt::LeftButton) {
+                if (d->layout->separatorMove(e->pos())) {
+                    // We're moving a separator, eat this event
+                    e->accept();
+                    return true;
+                }
+            } else {
+                if (d->layout->savedDockWidgetLayout.isValid()) {
+                    d->hoverSeparator.clear();
+                    d->hoverPos = QPoint(0, 0);
+                    // We're in the middle of adjusting the layout to a hovering
+                    // dock widget, eat this event
+                    event->accept();
+                    return true;
+                }
+
+                d->hoverPos = e->pos();
+                QList<int> pathToSeparator
+                    = d->layout->dockWidgetLayout.findSeparator(e->pos());
+                if (pathToSeparator != d->hoverSeparator) {
+                    if (!d->hoverSeparator.isEmpty())
+                        update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+
+                    d->hoverSeparator = pathToSeparator;
+
+                    if (d->hoverSeparator.isEmpty()) {
+                        unsetCursor();
+                    } else {
+                        update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+                        setCursor(d->separatorCursor(d->hoverSeparator));
+                    }
+                }
             }
+
             break;
         }
 
@@ -969,6 +961,14 @@ bool QMainWindow::event(QEvent *event)
             }
             break;
         }
+
+        case QEvent::Leave:
+            if (!d->hoverSeparator.isEmpty())
+                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+            d->hoverSeparator.clear();
+            d->hoverPos = QPoint(0, 0);
+            break;
+
 #endif
 
 #ifndef QT_NO_TOOLBAR
