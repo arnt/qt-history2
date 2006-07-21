@@ -287,6 +287,8 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
 
     menu = new QMenu(colorName, this);
     menu->addAction(toggleViewAction());
+    QAction *action = menu->addAction(tr("Raise"));
+    connect(action, SIGNAL(triggered()), this, SLOT(raise()));
     menu->addAction(changeSizeHintsAction);
     menu->addSeparator();
     menu->addAction(closableAction);

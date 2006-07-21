@@ -1565,6 +1565,14 @@ bool QMainWindowLayout::endSeparatorMove(const QPoint&)
     return result;
 }
 
+void QMainWindowLayout::raise(QDockWidget *widget)
+{
+    QDockAreaLayoutInfo *info = dockWidgetLayout.info(widget);
+    if (info == 0 || !info->tabbed)
+        return;
+    info->setCurrentTab(widget);
+}
+
 #endif // QT_NO_DOCKWIDGET
 
 bool QMainWindowLayout::contains(QWidget *widget) const

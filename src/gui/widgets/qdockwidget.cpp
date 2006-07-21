@@ -748,6 +748,18 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::StyleChange:
         d->updateButtons();
         break;
+    case QEvent::ZOrderChange: {
+        if (isFloating())
+            break;
+        QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
+        if (win == 0)
+            break;
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout*>(win->layout());
+        if (layout == 0)
+            break;
+        layout->raise(this);
+        break;
+    }
     case QEvent::ContextMenu:
         if (d->state) {
             event->accept();

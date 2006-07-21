@@ -125,6 +125,7 @@ public:
     QRubberBand *gapIndicator;
     void updateGapIndicator();
     void paintDropIndicator(QPainter *p, QWidget *widget, const QRegion &clip);
+    void raise(QDockWidget *widget);
 
     bool startSeparatorMove(const QPoint &pos);
     bool separatorMove(const QPoint &pos);
