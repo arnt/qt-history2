@@ -956,7 +956,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     QStringList &varlist = place[var]; // varlist is the list in the symbol table
 
-    {
+    if(Option::debug_level >= 1) {
         QString tmp_vals = vals;
         doVariableReplace(tmp_vals, place);
         debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.toLatin1().constData(), parser.line_no,
