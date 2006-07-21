@@ -28,9 +28,7 @@ QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_NO_QWS_VNC)
 
-class QVNCServer;
-class QVNCHeader;
-class QSharedMemory;
+class QVNCScreenPrivate;
 
 #ifdef qdoc
 class QVNCScreen : public QScreen {
@@ -44,21 +42,14 @@ public:
     virtual bool connect(const QString &displaySpec);
     virtual void disconnect();
     virtual void shutdownDevice();
-//    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual void save();
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
-
     virtual void setDirty(const QRect& r);
 
-    bool success;
-    QVNCServer *vncServer;
-    unsigned char *shmrgn;
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QSharedMemory *shm;
-#endif
-    QVNCHeader *hdr;
-    bool virtualBuffer;
+private:
+    friend class QVNCServer;
+    QVNCScreenPrivate *d_ptr;
 };
 
 #endif // QT_NO_QWS_VNC

@@ -142,6 +142,20 @@ public:
     quint32 length;
 };
 
+class QVNCServer;
+
+class QVNCScreenPrivate
+{
+public:
+    bool success;
+    QVNCServer *vncServer;
+    unsigned char *shmrgn;
+#ifndef QT_NO_QWS_MULTIPROCESS
+    QSharedMemory *shm;
+#endif
+    QVNCHeader *hdr;
+    bool virtualBuffer;
+};
 
 class QVNCServer : public QObject
 {
@@ -173,6 +187,7 @@ private:
     int getPixel(uchar **);
     void sendHextile();
     void sendRaw();
+    inline QVNCHeader* header() { return qvnc_screen->d_ptr->hdr; }
 
 private slots:
     void newConnection();
@@ -932,10 +947,10 @@ void QVNCServer::sendHextile()
     quint16 count = 0;
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    if (qvnc_screen->hdr->dirty) {
+    if (header()->dirty) {
         for (int y = 0; y < vtiles; y++)
             for (int x = 0; x < htiles; x++)
-                if (qvnc_screen->hdr->map[y][x])
+                if (header()->map[y][x])
                     count++;
     }
 
@@ -945,7 +960,7 @@ void QVNCServer::sendHextile()
     count = htons(count);
     client->write((char *)&count, 2);
 
-    if (!qvnc_screen->hdr->dirty) {
+    if (!header()->dirty) {
         QWSDisplay::ungrab();
         return;
     }
@@ -958,9 +973,9 @@ void QVNCServer::sendHextile()
             rect.h = qvnc_screen->height() - rect.y;
         rect.w = MAP_TILE_SIZE;
         for (int x = 0; x < htiles; x++) {
-            if (!qvnc_screen->hdr->map[y][x])
+            if (!header()->map[y][x])
                 continue;
-            qvnc_screen->hdr->map[y][x] = 0;
+            header()->map[y][x] = 0;
 
             rect.x = x * MAP_TILE_SIZE;
             if (rect.x + MAP_TILE_SIZE > qvnc_screen->deviceWidth())
@@ -1016,7 +1031,7 @@ void QVNCServer::sendHextile()
     }
     client->flush();
 
-    qvnc_screen->hdr->dirty = false;
+    header()->dirty = false;
 
     QWSDisplay::ungrab();
 }
@@ -1033,12 +1048,12 @@ void QVNCServer::sendRaw()
 
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
-    if (qvnc_screen->hdr->dirty) {
+    if (header()->dirty) {
         // make a region from the dirty rects and send the region's merged
         // rects.
         for (int y = 0; y < vtiles; y++)
             for (int x = 0; x < htiles; x++)
-                if (qvnc_screen->hdr->map[y][x])
+                if (header()->map[y][x])
                     rgn += QRect(x*MAP_TILE_SIZE, y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE);
 
         rgn &= QRect(0, 0, qvnc_screen->deviceWidth()-1,
@@ -1074,8 +1089,8 @@ void QVNCServer::sendRaw()
                 }
             }
         }
-        qvnc_screen->hdr->dirty = false;
-        memset(qvnc_screen->hdr->map, 0, MAP_WIDTH*vtiles);
+        header()->dirty = false;
+        memset(header()->map, 0, MAP_WIDTH*vtiles);
     }
 
     QWSDisplay::ungrab();
@@ -1083,7 +1098,7 @@ void QVNCServer::sendRaw()
 
 void QVNCServer::checkUpdate()
 {
-    if (wantUpdate && qvnc_screen->hdr->dirty) {
+    if (wantUpdate && header()->dirty) {
         if (supportHextile)
             sendHextile();
         else
@@ -1199,11 +1214,11 @@ void QVNCServer::discardClient()
 */
 QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
 {
-    virtualBuffer = false;
+    d_ptr->virtualBuffer = false;
 #ifndef QT_NO_QWS_MULTIPROCESS
-    shm = 0;
+    d_ptr->shm = 0;
 #endif
-    shmrgn = 0;
+    d_ptr->shmrgn = 0;
 }
 
 /*!
@@ -1212,9 +1227,9 @@ QVNCScreen::QVNCScreen(int display_id) : VNCSCREEN_BASE(display_id)
 QVNCScreen::~QVNCScreen()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    delete shm;
+    delete d_ptr->shm;
 #else
-    delete[] shmrgn;
+    delete[] d_ptr->shmrgn;
 #endif
 }
 
@@ -1224,21 +1239,21 @@ void QVNCScreen::setDirty(const QRect& rect)
         return;
 
     const QRect r = rect.translated(-offset());
-    hdr->dirty = true;
+    d_ptr->hdr->dirty = true;
     int x1 = r.x()/MAP_TILE_SIZE;
     int y1 = r.y()/MAP_TILE_SIZE;
     for (int y = y1; y <= r.bottom()/MAP_TILE_SIZE && y < MAP_HEIGHT; y++)
         for (int x = x1; x <= r.right()/MAP_TILE_SIZE && x < MAP_WIDTH; x++)
-            hdr->map[y][x] = 1;
+            d_ptr->hdr->map[y][x] = 1;
 }
 
 bool QVNCScreen::connect(const QString &displaySpec)
 {
     int vsize = 0;
 
-    virtualBuffer = !displaySpec.contains(QLatin1String("Fb"));
+    d_ptr->virtualBuffer = !displaySpec.contains(QLatin1String("Fb"));
 
-    if (virtualBuffer) {
+    if (d_ptr->virtualBuffer) {
         d = qgetenv("QWS_DEPTH").toInt();
         if (!d)
             d = 16;
@@ -1254,7 +1269,6 @@ bool QVNCScreen::connect(const QString &displaySpec)
         lstep = (dw * d + 7) / 8;
         dataoffset = 0;
         canaccel = false;
-        initted = true;
         size = h * lstep;
         vsize = size;
         mapsize = size;
@@ -1269,38 +1283,38 @@ bool QVNCScreen::connect(const QString &displaySpec)
     }
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8,
-                            qws_qtePipeFilename(), displayId);
-    if (!shm->create())
+    d_ptr->shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8,
+                                   qws_qtePipeFilename(), displayId);
+    if (!d_ptr->shm->create())
         qDebug("QVNCScreen could not create shared memory");
-    if (!shm->attach())
+    if (!d_ptr->shm->attach())
         qDebug("QVNCScreen could not attach to shared memory");
-    shmrgn = (unsigned char*)shm->base();
+    d_ptr->shmrgn = (unsigned char*)d_ptr->shm->base();
 #else
-    shmrgn = new uchar[sizeof(QVNCHeader) + vsize + 8];
+    d_ptr->shmrgn = new uchar[sizeof(QVNCHeader) + vsize + 8];
 #endif
 
-    hdr = (QVNCHeader *) shmrgn;
+    d_ptr->hdr = (QVNCHeader *)d_ptr->shmrgn;
 
-    if (virtualBuffer)
-        data = shmrgn + ((sizeof(QVNCHeader) + 7) & ~7);
+    if (d_ptr->virtualBuffer)
+        data = d_ptr->shmrgn + ((sizeof(QVNCHeader) + 7) & ~7);
     return true;
 }
 
 void QVNCScreen::disconnect()
 {
-    if (!virtualBuffer)
+    if (!d_ptr->virtualBuffer)
         VNCSCREEN_BASE::disconnect();
 #ifndef QT_NO_QWS_MULTIPROCESS
-    shm->detach();
+    d_ptr->shm->detach();
 #else
-    delete[] shmrgn;
+    delete[] d_ptr->shmrgn;
 #endif
 }
 
 bool QVNCScreen::initDevice()
 {
-    if (!virtualBuffer) {
+    if (!d_ptr->virtualBuffer) {
         VNCSCREEN_BASE::initDevice();
     } else if (d == 4) {
         screencols = 16;
@@ -1309,10 +1323,10 @@ bool QVNCScreen::initDevice()
             screenclut[idx]=qRgb(val, val, val);
         }
     }
-    vncServer = new QVNCServer(this, displayId);
+    d_ptr->vncServer = new QVNCServer(this, displayId);
 
-    hdr->dirty = false;
-    memset(hdr->map, 0, MAP_WIDTH * MAP_HEIGHT);
+    d_ptr->hdr->dirty = false;
+    memset(d_ptr->hdr->map, 0, MAP_WIDTH * MAP_HEIGHT);
 
 #ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
@@ -1323,12 +1337,12 @@ bool QVNCScreen::initDevice()
 
 void QVNCScreen::shutdownDevice()
 {
-    delete vncServer;
-    if (!virtualBuffer)
+    delete d_ptr->vncServer;
+    if (!d_ptr->virtualBuffer)
         VNCSCREEN_BASE::shutdownDevice();
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (shm)
-        shm->destroy();
+    if (d_ptr->shm)
+        d_ptr->shm->destroy();
 #endif
 }
 
@@ -1342,14 +1356,14 @@ void QVNCScreen::setMode(int ,int ,int)
 // between linux virtual consoles.
 void QVNCScreen::save()
 {
-    if (!virtualBuffer)
+    if (!d_ptr->virtualBuffer)
         VNCSCREEN_BASE::save();
 }
 
 // restore the state of the graphics card.
 void QVNCScreen::restore()
 {
-    if (!virtualBuffer)
+    if (!d_ptr->virtualBuffer)
         VNCSCREEN_BASE::restore();
 }
 

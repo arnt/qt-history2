@@ -211,16 +211,14 @@ bool QMultiScreen::connect(const QString &displaySpec)
         addSubScreen(s);
     }
 
-    {
-        QScreen *firstScreen = d_ptr->screens.at(0);
-        Q_ASSERT(firstScreen);
+    QScreen *firstScreen = d_ptr->screens.at(0);
+    Q_ASSERT(firstScreen);
 
-        // XXX
-        QScreen::d = firstScreen->depth();
-        QScreen::lstep = 0;
-        QScreen::data = 0;
-        QScreen::size = 0;
-    }
+    // XXX
+    QScreen::d = firstScreen->depth();
+    QScreen::lstep = 0;
+    QScreen::data = 0;
+    QScreen::size = 0;
 
     QScreen::w = d_ptr->region.boundingRect().width();
     QScreen::h = d_ptr->region.boundingRect().height();
@@ -297,59 +295,6 @@ bool QMultiScreen::onCard(const unsigned char *ptr, ulong &offset) const
             return true;
     return false;
 }
-
-#if 0
-QSize QMultiScreen::mapToDevice(const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapToDevice(size);
-}
-
-QSize QMultiScreen::mapFromDevice(const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapFromDevice(size);
-}
-
-
-QPoint QMultiScreen::mapToDevice(const QPoint &point, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapToDevice(point, size);
-}
-
-QPoint QMultiScreen::mapFromDevice(const QPoint &point, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapFromDevice(point, size);
-}
-
-QRect QMultiScreen::mapToDevice(const QRect &rect, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapToDevice(rect, size);
-}
-
-QRect QMultiScreen::mapFromDevice(const QRect &rect, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapFromDevice(rect, size);
-}
-
-QImage QMultiScreen::mapToDevice(const QImage &image) const
-{
-    return d_ptr->screens.at(0)->mapToDevice(image);
-}
-
-QImage QMultiScreen::mapFromDevice(const QImage &image) const
-{
-    return d_ptr->screens.at(0)->mapFromDevice(image);
-}
-
-QRegion QMultiScreen::mapToDevice(const QRegion &region, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapToDevice(region, size);
-}
-
-QRegion QMultiScreen::mapFromDevice(const QRegion &region, const QSize &size) const
-{
-    return d_ptr->screens.at(0)->mapFromDevice(region, size);
-}
-#endif
 
 bool QMultiScreen::isInterlaced() const
 {

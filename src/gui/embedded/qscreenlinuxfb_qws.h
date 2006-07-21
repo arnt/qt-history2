@@ -43,6 +43,8 @@ public:
 struct fb_cmap;
 struct fb_var_screeninfo;
 struct fb_fix_screeninfo;
+class QLinuxFbScreenPrivate;
+
 class Q_GUI_EXPORT QLinuxFbScreen : public QScreen
 {
 public:
@@ -84,10 +86,7 @@ private:
     void setupOffScreen();
     void createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_fix_screeninfo &finfo);
 
-    int fd;
-    int startupw;
-    int startuph;
-    int startupd;
+    QLinuxFbScreenPrivate *d_ptr;
 };
 
 #endif // QT_NO_QWS_LINUXFB

@@ -617,7 +617,6 @@ QScreen::QScreen(int display_id)
     pixeltype=NormalPixel;
     data = 0;
     displayId = display_id;
-    initted=false;
     entryp=0;
     clearCacheFunc = 0;
     grayscale = false;
@@ -680,7 +679,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
         // First we look to see if we match a default color
         QRgb myrgb=qRgb(r,g,b);
         int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-        if (simple_8bpp_alloc || screenclut[pos] == myrgb || !initted) {
+        if (simple_8bpp_alloc || screenclut[pos] == myrgb) {
             return pos;
         }
 
@@ -874,20 +873,22 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     bool foundDriver = false;
     QString driverName = driver;
 
-    QStringList driverList = QScreenDriverFactory::keys();
-    QStringList::Iterator it;
-    for (it = driverList.begin(); it != driverList.end(); ++it) {
-        if (driver.isEmpty() || QString(*it) == driver) {
-            driverName = *it;
-            qt_screen = QScreenDriverFactory::create(driverName, display_id);
-            if (qt_screen) {
-                foundDriver = true;
-                if (qt_screen->connect(spec)) {
-                    return qt_screen;
-                } else {
-                    delete qt_screen;
-                    qt_screen = 0;
-                }
+    QStringList driverList;
+    if (!driver.isEmpty())
+        driverList << driver;
+    else
+        driverList = QScreenDriverFactory::keys();
+
+    for (int i = 0; i < driverList.size(); ++i) {
+        const QString driverName = driverList.at(i);
+        qt_screen = QScreenDriverFactory::create(driverName, display_id);
+        if (qt_screen) {
+            foundDriver = true;
+            if (qt_screen->connect(spec)) {
+                return qt_screen;
+            } else {
+                delete qt_screen;
+                qt_screen = 0;
             }
         }
     }

@@ -56,6 +56,13 @@ static const int tileSize = 32;
 
 //#define QT_REGION_DEBUG
 
+class QTransformedScreenPrivate
+{
+public:
+    QTransformedScreen::Transformation transformation;
+};
+
+
 // Global function ---------------------------------------------------------------------------------
 static QTransformedScreen *qt_trans_screen = 0;
 
@@ -203,14 +210,19 @@ void qws_setScreenTransformation(int t)
     \sa setTransformation(), QScreen::transformOrientation()
 */
 QTransformedScreen::QTransformedScreen(int display_id)
-    : QT_TRANS_SCREEN_BASE(display_id)
+    : QT_TRANS_SCREEN_BASE(display_id), d_ptr(new QTransformedScreenPrivate)
 {
-    trans = None;
+    d_ptr->transformation = None;
     qt_trans_screen = this;
 
 #ifdef QT_REGION_DEBUG
     qDebug() << "QTransformedScreen::QTransformedScreen";
 #endif
+}
+
+QTransformedScreen::~QTransformedScreen()
+{
+    delete d_ptr;
 }
 
 bool QTransformedScreen::connect(const QString &displaySpec)
@@ -226,15 +238,19 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     return result;
 }
 
+QTransformedScreen::Transformation QTransformedScreen::transformation() const
+{
+    return d_ptr->transformation;
+}
 
 int QTransformedScreen::transformOrientation() const
 {
-    return (int)trans;
+    return (int)d_ptr->transformation;
 }
 
 void QTransformedScreen::setTransformation(Transformation t)
 {
-    trans = t;
+    d_ptr->transformation = t;
     QSize s = mapFromDevice(QSize(dw, dh));
     w = s.width();
     h = s.height();
@@ -790,6 +806,7 @@ do {                                               \
 void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
                               const QRegion &region)
 {
+    const Transformation trans = d_ptr->transformation;
     if (trans == None) {
         QT_TRANS_SCREEN_BASE::blit(image, topLeft, region);
         return;
@@ -878,7 +895,7 @@ void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
 // Mapping functions
 QSize QTransformedScreen::mapToDevice(const QSize &s) const
 {
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
     case Rot180:
         break;
@@ -892,7 +909,7 @@ QSize QTransformedScreen::mapToDevice(const QSize &s) const
 
 QSize QTransformedScreen::mapFromDevice(const QSize &s) const
 {
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
     case Rot180:
         break;
@@ -908,7 +925,7 @@ QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const
 {
     QPoint rp(p);
 
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         break;
     case Rot90:
@@ -932,7 +949,7 @@ QPoint QTransformedScreen::mapFromDevice(const QPoint &p, const QSize &s) const
 {
     QPoint rp(p);
 
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         break;
     case Rot90:
@@ -962,7 +979,7 @@ QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
         return QRect();
 
     QRect tr;
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         tr = r;
         break;
@@ -989,7 +1006,7 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
         return QRect();
 
     QRect tr;
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         tr = r;
         break;
@@ -1010,10 +1027,9 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
     return correctNormalized(tr);
 }
 
-#if 1
 QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) const
 {
-    if (trans == None)
+    if (d_ptr->transformation == None)
         return rgn;
 
 #ifdef QT_REGION_DEBUG
@@ -1028,7 +1044,7 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
     int h = s.height();
     int size = a.size();
 
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         break;
     case Rot90:
@@ -1061,7 +1077,7 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
 
 QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) const
 {
-    if (trans == None)
+    if (d_ptr->transformation == None)
         return rgn;
 #ifdef QT_REGION_DEBUG
     qDebug() << "fromDevice: realRegion count:  " << rgn.rects().size() << " isEmpty? " << rgn.isEmpty() << "  bounds:" << rgn.boundingRect();
@@ -1075,7 +1091,7 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
     int h = s.height();
     int size = a.size();
 
-    switch (trans) {
+    switch (d_ptr->transformation) {
     case None:
         break;
     case Rot90:
@@ -1105,6 +1121,5 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
 #endif
     return trgn;
 }
-#endif
 
 #endif // QT_NO_QWS_TRANSFORMED

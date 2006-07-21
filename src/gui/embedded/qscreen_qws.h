@@ -224,12 +224,8 @@ public:
 
     virtual int memoryNeeded(const QString&);
 
-    int * opType() { return screen_optype; }
-    int * lastOp() { return screen_lastop; }
-
     virtual void haltUpdates();
     virtual void resumeUpdates();
-
 
     // composition manager methods
     virtual void exposeRegion(QRegion r, int changing);
@@ -251,15 +247,8 @@ public:
 
 protected:
 
-    // Only used without QT_NO_QWS_REPEATER, but included so that
-    // it's binary compatible regardless.
-    int * screen_optype;
-    int * screen_lastop;
-
     QRgb screenclut[256];
     int screencols;
-
-    bool initted;
 
     uchar * data;
 

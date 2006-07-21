@@ -37,12 +37,7 @@ public:
     virtual void save();
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
-
     virtual void setDirty(const QRect& r);
-
-    bool success;
-    unsigned char *shmrgn;
-    QVFbHeader *hdr;
 
 private:
     QVFbScreenPrivate *d_ptr;

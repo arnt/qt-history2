@@ -39,6 +39,9 @@ public:
     QVFbScreenPrivate();
     ~QVFbScreenPrivate();
 
+    bool success;
+    unsigned char *shmrgn;
+    QVFbHeader *hdr;
     QWSMouseHandler *mouse;
     QWSKeyboardHandler *keyboard;
 };
@@ -140,8 +143,8 @@ QVFbScreenPrivate::~QVFbScreenPrivate()
 QVFbScreen::QVFbScreen(int display_id)
     : QScreen(display_id), d_ptr(new QVFbScreenPrivate)
 {
-    shmrgn = 0;
-    hdr = 0;
+    d_ptr->shmrgn = 0;
+    d_ptr->hdr = 0;
     data = 0;
 }
 
@@ -165,29 +168,29 @@ bool QVFbScreen::connect(const QString &displaySpec)
 
     int shmId = shmget(key, 0, 0);
     if (shmId != -1)
-        shmrgn = (unsigned char *)shmat(shmId, 0, 0);
+        d_ptr->shmrgn = (unsigned char *)shmat(shmId, 0, 0);
     else
         return false;
 
-    if ((long)shmrgn == -1 || shmrgn == 0) {
-        qDebug("No shmrgn %ld", (long)shmrgn);
+    if ((long)d_ptr->shmrgn == -1 || d_ptr->shmrgn == 0) {
+        qDebug("No shmrgn %ld", (long)d_ptr->shmrgn);
         return false;
     }
 
-    hdr = (QVFbHeader *) shmrgn;
-    data = shmrgn + hdr->dataoffset;
+    d_ptr->hdr = (QVFbHeader *)d_ptr->shmrgn;
+    data = d_ptr->shmrgn + d_ptr->hdr->dataoffset;
 
-    dw = w = hdr->width;
-    dh = h = hdr->height;
-    d = hdr->depth;
-    lstep = hdr->linestep;
+    dw = w = d_ptr->hdr->width;
+    dh = h = d_ptr->hdr->height;
+    d = d_ptr->hdr->depth;
+    lstep = d_ptr->hdr->linestep;
 
     qDebug("Connected to VFB server: %d x %d x %d", w, h, d);
 
     size = lstep * h;
     mapsize = size;
-    screencols = hdr->numcols;
-    memcpy(screenclut, hdr->clut, sizeof(QRgb) * screencols);
+    screencols = d_ptr->hdr->numcols;
+    memcpy(screenclut, d_ptr->hdr->clut, sizeof(QRgb) * screencols);
 
     if (qApp->type() == QApplication::GuiServer) {
         const QString mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(displayId);
@@ -199,8 +202,8 @@ bool QVFbScreen::connect(const QString &displaySpec)
         d_ptr->keyboard = QKbdDriverFactory::create("QVFbKbd", keyboardDev);
         qwsServer->setDefaultKeyboard("None");
 
-        if (hdr->dataoffset >= (int)sizeof(QVFbHeader))
-            hdr->serverVersion = QT_VERSION;
+        if (d_ptr->hdr->dataoffset >= (int)sizeof(QVFbHeader))
+            d_ptr->hdr->serverVersion = QT_VERSION;
     }
 
     return true;
@@ -208,11 +211,11 @@ bool QVFbScreen::connect(const QString &displaySpec)
 
 void QVFbScreen::disconnect()
 {
-    if ((long)shmrgn != -1 && shmrgn) {
-        if (qApp->type() == QApplication::GuiServer && hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
-            hdr->serverVersion = 0;
+    if ((long)d_ptr->shmrgn != -1 && d_ptr->shmrgn) {
+        if (qApp->type() == QApplication::GuiServer && d_ptr->hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
+            d_ptr->hdr->serverVersion = 0;
         }
-        shmdt((char*)shmrgn);
+        shmdt((char*)d_ptr->shmrgn);
     }
 }
 
@@ -238,22 +241,22 @@ bool QVFbScreen::initDevice()
             }
             screencols=idx;
         }
-        memcpy(hdr->clut, screenclut, sizeof(QRgb) * screencols);
-        hdr->numcols = screencols;
+        memcpy(d_ptr->hdr->clut, screenclut, sizeof(QRgb) * screencols);
+        d_ptr->hdr->numcols = screencols;
     } else if (d == 4) {
         int val = 0;
         for (int idx = 0; idx < 16; idx++, val += 17) {
             screenclut[idx] = qRgb(val, val, val);
         }
         screencols = 16;
-        memcpy(hdr->clut, screenclut, sizeof(QRgb) * screencols);
-        hdr->numcols = screencols;
+        memcpy(d_ptr->hdr->clut, screenclut, sizeof(QRgb) * screencols);
+        d_ptr->hdr->numcols = screencols;
     } else if (d == 1) {
         screencols = 2;
         screenclut[1] = qRgb(0xff, 0xff, 0xff);
         screenclut[0] = qRgb(0, 0, 0);
-        memcpy(hdr->clut, screenclut, sizeof(QRgb) * screencols);
-        hdr->numcols = screencols;
+        memcpy(d_ptr->hdr->clut, screenclut, sizeof(QRgb) * screencols);
+        d_ptr->hdr->numcols = screencols;
     }
 
 #ifndef QT_NO_QWS_CURSOR
@@ -285,8 +288,8 @@ void QVFbScreen::restore()
 void QVFbScreen::setDirty(const QRect& rect)
 {
     const QRect r = rect.translated(-offset());
-    hdr->dirty = true;
-    hdr->update = hdr->update.united(r);
+    d_ptr->hdr->dirty = true;
+    d_ptr->hdr->update = d_ptr->hdr->update.united(r);
 }
 
 

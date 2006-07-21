@@ -37,19 +37,6 @@ public:
     bool onCard(const unsigned char *) const;
     bool onCard(const unsigned char *, ulong& out_offset) const;
 
-#if 0
-    QSize mapToDevice(const QSize &) const;
-    QSize mapFromDevice(const QSize &) const;
-    QPoint mapToDevice(const QPoint &, const QSize &) const;
-    QPoint mapFromDevice(const QPoint &, const QSize &) const;
-    QRect mapToDevice(const QRect &, const QSize &) const;
-    QRect mapFromDevice(const QRect &, const QSize &) const;
-    QImage mapToDevice(const QImage &) const;
-    QImage mapFromDevice(const QImage &) const;
-    QRegion mapToDevice(const QRegion &, const QSize &) const;
-    QRegion mapFromDevice(const QRegion &, const QSize &) const;
-#endif
-
     bool isInterlaced() const;
 
     int memoryNeeded(const QString&);

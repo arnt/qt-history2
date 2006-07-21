@@ -44,6 +44,15 @@ extern int qws_client_id;
 
 //#define DEBUG_CACHE
 
+class QLinuxFbScreenPrivate
+{
+public:
+    int fd;
+    int startupw;
+    int startuph;
+    int startupd;
+};
+
 /*!
     \class QLinuxFbScreen
     \ingroup qws
@@ -89,7 +98,8 @@ extern int qws_client_id;
     identifies the Qtopia Core server to connect to.
 */
 
-QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
+QLinuxFbScreen::QLinuxFbScreen(int display_id)
+    : QScreen(display_id), d_ptr(new QLinuxFbScreenPrivate)
 {
     canaccel=false;
     clearCacheFunc = &clearCache;
@@ -101,6 +111,7 @@ QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
 
 QLinuxFbScreen::~QLinuxFbScreen()
 {
+    delete d_ptr;
 }
 
 /*!
@@ -127,8 +138,8 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     else
         dev = QLatin1String("/dev/fb0");
 
-    fd=open(dev.toLatin1().constData(), O_RDWR);
-    if (fd<0) {
+    d_ptr->fd = open(dev.toLatin1().constData(), O_RDWR);
+    if (d_ptr->fd < 0) {
         qCritical("Can't open framebuffer device %s", qPrintable(dev));
         return false;
     }
@@ -142,15 +153,15 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     //#######################
 
     /* Get fixed screen information */
-    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
-        perror("reading /dev/fb0");
+    if (ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
+        perror("QLinuxFbScreen::connect");
         qWarning("Error reading fixed information");
         return false;
     }
 
     /* Get variable screen information */
-    if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
-        perror("reading /dev/fb0");
+    if (ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
+        perror("QLinuxFbScreen::connect");
         qWarning("Error reading variable information");
         return false;
     }
@@ -184,10 +195,10 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     mapsize=finfo.smem_len;
 
     data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
-                                 MAP_SHARED, fd, 0);
+                                 MAP_SHARED, d_ptr->fd, 0);
 
     if ((long)data == -1) {
-        perror("mapping /dev/fb0");
+        perror("QLinuxFbScreen::connect");
         qWarning("Error: failed to map framebuffer device to memory.");
         return false;
     }
@@ -219,8 +230,8 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                   malloc(sizeof(unsigned short int)*screencols);
         startcmap.transp=(unsigned short int *)
                     malloc(sizeof(unsigned short int)*screencols);
-        if (ioctl(fd,FBIOGETCMAP,&startcmap)) {
-            perror("reading fb cmap");
+        if (ioctl(d_ptr->fd, FBIOGETCMAP, &startcmap)) {
+            perror("QLinuxFbScreen::connect");
             qWarning("Error reading palette from framebuffer, using default palette");
             createPalette(startcmap, vinfo, finfo);
         }
@@ -251,8 +262,6 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         screencols=0;
     }
 
-    initted=true;
-
     return true;
 }
 
@@ -268,7 +277,7 @@ void QLinuxFbScreen::disconnect()
 {
     data -= dataoffset;
     munmap((char*)data,mapsize);
-    close(fd);
+    close(d_ptr->fd);
 }
 
 // #define DEBUG_VINFO
@@ -441,7 +450,8 @@ bool QLinuxFbScreen::initDevice()
     memset(&finfo, 0, sizeof(finfo));
     //#######################
 
-    if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
+    if (ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
+        perror("QLinuxFbScreen::initDevice");
         qFatal("Error reading variable information in card init");
         return false;
     }
@@ -459,13 +469,14 @@ bool QLinuxFbScreen::initDevice()
            vinfo.transp.msb_right);
 #endif
 
-    startupw=vinfo.xres;
-    startuph=vinfo.yres;
-    startupd=vinfo.bits_per_pixel;
+    d_ptr->startupw=vinfo.xres;
+    d_ptr->startuph=vinfo.yres;
+    d_ptr->startupd=vinfo.bits_per_pixel;
     grayscale = vinfo.grayscale;
 
-    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
-        qFatal("Error reading fixed information in card init");
+    if (ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
+        perror("QLinuxFbScreen::initDevice");
+        qCritical("Error reading fixed information in card init");
         // It's not an /error/ as such, though definitely a bad sign
         // so we return true
         return true;
@@ -477,9 +488,7 @@ bool QLinuxFbScreen::initDevice()
         int mfd=open("/proc/mtrr",O_WRONLY,0);
         // MTRR entry goes away when file is closed - i.e.
         // hopefully when QWS is killed
-        if(mfd==-1) {
-            // /proc/mtrr not writable - oh well.
-        } else {
+        if(mfd != -1) {
             mtrr_sentry sentry;
             sentry.base=(unsigned long int)finfo.smem_start;
             //qDebug("Physical framebuffer address %p",(void*)finfo.smem_start);
@@ -503,8 +512,8 @@ bool QLinuxFbScreen::initDevice()
     {
         fb_cmap cmap;
         createPalette(cmap, vinfo, finfo);
-        if (ioctl(fd,FBIOPUTCMAP,&cmap)) {
-            perror("writing fb cmap");
+        if (ioctl(d_ptr->fd, FBIOPUTCMAP, &cmap)) {
+            perror("QLinuxFbScreen::initDevice");
             qWarning("Error writing palette to framebuffer");
         }
         free(cmap.red);
@@ -534,8 +543,6 @@ bool QLinuxFbScreen::initDevice()
     shared->clipright=0xffffffff;
     shared->clipbottom=0xffffffff;
     shared->rop=0xffffffff;
-
-    initted=true;
 
 #ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
@@ -852,7 +859,7 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
     cmap.green[0]=g << 8;
     cmap.blue[0]=b << 8;
     cmap.transp[0]=0;
-    ioctl(fd,FBIOPUTCMAP,&cmap);
+    ioctl(d_ptr->fd, FBIOPUTCMAP, &cmap);
     free(cmap.red);
     free(cmap.green);
     free(cmap.blue);
@@ -881,7 +888,8 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     memset(&finfo, 0, sizeof(finfo));
     //#######################
 
-    if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
+    if (ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
+        perror("QLinuxFbScreen::setMode");
         qFatal("Error reading variable information in mode change");
     }
 
@@ -889,16 +897,18 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     vinfo.yres=nh;
     vinfo.bits_per_pixel=nd;
 
-    if (ioctl(fd, FBIOPUT_VSCREENINFO, &vinfo)) {
+    if (ioctl(d_ptr->fd, FBIOPUT_VSCREENINFO, &vinfo)) {
+        perror("QLinuxFbScreen::setMode");
         qCritical("Error writing variable information in mode change");
     }
 
-    if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
+    if (ioctl(d_ptr->fd, FBIOGET_VSCREENINFO, &vinfo)) {
+        perror("QLinuxFbScreen::setMode");
         qFatal("Error reading changed variable information in mode change");
     }
 
-    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
-	perror("reading /dev/fb0");
+    if (ioctl(d_ptr->fd, FBIOGET_FSCREENINFO, &finfo)) {
+        perror("QLinuxFbScreen::setMode");
 	qFatal("Error reading fixed information");
     }
 
@@ -954,7 +964,7 @@ void QLinuxFbScreen::restore()
             cmap.blue[loopc] = qBlue(screenclut[loopc]) << 8;
             cmap.transp[loopc] = 0;
         }
-        ioctl(fd,FBIOPUTCMAP,&cmap);
+        ioctl(d_ptr->fd, FBIOPUTCMAP, &cmap);
         free(cmap.red);
         free(cmap.green);
         free(cmap.blue);
@@ -989,9 +999,9 @@ void QLinuxFbScreen::blank(bool on)
 // away eventually
 #if defined(FBIOBLANK)
 #if defined(VESA_POWERDOWN) && defined(VESA_NO_BLANKING)
-    ioctl(fd, FBIOBLANK, on ? VESA_POWERDOWN : VESA_NO_BLANKING);
+    ioctl(d_ptr->fd, FBIOBLANK, on ? VESA_POWERDOWN : VESA_NO_BLANKING);
 #else
-    ioctl(fd, FBIOBLANK, on ? 1 : 0);
+    ioctl(d_ptr->fd, FBIOBLANK, on ? 1 : 0);
 #endif
 #endif
 #endif

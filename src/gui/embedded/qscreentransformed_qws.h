@@ -29,6 +29,8 @@ QT_MODULE(Gui)
 #define QT_TRANS_SCREEN_BASE   QVFbScreen
 #endif
 
+class QTransformedScreenPrivate;
+
 #ifdef qdoc
 class QTransformedScreen : public QScreen
 #else
@@ -37,21 +39,19 @@ class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {
 public:
     explicit QTransformedScreen(int display_id);
+    ~QTransformedScreen();
 
     enum Transformation { None, Rot90, Rot180, Rot270 };
     bool connect(const QString &displaySpec);
 
     void setTransformation(Transformation t);
-    Transformation transformation() const
-    { return trans; }
+    Transformation transformation() const;
     int transformOrientation() const;
-    bool isTransformed() const
-    { return trans != None; }
+    bool isTransformed() const { return transformation() != None; }
 
     // drawing functions
     void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
     void solidFill(const QColor &color, const QRegion &region);
-
 
     // Mapping functions
     QSize mapToDevice(const QSize &s) const;
@@ -59,18 +59,15 @@ public:
 
     QPoint mapToDevice(const QPoint &, const QSize &) const;
     QPoint mapFromDevice(const QPoint &, const QSize &) const;
+
     QRect mapToDevice(const QRect &, const QSize &) const;
     QRect mapFromDevice(const QRect &, const QSize &) const;
-
 
     QRegion mapToDevice(const QRegion &, const QSize &) const;
     QRegion mapFromDevice(const QRegion &, const QSize &) const;
 
-    //QImage mapToDevice(const QImage &) const;
-    //QImage mapFromDevice(const QImage &) const;
-
 private:
-    Transformation trans;
+    QTransformedScreenPrivate *d_ptr;
 };
 
 #endif // QT_NO_QWS_TRANSFORMED
