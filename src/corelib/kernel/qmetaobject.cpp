@@ -1539,9 +1539,11 @@ QVariant::Type QMetaProperty::type() const
     int handle = priv(mobj->d.data)->propertyData + 3*idx;
     uint flags = mobj->d.data[handle + 2];
 
-    QVariant::Type type = QVariant::Type(flags >> 24);
+    uint type = flags >> 24;
+    if (type == 0xff) // special value for QVariant
+        type = QVariant::LastType;
     if (type)
-        return type;
+        return QVariant::Type(type);
     if (isEnumType())
         return QVariant::Int;
 
@@ -1641,6 +1643,8 @@ QVariant QMetaProperty::read(const QObject *object) const
         uint flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = (flags >> 24);
+        if (t == 0xff) // special value for QVariant
+            t = QVariant::LastType;
         if (t == QVariant::Invalid)
             t = QMetaType::type(typeName);
         if (t == QVariant::Invalid)
@@ -1696,6 +1700,8 @@ bool QMetaProperty::write(QObject *object, const QVariant &value) const
         uint flags = mobj->d.data[handle + 2];
         const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = flags >> 24;
+        if (t == 0xff) // special value for QVariant
+            t = QVariant::LastType;
         if (t == QVariant::Invalid) {
             const char *vtypeName = value.typeName();
             if (vtypeName && strcmp(typeName, vtypeName) == 0)
