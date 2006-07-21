@@ -3,6 +3,7 @@
 @SysInclude { diag }
 # lout -EPS dependencies.lout > dependencies.eps
 macro @TTGreenColour { {cmyk 0.40 0.00 1.00 0.01} }
+macro @TTPurpleColour { {cmyk 0.39 0.39 0.00 0.00} }
 macro @XrenderColour { rgb { 0.961 0.961 0.863 } }
 macro @FreetypeColour { rgb { 0.902 0.902 0.980 } }
 macro @GLColour { rgb { 1.000 0.753 0.796 } }
@@ -10,6 +11,7 @@ macro @PthreadColour { rgb { 0.741 0.718 0.420 } }
 macro @XineramaColour { rgb { 0.792 0.882 1.000 } }
 macro @SMColour { rgb { 0.961 1.000 0.980 } }
 macro @MiscColour { rgb { 0.941 0.973 1.000 } }
+macro @GlibColour { rgb { 0.7 0.7 0.7 } }
 @Illustration
     @InitialFont { Helvetica Base 14p }
 {
@@ -43,17 +45,18 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
     bformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
     cformat { @Cell A | @Cell marginbelow { 1c } B | @Cell marginbelow { 1c } C | @Cell marginbelow { 1c } D | @Cell E }
     dformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
-    eformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
-    fformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
+    eformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
 {
     @Rowa C { Qt"/"X11 library dependencies }
-    @Rowb C { QT:: @Node paint { @TTGreenColour } QtGui }
+    @Rowb C { QTGUI:: @Node paint { @TTGreenColour } QtGui }
     @Rowc B { XRENDER:: @Node paint { @XrenderColour } XRender }
 	  C { XINERAMA:: @Node paint { @XineramaColour } Xinerama }
           D { SM:: @Node paint { @SMColour } SM }
-    @Rowd C { XEXT:: @Node Xext } D { ICE:: @Node paint { @SMColour } ICE }
-    @Rowe C { X:: @Node X11 }
-    @Rowf C { PTHREAD:: @Node paint { @PthreadColour } pthread }
+    @Rowd A { QTCORE:: @Node paint { @TTPurpleColour } QtCore }
+          C { XEXT:: @Node Xext } D { ICE:: @Node paint { @SMColour } ICE }
+    @Rowe A { PTHREAD:: @Node paint { @PthreadColour } pthread }
+          B { GLIB:: @Node paint { @GlibColour } Glib }
+          C { X:: @Node X11 }
           D {
 	@Tbl
 	    font { -2p }
@@ -70,10 +73,12 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 	} 
 }
 //
-@Arrow from { QT } to { XINERAMA }
-@LVRCurveArrow from { QT } to { PTHREAD } bias { 12.25f }
-@VHVCurveArrow from { QT } to { SM } bias { 12.5f }
-@VHVCurveArrow from { QT } to { XRENDER } pathstyle { dotted }
+@Arrow from { QTGUI } to { XINERAMA }
+@HVCurveArrow from { QTGUI } to { QTCORE }
+@Arrow from { QTCORE } to { PTHREAD }
+@VHVCurveArrow from { QTCORE } to { GLIB } pathstyle { dotted }
+@VHVCurveArrow from { QTGUI } to { SM }
+@VHVCurveArrow from { QTGUI } to { XRENDER } pathstyle { dotted }
 @Arrow from { XINERAMA } to { XEXT }
 @VHCurveArrow from { XRENDER } to { XEXT }
 @Arrow from { SM } to { ICE }
@@ -88,7 +93,9 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 {
     @Rowa paint { darkgrey } A { Name } B { Library } C { Notes }
     @Rowb paint { @TTGreenColour } A { QtGui } B { libQtGui }
-	C { Qt }
+	C { QtGui }
+    @Rowb paint { @TTPurpleColour } A { QtCore } B { libQtCore }
+	C { QtCore (non-user interface features) }
     @Rowb paint { @XrenderColour } A { XRender } B { libXrender }  
 	C { X Rendering Extension; -xrender or auto-detected }
     @Rowb paint { @XineramaColour } A { Xinerama } B { libXinerama }
@@ -101,6 +108,8 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 	C { X Session Management; -sm or auto-detected }
     @Rowb paint { @SMColour } A { ICE } B { libICE }  
 	C { Inter-Client Exchange; -sm or auto-detected }
+    @Rowb paint { @GlibColour } A { glib } B { libglib-2.0 }  
+	C { Common event loop handling; -glib or auto-detected }
     @Rowb paint { @PthreadColour } A { pthread } B { libpthread }  
 	C { Multithreading }
 }
