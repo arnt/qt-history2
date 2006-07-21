@@ -1458,10 +1458,18 @@ QString QFSFileEngine::fileName(FileName file) const
         }
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if (!isRelativePath())
-            ret = d->file;
-        else
+
+        if (!isRelativePath()) {
+            if (d->file.size() > 2 && d->file.at(1) == QLatin1Char(':')
+                && d->file.at(2) != QLatin1Char('/')) {
+                // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
+                ret = QDir::convertSeparators(nativeAbsoluteFilePath(d->file));
+            } else {
+                ret = d->file;
+            }
+        } else {
             ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
+        }
 
         // The path should be absolute at this point.
         // From the docs :
