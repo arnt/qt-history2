@@ -96,6 +96,7 @@ enum Property {
     BackgroundPosition,
     BackgroundImage,
     BorderImage,
+    Spacing,
     NumProperties
 };
 
@@ -123,6 +124,8 @@ enum KnownValue {
     Value_Top,
     Value_Bottom,
     Value_Center,
+    Value_Native,
+    Value_Auto,
     NumKnownValues
 };
 
@@ -244,6 +247,8 @@ struct Q_GUI_EXPORT Declaration
     Repeat repeatValue() const;
     Qt::Alignment alignmentValue() const;
     QString uriValue() const;
+    void pixmapValue(QPixmap *pixmap, QSize *size) const;
+    void sizeValue(QSize *radius, const char *unit = 0, int offset = 0) const;
     void borderImageValue(QPixmap *pixmap, int *cuts, TileMode *h, TileMode *v) const;
 };
 

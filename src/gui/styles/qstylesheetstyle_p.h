@@ -84,7 +84,7 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBorderData : public QSharedData
 
 struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
 {
-    QStyleSheetBoxData()
+    QStyleSheetBoxData() : spacing(0)
     {
         for (int i = 0; i < 4; i++)
             margins[i] = paddings[i] = 0;
@@ -93,6 +93,8 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
     qreal margins[4];
     qreal paddings[4];
 
+    qreal spacing;
+    
     QSizeF marginSizeF() const { 
         return QSizeF(margins[QCss::LeftEdge] + margins[QCss::RightEdge],
                       margins[QCss::TopEdge] + margins[QCss::BottomEdge]); 
@@ -125,6 +127,12 @@ struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
     QBrush alternateBackground;
 };
 
+struct Q_AUTOTEST_EXPORT QStyleSheetPixmapData
+{
+    QPixmap pixmap;
+    QSize size;
+};
+
 class Q_AUTOTEST_EXPORT QRenderRule
 {
 public:
@@ -132,7 +140,8 @@ public:
     inline ~QRenderRule() { }
 
     void merge(const QVector<QCss::Declaration>& declarations);
-    bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0; }
+    bool isEmpty() const 
+    { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0 && pixmaps.isEmpty(); }
 
     QRect borderRect(const QRect& r) const;
     QRect paddingRect(const QRect& r) const;
@@ -164,13 +173,17 @@ public:
     void cutBorderImage();
     void fixupBorder();
 
-    inline bool hasPalette() const { return pal != 0; }
-    inline bool hasBackgroundImage() const { return bg != 0; }
+    bool hasPalette() const { return pal != 0; }
+    bool hasBackgroundImage() const { return bg != 0; }
     inline bool hasBox() const { return b != 0; }
     inline bool hasBorder() const { return bd != 0; }
     inline bool hasFocusRect() const { return fr != 0; }
-
-    QHash<QString, QPixmap> pixmaps;
+    inline bool hasPixmap(const char *p) const { return pixmaps.contains(QLatin1String(p)); }
+    inline QPixmap pixmap(const char *p) const { return pixmaps.value(QLatin1String(p)).pixmap; }
+    inline QSize pixmapSize(const char *p) const { return pixmaps.value(QLatin1String(p)).size; }
+    inline bool hasPixmapSize(const char *p) const { 
+        return hasPixmap(p) && pixmaps.value(QLatin1String(p)).size.isValid(); }
+    QHash<QString, QStyleSheetPixmapData> pixmaps;
 
 private:
     QSharedDataPointer<QStyleSheetPalette> pal;

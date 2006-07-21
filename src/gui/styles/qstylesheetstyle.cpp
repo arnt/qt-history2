@@ -95,12 +95,16 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
                                                 &_border()->_borderImage()->horizStretch,
                                                 &_border()->_borderImage()->vertStretch);
                           break;
+
+        case Spacing: decl.realValue(&_box()->spacing, "px"); break;
+
         default:
-            if (decl.property.compare("exclusive-indicator", Qt::CaseInsensitive) == 0) {
-                pixmaps["exclusive-indicator"] = QPixmap(decl.uriValue());
+            if (decl.property.compare("indicator", Qt::CaseInsensitive) == 0) {
+                QStyleSheetPixmapData pix;
+                decl.pixmapValue(&pix.pixmap, &pix.size);
+                pixmaps["indicator"] = pix;
             } else if (decl.property.compare("combobox-arrow", Qt::CaseInsensitive) == 0
                        || decl.property.compare("down-arrow", Qt::CaseInsensitive) == 0) {
-                pixmaps["down-arrow"] = QPixmap(decl.uriValue());
             }
             break;
         }
@@ -1111,7 +1115,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 qDrawFrame(p, rule, opt->rect, opt->direction);
 
             if (cb->subControls & SC_ComboBoxArrow) {
-                const QPixmap& downArrow = rule.pixmaps.value("down-arrow");
+                const QPixmap& downArrow = rule.pixmap("down-arrow");
                 if (!downArrow.isNull()) {
                     QRect rect = subControlRect(CC_ComboBox, cb, SC_ComboBoxArrow, w);
                     p->drawPixmap(rect, downArrow);
@@ -1197,11 +1201,10 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
         case CE_RadioButton:
         case CE_CheckBox:
-            if (rule.palette()->background.style() != Qt::NoBrush)
-                p->fillRect(opt->rect, rule.palette()->background);
-            // any funky border stuff, when this is fixed, fix the CT_RadioButton too
-            if (rule.hasBox())
+            if (rule.hasBorder() || rule.hasBackgroundImage())
                 qDrawFrame(p, rule, opt->rect, opt->direction);
+            else
+                qFillBackground(p, rule, opt->rect, opt->direction);
             ParentStyle::drawControl(ce, opt, p, w);
             return;
 
@@ -1286,7 +1289,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     switch (pe) {
     case PE_IndicatorArrowDown:
-        if (rule.pixmaps.contains("down-arrow"))
+        if (rule.hasPixmap("down-arrow"))
             baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
@@ -1342,12 +1345,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     // RadioButton and CheckBox
     case PE_IndicatorRadioButton:
     case PE_IndicatorCheckBox:
-        if (rule.pixmaps.contains("exclusive-indicator")) {
-            p->drawPixmap(opt->rect, rule.pixmaps["exclusive-indicator"]);
+        if (rule.hasPixmap("indicator")) {
+            drawItemPixmap(p, opt->rect, Qt::AlignCenter, rule.pixmap("indicator"));
         } else {
-            QStyleOption optCopy(*opt);
-            qConfigurePalette(&optCopy.palette, rule, QPalette::ButtonText, QPalette::Button);
-            baseStyle()->drawPrimitive(pe, &optCopy, p, w);
+            baseStyle()->drawPrimitive(pe, opt, p, w);
         }
         return;
 
@@ -1427,16 +1428,15 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ExclusiveIndicatorWidth:
     case PM_IndicatorWidth:
-        if (rule.pixmaps.contains("exclusive-indicator"))
-            return rule.pixmaps["exclusive-indicator"].width();
+        if (rule.hasPixmapSize("indicator"))
+            return rule.pixmapSize("indicator").width();
         break;
 
     case PM_ExclusiveIndicatorHeight:
     case PM_IndicatorHeight:
-        if (rule.pixmaps.contains("exclusive-indicator"))
-            return rule.pixmaps["exclusive-indicator"].height();
+        if (rule.hasPixmapSize("indicator"))
+            return rule.pixmapSize("indicator").height();
         break;
-
 
     case PM_ToolTipLabelFrameWidth:
     case PM_ComboBoxFrameWidth:
@@ -1510,12 +1510,21 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_CheckBox:
     case CT_RadioButton:
-        // any funky border stuff, when this is fixed, fix the CE_RadioButton too
-        if (!rule.hasBox())
-            return baseStyle()->sizeFromContents(ct, opt, csz, w);
-        else {
-            QSize sz = ParentStyle::sizeFromContents(ct, opt, csz, w);
-            return rule.boxRect(QRect(0, 0, sz.width(), sz.height())).size();
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
+            if (rule.hasBox() || rule.hasBorder() || rule.hasPixmapSize("indicator")) {
+                // similar to QCommonStyle
+                bool isRadio = (ct == CT_RadioButton);
+                int iw = pixelMetric(isRadio ? PM_ExclusiveIndicatorWidth
+                                            : PM_IndicatorWidth, btn, w);
+                int ih = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
+                                            : PM_IndicatorHeight, btn, w);
+                QSize margins(0, 0);
+                if (!rule.hasBox() && !rule.hasBorder())
+                    margins = QSize((!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10, 4);
+                int spacing = rule.hasBox() ? qRound(rule.box()->spacing) : 6;
+                QSize sz = csz + QSize(iw+spacing, ih) + margins;
+                return rule.boxRect(QRect(0, 0, sz.width(), sz.height())).size();
+            }
         }
         break;
 
@@ -1528,7 +1537,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         if (baseStyleCanRender(ComboBox, rule))
             return baseStyle()->sizeFromContents(ct, opt, csz, w);
         // FIXME
-        QPixmap downArrow = rule.pixmaps.value("down-arrow");
+        QPixmap downArrow = rule.pixmap("down-arrow");
         QRect br = rule.boxRect(QRect(0, 0, csz.width() + downArrow.width() + 23,
                                       qMax(csz.height(), downArrow.height())));
         return br.size();
@@ -1581,7 +1590,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
     {
         if (baseStyleCanRender(ComboBox, rule))
             return baseStyle()->subControlRect(cc, opt, sc, w);
-        QPixmap downArrow = rule.pixmaps.value("down-arrow");
+        const QPixmap& downArrow = rule.pixmap("down-arrow");
         switch (sc) {
         case SC_ComboBoxArrow:
             r = rule.contentsRect(r);
@@ -1687,26 +1696,36 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         }
         break;
 
-        // RadioButton and CheckBox
     case SE_CheckBoxIndicator:
-    case SE_RadioButtonIndicator: {
-        // any funky border stuff, when this is fixed, fix the CT_RadioButton too
-        QStyleOption optCopy(*opt);
-        if (rule.hasBox()) {
+    case SE_RadioButtonIndicator:
+        if (rule.hasBox() || rule.hasBorder() || rule.hasPixmapSize("indicator")) {
+            QStyleOption optCopy(*opt);
             optCopy.rect = rule.contentsRect(opt->rect);
+            return ParentStyle::subElementRect(se, &optCopy, w);
         }
-        return ParentStyle::subElementRect(se, &optCopy, w);
-                               }
+        break;
 
-    // relies on indicator
     case SE_CheckBoxContents:
     case SE_RadioButtonContents:
+        if (rule.hasBox() || rule.hasBorder() || !rule.hasPixmapSize("indicator")) {
+            bool isRadio = se == SE_RadioButtonContents;
+            QRect ir = subElementRect(isRadio ? SE_RadioButtonIndicator : SE_CheckBoxIndicator,
+                                      opt, w);
+            ir = visualRect(opt->direction, opt->rect, ir);
+            const int spacing = rule.hasBox() ? qRound(rule.box()->spacing) : 6;
+            QRect cr = rule.contentsRect(opt->rect);
+            ir.setRect(ir.left() + ir.width() + spacing, cr.y(), 
+                       cr.width() - ir.width() - spacing, cr.height());
+            return visualRect(opt->direction, opt->rect, ir);
+        }
+        break;
+
     case SE_RadioButtonFocusRect:
     case SE_RadioButtonClickRect: // focusrect | indicator
     case SE_CheckBoxFocusRect:
     case SE_CheckBoxClickRect: // relies on indicator and contents
         return ParentStyle::subElementRect(se, opt, w);
-
+        
     default:
         break;
     }

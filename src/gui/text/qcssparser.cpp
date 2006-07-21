@@ -124,6 +124,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "padding-top", PaddingTop },
     { "selection-background", SelectionBackground },
     { "selection-foreground", SelectionForeground },
+    { "spacing", Spacing },
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
@@ -131,6 +132,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
 };
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
+    { "auto", Value_Auto },
     { "bold", Value_Bold },
     { "bottom", Value_Bottom },
     { "center", Value_Center },
@@ -139,6 +141,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "left", Value_Left },
     { "line-through", Value_LineThrough },
     { "medium", Value_Medium },
+    { "native", Value_Native },
     { "normal", Value_Normal },
     { "nowrap", Value_NoWrap },
     { "oblique", Value_Oblique },
@@ -403,14 +406,19 @@ void Declaration::radiusValue(QSize *radius, const char *unit) const
 {
     if (values.count() > 2 || values.count() < 1)
         return;
+    sizeValue(radius, unit, 0);
+}
+
+void Declaration::sizeValue(QSize *size, const char *unit, int offset) const
+{
     int x[2] = { 0, 0 };
-    if (values.count() > 0)
-        intValue(values.at(0), &x[0], unit);
-    if (values.count() > 1)
-        intValue(values.at(1), &x[1], unit);
+    if (values.count() > offset)
+        intValue(values.at(offset), &x[0], unit);
+    if (values.count() > 1+offset)
+        intValue(values.at(1+offset), &x[1], unit);
     else
         x[1] = x[0];
-    *radius = QSize(x[0], x[1]);
+    *size = QSize(x[0], x[1]);
 }
 
 Repeat Declaration::repeatValue() const
@@ -434,6 +442,25 @@ QString Declaration::uriValue() const
     if (values.isEmpty() || values.first().type != Value::Uri)
         return QString();
     return values.first().variant.toString();
+}
+
+#include <QtDebug>
+
+void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
+{
+    *pixmap = QPixmap(uriValue());
+    *size = QSize();
+    if (pixmap->isNull()) {
+        qWarning() << "Failed to load pixmap " << uriValue();
+        return;
+    }
+    if (values.count() > 1) {
+        if (values.at(1).type == Value::KnownIdentifier) {
+            if (values.at(1).variant.toInt() == Value_Auto)
+               *size = pixmap->size();
+        } else
+            sizeValue(size, 0, 1);
+    }
 }
 
 Qt::Alignment Declaration::alignmentValue() const
