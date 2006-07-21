@@ -64,8 +64,33 @@ Q_GLOBAL_STATIC_WITH_ARGS(QWSDirectPainterSurface, surface, (true));
     \sa QScreen, QDecoration
 */
 
-static inline QSize screenS() { return QSize(qt_screen->width(), qt_screen->height()); }
-static inline QSize devS() { return QSize(qt_screen->deviceWidth(), qt_screen->deviceHeight()); }
+static inline QScreen *getPrimaryScreen()
+{
+    QScreen *screen = QScreen::instance();
+    if (!screen->base()) {
+        QList<QScreen*> subScreens = screen->subScreens();
+        if (subScreens.size() < 1)
+            return 0;
+        screen = subScreens.at(0);
+    }
+    return screen;
+}
+
+static inline QSize screenS()
+{
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return QSize();
+    return QSize(screen->width(), screen->height());
+}
+
+static inline QSize devS()
+{
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return QSize();
+    return QSize(screen->deviceWidth(), screen->deviceHeight());
+}
 
 /*!
     \fn QRegion QDirectPainter::reserveRegion(const QRegion &region)
@@ -95,7 +120,10 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 */
 uchar* QDirectPainter::frameBuffer()
 {
-    return qt_screen->base();
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return 0;
+    return screen->base();
 }
 
 /*!
@@ -115,7 +143,10 @@ QRegion QDirectPainter::region()
 */
 int QDirectPainter::screenDepth()
 {
-    return qt_screen->depth();
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return 0;
+    return screen->depth();
 }
 
 /*!
@@ -125,7 +156,10 @@ int QDirectPainter::screenDepth()
 */
 int QDirectPainter::screenWidth()
 {
-    return qt_screen->deviceWidth();
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return 0;
+    return screen->deviceWidth();
 }
 
 /*!
@@ -135,7 +169,10 @@ int QDirectPainter::screenWidth()
 */
 int QDirectPainter::screenHeight()
 {
-    return qt_screen->deviceHeight();
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return 0;
+    return screen->deviceHeight();
 }
 
 /*!
@@ -145,7 +182,10 @@ int QDirectPainter::screenHeight()
 */
 int QDirectPainter::linestep()
 {
-    return qt_screen->linestep();
+    QScreen *screen = getPrimaryScreen();
+    if (!screen)
+        return 0;
+    return screen->linestep();
 }
 
 

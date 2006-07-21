@@ -674,6 +674,18 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoin
 
 #ifndef QT_NO_DIRECTPAINTER
 
+static inline QScreen *getPrimaryScreen()
+{
+    QScreen *screen = QScreen::instance();
+    if (!screen->base()) {
+        QList<QScreen*> subScreens = screen->subScreens();
+        if (subScreens.size() < 1)
+            return 0;
+        screen = subScreens.at(0);
+    }
+    return screen;
+}
+
 QWSDirectPainterSurface::~QWSDirectPainterSurface()
 {
 }
@@ -688,15 +700,23 @@ QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
                                           QLatin1String("QDirectPainter reserved space"),
                                           QLatin1String("reserved"));
     }
+    screen = QScreen::instance();
+    if (!screen->base()) {
+        QList<QScreen*> subScreens = screen->subScreens();
+        if (subScreens.size() < 1)
+            screen = 0;
+        else
+            screen = subScreens.at(0);
+    }
 }
 
 void QWSDirectPainterSurface::resize(const QRegion &region)
 {
     QRegion reg = region;
 
-    if (qt_screen->isTransformed()) {
-        const QSize devSize(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-        reg = qt_screen->mapFromDevice(region, devSize);
+    if (screen->isTransformed()) {
+        const QSize devSize(screen->deviceWidth(), screen->deviceHeight());
+        reg = screen->mapFromDevice(region, devSize);
     }
 
     QWidget::qwsDisplay()->requestRegion(winId, key(), data(), reg);
@@ -708,9 +728,9 @@ void QWSDirectPainterSurface::resize(const QRegion &region)
         QApplication::processEvents();
 
     reg = ad->directPainterRegion;
-    if (qt_screen->isTransformed()) {
-        const QSize screenSize(qt_screen->width(), qt_screen->height());
-        reg = qt_screen->mapToDevice(reg, screenSize);
+    if (screen->isTransformed()) {
+        const QSize screenSize(screen->width(), screen->height());
+        reg = screen->mapToDevice(reg, screenSize);
     }
     setClipRegion(reg);
 }

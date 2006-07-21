@@ -221,6 +221,9 @@ private:
 };
 
 #ifndef QT_NO_DIRECTPAINTER
+
+class QScreen;
+
 class QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
@@ -249,7 +252,9 @@ public:
 
 private:
     int winId;
+    QScreen *screen;
 };
+
 #endif // QT_NO_DIRECTPAINTER
 
 #endif // QWINDOWSURFACE_QWS_P_H

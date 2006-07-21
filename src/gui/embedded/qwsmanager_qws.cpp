@@ -412,14 +412,14 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
     painter.translate(bs->topLevelOffset());
 
     for (int i = 0; i < dirtyRegions.size(); ++i) {
-        int region = dirtyRegions.takeFirst();
+        int r = dirtyRegions.takeFirst();
         QDecoration::DecorationState state = dirtyStates.takeFirst();
 
-        QRegion clipRegion = dec.region(managed, clipRect, region);
+        QRegion clipRegion = dec.region(managed, clipRect, r);
         clipRegion.translate(-bs->topLevelOffset());
         painter.setClipRegion(clipRegion);
 
-        dec.paint(&painter, managed, region, state);
+        dec.paint(&painter, managed, r, state);
     }
     painter.end();
 }

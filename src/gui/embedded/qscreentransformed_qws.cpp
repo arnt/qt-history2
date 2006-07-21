@@ -276,6 +276,14 @@ static inline DST colorConvert(SRC color)
     return color;
 }
 
+#if defined(QT_QWS_DEPTH_16) && defined(QT_QWS_DEPTH_32)
+template <>
+static inline quint32 colorConvert(quint16 color)
+{
+    return qt_conv16ToRgb(color);
+}
+#endif
+
 #ifdef QT_QWS_DEPTH_16
 template <>
 static inline quint16 colorConvert(quint32 color)
@@ -356,19 +364,19 @@ static inline quint18 colorConvert(quint32 color)
 
 #endif // QT_QWS_DEPTH_18
 
-typedef void (*BlitFunc)(const QImage &, const QRect &, const QPoint &);
+typedef void (*BlitFunc)(QScreen *, const QImage &, const QRect &, const QPoint &);
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD || defined(QT_QWS_DEPTH_18) || defined(QT_QWS_DEPTH_24)
 
 template <class SRC, class DST>
-static inline void blit90_cachedRead(const QImage &image, const QRect &rect,
-                                     const QPoint &topLeft)
+static inline void blit90_cachedRead(QScreen *screen, const QImage &image,
+                                     const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                      + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                 + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -382,14 +390,14 @@ static inline void blit90_cachedRead(const QImage &image, const QRect &rect,
 }
 
 template <class SRC, class DST>
-static void blit270_cachedRead(const QImage &image, const QRect &rect,
-                               const QPoint &topLeft)
+static void blit270_cachedRead(QScreen *screen, const QImage &image,
+                               const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits()) +
                       rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                  + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -408,14 +416,14 @@ static void blit270_cachedRead(const QImage &image, const QRect &rect,
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
 
 template <class SRC, class DST>
-static inline void blit90_cachedWrite(const QImage &image, const QRect &rect,
-                                      const QPoint &topLeft)
+static inline void blit90_cachedWrite(QScreen *screen, const QImage &image,
+                                      const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                      + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                 + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -430,14 +438,14 @@ static inline void blit90_cachedWrite(const QImage &image, const QRect &rect,
 }
 
 template <class SRC, class DST>
-static void blit270_cachedWrite(const QImage &image, const QRect &rect,
-                                const QPoint &topLeft)
+static void blit270_cachedWrite(QScreen *screen, const QImage &image,
+                                const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits()) +
                       rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                  + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -455,14 +463,14 @@ static void blit270_cachedWrite(const QImage &image, const QRect &rect,
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
 
 template <class SRC, class DST>
-static inline void blit90_packing(const QImage &image, const QRect &rect,
-                                  const QPoint &topLeft)
+static inline void blit90_packing(QScreen *screen, const QImage &image,
+                                  const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                      + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                 + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -501,14 +509,14 @@ static inline void blit90_packing(const QImage &image, const QRect &rect,
 }
 
 template <class SRC, class DST>
-static inline void blit270_packing(const QImage &image, const QRect &rect,
-                                   const QPoint &topLeft)
+static inline void blit270_packing(QScreen *screen, const QImage &image,
+                                   const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits()) +
                       rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                  + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -549,14 +557,14 @@ static inline void blit270_packing(const QImage &image, const QRect &rect,
 
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
 template <class SRC, class DST>
-static inline void blit90_tiled(const QImage &image, const QRect &rect,
-                                const QPoint &topLeft)
+static inline void blit90_tiled(QScreen *screen, const QImage &image,
+                                const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                      + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                 + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -625,14 +633,14 @@ static inline void blit90_tiled(const QImage &image, const QRect &rect,
 }
 
 template <class SRC, class DST>
-static inline void blit270_tiled(const QImage &image, const QRect &rect,
-                                 const QPoint &topLeft)
+static inline void blit270_tiled(QScreen *screen, const QImage &image,
+                                 const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                      + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                 + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -704,27 +712,29 @@ static inline void blit270_tiled(const QImage &image, const QRect &rect,
 #endif // QT_ROTATION_ALFORITHM
 
 template <class SRC, class DST>
-static void blit90(const QImage &image, const QRect &rect, const QPoint &topLeft)
+static void blit90(QScreen *screen, const QImage &image,
+                   const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit90_cachedRead<SRC,DST>(image, rect, topLeft);
+    blit90_cachedRead<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit90_cachedWrite<SRC,DST>(image, rect, topLeft);
+    blit90_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
-    blit90_packing<SRC,DST>(image, rect, topLeft);
+    blit90_packing<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit90_tiled<SRC,DST>(image, rect, topLeft);
+    blit90_tiled<SRC,DST>(screen, image, rect, topLeft);
 #endif
 }
 
 template <class SRC, class DST>
-static void blit180(const QImage &image, const QRect &rect, const QPoint &topLeft)
+static void blit180(QScreen *screen, const QImage &image,
+                    const QRect &rect, const QPoint &topLeft)
 {
     const int sstride = image.bytesPerLine() / sizeof(SRC);
-    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const int dstride = screen->linestep() / sizeof(DST);
     const SRC *src = reinterpret_cast<const SRC *>(image.bits())
                       + rect.top() * sstride + rect.left();
-    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+    DST *dest = reinterpret_cast<DST*>(screen->base())
                  + topLeft.y() * dstride + topLeft.x();
     const int h = rect.height();
     const int w = rect.width();
@@ -739,16 +749,17 @@ static void blit180(const QImage &image, const QRect &rect, const QPoint &topLef
 }
 
 template <class SRC, class DST>
-static void blit270(const QImage &image, const QRect &rect, const QPoint &topLeft)
+static void blit270(QScreen *screen, const QImage &image,
+                    const QRect &rect, const QPoint &topLeft)
 {
 #if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
-    blit270_cachedRead<SRC,DST>(image, rect, topLeft);
+    blit270_cachedRead<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDWRITE
-    blit270_cachedWrite<SRC,DST>(image, rect, topLeft);
+    blit270_cachedWrite<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_PACKING
-    blit270_packing<SRC,DST>(image, rect, topLeft);
+    blit270_packing<SRC,DST>(screen, image, rect, topLeft);
 #elif QT_ROTATION_ALGORITHM == QT_ROTATION_TILED
-    blit270_tiled<SRC,DST>(image, rect, topLeft);
+    blit270_tiled<SRC,DST>(screen, image, rect, topLeft);
 #endif
 }
 
@@ -786,21 +797,21 @@ do {                                                 \
     }                                                \
 } while (0)
 
-#define SET_BLIT_FUNC24(rotation, func)            \
-do {                                               \
-    switch (rotation) {                            \
-    case Rot90:                                    \
-        func = blit90_cachedRead<quint32, quint24>;\
-        break;                                  \
-    case Rot180:                                \
-        func = blit180<quint32, quint24>;       \
-        break;                                  \
-    case Rot270:                                \
+#define SET_BLIT_FUNC24(rotation, func)              \
+do {                                                 \
+    switch (rotation) {                              \
+    case Rot90:                                      \
+        func = blit90_cachedRead<quint32, quint24>;  \
+        break;                                       \
+    case Rot180:                                     \
+        func = blit180<quint32, quint24>;            \
+        break;                                       \
+    case Rot270:                                     \
         func = blit270_cachedRead<quint32, quint24>; \
-        break;                                  \
-    default:                                    \
-        break;                                  \
-    }                                           \
+        break;                                       \
+    default:                                         \
+        break;                                       \
+    }                                                \
 } while (0)
 
 void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
@@ -817,10 +828,13 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
                         & QRect(topLeft, image.size());
 
     BlitFunc func = 0;
-    switch (qt_screen->depth()) {
+    switch (depth()) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
-        SET_BLIT_FUNC(quint32, quint32, trans, func);
+        if (image.depth() == 16)
+            SET_BLIT_FUNC(quint16, quint32, trans, func);
+        else
+            SET_BLIT_FUNC(quint32, quint32, trans, func);
         break;
 #endif
 #ifdef QT_QWS_DEPTH_24
@@ -873,7 +887,7 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
         default:
             break;
         }
-        func(image, r.translated(-topLeft), dst);
+        func(this, image, r.translated(-topLeft), dst);
     }
     QWSDisplay::ungrab();
 
