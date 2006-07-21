@@ -280,13 +280,6 @@ void tst_QFileInfo::absolutePath()
     QFETCH(QString, path);
     QFETCH(QString, filename);
 
-#ifdef Q_OS_WIN
-#if QT_VERSION > 0x040101
-    if (file == "/test")
-        QSKIP("\"/test\" crashes on win32, fixed in 4.1.1", SkipSingle);
-#endif
-#endif
-
     QFileInfo fi(file);
 
     QCOMPARE(fi.absolutePath(), path);
