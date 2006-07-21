@@ -567,7 +567,12 @@ bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) con
         if (dirName.startsWith(QString("\\\\"))) {
             // Don't try to create the root path of a UNC path;
             // CreateDirectory() will just return ERROR_INVALID_NAME.
-            oldslash = dirName.indexOf(QRegExp("[^\\\\]"), 2);
+            for (int i = 0; i < dirName.size(); ++i) {
+                if (dirName.at(i) != QDir::separator()) {
+                    oldslash = i;
+                    break;
+                }
+            }
             if (oldslash != -1)
                 oldslash = dirName.indexOf(QDir::separator(), oldslash);
         }
