@@ -342,9 +342,9 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 #else
 /*!
     Constructs a QTemporaryFile in QDir::tempPath(), using the file template
-    "qt_temp.XXXXXX".
+    "qt_temp.XXXXXX". The file is stored in the system's temporary directory.
 
-    \sa setFileTemplate()
+    \sa setFileTemplate(), QDir::tempPath()
 */
 QTemporaryFile::QTemporaryFile()
     : QFile(*new QTemporaryFilePrivate, 0)
@@ -359,6 +359,10 @@ QTemporaryFile::QTemporaryFile()
     a unique filename. If the \a templateName does not contain XXXXXX it will
     automatically be appended and used as the dynamic portion of the filename.
 
+    If \a templateName is a relative path, the path will be relative to the
+    current working directory. You can use QDir::tempPath() to construct \a
+    templateName if you want use the system's temporary directory.
+    
     \sa open(), fileTemplate()
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName)
@@ -386,6 +390,10 @@ QTemporaryFile::QTemporaryFile(QObject *parent)
     create a unique filename. If the \a templateName does end in
     XXXXXX it will automatically be appended and used as the dynamic
     portion of the filename.
+
+    If \a templateName is a relative path, the path will be relative to the
+    current working directory. You can use QDir::tempPath() to construct \a
+    templateName if you want use the system's temporary directory.
 
     \sa open(), fileTemplate()
 */
@@ -486,6 +494,10 @@ QString QTemporaryFile::fileTemplate() const
    template ends in XXXXXX that will automatically be replaced with
    the unique part of the filename, otherwise a filename will be
    determined automatically based on the static portion specified.
+
+    If \a name contains a relative file path, the path will be relative to the
+    current working directory. You can use QDir::tempPath() to construct \a
+    name if you want use the system's temporary directory.
 
    \sa fileTemplate()
 */
