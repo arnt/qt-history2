@@ -230,46 +230,6 @@ typedef struct tagTRACKMOUSEEVENT {
 
 static int translateButtonState(int s, int type, int button);
 
-/*
-  Internal functions.
-*/
-
-void qt_draw_tiled_pixmap(HDC, int, int, int, int,
-                           const QPixmap *, int, int);
-
-void qt_erase_background(HDC hdc, int x, int y, int w, int h,
-                         const QBrush &brush, int off_x, int off_y,
-                         QWidget *widget)
-{
-    if (brush.style() == Qt::TexturePattern && brush.texture().isNull())        // empty background
-        return;
-    HPALETTE oldPal = 0;
-    HPALETTE hpal = QColormap::hPal();
-    if (hpal) {
-        oldPal = SelectPalette(hdc, hpal, FALSE);
-        RealizePalette(hdc);
-    }
-    if (brush.style() == Qt::LinearGradientPattern) {
-        QPainter p(widget);
-        p.fillRect(x, y, w, h, brush);
-        return;
-    } else if (brush.style() == Qt::TexturePattern) {
-        QPixmap texture = brush.texture();
-        qt_draw_tiled_pixmap(hdc, x, y, w, h, &texture, off_x, off_y);
-    } else {
-        QColor c = brush.color();
-        HBRUSH hbrush = CreateSolidBrush(RGB(c.red(), c.green(), c.blue()));
-        HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hbrush);
-        PatBlt(hdc, x, y, w, h, PATCOPY);
-        SelectObject(hdc, oldBrush);
-        DeleteObject(hbrush);
-    }
-    if (hpal) {
-        SelectPalette(hdc, oldPal, TRUE);
-        RealizePalette(hdc);
-    }
-}
-
 // ##### get rid of this!
 QRgb qt_colorref2qrgb(COLORREF col)
 {
@@ -349,7 +309,6 @@ public:
     bool        translateCloseEvent(const MSG &msg);
     bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf, int numPackets);
     void        repolishStyle(QStyle &style) { setStyle(&style); }
-    void eraseWindowBackground(HDC);
     inline void showChildren(bool spontaneous) { d_func()->showChildren(spontaneous); }
     inline void hideChildren(bool spontaneous) { d_func()->hideChildren(spontaneous); }
     inline uint testWindowState(uint teststate){ return dataPtr()->window_state & teststate; }
@@ -1062,63 +1021,6 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
 void QApplication::beep()
 {
     MessageBeep(MB_OK);
-}
-
-/*****************************************************************************
-  Windows-specific drawing used here
- *****************************************************************************/
-
-static void drawTile(HDC hdc, int x, int y, int w, int h,
-                      const QPixmap *pixmap, int xOffset, int yOffset)
-{
-    int yPos, xPos, drawH, drawW, yOff, xOff;
-    yPos = y;
-    yOff = yOffset;
-    HDC tmp_hdc = pixmap->getDC();
-    while(yPos < y + h) {
-        drawH = pixmap->height() - yOff;        // Cropping first row
-        if (yPos + drawH > y + h)                // Cropping last row
-            drawH = y + h - yPos;
-        xPos = x;
-        xOff = xOffset;
-        while(xPos < x + w) {
-            drawW = pixmap->width() - xOff;        // Cropping first column
-            if (xPos + drawW > x + w)                // Cropping last column
-                drawW = x + w - xPos;
-            BitBlt(hdc, xPos, yPos, drawW, drawH, tmp_hdc, xOff, yOff, SRCCOPY);
-            xPos += drawW;
-            xOff = 0;
-        }
-        yPos += drawH;
-        yOff = 0;
-    }
-    pixmap->releaseDC(tmp_hdc);
-}
-
-extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
-
-void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
-                           const QPixmap *bg_pixmap,
-                           int off_x, int off_y)
-{
-    QPixmap *tile = 0;
-    QPixmap *pm;
-    int  sw = bg_pixmap->width(), sh = bg_pixmap->height();
-    if (sw*sh < 8192 && sw*sh < 16*w*h) {
-        int tw = sw, th = sh;
-        while (tw*th < 32678 && tw < w/2)
-            tw *= 2;
-        while (tw*th < 32678 && th < h/2)
-            th *= 2;
-        tile = new QPixmap(tw, th);
-        qt_fill_tile(tile, *bg_pixmap);
-        pm = tile;
-    } else {
-        pm = (QPixmap*)bg_pixmap;
-    }
-    drawTile(hdc, x, y, w, h, pm, off_x, off_y);
-    if (tile)
-        delete tile;
 }
 
 QString QApplicationPrivate::appName() const
@@ -3136,33 +3038,6 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
 bool QETWidget::translateCloseEvent(const MSG &)
 {
     return d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
-}
-
-
-void QETWidget::eraseWindowBackground(HDC hdc)
-{
-    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled))
-        return;
-
-    const QWidget *w = this;
-    QPoint offset;
-    while (w->d_func()->isBackgroundInherited()) {
-        offset += w->pos();
-        w = w->parentWidget();
-    }
-
-    RECT r;
-    GetClientRect(data->winid, &r);
-
-    QWidget *that = const_cast<QWidget*>(w);
-    that->setAttribute(Qt::WA_WState_InPaintEvent);
-
-    qt_erase_background
-        (hdc, r.left, r.top,
-          r.right-r.left, r.bottom-r.top,
-          data->pal.brush(w->backgroundRole()),
-          offset.x(), offset.y(), const_cast<QWidget*>(w));
-    that->setAttribute(Qt::WA_WState_InPaintEvent, false);
 }
 
 
