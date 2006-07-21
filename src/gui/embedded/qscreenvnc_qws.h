@@ -16,44 +16,60 @@
 
 #include <QtGui/qscreenlinuxfb_qws.h>
 
+#ifndef QT_NO_QWS_VNC
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#define VNCSCREEN_BASE QLinuxFbScreen
-
-#ifdef QT_NO_QWS_MULTIPROCESS
-#define QT_NO_QWS_VNC
-#endif
-
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_NO_QWS_VNC)
-
 class QVNCScreenPrivate;
 
-#ifdef qdoc
-class QVNCScreen : public QScreen {
-#else
-class QVNCScreen : public VNCSCREEN_BASE {
-#endif
+class QVNCScreen : public QScreen
+{
 public:
     explicit QVNCScreen(int display_id);
     virtual ~QVNCScreen();
-    virtual bool initDevice();
-    virtual bool connect(const QString &displaySpec);
-    virtual void disconnect();
-    virtual void shutdownDevice();
-    virtual void save();
-    virtual void restore();
-    virtual void setMode(int nw,int nh,int nd);
-    virtual void setDirty(const QRect& r);
+
+    bool initDevice();
+    bool connect(const QString &displaySpec);
+    void disconnect();
+    void shutdownDevice();
+    void setMode(int,int,int);
+    bool supportsDepth(int) const;
+
+    void save();
+    void restore();
+    void blank(bool on);
+
+    bool onCard(const unsigned char *) const;
+    bool onCard(const unsigned char *, ulong& out_offset) const;
+
+    bool isInterlaced() const;
+
+    int memoryNeeded(const QString&);
+    int sharedRamSize(void *);
+
+    void haltUpdates();
+    void resumeUpdates();
+
+    void exposeRegion(QRegion r, int changing);
+
+    void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
+    void solidFill(const QColor &color, const QRegion &region);
+    void blit(QWSWindow *bs, const QRegion &clip);
+    void setDirty(const QRect&);
+
+    QWSWindowSurface* createSurface(QWidget *widget) const;
+
+    QList<QScreen*> subScreens() const;
+    QRegion region() const;
 
 private:
     friend class QVNCServer;
     QVNCScreenPrivate *d_ptr;
 };
 
-#endif // QT_NO_QWS_VNC
-
 QT_END_HEADER
 
+#endif // QT_NO_QWS_VNC
 #endif // QSCREENVNC_QWS_H
