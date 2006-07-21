@@ -62,7 +62,7 @@
     \quotefromfile snippets/dragging/mainwindow.cpp
     \skipto mousePressEvent
     \printuntil drag->start
-    \dots
+            ...
     \skipto statusBar
     \skipto }
     \printuntil /^\}/
