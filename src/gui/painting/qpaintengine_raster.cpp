@@ -830,12 +830,6 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
     if (device->devType() == QInternal::Widget) {
         HDC hdc = device->getDC();
 
-        bool tmp_hdc = false;
-        if (!hdc) {
-            tmp_hdc = true;
-            hdc = GetDC(((QWidget*) device)->winId());
-        }
-
         QRegion sysClip = systemClip();
         if (sysClip.isEmpty()) {
             BitBlt(hdc, d->deviceRect.x() + offset.x(), d->deviceRect.y() + offset.y(),
@@ -852,11 +846,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
             }
         }
 
-        if (tmp_hdc) {
-            ReleaseDC(((QWidget *) device)->winId(), hdc);
-        } else {
-            device->releaseDC(hdc);
-        }
+        device->releaseDC(hdc);
     }
 #elif defined(Q_WS_MAC)
     extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp

@@ -100,18 +100,14 @@ void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoi
     QRasterPaintEngine *engine = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine());
     HDC engine_dc = engine->getDC();
     HDC widget_dc = widget->getDC();
-    bool tmp_widget_dc = false;
-    if (!widget_dc) {
-        widget_dc = GetDC(widget->winId());
-        tmp_widget_dc = true;
-    }
 
     QRect br = rgn.boundingRect();
     QRect wbr = br.translated(-wOffset);
     BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
            engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
-    if (tmp_widget_dc)
-        ReleaseDC(widget->winId(), widget_dc);
+
+    widget->releaseDC(widget_dc);
+    engine->releaseDC(engine_dc);
 #else
     Q_UNUSED(widget);
     Q_UNUSED(rgn);

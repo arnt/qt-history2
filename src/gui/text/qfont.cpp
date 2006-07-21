@@ -441,7 +441,7 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
         d->ref.ref();
     }
 #ifdef Q_WS_WIN
-    if (pd->getDC())
+    if (pd->devType() == QInternal::Printer && pd->getDC())
         d->hdc = pd->getDC();
 #endif
 }
