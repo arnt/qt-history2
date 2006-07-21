@@ -214,7 +214,6 @@ void QDBusViewer::connectionRequested(const BusSignature &sig)
 
 void QDBusViewer::dumpMessage(const QDBusMessage &message)
 {
-    qDebug("dumpMessage");
     QList<QVariant> args = message.arguments();
     QString out = "Received ";
 
@@ -245,9 +244,7 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
     if (!args.isEmpty()) {
         out += "&nbsp;&nbsp;Parameters: ";
         foreach (QVariant arg, args) {
-            if (arg.canConvert(QVariant::String)) {
-                out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
-            } else if (arg.canConvert(QVariant::StringList)) {
+            if (arg.canConvert(QVariant::StringList)) {
                 out += "<b>{</b>";
                 QStringList list = arg.toStringList();
                 foreach (QString item, list)
@@ -255,9 +252,15 @@ void QDBusViewer::dumpMessage(const QDBusMessage &message)
                 if (!list.isEmpty())
                     out.chop(2);
                 out += "<b>}</b>";
+            } else if (arg.canConvert(QVariant::Rect)) {
+                QRect r = arg.toRect();
+                out += QString::fromLatin1("QRect(%1, %2, %3, %4)").arg(r.left()).arg(r.top()).arg(
+                        r.right()).arg(r.bottom());
             } else if (qVariantCanConvert<QDBusArgument>(arg)) {
                 out += "[QDBusArgument: " + qvariant_cast<QDBusArgument>(arg).currentSignature();
                 out += "]";
+            } else if (arg.canConvert(QVariant::String)) {
+                out += "<b>\"</b>" + Qt::escape(arg.toString()) + "<b>\"</b>";
             } else {
                 out += "[";
                 out += arg.typeName();
