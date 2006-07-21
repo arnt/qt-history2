@@ -273,10 +273,6 @@ protected:
     int dw;
     int dh;
 
-    int hotx;
-    int hoty;
-    QImage cursor;
-
     int size;               // Screen size
     int mapsize;       // Total mapped memory
 
