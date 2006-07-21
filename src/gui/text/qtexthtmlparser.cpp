@@ -1527,6 +1527,7 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
         if (key == QLatin1String("style")) {
             parseStyleAttribute(node, value);
         } else if (key == QLatin1String("align")) {
+            value = value.toLower();
             if (value == QLatin1String("left"))
                 node->alignment = Qt::AlignLeft|Qt::AlignAbsolute;
             else if (value == QLatin1String("right"))
@@ -1544,6 +1545,7 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                     node->cssFloat = QTextFrameFormat::FloatRight;
             }
         } else if (key == QLatin1String("dir")) {
+            value = value.toLower();
             if (value == QLatin1String("ltr"))
                 node->direction = Qt::LeftToRight;
             else if (value == QLatin1String("rtl"))

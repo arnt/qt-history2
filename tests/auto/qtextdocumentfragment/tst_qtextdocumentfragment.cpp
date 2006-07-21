@@ -161,6 +161,7 @@ private slots:
     void universalSelectors();
     void screenMedia();
     void htmlResourceLoading();
+    void someCaseInsensitiveAttributeValues();
 
 private:
     int blockCount();
@@ -2331,6 +2332,25 @@ void tst_QTextDocumentFragment::htmlResourceLoading()
     QTextCursor(doc).insertFragment(frag);
     QTextBlockFormat fmt = doc->begin().blockFormat();
     QVERIFY(fmt.background().color() == QColor("green"));
+}
+
+void tst_QTextDocumentFragment::someCaseInsensitiveAttributeValues()
+{
+    const char html1[] = "<ul type=sQUarE><li>Blah</li></ul>";
+    setHtml(QString::fromLatin1(html1));
+    cursor.movePosition(QTextCursor::End);
+    QVERIFY(cursor.currentList());
+    QVERIFY(cursor.currentList()->format().style() == QTextListFormat::ListSquare);
+
+    const char html2[] = "<div align=ceNTeR><b>Hello World";
+    setHtml(html2);
+
+    QCOMPARE(doc->begin().blockFormat().alignment(), Qt::AlignHCenter);
+
+    const char html3[] = "<p dir=rTL><b>Hello World";
+    setHtml(html3);
+
+    QCOMPARE(doc->begin().blockFormat().layoutDirection(), Qt::RightToLeft);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
