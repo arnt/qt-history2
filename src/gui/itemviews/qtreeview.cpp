@@ -1513,15 +1513,24 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
             return d->modelIndex(d->viewItems.count() - 1);
 #endif
         return d->modelIndex(d->above(vi));
-    case MoveLeft:
-        if (d->viewItems.at(vi).expanded && d->itemsExpandable)
+    case MoveLeft: {
+        QScrollBar *sb = horizontalScrollBar();
+        if (d->viewItems.at(vi).expanded && d->itemsExpandable && sb->value() == sb->minimum())
             d->collapse(vi, true);
+        else
+           sb->setValue(sb->value() - sb->singleStep());
         updateGeometries();
         viewport()->update();
         break;
+    }
     case MoveRight:
-        if (!d->viewItems.at(vi).expanded && d->itemsExpandable)
+        if (!d->viewItems.at(vi).expanded && d->itemsExpandable) {
             d->expand(vi, true);
+        }
+        else {
+           QScrollBar *sb = horizontalScrollBar();
+           sb->setValue(sb->value() + sb->singleStep());
+        }
         updateGeometries();
         viewport()->update();
         break;
