@@ -1446,6 +1446,10 @@ while [ "$#" -gt 0 ]; do
     fi
 done
 
+if [ "$CFG_QCONFIG" != "full" ] && [ "$CFG_QT3SUPPORT" = "yes" ]; then
+    echo "Warning: '-qconfig $CFG_QCONFIG' will disable the qt3support library."
+    CFG_QT3SUPPORT="no"
+fi
 
 #-------------------------------------------------------------------------------
 # build tree initialization
