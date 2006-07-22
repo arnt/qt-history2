@@ -353,8 +353,6 @@ static const struct {
     { 0, 0 }
 };
 
-/*
- */
 void QRfbRect::read(QTcpSocket *s)
 {
     quint16 buf[4];
@@ -375,8 +373,6 @@ void QRfbRect::write(QTcpSocket *s)
     s->write((char*)buf, 8);
 }
 
-/*
- */
 void QRfbPixelFormat::read(QTcpSocket *s)
 {
     char buf[16];
@@ -430,8 +426,6 @@ void QRfbPixelFormat::write(QTcpSocket *s)
 }
 
 
-/*
- */
 void QRfbServerInit::setName(const char *n)
 {
     delete[] name;
@@ -469,8 +463,6 @@ void QRfbServerInit::write(QTcpSocket *s)
     s->write(name, strlen(name));
 }
 
-/*
- */
 bool QRfbSetEncodings::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 3)
@@ -484,8 +476,6 @@ bool QRfbSetEncodings::read(QTcpSocket *s)
     return true;
 }
 
-/*
- */
 bool QRfbFrameBufferUpdateRequest::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 9)
@@ -497,8 +487,6 @@ bool QRfbFrameBufferUpdateRequest::read(QTcpSocket *s)
     return true;
 }
 
-/*
- */
 bool QRfbKeyEvent::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 7)
@@ -533,8 +521,6 @@ bool QRfbKeyEvent::read(QTcpSocket *s)
     return true;
 }
 
-/*
- */
 bool QRfbPointerEvent::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 5)
@@ -559,8 +545,6 @@ bool QRfbPointerEvent::read(QTcpSocket *s)
     return true;
 }
 
-/*
- */
 bool QRfbClientCutText::read(QTcpSocket *s)
 {
     if (s->bytesAvailable() < 7)
@@ -576,8 +560,6 @@ bool QRfbClientCutText::read(QTcpSocket *s)
 
 //===========================================================================
 
-/*
- */
 QVNCServer::QVNCServer(QVNCScreen *screen)
     : qvnc_screen(screen)
 {
@@ -1220,8 +1202,7 @@ void QVNCServer::discardClient()
     Note that this class is only available in \l {Qtopia Core}.
     Custom screen drivers can be added by subclassing the
     QScreenDriverPlugin class, using the QScreenDriverFactory class to
-    dynamically load the driver into the application, but there should
-    only be one screen object per application.
+    dynamically load the driver into the application.
 
     The VNC protocol allows you to view and interact with the
     computer's display from anywhere on the network. See the \l {The
@@ -1233,72 +1214,6 @@ void QVNCServer::discardClient()
     VNCSCREEN_BASE definition in the header file.
 
     \sa QScreen, QScreenDriverPlugin, {Running Applications}
-*/
-
-/*!
-    \fn bool QVNCScreen::connect(const QString & displaySpec)
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::disconnect()
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::restore()
-    \reimp
-*/
-
-/*!
-    \fn bool QVNCScreen::initDevice ()
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::save ()
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::setDirty ( const QRect & r )
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::setMode ( int nw, int nh, int nd )
-    \reimp
-*/
-
-/*!
-    \fn void QVNCScreen::shutdownDevice ()
-    \reimp
-*/
-
-/*!
-    \variable QVNCScreen::success
-    \internal
-*/
-
-/*!
-    \variable  QVNCScreen::vncServer
-    \internal
-*/
-/*!
-    \variable QVNCScreen::shmrgn
-    \internal
-*/
-/*!
-    \variable  QVNCScreen::shm
-    \internal
-*/
-/*!
-    \variable QVNCScreen::hdr
-    \internal
-*/
-/*!
-    \variable QVNCScreen::virtualBuffer
-    \internal
 */
 
 /*!
@@ -1320,6 +1235,9 @@ QVNCScreen::~QVNCScreen()
     delete d_ptr;
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::setDirty(const QRect& rect)
 {
     if (rect.isEmpty())
@@ -1344,6 +1262,9 @@ static int getDisplayId(const QString &spec)
     return 0;
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::connect(const QString &displaySpec)
 {
     QString dspec = displaySpec;
@@ -1387,12 +1308,18 @@ bool QVNCScreen::connect(const QString &displaySpec)
     return true;
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::disconnect()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->disconnect();
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::initDevice()
 {
     if (!d_ptr->subscreen && d == 4) {
@@ -1416,6 +1343,9 @@ bool QVNCScreen::initDevice()
     return true;
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::shutdownDevice()
 {
     delete d_ptr->vncServer;
@@ -1423,13 +1353,18 @@ void QVNCScreen::shutdownDevice()
         d_ptr->subscreen->shutdownDevice();
 }
 
-
+/*!
+    \reimp
+*/
 void QVNCScreen::setMode(int w,int h, int d)
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->setMode(w, h, d);
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::supportsDepth(int depth) const
 {
     if (d_ptr->subscreen)
@@ -1437,9 +1372,9 @@ bool QVNCScreen::supportsDepth(int depth) const
     return false;
 }
 
-// save the state of the graphics card
-// This is needed so that e.g. we can restore the palette when switching
-// between linux virtual consoles.
+/*!
+    \reimp
+*/
 void QVNCScreen::save()
 {
     if (d_ptr->subscreen)
@@ -1447,7 +1382,9 @@ void QVNCScreen::save()
     QScreen::save();
 }
 
-// restore the state of the graphics card.
+/*!
+    \reimp
+*/
 void QVNCScreen::restore()
 {
     if (d_ptr->subscreen)
@@ -1455,12 +1392,18 @@ void QVNCScreen::restore()
     QScreen::restore();
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::blank(bool on)
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->blank(on);
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::onCard(const unsigned char *ptr) const
 {
     if (d_ptr->subscreen)
@@ -1468,6 +1411,9 @@ bool QVNCScreen::onCard(const unsigned char *ptr) const
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::onCard(const unsigned char *ptr, ulong &offset) const
 {
     if (d_ptr->subscreen)
@@ -1475,6 +1421,9 @@ bool QVNCScreen::onCard(const unsigned char *ptr, ulong &offset) const
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QVNCScreen::isInterlaced() const
 {
     if (d_ptr->subscreen)
@@ -1482,6 +1431,9 @@ bool QVNCScreen::isInterlaced() const
     return false;
 }
 
+/*!
+    \reimp
+*/
 int QVNCScreen::memoryNeeded(const QString &str)
 {
     if (d_ptr->subscreen)
@@ -1490,6 +1442,9 @@ int QVNCScreen::memoryNeeded(const QString &str)
         return QScreen::memoryNeeded(str);
 }
 
+/*!
+    \reimp
+*/
 int QVNCScreen::sharedRamSize(void *ptr)
 {
     if (d_ptr->subscreen)
@@ -1498,6 +1453,9 @@ int QVNCScreen::sharedRamSize(void *ptr)
         return QScreen::sharedRamSize(ptr);
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::haltUpdates()
 {
     if (d_ptr->subscreen)
@@ -1506,12 +1464,18 @@ void QVNCScreen::haltUpdates()
         QScreen::haltUpdates();
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::resumeUpdates()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->resumeUpdates();
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::exposeRegion(QRegion r, int changing)
 {
     if (d_ptr->subscreen)
@@ -1524,6 +1488,9 @@ void QVNCScreen::exposeRegion(QRegion r, int changing)
         setDirty(rects.at(i));
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {
     if (d_ptr->subscreen)
@@ -1532,6 +1499,9 @@ void QVNCScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &r
         QScreen::blit(img, topLeft, region);
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::solidFill(const QColor &color, const QRegion &region)
 {
     if (d_ptr->subscreen)
@@ -1540,6 +1510,9 @@ void QVNCScreen::solidFill(const QColor &color, const QRegion &region)
         QScreen::solidFill(color, region);
 }
 
+/*!
+    \reimp
+*/
 void QVNCScreen::blit(QWSWindow *bs, const QRegion &clip)
 {
     if (d_ptr->subscreen)
@@ -1548,6 +1521,9 @@ void QVNCScreen::blit(QWSWindow *bs, const QRegion &clip)
         QScreen::blit(bs, clip);
 }
 
+/*!
+    \reimp
+*/
 QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
 {
     if (d_ptr->subscreen)
@@ -1555,6 +1531,9 @@ QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
     return QScreen::createSurface(widget);
 }
 
+/*!
+    \reimp
+*/
 QList<QScreen*> QVNCScreen::subScreens() const
 {
     if (d_ptr->subscreen)
@@ -1562,6 +1541,9 @@ QList<QScreen*> QVNCScreen::subScreens() const
     return QScreen::subScreens();
 }
 
+/*!
+    \reimp
+*/
 QRegion QVNCScreen::region() const
 {
     if (d_ptr->subscreen)
