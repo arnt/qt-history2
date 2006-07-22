@@ -3256,7 +3256,7 @@ QString QLocalePrivate::longLongToString(qlonglong l, int precision,
 
     bool negative = l < 0;
     if (base != 10) {
-        // these are not suported by sprintf for octal and hex
+        // these are not supported by sprintf for octal and hex
         flags &= ~AlwaysShowSign;
         flags &= ~BlankBeforePositive;
         negative = false; // neither are negative numbers
