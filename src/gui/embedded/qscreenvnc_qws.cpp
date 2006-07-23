@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <qdebug.h>
 #include <qpolygon.h>
+#include <qregexp.h>
 #include "qwsdisplay_qws.h"
 
 //#define QT_QWS_VNC_DEBUG
@@ -106,6 +107,7 @@ bool QVirtualScreen::connect(const QString &displayspec)
 #else
     QScreen::data = new uchar[size];
 #endif
+    return true;
 }
 
 void QVirtualScreen::disconnect()
