@@ -570,21 +570,20 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
     const int w = rect.width();
 
     const int pack = sizeof(quint32) / sizeof(DST);
-    const int unaligned = qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
-
-    const int numTilesX = w / tileSize;
-    const int numTilesY = (h - unaligned) / tileSize;
+    const int unaligned =
+        qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
     const int restX = w % tileSize;
     const int restY = (h - unaligned) % tileSize;
+    const int unoptimizedY = restY % pack;
+    const int numTilesX = w / tileSize + (restX > 0);
+    const int numTilesY = (h - unaligned) / tileSize + (restY >= pack);
 
-    // XXX: restY/restX should be treated as smaller tiles
-
-    for (int tx = numTilesX - 1; tx >= 0; --tx) {
-        const int startx = (tx + 1) * tileSize - 1;
-        const int stopx = startx - tileSize;
+    for (int tx = 0; tx < numTilesX; ++tx) {
+        const int startx = w - tx * tileSize - 1;
+        const int stopx = qMax(startx - tileSize, 0);
 
         if (unaligned) {
-            for (int x = startx; x > stopx; --x) {
+            for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride;
                 for (int y = 0; y < unaligned; ++y) {
                     *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
@@ -594,9 +593,9 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
 
         for (int ty = 0; ty < numTilesY; ++ty) {
             const int starty = ty * tileSize + unaligned;
-            const int stopy = starty + tileSize;
+            const int stopy = qMin(starty + tileSize, h - unoptimizedY);
 
-            for (int x = startx; x > stopx; --x) {
+            for (int x = startx; x >= stopx; --x) {
                 quint32 *d = reinterpret_cast<quint32*>(dest + (w - x - 1) * dstride + starty);
                 for (int y = starty; y < stopy; y += pack) {
                     quint32 c = colorConvert<SRC,DST>(src[y * sstride + x]);
@@ -610,23 +609,13 @@ static inline void blit90_tiled(QScreen *screen, const QImage &image,
             }
         }
 
-        if (restY) {
-            const int starty = h - restY;
-            for (int x = startx; x > stopx; --x) {
+        if (unoptimizedY) {
+            const int starty = h - unoptimizedY;
+            for (int x = startx; x >= stopx; --x) {
                 DST *d = dest + (w - x - 1) * dstride + starty;
                 for (int y = starty; y < h; ++y) {
                     *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
                 }
-            }
-        }
-    }
-
-    if (restX) {
-        const int startx = w - restX;
-        for (int x = startx; x < w; ++x) {
-            DST *d = dest + (w - x - 1) * dstride;
-            for (int y = 0; y < h; ++y) {
-                *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
             }
         }
     }
@@ -646,19 +635,17 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
     const int w = rect.width();
 
     const int pack = sizeof(quint32) / sizeof(DST);
-    const int unaligned = qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
-
-    const int numTilesX = w / tileSize;
-    const int numTilesY = (h - unaligned) / tileSize;
+    const int unaligned =
+        qMin((quint32(dest) & (sizeof(quint32)-1)) / sizeof(DST), uint(h));
     const int restX = w % tileSize;
     const int restY = (h - unaligned) % tileSize;
-
-
-    // XXX: restY/restX should be treated as smaller tiles
+    const int unoptimizedY = restY % pack;
+    const int numTilesX = w / tileSize + (restX > 0);
+    const int numTilesY = (h - unaligned) / tileSize + (restY >= pack);
 
     for (int tx = 0; tx < numTilesX; ++tx) {
         const int startx = tx * tileSize;
-        const int stopx = startx + tileSize;
+        const int stopx = qMin(startx + tileSize, w);
 
         if (unaligned) {
             for (int x = startx; x < stopx; ++x) {
@@ -671,7 +658,7 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
 
         for (int ty = 0; ty < numTilesY; ++ty) {
             const int starty = h - 1 - unaligned - ty * tileSize;
-            const int stopy = starty - tileSize;
+            const int stopy = qMax(starty - tileSize, unoptimizedY);
 
             for (int x = startx; x < stopx; ++x) {
                 quint32 *d = reinterpret_cast<quint32*>(dest + x * dstride
@@ -687,23 +674,13 @@ static inline void blit270_tiled(QScreen *screen, const QImage &image,
                 }
             }
         }
-        if (restY) {
-            const int starty = restY - 1;
+        if (unoptimizedY) {
+            const int starty = unoptimizedY - 1;
             for (int x = startx; x < stopx; ++x) {
                 DST *d = dest + x * dstride + h - 1 - starty;
                 for (int y = starty; y >= 0; --y) {
                     *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
                 }
-            }
-        }
-    }
-
-    if (restX) {
-        const int startx = w - restX;
-        for (int x = startx; x < w; ++x) {
-            DST *d = dest + x * dstride;
-            for (int y = h - 1; y >= 0; --y) {
-                *d++ = colorConvert<SRC,DST>(src[y * sstride + x]);
             }
         }
     }
