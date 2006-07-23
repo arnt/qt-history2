@@ -13,6 +13,7 @@
 
 #include "qtgradientdialog.h"
 #include "ui_qtgradientdialog.h"
+#include <QPushButton>
 
 class QtGradientDialogPrivate
 {
@@ -28,6 +29,12 @@ QtGradientDialog::QtGradientDialog(QWidget *parent)
     d_ptr = new QtGradientDialogPrivate();
     d_ptr->q_ptr = this;
     d_ptr->m_ui.setupUi(this);
+    QPushButton *button = d_ptr->m_ui.buttonBox->button(QDialogButtonBox::Ok);
+    if (button)
+        button->setAutoDefault(false);
+    button = d_ptr->m_ui.buttonBox->button(QDialogButtonBox::Cancel);
+    if (button)
+        button->setAutoDefault(false);
 }
 
 QtGradientDialog::~QtGradientDialog()
