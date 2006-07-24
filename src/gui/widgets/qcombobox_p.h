@@ -140,6 +140,7 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void showEvent(QShowEvent *e);
     void hideEvent(QHideEvent *e);
     QStyleOptionComboBox comboStyleOption() const;
 

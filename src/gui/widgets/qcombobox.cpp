@@ -438,10 +438,15 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
     return QFrame::eventFilter(o, e);
 }
 
+void QComboBoxPrivateContainer::showEvent(QShowEvent *)
+{
+        combo->update();
+}
 
 void QComboBoxPrivateContainer::hideEvent(QHideEvent *)
 {
     emit resetButton();
+    combo->update();
 }
 
 void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
