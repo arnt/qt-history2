@@ -1080,7 +1080,7 @@ void tst_QApplication::execAfterExit()
 void tst_QApplication::wheelScrollLines()
 {
     int argc = 1;
-    QApplication app(argc, &argv0);
+    QApplication app(argc, &argv0, QApplication::GuiServer);
     // If wheelScrollLines returns 0, the mose wheel will be disabled.
     QVERIFY(app.wheelScrollLines() > 0);
 }
@@ -1088,7 +1088,7 @@ void tst_QApplication::wheelScrollLines()
 void tst_QApplication::style()
 {
     int argc = 1;
-    QApplication app(argc, &argv0);
+    QApplication app(argc, &argv0, QApplication::GuiServer);
 
     // qApp style can never be 0
     QVERIFY(QApplication::style() != 0);
@@ -1129,7 +1129,7 @@ void tst_QApplication::style()
 void tst_QApplication::allWidgets()
 {
     int argc = 1;
-    QApplication app(argc, &argv0);
+    QApplication app(argc, &argv0, QApplication::GuiServer);
     QWidget *w = new QWidget;
     QVERIFY(app.allWidgets().contains(w)); // uncreate widget test
     WId wid = w->winId();
