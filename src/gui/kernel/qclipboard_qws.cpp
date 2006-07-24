@@ -176,9 +176,11 @@ void QClipboard::clear(Mode mode)
 
 bool QClipboard::event(QEvent *e)
 {
-    if (e->type() != QEvent::Clipboard)
+    static bool recursionWatch = false;
+    if (e->type() != QEvent::Clipboard || recursionWatch)
         return QObject::event(e);
 
+    recursionWatch = true;
     QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QClipboardEvent *)e)->data());
     if (event && event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue) {
 	QClipboardData *d = clipboardData();
@@ -191,6 +193,7 @@ bool QClipboard::event(QEvent *e)
 	}
     }
 
+    recursionWatch = false;
     return true;
 }
 
