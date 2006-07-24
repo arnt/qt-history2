@@ -99,6 +99,7 @@ public:
                              const QPair<QTableWidgetItem*,int> &right);
     static bool itemGreaterThan(const QPair<QTableWidgetItem*,int> &left,
                                 const QPair<QTableWidgetItem*,int> &right);
+    static bool canConvertToDouble(const QVariant &value);
 
     void ensureSorted(int column, Qt::SortOrder order, int start, int end);
     QVector<QTableWidgetItem*> columnItems(int column) const;
@@ -535,9 +536,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     unsortable.reserve(rowCount());
 
     for (int row = 0; row < rowCount(); ++row) {
-        QTableWidgetItem *itm = item(row, column);
-
-        if (itm)
+        if (QTableWidgetItem *itm = item(row, column))
             sortable.append(QPair<QTableWidgetItem*,int>(itm, row));
         else
             unsortable.append(row);
@@ -568,6 +567,24 @@ void QTableModel::sort(int column, Qt::SortOrder order)
 
     emit layoutChanged();
 }
+
+bool QTableModel::canConvertToDouble(const QVariant &value)
+{
+    switch (value.type()) {
+    case QVariant::Bool:
+    case QVariant::Int:
+    case QVariant::UInt:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+    case QVariant::Double:
+    case QVariant::Char:
+        return true;
+    default:
+        return false;
+    }
+    return false;
+}
+
 
 /*
   \internal
@@ -1382,8 +1399,8 @@ QVariant QTableWidgetItem::data(int role) const
 bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 {
     const QVariant v1 = data(Qt::DisplayRole), v2 = other.data(Qt::DisplayRole);
-    if(v1.canConvert(QVariant::LongLong) && v2.canConvert(QVariant::LongLong))
-        return v1.toLongLong() < v2.toLongLong();
+    if (QTableModel::canConvertToDouble(v1) && QTableModel::canConvertToDouble(v2))
+        return v1.toDouble() < v2.toDouble();
     return v1.toString() < v2.toString();
 }
 
