@@ -991,7 +991,7 @@ QStringList ProFileEvaluator::absFileNames(const QString &variableName)
             } else {
                 logMessage(MT_DebugLevel2, "%s:%d Cannot match %s%c%s, as %s does not exist.",
                           __FILE__, __LINE__, real_dir.toLatin1().constData(),
-                          QLatin1Char('/'),
+                          '/',
                           regex.toLatin1().constData(), real_dir.toLatin1().constData());
             }
 
