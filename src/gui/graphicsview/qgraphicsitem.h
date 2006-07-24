@@ -165,7 +165,7 @@ public:
     QList<QGraphicsItem *> collidingItems() const;
     bool isObscured() const;
     virtual bool isObscuredBy(const QGraphicsItem *item) const;
-    virtual QPainterPath opaqueShape() const;
+    virtual QPainterPath opaqueArea() const;
 
     // Drawing
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
@@ -296,7 +296,7 @@ public:
     void setBrush(const QBrush &brush);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
 protected:
     QAbstractGraphicsShapeItem(QAbstractGraphicsShapeItemPrivate &dd,
@@ -325,7 +325,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 2 };
     int type() const;
@@ -361,7 +361,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 3 };
     int type() const;
@@ -403,7 +403,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 4 };
     int type() const;
@@ -440,7 +440,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 5 };
     int type() const;
@@ -479,7 +479,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 6 };
     int type() const;
@@ -524,7 +524,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 7 };
     int type() const;
@@ -572,7 +572,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 8 };
     int type() const;
@@ -657,7 +657,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 9 };
     int type() const;
@@ -686,7 +686,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
     bool isObscuredBy(const QGraphicsItem *item) const;
-    QPainterPath opaqueShape() const;
+    QPainterPath opaqueArea() const;
 
     enum { Type = 10 };
     int type() const;

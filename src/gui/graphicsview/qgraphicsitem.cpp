@@ -1679,7 +1679,7 @@ QList<QGraphicsItem *> QGraphicsItem::collidingItems() const
     opaque shape of any of its colliding items. This function returns false if
     all the colliding items are at the same zValue() as this item.
 
-  \sa opaqueShape()
+  \sa opaqueArea()
 */
 bool QGraphicsItem::isObscured() const
 {
@@ -1694,11 +1694,11 @@ bool QGraphicsItem::isObscured() const
     Returns true if this item's bounding rect is completely obscured by the
     opaque shape of \a item.
 
-    \sa opaqueShape(), isObscured()
+    \sa opaqueArea(), isObscured()
 */
 bool QGraphicsItem::isObscuredBy(const QGraphicsItem *item) const
 {
-    return item->mapToItem(this, item->opaqueShape()).contains(boundingRect());
+    return item->mapToItem(this, item->opaqueArea()).contains(boundingRect());
 }
 
 /*!
@@ -1714,7 +1714,7 @@ bool QGraphicsItem::isObscuredBy(const QGraphicsItem *item) const
 
     \sa isObscuredBy(), isObscured(), shape()
 */
-QPainterPath QGraphicsItem::opaqueShape() const
+QPainterPath QGraphicsItem::opaqueArea() const
 {
     return QPainterPath();
 }
@@ -3080,9 +3080,9 @@ bool QAbstractGraphicsShapeItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QAbstractGraphicsShapeItem::opaqueShape() const
+QPainterPath QAbstractGraphicsShapeItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
@@ -3228,9 +3228,9 @@ bool QGraphicsPathItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsPathItem::opaqueShape() const
+QPainterPath QGraphicsPathItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueShape();   
+    return QAbstractGraphicsShapeItem::opaqueArea();   
 }
 
 /*!
@@ -3432,9 +3432,9 @@ bool QGraphicsRectItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsRectItem::opaqueShape() const
+QPainterPath QGraphicsRectItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueShape();   
+    return QAbstractGraphicsShapeItem::opaqueArea();   
 }
 
 /*!
@@ -3713,9 +3713,9 @@ bool QGraphicsEllipseItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsEllipseItem::opaqueShape() const
+QPainterPath QGraphicsEllipseItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueShape();   
+    return QAbstractGraphicsShapeItem::opaqueArea();   
 }
 
 /*!
@@ -3927,9 +3927,9 @@ bool QGraphicsPolygonItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsPolygonItem::opaqueShape() const
+QPainterPath QGraphicsPolygonItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueShape();   
+    return QAbstractGraphicsShapeItem::opaqueArea();   
 }
 
 /*!
@@ -4184,9 +4184,9 @@ bool QGraphicsLineItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsLineItem::opaqueShape() const
+QPainterPath QGraphicsLineItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
@@ -4488,9 +4488,9 @@ bool QGraphicsPixmapItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsPixmapItem::opaqueShape() const
+QPainterPath QGraphicsPixmapItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
@@ -4761,9 +4761,9 @@ bool QGraphicsTextItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsTextItem::opaqueShape() const
+QPainterPath QGraphicsTextItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
@@ -5404,9 +5404,9 @@ bool QGraphicsSimpleTextItem::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsSimpleTextItem::opaqueShape() const
+QPainterPath QGraphicsSimpleTextItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
@@ -5570,9 +5570,9 @@ bool QGraphicsItemGroup::isObscuredBy(const QGraphicsItem *item) const
 /*!
     \reimp
 */
-QPainterPath QGraphicsItemGroup::opaqueShape() const
+QPainterPath QGraphicsItemGroup::opaqueArea() const
 {
-    return QGraphicsItem::opaqueShape();   
+    return QGraphicsItem::opaqueArea();   
 }
 
 /*!
