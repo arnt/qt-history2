@@ -118,6 +118,10 @@ void tst_QSize::scale()
     t5.scale( 60, 60, Qt::KeepAspectRatioByExpanding );
     QCOMPARE( t5, QSize(72, 60) );
 
+    // test potential int overflow
+    QSize t6(88473, 88473);
+    t6.scale(141817, 141817, Qt::KeepAspectRatio);
+    QCOMPARE(t6, QSize(141817, 141817));
 }
 
 
@@ -129,7 +133,7 @@ void tst_QSize::expandedTo_data()
 
     QTest::newRow("data0") << QSize(10,12) << QSize(6,4)	<< QSize(10,12);
     QTest::newRow("data1") << QSize(0,0)   << QSize(6,4)	<< QSize(6,4);
-    // This should pick the highest of w,h components independently of each other, 
+    // This should pick the highest of w,h components independently of each other,
     // thus the result dont have to be equal to neither input1 nor input2.
     QTest::newRow("data3") << QSize(6,4)   << QSize(4,6)	<< QSize(6,6);
 }
@@ -151,7 +155,7 @@ void tst_QSize::boundedTo_data()
 
     QTest::newRow("data0") << QSize(10,12) << QSize(6,4)	<< QSize(6,4);
     QTest::newRow("data1") << QSize(0,0)	<< QSize(6,4)	<< QSize(0,0);
-    // This should pick the lowest of w,h components independently of each other, 
+    // This should pick the lowest of w,h components independently of each other,
     // thus the result dont have to be equal to neither input1 nor input2.
     QTest::newRow("data3") << QSize(6,4)	<< QSize(4,6)	<< QSize(4,4);
 }

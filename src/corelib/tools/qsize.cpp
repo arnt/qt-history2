@@ -186,7 +186,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
         ht = s.ht;
     } else {
         bool useHeight;
-        int rw = s.ht * wd / ht;
+        int rw = qint32(qint64(s.ht) * qint64(wd) / qint64(ht));
 
         if (mode == Qt::KeepAspectRatio) {
             useHeight = (rw <= s.wd);
@@ -198,7 +198,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
             wd = rw;
             ht = s.ht;
         } else {
-            ht = s.wd * ht / wd;
+            ht = qint32(qint64(s.wd) * qint64(ht) / qint64(wd));
             wd = s.wd;
         }
     }
