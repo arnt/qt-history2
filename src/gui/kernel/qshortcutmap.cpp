@@ -84,7 +84,7 @@ class QShortcutMapPrivate
 public:
     QShortcutMapPrivate(QShortcutMap* parent)
         : q_ptr(parent), currentId(0), ambigCount(0), currentState(QKeySequence::NoMatch)
-    { 
+    {
         identicals.reserve(10);
         currentSequences.reserve(10);
     }
@@ -129,7 +129,7 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
     Q_D(QShortcutMap);
-    
+
     QShortcutEntry newEntry(owner, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
@@ -255,6 +255,12 @@ QKeySequence::SequenceMatch QShortcutMap::state()
 bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
     Q_D(QShortcutMap);
+
+    // Modifiers can NOT be shortcuts...
+    if (e->key() >= Qt::Key_Shift &&
+        e->key() <= Qt::Key_Alt)
+        return false;
+
     bool wasAccepted = e->isAccepted();
     if (d->currentState == QKeySequence::NoMatch) {
         ushort orgType = e->t;
@@ -301,11 +307,6 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 {
     Q_D(QShortcutMap);
-    // Modifiers can NOT be shortcuts...
-    if (e->key() >= Qt::Key_Shift &&
-        e->key() <= Qt::Key_Alt)
-        return d->currentState;
-
     QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
 
     // We start fresh each time..
@@ -356,7 +357,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     Q_D(QShortcutMap);
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
-    
+
     static QVector<QKeySequence> newEntries;
     createNewSequences(e, newEntries);
 #if defined(DEBUG_QSHORTCUTMAP)
@@ -544,10 +545,10 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     // for the shortcut system.
     if (qApp->activePopupWidget())
         active_window = qApp->activePopupWidget();
-    
+
     if (!active_window)
         return false;
-#ifndef QT_NO_ACTION 
+#ifndef QT_NO_ACTION
     if (QAction *a = qobject_cast<QAction *>(item.owner))
         return correctContext(item.context, a, active_window);
 #endif
