@@ -1431,13 +1431,16 @@ QString QDirModelPrivate::size(const QModelIndex &index) const
     // Nautilus  - "9 items" (the number of children)
     }
 
+    const quint64 kb = 1024;
+    const quint64 mb = 1024 * kb;
+    const quint64 gb = 1024 * mb;
     quint64 bytes = n->info.size();
-    if (bytes >= 1000000000)
-        return QLocale().toString(bytes / 1000000000) + QString(QLatin1String(" GB"));
-    if (bytes >= 1000000)
-        return QLocale().toString(bytes / 1000000) + QString(QLatin1String(" MB"));
-    if (bytes >= 1000)
-        return QLocale().toString(bytes / 1000) + QString(QLatin1String(" KB"));
+    if (bytes >= gb)
+        return QLocale().toString(bytes / gb) + QString(QLatin1String(" GB"));
+    if (bytes >= mb)
+        return QLocale().toString(bytes / mb) + QString(QLatin1String(" MB"));
+    if (bytes >= kb)
+        return QLocale().toString(bytes / kb) + QString(QLatin1String(" KB"));
     return QLocale().toString(bytes) + QString(QLatin1String(" bytes"));
 }
 
