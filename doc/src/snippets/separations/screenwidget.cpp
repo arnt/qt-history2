@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 2004-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of an example program for Qt.
-** EDITIONS: NOLIMITS
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -40,17 +41,21 @@ and creates a two-by-two grid layout.
 */
 
 ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor,
-                           const QString &name, Separation mask)
+                           const QString &name, Separation mask,
+                           const QSize &labelSize)
     : QFrame(parent)
 {
     paintColor = initialColor;
     maskColor = mask;
     inverted = false;
 
-    imageLabel = new QLabel(this);
+    imageLabel = new QLabel;
+    imageLabel->setFrameShadow(QFrame::Sunken);
+    imageLabel->setFrameShape(QFrame::StyledPanel);
+    imageLabel->setMinimumSize(labelSize);
 
-    nameLabel = new QLabel(name, this);
-    colorButton = new QPushButton(this);
+    nameLabel = new QLabel(name);
+    colorButton = new QPushButton(tr("Modify..."));
     colorButton->setBackgroundRole(QPalette::Button);
     colorButton->setMinimumSize(32, 32);
 
@@ -58,7 +63,7 @@ ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor,
     palette.setColor(QPalette::Button, initialColor);
     colorButton->setPalette(palette);
 
-    invertButton = new QPushButton(tr("Invert"), this);
+    invertButton = new QPushButton(tr("Invert"));
     //invertButton->setToggleButton(true);
     //invertButton->setOn(inverted);
     invertButton->setEnabled(false);
@@ -66,11 +71,12 @@ ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor,
     connect(colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
     connect(invertButton, SIGNAL(clicked()), this, SLOT(invertImage()));
 
-    grid = new QGridLayout(this);
-    grid->addWidget(imageLabel, 0, 0, 1, 2);
-    grid->addWidget(nameLabel, 1, 0);
-    grid->addWidget(colorButton, 1, 1);
-    grid->addWidget(invertButton, 2, 1, 1, 1);
+    QGridLayout *gridLayout = new QGridLayout;
+    gridLayout->addWidget(imageLabel, 0, 0, 1, 2);
+    gridLayout->addWidget(nameLabel, 1, 0);
+    gridLayout->addWidget(colorButton, 1, 1);
+    gridLayout->addWidget(invertButton, 2, 1, 1, 1);
+    setLayout(gridLayout);
 }
 
 /*!

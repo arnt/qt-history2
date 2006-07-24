@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 2004-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of an example program for Qt.
-** EDITIONS: NOLIMITS
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,36 +17,24 @@ finalwidget.cpp
 A widget to display an image and a label containing a description.
 */
 
-#include <QApplication>
-#include <QBuffer>
-#include <QColorDialog>
-#include <QDrag>
-#include <QGridLayout>
-#include <QImage>
-#include <QLabel>
-#include <QMenu>
-#include <QMimeData>
-#include <QMouseEvent>
-#include <QPixmap>
-#include <QPoint>
-#include <QPushButton>
-#include <QString>
-#include <QWidget>
-
+#include <QtGui>
 #include "finalwidget.h"
 
-FinalWidget::FinalWidget(QWidget *parent, const QString &name)
+FinalWidget::FinalWidget(QWidget *parent, const QString &name,
+                         const QSize &labelSize)
     : QFrame(parent)
 {
     hasImage = false;
+    imageLabel = new QLabel;
+    imageLabel->setFrameShadow(QFrame::Sunken);
+    imageLabel->setFrameShape(QFrame::StyledPanel);
+    imageLabel->setMinimumSize(labelSize);
+    nameLabel = new QLabel(name);
 
-    imageLabel = new QLabel(this);
-
-    nameLabel = new QLabel(name, this);
-
-    grid = new QGridLayout(this);
-    grid->addWidget(imageLabel, 0, 0, 1, 2);
-    grid->addWidget(nameLabel, 1, 0);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(imageLabel, 1);
+    layout->addWidget(nameLabel, 0);
+    setLayout(layout);
 }
 
 /*!
@@ -65,13 +54,7 @@ void FinalWidget::mouseMoveEvent(QMouseEvent *event)
 
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
-
-    //mimeData->setPixmap(*imageLabel->pixmap());
-    QByteArray output;
-    QBuffer outputBuffer(&output);
-    outputBuffer.open(QIODevice::WriteOnly);
-    imageLabel->pixmap()->toImage().save(&outputBuffer, "PNG");
-    mimeData->setData("image/png", output);
+    mimeData->setImageData(QVariant(*imageLabel->pixmap()));
 
     drag->setMimeData(mimeData);
     drag->setPixmap(imageLabel->pixmap()->scaled(64, 64, Qt::KeepAspectRatio));

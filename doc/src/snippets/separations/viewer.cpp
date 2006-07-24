@@ -2,8 +2,9 @@
 **
 ** Copyright (C) 2004-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of an example program for Qt.
-** EDITIONS: NOLIMITS
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -113,20 +114,14 @@ QFrame* Viewer::createCentralWidget()
 
     QSize labelSize(256, 256);
 
-    finalWidget = new FinalWidget(frame, tr("Final image"));
-    finalWidget->setMinimumSize(labelSize);
+    finalWidget = new FinalWidget(frame, tr("Final image"), labelSize);
 
     cyanWidget = new ScreenWidget(frame, Qt::cyan, tr("Cyan"),
-                                  ScreenWidget::Cyan);
-    cyanWidget->setMinimumSize(labelSize);
-
+                                  ScreenWidget::Cyan, labelSize);
     magentaWidget = new ScreenWidget(frame, Qt::magenta, tr("Magenta"),
-                                     ScreenWidget::Magenta);
-    magentaWidget->setMinimumSize(labelSize);
-
+                                     ScreenWidget::Magenta, labelSize);
     yellowWidget = new ScreenWidget(frame, Qt::yellow, tr("Yellow"),
-                                    ScreenWidget::Yellow);
-    yellowWidget->setMinimumSize(labelSize);
+                                    ScreenWidget::Yellow, labelSize);
 
     connect(cyanWidget, SIGNAL(imageChanged()), this, SLOT(createImage()));
     connect(magentaWidget, SIGNAL(imageChanged()), this, SLOT(createImage()));
@@ -149,10 +144,12 @@ QFrame* Viewer::createCentralWidget()
 void Viewer::chooseFile()
 {
     QString imageFile = QFileDialog::getOpenFileName(this,
-        tr("Choose an image file to open"), "", tr("Images (*.*)"));
+        tr("Choose an image file to open"), path, tr("Images (*.*)"));
 
-    if (!imageFile.isEmpty())
+    if (!imageFile.isEmpty()) {
         openImageFile(imageFile);
+        path = imageFile;
+    }
 }
 
 /*
