@@ -67,13 +67,13 @@ void QDesignerServer::sendOpenRequest(int port, const QStringList &files)
 void QDesignerServer::readFromClient()
 {
     QString file = QString();
-    while (m_socket->canReadLine())
+    while (m_socket->canReadLine()) {
         file = QString::fromUtf8(m_socket->readLine());
-    if (!file.isNull())
-    {
-        file = file.replace(QLatin1String("\n"), QLatin1String(""));
-        file = file.replace(QLatin1String("\r"), QLatin1String(""));
-        qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
+        if (!file.isNull()) {
+            file = file.replace(QLatin1String("\n"), QLatin1String(""));
+            file = file.replace(QLatin1String("\r"), QLatin1String(""));
+            qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
+        }
     }
 }
 
