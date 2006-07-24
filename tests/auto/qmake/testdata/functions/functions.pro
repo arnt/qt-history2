@@ -20,6 +20,26 @@ isEmpty( CONFIG ) {
    message( "FAILED: isEmpty function: $CONFIG" )
 }
 
+#files
+!equals($$list($$files(one/*.cpp)), "one/1.cpp one/2.cpp") {
+   message( "FAILED: files function: one/*.cpp" )
+}
+!equals($$list($$files(one/1*.cpp)), "one/1.cpp") {
+   message( "FAILED: files function: one/1*.cpp" )
+}
+!equals($$list($$files(two/*.cpp)), "two/1.cpp two/2.cpp") {
+   message( "FAILED: files function: two/*.cpp" )
+}
+!equals($$list($$files(three/wildcard*.cpp)), "three/wildcard21.cpp three/wildcard22.cpp") {
+   message( "FAILED: files function: three/wildcard*.cpp" )
+}
+!equals($$list($$files(*.cpp)), "1.cpp 2.cpp wildcard21.cpp wildcard22.cpp") {
+   message( "FAILED: files function: *.cpp" )
+}
+!equals($$list($$files(wildcard*.cpp)), "wildcard21.cpp wildcard22.cpp") {
+   message( "FAILED: files function: wildcard*.cpp" )
+}
+
 #infile
 !infile( infiletest.pro, DEFINES, QT_DLL ){
    message( "FAILED: infile function" )
