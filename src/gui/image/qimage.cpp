@@ -65,6 +65,9 @@ Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
 
 static void pnmscale(const QImage& src, QImage& dst);
 static QImage smoothScaled(const QImage &src, int w, int h);
+static QImage rotated90(const QImage &src);
+static QImage rotated180(const QImage &src);
+static QImage rotated270(const QImage &src);
 
 struct QImageData {        // internal image data
     QImageData();
@@ -3542,17 +3545,21 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
         if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
             return *this;
+        else if (mat.m11() == -1. && mat.m22() == -1.)
+            return rotated180(*this);
+
         hd = int(qAbs(mat.m22()) * hs + 0.9999);
         wd = int(qAbs(mat.m11()) * ws + 0.9999);
         hd = qAbs(hd);
         wd = qAbs(wd);
         scale_xform = true;
-    } else if (d->format == Format_RGB32 && mat.m11() == 0. && mat.m22() == 0. &&
-              ((mat.m12() == 1. && mat.m21() == -1.) ||     // 90 degrees
-               (mat.m12() == -1. && mat.m21() == 1.))) {    // -90 degrees
-        // Dont perform a complex_xform for trivial rotations
-        wd = hs;
-        hd = ws;
+    } else if (mat.m11() == 0. && mat.m22() == 0.
+               && ((mat.m12() == 1. && mat.m21() == -1.)        // 90 degrees
+                   || (mat.m12() == -1. && mat.m21() == 1.))) { // -90 degrees
+        if (mat.m12() == 1. && mat.m21() == -1.)
+            return rotated90(*this);
+        else
+            return rotated270(*this);
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws, hs));
         a = mat.map(a);
@@ -3583,8 +3590,14 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     QImage dImage(wd, hd, target_format);
     if (dImage.isNull())
         return dImage;
-    dImage.d->colortable = d->colortable;
-    dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
+
+    if (target_format == QImage::Format_MonoLSB
+        || target_format == QImage::Format_Mono
+        || target_format == QImage::Format_Indexed8) {
+        dImage.d->colortable = d->colortable;
+        dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
+    }
+
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
@@ -5389,4 +5402,99 @@ static QImage smoothScaled(const QImage &src, int w, int h) {
     QImage dest(w, h, source.format());
     pnmscale(source, dest);
     return dest;
+}
+
+
+static QImage rotated90(const QImage &image) {
+    QImage out(image.height(), image.width(), image.format());
+    if (image.numColors() > 0)
+        out.setColorTable(image.colorTable());
+    int w = image.width();
+    int h = image.height();
+    switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        {
+            QRgb *dst = (QRgb *) out.bits();
+            for (int y=0; y<h; ++y) {
+                const QRgb *src = (const QRgb *) image.scanLine(y);
+                for (int x=0; x<w; ++x)
+                    dst[x*h + h-y-1] = *src++;
+            }
+        }
+        break;
+    case QImage::Format_Indexed8:
+        {
+            uchar *dst = out.bits();
+            for (int y=0; y<h; ++y) {
+                const uchar *src = image.scanLine(y);
+                for (int x=0; x<w; ++x) {
+                    dst[x*h + h-y-1] = *src++;
+                }
+            }
+        }
+        break;
+    default:
+        for (int y=0; y<h; ++y) {
+            if (image.numColors())
+                for (int x=0; x<w; ++x)
+                    out.setPixel(h-y-1, x, image.pixelIndex(x, y));
+            else
+                for (int x=0; x<w; ++x)
+                    out.setPixel(h-y-1, x, image.pixel(x, y));
+        }
+        break;
+    }
+    return out;
+}
+
+
+static QImage rotated180(const QImage &image) {
+    return image.mirrored(true, true);
+}
+
+
+static QImage rotated270(const QImage &image) {
+    QImage out(image.height(), image.width(), image.format());
+    if (image.numColors() > 0)
+        out.setColorTable(image.colorTable());
+    int w = image.width();
+    int h = image.height();
+    switch (image.format()) {
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        {
+            QRgb *dst = (QRgb *) out.bits();
+            for (int y=0; y<h; ++y) {
+                const QRgb *src = (const QRgb *) image.scanLine(y);
+                for (int x=0; x<w; ++x)
+                    dst[y + (w-x-1)*h] = *src++;
+            }
+        }
+        break;
+    case QImage::Format_Indexed8:
+        {
+            uchar *dst = out.bits();
+            for (int y=0; y<h; ++y) {
+                const uchar *src = image.scanLine(y);
+                for (int x=0; x<w; ++x) {
+                    dst[y + (w-x-1)*h] = *src++;
+                }
+            }
+        }
+        break;
+    default:
+        for (int y=0; y<h; ++y) {
+            if (image.numColors())
+                for (int x=0; x<w; ++x)
+                    out.setPixel(y, w-x-1, image.pixelIndex(x, y));
+            else
+                for (int x=0; x<w; ++x)
+                    out.setPixel(y, w-x-1, image.pixel(x, y));
+        }
+        break;
+    }
+    return out;
 }
