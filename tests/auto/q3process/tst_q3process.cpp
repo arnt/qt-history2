@@ -48,7 +48,7 @@ private slots:
     void canReadLineStderr_data();
     void canReadLineStderr();
     void startWithNoEnvironment();
-    void startWithEmptyStringList();
+    void startWithEmptyStringArgument();
     
 protected slots:
     void processExited();
@@ -406,7 +406,7 @@ void tst_Q3Process::startWithNoEnvironment()
 #endif
 }
 
-void tst_Q3Process::startWithEmptyStringList()
+void tst_Q3Process::startWithEmptyStringArgument()
 {
     // Test that this doesn't assert (task 122353)
     Q3Process process("cmd");
