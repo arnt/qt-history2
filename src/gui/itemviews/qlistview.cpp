@@ -1312,7 +1312,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    if (!d->indexValid(index)
+    if (!d->isIndexValid(index)
         || index.parent() != d->root
         || index.column() != d->column
         || isIndexHidden(index))
@@ -1334,7 +1334,7 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
 {
     Q_D(QListView);
     if (d->movement == Static
-        || !d->indexValid(index)
+        || !d->isIndexValid(index)
         || index.parent() != d->root
         || index.column() != d->column)
         return;

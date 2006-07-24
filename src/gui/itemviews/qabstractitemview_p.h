@@ -164,13 +164,13 @@ public:
     void clearOrRemove();
     QPixmap renderToPixmap(const QModelIndexList &indexes, QRect *r = 0) const;
 
-    inline bool indexValid(const QModelIndex &index) const {
+    inline bool isIndexValid(const QModelIndex &index) const {
          return (index.row() >= 0) && (index.column() >= 0) && (index.model() == model);
     }
 
     virtual bool selectionAllowed(const QModelIndex &index) const {
         // in some views we want to go ahead with selections, even if the index is invalid
-        return indexValid(index);
+        return isIndexValid(index);
     }
 
     inline QPoint offset() const {

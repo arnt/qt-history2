@@ -552,7 +552,7 @@ void QTreeView::showColumn(int column)
 void QTreeView::expand(const QModelIndex &index)
 {
     Q_D(QTreeView);
-    if (!d->indexValid(index))
+    if (!d->isIndexValid(index))
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
@@ -577,7 +577,7 @@ void QTreeView::expand(const QModelIndex &index)
 void QTreeView::collapse(const QModelIndex &index)
 {
     Q_D(QTreeView);
-    if (!d->indexValid(index))
+    if (!d->isIndexValid(index))
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
@@ -795,7 +795,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
 
-    if (!d->indexValid(index) || isIndexHidden(index))
+    if (!d->isIndexValid(index) || isIndexHidden(index))
         return QRect();
 
     d->executePostedLayout();
@@ -829,7 +829,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
 
-    if (!d->indexValid(index))
+    if (!d->isIndexValid(index))
         return;
 
     d->executePostedLayout();
@@ -1333,7 +1333,7 @@ void QTreeView::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QTreeView);
     QModelIndex current = currentIndex();
-    if (d->indexValid(current) && d->model) {
+    if (d->isIndexValid(current) && d->model) {
         switch (event->key()) {
         case Qt::Key_Asterisk: {
             QStack<QModelIndex> parents;
@@ -1343,7 +1343,7 @@ void QTreeView::keyPressEvent(QKeyEvent *event)
                     QModelIndex parent = parents.pop();
                     for (int row = 0; row < d->model->rowCount(parent); ++row) {
                         QModelIndex child = d->model->index(row, 0, parent);
-                        if (!d->indexValid(child))
+                        if (!d->isIndexValid(child))
                             break;
                         parents.push(child);
                         expand(child);
@@ -1386,7 +1386,7 @@ QModelIndex QTreeView::indexAt(const QPoint &point) const
 QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!d->indexValid(index))
+    if (!d->isIndexValid(index))
         return QModelIndex();
     d->executePostedLayout();
     int i = d->viewIndex(index);
@@ -1401,7 +1401,7 @@ QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!d->indexValid(index))
+    if (!d->isIndexValid(index))
         return QModelIndex();
     d->executePostedLayout();
     int i = d->viewIndex(index);
@@ -1962,7 +1962,7 @@ int QTreeView::sizeHintForColumn(int column) const
 int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!d->indexValid(index) || !d->itemDelegate)
+    if (!d->isIndexValid(index) || !d->itemDelegate)
         return 0;
 
     int start = -1;
