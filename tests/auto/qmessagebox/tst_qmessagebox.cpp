@@ -193,7 +193,7 @@ void tst_QMessageBox::shortcut()
     msgBox.addButton("O&k", QMessageBox::YesRole);
     msgBox.addButton("&No", QMessageBox::YesRole);
     msgBox.addButton("&Maybe", QMessageBox::YesRole);
-    QVERIFY(exec(&msgBox, Qt::Key_M), 2);
+    QCOMPARE(exec(&msgBox, Qt::Key_M), 2);
 }
 
 void tst_QMessageBox::about()
