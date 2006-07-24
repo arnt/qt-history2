@@ -30,6 +30,8 @@ private slots:
 
     void staticSourceCompat();
     void staticBinaryCompat();
+    void instanceSourceCompat();
+    void instanceBinaryCompat();
 
 private:
     int keyToSend;
@@ -249,6 +251,42 @@ void tst_QMessageBox::staticSourceCompat()
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes | QMessageBox::Escape, QMessageBox::No | QMessageBox::Default);
     QCOMPARE(ret, int(QMessageBox::No));
+
+    // the button text versions
+    keyToSend = Qt::Key_Enter;
+    QTimer::singleShot(1000, this, SLOT(sendKey()));
+    ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 1);
+    QCOMPARE(ret, 1);
+
+    keyToSend = Qt::Key_Escape;
+    QTimer::singleShot(1000, this, SLOT(sendKey()));
+    ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 1);
+    QCOMPARE(ret, -1);
+
+    keyToSend = Qt::Key_Escape;
+    QTimer::singleShot(1000, this, SLOT(sendKey()));
+    ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 0, 1);
+    QCOMPARE(ret, 1);
+}
+
+void tst_QMessageBox::instanceSourceCompat()
+{
+     QMessageBox mb("Application name here",
+                    "Saving the file will overwrite the original file on the disk.\n"
+                    "Do you really want to save?",
+                    QMessageBox::Information,
+                    QMessageBox::Yes | QMessageBox::Default,
+                    QMessageBox::No,
+                    QMessageBox::Cancel | QMessageBox::Escape);
+    mb.setButtonText(QMessageBox::Yes, "Save");
+    mb.setButtonText(QMessageBox::No, "Discard");
+    mb.addButton("&Revert", QMessageBox::RejectRole);
+    mb.addButton("&Zoo", QMessageBox::ActionRole);
+
+    QCOMPARE(exec(&mb, Qt::Key_Enter), int(QMessageBox::Yes));
+    QCOMPARE(exec(&mb, Qt::Key_Escape), int(QMessageBox::Cancel));
+    QCOMPARE(exec(&mb, Qt::ALT + Qt::Key_R), 0);
+    QCOMPARE(exec(&mb, Qt::ALT + Qt::Key_Z), 1);
 }
 
 void tst_QMessageBox::staticBinaryCompat()
@@ -285,6 +323,22 @@ void tst_QMessageBox::staticBinaryCompat()
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Default, Old_No | Old_Escape, 0);
     QCOMPARE(ret, Old_No);
+
+}
+
+void tst_QMessageBox::instanceBinaryCompat()
+{
+     QMessageBox mb("Application name here",
+                    "Saving the file will overwrite the original file on the disk.\n"
+                    "Do you really want to save?",
+                    QMessageBox::Information,
+                    Old_Yes | Old_Default,
+                    Old_No,
+                    Old_Cancel | Old_Escape);
+    mb.setButtonText(Old_Yes, "Save");
+    mb.setButtonText(Old_No, "Discard");
+    QCOMPARE(exec(&mb, Qt::Key_Enter), int(Old_Yes));
+    QCOMPARE(exec(&mb, Qt::Key_Escape), int(Old_Cancel));
 }
 
 QTEST_MAIN(tst_QMessageBox)

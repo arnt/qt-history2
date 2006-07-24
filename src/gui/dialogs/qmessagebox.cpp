@@ -113,13 +113,16 @@ class QMessageBoxPrivate : public QDialogPrivate
     Q_DECLARE_PUBLIC(QMessageBox)
 
 public:
-    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0) { }
+    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), compatMode(false) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
     void _q_buttonClicked(QAbstractButton *);
 
     QAbstractButton *findButton(int button0, int button1, int button2, int flags);
     void addOldButtons(int button0, int button1, int button2);
+
+    QAbstractButton *abstractButtonForId(int id) const;
+    int execReturnCode(QAbstractButton *button);
 
     static int showOldMessageBox(QWidget *parent, QMessageBox::Icon icon,
                                  const QString &title, const QString &text,
@@ -140,10 +143,11 @@ public:
     QMessageBox::Icon icon;
     QLabel *iconLabel;
     QDialogButtonBox *buttonBox;
-    QList<QAbstractButton *> buttonList;
+    QList<QAbstractButton *> customButtonList;
     QAbstractButton *escapeButton;
     QPushButton *defaultButton;
     QAbstractButton *clickedButton;
+    bool compatMode;
 };
 
 static QString *translatedTextAboutQt = 0;
@@ -227,11 +231,48 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     q->setModal(true);
 }
 
+static int oldButton(int button)
+{
+    switch (button & QMessageBox::ButtonMask) {
+    case QMessageBox::Ok:
+        return Old_Ok;
+    case QMessageBox::Cancel:
+        return Old_Cancel;
+    case QMessageBox::Yes:
+        return Old_Yes;
+    case QMessageBox::No:
+        return Old_No;
+    case QMessageBox::Abort:
+        return Old_Abort;
+    case QMessageBox::Retry:
+        return Old_Retry;
+    case QMessageBox::Ignore:
+        return Old_Ignore;
+    case QMessageBox::YesToAll:
+        return Old_YesAll;
+    case QMessageBox::NoToAll:
+        return Old_NoAll;
+    default:
+        return 0;
+    }
+}
+
+int QMessageBoxPrivate::execReturnCode(QAbstractButton *button)
+{
+    int ret = buttonBox->standardButton(button);
+    if (ret == QMessageBox::NoButton) {
+        ret = customButtonList.indexOf(button); // if button == 0, correctly sets ret = -1
+    } else if (compatMode) {
+        ret = oldButton(ret);
+    }
+    return ret;
+}
+
 void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 {
     Q_Q(QMessageBox);
     clickedButton = button;
-    q->done(buttonList.indexOf(button)); // does not trigger closeEvent
+    q->done(execReturnCode(button)); // does not trigger closeEvent
 }
 
 /*!
@@ -427,7 +468,7 @@ void QMessageBox::addButton(QAbstractButton *button, ButtonRole role)
         return;
     removeButton(button);
     d->buttonBox->addButton(button, (QDialogButtonBox::ButtonRole)role);
-    d->buttonList.append(button);
+    d->customButtonList.append(button);
 }
 
 /*!
@@ -452,10 +493,7 @@ QPushButton *QMessageBox::addButton(const QString& text, ButtonRole role)
 QPushButton *QMessageBox::addButton(StandardButton button)
 {
     Q_D(QMessageBox);
-    QPushButton *pushButton = d->buttonBox->addButton((QDialogButtonBox::StandardButton)button);
-    if (pushButton)
-        d->buttonList.append(pushButton);
-    return pushButton;
+    return d->buttonBox->addButton((QDialogButtonBox::StandardButton)button);
 }
 
 /*!
@@ -466,7 +504,7 @@ QPushButton *QMessageBox::addButton(StandardButton button)
 void QMessageBox::removeButton(QAbstractButton *button)
 {
     Q_D(QMessageBox);
-    d->buttonList.removeAll(button);
+    d->customButtonList.removeAll(button);
     if (d->escapeButton == button)
         d->escapeButton = 0;
     if (d->defaultButton == button)
@@ -486,11 +524,11 @@ void QMessageBox::setStandardButtons(StandardButtons buttons)
 {
     Q_D(QMessageBox);
     d->buttonBox->setStandardButtons(QDialogButtonBox::StandardButtons(int(buttons)));
-    d->buttonList = d->buttonBox->buttons();
 
-    if (!d->buttonList.contains(d->escapeButton))
+    QList<QAbstractButton *> buttonList = d->buttonBox->buttons();
+    if (!buttonList.contains(d->escapeButton))
         d->escapeButton = 0;
-    if (!d->buttonList.contains(d->defaultButton))
+    if (!buttonList.contains(d->defaultButton))
         d->defaultButton = 0;
 }
 
@@ -545,7 +583,7 @@ QAbstractButton *QMessageBox::escapeButton() const
 void QMessageBox::setEscapeButton(QAbstractButton *button)
 {
     Q_D(QMessageBox);
-    if (d->buttonList.contains(button))
+    if (d->buttonBox->buttons().contains(button))
         d->escapeButton = button;
 }
 
@@ -597,7 +635,7 @@ QPushButton *QMessageBox::defaultButton() const
 void QMessageBox::setDefaultButton(QPushButton *button)
 {
     Q_D(QMessageBox);
-    if (!d->buttonList.contains(button))
+    if (!d->buttonBox->buttons().contains(button))
         return;
     d->defaultButton = button;
     button->setDefault(true);
@@ -750,8 +788,7 @@ void QMessageBox::closeEvent(QCloseEvent *e)
 {
     Q_D(QMessageBox);
     QDialog::closeEvent(e);
-    d->clickedButton = d->escapeButton;
-    setResult(d->buttonList.indexOf(d->escapeButton));
+    setResult(d->execReturnCode(d->escapeButton));
 }
 
 /*!\reimp
@@ -778,16 +815,17 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         ) {
         if (d->escapeButton)
             d->escapeButton->animateClick();
-        e->accept();
-        close();
+        else
+            close();
         return;
     }
 #ifndef QT_NO_SHORTCUT
     if (!(e->modifiers() & Qt::AltModifier)) {
         int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
         if (key) {
-            for (int i = 0; i < d->buttonList.size(); ++i) {
-                QAbstractButton *pb = d->buttonList.at(i);
+            const QList<QAbstractButton *> buttons = d->buttonBox->buttons();
+            for (int i = 0; i < buttons.count(); ++i) {
+                QAbstractButton *pb = buttons.at(i);
                 int acc = pb->shortcut() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
                 if (acc == key) {
                     pb->animateClick();
@@ -805,7 +843,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
 void QMessageBox::showEvent(QShowEvent *e)
 {
     Q_D(QMessageBox);
-    if (d->buttonList.isEmpty())
+    if (d->buttonBox->buttons().isEmpty())
         addButton(Ok);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
@@ -1062,23 +1100,30 @@ static QMessageBox::StandardButton newButton(int button)
 #endif
 }
 
-static inline int cleanButton(int button)
+static bool detectedCompat(int button0, int button1, int button2)
 {
-    return button & QMessageBox::ButtonMask;
+    if (button0 != 0 && !(button0 & NewButtonFlag))
+        return true;
+    if (button1 != 0 && !(button1 & NewButtonFlag))
+        return true;
+    if (button2 != 0 && !(button2 & NewButtonFlag))
+        return true;
+    return false;
 }
 
 QAbstractButton *QMessageBoxPrivate::findButton(int button0, int button1, int button2, int flags)
 {
-    int index = -1;
+    Q_Q(QMessageBox);
+    int button = 0;
 
     if (button0 & flags) {
-        index = 0;
+        button = button0;
     } else if (button1 & flags) {
-        index = 1;
+        button = button1;
     } else if (button2 & flags) {
-        index = 2;
+        button = button2;
     }
-    return buttonList.value(index);
+    return q->button(newButton(button));
 }
 
 void QMessageBoxPrivate::addOldButtons(int button0, int button1, int button2)
@@ -1090,26 +1135,25 @@ void QMessageBoxPrivate::addOldButtons(int button0, int button1, int button2)
     q->setDefaultButton(
         static_cast<QPushButton *>(findButton(button0, button1, button2, QMessageBox::Default)));
     q->setEscapeButton(findButton(button0, button1, button2, QMessageBox::Escape));
+    compatMode = detectedCompat(button0, button1, button2);
+}
+
+QAbstractButton *QMessageBoxPrivate::abstractButtonForId(int id) const
+{
+    Q_Q(const QMessageBox);
+    QAbstractButton *result = customButtonList.value(id);
+    if (result)
+        return result;
+    return q->button(newButton(id));
 }
 
 int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon icon,
-                                            const QString &title, const QString &text,
-                                            int button0, int button1, int button2)
+                                          const QString &title, const QString &text,
+                                          int button0, int button1, int button2)
 {
     QMessageBox messageBox(icon, title, text, QMessageBox::NoButton, parent);
     messageBox.d_func()->addOldButtons(button0, button1, button2);
-    int result = messageBox.exec();
-
-    switch (result) {
-    case 0:
-        return cleanButton(button0);
-    case 1:
-        return cleanButton(button1);
-    case 2:
-        return cleanButton(button2);
-    default:
-        return -1;
-    }
+    return messageBox.exec();
 }
 
 int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon icon,
@@ -1130,7 +1174,7 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
     if (!button2Text.isEmpty())
         messageBox.addButton(button2Text, QMessageBox::ActionRole);
 
-    const QList<QAbstractButton *> &buttonList = messageBox.d_func()->buttonList;
+    const QList<QAbstractButton *> &buttonList = messageBox.d_func()->customButtonList;
     messageBox.setDefaultButton(static_cast<QPushButton *>(buttonList.value(defaultButtonNumber)));
     messageBox.setEscapeButton(buttonList.value(escapeButtonNumber));
 
@@ -1586,9 +1630,10 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
 QString QMessageBox::buttonText(int button) const
 {
     Q_D(const QMessageBox);
-    if (QAbstractButton *abstractButton = d->buttonList.value(button)) {
+
+    if (QAbstractButton *abstractButton = d->abstractButtonForId(button)) {
         return abstractButton->text();
-    } else if (button == 0) {
+    } else if (button == 0) {   // for compatibility with Qt 4.0/4.1
         return QDialogButtonBox::tr("OK");
     }
     return QString();
@@ -1606,9 +1651,9 @@ QString QMessageBox::buttonText(int button) const
 void QMessageBox::setButtonText(int button, const QString &text)
 {
     Q_D(QMessageBox);
-    if (QAbstractButton *abstractButton = d->buttonList.value(button)) {
+    if (QAbstractButton *abstractButton = d->abstractButtonForId(button)) {
         abstractButton->setText(text);
-    } else if (button == 0) {
+    } else if (button == 0) {   // for compatibility with Qt 4.0/4.1
         addButton(text, QMessageBox::ActionRole);
     }
 }
@@ -1626,10 +1671,10 @@ void QMessageBox::setButtonText(int button, const QString &text)
     defined by \a button0, \a button1, and \a button2.
 */
 QMessageBox::QMessageBox(const QString& title,
-                          const QString &text, Icon icon,
-                          int button0, int button1, int button2,
-                          QWidget *parent, const char *name,
-                          bool modal, Qt::WindowFlags f)
+                         const QString &text, Icon icon,
+                         int button0, int button1, int button2,
+                         QWidget *parent, const char *name,
+                         bool modal, Qt::WindowFlags f)
     : QDialog(*new QMessageBoxPrivate, parent,
               f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
