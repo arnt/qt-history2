@@ -2105,12 +2105,12 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
             } else {
                 QLineF line = lines[i] * d->matrix;
                 if (d->pen.style() == Qt::SolidLine)
-                    drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
-                                        qRound(line.x2()), qRound(line.y2()),
+                    drawLine_midpoint_i(int(line.x1()), int(line.y1()),
+                                        int(line.x2()), int(line.y2()),
                                         d->penData.blend, &d->penData, mode, bounds);
                 else
-                    drawLine_midpoint_dashed_i(qRound(line.x1()), qRound(line.y1()),
-                                               qRound(line.x2()), qRound(line.y2()),
+                    drawLine_midpoint_dashed_i(int(line.x1()), int(line.y1()),
+                                               int(line.x2()), int(line.y2()),
                                                &d->pen, d->penData.blend,
                                                &d->penData, mode, bounds,
                                                &dashOffset);
@@ -2138,12 +2138,12 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
             QLineF line = lines[i] * d->matrix;
             int dashOffset = 0;
             if (d->pen.style() == Qt::SolidLine)
-                drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
-                                    qRound(line.x2()), qRound(line.y2()),
+                drawLine_midpoint_i(int(line.x1()), int(line.y1()),
+                                    int(line.x2()), int(line.y2()),
                                     d->penData.blend, &d->penData, mode, bounds);
             else
-                drawLine_midpoint_dashed_i(qRound(line.x1()), qRound(line.y1()),
-                                           qRound(line.x2()), qRound(line.y2()),
+                drawLine_midpoint_dashed_i(int(line.x1()), int(line.y1()),
+                                           int(line.x2()), int(line.y2()),
                                            &d->pen,
                                            d->penData.blend, &d->penData, mode,
                                            bounds, &dashOffset);
@@ -2152,6 +2152,12 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
         QPaintEngine::drawLines(lines, lineCount);
     }
 }
+
+
+// A little helper macro to get a better approximation of dimensions.
+// If we have a rect that starting at 0.5 of width 3.5 it should span
+// 4 pixels.
+#define int_dim(pos, dim) (int(pos+dim) - int(pos))
 
 void QRasterPaintEngine::drawEllipse(const QRectF &rect)
 {
@@ -2166,8 +2172,8 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     {
         const QRectF r = d->matrix.mapRect(rect);
         const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
-        drawEllipse_midpoint_i(QRect(qRound(r.x()), qRound(r.y()),
-                                     qRound(r.width()), qRound(r.height())),
+        drawEllipse_midpoint_i(QRect(int(r.x()), int(r.y()),
+                                     int_dim(r.x(), r.width()), int_dim(r.y(), r.height())),
                                devRect,
                                d->penData.blend, d->brushData.blend,
                                &d->penData, &d->brushData);
