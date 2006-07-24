@@ -94,6 +94,9 @@ private slots:
 
     void assignmentOoperator();
     void equalityOperator();
+
+    void specConstructor_data();
+    void specConstructor();
 };
 
 // Testing get/set functions
@@ -1112,6 +1115,25 @@ void tst_QColor::assignmentOoperator()
 
 void tst_QColor::equalityOperator()
 { DEPENDS_ON(convertTo()); }
+
+Q_DECLARE_METATYPE(QColor::Spec);
+
+void tst_QColor::specConstructor_data()
+{
+    QTest::addColumn<QColor::Spec>("spec");
+
+    QTest::newRow("Invalid") << QColor::Invalid;
+    QTest::newRow("Rgb") << QColor::Rgb;
+    QTest::newRow("Hsv") << QColor::Hsv;
+    QTest::newRow("Cmyk") << QColor::Cmyk;
+}
+
+void tst_QColor::specConstructor()
+{
+    QFETCH(QColor::Spec, spec);
+    QColor color = spec;
+    QCOMPARE(color.spec(), spec);
+}
 
 QTEST_APPLESS_MAIN(tst_QColor)
 #include "tst_qcolor.moc"

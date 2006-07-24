@@ -384,6 +384,33 @@ QColor::QColor(QRgb color)
 
 
 /*!
+    \internal
+
+    Constructs a color with the given \a spec.
+
+    This funciton is primarly present to avoid that QColor::Invalid
+    becomes a valid color by accident.
+*/
+
+QColor::QColor(Spec spec)
+{
+    switch (spec) {
+    case Invalid:
+        invalidate();
+        break;
+    case Rgb:
+        setRgb(0, 0, 0);
+        break;
+    case Hsv:
+        setHsv(0, 0, 0);
+        break;
+    case Cmyk:
+        setCmyk(0, 0, 0, 0);
+        break;
+    }
+}
+
+/*!
     \fn QColor::QColor(const QString &name)
 
     Constructs a named color in the same way as setNamedColor() using
