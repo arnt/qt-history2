@@ -288,4 +288,4 @@ void tst_QMessageBox::staticBinaryCompat()
 }
 
 QTEST_MAIN(tst_QMessageBox)
-#include "tst_qmessageboxex.moc"
+#include "tst_qmessagebox.moc"

@@ -3,12 +3,12 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = tst_qmessageboxex
+TARGET = tst_qmessagebox
 DEPENDPATH += .
 INCLUDEPATH += . 
 
 CONFIG += console qtestlib
 
 # Input
-SOURCES += tst_qmessageboxex.cpp 
+SOURCES += tst_qmessagebox.cpp 
 
