@@ -820,7 +820,7 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     painter->setPen(oldPen);
 }
 
-static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover)
+static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
 {
     if (tmp.isNull())
         return;
@@ -830,11 +830,11 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
     QColor mdiButtonGradientStartColor;
     QColor mdiButtonGradientStopColor;
     if (active) {
-        mdiButtonGradientStartColor = QColor(hover ? 0x7d8bb1 : 0x55689a);
-        mdiButtonGradientStopColor = QColor(hover ? 0x939ebe : 0x7381ab);
+        mdiButtonGradientStartColor = QColor((hover || sunken) ? 0x7d8bb1 : 0x55689a);
+        mdiButtonGradientStopColor = QColor((hover || sunken) ? 0x939ebe : 0x7381ab);
     } else {
-        mdiButtonGradientStartColor = QColor(hover ? 0x9e9e9e : 0x818181);
-        mdiButtonGradientStopColor = QColor(hover ? 0xababab : 0x929292);
+        mdiButtonGradientStartColor = QColor((hover || sunken) ? 0x9e9e9e : 0x818181);
+        mdiButtonGradientStopColor = QColor((hover || sunken) ? 0xababab : 0x929292);
     }
 
     qt_plastique_draw_gradient(painter, tmp.adjusted(1, 1, -1, -1),
@@ -842,9 +842,9 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
 
     QColor mdiButtonBorderColor;
     if (active) {
-        mdiButtonBorderColor = hover ? QColor(0x627097) : QColor(0x324577);
+        mdiButtonBorderColor = (hover || sunken) ? QColor(0x627097) : QColor(0x324577);
     } else {
-        mdiButtonBorderColor = hover ? QColor(0x838383) : QColor(0x5e5e5e);
+        mdiButtonBorderColor = (hover || sunken) ? QColor(0x838383) : QColor(0x5e5e5e);
     }
     painter->setPen(QPen(mdiButtonBorderColor, 1));
     painter->drawLine(tmp.left() + 2, tmp.top(), tmp.right() - 2, tmp.top());
@@ -4398,8 +4398,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_Sunken);
+
                 QRect minButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMinButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, minButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, minButtonRect, hover, sunken);
 
                 int xoffset = minButtonRect.width() / 3;
                 int yoffset = minButtonRect.height() / 3;
@@ -4422,8 +4424,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // max button
             if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
+
                 QRect maxButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMaxButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, maxButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
 
                 int xoffset = maxButtonRect.width() / 3;
                 int yoffset = maxButtonRect.height() / 3;
@@ -4445,8 +4449,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // close button
             if (titleBar->subControls & SC_TitleBarCloseButton) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
+
                 QRect closeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarCloseButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, closeButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, closeButtonRect, hover, sunken);
 
                 int xoffset = closeButtonRect.width() / 3;
                 int yoffset = closeButtonRect.height() / 3;
@@ -4482,8 +4488,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                  ((titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) &&
                   (titleBar->titleBarState & Qt::WindowMaximized)))) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_Sunken);
+
                 QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, normalButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
                 int xoffset = int(normalButtonRect.width() / 3.5);
                 int yoffset = int(normalButtonRect.height() / 3.5);
 
@@ -4522,9 +4530,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             if (titleBar->subControls & SC_TitleBarContextHelpButton
                 && (titleBar->titleBarFlags & Qt::WindowContextHelpButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_Sunken);
+
                 QRect contextHelpButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarContextHelpButton, widget);
 
-                qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, sunken);
 
                 QColor blend;
                 // ### Use palette colors
@@ -4547,8 +4557,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // shade button
             if (titleBar->subControls & SC_TitleBarShadeButton) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_Sunken);
+
                 QRect shadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarShadeButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, shadeButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, shadeButtonRect, hover, sunken);
 
                 int xoffset = shadeButtonRect.width() / 3;
                 int yoffset = shadeButtonRect.height() / 3;
@@ -4569,8 +4581,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // unshade button
             if (titleBar->subControls & SC_TitleBarUnshadeButton) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_Sunken);
+
                 QRect unshadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarUnshadeButton, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover);
+                qt_plastique_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover, sunken);
 
                 int xoffset = unshadeButtonRect.width() / 3;
                 int yoffset = unshadeButtonRect.height() / 3;
@@ -4591,11 +4605,12 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             // from qwindowsstyle.cpp
             if ((titleBar->subControls & SC_TitleBarSysMenu) && (titleBar->titleBarFlags & Qt::WindowSystemMenuHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_Sunken);
 
-                bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
                 QRect iconRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarSysMenu, widget);
                 if (hover)
-                    qt_plastique_draw_mdibutton(painter, titleBar, iconRect, hover);
+                    qt_plastique_draw_mdibutton(painter, titleBar, iconRect, hover, sunken);
 
                 if (!titleBar->icon.isNull()) {
                     titleBar->icon.paint(painter, iconRect);
