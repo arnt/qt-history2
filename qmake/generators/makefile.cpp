@@ -74,7 +74,7 @@ static bool createDir(QString path)
         path = path.right(path.length() - 1);
     }
     bool ret = true;
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     bool driveExists = true;
     if(!QDir::isRelativePath(path)) {
         if(QFile::exists(path.left(3))) {
@@ -187,7 +187,7 @@ MakefileGenerator::initOutPaths()
             QString &pathRef = v[dirs[x]].first();
             pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
             // We don't want to add a separator for DLLDESTDIR on Windows
             if(!(dirs[x] == "DLLDESTDIR"))
 #endif
@@ -2240,7 +2240,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         const QStringList subdirs = project->values("SUBDIRS");
         for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
             QString fixedSubdir = subdirs[subdir];
-            fixedSubdir.replace('/','_').replace('.', '_');
+	    fixedSubdir = fixedSubdir.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
 
             SubTarget *st = new SubTarget;
             targets.append(st);
@@ -2296,7 +2296,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                     for(int subDep = 0; subDep < subdirs.size(); ++subDep) {
                         if(subdirs[subDep] == depends.at(depend)) {
                             QString fixedSubDep = subdirs[subDep];
-                            fixedSubDep.replace('/','_').replace('.', '_');
+                            fixedSubDep = fixedSubDep.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
                             if(!project->isEmpty(fixedSubDep + ".target")) {
                                 st->depends += project->first(fixedSubDep + ".target");
                             } else {
@@ -2305,7 +2305,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                                     d = project->first(fixedSubDep + ".file");
                                 else if(!project->isEmpty(fixedSubDep + ".subdir"))
                                     d = project->first(fixedSubDep + ".subdir");
-                                st->depends += "sub-" + d.replace('/','_').replace('.', '_');
+                                st->depends += "sub-" + d.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
                             }
                             found = true;
                             break;
@@ -2313,7 +2313,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                     }
                     if(!found) {
                         QString depend_str = depends.at(depend);
-                        st->depends += depend_str.replace('/','_').replace('.', '_');
+                        st->depends += depend_str.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
                     }
                 }
             }
@@ -2321,10 +2321,9 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 st->target = project->first(fixedSubdir + ".target");
             } else {
                 st->target = "sub-" + file;
-                st->target.replace('/', '_');
-                st->target.replace('\\', '_');
-                st->target.replace('.', '_');
+		st->target = st->target.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
             }
+	    qDebug() << st->target;
         }
     }
     t << "first: make_default" << endl;

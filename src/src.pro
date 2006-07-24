@@ -53,28 +53,29 @@ for(subname, SUBDIRS) {
    !isEmpty($${subname}.subdir):subdir = $$eval($${subname}.subdir)
    subpro = $$subdir/$${basename(subdir)}.pro
    !exists($$subpro):next()
+   subtarget = $$replace(subdir, [^A-Za-z0-9], _)
    isEqual($$list($$fromfile($$subpro, TEMPLATE)), lib) {
        #debug
-       eval(debug-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
-       eval(debug-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) debug))
-       EXTRA_DEBUG_TARGETS += debug-$${subdir}
-       QMAKE_EXTRA_TARGETS += debug-$${subdir}
+       eval(debug-$${subtarget}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+       eval(debug-$${subtarget}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) debug))
+       EXTRA_DEBUG_TARGETS += debug-$${subtarget}
+       QMAKE_EXTRA_TARGETS += debug-$${subtarget}
        #release
-       eval(release-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
-       eval(release-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) release))
-       EXTRA_RELEASE_TARGETS += release-$${subdir}
-       QMAKE_EXTRA_TARGETS += release-$${subdir}
+       eval(release-$${subtarget}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
+       eval(release-$${subtarget}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) release))
+       EXTRA_RELEASE_TARGETS += release-$${subtarget}
+       QMAKE_EXTRA_TARGETS += release-$${subtarget}
     } else { #do not have a real debug target/release
        #debug
-       eval(debug-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
-       eval(debug-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
-       EXTRA_DEBUG_TARGETS += debug-$${subdir}
-       QMAKE_EXTRA_TARGETS += debug-$${subdir}
+       eval(debug-$${subtarget}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+       eval(debug-$${subtarget}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
+       EXTRA_DEBUG_TARGETS += debug-$${subtarget}
+       QMAKE_EXTRA_TARGETS += debug-$${subtarget}
        #release
-       eval(release-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
-       eval(release-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
-       EXTRA_RELEASE_TARGETS += release-$${subdir}
-       QMAKE_EXTRA_TARGETS += release-$${subdir}
+       eval(release-$${subtarget}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
+       eval(release-$${subtarget}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
+       EXTRA_RELEASE_TARGETS += release-$${subtarget}
+       QMAKE_EXTRA_TARGETS += release-$${subtarget}
    }
 }
 debug.depends = $$EXTRA_DEBUG_TARGETS
