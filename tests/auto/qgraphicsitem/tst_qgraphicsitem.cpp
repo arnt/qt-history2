@@ -1162,7 +1162,7 @@ class MyItem : public QGraphicsEllipseItem
 public:
     bool isObscuredBy(const QGraphicsItem *item) const
     {
-        const MyItem *myItem = dynamic_cast<const MyItem*>(item);
+        MyItem *myItem = qgraphicsitem_cast<MyItem *>(const_cast<QGraphicsItem*>(item));
         if (myItem) {
             if (item->zValue() > zValue()) {
                 QRectF r = rect();
@@ -1191,6 +1191,11 @@ public:
     {
         return shape();
     }
+
+    enum {
+        Type = 65537
+    };
+    int type() const { return 65537; }
 };
 
 
