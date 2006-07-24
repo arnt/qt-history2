@@ -2055,18 +2055,19 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         int right = d->deviceRect.width();
         int top = 0;
         int bottom = d->deviceRect.height();
+        int count = 0;
         while (points < end) {
             x = qFloor(points->x() + dx);
             y = qFloor(points->y() + dy);
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
                 span.y = y;
-                array.append(span);
+                array[count++] = span;
             }
             ++points;
         }
 
-        d->penData.blend(array.size(), array.constData(), &d->penData);
+        d->penData.blend(count, array.constData(), &d->penData);
     }
 }
 
