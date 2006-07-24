@@ -1171,7 +1171,7 @@ public:
                 QPointF leftMid = (r.topLeft()+r.bottomLeft())/2;
                 QPointF rightMid = (r.topRight()+r.bottomRight())/2;
                 
-                QPainterPath mappedShape = item->mapToItem(this, item->opaqueShape());
+                QPainterPath mappedShape = item->mapToItem(this, item->opaqueArea());
                 
                 if (mappedShape.contains(topMid) &&
                     mappedShape.contains(botMid) &&
@@ -1187,7 +1187,7 @@ public:
             return QGraphicsItem::isObscuredBy(item);
     }
         
-    QPainterPath opaqueShape() const
+    QPainterPath opaqueArea() const
     {
         return shape();
     }
@@ -1197,7 +1197,7 @@ public:
 class MyRectItem : public QGraphicsRectItem
 {
 public:
-    QPainterPath opaqueShape() const
+    QPainterPath opaqueArea() const
     { return shape(); }
 };
 
