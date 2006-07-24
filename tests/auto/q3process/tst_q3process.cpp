@@ -48,6 +48,8 @@ private slots:
     void canReadLineStderr_data();
     void canReadLineStderr();
     void startWithNoEnvironment();
+    void startWithEmptyStringList();
+    
 protected slots:
     void processExited();
     void exitLoopSlot();
@@ -402,6 +404,16 @@ void tst_Q3Process::startWithNoEnvironment()
 #else
     QCOMPARE(proc->readStdout(), result);
 #endif
+}
+
+void tst_Q3Process::startWithEmptyStringList()
+{
+    // Test that this doesn't assert (task 122353)
+    Q3Process process("cmd");
+    process.addArgument(QString());
+
+    QStringList env;
+    process.start(&env);
 }
 
 QTEST_MAIN(tst_Q3Process)
