@@ -125,6 +125,13 @@
 */
 
 /*!
+  \since 4.2
+  \fn void QListView::indexesMoved(const QModelIndexList &indexes)
+
+  This signal is emitted when the specified \a indexes are moved in the view.
+*/
+
+/*!
     Creates a new QListView with the given \a parent to view a model.
     Use setModel() to set the model.
 */
@@ -488,9 +495,6 @@ void QListView::setRowHidden(int row, bool hide)
 QRect QListView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    if (!d->indexValid(index) || isIndexHidden(index))
-        return QRect();
-    d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
 }
 
@@ -938,6 +942,7 @@ void QListView::internalDrop(QDropEvent *event)
     }
     stopAutoScroll();
     d->draggedItems.clear();
+    emit indexesMoved(indexes);
     event->accept(); // we have handled the event
 }
 

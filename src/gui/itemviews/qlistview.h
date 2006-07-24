@@ -96,6 +96,9 @@ public:
     void reset();
     void setRootIndex(const QModelIndex &index);
 
+Q_SIGNALS:
+    void indexesMoved(const QModelIndexList &indexes);
+
 protected:
     QListView(QListViewPrivate &, QWidget *parent = 0);
 
