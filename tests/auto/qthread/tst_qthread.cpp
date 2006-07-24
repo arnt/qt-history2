@@ -15,6 +15,7 @@
 #include <qthread.h>
 #include <qtimer.h>
 #include <qwaitcondition.h>
+#include <qdebug.h>
 
 #ifdef Q_OS_UNIX
 #include <pthread.h>
@@ -58,8 +59,15 @@ private slots:
     void sleep();
     void msleep();
     void usleep();
-    void nativeThreadAdoption();
 
+    void nativeThreadAdoption();
+    void adoptedThreadSetPriority();
+    void adoptedThreadExit();
+    void adoptedThreadExec();
+    void adoptedThreadFinished();
+    void adoptedThreadTerminated();
+
+private:
     void stressTest();
 };
 
@@ -529,36 +537,217 @@ void tst_QThread::usleep()
 #endif
 }
 
+typedef void (*FunctionPointer)(void *);
+void noop(void*) { }
+
+#ifdef Q_OS_UNIX
+    typedef pthread_t ThreadHandle;
+#elif defined Q_OS_WIN
+    typedef HANDLE ThreadHandle;
+#endif
+
+class NativeThreadWrapper
+{
+public:
+    NativeThreadWrapper() : qthread(0), waitForStop(false) {}
+    void start(FunctionPointer functionPointer = noop, void *data = 0);
+    void startAndWait(FunctionPointer functionPointer = noop, void *data = 0);
+    void join();
+    void setWaitForStop() { waitForStop = true; }
+    void stop();
+    
+    ThreadHandle nativeThread;
+    QThread *qthread;
+    QWaitCondition startCondition;
+    QMutex mutex;
+    bool waitForStop;
+    QWaitCondition stopCondition;
+protected:
+    static void *runUnix(void *data);
+    static void runWin(void *data);
+    
+    FunctionPointer functionPointer;
+    void *data;
+};
+
+void NativeThreadWrapper::start(FunctionPointer functionPointer, void *data)
+{
+    this->functionPointer = functionPointer;
+    this->data = data;
+#ifdef Q_OS_UNIX
+    const int state = pthread_create(&nativeThread, 0, NativeThreadWrapper::runUnix, this);
+    Q_UNUSED(state);
+#elif defined Q_OS_WIN
+    nativeThread = (HANDLE)_beginthread(NativeThreadWrapper::runWin, 0, data);
+#endif
+}
+
+void NativeThreadWrapper::startAndWait(FunctionPointer functionPointer, void *data)
+{
+    QMutexLocker locker(&mutex);
+    start(functionPointer, data);
+    startCondition.wait(locker.mutex());
+}
+
+void NativeThreadWrapper::join()
+{
+#ifdef Q_OS_UNIX
+    pthread_join(nativeThread, 0);
+#elif defined Q_OS_WIN
+    WaitForSingleObject(nativeThread, INFINITE);
+#endif
+}
+
+void *NativeThreadWrapper::runUnix(void *that)
+{
+    NativeThreadWrapper *nativeThreadWrapper = reinterpret_cast<NativeThreadWrapper*>(that);
+
+    // Adoppt thread, create QThread object.
+    nativeThreadWrapper->qthread = QThread::currentThread();
+
+    // Release main thread.
+    {
+        QMutexLocker lock(&nativeThreadWrapper->mutex);
+        nativeThreadWrapper->startCondition.wakeOne();
+    }
+
+    // Run function.
+    nativeThreadWrapper->functionPointer(nativeThreadWrapper->data);
+    
+    // Wait for stop.
+    {
+        QMutexLocker lock(&nativeThreadWrapper->mutex);
+        if (nativeThreadWrapper->waitForStop)
+            nativeThreadWrapper->stopCondition.wait(lock.mutex());
+    }
+    
+    return 0;
+}
+
+void NativeThreadWrapper::runWin(void *data)
+{
+    runUnix(data);
+}
+
+void NativeThreadWrapper::stop()
+{
+    QMutexLocker lock(&mutex);
+    waitForStop = false;
+    stopCondition.wakeOne();
+}
+
 bool threadAdoptedOk = false;
 QThread *mainThread;
-void testThreadAdoptionWin(void *)
+void testNativeThreadAdoption(void *)
 {
     threadAdoptedOk = (QThread::currentThreadId() != 0
                        && QThread::currentThread() != 0
                        && QThread::currentThread() != mainThread);
-}
-void *testThreadAdoptionUnix(void *)
-{
-    testThreadAdoptionWin(0);
-    return 0;
-}
 
+    //TODO: where does the QThread object for an odopted thread live? 
+    // In the main thread or the adopted thread?
+    // QCOMPARE(QThread::currentThread()->thread(), QThread::currentThread());
+}
 void tst_QThread::nativeThreadAdoption()
 {
     threadAdoptedOk = false;
     mainThread = QThread::currentThread();
-#ifdef Q_OS_UNIX
-    pthread_t thread;
-    const int state = pthread_create(&thread, 0, testThreadAdoptionUnix, 0);
-    QCOMPARE(state, 0);
-    pthread_join(thread, 0);
-#elif defined Q_OS_WIN
-    HANDLE thread;
-    thread = (HANDLE)_beginthread(testThreadAdoptionWin, 0, NULL);
-    QVERIFY(thread);
-    WaitForSingleObject(thread, INFINITE);
-#endif
-	QVERIFY(threadAdoptedOk);
+    NativeThreadWrapper nativeThread;
+    nativeThread.setWaitForStop();
+    nativeThread.startAndWait(testNativeThreadAdoption);
+    QVERIFY(nativeThread.qthread);
+    nativeThread.stop();
+    nativeThread.join();
+    QVERIFY(threadAdoptedOk);
+}
+void tst_QThread::adoptedThreadSetPriority()
+{
+
+    NativeThreadWrapper nativeThread;
+    nativeThread.setWaitForStop();
+    nativeThread.startAndWait();
+
+    // change the priority of a running thread
+    QCOMPARE(nativeThread.qthread->priority(), QThread::InheritPriority);
+    nativeThread.qthread->setPriority(QThread::IdlePriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::IdlePriority);
+    nativeThread.qthread->setPriority(QThread::LowestPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::LowestPriority);
+    nativeThread.qthread->setPriority(QThread::LowPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::LowPriority);
+    nativeThread.qthread->setPriority(QThread::NormalPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::NormalPriority);
+    nativeThread.qthread->setPriority(QThread::HighPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::HighPriority);
+    nativeThread.qthread->setPriority(QThread::HighestPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::HighestPriority);
+    nativeThread.qthread->setPriority(QThread::TimeCriticalPriority);
+    QCOMPARE(nativeThread.qthread->priority(), QThread::TimeCriticalPriority);
+    
+    nativeThread.stop();
+    nativeThread.join();
+}
+
+void tst_QThread::adoptedThreadExit()
+{
+    NativeThreadWrapper nativeThread;
+    nativeThread.setWaitForStop();
+
+    nativeThread.startAndWait();
+    QVERIFY(nativeThread.qthread);
+    QVERIFY(nativeThread.qthread->isRunning());
+    QVERIFY(!nativeThread.qthread->isFinished());
+
+    nativeThread.stop();
+    nativeThread.join();
+
+    // TODO: can we access the QThread object after the natve thread
+    // has finished?
+//    QVERIFY(nativeThread.qthread->isFinished());
+//    QVERIFY(!nativeThread.qthread->isRunning());
+}
+
+/*
+    TODO: To start the eventloop on an adopted thread we need to call
+    QThread::exec in the adopted thread context. But that function is 
+    protected and we can't access is from the QThread object returned by
+    QThread::currentThread().
+*/
+void tst_QThread::adoptedThreadExec()
+{
+    qDebug() << "TDOO!";
+}
+
+/*
+    Test that you get the finished signal when an adopted thread exits.
+*/
+void tst_QThread::adoptedThreadFinished()
+{
+    NativeThreadWrapper nativeThread;
+    nativeThread.setWaitForStop();
+    nativeThread.startAndWait();
+
+    SignalRecorder recorder;
+    QObject::connect(nativeThread.qthread, SIGNAL(finished()), &recorder, SLOT(slot()), Qt::DirectConnection);
+
+    nativeThread.stop();
+    nativeThread.join();
+    QVERIFY(recorder.wasActivated());
+}
+
+void tst_QThread::adoptedThreadTerminated()
+{
+    NativeThreadWrapper nativeThread;
+    nativeThread.setWaitForStop();
+    nativeThread.startAndWait();
+
+    SignalRecorder recorder;
+    connect(nativeThread.qthread, SIGNAL(terminated()), &recorder, SLOT(slot()), Qt::DirectConnection);
+
+    nativeThread.qthread->terminate();
+    nativeThread.stop();
+    nativeThread.join();
+    QVERIFY(recorder.wasActivated());
 }
 
 void tst_QThread::stressTest()
