@@ -1029,12 +1029,23 @@ void VcprojGenerator::initPreBuildEventTools()
 {
 }
 
+QString VcprojGenerator::fixCommandLine(DotNET version, const QString &input) const
+{
+    QString result = input;
+
+    if (version == NET2005)
+        result = result.replace(QLatin1Char('\n'), QLatin1String("&#x000D;&#x000A;"));
+    
+    return result;
+}
+
 void VcprojGenerator::initPostBuildEventTools()
 {
     VCConfiguration &conf = vcProject.Configuration;
     if(!project->values("QMAKE_POST_LINK").isEmpty()) {
-        conf.postBuild.Description = var("QMAKE_POST_LINK");
-        conf.postBuild.CommandLine = var("QMAKE_POST_LINK");
+        QString cmdline = fixCommandLine(conf.CompilerVersion, var("QMAKE_POST_LINK"));
+        conf.postBuild.Description = cmdline;
+        conf.postBuild.CommandLine = cmdline;
     }
     if(!project->values("MSVCPROJ_COPY_DLL").isEmpty()) {
         if(!conf.postBuild.CommandLine.isEmpty())

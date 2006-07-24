@@ -85,9 +85,29 @@ QString XmlOutput::doConversion(const QString &text)
     else if (conversion == NoConversion)
         return text;
 
-    QString output(text);
+    QString output;
     if (conversion == XMLConversion) {
-        output.replace('&', "&amp;");
+
+        // this is a way to escape characters that shouldn't be converted
+        for (int i=0; i<text.count(); ++i) {
+            if (text.at(i) == QLatin1Char('&')) {
+                if ( (i + 7) < text.count() &&
+                    text.at(i + 1) == QLatin1Char('#') &&
+                    text.at(i + 2) == QLatin1Char('x') &&
+                    text.at(i + 7) == QLatin1Char(';') ) {
+                    output += text.at(i);
+                } else {
+                    output += QLatin1String("&amp;");
+                }
+            } else {
+                output += text.at(i);           
+            }
+        }
+    } else {
+        output = text;
+    }
+
+    if (conversion == XMLConversion) {
         output.replace('\"', "&quot;");
         output.replace('\'', "&apos;");
     } else if (conversion == EscapeConversion) {

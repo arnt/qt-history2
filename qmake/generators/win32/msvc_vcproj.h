@@ -95,6 +95,7 @@ protected:
     QList<VcprojGenerator*> mergedProjects;
 
 private:
+    QString fixCommandLine(DotNET version, const QString &input) const;
     QUuid getProjectUUID(const QString &filename=QString());
     QUuid increaseUUID(const QUuid &id);
     friend class VCFilter;
