@@ -201,7 +201,7 @@ QSize QRenderRule::sizeWithPadding(const QSize& sz) const
     if (!hasBox())
         return sz;
     const qreal *p = box()->paddings;
-    return sz + QSize(qRound(p[LeftEdge] + p[RightEdge]), 
+    return sz + QSize(qRound(p[LeftEdge] + p[RightEdge]),
                       qRound(p[TopEdge] + p[BottomEdge]));
 }
 
@@ -210,7 +210,7 @@ QSize QRenderRule::sizeWithBorder(const QSize& sz) const
     if (!hasBorder())
         return sz;
     const qreal *b = border()->borders;
-    return sz + QSize(qRound(b[LeftEdge] + b[RightEdge]), 
+    return sz + QSize(qRound(b[LeftEdge] + b[RightEdge]),
                       qRound(b[TopEdge] + b[BottomEdge]));
 }
 
@@ -219,7 +219,7 @@ QSize QRenderRule::sizeWithMargin(const QSize& sz) const
     if (!hasBox())
         return sz;
     const qreal *m = box()->margins;
-    return sz + QSize(qRound(m[LeftEdge] + m[RightEdge]), 
+    return sz + QSize(qRound(m[LeftEdge] + m[RightEdge]),
                       qRound(m[TopEdge] + m[BottomEdge]));
 }
 
@@ -1003,7 +1003,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
                 if (rule.hasBackground())
                     p.setColor(QPalette::Base, Qt::transparent);
             }
-        } else if (w->className() == "QWidget") {
+        } else if (w->metaObject()->className() == "QWidget") {
             qConfigurePalette(&p, rule, w->foregroundRole(), w->backgroundRole());
             if (rule.hasBackgroundImage()) {
                 p.setBrush(w->backgroundRole(), rule.backgroundImage()->pixmap);
@@ -1134,7 +1134,7 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     styleRulesCache.remove(w);
     renderRulesCache.remove(w);
     baseStyle()->unpolish(w);
-    QObject::disconnect(w, SIGNAL(destroyed(QObject *)), 
+    QObject::disconnect(w, SIGNAL(destroyed(QObject *)),
                        this, SLOT(widgetDestroyed(QObject *)));
 }
 
@@ -1258,7 +1258,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                     btnOpt.rect = rule.contentsRect(btnOpt.rect);
                     QRect &ir = btnOpt.rect;
                     const int spacing = rule.hasBox() ? qRound(rule.box()->spacing) : 0;
-                    ir = QRect(ir.left() + ir.width() - mbi + spacing, 
+                    ir = QRect(ir.left() + ir.width() - mbi + spacing,
                                 (ir.height() - mbi)/2, mbi - spacing, mbi);
                     drawPrimitive(PE_IndicatorArrowDown, &btnOpt, p, w);
                 }
@@ -1336,7 +1336,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         } else {
             QPen savedPen = p->pen();
             if (rule.hasPalette() && rule.palette()->foreground.style() != Qt::NoBrush)
-                p->setPen(QPen(rule.palette()->foreground));
+                p->setPen(rule.palette()->foreground.color());
             ParentStyle::drawControl(ce, opt, p, w);
             p->setPen(savedPen);
         }
@@ -1399,7 +1399,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     baseStyle()->drawControl(ce, opt, p, w);
 }
 
-void QStyleSheetStyle::drawIcon(QPainter *p, const QRect &rect, int alignment, 
+void QStyleSheetStyle::drawIcon(QPainter *p, const QRect &rect, int alignment,
                                 const QRenderRules& rules, const QRenderRule& rule,
                                 const char *icon) const
 {
@@ -1434,7 +1434,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasIcon("down-arrow")) {
             drawIcon(p, opt->rect, Qt::AlignCenter, rules, rule, "down-arrow");
             return;
-        } 
+        }
         break;
 
     case PE_PanelButtonCommand:
@@ -1491,7 +1491,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasIcon("indicator")) {
             drawIcon(p, opt->rect, Qt::AlignCenter, rules, rule, "indicator");
             return;
-        } 
+        }
         break;
 
     case PE_FrameMenu:
@@ -1499,7 +1499,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasBorder()) {
             qDrawBorder(p, rule, rule.borderRect(opt->rect));
             return;
-        } 
+        }
         break;
 
         // Menu stuff that would be nice to customize
@@ -1894,7 +1894,7 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
             ir = visualRect(opt->direction, opt->rect, ir);
             const int spacing = rule.hasBox() ? qRound(rule.box()->spacing) : 6;
             QRect cr = rule.contentsRect(opt->rect);
-            ir.setRect(ir.left() + ir.width() + spacing, cr.y(), 
+            ir.setRect(ir.left() + ir.width() + spacing, cr.y(),
                        cr.width() - ir.width() - spacing, cr.height());
             return visualRect(opt->direction, opt->rect, ir);
         }
