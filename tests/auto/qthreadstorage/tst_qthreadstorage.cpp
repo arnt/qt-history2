@@ -35,6 +35,7 @@ private slots:
     void localData_const();
     void setLocalData();
     void autoDelete();
+    void adoptedThreads();
 };
 
 class Pointer
@@ -134,6 +135,55 @@ void tst_QThreadStorage::autoDelete()
         thread.cond.wakeOne();
     }
     thread.wait();
+    QCOMPARE(Pointer::count, c);
+}
+
+bool threadStorageOk;
+void testAdoptedThreadStorageWin(void *p)
+{
+    QThreadStorage<Pointer *>  *pointers = reinterpret_cast<QThreadStorage<Pointer *> *>(p);
+    if (pointers->hasLocalData()) {
+        threadStorageOk = false;
+        return;
+    }
+
+    Pointer *pointer = new Pointer();    
+    pointers->setLocalData(pointer);
+
+    if (pointers->hasLocalData() == false) {
+        threadStorageOk = false;
+        return;
+    }
+
+    if (pointers->localData() != pointer) {
+        threadStorageOk = false;
+        return;
+    }
+}
+void *testAdoptedThreadStorageUnix(void *pointers)
+{
+    testAdoptedThreadStorageWin(pointers);
+    return 0;
+}
+void tst_QThreadStorage::adoptedThreads()
+{
+    QThreadStorage<Pointer *> pointers;
+    int c = Pointer::count;
+    threadStorageOk = true;
+    {
+#ifdef Q_OS_UNIX
+        pthread_t thread;
+        const int state = pthread_create(&thread, 0, testAdoptedThreadStorageUnix, &pointers);
+        QCOMPARE(state, 0);
+        pthread_join(thread, 0);
+#elif defined Q_OS_WIN
+        HANDLE thread;
+        thread = (HANDLE)_beginthread(testAdoptedThreadStorageWin, 0, &pointers);
+        QVERIFY(thread);
+        WaitForSingleObject(thread, INFINITE);
+#endif
+    }
+    QVERIFY(threadStorageOk);
     QCOMPARE(Pointer::count, c);
 }
 
