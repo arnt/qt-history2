@@ -1068,7 +1068,15 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
     DomProperty *p = new DomProperty;
     p->read(e);
 
-    if (p->kind() == DomProperty::Unknown) {
+    if (p->kind() == DomProperty::Number) {
+        QString value = e.firstChild().toElement().firstChild().nodeValue();
+
+        if (value.contains(QLatin1Char('.'))) {
+            p->setElementDouble(value.toDouble());
+        }
+    }
+
+    else if (p->kind() == DomProperty::Unknown) {
         delete p;
         p = 0;
     }
