@@ -55,6 +55,8 @@ private slots:
 
     void saveWithNoFormat_data();
     void saveWithNoFormat();
+
+    void saveToTemporaryFile();
 };
 
 // Testing get/set functions
@@ -323,6 +325,49 @@ void tst_QImageWriter::saveWithNoFormat()
 
     QImage outImage = reader.read();
     QVERIFY2(!outImage.isNull(), qPrintable(reader.errorString()));
+}
+
+void tst_QImageWriter::saveToTemporaryFile()
+{
+    QImage image("images/kollada.png");
+    QVERIFY(!image.isNull());
+
+    {
+        // 1) Via QImageWriter's API, with a standard temp file name
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        QImageWriter writer(&file, "PNG");
+        QVERIFY(writer.write(image));
+        QCOMPARE(QImage(writer.fileName()), image);
+    }
+    {
+        // 2) Via QImage's API, with a standard temp file name
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        QVERIFY(image.save(&file, "PNG"));
+        file.reset();
+        QImage tmp;
+        QVERIFY(tmp.load(&file, "PNG"));
+        QCOMPARE(tmp, image);
+    }
+    {
+        // 3) Via QImageWriter's API, with a named temp file
+        QTemporaryFile file("tempXXXXXX");
+        QVERIFY(file.open());
+        QImageWriter writer(&file, "PNG");
+        QVERIFY(writer.write(image));
+        QCOMPARE(QImage(writer.fileName()), image);
+    }
+    {
+        // 4) Via QImage's API, with a named temp file
+        QTemporaryFile file("tempXXXXXX");
+        QVERIFY(file.open());
+        QVERIFY(image.save(&file, "PNG"));
+        file.reset();
+        QImage tmp;
+        QVERIFY(tmp.load(&file, "PNG"));
+        QCOMPARE(tmp, image);
+    }
 }
 
 QTEST_MAIN(tst_QImageWriter)
