@@ -1,3 +1,4 @@
+#define QT3_SUPPORT
 #include <QtTest/QtTest>
 #include <QMessageBox>
 #include <QDebug>
@@ -8,12 +9,56 @@
 #include <QApplication>
 #include <QPushButton>
 
+#define CONVENIENCE_FUNC_SYMS(func) \
+    { \
+        int x1 = QMessageBox::func(0, "Foo", "Bar"); \
+        int x3 = QMessageBox::func(0, "Foo", "Bar", "Save"); \
+        int x6 = QMessageBox::func(0, "Foo", "Bar", "Save", "Save As"); \
+        int x7 = QMessageBox::func(0, "Foo", "Bar", "Save", "Save As", "Dont Save"); \
+        int x8 = QMessageBox::func(0, "Foo", "Bar", "Save", "Save As", "Dont Save", 1); \
+        int x9 = QMessageBox::func(0, "Foo", "Bar", "Save", "Save As", "Dont Save", 1, 2); \
+        int x10 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::YesAll, QMessageBox::Yes); \
+        int x11 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::YesAll, QMessageBox::Yes, \
+                                    QMessageBox::No); \
+        qDebug("%d %d %d %d %d %d %d %d", x1, x3, x6, x7, x8, x9, x10, x11); \
+        { \
+        int x4 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, (int)QMessageBox::No); \
+        int x5 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, (int)QMessageBox::No); \
+        int x6 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, (int)QMessageBox::No); \
+        int x7 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, QMessageBox::No); \
+        int x8 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, QMessageBox::No); \
+        int x9 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No); \
+        int x10 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, (int)QMessageBox::No, (int)QMessageBox::Ok); \
+        int x11 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, (int)QMessageBox::No, (int)QMessageBox::Ok); \
+        int x12 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, (int)QMessageBox::No, (int)QMessageBox::Ok); \
+        int x13 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, QMessageBox::No, (int)QMessageBox::Ok); \
+        int x14 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, QMessageBox::No, (int)QMessageBox::Ok); \
+        int x15 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, (int)QMessageBox::Ok); \
+        int x16 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, (int)QMessageBox::No, QMessageBox::Ok); \
+        int x17 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, (int)QMessageBox::No, QMessageBox::Ok); \
+        int x18 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, (int)QMessageBox::No, QMessageBox::Ok); \
+        int x19 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes, QMessageBox::No, QMessageBox::Ok); \
+        int x20 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes, QMessageBox::No, QMessageBox::Ok); \
+        int x21 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, QMessageBox::Ok); \
+        qDebug("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21); \
+        } \
+    }
+
+#define CONVENIENCE_FUNC_SYMS_EXTRA(func) \
+    { \
+        int x1 = QMessageBox::func(0, "Foo", "Bar", (int)QMessageBox::Yes); \
+        int x2 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes); \
+        int x3 = QMessageBox::func(0, "Foo", "Bar", QMessageBox::Yes | QMessageBox::Default); \
+        qDebug("%d %d %d", x1, x2, x3); \
+    }
+
 class tst_QMessageBox : public QObject
 {
     Q_OBJECT
 public:
     tst_QMessageBox();
     int exec(QMessageBox *msgBox, int key = -1);
+    int sendReturn();
 
 public slots:
     void sendKey();
@@ -33,6 +78,7 @@ private slots:
     void instanceSourceCompat();
     void instanceBinaryCompat();
 
+    void testSymbols();
 private:
     int keyToSend;
 };
@@ -50,6 +96,13 @@ int tst_QMessageBox::exec(QMessageBox *msgBox, int key)
         QTimer::singleShot(1000, this, SLOT(sendKey()));
     }
     return msgBox->exec();
+}
+
+int tst_QMessageBox::sendReturn()
+{
+    keyToSend = Qt::Key_Return;
+    QTimer::singleShot(1000, this, SLOT(sendKey()));
+    return 0;
 }
 
 void tst_QMessageBox::sendKey()
@@ -339,6 +392,131 @@ void tst_QMessageBox::instanceBinaryCompat()
     mb.setButtonText(Old_No, "Discard");
     QCOMPARE(exec(&mb, Qt::Key_Enter), int(Old_Yes));
     QCOMPARE(exec(&mb, Qt::Key_Escape), int(Old_Cancel));
+}
+
+void tst_QMessageBox::testSymbols()
+{
+    return;
+
+    QMessageBox::Icon icon;
+    icon = QMessageBox::NoIcon;
+    icon = QMessageBox::Information;
+    icon = QMessageBox::Warning;
+    icon = QMessageBox::Critical;
+    icon = QMessageBox::Question;
+
+    QMessageBox mb1;
+    QMessageBox mb2(0);
+    QMessageBox mb3(&mb1);
+    QMessageBox mb3b("title", "text", QMessageBox::Critical, int(QMessageBox::Yes),
+                     int(QMessageBox::No), int(QMessageBox::Cancel), &mb1, Qt::Dialog);
+
+    QMessageBox::Button button = QMessageBox::NoButton;
+    button = QMessageBox::Ok;
+    button = QMessageBox::Cancel;
+    button = QMessageBox::Yes;
+    button = QMessageBox::No;
+    button = QMessageBox::Abort;
+    button = QMessageBox::Retry;
+    button = QMessageBox::Ignore;
+    button = QMessageBox::YesAll;
+    button = QMessageBox::NoAll;
+    button = QMessageBox::ButtonMask;
+    button = QMessageBox::Default;
+    button = QMessageBox::Escape;
+    button = QMessageBox::FlagMask;
+
+    mb1.setText("Foo");
+    QString text = mb1.text();
+    Q_ASSERT(text == "Foo");
+
+    icon = mb1.icon();
+    Q_ASSERT(icon == QMessageBox::NoIcon);
+    mb1.setIcon(QMessageBox::Question);
+    Q_ASSERT(mb1.icon() == QMessageBox::Question);
+
+    QPixmap iconPixmap = mb1.iconPixmap();
+    mb1.setIconPixmap(iconPixmap);
+    Q_ASSERT(mb1.icon() == QMessageBox::NoIcon);
+
+    QString bt0 = mb1.buttonText(QMessageBox::Ok);
+    QString bt1 = mb1.buttonText(QMessageBox::Cancel);
+    QString bt2 = mb1.buttonText(QMessageBox::Ok | QMessageBox::Default);
+
+    Q_ASSERT(bt0 == "OK");
+    Q_ASSERT(bt1.isEmpty());
+    Q_ASSERT(bt2.isEmpty());
+
+    mb2.setButtonText(QMessageBox::Cancel, "Foo");
+    mb2.setButtonText(QMessageBox::Ok, "Bar");
+    mb2.setButtonText(QMessageBox::Ok | QMessageBox::Default, "Baz");
+
+    Q_ASSERT(mb2.buttonText(QMessageBox::Cancel).isEmpty());
+    Q_ASSERT(mb2.buttonText(QMessageBox::Ok) == "Bar");
+
+    Q_ASSERT(mb3b.buttonText(QMessageBox::Yes).endsWith("Yes"));
+    Q_ASSERT(mb3b.buttonText(QMessageBox::YesAll).isEmpty());
+    Q_ASSERT(mb3b.buttonText(QMessageBox::Ok).isEmpty());
+
+    mb3b.setButtonText(QMessageBox::Yes, "Blah");
+    mb3b.setButtonText(QMessageBox::YesAll, "Zoo");
+    mb3b.setButtonText(QMessageBox::Ok, "Zoo");
+
+    Q_ASSERT(mb3b.buttonText(QMessageBox::Yes) == "Blah");
+    Q_ASSERT(mb3b.buttonText(QMessageBox::YesAll).isEmpty());
+    Q_ASSERT(mb3b.buttonText(QMessageBox::Ok).isEmpty());
+
+    Q_ASSERT(mb1.textFormat() == Qt::AutoText);
+    mb1.setTextFormat(Qt::PlainText);
+    Q_ASSERT(mb1.textFormat() == Qt::PlainText);
+
+    CONVENIENCE_FUNC_SYMS(information);
+    CONVENIENCE_FUNC_SYMS_EXTRA(information);
+    CONVENIENCE_FUNC_SYMS(question);
+    CONVENIENCE_FUNC_SYMS_EXTRA(question);
+    CONVENIENCE_FUNC_SYMS(warning);
+    CONVENIENCE_FUNC_SYMS(critical);
+
+    QSize sizeHint = mb1.sizeHint();
+    Q_ASSERT(sizeHint.width() > 20 && sizeHint.height() > 20);
+
+    // test QT3_SUPPORT stuff
+
+    QMessageBox mb4("title", "text", icon, QMessageBox::Yes, QMessageBox::No | QMessageBox::Default,
+                    QMessageBox::Cancel, &mb1, "name", true, Qt::Dialog);
+    QMessageBox mb5(&mb1, "name");
+
+    QPixmap pm = QMessageBox::standardIcon(QMessageBox::Question, Qt::GUIStyle(1));
+    QPixmap pm2 = QMessageBox::standardIcon(QMessageBox::Question);
+
+    Q_ASSERT(pm.toImage() == iconPixmap.toImage());
+    Q_ASSERT(pm2.toImage() == iconPixmap.toImage());
+
+    int ret1 = QMessageBox::message("title", "text");
+    int ret2 = QMessageBox::message("title", "text", "OK");
+    int ret3 = QMessageBox::message("title", "text", "OK", &mb1);
+    int ret4 = QMessageBox::message("title", "text", "OK", &mb1, "name");
+    qDebug("%d %d %d %d", ret1, ret2, ret3, ret4);
+
+    bool ret5 = QMessageBox::query("title", "text");
+    bool ret6 = QMessageBox::query("title", "text", "Ja");
+    bool ret7 = QMessageBox::query("title", "text", "Ja", "Nein");
+    bool ret8 = QMessageBox::query("title", "text", "Ja", "Nein", &mb1);
+    bool ret9 = QMessageBox::query("title", "text", "Ja", "Nein", &mb1, "name");
+    qDebug("%d %d %d %d %d", ret5, ret6, ret7, ret8, ret9);
+
+    Q_UNUSED(ret1);
+    Q_UNUSED(ret5);
+
+    QPixmap pm3 = QMessageBox::standardIcon(QMessageBox::NoIcon);
+    Q_ASSERT(pm3.isNull());
+
+    pm3 = QMessageBox::standardIcon(QMessageBox::Information);
+    Q_ASSERT(!pm3.isNull());
+
+    QMessageBox::about(&mb1, "title", "text");
+    QMessageBox::aboutQt(&mb1);
+    QMessageBox::aboutQt(&mb1, "title");
 }
 
 QTEST_MAIN(tst_QMessageBox)

@@ -1144,6 +1144,8 @@ QAbstractButton *QMessageBoxPrivate::abstractButtonForId(int id) const
     QAbstractButton *result = customButtonList.value(id);
     if (result)
         return result;
+    if (id & QMessageBox::FlagMask)    // for compatibility with Qt 4.0/4.1 (even if it is silly)
+        return 0;
     return q->button(newButton(id));
 }
 
@@ -1291,20 +1293,6 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
 }
 
 /*!
-    \internal
-
-    For source compatibility for the following cases
-    1. Yes|Default, No|Escape
-    2. Yes, No|Escape
-*/
-int QMessageBox::information(QWidget *parent, const QString &title, const QString& text,
-                               StandardButtons button0, int button1, int button2)
-{
-    return QMessageBoxPrivate::showOldMessageBox(parent, Information, title, text,
-                                                   button0, button1, button2);
-}
-
-/*!
     \obsolete
     \overload
 
@@ -1382,16 +1370,6 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
 */
 int QMessageBox::question(QWidget *parent, const QString &title, const QString& text,
                             int button0, int button1, int button2)
-{
-    return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text,
-                                                   button0, button1, button2);
-}
-
-/*!
-    \internal
-*/
-int QMessageBox::question(QWidget *parent, const QString &title, const QString& text,
-                               StandardButtons button0, int button1, int button2)
 {
     return QMessageBoxPrivate::showOldMessageBox(parent, Question, title, text,
                                                    button0, button1, button2);
@@ -1481,16 +1459,6 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
 }
 
 /*!
-    \internal
-*/
-int QMessageBox::warning(QWidget *parent, const QString &title, const QString& text,
-                           StandardButtons button0, int button1, int button2)
-{
-    return QMessageBoxPrivate::showOldMessageBox(parent, Warning, title, text,
-                                                   button0, button1, button2);
-}
-
-/*!
     \obsolete
     \overload
 
@@ -1574,16 +1542,6 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
 }
 
 /*!
-    \internal
-*/
-int QMessageBox::critical(QWidget *parent, const QString &title, const QString& text,
-                           StandardButtons button0, int button1, int button2)
-{
-    return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text,
-                                                   button0, button1, button2);
-}
-
-/*!
     \obsolete
     \overload
 
@@ -1619,6 +1577,8 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
                                                    defaultButtonNumber, escapeButtonNumber);
 }
 
+#include <QtDebug>
+
 /*!
     \obsolete
 
@@ -1633,7 +1593,8 @@ QString QMessageBox::buttonText(int button) const
 
     if (QAbstractButton *abstractButton = d->abstractButtonForId(button)) {
         return abstractButton->text();
-    } else if (button == 0) {   // for compatibility with Qt 4.0/4.1
+    } else if (d->buttonBox->buttons().isEmpty() && (button == Ok || button == Old_Ok)) {
+        // for compatibility with Qt 4.0/4.1
         return QDialogButtonBox::tr("OK");
     }
     return QString();
@@ -1653,8 +1614,9 @@ void QMessageBox::setButtonText(int button, const QString &text)
     Q_D(QMessageBox);
     if (QAbstractButton *abstractButton = d->abstractButtonForId(button)) {
         abstractButton->setText(text);
-    } else if (button == 0) {   // for compatibility with Qt 4.0/4.1
-        addButton(text, QMessageBox::ActionRole);
+    } else if (d->buttonBox->buttons().isEmpty() && (button == Ok || button == Old_Ok)) {
+        // for compatibility with Qt 4.0/4.1
+        addButton(QMessageBox::Ok)->setText(text);
     }
 }
 

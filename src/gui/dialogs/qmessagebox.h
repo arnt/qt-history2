@@ -172,13 +172,9 @@ public:
                   QWidget *parent = 0,
                   Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
-
     static int information(QWidget *parent, const QString &title,
                            const QString& text,
-                           StandardButtons button0, int button1, int button2 = 0);
-    static int information(QWidget *parent, const QString &title,
-                           const QString& text,
-                           int button0, int button1, int button2);
+                           int button0, int button1 = 0, int button2 = 0);
     static int information(QWidget *parent, const QString &title,
                            const QString& text,
                            const QString& button0Text,
@@ -186,13 +182,14 @@ public:
                            const QString& button2Text = QString(),
                            int defaultButtonNumber = 0,
                            int escapeButtonNumber = -1);
+    inline static int information(QWidget *parent, const QString &title,
+                                  const QString& text,
+                                  StandardButton button0, StandardButton button1 = NoButton)
+    { return information(parent, title, text, StandardButtons(button0), button1); }
 
     static int question(QWidget *parent, const QString &title,
                         const QString& text,
-                        StandardButtons button0, int button1, int button2 = 0);
-    static int question(QWidget *parent, const QString &title,
-                        const QString& text,
-                        int button0, int button1, int button2);
+                        int button0, int button1 = 0, int button2 = 0);
     static int question(QWidget *parent, const QString &title,
                         const QString& text,
                         const QString& button0Text,
@@ -200,13 +197,14 @@ public:
                         const QString& button2Text = QString(),
                         int defaultButtonNumber = 0,
                         int escapeButtonNumber = -1);
+    inline static int question(QWidget *parent, const QString &title,
+                               const QString& text,
+                               StandardButton button0, StandardButton button1)
+    { return question(parent, title, text, StandardButtons(button0), button1); }
 
     static int warning(QWidget *parent, const QString &title,
                        const QString& text,
-                       StandardButtons button0, int button1, int button2 = 0);
-    static int warning(QWidget *parent, const QString &title,
-                       const QString& text,
-                       int button0, int button1, int button2);
+                       int button0, int button1, int button2 = 0);
     static int warning(QWidget *parent, const QString &title,
                        const QString& text,
                        const QString& button0Text,
@@ -214,13 +212,14 @@ public:
                        const QString& button2Text = QString(),
                        int defaultButtonNumber = 0,
                        int escapeButtonNumber = -1);
+    inline static int warning(QWidget *parent, const QString &title,
+                              const QString& text,
+                              StandardButton button0, StandardButton button1)
+    { return warning(parent, title, text, StandardButtons(button0), button1); }
 
     static int critical(QWidget *parent, const QString &title,
                         const QString& text,
-                        StandardButtons button0, int button1, int button2 = 0);
-    static int critical(QWidget *parent, const QString &title,
-                        const QString& text,
-                        int button0, int button1, int button2);
+                        int button0, int button1, int button2 = 0);
     static int critical(QWidget *parent, const QString &title,
                         const QString& text,
                         const QString& button0Text,
@@ -228,6 +227,10 @@ public:
                         const QString& button2Text = QString(),
                         int defaultButtonNumber = 0,
                         int escapeButtonNumber = -1);
+    inline static int critical(QWidget *parent, const QString &title,
+                               const QString& text,
+                               StandardButton button0, StandardButton button1)
+    { return critical(parent, title, text, StandardButtons(button0), button1); }
 
     QString buttonText(int button) const;
     void setButtonText(int button, const QString &text);
