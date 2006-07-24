@@ -1473,7 +1473,9 @@ void tst_QObject::property()
     QCOMPARE(object.property("string"), QVariant("String2"));
     QVERIFY(!object.setProperty("string", QVariant()));
 
-    QVERIFY(mo->indexOfProperty("variant") != -1);
+    const int idx = mo->indexOfProperty("variant");
+    QVERIFY(idx != -1);
+    QVERIFY(mo->property(idx).type() == QVariant::LastType);
     QCOMPARE(object.property("variant"), QVariant());
     QVariant variant1(42);
     QVariant variant2("string");
