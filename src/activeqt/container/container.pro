@@ -1,4 +1,11 @@
 TEMPLATE = lib
+
+TARGET   = ActiveQt
+CONFIG += qt_install_headers
+SYNCQT.HEADER_FILES = qaxbase.h qaxobject.h qaxscript.h qaxselect.h qaxwidget.h
+SYNCQT.HEADER_CLASSES = ../../../include/ActiveQt/QAxBase ../../../include/ActiveQt/QAxObject ../../../include/ActiveQt/QAxScriptEngine ../../../include/ActiveQt/QAxScript ../../../include/ActiveQt/QAxScriptManager ../../../include/ActiveQt/QAxSelect ../../../include/ActiveQt/QAxWidget
+include(../../qt_install.pri)
+
 TARGET   = QAxContainer
 
 !debug_and_release|build_pass {
