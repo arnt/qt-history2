@@ -1193,8 +1193,8 @@ void QApplication::setStyle(QStyle *style)
 
     QStyle* old = QApplicationPrivate::app_style; // save
 
-    if (!QApplicationPrivate::styleSheet.isEmpty()) {
 #ifndef QT_NO_STYLE_STYLESHEET
+    if (!QApplicationPrivate::styleSheet.isEmpty()) {
         if (qobject_cast<QStyleSheetStyle *>(style) == 0) { // switch the base style
             QStyleSheetStyle *proxy =
                 qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
@@ -1203,9 +1203,9 @@ void QApplication::setStyle(QStyle *style)
             style->setParent(proxy);
             proxy->setBaseStyle(style);
         } else // style sheet was just set
-#endif // QT_NO_STYLE_STYLESHEET
             QApplicationPrivate::app_style = style;
     } else
+#endif // QT_NO_STYLE_STYLESHEET
         QApplicationPrivate::app_style = style;
 
     // take care of possible palette requirements of certain gui

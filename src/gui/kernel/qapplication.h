@@ -238,7 +238,9 @@ Q_SIGNALS:
 public:
     QString styleSheet() const;
 public Q_SLOTS:
+#ifndef QT_NO_STYLE_STYLESHEET
     void setStyleSheet(const QString& sheet);
+#endif
     static void closeAllWindows();
     static void aboutQt();
 

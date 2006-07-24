@@ -298,9 +298,13 @@ public:
 
 public Q_SLOTS:
     void setWindowTitle(const QString &);
+#ifndef QT_NO_STYLE_STYLESHEET
     void setStyleSheet(const QString& styleSheet);
+#endif
 public:
+#ifndef QT_NO_STYLE_STYLESHEET
     QString styleSheet() const;
+#endif
     QString windowTitle() const;
     void setWindowIcon(const QIcon &icon);
     QIcon windowIcon() const;
