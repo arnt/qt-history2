@@ -382,7 +382,7 @@ BorderStyle Declaration::styleValue() const
 
 BorderStyle Declaration::styleValue(Value v) const
 {
-    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(), 
+    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
                                         borderStyles, NumKnownBorderStyles));
 }
 
@@ -400,7 +400,7 @@ void Declaration::styleValues(BorderStyle *s) const
 void Declaration::radiiValues(QSize *radii, const char *unit) const
 {
     radii[0] = sizeValue(unit);
-    for (int i = 1; i < 4; i++) 
+    for (int i = 1; i < 4; i++)
         radii[i] = radii[0];
 }
 
@@ -420,7 +420,7 @@ Repeat Declaration::repeatValue() const
 {
     if (values.count() != 1)
         return Repeat_Unknown;
-    return static_cast<Repeat>(findKnownValue(values.first().variant.toString(), 
+    return static_cast<Repeat>(findKnownValue(values.first().variant.toString(),
                                 repeats, NumKnownRepeats));
 }
 
@@ -443,7 +443,7 @@ QIcon Declaration::iconValue() const
 {
     QIcon icon(uriValue());
     if (!QFileInfo(uriValue()).exists())
-        qWarning() << "Failed to load icon " << uriValue();
+        qWarning("Failed to load icon '%s;", qPrintable(uriValue()));
     return icon;
 }
 
@@ -452,7 +452,7 @@ void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
     *pixmap = QPixmap(uriValue());
     *size = QSize();
     if (pixmap->isNull()) {
-        qWarning() << "Failed to load pixmap " << uriValue();
+        qWarning("Failed to load pixmap '%s'", qPrintable(uriValue()));
         return;
     }
     if (values.count() > 1) {
@@ -490,13 +490,13 @@ Qt::Alignment Declaration::alignmentValue() const
     return a[0] | a[1];
 }
 
-void Declaration::borderImageValue(QPixmap *pixmap, int *cuts, 
+void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
                                    TileMode *h, TileMode *v) const
 {
     *pixmap = QPixmap(uriValue());
     if (pixmap->isNull())
-        qWarning() << "Failed to load url " << uriValue();
-    for (int i = 0; i < 4; i++) 
+        qWarning("Failed to load url '%s'", qPrintable(uriValue()));
+    for (int i = 0; i < 4; i++)
         cuts[i] = -1;
     *h = *v = TileMode_Stretch;
 
@@ -507,7 +507,7 @@ void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
         intValues(cuts, 0, 1);
 
     if (values.last().type == Value::Identifier) {
-        *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(), 
+        *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(),
                                       tileModes, NumKnownTileModes));
     }
     if (values[values.count() - 2].type == Value::Identifier) {
@@ -695,7 +695,7 @@ QStringList StyleSelector::nodeIds(NodePtr node) const
 
 bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
 {
-    if (selector.basicSelectors.isEmpty()) 
+    if (selector.basicSelectors.isEmpty())
         return false;
 
     if (selector.basicSelectors.first().relationToNext == BasicSelector::NoRelation) {
@@ -793,7 +793,7 @@ static inline bool qcss_selectorLessThan(const QPair<int, QCss::StyleRule> &lhs,
     return lhs.first < rhs.first;
 }
 
-void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, 
+void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules,
                                QVector<QPair<int, StyleRule> > *weightedRules)
 {
     for (int i = 0; i < rules.count(); ++i) {
@@ -811,7 +811,7 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules,
     }
 }
 
-
+#if 0
 static void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
 {
     for (int i = 0; i < decls.count(); i++) {
@@ -820,6 +820,7 @@ static void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
                  << rule.declarations.first().values.first().variant.toString();
     }
 }
+#endif
 
 // Returns style rules that are in ascending order of specificity
 QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
@@ -843,7 +844,7 @@ QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
     }
 
     qStableSort(weightedRules.begin(), weightedRules.end(), qcss_selectorLessThan);
-    
+
     for (int j = 0; j < weightedRules.count(); j++)
         rules += weightedRules.at(j).second;
 
