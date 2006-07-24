@@ -1962,14 +1962,15 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                 dirs.append(r.left(slash));
                 r = r.mid(slash+1);
             } else {
-                dirs.append(qmake_getpwd());
+                dirs.append("");
             }
 
             const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
             for(int d = 0; d < dirs.count(); d++) {
                 QString dir = dirs[d];
-                if(!dir.endsWith(Option::dir_sep))
+                if(!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
                     dir += "/";
+
                 QDir qdir(dir);
                 for(int i = 0; i < (int)qdir.count(); ++i) {
                     if(qdir[i] == "." || qdir[i] == "..")
@@ -1979,7 +1980,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                         if(recursive)
                             dirs.append(fname);
                     }
-                    if(regex.exactMatch(fname))
+                    if(regex.exactMatch(qdir[i]))
                         ret += fname;
                 }
             }
