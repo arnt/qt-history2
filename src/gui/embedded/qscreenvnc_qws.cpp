@@ -71,6 +71,7 @@ bool QVirtualScreen::initDevice()
             screenclut[idx]=qRgb(val, val, val);
         }
     }
+    return true;
 }
 
 bool QVirtualScreen::connect(const QString &displayspec)
