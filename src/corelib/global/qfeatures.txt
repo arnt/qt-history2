@@ -663,6 +663,13 @@ Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
 Name: QCleanLooksStyle
 SeeAlso: ???
 
+Feature: STYLE_STYLESHEET
+Description: 
+Section: Styles
+Requires: STYLE_WINDOWS PROPERTIES
+Name: QStyleSheetStyle
+SeeAlso: ???
+
 # Images
 
 Feature: IMAGEFORMATPLUGIN

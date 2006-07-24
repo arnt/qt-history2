@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qstylesheetstyle_p.h"
+
+#ifndef QT_NO_STYLE_STYLESHEET
+
 #include <qdebug.h>
 #include <qapplication.h>
 #include <qmenu.h>
@@ -1922,3 +1925,5 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 }
 
 #include "moc_qstylesheetstyle_p.cpp"
+
+#endif // QT_NO_STYLE_STYLESHEET

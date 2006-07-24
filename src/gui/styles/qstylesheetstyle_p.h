@@ -15,6 +15,9 @@
 #define QSTYLESHEETSTYLE_P_H
 
 #include "QtGui/qwindowsstyle.h"
+
+#ifndef QT_NO_STYLE_STYLESHEET
+
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qhash.h"
 #include "QtGui/qevent.h"
@@ -99,17 +102,17 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
     qreal paddings[4];
 
     qreal spacing;
-    
-    QSizeF marginSizeF() const { 
+
+    QSizeF marginSizeF() const {
         return QSizeF(margins[QCss::LeftEdge] + margins[QCss::RightEdge],
-                      margins[QCss::TopEdge] + margins[QCss::BottomEdge]); 
+                      margins[QCss::TopEdge] + margins[QCss::BottomEdge]);
     }
     QSize marginSize() const {
         return marginSizeF().toSize();
     }
-    QSizeF paddingSizeF() const { 
+    QSizeF paddingSizeF() const {
         return QSizeF(paddings[QCss::LeftEdge] + paddings[QCss::RightEdge],
-                      paddings[QCss::TopEdge] + paddings[QCss::BottomEdge]); 
+                      paddings[QCss::TopEdge] + paddings[QCss::BottomEdge]);
     }
     QSize paddingSize() const {
         return paddingSizeF().toSize();
@@ -139,7 +142,7 @@ public:
     inline ~QRenderRule() { }
 
     void merge(const QVector<QCss::Declaration>& declarations);
-    bool isEmpty() const 
+    bool isEmpty() const
     { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0 && icons.isEmpty(); }
 
     QRect borderRect(const QRect &r) const;
@@ -177,7 +180,7 @@ public:
     void fixupBorder();
 
     bool hasPalette() const { return pal != 0; }
-    bool hasBackground() const 
+    bool hasBackground() const
     { return bg != 0 || (pal != 0 && pal->background.style() != Qt::NoBrush); }
     bool hasBackgroundImage() const { return bg != 0; }
     inline bool hasBox() const { return b != 0; }
@@ -186,9 +189,9 @@ public:
 
     inline bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
     inline QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
-    inline QPixmap pixmap(const char *p, const QSize& sz) const 
+    inline QPixmap pixmap(const char *p, const QSize& sz) const
     { return icon(p).pixmap(sz); }
-    
+
     QHash<QString, QIcon> icons;
 
 private:
@@ -201,7 +204,7 @@ private:
 
 class QFrame;
 
-struct QRenderRules 
+struct QRenderRules
 {
     QHash<int, QRenderRule> computedRulesCache;
 
@@ -226,18 +229,18 @@ public:
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
     void drawItemPixmap(QPainter *painter, const QRect &rect, int alignment, const QPixmap &pixmap) const;
-    void drawIcon(QPainter *p, const QRect &rect, int alignment, const QRenderRules& rules, 
+    void drawIcon(QPainter *p, const QRect &rect, int alignment, const QRenderRules& rules,
                   const QRenderRule& rule, const char *icon) const;
-    void drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal, 
+    void drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal,
               bool enabled, const QString& text, QPalette::ColorRole textRole  = QPalette::NoRole) const;
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                        const QWidget *w = 0) const;
-    QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, 
+    QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                 const QStyleOption *option) const;
     SubControl hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                      const QPoint &pt, const QWidget *w = 0) const;
     QRect itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pixmap) const;
-    QRect itemTextRect(const QFontMetrics &metrics, const QRect &rect, int alignment, bool enabled, 
+    QRect itemTextRect(const QFontMetrics &metrics, const QRect &rect, int alignment, bool enabled,
                        const QString &text) const;
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
     void polish(QWidget *widget);
@@ -247,7 +250,7 @@ public:
                            const QSize &contentsSize, const QWidget *widget = 0) const;
     QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *w = 0) const;
     QPalette standardPalette() const;
-    QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option = 0, 
+    QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option = 0,
                            const QWidget *w = 0 ) const;
     int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
                   QStyleHintReturn *shret = 0) const;
@@ -291,4 +294,5 @@ private:
     static QHash<const QWidget *, QRenderRules> renderRulesCache;
 };
 
+#endif // QT_NO_STYLE_STYLESHEET
 #endif // QSTYLESHEETSTYLE_P_H

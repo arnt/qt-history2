@@ -373,6 +373,11 @@
 #define QT_NO_SCROLLAREA
 #endif
 
+// QStyleSheetStyle
+#if !defined(QT_NO_STYLE_STYLESHEET) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_PROPERTIES))
+#define QT_NO_STYLE_STYLESHEET
+#endif
+
 // QToolButton
 #if !defined(QT_NO_TOOLBUTTON) && (defined(QT_NO_ICON) || defined(QT_NO_ACTION))
 #define QT_NO_TOOLBUTTON

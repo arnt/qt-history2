@@ -66,9 +66,11 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
     Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
     Q_PROPERTY(bool quitOnLastWindowClosed  READ quitOnLastWindowClosed WRITE setQuitOnLastWindowClosed)
+#ifndef QT_NO_STYLE_STYLESHEET
     Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
+#endif
 
-        public:
+public:
     enum Type { Tty, GuiClient, GuiServer };
 #ifndef qdoc
     QApplication(int &argc, char **argv, int = QT_VERSION);

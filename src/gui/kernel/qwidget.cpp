@@ -1653,6 +1653,8 @@ void QWidget::createWinId()
     d->createWinId();
 }
 
+#ifndef QT_NO_STYLE_STYLESHEET
+
 /*!
     \property QWidget::styleSheet
     \brief the widget's style sheet
@@ -1687,6 +1689,8 @@ void QWidget::setStyleSheet(const QString& styleSheet)
         d->setStyle_helper(new QStyleSheetStyle(d->extra->style, this), true);
     }
 }
+
+#endif // QT_NO_STYLE_STYLESHEET
 
 /*!
     \sa QWidget::setStyle(), QApplication::setStyle(), QApplication::style()
@@ -1723,9 +1727,11 @@ void QWidget::setStyle(QStyle *style)
     Q_D(QWidget);
     setAttribute(Qt::WA_SetStyle, style != 0);
     d->createExtra();
+#ifndef QT_NO_STYLE_STYLESHEET
     if (qobject_cast<QStyleSheetStyle *>(d->extra->style))
         d->setStyle_helper(new QStyleSheetStyle(style, this), true);
     else
+#endif
         d->setStyle_helper(style, false);
 }
 
@@ -1762,9 +1768,11 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
     q->styleChange(*oldStyle);
 #endif
 
+#ifndef QT_NO_STYLE_STYLESHEET
     // delete the old stylesheet style
     if (oldStyle->parent() == q && qobject_cast<QStyleSheetStyle *>(oldStyle))
         delete oldStyle;
+#endif
 }
 
 // Inherits style from the current parent and propagates it as necessary
@@ -1772,14 +1780,17 @@ void QWidgetPrivate::inheritStyle()
 {
     Q_Q(QWidget);
 
+#ifndef QT_NO_STYLE_STYLESHEET
     if (!q->styleSheet().isEmpty()) {
         QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(extra->style);
         proxy->repolish(q);
         return;
     }
+#endif
 
     QStyle *newStyle = 0;
 
+#ifndef QT_NO_STYLE_STYLESHEET
     // check if parent has a style sheet
     if (q->parentWidget()
         && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style())) {
@@ -1787,10 +1798,14 @@ void QWidgetPrivate::inheritStyle()
             newStyle = new QStyleSheetStyle(extra->style, q);
         else
             newStyle = q->parentWidget()->style();
-    } else if (q->testAttribute(Qt::WA_SetStyle)) { // explicitly set style
+    } else
+#endif
+    if (q->testAttribute(Qt::WA_SetStyle)) { // explicitly set style
+#ifndef QT_NO_STYLE_STYLESHEET
         if (QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(extra->style))
             newStyle = proxy->baseStyle();
         else
+#endif
             newStyle = extra->style;
     }
 

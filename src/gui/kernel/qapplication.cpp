@@ -1044,6 +1044,8 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
     return QCoreApplication::compressEvent(event, receiver, postedEvents);
 }
 
+#ifndef QT_NO_STYLE_STYLESHEET
+
 /*!
     \property QApplication::styleSheet
     \brief the application style sheet
@@ -1075,6 +1077,8 @@ void QApplication::setStyleSheet(const QString& styleSheet)
         setStyle(new QStyleSheetStyle(QApplicationPrivate::app_style, 0));
     }
 }
+
+#endif // QT_NO_STYLE_STYLESHEET
 
 /*!
   Returns the application's style object.
@@ -1190,6 +1194,7 @@ void QApplication::setStyle(QStyle *style)
     QStyle* old = QApplicationPrivate::app_style; // save
 
     if (!QApplicationPrivate::styleSheet.isEmpty()) {
+#ifndef QT_NO_STYLE_STYLESHEET
         if (qobject_cast<QStyleSheetStyle *>(style) == 0) { // switch the base style
             QStyleSheetStyle *proxy =
                 qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
@@ -1198,6 +1203,7 @@ void QApplication::setStyle(QStyle *style)
             style->setParent(proxy);
             proxy->setBaseStyle(style);
         } else // style sheet was just set
+#endif // QT_NO_STYLE_STYLESHEET
             QApplicationPrivate::app_style = style;
     } else
         QApplicationPrivate::app_style = style;

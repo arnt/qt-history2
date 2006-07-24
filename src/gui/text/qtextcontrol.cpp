@@ -1841,26 +1841,42 @@ void QTextControl::setOverwriteMode(bool overwrite)
 
 int QTextControl::tabStopWidth() const
 {
+#ifndef QT_NO_PROPERTIES
     Q_D(const QTextControl);
     return qRound(d->doc->documentLayout()->property("tabStopWidth").toDouble());
+#else
+    return 80;
+#endif
 }
 
 void QTextControl::setTabStopWidth(int width)
 {
+#ifdef QT_NO_PROPERTIES
+    Q_UNUSED(width);
+#else
     Q_D(QTextControl);
     d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
+#endif
 }
 
 int QTextControl::cursorWidth() const
 {
+#ifndef QT_NO_PROPERTIES
     Q_D(const QTextControl);
     return d->doc->documentLayout()->property("cursorWidth").toInt();
+#else
+    return 1;
+#endif
 }
 
 void QTextControl::setCursorWidth(int width)
 {
     Q_D(QTextControl);
+#ifdef QT_NO_PROPERTIES
+    Q_UNUSED(width);
+#else
     d->doc->documentLayout()->setProperty("cursorWidth", width);
+#endif
     d->repaintCursor();
 }
 
