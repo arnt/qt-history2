@@ -2044,6 +2044,8 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         if (!d->penData.blend)
             return;
 
+        QVarLengthArray<QT_FT_Span, 4096> array(pointCount);
+
         QT_FT_Span span = { 0, 1, 0, 255 };
         qreal dx = d->matrix.dx();
         qreal dy = d->matrix.dy();
@@ -2059,10 +2061,12 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
                 span.y = y;
-                d->penData.blend(1, &span, &d->penData);
+                array.append(span);
             }
             ++points;
         }
+
+        d->penData.blend(array.size(), array.constData(), &d->penData);
     }
 }
 
