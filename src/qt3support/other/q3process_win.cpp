@@ -258,7 +258,7 @@ bool Q3Process::start( QStringList *env )
 	    // rather use "foo"\ than "foo\"
 	    QString endQuote( "\"" );
 	    int i = tmp.length();
-	    while ( i>=0 && tmp.at( i-1 ) == '\\' ) {
+	    while ( i>0 && tmp.at( i-1 ) == '\\' ) {
 		--i;
 		endQuote += "\\";
 	    }
