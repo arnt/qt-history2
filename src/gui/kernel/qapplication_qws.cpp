@@ -2644,7 +2644,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                     if (w && (w->focusPolicy() != Qt::NoFocus))
                         w->setFocus();
                     else
-                        widget->focusNextPrevChild(true);
+                        widget->QWidget::focusNextPrevChild(true);
                     if (!QApplicationPrivate::focus_widget) {
                         if (widget->focusWidget())
                             widget->focusWidget()->setFocus();
