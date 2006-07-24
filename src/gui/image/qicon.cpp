@@ -57,6 +57,8 @@
   \value On  Display the pixmap when the widget is in an "on" state
 */
 
+extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
+
 static int serialNumCounter = 0;
 
 class QIconPrivate
@@ -222,7 +224,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
         actualSize.scale(size, Qt::KeepAspectRatio);
 
     QString key = QLatin1String("$qt_icon_")
-                  + QString::number(pm.serialNumber())
+                  + QString::number(qt_pixmap_id(pm))
                   + QString::number(actualSize.width())
                   + QLatin1Char('_')
                   + QString::number(actualSize.height())
@@ -236,7 +238,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
             QStyleOption opt(0);
             opt.palette = QApplication::palette();
             QPixmap active = QApplication::style()->generatedIconPixmap(QIcon::Active, pm, &opt);
-            if (pm.serialNumber() == active.serialNumber())
+            if (qt_pixmap_id(pm) == qt_pixmap_id(active))
                 return pm;
         }
     }
