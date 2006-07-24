@@ -102,11 +102,20 @@ static bool isMouseMoveOrRelease(QEvent *e)
 
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
-    if (
+    bool inDragMode =
 #ifdef Q_WS_X11
         o == m_core->topLevel() &&
 #endif
-        !m_drag_item_list.isEmpty() && isMouseMoveOrRelease(e)) {
+        ! m_drag_item_list.isEmpty();
+
+
+    if (inDragMode && e->type() == QEvent::ShortcutOverride) {
+        e->accept();
+        endDrag(QPoint());
+        return true;
+    }
+
+    else if (inDragMode && isMouseMoveOrRelease(e)) {
         // We're dragging
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         me->accept();
