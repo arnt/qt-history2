@@ -1512,6 +1512,9 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
 QString WriteInitialization::trCall(const QString &str, const QString &commentHint) const
 {
+    if (str.isEmpty())
+        return QLatin1String("QString()");
+
     QString result;
     QString comment = commentHint.isEmpty() ? QString::fromUtf8("0") : fixString(commentHint, option.indent);
 
