@@ -14,7 +14,7 @@
 #ifndef QSTYLESHEETSTYLE_P_H
 #define QSTYLESHEETSTYLE_P_H
 
-#include "QtGui/qcommonstyle.h"
+#include "QtGui/qwindowsstyle.h"
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qhash.h"
 #include "QtGui/qevent.h"
@@ -22,6 +22,7 @@
 #include "QtCore/qshareddata.h"
 #include "QtGui/qapplication.h"
 #include "private/qcssparser_p.h"
+#include "QtGui/qbrush.h"
 
 //
 //  W A R N I N G
@@ -36,6 +37,10 @@
 
 struct Q_AUTOTEST_EXPORT QStyleSheetBorderImageData : public QSharedData
 {
+    QStyleSheetBorderImageData()
+    {
+        for (int i = 0; i < 4; i++) cuts[i] = -1;
+    }
     QPixmap topEdge, bottomEdge, leftEdge, rightEdge, middle;
     QRect topEdgeRect, bottomEdgeRect, leftEdgeRect, rightEdgeRect, middleRect;
     QRect topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
@@ -127,12 +132,6 @@ struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
     QBrush alternateBackground;
 };
 
-struct Q_AUTOTEST_EXPORT QStyleSheetPixmapData
-{
-    QPixmap pixmap;
-    QSize size;
-};
-
 class Q_AUTOTEST_EXPORT QRenderRule
 {
 public:
@@ -141,12 +140,16 @@ public:
 
     void merge(const QVector<QCss::Declaration>& declarations);
     bool isEmpty() const 
-    { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0 && pixmaps.isEmpty(); }
+    { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0 && icons.isEmpty(); }
 
-    QRect borderRect(const QRect& r) const;
-    QRect paddingRect(const QRect& r) const;
-    QRect contentsRect(const QRect& r) const;
-    QRect boxRect(const QRect& r) const;
+    QRect borderRect(const QRect &r) const;
+    QRect paddingRect(const QRect &r) const;
+    QRect contentsRect(const QRect &r) const;
+    QRect boxRect(const QRect &r) const;
+
+    QSize sizeWithBorder(const QSize &r) const;
+    QSize sizeWithPadding(const QSize &r) const;
+    QSize sizeWithMargin(const QSize &r) const;
 
     QRectF borderRect(const QRectF& r) const;
     QRectF paddingRect(const QRectF& r) const;
@@ -174,16 +177,19 @@ public:
     void fixupBorder();
 
     bool hasPalette() const { return pal != 0; }
+    bool hasBackground() const 
+    { return bg != 0 || (pal != 0 && pal->background.style() != Qt::NoBrush); }
     bool hasBackgroundImage() const { return bg != 0; }
     inline bool hasBox() const { return b != 0; }
     inline bool hasBorder() const { return bd != 0; }
     inline bool hasFocusRect() const { return fr != 0; }
-    inline bool hasPixmap(const char *p) const { return pixmaps.contains(QLatin1String(p)); }
-    inline QPixmap pixmap(const char *p) const { return pixmaps.value(QLatin1String(p)).pixmap; }
-    inline QSize pixmapSize(const char *p) const { return pixmaps.value(QLatin1String(p)).size; }
-    inline bool hasPixmapSize(const char *p) const { 
-        return hasPixmap(p) && pixmaps.value(QLatin1String(p)).size.isValid(); }
-    QHash<QString, QStyleSheetPixmapData> pixmaps;
+
+    inline bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
+    inline QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
+    inline QPixmap pixmap(const char *p, const QSize& sz) const 
+    { return icon(p).pixmap(sz); }
+    
+    QHash<QString, QIcon> icons;
 
 private:
     QSharedDataPointer<QStyleSheetPalette> pal;
@@ -195,9 +201,21 @@ private:
 
 class QFrame;
 
-class QStyleSheetStyle : public QCommonStyle
+struct QRenderRules 
 {
-    typedef QCommonStyle ParentStyle;
+    QHash<int, QRenderRule> computedRulesCache;
+
+    bool hasIconSize(const char *icon) const { return sizes.contains(QLatin1String(icon)); }
+    QSize iconSize(const char *icon) const { return sizes.value(QLatin1String(icon)); }
+
+    void init(const QVector<QCss::StyleRule>& rules);
+
+    QHash<QString, QSize> sizes;
+};
+
+class QStyleSheetStyle : public QWindowsStyle
+{
+    typedef QWindowsStyle ParentStyle;
 
     Q_OBJECT
 public:
@@ -208,6 +226,8 @@ public:
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
     void drawItemPixmap(QPainter *painter, const QRect &rect, int alignment, const QPixmap &pixmap) const;
+    void drawIcon(QPainter *p, const QRect &rect, int alignment, const QRenderRules& rules, 
+                  const QRenderRule& rule, const char *icon) const;
     void drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal, 
               bool enabled, const QString& text, QPalette::ColorRole textRole  = QPalette::NoRole) const;
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
@@ -247,6 +267,9 @@ protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
                                      const QWidget *widget = 0) const;
 
+private Q_SLOTS:
+    void widgetDestroyed(QObject *);
+
 private:
     QStyle *bs;
 
@@ -254,17 +277,18 @@ private:
         PushButton, LineEdit, ComboBox, GroupBox, Frame
     };
     bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
-    void update(const QList<QWidget *>& widgets);
+    void update(const QList<const QWidget *>& widgets);
 
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
     QVector<QCss::StyleRule> computeStyleSheet(QWidget *widget);
 
+    QRenderRules renderRules(const QWidget *w) const;
     QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
-    QRenderRule renderRule(QWidget *w, QStyle::State state) const;
+    QRenderRule renderRule(const QWidget *w, QStyle::State state) const;
 
-    static QHash<QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
-    static QHash<QWidget *, QHash<int, QRenderRule> > renderRulesCache;
+    static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
+    static QHash<const QWidget *, QRenderRules> renderRulesCache;
 };
 
 #endif // QSTYLESHEETSTYLE_P_H
