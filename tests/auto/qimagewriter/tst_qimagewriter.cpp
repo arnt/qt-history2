@@ -50,13 +50,11 @@ private slots:
 
     void writeToInvalidDevice();
 
-#if QT_VERSION >= 0x040200
     void supportsOption_data();
     void supportsOption();
 
     void saveWithNoFormat_data();
     void saveWithNoFormat();
-#endif
 };
 
 // Testing get/set functions
@@ -142,13 +140,11 @@ void tst_QImageWriter::writeImage()
         QVERIFY(writer.write(image));
     }
 
-#if QT_VERSION >= 0x040101
     {
         // Shouldn't be able to write to read-only file
         QImageWriter writer("images/" + fileName, format);
         QVERIFY(!writer.write(image));
     }
-#endif
 
     QImage image2;
     {
@@ -222,30 +218,18 @@ void tst_QImageWriter::writeToInvalidDevice()
     {    
         QImageWriter writer(fileName);
         QVERIFY(!writer.canWrite());
-#if QT_VERSION < 0x040200
-        QEXPECT_FAIL("", "Fixed in Qt 4.2", Continue);
-#endif
         QCOMPARE(writer.error(), QImageWriter::DeviceError);
     }
     {
         QImageWriter writer(fileName);
         writer.setFormat("png");
-#if QT_VERSION < 0x040200
-        QEXPECT_FAIL("", "Fixed in Qt 4.2", Continue);
-#endif
         QVERIFY(!writer.canWrite());
-#if QT_VERSION < 0x040200
-        QEXPECT_FAIL("", "Fixed in Qt 4.2", Continue);
-#endif
         QCOMPARE(writer.error(), QImageWriter::DeviceError);
     }
     {
         QImageWriter writer(fileName);
         QImage im(10, 10, QImage::Format_ARGB32);
         QVERIFY(!writer.write(im));
-#if QT_VERSION < 0x040200
-        QEXPECT_FAIL("", "Fixed in Qt 4.2", Continue);
-#endif
         QCOMPARE(writer.error(), QImageWriter::DeviceError);
     }
     {
@@ -253,14 +237,10 @@ void tst_QImageWriter::writeToInvalidDevice()
         writer.setFormat("png");
         QImage im(10, 10, QImage::Format_ARGB32);
         QVERIFY(!writer.write(im));
-#if QT_VERSION < 0x040200
-        QEXPECT_FAIL("", "Fixed in Qt 4.2", Continue);
-#endif
         QCOMPARE(writer.error(), QImageWriter::DeviceError);
     }
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QImageWriter::supportsOption_data()
 {
     QTest::addColumn<QString>("fileName");
@@ -344,8 +324,6 @@ void tst_QImageWriter::saveWithNoFormat()
     QImage outImage = reader.read();
     QVERIFY2(!outImage.isNull(), qPrintable(reader.errorString()));
 }
-
-#endif
 
 QTEST_MAIN(tst_QImageWriter)
 #include "tst_qimagewriter.moc"
