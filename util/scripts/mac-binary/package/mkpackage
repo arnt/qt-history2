@@ -538,6 +538,7 @@ if [ "$MAKE_META" = "yes" ]; then
         package_type=selected
         if [ "$package_name" = "Qt_libraries.pkg" ] || [ "$package_name" = "Qt_tools.pkg" ]; then
             package_type=required
+        fi
         cat >"${PACKAGE_DICT}.tmp" <<EOF
            <dict>
               <key>IFPkgFlagPackageLocation</key>
