@@ -154,6 +154,7 @@ private:
     QDesignerFormEditorInterface *m_core;
     QAssistantClient *m_assistantClient;
     QString m_openDirectory;
+    QString m_saveDirectory;
 
     QActionGroup *m_fileActions;
     QActionGroup *m_recentFilesActions;

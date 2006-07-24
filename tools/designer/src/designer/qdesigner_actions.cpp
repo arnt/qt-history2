@@ -47,7 +47,8 @@
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
-      m_workbench(workbench), m_assistantClient(0), m_openDirectory(QString())
+      m_workbench(workbench), m_assistantClient(0), m_openDirectory(QString()),
+      m_saveDirectory(QString())
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -516,10 +517,16 @@ bool QDesignerActions::openForm()
 
 bool QDesignerActions::saveFormAs(QDesignerFormWindowInterface *fw)
 {
-    QString fileName = fw->fileName().isEmpty() ? QDir::current().absolutePath()
-            + QLatin1String("/untitled.ui") : fw->fileName();
+    QString dir = fw->fileName();
+    if (dir.isEmpty()) {
+        if (!m_saveDirectory.isEmpty() || !m_openDirectory.isEmpty()) {
+            dir = m_saveDirectory.isEmpty() ? m_openDirectory + QLatin1String("/untitled.ui") :
+                  m_saveDirectory + QLatin1String("/untitled.ui") ;
+        } else
+            dir = QDir::current().absolutePath() + QLatin1String("/untitled.ui");
+    }
+
     QString saveFile;
-    QString dir = fileName;
     while (1) {
         saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
                 dir,
@@ -757,6 +764,8 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
         }
     }
     addRecentFile(saveFile);
+    m_saveDirectory = QFileInfo(f).absolutePath();
+
     fw->setDirty(false);
     fw->parentWidget()->setWindowModified(false);
     return true;
@@ -912,7 +921,7 @@ void QDesignerActions::showHelp(const QString &url)
         cleanFilePath = filePath.left(index);
     else
         cleanFilePath = filePath;
-    
+
     if (!QFile::exists(cleanFilePath)) {
         filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
                                 + QLatin1String("/html/designer-manual.html");
