@@ -16,6 +16,9 @@
 #include <qtemporaryfile.h>
 #include <qdir.h>
 #include <qfileinfo.h>
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
 
 #include <qdebug.h>
 //TESTED_CLASS=
