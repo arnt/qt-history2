@@ -67,7 +67,6 @@ private slots:
     void adoptedThreadFinished();
     void adoptedThreadTerminated();
 
-private:
     void stressTest();
 };
 
@@ -578,7 +577,7 @@ void NativeThreadWrapper::start(FunctionPointer functionPointer, void *data)
     const int state = pthread_create(&nativeThread, 0, NativeThreadWrapper::runUnix, this);
     Q_UNUSED(state);
 #elif defined Q_OS_WIN
-    nativeThread = (HANDLE)_beginthread(NativeThreadWrapper::runWin, 0, data);
+    nativeThread = (HANDLE)_beginthread(NativeThreadWrapper::runWin, 0, this);
 #endif
 }
 
