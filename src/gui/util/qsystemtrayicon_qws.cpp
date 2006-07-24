@@ -15,35 +15,40 @@
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
-void QSystemTrayIconPrivate::install()
+void QSystemTrayIconPrivate::install_sys()
 {
 }
 
-void QSystemTrayIconPrivate::remove()
+void QSystemTrayIconPrivate::remove_sys()
 {
 }
 
-void QSystemTrayIconPrivate::updateIcon()
+QPoint QSystemTrayIconPrivate::globalPos_sys() const
+{
+    return QPoint();
+}
+
+void QSystemTrayIconPrivate::updateIcon_sys()
 {
 }
 
-void QSystemTrayIconPrivate::updateMenu()
+void QSystemTrayIconPrivate::updateMenu_sys()
 {
 }
 
-void QSystemTrayIconPrivate::updateToolTip()
+void QSystemTrayIconPrivate::updateToolTip_sys()
 {
 }
 
-bool QSystemTrayIconPrivate::isSystemTrayAvailable()
+bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
     return false;
 }
 
-void QSystemTrayIconPrivate::showMessage(const QString &message,
-                                         const QString &title,
-                                         QSystemTrayIcon::MessageIcon icon,
-                                         int msecs)
+void QSystemTrayIconPrivate::showMessage_sys(const QString &message,
+                                             const QString &title,
+                                             QSystemTrayIcon::MessageIcon icon,
+                                             int msecs)
 {
     Q_UNUSED(message);
     Q_UNUSED(title);

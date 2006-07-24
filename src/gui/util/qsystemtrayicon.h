@@ -69,6 +69,7 @@ public:
     void showMessage(const QString &title, const QString &msg,
                      MessageIcon icon = Information, int msecs = 10000);
 
+    //QPoint pos() const;
     bool isVisible() const;
 
 public Q_SLOTS:

@@ -113,7 +113,7 @@ QSystemTrayIcon::QSystemTrayIcon(const QIcon &icon, QObject *parent)
 QSystemTrayIcon::~QSystemTrayIcon()
 {
     Q_D(QSystemTrayIcon);
-    d->remove();
+    d->remove_sys();
 }
 
 #ifndef QT_NO_MENU
@@ -128,7 +128,7 @@ void QSystemTrayIcon::setContextMenu(QMenu *menu)
 {
     Q_D(QSystemTrayIcon);
     d->menu = menu;
-    d->updateMenu();
+    d->updateMenu_sys();
 }
 
 /*!
@@ -157,7 +157,7 @@ void QSystemTrayIcon::setIcon(const QIcon &icon)
 {
     Q_D(QSystemTrayIcon);
     d->icon = icon;
-    d->updateIcon();
+    d->updateIcon_sys();
 }
 
 QIcon QSystemTrayIcon::icon() const
@@ -177,7 +177,7 @@ void QSystemTrayIcon::setToolTip(const QString &tooltip)
 {
     Q_D(QSystemTrayIcon);
     d->toolTip = tooltip;
-    d->updateToolTip();
+    d->updateToolTip_sys();
 }
 
 QString QSystemTrayIcon::toolTip() const
@@ -202,6 +202,20 @@ QString QSystemTrayIcon::toolTip() const
     \sa show(), visible
 */
 
+#if 0
+/*!
+  Returns the global position of the system tray icon.
+
+  \sa visible
+*/
+QPoint QSystemTrayIcon::pos() const
+{
+    Q_D(const QSystemTrayIcon);
+    if (!d->visible)
+        return QPoint();
+    return d->globalPos_sys();
+}
+#endif
 
 /*!
     \property QSystemTrayIcon::visible
@@ -219,9 +233,9 @@ void QSystemTrayIcon::setVisible(bool visible)
         qWarning("QSystemTrayIcon::setVisible: No Icon set");
     d->visible = visible;
     if (d->visible)
-        d->install();
+        d->install_sys();
     else
-        d->remove();
+        d->remove_sys();
 }
 
 bool QSystemTrayIcon::isVisible() const
@@ -282,7 +296,7 @@ bool QSystemTrayIcon::event(QEvent *e)
 
 bool QSystemTrayIcon::isSystemTrayAvailable()
 {
-    return QSystemTrayIconPrivate::isSystemTrayAvailable();
+    return QSystemTrayIconPrivate::isSystemTrayAvailable_sys();
 }
 
 /*!
@@ -306,7 +320,7 @@ void QSystemTrayIcon::showMessage(const QString& title, const QString& msg,
 {
     Q_D(QSystemTrayIcon);
     if (d->visible)
-        d->showMessage(title, msg, icon, msecs);
+        d->showMessage_sys(title, msg, icon, msecs);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -522,8 +536,8 @@ void QBalloonTip::timerEvent(QTimerEvent *e)
     QWidget::timerEvent(e);
 }
 
-void qtsystray_sendActivated(QSystemTrayIcon *i, int r) 
-{ 
+void qtsystray_sendActivated(QSystemTrayIcon *i, int r)
+{
     emit i->activated((QSystemTrayIcon::ActivationReason)r);
 }
 

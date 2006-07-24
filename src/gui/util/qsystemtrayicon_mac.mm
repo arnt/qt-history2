@@ -65,24 +65,36 @@ public:
     QNSStatusItem *item;
 };
 
-void QSystemTrayIconPrivate::install()
+void QSystemTrayIconPrivate::install_sys()
 {
     Q_Q(QSystemTrayIcon);
     if (!sys) {
         sys = new QSystemTrayIconSys(q);
-        updateIcon();
-        updateMenu();
-        updateToolTip();
+        updateIcon_sys();
+        updateMenu_sys();
+        updateToolTip_sys();
+        qDebug() << globalPos_sys();
     }
 }
 
-void QSystemTrayIconPrivate::remove()
+QPoint QSystemTrayIconPrivate::globalPos_sys() const
+{
+    if(sys) {
+        if(NSWindow *window = [[[sys->item item] view] window]) {
+            NSRect rect = [window frame];
+            return QPoint(qRound(rect.origin.x), qRound(rect.origin.y));
+        }
+    }
+    return QPoint();
+}
+
+void QSystemTrayIconPrivate::remove_sys()
 {
     delete sys;
     sys = 0;
 }
 
-void QSystemTrayIconPrivate::updateIcon()
+void QSystemTrayIconPrivate::updateIcon_sys()
 {
     if(sys && !icon.isNull()) {
         QMacCocoaAutoReleasePool pool;
@@ -91,7 +103,7 @@ void QSystemTrayIconPrivate::updateIcon()
     }
 }
 
-void QSystemTrayIconPrivate::updateMenu()
+void QSystemTrayIconPrivate::updateMenu_sys()
 {
     if(sys) {
         QMacCocoaAutoReleasePool pool;
@@ -103,7 +115,7 @@ void QSystemTrayIconPrivate::updateMenu()
     }
 }
 
-void QSystemTrayIconPrivate::updateToolTip()
+void QSystemTrayIconPrivate::updateToolTip_sys()
 {
     if(sys) {
         QMacCocoaAutoReleasePool pool;
@@ -111,13 +123,13 @@ void QSystemTrayIconPrivate::updateToolTip()
     }
 }
 
-bool QSystemTrayIconPrivate::isSystemTrayAvailable()
+bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
     return true;
 }
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
-                                         QSystemTrayIcon::MessageIcon icon, int msecs)
+void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QString &title,
+                                             QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     if(sys) {
         QMacCocoaAutoReleasePool pool;
@@ -147,6 +159,7 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
     if(self) {
         icon = i;
         item = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength] retain];
+        //[item setView:[[NSView alloc] init]];
         [item setTarget:self];
         [item setAction:@selector(triggerSelector:)];
         [item setDoubleAction:@selector(doubleClickSelector:)];

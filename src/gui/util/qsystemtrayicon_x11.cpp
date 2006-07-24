@@ -234,14 +234,19 @@ bool QSystemTrayIconSys::x11Event(XEvent *event)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void QSystemTrayIconPrivate::install()
+void QSystemTrayIconPrivate::install_sys()
 {
     Q_Q(QSystemTrayIcon);
     if (!sys)
         sys = new QSystemTrayIconSys(q);
 }
 
-void QSystemTrayIconPrivate::remove()
+QPoint QSystemTrayIconPrivate::globalPos_sys() const
+{
+    return QPoint();
+}
+
+void QSystemTrayIconPrivate::remove_sys()
 {
     if (!sys)
         return;
@@ -251,31 +256,31 @@ void QSystemTrayIconPrivate::remove()
     sys = 0;
 }
 
-void QSystemTrayIconPrivate::updateIcon()
+void QSystemTrayIconPrivate::updateIcon_sys()
 {
     if (!sys)
         return;
     sys->updateIcon();
 }
 
-void QSystemTrayIconPrivate::updateMenu()
+void QSystemTrayIconPrivate::updateMenu_sys()
 {
 
 }
 
-void QSystemTrayIconPrivate::updateToolTip()
+void QSystemTrayIconPrivate::updateToolTip_sys()
 {
     if (!sys)
         return;
     sys->setToolTip(toolTip);
 }
 
-bool QSystemTrayIconPrivate::isSystemTrayAvailable()
+bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
     return QSystemTrayIconSys::locateSystemTray() != None;
 }
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
+void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QString &title,
                                    QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     if (!sys)

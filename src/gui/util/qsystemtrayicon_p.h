@@ -46,14 +46,15 @@ class QSystemTrayIconPrivate : public QObjectPrivate
 public:
     QSystemTrayIconPrivate() : sys(0), visible(false) { }
 
-    // system-dependent part
-    void install();
-    void remove();
-    void updateIcon();
-    void updateToolTip();
-    void updateMenu();
-    void showMessage(const QString &msg, const QString &title, QSystemTrayIcon::MessageIcon icon, int secs);
-    static bool isSystemTrayAvailable();
+    void install_sys();
+    void remove_sys();
+    void updateIcon_sys();
+    void updateToolTip_sys();
+    void updateMenu_sys();
+    QPoint globalPos_sys() const;
+    void showMessage_sys(const QString &msg, const QString &title, QSystemTrayIcon::MessageIcon icon, int secs);
+    static bool isSystemTrayAvailable_sys();
+
     QPointer<QMenu> menu;
     QIcon icon;
     QString toolTip;

@@ -349,11 +349,11 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
             case WM_LBUTTONUP:
                 emit q->activated(QSystemTrayIcon::Trigger);
                 break;
-            
+
             case WM_RBUTTONUP:
                 if (q->contextMenu()) {
                     q->contextMenu()->popup(gpos);
-                    q->contextMenu()->activateWindow(); 
+                    q->contextMenu()->activateWindow();
                     //Must be activated for proper keyboardfocus and menu closing on windows:
                 }
                 emit q->activated(QSystemTrayIcon::Context);
@@ -387,7 +387,7 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
     return 0;
 }
 
-void QSystemTrayIconPrivate::install()
+void QSystemTrayIconPrivate::install_sys()
 {
     Q_Q(QSystemTrayIcon);
     if (!sys) {
@@ -501,7 +501,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 }
 
 
-void QSystemTrayIconPrivate::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, int timeOut)
+void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, int timeOut)
 {
     if (!sys)
         return;
@@ -512,17 +512,17 @@ void QSystemTrayIconPrivate::showMessage(const QString &title, const QString &me
     else uSecs = (int)timeOut;
 
     resolveLibs();
-    
+
     //message is limited to 255 chars + NULL
     QString messageString;
     if (message.isEmpty())
         messageString = " "; //ensures that the message shows when only title is set
-    else 
+    else
         messageString = message.left(255) + QChar();
-        
+
     //title is limited to 63 chars + NULL
     QString titleString = title.left(63) + QChar();
-    
+
     if (sys->supportsMessages()) {
         QT_WA({
             sys->showMessageW(titleString, messageString, type, (unsigned int)uSecs);
@@ -542,7 +542,12 @@ void QSystemTrayIconPrivate::showMessage(const QString &title, const QString &me
     }
 }
 
-void QSystemTrayIconPrivate::remove()
+QPoint QSystemTrayIconPrivate::globalPos_sys() const
+{
+    return QPoint();
+}
+
+void QSystemTrayIconPrivate::remove_sys()
 {
     if (!sys)
 	return;
@@ -552,7 +557,7 @@ void QSystemTrayIconPrivate::remove()
     sys = 0;
 }
 
-void QSystemTrayIconPrivate::updateIcon()
+void QSystemTrayIconPrivate::updateIcon_sys()
 {
     if (!sys)
 	return;
@@ -564,12 +569,12 @@ void QSystemTrayIconPrivate::updateIcon()
     sys->trayMessage(NIM_MODIFY);
 }
 
-void QSystemTrayIconPrivate::updateMenu()
+void QSystemTrayIconPrivate::updateMenu_sys()
 {
 
 }
 
-void QSystemTrayIconPrivate::updateToolTip()
+void QSystemTrayIconPrivate::updateToolTip_sys()
 {
     if (!sys)
 	return;
@@ -577,7 +582,7 @@ void QSystemTrayIconPrivate::updateToolTip()
     sys->trayMessage(NIM_MODIFY);
 }
 
-bool QSystemTrayIconPrivate::isSystemTrayAvailable()
+bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
 {
     return true;
 }
