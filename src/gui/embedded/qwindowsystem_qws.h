@@ -403,7 +403,7 @@ public:
     void sendMaxWindowRectEvent();
     void sendFocusEvent(int winid, bool get);
     void sendPropertyNotifyEvent(int property, int state);
-    void sendPropertyReplyEvent(int property, int len, char *data);
+    void sendPropertyReplyEvent(int property, int len, const char *data);
     void sendSelectionClearEvent(int windowid);
     void sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int windowid);
     void sendRegionEvent(int winid, QRegion rgn, int type);

@@ -90,7 +90,7 @@ bool QWSPropertyManager::addProperty(int winId, int property)
     return true;
 }
 
-bool QWSPropertyManager::getProperty(int winId, int property, char *&data, int &len)
+bool QWSPropertyManager::getProperty(int winId, int property, const char *&data, int &len)
 {
     QHash<int, QByteArray> props = d->properties.value(winId);
     QHash<int, QByteArray>::iterator it = props.find(property);
@@ -99,7 +99,7 @@ bool QWSPropertyManager::getProperty(int winId, int property, char *&data, int &
         len = -1;
         return false;
     }
-    data = it.value().data();
+    data = it.value().constData();
     len = it.value().length();
 
     return true;

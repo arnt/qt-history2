@@ -49,7 +49,7 @@ public:
     bool hasProperty(int winId, int property);
     bool removeProperty(int winId, int property);
     bool addProperty(int winId, int property);
-    bool getProperty(int winId, int property, char *&data, int &len);
+    bool getProperty(int winId, int property, const char *&data, int &len);
     bool removeProperties(int winId);
 
 private:

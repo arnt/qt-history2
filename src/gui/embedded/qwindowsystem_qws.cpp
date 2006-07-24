@@ -643,7 +643,7 @@ void QWSClient::sendPropertyNotifyEvent(int property, int state)
 /*!
    \internal
 */
-void QWSClient::sendPropertyReplyEvent(int property, int len, char *data)
+void QWSClient::sendPropertyReplyEvent(int property, int len, const char *data)
 {
     QWSPropertyReplyEvent event;
     event.simpleData.window = 0; // not used yet
@@ -1789,7 +1789,7 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
         qwi->winid=window->winId();
         qwi->clientid=window->client()->clientId();
 #ifndef QT_NO_QWS_PROPERTIES
-        char * name;
+        const char * name;
         int len;
         qwsServerPrivate->propertyManager.getProperty(qwi->winid,
                                                QT_QWS_PROPERTY_WINDOWNAME,
@@ -2403,7 +2403,7 @@ void QWSServerPrivate::invokeRemoveProperty(QWSRemovePropertyCommand *cmd)
 
 void QWSServerPrivate::invokeGetProperty(QWSGetPropertyCommand *cmd, QWSClient *client)
 {
-    char *data;
+    const char *data;
     int len;
 
     if (propertyManager.getProperty(cmd->simpleData.windowid,
