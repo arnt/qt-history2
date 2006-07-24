@@ -2418,7 +2418,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     }
 #endif
 
-    QETWidget *widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+    QPointer<QETWidget>  widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
 #ifndef QT_NO_QWS_MANAGER
     if (d->last_manager && event->type == QWSEvent::Mouse) {
         QPoint pos(event->asMouse()->simpleData.x_root, event->asMouse()->simpleData.y_root);
@@ -2486,7 +2486,8 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             if (1 /*widget->data->alloc_region.contains(dp) */) {
                 // Find the child widget that the cursor is in.
                 w = static_cast<QETWidget*>(widget->childAt(widget->mapFromParent(p)));
-                w = w ? static_cast<QETWidget*>(w) : widget;
+                if (!w)
+                    w = widget;
 #ifndef QT_NO_CURSOR
                 // Update Cursor.
                 if (!gw || gw != w || qt_last_cursor == 0xffffffff) {
@@ -2636,8 +2637,9 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 return true; // not interesting
             if (activeWindow() != widget) {
                 setActiveWindow(widget);
-                static_cast<QETWidget *>(QApplicationPrivate::active_window)->repaintDecoration(desktop()->rect(), false);
-                if (!d->inPopupMode()) {
+                if (QApplicationPrivate::active_window)
+                    static_cast<QETWidget *>(QApplicationPrivate::active_window)->repaintDecoration(desktop()->rect(), false);
+                if (widget && !d->inPopupMode()) {
                     QWidget *w = widget->focusWidget();
                     while (w && w->focusProxy())
                         w = w->focusProxy();
