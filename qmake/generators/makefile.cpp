@@ -1566,16 +1566,16 @@ bool ReplaceExtraCompilerCacheKey::operator==(const ReplaceExtraCompilerCacheKey
 
 
 QString
-MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const QString &in, const QString &out)
 {
     //lazy cache
-    ReplaceExtraCompilerCacheKey cacheKey(var, in, out);
+    ReplaceExtraCompilerCacheKey cacheKey(orig_var, in, out);
     QString cacheVal = extraCompilerVariablesCache.value(cacheKey);
     if(!cacheVal.isNull())
         return cacheVal;
 
     //do the work
-    QString ret = var;
+    QString ret = orig_var;
     QRegExp reg_var("\\$\\{.*\\}");
     reg_var.setMinimal(true);
     for(int rep = 0; (rep = reg_var.indexIn(ret, rep)) != -1; ) {
@@ -1590,6 +1590,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             const QString varname = var.mid(12);
             val = project->first(varname);
         }
+
         if(val.isNull() && !in.isNull()) {
             if(var.startsWith(QLatin1String("QMAKE_FUNC_FILE_IN_"))) {
                 filePath = true;
@@ -1621,8 +1622,12 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
                 if(val.isNull())
                     val = fi.fileName();
             }
-
         }
+        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_FUNC_"))) {
+            const QString funcname = var.mid(11);
+            val = project->expand(funcname, QStringList() << in << out).join(QString(Option::field_sep));
+        }
+
         if(!val.isNull()) {
             QString fullVal = val;
             if(filePath) {
@@ -1967,9 +1972,9 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if (inputs.isEmpty())
                 continue;
 
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString(), tmp_out);
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, escapeFilePaths(inputs).join(" "), tmp_out);
             t << escapeFilePath(tmp_out) << ": " << valList(escapeFilePaths(inputs)) << " " << valList(escapeFilePaths(deps)) << "\n\t"
-              << cmd.replace("${QMAKE_FILE_IN}", escapeFilePaths(inputs).join(" ")) << endl << endl;
+              << cmd << endl << endl;
             continue;
         }
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
