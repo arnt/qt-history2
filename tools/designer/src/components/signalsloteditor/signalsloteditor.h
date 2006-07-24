@@ -63,6 +63,7 @@ private:
 
     QDesignerFormWindowInterface *m_form_window;
     QAbstractItemModel *m_model;
+    bool m_showAllSignalsSlots;
 
     friend class SetMemberCommand;
 };

@@ -227,6 +227,9 @@ public:
 
     void setSignalSlot(const QString &signal, const QString &slot);
 
+    bool showAllSignalsSlots() const;
+    void setShowAllSignalsSlots(bool showIt);
+
 private slots:
     void selectSignal(QListWidgetItem *item);
     void selectSlot(QListWidgetItem *item);
@@ -396,11 +399,9 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     m_ok_button->setEnabled(false);
     connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"));
-    m_show_all_checkbox->setChecked(false);
-    connect(m_show_all_checkbox, SIGNAL(toggled(bool)), this, SLOT(populateSignalList()));
-    m_buttonBox->addButton(m_show_all_checkbox, QDialogButtonBox::ActionRole);
 
+    m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"));
+    connect(m_show_all_checkbox, SIGNAL(toggled(bool)), this, SLOT(populateSignalList()));
 
     QLabel *source_label = new QLabel(this);
     source_label->setText(widgetLabel(core, source));
@@ -424,6 +425,7 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
     l4->addWidget(destination_label);
     l4->addWidget(m_slot_list);
 
+    l1->addWidget(m_show_all_checkbox);
     l1->addWidget(m_buttonBox);
 
     setWindowTitle(tr("Configure Connection"));
@@ -463,6 +465,16 @@ void OldSignalSlotDialog::setSignalSlot(const QString &signal, const QString &sl
         if (slot_item != 0)
             selectSlot(slot_item);
     }
+}
+
+bool OldSignalSlotDialog::showAllSignalsSlots() const
+{
+    return m_show_all_checkbox->isChecked();
+}
+
+void OldSignalSlotDialog::setShowAllSignalsSlots(bool showIt)
+{
+    m_show_all_checkbox->setChecked(showIt);
 }
 
 void OldSignalSlotDialog::selectSignal(QListWidgetItem *item)
@@ -647,7 +659,7 @@ void SetMemberCommand::undo()
 */
 
 SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent)
-    : ConnectionEdit(parent, form_window)
+    : ConnectionEdit(parent, form_window), m_showAllSignalsSlots(false)
 {
     m_form_window = form_window;
     m_model = new ConnectionModel(this, this);
@@ -667,14 +679,18 @@ void SignalSlotEditor::modifyConnection(Connection *con)
 {
     SignalSlotConnection *sigslot_con = static_cast<SignalSlotConnection*>(con);
 
-    OldSignalSlotDialog *dialog = new OldSignalSlotDialog(m_form_window->core(),
+    OldSignalSlotDialog dialog(m_form_window->core(),
                                                     sigslot_con->widget(EndPoint::Source),
                                                     sigslot_con->widget(EndPoint::Target));
-    dialog->setSignalSlot(sigslot_con->signal(), sigslot_con->slot());
-    if (dialog->exec() == QDialog::Accepted) {
-        sigslot_con->setSignal(dialog->signal());
-        sigslot_con->setSlot(dialog->slot());
+    dialog.setSignalSlot(sigslot_con->signal(), sigslot_con->slot());
+    dialog.setShowAllSignalsSlots(m_showAllSignalsSlots);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        sigslot_con->setSignal(dialog.signal());
+        sigslot_con->setSlot(dialog.slot());
     }
+
+    m_showAllSignalsSlots = dialog.showAllSignalsSlots();
 }
 
 Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destination)
@@ -684,15 +700,16 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
     Q_ASSERT(source != 0);
     Q_ASSERT(destination != 0);
 
-    OldSignalSlotDialog *dialog = new OldSignalSlotDialog(m_form_window->core(), source, destination);
+    OldSignalSlotDialog dialog(m_form_window->core(), source, destination);
+    dialog.setShowAllSignalsSlots(m_showAllSignalsSlots);
 
-    if (dialog->exec() == QDialog::Accepted) {
+    if (dialog.exec() == QDialog::Accepted) {
         con = new SignalSlotConnection(this, source, destination);
-        con->setSignal(dialog->signal());
-        con->setSlot(dialog->slot());
+        con->setSignal(dialog.signal());
+        con->setSlot(dialog.slot());
     }
 
-    delete dialog;
+    m_showAllSignalsSlots = dialog.showAllSignalsSlots();
 
     return con;
 }
