@@ -336,11 +336,13 @@ void QAbstractScrollAreaPrivate::layoutChildren()
             horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
 #endif
         scrollBarContainers[Qt::Horizontal]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
+        scrollBarContainers[Qt::Horizontal]->raise();
     }
 
     if (needv) {
         const QRect verticalScrollbarRect  (QPoint(cornerPoint.x(), controlsRect.top()),  QPoint(controlsRect.right(), cornerPoint.y() - 1));
         scrollBarContainers[Qt::Vertical]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollbarRect));
+        scrollBarContainers[Qt::Vertical]->raise();
     }
 
     if (cornerWidget) {
