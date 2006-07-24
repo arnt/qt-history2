@@ -350,7 +350,6 @@ int QFrame::midLineWidth() const
 void QFramePrivate::updateStyledFrameWidths()
 {
     Q_Q(const QFrame);
-    q->ensurePolished();
     QStyleOptionFrameV2 opt;
     opt.initFrom(q);
     QRect cr = q->style()->subElementRect(QStyle::SE_FrameContents, &opt, q);
