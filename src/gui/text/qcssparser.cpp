@@ -17,6 +17,8 @@
 #include <QColor>
 #include <QFont>
 #include <QPixmap>
+#include <QIcon>
+#include <QFileInfo>
 
 #include "qcssscanner.cpp"
 
@@ -397,19 +399,12 @@ void Declaration::styleValues(BorderStyle *s) const
 
 void Declaration::radiiValues(QSize *radii, const char *unit) const
 {
-    radiusValue(&radii[0], unit);
+    radii[0] = sizeValue(unit);
     for (int i = 1; i < 4; i++) 
         radii[i] = radii[0];
 }
 
-void Declaration::radiusValue(QSize *radius, const char *unit) const
-{
-    if (values.count() > 2 || values.count() < 1)
-        return;
-    sizeValue(radius, unit, 0);
-}
-
-void Declaration::sizeValue(QSize *size, const char *unit, int offset) const
+QSize Declaration::sizeValue(const char *unit, int offset) const
 {
     int x[2] = { 0, 0 };
     if (values.count() > offset)
@@ -418,7 +413,7 @@ void Declaration::sizeValue(QSize *size, const char *unit, int offset) const
         intValue(values.at(1+offset), &x[1], unit);
     else
         x[1] = x[0];
-    *size = QSize(x[0], x[1]);
+    return QSize(x[0], x[1]);
 }
 
 Repeat Declaration::repeatValue() const
@@ -444,7 +439,13 @@ QString Declaration::uriValue() const
     return values.first().variant.toString();
 }
 
-#include <QtDebug>
+QIcon Declaration::iconValue() const
+{
+    QIcon icon(uriValue());
+    if (!QFileInfo(uriValue()).exists())
+        qWarning() << "Failed to load icon " << uriValue();
+    return icon;
+}
 
 void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
 {
@@ -459,7 +460,7 @@ void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
             if (values.at(1).variant.toInt() == Value_Auto)
                *size = pixmap->size();
         } else
-            sizeValue(size, 0, 1);
+            *size = sizeValue(0, 1);
     }
 }
 
@@ -493,7 +494,10 @@ void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
                                    TileMode *h, TileMode *v) const
 {
     *pixmap = QPixmap(uriValue());
-    for (int i = 0; i < 4; i++) cuts[i] = -1;
+    if (pixmap->isNull())
+        qWarning() << "Failed to load url " << uriValue();
+    for (int i = 0; i < 4; i++) 
+        cuts[i] = -1;
     *h = *v = TileMode_Stretch;
 
     if (values.count() < 2)

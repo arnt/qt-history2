@@ -248,7 +248,8 @@ struct Q_GUI_EXPORT Declaration
     Qt::Alignment alignmentValue() const;
     QString uriValue() const;
     void pixmapValue(QPixmap *pixmap, QSize *size) const;
-    void sizeValue(QSize *radius, const char *unit = 0, int offset = 0) const;
+    QIcon iconValue() const;
+    QSize sizeValue(const char *unit = 0, int offset = 0) const;
     void borderImageValue(QPixmap *pixmap, int *cuts, TileMode *h, TileMode *v) const;
 };
 
