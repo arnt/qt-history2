@@ -325,8 +325,8 @@ void QtBrushEditor::setBrush(const QBrush &brush)
         currentType = tr("Color Pattern");
     }
 
-    QString preview = tr("%1 Preview").arg(currentType);
-    d_ptr->m_ui.previewBox->setTitle(preview);
+//    QString preview = tr("%1 Preview").arg(currentType);
+//    d_ptr->m_ui.previewBox->setTitle(preview);
 }
 
 QBrush QtBrushEditor::brush() const
