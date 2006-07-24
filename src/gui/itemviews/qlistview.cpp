@@ -1122,7 +1122,7 @@ QModelIndex QListView::indexAt(const QPoint &p) const
     QRect rect(p.x() + horizontalOffset(), p.y() + verticalOffset(), 1, 1);
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
-                        ? d->intersectVector.first() : QModelIndex();
+                        ? d->intersectVector.last() : QModelIndex();
     if (index.isValid() && visualRect(index).contains(p))
         return index;
     return QModelIndex();
@@ -1360,22 +1360,27 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     QItemSelection selection;
     QModelIndex tl;
     QModelIndex br;
-    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-    for (; it != d->intersectVector.end(); ++it) {
-        if (!tl.isValid() && !br.isValid()) {
-            tl = br = *it;
-        } else if ((*it).row() == (tl.row() - 1)) {
-            tl = *it; // expand current range
-        } else if ((*it).row() == (br.row() + 1)) {
-            br = (*it); // expand current range
-        } else {
-            selection.select(tl, br); // select current range
-            tl = br = *it; // start new range
+
+    if (rect.width() == 1 && rect.height() == 1 && !d->intersectVector.isEmpty()) {
+        tl = br = d->intersectVector.last(); // special case for mouse press; only select the top item
+    } else {
+        QVector<QModelIndex>::iterator it = d->intersectVector.begin();
+        for (; it != d->intersectVector.end(); ++it) {
+            if (!tl.isValid() && !br.isValid()) {
+                tl = br = *it;
+            } else if ((*it).row() == (tl.row() - 1)) {
+                tl = *it; // expand current range
+            } else if ((*it).row() == (br.row() + 1)) {
+                br = (*it); // expand current range
+            } else {
+                selection.select(tl, br); // select current range
+                tl = br = *it; // start new range
+            }
         }
     }
+    
     if (tl.isValid() && br.isValid())
         selection.select(tl, br);
-
     d->selectionModel->select(selection, command);
 }
 
