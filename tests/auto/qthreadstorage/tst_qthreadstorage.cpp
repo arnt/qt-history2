@@ -13,11 +13,15 @@
 #include <qmutex.h>
 #include <qthread.h>
 #include <qwaitcondition.h>
-
-
-
-
 #include <qthreadstorage.h>
+
+#ifdef Q_OS_UNIX
+#include <pthread.h>
+#endif
+#ifdef Q_OS_WIN
+#include <process.h>
+#include <windows.h>
+#endif
 
 //TESTED_CLASS=
 //TESTED_FILES=corelib/thread/qthreadstorage.h corelib/thread/qthreadstorage.cpp
@@ -184,6 +188,9 @@ void tst_QThreadStorage::adoptedThreads()
 #endif
     }
     QVERIFY(threadStorageOk);
+    #ifdef Q_OS_WIN
+        QEXPECT_FAIL("", "Not implemented on Windows yet", Abort);
+    #endif
     QCOMPARE(Pointer::count, c);
 }
 
