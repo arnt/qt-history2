@@ -124,8 +124,8 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
                  manager->d_func()->dirtyRegion(QDecoration::All,
                                                 QDecoration::Normal, r);
         }
-#endif
     }
+#endif
 
     if (window() && !expose.isEmpty())
         window()->d_func()->invalidateBuffer(expose);
