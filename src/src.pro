@@ -39,6 +39,7 @@ src_plugins.subdir = $$PWD/plugins
    src_sql.depends = src_gui
    src_qt3support.depends = src_gui src_xml src_network src_sql
    src_tools_uic3.depends = src_qt3support src_xml
+   src_tools_idc.depends = src_corelib
    src_tools_activeqt.depends = src_tools_idc src_gui
    src_plugins.depends = src_gui src_sql src_svg
    contains(QT_CONFIG, qt3support): src_plugins.depends += src_qt3support

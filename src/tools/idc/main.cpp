@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include <QFile>
+#include <QSysInfo>
+#include <QProcess>
+#include <QLibraryInfo>
 #include <qt_windows.h>
 #include <io.h>
 
@@ -20,6 +23,35 @@ static QString quotePath(const QString &s)
     if (!s.startsWith("\"") && s.contains(' '))
         return "\"" + s + "\"";
     return s;
+}
+
+static bool runWithQtInEnvironment(const QString &cmd)
+{
+    QProcess proc;
+    
+    // prepend the qt binary directory to the path
+    QStringList env = QProcess::systemEnvironment();
+    for (int i=0; i<env.count(); ++i) {
+        QString var = env.at(i);
+        int setidx = var.indexOf(QLatin1Char('='));
+        if (setidx != -1) {
+            QString varname = var.left(setidx).trimmed().toUpper();
+            if (varname == QLatin1String("PATH")) {
+                var = var.mid(setidx + 1);
+                var = QLatin1String("PATH=") + 
+                    QLibraryInfo::location(QLibraryInfo::BinariesPath) +
+                    QLatin1Char(';') + var;
+                env[i] = var;
+                break;
+            }
+        }
+    }
+
+    proc.setEnvironment(env);
+    proc.start(cmd);
+    proc.waitForFinished(-1);
+    
+    return (proc.exitCode() == 0);
 }
 
 static bool attachTypeLibrary(const QString &applicationName, int resource, const QByteArray &data, QString *errorMessage)
@@ -70,7 +102,7 @@ static bool registerServer(const QString &input)
 {
     bool ok = false;    
     if (input.endsWith(".exe")) {
-        ok = system((quotePath(input) + " -regserver").toLocal8Bit()) == 0;
+        ok = runWithQtInEnvironment((quotePath(input) + " -regserver").toLocal8Bit());
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -97,7 +129,7 @@ static bool unregisterServer(const QString &input)
 {
     bool ok = false;
     if (input.endsWith(".exe")) {        
-        ok = system((quotePath(input) + " -unregserver").toLocal8Bit()) == 0;
+        ok = runWithQtInEnvironment((quotePath(input) + " -unregserver").toLocal8Bit());
     } else {
         HMODULE hdll = 0;
         QT_WA({
@@ -125,8 +157,7 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
     HRESULT res = E_FAIL;
     
     if (input.endsWith(".exe")) {
-        int ec = system((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).toLocal8Bit());
-        if (ec == 0)
+        if (runWithQtInEnvironment((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).toLocal8Bit()))
             res = S_OK;
     } else {
         HMODULE hdll = 0;
