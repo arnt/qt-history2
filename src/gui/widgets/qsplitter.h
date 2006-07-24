@@ -105,6 +105,9 @@ public:
     inline QT3_SUPPORT void moveToLast(QWidget *w) { addWidget(w); }
     inline QT3_SUPPORT void setCollapsible(QWidget *w, bool collapse)
     { setCollapsible(indexOf(w), collapse); }
+    QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    QT3_SUPPORT int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
 #endif
 
 private:

@@ -3215,6 +3215,109 @@ void QLineEditPrivate::redo() {
     Use selectedText() instead.
 */
 
+/*!
+    \fn void QLineEdit::setFrameRect(QRect)
+    \internal
+*/
+
+/*!
+    \fn QRect QLineEdit::frameRect() const
+    \internal
+*/
+/*!
+    \enum QLineEdit::DummyFrame
+    \internal
+
+    \value Box
+    \value Sunken
+    \value Plain
+    \value Raised
+    \value MShadow
+    \value NoFrame
+    \value Panel 
+    \value StyledPanel
+    \value HLine 
+    \value VLine 
+    \value GroupBoxPanel
+    \value WinPanel 
+    \value ToolBarPanel 
+    \value MenuBarPanel 
+    \value PopupPanel 
+    \value LineEditPanel 
+    \value TabWidgetPanel 
+    \value MShape
+*/
+
+/*!
+    \fn void QLineEdit::setFrameShadow(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn DummyFrame QLineEdit::frameShadow() const
+    \internal
+*/
+
+/*!
+    \fn void QLineEdit::setFrameShape(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn DummyFrame QLineEdit::frameShape() const
+    \internal
+*/
+
+/*!
+    \fn void QLineEdit::setFrameStyle(int)
+    \internal
+*/
+
+/*!
+    \fn int QLineEdit::frameStyle() const
+    \internal
+*/
+
+/*!
+    \fn int QLineEdit::frameWidth() const
+    \internal
+*/
+
+/*!
+    \fn void QLineEdit::setLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int QLineEdit::lineWidth() const
+    \internal
+*/
+
+/*!
+    \fn void QLineEdit::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    Use QWidget::setContentsMargins() instead.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int QLineEdit::margin() const 
+    Returns the with of the the margin around the contents of the widget.
+    
+    Use QWidget::getContentsMargins() instead.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
+/*!
+    \fn void QLineEdit::setMidLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int QLineEdit::midLineWidth() const
+    \internal
+*/
 
 #include "moc_qlineedit.cpp"
 

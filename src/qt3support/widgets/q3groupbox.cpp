@@ -410,12 +410,38 @@ void Q3GroupBox::changeEvent(QEvent *ev)
     QGroupBox::changeEvent(ev);
 }
 
+
+/*!
+    \fn void Q3GroupBox::setFrameRect(QRect)
+    \internal
+*/
+
+/*!
+    \fn QRect Q3GroupBox::frameRect() const
+    \internal
+*/
 /*!
     \enum Q3GroupBox::DummyFrame
     \internal
 
     \value Box
     \value Sunken
+    \value Plain
+    \value Raised
+    \value MShadow
+    \value NoFrame
+    \value Panel 
+    \value StyledPanel
+    \value HLine 
+    \value VLine 
+    \value GroupBoxPanel
+    \value WinPanel 
+    \value ToolBarPanel 
+    \value MenuBarPanel 
+    \value PopupPanel 
+    \value LineEditPanel 
+    \value TabWidgetPanel 
+    \value MShape
 */
 
 /*!
@@ -424,6 +450,67 @@ void Q3GroupBox::changeEvent(QEvent *ev)
 */
 
 /*!
+    \fn DummyFrame Q3GroupBox::frameShadow() const
+    \internal
+*/
+
+/*!
     \fn void Q3GroupBox::setFrameShape(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn DummyFrame Q3GroupBox::frameShape() const
+    \internal
+*/
+
+/*!
+    \fn void Q3GroupBox::setFrameStyle(int)
+    \internal
+*/
+
+/*!
+    \fn int Q3GroupBox::frameStyle() const
+    \internal
+*/
+
+/*!
+    \fn int Q3GroupBox::frameWidth() const
+    \internal
+*/
+
+/*!
+    \fn void Q3GroupBox::setLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int Q3GroupBox::lineWidth() const
+    \internal
+*/
+
+/*!
+    \fn void Q3GroupBox::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    This function uses QWidget::setContentsMargins() to set the margin.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int Q3GroupBox::margin() const 
+    Returns the with of the the margin around the contents of the widget.
+    
+    This function uses QWidget::getContentsMargins() to get the margin.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
+/*!
+    \fn void Q3GroupBox::setMidLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int Q3GroupBox::midLineWidth() const
     \internal
 */

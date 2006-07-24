@@ -1225,4 +1225,20 @@ bool QLCDNumber::event(QEvent *e)
     return QFrame::event(e);
 }
 
+/*!
+    \fn void QLCDNumber::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    Use QWidget::setContentsMargins() instead.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int QLCDNumber::margin() const
+    Returns the with of the the margin around the contents of the widget.
+    
+    Use QWidget::getContentsMargins() instead.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
 #endif // QT_NO_LCDNUMBER

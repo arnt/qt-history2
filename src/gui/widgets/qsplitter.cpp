@@ -1408,6 +1408,23 @@ void QSplitter::setOpaqueResize(bool on)
 
     Use setCollapsible(indexOf(\a widget, \a collapsible)) instead.
 */
+
+/*!
+    \fn void QSplitter::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    Use QWidget::setContentsMargins() instead.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int QSplitter::margin() const
+    Returns the with of the the margin around the contents of the widget.
+    
+    Use QWidget::getContentsMargins() instead.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
 #endif
 
 /*!
@@ -1717,4 +1734,5 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
 }
 #endif // QT_NO_TEXTSTREAM
 //#endif // QT3_SUPPORT
+
 #endif // QT_NO_SPLITTER

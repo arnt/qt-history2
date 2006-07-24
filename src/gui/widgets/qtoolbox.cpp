@@ -755,6 +755,22 @@ void QToolBox::itemRemoved(int index)
     Use widget() instead.
 */
 
+/*!
+    \fn void QToolBox::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    Use QWidget::setContentsMargins() instead.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int QToolBox::margin() const
+    Returns the with of the the margin around the contents of the widget.
+    
+    Use QWidget::getContentsMargins() instead.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
 /*! \reimp */
 bool QToolBox::event(QEvent *e)
 {

@@ -53,5 +53,6 @@ SOURCES += \
     widgets/q3button.cpp \
     widgets/q3rangecontrol.cpp \
     widgets/q3spinwidget.cpp \
+    widgets/q3popupmenu.cpp \
     widgets/q3combobox.cpp
 

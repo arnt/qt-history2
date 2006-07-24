@@ -197,6 +197,26 @@ public:
     QT3_SUPPORT int characterAt(int, QChar*) const;
     QT3_SUPPORT bool getSelection(int *, int *);
 
+    QT3_SUPPORT void setFrameRect(QRect) {}
+    QT3_SUPPORT QRect frameRect() const { return QRect(); }
+    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel, 
+                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel, 
+                      PopupPanel, LineEditPanel, TabWidgetPanel, MShape };
+    QT3_SUPPORT void setFrameShadow(DummyFrame) {}
+    QT3_SUPPORT DummyFrame frameShadow() const { return Plain; }
+    QT3_SUPPORT void setFrameShape(DummyFrame) {}
+    QT3_SUPPORT DummyFrame frameShape() const { return NoFrame; }
+    QT3_SUPPORT void setFrameStyle(int) {}
+    QT3_SUPPORT int frameStyle() const  { return 0; }
+    QT3_SUPPORT int frameWidth() const { return 0; }
+    QT3_SUPPORT void setLineWidth(int) {}
+    QT3_SUPPORT int lineWidth() const { return 0; }    
+    QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    QT3_SUPPORT int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    QT3_SUPPORT void setMidLineWidth(int) {}
+    QT3_SUPPORT int midLineWidth() const { return 0; }
+
 Q_SIGNALS:
     QT_MOC_COMPAT void lostFocus();
 #endif

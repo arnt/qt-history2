@@ -86,6 +86,9 @@ public:
     inline QT3_SUPPORT int removeItem(QWidget *item)
     { int i = indexOf(item); removeItem(i); return i; }
     inline QT3_SUPPORT QWidget *item(int index) const { return widget(index); }
+    QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    QT3_SUPPORT int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
 #endif
 
 private:

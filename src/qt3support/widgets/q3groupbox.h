@@ -52,9 +52,25 @@ public:
 
     void addSpace(int);
 
-    enum DummyFrame { Box, Sunken };
+    void setFrameRect(QRect) {}
+    QRect frameRect() const { return QRect(); }
+    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel, 
+                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel, 
+                      PopupPanel, LineEditPanel, TabWidgetPanel, MShape };
     void setFrameShadow(DummyFrame) {}
+    DummyFrame frameShadow() const { return Plain; }
     void setFrameShape(DummyFrame) {}
+    DummyFrame frameShape() const { return NoFrame; }
+    void setFrameStyle(int) {}
+    int frameStyle() const  { return 0; }
+    int frameWidth() const { return 0; }
+    void setLineWidth(int) {}
+    int lineWidth() const { return 0; }    
+    void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    void setMidLineWidth(int) {}
+    int midLineWidth() const { return 0; }
 
 protected:
     void childEvent(QChildEvent *);

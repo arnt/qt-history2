@@ -410,3 +410,18 @@ void Q3ProgressBar::paintEvent(QPaintEvent *)
     }
 }
 
+/*!
+    \fn void Q3ProgressBar::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    This function uses QWidget::setContentsMargins() to set the margin.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int Q3ProgressBar::margin() const
+    Returns the with of the the margin around the contents of the widget.
+    
+    This function uses QWidget::getContentsMargins() to get the margin.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/

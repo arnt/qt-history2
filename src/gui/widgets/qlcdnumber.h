@@ -90,6 +90,10 @@ public:
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
     QT3_SUPPORT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
+    
+    QT3_SUPPORT void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    QT3_SUPPORT int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
 #endif
 
 private:

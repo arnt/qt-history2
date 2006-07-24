@@ -1943,6 +1943,148 @@ int QMenuBar::findIdForAction(QAction *act) const
     Use hovered() instead.
 */
 
+/*!
+    \fn void QMenuBar::repaintArea(int a, int b)
+
+    Use update() instead.
+*/
+
+/*!
+    \fn void QMenuBar::cursorLeft(bool mark, int steps)
+
+    Use cursorForward() with a negative number of steps instead. For
+    example, cursorForward(mark, -steps).
+*/
+
+/*!
+    \fn void QMenuBar::cursorRight(bool mark, int steps)
+
+    Use cursorForward() instead.
+*/
+
+/*!
+    \fn bool QMenuBar::frame() const
+
+    Use hasFrame() instead.
+*/
+
+/*!
+    \fn void QMenuBar::clearValidator()
+
+    Use setValidator(0) instead.
+*/
+
+/*!
+    \fn bool QMenuBar::hasMarkedText() const
+
+    Use hasSelectedText() instead.
+*/
+
+/*!
+    \fn QString QMenuBar::markedText() const
+
+    Use selectedText() instead.
+*/
+
+/*!
+    \fn void QMenuBar::setFrameRect(QRect)
+    \internal
+*/
+
+/*!
+    \fn QRect QMenuBar::frameRect() const
+    \internal
+*/
+/*!
+    \enum QMenuBar::DummyFrame
+    \internal
+
+    \value Box
+    \value Sunken
+    \value Plain
+    \value Raised
+    \value MShadow
+    \value NoFrame
+    \value Panel 
+    \value StyledPanel
+    \value HLine 
+    \value VLine 
+    \value GroupBoxPanel
+    \value WinPanel 
+    \value ToolBarPanel 
+    \value MenuBarPanel 
+    \value PopupPanel 
+    \value LineEditPanel 
+    \value TabWidgetPanel 
+    \value MShape
+*/
+
+/*!
+    \fn void QMenuBar::setFrameShadow(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn DummyFrame QMenuBar::frameShadow() const
+    \internal
+*/
+
+/*!
+    \fn void QMenuBar::setFrameShape(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn DummyFrame QMenuBar::frameShape() const
+    \internal
+*/
+
+/*!
+    \fn void QMenuBar::setFrameStyle(int)
+    \internal
+*/
+
+/*!
+    \fn int QMenuBar::frameStyle() const
+    \internal
+*/
+
+/*!
+    \fn void QMenuBar::setLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int QMenuBar::lineWidth() const
+    \internal
+*/
+
+/*!
+    \fn void QMenuBar::setMargin(int margin)
+    Sets the width of the margin around the contents of the widget to \a margin.
+    
+    Use QWidget::setContentsMargins() instead.
+    \sa margin(), QWidget::setContentsMargins()
+*/
+
+/*!
+    \fn int QMenuBar::margin() const 
+    Returns the with of the the margin around the contents of the widget.
+    
+    Use QWidget::getContentsMargins() instead.
+    \sa setMargin(), QWidget::getContentsMargins()
+*/
+
+/*!
+    \fn void QMenuBar::setMidLineWidth(int)
+    \internal
+*/
+
+/*!
+    \fn int QMenuBar::midLineWidth() const
+    \internal
+*/
+
 // for private slots
 
 #include <moc_qmenubar.cpp>

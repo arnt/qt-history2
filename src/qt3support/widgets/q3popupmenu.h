@@ -31,6 +31,27 @@ public:
     inline int exec(const QPoint & pos, int indexAtPoint = 0) {
         return findIdForAction(QMenu::exec(pos, actions().value(indexAtPoint)));
     }
+
+    void setFrameRect(QRect) {}
+    QRect frameRect() const { return QRect(); }
+    enum DummyFrame { Box, Sunken, Plain, Raised, MShadow, NoFrame, Panel, StyledPanel, 
+                      HLine, VLine, GroupBoxPanel, WinPanel, ToolBarPanel, MenuBarPanel, 
+                      PopupPanel, LineEditPanel, TabWidgetPanel, MShape };
+    void setFrameShadow(DummyFrame) {}
+    DummyFrame frameShadow() const { return Plain; }
+    void setFrameShape(DummyFrame) {}
+    DummyFrame frameShape() const { return NoFrame; }
+    void setFrameStyle(int) {}
+    int frameStyle() const  { return 0; }
+    int frameWidth() const { return 0; }
+    void setLineWidth(int) {}
+    int lineWidth() const { return 0; }    
+    void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+    void setMidLineWidth(int) {}
+    int midLineWidth() const { return 0; }
+
 private:
     Q_DISABLE_COPY(Q3PopupMenu)
 };

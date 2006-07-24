@@ -55,6 +55,10 @@ public:
 
     void setVisible(bool visible);
 
+    void setMargin(int margin) { setContentsMargins(margin, margin, margin, margin); }
+    int margin() const 
+    { int margin; int dummy; getContentsMargins(&margin, &dummy, &dummy, &dummy);  return margin; }    
+
 public Q_SLOTS:
     void reset();
     virtual void setTotalSteps(int totalSteps);
