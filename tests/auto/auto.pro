@@ -88,15 +88,15 @@ SUBDIRS += bic \
            qdate \
            qdatetime \
            qdatetimeedit \
-           qdebug \
            qdbusabstractadaptor \
            qdbusconnection \
            qdbusinterface \
            qdbusmarshall \
-	   qdbusmetaobject \
+           qdbusmetaobject \
            qdbusmetatype \
-	   qdbusreply \
+           qdbusreply \
            qdbusxmlparser \
+           qdebug \
            qdeepcopy \
            qdesktopservices \
            qdesktopwidget \
@@ -115,6 +115,7 @@ SUBDIRS += bic \
            qfiledialog \
            qfileinfo \
            qfilesystemwatcher \
+           qflags \
            qfocusevent \
            qfocusframe \
            qfont \
@@ -165,7 +166,7 @@ SUBDIRS += bic \
            qmap \
            qmenu \
            qmenubar \
-           qmessageboxex \
+           qmessagebox \
            qmetaobject \
            qmetatype \
            qmouseevent \
