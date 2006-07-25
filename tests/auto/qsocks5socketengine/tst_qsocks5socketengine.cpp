@@ -594,7 +594,7 @@ void tst_QSocks5SocketEngine::downloadBigFile()
     if (QTestEventLoop::instance().timeout())
         QFAIL("Network operation timed out");
 
-    QCOMPARE(bytesAvailable, qint64(10000271));
+    QCOMPARE(bytesAvailable, qint64(10000281));
 
     QVERIFY(tmpSocket->state() == QAbstractSocket::ConnectedState);
 
@@ -616,7 +616,7 @@ void tst_QSocks5SocketEngine::exitLoopSlot()
 void tst_QSocks5SocketEngine::downloadBigFileSlot()
 {
     bytesAvailable += tmpSocket->readAll().size();
-    if (bytesAvailable == 10000271)
+    if (bytesAvailable == 10000281)
         QTestEventLoop::instance().exitLoop();
 }
 
