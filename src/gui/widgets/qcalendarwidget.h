@@ -135,6 +135,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_prevMonthClicked())
     Q_PRIVATE_SLOT(d_func(), void _q_nextMonthClicked())
     Q_PRIVATE_SLOT(d_func(), void _q_yearEditingFinished())
+    Q_PRIVATE_SLOT(d_func(), void _q_yearClicked())
+    Q_PRIVATE_SLOT(d_func(), void _q_monthChanged(QAction *act))
 
 };
 
