@@ -366,7 +366,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
-        QVarLengthArray<uint> processedTimers;
+        QVarLengthArray<MSG> processedTimers;
         while (!d->interrupt) {
             DWORD nCount = d->winEventNotifierList.count();
             Q_ASSERT(nCount < MAXIMUM_WAIT_OBJECTS - 1);
@@ -405,12 +405,13 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 if (msg.message == WM_TIMER) {
                     // avoid live-lock by keeping track of the timers we've already sent
                     bool found = false;
-                    for (int i = 0; !found && i < processedTimers.count(); ++i)
-                        found = (processedTimers.constData()[i] == msg.wParam);
-                    if (!found)
-                        processedTimers.append(msg.wParam);
-                    else
+                    for (int i = 0; !found && i < processedTimers.count(); ++i) {
+                        const MSG processed = processedTimers.constData()[i];
+                        found = (processed.wParam == msg.wParam && processed.hwnd == msg.hwnd && processed.lParam == msg.lParam);
+                    }
+                    if (found)
                         continue;
+                    processedTimers.append(msg);
                 } else if (msg.message == WM_QUIT) {
                     if (QCoreApplication::instance())
                         QCoreApplication::instance()->quit();
