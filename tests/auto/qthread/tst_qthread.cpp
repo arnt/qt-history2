@@ -722,6 +722,9 @@ void tst_QThread::adoptedThreadExec()
 */
 void tst_QThread::adoptedThreadFinished()
 {
+#ifdef Q_OS_WIN
+    QSKIP("Not implemented on Widnows yet, task: 122365", SkipAll);
+#endif
     NativeThreadWrapper nativeThread;
     nativeThread.setWaitForStop();
     nativeThread.startAndWait();
@@ -736,6 +739,9 @@ void tst_QThread::adoptedThreadFinished()
 
 void tst_QThread::adoptedThreadTerminated()
 {
+#ifdef Q_OS_WIN
+    QSKIP("Not implemented on Widnows yet, task: 122365", SkipAll);
+#endif   
     NativeThreadWrapper nativeThread;
     nativeThread.setWaitForStop();
     nativeThread.startAndWait();
