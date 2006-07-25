@@ -621,6 +621,8 @@ QScreen::QScreen(int display_id)
     clearCacheFunc = 0;
     grayscale = false;
     screencols = 0;
+    physWidth = 0;
+    physHeight = 0;
 }
 
 /*!

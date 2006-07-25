@@ -91,6 +91,9 @@ bool QVirtualScreen::connect(const QString &displayspec)
         dw = w = 640;
         dh = h = 480;
     }
+    const int dpi = 72;
+    physWidth = qRound(dw * 25.4 / dpi);
+    physHeight = qRound(dh * 25.4 / dpi);
     lstep = (dw * d + 7) / 8;
     size = h * lstep;
     mapsize = size;
@@ -1301,6 +1304,8 @@ bool QVNCScreen::connect(const QString &displaySpec)
     QScreen::dh = screen->deviceHeight();
     QScreen::lstep = screen->linestep();
     QScreen::data = screen->base();
+    QScreen::physWidth = screen->physicalWidth();
+    QScreen::physHeight = screen->physicalHeight();
     setOffset(screen->offset());
 
     d_ptr->subscreen = screen;

@@ -861,18 +861,17 @@ int QWidget::metric(PaintDeviceMetric m) const
     if (m == PdmWidth) {
         val = data->crect.width();
     } else if (m == PdmWidthMM) {
-        // 75 dpi is 3dpmm
-        val = (data->crect.width()*100)/288;
+        val = data->crect.width()*qt_screen->physicalWidth()/qt_screen->width();
     } else if (m == PdmHeight) {
         val = data->crect.height();
     } else if (m == PdmHeightMM) {
-        val = (data->crect.height()*100)/288;
+        val = data->crect.height()*qt_screen->physicalHeight()/qt_screen->height();
     } else if (m == PdmDepth) {
         return qwsDisplay()->depth();
     } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
-        return 72;
-     } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
-        return 72;
+        return qRound(qt_screen->width() / double(qt_screen->physicalWidth() / 25.4));
+    } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
+        return qRound(qt_screen->height() / double(qt_screen->physicalHeight() / 25.4));
     } else {
         val = QPaintDevice::metric(m);// XXX
     }

@@ -32,6 +32,7 @@
 #include <qscreen_qws.h>
 #include <qmousedriverfactory_qws.h>
 #include <qkbddriverfactory_qws.h>
+#include <qdebug.h>
 
 class QVFbScreenPrivate
 {
@@ -158,7 +159,8 @@ QVFbScreen::~QVFbScreen()
 
 bool QVFbScreen::connect(const QString &displaySpec)
 {
-    if (displaySpec.indexOf(QLatin1String(":Gray")) >= 0)
+    QStringList displayArgs = displaySpec.split(':');
+    if (displayArgs.contains(QLatin1String("Gray")))
         grayscale = true;
 
     key_t key = ftok(QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(displayId)), 'b');
@@ -184,6 +186,29 @@ bool QVFbScreen::connect(const QString &displaySpec)
     dh = h = d_ptr->hdr->height;
     d = d_ptr->hdr->depth;
     lstep = d_ptr->hdr->linestep;
+
+    // Handle display physical size spec.
+    QRegExp mmWidthRx("mmWidth(\\d+)");
+    int dimIdxW = displayArgs.indexOf(mmWidthRx);
+    QRegExp mmHeightRx("mmHeight(\\d+)");
+    int dimIdxH = displayArgs.indexOf(mmHeightRx);
+    if (dimIdxW >= 0) {
+        mmWidthRx.exactMatch(displayArgs.at(dimIdxW));
+        physWidth = mmWidthRx.cap(1).toInt();
+        if (dimIdxH < 0)
+            physHeight = dh*physWidth/dw;
+    }
+    if (dimIdxH >= 0) {
+        mmHeightRx.exactMatch(displayArgs.at(dimIdxH));
+        physHeight = mmHeightRx.cap(1).toInt();
+        if (dimIdxW < 0)
+            physWidth = dw*physHeight/dh;
+    }
+    if (dimIdxW < 0 && dimIdxH < 0) {
+        const int dpi = 72;
+        physWidth = qRound(dw * 25.4 / dpi);
+        physHeight = qRound(dh * 25.4 / dpi);
+    }
 
     qDebug("Connected to VFB server: %d x %d x %d", w, h, d);
 

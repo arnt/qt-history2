@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include <qdebug.h>
 
@@ -183,6 +184,37 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
         dw=w=vinfo.xres;
         dh=h=vinfo.yres;
     }
+
+    // Handle display physical size spec.
+    QStringList displayArgs = displaySpec.split(':');
+    QRegExp mmWidthRx("mmWidth(\\d+)");
+    int dimIdxW = displayArgs.indexOf(mmWidthRx);
+    QRegExp mmHeightRx("mmHeight(\\d+)");
+    int dimIdxH = displayArgs.indexOf(mmHeightRx);
+    if (dimIdxW >= 0) {
+        mmWidthRx.exactMatch(displayArgs.at(dimIdxW));
+        physWidth = mmWidthRx.cap(1).toInt();
+        if (dimIdxH < 0)
+            physHeight = dh*physWidth/dw;
+    }
+    if (dimIdxH >= 0) {
+        mmHeightRx.exactMatch(displayArgs.at(dimIdxH));
+        physHeight = mmHeightRx.cap(1).toInt();
+        if (dimIdxW < 0)
+            physWidth = dw*physHeight/dh;
+    }
+    if (dimIdxW < 0 && dimIdxH < 0) {
+        if (vinfo.width != 0 && vinfo.height != 0
+            && vinfo.width != UINT_MAX && vinfo.height != UINT_MAX) {
+            physWidth = vinfo.width;
+            physHeight = vinfo.height;
+        } else {
+            const int dpi = 72;
+            physWidth = qRound(dw * 25.4 / dpi);
+            physHeight = qRound(dh * 25.4 / dpi);
+        }
+    }
+
     dataoffset = yoff * lstep + xoff * d / 8;
     //qDebug("Using %dx%dx%d screen",w,h,d);
 

@@ -245,6 +245,9 @@ public:
     void setOffset(const QPoint &p);
     QPoint offset() const;
 
+    int physicalWidth() const { return physWidth; }   // physical display size in mm
+    int physicalHeight() const { return physHeight; } // physical display size in mm
+
 protected:
 
     QRgb screenclut[256];
@@ -277,6 +280,9 @@ protected:
     int mapsize;       // Total mapped memory
 
     int displayId;
+
+    int physWidth;
+    int physHeight;
 
     friend class QWSServer;
     friend class QWSServerPrivate;

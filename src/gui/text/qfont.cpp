@@ -34,6 +34,9 @@
 #include "qx11info_x11.h"
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
+#ifdef Q_WS_QWS
+#include "qscreen_qws.h"
+#endif
 
 // #define QFONTCACHE_DEBUG
 #ifdef QFONTCACHE_DEBUG
@@ -119,7 +122,7 @@ Q_GUI_EXPORT int qt_defaultDpi()
     ScreenRes(&hr, &mdpi);
     dpi = int(mdpi);
 #elif defined(Q_WS_QWS)
-    dpi = 72;
+    dpi = qRound(qt_screen->height() / double(qt_screen->physicalHeight() / 25.4));
 #endif // Q_WS_X11
 
     return dpi;
