@@ -50,7 +50,9 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
         static int reported = 0;
         if (!reported++)
 #endif
+#ifndef QTOPIA_NO_ICONV_OPEN_ERRORS
         fprintf(stderr, "QIconvCodec::convertToUnicode: using ASCII for conversion, iconv_open failed\n");
+#endif
         return QString::fromAscii(chars, len);
     }
 
