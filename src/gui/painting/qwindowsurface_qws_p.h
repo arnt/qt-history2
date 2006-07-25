@@ -30,6 +30,7 @@
 #include <qimage.h>
 #include <private/qsharedmemory_p.h>
 
+class QScreen;
 class QWSWindowSurfacePrivate;
 
 class Q_GUI_EXPORT QWSWindowSurface : public QWindowSurface
@@ -178,13 +179,13 @@ public:
     void resize(const QSize &size);
 
     const QString key() const { return QLatin1String("OnScreen"); }
-    const QByteArray data() const { return QByteArray(); }
+    const QByteArray data() const;
 
-    bool attach(const QByteArray &) { return true; }
+    bool attach(const QByteArray &data);
     void detach() {}
 
 private:
-    void attachToScreen();
+    void attachToScreen(const QScreen *screen);
 
     mutable QRect brect;
 };

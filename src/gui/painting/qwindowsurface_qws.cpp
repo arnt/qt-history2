@@ -20,18 +20,30 @@
 #include <qdatastream.h>
 #include <qrgb.h>
 #include <qpaintengine.h>
+#include <qdesktopwidget.h>
 #include <private/qapplication_p.h>
 #include <private/qwsdisplay_qws_p.h>
 #include <private/qwidget_p.h>
 #include <private/qwsmanager_p.h>
 #include <private/qwslock_p.h>
 
-#include <qdebug.h>
-
 static inline bool isWidgetOpaque(const QWidget *w)
 {
     const QBrush brush = w->palette().brush(w->backgroundRole());
     return (brush.style() == Qt::NoBrush || brush.isOpaque());
+}
+
+static inline QScreen *getScreen(const QWidget *w)
+{
+    const int screen = QApplication::desktop()->screenNumber(w);
+    if (screen < 0)
+        return qt_screen;
+
+    const QList<QScreen*> subScreens = qt_screen->subScreens();
+    if (subScreens.isEmpty())
+        return qt_screen;
+
+    return qt_screen->subScreens().at(screen);
 }
 
 class QWSWindowSurfacePrivate
@@ -304,7 +316,7 @@ QWSMemorySurface::preferredImageFormat(const QWidget *widget) const
 {
     const bool opaque = isWidgetOpaque(widget);
 
-    if (opaque && qt_screen->depth() <= 16)
+    if (opaque && getScreen(widget)->depth() <= 16)
         return QImage::Format_RGB16;
     else
         return QImage::Format_ARGB32_Premultiplied;
@@ -546,22 +558,21 @@ const QByteArray QWSSharedMemSurface::data() const
 QWSOnScreenSurface::QWSOnScreenSurface(QWidget *w)
     : QWSMemorySurface(w)
 {
-    attachToScreen();
+    attachToScreen(getScreen(w));
     setSurfaceFlags(Opaque);
 }
 
 QWSOnScreenSurface::QWSOnScreenSurface()
     : QWSMemorySurface()
 {
-    attachToScreen();
     setSurfaceFlags(Opaque);
 }
 
-void QWSOnScreenSurface::attachToScreen()
+void QWSOnScreenSurface::attachToScreen(const QScreen *screen)
 {
-    uchar *base = qt_screen->base();
+    uchar *base = screen->base();
     QImage::Format format;
-    switch (qt_screen->depth()) {
+    switch (screen->depth()) {
     case 16:
         format = QImage::Format_RGB16;
         break;
@@ -571,8 +582,8 @@ void QWSOnScreenSurface::attachToScreen()
     default:
         return;
     }
-    QWSMemorySurface::img = QImage(base, qt_screen->width(),
-                                   qt_screen->height(), format);
+    QWSMemorySurface::img = QImage(base, screen->width(),
+                                   screen->height(), format);
 }
 
 QWSOnScreenSurface::~QWSOnScreenSurface()
@@ -599,6 +610,28 @@ void QWSOnScreenSurface::resize(const QSize &size)
 {
     brect = window()->frameGeometry();
     QWSWindowSurface::resize(size);
+}
+
+const QByteArray QWSOnScreenSurface::data() const
+{
+    QByteArray array;
+    array.resize(sizeof(int));
+    int *ptr = reinterpret_cast<int*>(array.data());
+    ptr[0] = QApplication::desktop()->screenNumber(window());
+    return array;
+}
+
+bool QWSOnScreenSurface::attach(const QByteArray &data)
+{
+    const int *ptr = reinterpret_cast<const int*>(data.constData());
+    const int screenNo = ptr[0];
+
+    QScreen *screen = qt_screen;
+    if (screenNo > 0)
+        screen = qt_screen->subScreens().at(screenNo);
+    attachToScreen(screen);
+
+    return true;
 }
 
 QWSYellowSurface::QWSYellowSurface(bool isClient)
