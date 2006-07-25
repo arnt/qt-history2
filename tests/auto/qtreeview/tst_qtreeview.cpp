@@ -455,9 +455,12 @@ void tst_QTreeView::keyboardNavigation()
 		index = index.sibling(row, column);
 	    }
             break;
-        case Qt::Key_Left:
-	    QVERIFY(!view.isExpanded(index));
+        case Qt::Key_Left: {
+            QScrollBar *b = view.horizontalScrollBar();
+            if (b->value() == b->minimum())
+	        QVERIFY(!view.isExpanded(index));
             break;
+        }
         case Qt::Key_Right:
 	    QVERIFY(view.isExpanded(index));
 	    break;
