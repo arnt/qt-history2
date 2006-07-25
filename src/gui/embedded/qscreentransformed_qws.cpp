@@ -17,7 +17,6 @@
 #include "qscreentransformed_qws.h"
 #include <qvector.h>
 #include <private/qpainter_p.h>
-#include <qdebug.h>
 #include <qmatrix.h>
 
 #include <unistd.h>
@@ -92,13 +91,6 @@ void qws_setScreenTransformation(int t)
     dynamically load the driver into the application, but there should
     only be one screen object per application.
 
-    The default implementation of QTransformedScreen inherits the
-    QVFbScreen class if the virtual framebuffer is enabled, or
-    QLinuxFbScreen if it is not. But note that any QScreen subclass,
-    or QScreen itself, can serve as its base class. This is easily
-    achieved by manipulating the \c QT_TRANS_SCREEN_BASE definition in
-    the header file.
-
     Use the QScreen::isTransformed() function to determine if a screen
     is transformed. The QTransformedScreen class itself provides means
     of rotating the screen with its setTransformation() function; the
@@ -124,91 +116,8 @@ void qws_setScreenTransformation(int t)
 */
 
 /*!
-    \fn void QTransformedScreen::blit(const QImage & img, const QPoint & topLeft, const QRegion & region)
-    \reimp
-*/
-
-/*!
-    \fn bool QTransformedScreen::connect(const QString & displaySpec)
-    \reimp
-*/
-
-/*!
-    \fn bool QTransformedScreen::isTransformed() const
-    \reimp
-*/
-
-/*!
-    \fn QSize QTransformedScreen::mapFromDevice(const QSize & s) const
-    \reimp
-*/
-
-/*!
-    \fn QPoint QTransformedScreen::mapFromDevice(const QPoint &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn QRect QTransformedScreen::mapFromDevice(const QRect &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn QRegion QTransformedScreen::mapFromDevice(const QRegion &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn QSize QTransformedScreen::mapToDevice(const QSize & s) const
-    \reimp
-*/
-
-/*!
-    \fn QPoint QTransformedScreen::mapToDevice(const QPoint &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn QRect QTransformedScreen::mapToDevice(const QRect &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn QRegion QTransformedScreen::mapToDevice(const QRegion &, const QSize &) const
-    \reimp
-*/
-
-/*!
-    \fn void QTransformedScreen::solidFill(const QColor & color, const QRegion & region)
-    \reimp
-*/
-
-/*!
-    \fn int QTransformedScreen::transformOrientation() const
-    \reimp
-*/
-
-/*!
-    \fn QTransformedScreen::QTransformedScreen(int displayId)
-
     Constructs a QTransformedScreen object. The \a displayId argument
     identifies the Qtopia Core server to connect to.
-*/
-
-/*!
-    \fn void QTransformedScreen::setTransformation ( Transformation transformation )
-
-    Rotates this screen object according to the specified \a transformation.
-
-    \sa transformation()
-*/
-
-/*!
-    \fn Transformation QTransformedScreen::transformation() const
-
-    Returns the currently set rotation.
-
-    \sa setTransformation(), QScreen::transformOrientation()
 */
 QTransformedScreen::QTransformedScreen(int display_id)
     : QScreen(display_id), d_ptr(new QTransformedScreenPrivate)
@@ -248,6 +157,9 @@ static QTransformedScreen::Transformation filterTransformation(QString &spec)
     return static_cast<QTransformedScreen::Transformation>(degrees / 90);
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::connect(const QString &displaySpec)
 {
     QString dspec = displaySpec.trimmed();
@@ -260,7 +172,6 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     if (dspec.endsWith(displayIdSpec))
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
-    qDebug() << "calling filterTransformation" << dspec;
     Transformation t = filterTransformation(dspec);
 
     const int id = getDisplayId(dspec);
@@ -287,25 +198,39 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     return true;
 }
 
+/*!
+    Returns the currently set rotation.
+
+    \sa setTransformation(), QScreen::transformOrientation()
+*/
 QTransformedScreen::Transformation QTransformedScreen::transformation() const
 {
     return d_ptr->transformation;
 }
 
+/*!
+    \reimp
+*/
 int QTransformedScreen::transformOrientation() const
 {
     return (int)d_ptr->transformation;
 }
 
-void QTransformedScreen::setTransformation(Transformation t)
+/*!
+    Rotates this screen object according to the specified \a transformation.
+
+    \sa transformation()
+*/
+void QTransformedScreen::setTransformation(Transformation transformation)
 {
-    d_ptr->transformation = t;
+    d_ptr->transformation = transformation;
     QSize s = mapFromDevice(QSize(dw, dh));
     w = s.width();
     h = s.height();
 
 #ifdef QT_REGION_DEBUG
-    qDebug() << "QTransformedScreen::setTransformation" << t << "size" << w << h << "dev size" << dw << dh;
+    qDebug() << "QTransformedScreen::setTransformation" << transformation
+             << "size" << w << h << "dev size" << dw << dh;
 #endif
 
 }
@@ -919,6 +844,9 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
 
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
 {
     QRegion tr = mapToDevice(region, QSize(w,h));
@@ -931,8 +859,9 @@ void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
     d_ptr->subscreen->solidFill(color, tr);
 }
 
-
-// Mapping functions
+/*!
+    \reimp
+*/
 QSize QTransformedScreen::mapToDevice(const QSize &s) const
 {
     switch (d_ptr->transformation) {
@@ -947,6 +876,9 @@ QSize QTransformedScreen::mapToDevice(const QSize &s) const
     return s;
 }
 
+/*!
+    \reimp
+*/
 QSize QTransformedScreen::mapFromDevice(const QSize &s) const
 {
     switch (d_ptr->transformation) {
@@ -961,6 +893,9 @@ QSize QTransformedScreen::mapFromDevice(const QSize &s) const
         return s;
 }
 
+/*!
+    \reimp
+*/
 QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const
 {
     QPoint rp(p);
@@ -985,6 +920,9 @@ QPoint QTransformedScreen::mapToDevice(const QPoint &p, const QSize &s) const
     return rp;
 }
 
+/*!
+    \reimp
+*/
 QPoint QTransformedScreen::mapFromDevice(const QPoint &p, const QSize &s) const
 {
     QPoint rp(p);
@@ -1009,10 +947,9 @@ QPoint QTransformedScreen::mapFromDevice(const QPoint &p, const QSize &s) const
     return rp;
 }
 
-
-
-
-
+/*!
+    \reimp
+*/
 QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
 {
     if (r.isNull())
@@ -1040,6 +977,9 @@ QRect QTransformedScreen::mapToDevice(const QRect &r, const QSize &s) const
     return correctNormalized(tr);
 }
 
+/*!
+    \reimp
+*/
 QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
 {
     if (r.isNull())
@@ -1067,6 +1007,9 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
     return correctNormalized(tr);
 }
 
+/*!
+    \reimp
+*/
 QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) const
 {
     if (d_ptr->transformation == None)
@@ -1115,6 +1058,9 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
     return trgn;
 }
 
+/*!
+    \reimp
+*/
 QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) const
 {
     if (d_ptr->transformation == None)
@@ -1162,12 +1108,18 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
     return trgn;
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::disconnect()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->disconnect();
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::initDevice()
 {
     if (d_ptr->subscreen)
@@ -1176,18 +1128,27 @@ bool QTransformedScreen::initDevice()
     return false;
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::shutdownDevice()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->shutdownDevice();
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::setMode(int w,int h, int d)
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->setMode(w, h, d);
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::supportsDepth(int depth) const
 {
     if (d_ptr->subscreen)
@@ -1195,6 +1156,9 @@ bool QTransformedScreen::supportsDepth(int depth) const
     return false;
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::save()
 {
     if (d_ptr->subscreen)
@@ -1202,6 +1166,9 @@ void QTransformedScreen::save()
     QScreen::save();
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::restore()
 {
     if (d_ptr->subscreen)
@@ -1209,12 +1176,18 @@ void QTransformedScreen::restore()
     QScreen::restore();
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::blank(bool on)
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->blank(on);
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::onCard(const unsigned char *ptr) const
 {
     if (d_ptr->subscreen)
@@ -1222,6 +1195,9 @@ bool QTransformedScreen::onCard(const unsigned char *ptr) const
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::onCard(const unsigned char *ptr, ulong &offset) const
 {
     if (d_ptr->subscreen)
@@ -1229,6 +1205,9 @@ bool QTransformedScreen::onCard(const unsigned char *ptr, ulong &offset) const
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QTransformedScreen::isInterlaced() const
 {
     if (d_ptr->subscreen)
@@ -1236,6 +1215,9 @@ bool QTransformedScreen::isInterlaced() const
     return false;
 }
 
+/*!
+    \reimp
+*/
 int QTransformedScreen::memoryNeeded(const QString &str)
 {
     if (d_ptr->subscreen)
@@ -1244,6 +1226,9 @@ int QTransformedScreen::memoryNeeded(const QString &str)
         return QScreen::memoryNeeded(str);
 }
 
+/*!
+    \reimp
+*/
 int QTransformedScreen::sharedRamSize(void *ptr)
 {
     if (d_ptr->subscreen)
@@ -1252,18 +1237,27 @@ int QTransformedScreen::sharedRamSize(void *ptr)
         return QScreen::sharedRamSize(ptr);
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::haltUpdates()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->haltUpdates();
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::resumeUpdates()
 {
     if (d_ptr->subscreen)
         d_ptr->subscreen->resumeUpdates();
 }
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::setDirty(const QRect& rect)
 {
     if (!d_ptr->subscreen)
@@ -1273,6 +1267,9 @@ void QTransformedScreen::setDirty(const QRect& rect)
     d_ptr->subscreen->setDirty(r);
 }
 
+/*!
+    \reimp
+*/
 QWSWindowSurface* QTransformedScreen::createSurface(QWidget *widget) const
 {
     if (d_ptr->subscreen)
@@ -1280,6 +1277,9 @@ QWSWindowSurface* QTransformedScreen::createSurface(QWidget *widget) const
     return QScreen::createSurface(widget);
 }
 
+/*!
+    \reimp
+*/
 QList<QScreen*> QTransformedScreen::subScreens() const
 {
     if (d_ptr->subscreen)
@@ -1287,6 +1287,9 @@ QList<QScreen*> QTransformedScreen::subScreens() const
     return QScreen::subScreens();
 }
 
+/*!
+    \reimp
+*/
 QRegion QTransformedScreen::region() const
 {
     QRegion deviceRegion;
@@ -1295,19 +1298,8 @@ QRegion QTransformedScreen::region() const
     else
         deviceRegion = QScreen::region();
 
-    return mapFromDevice(deviceRegion);
-}
-
-QRegion QTransformedScreen::mapFromDevice(const QRegion region) const
-{
     const QSize size(deviceWidth(), deviceHeight());
-    const QVector<QRect> rects = region.rects();
-
-    QRegion r;
-    for (int i = 0; i < rects.size(); ++i)
-        r += mapFromDevice(rects.at(i), size);
-
-    return r;
+    return mapFromDevice(deviceRegion, size);
 }
 
 #endif // QT_NO_QWS_TRANSFORMED

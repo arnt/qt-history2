@@ -83,8 +83,6 @@ public:
     QRegion region() const;
 
 private:
-    QRegion mapFromDevice(const QRegion region) const;
-
     QTransformedScreenPrivate *d_ptr;
 };
 
