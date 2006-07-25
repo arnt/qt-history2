@@ -1876,7 +1876,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     transformation matrix.
 
     If \a matrix is the identity matrix and \a combine is false, this
-    function calls setMatrixEnabled(false). (The identity matrix is the
+    function calls setWorldMatrixEnabled(false). (The identity matrix is the
     matrix where QMatrix::m11() and QMatrix::m22() are 1.0 and the
     rest are 0.0.)
 
@@ -5163,7 +5163,8 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
     Sets the given render \a hint on the painter if \a on is true;
     otherwise clears the render hint.
 
-    \sa renderHints(), {QPainter#Rendering Quality}{Rendering Quality}
+    \sa setRenderHints(), renderHints(), {QPainter#Rendering
+    Quality}{Rendering Quality}
 */
 void QPainter::setRenderHint(RenderHint hint, bool on)
 {
@@ -5172,17 +5173,29 @@ void QPainter::setRenderHint(RenderHint hint, bool on)
         printf("QPainter::setRenderHint: hint=%x, %s\n", hint, on ? "on" : "off");
 #endif
 
+    setRenderHints(hint, on);
+}
+
+/*!
+    Sets the given render \a hints on the painter if \a on is true;
+    otherwise clears the render hints.
+
+    \sa setRenderHint(), renderHints(), {QPainter#Rendering
+    Quality}{Rendering Quality}
+*/
+
+void QPainter::setRenderHints(RenderHints hints, bool on)
+{
     if (!isActive()) {
         qWarning("QPainter::setRenderHint: Painter must be active to set rendering hints");
         return;
     }
-
     Q_D(QPainter);
 
     if (on)
-        d->state->renderHints |= hint;
+        d->state->renderHints |= hints;
     else
-        d->state->renderHints &= ~hint;
+        d->state->renderHints &= ~hints;
 
     d->state->dirtyFlags |= QPaintEngine::DirtyHints;
 }

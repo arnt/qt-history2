@@ -315,6 +315,7 @@ public:
     inline void eraseRect(const QRect &);
 
     void setRenderHint(RenderHint hint, bool on = true);
+    void setRenderHints(RenderHints hints, bool on = true);
     RenderHints renderHints() const;
 
     QPaintEngine *paintEngine() const;

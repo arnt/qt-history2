@@ -79,6 +79,7 @@ private slots:
     void setWindow();
 
     void combinedMatrix();
+    void renderHints();
 
 private:
     void fillData();
@@ -1129,6 +1130,31 @@ void tst_QPainter::combinedMatrix()
 
     QCOMPARE(pt.x(), 48.0);
     QCOMPARE(pt.y(), 16.0);
+}
+
+void tst_QPainter::renderHints()
+{
+    QImage img(1, 1, QImage::Format_RGB32);
+
+    QPainter p(&img);
+
+    // Turn off all...
+    p.setRenderHints(QPainter::RenderHints(0xffffffff), false);
+    QCOMPARE(p.renderHints(), QPainter::RenderHints(0));
+
+    // Single set/get
+    p.setRenderHint(QPainter::Antialiasing);
+    QVERIFY(p.renderHints() & QPainter::Antialiasing);
+
+    p.setRenderHint(QPainter::Antialiasing, false);
+    QVERIFY(!(p.renderHints() & QPainter::Antialiasing));
+
+    // Multi set/get
+    p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    QVERIFY(p.renderHints() & (QPainter::Antialiasing | QPainter::SmoothPixmapTransform));
+
+    p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, false);
+    QVERIFY(!(p.renderHints() & (QPainter::Antialiasing | QPainter::SmoothPixmapTransform)));
 }
 
 QTEST_MAIN(tst_QPainter)
