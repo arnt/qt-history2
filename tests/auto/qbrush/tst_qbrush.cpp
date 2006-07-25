@@ -10,6 +10,7 @@
 #include <QtTest/QtTest>
 
 #include "qbrush.h"
+#include <QPainter>
 
 #include <qdebug.h>
 
@@ -32,12 +33,12 @@ private slots:
 
     void badStyles();
 
-#if QT_VERSION > 0x040200
     void testQLinearGradientSetters();
     void testQRadialGradientSetters();
     void testQConicalGradientSetters();
     void testQGradientCopyConstructor();
-#endif
+
+    void textures();
 };
 
 Q_DECLARE_METATYPE(QBrush)
@@ -117,7 +118,6 @@ void tst_QBrush::stream()
     QCOMPARE(brush, cmp);
 }
 
-#if QT_VERSION > 0x040200
 void tst_QBrush::testQLinearGradientSetters()
 {
     QLinearGradient lg;
@@ -220,7 +220,6 @@ void tst_QBrush::testQGradientCopyConstructor()
     }
 
 }
-#endif
 
 void tst_QBrush::badStyles()
 {
@@ -259,5 +258,46 @@ void tst_QBrush::badStyles()
 
 }
 
-QTEST_APPLESS_MAIN(tst_QBrush)
+void fill(QPaintDevice *pd) {
+    QPainter p(pd);
+
+    int w = pd->width();
+    int h = pd->height();
+
+    p.fillRect(0, 0, w, h, Qt::white);
+    p.fillRect(0, 0, w/3, h/3, Qt::black);
+}
+
+void tst_QBrush::textures()
+{
+    QPixmap pixmap_source(10, 10);
+    QImage image_source(10, 10, QImage::Format_RGB32);
+
+    fill(&pixmap_source);
+    fill(&image_source);
+
+    // Create a pixmap brush and compare its texture and textureImage
+    // to the expected image
+    QBrush pixmap_brush;
+    pixmap_brush.setTexture(pixmap_source);
+    QCOMPARE(pixmap_brush.texture().toImage(), image_source);
+    QCOMPARE(pixmap_brush.textureImage(), image_source);
+
+    pixmap_brush = QBrush(pixmap_source);
+    QCOMPARE(pixmap_brush.texture().toImage(), image_source);
+    QCOMPARE(pixmap_brush.textureImage(), image_source);
+
+    // Create a image brush and compare its texture and textureImage
+    // to the expected image
+    QBrush image_brush;
+    image_brush.setTextureImage(image_source);
+    QCOMPARE(image_brush.texture().toImage(), image_source);
+    QCOMPARE(image_brush.textureImage(), image_source);
+
+    image_brush = QBrush(image_source);
+    QCOMPARE(image_brush.texture().toImage(), image_source);
+    QCOMPARE(image_brush.textureImage(), image_source);
+}
+
+QTEST_MAIN(tst_QBrush)
 #include "tst_qbrush.moc"

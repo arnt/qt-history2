@@ -19,6 +19,8 @@
 #include <QtCore/qvector.h>
 #include <QtGui/qcolor.h>
 #include <QtGui/qmatrix.h>
+#include <QtGui/qimage.h>
+#include <QtGui/qpixmap.h>
 
 QT_BEGIN_HEADER
 
@@ -40,6 +42,7 @@ public:
     QBrush(const QColor &color, const QPixmap &pixmap);
     QBrush(Qt::GlobalColor color, const QPixmap &pixmap);
     QBrush(const QPixmap &pixmap);
+    QBrush(const QImage &image);
 
     QBrush(const QBrush &brush);
 
@@ -57,6 +60,9 @@ public:
 
     QPixmap texture() const;
     void setTexture(const QPixmap &pixmap);
+
+    QImage textureImage() const;
+    void setTextureImage(const QImage &image);
 
     inline const QColor &color() const;
     void setColor(const QColor &color);

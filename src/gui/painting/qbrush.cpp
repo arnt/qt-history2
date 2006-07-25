@@ -77,10 +77,57 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     return pm;
 }
 
+QImage qt_imageForBrush(int brushStyle, bool invert)
+{
+    QImage image(8, 8, QImage::Format_MonoLSB);
+    const uchar *pattern = qt_patternForBrush(brushStyle, invert);
+
+    for (int y=0; y<8; ++y)
+        *image.scanLine(y) = pattern[y];
+
+    return image;
+}
+
 
 struct QTexturedBrushData : public QBrushData
 {
-    QPixmap pixmap;
+    QTexturedBrushData() {
+        m_pixmap = 0;
+    }
+
+    void setPixmap(const QPixmap &pm) {
+        if (m_pixmap)
+            delete m_pixmap;
+
+        if (pm.isNull())
+            m_pixmap = 0;
+        else
+            m_pixmap = new QPixmap(pm);
+
+        m_image = QImage();
+    }
+
+    void setImage(const QImage &image) {
+        m_image = image;
+        delete m_pixmap;
+        m_pixmap = 0;
+    }
+
+    QPixmap &pixmap() {
+        if (!m_pixmap) {
+            m_pixmap = new QPixmap(QPixmap::fromImage(m_image));
+        }
+        return *m_pixmap;
+    }
+
+    QImage &image() {
+        if (m_image.isNull() && m_pixmap)
+            m_image = m_pixmap->toImage();
+        return m_image;
+    }
+
+    QPixmap *m_pixmap;
+    QImage m_image;
 };
 
 struct QGradientBrushData : public QBrushData
@@ -233,7 +280,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
         return;
     case Qt::TexturePattern:
         d = new QTexturedBrushData;
-        static_cast<QTexturedBrushData *>(d)->pixmap = QPixmap();
+        static_cast<QTexturedBrushData *>(d)->setPixmap(QPixmap());
         break;
     case Qt::LinearGradientPattern:
     case Qt::RadialGradientPattern:
@@ -270,10 +317,22 @@ QBrush::QBrush()
 
 QBrush::QBrush(const QPixmap &pixmap)
 {
-// ## if pixmap was image, we could pick a nice color rather than
-// assuming black.
     init(Qt::black, Qt::TexturePattern);
     setTexture(pixmap);
+}
+
+
+/*!
+    Constructs a brush with a black color and a texture set to the
+    given \a image. The style is set to Qt::TexturePattern.
+
+    \sa setTextureImage()
+*/
+
+QBrush::QBrush(const QImage &image)
+{
+    init(Qt::black, Qt::TexturePattern);
+    setTextureImage(image);
 }
 
 /*!
@@ -425,11 +484,14 @@ void QBrush::detach(Qt::BrushStyle newStyle)
 
     QBrushData *x;
     switch(newStyle) {
-    case Qt::TexturePattern:
-        x = new QTexturedBrushData;
-        static_cast<QTexturedBrushData*>(x)->pixmap =
-            d->style == Qt::TexturePattern ? static_cast<QTexturedBrushData *>(d)->pixmap : QPixmap();
+    case Qt::TexturePattern: {
+        QTexturedBrushData *tbd = new QTexturedBrushData;
+        tbd->setPixmap(d->style == Qt::TexturePattern
+                       ? static_cast<QTexturedBrushData *>(d)->pixmap()
+                       : QPixmap());
+        x = tbd;
         break;
+        }
     case Qt::LinearGradientPattern:
     case Qt::RadialGradientPattern:
     case Qt::ConicalGradientPattern:
@@ -559,7 +621,8 @@ QPixmap *QBrush::pixmap() const
     if (d->style != Qt::TexturePattern)
         return 0;
     QTexturedBrushData *data  = static_cast<QTexturedBrushData*>(d);
-    return data->pixmap.isNull() ? 0 : &data->pixmap;
+    QPixmap &pixmap = data->pixmap();
+    return pixmap.isNull() ? 0 : &pixmap;
 }
 #endif
 
@@ -574,7 +637,8 @@ QPixmap *QBrush::pixmap() const
 QPixmap QBrush::texture() const
 {
     return d->style == Qt::TexturePattern
-                     ? static_cast<const QTexturedBrushData*>(d)->pixmap : QPixmap();
+                     ? ((QTexturedBrushData*) d)->pixmap()
+                     : QPixmap();
 }
 
 /*!
@@ -592,7 +656,47 @@ void QBrush::setTexture(const QPixmap &pixmap)
     if (!pixmap.isNull()) {
         detach(Qt::TexturePattern);
         QTexturedBrushData *data = static_cast<QTexturedBrushData *>(d);
-        data->pixmap = pixmap;
+        data->setPixmap(pixmap);
+    } else {
+        detach(Qt::NoBrush);
+    }
+}
+
+
+/*!
+    Returns the custom brush pattern, or a null image if no custom
+    brush pattern has been set.
+
+    If the texture was set as a QPixmap it will be converted to a
+    QImage.
+
+    \sa setTextureImage()
+*/
+
+QImage QBrush::textureImage() const
+{
+    return d->style == Qt::TexturePattern
+                     ? ((QTexturedBrushData *) d)->image()
+                     : QImage();
+}
+
+
+/*!
+    Sets the brush image to \a image. The style is set to
+    Qt::TexturePattern.
+
+    The current brush color will only have an effect for monochrome
+    images, i.e. for QImage::depth() == 1.
+
+    \sa textureImage()
+*/
+
+void QBrush::setTextureImage(const QImage &image)
+{
+    if (!image.isNull()) {
+        detach(Qt::TexturePattern);
+        QTexturedBrushData *data = static_cast<QTexturedBrushData *>(d);
+        data->setImage(image);
     } else {
         detach(Qt::NoBrush);
     }
@@ -704,8 +808,8 @@ bool QBrush::operator==(const QBrush &b) const
     if (b.d->style == d->style && b.d->color == d->color) {
         switch (d->style) {
         case Qt::TexturePattern: {
-            QPixmap us = static_cast<QTexturedBrushData *>(d)->pixmap;
-            QPixmap them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
+            QPixmap &us = ((QTexturedBrushData *) d)->pixmap();
+            QPixmap &them = ((QTexturedBrushData *) b.d)->pixmap();
             return ((us.isNull() && them.isNull()) || us.serialNumber() == them.serialNumber());
         }
         case Qt::LinearGradientPattern:

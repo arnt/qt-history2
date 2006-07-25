@@ -3158,15 +3158,15 @@ void QSpanData::setup(const QBrush &brush, int alpha)
         {
 
             type = Texture;
-            extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
-            QPixmap texture = brushStyle == Qt::TexturePattern
-                          ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
-            if (texture.depth() == 1) {
-                rasterBuffer->tempImage = rasterBuffer->colorizeBitmap(texture.toImage(),
-                                                                       brush.color());
-            } else {
-                rasterBuffer->tempImage = texture.toImage();
-            }
+            extern QImage qt_imageForBrush(int brushStyle, bool invert);
+            QImage texture = (brushStyle == Qt::TexturePattern)
+                             ? brush.texture().toImage()
+                             : qt_imageForBrush(brushStyle, true);
+
+            rasterBuffer->tempImage = (texture.depth() == 1)
+                                      ? rasterBuffer->colorizeBitmap(texture, brush.color())
+                                      : texture;
+
             initTexture(&rasterBuffer->tempImage, alpha, TextureData::Tiled);
         }
         break;
