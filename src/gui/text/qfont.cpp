@@ -122,6 +122,8 @@ Q_GUI_EXPORT int qt_defaultDpi()
     ScreenRes(&hr, &mdpi);
     dpi = int(mdpi);
 #elif defined(Q_WS_QWS)
+    if (!qt_screen)
+        return 72;
     dpi = qRound(qt_screen->height() / double(qt_screen->physicalHeight() / 25.4));
 #endif // Q_WS_X11
 
