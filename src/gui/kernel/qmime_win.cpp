@@ -743,7 +743,7 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
     if (canConvertFromMime(formatetc, mimeData)) {
         QByteArray data = mimeData->html().toUtf8();
         QByteArray result =
-            "Version 1.0\r\n"                    // 0-12
+            "Version:1.0\r\n"                    // 0-12
             "StartHTML:0000000105\r\n"            // 13-35
             "EndHTML:0000000000\r\n"            // 36-55
             "StartFragment:0000000000\r\n"            // 58-86
