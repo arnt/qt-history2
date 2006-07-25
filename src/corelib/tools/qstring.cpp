@@ -743,7 +743,7 @@ QString::QString(int size, QChar ch)
         ushort *b = d->array;
         const ushort value = ch.unicode();
         while (i != b)
-            *--i = value;
+           *--i = value;
     }
 }
 
@@ -5091,7 +5091,8 @@ float QString::toFloat(bool *ok) const
     Sets the string to the printed value of \a n in the specified \a
     base, and returns a reference to the string.
 
-    The base is 10 by default and must be between 2 and 36.
+    The base is 10 by default and must be between 2 and 36. For bases
+    other than 10, \a n is treated as an unsigned integer.
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::setNumFunction
@@ -5213,11 +5214,14 @@ QString &QString::setNum(double n, char f, int prec)
 
 
 /*!
-  \fn QString QString::number(long n, int base)
+    \fn QString QString::number(long n, int base)
 
     Returns a string equivalent of the number \a n according to the
-    specified \a base The base is 10 by default and must be between 2
-    and 36.
+    specified \a base.
+
+    The base is 10 by default and must be between 2
+    and 36. For bases other than 10, \a n is treated as an
+    unsigned integer.
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::numberFunction()
@@ -5688,7 +5692,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     The \a a argument is expressed in base \a base, which is 10 by
-    default and must be between 2 and 36.
+    default and must be between 2 and 36. For bases other than 10,
+    \a a is treated as an unsigned integer.
 
     The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to and filled with the character \a fillChar. A
@@ -5715,8 +5720,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \overload
 
     The \a base argument specifies the base to use when converting the
-    integer \a a into a string. The base must be between 2 and 36,
-    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
+    integer \a a into a string. The base must be between 2 and 36.
 */
 
 /*! \fn QString QString::arg(long a, int fieldWidth, int base, const QChar &fillChar) const
