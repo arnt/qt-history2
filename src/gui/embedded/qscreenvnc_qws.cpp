@@ -1256,6 +1256,9 @@ void QVNCScreen::setDirty(const QRect& rect)
     for (int y = y1; y <= r.bottom()/MAP_TILE_SIZE && y < MAP_HEIGHT; y++)
         for (int x = x1; x <= r.right()/MAP_TILE_SIZE && x < MAP_WIDTH; x++)
             d_ptr->hdr.map[y][x] = 1;
+
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->setDirty(rect);
 }
 
 static int getDisplayId(const QString &spec)
@@ -1289,7 +1292,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
         driver.truncate(colon);
 
     QScreen *screen;
-    if (driver.trimmed().isEmpty()) {
+    if (driver.trimmed().isEmpty() || QRegExp("\\d+").exactMatch(driver)) {
         screen = new QVirtualScreen(displayId);
         screen->connect(dspec);
     } else {
