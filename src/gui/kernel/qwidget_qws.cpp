@@ -721,10 +721,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         w = qMax(w,extra->minw);
         h = qMax(h,extra->minh);
     }
-    if (q->isWindow()) {
-        w = qMax(1, w);
-        h = qMax(1, h);
-    }
 
     QPoint oldp = q->geometry().topLeft();
     QSize olds = q->size();
