@@ -160,6 +160,7 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
         }
     } else if ( qName == QString("numerusform") ) {
         translations.append(accum);
+        m_isPlural = true;
     } else if ( qName == QString("translation") ) {
         if (translations.isEmpty())
             translations.append(accum);
