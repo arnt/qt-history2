@@ -23,37 +23,20 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_TRANSFORMED
 
-#ifdef QT_NO_QWS_QVFB
-#define QT_TRANS_SCREEN_BASE   QLinuxFbScreen
-#else
-#define QT_TRANS_SCREEN_BASE   QVFbScreen
-#endif
-
 class QTransformedScreenPrivate;
 
-#ifdef qdoc
 class QTransformedScreen : public QScreen
-#else
-class QTransformedScreen : public QT_TRANS_SCREEN_BASE
-#endif
 {
 public:
     explicit QTransformedScreen(int display_id);
     ~QTransformedScreen();
 
     enum Transformation { None, Rot90, Rot180, Rot270 };
-    bool connect(const QString &displaySpec);
 
     void setTransformation(Transformation t);
     Transformation transformation() const;
     int transformOrientation() const;
-    bool isTransformed() const { return transformation() != None; }
 
-    // drawing functions
-    void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
-    void solidFill(const QColor &color, const QRegion &region);
-
-    // Mapping functions
     QSize mapToDevice(const QSize &s) const;
     QSize mapFromDevice(const QSize &s) const;
 
@@ -66,7 +49,42 @@ public:
     QRegion mapToDevice(const QRegion &, const QSize &) const;
     QRegion mapFromDevice(const QRegion &, const QSize &) const;
 
+    bool connect(const QString &displaySpec);
+    bool initDevice();
+    void shutdownDevice();
+    void disconnect();
+
+    void setMode(int width, int height, int depth);
+    bool supportsDepth(int) const;
+
+    void save();
+    void restore();
+    void blank(bool on);
+
+    bool onCard(const unsigned char *) const;
+    bool onCard(const unsigned char *, ulong& out_offset) const;
+
+    bool isInterlaced() const;
+    bool isTransformed() const { return transformation() != None; }
+
+    int memoryNeeded(const QString&);
+    int sharedRamSize(void *);
+
+    void haltUpdates();
+    void resumeUpdates();
+
+    void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
+    void solidFill(const QColor &color, const QRegion &region);
+    void setDirty(const QRect&);
+
+    QWSWindowSurface* createSurface(QWidget *widget) const;
+
+    QList<QScreen*> subScreens() const;
+    QRegion region() const;
+
 private:
+    QRegion mapFromDevice(const QRegion region) const;
+
     QTransformedScreenPrivate *d_ptr;
 };
 

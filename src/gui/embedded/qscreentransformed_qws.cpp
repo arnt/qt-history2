@@ -60,10 +60,11 @@ class QTransformedScreenPrivate
 {
 public:
     QTransformedScreen::Transformation transformation;
+    QScreen *subscreen;
 };
 
 
-// Global function ---------------------------------------------------------------------------------
+// Global function -----------------------------------------------------------
 static QTransformedScreen *qt_trans_screen = 0;
 
 void qws_setScreenTransformation(int t)
@@ -74,9 +75,9 @@ void qws_setScreenTransformation(int t)
     }
 }
 
-// -------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // Transformed Screen
-// -------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 /*!
     \class QTransformedScreen
@@ -210,7 +211,7 @@ void qws_setScreenTransformation(int t)
     \sa setTransformation(), QScreen::transformOrientation()
 */
 QTransformedScreen::QTransformedScreen(int display_id)
-    : QT_TRANS_SCREEN_BASE(display_id), d_ptr(new QTransformedScreenPrivate)
+    : QScreen(display_id), d_ptr(new QTransformedScreenPrivate)
 {
     d_ptr->transformation = None;
     qt_trans_screen = this;
@@ -225,17 +226,65 @@ QTransformedScreen::~QTransformedScreen()
     delete d_ptr;
 }
 
+static int getDisplayId(const QString &spec)
+{
+    QRegExp regexp(":(\\d+)\\b");
+    if (regexp.lastIndexIn(spec) != -1) {
+        const QString capture = regexp.cap(1);
+        return capture.toInt();
+    }
+    return 0;
+}
+
+static QTransformedScreen::Transformation filterTransformation(QString &spec)
+{
+    QRegExp regexp("\\bRot(\\d+):?\\b", Qt::CaseInsensitive);
+    if (regexp.indexIn(spec) == -1)
+        return QTransformedScreen::None;
+
+    const int degrees = regexp.cap(1).toInt();
+    spec.remove(regexp.pos(0), regexp.matchedLength());
+
+    return static_cast<QTransformedScreen::Transformation>(degrees / 90);
+}
+
 bool QTransformedScreen::connect(const QString &displaySpec)
 {
-    bool result = QT_TRANS_SCREEN_BASE::connect(displaySpec);
-    int indexOfRot = displaySpec.indexOf(":Rot");
-    if (result && indexOfRot != -1) {
-       int lastIndexOfRot = displaySpec.lastIndexOf(":");
-       int t = qMin(displaySpec.mid(indexOfRot + 4, lastIndexOfRot - (indexOfRot + 4)).toUInt()/90, uint(Rot270));
+    QString dspec = displaySpec.trimmed();
+    if (dspec.startsWith("Transformed:", Qt::CaseInsensitive))
+        dspec = dspec.mid(QString("Transformed:").size());
+    else if (dspec == QLatin1String("Transformed"))
+        dspec = QString();
 
-        setTransformation(static_cast<Transformation>(t));
-    }
-    return result;
+    const QString displayIdSpec = QString(" :%1").arg(displayId);
+    if (dspec.endsWith(displayIdSpec))
+        dspec = dspec.left(dspec.size() - displayIdSpec.size());
+
+    qDebug() << "calling filterTransformation" << dspec;
+    Transformation t = filterTransformation(dspec);
+
+    const int id = getDisplayId(dspec);
+    QScreen *screen = qt_get_screen(id, dspec.toLatin1().constData());
+
+    QScreen::d = screen->depth();
+    QScreen::w = screen->width();
+    QScreen::h = screen->height();
+    QScreen::dw = screen->deviceWidth();
+    QScreen::dh = screen->deviceHeight();
+    QScreen::lstep = screen->linestep();
+    QScreen::data = screen->base();
+    QScreen::lstep = screen->linestep();
+    QScreen::size = screen->screenSize();
+    setOffset(screen->offset());
+
+    d_ptr->subscreen = screen;
+
+    setTransformation(t);
+
+    // XXX
+    qt_screen = this;
+
+    return true;
 }
 
 QTransformedScreen::Transformation QTransformedScreen::transformation() const
@@ -796,7 +845,7 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
 {
     const Transformation trans = d_ptr->transformation;
     if (trans == None) {
-        QT_TRANS_SCREEN_BASE::blit(image, topLeft, region);
+        d_ptr->subscreen->blit(image, topLeft, region);
         return;
     }
 
@@ -879,7 +928,7 @@ void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
 #ifdef QT_REGION_DEBUG
     qDebug() << "QTransformedScreen::solidFill region" << region << "transformed" << tr;
 #endif
-    QT_TRANS_SCREEN_BASE::solidFill(color, tr);
+    d_ptr->subscreen->solidFill(color, tr);
 }
 
 
@@ -1111,6 +1160,154 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
     qDebug() << "fromDevice: transRegion count: " << trgn.rects().size() << " isEmpty? " << trgn.isEmpty() << "  bounds:" << trgn.boundingRect();
 #endif
     return trgn;
+}
+
+void QTransformedScreen::disconnect()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->disconnect();
+}
+
+bool QTransformedScreen::initDevice()
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->initDevice();
+
+    return false;
+}
+
+void QTransformedScreen::shutdownDevice()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->shutdownDevice();
+}
+
+void QTransformedScreen::setMode(int w,int h, int d)
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->setMode(w, h, d);
+}
+
+bool QTransformedScreen::supportsDepth(int depth) const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->supportsDepth(depth);
+    return false;
+}
+
+void QTransformedScreen::save()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->save();
+    QScreen::save();
+}
+
+void QTransformedScreen::restore()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->restore();
+    QScreen::restore();
+}
+
+void QTransformedScreen::blank(bool on)
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->blank(on);
+}
+
+bool QTransformedScreen::onCard(const unsigned char *ptr) const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->onCard(ptr);
+    return false;
+}
+
+bool QTransformedScreen::onCard(const unsigned char *ptr, ulong &offset) const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->onCard(ptr, offset);
+    return false;
+}
+
+bool QTransformedScreen::isInterlaced() const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->isInterlaced();
+    return false;
+}
+
+int QTransformedScreen::memoryNeeded(const QString &str)
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->memoryNeeded(str);
+    else
+        return QScreen::memoryNeeded(str);
+}
+
+int QTransformedScreen::sharedRamSize(void *ptr)
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->sharedRamSize(ptr);
+    else
+        return QScreen::sharedRamSize(ptr);
+}
+
+void QTransformedScreen::haltUpdates()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->haltUpdates();
+}
+
+void QTransformedScreen::resumeUpdates()
+{
+    if (d_ptr->subscreen)
+        d_ptr->subscreen->resumeUpdates();
+}
+
+void QTransformedScreen::setDirty(const QRect& rect)
+{
+    if (!d_ptr->subscreen)
+        return;
+
+    const QRect r = mapToDevice(rect, QSize(width(), height()));
+    d_ptr->subscreen->setDirty(r);
+}
+
+QWSWindowSurface* QTransformedScreen::createSurface(QWidget *widget) const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->createSurface(widget);
+    return QScreen::createSurface(widget);
+}
+
+QList<QScreen*> QTransformedScreen::subScreens() const
+{
+    if (d_ptr->subscreen)
+        return d_ptr->subscreen->subScreens();
+    return QScreen::subScreens();
+}
+
+QRegion QTransformedScreen::region() const
+{
+    QRegion deviceRegion;
+    if (d_ptr->subscreen)
+        deviceRegion = d_ptr->subscreen->region();
+    else
+        deviceRegion = QScreen::region();
+
+    return mapFromDevice(deviceRegion);
+}
+
+QRegion QTransformedScreen::mapFromDevice(const QRegion region) const
+{
+    const QSize size(deviceWidth(), deviceHeight());
+    const QVector<QRect> rects = region.rects();
+
+    QRegion r;
+    for (int i = 0; i < rects.size(); ++i)
+        r += mapFromDevice(rects.at(i), size);
+
+    return r;
 }
 
 #endif // QT_NO_QWS_TRANSFORMED
