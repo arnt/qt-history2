@@ -541,6 +541,8 @@ qint64 QIODevice::pos() const
 
     If the device is closed, the size returned will not reflect the actual
     size of the device.
+
+    \sa isSequential(), pos()
 */
 qint64 QIODevice::size() const
 {
