@@ -44,6 +44,7 @@ extern CLSID CLSID_QPoint;
 extern void qax_shutDown();
 extern bool qax_ownQApp;
 
+
 QAxFactory *qAxFactory()
 {
     if (!qax_factory) {
@@ -155,6 +156,21 @@ unsigned long qAxLockCount()
 
 extern bool qax_disable_inplaceframe;
 
+QString qax_clean_type(const QString &type, const QMetaObject *mo)
+{
+    if (mo) {
+        int classInfoIdx = mo->indexOfClassInfo("CoClassAlias");
+        if (classInfoIdx != -1) {
+            const QMetaClassInfo classInfo = mo->classInfo(classInfoIdx);
+            return classInfo.value();
+        }
+    }
+
+    QString alias(type);
+    alias.remove(QLatin1String("::"));
+    return alias;
+}
+
 // (Un)Register the ActiveX server in the registry.
 // The QAxFactory implementation provides the information.
 HRESULT UpdateRegistry(BOOL bRegister)
@@ -208,11 +224,12 @@ HRESULT UpdateRegistry(BOOL bRegister)
 
         QStringList keys = qAxFactory()->featureList();
         for (QStringList::Iterator key = keys.begin(); key != keys.end(); ++key) {
-            const QString className = *key;
+            QString className = *key;
             QObject *object = qAxFactory()->createObject(className);
-
             const QMetaObject *mo = qAxFactory()->metaObject(className);
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
+
+            className = qax_clean_type(className, mo);
 
             if (object) { // don't register subobject classes
                 QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString();
@@ -287,21 +304,22 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 delete object;
             }
 
-            qAxFactory()->registerClass(className, &settings);
+            qAxFactory()->registerClass(*key, &settings);
         }
     } else {
         QStringList keys = qAxFactory()->featureList();
         for (QStringList::Iterator key = keys.begin(); key != keys.end(); ++key) {
-            const QString className = *key;
+            QString className = *key;
             const QMetaObject *mo = qAxFactory()->metaObject(className);
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
+            className = qax_clean_type(className, mo);
             
             QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString();
             if (classVersion.isNull())
                 classVersion = "1.0";
             const QString classMajorVersion = classVersion.left(classVersion.indexOf("."));
             
-            qAxFactory()->unregisterClass(className, &settings);
+            qAxFactory()->unregisterClass(*key, &settings);
             
             settings.remove("/" + module + "." + className + "." + classMajorVersion + "/CLSID/.");
             settings.remove("/" + module + "." + className + "." + classMajorVersion + "/Insertable/.");
@@ -441,6 +459,16 @@ static QByteArray convertTypes(const QByteArray &qtype, bool *ok)
     }
     if (subtypes.contains(qtype)) {
         *ok = true;
+    } else if (qtype.endsWith('*')) {
+        QByteArray cleanType = qtype.left(qtype.length() - 1);
+        const QMetaObject *mo = qAxFactory()->metaObject(cleanType);
+        if (mo) {
+            cleanType = qax_clean_type(QString::fromLatin1(cleanType), mo).toLatin1();
+            if (subtypes.contains(cleanType)) {
+                *ok = true;
+                return cleanType + '*';
+            }
+        }
     }
     return qtype;
 }
@@ -708,6 +736,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     bool hasEvents = !QUuid(eventsID).isNull();
     STRIPCB(eventsID);
     
+    QString cleanClassName = qax_clean_type(className, mo);
     QString defProp(mo->classInfo(mo->indexOfClassInfo("DefaultProperty")).value());
     QString defSignal(mo->classInfo(mo->indexOfClassInfo("DefaultSignal")).value());
     
@@ -777,9 +806,9 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     out << endl;
     out << "\t[" << endl;
     out << "\t\tuuid(" << interfaceID << ")," << endl;
-    out << "\t\thelpstring(\"" << className << " Interface\")" << endl;
+    out << "\t\thelpstring(\"" << cleanClassName << " Interface\")" << endl;
     out << "\t]" << endl;
-    out << "\tdispinterface I" << className  << endl;
+    out << "\tdispinterface I" << cleanClassName  << endl;
     out << "\t{" << endl;
     
     out << "\tproperties:" << endl;
@@ -881,9 +910,9 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     if (hasEvents) {
         out << "\t[" << endl;
         out << "\t\tuuid(" << eventsID << ")," << endl;
-        out << "\t\thelpstring(\"" << className << " Events Interface\")" << endl;
+        out << "\t\thelpstring(\"" << cleanClassName << " Events Interface\")" << endl;
         out << "\t]" << endl;
-        out << "\tdispinterface I" << className << "Events" << endl;
+        out << "\tdispinterface I" << cleanClassName << "Events" << endl;
         out << "\t{" << endl;
         out << "\tproperties:" << endl;
         out << "\tmethods:" << endl;
@@ -949,7 +978,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     if (helpString)
         out << "\t\thelpstring(\"" << helpString << "\")," << endl;
     else
-        out << "\t\thelpstring(\"" << className << " Class\")," << endl;
+        out << "\t\thelpstring(\"" << cleanClassName << " Class\")," << endl;
     const char *classVersion = mo->classInfo(mo->indexOfClassInfo("Version")).value();
     if (classVersion)
         out << "\t\tversion(" << classVersion << ")," << endl;
@@ -963,11 +992,11 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     }
     out << endl;
     out << "\t]" << endl;
-    out << "\tcoclass " << className << endl;
+    out << "\tcoclass " << cleanClassName << endl;
     out << "\t{" << endl;
-    out << "\t\t[default] dispinterface I" << className << ";" << endl;
+    out << "\t\t[default] dispinterface I" << cleanClassName << ";" << endl;
     if (hasEvents)
-        out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
+        out << "\t\t[default, source] dispinterface I" << cleanClassName << "Events;" << endl;
     out << "\t};" << endl;
     
     return S_OK;
@@ -1109,13 +1138,12 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
         const QMetaObject *mo = qAxFactory()->metaObject(className);
         // We have meta object information for this type. Forward declare it.
         if (mo) {
-            out << "\tcoclass " << className << ";" << endl;
-            QObject *o = qAxFactory()->createObject(className);
-            subtypes.append(className);
-            subtypes.append(className + "*");
-            qRegisterMetaType(className, (void**)0);
-            qRegisterMetaType(className + "*", (void**)0);
-            delete o;
+            QByteArray cleanType = qax_clean_type(*key, mo).toLatin1();
+            out << "\tcoclass " << cleanType << ";" << endl;
+            subtypes.append(cleanType);
+            subtypes.append(cleanType + "*");
+            qRegisterMetaType(cleanType, (void**)0);
+            qRegisterMetaType(cleanType + "*", (void**)0);
         }
     }
     out << endl;
@@ -1142,12 +1170,14 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
         QObject *o = qAxFactory()->createObject(className);
         if (!o)
             continue;
+        const QMetaObject *mo = o->metaObject();
         QAxBindable *bind = (QAxBindable*)o->qt_metacast("QAxBindable");
         bool isBindable =  bind != 0;
-        
-        subtypes.append(className);
-        subtypes.append(className + "*");
-        res = classIDL(o, o->metaObject(), className, isBindable, out);
+
+        QByteArray cleanType = qax_clean_type(*key, mo).toLatin1();
+        subtypes.append(cleanType);
+        subtypes.append(cleanType + "*");
+        res = classIDL(o, mo, className, isBindable, out);
         delete o;
         if (res != S_OK)
             break;

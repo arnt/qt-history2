@@ -829,6 +829,11 @@
     \o The object can handle data and files of the format specified in the 
        value. The value has the format mime:extension:description. Multiple 
        formats are separated by a semicolon.
+    \row
+    \o CoClassAlias
+    \o The classname used in the generated IDL and in the registry. This is
+       esp. useful for C++ classes that live in a namespace - by default, 
+       ActiveQt just removes the "::" to make the IDL compile.
     \endtable
 
     Note that both keys and values are case sensitive.
