@@ -134,6 +134,7 @@ class QAdoptedThread : public QThread
 public:
     QAdoptedThread(QThreadData *data = 0);
     ~QAdoptedThread();
+    void init();
 
 private:
     inline void run()

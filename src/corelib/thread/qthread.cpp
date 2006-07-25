@@ -118,6 +118,7 @@ QAdoptedThread::QAdoptedThread(QThreadData *data)
     // of the application (even if QCoreApplication goes away)
     d_func()->running = true;
     d_func()->finished = false;
+    init();
 
     // fprintf(stderr, "new QAdoptedThread = %p\n", this);
 }
@@ -126,11 +127,7 @@ QAdoptedThread::~QAdoptedThread()
 {
     Q_D(QThread);
 
-    // avoid warning from QThread
-    d->running = false;
-
-    delete d->data->eventDispatcher;
-    d->data->eventDispatcher = 0;
+    d->finish(this);
 
     // fprintf(stderr, "~QAdoptedThread = %p\n", this);
 }

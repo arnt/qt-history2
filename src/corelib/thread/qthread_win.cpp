@@ -52,9 +52,19 @@ QThreadData *QThreadData::current()
         threadData = new QThreadData;
         TlsSetValue(qt_current_thread_data_tls_index, threadData);
         threadData->thread = new QAdoptedThread(threadData);
-        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
+
+        const bool isMainThread = q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
+        if (!isMainThread)
+            threadData->thread->moveToThread(QCoreApplicationPrivate::theMainThread);
+
     }
     return threadData;
+}
+
+void QAdoptedThread::init()
+{
+//    d_func()->handle = GetCurrentThread();
+//    d_func()->id = GetCurrentThreadId();
 }
 
 /**************************************************************************

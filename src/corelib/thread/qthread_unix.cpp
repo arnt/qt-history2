@@ -53,9 +53,18 @@ QThreadData *QThreadData::current()
         data = new QThreadData;
         pthread_setspecific(current_thread_data_key, data);
         data->thread = new QAdoptedThread(data);
-        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+        
+        const bool isMainThread = q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+        if (!isMainThread)
+            data->thread->moveToThread(QCoreApplicationPrivate::theMainThread);
     }
     return data;
+}
+
+
+void QAdoptedThread::init()
+{
+    d_func()->thread_id = pthread_self();
 }
 
 /*
@@ -123,10 +132,12 @@ void QThreadPrivate::finish(void *arg)
     d->terminated = false;
     emit thr->finished();
 
-    d->data->eventDispatcher->closingDown();
-    QAbstractEventDispatcher *eventDispatcher = d->data->eventDispatcher;
-    d->data->eventDispatcher = 0;
-    delete eventDispatcher;
+    if (d->data->eventDispatcher) {
+        d->data->eventDispatcher->closingDown();
+        QAbstractEventDispatcher *eventDispatcher = d->data->eventDispatcher;
+        d->data->eventDispatcher = 0;
+        delete eventDispatcher;
+    }
 
     QThreadStorageData::finish(d->data->tls);
     d->data->tls = 0;
