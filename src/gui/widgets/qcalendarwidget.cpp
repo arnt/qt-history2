@@ -684,7 +684,6 @@ public:
 
     void _q_prevMonthClicked();
     void _q_nextMonthClicked();
-    void _q_yearChanged(int);
     void _q_yearEditingFinished();
 
     void createHeader(QWidget *widget);
@@ -776,17 +775,13 @@ void QCalendarWidgetPrivate::_q_nextMonthClicked()
     _q_slotChangeDate(currentDate, true);
 }
 
-void QCalendarWidgetPrivate::_q_yearChanged(int year)
-{
-    QDate currentDate = m_model->date.addYears(year - m_model->date.year());
-    _q_slotChangeDate(currentDate, true);
-}
-
 void QCalendarWidgetPrivate::_q_yearEditingFinished()
 {
     yearEdit->hide();
     yearLabel->show();
-    yearLabel->setText(yearEdit->text());
+    yearLabel->setText(yearEdit->text()); 
+    QDate currentDate(yearEdit->text().toInt(), m_model->date.month(), m_model->date.day());
+    _q_slotChangeDate(currentDate, true);
 }
 
 void QCalendarWidgetPrivate::handleMousePressEvent(QMouseEvent *event)
@@ -1002,8 +997,6 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
             this, SLOT(_q_prevMonthClicked()));
     connect(d->nextMonth, SIGNAL(clicked(bool)),
             this, SLOT(_q_nextMonthClicked()));
-    connect(d->yearEdit, SIGNAL(valueChanged(int)),
-            this, SLOT(_q_yearChanged(int)));
     connect(d->yearEdit, SIGNAL(editingFinished()),
             this, SLOT(_q_yearEditingFinished()));
 

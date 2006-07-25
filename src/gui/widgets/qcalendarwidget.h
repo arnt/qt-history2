@@ -130,7 +130,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_editingFinished())
     Q_PRIVATE_SLOT(d_func(), void _q_prevMonthClicked())
     Q_PRIVATE_SLOT(d_func(), void _q_nextMonthClicked())
-    Q_PRIVATE_SLOT(d_func(), void _q_yearChanged(int))
     Q_PRIVATE_SLOT(d_func(), void _q_yearEditingFinished())
 
 };
