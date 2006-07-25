@@ -131,6 +131,7 @@ public:
 
 signals:
     void changeDate(const QDate &date, bool changeMonth);
+    void clicked(const QDate &date);
     void editingFinished();
 protected:
     QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
@@ -585,7 +586,7 @@ void QCalendarView::mouseDoubleClickEvent(QMouseEvent *event)
 
     QDate date = handleMouseEvent(event);
     validDateClicked = false;
-    if (date == calendarModel->date) {
+    if (date == calendarModel->date && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick)) {
         emit editingFinished();
     }
 }
@@ -654,9 +655,12 @@ void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
     if (readOnly)
         return;
 
-    if (validDateClicked) {
-        emit changeDate(calendarModel->date, true);
-        emit editingFinished();
+    QDate date = handleMouseEvent(event);
+    if (date.isValid()) {
+        emit changeDate(date, true);
+        emit clicked(date);
+        if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+            emit editingFinished();
     }
     else
         event->ignore();
@@ -987,8 +991,10 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    connect(d->m_view, SIGNAL(changeDate(const QDate &, bool)),
-            this, SLOT(_q_slotChangeDate(const QDate &, bool)));
+    connect(d->m_view, SIGNAL(changeDate(const QDate&, bool)),
+            this, SLOT(_q_slotChangeDate(const QDate&, bool)));
+    connect(d->m_view, SIGNAL(clicked(const QDate&)), 
+            this, SIGNAL(clicked(const QDate&)));
     connect(d->m_view, SIGNAL(editingFinished()),
             this, SLOT(_q_editingFinished()));
 
@@ -1630,6 +1636,14 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     This signal is emitted whenever the user presses the Return or
     Enter key, the space bar or double-clicks a \a date in the calendar
     widget.
+*/
+
+/*!
+    \fn void QCalendarWidget::clicked(const QDate &date)
+
+    This signal is emitted when a mouse button is clicked. The date the 
+    mouse was clicked on is specified by \a date. The signal is only 
+    emitted when clicked on a valid date.
 */
 
 

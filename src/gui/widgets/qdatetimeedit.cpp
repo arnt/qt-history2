@@ -2060,6 +2060,7 @@ QCalendarPopup::QCalendarPopup(const QDate &date, QWidget * parent)
     widgetLayout->addWidget(calendar);
 
     connect(calendar, SIGNAL(activated(const QDate&)), this, SLOT(dateSelected(const QDate&)));
+    connect(calendar, SIGNAL(clicked(const QDate&)), this, SLOT(dateSelected(const QDate&)));
     connect(calendar, SIGNAL(selectionChanged()), this, SLOT(dateSelectionChanged()));
 
     calendar->setFocus();

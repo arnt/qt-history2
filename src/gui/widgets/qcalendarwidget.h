@@ -118,6 +118,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void selectionChanged();
+    void clicked(const QDate &date);
     void activated(const QDate &date);
     void currentPageChanged(int year, int month);
 
