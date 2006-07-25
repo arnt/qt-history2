@@ -177,6 +177,30 @@
 */
 
 /*!
+    \variable QGraphicsItem::UserType
+
+    The lowest permitted type value for custom items (subclasses
+    of QGraphicsItem or any of the standard items). This value is
+    used in conjunction with a reimplementation of QGraphicsItem::type()
+    and declaring a Type enum value. Example:
+
+    \code
+        class CustomItem : public QGraphicsItem
+        {
+           ...
+           enum { Type = UserType + 1 }
+
+           int type() const
+           {
+               // Enable the use of qgraphicsitem_cast with this item.
+               return Type;
+           }
+           ...
+        };
+    \endcode
+*/
+
+/*!
     \enum QGraphicsItem::GraphicsItemFlag
 
     This enum describes different flags that you can set on an item to
@@ -2223,9 +2247,10 @@ void QGraphicsItem::setData(int key, const QVariant &value)
     are associated with a unique value; see QGraphicsItem::Type. This type
     information is used by qgraphicsitem_cast() to distinguish between types.
 
-    Reimplementing this function will enable use of qgraphicsitem_cast() with
-    the item. Custom items must return a value larger than UserType
-    (0x80000000).
+    Reimplementing this function and declaring a Type enum value equal to your
+    custom item's type will enable use of qgraphicsitem_cast() with
+    the item. Custom items must return a value larger than or equal to UserType
+    (65536).
 
     The default implementation (in QGraphicsItem) returns UserType.
 */
