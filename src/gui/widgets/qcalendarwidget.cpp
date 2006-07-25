@@ -500,7 +500,8 @@ QModelIndex QCalendarView::moveCursor(CursorAction cursorAction, Qt::KeyboardMod
     if (readOnly)
         return currentIndex();
 
-    QDate currentDate = calendarModel->date;
+    QModelIndex index = currentIndex();
+    QDate currentDate = static_cast<QCalendarModel*>(model())->dateForCell(index.row(), index.column());
     switch (cursorAction) {
         case QAbstractItemView::MoveUp:
             currentDate = currentDate.addDays(-7);
@@ -605,7 +606,11 @@ void QCalendarView::mousePressEvent(QMouseEvent *event)
     QDate date = handleMouseEvent(event);
     if (date.isValid()) {
         validDateClicked = true;
-        emit changeDate(date, false);
+        int row = -1, col = -1;
+        static_cast<QCalendarModel *>(model())->cellForDate(date, &row, &col);
+        if (row != -1 && col != -1) {
+            selectionModel()->setCurrentIndex(model()->index(row, col), QItemSelectionModel::NoUpdate);
+        }
     } else {
         validDateClicked = false;
         event->ignore();
@@ -633,7 +638,11 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
        QDate date = handleMouseEvent(event);
         if (date.isValid()) {
             validDateClicked = true;
-            emit changeDate(date, false);
+            int row = -1, col = -1;
+            static_cast<QCalendarModel *>(model())->cellForDate(date, &row, &col);
+            if (row != -1 && col != -1) {
+                selectionModel()->setCurrentIndex(model()->index(row, col), QItemSelectionModel::NoUpdate);
+            }
         }
     }
     else
@@ -688,6 +697,8 @@ public:
 
     void createHeader(QWidget *widget);
     void handleMousePressEvent(QMouseEvent *event);
+    void updateCurrentPage(QDate &newDate);
+    inline QDate getCurrentDate(); 
 
     QCalendarModel *m_model;
     QCalendarView *m_view;
@@ -761,18 +772,45 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     }
     monthLabel->setMinimumWidth(width);
     showMonth(m_model->date.year(),m_model->date.month());
- }
+}
+
+void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
+{
+    Q_Q(QCalendarWidget);
+
+    QDate minDate = q->minimumDate();
+    QDate maxDate = q->maximumDate();
+    m_view->setFocus();
+    if (minDate.isValid()&& minDate.daysTo(newDate) < 0)
+        return;
+    if (maxDate.isValid()&& maxDate.daysTo(newDate) > 0)
+        return;
+    q->setCurrentPage(newDate.year(), newDate.month());
+    int row = -1, col = -1;
+    m_model->cellForDate(newDate, &row, &col);
+    if (row != -1 && col != -1)
+    {
+        m_view->selectionModel()->setCurrentIndex(m_model->index(row, col), 
+                                                  QItemSelectionModel::NoUpdate);
+    }
+}
+
+QDate QCalendarWidgetPrivate::getCurrentDate() 
+{
+    QModelIndex index = m_view->currentIndex();
+    return m_model->dateForCell(index.row(), index.column());
+}
 
 void QCalendarWidgetPrivate::_q_prevMonthClicked()
 {
-    QDate currentDate = m_model->date.addMonths(-1);
-    _q_slotChangeDate(currentDate, true);
+    QDate currentDate = getCurrentDate().addMonths(-1);
+    updateCurrentPage(currentDate);
 }
 
 void QCalendarWidgetPrivate::_q_nextMonthClicked()
 {
-    QDate currentDate = m_model->date.addMonths(1);
-    _q_slotChangeDate(currentDate, true);
+    QDate currentDate = getCurrentDate().addMonths(1);
+    updateCurrentPage(currentDate);
 }
 
 void QCalendarWidgetPrivate::_q_yearEditingFinished()
@@ -781,7 +819,7 @@ void QCalendarWidgetPrivate::_q_yearEditingFinished()
     yearLabel->show();
     yearLabel->setText(yearEdit->text()); 
     QDate currentDate(yearEdit->text().toInt(), m_model->date.month(), m_model->date.day());
-    _q_slotChangeDate(currentDate, true);
+    updateCurrentPage(currentDate);
 }
 
 void QCalendarWidgetPrivate::handleMousePressEvent(QMouseEvent *event)
