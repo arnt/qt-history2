@@ -74,7 +74,6 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/io/qabstractfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.cpp \
-           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_win.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.cpp \
@@ -94,6 +93,8 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qpoint.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qrect.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
+
+win32:SOURCES += $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_win.cpp
 
 exists(../../util/configure/commercial/tools.h):exists(../../util/configure/commercial/tools.cpp) {
     DEFINES += COMMERCIAL_VERSION
