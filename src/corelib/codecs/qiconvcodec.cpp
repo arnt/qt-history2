@@ -113,7 +113,9 @@ QByteArray QIconvCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
         static int reported = 0;
         if (!reported++)
 #endif
+#ifndef QTOPIA_NO_ICONV_OPEN_ERRORS
         fprintf(stderr, "QIconvCodec::convertFromUnicode: using ASCII for conversion, iconv_open failed\n");
+#endif
         return QString(uc, len).toAscii();
     }
 
