@@ -1162,7 +1162,7 @@ class MyItem : public QGraphicsEllipseItem
 public:
     bool isObscuredBy(const QGraphicsItem *item) const
     {
-        MyItem *myItem = qgraphicsitem_cast<MyItem *>(const_cast<QGraphicsItem*>(item));
+        const MyItem *myItem = qgraphicsitem_cast<const MyItem *>(item);
         if (myItem) {
             if (item->zValue() > zValue()) {
                 QRectF r = rect();
@@ -1193,9 +1193,9 @@ public:
     }
 
     enum {
-        Type = 65537
+        Type = UserType+1
     };
-    int type() const { return 65537; }
+    int type() const { return Type; }
 };
 
 
@@ -1579,26 +1579,60 @@ void tst_QGraphicsItem::type()
 void tst_QGraphicsItem::graphicsitem_cast()
 {
     QGraphicsPathItem pathItem;
+    const QGraphicsPathItem *pPathItem = &pathItem;
     QGraphicsRectItem rectItem;
+    const QGraphicsRectItem *pRectItem = &rectItem;
     QGraphicsEllipseItem ellipseItem;
+    const QGraphicsEllipseItem *pEllipseItem = &ellipseItem;
     QGraphicsPolygonItem polygonItem;
+    const QGraphicsPolygonItem *pPolygonItem = &polygonItem;        
     QGraphicsLineItem lineItem;
+    const QGraphicsLineItem *pLineItem = &lineItem;
     QGraphicsPixmapItem pixmapItem;
+    const QGraphicsPixmapItem *pPixmapItem = &pixmapItem;
     QGraphicsTextItem textItem;
-
+    const QGraphicsTextItem *pTextItem = &textItem;
+    
     QVERIFY(qgraphicsitem_cast<QGraphicsPathItem *>(&pathItem));
     //QVERIFY(qgraphicsitem_cast<QAbstractGraphicsPathItem *>(&pathItem));
     QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&pathItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pPathItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsPathItem *>(pPathItem));
 
     QVERIFY(qgraphicsitem_cast<QGraphicsRectItem *>(&rectItem));
     QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&rectItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pRectItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsRectItem *>(pRectItem));
 
     QVERIFY(qgraphicsitem_cast<QGraphicsEllipseItem *>(&ellipseItem));
     QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&ellipseItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pEllipseItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsEllipseItem *>(pEllipseItem));
 
     QVERIFY(qgraphicsitem_cast<QGraphicsPolygonItem *>(&polygonItem));
     //QVERIFY(qgraphicsitem_cast<QAbstractGraphicsPathItem *>(&polygonItem));
     QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&polygonItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pPolygonItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsPolygonItem *>(pPolygonItem));
+
+    QVERIFY(qgraphicsitem_cast<QGraphicsLineItem *>(&lineItem));
+    QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&lineItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pLineItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsLineItem *>(pLineItem));
+
+    QVERIFY(qgraphicsitem_cast<QGraphicsPixmapItem *>(&pixmapItem));
+    QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&pixmapItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pPixmapItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsPixmapItem *>(pPixmapItem));
+
+    QVERIFY(qgraphicsitem_cast<QGraphicsTextItem *>(&textItem));
+    QVERIFY(qgraphicsitem_cast<QGraphicsItem *>(&textItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsItem *>(pTextItem));
+    QVERIFY(qgraphicsitem_cast<const QGraphicsTextItem *>(pTextItem));
+
+    // and some casts that _should_ fail:
+    QVERIFY(!qgraphicsitem_cast<QGraphicsEllipseItem *>(&pathItem));
+    QVERIFY(!qgraphicsitem_cast<const QGraphicsTextItem *>(pPolygonItem));
 }
 
 void tst_QGraphicsItem::hoverEventsGenerateRepaints()
