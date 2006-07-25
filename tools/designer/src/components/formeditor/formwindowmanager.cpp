@@ -593,7 +593,8 @@ void FormWindowManager::layoutContainerHorizontal()
 {
     QWidget *w = m_activeFormWindow->mainContainer();
     QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    if (l.count() == 1)
+    m_activeFormWindow->simplifySelection(&l);
+    if (l.count() > 0)
         w = l.first();
 
     if (w != 0)
@@ -604,7 +605,8 @@ void FormWindowManager::layoutContainerVertical()
 {
     QWidget *w = m_activeFormWindow->mainContainer();
     QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    if (l.count() == 1)
+    m_activeFormWindow->simplifySelection(&l);
+    if (l.count() > 0)
         w = l.first();
 
     if (w)
@@ -615,7 +617,8 @@ void FormWindowManager::layoutContainerGrid()
 {
     QWidget *w = m_activeFormWindow->mainContainer();
     QList<QWidget*> l(m_activeFormWindow->selectedWidgets());
-    if (l.count() == 1)
+    m_activeFormWindow->simplifySelection(&l);
+    if (l.count() > 0)
         w = l.first();
 
     if (w)
