@@ -224,6 +224,11 @@ void tst_QFile::exists()
 
     file.remove();
     QVERIFY(!file.exists());
+
+#ifdef Q_OS_WIN
+    QFile unc("//Gennan/testshare/readme.txt");
+    QVERIFY(unc.exists());
+#endif
 }
 
 void tst_QFile::open_data()
