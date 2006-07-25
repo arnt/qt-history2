@@ -64,6 +64,7 @@ static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 static const ub2 qOraCharset = OCI_UCS2ID;
 
 typedef QVarLengthArray<sb2, 32> IndicatorArray;
+typedef QVarLengthArray<ub2, 32> SizeArray;
 
 static QByteArray qMakeOraDate(const QDateTime& dt);
 static QDateTime qMakeDate(const char* oraDate);
@@ -122,8 +123,8 @@ public:
     void setCharset(OCIBind* hbnd);
     void setStatementAttributes();
     int bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
-                  const QVariant &val, dvoid *indPtr, QList<QByteArray> &tmpStorage);
-    int bindValues(QVector<QVariant> &values, IndicatorArray &indicators,
+                  const QVariant &val, dvoid *indPtr, ub2 *tmpSize, QList<QByteArray> &tmpStorage);
+    int bindValues(QVector<QVariant> &values, IndicatorArray &indicators, SizeArray &tmpSizes,
                    QList<QByteArray> &tmpStorage);
     void outValues(QVector<QVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
@@ -193,7 +194,7 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
 }
 
 int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
-                           const QVariant &val, dvoid *indPtr, QList<QByteArray> &tmpStorage)
+                   const QVariant &val, dvoid *indPtr, ub2 *tmpSize, QList<QByteArray> &tmpStorage)
 {
     int r = OCI_SUCCESS;
     void *data = const_cast<void *>(val.constData());
@@ -286,12 +287,12 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
         QByteArray ba((char*)s.utf16(), (s.length() + 1) * sizeof(QChar));
         if (isOutValue(pos)) {
             ba.reserve((s.capacity() + 1) * sizeof(QChar));
-            ub2 cap = ba.size();
+            *tmpSize = ba.size();
             r = OCIBindByPos(sql, hbnd, err,
                              pos + 1,
                              (dvoid *)ba.constData(),
                              ba.capacity(),
-                             SQLT_STR, indPtr, &cap, (ub2*) 0,
+                             SQLT_STR, indPtr, tmpSize, (ub2*) 0,
                              (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
         } else {
             r = OCIBindByPos(sql, hbnd, err,
@@ -312,7 +313,7 @@ int QOCIPrivate::bindValue(OCIStmt *sql, OCIBind **hbnd, OCIError *err, int pos,
 }
 
 int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicators,
-                            QList<QByteArray> &tmpStorage)
+                            SizeArray &tmpSizes, QList<QByteArray> &tmpStorage)
 {
     int r = OCI_SUCCESS;
     for (int i = 0; i < values.count(); ++i) {
@@ -324,7 +325,7 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
         sb2 *indPtr = &indicators[i];
         *indPtr = val.isNull() ? -1 : 0;
 
-        bindValue(sql, &hbnd, err, i, val, indPtr, tmpStorage);
+        bindValue(sql, &hbnd, err, i, val, indPtr, &tmpSizes[i], tmpStorage);
     }
     return r;
 }
@@ -1047,6 +1048,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
     }
 
     QList<QByteArray> tmpStorage;
+    SizeArray tmpSizes(columnCount);
     QVector<QOCIBatchColumn> columns(columnCount);
     QOCIBatchCleanupHandler cleaner(columns);
 
@@ -1061,7 +1063,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
             *singleCol.indicators = boundValues.at(i).isNull() ? -1 : 0;
 
             r = d->bindValue(d->sql, &singleCol.bindh, d->err, i,
-                             boundValues.at(i), singleCol.indicators, tmpStorage);
+                             boundValues.at(i), singleCol.indicators, &tmpSizes[i], tmpStorage);
 
             if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
                 qOraWarning("QOCIPrivate::execBatch: unable to bind column:", d);
@@ -1600,12 +1602,11 @@ bool QOCIResult::exec()
     ub2 stmtType;
     QList<QByteArray> tmpStorage;
     IndicatorArray indicators(boundValueCount());
-
-//    QSqlCachedResult::clear();
+    SizeArray tmpSizes(boundValueCount());
 
     // bind placeholders
     if (boundValueCount() > 0
-         && d->bindValues(boundValues(), indicators, tmpStorage) != OCI_SUCCESS) {
+         && d->bindValues(boundValues(), indicators, tmpSizes, tmpStorage) != OCI_SUCCESS) {
         qOraWarning("QOCIResult::exec: unable to bind value: ", d);
         setLastError(qMakeError(QCoreApplication::translate("QOCIResult", "Unable to bind value"),
                      QSqlError::StatementError, d));
