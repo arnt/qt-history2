@@ -2323,7 +2323,6 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 st->target = "sub-" + file;
 		st->target = st->target.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
             }
-	    qDebug() << st->target;
         }
     }
     t << "first: make_default" << endl;
