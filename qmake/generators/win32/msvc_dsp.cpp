@@ -54,7 +54,7 @@ bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
     return false;
 }
 
-QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStringList &in, const QStringList &out)
 {
     QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
     ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +

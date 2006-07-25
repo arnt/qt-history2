@@ -1558,7 +1558,6 @@ QStringList
 QMakeProject::doProjectExpand(QString func, QStringList args,
                               QMap<QString, QStringList> &place)
 {
-    func = func.trimmed();
     QList<QStringList> args_list;
     for(int i = 0; i < args.size(); ++i) {
         QStringList arg = split_value_list(args[i]), tmp;
@@ -1566,7 +1565,14 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             tmp += doVariableReplaceExpand(arg[i], place);;
         args_list += tmp;
     }
+    return doProjectExpand(func, args_list, place);
+}
 
+QStringList
+QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
+                              QMap<QString, QStringList> &place)
+{
+    func = func.trimmed();
     if(replaceFunctions.contains(func)) {
         FunctionBlock *defined = replaceFunctions[func];
         function_blocks.push(defined);
@@ -1576,8 +1582,9 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         return ret;
     }
 
-    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
-        doVariableReplace((*arit), place);
+    QStringList args; //why don't the builtin functions just use args_list? --Sam
+    for(int i = 0; i < args_list.size(); ++i)
+        args += args_list[i].join(QString(Option::field_sep));
 
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -2031,14 +2038,20 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
 bool
 QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStringList> &place)
 {
-    func = func.trimmed();
     QList<QStringList> args_list;
     for(int i = 0; i < args.size(); ++i) {
         QStringList arg = split_value_list(args[i]), tmp;
         for(int i = 0; i < arg.size(); ++i)
-            tmp += doVariableReplaceExpand(arg[i], place);;
+            tmp += doVariableReplaceExpand(arg[i], place);
         args_list += tmp;
     }
+    return doProjectTest(func, args_list, place);
+}
+
+bool
+QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QString, QStringList> &place)
+{
+    func = func.trimmed();
 
     if(testFunctions.contains(func)) {
         FunctionBlock *defined = testFunctions[func];
@@ -2069,10 +2082,9 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         return false;
     }
 
-    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-        (*arit) = (*arit).trimmed(); // blah, get rid of space
-        doVariableReplace((*arit), place);
-    }
+    QStringList args; //why don't the builtin functions just use args_list? --Sam
+    for(int i = 0; i < args_list.size(); ++i)
+        args += args_list[i].join(QString(Option::field_sep));
     debug_msg(1, "Running project test: %s(%s)", func.toLatin1().constData(), args.join("::").toLatin1().constData());
 
     if(func == "requires") {
@@ -2451,7 +2463,7 @@ QMakeProject::test(const QString &v)
 }
 
 bool
-QMakeProject::test(const QString &func, const QStringList &args)
+QMakeProject::test(const QString &func, const QList<QStringList> &args)
 {
     QMap<QString, QStringList> tmp = vars;
     return doProjectTest(func, args, tmp);
@@ -2464,12 +2476,12 @@ QMakeProject::expand(const QString &str)
     QMap<QString, QStringList> tmp = vars;
     const QStringList ret = doVariableReplaceExpand(str, tmp, &ok);
     if(ok)
-    return ret;
+        return ret;
     return QStringList();
 }
 
 QStringList
-QMakeProject::expand(const QString &func, const QStringList &args)
+QMakeProject::expand(const QString &func, const QList<QStringList> &args)
 {
     QMap<QString, QStringList> tmp = vars;
     return doProjectExpand(func, args, tmp);

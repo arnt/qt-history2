@@ -32,7 +32,7 @@ struct ReplaceExtraCompilerCacheKey
 {
     mutable uint hash;
     QString var, in, out, pwd;
-    ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o);
+    ReplaceExtraCompilerCacheKey(const QString &v, const QStringList &i, const QStringList &o);
     bool operator==(const ReplaceExtraCompilerCacheKey &f) const;
     inline uint hashCode() const {
         if(!hash)
@@ -88,7 +88,9 @@ protected:
 
     //extra compiler interface
     bool verifyExtraCompiler(const QString &c, const QString &f);
-    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+    virtual QString replaceExtraCompilerVariables(const QString &, const QStringList &, const QStringList &);
+    inline QString replaceExtraCompilerVariables(const QString &val, const QString &in, const QString &out)
+    { return replaceExtraCompilerVariables(val, QStringList(in), QStringList(out)); }
 
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);

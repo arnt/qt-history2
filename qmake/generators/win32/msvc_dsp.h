@@ -44,7 +44,9 @@ public:
 protected:
     virtual bool doDepends() const { return false; } //never necesary
     virtual void processSources() { filterIncludedFiles("SOURCES"); filterIncludedFiles("GENERATED_SOURCES"); }
-    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+    virtual QString replaceExtraCompilerVariables(const QString &, const QStringList &, const QStringList &);
+    inline QString replaceExtraCompilerVariables(const QString &val, const QString &in, const QString &out)
+    { return MakefileGenerator::replaceExtraCompilerVariables(val, in, out); }
     virtual bool supportsMetaBuild() { return true; }
     virtual bool supportsMergedBuilds() { return true; }
     virtual bool mergeBuildProject(MakefileGenerator *other);

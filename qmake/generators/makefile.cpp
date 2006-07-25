@@ -1546,13 +1546,21 @@ MakefileGenerator::createObjectList(const QStringList &sources)
     return ret;
 }
 
-ReplaceExtraCompilerCacheKey::ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o)
+ReplaceExtraCompilerCacheKey::ReplaceExtraCompilerCacheKey(const QString &v, const QStringList &i, const QStringList &o)
 {
     hash = 0;
     pwd = qmake_getpwd();
     var = v;
-    in = i;
-    out = o;
+    {
+        QStringList il = i;
+        il.sort();
+        in = il.join("::");
+    }
+    {
+        QStringList ol = o;
+        ol.sort();
+        out = ol.join("::");
+    }
 }
 
 bool ReplaceExtraCompilerCacheKey::operator==(const ReplaceExtraCompilerCacheKey &f) const
@@ -1566,7 +1574,7 @@ bool ReplaceExtraCompilerCacheKey::operator==(const ReplaceExtraCompilerCacheKey
 
 
 QString
-MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const QString &in, const QString &out)
+MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const QStringList &in, const QStringList &out)
 {
     //lazy cache
     ReplaceExtraCompilerCacheKey cacheKey(orig_var, in, out);
@@ -1579,60 +1587,74 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const 
     QRegExp reg_var("\\$\\{.*\\}");
     reg_var.setMinimal(true);
     for(int rep = 0; (rep = reg_var.indexIn(ret, rep)) != -1; ) {
-        QString val;
+        QStringList val;
         const QString var = ret.mid(rep + 2, reg_var.matchedLength() - 3);
         bool filePath = false;
-        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_"))) {
+        if(val.isEmpty() && var.startsWith(QLatin1String("QMAKE_VAR_"))) {
             const QString varname = var.mid(10);
-            val = project->values(varname).join(QString(Option::field_sep));
+            val += project->values(varname);
         }
-        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_"))) {
+        if(val.isEmpty() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_"))) {
             const QString varname = var.mid(12);
-            val = project->first(varname);
+            val += project->first(varname);
         }
 
-        if(val.isNull() && !in.isNull()) {
+        if(val.isEmpty() && !in.isEmpty()) {
             if(var.startsWith(QLatin1String("QMAKE_FUNC_FILE_IN_"))) {
                 filePath = true;
                 const QString funcname = var.mid(19);
-                val = project->expand(funcname, QStringList() << in).join(QString(Option::field_sep));
+                val += project->expand(funcname, QList<QStringList>() << in);
             } else if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
                 filePath = true;
-                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
-                val = fi.completeBaseName();
-                if(val.isNull())
-                    val = fi.fileName();
+                for(int i = 0; i < in.size(); ++i) {
+                    QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in.at(i))));
+                    QString base = fi.completeBaseName();
+                    if(base.isNull())
+                        base = fi.fileName();
+                    val += base;
+                }
             } else if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN")) {
                 filePath = true;
-                val = fileInfo(Option::fixPathToLocalOS(in)).filePath();
+                for(int i = 0; i < in.size(); ++i)
+                    val += fileInfo(Option::fixPathToLocalOS(in.at(i))).filePath();
             }
         }
-        if(val.isNull() && !out.isNull()) {
+        if(val.isEmpty() && !out.isEmpty()) {
             if(var.startsWith(QLatin1String("QMAKE_FUNC_FILE_OUT_"))) {
                 filePath = true;
                 const QString funcname = var.mid(20);
-                val = project->expand(funcname, QStringList() << out).join(QString(Option::field_sep));
+                val += project->expand(funcname, QList<QStringList>() << out);
             } else if(var == QLatin1String("QMAKE_FILE_OUT")) {
                 filePath = true;
-                val = out;
+                for(int i = 0; i < out.size(); ++i)
+                    val += fileInfo(Option::fixPathToLocalOS(out.at(i))).filePath();
             } else if(var == QLatin1String("QMAKE_FILE_OUT_BASE")) {
                 filePath = true;
-                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(out)));
-                val = fi.completeBaseName();
-                if(val.isNull())
-                    val = fi.fileName();
+                for(int i = 0; i < out.size(); ++i) {
+                    QFileInfo fi(fileInfo(Option::fixPathToLocalOS(out.at(i))));
+                    QString base = fi.completeBaseName();
+                    if(base.isNull())
+                        base = fi.fileName();
+                    val += base;
+                }
             }
         }
-        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_FUNC_"))) {
+        if(val.isEmpty() && var.startsWith(QLatin1String("QMAKE_FUNC_"))) {
             const QString funcname = var.mid(11);
-            val = project->expand(funcname, QStringList() << in << out).join(QString(Option::field_sep));
+            val += project->expand(funcname, QList<QStringList>() << in << out);
         }
 
-        if(!val.isNull()) {
-            QString fullVal = val;
+        if(!val.isEmpty()) {
+            QString fullVal;
             if(filePath) {
-                fullVal = Option::fixPathToTargetOS(unescapeFilePath(fullVal), false);
-                fullVal = escapeFilePath(fullVal);
+                for(int i = 0; i < val.size(); ++i) {
+                    const QString file = Option::fixPathToTargetOS(unescapeFilePath(val.at(i)), false);
+                    if(!fullVal.isEmpty())
+                        fullVal += " ";
+                    fullVal += escapeFilePath(file);
+                }
+            } else {
+                fullVal = val.join(" ");
             }
             ret.replace(rep, reg_var.matchedLength(), fullVal);
             rep += fullVal.length();
@@ -1640,7 +1662,6 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const 
             rep += reg_var.matchedLength();
         }
     }
-
 
     //cache the value
     extraCompilerVariablesCache.insert(cacheKey, ret);
@@ -1677,9 +1698,7 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_
             }
 
             if(project->values(comp + ".CONFIG").indexOf("combine") != -1) {
-                QStringList args;
-                args << tmp_out << file;
-                bool pass = project->test(verify, args);
+                bool pass = project->test(verify, QList<QStringList>() << QStringList(tmp_out) << QStringList(file));
                 if(invert)
                     pass = !pass;
                 if(!pass)
@@ -1693,9 +1712,9 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_
                             continue;
                         QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
                         if(in == file) {
-                            QStringList args;
-                            args << replaceExtraCompilerVariables(tmp_out, (*input), QString()) << file;
-                            bool pass = project->test(verify, args);
+                            bool pass = project->test(verify,
+                                                      QList<QStringList>() << QStringList(replaceExtraCompilerVariables(tmp_out, (*input), QString())) <<
+                                                      QStringList(file));
                             if(invert)
                                 pass = !pass;
                             if(!pass)
@@ -1972,7 +1991,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if (inputs.isEmpty())
                 continue;
 
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, escapeFilePaths(inputs).join(" "), tmp_out);
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, escapeFilePaths(inputs), QStringList(tmp_out));
             t << escapeFilePath(tmp_out) << ": " << valList(escapeFilePaths(inputs)) << " " << valList(escapeFilePaths(deps)) << "\n\t"
               << cmd << endl << endl;
             continue;

@@ -73,9 +73,13 @@ class QMakeProject
                        QMap<QString, QStringList> &place);
     bool doProjectTest(QString func, QStringList args,
                        QMap<QString, QStringList> &place);
+    bool doProjectTest(QString func, QList<QStringList> args,
+                       QMap<QString, QStringList> &place);
     QStringList doProjectExpand(QString func, const QString &params,
                                 QMap<QString, QStringList> &place);
     QStringList doProjectExpand(QString func, QStringList args,
+                                QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, QList<QStringList> args,
                                 QMap<QString, QStringList> &place);
 
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
@@ -102,9 +106,9 @@ public:
     inline QMakeProperty *properities() { return prop; }
 
     QStringList expand(const QString &v);
-    QStringList expand(const QString &func, const QStringList &args);
+    QStringList expand(const QString &func, const QList<QStringList> &args);
     bool test(const QString &v);
-    bool test(const QString &func, const QStringList &args);
+    bool test(const QString &func, const QList<QStringList> &args);
     bool isActiveConfig(const QString &x, bool regex=false,
                         QMap<QString, QStringList> *place=NULL);
 

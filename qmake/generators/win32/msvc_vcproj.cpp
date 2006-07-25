@@ -1035,7 +1035,7 @@ QString VcprojGenerator::fixCommandLine(DotNET version, const QString &input) co
 
     if (version == NET2005)
         result = result.replace(QLatin1Char('\n'), QLatin1String("&#x000D;&#x000A;"));
-    
+
     return result;
 }
 
@@ -1380,7 +1380,7 @@ void VcprojGenerator::initOld()
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
-QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QStringList &in, const QStringList &out)
 {
     QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
 
