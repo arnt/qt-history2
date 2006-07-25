@@ -14,11 +14,11 @@
 #include "qfilesystemwatcher.h"
 #include "qfilesystemwatcher_win_p.h"
 
-#include <QDebug>
-#include <QFileInfo>
-#include <QStringList>
-#include <QSet>
-#include <QDateTime>
+#include <qdebug.h>
+#include <qfileinfo.h>
+#include <qstringlist.h>
+#include <qset.h>
+#include <qdatetime.h>
 
 QWindowsFileSystemWatcherEngine::QWindowsFileSystemWatcherEngine()
     : msg(0)

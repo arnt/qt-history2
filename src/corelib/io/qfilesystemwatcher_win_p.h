@@ -29,10 +29,10 @@
 
 #include <windows.h>
 
-#include <QDateTime>
-#include <QHash>
-#include <QMutex>
-#include <QVector>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qmutex.h>
+#include <QtCore/qvector.h>
 
 class QWindowsFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {

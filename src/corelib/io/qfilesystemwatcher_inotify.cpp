@@ -16,11 +16,11 @@
 
 #ifndef QT_NO_FILESYSTEMWATCHER
 
-#include <QDebug>
-#include <QFile>
-#include <QFileInfo>
-#include <QSocketNotifier>
-#include <QVarLengthArray>
+#include <qdebug.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qsocketnotifier.h>
+#include <qvarlengtharray.h>
 
 #include <sys/syscall.h>
 #include <sys/ioctl.h>

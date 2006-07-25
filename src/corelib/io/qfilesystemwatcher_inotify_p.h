@@ -29,8 +29,8 @@
 
 #ifndef QT_NO_FILESYSTEMWATCHER
 
-#include <QHash>
-#include <QMutex>
+#include <qhash.h>
+#include <qmutex.h>
 
 class QInotifyFileSystemWatcherEngine : public QFileSystemWatcherEngine
 {

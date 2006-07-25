@@ -27,10 +27,10 @@
 
 #include "qfilesystemwatcher_p.h"
 
-#include <QHash>
-#include <QMutex>
-#include <QThread>
-#include <QVector>
+#include <QtCore/qhash.h>
+#include <QtCore/qmutex.h>
+#include <QtCore/qthread.h>
+#include <QtCore/qvector.h>
 
 struct kevent;
 

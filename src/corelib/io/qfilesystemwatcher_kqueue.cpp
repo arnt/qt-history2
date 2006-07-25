@@ -14,16 +14,18 @@
 #include "qfilesystemwatcher.h"
 #include "qfilesystemwatcher_kqueue_p.h"
 
-#include <QDebug>
-#include <QFile>
-#include <QSocketNotifier>
-#include <QVarLengthArray>
+#include <qdebug.h>
+#include <qfile.h>
+#include <qsocketnotifier.h>
+#include <qvarlengtharray.h>
 
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <fcntl.h>
+
+#include <qplatformdefs.h>
 
 // #define KEVENT_DEBUG
 #ifdef KEVENT_DEBUG

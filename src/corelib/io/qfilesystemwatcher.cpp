@@ -16,12 +16,12 @@
 
 #ifndef QT_NO_FILESYSTEMWATCHER
 
-#include <QDateTime>
-#include <QDebug>
-#include <QFileInfo>
-#include <QMutex>
-#include <QSet>
-#include <QTimer>
+#include <qdatetime.h>
+#include <qdebug.h>
+#include <qfileinfo.h>
+#include <qmutex.h>
+#include <qset.h>
+#include <qtimer.h>
 
 #if defined(Q_OS_WIN)
 #  include "qfilesystemwatcher_win_p.h"
