@@ -88,7 +88,7 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
  */
 QIODevicePrivate::QIODevicePrivate()
     : openMode(QIODevice::NotOpen),
-      pos(0), devicePos(0)
+      pos(0), devicePos(0), accessMode(Unset)
 {
 }
 
@@ -402,6 +402,7 @@ void QIODevice::setOpenMode(OpenMode openMode)
     printf("%p QIODevice::setOpenMode(0x%x)\n", this, int(openMode));
 #endif
     d_func()->openMode = openMode;
+    d_func()->accessMode = QIODevicePrivate::Unset;
 }
 
 /*!
@@ -482,6 +483,7 @@ bool QIODevice::open(OpenMode mode)
     Q_D(QIODevice);
     d->openMode = mode;
     d->pos = (mode & Append) ? size() : qint64(0);
+    d_func()->accessMode = QIODevicePrivate::Unset;
 #if defined QIODEVICE_DEBUG
     printf("%p QIODevice::open(0x%x)\n", this, quint32(mode));
 #endif
@@ -546,9 +548,7 @@ qint64 QIODevice::pos() const
 */
 qint64 QIODevice::size() const
 {
-    if (isSequential())
-        return bytesAvailable();
-    return 0;
+    return d_func()->isSequential() ?  bytesAvailable() : qint64(0);
 }
 
 /*!
@@ -569,7 +569,6 @@ bool QIODevice::seek(qint64 pos)
         qWarning("QIODevice::seek: The device is not open");
         return false;
     }
-    const bool sequential = isSequential();
     if (pos < 0) {
         qWarning("QIODevice::seek: Invalid pos: %d", int(pos));
         return false;
@@ -582,7 +581,7 @@ bool QIODevice::seek(qint64 pos)
 #endif
 
     qint64 offset = pos - d->pos;
-    if (!sequential) {
+    if (!d->isSequential()) {
         d->pos = pos;
         d->devicePos = pos;
     }
@@ -662,7 +661,7 @@ bool QIODevice::reset()
 qint64 QIODevice::bytesAvailable() const
 {
     Q_D(const QIODevice);
-    if (!isSequential())
+    if (!d->isSequential())
         return qMax(size() - d->pos, qint64(0));
     return d->buffer.size();
 }
@@ -697,10 +696,10 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
     CHECK_MAXLEN(read, qint64(-1));
 
 #if defined QIODEVICE_DEBUG
-                printf("%p QIODevice::read(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
-                       this, data, int(maxSize), int(d->pos), int(d->buffer.size()));
+    printf("%p QIODevice::read(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
+           this, data, int(maxSize), int(d->pos), int(d->buffer.size()));
 #endif
-    const bool sequential = isSequential();
+    const bool sequential = d->isSequential();
 
     // Short circuit for getChar()
     if (maxSize == 1) {
@@ -895,14 +894,14 @@ QByteArray QIODevice::read(qint64 maxSize)
 */
 QByteArray QIODevice::readAll()
 {
-#if defined QIODEVICE_DEBUG
     Q_D(QIODevice);
+#if defined QIODEVICE_DEBUG
     printf("%p QIODevice::readAll(), d->pos = %d, d->buffer.size() = %d\n",
            this, int(d->pos), int(d->buffer.size()));
 #endif
 
     QByteArray tmp;
-    if (isSequential() || size() == 0) {
+    if (d->isSequential() || size() == 0) {
         // Read it in chunks, bytesAvailable() is unreliable for sequential
         // devices.
         const int chunkSize = 4096;
@@ -981,7 +980,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
     // Leave room for a '\0'
     --maxSize;
 
-    const bool sequential = isSequential();
+    const bool sequential = d->isSequential();
     
     qint64 readSoFar = 0;
     if (!d->buffer.isEmpty()) {
@@ -1169,7 +1168,7 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
     CHECK_WRITABLE(write, qint64(-1));
     CHECK_MAXLEN(write, qint64(-1));
 
-    const bool sequential = isSequential();
+    const bool sequential = d->isSequential();
     // Make sure the device is positioned correctly.
     if (d->pos != d->devicePos && !sequential && !seek(d->pos))
         return qint64(-1);
@@ -1194,8 +1193,10 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
                         d->buffer.skip(writtenSoFar);
                     return writtenSoFar ? writtenSoFar : ret;
                 }
-                if (!sequential)
+                if (!sequential) {
                     d->pos += ret;
+                    d->devicePos += ret;
+                }
                 writtenSoFar += ret;
             }
 
@@ -1208,8 +1209,10 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
                     d->buffer.skip(writtenSoFar);
                 return writtenSoFar ? writtenSoFar : ret;
             }
-            if (!sequential)
+            if (!sequential) {
                 d->pos += ret;
+                d->devicePos += ret;
+            }
             ++writtenSoFar;
 
             startOfBlock = endOfBlock + 1;
@@ -1223,8 +1226,10 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
 
     qint64 written = writeData(data, maxSize);
     if (written > 0) {
-        if (!sequential)
+        if (!sequential) {
             d->pos += written;
+            d->devicePos += written;
+        }
         if (!d->buffer.isEmpty() && !sequential)
             d->buffer.skip(written);
     }
@@ -1269,7 +1274,7 @@ void QIODevice::ungetChar(char c)
 #endif
 
     d->buffer.ungetChar(c);
-    if (!isSequential())
+    if (!d->isSequential())
         --d->pos;
 }
 

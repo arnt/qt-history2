@@ -1236,7 +1236,8 @@ QFile::writeData(const char *data, qint64 len)
     Q_D(QFile);
     d->error = NoError;
 
-    qint64 ret = fileEngine()->write(data, len);
+    QAbstractFileEngine *fe = d->fileEngine ? d->fileEngine : fileEngine();
+    qint64 ret = fe->write(data, len);
     if(ret < 0) {
         QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)

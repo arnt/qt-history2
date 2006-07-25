@@ -53,6 +53,20 @@ public:
     qint64 devicePos;
     bool baseReadLineDataCalled;
 
+    enum AccessMode {
+        Unset,
+        Sequential,
+        RandomAccess
+    };
+    mutable AccessMode accessMode;
+    inline bool isSequential() const
+    {
+        if (accessMode == Unset)
+            accessMode = q_func()->isSequential() ? Sequential : RandomAccess;
+        return accessMode == Sequential;
+    }
+    
+
 #ifdef QT_NO_QOBJECT
     QIODevice *q_ptr;
 #endif
