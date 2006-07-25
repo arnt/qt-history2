@@ -851,23 +851,36 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     d->scrollRect(r, dx, dy);
 }
 
+static inline QScreen *getScreen(const QWidget *widget)
+{
+    const int screen = QApplication::desktop()->screenNumber(widget);
+    if (screen <= 0)
+        return qt_screen;
+
+    return qt_screen->subScreens().at(screen);
+}
+
 int QWidget::metric(PaintDeviceMetric m) const
 {
     int val;
     if (m == PdmWidth) {
         val = data->crect.width();
     } else if (m == PdmWidthMM) {
-        val = data->crect.width()*qt_screen->physicalWidth()/qt_screen->width();
+        QScreen *screen = getScreen(this);
+        val = data->crect.width() * screen->physicalWidth() / screen->width();
     } else if (m == PdmHeight) {
         val = data->crect.height();
     } else if (m == PdmHeightMM) {
-        val = data->crect.height()*qt_screen->physicalHeight()/qt_screen->height();
+        QScreen *screen = getScreen(this);
+        val = data->crect.height() * screen->physicalHeight() / screen->height();
     } else if (m == PdmDepth) {
         return qwsDisplay()->depth();
     } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
-        return qRound(qt_screen->width() / double(qt_screen->physicalWidth() / 25.4));
+        QScreen *screen = getScreen(this);
+        return qRound(screen->width() / double(screen->physicalWidth() / 25.4));
     } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
-        return qRound(qt_screen->height() / double(qt_screen->physicalHeight() / 25.4));
+        QScreen *screen = getScreen(this);
+        return qRound(screen->height() / double(screen->physicalHeight() / 25.4));
     } else {
         val = QPaintDevice::metric(m);// XXX
     }
