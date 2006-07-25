@@ -293,8 +293,6 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
                   || (horizontalHeaderFormat != QCalendarWidget::NoHorizontalHeader && row == HeaderRow);
     format.setBackground(pal.brush(cg, header ? QPalette::AlternateBase : QPalette::Base));
     if (header) {
-        if(row == HeaderRow)
-            format.setFontWeight(QFont::Bold);
         format.merge(m_headerFormat);
     }
 
@@ -1094,8 +1092,8 @@ QSize QCalendarWidget::minimumSizeHint() const
         h = qMax(h, fm.height());
     }
 
-    w += 12; // add some space (heuristic)
-    h += 8;
+    w += 4; // add some space (heuristic)
+    h += 5;
 
     //add the size of the header.
     QSize headerSize = d->headerBackground->layout()->sizeHint();
