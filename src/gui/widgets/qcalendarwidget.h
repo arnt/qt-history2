@@ -42,6 +42,7 @@ class Q_GUI_EXPORT QCalendarWidget : public QWidget
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(HorizontalHeaderFormat horizontalHeaderFormat READ horizontalHeaderFormat WRITE setHorizontalHeaderFormat)
     Q_PROPERTY(VerticalHeaderFormat verticalHeaderFormat READ verticalHeaderFormat WRITE setVerticalHeaderFormat)
+    Q_PROPERTY(bool headerVisible READ isHeaderVisible WRITE setHeaderVisible)
 
 public:
     enum HorizontalHeaderFormat {
@@ -80,6 +81,9 @@ public:
 
     Qt::DayOfWeek firstDayOfWeek() const;
     void setFirstDayOfWeek(Qt::DayOfWeek dayOfWeek);
+
+    bool isHeaderVisible() const;
+    void setHeaderVisible(bool show); 
 
     bool isGridVisible() const;
     void setGridVisible(bool show);

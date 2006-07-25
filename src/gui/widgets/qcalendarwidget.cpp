@@ -709,6 +709,7 @@ public:
     QSpinBox *yearEdit;
     QWidget *headerBackground;
     QItemSelectionModel *m_selection;
+    bool headerVisible;
 };
 
 QCalendarWidgetPrivate::QCalendarWidgetPrivate()
@@ -717,6 +718,7 @@ QCalendarWidgetPrivate::QCalendarWidgetPrivate()
     m_model = 0;
     m_view = 0;
     m_selection = 0;
+    headerVisible = true;
 }
 
 void QCalendarWidgetPrivate::createHeader(QWidget *widget)
@@ -1677,6 +1679,31 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     emitted when clicked on a valid date.
 */
 
+/*!
+    \property QCalendarWidget::headerVisible
+    \brief whether the Header is shown or not
+
+    When this property is set to true the next month, previous month, 
+    month selection, year selection controls are shown on top
+
+    When the property is set to false, these controls are hidden.
+
+    The default value is true.
+*/
+
+bool QCalendarWidget::isHeaderVisible() const
+{
+    Q_D(const QCalendarWidget);
+    return d->headerVisible;
+}
+
+void QCalendarWidget::setHeaderVisible(bool show)
+{
+    Q_D(QCalendarWidget);
+    d->headerVisible = show;
+    (show)?d->headerBackground->show():d->headerBackground->hide();
+    updateGeometry();
+}
 
 /*!
   \reimp
