@@ -31,8 +31,8 @@ private slots:
     void create();
     void createInvalidXPM();
     void convertBitOrder();
-    void formatHadlersInput_data();
-    void formatHadlersInput();
+    void formatHandlersInput_data();
+    void formatHandlersInput();
 
     void setAlphaChannel_data();
     void setAlphaChannel();
@@ -59,6 +59,8 @@ private slots:
     void setColor();
 
     void rasterClipping();
+
+    void pointOverloads();
 };
 
 tst_QImage::tst_QImage()
@@ -87,7 +89,7 @@ void tst_QImage::create()
 void tst_QImage::createInvalidXPM()
 {
     QTest::ignoreMessage(QtWarningMsg, "QImage::QImage(), XPM is not supported");
-    const char *xpm[] = {};
+    const char *xpm[] = {""};
     QImage invalidXPM(xpm);
     QVERIFY(invalidXPM.isNull());
 }
@@ -111,7 +113,7 @@ void tst_QImage::convertBitOrder()
     QVERIFY(i.numColors() == ni.numColors());
 }
 
-void tst_QImage::formatHadlersInput_data()
+void tst_QImage::formatHandlersInput_data()
 {
     QTest::addColumn<QString>("testFormat");
     QTest::addColumn<QString>("testFile");
@@ -129,7 +131,7 @@ void tst_QImage::formatHadlersInput_data()
     QTest::newRow("XPM") << "XPM" << "images/image.xpm";
 }
 
-void tst_QImage::formatHadlersInput()
+void tst_QImage::formatHandlersInput()
 {
     QFETCH(QString, testFormat);
     QFETCH(QString, testFile);
@@ -613,7 +615,6 @@ void tst_QImage::setPixel()
 
 void tst_QImage::convertToFormatPreserveDotsPrMeter()
 {
-    int w = 512, h = 512;
     QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
 
     int dpmx = 123;
@@ -671,6 +672,35 @@ void tst_QImage::rasterClipping()
     p.drawEllipse(-2010, -1000, 2010, 2010);
     p.drawEllipse(-1000, -2010, 2010, 2010);
     QVERIFY(true);
+}
+
+// Tests the new QPoint overloads in QImage in Qt 4.2
+void tst_QImage::pointOverloads()
+{
+    QImage image(100, 100, QImage::Format_RGB32);
+    image.fill(0xff00ff00);
+
+    // IsValid
+    QVERIFY(image.valid(QPoint(0, 0)));
+    QVERIFY(image.valid(QPoint(99, 0)));
+    QVERIFY(image.valid(QPoint(0, 99)));
+    QVERIFY(image.valid(QPoint(99, 99)));
+
+    QVERIFY(!image.valid(QPoint(50, -1))); // outside on the top
+    QVERIFY(!image.valid(QPoint(50, 100))); // outside on the bottom
+    QVERIFY(!image.valid(QPoint(-1, 50))); // outside on the left
+    QVERIFY(!image.valid(QPoint(100, 50))); // outside on the right
+
+    // Test the pixel setter
+    image.setPixel(QPoint(10, 10), 0xff0000ff);
+    QCOMPARE(image.pixel(10, 10), 0xff0000ff);
+
+    // pixel getter
+    QCOMPARE(image.pixel(QPoint(10, 10)), 0xff0000ff);
+
+    // pixelIndex()
+    QImage indexed = image.convertToFormat(QImage::Format_Indexed8);
+    QCOMPARE(indexed.pixelIndex(10, 10), indexed.pixelIndex(QPoint(10, 10)));
 }
 
 QTEST_MAIN(tst_QImage)

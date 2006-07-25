@@ -141,9 +141,16 @@ public:
     int bytesPerLine() const;
 
     bool valid(int x, int y) const;
+    bool valid(const QPoint &pt) const;
+
     int pixelIndex(int x, int y) const;
+    int pixelIndex(const QPoint &pt) const;
+
     QRgb pixel(int x, int y) const;
+    QRgb pixel(const QPoint &pt) const;
+
     void setPixel(int x, int y, uint index_or_rgb);
+    void setPixel(const QPoint &pt, uint index_or_rgb);
 
     QVector<QRgb> colorTable() const;
     void setColorTable(const QVector<QRgb> colors);
@@ -273,6 +280,13 @@ private:
 
 Q_DECLARE_SHARED(QImage)
 Q_DECLARE_TYPEINFO(QImage, Q_MOVABLE_TYPE);
+
+// Inline functions...
+
+inline Q_GUI_EXPORT bool QImage::valid(const QPoint &pt) const { return valid(pt.x(), pt.y()); }
+inline Q_GUI_EXPORT int QImage::pixelIndex(const QPoint &pt) const { return pixelIndex(pt.x(), pt.y());}
+inline Q_GUI_EXPORT QRgb QImage::pixel(const QPoint &pt) const { return pixel(pt.x(), pt.y()); }
+inline Q_GUI_EXPORT void QImage::setPixel(const QPoint &pt, uint index_or_rgb) { setPixel(pt.x(), pt.y(), index_or_rgb); }
 
 // QImage stream functions
 
