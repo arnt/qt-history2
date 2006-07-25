@@ -186,6 +186,8 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     QScreen::data = screen->base();
     QScreen::lstep = screen->linestep();
     QScreen::size = screen->screenSize();
+    QScreen::physWidth = screen->physicalWidth();
+    QScreen::physHeight = screen->physicalHeight();
     setOffset(screen->offset());
 
     d_ptr->subscreen = screen;

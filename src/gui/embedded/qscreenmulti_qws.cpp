@@ -16,14 +16,7 @@
 #include <qstringlist.h>
 #include <qwidget.h>
 
-#include <qdebug.h>
-
 #ifndef QT_NO_QWS_CURSOR
-
-// Unresolve issues:
-// Some functions does not indicate which subscreen to forward request to
-// (e.g mapFrom/To)
-// Input devices
 
 class QMultiScreenCursor : public QScreenCursor
 {
@@ -229,6 +222,9 @@ bool QMultiScreen::connect(const QString &displaySpec)
 
     // XXX
     QScreen::d = firstScreen->depth();
+    QScreen::physWidth = firstScreen->physicalWidth();
+    QScreen::physHeight = firstScreen->physicalHeight();
+
     QScreen::lstep = 0;
     QScreen::data = 0;
     QScreen::size = 0;
