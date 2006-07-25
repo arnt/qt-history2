@@ -3824,7 +3824,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
     case SP_FileLinkIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/filelink-16.png"));
     case SP_StandardButtonOk:
-        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-16.png"));
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-16.png"));
     case SP_StandardButtonCancel:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-16.png"));
     case SP_StandardButtonHelp:
