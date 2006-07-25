@@ -960,14 +960,18 @@ bool QMYSQLDriver::open(const QString& db,
     */
     unsigned int optionFlags = Q_CLIENT_MULTI_STATEMENTS;
     const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
+    QString unixSocket;
 
     // extract the real options from the string
     for (int i = 0; i < opts.count(); ++i) {
         QString tmp(opts.at(i).simplified());
         int idx;
         if ((idx = tmp.indexOf(QLatin1Char('='))) != -1) {
-            QString val(tmp.mid(idx + 1).simplified());
-            if (val == QLatin1String("TRUE") || val == QLatin1String("1"))
+            QString val = tmp.mid(idx + 1).simplified();
+            QString opt = tmp.left(idx).simplified();
+            if (opt == QLatin1String("UNIX_SOCKET"))
+                unixSocket = val;
+            else if (val == QLatin1String("TRUE") || val == QLatin1String("1"))
                 setOptionFlag(optionFlags, tmp.left(idx).simplified());
             else
                 qWarning("QMYSQLDriver::open: Illegal connect option value '%s'",
@@ -988,7 +992,8 @@ bool QMYSQLDriver::open(const QString& db,
                                db.isNull() ? static_cast<const char *>(0)
                                            : db.toLocal8Bit().constData(),
                                (port > -1) ? port : 0,
-                               NULL,
+                               unixSocket.isNull() ? static_cast<const char *>(0)
+                                           : unixSocket.toLocal8Bit().constData(),
                                optionFlags))
     {
         if (!db.isEmpty() && mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
