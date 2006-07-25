@@ -161,6 +161,8 @@ public:
         PE_IndicatorTabTear,
         PE_PanelScrollAreaCorner,
 
+        PE_Widget,
+
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000
     };

@@ -6134,6 +6134,10 @@ void QWidget::leaveEvent(QEvent *)
 
 void QWidget::paintEvent(QPaintEvent *)
 {
+    QPainter p(this);
+    QStyleOption opt;
+    opt.initFrom(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 
