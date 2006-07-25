@@ -1431,10 +1431,15 @@ QString QDirModelPrivate::size(const QModelIndex &index) const
     // Nautilus  - "9 items" (the number of children)
     }
 
+    // According to the Si standard KB is 1000 bytes, KiB is 1024
+    // but on windows sizes are calulated by dividing by 1024 so we do what they do.
     const quint64 kb = 1024;
     const quint64 mb = 1024 * kb;
     const quint64 gb = 1024 * mb;
+    const quint64 tb = 1024 * gb;
     quint64 bytes = n->info.size();
+    if (bytes >= tb)
+        return QLocale().toString(bytes / tb) + QString(QLatin1String(" TB"));
     if (bytes >= gb)
         return QLocale().toString(bytes / gb) + QString(QLatin1String(" GB"));
     if (bytes >= mb)
