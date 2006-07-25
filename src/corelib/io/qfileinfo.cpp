@@ -436,6 +436,8 @@ bool
 QFileInfo::operator==(const QFileInfo &fileinfo) const
 {
     Q_D(const QFileInfo);
+    // ### Qt 5: understand long and short file names on Windows
+    // ### (GetFullPathName()).
     if(fileinfo.d_func()->data == d->data)
         return true;
     if(!d->data->fileEngine || !fileinfo.d_func()->data->fileEngine)
@@ -468,6 +470,9 @@ QFileInfo::operator==(const QFileInfo &fileinfo) const
 
     \warning This will not compare two different symbolic links
     pointing to the same file.
+
+    \warning Long and short file names that refer to the same file on Windows
+    are treated as if they referred to different files.
 
     \sa operator!=()
 */
