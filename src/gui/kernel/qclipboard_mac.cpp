@@ -195,6 +195,13 @@ QMacPasteBoard::QMacPasteBoard(CFStringRef name, uchar mt)
 
 QMacPasteBoard::~QMacPasteBoard()
 {
+    // Copy all promised data to the clip board before exiting.
+    for (int i = 0; i < promises.count(); ++i) {
+        const Promise &promise = promises.at(i);
+        QCFString flavor = QCFString(promise.convertor->flavorFor(promise.mime));
+        promiseKeeper(paste, (void *)i, flavor, this);
+    }
+
     if(paste)
         CFRelease(paste);
 }
