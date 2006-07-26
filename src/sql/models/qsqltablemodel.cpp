@@ -864,9 +864,7 @@ QSqlDatabase QSqlTableModel::database() const
 */
 void QSqlTableModel::sort(int column, Qt::SortOrder order)
 {
-    Q_D(QSqlTableModel);
-    d->sortColumn = column;
-    d->sortOrder = order;
+    setSort(column, order);
     select();
 }
 
