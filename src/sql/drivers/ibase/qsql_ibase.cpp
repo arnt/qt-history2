@@ -1004,7 +1004,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
                 row[idx] = QVariant(*(qint64*)buf);
             break;
         case SQL_LONG:
-            if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
+            if (d->sqlda->sqlvar[i].sqllen == 4)
                 row[idx] = QVariant(int((*(long*)buf)));
             else
                 row[idx] = QVariant(qint64((*(long*)buf)));
