@@ -1982,12 +1982,18 @@ void tst_QVariant::variant_to()
     QCOMPARE(qvariant_cast<uint>(n), 42u);
     QCOMPARE(qvariant_cast<double>(n), 42.0);
     QCOMPARE(qvariant_cast<short>(n), short(42));
+    QCOMPARE(qvariant_cast<ushort>(n), ushort(42));
 
     n = qVariantFromValue(43l);
     QCOMPARE(qvariant_cast<int>(n), 43);
     QCOMPARE(qvariant_cast<uint>(n), 43u);
     QCOMPARE(qvariant_cast<double>(n), 43.0);
     QCOMPARE(qvariant_cast<long>(n), 43l);
+
+    n = "44";
+    QCOMPARE(qvariant_cast<int>(n), 44);
+    QCOMPARE(qvariant_cast<ulong>(n), 44ul);
+    QCOMPARE(qvariant_cast<float>(n), 44.0f);
 }
 
 void tst_QVariant::saveLoadCustomTypes()
