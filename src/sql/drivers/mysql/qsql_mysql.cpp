@@ -155,7 +155,7 @@ static QVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
     case FIELD_TYPE_TINY_BLOB :
     case FIELD_TYPE_MEDIUM_BLOB :
     case FIELD_TYPE_LONG_BLOB :
-        type = QVariant::ByteArray;
+        type = (flags & BINARY_FLAG) ? QVariant::ByteArray : QVariant::String;
         break;
     default:
     case FIELD_TYPE_ENUM :
