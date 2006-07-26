@@ -1385,8 +1385,6 @@ void tst_QWidget::reparent()
     // On X11, the window manager will apply NorthWestGravity rules to 'child', which
     // means the top-left corner of the window frame will be placed at 'childPos',
     // causing this test to fail
-#elif defined Q_WS_QWS
-    QCOMPARE(child.pos(), childPos);
 #else
     QCOMPARE(child.geometry().topLeft(), childPos);
 #endif
@@ -1573,6 +1571,13 @@ void tst_QWidget::normalGeometry()
     QTestEventLoop::instance().enterLoop(1);
     QVERIFY(!(parent.windowState() & Qt::WindowFullScreen));
     QCOMPARE(parent.geometry(), geom);
+    QCOMPARE(parent.normalGeometry(), geom);
+
+    parent.showNormal();
+    parent.setWindowState(Qt:: WindowFullScreen | Qt::WindowMaximized);
+    parent.setWindowState(Qt::WindowMinimized | Qt:: WindowFullScreen | Qt::WindowMaximized);
+    parent.setWindowState(Qt:: WindowFullScreen | Qt::WindowMaximized);
+    QTestEventLoop::instance().enterLoop(1);
     QCOMPARE(parent.normalGeometry(), geom);
 }
 
