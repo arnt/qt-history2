@@ -3550,8 +3550,9 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             QSize bs;
+            int center = spinbox->rect.height() / 2;
             int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, spinbox, widget) : 0;
-            int y = qMax(fw, 1);
+            int y = fw;
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - y));
             bs.setWidth(15);
             int x, lx, rx;
@@ -3560,10 +3561,10 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             rx = x - fw;
             switch (subControl) {
             case SC_SpinBoxUp:
-                rect = QRect(x, y - 1, bs.width(), bs.height() + 2);
+                rect = QRect(x, fw, bs.width(), center - fw);
                 break;
             case SC_SpinBoxDown:
-                rect = QRect(x, y + bs.height() + 1, bs.width(), bs.height());
+                rect = QRect(x, center, bs.width(), spinbox->rect.bottom() - center - fw + 1);
                 break;
             case SC_SpinBoxEditField:
                 rect = QRect(lx, fw, rx - qMax(fw - 1, 0), spinbox->rect.height() - 2*fw);
