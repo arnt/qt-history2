@@ -3401,6 +3401,7 @@ void Q3CanvasView::setCanvas(Q3Canvas* canvas)
     if (viewing) {
 	connect(viewing,SIGNAL(resized()), this, SLOT(updateContentsSize()));
 	viewing->addView(this);
+	viewing->setAllChanged();
     }
     if (d) // called by d'tor
         updateContentsSize();
