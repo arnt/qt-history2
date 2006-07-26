@@ -26,7 +26,7 @@ struct QHolder {
     bool operator==(const QHolder& h) const { return h.holderPos == holderPos && h.holderName == holderName; }
     bool operator!=(const QHolder& h) const { return h.holderPos != holderPos || h.holderName != holderName; }
     QString holderName;
-    int            holderPos;
+    int holderPos;
 };
 
 class QSqlResultPrivate
@@ -326,6 +326,9 @@ const QSqlDriver *QSqlResult::driver() const
 
 void QSqlResult::setActive(bool active)
 {
+    if (active && d->executedQuery.isEmpty())
+        d->executedQuery = d->sql;
+
     d->active = active;
 }
 
