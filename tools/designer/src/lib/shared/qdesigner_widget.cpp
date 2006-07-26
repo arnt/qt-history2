@@ -85,7 +85,7 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
+    if (m_formWindow && m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
         paintGrid(this, m_formWindow, e);
     } else {
         QPainter p(this);
@@ -115,7 +115,7 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature))
+    if (m_formWindow && m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature))
         paintGrid(this, m_formWindow, e);
     else
         QWidget::paintEvent(e);
