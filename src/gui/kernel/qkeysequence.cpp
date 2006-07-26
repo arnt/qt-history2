@@ -1110,7 +1110,7 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 QDebug operator<<(QDebug dbg, const QKeySequence &p)
 {
 #ifndef Q_BROKEN_DEBUG_STREAM
-    dbg.nospace() << "QKeySequence(" << QString(p) << ')';
+    dbg.nospace() << "QKeySequence(" << p.toString() << ')';
     return dbg.space();
 #else
     qWarning("This compiler doesn't support streaming QKeySequence to QDebug");
