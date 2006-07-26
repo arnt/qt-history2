@@ -24,7 +24,6 @@
 #include <qtooltip.h>
 #include <private/qeffects_p.h>
 #include <qtextdocument.h>
-#include <qdebug.h>
 
 #ifndef QT_NO_TOOLTIP
 
