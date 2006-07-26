@@ -39,6 +39,8 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
 {
     Q_ASSERT(workbench);
 
+    setMaximumSize(0xFFF, 0xFFF);
+
     if (m_editor) {
         m_editor->setParent(this);
     } else {

@@ -435,6 +435,15 @@ SizeProperty::SizeProperty(const QSize &value, const QString &name)
     ph->setParent(this);
     ph->setRange(0, INT_MAX);
 
+    if (name == QLatin1String("maximumSize")) {
+        pw->setRange(0, 0xFFFFFF);
+        ph->setRange(0, 0xFFFFFF);
+    }
+    if (name == QLatin1String("minimumSize")) {
+        pw->setRange(0, 0xFFF);
+        ph->setRange(0, 0xFFF);
+    }
+
     m_properties << pw << ph;
 }
 
@@ -581,6 +590,11 @@ RectProperty::RectProperty(const QRect &value, const QString &name)
     ph->setFake(true);
     ph->setParent(this);
     ph->setRange(0, INT_MAX);
+
+    if (name == QLatin1String("geometry")) {
+        pw->setRange(0, 0xFFF);
+        ph->setRange(0, 0xFFF);
+    }
 
     m_properties << px << py << pw << ph;
 }
