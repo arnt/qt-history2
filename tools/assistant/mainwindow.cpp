@@ -284,7 +284,7 @@ void MainWindow::on_actionAboutApplication_triggered()
         url = url.mid(5);
     QFile file(url);
     if(file.exists() && file.open(QFile::ReadOnly))
-        text = QString::fromAscii(file.readAll());
+        text = QString::fromUtf8(file.readAll());
     if(text.isNull())
         text = tr("Failed to open about application contents in file: '%1'").arg(url);
 
