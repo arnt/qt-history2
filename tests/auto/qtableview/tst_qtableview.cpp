@@ -113,12 +113,6 @@ private slots:
 
     void span_data();
     void span();
-
-    void rowSpan_data();
-    void rowSpan();
-    
-    void columnSpan_data();
-    void columnSpan();
 };
 
 // Testing get/set functions
@@ -261,6 +255,11 @@ public:
     int rowHeightHint(int row) const
     {
         return sizeHintForRow(row);
+    }
+
+    bool isIndexHidden(const QModelIndex &index) const
+    {
+        return QTableView::isIndexHidden(index);
     }
 };
 
@@ -897,8 +896,24 @@ void tst_QTableView::hideRows_data()
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("showRow"); // hide, then show
     QTest::addColumn<int>("hideRow"); // hide only
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowSpan");
+    QTest::addColumn<int>("columnSpan");
 
-    QTest::newRow("") << 10 << 10 << 0 << 3;
+    QTest::newRow("show row 0, hide row 3, no span")
+      << 10 << 10
+      << 0
+      << 3
+      << -1 << -1
+      << 1 << 1;
+
+    QTest::newRow("show row 0, hide row 3, span")
+      << 10 << 10
+      << 0
+      << 3
+      << 0 << 0
+      << 3 << 2;
 }
 
 void tst_QTableView::hideRows()
@@ -907,11 +922,16 @@ void tst_QTableView::hideRows()
     QFETCH(int, columnCount);
     QFETCH(int, showRow);
     QFETCH(int, hideRow);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, rowSpan);
+    QFETCH(int, columnSpan);
     
     QtTestTableModel model(rowCount, columnCount);
     QTableView view;
 
     view.setModel(&model);
+    view.setSpan(row, column, rowSpan, columnSpan);
 
     view.hideRow(showRow);
     QVERIFY(view.isRowHidden(showRow));
@@ -930,8 +950,24 @@ void tst_QTableView::hideColumns_data()
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("showColumn"); // hide, then show
     QTest::addColumn<int>("hideColumn"); // hide only
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowSpan");
+    QTest::addColumn<int>("columnSpan");
 
-    QTest::newRow("") << 10 << 10 << 0 << 3;
+    QTest::newRow("show col 0, hide col 3, no span")
+      << 10 << 10
+      << 0
+      << 3
+      << -1 << -1 
+      << 1 << 1;
+
+    QTest::newRow("show col 0, hide col 3, span")
+      << 10 << 10
+      << 0
+      << 3
+      << 0 << 0 
+      << 3 << 2;
 }
 
 void tst_QTableView::hideColumns()
@@ -940,11 +976,16 @@ void tst_QTableView::hideColumns()
     QFETCH(int, columnCount);
     QFETCH(int, showColumn);
     QFETCH(int, hideColumn);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, rowSpan);
+    QFETCH(int, columnSpan);
     
     QtTestTableModel model(rowCount, columnCount);
 
     QTableView view;
     view.setModel(&model);
+    view.setSpan(row, column, rowSpan, columnSpan);
 
     view.hideColumn(showColumn);
     QVERIFY(view.isColumnHidden(showColumn));
@@ -1955,22 +1996,17 @@ void tst_QTableView::span()
 
     QCOMPARE(view.rowSpan(row, column), expectedRowSpan);
     QCOMPARE(view.columnSpan(row, column), expectedColumnSpan);
-}
 
-void tst_QTableView::rowSpan_data()
-{
-}
+    if (hiddenRow > -1) {
+        QModelIndex hidden = model.index(hiddenRow, columnCount - 1);
+	QVERIFY(view.isIndexHidden(hidden));
+    }
 
-void tst_QTableView::rowSpan()
-{
-}
+    if (hiddenColumn > -1) {
+        QModelIndex hidden = model.index(rowCount - 1, hiddenColumn);
+        QVERIFY(view.isIndexHidden(hidden));
+    }
     
-void tst_QTableView::columnSpan_data()
-{
-}
-
-void tst_QTableView::columnSpan()
-{
 }
 
 QTEST_MAIN(tst_QTableView)
