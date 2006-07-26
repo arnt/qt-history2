@@ -31,9 +31,6 @@ private slots:
 */
 void tst_QClipboard::capabiliyFunctions()
 {
-#if QT_VERSION < 0x040200    
-    QSKIP("Test for functionality added in 4.2", SkipAll);
-#else
     QClipboard * const clipboard =  QApplication::clipboard();
 
     clipboard->supportsSelection();
@@ -41,7 +38,6 @@ void tst_QClipboard::capabiliyFunctions()
     clipboard->ownsSelection();
     clipboard->ownsClipboard();
     clipboard->ownsFindBuffer();
-#endif
 }
 
 /*
@@ -50,9 +46,6 @@ void tst_QClipboard::capabiliyFunctions()
 */
 void tst_QClipboard::modes()
 {
-#if QT_VERSION < 0x040200    
-    QSKIP("Test for functionality added in 4.2", SkipAll);
-#else
     QClipboard * const clipboard =  QApplication::clipboard();
 
     const QString defaultMode = "deafult mode text;";
@@ -72,7 +65,6 @@ void tst_QClipboard::modes()
         QCOMPARE(clipboard->text(QClipboard::FindBuffer), searchMode);
         QCOMPARE(clipboard->text(), defaultMode);
     }
-#endif
 }
 
 /*
@@ -81,9 +73,6 @@ void tst_QClipboard::modes()
 */
 void tst_QClipboard::testSignals()
 {
-#if QT_VERSION < 0x040200    
-    QSKIP("Test for functionality added in  4.2", SkipAll);
-#else
     QClipboard * const clipboard =  QApplication::clipboard();
 
     QSignalSpy dataChangedSpy(clipboard, SIGNAL(dataChanged()));
@@ -116,7 +105,6 @@ void tst_QClipboard::testSignals()
         QCOMPARE(searchChangedSpy.count(), 0);
     }
     QCOMPARE(dataChangedSpy.count(), 1);
-#endif
 }
 
 QTEST_MAIN(tst_QClipboard)
