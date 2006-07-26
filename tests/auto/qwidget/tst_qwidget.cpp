@@ -145,6 +145,7 @@ public:
 void tst_QWidget::getSetCheck()
 {
     QWidget obj1;
+    QWidget child1(&obj1);
     // QStyle * QWidget::style()
     // void QWidget::setStyle(QStyle *)
     QWindowsStyle *var1 = new QWindowsStyle;
@@ -161,7 +162,17 @@ void tst_QWidget::getSetCheck()
     obj1.setMinimumWidth(INT_MIN);
     QCOMPARE(obj1.minimumWidth(), 0); // A widgets width can never be less than 0
     obj1.setMinimumWidth(INT_MAX);
+#ifndef Q_WS_QWS  //QWS doesn't allow toplevels to be bigger than the screen
     QCOMPARE(obj1.minimumWidth(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
+#endif
+
+    child1.setMinimumWidth(0);
+    QCOMPARE(child1.minimumWidth(), 0);
+    child1.setMinimumWidth(INT_MIN);
+    QCOMPARE(child1.minimumWidth(), 0); // A widgets width can never be less than 0
+    child1.setMinimumWidth(INT_MAX);
+    QCOMPARE(child1.minimumWidth(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
+
 
     // int QWidget::minimumHeight()
     // void QWidget::setMinimumHeight(int)
@@ -170,9 +181,19 @@ void tst_QWidget::getSetCheck()
     obj1.setMinimumHeight(INT_MIN);
     QCOMPARE(obj1.minimumHeight(), 0); // A widgets height can never be less than 0
     obj1.setMinimumHeight(INT_MAX);
+#ifndef Q_WS_QWS    //QWS doesn't allow toplevels to be bigger than the screen
     QCOMPARE(obj1.minimumHeight(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
+#endif
 
-    // int QWidget::maximumWidth()
+    child1.setMinimumHeight(0);
+    QCOMPARE(child1.minimumHeight(), 0);
+    child1.setMinimumHeight(INT_MIN);
+    QCOMPARE(child1.minimumHeight(), 0); // A widgets height can never be less than 0
+    child1.setMinimumHeight(INT_MAX);
+    QCOMPARE(child1.minimumHeight(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
+
+
+// int QWidget::maximumWidth()
     // void QWidget::setMaximumWidth(int)
     obj1.setMaximumWidth(0);
     QCOMPARE(obj1.maximumWidth(), 0);
