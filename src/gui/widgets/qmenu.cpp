@@ -1912,6 +1912,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 
     bool key_consumed = false;
     switch(key) {
+#ifdef Q_WS_MAC
+    case Qt::Key_PageUp:
+#endif
     case Qt::Key_Home:
         key_consumed = true;
         if (d->scroll) {
@@ -1929,6 +1932,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             }
         }
         break;
+#ifdef Q_WS_MAC
+    case Qt::Key_PageDown:
+#endif
     case Qt::Key_End:
         key_consumed = true;
         if (d->scroll) {
@@ -1946,6 +1952,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             }
         }
         break;
+#ifndef Q_WS_MAC
     case Qt::Key_PageUp:
         key_consumed = true;
         if (d->currentAction && d->scroll)
@@ -1956,6 +1963,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         if (d->currentAction && d->scroll)
             d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollDown, true, true);
         break;
+#endif
     case Qt::Key_Up:
     case Qt::Key_Down: {
         key_consumed = true;
