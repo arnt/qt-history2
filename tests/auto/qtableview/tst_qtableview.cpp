@@ -133,6 +133,19 @@ void tst_QTableView::getSetCheck()
     QCOMPARE(false, obj1.showGrid());
     obj1.setShowGrid(true);
     QCOMPARE(true, obj1.showGrid());
+
+    obj1.setGridStyle(Qt::NoPen);
+    QCOMPARE(Qt::NoPen, obj1.gridStyle());
+    obj1.setGridStyle(Qt::SolidLine);
+    QCOMPARE(Qt::SolidLine, obj1.gridStyle());
+
+    obj1.setRootIndex(QModelIndex());
+    QCOMPARE(QModelIndex(), obj1.rootIndex());
+    QStandardItemModel model(10, 10);
+    obj1.setModel(&model);
+    QModelIndex index = model.index(0, 0);
+    obj1.setRootIndex(index);
+    QCOMPARE(index, obj1.rootIndex());
     
     QHeaderView *var1 = new QHeaderView(Qt::Horizontal);
     obj1.setHorizontalHeader(var1);
@@ -344,8 +357,8 @@ void tst_QTableView::removeRows_data()
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<int>("columnCount");
 
-    QTest::newRow("2x2 model") << 2 << 2;
-    QTest::newRow("10x10 model") << 10  << 10;
+    QTest::newRow("2x2") << 2 << 2;
+    QTest::newRow("10x10") << 10  << 10;
 }
 
 void tst_QTableView::removeRows()
@@ -372,8 +385,8 @@ void tst_QTableView::removeColumns_data()
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<int>("columnCount");
 
-    QTest::newRow("2x2 model") << 2 << 2;
-    QTest::newRow("10x10 model") << 10  << 10;
+    QTest::newRow("2x2") << 2 << 2;
+    QTest::newRow("10x10") << 10  << 10;
 }
 
 void tst_QTableView::removeColumns()
@@ -540,197 +553,197 @@ void tst_QTableView::moveCursor_data()
     QTest::addColumn<int>("expectedColumn");
 
     // MoveRight
-    QTest::newRow("MoveRight (0, 0)")
+    QTest::newRow("MoveRight (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0 
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
         << 0 << 1;
 
-    QTest::newRow("MoveRight (3, 0)")
+    QTest::newRow("MoveRight (3,0)")
         << 4 << 4 << -1 << -1
         << 3 << 0
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
         << 3 << 1;
 
-    QTest::newRow("MoveRight (3, 3)")
+    QTest::newRow("MoveRight (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
         << -1 << -1; // ###
 
-    QTest::newRow("MoveRight, hidden column 1 (0, 0)")
+    QTest::newRow("MoveRight, hidden column 1 (0,0)")
         << 4 << 4 << -1 << 1
         << 0 << 0
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
         << 0 << 2;
 
-    QTest::newRow("MoveRight, hidden column 3 (0, 2)")
+    QTest::newRow("MoveRight, hidden column 3 (0,2)")
         << 4 << 4 << -1 << 3
         << 0 << 2
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
         << -1 << -1; // ###
 
     // MoveNext should in addition wrap
-    QTest::newRow("MoveNext (0, 0)")
+    QTest::newRow("MoveNext (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 1;
 
-    QTest::newRow("MoveNext (0, 2)")
+    QTest::newRow("MoveNext (0,2)")
         << 4 << 4 << -1 << -1
         << 0 << 2
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 3;
 
-    QTest::newRow("MoveNext, wrap (0, 3)")
+    QTest::newRow("MoveNext, wrap (0,3)")
         << 4 << 4 << -1 << -1
         << 0 << 3
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 1 << 0;
 
-    QTest::newRow("MoveNext, wrap (3, 3)")
+    QTest::newRow("MoveNext, wrap (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveNext, hidden column 1 (0, 0)")
+    QTest::newRow("MoveNext, hidden column 1 (0,0)")
         << 4 << 4 << -1 << 1
         << 0 << 0
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 2;
 
-    QTest::newRow("MoveNext, wrap, hidden column 3 (0, 2)")
+    QTest::newRow("MoveNext, wrap, hidden column 3 (0,2)")
         << 4 << 4 << -1 << 3
         << 0 << 2
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 1 << 0;
 
-    QTest::newRow("MoveNext, wrap, hidden column 3 (3, 2)")
+    QTest::newRow("MoveNext, wrap, hidden column 3 (3,2)")
         << 4 << 4 << -1 << 3
         << 3 << 2
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveNext, wrapy, wrapx, hidden column 3, hidden row 3 (2, 2)")
+    QTest::newRow("MoveNext, wrapy, wrapx, hidden column 3, hidden row 3 (2,2)")
         << 4 << 4 << 3 << 3
         << 2 << 2
         << int(QtTestTableView::MoveNext) << int(Qt::NoModifier)
         << 0 << 0;
 
     // MoveLeft
-    QTest::newRow("MoveLeft (0, 0)")
+    QTest::newRow("MoveLeft (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveLeft (0, 3)")
+    QTest::newRow("MoveLeft (0,3)")
         << 4 << 4 << -1 << -1
         << 0 << 3
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
         << 0 << 2;
 
-    QTest::newRow("MoveLeft (1, 0)")
+    QTest::newRow("MoveLeft (1,0)")
         << 4 << 4 << -1 << -1
         << 1 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveLeft, hidden column 0 (0, 2)")
+    QTest::newRow("MoveLeft, hidden column 0 (0,2)")
         << 4 << 4 << -1 << 1
         << 0 << 2
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveLeft, hidden column 0 (0, 1)")
+    QTest::newRow("MoveLeft, hidden column 0 (0,1)")
         << 4 << 4 << -1 << 0
         << 0 << 1
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
         << -1 << -1;
 
     // MovePrevious should in addition wrap
-    QTest::newRow("MovePrevious (0, 3)")
+    QTest::newRow("MovePrevious (0,3)")
         << 4 << 4 << -1 << -1
         << 0 << 3
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 2;
 
-    QTest::newRow("MovePrevious (0, 1)")
+    QTest::newRow("MovePrevious (0,1)")
         << 4 << 4 << -1 << -1
         << 0 << 1
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MovePrevious, wrap (1, 0)")
+    QTest::newRow("MovePrevious, wrap (1,0)")
         << 4 << 4 << -1 << -1
         << 1 << 0
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 3;
 
-    QTest::newRow("MovePrevious, wrap, (0, 0)")
+    QTest::newRow("MovePrevious, wrap, (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 3 << 3;
 
-    QTest::newRow("MovePrevious, hidden column 1 (0, 2)")
+    QTest::newRow("MovePrevious, hidden column 1 (0,2)")
         << 4 << 4 << -1 << 1
         << 0 << 2
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MovePrevious, wrap, hidden column 3 (0, 2)")
+    QTest::newRow("MovePrevious, wrap, hidden column 3 (0,2)")
         << 4 << 4 << -1 << 3
         << 0 << 2
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 0 << 1;
 
-    QTest::newRow("MovePrevious, wrapy, hidden column 0 (0, 1)")
+    QTest::newRow("MovePrevious, wrapy, hidden column 0 (0,1)")
         << 4 << 4 << -1 << 0
         << 0 << 1
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 3 << 3;
 
-    QTest::newRow("MovePrevious, wrap, hidden column 0, hidden row 0 (1, 1)")
+    QTest::newRow("MovePrevious, wrap, hidden column 0, hidden row 0 (1,1)")
         << 4 << 4 << 0 << 0
         << 1 << 1
         << int(QtTestTableView::MovePrevious) << int(Qt::NoModifier)
         << 3 << 3;
 
     // MoveDown
-    QTest::newRow("MoveDown (0, 0)")
+    QTest::newRow("MoveDown (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << 1 << 0;
 
-    QTest::newRow("MoveDown (3, 0)")
+    QTest::newRow("MoveDown (3,0)")
         << 4 << 4 << -1 << -1
         << 3 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveDown (3, 3)")
+    QTest::newRow("MoveDown (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveDown, hidden row 1 (0, 0)")
+    QTest::newRow("MoveDown, hidden row 1 (0,0)")
         << 4 << 4 << 1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << 2 << 0;
 
-    QTest::newRow("MoveDown, hidden row 3 (2, 0)")
+    QTest::newRow("MoveDown, hidden row 3 (2,0)")
         << 4 << 4 << 3 << -1
         << 2 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveDown, hidden row 0 hidden column 0 (0, 0)")
+    QTest::newRow("MoveDown, hidden row 0 hidden column 0 (0,0)")
         << 4 << 4 << 0 << 0
         << 0 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
@@ -738,7 +751,7 @@ void tst_QTableView::moveCursor_data()
     
 
     // MoveUp
-    QTest::newRow("MoveUp (0, 0)")
+    QTest::newRow("MoveUp (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
@@ -750,83 +763,83 @@ void tst_QTableView::moveCursor_data()
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << 2 << 0;
 
-    QTest::newRow("MoveUp (0, 1)")
+    QTest::newRow("MoveUp (0,1)")
         << 4 << 4 << -1 << -1
         << 0 << 1
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << -1 << -1;
 
-    QTest::newRow("MoveUp, hidden row 1 (2, 0)")
+    QTest::newRow("MoveUp, hidden row 1 (2,0)")
         << 4 << 4 << 1 << -1
         << 2 << 0
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveUp, hidden row (1, 0)")
+    QTest::newRow("MoveUp, hidden row (1,0)")
         << 4 << 4 << 0 << -1
         << 1 << 0
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
         << -1 << -1;
 
     // MoveHome
-    QTest::newRow("MoveHome (0, 0)")
+    QTest::newRow("MoveHome (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveHome (3, 3)")
+    QTest::newRow("MoveHome (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
         << 3 << 0;
 
-    QTest::newRow("MoveHome, hidden column 0 (3, 3)")
+    QTest::newRow("MoveHome, hidden column 0 (3,3)")
         << 4 << 4 << -1 << 0
         << 3 << 3
         << int(QtTestTableView::MoveHome) << int(Qt::NoModifier)
         << 3 << 1;
 
     // Use Ctrl modifier
-    QTest::newRow("MoveHome + Ctrl (0, 0)")
+    QTest::newRow("MoveHome + Ctrl (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveHome + Ctrl (3, 3)")
+    QTest::newRow("MoveHome + Ctrl (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
         << 0 << 0;
 
-    QTest::newRow("MoveHome + Ctrl, hidden column 0, hidden row 0 (3, 3)")
+    QTest::newRow("MoveHome + Ctrl, hidden column 0, hidden row 0 (3,3)")
         << 4 << 4 << 0 << 0
         << 3 << 3
         << int(QtTestTableView::MoveHome) << int(Qt::ControlModifier)
         << 1 << 1;
 
     // MoveEnd
-    QTest::newRow("MoveEnd (0, 0)")
+    QTest::newRow("MoveEnd (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
         << 0 << 3;
 
-    QTest::newRow("MoveEnd (3, 3)")
+    QTest::newRow("MoveEnd (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
         << 3 << 3;
 
-    QTest::newRow("MoveEnd, hidden column (0, 0)")
+    QTest::newRow("MoveEnd, hidden column (0,0)")
         << 4 << 4 << -1 << 3
         << 0 << 0
         << int(QtTestTableView::MoveEnd) << int(Qt::NoModifier)
         << 0<< 2;
 
     // Use Ctrl modifier
-    QTest::newRow("MoveEnd + Ctrl (0, 0)")
+    QTest::newRow("MoveEnd + Ctrl (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
@@ -838,7 +851,7 @@ void tst_QTableView::moveCursor_data()
         << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
         << 3 << 3;
 
-    QTest::newRow("MoveEnd + Ctrl, hidden column 3 (0, 0)")
+    QTest::newRow("MoveEnd + Ctrl, hidden column 3 (0,0)")
         << 4 << 4 << -1 << 3
         << 0 << 0
         << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
@@ -850,13 +863,13 @@ void tst_QTableView::moveCursor_data()
         << int(QtTestTableView::MoveEnd) << int(Qt::ControlModifier)
         << 2 << 2;
 
-    QTest::newRow("MovePageUp (0, 0)")
+    QTest::newRow("MovePageUp (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MovePageUp) << 0
         << 0 << 0;
 
-    QTest::newRow("MovePageUp (3, 3)")
+    QTest::newRow("MovePageUp (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MovePageUp) << 0
@@ -1423,49 +1436,49 @@ void tst_QTableView::visualRect_data()
     QTest::addColumn<int>("columnWidth");
     QTest::addColumn<QRect>("expectedRect");
 
-    QTest::newRow("(0, 0)")
+    QTest::newRow("(0,0)")
         << 10 << 10
         << -1 << -1
         << 0 << 0
         << 20 << 30
         << QRect(0, 0, 29, 19);
 
-    QTest::newRow("(0, 0), hidden row")
+    QTest::newRow("(0,0) hidden row")
         << 10 << 10
         << 0 << -1
         << 0 << 0
         << 20 << 30
         << QRect();
 
-    QTest::newRow("(0, 0), hidden column")
+    QTest::newRow("(0,0) hidden column")
         << 10 << 10
         << -1 << 0
         << 0 << 0
         << 20 << 30
         << QRect();
 
-    QTest::newRow("(0, 0), hidden row and column")
+    QTest::newRow("(0,0) hidden row and column")
         << 10 << 10
         << 0 << 0
         << 0 << 0
         << 20 << 30
         << QRect();
 
-    QTest::newRow("(0, 0), out of bounds")
+    QTest::newRow("(0,0) out of bounds")
         << 10 << 10
         << -1 << -1
         << 20 << 20
         << 20 << 30
         << QRect();
 
-    QTest::newRow("(5, 5), hidden row")
+    QTest::newRow("(5,5), hidden row")
         << 10 << 10
         << 5 << -1
         << 5 << 5
         << 20 << 30
         << QRect();
 
-    QTest::newRow("(9, 9)")
+    QTest::newRow("(9,9)")
         << 10 << 10
         << -1 << -1
         << 9 << 9
@@ -1768,17 +1781,20 @@ void tst_QTableView::rowHeight_data()
     QTest::addColumn<IntList>("rowHeights");
     QTest::addColumn<BoolList>("hiddenRows");
 
-    QTest::newRow("increasing") << 5
-                                << (IntList() << 20 << 30 << 40 << 50 << 60)
-                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("increasing")
+      << 5
+      << (IntList() << 20 << 30 << 40 << 50 << 60)
+      << (BoolList() << false << false << false << false << false);
 
-    QTest::newRow("decreasing") << 5
-                                << (IntList() << 60 << 50 << 40 << 30 << 20)
-                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("decreasing")
+      << 5
+      << (IntList() << 60 << 50 << 40 << 30 << 20)
+      << (BoolList() << false << false << false << false << false);
 
-    QTest::newRow("random")     << 5
-                                << (IntList() << 87 << 34 << 68 << 91 << 27)
-                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("random")
+      << 5
+      << (IntList() << 87 << 34 << 68 << 91 << 27)
+      << (BoolList() << false << false << false << false << false);
 
     // ### expand the dataset to include hidden rows
 }
@@ -1927,15 +1943,20 @@ void tst_QTableView::columnWidth_data()
     QTest::addColumn<IntList>("columnWidths");
     QTest::addColumn<BoolList>("hiddenColumns");
 
-    QTest::newRow("increasing") << 5
-                                << (IntList() << 20 << 30 << 40 << 50 << 60)
-                                << (BoolList() << false << false << false << false << false);
-    QTest::newRow("decreasing") << 5
-                                << (IntList() << 60 << 50 << 40 << 30 << 20)
-                                << (BoolList() << false << false << false << false << false);
-    QTest::newRow("random")     << 5
-                                << (IntList() << 87 << 34 << 68 << 91 << 27)
-                                << (BoolList() << false << false << false << false << false);
+    QTest::newRow("increasing")
+      << 5
+      << (IntList() << 20 << 30 << 40 << 50 << 60)
+      << (BoolList() << false << false << false << false << false);
+
+    QTest::newRow("decreasing")
+      << 5
+      << (IntList() << 60 << 50 << 40 << 30 << 20)
+      << (BoolList() << false << false << false << false << false);
+    
+    QTest::newRow("random")
+      << 5
+      << (IntList() << 87 << 34 << 68 << 91 << 27)
+      << (BoolList() << false << false << false << false << false);
 
     // ### expand the dataset to include hidden columns
 }
@@ -1969,14 +1990,17 @@ void tst_QTableView::hiddenRow_data()
     QTest::addColumn<int>("rowCount");
     QTest::addColumn<BoolList>("hiddenRows");
 
-    QTest::newRow("first hidden") << 5
-                                  << (BoolList() << true << false << false << false << false);
-    QTest::newRow("last hidden")  << 5
-                                  << (BoolList() << false << false << false << false << true);
-    QTest::newRow("none hidden")  << 5
-                                  << (BoolList() << false << false << false << false << false);
-    QTest::newRow("all hidden")   << 5
-                                  << (BoolList() << true << true << true << true << true);
+    QTest::newRow("first hidden")
+      << 5 << (BoolList() << true << false << false << false << false);
+    
+    QTest::newRow("last hidden")
+      << 5 << (BoolList() << false << false << false << false << true);
+    
+    QTest::newRow("none hidden")
+      << 5 << (BoolList() << false << false << false << false << false);
+    
+    QTest::newRow("all hidden")
+      << 5 << (BoolList() << true << true << true << true << true);
  }
 
 void tst_QTableView::hiddenRow()
