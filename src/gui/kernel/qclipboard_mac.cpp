@@ -171,6 +171,7 @@ QMacPasteBoard::QMacPasteBoard(uchar mt)
 {
     mac_mime_source = false;
     mime_type = mt ? mt : uchar(QMacPasteBoardMime::MIME_ALL);
+    paste = 0;
     OSStatus err = PasteboardCreate(0, &paste);
     if(err == noErr) {
         PasteboardSetPromiseKeeper(paste, promiseKeeper, this);
@@ -183,6 +184,7 @@ QMacPasteBoard::QMacPasteBoard(CFStringRef name, uchar mt)
 {
     mac_mime_source = false;
     mime_type = mt ? mt : uchar(QMacPasteBoardMime::MIME_ALL);
+    paste = 0;
     OSStatus err = PasteboardCreate(name, &paste);
     if(err == noErr) {
         PasteboardSetPromiseKeeper(paste, promiseKeeper, this);
@@ -246,6 +248,9 @@ OSStatus QMacPasteBoard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
 bool
 QMacPasteBoard::hasOSType(int c_flavor) const
 {
+    if (!paste)
+        return false;
+
     sync();
 
     UInt32 cnt = 0;
@@ -287,6 +292,9 @@ QMacPasteBoard::hasOSType(int c_flavor) const
 bool
 QMacPasteBoard::hasFlavor(QString c_flavor) const
 {
+    if (!paste)
+        return false;
+
     sync();
 
     UInt32 cnt = 0;
@@ -347,6 +355,9 @@ private:
 void
 QMacPasteBoard::setMimeData(QMimeData *mime_src)
 {
+    if (!paste)
+        return;
+
     if(mime == mime_src || (!mime_src && mime && mac_mime_source))
         return;
     mac_mime_source = false;
@@ -393,6 +404,9 @@ QMacPasteBoard::setMimeData(QMimeData *mime_src)
 QStringList
 QMacPasteBoard::formats() const
 {
+    if (!paste)
+        return QStringList();
+
     sync();
 
     QStringList ret;
@@ -448,6 +462,9 @@ QMacPasteBoard::formats() const
 bool
 QMacPasteBoard::hasFormat(const QString &format) const
 {
+    if (!paste)
+        return false;
+
     sync();
 
     UInt32 cnt = 0;
@@ -502,6 +519,9 @@ QMacPasteBoard::hasFormat(const QString &format) const
 QVariant
 QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
 {
+    if (!paste)
+        return QVariant();
+
     sync();
 
     UInt32 cnt = 0;
@@ -585,13 +605,16 @@ QMacPasteBoard::clear()
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: clear!");
 #endif
-    PasteboardClear(paste);
+    if (paste)
+        PasteboardClear(paste);
     promises.clear();
 }
 
 bool
 QMacPasteBoard::sync() const
 {
+    if (!paste)
+        return false;
     const bool ret = PasteboardSynchronize(paste) & kPasteboardModified;
 #ifdef DEBUG_PASTEBOARD
     if(ret)
