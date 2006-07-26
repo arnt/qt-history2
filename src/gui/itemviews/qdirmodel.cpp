@@ -58,44 +58,75 @@
 class QFileIconProviderPrivate
 {
     Q_DECLARE_PUBLIC(QFileIconProvider)
+
 public:
     QFileIconProviderPrivate();
-
-    QIcon file;
-    QIcon fileLink;
-    QIcon directory;
-    QIcon directoryLink;
-    QIcon harddisk;
-    QIcon floppy;
-    QIcon cdrom;
-    QIcon ram;
-    QIcon network;
-    QIcon computer;
-    QIcon desktop;
-    QIcon trashcan;
-    QIcon generic;
-
+    QIcon getIcon(QStyle::StandardPixmap name) const;
     QFileIconProvider *q_ptr;
+
+private:
+    mutable QIcon file;
+    mutable QIcon fileLink;
+    mutable QIcon directory;
+    mutable QIcon directoryLink;
+    mutable QIcon harddisk;
+    mutable QIcon floppy;
+    mutable QIcon cdrom;
+    mutable QIcon ram;
+    mutable QIcon network;
+    mutable QIcon computer;
+    mutable QIcon desktop;
+    mutable QIcon trashcan;
+    mutable QIcon generic;
+
 };
 
 QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
+}
+
+QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
+{
     QStyle *style = QApplication::style();
 
-    file = style->standardIcon(QStyle::SP_FileIcon);
-    fileLink = style->standardIcon(QStyle::SP_FileLinkIcon);
-
-    directory = style->standardIcon(QStyle::SP_DirIcon);
-    directoryLink = style->standardIcon(QStyle::SP_DirLinkIcon);
-
-    harddisk = style->standardIcon(QStyle::SP_DriveHDIcon);
-    floppy = style->standardIcon(QStyle::SP_DriveFDIcon);
-    cdrom = style->standardIcon(QStyle::SP_DriveCDIcon);
-    generic = ram = harddisk; // for now
-    network = style->standardIcon(QStyle::SP_DriveNetIcon);
-    computer = style->standardIcon(QStyle::SP_ComputerIcon);
-    desktop = style->standardIcon(QStyle::SP_DesktopIcon);
-    trashcan = style->standardIcon(QStyle::SP_TrashIcon);
+    switch(name) {
+    case QStyle::SP_FileIcon:
+        if (file.isNull()) file = style->standardIcon(QStyle::SP_FileIcon);
+        return file;
+    case QStyle::SP_FileLinkIcon:
+        if (fileLink.isNull()) fileLink = style->standardIcon(QStyle::SP_FileLinkIcon);
+        return fileLink;
+    case QStyle::SP_DirIcon:
+        if (directory.isNull()) directory = style->standardIcon(QStyle::SP_DirIcon);
+        return directory;
+    case QStyle::SP_DirLinkIcon:
+        if (directoryLink.isNull())  directoryLink = style->standardIcon(QStyle::SP_DirLinkIcon);
+        return directoryLink;
+    case QStyle::SP_DriveHDIcon:
+        if (harddisk.isNull()) harddisk = style->standardIcon(QStyle::SP_DriveHDIcon);
+        return harddisk;
+    case QStyle::SP_DriveFDIcon:
+        if (floppy.isNull()) floppy = style->standardIcon(QStyle::SP_DriveFDIcon);
+        return floppy;
+    case QStyle::SP_DriveCDIcon:
+        if (cdrom.isNull()) cdrom = style->standardIcon(QStyle::SP_DriveCDIcon);
+        return cdrom;
+    case QStyle::SP_DriveNetIcon:
+        if (network.isNull()) network = style->standardIcon(QStyle::SP_DriveNetIcon);
+        return network;
+    case QStyle::SP_ComputerIcon:
+        if (computer.isNull()) computer = style->standardIcon(QStyle::SP_ComputerIcon);
+        return computer;
+    case QStyle::SP_DesktopIcon:
+        if (desktop.isNull()) desktop = style->standardIcon(QStyle::SP_DesktopIcon);
+        return desktop;
+    case QStyle::SP_TrashIcon:
+        if (trashcan.isNull()) trashcan = style->standardIcon(QStyle::SP_TrashIcon);
+        return trashcan;
+    default:
+        return QIcon();
+    }
+    return QIcon();
 }
 
 /*!
@@ -123,21 +154,22 @@ QFileIconProvider::~QFileIconProvider()
 
 QIcon QFileIconProvider::icon(IconType type) const
 {
+    Q_D(const QFileIconProvider);
     switch (type) {
     case Computer:
-        return d_ptr->computer;
+        return d->getIcon(QStyle::SP_ComputerIcon);
     case Desktop:
-        return d_ptr->desktop;
+        return d->getIcon(QStyle::SP_DesktopIcon);
     case Trashcan:
-        return d_ptr->trashcan;
+        return d->getIcon(QStyle::SP_TrashIcon);
     case Network:
-        return d_ptr->network;
+        return d->getIcon(QStyle::SP_DriveNetIcon);
     case Drive:
-        return d_ptr->generic;
+        return d->getIcon(QStyle::SP_DriveHDIcon);
     case Folder:
-        return d_ptr->directory;
+        return d->getIcon(QStyle::SP_DirIcon);
     case File:
-        return d_ptr->file;
+        return d->getIcon(QStyle::SP_FileIcon);
     default:
         break;
     };
@@ -150,43 +182,43 @@ QIcon QFileIconProvider::icon(IconType type) const
 
 QIcon QFileIconProvider::icon(const QFileInfo &info) const
 {
+    Q_D(const QFileIconProvider);
     if (info.isRoot())
 #ifdef Q_OS_WIN
     {
         uint type = DRIVE_UNKNOWN;
 	QT_WA({ type = GetDriveTypeW((wchar_t *)info.absoluteFilePath().utf16()); },
         { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
-	switch (type) {
+
+        switch (type) {
 	case DRIVE_REMOVABLE:
-            return d_ptr->floppy;
+            return d->getIcon(QStyle::SP_DriveFDIcon);
 	case DRIVE_FIXED:
-            return d_ptr->harddisk;
+            return d->getIcon(QStyle::SP_DriveHDIcon);
 	case DRIVE_REMOTE:
-            return d_ptr->network;
+            return d->getIcon(QStyle::SP_DriveNetIcon);
 	case DRIVE_CDROM:
-            return d_ptr->cdrom;
+            return d->getIcon(QStyle::SP_DriveCDIcon);
 	case DRIVE_RAMDISK:
-            return d_ptr->ram;
 	case DRIVE_UNKNOWN:
-            return d_ptr->generic;
 	case DRIVE_NO_ROOT_DIR:
         default:
-            return d_ptr->generic;
+            return d->getIcon(QStyle::SP_DriveHDIcon);
 	}
     }
 #else
-    return d_ptr->generic;
+    return d->getIcon(QStyle::SP_DriveHDIcon);
 #endif
   if (info.isFile())
     if (info.isSymLink())
-      return d_ptr->fileLink;
+      return d->getIcon(QStyle::SP_FileLinkIcon);
     else
-      return d_ptr->file;
+      return d->getIcon(QStyle::SP_FileIcon);
   if (info.isDir())
     if (info.isSymLink())
-      return d_ptr->directoryLink;
+      return d->getIcon(QStyle::SP_DirLinkIcon);
     else
-      return d_ptr->directory;
+      return d->getIcon(QStyle::SP_DirIcon);
   return QIcon();
 }
 
