@@ -2007,10 +2007,6 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
                         false).trimmed();
         // Command for file
         if (combined) {
-            // Replace variables for command w/o intput files
-            cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
-                                                         QString(),
-                                                         out);
             // Add dependencies for each file
             QStringList tmp_in = Project->project->variables()[extraCompilerName + ".input"];
             for (int a = 0; a < tmp_in.count(); ++a) {
@@ -2020,9 +2016,13 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
                     inputs += Option::fixPathToTargetOS(files.at(b), false);
                 }
             }
-            deps += inputs; // input files themselvs too..
-            // Add input files to command line
-            cmd = cmd.replace("${QMAKE_FILE_IN}", inputs.join(" "));
+            deps += inputs; // input files themselves too..
+
+            // Replace variables for command w/all input files
+            // ### join gives path issues with directories containing spaces!
+            cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
+                                                         inputs.join(" "),
+                                                         out);
         } else {
             cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
                                                          inFile,
@@ -2052,7 +2052,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         if (!CustomBuildTool.Description.isEmpty())
             CustomBuildTool.Description += " & ";
         CustomBuildTool.Description += cmd_name;
-        CustomBuildTool.CommandLine += cmd;
+        CustomBuildTool.CommandLine += cmd.trimmed().split("\n", QString::SkipEmptyParts);
         int space = cmd.indexOf(' ');
         QFileInfo finf(cmd.left(space));
         if (CustomBuildTool.ToolPath.isEmpty())
