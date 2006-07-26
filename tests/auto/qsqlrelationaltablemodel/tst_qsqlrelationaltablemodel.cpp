@@ -314,6 +314,17 @@ void tst_QSqlRelationalTableModel::sort()
     QCOMPARE(model.data(model.index(1, 2)).toString(), QString("mister"));
     QCOMPARE(model.data(model.index(2, 2)).toString(), QString("herr"));
     QCOMPARE(model.data(model.index(3, 2)).toString(), QString("herr"));
+
+
+    model.setSort(3, Qt::AscendingOrder);
+    QVERIFY2(model.select(), model.lastError().text().toLatin1());
+    qDebug() << model.query().lastQuery();
+
+    QCOMPARE(model.rowCount(), 4);
+    QCOMPARE(model.data(model.index(0, 3)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(1, 3)).toString(), QString("mister"));
+    QCOMPARE(model.data(model.index(2, 3)).toString(), QString("mister"));
+    QCOMPARE(model.data(model.index(3, 3)).toString(), QString("mister"));
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)
