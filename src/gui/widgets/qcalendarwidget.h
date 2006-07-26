@@ -108,6 +108,7 @@ public:
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent * event);
 
 public Q_SLOTS:
     void setSelectedDate(const QDate &date);

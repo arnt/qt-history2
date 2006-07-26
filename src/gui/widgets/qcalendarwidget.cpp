@@ -736,23 +736,25 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     nextMonth->setAutoRaise(true);
     prevMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetPrev));
     nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext));
-    QFont font = q->font();
-    font.setBold(true);
+    prevMonth->setAutoRepeat(true);
+    nextMonth->setAutoRepeat(true);
 
     monthButton = new QToolButton(headerBackground);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
+    monthMenu = new QMenu(monthButton);
     yearButton = new QToolButton(headerBackground);
     yearButton->setAutoRaise(true);
     yearEdit = new QSpinBox(headerBackground);
 
+    QFont font = q->font();
+    font.setBold(true);
     monthButton->setFont(font);
     yearButton->setFont(font);
     yearEdit->setFrame(false);
     yearEdit->setMinimum(m_model->minimumDate.year());
     yearEdit->setMaximum(m_model->maximumDate.year());
-    prevMonth->setAutoRepeat(true);
-    nextMonth->setAutoRepeat(true);
+    yearEdit->hide();
 
     QHBoxLayout *headerLayout = new QHBoxLayout(headerBackground);
     headerLayout->setMargin(0);
@@ -760,20 +762,19 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->addWidget(prevMonth);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(monthButton);
-    headerLayout->addWidget(yearEdit);
     headerLayout->addWidget(yearButton);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
 
-    QSize yearSize = yearEdit->sizeHint();
-    yearButton->setMinimumSize(yearSize);
-    yearEdit->hide();
+
+    //Take space for 5 digits.
+    QFontMetrics fm=yearButton->fontMetrics();
+    yearButton->setMaximumWidth(fm.boundingRect(QString("55555")).width());
 
     yearEdit->setFocusPolicy(Qt::StrongFocus);
     prevMonth->setFocusPolicy(Qt::StrongFocus);
     nextMonth->setFocusPolicy(Qt::StrongFocus);
 
-    monthMenu = new QMenu(monthButton);
     updateMonthMenu();
     showMonth(m_model->date.year(),m_model->date.month());
 }
@@ -842,23 +843,30 @@ void QCalendarWidgetPrivate::_q_nextMonthClicked()
 
 void QCalendarWidgetPrivate::_q_yearEditingFinished()
 {
+    yearButton->setText(yearEdit->text());
     yearEdit->hide();
     yearButton->show();
-    yearButton->setText(yearEdit->text());
-    QDate currentDate(yearEdit->text().toInt(), m_model->date.month(), m_model->date.day());
+    QDate currentDate(yearEdit->text().toInt(), getCurrentDate().month(), getCurrentDate().day());
     updateCurrentPage(currentDate);
 }
 
 void QCalendarWidgetPrivate::_q_yearClicked()
 {
-    yearButton->hide();
+    //show the spinbox on top of the button
+    yearEdit->setGeometry(yearButton->x(), yearButton->y(), 
+                          yearEdit->sizeHint().width(), yearButton->sizeHint().height());
     yearEdit->show();
+    yearEdit->raise();
     yearEdit->setFocus(Qt::MouseFocusReason);
 }
 
 void QCalendarWidgetPrivate::showMonth(int year, int month)
 {
     monthButton->setText(QDate::longMonthName(month));
+    //add space for an extra character
+    QFontMetrics fm=monthButton->fontMetrics();
+    monthButton->setMaximumWidth(fm.boundingRect(QDate::longMonthName(month)).width()+
+        fm.boundingRect(QChar('y')).width());
     yearButton->setText(QString::number(year));
     yearEdit->setValue(year);
 
@@ -1129,7 +1137,7 @@ QDate QCalendarWidget::selectedDate() const
 void QCalendarWidget::setSelectedDate(const QDate &date)
 {
     Q_D(QCalendarWidget);
-    if (d->m_model->date == date)
+    if (d->m_model->date == date && date == d->getCurrentDate())
         return;
 
     if (!date.isValid())
@@ -1715,13 +1723,24 @@ void QCalendarWidget::setHeaderVisible(bool show)
 /*!
   \reimp
 */
-
 void QCalendarWidget::mousePressEvent(QMouseEvent *event)
 {
     setAttribute(Qt::WA_NoMouseReplay);
     QWidget::mousePressEvent(event);
     setFocus();
 }
+
+/*!
+  \reimp
+*/
+void QCalendarWidget::resizeEvent(QResizeEvent * event)
+{
+    Q_D(QCalendarWidget);
+    if(d->yearEdit->isVisible())
+        d->_q_yearEditingFinished();
+    QWidget::resizeEvent(event);
+}
+
 #include "qcalendarwidget.moc"
 #include "moc_qcalendarwidget.cpp"
 
