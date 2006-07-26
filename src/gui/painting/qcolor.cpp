@@ -888,7 +888,7 @@ void QColor::setRed(int red)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setRed", red);
     if (cspec != Rgb)
-        setRgba(red, green(), blue(), alpha());
+        setRgb(red, green(), blue(), alpha());
     else
         ct.argb.red = red * 0x101;
 }
@@ -915,7 +915,7 @@ void QColor::setGreen(int green)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setGreen", green);
     if (cspec != Rgb)
-        setRgba(red(), green, blue(), alpha());
+        setRgb(red(), green, blue(), alpha());
     else
         ct.argb.green = green * 0x101;
 }
@@ -944,7 +944,7 @@ void QColor::setBlue(int blue)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setBlue", blue);
     if (cspec != Rgb)
-        setRgba(red(), green(), blue, alpha());
+        setRgb(red(), green(), blue, alpha());
     else
         ct.argb.blue = blue * 0x101;
 }
