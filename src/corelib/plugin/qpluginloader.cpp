@@ -200,6 +200,7 @@ bool QPluginLoader::isLoaded() const
 */
 void QPluginLoader::setFileName(const QString &fileName)
 {
+#if defined(QT_SHARED)
     if (d) {
         d->release();
         d = 0;
@@ -208,6 +209,13 @@ void QPluginLoader::setFileName(const QString &fileName)
     d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).canonicalFilePath());
     if (d && d->pHnd && d->instance)
         did_load = true;
+#else
+#   if defined(QT_DEBUG_COMPONENT)
+        qWarning("Cannot load %s into a statically linked Qt library.", 
+            (const char*)QFile::encodeName(fileName));
+#   endif
+    Q_UNUSED(fileName);
+#endif
 }
 
 QString QPluginLoader::fileName() const
