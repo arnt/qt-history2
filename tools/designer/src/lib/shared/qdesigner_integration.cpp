@@ -78,9 +78,16 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 
                 } else if (name == QLatin1String("geometry")) {
                     if (QWidget *container = containerWindow(formWindow)) {
-                        QRect r = containerWindow(formWindow)->geometry();
-                        r.setSize(value.toRect().size());
-                        container->setGeometry(r);
+                        QRect r = container->geometry();
+                        if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
+                            QRect windowRect = container->parentWidget()->rect();
+                            QSize diff = windowRect.size() - r.size();
+                            windowRect.setSize(value.toRect().size() + diff);
+                            container->parentWidget()->setGeometry(windowRect);
+                        } else {
+                            r.setSize(value.toRect().size());
+                            container->setGeometry(r);
+                        }
                         emit propertyChanged(formWindow, name, value);
                     }
 
