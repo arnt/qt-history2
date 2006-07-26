@@ -526,14 +526,61 @@ void tst_QColor::getRgb()
 void tst_QColor::setAlpha()
 { DEPENDS_ON(setRgb()); }
 
+bool veryFuzzyCompare(double a, double b)
+{
+    return abs(a - b) < 0.01;
+}
+
 void tst_QColor::setRed()
-{ DEPENDS_ON(setRgb()); }
+{
+    DEPENDS_ON(setRgb());
+
+    QColor c = QColor(Qt::blue).toHsv();
+    c.setRed(127);
+    QCOMPARE(c.red(), 127);
+    QCOMPARE(c.green(), 0);
+    QCOMPARE(c.blue(), 255);
+
+    c = QColor(Qt::blue).toHsv();
+    c.setRedF(0.5);
+    QVERIFY(veryFuzzyCompare(c.redF(), 0.5));
+    QCOMPARE(c.greenF(), 0.0);
+    QCOMPARE(c.blueF(), 1.0);
+}
 
 void tst_QColor::setGreen()
-{ DEPENDS_ON(setRgb()); }
+{
+    DEPENDS_ON(setRgb());
+
+    QColor c = QColor(Qt::blue).toHsv();
+    c.setGreen(127);
+    QCOMPARE(c.red(), 0);
+    QCOMPARE(c.green(), 127);
+    QCOMPARE(c.blue(), 255);
+
+    c = QColor(Qt::blue).toHsv();
+    c.setGreenF(0.5);
+    QCOMPARE(c.redF(), 0.0);
+    QVERIFY(veryFuzzyCompare(c.greenF(), 0.5));
+    QCOMPARE(c.blueF(), 1.0);
+}
 
 void tst_QColor::setBlue()
-{ DEPENDS_ON(setRgb()); }
+{
+    DEPENDS_ON(setRgb());
+
+    QColor c = QColor(Qt::red).toHsv();
+    c.setBlue(127);
+    QCOMPARE(c.red(), 255);
+    QCOMPARE(c.green(), 0);
+    QCOMPARE(c.blue(), 127);
+
+    c = QColor(Qt::red).toHsv();
+    c.setBlueF(0.5);
+    QCOMPARE(c.redF(), 1.0);
+    QCOMPARE(c.greenF(), 0.0);
+    QVERIFY(veryFuzzyCompare(c.blueF(), 0.5));
+}
 
 
 void tst_QColor::setRgb()

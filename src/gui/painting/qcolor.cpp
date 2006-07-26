@@ -887,7 +887,10 @@ int QColor::red() const
 void QColor::setRed(int red)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setRed", red);
-    ct.argb.red = red * 0x101;
+    if (cspec != Rgb)
+        setRgba(red, green(), blue(), alpha());
+    else
+        ct.argb.red = red * 0x101;
 }
 
 /*!
@@ -911,7 +914,10 @@ int QColor::green() const
 void QColor::setGreen(int green)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setGreen", green);
-    ct.argb.green = green * 0x101;
+    if (cspec != Rgb)
+        setRgba(red(), green, blue(), alpha());
+    else
+        ct.argb.green = green * 0x101;
 }
 
 
@@ -937,7 +943,10 @@ int QColor::blue() const
 void QColor::setBlue(int blue)
 {
     QCOLOR_INT_RANGE_CHECK("QColor::setBlue", blue);
-    ct.argb.blue = blue * 0x101;
+    if (cspec != Rgb)
+        setRgba(red(), green(), blue, alpha());
+    else
+        ct.argb.blue = blue * 0x101;
 }
 
 /*!
@@ -962,7 +971,10 @@ qreal QColor::redF() const
 void QColor::setRedF(qreal red)
 {
     QCOLOR_REAL_RANGE_CHECK("QColor::setRedF", red);
-    ct.argb.red = qRound(red * USHRT_MAX);
+    if (cspec != Rgb)
+        setRgbF(red, greenF(), blueF(), alphaF());
+    else
+        ct.argb.red = qRound(red * USHRT_MAX);
 }
 
 /*!
@@ -987,7 +999,10 @@ qreal QColor::greenF() const
 void QColor::setGreenF(qreal green)
 {
     QCOLOR_REAL_RANGE_CHECK("QColor::setGreenF", green);
-    ct.argb.green = qRound(green * USHRT_MAX);
+    if (cspec != Rgb)
+        setRgbF(redF(), green, blueF(), alphaF());
+    else
+        ct.argb.green = qRound(green * USHRT_MAX);
 }
 
 /*!
@@ -1011,7 +1026,10 @@ qreal QColor::blueF() const
 void QColor::setBlueF(qreal blue)
 {
     QCOLOR_REAL_RANGE_CHECK("QColor::setBlueF", blue);
-    ct.argb.blue = qRound(blue * USHRT_MAX);
+    if (cspec != Rgb)
+        setRgbF(redF(), greenF(), blue, alphaF());
+    else
+        ct.argb.blue = qRound(blue * USHRT_MAX);
 }
 
 /*!
