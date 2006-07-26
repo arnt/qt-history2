@@ -146,13 +146,8 @@ void tst_gui::scrollbarPainting()
     QPixmap pixmap = QPixmap::grabWindow(colorWidget.winId());
     pixmap.save("test.png", "png");
 
-// In 4.1.x, the scrollbar height is off by one and it does not paint the bottom row of pixels. 
-// This is fixed in the 4.2 branch.
-#if QT_VERSION >= 0x040200
     QVERIFY(isContent(pixmap.toImage(), verticalScrollbar.geometry()));
     QVERIFY(isContent(pixmap.toImage(), horizontalScrollbar.geometry()));
-#endif
-
 }
 
 /*
