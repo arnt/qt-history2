@@ -72,6 +72,9 @@ public:
     inline QRegion subtracted(const QRegion &r) const { return subtract(r); }
     inline QRegion xored(const QRegion &r) const { return eor(r); }
 
+    bool intersects(const QRegion &r) const;
+    bool intersects(const QRect &r) const;
+
     QRect boundingRect() const;
     QVector<QRect> rects() const;
     void setRects(const QRect *rect, int num);

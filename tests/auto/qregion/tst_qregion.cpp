@@ -35,6 +35,11 @@ private slots:
     void intersected();
     void emptyPolygonRegion_data();
     void emptyPolygonRegion();
+
+    void intersects_region_data();
+    void intersects_region();
+    void intersects_rect_data();
+    void intersects_rect();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -326,6 +331,69 @@ void tst_QRegion::intersected()
     QRegion interReg = r1.intersected(r2);
     QVERIFY(interReg.isEmpty() != intersects);
     // Need a way to test the intersected QRegion is right
+}
+
+void tst_QRegion::intersects_region_data()
+{
+    QTest::addColumn<QRegion>("r1");
+    QTest::addColumn<QRegion>("r2");
+    QTest::addColumn<bool>("intersects");
+
+    QTest::newRow("rect overlap rect") << QRegion(100, 100, 200, 200)
+                                       << QRegion(200, 200, 200, 200)
+                                       << true;
+
+    QTest::newRow("rect not overlap rect") << QRegion(100, 100, 200, 200)
+                                           << QRegion(400, 400, 200, 200)
+                                           << false;
+
+    QTest::newRow("ellipse overlap ellipse") << QRegion(100, 100, 200, 200, QRegion::Ellipse)
+                                             << QRegion(200, 200, 200, 200, QRegion::Ellipse)
+                                             << true;
+
+    QTest::newRow("ellipse not overlap ellipse") << QRegion(100, 100, 200, 200, QRegion::Ellipse)
+                                                 << QRegion(400, 400, 200, 200, QRegion::Ellipse)
+                                                 << false;
+}
+
+void tst_QRegion::intersects_region()
+{
+    QFETCH(QRegion, r1);
+    QFETCH(QRegion, r2);
+    QFETCH(bool, intersects);
+    QCOMPARE(r1.intersects(r2), intersects);
+}
+
+
+void tst_QRegion::intersects_rect_data()
+{
+    QTest::addColumn<QRegion>("region");
+    QTest::addColumn<QRect>("rect");
+    QTest::addColumn<bool>("intersects");
+
+    QTest::newRow("rect overlap rect") << QRegion(100, 100, 200, 200)
+                                       << QRect(200, 200, 200, 200)
+                                       << true;
+
+    QTest::newRow("rect not overlap rect") << QRegion(100, 100, 200, 200)
+                                           << QRect(400, 400, 200, 200)
+                                           << false;
+
+    QTest::newRow("ellipse overlap rect") << QRegion(100, 100, 200, 200, QRegion::Ellipse)
+                                          << QRect(200, 200, 200, 200)
+                                          << true;
+
+    QTest::newRow("ellipse not overlap rect") << QRegion(100, 100, 200, 200, QRegion::Ellipse)
+                                              << QRect(400, 400, 200, 200)
+                                              << false;
+}
+
+void tst_QRegion::intersects_rect()
+{
+    QFETCH(QRegion, region);
+    QFETCH(QRect, rect);
+    QFETCH(bool, intersects);
+    QCOMPARE(region.intersects(rect), intersects);
 }
 
 QTEST_MAIN(tst_QRegion)

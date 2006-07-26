@@ -512,3 +512,44 @@ QRegion::translated(int dx, int dy) const
     ret.translate(dx, dy);
     return ret;
 }
+
+
+inline bool rect_intersects(const QRect &r1, const QRect &r2)
+{
+    return qMax(r1.left(), r2.left()) <= qMin(r1.right(), r2.right())
+        && qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom());
+}
+
+/*!
+    \since 4.2
+
+    Returns true if this region intersects with \a region, otherwise
+    returns false.
+*/
+bool QRegion::intersects(const QRegion &region) const
+{
+    const QVector<QRect> myRects = rects();
+    const QVector<QRect> otherRects = region.rects();
+
+    for (QVector<QRect>::const_iterator i1 = myRects.begin(); i1 < myRects.end(); ++i1)
+        for (QVector<QRect>::const_iterator i2 = otherRects.begin(); i2 < otherRects.end(); ++i2)
+            if (rect_intersects(*i1, *i2))
+                return true;
+    return false;
+}
+
+/*!
+    \since 4.2
+
+    Returns true if this region intersects with \a rect, otherwise
+    returns false.
+*/
+bool QRegion::intersects(const QRect &rect) const
+{
+    QRect r = rect.normalized();
+    const QVector<QRect> myRects = rects();
+    for (QVector<QRect>::const_iterator it = myRects.begin(); it < myRects.end(); ++it)
+        if (rect_intersects(r, *it))
+            return true;
+    return false;
+}
