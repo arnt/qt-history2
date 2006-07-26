@@ -119,14 +119,7 @@ struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
     }
 };
 
-struct Q_AUTOTEST_EXPORT QStyleSheetFocusRectData : public QSharedData
-{
-    QColor color;
-    int width;
-    QCss::BorderStyle style;
-};
-
-struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetPaletteData : public QSharedData
 {
     QBrush foreground;
     QBrush background;
@@ -138,12 +131,12 @@ struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
 class Q_AUTOTEST_EXPORT QRenderRule
 {
 public:
-    inline QRenderRule() : pal(0), b(0), fr(0), bg(0), bd(0) { }
+    inline QRenderRule() : pal(0), b(0), bg(0), bd(0) { }
     inline ~QRenderRule() { }
 
     void merge(const QVector<QCss::Declaration>& declarations);
     bool isEmpty() const
-    { return pal == 0 && b == 0 && fr == 0 && bg == 0 && bd == 0 && icons.isEmpty(); }
+    { return pal == 0 && b == 0 && bg == 0 && bd == 0 && icons.isEmpty(); }
 
     QRect borderRect(const QRect &r) const;
     QRect paddingRect(const QRect &r) const;
@@ -159,20 +152,17 @@ public:
     QRectF contentsRect(const QRectF& r) const;
     QRectF boxRect(const QRectF& r) const;
 
-    const QStyleSheetPalette *palette() const { return pal; }
+    const QStyleSheetPaletteData *palette() const { return pal; }
     const QStyleSheetBoxData *box() const { return b; }
     const QStyleSheetBackgroundImageData *backgroundImage() const { return bg; }
-    const QStyleSheetFocusRectData *focusRect() const { return fr; }
     const QStyleSheetBorderData *border() const { return bd; }
 
-    QStyleSheetPalette *_palette()
-    { if (!pal) pal = new QStyleSheetPalette(); return pal; }
+    QStyleSheetPaletteData *_palette()
+    { if (!pal) pal = new QStyleSheetPaletteData(); return pal; }
     QStyleSheetBoxData *_box()
     { if (!b) b = new QStyleSheetBoxData(); return b; }
     QStyleSheetBackgroundImageData *_backgroundImage()
     { if (!bg) bg = new QStyleSheetBackgroundImageData(); return bg; }
-    QStyleSheetFocusRectData *_focusRect()
-    { if (!fr) fr = new QStyleSheetFocusRectData(); return fr; }
     QStyleSheetBorderData *_border()
     { if (!bd) bd = new QStyleSheetBorderData(); return bd; }
 
@@ -180,24 +170,24 @@ public:
     void fixupBorder();
 
     bool hasPalette() const { return pal != 0; }
+    bool hasBackgroundImage() const { return bg != 0; }
+    bool hasBox() const { return b != 0; }
+    bool hasBorder() const { return bd != 0; }
     bool hasBackground() const
     { return bg != 0 || (pal != 0 && pal->background.style() != Qt::NoBrush); }
-    bool hasBackgroundImage() const { return bg != 0; }
-    inline bool hasBox() const { return b != 0; }
-    inline bool hasBorder() const { return bd != 0; }
-    inline bool hasFocusRect() const { return fr != 0; }
+    bool hasFrame() const
+    { return hasBorder() || hasBackground(); }
 
-    inline bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
-    inline QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
-    inline QPixmap pixmap(const char *p, const QSize& sz) const
+    bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
+    QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
+    QPixmap pixmap(const char *p, const QSize& sz) const
     { return icon(p).pixmap(sz); }
 
     QHash<QString, QIcon> icons;
 
 private:
-    QSharedDataPointer<QStyleSheetPalette> pal;
+    QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
-    QSharedDataPointer<QStyleSheetFocusRectData> fr;
     QSharedDataPointer<QStyleSheetBackgroundImageData> bg;
     QSharedDataPointer<QStyleSheetBorderData> bd;
 };
@@ -206,7 +196,10 @@ class QFrame;
 
 struct QRenderRules
 {
+    QRenderRules() : contentsWidth(-1), contentsHeight(-1) { }
     QHash<int, QRenderRule> computedRulesCache;
+
+    QSize contentsSize() const { return QSize(qRound(contentsWidth), qRound(contentsHeight)); }
 
     bool hasIconSize(const char *icon) const { return sizes.contains(QLatin1String(icon)); }
     QSize iconSize(const char *icon) const { return sizes.value(QLatin1String(icon)); }
@@ -214,6 +207,7 @@ struct QRenderRules
     void init(const QVector<QCss::StyleRule>& rules);
 
     QHash<QString, QSize> sizes;
+    qreal contentsWidth, contentsHeight;
 };
 
 class QStyleSheetStyle : public QWindowsStyle

@@ -97,6 +97,8 @@ enum Property {
     BackgroundImage,
     BorderImage,
     Spacing,
+    Width,
+    Height,
     NumProperties
 };
 

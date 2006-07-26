@@ -114,6 +114,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-size", FontSize },
     { "font-style", FontStyle },
     { "font-weight", FontWeight },
+    { "height", Height },
     { "margin" , Margin },
     { "margin-bottom", MarginBottom },
     { "margin-left", MarginLeft },
@@ -130,7 +131,8 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
-    { "white-space", Whitespace }
+    { "white-space", Whitespace },
+    { "width", Width }
 };
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
