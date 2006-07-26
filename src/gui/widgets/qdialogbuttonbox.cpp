@@ -172,17 +172,17 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     return QDialogButtonBox::InvalidRole;
 }
 
-static const int layouts[2][5][12] =
+static const int layouts[2][5][14] =
 {
     // Qt::Horizontal
     {
         // WinLayout
-        { ResetRole, Stretch, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ApplyRole,
+        { ResetRole, Stretch, YesRole, AcceptRole, AlternateRole, DestructiveRole, NoRole, RejectRole, ApplyRole,
           ActionRole, HelpRole, EOL, EOL, EOL },
 
         // MacLayout
         { HelpRole, ResetRole, ApplyRole, ActionRole, Stretch, DestructiveRole | Reverse,
-          AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL, EOL },
+          AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, NoRole | Reverse, YesRole | Reverse, EOL, EOL },
 
         // KdeLayout
         { HelpRole, ResetRole, Stretch, YesRole, NoRole, ActionRole, AcceptRole, AlternateRole,
@@ -190,20 +190,20 @@ static const int layouts[2][5][12] =
 
         // GnomeLayout
         { HelpRole, ResetRole, Stretch, ActionRole, ApplyRole | Reverse, DestructiveRole | Reverse,
-          AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, EOL },
+          AlternateRole | Reverse, RejectRole | Reverse, AcceptRole | Reverse, NoRole | Reverse, YesRole | Reverse, EOL },
 
         // Mac modeless
-        { ResetRole, ApplyRole, ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL, EOL }
+        { ResetRole, ApplyRole, ActionRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL, EOL, EOL, EOL }
     },
 
     // Qt::Vertical
     {
         // WinLayout
-        { ActionRole, AcceptRole, AlternateRole, DestructiveRole, RejectRole, ApplyRole, ResetRole,
+        { ActionRole, YesRole, AcceptRole, AlternateRole, DestructiveRole, NoRole, RejectRole, ApplyRole, ResetRole,
           HelpRole, Stretch, EOL, EOL, EOL },
 
         // MacLayout
-        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, Stretch, ActionRole, ApplyRole,
+        { YesRole, NoRole, AcceptRole, RejectRole, AlternateRole, DestructiveRole, Stretch, ActionRole, ApplyRole,
           ResetRole, HelpRole, EOL, EOL },
 
         // KdeLayout
@@ -211,11 +211,11 @@ static const int layouts[2][5][12] =
           DestructiveRole, RejectRole, HelpRole, EOL },
 
         // GnomeLayout
-        { AcceptRole, RejectRole, AlternateRole, DestructiveRole, ApplyRole, ActionRole, Stretch,
+        { YesRole, NoRole, AcceptRole, RejectRole, AlternateRole, DestructiveRole, ApplyRole, ActionRole, Stretch,
           ResetRole, HelpRole, EOL, EOL, EOL },
 
         // Mac modeless
-        { ActionRole, ApplyRole, ResetRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL, EOL }
+        { ActionRole, ApplyRole, ResetRole, Stretch, HelpRole, EOL, EOL, EOL, EOL, EOL, EOL, EOL, EOL, EOL }
     }
 };
 
@@ -326,11 +326,7 @@ void QDialogButtonBoxPrivate::layoutButtons()
     if (center)
         buttonLayout->addStretch();
 
-    // Only the KDE style has YesRole and NoRole in its layout
-    QList<QAbstractButton *> acceptRoleList;
-    if (tmpPolicy != QDialogButtonBox::KdeLayout)
-        acceptRoleList = buttonLists[YesRole];
-    acceptRoleList += buttonLists[AcceptRole];
+    QList<QAbstractButton *> acceptRoleList = buttonLists[AcceptRole];
 
     while (*currentLayout != EOL) {
         int role = (*currentLayout & ~Reverse);
@@ -356,15 +352,6 @@ void QDialogButtonBoxPrivate::layoutButtons()
                     break;
                 QList<QAbstractButton *> list = acceptRoleList;
                 list.removeFirst();
-                addButtonsToLayout(list, reverse);
-            }
-            break;
-        case RejectRole:
-            {
-                QList<QAbstractButton *> list;
-                if (tmpPolicy != QDialogButtonBox::KdeLayout)
-                    list = buttonLists[NoRole];
-                list += buttonLists[RejectRole];
                 addButtonsToLayout(list, reverse);
             }
             break;
@@ -394,6 +381,7 @@ void QDialogButtonBoxPrivate::layoutButtons()
                     buttonLayout->addSpacing(MacGap);
             }
             break;
+        case RejectRole:
         case ActionRole:
         case HelpRole:
         case YesRole:
