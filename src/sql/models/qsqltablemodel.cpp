@@ -1162,12 +1162,14 @@ QString QSqlTableModel::filter() const
 }
 
 /*!
-    Sets the current filter to \a filter. Note that no new records
-    are selected. To select new records, use select(). The \a filter
-    will apply to any subsequent select() calls.
+    Sets the current filter to \a filter.
 
     The filter is a SQL \c WHERE clause without the keyword \c WHERE
     (for example, \c{name='Josephine')}.
+
+    If the model is already populated with data from a database,
+    the model re-selects it with the new filter. Otherwise, the filter
+    will be applied the next time select() is called.
 
     \sa filter(), select(), selectStatement(), orderByClause()
 */
