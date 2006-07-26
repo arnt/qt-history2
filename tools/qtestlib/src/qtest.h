@@ -82,7 +82,7 @@ template<> inline char *toString(const QSize &s)
 
 template<> inline char *toString(const QRect &s)
 {
-    return qstrdup(QString::fromLatin1("QRect(%1,%2 %5x%6) (bottomright %3x,%4)").arg(s.left()).arg(s.top()).arg(s.right()).arg(s.bottom()).arg(s.width()).arg(s.height()).toLatin1().constData());
+    return qstrdup(QString::fromLatin1("QRect(%1,%2 %5x%6) (bottomright %3,%4)").arg(s.left()).arg(s.top()).arg(s.right()).arg(s.bottom()).arg(s.width()).arg(s.height()).toLatin1().constData());
 }
 
 #ifndef QTEST_NO_SPECIALIZATIONS
