@@ -1417,7 +1417,7 @@
     \value MenuBarFocusReason      The menu bar took focus.
     \value OtherFocusReason        Another reason, usually application-specific.
 
-    \omitvalue NoFocusReason        No good reason, really.
+    \omitvalue NoFocusReason
 
     \sa {Keyboard Focus}
 */
