@@ -68,6 +68,7 @@ public:
     QList<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
+    bool purgePending;
     void _q_removeItemLater(QGraphicsItem *item);
     QSet<QGraphicsItem *> removedItems;
     void purgeRemovedItems();

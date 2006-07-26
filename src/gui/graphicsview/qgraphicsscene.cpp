@@ -182,8 +182,8 @@ static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false), lastItemCount(0),
-      hasSceneRect(false), updateAll(false), calledEmitUpdated(false), hasFocus(false),
-      focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
+      hasSceneRect(false), updateAll(false), calledEmitUpdated(false), purgePending(false),
+      hasFocus(false), focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
       lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
 {
 }
@@ -376,6 +376,7 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
         // Important: The index is useless until purgeRemovedItems() is
         // called.
         allItems[index] = (QGraphicsItem *)0;
+        purgePending = true;
         removedItems << item;
     } else {
         // Recently added items are purged immediately. newItems() never
@@ -407,7 +408,7 @@ void QGraphicsScenePrivate::purgeRemovedItems()
 {
     Q_Q(QGraphicsScene);
 
-    if (removedItems.isEmpty())
+    if (!purgePending && removedItems.isEmpty())
         return;
 
     // Remove stale items from the BSP tree.
@@ -416,6 +417,12 @@ void QGraphicsScenePrivate::purgeRemovedItems()
 
     // Purge this list.
     removedItems.clear();
+    freeItemIndexes.clear();
+    for (int i = 0; i < allItems.size(); ++i) {
+        if (!allItems.at(i))
+            freeItemIndexes << i;
+    }
+    purgePending = false;
 
     // No locality info for the items; update the whole scene.
     q->update();
