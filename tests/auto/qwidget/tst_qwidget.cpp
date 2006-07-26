@@ -830,6 +830,7 @@ void tst_QWidget::focusChainOnHide()
     QCOMPARE(parent, qApp->focusWidget());
 
     delete parent;
+    testWidget->show(); //don't disturb later tests
 }
 
 void tst_QWidget::focusChainOnDelete()
@@ -1384,6 +1385,8 @@ void tst_QWidget::reparent()
     // On X11, the window manager will apply NorthWestGravity rules to 'child', which
     // means the top-left corner of the window frame will be placed at 'childPos',
     // causing this test to fail
+#elif defined Q_WS_QWS
+    QCOMPARE(child.pos(), childPos);
 #else
     QCOMPARE(child.geometry().topLeft(), childPos);
 #endif
