@@ -181,10 +181,77 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
             widget->show();
             f.close();
 
+            int margin = 7;
+            int shadow = 7;
+
             QPixmap pix = QPixmap::grabWidget(widget);
             QImage image = pix.toImage();
-            image = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            result = QPixmap::fromImage(image);
+            image = image.scaled(256 - margin * 2,
+                                 256 - margin * 2,
+                                 Qt::KeepAspectRatio,
+                                 Qt::SmoothTransformation);
+
+            QImage dest(image.width() + margin * 2, image.height() + margin * 2, QImage::Format_ARGB32_Premultiplied);
+            dest.fill(0);
+
+            QPainter p(&dest);
+            p.drawImage(margin, margin, image);
+
+            p.setPen(QPen(palette().brush(QPalette::Foreground), 0));
+
+            p.drawRect(margin-1, margin-1, image.width() + 1, image.height() + 1);
+
+            QColor dark(Qt::darkGray);
+            QColor light(Qt::transparent);
+
+            // right shadow
+            {
+                QRect rect(margin + image.width() + 1, margin + shadow, shadow, image.height() - shadow + 1);
+                QLinearGradient lg(rect.topLeft(), rect.topRight());
+                lg.setColorAt(0, dark);
+                lg.setColorAt(1, light);
+                p.fillRect(rect, lg);
+            }
+
+            // bottom shadow
+            {
+                QRect rect(margin + shadow, margin + image.height() + 1, image.width() - shadow + 1, shadow);
+                QLinearGradient lg(rect.topLeft(), rect.bottomLeft());
+                lg.setColorAt(0, dark);
+                lg.setColorAt(1, light);
+                p.fillRect(rect, lg);
+            }
+
+            // bottom/right corner shadow
+            {
+                QRect rect(margin + image.width() + 1, margin + image.height() + 1, shadow, shadow);
+                QRadialGradient g(rect.topLeft(), shadow);
+                g.setColorAt(0, dark);
+                g.setColorAt(1, light);
+                p.fillRect(rect, g);
+            }
+
+            // top/right corner
+            {
+                QRect rect(margin + image.width() + 1, margin, shadow, shadow);
+                QRadialGradient g(rect.bottomLeft(), shadow);
+                g.setColorAt(0, dark);
+                g.setColorAt(1, light);
+                p.fillRect(rect, g);
+            }
+
+            // bottom/left corner
+            {
+                QRect rect(margin, margin + image.height() + 1, shadow, shadow);
+                QRadialGradient g(rect.topRight(), shadow);
+                g.setColorAt(0, dark);
+                g.setColorAt(1, light);
+                p.fillRect(rect, g);
+            }
+
+            p.end();
+
+            result = QPixmap::fromImage(dest);
         }
 
         fake->deleteLater();
