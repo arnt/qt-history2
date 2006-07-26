@@ -1845,7 +1845,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 int h = pixmap.height();
                 
                 if (!button->text.isEmpty())
-                    w += button->fontMetrics.width(button->text);
+                    w += button->fontMetrics.width(button->text) + 2;
                 
                 point = QPoint(ir.x() + ir.width() / 2 - w / 2,
                                ir.y() + ir.height() / 2 - h / 2);
@@ -3560,10 +3560,10 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             rx = x - fw;
             switch (subControl) {
             case SC_SpinBoxUp:
-                rect = QRect(x, y - 1, bs.width(), bs.height() + 1);
+                rect = QRect(x, y - 1, bs.width(), bs.height() + 2);
                 break;
             case SC_SpinBoxDown:
-                rect = QRect(x, y + bs.height(), bs.width(), bs.height());
+                rect = QRect(x, y + bs.height() + 1, bs.width(), bs.height());
                 break;
             case SC_SpinBoxEditField:
                 rect = QRect(lx, fw, rx - qMax(fw - 1, 0), spinbox->rect.height() - 2*fw);
