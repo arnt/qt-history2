@@ -28,7 +28,7 @@ FindFileDialog::FindFileDialog(QTextEdit *editor, QAssistantClient *assistant,
     createLabels();
     createLayout();
 
-    directoryComboBox->addItem(QDir::currentPath() + QDir::separator());
+    directoryComboBox->addItem(QDir::convertSeparators(QDir::currentPath()));
     fileNameComboBox->addItem("*");
     findFiles();
 
@@ -41,7 +41,7 @@ void FindFileDialog::browse()
     QString newDirectory = QFileDialog::getExistingDirectory(this,
                                tr("Select Directory"), currentDirectory);
     if (!newDirectory.isEmpty()) {
-        directoryComboBox->addItem(newDirectory);
+        directoryComboBox->addItem(QDir::convertSeparators(newDirectory));
         directoryComboBox->setCurrentIndex(directoryComboBox->count() - 1);
         update();
     }
@@ -62,7 +62,7 @@ void FindFileDialog::openFile(QTreeWidgetItem *item)
     }
 
     QString fileName = item->text(0);
-    QString path = directoryComboBox->currentText();
+    QString path = directoryComboBox->currentText() + QDir::separator();
 
     QFile file(path + fileName);
     if (file.open(QIODevice::ReadOnly)) {
