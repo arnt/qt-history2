@@ -87,11 +87,11 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
 {
     delete instance;
     instance = this;
+    ensurePolished();
     setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
     setFrameStyle(QFrame::NoFrame);
     setAlignment(Qt::AlignLeft);
     setIndent(1);
-    ensurePolished();
     setWordWrap(Qt::mightBeRichText(text));
     setText(text);
 
