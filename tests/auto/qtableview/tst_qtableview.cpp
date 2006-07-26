@@ -1160,9 +1160,9 @@ void tst_QTableView::selection()
     view.horizontalHeader()->moveSection(moveColumnFrom, moveColumnTo);
 
     for (int r = 0; r < rowCount; ++r)
-      view.setRowHeight(r, rowHeight);
+        view.setRowHeight(r, rowHeight);
     for (int c = 0; c < columnCount; ++c)
-      view.setColumnWidth(c, columnWidth);
+        view.setColumnWidth(c, columnWidth);
 
     view.setSelection(QRect(x, y, width, height),
 		      QItemSelectionModel::SelectionFlags(command));
@@ -2011,14 +2011,17 @@ void tst_QTableView::hiddenColumn_data()
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<BoolList>("hiddenColumns");
 
-    QTest::newRow("first hidden") << 5
-                                  << (BoolList() << true << false << false << false << false);
-    QTest::newRow("last hidden")  << 5
-                                  << (BoolList() << false << false << false << false << true);
-    QTest::newRow("none hidden")  << 5
-                                  << (BoolList() << false << false << false << false << false);
-    QTest::newRow("all hidden")   << 5
-                                  << (BoolList() << true << true << true << true << true);
+    QTest::newRow("first hidden")
+      << 5 << (BoolList() << true << false << false << false << false);
+
+    QTest::newRow("last hidden")
+      << 5 << (BoolList() << false << false << false << false << true);
+
+    QTest::newRow("none hidden")
+      << 5 << (BoolList() << false << false << false << false << false);
+
+    QTest::newRow("all hidden")
+      << 5 << (BoolList() << true << true << true << true << true);
 }
 
 void tst_QTableView::hiddenColumn()
@@ -2067,10 +2070,144 @@ void tst_QTableView::scrollTo()
 
 void tst_QTableView::indexAt_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("rowHeight");
+    QTest::addColumn<int>("columnWidth");
+    QTest::addColumn<int>("hiddenRow");
+    QTest::addColumn<int>("hiddenColumn");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("rowSpan");
+    QTest::addColumn<int>("columnSpan");
+    QTest::addColumn<int>("horizontalScroll");
+    QTest::addColumn<int>("verticalScroll");
+    QTest::addColumn<int>("x");
+    QTest::addColumn<int>("y");
+    QTest::addColumn<int>("expectedRow");
+    QTest::addColumn<int>("expectedColumn");
+
+    QTest::newRow("no hidden, no span, no scroll, (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 0 << 0    // scroll
+      << 20 << 20  // point
+      << 0 << 0;   // expected
+
+    QTest::newRow("row hidden, no span, no scroll, at (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << 0 << -1   // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 0 << 0    // scroll
+      << 20 << 20  // point
+      << 1 << 0;   // expected
+
+    QTest::newRow("col hidden, no span, no scroll, at (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << 0   // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 0 << 0    // scroll
+      << 20 << 20  // point
+      << 0 << 1;   // expected
+
+    QTest::newRow("no hidden, row span, no scroll, at (60,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << 0 << 0    // pos
+      << 2 << 1    // span
+      << 0 << 0    // scroll
+      << 20 << 60  // point
+      << 0 << 0;   // expected
+
+
+    QTest::newRow("no hidden, col span, no scroll, at (60,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << 0 << 0    // pos
+      << 1 << 2    // span
+      << 0 << 0    // scroll
+      << 60 << 20  // point
+      << 0 << 0;   // expected
+
+    QTest::newRow("no hidden, no span, scroll (5,0), at (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 5 << 0    // scroll
+      << 20 << 20  // point
+      << 0 << 5;   // expected
+
+    QTest::newRow("no hidden, no span, scroll (0,5), at (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 0 << 5    // scroll
+      << 20 << 20  // point
+      << 5 << 0;   // expected
+
+    QTest::newRow("no hidden, no span, scroll (5,5), at (20,20)")
+      << 10 << 10  // dim
+      << 40 << 40  // size
+      << -1 << -1  // hide
+      << -1 << -1  // pos
+      << 1 << 1    // span
+      << 5 << 5    // scroll
+      << 20 << 20  // point
+      << 5 << 5;   // expected
 }
 
 void tst_QTableView::indexAt()
 {
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, rowHeight);
+    QFETCH(int, columnWidth);
+    QFETCH(int, hiddenRow);
+    QFETCH(int, hiddenColumn);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(int, rowSpan);
+    QFETCH(int, columnSpan);
+    QFETCH(int, horizontalScroll);
+    QFETCH(int, verticalScroll);
+    QFETCH(int, x);
+    QFETCH(int, y);
+    QFETCH(int, expectedRow);
+    QFETCH(int, expectedColumn);
+
+    QtTestTableModel model(rowCount, columnCount);
+    QtTestTableView view;
+
+    view.show();
+    view.setModel(&model);
+    view.setSpan(row, column, rowSpan, columnSpan);
+    view.hideRow(hiddenRow);
+    view.hideColumn(hiddenColumn);
+
+    for (int r = 0; r < rowCount; ++r)
+        view.setRowHeight(r, rowHeight);
+    for (int c = 0; c < columnCount; ++c)
+        view.setColumnWidth(c, columnWidth);
+
+    view.horizontalScrollBar()->setValue(horizontalScroll);
+    view.verticalScrollBar()->setValue(verticalScroll);
+
+    QModelIndex index = view.indexAt(QPoint(x, y));
+    QCOMPARE(index.row(), expectedRow);
+    QCOMPARE(index.column(), expectedColumn);
 }
 
 void tst_QTableView::span_data()
