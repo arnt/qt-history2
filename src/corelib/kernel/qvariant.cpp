@@ -391,6 +391,10 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 static qlonglong qMetaTypeNumber(const QVariant::Private *d)
 {
     switch (d->type) {
+    case QMetaType::Int:
+        return d->data.i;
+    case QMetaType::LongLong:
+        return d->data.ll;
     case QMetaType::Char:
         return qlonglong(*static_cast<signed char *>(d->data.shared->ptr));
     case QMetaType::Short:
@@ -399,6 +403,8 @@ static qlonglong qMetaTypeNumber(const QVariant::Private *d)
         return qlonglong(*static_cast<long *>(d->data.shared->ptr));
     case QMetaType::Float:
         return qRound64(*static_cast<float *>(d->data.shared->ptr));
+    case QVariant::Double:
+        return qRound64(d->data.d);
     }
     Q_ASSERT(false);
     return 0;
@@ -407,6 +413,10 @@ static qlonglong qMetaTypeNumber(const QVariant::Private *d)
 static qulonglong qMetaTypeUNumber(const QVariant::Private *d)
 {
     switch (d->type) {
+    case QVariant::UInt:
+        return d->data.u;
+    case QVariant::ULongLong:
+        return d->data.ull;
     case QMetaType::UChar:
         return qulonglong(*static_cast<unsigned char *>(d->data.shared->ptr));
     case QMetaType::UShort:
@@ -418,9 +428,80 @@ static qulonglong qMetaTypeUNumber(const QVariant::Private *d)
     return 0;
 }
 
+static qlonglong qConvertToNumber(const QVariant::Private *d, bool *ok)
+{
+    *ok = true;
+
+    switch (uint(d->type)) {
+    case QVariant::String:
+        return v_cast<QString>(d)->toLongLong(ok);
+    case QVariant::Char:
+        return v_cast<QChar>(d)->unicode();
+    case QVariant::ByteArray:
+        return v_cast<QByteArray>(d)->toLongLong(ok);
+    case QVariant::Bool:
+        return qlonglong(d->data.b);
+    case QVariant::Double:
+    case QVariant::Int:
+    case QMetaType::Char:
+    case QMetaType::Short:
+    case QMetaType::Long:
+    case QMetaType::Float:
+    case QMetaType::LongLong:
+        return qMetaTypeNumber(d);
+    case QVariant::ULongLong:
+    case QVariant::UInt:
+    case QMetaType::UChar:
+    case QMetaType::UShort:
+    case QMetaType::ULong:
+        return qlonglong(qMetaTypeUNumber(d));
+    }
+
+    ok = false;
+    return Q_INT64_C(0);
+}
+
+static qulonglong qConvertToUnsignedNumber(const QVariant::Private *d, bool *ok)
+{
+    *ok = true;
+
+    switch (uint(d->type)) {
+    case QVariant::String:
+        return v_cast<QString>(d)->toULongLong(ok);
+    case QVariant::Char:
+        return v_cast<QChar>(d)->unicode();
+    case QVariant::ByteArray:
+        return v_cast<QByteArray>(d)->toULongLong(ok);
+    case QVariant::Bool:
+        return qulonglong(d->data.b);
+    case QVariant::Double:
+    case QVariant::Int:
+    case QMetaType::Char:
+    case QMetaType::Short:
+    case QMetaType::Long:
+    case QMetaType::Float:
+    case QMetaType::LongLong:
+        return qulonglong(qMetaTypeNumber(d));
+    case QVariant::ULongLong:
+    case QVariant::UInt:
+    case QMetaType::UChar:
+    case QMetaType::UShort:
+    case QMetaType::ULong:
+        return qMetaTypeUNumber(d);
+    }
+
+    *ok = false;
+    return Q_UINT64_C(0);
+}
+
 static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 {
     Q_ASSERT(d->type != uint(t));
+
+    bool dummy;
+    if (!ok)
+        ok = &dummy;
+
     switch (uint(t)) {
     case QVariant::String: {
         QString *str = static_cast<QString *>(result);
@@ -428,26 +509,18 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::Char:
             *str = QString(*v_cast<QChar>(d));
             break;
-        case QVariant::Int:
-            *str = QString::number(d->data.i);
-            break;
-        case QVariant::UInt:
-            *str = QString::number(d->data.u);
-            break;
-        case QVariant::LongLong:
-            *str = QString::number(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-            *str = QString::number(d->data.ull);
-            break;
         case QMetaType::Char:
         case QMetaType::UChar:
             *str = QChar::fromAscii(*static_cast<char *>(d->data.shared->ptr));
             break;
         case QMetaType::Short:
         case QMetaType::Long:
+        case QVariant::Int:
+        case QVariant::LongLong:
             *str = QString::number(qMetaTypeNumber(d));
             break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
         case QMetaType::UShort:
         case QMetaType::ULong:
             *str = QString::number(qMetaTypeUNumber(d));
@@ -488,23 +561,15 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         QChar *c = static_cast<QChar *>(result);
         switch (d->type) {
         case QVariant::Int:
-            *c = QChar(d->data.i);
-            break;
-        case QVariant::UInt:
-            *c = QChar(d->data.u);
-            break;
         case QVariant::LongLong:
-            *c = QChar(ushort(d->data.ll));
-            break;
-        case QVariant::ULongLong:
-            *c = QChar(ushort(d->data.ull));
-            break;
         case QMetaType::Char:
         case QMetaType::Short:
         case QMetaType::Long:
         case QMetaType::Float:
             *c = QChar(ushort(qMetaTypeNumber(d)));
             break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
         case QMetaType::UChar:
         case QMetaType::UShort:
         case QMetaType::ULong:
@@ -627,18 +692,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::String:
             *ba = v_cast<QString>(d)->toAscii();
             break;
-        case QVariant::Int:
-            *ba = QByteArray::number(d->data.i);
-            break;
-         case QVariant::UInt:
-            *ba = QByteArray::number(d->data.u);
-            break;
-        case QVariant::LongLong:
-            *ba = QByteArray::number(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-            *ba = QByteArray::number(d->data.ull);
-            break;
         case QVariant::Double:
             *ba = QByteArray::number(d->data.d, 'g', DBL_DIG);
             break;
@@ -649,10 +702,14 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QMetaType::UChar:
             *ba = QByteArray(1, *static_cast<char *>(d->data.shared->ptr));
             break;
+        case QVariant::Int:
+        case QVariant::LongLong:
         case QMetaType::Short:
         case QMetaType::Long:
             *ba = QByteArray::number(qMetaTypeNumber(d));
             break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
         case QMetaType::UShort:
         case QMetaType::ULong:
             *ba = QByteArray::number(qMetaTypeUNumber(d));
@@ -662,200 +719,34 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         }
     }
     break;
-    case QVariant::Int: {
-        int *i = static_cast<int *>(result);
-        switch (d->type) {
-        case QVariant::String:
-            *i = v_cast<QString>(d)->toInt(ok);
-            break;
-        case QVariant::Char:
-            *i = v_cast<QChar>(d)->unicode();
-            break;
-        case QVariant::ByteArray:
-            *i = v_cast<QByteArray>(d)->toInt(ok);
-            break;
-        case QVariant::UInt:
-            *i = int(d->data.u);
-            break;
-        case QVariant::LongLong:
-            *i = int(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-            *i = int(d->data.ull);
-            break;
-        case QVariant::Double:
-            *i = qRound(d->data.d);
-            break;
-        case QVariant::Bool:
-            *i = int(d->data.b);
-            break;
-        case QMetaType::Char:
-        case QMetaType::Short:
-        case QMetaType::Long:
-        case QMetaType::Float:
-            *i = int(qMetaTypeNumber(d));
-            break;
-        case QMetaType::UChar:
-        case QMetaType::UShort:
-        case QMetaType::ULong:
-            *i = int(qMetaTypeUNumber(d));
-            break;
-        default:
-            *i = 0;
-            return false;
-        }
-        break;
-    }
-    case QVariant::UInt: {
-        uint *u = static_cast<uint *>(result);
-        switch (d->type) {
-        case QVariant::String:
-            *u = v_cast<QString>(d)->toUInt(ok);
-            break;
-        case QVariant::Char:
-            *u = v_cast<QChar>(d)->unicode();
-            break;
-        case QVariant::ByteArray:
-            *u = v_cast<QByteArray>(d)->toUInt(ok);
-            break;
-        case QVariant::Int:
-            *u = uint(d->data.i);
-            break;
-        case QVariant::LongLong:
-            *u = uint(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-            *u = uint(d->data.ull);
-            break;
-        case QVariant::Double:
-            *u = qRound(d->data.d);
-            break;
-        case QVariant::Bool:
-            *u = uint(d->data.b);
-            break;
-        case QMetaType::Char:
-        case QMetaType::Short:
-        case QMetaType::Long:
-        case QMetaType::Float:
-            *u = uint(qMetaTypeNumber(d));
-            break;
-        case QMetaType::UChar:
-        case QMetaType::UShort:
-        case QMetaType::ULong:
-            *u = uint(qMetaTypeUNumber(d));
-            break;
-        default:
-            *u = 0u;
-            return false;
-        }
-        break;
-    }
-    case QVariant::LongLong: {
-        qlonglong *l = static_cast<qlonglong *>(result);
-        switch (d->type) {
-        case QVariant::String:
-            *l = v_cast<QString>(d)->toLongLong(ok);
-            break;
-        case QVariant::Char:
-            *l = v_cast<QChar>(d)->unicode();
-            break;
-        case QVariant::ByteArray:
-            *l = v_cast<QByteArray>(d)->toLongLong(ok);
-            break;
-        case QVariant::Int:
-            *l = qlonglong(d->data.i);
-            break;
-        case QVariant::UInt:
-            *l = qlonglong(d->data.u);
-            break;
-        case QVariant::ULongLong:
-            *l = qlonglong(d->data.ull);
-            break;
-        case QVariant::Double:
-            *l = qRound64(d->data.d);
-            break;
-        case QVariant::Bool:
-            *l = qlonglong(d->data.b);
-            break;
-        case QMetaType::Char:
-        case QMetaType::Short:
-        case QMetaType::Long:
-        case QMetaType::Float:
-            *l = qMetaTypeNumber(d);
-            break;
-        case QMetaType::UChar:
-        case QMetaType::UShort:
-        case QMetaType::ULong:
-            *l = qlonglong(qMetaTypeUNumber(d));
-            break;
-        default:
-            *l = Q_INT64_C(0);
-            return false;
-        }
-        break;
-    }
+    case QMetaType::Short:
+        *static_cast<short *>(result) = short(qConvertToNumber(d, ok));
+        return *ok;
+    case QMetaType::Long:
+        *static_cast<long *>(result) = long(qConvertToNumber(d, ok));
+        return *ok;
+    case QMetaType::UShort:
+        *static_cast<ushort *>(result) = ushort(qConvertToUnsignedNumber(d, ok));
+        return *ok;
+    case QMetaType::ULong:
+        *static_cast<ulong *>(result) = ulong(qConvertToUnsignedNumber(d, ok));
+        return *ok;
+    case QVariant::Int:
+        *static_cast<int *>(result) = int(qConvertToNumber(d, ok));
+        return *ok;
+    case QVariant::UInt:
+        *static_cast<uint *>(result) = uint(qConvertToUnsignedNumber(d, ok));
+        return *ok;
+    case QVariant::LongLong:
+        *static_cast<qlonglong *>(result) = qConvertToNumber(d, ok);
+        return *ok;
     case QVariant::ULongLong: {
-        qulonglong *l = static_cast<qulonglong *>(result);
-        switch (d->type) {
-        case QVariant::Int:
-            *l = qulonglong(d->data.i);
-            break;
-        case QVariant::UInt:
-            *l = qulonglong(d->data.u);
-            break;
-        case QVariant::LongLong:
-            *l = qulonglong(d->data.ll);
-            break;
-        case QVariant::Double:
-            *l = qRound64(d->data.d);
-            break;
-        case QVariant::Bool:
-            *l = qulonglong(d->data.b);
-            break;
-        case QVariant::String:
-            *l = v_cast<QString>(d)->toULongLong(ok);
-            break;
-        case QVariant::Char:
-            *l = v_cast<QChar>(d)->unicode();
-            break;
-        case QVariant::ByteArray:
-            *l = v_cast<QByteArray>(d)->toULongLong(ok);
-            break;
-        case QMetaType::Char:
-        case QMetaType::Short:
-        case QMetaType::Long:
-        case QMetaType::Float:
-            *l = qulonglong(qMetaTypeNumber(d));
-            break;
-        case QMetaType::UChar:
-        case QMetaType::UShort:
-        case QMetaType::ULong:
-            *l = qMetaTypeUNumber(d);
-            break;
-        default:
-            *l = Q_UINT64_C(0);
-            return false;
-        }
-        break;
+        *static_cast<qulonglong *>(result) = qConvertToUnsignedNumber(d, ok);
+        return *ok;
     }
     case QVariant::Bool: {
         bool *b = static_cast<bool *>(result);
         switch(d->type) {
-        case QVariant::Double:
-            *b = d->data.d != 0.0;
-            break;
-        case QVariant::Int:
-            *b = d->data.i != 0;
-            break;
-        case QVariant::UInt:
-            *b = d->data.u != 0;
-            break;
-        case QVariant::LongLong:
-            *b = d->data.ll != Q_INT64_C(0);
-            break;
-        case QVariant::ULongLong:
-            *b = d->data.ull != Q_UINT64_C(0);
-            break;
         case QVariant::String:
         {
             QString str = v_cast<QString>(d)->toLower();
@@ -865,12 +756,17 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::Char:
             *b = !v_cast<QChar>(d)->isNull();
             break;
+        case QVariant::Double:
+        case QVariant::Int:
+        case QVariant::LongLong:
         case QMetaType::Char:
         case QMetaType::Short:
         case QMetaType::Long:
         case QMetaType::Float:
             *b = qMetaTypeNumber(d) != Q_INT64_C(0);
             break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
         case QMetaType::UChar:
         case QMetaType::UShort:
         case QMetaType::ULong:
@@ -891,33 +787,21 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::ByteArray:
             *f = v_cast<QByteArray>(d)->toDouble(ok);
             break;
-        case QVariant::Int:
-            *f = double(d->data.i);
-            break;
         case QVariant::Bool:
             *f = double(d->data.b);
-            break;
-        case QVariant::UInt:
-            *f = double(d->data.u);
-            break;
-        case QVariant::LongLong:
-            *f = double(d->data.ll);
-            break;
-        case QVariant::ULongLong:
-#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(qlonglong)d->data.ull;
-#else
-            *f = double(d->data.ull);
-#endif
             break;
         case QMetaType::Float:
             *f = *static_cast<float *>(d->data.shared->ptr);
             break;
+        case QVariant::LongLong:
+        case QVariant::Int:
         case QMetaType::Char:
         case QMetaType::Short:
         case QMetaType::Long:
             *f = double(qMetaTypeNumber(d));
             break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
         case QMetaType::UChar:
         case QMetaType::UShort:
         case QMetaType::ULong:
@@ -929,6 +813,45 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             break;
         default:
             *f = 0.0;
+            return false;
+        }
+        break;
+    }
+    case QMetaType::Float: {
+        float *f = static_cast<float *>(result);
+        switch (d->type) {
+        case QVariant::String:
+            *f = float(v_cast<QString>(d)->toDouble(ok));
+            break;
+        case QVariant::ByteArray:
+            *f = float(v_cast<QByteArray>(d)->toDouble(ok));
+            break;
+        case QVariant::Bool:
+            *f = float(d->data.b);
+            break;
+        case QVariant::Double:
+            *f = float(d->data.d);
+            break;
+        case QVariant::LongLong:
+        case QVariant::Int:
+        case QMetaType::Char:
+        case QMetaType::Short:
+        case QMetaType::Long:
+            *f = float(qMetaTypeNumber(d));
+            break;
+        case QVariant::UInt:
+        case QVariant::ULongLong:
+        case QMetaType::UChar:
+        case QMetaType::UShort:
+        case QMetaType::ULong:
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+            *f = (float)(qlonglong)qMetaTypeUNumber(d);
+#else
+            *f = float(qMetaTypeUNumber(d));
+#endif
+            break;
+        default:
+            *f = 0.0f;
             return false;
         }
         break;
@@ -2459,7 +2382,7 @@ bool QVariant::canConvert(Type t) const
         return true;
 
     if (d.type > QVariant::LastCoreType || t > QVariant::LastCoreType) {
-        switch (t) {
+        switch (uint(t)) {
         case QVariant::Int:
             return d.type == QVariant::KeySequence;
         case QVariant::Image:

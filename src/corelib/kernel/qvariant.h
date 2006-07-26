@@ -501,7 +501,7 @@ template<typename T> T qvariant_cast(const QVariant &v, T * = 0)
     const int vid = qMetaTypeId<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
-    if (vid < int(QVariant::UserType)) {
+    if (vid < int(QMetaType::User)) {
         T t;
         qvariant_cast_helper(v, QVariant::Type(vid), &t);
         return t;
@@ -525,7 +525,7 @@ template<typename T> T qvariant_cast(const QVariant &v)
     const int vid = qMetaTypeId<T>(static_cast<T *>(0));
     if (vid == v.userType())
         return *reinterpret_cast<const T *>(v.constData());
-    if (vid < int(QVariant::UserType)) {
+    if (vid < int(QMetaType::User)) {
         T t;
         qvariant_cast_helper(v, QVariant::Type(vid), &t);
         return t;
