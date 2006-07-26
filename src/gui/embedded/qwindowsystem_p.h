@@ -106,7 +106,7 @@ private:
 
     static QBrush *bgBrush;
 
-    void sendMaxWindowRectEvents();
+    void sendMaxWindowRectEvents(const QRect &rect);
     void invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client);
     void invokeCreate(QWSCreateCommand *cmd, QWSClient *client);
     void invokeRegionName(const QWSRegionNameCommand *cmd, QWSClient *client);

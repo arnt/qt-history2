@@ -45,8 +45,6 @@ extern bool qws_overrideCursor;
 extern QWidget *qt_pressGrab;
 extern QWidget *qt_mouseGrb;
 
-extern QRect qt_maxWindowRect;
-
 static QWidget *keyboardGrb = 0;
 
 static int takeLocalId()
@@ -655,7 +653,11 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 d->extra->topextra->qwsManager->maximize();
             else
 #endif
-                setGeometry(qt_maxWindowRect);
+            {
+                QApplicationPrivate *ap = QApplicationPrivate::instance();
+                const QRect maxWindowRect = ap->maxWindowRect(d->getScreen());
+                setGeometry(maxWindowRect);
+            }
         } else { //normal
             QRect r = d->topData()->normalGeometry;
             if (r.width() >= 0) {
@@ -844,6 +846,20 @@ void QWidgetPrivate::setConstraints_sys()
 {
 }
 
+QScreen* QWidgetPrivate::getScreen() const
+{
+    Q_Q(const QWidget);
+
+    const QList<QScreen*> subScreens = qt_screen->subScreens();
+    if (subScreens.isEmpty())
+        return qt_screen;
+
+    const int screen = QApplication::desktop()->screenNumber(q);
+    if (screen < 0)
+        return qt_screen;
+
+    return qt_screen->subScreens().at(screen);
+}
 
 void QWidget::scroll(int dx, int dy)
 {
@@ -867,35 +883,28 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     d->scrollRect(r, dx, dy);
 }
 
-static inline QScreen *getScreen(const QWidget *widget)
-{
-    const int screen = QApplication::desktop()->screenNumber(widget);
-    if (screen <= 0)
-        return qt_screen;
-
-    return qt_screen->subScreens().at(screen);
-}
-
 int QWidget::metric(PaintDeviceMetric m) const
 {
+    Q_D(const QWidget);
+
     int val;
     if (m == PdmWidth) {
         val = data->crect.width();
     } else if (m == PdmWidthMM) {
-        QScreen *screen = getScreen(this);
+        const QScreen *screen = d->getScreen();
         val = data->crect.width() * screen->physicalWidth() / screen->width();
     } else if (m == PdmHeight) {
         val = data->crect.height();
     } else if (m == PdmHeightMM) {
-        QScreen *screen = getScreen(this);
+        const QScreen *screen = d->getScreen();
         val = data->crect.height() * screen->physicalHeight() / screen->height();
     } else if (m == PdmDepth) {
         return qwsDisplay()->depth();
     } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
-        QScreen *screen = getScreen(this);
+        const QScreen *screen = d->getScreen();
         return qRound(screen->width() / double(screen->physicalWidth() / 25.4));
     } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
-        QScreen *screen = getScreen(this);
+        const QScreen *screen = d->getScreen();
         return qRound(screen->height() / double(screen->physicalHeight() / 25.4));
     } else {
         val = QPaintDevice::metric(m);// XXX

@@ -22,6 +22,7 @@
 #include "qcopchannel_qws.h"
 
 #include "qapplication.h"
+#include "private/qapplication_p.h"
 #include "qsocketnotifier.h"
 #include "qpolygon.h"
 #include "qimage.h"
@@ -80,8 +81,6 @@
 
 #include "qwindowsystem_p.h"
 
-extern void qt_qws_set_max_window_rect(const QRect& r);
-
 QWSServer Q_GUI_EXPORT *qwsServer=0;
 static QWSServerPrivate *qwsServerPrivate=0;
 
@@ -95,8 +94,6 @@ extern QString qws_qtePipeFilename();
 
 extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 extern QList<QWSCommand*> *qt_get_server_queue();
-
-static QRect maxwindow_rect;
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultMouse, ("Auto"));
 Q_GLOBAL_STATIC_WITH_ARGS(QString, defaultKeyboard, ("TTY"));
@@ -619,11 +616,11 @@ void QWSClient::sendConnectedEvent(const char *display_spec)
 /*!
    \internal
 */
-void QWSClient::sendMaxWindowRectEvent()
+void QWSClient::sendMaxWindowRectEvent(const QRect &rect)
 {
     QWSMaxWindowRectEvent event;
     event.simpleData.window = 0;
-    event.simpleData.rect = maxwindow_rect;
+    event.simpleData.rect = rect;
     sendEvent(&event);
 }
 
@@ -1183,8 +1180,17 @@ void QWSServerPrivate::_q_newConnection()
 
         client->sendConnectedEvent(qws_display_spec.constData());
 
-        if (!maxwindow_rect.isEmpty() && clientMap.contains(socket))
-            client->sendMaxWindowRectEvent();
+        if (clientMap.contains(socket)) {
+            QList<QScreen*> screens = qt_screen->subScreens();
+            if (screens.isEmpty())
+                screens.append(qt_screen);
+            for (int i = 0; i < screens.size(); ++i) {
+                const QApplicationPrivate *ap = QApplicationPrivate::instance();
+                const QRect rect = ap->maxWindowRect(screens.at(i));
+                if (!rect.isEmpty())
+                    client->sendMaxWindowRectEvent(rect);
+            }
+        }
 
         // pre-provide some object id's
         QWSCreateCommand cmd(30);
@@ -1555,23 +1561,36 @@ void QWSServer::refresh(QRegion & r)
 
     \sa QWidget::showMaximized()
 */
-void QWSServer::setMaxWindowRect(const QRect& r)
+void QWSServer::setMaxWindowRect(const QRect &rect)
 {
-    QRect tr = qt_screen->mapToDevice(r,
-        QSize(qt_screen->width(),qt_screen->height()));
-    if (maxwindow_rect != tr) {
-        maxwindow_rect = tr;
-        qwsServerPrivate->sendMaxWindowRectEvents();
+    QList<QScreen*> subScreens = qt_screen->subScreens();
+    if (subScreens.isEmpty() && qt_screen != 0)
+        subScreens.append(qt_screen);
+
+    for (int i = 0; i < subScreens.size(); ++i) {
+        const QScreen *screen = subScreens.at(i);
+        const QRect screenRect = (screen->region() & rect).boundingRect();
+        if (screenRect.isEmpty())
+            continue;
+
+        const QSize screenSize(screen->width(), screen->height());
+        const QRect r = screen->mapToDevice(screenRect, screenSize);
+        QApplicationPrivate *ap = QApplicationPrivate::instance();
+        if (ap->maxWindowRect(screen) != r) {
+            ap->setMaxWindowRect(screen, r);
+            qwsServerPrivate->sendMaxWindowRectEvents(r);
+        }
     }
 }
 
 /*!
   \internal
 */
-void QWSServerPrivate::sendMaxWindowRectEvents()
+void QWSServerPrivate::sendMaxWindowRectEvents(const QRect &rect)
 {
-    for (ClientIterator it = clientMap.begin(); it != clientMap.end(); ++it)
-        (*it)->sendMaxWindowRectEvent();
+    QMap<int,QWSClient*>::const_iterator it = clientMap.constBegin();
+    for (; it != clientMap.constEnd(); ++it)
+        (*it)->sendMaxWindowRectEvent(rect);
 }
 
 /*!
@@ -1975,7 +1994,9 @@ void QWSServer::endDisplayReconfigure()
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
 #endif
-    qt_qws_set_max_window_rect(QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()));
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    ap->setMaxWindowRect(qt_screen,
+                         QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()));
     QSize olds = qApp->desktop()->size();
     qApp->desktop()->resize(qt_screen->width(), qt_screen->height());
     qApp->postEvent(qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds));

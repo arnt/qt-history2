@@ -28,6 +28,7 @@
 #include "qwsdisplay_qws.h"
 #include "qdesktopwidget.h"
 
+#include <private/qapplication_p.h>
 #include <private/qwidget_p.h>
 #include <private/qbackingstore_p.h>
 #include <private/qwindowsurface_qws_p.h>
@@ -247,18 +248,19 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 void QWSManager::handleMove(QPoint g)
 {
     Q_D(QWSManager);
-    // don't allow dragging to where the user probably cannot click!
 
-    extern QRect qt_maxWindowRect;
-    if (qt_maxWindowRect.isValid()) {
-        if (g.x() < qt_maxWindowRect.x())
-            g.setX(qt_maxWindowRect.x());
-        if (g.y() < qt_maxWindowRect.y())
-            g.setY(qt_maxWindowRect.y());
-        if (g.x() > qt_maxWindowRect.right())
-            g.setX(qt_maxWindowRect.right());
-        if (g.y() > qt_maxWindowRect.bottom())
-            g.setY(qt_maxWindowRect.bottom());
+    // don't allow dragging to where the user probably cannot click!
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    const QRect maxWindowRect = ap->maxWindowRect(qt_screen);
+    if (maxWindowRect.isValid()) {
+        if (g.x() < maxWindowRect.x())
+            g.setX(maxWindowRect.x());
+        if (g.y() < maxWindowRect.y())
+            g.setY(maxWindowRect.y());
+        if (g.x() > maxWindowRect.right())
+            g.setX(maxWindowRect.right());
+        if (g.y() > maxWindowRect.bottom())
+            g.setY(maxWindowRect.bottom());
     }
 
     if (g == d->mousePos)

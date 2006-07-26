@@ -35,6 +35,9 @@
 #include "QtCore/qbasictimer.h"
 #include "private/qcoreapplication_p.h"
 #include "private/qshortcutmap_p.h"
+#ifdef Q_WS_QWS
+#include "QtGui/qscreen_qws.h"
+#endif
 
 class QWidget;
 class QObject;
@@ -280,6 +283,8 @@ public:
     bool seenRegionEvent;
     QRegion directPainterRegion;
 # endif
+    QRect maxWindowRect(const QScreen *screen) const { return maxWindowRects[screen]; }
+    void setMaxWindowRect(const QScreen *screen, const QRect &rect);
 #endif
 
     static QApplicationPrivate *instance() { return self; }
@@ -297,6 +302,10 @@ public:
     static QString styleSheet;
 
 private:
+#ifdef Q_WS_QWS
+    QMap<const QScreen*, QRect> maxWindowRects;
+#endif
+
     static QApplicationPrivate *self;
 };
 

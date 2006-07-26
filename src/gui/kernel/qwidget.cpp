@@ -2767,10 +2767,6 @@ QSize QWidget::baseSize() const
         : QSize(0, 0);
 }
 
-#ifdef Q_WS_QWS
-extern QRect qt_maxWindowRect;
-#endif
-
 /*!
     \overload
 
@@ -2783,13 +2779,17 @@ void QWidget::setMinimumSize(int minw, int minh)
 {
     Q_D(QWidget);
 #ifdef Q_WS_QWS
-    if (isWindow() && !qt_maxWindowRect.isEmpty()) {
-        // ### This is really just a work-around. Layout shouldn't be asking
-        // for minimum sizes bigger than the screen.
-        if (minw > qt_maxWindowRect.width())
-            minw = qt_maxWindowRect.width();
-        if (minh > qt_maxWindowRect.height())
-            minh = qt_maxWindowRect.height();
+    if (isWindow()) {
+        QApplicationPrivate *ap = QApplicationPrivate::instance();
+        const QRect maxWindowRect = ap->maxWindowRect(d->getScreen());
+        if (!maxWindowRect.isEmpty()) {
+            // ### This is really just a work-around. Layout shouldn't be
+            // asking for minimum sizes bigger than the screen.
+            if (minw > maxWindowRect.width())
+                minw = maxWindowRect.width();
+            if (minh > maxWindowRect.height())
+                minh = maxWindowRect.height();
+        }
     }
 #endif
     if (minw > QWIDGETSIZE_MAX || minh > QWIDGETSIZE_MAX) {

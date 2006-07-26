@@ -41,6 +41,7 @@
 
 #if defined(Q_WS_QWS)
 #include "QtGui/qinputcontext.h"
+#include "QtGui/qscreen_qws.h"
 #endif
 
 // Extra QWidget data
@@ -299,6 +300,9 @@ public:
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif
+
+    QScreen* getScreen() const;
+
     friend class QWSManager;
     friend class QWSManagerPrivate;
     friend class QDecoration;

@@ -365,7 +365,6 @@ int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lin
 bool qt_is_gui_used;
 bool Q_GUI_EXPORT qt_tab_all_widgets = true;
 bool qt_in_tab_key_event = false;
-QRect Q_GUI_EXPORT qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
 static Qt::LayoutDirection layout_direction = Qt::LeftToRight;
@@ -386,20 +385,6 @@ QWidget *QApplicationPrivate::oldEditFocus = 0;
 
 bool qt_tabletChokeMouse = false;
 static bool force_reverse = false;
-
-Q_GUI_EXPORT void qt_qws_set_max_window_rect(const QRect& r)
-{
-    qt_maxWindowRect = r;
-    // Re-resize any maximized windows
-    QWidgetList l = QApplication::topLevelWidgets();
-    for (int i = 0; i < l.size(); ++i) {
-        QWidget *w = l.at(i);
-        if (w->isVisible() && w->isMaximized()) {
-            w->showNormal(); //#### flicker
-            w->showMaximized();
-        }
-    }
-}
 
 // ######## move to QApplicationPrivate
 // Default application palettes and fonts (per widget type)
@@ -654,8 +639,6 @@ void QApplicationPrivate::construct(
 #endif
             );
     initialize();
-    if (qt_is_gui_used)
-        qt_maxWindowRect = QApplication::desktop()->rect();
     eventDispatcher->startingUp();
 
 #ifdef QT_EVAL

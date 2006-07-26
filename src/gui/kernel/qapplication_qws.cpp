@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-// Started with from qapplication_x11.cpp,v 2.399 1999/10/22 14:39:33
-
 #include "qglobal.h"
 #include "qcursor.h"
 #include "qapplication.h"
@@ -85,12 +83,6 @@
 #endif
 
 const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
-
-extern void qt_qws_set_max_window_rect(const QRect& r);
-extern QRect qt_maxWindowRect;
-
-static bool servermaxrect=false; // set to true once.
-
 
 extern QApplication::Type qt_appType;
 extern bool qt_app_has_font;
@@ -178,14 +170,43 @@ Q_GUI_EXPORT QString qws_qtePipeFilename()
     return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
 }
 
-extern void qt_qws_set_max_window_rect(const QRect&);
-static void setMaxWindowRect(const QRect& r)
+static void setMaxWindowRect(const QRect &rect)
 {
-    QRect tr = qt_screen->mapFromDevice(r,
-        qt_screen->mapToDevice(QSize(qt_screen->width(),qt_screen->height())));
-    qt_qws_set_max_window_rect(tr);
+    const QList<QScreen*> subScreens = qt_screen->subScreens();
+    QScreen *screen = qt_screen;
+    for (int i = 0; i < subScreens.size(); ++i) {
+        if (subScreens.at(i)->region().contains(rect)) {
+            screen = subScreens.at(i);
+            break;
+        }
+    }
+
+    const QSize screenSize(screen->width(), screen->height());
+    QRect r = screen->mapFromDevice(rect, screen->mapToDevice(QSize(screen->width(), screen->height())));
+
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    ap->setMaxWindowRect(screen, r);
 }
 
+void QApplicationPrivate::setMaxWindowRect(const QScreen *screen,
+                                           const QRect &rect)
+{
+    if (maxWindowRects.value(screen) == rect)
+        return;
+
+    maxWindowRects[screen] = rect;
+
+    // Re-resize any maximized windows
+    QWidgetList l = QApplication::topLevelWidgets();
+    for (int i = 0; i < l.size(); ++i) {
+        QWidget *w = l.at(i);
+        QScreen *s = w->d_func()->getScreen();
+        if (w->isVisible() && w->isMaximized() && s == screen) {
+            w->showNormal(); //#### flicker
+            w->showMaximized();
+        }
+    }
+}
 
 /*****************************************************************************
   Internal variables and functions
@@ -652,7 +673,8 @@ void QWSDisplay::Data::init()
         QWSIdentifyCommand cmd;
         qt_server_enqueue(&cmd);
     }
-    setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    ap->setMaxWindowRect(qt_screen, qt_screen->region().boundingRect());
 
     // Allow some memory for the graphics driver too
     //### Note that sharedRamSize() has side effects; it must be called
@@ -805,10 +827,9 @@ void QWSDisplay::Data::fillQueue()
                 }
             }
 #endif // 0 (RegionModified)
-        } else if (e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen) {
+        } else if (e->type==QWSEvent::MaxWindowRect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
-            servermaxrect=true;
-            setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
+           setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
             delete e;
 #ifndef QT_NO_COP
         } else if (e->type == QWSEvent::QCopMessage) {
@@ -1499,8 +1520,6 @@ int QWSDisplay::windowAt(const QPoint &p)
     return ret;
 }
 
-
-
 void QWSDisplay::setRawMouseEventFilter(void (*filter)(QWSMouseEvent *))
 {
     if (qt_fbdpy)
@@ -1517,7 +1536,9 @@ void QWSDisplay::setTransformation(int t)
 {
 #ifdef QT_QWS_TRANSFORMED
 
-    bool isFullScreen = qt_maxWindowRect == QRect(0, 0, qt_screen->width(), qt_screen->height());
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    const QRect maxWindowRect = ap->maxWindowRect(qt_screen);
+    bool isFullScreen = maxWindowRect == QRect(0, 0, qt_screen->width(), qt_screen->height());
 
     QPixmapCache::clear();
     QFontCache::instance->clear();
@@ -1556,8 +1577,11 @@ void QWSDisplay::setTransformation(int t)
 
 
     // only update the mwr if it is full screen.
-    if (isFullScreen)
-        qt_qws_set_max_window_rect(QRect(0,0, qt_screen->width(), qt_screen->height()));
+    if (isFullScreen) {
+        QApplicationPriate *ap = QApplicationPrivate::instance();
+        ap->setMaxWindowRect(qt_screen,
+                             QRect(0,0, qt_screen->width(), qt_screen->height()));
+    }
 
 #endif
 }
@@ -2449,7 +2473,6 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 keywidget = static_cast<QETWidget*>(widget->window());
         }
     } else if (event->type==QWSEvent::MaxWindowRect) {
-        servermaxrect=true;
         QRect r = static_cast<QWSMaxWindowRectEvent*>(event)->simpleData.rect;
         setMaxWindowRect(r);
         return 0;

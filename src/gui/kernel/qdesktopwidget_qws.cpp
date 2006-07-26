@@ -13,6 +13,7 @@
 
 #include "qdesktopwidget.h"
 #include "qscreen_qws.h"
+#include "private/qapplication_p.h"
 
 QDesktopWidget::QDesktopWidget()
     : QWidget(0, Qt::Desktop)
@@ -58,6 +59,29 @@ const QRect QDesktopWidget::availableGeometry(int screenNo) const
         return QRect();
 
     const QList<QScreen*> subScreens = screen->subScreens();
+    if (!subScreens.isEmpty()) {
+        if (screenNo >= subScreens.size())
+            return QRect();
+        screen = subScreens.at(screenNo);
+    }
+
+    QApplicationPrivate *ap = QApplicationPrivate::instance();
+    const QRect r = ap->maxWindowRect(screen);
+    if (!r.isEmpty())
+        return r;
+
+    return screen->region().boundingRect();
+}
+
+const QRect QDesktopWidget::screenGeometry(int screenNo) const
+{
+    const QScreen *screen = QScreen::instance();
+    if (screenNo == -1)
+        screenNo = 0;
+    if (!screen || screenNo < 0)
+        return QRect();
+
+    const QList<QScreen*> subScreens = screen->subScreens();
     if (subScreens.size() == 0 && screenNo == 0)
         return screen->region().boundingRect();
 
@@ -65,11 +89,6 @@ const QRect QDesktopWidget::availableGeometry(int screenNo) const
         return QRect();
 
     return subScreens.at(screenNo)->region().boundingRect();
-}
-
-const QRect QDesktopWidget::screenGeometry(int screen) const
-{
-    return availableGeometry(screen);
 }
 
 int QDesktopWidget::screenNumber(const QWidget *w) const
