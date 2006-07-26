@@ -23,6 +23,7 @@ private slots:
     void capabiliyFunctions();
     void modes();
     void testSignals();
+    void copy_exit_paste();
 };
 
 /*
@@ -105,6 +106,17 @@ void tst_QClipboard::testSignals()
         QCOMPARE(searchChangedSpy.count(), 0);
     }
     QCOMPARE(dataChangedSpy.count(), 1);
+}
+
+/*
+    Test that pasted text remain on the clipboard
+    after a Qt application exits.
+*/
+void tst_QClipboard::copy_exit_paste()
+{
+    const QStringList stringArgument = QStringList() << "Test string.";
+    QCOMPARE(QProcess::execute("copier/copier", stringArgument), 0);
+    QCOMPARE(QProcess::execute("paster/paster", stringArgument), 0);
 }
 
 QTEST_MAIN(tst_QClipboard)
