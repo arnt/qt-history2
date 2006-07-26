@@ -195,6 +195,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                 }
             }
         }
+        qDebug() << alphamap;
         pixmap.data->macSetHasAlpha(alphamap);
     }
     pixmap.data->uninit = false;
@@ -303,7 +304,7 @@ void QPixmap::setAlphaChannel(const QPixmap &alpha)
 
 QBitmap QPixmap::mask() const
 {
-    if (!data->has_mask)
+    if (!data->has_mask && !data->has_alpha)
         return QBitmap();
     QBitmap mask(width(), height());
     data->macGetAlphaChannel(&mask, true);
