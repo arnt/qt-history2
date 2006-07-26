@@ -156,30 +156,30 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 
     if (topLevel) {
         createTLExtra();
-
+        QTLWExtra *topextra = extra->topextra;
 #ifndef QT_NO_QWS_MANAGER
         if (hasFrame) {
             // get size of wm decoration and make the old crect the new frect
             QRect cr = data.crect;
             QRegion r = QApplication::qwsDecoration().region(q, cr) | cr;
             QRect br(r.boundingRect());
-            extra->topextra->frameStrut.setCoords(cr.x() - br.x(),
+            topextra->frameStrut.setCoords(cr.x() - br.x(),
                                                   cr.y() - br.y(),
                                                   br.right() - cr.right(),
                                                   br.bottom() - cr.bottom());
-            data.crect.translate(extra->topextra->frameStrut.left(),
-                                 extra->topextra->frameStrut.top());
+            if (!q->testAttribute(Qt::WA_Moved) || topextra->posFromMove)
+                data.crect.translate(topextra->frameStrut.left(), topextra->frameStrut.top());
             if (!topData()->qwsManager) {
                 topData()->qwsManager = new QWSManager(q);
-                if(q->data->window_state & Qt::WindowMaximized)
+                if(q->data->window_state & ~Qt::WindowActive == Qt::WindowMaximized)
                     topData()->qwsManager->maximize();
             }
 
         } else if (topData()->qwsManager) {
             delete topData()->qwsManager;
             topData()->qwsManager = 0;
-            data.crect.translate(-extra->topextra->frameStrut.left(), -extra->topextra->frameStrut.top());
-            extra->topextra->frameStrut.setCoords(0, 0, 0, 0);
+            data.crect.translate(-topextra->frameStrut.left(), -topextra->frameStrut.top());
+            topextra->frameStrut.setCoords(0, 0, 0, 0);
         }
 #endif
         // declare the widget's object name as window role
@@ -187,8 +187,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
         qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,q->objectName().toLatin1());
 
-        if (!extra->topextra->caption.isEmpty())
-            setWindowTitle_helper(extra->topextra->caption);
+        if (!topextra->caption.isEmpty())
+            setWindowTitle_helper(topextra->caption);
 
         //XXX If we are session managed, inform the window manager about it
     } else {
@@ -599,32 +599,48 @@ void QWidgetPrivate::hide_sys()
 }
 
 
+
+static Qt::WindowStates effectiveState(Qt::WindowStates state)
+ {
+     if (state & Qt::WindowMinimized)
+         return Qt::WindowMinimized;
+     else if (state & Qt::WindowFullScreen)
+         return Qt::WindowFullScreen;
+     else if (state & Qt::WindowMaximized)
+         return Qt::WindowMaximized;
+     return Qt::WindowNoState;
+ }
+
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     Q_D(QWidget);
     Qt::WindowStates oldstate = windowState();
     if (oldstate == newstate)
         return;
+    if (isWindow() && !testAttribute(Qt::WA_WState_Created))
+        create();
+
     data->window_state = newstate;
     data->in_set_window_state = 1;
-
     bool needShow = false;
-    if (isWindow() && newstate != oldstate) {
+    Qt::WindowStates newEffectiveState = effectiveState(newstate);
+    Qt::WindowStates oldEffectiveState = effectiveState(oldstate);
+    if (isWindow() && newEffectiveState != oldEffectiveState) {
         d->createTLExtra();
-        if (oldstate == Qt::WindowNoState) { //normal
+        if (oldEffectiveState == Qt::WindowNoState) { //normal
             d->topData()->normalGeometry = geometry();
-        } else if (oldstate & Qt::WindowFullScreen) {
+        } else if (oldEffectiveState == Qt::WindowFullScreen) {
             setParent(0, d->topData()->savedFlags);
             needShow = true;
-        } else if (oldstate & Qt::WindowMinimized) {
+        } else if (oldEffectiveState == Qt::WindowMinimized) {
             needShow = true;
         }
 
-        if (newstate & Qt::WindowMinimized) {
+        if (newEffectiveState == Qt::WindowMinimized) {
             //### not ideal...
             hide();
             needShow = false;
-        } else if (newstate & Qt::WindowFullScreen) {
+        } else if (newEffectiveState == Qt::WindowFullScreen) {
             d->topData()->savedFlags = windowFlags();
             setParent(0, Qt::FramelessWindowHint | (windowFlags() & Qt::WindowStaysOnTopHint));
             const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
@@ -632,7 +648,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             resize(screen.size());
             raise();
             needShow = true;
-        } else if (newstate & Qt::WindowMaximized) {
+        } else if (newEffectiveState == Qt::WindowMaximized) {
             createWinId();
 #ifndef QT_NO_QWS_MANAGER
             if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
