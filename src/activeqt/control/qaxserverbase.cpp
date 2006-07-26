@@ -357,7 +357,7 @@ private:
 
     IUnknown *m_outerUnknown;
     IAdviseSink *m_spAdviseSink;
-    IOleAdviseHolder *m_spOleAdviseHolder;
+    QList<STATDATA> adviseSinks;
     IOleClientSite *m_spClientSite;
     IOleInPlaceSiteWindowless *m_spInPlaceSite;
     IOleInPlaceFrame *m_spInPlaceFrame;
@@ -1031,7 +1031,6 @@ void QAxServerBase::init()
     rcPos.right = rcPos.bottom = 20;
 
     m_spAdviseSink = 0;
-    m_spOleAdviseHolder = 0;
     m_spClientSite = 0;
     m_spInPlaceSite = 0;
     m_spInPlaceFrame = 0;
@@ -1082,8 +1081,9 @@ QAxServerBase::~QAxServerBase()
 
     if (m_spAdviseSink) m_spAdviseSink->Release();
     m_spAdviseSink = 0;
-    if (m_spOleAdviseHolder) m_spOleAdviseHolder->Release();
-    m_spOleAdviseHolder = 0;
+    for (int i = 0; i < adviseSinks.count(); ++i) {
+        adviseSinks.at(i).pAdvSink->Release();
+    }
     if (m_spClientSite) m_spClientSite->Release();
     m_spClientSite = 0;
     if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
@@ -1769,7 +1769,10 @@ void QAxServerBase::update()
 	else if (m_spInPlaceSite)
 	    m_spInPlaceSite->InvalidateRect(NULL, true);
     } else if (m_spAdviseSink) {
-	m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
+        m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
+        for (int i = 0; i < adviseSinks.count(); ++i) {
+	    adviseSinks.at(i).pAdvSink->OnViewChange(DVASPECT_CONTENT, -1);
+        }
     }
 }
 
@@ -1784,9 +1787,18 @@ void QAxServerBase::updateGeometry()
 	return;
 
     QSize sizeHint = qt.widget->sizeHint();
+    QSizePolicy sizePolicy = qt.widget->sizePolicy();
     if (sizeHint.isValid()) {
-	sizeExtent.cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), qt.widget->logicalDpiX());
-	sizeExtent.cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), qt.widget->logicalDpiY());
+        int preferred_cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), qt.widget->logicalDpiX());
+        int preferred_cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), qt.widget->logicalDpiY());
+        if (preferred_cx > sizeExtent.cx && !(sizePolicy.horizontalPolicy() & QSizePolicy::ShrinkFlag))
+	    sizeExtent.cx = preferred_cx;
+        if (preferred_cx < sizeExtent.cx && !(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag))
+            sizeExtent.cx = preferred_cx;
+        if (preferred_cy > sizeExtent.cy && !(sizePolicy.verticalPolicy() & QSizePolicy::ShrinkFlag))
+	    sizeExtent.cx = preferred_cx;
+        if (preferred_cy < sizeExtent.cy && !(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag))
+            sizeExtent.cy = preferred_cy;
     }
 }
 
@@ -2517,37 +2529,37 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     case DISPATCH_PROPERTYPUT:
     case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
 	{
-	    if (index == -1) {
-		index = mo->indexOfProperty(name);
-		if (index == -1)
-		    return res;
-	    }
-
-	    QMetaProperty property;
+            if (index == -1) {
+                index = mo->indexOfProperty(name);
+                if (index == -1)
+                    return res;
+            }
+            
+            QMetaProperty property;
             if (index < mo->propertyCount())
                 property = mo->property(index);
-	    if (!property.isWritable())
-		return DISP_E_MEMBERNOTFOUND;
-	    if (!pDispParams->cArgs)
-		return DISP_E_PARAMNOTOPTIONAL;
-	    if (pDispParams->cArgs != 1 ||
-		 pDispParams->cNamedArgs != 1 ||
-		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
-		return DISP_E_BADPARAMCOUNT;
-
-	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName(), property.type());
-	    if (!var.isValid()) {
-		if (puArgErr)
-		    *puArgErr = 0;
-		return DISP_E_BADVARTYPE;
-	    }
-	    if (!qt.object->setProperty(property.name(), var)) {
-		if (puArgErr)
-		    *puArgErr = 0;
-		return DISP_E_TYPEMISMATCH;
-	    }
-
-	    res = S_OK;
+            if (!property.isWritable())
+                return DISP_E_MEMBERNOTFOUND;
+            if (!pDispParams->cArgs)
+                return DISP_E_PARAMNOTOPTIONAL;
+            if (pDispParams->cArgs != 1 ||
+                pDispParams->cNamedArgs != 1 ||
+                *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
+                return DISP_E_BADPARAMCOUNT;
+            
+            QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName(), property.type());
+            if (!var.isValid()) {
+                if (puArgErr)
+                    *puArgErr = 0;
+                return DISP_E_BADVARTYPE;
+            }
+            if (!qt.object->setProperty(property.name(), var)) {
+                if (puArgErr)
+                    *puArgErr = 0;
+                return DISP_E_TYPEMISMATCH;
+            }
+            
+            res = S_OK;
 	}
 	break;
 
@@ -2560,23 +2572,28 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
      case DISPATCH_METHOD:
      case DISPATCH_PROPERTYPUT:
      case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
-         if (m_spAdviseSink) {
-             m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
-
+         if (m_spAdviseSink || adviseSinks.count()) {
              FORMATETC fmt;
              fmt.cfFormat = 0;
              fmt.ptd = 0;
              fmt.dwAspect = DVASPECT_CONTENT;
              fmt.lindex = -1;
              fmt.tymed = TYMED_NULL;
-
+             
              STGMEDIUM stg;
              stg.tymed = TYMED_NULL;
              stg.pUnkForRelease = 0;
              stg.hBitmap = 0; // initializes the whole union
-
-             m_spAdviseSink->OnDataChange(&fmt, &stg);
+             
+             if (m_spAdviseSink) {
+                 m_spAdviseSink->OnViewChange(DVASPECT_CONTENT, -1);
+                 m_spAdviseSink->OnDataChange(&fmt, &stg);
+             }
+             for (int i = 0; i < adviseSinks.count(); ++i) {
+                 adviseSinks.at(i).pAdvSink->OnDataChange(&fmt, &stg);
+             }
          }
+
          dirtyflag = true;
          break;
      default:
@@ -2814,7 +2831,6 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg)
 	return E_FAIL;
 
     Load(spStream);
-
     spStream->Release();
 
     updateGeometry();
@@ -3504,12 +3520,11 @@ HRESULT WINAPI QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 */
 HRESULT WINAPI QAxServerBase::Advise(IAdviseSink* pAdvSink, DWORD* pdwConnection)
 {
-    HRESULT hr = S_OK;
-    if (!m_spOleAdviseHolder)
-	hr = CreateOleAdviseHolder(&m_spOleAdviseHolder);
-    if (SUCCEEDED(hr))
-	hr = m_spOleAdviseHolder->Advise(pAdvSink, pdwConnection);
-    return hr;
+    *pdwConnection = adviseSinks.count() + 1;
+    STATDATA data = { {0, 0, DVASPECT_CONTENT, -1, TYMED_NULL} , 0, pAdvSink, *pdwConnection };
+    adviseSinks.append(data);
+    pAdvSink->AddRef();
+    return S_OK;
 }
 
 /*
@@ -3537,6 +3552,10 @@ HRESULT WINAPI QAxServerBase::Close(DWORD dwSaveOption)
 
     if (m_spAdviseSink)
 	m_spAdviseSink->OnClose();
+    for (int i = 0; i < adviseSinks.count(); ++i) {
+        adviseSinks.at(i).pAdvSink->OnClose();
+    }
+
     return S_OK;
 }
 
@@ -3705,14 +3724,11 @@ HRESULT WINAPI QAxServerBase::DoVerb(LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite
 }
 
 /*
-    Returns the list of advise connections.
+    Not implemented.
 */
-HRESULT WINAPI QAxServerBase::EnumAdvise(IEnumSTATDATA** ppenumAdvise)
+HRESULT WINAPI QAxServerBase::EnumAdvise(IEnumSTATDATA** /*ppenumAdvise*/)
 {
-    HRESULT hRes = E_FAIL;
-    if (m_spOleAdviseHolder)
-	hRes = m_spOleAdviseHolder->EnumAdvise(ppenumAdvise);
-    return hRes;
+    return E_NOTIMPL;
 }
 
 /*
@@ -3814,6 +3830,14 @@ HRESULT WINAPI QAxServerBase::SetColorScheme(LOGPALETTE*)
     return E_NOTIMPL;
 }
 
+
+#ifdef QT_DLL // avoid conflict with symbol in static lib
+bool qt_sendSpontaneousEvent(QObject *o, QEvent *e)
+{
+    return QCoreApplication::sendSpontaneousEvent(o, e);
+}
+#endif
+
 /*
     Tries to set the size of the control.
 */
@@ -3841,6 +3865,19 @@ HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
     if (psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy)
 	sizeExtent = *psizel;
 
+    if (!m_hWnd) { // make sure we get a resize event even if not embedded as a control
+        QSize oldSize = qt.widget->size();
+        qt.widget->resize(rcPos.right - rcPos.left, rcPos.bottom - rcPos.top);
+        QSize newSize = qt.widget->size();
+        if (!qt.widget->isVisible()) { 
+            QResizeEvent resizeEvent(newSize, oldSize);
+#ifndef QT_DLL // import from static library
+            extern bool qt_sendSpontaneousEvent(QObject*,QEvent*);
+#endif
+            qt_sendSpontaneousEvent(qt.widget, &resizeEvent);
+        }
+    }
+
     return S_OK;
 }
 
@@ -3865,10 +3902,15 @@ HRESULT WINAPI QAxServerBase::SetMoniker(DWORD, IMoniker*)
 */
 HRESULT WINAPI QAxServerBase::Unadvise(DWORD dwConnection)
 {
-    HRESULT hRes = E_FAIL;
-    if (m_spOleAdviseHolder)
-	hRes = m_spOleAdviseHolder->Unadvise(dwConnection);
-    return hRes;
+    for (int i = 0; i < adviseSinks.count(); ++i) {
+        STATDATA entry = adviseSinks.at(i);
+        if (entry.dwConnection == dwConnection) {
+            entry.pAdvSink->Release();
+            adviseSinks.removeAt(i);
+            return S_OK;
+        }
+    }
+    return OLE_E_NOCONNECTION;
 }
 
 /*
@@ -3889,6 +3931,8 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
 	return E_POINTER;
     if (!qt.widget)
 	return E_UNEXPECTED;
+
+    QSize size = qt.widget->size();
 
     memset(pmedium, 0, sizeof(STGMEDIUM));
 
@@ -3934,18 +3978,28 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/,
-				      IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/)
+HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC *pformatetc, DWORD advf,
+				      IAdviseSink *pAdvSink, DWORD *pdwConnection)
 {
-    return E_NOTIMPL;
+    if (pformatetc->dwAspect != DVASPECT_CONTENT)
+        return E_FAIL;
+
+    *pdwConnection = adviseSinks.count() + 1;
+    STATDATA data = { 
+        {pformatetc->cfFormat,pformatetc->ptd,pformatetc->dwAspect,pformatetc->lindex,pformatetc->tymed},
+        advf, pAdvSink, *pdwConnection 
+    };
+    adviseSinks.append(data);
+    pAdvSink->AddRef();
+    return S_OK;
 }
 
 /*
     Not implemented.
 */
-HRESULT WINAPI QAxServerBase::DUnadvise(DWORD /*dwConnection*/)
+HRESULT WINAPI QAxServerBase::DUnadvise(DWORD dwConnection)
 {
-    return E_NOTIMPL;
+    return Unadvise(dwConnection);
 }
 
 /*
