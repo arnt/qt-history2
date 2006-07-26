@@ -76,6 +76,7 @@ extern QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, co
 extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
 extern QList<QByteArray> qax_qualified_usertypes;
 extern QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name);
+extern bool qax_dispatchEqualsIDispatch;
 
 QMap<QByteArray, QByteArray> namespaceForType;
 
@@ -336,7 +337,14 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << setter << "(" << constRefify(propertyType) << " value)";
             
             if (!(category & NoInlines)) {
-                out << "{ setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
+                if (qax_dispatchEqualsIDispatch && propertyType.endsWith('*')) {
+                    out << "{" << endl;
+                    out << "    int typeId = qRegisterMetaType(\"" << propertyType << "\", &value);" << endl;
+                    out << "    setProperty(\"" << propertyName << "\", QVariant(typeId, &value));" << endl;
+                    out << "}" << endl;
+                } else {
+                    out << "{ setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
+                }
             } else {
                 out << "; //Sets the value of the " << propertyName << " property" << endl;
             }
@@ -1197,7 +1205,6 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
 int main(int argc, char **argv)
 {
-    extern bool qax_dispatchEqualsIDispatch;
     qax_dispatchEqualsIDispatch = false;
 
     CoInitialize(0);
