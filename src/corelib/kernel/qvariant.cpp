@@ -876,27 +876,32 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         } else {
             return false;
         }
+        break;
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Rect:
         if (d->type == QVariant::RectF)
             *static_cast<QRect *>(result) = (v_cast<QRectF>(d))->toRect();
         else
             return false;
+        break;
     case QVariant::RectF:
         if (d->type == QVariant::Rect)
             *static_cast<QRectF *>(result) = *v_cast<QRect>(d);
         else
             return false;
+        break;
     case QVariant::PointF:
         if (d->type == QVariant::Point)
             *static_cast<QPointF *>(result) = *v_cast<QPoint>(d);
         else
             return false;
+        break;
     case QVariant::Point:
         if (d->type == QVariant::PointF)
             *static_cast<QPoint *>(result) = (v_cast<QPointF>(d))->toPoint();
         else
             return false;
+        break;
 #endif
     default:
         return false;
