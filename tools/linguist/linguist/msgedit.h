@@ -51,7 +51,7 @@ public:
     QLabel *label() const { return m_label; }
 
     void calculateFieldHeight();
-    QString translation() const { return m_editor->toPlainText(); }
+    QString translation() const;
 public slots:
     void handleTranslationChanges();
 
@@ -286,9 +286,11 @@ private slots:
 protected:
     void resizeEvent(QResizeEvent *);
 
-private:
+public:
     static const char backTab[];
     static const char * const friendlyBackTab[];
+
+private:
 
     void visualizeBackTabs(const QString &text, QTextEdit *te);
     void setTranslation(const QString &translation, int numerus, bool emitt);

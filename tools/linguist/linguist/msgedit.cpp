@@ -37,8 +37,14 @@
 #include <QFont>
 #include <QTreeView>
 #include <QScrollArea>
-#include <QTextDocumentFragment>
-#include <QTextCursor>
+#include <QtGui/QTextDocumentFragment>
+#include <QtGui/QTextCursor>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextFragment>
+#include <QtGui/QTextImageFormat>
+#include <QtGui/QPainter>
+#include <QtGui/QImage>
+#include <QtCore/QUrl>
 #include <QAbstractTextDocumentLayout>
 
 static const int MaxCandidates = 5;
@@ -53,6 +59,134 @@ const char * const MessageEditor::friendlyBackTab[] = {
         QT_TRANSLATE_NOOP("MessageEditor", "tab")
     };
 
+const char *bellImageName = "trolltech/bellImage";
+const char *backspaceImageName = "trolltech/bsImage";
+const char *newpageImageName = "trolltech/newpageImage";
+const char *newlineImageName = "trolltech/newlineImage";
+const char *crImageName = "trolltech/crImage";
+const char *tabImageName = "trolltech/tabImage";
+const char *backTabImages[] = {
+    bellImageName, 
+    backspaceImageName, 
+    newpageImageName, 
+    newlineImageName, 
+    crImageName, 
+    tabImageName};
+
+class BackTabTextEdit : public QTextEdit
+{
+public:
+    BackTabTextEdit(QWidget *parent = 0) : QTextEdit(parent) { }
+
+    virtual QVariant loadResource ( int type, const QUrl & name );
+
+    virtual void keyPressEvent ( QKeyEvent * e);
+    QMap<QUrl, QImage> m_backTabOmages;
+    QImage m_tabImg;
+    QImage m_newlineImg;
+};
+
+QVariant BackTabTextEdit::loadResource ( int type, const QUrl & name )
+{
+    QImage img;
+    if (type == QTextDocument::ImageResource) {
+        img = m_backTabOmages.value(name);
+        if (img.isNull()) {
+            for (int i = 0; i < sizeof(MessageEditor::backTab); ++i) {
+                if (backTabImages[i] && name == QUrl(QLatin1String(backTabImages[i]))) {
+
+                    QFont fnt = font();
+                    fnt.setItalic(true);
+                    QFontMetrics fm(fnt);
+                    int h = fm.height();
+                    
+                    QString str = QString::fromAscii("(%1)").arg(MessageEditor::friendlyBackTab[i]);
+                    int w = fm.boundingRect(str).width() + 1;   //###
+                    QImage textimg(w, h, QImage::Format_RGB32);
+                    textimg.fill(qRgb(255,255,255));
+
+                    QPainter p(&textimg);
+                    p.setPen(QColor(Qt::blue));
+                    p.setFont(fnt);
+                    p.drawText(0, fm.ascent(), str);            //###
+                    document()->addResource(QTextDocument::ImageResource, QUrl(QLatin1String(backTabImages[i])), textimg);
+
+                    m_backTabOmages.insert(name, textimg);
+                    return textimg;
+                }
+            }                
+        }
+    }
+    return img;
+}
+
+void BackTabTextEdit::keyPressEvent ( QKeyEvent * e )
+{
+    bool eatevent = false;
+    QTextCursor tc = textCursor();
+    if (e->modifiers() == Qt::NoModifier) {
+        switch (e->key()) {
+        case Qt::Key_Tab: {
+            tc = textCursor();
+            tc.insertImage(QLatin1String(tabImageName));
+            eatevent = true;
+            break; }
+        case Qt::Key_Return: {
+            tc = textCursor();
+            document()->blockSignals(true);
+            tc.beginEditBlock();
+            tc.insertImage(QLatin1String(newlineImageName));
+            document()->blockSignals(false);
+            tc.insertBlock();
+            tc.endEditBlock();
+            eatevent = true;
+            break; }
+        case Qt::Key_Backspace: 
+            if (tc.anchor() == tc.position()) {
+                QTextCursor tc = textCursor();
+                if (!tc.atStart() && tc.atBlockStart()) {
+                    tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1);
+                    QTextCharFormat fmt = tc.charFormat();
+                    if (fmt.isImageFormat()) {
+                        tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 1);
+                    }
+                    tc.removeSelectedText();
+                    eatevent = true;
+                }
+            }
+            break;
+        case Qt::Key_Delete:
+            if (tc.anchor() == tc.position()) {
+                QTextCursor tc = textCursor();
+                tc.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
+                QTextCharFormat fmt = tc.charFormat();
+                if (fmt.isImageFormat()) {
+                    if (!tc.atEnd() && tc.atBlockEnd()) {
+                        tc.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 1);
+                    }
+                    tc.removeSelectedText();
+                    eatevent = true;
+                }
+            }
+            break;
+        }
+    }
+    // Also accept Key_Enter on the numpad
+    if (e->modifiers() == Qt::KeypadModifier && e->key() == Qt::Key_Enter) {
+        tc = textCursor();
+        document()->blockSignals(true);
+        tc.beginEditBlock();
+        tc.insertImage(QLatin1String(newlineImageName));
+        document()->blockSignals(false);
+        tc.insertBlock();
+        tc.endEditBlock();
+        eatevent = true;
+    }
+
+
+    if (eatevent) e->accept();
+    else QTextEdit::keyPressEvent(e);
+}
 
 TransEditor::TransEditor(QWidget *parent /*= 0*/) 
 : QWidget(parent)
@@ -62,7 +196,7 @@ TransEditor::TransEditor(QWidget *parent /*= 0*/)
     lout->setMargin(0);
     m_label = new QLabel(this);
     lout->addWidget(m_label);
-    m_editor = new QTextEdit(this);
+    m_editor = new BackTabTextEdit(this);
     lout->addWidget(m_editor);
     setLayout(lout);
 
@@ -99,6 +233,33 @@ void TransEditor::calculateFieldHeight()
         emit heightUpdated(height() + (field->height() - oldHeight));
     }
 
+}
+
+
+QString TransEditor::translation() const 
+{ 
+    QString plain;
+    QTextBlock tb = m_editor->document()->begin();
+    for (int b = 0; b < m_editor->document()->blockCount(); ++b) {
+        QTextBlock::iterator it = tb.begin();
+        if (it.atEnd()) {
+            plain += tb.text();
+        } else {
+            while ( !it.atEnd() ) {
+                QTextCharFormat fmt = it.fragment().charFormat();
+                if (fmt.isImageFormat()) {
+                    QTextImageFormat tif = fmt.toImageFormat();
+                    if (tif.name() == QLatin1String(tabImageName)) plain += QLatin1Char('\t');
+                    else if (tif.name() == QLatin1String(newlineImageName)) plain += QLatin1Char('\n');
+                } else {
+                    plain += it.fragment().text();
+                }
+                ++it;
+            }
+        }
+        tb = tb.next();
+    }
+    return plain;
 }
 
 void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
@@ -662,6 +823,7 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     connect(editorPage->pageCurl, SIGNAL(prevPage()),
         SIGNAL(prevUnfinished()));
 
+    //###
     connect(editorPage->activeTransText()->document(), SIGNAL(contentsChanged()),
         this, SLOT(updateButtons()));
     connect(editorPage->activeTransText()->document(), SIGNAL(undoAvailable(bool)),
@@ -757,7 +919,6 @@ void MessageEditor::showNothing()
     sourceText.clear();
     editorPage->cmtText->clear();
     setTranslation(QString(), 0, false);
-    setTranslation(QString(), 1, false);
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->adjustTranslationFieldHeights();
@@ -903,6 +1064,40 @@ void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringL
                                 " the translation of some source text.") );
     }
 }
+static void visualizeImages(const QString &text, QTextEdit *te)
+{
+    te->clear();
+    QTextCursor tc(te->textCursor());
+
+    QString plainText;
+    for (int i = 0; i < (int) text.length(); ++i)
+    {
+        int ch = text[i].unicode();
+        if (ch < 0x20)
+        {
+            if (!plainText.isEmpty())
+            {
+                tc.insertText(plainText);
+                plainText.clear();
+            }
+            const char *p = strchr(MessageEditor::backTab, ch);
+            if (p)
+            {
+                if (backTabImages[p - MessageEditor::backTab]) {
+                    tc.insertImage(QLatin1String(backTabImages[p - MessageEditor::backTab]));
+                }
+                if (MessageEditor::backTab[p - MessageEditor::backTab] == '\n') {
+                    tc.insertBlock();
+                }
+            }
+        }
+        else
+        {
+            plainText += QString(ch);
+        }
+    }
+    tc.insertText(plainText);
+}
 
 void MessageEditor::setTranslation(const QString &translation, int numerus, bool emitt)
 {
@@ -917,7 +1112,7 @@ void MessageEditor::setTranslation(const QString &translation, int numerus, bool
     if (translation.isNull())
         transText->clear();
     else
-        transText->setPlainText(translation);
+        visualizeImages(translation, transText);
 
     if (!emitt)
     {
