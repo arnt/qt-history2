@@ -30,6 +30,7 @@
 #include <resourcefile_p.h>
 #include <pluginmanager_p.h>
 #include <metadatabase_p.h>
+#include <widgetfactory_p.h>
 
 #include <qdesigner_widget_p.h>
 #include <qlayout_widget_p.h>
@@ -245,12 +246,15 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         }
     }
 
+    qdesigner_internal::WidgetFactory *factory = qobject_cast<qdesigner_internal::WidgetFactory*>(core()->widgetFactory());
+    Q_ASSERT(factory != 0);
+
+    QDesignerFormWindowInterface *previousFormWindow = factory->currentFormWindow(m_formWindow);
+
     m_isMainWidget = true;
     QWidget *mainWidget = QAbstractFormBuilder::create(ui, parentWidget);
-    if (mainWidget == 0)
-        return 0;
 
-    if (m_formWindow) {
+    if (mainWidget && m_formWindow) {
         m_formWindow->setAuthor(ui->elementAuthor());
         m_formWindow->setComment(ui->elementComment());
         m_formWindow->setExportMacro(ui->elementExportMacro());
@@ -290,6 +294,8 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
             tool->loadFromDom(ui, mainWidget);
         }
     }
+
+    factory->currentFormWindow(previousFormWindow);
 
     return mainWidget;
 }

@@ -44,12 +44,20 @@ bool WidgetFactory::m_lastWasAPassiveInteractor = false;
 
 WidgetFactory::WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent)
     : QDesignerWidgetFactoryInterface(parent),
-      m_core(core)
+      m_core(core),
+      m_formWindow(0)
 {
 }
 
 WidgetFactory::~WidgetFactory()
 {
+}
+
+QDesignerFormWindowInterface *WidgetFactory::currentFormWindow(QDesignerFormWindowInterface *fw)
+{
+    QDesignerFormWindowInterface *was = fw;
+    m_formWindow = fw;
+    return was;
 }
 
 void WidgetFactory::loadPlugins()
@@ -69,11 +77,13 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
         parentWidget = promoted->child();
 
-    QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
+    QDesignerFormWindowInterface *fw = m_formWindow;
+    if (! fw)
+        fw = QDesignerFormWindowInterface::findFormWindow(parentWidget);
 
     QWidget *w = 0;
 
-    // ### cleanup
+// ### cleanup
     if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
         w = f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
@@ -102,7 +112,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("QDialog")) {
         if (fw) {
-             w = new QDesignerDialog(fw, parentWidget);
+            w = new QDesignerDialog(fw, parentWidget);
         } else {
             w = new QDialog(parentWidget);
         }
