@@ -133,7 +133,7 @@ void tst_QAxContainer::metaObject()
 
     QCOMPARE(metaObject.className(), "Excel::WorksheetFunction");
 
-    QCOMPARE(metaObject.methodCount(), 1017 + metaObject.methodOffset());
+    QCOMPARE(metaObject.methodCount(), 1058 + metaObject.methodOffset());
 
     QMetaMethod method;
     for (int i = 0; i < metaObject.methodCount(); ++i) {
