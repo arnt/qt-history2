@@ -11,6 +11,21 @@
 **
 ****************************************************************************/
 
+/* 
+    Changes since 4.1:
+    
+    Platform specific (read emacs) shortcuts have been removed from the documentation. 
+    
+    Ctrl+A on X11 now means "Select all" like on other platforms, not home.
+
+    Ctrl+D wil no longer work on Windows (but on X11/mac)
+    
+    Ctrl+U, Ctrl+B, Ctr+E, Ctrl+H, Ctrl+F are completely removed from line edit. If they are popular, we can add them
+    as standardshortcuts on X11 so that they work in other widgets as well.
+    
+    ### consider removing the shortcut table from documentation entirely.
+*/
+
 #include "qlineedit.h"
 #include "qlineedit_p.h"
 
@@ -142,14 +157,9 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     \row \i Ctrl+Backspace \i Deletes the word to the left of the cursor.
     \row \i Delete \i Deletes the character to the right of the cursor.
     \row \i Ctrl+Delete \i Deletes the word to the right of the cursor.
-    \row \i Ctrl+A \i Moves the cursor to the beginning of the line.
-    \row \i Ctrl+B \i Moves the cursor one character to the left.
+    \row \i Ctrl+A \i Select all.
     \row \i Ctrl+C \i Copies the selected text to the clipboard.
     \row \i Ctrl+Insert \i Copies the selected text to the clipboard.
-    \row \i Ctrl+D \i Deletes the character to the right of the cursor.
-    \row \i Ctrl+E \i Moves the cursor to the end of the line.
-    \row \i Ctrl+F \i Moves the cursor one character to the right.
-    \row \i Ctrl+H \i Deletes the character to the left of the cursor.
     \row \i Ctrl+K \i Deletes to the end of the line.
     \row \i Ctrl+V \i Pastes the clipboard text into line edit.
     \row \i Shift+Insert \i Pastes the clipboard text into line edit.
@@ -1680,247 +1690,161 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     }
     bool unknown = false;
 
-    if (event->modifiers() & Qt::ControlModifier) {
-        switch (event->key()) {
-        case Qt::Key_A:
-#if defined(Q_WS_X11)
-            home(event->modifiers() & Qt::ShiftModifier);
-#else
-            selectAll();
-#endif
-            break;
-        case Qt::Key_B:
-            cursorForward(event->modifiers() & Qt::ShiftModifier, -1);
-            break;
+    if (event == QKeySequence::Undo) {
+        if (!d->readOnly)
+            undo();
+    } 
+    else if (event == QKeySequence::Redo) {
+        if (!d->readOnly)
+            redo();
+    } 
+    else if (event == QKeySequence::SelectAll) {
+        selectAll();
+    }         
 #ifndef QT_NO_CLIPBOARD
-        case Qt::Key_C:
+    else if (event == QKeySequence::Copy) {
+        copy();
+    } 
+    else if (event == QKeySequence::Paste) {
+        if (!d->readOnly)
+            paste();
+    } 
+    else if (event == QKeySequence::Cut) {
+        if (!d->readOnly) {
             copy();
-            break;
-#endif
-        case Qt::Key_D:
-            if (!d->readOnly)
-                del();
-            break;
-        case Qt::Key_E:
-            end(event->modifiers() & Qt::ShiftModifier);
-            break;
-        case Qt::Key_F:
-            cursorForward(event->modifiers() & Qt::ShiftModifier, 1);
-            break;
-        case Qt::Key_H:
-            if (!d->readOnly)
-                backspace();
-            break;
-        case Qt::Key_K:
-            if (!d->readOnly) {
-                setSelection(d->cursor, d->text.size());
-#ifndef QT_NO_CLIPBOARD
-                copy();
-#endif
-                del();
-            }
-            break;
-#if defined(Q_WS_X11)
-        case Qt::Key_U:
-            if (!d->readOnly) {
-                setSelection(0, d->text.size());
-#ifndef QT_NO_CLIPBOARD
-                copy();
-#endif
-                del();
-            }
-            break;
-#endif
-#ifndef QT_NO_CLIPBOARD
-        case Qt::Key_V:
-            if (!d->readOnly)
-                paste();
-            break;
-#endif
-        case Qt::Key_X:
-            if (!d->readOnly) {
-#ifndef QT_NO_CLIPBOARD
-                copy();
-#endif
-                del();
-            }
-            break;
-#if !defined(Q_WS_MAC) && !defined(QT_NO_CLIPBOARD)
-        case Qt::Key_Insert:
-            copy();
-            break;
-#endif
-        case Qt::Key_Delete:
-            if (!d->readOnly) {
-                cursorWordForward(true);
-                del();
-            }
-            break;
-        case Qt::Key_Backspace:
-            if (!d->readOnly) {
-                cursorWordBackward(true);
-                del();
-            }
-            break;
-        case Qt::Key_Right:
-        case Qt::Key_Left:
-            if ((layoutDirection() == Qt::RightToLeft) == (event->key() == Qt::Key_Right)) {
-#ifndef Q_WS_MAC
-                if (echoMode() == Normal)
-                    cursorWordBackward(event->modifiers() & Qt::ShiftModifier);
-                else
-#endif
-                    home(event->modifiers() & Qt::ShiftModifier);
-            } else {
-#ifndef Q_WS_MAC
-                if (echoMode() == Normal)
-                    cursorWordForward(event->modifiers() & Qt::ShiftModifier);
-                else
-#endif
-                    end(event->modifiers() & Qt::ShiftModifier);
-            }
-            break;
-        case Qt::Key_Z:
-            if (!d->readOnly) {
-                if(event->modifiers() & Qt::ShiftModifier)
-                    redo();
-                else
-                    undo();
-            }
-            break;
-        case Qt::Key_Y:
-            if (!d->readOnly)
-                redo();
-            break;
-#ifndef QT_NO_COMPLETER
-        case Qt::Key_Up:
-        case Qt::Key_Down:
-            d->complete(event->key());
-            break;
-#endif
-        default:
-            unknown = true;
+            del();
         }
-    } else { // ### check for *no* modifier
-        switch (event->key()) {
-        case Qt::Key_Shift:
-            // ### TODO
-            break;
-        case Qt::Key_Left:
-        case Qt::Key_Right: {
-            int step =  ((layoutDirection() == Qt::RightToLeft) == (event->key() == Qt::Key_Right)) ? -1 : 1;
-#ifdef Q_WS_MAC
-            if (event->modifiers() & Qt::AltModifier) {
-                if (step < 0)
-                    cursorWordBackward(event->modifiers() & Qt::ShiftModifier);
-                else
-                    cursorWordForward(event->modifiers() & Qt::ShiftModifier);
-            } else if (event->modifiers() & Qt::MetaModifier) {
-                if (step < 0)
-                    home(event->modifiers() & Qt::ShiftModifier);
-                else
-                    end(event->modifiers() & Qt::ShiftModifier);
-            } else
-#endif
-            {
-                cursorForward(event->modifiers() & Qt::ShiftModifier, step);
-            }
-        }
-        break;
-        case Qt::Key_Backspace:
-#if defined(Q_WS_WIN)
-            if (event->modifiers() & Qt::AltModifier)
-                (event->modifiers() & Qt::ShiftModifier) ? redo() : undo();
-            else
-#endif
-            if (!d->readOnly) {
-                backspace();
-#ifndef QT_NO_COMPLETER
-                d->complete(Qt::Key_Backspace);
-#endif
-            }
-            break;
-        case Qt::Key_Home:
-#ifdef Q_WS_MAC
-            break; // Home and End do nothing on the mac (but Up and Down do).
-        case Qt::Key_Up:
-#endif
-            home(event->modifiers() & Qt::ShiftModifier);
-            break;
-        case Qt::Key_End:
-#ifdef Q_WS_MAC
-            break;
-        case Qt::Key_Down:
-#endif
-            end(event->modifiers() & Qt::ShiftModifier);
-            break;
-        case Qt::Key_Delete:
-#if !defined(QT_NO_CLIPBOARD)
-            if (!d->readOnly) {
-#if !defined(Q_WS_MAC)
-                if (event->modifiers() & Qt::ShiftModifier) {
-                    cut();
-                    break;
-                }
-#endif
-                del();
-            }
-#endif
-            break;
-#if !defined(Q_WS_MAC) && !defined(QT_NO_CLIPBOARD)
-        case Qt::Key_Insert:
-            if (!d->readOnly && event->modifiers() & Qt::ShiftModifier)
-                paste();
-            else
-                unknown = true;
-            break;
-#endif
-        case Qt::Key_F14: // Undo key on Sun keyboards
-            if (!d->readOnly)
-                undo();
-            break;
-#ifndef QT_NO_CLIPBOARD
-        case Qt::Key_F16: // Copy key on Sun keyboards
+    } 
+    else if (event == QKeySequence::DeleteEndOfLine) {
+        if (!d->readOnly) {
+            setSelection(d->cursor, d->text.size());
             copy();
-            break;
-        case Qt::Key_F18: // Paste key on Sun keyboards
-            if (!d->readOnly)
-                paste();
-            break;
-        case Qt::Key_F20: // Cut key on Sun keyboards
-            if (!d->readOnly) {
-                copy();
-                del();
-            }
-            break;
-#endif
-#ifdef QT_KEYPAD_NAVIGATION
-        case Qt::Key_Back:
-            if (QApplication::keypadNavigationEnabled() && !event->isAutoRepeat()
-                && !isReadOnly()) {
-                if (text().length() == 0) {
-                    setText(d->origText);
-
-                if(d->resumePassword)
-                {
-                    setEchoMode(PasswordEchoOnEdit);
-                    d->resumePassword = false;
-                }
-
-                    setEditFocus(false);
-                } else if (!d->deleteAllTimer.isActive()) {
-                    d->deleteAllTimer.start(750, this);
-                }
-            } else {
-                unknown = true;
-            }
-            break;
-#endif
-
-        default:
-            unknown = true;
+            del();
+        }
+    } 
+#endif //QT_NO_CLIPBOARD
+    else if (event == QKeySequence::MoveToStartOfLine) {
+        home(0);
+    }
+    else if (event == QKeySequence::MoveToEndOfLine) {
+        end(0);
+    }
+    else if (event == QKeySequence::SelectStartOfLine) {
+        home(1);
+    }
+    else if (event == QKeySequence::SelectEndOfLine) {
+        end(1);
+    }
+    else if (event == QKeySequence::MoveToNextChar) {
+        cursorForward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+    }
+    else if (event == QKeySequence::SelectNextChar) {
+        cursorForward(1, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+    }
+    else if (event == QKeySequence::MoveToPreviousChar) {
+        cursorBackward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+    }
+    else if (event == QKeySequence::SelectPreviousChar) {
+        cursorBackward(1, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+    }
+    else if (event == QKeySequence::MoveToNextWord) {
+        if (echoMode() == Normal)
+            layoutDirection() == Qt::LeftToRight ? cursorWordForward(0) : cursorWordBackward(0);
+        else
+            layoutDirection() == Qt::LeftToRight ? end(0) : home(0);
+    }
+    else if (event == QKeySequence::MoveToPreviousWord) {
+        if (echoMode() == Normal)
+            layoutDirection() == Qt::LeftToRight ? cursorWordBackward(0) : cursorWordForward(0);
+        else if (!d->readOnly) {
+            layoutDirection() == Qt::LeftToRight ? home(0) : end(0);
         }
     }
+    else if (event == QKeySequence::SelectNextWord) {
+        if (echoMode() == Normal)
+            layoutDirection() == Qt::LeftToRight ? cursorWordForward(1) : cursorWordBackward(1);
+        else
+            layoutDirection() == Qt::LeftToRight ? end(1) : home(1);
+    }
+    else if (event == QKeySequence::SelectPreviousWord) {
+        if (echoMode() == Normal)
+            layoutDirection() == Qt::LeftToRight ? cursorWordBackward(1) : cursorWordForward(1);
+        else
+            layoutDirection() == Qt::LeftToRight ? home(1) : end(1);
+    }
+    else if (event == QKeySequence::Delete) {
+        if (!d->readOnly)
+            del();
+    }
+    else if (event == QKeySequence::DeleteEndOfWord) {
+        if (!d->readOnly) {
+            cursorWordForward(true);
+            del();
+        }
+    }
+    else if (event == QKeySequence::DeleteStartOfWord) {
+        if (!d->readOnly) {
+            cursorWordBackward(true);
+            del();
+        }
+    }
+    else {
+        if (event->modifiers() & Qt::ControlModifier) {
+            switch (event->key()) {
+            case Qt::Key_Backspace:
+                if (!d->readOnly) {
+                    cursorWordBackward(true);
+                    del();
+                }
+                break;
+#ifndef QT_NO_COMPLETER
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+                d->complete(event->key());
+                break;
+#endif
+            default:
+                unknown = true;
+            }
+        } else { // ### check for *no* modifier
+            switch (event->key()) {
+            case Qt::Key_Backspace:
+                if (!d->readOnly) {
+                    backspace();
+#ifndef QT_NO_COMPLETER
+                    d->complete(Qt::Key_Backspace);
+#endif
+                }
+                break;
+#ifdef QT_KEYPAD_NAVIGATION
+            case Qt::Key_Back:
+                if (QApplication::keypadNavigationEnabled() && !event->isAutoRepeat()
+                    && !isReadOnly()) {
+                    if (text().length() == 0) {
+                        setText(d->origText);
+
+                        if (d->resumePassword)
+                        {
+                            setEchoMode(PasswordEchoOnEdit);
+                            d->resumePassword = false;
+                        }
+
+                        setEditFocus(false);
+                    } else if (!d->deleteAllTimer.isActive()) {
+                        d->deleteAllTimer.start(750, this);
+                    }
+                } else {
+                    unknown = true;
+                }
+                break;
+#endif
+
+            default:
+                unknown = true;
+            }
+        }
+    }
+
     if (event->key() == Qt::Key_Direction_L || event->key() == Qt::Key_Direction_R) {
         setLayoutDirection((event->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
         d->updateTextLayout();

@@ -318,6 +318,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::SelectEndOfDocument,     0,          Qt::ALT  | Qt::SHIFT | Qt::Key_Down,    QApplicationPrivate::KB_Mac},
     {QKeySequence::SelectEndOfBlock,        0,          Qt::ALT  | Qt::SHIFT | Qt::Key_Down,    QApplicationPrivate::KB_Mac}, //mac only
     {QKeySequence::MoveToStartOfLine,       0,          Qt::META | Qt::Key_A,                   QApplicationPrivate::KB_Mac | QApplicationPrivate::KB_X11},
+    {QKeySequence::Delete,                  0,          Qt::META | Qt::Key_D,                   QApplicationPrivate::KB_Mac },
     {QKeySequence::MoveToEndOfLine,         0,          Qt::META | Qt::Key_E,                   QApplicationPrivate::KB_Mac | QApplicationPrivate::KB_X11},
     {QKeySequence::MoveToStartOfLine,       0,          Qt::META | Qt::Key_Left,                QApplicationPrivate::KB_Mac },
     {QKeySequence::MoveToPreviousPage,      0,          Qt::META | Qt::Key_Up,                  QApplicationPrivate::KB_Mac },
