@@ -121,6 +121,8 @@ private slots:
     void oraArrayBind();
     void lastInsertId_data() { generic_data(); }
     void lastInsertId();
+    void lastQuery_data() { generic_data(); }
+    void lastQuery();
 
 private:
     // returns all database connections
@@ -2033,6 +2035,19 @@ void tst_QSqlQuery::lastInsertId()
 
     QVariant v = q.lastInsertId();
     QVERIFY(v.isValid());
+}
+
+void tst_QSqlQuery::lastQuery()
+{
+    QFETCH(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlQuery q(db);
+    QString sql = "select * from " + qTableName("qtest");
+    QVERIFY2(q.exec(sql), tst_Databases::printError(q.lastError()));
+    QCOMPARE(q.lastQuery(), sql);
+    QCOMPARE(q.executedQuery(), sql);
 }
 
 QTEST_MAIN(tst_QSqlQuery)
