@@ -649,11 +649,14 @@ void EditorPage::handleCommentChanges()
 // makes sure only one of the textedits has a selection
 void EditorPage::sourceSelectionChanged()
 {
-    bool oldBlockState = m_transTexts[0]->editor()->blockSignals(true);
-    QTextCursor c = m_transTexts[0]->editor()->textCursor();
-    c.clearSelection();
-    m_transTexts[0]->editor()->setTextCursor(c);
-    m_transTexts[0]->editor()->blockSignals(oldBlockState);
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        QTextEdit *te = m_transTexts[i]->editor();
+        bool oldBlockState = te->blockSignals(true);
+        QTextCursor c = te->textCursor();
+        c.clearSelection();
+        te->setTextCursor(c);
+        te->blockSignals(oldBlockState);
+    }
     emit selectionChanged();
 }
 
@@ -664,6 +667,20 @@ void EditorPage::translationSelectionChanged()
     c.clearSelection();
     srcText->setTextCursor(c);
     srcText->blockSignals(oldBlockState);
+
+    // clear the selection for all except the sender
+    QTextEdit *te = qobject_cast<QTextEdit*>(sender());
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        QTextEdit *t = m_transTexts[i]->editor();
+        if (t != te) {
+            oldBlockState = t->blockSignals(true);
+            QTextCursor c = t->textCursor();
+            c.clearSelection();
+            t->setTextCursor(c);
+            t->blockSignals(oldBlockState);
+        }
+    }
+
     emit selectionChanged();
 }
 
@@ -822,10 +839,9 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
         SIGNAL(nextUnfinished()));
     connect(editorPage->pageCurl, SIGNAL(prevPage()),
         SIGNAL(prevUnfinished()));
-
-    //###
-    connect(editorPage->activeTransText()->document(), SIGNAL(contentsChanged()),
+    connect(this, SIGNAL(translationChanged(const QStringList &)),
         this, SLOT(updateButtons()));
+
     connect(editorPage->activeTransText()->document(), SIGNAL(undoAvailable(bool)),
         this, SIGNAL(undoAvailable(bool)));
     connect(editorPage->activeTransText()->document(), SIGNAL(redoAvailable(bool)),
@@ -869,13 +885,7 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
             return false;
         }
 
-        bool isTransEditor = false;
-        for (int i = 0; i < editorPage->m_transTexts.count(); ++i) {
-            isTransEditor = (o == editorPage->m_transTexts[i]->editor());
-            if (isTransEditor) break;
-        }
-        if (isTransEditor
-            && ke->modifiers() & Qt::ControlModifier)
+        if (ke->modifiers() & Qt::ControlModifier)
         {
             if ((ke->key() == Qt::Key_A) &&
                 editorPage->srcText->underMouse())
@@ -1172,7 +1182,10 @@ void MessageEditor::paste()
 
 void MessageEditor::selectAll()
 {
-    editorPage->activeTransText()->selectAll();
+    // make sure we don't select the selection of a translator textedit, if we really want the
+    // source text editor to be selected.
+    if (!editorPage->srcText->underMouse())
+        editorPage->activeTransText()->selectAll();
 }
 
 void MessageEditor::emitTranslationChanged()
