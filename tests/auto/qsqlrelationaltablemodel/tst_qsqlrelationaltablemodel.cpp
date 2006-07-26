@@ -42,6 +42,7 @@ private slots:
     void insertWithStrategies();
     void removeColumn();
     void filter();
+    void sort();
 };
 
 
@@ -291,6 +292,28 @@ void tst_QSqlRelationalTableModel::filter()
     QCOMPARE(model.rowCount(), 2);
     QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
     QCOMPARE(model.data(model.index(1, 2)).toString(), QString("herr"));
+}
+
+void tst_QSqlRelationalTableModel::sort()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlRelationalTableModel model(0, db);
+
+    model.setTable(qTableName("reltest1"));
+    model.setRelation(2, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+    model.setRelation(3, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+
+    model.setSort(2, Qt::DescendingOrder);
+    QVERIFY2(model.select(), model.lastError().text().toLatin1());
+
+    QCOMPARE(model.rowCount(), 4);
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("mister"));
+    QCOMPARE(model.data(model.index(1, 2)).toString(), QString("mister"));
+    QCOMPARE(model.data(model.index(2, 2)).toString(), QString("herr"));
+    QCOMPARE(model.data(model.index(3, 2)).toString(), QString("herr"));
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)
