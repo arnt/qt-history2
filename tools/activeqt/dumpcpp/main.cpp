@@ -940,7 +940,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
                 TYPEATTR *typeattr;
                 typeinfo->GetTypeAttr(&typeattr);
-                if (!typeattr || typeattr->wTypeFlags & TYPEFLAG_FHIDDEN) {
+                if (!typeattr) {
                     typeinfo->Release();
                     continue;
                 }
@@ -1067,7 +1067,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
         TYPEATTR *typeattr;
         typeinfo->GetTypeAttr(&typeattr);
-        if (!typeattr || typeattr->wTypeFlags & TYPEFLAG_FHIDDEN) {
+        if (!typeattr) {
             typeinfo->Release();
             continue;
         }
