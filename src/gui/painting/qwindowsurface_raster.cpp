@@ -116,12 +116,13 @@ void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoi
 
 }
 
-
-void QRasterWindowSurface::resize(const QSize &)
+void QRasterWindowSurface::setGeometry(const QRect &rect)
 {
+    const QSize size = static_cast<QRasterPaintEngine*>(d_ptr->device.paintEngine())->size();
+    if (size == rect.size())
+        return;
     QRasterWindowSurface::release();
 }
-
 
 void QRasterWindowSurface::release()
 {
@@ -150,8 +151,9 @@ void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 #endif
 }
 
-
-QSize QRasterWindowSurface::size() const
+QRect QRasterWindowSurface::geometry() const
 {
-    return static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->size();
+    const QPoint offset = d_ptr->device.window()->geometry().topLeft();
+    const QSize size = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->size();
+    return QRect(offset, size);
 }

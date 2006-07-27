@@ -218,8 +218,7 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 #ifdef Q_WS_WIN
     return new QRasterWindowSurface(widget);
 #elif defined(Q_WS_X11)
-    Q_UNUSED(widget);
-    return new QX11WindowSurface();
+    return new QX11WindowSurface(widget);
 #elif defined(Q_WS_QWS)
     if (widget->windowType() == Qt::Desktop)
         return 0;
@@ -535,9 +534,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         QRegion toClean;
 #if defined(Q_WS_QWS)
-        QSize tlwSize = tlw->frameGeometry().size();
+        QRect tlwRect = tlw->frameGeometry();
 #else
-        QSize tlwSize = tlw->size();
+        QRect tlwRect = tlw->geometry();
 #endif
 
 #ifdef Q_WS_QWS
@@ -546,9 +545,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             windowSurface = qt_default_window_surface(tlw);
         }
 #endif
-        if (windowSurface->size() != tlwSize) {
-            windowSurface->resize(tlwSize);
-            toClean = QRect(QPoint(0, 0), tlwSize);
+        if (windowSurface->geometry() != tlwRect) {
+            windowSurface->setGeometry(tlwRect);
+            toClean = tlwRect;
             recursiveCopyToScreen = true;
         } else {
             toClean = dirty;

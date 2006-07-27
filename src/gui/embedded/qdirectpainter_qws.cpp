@@ -106,8 +106,8 @@ static inline QSize devS()
 */
 QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
-    surface()->resize(reg);
-    return surface()->clipRegion();
+    surface()->setRegion(reg);
+    return surface()->region();
 }
 
 /*!

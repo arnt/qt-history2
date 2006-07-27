@@ -777,18 +777,14 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (q->isWindow()) {
             //### ConfigPending not implemented, do we need it?
             //setAttribute(Qt::WA_WState_ConfigPending);
-            if (isMove && !isResize) {
+            const QWidgetBackingStore *bs = maybeBackingStore();
+            QWSWindowSurface *surface = 0;
+            if (bs)
+                surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+            if (isMove && !isResize && (!surface || surface->isBuffered())) {
                 QWidget::qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
 
-                QWidgetBackingStore *bs = maybeBackingStore();
-                if (bs) {
-                    QWSWindowSurface *surface;
-                    surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
-                    // XXX TODO: wait for new region, do accelerated scroll
-                    if (!surface->isBuffered())
-                        q->update();
-                }
             } else {
                 myregion = localRequestedRegion();
                 myregion.translate(x,y);
@@ -805,7 +801,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                                                    br.bottom()-data.crect.bottom());
                     QWindowSurface *surface;
                     surface = topextra->backingStore->windowSurface;
-                    surface->resize(myregion.boundingRect().size());
+                    surface->setGeometry(br);
                 }
             }
         }

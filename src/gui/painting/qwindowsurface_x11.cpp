@@ -21,12 +21,14 @@
 
 struct QX11WindowSurfacePrivate
 {
+    QWidget *widget;
     QPixmap device;
 };
 
-QX11WindowSurface::QX11WindowSurface()
+QX11WindowSurface::QX11WindowSurface(QWidget *widget)
     : d_ptr(new QX11WindowSurfacePrivate)
 {
+    d_ptr->widget = widget;
 }
 
 
@@ -75,12 +77,13 @@ void QX11WindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint 
     XFreeGC(X11->display, gc);
 }
 
-
-void QX11WindowSurface::resize(const QSize &size)
+void QX11WindowSurface::setGeometry(const QRect &rect)
 {
+    const QSize size = rect.size();
+    if (d_ptr->device.size() == size)
+        return;
     d_ptr->device = QPixmap(size);
 }
-
 
 void QX11WindowSurface::release()
 {
@@ -101,8 +104,9 @@ void QX11WindowSurface::scroll(const QRegion &area, int dx, int dy)
     XFreeGC(X11->display, gc);
 }
 
-
-QSize QX11WindowSurface::size() const
+QRect QX11WindowSurface::geometry() const
 {
-    return d_ptr->device.size();
+    const QPoint offset = d_ptr->widget->geometry().topLeft();
+    const QSize size = d_ptr->device.size();
+    return QRect(offset, size);
 }

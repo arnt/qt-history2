@@ -29,7 +29,7 @@
 
 class QPaintDevice;
 class QRegion;
-class QSize;
+class QRect;
 class QWidget;
 class QPoint;
 
@@ -40,11 +40,11 @@ public:
 
     virtual QPaintDevice *paintDevice() = 0;
     virtual void flush(QWidget *widget, const QRegion &region, const QPoint &offset) = 0;
-    virtual void resize(const QSize &size) = 0;
+    virtual void setGeometry(const QRect &rect) = 0;
     virtual void release() = 0;
     virtual void scroll(const QRegion &area, int dx, int dy) = 0;
 
-    virtual QSize size() const = 0;
+    virtual QRect geometry() const = 0;
 
     virtual void beginPaint(const QRegion &) { };
     virtual void endPaint(const QRegion &) { };

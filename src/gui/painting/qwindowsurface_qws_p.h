@@ -44,7 +44,9 @@ public:
 
     virtual bool isValidFor(const QWidget *widget) const = 0;
 
-    virtual void resize(const QSize &size);
+    virtual void setGeometry(const QRect &rect);
+    virtual QRect geometry() const = 0;
+
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
 
@@ -107,7 +109,7 @@ public:
     bool isValidFor(const QWidget *widget) const;
 
     QPaintDevice *paintDevice() { return &img; }
-    QSize size() const { return img.size(); };
+    QRect geometry() const;
     void scroll(const QRegion &area, int dx, int dy);
 
     const QImage image() const { return img; };
@@ -127,7 +129,7 @@ public:
     QWSLocalMemSurface(QWidget *widget);
     ~QWSLocalMemSurface() {}
 
-    void resize(const QSize &size);
+    void setGeometry(const QRect &rect);
 
     const QString key() const { return QLatin1String("mem"); }
     const QByteArray data() const;
@@ -149,7 +151,7 @@ public:
     QWSSharedMemSurface(QWidget *widget);
     ~QWSSharedMemSurface();
 
-    void resize(const QSize &size);
+    void setGeometry(const QRect &rect);
 
     const QString key() const { return QLatin1String("shm"); }
     const QByteArray data() const;
@@ -175,8 +177,8 @@ public:
     bool isValidFor(const QWidget *widget) const;
     QPoint painterOffset() const;
 
-    QSize size() const { return brect.size(); };
-    void resize(const QSize &size);
+    void setGeometry(const QRect &rect);
+    QRect geometry() const { return brect; }
 
     const QString key() const { return QLatin1String("OnScreen"); }
     const QByteArray data() const;
@@ -188,6 +190,7 @@ private:
     void attachToScreen(const QScreen *screen);
 
     mutable QRect brect;
+    const QScreen *screen;
 };
 
 class QWSYellowSurface : public QWSWindowSurface
@@ -198,9 +201,10 @@ public:
 
     void setDelay(int msec) { delay = msec; }
 
-    void resize(const QSize &size);
+    void setGeometry(const QRect &rect);
+    QRect geometry() const;
+
     void scroll(const QRegion &, int, int) {}
-    QSize size() const { return img.size(); };
     bool isValidFor(const QWidget *) const { return true; }
 
     void flush(QWidget *widget, const QRegion &region, const QPoint &offset);
@@ -233,9 +237,11 @@ public:
 
     void release();
 
-    void resize(const QSize &size) { resize(QRect(QPoint(0, 0), size)); }
-    void resize(const QRegion &region);
-    QSize size() const { return clipRegion().boundingRect().size(); }
+    void setGeometry(const QRect &rect) { setRegion(rect); }
+    QRect geometry() const { return clipRegion().boundingRect(); }
+
+    void setRegion(const QRegion &region);
+    QRegion region() const { return clipRegion(); }
 
     void flush(QWidget*, const QRegion &, const QPoint &) {};
     void scroll(const QRegion &, int, int) {};

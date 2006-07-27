@@ -39,18 +39,18 @@ struct QX11WindowSurfacePrivate;
 class QX11WindowSurface : public QWindowSurface
 {
 public:
-    QX11WindowSurface();
+    QX11WindowSurface(QWidget *widget);
     ~QX11WindowSurface();
 
     QPaintDevice *paintDevice();
     void flush(QWidget *widget, const QRegion &region, const QPoint &offset);
 
-    void resize(const QSize &size);
+    void setGeometry(const QRect &rect);
     void release();
 
     void scroll(const QRegion &area, int dx, int dy);
 
-    QSize size() const;
+    QRect geometry() const;
 
 private:
     QX11WindowSurfacePrivate *d_ptr;

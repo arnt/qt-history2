@@ -154,24 +154,21 @@ void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
     d_ptr->flags = flags;
 }
 
-void QWSWindowSurface::resize(const QSize &size)
+void QWSWindowSurface::setGeometry(const QRect &rect)
 {
     if (!window())
         return;
 
-    Q_ASSERT(size == window()->frameGeometry().size());
-    Q_UNUSED(size);
+    Q_ASSERT(rect == window()->frameGeometry());
 
-    QRegion region = window()->geometry();
+    QRegion region = rect;
 
 #ifndef QT_NO_QWS_MANAGER
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
     QWSManager *manager = topextra->qwsManager;
 
-    if (manager) {
-        region += manager->region();
+    if (manager)
         manager->d_func()->dirtyRegion(QDecoration::All, QDecoration::Normal);
-    }
 #endif
 
     if (!window()->d_func()->extra->mask.isEmpty())
@@ -298,6 +295,13 @@ QWSMemorySurface::~QWSMemorySurface()
 {
 }
 
+QRect QWSMemorySurface::geometry() const
+{
+    const QPoint offset = window()->frameGeometry().topLeft();
+    const QSize size = img.size();
+    return QRect(offset, size);
+}
+
 void QWSMemorySurface::release()
 {
     QWSWindowSurface::release();
@@ -375,25 +379,28 @@ QWSLocalMemSurface::QWSLocalMemSurface(QWidget *w)
 {
 }
 
-void QWSLocalMemSurface::resize(const QSize &size)
+void QWSLocalMemSurface::setGeometry(const QRect &rect)
 {
-    QImage::Format imageFormat = preferredImageFormat(window());
-    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
+    const QSize size = rect.size();
+    if (img.size() != size) {
+        QImage::Format imageFormat = preferredImageFormat(window());
+        const int bytesPerPixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
 
-    const int bpl = (size.width() * bytes_per_pixel + 3) & ~3;
-    memsize = bpl * size.height();
+        const int bpl = (size.width() * bytesPerPixel + 3) & ~3;
+        memsize = bpl * size.height();
 
-    delete[] mem;
-    if (memsize == 0) {
-        mem = 0;
-        img = QImage();
-    } else {
-        mem = new uchar[memsize];
-        QWSMemorySurface::img = QImage(mem, size.width(), size.height(),
-                                       imageFormat);
+        delete[] mem;
+        if (memsize == 0) {
+            mem = 0;
+            img = QImage();
+        } else {
+            mem = new uchar[memsize];
+            QWSMemorySurface::img = QImage(mem, size.width(), size.height(),
+                                           imageFormat);
+        }
     }
 
-    QWSWindowSurface::resize(size);
+    QWSWindowSurface::setGeometry(rect);
 }
 
 void QWSLocalMemSurface::release()
@@ -514,28 +521,31 @@ void QWSSharedMemSurface::detach()
     mem.detach();
 }
 
-void QWSSharedMemSurface::resize(const QSize &size)
+void QWSSharedMemSurface::setGeometry(const QRect &rect)
 {
-    QImage::Format imageFormat = preferredImageFormat(window());
-    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
+    const QSize size = rect.size();
+    if (img.size() != size) {
+        QImage::Format imageFormat = preferredImageFormat(window());
+        const int bytesPerPixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
 
-    const int bpl = (size.width() * bytes_per_pixel + 3) & ~3;
-    const int imagesize = bpl * size.height();
+        const int bpl = (size.width() * bytesPerPixel + 3) & ~3;
+        const int imagesize = bpl * size.height();
 
-    if (imagesize == 0) {
-        mem.detach();
-        img = QImage();
-    } else {
-        mem.detach();
-        if (!mem.create(imagesize)) {
-            perror("QWSBackingStore::create allocating shared memory");
-            qFatal("Error creating shared memory of size %d", imagesize);
+        if (imagesize == 0) {
+            mem.detach();
+            img = QImage();
+        } else {
+            mem.detach();
+            if (!mem.create(imagesize)) {
+                perror("QWSBackingStore::create allocating shared memory");
+                qFatal("Error creating shared memory of size %d", imagesize);
+            }
+            uchar *base = static_cast<uchar*>(mem.address());
+            img = QImage(base, size.width(), size.height(), imageFormat);
         }
-        uchar *base = static_cast<uchar*>(mem.address());
-        img = QImage(base, size.width(), size.height(), imageFormat);
     }
 
-    QWSWindowSurface::resize(size);
+    QWSWindowSurface::setGeometry(rect);
 }
 
 void QWSSharedMemSurface::release()
@@ -569,8 +579,9 @@ QWSOnScreenSurface::QWSOnScreenSurface()
     setSurfaceFlags(Opaque);
 }
 
-void QWSOnScreenSurface::attachToScreen(const QScreen *screen)
+void QWSOnScreenSurface::attachToScreen(const QScreen *s)
 {
+    screen = s;
     uchar *base = screen->base();
     QImage::Format format;
     switch (screen->depth()) {
@@ -598,19 +609,19 @@ QPoint QWSOnScreenSurface::painterOffset() const
 
 bool QWSOnScreenSurface::isValidFor(const QWidget *widget) const
 {
+    if (screen != getScreen(widget))
+        return false;
     if (img.isNull())
         return false;
     if (!isWidgetOpaque(widget))
         return false;
-    if (brect != widget->frameGeometry())
-        brect = QRect(); // XXX: to force a resize
     return true;
 }
 
-void QWSOnScreenSurface::resize(const QSize &size)
+void QWSOnScreenSurface::setGeometry(const QRect &rect)
 {
-    brect = window()->frameGeometry();
-    QWSWindowSurface::resize(size);
+    brect = rect;
+    QWSWindowSurface::setGeometry(rect);
 }
 
 const QByteArray QWSOnScreenSurface::data() const
@@ -681,11 +692,17 @@ void QWSYellowSurface::detach()
     img = QImage();
 }
 
-void QWSYellowSurface::resize(const QSize &)
+void QWSYellowSurface::setGeometry(const QRect &)
 {
 }
 
-void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoint &offset)
+QRect QWSYellowSurface::geometry() const
+{
+    return QRect(QPoint(0, 0), img.size());
+}
+
+void QWSYellowSurface::flush(QWidget *widget, const QRegion &region,
+                             const QPoint &offset)
 {
     Q_UNUSED(offset);
 
@@ -744,7 +761,7 @@ QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
     }
 }
 
-void QWSDirectPainterSurface::resize(const QRegion &region)
+void QWSDirectPainterSurface::setRegion(const QRegion &region)
 {
     QRegion reg = region;
 
