@@ -537,14 +537,14 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 /*!
     \fn void QComboBox::highlighted(int index)
 
-    This signal is sent when an item in the combobox is highlighted by
+    This signal is sent when an item in the combobox popup list is highlighted by
     the user. The item's \a index is given.
 */
 
 /*!
     \fn void QComboBox::highlighted(const QString &text)
 
-    This signal is sent when an item in the combobox is highlighted by
+    This signal is sent when an item in the combobox popup list is highlighted by
     the user. The item's \a text is given.
 */
 
@@ -636,13 +636,17 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     to clear the displayed string without changing the combobox's
     contents.
 
-    A combobox emits two signals, activated() and highlighted(), when
-    a new item has been activated (selected) or highlighted (made
-    current). Both signals exist in two versions, one with a
-    QString argument and one with an \c int argument. If the user
-    highlights or activates a pixmap, only the \c int signals are
-    emitted. Whenever the text of an editable combobox is changed the
-    editTextChanged() signal is emitted.
+    There are two signals emitted if the current item of a combobox
+    changes, currentIndexChanged() and activated().
+    currentIndexChanged() is always emitted regardless if the change
+    was done programmatically or by user interaction, while
+    activated() is only emitted when the change is caused by user
+    interaction. The highlighted() signal is emitted when the user
+    highlights an item in the combobox popup list. All three signals
+    exist in two versions, one with a QString argument and one with an
+    \c int argument. If the user selectes or highlights a pixmap, only
+    the \c int signals are emitted. Whenever the text of an editable
+    combobox is changed the editTextChanged() signal is emitted.
 
     When the user enters a new string in an editable combobox, the
     widget may or may not insert it, and it can insert it in several
