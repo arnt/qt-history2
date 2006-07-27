@@ -390,7 +390,7 @@ void ActionEditor::slotNewAction()
     if (dlg.exec() == QDialog::Accepted) {
         QAction *action = new QAction(formWindow());
         action->setObjectName(dlg.actionName());
-        action->setText(dlg.actionName());
+        action->setText(dlg.actionText());
         action->setIcon(dlg.actionIcon());
 
         AddActionCommand *cmd = new AddActionCommand(formWindow());
