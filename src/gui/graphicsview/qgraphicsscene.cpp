@@ -1941,10 +1941,7 @@ bool QGraphicsScene::event(QEvent *event)
         d->dispatchHoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
         break;
     case QEvent::Leave:
-#ifndef QT_NO_TOOLTIP
-        // Remove any tooltips
-        QToolTip::showText(QPoint(), QString());
-#endif
+        d->leaveScene();
         break;
     case QEvent::GraphicsSceneHelp:
         helpEvent(static_cast<QGraphicsSceneHelpEvent *>(event));
@@ -2246,6 +2243,37 @@ void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEv
 
         // Generate a move event for the item itself
         sendHoverEvent(QEvent::GraphicsSceneHoverMove, item, hoverEvent);
+    }
+}
+
+/*!
+    \internal
+
+    Handles all actions necessary to clean up the scene when the mouse leaves
+    the view.
+*/
+void QGraphicsScenePrivate::leaveScene()
+{
+    Q_Q(QGraphicsScene);
+#ifndef QT_NO_TOOLTIP
+    // Remove any tooltips
+    QToolTip::showText(QPoint(), QString());
+#endif
+    // Send HoverLeave events to all existing hover items, topmost first.
+    QGraphicsView *senderWidget = qobject_cast<QGraphicsView *>(q->sender());
+    QGraphicsSceneHoverEvent hoverEvent;
+    hoverEvent.setWidget(senderWidget);
+
+    if (senderWidget) {
+        QPoint cursorPos = QCursor::pos();
+        hoverEvent.setScenePos(senderWidget->mapToScene(senderWidget->mapFromGlobal(cursorPos)));
+        hoverEvent.setScreenPos(cursorPos);
+    }
+
+    while (!hoverItems.isEmpty()) {
+        QGraphicsItem *lastItem = hoverItems.takeLast();
+        if (lastItem->acceptsHoverEvents())
+            sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, &hoverEvent);
     }
 }
 

@@ -99,6 +99,7 @@ public:
     bool sendEvent(QGraphicsItem *item, QEvent *event);
 
     void dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent);
+    void leaveScene();
 
     void cloneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
                            QGraphicsSceneDragDropEvent *source);

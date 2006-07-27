@@ -1792,13 +1792,18 @@ bool QGraphicsView::viewportEvent(QEvent *event)
     }
 
     switch (event->type()) {
+    case QEvent::Enter:
+        QApplication::sendEvent(d->scene, event);
+        break;
     case QEvent::Leave:
+        d->useLastMouseEvent = false;
 #ifndef QT_NO_CURSOR
         if (d->hasViewCursor && !d->scene->mouseGrabberItem()) {
             d->hasViewCursor = false;
             viewport()->setCursor(d->viewCursor);
         }
 #endif
+        QApplication::sendEvent(d->scene, event);
         break;
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
