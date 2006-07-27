@@ -2599,16 +2599,8 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 painter->drawImage(unshadeButtonRect.adjusted(5, 7, -5, -7), image);
             }
 
-            // from qwindowsstyle.cpp
             if ((titleBar->subControls & SC_TitleBarSysMenu) && (titleBar->titleBarFlags & Qt::WindowSystemMenuHint)) {
-                bool hover = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_MouseOver);
-                bool sunken = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_Sunken);
-                
                 QRect iconRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarSysMenu, widget);
-                
-                if (hover)
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, iconRect, hover, sunken);
-
                 if (!titleBar->icon.isNull()) {
                     titleBar->icon.paint(painter, iconRect);
                 } else {
