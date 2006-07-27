@@ -884,6 +884,8 @@ void QWidgetPrivate::adjustFlags(Qt::WindowFlags &flags, QWidget *w)
 void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
+    if (qApp->type() == QApplication::Tty)
+        qFatal("QWidget: Cannot create a QWidget when no GUI is being used");
 
     Q_ASSERT(uncreatedWidgets);
     uncreatedWidgets->insert(q);
@@ -895,8 +897,6 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     }
 
     q->data = &data;
-    if (qApp->type() == QApplication::Tty)
-        qWarning("QWidget: Cannot create a QWidget when no GUI is being used");
 
 #ifndef QT_NO_THREAD
     if (!q->parent()) {
