@@ -1872,6 +1872,13 @@ void QComboBox::showPopup()
     if (QInputContext *qic = inputContext())
         qic->reset();
 #endif
+    QScrollBar *sb = view()->horizontalScrollBar();
+    Qt::ScrollBarPolicy policy = view()->horizontalScrollBarPolicy();
+    bool needHorizontalScrollBar = (policy == Qt::ScrollBarAsNeeded || policy == Qt::ScrollBarAlwaysOn)
+        && sb->minimum() < sb->maximum();
+    if (needHorizontalScrollBar) {
+        listRect.adjust(0, 0, 0, sb->height());
+    }
     container->setGeometry(listRect);
     view()->scrollTo(view()->currentIndex());
     container->raise();
