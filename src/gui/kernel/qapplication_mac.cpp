@@ -1821,6 +1821,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         SpeechChannel ch;
                         NewSpeechChannel(0, &ch);
                         SpeakText(ch, s.toLatin1().constData(), s.length());
+                        DisposeSpeechChannel(ch);
                     }
                 }
 #endif
@@ -1874,6 +1875,16 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             widget = app->activeWindow();
 
         if (!widget) {
+            // Darn, I need to update tho modifier state, even though
+            // Qt itself isn't getting them, otherwise the keyboard state get inconsistent.
+            if (ekind == kEventRawKeyModifiersChanged) {
+                UInt32 modifiers = 0;
+                GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
+                                  sizeof(modifiers), 0, &modifiers);
+                extern void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object); // qkeymapper_mac.cpp
+                // Just send it to the qApp for the time being.
+                qt_mac_send_modifiers_changed(modifiers, qApp);
+            }
             handled_event = false;
             break;
         }
