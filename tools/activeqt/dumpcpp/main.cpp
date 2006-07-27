@@ -337,7 +337,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << setter << "(" << constRefify(propertyType) << " value)";
             
             if (!(category & NoInlines)) {
-                if (qax_dispatchEqualsIDispatch && propertyType.endsWith('*')) {
+                if (propertyType.endsWith('*')) {
                     out << "{" << endl;
                     out << "    int typeId = qRegisterMetaType(\"" << propertyType << "\", &value);" << endl;
                     out << "    setProperty(\"" << propertyName << "\", QVariant(typeId, &value));" << endl;
