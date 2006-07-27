@@ -89,12 +89,17 @@ public:
     PMResolution resolution;
     QString outputFilename;
     bool fullPage;
-    GWorldPtr qdHandle;
     QPaintEngine *paintEngine;
     bool suppressStatus;
     QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
                                orient(QPrinter::Portrait), format(0), settings(0), session(0),
-                               qdHandle(0), paintEngine(0) {}
+                               paintEngine(0), suppressStatus(false) {}
+    ~QMacPrintEnginePrivate() {
+        Q_ASSERT(session == 0);
+        PMRelease(settings);
+        PMRelease(format);
+        delete paintEngine;
+    }
     void initialize();
     bool newPage_helper();
     void setPageSize(QPrinter::PageSize ps);

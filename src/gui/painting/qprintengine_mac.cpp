@@ -25,6 +25,10 @@ QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(ne
 bool QMacPrintEngine::begin(QPaintDevice *dev)
 {
     Q_D(QMacPrintEngine);
+
+    if (d->state == QPrinter::Idle && d->session == 0) // Need to reinitialize
+        d->initialize();
+
     d->paintEngine->state = state;
     d->paintEngine->begin(dev);
     Q_ASSERT_X(d->state == QPrinter::Idle, "QMacPrintEngine", "printer already active");
@@ -76,11 +80,7 @@ bool QMacPrintEngine::end()
             PMSessionEndPage(d->session);
             PMSessionEndDocument(d->session);
         }
-        PMRelease(d->settings);
-        PMRelease(d->format);
         PMRelease(d->session);
-        d->settings = 0;
-        d->format = 0;
         d->session = 0;
     }
     d->state  = QPrinter::Idle;
@@ -95,7 +95,8 @@ QMacPrintEngine::paintEngine() const
 
 Qt::HANDLE QMacPrintEngine::handle() const
 {
-    return d_func()->qdHandle;
+    QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(paintEngine());
+    return cgEngine->d_func()->hd;
 }
 
 struct PaperSize
@@ -335,14 +336,12 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 
 void QMacPrintEnginePrivate::initialize()
 {
-    Q_ASSERT(!format);
-    Q_ASSERT(!settings);
     Q_ASSERT(!session);
 
     Q_Q(QMacPrintEngine);
 
-    paintEngine = new QCoreGraphicsPaintEngine();
-    suppressStatus = false;
+    if (!paintEngine)
+        paintEngine = new QCoreGraphicsPaintEngine();
 
     q->gccaps = paintEngine->gccaps;
 
@@ -363,12 +362,12 @@ void QMacPrintEnginePrivate::initialize()
             qWarning("QPrinter::initialize: Cannot get printer resolution");
     }
 
-    bool settingsOK = PMCreatePrintSettings(&settings) == noErr;
+    bool settingsOK = (settings == 0) ? PMCreatePrintSettings(&settings) == noErr : true;
     if (settingsOK)
         settingsOK = PMSessionDefaultPrintSettings(session, settings) == noErr;
 
 
-    bool formatOK = PMCreatePageFormat(&format) == noErr;
+    bool formatOK = (format == 0) ? PMCreatePageFormat(&format) == noErr : true;
     if (formatOK) {
         formatOK = PMSessionDefaultPageFormat(session, format) == noErr;
         formatOK = PMSetResolution(format, &resolution) == noErr;
@@ -412,34 +411,22 @@ bool QMacPrintEnginePrivate::newPage_helper()
 
     QRect page = q->property(QPrintEngine::PPK_PageRect).toRect();
     QRect paper = q->property(QPrintEngine::PPK_PaperRect).toRect();
-    if(paintEngine->type() == QPaintEngine::CoreGraphics) {
-        CGContextRef cgContext;
-        OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
-                                                   reinterpret_cast<void **>(&cgContext));
-        if(err != noErr) {
-            qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", err);
-            state = QPrinter::Error;
-            return false;
-        }
-        QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(paintEngine);
-        cgEngine->d_func()->hd = cgContext;
-        CGContextScaleCTM(cgContext, 1, -1);
-        CGContextTranslateCTM(cgContext, 0, -paper.height());
-        if (!fullPage)
-            CGContextTranslateCTM(cgContext, page.x() - paper.x(), page.y() - paper.y());
-        cgEngine->d_func()->orig_xform = CGContextGetCTM(cgContext);
-        cgEngine->d_func()->setClip(0);
-    } else {
-        OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
-                                                   reinterpret_cast<void **>(&qdHandle));
-        if(err != noErr) {
-            qWarning("QMacPrintEngine::newPage: Cannot retrieve QuickDraw context: %ld", err);
-            state = QPrinter::Error;
-            return false;
-        }
-        QMacSavedPortInfo mp(pdev);
-        SetOrigin(page.x() - paper.x(), page.y() - paper.y());
+    CGContextRef cgContext;
+    OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
+                                               reinterpret_cast<void **>(&cgContext));
+    if(err != noErr) {
+        qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context: %ld", err);
+        state = QPrinter::Error;
+        return false;
     }
+    QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(paintEngine);
+    cgEngine->d_func()->hd = cgContext;
+    CGContextScaleCTM(cgContext, 1, -1);
+    CGContextTranslateCTM(cgContext, 0, -paper.height());
+    if (!fullPage)
+        CGContextTranslateCTM(cgContext, page.x() - paper.x(), page.y() - paper.y());
+    cgEngine->d_func()->orig_xform = CGContextGetCTM(cgContext);
+    cgEngine->d_func()->setClip(0);
     return true;
 }
 
