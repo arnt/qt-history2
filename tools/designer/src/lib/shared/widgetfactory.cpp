@@ -55,7 +55,7 @@ WidgetFactory::~WidgetFactory()
 
 QDesignerFormWindowInterface *WidgetFactory::currentFormWindow(QDesignerFormWindowInterface *fw)
 {
-    QDesignerFormWindowInterface *was = fw;
+    QDesignerFormWindowInterface *was = m_formWindow;
     m_formWindow = fw;
     return was;
 }
