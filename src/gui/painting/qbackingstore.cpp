@@ -547,7 +547,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
         if (windowSurface->geometry() != tlwRect) {
             windowSurface->setGeometry(tlwRect);
-            toClean = tlwRect;
+            toClean = QRect(QPoint(0, 0), tlwRect.size());
             recursiveCopyToScreen = true;
         } else {
             toClean = dirty;
