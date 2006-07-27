@@ -519,7 +519,14 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             }
             break;
 
-        default:
+    default: {
+        int i = 1;
+        while (i) {
+            if (i & decorationRegion)
+                region += this->region(widget, rect, i);
+            i <<= 1;
+        }
+    }
             break;
     }
 

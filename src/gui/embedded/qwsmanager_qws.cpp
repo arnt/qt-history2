@@ -519,6 +519,10 @@ bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
     cached_region.regionType = reg;
     cached_region.region = QApplication::qwsDecoration().region(managed, managed->geometry(),
                                                                 reg);
+    // Make room for borders around the widget, even if the decoration doesn't have a frame.
+    if (reg && !(reg & int(QDecoration::Borders))) {
+        cached_region.region -= QApplication::qwsDecoration().region(managed, managed->geometry(), QDecoration::Borders);
+    }
     cached_region.windowFlags = managed->windowFlags();
     cached_region.windowGeometry = managed->geometry();
 //    QRect rec = cached_region.region.boundingRect();
