@@ -254,10 +254,10 @@ const QRect& Q3CanvasClusterizer::operator[](int i) const
 
 static void qt_setclipregion(QPainter *p, const QRegion &r)
 {
-    bool xfrm = p->hasWorldXForm();
-    p->setWorldXForm(false);
+    QMatrix matrix = p->worldMatrix();
+    p->setWorldMatrix(QMatrix());
     p->setClipRegion(r);
-    p->setWorldXForm(xfrm);
+    p->setWorldMatrix(matrix);
 }
 
 static void qt_setcliprect(QPainter *p, const QRect &r)
@@ -1097,7 +1097,6 @@ void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bo
     p->setWorldMatrix(wm*twm);
 #else
 #endif
-    p->setBrushOrigin(tl.x(), tl.y());
     drawCanvasArea(ivr,p,false);
 }
 
