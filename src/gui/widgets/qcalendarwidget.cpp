@@ -710,6 +710,7 @@ public:
     QToolButton *yearButton;
     QSpinBox *yearEdit;
     QWidget *headerBackground;
+    QSpacerItem *spaceHolder;
 
     bool headerVisible;
 };
@@ -755,6 +756,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     yearEdit->setMinimum(m_model->minimumDate.year());
     yearEdit->setMaximum(m_model->maximumDate.year());
     yearEdit->hide();
+    spaceHolder = new QSpacerItem(0,0);
 
     QHBoxLayout *headerLayout = new QHBoxLayout;
     headerLayout->setMargin(0);
@@ -762,6 +764,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->addWidget(prevMonth);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(monthButton);
+    headerLayout->addItem(spaceHolder);
     headerLayout->addWidget(yearButton);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
@@ -846,6 +849,7 @@ void QCalendarWidgetPrivate::_q_yearEditingFinished()
 {
     yearButton->setText(yearEdit->text());
     yearEdit->hide();
+    spaceHolder->changeSize(0, 0);
     yearButton->show();
     QDate currentDate(yearEdit->text().toInt(), getCurrentDate().month(), getCurrentDate().day());
     updateCurrentPage(currentDate);
@@ -856,8 +860,11 @@ void QCalendarWidgetPrivate::_q_yearClicked()
     //show the spinbox on top of the button
     yearEdit->setGeometry(yearButton->x(), yearButton->y(), 
                           yearEdit->sizeHint().width(), yearButton->sizeHint().height());
+    spaceHolder->changeSize(yearButton->width(), 0);
+    yearButton->hide();
     yearEdit->show();
     yearEdit->raise();
+    yearEdit->selectAll();
     yearEdit->setFocus(Qt::MouseFocusReason);
 }
 
@@ -1744,6 +1751,20 @@ void QCalendarWidget::resizeEvent(QResizeEvent * event)
     if(d->yearEdit->isVisible())
         d->_q_yearEditingFinished();
     QWidget::resizeEvent(event);
+}
+
+/*!
+  \reimp
+*/
+void QCalendarWidget::keyReleaseEvent(QKeyEvent * event)
+{
+    Q_D(QCalendarWidget);
+    if(d->yearEdit->isVisible()&& event->key() == Qt::Key_Escape)
+    {
+        d->yearEdit->setValue(yearShown());
+        d->_q_yearEditingFinished();
+    }
+    QWidget::keyReleaseEvent(event);
 }
 
 #include "qcalendarwidget.moc"
