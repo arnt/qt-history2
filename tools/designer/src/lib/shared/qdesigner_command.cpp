@@ -201,6 +201,55 @@ void SetPropertyCommand::init(QObject *object, const QString &propertyName, cons
     setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
 }
 
+static QWidget *containerWindow(QWidget *widget)
+{
+    while (widget) {
+        if (widget->metaObject()->className() == QLatin1String("QDesignerFormWindow"))
+            return widget;
+
+        widget = widget->parentWidget();
+    }
+    return 0;
+}
+
+static QSize checkSize(const QSize &size)
+{
+    QSize s = size;
+    if (s.width() > 0xFFFFFF)
+        s.setWidth(0xFFFFFF);
+    if (s.height() > 0xFFFFFF)
+        s.setHeight(0xFFFFFF);
+    return s;
+}
+
+static void setTopMinMaxSize(QDesignerFormWindowInterface *fw, QWidget *w, const QString &propertyName, const QVariant &value)
+{
+    QDesignerFormWindowCursorInterface *cursor = fw->cursor();
+    if (w && cursor->isWidgetSelected(w)) {
+        if (cursor->isWidgetSelected(fw->mainContainer())) {
+            if (propertyName == QLatin1String("minimumSize")) {
+                if (QWidget *container = containerWindow(fw)) {
+                    QSize diff = QSize(0, 0);
+                    if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
+                        diff = container->parentWidget()->geometry().size() - container->geometry().size();
+                        container->parentWidget()->setMinimumSize(checkSize(value.toSize() + diff));
+                    }
+                    container->setMinimumSize(value.toSize());
+                }
+            } else if (propertyName == QLatin1String("maximumSize")) {
+                if (QWidget *container = containerWindow(fw)) {
+                    QSize diff = QSize(0, 0);
+                    if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
+                        diff = container->parentWidget()->geometry().size() - container->geometry().size();
+                        container->parentWidget()->setMaximumSize(checkSize(value.toSize() + diff));
+                    }
+                    container->setMaximumSize(value.toSize());
+                }
+            }
+        }
+    }
+}
+
 void SetPropertyCommand::redo()
 {
     Q_ASSERT(m_propertySheet);
@@ -226,6 +275,8 @@ void SetPropertyCommand::redo()
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
+
+    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_newValue);
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
@@ -265,6 +316,8 @@ void SetPropertyCommand::undo()
                                                                  // changes parent's palette, but
                                                                  // the child is the active widget.
     }
+
+    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
