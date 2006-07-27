@@ -3289,10 +3289,9 @@ fi
 for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
-# disabled for now, see task 106417
-#            QT_CFLAGS_MYSQL=`mysql_config --cflags 2>/dev/null`
-#            QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
-#            QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
+            QT_CFLAGS_MYSQL=`mysql_config --include 2>/dev/null`
+            QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
+            QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
             if [ "$CFG_SQL_mysql" != "no" ]; then
                 if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql_r "MySQL (thread-safe)" $QT_LFLAGS_MYSQL_R $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
 		    QMakeVar add CONFIG use_libmysqlclient_r
