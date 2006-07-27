@@ -67,7 +67,9 @@ public:
                        LargeFormat,
 		       LargeCapacity,
 		       Cassette,
-		       FormSource };
+		       FormSource,
+                       MaxPageSource
+    };
 
     enum PrinterState { Idle,
                         Active,
@@ -129,6 +131,10 @@ public:
     PaperSource paperSource() const;
 
     QList<int> supportedResolutions() const;
+
+#ifdef Q_WS_WIN
+    QList<QPrinter::PaperSource> supportedPaperSources() const;
+#endif
 
     void setFontEmbeddingEnabled(bool enable);
     bool fontEmbeddingEnabled() const;

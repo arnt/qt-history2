@@ -1252,7 +1252,32 @@ void QPrinter::releaseDC(HDC hdc) const
     Q_D(const QPrinter);
     d->printEngine->releasePrinterDC(hdc);
 }
+
+/*!
+    Returns the supported paper sizes for this printer.
+
+    The values will be either a value that matches an entry in the
+    QPrinter::PaperSource enum or a driver spesific value. The driver
+    spesific values are greater than the constant DMBIN_USER declared
+    in wingdi.h.
+
+    \warning This function is only available in windows.
+*/
+
+QList<QPrinter::PaperSource> QPrinter::supportedPaperSources() const
+{
+    Q_D(const QPrinter);
+    QVariant v = d->printEngine->property(QPrintEngine::PPK_PaperSources);
+
+    QList<QVariant> variant_list = v.toList();
+    QList<QPrinter::PaperSource> int_list;
+    for (int i=0; i<variant_list.size(); ++i)
+        int_list << (QPrinter::PaperSource) variant_list.at(i).toInt();
+
+    return int_list;
+}
 #endif
+
 
 /*!
     \fn QString QPrinter::printerSelectionOption() const

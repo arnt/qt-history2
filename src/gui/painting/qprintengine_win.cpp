@@ -1184,31 +1184,10 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
                 break;
             int dmMapped = DMBIN_AUTO;
 
-            DWORD caps;
-            QT_WA( {
-                caps = DeviceCapabilitiesW((TCHAR*)d->name.utf16(), 0, DC_BINS, 0, 0);
-            }, {
-                caps = DeviceCapabilitiesA(d->name.toLatin1(), 0, DC_BINS, 0, 0);
-            } );
-            // Skip it altogether if it's not supported...
-            if (caps != DWORD(-1) && caps != 0) {
-                WORD *bins = new WORD[caps];
-                bool gotCaps;
-                QT_WA( {
-                    gotCaps = DeviceCapabilitiesW((wchar_t *)d->name.utf16(), 0, DC_BINS, (wchar_t *) bins, 0);
-                }, {
-                    gotCaps = DeviceCapabilitiesA(d->name.toLatin1(), 0, DC_BINS, (char*) bins, 0);
-                } );
-                if (gotCaps) {
-                    bool ok = false;
-                    int source = mapPaperSourceDevmode(QPrinter::PaperSource(value.toInt()));
-                    for (DWORD i=0; i<caps; i++)
-                        ok |= (bins[i] == (WORD)source);
-                    if (ok)
-                        dmMapped = source;
-                }
-                delete [] bins;
-            }
+            QList<QVariant> v = property(PPK_PaperSources).toList();
+            if (v.contains(value))
+                dmMapped = mapPaperSourceDevmode(QPrinter::PaperSource(value.toInt()));
+
             QT_WA( {
                 d->devModeW()->dmDefaultSource = dmMapped;
             }, {
@@ -1367,6 +1346,42 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
             }, {
                 value = d->devModeA()->dmPaperSize;
             } );
+        }
+        break;
+
+    case PPK_PaperSources:
+        {
+            int available, count;
+            WORD *data;
+
+            QT_WA({
+                available = DeviceCapabilitiesW(d->name.utf16(), d->port.utf16(), DC_BINS, 0,
+                                                d->devModeW());
+            }, {
+                available = DeviceCapabilitiesA(d->name.toLatin1(), d->port.toLatin1(), DC_BINS, 0,
+                                                d->devModeA());
+            });
+
+            if (!available)
+                break;
+            data = (WORD *) malloc(available * sizeof(WORD));
+
+            QT_WA({
+                count = DeviceCapabilitiesW(d->name.utf16(), d->port.utf16(), DC_BINS, data,
+                                            d->devModeW());
+            }, {
+                count = DeviceCapabilitiesA(d->name.toLatin1(), d->port.toLatin1(), DC_BINS,
+                                            (char *) data, d->devModeA());
+            });
+
+            QList<QVariant> out;
+            for (int i=0; i<count; ++i) {
+                QPrinter::PaperSource src = mapDevmodePaperSource(data[i]);
+                if (src != -1)
+                    out << (int) src;
+            }
+            value = out;
+            free(data);
         }
         break;
 
