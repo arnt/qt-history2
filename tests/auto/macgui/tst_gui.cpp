@@ -41,6 +41,7 @@ void tst_gui::clickButtonSelfTest()
     QMessageBox *box = new QMessageBox();
     box->resize(400, 400);
     box->setText("accessible!");
+    box->show();
 
     // Find the "OK" button and schedule a press.
     InterfaceChildPair interface = wn.find(QAccessible::Name, "OK", box);
@@ -53,7 +54,6 @@ void tst_gui::clickButtonSelfTest()
     runSequence();
 
     // Show dialog and and enter event loop.
-    box->show();
     connect(wn.getWidget(interface), SIGNAL(clicked()), SLOT(exitLoopSlot()));
     const int timeout = 8;
     QTestEventLoop::instance().enterLoop(timeout);
@@ -161,6 +161,7 @@ void tst_gui::splashScreenModality()
 
     QMessageBox *box = new QMessageBox();
     box->setText("accessible?");
+    box->show();
 
     // Find the "OK" button and schedule a press.
     InterfaceChildPair interface = wn.find(QAccessible::Name, "OK", box);
@@ -169,7 +170,6 @@ void tst_gui::splashScreenModality()
     clickLater(interface, Qt::LeftButton, delay);
 
     // Show dialog and and enter event loop.
-    box->show();
     connect(wn.getWidget(interface), SIGNAL(clicked()), SLOT(exitLoopSlot()));
     const int timeout = 4;
     QTestEventLoop::instance().enterLoop(timeout);
