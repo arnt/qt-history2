@@ -514,14 +514,19 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
 
     QSqlQuery q(createResult());
     q.setForwardOnly(true);
-    if ((type & QSql::Tables) && (type & QSql::Views))
-        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='table' OR type='view'"));
-    else if (type & QSql::Tables)
-        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='table'"));
-    else if (type & QSql::Views)
-        q.exec(QLatin1String("SELECT name FROM sqlite_master WHERE type='view'"));
 
-    if (q.isActive()) {
+    QString sql = QLatin1String("SELECT name FROM sqlite_master WHERE %1 "
+                                "UNION ALL SELECT name FROM sqlite_temp_master WHERE %1");
+    if ((type & QSql::Tables) && (type & QSql::Views))
+        sql = sql.arg(QLatin1String("type='table' OR type='view'"));
+    else if (type & QSql::Tables)
+        sql = sql.arg(QLatin1String("type='table'"));
+    else if (type & QSql::Views)
+        sql = sql.arg(QLatin1String("type='view'"));
+    else
+        sql.clear();
+
+    if (!sql.isEmpty() && q.exec(sql)) {
         while(q.next())
             res.append(q.value(0).toString());
     }
