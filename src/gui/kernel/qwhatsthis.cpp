@@ -290,7 +290,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     p.drawRect(r);
     int w = r.width();
     int h = r.height();
-    p.setPen(palette().brush(QPalette::Dark));
+    p.setPen(palette().brush(QPalette::Dark).color());
     p.drawRect(1, 1, w-2, h-2);
     if (drawShadow) {
         p.setPen(palette().shadow().color());
