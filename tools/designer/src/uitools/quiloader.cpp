@@ -248,7 +248,11 @@ class QUiLoaderPrivate: public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QUiLoader)
 public:
+#ifdef QFORMINTERNAL_NAMESPACE
+    QFormInternal::FormBuilderPrivate builder;
+#else
     FormBuilderPrivate builder;
+#endif
 
     void setupWidgetMap() const;
 };
