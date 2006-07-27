@@ -54,7 +54,7 @@ static void initializeDb()
 
     // Load in font definition file
     QString fn;
-#ifndef QT_NO_LIBRARY
+#ifndef QT_NO_SETTINGS
     fn = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
 #else
     fn += QLatin1String("/lib");
@@ -81,7 +81,7 @@ static void initializeDb()
             sscanf(buf,"%s %s %s %s %d %d %s",name,file,render,isitalic,&weight,&size,flags);
             QString filename;
             if (file[0] != '/') {
-#ifndef QT_NO_LIBRARY
+#ifndef QT_NO_SETTINGS
                 filename = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
                 filename += QLatin1String("/fonts/");
 #else
@@ -99,7 +99,7 @@ static void initializeDb()
 
 
     QString fontpath;
-#ifndef QT_NO_LIBRARY
+#ifndef QT_NO_SETTINGS
     fontpath = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
     fontpath += QLatin1String("/fonts");
 #else
@@ -280,7 +280,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         FT_Face face;
 
         QString file;
-#ifndef QT_NO_LIBRARY
+#ifndef QT_NO_SETTINGS
         file = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
         file += QLatin1String("/fonts/");
 #else
@@ -304,7 +304,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     {
 #ifndef QT_NO_QWS_QPF
         QString fn;
-#ifndef QT_NO_LIBRARY
+#ifndef QT_NO_SETTINGS
 	fn = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
         fn += QLatin1String("/fonts/");
 #else
