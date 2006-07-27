@@ -29,7 +29,7 @@
 // We mean it.
 //
 
-class QHIViewWidget : public QWidget
+class Q_GUI_EXPORT QHIViewWidget : public QWidget
 {
     Q_OBJECT
 public:
