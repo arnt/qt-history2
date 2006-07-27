@@ -25,8 +25,8 @@ public:
 
     inline void _q_printToFileChanged(int) {}
     inline void _q_rbPrintRangeToggled(bool) {}
-    inline void _q_printerChanged(int index) {}
-    inline void _q_paperSizeChanged(int index) {}
+    inline void _q_printerChanged(int) {}
+    inline void _q_paperSizeChanged(int) {}
     inline void _q_btnBrowseClicked() {}
     inline void _q_btnPropertiesClicked() {}
 
@@ -50,6 +50,12 @@ int QPrintDialog::exec()
     Q_D(QPrintDialog);
     QMacBlockingFunction func;
     Boolean result;
+
+    // If someone is reusing a QPrinter object, the end released all our old
+    // information. In this case, we must reinitialize.
+    if (d->ep->settings == 0)
+        d->ep->initialize();
+
     // Carbon's documentation lies.
     // It seems the only way that Carbon lets you use all is if the minimum
     // for the page range is 1. This _kind of_ makes sense if you think about

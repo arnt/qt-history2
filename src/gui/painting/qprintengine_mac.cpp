@@ -76,7 +76,12 @@ bool QMacPrintEngine::end()
             PMSessionEndPage(d->session);
             PMSessionEndDocument(d->session);
         }
+        PMRelease(d->settings);
+        PMRelease(d->format);
         PMRelease(d->session);
+        d->settings = 0;
+        d->format = 0;
+        d->session = 0;
     }
     d->state  = QPrinter::Idle;
     return true;
