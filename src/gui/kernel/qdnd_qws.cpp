@@ -60,6 +60,7 @@ public:
     QShapedPixmapWidget() :
         QWidget(0, Qt::Tool | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint)
     {
+        setAttribute(Qt::WA_TransparentForMouseEvents);
     }
 
     void setPixmap(QPixmap pm)
@@ -187,6 +188,9 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 // Fix for when we move mouse on to the deco widget
                 if (qt_qws_dnd_deco && cw == qt_qws_dnd_deco)
                     cw = object->target();
+
+                while (cw && !cw->acceptDrops() && !cw->isWindow())
+                    cw = cw->parentWidget();
 
                 if (object->target() != cw) {
                     if (object->target()) {
