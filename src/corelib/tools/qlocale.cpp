@@ -911,12 +911,14 @@ static QString macTimeToString(const QTime &time, bool short_format)
                                                          QCFType<CFTimeZoneRef>(CFTimeZoneCopyDefault())));
 
     QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
-    CFDateFormatterStyle style = short_format ? kCFDateFormatterShortStyle :  kCFDateFormatterMediumStyle;
+    CFDateFormatterStyle style = short_format ? kCFDateFormatterShortStyle :  kCFDateFormatterLongStyle;
     QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
                                                                     mylocale,
                                                                     kCFDateFormatterNoStyle,
                                                                     style);
-    return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+    const QString ret(QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate)));
+    qDebug() << time << short_format << ret;
+    return ret;
 }
 
 static QString macToQtFormat(const QString &sys_fmt)
@@ -1055,6 +1057,7 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         return macDateToString(in.toDate(), (type == DateToStringShort));
     case TimeToStringShort:
     case TimeToStringLong:
+        qDebug() << "happened";
         return macTimeToString(in.toTime(), (type == TimeToStringShort));
 
     case NegativeSign:
