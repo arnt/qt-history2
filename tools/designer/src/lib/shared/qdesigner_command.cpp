@@ -229,18 +229,16 @@ static void setTopMinMaxSize(QDesignerFormWindowInterface *fw, QWidget *w, const
         if (cursor->isWidgetSelected(fw->mainContainer())) {
             if (propertyName == QLatin1String("minimumSize")) {
                 if (QWidget *container = containerWindow(fw)) {
-                    QSize diff = QSize(0, 0);
                     if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
-                        diff = container->parentWidget()->geometry().size() - container->geometry().size();
+                        QSize diff = container->parentWidget()->geometry().size() - container->geometry().size();
                         container->parentWidget()->setMinimumSize(checkSize(value.toSize() + diff));
                     }
                     container->setMinimumSize(value.toSize());
                 }
             } else if (propertyName == QLatin1String("maximumSize")) {
                 if (QWidget *container = containerWindow(fw)) {
-                    QSize diff = QSize(0, 0);
                     if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
-                        diff = container->parentWidget()->geometry().size() - container->geometry().size();
+                        QSize diff = container->parentWidget()->geometry().size() - container->geometry().size();
                         container->parentWidget()->setMaximumSize(checkSize(value.toSize() + diff));
                     }
                     container->setMaximumSize(value.toSize());
@@ -425,6 +423,8 @@ void ResetPropertyCommand::redo()
 
     m_propertySheet->setChanged(m_index, false);
 
+    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, new_value);
+
     QWidget *widget = qobject_cast<QWidget *>(m_object);
     QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
     if (m_propertyName == QLatin1String("geometry") && widget) {
@@ -447,6 +447,8 @@ void ResetPropertyCommand::undo()
 
     m_propertySheet->setProperty(m_index, m_oldValue);
     m_propertySheet->setChanged(m_index, m_changed);
+
+    setTopMinMaxSize(formWindow(), qobject_cast<QWidget *>(m_object), m_propertyName, m_oldValue);
 
     QWidget *widget = qobject_cast<QWidget *>(m_object);
     QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);

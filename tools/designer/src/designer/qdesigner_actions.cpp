@@ -671,6 +671,16 @@ void QDesignerActions::fixActionContext()
     }
 }
 
+static QSize checkSize(const QSize &size)
+{
+    QSize s = size;
+    if (s.width() > 0xFFFFFF)
+        s.setWidth(0xFFFFFF);
+    if (s.height() > 0xFFFFFF)
+        s.setHeight(0xFFFFFF);
+    return s;
+}
+
 bool QDesignerActions::readInForm(const QString &fileName)
 {
     QString fn = fileName;
@@ -702,12 +712,24 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
     if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
+        QSize diff = QSize(0, 0);
+        bool workspace = false;
+        if (formWindow->parentWidget() && formWindow->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
+            diff = formWindow->parentWidget()->geometry().size() - formWindow->geometry().size();
+            workspace = true;
+        }
         editor->setFileName(fn);
         editor->setContents(&f);
         Q_ASSERT(editor->mainContainer() != 0);
         formWindow->updateWindowTitle(fn);
         formWindow->resize(editor->mainContainer()->size());
         formWindowManager->setActiveFormWindow(editor);
+        formWindow->setMinimumSize(editor->mainContainer()->minimumSize());
+        formWindow->setMaximumSize(editor->mainContainer()->maximumSize());
+        if (workspace) {
+            formWindow->parentWidget()->setMinimumSize(checkSize(editor->mainContainer()->minimumSize() + diff));
+            formWindow->parentWidget()->setMaximumSize(checkSize(editor->mainContainer()->maximumSize() + diff));
+        }
     }
     formWindow->show();
     addRecentFile(fileName);
