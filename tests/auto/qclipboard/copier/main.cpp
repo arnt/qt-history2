@@ -1,5 +1,5 @@
 #include <QApplication>
-#include <QClipBoard>
+#include <QClipboard>
 #include <QStringList>
 
 int main(int argc, char **argv)
