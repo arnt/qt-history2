@@ -308,5 +308,7 @@ SUBDIRS += bic \
            qxml \
            qxmlsimplereader \
            selftests \
-           symbols
+           symbols \
+           posixrandrtest
+
 
