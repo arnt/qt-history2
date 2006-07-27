@@ -2201,7 +2201,20 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
             datestring = QLatin1String("NULL");
         }
         return datestring;
-        break;
+    }
+    case QVariant::Time: {
+        QDateTime datetime = field.value().toDateTime();
+        QString datestring;
+        if (datetime.isValid()) {
+            datestring = QLatin1String("TO_DATE('")
+                         + QString::number(datetime.time().hour()) + QLatin1Char(':')
+                         + QString::number(datetime.time().minute()) + QLatin1Char(':')
+                         + QString::number(datetime.time().second())
+                         + QLatin1String("','HH24:MI:SS')");
+        } else {
+            datestring = QLatin1String("NULL");
+        }
+        return datestring;
     }
     case QVariant::Date: {
         QDate date = field.value().toDate();
@@ -2215,7 +2228,6 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
             datestring = QLatin1String("NULL");
         }
         return datestring;
-        break;
     }
     default:
         break;
