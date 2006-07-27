@@ -41,6 +41,12 @@ unix {
    else:QMAKE_PKGCONFIG_NAME = QtDBus
 }
 
+win32 {
+   LIBS += -lws2_32 -ladvapi32 -lnetapi32
+   CONFIG(debug, debug|release):LIBS += -ldbus-1d
+   else:LIBS += -ldbus-1
+}
+
 #load up the headers info
 CONFIG += qt_install_headers
 HEADERS_PRI = $$QT_BUILD_TREE/include/QtDBus/headers.pri
