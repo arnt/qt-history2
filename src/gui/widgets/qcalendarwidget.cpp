@@ -756,7 +756,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     yearEdit->setMaximum(m_model->maximumDate.year());
     yearEdit->hide();
 
-    QHBoxLayout *headerLayout = new QHBoxLayout(headerBackground);
+    QHBoxLayout *headerLayout = new QHBoxLayout;
     headerLayout->setMargin(0);
     headerLayout->setSpacing(0);
     headerLayout->addWidget(prevMonth);
@@ -765,6 +765,7 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->addWidget(yearButton);
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
+    headerBackground->setLayout(headerLayout);
 
     //Take space for 5 digits.
     QFontMetrics fm=yearButton->fontMetrics();
@@ -1078,6 +1079,8 @@ QSize QCalendarWidget::minimumSizeHint() const
 {
     Q_D(const QCalendarWidget);
 
+    ensurePolished();
+
     int w = 0;
     int h = 0;
 
@@ -1108,7 +1111,7 @@ QSize QCalendarWidget::minimumSizeHint() const
     h += 5;
 
     //add the size of the header.
-    QSize headerSize = d->headerBackground->layout()->sizeHint();
+    QSize headerSize = d->headerBackground->sizeHint();
     w *= cols;
     w = qMax(headerSize.width(), w);
     h = (h * rows) + headerSize.height();
