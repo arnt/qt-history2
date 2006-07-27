@@ -497,7 +497,7 @@ bool QDesignerActions::openForm()
         fileName = QFileDialog::getOpenFileName(
                 core()->topLevel(),
                 tr("Open Form"), dir,
-                tr("Designer UI files (*.ui)"), 0, QFileDialog::DontUseSheet);
+                tr("Designer UI files (*.ui);;All Files (*)"), 0, QFileDialog::DontUseSheet);
         if (fileName.isEmpty())
             return false;
         if (QFileInfo(fileName).suffix() != QLatin1String("ui"))
