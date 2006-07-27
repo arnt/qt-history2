@@ -393,7 +393,7 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
         case Qt::Key_Select:
 #endif
-            if (view->currentIndex().isValid()) {
+            if (view->currentIndex().isValid() && (view->currentIndex().flags() & Qt::ItemIsEnabled) ) {
                 combo->hidePopup();
                 emit itemSelected(view->currentIndex());
             }
@@ -425,7 +425,8 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
         if (isVisible() && view->rect().contains(m->pos()) && view->currentIndex().isValid()
-            && !blockMouseReleaseTimer.isActive()) {
+            && !blockMouseReleaseTimer.isActive()
+            && (view->currentIndex().flags() & Qt::ItemIsEnabled)) {
             combo->hidePopup();
             emit itemSelected(view->currentIndex());
             return true;
@@ -1492,9 +1493,14 @@ void QComboBox::setModel(QAbstractItemModel *model)
     if (d->container)
         d->container->itemView()->setModel(model);
 
-    if (count())
-        setCurrentIndex(0);
-    else
+    if (count()) {
+        for (int pos=0; pos < count(); pos++) {
+            if (d->model->index(pos, d->modelColumn, rootModelIndex()).flags() & Qt::ItemIsEnabled) {
+                setCurrentIndex(pos);
+                break;
+            }
+        }
+    } else
         setCurrentIndex(-1);
 }
 
@@ -2088,6 +2094,9 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 void QComboBox::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QComboBox);
+    enum Move { NoMove=0 , MoveUp , MoveDown , MoveFirst , MoveLast};
+
+    Move move = NoMove;
     int newIndex = currentIndex();
     switch (e->key()) {
     case Qt::Key_Up:
@@ -2099,7 +2108,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             e->ignore();
         else
 #endif
-        --newIndex;
+        move = MoveUp;
         break;
     case Qt::Key_Down:
         if (e->modifiers() & Qt::AltModifier) {
@@ -2114,15 +2123,15 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             e->ignore();
         else
 #endif
-        ++newIndex;
+        move = MoveDown;
         break;
     case Qt::Key_Home:
         if (!d->lineEdit)
-            newIndex = 0;
+            move = MoveFirst;
         break;
     case Qt::Key_End:
         if (!d->lineEdit)
-            newIndex = count() - 1;
+            move = MoveLast;
         break;
     case Qt::Key_F4:
         if (!e->modifiers()) {
@@ -2152,12 +2161,12 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
         if (QApplication::keypadNavigationEnabled()
                 && (!hasEditFocus() || !d->lineEdit))
-            --newIndex;
+            move = MoveUp;
         break;
     case Qt::Key_Right:
         if (QApplication::keypadNavigationEnabled()
                 && (!hasEditFocus() || !d->lineEdit))
-            ++newIndex;
+            move = MoveDown;
         break;
     case Qt::Key_Back:
         if (QApplication::keypadNavigationEnabled()) {
@@ -2173,15 +2182,46 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
             // use keyboardSearch from the listView so we do not duplicate code
             view()->setCurrentIndex(d->currentIndex);
             view()->keyboardSearch(e->text());
+            int firstHit = view()->currentIndex().row();
             if (view()->currentIndex().isValid()
-                && view()->currentIndex() != d->currentIndex)
-                newIndex = view()->currentIndex().row();
+                && view()->currentIndex() != d->currentIndex) {
+                do {
+                    newIndex = view()->currentIndex().row();
+                    if ((view()->currentIndex().flags() & Qt::ItemIsEnabled) && newIndex >= 0 && newIndex < count()) {
+                        setCurrentIndex(newIndex);
+                        d->emitActivated(d->currentIndex);
+                        break;
+                    }
+                    view()->keyboardSearch(e->text());
+                } while (view()->currentIndex().isValid() && firstHit != view()->currentIndex().row());
+            }
         }
     }
 
-    if (newIndex >= 0 && newIndex < count() && newIndex != currentIndex()) {
-        setCurrentIndex(newIndex);
-        d->emitActivated(d->currentIndex);
+    if (move != NoMove) {
+        switch (move) {
+        case MoveFirst:
+            newIndex = -1;
+        case MoveDown:
+            newIndex++;
+            while ((newIndex < count()) && !(model()->flags(model()->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+                newIndex++;
+            break;
+        case MoveLast:
+            newIndex = count();
+        case MoveUp:
+            newIndex--;
+            while ((newIndex >= 0) && !(model()->flags(model()->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+                newIndex--;
+            break;
+        default:
+            break;
+        }
+
+        if (newIndex >= 0 && newIndex < count() && newIndex != currentIndex()) {
+            setCurrentIndex(newIndex);
+            d->emitActivated(d->currentIndex);
+        }
     } else if (d->lineEdit) {
         d->lineEdit->event(e);
     }

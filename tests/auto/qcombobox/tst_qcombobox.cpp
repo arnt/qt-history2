@@ -77,6 +77,8 @@ private slots:
     void convenienceViews();
     void findText_data();
     void findText();
+    void flaggedItems_data();
+    void flaggedItems();
 
 protected slots:
     void onEditTextChanged( const QString &newString );
@@ -157,7 +159,7 @@ void tst_QComboBox::getSetCheck()
     QTest::ignoreMessage(QtWarningMsg, "QComboBox::setMaxCount: Invalid count (-2147483648) must be >= 0");
     obj1.setMaxCount(INT_MIN);
     QCOMPARE(0, obj1.maxCount()); // Setting a value below 0 makes no sense, and shouldn't be allowed
-#endif 
+#endif
     obj1.setMaxCount(INT_MAX);
     QCOMPARE(INT_MAX, obj1.maxCount());
 
@@ -293,7 +295,7 @@ void tst_QComboBox::getSetCheck()
     QCOMPARE(-1, obj1.currentIndex());
     obj1.setCurrentIndex(INT_MAX);
     QCOMPARE(-1, obj1.currentIndex());
-    obj1.addItems(QStringList() << "1" << "2" << "3" << "4" << "5");    
+    obj1.addItems(QStringList() << "1" << "2" << "3" << "4" << "5");
     obj1.setCurrentIndex(0);
     QCOMPARE(0, obj1.currentIndex()); // Valid
     obj1.setCurrentIndex(INT_MIN);
@@ -1459,6 +1461,126 @@ void tst_QComboBox::findText()
     testWidget->addItems(items);
 
     QCOMPARE(testWidget->findText(search, (Qt::MatchFlags)matchflags), result);
+}
+
+typedef QList<int> IntList;
+typedef QList<Qt::Key> KeyList;
+Q_DECLARE_METATYPE(IntList)
+Q_DECLARE_METATYPE(KeyList)
+
+void tst_QComboBox::flaggedItems_data()
+{
+    QTest::addColumn<QStringList>("itemList");
+    QTest::addColumn<IntList>("deselectFlagList");
+    QTest::addColumn<IntList>("disableFlagList");
+    QTest::addColumn<KeyList>("keyMovementList");
+    QTest::addColumn<bool>("editable");
+    QTest::addColumn<int>("expectedIndex");
+
+    for (int editable=0;editable<2;editable++) {
+        QString testCase = editable ? "editable:" : "non-editable:";
+        QStringList itemList;
+        itemList << "One" << "Two" << "Three" << "Four" << "Five" << "Six" << "Seven" << "Eight";
+        IntList deselectFlagList;
+        IntList disableFlagList;
+        KeyList keyMovementList;
+        keyMovementList << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down;
+        QTest::newRow(testCase + "normal") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
+
+        deselectFlagList.clear();
+        disableFlagList.clear();
+        deselectFlagList << 1 << 3;
+        QTest::newRow(testCase + "non-selectable") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
+
+        deselectFlagList.clear();
+        disableFlagList.clear();
+        disableFlagList << 2;
+        QTest::newRow(testCase + "disabled") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 5;
+
+        deselectFlagList.clear();
+        disableFlagList.clear();
+        deselectFlagList << 1 << 3;
+        disableFlagList << 2 << 3;
+        QTest::newRow(testCase + "mixed") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 6;
+
+        deselectFlagList.clear();
+        disableFlagList.clear();
+        disableFlagList << 0 << 1 << 2 << 3 << 4 << 5 << 6;
+        QTest::newRow(testCase + "nearly-empty") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 7;
+
+        deselectFlagList.clear();
+        disableFlagList.clear();
+        disableFlagList << 0 << 1 << 2 << 3 << 5 << 6 << 7;
+        keyMovementList.clear();
+        QTest::newRow(testCase + "only one enabled") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
+
+        if (!editable) {
+            deselectFlagList.clear();
+            disableFlagList.clear();
+            keyMovementList.clear();
+            disableFlagList << 0 << 2 << 3;
+            keyMovementList << Qt::Key_Down << Qt::Key_Home;
+            QTest::newRow(testCase + "home-disabled") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 1;
+
+            keyMovementList.clear();
+            keyMovementList << Qt::Key_End;
+            QTest::newRow(testCase + "end-key") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 7;
+
+            disableFlagList.clear();
+            disableFlagList << 1 ;
+            keyMovementList << Qt::Key_T;
+            QTest::newRow(testCase + "keyboard-search") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 2;
+
+            itemList << "nine" << "ten";
+            keyMovementList << Qt::Key_T;
+            QTest::newRow(testCase + "search same start letter") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 9;
+
+            keyMovementList.clear();
+            keyMovementList << Qt::Key_T << Qt::Key_H;
+            QTest::newRow(testCase + "keyboard search item") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 2;
+
+            disableFlagList.clear();
+            disableFlagList << 1 << 3 << 5 << 7 << 9;
+            keyMovementList.clear();
+            keyMovementList << Qt::Key_End << Qt::Key_Up << Qt::Key_Up << Qt::Key_PageDown << Qt::Key_PageUp << Qt::Key_PageUp << Qt::Key_Down;
+            QTest::newRow(testCase + "all key combinations") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 4;
+        } else {
+            disableFlagList.clear();
+            disableFlagList << 1;
+            keyMovementList << Qt::Key_T << Qt::Key_Enter;
+            QTest::newRow(testCase + "broken autocompletion") << itemList << deselectFlagList << disableFlagList << keyMovementList << bool(editable) << 2;
+        }
+    }
+}
+
+void tst_QComboBox::flaggedItems()
+{
+    QFETCH(QStringList, itemList);
+    QFETCH(IntList, deselectFlagList);
+    QFETCH(IntList, disableFlagList);
+    QFETCH(KeyList, keyMovementList);
+    QFETCH(bool, editable);
+    QFETCH(int, expectedIndex);
+
+    QComboBox comboBox;
+    QListWidget listWidget;
+    listWidget.addItems(itemList);
+
+    comboBox.setEditable(editable);
+    foreach (int index, deselectFlagList)
+        listWidget.item(index)->setFlags(listWidget.item(index)->flags() & ~Qt::ItemIsSelectable);
+
+    foreach (int index, disableFlagList)
+        listWidget.item(index)->setFlags(listWidget.item(index)->flags() & ~Qt::ItemIsEnabled);
+
+    comboBox.setModel(listWidget.model());
+    comboBox.setView(&listWidget);
+
+    foreach (Qt::Key key, keyMovementList)
+            QTest::keyClick(&comboBox, key);
+
+    QEXPECT_FAIL("editable:broken autocompletion" , "Fix in autocompletion needed" , Continue);
+    QCOMPARE(comboBox.currentIndex() , expectedIndex );
 }
 
 
