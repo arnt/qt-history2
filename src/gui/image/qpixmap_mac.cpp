@@ -195,7 +195,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                 }
             }
         }
-        qDebug() << alphamap;
         pixmap.data->macSetHasAlpha(alphamap);
     }
     pixmap.data->uninit = false;
