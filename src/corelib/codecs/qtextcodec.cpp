@@ -191,7 +191,7 @@ QWindowsLocalCodec::~QWindowsLocalCodec()
 }
 
 
-QString QWindowsLocalCodec::convertToUnicode(const char* chars, int len, ConverterState * /*state*/) const
+QString QWindowsLocalCodec::convertToUnicode(const char *chars, int len, ConverterState * /*state*/) const
 {
     return qt_winMB2QString(chars, len);
 }
@@ -952,7 +952,7 @@ QList<QByteArray> QTextCodec::aliases() const
 
 /*!
     Creates a QTextDecoder which stores enough state to decode chunks
-    of char* data to create chunks of Unicode data.
+    of \c{char *} data to create chunks of Unicode data.
 
     The caller is responsible for deleting the returned object.
 */
@@ -964,7 +964,7 @@ QTextDecoder* QTextCodec::makeDecoder() const
 
 /*!
     Creates a QTextEncoder which stores enough state to encode chunks
-    of Unicode data as char* data.
+    of Unicode data as \c{char *} data.
 
     The caller is responsible for deleting the returned object.
 */
@@ -1086,7 +1086,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 
     \a chars contains the source characters.
 */
-QString QTextCodec::toUnicode(const char* chars) const
+QString QTextCodec::toUnicode(const char *chars) const
 {
     int len = qstrlen(chars);
     return convertToUnicode(chars, len, 0);
@@ -1187,7 +1187,7 @@ QTextDecoder::~QTextDecoder()
 }
 
 /*!
-    \fn QString QTextDecoder::toUnicode(const char* chars, int len)
+    \fn QString QTextDecoder::toUnicode(const char *chars, int len)
 
     Converts the first \a len bytes in \a chars to Unicode, returning
     the result.
@@ -1196,7 +1196,7 @@ QTextDecoder::~QTextDecoder()
     encoding is at the end of the characters), the decoder remembers
     enough state to continue with the next call to this function.
 */
-QString QTextDecoder::toUnicode(const char* chars, int len)
+QString QTextDecoder::toUnicode(const char *chars, int len)
 {
     return c->toUnicode(chars, len, &state);
 }
@@ -1217,7 +1217,7 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     \fn QTextCodec* QTextCodec::codecForTr()
 
     Returns the codec used by QObject::tr() on its argument. If this
-    function returns 0 (the default), tr() assumes Latin1.
+    function returns 0 (the default), tr() assumes Latin-1.
 
     \sa setCodecForTr()
 */
@@ -1227,19 +1227,18 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     \nonreentrant
 
     Sets the codec used by QObject::tr() on its argument to \a c. If
-    \a c is 0 (the default), tr() assumes Latin1.
+    \a c is 0 (the default), tr() assumes Latin-1.
 
-    If the literal quoted text in the program is not in the Latin1
+    If the literal quoted text in the program is not in the Latin-1
     encoding, this function can be used to set the appropriate
     encoding. For example, software developed by Korean programmers
     might use eucKR for all the text in the program, in which case the
     main() function might look like this:
 
     \code
-        int main(int argc, char** argv)
+        int main(int argc, char *argv[])
         {
             QApplication app(argc, argv);
-            ... install any additional codecs ...
             QTextCodec::setCodecForTr(QTextCodec::codecForName("eucKR"));
             ...
         }
@@ -1260,27 +1259,25 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     \fn QTextCodec* QTextCodec::codecForCStrings()
 
     Returns the codec used by QString to convert to and from \c{const
-    char*} and QByteArrays. If this function returns 0 (the default),
-    QString assumes Latin1.
+    char *} and QByteArrays. If this function returns 0 (the default),
+    QString assumes Latin-1.
 
     \sa setCodecForCStrings()
 */
 
 /*!
-    \fn void QTextCodec::setCodecForCStrings(QTextCodec *c)
+    \fn void QTextCodec::setCodecForCStrings(QTextCodec *codec)
     \nonreentrant
 
     Sets the codec used by QString to convert to and from \c{const
-    char*} and QByteArrays. If \a c is 0 (the default), QString
-    assumes Latin1.
+    char *} and QByteArrays. If the \a codec is 0 (the default),
+    QString assumes Latin-1.
 
     \warning Some codecs do not preserve the characters in the ASCII
-    range (0x00 to 0x7f).  For example, the Japanese Shift-JIS
-    encoding maps the backslash character (0x5a) to the Yen character.
-    This leads to unexpected results when using the backslash
-    character to escape characters in strings used in e.g. regular
-    expressions. Use QString::fromLatin1() to preserve characters in
-    the ASCII range when needed.
+    range (0x00 to 0x7F). For example, the Japanese Shift-JIS
+    encoding maps the backslash character (0x5A) to the Yen
+    character. To avoid undesirable side-effects, we recommend
+    avoiding such codecs with setCodecsForCString().
 
     \sa codecForCStrings(), setCodecForTr()
 */
@@ -1291,7 +1288,7 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
 QTextCodec *QTextCodec::codecForHtml(const QByteArray &ba)
 {
     // determine charset
-    int mib = 4; // Latin1
+    int mib = 4; // Latin-1
     int pos;
     QTextCodec *c = 0;
 
