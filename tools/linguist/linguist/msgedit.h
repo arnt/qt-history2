@@ -52,11 +52,15 @@ public:
 
     void calculateFieldHeight();
     QString translation() const;
+
+    void gotFocusInEvent( QFocusEvent * e);
+
 public slots:
     void handleTranslationChanges();
 
 signals:
     void heightUpdated(int height);
+    void gotFocusIn();
 
 private:
     QTextEdit *m_editor;
@@ -195,6 +199,7 @@ public:
     int activeTranslationNumerus() const;
     QStringList translations() const;
     void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
+    int currentTranslationEditor();
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -227,6 +232,7 @@ private slots:
 signals:
     void pageHeightUpdated(int height);
     void selectionChanged();
+    void currentTranslationEditorChanged();
 };
 
 class MessageEditor : public QScrollArea
@@ -271,6 +277,7 @@ public slots:
     void beginFromSource();
     void toggleGuessing();
     void setEditorFocus();
+    void checkUndoRedo();
 
 private slots:
     void emitTranslationChanged();

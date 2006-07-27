@@ -81,6 +81,8 @@ public:
     virtual QVariant loadResource ( int type, const QUrl & name );
 
     virtual void keyPressEvent ( QKeyEvent * e);
+    virtual void focusInEvent ( QFocusEvent * e);
+
     QMap<QUrl, QImage> m_backTabOmages;
     QImage m_tabImg;
     QImage m_newlineImg;
@@ -118,6 +120,13 @@ QVariant BackTabTextEdit::loadResource ( int type, const QUrl & name )
         }
     }
     return img;
+}
+
+void BackTabTextEdit::focusInEvent ( QFocusEvent * e)
+{
+    TransEditor *te = qobject_cast<TransEditor*>(parent());
+    te->gotFocusInEvent(e);
+    QTextEdit::focusInEvent(e);
 }
 
 void BackTabTextEdit::keyPressEvent ( QKeyEvent * e )
@@ -210,6 +219,11 @@ TransEditor::TransEditor(QWidget *parent /*= 0*/)
     }
 }
 
+void TransEditor::gotFocusInEvent ( QFocusEvent * e)
+{
+    emit gotFocusIn();
+}
+
 void TransEditor::setLabel(const QString &text)
 {
     m_label->setText(text);
@@ -219,6 +233,7 @@ void TransEditor::handleTranslationChanges()
 {
     calculateFieldHeight();
 }
+
 
 void TransEditor::calculateFieldHeight()
 {
@@ -547,7 +562,18 @@ void EditorPage::addPluralForm(const QString &label)
     connect(te, SIGNAL(heightUpdated(int)), this, SLOT(updateHeight(int)));
     connect(te->editor(), SIGNAL(selectionChanged()),
              SLOT(translationSelectionChanged()));
+    connect(te, SIGNAL(gotFocusIn(void)), this, SIGNAL(currentTranslationEditorChanged(void)));
+
     m_transTexts << te;
+}
+
+int EditorPage::currentTranslationEditor()
+{
+    for (int i = 0; i < m_transTexts.count(); ++i) {
+        QTextEdit *te = m_transTexts[i]->editor();
+        if (te->hasFocus()) return i;
+    }
+    return -1;  //no focus
 }
 
 void EditorPage::updateHeight(int /*h*/)
@@ -842,10 +868,11 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     connect(this, SIGNAL(translationChanged(const QStringList &)),
         this, SLOT(updateButtons()));
 
-    connect(editorPage->activeTransText()->document(), SIGNAL(undoAvailable(bool)),
-        this, SIGNAL(undoAvailable(bool)));
-    connect(editorPage->activeTransText()->document(), SIGNAL(redoAvailable(bool)),
-        this, SIGNAL(redoAvailable(bool)));
+    connect(this, SIGNAL(translationChanged(const QStringList &)),
+        this, SLOT(checkUndoRedo()));
+    connect(editorPage, SIGNAL(currentTranslationEditorChanged()),
+        this, SLOT(checkUndoRedo()));
+
     connect(editorPage, SIGNAL(selectionChanged()),
         this, SLOT(updateCutAndCopy()));
     connect(qApp->clipboard(), SIGNAL(dataChanged()),
@@ -864,6 +891,13 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
                         " occurs.") );
 
     showNothing();
+}
+
+void MessageEditor::checkUndoRedo()
+{
+    QTextEdit *te = editorPage->activeTransText();    
+    undoAvailable(te->document()->isUndoAvailable());
+    redoAvailable(te->document()->isRedoAvailable());
 }
 
 bool MessageEditor::eventFilter(QObject *o, QEvent *e)
