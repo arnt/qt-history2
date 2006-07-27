@@ -60,7 +60,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 
     ++randomBits;
     if (level == 3 && !insertInOrder)
-        randomBits = ::rand();
+        randomBits = ::qrand();
 
     if (level > topLevel) {
         Node *e = reinterpret_cast<Node *>(this);

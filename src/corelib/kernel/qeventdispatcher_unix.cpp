@@ -552,7 +552,7 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
     // delete other entries from the list before those other entries are
     // processed.
     if (! FD_ISSET(sn->fd, sn->queue)) {
-        d->sn_pending_list.insert((rand() & 0xff) %
+        d->sn_pending_list.insert((qrand() & 0xff) %
                                   (d->sn_pending_list.size()+1), sn);
         FD_SET(sn->fd, sn->queue);
     }

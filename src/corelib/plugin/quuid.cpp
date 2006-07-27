@@ -397,8 +397,8 @@ QUuid QUuid::createUuid()
     if (!randbits) {
         int max = RAND_MAX;
         do { ++randbits; } while ((max=max>>1));
-        srand((uint)QDateTime::currentDateTime().toTime_t());
-        rand(); // Skip first
+        qsrand((uint)QDateTime::currentDateTime().toTime_t());
+        qrand(); // Skip first
     }
 
     QUuid result;
@@ -407,7 +407,7 @@ QUuid QUuid::createUuid()
     while (chunks--) {
         uint randNumber = 0;
         for (int filled = 0; filled < intbits; filled += randbits)
-            randNumber |= rand()<<filled;
+            randNumber |= qrand()<<filled;
          *(data+chunks) = randNumber;
     }
 

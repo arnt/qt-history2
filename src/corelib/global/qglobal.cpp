@@ -15,6 +15,7 @@
 #include "qstring.h"
 #include "qvector.h"
 #include "qlist.h"
+#include "qthreadstorage.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2201,6 +2202,56 @@ QByteArray qgetenv(const char *varName)
     return buffer;
 #else
     return QByteArray(::getenv(varName));
+#endif
+}
+
+
+#if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
+static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
+#endif
+
+/*! Reentrant version of srand() (see SVID 3, 4.3BSD, ISO 9899, POSIX 1003.1-2003)
+
+    Sets the argument \a seed to be used to generate a new random number sequence of
+    pseudo random integers to be returned by rand().
+
+    If no seed value is provided, the rand() function is automatically seeded with a value of 1.
+
+    \sa qrand()
+*/
+void qsrand(uint seed)
+{
+#if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
+    if (!randTLS.hasLocalData())
+        randTLS.setLocalData(new uint);
+    *randTLS.localData() = seed;
+#else
+    // On Windows srand() and rand() already use Thread-Local-Storage
+    // to store the seed between calls 
+    srand(seed);
+#endif
+}
+
+/*! Reentrant version of rand() (see SVID 3, 4.3BSD, ISO 9899, POSIX 1003.1-2003)
+
+    The qrand() function returns a value between 0 and RAND_MAX, the next number in
+    the current sequence of pseudo random integers.
+
+    \sa qrand()
+*/
+uint qrand()
+{
+#if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
+    if (!randTLS.hasLocalData()) {
+        randTLS.setLocalData(new uint);
+        *randTLS.localData() = 1;
+    }
+
+    return rand_r(randTLS.localData());
+#else
+    // On Windows srand() and rand() already use Thread-Local-Storage
+    // to store the seed between calls
+    return rand();
 #endif
 }
 

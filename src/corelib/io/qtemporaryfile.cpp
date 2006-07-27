@@ -106,7 +106,7 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
             char c;
 
             // CHANGE arc4random() -> random()
-            pid = (rand() & 0xffff) % (26+26);
+            pid = (qrand() & 0xffff) % (26+26);
 		if (pid < 26)
 			c = pid + 'A';
 		else
