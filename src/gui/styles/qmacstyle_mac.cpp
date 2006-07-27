@@ -4541,13 +4541,9 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
     switch (standardIcon) {
     case QStyle::SP_MessageBoxQuestion:
     case QStyle::SP_MessageBoxInformation:
-        iconType = kAlertNoteIcon;
-        break;
     case QStyle::SP_MessageBoxWarning:
-        iconType = kAlertCautionIcon;
-        break;
     case QStyle::SP_MessageBoxCritical:
-        iconType = kAlertStopIcon;
+        iconType = kGenericApplicationIcon;
         break;
     case SP_DesktopIcon:
         iconType = kDesktopIcon;
@@ -4605,15 +4601,36 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
     if (iconType != 0) {
         QIcon retIcon;
         IconRef icon;
-        GetIconRef(kOnSystemDisk, kSystemIconsCreator, iconType, &icon);
+        IconRef overlayIcon = 0;
+        if (iconType != kGenericApplicationIcon) {
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, iconType, &icon);
+        } else {
+            FSRef fsRef;
+            ProcessSerialNumber psn = { 0, kCurrentProcess };
+            GetProcessBundleLocation(&psn, &fsRef);
+            GetIconRefFromFileInfo(&fsRef, 0, 0, 0, 0, kIconServicesNormalUsageFlag, &icon, 0);
+            if (standardIcon == SP_MessageBoxCritical) {
+                overlayIcon = icon;
+                GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
+            }
+        }
         if (icon) {
             int size = 16;
             while (size <= 128) {
-                retIcon.addPixmap(qt_mac_convert_iconref(icon, size, size));
+                QPixmap mainIcon = qt_mac_convert_iconref(icon, size, size);
+                if (overlayIcon) {
+                    int littleSize = size / 2;
+                    QPixmap overlayPix = qt_mac_convert_iconref(overlayIcon, littleSize, littleSize);
+                    QPainter painter(&mainIcon);
+                    painter.drawPixmap(size - littleSize, size - littleSize, overlayPix);
+                }
+                retIcon.addPixmap(mainIcon);
                 size += size;  // 16 -> 32 -> 64 -> 128
             }
         }
         ReleaseIconRef(icon);
+        if (overlayIcon)
+            ReleaseIconRef(overlayIcon);
         return retIcon;
     }
     return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
