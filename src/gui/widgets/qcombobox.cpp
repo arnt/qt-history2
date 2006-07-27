@@ -336,6 +336,7 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     view->installEventFilter(this);
     view->viewport()->installEventFilter(this);
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QStyleOptionComboBox opt = comboStyleOption();
 #ifndef QT_NO_SCROLLBAR
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo))
