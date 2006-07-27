@@ -2259,7 +2259,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         const QStringList subdirs = project->values("SUBDIRS");
         for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
             QString fixedSubdir = subdirs[subdir];
-	    fixedSubdir = fixedSubdir.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
+	    fixedSubdir = fixedSubdir.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
 
             SubTarget *st = new SubTarget;
             targets.append(st);
@@ -2315,7 +2315,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                     for(int subDep = 0; subDep < subdirs.size(); ++subDep) {
                         if(subdirs[subDep] == depends.at(depend)) {
                             QString fixedSubDep = subdirs[subDep];
-                            fixedSubDep = fixedSubDep.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
+                            fixedSubDep = fixedSubDep.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
                             if(!project->isEmpty(fixedSubDep + ".target")) {
                                 st->depends += project->first(fixedSubDep + ".target");
                             } else {
@@ -2324,7 +2324,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                                     d = project->first(fixedSubDep + ".file");
                                 else if(!project->isEmpty(fixedSubDep + ".subdir"))
                                     d = project->first(fixedSubDep + ".subdir");
-                                st->depends += "sub-" + d.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
+                                st->depends += "sub-" + d.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
                             }
                             found = true;
                             break;
@@ -2332,7 +2332,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                     }
                     if(!found) {
                         QString depend_str = depends.at(depend);
-                        st->depends += depend_str.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
+                        st->depends += depend_str.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
                     }
                 }
             }
@@ -2340,7 +2340,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 st->target = project->first(fixedSubdir + ".target");
             } else {
                 st->target = "sub-" + file;
-		st->target = st->target.replace(QRegExp("[^a-zA-Z0-9_]"),"_");
+		st->target = st->target.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
             }
         }
     }
@@ -2616,10 +2616,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 
                 //write the rule/depends
                 if(flags & SubTargetOrdered) {
-                    const QString dep = subtarget->target + "-" + (*qut_it) + "-ordered";
+                    const QString dep = subtarget->target + "-" + (*qut_it) + "_ordered";
                     t << dep << ": " << mkfile;
                     if(target)
-                        t << " " << targets.at(target-1)->target << "-" << (*qut_it) << "-ordered ";
+                        t << " " << targets.at(target-1)->target << "-" << (*qut_it) << "_ordered ";
                     deps += " " + dep;
                 } else {
                     const QString dep = subtarget->target + "-" + (*qut_it);
