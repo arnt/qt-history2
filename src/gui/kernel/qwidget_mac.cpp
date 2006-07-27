@@ -1122,19 +1122,23 @@ void QWidgetPrivate::createWindow_sys()
     if (qt_mac_is_macdrawer(q))
         SetDrawerOffsets(windowRef, 0.0, 25.0);
     data.fstrut_dirty = true; // when we create a toplevel widget, the frame strut should be dirty
-    HIViewRef window_hiview = qt_mac_hiview_for (windowRef);
-    if (HIViewRef hiview = qt_mac_create_widget(window_hiview)) {
+    HIViewRef hiview = (HIViewRef)data.winid;
+    HIViewRef window_hiview = qt_mac_hiview_for(windowRef);
+    if(!hiview) {
+        hiview = qt_mac_create_widget(window_hiview);
+        setWinId((WId)hiview);
+    } else {
+        HIViewAddSubview(window_hiview, hiview);
+    }
+    if (hiview) {
         Rect win_rect;
         GetWindowBounds(qt_mac_window_for (window_hiview), kWindowContentRgn, &win_rect);
         HIRect bounds = CGRectMake(0, 0, win_rect.right-win_rect.left, win_rect.bottom-win_rect.top);
         HIViewSetFrame(hiview, &bounds);
         HIViewSetVisible(hiview, true);
-        QCFType<HIViewRef> oldRef = HIViewRef(data.winid);
-        setWinId((WId)hiview);
         if (q->testAttribute(Qt::WA_DropSiteRegistered))
             registerDropSite(true);
         transferChildren();
-        HIViewRemoveFromSuperview(oldRef);
     }
     initWindowPtr();
 
@@ -1152,7 +1156,6 @@ void QWidgetPrivate::createWindow_sys()
         q->setWindowOpacity(0.95);
     else if (topExtra->opacity != 255)
         q->setWindowOpacity(topExtra->opacity);
-
 
     // Since we only now have a window, sync our state.
     qt_mac_update_opaque_sizegrip(q);
@@ -1222,17 +1225,26 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(destroyOldWindow)
             destroyid = qt_mac_hiview_for(q);
         bool transfer = false;
+        setWinId((WId)hiview);
         if(topLevel) {
-            if(WindowRef windowref = qt_mac_window_for(hiview)) {
-                RetainWindow(windowref);
-                parent = qt_mac_hiview_for(windowref);
-            } else {
-                transfer = true;
+            determineWindowClass();
+            for(int i = 0; i < 2; ++i) {
+                if(i == 1) {
+                    if(!initializeWindow)
+                        break;
+                    createWindow_sys();
+                }
+                if(WindowRef windowref = qt_mac_window_for(hiview)) {
+                    RetainWindow(windowref);
+                    parent = qt_mac_hiview_for(windowref);
+                    break;
+                }
             }
+            if(!parent)
+                transfer = true;
         } else if(parentWidget) {
             parent = qt_mac_hiview_for(parentWidget);
         }
-        setWinId((WId)hiview);
         if(parent)
             HIViewAddSubview(parent, hiview);
         if(transfer)
