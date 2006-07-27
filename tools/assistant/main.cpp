@@ -169,7 +169,7 @@ int main( int argc, char ** argv )
                 profileName = QFile::decodeName(argv[++i]);
             } else if ( opt == QLatin1String("-addcontentfile") ) {
                 INDEX_CHECK( "Missing content file!" );
-                Config *c = Config::loadConfig( QString() );
+                Config *c = Config::loadConfig(QString());
                 QFileInfo file( QFile::decodeName(argv[i+1]) );
                 if( !file.exists() ) {
                     fprintf(stderr, "Could not locate content file: %s\n", qPrintable(file.absoluteFilePath()));
@@ -188,8 +188,8 @@ int main( int argc, char ** argv )
                 }
                 return 0;
             } else if ( opt == QLatin1String("-removecontentfile") ) {
-                INDEX_CHECK( "Missing content file!" );
-                Config *c = Config::loadConfig( QString() );
+                INDEX_CHECK("Missing content file!");
+                Config *c = Config::loadConfig(QString());
                 Profile *profile = c->profile();
                 QString contentFile = QString::fromLocal8Bit(argv[i+i]);
                 QStringList entries;

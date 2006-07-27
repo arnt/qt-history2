@@ -31,7 +31,7 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
     QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath);
     if (!docPath.isEmpty())
         path = docPath;
-    path = QDir::cleanPath(path) + QLatin1String("/html/");  
+    path = QDir::cleanPath(path) + QLatin1String("/html/");
     
     Profile *profile = new Profile;
     profile->valid = true;
@@ -70,21 +70,62 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
     return profile;
 }
 
-
 Profile::Profile()
     : valid( true ), dparser( 0 )
 {
 }
 
-
-void Profile::removeDocFileEntry( const QString &docfile )
+bool Profile::isValid() const
 {
-    docs.removeAll( docfile );
+    return valid;
+}
 
+void Profile::addDCFTitle(const QString &dcf, const QString &title)
+{
+    QString absdcf = QFileInfo(dcf).absoluteFilePath();
+    dcfTitles[title] = absdcf;
+    if (!docs.contains(absdcf))
+        docs << absdcf;
+}
+
+void Profile::addDCF(const QString &docfile)
+{
+    if( !docs.contains( docfile ) == 0 )
+        docs << docfile;
+}
+
+void Profile::addDCFIcon(const QString docfile, const QString &icon)
+{
+    icons[docfile] = icon;
+}
+
+void Profile::addDCFIndexPage(const QString title, const QString &indexPage)
+{
+    indexPages[title] = indexPage;
+}
+
+void Profile::addDCFImageDir(const QString docfile, const QString &imgDir)
+{
+    imageDirs[docfile] = imgDir;
+}
+
+void Profile::addProperty(const QString &name, const QString &value)
+{
+    props[name] = value;
+}
+
+bool Profile::hasDocFile(const QString &name)
+{
+    return docs.contains( name );
+}
+
+void Profile::removeDocFileEntry(const QString &docfile)
+{
+    docs.removeAll(docfile);
     QStringList titles;
 
     for( QMap<QString,QString>::Iterator it = dcfTitles.begin();
-         it != dcfTitles.end(); ++it ) {
+        it != dcfTitles.end(); ++it ) {
         if( (*it) == docfile ) {
             indexPages.remove( *it );
             icons.remove( *it );
@@ -94,15 +135,31 @@ void Profile::removeDocFileEntry( const QString &docfile )
     }
 
     for( QStringList::ConstIterator title = titles.constBegin();
-         title != titles.constEnd(); ++title ) {
-
+        title != titles.constEnd(); ++title )
         dcfTitles.remove( *title );
-    }
 
 #ifdef ASSISTANT_DEBUG
-    qDebug( "docs:\n  - " + docs.join( "\n  - " ) );
-    qDebug( "titles:\n  - " + titles.join( "\n  - " ) );
-    qDebug( "keys:\n  - " + ( (QStringList*) &(dcfTitles.keys()) )->join( "\n  - " ) );
-    qDebug( "values:\n  - " + ( (QStringList*) &(dcfTitles.values()) )->join( "\n  - " ) );
+    qDebug() << "docs:\n  - " << docs.join("\n  - ");
+    qDebug() << "titles:\n  - " << titles.join("\n  - ");
+    qDebug() << "keys:\n  - " << ((QStringList*)&(dcfTitles.keys()))->join("\n  - ");
+    qDebug() << "values:\n  - " << ((QStringList*)&(dcfTitles.values()))->join("\n  - ");
 #endif
+}
+
+QString Profile::storableFilePath(const QString &fileName)
+{
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");    
+    QString fName = fileName;
+    if (fName.startsWith(path))
+        fName.replace(0, path.length(), "$DOCPATH$");        
+    return fName;
+}
+
+QString Profile::loadableFilePath(const QString &fileName)
+{
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
+    QString fName = fileName;
+    if (fName.startsWith("$DOCPATH$"))
+        fName.replace(0, 9, path);
+    return fName;
 }

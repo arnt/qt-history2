@@ -96,11 +96,18 @@ QList<IndexItem*> DocuParser::getIndexItems()
     return indexList;
 }
 
-QString DocuParser::absolutify(const QString &name) const
+QString DocuParser::absolutify(const QString &name, bool makeUrl) const
 {
-    QFileInfo orgPath(name);
-    if(orgPath.isRelative())
-        return "file:" + QFileInfo(fname).path() + "/" + name;
+    if (!name.isEmpty()) {
+        QString s = name;
+        s.replace("\\", "/");
+        QFileInfo orgPath(name);
+        if(orgPath.isRelative())
+            s = QFileInfo(fname).path() + QDir::separator() + name;
+        if (makeUrl)
+            s.prepend("file:");
+        return s;
+    }
     return name;
 }
 
@@ -136,11 +143,11 @@ bool DocuParser310::startElement(const QString &, const QString &,
 {
     if (qname == QLatin1String("DCF") && state == StateInit) {
         state = StateContent;
-        contentRef = absolutify(attr.value(QLatin1String("ref")));
+        contentRef = absolutify(attr.value(QLatin1String("ref")), false);
         conURL = contentRef;
         docTitle = attr.value(QLatin1String("title"));
-        iconName = absolutify(attr.value(QLatin1String("icon")));
-        contentList.append(ContentItem(docTitle, contentRef, depth));
+        iconName = absolutify(attr.value(QLatin1String("icon")), false);
+        contentList.append(ContentItem(docTitle, absolutify(contentRef), depth));
     } else if (qname == QLatin1String("section") && (state == StateContent || state == StateSect)) {
         state = StateSect;
         contentRef = absolutify(attr.value(QLatin1String("ref")));
@@ -342,7 +349,8 @@ bool DocuParser320::endElement(const QString &nameSpace,
         prof->addProperty(propertyName, propertyValue);
         break;
     case StateContent:
-        if(!iconName.isEmpty()) prof->addDCFIcon(docTitle, iconName);
+        if(!iconName.isEmpty())
+            prof->addDCFIcon(docTitle, iconName);
         if(contentRef.isEmpty())
             return false;
         prof->addDCFIndexPage(docTitle, conURL);

@@ -50,10 +50,14 @@ Config *Config::loadConfig(const QString &profileFileName)
     Config *config = new Config();
 
     if (profileFileName.isEmpty()) { // no profile
-        config->profil = Profile::createDefaultProfile();
-        config->saveProfile(config->profil);
-        config->load();
+        if (!config->defaultProfileExists()) {
+            config->profil = Profile::createDefaultProfile();
+            config->saveProfile(config->profil);
+        } else {
+            config->profil = new Profile();
+        }
         config->loadDefaultProfile();
+        config->load();        
         return config;
     }
 
@@ -156,12 +160,29 @@ static void dumpmap( const QMap<QString,QString> &m, const QString &header )
 }
 #endif
 
+bool Config::defaultProfileExists()
+{
+    QSettings settings;
+    const QString profKey = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile/default/");
+
+    if (settings.contains(profKey + QLatin1String("DocFiles"))
+        && settings.contains(profKey + QLatin1String("Titles"))
+        && settings.contains(profKey + QLatin1String("ImageDirs"))) {        
+        QStringList dcfs = settings.value(profKey + QLatin1String("DocFiles") ).toStringList();
+        foreach (QString file, dcfs) {
+            if (file == Profile::storableFilePath(file))
+                return true;
+        }
+    }
+    return false;
+}
+
 void Config::loadDefaultProfile()
 {
     QSettings settings;
     const QString profKey = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile/default/");
 
-    if (!settings.contains(profKey + QLatin1String("DocFiles")))
+    if (!defaultProfileExists())
         return;
 
     // Override the defaults with settings in registry.
@@ -170,13 +191,15 @@ void Config::loadDefaultProfile()
     profil->imageDirs.clear();
     profil->docs.clear();
     profil->dcfTitles.clear();
-
+    
     QStringList titles = settings.value( profKey + QLatin1String("Titles") ).toStringList();
     QStringList iconLst = settings.value( profKey + QLatin1String("DocIcons") ).toStringList();
     QStringList indexLst = settings.value( profKey + QLatin1String("IndexPages") ).toStringList();
     QStringList imgDirLst = settings.value( profKey + QLatin1String("ImageDirs") ).toStringList();
     QStringList dcfs = settings.value( profKey + QLatin1String("DocFiles") ).toStringList();
+    profil->props[QLatin1String("name")] = QLatin1String("default");
 
+    QString filePath;
     QStringList::ConstIterator it = titles.constBegin();
     QStringList::ConstIterator iconIt = iconLst.constBegin();
     QStringList::ConstIterator indexIt = indexLst.constBegin();
@@ -187,10 +210,10 @@ void Config::loadDefaultProfile()
           && (indexIt != indexLst.constEnd())
           && (imageIt != imgDirLst.constEnd())
           && (dcfIt != dcfs.constEnd())) {
-        profil->addDCFIcon( *it, *iconIt );
-        profil->addDCFIndexPage( *it, *indexIt );
+        profil->addDCFIcon( *it, *iconIt );        
+        profil->addDCFIndexPage(*it, Profile::loadableFilePath(*indexIt));        
         profil->addDCFImageDir( *it, *imageIt );
-        profil->addDCFTitle( *dcfIt, *it );
+        profil->addDCFTitle(Profile::loadableFilePath(*dcfIt), *it);
         ++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt;
     }
 #if ASSISTANT_DEBUG
@@ -206,36 +229,39 @@ void Config::saveProfile( Profile *profile )
 {
     if (profil->profileType() == Profile::UserProfile)
         return;
-    QSettings settings;
-
+    
     const QString key = (profile->props[QLatin1String("name")] == QLatin1String("default"))
         ? QString::fromLatin1(QT_VERSION_STR)
         : getVersionString();
 
     const QString profKey = key + QLatin1String("/Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
 
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
     QStringList indexes, icons, imgDirs, dcfs;
     QStringList titles = profile->dcfTitles.keys();
     QStringList::ConstIterator it = titles.constBegin();
+    QString filePath;
     for ( ; it != titles.constEnd(); ++it ) {
-        indexes << profile->indexPages[*it];
+        
+        indexes << Profile::storableFilePath(profile->indexPages[*it]);
         icons << profile->icons[*it];
         imgDirs << profile->imageDirs[*it];
-        dcfs << profile->dcfTitles[*it];
+        dcfs << Profile::storableFilePath(profile->dcfTitles[*it]);
     }
 
+    QSettings settings;
     settings.setValue( profKey + QLatin1String("Titles"), titles );
     settings.setValue( profKey + QLatin1String("DocFiles"), dcfs );
     settings.setValue( profKey + QLatin1String("IndexPages"), indexes );
     settings.setValue( profKey + QLatin1String("DocIcons"), icons );
     settings.setValue( profKey + QLatin1String("ImageDirs"), imgDirs );
-
+    
 #if ASSISTANT_DEBUG
-    qDebug( "Titles:\n  - " + ( (QStringList*) &titles )->join( "\n  - " ) );
-    qDebug( "Docfiles:\n  - " + dcfs.join( "\n  - " ) );
-    qDebug( "IndexPages:\n  - " + indexes.join( "\n  - " ) );
-    qDebug( "DocIcons:\n  - " + icons.join( "\n  - " ) );
-    qDebug( "ImageDirs:\n  - " + imgDirs.join( "\n  - " ) );
+    qDebug() << "Titles:\n  - " << ((QStringList*)&titles)->join("\n  - ");
+    qDebug() << "Docfiles:\n  - " << dcfs.join("\n  - " );
+    qDebug() << "IndexPages:\n  - " << indexes.join("\n  - ");
+    qDebug() << "DocIcons:\n  - " << icons.join("\n  - " );
+    qDebug() << "ImageDirs:\n  - " << imgDirs.join("\n  - " );
 #endif
 }
 

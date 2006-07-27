@@ -69,7 +69,7 @@ public:
     void setFileName( const QString &file ) { fname = file; }
 
 protected:
-    QString absolutify( const QString &input ) const;
+    QString absolutify( const QString &input, bool makeUrl = true ) const;
     
     QString contentRef, indexRef, errorProt, conURL;
     QString docTitle, title, iconName;

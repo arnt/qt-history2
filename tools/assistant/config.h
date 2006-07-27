@@ -77,6 +77,7 @@ public:
 
     void saveProfile( Profile *profile );
     void loadDefaultProfile();
+    bool defaultProfileExists();
 
     static Config *configuration();
     static Config *loadConfig(const QString &profileFileName);
@@ -86,7 +87,7 @@ private:
     Config& operator=( const Config &c );
 
     void saveSettings();
-
+    
 private:
     Profile *profil;
 
