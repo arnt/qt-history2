@@ -80,6 +80,7 @@ public:
 
     QFont();
     QFont(const QString &family, int pointSize = -1, int weight = -1, bool italic = false);
+    QFont(const QString &family, qreal pointSize, int weight = -1, bool italic = false);
     QFont(const QFont &, QPaintDevice *pd);
     QFont(const QFont &);
     ~QFont();
@@ -192,6 +193,7 @@ public:
 private:
     QFont(QFontPrivate *);
 
+    void init(const QString &family, qreal pointSize, int weight, bool italic);
     void detach();
 
 #if defined(Q_WS_MAC)

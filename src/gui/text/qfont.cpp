@@ -508,6 +508,36 @@ QFont::QFont()
 QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     :d(new QFontPrivate)
 {
+    init(family,qreal(pointSize),weight,italic);
+}
+
+/*!
+    Constructs a font object with the specified \a family, \a
+    pointSize, \a weight and \a italic settings.
+
+    If \a pointSize is <= 0.0, it is set to 12.0.
+
+    The \a family name may optionally also include a foundry name,
+    e.g. "Helvetica [Cronyx]". If the \a family is
+    available from more than one foundry and the foundry isn't
+    specified, an arbitrary foundry is chosen. If the family isn't
+    available a family will be set using the \l{QFont}{font matching}
+    algorithm.
+
+    \sa Weight, setFamily(), setPointSize(), setWeight(), setItalic(),
+    setStyleHint() QApplication::font()
+*/
+QFont::QFont(const QString &family, qreal pointSize, int weight, bool italic)
+    :d(new QFontPrivate)
+{
+    init(family,pointSize,weight,italic);
+}
+
+/*! \internal
+    Initializes the font. For calling only from the relevant constructors.
+*/
+void QFont::init(const QString &family, qreal pointSize, int weight, bool italic)
+{
     qt_font_tread_test();
 
     resolve_mask = QFontPrivate::Family;
@@ -525,7 +555,7 @@ QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     }
 
     d->request.family = family;
-    d->request.pointSize = qreal(pointSize);
+    d->request.pointSize = pointSize;
     d->request.pixelSize = -1;
     d->request.weight = weight;
     d->request.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
