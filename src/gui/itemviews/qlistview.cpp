@@ -2212,13 +2212,14 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     if (!wrap && movement == QListView::Static) {
         QSize vsize = viewport->size();
+	QSize csize = (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
         if (flow == QListView::TopToBottom) {
             if (q_func()->isRightToLeft()) // Adjust the rect by expanding the left edge
-                result.setLeft(result.right() - qMax(contentsSize.width(), vsize.width()));
+                result.setLeft(result.right() - qMax(csize.width(), vsize.width()));
             else // Adjust the rect by expanding the right edge
-                result.setWidth(qMax(contentsSize.width(), vsize.width()));
+                result.setWidth(qMax(csize.width(), vsize.width()));
         } else { // LeftToRight
-            result.setHeight(qMax(contentsSize.height(), vsize.height()));
+            result.setHeight(qMax(csize.height(), vsize.height()));
         }
     }
 
