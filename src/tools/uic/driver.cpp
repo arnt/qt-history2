@@ -154,6 +154,18 @@ static bool isAnsiCCharacter(const QChar& c)
            || c.isDigit() || c == QLatin1Char('_');
 }
 
+QString Driver::headerFileName() const
+{
+    QString name = m_option.outputFile;
+
+    if (name.isEmpty()) {
+        name = QLatin1String("ui_"); // ### use ui_ as prefix.
+        name.append(m_option.inputFile);
+    }
+
+    return headerFileName(name);
+}
+
 QString Driver::headerFileName(const QString &fileName)
 {
     if (fileName.isEmpty())

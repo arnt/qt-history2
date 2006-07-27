@@ -53,8 +53,7 @@ public:
 
     // utils
     static QString headerFileName(const QString &fileName);
-    inline QString headerFileName() const
-    { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
+    QString headerFileName() const;
 
     static QString normalizedName(const QString &name);
     static QString qtify(const QString &name);
