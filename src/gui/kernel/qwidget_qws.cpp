@@ -995,6 +995,9 @@ void QWidget::setMask(const QRegion& region)
                                                d->data.crect.y()-br.y(),
                                                br.right()-d->data.crect.right(),
                                                br.bottom()-d->data.crect.bottom());
+                QWindowSurface *surface = topextra->backingStore->windowSurface;
+                if (surface)
+                    surface->setGeometry(frameGeometry());
             }
             d->invalidateBuffer(rect());
         } else {
