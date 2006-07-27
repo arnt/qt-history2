@@ -516,22 +516,30 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
     return tmp;
 }
 
-static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp)
+static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
 {
 
     bool active = (option->titleBarState & QStyle::State_Active);
-    QColor titleBarHighlight(active ? option->palette.highlight().color().light(120): option->palette.background().color().light(120));
+    QColor titleBarHighlight(active ? option->palette.highlight().color().light(106): option->palette.background().color().light(106));
 
+    if (hover)
+        painter->fillRect(tmp.adjusted(1, 1, -1, -1), QColor(255, 255, 255, 20));
+    else if (sunken)
+        painter->fillRect(tmp.adjusted(1, 1, -1, -1), option->palette.highlight().color().dark(130));
+    
     QColor mdiButtonGradientStartColor;
     QColor mdiButtonGradientStopColor;
 
     mdiButtonGradientStartColor = QColor(active ? option->palette.highlight().color().light(115): option->palette.background().color().light(115));
     mdiButtonGradientStopColor = QColor(active ? option->palette.highlight().color().dark(110) : option->palette.background().color());
 
+    if (sunken) {
+        titleBarHighlight = option->palette.highlight().color().dark(130);
+    }
+    
     QLinearGradient gradient(tmp.center().x(), tmp.top(), tmp.center().x(), tmp.bottom());
     gradient.setColorAt(0, mdiButtonGradientStartColor);
     gradient.setColorAt(1, mdiButtonGradientStopColor);
-
     QColor mdiButtonBorderColor(active ? option->palette.highlight().color().dark(180): option->palette.dark().color().dark(120));
 
     painter->setPen(QPen(mdiButtonBorderColor, 1));
@@ -546,8 +554,9 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 
     painter->setPen(titleBarHighlight);
     painter->drawLine(tmp.left() + 2, tmp.top() + 1, tmp.right() - 2, tmp.top() + 1);
-    painter->setPen(QPen(gradient, 1));
     painter->drawLine(tmp.left() + 1, tmp.top() + 2, tmp.left() + 1, tmp.bottom() - 2);
+    
+    painter->setPen(QPen(gradient, 1));
     painter->drawLine(tmp.right() + 1, tmp.top() + 2, tmp.right() + 1, tmp.bottom() - 2);
     painter->drawPoint(tmp.right() , tmp.top() + 1);
 
@@ -2413,8 +2422,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_Sunken);
                 QRect minButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMinButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, minButtonRect);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, minButtonRect, hover, sunken);
 
                 int xoffset = 5;//closeButtonRect.width() / 3;
                 int yoffset = 5;//closeButtonRect.height() / 3;
@@ -2436,8 +2447,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             // max button
             if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_Sunken);
                 QRect maxButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMaxButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, maxButtonRect);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, maxButtonRect, hover, sunken);
 
                 int xoffset = maxButtonRect.width() / 3;
                 int yoffset = maxButtonRect.height() / 3;
@@ -2458,8 +2471,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             // close button
             if (titleBar->subControls & SC_TitleBarCloseButton) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_Sunken);
                 QRect closeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarCloseButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, closeButtonRect);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, closeButtonRect, hover, sunken);
 
                 int xoffset = 5;//closeButtonRect.width() / 3;
                 int yoffset = 5;//closeButtonRect.height() / 3;
@@ -2489,9 +2504,16 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             }
 
             // normalize button
-            if ((titleBar->subControls & SC_TitleBarNormalButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+            if ((titleBar->subControls & SC_TitleBarNormalButton) &&
+               (((titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) &&
+               (titleBar->titleBarState & Qt::WindowMinimized)) ||
+               ((titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) &&
+               (titleBar->titleBarState & Qt::WindowMaximized)))) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_Sunken);
+
                 QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, normalButtonRect);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, normalButtonRect, hover, sunken);
 
                 int xoffset = 5;//closeButtonRect.width() / 3;
                 int yoffset = 5;//closeButtonRect.height() / 3;
@@ -2530,9 +2552,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             // context help button
             if (titleBar->subControls & SC_TitleBarContextHelpButton) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_Sunken);
                 QRect contextHelpButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarContextHelpButton, widget);
 
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, contextHelpButtonRect);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, sunken);
 
                 QColor blend;
                 // ### Use palette colors
@@ -2554,53 +2577,37 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             // shade button
             if (titleBar->subControls & SC_TitleBarShadeButton) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_Sunken);
+
                 QRect shadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarShadeButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, shadeButtonRect);
-
-                int xoffset = 5;//closeButtonRect.width() / 3;
-                int yoffset = 5;//closeButtonRect.height() / 3;
-
-                QRect shadeButtonIconRect(shadeButtonRect.left() + xoffset, shadeButtonRect.top() + yoffset,
-                                          shadeButtonRect.width() - xoffset * 2, shadeButtonRect.height() - yoffset * 2);
-
-                QPainterPath path(shadeButtonIconRect.bottomLeft());
-                path.lineTo(shadeButtonIconRect.center().x(), shadeButtonIconRect.bottom() - shadeButtonIconRect.height() / 2);
-                path.lineTo(shadeButtonIconRect.bottomRight());
-                path.lineTo(shadeButtonIconRect.bottomLeft());
-
-                painter->setPen(textAlphaColor);
-                painter->setBrush(textColor);
-                painter->drawPath(path);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, shadeButtonRect, hover, sunken);
+                QImage image(qt_scrollbar_button_arrow_up);
+                image.setColor(1, textColor.rgba());
+                painter->drawImage(shadeButtonRect.adjusted(5, 7, -5, -7), image);
             }
 
             // unshade button
             if (titleBar->subControls & SC_TitleBarUnshadeButton) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_Sunken);
+
                 QRect unshadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarUnshadeButton, widget);
-                qt_cleanlooks_draw_mdibutton(painter, titleBar, unshadeButtonRect);
-
-                int xoffset = unshadeButtonRect.width() / 3;
-                int yoffset = unshadeButtonRect.height() / 3;
-
-                QRect unshadeButtonIconRect(unshadeButtonRect.left() + xoffset, unshadeButtonRect.top() + yoffset,
-                                          unshadeButtonRect.width() - xoffset * 2, unshadeButtonRect.height() - yoffset * 2);
-
-                int midY = unshadeButtonIconRect.bottom() - unshadeButtonIconRect.height() / 2;
-                QPainterPath path(QPoint(unshadeButtonIconRect.left(), midY));
-                path.lineTo(unshadeButtonIconRect.right(), midY);
-                path.lineTo(unshadeButtonIconRect.center().x(), unshadeButtonIconRect.bottom());
-                path.lineTo(unshadeButtonIconRect.left(), midY);
-
-                painter->setPen(textAlphaColor);
-                painter->setBrush(textColor);
-                painter->drawPath(path);
+                qt_cleanlooks_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover, sunken);
+                QImage image(qt_scrollbar_button_arrow_down);
+                image.setColor(1, textColor.rgba());
+                painter->drawImage(unshadeButtonRect.adjusted(5, 7, -5, -7), image);
             }
 
             // from qwindowsstyle.cpp
             if ((titleBar->subControls & SC_TitleBarSysMenu) && (titleBar->titleBarFlags & Qt::WindowSystemMenuHint)) {
-                bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
+                bool hover = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_MouseOver);
+                bool sunken = (titleBar->activeSubControls & SC_TitleBarSysMenu) && (titleBar->state & State_Sunken);
+                
                 QRect iconRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarSysMenu, widget);
+                
                 if (hover)
-                    qt_cleanlooks_draw_mdibutton(painter, titleBar, iconRect);
+                    qt_cleanlooks_draw_mdibutton(painter, titleBar, iconRect, hover, sunken);
 
                 if (!titleBar->icon.isNull()) {
                     titleBar->icon.paint(painter, iconRect);
@@ -3429,6 +3436,7 @@ void QCleanlooksStyle::polish(QWidget *widget)
 #ifndef QT_NO_SPINBOX
         || qobject_cast<QAbstractSpinBox *>(widget)
 #endif
+        || (widget->inherits("QWorkspaceChild"))
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))
         ) {
@@ -3467,6 +3475,7 @@ void QCleanlooksStyle::unpolish(QWidget *widget)
 #ifndef QT_NO_SPINBOX
         || qobject_cast<QAbstractSpinBox *>(widget)
 #endif
+        || (widget->inherits("QWorkspaceChild"))
         || (widget->inherits("QDockSeparator"))
         || (widget->inherits("QDockWidgetSeparator"))
         ) {
@@ -3795,6 +3804,9 @@ int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
         ret = 0;
         break;
     case SH_MenuBar_MouseTracking:
+        ret = 1;
+        break;
+    case SH_TitleBar_AutoRaise:
         ret = 1;
         break;
     case SH_TitleBar_NoBorder:
