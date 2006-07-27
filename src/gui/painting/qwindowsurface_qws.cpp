@@ -604,7 +604,8 @@ QWSOnScreenSurface::~QWSOnScreenSurface()
 
 QPoint QWSOnScreenSurface::painterOffset() const
 {
-    return brect.topLeft() + QWSWindowSurface::painterOffset();
+    const QPoint offset = brect.topLeft() - screen->offset();
+    return offset + QWSWindowSurface::painterOffset();
 }
 
 bool QWSOnScreenSurface::isValidFor(const QWidget *widget) const
