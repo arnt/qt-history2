@@ -49,6 +49,7 @@ class Q_GUI_EXPORT QAction : public QObject
 #ifndef QT_NO_SHORTCUT
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(Qt::ShortcutContext shortcutContext READ shortcutContext WRITE setShortcutContext)
+    Q_PROPERTY(bool autoRepeat READ autoRepeat WRITE setAutoRepeat)
 #endif
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
     Q_PROPERTY(MenuRole menuRole READ menuRole WRITE setMenuRole)
@@ -108,6 +109,9 @@ public:
 
     void setShortcutContext(Qt::ShortcutContext context);
     Qt::ShortcutContext shortcutContext() const;
+
+    void setAutoRepeat(bool);
+    bool autoRepeat() const;
 #endif
 
     void setFont(const QFont &font);

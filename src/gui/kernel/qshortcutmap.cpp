@@ -39,15 +39,19 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), context(Qt::WindowShortcut), enabled(false), id(0), owner(0)
+        : keyseq(0), context(Qt::WindowShortcut), enabled(false), id(0), autorepeat(1), owner(0)
     {}
 
     QShortcutEntry(const QKeySequence &k)
-        : keyseq(k), context(Qt::WindowShortcut), enabled(false), id(0), owner(0)
+        : keyseq(k), context(Qt::WindowShortcut), enabled(false), id(0), autorepeat(1), owner(0)
     {}
 
     QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
-        : keyseq(k), context(c), enabled(true), id(i), owner(o)
+        : keyseq(k), context(c), enabled(true), id(i), autorepeat(1), owner(o)
+    {}
+
+    QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i, bool a)
+        : keyseq(k), context(c), enabled(true), id(i), autorepeat(a), owner(o)
     {}
 
     bool operator<(const QShortcutEntry &f) const
@@ -57,6 +61,7 @@ struct QShortcutEntry
     Qt::ShortcutContext context;
     bool enabled : 1;
     signed int id : 31;
+    bool autorepeat : 1;
     QObject *owner;
 };
 
@@ -69,7 +74,8 @@ QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
         return dbg << "QShortcutEntry(0x0)";
     dbg.nospace()
         << "QShortcutEntry(" << se->keyseq
-        << "), id(" << se->id << "), enabled(" << se->enabled << ") owner(" << se->owner << ")";
+        << "), id(" << se->id << "), enabled(" << se->enabled << "), autorepeat(" << se->autorepeat
+        << "), owner(" << se->owner << ")";
     return dbg.space();
 }
 #endif // QT_NO_DEBUGSTREAM
@@ -130,13 +136,13 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
     Q_D(QShortcutMap);
 
-    QShortcutEntry newEntry(owner, key, context, --(d->currentId));
+    QShortcutEntry newEntry(owner, key, context, --(d->currentId), true);
     QList<QShortcutEntry>::iterator it = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
 #if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::addShortcut(" << owner << ", "
-        << key << ", " << context << ") = " << d->currentId;
+        << key << ", " << context << ", " << autorepeat << ") = " << d->currentId;
 #endif
     return d->currentId;
 }
@@ -226,6 +232,43 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const 
     return itemsChanged;
 }
 
+/*! \internal
+    Changes the auto repeat state of a shortcut to \a enable.
+    If \a owner is 0, all entries in the map with the keysequence specified
+    is removed. If \a key is null, all sequences for \a owner is removed from
+    the map. If \a id is 0, any identical \a key sequences owned by \a owner
+    are changed.
+    Returns the number of sequences which are matched in the map.
+*/
+int QShortcutMap::setShortcutAutoRepeat(bool on, int id, QObject *owner, const QKeySequence &key)
+{
+    Q_D(QShortcutMap);
+    int itemsChanged = 0;
+    bool allOwners = (owner == 0);
+    bool allKeys = key.isEmpty();
+    bool allIds = id == 0;
+
+    int i = d->sequences.size()-1;
+    while (i>=0)
+    {
+        QShortcutEntry entry = d->sequences.at(i);
+        if ((allOwners || entry.owner == owner)
+            && (allIds || entry.id == id)
+            && (allKeys || entry.keyseq == key)) {
+                d->sequences[i].autorepeat = on;
+                ++itemsChanged;
+        }
+        if (id == entry.id)
+            return itemsChanged;
+        --i;
+    }
+#if defined(DEBUG_QSHORTCUTMAP)
+    qDebug().nospace()
+        << "QShortcutMap::setShortcutAutoRepeat(" << on << ", " << id << ", "
+        << owner << ", " << key << ") = " << itemsChanged;
+#endif
+    return itemsChanged;
+}
 
 /*! \internal
     Resets the state of the statemachine to NoMatch
@@ -289,7 +332,7 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
         return stateWasAccepted;
     case QKeySequence::ExactMatch:
         resetState();
-        dispatchEvent();
+        dispatchEvent(e);
     default:
 	break;
     }
@@ -649,7 +692,7 @@ QVector<const QShortcutEntry*> QShortcutMap::matches() const
 /*! \internal
     Dispatches QShortcutEvents to widgets who grabbed the matched key sequence.
 */
-void QShortcutMap::dispatchEvent()
+void QShortcutMap::dispatchEvent(QKeyEvent *e)
 {
     Q_D(QShortcutMap);
     if (!d->identicals.size())
@@ -674,7 +717,9 @@ void QShortcutMap::dispatchEvent()
         ++i;
     }
     d->ambigCount = (d->identicals.size() == i ? 0 : d->ambigCount + 1);
-    if (!next)
+    // Don't trigger shortcut if we're autorepeating and the shortcut is
+    // grabbed with not accepting autorepeats.
+    if (!next || (e->isAutoRepeat() && !next->autorepeat))
         return;
     // Dispatch next enabled
 #if defined(DEBUG_QSHORTCUTMAP)

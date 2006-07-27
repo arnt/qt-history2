@@ -50,11 +50,12 @@ public:
     int addShortcut(QObject *owner, const QKeySequence &key, Qt::ShortcutContext context);
     int removeShortcut(int id, QObject *owner, const QKeySequence &key = QKeySequence());
     int setShortcutEnabled(bool enable, int id, QObject *owner, const QKeySequence &key = QKeySequence());
+    int setShortcutAutoRepeat(bool on, int id, QObject *owner, const QKeySequence &key = QKeySequence());
 
     void resetState();
     QKeySequence::SequenceMatch nextState(QKeyEvent *e);
     QKeySequence::SequenceMatch state();
-    void dispatchEvent();
+    void dispatchEvent(QKeyEvent *e);
     bool tryShortcutEvent(QWidget *w, QKeyEvent *e);
 
 #ifdef Dump_QShortcutMap

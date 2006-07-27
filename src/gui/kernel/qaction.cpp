@@ -54,6 +54,7 @@ QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
 #ifndef QT_NO_SHORTCUT
     shortcutId = 0;
     shortcutContext = Qt::WindowShortcut;
+    autorepeat = true;
 #endif
 }
 
@@ -85,6 +86,8 @@ void QActionPrivate::redoGrab(QShortcutMap &map)
     shortcutId = map.addShortcut(q, shortcut, shortcutContext);
     if (!enabled)
         map.setShortcutEnabled(false, shortcutId, q);
+    if (!autorepeat)
+        map.setShortcutAutoRepeat(false, shortcutId, q);
 }
 
 void QActionPrivate::redoGrabAlternate(QShortcutMap &map)
@@ -104,7 +107,11 @@ void QActionPrivate::redoGrabAlternate(QShortcutMap &map)
     }
     if (!enabled) {
         foreach (int id, alternateShortcutIds)
-           map.setShortcutEnabled(false, id, q);
+            map.setShortcutEnabled(false, id, q);
+    }
+    if (!autorepeat) {
+        foreach (int id, alternateShortcutIds)
+            map.setShortcutEnabled(false, id, q);
     }
 }
 
@@ -396,7 +403,6 @@ QList<QKeySequence> QAction::shortcuts() const
     Valid values for this property can be found in \l Qt::ShortcutContext.
     The default value is Qt::WindowShortcut.
 */
-
 void QAction::setShortcutContext(Qt::ShortcutContext context)
 {
     Q_D(QAction);
@@ -412,6 +418,32 @@ Qt::ShortcutContext QAction::shortcutContext() const
 {
     Q_D(const QAction);
     return d->shortcutContext;
+}
+
+/*!
+    \property QAction::autoRepeat
+    \brief whether the action can auto repeat
+
+    If true, the action will auto repeat when the keyboard shortcut
+    combination is held down, provided that keyboard auto repeat is
+    enabled on the system.
+    The default value is true.
+*/
+void QAction::setAutoRepeat(bool on)
+{
+    Q_D(QAction);
+    if (d->autorepeat == on)
+        return;
+    d->autorepeat = on;
+    d->redoGrab(qApp->d_func()->shortcutMap);
+    d->redoGrabAlternate(qApp->d_func()->shortcutMap);
+    d->sendDataChanged();
+}
+
+bool QAction::autoRepeat() const
+{
+    Q_D(const QAction);
+    return d->autorepeat;
 }
 #endif // QT_NO_SHORTCUT
 

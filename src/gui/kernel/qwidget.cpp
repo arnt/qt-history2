@@ -7433,7 +7433,7 @@ QString QWidget::accessibleDescription() const
     Adds a shortcut to Qt's shortcut system that watches for the given
     \a key sequence in the given \a context. If the \a context is not
     \c OnApplication, the shortcut is local to this widget; otherwise
-    it applies to the application as a whole.
+    it applies to the application as a whole. 
 
     If the same \a key sequence has been grabbed by several widgets,
     when the \a key sequence occurs a QEvent::Shortcut event is sent
@@ -7459,7 +7459,6 @@ int QWidget::grabShortcut(const QKeySequence &key, Qt::ShortcutContext context)
     setAttribute(Qt::WA_GrabbedShortcut);
     return qApp->d_func()->shortcutMap.addShortcut(this, key, context);
 }
-
 
 /*!
     Removes the shortcut with the given \a id from Qt's shortcut
@@ -7500,6 +7499,19 @@ void QWidget::setShortcutEnabled(int id, bool enable)
     Q_ASSERT(qApp);
     if (id)
         qApp->d_func()->shortcutMap.setShortcutEnabled(enable, id, this, 0);
+}
+
+/*!
+    If \a enable is true, auto repeat of the shortcut with the
+    given \a id is enabled; otherwise it is disabled.
+
+    \sa grabShortcut() releaseShortcut()
+*/
+void QWidget::setShortcutAutoRepeat(int id, bool enable)
+{
+    Q_ASSERT(qApp);
+    if (id)
+        qApp->d_func()->shortcutMap.setShortcutAutoRepeat(enable, id, this, 0);
 }
 #endif // QT_NO_SHORTCUT
 /*!

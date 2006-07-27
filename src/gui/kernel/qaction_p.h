@@ -60,6 +60,7 @@ public:
     int shortcutId;
     QList<int> alternateShortcutIds;
     Qt::ShortcutContext shortcutContext;
+    uint autorepeat : 1;
 #endif
     QFont font;
     QPointer<QMenu> menu;
