@@ -51,8 +51,8 @@ class QComboBoxListView : public QListView
 protected:
     void resizeEvent(QResizeEvent *event)
     {
-        QListView::resizeEvent(event);
         resizeContents(viewport()->width(), contentsSize().height());
+        QListView::resizeEvent(event);
     }
 
     QStyleOptionViewItem viewOptions() const
