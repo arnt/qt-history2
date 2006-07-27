@@ -738,41 +738,6 @@ int QPixmap::serialNumber() const
         return data->ser_no;
 }
 
-/*
-  Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
-  position \a offset
- */
-#ifdef Q_WS_MAC
-static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
-                              const QRect &r, const QPoint &offset)
-{
-    if(widget->isWindow() || widget->autoFillBackground()) {
-        buf.fill(widget, r.topLeft());
-    } else {
-        QPainter p(&buf);
-        p.drawPixmap(0, 0, res, r.x()+offset.x(), r.y()+offset.y(), r.width(), r.height());
-    }
-    QPainter::setRedirected(widget, &buf, r.topLeft());
-    QPaintEvent e(r & widget->rect());
-    QApplication::sendEvent(widget, &e);
-    QPainter::restoreRedirected(widget);
-    {
-        QPainter pt(&res);
-        pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
-    }
-
-    const QObjectList children = widget->children();
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *child = static_cast<QWidget*>(children.at(i));
-        if (!child->isWidgetType() || child->isWindow()
-            || child->isHidden() || !child->geometry().intersects(r))
-            continue;
-        QRect cr = r & child->geometry();
-        cr.translate(-child->pos());
-        grabWidget_helper(child, res, buf, cr, offset + child->pos());
-    }
-}
-#endif
 /*!
     \fn QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rectangle)
 
@@ -817,16 +782,16 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 
      QPixmap res(r.size());
 
-#ifndef Q_WS_MAC
-    widget->d_func()->drawWidget(&res, r, -r.topLeft(),
-                                 QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot
-                                 | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
-#else
+#ifdef Q_WS_MAC
     QPixmap buf(r.size());
     if(res.isNull() || buf.isNull())
         return res;
 
-    grabWidget_helper(widget, res, buf, r, QPoint());
+    grabWidget_helper(widget, res, buf, r, QPoint(), true);
+#else
+    widget->d_func()->drawWidget(&res, r, -r.topLeft(),
+                                 QWidgetPrivate::DrawRecursive | QWidgetPrivate::DrawAsRoot
+                                 | QWidgetPrivate::DrawPaintOnScreen | QWidgetPrivate::DrawInvisible);
 #endif
     return res;
 }

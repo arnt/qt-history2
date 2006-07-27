@@ -1530,6 +1530,42 @@ void QPixmap::fill( const QWidget *widget, const QPoint &off )
 
 }
 
+#ifdef Q_WS_MAC
+/*
+  Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
+  position \a offset
+ */
+void QPixmap::grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
+                                const QRect &r, const QPoint &offset, bool asRoot)
+{
+    if(asRoot || widget->d_func()->hasBackground()) {
+        buf.fill(widget, r.topLeft());
+    } else {
+        QPainter p(&buf);
+        p.drawPixmap(0, 0, res, r.x()+offset.x(), r.y()+offset.y(), r.width(), r.height());
+    }
+
+    QPainter::setRedirected(widget, &buf, r.topLeft());
+    QPaintEvent e(r & widget->rect());
+    QApplication::sendEvent(widget, &e);
+    QPainter::restoreRedirected(widget);
+    {
+        QPainter pt(&res);
+        pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
+    }
+
+    const QObjectList children = widget->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = static_cast<QWidget*>(children.at(i));
+        if (!child->isWidgetType() || child->isWindow()
+            || child->isHidden() || !child->geometry().intersects(r))
+            continue;
+        QRect cr = r & child->geometry();
+        cr.translate(-child->pos());
+        grabWidget_helper(child, res, buf, cr, offset + child->pos(), false);
+    }
+}
+#endif
 
 void QWidgetPrivate::paintBackground(QPainter *painter, const QRect &rect, bool asRoot) const
 {
@@ -7433,7 +7469,7 @@ QString QWidget::accessibleDescription() const
     Adds a shortcut to Qt's shortcut system that watches for the given
     \a key sequence in the given \a context. If the \a context is not
     \c OnApplication, the shortcut is local to this widget; otherwise
-    it applies to the application as a whole. 
+    it applies to the application as a whole.
 
     If the same \a key sequence has been grabbed by several widgets,
     when the \a key sequence occurs a QEvent::Shortcut event is sent
