@@ -109,7 +109,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent * event);
-    void keyReleaseEvent(QKeyEvent * event);
+    void keyPressEvent(QKeyEvent * event);
 
 public Q_SLOTS:
     void setSelectedDate(const QDate &date);

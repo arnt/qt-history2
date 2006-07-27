@@ -1586,7 +1586,7 @@ void QCalendarWidget::setGridVisible(bool show)
 QCalendarWidget::SelectionMode QCalendarWidget::selectionMode() const
 {
     Q_D(const QCalendarWidget);
-    return !d->m_view->readOnly ? QCalendarWidget::NoSelection : QCalendarWidget::SingleSelection;
+    return d->m_view->readOnly ? QCalendarWidget::NoSelection : QCalendarWidget::SingleSelection;
 }
 
 void QCalendarWidget::setSelectionMode(SelectionMode mode)
@@ -1756,13 +1756,14 @@ void QCalendarWidget::resizeEvent(QResizeEvent * event)
 /*!
   \reimp
 */
-void QCalendarWidget::keyReleaseEvent(QKeyEvent * event)
+void QCalendarWidget::keyPressEvent(QKeyEvent * event)
 {
     Q_D(QCalendarWidget);
     if(d->yearEdit->isVisible()&& event->key() == Qt::Key_Escape)
     {
         d->yearEdit->setValue(yearShown());
         d->_q_yearEditingFinished();
+        return;
     }
     QWidget::keyReleaseEvent(event);
 }
