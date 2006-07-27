@@ -83,6 +83,7 @@ public:
     QString formatValue(const QSqlField &field,
                         bool trimStrings) const;
     QVariant handle() const;
+    QString escapeIdentifier(const QString &identifier, IdentifierType) const;
 
 protected:
     bool                beginTransaction();

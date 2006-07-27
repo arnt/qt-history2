@@ -877,14 +877,14 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
 
 QString QPSQLDriver::escapeIdentifier(const QString &identifier, IdentifierType type) const
 {
-    Q_UNUSED(type);
-
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
     res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-    int idx = identifier.indexOf(QLatin1Char('.'));
-    if (idx != -1)
-        res.replace(QLatin1Char('.'), QLatin1String("\".\""));
+
+    if (type == QSqlDriver::TableName)
+        return res;
+
+    res.replace(QLatin1Char('.'), QLatin1String("\".\""));
     return res;
 }
 

@@ -2066,7 +2066,7 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
     QString stmt(QLatin1String("select column_name, data_type, data_length, "
                   "data_precision, data_scale, nullable, data_default%1"
                   "from all_tab_columns "
-                  "where table_name=%2"));
+                  "where upper(table_name)=%2"));
     if (d->serverVersion >= 9)
         stmt = stmt.arg(QLatin1String(", char_length "));
     else
@@ -2074,11 +2074,11 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
     bool buildRecordInfo = false;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner(tablename, &table, &owner);
-    tmpStmt = stmt.arg(QLatin1String("'") + table + QLatin1String("'"));
+    tmpStmt = stmt.arg(QLatin1Char('\'') + table + QLatin1Char('\''));
     if (owner.isEmpty()) {
         owner = d->user;
     }
-    tmpStmt += QLatin1String(" and owner='") + owner + QLatin1String("'");
+    tmpStmt += QLatin1String(" and upper(owner)='") + owner + QLatin1String("'");
     t.setForwardOnly(true);
     t.exec(tmpStmt);
     if (!t.next()) { // try and see if the tablename is a synonym
@@ -2126,11 +2126,11 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
     bool buildIndex = false;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner(tablename, &table, &owner);
-    tmpStmt = stmt + QLatin1String(" and a.table_name='") + table + QLatin1String("'");
+    tmpStmt = stmt + QLatin1String(" and upper(a.table_name)='") + table + QLatin1String("'");
     if (owner.isEmpty()) {
         owner = d->user;
     }
-    tmpStmt += QLatin1String(" and a.owner='") + owner + QLatin1String("'");
+    tmpStmt += QLatin1String(" and upper(a.owner)='") + owner + QLatin1String("'");
     t.setForwardOnly(true);
     t.exec(tmpStmt);
 
@@ -2226,5 +2226,18 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
 QVariant QOCIDriver::handle() const
 {
     return qVariantFromValue(d->env);
+}
+
+QString QOCIDriver::escapeIdentifier(const QString &identifier, IdentifierType type) const
+{
+    QString res = identifier;
+    res.replace(QLatin1Char('"'), QLatin1String("\"\""));
+    res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
+
+    if (type == QSqlDriver::TableName)
+        return res;
+
+    res.replace(QLatin1Char('.'), QLatin1String("\".\""));
+    return res;
 }
 
