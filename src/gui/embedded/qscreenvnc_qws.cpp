@@ -517,10 +517,10 @@ bool QRfbKeyEvent::read(QTcpSocket *s)
     if (!keycode) {
         if (key <= 0xff) {
             unicode = key;
-            if (key >= ' ' && key <= 'z')
+            if (key >= 'a' && key <= 'z')
+                keycode = Qt::Key_A + key - 'a';
+            else if (key >= ' ' && key <= '~')
                 keycode = Qt::Key_Space + key - ' ';
-            else if (key >= 'A' && key <= 'Z')
-                keycode = Qt::Key_A + key - 'A';
         }
     }
 
