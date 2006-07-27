@@ -766,7 +766,6 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
 
-
     //Take space for 5 digits.
     QFontMetrics fm=yearButton->fontMetrics();
     yearButton->setMaximumWidth(fm.boundingRect(QString("55555")).width());
@@ -806,7 +805,7 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
         newDate = minDate; 
     if (maxDate.isValid()&& maxDate.daysTo(newDate) > 0)
         newDate = maxDate; 
-    q->setCurrentPage(newDate.year(), newDate.month());
+    showMonth(newDate.year(), newDate.month());
     int row = -1, col = -1;
     m_model->cellForDate(newDate, &row, &col);
     if (row != -1 && col != -1)
@@ -819,7 +818,8 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
 void QCalendarWidgetPrivate::_q_monthChanged(QAction *act)
 {
     monthButton->setText(act->text());
-    QDate newDate = m_model->date.addMonths(act->data().toInt()-m_model->date.month());
+    QDate currentDate = getCurrentDate();
+    QDate newDate = currentDate.addMonths(act->data().toInt()-currentDate.month());
     updateCurrentPage(newDate);
 }
 
@@ -911,8 +911,6 @@ void QCalendarWidgetPrivate::_q_editingFinished()
     Q_Q(QCalendarWidget);
     emit q->activated(m_model->date);
 }
-
-//////////////////////
 
 /*!
     \class QCalendarWidget
