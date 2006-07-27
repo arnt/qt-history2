@@ -157,10 +157,10 @@ bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
         }
         break;
     case QEvent::Destroy:
-        d->bars.removeAll(reinterpret_cast<QProgressBar *>(o));
-        break;
     case QEvent::Hide:
-        if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
+        // reinterpret_cast because there is no type info when getting
+        // the destroy event. We know that it is a QProgressBar.
+        if (QProgressBar *bar = reinterpret_cast<QProgressBar *>(o)) {
             d->bars.removeAll(bar);
             if (d->bars.isEmpty() && d->animateTimer) {
                 killTimer(d->animateTimer);

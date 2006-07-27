@@ -1057,6 +1057,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
             if (!progressBars.contains(pb))
                 startAnimate(AquaProgressBar, pb);
             break;
+        case QEvent::Destroy:
         case QEvent::Hide:
             progressBars.removeAll(pb);
         }
@@ -1068,6 +1069,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
             if (btn->autoDefault())
                 startAnimate(AquaPushButton, btn);
             break;
+        case QEvent::Destroy:
         case QEvent::Hide:
             if (btn == defaultButton)
                 stopAnimate(AquaPushButton, btn);
