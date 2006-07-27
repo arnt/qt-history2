@@ -156,7 +156,7 @@ const QString::Null QString::null = QString::Null();
   \relates QString
 
   This macro can be defined to force a warning whenever a function is
-  called that converts between unicode and 8-bit encodings.
+  called that automatically converts between unicode and 8-bit encodings.
 
   Note: This only works for compilers that support warnings for
   deprecated API.
