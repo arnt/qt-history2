@@ -1088,12 +1088,13 @@ QSize QCalendarWidget::minimumSizeHint() const
     int rows = 7;
     int cols = 8;
 
+    const int margin = (style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1) * 2;
     if (horizontalHeaderFormat() == QCalendarWidget::NoHorizontalHeader) {
         rows = 6;
     } else {
         for (int i = 1; i <= 7; i++) {
             QFontMetrics fm(d->m_model->formatForCell(0, i).font());
-            w = qMax(w, fm.width(d->m_model->dayName(i)) + 2);
+            w = qMax(w, fm.width(d->m_model->dayName(i)) + margin);
             h = qMax(h, fm.height());
         }
     }
@@ -1103,9 +1104,12 @@ QSize QCalendarWidget::minimumSizeHint() const
     }
     QFontMetrics fm(d->m_model->formatForCell(1, 1).font());
     for (int i = 1; i <= end; i++) {
-        w = qMax(w, fm.width(QString::number(i)));
+        w = qMax(w, fm.width(QString::number(i) + margin));
         h = qMax(h, fm.height());
     }
+
+    if (d->m_view->showGrid())
+        w += 1;       // hardcoded in tableview
 
     w += 4; // add some space (heuristic)
     h += 5;
