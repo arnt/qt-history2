@@ -71,7 +71,7 @@ void MainWindow::setupPuzzle()
     piecesList->setModel(newModel);
     delete oldModel;
 
-    srand(QCursor::pos().x() ^ QCursor::pos().y());
+    qsrand(QCursor::pos().x() ^ QCursor::pos().y());
 
     for (int y = 0; y < 5; ++y) {
         for (int x = 0; x < 5; ++x) {

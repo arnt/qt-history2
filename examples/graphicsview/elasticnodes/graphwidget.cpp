@@ -110,7 +110,7 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
         foreach (QGraphicsItem *item, scene()->items()) {
             if (qgraphicsitem_cast<Node *>(item))
-                item->setPos(-150 + rand() % 300, -150 + rand() % 300);
+                item->setPos(-150 + qrand() % 300, -150 + qrand() % 300);
         }
         break;
     default:

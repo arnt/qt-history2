@@ -45,10 +45,10 @@ void Bubble::drawBubble(QPainter *painter)
 
 QColor Bubble::randomColor()
 {
-    int red = int(205 + 50.0*rand()/(RAND_MAX+1.0));
-    int green = int(205 + 50.0*rand()/(RAND_MAX+1.0));
-    int blue = int(205 + 50.0*rand()/(RAND_MAX+1.0));
-    int alpha = int(91 + 100.0*rand()/(RAND_MAX+1.0));
+    int red = int(205 + 50.0*qrand()/(RAND_MAX+1.0));
+    int green = int(205 + 50.0*qrand()/(RAND_MAX+1.0));
+    int blue = int(205 + 50.0*qrand()/(RAND_MAX+1.0));
+    int alpha = int(91 + 100.0*qrand()/(RAND_MAX+1.0));
 
     return QColor(red, green, blue, alpha);
 }

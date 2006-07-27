@@ -31,9 +31,10 @@ public:
 
 void Producer::run()
 {
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     for (int i = 0; i < DataSize; ++i) {
         freeBytes.acquire();
-        buffer[i % BufferSize] = "ACGT"[(int)rand() % 4];
+        buffer[i % BufferSize] = "ACGT"[(int)qrand() % 4];
         usedBytes.release();
     }
 }

@@ -28,7 +28,7 @@ GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     QTime midnight(0, 0, 0);
-    srand(midnight.secsTo(QTime::currentTime()));
+    qsrand(midnight.secsTo(QTime::currentTime()));
 
     object = 0;
     xRot = 0;
@@ -280,11 +280,11 @@ void GLWidget::normalizeAngle(int *angle)
 void GLWidget::createBubbles(int number)
 {
     for (int i = 0; i < number; ++i) {
-        QPointF position(width()*(0.1 + (0.8*rand()/(RAND_MAX+1.0))),
-                        height()*(0.1 + (0.8*rand()/(RAND_MAX+1.0))));
-        qreal radius = qMin(width(), height())*(0.0125 + 0.0875*rand()/(RAND_MAX+1.0));
-        QPointF velocity(width()*0.0125*(-0.5 + rand()/(RAND_MAX+1.0)),
-                        height()*0.0125*(-0.5 + rand()/(RAND_MAX+1.0)));
+        QPointF position(width()*(0.1 + (0.8*qrand()/(RAND_MAX+1.0))),
+                        height()*(0.1 + (0.8*qrand()/(RAND_MAX+1.0))));
+        qreal radius = qMin(width(), height())*(0.0125 + 0.0875*qrand()/(RAND_MAX+1.0));
+        QPointF velocity(width()*0.0125*(-0.5 + qrand()/(RAND_MAX+1.0)),
+                        height()*0.0125*(-0.5 + qrand()/(RAND_MAX+1.0)));
 
         bubbles.append(new Bubble(position, radius, velocity));
     }

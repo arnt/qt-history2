@@ -60,7 +60,7 @@ QRect BasicToolsPlugin::mouseMove(const QString &brush, QPainter &painter,
                                 thickness, thickness);
         }
     } else if (brush == tr("Random Letters")) {
-        QChar ch('A' + (rand() % 26));
+        QChar ch('A' + (qrand() % 26));
 
         QFont biggerFont = painter.font();
         biggerFont.setBold(true);

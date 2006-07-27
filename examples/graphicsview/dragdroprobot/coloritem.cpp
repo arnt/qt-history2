@@ -16,7 +16,7 @@
 #include "coloritem.h"
 
 ColorItem::ColorItem()
-    : color(rand() % 256, rand() % 256, rand() % 256)
+    : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
     setToolTip(QString("QColor(%1, %2, %3)\n%4")
 	       .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -53,7 +53,7 @@ void ColorItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     drag->setMimeData(mime);
 
     static int n = 0;
-    if (n++ > 2 && (rand() % 3) == 0) {
+    if (n++ > 2 && (qrand() % 3) == 0) {
 	QImage image(":/images/head.png");
 	mime->setImageData(image);
 

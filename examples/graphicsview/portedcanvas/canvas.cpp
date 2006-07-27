@@ -205,7 +205,7 @@ void BouncyLogo::initPos()
     initSpeed();
     int trial=1000;
     do {
-	setPos(rand()%int(scene()->width()),rand()%int(scene()->height()));
+	setPos(qrand()%int(scene()->width()),qrand()%int(scene()->height()));
 	advance(0);
     } while (trial-- && xvel==0.0 && yvel==0.0);
 }
@@ -213,7 +213,7 @@ void BouncyLogo::initPos()
 void BouncyLogo::initSpeed()
 {
     const double speed = 4.0;
-    double d = (double)(rand()%1024) / 1024.0;
+    double d = (double)(qrand()%1024) / 1024.0;
     xvel = d*speed*2-speed;
     yvel = (1-d)*speed*2-speed;
 }
@@ -354,7 +354,7 @@ void Main::init()
     clear();
 
     static int r=24;
-    srand(++r);
+    qsrand(++r);
 
     mainCount++;
     butterflyimg = 0;
@@ -485,7 +485,7 @@ void Main::addSprite()
     BouncyLogo* i = new BouncyLogo;
     canvas.addItem(i);
     i->initPos();
-    i->setZValue(rand()%256);
+    i->setZValue(qrand()%256);
 }
 
 QString butterfly_fn;
@@ -506,11 +506,11 @@ void Main::addButterfly()
 	butterflyimg[3] = butterflyimg[0].smoothScale( int(butterflyimg[0].width()*0.25),
 		int(butterflyimg[0].height()*0.25) );
     }
-    QAbstractGraphicsShapeItem* i = new ImageItem(butterflyimg[rand()%4]);
+    QAbstractGraphicsShapeItem* i = new ImageItem(butterflyimg[qrand()%4]);
     canvas.addItem(i);
-    i->setPos(rand()%int(canvas.width()-butterflyimg->width()),
-	    rand()%int(canvas.height()-butterflyimg->height()));
-    i->setZValue(rand()%256+250);
+    i->setPos(qrand()%int(canvas.width()-butterflyimg->width()),
+	    qrand()%int(canvas.height()-butterflyimg->height()));
+    i->setZValue(qrand()%256+250);
 }
 
 void Main::addLogo()
@@ -527,11 +527,11 @@ void Main::addLogo()
 	logoimg[3] = logoimg[0].smoothScale( int(logoimg[0].width()*0.25),
 		int(logoimg[0].height()*0.25) );
     }
-    QAbstractGraphicsShapeItem* i = new ImageItem(logoimg[rand()%4]);
+    QAbstractGraphicsShapeItem* i = new ImageItem(logoimg[qrand()%4]);
     canvas.addItem(i);
-    i->setPos(rand()%int(canvas.width()-logoimg->width()),
-	    rand()%int(canvas.height()-logoimg->width()));
-    i->setZValue(rand()%256+256);
+    i->setPos(qrand()%int(canvas.width()-logoimg->width()),
+	    qrand()%int(canvas.height()-logoimg->width()));
+    i->setZValue(qrand()%256+256);
 }
 
 
@@ -541,9 +541,9 @@ void Main::addCircle()
     QAbstractGraphicsShapeItem* i = canvas.addEllipse(QRectF(0,0,50,50));
     i->setFlag(QGraphicsItem::ItemIsMovable);
     i->setPen(Qt::NoPen);
-    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
-    i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    i->setZValue(rand()%256);
+    i->setBrush( QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8) );
+    i->setPos(qrand()%int(canvas.width()),qrand()%int(canvas.height()));
+    i->setZValue(qrand()%256);
 }
 
 void Main::addHexagon()
@@ -559,9 +559,9 @@ void Main::addHexagon()
     QGraphicsPolygonItem* i = canvas.addPolygon(pa);
     i->setFlag(QGraphicsItem::ItemIsMovable);
     i->setPen(Qt::NoPen);
-    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
-    i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    i->setZValue(rand()%256);
+    i->setBrush( QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8) );
+    i->setPos(qrand()%int(canvas.width()),qrand()%int(canvas.height()));
+    i->setZValue(qrand()%256);
 }
 
 void Main::addPolygon()
@@ -577,9 +577,9 @@ void Main::addPolygon()
     QGraphicsPolygonItem* i = canvas.addPolygon(pa);
     i->setFlag(QGraphicsItem::ItemIsMovable);
     i->setPen(Qt::NoPen);
-    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
-    i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    i->setZValue(rand()%256);
+    i->setBrush( QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8) );
+    i->setPos(qrand()%int(canvas.width()),qrand()%int(canvas.height()));
+    i->setZValue(qrand()%256);
 }
 
 void Main::addSpline()
@@ -608,26 +608,26 @@ void Main::addSpline()
     QGraphicsPathItem* item = canvas.addPath(path);
     item->setFlag(QGraphicsItem::ItemIsMovable);
     item->setPen(Qt::NoPen);
-    item->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
-    item->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    item->setZValue(rand()%256);
+    item->setBrush( QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8) );
+    item->setPos(qrand()%int(canvas.width()),qrand()%int(canvas.height()));
+    item->setZValue(qrand()%256);
 }
 
 void Main::addText()
 {
     QGraphicsTextItem* i = canvas.addText("QCanvasText");
     i->setFlag(QGraphicsItem::ItemIsMovable);
-    i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    i->setZValue(rand()%256);
+    i->setPos(qrand()%int(canvas.width()),qrand()%int(canvas.height()));
+    i->setZValue(qrand()%256);
 }
 
 void Main::addLine()
 {
-    QGraphicsLineItem* i = canvas.addLine(QLineF( rand()%int(canvas.width()), rand()%int(canvas.height()),
-                                                  rand()%int(canvas.width()), rand()%int(canvas.height()) ));
+    QGraphicsLineItem* i = canvas.addLine(QLineF( qrand()%int(canvas.width()), qrand()%int(canvas.height()),
+                                                  qrand()%int(canvas.width()), qrand()%int(canvas.height()) ));
     i->setFlag(QGraphicsItem::ItemIsMovable);
-    i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
-    i->setZValue(rand()%256);
+    i->setPen( QPen(QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8), 6) );
+    i->setZValue(qrand()%256);
 }
 
 void Main::addMesh()
@@ -660,7 +660,7 @@ void Main::addMesh()
 	    NodeItem *el = new NodeItem;
             canvas.addItem(el);
 	    nodecount++;
-	    int r = rand();
+	    int r = qrand();
 	    int xrand = r %20;
 	    int yrand = (r/20) %20;
 	    el->setPos( xrand + x0 + i*dist + (j%2 ? dist/2 : 0 ),
@@ -695,13 +695,13 @@ void Main::addMesh()
 
 void Main::addRectangle()
 {
-    QAbstractGraphicsShapeItem *i = canvas.addRect( QRectF(rand()%int(canvas.width()),
-                                                          rand()%int(canvas.height()),
+    QAbstractGraphicsShapeItem *i = canvas.addRect( QRectF(qrand()%int(canvas.width()),
+                                                          qrand()%int(canvas.height()),
                                                           canvas.width()/5,
                                                           canvas.width()/5) );
     i->setFlag(QGraphicsItem::ItemIsMovable);
-    int z = rand()%256;
+    int z = qrand()%256;
     i->setBrush( QColor(z,z,z) );
-    i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
+    i->setPen( QPen(QColor(qrand()%32*8,qrand()%32*8,qrand()%32*8), 6) );
     i->setZValue(z);
 }

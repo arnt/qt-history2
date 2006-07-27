@@ -809,11 +809,11 @@ void KAsteroidsView::processShip()
 
 	if ( teleportShip )
 	{
-	    int ra = rand() % 10;
+	    int ra = qrand() % 10;
 	    if( ra == 0 )
-	    ra += rand() % 20;
-	    int xra = ra * 60 + ( (rand() % 20) * (rand() % 20) );
-	    int yra = ra * 50 - ( (rand() % 20) * (rand() % 20) );
+	    ra += qrand() % 20;
+	    int xra = ra * 60 + ( (qrand() % 20) * (qrand() % 20) );
+	    int yra = ra * 50 - ( (qrand() % 20) * (qrand() % 20) );
 	    ship->setPos( xra, yra );
 	}
 
@@ -907,13 +907,13 @@ void KAsteroidsView::hideShield()
 
 double KAsteroidsView::randDouble()
 {
-    int v = rand();
+    int v = qrand();
     return (double)v / (double)RAND_MAX;
 }
 
 int KAsteroidsView::randInt( int range )
 {
-    return rand() % range;
+    return qrand() % range;
 }
 
 void KAsteroidsView::showEvent( QShowEvent *e )

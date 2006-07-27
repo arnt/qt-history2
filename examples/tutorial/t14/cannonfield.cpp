@@ -81,9 +81,9 @@ void CannonField::newTarget()
     if (firstTime) {
         firstTime = false;
         QTime midnight(0, 0, 0);
-        srand(midnight.secsTo(QTime::currentTime()));
+        qsrand(midnight.secsTo(QTime::currentTime()));
     }
-    target = QPoint(200 + rand() % 190, 10 + rand() % 255);
+    target = QPoint(200 + qrand() % 190, 10 + qrand() % 255);
     update();
 }
 
