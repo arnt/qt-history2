@@ -573,7 +573,7 @@ void QToolBar::setIconSize(const QSize &iconSize)
             QLayoutItem *item = 0;
             do {
                 item = layout->itemAt(i++);
-                if (item->widget() == this)
+                if (item && (item->widget() == this))
                     sz = mw->iconSize();
             } while (!sz.isValid() && item != 0);
         }
