@@ -211,6 +211,7 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 #endif
 
     QLabel *label = new QTipLabel(text, QApplication::desktop()->screen(scr));
+    label->setObjectName(QLatin1String("qtooltip_label"));
 
     QPoint p = pos;
     p += QPoint(2,
