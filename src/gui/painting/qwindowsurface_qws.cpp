@@ -167,8 +167,13 @@ void QWSWindowSurface::setGeometry(const QRect &rect)
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
     QWSManager *manager = topextra->qwsManager;
 
-    if (manager)
+    if (manager) {
         manager->d_func()->dirtyRegion(QDecoration::All, QDecoration::Normal);
+
+        // The frame geometry is the bounding rect of manager->region, which
+        // could be too much, so we need to clip.
+        region &= (manager->region() + window()->geometry());
+    }
 #endif
 
     if (!window()->d_func()->extra->mask.isEmpty())
