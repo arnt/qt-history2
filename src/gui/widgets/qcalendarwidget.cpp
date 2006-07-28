@@ -819,6 +819,13 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     prevMonth->setFocusPolicy(Qt::StrongFocus);
     nextMonth->setFocusPolicy(Qt::StrongFocus);
 
+    //set names for the header controls.
+    prevMonth->setObjectName("qt_calendar_prevmonth");
+    nextMonth->setObjectName("qt_calendar_nextmonth");
+    monthButton->setObjectName("qt_calendar_monthbutton");
+    yearButton->setObjectName("qt_calendar_yearbutton");
+    yearEdit->setObjectName("qt_calendar_yearedit");
+
     updateMonthMenu();
     showMonth(m_model->date.year(),m_model->date.month());
 }
@@ -1072,6 +1079,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_model->m_dayFormats.insert(Qt::Saturday, fmt);
     d->m_model->m_dayFormats.insert(Qt::Sunday, fmt);
     d->m_view = new QCalendarView(this);
+    d->m_view->setObjectName("qt_calendar_calendarview");
     d->m_view->setModel(d->m_model);
     d->m_model->setView(d->m_view);
     d->m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
