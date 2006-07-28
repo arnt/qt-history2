@@ -508,7 +508,7 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
   \a name is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleLineEdit::QAccessibleLineEdit(QWidget *w, const QString &name)
-: QAccessibleWidget(w, EditableText, name)
+: QAccessibleWidgetEx(w, EditableText, name)
 {
     addControllingSignal("textChanged(const QString&)");
     addControllingSignal("returnPressed()");
@@ -532,7 +532,7 @@ QString QAccessibleLineEdit::text(Text t, int child) const
         break;
     }
     if (str.isEmpty())
-        str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidgetEx::text(t, child);;
     return qt_accStripAmp(str);
 }
 
@@ -540,7 +540,7 @@ QString QAccessibleLineEdit::text(Text t, int child) const
 void QAccessibleLineEdit::setText(Text t, int control, const QString &text)
 {
     if (t != Value || control) {
-        QAccessibleWidget::setText(t, control, text);
+        QAccessibleWidgetEx::setText(t, control, text);
         return;
     }
     lineEdit()->setText(text);
@@ -549,7 +549,7 @@ void QAccessibleLineEdit::setText(Text t, int control, const QString &text)
 /*! \reimp */
 QAccessible::State QAccessibleLineEdit::state(int child) const
 {
-    State state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidgetEx::state(child);
 
     QLineEdit *l = lineEdit();
     if (l->isReadOnly())
@@ -561,6 +561,28 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
         state |= Selected;
 
     return state;
+}
+
+QVariant QAccessibleLineEdit::invokeMethodEx(QAccessible::Method method, int child,
+                                                     const QVariantList &params)
+{
+    if (child)
+        return QVariant();
+
+    switch (method) {
+    case ListSupportedMethods: {
+        QVariantList list;
+        list << 0 << 1 << 2;
+        return list;
+    }
+    case SetCursorPosition:
+        lineEdit()->setCursorPosition(params.value(0).toInt());
+        return true;
+    case GetCursorPosition:
+        return lineEdit()->cursorPosition();
+    }
+
+    return QVariant();
 }
 #endif // QT_NO_LINEEDIT
 #endif // QT_NO_ACCESSIBILITY

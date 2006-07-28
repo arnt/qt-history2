@@ -81,7 +81,7 @@ public:
 };
 
 #ifndef QT_NO_LINEEDIT
-class QAccessibleLineEdit : public QAccessibleWidget
+class QAccessibleLineEdit : public QAccessibleWidgetEx
 {
 public:
     explicit QAccessibleLineEdit(QWidget *o, const QString &name = QString());
@@ -89,6 +89,7 @@ public:
     QString text(Text t, int child) const;
     void setText(Text t, int control, const QString &text);
     State state(int child) const;
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
 
 protected:
     QLineEdit *lineEdit() const;

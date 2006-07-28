@@ -105,10 +105,12 @@ public:
         ExtSelectable   = 0x02000000,
         //AlertLow        = 0x04000000,
         //AlertMedium     = 0x08000000,
-        //AlertHigh       = 0x10000000,
+        //AlertHigh       = 0x10000000, /* reused for HasInvokeExtension */
         Protected       = 0x20000000,
         HasPopup        = 0x40000000,
-        Modal           = 0x80000000
+        Modal           = 0x80000000,
+
+        HasInvokeExtension = 0x10000000 // internal
     };
     Q_DECLARE_FLAGS(State, StateFlag)
 
@@ -232,6 +234,12 @@ public:
         LastStandardAction  = AddToSelection
     };
 
+    enum Method {
+        ListSupportedMethods    = 0,
+        SetCursorPosition       = 1,
+        GetCursorPosition       = 2
+    };
+
     typedef QAccessibleInterface*(*InterfaceFactory)(const QString &key, QObject*);
     typedef void(*UpdateHandler)(QObject*, int who, Event reason);
     typedef void(*RootObjectHandler)(QObject*);
@@ -288,6 +296,16 @@ public:
     virtual int userActionCount(int child) const = 0;
     virtual QString actionText(int action, Text t, int child) const = 0;
     virtual bool doAction(int action, int child, const QVariantList &params = QVariantList()) = 0;
+
+    QVariant invokeMethod(Method method, int child = 0,
+                          const QVariantList &params = QVariantList());
+};
+
+class Q_GUI_EXPORT QAccessibleInterfaceEx: public QAccessibleInterface
+{
+public:
+    virtual QVariant invokeMethodEx(Method method, int child, const QVariantList &params) = 0;
+    virtual QVariant virtual_hook(const QVariant &data);
 };
 
 #define QAccessibleInterface_iid "com.trolltech.Qt.QAccessibleInterface"

@@ -145,6 +145,7 @@
     \value Traversed        The object is linked and has been visited.
     \value Unavailable      The object is unavailable to the user, e.g. a disabled widget.
     \omitvalue Moveable
+    \omitvalue HasInvokeExtension
 
     Implementations of QAccessibleInterface::state() return a combination
     of these flags.
@@ -951,5 +952,26 @@ const QAccessibleInterface *other, int otherChild) const
 
     \sa value()
 */
+
+/*!
+    Invokes an \a action on a \child with the given parameters \a params
+    and returns the result of the operation as QVariant.
+
+    Note that the type of the returned QVariant depends on the action.
+
+    Returns an invalid QVariant if the object doesn't support the action.
+*/
+QVariant QAccessibleInterface::invokeMethod(Method method, int child, const QVariantList &params)
+{
+    if (!(state(0) & HasInvokeExtension))
+        return QVariant();
+
+    return static_cast<QAccessibleInterfaceEx *>(this)->invokeMethodEx(method, child, params);
+}
+
+QVariant QAccessibleInterfaceEx::virtual_hook(const QVariant &)
+{
+    return QVariant();
+}
 
 #endif
