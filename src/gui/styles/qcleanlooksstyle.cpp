@@ -1682,6 +1682,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             bool enabled = menuItem->state & State_Enabled;
 
             bool ignoreCheckMark = false;
+            int checkcol = qMax(menuItem->maxIconWidth, 20);
 
 #ifndef QT_NO_COMBOBOX
             if (qobject_cast<const QComboBox*>(widget))
@@ -1738,6 +1739,11 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                         }
                     }
                 }
+            } else { //ignore checkmark
+                if (menuItem->icon.isNull())
+                    checkcol = 0;
+                else
+                    checkcol = menuItem->maxIconWidth;
             }
 
             // Text and icon, ripped from windows style
@@ -1745,10 +1751,6 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             bool act = menuItem->state & State_Selected;
             const QStyleOption *opt = option;
             const QStyleOptionMenuItem *menuitem = menuItem;
-            int checkcol = qMax(menuitem->maxIconWidth, 20);
-
-            if( ignoreCheckMark )
-                checkcol = 0;
 
             QPainter *p = painter;
             QRect vCheckRect = visualRect(opt->direction, menuitem->rect,
