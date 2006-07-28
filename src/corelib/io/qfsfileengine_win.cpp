@@ -508,7 +508,7 @@ qint64 QFSFileEngine::size() const
     return 0;
 }
 
-static inline bool mkDir(const QString &path) 
+static inline bool mkDir(const QString &path)
 {
     QT_WA({
         return ::CreateDirectoryW((TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16(), 0);
@@ -520,7 +520,7 @@ static inline bool mkDir(const QString &path)
 /*!
     \reimp
 */
-static inline bool rmDir(const QString &path) 
+static inline bool rmDir(const QString &path)
 {
     QT_WA({
         return ::RemoveDirectoryW((TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16());
@@ -532,12 +532,12 @@ static inline bool rmDir(const QString &path)
 /*!
     \reimp
 */
-static inline bool isDirPath(const QString &dirPath, bool *existed) 
+static inline bool isDirPath(const QString &dirPath, bool *existed)
 {
     QString path = dirPath;
     if (path.length() == 2 &&path.at(1) == QLatin1Char(':'))
         path += QLatin1Char('\\');
-    
+
     DWORD fileAttrib = INVALID_FILE_ATTRIBUTES;
     QT_WA({
         fileAttrib = ::GetFileAttributesW((TCHAR*)QFSFileEnginePrivate::longFileName(path).utf16());
@@ -547,7 +547,7 @@ static inline bool isDirPath(const QString &dirPath, bool *existed)
 
     if (existed)
         *existed = fileAttrib != INVALID_FILE_ATTRIBUTES;
- 
+
     if (fileAttrib == INVALID_FILE_ATTRIBUTES)
         return false;
 
@@ -784,7 +784,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
             if(filters & QDir::NoDotAndDotDot
                && (name == QLatin1String(".") || name == QLatin1String(".."))) {
                 continue;
-            }                
+            }
             if(!doHidden && isHidden)
                 continue;
             if(!doSystem && isSystem)
@@ -902,7 +902,7 @@ QString QFSFileEngine::homePath()
         resolveLibs();
 		if (ptrOpenProcessToken && ptrGetUserProfileDirectoryW) {
 			HANDLE hnd = ::GetCurrentProcess();
-			HANDLE token;
+			HANDLE token = 0;
 			BOOL ok = ::ptrOpenProcessToken(hnd, TOKEN_QUERY, &token);
 			if (ok) {
 				DWORD dwBufferSize = 0;
@@ -923,7 +923,7 @@ QString QFSFileEngine::homePath()
     }
     ,
     {
-        // GetUserProfileDirectory is only available from NT 4.0, 
+        // GetUserProfileDirectory is only available from NT 4.0,
 		// so fall through for Win98 and friends version.
     })
 #endif
@@ -1195,7 +1195,7 @@ bool QFSFileEngine::link(const QString &newName)
 
     QString linkName = newName;
     //### assume that they add .lnk
-    
+
     QT_WA({
         HRESULT hres;
         IShellLink *psl;
@@ -1363,11 +1363,11 @@ QAbstractFileEngine::FileFlags QFSFileEnginePrivate::getPermissions() const
                 ret &= ~(QAbstractFileEngine::WriteOwnerPerm | QAbstractFileEngine::WriteUserPerm |
                 QAbstractFileEngine::WriteGroupPerm | QAbstractFileEngine::WriteOtherPerm);
         }
-        
+
         QString ext = file.right(4).toLower();
         if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
             ext == ".pif" || ext == ".cmd" || (fileAttrib & FILE_ATTRIBUTE_DIRECTORY))
-            ret |= QAbstractFileEngine::ExeOwnerPerm | QAbstractFileEngine::ExeGroupPerm | 
+            ret |= QAbstractFileEngine::ExeOwnerPerm | QAbstractFileEngine::ExeGroupPerm |
             QAbstractFileEngine::ExeOtherPerm | QAbstractFileEngine::ExeUserPerm;
     }
     return ret;
@@ -1384,7 +1384,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
     if (type & QAbstractFileEngine::FileFlag(0x1000000)) { // QDir::Refresh
         d->tried_stat = 0;
     }
-    
+
     if (type & PermsMask) {
         ret |= d->getPermissions();
         // ### Workaround pascals ### above. Since we always set all properties to true
@@ -1672,7 +1672,7 @@ bool QFSFileEngine::setSize(qint64 size)
                 file1.remove();
                 if (file2.rename(file1.fileName()))
                     return true;
-                qWarning("QFSFileEngine::rename: Failed to rename %s: %s", 
+                qWarning("QFSFileEngine::rename: Failed to rename %s: %s",
                     qPrintable(file2.fileName()), qPrintable(qt_error_string(errno)));
             }
         }
