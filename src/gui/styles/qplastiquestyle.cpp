@@ -5493,7 +5493,7 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
     switch (event->type()) {
     case QEvent::Show:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
-            d->bars << bar;
+            d->bars.append(bar);
             if (d->bars.size() == 1) {
                 Q_ASSERT(ProgressBarFps > 0);
                 d->timer.start();
@@ -5502,16 +5502,15 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
         }
         break;
     case QEvent::Destroy:
-        d->bars.removeAll(reinterpret_cast<QProgressBar *>(watched));
-        break;
     case QEvent::Hide:
-        if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
-            d->bars.removeAll(bar);
+        if(!d->bars.isEmpty()) {
+            d->bars.removeAll(reinterpret_cast<QProgressBar*>(watched));
             if (d->bars.isEmpty()) {
                 killTimer(d->progressBarAnimateTimer);
                 d->progressBarAnimateTimer = 0;
             }
         }
+        break;
 #if defined QPlastique_MaskButtons
     case QEvent::Resize:
         if (qobject_cast<QPushButton *>(watched) || qobject_cast<QToolButton *>(watched)) {
