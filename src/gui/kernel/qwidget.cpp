@@ -7681,8 +7681,8 @@ void QWidget::stackUnder(QWidget* w)
 {
     Q_D(QWidget);
     QWidget *p = parentWidget();
-    int from;
-    int to;
+    int from = 0;
+    int to = 0;
     if (!w || isWindow() || p != w->parentWidget() || this == w)
         return;
     if (p && (to = p->d_func()->children.indexOf(w)) >= 0 && (from = p->d_func()->children.indexOf(this)) >= 0) {
