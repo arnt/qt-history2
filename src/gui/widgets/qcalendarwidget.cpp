@@ -776,16 +776,21 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     nextMonth = new QToolButton(headerBackground);
     prevMonth->setAutoRaise(true);
     nextMonth->setAutoRaise(true);
+    prevMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    nextMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    nextMonth->setAutoRaise(true);
     prevMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetPrev));
     nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext));
     prevMonth->setAutoRepeat(true);
     nextMonth->setAutoRepeat(true);
 
     monthButton = new QToolButton(headerBackground);
+    monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
     monthMenu = new QMenu(monthButton);
     yearButton = new QToolButton(headerBackground);
+    yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
     yearEdit = new QSpinBox(headerBackground);
 
