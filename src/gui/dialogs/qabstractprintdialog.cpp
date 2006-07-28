@@ -57,6 +57,10 @@ QAbstractPrintDialog::QAbstractPrintDialog(QPrinter *printer, QWidget *parent)
 {
     Q_D(QAbstractPrintDialog);
     d->printer = printer;
+
+    if (printer->d_func()->printDialog)
+        d->init(printer->d_func()->printDialog->d_func());
+
     printer->d_func()->printDialog = this;
 }
 
@@ -70,6 +74,8 @@ QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
 {
     Q_D(QAbstractPrintDialog);
     d->printer = printer;
+    if (printer->d_func()->printDialog)
+        d->init(printer->d_func()->printDialog->d_func());
     printer->d_func()->printDialog = this;
 }
 

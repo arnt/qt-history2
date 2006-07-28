@@ -48,6 +48,15 @@ public:
     {
     }
 
+    void init(QAbstractPrintDialogPrivate *d) {
+        options = d->options;
+        printRange = d->printRange;
+        minPage = d->minPage;
+        maxPage = d->maxPage;
+        fromPage = d->fromPage;
+        toPage = d->toPage;
+    }
+
     QPrinter *printer;
     QAbstractPrintDialog::PrintDialogOptions options;
     QAbstractPrintDialog::PrintRange printRange;
