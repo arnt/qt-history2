@@ -278,7 +278,8 @@ void SetPropertyCommand::redo()
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && act) {
+                m_propertyName == QLatin1String("icon") && act ||
+                m_propertyName == QLatin1String("currentTabName")) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
     }
@@ -319,7 +320,8 @@ void SetPropertyCommand::undo()
 
     QAction *act = qobject_cast<QAction *>(m_object);
     if (m_propertyName == QLatin1String("objectName") ||
-                m_propertyName == QLatin1String("icon") && act) {
+                m_propertyName == QLatin1String("icon") && act ||
+                m_propertyName == QLatin1String("currentTabName")) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
     }
