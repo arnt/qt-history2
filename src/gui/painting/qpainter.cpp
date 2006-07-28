@@ -311,7 +311,8 @@ void QPainterPrivate::init()
 
 void QPainterPrivate::updateMatrix()
 {
-    state->matrix = state->worldMatrix * viewMatrix();
+    state->matrix = (state->WxF ? state->worldMatrix : QMatrix())
+                    * (state->VxF ? viewMatrix() : QMatrix());
 
     txinv = false;                                // no inverted matrix
     state->txop  = TxNone;
