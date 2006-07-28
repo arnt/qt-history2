@@ -833,6 +833,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         return;
 
     d->executePostedLayout();
+    d->updateScrollBars();
 
     // Expand all parents if the parent(s) of the node are not expanded.
     QModelIndex parent = index.parent();
