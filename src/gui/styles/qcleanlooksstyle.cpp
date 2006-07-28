@@ -64,7 +64,7 @@ static const int windowsCheckMarkWidth   = 12; // checkmarks width on windows
 
 /* XPM */
 static const char * const dock_widget_close_xpm[] = {
-    "15 15 7 1",
+    "11 13 7 1",
     " 	c None",
     ".	c #D5CFCB",
     "+	c #8F8B88",
@@ -72,21 +72,19 @@ static const char * const dock_widget_close_xpm[] = {
     "#	c #ABA6A3",
     "$	c #B5B0AC",
     "%	c #A4A09D",
-    "               ",
-    "               ",
-    "  .+@@@@@@@+.  ",
-    "  +#       #+  ",
-    "  @ $@   @$ @  ",
-    "  @ @@@ @@@ @  ",
-    "  @  @@@@@  @  ",
-    "  @   @@@   @  ",
-    "  @  @@@@@  @  ",
-    "  @ @@@ @@@ @  ",
-    "  @ $@   @$ @  ",
-    "  +%       #+  ",
-    "  .+@@@@@@@+.  ",
-    "               ",
-    "               "};
+    "           ",
+    ".+@@@@@@@+.",
+    "+#       #+",
+    "@ $@   @$ @",
+    "@ @@@ @@@ @",
+    "@  @@@@@  @",
+    "@   @@@   @",
+    "@  @@@@@  @",
+    "@ @@@ @@@ @",
+    "@ $@   @$ @",
+    "+%       #+",
+    ".+@@@@@@@+.",
+    "           "};
 
 static const char * const qt_cleanlooks_arrow_down_xpm[] = {
     "11 7 2 1",
@@ -113,7 +111,7 @@ static const char * const qt_cleanlooks_arrow_up_xpm[] = {
     "           "};
 
 static const char * const dock_widget_restore_xpm[] = {
-    "15 15 7 1",
+    "11 13 7 1",
     " 	c None",
     ".	c #D5CFCB",
     "+	c #8F8B88",
@@ -121,21 +119,43 @@ static const char * const dock_widget_restore_xpm[] = {
     "#	c #ABA6A3",
     "$	c #B5B0AC",
     "%	c #A4A09D",
-    "               ",
-    "               ",
-    "  .+@@@@@@@+.  ",
-    "  +#       #+  ",
-    "  @   #@@@# @  ",
-    "  @   @   @ @  ",
-    "  @ #@@@# @ @  ",
-    "  @ @   @ @ @  ",
-    "  @ @   @@@ @  ",
-    "  @ @   @   @  ",
-    "  @ #@@@#   @  ",
-    "  +%       #+  ",
-    "  .+@@@@@@@+.  ",
-    "               ",
-    "               "};
+    "           ",
+    ".+@@@@@@@+.",
+    "+#       #+",
+    "@   #@@@# @",
+    "@   @   @ @",
+    "@ #@@@# @ @",
+    "@ @   @ @ @",
+    "@ @   @@@ @",
+    "@ @   @   @",
+    "@ #@@@#   @",
+    "+%       #+",
+    ".+@@@@@@@+.",
+    "           "};
+    
+static const char * const workspace_minimize[] = {
+    "11 13 7 1",
+    " 	c None",
+    ".	c #D5CFCB",
+    "+	c #8F8B88",
+    "@	c #6C6A67",
+    "#	c #ABA6A3",
+    "$	c #B5B0AC",
+    "%	c #A4A09D",
+    "           ",
+    ".+@@@@@@@+.",
+    "+#       #+",
+    "@         @",
+    "@         @",
+    "@         @",
+    "@ @@@@@@@ @",
+    "@ @@@@@@@ @",
+    "@         @",
+    "@         @",
+    "+%       #+",
+    ".+@@@@@@@+.",
+    "           "};
+    
 
 static const char * const qt_titlebar_context_help[] = {
     "27 27 5 1",
@@ -4198,12 +4218,13 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_TitleBarMenuButton:
     case SP_TitleBarShadeButton:
     case SP_TitleBarUnshadeButton:
-    case SP_TitleBarMinButton:
     case SP_TitleBarMaxButton:
     case SP_TitleBarContextHelpButton:
         return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
     case SP_TitleBarNormalButton:
         return QPixmap((const char **)dock_widget_restore_xpm);
+    case SP_TitleBarMinButton:
+        return QPixmap((const char **)workspace_minimize);
     case SP_TitleBarCloseButton:
     case SP_DockWidgetCloseButton:
         return QPixmap((const char **)dock_widget_close_xpm);
