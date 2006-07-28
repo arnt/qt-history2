@@ -16,6 +16,24 @@
 
 #include <QtXml/QtXml>
 
+class QDBusViewModel: public QDBusModel
+{
+public:
+    inline QDBusViewModel(const QString &service, const QDBusConnection &connection)
+        : QDBusModel(service, connection)
+    {}
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    {
+        if (role == Qt::FontRole && itemType(index) == InterfaceItem) {
+            QFont f;
+            f.setItalic(true);
+            return f;
+        }
+        return QDBusModel::data(index, role);
+    }
+};
+
 QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     : QWidget(parent), c(connection)
 {
@@ -283,7 +301,7 @@ void QDBusViewer::serviceChanged(QTreeWidgetItem *item)
         return;
     currentService = item->text(0);
 
-    tree->setModel(new QDBusModel(currentService, c));
+    tree->setModel(new QDBusViewModel(currentService, c));
     connect(tree->model(), SIGNAL(busError(QString)), this, SLOT(logError(QString)));
 }
 
