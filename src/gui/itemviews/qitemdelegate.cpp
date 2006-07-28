@@ -808,7 +808,7 @@ static QString qPixmapSerial(quint64 i, bool enabled)
 */
 QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const
 {
-    QString key = qPixmapSerial(pixmap.serialNumber(), enabled);
+    QString key = qPixmapSerial(qt_pixmap_id(pixmap), enabled);
     QPixmap *pm = QPixmapCache::find(key);
     if (!pm) {
         QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
