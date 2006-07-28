@@ -15,6 +15,7 @@
 #define QRESOURCE_H
 
 #include <QtCore/qstring.h>
+#include <QtCore/qlocale.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qlist.h>
 
@@ -27,13 +28,15 @@ class QResourcePrivate;
 class Q_CORE_EXPORT QResource
 {
 public:
-    QResource(const QString &file=QString());
+    QResource(const QString &file=QString(), const QLocale &locale=QLocale());
     ~QResource();
 
-    void setFile(const QString &file);
-    QString filePath() const;
+    void setFileName(const QString &file);
+    QString fileName() const;
+    QString absoluteFilePath() const;
 
-    QString canonicalFilePath() const;
+    void setLocale(const QLocale &locale);
+    QLocale locale() const;
 
     bool isValid() const;
 
@@ -46,7 +49,6 @@ public:
 
     static bool registerResource(const QString &rccFilename);
     static bool unregisterResource(const QString &rccFilename);
-
 
 protected:
     friend class QResourceFileEngine;
