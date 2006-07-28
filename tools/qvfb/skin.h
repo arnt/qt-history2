@@ -68,7 +68,8 @@ private:
 		    QString* skinImageDownFileName,
 		    QString* skinImageClosedFileName,
 		    QString* skinCursorFileName,
-		    QPoint* cursorHot);
+		    QPoint* cursorHot,
+                    QStringList* closedAreas);
 
     void loadImages();
     QString skinImageUpFileName;
@@ -88,6 +89,7 @@ private:
         QPolygon area;
         QRegion region;
 	QString text;
+        bool activeWhenClosed;
     } ButtonAreas;
 
     void startPress(int);

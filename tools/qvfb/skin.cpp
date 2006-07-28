@@ -66,7 +66,7 @@ QSize Skin::screenSize(const QString &skinFile)
     f.open( QIODevice::ReadOnly );
     QTextStream ts( &f );
     int viewW=0, viewH=0;
-    parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, 0, 0, 0, 0);
+    parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, 0, 0, 0, 0, 0);
     return QSize(viewW,viewH);
 }
 
@@ -102,7 +102,8 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 		    QString* skinImageDownFileName,
 		    QString* skinImageClosedFileName,
 		    QString* skinCursorFileName,
-		    QPoint* cursorHot)
+		    QPoint* cursorHot,
+                    QStringList* closedAreas)
 {
     QString mark;
     ts >> mark;
@@ -127,6 +128,10 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 			if ( skinImageDownFileName ) *skinImageDownFileName = value;
 		    } else if ( key == "Closed" ) {
 			if ( skinImageClosedFileName ) *skinImageClosedFileName = value;
+		    } else if ( key == "ClosedAreas" ) {
+			if ( closedAreas ) {
+                            *closedAreas = value.split(" ");
+                        }
 		    } else if ( key == "Screen" ) {
 			QStringList l = value.split(" ");
 			if ( viewX1 ) *viewX1 = l[0].toInt();
@@ -181,10 +186,11 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     }
     QFile f( _skinFileName );
     f.open( QIODevice::ReadOnly );
+    QStringList closedAreas;
     QTextStream ts( &f );
     parseSkinFileHeader(ts, &viewX1, &viewY1, &viewW, &viewH, &numberOfAreas,
 	&skinImageUpFileName, &skinImageDownFileName, &skinImageClosedFileName,
-	&skinCursorFileName, &cursorHot);
+	&skinCursorFileName, &cursorHot, &closedAreas);
 
 //  Debug the skin file parsing
 //  printf("read: -%s- -%i- -%i- -%i-\n", skinImage.toLatin1().constData(), viewX1, viewY1, numberOfAreas );
@@ -250,6 +256,8 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
 		    areas[i].text = areas[i].name;
 		if ( areas[i].name == "Joystick" )
 		    joystick = i;
+		areas[i].activeWhenClosed = closedAreas.contains(areas[i].name)
+                    || areas[i].keyCode == Qt::Key_Flip; // must be to work
 		i++;
 	    }
 	}
@@ -384,15 +392,15 @@ void Skin::paintEvent( QPaintEvent * )
     QPainter p( this );
     if ( flipped_open ) {
 	p.drawPixmap( 0, 0, skinImageUp );
-	if (buttonPressed == true) {
-	    ButtonAreas *ba = &areas[buttonIndex];
-	    QRect r = ba->region.boundingRect();
-	    if ( ba->area.count() > 2 )
-		p.setClipRegion(ba->region);
-	    p.drawPixmap( r.topLeft(), skinImageDown, r);
-	}
     } else {
 	p.drawPixmap( 0, 0, skinImageClosed );
+    }
+    if (buttonPressed == true) {
+        ButtonAreas *ba = &areas[buttonIndex];
+        QRect r = ba->region.boundingRect();
+        if ( ba->area.count() > 2 )
+            p.setClipRegion(ba->region);
+        p.drawPixmap( r.topLeft(), skinImageDown, r);
     }
 }
 
@@ -405,26 +413,24 @@ void Skin::mousePressEvent( QMouseEvent *e )
 	buttonPressed = false;
 
 	onjoyrelease = -1;
-	if ( !flipped_open ) {
-	    flip(true);
-	} else {
-	    for (int i = 0; i < numberOfAreas; i++) {
-		ButtonAreas *ba = &areas[i];
-		if ( ba->region.contains( e->pos() ) ) {
-		    if ( joystick == i ) {
-			joydown = true;
-		    } else {
-			if ( joydown )
-			    onjoyrelease = i;
-			else
-			    startPress(i);
-			break;
+        for (int i = 0; i < numberOfAreas; i++) {
+            ButtonAreas *ba = &areas[i];
+            if ( ba->region.contains( e->pos() ) ) {
+                if ( flipped_open || ba->activeWhenClosed ) {
+                    if ( joystick == i ) {
+                        joydown = true;
+                    } else {
+                        if ( joydown )
+                            onjoyrelease = i;
+                        else
+                            startPress(i);
+                        break;
 //		Debug message to be sure we are clicking the right areas
 //		printf("%s clicked\n", areas[i].name);
-		    }
-		}
-	    }
-	}
+                    }
+                }
+            }
+        }
 
 //	This is handy for finding the areas to define rectangles for new skins
 //	printf("Clicked in %i,%i\n",  e->pos().x(),  e->pos().y());
@@ -453,7 +459,7 @@ void Skin::startPress(int i)
     buttonIndex = i;
     if (view) {
 	if ( areas[buttonIndex].keyCode == Qt::Key_Flip ) {
-	    flip(false);
+	    flip(!flipped_open);
 	} else {
 	    view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
 	    t_skinkey->start(key_repeat_delay);

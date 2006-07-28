@@ -28,8 +28,8 @@ void fn_quit_qvfb(int)
 
 void usage( const char *app )
 {
-    printf( "Usage: %s [-width width] [-height height] [-depth depth] "
-	    "[-nocursor] [-qwsdisplay :id] [-skin skindirectory]\n"
+    printf( "Usage: %s [-width width] [-height height] [-depth depth] [-zoom zoom]"
+	    "[-mmap] [-nocursor] [-qwsdisplay :id] [-skin skindirectory]\n"
 	    "Supported depths: 1, 4, 8, 32\n", app );
 }
 int qvfb_protocol = 0;
