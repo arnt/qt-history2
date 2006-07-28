@@ -564,9 +564,8 @@ void QWidgetPrivate::show_sys()
             && q->windowType() != Qt::ToolTip ) {
             QWidget::qwsDisplay()->requestFocus(data.winid,true);
         }
-        QWidget::qwsDisplay()->setAltitude(data.winid,
-                                     (q->windowFlags() & Qt::WindowStaysOnTopHint) ? 1 : 0, true);
-
+	bool staysontop = (q->windowFlags() & Qt::WindowStaysOnTopHint) || (q->windowState() & Qt::WindowFullScreen);
+        QWidget::qwsDisplay()->setAltitude(data.winid, staysontop ? 1 : 0 , true);
     }
 
     if (!q->window()->data->in_show) {
