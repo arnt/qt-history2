@@ -47,8 +47,8 @@ public:
     static void addSearchPath(const QString &path);
     static QStringList searchPaths();
 
-    static bool registerResource(const QString &rccFilename);
-    static bool unregisterResource(const QString &rccFilename);
+    static bool registerResource(const QString &rccFilename, const QString &resourceRoot=QString());
+    static bool unregisterResource(const QString &rccFilename, const QString &resourceRoot=QString());
 
 protected:
     friend class QResourceFileEngine;
