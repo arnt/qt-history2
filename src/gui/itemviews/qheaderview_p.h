@@ -106,12 +106,12 @@ public:
     }
 
     inline void setDefaultValues(Qt::Orientation o) {
+        orientation = o;
         defaultSectionSize = (o == Qt::Horizontal ? 100
                               : qMax(q_func()->minimumSectionSize(), 30));
         defaultAlignment = (o == Qt::Horizontal
                             ? Qt::Alignment(Qt::AlignCenter)
                             : Qt::AlignLeft|Qt::AlignVCenter);
-        orientation = o;
     }
 
     inline bool isVisualIndexHidden(int visual) const {
