@@ -801,7 +801,7 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 /*!
   \fn Qt::ItemFlags QListWidgetItem::flags() const
 
-  Returns the item flags for this item (see {Qt::ItemFlags}).
+  Returns the item flags for this item (see \l{Qt::ItemFlags}).
 */
 
 /*!
