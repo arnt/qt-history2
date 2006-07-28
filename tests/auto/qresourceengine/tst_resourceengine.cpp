@@ -28,6 +28,7 @@ Q_DECLARE_METATYPE(qlonglong)
 void tst_ResourceEngine::initTestCase()
 {
     QVERIFY(QResource::registerResource("runtime_resource.rcc"));
+    QVERIFY(QResource::registerResource("runtime_resource.rcc", "/secondary_root/"));
 }
 
 void tst_ResourceEngine::checkStructure_data()
@@ -47,13 +48,21 @@ void tst_ResourceEngine::checkStructure_data()
                                        << (QStringList() << QLatin1String("aliasdir") << QLatin1String("otherdir")
                                            << QLatin1String("runtime_resource")
                                            << QLatin1String("searchpath1") << QLatin1String("searchpath2")
+                                           << QLatin1String("secondary_root")
                                            << QLatin1String("test") << QLatin1String("trolltech")
                                            << QLatin1String("withoutslashes"))
                                        << QLocale()
                                        << qlonglong(0);
 
+    QTest::newRow("secondary root")  << QString(":/secondary_root/")
+                                     << QString()
+                                     << QStringList()
+                                     << (QStringList() << QLatin1String("runtime_resource"))
+                                     << QLocale()
+                                     << qlonglong(0);
+
     QStringList roots;
-    roots << QString(":/") << QString(":/runtime_resource/");
+    roots << QString(":/") << QString(":/runtime_resource/") << QString(":/secondary_root/runtime_resource/");
     for(int i = 0; i < roots.size(); ++i) {
         const QString root = roots.at(i);
 
@@ -264,13 +273,13 @@ void tst_ResourceEngine::checkStructure()
 
         // Test the Dir filter
         QFileInfoList list = dir.entryInfoList(QDir::Dirs, QDir::Name);
-//         for(int i = 0; i < list.size(); ++i)
-//             qDebug() << "one" << i << list.at(i).fileName();
-//         for(int i = 0; i < containedDirs.size(); ++i)
-//             qDebug() << "two" << i << containedDirs.at(i);
-//         qDebug() << "one" << list.size() << containedDirs.size();
-        QCOMPARE(list.size(), containedDirs.size());
-        //qDebug() << "two";
+//           for(int i = 0; i < list.size(); ++i)
+//               qDebug() << "one" << i << list.at(i).fileName();
+//           for(int i = 0; i < containedDirs.size(); ++i)
+//               qDebug() << "two" << i << containedDirs.at(i);
+//           qDebug() << "one" << list.size() << containedDirs.size();
+       QCOMPARE(list.size(), containedDirs.size());
+//         qDebug() << "two";
 
         int i;
         for (i=0; i<list.size(); ++i) {
