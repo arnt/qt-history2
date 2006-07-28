@@ -47,6 +47,18 @@ static inline QScreen *getScreen(const QWidget *w)
     return qt_screen->subScreens().at(screen);
 }
 
+
+static inline void setImageMetrics(QImage &img, QWidget *window) {
+    QScreen *myScreen = getScreen(window);
+    if (myScreen) {
+        int dpmx = myScreen->width()*1000 / myScreen->physicalWidth();
+        int dpmy = myScreen->height()*1000 / myScreen->physicalHeight();
+        img.setDotsPerMeterX(dpmx);
+        img.setDotsPerMeterY(dpmy);
+    }
+}
+
+
 class QWSWindowSurfacePrivate
 {
 public:
@@ -400,8 +412,8 @@ void QWSLocalMemSurface::setGeometry(const QRect &rect)
             img = QImage();
         } else {
             mem = new uchar[memsize];
-            QWSMemorySurface::img = QImage(mem, size.width(), size.height(),
-                                           imageFormat);
+            img = QImage(mem, size.width(), size.height(), imageFormat);
+            setImageMetrics(img, window());
         }
     }
 
@@ -547,6 +559,7 @@ void QWSSharedMemSurface::setGeometry(const QRect &rect)
             }
             uchar *base = static_cast<uchar*>(mem.address());
             img = QImage(base, size.width(), size.height(), imageFormat);
+            setImageMetrics(img, window());
         }
     }
 
