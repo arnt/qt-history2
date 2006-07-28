@@ -887,7 +887,6 @@ QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
     return info->o == Qt::Horizontal
             ? Qt::SplitHCursor : Qt::SplitVCursor;
 }
-#endif
 
 void QMainWindowPrivate::adjustCursor(const QPoint &pos)
 {
@@ -920,6 +919,7 @@ void QMainWindowPrivate::adjustCursor(const QPoint &pos)
         }
     }
 }
+#endif
 
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
