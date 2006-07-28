@@ -16,6 +16,7 @@
 #ifndef QT_NO_CALENDARWIDGET
 
 #include <qabstractitemmodel.h>
+#include <qitemdelegate.h>
 #include <qdatetime.h>
 #include <qtableview.h>
 #include <qlayout.h>
@@ -676,6 +677,20 @@ void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
         event->ignore();
 }
 
+class QCalendarDelegate : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    QCalendarDelegate(QCalendarWidgetPrivate *w, QObject *parent = 0)
+        : QItemDelegate(parent), calendarWidgetPrivate(w)
+            { }
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                const QModelIndex &index) const;
+    void paintCell(QPainter *painter, const QRect &rect, const QDate &date) const;
+private:
+    QCalendarWidgetPrivate *calendarWidgetPrivate;
+    mutable QStyleOptionViewItem storedOption;
+};
 
 class QCalendarWidgetPrivate : public QWidgetPrivate
 {
@@ -685,6 +700,7 @@ public:
 
     void showMonth(int year, int month);
     void update();
+    void paintCell(QPainter *painter, const QRect &rect, const QDate &date) const;
 
     void _q_slotChangeDate(const QDate &date, bool changeMonth);
     void _q_editingFinished();
@@ -697,10 +713,11 @@ public:
     void createHeader(QWidget *widget);
     void updateMonthMenu();
     void updateCurrentPage(QDate &newDate);
-    inline QDate getCurrentDate(); 
+    inline QDate getCurrentDate();
 
     QCalendarModel *m_model;
     QCalendarView *m_view;
+    QCalendarDelegate *m_delegate;
     QItemSelectionModel *m_selection;
 
     QToolButton *nextMonth;
@@ -715,11 +732,35 @@ public:
     bool headerVisible;
 };
 
+void QCalendarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+            const QModelIndex &index) const
+{
+    QDate date = calendarWidgetPrivate->m_model->dateForCell(index.row(), index.column());
+    if (date.isValid()) {
+        storedOption = option;
+        QRect rect = option.rect;
+        calendarWidgetPrivate->paintCell(painter, rect, date);
+    } else {
+        QItemDelegate::paint(painter, option, index);
+    }
+}
+
+void QCalendarDelegate::paintCell(QPainter *painter, const QRect &rect, const QDate &date) const
+{
+    storedOption.rect = rect;
+    int row = -1;
+    int col = -1;
+    calendarWidgetPrivate->m_model->cellForDate(date, &row, &col);
+    QModelIndex idx = calendarWidgetPrivate->m_model->index(row, col);
+    QItemDelegate::paint(painter, storedOption, idx);
+}
+
 QCalendarWidgetPrivate::QCalendarWidgetPrivate()
     : QWidgetPrivate()
 {
     m_model = 0;
     m_view = 0;
+    m_delegate = 0;
     m_selection = 0;
     headerVisible = true;
 }
@@ -806,15 +847,15 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
     QDate maxDate = q->maximumDate();
     m_view->setFocus();
     if (minDate.isValid()&& minDate.daysTo(newDate) < 0)
-        newDate = minDate; 
+        newDate = minDate;
     if (maxDate.isValid()&& maxDate.daysTo(newDate) > 0)
-        newDate = maxDate; 
+        newDate = maxDate;
     showMonth(newDate.year(), newDate.month());
     int row = -1, col = -1;
     m_model->cellForDate(newDate, &row, &col);
     if (row != -1 && col != -1)
     {
-        m_view->selectionModel()->setCurrentIndex(m_model->index(row, col), 
+        m_view->selectionModel()->setCurrentIndex(m_model->index(row, col),
                                                   QItemSelectionModel::NoUpdate);
     }
 }
@@ -827,7 +868,7 @@ void QCalendarWidgetPrivate::_q_monthChanged(QAction *act)
     updateCurrentPage(newDate);
 }
 
-QDate QCalendarWidgetPrivate::getCurrentDate() 
+QDate QCalendarWidgetPrivate::getCurrentDate()
 {
     QModelIndex index = m_view->currentIndex();
     return m_model->dateForCell(index.row(), index.column());
@@ -858,7 +899,7 @@ void QCalendarWidgetPrivate::_q_yearEditingFinished()
 void QCalendarWidgetPrivate::_q_yearClicked()
 {
     //show the spinbox on top of the button
-    yearEdit->setGeometry(yearButton->x(), yearButton->y(), 
+    yearEdit->setGeometry(yearButton->x(), yearButton->y(),
                           yearEdit->sizeHint().width(), yearButton->sizeHint().height());
     spaceHolder->changeSize(yearButton->width(), 0);
     yearButton->hide();
@@ -898,6 +939,12 @@ void QCalendarWidgetPrivate::update()
         idx = m_model->index(row, column);
         m_selection->setCurrentIndex(idx, QItemSelectionModel::SelectCurrent);
     }
+}
+
+void QCalendarWidgetPrivate::paintCell(QPainter *painter, const QRect &rect, const QDate &date) const
+{
+    Q_Q(const QCalendarWidget);
+    q->paintCell(painter, rect, date);
 }
 
 void QCalendarWidgetPrivate::_q_slotChangeDate(const QDate &date, bool changeMonth)
@@ -1036,13 +1083,15 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_selection = d->m_view->selectionModel();
     d->createHeader(this);
     d->m_view->setFrameStyle(QFrame::NoFrame);
+    d->m_delegate = new QCalendarDelegate(d, this);
+    d->m_view->setItemDelegate(d->m_delegate);
     d->update();
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     connect(d->m_view, SIGNAL(changeDate(const QDate&, bool)),
             this, SLOT(_q_slotChangeDate(const QDate&, bool)));
-    connect(d->m_view, SIGNAL(clicked(const QDate&)), 
+    connect(d->m_view, SIGNAL(clicked(const QDate&)),
             this, SIGNAL(clicked(const QDate&)));
     connect(d->m_view, SIGNAL(editingFinished()),
             this, SLOT(_q_editingFinished()));
@@ -1127,6 +1176,16 @@ QSize QCalendarWidget::minimumSizeHint() const
     w = qMax(headerSize.width(), w);
     h = (h * rows) + headerSize.height();
     return QSize(w , h);
+}
+
+/*!
+    Paints the cell specified by the given \a date, using the given \a painter and \a rect.
+*/
+
+void QCalendarWidget::paintCell(QPainter *painter, const QRect &rect, const QDate &date) const
+{
+    Q_D(const QCalendarWidget);
+    d->m_delegate->paintCell(painter, rect, date);
 }
 
 /*!
@@ -1701,8 +1760,8 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
 /*!
     \fn void QCalendarWidget::clicked(const QDate &date)
 
-    This signal is emitted when a mouse button is clicked. The date the 
-    mouse was clicked on is specified by \a date. The signal is only 
+    This signal is emitted when a mouse button is clicked. The date the
+    mouse was clicked on is specified by \a date. The signal is only
     emitted when clicked on a valid date.
 */
 
@@ -1710,7 +1769,7 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     \property QCalendarWidget::headerVisible
     \brief whether the Header is shown or not
 
-    When this property is set to true the next month, previous month, 
+    When this property is set to true the next month, previous month,
     month selection, year selection controls are shown on top
 
     When the property is set to false, these controls are hidden.

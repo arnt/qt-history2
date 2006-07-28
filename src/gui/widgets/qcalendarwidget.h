@@ -111,6 +111,8 @@ protected:
     void resizeEvent(QResizeEvent * event);
     void keyPressEvent(QKeyEvent * event);
 
+    virtual void paintCell(QPainter *painter, const QRect &rect, const QDate &date) const;
+
 public Q_SLOTS:
     void setSelectedDate(const QDate &date);
     void setDateRange(const QDate &min, const QDate &max);
