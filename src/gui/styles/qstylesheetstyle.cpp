@@ -926,6 +926,15 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
+QStyle *QStyleSheetStyle::baseStyle() const
+{ 
+    if (base)
+        return base;
+    if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
+        return me->base;
+    return qApp->style();
+}
+
 QRenderRules QStyleSheetStyle::renderRules(const QWidget *w) const
 {
     return renderRulesCache.value(w);
@@ -1075,6 +1084,8 @@ void QStyleSheetStyle::update(const QList<const QWidget *>& widgets)
         styleRulesCache.remove(widget);
         renderRulesCache.remove(widget);
         polish(widget);
+        QEvent e(QEvent::StyleChange);
+        QApplication::sendEvent(widget, &e);
         widget->update();
         widget->updateGeometry();
     }
@@ -1116,9 +1127,6 @@ void QStyleSheetStyle::polish(QWidget *w)
     } else {
         setPalette(w);
     }
-
-    QEvent e(QEvent::StyleChange);
-    QApplication::sendEvent(w, &e);
 }
 
 QVector<QCss::StyleRule> QStyleSheetStyle::computeStyleSheet(QWidget *w)
@@ -1212,10 +1220,9 @@ bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-QStyleSheetStyle::QStyleSheetStyle(QStyle *baseStyle, QObject *parent)
-: bs(baseStyle)
+QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
+: base(base), refcount(1)
 {
-    setParent(parent);
 }
 
 void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
@@ -1335,11 +1342,26 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         return;
 
     case CE_Splitter:
-        if (rule.hasBorder() || rule.hasBackground()) {
+        if (rule.hasFrame()) {
             qDrawFrame(p, rule, opt->rect, opt->direction);
             return;
         }
         break;
+
+    case CE_ToolBar:
+        if (rule.hasBackground()) {
+            qDrawBackground(p, rule, opt->rect, opt->direction);
+        } 
+        if (rule.hasBorder()) {
+            qDrawBorder(p, rule, rule.borderRect(opt->rect));
+        } else {
+            if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+                QStyleOptionToolBar newTb(*tb);
+                newTb.rect = rule.borderRect(opt->rect);
+                baseStyle()->drawControl(ce, &newTb, p, w);
+            }
+        }
+        return;
 
     case CE_MenuEmptyArea:
     case CE_MenuBarEmptyArea:
@@ -1550,14 +1572,21 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         }
         break;
 
-        // Menu stuff that would be nice to customize
+    case PE_IndicatorToolBarHandle:
+        if (rule.hasBackground()) {
+            qDrawBackground(p, rule, opt->rect, opt->direction);
+            return;
+        }
+        break;
+
+    // Menu stuff that would be nice to customize
     case PE_IndicatorMenuCheckMark:
     case PE_IndicatorArrowLeft:
     case PE_IndicatorArrowRight:
         baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
-    case PE_PanelTipLabel: 
+    case PE_PanelTipLabel:
         if (rule.hasFrame()) {
             qDrawFrame(p, rule, opt->rect, opt->direction);
             return;
@@ -1639,15 +1668,13 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return rules.iconSize("indicator").height();
         break;
 
-    case PM_ToolTipLabelFrameWidth:
-        if (rule.hasBorder())
-            return rule.border()->borders[LeftEdge];
-        break;
-
+    case PM_ToolTipLabelFrameWidth: // border + margin (support only one width)
     case PM_MenuPanelWidth:
-    case PM_MenuBarPanelWidth: // border + margin (support only one width)
+    case PM_MenuBarPanelWidth: 
+    case PM_ToolBarFrameWidth:
         if (rule.hasBorder() || rule.hasBox())
-            return rule.sizeWithMargin(rule.sizeWithBorder(QSize(0, 0))).width()/2;
+            return rule.border() ? rule.border()->borders[LeftEdge] : 0
+                   + rule.hasBox() ? rule.box()->margins[LeftEdge] : 0;
         break;
 
     case PM_MenuHMargin:
@@ -1656,12 +1683,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return qRound(rule.box()->paddings[LeftEdge]);
         break;
 
+    case PM_ToolBarItemMargin:
     case PM_MenuVMargin:
     case PM_MenuBarVMargin:
         if (rule.hasBox())
             return qRound(rule.box()->paddings[TopEdge]);
         break;
 
+    case PM_ToolBarItemSpacing:
     case PM_MenuBarItemSpacing:
         if (rule.hasBox())
             return qRound(rule.box()->spacing);
@@ -1680,6 +1709,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ToolBarExtensionExtent:
         break;
 
+    case PM_ToolBarHandleExtent:
     case PM_SplitterWidth:
         if (rules.contentsWidth != -1)
             return rules.contentsWidth;

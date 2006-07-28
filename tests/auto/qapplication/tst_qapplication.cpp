@@ -145,8 +145,8 @@ void tst_QApplication::staticSetup()
     QPalette pal;
     QApplication::setPalette(pal);
 
-    QFont font;
-    QApplication::setFont(font);
+    /*QFont font;
+    QApplication::setFont(font);*/
 
     int argc = 0;
     QApplication app(argc, 0, QApplication::GuiServer);
@@ -1108,14 +1108,15 @@ void tst_QApplication::style()
     QPointer<QStyleSheetStyle> sss = (QStyleSheetStyle *)qApp->style();
     QVERIFY(!sss.isNull());
     QCOMPARE(sss->metaObject()->className(), "QStyleSheetStyle"); // must be our proxy now
-    QVERIFY(!style2.isNull()); // this should exist
+    QVERIFY(!style2.isNull()); // this should exist as it is the base of the proxy
     QVERIFY(sss->baseStyle() == style2);
     style1 = new QWindowsStyle;
     qApp->setStyle(style1);
     QVERIFY(style2.isNull()); // should disappear automatically
-    QVERIFY(sss->baseStyle() == style1); // and replaced with the new one
+    QVERIFY(sss.isNull()); // should disappear automatically
 
     // Update the stylesheet and check nothing changes
+    sss = (QStyleSheetStyle *)qApp->style();
     qApp->setStyleSheet("whatever2");
     QVERIFY(qApp->style() == sss);
     QVERIFY(sss->baseStyle() == style1);
@@ -1123,6 +1124,9 @@ void tst_QApplication::style()
     // Revert the stylesheet
     qApp->setStyleSheet("");
     QVERIFY(sss.isNull()); // should have disappeared
+    QVERIFY(qApp->style() == style1);
+
+    qApp->setStyleSheet("");
     QVERIFY(qApp->style() == style1);
 }
 

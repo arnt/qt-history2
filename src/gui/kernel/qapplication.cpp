@@ -1042,22 +1042,18 @@ QString QApplication::styleSheet() const
 
 void QApplication::setStyleSheet(const QString& styleSheet)
 {
-    if (QApplicationPrivate::styleSheet == styleSheet)
-        return;
-
-    QString oldStyleSheet = QApplicationPrivate::styleSheet;
     QApplicationPrivate::styleSheet = styleSheet;
-    if (styleSheet.isEmpty()) { // user wants to remove application style sheet
-        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
-        Q_ASSERT(proxy != 0);
-        proxy->baseStyle()->setParent(0);
-        setStyle(proxy->baseStyle());
-    } else if (!oldStyleSheet.isEmpty()) { // style sheet update
-        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
-        Q_ASSERT(proxy != 0);
+    QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
+    if (styleSheet.isEmpty()) { // application style sheet removed
+        if (!proxy)
+            return; // there was no stylesheet before
+        setStyle(proxy->base);
+    } else if (proxy) { // style sheet update, just repolish
         proxy->repolish(qApp);
     } else { // stylesheet set the first time
-        setStyle(new QStyleSheetStyle(QApplicationPrivate::app_style, 0));
+        QStyleSheetStyle *newProxy = new QStyleSheetStyle(QApplicationPrivate::app_style);
+        QApplicationPrivate::app_style->setParent(newProxy);
+        setStyle(newProxy);
     }
 }
 
@@ -1174,22 +1170,19 @@ void QApplication::setStyle(QStyle *style)
         QApplicationPrivate::app_style->unpolish(qApp);
     }
 
-    QStyle* old = QApplicationPrivate::app_style; // save
+    QStyle *old = QApplicationPrivate::app_style; // save
 
 #ifndef QT_NO_STYLE_STYLESHEET
-    if (!QApplicationPrivate::styleSheet.isEmpty()) {
-        if (qobject_cast<QStyleSheetStyle *>(style) == 0) { // switch the base style
-            QStyleSheetStyle *proxy =
-                qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
-            Q_ASSERT(proxy != 0);
-            delete proxy->baseStyle();
-            style->setParent(proxy);
-            proxy->setBaseStyle(style);
-        } else // style sheet was just set
-            QApplicationPrivate::app_style = style;
-    } else
+    if (!QApplicationPrivate::styleSheet.isEmpty() && !qobject_cast<QStyleSheetStyle *>(style)) {
+        // we have a stylesheet already and a new style is being set
+        QStyleSheetStyle *newProxy = new QStyleSheetStyle(style);
+        style->setParent(newProxy);
+        QApplicationPrivate::app_style = newProxy;
+    } else 
 #endif // QT_NO_STYLE_STYLESHEET
         QApplicationPrivate::app_style = style;
+
+    QApplicationPrivate::app_style->setParent(qApp); // take ownership
 
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
@@ -1211,9 +1204,15 @@ void QApplication::setStyle(QStyle *style)
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
         for (QWidgetList::ConstIterator it1 = all.constBegin(); it1 != all.constEnd(); ++it1) {
             register QWidget *w = *it1;
-            if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
-                && !w->testAttribute(Qt::WA_SetStyle))
+            if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)) {
+                // For widgets that have a custom style, we let them repolish themselves
+                // by touching the stylesheet. This is required since they may require to
+                // create a new proxy themselves (depending on whether they too have stylesheets)
+                if (!w->testAttribute(Qt::WA_SetStyle))
                     QApplicationPrivate::app_style->polish(w);                // repolish
+                else
+                    w->setStyleSheet(w->styleSheet()); // touch
+            }
         }
 
         for (QWidgetList::ConstIterator it2 = all.constBegin(); it2 != all.constEnd(); ++it2) {
@@ -1230,8 +1229,12 @@ void QApplication::setStyle(QStyle *style)
             }
         }
     }
-    if (QApplicationPrivate::styleSheet.isEmpty())
+
+    if (QStyleSheetStyle *oldProxy = qobject_cast<QStyleSheetStyle *>(old)) {
+        oldProxy->deref();
+    } else if (old && old->parent() == qApp) {
         delete old;
+    }
 
     if (QApplicationPrivate::focus_widget) {
         QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);

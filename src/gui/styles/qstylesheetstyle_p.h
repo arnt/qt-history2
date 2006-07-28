@@ -175,8 +175,7 @@ public:
     bool hasBorder() const { return bd != 0; }
     bool hasBackground() const
     { return bg != 0 || (pal != 0 && pal->background.style() != Qt::NoBrush); }
-    bool hasFrame() const
-    { return hasBorder() || hasBackground(); }
+    bool hasFrame() const { return hasBorder() || hasBackground(); }
 
     bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
     QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
@@ -194,7 +193,7 @@ private:
 
 class QFrame;
 
-struct QRenderRules
+struct Q_AUTOTEST_EXPORT QRenderRules
 {
     QRenderRules() : contentsWidth(-1), contentsHeight(-1) { }
     QHash<int, QRenderRule> computedRulesCache;
@@ -210,13 +209,13 @@ struct QRenderRules
     qreal contentsWidth, contentsHeight;
 };
 
-class QStyleSheetStyle : public QWindowsStyle
+class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
 {
     typedef QWindowsStyle ParentStyle;
 
     Q_OBJECT
 public:
-    QStyleSheetStyle(QStyle *baseStyle, QObject *parent);
+    QStyleSheetStyle(QStyle *baseStyle);
 
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
@@ -251,14 +250,19 @@ public:
     QRect subElementRect(SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                          const QWidget *w = 0) const;
+
+    // These functions are called from QApplication/QWidget. Be careful.
+    void setBaseStyle(QStyle *style) { base = style; }
+    QStyle *baseStyle() const;
+    void repolish(QWidget *widget);
+    void repolish(QApplication *app);
+
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
 
-    void setBaseStyle(QStyle *base) { bs = base; }
-    QStyle *baseStyle() const { return bs ? bs : qApp->style(); }
-
-    void repolish(QWidget *widget);
-    void repolish(QApplication *app);
+    QStyle *base;
+    void ref() { ++refcount; }
+    void deref() { Q_ASSERT(--refcount >= 0); if (!refcount) delete this; }
 
 protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
@@ -268,7 +272,7 @@ private Q_SLOTS:
     void widgetDestroyed(QObject *);
 
 private:
-    QStyle *bs;
+    int refcount;
 
     enum WidgetType {
         PushButton, LineEdit, ComboBox, GroupBox, Frame
