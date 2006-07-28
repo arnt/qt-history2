@@ -2210,15 +2210,17 @@ QByteArray qgetenv(const char *varName)
 static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
 #endif
 
-/*! Reentrant and thread safe version of srand() (see SVID 3, 4.3BSD, ISO 9899, POSIX 1003.1-2003)
+/*!
+    Thread-safe version of the standard C++ \c srand() function.
 
     Sets the argument \a seed to be used to generate a new random number sequence of
-    pseudo random integers to be returned by rand().
+    pseudo random integers to be returned by qrand().
 
-    If no seed value is provided, the rand() function is automatically seeded with a value of 1.
+    If no seed value is provided, qrand() is automatically seeded with a value of 1.
 
-    The sequence of random numbers generated is deterministic per thread. E.g. if both threads
-    call qsrand(1) and subsequently calls qrand() the threads will get the same random number sequence.
+    The sequence of random numbers generated is deterministic per thread. For example,
+    if two threads call qsrand(1) and subsequently calls qrand(), the threads will get
+    the same random number sequence.
     
     \sa qrand()
 */
@@ -2235,12 +2237,17 @@ void qsrand(uint seed)
 #endif
 }
 
-/*! Reentrant and thread safe version of rand() (see SVID 3, 4.3BSD, ISO 9899, POSIX 1003.1-2003)
+/*!
+    Thread-safe version of the standard C++ \c rand() function.
 
-    The qrand() function returns a value between 0 and RAND_MAX, the next number in
-    the current sequence of pseudo random integers.
+    Returns a value between 0 and \c RAND_MAX (defined in \c <cstdlib> and
+    \c <stdlib.h>), the next number in the current sequence of pseudo-random
+    integers.
 
-    \sa qrand()
+    Use \c qsrand() to initialize the pseudo-random number generator with
+    a seed value.
+
+    \sa qsrand()
 */
 uint qrand()
 {
