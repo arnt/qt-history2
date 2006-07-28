@@ -49,13 +49,10 @@ static inline QScreen *getScreen(const QWidget *w)
 
 
 static inline void setImageMetrics(QImage &img, QWidget *window) {
-    QScreen *myScreen = getScreen(window);
-    if (myScreen) {
-        int dpmx = myScreen->width()*1000 / myScreen->physicalWidth();
-        int dpmy = myScreen->height()*1000 / myScreen->physicalHeight();
-        img.setDotsPerMeterX(dpmx);
-        img.setDotsPerMeterY(dpmy);
-    }
+    int dpmx = window->width()*1000 / window->widthMM();
+    int dpmy = window->height()*1000 / window->heightMM();
+    img.setDotsPerMeterX(dpmx);
+    img.setDotsPerMeterY(dpmy);
 }
 
 
