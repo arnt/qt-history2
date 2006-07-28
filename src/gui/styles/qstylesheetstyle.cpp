@@ -1003,8 +1003,12 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         { QStyle::State_None, QPalette::Disabled }
     };
 
+#ifndef QT_NO_TOOLTIP
     const bool isToolTip = QLatin1String(w->metaObject()->className()) == "QTipLabel";
     QPalette p = isToolTip ? QToolTip::palette() : qApp->palette();
+#else
+    QPalette p = qApp->palette();
+#endif
     
     for (int i = 0; i < 2; i++) {
         const QRenderRule &rule = renderRule(w, map[i].state);
@@ -1033,7 +1037,11 @@ void QStyleSheetStyle::setPalette(QWidget *w)
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w))
         sa->viewport()->setPalette(p);
 
+#ifndef QT_NO_TOOLTIP
     isToolTip ? QToolTip::setPalette(p) : w->setPalette(p);
+#else
+    w->setPalette(p);
+#endif
 }
 
 void QStyleSheetStyle::unsetPalette(QWidget *w)
