@@ -23,6 +23,28 @@
 #include <qspinbox.h>
 #include <limits.h>
 #include <qcoreapplication.h>
+#include <qdebug.h>
+
+
+#ifndef QT_NO_LINEEDIT
+
+class QExpandingLineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    QExpandingLineEdit(QWidget *parent);
+    QExpandingLineEdit(const QString &contents, QWidget *parent);
+
+public Q_SLOTS:
+    void resizeToContents();
+
+private:
+    int originalWidth;
+};
+
+#endif // QT_NO_LINEEDIT
+
 
 /*!
     \class QItemEditorFactory
@@ -42,7 +64,6 @@
     types. These are created whenever a delegate needs to provide an editor for
     data supplied by a model. The following table shows the relationship between
     types and the standard editors provided.
-
     \table
     \header \o Type \o Editor Widget
     \row    \o bool \o QComboBox
@@ -178,7 +199,7 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     case QVariant::String:
     default: {
         // the default editor is a lineedit
-        QLineEdit *le = new QLineEdit(parent);
+        QLineEdit *le = new QExpandingLineEdit(parent);
         le->setFrame(false);
         return le; }
 #else
@@ -325,5 +346,41 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 
     \sa QItemEditorCreatorBase, QItemEditorFactory, QItemDelegate
 */
+
+#ifndef QT_NO_LINEEDIT
+
+QExpandingLineEdit::QExpandingLineEdit(QWidget *parent)
+    : QLineEdit(parent), originalWidth(-1)
+{
+    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(resizeToContents()));
+}
+
+QExpandingLineEdit::QExpandingLineEdit(const QString &contents, QWidget *parent)
+    : QLineEdit(contents, parent), originalWidth(-1)
+{
+    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(resizeToContents()));
+}
+
+void QExpandingLineEdit::resizeToContents()
+{
+    if (originalWidth == -1)
+        originalWidth = width();
+    if (QWidget *parent = parentWidget()) {
+        QPoint position = pos();
+	QFontMetrics fm(font());
+	int hintWidth = sizeHint().width() - (fm.width(QLatin1Char('x')) * 17) + fm.width(displayText());
+        int parentWidth = parent->width();
+	int maxWidth = isRightToLeft() ? position.x() + width() : parentWidth - position.x();
+	int newWidth = qBound(originalWidth, hintWidth, maxWidth);
+	if (isRightToLeft())
+	    setGeometry(position.x() - newWidth + width(), position.y(), newWidth, height());
+	else
+	    resize(newWidth, height());
+    }
+}
+
+#include "qitemeditorfactory.moc"
+
+#endif // QT_NO_LINEEDIT
 
 #endif // QT_NO_ITEMVIEWS
