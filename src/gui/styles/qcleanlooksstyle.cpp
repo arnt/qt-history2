@@ -2920,8 +2920,9 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
 
                     //remove shadow from left side of edit field when pressed:
-                    if (comboBox->direction == Qt::RightToLeft)
-                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(), editRect.bottom() - 3, option->palette.base());
+                    if (comboBox->direction != Qt::RightToLeft)
+                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(), 
+                        editRect.bottom() - 3, option->palette.base());
 
                     cachePainter.setPen(option->palette.dark().color());
                     if (!sunken) {
@@ -3633,7 +3634,7 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
         case SC_ComboBoxArrow:
             rect = visualRect(option->direction, option->rect, rect);
             rect.setRect(rect.right() - 18, rect.top() - 2,
-                         17, rect.height() + 4);
+                         19, rect.height() + 4);
             rect = visualRect(option->direction, option->rect, rect);
             break;
         case SC_ComboBoxEditField: {
