@@ -32,12 +32,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef QT_NO_STL
-# if defined (Q_CC_GNU) && (__GNUC__ - 0 >= 3)
-#  include <string>
-# endif
-#endif
-
 #ifdef truncate
 #undef truncate
 #endif
@@ -599,7 +593,6 @@ inline int QString::grow(int size)
     \sa  fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
 
-#ifndef QT_NO_STL
 /*! \fn QString QString::fromStdWString(const std::wstring &str)
 
     Returns a copy of the \a str string. The given string is assumed
@@ -607,37 +600,26 @@ inline int QString::grow(int size)
     windows) and ucs4 if the size of wchar_t is 4 bytes (most Unix
     systems).
 
-    This constructor is only available if Qt is configured with STL
+    This method is only available if Qt is configured with STL
     compatibility enabled.
 
-    \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8()
+    \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8(), fromUcs4()
 */
 
-/*! \internal
+/*!
+    Returns a copy of the \a string string encoded in ucs4.
+
+    If \a size is -1 (the default), the \a string has to be 0 terminated.
+
+    \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8(), fromUcs4(), fromStdWString()
 */
-QString QString::fromWCharArray(const wchar_t *a, int l)
+QString QString::fromWCharArray(const wchar_t *string, int size)
 {
-    QString s;
     if (sizeof(wchar_t) == sizeof(QChar)) {
-        s = fromUtf16((ushort *)a);
+        return fromUtf16((ushort *)string, size);
     } else {
-        s.resize(l*2); // worst case
-        QChar *uc = s.data();
-        for (int i = 0; i < l; ++i) {
-            uint u = a[i];
-            if (u > 0xffff) {
-                // decompose into a surrogate pair
-                u -= 0x10000;
-                *uc = QChar(u/0x400 + 0xd800);
-                ++uc;
-                u = u%0x400 + 0xdc00;
-            }
-            *uc = QChar(u);
-            ++uc;
-        }
-        s.resize(uc - s.data());
+        return fromUcs4((uint *)string, size);
     }
-    return s;
 }
 
 /*! \fn std::wstring QString::toStdWString() const
@@ -656,7 +638,20 @@ QString QString::fromWCharArray(const wchar_t *a, int l)
     \sa utf16(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
 
-/*! \internal
+/*!
+
+  Fills the \a array with the data contained in this QString object.
+  The array is encoded in utf16 on platforms where
+  wchar_t is 2 bytes wide (e.g. windows) and in ucs4 on platforms
+  where wchar_t is 4 bytes wide (most Unix systems).
+
+  \a array has to be allocated by the caller and contain enough space to
+  hold the complete string (allocating the array with the same length as the
+  string is always sufficient).
+
+  returns the actual length of the string in \a array.
+
+  \sa utf16(), toUcs4(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit(), toStdWString()
 */
 int QString::toWCharArray(wchar_t *array) const
 {
@@ -681,7 +676,6 @@ int QString::toWCharArray(wchar_t *array) const
         return a - array;
     }
 }
-#endif
 
 /*! \fn QString::QString(const QString &other)
 
@@ -3051,6 +3045,32 @@ QByteArray QString::toUtf8() const
     return ba;
 }
 
+/*!
+    Returns a UCS-4 representation of the string as a QVector<uint>.
+
+    \sa fromUtf8(), toAscii(), toLatin1(), toLocal8Bit(), QTextCodec, fromUcs4(), toWCharArray()
+*/
+QVector<uint> QString::toUcs4() const
+{
+    QVector<uint> v(length());
+    uint *a = v.data();
+    const unsigned short *uc = utf16();
+    for (int i = 0; i < length(); ++i) {
+        uint u = uc[i];
+        if (u >= 0xd800 && u < 0xdc00 && i < length()-1) {
+            ushort low = uc[i+1];
+            if (low >= 0xdc00 && low < 0xe000) {
+                ++i;
+                u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+            }
+        }
+        *a = u;
+        ++a;
+    }
+    v.resize(a - v.data());
+    return v;
+}
+
 QString::Data *QString::fromLatin1_helper(const char *str, int size)
 {
     Data *d;
@@ -3405,6 +3425,45 @@ QString QString::fromUtf16(const ushort *unicode, int size)
             ++size;
     }
     return QString((const QChar *)unicode, size);
+}
+
+
+/*!
+    Returns a QString initialized with the first \a size characters
+    of the Unicode string \a unicode (ISO-10646-UCS-4 encoded).
+
+    If \a size is -1 (the default), \a unicode must be terminated
+    with a 0.
+
+    \sa toUcs4(), fromUtf16(), utf16(), setUtf16(), fromWCharArray()
+*/
+QString QString::fromUcs4(const uint *unicode, int size)
+{
+    if (!unicode)
+        return QString();
+    if (size < 0) {
+        size = 0;
+        while (unicode[size] != 0)
+            ++size;
+    }
+
+    QString s;
+    s.resize(size*2); // worst case
+    QChar *uc = s.data();
+    for (int i = 0; i < size; ++i) {
+        uint u = unicode[i];
+        if (u > 0xffff) {
+            // decompose into a surrogate pair
+            u -= 0x10000;
+            *uc = QChar(u/0x400 + 0xd800);
+            ++uc;
+            u = u%0x400 + 0xdc00;
+        }
+        *uc = QChar(u);
+        ++uc;
+    }
+    s.resize(uc - s.data());
+    return s;
 }
 
 /*!

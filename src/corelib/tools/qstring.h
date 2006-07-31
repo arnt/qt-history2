@@ -54,6 +54,7 @@ class QRegExp;
 class QStringList;
 class QTextCodec;
 class QLatin1String;
+template <typename T> class QVector;
 
 class Q_CORE_EXPORT QString
 {
@@ -242,13 +243,18 @@ public:
     QByteArray toLatin1() const Q_REQUIRED_RESULT;
     QByteArray toUtf8() const Q_REQUIRED_RESULT;
     QByteArray toLocal8Bit() const Q_REQUIRED_RESULT;
+    QVector<uint> toUcs4() const Q_REQUIRED_RESULT;
 
     static QString fromAscii(const char *, int size = -1);
     static QString fromLatin1(const char *, int size = -1);
     static QString fromUtf8(const char *, int size = -1);
     static QString fromLocal8Bit(const char *, int size = -1);
     static QString fromUtf16(const ushort *, int size = -1);
+    static QString fromUcs4(const uint *, int size = -1);
     static QString fromRawData(const QChar *, int size);
+
+    int toWCharArray(wchar_t *array) const;
+    static QString fromWCharArray(const wchar_t *, int size = -1);
 
     QString &setUnicode(const QChar *unicode, int size);
     inline QString &setUtf16(const ushort *utf16, int size);
@@ -522,10 +528,6 @@ private:
     void expand(int i);
     void updateProperties() const;
     QString multiArg(int numArgs, const QString **args) const;
-#ifndef QT_NO_STL
-    int toWCharArray(wchar_t *array) const;
-    static QString fromWCharArray(const wchar_t *, int);
-#endif
     static Data *fromLatin1_helper(const char *str, int size = -1);
     static Data *fromAscii_helper(const char *str, int size = -1);
     friend class QCharRef;
