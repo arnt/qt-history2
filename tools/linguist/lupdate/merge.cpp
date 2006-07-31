@@ -66,6 +66,7 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                     if (getSimilarityScore(QString(m.sourceText()), mv.sourceText()) >= textSimilarityThreshold) {
                         // It is just slightly modified, assume that it is the same string
                         m = MetaTranslatorMessage(m.context(), mv.sourceText(), m.comment(), m.fileName(), m.lineNumber(), m.translations());
+                        m.setPlural(mv.isPlural());
 
                         // Mark it as unfinished. (Since the source text was changed it might require re-translating...)
                         newType = MetaTranslatorMessage::Unfinished;
@@ -82,7 +83,11 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                 switch ( m.type() ) {
                 case MetaTranslatorMessage::Finished:
                 default:
-                    newType = MetaTranslatorMessage::Finished;
+                    if (m.isPlural() == mv.isPlural()) {
+                        newType = MetaTranslatorMessage::Finished;
+                    } else {
+                        newType = MetaTranslatorMessage::Unfinished;
+                    }
                     known++;
                     break;
                 case MetaTranslatorMessage::Unfinished:
@@ -98,6 +103,7 @@ void merge( const MetaTranslator *tor, const MetaTranslator *virginTor, MetaTran
                 // This should also enable us to read a file that does not have the <location> element.
                 m.setFileName(mv.fileName());
                 m.setLineNumber(mv.lineNumber());
+                m.setPlural(mv.isPlural());             // ### why not use operator=?
             }
 
             if (newType == MetaTranslatorMessage::Obsolete && !m.isTranslated()) {
