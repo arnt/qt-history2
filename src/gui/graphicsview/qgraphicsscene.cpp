@@ -1848,6 +1848,17 @@ void QGraphicsScene::update(const QRectF &rect)
 }
 
 /*!
+    This method will return a list of all the QGraphicsViews that display this scene.
+    
+    \sa QGraphicsView
+*/
+QList <QGraphicsView *> QGraphicsScene::views() const
+{
+    Q_D(const QGraphicsScene);
+    return d->views;
+}
+
+/*!
     This slot \e advances the scene by one step, by calling
     QGraphicsItem::advance() for all items on the scene. This is done in two
     phases: in the first phase, all items are notified that the scene is about

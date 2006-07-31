@@ -57,6 +57,7 @@ class QRectF;
 class QSizeF;
 class QStyleOptionGraphicsItem;
 class QInputMethodEvent;
+class QGraphicsView;
 
 class QGraphicsScenePrivate;
 class Q_GUI_EXPORT QGraphicsScene : public QObject
@@ -135,6 +136,8 @@ public:
     void setForegroundBrush(const QBrush &brush);
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
+    QList <QGraphicsView *> views() const;
 
 public Q_SLOTS:
     void update(const QRectF &rect = QRectF());
