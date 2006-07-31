@@ -20,7 +20,7 @@
 #include <QLabel>
 #include <QHeaderView>
 
-#include "qtbrushbutton.h"
+#include "qtcolorbutton.h"
 #include "findicondialog_p.h"
 
 #include <QtDesigner/QtDesigner>
@@ -395,25 +395,25 @@ BrushEditor::BrushEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     m_core = core;
     QLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
-    button = new QtBrushButton(this);
-    button->setBrushManager(m_core->brushManager());
+    button = new QtColorButton(this);
+    //button->setBrushManager(m_core->brushManager());
     layout->addWidget(button);
-    connect(button, SIGNAL(brushChanged(const QBrush &)), this, SLOT(brushChanged()));
-    connect(button, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)),
-                this, SLOT(textureChooserActivated(QWidget *, const QBrush &)));
+    connect(button, SIGNAL(colorChanged(const QColor &)), this, SLOT(brushChanged()));
+    //connect(button, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)),
+    //            this, SLOT(textureChooserActivated(QWidget *, const QBrush &)));
     setFocusProxy(button);
     m_changed = false;
 }
 
 void BrushEditor::setBrush(const QBrush &brush)
 {
-    button->setBrush(brush);
+    button->setColor(brush.color());
     m_changed = false;
 }
 
 QBrush BrushEditor::brush() const
 {
-    return button->brush();
+    return QBrush(button->color());
 }
 
 void BrushEditor::brushChanged()
@@ -440,7 +440,7 @@ void BrushEditor::textureChooserActivated(QWidget *parent, const QBrush &initial
         qrc_path = dialog.qrcPath();
         if (!file_path.isEmpty()) {
             pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
-            button->setTexture(pixmap);
+            //button->setTexture(pixmap);
         }
     }
 }

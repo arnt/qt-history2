@@ -19,7 +19,7 @@
 
 class QListView;
 class QLabel;
-class QtBrushButton;
+class QtColorButton;
 class QDesignerFormEditorInterface;
 
 namespace qdesigner_internal {
@@ -121,7 +121,7 @@ private slots:
     void brushChanged();
     void textureChooserActivated(QWidget *parent, const QBrush &initialBrush);
 private:
-    QtBrushButton *button;
+    QtColorButton *button;
     bool m_changed;
     QDesignerFormEditorInterface *m_core;
 };
