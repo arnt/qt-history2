@@ -251,7 +251,7 @@ void ProReader::insertComment(const QByteArray &comment)
     if (strComment.isEmpty())
         strComment = comment;
     else
-        strComment += QLatin1Char('\n') + comment.trimmed();
+        strComment += '\n' + comment.trimmed();
 
     strComment = strComment.trimmed();
 
