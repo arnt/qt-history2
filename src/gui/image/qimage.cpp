@@ -166,6 +166,7 @@ QImageData::QImageData()
     data = 0;
     own_data = true;
     ro_data = false;
+    has_alpha_clut = false;
 #ifdef QT3_SUPPORT
     jumptable = 0;
 #endif
