@@ -124,6 +124,7 @@ private slots:
     void render();
     void contextMenuEvent();
     void update();
+    void views();
 };
 
 void tst_QGraphicsScene::construction()
@@ -1947,6 +1948,23 @@ void tst_QGraphicsScene::update()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(qVariantValue<QList<QRectF> >(spy.at(0).at(0)).at(0),
              QRectF(-100, -100, 200, 200));
+}
+
+void tst_QGraphicsScene::views()
+{
+    QGraphicsScene scene;
+    QGraphicsView view(&scene);
+
+    QVERIFY(scene.views().size() == 1);
+    QVERIFY(scene.views().at(0) == &view);
+
+    QGraphicsView view1(&scene);
+    QVERIFY(scene.views().size() == 2);
+    QVERIFY(scene.views().at(0) == &view1 || scene.views().at(1) == &view1);
+
+    view.setScene(0);
+    QVERIFY(scene.views().size() == 1);
+    QVERIFY(scene.views().at(0) == &view1);    
 }
 
 QTEST_MAIN(tst_QGraphicsScene)
