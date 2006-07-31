@@ -1819,6 +1819,10 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
     rows are inserted; \a first and \a last are the row numbers of the new
     rows to be inserted.
 
+    Examples:
+    When inserting 5 rows to a model that currently has 15 rows
+    beginInsertRows(parent, 15, 19);
+
     \sa endInsertRows()
 */
 void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, int last)
@@ -1858,6 +1862,10 @@ void QAbstractItemModel::endInsertRows()
     The \a parent index corresponds to the parent from which the new
     rows are removed; \a first and \a last are the row numbers of the
     rows to be removed.
+
+    Examples:
+    When removeing the last 5 rows to a model that has 15 rows
+    beginInsertRows(parent, 11, 15);
 
     \sa endRemoveRows()
 */
