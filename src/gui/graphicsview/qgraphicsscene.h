@@ -163,7 +163,8 @@ protected:
     virtual void drawForeground(QPainter *painter, const QRectF &rect);
     virtual void drawItems(QPainter *painter, int numItems,
                            QGraphicsItem *items[],
-                           const QStyleOptionGraphicsItem options[]);
+                           const QStyleOptionGraphicsItem options[],
+                           QWidget *widget = 0);
 
 Q_SIGNALS:
     void changed(const QList<QRectF> &region);

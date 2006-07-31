@@ -2619,7 +2619,7 @@ void QGraphicsView::drawItems(QPainter *painter, int numItems,
 {
     Q_D(QGraphicsView);
     if (d->scene)
-        d->scene->drawItems(painter, numItems, items, options);
+        d->scene->drawItems(painter, numItems, items, options, viewport());
 }
 
 #endif // QT_NO_GRAPHICSVIEW

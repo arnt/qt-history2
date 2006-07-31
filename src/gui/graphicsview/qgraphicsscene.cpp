@@ -2526,13 +2526,14 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
         void CustomScene::drawItems(QPainter *painter,
                                     int numItems,
                                     QGraphicsItem *items[],
-                                    const QStyleOptionGraphicsItem options[])
+                                    const QStyleOptionGraphicsItem options[]
+                                    QWidget *widget)
         {
             for (int i = 0; i < numItems; ++i) {
                 // Draw the item
                 painter->save();
                 painter->setMatrix(items[i]->sceneMatrix(), true);
-                items.at(i)->paint(painter, options[i], viewport());
+                items.at(i)->paint(painter, options[i], widget);
                 painter->restore();
             }
         }
@@ -2543,13 +2544,13 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 void QGraphicsScene::drawItems(QPainter *painter,
                                int numItems,
                                QGraphicsItem *items[],
-                               const QStyleOptionGraphicsItem options[])
+                               const QStyleOptionGraphicsItem options[], QWidget *widget)
 {
     for (int i = 0; i < numItems; ++i) {
         QGraphicsItem *item = items[i];
         painter->save();
         painter->setMatrix(item->sceneMatrix(), true);
-        item->paint(painter, &options[i], 0);//viewport());
+        item->paint(painter, &options[i], widget);
         painter->restore();
     }
 }
