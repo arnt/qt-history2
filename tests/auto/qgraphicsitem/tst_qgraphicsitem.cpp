@@ -115,6 +115,7 @@ private slots:
     void itemChange();
     void sceneEventFilter();
     void prepareGeometryChange();
+    void paint();
 };
 
 void tst_QGraphicsItem::construction()
@@ -2536,6 +2537,35 @@ void tst_QGraphicsItem::prepareGeometryChange()
         QGraphicsItem *item = scene.addRect(QRectF(0, 0, 100, 100));
         ((GeometryChanger *)item)->changeGeometry();
     }
+}
+
+
+class PaintTester : public QGraphicsRectItem
+{
+public:
+    PaintTester() : widget(NULL) { setRect(QRectF(10, 10, 20, 20)); }
+
+    void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *w)
+    {
+        widget = w;
+    }
+    
+    QWidget*  widget;
+};
+
+void tst_QGraphicsItem::paint()
+{
+    QGraphicsScene scene;
+
+    PaintTester paintTester;
+    scene.addItem(&paintTester);
+
+    QGraphicsView view(&scene);
+    
+    view.show();
+    QTest::qWait(250);
+
+    QVERIFY(paintTester.widget == view.viewport());
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
