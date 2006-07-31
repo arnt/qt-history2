@@ -25,6 +25,7 @@ class QAxWidget2 : public QWidget
     Q_CLASSINFO("EventsID", "{D72BACBA-03C4-4480-B4BB-DE4FE3AA14A0}")
     Q_CLASSINFO("ToSuperClass", "QAxWidget2")
     Q_CLASSINFO("StockEvents", "yes")
+    Q_CLASSINFO("Insertable", "yes")
 
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
 public:
