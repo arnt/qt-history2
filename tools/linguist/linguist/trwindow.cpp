@@ -313,7 +313,7 @@ void TrWindow::openFile( const QString& name )
     m_ui.actionDoneAndNextAlt->setEnabled(false);
     m_ui.actionPreviewForm->setEnabled(true);
 
-    statusBar()->showMessage(tr("%1 source phrase(s) loaded.").arg(cmdl->getMessageCount()), MessageMS);
+    statusBar()->showMessage(tr("%n source phrase(s) loaded.", 0, cmdl->getMessageCount()), MessageMS);
     foundWhere = 0;
     foundOffset = 0;
 
@@ -638,7 +638,7 @@ void TrWindow::translate(int mode)
             found = translatedCount == 0 ? false : true;
             if (found) {
                 QMessageBox::warning( m_translatedlg, tr("Translate"),
-                                  QString( tr("Translated %1 entries to '%2'") ).arg(translatedCount).arg(m_translateTo) );
+                                  QString( tr("Translated %n entries to '%1'", 0, translatedCount).arg(m_translateTo) ));
             }
         }
         break;
@@ -752,7 +752,7 @@ void TrWindow::openPhraseBook()
     if (!name.isEmpty() && !phraseBooksContains(name)) {
         if (openPhraseBook(name)) {
             int n = phraseBookFromFileName(name).count();
-            statusBar()->showMessage(tr("%1 phrase(s) loaded.").arg(n), MessageMS);
+            statusBar()->showMessage(tr("%n phrase(s) loaded.", 0, n), MessageMS);
         }
     }
 }
