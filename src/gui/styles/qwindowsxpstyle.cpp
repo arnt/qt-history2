@@ -1887,6 +1887,14 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         }
         break;
 
+    case PE_IndicatorViewItemCheck: {
+        QStyleOptionButton button;
+        button.QStyleOption::operator=(*option);
+        button.state &= ~State_MouseOver;
+        drawPrimitive(PE_IndicatorCheckBox, &button, p, widget);
+        return;
+    }
+
     default:
         break;
     }
