@@ -49,6 +49,10 @@
     \skipto class QDESIGNER_WIDGET_EXPORT WorldTimeClock
     \printuntil /^\};/
 
+    Note the use of the QDESIGNER_WIDGET_EXPORT macro. This is needed
+    to ensure that \QD can create instances of the widget on some
+    platforms, but it is a good idea to use it on all platforms.
+
     We declare the \c setTimeZone() slot with an associated \c
     timeZoneOffset variable, and we declare an \c updated() signal
     which takes the current time as argument and is emitted whenever
