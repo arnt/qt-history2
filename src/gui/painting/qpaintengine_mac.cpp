@@ -703,7 +703,6 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
         } else
 #endif
         {
-            cgflags &= ~0x7000; // (kCGBitmapByteOrderMask, but not on 10.3)
             int sx = qRound(sr.x());
             int sy = qRound(sr.y());
             int sw = qRound(sr.width());
