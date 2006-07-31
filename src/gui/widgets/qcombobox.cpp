@@ -1844,7 +1844,17 @@ void QComboBox::showPopup()
                        + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 
     // make sure the widget fits on screen
-    //### do horizontally as well
+    if (listRect.width() > screen.width() )
+        listRect.setWidth(screen.width());
+    if (mapToGlobal(listRect.bottomRight()).x() > screen.right()) {
+        below.setX(screen.right() - listRect.width() + 1);
+        above.setX(screen.right() - listRect.width() + 1);
+    }
+    if (mapToGlobal(listRect.topLeft()).x() < 0 ) {
+        below.setX(0);
+        above.setX(0);
+    }
+
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         listRect.moveTopLeft(above);
         QRect currentItemRect = view()->visualRect(view()->currentIndex());
