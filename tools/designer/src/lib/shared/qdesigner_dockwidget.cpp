@@ -79,15 +79,14 @@ void QDesignerDockWidget::setDockWidgetArea(Qt::DockWidgetArea dockWidgetArea)
 
 bool QDesignerDockWidget::inMainWindow() const
 {
-    if (parentWidget() && parentWidget()->layout()) {
-        QLayout *layout = parentWidget()->layout();
-
-        int index = layout->indexOf(const_cast<QDesignerDockWidget*>(this));
-        if ((index != -1) && (qobject_cast<QMainWindow*>(parentWidget()) == 0))
-            return false;
+    QMainWindow *mw = findMainWindow();
+    if (mw && !mw->centralWidget()->layout()) {
+        if (mw == parentWidget())
+            return true;
+        if (mw->centralWidget() == parentWidget())
+            return true;
     }
-
-    return findMainWindow() != 0;
+    return false;
 }
 
 QDesignerFormWindowInterface *QDesignerDockWidget::formWindow() const
