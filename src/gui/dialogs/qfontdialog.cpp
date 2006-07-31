@@ -120,6 +120,8 @@ public:
         : writingSystem(QFontDatabase::Any)
     { }
 
+    static QFont getFont(bool *ok, const QFont *def, QWidget* parent, const QString &caption = QString());
+
     void _q_sizeChanged(const QString &);
     void _q_familyHighlighted(int);
     void _q_writingSystemHighlighted(int);
@@ -353,10 +355,11 @@ QFontDialog::~QFontDialog()
   If the user clicks OK, the selected font is returned. If the user
   clicks Cancel, the \a initial font is returned.
 
-  The dialog is constructed with the given \a parent.
-  \a initial is the initially selected font.
-  If the \a ok parameter is not-null, \e *\a ok is set to true if the
-  user clicked OK, and set to false if the user clicked Cancel.
+  The dialog is constructed with the given \a parent.  \a caption is
+  shown as the window title of the dialog and  \a initial is the
+  initially selected font. If the \a ok parameter is not-null, \e *\a
+  ok is set to true if the user clicked OK, and set to false if the
+  user clicked Cancel.
 
   This static function is less flexible than the full QFontDialog
   object, but is convenient and easy to use.
@@ -380,11 +383,20 @@ QFontDialog::~QFontDialog()
   In this example, if the user clicks OK the font they chose will be
   used, and if they click Cancel the original font is used.
 */
+QFont QFontDialog::getFont(bool *ok, const QFont &initial, QWidget* parent, const QString &caption)
+{
+    return QFontDialogPrivate::getFont(ok, &initial, parent, caption);
+}
+
+/*!
+  \overload
+*/
 QFont QFontDialog::getFont(bool *ok, const QFont &initial,
                             QWidget *parent)
 {
-    return getFont(ok, &initial, parent);
+    return QFontDialogPrivate::getFont(ok, &initial, parent);
 }
+
 
 /*!
     \overload
@@ -416,10 +428,11 @@ QFont QFontDialog::getFont(bool *ok, const QFont &initial,
 */
 QFont QFontDialog::getFont(bool *ok, QWidget *parent)
 {
-    return getFont(ok, 0, parent);
+    return QFontDialogPrivate::getFont(ok, 0, parent);
 }
 
-QFont QFontDialog::getFont(bool *ok, const QFont *def, QWidget *parent)
+QFont QFontDialogPrivate::getFont(bool *ok, const QFont *def, QWidget *parent,
+                                  const QString &caption)
 {
     QFont result;
     if (def)
@@ -428,7 +441,7 @@ QFont QFontDialog::getFont(bool *ok, const QFont *def, QWidget *parent)
     QFontDialog *dlg = new QFontDialog(parent, true);
 
     dlg->setFont((def ? *def : QFont()));
-    dlg->setWindowTitle(tr("Select Font"));
+    dlg->setWindowTitle(!caption.isEmpty() ? caption : QFontDialog::tr("Select Font"));
 
     bool res = (dlg->exec() == QDialog::Accepted);
     if (res)
