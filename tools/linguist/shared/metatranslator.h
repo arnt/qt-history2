@@ -42,7 +42,7 @@ public:
     Type type() const { return ty; }
     bool utf8() const { return utfeight; }
     bool isPlural() const { return m_plural; }
-
+    void setPlural(bool isplural) { m_plural = isplural; }
     bool operator==( const MetaTranslatorMessage& m ) const;
     bool operator!=( const MetaTranslatorMessage& m ) const
     { return !operator==( m ); }
