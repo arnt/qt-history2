@@ -5788,7 +5788,6 @@ bool QWidget::event(QEvent *event)
         break; }
 #endif
     case QEvent::EmbeddingControl:
-        data->window_flags & ~Qt::WindowType_Mask;
         d->topData()->frameStrut.setCoords(0 ,0, 0, 0);
         data->fstrut_dirty = 0;
         break;
