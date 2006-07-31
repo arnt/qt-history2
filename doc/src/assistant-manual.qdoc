@@ -229,7 +229,6 @@
     \list
     \i \menu{Edit|Copy} copies any selected text to the clipboard.
     \i \menu{Edit|Find in Text} invokes the \gui{Find Text} dialog.
-    \i \menu{Edit|Settings} invokes the \gui{Settings} dialog.
     \endlist
 
     \section2 The View Menu
@@ -281,20 +280,6 @@
     from your current position in the page by clicking one of the
     Direction radio buttons. Click the \gui{Find} button to search
     (or search again), and click the \gui{Close} button to finish.
-
-    \section2 The Settings Dialog
-
-    The Settings dialog is used to set your preferences for \QA. The
-    \gui{General} settings will remember your settings between sessions,
-    including window sizes and positions, and which pages you have open.
-
-    \image assistant-general.png
-
-    To change \QA's default home page, enter the file name in the Home
-    Page line edit. Alternatively, click the \gui{(ellipsis)} button
-    to invoke the \gui{Set Homepage} dialog. Navigate until you find
-    the home page file you want to use and then click \gui{Save} to
-    accept the selection.
 
     \chapter Full Text Searching
 
