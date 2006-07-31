@@ -2338,7 +2338,8 @@ void tst_QTableView::span()
         QModelIndex hidden = model.index(rowCount - 1, hiddenColumn);
         QVERIFY(view.isIndexHidden(hidden));
     }
-    
+	
+    // a comment    
 }
 
 QTEST_MAIN(tst_QTableView)
