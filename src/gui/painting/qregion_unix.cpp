@@ -1128,7 +1128,7 @@ static bool RectInRegion(register QRegionPrivate *region, int rx, int ry, uint r
     register QRect *prect = &rect;
     int partIn, partOut;
 
-    if (region->numRects == 0 || !EXTENTCHECK(&region->extents, prect))
+    if (!region || region->numRects == 0 || !EXTENTCHECK(&region->extents, prect))
         return RectangleOut;
 
     partOut = false;
