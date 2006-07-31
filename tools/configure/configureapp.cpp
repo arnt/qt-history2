@@ -267,7 +267,7 @@ void Configure::parseCmdLine()
 	    ++i;
 	    if (i==argCount)
 		break;
-	    dictionary[ "BUILD_KEY" ] = configCmdLine.at(i);
+	    dictionary[ "USER_BUILD_KEY" ] = configCmdLine.at(i);
         }
 
 	else if( configCmdLine.at(i) == "-release" ) {
@@ -497,8 +497,10 @@ void Configure::parseCmdLine()
 
 	else if( configCmdLine.at(i) == "-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "yes";
-	else if( configCmdLine.at(i) == "-no-accessibility" )
+        else if( configCmdLine.at(i) == "-no-accessibility" ) {
 	    dictionary[ "ACCESSIBILITY" ] = "no";
+            cout << "Setting accessibility to NO" << endl;
+        }
 
 	else if( configCmdLine.at(i) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
@@ -1212,14 +1214,94 @@ bool Configure::verifyConfiguration()
     return true;
 }
 
+/*
+ Things that affect the Qt API/ABI:
+   Options:
+     minimal-config small-config medium-config large-config full-config
+
+   Options:
+     debug release
+     stl
+
+ Things that do not affect the Qt API/ABI:
+     system-jpeg no-jpeg jpeg
+     system-mng no-mng mng
+     system-png no-png png
+     system-zlib no-zlib zlib
+     no-gif gif
+     dll staticlib
+
+     internal
+     nocrosscompiler
+     GNUmake
+     largefile
+     nis
+     nas
+     tablet
+     ipv6
+
+     X11     : x11sm xinerama xcursor xfixes xrandr xrender fontconfig xkb
+     Embedded: embedded freetype
+*/
+void Configure::generateBuildKey()
+{
+    QString spec = dictionary["QMAKESPEC"];
+    
+    QString compiler = "msvc"; // ICC is compatible
+    if (spec.endsWith("-g++"))
+        compiler = "mingw";
+    else if (spec.endsWith("-borland"))
+        compiler = "borland";
+
+    // Build options which changes the Qt API/ABI
+    QStringList build_options;
+    if (!dictionary["QCONFIG"].isEmpty())
+        build_options += dictionary["QCONFIG"] + "-config ";
+    if (dictionary["STL"] == "no")
+        build_options += "no-stl";
+    build_options.sort();
+
+    // Sorted defines that start with QT_NO_
+    QStringList build_defines = qmakeDefines.filter(QRegExp("^QT_NO_"));
+    build_defines.sort();
+
+    // Build up the QT_BUILD_KEY ifdef
+    QString buildKey = "QT_BUILD_KEY \"";
+    if (!dictionary["USER_BUILD_KEY"].isEmpty())
+        buildKey += dictionary["USER_BUILD_KEY"] + " ";
+
+    QString build32Key = buildKey + "Windows x64 " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
+    QString build64Key = buildKey + "Windows " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
+    build32Key = build32Key.simplified();
+    build64Key = build64Key.simplified();
+    build32Key.prepend("#  define ");
+    build64Key.prepend("#  define ");
+
+    QString buildkey = // Debug builds
+                       "#if (defined(_DEBUG) || defined(DEBUG))\n"
+                       "# if (defined(WIN64) || defined(_WIN64) || defined(__WIN64__))\n"
+                       + build64Key.arg("debug") + "\"\n"
+                       "# else\n"
+                       + build32Key.arg("debug") + "\"\n"
+                       "# endif\n"
+                       "#else\n"
+                       // Release builds
+                       "# if (defined(WIN64) || defined(_WIN64) || defined(__WIN64__))\n"
+                       + build64Key.arg("release") + "\"\n"
+                       "# else\n"
+                       + build32Key.arg("release") + "\"\n"
+                       "# endif\n"
+                       "#endif\n";
+
+    dictionary["BUILD_KEY"] = buildkey;
+}
+
 void Configure::generateOutputVars()
 {
     // Generate variables for output
     // Build key ----------------------------------------------------
     if ( dictionary.contains("BUILD_KEY") ) {
-        QString buildKey = dictionary.value("BUILD_KEY");
-        buildKey = buildKey.simplified();
-        qmakeVars += "#define QT_BUILD_KEY \"" + buildKey + "\"";
+        qmakeVars += dictionary.value("BUILD_KEY");
     }
 
     QString build = dictionary[ "BUILD" ];
@@ -1543,23 +1625,26 @@ void Configure::generateConfigfiles()
 	outStream.setDevice(&outFile);
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
-	    outStream << "// Everything" << endl << endl;
-	    if( dictionary[ "SHARED" ] == "yes" ) {
-		outStream << "#ifndef QT_DLL" << endl;
-		outStream << "#define QT_DLL" << endl;
-		outStream << "#endif" << endl;
-	    }
+	    outStream << "/* Everything */" << endl;
 	} else {
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
-	    outStream << "// Copied from " << configName << endl;
-
+	    outStream << "/* Copied from " << configName << "*/" << endl;
+            outStream << "#ifndef QT_BOOTSTRAPPED" << endl;
 	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/corelib/global/" + configName );
 	    if( inFile.open( QFile::ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.write( buffer.constData(), buffer.size() );
 		inFile.close();
 	    }
+            outStream << "#endif // QT_BOOTSTRAPPED" << endl;
 	}
+        outStream << endl;
+
+        if( dictionary[ "SHARED" ] == "yes" ) {
+            outStream << "#ifndef QT_DLL" << endl;
+            outStream << "#define QT_DLL" << endl;
+            outStream << "#endif" << endl;
+        }
 	outStream << endl;
 	outStream << "/* License information */" << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
@@ -1569,7 +1654,9 @@ void Configure::generateConfigfiles()
         outStream << "#ifndef QT_EDITION" << endl;
         outStream << "#  define QT_EDITION " << dictionary["QT_EDITION"] << endl;
         outStream << "#endif" << endl;
-	outStream << endl;
+        outStream << endl;
+        outStream << dictionary["BUILD_KEY"];
+        outStream << endl;
     if (dictionary["EDITION"] == "Trolltech") {
         outStream << "/* Used for example to export symbols for the certain autotests*/" << endl;
         outStream << "#define QT_BUILD_INTERNAL" << endl;

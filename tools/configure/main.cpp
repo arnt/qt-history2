@@ -53,6 +53,8 @@ int main( int argc, char** argv )
     if( !app.isDone() )
 	app.generateCachefile();
     if( !app.isDone() )
+        app.generateBuildKey();
+    if( !app.isDone() )
 	app.generateConfigfiles();
     if( !app.isDone() )
 	app.displayConfig();
