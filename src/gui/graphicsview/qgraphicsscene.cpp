@@ -1848,9 +1848,9 @@ void QGraphicsScene::update(const QRectF &rect)
 }
 
 /*!
-    This method will return a list of all the QGraphicsViews that display this scene.
-    
-    \sa QGraphicsView
+    Returns a list of all the views that display this scene.
+
+    \sa QGraphicsView::scene()
 */
 QList <QGraphicsView *> QGraphicsScene::views() const
 {
