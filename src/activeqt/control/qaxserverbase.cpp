@@ -1779,7 +1779,7 @@ void QAxServerBase::update()
 */
 void QAxServerBase::resize(const QSize &size)
 {
-    if (!isWidget || !qt.widget || !size.isValid())
+    if (!isWidget || !qt.widget || !size.isValid() || size == QSize(0, 0))
         return;
 
     QSize oldSize = qt.widget->size();
