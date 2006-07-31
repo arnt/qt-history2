@@ -732,8 +732,11 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
     }
     *pdwEffect = choosenEffect;
 
-    manager->dropData->currentDataObject->Release();
-    manager->dropData->currentDataObject = 0;
+
+    if (manager->dropData->currentDataObject) {
+        manager->dropData->currentDataObject->Release();
+        manager->dropData->currentDataObject = 0;
+    }
 
     return NOERROR;
 
