@@ -407,9 +407,8 @@ QToolBar::QToolBar(QWidget *parent)
 /*!
     Constructs a QToolBar with the given \a parent.
 
-    The window title is set to \a title. This title is used when the
-    toolbar is floating as an independent window. It is also shown
-    in the context menu provided by QMainWindow.
+    The given window \a title identifies the toolbar and is shown in
+    the context menu provided by QMainWindow.
 
     \sa setWindowTitle()
 */
