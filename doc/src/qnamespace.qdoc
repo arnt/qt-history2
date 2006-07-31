@@ -593,15 +593,28 @@
 /*!
     \enum Qt::UIEffect
 
-    \value UI_General
-    \value UI_AnimateMenu
-    \value UI_FadeMenu
-    \value UI_AnimateCombo
-    \value UI_AnimateTooltip
-    \value UI_FadeTooltip
+    This enum describes the available UI effects.
+
+    By default, Qt will try to use the platform specific desktop
+    settings for each effect. Use the
+    QApplication::setDesktopSettingsAware() function (passing \c false
+    as argument) to prevent this, and the
+    QApplication::setEffectEnabled() to enable or disable a particular
+    effect.
+
+    Note that all effects are disabled on screens running at less than
+    16-bit color depth.
+
+    \omitvalue UI_General
+
+    \value UI_AnimateMenu Show animated menus.
+    \value UI_FadeMenu Show faded menus.
+    \value UI_AnimateCombo Show animated comboboxes.
+    \value UI_AnimateTooltip Show tooltip animations.
+    \value UI_FadeTooltip Show tooltip fading effects.
     \value UI_AnimateToolBox Reserved
 
-    \sa QApplication::setEffectEnabled()
+    \sa QApplication::setEffectEnabled(), QApplication::setDesktopSettingsAware()
 */
 
 /*! \enum Qt::AspectRatioMode
