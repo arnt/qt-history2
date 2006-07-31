@@ -2094,6 +2094,10 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     const int segment = qBinarySearch<int>(segmentStartRows, index.row(),
                                            0, segmentStartRows.count() - 1);
 
+
+    QSize size = (uniformItemSizes && cachedItemSize.isValid())
+                 ? cachedItemSize : itemSize(q->viewOptions(), index);
+
     QPoint pos;
     if (flow == QListView::LeftToRight) {
         pos.setX(flowPositions.at(index.row()));
@@ -2101,10 +2105,14 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     } else { // TopToBottom
         pos.setY(flowPositions.at(index.row()));
         pos.setX(segmentPositions.at(segment));
+	if (wrap) { // make the items as wide as the segment
+	    int right = (segment + 1 >= segmentPositions.count()
+		         ? contentsSize.width()
+		         : segmentPositions.at(segment + 1));
+	    size.setWidth(right - pos.x());
+	}
     }
-
-    QSize size = (uniformItemSizes && cachedItemSize.isValid())
-                 ? cachedItemSize : itemSize(q->viewOptions(), index);
+    
     return QListViewItem(QRect(pos, size), index.row());
 }
 
@@ -2212,15 +2220,15 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     if (!wrap && movement == QListView::Static) {
         QSize vsize = viewport->size();
-	QSize csize = (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
-        if (flow == QListView::TopToBottom) {
-            if (q_func()->isRightToLeft()) // Adjust the rect by expanding the left edge
-                result.setLeft(result.right() - qMax(csize.width(), vsize.width()));
-            else // Adjust the rect by expanding the right edge
-                result.setWidth(qMax(csize.width(), vsize.width()));
-        } else { // LeftToRight
-            result.setHeight(qMax(csize.height(), vsize.height()));
-        }
+        QSize csize = (q->horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff ? vsize : contentsSize);
+	if (flow == QListView::TopToBottom) {
+	    if (q_func()->isRightToLeft()) // Adjust the rect by expanding the left edge
+	        result.setLeft(result.right() - qMax(csize.width(), vsize.width()));
+	    else // Adjust the rect by expanding the right edge
+	        result.setWidth(qMax(csize.width(), vsize.width()));
+	} else { // LeftToRight
+	    result.setHeight(qMax(csize.height(), vsize.height()));
+	}
     }
 
     int dx = -q->horizontalOffset();
