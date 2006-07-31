@@ -81,6 +81,10 @@ QByteArray QSjisCodec::convertFromUnicode(const QChar *uc, int len, ConverterSta
             // JIS X 0208
             *cursor++ = (j >> 8);
             *cursor++ = (j & 0xff);
+        } else if ((j = conv->unicodeToSjisibmvdc(ch.row(), ch.cell())) != 0) {
+            // JIS X 0208 IBM VDC
+            *cursor++ = (j >> 8);
+            *cursor++ = (j & 0xff);
         } else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
             // JIS X 0212 (can't be encoded in ShiftJIS !)
             *cursor++ = 0x81;        // white square
@@ -111,7 +115,7 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
         buf[0] = state->state_data[0];
     }
     int invalid = 0;
-
+    uint u= 0;
     QString result;
     for (int i=0; i<len; i++) {
         uchar ch = chars[i];
@@ -119,7 +123,7 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
         case 0:
             if (ch < 0x80 || IsKana(ch)) {
                 // JIS X 0201 Latin or JIS X 0201 Kana
-                uint u = conv->jisx0201ToUnicode(ch);
+                u = conv->jisx0201ToUnicode(ch);
                 result += QValidChar(u);
             } else if (IsSjisChar1(ch)) {
                 // JIS X 0208
@@ -134,10 +138,13 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
         case 1:
             // JIS X 0208
             if (IsSjisChar2(ch)) {
-                if (IsUserDefinedChar1(buf[0])) {
+                if ((u = conv->sjisibmvdcToUnicode(buf[0], ch))) {
+                    result += QValidChar(u);
+                }
+                else if (IsUserDefinedChar1(buf[0])) {
                     result += QChar::ReplacementCharacter;
                 } else {
-                    uint u = conv->sjisToUnicode(buf[0], ch);
+                    u = conv->sjisToUnicode(buf[0], ch);
                     result += QValidChar(u);
                 }
             } else {
