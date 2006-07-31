@@ -297,6 +297,7 @@ public:
     bool eventFilter(QObject *o, QEvent *e);
 private:
     void update();
+    void resize(const QSize &newSize);
     void updateGeometry();
     void updateMask();
     bool internalCreate();
@@ -329,7 +330,6 @@ private:
     short freezeEvents;
 
     HWND m_hWnd;
-    HWND& m_hWndCD;
 
     HMENU hmenuShared;
     HOLEMENU holemenu;
@@ -340,9 +340,6 @@ private:
     QPointer<QStatusBar> statusBar;
     QPointer<QMenu> currentPopup;
     QAxExceptInfo *exception;
-
-    SIZE sizeExtent;
-    RECT rcPos;
 
     CRITICAL_SECTION refCountSection;
     CRITICAL_SECTION createWindowSection;
@@ -976,7 +973,7 @@ HRESULT GetClassObject(REFIID clsid, REFIID iid, void **ppUnk)
 */
 QAxServerBase::QAxServerBase(const QString &classname, IUnknown *outerUnknown)
 : aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
-  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
+  m_hWnd(0), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
 {
     init();
@@ -989,7 +986,7 @@ QAxServerBase::QAxServerBase(const QString &classname, IUnknown *outerUnknown)
 */
 QAxServerBase::QAxServerBase(QObject *o)
 : aggregatedObject(0), ref(0), ole_ref(0),
-  m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
+  m_hWnd(0), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
 {
     init();
@@ -1023,12 +1020,6 @@ void QAxServerBase::init()
     canTakeFocus	= false;
     freezeEvents = 0;
     exception = 0;
-
-    sizeExtent.cx = 2500;
-    sizeExtent.cy = 2500;
-
-    rcPos.left = rcPos.top = 0;
-    rcPos.right = rcPos.bottom = 20;
 
     m_spAdviseSink = 0;
     m_spClientSite = 0;
@@ -1268,8 +1259,15 @@ bool QAxServerBase::internalCreate()
 	    });
 	}
         qt.widget->setAttribute(Qt::WA_QuitOnClose, false);
-        qt.widget->setGeometry(rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top);
+        qt.widget->move(0, 0);
+
+        // initialize to sizeHint, but don't set resized flag so that container has a chance to override
+        bool wasResized = qt.widget->testAttribute(Qt::WA_Resized);
         updateGeometry();
+        if (!wasResized && qt.widget->testAttribute(Qt::WA_Resized) 
+            && qt.widget->sizePolicy() != QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed)) {
+            qt.widget->setAttribute(Qt::WA_Resized, false);
+        }
     }
 
     internalConnect();
@@ -1364,147 +1362,151 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     });
 #endif
 
-    if (that) switch (uMsg)
-    {
-    case WM_NCDESTROY:
-	that->m_hWnd = 0;
-	break;
+    if (that) {
+        int width = that->qt.widget ? that->qt.widget->width() : 0;
+        int height = that->qt.widget ? that->qt.widget->height() : 0;
+        RECT rcPos = {0, 0, width + 1, height + 1};
 
-    case WM_QUERYENDSESSION:
-    case WM_DESTROY:
-        // save the window handle
-        if (that->qt.widget) {
-            that->qt.widget->hide();
-            ::SetParent(that->qt.widget->winId(), 0);
-        }
-	break;
+        switch (uMsg) {
+        case WM_NCDESTROY:
+	    that->m_hWnd = 0;
+	    break;
 
-    case WM_SHOWWINDOW:
-	if(wParam) {
-	    that->internalCreate();
-	    if (!that->stayTopLevel) {
-		::SetParent(that->qt.widget->winId(), that->m_hWnd);
-		that->qt.widget->raise();
-		that->qt.widget->move(0, 0);
-	    }
-	    that->qt.widget->show();
-	} else if (that->qt.widget) {
-	    that->qt.widget->hide();
-	}
-	break;
-
-    case WM_ERASEBKGND:
-	that->updateMask();
-	break;
-
-    case WM_SIZE:
-        if (that->qt.widget)
-	    that->qt.widget->resize(LOWORD(lParam), HIWORD(lParam));
-	break;
-
-    case WM_SETFOCUS:
-	if (that->isInPlaceActive && that->m_spClientSite && !that->inDesignMode && that->canTakeFocus) {
-	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
-	    if (that->isUIActive) {
-		IOleControlSite *spSite = 0;
-		that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
-		if (spSite) {
-		    spSite->OnFocus(true);
-		    spSite->Release();
-		}
-                QWidget *candidate = that->qt.widget;
-                while (!(candidate->focusPolicy() & Qt::TabFocus)) {
-                    candidate = candidate->nextInFocusChain();
-                    if (candidate == that->qt.widget) {
-                        candidate = 0;
-                        break;
-                    }
-                }
-                if (candidate) {
-                    candidate->setFocus();
-                    HackWidget *widget = (HackWidget*)that->qt.widget;
-                    if (::GetKeyState(VK_SHIFT) < 0)
-                        widget->focusNextPrevChild(false);
-                }
-	    }
-	}
-	break;
-
-    case WM_KILLFOCUS:
-	if (that->isInPlaceActive && that->isUIActive && that->m_spClientSite) {
-	    IOleControlSite *spSite = 0;
-	    that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
-	    if (spSite) {
-		if (!::IsChild(that->m_hWndCD, ::GetFocus()))
-		    spSite->OnFocus(false);
-		spSite->Release();
-	    }
-	}
-	break;
-
-    case WM_MOUSEACTIVATE:
-	that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
-	break;
-
-    case WM_INITMENUPOPUP:
-	if (that->qt.widget) {
-	    that->currentPopup = that->menuMap[(HMENU)wParam];
-	    if (!that->currentPopup)
-		break;
-	    const QMetaObject *mo = that->currentPopup->metaObject();
-	    int index = mo->indexOfSignal("aboutToShow()");
-	    if (index < 0)
-		break;
-
-	    that->currentPopup->qt_metacall(QMetaObject::InvokeMetaMethod, index, 0);
-	    that->createPopup(that->currentPopup, (HMENU)wParam);
-	    return 0;
-	}
-	break;
-
-    case WM_MENUSELECT:
-    case WM_COMMAND:
-	if (that->qt.widget) {
-	    QMenuBar *menuBar = that->menuBar;
-	    if (!menuBar)
-		break;
-
-            QObject *menuObject = 0;
-	    bool menuClosed = false;
-
-            if (uMsg == WM_COMMAND) {
-		menuObject = that->actionMap.value(wParam);
-            } else if (!lParam) {
-		menuClosed = true;
-                menuObject = that->currentPopup;
-            } else {
-                menuObject = that->actionMap.value(LOWORD(wParam));
+        case WM_QUERYENDSESSION:
+        case WM_DESTROY:
+            // save the window handle
+            if (that->qt.widget) {
+                that->qt.widget->hide();
+                ::SetParent(that->qt.widget->winId(), 0);
             }
+	    break;
 
-	    if (menuObject) {
-		const QMetaObject *mo = menuObject->metaObject();
-		int index = -1;
+        case WM_SHOWWINDOW:
+	    if(wParam) {
+	        that->internalCreate();
+	        if (!that->stayTopLevel) {
+		    ::SetParent(that->qt.widget->winId(), that->m_hWnd);
+		    that->qt.widget->raise();
+		    that->qt.widget->move(0, 0);
+	        }
+	        that->qt.widget->show();
+	    } else if (that->qt.widget) {
+	        that->qt.widget->hide();
+	    }
+	    break;
 
-		if (uMsg == WM_COMMAND)
-		    index = mo->indexOfSignal("activated()");
-		else if (menuClosed)
-		    index = mo->indexOfSignal("aboutToHide()");
-		else
-		    index = mo->indexOfSignal("hovered()");
+        case WM_ERASEBKGND:
+	    that->updateMask();
+	    break;
 
-		if (index < 0)
+        case WM_SIZE:
+            that->resize(QSize(LOWORD(lParam), HIWORD(lParam)));
+	    break;
+
+        case WM_SETFOCUS:
+	    if (that->isInPlaceActive && that->m_spClientSite && !that->inDesignMode && that->canTakeFocus) {
+	        that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWnd, &rcPos);
+	        if (that->isUIActive) {
+		    IOleControlSite *spSite = 0;
+		    that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
+		    if (spSite) {
+		        spSite->OnFocus(true);
+		        spSite->Release();
+		    }
+                    QWidget *candidate = that->qt.widget;
+                    while (!(candidate->focusPolicy() & Qt::TabFocus)) {
+                        candidate = candidate->nextInFocusChain();
+                        if (candidate == that->qt.widget) {
+                            candidate = 0;
+                            break;
+                        }
+                    }
+                    if (candidate) {
+                        candidate->setFocus();
+                        HackWidget *widget = (HackWidget*)that->qt.widget;
+                        if (::GetKeyState(VK_SHIFT) < 0)
+                            widget->focusNextPrevChild(false);
+                    }
+	        }
+	    }
+	    break;
+
+        case WM_KILLFOCUS:
+	    if (that->isInPlaceActive && that->isUIActive && that->m_spClientSite) {
+	        IOleControlSite *spSite = 0;
+	        that->m_spClientSite->QueryInterface(IID_IOleControlSite, (void**)&spSite);
+	        if (spSite) {
+		    if (!::IsChild(that->m_hWnd, ::GetFocus()))
+		        spSite->OnFocus(false);
+		    spSite->Release();
+	        }
+	    }
+	    break;
+
+        case WM_MOUSEACTIVATE:
+	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWnd, &rcPos);
+	    break;
+
+        case WM_INITMENUPOPUP:
+	    if (that->qt.widget) {
+	        that->currentPopup = that->menuMap[(HMENU)wParam];
+	        if (!that->currentPopup)
+		    break;
+	        const QMetaObject *mo = that->currentPopup->metaObject();
+	        int index = mo->indexOfSignal("aboutToShow()");
+	        if (index < 0)
 		    break;
 
-		menuObject->qt_metacall(QMetaObject::InvokeMetaMethod, index, 0);
-                if (menuClosed || uMsg == WM_COMMAND)
-                    that->currentPopup = 0;
-		return 0;
+	        that->currentPopup->qt_metacall(QMetaObject::InvokeMetaMethod, index, 0);
+	        that->createPopup(that->currentPopup, (HMENU)wParam);
+	        return 0;
 	    }
-	}
-	break;
+	    break;
 
-    default:
-	break;
+        case WM_MENUSELECT:
+        case WM_COMMAND:
+	    if (that->qt.widget) {
+	        QMenuBar *menuBar = that->menuBar;
+	        if (!menuBar)
+		    break;
+
+                QObject *menuObject = 0;
+	        bool menuClosed = false;
+
+                if (uMsg == WM_COMMAND) {
+		    menuObject = that->actionMap.value(wParam);
+                } else if (!lParam) {
+		    menuClosed = true;
+                    menuObject = that->currentPopup;
+                } else {
+                    menuObject = that->actionMap.value(LOWORD(wParam));
+                }
+
+	        if (menuObject) {
+		    const QMetaObject *mo = menuObject->metaObject();
+		    int index = -1;
+
+		    if (uMsg == WM_COMMAND)
+		        index = mo->indexOfSignal("activated()");
+		    else if (menuClosed)
+		        index = mo->indexOfSignal("aboutToHide()");
+		    else
+		        index = mo->indexOfSignal("hovered()");
+
+		    if (index < 0)
+		        break;
+
+		    menuObject->qt_metacall(QMetaObject::InvokeMetaMethod, index, 0);
+                    if (menuClosed || uMsg == WM_COMMAND)
+                        that->currentPopup = 0;
+		    return 0;
+	        }
+	    }
+	    break;
+
+        default:
+	    break;
+        }
     }
 
     QT_WA({
@@ -1519,6 +1521,8 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 */
 HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 {
+    Q_ASSERT(isWidget && qt.widget);
+
     static ATOM atom = 0;
     HINSTANCE hInst = (HINSTANCE)qAxInstance;
     EnterCriticalSection(&createWindowSection);
@@ -1561,9 +1565,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 	return 0;
 
     Q_ASSERT(!m_hWnd);
-
     HWND hWnd = 0;
-
     QT_WA({
 	hWnd = ::CreateWindowW((wchar_t*)cn.utf16(), 0,
 	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
@@ -1575,15 +1577,11 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this);
     });
-    this->rcPos = rcPos;
 
     Q_ASSERT(m_hWnd == hWnd);
 
-    internalCreate();
     updateMask();
-
-    if (qt.object && qt.object->isWidgetType())
-        EnableWindow(m_hWnd, qt.widget->isEnabled());
+    EnableWindow(m_hWnd, qt.widget->isEnabled());
 
     return hWnd;
 }
@@ -1764,8 +1762,8 @@ bool QAxServerBase::isPropertyExposed(int index)
 void QAxServerBase::update()
 {
     if (isInPlaceActive) {
-	if (m_hWndCD)
-	    ::InvalidateRect(m_hWndCD, 0, true);
+	if (m_hWnd)
+	    ::InvalidateRect(m_hWnd, 0, true);
 	else if (m_spInPlaceSite)
 	    m_spInPlaceSite->InvalidateRect(NULL, true);
     } else if (m_spAdviseSink) {
@@ -1773,6 +1771,27 @@ void QAxServerBase::update()
         for (int i = 0; i < adviseSinks.count(); ++i) {
 	    adviseSinks.at(i).pAdvSink->OnViewChange(DVASPECT_CONTENT, -1);
         }
+    }
+}
+
+/*!
+    Resizes the control, faking a QResizeEvent if required
+*/
+void QAxServerBase::resize(const QSize &size)
+{
+    if (!isWidget || !qt.widget || !size.isValid())
+        return;
+
+    QSize oldSize = qt.widget->size();
+    qt.widget->resize(size);
+    QSize newSize = qt.widget->size();
+    // make sure we get a resize event even if not embedded as a control
+    if (!m_hWnd && !qt.widget->isVisible() && newSize != oldSize) {
+        QResizeEvent resizeEvent(newSize, oldSize);
+#ifndef QT_DLL // import from static library
+        extern bool qt_sendSpontaneousEvent(QObject*,QEvent*);
+#endif
+        qt_sendSpontaneousEvent(qt.widget, &resizeEvent);
     }
 }
 
@@ -1786,19 +1805,29 @@ void QAxServerBase::updateGeometry()
     if (!isWidget || !qt.widget)
 	return;
 
-    QSize sizeHint = qt.widget->sizeHint();
-    QSizePolicy sizePolicy = qt.widget->sizePolicy();
-    if (sizeHint.isValid()) {
-        int preferred_cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), qt.widget->logicalDpiX());
-        int preferred_cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), qt.widget->logicalDpiY());
-        if (preferred_cx > sizeExtent.cx && !(sizePolicy.horizontalPolicy() & QSizePolicy::ShrinkFlag))
-	    sizeExtent.cx = preferred_cx;
-        if (preferred_cx < sizeExtent.cx && !(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag))
-            sizeExtent.cx = preferred_cx;
-        if (preferred_cy > sizeExtent.cy && !(sizePolicy.verticalPolicy() & QSizePolicy::ShrinkFlag))
-	    sizeExtent.cx = preferred_cx;
-        if (preferred_cy < sizeExtent.cy && !(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag))
-            sizeExtent.cy = preferred_cy;
+    const QSize sizeHint = qt.widget->sizeHint();
+    const QSize size = qt.widget->size();
+    if (sizeHint.isValid()) { // if provided, adjust to sizeHint
+        QSize newSize = size;
+        if (!qt.widget->testAttribute(Qt::WA_Resized)) {
+            newSize = sizeHint;
+        } else { // according to sizePolicy rules if already resized
+            QSizePolicy sizePolicy = qt.widget->sizePolicy();
+            if (sizeHint.width() > size.width() && !(sizePolicy.horizontalPolicy() & QSizePolicy::ShrinkFlag))
+	        newSize.setWidth(sizeHint.width());
+            if (sizeHint.width() < size.width() && !(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag))
+                newSize.setWidth(sizeHint.width());
+            if (sizeHint.height() > size.height() && !(sizePolicy.verticalPolicy() & QSizePolicy::ShrinkFlag))
+	        newSize.setHeight(sizeHint.height());
+            if (sizeHint.height() < size.height() && !(sizePolicy.verticalPolicy() & QSizePolicy::GrowFlag))
+                newSize.setHeight(sizeHint.height());
+        }
+        resize(newSize);
+
+    // set an initial size suitable for embedded controls
+    } else if (!qt.widget->testAttribute(Qt::WA_Resized)) {
+        resize(QSize(100, 100));
+        qt.widget->setAttribute(Qt::WA_Resized, false);
     }
 }
 
@@ -1912,7 +1941,7 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 {
     Q_ASSERT(call == QMetaObject::InvokeMetaMethod);
 
-    if (index == -1 && sender() && m_spInPlaceSite) {
+    if (index == -1 && sender() && m_spInPlaceFrame) {
 	if (qobject_cast<QStatusBar*>(sender()) != statusBar)
 	    return true;
 
@@ -2636,11 +2665,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	if (oldSizeHint != sizeHint) {
 	    updateGeometry();
 	    if (m_spInPlaceSite) {
-		RECT rect;
-		rect.left = rcPos.left;
-		rect.right = rcPos.left + sizeHint.width();
-		rect.top = rcPos.top;
-		rect.bottom = rcPos.top + sizeHint.height();
+                RECT rect = {0, 0, sizeHint.width(), sizeHint.height()};
 		m_spInPlaceSite->OnPosRectChange(&rect);
 	    }
 	}
@@ -2833,8 +2858,6 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg)
     Load(spStream);
     spStream->Release();
 
-    updateGeometry();
-
     return S_OK;
 }
 
@@ -2954,14 +2977,13 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
     Draws the widget into the provided device context.
 */
 HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
-		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
+		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL /*lprcWBounds*/,
 		BOOL(__stdcall* /*pfnContinue*/)(ULONG_PTR), ULONG_PTR /*dwContinue*/)
 {
     if (!lprcBounds)
 	return E_INVALIDARG;
 
     internalCreate();
-
     if (!isWidget || !qt.widget)
 	return OLE_E_BLANK;
 
@@ -2987,8 +3009,6 @@ HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, 
     if (!bMetaFile)
         ::LPtoDP(hicTargetDev, (LPPOINT)&rc, 2);
 
-    if (!qt.widget->isVisible())
-        qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
     QPixmap pm = QPixmap::grabWidget(qt.widget);
     HBITMAP hbm = pm.toWinHBITMAP();
     HDC hdc = CreateCompatibleDC(0);
@@ -3056,12 +3076,14 @@ HRESULT WINAPI QAxServerBase::GetAdvise(DWORD* /*aspects*/, DWORD* /*advf*/, IAd
 
 //**** IViewObject2
 /*
-    Returns the current size.
+    Returns the current size ONLY if the widget has already been sized.
 */
-HRESULT WINAPI QAxServerBase::GetExtent(DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel)
+HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwAspect, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel)
 {
-    *lpsizel = sizeExtent;
-    return S_OK;
+    if (!isWidget || !qt.widget || !qt.widget->testAttribute(Qt::WA_Resized))
+        return OLE_E_BLANK;
+
+    return GetExtent(dwAspect, lpsizel);
 }
 
 //**** IOleControl
@@ -3231,10 +3253,10 @@ HRESULT WINAPI QAxServerBase::InPlaceDeactivate()
     isInPlaceActive = false;
 
     // if we have a window, tell it to go away.
-    if (m_hWndCD) {
-	if (::IsWindow(m_hWndCD))
-	    ::DestroyWindow(m_hWndCD);
-	m_hWndCD = 0;
+    if (m_hWnd) {
+	if (::IsWindow(m_hWnd))
+	    ::DestroyWindow(m_hWnd);
+	m_hWnd = 0;
     }
 
     if (m_spInPlaceSite)
@@ -3249,21 +3271,20 @@ HRESULT WINAPI QAxServerBase::InPlaceDeactivate()
 HRESULT WINAPI QAxServerBase::UIDeactivate()
 {
     // if we're not UIActive, not much to do.
-    if (!isUIActive)
+    if (!isUIActive || !m_spInPlaceSite)
 	return S_OK;
 
     isUIActive = false;
 
     // notify frame windows, if appropriate, that we're no longer ui-active.
-    OLEINPLACEFRAMEINFO frameInfo;
-    frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
-    RECT rcPos, rcClip;
-
     HWND hwndParent;
     if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
 	if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
 	m_spInPlaceFrame = 0;
 	IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
+        RECT rcPos, rcClip;
+        OLEINPLACEFRAMEINFO frameInfo;
+        frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
 
 	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
 	if (spInPlaceUIWindow) {
@@ -3294,8 +3315,7 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
     if (prcPos == 0 || prcClip == 0)
 	return E_POINTER;
 
-    rcPos = *prcPos;
-    if (m_hWndCD) {
+    if (m_hWnd) {
 	// the container wants us to clip, so figure out if we really need to
 	RECT rcIXect;
 	BOOL b = IntersectRect(&rcIXect, prcPos, prcClip);
@@ -3305,9 +3325,9 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 	    tempRgn = CreateRectRgnIndirect(&rcIXect);
 	}
 
-	::SetWindowRgn(m_hWndCD, tempRgn, true);
-	::SetWindowPos(m_hWndCD, 0, prcPos->left,
-	    prcPos->top, prcPos->right - prcPos->left, prcPos->bottom - prcPos->top,
+	::SetWindowRgn(m_hWnd, tempRgn, true);
+	::SetWindowPos(m_hWnd, 0, prcPos->left, prcPos->top, 
+            prcPos->right - prcPos->left, prcPos->bottom - prcPos->top,
 	    SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
@@ -3379,7 +3399,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
                 }
 	    }
 	    if (giveUp) {
-		HWND hwnd = ::GetParent(m_hWndCD);
+		HWND hwnd = ::GetParent(m_hWnd);
 		::SetFocus(hwnd);
 	    } else {
 		return S_OK;
@@ -3539,10 +3559,10 @@ HRESULT WINAPI QAxServerBase::Close(DWORD dwSaveOption)
 	if (FAILED(hr))
 	    return hr;
     }
-    if (m_hWndCD) {
-	if (IsWindow(m_hWndCD))
-	    DestroyWindow(m_hWndCD);
-	m_hWndCD = 0;
+    if (m_hWnd) {
+	if (IsWindow(m_hWnd))
+	    DestroyWindow(m_hWnd);
+	m_hWnd = 0;
 	if (m_spClientSite)
 	    m_spClientSite->OnShowWindow(false);
     }
@@ -3566,57 +3586,43 @@ bool qax_disable_inplaceframe = true;
 */
 HRESULT QAxServerBase::internalActivate()
 {
-    HRESULT hr;
-
     if (!m_spClientSite)
 	return S_OK;
-
-    if (!m_spInPlaceSite)
-	hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void **)&m_spInPlaceSite);
-
     if (!m_spInPlaceSite)
 	return E_FAIL;
 
+    HRESULT hr = E_FAIL;
     if (!isInPlaceActive) {
 	BOOL bNoRedraw = false;
 	hr = m_spInPlaceSite->CanInPlaceActivate();
-	if (FAILED(hr)) // CanInPlaceActivate returns anything but S_FALSE or S_OK
+	if (FAILED(hr))
 	    return hr;
-	if (hr != S_OK) // CanInPlaceActivate returned S_FALSE.
+	if (hr != S_OK)
 	    return E_FAIL;
 	m_spInPlaceSite->OnInPlaceActivate();
     }
 
     isInPlaceActive = true;
-
-    // get location in the parent window,
-    // as well as some information about the parent
-    OLEINPLACEFRAMEINFO frameInfo;
-    RECT rcPos, rcClip;
-    if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
-    m_spInPlaceFrame = 0;
-    IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
-    frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
-
     OnAmbientPropertyChange(DISPID_AMBIENT_USERMODE);
 
     if (isWidget) {
+        IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
         HWND hwndParent;
         if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
+            // get location in the parent window, as well as some information about the parent
+            if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
+            m_spInPlaceFrame = 0;
+            RECT rcPos, rcClip;
+            OLEINPLACEFRAMEINFO frameInfo;
+            frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
             m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-            
-            if (m_hWndCD) {
-                ::ShowWindow(m_hWndCD, SW_SHOW);
-                if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != Qt::NoFocus)
-                    ::SetFocus(m_hWndCD);
+            if (m_hWnd) {
+                ::ShowWindow(m_hWnd, SW_SHOW);
+                if (!::IsChild(m_hWnd, ::GetFocus()) && qt.widget->focusPolicy() != Qt::NoFocus)
+                    ::SetFocus(m_hWnd);
             } else {
                 create(hwndParent, rcPos);
             }
-            sizeExtent.cx = MAP_PIX_TO_LOGHIM(rcPos.right - rcPos.left, qt.widget->logicalDpiX());
-            sizeExtent.cy = MAP_PIX_TO_LOGHIM(rcPos.bottom - rcPos.top, qt.widget->logicalDpiY());
-            
-            if (!qt.widget->testAttribute(Qt::WA_Resized))
-                SetObjectRects(&rcPos, &rcClip);
         }
 
 	// Gone active by now, take care of UIACTIVATE
@@ -3641,9 +3647,8 @@ HRESULT QAxServerBase::internalActivate()
 	    }
 
 	    if (isInPlaceActive) {
-		HWND hwnd = m_hWndCD;
-		if (!::IsChild(hwnd, ::GetFocus()))
-		    ::SetFocus(hwnd);
+		if (!::IsChild(m_hWnd, ::GetFocus()))
+		    ::SetFocus(m_hWnd);
 	    }
 
 	    if (m_spInPlaceFrame) {
@@ -3667,9 +3672,9 @@ HRESULT QAxServerBase::internalActivate()
 	    if (spInPlaceUIWindow) {
 		spInPlaceUIWindow->SetActiveObject(this, QStringToBSTR(class_name));
 		spInPlaceUIWindow->SetBorderSpace(0);
-		spInPlaceUIWindow->Release();
 	    }
 	}
+        if (spInPlaceUIWindow) spInPlaceUIWindow->Release();
 	ShowWindow(m_hWnd, SW_NORMAL);
     }
 
@@ -3767,12 +3772,15 @@ HRESULT WINAPI QAxServerBase::GetClipboardData(DWORD, IDataObject**)
 */
 HRESULT WINAPI QAxServerBase::GetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 {
-    if (dwDrawAspect != DVASPECT_CONTENT)
+    if (dwDrawAspect != DVASPECT_CONTENT || !isWidget || !qt.widget)
 	return E_FAIL;
     if (!psizel)
 	return E_POINTER;
 
-    return GetExtent(0, 0, 0, psizel);
+    QSize size = qt.widget->size();
+    psizel->cx = MAP_PIX_TO_LOGHIM(size.width(), qt.widget->logicalDpiX());
+    psizel->cy = MAP_PIX_TO_LOGHIM(size.height(), qt.widget->logicalDpiY());
+    return S_OK;
 }
 
 /*
@@ -3815,10 +3823,19 @@ HRESULT WINAPI QAxServerBase::IsUpToDate()
 */
 HRESULT WINAPI QAxServerBase::SetClientSite(IOleClientSite* pClientSite)
 {
+    // release all client site interfaces
     if (m_spClientSite) m_spClientSite->Release();
+    if (m_spInPlaceSite) m_spInPlaceSite->Release();
+    m_spInPlaceSite = 0;
+    if (m_spInPlaceFrame) m_spInPlaceFrame->Release();
+    m_spInPlaceFrame = 0;
 
     m_spClientSite = pClientSite;
-    if (m_spClientSite) m_spClientSite->AddRef();
+    if (m_spClientSite) {
+        m_spClientSite->AddRef();
+	m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void **)&m_spInPlaceSite);
+    }
+
     return S_OK;
 }
 
@@ -3847,37 +3864,18 @@ HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 	return DV_E_DVASPECT;
     if (!psizel)
 	return E_POINTER;
-    if (!isWidget || !qt.widget) {
-	sizeExtent = *psizel;
+
+    if (!isWidget || !qt.widget) // nothing to do
 	return S_OK;
-    }
 
-    QSize minSizeHint = qt.widget->minimumSizeHint();
-    if (minSizeHint.isValid()) {
-	SIZEL minSize;
-	minSize.cx = MAP_PIX_TO_LOGHIM(minSizeHint.width(), qt.widget->logicalDpiX());
-	minSize.cy = MAP_PIX_TO_LOGHIM(minSizeHint.height(), qt.widget->logicalDpiY());
+    QSize proposedSize(MAP_LOGHIM_TO_PIX(psizel->cx, qt.widget->logicalDpiX()), 
+        MAP_LOGHIM_TO_PIX(psizel->cy, qt.widget->logicalDpiY()));
 
-	psizel->cx = qMax(minSize.cx, psizel->cx);
-	psizel->cy = qMax(minSize.cy, psizel->cy);
-    }
+    // can the widget be resized at all?
+    if (qt.widget->minimumSize() == qt.widget->maximumSize() && qt.widget->minimumSize() != proposedSize)
+        return E_FAIL;
 
-    if (psizel->cx != sizeExtent.cx || psizel->cy != sizeExtent.cy)
-	sizeExtent = *psizel;
-
-    if (!m_hWnd) { // make sure we get a resize event even if not embedded as a control
-        QSize oldSize = qt.widget->size();
-        qt.widget->resize(rcPos.right - rcPos.left, rcPos.bottom - rcPos.top);
-        QSize newSize = qt.widget->size();
-        if (!qt.widget->isVisible()) { 
-            QResizeEvent resizeEvent(newSize, oldSize);
-#ifndef QT_DLL // import from static library
-            extern bool qt_sendSpontaneousEvent(QObject*,QEvent*);
-#endif
-            qt_sendSpontaneousEvent(qt.widget, &resizeEvent);
-        }
-    }
-
+    resize(proposedSize);
     return S_OK;
 }
 
@@ -3929,18 +3927,28 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
 {
     if (!pmedium)
 	return E_POINTER;
-    if (!qt.widget)
-	return E_UNEXPECTED;
-
-    QSize size = qt.widget->size();
-
-    memset(pmedium, 0, sizeof(STGMEDIUM));
-
     if ((pformatetcIn->tymed & TYMED_MFPICT) == 0)
 	return DATA_E_FORMATETC;
 
-    int width = MAP_LOGHIM_TO_PIX(sizeExtent.cx, qt.widget->logicalDpiX());
-    int height = MAP_LOGHIM_TO_PIX(sizeExtent.cy, qt.widget->logicalDpiY());
+    internalCreate();
+    if (!isWidget || !qt.widget)
+	return E_UNEXPECTED;
+
+    // Container wants to draw, but the size is not defined yet - ask container
+    if (m_spInPlaceSite && !qt.widget->testAttribute(Qt::WA_Resized)) {
+	IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
+        RECT rcPos, rcClip;
+        OLEINPLACEFRAMEINFO frameInfo;
+        frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
+
+	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+        QSize size(rcPos.right - rcPos.left, rcPos.bottom - rcPos.top);
+        resize(size);
+        if (spInPlaceUIWindow) spInPlaceUIWindow->Release(); // no need for it
+    }
+
+    int width = qt.widget->width();
+    int height = qt.widget->height();
     RECTL rectl = {0, 0, width, height};
 
     HDC hdc = CreateMetaFile(0);
@@ -3964,10 +3972,11 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
     LPMETAFILEPICT pMF = (LPMETAFILEPICT)GlobalLock(hMem);
     pMF->hMF = hMF;
     pMF->mm = MM_ANISOTROPIC;
-    pMF->xExt = sizeExtent.cx;
-    pMF->yExt = sizeExtent.cy;
+    pMF->xExt = MAP_PIX_TO_LOGHIM(width, qt.widget->logicalDpiX());
+    pMF->yExt = MAP_PIX_TO_LOGHIM(height, qt.widget->logicalDpiY());
     GlobalUnlock(hMem);
 
+    memset(pmedium, 0, sizeof(STGMEDIUM));
     pmedium->tymed = TYMED_MFPICT;
     pmedium->hGlobal = hMem;
     pmedium->pUnkForRelease = 0;
@@ -4084,12 +4093,8 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	    statusBar->setSizeGripEnabled(false);
 	}
 	updateGeometry();
-	if (m_spInPlaceSite) {
-	    RECT rect;
-	    rect.left = rcPos.left;
-	    rect.right = rcPos.left + qt.widget->sizeHint().width();
-	    rect.top = rcPos.top;
-	    rect.bottom = rcPos.top + qt.widget->sizeHint().height();
+	if (m_spInPlaceSite && qt.widget->sizeHint().isValid()) {
+            RECT rect = {0, 0, qt.widget->sizeHint().width(), qt.widget->sizeHint().height()};
 	    m_spInPlaceSite->OnPosRectChange(&rect);
 	}
     }
