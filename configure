@@ -4383,6 +4383,7 @@ rm -f .options
 # QT_NO* defines affect the Qt API (and binary compatibility).  they need
 # to be included in the build key
 for build_option in $D_FLAGS; do
+    build_option=`echo $build_option | cut -d \" -f 2 -`
     case "$build_option" in
     QT_NO*)
         echo "$build_option" >> .options
