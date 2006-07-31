@@ -1169,6 +1169,29 @@
     \endomit
 */
 
+/*!
+    \macro QDESIGNER_WIDGET_EXPORT
+    \relates QDesignerCustomWidgetInterface
+
+    This macro is used when defining custom widgets to ensure that they are
+    correctly exported from plugins for use with \QD.
+
+    On some platforms, the symbols required by \QD to create new widgets
+    are removed from plugins by the build system, making them unusable.
+    Using this macro ensures that the symbols are retained on those platforms,
+    and has no side effects on other platforms.
+
+    For example, the \l{designer/worldtimeclockplugin}{World Time Clock Plugin}
+    example exports a custom widget class with the following declaration:
+
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclock.h
+    \skipto class QDESIGNER_WIDGET_EXPORT WorldTimeClock
+    \printuntil Q_OBJECT
+    \dots
+    \skipto /^\};/
+    \printuntil /^\};/
+*/
+
 
 // Doc: Abstract class
 
