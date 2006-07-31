@@ -526,11 +526,11 @@ void ResourceEditor::addFiles()
         return;
 
     QStringList file_list = QFileDialog::getOpenFileNames(this, tr("Open file"),
-                                                            model->absolutePath(QString()),
+                                                            model->lastResourceOpenDirectory(),
                                                             tr("All files (*)"));
     if (file_list.isEmpty())
         return;
-
+    
     QModelIndex idx = model->addFiles(view->currentIndex(), file_list);
     if (idx.isValid()) {
         view->setExpanded(model->prefixIndex(view->currentIndex()), true);
