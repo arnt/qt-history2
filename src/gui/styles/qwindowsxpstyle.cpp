@@ -1658,8 +1658,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 break;
             case QTabBar::RoundedSouth:
             case QTabBar::TriangularSouth:
-                //vMirrored = true;
-                rotate = 180; // No  100% correct, but works
+                vMirrored = true;
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
