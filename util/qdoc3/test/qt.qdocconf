@@ -52,6 +52,7 @@ defines                 = Q_QDOC \
                           Q_BYTE_ORDER \
                           __cplusplus
 
+codeindent              = 0
 extraimages.HTML        = qt-logo \
                           trolltech-logo
 

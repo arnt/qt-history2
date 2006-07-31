@@ -31,3 +31,14 @@ body
   background: #ffffff;
   color: black
 }
+
+pre
+{
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  padding-left: 1em;
+  padding-right: 1em;
+  border: #ececec 1px solid;
+  background: #f7f7f7;
+  color: black
+}
