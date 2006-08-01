@@ -787,6 +787,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
             QRegion wrgn(rgn);
+            d->subtractOpaqueSiblings(wrgn, QPoint());
             d->subtractOpaqueChildren(wrgn, rect(), QPoint());
             bs->dirtyRegion(wrgn, this);
             bs->cleanRegion(wrgn, this);
@@ -860,9 +861,7 @@ void QWidget::update(const QRegion& rgn)
     } else {
         if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
             QRegion wrgn(rgn);
-#if 0
             d->subtractOpaqueSiblings(wrgn, QPoint());
-#endif
             d->subtractOpaqueChildren(wrgn, rect(), QPoint());
             bs->dirtyRegion(wrgn, this);
         }
