@@ -763,27 +763,27 @@ bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
 {
     uint searchkey = (modifiers() | key()) & ~(Qt::KeypadModifier); //The keypad modifier should not make a difference
     uint platform = QApplicationPrivate::currentPlatform();
-    
+
     uint N = QKeySequencePrivate::numberOfKeyBindings;
     int first = 0;
     int last = N - 1;
-   
+
     while (first <= last) {
         int mid = (first + last) / 2;
         QKeyBinding midVal = QKeySequencePrivate::keyBindings[mid];
 
-        if (searchkey > midVal.shortcut){ 
+        if (searchkey > midVal.shortcut){
             first = mid + 1;  // Search in top half
         }
-        else if (searchkey < midVal.shortcut){ 
+        else if (searchkey < midVal.shortcut){
             last = mid - 1; // Search in bottom half
         }
-        else { 
+        else {
             //found correct shortcut value, now we must check for platform match
             if ((midVal.platform & platform) && (midVal.standardKey == matchKey)) {
                 return true;
             } else { //We may have several equal values for different platforms, so we must search in both directions
-                
+
                 //search forward
                 for ( unsigned int i = mid + 1 ; i < N - 1 ; ++i) {
                     QKeyBinding current = QKeySequencePrivate::keyBindings[i];
@@ -792,7 +792,7 @@ bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
                     else if (current.platform & platform && current.standardKey == matchKey)
                         return true;
                 }
-            
+
                 //search back
                 for ( int i = mid - 1 ; i >= 0 ; --i) {
                     QKeyBinding current = QKeySequencePrivate::keyBindings[i];
@@ -804,7 +804,7 @@ bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
                 return false; //we could not find it among the matching keySequences
             }
         }
-    }    
+    }
     return false; //we could not find matching keySequences at all
 }
 
@@ -2361,15 +2361,21 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
 
 /*!
     \class QDragEnterEvent
-    \brief The QDragEnterEvent class provides an event which is sent to a widget when a drag and drop action enters it.
+    \brief The QDragEnterEvent class provides an event which is sent
+    to a widget when a drag and drop action enters it.
 
     \ingroup events
     \ingroup draganddrop
 
-    This event is always immediately followed by a QDragMoveEvent, so
-    you only need to respond to one or the other event. This class
-    inherits most of its functionality from QDragMoveEvent, which in
-    turn inherits most of its functionality from QDropEvent.
+    This event is always immediately followed by a QDragMoveEvent. To
+    allow a drop, both QDragEnterEvent and QDragMoveEvent must be
+    accepted (if you do not accept the QDragEnterEvent you will not
+    receive any of the \l {QDragMoveEvent}s that are sent while the
+    drag and drop action is in progress).
+
+    QDragEnterEvent inherits most of its functionality from
+    QDragMoveEvent, which in turn inherits most of its functionality
+    from QDropEvent.
 
     \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent
 */
@@ -3094,7 +3100,7 @@ QClipboardEvent::~QClipboardEvent()
 
 // remove in Qt 5
 /*!
-    \fn const QKeySequence &QShortcutEvent::key() 
+    \fn const QKeySequence &QShortcutEvent::key()
 
     \internal
 */
@@ -3197,7 +3203,7 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 
     \relates QKeyEvent
 
-    Returns true if \a the key is currently bound to the key combination 
+    Returns true if \a the key is currently bound to the key combination
     specified by \a e.
 
     Equivalent to \c {e->matches(key)}.
@@ -3208,7 +3214,7 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 
     \relates QKeyEvent
 
-    Returns true if \a key is currently bound to the key combination 
+    Returns true if \a key is currently bound to the key combination
     specified by \a e.
 
     Equivalent to \c {e->matches(key)}.
