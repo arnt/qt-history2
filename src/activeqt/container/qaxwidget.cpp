@@ -452,7 +452,7 @@ bool axc_FilterProc(void *m)
                         DWORD ol_pos = GetMessagePos();
                         QPoint gpos(GET_X_LPARAM(ol_pos), GET_Y_LPARAM(ol_pos));
                         QPoint pos = ax->mapFromGlobal(gpos);
-                        
+
                         QMouseEvent e(type, pos, gpos, (Qt::MouseButton)button,
                             translateMouseButtonState(msg->wParam),
                             translateModifierState(msg->wParam));
@@ -1673,13 +1673,13 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     access the ActiveX directly through the \c IUnknown pointer.
 
     QAxWidget is a QWidget and can mostly be used as such, e.g. it can be
-    organized in a widget hierarchy and layouts or act as an event filter. 
+    organized in a widget hierarchy and layouts or act as an event filter.
     Standard widget properties, e.g. \link QWidget::enabled
     enabled \endlink are supported, but it depends on the ActiveX
     control to implement support for ambient properties like e.g.
     palette or font. QAxWidget tries to provide the necessary hints.
 
-    However, you cannot reimplement Qt-specific event handlers like 
+    However, you cannot reimplement Qt-specific event handlers like
     mousePressEvent or keyPressEvent and expect them to be called reliably.
     The embedded control covers the QAxWidget completely, and usually
     handles the user interface itself. Use control-specific APIs (i.e. listen
@@ -1746,9 +1746,9 @@ QAxWidget::~QAxWidget()
 
 /*!
     Calls QAxBase::initialize(), and embeds the control in this widget by
-    calling createHostWindow(false) if successful 
+    calling createHostWindow(false) if successful
 
-    To initialize the control before it is activated, reimplement this 
+    To initialize the control before it is activated, reimplement this
     function and add your initialization code before you call
     createHostWindow(true).
 */
@@ -1773,7 +1773,7 @@ bool QAxWidget::initialize(IUnknown **ptr)
 */
 bool QAxWidget::createHostWindow(bool initialized)
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QApplication::sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
