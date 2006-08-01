@@ -803,7 +803,16 @@ void QAbstractItemView::selectAll()
 }
 
 /*!
-    Starts editing the item item at \a index if it is editable.
+    Starts editing the item corresponding to the given \a index if it is
+    editable.
+
+    Note that this function does not change the current index. Since the current
+    index defines the next and previous items to edit, users may find that
+    keyboard navigation does not work as expected. To provide consistent navigation
+    behavior, call setCurrentIndex() before this function with the same model
+    index.
+
+    \sa QModelIndex::flags()
 */
 void QAbstractItemView::edit(const QModelIndex &index)
 {
