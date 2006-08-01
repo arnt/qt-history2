@@ -2719,14 +2719,18 @@ HRESULT WINAPI QAxServerBase::IsDirty()
 HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 {
     STATSTG stat;
-    HRESULT hres = pStm->Stat(&stat, STATFLAG_NONAME);
+    HRESULT hres = pStm->Stat(&stat, STATFLAG_DEFAULT);
+    bool openAsText = false;
     QByteArray qtarray;
-    if (hres != S_OK) {
-    } else {
-	ULONG read;
-	if (stat.cbSize.HighPart)
+    if (hres == S_OK) {
+        QString streamName = QString::fromUtf16(stat.pwcsName);
+        CoTaskMemFree(stat.pwcsName);
+        openAsText = streamName == QLatin1String("SomeStreamName");
+	if (stat.cbSize.HighPart) // more than 4GB - too large!
 	    return S_FALSE;
+
 	qtarray.resize(stat.cbSize.LowPart);
+        ULONG read;
 	pStm->Read(qtarray.data(), stat.cbSize.LowPart, &read);
     }
     const QMetaObject *mo = qt.object->metaObject();
@@ -2741,7 +2745,8 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
     }
 
     qtbuffer.close(); // resets
-    qtbuffer.open(QIODevice::ReadOnly | QIODevice::Text);
+    qtbuffer.open(openAsText ? (QIODevice::ReadOnly | QIODevice::Text) : QIODevice::ReadOnly);
+
     QDataStream qtstream(&qtbuffer);
     int version;
     qtstream >> version;
@@ -2780,7 +2785,7 @@ HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
     }
 
     if (!saved) {
-        qtbuffer.open(QIODevice::WriteOnly | QIODevice::Text);
+        qtbuffer.open(QIODevice::WriteOnly);
         QDataStream qtstream(&qtbuffer);
         qtstream << qtstream.version();
 
@@ -2851,7 +2856,11 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg)
 	return CO_E_ALREADYINITIALIZED;
 
     IStream *spStream = 0;
-    HRESULT hres = pStg->OpenStream(L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream);
+    QString streamName = QLatin1String(qt.object->metaObject()->className());
+    streamName += QLatin1String("_Stream4.2");
+    pStg->OpenStream(streamName.utf16(), 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream);
+    if (!spStream) // support for streams saved with 4.1 and earlier
+        pStg->OpenStream(L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream);
     if (!spStream)
 	return E_FAIL;
 
@@ -2864,7 +2873,9 @@ HRESULT WINAPI QAxServerBase::Load(IStorage *pStg)
 HRESULT WINAPI QAxServerBase::Save(IStorage *pStg, BOOL fSameAsLoad)
 {
     IStream *spStream = 0;
-    HRESULT hres = pStg->CreateStream(L"SomeStreamName", STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream);
+    QString streamName = QLatin1String(qt.object->metaObject()->className());
+    streamName += QLatin1String("_Stream4.2");
+    pStg->CreateStream(streamName.utf16(), STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream);
     if (!spStream)
 	return E_FAIL;
 
