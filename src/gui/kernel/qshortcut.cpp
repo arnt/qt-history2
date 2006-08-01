@@ -46,8 +46,8 @@
     to construct the shortcut with a key sequence. For example:
 
     \code
-        shortcut = QShortcut(QKeySequence(tr("Ctrl+O", "File|Open")),
-                             parent);
+        shortcut = new QShortcut(QKeySequence(tr("Ctrl+O", "File|Open")),
+                                 parent);
     \endcode
 
     When the user types the \l{QKeySequence}{key sequence}
