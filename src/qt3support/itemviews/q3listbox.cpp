@@ -2657,7 +2657,7 @@ void Q3ListBox::setSelected(Q3ListBoxItem * item, bool select)
         return;
 
     int ind = index(item);
-    bool emitHighlighted = (d->current != item);
+    bool emitHighlighted = (d->current != item) || ( select && (item->s != (uint) select) );
     if (selectionMode() == Single) {
         if (d->current != item) {
             Q3ListBoxItem *o = d->current;
