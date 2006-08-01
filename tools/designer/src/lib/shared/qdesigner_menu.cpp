@@ -754,11 +754,14 @@ void QDesignerMenu::moveLeft()
 {
     if (parentMenu()) {
         hide();
-    } else if (/*QDesignerMenuBar *mb = */parentMenuBar()) {
-#if 0 //. ### disabled for now.. it's a bit confusing
-        hide();
-        mb->moveLeft();
-#endif
+    } else {
+        closeMenuChain();
+        if (QDesignerMenuBar *mb = parentMenuBar()) {
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                mb->moveLeft();
+            else
+                mb->moveRight();
+        }
     }
     updateCurrentAction();
 }
@@ -770,7 +773,10 @@ void QDesignerMenu::moveRight()
     if (qobject_cast<SpecialMenuAction*>(action) || action->isSeparator()) {
         closeMenuChain();
         if (QDesignerMenuBar *mb = parentMenuBar()) {
-            mb->moveRight();
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                mb->moveRight();
+            else
+                mb->moveLeft();
         }
     } else {
         m_lastSubMenuIndex = -1; // force a refresh

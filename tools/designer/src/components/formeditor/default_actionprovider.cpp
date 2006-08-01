@@ -18,6 +18,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QToolBar>
+#include <QtGui/QApplication>
 
 #include <QtCore/qdebug.h>
 
@@ -80,7 +81,10 @@ void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
         QRect g = actionGeometry(action);
 
         if (orientation() == Qt::Horizontal) {
-            g.setWidth(2);
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                g.setRight(g.left() + 1);
+            else
+                g.setLeft(g.right() - 1);
         } else {
             g.setHeight(2);
         }

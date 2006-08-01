@@ -187,12 +187,18 @@ bool QDesignerMenuBar::handleKeyPressEvent(QWidget *, QKeyEvent *e)
 
         case Qt::Key_Left:
             e->accept();
-            moveLeft(e->modifiers() & Qt::ControlModifier);
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                moveLeft(e->modifiers() & Qt::ControlModifier);
+            else
+                moveRight(e->modifiers() & Qt::ControlModifier);
             return true;
 
         case Qt::Key_Right:
             e->accept();
-            moveRight(e->modifiers() & Qt::ControlModifier);
+            if (QApplication::layoutDirection() == Qt::LeftToRight)
+                moveRight(e->modifiers() & Qt::ControlModifier);
+            else
+                moveLeft(e->modifiers() & Qt::ControlModifier);
             return true; // no update
 
         case Qt::Key_Up:
@@ -576,7 +582,10 @@ int QDesignerMenuBar::actionAtPosition(const QPoint &pos) const
     int index = 0;
     for (; index<lst.count(); ++index) {
         QRect g = actionGeometry(lst.at(index));
-        g.setTopLeft(QPoint(0, 0));
+        if (QApplication::layoutDirection() == Qt::LeftToRight)
+            g.setTopLeft(QPoint(0, 0));
+        else
+            g.setTopRight(QPoint(rect().width(), 0));
 
         if (g.contains(pos))
             return index;
