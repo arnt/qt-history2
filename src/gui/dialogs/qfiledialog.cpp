@@ -2025,7 +2025,7 @@ QString QFileDialogPrivate::workingDirectory(const QString &path)
     if (!path.isEmpty()) {
         QFileInfo info(path);
         if (info.exists() && info.isDir())
-            return path;
+            return info.absoluteFilePath();
         return info.absolutePath();
     }
     return QDir::currentPath();
