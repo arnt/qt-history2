@@ -1671,7 +1671,8 @@ private:
     QAxBasePrivate *d;
 
     IDispatch *disp;
-    ITypeInfo *typeinfo;
+    ITypeInfo *dispInfo;
+    ITypeInfo *classInfo;
     ITypeLib *typelib;
     QByteArray current_typelib;
 
@@ -1709,13 +1710,13 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
     return generator.metaObject(parentObject, className.toLatin1());
 }
 
-QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject)
+QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *classInfo, const QMetaObject *parentObject)
 {
-    MetaObjectGenerator generator(typeLib, typeInfo);
+    MetaObjectGenerator generator(typeLib, 0);
 
     QString className;
     BSTR bstr;
-    if (S_OK != typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
+    if (S_OK != classInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
         return 0;
 
     className = QString::fromUtf16((const ushort *)bstr);
@@ -1724,23 +1725,23 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
     generator.readEnumInfo();
 
     TYPEATTR *typeattr;
-    typeInfo->GetTypeAttr(&typeattr);
+    classInfo->GetTypeAttr(&typeattr);
     if (typeattr) {
         int nInterfaces = typeattr->cImplTypes;
-        typeInfo->ReleaseTypeAttr(typeattr);
+        classInfo->ReleaseTypeAttr(typeattr);
 
         for (int index = 0; index < nInterfaces; ++index) {
             HREFTYPE refType;
-            if (S_OK != typeInfo->GetRefTypeOfImplType(index, &refType))
+            if (S_OK != classInfo->GetRefTypeOfImplType(index, &refType))
                 continue;
 
             int flags = 0;
-            typeInfo->GetImplTypeFlags(index, &flags);
+            classInfo->GetImplTypeFlags(index, &flags);
             if (flags & IMPLTYPEFLAG_FRESTRICTED)
                 continue;
 
             ITypeInfo *interfaceInfo = 0;
-            typeInfo->GetRefTypeInfo(refType, &interfaceInfo);
+            classInfo->GetRefTypeInfo(refType, &interfaceInfo);
             if (!interfaceInfo)
                 continue;
 
@@ -1771,25 +1772,24 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
         }
     }
 
-
     return generator.metaObject(parentObject, className.toLatin1());
 }
 
 MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
-: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), 
+: that(ax), d(dptr), disp(0), dispInfo(0), classInfo(0), typelib(0), 
   iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"), QSettings::NativeFormat)
 {
     init();
 }
 
 MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
-: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), 
+: that(0), d(0), disp(0), dispInfo(tinfo), classInfo(0), typelib(tlib), 
   iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"), QSettings::NativeFormat)
 {
     init();
 
-    if (typeinfo)
-        typeinfo->AddRef();
+    if (dispInfo)
+        dispInfo->AddRef();
     if (typelib) {
         typelib->AddRef();
         BSTR bstr;
@@ -1807,7 +1807,7 @@ void MetaObjectGenerator::init()
 
     iid_propNotifySink = IID_IPropertyNotifySink;
 
-    if (d || typeinfo) {
+    if (d || dispInfo) {
         addSignal("signal(QString,int,void*)", "name,argc,argv");
         addSignal("exception(int,QString,QString,QString)", "code,source,disc,help");
         addSignal("propertyChanged(QString)", "name");
@@ -1817,7 +1817,8 @@ void MetaObjectGenerator::init()
 
 MetaObjectGenerator::~MetaObjectGenerator()
 {
-    if (typeinfo) typeinfo->Release();
+    if (dispInfo) dispInfo->Release();
+    if (classInfo) classInfo->Release();
     if (typelib) typelib->Release();
 }
 
@@ -2068,15 +2069,14 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
 void MetaObjectGenerator::readClassInfo()
 {
     // Read class information
-    IProvideClassInfo *classinfo = 0;
+    IProvideClassInfo *provideClassInfo = 0;
     if (d)
-        d->ptr->QueryInterface(IID_IProvideClassInfo, (void**)&classinfo);
-    if (classinfo) {
-        ITypeInfo *info = 0;
-        classinfo->GetClassInfo(&info);
+        d->ptr->QueryInterface(IID_IProvideClassInfo, (void**)&provideClassInfo);
+    if (provideClassInfo) {
+        provideClassInfo->GetClassInfo(&classInfo);
         TYPEATTR *typeattr = 0;
-        if (info)
-            info->GetTypeAttr(&typeattr);
+        if (classInfo)
+            classInfo->GetTypeAttr(&typeattr);
 
         QString coClassID;
         if (typeattr) {
@@ -2092,11 +2092,10 @@ void MetaObjectGenerator::readClassInfo()
                     addClassInfo("Version", version);
             }
 #endif
-            info->ReleaseTypeAttr(typeattr);
+            classInfo->ReleaseTypeAttr(typeattr);
         }
-        if (info) info->Release();
-        classinfo->Release();
-        classinfo = 0;
+        provideClassInfo->Release();
+        provideClassInfo = 0;
 
         if (d->tryCache && !coClassID.isEmpty())
             cacheKey = QString::fromLatin1("%1$%2$%3$%4").arg(coClassID)
@@ -2104,11 +2103,11 @@ void MetaObjectGenerator::readClassInfo()
     }
 
     UINT index = 0;
-    if (disp && !typeinfo)
-        disp->GetTypeInfo(index, LOCALE_USER_DEFAULT, &typeinfo);
+    if (disp && !dispInfo)
+        disp->GetTypeInfo(index, LOCALE_USER_DEFAULT, &dispInfo);
 
-    if (typeinfo && !typelib)
-        typeinfo->GetContainingTypeLib(&typelib, &index);
+    if (dispInfo && !typelib)
+        dispInfo->GetContainingTypeLib(&typelib, &index);
 
     if (!typelib) {
         QSettings controls("HKEY_LOCAL_MACHINE\\Software");
@@ -2142,21 +2141,21 @@ void MetaObjectGenerator::readClassInfo()
         }
     }
 
-    if (!typeinfo && typelib && that)
-        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &typeinfo);
+    if (!classInfo && typelib && that)
+        typelib->GetTypeInfoOfGuid(QUuid(that->control()), &classInfo);
 
-    if (!d || !typeinfo || !cacheKey.isEmpty() || !d->tryCache)
+    if (!d || !dispInfo || !cacheKey.isEmpty() || !d->tryCache)
         return;
 
     TYPEATTR *typeattr = 0;
-    typeinfo->GetTypeAttr(&typeattr);
+    dispInfo->GetTypeAttr(&typeattr);
 
     QString interfaceID;
     if (typeattr) {
         QUuid iid(typeattr->guid);
         interfaceID = iid.toString().toUpper();
 
-        typeinfo->ReleaseTypeAttr(typeattr);
+        dispInfo->ReleaseTypeAttr(typeattr);
         // ### event interfaces!!
         if (!interfaceID.isEmpty())
             cacheKey = QString("%1$%2$%3$%4").arg(interfaceID)
@@ -2594,6 +2593,8 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
 
 void MetaObjectGenerator::readInterfaceInfo()
 {
+    ITypeInfo *typeinfo = dispInfo;
+    typeinfo->AddRef();
     int interface_serial = 0;
     while (typeinfo) {
         ushort nFuncs = 0;
@@ -2795,6 +2796,45 @@ void MetaObjectGenerator::readEventInfo()
             } while (c);
             if (cpoint) cpoint->Release();
             epoints->Release();
+        } else if (classInfo) { // no enumeration - search source interfaces and ask for those
+	    TYPEATTR *typeattr = 0;
+	    classInfo->GetTypeAttr(&typeattr);
+            if (typeattr) {
+                for (int i = 0; i < typeattr->cImplTypes; ++i) {
+                    int flags = 0;
+                    classInfo->GetImplTypeFlags(i, &flags);
+                    if (!(flags & IMPLTYPEFLAG_FSOURCE))
+                        continue;
+                    HREFTYPE reference;
+                    if (S_OK != classInfo->GetRefTypeOfImplType(i, &reference))
+                        continue;
+                    ITypeInfo *eventInfo = 0;
+                    classInfo->GetRefTypeInfo(reference, &eventInfo);
+                    if (!eventInfo)
+                        continue;
+                    TYPEATTR *eventattr = 0;
+                    eventInfo->GetTypeAttr(&eventattr);
+                    if (eventattr) {
+                        IConnectionPoint *cpoint = 0;
+                        cpoints->FindConnectionPoint(eventattr->guid, &cpoint);
+                        if (cpoint) {
+                            if (eventattr->guid == IID_IPropertyNotifySink) {
+                                // test whether property notify sink has been created already, and advise on it
+                                QAxEventSink *eventSink = d->eventSink.value(iid_propNotifySink);
+                                if (eventSink)
+                                    eventSink->advise(cpoint, eventattr->guid);
+                                continue;
+                            }
+
+                            readEventInterface(eventInfo, cpoint);
+                            cpoint->Release();
+                        }
+                        eventInfo->ReleaseTypeAttr(eventattr);
+                    }
+                    eventInfo->Release();
+                }
+                classInfo->ReleaseTypeAttr(typeattr);
+            }
         }
         cpoints->Release();
     }
