@@ -263,11 +263,6 @@
   notify other application components about changes to a time line, this class
   can also be used for other timing purposes with non-GUI classes.
 
-  The scope of \bold{\QD's \l{Qt Designer's Widget Editing Mode#The Palette Editor}{palette editor}
-  has been significantly extended} to include a comprehensive brush editor that
-  features pattern and gradient editors alongside standard color selection and
-  image import facilities.
-
   The addition of a \bold{Scalable Vector Graphics (SVG) icon engine} enables
   icons to be created from pictures in this vector graphics format. This reduces
   the number of fixed-size images that developers need to include with
