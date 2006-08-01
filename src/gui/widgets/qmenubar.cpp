@@ -1966,49 +1966,6 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 /*!
-    \fn void QMenuBar::repaintArea(int a, int b)
-
-    Use update() instead.
-*/
-
-/*!
-    \fn void QMenuBar::cursorLeft(bool mark, int steps)
-
-    Use cursorForward() with a negative number of steps instead. For
-    example, cursorForward(mark, -steps).
-*/
-
-/*!
-    \fn void QMenuBar::cursorRight(bool mark, int steps)
-
-    Use cursorForward() instead.
-*/
-
-/*!
-    \fn bool QMenuBar::frame() const
-
-    Use hasFrame() instead.
-*/
-
-/*!
-    \fn void QMenuBar::clearValidator()
-
-    Use setValidator(0) instead.
-*/
-
-/*!
-    \fn bool QMenuBar::hasMarkedText() const
-
-    Use hasSelectedText() instead.
-*/
-
-/*!
-    \fn QString QMenuBar::markedText() const
-
-    Use selectedText() instead.
-*/
-
-/*!
     \fn void QMenuBar::setFrameRect(QRect)
     \internal
 */
