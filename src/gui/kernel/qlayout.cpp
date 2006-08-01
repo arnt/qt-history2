@@ -708,6 +708,17 @@ void QLayout::addChildLayout(QLayout *l)
 
 }
 
+#ifdef QT_DEBUG
+static bool layoutDebug()
+{
+    static int checked_env = -1;
+    if(checked_env == -1)
+        checked_env = !!qgetenv("QT_LAYOUT_DEBUG").toInt();
+
+    return checked_env;
+}
+#endif
+
 void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
 {
     Q_Q(QLayout);
@@ -723,7 +734,7 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
         if (QWidget *w = item->widget()) {
             QWidget *pw = w->parentWidget();
 #ifdef QT_DEBUG
-            if (pw && pw != mw) {
+            if (pw && pw != mw && layoutDebug()) {
                 qWarning("QLayout::addChildLayout: widget %s \"%s\" in wrong parent; moved to correct parent",
                          w->metaObject()->className(), w->objectName().toLocal8Bit().data());
             }
@@ -753,13 +764,20 @@ void QLayout::addChildWidget(QWidget *w)
     //been in a layout.
     if (pw && w->testAttribute(Qt::WA_LaidOut)) {
         QLayout *l = pw->layout();
-        if (l && removeWidgetRecursively(l, w))
-            qWarning("QLayout::addChildWidget: %s \"%s\" is already in a layout; moved to new layout",
-                     w->metaObject()->className(), w->objectName().toLocal8Bit().data());
+        if (l && removeWidgetRecursively(l, w)) {
+#ifdef QT_DEBUG
+            if (layoutDebug())
+                qWarning("QLayout::addChildWidget: %s \"%s\" is already in a layout; moved to new layout",
+                         w->metaObject()->className(), w->objectName().toLocal8Bit().data());
+#endif
+        }
     }
     if (pw && mw && pw != mw) {
-        qWarning("QLayout::addChildWidget: %s \"%s\" in wrong parent; moved to correct parent",
-                 w->metaObject()->className(), w->objectName().toLocal8Bit().data());
+#ifdef QT_DEBUG
+            if (layoutDebug())
+                qWarning("QLayout::addChildWidget: %s \"%s\" in wrong parent; moved to correct parent",
+                         w->metaObject()->className(), w->objectName().toLocal8Bit().data());
+#endif
         pw = 0;
     }
     bool needShow = mw && mw->isVisible() && !(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide));
