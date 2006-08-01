@@ -2346,12 +2346,19 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
         QStringList lst = viewBoxStr.split(QLatin1Char(' '), QString::SkipEmptyParts);
         if (lst.count() != 4)
             lst = viewBoxStr.split(QLatin1Char(','), QString::SkipEmptyParts);
-        QString x      = lst.at(0).trimmed();
-        QString y      = lst.at(1).trimmed();
-        QString width  = lst.at(2).trimmed();
-        QString height = lst.at(3).trimmed();
-        node->setViewBox(QRect(x.toInt(), y.toInt(),
-                               width.toInt(), height.toInt()));
+        QString xStr      = lst.at(0).trimmed();
+        QString yStr      = lst.at(1).trimmed();
+        QString widthStr  = lst.at(2).trimmed();
+        QString heightStr = lst.at(3).trimmed();
+
+        
+        QSvgHandler::LengthType lt;
+        qreal x = parseLength(xStr, lt, handler);
+        qreal y = parseLength(yStr, lt, handler);
+        qreal w = parseLength(widthStr, lt, handler);
+        qreal h = parseLength(heightStr, lt, handler);
+        
+        node->setViewBox(QRect((int)x, (int)y, (int)w, (int)h));
     } else if (width && height){
         if (type == QSvgHandler::PT) {
             width = convertToPixels(width, false, type);
@@ -2360,14 +2367,8 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
 
         node->setViewBox(QRect(0, 0, (int)width, (int)height));
     }
-
-
-    if (type == QSvgHandler::PT) {
-        handler->setDefaultCoordinateSystem(type);
-    }
-    else {
-        handler->setDefaultCoordinateSystem(QSvgHandler::PX);
-    }
+    
+    handler->setDefaultCoordinateSystem(QSvgHandler::PX);
 
     return node;
 }
@@ -2435,9 +2436,11 @@ static bool parseTspanNode(QSvgNode *parent,
 
 static QSvgNode *createUseNode(QSvgNode *parent,
                                const QXmlAttributes &attributes,
-                               QSvgHandler *)
+                               QSvgHandler *handler)
 {
     QString linkId = attributes.value(QLatin1String("xlink:href")).remove(0, 1);
+    QString xStr = attributes.value(QLatin1String("x"));
+    QString yStr = attributes.value(QLatin1String("y"));
     QSvgStructureNode *group = 0;
     switch (parent->type()) {
     case QSvgNode::DOC:
@@ -2453,9 +2456,20 @@ static QSvgNode *createUseNode(QSvgNode *parent,
     if (group) {
         QSvgNode *link = group->scopeNode(linkId);
         if (link) {
+            QPointF pt;
+            if (!xStr.isNull() || !yStr.isNull()) {
+                QSvgHandler::LengthType type;
+                qreal nx = parseLength(xStr, type, handler);
+                nx = convertToPixels(nx, true, type);
+
+                qreal ny = parseLength(yStr, type, handler);
+                ny = convertToPixels(ny, true, type);
+                pt = QPointF(nx, ny);
+            }
+            
             //delay link resolving till the first draw call on
-            //use nodes, link might have not been created yet
-            QSvgUse *node = new QSvgUse(parent, link);
+            //use nodes, link 2might have not been created yet
+            QSvgUse *node = new QSvgUse(pt, parent, link);
             return node;
         }
     }

@@ -175,11 +175,12 @@ public:
 class QSvgUse : public QSvgNode
 {
 public:
-    QSvgUse(QSvgNode *parent, QSvgNode *link);
+    QSvgUse(const QPointF &start, QSvgNode *parent, QSvgNode *link);
     virtual void draw(QPainter *p);
     virtual Type type() const;
 private:
     QSvgNode *m_link;
+    QPointF   m_start;
 };
 
 class QSvgVideo : public QSvgNode

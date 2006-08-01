@@ -298,8 +298,8 @@ void QSvgTextArea::draw(QPainter *p)
     revertStyle(p);
 }
 
-QSvgUse::QSvgUse(QSvgNode *parent, QSvgNode *node)
-    : QSvgNode(parent), m_link(node)
+QSvgUse::QSvgUse(const QPointF &start, QSvgNode *parent, QSvgNode *node)
+    : QSvgNode(parent), m_link(node), m_start(start)
 {
 
 }
@@ -307,7 +307,15 @@ QSvgUse::QSvgUse(QSvgNode *parent, QSvgNode *node)
 void QSvgUse::draw(QPainter *p)
 {
     applyStyle(p);
+
+    if (!m_start.isNull()) {
+        p->translate(m_start);
+    }   
     m_link->draw(p);
+    if (!m_start.isNull()) {
+        p->translate(-m_start);
+    }
+    
     revertStyle(p);
 }
 
