@@ -2303,13 +2303,18 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 /*!
     \since 4.1
 
-    Sets the given \a widget on the item at the given \a index.
+    Sets the given \a widget on the item at the given \a index,
+    passing the ownership of the widget to the viewport.
 
-    This function should only be used to display static content within the visible
-    area corresponding to an item of data. If you want to display custom dynamic
-    content or implement a custom editor widget, subclass QItemDelegate instead.
+    Note that the given \a widget's \l
+    {QWidget}{setAutoFillBackground} property must be set to true,
+    otherwise the widget's background will be transparent, showing both
+    the model data and the item at the given \a index.
 
-    Note: the viewport takes ownership of the widget.
+    This function should only be used to display static content within
+    the visible area corresponding to an item of data. If you want to
+    display custom dynamic content or implement a custom editor
+    widget, subclass QItemDelegate instead.
 
     \sa {Delegate Classes}
 */

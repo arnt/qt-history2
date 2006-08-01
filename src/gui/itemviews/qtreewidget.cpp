@@ -2568,11 +2568,18 @@ QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 /*!
   \since 4.1
 
-  Sets the \a widget to be displayed in the cell specified by \a item and the given \a column.
+  Sets the given \a widget to be displayed in the cell specified by
+  the given \a item and \a column.
 
-  This function should only be used to display static content in the place of a tree
-  widget item. If you want to display custom dynamic content or implement a custom
-  editor widget, use QTreeView and subclass QItemDelegate instead.
+  Note that the given \a widget's \l {QWidget}{setAutoFillBackground}
+  property must be set to true, otherwise the widget's background will
+  be transparent, showing both the model data and the tree widget
+  item.
+
+  This function should only be used to display static content in the
+  place of a tree widget item. If you want to display custom dynamic
+  content or implement a custom editor widget, use QTreeView and
+  subclass QItemDelegate instead.
 
   \sa {Delegate Classes}
 */
