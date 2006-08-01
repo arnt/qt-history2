@@ -1840,6 +1840,13 @@
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
+    \section1 QMAKE_MAC_SDK
+
+    This variable is used on Mac OS X when building universal binaries.
+    This process is described in more detail in the
+    \l{Deploying an Application on Qt/Mac#Architecture Dependencies}{Deploying
+    an Application on Qt/Mac} document.
+
     \section1 QMAKE_MAKEFILE
 
     This variable contains the name of the Makefile to create. The
@@ -3686,8 +3693,15 @@
 
     This chapter describes how to set up \c qmake project files for three
     common types of project that are based on Qt. Although all kinds of
-    project use many of the same variables, each of them use special
-    variables to define
+    project use many of the same variables, each of them use project-specific
+    variables to customize output files.
+
+    Platform-specific variables are not described here; we refer the reader to
+    the \l{Deploying Qt Applications} document for information on issues such as
+    \l{Deploying an Application on Qt/Mac#Architecture Dependencies}{building
+    universal binaries for Mac OS X} and
+    \l{Deploying an Application on Qt/Windows#Visual Studio 2005}{handling
+    Visual Studio manifest files}.
 
     \tableofcontents
 
