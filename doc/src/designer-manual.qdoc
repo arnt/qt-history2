@@ -25,8 +25,6 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Designing a Component with Qt Designer}
 \i \l{Qt Designer's Widget Editing Mode}
  \tableofcontents{1 Qt Designer's Widget Editing Mode}
-\i \l{Qt Designer's Palette Editor}
- \tableofcontents{1 Qt Designer's Palette Editor}
 \i \l{Using Containers in Qt Designer}
  \tableofcontents{1 Using Containers in Qt Designer}
 \i \l{Creating Main Windows in Qt Designer}
@@ -507,7 +505,7 @@ the form's design.
 \page designer-editing-mode.html
 \previouspage Designing a Component with Qt Designer
 \contentspage {Qt Designer Manual}{Contents}
-\nextpage Qt Designer's Palette Editor
+\nextpage Using Containers in Qt Designer
 
 \title Qt Designer's Widget Editing Mode
 
@@ -639,10 +637,6 @@ The property editor uses standard Qt input widgets to manage the properties
 of objects on the form. Textual properties are shown in line edits,
 integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
-
-The widget's palette is one of the more complex properties that can be editied,
-and this requires its own editor. See
-\l{Qt Designer's Palette Editor} for a guide to palette editing.
 \endtable
 
 \section1 The Object Inspector
@@ -781,128 +775,6 @@ This feature can be activated by opening the \gui Form menu and selecting
 The preview shows exactly what the final component will look like when
 used in an application.
 
-*/
-
-/*!
-\page designer-editing-palettes.html
-\previouspage Qt Designer's Widget Editing Mode
-\contentspage {Qt Designer Manual}{Contents}
-\nextpage Using Containers in Qt Designer
-
-\title Qt Designer's Palette Editor
-
-\image designer-palette-editor.png
-
-Although most widget properties can be edited from within \QD's property editor,
-some complex properties require more comprehensive editing facilities. For rich
-text, for example, the needs of many form designers can be met by the editor that
-can be accessed via the form's task menu. Similarly, an editor for widget palettes
-requires a sophisticated editor that can allow designers to access the full range
-of options provided by QPalette.
-
-\tableofcontents
-
-\section1 Editing a Palette
-
-The \gui{Edit Palette Dialog} presents an overview of the entries in the palette
-above a preview of a sample widget containing many common widgets. By default, the
-palette entries are set to the default colors or brushes for the designer's
-platform, and the preview shows how the sample widget will look when using the
-\e active group of palette entries.
-
-The \gui{Tune Palette} group box allows each of the palette entries to be edited
-individually; simply click on an entry to open the
-\l{#Editing a Brush}{brush editor}. Alternatively, you can click the \gui{Quick}
-button to choose a single color for the widget background that will be applied to
-the whole palette.
-
-When the \gui{Compute Details} radio button is selection, the list of palette
-entries shows only the active palette entries for the widget. Select the
-\gui{Show Details} button to reveal the inactive and disabled palette entries;
-this also enables them to be edited individually.
-
-The radio buttons in the \gui{Preview} group box can also be toggled to show the
-effects of each group of colors in the palette on the sample widget.
-
-\table
-\row \o
-\section2 Editing a Brush
-
-Each entry in the palette is drawn using a brush, making it possible for widgets
-to be customized with patterns, gradients, and textures instead of plain colors.
-
-As well as a set of predefined brushes, the brush editor enables different types
-of effects to be used for the brush that is currently being edited.
-
-The \gui{Color Pattern...} button is used to access the
-\l{#Editing a Color Pattern}{Edit Color Pattern} dialog, enabling the color, level of
-transparency, and type of pattern to be chosen.
-
-When clicked, the \gui{Gradient...} button opens the
-\l{#Editing a Gradient}{Edit Gradient} dialog, which provides control over
-the type of gradient and colors used.
-
-The \gui{Texture...} button opens a standard dialog to enable an image
-\l{#Choosing a Texture}{to be chosen} for the brush's texture.
-
-\o \inlineimage designer-palette-brush-editor.png
-\endtable
-
-\table
-\row \o
-\section2 Editing a Color Pattern
-
-The \gui{Edit Color Pattern} dialog presents a series of predefined patterns, a
-set of controls for modifying the color of the currently selected pattern, and
-a preview group box to help designers obtain the desired result.
-
-Colors can be specified using either RGB (red, green, blue) or HSV
-(hue, saturation, and value) components. The level of transparency of the pattern
-can be modified by changing the alpha component.
-
-\o \inlineimage designer-palette-pattern-editor.png
-\endtable
-
-\table
-\row \o
-\section2 Editing a Gradient
-
-The \gui{Edit Gradient} dialog provides options to enable gradients to be
-specified, taking into account the type of gradient required, the number of
-color stops used, and the overall transparency of the gradient.
-
-The preview in the top-left corner of the dialog allows certain gradient-specific
-parameters to be set, such as the focal point of a radial gradient. These can
-also be specified using the conventional controls alongside the preview.
-
-The central part of the dialog contains a gradient editor that provides a series
-of handles for the color stops defined for the gradient. You can select a color
-stop by clicking on it, enabling its color and level of transparency to be
-modified using the same color controls used in the pattern editor.
-
-Each color stop can also be dragged around to change its position in the
-gradient; the positions of color stops can be fine-tuned with the \gui{Position}
-spin box, which accepts values between 0 and 1.
-
-If many color stops are used, and it becomes difficult to select individual ones,
-you can use the controls beneath the gradient editor to zoom into the specific
-part of the gradient you are interested in. The \gui{Zoom All} button zooms out
-just far enough to ensure that all color stops are visible; if all color stops
-are already visible, this button will be automatically disabled.
-
-\o \inlineimage designer-palette-gradient-editor.png
-\endtable
-
-\table
-\row \o
-\section2 Choosing a Texture
-
-Textures are chosen using a standard \QD \gui{Find Icon} dialog. Images can be
-opened from specific locations in the filing system or they can be referenced
-\l{Editing Resources with Qt Designer}{via a resource file}.
-
-\o \inlineimage designer-find-icon.png
-\endtable
 */
 
 /*!
