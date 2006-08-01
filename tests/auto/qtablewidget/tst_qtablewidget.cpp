@@ -38,13 +38,12 @@ public slots:
 private slots:
     void getSetCheck();
     void clear();
-#if QT_VERSION >= 0x040200
     void clearContents();
-#endif
     void rowCount();
     void columnCount();
-    void item();
     void itemAssignment();
+    void item_data();
+    void item();
     void takeItem_data();
     void takeItem();
     void selectedItems_data();
@@ -62,10 +61,8 @@ private slots:
     void itemOwnership();
     void sortItems_data();
     void sortItems();
-#if QT_VERSION >= 0x040200
     void setItemWithSorting_data();
     void setItemWithSorting();
-#endif
 
 private:
     QTableWidget *testWidget;
@@ -117,22 +114,16 @@ void tst_QTableWidget::getSetCheck()
     obj1.setItem(3,3, new QTableWidgetItem("3,3"));
     obj1.setCurrentItem(var3);
     QCOMPARE(var3, obj1.currentItem());
-#if QT_VERSION >= 0x040200
-    // Qt >= 4.2 should handle this gracefully
     obj1.setCurrentItem((QTableWidgetItem *)0);
     QCOMPARE((QTableWidgetItem *)0, obj1.currentItem());
-#endif
 
     // const QTableWidgetItem * QTableWidget::itemPrototype()
     // void QTableWidget::setItemPrototype(const QTableWidgetItem *)
     QTableWidgetItem *var4 = new QTableWidgetItem;
     obj1.setItemPrototype(var4);
     QCOMPARE(var4, obj1.itemPrototype());
-#if QT_VERSION >= 0x040200
-    // Qt >= 4.2 should handle this gracefully
     obj1.setItemPrototype((QTableWidgetItem *)0);
     QCOMPARE((QTableWidgetItem *)0, obj1.itemPrototype());
-#endif
 }
 
 tst_QTableWidget::tst_QTableWidget(): testWidget(0)
@@ -172,7 +163,6 @@ void tst_QTableWidget::cleanup()
 
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTableWidget::clearContents()
 {
     QTableWidgetItem *item = new QTableWidgetItem("test");
@@ -181,7 +171,6 @@ void tst_QTableWidget::clearContents()
     testWidget->clearContents();
     QVERIFY(testWidget->horizontalHeaderItem(0) == item);
 }
-#endif
 
 void tst_QTableWidget::clear()
 {
@@ -280,6 +269,16 @@ void tst_QTableWidget::itemAssignment()
     QVERIFY(itemOutsideWidget.flags() & Qt::ItemIsTristate);
 }
 
+void tst_QTableWidget::item_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<int>("column");
+
+    QTest::newRow("0x0") << 0 << 0;
+    QTest::newRow("4x4") << 4 << 4;
+}
 
 void tst_QTableWidget::item()
 {
@@ -288,19 +287,47 @@ void tst_QTableWidget::item()
 
 void tst_QTableWidget::takeItem_data()
 {
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("row");
     QTest::addColumn<int>("column");
+    QTest::addColumn<bool>("expectItem");
 
-    QTest::newRow("TopLeft") << 0 << 0;
-    QTest::newRow("BottomRight") << 4 << 4;
+    QTest::newRow("0x0 take [0,0]") << 0 << 0 << 0 << 0 << false;
+    QTest::newRow("0x0 take [4,4]") << 0 << 0 << 4 << 4 << false;
+    QTest::newRow("4x4 take [0,0]") << 4 << 4 << 0 << 0 << true;
+    QTest::newRow("4x4 take [4,4]") << 4 << 4 << 4 << 4 << false;
+    QTest::newRow("4x4 take [2,2]") << 4 << 4 << 2 << 2 << true;
 }
 
 void tst_QTableWidget::takeItem()
 {
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
     QFETCH(int, row);
     QFETCH(int, column);
+    QFETCH(bool, expectItem);
 
-    QSKIP("TODO: implement me", SkipAll);
+    testWidget->setRowCount(rowCount);
+    testWidget->setColumnCount(columnCount);
+    QCOMPARE(testWidget->rowCount(), rowCount);
+    QCOMPARE(testWidget->columnCount(), columnCount);
+
+    for (int r = 0; r < testWidget->rowCount(); ++r)
+        for (int c = 0; c < testWidget->columnCount(); ++c)
+            testWidget->setItem(r, c, new QTableWidgetItem(QString::number(r * c + c)));
+
+    for (int r = 0; r < testWidget->rowCount(); ++r)
+        for (int c = 0; c < testWidget->columnCount(); ++c)
+            QCOMPARE(testWidget->item(r, c)->text(), QString::number(r * c + c));
+
+    QTableWidgetItem *item = testWidget->takeItem(row, column);
+    QCOMPARE(!!item, expectItem);
+    if (expectItem) {
+        QCOMPARE(item->text(), QString::number(row * column + column));
+        delete item;
+    }
+    QVERIFY(!testWidget->takeItem(row, column));
 }
 
 void tst_QTableWidget::selectedItems_data()
@@ -394,7 +421,7 @@ void tst_QTableWidget::selectedItems_data()
             << IntPair(1,0) << IntPair(1,2)
             << IntPair(2,0) << IntPair(2,2));
 
-    QTest::newRow("3x3 none exists,  no hidden rows/columns, all selected")
+    QTest::newRow("3x3 none exists, no hidden rows/columns, all selected")
         << 3 << 3
         << IntIntList()
         << IntList()
