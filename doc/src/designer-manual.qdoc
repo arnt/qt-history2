@@ -25,6 +25,8 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Designing a Component with Qt Designer}
 \i \l{Qt Designer's Widget Editing Mode}
  \tableofcontents{1 Qt Designer's Widget Editing Mode}
+\i \l{Qt Designer's Palette Editor}
+ \tableofcontents{1 Qt Designer's Palette Editor}
 \i \l{Using Containers in Qt Designer}
  \tableofcontents{1 Using Containers in Qt Designer}
 \i \l{Creating Main Windows in Qt Designer}
@@ -111,9 +113,7 @@ statements in an appendix to the documentation.
 
 \list
 \i \l{Implementation of the Recursive Shadow Casting Algorithm in Qt Designer}
-\i \l{Contributions to the Following Qt Designer Files: treewalker.h,
-treedump.cpp, treedump.h, treewalker.cpp}\endlist
-
+\endlist
 */
 
 /*!
@@ -2092,6 +2092,18 @@ without having to write code themselves.
     widgets that should not be explicitly created by the user, but which are
     required by other widgets.
 
+    \section1 Plugin Requirements
+
+    In order for plugins to work correctly on all platforms, you need to ensure
+    that they export the symbols that are needed by \QD.
+
+    First of all, the plugin class must be exported in order for the plugin to
+    be loaded by \QD. Use the Q_EXPORT_PLUGIN2() macro to do this.
+
+    Additionally, each custom widget class in a plugin that you want to be
+    instantiated by \QD must be defined using the QDESIGNER_WIDGET_EXPORT
+    macro.
+
     \section1 Creating Well Behaved Widgets
 
     Some custom widgets have special user interface features that may make them
@@ -2403,27 +2415,5 @@ without having to write code themselves.
     files are provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
     WARRANTY OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
     PURPOSE.
-    \endlegalese
-*/
-
-/*!
-    \page designer-treewalker.html
-    \title Contributions to the Following Qt Designer Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp
-    \contentspage {Qt Designer Manual}{Contents}
-    \ingroup licensing
-    \legalese
-    Copyright (C) 2005-$THISYEAR$ $TROLLTECH$. All rights reserved. \BR
-    Copyright (C) 2005 Roberto Raggi
-
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, modify, market, reproduce,
-    grant sublicenses and distribute subject to the following
-    conditions:  The above copyright notice and this permission notice
-    shall be included in all copies or substantial portions of the
-    Software.  These files are provided AS IS with NO WARRANTY OF ANY
-    KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTIBILITY AND FITNESS
-    FOR A PARTICULAR PURPOSE.
     \endlegalese
 */
