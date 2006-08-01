@@ -48,8 +48,10 @@ public:
     QCoreApplication(int &argc, char **argv);
     ~QCoreApplication();
 
-    static int argc();
-    static char **argv();
+#ifdef QT_DEPRECATED
+    static int argc() QT_DEPRECATED;
+    static char **argv() QT_DEPRECATED;
+#endif
     static QStringList arguments();
 
     static void setOrganizationDomain(const QString &orgDomain);
