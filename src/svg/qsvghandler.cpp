@@ -1337,8 +1337,14 @@ static bool parseCSStoXMLAttrs(QString css,
             continue;
         if (decl.values.count() != 1)
             continue;
+        QCss::Value val = decl.values.first();
+        QString valueStr = val.variant.toString();
+        if (val.type == QCss::Value::Uri) {
+            valueStr.prepend(QLatin1String("url("));
+            valueStr.append(QLatin1Char(')'));
+        }
         attributes.append(decl.property, QString(),
-                          decl.property, decl.values.first().variant.toString());
+                          decl.property, valueStr);
     }
     return attributes.count();
 }
