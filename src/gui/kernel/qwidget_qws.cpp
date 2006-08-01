@@ -105,11 +105,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             flags |= Qt::WindowStaysOnTopHint;
     }
 
+    int sw = dpy->width();
+    int sh = dpy->height();
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
-        int sw = dpy->width();
-        int sh = dpy->height();
         data.crect.setRect(0, 0, sw, sh);
+    } else if (topLevel && !q->testAttribute(Qt::WA_Resized)) {
+        data.crect.setSize(QSize(sw/2, 4*sh/10));
     }
 
     if (window) {                                // override the old window

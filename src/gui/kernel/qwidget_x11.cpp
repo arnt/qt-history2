@@ -377,12 +377,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     Display *dpy = X11->display;
     int scr = xinfo.screen();
     Window root_win = RootWindow(dpy, scr);
+    int sw = DisplayWidth(dpy,scr);
+    int sh = DisplayHeight(dpy,scr);
 
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
-        int sw = DisplayWidth(dpy,scr);
-        int sh = DisplayHeight(dpy,scr);
         data.crect.setRect(0, 0, sw, sh);
+    } else if (topLevel && !q->testAttribute(Qt::WA_Resized)) {
+        data.crect.setSize(QSize(sw/2, 4*sh/10));
     }
 
     parentw = topLevel ? root_win : parentWidget->internalWinId();
