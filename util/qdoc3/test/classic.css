@@ -32,7 +32,17 @@ body
   color: black
 }
 
-pre
+table tr pre
+{
+  padding-top: none;
+  padding-bottom: none;
+  padding-left: none;
+  padding-right: none;
+  border: none;
+  background: none
+}
+
+body pre
 {
   padding-top: 0.2em;
   padding-bottom: 0.2em;
