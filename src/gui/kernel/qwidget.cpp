@@ -1438,9 +1438,9 @@ QRegion QWidgetPrivate::clipRegion() const
     return r;
 }
 
-void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset) const
+void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn, const QPoint &offset, int startIdx) const
 {
-    for (int i=0; i < children.size(); ++i) {
+    for (int i=startIdx; i < children.size(); ++i) {
         if (QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
             if (child->isVisible() && !child->isWindow()) {
                 QRegion childRgn = clipRgn & child->geometry().translated(offset);
@@ -1458,6 +1458,22 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRegion &clipRgn
             }
         }
     }
+}
+
+//subtract any relatives that are higher up than me --- is this too expensive ???
+
+void QWidgetPrivate::subtractOpaqueSiblings(QRegion &rgn, const QPoint &offset) const
+{
+    Q_Q(const QWidget);
+
+    if (q->isWindow())
+        return;
+
+    QPoint myOffset = offset - q->data->crect.topLeft();
+    const QWidgetPrivate *pd = q->parentWidget()->d_func();
+    pd->subtractOpaqueSiblings(rgn, myOffset);
+    int idx = pd->children.indexOf(const_cast<QWidget*>(q)) + 1; // argh, list<QObject*> is not compatible with const QObject*
+    pd->subtractOpaqueChildren(rgn, q->rect(), myOffset, idx);
 }
 
 bool QWidgetPrivate::hasBackground() const
@@ -1716,13 +1732,13 @@ void QWidget::setStyleSheet(const QString& styleSheet)
             if (qApp->styleSheet().isEmpty())
                 return; // no stylesheet here or on the app. what's the story?
             // will go down and set the right style
-        } else { 
+        } else {
             // we had a proxy before but now our stylesheet is empty. recheck if we need a proxy
             d->inheritStyle();
             return;
         }
     }
-    
+
     if (proxy) { // style sheet update
         proxy->repolish(this);
         return;
@@ -1833,14 +1849,14 @@ void QWidgetPrivate::inheritStyle()
     // now inherit the style from parent
     QStyle *origStyle = proxy ? proxy->base : (extra ? extra->style : 0);
 
-    if (!qApp->styleSheet().isEmpty() 
+    if (!qApp->styleSheet().isEmpty()
         || q->parentWidget() && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style())) {
         QStyle *newStyle = q->parentWidget() ? q->parentWidget()->style() : 0;
         if (q->testAttribute(Qt::WA_SetStyle))
             newStyle = new QStyleSheetStyle(origStyle);
         else if (QStyleSheetStyle *newProxy = qobject_cast<QStyleSheetStyle *>(newStyle))
             newProxy->ref();
-        
+
         setStyle_helper(newStyle, true);
         return;
     }

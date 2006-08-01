@@ -860,6 +860,9 @@ void QWidget::update(const QRegion& rgn)
     } else {
         if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
             QRegion wrgn(rgn);
+#if 0
+            d->subtractOpaqueSiblings(wrgn, QPoint());
+#endif
             d->subtractOpaqueChildren(wrgn, rect(), QPoint());
             bs->dirtyRegion(wrgn, this);
         }
