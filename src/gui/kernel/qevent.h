@@ -257,7 +257,7 @@ public:
     inline const QRegion &region() const { return m_region; }
 
 #ifdef QT3_SUPPORT
-    QT_COMPAT_CONSTRUCTOR QPaintEvent(const QRegion &paintRegion, const QRect &paintRect);
+    QT3_SUPPORT_CONSTRUCTOR QPaintEvent(const QRegion &paintRegion, const QRect &paintRect);
     inline QT3_SUPPORT bool erased() const { return m_erased; }
     inline QT3_SUPPORT void setErased(bool b) { m_erased = b; }
 #endif
