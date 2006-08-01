@@ -300,14 +300,15 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
 
 
 /*!
+    \fn int QTabWidget::insertTab(int index, QWidget *widget, const QString &label)
+
     Inserts another tab and page to the tab view.
 
-    The new page is \a w; the tab's label is \a label. Note the
-    difference between the widget name (which you supply to widget
-    constructors and to setTabEnabled(), for example) and the tab
-    label. The name is internal to the program and invariant, whereas
-    the label is shown on-screen and may vary according to language
-    and other factors.
+    The given \a widget is the new page, and the tab's label is
+    specified by \a label. Note the difference between the widget name
+    and the tab label: The name is internal to the program and
+    invariant, whereas the label is shown on-screen and may vary
+    according to language and other factors.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as a shortcut for the tab, e.g. if the
@@ -317,11 +318,10 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
     If \a index is out of range, the tab is simply appended.
     Otherwise it is inserted at the specified position.
 
-    If the QTabWidget was empty before this function is called,
-    \a w becomes the current page.
-
-    Inserting a new tab at an index less than or equal to the current index
-    will increment the current index, but keep the current page.
+    If the QTabWidget was empty before this function is called, the
+    new page becomes the current page. Inserting a new tab at an index
+    less than or equal to the current index will increment the current
+    index, but keep the current page.
 
     If you call insertTab() after show(), the screen will flicker and
     the user may be confused.
@@ -335,6 +335,7 @@ int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
 
 
 /*!
+    \fn int QTabWidget::insertTab(int index, QWidget *widget, const QIcon& icon, const QString &label)
     \overload
 
     Inserts another tab and page to the tab view.
