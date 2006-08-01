@@ -1173,10 +1173,6 @@ void tst_QTableWidget::setItemWithSorting()
         
         w.setSortingEnabled(true);
         w.sortItems(sortColumn, static_cast<Qt::SortOrder>(sortOrder));
-
-        for (int r = 0; r < rowCount; ++r)
-            for (int c = 0; c < columnCount; ++c)
-                qDebug() << "#" << w.item(r, c)->text();
         
         QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)));
         QSignalSpy layoutChangedSpy(model, SIGNAL(layoutChanged()));
@@ -1199,10 +1195,8 @@ void tst_QTableWidget::setItemWithSorting()
             }
         }
         
-        for (int k = 0; k < persistent.count(); ++k) {
-            qDebug() << ">>" << persistent.at(k).row();
-            //QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
-        }
+        for (int k = 0; k < persistent.count(); ++k)
+            QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
         
         if (i == 0)
             QCOMPARE(dataChangedSpy.count(), reorderingExpected ? 0 : 1);
