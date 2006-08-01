@@ -1662,11 +1662,11 @@ void QWidgetPrivate::show_sys()
             int movex = q->x(), movey = q->y();
             QRect r = q->frameGeometry();
             QRect avail = dsk->availableGeometry(dsk->screenNumber(q));
-                if(r.bottom() > avail.bottom())
-                    movey = avail.bottom() - r.height();
-                if(r.right() > avail.right())
-                    movex = avail.right() - r.width();
-                q->move(qMax(avail.left(), movex), qMax(avail.top(), movey));
+            if(r.bottom() > avail.bottom())
+                movey = avail.bottom() - r.height();
+            if(r.right() > avail.right())
+                movex = avail.right() - r.width();
+            q->setGeometry(qMax(avail.left(), movex), qMax(avail.top(), movey), q->width(), q->height());
         }
     }
     data.fstrut_dirty = true;
@@ -2098,6 +2098,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
 
         Rect r; SetRect(&r, x, y, x+w, y+h);
+        if(w == 829)
+            qDebug() << x << y << w << h;
         HIViewSetDrawingEnabled(qt_mac_hiview_for(q), false);
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
         HIViewSetDrawingEnabled(qt_mac_hiview_for(q), true);

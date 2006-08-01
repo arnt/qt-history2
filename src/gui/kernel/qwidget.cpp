@@ -1177,7 +1177,7 @@ void QWidgetPrivate::createTLExtra()
         QTLWExtra* x = extra->topextra = new QTLWExtra;
         x->windowSurface = 0;
         x->opacity = 255;
-        x->posFromMove = 0;
+        x->posFromMove = false;
         x->icon = 0;
         x->iconPixmap = 0;
         x->frameStrut.setCoords(0, 0, 0, 0);
