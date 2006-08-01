@@ -513,8 +513,23 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 
     Menu items may be removed with removeAction().
 
-    \image motif-menubar.png A menubar shown in the Motif widget style.
-    \image plastique-menubar.png A menubar shown in the Plastique widget style.
+    \section1 Platform Dependent Look and Feel
+
+    Different platforms have different requirements for the appearance
+    of menu bars and their behavior when the user interacts with them.
+    For example, Windows systems are often configured so that the
+    underlined character mnemonics that indicate keyboard shortcuts for
+    items in the menu bar are only shown when the \gui{Alt} key is
+    pressed.
+
+    \table
+    \row \o \inlineimage plastique-menubar.png A menubar shown in the Plastique widget style.
+    \o The \l{QPlastiqueStyle}{Plastique widget style}, like most other styles,
+    handles the \gui{Help} menu in the same way as it handles any other menu.
+    \row \o \inlineimage motif-menubar.png A menubar shown in the Motif widget style.
+    \o The \l{QMotifStyle}{Motif widget style} treats \gui{Help} menus in a
+    special way, placing them at right-hand end of the menu bar.
+    \endtable
 
     \section1 QMenuBar on Qt/Mac
 
@@ -548,8 +563,15 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 
     You can override this behavior by using the QAction::menuRole() property.
 
-    The \l{mainwindows/menus}{Menus} example shows how to use
-    QMenuBar and QMenu.
+    \bold{Note:} The text used for the application name in the menu bar is
+    obtained from the value set in the \c{Info.plist} file in the application's
+    bundle. See \l{Deploying an Application on Qt/Mac} for more information.
+
+    \section1 Examples
+
+    The \l{mainwindows/menus}{Menus} example shows how to use QMenuBar and QMenu.
+    The other \l{Qt Examples#Main Window Examples}{main window application examples}
+    also provide menus using these classes.
 
     \sa QMenu, QShortcut, QAction,
         {http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/index.html}{Introduction to Apple Human Interface Guidelines},
