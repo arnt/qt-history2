@@ -6958,11 +6958,8 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
         d->inheritStyle();
 
-        if (wasCreated) {
-            QEvent e(QEvent::ParentChange);
-            QApplication::sendEvent(this, &e);
-        }
-
+        QEvent e(QEvent::ParentChange);
+        QApplication::sendEvent(this, &e);
 
 //### ????
         setAttribute(Qt::WA_PendingMoveEvent);
