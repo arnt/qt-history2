@@ -57,6 +57,7 @@ public Q_SLOTS:
     bool load(const QString &filename);
     bool load(const QByteArray &contents);
     void render(QPainter *p);
+    void render(QPainter *p, const QString &elementId);
 
 Q_SIGNALS:
     void repaintNeeded();

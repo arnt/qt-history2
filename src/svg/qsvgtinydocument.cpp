@@ -19,6 +19,8 @@
 #include "qxml.h"
 #include "qfile.h"
 #include "qbytearray.h"
+#include "qqueue.h"
+#include "qstack.h"
 #include "qdebug.h"
 
 QSvgTinyDocument::QSvgTinyDocument()
@@ -94,6 +96,63 @@ void QSvgTinyDocument::draw(QPainter *p)
     }
     revertStyle(p);
 }
+
+
+void QSvgTinyDocument::draw(QPainter *p, const QString &id)
+{
+    QSvgNode *node = scopeNode(id);
+
+    if (!node) {
+        qDebug("Couldn't find node %s. Skipping rendering.", qPrintable(id));
+        return;
+    }
+
+    QRectF bounds = node->bounds();
+    
+    QPointF topLeft;
+    QRect vb = m_viewBox;
+    if (!m_viewBox.isEmpty()) {
+        topLeft = m_viewBox.topLeft();
+        vb.setSize(bounds.size().toSize());
+        p->setWindow(vb);
+    } else {
+        if (!vb.size().isEmpty())
+            p->setWindow(0, 0, vb.width(), vb.height());
+        else
+            p->setWindow(0, 0, 100, 100);//XXX bogus!!
+        topLeft = QPointF(0, 0);
+    }
+    
+    //XXX set default style on the painter
+    p->setPen(Qt::NoPen);
+    p->setBrush(Qt::black);
+    p->setRenderHint(QPainter::Antialiasing);
+    p->setRenderHint(QPainter::SmoothPixmapTransform);
+
+    QStack<QSvgNode*> parentApplyStack;
+    QQueue<QSvgNode*> parentRevertQueue;
+    QSvgNode *parent = node->parent();
+    while (parent) {
+        parentApplyStack.push(parent);
+        parentRevertQueue.enqueue(parent);
+        parent = parent->parent();
+    }
+
+    foreach(QSvgNode *parent, parentApplyStack) {
+        parent->applyStyle(p);
+    }
+
+    //qDebug()<<"topLeft1 = "<<topLeft<<", topLeft2 = "<<node->bounds().topLeft();
+    p->translate(-(bounds.topLeft()-topLeft));
+    //qDebug()<<"node bounds = "<<bounds;
+    node->draw(p);
+    p->translate(bounds.topLeft()-topLeft);
+    
+    foreach(QSvgNode *parent, parentApplyStack) {
+        parent->revertStyle(p);
+    }
+}
+
 
 QSvgNode::Type QSvgTinyDocument::type() const
 {

@@ -62,6 +62,7 @@ public:
     void setViewBox(const QRect &rect);
 
     void draw(QPainter *p);
+    void draw(QPainter *p, const QString &id);
 
     void addSvgFont(QSvgFont *);
     QSvgFont *svgFont(const QString &family) const;

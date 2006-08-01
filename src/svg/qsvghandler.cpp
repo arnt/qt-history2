@@ -2314,11 +2314,12 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
     Q_UNUSED(parent); Q_UNUSED(attributes);
 
     QString baseProfile = attributes.value(QLatin1String("baseProfile"));
-
+#if 0
     if (baseProfile.isEmpty() && baseProfile != QLatin1String("tiny")) {
         qWarning("Profile is %s while we only support tiny!",
                  qPrintable(baseProfile));
     }
+#endif
 
     QSvgTinyDocument *node = new QSvgTinyDocument();
     QString widthStr  = attributes.value(QLatin1String("width"));

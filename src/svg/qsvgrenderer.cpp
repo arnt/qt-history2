@@ -312,4 +312,15 @@ void QSvgRenderer::render(QPainter *p)
     needs to be updated, usually for the purposes of animation.
 */
 
+/*!
+    Renders the given element with \a elementId using the given \a painter.
+*/
+void QSvgRenderer::render(QPainter *p, const QString &elementId)
+{
+    Q_D(QSvgRenderer);
+    if (d->render) {
+        d->render->draw(p, elementId);
+    }
+}
+
 #include "moc_qsvgrenderer.cpp"

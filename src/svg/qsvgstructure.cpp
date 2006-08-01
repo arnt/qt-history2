@@ -64,7 +64,7 @@ QSvgNode * QSvgStructureNode::scopeNode(const QString &id) const
     return 0;
 }
 
-void QSvgStructureNode::addChild(QSvgNode *child, const QString &id, bool def )
+void QSvgStructureNode::addChild(QSvgNode *child, const QString &id, bool def)
 {
     if (!def)
         m_renderers.append(child);
@@ -226,4 +226,15 @@ void QSvgSwitch::init()
     m_systemLanguage = locale.name().replace(QLatin1Char('_'), QLatin1Char('-'));
     int idx = m_systemLanguage.indexOf(QLatin1Char('-'));
     m_systemLanguagePrefix = m_systemLanguage.mid(0, idx);
+}
+
+QRectF QSvgStructureNode::bounds() const
+{
+    if (m_bounds.isEmpty()) {
+        foreach(QSvgNode *node, m_renderers) {
+            m_bounds |= node->bounds();
+        }
+    }
+        
+    return m_bounds;
 }
