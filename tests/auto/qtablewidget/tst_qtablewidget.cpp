@@ -275,14 +275,40 @@ void tst_QTableWidget::item_data()
     QTest::addColumn<int>("columnCount");
     QTest::addColumn<int>("row");
     QTest::addColumn<int>("column");
+    QTest::addColumn<bool>("expectItem");
 
-    QTest::newRow("0x0") << 0 << 0;
-    QTest::newRow("4x4") << 4 << 4;
+    QTest::newRow("0x0 take [0,0]") << 0 << 0 << 0 << 0 << false;
+    QTest::newRow("0x0 take [4,4]") << 0 << 0 << 4 << 4 << false;
+    QTest::newRow("4x4 take [0,0]") << 4 << 4 << 0 << 0 << true;
+    QTest::newRow("4x4 take [4,4]") << 4 << 4 << 4 << 4 << false;
+    QTest::newRow("4x4 take [2,2]") << 4 << 4 << 2 << 2 << true;
 }
 
 void tst_QTableWidget::item()
 {
-    QSKIP("TODO: implement me", SkipAll);
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, row);
+    QFETCH(int, column);
+    QFETCH(bool, expectItem);
+
+    testWidget->setRowCount(rowCount);
+    testWidget->setColumnCount(columnCount);
+    QCOMPARE(testWidget->rowCount(), rowCount);
+    QCOMPARE(testWidget->columnCount(), columnCount);
+
+    for (int r = 0; r < testWidget->rowCount(); ++r)
+        for (int c = 0; c < testWidget->columnCount(); ++c)
+            testWidget->setItem(r, c, new QTableWidgetItem(QString::number(r * c + c)));
+
+    for (int r = 0; r < testWidget->rowCount(); ++r)
+        for (int c = 0; c < testWidget->columnCount(); ++c)
+            QCOMPARE(testWidget->item(r, c)->text(), QString::number(r * c + c));
+
+    QTableWidgetItem *item = testWidget->item(row, column);
+    QCOMPARE(!!item, expectItem);
+    if (expectItem)
+        QCOMPARE(item->text(), QString::number(row * column + column));
 }
 
 void tst_QTableWidget::takeItem_data()
