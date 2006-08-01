@@ -106,7 +106,7 @@ QWidget *QWSInputContext::activeWidget()
 
 bool QWSInputContext::isComposing() const
 {
-    return activeWidget != 0;
+    return ::activeWidget != 0;
 }
 
 bool QWSInputContext::translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e)
