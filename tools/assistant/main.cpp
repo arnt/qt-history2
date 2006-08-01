@@ -29,6 +29,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if defined(USE_STATIC_JPEG_PLUGIN)
+  #include <QtPlugin>
+  Q_IMPORT_PLUGIN(qjpeg)
+#endif
+
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf(stderr, "%s\n", text); return 1; }
 
 class AssistantSocket : public QTcpSocket

@@ -67,3 +67,17 @@ TRANSLATIONS        = assistant_de.ts \
 
 
 unix:!contains(QT_CONFIG, zlib):LIBS += -lz
+
+contains(CONFIG, static): {
+    win32 {
+        exists($$[QT_INSTALL_PLUGINS]/imageformats/qjpeg.lib) {
+            QTPLUGIN += qjpeg
+            DEFINES += USE_STATIC_JPEG_PLUGIN            
+        }
+    } else {
+        exists($$[QT_INSTALL_PLUGINS]/imageformats/qjpeg.a) {
+            QTPLUGIN += qjpeg
+            DEFINES += USE_STATIC_JPEG_PLUGIN            
+        }        
+    }
+}
