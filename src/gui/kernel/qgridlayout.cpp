@@ -347,6 +347,8 @@ void QGridLayoutPrivate::setSize(int r, int c)
         for (int i = rr; i < newR; i++) {
             rowData[i].init();
             rowData[i].maximumSize = 0;
+            rowData[i].pos = 0;
+            rowData[i].size = 0;
             rStretch[i] = 0;
             rSpacing[i] = 0;
         }
@@ -359,6 +361,8 @@ void QGridLayoutPrivate::setSize(int r, int c)
         for (int i = cc; i < newC; i++) {
             colData[i].init();
             colData[i].maximumSize = 0;
+            colData[i].pos = 0;
+            colData[i].size = 0;
             cStretch[i] = 0;
             cSpacing[i] = 0;
         }
@@ -712,7 +716,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
         return QRect();
 
     const QVector<QLayoutStruct> *rDataPtr;
-    if (has_hfw)
+    if (has_hfw && hfwData)
         rDataPtr = hfwData;
     else
         rDataPtr = &rowData;
