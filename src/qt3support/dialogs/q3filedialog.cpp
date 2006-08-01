@@ -5145,33 +5145,34 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
 
         HICON si;
         UINT res = 0;
-        QString filepath = lst[0].stripWhiteSpace();
-        if (!filepath.isEmpty()) {
-            if (filepath.find("%1") != -1) {
-                filepath = filepath.arg(fi.filePath());
-                if (ext.toLower() == ".dll") {
-                    pix = defaultFile;
-                    return &pix;
+        if (lst.count() >= 2) { // don't just assume that lst has two entries
+            QString filepath = lst[0].stripWhiteSpace();
+            if (!filepath.isEmpty()) {
+                if (filepath.find("%1") != -1) {
+                    filepath = filepath.arg(fi.filePath());
+                    if (ext.toLower() == ".dll") {
+                        pix = defaultFile;
+                        return &pix;
+                    }
                 }
-            }
-            if (filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"')
-                filepath = filepath.mid(1, filepath.length()-2);
-
-            resolveLibs();
+                if (filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"')
+                    filepath = filepath.mid(1, filepath.length()-2);
+                
+                resolveLibs();
 #ifndef Q_OS_TEMP
-            QT_WA({
-                res = ptrExtractIconEx((TCHAR*)filepath.ucs2(), lst[1].stripWhiteSpace().toInt(),
-                                      0, &si, 1);
-            } , {
-                res = ExtractIconExA(filepath.local8Bit(), lst[1].stripWhiteSpace().toInt(),
-                                      0, &si, 1);
-            });
+                QT_WA({
+                    res = ptrExtractIconEx((TCHAR*)filepath.ucs2(), lst[1].stripWhiteSpace().toInt(),
+                        0, &si, 1);
+                } , {
+                    res = ExtractIconExA(filepath.local8Bit(), lst[1].stripWhiteSpace().toInt(),
+                        0, &si, 1);
+                });
 #else
                 res = (UINT)ExtractIconEx((TCHAR*)filepath.ucs2(), lst[1].stripWhiteSpace().toInt(),
-                                            0, &si, 1);
+                    0, &si, 1);
 #endif
+            }
         }
-
         if (res) {
             pix = fromHICON(si);
             pix.setMask(pix.createHeuristicMask());
@@ -5179,7 +5180,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         } else {
             pix = defaultFile;
         }
-
+        
         cache[key] = pix;
         return &pix;
     } else {
