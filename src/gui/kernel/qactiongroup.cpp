@@ -78,10 +78,6 @@ void QActionGroupPrivate::_q_actionHovered()
     way of achieving this is to group the actions together in an
     action group.
 
-    An action group can also be added to a menu or a toolbar as a
-    single unit, with all the actions within the action group
-    appearing as separate menu options or toolbar buttons.
-
     Here's a example (from the \l{mainwindows/menus}{Menus} example):
 
     \quotefile mainwindows/menus/mainwindow.cpp
