@@ -1704,16 +1704,6 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
         cursorOn = (interactionFlags & Qt::TextSelectableByKeyboard);
         if (interactionFlags & Qt::TextEditable) {
             setBlinkingCursorEnabled(true);
-#ifdef QT_KEYPAD_NAVIGATION
-            if (QApplication::keypadNavigationEnabled()) {
-                if (e->reason() == Qt::TabFocusReason) {
-                    cursor.movePosition(QTextCursor::Start);
-                } else if (e->reason() == Qt::BacktabFocusReason) {
-                    cursor.movePosition(QTextCursor::End);
-                    cursor.movePosition(QTextCursor::StartOfLine);
-                }
-            }
-#endif
         }
     } else {
         setBlinkingCursorEnabled(false);
