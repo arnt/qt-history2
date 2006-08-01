@@ -172,7 +172,7 @@ struct QGradientBrushData : public QBrushData
     when the current style is Qt::TexturePattern.
 
     Note that applying setTexture() makes style() ==
-    Qt::TexturePattern, independently of previous style
+    Qt::TexturePattern, regardless of previous style
     settings. Also, calling setColor() will not make a difference if
     the style is a gradient. The same is the case if the style is
     Qt::TexturePattern style unless the current texture is a QBitmap.
@@ -213,7 +213,7 @@ struct QGradientBrushData : public QBrushData
 
     \endtable
 
-    For more information about painting in general, see {The Paint
+    For more information about painting in general, see \l{The Paint
     System} documentation.
 
     \sa Qt::BrushStyle, QPainter, QColor
