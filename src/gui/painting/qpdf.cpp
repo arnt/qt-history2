@@ -1057,9 +1057,25 @@ QPdfBaseEnginePrivate::QPdfBaseEnginePrivate()
 {
     postscript = false;
     currentObject = 1;
+    currentPage = 0;
+    stroker.stream = 0;
+}
+
+void QPdfBaseEnginePrivate::begin()
+{
+    postscript = false;
+    currentObject = 1;
 
     currentPage = new QPdfPage;
     stroker.stream = currentPage;
+}
+
+void QPdfBaseEnginePrivate::end()
+{
+    qDeleteAll(fonts);
+    fonts.clear();
+    delete currentPage;
+    currentPage = 0;
 }
 
 QPdfBaseEnginePrivate::~QPdfBaseEnginePrivate()

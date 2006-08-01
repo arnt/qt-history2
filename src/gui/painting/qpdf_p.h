@@ -153,6 +153,9 @@ public:
     QPdfBaseEnginePrivate();
     ~QPdfBaseEnginePrivate();
 
+    virtual void begin();
+    virtual void end();
+
     void drawTextItem(const QPointF &p, const QTextItemInt &ti);
     inline uint requestObject() { return currentObject++; }
 

@@ -110,10 +110,11 @@ public:
     void newPage();
     void setDimensions(int w, int h){width_ = w; height_ = h;}
 
+    void begin();
+    void end();
+
     QString title, creator, author;
 
-    void setDevice(QIODevice*);
-    void unsetDevice();
     int width() const {return width_;}
     int height() const {return height_;}
 
@@ -128,7 +129,7 @@ public:
     int addBrushPattern(const QMatrix &matrix, bool *specifyColor, int *gStateObject);
 
     QMatrix pageMatrix() const;
-    
+
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
 

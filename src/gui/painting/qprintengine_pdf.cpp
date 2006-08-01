@@ -236,13 +236,11 @@ bool QPdfEngine::begin(QPaintDevice *)
         return false;
     }
 
-    d->hasPen = true;
-    d->hasBrush = false;
-    d->clipEnabled = false;
-    d->allClipped = false;
+    d->stream->unsetDevice();
+    d->stream->setDevice(device_);
 
-    d->unsetDevice();
-    d->setDevice(device_);
+    d->begin();
+
     setActive(true);
     state = QPrinter::Active;
     d->writeHeader();
@@ -257,7 +255,8 @@ bool QPdfEngine::end()
     d->writeTail();
 
     device_->close();
-    d->unsetDevice();
+    d->stream->unsetDevice();
+    d->end();
     setActive(false);
     state = QPrinter::Idle;
     return true;
@@ -437,6 +436,33 @@ QPdfEnginePrivate::~QPdfEnginePrivate()
 {
     delete stream;
 }
+
+void QPdfEnginePrivate::begin()
+{
+    QPdfBaseEnginePrivate::begin();
+
+    streampos = 0;
+    hasPen = true;
+    hasBrush = false;
+    clipEnabled = false;
+    allClipped = false;
+
+    xrefPositions.clear();
+    pageRoot = 0;
+    catalog = 0;
+    info = 0;
+    graphicsState = 0;
+    patternColorSpace = 0;
+
+    pages.clear();
+    imageCache.clear();
+}
+
+void QPdfEnginePrivate::end()
+{
+    QPdfBaseEnginePrivate::end();
+}
+
 
 #ifdef USE_NATIVE_GRADIENTS
 int QPdfEnginePrivate::gradientBrush(const QBrush &b, const QMatrix &matrix, int *gStateObject)
@@ -787,18 +813,6 @@ int QPdfEnginePrivate::writeCompressed(const char *src, int len)
     }
     streampos += len;
     return len;
-}
-
-
-void QPdfEnginePrivate::setDevice(QIODevice* device)
-{
-    stream->setDevice(device);
-    streampos = 0;
-}
-
-void QPdfEnginePrivate::unsetDevice()
-{
-    stream->unsetDevice();
 }
 
 int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height, int depth,
