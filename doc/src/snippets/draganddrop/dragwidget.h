@@ -24,7 +24,7 @@ signals:
     void mimeTypes(const QStringList &types);
 
 protected:
-    void dragMoveEvent(QDragMoveEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);

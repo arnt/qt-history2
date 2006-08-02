@@ -18,7 +18,7 @@ DragWidget::DragWidget(QWidget *parent)
 }
 
 // Accept all actions, but deal with them separately later.
-void DragWidget::dragMoveEvent(QDragMoveEvent *event)
+void DragWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     event->acceptProposedAction();
 }
@@ -28,11 +28,11 @@ void DragWidget::dropEvent(QDropEvent *event)
     if (event->source() == this && event->possibleActions() & Qt::MoveAction)
         return;
 
-    if (event->possibleActions() == Qt::MoveAction) {
+    if (event->proposedAction() == Qt::MoveAction) {
         event->acceptProposedAction();
         // Process the data from the event.
         emit dragResult(tr("The data was moved here."));
-    } else if (event->possibleActions() == Qt::CopyAction) {
+    } else if (event->proposedAction() == Qt::CopyAction) {
         event->acceptProposedAction();
         // Process the data from the event.
         emit dragResult(tr("The data was copied here."));
