@@ -697,9 +697,9 @@ QFileInfo::isRelative() const
 
 
 /*!
-    Converts the file's path to an absolute path.
-
-    If it is already absolute, nothing is done.
+    Converts the file's path to an absolute path if it is not already in that form.
+    Returns true to indicate that the path was converted; otherwise returns false
+    to indicate that the path was already absolute.
 
     \sa filePath(), isRelative()
 */
