@@ -1883,6 +1883,8 @@ bool QMetaProperty::isUser(const QObject *object) const
 }
 
 /*!
+    \internal
+
     Returns true if the property is editable for the given \a object;
     otherwise returns false.
 
