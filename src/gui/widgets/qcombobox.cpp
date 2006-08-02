@@ -250,10 +250,6 @@ void QComboBoxPrivateContainer::updateScrollers()
     if (!top || !bottom)
         return;
 
-    // Don't update while the popup is hidden - it might not have the correct geometry.
-    if (isHidden())
-        return;
-
     QStyleOptionComboBox opt = comboStyleOption();
     if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo) &&
         view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
@@ -1867,20 +1863,25 @@ void QComboBox::showPopup()
     }
 
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
-        listRect.moveTopLeft(above);
-        QRect currentItemRect = view()->visualRect(view()->currentIndex());
-        if (listRect.height() < screen.height()) {
-            listRect.moveTop(listRect.top() - currentItemRect.top());
-        } else {
-            if ((listRect.top() - currentItemRect.top()) < screen.top()) {
-                listRect.setTop(screen.top());
-                int valueToScroll = itemHeight * view()->currentIndex().row() - aboveHeight + 3;
-                view()->verticalScrollBar()->setValue(valueToScroll);
-            } else {
-                listRect.moveTop(listRect.top() - currentItemRect.top());
-            }
-            listRect.setBottom(qMin(listRect.bottom(), screen.bottom()));
-        }
+
+        // Position horizontaly.
+        listRect.moveLeft(above.x());
+        
+        // Position vertically so the curently selected item lines up
+        // with the combo box.
+        const QRect currentItemRect = view()->visualRect(view()->currentIndex());
+        const int offset = listRect.top() -  currentItemRect.top();
+        listRect.moveTop(above.y() + offset);
+
+        // Clamp the listRect geometry so we don't expand outside the available screen geometry.
+        // This may override the vertical position, but it is more important to show as much
+        // as possible of the popup.
+        const int height = qMin(listRect.height(), screen.height());
+        listRect.setHeight(height);
+        if (listRect.top() < screen.top())
+            listRect.moveTop(screen.top());
+        if (listRect.bottom() > screen.bottom())
+            listRect.moveBottom(screen.bottom());
     } else if (listRect.height() <= belowHeight) {
         listRect.moveTopLeft(below);
     } else if (listRect.height() <= aboveHeight) {
@@ -1905,7 +1906,12 @@ void QComboBox::showPopup()
         listRect.adjust(0, 0, 0, sb->height());
     }
     container->setGeometry(listRect);
-    view()->scrollTo(view()->currentIndex());
+
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+        view()->scrollTo(view()->currentIndex(), QAbstractItemView::PositionAtCenter);
+    else 
+        view()->scrollTo(view()->currentIndex(), QAbstractItemView::EnsureVisible);
+
     container->raise();
     container->show();
     view()->setFocus();
