@@ -1097,12 +1097,10 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \section1 A Note on GUI Types
 
     Because QVariant is part of the QtCore library, it cannot provide
-    conversion functions to data types such as QColor, QImage, and
-    QPixmap, which are part of QtGui. In other words, there is no
-    \c toColor() function.
-
-    Instead, you can use the QVariant::value() or the qVariantValue()
-    template function. For example:
+    conversion functions to data types defined in QtGui, such as
+    QColor, QImage, and QPixmap. In other words, there is no \c
+    toColor() function. Instead, you can use the QVariant::value() or
+    the qVariantValue() template function. For example:
 
     \code
         QVariant variant;
