@@ -330,12 +330,53 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     heuristicSetGlyphAttributes(item, item->string->unicode() + item->from, item->length);
 }
 
+enum {
+    CcmpProperty = 0x1
+};
+
+#ifndef QT_NO_OPENTYPE
+static const QOpenType::Features basic_features[] = {
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { FT_MAKE_TAG('l', 'i', 'g', 'a'), CcmpProperty },
+    { FT_MAKE_TAG('c', 'l', 'i', 'g'), CcmpProperty },
+    {0, 0}
+};
+#endif
+
 static bool basic_shape(QShaperItem *item)
 {
-    if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-        return false;
 
+#ifndef QT_NO_OPENTYPE
+    const int availableGlyphs = item->num_glyphs;
+#endif
+
+    if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length,
+                                  item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+        return false;
     heuristicSetGlyphAttributes(item);
+
+#ifndef QT_NO_OPENTYPE
+    QOpenType *openType = item->font->openType();
+    if (!openType && item->font->type() == QFontEngine::Multi) {
+        openType = static_cast<QFontEngineMulti *>(item->font)->engine(0)->openType();
+        if (openType) {
+            for (int i = 0; i < item->num_glyphs; ++i) {
+                if (item->glyphs[i].glyph & 0xff000000) {
+                    openType = 0;
+                    break;
+                }
+            }
+        }
+    }
+    if (openType && openType->supportsScript(item->script)) {
+        openType->selectScript(item->script, basic_features);
+
+        openType->shape(item);
+        return openType->positionAndAdd(item, availableGlyphs);
+    }
+
+#endif
+
     qt_heuristicPosition(item);
     return true;
 }
@@ -348,9 +389,6 @@ static bool basic_shape(QShaperItem *item)
 
 // Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
 // ligatures one does not want in modern Hebrew (as lam-alef ligatures).
-enum {
-    CcmpProperty = 0x1
-};
 #ifndef QT_NO_OPENTYPE
 static const QOpenType::Features hebrew_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
@@ -5118,6 +5156,12 @@ static void hangul_attributes(int script, const QString &text, int from, int len
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { basic_shape, 0},
+    // Greek
+    { basic_shape, 0},
+    // Cyrillic
+    { basic_shape, 0},
+    // Armenian
+    { basic_shape, 0},
     // Hebrew
     { hebrew_shape, 0 },
     // Arabic
@@ -5154,8 +5198,14 @@ const q_scriptEngine qt_scriptEngines[] = {
     { tibetan_shape, tibetan_attributes },
     // Myanmar
     { myanmar_shape, myanmar_attributes },
+    // Georgian
+    { basic_shape, 0 },
     // Hangul
     { hangul_shape, hangul_attributes },
+    // Ogham
+    { basic_shape, 0 },
+    // Runic
+    { basic_shape, 0 },
     // Khmer
     { khmer_shape, khmer_attributes }
 };
@@ -5164,6 +5214,12 @@ const q_scriptEngine qt_scriptEngines[] = {
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { basic_shape, 0 },
+    // Greek
+    { basic_shape, 0},
+    // Cyrillic
+    { basic_shape, 0},
+    // Armenian
+    { basic_shape, 0},
     // Hebrew
     { hebrew_shape, 0 },
     // Arabic
@@ -5200,7 +5256,13 @@ const q_scriptEngine qt_scriptEngines[] = {
     { basic_shape, 0 },
     // Myanmar
     { basic_shape, 0 },
+    // Georgian
+    { basic_shape, 0 },
     // Hangul
+    { basic_shape, 0 },
+    // Ogham
+    { basic_shape, 0 },
+    // Runic
     { basic_shape, 0 },
     // Khmer
     { basic_shape, 0 }
@@ -5252,6 +5314,12 @@ static bool mac_arabic_shape(QShaperItem *item)
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { mac_shape, 0 },
+    // Greek
+    { mac_shape, 0},
+    // Cyrillic
+    { mac_shape, 0},
+    // Armenian
+    { mac_shape, 0},
     // Hebrew
     { mac_shape, 0 },
     // Arabic
@@ -5288,8 +5356,14 @@ const q_scriptEngine qt_scriptEngines[] = {
     { mac_shape, tibetan_attributes },
     // Myanmar
     { mac_shape, 0 },
+    // Georgian
+    { mac_shape, 0 },
     // Hangul
     { mac_shape, hangul_attributes },
+    // Ogham
+    { mac_shape, 0 },
+    // Runic
+    { mac_shape, 0 },
     // Khmer
     { mac_shape, khmer_attributes }
 };

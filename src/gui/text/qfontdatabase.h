@@ -74,6 +74,9 @@ public:
         Symbol,
         Other = Symbol,
 
+        Ogham,
+        Runic,
+
         WritingSystemsCount
     };
 

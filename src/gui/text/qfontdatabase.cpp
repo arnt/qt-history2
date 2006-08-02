@@ -532,7 +532,9 @@ static const int scriptForWritingSystem[] = {
     QUnicodeTables::Common, // Limbu
     QUnicodeTables::Common, // TaiLe
     QUnicodeTables::Common, // Braille
-    QUnicodeTables::Common  // Symbol
+    QUnicodeTables::Common, // Symbol
+    QUnicodeTables::Ogham,  // Ogham
+    QUnicodeTables::Runic // Runic
 };
 
 
@@ -1384,6 +1386,8 @@ QFontDatabase::QFontDatabase()
     \value Korean
     \value Vietnamese
     \value Symbol
+    \value Ogham
+    \value Runic
 
     \omitvalue WritingSystemsCount
 */
@@ -2026,6 +2030,12 @@ QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
     case Symbol:
         name = "Symbol";
         break;
+    case Ogham:
+        name = "Ogham";
+        break;
+    case Runic:
+        name = "Runic";
+        break;
     default:
         Q_ASSERT_X(false, "QFontDatabase::writingSystemName", "invalid 'writingSystem' parameter");
         break;
@@ -2217,6 +2227,18 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
         sample += QChar(0xac2f);
         break;
     case Vietnamese:
+        break;
+    case Ogham:
+        sample += QChar(0x1681);
+        sample += QChar(0x1682);
+        sample += QChar(0x1683);
+        sample += QChar(0x1684);
+        break;
+    case Runic:
+        sample += QChar(0x16a0);
+        sample += QChar(0x16a1);
+        sample += QChar(0x16a2);
+        sample += QChar(0x16a3);
         break;
     default:
         break;

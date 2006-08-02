@@ -7028,18 +7028,18 @@ static const unsigned char uc_scripts[] = {
     Latin, /* U+0200-027f */
     Latin, /* U+0280-02ff */
     32, /* U+0300-037f at offset 512 */
-    Greek, /* U+0380-03ff */
+    33, /* U+0380-03ff at offset 640 */
     Cyrillic, /* U+0400-047f */
     Cyrillic, /* U+0480-04ff */
-    Cyrillic, /* U+0500-057f */
-    33, /* U+0580-05ff at offset 640 */
+    34, /* U+0500-057f at offset 768 */
+    35, /* U+0580-05ff at offset 896 */
     Arabic, /* U+0600-067f */
     Arabic, /* U+0680-06ff */
-    34, /* U+0700-077f at offset 768 */
-    35, /* U+0780-07ff at offset 896 */
+    36, /* U+0700-077f at offset 1024 */
+    37, /* U+0780-07ff at offset 1152 */
     Common, /* U+0800-087f */
     Common, /* U+0880-08ff */
-    36, /* U+0900-097f at offset 1024 */
+    38, /* U+0900-097f at offset 1280 */
     Bengali, /* U+0980-09ff */
     Gurmukhi, /* U+0a00-0a7f */
     Gujarati, /* U+0a80-0aff */
@@ -7049,12 +7049,12 @@ static const unsigned char uc_scripts[] = {
     Kannada, /* U+0c80-0cff */
     Malayalam, /* U+0d00-0d7f */
     Sinhala, /* U+0d80-0dff */
-    37, /* U+0e00-0e7f at offset 1152 */
+    39, /* U+0e00-0e7f at offset 1408 */
     Lao, /* U+0e80-0eff */
     Tibetan, /* U+0f00-0f7f */
     Tibetan, /* U+0f80-0fff */
     Myanmar, /* U+1000-107f */
-    38, /* U+1080-10ff at offset 1280 */
+    40, /* U+1080-10ff at offset 1536 */
     Hangul, /* U+1100-117f */
     Hangul, /* U+1180-11ff */
     Ethiopic, /* U+1200-127f */
@@ -7066,28 +7066,28 @@ static const unsigned char uc_scripts[] = {
     CanadianAboriginal, /* U+1500-157f */
     CanadianAboriginal, /* U+1580-15ff */
     CanadianAboriginal, /* U+1600-167f */
-    Ogham, /* U+1680-16ff */
+    41, /* U+1680-16ff at offset 1664 */
     Tagalog, /* U+1700-177f */
     Khmer, /* U+1780-17ff */
     Mongolian, /* U+1800-187f */
     Mongolian, /* U+1880-18ff */
     Limbu, /* U+1900-197f */
-    39, /* U+1980-19ff at offset 1408 */
+    42, /* U+1980-19ff at offset 1792 */
     Common, /* U+1a00-1a7f */
     Common, /* U+1a80-1aff */
     Common, /* U+1b00-1b7f */
     Common, /* U+1b80-1bff */
     Common, /* U+1c00-1c7f */
     Common, /* U+1c80-1cff */
-    Latin, /* U+1d00-1d7f */
+    43, /* U+1d00-1d7f at offset 1920 */
     Common, /* U+1d80-1dff */
     Latin, /* U+1e00-1e7f */
     Latin, /* U+1e80-1eff */
     Greek, /* U+1f00-1f7f */
     Greek, /* U+1f80-1fff */
-    40, /* U+2000-207f at offset 1536 */
-    41, /* U+2080-20ff at offset 1664 */
-    Common, /* U+2100-217f */
+    44, /* U+2000-207f at offset 2048 */
+    45, /* U+2080-20ff at offset 2176 */
+    46, /* U+2100-217f at offset 2304 */
     Common, /* U+2180-21ff */
     Common, /* U+2200-227f */
     Common, /* U+2280-22ff */
@@ -7117,11 +7117,11 @@ static const unsigned char uc_scripts[] = {
     Han, /* U+2e80-2eff */
     Han, /* U+2f00-2f7f */
     Han, /* U+2f80-2fff */
-    42, /* U+3000-307f at offset 1792 */
-    43, /* U+3080-30ff at offset 1920 */
-    44, /* U+3100-317f at offset 2048 */
-    45, /* U+3180-31ff at offset 2176 */
-    46, /* U+3200-327f at offset 2304 */
+    47, /* U+3000-307f at offset 2432 */
+    48, /* U+3080-30ff at offset 2560 */
+    49, /* U+3100-317f at offset 2688 */
+    50, /* U+3180-31ff at offset 2816 */
+    51, /* U+3200-327f at offset 2944 */
     Common, /* U+3280-32ff */
     Common, /* U+3300-337f */
     Common, /* U+3380-33ff */
@@ -7452,7 +7452,7 @@ static const unsigned char uc_scripts[] = {
     Hangul, /* U+d600-d67f */
     Hangul, /* U+d680-d6ff */
     Hangul, /* U+d700-d77f */
-    47, /* U+d780-d7ff at offset 2432 */
+    52, /* U+d780-d7ff at offset 3072 */
     Common, /* U+d800-d87f */
     Common, /* U+d880-d8ff */
     Common, /* U+d900-d97f */
@@ -7523,16 +7523,16 @@ static const unsigned char uc_scripts[] = {
     Han, /* U+f980-f9ff */
     Han, /* U+fa00-fa7f */
     Common, /* U+fa80-faff */
-    48, /* U+fb00-fb7f at offset 2560 */
+    53, /* U+fb00-fb7f at offset 3200 */
     Arabic, /* U+fb80-fbff */
     Arabic, /* U+fc00-fc7f */
     Arabic, /* U+fc80-fcff */
-    49, /* U+fd00-fd7f at offset 2688 */
-    50, /* U+fd80-fdff at offset 2816 */
-    51, /* U+fe00-fe7f at offset 2944 */
-    52, /* U+fe80-feff at offset 3072 */
+    54, /* U+fd00-fd7f at offset 3328 */
+    55, /* U+fd80-fdff at offset 3456 */
+    56, /* U+fe00-fe7f at offset 3584 */
+    57, /* U+fe80-feff at offset 3712 */
     Common, /* U+ff00-ff7f */
-    53, /* U+ff80-ffff at offset 3200 */
+    58, /* U+ff80-ffff at offset 3840 */
 
 
     /* U+0300-037f at offset 512 */
@@ -7553,7 +7553,43 @@ static const unsigned char uc_scripts[] = {
     Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
     Greek, Greek, Greek, Greek, Greek, Greek, Common, Greek, 
 
-    /* U+0580-05ff at offset 640 */
+    /* U+0380-03ff at offset 640 */
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Common,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek,
+    Greek, Greek, Greek, Greek, Greek, Greek, Greek, Greek, 
+
+    /* U+0500-057f at offset 768 */
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic, Cyrillic,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
+    Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, 
+
+    /* U+0580-05ff at offset 896 */
     Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
     Armenian, Common, Armenian, Armenian, Armenian, Armenian, Armenian, Armenian,
     Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew,
@@ -7571,7 +7607,7 @@ static const unsigned char uc_scripts[] = {
     Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew,
     Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, Hebrew, 
 
-    /* U+0700-077f at offset 768 */
+    /* U+0700-077f at offset 1024 */
     Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac,
     Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac,
     Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac, Syriac,
@@ -7589,7 +7625,7 @@ static const unsigned char uc_scripts[] = {
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common, 
 
-    /* U+0780-07ff at offset 896 */
+    /* U+0780-07ff at offset 1152 */
     Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana,
     Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana,
     Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana, Thaana,
@@ -7607,7 +7643,7 @@ static const unsigned char uc_scripts[] = {
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common, 
 
-    /* U+0900-097f at offset 1024 */
+    /* U+0900-097f at offset 1280 */
     Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari,
     Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari,
     Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari,
@@ -7625,7 +7661,7 @@ static const unsigned char uc_scripts[] = {
     Common, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari,
     Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, Devanagari, 
 
-    /* U+0e00-0e7f at offset 1152 */
+    /* U+0e00-0e7f at offset 1408 */
     Thai, Thai, Thai, Thai, Thai, Thai, Thai, Thai,
     Thai, Thai, Thai, Thai, Thai, Thai, Thai, Thai,
     Thai, Thai, Thai, Thai, Thai, Thai, Thai, Thai,
@@ -7643,7 +7679,7 @@ static const unsigned char uc_scripts[] = {
     Thai, Thai, Thai, Thai, Thai, Thai, Thai, Thai,
     Thai, Thai, Thai, Thai, Thai, Thai, Thai, Thai, 
 
-    /* U+1080-10ff at offset 1280 */
+    /* U+1080-10ff at offset 1536 */
     Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar,
     Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar,
     Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar, Myanmar,
@@ -7661,7 +7697,25 @@ static const unsigned char uc_scripts[] = {
     Georgian, Georgian, Georgian, Georgian, Georgian, Georgian, Georgian, Georgian,
     Georgian, Georgian, Georgian, Common, Georgian, Georgian, Georgian, Georgian, 
 
-    /* U+1980-19ff at offset 1408 */
+    /* U+1680-16ff at offset 1664 */
+    Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham,
+    Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham,
+    Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham,
+    Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham, Ogham,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Common, Common, Common, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic,
+    Runic, Runic, Runic, Runic, Runic, Runic, Runic, Runic, 
+
+    /* U+1980-19ff at offset 1792 */
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7679,7 +7733,25 @@ static const unsigned char uc_scripts[] = {
     Khmer, Khmer, Khmer, Khmer, Khmer, Khmer, Khmer, Khmer,
     Khmer, Khmer, Khmer, Khmer, Khmer, Khmer, Khmer, Khmer, 
 
-    /* U+2000-207f at offset 1536 */
+    /* U+1d00-1d7f at offset 1920 */
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Greek, Greek,
+    Greek, Greek, Greek, Cyrillic, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Greek, Greek, Greek,
+    Greek, Greek, Latin, Latin, Latin, Latin, Greek, Greek,
+    Greek, Greek, Greek, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin,
+    Latin, Latin, Latin, Latin, Latin, Latin, Latin, Latin, 
+
+    /* U+2000-207f at offset 2048 */
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Inherited, Inherited, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7697,7 +7769,7 @@ static const unsigned char uc_scripts[] = {
     Common, Latin, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Latin, 
 
-    /* U+2080-20ff at offset 1664 */
+    /* U+2080-20ff at offset 2176 */
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7715,7 +7787,25 @@ static const unsigned char uc_scripts[] = {
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common, 
 
-    /* U+3000-307f at offset 1792 */
+    /* U+2100-217f at offset 2304 */
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Greek, Common,
+    Common, Common, Latin, Latin, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common,
+    Common, Common, Common, Common, Common, Common, Common, Common, 
+
+    /* U+3000-307f at offset 2432 */
     Common, Common, Common, Common, Common, Han, Common, Han,
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7733,7 +7823,7 @@ static const unsigned char uc_scripts[] = {
     Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana,
     Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, 
 
-    /* U+3080-30ff at offset 1920 */
+    /* U+3080-30ff at offset 2560 */
     Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana,
     Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana,
     Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana, Hiragana,
@@ -7751,7 +7841,7 @@ static const unsigned char uc_scripts[] = {
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana,
     Katakana, Katakana, Katakana, Common, Common, Katakana, Katakana, Katakana, 
 
-    /* U+3100-317f at offset 2048 */
+    /* U+3100-317f at offset 2688 */
     Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo,
     Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo,
     Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo, Bopomofo,
@@ -7769,7 +7859,7 @@ static const unsigned char uc_scripts[] = {
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, 
 
-    /* U+3180-31ff at offset 2176 */
+    /* U+3180-31ff at offset 2816 */
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7787,7 +7877,7 @@ static const unsigned char uc_scripts[] = {
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana,
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, 
 
-    /* U+3200-327f at offset 2304 */
+    /* U+3200-327f at offset 2944 */
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
@@ -7805,7 +7895,7 @@ static const unsigned char uc_scripts[] = {
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Common, Common, 
 
-    /* U+d780-d7ff at offset 2432 */
+    /* U+d780-d7ff at offset 3072 */
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
     Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul, Hangul,
@@ -7823,7 +7913,7 @@ static const unsigned char uc_scripts[] = {
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Common, Common, Common, Common, Common, 
 
-    /* U+fb00-fb7f at offset 2560 */
+    /* U+fb00-fb7f at offset 3200 */
     Latin, Latin, Latin, Latin, Latin, Latin, Latin, Common,
     Common, Common, Common, Common, Common, Common, Common, Common,
     Common, Common, Common, Armenian, Armenian, Armenian, Armenian, Armenian,
@@ -7841,7 +7931,7 @@ static const unsigned char uc_scripts[] = {
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, 
 
-    /* U+fd00-fd7f at offset 2688 */
+    /* U+fd00-fd7f at offset 3328 */
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
@@ -7859,7 +7949,7 @@ static const unsigned char uc_scripts[] = {
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, 
 
-    /* U+fd80-fdff at offset 2816 */
+    /* U+fd80-fdff at offset 3456 */
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
@@ -7877,7 +7967,7 @@ static const unsigned char uc_scripts[] = {
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Common, Arabic, Arabic, 
 
-    /* U+fe00-fe7f at offset 2944 */
+    /* U+fe00-fe7f at offset 3584 */
     Inherited, Inherited, Inherited, Inherited, Inherited, Inherited, Inherited, Inherited,
     Inherited, Inherited, Inherited, Inherited, Inherited, Inherited, Inherited, Inherited,
     Common, Common, Common, Common, Common, Common, Common, Common,
@@ -7895,7 +7985,7 @@ static const unsigned char uc_scripts[] = {
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, 
 
-    /* U+fe80-feff at offset 3072 */
+    /* U+fe80-feff at offset 3712 */
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
@@ -7913,7 +8003,7 @@ static const unsigned char uc_scripts[] = {
     Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic, Arabic,
     Arabic, Arabic, Arabic, Arabic, Arabic, Common, Common, Common, 
 
-    /* U+ff80-ffff at offset 3200 */
+    /* U+ff80-ffff at offset 3840 */
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana,
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana,
     Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana, Katakana,

@@ -833,7 +833,7 @@ static void readScripts()
                 scriptIndex = scriptNames.indexOf(scriptName);
                 Q_ASSERT(scriptIndex >= 0);
             }
-
+q
             int dotdot = codePoints.indexOf("..");
             bool unused;
             int first = -1, last = -1;
@@ -862,8 +862,12 @@ QByteArray createScriptEnumDeclaration()
     static const char *specialScripts[] = {
         "Common",
         "Arabic",
+        "Armenian",
         "Bengali",
+        "Cyrillic",
         "Devanagari",
+        "Georgian",
+        "Greek",
         "Gujarati",
         "Gurmukhi",
         "Hangul",
@@ -873,7 +877,9 @@ QByteArray createScriptEnumDeclaration()
         "Lao",
         "Malayalam",
         "Myanmar",
+        "Ogham",
         "Oriya",
+        "Runic",
         "Sinhala",
         "Syriac",
         "Tamil",

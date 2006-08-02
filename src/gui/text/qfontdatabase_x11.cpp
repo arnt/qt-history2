@@ -771,29 +771,66 @@ QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
 }
 
 static const char *specialLanguages[] = {
-    "en",
-    "he",
-    "ar",
-    "syr",
-    "div",
-    "hi",
-    "bn",
-    "pa",
-    "gu",
-    "or",
-    "ta",
-    "te",
-    "kn",
-    "ml",
-    "si",
-    "th",
-    "lo",
-    "bo",
-    "my",
-    "ko",
-    "km"
+    "en", // Common
+    "el", // Greek
+    "ru", // Cyrillic
+    "hy", // Armenian
+    "he", // Hebrew
+    "ar", // Arabic
+    "syr", // Syriac
+    "div", // Thaana
+    "hi", // Devanagari
+    "bn", // Bengali
+    "pa", // Gurmukhi
+    "gu", // Gujarati
+    "or", // Oriya
+    "ta", // Tamil
+    "te", // Telugu
+    "kn", // Kannada
+    "ml", // Malayalam
+    "si", // Sinhala
+    "th", // Thai
+    "lo", // Lao
+    "bo", // Tibetan
+    "my", // Myanmar
+    "ka", // Georgian
+    "ko", // Hangul
+    "", // Ogham
+    "", // Runic
+    "km" // Khmer
 };
 enum { SpecialLanguageCount = sizeof(specialLanguages) / sizeof(const char *) };
+
+static ushort specialChars[] = {
+    0, // English
+    0, // Greek
+    0, // Cyrillic
+    0, // Armenian
+    0, // Hebrew
+    0, // Arabic
+    0, // Syriac
+    0, // Thaana
+    0, // Devanagari
+    0, // Bengali
+    0, // Gurmukhi
+    0, // Gujarati
+    0, // Oriya
+    0, // Tamil
+    0xc15, // Telugu
+    0xc95, // Kannada
+    0xd15, // Malayalam
+    0xd9a, // Sinhala
+    0, // Thai
+    0, // Lao
+    0, // Tibetan
+    0x1000, // Myanmar
+    0, // Georgian
+    0, // Hangul
+    0x1681, // Ogham
+    0x16a0, // Runic
+    0  // Khmer
+};
+enum { SpecialCharCount = sizeof(specialChars) / sizeof(ushort) };
 
 // this could become a list of all languages used for each writing
 // system, instead of using the single most common language.
@@ -827,7 +864,10 @@ static const char *languageForWritingSystem[] = {
     "zh-tw", // TraditionalChinese
     "ja",  // Japanese
     "ko",  // Korean
-    "vi"  // Vietnamese
+    "vi",  // Vietnamese
+    0, // Symbol
+    0, // Ogham
+    0 // Runic
 };
 enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
 
@@ -863,34 +903,12 @@ static const ushort sampleCharForWritingSystem[] = {
     0, // TraditionalChinese
     0,  // Japanese
     0,  // Korean
-    0  // Vietnamese
+    0,  // Vietnamese
+    0, // Symbol
+    0x1681, // Ogham
+    0x16a0 // Runic
 };
 enum { SampleCharCount = sizeof(sampleCharForWritingSystem) / sizeof(ushort) };
-
-static ushort specialChars[] = {
-    0, // English
-    0, // Hebrew
-    0, // Arabic
-    0, // Syriac
-    0, // Thaana
-    0, // Devanagari
-    0, // Bengali
-    0, // Gurmukhi
-    0, // Gujarati
-    0, // Oriya
-    0, // Tamil
-    0xc15, // Telugu
-    0xc95, // Kannada
-    0xd15, // Malayalam
-    0xd9a, // Sinhala
-    0, // Thai
-    0, // Lao
-    0, // Tibetan
-    0x1000, // Myanmar
-    0, // Korean
-    0  // Khmer
-};
-enum { SpecialCharCount = sizeof(specialChars) / sizeof(ushort) };
 
 // Newer FontConfig let's us sort out fonts that contain certain glyphs, but no
 // open type tables for is directly. Do this so we don't pick some strange
@@ -925,7 +943,10 @@ static const char *openType[] = {
     0, // TraditionalChinese
     0,  // Japanese
     0,  // Korean
-    0  // Vietnamese
+    0,  // Vietnamese
+    0, // Symbol
+    0, // Ogham
+    0 // Runic
 };
 enum { OpenTypeCount = sizeof(openType) / sizeof(const char *) };
 
@@ -941,11 +962,11 @@ static void loadFontConfig()
                "QFontDatabase", "New scripts have been added.");
     Q_ASSERT_X(int(QUnicodeTables::ScriptCount) == SpecialCharCount,
                "QFontDatabase", "New scripts have been added.");
-    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == LanguageCount,
+    Q_ASSERT_X(int(QFontDatabase::WritingSystemsCount) == LanguageCount,
                "QFontDatabase", "New writing systems have been added.");
-    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == SampleCharCount,
+    Q_ASSERT_X(int(QFontDatabase::WritingSystemsCount) == SampleCharCount,
                "QFontDatabase", "New writing systems have been added.");
-    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == OpenTypeCount,
+    Q_ASSERT_X(int(QFontDatabase::WritingSystemsCount) == OpenTypeCount,
                "QFontDatabase", "New writing systems have been added.");
 
     QFontDatabasePrivate *db = privateDb();
