@@ -493,18 +493,20 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
     This enum specifies what the QComboBox should do when a new string is
     entered by the user.
 
-    \value NoInsert            The string will not be inserted into the combobox.
-    \value InsertAtTop         The string will be inserted as the first item in the combobox.
-    \value InsertAtCurrent     The current item will be \e replaced by the string.
-    \value InsertAtBottom      The string will be inserted after the last item in the combobox.
-    \value InsertAfterCurrent  The string is inserted after the current item in the combobox.
-    \value InsertBeforeCurrent The string is inserted before the current item in the combobox.
+    \value NoInsert             The string will not be inserted into the combobox.
+    \value InsertAtTop          The string will be inserted as the first item in the combobox.
+    \value InsertAtCurrent      The current item will be \e replaced by the string.
+    \value InsertAtBottom       The string will be inserted after the last item in the combobox.
+    \value InsertAfterCurrent   The string is inserted after the current item in the combobox.
+    \value InsertBeforeCurrent  The string is inserted before the current item in the combobox.
+    \value InsertAlphabetically The string is inserted in the alphabetic order in the combobox.
     \omitvalue NoInsertion
     \omitvalue AtTop
     \omitvalue AtCurrent
     \omitvalue AtBottom
     \omitvalue AfterCurrent
     \omitvalue BeforeCurrent
+    \omitvalue Alphabetically
 */
 
 /*!
@@ -854,6 +856,8 @@ void QComboBoxPrivate::_q_returnPressed()
 {
     Q_Q(QComboBox);
     if (lineEdit && !lineEdit->text().isEmpty()) {
+        if (q->count() >= maxCount && !(this->insertPolicy == QComboBox::InsertAtCurrent))
+            return;
         lineEdit->deselect();
         lineEdit->end(false);
         QString text = lineEdit->text();
@@ -886,6 +890,13 @@ void QComboBoxPrivate::_q_returnPressed()
                 index = q->currentIndex() + 1;
             else if (insertPolicy == QComboBox::InsertBeforeCurrent)
                 index = q->currentIndex();
+            break;
+        case QComboBox::InsertAlphabetically:
+            index = 0;
+            for (int i=0; i< q->count(); i++, index++ ) {
+                if (text.toLower() < q->itemText(i).toLower())
+                    break;
+            }
             break;
         case QComboBox::NoInsert:
         default:

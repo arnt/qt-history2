@@ -93,7 +93,8 @@ public:
         InsertAtCurrent,
         InsertAtBottom,
         InsertAfterCurrent,
-        InsertBeforeCurrent
+        InsertBeforeCurrent,
+        InsertAlphabetically
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,
         NoInsertion = NoInsert,

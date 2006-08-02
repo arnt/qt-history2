@@ -191,6 +191,8 @@ void tst_QComboBox::getSetCheck()
     QCOMPARE(QComboBox::InsertPolicy(QComboBox::InsertAfterCurrent), obj1.insertPolicy());
     obj1.setInsertPolicy(QComboBox::InsertPolicy(QComboBox::InsertBeforeCurrent));
     QCOMPARE(QComboBox::InsertPolicy(QComboBox::InsertBeforeCurrent), obj1.insertPolicy());
+    obj1.setInsertPolicy(QComboBox::InsertPolicy(QComboBox::InsertAlphabetically));
+    QCOMPARE(QComboBox::InsertPolicy(QComboBox::InsertAlphabetically), obj1.insertPolicy());
 
     // SizeAdjustPolicy QComboBox::sizeAdjustPolicy()
     // void QComboBox::setSizeAdjustPolicy(SizeAdjustPolicy)
@@ -505,6 +507,7 @@ void tst_QComboBox::insertPolicy_data()
 	QComboBox::InsertAtBottom - insert the string as the last item in the combobox.
 	QComboBox::InsertAfterCurrent - insert the string after the previously selected item.
 	QComboBox::InsertBeforeCurrent - insert the string before the previously selected item.
+	QComboBox::InsertAlphabetically - insert the string at the alphabetic position.
     */
     QStringList initial;
     QStringList oneEntry("One");
@@ -599,6 +602,25 @@ void tst_QComboBox::insertPolicy_data()
 	QTest::newRow("BeforeCurrent-FiveInitial-FirstCurrent") << fiveEntries << QComboBox::InsertBeforeCurrent << 0 << input << fiveBeforeCurrentFirst;
 	QTest::newRow("BeforeCurrent-FiveInitial-ThirdCurrent") << fiveEntries << QComboBox::InsertBeforeCurrent << 2 << input << fiveBeforeCurrentThird;
 	QTest::newRow("BeforeCurrent-FiveInitial-LastCurrent") << fiveEntries << QComboBox::InsertBeforeCurrent << 4 << input << fiveBeforeCurrentLast;
+    }
+
+    {
+	oneEntry.clear();
+	oneEntry << "foobar";
+	fiveEntries.clear();
+	fiveEntries << "bar" << "foo" << "initial" << "Item" << "stamp";
+
+	QStringList initialAlphabetically("inserted");
+	QStringList oneAlphabetically;
+	oneAlphabetically << "foobar" << "inserted";
+	QStringList fiveAlphabetically;
+	fiveAlphabetically << "bar" << "foo" << "initial" << "inserted" << "Item" << "stamp";
+
+	QTest::newRow("Alphabetically-NoInitial") << initial << QComboBox::InsertAlphabetically << 0 << input << initialAlphabetically;
+	QTest::newRow("Alphabetically-OneInitial") << oneEntry << QComboBox::InsertAlphabetically << 0 << input << oneAlphabetically;
+	QTest::newRow("Alphabetically-FiveInitial-FirstCurrent") << fiveEntries << QComboBox::InsertAlphabetically << 0 << input << fiveAlphabetically;
+	QTest::newRow("Alphabetically-FiveInitial-ThirdCurrent") << fiveEntries << QComboBox::InsertAlphabetically << 2 << input << fiveAlphabetically;
+	QTest::newRow("Alphabetically-FiveInitial-LastCurrent") << fiveEntries << QComboBox::InsertAlphabetically << 4 << input << fiveAlphabetically;
     }
 }
 
