@@ -1850,6 +1850,14 @@ void QComboBox::showPopup()
     listRect.setHeight(listRect.height() + 2*container->spacing()
                        + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 
+    // Make sure the popup is wide enough to display its contents, this
+    // is neccesary if the combo box is narrower than its size hint.
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+        const int diff = sizeHint().width() - width();
+        if (diff > 0)
+            listRect.setWidth(listRect.width() + diff);
+    }
+
     // make sure the widget fits on screen
     if (listRect.width() > screen.width() )
         listRect.setWidth(screen.width());
@@ -1864,7 +1872,7 @@ void QComboBox::showPopup()
 
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
 
-        // Position horizontaly.
+        // Position horizontally.
         listRect.moveLeft(above.x());
         
         // Position vertically so the curently selected item lines up
@@ -1873,9 +1881,9 @@ void QComboBox::showPopup()
         const int offset = listRect.top() -  currentItemRect.top();
         listRect.moveTop(above.y() + offset);
 
-        // Clamp the listRect geometry so we don't expand outside the available screen geometry.
-        // This may override the vertical position, but it is more important to show as much
-        // as possible of the popup.
+        // Clamp the listRect height and vertical position so we don't expand outside the 
+        // available screen geometry.This may override the vertical position, but it is more 
+        // important to show as much as possible of the popup.
         const int height = qMin(listRect.height(), screen.height());
         listRect.setHeight(height);
         if (listRect.top() < screen.top())
