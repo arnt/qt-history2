@@ -44,6 +44,8 @@ QDBusViewer::QDBusViewer(const QDBusConnection &connection, QWidget *parent)
     tree = new QTreeView;
     tree->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    connect(tree, SIGNAL(activated(const QModelIndex&)), this, SLOT(activate(const QModelIndex&)));
+
     refreshAction = new QAction(tr("&Refresh"), tree);
     refreshAction->setData(42); // increase the amount of 42 used as magic number by one
     refreshAction->setShortcut(QKeySequence::Refresh);
@@ -101,6 +103,35 @@ void QDBusViewer::refresh()
     const QStringList serviceNames = c.interface()->registeredServiceNames();
     foreach (QString service, serviceNames)
         new QTreeWidgetItem(services, QStringList(service));
+}
+
+void QDBusViewer::activate(const QModelIndex &item)
+{
+    if (!item.isValid())
+        return;
+
+    const QDBusModel *model = static_cast<const QDBusModel *>(item.model());
+
+    BusSignature sig;
+    sig.mService = currentService;
+    sig.mPath = model->dBusPath(item);
+    sig.mInterface = model->dBusInterface(item);
+    sig.mName = model->dBusMethodName(item);
+
+    switch (model->itemType(item)) {
+    case QDBusModel::SignalItem:
+        connectionRequested(sig);
+        break;
+    case QDBusModel::MethodItem:
+        callMethod(sig);
+        break;
+#if 0
+    case QDBusModel::PropertyItem:
+        break;
+#endif
+    default:
+        break;
+    }
 }
 
 void QDBusViewer::callMethod(const BusSignature &sig)

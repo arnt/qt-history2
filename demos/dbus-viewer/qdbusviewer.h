@@ -47,6 +47,8 @@ private slots:
     void serviceUnregistered(const QString &service);
     void serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
 
+    void activate(const QModelIndex &item);
+
     void logError(const QString &msg);
 
 private:
