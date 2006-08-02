@@ -229,12 +229,12 @@ void QSvgSwitch::init()
 }
 
 QRectF QSvgStructureNode::bounds() const
-{
+{   
     if (m_bounds.isEmpty()) {
         foreach(QSvgNode *node, m_renderers) {
             m_bounds |= node->bounds();
         }
     }
-        
+
     return m_bounds;
 }

@@ -178,9 +178,11 @@ public:
     QSvgUse(const QPointF &start, QSvgNode *parent, QSvgNode *link);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QSvgNode *m_link;
     QPointF   m_start;
+    mutable QRectF    m_bounds;
 };
 
 class QSvgVideo : public QSvgNode

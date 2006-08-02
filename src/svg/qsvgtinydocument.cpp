@@ -108,7 +108,6 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
     }
 
     QRectF bounds = node->bounds();
-    
     QPointF topLeft;
     QRect vb = m_viewBox;
     if (!m_viewBox.isEmpty()) {
@@ -138,18 +137,18 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
         parent = parent->parent();
     }
 
-    foreach(QSvgNode *parent, parentApplyStack) {
-        parent->applyStyle(p);
+    foreach(QSvgNode *par, parentApplyStack) {
+        par->applyStyle(p);
     }
 
-    //qDebug()<<"topLeft1 = "<<topLeft<<", topLeft2 = "<<node->bounds().topLeft();
     p->translate(-(bounds.topLeft()-topLeft));
-    //qDebug()<<"node bounds = "<<bounds;
+    
     node->draw(p);
+
     p->translate(bounds.topLeft()-topLeft);
     
-    foreach(QSvgNode *parent, parentApplyStack) {
-        parent->revertStyle(p);
+    foreach(QSvgNode *par, parentRevertQueue) {
+        par->revertStyle(p);
     }
 }
 

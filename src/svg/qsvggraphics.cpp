@@ -396,3 +396,17 @@ QSvgNode::Type QSvgVideo::type() const
     return VIDEO;
 }
 
+QRectF QSvgUse::bounds() const
+{
+    if (m_link && m_bounds.isEmpty())  {
+        m_bounds = m_link->bounds();
+        m_bounds = QRectF(m_bounds.x()+m_start.x(),
+                          m_bounds.y()+m_start.y(),
+                          m_bounds.width(),
+                          m_bounds.height());
+        
+        return m_bounds;
+    }
+    return m_bounds;
+}
+
