@@ -581,11 +581,11 @@ void ResourceEditor::updateUi()
     QString name;
     if (m_form != 0)
         name = QFileInfo(m_form->fileName()).fileName();
+
     if (name.isEmpty())
         name = tr("Untitled");
 
     setWindowTitle(tr("Resource Editor: %1").arg(name));
-
 }
 
 int ResourceEditor::currentIndex() const
@@ -670,7 +670,7 @@ void ResourceEditor::updateQrcPaths()
 {
     for (int i = 0; i < m_qrc_stack->count(); ++i) {
         ResourceModel *model = this->model(i);
-        m_qrc_combo->setItemText(i, qrcName(model->fileName()));
+        m_qrc_combo->setItemText(i, model->fileName());
     }
 
     updateUi();
@@ -687,7 +687,7 @@ void ResourceEditor::addView(const QString &qrc_file)
     removeEmptyComboItem();
 
     view->setModel(model);
-    m_qrc_combo->insertItem(idx, qrcName(qrc_file));
+    m_qrc_combo->insertItem(idx, model->fileName());
     m_qrc_stack->addWidget(view);
     connect(view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateUi()));
@@ -777,13 +777,17 @@ void ResourceEditor::saveCurrentView()
                                                             tr("Resource files (*.qrc)"));
         if (file_name.isEmpty())
             return;
+
+        if (QFileInfo(file_name).suffix() != QLatin1String("qrc"))
+            file_name.append(QLatin1String(".qrc"));
+
         model->setFileName(file_name);
         m_ignore_update = true;
         m_form->addResourceFile(file_name);
         m_ignore_update = false;
         QString s = QFileInfo(file_name).fileName();
         bool blocked = m_qrc_combo->blockSignals(true);
-        m_qrc_combo->setItemText(currentIndex(), s);
+        m_qrc_combo->setItemText(currentIndex(), model->fileName());
         m_qrc_combo->setCurrentIndex(-1);
         m_qrc_combo->setCurrentIndex(currentIndex());
         m_qrc_combo->blockSignals(blocked);
@@ -859,6 +863,9 @@ void ResourceEditor::newView()
         setCurrentIndex(m_qrc_stack->count() == 0 ? 0 : m_qrc_stack->currentIndex());
         return;
     }
+        
+    if (QFileInfo(file_name).suffix() != QLatin1String("qrc"))
+		file_name.append(QLatin1String(".qrc"));
 
     ResourceFile rf(file_name);
     rf.save();
