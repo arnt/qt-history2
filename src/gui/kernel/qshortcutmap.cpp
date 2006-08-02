@@ -647,6 +647,10 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
 bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidget *active_window)
 {
     const QList<QWidget *> &widgets = a->d_func()->widgets;
+#if defined(DEBUG_QSHORTCUTMAP)
+    if (widgets.isEmpty())
+        qDebug() << a << "not connected to any widgets; won't trigger";
+#endif
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *w = widgets.at(i);
 #ifndef QT_NO_MENU
