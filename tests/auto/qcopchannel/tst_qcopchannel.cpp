@@ -51,10 +51,10 @@ void tst_QCopChannel::sendreceive()
     QCopChannel *channel = new QCopChannel(channelName);
     QSignalSpy spy(channel, SIGNAL(received(const QString&, const QByteArray&)));
     QCopChannel::send("foo", "msg");
-    QApplication::processEvents();
+    QCopChannel::flush();
     QCOMPARE(spy.count(), 0);
     QCopChannel::send(channelName, "msg", "data");
-    QApplication::processEvents();
+    QCopChannel::flush();
     QCOMPARE(spy.count(), 1);
 
     QList<QVariant> args = spy.takeFirst();
