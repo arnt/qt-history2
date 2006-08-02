@@ -1118,14 +1118,11 @@ static QString readLink(const QString &link)
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
                 hres = ppf->Load((LPOLESTR)link.utf16(), STGM_READ);
-                if(SUCCEEDED(hres)) {        // Resolve the link.
-
-                    hres = psl->Resolve(0, SLR_ANY_MATCH | SLR_NO_UI | SLR_UPDATE);
-
-                    if(SUCCEEDED(hres)) {
-                        if (psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
-                            ret = QString::fromUtf16((ushort*)szGotPath);
-                    }
+                //The original path of the link is retrieved. If the file/folder
+                //was moved, the return value still have the old path.
+                if(SUCCEEDED(hres)) {
+                    if (psl->GetPath(szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
+                        ret = QString::fromUtf16((ushort*)szGotPath);
                 }
                 ppf->Release();
             }
@@ -1155,14 +1152,11 @@ static QString readLink(const QString &link)
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
                 hres = ppf->Load((LPOLESTR)QFileInfo(link).absoluteFilePath().utf16(), STGM_READ);
-                if(SUCCEEDED(hres)) {        // Resolve the link.
-
-                    hres = psl->Resolve(0, SLR_ANY_MATCH | SLR_NO_UI | SLR_UPDATE);
-
-                    if(SUCCEEDED(hres)) {
-                        if (psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
-                            ret = QString::fromLocal8Bit(szGotPath);
-                    }
+                //The original path of the link is retrieved. If the file/folder
+                //was moved, the return value still have the old path.
+                 if(SUCCEEDED(hres)) {
+                    if (psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
+                        ret = QString::fromLocal8Bit(szGotPath);
                 }
                 ppf->Release();
             }
