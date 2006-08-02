@@ -785,7 +785,7 @@ void QLayout::addChildWidget(QWidget *w)
         w->setParent(mw);
     w->setAttribute(Qt::WA_LaidOut);
     if (needShow)
-        w->show();
+        QMetaObject::invokeMethod(w, "show", Qt::QueuedConnection); //show later
 }
 
 #ifdef QT3_SUPPORT
