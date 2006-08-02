@@ -657,6 +657,7 @@ private:
 
 private:
     Q_DISABLE_COPY(QWidget)
+    Q_PRIVATE_SLOT(d_func(), void _q_showIfNotHidden())
 
     QWidgetData *data;
 

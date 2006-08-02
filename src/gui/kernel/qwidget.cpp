@@ -5033,6 +5033,14 @@ void QWidget::setVisible(bool visible)
     Use setVisible(\a shown) instead.
 */
 
+
+void QWidgetPrivate::_q_showIfNotHidden()
+{
+    Q_Q(QWidget);
+    if ( !(q->isHidden() && q->testAttribute(Qt::WA_WState_ExplicitShowHide)) )
+        q->setVisible(true);
+}
+
 void QWidgetPrivate::showChildren(bool spontaneous)
 {
     QList<QObject*> childList = children;
