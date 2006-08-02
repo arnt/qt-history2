@@ -2238,6 +2238,13 @@
     pointer to a QObjectList. See also the comments on QObjectList
     below.
 
+    Use QObject::findChildren() (or qFindChildren() if you need MSVC 6
+    compatibility) instead of QObject::queryList(). For example:
+
+    \code
+        QList<QWidget *> myWidgets = qFindChildren<QWidget *>(myParent);
+    \endcode
+
     QObject::killTimers() has been removed because it was unsafe to
     use in subclass. (A subclass normally doesn't know whether the
     base class uses timers or not.)
