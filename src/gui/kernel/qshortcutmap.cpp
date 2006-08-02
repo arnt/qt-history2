@@ -142,7 +142,7 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
 #if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::addShortcut(" << owner << ", "
-        << key << ", " << context << ", " << autorepeat << ") = " << d->currentId;
+        << key << ", " << context << ") = " << d->currentId;
 #endif
     return d->currentId;
 }
