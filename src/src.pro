@@ -1,15 +1,16 @@
 TEMPLATE = subdirs
 
 # this order is important
-win32:SUBDIRS += src_winmain
-SUBDIRS += src_tools_moc src_tools_rcc src_tools_uic src_corelib src_xml src_gui src_sql src_network src_svg
-!embedded:contains(QT_CONFIG, opengl): SUBDIRS += src_opengl
-contains(QT_CONFIG, qt3support): SUBDIRS += src_qt3support
+unset(SRC_SUBDIRS)
+win32:SRC_SUBDIRS += src_winmain
+SRC_SUBDIRS += src_tools_moc src_tools_rcc src_tools_uic src_corelib src_xml src_gui src_sql src_network src_svg
+!embedded:contains(QT_CONFIG, opengl): SRC_SUBDIRS += src_opengl
+contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_qt3support
 !cross_compile {
-    contains(QT_CONFIG, qt3support): SUBDIRS += src_tools_uic3
+    contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_tools_uic3
 }
-win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += src_activeqt src_tools_idc
-SUBDIRS += src_plugins
+win32:!contains(QT_EDITION, OpenSource|Console):SRC_SUBDIRS += src_activeqt src_tools_idc
+SRC_SUBDIRS += src_plugins
 
 src_winmain.subdir = $$QT_BUILD_TREE/src/winmain
 src_tools_moc.subdir = $$QT_BUILD_TREE/src/tools/moc
@@ -45,10 +46,17 @@ src_plugins.subdir = $$QT_BUILD_TREE/src/plugins
    contains(QT_CONFIG, qt3support): src_plugins.depends += src_qt3support
 }
 
+# This creates a sub-src rule
+sub_src_target.CONFIG = recursive
+sub_src_target.recurse = $$SRC_SUBDIRS
+sub_src_target.target = sub-src
+sub_src_target.recurse_target =
+QMAKE_EXTRA_TARGETS += sub_src_target
+
 # This gives us a top level debug/release
 EXTRA_DEBUG_TARGETS =
 EXTRA_RELEASE_TARGETS =
-for(subname, SUBDIRS) {
+for(subname, SRC_SUBDIRS) {
    subdir = $$subname
    !isEmpty($${subname}.subdir):subdir = $$eval($${subname}.subdir)
    subpro = $$subdir/$${basename(subdir)}.pro
@@ -82,5 +90,5 @@ debug.depends = $$EXTRA_DEBUG_TARGETS
 release.depends = $$EXTRA_RELEASE_TARGETS
 QMAKE_EXTRA_TARGETS += debug release
 
-
+SUBDIRS += $$SRC_SUBDIRS
 
