@@ -617,6 +617,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
 {
     QMap<QByteArray, QByteArray> qualifiedContexts;
     QStringList namespaces;
+    QList<QByteArray> classes;
     QByteArray context;
     QByteArray text;
     QByteArray com;
@@ -652,6 +653,7 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                     functionContext += yyIdent;
                     yyTok = getToken();
                 }
+                classes.append( (QStringList() << namespaces << functionContext).join(QLatin1String("::")).toAscii());
 
                 if ( yyTok == Tok_Colon ) {
                     missing_Q_OBJECT = true;
@@ -695,6 +697,16 @@ static void parse( MetaTranslator *tor, const char *initialContext, const char *
                                           QString("::"))).toAscii() );
                 } else {
                     context = prefix;
+                    for (int n = namespaces.count() - 1; n >= 0; --n) {
+                        QByteArray ns;
+                        for (int i = 0; i <= n; ++i) {
+                            ns+=namespaces[i] + "::";
+                        }
+                        if (classes.indexOf(ns + context) != -1) {
+                            context = ns + context;
+                            break;
+                        }
+                    }
                 }
                 prefix = (const char *) 0;
                 if ( qualifiedContexts.contains(context) )
