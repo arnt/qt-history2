@@ -238,3 +238,21 @@ QRectF QSvgStructureNode::bounds() const
 
     return m_bounds;
 }
+
+QRectF QSvgStructureNode::transformedBounds(const QMatrix &mat) const
+{
+    QMatrix m = mat;
+
+    QSvgTransformStyle *trans =
+        static_cast<QSvgTransformStyle*>(styleProperty(QSvgStrokeStyle::TRANSFORM));
+    if (trans) {
+        m = trans->qmatrix() * m;
+    }
+
+    QRectF bounds;
+    foreach(QSvgNode *node, m_renderers) {
+        bounds |= node->transformedBounds(m);
+    }
+    
+    return bounds;
+}

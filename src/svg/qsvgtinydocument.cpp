@@ -107,20 +107,21 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
         return;
     }
 
-    QRectF bounds = node->bounds();
-    QPointF topLeft;
-    QRect vb = m_viewBox;
-    if (!m_viewBox.isEmpty()) {
-        topLeft = m_viewBox.topLeft();
-        vb.setSize(bounds.size().toSize());
-        p->setWindow(vb);
+    QMatrix matx = p->worldMatrix();
+    QRectF bounds = node->transformedBounds(matx);
+
+    //qDebug()<<"BOUNDS = "<<node->bounds()<<", trans = "<<bounds;
+    
+    if (!bounds.isEmpty()) {
+        //p->setWindow(m_viewBox.adjusted(-50, -50, 50, 50));
+        p->setWindow(bounds.toRect());
+    } else if (!m_viewBox.isEmpty()) {
+        p->setWindow(m_viewBox);
     } else {
-        if (!vb.size().isEmpty())
-            p->setWindow(0, 0, vb.width(), vb.height());
-        else
-            p->setWindow(0, 0, 100, 100);//XXX bogus!!
-        topLeft = QPointF(0, 0);
+        p->setWindow(0, 0, 100, 100);//XXX bogus!!
     }
+    
+    //p->fillRect(bounds.adjusted(-5, -5, 5, 5), QColor(255, 255, 0));
     
     //XXX set default style on the painter
     p->setPen(Qt::NoPen);
@@ -136,17 +137,16 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
         parentRevertQueue.enqueue(parent);
         parent = parent->parent();
     }
-
+    
     foreach(QSvgNode *par, parentApplyStack) {
         par->applyStyle(p);
     }
+    //reset the world matrix so that our parents don't affect
+    //the position
+    p->setWorldMatrix(QMatrix());    
 
-    p->translate(-(bounds.topLeft()-topLeft));
-    
     node->draw(p);
 
-    p->translate(bounds.topLeft()-topLeft);
-    
     foreach(QSvgNode *par, parentRevertQueue) {
         par->revertStyle(p);
     }

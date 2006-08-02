@@ -75,6 +75,7 @@ public:
 
     virtual Type type() const =0;
     virtual QRectF bounds() const;
+    virtual QRectF transformedBounds(const QMatrix &mat) const;
 
     void setRequiredFeatures(const QStringList &lst);
     const QStringList & requiredFeatures() const;

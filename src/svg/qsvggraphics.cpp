@@ -410,3 +410,23 @@ QRectF QSvgUse::bounds() const
     return m_bounds;
 }
 
+QRectF QSvgUse::transformedBounds(const QMatrix &mat) const
+{
+    QRectF bounds;
+    QMatrix m = mat;
+    
+    if (m_link)  {       
+        QSvgTransformStyle *trans =
+            static_cast<QSvgTransformStyle*>(styleProperty(QSvgStrokeStyle::TRANSFORM));
+        if (trans) {
+            m = trans->qmatrix() * m;
+        }
+        m.translate(m_start.x(), m_start.y());
+ 
+        bounds = m_link->transformedBounds(m);
+        
+        return bounds;
+    }
+    return bounds;
+}
+

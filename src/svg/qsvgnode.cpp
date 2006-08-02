@@ -232,3 +232,20 @@ void QSvgNode::setVisible(bool visible)
 
     m_visible = visible;
 }
+
+QRectF QSvgNode::transformedBounds(const QMatrix &mat) const
+{
+    QMatrix m = mat;
+
+    QSvgTransformStyle *trans =
+        static_cast<QSvgTransformStyle*>(styleProperty(QSvgStrokeStyle::TRANSFORM));
+    if (trans) {
+        m = trans->qmatrix() * m;
+    }
+
+    QRectF rect = bounds();
+
+    rect = m.mapRect(rect);
+    
+    return rect;
+}

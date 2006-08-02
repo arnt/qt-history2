@@ -179,6 +179,8 @@ public:
     virtual void draw(QPainter *p);
     virtual Type type() const;
     virtual QRectF bounds() const;
+    virtual QRectF transformedBounds(const QMatrix &mat) const;
+    
 private:
     QSvgNode *m_link;
     QPointF   m_start;

@@ -44,6 +44,7 @@ public:
     QSvgStyleProperty *scopeStyle(const QString &id) const;
     void addChild(QSvgNode *child, const QString &id, bool def = false);
     virtual QRectF bounds() const;
+    virtual QRectF transformedBounds(const QMatrix &mat) const;
 protected:
     QList<QSvgNode*>          m_renderers;
     QHash<QString, QSvgNode*> m_scope;
