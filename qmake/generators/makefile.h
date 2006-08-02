@@ -76,13 +76,15 @@ protected:
     //generating subtarget makefiles
     struct SubTarget
     {
+        QString name;
         QString directory, profile, target, makefile;
         QStringList depends;
     };
     enum SubTargetFlags {
-        SubTargetsNoFlags=0x00,
         SubTargetInstalls=0x01,
-        SubTargetOrdered=0x02
+        SubTargetOrdered=0x02,
+
+        SubTargetsNoFlags=0x00
     };
     void writeSubTargets(QTextStream &t, QList<SubTarget*> subtargets, int flags);
 

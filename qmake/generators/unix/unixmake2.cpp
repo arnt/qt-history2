@@ -907,7 +907,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 void UnixMakefileGenerator::init2()
 {
     //version handling
-    if(project->values("VERSION").isEmpty())
+    if(project->isEmpty("VERSION"))
         project->values("VERSION").append("1.0." +
                                                (project->isEmpty("VER_PAT") ? QString("0") :
                                                 project->first("VER_PAT")));

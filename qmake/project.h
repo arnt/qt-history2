@@ -112,6 +112,7 @@ public:
     bool isActiveConfig(const QString &x, bool regex=false,
                         QMap<QString, QStringList> *place=NULL);
 
+    bool isSet(const QString &v);
     bool isEmpty(const QString &v);
     QStringList &values(const QString &v);
     QString first(const QString &v);
@@ -138,7 +139,10 @@ inline QStringList &QMakeProject::values(const QString &v)
 { return values(v, vars); }
 
 inline bool QMakeProject::isEmpty(const QString &v)
-{ return values(v).isEmpty(); }
+{ return !isSet(v) || values(v).isEmpty(); }
+
+inline bool QMakeProject::isSet(const QString &v)
+{ return vars.contains(v); }
 
 inline QString QMakeProject::first(const QString &v)
 {

@@ -1017,6 +1017,7 @@ MakefileGenerator::writeProjectMakefile()
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)." + (*it);
+            st->name = (*it);
             st->target = project->isEmpty((*it) + ".target") ? (*it) : project->first((*it) + ".target");
         }
     }
@@ -2262,6 +2263,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
 	    fixedSubdir = fixedSubdir.replace(QRegExp("[^a-zA-Z0-9_]"),"-");
 
             SubTarget *st = new SubTarget;
+            st->name = subdirs[subdir];
             targets.append(st);
 
             bool fromFile = false;
@@ -2583,8 +2585,17 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             deps += " " + dep;
         }
         if(project->values((*qut_it) + ".CONFIG").indexOf("recursive") != -1) {
+            QSet<QString> recurse;
+            if(project->isSet((*qut_it) + ".recurse")) {
+                recurse = project->values((*qut_it) + ".recurse").toSet();
+            } else {
+                for(int target = 0; target < targets.size(); ++target)
+                    recurse.insert(targets.at(target)->name);
+            }
             for(int target = 0; target < targets.size(); ++target) {
                 SubTarget *subtarget = targets.at(target);
+                if(!recurse.contains(subtarget->name))
+                    continue;
                 bool have_dir = !subtarget->directory.isEmpty();
                 QString mkfile = subtarget->makefile, cdin, cdout;
                 if(have_dir) {
@@ -2627,14 +2638,18 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                     deps += " " + dep;
                 }
 
+                QString sub_targ = targ;
+                if(project->isSet((*qut_it) + ".recurse_target"))
+                    sub_targ = project->first((*qut_it) + ".recurse_target");
+
                 //write the commands
                 if(have_dir) {
                     t << cdin
-                      << "$(MAKE)" << makefilein << " " << targ
+                      << "$(MAKE)" << makefilein << " " << sub_targ
                       << cdout << endl;
                 } else {
                     t << "\n\t"
-                      << "$(MAKE)" << makefilein << " " << targ << endl;
+                      << "$(MAKE)" << makefilein << " " << sub_targ << endl;
                 }
             }
         }
