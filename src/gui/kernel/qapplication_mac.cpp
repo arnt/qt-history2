@@ -2094,7 +2094,17 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(cmd.commandID == kHICommandQuit) {
                     handled_event = true;
                     HiliteMenu(0);
-                    if (!QApplicationPrivate::modalState()) {
+                    bool handle_quit = true;
+                    if(QApplicationPrivate::modalState()) {
+                        int visible = 0;
+                        const QWidgetList tlws = QApplication::topLevelWidgets();
+                        for(int i = 0; i < tlws.size(); ++i) {
+                            if(tlws.at(i)->isVisible())
+                                ++visible;
+                        }
+                        handle_quit = (visible <= 1);
+                    }
+                    if(handle_quit) {
                         QCloseEvent ev;
                         QApplication::sendSpontaneousEvent(app, &ev);
                         if(ev.isAccepted())
