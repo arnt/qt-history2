@@ -7651,6 +7651,8 @@ void QWidget::raise()
     int from;
     if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
         p->d_func()->children.move(from, p->d_func()->children.size() - 1);
+    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
+        create();
     if (testAttribute(Qt::WA_WState_Created))
         d->raise_sys();
 
@@ -7674,6 +7676,8 @@ void QWidget::lower()
     int from;
     if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
         p->d_func()->children.move(from, 0);
+    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
+        create();
     if (testAttribute(Qt::WA_WState_Created))
         d->lower_sys();
 
@@ -7702,6 +7706,8 @@ void QWidget::stackUnder(QWidget* w)
             --to;
         p->d_func()->children.move(from, to);
     }
+    if (!isWindow() && !testAttribute(Qt::WA_WState_Created) && parentWidget()->testAttribute(Qt::WA_WState_Created))
+        create();
     if (testAttribute(Qt::WA_WState_Created))
         d->stackUnder_sys(w);
 
