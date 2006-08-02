@@ -27,6 +27,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QToolBar>
+#include <QtGui/QStatusBar>
 #include <QtGui/QLabel>
 
 namespace qdesigner_internal {
@@ -53,6 +55,10 @@ static bool hasLayoutAttributes(QObject *object)
     if (qobject_cast<QLabel*>(object) != 0)
         return false;
     if (qobject_cast<QDockWidget*>(object) != 0)
+        return false;
+    if (qobject_cast<QToolBar*>(object) != 0)
+        return false;
+    if (qobject_cast<QStatusBar*>(object) != 0)
         return false;
     return true;
 }
