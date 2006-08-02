@@ -117,9 +117,9 @@ public:
     This type determines the visual appearance of the QLCDNumber
     widget.
 
-    \value Outline gives raised segments filled with the background brush.
-    \value Filled gives raised segments filled with the foreground brush.
-    \value Flat gives flat segments filled with the foreground brush.
+    \value Outline gives raised segments filled with the background color.
+    \value Filled gives raised segments filled with the windowText color.
+    \value Flat gives flat segments filled with the windowText color.
 */
 
 
@@ -905,7 +905,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
     } else {
         lightColor = pal.light().color();
         darkColor  = pal.dark().color();
-        fgColor    = pal.color(q->foregroundRole());
+        fgColor    = pal.color(q->windowTextRole());
     }
 
 
