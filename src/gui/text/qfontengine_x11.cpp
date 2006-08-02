@@ -1730,7 +1730,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
 
     return g;
 }
-
+#ifndef QT_NO_XRENDER
 bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QMatrix &matrix, GlyphSet *gs)
 {
     // don't try to load huge fonts
@@ -1809,6 +1809,7 @@ bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, con
 
     return true;
 }
+#endif
 
 inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
