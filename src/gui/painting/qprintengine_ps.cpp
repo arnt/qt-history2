@@ -19,11 +19,6 @@
 #include <private/qpaintengine_p.h>
 #include <private/qpdf_p.h>
 
-// <X11/Xlib.h> redefines Status -> int
-#if defined(Status)
-# undef Status
-#endif
-
 #ifndef QT_NO_PRINTER
 
 #include "qprinter.h"
@@ -50,15 +45,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <limits.h>
-
-#if defined (Q_WS_X11) || defined (Q_WS_QWS)
-#include <qtextlayout.h>
-#endif
-
-#ifdef Q_WS_X11
-#include <qx11info_x11.h>
-#include <private/qt_x11_p.h>
-#endif
 
 static bool qt_gen_epsf = false;
 
