@@ -42,6 +42,8 @@ public:
     static bool send(const QString& channel, const QString& msg,
                       const QByteArray &data);
 
+    static bool flush();
+
     static void sendLocally( const QString& ch, const QString& msg,
                                const QByteArray &data);
     static void reregisterAll();

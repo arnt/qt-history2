@@ -101,6 +101,7 @@ public:
     void registerChannel(const QString &channel);
     void sendMessage(const QString &channel, const QString &msg,
                        const QByteArray &data);
+    void flushCommands();
 #ifndef QT_NO_QWS_INPUTMETHODS
     void sendIMUpdate(int type, int winId, int widgetid);
     void resetIM();

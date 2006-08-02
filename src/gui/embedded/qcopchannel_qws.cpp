@@ -358,6 +358,28 @@ bool QCopChannel::send(const QString& channel, const QString& msg,
     return true;
 }
 
+/*!
+    \fn bool QCopChannel::flush()
+
+    Flushes any pending messages queued through QCopChannel::send() to any subscribed clients.
+    Returns false if no QApplication has been constructed, otherwise returns true.
+    When using QCopChannel::send(), messages are queued and actually sent when Qt re-enters the event loop.
+    By using this function, an application can immediately flush these queued messages,
+    and therefore reliably know that any subscribed clients will receive them.
+*/
+bool QCopChannel::flush()
+{
+    if (!qt_fbdpy) {
+        qFatal("QCopChannel::flush: Must construct a QApplication "
+                "before using QCopChannel");
+        return false;
+    }
+
+    qt_fbdpy->flushCommands();
+
+    return true;
+}
+
 class QWSServerSignalBridge : public QObject {
   Q_OBJECT
 

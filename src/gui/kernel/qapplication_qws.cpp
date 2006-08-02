@@ -434,6 +434,14 @@ void QWSDisplay::Data::create(int n)
     sendCommand(cmd);
 }
 
+void QWSDisplay::Data::flushCommands()
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    if  (csocket)
+        csocket->flush();
+#endif
+}
+
 void QWSDisplay::Data::sendCommand(QWSCommand & cmd)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -1417,6 +1425,11 @@ void QWSDisplay::sendMessage(const QString &channel, const QString &msg,
     QWSQCopSendCommand com;
     com.setMessage(channel, msg, data);
     qt_fbdpy->d->sendCommand(com);
+}
+
+void QWSDisplay::flushCommands()
+{
+    qt_fbdpy->d->flushCommands();
 }
 
 /*

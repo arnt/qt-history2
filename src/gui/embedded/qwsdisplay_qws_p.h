@@ -63,6 +63,7 @@ public:
     void reinit( const QString& newAppName );
     void create(int n = 1);
 
+    void flushCommands();
     void sendCommand(QWSCommand & cmd);
     void sendSynchronousCommand(QWSCommand & cmd);
 
