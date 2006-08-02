@@ -26,7 +26,7 @@ using namespace qdesigner_internal;
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 
 QPropertyEditor::QPropertyEditor(QWidget *parent)
-    : QTreeView(parent)
+    : QTreeView(parent), contentsResized(false)
 {
     m_model = new QPropertyEditorModel(this);
     setModel(m_model);
@@ -62,6 +62,12 @@ void QPropertyEditor::setReadOnly(bool readOnly)
 
 void QPropertyEditor::setInitialInput(IProperty *initialInput)
 {
+    bool needResize = false;
+    if (!m_model->initialInput() || m_model->initialInput() == dummy_collection()) {
+        if (initialInput)
+            needResize = true;
+    }
+
     if (!initialInput)
         initialInput = dummy_collection();
 
@@ -74,7 +80,10 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    resizeColumnToContents(0);
+    if (needResize && !contentsResized) {
+        contentsResized = true;
+        resizeColumnToContents(0);
+    }
 }
 
 
