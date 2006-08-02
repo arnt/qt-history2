@@ -45,8 +45,8 @@ namespace QFormInternal
 
 class FormBuilderPrivate: public QFormBuilder
 {
-    friend class QUiLoader;
-    friend class QUiLoaderPrivate;
+    friend class ::QUiLoader;
+    friend class ::QUiLoaderPrivate;
     typedef QFormBuilder ParentClass;
 
 public:
