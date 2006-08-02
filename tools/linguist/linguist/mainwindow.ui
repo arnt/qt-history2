@@ -445,9 +445,6 @@
    <property name="whatsThis" >
     <string>Marks this item as done and moves to the next unfinished item.</string>
    </property>
-   <property name="shortcut" >
-    <string>Ctrl+Enter</string>
-   </property>
   </action>
   <action name="actionBeginFromSource" >
    <property name="enabled" >
@@ -661,17 +658,6 @@
     <string>Batch translate all entries using the information in the phrase books.</string>
    </property>
   </action>
-  <action name="actionDoneAndNextAlt" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
-   <property name="text" >
-    <string>DoneAndNextAlt</string>
-   </property>
-   <property name="shortcut" >
-    <string>Ctrl+Return</string>
-   </property>
-  </action>
   <action name="actionReleaseAs" >
    <property name="text" >
     <string>Release As...</string>
@@ -765,22 +751,4 @@
   </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionDoneAndNextAlt</sender>
-   <signal>triggered()</signal>
-   <receiver>actionDoneAndNext</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>

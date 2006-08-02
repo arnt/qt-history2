@@ -310,7 +310,6 @@ void TrWindow::openFile( const QString& name )
     me->showNothing();
 
     m_ui.actionDoneAndNext->setEnabled(false);
-    m_ui.actionDoneAndNextAlt->setEnabled(false);
     m_ui.actionPreviewForm->setEnabled(true);
 
     statusBar()->showMessage(tr("%n source phrase(s) loaded.", 0, cmdl->getMessageCount()), MessageMS);
@@ -984,7 +983,6 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         m_ui.actionDoneAndNext->setEnabled(false);
     }
 
-    m_ui.actionDoneAndNextAlt->setEnabled(m_ui.actionDoneAndNext->isEnabled());
     m_ui.actionSelectAll->setEnabled(m_ui.actionDoneAndNext->isEnabled());
 
     Q_UNUSED(old);
@@ -1427,7 +1425,9 @@ void TrWindow::setupMenuBar()
 
     m_ui.actionManual->setWhatsThis(tr("Display the manual for %1.").arg(tr("Qt Linguist")));
     m_ui.actionAbout->setWhatsThis(tr("Display information about %1.").arg(tr("Qt Linguist")));
-    m_ui.actionDoneAndNextAlt->setWhatsThis(m_ui.actionDoneAndNext->whatsThis());
+    m_ui.actionDoneAndNext->setShortcuts(QList<QKeySequence>()
+                                            << QKeySequence("Ctrl+Return")
+                                            << QKeySequence("Ctrl+Enter"));
 
     // Disable the Close/Edit/Print phrasebook menuitems if they are not loaded
     connect(m_ui.menuPhrases, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()));
