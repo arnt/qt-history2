@@ -65,7 +65,7 @@ public:
 */
 
 QTreeModel::QTreeModel(int columns, QTreeWidget *parent)
-    : QAbstractItemModel(parent), headerItem(new QTreeWidgetItem)
+    : QAbstractItemModel(parent), headerItem(new QTreeWidgetItem), sortPending(false)
 {
     headerItem->view = parent;
     setColumnCount(columns);
@@ -77,7 +77,7 @@ QTreeModel::QTreeModel(int columns, QTreeWidget *parent)
 */
 
 QTreeModel::QTreeModel(QTreeModelPrivate &dd, QTreeWidget *parent)
-    : QAbstractItemModel(dd, parent), headerItem(new QTreeWidgetItem)
+    : QAbstractItemModel(dd, parent), headerItem(new QTreeWidgetItem), sortPending(false)
 {
     headerItem->view = parent;
 }
@@ -109,6 +109,7 @@ void QTreeModel::clear()
         delete item;
     }
     topLevelItems.clear();
+    sortPending = false;
     reset();
 }
 
@@ -193,6 +194,8 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
     if (row < 0 || column < 0 || column >= c)
         return QModelIndex();
 
+    //executePendingSort();
+
     // toplevel items
     if (!parent.isValid()) {
         if (row >= topLevelItems.count())
@@ -243,6 +246,8 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
+    executePendingSort();
+
     if (!parent.isValid())
         return topLevelItems.count();
 
@@ -270,6 +275,8 @@ int QTreeModel::columnCount(const QModelIndex &index) const
 
 bool QTreeModel::hasChildren(const QModelIndex &parent) const
 {
+    executePendingSort();
+
     if (!parent.isValid())
         return topLevelItems.count() > 0;
     QTreeWidgetItem *itm = item(parent);
@@ -471,6 +478,8 @@ Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 
 void QTreeModel::sort(int column, Qt::SortOrder order)
 {
+    sortPending = false;
+
     if (column < 0 || column >= columnCount())
         return;
 
@@ -493,6 +502,8 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
                               int start, int end, const QModelIndex &parent)
 {
+    sortPending = false;
+
     if (column < 0 || column >= columnCount())
         return;
 
@@ -610,10 +621,16 @@ QList<QTreeWidgetItem*>::iterator QTreeModel::sortedInsertionIterator(
 void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
 {
     if (view() && view()->isSortingEnabled()) {
+#if 0
         Qt::SortOrder order = view()->header()->sortIndicatorOrder();
         QList<QTreeWidgetItem*>::iterator it;
         it = sortedInsertionIterator(topLevelItems.begin(), topLevelItems.end(), order, item);
         row = qMax(it - topLevelItems.begin(), 0);
+#else
+        // do a delayed sort instead
+        row = topLevelItems.count(); // append;
+        sortPending = true;
+#endif
     }
     beginInsertRows(QModelIndex(), row, row);
     topLevelItems.insert(row, item);
@@ -631,7 +648,6 @@ void QTreeModel::insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &it
     if (items.isEmpty())
         return;
     if (view() && view()->isSortingEnabled()) {
-        // sorted insertion
         for (int n = 0; n < items.count(); ++n)
             insertInTopLevel(row, items.at(n));
     } else {
@@ -686,6 +702,19 @@ void QTreeModel::itemChanged(QTreeWidgetItem *item)
     QModelIndex left = index(item, 0);
     QModelIndex right = index(item, item->columnCount() - 1);
     emit dataChanged(left, right);
+}
+
+bool QTreeModel::executePendingSort() const
+{
+    if (sortPending) {
+        sortPending = false;
+        int column = view()->header()->sortIndicatorSection();
+        Qt::SortOrder order = view()->header()->sortIndicatorOrder();
+        QTreeModel *that = const_cast<QTreeModel*>(this);
+        that->sort(column, order); // will emit layoutChanged
+        return true;
+    }
+    return false;
 }
 
 /*!
@@ -1236,8 +1265,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 {
     if (view && view->model()) {
         QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
-        model->insertInTopLevel(model->rowCount(QModelIndex()), this);
-        values.reserve(model->columnCount());
+        model->insertInTopLevel(model->topLevelItems.count(), this);
+        values.reserve(model->headerItem->columnCount());
     }
 }
 
@@ -1263,8 +1292,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
         setText(i, strings.at(i));
     if (view && view->model()) {
         QTreeModel *model = ::qobject_cast<QTreeModel*>(view->model());
-        model->insertInTopLevel(model->rowCount(QModelIndex()), this);
-        values.reserve(model->columnCount());
+        model->insertInTopLevel(model->topLevelItems.count(), this);
+        values.reserve(model->headerItem->columnCount());
     }
 }
 
@@ -1289,7 +1318,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int 
         if (model) {
             int i = model->topLevelItems.indexOf(after) + 1;
             model->insertInTopLevel(i, this);
-            values.reserve(model->columnCount());
+            values.reserve(model->headerItem->columnCount());
         }
     }
 }
@@ -1625,11 +1654,17 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     child->par = this;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
         if (view->isSortingEnabled()) {
+#if 0
             Qt::SortOrder order = view->header()->sortIndicatorOrder();
             QList<QTreeWidgetItem*>::iterator it;
             it = model->sortedInsertionIterator(children.begin(), children.end(),
                                                 order, child);
             index = qMax(it - children.begin(), 0);
+#else
+            // do a delayed sort instead 
+            index = children.count(); // append
+            model->sortPending = true;
+#endif
         }
         model->beginInsertItems(this, index, 1);
         int cols = model->columnCount();
@@ -1656,6 +1691,8 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
         QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+        if (model && model->executePendingSort())
+            model = 0; // no need to emit signals
         if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
         item->par = 0;
@@ -1741,6 +1778,8 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
     QList<QTreeWidgetItem*> removed;
     if (children.count() > 0) {
         QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+        if (model && model->executePendingSort())
+            model = 0; // no need to emit signals
         if (model) model->beginRemoveItems(this, 0, children.count());
         for (int n = 0; n < children.count(); ++n) {
             QTreeWidgetItem *item = children.at(n);
@@ -1953,7 +1992,8 @@ void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
                                         const QModelIndex &bottomRight)
 {
     Q_Q(QTreeWidget);
-    if (sortingEnabled && topLeft.isValid() && bottomRight.isValid()) {
+    if (sortingEnabled && topLeft.isValid() && bottomRight.isValid()
+        && !model()->sortPending) {
         int column = q->header()->sortIndicatorSection();
         if (column >= topLeft.column() && column <= bottomRight.column()) {
             Qt::SortOrder order = q->header()->sortIndicatorOrder();
@@ -2190,6 +2230,7 @@ void QTreeWidget::setColumnCount(int columns)
 QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
 {
     Q_D(const QTreeWidget);
+    d->model()->executePendingSort();
     return d->model()->topLevelItems.value(index);
 }
 
@@ -2253,6 +2294,7 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
     Q_D(QTreeWidget);
     if (index >= 0 && index < d->model()->topLevelItems.count()) {
+        d->model()->executePendingSort();
         d->model()->beginRemoveRows(QModelIndex(), index, index);
         QTreeWidgetItem *item = d->model()->topLevelItems.takeAt(index);
         QStack<QTreeWidgetItem*> stack;
@@ -2275,6 +2317,7 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
+    d->model()->executePendingSort();
     return d->model()->topLevelItems.indexOf(item);
 }
 
@@ -2287,6 +2330,7 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item) const
 {
     Q_D(const QTreeWidget);
+    d->model()->executePendingSort();
     return d->model()->topLevelItems.indexOf(item);
 }
 

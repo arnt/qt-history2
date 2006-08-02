@@ -38,6 +38,7 @@ class QTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
     friend class QTreeWidget;
+    friend class QTreeWidgetPrivate;
     friend class QTreeWidgetItem;
     friend class QTreeWidgetItemIterator;
     friend class QTreeWidgetItemIteratorPrivate;
@@ -114,9 +115,11 @@ private:
     QList<QTreeWidgetItem*> topLevelItems;
     QTreeWidgetItem *headerItem;
 
-    // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
     QList<QTreeWidgetItemIterator*> iterators;
+
+    mutable bool sortPending;
+    bool executePendingSort() const;
 
     Q_DECLARE_PRIVATE(QTreeModel)
 };
