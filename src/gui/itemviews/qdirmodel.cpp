@@ -1355,7 +1355,8 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
         parent = 0;
         infoList = QDir::drives();
     } else if (parent->info.isDir()) {
-        if (parent->info.isSymLink()) {
+        //resolve directory links only if requested.
+        if (parent->info.isSymLink() && resolveSymlinks) {
             QString link = parent->info.symLinkTarget();
             if (link.size() > 1 && link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
