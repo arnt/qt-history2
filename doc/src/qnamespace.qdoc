@@ -1872,23 +1872,73 @@
 
     This enum type defines the various cursors that can be used.
 
-    \value ArrowCursor  standard arrow cursor
-    \value UpArrowCursor  upwards arrow
-    \value CrossCursor  crosshair
-    \value WaitCursor  hourglass/watch
-    \value IBeamCursor  ibeam/text entry
-    \value SizeVerCursor  vertical resize
-    \value SizeHorCursor  horizontal resize
-    \value SizeFDiagCursor  diagonal resize (\)
-    \value SizeBDiagCursor  diagonal resize (/)
-    \value SizeAllCursor  all directions resize
-    \value BlankCursor  blank/invisible cursor
-    \value SplitVCursor  vertical splitting
-    \value SplitHCursor  horizontal splitting
-    \value PointingHandCursor  a pointing hand
-    \value ForbiddenCursor  a slashed circle
-    \value WhatsThisCursor  an arrow with a question mark
-    \value BusyCursor  standard arrow with hourglass/watch
+    The standard arrow cursor is the default for widgets in a normal state.
+
+    \value ArrowCursor    \inlineimage cursor-arrow.png
+                          The standard arrow cursor.
+    \value UpArrowCursor  \inlineimage cursor-uparrow.png
+                          An arrow pointing upwards toward the top of the screen.
+    \value CrossCursor    \inlineimage cursor-cross.png
+                          A crosshair cursor, typically used to help the
+                          user accurately select a point on the screen.
+    \value WaitCursor     \inlineimage cursor-wait.png
+                          An hourglass or watch cursor, usually shown during
+                          operations that prevent the user from interacting with
+                          the application.
+    \value IBeamCursor    \inlineimage cursor-ibeam.png
+                          A caret or ibeam cursor, indicating that a widget can
+                          accept and display text input.
+    \value SizeVerCursor  \inlineimage cursor-sizev.png
+                          A cursor used for elements that are used to vertically
+                          resize top-level windows.
+    \value SizeHorCursor  \inlineimage cursor-sizeh.png
+                          A cursor used for elements that are used to horizontally
+                          resize top-level windows.
+    \value SizeFDiagCursor  \inlineimage cursor-sizef.png
+                          A cursor used for elements that are used to diagonally
+                          resize top-level windows at their top-left and
+                          bottom-right corners.
+    \value SizeBDiagCursor  \inlineimage cursor-sizeb.png
+                          A cursor used for elements that are used to diagonally
+                          resize top-level windows at their top-right and
+                          bottom-left corners.
+    \value SizeAllCursor  \inlineimage cursor-sizeall.png
+                          A cursor used for elements that are used to resize
+                          top-level windows in any direction.
+    \value BlankCursor    A blank/invisible cursor, typically used when the cursor
+                          shape needs to be hidden.
+    \value SplitVCursor   \inlineimage cursor-vsplit.png
+                          A cursor used for vertical splitters, indicating that
+                          a handle can be dragged horizontally to adjust the use
+                          of available space.
+    \value SplitHCursor   \inlineimage cursor-hsplit.png
+                          A cursor used for horizontal splitters, indicating that
+                          a handle can be dragged vertically to adjust the use
+                          of available space.
+    \value PointingHandCursor  \inlineimage cursor-hand.png
+                          A pointing hand cursor that is typically used for
+                          clickable elements such as hyperlinks.
+    \value ForbiddenCursor  \inlineimage cursor-forbidden.png
+                          A slashed circle cursor, typically used during drag
+                          and drop operations to indicate that dragged content
+                          cannot be dropped on particular widgets or inside
+                          certain regions.
+    \value OpenHandCursor \inlineimage cursor-openhand.png
+                          A cursor representing an open hand, typically used to
+                          indicate that the area under the cursor is the visible
+                          part of a canvas that the user can click and drag in
+                          order to scroll around.
+    \value ClosedHandCursor \inlineimage cursor-closedhand.png
+                          A cursor representing an open hand, typically used to
+                          indicate that a dragging operation is in progress that
+                          involves scrolling.
+    \value WhatsThisCursor  \inlineimage cursor-whatsthis.png
+                          An arrow with a question mark, typically used 
+    \value BusyCursor     \inlineimage cursor-wait.png
+                          An hourglass or watch cursor, usually shown during
+                          operations that allow the user to interact with
+                          the application while they are performed in the
+                          background.
     \value BitmapCursor
     \omitvalue LastCursor
     \omitvalue CustomCursor
@@ -1909,10 +1959,6 @@
     \omitvalue pointingHandCursor
     \omitvalue forbiddenCursor
     \omitvalue whatsThisCursor
-
-    ArrowCursor is the default for widgets in a normal state.
-
-    \image cursors.png Cursor Shapes
 */
 
 /*!

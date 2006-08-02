@@ -54,8 +54,6 @@
     To set or get the position of the mouse cursor use the static
     methods QCursor::pos() and QCursor::setPos().
 
-    \img cursors.png Cursor Shapes
-
     \section1 A Note for X11 Users
 
     On X11, Qt supports the \link
@@ -69,25 +67,44 @@
     theme, while others will use an internal bitmap cursor.
 
     \table
-    \header \o Qt::CursorShape Values   \o Cursor Names
-    \row \o Qt::ArrowCursor             \o \c left_ptr
-    \row \o Qt::UpArrowCursor           \o \c up_arrow
-    \row \o Qt::CrossCursor             \o \c cross
-    \row \o Qt::WaitCursor              \o \c wait
-    \row \o Qt::BusyCursor              \o \c left_ptr_watch
-    \row \o Qt::IBeamCursor             \o \c ibeam
-    \row \o Qt::SizeVerCursor           \o \c size_ver
-    \row \o Qt::SizeHorCursor           \o \c size_hor
-    \row \o Qt::SizeBDiagCursor         \o \c size_bdiag
-    \row \o Qt::SizeFDiagCursor         \o \c size_fdiag
-    \row \o Qt::SizeAllCursor           \o \c size_all
-    \row \o Qt::SplitVCursor            \o \c split_v
-    \row \o Qt::SplitHCursor            \o \c split_h
-    \row \o Qt::PointingHandCursor      \o \c pointing_hand
-    \row \o Qt::ForbiddenCursor         \o \c forbidden
-    \row \o Qt::WhatsThisCursor         \o \c whats_this
-    \row \o Qt::OpenHandCursor          \o \c openhand
-    \row \o Qt::ClosedHandCursor        \o \c closedhand
+    \header \o Shape \o Qt::CursorShape Value \o Cursor Name
+            \o Shape \o Qt::CursorShape Value \o Cursor Name
+    \row \o \inlineimage cursor-arrow.png
+         \o Qt::ArrowCursor   \o \c left_ptr
+         \o \inlineimage      cursor-sizev.png
+         \o Qt::SizeVerCursor \o \c size_ver
+    \row \o \inlineimage      cursor-uparrow.png
+         \o Qt::UpArrowCursor \o \c up_arrow
+         \o \inlineimage      cursor-sizeh.png
+         \o Qt::SizeHorCursor \o \c size_hor
+    \row \o \inlineimage      cursor-cross.png
+         \o Qt::CrossCursor   \o \c cross
+         \o \inlineimage      cursor-sizeb.png
+         \o Qt::SizeBDiagCursor \o \c size_bdiag
+    \row \o \inlineimage      cursor-ibeam.png
+         \o Qt::IBeamCursor   \o \c ibeam
+         \o \inlineimage      cursor-sizef.png
+         \o Qt::SizeFDiagCursor \o \c size_fdiag
+    \row \o \inlineimage      cursor-wait.png
+         \o Qt::WaitCursor    \o \c wait
+         \o \inlineimage      cursor-sizeall.png
+         \o Qt::SizeAllCursor \o \c size_all
+    \row \o \inlineimage      cursor-busy.png
+         \o Qt::BusyCursor    \o \c left_ptr_watch
+         \o \inlineimage      cursor-vsplit.png
+         \o Qt::SplitVCursor  \o \c split_v
+    \row \o \inlineimage      cursor-forbidden.png
+         \o Qt::ForbiddenCursor \o \c forbidden
+         \o \inlineimage      cursor-hsplit.png
+         \o Qt::SplitHCursor  \o \c split_h
+    \row \o \inlineimage      cursor-hand.png
+         \o Qt::PointingHandCursor \o \c pointing_hand
+         \o \inlineimage      cursor-openhand.png
+         \o Qt::OpenHandCursor  \o \c openhand
+    \row \o \inlineimage      cursor-whatsthis.png
+         \o Qt::WhatsThisCursor \o \c whats_this
+         \o \inlineimage      cursor-closedhand.png
+         \o Qt::ClosedHandCursor \o \c closedhand
     \endtable
 
     \sa QWidget, {fowler}{GUI Design Handbook: Cursors}
