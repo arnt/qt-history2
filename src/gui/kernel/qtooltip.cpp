@@ -73,17 +73,21 @@ public:
     QBasicTimer hideTimer, deleteTimer;
 
     void hideTip();
+    void setTipRect(QWidget *w, const QRect &r);
 protected:
     void enterEvent(QEvent*){hideTip();}
     void timerEvent(QTimerEvent *e);
     void paintEvent(QPaintEvent *e);
 
+private:
+    QWidget *widget;
+    QRect rect;
 };
 
 QTipLabel *QTipLabel::instance = 0;
 
 QTipLabel::QTipLabel(const QString& text, QWidget* parent)
-    : QLabel(parent, Qt::ToolTip)
+    : QLabel(parent, Qt::ToolTip), widget(0)
 {
     delete instance;
     instance = this;
@@ -133,6 +137,14 @@ void QTipLabel::hideTip()
     deleteTimer.start(250, this);
 }
 
+void QTipLabel::setTipRect(QWidget *w, const QRect &r)
+{
+    if (w) {
+        widget = w;
+        rect = r;
+    }
+}
+
 void QTipLabel::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == hideTimer.timerId())
@@ -141,7 +153,7 @@ void QTipLabel::timerEvent(QTimerEvent *e)
         delete this;
 }
 
-bool QTipLabel::eventFilter(QObject *, QEvent *e)
+bool QTipLabel::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
     case QEvent::KeyPress:
@@ -164,22 +176,31 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
     case QEvent::FocusOut:
     case QEvent::Wheel:
         hideTip();
+        break;
+
+    case QEvent::MouseMove:
+        if (o == widget && !rect.isNull() && !rect.contains(static_cast<QMouseEvent*>(e)->pos()))
+            hideTip();
     default:
-        ;
+        break;
     }
     return false;
 }
 
 /*!
-    Shows \a text as a tool tip, at global position \a pos. The
-    optional widget argument, \a w, is used to determine the
-    appropriate screen on multi-head systems. If \a text is empty the
-    tool tip is hidden. If the text is the same as the currently shown
-    tooltip, the tip will \e not move. You can force moving by first
-    hiding the tip with an empty text, and then showing the new tip at
-    the new position.
+    Shows \a text as a tool tip, at global position \a pos. If you
+    specify a non-empty rect the tip will be hidden as soon as you
+    move your cursor out of this area. The rect is in the coordinates
+    of the widget you specify with \a w. If the rect is not empty you
+    must specify a widget. Otherwise this argument can be 0 but it is
+    used to determine the appropriate screen on multi-head systems. If
+    \a text is empty the tool tip is hidden. If the text is the same
+    as the currently shown tooltip, the tip will \e not move. You can
+    force moving by first hiding the tip with an empty text, and then
+    showing the new tip at the new position.
 */
-void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
+
+void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)
 {
     if (QTipLabel::instance && QTipLabel::instance->text() == text)
         return; /* this is NOT a bug, if the text doesn't change, you
@@ -210,7 +231,13 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
     QRect screen = QApplication::desktop()->screenGeometry(scr);
 #endif
 
-    QLabel *label = new QTipLabel(text, QApplication::desktop()->screen(scr));
+    QTipLabel *label = new QTipLabel(text, QApplication::desktop()->screen(scr));
+    if (!rect.isNull() && !w) {
+        qWarning("QToolTip::showText: Cannot pass null widget if rect is set");
+    } else {
+        label->setTipRect(w, rect);
+    }
+
     label->setObjectName(QLatin1String("qtooltip_label"));
 
     QPoint p = pos;
@@ -248,6 +275,18 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 #endif
 
 }
+
+/*!
+    \overload
+
+    This is analogous to calling QToolTip::showText(\a pos, \a text, \a w, QRect())
+*/
+
+void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
+{
+    QToolTip::showText(pos, text, w, QRect());
+}
+
 
 /*!
     \fn void QToolTip::hideText()
