@@ -905,7 +905,7 @@ void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter 
     } else {
         lightColor = pal.light().color();
         darkColor  = pal.dark().color();
-        fgColor    = pal.color(q->windowTextRole());
+        fgColor    = pal.color(q->foregroundRole());
     }
 
 
