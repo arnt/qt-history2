@@ -3692,8 +3692,8 @@
     \nextpage Using qmake
 
     This chapter describes how to set up \c qmake project files for three
-    common types of project that are based on Qt. Although all kinds of
-    project use many of the same variables, each of them use project-specific
+    common project types that are based on Qt. Although all kinds of
+    projects use many of the same variables, each of them use project-specific
     variables to customize output files.
 
     Platform-specific variables are not described here; we refer the reader to
