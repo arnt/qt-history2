@@ -77,6 +77,7 @@ public:
     QPrintDialogPrivate();
 
     void init();
+    void applyPrinterProperties(QPrinter *p);
 
     void _q_printToFileChanged(int);
     void _q_rbPrintRangeToggled(bool);
@@ -935,8 +936,35 @@ void QPrintDialogPrivate::init()
     }
 #endif
 
-    ui.cbPaperLayout->addItem(QApplication::translate("PrinterDialog","Portrait"), QPrinter::Portrait);
-    ui.cbPaperLayout->addItem(QApplication::translate("PrinterDialog","Landscape"), QPrinter::Landscape);
+    ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Portrait"), QPrinter::Portrait);
+    ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Landscape"), QPrinter::Landscape);
+
+    ui.buttonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("QPrintDialog","Print"));
+
+    applyPrinterProperties(p);
+
+    QObject::connect(ui.buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+    QObject::connect(ui.buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+
+    QObject::connect(ui.chbPrintToFile, SIGNAL(stateChanged(int)),
+                     q, SLOT(_q_printToFileChanged(int)));
+
+    QObject::connect(ui.rbPrintRange, SIGNAL(toggled(bool)),
+                     q, SLOT(_q_rbPrintRangeToggled(bool)));
+    QObject::connect(ui.cbPrinters, SIGNAL(currentIndexChanged(int)),
+                     q, SLOT(_q_printerChanged(int)));
+    QObject::connect(ui.cbPaperSize, SIGNAL(currentIndexChanged(int)),
+                     q, SLOT(_q_paperSizeChanged(int)));
+
+#ifndef QT_NO_FILEDIALOG
+    QObject::connect(ui.btnBrowse, SIGNAL(clicked()), q, SLOT(_q_btnBrowseClicked()));
+#endif
+    QObject::connect(ui.btnProperties, SIGNAL(clicked()), q, SLOT(_q_btnPropertiesClicked()));
+}
+
+
+void QPrintDialogPrivate::applyPrinterProperties(QPrinter *p)
+{
     if (p->orientation() == QPrinter::Portrait)
         ui.cbPaperLayout->setCurrentIndex(0);
     else
@@ -961,26 +989,20 @@ void QPrintDialogPrivate::init()
 
     ui.chbDuplex->setChecked(p->doubleSidePrinting());
 
-    QObject::connect(ui.btnPrint, SIGNAL(clicked()), q, SLOT(accept()));
-    QObject::connect(ui.btnCancel, SIGNAL(clicked()), q, SLOT(reject()));
-
-    QObject::connect(ui.chbPrintToFile, SIGNAL(stateChanged(int)),
-                     q, SLOT(_q_printToFileChanged(int)));
-
-    QObject::connect(ui.rbPrintRange, SIGNAL(toggled(bool)),
-                     q, SLOT(_q_rbPrintRangeToggled(bool)));
-    QObject::connect(ui.cbPrinters, SIGNAL(currentIndexChanged(int)),
-                     q, SLOT(_q_printerChanged(int)));
-    QObject::connect(ui.cbPaperSize, SIGNAL(currentIndexChanged(int)),
-                     q, SLOT(_q_paperSizeChanged(int)));
-
-#ifndef QT_NO_FILEDIALOG
-    QObject::connect(ui.btnBrowse, SIGNAL(clicked()), q, SLOT(_q_btnBrowseClicked()));
-#endif
-    QObject::connect(ui.btnProperties, SIGNAL(clicked()), q, SLOT(_q_btnPropertiesClicked()));
-
-    if (!p->outputFileName().isEmpty())
+    QString file = p->outputFileName();
+    if (!file.isEmpty()) {
         ui.chbPrintToFile->setChecked(true);
+        ui.leFile->setText(file);
+    }
+    QString printer = p->printerName();
+    if (!printer.isEmpty()) {
+        for (int i = 0; i < ui.cbPrinters->count(); ++i) {
+            if (ui.cbPrinters->itemText(i) == printer) {
+                ui.cbPrinters->setCurrentIndex(i);
+                break;
+            }
+        }
+    }
 }
 
 void QPrintDialogPrivate::_q_printToFileChanged(int state)
@@ -988,7 +1010,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
     Q_Q(QPrintDialog);
     if (state == Qt::Checked) {
         ui.stackedWidget->setCurrentIndex(1);
-        ui.gbDestination->setTitle(QApplication::translate("PrinterDialog","File"));
+        ui.gbDestination->setTitle(QApplication::translate("QPrintDialog","File"));
         QString fileName = q->printer()->outputFileName();
         if (fileName.isEmpty()) {
             QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
@@ -1011,7 +1033,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
         ui.leFile->selectAll();
     } else {
         ui.stackedWidget->setCurrentIndex(0);
-        ui.gbDestination->setTitle(QApplication::translate("PrinterDialog","Printer"));
+        ui.gbDestination->setTitle(QApplication::translate("QPrintDialog","Printer"));
     }
     refreshPageSizes();
 }
@@ -1099,7 +1121,7 @@ void QPrintDialogPrivate::refreshPageSizes()
 void QPrintDialogPrivate::_q_btnBrowseClicked()
 {
     Q_Q(QPrintDialog);
-    ui.leFile->setText(QFileDialog::getSaveFileName(q, QApplication::translate("PrinterDialog","Print To File ...")));
+    ui.leFile->setText(QFileDialog::getSaveFileName(q, QApplication::translate("QPrintDialog","Print To File ...")));
 }
 #endif
 
@@ -1209,13 +1231,22 @@ QPrinter *QPrintDialog::printer() const
     return d->printer;
 }
 
-// ##################
-void QPrintDialog::setPrinter(QPrinter *, bool)
+void QPrintDialog::setPrinter(QPrinter *printer, bool pickupSettings)
 {
+    if (!printer)
+        return;
+
+    Q_D(QPrintDialog);
+    d->printer = printer;
+
+    if (pickupSettings)
+        d->applyPrinterProperties(printer);
 }
 
-void QPrintDialog::addButton(QPushButton *)
+void QPrintDialog::addButton(QPushButton *button)
 {
+    Q_D(QPrintDialog);
+    d->ui.buttonBox->addButton(button, QDialogButtonBox::HelpRole);
 }
 #endif // QT3_SUPPORT
 
