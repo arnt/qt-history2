@@ -2367,11 +2367,10 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
     \ingroup events
     \ingroup draganddrop
 
-    This event is always immediately followed by a QDragMoveEvent. To
-    allow a drop, both QDragEnterEvent and QDragMoveEvent must be
-    accepted (if you do not accept the QDragEnterEvent you will not
-    receive any of the \l {QDragMoveEvent}s that are sent while the
-    drag and drop action is in progress).
+    A widget must accept this event in order to receive the \l
+    {QDragMoveEvent}{drag move events} that are sent while the drag
+    and drop action is in progress. The drag enter event is always
+    immediately followed by a drag move event.
 
     QDragEnterEvent inherits most of its functionality from
     QDragMoveEvent, which in turn inherits most of its functionality
@@ -2425,10 +2424,11 @@ QDragResponseEvent::~QDragResponseEvent()
     \ingroup events
     \ingroup draganddrop
 
-    When a widget \l{QWidget::setAcceptDrops()}{accepts drop events},
-    it will receive this event repeatedly while the drag is within
-    the widget's boundaries. The widget should examine the event to
-    see what kind of data it
+    A widget will receive drag move events repeatedly while the drag
+    is within its boundaries, if it accepts
+    \l{QWidget::setAcceptDrops()}{drop events} and \l
+    {QWidget::dragEnterEvent()}{enter events}. The widget should
+    examine the event to see what kind of data it
     \l{QDragMoveEvent::provides()}{provides}, and call the accept()
     function to accept the drop if appropriate.
 
