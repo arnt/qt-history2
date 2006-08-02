@@ -39,6 +39,12 @@ class QPrinter;
 class QPSPrintEnginePrivate;
 class QCUPSSupport;
 
+#if !defined(Q_WS_X11) && !defined(Q_WS_QWS)
+#define QT_NO_LPR
+#undef QT_NO_CUPS
+#define QT_NO_CUPS
+#endif
+
 class QPSPrintEngine : public QPdfBaseEngine
 {
     Q_DECLARE_PRIVATE(QPSPrintEngine)

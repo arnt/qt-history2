@@ -813,6 +813,7 @@ QPSPrintEngine::~QPSPrintEngine()
         ::close(d->fd);
 }
 
+#ifndef QT_NO_LPR
 static void closeAllOpenFds()
 {
     // hack time... getting the maximum number of open
@@ -832,6 +833,7 @@ static void closeAllOpenFds()
     while(--i > 2)
 	::close(i);
 }
+#endif
 
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
@@ -851,6 +853,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
             );
         if (d->fd < 0)
             return false;
+#ifndef QT_NO_LPR
     } else {
         QString pr;
         if (!d->printerName.isEmpty())
@@ -1024,6 +1027,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
         // parent process
         ::close(fds[0]);
         d->fd = fds[1];
+#endif
     }
     if (d->fd < 0)
         return false;

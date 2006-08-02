@@ -76,7 +76,7 @@ public:
                         Aborted,
                         Error };
 
-    enum OutputFormat { NativeFormat, PdfFormat };
+    enum OutputFormat { NativeFormat, PdfFormat, PostscriptFormat };
 
     // ### Qt 5: Merge with QAbstractPrintDialog::PrintRange
     enum PrintRange { AllPages, Selection, PageRange };

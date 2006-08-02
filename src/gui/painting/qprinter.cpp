@@ -44,7 +44,8 @@
 
 void QPrinterPrivate::createDefaultEngines()
 {
-    if (outputFormat == QPrinter::NativeFormat) {
+    switch (outputFormat) {
+    case QPrinter::NativeFormat: {
 #if defined (Q_WS_WIN)
         QWin32PrintEngine *winEngine = new QWin32PrintEngine(printerMode);
         paintEngine = winEngine;
@@ -58,12 +59,21 @@ void QPrinterPrivate::createDefaultEngines()
         paintEngine = psEngine;
         printEngine = psEngine;
 #endif
-    } else {
+        }
+        break;
+    case QPrinter::PdfFormat: {
         QPdfEngine *pdfEngine = new QPdfEngine(printerMode);
         paintEngine = pdfEngine;
         printEngine = pdfEngine;
     }
-
+        break;
+    case QPrinter::PostscriptFormat: {
+        QPSPrintEngine *psEngine = new QPSPrintEngine(printerMode);
+        paintEngine = psEngine;
+        printEngine = psEngine;
+    }
+        break;
+    }
     use_default_engine = true;
 }
 

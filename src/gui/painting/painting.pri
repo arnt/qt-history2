@@ -18,6 +18,7 @@ HEADERS += \
 	painting/qpolygon.h \
 	painting/qpolygonclipper_p.h \
 	painting/qprintengine_pdf_p.h \
+	painting/qprintengine_ps_p.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qregion.h \
@@ -40,6 +41,7 @@ SOURCES += \
 	painting/qpen.cpp \
 	painting/qpolygon.cpp \
 	painting/qprintengine_pdf.cpp \
+	painting/qprintengine_ps.cpp \
 	painting/qprinter.cpp \
 	painting/qstroker.cpp \
         painting/qstylepainter.cpp \
@@ -100,12 +102,6 @@ unix:x11 {
 		painting/qpaintdevice_mac.cpp \
 		painting/qpaintengine_mac.cpp \
 		painting/qprintengine_mac.cpp
-} else:unix {
-	HEADERS	+= \
-		painting/qprintengine_ps_p.h
-
-	SOURCES += \
-		painting/qprintengine_ps.cpp
 }
 
 unix:SOURCES += painting/qregion_unix.cpp
