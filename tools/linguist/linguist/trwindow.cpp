@@ -1196,7 +1196,7 @@ bool TrWindow::setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished)
     if (currentIndex->isValid()) {
         QModelIndex idx = *currentIndex;
         do {
-            int row = idx.row() - 1;
+            int row;
             QModelIndex par = idx.parent();
             if (par.isValid()) {
                 row = idx.row() - 1;
@@ -1378,7 +1378,6 @@ void TrWindow::setupMenuBar()
     connect(m_ui.actionPrevUnfinished, SIGNAL(triggered()), this, SLOT(prevUnfinished()));
     connect(m_ui.actionNextUnfinished, SIGNAL(triggered()), this, SLOT(nextUnfinished()));
     connect(m_ui.actionNext, SIGNAL(triggered()), this, SLOT(next()));
-    connect(m_ui.actionPrev, SIGNAL(triggered()), this, SLOT(prev()));
     connect(m_ui.actionPrev, SIGNAL(triggered()), this, SLOT(prev()));
     connect(m_ui.actionDoneAndNext, SIGNAL(triggered()), this, SLOT(doneAndNext()));
     connect(m_ui.actionBeginFromSource, SIGNAL(triggered()), me, SLOT(beginFromSource()));
