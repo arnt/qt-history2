@@ -11,6 +11,9 @@
 #include <private/qapplication_p.h>
 #include <qkeysequence.h>
 #include <private/qkeysequence_p.h>
+#include <QTranslator>
+#include <QLibraryInfo>
+
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/kernel/qkeysequence.h gui/kernel/qkeysequence.cpp
@@ -42,6 +45,14 @@ private slots:
     void standardKeys_data();
     void standardKeys();
     void keyBindings();
+    void translated_data();
+    void translated();
+
+    void initTestCase();
+private:
+    QTranslator *ourTranslator;
+    QTranslator *qtTranslator;
+
 };
 
 // copied from qkeysequence.cpp
@@ -57,6 +68,14 @@ tst_QKeySequence::tst_QKeySequence()
 tst_QKeySequence::~tst_QKeySequence()
 {
 
+}
+
+void tst_QKeySequence::initTestCase()
+{
+    ourTranslator = new QTranslator(this);
+    ourTranslator->load(QLatin1String("keys_de"), ".");
+    qtTranslator = new QTranslator(this);
+    qtTranslator->load(QLatin1String("qt_de"), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 }
 
 void tst_QKeySequence::operatorQString_data()
@@ -354,11 +373,55 @@ void tst_QKeySequence::fromString()
     QKeySequence ks3 = QKeySequence::fromString(neutralString, QKeySequence::PortableText);
     QKeySequence ks4 = QKeySequence::fromString(platformString, QKeySequence::NativeText);
 
+
     // assume the transitive property exists here.
     QCOMPARE(ks2, ks1);
     QCOMPARE(ks3, ks1);
     QCOMPARE(ks4, ks1);
 }
+
+void tst_QKeySequence::translated_data()
+{
+    qApp->installTranslator(ourTranslator);
+    qApp->installTranslator(qtTranslator);
+
+    QTest::addColumn<QString>("transKey");
+    QTest::addColumn<QString>("compKey");
+
+    QTest::newRow("Shift++") << QString(tr("Shift++")) << QString("Umschalt++");
+    QTest::newRow("Ctrl++")  << QString(tr("Ctrl++")) << QString("Strg++");
+    QTest::newRow("Alt++")   << QString(tr("Alt++")) << QString("Alt++");
+    QTest::newRow("Meta++")  << QString(tr("Meta++")) << QString("Meta++");
+ 
+     QTest::newRow("Shift+,, Shift++") << QString(tr("Shift+,, Shift++")) << QString("Umschalt+,, Umschalt++");
+     QTest::newRow("Shift+,, Ctrl++")  << QString(tr("Shift+,, Ctrl++")) << QString("Umschalt+,, Strg++");
+     QTest::newRow("Shift+,, Alt++")   << QString(tr("Shift+,, Alt++")) << QString("Umschalt+,, Alt++");
+     QTest::newRow("Shift+,, Meta++")  << QString(tr("Shift+,, Meta++")) << QString("Umschalt+,, Meta++");
+ 
+     QTest::newRow("Ctrl+,, Shift++") << QString(tr("Ctrl+,, Shift++")) << QString("Strg+,, Umschalt++");
+     QTest::newRow("Ctrl+,, Ctrl++") << QString(tr("Ctrl+,, Ctrl++")) << QString("Strg+,, Strg++");
+     QTest::newRow("Ctrl+,, Alt++") << QString(tr("Ctrl+,, Alt++")) << QString("Strg+,, Alt++");
+     QTest::newRow("Ctrl+,, Meta++") << QString(tr("Ctrl+,, Meta++")) << QString("Strg+,, Meta++");
+
+    qApp->removeTranslator(ourTranslator);
+    qApp->removeTranslator(qtTranslator);
+}
+
+void tst_QKeySequence::translated()
+{
+    QFETCH(QString, transKey);
+    QFETCH(QString, compKey);
+
+    qApp->installTranslator(ourTranslator);
+    qApp->installTranslator(qtTranslator);
+
+    QKeySequence ks1(transKey);
+    QCOMPARE(ks1.toString(QKeySequence::NativeText), compKey);
+
+    qApp->removeTranslator(ourTranslator);
+    qApp->removeTranslator(qtTranslator);
+}
+
 
 QTEST_MAIN(tst_QKeySequence)
 #include "tst_qkeysequence.moc"

@@ -708,22 +708,34 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
     if (!gmodifs) return ret;
 
 
-    QList<QModifKeyName> modifs = *gmodifs;
+    QList<QModifKeyName> modifs;
     if (nativeText) {
         modifs << QModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
                << QModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
                << QModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
-               << QModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
+               << QModifKeyName(Qt::META, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
     }
+    modifs += *gmodifs; // Test non-translated ones last
 
     QString sl = accel;
-    for (int i = 0; i < modifs.size(); ++i) {
-        const QModifKeyName &mkf = modifs.at(i);
-        if (sl.contains(mkf.name)) {
-            ret |= mkf.qt_key;
-            accel.remove(mkf.name);
-            sl = accel;
+    int len = sl.length();
+    int i = 0;
+    int lastI = 0;
+    while ((i = sl.indexOf('+', i + 1)) != -1) {
+        const QString sub = sl.mid(lastI, i - lastI + 1);
+        // Just shortcut the check here if we only have one character.
+        // Rational: A modifier will contain the name AND +, so longer than 1, a length of 1 is just
+        // the remaining part of the shortcut (ei. The 'C' in "Ctrl+C"), so no need to check that.
+        if (sub.length() > 1) {
+            for (int j = 0; j < modifs.size(); ++j) {
+                const QModifKeyName &mkf = modifs.at(j);
+                if (sub == mkf.name) {
+                    ret |= mkf.qt_key;
+                    break; // Shortcut, since if we find an other it would/should just be a dup
+                }
+            }
         }
+        lastI = i + 1;
     }
 
     int p = accel.lastIndexOf(QLatin1Char('+'), str.length() - 2); // -2 so that Ctrl++ works
