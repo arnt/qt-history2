@@ -15,6 +15,7 @@
 #include "qsvgnode_p.h"
 #include "qsvgstyle_p.h"
 
+#include "qpainter.h"
 #include "qlocale.h"
 #include "qdebug.h"
 
@@ -33,6 +34,7 @@ void QSvgG::draw(QPainter *p)
 {
     QList<QSvgNode*>::iterator itr = m_renderers.begin();
     applyStyle(p);
+    
     while (itr != m_renderers.end()) {
         QSvgNode *node = *itr;
         if (node->isVisible())
@@ -242,13 +244,11 @@ QRectF QSvgStructureNode::bounds() const
 QRectF QSvgStructureNode::transformedBounds(const QMatrix &mat) const
 {
     QMatrix m = mat;
-
-    QSvgTransformStyle *trans =
-        static_cast<QSvgTransformStyle*>(styleProperty(QSvgStrokeStyle::TRANSFORM));
+    QSvgTransformStyle *trans = m_style.transform;
     if (trans) {
         m = trans->qmatrix() * m;
     }
-
+    
     QRectF bounds;
     foreach(QSvgNode *node, m_renderers) {
         bounds |= node->transformedBounds(m);

@@ -143,13 +143,18 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
     }
     //reset the world matrix so that our parents don't affect
     //the position
-    p->setWorldMatrix(QMatrix());    
-
+    QMatrix om = p->worldMatrix();
+    p->setWorldMatrix(QMatrix());
+    
     node->draw(p);
 
+    p->setWorldMatrix(om);
+    
     foreach(QSvgNode *par, parentRevertQueue) {
         par->revertStyle(p);
     }
+
+    //p->fillRect(bounds.adjusted(-5, -5, 5, 5), QColor(0, 0, 255, 100));
 }
 
 

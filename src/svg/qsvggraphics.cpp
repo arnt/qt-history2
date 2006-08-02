@@ -179,6 +179,7 @@ QRectF QSvgRect::bounds() const
 void QSvgRect::draw(QPainter *p)
 {
     applyStyle(p);
+    
     if (m_rx || m_ry)
         p->drawRoundRect(m_rect, m_rx, m_ry);
     else
@@ -416,13 +417,12 @@ QRectF QSvgUse::transformedBounds(const QMatrix &mat) const
     QMatrix m = mat;
     
     if (m_link)  {       
-        QSvgTransformStyle *trans =
-            static_cast<QSvgTransformStyle*>(styleProperty(QSvgStrokeStyle::TRANSFORM));
+        QSvgTransformStyle *trans = m_style.transform;
         if (trans) {
             m = trans->qmatrix() * m;
         }
         m.translate(m_start.x(), m_start.y());
- 
+
         bounds = m_link->transformedBounds(m);
         
         return bounds;
