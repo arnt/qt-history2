@@ -43,14 +43,6 @@
      </property>
      <item>
       <widget class="QTreeWidget" name="treeWidget" >
-       <property name="sizePolicy" >
-        <sizepolicy>
-         <hsizetype>1</hsizetype>
-         <vsizetype>7</vsizetype>
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="iconSize" >
         <size>
          <width>128</width>
@@ -114,18 +106,20 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Close</set>
-     </property>
-    </widget>
+    <widget class="QDialogButtonBox" name="buttonBox" />
    </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>QDialogButtonBox</class>
+   <extends>QWidget</extends>
+   <header>qdialogbuttonbox.h</header>
+   <container>1</container>
+   <pixmap></pixmap>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
