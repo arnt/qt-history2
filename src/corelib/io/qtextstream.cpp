@@ -463,7 +463,7 @@ bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
     // buffer.
     if (readBuffer.isEmpty() && endOfBufferState.isEmpty())
         readBufferStartDevicePos = device->pos();
-    
+
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
@@ -536,7 +536,7 @@ bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
         QChar *writePtr = readBuffer.data();
         QChar *readPtr = readBuffer.data();
         QChar *endPtr = readBuffer.data() + readBuffer.size();
-        
+
         int n = 0;
         while (readPtr < endPtr) {
             if (readPtr + 1 < endPtr && *readPtr == CR && *(readPtr + 1) == LF) {
@@ -3009,7 +3009,7 @@ void QTextStream::setEncoding(Encoding encoding)
     case Latin1:
         d->readConverterState.flags |= QTextCodec::IgnoreHeader;
         d->writeConverterState.flags |= QTextCodec::IgnoreHeader;
-        setCodec(QTextCodec::codecForName("ISO-8851-1"));
+        setCodec(QTextCodec::codecForName("ISO-8859-1"));
         d->autoDetectUnicode = false;
         break;
     case Unicode:
