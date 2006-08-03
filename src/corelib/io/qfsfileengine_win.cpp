@@ -1455,8 +1455,9 @@ QString QFSFileEngine::fileName(FileName file) const
 
         if (!isRelativePath()) {
             if (d->file.size() > 2 && d->file.at(1) == QLatin1Char(':')
-                && d->file.at(2) != QLatin1Char('/')) {
-                // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
+                && d->file.at(2) != QLatin1Char('/') || // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
+                d->file.startsWith(QLatin1Char('/'))    // It's a absolute path to the current drive, so \a.txt -> Z:\a.txt
+                ) {
                 ret = QDir::convertSeparators(nativeAbsoluteFilePath(d->file));
             } else {
                 ret = d->file;

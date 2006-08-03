@@ -294,7 +294,8 @@ void tst_QFileInfo::absFilePath_data()
     QTest::addColumn<QString>("file");
     QTest::addColumn<QString>("expected");
 
-    QTest::newRow("relativeFile") << "tmp.txt" << QDir::currentPath() + "/" + "tmp.txt";
+    QTest::newRow("relativeFile") << "tmp.txt" << QDir::currentPath() + "/tmp.txt";
+    QTest::newRow(".")            << "\\depot\\qt-4.2\\tests\\auto\\qfileinfo"       << QDir::convertSeparators(QDir::currentPath());
     QTest::newRow("relativeFileInSubDir") << "temp/tmp.txt" << QDir::currentPath() + "/" + "temp/tmp.txt";
 #ifdef Q_OS_WIN
     QTest::newRow("absFilePath") << "c:\\home\\andy\\tmp.txt" << "C:/home/andy/tmp.txt";
