@@ -707,49 +707,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         }
     }
 
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == QLatin1String("connections")) {
-            // setup signals and slots connections
-            out << endl << indent << "// signals and slots connections" << endl;
-            nl = n.elementsByTagName(QLatin1String("connection"));
-            for (i = 0; i < (int) nl.length(); i++) {
-                QString sender, receiver, signal, slot;
-                for (QDomElement n2 = nl.item(i).firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement()) {
-                    if (n2.tagName() == QLatin1String("sender"))
-                        sender = n2.firstChild().toText().data();
-                    else if (n2.tagName() == QLatin1String("receiver"))
-                        receiver = n2.firstChild().toText().data();
-                    else if (n2.tagName() == QLatin1String("signal"))
-                        signal = fixDeclaration(n2.firstChild().toText().data());
-                    else if (n2.tagName() == QLatin1String("slot"))
-                        slot = fixDeclaration(n2.firstChild().toText().data());
-                }
-                if (sender.isEmpty() ||
-                     receiver.isEmpty() ||
-                     signal.isEmpty() ||
-                     slot.isEmpty())
-                    continue;
-                if (sender[0] == QLatin1Char('<') ||
-                     receiver[0] == QLatin1Char('<') ||
-                     signal[0] == QLatin1Char('<') ||
-                     slot[0] == QLatin1Char('<'))
-                    continue;
-
-                sender = registeredName(sender);
-                receiver = registeredName(receiver);
-
-                 // translate formwindow name to "this"
-                if (sender == objName)
-                    sender = QLatin1String("this");
-                if (receiver == objName)
-                    receiver = QLatin1String("this");
-
-                out << indent << "connect(" << sender << ", SIGNAL(" << signal << "), "
-                    << receiver << ", SLOT(" << slot << "));" << endl;
-            }
-        }
-    }
-
     if (extraFuncts.contains(QLatin1String("init()")))
         out << indent << "init();" << endl;
 
