@@ -1780,7 +1780,7 @@ bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, con
         font->transformationMatrix = m;
     }
 
-    FT_Face face;
+    FT_Face face = 0;
     bool lockedFace = false;
 
     for (int i = 0; i < num_glyphs; ++i) {
@@ -2113,20 +2113,18 @@ QFixed QFontEngineFT::leading() const
 
 QFixed QFontEngineFT::xHeight() const
 {
-    TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_pclt);
-    if (pct && pct->xHeight) {
-        return QFixed(pct->xHeight*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
-    }
+    TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
+    if (os2 && os2->sxHeight)
+        return QFixed(os2->sxHeight*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
     return QFontEngine::xHeight();
 }
 
 QFixed QFontEngineFT::averageCharWidth() const
 {
     TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
-    if (os2 && os2->xAvgCharWidth) {
+    if (os2 && os2->xAvgCharWidth)
         return QFixed(os2->xAvgCharWidth*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
-    }
-    return QFontEngine::xHeight();
+    return QFontEngine::averageCharWidth();
 }
 
 
