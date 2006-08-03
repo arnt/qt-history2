@@ -24,7 +24,7 @@ Window::Window(QWidget *parent)
     setWindowTitle(tr("Drop Actions"));
 }
 
-void Window::dragMoveEvent(QDragMoveEvent *event)
+void Window::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("text/plain"))
         event->acceptProposedAction();
