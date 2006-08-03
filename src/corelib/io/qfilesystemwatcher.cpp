@@ -400,6 +400,16 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
     \sa directories()
 */
 
+QStringList QFileSystemWatcher::directories() const
+{
+    return QStringList();
+}
+
+QStringList QFileSystemWatcher::files() const
+{
+    return QStringList();
+}
+
 #include "moc_qfilesystemwatcher.cpp"
 #include "qfilesystemwatcher.moc"
 
