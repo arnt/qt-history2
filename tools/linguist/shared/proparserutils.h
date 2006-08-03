@@ -42,7 +42,10 @@ struct Option
     //static QString yacc_mod;
     static QString dir_sep;
     static QString dirlist_sep;
-    //static QString sysenv_mod;
+    static QString qmakespec;
+    
+    enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
+    static TARG_MODE target_mode;
     //static QString pro_ext;
     //static QString res_ext;
     //static char field_sep;
@@ -50,16 +53,26 @@ struct Option
     static void init()
     {
 #ifdef Q_OS_WIN
-    Option::dirlist_sep = ';';
-    Option::dir_sep = QLatin1Char('\\');
+        Option::dirlist_sep = ';';
+        Option::dir_sep = QLatin1Char('\\');
 #else
-    Option::dirlist_sep = ':';
-    Option::dir_sep = QLatin1Char('/');
+        Option::dirlist_sep = ':';
+        Option::dir_sep = QLatin1Char('/');
 #endif
+        Option::qmakespec = qgetenv("QMAKESPEC");
     }
 };
+#if defined(Q_OS_WIN32)
+Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
+#elif defined(Q_OS_MAC)
+Option::TARG_MODE Option::target_mode = Option::TARG_MACX_MODE;
+#elif defined(Q_OS_QNX6)
+Option::TARG_MODE Option::target_mode = Option::TARG_QNX6_MODE;
+#else
+Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
+#endif
 
-
+QString Option::qmakespec;
 QString Option::dirlist_sep;
 QString Option::dir_sep;
 

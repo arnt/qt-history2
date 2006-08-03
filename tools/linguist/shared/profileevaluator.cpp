@@ -117,13 +117,9 @@ QString ProFileEvaluator::currentFileName() const
 
 QString ProFileEvaluator::getcwd() const
 {
-    //if (m_profileStack.count()) {
-        ProFile *cur = m_profileStack.top();
-        QFileInfo fi(cur->fileName());
-        return fi.absolutePath();
-    //} else {
-    //    return QDir::currentPath();
-    //}
+    ProFile *cur = m_profileStack.top();
+    QFileInfo fi(cur->fileName());
+    return fi.absolutePath();
 }
 
 ProFileEvaluator::ProFileEvaluator()
@@ -184,13 +180,10 @@ bool ProFileEvaluator::visitProValue(ProValue *value)
             insertUnique(&m_valuemap, varName, v, true);
             break;
         case ProVariable::SetOperator:          // =
-            // if (i == 0)  m_valuemap.remove(varName);
-            // fall-through
         case ProVariable::AddOperator:          // +
             insertUnique(&m_valuemap, varName, v, false);
             break;
         case ProVariable::RemoveOperator:       // -
-            //m_valuemap.remove(varName);
             break;
         case ProVariable::ReplaceOperator:      // ~
             {
@@ -255,6 +248,49 @@ bool ProFileEvaluator::visitProFunction(ProFunction *func)
     ok &= evaluateConditionalFunction(funcName, arguments, &result);
     return ok;
 }
+
+bool ProFileEvaluator::visitBeginProBlock(ProBlock * block)
+{
+    if (block->blockKind() == ProBlock::ScopeKind) {
+        m_invertNext = false;
+        m_condition = false;
+    }
+    return true;
+}
+bool ProFileEvaluator::visitEndProBlock(ProBlock * /*block*/)
+{
+    return true;
+}
+
+bool ProFileEvaluator::visitBeginProVariable(ProVariable *variable)
+{
+    m_lastVarName = variable->variable();
+    m_variableOperator = variable->variableOperator();
+    return true;
+}
+bool ProFileEvaluator::visitEndProVariable(ProVariable * /*variable*/)
+{
+    m_lastVarName.clear();
+    return true;
+}
+
+bool ProFileEvaluator::visitProOperator(ProOperator * oper)
+{
+    m_invertNext = (oper->operatorKind() == ProOperator::NotOperator);
+    return true;
+}
+bool ProFileEvaluator::visitProCondition(ProCondition * cond)
+{
+    if (!m_condition) {
+        if (m_invertNext) {
+            m_condition |= !isActiveConfig(cond->text(), true);
+        } else {
+            m_condition |= isActiveConfig(cond->text(), true);
+        }
+    }
+    return true;
+}
+
 
 QString ProFileEvaluator::expandVariableReferences(const QString &str)
 {
@@ -412,6 +448,38 @@ QString ProFileEvaluator::expandVariableReferences(const QString &str)
     else if(!current.isEmpty())
         ret.append(current);
     return ret;
+}
+
+bool ProFileEvaluator::isActiveConfig(const QByteArray &config, bool regex)
+{
+    //magic types for easy flipping
+    if(config == "true")
+        return true;
+    else if(config == "false")
+        return false;
+
+    //mkspecs
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE ||
+        Option::target_mode == Option::TARG_UNIX_MODE) && config == "unix")
+        return true;
+    else if(Option::target_mode == Option::TARG_MACX_MODE && config == "macx")
+        return true;
+    else if(Option::target_mode == Option::TARG_QNX6_MODE && config == "qnx6")
+        return true;
+    else if(Option::target_mode == Option::TARG_MAC9_MODE && config == "mac9")
+        return true;
+    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) &&
+            config == "mac")
+        return true;
+    else if(Option::target_mode == Option::TARG_WIN_MODE && config == "win32")
+        return true;
+
+    QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
+    QString spec = Option::qmakespec;
+    if((regex && re.exactMatch(spec)) || (!regex && spec == config))
+        return true;
+
+    return false;
 }
 
 QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const QString &arguments)
@@ -611,24 +679,26 @@ QString ProFileEvaluator::evaluateExpandFunction(const QByteArray &func, const Q
             break; }
 
         case E_SYSTEM: {
-            if(args.count() < 1 || args.count() > 2) {
-                logMessage(QString::fromAscii("system(execut) requires one or two arguments.\n"));
-            } else {
-                char buff[256];
-                FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
-                bool singleLine = true;
-                if(args.count() > 1)
-                    singleLine = (args[1].toLower() == "true");
-                while(proc && !feof(proc)) {
-                    int read_in = int(fread(buff, 1, 255, proc));
-                    if(!read_in)
-                        break;
-                    for(int i = 0; i < read_in; i++) {
-                        if((singleLine && buff[i] == '\n') || buff[i] == '\t')
-                            buff[i] = ' ';
+            if (m_condition) {
+                if(args.count() < 1 || args.count() > 2) {
+                    logMessage(QString::fromAscii("system(execut) requires one or two arguments.\n"));
+                } else {
+                    char buff[256];
+                    FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
+                    bool singleLine = true;
+                    if(args.count() > 1)
+                        singleLine = (args[1].toLower() == "true");
+                    while(proc && !feof(proc)) {
+                        int read_in = int(fread(buff, 1, 255, proc));
+                        if(!read_in)
+                            break;
+                        for(int i = 0; i < read_in; i++) {
+                            if((singleLine && buff[i] == '\n') || buff[i] == '\t')
+                                buff[i] = ' ';
+                        }
+                        buff[read_in] = '\0';
+                        ret += buff;
                     }
-                    buff[read_in] = '\0';
-                    ret += buff;
                 }
             }
             break; }
@@ -852,7 +922,6 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
     return m_valuemap.value(variableName.toAscii());
 }
 
-
 bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
 {
     bool ok = true;
@@ -863,7 +932,7 @@ bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
     if (fi.exists()) {
         logMessage(QString::fromAscii("Reading %2\n").arg(fileName), MT_DebugLevel3);
         ProFile *pro = queryProFile(fi.absoluteFilePath());
-        if (ok) {
+        if (pro) {
             m_profileStack.push_back(pro);
             ok &= currentProFile() ? pro->Accept(this) : false;
             if (ok) {
@@ -875,12 +944,7 @@ bool ProFileEvaluator::evaluateFile(const QString &fileName, bool *result)
         }
         if (result) *result = true;
     }else{
-/*        if (mustexist) {
-            logMessage(QString::fromAscii("Could not open %1\n").arg(locationSpecifier().arg(fileName)), MT_Error);
-            ok = false;
-        } else { */
-            if (result) *result = false;
-//        }
+        if (result) *result = false;
     }
 
 /*    if (ok && readFeatures) {

@@ -50,44 +50,19 @@ public:
     ProFileEvaluator();
     ~ProFileEvaluator();
 
-    bool visitBeginProBlock(ProBlock * /*block*/)
-    {
-        // ignore
-        return true;
-    }
-    bool visitEndProBlock(ProBlock * /*block*/)
-    {
-        // ignore
-        return true;
-    }
-
-    bool visitBeginProVariable(ProVariable *variable)
-    {
-        m_lastVarName = variable->variable();
-        m_variableOperator = variable->variableOperator();
-        return true;
-    }
-    bool visitEndProVariable(ProVariable * /*variable*/)
-    {
-        m_lastVarName.clear();
-        return true;
-    }
-
+    /* 
+     * INHERITED from AbstractProItemVisitor
+     */
+    bool visitBeginProBlock(ProBlock * block);
+    bool visitEndProBlock(ProBlock * block);
+    bool visitBeginProVariable(ProVariable *variable);    
+    bool visitEndProVariable(ProVariable * /*variable*/);
     bool visitBeginProFile(ProFile * value);
     bool visitEndProFile(ProFile * value);
     bool visitProValue(ProValue *value);
-
     bool visitProFunction(ProFunction *function);
-    bool visitProOperator(ProOperator * /*oper*/)
-    {
-        // ignore
-        return true;
-    }
-    bool visitProCondition(ProCondition * /*cond*/)
-    {
-        // ignore
-        return true;
-    }
+    bool visitProOperator(ProOperator * oper);
+    bool visitProCondition(ProCondition * cond);
 
     ProFileEvaluator::TemplateType templateType();
     bool contains(const QString &variableName) const;
@@ -111,6 +86,8 @@ private:
     bool evaluateFile(const QString &fileName, bool *result);
     bool evaluateFeatureFile(const QString &fileName, bool *result);
 
+    bool isActiveConfig(const QByteArray &config, bool regex = false);
+
     QString currentFileName() const;
     QString getcwd() const;
     ProFile *currentProFile() const;
@@ -124,6 +101,9 @@ private:
     int m_lineNo;                                   // Error reporting
     QString m_oldPath;                              // To restore the current path to the path
     QString m_origfile;
+
+    bool m_condition;
+    bool m_invertNext;
 
 }; //class ProFileEvaluator
 
