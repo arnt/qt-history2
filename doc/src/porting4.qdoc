@@ -335,8 +335,11 @@
 
     Some properties have been removed from Qt 4, but the associated
     access functions are provided if \c QT3_SUPPORT is defined to help
-    porting to Qt 4. When converting Qt 3 \c .ui files to Qt 4, \c
-    uic generates calls to the Qt 3 compatibility functions.
+    porting to Qt 4. When converting Qt 3 \c .ui files to Qt 4, \c uic
+    generates calls to the Qt 3 compatibility functions. Note that
+    this only applies to the properties of the Qt3Support library,
+    i.e. \c QT3_SUPPORT properties of the other libraries must be
+    ported manually when converting Qt 3 .ui files to Qt 4.
 
     The table below lists these properties with the read and write
     functions that you can use instead. The documentation for the
