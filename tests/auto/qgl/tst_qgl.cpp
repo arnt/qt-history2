@@ -28,6 +28,7 @@ public:
 
 private slots:
     void getSetCheck();
+    void openGLVersionCheck();
 };
 
 tst_QGL::tst_QGL()
@@ -204,6 +205,93 @@ void tst_QGL::getSetCheck()
     obj3.setAutoBufferSwap(true);
     QCOMPARE(true, obj3.autoBufferSwap());
 #endif
+}
+
+void tst_QGL::openGLVersionCheck()
+{
+    extern QGLFormat::OpenGLVersionFlags openGLVersionFlagsFromString(const QString &versionString);
+    QString versionString;
+    QGLFormat::OpenGLVersionFlags expectedFlag;
+    QGLFormat::OpenGLVersionFlags versionFlag;
+    
+    versionString = "1.1 Irix 6.5";
+    expectedFlag = QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "1.2 Microsoft";
+    expectedFlag = QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+    
+    versionString = "1.2.1";
+    expectedFlag = QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "1.3 NVIDIA";
+    expectedFlag = QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "1.4";
+    expectedFlag = QGLFormat::OpenGL_Version_1_4 | QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "1.5 NVIDIA";
+    expectedFlag = QGLFormat::OpenGL_Version_1_5 | QGLFormat::OpenGL_Version_1_4 | QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "2.0.2 NVIDIA 87.62";
+    expectedFlag = QGLFormat::OpenGL_Version_2_0 | QGLFormat::OpenGL_Version_1_5 | QGLFormat::OpenGL_Version_1_4 | QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "2.1 NVIDIA";
+    expectedFlag = QGLFormat::OpenGL_Version_2_1 | QGLFormat::OpenGL_Version_2_0 | QGLFormat::OpenGL_Version_1_5 | QGLFormat::OpenGL_Version_1_4 | QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "2.1";
+    expectedFlag = QGLFormat::OpenGL_Version_2_1 | QGLFormat::OpenGL_Version_2_0 | QGLFormat::OpenGL_Version_1_5 | QGLFormat::OpenGL_Version_1_4 | QGLFormat::OpenGL_Version_1_3 | QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "OpenGL ES-CM 1.0 ATI";
+    expectedFlag = QGLFormat::OpenGL_ES_Common_Version_1_0 | QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "OpenGL ES-CL 1.0 ATI";
+    expectedFlag = QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "OpenGL ES-CM 1.1 ATI";
+    expectedFlag = QGLFormat::OpenGL_ES_Common_Version_1_1 | QGLFormat::OpenGL_ES_CommonLite_Version_1_1 | QGLFormat::OpenGL_ES_Common_Version_1_0 | QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "OpenGL ES-CL 1.1 ATI";
+    expectedFlag = QGLFormat::OpenGL_ES_CommonLite_Version_1_1 | QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    versionString = "OpenGL ES 2.0 ATI";
+    expectedFlag = QGLFormat::OpenGL_ES_Version_2_0;
+    versionFlag = openGLVersionFlagsFromString(versionString);
+    QCOMPARE(versionFlag, expectedFlag);
+
+    QGLWidget glWidget;
+    glWidget.show();
+    glWidget.makeCurrent();
+
+    // This is unfortunately the only test we can make on the actual openGLVersionFlags()
+    // However, the complicated parts are in openGLVersionFlags(const QString &versionString)
+    // tested above
+    QVERIFY(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_1);
 }
 
 QTEST_MAIN(tst_QGL)
