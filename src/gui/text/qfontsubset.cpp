@@ -269,6 +269,10 @@ static FT_Face ft_face(const QFontEngine *engine)
 QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverseMap) const
 {
     uint glyphIndex = glyph_indices[glyph];
+
+    if (glyphIndex == 0)
+        return "/.notdef";
+
     QByteArray ba;
     QPdf::ByteStream s(&ba);
 #ifndef QT_NO_FREETYPE
@@ -293,9 +297,7 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
         s << "/" << glyphName(uc, false /* ### */);
     } else
 #endif
-    if (glyph == 0) {
-        s << "/.notdef ";
-    } else if (reverseMap[glyphIndex]) {
+    if (reverseMap[glyphIndex]) {
         char tmp[8];
         s << "/uni" << QPdf::toHex((ushort)reverseMap[glyphIndex], tmp);
     } else {
