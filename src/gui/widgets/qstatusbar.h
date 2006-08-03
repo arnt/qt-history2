@@ -35,7 +35,9 @@ public:
     virtual ~QStatusBar();
 
     void addWidget(QWidget *widget, int stretch = 0);
+    int insertWidget(int index, QWidget *widget, int stretch = 0);
     void addPermanentWidget(QWidget *widget, int stretch = 0);
+    int insertPermanentWidget(int index, QWidget *widget, int stretch = 0);
     void removeWidget(QWidget *widget);
 
     void setSizeGripEnabled(bool);

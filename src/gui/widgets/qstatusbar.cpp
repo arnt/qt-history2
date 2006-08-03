@@ -51,6 +51,17 @@ public:
 #endif
 
     int savedStrut;
+
+    int indexToLastNonPermanentWidget() const
+    {
+        int i = items.size() - 1;
+        for (; i >= 0; --i) {
+            SBItem *item = items.at(i);
+            if (!(item && item->p))
+                break;
+        }
+        return i;
+    }
 };
 
 /*!
@@ -217,7 +228,7 @@ QStatusBar::~QStatusBar()
 
     Note that this function may cause some flicker.
 
-    \sa removeWidget(), addPermanentWidget()
+    \sa insertWidget(), removeWidget(), addPermanentWidget()
 */
 
 void QStatusBar::addWidget(QWidget * widget, int stretch)
@@ -228,10 +239,7 @@ void QStatusBar::addWidget(QWidget * widget, int stretch)
     Q_D(QStatusBar);
     QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, false);
 
-    int i = d->items.size() - 1;
-    for (; i>=0; --i)
-        if (!(d->items.at(i) && d->items.at(i)->p))
-            break;
+    int i = d->indexToLastNonPermanentWidget();
     d->items.insert(i >= 0 ? i + 1 : 0, item);
 
     if (!d->tempItem.isEmpty())
@@ -240,6 +248,46 @@ void QStatusBar::addWidget(QWidget * widget, int stretch)
     reformat();
     if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
         widget->show();
+}
+
+/*!
+    Inserts the given \a widget at the given \a index to this status bar,
+    reparenting the widget if it isn't already a child of this
+    QStatusBar object. If \a index is out of range, the widget is appended
+    (in which case it is the actual index of the widget that is returned).
+
+    The widget is located to the far left of the first permanent
+    widget (see addPermanentWidget()) and may be obscured by temporary
+    messages.
+
+    Note that this function may cause some flicker.
+
+    \sa addWidget(), removeWidget(), addPermanentWidget()
+*/
+int QStatusBar::insertWidget(int index, QWidget *widget, int stretch)
+{
+    if (!widget)
+        return -1;
+
+    Q_D(QStatusBar);
+    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, false);
+
+    int idx = d->indexToLastNonPermanentWidget();
+    if (index < 0 || index > d->items.size() || (idx >= 0 && index > idx + 1)) {
+        qWarning("QStatusBar::insertWidget: Index out of range (%d), appending widget", index);
+        addWidget(widget);
+        return idx + 1;
+    }
+    d->items.insert(index, item);
+
+    if (!d->tempItem.isEmpty())
+        widget->hide();
+
+    reformat();
+    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
+        widget->show();
+
+    return index;
 }
 
 /*!
@@ -255,7 +303,7 @@ void QStatusBar::addWidget(QWidget * widget, int stretch)
 
     Note that this function may cause some flicker.
 
-    \sa removeWidget(), addWidget()
+    \sa insertPermanentWidget, removeWidget(), addWidget()
 */
 
 void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
@@ -274,6 +322,47 @@ void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
         widget->show();
 }
 
+
+/*!
+    Inserts the given \a widget at the given \a index permanently to this status bar,
+    reparenting the widget if it isn't already a child of this
+    QStatusBar object. If \a index is out of range, the widget is appended
+    (in which case it is the actual index of the widget that is returned).
+
+    The \a stretch parameter is used to compute a
+    suitable size for the given \a widget as the status bar grows and
+    shrinks. The default stretch factor is 0, i.e giving the widget a
+    minimum of space.
+
+    Permanently means that the widget may not be obscured by temporary
+    messages. It is is located at the far right of the status bar.
+
+    Note that this function may cause some flicker.
+
+    \sa addPermanentWidget, removeWidget(), addWidget()
+*/
+int QStatusBar::insertPermanentWidget(int index, QWidget *widget, int stretch)
+{
+    if (!widget)
+        return -1;
+
+    Q_D(QStatusBar);
+    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, true);
+
+    int idx = d->indexToLastNonPermanentWidget();
+    if (index < 0 || index > d->items.size() || (idx >= 0 && index <= idx)) {
+        qWarning("QStatusBar::insertPermanentWidget: Index out of range (%d), appending widget", index);
+        addPermanentWidget(widget);
+        return d->items.size() - 1;
+    }
+    d->items.insert(index, item);
+
+    reformat();
+    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
+        widget->show();
+
+    return index;
+}
 
 /*!
     Removes the specifed \a widget from the status bar (without
@@ -298,6 +387,7 @@ void QStatusBar::removeWidget(QWidget* widget)
             break;
         if (item->w == widget) {
             d->items.removeAt(i);
+            item->w->hide();
             delete item;
             found = true;
             break;
