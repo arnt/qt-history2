@@ -567,7 +567,7 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
     int li = name.lastIndexOf(QLatin1Char(']'));
     if (i >= 0 && li >= 0 && i < li) {
         foundry = name.mid(i + 1, li - i - 1);
-        if (name[i - 1] == QLatin1Char(' '))
+        if (i > 0 && name[i - 1] == QLatin1Char(' '))
             i--;
         family = name.left(i);
     } else {
