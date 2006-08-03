@@ -604,8 +604,9 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \warning When the paintdevice is a widget, QPainter can only be
     used inside a paintEvent() function or in a function called by
     paintEvent(); that is unless the Qt::WA_PaintOutsidePaintEvent
-    widget attribute is set. On Mac OS X, you can only paint in a
-    paintEvent() function regardless of this attribute's setting.
+    widget attribute is set. On Mac OS X and Windows, you can only
+    paint in a paintEvent() function regardless of this attribute's
+    setting.
 
     \tableofcontents
 
