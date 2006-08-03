@@ -1999,7 +1999,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                         for(int next_i = i-1; true; next_i--) {
                             if (next_i == -1) {
                                 if (d->scroll)
-                                    break;
+                                    scroll_loc = QMenuPrivate::QMenuScroller::ScrollBottom;
                                 next_i = d->actionList.count()-1;
                             }
                             QAction *next = d->actionList.at(next_i);
@@ -2026,7 +2026,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                         for(int next_i = i+1; true; next_i++) {
                             if (next_i == d->actionList.count()) {
                                 if (d->scroll)
-                                    break;
+                                    scroll_loc = QMenuPrivate::QMenuScroller::ScrollTop;
                                 next_i = 0;
                             }
                             QAction *next = d->actionList.at(next_i);
