@@ -848,7 +848,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (!d->outputFileName.isEmpty()) {
         d->fd = QT_OPEN(d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
 #ifndef Q_OS_WIN
-                        | O_NOCTTY 
+                        | O_NOCTTY
 #endif
                         ,
 #if defined(Q_OS_WIN)
@@ -1095,7 +1095,7 @@ bool QPSPrintEngine::end()
         d->pid = 0;
     }
 #endif
-    
+
     return true;
 }
 
@@ -1564,7 +1564,7 @@ const ppd_option_t* QCUPSSupport::ppdOption(const char *key) const
 {
     for (int gr = 0; gr < currPPD->num_groups; ++gr) {
         for (int opt = 0; opt < currPPD->groups[gr].num_options; ++opt) {
-            if (strcmp(currPPD->groups[gr].options[opt].keyword, key) == 0)
+            if (qstrcmp(currPPD->groups[gr].options[opt].keyword, key) == 0)
                 return &currPPD->groups[gr].options[opt];
         }
     }
@@ -1604,7 +1604,7 @@ void QCUPSSupport::saveOptions(QList<const ppd_option_t*> options, QList<const c
     for (int i = 0; i < oldOptionCount; ++i) {
         bool contains = false;
         for (int j = 0; j < options.count(); ++j) {
-            if ( strcmp(options.at(j)->keyword, oldOptions[i].name) == 0) {
+            if (qstrcmp(options.at(j)->keyword, oldOptions[i].name) == 0) {
                 contains = true;
                 break;
             }
@@ -1678,7 +1678,7 @@ void QCUPSSupport::collectMarkedOptionsHelper(QStringList& list, const ppd_group
 {
     for (int i = 0; i < group->num_options; ++i) {
         for (int j = 0; j < group->options[i].num_choices; ++j) {
-            if (group->options[i].choices[j].marked == 1 && strcmp(group->options[i].choices[j].choice, group->options[i].defchoice) != 0)
+            if (group->options[i].choices[j].marked == 1 && qstrcmp(group->options[i].choices[j].choice, group->options[i].defchoice) != 0)
                 list << QString::fromLocal8Bit(group->options[i].keyword) << QString::fromLocal8Bit(group->options[i].choices[j].choice);
         }
     }

@@ -588,7 +588,7 @@ static char *parseNsswitchConf(QList<QPrinterDescription> *printers)
 
     while (!nc.atEnd() &&
             nc.readLine(line, 1024) > 0) {
-        if (strncmp(line, "printers", 8) == 0) {
+        if (qstrncmp(line, "printers", 8) == 0) {
             defaultPrinter = parseNsswitchPrintersEntry(printers, line);
             delete[] line;
             return defaultPrinter;
@@ -1325,7 +1325,7 @@ void PPDPropertiesDialog::addItemToOptions(OptionTreeItem *parent, QList<const p
         if (itm->type == OptionTreeItem::Option) {
             const ppd_option_t* opt = reinterpret_cast<const ppd_option_t*>(itm->ptr);
             options << opt;
-            if ( strcmp(opt->defchoice, opt->choices[itm->selected].choice) != 0 ) {
+            if (qstrcmp(opt->defchoice, opt->choices[itm->selected].choice) != 0) {
                 markedOptions << opt->keyword << opt->choices[itm->selected].choice;
             }
         } else {
@@ -1492,7 +1492,7 @@ void PPDOptionsModel::parseChoices(OptionTreeItem* parent)
             parent->selected = i;
             parent->selDescription = option->choices[i].text;
             marked = true;
-        } else if (!marked && strcmp(option->choices[i].choice, option->defchoice) == 0) {
+        } else if (!marked && qstrcmp(option->choices[i].choice, option->defchoice) == 0) {
             parent->selected = i;
             parent->selDescription = option->choices[i].text;
         }
