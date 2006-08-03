@@ -184,6 +184,7 @@ public:
     QVector<KernPair> kerning_pairs;
     QFixed designToDevice;
     int unitsPerEm;
+    QFixed x_height;
     FaceId _faceId;
     mutable int synthesized_flags;
     mutable QFixed lineWidth;

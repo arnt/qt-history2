@@ -176,6 +176,7 @@ void QFontEngine::getCMap()
         OUTLINETEXTMETRICA *otm = getOutlineTextMetric(hdc);
         designToDevice = QFixed((int)otm->otmEMSquare)/int(otm->otmTextMetrics.tmHeight);
         unitsPerEm = otm->otmEMSquare;
+        x_height = (int)otm->otmsXHeight;
         kerning_pairs = getKerning(hdc, designToDevice);
         _faceId.filename = (char *)otm + (int)otm->otmpFullName;
         lineWidth = otm->otmsUnderscoreSize;
@@ -475,7 +476,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 
 static inline QFixed kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
 {
-    int left_right = (left << 16) + right;
+    uint left_right = (left << 16) + right;
 
     left = 0, right = numPairs - 1;
     while (left <= right) {
@@ -484,7 +485,7 @@ static inline QFixed kerning(int left, int right, const QFontEngineWin::KernPair
 	if(pairs[middle].left_right == left_right)
             return pairs[middle].adjust;
 
-        if (int(pairs[middle].left_right) < left_right)
+        if (pairs[middle].left_right < left_right)
             left = middle + 1;
         else
             right = middle - 1;
@@ -528,28 +529,9 @@ QFixed QFontEngineWin::leading() const
 
 QFixed QFontEngineWin::xHeight() const
 {
-    if (x_height < 0) {
-        if(ttf) {
-#if 0
-            const DWORD HEAD = MAKE_TAG('h', 'e', 'a', 'd');
-            SelectObject(shared_dc, hfont);
-            uchar data[4];
-            GetFontData(shared_dc, HEAD, 44, &data, 4);
-            USHORT macStyle = getUShort(data);
-            if (tm.w.tmItalic && !(macStyle & 2))
-                synthesized_flags = SynthesizedItalic;
-            if (fontDef.stretch != 100 && ttf)
-                synthesized_flags |= SynthesizedStretch;
-            if (tm.w.tmWeight >= 500 && !(macStyle & 1))
-                synthesized_flags |= SynthesizedBold;
-            //qDebug() << "font is" << _name <<
-            //    "it=" << (macStyle & 2) << fontDef.style << "flags=" << synthesized_flags;
-#endif
-        }
-        if (x_height < 0)
-            x_height = QFontEngine::xHeight();
-    }
-    return x_height;
+    if(x_height >= 0)
+        return x_height;
+    return QFontEngine::xHeight();
 }
 
 QFixed QFontEngineWin::averageCharWidth() const
@@ -778,7 +760,7 @@ static void addGlyphToPath(glyph_t glyph, const QFixedPoint &position, HDC hdc,
     } );
     if (ret == GDI_ERROR) {
         qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
-        delete dataBuffer;
+        delete [](char *)dataBuffer;
         return;
     }
 
