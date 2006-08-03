@@ -601,10 +601,11 @@ void QPainterPrivate::updateState(QPainterState *newState)
     QPaintDevice. QPainter supports a static function to do this,
     setRedirected().
 
-    \warning Unless a widget has the Qt::WA_PaintOutsidePaintEvent attribute
-    set, QPainter can only be used to paint on a widget inside a paintEvent()
-    or a function called by a paintEvent(). On Mac OS X, you can only paint
-    on a widget in a paintEvent() regardless of this attribute's setting.
+    \warning When the paintdevice is a widget, QPainter can only be
+    used inside a paintEvent() function or in a function called by
+    paintEvent(); that is unless the Qt::WA_PaintOutsidePaintEvent
+    widget attribute is set. On Mac OS X, you can only paint in a
+    paintEvent() function regardless of this attribute's setting.
 
     \tableofcontents
 
