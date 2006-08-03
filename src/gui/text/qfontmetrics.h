@@ -51,6 +51,7 @@ public:
     int maxWidth() const;
 
     int xHeight() const;
+    int averageCharWidth() const;
 
     bool inFont(QChar) const;
 
@@ -124,6 +125,7 @@ public:
     qreal maxWidth() const;
 
     qreal xHeight() const;
+    qreal averageCharWidth() const;
 
     bool inFont(QChar) const;
 

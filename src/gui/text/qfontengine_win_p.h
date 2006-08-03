@@ -52,6 +52,8 @@ public:
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
+    QFixed xHeight() const;
+    QFixed averageCharWidth() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
@@ -66,6 +68,7 @@ public:
     mutable unsigned char widthCache[widthCacheSize];
     mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
+    QFixed x_height;
 };
 
 class QFontEngineMultiWin : public QFontEngineMulti

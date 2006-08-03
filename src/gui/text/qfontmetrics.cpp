@@ -374,6 +374,13 @@ int QFontMetrics::xHeight() const
     return qRound(engine->xHeight());
 }
 
+int QFontMetrics::averageCharWidth() const
+{
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    Q_ASSERT(engine != 0);
+    return qRound(engine->averageCharWidth());
+}
+
 /*!
     Returns true if character \a ch is a valid character in the font;
     otherwise returns false.
@@ -1123,6 +1130,13 @@ qreal QFontMetricsF::xHeight() const
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->xHeight().toReal();
+}
+
+qreal QFontMetricsF::averageCharWidth() const
+{
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    Q_ASSERT(engine != 0);
+    return engine->averageCharWidth().toReal();
 }
 
 /*!

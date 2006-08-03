@@ -136,6 +136,7 @@ public:
     virtual QFixed descent() const = 0;
     virtual QFixed leading() const = 0;
     virtual QFixed xHeight() const;
+    virtual QFixed averageCharWidth() const;
 
     virtual QFixed lineThickness() const;
     virtual QFixed underlinePosition() const;
@@ -365,6 +366,7 @@ public:
     QFixed descent() const;
     QFixed leading() const;
     QFixed xHeight() const;
+    QFixed averageCharWidth() const;
 
     QFixed lineThickness() const;
     QFixed underlinePosition() const;

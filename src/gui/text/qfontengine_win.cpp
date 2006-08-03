@@ -290,6 +290,7 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
     rbearing = SHRT_MIN;
     synthesized_flags = -1;
     lineWidth = -1;
+    x_height = -1;
 
     BOOL res;
     QT_WA({
@@ -522,6 +523,38 @@ QFixed QFontEngineWin::descent() const
 QFixed QFontEngineWin::leading() const
 {
     return tm.w.tmExternalLeading;
+}
+
+
+QFixed QFontEngineWin::xHeight() const
+{
+    if (x_height < 0) {
+        if(ttf) {
+#if 0
+            const DWORD HEAD = MAKE_TAG('h', 'e', 'a', 'd');
+            SelectObject(shared_dc, hfont);
+            uchar data[4];
+            GetFontData(shared_dc, HEAD, 44, &data, 4);
+            USHORT macStyle = getUShort(data);
+            if (tm.w.tmItalic && !(macStyle & 2))
+                synthesized_flags = SynthesizedItalic;
+            if (fontDef.stretch != 100 && ttf)
+                synthesized_flags |= SynthesizedStretch;
+            if (tm.w.tmWeight >= 500 && !(macStyle & 1))
+                synthesized_flags |= SynthesizedBold;
+            //qDebug() << "font is" << _name <<
+            //    "it=" << (macStyle & 2) << fontDef.style << "flags=" << synthesized_flags;
+#endif
+        }
+        if (x_height < 0)
+            x_height = QFontEngine::xHeight();
+    }
+    return x_height;
+}
+
+QFixed QFontEngineWin::averageCharWidth() const
+{
+    return tm.w.tmAveCharWidth;
 }
 
 qreal QFontEngineWin::maxCharWidth() const

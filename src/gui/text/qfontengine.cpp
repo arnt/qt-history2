@@ -57,6 +57,18 @@ QFixed QFontEngine::xHeight() const
     return bb.height;
 }
 
+QFixed QFontEngine::averageCharWidth() const
+{
+    QGlyphLayout glyphs[8];
+    int nglyphs = 7;
+    QChar x((ushort)'x');
+    stringToCMap(&x, 1, glyphs, &nglyphs, 0);
+
+    glyph_metrics_t bb = const_cast<QFontEngine *>(this)->boundingBox(glyphs[0].glyph);
+    return bb.xoff;
+}
+
+
 void QFontEngine::addGlyphsToPath(glyph_t *, QFixedPoint *, int ,
                                   QPainterPath *, QTextItem::RenderFlags)
 {
@@ -818,6 +830,11 @@ QFixed QFontEngineMulti::leading() const
 QFixed QFontEngineMulti::xHeight() const
 {
     return engine(0)->xHeight();
+}
+
+QFixed QFontEngineMulti::averageCharWidth() const
+{
+    return engine(0)->averageCharWidth();
 }
 
 QFixed QFontEngineMulti::lineThickness() const

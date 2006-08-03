@@ -2120,6 +2120,15 @@ QFixed QFontEngineFT::xHeight() const
     return QFontEngine::xHeight();
 }
 
+QFixed QFontEngineFT::averageCharWidth() const
+{
+    TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
+    if (os2 && os2->xAvgCharWidth) {
+        return QFixed(os2->xAvgCharWidth*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
+    }
+    return QFontEngine::xHeight();
+}
+
 
 qreal QFontEngineFT::maxCharWidth() const
 {
