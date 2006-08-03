@@ -298,12 +298,14 @@ void FormWindowManager::setupActions()
     m_actionSelectAll->setEnabled(false);
 
     m_actionRaise = new QAction(createIconSet(QLatin1String("editraise.png")), tr("Bring to &Front"), this);
+    m_actionRaise->setShortcut(Qt::CTRL + Qt::Key_L);
     m_actionRaise->setStatusTip(tr("Raises the selected widgets"));
     m_actionRaise->setWhatsThis(tr("Raises the selected widgets"));
     connect(m_actionRaise, SIGNAL(triggered()), this, SLOT(slotActionRaiseActivated()));
     m_actionRaise->setEnabled(false);
 
     m_actionLower = new QAction(createIconSet(QLatin1String("editlower.png")), tr("Send to &Back"), this);
+    m_actionLower->setShortcut(Qt::CTRL + Qt::Key_K);
     m_actionLower->setStatusTip(tr("Lowers the selected widgets"));
     m_actionLower->setWhatsThis(tr("Lowers the selected widgets"));
     connect(m_actionLower, SIGNAL(triggered()), this, SLOT(slotActionLowerActivated()));
