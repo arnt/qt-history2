@@ -912,31 +912,24 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
 
     \value OpenGL_ES_Version_2_0  OpenGL ES version 2.0 or higher is present.
     Note that OpenGL ES version 2.0 does not support all the features of OpenGL ES 1.x.
-    So if OpenGL_ES_Version_2_0 is returned, none of the 1.x flags are returned.
+    So if OpenGL_ES_Version_2_0 is returned, none of the ES 1.x flags are returned.
 
     See also \l{http://www.opengl.org} for more information about the different
     revisions of OpenGL.
 */
 
 /*!
-    Returns the flags for which version of OpenGL is supported on this platform
+    Returns the flags for which versions of OpenGL is supported on this platform
     at runtime. Note that if OpenGL version 1.5 is supported, also version 1.4
-    and lower is supported. So if you need to test for a feature that was introduced
-    in say OpenGL version 1.3, multi texturing for instance, you should test for OpenGL_Version_1_3.
+    and lower is supported. If you need to test for a feature that was introduced
+    in OpenGL version 1.3, multi texturing for instance, you should test for OpenGL_Version_1_3.
     Then even if the actual OpenGL implementation is at a version higher than 1.3, it will
-    return the flag for OpenGL_Version_1_3 as well as the other flags.
-
-    For example:
-    \code
-    OpenGLVersionFlags versionFlags = QGLFormat::openGLVersionFlags();
-    if (versionFlags & OpenGL_Version_1_5) {
-        Q_ASSERT(versionFlags & OpenGL_Version_1_4);
-        ...
-    }
-    \endcode
+    return the flag for OpenGL_Version_1_3 as well.
 
     This function need a valid current OpenGL context to work. Otherwise it will return
     OpenGL_Version_None.
+
+    \sa OpenGLVersionFlag
 */
 QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
 {
