@@ -148,7 +148,7 @@ private:
     int streampos;
 
     int writeImage(const QByteArray &data, int width, int height, int depth,
-                   int maskObject, int softMaskObject);
+                   int maskObject, int softMaskObject, bool dct = false);
     void writePage();
 
     int addXrefEntry(int object, bool printostr = true);

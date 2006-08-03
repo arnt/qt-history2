@@ -20,6 +20,8 @@
 #include <qpaintdevice.h>
 #include <qfile.h>
 #include <qdebug.h>
+#include <qimagewriter.h>
+#include <qbuffer.h>
 
 #ifndef QT_NO_PRINTER
 #include <time.h>
@@ -697,27 +699,47 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
         }
         object = writeImage(data, w, h, d, 0, 0);
     } else {
-        QByteArray imageData;
         QByteArray softMaskData;
-
-        imageData.resize(3 * w * h);
         softMaskData.resize(w * h);
-
-        uchar *data = (uchar *)imageData.data();
-        uchar *sdata = (uchar *)softMaskData.data();
+        bool dct = false;
+        QByteArray imageData;
         bool hasAlpha = false;
         bool hasMask = false;
-        for (int y = 0; y < h; ++y) {
-            const QRgb *rgb = (const QRgb *)image.scanLine(y);
-            for (int x = 0; x < w; ++x) {
-                *(data++) = qRed(*rgb);
-                *(data++) = qGreen(*rgb);
-                *(data++) = qBlue(*rgb);
-                uchar alpha = qAlpha(*rgb);
-                *sdata++ = alpha;
-                hasMask |= (alpha < 255);
-                hasAlpha |= (alpha != 0 && alpha != 255);
-                ++rgb;
+
+        if (QImageWriter::supportedImageFormats().contains("jpeg")) {
+            QBuffer buffer(&imageData);
+            QImageWriter writer(&buffer, "jpeg");
+            writer.setQuality(94);
+            writer.write(img);
+
+            uchar *sdata = (uchar *)softMaskData.data();
+            for (int y = 0; y < h; ++y) {
+                const QRgb *rgb = (const QRgb *)image.scanLine(y);
+                for (int x = 0; x < w; ++x) {
+                    uchar alpha = qAlpha(*rgb);
+                    *sdata++ = alpha;
+                    hasMask |= (alpha < 255);
+                    hasAlpha |= (alpha != 0 && alpha != 255);
+                    ++rgb;
+                }
+            }
+            dct = true;
+        } else {
+            imageData.resize(3 * w * h);
+            uchar *data = (uchar *)imageData.data();
+            uchar *sdata = (uchar *)softMaskData.data();
+            for (int y = 0; y < h; ++y) {
+                const QRgb *rgb = (const QRgb *)image.scanLine(y);
+                for (int x = 0; x < w; ++x) {
+                    *(data++) = qRed(*rgb);
+                    *(data++) = qGreen(*rgb);
+                    *(data++) = qBlue(*rgb);
+                    uchar alpha = qAlpha(*rgb);
+                    *sdata++ = alpha;
+                    hasMask |= (alpha < 255);
+                    hasAlpha |= (alpha != 0 && alpha != 255);
+                    ++rgb;
+                }
             }
         }
         int maskObject = 0;
@@ -741,7 +763,7 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
             }
             maskObject = writeImage(mask, w, h, 1, 0, 0);
         }
-        object = writeImage(imageData, w, h, 32, maskObject, softMaskObject);
+        object = writeImage(imageData, w, h, 32, maskObject, softMaskObject, dct);
     }
     imageCache.insert(serial_no, object);
     return object;
@@ -816,7 +838,7 @@ int QPdfEnginePrivate::writeCompressed(const char *src, int len)
 }
 
 int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height, int depth,
-                                  int maskObject, int softMaskObject)
+                                  int maskObject, int softMaskObject, bool dct)
 {
     int image = addXrefEntry(-1);
     xprintf("<<\n"
@@ -841,10 +863,17 @@ int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height,
     xprintf("/Length %d 0 R\n", lenobj);
     if (interpolateImages)
         xprintf("/Interpolate true\n");
-    if (do_compress)
-        xprintf("/Filter /FlateDecode\n");
-    xprintf(">>\nstream\n");
-    int len = writeCompressed(data);
+    int len = 0;
+    if (dct) {
+        qDebug() << "DCT";
+        xprintf("/Filter /DCTDecode\n>>\nstream\n");
+        write(data);
+        len = data.length();
+    } else {
+        if (do_compress)
+            xprintf("/Filter /FlateDecode\n>>\nstream\n");
+        len = writeCompressed(data);
+    }
     xprintf("endstream\n"
             "endobj\n");
     addXrefEntry(lenobj);
