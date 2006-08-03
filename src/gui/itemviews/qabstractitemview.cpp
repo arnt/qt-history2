@@ -2569,7 +2569,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     if (previous.isValid()) {
         QModelIndex buddy = d->model->buddy(previous);
         QWidget *editor = d->editorForIndex(buddy);
-        if (editor) {
+        if (editor && !d->persistent.contains(editor)) {
             commitData(editor);
             if (current.row() != previous.row())
                 closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
