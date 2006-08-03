@@ -810,6 +810,156 @@ int QGLFormat::stencilBufferSize() const
     object has been created.
 */
 
+QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(const QString &versionString)
+{
+    QGLFormat::OpenGLVersionFlags versionFlags = QGLFormat::OpenGL_Version_None;
+    
+    if (versionString.startsWith("OpenGL ES")) {
+        QStringList parts = versionString.split(' ');
+        if (parts.size() >= 3) {
+            if (parts[2].startsWith("1.")) {
+                if (parts[1].endsWith("-CM")) {
+                    versionFlags |= QGLFormat::OpenGL_ES_Common_Version_1_0 |
+                                    QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+                    if (parts[2].startsWith("1.1"))
+                        versionFlags |= QGLFormat::OpenGL_ES_Common_Version_1_1 |
+                                        QGLFormat::OpenGL_ES_CommonLite_Version_1_1;
+                }
+                else {
+                    // Not -CM, must be CL, CommonLite
+                    versionFlags |= QGLFormat::OpenGL_ES_CommonLite_Version_1_0;
+                    if (parts[2].startsWith("1.1"))
+                        versionFlags |= QGLFormat::OpenGL_ES_CommonLite_Version_1_1;
+                }
+            }
+            else {
+                // OpenGL ES version 2.0 or higher
+                versionFlags |= QGLFormat::OpenGL_ES_Version_2_0;
+            }
+        }
+        else {
+            // if < 3 parts to the name, it is an unrecognised OpenGL ES
+            qWarning("Unrecognised OpenGL ES version");
+        }
+    }
+    else {
+        // not ES, regular OpenGL, the version numbers are first in the string
+        if (versionString.startsWith("1.")) {
+            switch (versionString[2].toAscii()) {
+            case '5':
+                versionFlags |= QGLFormat::OpenGL_Version_1_5;
+            case '4':
+                versionFlags |= QGLFormat::OpenGL_Version_1_4;
+            case '3':
+                versionFlags |= QGLFormat::OpenGL_Version_1_3;
+            case '2':
+                versionFlags |= QGLFormat::OpenGL_Version_1_2;
+            case '1':
+                versionFlags |= QGLFormat::OpenGL_Version_1_1;
+            default:
+                break;
+            }
+        }
+        else if (versionString.startsWith("2.")) {
+            versionFlags |= QGLFormat::OpenGL_Version_1_1 |
+                            QGLFormat::OpenGL_Version_1_2 |
+                            QGLFormat::OpenGL_Version_1_3 |
+                            QGLFormat::OpenGL_Version_1_4 |
+                            QGLFormat::OpenGL_Version_1_5 |
+                            QGLFormat::OpenGL_Version_2_0;
+            QString minorVersion = versionString.section(' ', 0, 0).section('.', 1, 1);
+            if (minorVersion == "1")
+                versionFlags |= QGLFormat::OpenGL_Version_2_1;
+        }
+        else
+            qWarning("Unrecognised OpenGL version");
+    }
+    return versionFlags;
+}
+
+/*!
+    \enum QGLFormat::OpenGLVersionFlag
+
+    This enum type defines the possible OpenGL versions that may be returned
+    in the flags of QGLFormat::openGLVersionFlags().
+
+    \value OpenGL_Version_None  If no OpenGL is present or if no OpenGL context is current.
+    
+    \value OpenGL_Version_1_1  OpenGL version 1.1 or higher is present.
+
+    \value OpenGL_Version_1_2  OpenGL version 1.2 or higher is present.
+
+    \value OpenGL_Version_1_3  OpenGL version 1.3 or higher is present.
+
+    \value OpenGL_Version_1_4  OpenGL version 1.4 or higher is present.
+
+    \value OpenGL_Version_1_5  OpenGL version 1.5 or higher is present.
+
+    \value OpenGL_Version_2_0  OpenGL version 2.0 or higher is present.
+    Note that version 2.0 supports all the functionality of version 1.5.
+
+    \value OpenGL_Version_2_1  OpenGL version 2.1 or higher is present.
+    
+    \value OpenGL_ES_CommonLite_Version_1_0  OpenGL ES version 1.0 Common Lite or higher is present.
+
+    \value OpenGL_ES_Common_Version_1_0  OpenGL ES version 1.0 Common or higher is present.
+    The Common profile supports all the features of Common Lite.
+
+    \value OpenGL_ES_CommonLite_Version_1_1  OpenGL ES version 1.1 Common Lite or higher is present.
+
+    \value OpenGL_ES_Common_Version_1_1  OpenGL ES version 1.1 Common or higher is present.
+    The Common profile supports all the features of Common Lite.
+
+    \value OpenGL_ES_Version_2_0  OpenGL ES version 2.0 or higher is present.
+    Note that OpenGL ES version 2.0 does not support all the features of OpenGL ES 1.x.
+    So if OpenGL_ES_Version_2_0 is returned, none of the 1.x flags are returned.
+
+    See also \l{http://www.opengl.org} for more information about the different
+    revisions of OpenGL.
+*/
+
+/*!
+    Returns the flags for which version of OpenGL is supported on this platform
+    at runtime. Note that if OpenGL version 1.5 is supported, also version 1.4
+    and lower is supported. So if you need to test for a feature that was introduced
+    in say OpenGL version 1.3, multi texturing for instance, you should test for OpenGL_Version_1_3.
+    Then even if the actual OpenGL implementation is at a version higher than 1.3, it will
+    return the flag for OpenGL_Version_1_3 as well as the other flags.
+
+    For example:
+    \code
+    OpenGLVersionFlags versionFlags = QGLFormat::openGLVersionFlags();
+    if (versionFlags & OpenGL_Version_1_5) {
+        Q_ASSERT(versionFlags & OpenGL_Version_1_4);
+        ...
+    }
+    \endcode
+
+    This function need a valid current OpenGL context to work. Otherwise it will return
+    OpenGL_Version_None.
+*/
+QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
+{
+    static bool firstTime=true;
+    static OpenGLVersionFlags versionFlags = OpenGL_Version_None;
+
+    if (!firstTime)
+        return versionFlags;
+    
+    if (!hasOpenGL())
+        return OpenGL_Version_None;
+    
+    if (firstTime) {
+        firstTime = false;
+        
+        QString versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+        versionFlags = openGLVersionFlagsFromString(versionString);
+    }
+
+    return versionFlags;
+}
+
+
 /*!
     Returns the default QGLFormat for the application. All QGLWidgets
     that are created use this format unless another format is

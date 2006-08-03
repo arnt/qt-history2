@@ -149,6 +149,26 @@ public:
 
     static bool hasOpenGL();
     static bool hasOpenGLOverlays();
+
+    enum  OpenGLVersionFlag {
+        OpenGL_Version_None               = 0x00000000,
+        OpenGL_Version_1_1                = 0x00000001,
+        OpenGL_Version_1_2                = 0x00000002,
+        OpenGL_Version_1_3                = 0x00000004,
+        OpenGL_Version_1_4                = 0x00000008,
+        OpenGL_Version_1_5                = 0x00000010,
+        OpenGL_Version_2_0                = 0x00000020,
+        OpenGL_Version_2_1                = 0x00000040,
+        OpenGL_ES_Common_Version_1_0      = 0x00000080,
+        OpenGL_ES_CommonLite_Version_1_0  = 0x00000100,
+        OpenGL_ES_Common_Version_1_1      = 0x00000200,
+        OpenGL_ES_CommonLite_Version_1_1  = 0x00000400,
+        OpenGL_ES_Version_2_0             = 0x00000800,
+    };
+    Q_DECLARE_FLAGS(OpenGLVersionFlags, OpenGLVersionFlag)
+
+    static OpenGLVersionFlags openGLVersionFlags();
+
 private:
     QGLFormatPrivate *d;
 
@@ -156,6 +176,7 @@ private:
     friend Q_OPENGL_EXPORT bool operator!=(const QGLFormat&, const QGLFormat&);
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGLFormat::OpenGLVersionFlags)
 
 Q_OPENGL_EXPORT bool operator==(const QGLFormat&, const QGLFormat&);
 Q_OPENGL_EXPORT bool operator!=(const QGLFormat&, const QGLFormat&);
