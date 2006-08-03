@@ -916,6 +916,8 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
 
     See also \l{http://www.opengl.org} for more information about the different
     revisions of OpenGL.
+
+    \sa openGLVersionFlags()
 */
 
 /*!
