@@ -451,7 +451,7 @@ QKeySequence::QKeySequence()
     Up to four key codes may be entered by separating them with
     commas, e.g. "Alt+X,Ctrl+S,Q".
 
-    This contructor is typically used with \link QObject::tr() tr
+    This constructor is typically used with \link QObject::tr() tr
     \endlink(), so that shortcut keys can be replaced in
     translations:
 
