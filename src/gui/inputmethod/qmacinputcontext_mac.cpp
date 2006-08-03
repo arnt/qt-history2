@@ -15,6 +15,7 @@
 #include <qwidget.h>
 #include <private/qmacinputcontext_p.h>
 #include "qtextformat.h"
+#include <qdebug.h>
 #include <private/qapplication_p.h>
 
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*);
@@ -248,6 +249,10 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
                     handled_event = true;
                 }
             }
+#if 0
+            if(!context->composing)
+                handled_event = false;
+#endif
 
             extern bool qt_mac_eat_unicode_key; //qapplication_mac.cpp
             qt_mac_eat_unicode_key = handled_event;

@@ -37,11 +37,11 @@ Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
 {
     if(b) {
         SInt32 (*EnableSecureEventInput_ptr)() = EnableSecureEventInput; // workaround for gcc warning
-        if (EnableSecureEventInput_ptr)
+        if(EnableSecureEventInput_ptr)
             (*EnableSecureEventInput_ptr)();
     } else {
         SInt32 (*DisableSecureEventInput_ptr)() = DisableSecureEventInput;
-        if (DisableSecureEventInput_ptr)
+        if(DisableSecureEventInput_ptr)
             (*DisableSecureEventInput_ptr)();
     }
 }
@@ -278,17 +278,17 @@ static int qt_mac_get_key(int modif, const QChar &key, int virtualKey)
     qDebug("**Mapping key: %d (0x%04x) - %d (0x%04x)", key.unicode(), key.unicode(), virtualKey, virtualKey);
 #endif
 
-    if (key == kClearCharCode && virtualKey == 0x47)
+    if(key == kClearCharCode && virtualKey == 0x47)
         return Qt::Key_Clear;
 
-    if (key.isDigit()) {
+    if(key.isDigit()) {
 #ifdef DEBUG_KEY_BINDINGS
             qDebug("%d: got key: %d", __LINE__, key.digitValue());
 #endif
         return key.digitValue() + Qt::Key_0;
     }
 
-    if (key.isLetter()) {
+    if(key.isLetter()) {
 #ifdef DEBUG_KEY_BINDINGS
         qDebug("%d: got key: %d", __LINE__, (key.toUpper().unicode() - 'A'));
 #endif
@@ -365,29 +365,22 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 
     //get mac mapping
     static UInt32 tmp_unused_state = 0L;
-    static KeyboardLayoutRef prevKeyLayoutRef = 0;
     KeyboardLayoutRef keyLayoutRef = 0;
     UCKeyboardLayout *uchrData = 0;
     KLGetCurrentKeyboardLayout(&keyLayoutRef);
     OSStatus err;
-    if (keyLayoutRef != 0) {
+    if(keyLayoutRef != 0) {
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
-        if (err != noErr) {
+        if(err != noErr) {
             qWarning("Qt::internal::unable to get keyboardlayout %ld %s:%d",
                      err, __FILE__, __LINE__);
         }
     }
 
     *qtKey = Qt::Key_unknown;
-    if (uchrData) {
-        static UInt32 deadKeyState;
-        if (prevKeyLayoutRef != keyLayoutRef) {
-            // Clear the dead state
-            deadKeyState = 0;
-            prevKeyLayoutRef = keyLayoutRef;
-        }
-        // The easy use the unicode stuff!
+    if(uchrData) {
+        // The easy stuff; use the unicode stuff!
         UniChar string[4];
         UniCharCount actualLength;
         int keyAction;
@@ -405,16 +398,16 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         }
         OSStatus err = UCKeyTranslate(uchrData, keyCode, keyAction,
                                   ((GetCurrentEventKeyModifiers() >> 8) & 0xff), LMGetKbdType(),
-                                  kUCKeyTranslateNoDeadKeysBit, &tmp_unused_state, 4, &actualLength,
+                                  kUCKeyTranslateNoDeadKeysMask, &tmp_unused_state, 4, &actualLength,
                                   string);
-        if (err == noErr) {
+        if(err == noErr) {
             *outChar = QChar(string[0]);
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
                      err, __FILE__, __LINE__);
         }
     } else {
-        // The road less travelled, Use KeyTranslate
+        // The road less travelled; use KeyTranslate
         void *keyboard_layout;
         KeyboardLayoutRef keyLayoutRef = 0;
         KLGetCurrentKeyboardLayout(&keyLayoutRef);
@@ -426,7 +419,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
                                                               rightShiftKey|alphaLock)) | keyCode,
                                            &tmp_unused_state);
         if(!translatedChar) {
-            if (outHandled) {
+            if(outHandled) {
                 qt_mac_eat_unicode_key = false;
                 CallNextEventHandler(er, keyEvent);
                 *outHandled = qt_mac_eat_unicode_key;
@@ -457,12 +450,12 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         }
         {
             UInt32 unilen = 0;
-            if (GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
+            if(GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
                     == noErr && unilen == 2) {
                 GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, outChar);
-            } else if (translatedChar) {
+            } else if(translatedChar) {
                 static QTextCodec *c = 0;
-                if (!c)
+                if(!c)
                     c = QTextCodec::codecForName("Apple Roman");
                 *outChar = c->toUnicode(&translatedChar, 1).at(0);
             } else {
@@ -497,23 +490,23 @@ QKeyMapperPrivate::updateKeyboard()
 
     OSStatus err;
     UCKeyboardLayout *uchrData = 0;
-    if (keyLayoutRef != 0) {
+    if(keyLayoutRef != 0) {
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
-        if (err != noErr) {
+        if(err != noErr) {
             qWarning("Qt::internal::unable to get unicode keyboardlayout %ld %s:%d",
                      err, __FILE__, __LINE__);
         }
     }
 
-    if (uchrData) {
+    if(uchrData) {
         keyboard_layout_format.unicode = uchrData;
         keyboard_mode = UnicodeMode;
     } else {
         void *happy;
         err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
                                   const_cast<const void **>(reinterpret_cast<void **>(&happy)));
-        if (err != noErr) {
+        if(err != noErr) {
             qFatal("Qt::internal::unable to get non-unicode layout, cannot procede %ld %s:%d",
                      err, __FILE__, __LINE__);
         }
@@ -546,7 +539,7 @@ QKeyMapperPrivate::clearMappings()
 {
     keyboard_mode = NullMode;
     for (int i = 0; i < 255; ++i) {
-        if (keyLayout[i]) {
+        if(keyLayout[i]) {
             delete keyLayout[i];
             keyLayout[i] = 0;
         }
@@ -569,7 +562,7 @@ QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
     for(int i = 1; i < 8; ++i) {
         Qt::KeyboardModifiers neededMods = ModsTbl[i];
         int key = kbItem->qtKey[i];
-        if (key && key != baseKey && ((keyMods & neededMods) == neededMods))
+        if(key && key != baseKey && ((keyMods & neededMods) == neededMods))
             ret << int(key + (keyMods & ~neededMods));
     }
 
@@ -591,10 +584,6 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
     switch(eclass)
     {
     case kEventClassKeyboard: {
-        if (qApp->inputContext() && qApp->inputContext()->isComposing()) {
-            handled_event = false;
-            break;
-        }
         // unfortunatly modifiers changed event looks quite different, so I have a separate
         // code path
         if(ekind == kEventRawKeyModifiersChanged) {
@@ -605,32 +594,41 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
             qt_mac_send_modifiers_changed(modifiers, widget);
             break;
         }
+
+        if (qApp->inputContext() && qApp->inputContext()->isComposing()) {
+            qDebug() << "COMPOSING";
+            handled_event = false;
+            break;
+        }
         //get modifiers
         Qt::KeyboardModifiers modifiers;
         int qtKey;
         QChar ourChar;
-        if (translateKeyEventInternal(er, event, &qtKey, &ourChar, &modifiers,
+        if(translateKeyEventInternal(er, event, &qtKey, &ourChar, &modifiers,
                                       &handled_event) == false)
             break;
         QString text(ourChar);
         if(widget) {
-            //Find out if someone else wants the event, namely
-            //is it of use to text services? If so we won't bother
-            //with a QKeyEvent.
-            qt_mac_eat_unicode_key = false;
-            CallNextEventHandler(er, event);
-            if(qt_mac_eat_unicode_key) {
-                handled_event = true;
-                break;
+            {
+                //Find out if someone else wants the event, namely
+                //is it of use to text services? If so we won't bother
+                //with a QKeyEvent.
+                qt_mac_eat_unicode_key = false;
+                CallNextEventHandler(er, event);
+                if(qt_mac_eat_unicode_key) {
+                    handled_event = true;
+                    break;
+                }
             }
+
             // Try to compress key events.
-            if (!text.isEmpty() && widget->testAttribute(Qt::WA_KeyCompression)) {
+            if(!text.isEmpty() && widget->testAttribute(Qt::WA_KeyCompression)) {
                 EventTime lastTime = GetEventTime(event);
                 for (;;) {
                     EventRef releaseEvent = FindSpecificEventInQueue(GetMainEventQueue(),
                                                                      qt_KeyEventComparatorProc,
                                                                      (void*)kEventRawKeyUp);
-                    if (!releaseEvent)
+                    if(!releaseEvent)
                         break;
                     const EventTime releaseTime = GetEventTime(releaseEvent);
                     if(releaseTime < lastTime)
@@ -640,7 +638,7 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                     EventRef pressEvent = FindSpecificEventInQueue(GetMainEventQueue(),
                                                                    qt_KeyEventComparatorProc,
                                                                    (void*)kEventRawKeyDown);
-                    if (!pressEvent)
+                    if(!pressEvent)
                         break;
                     const EventTime pressTime = GetEventTime(pressEvent);
                     if(pressTime < lastTime)
@@ -650,7 +648,7 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                     Qt::KeyboardModifiers compressMod;
                     int compressQtKey;
                     QChar compressChar;
-                    if (translateKeyEventInternal(er, pressEvent,
+                    if(translateKeyEventInternal(er, pressEvent,
                                                   &compressQtKey, &compressChar, &compressMod, 0)
                         == false) {
                         break;
@@ -668,7 +666,7 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                         //    to newline text
                         || (compressQtKey == 0)
                         || (compressChar == QLatin1Char('\n'));
-                    if (compressMod == modifiers && !compressChar.isNull() && !stopCompression) {
+                    if(compressMod == modifiers && !compressChar.isNull() && !stopCompression) {
 #ifdef DEBUG_KEY_BINDINGS
                         qDebug("compressing away %c", compressChar.toLatin1());
 #endif
@@ -695,7 +693,6 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
                                                      (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress,
                                                      qtKey, modifiers, text, ekind == kEventRawKeyRepeat, 0,
                                                      macScanCode, macVirtualKey, macModifiers);
-
         } else {
             handled_event = false;
         }
@@ -712,7 +709,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
 {
     UInt32 macVirtualKey = 0;
     GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(macVirtualKey), 0, &macVirtualKey);
-    if (updateKeyboard())
+    if(updateKeyboard())
        QKeyMapper::changeKeyboard();
     else if(keyLayout[macVirtualKey])
         return;
@@ -740,7 +737,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
             uchar translatedChar = KeyTranslate(keyboard_layout_format.other, keyModifier | macVirtualKey, &keyboard_dead);
             if(translatedChar) {
                 static QTextCodec *c = 0;
-                if (!c)
+                if(!c)
                     c = QTextCodec::codecForName("Apple Roman");
                 const QChar unicode(c->toUnicode((const char *)&translatedChar, 1).at(0));
                 int qtkey = qt_mac_get_key(keyModifier, unicode, macVirtualKey);
