@@ -3650,6 +3650,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = 75;
         break;
 
+    case SH_Menu_SelectionWrap:
+        ret = true;
+        break;
+
     case SH_Menu_FillScreenWithScroll:
         ret = true;
         break;

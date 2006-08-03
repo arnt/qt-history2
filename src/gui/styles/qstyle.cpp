@@ -1432,7 +1432,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_MenuBar_MouseTracking  Mouse tracking in menubars.
 
     \value SH_Menu_FillScreenWithScroll Whether scrolling popups
-    should fill the screen as they are scrolled.
+       should fill the screen as they are scrolled.
+
+    \value SH_Menu_SelectionWrap Whether popups should allow the selections
+        to wrap, that is when selection should the next item be the first item.
 
     \value SH_ItemView_ChangeHighlightOnFocus  Gray out selected items
         when losing focus.

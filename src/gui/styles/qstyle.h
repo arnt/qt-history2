@@ -591,6 +591,7 @@ public:
         SH_DialogButtonBox_ButtonsHaveIcons,
         SH_SpellCheckUnderlineStyle,
         SH_MessageBox_CenterButtons,
+        SH_Menu_SelectionWrap,
 
         // Add new style hint values here
 

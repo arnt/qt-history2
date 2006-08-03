@@ -1170,7 +1170,7 @@ void QMacStylePrivate::drawColorlessButton(const HIRect &macRect, HIThemeButtonD
                     int darkest = qRed(pixel);
                     int mid = qGreen(pixel);
                     int lightest = qBlue(pixel);
-                        
+
                     if (darkest > mid)
                         qSwap(darkest, mid);
                     if (mid > lightest)
@@ -1701,6 +1701,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 {
     SInt32 ret = 0;
     switch (sh) {
+    case SH_Menu_SelectionWrap:
+        ret = false;
+        break;
     case SH_Menu_KeyboardSearch:
         ret = true;
         break;
@@ -3445,8 +3448,8 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             // no longer possible to move it, second the up/down buttons are removed when
             // there is not enough space for them.
             if (cc == CC_ScrollBar) {
-                const int scrollBarLenght = (slider->orientation == Qt::Horizontal) 
-                    ? slider->rect.width() : slider->rect.height(); 
+                const int scrollBarLenght = (slider->orientation == Qt::Horizontal)
+                    ? slider->rect.width() : slider->rect.height();
                 const QMacStyle::WidgetSizePolicy sizePolicy = widgetSizePolicy(widget);
                 if (scrollBarLenght < scrollButtonsCutoffSize(thumbIndicatorCutoff, sizePolicy))
                     tdi.attributes &= ~kThemeTrackShowThumb;
@@ -3933,8 +3936,8 @@ QStyle::SubControl QMacStyle::hitTestComplexControl(ComplexControl cc,
 
             // The arrow buttons are not drawn if the scroll bar is to short,
             // exclude them from the hit test.
-            const int scrollBarLenght = (sb->orientation == Qt::Horizontal) 
-                ? sb->rect.width() : sb->rect.height(); 
+            const int scrollBarLenght = (sb->orientation == Qt::Horizontal)
+                ? sb->rect.width() : sb->rect.height();
             if (scrollBarLenght < scrollButtonsCutoffSize(scrollButtonsCutoff, widgetSizePolicy(widget)))
                 sbi.enableState = kThemeTrackNothingToScroll;
 
