@@ -257,20 +257,20 @@
 
     \quotefromfile designer/taskmenuextension/tictactoetaskmenu.cpp
     \skipto TicTacToeTaskMenuFactory
-    \printuntil {}
+    \printuntil /^\}/
 
     As described above, the factory is invoked when the user request a
     task menu by clicking the right mouse button over a widget with
     the specified task menu extension in \QD.
-
-    \skipto createExtension
-    \printuntil /^\}/
 
     \QD's behavior is the same whether the requested extension is
     associated with a container, a member sheet, a property sheet or a
     task menu: Its extension manager runs through all its registered
     extension factories calling \c createExtension() for each until
     one responds by creating the requested extension.
+
+    \skipto createExtension
+    \printuntil /^\}/
 
     So the first thing we do in \c
     TicTacToeTaskMenuFactory::createExtension() is to check if the
