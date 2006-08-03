@@ -11,7 +11,7 @@
 
 
 #include <qstatusbar.h>
-
+#include <QLabel>
 
 
 //TESTED_CLASS=
@@ -37,6 +37,8 @@ public slots:
 
 private slots:
     void tempMessage();
+    void insertWidget();
+    void insertPermanentWidget();
 
 private:
     QStatusBar *testWidget;
@@ -99,6 +101,34 @@ void tst_QStatusBar::tempMessage()
     testWidget->clearMessage();
     QVERIFY(testWidget->currentMessage().isNull());
     QVERIFY(currentMessage.isNull());
+}
+
+void tst_QStatusBar::insertWidget()
+{
+    QStatusBar sb;
+    sb.addPermanentWidget(new QLabel("foo"));
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertWidget: Index out of range (-1), appending widget");
+    QCOMPARE(sb.insertWidget(-1, new QLabel("foo")), 0);
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertWidget: Index out of range (2), appending widget");
+    QCOMPARE(sb.insertWidget(2, new QLabel("foo")), 1);
+    QCOMPARE(sb.insertWidget(0, new QLabel("foo")), 0);
+    QCOMPARE(sb.insertWidget(3, new QLabel("foo")), 3);
+}
+
+void tst_QStatusBar::insertPermanentWidget()
+{
+    QStatusBar sb;
+    sb.addWidget(new QLabel("foo"));
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertPermanentWidget: Index out of range (-1), appending widget");
+    QCOMPARE(sb.insertPermanentWidget(-1, new QLabel("foo")), 1);
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertPermanentWidget: Index out of range (0), appending widget");
+    QCOMPARE(sb.insertPermanentWidget(0, new QLabel("foo")), 2);
+    QCOMPARE(sb.insertPermanentWidget(2, new QLabel("foo")), 2);
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertPermanentWidget: Index out of range (5), appending widget");
+    QCOMPARE(sb.insertPermanentWidget(5, new QLabel("foo")), 4);
+    QCOMPARE(sb.insertWidget(1, new QLabel("foo")), 1);
+    QTest::ignoreMessage(QtWarningMsg, "QStatusBar::insertPermanentWidget: Index out of range (1), appending widget");
+    QCOMPARE(sb.insertPermanentWidget(1, new QLabel("foo")), 6);
 }
 
 
