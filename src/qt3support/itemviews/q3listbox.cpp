@@ -29,6 +29,7 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qvector.h"
+#include "qpointer.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -2217,6 +2218,8 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         return;
     }
 
+    QPointer<Q3ListBox> selfCheck = this;
+
     Q3ListBoxItem *old = d->current;
     if (!old) {
         setCurrentItem(d->head);
@@ -2356,7 +2359,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
                 toggleCurrentItem();
                 if (selectionMode() == Extended && d->current->isSelected())
                     emit highlighted(currentItem());
-                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
+                if (selfCheck && (!(e->state() & Qt::ShiftButton) || !d->selectAnchor))
                     d->selectAnchor = d->current;
             }
             break;
@@ -2373,7 +2376,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
                         emit selected(tmp);
                     emit returnPressed(item(currentItem()));
                 }
-                if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
+                if (selfCheck && (!(e->state() & Qt::ShiftButton) || !d->selectAnchor))
                     d->selectAnchor = d->current;
             }
             break;
@@ -2450,7 +2453,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
             }
     }
 
-    if (selectCurrent && selectionMode() == Single &&
+    if (selfCheck && selectCurrent && selectionMode() == Single &&
         d->current && !d->current->s) {
             updateItem(d->current);
             setSelected(d->current, true);
