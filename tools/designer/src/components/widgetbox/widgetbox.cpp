@@ -196,6 +196,7 @@ private:
     QDesignerFormEditorInterface *m_core;
     QString m_file_name;
     mutable QHash<QString, QIcon> m_pluginIcons;
+    QStringList m_widgetNames;
 
     CategoryList domToCateogryList(const QDomDocument &doc) const;
     Category domToCategory(const QDomElement &cat_elt) const;
@@ -409,7 +410,6 @@ bool WidgetBoxTreeView::load()
         }
     }
 
-    clear();
     foreach(Category cat, cat_list) {
         if (cat.type() != Category::Scratchpad)
             addCategory(cat);
@@ -593,6 +593,9 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
                                                     QTreeWidgetItem *parent,
                                                     bool editable)
 {
+    if (!editable && m_widgetNames.contains(wgt.name()))
+        return 0;
+
     QTreeWidgetItem *item = new QTreeWidgetItem(parent);
     item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
 
@@ -602,6 +605,9 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
 
     bool block = blockSignals(true);
     item->setText(0, wgt.name());
+
+    if (!editable)
+        m_widgetNames.append(wgt.name());
 
     QIcon icon;
     if (icon_name.startsWith("__qt_icon__"))
