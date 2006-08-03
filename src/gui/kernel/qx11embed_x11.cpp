@@ -65,26 +65,13 @@
     embedded widget must be known. The container calls embed(),
     passing the window ID.
 
-    This example shows an application that embeds a widget into the
-    window whose ID is passed as a command-line argument:
+    This example shows an application that embeds a QX11EmbedWidget
+    subclass into the window whose ID is passed as a command-line
+    argument:
 
-    \code
-        int main(int argc, char *argv[])
-        {
-            QApplication app(argc, argv);
-
-            if (app.argc() != 2) {
-                // Error - expected window id as argument
-                return 1;
-            }
-
-            QX11EmbedWidget widget;
-            widget.embedInto(app.argv()[1]);
-            widget.show();
-
-            return app.exec();
-        }
-    \endcode
+    \quotefromfile snippets/qx11embedwidget/main.cpp
+    \skipto main
+    \printuntil /^\}/
 
     The problem of obtaining the window IDs is often solved by the
     container invoking the application that provides the widget as a
@@ -142,25 +129,9 @@
     program is an XEmbed client widget. The widget embeds itself into
     the container using the container's window ID.
 
-    \code
-        int main(int argc, char *argv[])
-        {
-            QApplication app(argc, argv);
-
-            QX11EmbedContainer container(0);
-            container.show();
-
-            QProcess proc(&container);
-            proc.addArgument("/usr/bin/playvideo");
-            proc.addArgument(QString::number(container.winId()));
-            if (!proc.start()) {
-                // An error occurred
-                return 1;
-            }
-
-            return app.exec();
-        }
-    \endcode
+    \quotefromfile snippets/qx11embedcontainer/main.cpp
+    \skipto main
+    \printuntil /^\}/
 
     When the client widget is embedded, the container emits the
     signal clientIsEmbedded(). The signal clientClosed() is emitted
