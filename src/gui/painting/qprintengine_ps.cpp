@@ -774,9 +774,9 @@ QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
 {
 }
 
-
 static void ignoreSigPipe(bool b)
 {
+#ifndef QT_NO_LPR
     static struct sigaction *users_sigpipe_handler = 0;
 
     if (b) {
@@ -804,8 +804,10 @@ static void ignoreSigPipe(bool b)
         delete users_sigpipe_handler;
         users_sigpipe_handler = 0;
     }
+#else
+    Q_UNUSED(b);
+#endif
 }
-
 QPSPrintEngine::~QPSPrintEngine()
 {
     Q_D(QPSPrintEngine);
@@ -844,7 +846,11 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 
     d->pdev = pdev;
     if (!d->outputFileName.isEmpty()) {
-        d->fd = QT_OPEN(d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+        d->fd = QT_OPEN(d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
+#ifndef Q_OS_WIN
+                        | O_NOCTTY 
+#endif
+                        ,
 #if defined(Q_OS_WIN)
                         _S_IREAD | _S_IWRITE
 #else
@@ -1083,11 +1089,13 @@ bool QPSPrintEngine::end()
     d->printerState = QPrinter::Idle;
     d->pdev = 0;
 
+#ifndef QT_NO_LPR
     if (d->pid) {
         (void)::waitpid(d->pid, 0, 0);
         d->pid = 0;
     }
-
+#endif
+    
     return true;
 }
 

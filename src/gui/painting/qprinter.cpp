@@ -24,9 +24,8 @@
 #include <private/qprintengine_win_p.h>
 #elif defined (Q_WS_MAC)
 #include <private/qprintengine_mac_p.h>
-#elif defined (Q_OS_UNIX)
-#include <private/qprintengine_ps_p.h>
 #endif
+#include <private/qprintengine_ps_p.h>
 
 #ifndef QT_NO_PDF
 #include "qprintengine_pdf_p.h"
