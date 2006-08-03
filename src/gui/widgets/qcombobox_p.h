@@ -212,6 +212,7 @@ public:
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
+    int computeWidthHint() const;
     QSize recomputeSizeHint(QSize &sh) const;
     QString itemText(const QModelIndex &index) const;
     int itemRole() const;

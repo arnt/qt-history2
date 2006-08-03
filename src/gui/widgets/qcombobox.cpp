@@ -136,6 +136,33 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
     return hoverControl;
 }
 
+/*
+    Computes a size hint based on the maximum width 
+    for the items in the combobox.
+*/
+int QComboBoxPrivate::computeWidthHint() const
+{
+    Q_Q(const QComboBox);
+
+    int width = 0;
+    const int count = q->count();
+    const int iconWidth = q->iconSize().width() + 4;
+    const QFontMetrics &fontMetrics = q->fontMetrics();
+
+    for (int i = 0; i < count; ++i) {
+        const int textWidth = fontMetrics.width(q->itemText(i));
+        if (q->itemIcon(i).isNull())
+            width = (qMax(width, textWidth));
+        else
+            width = (qMax(width, textWidth + iconWidth));
+    }
+
+    QStyleOptionComboBox opt = getStyleOption();
+    QSize tmp(width, 0);
+    tmp = q->style()->sizeFromContents(QStyle::CT_ComboBox, &opt, tmp, q);
+    return tmp.width();
+}
+
 QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
 {
     Q_Q(const QComboBox);
@@ -248,6 +275,9 @@ void QComboBoxPrivateContainer::updateScrollers()
 {
 #ifndef QT_NO_SCROLLBAR
     if (!top || !bottom)
+        return;
+
+    if (isVisible() == false)
         return;
 
     QStyleOptionComboBox opt = comboStyleOption();
@@ -1850,10 +1880,9 @@ void QComboBox::showPopup()
     listRect.setHeight(listRect.height() + 2*container->spacing()
                        + style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this) * 2);
 
-    // Make sure the popup is wide enough to display its contents, this
-    // is neccesary if the combo box is narrower than its size hint.
+    // Make sure the popup is wide enough to display its contents.
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
-        const int diff = sizeHint().width() - width();
+        const int diff = d->computeWidthHint() - width();
         if (diff > 0)
             listRect.setWidth(listRect.width() + diff);
     }
