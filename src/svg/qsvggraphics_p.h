@@ -48,8 +48,10 @@ public:
     QSvgArc(QSvgNode *parent, const QPainterPath &path);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QPainterPath cubic;
+    QRectF m_cachedBounds;
 };
 
 class QSvgCircle : public QSvgNode
@@ -81,6 +83,7 @@ public:
               const QRect &bounds);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QImage m_image;
     QRect  m_bounds;
@@ -92,7 +95,7 @@ public:
     QSvgLine(QSvgNode *parent, const QLineF &line);
     virtual void draw(QPainter *p);
     virtual Type type() const;
-    //virtual QRectF bounds() const;
+    virtual QRectF bounds() const;
 private:
     QLineF m_bounds;
 };
@@ -126,6 +129,7 @@ public:
     QSvgPolyline(QSvgNode *parent, const QPolygonF &poly);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QPolygonF m_poly;
 };

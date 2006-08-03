@@ -50,6 +50,7 @@ void QSvgCircle::draw(QPainter *p)
 QSvgArc::QSvgArc(QSvgNode *parent, const QPainterPath &path)
     : QSvgNode(parent), cubic(path)
 {
+    m_cachedBounds = path.boundingRect();
 }
 
 void QSvgArc::draw(QPainter *p)
@@ -428,5 +429,30 @@ QRectF QSvgUse::transformedBounds(const QMatrix &mat) const
         return bounds;
     }
     return bounds;
+}
+
+QRectF QSvgPolyline::bounds() const
+{
+    return m_poly.boundingRect();
+}
+
+QRectF QSvgArc::bounds() const
+{
+    return m_cachedBounds;
+}
+
+QRectF QSvgImage::bounds() const
+{
+    return m_bounds;
+}
+
+QRectF QSvgLine::bounds() const
+{
+    qreal minX = qMin(m_bounds.x1(), m_bounds.x2());
+    qreal minY = qMin(m_bounds.y1(), m_bounds.y2());
+    qreal maxX = qMax(m_bounds.x1(), m_bounds.x2());
+    qreal maxY = qMax(m_bounds.y1(), m_bounds.y2());
+    
+    return QRectF(minX, minY, maxX-minX, maxY-minY);
 }
 
