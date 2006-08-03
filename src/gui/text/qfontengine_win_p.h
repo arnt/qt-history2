@@ -68,7 +68,7 @@ public:
     mutable unsigned char widthCache[widthCacheSize];
     mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
-    QFixed x_height;
+    mutable QFixed x_height;
 };
 
 class QFontEngineMultiWin : public QFontEngineMulti
