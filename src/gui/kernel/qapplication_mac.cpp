@@ -828,6 +828,7 @@ static EventTypeSpec app_events[] = {
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
 
+//     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
@@ -1861,9 +1862,20 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
         break;
     }
+    case kEventClassTextInput:
     case kEventClassKeyboard: {
-        if(ekind == kEventRawKeyDown)
-            qt_keymapper_private()->updateKeyMap(er, event, data);
+        EventRef key_event = event;
+        if(eclass == kEventClassTextInput) {
+            Q_ASSERT(ekind == kEventTextInputUnicodeForKeyEvent);
+            OSStatus err = GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, 0,
+                                             sizeof(key_event), 0, &key_event);
+            Q_ASSERT(err == noErr);
+        }
+        const UInt32 key_ekind = GetEventKind(key_event);
+        Q_ASSERT(GetEventClass(key_event) == kEventClassKeyboard);
+
+        if(key_ekind == kEventRawKeyDown)
+            qt_keymapper_private()->updateKeyMap(er, key_event, data);
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
         else if (app->activePopupWidget())
@@ -1877,9 +1889,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if (!widget) {
             // Darn, I need to update tho modifier state, even though
             // Qt itself isn't getting them, otherwise the keyboard state get inconsistent.
-            if (ekind == kEventRawKeyModifiersChanged) {
+            if (key_ekind == kEventRawKeyModifiersChanged) {
                 UInt32 modifiers = 0;
-                GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
+                GetEventParameter(key_event, kEventParamKeyModifiers, typeUInt32, 0,
                                   sizeof(modifiers), 0, &modifiers);
                 extern void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object); // qkeymapper_mac.cpp
                 // Just send it to the qApp for the time being.
@@ -1889,9 +1901,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             break;
         }
 
-        if(app_do_modal && !qt_try_modal(widget, event))
+        if(app_do_modal && !qt_try_modal(widget, key_event))
             break;
-        handled_event = qt_keymapper_private()->translateKeyEvent(widget, er, event, data, widget == mac_keyboard_grabber);
+        handled_event = qt_keymapper_private()->translateKeyEvent(widget, er, key_event, data, widget == mac_keyboard_grabber);
         break; }
     case kEventClassWindow: {
         remove_context_timer = false;
