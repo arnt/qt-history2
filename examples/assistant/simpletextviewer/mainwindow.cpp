@@ -20,6 +20,10 @@ MainWindow::MainWindow()
 {
     textViewer = new QTextEdit;
     textViewer->setReadOnly(true);
+    QFile file("documentation/intro.html");
+    if (file.open(QIODevice::ReadOnly))
+        textViewer->setHtml(file.readAll());
+
     setCentralWidget(textViewer);
 
     createActions();
