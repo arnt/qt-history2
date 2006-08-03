@@ -62,7 +62,7 @@
     \quotefromfile snippets/dragging/mainwindow.cpp
     \skipto mousePressEvent
     \printuntil drag->start
-            ...
+    \dots 8
     \skipto statusBar
     \skipto }
     \printuntil /^\}/
@@ -103,9 +103,13 @@
     \section1 Dropping
 
     To be able to receive media dropped on a widget, call
-    \l{QWidget::setAcceptDrops()}{setAcceptDrops(true)} for the widget
-    and override the event handler methods. For example, the following code
-    enables drop events in the constructor of a QWidget subclass:
+    \l{QWidget::setAcceptDrops()}{setAcceptDrops(true)} for the widget,
+    and reimplement the \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()} event handler functions.
+
+    For example, the following code enables drop events in the constructor of
+    a QWidget subclass, making it possible to usefully implement drop event
+    handlers:
 
     \quotefromfile snippets/dropevents/window.cpp
     \skipto Window::Window
@@ -116,12 +120,11 @@
     \skipto /^\}/
     \printuntil /^\}/
 
-    It is possible to enable drops in an entire widget by implementing only
-    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
-    \l{QWidget::dropEvent()}{dropEvent()}. The dragEnterEvent() function
-    is typically used to inform Qt about the types of data that the widget
-    accepts; the dropEvent() is used to unpack dropped data and handle it
-    in way that is suitable for your application.
+    The dragEnterEvent() function is typically used to inform Qt about the
+    types of data that the widget accepts.
+    You must reimplement this function if you want to receive either
+    QDragMoveEvent or QDropEvent in your reimplementations of
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and dropEvent().
 
     The following code shows how dragEnterEvent() can be reimplemented to
     tell the drag and drop system that we can only handle plain text:
@@ -129,9 +132,12 @@
     \skipto dragEnterEvent
     \printuntil /^\}/
 
-    The dropEvent() writes the text from the event to a QTextBrowser and
-    fills a QComboBox with the list of MIME types that are used to describe
-    the data:
+    The dropEvent() is used to unpack dropped data and handle it in way that
+    is suitable for your application.
+
+    In the following code, the text supplied in the event is passed to a
+    QTextBrowser and a QComboBox is filled with the list of MIME types that
+    are used to describe the data:
 
     \skipto dropEvent
     \printuntil /^\}/
@@ -142,16 +148,31 @@
     the data if the action is not relevant. For example, we may choose to
     ignore Qt::LinkAction actions if we do not support
     links to external sources in our application.
+
+    \section2 Overriding Proposed Actions
+
     We may also ignore the proposed action, and perform some other action on
     the data. To do this, we would call the event object's
     \l{QDropEvent::setDropAction()}{setDropAction()} with the preferred
-    action from Qt::DropAction.
+    action from Qt::DropAction before calling \l{QDropEvent::}{accept()}.
+    This ensures that the replacement drop action is used instead of the
+    proposed action.
 
     For more sophisticated applications, reimplementing
     \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
     \l{QWidget::dragLeaveEvent()}{dragLeaveEvent()} will let you make
     certain parts of your widgets sensitive to drop events, and give you more
     control over drag and drop in your application.
+
+    \section2 Subclassing Complex Widgets
+
+    Certain standard Qt widgets provide their own support for drag and drop.
+    When subclassing these widgets, it may be necessary to reimplement
+    \l{QWidget::dragMoveEvent()}{dragMoveEvent()} in addition to
+    \l{QWidget::dragEnterEvent()}{dragEnterEvent()} and
+    \l{QWidget::dropEvent()}{dropEvent()} to prevent the base class from
+    providing default drag and drop handling, and to handle any special
+    cases you are interested in.
 
     \section1 Drag and Drop Actions
 
@@ -215,8 +236,14 @@
     \printuntil mimeData->setData
 
     Of course, for this case we could have simply used
-    \l{QMimeData::setImageData()}{setImageData()} instead, but the
-    above code provides more control over the image's data format.
+    \l{QMimeData::setImageData()}{setImageData()} instead to supply image data
+    in a variety of formats:
+
+    \skipto setImageData
+    \printuntil setImageData
+
+    The QByteArray approach is still useful in this case because it provides
+    greater control over the amount of data stored in the QMimeData object.
 
     \section1 Drop Actions
 
@@ -248,11 +275,12 @@
     may obtain a different drop action.
 
     The proposed drop actions can be filtered in a widget's dragMoveEvent()
-    function. However, it is possible to accept all proposed actions and
-    let the user decide which they want to accept later:
+    function. However, it is possible to accept all proposed actions in
+    the dragEnterEvent() and let the user decide which they want to accept
+    later:
 
     \quotefromfile snippets/draganddrop/dragwidget.cpp
-    \skipto dragMoveEvent
+    \skipto dragEnterEvent
     \printuntil /^\}/
 
     When a drop occurs in the widget, the dropEvent() handler function is
@@ -276,10 +304,15 @@
     \skipto /^\}/
     \printuntil /^\}/
 
-    Note that we checked for individual drop actions in the above code. It is
-    often more helpful to check for the presence of each action in the value
-    supplied by possibleActions() and set the accepted action with the event's
-    setDropAction() function.
+    Note that we checked for individual drop actions in the above code.
+    As mentioned above in the section on
+    \l{#Overriding Proposed Actions}{Overriding Proposed Actions}, it is
+    sometimes necessary to override the proposed drop action and choose a
+    different one from the selection of possible drop actions.
+    To do this, you need to check for the presence of each action in the value
+    supplied by the event's \l{QDropEvent::}{possibleActions()}, set the drop
+    action with \l{QDropEvent::}{setDropAction()}, and call
+    \l{QDropEvent::}{accept()}.
 
     \section1 Drop Rectangles
 
@@ -374,9 +407,9 @@
     if you need to do such translations now, contact your Qt Technical
     Support service.
 
-    On X11, Qt also supports drops via the Motif Drag \& Drop Protocol. The
+    On X11, Qt also supports drops via the Motif Drag & Drop Protocol. The
     implementation incorporates some code that was originally written by
-    Daniel Dardailler, and adapted for Qt by Matt Koss \<koss@napri.sk\>
+    Daniel Dardailler, and adapted for Qt by Matt Koss <koss@napri.sk>
     and Trolltech. Here is the original copyright notice:
 
     \legalese

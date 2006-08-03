@@ -2078,9 +2078,15 @@ QDragMoveEvent::~QDragMoveEvent()
     widget, you should call the acceptProposedAction() function. Since the
     proposed action can be a combination of \l Qt::DropAction values, it may be
     useful to either select one of these values as a default action or ask
-    the user to select their preferred action. If the required drop action is
-    different to the proposed action, you can call setDropAction() instead of
-    acceptProposedAction() to complete the drop operation.
+    the user to select their preferred action.
+
+    If the proposed drop action is not suitable, perhaps because your custom
+    widget does not support that action, you can replace it with any of the
+    \l{possibleActions()}{possible drop actions} by calling setDropAction()
+    with your preferred action. If you set a value that is not present in the
+    bitwise OR combination of values returned by possibleActions(), the default
+    copy action will be used. Once a replacement drop action has been set, call
+    accept() instead of acceptProposedAction() to complete the drop operation.
 
     The mimeData() function provides the data dropped on the widget in a QMimeData
     object. This contains information about the MIME type of the data in addition to
@@ -2279,17 +2285,18 @@ void QDropEvent::setDropAction(Qt::DropAction action)
     If you set a drop action that is not one of the possible actions, the
     drag and drop operation will default to a copy operation.
 
+    Once you have supplied a replacement drop action, call accept()
+    instead of acceptProposedAction().
+
     \sa dropAction()
 */
 
 /*!
     \fn Qt::DropAction QDropEvent::dropAction() const
 
-    Returns the action that the target is expected to perform on the
-    data. If your application understands the action and can
-    process the supplied data, call acceptAction(); if your
-    application can process the supplied data but can only perform the
-    Copy action, call accept().
+    Returns the action to be performed on the data by the target. This may be
+    different from the action supplied in proposedAction() if you have called
+    setDropAction() to explicitly choose a drop action.
 
     \sa setDropAction()
 */
