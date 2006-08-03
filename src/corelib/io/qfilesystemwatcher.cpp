@@ -402,12 +402,14 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
 
 QStringList QFileSystemWatcher::directories() const
 {
-    return QStringList();
+    Q_D(const QFileSystemWatcher);
+    return d->directories;
 }
 
 QStringList QFileSystemWatcher::files() const
 {
-    return QStringList();
+    Q_D(const QFileSystemWatcher);
+    return d->files;
 }
 
 #include "moc_qfilesystemwatcher.cpp"
