@@ -79,6 +79,8 @@ public:
         { return QRect(0, animatedOperation.top, viewport->width(),
                        viewport->height() - animatedOperation.top); }
 
+    void _q_currentChanged(const QModelIndex&, const QModelIndex&);
+
     void layout(int item);
 
     int pageUp(int item) const;

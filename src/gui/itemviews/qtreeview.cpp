@@ -693,6 +693,13 @@ void QTreeView::setAllColumnsShowFocus(bool enable)
     Q_D(QTreeView);
     if (d->allColumnsShowFocus == enable)
         return;
+    if (enable) {
+        QObject::connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                         this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+    } else {
+        QObject::disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                            this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+    }
     d->allColumnsShowFocus = enable;
     d->viewport->update();
 }
@@ -2190,6 +2197,27 @@ QPixmap QTreeViewPrivate::renderTreeToPixmap(const QRect &rect) const
     q->drawTree(&painter, QRegion(rect));
     painter.end();
     return pixmap;
+}
+
+void QTreeViewPrivate::_q_currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_Q(QTreeView);
+    if (previous.isValid()) {
+        QRect previousRect = q->visualRect(previous);
+        if (allColumnsShowFocus) {
+            previousRect.setX(0);
+            previousRect.setWidth(viewport->width());
+        }
+        viewport->update(previousRect);
+    }
+    if (current.isValid()) {
+        QRect currentRect = q->visualRect(current);
+        if (allColumnsShowFocus) {
+            currentRect.setX(0);
+            currentRect.setWidth(viewport->width());
+        }
+        viewport->update(currentRect);
+    }
 }
 
 void QTreeViewPrivate::layout(int i)
