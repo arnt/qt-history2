@@ -65,10 +65,11 @@ class Q3ToolBarExtensionWidget;
 class Q3ToolBarPrivate
 {
 public:
-    Q3ToolBarPrivate() : moving(false) {
+    Q3ToolBarPrivate() : moving(false), checkingExtension(false) {
     }
 
     bool moving;
+    bool checkingExtension;
     Q3ToolBarExtensionWidget *extension;
     Q3PopupMenu *extensionPopup;
 
@@ -704,6 +705,10 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
     if (!isVisible())
         return;
 
+    if (d->checkingExtension)
+        return;
+    d->checkingExtension = true;
+
     bool tooSmall;
     if (orientation() == Qt::Horizontal)
         tooSmall = sz.width() < sizeHint().width();
@@ -735,6 +740,7 @@ void Q3ToolBar::checkForExtension(const QSize &sz)
         delete d->extensionPopup;
         d->extensionPopup = 0;
     }
+    d->checkingExtension = false;
 }
 
 
