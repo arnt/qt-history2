@@ -1354,8 +1354,8 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &pos)
         menu.addSeparator();
         menu.addAction(renameAction);
         menu.addAction(deleteAction);
-        renameAction->setEnabled(!model->isReadOnly());
-        deleteAction->setEnabled(!model->isReadOnly());
+        renameAction->setEnabled(index.flags() & Qt::ItemIsEditable);
+        deleteAction->setEnabled(index.flags() & Qt::ItemIsEditable);
     } else {
         // view context menu
         menu.addAction(reloadAction);
