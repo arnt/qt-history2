@@ -132,6 +132,8 @@ public:
     bool hasSelection() const;
 
     QModelIndexList selectedIndexes() const;
+    QModelIndexList selectedRows(int column = 0) const;
+    QModelIndexList selectedColumns(int row = 0) const;
     const QItemSelection selection() const;
 
     const QAbstractItemModel *model() const;

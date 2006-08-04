@@ -1257,6 +1257,48 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 }
 
 /*!
+  \since 4.2
+  Returns the indexes in the given \a column for the rows where all columns are selected.
+  
+  \sa selectedIndexes selectedColumns
+*/
+
+QModelIndexList QItemSelectionModel::selectedRows(int column) const
+{
+    QModelIndexList indexes;
+    QItemSelection ranges = selection();
+    for (int i = 0; i < ranges.count(); ++i) {
+        QModelIndex parent = ranges.at(i).parent();
+        int right = ranges.at(i).model()->columnCount(parent) - 1;
+        if (ranges.at(i).left() == 0 && ranges.at(i).right() == right)
+            for (int r = ranges.at(i).top(); r <= ranges.at(i).bottom(); ++r)
+                indexes.append(ranges.at(i).model()->index(r, column, parent));
+    }
+    return indexes;
+}
+
+/*!
+  \since 4.2
+  Returns the indexes in the given \a row for columns where all rows are selected.
+
+  \sa selectedIndexes selectedRows
+*/
+
+QModelIndexList QItemSelectionModel::selectedColumns(int row) const
+{
+    QModelIndexList indexes;
+    QItemSelection ranges = selection();
+    for (int i = 0; i < ranges.count(); ++i) {
+        QModelIndex parent = ranges.at(i).parent();
+        int bottom = ranges.at(i).model()->rowCount(parent) - 1;
+        if (ranges.at(i).top() == 0 && ranges.at(i).bottom() == bottom)
+            for (int c = ranges.at(i).left(); c <= ranges.at(i).right(); ++c)
+                indexes.append(ranges.at(i).model()->index(row, c, parent));
+    }
+    return indexes;
+}
+
+/*!
   Returns the selection ranges stored in the selection model.
 */
 const QItemSelection QItemSelectionModel::selection() const
