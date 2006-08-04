@@ -153,9 +153,9 @@ void QGraphicsSvgItem::paint(QPainter *painter,
 
     if (!d->cached) {
         if (d->elemId.isEmpty())
-            d->renderer->render(painter);
+            d->renderer->render(painter, d->boundingRect);
         else
-            d->renderer->render(painter, d->elemId);
+            d->renderer->render(painter, d->elemId, d->boundingRect);
         return;
     }
     

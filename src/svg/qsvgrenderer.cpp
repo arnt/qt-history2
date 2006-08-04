@@ -313,13 +313,33 @@ void QSvgRenderer::render(QPainter *p)
 */
 
 /*!
-    Renders the given element with \a elementId using the given \a painter.
+    Renders the given element with \a elementId using the given \a painter
+    on the specified \a bounds. If the bounding rectangle is not specified
+    the SVG element is mapped to the whole paint device.
 */
-void QSvgRenderer::render(QPainter *p, const QString &elementId)
+void QSvgRenderer::render(QPainter *p, const QString &elementId,
+                          const QRectF &bounds)
 {
     Q_D(QSvgRenderer);
     if (d->render) {
-        d->render->draw(p, elementId);
+        d->render->draw(p, elementId, bounds);
+    }
+}
+
+
+/*!
+    \fn void QSvgRenderer::render(QPainter *painter)
+
+    Renders the current document, or the current frame of an animated
+    document, using the given \a painter on the specified bounds within
+    the painter.  If the bounding rectangle is not specified
+    the SVG file is mapped to the whole paint device.
+*/
+void QSvgRenderer::render(QPainter *p, const QRectF &bounds)
+{
+    Q_D(QSvgRenderer);
+    if (d->render) {
+        d->render->draw(p, bounds);
     }
 }
 

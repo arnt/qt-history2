@@ -61,8 +61,11 @@ public:
     QRect viewBox() const;
     void setViewBox(const QRect &rect);
 
-    void draw(QPainter *p);
-    void draw(QPainter *p, const QString &id);
+    virtual void draw(QPainter *p);//from the QSvgNode
+    
+    void draw(QPainter *p, const QRectF &bounds);
+    void draw(QPainter *p, const QString &id,
+              const QRectF &bounds=QRectF());
 
     void addSvgFont(QSvgFont *);
     QSvgFont *svgFont(const QString &family) const;
@@ -71,6 +74,10 @@ public:
     int currentElapsed() const;
     bool animated() const;
     void setAnimated(bool a);
+private:
+    void adjustWindowBounds(QPainter *p, 
+                            const QRectF &desired,
+                            const QRectF &current);
 private:
     QSize m_size;
     bool  m_widthPercent;

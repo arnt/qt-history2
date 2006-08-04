@@ -69,19 +69,16 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
     return 0;
 }
 
-void QSvgTinyDocument::draw(QPainter *p)
+void QSvgTinyDocument::draw(QPainter *p, const QRectF &bounds)
 {
     if (m_time.isNull()) {
         m_time.start();
     }
+    p->save();
 
-    //XXX set default style on the painter
-    if (!m_viewBox.isEmpty())
-        p->setWindow(m_viewBox);
-    else if (!m_size.isEmpty())
-        p->setWindow(0, 0, m_size.width(), m_size.height());
-    else
-        p->setWindow(0, 0, 100, 100);//XXX bogus!!
+    //sets default style on the painter
+    //### not the most optimal way
+    adjustWindowBounds(p, bounds, m_viewBox);
     p->setPen(Qt::NoPen);
     p->setBrush(Qt::black);
     p->setRenderHint(QPainter::Antialiasing);
@@ -95,10 +92,12 @@ void QSvgTinyDocument::draw(QPainter *p)
         ++itr;
     }
     revertStyle(p);
+    p->restore();
 }
 
 
-void QSvgTinyDocument::draw(QPainter *p, const QString &id)
+void QSvgTinyDocument::draw(QPainter *p, const QString &id,
+                            const QRectF &boundingWindow)
 {
     QSvgNode *node = scopeNode(id);
 
@@ -107,21 +106,13 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
         return;
     }
 
-    QMatrix matx = p->worldMatrix();
+    p->save();
+
+    QMatrix matx = QMatrix();
     QRectF bounds = node->transformedBounds(matx);
 
-    //qDebug()<<"BOUNDS = "<<node->bounds()<<", trans = "<<bounds;
-    
-    if (!bounds.isEmpty()) {
-        //p->setWindow(m_viewBox.adjusted(-50, -50, 50, 50));
-        p->setWindow(bounds.toRect());
-    } else if (!m_viewBox.isEmpty()) {
-        p->setWindow(m_viewBox);
-    } else {
-        p->setWindow(0, 0, 100, 100);//XXX bogus!!
-    }
-    
-    //p->fillRect(bounds.adjusted(-5, -5, 5, 5), QColor(255, 255, 0));
+    adjustWindowBounds(p, boundingWindow, bounds);
+    matx = p->worldMatrix();
     
     //XXX set default style on the painter
     p->setPen(Qt::NoPen);
@@ -144,7 +135,7 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
     //reset the world matrix so that our parents don't affect
     //the position
     QMatrix om = p->worldMatrix();
-    p->setWorldMatrix(QMatrix());
+    p->setWorldMatrix(matx);
     
     node->draw(p);
 
@@ -155,6 +146,8 @@ void QSvgTinyDocument::draw(QPainter *p, const QString &id)
     }
 
     //p->fillRect(bounds.adjusted(-5, -5, 5, 5), QColor(0, 0, 255, 100));
+
+    p->restore();
 }
 
 
@@ -204,3 +197,41 @@ void QSvgTinyDocument::setAnimated(bool a)
 {
     m_animated = a;
 }
+
+void QSvgTinyDocument::draw(QPainter *p)
+{
+    draw(p, QRectF());
+}
+
+void QSvgTinyDocument::adjustWindowBounds(QPainter *p, 
+                                          const QRectF &d,
+                                          const QRectF &c)
+{
+    QPaintDevice *dev = p->device();
+    QRectF current = c;
+
+    if (current.isNull()) {
+        if (!m_size.isEmpty()) {
+            current = QRectF(0, 0, m_size.width(), m_size.height());
+        } else {
+            current = QRectF(0, 0, 100, 100);
+        }
+    }
+    QRectF desired = d.isNull() ? QRectF(0, 0, dev->width(), dev->height()) : d;
+
+    if (current != desired) {
+        QMatrix mat;
+        mat.scale(desired.width()/current.width(),
+                  desired.height()/current.height());
+        QRectF c2 = mat.mapRect(current);
+        p->translate(desired.x()-c2.x(),
+                     desired.y()-c2.y());
+        p->scale(desired.width()/current.width(),
+                 desired.height()/current.height());
+       
+        //qDebug()<<"two "<<mat<<", pt = "<<QPointF(desired.x()-c2.x(),
+        //                                          desired.y()-c2.y());
+        
+    }
+}
+

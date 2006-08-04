@@ -57,7 +57,10 @@ public Q_SLOTS:
     bool load(const QString &filename);
     bool load(const QByteArray &contents);
     void render(QPainter *p);
-    void render(QPainter *p, const QString &elementId);
+    void render(QPainter *p, const QRectF &bounds);
+    
+    void render(QPainter *p, const QString &elementId,
+                const QRectF &bounds=QRectF());
 
 Q_SIGNALS:
     void repaintNeeded();
