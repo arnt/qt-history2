@@ -1039,7 +1039,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         alignment |= Qt::TextHideMnemonic;
 
                     if (toolbutton->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
-                        pr.adjust(0, 3, 0, 0);
                         pr.setHeight(pmSize.height() + 6);
 
                         tr.adjust(0, pr.bottom(), 0, -3);
