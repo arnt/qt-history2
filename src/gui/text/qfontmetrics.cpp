@@ -567,7 +567,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the width of the returned
-    rectangle might be larger than what the width() method returns.
+    rectangle might be different than what the width() method returns.
 
     If you want to know the advance width of the string (to layout
     a set of strings next to each other), use width() instead.
@@ -589,7 +589,7 @@ QRect QFontMetrics::boundingRect(const QString &str) const
     layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, str.length());
-    return QRect(qMin(0, qRound(gm.x)), qRound(gm.y), qRound(qMax(gm.width, gm.xoff)), qRound(gm.height));
+    return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
 }
 
 /*!
@@ -1282,7 +1282,7 @@ qreal QFontMetricsF::width(QChar ch) const
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the width of the returned
-    rectangle might be larger than what the width() method returns.
+    rectangle might be different than what the width() method returns.
 
     If you want to know the advance width of the string (to layout
     a set of strings next to each other), use width() instead.
@@ -1305,8 +1305,8 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
     layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
-    return QRectF(qMin(0., gm.x.toReal()), gm.y.toReal(),
-                  qMax(gm.width.toReal(), gm.xoff.toReal()), gm.height.toReal());
+    return QRectF(gm.x.toReal(), gm.y.toReal(),
+                  gm.width.toReal(), gm.height.toReal());
 }
 
 /*!
