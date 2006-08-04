@@ -367,7 +367,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
     Q_D(const QItemDelegate);
     if (!index.isValid())
         return 0;
-    QVariant::Type t = index.data(Qt::EditRole).type();
+    QVariant::Type t = static_cast<QVariant::Type>(index.data(Qt::EditRole).userType());
     const QItemEditorFactory *factory = d->f;
     if (factory == 0)
         factory = QItemEditorFactory::defaultFactory();
@@ -393,7 +393,7 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
     QVariant v = index.data(Qt::EditRole);
     QByteArray n = editor->metaObject()->userProperty().name();
     if (n.isEmpty())
-        n = d->editorFactory()->valuePropertyName(v.type());
+        n = d->editorFactory()->valuePropertyName(static_cast<QVariant::Type>(v.userType()));
     if (!n.isEmpty())
         editor->setProperty(n, v);
 #endif
@@ -422,7 +422,8 @@ void QItemDelegate::setModelData(QWidget *editor,
     Q_ASSERT(editor);
     QByteArray n = editor->metaObject()->userProperty().name();
     if (n.isEmpty())
-        n = d->editorFactory()->valuePropertyName(model->data(index, Qt::EditRole).type());
+        n = d->editorFactory()->valuePropertyName(
+            static_cast<QVariant::Type>(model->data(index, Qt::EditRole).userType()));
     if (!n.isEmpty())
         model->setData(index, editor->property(n), Qt::EditRole);
 #endif
