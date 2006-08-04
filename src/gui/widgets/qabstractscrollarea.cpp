@@ -93,7 +93,7 @@ QAbstractScrollAreaScrollBarContainer::QAbstractScrollAreaScrollBarContainer(Qt:
     :QWidget(parent), scrollBar(new QScrollBar(orientation, this)),
      layout(new QBoxLayout(orientation == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom)),
      orientation(orientation)
-{ 
+{
     setLayout(layout);
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -112,7 +112,7 @@ void QAbstractScrollAreaScrollBarContainer::addWidget(QWidget *widget, LogicalPo
         policy.setVerticalPolicy(QSizePolicy::Ignored);
     widget->setSizePolicy(policy);
     widget->setParent(this);
-    
+
     const int insertIndex = (position & LogicalLeft) ? 0 : scrollBarLayoutIndex() + 1;
     layout->insertWidget(insertIndex, widget);
 }
@@ -137,7 +137,7 @@ QWidgetList QAbstractScrollAreaScrollBarContainer::widgets(LogicalPosition posit
 }
 
 /*! \internal
-    Returns the layout index for the scroll bar. This needs to be 
+    Returns the layout index for the scroll bar. This needs to be
     recalculated by a linear search for each use, since items in
     the layout can be removed at any time (i.e. when a widget is
     deleted or re-parented).
@@ -300,10 +300,10 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         cornerOffset =  extPoint;
 
 #ifdef Q_WS_MAC
-    // Also move the scrollbars if they are covered by the native Mac size grip. 
+    // Also move the scrollbars if they are covered by the native Mac size grip.
     if (hasMacSizeGrip)
         cornerOffset =  extPoint;
-#endif    
+#endif
 
     // The corner point is where the scrollbar rects, the corner widget rect and the
     // viewport rect meets.
@@ -311,11 +311,11 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
     // Some styles paints the corner if both scorllbars are showing and there is
     // no corner widget. Also, on the Mac we paint if there is a native
-    // (transparent) sizegrip in the area where a corner widget would be. 
+    // (transparent) sizegrip in the area where a corner widget would be.
     if (needv && needh && hasCornerWidget == false
 #ifdef Q_WS_MAC
         || ((needv || needh) && hasMacSizeGrip)
-#endif    
+#endif
     ) {
         cornerPaintingRect = QStyle::visualRect(opt.direction, opt.rect, QRect(cornerPoint, extSize));
     } else {
@@ -323,9 +323,9 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     }
 
 #ifdef Q_WS_MAC
-    if (hasMacReverseSizeGrip) 
+    if (hasMacReverseSizeGrip)
         reverseCornerPaintingRect = QRect(controlsRect.bottomRight() + QPoint(1, 1) - extPoint, extSize);
-    else 
+    else
         reverseCornerPaintingRect = QRect();
 #endif
 
@@ -353,8 +353,8 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     scrollBarContainers[Qt::Horizontal]->setVisible(needh);
     scrollBarContainers[Qt::Vertical]->setVisible(needv);
 
-    // Existing code expect to have to account for reverse mode when calling 
-    // setViewportMargins(), so we undo that here to preserve the behavior. 
+    // Existing code expect to have to account for reverse mode when calling
+    // setViewportMargins(), so we undo that here to preserve the behavior.
     // ### Qt 5: Consider changing the behavior.
     if (QApplication::isRightToLeft())
         viewportRect.adjust(right, top, -left, -bottom);
@@ -603,7 +603,7 @@ QWidget *QAbstractScrollArea::cornerWidget() const
     You may call setCornerWidget() with the same widget at different
     times.
 
-    All widgets set here will be deleted by the QScrollView when it is
+    All widgets set here will be deleted by the scroll area when it is
     destroyed unless you separately reparent the widget after setting
     some other corner widget (or 0).
 
@@ -636,26 +636,26 @@ void QAbstractScrollArea::setCornerWidget(QWidget *widget)
 
 /*!
     \since 4.2
-    Adds \a widget as a scroll bar widget in the location specified 
+    Adds \a widget as a scroll bar widget in the location specified
     by \a alignment.
-    
+
     Scroll bar widgets are shown next to the horizontal or vertical
     scroll bar, and can be placed on either side of it. If you want
     the scroll bar widgets to be always visible, set the
     scrollBarPolicy for the corresponding scroll bar to \c AlwaysOn.
-             
-    \a alignment must be one of Qt::Alignleft and Qt::AlignRight, 
+
+    \a alignment must be one of Qt::Alignleft and Qt::AlignRight,
     which maps to the horizontal scroll bar, or Qt::AlignTop and
     Qt::AlignBottom, which maps to the vertical scroll bar.
-    
+
     A scroll bar widget can be removed by either re-parenting the
     widget or deleting it. It's also possible to hide a widget with
-    QWidget::hide() 
+    QWidget::hide()
 
     The scroll bar widget will be resized to fit the scroll bar
     geometry for the current style. The following describes the case
     for scroll bar widgets on the horizontal scroll bar:
-    
+
     The height of the widget will be set to match the height of the
     scroll bar. To control the width of the widget, use
     QWidget::setMinimumWidth and QWidget::setMaximumWidth, or
@@ -672,11 +672,11 @@ void QAbstractScrollArea::addScrollBarWidget(QWidget *widget, Qt::Alignment alig
 
     if (widget == 0)
         return;
-    
-    const Qt::Orientation scrollBarOrientation 
+
+    const Qt::Orientation scrollBarOrientation
         = ((alignment & Qt::AlignLeft) || (alignment & Qt::AlignRight)) ? Qt::Horizontal : Qt::Vertical;
     const QAbstractScrollAreaScrollBarContainer::LogicalPosition position
-        = ((alignment & Qt::AlignRight) || (alignment & Qt::AlignBottom)) 
+        = ((alignment & Qt::AlignRight) || (alignment & Qt::AlignBottom))
           ? QAbstractScrollAreaScrollBarContainer::LogicalRight : QAbstractScrollAreaScrollBarContainer::LogicalLeft;
     d->scrollBarContainers[scrollBarOrientation]->addWidget(widget, position);
     d->layoutChildren();
@@ -686,9 +686,9 @@ void QAbstractScrollArea::addScrollBarWidget(QWidget *widget, Qt::Alignment alig
 
 /*
     \since 4.2
-    Returns a list of the currently set scroll bar widgets. \a aligmnet 
+    Returns a list of the currently set scroll bar widgets. \a alignment
     can be any combination of the four location flags.
-    
+
     \sa addScrollBarWidget()
 */
 QWidgetList QAbstractScrollArea::scrollBarWidgets(Qt::Alignment alignment)
@@ -696,7 +696,7 @@ QWidgetList QAbstractScrollArea::scrollBarWidgets(Qt::Alignment alignment)
     Q_D(QAbstractScrollArea);
 
     QWidgetList list;
-    
+
     if (alignment & Qt::AlignLeft)
         list += d->scrollBarContainers[Qt::Horizontal]->widgets(QAbstractScrollAreaScrollBarContainer::LogicalLeft);
     if (alignment & Qt::AlignRight)
@@ -1095,7 +1095,7 @@ QSize QAbstractScrollArea::minimumSizeHint() const
     int hsbExt = d->hbar->sizeHint().height();
     int vsbExt = d->vbar->sizeHint().width();
     int extra = 2 * d->frameWidth;
-    return QSize(d->scrollBarContainers[Qt::Horizontal]->sizeHint().width() + vsbExt + extra, 
+    return QSize(d->scrollBarContainers[Qt::Horizontal]->sizeHint().width() + vsbExt + extra,
                  d->scrollBarContainers[Qt::Vertical]->sizeHint().height() + hsbExt + extra);
 }
 
