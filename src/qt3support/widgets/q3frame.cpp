@@ -106,9 +106,10 @@ void Q3Frame::drawFrame(QPainter *p)
     This just calls frameChanged(); it does not make use of the \a
     event itself.
 */
-void Q3Frame::resizeEvent(QResizeEvent *)
+void Q3Frame::resizeEvent(QResizeEvent *e)
 {
-    frameChanged();
+    if (e->size() == e->oldSize())
+        frameChanged();
 }
 
 /*!
