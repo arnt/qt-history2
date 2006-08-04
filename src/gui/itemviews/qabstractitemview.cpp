@@ -2786,6 +2786,8 @@ void QAbstractItemView::doAutoScroll()
     if (verticalUnchanged && horizontalUnchanged) {
         stopAutoScroll();
     } else {
+        d->dropIndicatorRect = QRect();
+        d->dropIndicatorPosition = QAbstractItemView::OnViewport;
         d->viewport->update();
     }
 }
