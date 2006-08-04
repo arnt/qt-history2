@@ -360,9 +360,9 @@ void QFileDialog::setDirectory(const QString &directory)
 {
     Q_D(QFileDialog);
     QModelIndex index = d->model->index(directory);
-    if (!index.isValid())
-        return;
-    if (!d->model->isDir(index))
+    if (!index.isValid()
+        || !d->model->isDir(index)
+        || !d->model->fileInfo(index).isExecutable())
         return;
     d->setRootIndex(index);
     d->updateButtons(index);
@@ -1032,7 +1032,9 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
 
     // if it is "My Computer" or a directory, enter it
     QPersistentModelIndex persistent(index.sibling(index.row(), 0));
-    if (!persistent.isValid() || model->isDir(persistent)) {
+    if (!persistent.isValid()
+        || (model->isDir(persistent)
+            && model->fileInfo(index).isExecutable())) {
         QString path = model->filePath(rootIndex());
         history.push_back(path);
         setRootIndex(persistent);
