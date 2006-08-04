@@ -995,9 +995,9 @@ QAction::data() const
 }
 
 /*!
-  Sets internal data to \a data. This can be used for user data to store anything that a
-  QVariant can store. The ownership of the user data will remain with the
-  variant and thus be referenced counted as appropriate.
+  \fn void QAction::setData(const QVariant &userData)
+
+  Sets the action's internal data to the given \a userData.
 
   \sa data()
 */
