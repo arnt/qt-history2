@@ -796,6 +796,9 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
     int i;
 
     glyph_metrics_t overall;
+    // initialize with line height, we get the same behaviour on all platforms
+    overall.y = -ascent();
+    overall.height = ascent() + descent() + 1;
     QFixed ymax;
     QFixed xmax;
     for (i = 0; i < numGlyphs; i++) {
@@ -817,7 +820,7 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
             xmax = qMax(xmax, overall.xoff);
         }
     }
-    overall.height = ymax - overall.y;
+    overall.height = qMax(overall.height, ymax - overall.y);
     overall.width = xmax - overall.x;
 
     return overall;
@@ -1927,6 +1930,10 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
     FT_Face face = 0;
 
     glyph_metrics_t overall;
+    // initialize with line height, we get the same behaviour on all platforms
+    overall.y = -ascent();
+    overall.height = ascent() + descent() + 1;
+
     QFixed ymax = 0;
     QFixed xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
@@ -1959,7 +1966,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
             overall.xoff += qRound(TRUNC(ROUND(face->glyph->advance.x)));
         }
     }
-    overall.height = ymax - overall.y;
+    overall.height = qMax(overall.height, ymax - overall.y);
     overall.width = xmax - overall.x;
 
     if (face)

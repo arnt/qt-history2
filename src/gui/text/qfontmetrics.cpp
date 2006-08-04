@@ -562,20 +562,23 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 
 /*!
     Returns the bounding rectangle of the characters in the string
-    specified by \a str, which is the set of pixels the text would
-    cover if drawn at (0, 0).
+    specified by \a str. The bounding rectangle always covers at least
+    the set of pixels the text would cover if drawn at (0, 0).
 
     Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
+    e.g. for italicized fonts, and that the width of the returned
+    rectangle might be larger than what the width() method returns.
+
+    If you want to know the advance width of the string (to layout
+    a set of strings next to each other), use width() instead.
 
     Newline characters are processed as normal characters, \e not as
     linebreaks.
 
-    Due to the different actual character heights, the height of the
-    bounding rectangle of e.g. "Yes" and "yes" may be different.
+    The height of the bounding rectangle is at least as large as the
+    value returned height().
 
-    \sa width(), QPainter::boundingRect()
+    \sa width(), height(), QPainter::boundingRect()
 */
 QRect QFontMetrics::boundingRect(const QString &str) const
 {
@@ -586,7 +589,7 @@ QRect QFontMetrics::boundingRect(const QString &str) const
     layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, str.length());
-    return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
+    return QRect(qMin(0, qRound(gm.x)), qRound(gm.y), qRound(qMax(gm.width, gm.xoff)), qRound(gm.height));
 }
 
 /*!
@@ -1273,21 +1276,24 @@ qreal QFontMetricsF::width(QChar ch) const
 /*!
     \fn QRectF QFontMetricsF::boundingRect(const QString &text) const
 
-    Returns the bounding rectangle of the characters in the given
-    \a text. This is the set of pixels the text would cover if drawn
-    at (0, 0).
+    Returns the bounding rectangle of the characters in the string
+    specified by \a str. The bounding rectangle always covers at least
+    the set of pixels the text would cover if drawn at (0, 0).
 
     Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
+    e.g. for italicized fonts, and that the width of the returned
+    rectangle might be larger than what the width() method returns.
+
+    If you want to know the advance width of the string (to layout
+    a set of strings next to each other), use width() instead.
 
     Newline characters are processed as normal characters, \e not as
-    line breaks.
+    linebreaks.
 
-    Due to the different actual character heights, the height of the
-    bounding rectangle of e.g. "Yes" and "yes" may be different.
+    The height of the bounding rectangle is at least as large as the
+    value returned height().
 
-    \sa width(), QPainter::boundingRect()
+    \sa width(), height(), QPainter::boundingRect()
 */
 QRectF QFontMetricsF::boundingRect(const QString &str) const
 {
@@ -1299,7 +1305,8 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
     layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
-    return QRectF(gm.x.toReal(), gm.y.toReal(), gm.width.toReal(), gm.height.toReal());
+    return QRectF(qMin(0., gm.x.toReal()), gm.y.toReal(),
+                  qMax(gm.width.toReal(), gm.xoff.toReal()), gm.height.toReal());
 }
 
 /*!
