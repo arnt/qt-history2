@@ -1630,6 +1630,8 @@ void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QAbstractItemView);
     QAbstractScrollArea::focusInEvent(event);
+    if (!currentIndex().isValid())
+        setCurrentIndex(moveCursor(MoveNext, Qt::NoModifier)); // first visible index
     d->viewport->update();
 }
 
