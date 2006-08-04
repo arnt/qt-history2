@@ -23,6 +23,7 @@
 #include <QtDebug>
 #include <QFile>
 #include <QHash>
+#include <QPair>
 #include <QStringList>
 #include <QDateTime>
 #include <QRegExp>
@@ -71,12 +72,14 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     QString objClass = getClassName(widget);
     if (objClass.isEmpty())
         return 0;
+    QString objName = getObjectName(widget);
 
     DomUI *ui = new DomUI;
     ui->setAttributeVersion(QLatin1String("4.0"));
 
     QString pixmapFunction = QLatin1String("qPixmapFromMimeSource");
     QStringList ui_tabstops;
+    QStringList ui_custom_slots;
     QList<DomInclude*> ui_includes;
     QList<DomWidget*> ui_toolbars;
     QList<DomWidget*> ui_menubars;
@@ -84,6 +87,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     QList<DomActionGroup*> ui_action_group_list;
     QList<DomCustomWidget*> ui_customwidget_list;
     QList<DomConnection*> ui_connection_list;
+    QList<QPair<int, int> > ui_connection_lineinfo_list;
     QString author, comment, exportMacro;
     QString klass;
 
@@ -293,28 +297,57 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     DomConnection *connection = new DomConnection;
                     connection->read(n2);
 
-                    QString sender = connection->elementSender();
-                    QString senderClass = fixClassName(classNameForObjectName(widget, sender));
                     QString signal = fixMethod(connection->elementSignal());
-                    QString receiver = connection->elementReceiver();
-                    QString receiverClass = fixClassName(classNameForObjectName(widget, receiver));
                     QString slot = fixMethod(connection->elementSlot());
+                    connection->setElementSignal(signal);
+                    connection->setElementSlot(slot);
 
-                    // make sure that the signal and slot are present in Qt4
-                    if (!WidgetInfo::isValidSignal(senderClass, signal)) {
-                        errorInvalidSignal(signal, sender, senderClass, n2.lineNumber(), n2.columnNumber());
-                        delete connection;
-                    }
-                    else if (!WidgetInfo::isValidSlot(receiverClass, slot)) {
-                        errorInvalidSlot(slot, receiver, receiverClass, n2.lineNumber(), n2.columnNumber());
-                        delete connection;
-                    } else {
-                        connection->setElementSignal(signal);
-                        connection->setElementSlot(slot);
-                        ui_connection_list.append(connection);
-                    }
+                    ui_connection_list.append(connection);
+                    ui_connection_lineinfo_list.append(
+                        QPair<int, int>(n2.lineNumber(), n2.columnNumber()));
                 }
                 n2 = n2.nextSibling().toElement();
+            }
+        } else if (tagName == QLatin1String("slots")) {
+            QDomElement n2 = n.firstChild().toElement();
+            while (!n2.isNull()) {
+                if (n2.tagName().toLower() == QLatin1String("slot")) {
+                    QString name = n2.firstChild().toText().data();
+                    ui_custom_slots.append(fixMethod(name));
+                }
+                n2 = n2.nextSibling().toElement();
+            }
+        }
+    }
+
+    // validate the connections
+    for (int i = 0; i < ui_connection_list.size(); ++i) {
+        DomConnection *conn = ui_connection_list.at(i);
+        QPair<int, int> lineinfo = ui_connection_lineinfo_list.at(i);
+        QString sender = conn->elementSender();
+        QString senderClass = fixClassName(classNameForObjectName(widget, sender));
+        QString signal = conn->elementSignal();
+        QString receiver = conn->elementReceiver();
+        QString receiverClass = fixClassName(classNameForObjectName(widget, receiver));
+        QString slot = conn->elementSlot();
+
+        if (!WidgetInfo::isValidSignal(senderClass, signal)) {
+            errorInvalidSignal(signal, sender, senderClass,
+                               lineinfo.first, lineinfo.second);
+        } else if (!WidgetInfo::isValidSlot(receiverClass, slot)) {
+            bool resolved = false;
+            if (objName == receiver) {
+                // see if it's a custom slot
+                foreach (QString cs, ui_custom_slots) {
+                    if (cs == slot) {
+                        resolved = true;
+                        break;
+                    }
+                }
+            }
+            if (!resolved) {
+                errorInvalidSlot(slot, receiver, receiverClass,
+                                 lineinfo.first, lineinfo.second);
             }
         }
     }

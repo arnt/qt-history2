@@ -49,7 +49,7 @@ void Ui3Reader::errorInvalidProperty(const QString &propertyName, const QString 
 
 void Ui3Reader::errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass, int line, int col)
 {
-    fprintf(stderr, "uic3: signal `%s' for widget `%s' of type `%s' is not supported. %s\n",
+    fprintf(stderr, "uic3: signal `%s' for widget `%s' of type `%s' is not supported; connection may fail. %s\n",
             signal.toLatin1().constData(), widgetName.toLatin1().constData(),
             widgetClass.toLatin1().constData(),
             lineColDebug(line, col).toLocal8Bit().constData());
@@ -57,7 +57,7 @@ void Ui3Reader::errorInvalidSignal(const QString &signal, const QString &widgetN
 
 void Ui3Reader::errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass, int line, int col)
 {
-    fprintf(stderr, "uic3: slot `%s' for widget `%s' of type `%s' is not supported. %s\n",
+    fprintf(stderr, "uic3: slot `%s' for widget `%s' of type `%s' is not supported; connection may fail. %s\n",
             slot.toLatin1().constData(),
             widgetName.toLatin1().constData(),
             widgetClass.toLatin1().constData(),
