@@ -245,7 +245,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::SelectPreviousPage,      0,          Qt::SHIFT | Qt::Key_PageUp,             QApplicationPrivate::KB_All},
     {QKeySequence::SelectNextPage,          0,          Qt::SHIFT | Qt::Key_PageDown,           QApplicationPrivate::KB_All},
     {QKeySequence::WhatsThis,               1,          Qt::SHIFT | Qt::Key_F1,                 QApplicationPrivate::KB_All},
-    {QKeySequence::FindNext,                1,          Qt::SHIFT | Qt::Key_F3,                 QApplicationPrivate::KB_KDE},
+    {QKeySequence::FindPrevious,            1,          Qt::SHIFT | Qt::Key_F3,                 QApplicationPrivate::KB_KDE},
     {QKeySequence::ZoomIn,                  1,          Qt::CTRL | Qt::Key_Plus,                QApplicationPrivate::KB_All},
     {QKeySequence::ZoomOut,                 1,          Qt::CTRL | Qt::Key_Minus,               QApplicationPrivate::KB_All},
     {QKeySequence::SelectAll,               1,          Qt::CTRL | Qt::Key_A,                   QApplicationPrivate::KB_All},
