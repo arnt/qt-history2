@@ -232,14 +232,16 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
 {
     QString scope = QLatin1String(metaEnum.scope());
 
-    int idx = metaEnum.keyToValue(name.toLatin1());
-    if (idx != -1) {
-        QString enumerator = name;
-        int i = enumerator.indexOf(QLatin1String("::"));
-        if (i != -1)
-            enumerator = enumerator.mid(i + 2);
-
-        return scope + QLatin1String("::") + enumerator;
+    QByteArray key = name.toLatin1();
+    for (int idx = 0; idx < metaEnum.keyCount(); ++idx) {
+        if (metaEnum.key(idx) == key) {
+            QString enumerator = name;
+            int i = enumerator.indexOf(QLatin1String("::"));
+            if (i != -1)
+                enumerator = enumerator.mid(i + 2);
+            
+            return scope + QLatin1String("::") + enumerator;
+        }
     }
 
     return QString();
