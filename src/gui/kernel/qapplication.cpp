@@ -2376,18 +2376,15 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
 /*!
     Returns the desktop widget (also called the root window).
 
-    The desktop widget is useful for obtaining the size of the screen.
+    Note that the desktop may be composed of multiple screens, so it would be
+    incorrect, for example, to attempt to \e center some widget in the
+    desktop's geometry. QDesktopWidget has various functions for obtaining
+    useful geometries upon the desktop, such as QDesktopWidget::screenGeometry()
+    and QDesktopWidget::availableGeometry().
+
     It may also be possible to draw on the desktop. We recommend against
     assuming that it's possible to draw on the desktop, since this does
     not work on all operating systems.
-
-    Example:
-
-    \code
-        QDesktopWidget *desktop = QApplication::desktop();
-        int width = desktop->width();
-        int height = desktop->height();
-    \endcode
 */
 QDesktopWidget *QApplication::desktop()
 {
