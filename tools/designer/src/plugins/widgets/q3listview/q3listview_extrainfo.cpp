@@ -100,7 +100,7 @@ bool Q3ListViewExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
         QString txt = text->elementString()->text();
 
         if (pixmap != 0) {
-            DomResourcePixmap *pix = pixmap->elementIconSet();
+            DomResourcePixmap *pix = pixmap->elementPixmap();
             QIcon icon(core()->iconCache()->resolveQrcPath(pix->text(), pix->attributeResource(), workingDirectory()));
             listView->addColumn(icon, txt);
         } else {
