@@ -953,6 +953,10 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             if (QDragManager::self() && QDragManager::self()->object != 0)
                 return false;
 #endif
+            // Opening a modal dialog will start a new eventloop
+            // that will process the deleteLater event.
+            if (QApplication::activeModalWidget())
+                return false;
             emit commitData(editor);
             emit closeEditor(editor, NoHint);
         }
