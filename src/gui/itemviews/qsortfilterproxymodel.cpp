@@ -1415,6 +1415,8 @@ bool QSortFilterProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction a
                                          int row, int column, const QModelIndex &parent)
 {
     Q_D(QSortFilterProxyModel);
+    if ((row == -1) && (column == -1))
+        return d->model->dropMimeData(data, action, -1, -1, d->proxy_to_source(parent));
     QModelIndex proxy_index = index(row, column, parent);
     QModelIndex source_index = d->proxy_to_source(proxy_index);
     return d->model->dropMimeData(data, action, source_index.row(), source_index.column(),
