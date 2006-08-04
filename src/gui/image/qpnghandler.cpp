@@ -339,8 +339,8 @@ bool QPngHandlerPrivate::readPngHeader()
         QString key, value;
 #if defined(PNG_iTXt_SUPPORTED)
         if (text_ptr->lang) {
-            QTextCodec *textCodec = QTextCodec::codecForName(text_ptr->lang);
-            if (textCodec) {
+            QTextCodec *codec = QTextCodec::codecForName(text_ptr->lang);
+            if (codec) {
                 key = codec->toUnicode(text_ptr->lang_key);
                 value = codec->toUnicode(QByteArray(text_ptr->text, text_ptr->itxt_length));
             } else {
