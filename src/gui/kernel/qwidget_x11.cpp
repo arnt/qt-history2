@@ -2125,7 +2125,7 @@ void QWidget::scroll(int dx, int dy)
 
     If \a r is empty or invalid, the result is undefined.
 
-    \sa QScrollView bitBlt()
+    \sa QScrollArea bitBlt()
 */
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {

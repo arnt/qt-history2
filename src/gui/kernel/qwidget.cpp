@@ -6702,7 +6702,7 @@ void QWidget::setLayout(QLayout *l)
     directions. Widgets that support different directions (such as
     QSlider, QScrollBar or QHeader) specify stretching in the
     respective direction only. Widgets that can provide scrollbars
-    (usually subclasses of QScrollView) tend to specify that they can
+    (usually subclasses of QScrollArea) tend to specify that they can
     use additional space, and that they can make do with less than
     sizeHint().
 
