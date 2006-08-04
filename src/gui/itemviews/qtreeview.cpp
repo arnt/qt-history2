@@ -1269,8 +1269,12 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
 void QTreeView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (d->itemDecorationAt(event->pos()) == -1) // ### what about expanding/collapsing state ?
+    if (d->itemDecorationAt(event->pos()) == -1) { // ### what about expanding/collapsing state ?
         QAbstractItemView::mouseReleaseEvent(event);
+    } else {
+        if (state() == QAbstractItemView::DragSelectingState)
+            setState(QAbstractItemView::NoState);
+    }
 }
 
 /*!
