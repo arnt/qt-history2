@@ -328,7 +328,7 @@ QHostInfo::~QHostInfo()
     \code
         QHostInfo info;
         ...
-        if (!info.addresses.isEmpty()) {
+        if (!info.addresses().isEmpty()) {
             QHostAddress address = info.addresses().first();
             // use the first IP address
         }
