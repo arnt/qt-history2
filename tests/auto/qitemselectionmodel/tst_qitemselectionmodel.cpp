@@ -40,10 +40,12 @@ private slots:
     void removeRows();
     void removeColumns_data();
     void removeColumns();
-#if QT_VERSION >= 0x040200
     void modelLayoutChanged_data();
     void modelLayoutChanged();
-#endif
+    void selectedRows_data();
+    void selectedRows();
+    void selectedColumns_data();
+    void selectedColumns();
 
 private:
     QAbstractItemModel *model;
@@ -1533,7 +1535,6 @@ void tst_QItemSelectionModel::removeColumns()
     QVERIFY(selections.isSelected(br));
 }
 
-#if QT_VERSION >= 0x040200
 typedef QList<IntList> IntListList;
 typedef QPair<IntPair, IntPair> IntPairPair;
 typedef QList<IntPairPair> IntPairPairList;
@@ -1640,7 +1641,124 @@ void tst_QItemSelectionModel::modelLayoutChanged()
         QCOMPARE(actualBr.column(), expectedBr.second);
     }
 }
-#endif
+
+void tst_QItemSelectionModel::selectedRows_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<IntList>("selectRows");
+    QTest::addColumn<IntList>("expectedRows");
+    QTest::addColumn<IntList>("unexpectedRows");
+
+    QTest::newRow("10x10, first row")
+        << 10 << 10 << 0
+        << (IntList() << 0)
+        << (IntList() << 0)
+        << (IntList() << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9);
+
+    QTest::newRow("10x10, first 4 rows")
+        << 10 << 10 << 0
+        << (IntList() << 0 << 1 << 2 << 3)
+        << (IntList() << 0 << 1 << 2 << 3)
+        << (IntList() << 4 << 5 << 6 << 7 << 8 << 9);
+
+    QTest::newRow("10x10, last 4 rows")
+        << 10 << 10 << 0
+        << (IntList() << 6 << 7 << 8 << 9)
+        << (IntList() << 6 << 7 << 8 << 9)
+        << (IntList() << 0 << 1 << 2 << 3 << 4 << 6);
+}
+
+void tst_QItemSelectionModel::selectedRows()
+{
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, column);
+    QFETCH(IntList, selectRows);
+    QFETCH(IntList, expectedRows);
+    QFETCH(IntList, unexpectedRows);
+
+    MyStandardItemModel model(rowCount, columnCount);
+    QItemSelectionModel selectionModel(&model);
+
+    for (int i = 0; i < selectRows.count(); ++i)
+        selectionModel.select(model.index(selectRows.at(i), 0),
+                              QItemSelectionModel::Select
+                              |QItemSelectionModel::Rows);
+
+    for (int j = 0; j < selectRows.count(); ++j)
+        QVERIFY(selectionModel.isRowSelected(expectedRows.at(j), QModelIndex()));
+
+    for (int k = 0; k < selectRows.count(); ++k)
+        QVERIFY(!selectionModel.isRowSelected(unexpectedRows.at(k), QModelIndex()));
+    
+    QModelIndexList selectedRowIndexes = selectionModel.selectedRows(column);
+    QCOMPARE(selectedRowIndexes.count(), expectedRows.count());
+    for (int l = 0; l < selectedRowIndexes.count(); ++l) {
+        QCOMPARE(selectedRowIndexes.at(l).row(), expectedRows.at(l));
+        QCOMPARE(selectedRowIndexes.at(l).column(), column);
+    }
+}
+
+void tst_QItemSelectionModel::selectedColumns_data()
+{
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<int>("columnCount");
+    QTest::addColumn<int>("row");
+    QTest::addColumn<IntList>("selectColumns");
+    QTest::addColumn<IntList>("expectedColumns");
+    QTest::addColumn<IntList>("unexpectedColumns");
+
+    QTest::newRow("10x10, first columns")
+        << 10 << 10 << 0
+        << (IntList() << 0)
+        << (IntList() << 0)
+        << (IntList() << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9);
+
+    QTest::newRow("10x10, first 4 columns")
+        << 10 << 10 << 0
+        << (IntList() << 0 << 1 << 2 << 3)
+        << (IntList() << 0 << 1 << 2 << 3)
+        << (IntList() << 4 << 5 << 6 << 7 << 8 << 9);
+
+    QTest::newRow("10x10, last 4 columns")
+        << 10 << 10 << 0
+        << (IntList() << 6 << 7 << 8 << 9)
+        << (IntList() << 6 << 7 << 8 << 9)
+        << (IntList() << 0 << 1 << 2 << 3 << 4 << 6);
+}
+
+void tst_QItemSelectionModel::selectedColumns()
+{
+    QFETCH(int, rowCount);
+    QFETCH(int, columnCount);
+    QFETCH(int, row);
+    QFETCH(IntList, selectColumns);
+    QFETCH(IntList, expectedColumns);
+    QFETCH(IntList, unexpectedColumns);
+
+    MyStandardItemModel model(rowCount, columnCount);
+    QItemSelectionModel selectionModel(&model);
+
+    for (int i = 0; i < selectColumns.count(); ++i)
+        selectionModel.select(model.index(0, selectColumns.at(i)),
+                              QItemSelectionModel::Select
+                              |QItemSelectionModel::Columns);
+
+    for (int j = 0; j < selectColumns.count(); ++j)
+        QVERIFY(selectionModel.isColumnSelected(expectedColumns.at(j), QModelIndex()));
+
+    for (int k = 0; k < selectColumns.count(); ++k)
+        QVERIFY(!selectionModel.isColumnSelected(unexpectedColumns.at(k), QModelIndex()));
+    
+    QModelIndexList selectedColumnIndexes = selectionModel.selectedColumns(row);
+    QCOMPARE(selectedColumnIndexes.count(), expectedColumns.count());
+    for (int l = 0; l < selectedColumnIndexes.count(); ++l) {
+        QCOMPARE(selectedColumnIndexes.at(l).column(), expectedColumns.at(l));
+        QCOMPARE(selectedColumnIndexes.at(l).row(), row);
+    }
+}
 
 QTEST_MAIN(tst_QItemSelectionModel)
 #include "tst_qitemselectionmodel.moc"
