@@ -948,7 +948,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             QMatrix translate(1, 0, 0, 1, -g->focalPoint().x(), -g->focalPoint().y());
             QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * translate;
+            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * brush.matrix().inverted() * translate;
 
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
 
@@ -971,7 +971,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             QMatrix translate(1, 0, 0, 1, -g->center().x(), -g->center().y());
             QMatrix gl_to_qt(1, 0, 0, -1, 0, pdev->height());
-            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * translate;
+            QMatrix inv_matrix = gl_to_qt * matrix.inverted() * brush.matrix().inverted() * translate;
 
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
 
