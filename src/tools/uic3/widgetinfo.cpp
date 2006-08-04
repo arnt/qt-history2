@@ -94,7 +94,8 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QSpinBox::staticMetaObject;
     else if (widgetName == QLatin1String("QSplitter"))
         return &QSplitter::staticMetaObject;
-    else if (widgetName == QLatin1String("QTextEdit"))
+    else if (widgetName == QLatin1String("QTextEdit") ||
+             widgetName == QLatin1String("Q3TextEdit"))
         return &Q3TextEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QLabel"))
         return &QLabel::staticMetaObject;
