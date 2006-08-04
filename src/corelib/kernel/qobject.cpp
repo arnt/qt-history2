@@ -1813,11 +1813,6 @@ void QObjectPrivate::setParent_helper(QObject *o)
                 QCoreApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, q));
 #endif
             }
-#ifdef QT3_SUPPORT
-            else {
-                QCoreApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, q));
-            }
-#endif
         }
     }
 }
