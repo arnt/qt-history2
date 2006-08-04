@@ -569,85 +569,21 @@ static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
                1 = inv_matrix_offset
                2 = fmp
                4 = radius
+
+               This program is included from radial.frag, see also src/gui/util/README_Cg
 */
 static const char *const radial_program =
-    "!!ARBfp1.0"
-    "PARAM c[5] = { program.local[0..2],"
-    "             { 2, 4 },"
-    "             program.local[4] };"
-    "TEMP R0;"
-    "MUL R0.zw, c[0].xyxy, fragment.position.xyxy;"
-    "ADD R0.z, R0, R0.w;"
-    "MUL R0.xy, c[0].zwzw, fragment.position;"
-    "ADD R0.w, R0.x, R0.y;"
-    "ADD R0.xy, R0.zwzw, c[1];"
-    "MUL R0.zw, R0.xyxy, R0.xyxy;"
-    "MUL R0.xy, R0, c[2];"
-    "ADD R0.x, R0, R0.y;"
-    "ADD R0.z, R0, R0.w;"
-    "MUL R0.z, c[4].x, -R0;"
-    "MUL R0.y, R0.z, c[3];"
-    "MUL R0.x, R0, c[3];"
-    "MAD R0.y, R0.x, R0.x, -R0;"
-    "MOV R0.z, c[3].x;"
-    "RSQ R0.y, R0.y;"
-    "MUL R0.z, c[4].x, R0;"
-    "RCP R0.y, R0.y;"
-    "RCP R0.z, R0.z;"
-    "ADD R0.x, -R0, R0.y;"
-    "MUL R0.x, R0, R0.z;"
-    "TEX result.color, R0, texture[0], 1D;"
-    "END"
-    "\0";
+#include "radial.frag"
 
-/*  radial fragment program
+/*  conical fragment program
     parameter: 0 = inv_matrix
                1 = inv_matrix_offset
                4 = angle
+               
+               This program is included from conical.frag, see also src/gui/util/README_Cg
 */
 static const char *const conical_program =
-    "!!ARBfp1.0"
-    "PARAM c[6] = { program.local[0..1],"
-    "               { 0.0020000001, 9.9999997e-10, 0.1963, 0.9817 },"
-    "               { 2.3561945, 0.78539819, -1, 1 },"
-    "               program.local[4],"
-    "               { 0.15915494 } };"
-    "TEMP R0;"
-    "TEMP R1;"
-    "MUL R0.zw, c[0].xyxy, fragment.position.xyxy;"
-    "ADD R0.z, R0, R0.w;"
-    "MUL R0.xy, c[0].zwzw, fragment.position;"
-    "ADD R0.w, R0.x, R0.y;"
-    "ADD R0.xy, R0.zwzw, c[1];"
-    "ABS R0.w, R0.x;"
-    "ABS R0.z, R0.y;"
-    "ADD R0.z, R0, -R0.w;"
-    "ADD R0.w, R0.y, c[2].x;"
-    "ABS R0.z, R0;"
-    "CMP R0.y, -R0.z, R0, R0.w;"
-    "ABS R0.z, -R0.y;"
-    "ADD R0.z, R0, c[2].y;"
-    "ADD R0.w, R0.x, R0.z;"
-    "ADD R1.x, R0.z, -R0;"
-    "RCP R1.x, R1.x;"
-    "RCP R1.y, R0.w;"
-    "MUL R0.w, R0, R1.x;"
-    "ADD R0.z, R0.x, -R0;"
-    "MUL R0.z, R0, R1.y;"
-    "CMP R0.z, R0.x, R0.w, R0;"
-    "MUL R0.w, R0.z, R0.z;"
-    "MOV R1.x, c[3].y;"
-    "CMP R0.y, -R0, c[3].z, c[3].w;"
-    "MAD R0.w, R0, c[2].z, -c[2];"
-    "CMP R0.x, R0, c[3], R1;"
-    "MAD R0.x, R0.w, R0.z, R0;"
-    "MAD R0.x, R0, R0.y, c[4];"
-    "MUL R0.x, R0, c[5];"
-    "FLR R0.y, R0.x;"
-    "ADD R0.x, R0, -R0.y;"
-    "TEX result.color, R0, texture[0], 1D;"
-    "END"
-    "\0";
+#include "conical.frag"
 
 #ifdef Q_WS_WIN
 bool qt_resolve_frag_program_extensions(QGLContext *ctx)
