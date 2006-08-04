@@ -289,6 +289,13 @@ void SetPropertyCommand::redo()
         act->setData(QVariant(true)); // it triggers signal "changed" in QAction
         act->setData(QVariant(false));
     }
+
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
+        if (m_propertyName == QLatin1String("minimumSize"))
+            promoted->setMinimumSize(m_newValue.toSize());
+        else if (m_propertyName == QLatin1String("maximumSize"))
+            promoted->setMaximumSize(m_newValue.toSize());
+    }
 }
 
 void SetPropertyCommand::undo()
@@ -330,6 +337,13 @@ void SetPropertyCommand::undo()
         // emit act->changed(); cannot emit, signal is protected
         act->setData(QVariant(true)); // it triggers signal "changed" in QAction
         act->setData(QVariant(false));
+    }
+
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
+        if (m_propertyName == QLatin1String("minimumSize"))
+            promoted->setMinimumSize(m_oldValue.toSize());
+        else if (m_propertyName == QLatin1String("maximumSize"))
+            promoted->setMaximumSize(m_oldValue.toSize());
     }
 }
 
@@ -399,7 +413,8 @@ void ResetPropertyCommand::redo()
     Q_ASSERT(m_index != -1);
 
     QObject *obj = m_object;
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
+    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj);
+    if (promoted)
         obj = promoted->child();
 
     QVariant new_value;
@@ -436,6 +451,13 @@ void ResetPropertyCommand::redo()
         checkObjectName(m_object);
     }
 
+    if (promoted) {
+        if (m_propertyName == QLatin1String("minimumSize"))
+            promoted->setMinimumSize(new_value.toSize());
+        else if (m_propertyName == QLatin1String("maximumSize"))
+            promoted->setMaximumSize(new_value.toSize());
+    }
+
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == object())
             propertyEditor->setPropertyValue(propertyName(), new_value, false);
@@ -464,6 +486,13 @@ void ResetPropertyCommand::undo()
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == object())
             propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
+    }
+
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(m_object)) {
+        if (m_propertyName == QLatin1String("minimumSize"))
+            promoted->setMinimumSize(m_oldValue.toSize());
+        else if (m_propertyName == QLatin1String("maximumSize"))
+            promoted->setMaximumSize(m_oldValue.toSize());
     }
 }
 
@@ -781,6 +810,9 @@ static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, 
 {
     QDesignerFormEditorInterface *core = fw->core();
     QWidget *parent = wgt->parentWidget();
+
+    promoted->setMinimumSize(wgt->minimumSize());
+    promoted->setMaximumSize(wgt->maximumSize());
 
     QRect info;
     int splitter_idx = -1;
