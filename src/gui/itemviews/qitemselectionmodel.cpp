@@ -1059,21 +1059,24 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
         return false;
 
     bool selected = false;
+    //  search model ranges
+    QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
+    for (; it != d->ranges.end(); ++it) {
+        if ((*it).contains(index)) {
+            selected = true;
+            break;
+        }
+    }
+
     // check  currentSelection
     if (d->currentSelection.count()) {
-        if (d->currentCommand & Deselect && selected)
+        if ((d->currentCommand & Deselect) && selected)
             selected = !d->currentSelection.contains(index);
         else if (d->currentCommand & Toggle)
             selected ^= d->currentSelection.contains(index);
         else if (d->currentCommand & Select && !selected)
             selected = d->currentSelection.contains(index);
     }
-
-    //  search model ranges
-    QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
-    for (; !selected && it != d->ranges.end(); ++it)
-        if ((*it).contains(index))
-            selected = true;
 
     if (selected && (d->model->flags(index) & Qt::ItemIsSelectable))
         return true;

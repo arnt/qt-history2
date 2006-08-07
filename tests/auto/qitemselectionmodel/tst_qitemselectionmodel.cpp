@@ -1132,17 +1132,21 @@ void tst_QItemSelectionModel::select()
             .arg(selectedList.count()).toLatin1());
 
     // test existence of each index
-    for (int i=0; i<expectedList.count(); ++i)
+    for (int i=0; i<expectedList.count(); ++i) {
         QVERIFY2(selectedList.contains(expectedList.at(i)),
                 QString("expected index(%1, %2) not found in selectedIndexes()")
                 .arg(expectedList.at(i).row())
                 .arg(expectedList.at(i).column()).toLatin1());
+    }
 
     // test that isSelected agrees
-    for (int i=0; i<selectedList.count(); ++i)
-        QVERIFY2(selection->isSelected(selectedList.at(i)), QString("isSelected(index: %1, %2) does not match selectedIndexes()")
-               .arg(selectedList.at(i).row())
-               .arg(selectedList.at(i).column()).toLatin1());
+    for (int i=0; i<indexList.count(); ++i) {
+        QModelIndex idx = indexList.at(i);
+        QVERIFY2(selection->isSelected(idx) == selectedList.contains(idx),
+                 QString("isSelected(index: %1, %2) does not match selectedIndexes()")
+                 .arg(idx.row())
+                 .arg(idx.column()).toLatin1());
+    }
 
     //for now we assume Rows/Columns flag is the same for all commands, therefore we just check lastCommand
     // test that isRowSelected agrees
