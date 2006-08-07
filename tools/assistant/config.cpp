@@ -299,7 +299,7 @@ QString Config::title() const
 {
     QString s = profil->props[QLatin1String("title")];
     if (s.isEmpty())
-        s = QObject::tr("Qt Assistant");
+        s = QObject::tr("Qt Assistant by Trolltech");
     return s;
 }
 

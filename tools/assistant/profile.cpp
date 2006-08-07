@@ -40,7 +40,6 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
     profile->props[QLatin1String("applicationicon")] = QLatin1String("assistant.png");
     profile->props[QLatin1String("aboutmenutext")] = QLatin1String("About Qt");
     profile->props[QLatin1String("abouturl")] = QLatin1String("about_qt");
-    profile->props[QLatin1String("title")] = QLatin1String("Qt Assistant by Trolltech");
     profile->props[QLatin1String("basepath")] = path;
     profile->props[QLatin1String("startpage")] = path + QLatin1String("index.html");
 
