@@ -67,6 +67,9 @@ public:
     void draw(QPainter *p, const QString &id,
               const QRectF &bounds=QRectF());
 
+    QRectF boundsOnElement(const QString &id) const;
+    bool   elementExists(const QString &id) const;
+
     void addSvgFont(QSvgFont *);
     QSvgFont *svgFont(const QString &family) const;
 

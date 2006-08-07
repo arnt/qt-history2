@@ -235,3 +235,25 @@ void QSvgTinyDocument::adjustWindowBounds(QPainter *p,
     }
 }
 
+QRectF QSvgTinyDocument::boundsOnElement(const QString &id) const
+{
+    QRectF bounds;
+    QMatrix matx;
+
+    QSvgNode *node = scopeNode(id);
+
+    if (!node) {
+        return bounds;
+    }
+    
+    bounds = node->transformedBounds(matx);
+    return bounds;
+}
+
+bool QSvgTinyDocument::elementExists(const QString &id) const
+{
+    QSvgNode *node = scopeNode(id);
+
+    return (node!=0);
+}
+

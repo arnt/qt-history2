@@ -362,4 +362,32 @@ void QSvgRenderer::setViewBox(const QRectF &viewbox)
         d->render->setViewBox(viewbox);
 }
 
+/*!
+    Returns bounding rectangle of the item with the given id.
+    The transformation matrix of parent elements is not affecting
+    the bounds of the element.
+*/
+QRectF QSvgRenderer::boundsOnElement(const QString &id) const
+{
+    Q_D(const QSvgRenderer);
+    QRectF bounds;
+    if (d->render)
+        bounds = d->render->boundsOnElement(id);
+    return bounds;
+}
+
+
+/*!
+    Returns true if the element with the given id exists
+    in the currently parsed SVG file.
+*/
+bool QSvgRenderer::elementExists(const QString &id) const
+{
+    Q_D(const QSvgRenderer);
+    bool exists = false;
+    if (d->render)
+        exists = d->render->elementExists(id);
+    return exists;
+}
+
 #include "moc_qsvgrenderer.cpp"

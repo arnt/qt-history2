@@ -55,6 +55,9 @@ public:
     void setCurrentFrame(int);
     int animationDuration() const;//in seconds
 
+    QRectF boundsOnElement(const QString &id) const;
+    bool elementExists(const QString &id) const;
+
 public Q_SLOTS:
     bool load(const QString &filename);
     bool load(const QByteArray &contents);
