@@ -93,8 +93,10 @@ const QRect QDesktopWidget::screenGeometry(int screenNo) const
 
 int QDesktopWidget::screenNumber(const QWidget *w) const
 {
-    const QPoint midpoint = (w->frameGeometry().topLeft()
-                             + w->frameGeometry().bottomRight()) / 2;
+    QRect frame = w->frameGeometry();
+    if (!w->isWindow())
+        frame.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));
+    const QPoint midpoint = (frame.topLeft() + frame.bottomRight()) / 2;
     return screenNumber(midpoint);
 }
 
