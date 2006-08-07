@@ -38,6 +38,7 @@
    <addaction name="actionGoPrevious" />
    <addaction name="actionGoNext" />
    <addaction name="actionGoHome" />
+   <addaction name="actionSyncToc" />
    <addaction name="separator" />
    <addaction name="actionEditCopy" />
    <addaction name="actionEditFind" />
@@ -58,7 +59,6 @@
    <attribute name="toolBarArea" >
     <number>4</number>
    </attribute>
-   <addaction name="actionSyncToc" />
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
