@@ -41,6 +41,8 @@ private:
                           XMLGenerator &generator,
                           int iterations,
                           GeneratorFlags flags);
+
+    bool wantedEngine(const QString &engine) const;
 private:
     QSvgRenderer *renderer;
     Framework settings;

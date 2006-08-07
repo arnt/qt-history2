@@ -55,7 +55,7 @@ static void usage(const char *progname)
               << "file and no suite has been specified."<<std::endl;
     std::cerr << "Usage: "<<progname <<  "\n"
               << "\t-framework <framework.ini>\n"
-              << "\t-engine <engine name>\n"
+              << "\t-engine <engine name>|onscreen|printing\n"
               << "\t-suite <suite name>\n"
               << "\t-testcase <file.svg>\n"
               << "\t-file </path/to/file.svg>\n"
@@ -162,8 +162,7 @@ void DataGenerator::prepareDirs()
     QList<QEngine*> engines = QtEngines::self()->engines();
     QDir outDirs;
     foreach(QEngine *engine, engines) {
-        if (!engineName.isEmpty() &&
-            engine->name() != engineName)
+        if (!wantedEngine(engine->name()))
             continue;
 
         QString dirName = engine->name();
@@ -174,8 +173,7 @@ void DataGenerator::prepareDirs()
 
     engines = QtEngines::self()->foreignEngines();
     foreach(QEngine *engine, engines) {
-        if (!engineName.isEmpty() &&
-            engine->name() != engineName)
+        if (!wantedEngine(engine->name()))
             continue;
 
         QString dirName = engine->name();
@@ -222,11 +220,17 @@ bool DataGenerator::processArguments(int argc, char **argv)
         dir.mkpath(outputDirName);
     }
 
+    
     if (!engineName.isEmpty()) {
         QList<QEngine *> engines = QtEngines::self()->engines();
         bool found = false;
-        for (int i=0; i<engines.size(); ++i)
-            found |= engines.at(i)->name() == engineName;
+        if (engineName == QLatin1String("onscreen")||
+            engineName == QLatin1String("printing"))
+            found = true;
+        else {
+            for (int i=0; i<engines.size(); ++i)
+                found |= (engines.at(i)->name() == engineName);
+        }
         if (!found) {
             qDebug("No such engine: '%s'\nAvailable engines are:", qPrintable(engineName));
             for (int i=0; i<engines.size(); ++i)
@@ -330,10 +334,8 @@ void DataGenerator::testGivenEngines(const QList<QEngine*> engines,
         return;
 
     foreach(QEngine *engine, engines) {
-        if (!engineName.isEmpty()) {
-            if (engine->name() != engineName)
-                continue;
-        }
+        if (!wantedEngine(engine->name()))
+            continue;
         if (settings.isTestBlacklisted(engine->name(),
                                        fileInfo.fileName())) {
             XMLData data;
@@ -406,4 +408,23 @@ void DataGenerator::testGivenEngines(const QList<QEngine*> engines,
         generator.addImage(engine->name(), outFilename,
                            data, flags);
     }
+}
+
+bool DataGenerator::wantedEngine(const QString &engine) const
+{
+    if (!engineName.isEmpty() &&
+        engine != engineName) {
+        if (engineName == "onscreen") {
+            if (engine.startsWith("Native") ||
+                engine == QLatin1String("Raster") ||
+                engine == QLatin1String("OpenGL"))
+                return true;
+        } else if (engineName == QLatin1String("printing")) {
+            if (engine == QLatin1String("PS") ||
+                engine == QLatin1String("PDF"))
+                return true;
+        }
+        return false;
+    }
+    return true;
 }
