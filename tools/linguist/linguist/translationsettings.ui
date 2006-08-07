@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Qt Linguist - Translation file properties</string>
+   <string>Qt Linguist - Translation file settings</string>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >
@@ -22,7 +22,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
-      <string>Translation file settings</string>
+      <string>Target language</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
