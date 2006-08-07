@@ -109,7 +109,7 @@ QSvgRenderer::QSvgRenderer(const QString &filename, QObject *parent)
     Constructs a new renderer with the given \a parent and loads the specified SVG format
     \a contents.
 */
-QSvgRenderer::QSvgRenderer(const QByteArray &contents, QObject *parent )
+QSvgRenderer::QSvgRenderer(const QByteArray &contents, QObject *parent)
     : QObject(*new QSvgRendererPrivate, parent)
 {
     load(contents);
@@ -248,6 +248,7 @@ int QSvgRenderer::animationDuration() const
 bool QSvgRenderer::load(const QString &filename)
 {
     Q_D(QSvgRenderer);
+    delete d->render;
     d->render = QSvgTinyDocument::load(filename);
     if (d->render && d->render->animated() && d->fps > 0) {
         if (!d->timer)
@@ -262,7 +263,7 @@ bool QSvgRenderer::load(const QString &filename)
     }
 
     //force first update
-    repaintNeeded();
+    emit repaintNeeded();
 
     return d->render;
 }
@@ -273,6 +274,7 @@ bool QSvgRenderer::load(const QString &filename)
 bool QSvgRenderer::load(const QByteArray &contents)
 {
     Q_D(QSvgRenderer);
+    delete d->render;
     d->render = QSvgTinyDocument::load(contents);
     if (d->render && d->render->animated() && d->fps > 0) {
         if (!d->timer)
@@ -285,6 +287,7 @@ bool QSvgRenderer::load(const QByteArray &contents)
     } else if (d->timer) {
         d->timer->stop();
     }
+    
     //force first update
     emit repaintNeeded();
 
