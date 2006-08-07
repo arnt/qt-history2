@@ -561,7 +561,7 @@ qint64 QIODevice::size() const
     start of your function to ensure integrity with QIODevice's
     built-in buffer. The base implementation always returns true.
 
-    \sa pos()
+    \sa pos(), isSequential()
 */
 bool QIODevice::seek(qint64 pos)
 {
@@ -981,7 +981,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
     --maxSize;
 
     const bool sequential = d->isSequential();
-    
+
     qint64 readSoFar = 0;
     if (!d->buffer.isEmpty()) {
         readSoFar = d->buffer.readLine(data, maxSize);
@@ -1075,7 +1075,7 @@ QByteArray QIODevice::readLine(qint64 maxSize)
             break;
 
         readSoFar += readBytes;
-    } while ((!maxSize || readSoFar < maxSize) && 
+    } while ((!maxSize || readSoFar < maxSize) &&
              readSoFar + 1 == tmp.size() &&   // +1 due to the ending null
              tmp.at(readSoFar - 1) != '\n');
 
