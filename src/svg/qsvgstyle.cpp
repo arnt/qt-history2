@@ -169,6 +169,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
         }
     }
 
+    QBrush brush;
     //we need to resolve boundries
     //the code is funky i'll have to verify it
     //(testcases right now are bugs/resolve_radial.svg
@@ -184,8 +185,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
             QLinearGradient gradient(xs, ys,
                                      xf, yf);
             gradient.setStops(m_gradient->stops());
-            QBrush b(gradient);
-            p->setBrush(b);
+            brush = QBrush(gradient);
         } else {
             QRadialGradient *grad = (QRadialGradient*)m_gradient;
             qreal cx, cy, r, fx, fy;
@@ -203,18 +203,27 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
             QRadialGradient gradient(cx, cy,
                                      r, fx, fy);
             gradient.setStops(m_gradient->stops());
-            QBrush b(gradient);
-            p->setBrush(b);
+            brush = QBrush(gradient);
         }
     } else {
-        QBrush b(*m_gradient);
-        p->setBrush(b);
+        brush = QBrush(*m_gradient);
     }
+    
+    if (!m_matrix.isIdentity())
+        brush.setMatrix(m_matrix);
+    
+    p->setBrush(brush);
 }
 
 void QSvgGradientStyle::revert(QPainter *p)
 {
     p->setBrush(m_oldFill);
+}
+
+
+void QSvgGradientStyle::setMatrix(const QMatrix &mat)
+{
+    m_matrix = mat;
 }
 
 void QSvgGradientStyle::addResolve(qreal offset)
@@ -688,3 +697,4 @@ void QSvgFontStyle::setTextAnchor(const QString &anchor)
 {
     m_textAnchor = anchor;
 }
+

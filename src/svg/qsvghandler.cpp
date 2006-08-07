@@ -1996,18 +1996,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     }
 
 
-    if (!trans.isEmpty()) {
-        QMatrix matrix;
-        matrix = parseTransformationMatrix(trans);
-        QPointF pt(nx1, ny1);
-        pt = matrix.map(pt);
-        nx1 = pt.x();
-        ny1 = pt.y();
-        pt = matrix.map(QPointF(nx2, ny2));
-        nx2 = pt.x();
-        ny2 = pt.y();
-    }
-
+    QMatrix matrix;
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
     if (!link.isEmpty()) {
         QSvgStyleProperty *prop = node->styleProperty(link);
@@ -2016,10 +2005,20 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
             QSvgGradientStyle *inherited =
                 static_cast<QSvgGradientStyle*>(prop);
             grad->setStops(inherited->qgradient()->stops());
+            matrix = inherited->qmatrix();
         }
     }
+    
 
-    QSvgStyleProperty *prop = new QSvgGradientStyle(grad, needsResolving);
+    QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
+    
+    if (!trans.isEmpty()) {
+        matrix = parseTransformationMatrix(trans);
+        prop->setMatrix(matrix);
+    } else if (!matrix.isIdentity()) {
+        prop->setMatrix(matrix);
+    }
+    
     return prop;
 }
 
@@ -2157,18 +2156,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
         needsResolving = false;
     }
 
-    if (!trans.isEmpty()) {
-        QMatrix matrix;
-        matrix = parseTransformationMatrix(trans);
-        QPointF pt(ncx, ncy);
-        pt = matrix.map(pt);
-        ncx = pt.x();
-        ncy = pt.y();
-        pt = matrix.map(QPointF(nfx, nfy));
-        nfx = pt.x();
-        nfy = pt.y();
-    }
-
+    QMatrix matrix;
     QRadialGradient *grad = new QRadialGradient(ncx, ncy, nr, nfx, nfy);
     if (!link.isEmpty()) {
         QSvgStyleProperty *prop = node->styleProperty(link);
@@ -2177,9 +2165,19 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
             QSvgGradientStyle *inherited =
                 static_cast<QSvgGradientStyle*>(prop);
             grad->setStops(inherited->qgradient()->stops());
+            matrix = inherited->qmatrix();
         }
     }
+    
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
+
+    if (!trans.isEmpty()) {
+        matrix = parseTransformationMatrix(trans);
+        prop->setMatrix(matrix);
+    } else if (!matrix.isIdentity()) {
+        prop->setMatrix(matrix);
+    }
+    
     return prop;
 }
 

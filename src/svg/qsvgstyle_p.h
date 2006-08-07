@@ -306,6 +306,12 @@ public:
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
+    void setMatrix(const QMatrix &matrix);
+    QMatrix  qmatrix() const
+    {
+        return m_matrix;
+    }
+
     QGradient *qgradient() const
     {
         return m_gradient;
@@ -318,6 +324,8 @@ private:
 
     QBrush m_oldFill;
     bool   m_resolveBounds;
+
+    QMatrix m_matrix;
 };
 
 class QSvgTransformStyle : public QSvgStyleProperty
