@@ -865,7 +865,7 @@ int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height,
         xprintf("/Interpolate true\n");
     int len = 0;
     if (dct) {
-        qDebug() << "DCT";
+        //qDebug() << "DCT";
         xprintf("/Filter /DCTDecode\n>>\nstream\n");
         write(data);
         len = data.length();
