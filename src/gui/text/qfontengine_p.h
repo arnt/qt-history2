@@ -418,6 +418,7 @@ public:
     virtual QFixed leading() const;
     virtual QFixed xHeight() const;
     virtual qreal maxCharWidth() const;
+    virtual QFixed averageCharWidth() const;
 
     virtual void addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs,
                                  QPainterPath *path, QTextItem::RenderFlags);

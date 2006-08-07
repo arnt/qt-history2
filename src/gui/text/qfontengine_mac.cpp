@@ -872,6 +872,14 @@ QFixed QFontEngineMac::xHeight() const
     return QFixed::fromReal(metrics.xHeight * fontDef.pointSize);
 }
 
+QFixed QFontEngineMac::averageCharWidth() const
+{
+    ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
+    ATSFontMetrics metrics;
+    ATSFontGetHorizontalMetrics(atsFont, kATSOptionFlagsDefault, &metrics);
+    return QFixed::fromReal(metrics.avgAdvanceWidth * fontDef.pointSize);
+}
+
 void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int numGlyphs, QPainterPath *path,
                                            QTextItem::RenderFlags)
 {
