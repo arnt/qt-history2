@@ -813,7 +813,7 @@ int QGLFormat::stencilBufferSize() const
 QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(const QString &versionString)
 {
     QGLFormat::OpenGLVersionFlags versionFlags = QGLFormat::OpenGL_Version_None;
-    
+
     if (versionString.startsWith("OpenGL ES")) {
         QStringList parts = versionString.split(' ');
         if (parts.size() >= 3) {
@@ -880,11 +880,12 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
 /*!
     \enum QGLFormat::OpenGLVersionFlag
 
-    This enum type defines the possible OpenGL versions that may be returned
-    in the flags of QGLFormat::openGLVersionFlags().
+    This enum describes the various OpenGL versions that are
+    recognized by Qt. Use the QGLFormat::openGLVersionFlags() function
+    to identify which versions that are supported at runtime.
 
     \value OpenGL_Version_None  If no OpenGL is present or if no OpenGL context is current.
-    
+
     \value OpenGL_Version_1_1  OpenGL version 1.1 or higher is present.
 
     \value OpenGL_Version_1_2  OpenGL version 1.2 or higher is present.
@@ -899,7 +900,7 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
     Note that version 2.0 supports all the functionality of version 1.5.
 
     \value OpenGL_Version_2_1  OpenGL version 2.1 or higher is present.
-    
+
     \value OpenGL_ES_CommonLite_Version_1_0  OpenGL ES version 1.0 Common Lite or higher is present.
 
     \value OpenGL_ES_Common_Version_1_0  OpenGL ES version 1.0 Common or higher is present.
@@ -921,17 +922,20 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
 */
 
 /*!
-    Returns the flags for which versions of OpenGL is supported on this platform
-    at runtime. Note that if OpenGL version 1.5 is supported, also version 1.4
-    and lower is supported. If you need to test for a feature that was introduced
-    in OpenGL version 1.3, multi texturing for instance, you should test for OpenGL_Version_1_3.
-    Then even if the actual OpenGL implementation is at a version higher than 1.3, it will
-    return the flag for OpenGL_Version_1_3 as well.
+    Identifies, at runtime, which OpenGl versions that are supported
+    by the current platform.
 
-    This function need a valid current OpenGL context to work. Otherwise it will return
-    OpenGL_Version_None.
+    Note that if OpenGL version 1.5 is supported, its predecessors
+    (i.e., version 1.4 and lower) are also supported. To identify the
+    support of a particular feature, like multi texturing, test for
+    the version in which the feature was first introduced (i.e.,
+    version 1.3 in the case of multi texting) to adapt to the largest
+    possible group of runtime platforms.
 
-    \sa OpenGLVersionFlag
+    This function needs a valid current OpenGL context to work;
+    otherwise it will return OpenGL_Version_None.
+
+    \sa hasOpenGL(), hasOpenGLOverlays()
 */
 QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
 {
@@ -940,13 +944,13 @@ QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
 
     if (!firstTime)
         return versionFlags;
-    
+
     if (!hasOpenGL())
         return OpenGL_Version_None;
-    
+
     if (firstTime) {
         firstTime = false;
-        
+
         QString versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
         versionFlags = openGLVersionFlagsFromString(versionString);
     }
