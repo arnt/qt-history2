@@ -307,7 +307,7 @@ QString qAppName()
     system-wide and application-wide settings.
 
     The command line arguments which QCoreApplication's constructor
-    should be called with are accessible using argc() and argv(). The
+    should be called with are accessible using arguments(). The
     event loop is started with a call to exec(). Long running
     operations can call processEvents() to keep the application
     responsive.
