@@ -916,21 +916,19 @@ QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
 /*!
     \since 4.2
     \property QAbstractItemView::dragDropOverwriteMode
-    \brief how the view behaves during drag and drop
+    \brief the view's drag and drop behavior
 
-    Describes the actions performed onto the model structure (row count) when
-    moving indexes in a view. false by default.
+    If its value is \c true, the selected data will overwrite the
+    existing item data when dropped, while moving the data will clear
+    the item. If its value is \c false, the selected data will be
+    inserted as a new item when the data is dropped. When the data is
+    moved, the item is removed as well.
 
-    In QTableView this property is set to true by default.
-    In QListView and QTreeView this property is set to false by default.
+    The default value is \c false, as in the QListView and QTreeView
+    subclasses. In the QTableView subclass, on the other hand, the
+    property has been set to \c true.
 
-    \value false    In a drop event when moving the indexes the view will insert
-    new rows.  In the drag event when the data is moved the view will remove the indexes/rows.
-
-    \value true     In a drop event when moving the indexes the view will overwrite
-    existing indexes.  In the drag event when the data is moved the view will clear the indexes.
-
-    \sa setDragDropMode
+    \sa dragDropMode
 */
 void QAbstractItemView::setDragDropOverwriteMode(bool overwrite)
 {
@@ -1025,25 +1023,27 @@ bool QAbstractItemView::dragEnabled() const
 }
 
 /*!
-  \since 4.2
-  \enum QAbstractItemView::DragDropMode
-  Describes what drag and drop events the view will act upon.  By default
-  the value is NoDragDrop.
+    \since 4.2
+    \enum QAbstractItemView::DragDropMode
 
-  \value NoDragDrop Does not support dragging or dropping.
-  \value DragOnly The view supports dragging of its own items
-  \value DropOnly The view accepts drops
-  \value DragDrop The view supports both draging and dropping
-  \value InternalMove only accepts move operations only from itself.
+    Describes the various drag and drop events the view can act upon.
+    By default the view does not support dragging or dropping (\c
+    NoDragDrop).
+
+    \value NoDragDrop Does not support dragging or dropping.
+    \value DragOnly The view supports dragging of its own items
+    \value DropOnly The view accepts drops
+    \value DragDrop The view supports both draging and dropping
+    \value InternalMove only accepts move operations only from itself.
+
+    \sa setDragDropMode()
 */
 
 /*!
-  \property QAbstractItemView::setDragDropMode
-  \brief allows for setting what drag and drop events the view responds to.
+  \property QAbstractItemView::dragDropMode
+  \brief the drag and drop event the view will act upon
 
-  \sa showDropIndicator acceptDrops dragEnabled
   \since 4.2
-
   \sa showDropIndicator dragDropOverwriteMode
 */
 void QAbstractItemView::setDragDropMode(DragDropMode behavior)
