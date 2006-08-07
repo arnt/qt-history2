@@ -216,7 +216,7 @@ void FindIconDialog::cdUp()
     } else if (!isRoot)
         setFile(rootDir);
 #else
-    if (dir.cdUp()
+    if (dir.cdUp())
         setFile(dir.path());
 #endif
   
