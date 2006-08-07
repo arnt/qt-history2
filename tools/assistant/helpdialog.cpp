@@ -270,6 +270,7 @@ void HelpDialog::initialize()
     contentsInserted = false;
     bookmarksInserted = false;
     setupTitleMap();
+
 }
 
 
@@ -872,6 +873,74 @@ void HelpDialog::showContentsTopic()
     if (!i)
         return;
     emit showLink(i->data(0, LinkRole).toString());
+}
+
+QTreeWidgetItem * HelpDialog::locateLink(QTreeWidgetItem *item, const QString &link)
+{
+    QTreeWidgetItem *child = 0;
+#ifdef Q_OS_WIN
+    Qt::CaseSensitivity checkCase = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity checkCase = Qt::CaseSensitive;
+#endif
+    for(int i = 0, childCount = item->childCount(); i<childCount; i++) {
+        child = item->child(i);
+        ///check whether it is this item
+        if (link.startsWith(child->data(0, LinkRole).toString(), checkCase))
+            break;
+        //check if the link is a child of this item
+        else if(child->childCount()) {
+            child = locateLink(child, link);
+            if (child)
+                break;
+        }
+        child = 0;
+    }
+    return child;
+}
+
+void HelpDialog::locateContents(const QString &link)
+{
+    //ensure the TOC is filled
+    if (!contentsInserted)
+        insertContents();
+#ifdef Q_OS_WIN
+    Qt::CaseSensitivity checkCase = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity checkCase = Qt::CaseSensitive;
+#endif
+    QString findLink(link);
+    //Installations on a windows local drive will give the 'link' as <file:///C:/xxx> 
+    //and the contents in the TOC will be <file:C:/xxx>. 
+    //But on others the 'link' of format <file:///root/xxx>
+    //and the contents in the TOC will be <file:/root/xxx>. 
+    if (findLink.contains("file:///")) {
+        if (findLink[9] == QChar(':')) //on windows drives
+            findLink.replace(0, 8, "file:");
+        else 
+            findLink.replace(0, 8, "file:/");
+    } 
+    QTreeWidgetItem *item = 0;
+    int i = 0, totalItems = ui.listContents->topLevelItemCount();
+    for (i = 0; i < totalItems; i++ ) {
+        item = (QTreeWidgetItem*)ui.listContents->topLevelItem(i);
+        if (findLink.startsWith(item->data(0, LinkRole).toString(), checkCase)) 
+            break;
+        item = locateLink(item, findLink);
+        if (item)
+            break;
+    }
+    if ( i!= totalItems){
+        //remove the old selection
+        QList<QTreeWidgetItem *> selected = ui.listContents->selectedItems();
+        QTreeWidgetItem *sel;
+        foreach(sel, selected)
+            ui.listContents->setItemSelected(sel, false);
+        //set the TOC item and show.
+        ui.listContents->setItemSelected(item, true);
+        ui.listContents->scrollToItem(item);
+        ui.tabWidget->setCurrentIndex(0);
+    }
 }
 
 void HelpDialog::toggleContents()

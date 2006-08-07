@@ -81,7 +81,8 @@ public slots:
     void startSearch();
     void addBookmark();
     void currentTabChanged(int index);
-    
+    void locateContents(const QString &link);
+
 private slots:
     void on_buttonAdd_clicked();
     void on_buttonRemove_clicked();
@@ -121,6 +122,7 @@ private:
     void showContentsTopic();
     void showInitDoneMessage();
     void buildContentDict();
+    QTreeWidgetItem * locateLink(QTreeWidgetItem *item, const QString &link);
 
 private:
     Ui::HelpDialog ui;

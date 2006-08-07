@@ -103,7 +103,7 @@ QString DocuParser::absolutify(const QString &name, bool makeUrl) const
         s.replace("\\", "/");
         QFileInfo orgPath(name);
         if(orgPath.isRelative())
-            s = QFileInfo(fname).path() + QDir::separator() + name;
+            s = QFileInfo(fname).path() + QLatin1Char('/') + name;
         if (makeUrl)
             s.prepend("file:");
         return s;

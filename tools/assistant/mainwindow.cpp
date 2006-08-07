@@ -618,6 +618,17 @@ void MainWindow::setupPopupMenu(QMenu *m)
     m->addAction(ui.actionEditFind);
 }
 
+void MainWindow::on_actionSyncToc_triggered()
+{
+    HelpWindow *w = tabs->currentBrowser();
+    if(w) {
+        qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+        QString  link = w->source().toString();
+        helpDock->locateContents(link);
+     	qApp->restoreOverrideCursor();
+    }
+}
+
 void MainWindow::on_actionNewWindow_triggered()
 {
     newWindow()->show();

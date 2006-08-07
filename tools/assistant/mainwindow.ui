@@ -1,5 +1,4 @@
 <ui version="4.0" >
- <author></author>
  <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -12,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
@@ -60,6 +58,7 @@
    <attribute name="toolBarArea" >
     <number>4</number>
    </attribute>
+   <addaction name="actionSyncToc" />
   </widget>
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
@@ -67,9 +66,20 @@
      <x>0</x>
      <y>0</y>
      <width>949</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="helpMenu" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelpAssistant" />
+    <addaction name="separator" />
+    <addaction name="actionAboutAssistant" />
+    <addaction name="actionAboutApplication" />
+    <addaction name="separator" />
+    <addaction name="actionHelpWhatsThis" />
+   </widget>
    <widget class="QMenu" name="fileMenu" >
     <property name="title" >
      <string>&amp;File</string>
@@ -85,12 +95,10 @@
     <addaction name="actionClose" />
     <addaction name="actionFileExit" />
    </widget>
-   <widget class="QMenu" name="viewMenu" >
+   <widget class="QMenu" name="bookmarkMenu" >
     <property name="title" >
-     <string>&amp;View</string>
+     <string>Boo&amp;kmarks</string>
     </property>
-    <addaction name="actionZoomIn" />
-    <addaction name="actionZoomOut" />
    </widget>
    <widget class="QMenu" name="goMenu" >
     <property name="title" >
@@ -99,25 +107,17 @@
     <addaction name="actionGoPrevious" />
     <addaction name="actionGoNext" />
     <addaction name="actionGoHome" />
+    <addaction name="actionSyncToc" />
     <addaction name="separator" />
     <addaction name="actionNextPage" />
     <addaction name="actionPrevPage" />
    </widget>
-   <widget class="QMenu" name="bookmarkMenu" >
+   <widget class="QMenu" name="viewMenu" >
     <property name="title" >
-     <string>Boo&amp;kmarks</string>
+     <string>&amp;View</string>
     </property>
-   </widget>
-   <widget class="QMenu" name="helpMenu" >
-    <property name="title" >
-     <string>&amp;Help</string>
-    </property>
-    <addaction name="actionHelpAssistant" />
-    <addaction name="separator" />
-    <addaction name="actionAboutAssistant" />
-    <addaction name="actionAboutApplication" />
-    <addaction name="separator" />
-    <addaction name="actionHelpWhatsThis" />
+    <addaction name="actionZoomIn" />
+    <addaction name="actionZoomOut" />
    </widget>
    <widget class="QMenu" name="editMenu" >
     <property name="title" >
@@ -382,8 +382,18 @@
     <string>Ctrl+Alt+S</string>
    </property>
   </action>
+  <action name="actionSyncToc" >
+   <property name="icon" >
+    <iconset resource="assistant.qrc" >:/trolltech/assistant/images/synctoc.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Sync with Table of Contents</string>
+   </property>
+   <property name="whatsThis" >
+    <string>Select the page in contents tab.</string>
+   </property>
+  </action>
  </widget>
- <pixmapfunction></pixmapfunction>
  <resources>
   <include location="assistant.qrc" />
  </resources>
