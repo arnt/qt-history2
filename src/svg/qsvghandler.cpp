@@ -1974,6 +1974,46 @@ static QSvgNode *createLineNode(QSvgNode *parent,
     return line;
 }
 
+
+static void parseBaseGradient(QSvgNode *node,
+                              const QXmlAttributes &attributes,
+                              QSvgGradientStyle *prop)
+{
+    QString link   = attributes.value(QLatin1String("xlink:href"));
+    QString trans  = attributes.value(QLatin1String("gradientTransform"));
+    QString spread = attributes.value(QLatin1String("spreadMethod"));
+
+    QMatrix matrix;
+    QGradient *grad = prop->qgradient();
+    if (!link.isEmpty()) {
+        QSvgStyleProperty *prop = node->styleProperty(link);
+        //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
+        if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
+            QSvgGradientStyle *inherited =
+                static_cast<QSvgGradientStyle*>(prop);
+            grad->setStops(inherited->qgradient()->stops());
+            matrix = inherited->qmatrix();
+        }
+    }
+    
+    if (!trans.isEmpty()) {
+        matrix = parseTransformationMatrix(trans);
+        prop->setMatrix(matrix);
+    } else if (!matrix.isIdentity()) {
+        prop->setMatrix(matrix);
+    }
+
+    if (!spread.isEmpty()) {
+        if (spread == QLatin1String("pad")) {
+            grad->setSpread(QGradient::PadSpread);
+        } else if (spread == QLatin1String("reflect")) {
+            grad->setSpread(QGradient::ReflectSpread);
+        } else if (spread == QLatin1String("repeat")) {
+            grad->setSpread(QGradient::RepeatSpread);
+        }
+    }
+}
+
 static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
                                                    const QXmlAttributes &attributes,
                                                    QSvgHandler *)
@@ -1982,8 +2022,6 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     QString y1 = attributes.value(QLatin1String("y1"));
     QString x2 = attributes.value(QLatin1String("x2"));
     QString y2 = attributes.value(QLatin1String("y2"));
-    QString link = attributes.value(QLatin1String("xlink:href"));
-    QString trans = attributes.value(QLatin1String("gradientTransform"));
     QString units = attributes.value(QLatin1String("gradientUnits"));
     qreal nx1 = x1.toDouble();
     qreal ny1 = y1.toDouble();
@@ -2004,28 +2042,9 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     }
 
 
-    QMatrix matrix;
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
-    if (!link.isEmpty()) {
-        QSvgStyleProperty *prop = node->styleProperty(link);
-        //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
-        if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
-            QSvgGradientStyle *inherited =
-                static_cast<QSvgGradientStyle*>(prop);
-            grad->setStops(inherited->qgradient()->stops());
-            matrix = inherited->qmatrix();
-        }
-    }
-    
-
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
-    
-    if (!trans.isEmpty()) {
-        matrix = parseTransformationMatrix(trans);
-        prop->setMatrix(matrix);
-    } else if (!matrix.isIdentity()) {
-        prop->setMatrix(matrix);
-    }
+    parseBaseGradient(node, attributes, prop);
     
     return prop;
 }
@@ -2143,8 +2162,6 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
     QString r  = attributes.value(QLatin1String("r"));
     QString fx = attributes.value(QLatin1String("fx"));
     QString fy = attributes.value(QLatin1String("fy"));
-    QString link = attributes.value(QLatin1String("xlink:href"));
-    QString trans = attributes.value(QLatin1String("gradientTransform"));
     QString units = attributes.value(QLatin1String("gradientUnits"));
     bool needsResolving = true;
 
@@ -2164,27 +2181,10 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
         needsResolving = false;
     }
 
-    QMatrix matrix;
     QRadialGradient *grad = new QRadialGradient(ncx, ncy, nr, nfx, nfy);
-    if (!link.isEmpty()) {
-        QSvgStyleProperty *prop = node->styleProperty(link);
-        //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
-        if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
-            QSvgGradientStyle *inherited =
-                static_cast<QSvgGradientStyle*>(prop);
-            grad->setStops(inherited->qgradient()->stops());
-            matrix = inherited->qmatrix();
-        }
-    }
     
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
-
-    if (!trans.isEmpty()) {
-        matrix = parseTransformationMatrix(trans);
-        prop->setMatrix(matrix);
-    } else if (!matrix.isIdentity()) {
-        prop->setMatrix(matrix);
-    }
+    parseBaseGradient(node, attributes, prop);
     
     return prop;
 }
