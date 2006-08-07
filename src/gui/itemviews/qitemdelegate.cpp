@@ -1010,31 +1010,28 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     // make sure that we have the right event type
     if (event->type() == QEvent::MouseButtonRelease) {
-        QVariant value = index.data(Qt::CheckStateRole);
-        if (!value.isValid())
-            return false;
         const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
         QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
-                                              check(option, option.rect, value).size(),
+                                              check(option, option.rect, Qt::Checked).size(),
                                               QRect(option.rect.x() + textMargin, option.rect.y(),
                                                     option.rect.width(), option.rect.height()));
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
-        Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Unchecked
-                                ? Qt::Checked : Qt::Unchecked);
-        return model->setData(index, state, Qt::CheckStateRole);
     } else if (event->type() == QEvent::KeyPress) {
-        if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Space) {
-            QVariant value = index.data(Qt::CheckStateRole);
-            if (!value.isValid())
-                return false;
-            Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Unchecked
-                                    ? Qt::Checked : Qt::Unchecked);
-            return model->setData(index, state, Qt::CheckStateRole);
-        }
+        if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space)
+            return false;
+    } else {
+        return false;
     }
 
-    return false;
+    // make sure that we have a check state
+    QVariant value = index.data(Qt::CheckStateRole);
+    if (!value.isValid())
+        return false;
+
+    Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked
+                            ? Qt::Unchecked : Qt::Checked);
+    return model->setData(index, state, Qt::CheckStateRole);
 }
 
 /*!
