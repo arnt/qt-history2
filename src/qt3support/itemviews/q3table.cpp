@@ -1245,7 +1245,7 @@ void Q3ComboTableItem::setContentFromEditor(QWidget *w)
         for (int i = 0; i < cb->count(); ++i)
             entries << cb->text(i);
         current = cb->currentItem();
-        setText(entries.at(current));
+        setText(cb->currentText());
     }
 }
 
@@ -1282,7 +1282,7 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
     QRect textR = table()->style()->subControlRect(QStyle::CC_ComboBox, &opt,
                                                    QStyle::SC_ComboBoxEditField, fakeCombo);
     int align = alignment(); // alignment() changes entries
-    p->drawText(textR, wordWrap() ? (align | Qt::WordBreak) : align, entries.at(current));
+    p->drawText(textR, wordWrap() ? (align | Qt::WordBreak) : align, entries.value(current));
     p->restore();
 }
 
@@ -1299,9 +1299,11 @@ void Q3ComboTableItem::setCurrentItem(int i)
     Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb) {
         cb->setCurrentItem(i);
-        current = i;
+        current = cb->currentItem();
         setText(cb->currentText());
     } else {
+        if (i < 0 || i >= entries.count())
+            return;
         current = i;
         setText(entries.at(i));
         table()->updateCell(row(), col());
@@ -1351,7 +1353,7 @@ QString Q3ComboTableItem::currentText() const
     Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->currentText();
-    return entries.at(current);
+    return entries.value(current);
 }
 
 /*!
@@ -1379,7 +1381,7 @@ QString Q3ComboTableItem::text(int i) const
     Q3ComboBox *cb = ::qobject_cast<Q3ComboBox*>(w);
     if (cb)
         return cb->text(i);
-    return entries.at(i);
+    return entries.value(i);
 }
 
 /*!
