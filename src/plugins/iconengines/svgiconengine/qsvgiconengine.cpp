@@ -72,6 +72,7 @@ QPixmap QSvgIconEngine::pixmap(const QSize &size, QIcon::Mode mode,
     if (d->svgCache.contains(index))
         return d->svgCache[index];
     QImage img(size, QImage::Format_ARGB32_Premultiplied);
+    img.fill(0x00000000);
     QPainter p(&img);
     d->render->render(&p);
     p.end();
