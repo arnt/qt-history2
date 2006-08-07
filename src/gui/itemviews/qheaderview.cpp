@@ -246,6 +246,7 @@ void QHeaderView::initialize()
     setFrameStyle(NoFrame);
     d->viewport->setMouseTracking(true);
     d->viewport->setBackgroundRole(QPalette::Button);
+    d->textElideMode = Qt::ElideNone;
     delete d->itemDelegate;
 }
 
@@ -1943,6 +1944,9 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
+    if (d->textElideMode != Qt::ElideNone)
+        opt.text = opt.fontMetrics.elidedText(opt.text, d->textElideMode , rect.width() - 4);
+
     QVariant variant = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DecorationRole);
     opt.icon = qvariant_cast<QIcon>(variant);
