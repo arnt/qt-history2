@@ -167,9 +167,6 @@ private:
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;
-
-    void executeDelayedInserts();
-    QList<QTreeWidgetItem*> delayedInserts;
 };
 
 inline void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags)
