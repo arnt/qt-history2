@@ -895,7 +895,7 @@ bool QLabel::event(QEvent *e)
 {
     Q_D(QLabel);
     QEvent::Type type = e->type();
-    
+
 #ifndef QT_NO_SHORTCUT
     if (type == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
@@ -910,7 +910,7 @@ bool QLabel::event(QEvent *e)
                 window()->setAttribute(Qt::WA_KeyboardFocusChange);
             return true;
         }
-    } else 
+    } else
 #endif
     if (e->type() == QEvent::Resize && d->doc) {
         d->doc->setTextWidth(d->documentRect().width());
@@ -1048,20 +1048,17 @@ void QLabelPrivate::updateLabel()
             q->setSizePolicy(policy);
 
         // Select all and apply the block format
-        QTextCursor c(doc);
-        c.movePosition(QTextCursor::Start);
-        c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        QTextBlockFormat f;
-        f.setAlignment(q->alignment());
-        f.setLayoutDirection(q->layoutDirection());
-        f.setNonBreakableLines(!wrap);
-        c.mergeBlockFormat(f);
+        QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
+        Q_ASSERT(lout);
+
+        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
+        int flags = (wrap? 0 : Qt::TextSingleLine) | align;
+        flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
+        lout->setBlockTextFlags(flags);
 
         if (wrap) {
             // ensure that we break at words and not just about anywhere
-            QTextDocumentLayout *l = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-            Q_ASSERT(l != 0);
-            l->setWordWrapMode(QTextOption::WordWrap);
+            lout->setWordWrapMode(QTextOption::WordWrap);
         }
 
         QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
