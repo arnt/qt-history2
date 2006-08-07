@@ -30,7 +30,7 @@ class Q_SVG_EXPORT QSvgRenderer : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QRect viewBox READ viewBox WRITE setViewBox)
+    Q_PROPERTY(QRectF viewBox READ viewBoxF WRITE setViewBox)
     Q_PROPERTY(int framesPerSecond READ framesPerSecond WRITE setFramesPerSecond)
     Q_PROPERTY(int currentFrame READ currentFrame WRITE setCurrentFrame)
 public:
@@ -44,7 +44,9 @@ public:
     QSize defaultSize() const;
 
     QRect viewBox() const;
+    QRectF viewBoxF() const;
     void setViewBox(const QRect &viewbox);
+    void setViewBox(const QRectF &viewbox);
 
     bool animated() const;
     int framesPerSecond() const;

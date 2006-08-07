@@ -58,8 +58,8 @@ public:
 
     bool preserveAspectRatio() const;
 
-    QRect viewBox() const;
-    void setViewBox(const QRect &rect);
+    QRectF viewBox() const;
+    void setViewBox(const QRectF &rect);
 
     virtual void draw(QPainter *p);//from the QSvgNode
     
@@ -79,11 +79,11 @@ private:
                             const QRectF &desired,
                             const QRectF &current);
 private:
-    QSize m_size;
-    bool  m_widthPercent;
-    bool  m_heightPercent;
+    QSize  m_size;
+    bool   m_widthPercent;
+    bool   m_heightPercent;
 
-    QRect m_viewBox;
+    QRectF m_viewBox;
 
     QHash<QString, QSvgRefCounter<QSvgFont> > m_fonts;
 
@@ -116,7 +116,7 @@ inline bool QSvgTinyDocument::heightPercent() const
     return m_heightPercent;
 }
 
-inline QRect QSvgTinyDocument::viewBox() const
+inline QRectF QSvgTinyDocument::viewBox() const
 {
     return m_viewBox;
 }

@@ -2359,14 +2359,14 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
         qreal w = parseLength(widthStr, lt, handler);
         qreal h = parseLength(heightStr, lt, handler);
         
-        node->setViewBox(QRect((int)x, (int)y, (int)w, (int)h));
+        node->setViewBox(QRectF(x, y, w, h));
     } else if (width && height){
         if (type == QSvgHandler::PT) {
             width = convertToPixels(width, false, type);
             height = convertToPixels(height, false, type);
         }
 
-        node->setViewBox(QRect(0, 0, (int)width, (int)height));
+        node->setViewBox(QRectF(0, 0, width, height));
     }
     
     handler->setDefaultCoordinateSystem(QSvgHandler::PX);

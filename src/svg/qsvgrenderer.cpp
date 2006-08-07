@@ -152,7 +152,7 @@ QRect QSvgRenderer::viewBox() const
 {
     Q_D(const QSvgRenderer);
     if (d->render)
-        return d->render->viewBox();
+        return d->render->viewBox().toRect();
     else
         return QRect();
 }
@@ -341,6 +341,22 @@ void QSvgRenderer::render(QPainter *p, const QRectF &bounds)
     if (d->render) {
         d->render->draw(p, bounds);
     }
+}
+
+QRectF QSvgRenderer::viewBoxF() const
+{
+    Q_D(const QSvgRenderer);
+    if (d->render)
+        return d->render->viewBox();
+    else
+        return QRect();
+}
+
+void QSvgRenderer::setViewBox(const QRectF &viewbox)
+{
+    Q_D(QSvgRenderer);
+    if (d->render)
+        d->render->setViewBox(viewbox);
 }
 
 #include "moc_qsvgrenderer.cpp"

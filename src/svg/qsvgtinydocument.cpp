@@ -168,7 +168,7 @@ void QSvgTinyDocument::setHeight(int len, bool percent)
     m_heightPercent = percent;
 }
 
-void QSvgTinyDocument::setViewBox(const QRect &rect)
+void QSvgTinyDocument::setViewBox(const QRectF &rect)
 {
     m_viewBox = rect;
 }
