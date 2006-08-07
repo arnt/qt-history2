@@ -32,6 +32,7 @@
 #include <QtGui/QItemDelegate>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QDrag>
+#include <QtGui/QDockWidget>
 
 #include <QtDesigner/QtDesigner>
 
@@ -424,7 +425,6 @@ ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *pare
     connect(m_add_files_button, SIGNAL(clicked()), this, SLOT(addFiles()));
 
     updateQrcStack();
-    updateUi();
 }
 
 void ResourceEditor::insertEmptyComboItem()
@@ -582,10 +582,22 @@ void ResourceEditor::updateUi()
     if (m_form != 0)
         name = QFileInfo(m_form->fileName()).fileName();
 
-    if (name.isEmpty())
-        name = tr("Untitled");
+    QString suffix;
+    name.isEmpty() ? suffix = tr("Resource Editor") : suffix = tr("Resource Editor: %1");
 
-    setWindowTitle(tr("Resource Editor: %1").arg(name));
+    QWidget* widget = 0;
+    if (m_form != 0)
+        widget = m_form->core()->topLevel();
+    
+    if (widget && (widget->objectName() == QLatin1String("MDIWindow"))) {
+        QDockWidget* dockWidget = qFindChild<QDockWidget*>(widget, (parentWidget()->objectName() + QLatin1String("_dock")));
+        if(dockWidget)
+            dockWidget->setWindowTitle(suffix.arg(name));
+    } 
+    else if ((widget = parentWidget()) != 0 && widget->isWindow())
+        widget->setWindowTitle(suffix.arg(name));
+    else
+        setWindowTitle(suffix.arg(name));
 }
 
 int ResourceEditor::currentIndex() const
@@ -900,7 +912,7 @@ void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
 
     m_form = form;
     updateQrcStack();
-
+    
     if (m_form != 0) {
         connect(m_form, SIGNAL(fileNameChanged(QString)),
                     this, SLOT(updateQrcPaths()));
