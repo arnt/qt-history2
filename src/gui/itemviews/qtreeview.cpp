@@ -1791,12 +1791,15 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     Q_UNUSED(end);
     Q_D(QTreeView);
 
-    if (d->viewItems.isEmpty())
+    if (d->viewItems.isEmpty()) {
+        d->_q_rowsRemoved(parent, start, end);
         return;
+    }
 
     if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
+        d->_q_rowsRemoved(parent, start, end);
         return;
     }
 
