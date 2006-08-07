@@ -2397,9 +2397,7 @@ void QLineEditPrivate::init(const QString& txt)
     QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(_q_deleteSelected()));
     //popup->insertSeparator();
     actions[SelectAllAct] = new QAction(QLineEdit::tr("Select All")
-#ifndef Q_WS_X11
                                         + ACCEL_KEY(A)
-#endif
                                         , q);
     QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(selectAll()));
 #endif // QT_NO_MENU
