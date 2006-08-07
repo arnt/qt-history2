@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qabstracteventdispatcher.h"
 #include "qaccessible.h"
 #include "qapplication.h"
@@ -486,9 +487,7 @@ void QApplicationPrivate::process_cmdline()
 
   Note that \a argc and \a argv might be changed. Qt removes command
   line arguments that it recognizes. The original \a argc and \a argv
-  can be accessed later with \c qApp->argc() and \c qApp->argv().
-  The documentation for argv() contains a detailed description of how
-  to process command line arguments.
+  can be accessed later with arguments().
 
   Qt debugging options (not available if Qt was compiled without the
   QT_DEBUG flag defined):
@@ -2382,9 +2381,7 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
     useful geometries upon the desktop, such as QDesktopWidget::screenGeometry()
     and QDesktopWidget::availableGeometry().
 
-    It may also be possible to draw on the desktop. We recommend against
-    assuming that it's possible to draw on the desktop, since this does
-    not work on all operating systems.
+    On X11, it is also be possible to draw on the desktop.
 */
 QDesktopWidget *QApplication::desktop()
 {
