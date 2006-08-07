@@ -291,8 +291,9 @@ void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
             if (info.item->widget() == before) {
                 ToolBarLineInfo newLine;
                 newLine.pos = lineInfo.pos;
-                for (; i < lineInfo.list.size(); ++i)
-                    newLine.list += lineInfo.list.takeAt(i);
+                int itemsToMove = lineInfo.list.size() - i;
+                for (int j = 0 ; j < itemsToMove ; ++j)
+                    newLine.list.prepend(lineInfo.list.takeLast());
                 tb_layout_info.insert(line + 1, newLine);
                 return;
             }
