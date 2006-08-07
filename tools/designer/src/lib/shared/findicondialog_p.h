@@ -96,6 +96,11 @@ private:
     static void setDefaultFilePath(const QString &path);
     static InputBox previousInputBox();
     static void setPreviousInputBox(InputBox box);
+
+#ifdef Q_OS_WIN
+    bool isRoot;
+    QString rootDir;
+#endif
 };
 
 } // namespace qdesigner_internal

@@ -92,3 +92,4 @@ SOURCES += \
     $$PWD/newactiondialog.cpp \
     $$PWD/resourceeditor.cpp
 
+win32:LIBS += advapi32.lib

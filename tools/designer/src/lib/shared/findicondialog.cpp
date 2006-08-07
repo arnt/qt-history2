@@ -20,6 +20,10 @@
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractformwindowmanager.h>
 
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#endif
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QMetaObject>
@@ -135,6 +139,48 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     connect(m_resource_editor, SIGNAL(currentFileChanged(QString, QString)),
             this, SLOT(itemChanged(QString, QString)));
 
+#ifdef Q_OS_WIN
+    isRoot = false;
+    rootDir.clear();
+
+    long res;
+    HKEY hKey;
+    QString key = "CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
+    QT_WA( {
+	    res = RegOpenKeyExW(HKEY_CLASSES_ROOT, reinterpret_cast<const wchar_t *>(key.utf16()),
+                            0, KEY_QUERY_VALUE, &hKey);
+    } , {
+        res = RegOpenKeyExA(HKEY_CLASSES_ROOT, key.toLocal8Bit(), 0, KEY_QUERY_VALUE, &hKey);
+    } );
+
+    if (res == ERROR_SUCCESS) {
+        DWORD dataType;
+        char value[1024];
+	    DWORD size = sizeof(value);
+        key.clear(); // "" empty to read default key
+        
+        QT_WA( {
+            res = RegQueryValueExW(hKey, reinterpret_cast<const wchar_t *>(key.utf16()), 0, 
+                                    &dataType, reinterpret_cast<unsigned char*>(value), &size);
+        }, {
+            res = RegQueryValueExA(hKey, key.toLocal8Bit(), 0, &dataType,
+                                    reinterpret_cast<unsigned char*>(value), &size);
+        } );
+        
+        if (res == ERROR_SUCCESS) {
+            QByteArray data(reinterpret_cast<const char*>(value), size);
+            if (REG_SZ == dataType) {
+                QT_WA( {
+                    rootDir = QString::fromUtf16(((const ushort*)data.constData()));
+                }, {
+                    rootDir = QString::fromLatin1(data.constData());
+                } );
+            }
+        }
+    }
+    RegCloseKey(hKey);
+#endif
+
     updateButtons();
 }
 
@@ -163,9 +209,17 @@ void FindIconDialog::accept()
 void FindIconDialog::cdUp()
 {
     QDir dir = m_view_dir;
-    if (dir.cdUp())
-        setFile(dir.path());
 
+#ifdef Q_OS_WIN
+    if (dir.cdUp() && !isRoot) {
+        setFile(dir.canonicalPath());
+    } else if (!isRoot)
+        setFile(rootDir);
+#else
+    if (dir.cdUp()
+        setFile(dir.path());
+#endif
+  
     updateButtons();
 }
 
@@ -186,9 +240,12 @@ void FindIconDialog::itemActivated(QListWidgetItem *item)
     QString file = item->text();
     QString path = m_view_dir.filePath(file);
 
-    if (dirItem(item))
+    if (dirItem(item)) {
+#ifdef Q_OS_WIN
+        isRoot = false;
+#endif
         QMetaObject::invokeMethod(this, "setFile", Qt::QueuedConnection, Q_ARG(QString, path));
-    else
+    } else
         accept();
 
     updateButtons();
@@ -212,6 +269,7 @@ void FindIconDialog::currentItemChanged(QListWidgetItem *item)
 
     if (item == 0)
         return;
+
     QString path = m_view_dir.filePath(item->text());
     ui->m_file_input->lineEdit()->setText(path);
 
@@ -226,17 +284,36 @@ void FindIconDialog::currentItemChanged(QListWidgetItem *item)
 void FindIconDialog::setViewDir(const QString &path)
 {
     static const QIcon dir_icon(style()->standardPixmap(QStyle::SP_DirClosedIcon));
-
-    if (path == m_view_dir.path() || ! QFile::exists(path))
-        return;
+#ifdef Q_OS_WIN
+    static const QIcon drive_icon(style()->standardPixmap(QStyle::SP_DriveHDIcon));
+    if(!isRoot)
+#endif
+    {
+        if (path == m_view_dir.path() || !QFile::exists(path))
+            return;
+    } 
 
     m_view_dir.setPath(path);
     ui->m_icon_view->clear();
-    QStringList subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
-    QStringList icon_file_list = m_view_dir.entryList(extensionList(), QDir::Files);
+
+    QStringList subdir_list;
+#ifdef Q_OS_WIN
+    if (isRoot) {
+        QFileInfoList qFIL = QDir::drives();
+        foreach(const QFileInfo &info, qFIL) 
+            subdir_list.append(info.path());
+    } else
+        subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
 
     foreach (const QString &subdir, subdir_list)
+        createListWidgetItem((isRoot ? drive_icon : dir_icon), subdir, g_dir_item_id, ui->m_icon_view);
+#else
+    subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
+    foreach (const QString &subdir, subdir_list)
         createListWidgetItem(dir_icon, subdir, g_dir_item_id, ui->m_icon_view);
+#endif
+
+    QStringList icon_file_list = m_view_dir.entryList(extensionList(), QDir::Files);
     foreach (const QString &icon_file, icon_file_list) {
         QIcon icon(m_view_dir.filePath(icon_file));
         if (!icon.isNull())
@@ -246,14 +323,22 @@ void FindIconDialog::setViewDir(const QString &path)
 
 void FindIconDialog::setFile(const QString &path)
 {
-    QFileInfo info(path);
+    QString file;
+    QString dir = path;
+#ifdef Q_OS_WIN
+    isRoot = false;
+    if (dir.contains(rootDir, Qt::CaseInsensitive))
+        isRoot = true;
 
-    QString file, dir;
-    if (info.isDir()) {
-        dir = path;
-    } else {
-        dir = info.path();
-        file = info.fileName();
+    if (!isRoot)
+#endif
+    {     
+        QFileInfo info(path);
+
+        if (info.isFile()) {
+            dir = info.path();
+            file = info.fileName();
+        }
     }
 
     setViewDir(dir);
