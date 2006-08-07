@@ -635,6 +635,99 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 
 
 /*!
+    \class QStyleOptionViewItemV2
+
+    \brief The QStyleOptionViewItemV2 class is used to describe the
+    parameters necessary for drawing a frame in Qt 4.2 or above.
+
+    \since 4.2
+
+    QStyleOptionViewItemV2 inherits QStyleOptionViewItem.
+
+    An instance of the QStyleOptionViewItemV2 class has \l type SO_ViewItem
+    and \l version 2.  The type is used internally by QStyleOption,
+    its subclasses, and qstyleoption_cast() to determine the type of
+    style option. In general you do not need to worry about this
+    unless you want to create your own QStyleOption subclass and your
+    own styles. The version is used by QStyleOption subclasses to
+    implement extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOptionViewItem, QStyleOption
+*/
+
+/*!
+    Constructs a QStyleOptionViewItemV2 object.
+*/
+QStyleOptionViewItemV2::QStyleOptionViewItemV2()
+    : QStyleOptionViewItem(Version), features(None)
+{
+
+}
+
+/*!
+    \fn QStyleOptionViewItemV2::QStyleOptionViewItemV2(const QStyleOptionViewItemV2 &other)
+
+    Constructs a QStyleOptionViewItemV2 copy of the \a other style option.
+*/
+
+/*!
+    Constructs a QStyleOptionViewItemV2 copy of the \a other style option
+    which can be either of the QStyleOptionViewItemV2 or
+    QStyleOptionViewItem types.
+
+    If the \a other style option's version is 1, the new style option's \l
+    ViewItemFeature value is set to \l QStyleOptionViewItemV2::None. If its
+    version is 2, its \l ViewItemFeature value is simply copied to the
+    new style option.
+
+    \sa version
+*/
+
+QStyleOptionViewItemV2::QStyleOptionViewItemV2(const QStyleOptionViewItem &other)
+    : QStyleOptionViewItem(Version)
+{
+    (void)QStyleOptionViewItemV2::operator=(other);
+}
+
+QStyleOptionViewItemV2::QStyleOptionViewItemV2(int version)
+    : QStyleOptionViewItem(version)
+{
+
+}
+
+/*!
+    Assigns the \a other style option to this style option. The \a
+    other style option can be either of the QStyleOptionViewItemV2 or
+    QStyleOptionViewItem types.
+
+    If the \a{other} style option's version is 1, this style option's
+    \l ViewItemFeature value is set to \l QStyleOptionViewItemV2::None.
+    If its version is 2, its \l ViewItemFeature value is simply copied
+    to this style option.
+*/
+QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionViewItem &other)
+{
+    QStyleOptionViewItem::operator=(other);
+    const QStyleOptionViewItemV2 *v2 = qstyleoption_cast<const QStyleOptionViewItemV2 *>(&other);
+    features = v2 ? v2->features : ViewItemFeatures(QStyleOptionViewItemV2::None);
+    return *this;
+}
+
+/*!
+    \enum QStyleOptionViewItemV2::ViewItemFeature
+
+    This enum describles the different types of features an item can have.
+
+    \value None     Indicates a normal item.
+    \value WrapText Indicates an item with wrapped text.
+*/
+
+
+/*!
     \class QStyleOptionGroupBox
 
     \brief The QStyleOptionGroupBox class describes the parameters for

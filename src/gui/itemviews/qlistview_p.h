@@ -144,6 +144,8 @@ public:
                              QAbstractItemView::ScrollHint hint,
                              Qt::Orientation orientation) const;
 
+    QStyleOptionViewItemV2 viewOptionsV2() const;
+
     QRect elasticBand;
 
     bool wrap;
@@ -203,6 +205,7 @@ public:
     bool uniformItemSizes;
     mutable QSize cachedItemSize;
     int batchSize;
+    bool wrapItemText;
 };
 
 #endif // QT_NO_LISTVIEW

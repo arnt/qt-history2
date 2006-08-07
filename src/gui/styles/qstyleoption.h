@@ -437,6 +437,27 @@ protected:
     QStyleOptionViewItem(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionViewItemV2 : public QStyleOptionViewItem
+{
+public:
+    enum StyleOptionVersion { Version = 2 };
+
+    enum ViewItemFeature {
+        None = 0x00,
+        WrapText = 0x01
+    };
+    Q_DECLARE_FLAGS(ViewItemFeatures, ViewItemFeature)
+    ViewItemFeatures features;
+
+    QStyleOptionViewItemV2();
+    QStyleOptionViewItemV2(const QStyleOptionViewItemV2 &other) : QStyleOptionViewItem(Version) { *this = other; }
+    QStyleOptionViewItemV2(const QStyleOptionViewItem &other);
+    QStyleOptionViewItemV2 &operator=(const QStyleOptionViewItem &other);
+
+protected:
+    QStyleOptionViewItemV2(int version);
+};
+
 class Q_GUI_EXPORT QStyleOptionToolBox : public QStyleOption
 {
 public:

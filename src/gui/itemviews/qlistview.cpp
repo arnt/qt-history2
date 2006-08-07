@@ -719,7 +719,7 @@ void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     if (d->movement != Static
         && d->column >= topLeft.column()
         && d->column <= bottomRight.column()) {
-        QStyleOptionViewItem option = viewOptions();
+        QStyleOptionViewItemV2 option = d->viewOptionsV2();
         int bottom = qMin(d->items.count(), bottomRight.row() + 1);
         for (int row = topLeft.row(); row < bottom; ++row) {
             QModelIndex idx = d->model->index(row, d->column, d->root);
@@ -1006,7 +1006,8 @@ void QListView::paintEvent(QPaintEvent *e)
     Q_D(QListView);
     if (!d->itemDelegate)
         return;
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    option.features = QStyleOptionViewItemV2::WrapText;
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
@@ -1460,7 +1461,7 @@ void QListView::updateGeometries()
         verticalScrollBar()->setRange(0, 0);
     } else {
         QModelIndex index = d->model->index(0, d->column, d->root);
-        QStyleOptionViewItem option = viewOptions();
+        QStyleOptionViewItemV2 option = d->viewOptionsV2();
         QSize step = d->itemSize(option, index);
 
         QSize csize = d->contentsSize;
@@ -1610,7 +1611,8 @@ QListViewPrivate::QListViewPrivate()
       batchSavedPosition(0),
       column(0),
       uniformItemSizes(false),
-      batchSize(100)
+      batchSize(100),
+      wrapItemText(true)
 {}
 
 void QListViewPrivate::clear()
@@ -1764,11 +1766,10 @@ void QListViewPrivate::doItemsLayout(const QRect &bounds,
 */
 void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
 {
-    Q_Q(QListView);
     const bool useItemSize = !gridSize.isValid();
     const int gap = useItemSize ? spacing : 0; // if we are using a grid ,we don't use spacing
     const QPoint topLeft = initStaticLayout(bounds, gap, first);
-    const QStyleOptionViewItem option = q->viewOptions();
+    const QStyleOptionViewItemV2 option = viewOptionsV2();
 
     // The static layout data structures are as follows:
     // One vector contains the coordinate in the direction of layout flow.
@@ -2036,10 +2037,9 @@ void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 
 void QListViewPrivate::createItems(int to)
 {
-    Q_Q(QListView);
     int count = items.count();
     QSize size;
-    QStyleOptionViewItem option = q->viewOptions();
+    QStyleOptionViewItemV2 option = viewOptionsV2();
     for (int row = count; row < to; ++row) {
         size = itemSize(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
@@ -2049,8 +2049,7 @@ void QListViewPrivate::createItems(int to)
 
 void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
 {
-    Q_Q(const QListView);
-    QStyleOptionViewItem option = q->viewOptions();
+    QStyleOptionViewItemV2 option = viewOptionsV2();
     option.state &= ~QStyle::State_MouseOver;
     QVector<QModelIndex>::const_iterator it = indexes.begin();
     QListViewItem item = indexToListViewItem(*it);
@@ -2075,7 +2074,6 @@ QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
 
 QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
 {
-    Q_Q(const QListView);
     if (!index.isValid() || hiddenRows.contains(index.row()))
         return QListViewItem();
 
@@ -2096,7 +2094,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 
 
     QSize size = (uniformItemSizes && cachedItemSize.isValid())
-                 ? cachedItemSize : itemSize(q->viewOptions(), index);
+                 ? cachedItemSize : itemSize(viewOptionsV2(), index);
 
     QPoint pos;
     if (flow == QListView::LeftToRight) {
@@ -2363,6 +2361,15 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
         }
     }
     return scrollValue;
+}
+
+QStyleOptionViewItemV2 QListViewPrivate::viewOptionsV2() const
+{
+    Q_Q(const QListView);
+    QStyleOptionViewItemV2 option = q->viewOptions();
+    if (wrapItemText)
+        option.features = QStyleOptionViewItemV2::WrapText;
+    return option;
 }
 
 #endif // QT_NO_LISTVIEW

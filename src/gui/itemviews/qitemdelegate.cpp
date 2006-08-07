@@ -266,7 +266,9 @@ void QItemDelegate::paint(QPainter *painter,
 {
     Q_D(const QItemDelegate);
     Q_ASSERT(index.isValid());
-    QStyleOptionViewItem opt = setOptions(index, option);
+    QStyleOptionViewItemV2 opt = setOptions(index, option);
+    const QStyleOptionViewItemV2 *v2 = qstyleoption_cast<const QStyleOptionViewItemV2 *>(&option);
+    opt.features = v2 ? v2->features : QStyleOptionViewItemV2::ViewItemFeatures(QStyleOptionViewItemV2::None);
 
     // prepare
     painter->save();
@@ -300,7 +302,8 @@ void QItemDelegate::paint(QPainter *painter,
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
         text = value.toString();
-        displayRect = textRectangle(painter, opt.rect, opt.font, text);
+        displayRect = textRectangle(painter, opt.features & QStyleOptionViewItemV2::WrapText
+                                    ? opt.rect : QRect(), opt.font, text);
     }
 
     QRect checkRect;
@@ -342,9 +345,8 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QVariant value = index.data(Qt::SizeHintRole);
     if (value.isValid())
         return qvariant_cast<QSize>(value);
-
-    QRect displayRect = rect(option, index, Qt::DisplayRole);
     QRect decorationRect = rect(option, index, Qt::DecorationRole);
+    QRect displayRect = rect(option, index, Qt::DisplayRole);
     QRect checkRect = rect(option, index, Qt::CheckStateRole);
 
     doLayout(option, &checkRect, &decorationRect, &displayRect, true);
@@ -862,7 +864,23 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             QString text = value.toString();
             value = index.data(Qt::FontRole);
             QFont fnt = qvariant_cast<QFont>(value).resolve(option.font);
-            return textRectangle(0, option.rect, fnt, text); }
+            QRect rect = option.rect;
+            QStyleOptionViewItemV2 opt = option;
+            if (opt.features & QStyleOptionViewItemV2::WrapText) {
+                switch (option.decorationPosition) {
+                case QStyleOptionViewItem::Left:
+                case QStyleOptionViewItem::Right:
+                    rect.setHeight(option.decorationSize.height());
+                    break;
+                case QStyleOptionViewItem::Top:
+                case QStyleOptionViewItem::Bottom:
+                    rect.setWidth(option.decorationSize.width());
+                    break;
+                }
+            } else {
+                rect.setWidth(0); // no wrapping text
+            }
+            return textRectangle(0, rect, fnt, text); }
         }
     }
     return QRect();
@@ -886,12 +904,21 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 /*!
   \internal
 */
-QRect QItemDelegate::textRectangle(QPainter * /* painter */, const QRect & /* rect */,
+QRect QItemDelegate::textRectangle(QPainter */*painter*/, const QRect &rect,
                                    const QFont &font, const QString &text) const
 {
+    Q_D(const QItemDelegate);
+    if (rect.width() > 0) {
+        d->textOption.setWrapMode(QTextOption::NoWrap);
+        d->textLayout.setTextOption(d->textOption);
+        d->textLayout.setFont(font);
+        d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
+        const QSize size = d->doTextLayout(rect.width()).toSize();
+        return QRect(0, 0, size.width(), size.height());
+    }
     QFontMetrics fontMetrics(font);
     const int lineCount = (text.count(QLatin1Char('\n')) + 1);
-    return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing() * lineCount);
+    return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing() * lineCount);    
 }
 
 /*!
