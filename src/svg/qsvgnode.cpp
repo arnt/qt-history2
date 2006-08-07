@@ -64,6 +64,9 @@ void QSvgNode::appendStyleProperty(QSvgStyleProperty *prop, const QString &id,
             m_style.animateTransforms.append(
                 static_cast<QSvgAnimateTransform*>(prop));
             break;
+        case QSvgStyleProperty::OPACITY:
+            m_style.opacity = static_cast<QSvgOpacityStyle*>(prop);
+            break;
         default:
             qDebug("QSvgNode: Trying to append unknown property!");
             break;
@@ -128,6 +131,10 @@ QSvgStyleProperty * QSvgNode::styleProperty(QSvgStyleProperty::Type type) const
         case QSvgStyleProperty::ANIMATE_TRANSFORM:
             if (!node->m_style.animateTransforms.isEmpty())
                 return node->m_style.animateTransforms.first();
+            break;
+        case QSvgStyleProperty::OPACITY:
+            if (!node->m_style.opacity)
+                return node->m_style.opacity;
             break;
         default:
             break;

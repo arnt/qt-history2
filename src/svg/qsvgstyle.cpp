@@ -339,6 +339,10 @@ void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
             (*itr)->apply(p, rect, node);
         }
     }
+
+    if (opacity) {
+        opacity->apply(p, rect, node);
+    }
 }
 
 void QSvgStyle::revert(QPainter *p)
@@ -389,6 +393,10 @@ void QSvgStyle::revert(QPainter *p)
 
     if (animateColor) {
         animateColor->revert(p);
+    }
+
+    if (opacity) {
+        opacity->revert(p);
     }
 }
 
@@ -696,5 +704,27 @@ QString QSvgFontStyle::textAnchor() const
 void QSvgFontStyle::setTextAnchor(const QString &anchor)
 {
     m_textAnchor = anchor;
+}
+
+QSvgOpacityStyle::QSvgOpacityStyle(qreal opacity)
+    : m_opacity(opacity)
+{
+    
+}
+
+void QSvgOpacityStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
+{
+    m_oldOpacity = p->opacity();
+    p->setOpacity(m_opacity);
+}
+
+void QSvgOpacityStyle::revert(QPainter *p)
+{
+    p->setOpacity(m_oldOpacity);
+}
+
+QSvgStyleProperty::Type QSvgOpacityStyle::type() const
+{
+    return OPACITY;
 }
 

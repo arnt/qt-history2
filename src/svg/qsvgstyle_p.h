@@ -118,7 +118,8 @@ public:
         GRADIENT,
         TRANSFORM,
         ANIMATE_TRANSFORM,
-        ANIMATE_COLOR
+        ANIMATE_COLOR,
+        OPACITY
     };
 public:
     virtual ~QSvgStyleProperty();
@@ -155,6 +156,20 @@ private:
     // image-rendering v 	v 	'auto' | 'optimizeSpeed' | 'optimizeQuality' |
     //                                      'inherit'
     //QSvgImageRendering m_imageRendering;
+};
+
+
+
+class QSvgOpacityStyle : public QSvgStyleProperty
+{
+public:
+    QSvgOpacityStyle(qreal opacity);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
+    virtual void revert(QPainter *p);
+    virtual Type type() const;
+private:
+    qreal m_opacity;
+    qreal m_oldOpacity;
 };
 
 class QSvgFillStyle : public QSvgStyleProperty
@@ -434,6 +449,7 @@ public:
     QSvgRefCounter<QSvgTransformStyle>    transform;
     QSvgRefCounter<QSvgAnimateColor>      animateColor;
     QList<QSvgRefCounter<QSvgAnimateTransform> >   animateTransforms;
+    QSvgRefCounter<QSvgOpacityStyle>      opacity;
 };
 
 /********************************************************/

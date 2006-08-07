@@ -376,8 +376,6 @@ static void parseBrush(QSvgNode *node,
             QString opacity = attributes.value(QLatin1String("fill-opacity"));
             QString fillRule = attributes.value(QLatin1String("fill-rule"));
 
-            if (opacity.isEmpty())
-                opacity = attributes.value(QLatin1String("opacity"));
             QColor color;
             if (constructColor(value, opacity, color, handler)) {
                 QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color));
@@ -404,9 +402,6 @@ static void parseQPen(QPen &pen, QSvgNode *node,
     QString opacity    = attributes.value(QLatin1String("stroke-opacity"));
     QString width      = attributes.value(QLatin1String("stroke-width"));
     QString myId       = attributes.value(QLatin1String("id"));
-
-    if (opacity.isEmpty())
-        opacity = attributes.value(QLatin1String("opacity"));
 
     if (!value.isEmpty() || !width.isEmpty()) {
         if (value != QLatin1String("none")) {
@@ -618,8 +613,6 @@ static void parsePen(QSvgNode *node,
     QString myId       = attributes.value(QLatin1String("id"));
 
     //qDebug()<<"Node "<<node->type()<<", attrs are "<<value<<width;
-    if (opacity.isEmpty())
-        opacity = attributes.value(QLatin1String("opacity"));
 
     if (!value.isEmpty() || !width.isEmpty() || !linecap.isEmpty() ||
         linejoin.isEmpty()) {
@@ -728,9 +721,6 @@ static bool parseQBrush(const QXmlAttributes &attributes, QSvgNode *node,
 {
     QString value   = attributes.value(QLatin1String("fill"));
     QString opacity = attributes.value(QLatin1String("fill-opacity"));
-
-    if (opacity.isEmpty())
-        opacity = attributes.value(QLatin1String("opacity"));
 
     QColor color;
     if (!value.isEmpty() || !opacity.isEmpty()) {
@@ -1472,6 +1462,23 @@ static bool parseCoreNode(QSvgNode *node,
     return true;
 }
 
+static void parseOpacity(QSvgNode *node,
+                         const QXmlAttributes &attributes,
+                         QSvgHandler *)
+{
+    QString value = attributes.value(QLatin1String("opacity"));
+    value = value.trimmed();
+
+    bool ok = false;
+    qreal op = value.toDouble(&ok);
+
+    if (ok) {
+        QSvgOpacityStyle *opacity = new QSvgOpacityStyle(op);
+        node->appendStyleProperty(opacity,
+                                  attributes.value(QLatin1String("id")));
+    }
+}
+                       
 static bool parseStyle(QSvgNode *node,
                        const QXmlAttributes &attrs,
                        QSvgHandler *handler)
@@ -1488,6 +1495,7 @@ static bool parseStyle(QSvgNode *node,
     parseFont(node, attributes, handler);
     parseTransform(node, attributes, handler);
     parseVisibility(node, attributes, handler);
+    parseOpacity(node, attributes, handler);
 #if 0
     value = attributes.value("audio-level");
 
