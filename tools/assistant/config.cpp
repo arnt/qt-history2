@@ -198,7 +198,7 @@ void Config::loadDefaultProfile()
     QStringList imgDirLst = settings.value( profKey + QLatin1String("ImageDirs") ).toStringList();
     QStringList dcfs = settings.value( profKey + QLatin1String("DocFiles") ).toStringList();
     profil->props[QLatin1String("name")] = QLatin1String("default");
-
+    
     QString filePath;
     QStringList::ConstIterator it = titles.constBegin();
     QStringList::ConstIterator iconIt = iconLst.constBegin();
@@ -297,7 +297,10 @@ QStringList Config::profiles() const
 
 QString Config::title() const
 {
-    return profil->props[QLatin1String("title")];
+    QString s = profil->props[QLatin1String("title")];
+    if (s.isEmpty())
+        s = QObject::tr("Qt Assistant");
+    return s;
 }
 
 QString Config::aboutApplicationMenuText() const
