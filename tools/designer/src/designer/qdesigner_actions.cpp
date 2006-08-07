@@ -737,9 +737,37 @@ bool QDesignerActions::readInForm(const QString &fileName)
     return true;
 }
 
+static QString createBackup(const QString &fileName)
+{
+    QString suffix = QLatin1String(".bak");
+    QString backupFile = fileName + suffix;
+    QFileInfo fi(backupFile);
+    int i = 0;
+    while (fi.exists()) {
+        backupFile = fileName + suffix + QString::number(++i);
+        fi.setFile(backupFile);
+    }
+
+    if (QFile::copy(fileName, backupFile))
+        return backupFile;
+    return QString();
+}
+
+static void removeBackup(const QString &backupFile)
+{
+    if (!backupFile.isEmpty())
+        QFile::remove(backupFile);
+}
+
 bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QString &saveFile)
 {
     Q_ASSERT(fw && !saveFile.isEmpty());
+
+    QString backupFile;
+    QFileInfo fi(saveFile);
+    if (fi.exists())
+        backupFile = createBackup(saveFile);
+
     QFile f(saveFile);
     while (!f.open(QFile::WriteOnly)) {
         QMessageBox box(tr("Save Form?"),
@@ -758,12 +786,22 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                 case QMessageBox::No: {
                     QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
                             QDir::current().absolutePath(), QLatin1String("*.ui"));
-                    if (fileName.isEmpty())
+                    if (fileName.isEmpty()) {
+                        removeBackup(backupFile);
                         return false;
+                    }
+                    if (f.fileName() != fileName) {
+                        removeBackup(backupFile);
+                        fi.setFile(fileName);
+                        backupFile = QString();
+                        if (fi.exists())
+                            backupFile = createBackup(fileName);
+                    }
                     f.setFileName(fileName);
                     fw->setFileName(fileName);
                     break; }
             case QMessageBox::Cancel:
+                removeBackup(backupFile);
                 return false;
         }
     }
@@ -785,6 +823,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                 return false;
         }
     }
+    removeBackup(backupFile);
     addRecentFile(saveFile);
     m_saveDirectory = QFileInfo(f).absolutePath();
 
