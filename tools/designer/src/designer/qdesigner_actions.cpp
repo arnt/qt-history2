@@ -823,6 +823,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                 return false;
         }
     }
+    f.close();
     removeBackup(backupFile);
     addRecentFile(saveFile);
     m_saveDirectory = QFileInfo(f).absolutePath();
