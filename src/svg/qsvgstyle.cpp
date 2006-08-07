@@ -155,6 +155,10 @@ QSvgGradientStyle::QSvgGradientStyle(QGradient *grad, bool resolveBounds)
 
 void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
 {
+    if (!m_link.isEmpty()) {
+        resolveStops();
+    }
+    
     m_oldFill = p->brush();
 
     //resolving stop colors
@@ -726,5 +730,27 @@ void QSvgOpacityStyle::revert(QPainter *p)
 QSvgStyleProperty::Type QSvgOpacityStyle::type() const
 {
     return OPACITY;
+}
+
+void QSvgGradientStyle::setStopLink(const QString &link, QSvgTinyDocument *doc)
+{
+    m_link = link;
+    m_doc  = doc;
+}
+
+void QSvgGradientStyle::resolveStops()
+{
+    if (!m_link.isEmpty() && m_doc) {
+        QSvgStyleProperty *prop = m_doc->scopeStyle(m_link);
+        if (prop) {
+            if (prop->type() == QSvgStyleProperty::GRADIENT) {
+                QSvgGradientStyle *st =
+                    static_cast<QSvgGradientStyle*>(prop);
+                st->resolveStops();
+                m_gradient->setStops(st->qgradient()->stops());
+            }
+        }
+        m_link = QString();
+    }
 }
 

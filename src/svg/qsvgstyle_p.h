@@ -321,6 +321,10 @@ public:
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
+    void setStopLink(const QString &link, QSvgTinyDocument *doc);
+    QString stopLink() const { return m_link; }
+    void resolveStops();
+
     void setMatrix(const QMatrix &matrix);
     QMatrix  qmatrix() const
     {
@@ -341,6 +345,9 @@ private:
     bool   m_resolveBounds;
 
     QMatrix m_matrix;
+
+    QSvgTinyDocument *m_doc;
+    QString           m_link;
 };
 
 class QSvgTransformStyle : public QSvgStyleProperty

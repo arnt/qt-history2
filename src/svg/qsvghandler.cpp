@@ -1977,30 +1977,37 @@ static QSvgNode *createLineNode(QSvgNode *parent,
 
 static void parseBaseGradient(QSvgNode *node,
                               const QXmlAttributes &attributes,
-                              QSvgGradientStyle *prop)
+                              QSvgGradientStyle *gradProp,
+                              QSvgHandler *handler)
 {
     QString link   = attributes.value(QLatin1String("xlink:href"));
     QString trans  = attributes.value(QLatin1String("gradientTransform"));
     QString spread = attributes.value(QLatin1String("spreadMethod"));
 
     QMatrix matrix;
-    QGradient *grad = prop->qgradient();
+    QGradient *grad = gradProp->qgradient();
     if (!link.isEmpty()) {
         QSvgStyleProperty *prop = node->styleProperty(link);
         //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
         if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
             QSvgGradientStyle *inherited =
                 static_cast<QSvgGradientStyle*>(prop);
-            grad->setStops(inherited->qgradient()->stops());
+            if (!inherited->stopLink().isEmpty())
+                gradProp->setStopLink(inherited->stopLink(), handler->document());
+            else
+                grad->setStops(inherited->qgradient()->stops());
+            
             matrix = inherited->qmatrix();
+        } else {
+            gradProp->setStopLink(link, handler->document());
         }
     }
     
     if (!trans.isEmpty()) {
         matrix = parseTransformationMatrix(trans);
-        prop->setMatrix(matrix);
+        gradProp->setMatrix(matrix);
     } else if (!matrix.isIdentity()) {
-        prop->setMatrix(matrix);
+        gradProp->setMatrix(matrix);
     }
 
     if (!spread.isEmpty()) {
@@ -2016,7 +2023,7 @@ static void parseBaseGradient(QSvgNode *node,
 
 static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
                                                    const QXmlAttributes &attributes,
-                                                   QSvgHandler *)
+                                                   QSvgHandler *handler)
 {
     QString x1 = attributes.value(QLatin1String("x1"));
     QString y1 = attributes.value(QLatin1String("y1"));
@@ -2044,7 +2051,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
 
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
-    parseBaseGradient(node, attributes, prop);
+    parseBaseGradient(node, attributes, prop, handler);
     
     return prop;
 }
@@ -2155,7 +2162,7 @@ static bool parsePrefetchNode(QSvgNode *parent,
 
 static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
                                                    const QXmlAttributes &attributes,
-                                                   QSvgHandler *)
+                                                   QSvgHandler *handler)
 {
     QString cx = attributes.value(QLatin1String("cx"));
     QString cy = attributes.value(QLatin1String("cy"));
@@ -2184,7 +2191,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
     QRadialGradient *grad = new QRadialGradient(ncx, ncy, nr, nfx, nfy);
     
     QSvgGradientStyle *prop = new QSvgGradientStyle(grad, needsResolving);
-    parseBaseGradient(node, attributes, prop);
+    parseBaseGradient(node, attributes, prop, handler);
     
     return prop;
 }
