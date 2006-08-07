@@ -160,9 +160,10 @@ int QEventLoop::exec(ProcessEventsFlags flags)
         while (!d->exit)
             processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
     } catch (...) {
-        qFatal("Qt has caught an exception thrown from an event handler. Throwing\n"
-               "exceptions from an event handler is not supported in Qt. You must\n"
-               "reimplement QApplication::notify() and catch all exceptions there.\n");
+        qWarning("Qt has caught an exception thrown from an event handler. Throwing\n"
+                 "exceptions from an event handler is not supported in Qt. You must\n"
+                 "reimplement QApplication::notify() and catch all exceptions there.\n");
+        throw;
     }
 #endif
 
