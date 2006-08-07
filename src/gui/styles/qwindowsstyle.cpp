@@ -1712,7 +1712,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     text_flags |= Qt::TextHideMnemonic;
                 text_flags |= Qt::AlignLeft;
                 if (t >= 0) {
-                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect, QRect(textRect.topRight(), menuitem->rect.bottomRight()));
+                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect, 
+                        QRect(textRect.topRight(), QPoint(menuitem->rect.right(), textRect.bottom())));
                     if (dis && !act) {
                         p->setPen(menuitem->palette.light().color());
                         p->drawText(vShortcutRect.adjusted(1,1,1,1), text_flags, s.mid(t + 1));
