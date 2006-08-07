@@ -294,8 +294,9 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::activated(const QModelIndex &index)
 
     This signal is emitted when the item specified by \a index is
-    activated by the user (e.g., by single- or double-clicking the
-    item, depending on the platform).
+    activated by the user. How to activate items depends on the
+    platform; e.g., by single- or double-clicking the item, or by
+    pressing the Return or Enter key when the item is current.
 
     \sa clicked(), doubleClicked(), entered(), pressed()
 */
@@ -1654,8 +1655,9 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *event)
 /*!
     This function is called with the given \a event when a key event is sent to
     the widget. The default implementation handles basic cursor movement, e.g. Up,
-    Down, Left, Right, Home, PageUp, and PageDown, and emits the returnPressed(),
-    spacePressed(), and deletePressed() signals if the associated key is pressed.
+    Down, Left, Right, Home, PageUp, and PageDown; the activated() signal is
+    emitted if the current index is valid and the activation key is pressed
+    (e.g. Enter or Return, depending on the platform).
     This function is where editing is initiated by key press, e.g. if F2 is
     pressed.
 
