@@ -103,6 +103,7 @@ public:
 
     int firstVisibleItem(int *offset = 0) const;
     int columnAt(int x) const;
+    bool hasVisibleChildren( const QModelIndex& parent) const;
 
     void relayout(const QModelIndex &parent);
     void reexpandChildren(const QModelIndex &parent);
@@ -139,9 +140,6 @@ public:
 
     // used when hiding and showing items
     QVector<QPersistentModelIndex> hiddenIndexes;
-
-    // used for hidden items
-    int hiddenItemsCount;
 
     // used for updating resized columns
     int columnResizeTimerID;

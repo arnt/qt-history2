@@ -81,6 +81,7 @@ private slots:
     void resizeColumnToContents();
     void insertAfterSelect();
     void removeAfterSelect();
+    void hiddenItems();
 };
 class QtTestModel: public QAbstractItemModel
 {
@@ -909,6 +910,33 @@ void tst_QTreeView::removeAfterSelect()
     QVERIFY(view.selectionModel()->isSelected(firstIndex));
     model.removeLastRow();
     QVERIFY(view.selectionModel()->isSelected(firstIndex)); // Should still be selected
+}
+
+void tst_QTreeView::hiddenItems()
+{
+    QtTestModel model;
+    model.rows = model.cols = 10;
+    QTreeView view;
+    view.setModel(&model);
+    view.show();
+
+    QModelIndex firstIndex = model.index(1, 0, QModelIndex());
+    QVERIFY(firstIndex.isValid());
+    for (int i=0; i < model.rowCount(firstIndex); i++)
+        view.setRowHidden(i , firstIndex, true );
+
+    int itemOffset = view.visualRect(firstIndex).width() / 2;
+    int itemHeight = view.visualRect(firstIndex).height();
+    QPoint p(itemOffset, itemHeight + 1);
+    view.setExpanded(firstIndex, false);
+    QTest::mouseDClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    QApplication::processEvents();
+    QCOMPARE(view.isExpanded(firstIndex), false);
+
+    p.setX( 5 );
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    QApplication::processEvents();
+    QCOMPARE(view.isExpanded(firstIndex), false);
 }
 
 QTEST_MAIN(tst_QTreeView)

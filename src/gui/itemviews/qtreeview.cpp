@@ -1139,7 +1139,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
         itemDelegate()->paint(painter, opt, modelIndex);
     }
-    
+
     if (currentRowHasFocus) {
         const int x = (option.showDecorationSelected ? 0 : d->indentationForItem(d->current));
         const int width = header->length() - x;
@@ -1195,7 +1195,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 
         const bool expanded = viewItem.expanded;
         const bool children = (((expanded && viewItem.total > 0)) // already layed out and has children
-                                || d->model->hasChildren(index)); // not layed out yet, so we don't know
+                                || d->hasVisibleChildren(index)); // not layed out yet, so we don't know
         bool moreSiblings = false;
         if (d->hiddenIndexes.isEmpty())
             moreSiblings = (d->model->rowCount(parent) - 1 > index.row());
@@ -1251,7 +1251,7 @@ void QTreeView::mousePressEvent(QMouseEvent *event)
     int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
         QAbstractItemView::mousePressEvent(event);
-    } else if (itemsExpandable() && d->model->hasChildren(d->viewItems.at(i).index)) {
+    } else if (itemsExpandable() && d->hasVisibleChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded)
             d->collapse(i, true);
         else
@@ -1308,7 +1308,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
             emit activated(persistent);
 
         d->executePostedLayout(); // we need to make sure viewItems is updated
-        if (d->itemsExpandable && d->model->hasChildren(persistent)) {
+        if (d->itemsExpandable && d->hasVisibleChildren(persistent)) {
             if (!((i < d->viewItems.count()) && (d->viewItems.at(i).index == persistent))) {
                 // find the new index of the item
                 for (i = 0; i < d->viewItems.count(); ++i) {
@@ -1795,7 +1795,6 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
         d->_q_rowsRemoved(parent, start, end);
         return;
     }
-
     if (parent == d->root) {
         d->viewItems.clear();
         d->doDelayedItemsLayout();
@@ -2724,6 +2723,18 @@ QPair<int,int> QTreeViewPrivate::startAndEndColumns(const QRect &rect) const
         end = (end == -1 ? header->count() - 1 : end);
     }
     return qMakePair<int,int>(qMin(start, end), qMax(start, end));
+}
+
+bool QTreeViewPrivate::hasVisibleChildren( const QModelIndex& parent) const
+{
+    Q_Q(const QTreeView);
+    if (model->hasChildren(parent)) {
+        for (int i=0; i < model->rowCount(parent); i++) {
+            if (!q->isRowHidden(i,parent))
+                return true;
+        }
+    }
+    return false;
 }
 
 #include "moc_qtreeview.cpp"
