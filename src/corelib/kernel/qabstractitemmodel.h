@@ -212,6 +212,7 @@ protected:
 
     inline QModelIndex createIndex(int row, int column, void *data = 0) const;
     inline QModelIndex createIndex(int row, int column, int id) const;
+    inline QModelIndex createIndex(int row, int column, quint32 id) const;
 
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
     bool decodeData(int row, int column, const QModelIndex &parent, QDataStream &stream);
@@ -259,6 +260,16 @@ inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, int ai
 #if defined(Q_CC_MSVC)
 #pragma warning( pop )
 #endif
+inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, quint32 aid) const
+#if defined(Q_CC_MSVC)
+#pragma warning( push )
+#pragma warning( disable : 4312 ) // avoid conversion warning on 64-bit
+#endif
+{ return QModelIndex(arow, acolumn, reinterpret_cast<void*>(aid), this); }
+#if defined(Q_CC_MSVC)
+#pragma warning( pop )
+#endif
+
 
 class Q_CORE_EXPORT QAbstractTableModel : public QAbstractItemModel
 {
