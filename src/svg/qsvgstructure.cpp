@@ -256,3 +256,16 @@ QRectF QSvgStructureNode::transformedBounds(const QMatrix &mat) const
     
     return bounds;
 }
+
+QSvgNode * QSvgStructureNode::previousSiblingNode(QSvgNode *n) const
+{
+    QSvgNode *prev = 0;
+    QList<QSvgNode*>::const_iterator itr = m_renderers.constBegin();
+    while (itr != m_renderers.constEnd()) {
+        QSvgNode *node = *itr;
+        if (node == n)
+            return prev;
+        prev = node;
+    }
+    return prev;
+}

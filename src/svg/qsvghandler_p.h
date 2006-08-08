@@ -35,6 +35,7 @@ class QSvgTinyDocument;
 class QXmlAttributes;
 class QSvgHandler;
 class QColor;
+class QSvgStyleSelector;
 
 typedef QSvgNode *(*FactoryMethod)(QSvgNode *,
                                    const QXmlAttributes &,
@@ -75,6 +76,10 @@ public:
     void pushColor(const QColor &color);
     QColor currentColor() const;
 
+    void setInStyle(bool b);
+    bool inStyle() const;
+
+    QSvgStyleSelector *selector() const;
 public:
     bool startElement(const QString &namespaceURI, const QString &localName,
                       const QString &qName, const QXmlAttributes &attributes);
@@ -82,7 +87,9 @@ public:
                     const QString &qName);
     bool characters(const QString &str);
     bool fatalError(const QXmlParseException &exception);
+    bool processingInstruction(const QString &target, const QString &data);
     QString errorString() const;
+
 private:
     void init();
 
@@ -105,6 +112,10 @@ private:
 
     QStack<QColor> m_colorStack;
     QStack<int>    m_colorTagCount;
+    
+    bool m_inStyle;
+
+    QSvgStyleSelector *m_selector;
 private:
     static QHash<QString, FactoryMethod> s_groupFactory;
     static QHash<QString, FactoryMethod> s_graphicsFactory;

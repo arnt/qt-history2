@@ -45,6 +45,7 @@ public:
     void addChild(QSvgNode *child, const QString &id, bool def = false);
     virtual QRectF bounds() const;
     virtual QRectF transformedBounds(const QMatrix &mat) const;
+    QSvgNode *previousSiblingNode(QSvgNode *n) const;
 protected:
     QList<QSvgNode*>          m_renderers;
     QHash<QString, QSvgNode*> m_scope;

@@ -255,3 +255,13 @@ QRectF QSvgNode::transformedBounds(const QMatrix &mat) const
     
     return rect;
 }
+
+void QSvgNode::setNodeId(const QString &i)
+{
+    m_id = i;
+}
+
+void QSvgNode::setXmlClass(const QString &str)
+{
+    m_class = str;
+}
