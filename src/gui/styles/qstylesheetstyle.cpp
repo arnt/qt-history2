@@ -45,11 +45,6 @@ QHash<const QWidget *, QRenderRules> QStyleSheetStyle::renderRulesCache;
 ///////////////////////////////////////////////////////////////////////////////////////////
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
-struct StdIcons {
-    const char *suffix;
-    int state;
-};
-
 void QRenderRules::init(const QVector<QCss::StyleRule>& styleRules)
 {
    for (int i = 0; i < styleRules.count(); i++) {
@@ -64,10 +59,14 @@ void QRenderRules::init(const QVector<QCss::StyleRule>& styleRules)
             const Declaration& decl = decls.at(i);
             if (decl.property.endsWith("-size", Qt::CaseInsensitive)) {
                 sizes[decl.property.left(decl.property.length() - 5)] = decl.sizeValue();
+            } else if (decl.propertyId == MinimumWidth) {
+                decl.realValue(&minWidth, "px"); 
+            } else if (decl.propertyId == MinimumHeight) {
+                decl.realValue(&minHeight, "px");
             } else if (decl.propertyId == Width) {
-                decl.realValue(&contentsWidth, "px"); 
+                decl.realValue(&width, "px");
             } else if (decl.propertyId == Height) {
-                decl.realValue(&contentsHeight);
+                decl.realValue(&height, "px");
             }
         }
     }
@@ -1711,8 +1710,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ToolBarHandleExtent:
     case PM_SplitterWidth:
-        if (rules.contentsWidth != -1)
-            return rules.contentsWidth;
+        if (rules.width != -1)
+            return rules.width;
         break;
 
     case PM_SizeGripSize:
@@ -1742,7 +1741,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     if (rule.isEmpty())
         return baseStyle()->sizeFromContents(ct, opt, csz, w);
 
-    QSize sz = csz.expandedTo(rules.contentsSize());
+    QSize sz = csz.expandedTo(rules.minSize());
     
     switch (ct) {
     case CT_PushButton:

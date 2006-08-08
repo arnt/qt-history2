@@ -99,6 +99,10 @@ enum Property {
     Spacing,
     Width,
     Height,
+    MinimumWidth,
+    MinimumHeight,
+    MaximumWidth,
+    MaximumHeight,
     NumProperties
 };
 

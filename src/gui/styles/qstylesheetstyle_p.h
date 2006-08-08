@@ -195,10 +195,10 @@ class QFrame;
 
 struct Q_AUTOTEST_EXPORT QRenderRules
 {
-    QRenderRules() : contentsWidth(-1), contentsHeight(-1) { }
+    QRenderRules() : width(-1), height(-1), minWidth(-1), minHeight(-1) { }
     QHash<int, QRenderRule> computedRulesCache;
 
-    QSize contentsSize() const { return QSize(qRound(contentsWidth), qRound(contentsHeight)); }
+    QSize minSize() const { return QSize(qRound(minWidth), qRound(minHeight)); }
 
     bool hasIconSize(const char *icon) const { return sizes.contains(QLatin1String(icon)); }
     QSize iconSize(const char *icon) const { return sizes.value(QLatin1String(icon)); }
@@ -206,7 +206,7 @@ struct Q_AUTOTEST_EXPORT QRenderRules
     void init(const QVector<QCss::StyleRule>& rules);
 
     QHash<QString, QSize> sizes;
-    qreal contentsWidth, contentsHeight;
+    qreal minWidth, minHeight, width, height;
 };
 
 class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
