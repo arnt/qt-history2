@@ -17,6 +17,7 @@
 #include "qapplication.h"
 #include "qradiobutton.h"
 #include "qevent.h"
+#include "qset.h"
 
 
 /*!
@@ -190,6 +191,12 @@ void Q3ButtonGroup::setExclusive(bool enable)
 int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 {
     remove(button);
+    fixChildren();
+    return insert_helper(button, id);
+}
+
+int Q3ButtonGroup::insert_helper(QAbstractButton *button, int id)
+{
     if (isExclusive() || !qobject_cast<QRadioButton*>(button))
         group.addButton(button);
 
@@ -210,6 +217,7 @@ int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 */
 int Q3ButtonGroup::count() const
 {
+    fixChildren();
     return buttonIds.count();
 }
 
@@ -241,6 +249,7 @@ void Q3ButtonGroup::remove(QAbstractButton *button)
 
 QAbstractButton *Q3ButtonGroup::find(int id) const
 {
+    fixChildren();
     return buttonIds.value(id);
 }
 
@@ -343,6 +352,7 @@ void Q3ButtonGroup::setRadioButtonExclusive(bool on)
 
 QAbstractButton *Q3ButtonGroup::selected() const
 {
+    fixChildren();
     QAbstractButton *candidate = 0;
     QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
     while (it != buttonIds.constEnd()) {
@@ -384,6 +394,7 @@ int Q3ButtonGroup::selectedId() const
 
 int Q3ButtonGroup::id(QAbstractButton *button) const
 {
+    fixChildren();
     QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
     while (it != buttonIds.constEnd()) {
         if (it.value() == button)
@@ -417,6 +428,22 @@ bool Q3ButtonGroup::event(QEvent * e)
     }
     return Q3GroupBox::event(e);
 }
+
+void Q3ButtonGroup::fixChildren() const
+{
+    if (children().count() == buttonIds.count())
+        return; // small optimization, all our children have ids.
+
+    QList<QAbstractButton *> list = ::qFindChildren<QAbstractButton*>(this);
+    QSet<QAbstractButton*> set;
+    for (QMap<int, QAbstractButton*>::ConstIterator it = buttonIds.constBegin();
+            it != buttonIds.constEnd(); ++it)
+        set.insert(*it);
+    for (int i = 0; i < list.count(); ++i)
+        if (!set.contains(list.at(i)))
+            const_cast<Q3ButtonGroup*>(this)->insert_helper(list.at(i));
+}
+
 
 /*!
     \class Q3HButtonGroup
