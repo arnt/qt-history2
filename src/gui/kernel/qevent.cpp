@@ -1419,6 +1419,11 @@ Qt::ButtonState QContextMenuEvent::state() const
     used to enter text into a widget. Input methods are widely used
     to enter text for languages with non-Latin alphabets.
 
+    Note that when creating custom text editing widgets, the
+    Qt::WA_InputMethodEnabled window attribute must be set explicitly
+    (using the QWidget::setAttribute() function) in order to receive
+    input method events.
+
     The events are of interest to authors of keyboard entry widgets
     who want to be able to correctly handle languages with complex
     character input. Text input in such languages is usually a three
