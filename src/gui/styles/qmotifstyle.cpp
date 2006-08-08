@@ -1105,12 +1105,15 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {  // draw separator
                 int textWidth = 0;
                 if (!menuitem->text.isEmpty()) {
+                    QFont oldFont = p->font();
+                    p->setFont(menuitem->font);
                     p->fillRect(x, y, w, h, opt->palette.brush(QPalette::Button));
                     drawItemText(p, menuitem->rect.adjusted(10, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter,
                                  menuitem->palette, menuitem->state & State_Enabled, menuitem->text,
                                  QPalette::Text);
                     textWidth = menuitem->fontMetrics.width(menuitem->text) + 10;
                     y += menuitem->fontMetrics.lineSpacing() / 2;
+                    p->setFont(oldFont);
                 }
                 p->setPen(opt->palette.dark().color());
                 p->drawLine(x, y, x + 5, y);
@@ -1204,6 +1207,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= Qt::AlignLeft;
                 QFont oldFont = p->font();
+                p->setFont(menuitem->font);
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(opt->direction, opt->rect,
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
@@ -1211,7 +1215,6 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                                 h-2*motifItemVMargin));
                     int xv = vr.x();
                     QRect tr(xv, y+m, menuitem->tabWidth, h-2*m);
-                    p->setFont(menuitem->font);
                     p->drawText(tr, text_flags, s.mid(t+1));
                     if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
                         p->fillRect(tr, QBrush(p->background().color(), Qt::Dense5Pattern));
