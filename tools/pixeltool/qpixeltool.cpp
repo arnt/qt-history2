@@ -13,6 +13,8 @@
 
 #include "qpixeltool.h"
 
+#include <QtAssistant/QAssistantClient>
+
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include <qapplication.h>
@@ -23,9 +25,13 @@
 #include <qsettings.h>
 #include <qmenu.h>
 #include <qactiongroup.h>
+#include <QtCore/QLibraryInfo>
+
+#include <qdebug.h>
 
 QPixelTool::QPixelTool(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_assistantClient(0)
 {
     QSettings settings("Trolltech", "QPixelTool");
 
@@ -95,9 +101,6 @@ void render_string(QPainter *p, int w, int h, const QString &text, int flags)
     p->drawRect(bounds);
     p->drawText(bounds, flags, text);
 }
-
-#include <qdebug.h>
-
 
 void QPixelTool::paintEvent(QPaintEvent *)
 {
@@ -221,6 +224,9 @@ void QPixelTool::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Control:
         grabKeyboard();
+        break;
+    case Qt::Key_F1:
+        showHelp();
         break;
     }
 }
@@ -463,4 +469,16 @@ void QPixelTool::saveToFile()
         name.append(".png");
     m_buffer.save(name, "PNG");
     m_freeze = oldFreeze;
+}
+
+void QPixelTool::showHelp()
+{
+    if (!m_assistantClient)
+        m_assistantClient
+            = new QAssistantClient(
+                QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
+    QString filePath = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
+                       + QLatin1String("/html/pixeltool-manual.html");
+    
+    m_assistantClient->showPage(filePath);
 }
