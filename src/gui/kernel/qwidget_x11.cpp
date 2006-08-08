@@ -480,7 +480,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
 
     if (X11->use_xrender) {
-        picture = XRenderCreatePicture(dpy, id, XRenderFindVisualFormat (dpy, (Visual *) xinfo.visual()), 0, 0);
+        XRenderPictFormat *format = XRenderFindVisualFormat(dpy, (Visual *) xinfo.visual());
+        if (format)
+            picture = XRenderCreatePicture(dpy, id, format, 0, 0);
     }
 #endif // QT_NO_XRENDER
 
