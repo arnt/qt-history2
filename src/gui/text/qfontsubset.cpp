@@ -1657,8 +1657,12 @@ QByteArray QFontSubset::toType1() const
             "/BlueValues []\n"
             "/lenIV -1\n"
             ">>\n"
-            "/CharStrings <<\n";
+            "/CharStrings << >>\n"
+            "/NumGlyphs 0\n"
+            "/CMap 256 array\n"
+            ">> def\n";
 
+        s << "F" << id << "-Base [\n";
         for (int i = 0; i < nGlyphs; ++i) {
             glyph_t g = glyph_indices.at(i);
             QPainterPath path;
@@ -1669,43 +1673,41 @@ QByteArray QFontSubset::toType1() const
             s << glyphName(i, reverseMap)
               << "\n<" << charstring << ">\n";
         }
-        s << ">>\n"
-            ">> def\n";
-    }
-    int page = 0;
-    while (nGlyphs > 0) {
-        s << "/F" << id << "-" << page;
-        if (standard_font)
+        s << "] T1AddGlyphs\n";
+        s << "(F" << id << ") T1Setup\n";
+    } else {
+        int page = 0;
+        while (nGlyphs > 0) {
+            s << "/F" << id << "-" << page;
             s << "/" << psname << " findfont\n";
-        else
-            s << "F" << id << "-Base\n";
 
-        s << "0 dict copy dup /Encoding 256 array\n"
-            "0 1 255 {1 index exch /.notdef put} for\n";
-        for (int i = 0; i < nGlyphs; ++i)
-            s << "dup " << i << glyphName(i, reverseMap) << " put\n";
-        s << "put definefont pop\n";
-        ++page;
-        nGlyphs -= 256;
+            s << "0 dict copy dup /Encoding 256 array\n"
+                "0 1 255 {1 index exch /.notdef put} for\n";
+            for (int i = 0; i < nGlyphs; ++i)
+                s << "dup " << i << glyphName(i, reverseMap) << " put\n";
+            s << "put definefont pop\n";
+            ++page;
+            nGlyphs -= 256;
+        }
+        s << "/F" << id << " <<\n"
+            "/FontType 0\n"
+            "/FMapType 2\n"
+            "/FontMatrix[1 0 0 1 0 0]\n"
+            "/Encoding [";
+        for (int i = 0; i < page; ++i) {
+            if (page % 16 == 0)
+                s << "\n";
+            s << i;
+        }
+        s << "]\n"
+            "/FDepVector [\n";
+        for (int i = 0; i < page; ++i) {
+            s << "/F" << id << "-" << i
+              << " findfont\n";
+        }
+        s << "]\n"
+            ">> definefont pop\n";
     }
-    s << "/F" << id << " <<\n"
-        "/FontType 0\n"
-        "/FMapType 2\n"
-        "/FontMatrix[1 0 0 1 0 0]\n"
-        "/Encoding [";
-    for (int i = 0; i < page; ++i) {
-        if (page % 16 == 0)
-            s << "\n";
-        s << i;
-    }
-    s << "]\n"
-        "/FDepVector [\n";
-    for (int i = 0; i < page; ++i) {
-        s << "/F" << id << "-" << i
-          << " findfont\n";
-    }
-    s << "]\n"
-        ">> definefont pop\n";
 
     return font;
 }

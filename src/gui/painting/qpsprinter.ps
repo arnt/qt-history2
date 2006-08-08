@@ -304,54 +304,6 @@
 /B { /WFi true def BF S newpath } bind def
 /B* { /WFi false def BF S newpath } bind def
 
-
-%% Font handling
-
-% the next three commands are for defining fonts. The first one
-% tries to find the most suitable printer font out of a fontlist.
-% if encoding is false the default one will be used.
-/MF {                                % newname encoding fontlist
-  % this function tries to find a suitable postscript font. 
-  % We try quite hard not to get courier for a
-  % proportional font. The following takes an array of fonts. 
-  % The algorithm will take the first font that
-  % gives a match (defined as not resulting in a courier font).
-  % each entry in the table is an array of the form [ /Fontname x-stretch slant ]
-  % x-strtch can be used to stretch/squeeze the font in x direction. 
-  % This gives better results when eg substituting helvetica for arial
-  % slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
-  % encoding can be either an encoding vector of false if the default font encoding is requested.
-  true exch true exch                          % push a dummy on the stack,
-  {                          % so the loop over the array will leave a font in any case when exiting.
-    exch pop exch pop                 % (dummy | oldfont) (dummy | fontdict) fontarray
-    dup 0 get dup findfont           % get the fontname from the array and load it
-    dup /FontName get                % see if the font exists
-    3 -1 roll eq {                   % see if fontname and the one provided are equal
-      exit
-    } if
-  } forall
-  exch                               % font fontarray
-
-  % newname encoding font fontarray      defines a postscript font
-  dup
-  1 get /fxscale exch def            % define scale, sland and encoding
-  2 get /fslant exch def
-  exch /fencoding exch def
-  [ fxscale 0 fslant 1 0 0 ] makefont        % transform font accordingly
-  fencoding false eq {               % check if we have an encoding and use it if available
-  } {
-    dup maxlength dict begin         % copy font
-      {
-	1 index /FID ne                        % don't copy FID, as it's not allowed in PS Level 1
-	{def}{pop pop}ifelse
-      } forall
-      /Encoding fencoding def          % replace encoding
-      currentdict 
-    end
-  } ifelse
-  definefont pop
-} bind def
-
 %% start of page
 /QI {
   /C save def
@@ -376,3 +328,91 @@
     setpagedevice
   } { pop pop } ifelse
 } bind def
+
+
+% font handling
+
+/T1AddGlyphs { % basefont [glyphname charstring ...] T1AddGlyphs -
+  10 dict begin
+    /glyphs exch def
+    /fnt exch def
+    /current fnt /NumGlyphs get def
+    /CMap fnt /CMap get def
+    /CharStrings fnt /CharStrings get def
+
+    0 1 glyphs length 2 idiv 1 sub % 0 1 (num glyphs - 1)
+    {
+      2 mul dup
+      glyphs exch get /gn exch def
+      1 add
+      glyphs exch get /cs exch def
+
+      current dup                                 % glyph_index glyph_index
+      256 mod /min exch def                       % glyph_index
+      256 idiv /maj exch def                      % -
+      CMap dup maj get dup                        % cmap cmap_maj cmap_maj
+      null eq {
+	pop 256 array 
+	0 1 255 {1 index exch /.notdef put} for
+      } if
+      dup                                         % cmap cmap_maj cmap_maj
+      min gn put                                  % cmap cmap_maj
+      maj exch put                                % -
+
+      CharStrings gn cs put
+      /current current 1 add def
+    } for
+
+    fnt /CharStrings CharStrings put
+    fnt /CMap CMap put
+    fnt /NumGlyphs current put
+  end 
+} def
+
+
+
+/StringAdd { % string1 string2 stringadd result
+  1 index length 1 index length add
+  string
+  3 1 roll
+  2 index 0 3 index putinterval
+  2 index 2 index length 2 index putinterval 
+  pop pop
+} def
+
+
+/T1Setup { % fontname T1Setup -
+10 dict begin
+  dup /FontName exch def
+  (-Base) StringAdd cvx cvn /Font exch def
+  /MaxPage Font /NumGlyphs get 1 sub 256 idiv def
+
+  /FDepVector MaxPage 1 add array def
+  /Encoding MaxPage 1 add array def
+
+  0 1 MaxPage {
+    dup Encoding exch dup put
+ 
+
+    dup /Page exch def
+    FontName (-) StringAdd 
+    exch 
+    20 string cvs StringAdd % page fontname
+    cvn dup
+
+    Font 0 dict copy dup dup /CMap get 
+    Page get 
+    /Encoding exch put definefont 
+    FDepVector exch Page exch put
+  } for 
+
+  FontName cvn <<
+    /FontType 0
+    /FMapType 2
+    /FontMatrix[1 0 0 1 0 0]
+    /Encoding Encoding
+    /FDepVector FDepVector
+    >> definefont pop
+  end
+} def
+
