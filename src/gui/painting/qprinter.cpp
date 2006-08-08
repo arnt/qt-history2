@@ -1350,8 +1350,6 @@ int QPrinter::fromPage() const
 {
 #if !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
-    if (d->outputFormat == QPrinter::PdfFormat)
-        return 0;
     d->ensurePrintDialog();
     return d->printDialog->fromPage();
 #else
@@ -1377,9 +1375,6 @@ int QPrinter::toPage() const
 {
 #if !defined(QT_NO_PRINTDIALOG)
     Q_D(const QPrinter);
-    if (d->outputFormat == QPrinter::PdfFormat)
-        return 0;
-
     d->ensurePrintDialog();
     return d->printDialog->toPage();
 #else
@@ -1408,8 +1403,6 @@ void QPrinter::setFromTo(int from, int to)
 {
 #if !defined(QT_NO_PRINTDIALOG)
     Q_D(QPrinter);
-    if (d->outputFormat == QPrinter::PdfFormat)
-        return;
     d->ensurePrintDialog();
     d->printDialog->setFromTo(from, to);
 #else
