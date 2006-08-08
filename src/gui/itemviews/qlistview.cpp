@@ -1365,17 +1365,29 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     if (rect.width() == 1 && rect.height() == 1 && !d->intersectVector.isEmpty()) {
         tl = br = d->intersectVector.last(); // special case for mouse press; only select the top item
     } else {
-        QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-        for (; it != d->intersectVector.end(); ++it) {
-            if (!tl.isValid() && !br.isValid()) {
-                tl = br = *it;
-            } else if ((*it).row() == (tl.row() - 1)) {
-                tl = *it; // expand current range
-            } else if ((*it).row() == (br.row() + 1)) {
-                br = (*it); // expand current range
-            } else {
-                selection.select(tl, br); // select current range
-                tl = br = *it; // start new range
+        if (state() == DragSelectingState) { // visual selection mode (rubberband selection)
+            QVector<QModelIndex>::iterator it = d->intersectVector.begin();
+            for (; it != d->intersectVector.end(); ++it) {
+                if (!tl.isValid() && !br.isValid()) {
+                    tl = br = *it;
+                } else if ((*it).row() == (tl.row() - 1)) {
+                    tl = *it; // expand current range
+                } else if ((*it).row() == (br.row() + 1)) {
+                    br = (*it); // expand current range
+                } else {
+                    selection.select(tl, br); // select current range
+                    tl = br = *it; // start new range
+                }
+            }
+        } else { // logical selection mode (key and mouse click selection)
+            QVector<QModelIndex>::iterator it = d->intersectVector.begin();
+            for (; it != d->intersectVector.end(); ++it) {
+                if (!tl.isValid() && !br.isValid())
+                    tl = br = *it;
+                else if ((*it).row() < tl.row())
+                    tl = (*it);
+                else if ((*it).row() > br.row())
+                    br = (*it);
             }
         }
     }
