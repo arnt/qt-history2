@@ -1006,7 +1006,10 @@ void QAbstractItemModelPrivate::reset()
     Components connected to this signal use it to adapt to changes
     in the model's layout.
 
-    \sa layoutChanged()
+    When changing the layout subclasses should update any persistant model index's after
+    layoutAboutToBeChanged is called.
+
+    \sa layoutChanged(), changePersistentIndex()
 */
 
 /*!
@@ -1022,7 +1025,10 @@ void QAbstractItemModelPrivate::reset()
     altering the structure of the data you expose to views, and emit
     layoutChanged() after changing the layout.
 
-    \sa layoutAboutToBeChanged(), dataChanged(), headerDataChanged(), reset()
+    When changing the layout subclasses should update any persistant model index's before
+    layoutChanged() is called.
+
+    \sa layoutAboutToBeChanged(), dataChanged(), headerDataChanged(), reset(), changePersistentIndex()
 */
 
 /*!
@@ -1708,6 +1714,13 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 
 /*!
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, int id) const
+    \obsolete
+
+    Use QModelIndex QAbstractItemModel::createIndex(int row, int column, quint32 id) instead.
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, quint32 id) const
 
     Creates a model index for the given \a row and \a column with the internal
     identifier, \a id.
@@ -2002,6 +2015,8 @@ void QAbstractItemModel::reset()
 
   If no persistent model index equal to the given \a from model index was
   found, nothing is changed.
+
+  \sa persistentIndexList(), changePersistentIndexList()
 */
 void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QModelIndex &to)
 {
@@ -2024,6 +2039,8 @@ void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QM
 
   If no persistent model indexes equal to the indexes in the given \a from model index list
   was found, nothing is changed.
+
+  \sa persistentIndexList(), changePersistentIndex()
 */
 void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
                                                    const QModelIndexList &to)
