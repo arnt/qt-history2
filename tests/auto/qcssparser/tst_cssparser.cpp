@@ -37,6 +37,8 @@ private slots:
     void specificitySort();
     void rulesForNode_data();
     void rulesForNode();
+    void shorthandBackgroundProperty_data();
+    void shorthandBackgroundProperty();
 };
 
 void tst_CssParser::scanner_data()
@@ -1081,7 +1083,7 @@ void tst_CssParser::rulesForNode_data()
     QTest::addColumn<QString>("value0");
     QTest::addColumn<QString>("value1");
 
-    QTest::newRow("universal1") << QString("<p/>") << QString("* { color: red }") 
+    QTest::newRow("universal1") << QString("<p/>") << QString("* { color: red }")
                                 << (int)QCss::PseudoState_Unspecified << 1 << "red" << "";
 
     QTest::newRow("basic") << QString("<p/>") << QString("p:enabled { color: red; bg:blue; }")
@@ -1133,13 +1135,55 @@ void tst_CssParser::rulesForNode()
         if ((rules.at(i).selectors.at(0).pseudoState() & pseudoState) == pseudoState)
             decls += rules.at(i).declarations;
     }
-    
+
     QVERIFY(decls.count() == declCount);
 
     if (declCount > 0)
         QCOMPARE(decls.at(0).values.at(0).variant.toString(), value0);
     if (declCount > 1)
         QCOMPARE(decls.at(1).values.at(0).variant.toString(), value1);
+}
+
+void tst_CssParser::shorthandBackgroundProperty_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QColor>("expectedColor");
+    QTest::addColumn<QString>("expectedImage");
+    QTest::addColumn<int>("expectedRepeatValue");
+    QTest::addColumn<int>("expectedAlignment");
+
+    QTest::newRow("simple color") << "background: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(0);
+    QTest::newRow("plain color") << "background-color: red" << QColor("red") << QString() << int(QCss::Repeat_Unknown) << int(0);
+    QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QColor("blue") << QString("chess.png") << int(QCss::Repeat_Y) << int(0);
+    QTest::newRow("plain alignment") << "background-position: center" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignCenter);
+    QTest::newRow("plain alignment2") << "background-position: left top" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain alignment3") << "background-position: left" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignLeft | Qt::AlignVCenter);
+    QTest::newRow("multi") << "background: left url(blah.png) repeat-x" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignLeft | Qt::AlignVCenter);
+    QTest::newRow("multi2") << "background: url(blah.png) repeat-x top" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignTop | Qt::AlignHCenter);
+    QTest::newRow("multi3") << "background: url(blah.png) top right" << QColor() << QString("blah.png") << int(QCss::Repeat_XY) << int(Qt::AlignTop | Qt::AlignRight);
+}
+
+void tst_CssParser::shorthandBackgroundProperty()
+{
+    QFETCH(QString, css);
+
+    css.prepend("dummy {");
+    css.append("}");
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    QColor color;
+    QString image;
+    QCss::Repeat repeat;
+    Qt::Alignment alignment;
+    QCss::extractBackgroundProperties(sheet.styleRules.first().declarations, &color, &image, &repeat, &alignment);
+
+    QTEST(color, "expectedColor");
+    QTEST(image, "expectedImage");
+    QTEST(int(repeat), "expectedRepeatValue");
+    QTEST(int(alignment), "expectedAlignment");
 }
 
 QTEST_MAIN(tst_CssParser)

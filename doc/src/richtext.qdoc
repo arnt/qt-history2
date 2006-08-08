@@ -1010,6 +1010,9 @@ Ideas for other sections:
     \row    \o \c vertical-alignment
             \o baseline | sub | super
             \o Vertical text alignment
+    \row    \o \c background
+            \o [ <'background-color'> || <'background-image'> ]
+            \o Background shorthand property
     \endtable
 
     \section1 Supported CSS Selectors

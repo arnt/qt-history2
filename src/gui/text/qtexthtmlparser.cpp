@@ -1228,19 +1228,6 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         if (decl.values.isEmpty()) continue;
         switch (decl.propertyId) {
             case QCss::Color: foreground = decl.colorValue(); break;
-            case QCss::BackgroundColor: background = decl.colorValue(); break;
-            case QCss::BackgroundImage:
-                if (resourceProvider) {
-                    QVariant val = resourceProvider->resource(QTextDocument::ImageResource, decl.uriValue());
-                    if (val.type() == QVariant::Image || val.type() == QVariant::Pixmap) {
-                        background = qvariant_cast<QPixmap>(val);
-                    } else if (val.type() == QVariant::ByteArray) {
-                        QPixmap pm;
-                        if (pm.loadFromData(val.toByteArray()))
-                            background = pm;
-                    }
-                }
-                break;
             case QCss::Float:
                 cssFloat = QTextFrameFormat::InFlow;
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
@@ -1328,6 +1315,27 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
     if (adjustment >= -1) {
         hasFontSizeAdjustment = true;
         fontSizeAdjustment = adjustment;
+    }
+
+    {
+        Qt::Alignment ignoredAlignment;
+        QCss::Repeat ignoredRepeat;
+        QString bgImage;
+        QColor bgColor;
+        QCss::extractBackgroundProperties(declarations, &bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment);
+
+        if (!bgImage.isEmpty() && resourceProvider) {
+            QVariant val = resourceProvider->resource(QTextDocument::ImageResource, bgImage);
+            if (val.type() == QVariant::Image || val.type() == QVariant::Pixmap) {
+                background = qvariant_cast<QPixmap>(val);
+            } else if (val.type() == QVariant::ByteArray) {
+                QPixmap pm;
+                if (pm.loadFromData(val.toByteArray()))
+                    background = pm;
+            }
+        } else if (bgColor.isValid()) {
+            background = bgColor;
+        }
     }
 }
 

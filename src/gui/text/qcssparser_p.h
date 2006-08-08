@@ -91,6 +91,7 @@ enum Property {
     BorderBottomLeftRadius,
     BorderBottomRightRadius,
     BorderRadius,
+    Background,
     BackgroundOrigin,
     BackgroundRepeat,
     BackgroundPosition,
@@ -328,6 +329,8 @@ struct PageRule;
 struct ImportRule;
 
 void extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment);
+void Q_AUTOTEST_EXPORT extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
+                                                   Repeat *repeat, Qt::Alignment *alignment);
 
 struct Q_GUI_EXPORT StyleRule
 {

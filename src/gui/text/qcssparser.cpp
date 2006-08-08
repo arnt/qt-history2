@@ -76,6 +76,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-paragraph-type", QtParagraphType },
     { "-qt-table-type", QtTableType },
     { "alternate-background", AlternateBackground },
+    { "background", Background },
     { "background-color", BackgroundColor },
     { "background-image", BackgroundImage },
     { "background-origin", BackgroundOrigin },
@@ -471,16 +472,13 @@ void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
     }
 }
 
-Qt::Alignment Declaration::alignmentValue() const
+static Qt::Alignment parseAlignment(const Value *values, int count)
 {
-    if (values.isEmpty() || values.count() > 2)
-        return Qt::AlignLeft | Qt::AlignTop;
-
     Qt::Alignment a[2];
-    for (int i = 0; i < qMin(2, values.count()); i++) {
-        if (values.at(i).type != Value::KnownIdentifier)
+    for (int i = 0; i < qMin(2, count); i++) {
+        if (values[i].type != Value::KnownIdentifier)
             break;
-        switch (values.at(i).variant.toInt()) {
+        switch (values[i].variant.toInt()) {
         case Value_Left: a[i] = Qt::AlignLeft; break;
         case Value_Right: a[i] = Qt::AlignRight; break;
         case Value_Top: a[i] = Qt::AlignTop; break;
@@ -495,6 +493,14 @@ Qt::Alignment Declaration::alignmentValue() const
     if ((a[1] == 0 || a[1] == Qt::AlignCenter) && a[0] != Qt::AlignCenter)
         a[1] = (a[0] == Qt::AlignLeft || a[0] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
     return a[0] | a[1];
+}
+
+Qt::Alignment Declaration::alignmentValue() const
+{
+    if (values.isEmpty() || values.count() > 2)
+        return Qt::AlignLeft | Qt::AlignTop;
+
+    return parseAlignment(values.constData(), values.count());
 }
 
 void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
@@ -658,6 +664,79 @@ void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont
             case FontFamily: setFontFamilyFromValue(val, font); break;
             case TextDecoration: setTextDecorationFromValues(decl.values, font); break;
             case Font: parseShorthandFontProperty(decl.values, font, fontSizeAdjustment); break;
+            default: break;
+        }
+    }
+}
+
+static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColor *color, QString *image, Repeat *repeat, Qt::Alignment *alignment)
+{
+    *color = QColor();
+    *image = QString();
+    *repeat = Repeat_XY;
+
+    for (int i = 0; i < values.count(); ++i) {
+        const Value v = values.at(i);
+        if (v.type == Value::Uri) {
+            *image = v.variant.toString();
+            continue;
+        }
+        Repeat repeatAttempt = static_cast<Repeat>(findKnownValue(v.variant.toString(),
+                                                   repeats, NumKnownRepeats));
+        if (repeatAttempt != Repeat_Unknown) {
+            *repeat = repeatAttempt;
+            continue;
+        }
+
+        if (v.type == Value::KnownIdentifier) {
+            const int start = i;
+            int count = 1;
+            if (i < values.count() - 1
+                && values.at(i + 1).type == Value::KnownIdentifier) {
+                ++i;
+                ++count;
+            }
+            Qt::Alignment a = parseAlignment(values.constData() + start, count);
+            if (int(a) != 0) {
+                *alignment = a;
+                continue;
+            }
+            i -= count - 1;
+        }
+
+        *color = parseColorValue(v);
+    }
+}
+
+void QCss::extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
+                                       Repeat *repeat, Qt::Alignment *alignment)
+{
+    *color = QColor();
+    *image = QString();
+    *repeat = Repeat_Unknown;
+    *alignment = Qt::Alignment();
+
+    for (int i = 0; i < declarations.count(); ++i) {
+        const Declaration &decl = declarations.at(i);
+        if (decl.values.isEmpty())
+            continue;
+        const Value val = decl.values.first();
+        switch (decl.propertyId) {
+            case BackgroundColor: *color = parseColorValue(val); break;
+            case BackgroundImage:
+                if (val.type == Value::Uri)
+                    *image = val.variant.toString();
+                break;
+            case BackgroundRepeat:
+                *repeat = static_cast<Repeat>(findKnownValue(val.variant.toString(),
+                                              repeats, NumKnownRepeats));
+                break;
+            case BackgroundPosition:
+                *alignment = decl.alignmentValue();
+                break;
+            case Background:
+                parseShorthandBackgroundProperty(decl.values, color, image, repeat, alignment);
+                break;
             default: break;
         }
     }
