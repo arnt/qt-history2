@@ -3992,6 +3992,16 @@ bool Q3Table::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusOut: {
         QWidget *editorWidget = cellWidget(editRow, editCol);
         if (isEditing() && editorWidget && o == editorWidget && ((QFocusEvent*)e)->reason() != Qt::PopupFocusReason) {
+            // if the editor is the parent of the new focus widget, do nothing
+            QWidget *w = QApplication::focusWidget();
+            while (w) {
+                w = w->parentWidget();
+                if (w == editorWidget)
+                    break;
+            }
+            if (w)
+                break;
+            // otherwise, end editing
             Q3TableItem *itm = item(editRow, editCol);
             if (!itm || itm->editType() == Q3TableItem::OnTyping) {
                 endEdit(editRow, editCol, true, edMode != Editing);
