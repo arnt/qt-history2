@@ -775,7 +775,7 @@ void QTextHtmlParser::parseTag()
     resolveParent();
     resolveNode();
 
-    node->applyCssDeclarations(declarationsForNode(nodeIndex));
+    node->applyCssDeclarations(declarationsForNode(nodeIndex), resourceProvider);
     applyAttributes(node->attributes);
 
     // finish tag
@@ -1221,7 +1221,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         hasFontPointSize = true;
 }
 
-void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> &declarations)
+void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resourceProvider)
 {
     for (int i = 0; i < declarations.count(); ++i) {
         const QCss::Declaration &decl = declarations.at(i);
@@ -1229,6 +1229,18 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         switch (decl.propertyId) {
             case QCss::Color: foreground = decl.colorValue(); break;
             case QCss::BackgroundColor: background = decl.colorValue(); break;
+            case QCss::BackgroundImage:
+                if (resourceProvider) {
+                    QVariant val = resourceProvider->resource(QTextDocument::ImageResource, decl.uriValue());
+                    if (val.type() == QVariant::Image || val.type() == QVariant::Pixmap) {
+                        background = qvariant_cast<QPixmap>(val);
+                    } else if (val.type() == QVariant::ByteArray) {
+                        QPixmap pm;
+                        if (pm.loadFromData(val.toByteArray()))
+                            background = pm;
+                    }
+                }
+                break;
             case QCss::Float:
                 cssFloat = QTextFrameFormat::InFlow;
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
@@ -1357,7 +1369,7 @@ static void setWidthAttribute(QTextLength *width, QString value)
     }
 }
 
-static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
+static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value, const QTextDocument *resourceProvider)
 {
     QString css = value;
     css.prepend(QLatin1String("dummy {"));
@@ -1366,7 +1378,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     QCss::StyleSheet sheet;
     parser.parse(&sheet);
     if (sheet.styleRules.count() != 1) return;
-    node->applyCssDeclarations(sheet.styleRules.at(0).declarations);
+    node->applyCssDeclarations(sheet.styleRules.at(0).declarations, resourceProvider);
 }
 
 QStringList QTextHtmlParser::parseAttributes()
@@ -1527,7 +1539,7 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
         }
 
         if (key == QLatin1String("style")) {
-            parseStyleAttribute(node, value);
+            parseStyleAttribute(node, value, resourceProvider);
         } else if (key == QLatin1String("align")) {
             value = value.toLower();
             if (value == QLatin1String("left"))

@@ -962,6 +962,10 @@ Ideas for other sections:
             \o \c background-color
             \o <color>
             \o Background color for elements
+    \row
+            \o \c background-image
+            \o <uri>
+            \o Background image for elements
     \row    \o \c color
             \o <color>
             \o Text foreground color

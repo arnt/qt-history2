@@ -221,7 +221,7 @@ struct QTextHtmlParserNode {
 
     bool isNestedList(const QTextHtmlParser *parser) const;
 
-    void applyCssDeclarations(const QVector<QCss::Declaration> &declarations);
+    void applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resrouceProvider);
 
     int margin[4];
     friend class QTextHtmlParser;

@@ -162,6 +162,7 @@ private slots:
     void screenMedia();
     void htmlResourceLoading();
     void someCaseInsensitiveAttributeValues();
+    void backgroundImage();
 
 private:
     int blockCount();
@@ -2351,6 +2352,32 @@ void tst_QTextDocumentFragment::someCaseInsensitiveAttributeValues()
     setHtml(html3);
 
     QCOMPARE(doc->begin().blockFormat().layoutDirection(), Qt::RightToLeft);
+}
+
+class TestDocument : public QTextDocument
+{
+public:
+    inline TestDocument() {}
+
+    QPixmap testPixmap;
+
+    virtual QVariant loadResource(int type, const QUrl &name) {
+        if (name.toString() == QLatin1String("testPixmap")) {
+            return testPixmap;
+        }
+        return QTextDocument::loadResource(type, name);
+    }
+};
+
+void tst_QTextDocumentFragment::backgroundImage()
+{
+    TestDocument doc;
+    doc.testPixmap = QPixmap(100, 100);
+    doc.testPixmap.fill(Qt::blue);
+    doc.setHtml("<p style=\"background-image: url(testPixmap)\">Hello</p>");
+    QBrush bg = doc.begin().blockFormat().background();
+    QVERIFY(bg.style() == Qt::TexturePattern);
+    QVERIFY(bg.texture().serialNumber() == doc.testPixmap.serialNumber());
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
