@@ -230,15 +230,7 @@ QBrush Declaration::brushValue() const
     return colorValue(); // FIXME
 }
 
-QColor Declaration::colorValue() const
-{
-    if (values.count() != 1)
-        return QColor();
-
-    return colorValue(values.first());
-}
-
-QColor Declaration::colorValue(Value v) const
+static QColor parseColorValue(Value v)
 {
     if (v.type == Value::Identifier || v.type == Value::String) {
         v.variant.convert(QVariant::Color);
@@ -271,15 +263,24 @@ QColor Declaration::colorValue(Value v) const
         || colorDigits.at(3).type != Value::TermOperatorComma)
         return QColor();
 
-    for (int i = 0; i < 5; i += 2)
+    for (int i = 0; i < 5; i += 2) {
         if (colorDigits.at(i).type == Value::Percentage) {
             colorDigits[i].variant = colorDigits.at(i).variant.toDouble() * 255. / 100.;
             colorDigits[i].type = Value::Number;
         }
+    }
 
     return QColor(colorDigits.at(0).variant.toInt(),
                   colorDigits.at(2).variant.toInt(),
                   colorDigits.at(4).variant.toInt());
+}
+
+QColor Declaration::colorValue() const
+{
+    if (values.count() != 1)
+        return QColor();
+
+    return parseColorValue(values.first());
 }
 
 bool Declaration::realValue(qreal *r, const char *unit) const
@@ -368,7 +369,7 @@ void Declaration::colorValues(QColor *c) const
 {
     int i;
     for (i = 0; i < qMin(values.count(), 4); i++)
-        c[i] = colorValue(values.at(i));
+        c[i] = parseColorValue(values.at(i));
     if (i == 0) c[0] = c[1] = c[2] = c[3] = QColor();
     else if (i == 1) c[3] = c[2] = c[1] = c[0];
     else if (i == 2) c[2] = c[0], c[3] = c[1];

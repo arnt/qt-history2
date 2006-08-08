@@ -147,14 +147,14 @@ enum BorderStyle {
     NumKnownBorderStyles
 };
 
-struct BorderStyles 
+struct BorderStyles
 {
-    BorderStyles() : left(BorderStyle_None), right(BorderStyle_None), 
+    BorderStyles() : left(BorderStyle_None), right(BorderStyle_None),
                      top(BorderStyle_None), bottom(BorderStyle_None) { }
     BorderStyle left, right, top, bottom;
 };
 
-struct BorderBrushes 
+struct BorderBrushes
 {
     QBrush left, right, top, bottom;
 };
@@ -228,10 +228,9 @@ struct Q_GUI_EXPORT Declaration
     inline bool isEmpty() const { return property.isEmpty() && propertyId == UnknownProperty; }
     QVector<Value> values;
     bool important;
-    
+
     // helper functions
     QColor colorValue() const;
-    QColor colorValue(Value v) const;
     void colorValues(QColor *c) const;
     QBrush brushValue() const;
     bool realValue(qreal *value, const char *unit = 0) const;
@@ -362,15 +361,15 @@ class Q_GUI_EXPORT StyleSelector
 {
 public:
     virtual ~StyleSelector();
-    
+
     union NodePtr {
         void *ptr;
         int id;
     };
-    
+
     QVector<StyleRule> styleRulesForNode(NodePtr node);
     QVector<Declaration> declarationsForNode(NodePtr node);
-    
+
     virtual bool hasNodeName(NodePtr node, const QString& nodeName) const = 0;
     virtual QString attribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttribute(NodePtr node, const QString &name) const = 0;
@@ -413,7 +412,7 @@ enum TokenType {
     HASH,
 
     ATKEYWORD_SYM,
-    
+
     EXCLAMATION_SYM,
 
     LENGTH,
@@ -530,7 +529,7 @@ public:
     }
 
     bool testTokenAndEndsWith(TokenType t, const QLatin1String &str);
-    
+
     inline bool recordError() { errorIndex = index; return false; }
 
     QVector<Symbol> symbols;
