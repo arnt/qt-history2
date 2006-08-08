@@ -33,7 +33,7 @@ class QFontSubset
 {
 public:
     QFontSubset(QFontEngine *fe, int obj_id = 0)
-        : object_id(obj_id), noEmbed(false), fontEngine(fe)
+        : object_id(obj_id), noEmbed(false), fontEngine(fe), downloaded_glyphs(0), standard_font(false)
         { fontEngine->ref.ref(); addGlyph(0); }
     ~QFontSubset() {
         if (!fontEngine->ref.deref())
@@ -42,6 +42,7 @@ public:
 
     QByteArray toTruetype() const;
     QByteArray toType1() const;
+    QByteArray type1AddedGlyphs() const;
     QByteArray widthArray() const;
     QByteArray createToUnicodeMap() const;
     QVector<int> getReverseMap() const;
@@ -54,6 +55,8 @@ public:
     bool noEmbed;
     QFontEngine *fontEngine;
     QList<int> glyph_indices;
+    mutable int downloaded_glyphs;
+    mutable bool standard_font;
     int nGlyphs() const { return glyph_indices.size(); }
     mutable QFixed emSquare;
     mutable QVector<QFixed> widths;

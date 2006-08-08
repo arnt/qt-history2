@@ -119,203 +119,6 @@ static const char *const ps_header =
 "Encoding/FDepVector FDepVector >> definefont pop end}def\n";
 
 
-
-#if 0
-// ---------------------------------------------------------------------
-// postscript font substitution dictionary. We assume every postscript printer has at least
-// Helvetica, Times, Courier and Symbol
-
-#if defined (Q_WS_WIN) && defined (Q_CC_MSVC)
-#  pragma warning(disable: 4305)
-#endif
-
-struct psfont {
-    const char *psname;
-    qreal slant;
-    qreal xscale;
-};
-
-static const psfont Arial[] = {
-    { "Arial", 0, 84.04 },
-    { "Arial-Italic", 0, 84.04 },
-    { "Arial-Bold", 0, 88.65 },
-    { "Arial-BoldItalic", 0, 88.65 }
-};
-
-static const psfont AvantGarde[] = {
-    { "AvantGarde-Book", 0, 87.43 },
-    { "AvantGarde-BookOblique", 0, 88.09 },
-    { "AvantGarde-Demi", 0, 88.09 },
-    { "AvantGarde-DemiOblique", 0, 87.43 },
-};
-
-static const psfont Bookman [] = {
-    { "Bookman-Light", 0, 93.78 },
-    { "Bookman-LightItalic", 0, 91.42 },
-    { "Bookman-Demi", 0, 99.86 },
-    { "Bookman-DemiItalic", 0, 101.54 }
-};
-
-static const psfont Charter [] = {
-    { "CharterBT-Roman", 0, 84.04 },
-    { "CharterBT-Italic", 0.0, 81.92 },
-    { "CharterBT-Bold", 0, 88.99 },
-    { "CharterBT-BoldItalic", 0.0, 88.20 }
-};
-
-static const psfont Courier [] = {
-    { "Courier", 0, 100. },
-    { "Courier-Oblique", 0, 100. },
-    { "Courier-Bold", 0, 100. },
-    { "Courier-BoldOblique", 0, 100. }
-};
-
-static const psfont Garamond [] = {
-    { "Garamond-Antiqua", 0, 78.13 },
-    { "Garamond-Kursiv", 0, 78.13 },
-    { "Garamond-Halbfett", 0, 78.13 },
-    { "Garamond-KursivHalbfett", 0, 78.13 }
-};
-
-static const psfont GillSans [] = { // estimated value for xstretch
-    { "GillSans", 0, 82 },
-    { "GillSans-Italic", 0, 82 },
-    { "GillSans-Bold", 0, 82 },
-    { "GillSans-BoldItalic", 0, 82 }
-};
-
-static const psfont Helvetica [] = {
-    { "Helvetica", 0, 84.04 },
-    { "Helvetica-Oblique", 0, 84.04 },
-    { "Helvetica-Bold", 0, 88.65 },
-    { "Helvetica-BoldOblique", 0, 88.65 }
-};
-
-static const psfont Letter [] = {
-    { "LetterGothic", 0, 83.32 },
-    { "LetterGothic-Italic", 0, 83.32 },
-    { "LetterGothic-Bold", 0, 83.32 },
-    { "LetterGothic-Bold", 0.2, 83.32 }
-};
-
-static const psfont LucidaSans [] = {
-    { "LucidaSans", 0, 94.36 },
-    { "LucidaSans-Oblique", 0, 94.36 },
-    { "LucidaSans-Demi", 0, 98.10 },
-    { "LucidaSans-DemiOblique", 0, 98.08 }
-};
-
-static const psfont LucidaSansTT [] = {
-    { "LucidaSans-Typewriter", 0, 100.50 },
-    { "LucidaSans-TypewriterOblique", 0, 100.50 },
-    { "LucidaSans-TypewriterBold", 0, 100.50 },
-    { "LucidaSans-TypewriterBoldOblique", 0, 100.50 }
-};
-
-static const psfont LucidaBright [] = {
-    { "LucidaBright", 0, 93.45 },
-    { "LucidaBright-Italic", 0, 91.98 },
-    { "LucidaBright-Demi", 0, 96.22 },
-    { "LucidaBright-DemiItalic", 0, 96.98 }
-};
-
-static const psfont Palatino [] = {
-    { "Palatino-Roman", 0, 82.45 },
-    { "Palatino-Italic", 0, 76.56 },
-    { "Palatino-Bold", 0, 83.49 },
-    { "Palatino-BoldItalic", 0, 81.51 }
-};
-
-static const psfont Symbol [] = {
-    { "Symbol", 0, 82.56 },
-    { "Symbol", 0.2, 82.56 },
-    { "Symbol", 0, 82.56 },
-    { "Symbol", 0.2, 82.56 }
-};
-
-static const psfont Tahoma [] = {
-    { "Tahoma", 0, 83.45 },
-    { "Tahoma", 0.2, 83.45 },
-    { "Tahoma-Bold", 0, 95.59 },
-    { "Tahoma-Bold", 0.2, 95.59 }
-};
-
-static const psfont Times [] = {
-    { "Times-Roman", 0, 82.45 },
-    { "Times-Italic", 0, 82.45 },
-    { "Times-Bold", 0, 82.45 },
-    { "Times-BoldItalic", 0, 82.45 }
-};
-
-static const psfont Verdana [] = {
-    { "Verdana", 0, 96.06 },
-    { "Verdana-Italic", 0, 96.06 },
-    { "Verdana-Bold", 0, 107.12 },
-    { "Verdana-BoldItalic", 0, 107.10 }
-};
-
-static const psfont Utopia [] = {
-    { "Utopia-Regular", 0, 84.70 },
-    { "Utopia-Regular", 0.2, 84.70 },
-    { "Utopia-Bold", 0, 88.01 },
-    { "Utopia-Bold", 0.2, 88.01 }
-};
-
-static const psfont * const SansSerifReplacements[] = {
-    Helvetica, 0
-        };
-static const psfont * const SerifReplacements[] = {
-    Times, 0
-        };
-static const psfont * const FixedReplacements[] = {
-    Courier, 0
-        };
-static const psfont * const TahomaReplacements[] = {
-    Verdana, AvantGarde, Helvetica, 0
-        };
-static const psfont * const VerdanaReplacements[] = {
-    Tahoma, AvantGarde, Helvetica, 0
-        };
-
-static const struct {
-    const char * input; // spaces are stripped in here, and everything lowercase
-    const psfont * ps;
-    const psfont *const * replacements;
-} postscriptFonts [] = {
-    { "arial", Arial, SansSerifReplacements },
-    { "arialmt", Arial, SansSerifReplacements },
-    { "arialunicodems", Arial, SansSerifReplacements },
-    { "avantgarde", AvantGarde, SansSerifReplacements },
-    { "bookman", Bookman, SerifReplacements },
-    { "charter", Charter, SansSerifReplacements },
-    { "bitstreamcharter", Charter, SansSerifReplacements },
-    { "bitstreamcyberbit", Times, SerifReplacements },
-    { "courier", Courier, 0 },
-    { "couriernew", Courier, 0 },
-    { "fixed", Courier, 0 },
-    { "garamond", Garamond, SerifReplacements },
-    { "gillsans", GillSans, SansSerifReplacements },
-    { "helvetica", Helvetica, 0 },
-    { "letter", Letter, FixedReplacements },
-    { "lucida", LucidaSans, SansSerifReplacements },
-    { "lucidasans", LucidaSans, SansSerifReplacements },
-    { "lucidabright", LucidaBright, SerifReplacements },
-    { "lucidasanstypewriter", LucidaSansTT, FixedReplacements },
-    { "luciduxsans", LucidaSans, SansSerifReplacements },
-    { "luciduxserif", LucidaBright, SerifReplacements },
-    { "luciduxmono", LucidaSansTT, FixedReplacements },
-    { "palatino", Palatino, SerifReplacements },
-    { "symbol", Symbol, 0 },
-    { "tahoma", Tahoma, TahomaReplacements },
-    { "terminal", Courier, 0 },
-    { "times", Times, 0 },
-    { "timesnewroman", Times, 0 },
-    { "verdana", Verdana, VerdanaReplacements },
-    { "utopia", Utopia, SerifReplacements },
-    { 0, 0, 0 }
-};
-#endif
-
 // ------------------------------End of static data ----------------------------------
 
 // make sure DSC comments are not longer than 255 chars per line.
@@ -344,7 +147,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : outDevice(0), fd(-1),
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
-      fullPage(false), printerState(QPrinter::Idle), duplex(false)
+      fullPage(false), printerState(QPrinter::Idle), hugeDocument(false), duplex(false)
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     , cups(this)
 #endif
@@ -702,7 +505,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
         "\n%%EndComments\n"
 
         "%%BeginProlog\n"
-        "% Prolog copyright 1994-2003 Trolltech. You may copy this prolog in any way\n"
+        "% Prolog copyright 1994-2006 Trolltech. You may copy this prolog in any way\n"
         "% that is directly related to this document. For other use of this prolog,\n"
         "% see your licensing agreement for Qt.\n"
       << ps_header << "\n";
@@ -741,35 +544,55 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
 
 void QPSPrintEnginePrivate::emitPages()
 {
-    // ############# fix fonts for huge documents
-    for (QHash<QFontEngine::FaceId, QFontSubset *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
-        outDevice->write((*it)->toType1());
+    if (!hugeDocument) {
+        for (QHash<QFontEngine::FaceId, QFontSubset *>::const_iterator it = fonts.constBegin();
+             it != fonts.constEnd(); ++it)
+            outDevice->write((*it)->toType1());
+    }
 
     outDevice->write(buffer);
 
     buffer = QByteArray();
-    qDeleteAll(fonts);
-    fonts.clear();
+    hugeDocument = true;
 }
 
 
 #ifdef Q_WS_QWS
-const int max_in_memory_size = 50000000;
-#else
 const int max_in_memory_size = 2000000;
+#else
+const int max_in_memory_size = 32000000;
 #endif
 
 void QPSPrintEnginePrivate::flushPage(bool last)
 {
     if (!last && currentPage->content().isEmpty())
         return;
+
     QPdf::ByteStream s(&buffer);
     s << "%%Page: "
       << pageCount << pageCount << "\n"
-      << "QI\n"
+      << "%%BeginPageSetup\n"
+      << "QI\n";
+    if (hugeDocument) {
+        for (QHash<QFontEngine::FaceId, QFontSubset *>::const_iterator it = fonts.constBegin();
+             it != fonts.constEnd(); ++it) {
+            if (currentPage->fonts.contains((*it)->object_id)) {
+                if ((*it)->downloaded_glyphs == 0) {
+                    s << (*it)->toType1();
+                    (*it)->downloaded_glyphs = 0;
+                } else {
+                    s << (*it)->type1AddedGlyphs();
+                }
+            }
+        }
+    }
+    for (int i = 0; i < currentPage->fonts.size(); ++i)
+        s << "(F" << QByteArray::number(currentPage->fonts.at(i)) << ") T1Setup\n";
+
+    s << "%%EndPageSetup\n"
       << currentPage->content()
       << "\nQP\n";
-    if (last) { // ############## || buffer.size() > max_in_memory_size) {
+    if (last || hugeDocument || buffer.size() > max_in_memory_size) {
 //        qDebug("emiting header at page %d", pageCount);
         if (!outDevice)
             emitHeader(last);
@@ -1065,6 +888,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->allClipped = false;
     d->boundingBox = QRect();
     d->fontsUsed = "";
+    d->hugeDocument = false;
 
     setActive(true);
     d->printerState = QPrinter::Active;

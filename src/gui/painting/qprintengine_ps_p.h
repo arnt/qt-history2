@@ -202,6 +202,7 @@ public:
     QPrinter::PaperSource paperSource;
     QPrinter::PrinterState printerState;
     bool embedFonts;
+    bool hugeDocument;
 
 #ifndef QT_NO_LPR
     pid_t pid;

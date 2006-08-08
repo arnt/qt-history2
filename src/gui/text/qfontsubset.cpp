@@ -1614,13 +1614,11 @@ QByteArray QFontSubset::toType1() const
     QByteArray font;
     QPdf::ByteStream s(&font);
 
-    int nGlyphs = this->nGlyphs();
-
     QByteArray id = QByteArray::number(object_id);
     QByteArray psname = properties.postscriptName;
     psname.replace(" ", "");
 
-    bool standard_font = false;
+    standard_font = false;
 
 #ifndef QT_NO_FREETYPE
     FT_Face face = ft_face(fontEngine);
@@ -1666,8 +1664,27 @@ QByteArray QFontSubset::toType1() const
             "/CMap 256 array\n"
             ">> def\n";
     }
+    s << type1AddedGlyphs();
+    downloaded_glyphs = glyph_indices.size();
+
+    return font;
+}
+
+QByteArray QFontSubset::type1AddedGlyphs() const
+{
+    if (downloaded_glyphs == glyph_indices.size())
+        return QByteArray();
+
+    QFontEngine::Properties properties = fontEngine->properties();
+    QVector<int> reverseMap = getReverseMap();
+    QByteArray glyphs;
+    QPdf::ByteStream s(&glyphs);
+
+    int nGlyphs = glyph_indices.size();
+    QByteArray id = QByteArray::number(object_id);
+
     s << "F" << id << "-Base [\n";
-    for (int i = 0; i < nGlyphs; ++i) {
+    for (int i = downloaded_glyphs; i < nGlyphs; ++i) {
         glyph_t g = glyph_indices.at(i);
         QPainterPath path;
         glyph_metrics_t metric;
@@ -1679,9 +1696,7 @@ QByteArray QFontSubset::toType1() const
           s << "\n<" << charstring << ">\n";
     }
     s << (standard_font ? "] T1AddMapping\n" : "] T1AddGlyphs\n");
-    s << "(F" << id << ") T1Setup\n";
-
-    return font;
+    return glyphs;
 }
 
 #endif
