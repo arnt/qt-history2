@@ -203,7 +203,9 @@ public:
     QPrinter::PrinterState printerState;
     bool embedFonts;
 
+#ifndef QT_NO_LPR
     pid_t pid;
+#endif
 
     bool duplex;
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)

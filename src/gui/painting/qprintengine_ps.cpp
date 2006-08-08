@@ -42,7 +42,9 @@
 #include <qdebug.h>
 #include <private/qdrawhelper_p.h>
 
+#ifndef Q_OS_WIN
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <limits.h>
 
@@ -330,11 +332,14 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : outDevice(0), fd(-1),
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
-      fullPage(false), printerState(QPrinter::Idle), pid(0), duplex(false)
+      fullPage(false), printerState(QPrinter::Idle), duplex(false)
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     , cups(this)
 #endif
 {
+#ifndef QT_NO_LPR
+    pid = 0;
+#endif
     postscript = true;
 
     firstPage = true;
