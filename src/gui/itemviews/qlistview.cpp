@@ -1624,7 +1624,7 @@ QListViewPrivate::QListViewPrivate()
       column(0),
       uniformItemSizes(false),
       batchSize(100),
-      wrapItemText(true)
+      wrapItemText(false)
 {}
 
 void QListViewPrivate::clear()
