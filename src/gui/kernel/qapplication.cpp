@@ -512,6 +512,9 @@ void QApplicationPrivate::process_cmdline()
   \o -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
   \o -session \e session, is the same as listed above.
+  \o -widgetcount, prints debug message at the end about number of widgets left
+        undestroyed and maximum number of widgets existed at the same time
+
   \endlist
 
   The X11 version of Qt also supports some traditional X11
@@ -1177,7 +1180,7 @@ void QApplication::setStyle(QStyle *style)
         QStyleSheetStyle *newProxy = new QStyleSheetStyle(style);
         style->setParent(newProxy);
         QApplicationPrivate::app_style = newProxy;
-    } else 
+    } else
 #endif // QT_NO_STYLE_STYLESHEET
         QApplicationPrivate::app_style = style;
 
