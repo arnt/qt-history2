@@ -922,7 +922,7 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(con
 */
 
 /*!
-    Identifies, at runtime, which OpenGl versions that are supported
+    Identifies, at runtime, which OpenGL versions that are supported
     by the current platform.
 
     Note that if OpenGL version 1.5 is supported, its predecessors

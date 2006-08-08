@@ -2392,7 +2392,7 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
     useful geometries upon the desktop, such as QDesktopWidget::screenGeometry()
     and QDesktopWidget::availableGeometry().
 
-    On X11, it is also be possible to draw on the desktop.
+    On X11, it is also possible to draw on the desktop.
 */
 QDesktopWidget *QApplication::desktop()
 {
