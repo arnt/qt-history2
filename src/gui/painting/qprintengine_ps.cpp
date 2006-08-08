@@ -634,10 +634,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     qreal scale = 72. / ((qreal) q->metric(QPaintDevice::PdmDpiY));
     QRect pageRect = this->pageRect();
     QRect paperRect = this->paperRect();
-    uint mtop = pageRect.top() - paperRect.top();
-    uint mleft = pageRect.left() - paperRect.left();
-    uint mbottom = paperRect.bottom() - pageRect.bottom();
-    uint mright = paperRect.right() - pageRect.right();
+    int mtop = pageRect.top() - paperRect.top();
+    int mleft = pageRect.left() - paperRect.left();
+    int mbottom = paperRect.bottom() - pageRect.bottom();
+    int mright = paperRect.right() - pageRect.right();
     int width = pageRect.width();
     int height = pageRect.height();
     if (finished && pageCount == 1 && copies == 1 &&
