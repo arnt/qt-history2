@@ -348,8 +348,16 @@ Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions,
 #endif
 
     // Check if the action determined is allowed
-    if (!(possibleActions & defaultAction))
-        defaultAction = Qt::CopyAction;
+    if (!(possibleActions & defaultAction)) {
+        if (possibleActions & Qt::CopyAction)
+            defaultAction = Qt::CopyAction;
+        else if (possibleActions & Qt::MoveAction)
+            defaultAction = Qt::MoveAction;
+        else if (possibleActions & Qt::LinkAction)
+            defaultAction = Qt::LinkAction;
+        else
+            defaultAction = Qt::IgnoreAction;
+    }
 
 #ifdef QDND_DEBUG
     qDebug("default action : %s", dragActionsToString(defaultAction).latin1());
