@@ -61,6 +61,7 @@ private slots:
     void rasterClipping();
 
     void pointOverloads();
+    void destructor();
 };
 
 tst_QImage::tst_QImage()
@@ -701,6 +702,20 @@ void tst_QImage::pointOverloads()
     // pixelIndex()
     QImage indexed = image.convertToFormat(QImage::Format_Indexed8);
     QCOMPARE(indexed.pixelIndex(10, 10), indexed.pixelIndex(QPoint(10, 10)));
+}
+
+void tst_QImage::destructor()
+{
+    QPolygon poly(6);
+    poly.setPoint(0,-1455, 1435);
+
+    QImage image(100, 100, QImage::Format_RGB32);
+    QPainter ptPix(&image);
+    ptPix.setPen(Qt::black);
+    ptPix.setBrush(Qt::black);
+    ptPix.drawPolygon(poly, Qt::WindingFill);
+    ptPix.end(); 
+
 }
 
 QTEST_MAIN(tst_QImage)
