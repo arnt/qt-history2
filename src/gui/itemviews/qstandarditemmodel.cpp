@@ -572,7 +572,7 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
 
     Reimplement read() and write() if you want to control how items are
     represented in their serialized form.
-    
+
     Reimplement \l{operator<()} if you want to control the semantics of item
     comparison. \l{operator<()} determines the sorted order when sorting items
     with sortChildren() or with QStandardItemModel::sort().
@@ -1831,7 +1831,7 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
             for (int row = 0; row < 4; ++row) {
                 for (int column = 0; column < 4; ++column) {
                     QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
-                    model.setItem(i, j, item);
+                    model.setItem(row, column, item);
                 }
             }
     \endcode
