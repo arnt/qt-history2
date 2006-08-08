@@ -32,6 +32,8 @@ void QTextEngine::shapeText(int item) const
     QFontEngine *font = fontEngine(si, &si.ascent, &si.descent);
 
     QShaperItem shaper_item;
+    shaper_item.kerning_enabled = this->font(si).d->kerning;
+    shaper_item.kerning_applied = false;
     shaper_item.script = si.analysis.script;
     shaper_item.string = &layoutData->string;
     shaper_item.from = si.position;
@@ -60,12 +62,9 @@ void QTextEngine::shapeText(int item) const
     layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = shaper_item.glyphs;
-#ifdef Q_CC_SUN // workaround a sun CC compiler bug
-    if (this->font(si).kerning())
-#else
-    if (this->font(si).d->kerning)
-#endif
+    if (shaper_item.kerning_enabled && !shaper_item.kerning_applied) {
         font->doKerning(si.num_glyphs, g, option.useDesignMetrics() ? QFlag(QTextEngine::DesignMetrics) : QFlag(0));
+    }
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;

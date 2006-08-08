@@ -124,6 +124,8 @@ QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
     tmpAttributes = 0;
     tmpLogClusters = 0;
 
+    supports_kerning = false;
+
     FT_Error error;
     if ((error = HB_Load_GDEF_Table(face, &gdef))) {
         DEBUG("error loading gdef table: %d", error);
@@ -204,7 +206,7 @@ bool QOpenType::checkScript(unsigned int script)
 }
 
 
-void QOpenType::selectScript(unsigned int script, const Features *features)
+void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Features *features)
 {
     if (current_script == script)
         return;
@@ -242,6 +244,9 @@ void QOpenType::selectScript(unsigned int script, const Features *features)
         }
     }
 
+    // reset
+    supports_kerning = false;
+
     if (gpos) {
         HB_GPOS_Clear_Features(gpos);
         FT_UShort script_index;
@@ -265,6 +270,13 @@ void QOpenType::selectScript(unsigned int script, const Features *features)
             if (!error) {
                 while (*feature_tag_list) {
                     FT_UShort feature_index;
+                    if (*feature_tag_list == FT_MAKE_TAG('k', 'e', 'r', 'n')) {
+                        if (!item->kerning_enabled) {
+                            ++feature_tag_list;
+                            continue;
+                        }
+                        supports_kerning = true;
+                    }
                     error = HB_GPOS_Select_Feature(gpos, *feature_tag_list, script_index, 0xffff, &feature_index);
                     if (!error)
                         HB_GPOS_Add_Feature(gpos, feature_index, PositioningProperties);
@@ -421,6 +433,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 //             DEBUG("   ->\tadv=%d\tpos=(%d/%d)",
 //                    glyphs[i].advance.x.toInt(), glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt());
         }
+        item->kerning_applied = supports_kerning;
     } else {
         qt_heuristicPosition(item);
     }

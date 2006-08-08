@@ -51,7 +51,7 @@ public:
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
         return supported_scripts[script];
     }
-    void selectScript(unsigned int script, const Features *features = 0);
+    void selectScript(QShaperItem *item, unsigned int script, const Features *features = 0);
 
     bool shape(QShaperItem *item, const unsigned int *properties = 0);
     bool positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters = true);
@@ -71,6 +71,7 @@ private:
     bool supported_scripts[QUnicodeTables::ScriptCount];
     FT_ULong current_script;
     bool positioned : 1;
+    bool supports_kerning : 1;
     HB_Buffer hb_buffer;
     QGlyphLayout::Attributes *tmpAttributes;
     unsigned int *tmpLogClusters;

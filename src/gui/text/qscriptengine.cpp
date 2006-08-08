@@ -369,7 +369,7 @@ static bool basic_shape(QShaperItem *item)
         }
     }
     if (openType && openType->supportsScript(item->script)) {
-        openType->selectScript(item->script, basic_features);
+        openType->selectScript(item, item->script, basic_features);
 
         openType->shape(item);
         return openType->positionAndAdd(item, availableGlyphs);
@@ -409,7 +409,7 @@ static bool hebrew_shape(QShaperItem *item)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
-        openType->selectScript(item->script, hebrew_features);
+        openType->selectScript(item, item->script, hebrew_features);
 
         const int availableGlyphs = item->num_glyphs;
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
@@ -1486,7 +1486,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item, bo
 {
     *ot_ok = true;
 
-    openType->selectScript(item->script, item->script == QUnicodeTables::Arabic ? arabic_features : syriac_features);
+    openType->selectScript(item, item->script, item->script == QUnicodeTables::Arabic ? arabic_features : syriac_features);
     const int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
@@ -1604,7 +1604,7 @@ static bool thaana_shape(QShaperItem *item)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
-        openType->selectScript(QUnicodeTables::Thaana);
+        openType->selectScript(item, QUnicodeTables::Thaana);
         const int availableGlyphs = item->num_glyphs;
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
             return false;
@@ -3361,7 +3361,7 @@ static bool indic_shape(QShaperItem *item)
 #ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType)
-        openType->selectScript(item->script, indic_features);
+        openType->selectScript(item, item->script, indic_features);
 #else
     QOpenType *openType = 0;
 #endif
@@ -3614,7 +3614,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 
 #ifndef QT_NO_OPENTYPE
     if (openType && openType->supportsScript(QUnicodeTables::Tibetan)) {
-        openType->selectScript(QUnicodeTables::Tibetan, tibetan_features);
+        openType->selectScript(item, QUnicodeTables::Tibetan, tibetan_features);
 
         openType->shape(item);
         if (!openType->positionAndAdd(item, availableGlyphs, false))
@@ -4070,7 +4070,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
 #ifndef QT_NO_OPENTYPE
     if (openType)
-        openType->selectScript(QUnicodeTables::Khmer, khmer_features);
+        openType->selectScript(item, QUnicodeTables::Khmer, khmer_features);
 #endif
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
@@ -4607,7 +4607,7 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 {
 #ifndef QT_NO_OPENTYPE
     if (openType)
-        openType->selectScript(QUnicodeTables::Myanmar, myanmar_features);
+        openType->selectScript(item, QUnicodeTables::Myanmar, myanmar_features);
 #endif
     // according to the table the max length of a syllable should be around 14 chars
     Q_ASSERT(item->length < 32);
@@ -5090,7 +5090,7 @@ static bool hangul_shape(QShaperItem *item)
         if (openType && !openType->supportsScript(item->script))
             openType = 0;
         if (openType)
-            openType->selectScript(QUnicodeTables::Hangul, hangul_features);
+            openType->selectScript(item, QUnicodeTables::Hangul, hangul_features);
 #else
         QOpenType *openType = 0;
 #endif

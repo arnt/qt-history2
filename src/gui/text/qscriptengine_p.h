@@ -41,6 +41,10 @@ struct QShaperItem {
     int num_glyphs; // in: available glyphs out: glyphs used/needed
     unsigned short *log_clusters;
     int flags;
+#if defined(Q_WS_X11) || defined (Q_WS_QWS)
+    uint kerning_enabled : 1; // from QFont::kerning
+    uint kerning_applied : 1; // out: kerning applied by shaper
+#endif
     const QCharAttributes *charAttributes;
 };
 
