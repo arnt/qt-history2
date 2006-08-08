@@ -816,6 +816,7 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
         break;
     case Accept:
         d->acceptButton->setText(text);
+        d->openAction->setText(text);
         break;
     case Reject:
         d->rejectButton->setText(text);
