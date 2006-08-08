@@ -245,28 +245,32 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::about()
 {
     QMessageBox box(this);
-    box.setText(tr("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
-                   "<h3>%1</h3>"
-                   "<br/>Version %2"
+    QString edition =
 #if QT_EDITION == QT_EDITION_OPENSOURCE
-                   " Open Source Edition</center><p>"
+                   tr(" Open Source Edition</center><p>"
                    "This version of Qt Assistant is part of the Qt Open Source Edition, for use "
                    "in the development of Open Source applications. "
                    "Qt is a comprehensive C++ framework for cross-platform application "
                    "development.<br/><br/>"
                    "You need a commercial Qt license for development of proprietary (closed "
                    "source) applications. Please see <tt>http://www.trolltech.com/company/model"
-                   ".html</tt> for an overview of Qt licensing."
-#else
-                   "</center><p>This program is licensed to you under the terms of the "
+                   ".html</tt> for an overview of Qt licensing.");
+#else 
+                   tr("</center><p>This program is licensed to you under the terms of the "
                    "Qt Commercial License Agreement. For details, see the file LICENSE "
-                   "that came with this software distribution."
+                   "that came with this software distribution.");
+
 #endif
+
+    box.setText(tr("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
+                   "<h3>%1</h3>"
+                   "<br/>Version %2"
+                   "%3"
                    "<br/><br/>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved."
                    "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
                    " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
                    " PARTICULAR PURPOSE.<br/> ")
-                   .arg(tr("Qt Assistant")).arg(QT_VERSION_STR));
+                   .arg(tr("Qt Assistant")).arg(QT_VERSION_STR).arg(edition));
     box.setWindowTitle(tr("Qt Assistant"));
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
