@@ -98,6 +98,39 @@
     \sa checkedButton(), QAbstractButton::clicked()
 */
 
+/*!
+    \fn void QButtonGroup::buttonPressed(QAbstractButton *button)
+
+    This signal is emitted when the given \a button is pressed down. 
+
+    \sa QAbstractButton::pressed()
+*/
+
+/*!
+    \fn void QButtonGroup::buttonPressed(int id)
+
+    This signal is emitted when a button with the given \a id is
+    pressed down.
+
+    \sa QAbstractButton::pressed()
+*/
+
+/*!
+    \fn void QButtonGroup::buttonReleased(QAbstractButton *button)
+
+    This signal is emitted when the given \a button is released. 
+
+    \sa QAbstractButton::released()
+*/
+
+/*!
+    \fn void QButtonGroup::buttonReleased(int id)
+
+    This signal is emitted when a button with the given \a id is
+    released.
+
+    \sa QAbstractButton::released()
+*/
 
 /*!
     \fn void QButtonGroup::addButton(QAbstractButton *button, int id = -1);

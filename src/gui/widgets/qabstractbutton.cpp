@@ -466,9 +466,16 @@ void QAbstractButtonPrivate::click()
     refresh();
     q->repaint(); //flush paint event before invoking potentially expensive operation
     QApplication::flush();
-    emit q->released();
+    emitReleased();
     if (guard)
-        emit q->clicked(checked);
+        emitClicked();
+}
+
+void QAbstractButtonPrivate::emitClicked()
+{
+    Q_Q(QAbstractButton);
+    QPointer<QAbstractButton> guard(q);
+    emit q->clicked(checked);
 #ifndef QT_NO_BUTTONGROUP
     if (guard && group) {
         emit group->buttonClicked(group->id(q));
@@ -477,6 +484,31 @@ void QAbstractButtonPrivate::click()
 #endif
 }
 
+void QAbstractButtonPrivate::emitPressed()
+{
+    Q_Q(QAbstractButton);
+    QPointer<QAbstractButton> guard(q);
+    emit q->pressed();
+#ifndef QT_NO_BUTTONGROUP
+    if (guard && group) {
+        emit group->buttonPressed(group->id(q));
+        emit group->buttonPressed(q);
+    }
+#endif
+}
+
+void QAbstractButtonPrivate::emitReleased()
+{
+    Q_Q(QAbstractButton);
+    QPointer<QAbstractButton> guard(q);
+    emit q->released();
+#ifndef QT_NO_BUTTONGROUP
+    if (guard && group) {
+        emit group->buttonReleased(group->id(q));
+        emit group->buttonReleased(q);
+    }
+#endif
+}
 
 /*!
     Constructs an abstract button with a \a parent.
@@ -830,7 +862,7 @@ void QAbstractButton::animateClick(int msec)
     setDown(true);
     repaint(); //flush paint event before invoking potentially expensive operation
     QApplication::flush();
-    emit pressed();
+    d->emitPressed();
     d->animateTimer.start(msec, this);
 }
 
@@ -853,20 +885,14 @@ void QAbstractButton::click()
     Q_D(QAbstractButton);
     QPointer<QAbstractButton> guard(this);
     d->down = true;
-    emit pressed();
+    d->emitPressed();
     if (guard) {
         d->down = false;
         nextCheckState();
         if (guard)
-            emit released();
+            d->emitReleased();
         if (guard)
-            emit clicked(d->checked);
-#ifndef QT_NO_BUTTONGROUP
-        if (guard && d->group) {
-            emit d->group->buttonClicked(d->group->id(this));
-            emit d->group->buttonClicked(this);
-        }
-#endif
+            d->emitClicked();
     }
 }
 
@@ -967,6 +993,7 @@ bool QAbstractButton::event(QEvent *e)
 /*! \reimp */
 void QAbstractButton::mousePressEvent(QMouseEvent *e)
 {
+    Q_D(QAbstractButton);
     if (e->button() != Qt::LeftButton) {
         e->ignore();
         return;
@@ -975,7 +1002,7 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
         setDown(true);
         repaint(); //flush paint event before invoking potentially expensive operation
         QApplication::flush();
-        emit pressed();
+        d->emitPressed();
         e->accept();
     } else {
         e->ignore();
@@ -1020,9 +1047,9 @@ void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
         repaint(); //flush paint event before invoking potentially expensive operation
         QApplication::flush();
         if (d->down)
-            emit pressed();
+            d->emitPressed();
         else
-            emit released();
+            d->emitReleased();
         e->accept();
     } else if (!hitButton(e->pos())) {
         e->ignore();
@@ -1045,7 +1072,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
             setDown(true);
             repaint(); //flush paint event before invoking potentially expensive operation
             QApplication::flush();
-            emit pressed();
+            d->emitPressed();
         }
         break;
     case Qt::Key_Up:
@@ -1071,7 +1098,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
             setDown(false);
             repaint(); //flush paint event before invoking potentially expensive operation
             QApplication::flush();
-            emit released();
+            d->emitReleased();
             break;
         }
         // fall through
@@ -1104,17 +1131,11 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
         d->repeatTimer.start(d->autoRepeatInterval, this);
         if (d->down) {
             QPointer<QAbstractButton> guard(this);
-            emit released();
+            d->emitReleased();
             if (guard)
-                emit clicked(d->checked);
-#ifndef QT_NO_BUTTONGROUP
-            if (guard && d->group) {
-                emit d->group->buttonClicked(d->group->id(this));
-                emit d->group->buttonClicked(this);
-            }
-#endif
+                d->emitClicked();
             if (guard)
-                emit pressed();
+                d->emitPressed();
         }
     } else if (e->timerId() == d->animateTimer.timerId()) {
         d->animateTimer.stop();

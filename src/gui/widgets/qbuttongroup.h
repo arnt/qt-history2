@@ -55,6 +55,10 @@ public:
 Q_SIGNALS:
     void buttonClicked(QAbstractButton *);
     void buttonClicked(int);
+    void buttonPressed(QAbstractButton *);
+    void buttonPressed(int);
+    void buttonReleased(QAbstractButton *);
+    void buttonReleased(int);
 
 #ifdef QT3_SUPPORT
 public:

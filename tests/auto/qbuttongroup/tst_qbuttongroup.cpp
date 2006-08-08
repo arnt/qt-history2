@@ -60,6 +60,7 @@ private slots:
     void arrowKeyNavigation();
     void exclusive();
     void exclusiveWithActions();
+    void testSignals();
 
     // fixed for Qt 4.2.0
 #if QT_VERSION >= 0x040200
@@ -272,6 +273,58 @@ void tst_QButtonGroup::exclusive()
     QVERIFY(pushButton2->isChecked());
     QVERIFY(!pushButton1->isChecked());
     QVERIFY(!pushButton3->isChecked());
+}
+
+void tst_QButtonGroup::testSignals()
+{
+    QButtonGroup *buttons = new QButtonGroup;
+    QPushButton *pb1 = new QPushButton;
+    QPushButton *pb2 = new QPushButton;
+    QPushButton *pb3 = new QPushButton;
+    buttons->addButton(pb1);
+    buttons->addButton(pb2, 23);
+    buttons->addButton(pb3);
+
+    qRegisterMetaType<QAbstractButton *>("QAbstractButton *");
+    QSignalSpy clickedSpy(buttons, SIGNAL(buttonClicked(QAbstractButton *)));
+    QSignalSpy clickedIdSpy(buttons, SIGNAL(buttonClicked(int)));
+    QSignalSpy pressedSpy(buttons, SIGNAL(buttonPressed(QAbstractButton *)));
+    QSignalSpy pressedIdSpy(buttons, SIGNAL(buttonPressed(int)));
+    QSignalSpy releasedSpy(buttons, SIGNAL(buttonReleased(QAbstractButton *)));
+    QSignalSpy releasedIdSpy(buttons, SIGNAL(buttonReleased(int)));
+
+    pb1->animateClick();
+    QTestEventLoop::instance().enterLoop(1);
+
+    QCOMPARE(clickedSpy.count(), 1);
+    QCOMPARE(clickedIdSpy.count(), 1);
+    QVERIFY(clickedIdSpy.takeFirst().at(0).toInt() == -1);
+    QCOMPARE(pressedSpy.count(), 1);
+    QCOMPARE(pressedIdSpy.count(), 1);
+    QVERIFY(pressedIdSpy.takeFirst().at(0).toInt() == -1);
+    QCOMPARE(releasedSpy.count(), 1);
+    QCOMPARE(releasedIdSpy.count(), 1);
+    QVERIFY(releasedIdSpy.takeFirst().at(0).toInt() == -1);
+
+    clickedSpy.clear();
+    clickedIdSpy.clear();
+    pressedSpy.clear();
+    pressedIdSpy.clear();
+    releasedSpy.clear();
+    releasedIdSpy.clear();
+
+    pb2->animateClick();
+    QTestEventLoop::instance().enterLoop(1);
+
+    QCOMPARE(clickedSpy.count(), 1);
+    QCOMPARE(clickedIdSpy.count(), 1);
+    QVERIFY(clickedIdSpy.takeFirst().at(0).toInt() == 23);
+    QCOMPARE(pressedSpy.count(), 1);
+    QCOMPARE(pressedIdSpy.count(), 1);
+    QVERIFY(pressedIdSpy.takeFirst().at(0).toInt() == 23);
+    QCOMPARE(releasedSpy.count(), 1);
+    QCOMPARE(releasedIdSpy.count(), 1);
+    QVERIFY(releasedIdSpy.takeFirst().at(0).toInt() == 23);
 }
 
 #if QT_VERSION >= 0x040200

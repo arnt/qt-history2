@@ -65,6 +65,10 @@ public:
     void notifyChecked();
     void moveFocus(int key);
     void fixFocusPolicy();
+
+    void emitPressed();
+    void emitReleased();
+    void emitClicked();
 };
 
 #endif // QABSTRACTBUTTON_P_H
