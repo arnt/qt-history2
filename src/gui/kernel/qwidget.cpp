@@ -4753,7 +4753,7 @@ void QWidgetPrivate::show_recursive()
     if(sendChildEvents)
         QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
-    if (!q->isWindow() && q->parentWidget()->d_func()->layout)
+    if (!q->isWindow() && q->parentWidget()->d_func()->layout && !q->parentWidget()->data->in_show)
         q->parentWidget()->d_func()->layout->activate();
     // activate our layout before we and our children become visible
     if (layout)
@@ -4972,7 +4972,7 @@ void QWidget::setVisible(bool visible)
 
         if (!isWindow()) {
             QWidget *parent = parentWidget();
-            while (parent && parent->isVisible() && parent->d_func()->layout) {
+            while (parent && parent->isVisible() && parent->d_func()->layout  && !parent->data->in_show) {
                 parent->d_func()->layout->activate();
                 if (parent->isWindow())
                     break;
