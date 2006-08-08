@@ -692,6 +692,61 @@ private:
     mutable QStyleOptionViewItem storedOption;
 };
 
+//Private tool button class
+class QCalToolButton: public QToolButton
+{
+public:
+    QCalToolButton(QWidget * parent)
+        :QToolButton(parent), hover(false) ,oldState(false)
+         {  }
+private: 
+    bool hover, oldState;
+protected:
+    void enterEvent(QEvent * e)
+    {
+        hover = true;
+        QToolButton::enterEvent(e);
+    }
+
+    void leaveEvent(QEvent * e)
+    {
+        hover = false;
+        QToolButton::leaveEvent(e);
+    }
+
+    void mousePressEvent(QMouseEvent * e)
+    {
+        hover = true;
+        QToolButton::mousePressEvent(e);
+    }
+
+    void mouseReleaseEvent(QMouseEvent * e)
+    {
+        hover = true;
+        QToolButton::mouseReleaseEvent(e);
+    }
+
+    void paintEvent(QPaintEvent *e)
+    {
+        QPalette toolPalette = parentWidget()->palette();
+        bool newState = (menu()) ? menu()->isVisible():isDown();
+
+        if (newState || hover) //act as normal button
+            setPalette(toolPalette);
+        else {
+            //set the highlight color for button text 
+            toolPalette.setColor(QPalette::ButtonText, toolPalette.color(QPalette::HighlightedText));
+            setPalette(toolPalette);
+        }
+        if (newState != oldState) {
+            //update the hover if the button is released
+            hover = oldState ? false : hover;
+            oldState = newState;
+        }
+        QToolButton::paintEvent(e);
+    }
+};
+
 class QCalendarWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QCalendarWidget)
@@ -722,9 +777,9 @@ public:
 
     QToolButton *nextMonth;
     QToolButton *prevMonth;
-    QToolButton *monthButton;
+    QCalToolButton *monthButton;
     QMenu *monthMenu;
-    QToolButton *yearButton;
+    QCalToolButton *yearButton;
     QSpinBox *yearEdit;
     QWidget *headerBackground;
     QSpacerItem *spaceHolder;
@@ -784,12 +839,12 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     prevMonth->setAutoRepeat(true);
     nextMonth->setAutoRepeat(true);
 
-    monthButton = new QToolButton(headerBackground);
+    monthButton = new QCalToolButton(headerBackground);
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
     monthMenu = new QMenu(monthButton);
-    yearButton = new QToolButton(headerBackground);
+    yearButton = new QCalToolButton(headerBackground);
     yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
     yearEdit = new QSpinBox(headerBackground);
@@ -874,6 +929,7 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
 
 void QCalendarWidgetPrivate::_q_monthChanged(QAction *act)
 {
+    monthButton->setFocus();
     monthButton->setText(act->text());
     QDate currentDate = getCurrentDate();
     QDate newDate = currentDate.addMonths(act->data().toInt()-currentDate.month());
@@ -912,7 +968,7 @@ void QCalendarWidgetPrivate::_q_yearClicked()
 {
     //show the spinbox on top of the button
     yearEdit->setGeometry(yearButton->x(), yearButton->y(),
-                          yearEdit->sizeHint().width(), yearButton->sizeHint().height());
+                          yearEdit->sizeHint().width(), yearButton->height());
     spaceHolder->changeSize(yearButton->width(), 0);
     yearButton->hide();
     yearEdit->show();
