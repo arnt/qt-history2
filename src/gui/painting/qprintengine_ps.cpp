@@ -96,7 +96,12 @@ static const char *const ps_header =
 "gr}BD/f{/WFi true def BF n}BD/f*{/WFi false def BF n}BD/B{/WFi true def BF S\n"
 "n}BD/B*{/WFi false def BF S n}BD/QI{/C save def pageinit q n}BD/QP{Q C\n"
 "restore showpage}BD/SPD{/setpagedevice where{<< 3 1 roll >> setpagedevice}{\n"
-"pop pop}ie}BD/T1AddGlyphs{10 dict begin/glyphs ED/fnt ED/current fnt\n"
+"pop pop}ie}BD/T1AddMapping{10 dict begin/glyphs ED/fnt ED/current fnt\n"
+"/NumGlyphs get def/CMap fnt/CMap get def 0 1 glyphs length 1 sub{glyphs exch\n"
+"get/gn ED current dup 256 mod/min ED 256 idiv/maj ED CMap dup maj get dup\n"
+"null eq{pop 256 array 0 1 255{1 i exch/.notdef put}for}if dup min gn put maj\n"
+"exch put/current current 1 add def}for fnt/CMap CMap put fnt/NumGlyphs\n"
+"current put end}def/T1AddGlyphs{10 dict begin/glyphs ED/fnt ED/current fnt\n"
 "/NumGlyphs get def/CMap fnt/CMap get def/CharStrings fnt/CharStrings get def\n"
 "0 1 glyphs length 2 idiv 1 sub{2 mul dup glyphs exch get/gn ED 1 add glyphs\n"
 "exch get/cs ED current dup 256 mod/min ED 256 idiv/maj ED CMap dup maj get\n"
@@ -112,6 +117,7 @@ static const char *const ps_header =
 "Page get/Encoding exch put definefont FDepVector exch Page exch put}for\n"
 "FontName cvn <</FontType 0/FMapType 2/FontMatrix[1 0 0 1 0 0]/Encoding\n"
 "Encoding/FDepVector FDepVector >> definefont pop end}def\n";
+
 
 
 #if 0

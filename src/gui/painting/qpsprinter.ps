@@ -332,6 +332,37 @@
 
 % font handling
 
+/T1AddMapping { % basefont [glyphname ...] T1AddMapping -
+  10 dict begin
+    /glyphs exch def
+    /fnt exch def
+    /current fnt /NumGlyphs get def
+    /CMap fnt /CMap get def
+
+    0 1 glyphs length 1 sub % 0 1 (num glyphs - 1)
+    {
+      glyphs exch get /gn exch def
+
+      current dup                                 % glyph_index glyph_index
+      256 mod /min exch def                       % glyph_index
+      256 idiv /maj exch def                      % -
+      CMap dup maj get dup                        % cmap cmap_maj cmap_maj
+      null eq {
+	pop 256 array 
+	0 1 255 {1 index exch /.notdef put} for
+      } if
+      dup                                         % cmap cmap_maj cmap_maj
+      min gn put                                  % cmap cmap_maj
+      maj exch put                                % -
+
+      /current current 1 add def
+    } for
+
+    fnt /CMap CMap put
+    fnt /NumGlyphs current put
+  end 
+} def
+
 /T1AddGlyphs { % basefont [glyphname charstring ...] T1AddGlyphs -
   10 dict begin
     /glyphs exch def

@@ -1642,8 +1642,12 @@ QByteArray QFontSubset::toType1() const
         }
     }
 #endif
-    if (!standard_font) {
-        s << "/F" << id << "-Base <<\n";
+    s << "/F" << id << "-Base\n";
+    if (standard_font) {
+            s << "/" << psname << " findfont\n"
+                "0 dict copy dup /NumGlyphs 0 put dup /CMap 256 array put def\n";
+    } else {
+        s << "<<\n";
         if(!psname.isEmpty())
             s << "/FontName /" << psname << "\n";
         s << "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
@@ -1661,53 +1665,21 @@ QByteArray QFontSubset::toType1() const
             "/NumGlyphs 0\n"
             "/CMap 256 array\n"
             ">> def\n";
-
-        s << "F" << id << "-Base [\n";
-        for (int i = 0; i < nGlyphs; ++i) {
-            glyph_t g = glyph_indices.at(i);
-            QPainterPath path;
-            glyph_metrics_t metric;
-            fontEngine->getUnscaledGlyph(g, &path, &metric);
-            QByteArray charstring = ::charString(path, metric.xoff.toReal(), metric.x.toReal(),
-                                                 properties.emSquare.toReal());
-            s << glyphName(i, reverseMap)
-              << "\n<" << charstring << ">\n";
-        }
-        s << "] T1AddGlyphs\n";
-        s << "(F" << id << ") T1Setup\n";
-    } else {
-        int page = 0;
-        while (nGlyphs > 0) {
-            s << "/F" << id << "-" << page;
-            s << "/" << psname << " findfont\n";
-
-            s << "0 dict copy dup /Encoding 256 array\n"
-                "0 1 255 {1 index exch /.notdef put} for\n";
-            for (int i = 0; i < nGlyphs; ++i)
-                s << "dup " << i << glyphName(i, reverseMap) << " put\n";
-            s << "put definefont pop\n";
-            ++page;
-            nGlyphs -= 256;
-        }
-        s << "/F" << id << " <<\n"
-            "/FontType 0\n"
-            "/FMapType 2\n"
-            "/FontMatrix[1 0 0 1 0 0]\n"
-            "/Encoding [";
-        for (int i = 0; i < page; ++i) {
-            if (page % 16 == 0)
-                s << "\n";
-            s << i;
-        }
-        s << "]\n"
-            "/FDepVector [\n";
-        for (int i = 0; i < page; ++i) {
-            s << "/F" << id << "-" << i
-              << " findfont\n";
-        }
-        s << "]\n"
-            ">> definefont pop\n";
     }
+    s << "F" << id << "-Base [\n";
+    for (int i = 0; i < nGlyphs; ++i) {
+        glyph_t g = glyph_indices.at(i);
+        QPainterPath path;
+        glyph_metrics_t metric;
+        fontEngine->getUnscaledGlyph(g, &path, &metric);
+        QByteArray charstring = ::charString(path, metric.xoff.toReal(), metric.x.toReal(),
+                                             properties.emSquare.toReal());
+        s << glyphName(i, reverseMap);
+        if (!standard_font)
+          s << "\n<" << charstring << ">\n";
+    }
+    s << (standard_font ? "] T1AddMapping\n" : "] T1AddGlyphs\n");
+    s << "(F" << id << ") T1Setup\n";
 
     return font;
 }
