@@ -192,6 +192,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setObjectName(QLatin1String("qt_msgboxex_label"));
     label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+    label->setOpenExternalLinks(true);
     label->setIndent(15);
 
     icon = QMessageBox::NoIcon;
