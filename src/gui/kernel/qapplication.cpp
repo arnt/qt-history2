@@ -514,6 +514,7 @@ void QApplicationPrivate::process_cmdline()
   \o -session \e session, is the same as listed above.
   \o -widgetcount, prints debug message at the end about number of widgets left
         undestroyed and maximum number of widgets existed at the same time
+  \o -reverse, sets the application's layout direction to Qt::RightToLeft
 
   \endlist
 
@@ -541,6 +542,13 @@ void QApplicationPrivate::process_cmdline()
        approximately proportional to a 2x3x1 cube is used.
   \o -cmap, causes the application to install a private color map
        on an 8-bit display.
+  \o -im, sets the input method server (equivalent to setting the XMODIFIERS
+       environment variable)
+  \o -noxim, disables the input method framework ("no X input method").
+  \o -inputstyle, defines how the input is inserted into the given widget. E.g.,
+       \c onTheSpot makes the input appear directly in the widget, while
+       \c overTheSpot makes the input appear in a box floating over the
+       widget and is not inserted until the editing is done.
   \endlist
 
   \sa arguments()
