@@ -113,7 +113,8 @@ class QMessageBoxPrivate : public QDialogPrivate
     Q_DECLARE_PUBLIC(QMessageBox)
 
 public:
-    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), compatMode(false) { }
+    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), compatMode(false),
+                           autoAddOkButton(true) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
     void _q_buttonClicked(QAbstractButton *);
@@ -148,6 +149,7 @@ public:
     QPushButton *defaultButton;
     QAbstractButton *clickedButton;
     bool compatMode;
+    bool autoAddOkButton;
 };
 
 static QString *translatedTextAboutQt = 0;
@@ -393,13 +395,14 @@ QMessageBox::QMessageBox(QWidget *parent)
     \sa setWindowTitle(), setText(), setIcon(), setStandardButtons()
 */
 QMessageBox::QMessageBox(Icon icon, const QString &title, const QString &text,
-                             StandardButtons buttons, QWidget *parent, Qt::WindowFlags f)
+                         StandardButtons buttons, QWidget *parent, Qt::WindowFlags f)
 : QDialog(*new QMessageBoxPrivate, parent, f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     Q_D(QMessageBox);
     d->init(title, text);
     setIcon(icon);
-    setStandardButtons(buttons);
+    if (buttons != NoButton)
+        setStandardButtons(buttons);
 }
 
 /*!
@@ -470,6 +473,7 @@ void QMessageBox::addButton(QAbstractButton *button, ButtonRole role)
     removeButton(button);
     d->buttonBox->addButton(button, (QDialogButtonBox::ButtonRole)role);
     d->customButtonList.append(button);
+    d->autoAddOkButton = false;
 }
 
 /*!
@@ -494,7 +498,10 @@ QPushButton *QMessageBox::addButton(const QString& text, ButtonRole role)
 QPushButton *QMessageBox::addButton(StandardButton button)
 {
     Q_D(QMessageBox);
-    return d->buttonBox->addButton((QDialogButtonBox::StandardButton)button);
+    QPushButton *pushButton = d->buttonBox->addButton((QDialogButtonBox::StandardButton)button);
+    if (pushButton)
+        d->autoAddOkButton = false;
+    return pushButton;
 }
 
 /*!
@@ -531,6 +538,7 @@ void QMessageBox::setStandardButtons(StandardButtons buttons)
         d->escapeButton = 0;
     if (!buttonList.contains(d->defaultButton))
         d->defaultButton = 0;
+    d->autoAddOkButton = false;
 }
 
 QMessageBox::StandardButtons QMessageBox::standardButtons() const
@@ -844,7 +852,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
 void QMessageBox::showEvent(QShowEvent *e)
 {
     Q_D(QMessageBox);
-    if (d->buttonBox->buttons().isEmpty())
+    if (d->autoAddOkButton)
         addButton(Ok);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
