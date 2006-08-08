@@ -2021,8 +2021,9 @@
     \value BackgroundRole      The background brush used for items rendered with
                                the default delegate.
     \value BackgroundColorRole This role is obsolete. Use BackgroundRole instead.
-    \value TextColorRole       The text color used for items rendered with
-                               the default delegate.
+    \value ForegroundRole      The foreground brush (text color, typically)
+                               used for items rendered with the default delegate.
+    \value TextColorRole       This role is obsolete. Use ForegroundRole instead.
     \value CheckStateRole      This role is used to obtain the checked state of
                                an item (see \l Qt::CheckState).
 

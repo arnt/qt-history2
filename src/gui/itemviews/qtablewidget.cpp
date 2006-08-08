@@ -905,9 +905,9 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     Each item can have its own background brush which is set with
     the setBackground() function. The current background brush can be
     found with background().
-    The text label for each item can be rendered with its own font and text
-    color. These are specified with the setFont() and setTextColor() functions,
-    and read with font() and textColor().
+    The text label for each item can be rendered with its own font and brush.
+    These are specified with the setFont() and setForeground() functions,
+    and read with font() and foreground().
 
     By default, items are enabled, editable, selectable, checkable, and can be
     used both as the source of a drag and drop operation and as a drop target.
@@ -1038,7 +1038,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Sets the item's text to the \a text specified.
 
-    \sa text() setFont() setTextColor()
+    \sa text() setFont() setForeground()
 */
 
 /*!
@@ -1118,7 +1118,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Sets the font used to display the item's text to the given \a font.
 
-    \sa font() setText() setTextColor()
+    \sa font() setText() setForeground()
 */
 
 /*!
@@ -1141,7 +1141,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Returns the brush used to render the item's background.
 
-    \sa textColor() setBackground()
+    \sa foreground() setBackground()
 */
 
 /*!
@@ -1150,23 +1150,39 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Sets the item's background brush to the specified \a brush.
 
-    \sa background() setTextColor()
+    \sa background() setForeground()
 */
 
 /*!
     \fn QColor QTableWidgetItem::textColor() const
+    \obsolete
 
-    Returns the color used to render the item's text.
-
-    \sa backgroundColor() setTextColor()
+    This function is deprecated. Use foreground() instead.
 */
 
 /*!
     \fn void QTableWidgetItem::setTextColor(const QColor &color)
+    \obsolete
 
-    Sets the color used to display the item's text to the given \a color.
+    This function is deprecated. Use setForeground() instead.
+*/
 
-    \sa textColor() setFont() setText()
+/*!
+    \fn QBrush QTableWidgetItem::foreground() const
+    \since 4.2
+
+    Returns the brush used to render the item's foreground (e.g. text).
+
+    \sa foreground() setBackground()
+*/
+
+/*!
+    \fn void QTableWidgetItem::setForeground(const QBrush &brush)
+    \since 4.2
+
+    Sets the item's foreground brush to the specified \a brush.
+
+    \sa background() setForeground()
 */
 
 /*!

@@ -1952,10 +1952,10 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.icon = qvariant_cast<QIcon>(variant);
     if (opt.icon.isNull())
         opt.icon = qvariant_cast<QPixmap>(variant);
-    QVariant textColor = d->model->headerData(logicalIndex, orientation(),
-                                    Qt::TextColorRole);
-    if (textColor.isValid() && qvariant_cast<QColor>(textColor).isValid())
-        opt.palette.setColor(QPalette::ButtonText, qvariant_cast<QColor>(textColor));
+    QVariant foregroundBrush = d->model->headerData(logicalIndex, orientation(),
+                                                    Qt::ForegroundRole);
+    if (qVariantCanConvert<QBrush>(foregroundBrush))
+        opt.palette.setBrush(QPalette::ButtonText, qvariant_cast<QBrush>(foregroundBrush));
 
     QPointF oldBO = painter->brushOrigin();
     QVariant backgroundBrush = d->model->headerData(logicalIndex, orientation(),

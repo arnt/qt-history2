@@ -524,10 +524,10 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent,
     Items usually contain text, icons, or checkboxes.
 
     Each item can have its own background brush which is set with the
-    setBackground() function. The current background brush can be found
-    with background().  The text label for each item can be rendered with
-    its own font and text color. These are specified with the setFont() and
-    setTextColor() functions, and read with font() and textColor().
+    setBackground() function. The current background brush can be found with
+    background().  The text label for each item can be rendered with its own
+    font and brush. These are specified with the setFont() and setForeground()
+    functions, and read with font() and foreground().
 
     By default, items are enabled, editable, selectable, checkable, and can be
     used both as the source of a drag and drop operation and as a drop target.
@@ -795,7 +795,7 @@ Qt::ItemFlags QStandardItem::flags() const
 
     Sets the item's text to the \a text specified.
 
-    \sa text(), setFont(), setTextColor()
+    \sa text(), setFont(), setForeground()
 */
 
 /*!
@@ -873,7 +873,7 @@ Qt::ItemFlags QStandardItem::flags() const
 
     Sets the font used to display the item's text to the given \a font.
 
-    \sa font() setText() setTextColor()
+    \sa font() setText() setForeground()
 */
 
 /*!
@@ -881,7 +881,7 @@ Qt::ItemFlags QStandardItem::flags() const
 
     Returns the brush used to render the item's background.
 
-    \sa textColor() setBackground()
+    \sa  foreground() setBackground()
 */
 
 /*!
@@ -889,23 +889,24 @@ Qt::ItemFlags QStandardItem::flags() const
 
     Sets the item's background brush to the specified \a brush.
 
-    \sa background() setTextColor()
+    \sa background() setForeground()
 */
 
 /*!
-    \fn QColor QStandardItem::textColor() const
+    \fn QBrush QStandardItem::foreground() const
 
-    Returns the color used to render the item's text.
+    Returns the brush used to render the item's foreground (e.g. text).
 
-    \sa background() setTextColor()
+    \sa setForeground() background()
 */
 
 /*!
-    \fn void QStandardItem::setTextColor(const QColor &color)
+    \fn void QStandardItem::setForeground(const QBrush &brush)
 
-    Sets the color used to display the item's text to the given \a color.
+    Sets the brush used to display the item's foreground (e.g. text) to the
+    given \a brush.
 
-    \sa textColor() setFont() setText()
+    \sa foreground() setBackground() setFont()
 */
 
 /*!

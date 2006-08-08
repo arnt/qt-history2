@@ -94,12 +94,12 @@ public:
     inline QBrush background() const {
         return qvariant_cast<QBrush>(data(Qt::BackgroundRole));
     }
-    inline void setBackground(const QBrush &backgroundBrush);
+    inline void setBackground(const QBrush &brush);
 
-    inline QColor textColor() const {
-        return qvariant_cast<QColor>(data(Qt::TextColorRole));
+    inline QBrush foreground() const {
+        return qvariant_cast<QBrush>(data(Qt::ForegroundRole));
     }
-    inline void setTextColor(const QColor &textColor);
+    inline void setForeground(const QBrush &brush);
 
     inline Qt::CheckState checkState() const {
         return Qt::CheckState(qvariant_cast<int>(data(Qt::CheckStateRole)));
@@ -245,11 +245,11 @@ inline void QStandardItem::setFont(const QFont &afont)
 inline void QStandardItem::setTextAlignment(Qt::Alignment atextAlignment)
 { setData(int(atextAlignment), Qt::TextAlignmentRole); }
 
-inline void QStandardItem::setBackground(const QBrush &abackgroundBrush)
-{ setData(abackgroundBrush, Qt::BackgroundRole); }
+inline void QStandardItem::setBackground(const QBrush &abrush)
+{ setData(abrush, Qt::BackgroundRole); }
 
-inline void QStandardItem::setTextColor(const QColor &atextColor)
-{ setData(atextColor, Qt::TextColorRole); }
+inline void QStandardItem::setForeground(const QBrush &abrush)
+{ setData(abrush, Qt::ForegroundRole); }
 
 inline void QStandardItem::setCheckState(Qt::CheckState acheckState)
 { setData(acheckState, Qt::CheckStateRole); }

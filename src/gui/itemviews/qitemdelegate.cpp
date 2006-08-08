@@ -168,7 +168,8 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     \row    \o \l Qt::StatusTipRole \o
     \endomit
     \row    \o \l Qt::TextAlignmentRole \o Qt::Alignment
-    \row    \o \l Qt::TextColorRole \o QColor
+    \row    \o \l Qt::ForegroundRole \o QBrush
+    \row    \o \l Qt::TextColorRole \o QColor (obsolete; use Qt::ForegroundRole instead)
     \omit
     \row    \o \l Qt::ToolTipRole
     \row    \o \l Qt::WhatsThisRole
@@ -1055,10 +1056,10 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
     if (value.isValid())
         opt.displayAlignment = (Qt::Alignment)value.toInt();
 
-    // set text color
-    value = index.data(Qt::TextColorRole);
-    if (value.isValid() && qvariant_cast<QColor>(value).isValid())
-        opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
+    // set foreground brush
+    value = index.data(Qt::ForegroundRole);
+    if (qVariantCanConvert<QBrush>(value))
+        opt.palette.setBrush(QPalette::Text, qvariant_cast<QBrush>(value));
 
     return opt;
 }

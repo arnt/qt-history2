@@ -111,6 +111,11 @@ public:
     inline void setTextColor(int column, const QColor &color)
         { setData(column, Qt::TextColorRole, color); }
 
+    inline QBrush foreground(int column) const
+        { return qvariant_cast<QBrush>(data(column, Qt::ForegroundRole)); }
+    inline void setForeground(int column, const QBrush &brush)
+        { setData(column, Qt::ForegroundRole, brush); }
+
     inline Qt::CheckState checkState(int column) const
         { return static_cast<Qt::CheckState>(data(column, Qt::CheckStateRole).toInt()); }
     inline void setCheckState(int column, Qt::CheckState state)

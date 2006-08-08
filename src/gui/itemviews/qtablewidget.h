@@ -120,6 +120,11 @@ public:
     inline void setTextColor(const QColor &color)
         { setData(Qt::TextColorRole, color); }
 
+    inline QBrush foreground() const
+        { return qvariant_cast<QBrush>(data(Qt::ForegroundRole)); }
+    inline void setForeground(const QBrush &brush)
+        { setData(Qt::ForegroundRole, brush); }
+
     inline Qt::CheckState checkState() const
         { return static_cast<Qt::CheckState>(data(Qt::CheckStateRole).toInt()); }
     inline void setCheckState(Qt::CheckState state)
