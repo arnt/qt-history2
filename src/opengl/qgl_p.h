@@ -63,6 +63,29 @@ typedef void (APIENTRY *_glDeleteProgramsARB) (GLsizei, const GLuint *);
 typedef void (APIENTRY *_glGenProgramsARB) (GLsizei, GLuint *);
 typedef void (APIENTRY *_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
 
+// GLSL
+typedef GLuint (APIENTRY *_glCreateShader) (GLenum);
+typedef void (APIENTRY *_glShaderSource) (GLuint, GLsizei, const char **, const GLint *);
+typedef void (APIENTRY *_glCompileShader) (GLuint);
+typedef void (APIENTRY *_glDeleteShader) (GLuint);
+
+typedef GLuint (APIENTRY *_glCreateProgram) (GLvoid);
+typedef void (APIENTRY *_glAttachShader) (GLuint, GLuint);
+typedef void (APIENTRY *_glDetachShader) (GLuint, GLuint);
+typedef void (APIENTRY *_glLinkProgram) (GLuint);
+typedef void (APIENTRY *_glUseProgram) (GLuint);
+typedef void (APIENTRY *_glDeleteProgram) (GLuint);
+
+typedef void (APIENTRY *_glGetShaderInfoLog) (GLuint, GLsizei, GLsizei *, char *);
+typedef void (APIENTRY *_glGetProgramiv) (GLuint, GLenum, GLint *);
+
+typedef GLuint (APIENTRY *_glGetUniformLocation) (GLuint, const char*);
+typedef void (APIENTRY *_glUniform4fv) (GLint, GLsizei, GLfloat *);
+typedef void (APIENTRY *_glUniform3fv) (GLint, GLsizei, GLfloat *);
+typedef void (APIENTRY *_glUniform2fv) (GLint, GLsizei, GLfloat *);
+typedef void (APIENTRY *_glUniform1fv) (GLint, GLsizei, GLfloat *);
+typedef void (APIENTRY *_glUniform1i) (GLint, GLint);
+
 // EXT_GL_framebuffer_object
 typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
 typedef void (APIENTRYP PFNGLBINDRENDERBUFFEREXTPROC) (GLenum target, GLuint renderbuffer);
@@ -149,6 +172,28 @@ public:
         qt_glGenProgramsARB = 0;
         qt_glProgramLocalParameter4fvARB = 0;
 
+        qt_glCreateShader = 0;
+        qt_glShaderSource = 0;
+        qt_glCompileShader = 0;
+        qt_glDeleteShader = 0;
+
+        qt_glCreateProgram = 0;
+        qt_glAttachShader = 0;
+        qt_glDetachShader = 0;
+        qt_glLinkProgram = 0;
+        qt_glUseProgram = 0;
+        qt_glDeleteProgram = 0;
+
+        qt_glGetShaderInfoLog = 0;
+        qt_glGetProgramiv = 0;
+
+        qt_glGetUniformLocation = 0;
+        qt_glUniform4fv = 0;
+        qt_glUniform3fv = 0;
+        qt_glUniform2fv = 0;
+        qt_glUniform1fv = 0;
+        qt_glUniform1i = 0;
+
         qt_glIsRenderbufferEXT = 0;
         qt_glBindRenderbufferEXT = 0;
         qt_glDeleteRenderbuffersEXT = 0;
@@ -213,6 +258,29 @@ public:
     _glDeleteProgramsARB qt_glDeleteProgramsARB;
     _glGenProgramsARB qt_glGenProgramsARB;
     _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB;
+
+    // GLSL definitions
+    _glCreateShader qt_glCreateShader;
+    _glShaderSource qt_glShaderSource;
+    _glCompileShader qt_glCompileShader;
+    _glDeleteShader qt_glDeleteShader;
+
+    _glCreateProgram qt_glCreateProgram;
+    _glAttachShader qt_glAttachShader;
+    _glDetachShader qt_glDetachShader;
+    _glLinkProgram qt_glLinkProgram;
+    _glUseProgram qt_glUseProgram;
+    _glDeleteProgram qt_glDeleteProgram;
+
+    _glGetShaderInfoLog qt_glGetShaderInfoLog;
+    _glGetProgramiv qt_glGetProgramiv;
+
+    _glGetUniformLocation qt_glGetUniformLocation;
+    _glUniform4fv qt_glUniform4fv;
+    _glUniform3fv qt_glUniform3fv;
+    _glUniform2fv qt_glUniform2fv;
+    _glUniform1fv qt_glUniform1fv;
+    _glUniform1i qt_glUniform1i;
 
     PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
     PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
