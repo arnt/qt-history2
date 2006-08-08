@@ -469,8 +469,8 @@
     \printline int main
     \printuntil }
 
-    Here we instantiate our new child, set it to be the main widget, and
-    execute the application.
+    Here we instantiate our new child, show it, and execute the
+    application.
 
     \section1 Running the Application
 
@@ -653,10 +653,13 @@
 
     \printline grid
 
-    We create a QWidget with a QGridLayout that will contain three columns.
-    The QGridLayout automatically arranges its widgets in rows and columns;
-    you can specify the row and column numbers when adding widgets to the
-    layout, and QGridLayout will fit them into the grid.
+    We create a QWidget with a QGridLayout that will contain three
+    columns.
+
+    The QGridLayout automatically arranges its widgets in rows and
+    columns; you can specify the row and column numbers when adding
+    widgets to the layout, and QGridLayout will fit them into the
+    grid.
 
     \printline for
     \printline for
@@ -668,8 +671,14 @@
     the grid object, and we arrange them in three rows and three
     columns.
 
-    \skipto }
-    \printline }
+    \skipto layout
+    \printuntil /^\}/
+
+    Finally, we add the \gui Quit button and the grid layout
+    containing \c LCDRange widgets, to the main layout. The
+    QWidget::addLayout() function is similar to the
+    QWidget::addWidget() function, making the given layout a child og
+    the main layout.
 
     That's all.
 
@@ -997,15 +1006,17 @@
     \printuntil drawText
     \printuntil }
 
-    This is our first attempt to write a paint event handler. The event
-    argument contains a description of the paint event. QPaintEvent
-    contains the region in the widget that must be updated. For the time
-    being, we will be lazy and just paint everything.
+    This is our first attempt to write a paint event handler. The
+    event argument contains information about the paint event, for
+    example information about the region in the widget that must be
+    updated. For the time being, we will be lazy and just paint
+    everything.
 
-    Our code displays the angle value in the widget at a fixed position.
-    First we create a QString with some text and the angle; then we create
-    a QPainter operating on this widget and use it to paint the string.
-    We'll come back to QPainter later; it can do a great many things.
+    Our code displays the angle value in the widget at a fixed
+    position.  To achieve this we create a QPainter operating on the
+    \c CannonField widget and use it to paint a string representation
+    of the \c currentAngle value. We'll come back to QPainter later;
+    it can do a great many things
 
     \section2 \l{tutorial/t8/main.cpp}{t8/main.cpp}
 
@@ -1401,7 +1412,8 @@
     Try adding a better keyboard interface. For example, make \key{+}
     and \key{-} increase and decrease the force and enter shoot. If
     you're bothered by the way the \key{Left} and \key{Right} keys
-    work, change that too.
+    work, change that too. [Hint: Reimplement
+    QWidget::keyPressEvent().]
 */
 
 /*! \example tutorial/t11
