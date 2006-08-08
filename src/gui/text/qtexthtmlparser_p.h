@@ -162,8 +162,8 @@ struct QTextHtmlParserNode {
     int fontPixelSize;
     int fontSizeAdjustment;
     int fontWeight;
-    QColor color;
-    QColor bgColor;
+    QBrush foreground;
+    QBrush background;
     Qt::Alignment alignment;
     QTextCharFormat::VerticalAlignment verticalAlignment;
     QTextListFormat::Style listStyle;

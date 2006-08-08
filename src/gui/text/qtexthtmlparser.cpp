@@ -454,10 +454,10 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
     if (fontWeight > 0)
         format.setFontWeight(fontWeight);
-    if (color.isValid())
-        format.setForeground(QBrush(color));
-    if (bgColor.isValid())
-        format.setBackground(QBrush(bgColor));
+    if (foreground.style() != Qt::NoBrush)
+        format.setForeground(foreground);
+    if (background.style() != Qt::NoBrush)
+        format.setBackground(background);
     if (verticalAlignment != QTextCharFormat::AlignNormal)
         format.setVerticalAlignment(verticalAlignment);
     if (isAnchor) {
@@ -1036,7 +1036,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontSizeAdjustment = parent->fontSizeAdjustment;
     hasFontSizeAdjustment = parent->hasFontSizeAdjustment;
     fontWeight = parent->fontWeight;
-    color = parent->color;
+    foreground = parent->foreground;
     verticalAlignment = parent->verticalAlignment;
 
     if (parent->displayMode == QTextHtmlElement::DisplayNone)
@@ -1048,7 +1048,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     // we don't paint per-row background colors, yet. so as an
     // exception inherit the background color here
     if (parent->id == Html_tr && isTableCell) {
-        bgColor = parent->bgColor;
+        background = parent->background;
     }
 
     listStyle = parent->listStyle;
@@ -1076,7 +1076,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
                 if (key.compare(QLatin1String("href"), Qt::CaseInsensitive) == 0
                     && !attributes.at(i + 1).isEmpty()) {
                     fontUnderline = true;
-                    color = Qt::blue;
+                    foreground = Qt::blue;
                 }
             }
 
@@ -1227,8 +1227,8 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         const QCss::Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty()) continue;
         switch (decl.propertyId) {
-            case QCss::Color: color = decl.colorValue(); break;
-            case QCss::BackgroundColor: bgColor = decl.colorValue(); break;
+            case QCss::Color: foreground = decl.colorValue(); break;
+            case QCss::BackgroundColor: background = decl.colorValue(); break;
             case QCss::Float:
                 cssFloat = QTextFrameFormat::InFlow;
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
@@ -1423,7 +1423,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 } else if (key == QLatin1String("face")) {
                     node->fontFamily = value;
                 } else if (key == QLatin1String("color")) {
-                    node->color.setNamedColor(value);
+                    QColor c; c.setNamedColor(value);
+                    node->foreground = c;
                 }
                 break;
             case Html_ol:
@@ -1464,15 +1465,18 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 break;
             case Html_tr:
             case Html_body:
-                if (key == QLatin1String("bgcolor"))
-                    node->bgColor.setNamedColor(value);
+                if (key == QLatin1String("bgcolor")) {
+                    QColor c; c.setNamedColor(value);
+                    node->background = c;
+                }
                 break;
             case Html_th:
             case Html_td:
                 if (key == QLatin1String("width")) {
                     setWidthAttribute(&node->width, value);
                 } else if (key == QLatin1String("bgcolor")) {
-                    node->bgColor.setNamedColor(value);
+                    QColor c; c.setNamedColor(value);
+                    node->background = c;
                 } else if (key == QLatin1String("rowspan")) {
                     setIntAttribute(&node->tableCellRowSpan, value);
                 } else if (key == QLatin1String("colspan")) {
@@ -1483,7 +1487,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 if (key == QLatin1String("border")) {
                     setFloatAttribute(&node->tableBorder, value);
                 } else if (key == QLatin1String("bgcolor")) {
-                    node->bgColor.setNamedColor(value);
+                    QColor c; c.setNamedColor(value);
+                    node->background = c;
                 } else if (key == QLatin1String("cellspacing")) {
                     setFloatAttribute(&node->tableCellSpacing, value);
                 } else if (key == QLatin1String("cellpadding")) {

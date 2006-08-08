@@ -472,11 +472,11 @@ void QTextHtmlImporter::import()
             continue;
         } else if (node->id == Html_body) {
             containsCompleteDoc = true;
-            if (node->bgColor.isValid()) {
+            if (node->background.style() != Qt::NoBrush) {
                 QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-                fmt.setBackground(node->bgColor);
+                fmt.setBackground(node->background);
                 doc->rootFrame()->setFrameFormat(fmt);
-                const_cast<QTextHtmlParserNode *>(node)->bgColor = QColor();
+                const_cast<QTextHtmlParserNode *>(node)->background = QBrush();
             }
         } else if (node->isListStart) {
 
@@ -558,8 +558,8 @@ void QTextHtmlImporter::import()
                 }
                 hasBlock = true;
 
-                if (node->bgColor.isValid()) {
-                    charFmt.setBackground(QBrush(node->bgColor));
+                if (node->background.style() != Qt::NoBrush) {
+                    charFmt.setBackground(node->background);
                     cursor.mergeBlockCharFormat(charFmt);
                 }
             }
@@ -609,8 +609,8 @@ void QTextHtmlImporter::import()
             if (node->wsm == QTextHtmlParserNode::WhiteSpacePre)
                 block.setNonBreakableLines(true);
 
-            if (node->bgColor.isValid() && !node->isTableCell)
-                block.setBackground(QBrush(node->bgColor));
+            if (node->background.style() != Qt::NoBrush && !node->isTableCell)
+                block.setBackground(node->background);
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
                 if (cursor.position() == 0) {
@@ -838,8 +838,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 
     if (node.direction < 2)
         fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
-    if (node.bgColor.isValid())
-        fmt.setBackground(QBrush(node.bgColor));
+    if (node.background.style() != Qt::NoBrush)
+        fmt.setBackground(node.background);
     else
         fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
