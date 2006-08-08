@@ -767,28 +767,16 @@ void QTextHtmlParser::parseTag()
     node->isListStart = (node->id == Html_ol || node->id == Html_ul);
     node->isTableCell = (node->id == Html_td || node->id == Html_th);
 
-    resolveParent();
-    resolveNode();
-    QColor inheritedNodeColor = node->color;
-    node->color = QColor();
-
     node->attributes.clear();
     // _need_ at least one space after the tag name, otherwise there can't be attributes
     if (pos < len && txt.at(pos).isSpace())
         node->attributes = parseAttributes();
 
+    resolveParent();
+    resolveNode();
+
     node->applyCssDeclarations(declarationsForNode(nodeIndex));
     applyAttributes(node->attributes);
-
-    // special handling for anchors with href attribute (hyperlinks)
-    if (node->isAnchor && !node->anchorHref.isEmpty()) {
-        node->fontUnderline = On; // #### remove 4.2
-        if (!node->color.isValid())
-            node->color = Qt::blue; // #### remove 4.2
-    } else {
-        if (!node->color.isValid())
-            node->color = inheritedNodeColor;
-    }
 
     // finish tag
     bool tagClosed = false;
@@ -1083,6 +1071,15 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     switch (id) {
         case Html_a:
             isAnchor = true;
+            for (int i = 0; i < attributes.count(); i += 2) {
+                const QString key = attributes.at(i);
+                if (key.compare(QLatin1String("href"), Qt::CaseInsensitive) == 0
+                    && !attributes.at(i + 1).isEmpty()) {
+                    fontUnderline = true;
+                    color = Qt::blue;
+                }
+            }
+
             break;
         case Html_em:
         case Html_i:
