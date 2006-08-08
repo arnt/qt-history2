@@ -329,7 +329,7 @@ struct PageRule;
 struct ImportRule;
 
 void extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment);
-void Q_AUTOTEST_EXPORT extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
+Q_AUTOTEST_EXPORT void extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
                                                    Repeat *repeat, Qt::Alignment *alignment);
 
 struct Q_GUI_EXPORT StyleRule
