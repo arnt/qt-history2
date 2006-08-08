@@ -570,20 +570,20 @@ static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
                2 = fmp
                4 = radius
 
-               This program is included from radial.frag, see also src/gui/util/README_Cg
+               This program is included from radial.frag, see also src/opengl/util/README-GLSL
 */
 static const char *const radial_program =
-#include "radial.frag"
+#include "util/radial.frag"
 
 /*  conical fragment program
     parameter: 0 = inv_matrix
                1 = inv_matrix_offset
                4 = angle
-               
-               This program is included from conical.frag, see also src/gui/util/README_Cg
+
+               This program is included from conical.frag, see also src/opengl/util/README-GLSL
 */
 static const char *const conical_program =
-#include "conical.frag"
+#include "util/conical.frag"
 
 #ifdef Q_WS_WIN
 bool qt_resolve_frag_program_extensions(QGLContext *ctx)
