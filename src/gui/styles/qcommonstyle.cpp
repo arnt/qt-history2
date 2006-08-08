@@ -385,21 +385,21 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 QPolygon pa(3);
                 p->setPen(QPen(opt->palette.light(), 0));
                 p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
-                            opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+                            opt->rect.x() + opt->rect.width() / 2, opt->rect.y() + opt->rect.height());
                 p->setPen(QPen(opt->palette.dark(), 0));
-                pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
+                pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.y() + opt->rect.height());
                 pa.setPoint(1, opt->rect.x(), opt->rect.y());
                 pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
                 p->drawPolyline(pa);
             } else if (header->sortIndicator & QStyleOptionHeader::SortDown) {
                 QPolygon pa(3);
                 p->setPen(QPen(opt->palette.light(), 0));
-                pa.setPoint(0, opt->rect.x(), opt->rect.height());
-                pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
+                pa.setPoint(0, opt->rect.x(), opt->rect.y() + opt->rect.height());
+                pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.y() + opt->rect.height());
                 pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
                 p->drawPolyline(pa);
                 p->setPen(QPen(opt->palette.dark(), 0));
-                p->drawLine(opt->rect.x(), opt->rect.height(),
+                p->drawLine(opt->rect.x(), opt->rect.y() + opt->rect.height(),
                             opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
             }
             p->setPen(oldPen);
@@ -1704,8 +1704,12 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
 
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             // Subtract width needed for arrow, if there is one
-            if (header->sortIndicator != QStyleOptionHeader::None)
-                r.setWidth(r.width() - (opt->rect.height() / 2) - (margin * 2));
+            if (header->sortIndicator != QStyleOptionHeader::None) {
+                if (opt->state & State_Horizontal)
+                    r.setWidth(r.width() - (opt->rect.height() / 2) - (margin * 2));
+                else
+                    r.setHeight(r.height() - (opt->rect.width() / 2) - (margin * 2));
+            }
         }
         r = visualRect(opt->direction, opt->rect, r);
         break; }
@@ -1715,10 +1719,16 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         int x = opt->rect.x();
         int y = opt->rect.y();
         int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
-        if (opt->state & State_Horizontal)
-            r.setRect(x + w - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
-        else
-            r.setRect(x + 5, y, h / 2, h - margin * 2);
+                        
+        if (opt->state & State_Horizontal) {
+            int horiz_size = h / 2;
+            r.setRect(x + w - margin * 2 - horiz_size, y + 5, 
+                      horiz_size, h - margin * 2 - 5);
+        } else {
+            int vert_size = w / 2;
+            r.setRect(x + 5, y + h - margin * 2 - vert_size, 
+                      w - margin * 2 - 5, vert_size);
+        }
         r = visualRect(opt->direction, opt->rect, r);
         break; }
 
