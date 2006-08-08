@@ -350,8 +350,8 @@ public:
     void insertColumn(int column, const QList<QStandardItem*> &items);
     inline void insertRow(int row, QStandardItem *item);
 
-    inline void insertRow(int row, const QModelIndex &parent = QModelIndex());
-    inline void insertColumn(int column, const QModelIndex &parent = QModelIndex());
+    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex());
+    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex());
 
     QStandardItem *takeItem(int row, int column = 0);
     QList<QStandardItem*> takeRow(int row);
@@ -395,10 +395,10 @@ inline void QStandardItemModel::appendRow(QStandardItem *aitem)
 inline void QStandardItemModel::insertRow(int arow, QStandardItem *aitem)
 { insertRow(arow, QList<QStandardItem*>() << aitem); }
 
-inline void QStandardItemModel::insertRow(int arow, const QModelIndex &aparent)
-{ QAbstractItemModel::insertRow(arow, aparent); }
-inline void QStandardItemModel::insertColumn(int acolumn, const QModelIndex &aparent)
-{ QAbstractItemModel::insertColumn(acolumn, aparent); }
+inline bool QStandardItemModel::insertRow(int arow, const QModelIndex &aparent)
+{ return QAbstractItemModel::insertRow(arow, aparent); }
+inline bool QStandardItemModel::insertColumn(int acolumn, const QModelIndex &aparent)
+{ return QAbstractItemModel::insertColumn(acolumn, aparent); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QStandardItem &item);
