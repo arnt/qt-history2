@@ -810,7 +810,7 @@ int QGLFormat::stencilBufferSize() const
     object has been created.
 */
 
-QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT openGLVersionFlagsFromString(const QString &versionString)
+QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(const QString &versionString)
 {
     QGLFormat::OpenGLVersionFlags versionFlags = QGLFormat::OpenGL_Version_None;
 
@@ -952,7 +952,7 @@ QGLFormat::OpenGLVersionFlags QGLFormat::openGLVersionFlags()
         firstTime = false;
 
         QString versionString(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-        versionFlags = openGLVersionFlagsFromString(versionString);
+        versionFlags = qOpenGLVersionFlagsFromString(versionString);
     }
 
     return versionFlags;
