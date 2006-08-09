@@ -746,35 +746,12 @@ void QTextDocument::setHtml(const QString &html)
     \sa metaInformation(), setMetaInformation()
 */
 
-static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset,
-                        QTextDocument::FindFlags options, QTextCursor &cursor)
-{
-    const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
-
-    const int idx = (options & QTextDocument::FindBackward) ?
-                    text.lastIndexOf(expression, offset, cs) : text.indexOf(expression, offset, cs);
-    if (idx == -1)
-        return false;
-
-    if (options & QTextDocument::FindWholeWords) {
-        const int start = idx;
-        const int end = start + expression.length();
-        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
-                || (end != text.length() && text.at(end).isLetterOrNumber()))
-            return false;
-    }
-
-    cursor = QTextCursor(block.docHandle(), block.position() + idx);
-    cursor.setPosition(cursor.position() + expression.length(), QTextCursor::KeepAnchor);
-    return true;
-}
-
 /*!
-    \fn QTextCursor QTextDocument::find(const QString &expr, int position, FindFlags options) const
+    \fn QTextCursor QTextDocument::find(const QString &subString, int position, FindFlags options) const
 
     \overload
 
-    Finds the next occurrence of the string, \a expr, in the document.
+    Finds the next occurrence of the string, \a subString, in the document.
     The search starts at the given \a position, and proceeds forwards
     through the document unless specified otherwise in the search options.
     The \a options control the type of search performed.
@@ -785,7 +762,93 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QStr
     If the \a position is 0 (the default) the search begins from the beginning
     of the document; otherwise it begins at the specified position.
 */
-QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options) const
+QTextCursor QTextDocument::find(const QString &subString, int from, FindFlags options) const
+{
+    QRegExp expr(subString);
+    expr.setPatternSyntax(QRegExp::FixedString);
+    expr.setCaseSensitivity((options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    
+    return find(expr, from, options);
+}
+
+/*!
+    \fn QTextCursor QTextDocument::find(const QString &subString, const QTextCursor &cursor, FindFlags options) const
+
+    Finds the next occurrence of the string, \a subString, in the document.
+    The search starts at the position of the given \a cursor, and proceeds
+    forwards through the document unless specified otherwise in the search
+    options. The \a options control the type of search performed.
+
+    Returns a cursor with the match selected if \a subString was found; otherwise
+    returns a null cursor.
+
+    If the given \a cursor has a selection, the search begins after the
+    selection; otherwise it begins at the cursor's position.
+
+    By default the search is case-sensitive, and can match text anywhere in the
+    document.
+*/
+QTextCursor QTextDocument::find(const QString &subString, const QTextCursor &from, FindFlags options) const
+{
+    const int pos = (from.isNull() ? 0 : from.selectionEnd());
+    QRegExp expr(subString);
+    expr.setPatternSyntax(QRegExp::FixedString);
+    expr.setCaseSensitivity((options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+
+    return find(expr, pos, options);
+}
+
+
+static bool findInBlock(const QTextBlock &block, const QString &text, const QRegExp &expression, int offset,
+                        QTextDocument::FindFlags options, QTextCursor &cursor)
+{
+    const QRegExp expr(expression);
+    
+    int idx = -1;
+    while (offset >=0 && offset <= text.length()) {
+        idx = (options & QTextDocument::FindBackward) ?
+               expr.lastIndexIn(text, offset) : expr.indexIn(text, offset);
+        if (idx == -1)
+            return false;
+
+        if (options & QTextDocument::FindWholeWords) {
+            const int start = idx;
+            const int end = start + expr.matchedLength();
+            if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                || (end != text.length() && text.at(end).isLetterOrNumber())) {
+                //if this is not a whole word, continue the search in the string
+                offset = (options & QTextDocument::FindBackward) ? idx-1 : end+1;  
+                continue; 
+            }
+        }
+        //we have a hit, return the cursor for that.
+        break;
+    }
+    if (idx == -1)
+        return false;
+    cursor = QTextCursor(block.docHandle(), block.position() + idx);
+    cursor.setPosition(cursor.position() + expr.matchedLength(), QTextCursor::KeepAnchor);
+    return true;
+}
+
+/*!
+    \fn QTextCursor QTextDocument::find(const QRegExp & expr, int position, FindFlags options) const
+
+    \overload
+
+    Finds the next occurrence, matching the regular expression, \a expr, in the document.
+    The search starts at the given \a position, and proceeds forwards
+    through the document unless specified otherwise in the search options.
+    The \a options control the type of search performed. The FindCaseSensitively 
+    option is ignored for this overload, use QRegExp::caseSensitivity instead.
+
+    Returns a cursor with the match selected if a match was found; otherwise
+    returns a null cursor.
+
+    If the \a position is 0 (the default) the search begins from the beginning
+    of the document; otherwise it begins at the specified position.
+*/
+QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags options) const
 {
     Q_D(const QTextDocument);
 
@@ -798,35 +861,21 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
     QTextBlock block = d->blocksFind(pos);
 
     if (!(options & FindBackward)) {
+       int blockOffset = qMax(0, pos - block.position());
         while (block.isValid()) {
-            int blockOffset = qMax(0, pos - block.position());
             const QString blockText = block.text();
-
-            const int blockLength = block.length();
-            while (blockOffset < blockLength) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
-                    return cursor;
-
-                blockOffset += expr.length();
-            }
-
+            if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+                return cursor;
+            blockOffset = 0;
             block = block.next();
         }
     } else {
+        int blockOffset = pos - block.position();
         while (block.isValid()) {
-            int blockOffset = pos - block.position() - expr.size() - 1;
-            if (blockOffset > block.length())
-                blockOffset = block.length() - 1;
-
             const QString blockText = block.text();
-
-            while (blockOffset >= 0) {
-                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
-                    return cursor;
-
-                blockOffset -= expr.length();
-            }
-
+            if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
+                return cursor;
+            blockOffset = block.length() - 1;
             block = block.previous();
         }
     }
@@ -835,14 +884,15 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 }
 
 /*!
-    \fn QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &cursor, FindFlags options) const
+    \fn QTextCursor QTextDocument::find(const QRegExp &expr, const QTextCursor &cursor, FindFlags options) const
 
-    Finds the next occurrence of the string, \a expr, in the document.
+    Finds the next occurrence, matching the regular expression, \a expr, in the document.
     The search starts at the position of the given \a cursor, and proceeds
     forwards through the document unless specified otherwise in the search
-    options. The \a options control the type of search performed.
+    options. The \a options control the type of search performed. The FindCaseSensitively 
+    option is ignored for this overload, use QRegExp::caseSensitivity instead.
 
-    Returns a cursor with the match selected if \a expr was found; otherwise
+    Returns a cursor with the match selected if a match was found; otherwise
     returns a null cursor.
 
     If the given \a cursor has a selection, the search begins after the
@@ -851,12 +901,11 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
     By default the search is case-sensitive, and can match text anywhere in the
     document.
 */
-QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options) const
+QTextCursor QTextDocument::find(const QRegExp &expr, const QTextCursor &from, FindFlags options) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
     return find(expr, pos, options);
 }
-
 
 
 /*!
