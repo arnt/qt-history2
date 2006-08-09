@@ -14,15 +14,11 @@
 #include "pathstroke.h"
 #include <QApplication>
 
-bool USE_OPENGL = false;
 int main(int argc, char **argv)
 {
     Q_INIT_RESOURCE(pathstroke);
 
     QApplication app(argc, argv);
-    if (app.arguments().size() > 1
-        && app.arguments().at(1) == QLatin1String("-opengl"))
-        USE_OPENGL = true;
 
     PathStrokeWidget pathStrokeWidget;
     QStyle *arthurStyle = new ArthurStyle();

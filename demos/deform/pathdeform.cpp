@@ -70,6 +70,11 @@ PathDeformWidget::PathDeformWidget(QWidget *parent)
     showSourceButton->setText("Show Source");
 //     showSourceButton->setCheckable(true);
 
+    QPushButton *enableOpenGLButton = new QPushButton(mainGroup);
+    enableOpenGLButton->setText("Use OpenGL");
+    enableOpenGLButton->setCheckable(true);
+    enableOpenGLButton->setChecked(m_renderer->usesOpenGL());
+
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
@@ -88,6 +93,7 @@ PathDeformWidget::PathDeformWidget(QWidget *parent)
     mainGroupLayout->addWidget(animateButton);
     mainGroupLayout->addStretch(1);
     mainGroupLayout->addWidget(showSourceButton);
+    mainGroupLayout->addWidget(enableOpenGLButton);
     mainGroupLayout->addWidget(whatsThisButton);
 
     QVBoxLayout *radiusGroupLayout = new QVBoxLayout(radiusGroup);
@@ -109,6 +115,7 @@ PathDeformWidget::PathDeformWidget(QWidget *parent)
     connect(animateButton, SIGNAL(clicked(bool)), m_renderer, SLOT(setAnimated(bool)));
     connect(whatsThisButton, SIGNAL(clicked(bool)), m_renderer, SLOT(setDescriptionEnabled(bool)));
     connect(showSourceButton, SIGNAL(clicked()), m_renderer, SLOT(showSource()));
+    connect(enableOpenGLButton, SIGNAL(clicked(bool)), m_renderer, SLOT(enableOpenGL(bool)));
     connect(m_renderer, SIGNAL(descriptionEnabledChanged(bool)),
             whatsThisButton, SLOT(setChecked(bool)));
 
@@ -135,9 +142,8 @@ static inline QRect circle_bounds(const QPointF &center, double radius, double c
 
 const int LENS_EXTENT = 10;
 
-extern bool USE_OPENGL;
 PathDeformRenderer::PathDeformRenderer(QWidget *widget)
-    : ArthurFrame(widget, USE_OPENGL)
+    : ArthurFrame(widget)
 {
     m_radius = 100;
     m_pos = QPointF(m_radius, m_radius);
@@ -285,7 +291,7 @@ void PathDeformRenderer::timerEvent(QTimerEvent *e)
         }
 
 #ifdef QT_OPENGL_SUPPORT
-        if (glWidget()) {
+        if (usesOpenGL()) {
             update();
         } else
 #endif
@@ -334,7 +340,7 @@ void PathDeformRenderer::mouseMoveEvent(QMouseEvent *e)
     }
     m_pos = e->pos() + m_offset;
 #ifdef QT_OPENGL_SUPPORT
-    if (glWidget()) {
+    if (usesOpenGL()) {
         update();
     } else
 #endif

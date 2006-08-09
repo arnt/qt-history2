@@ -25,8 +25,6 @@
 #include "hoverpoints.h"
 #include "composition.h"
 
-bool USE_OPENGL = false;
-
 class QDesignerFormEditorInterface;
 class PathDeformRendererEx : public PathDeformRenderer
 {

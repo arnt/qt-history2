@@ -39,7 +39,7 @@ class ArthurFrame : public QWidget
 {
     Q_OBJECT
 public:
-    ArthurFrame(QWidget *parent, bool use_opengl=false);
+    ArthurFrame(QWidget *parent);
     virtual void paint(QPainter *) {}
 
 
@@ -61,6 +61,19 @@ public slots:
     void setDescriptionEnabled(bool enabled);
     void showSource();
 
+#if defined(QT_OPENGL_SUPPORT)
+    void enableOpenGL(bool use_opengl)
+    {
+        m_use_opengl = use_opengl;
+        if (use_opengl)
+            glw->show();
+        else
+            glw->hide();
+    }
+
+    bool usesOpenGL() { return m_use_opengl; }
+#endif
+
 signals:
     void descriptionEnabledChanged(bool);
 
@@ -70,6 +83,7 @@ protected:
 
 #if defined(QT_OPENGL_SUPPORT)
     GLWidget *glw;
+    bool m_use_opengl;
 #endif
     QPixmap m_tile;
 

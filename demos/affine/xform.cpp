@@ -20,9 +20,8 @@
 
 const int alpha = 155;
 
-extern bool USE_OPENGL;
 XFormView::XFormView(QWidget *parent)
-    : ArthurFrame(parent, USE_OPENGL)
+    : ArthurFrame(parent)
 {
     setAttribute(Qt::WA_MouseTracking);
     type = VectorType;
@@ -765,6 +764,11 @@ XFormWidget::XFormWidget(QWidget *parent)
     QPushButton *showSourceButton = new QPushButton(mainGroup);
     showSourceButton->setText("Show Source");
 
+    QPushButton *enableOpenGLButton = new QPushButton(mainGroup);
+    enableOpenGLButton->setText("Use OpenGL");
+    enableOpenGLButton->setCheckable(true);
+    enableOpenGLButton->setChecked(view->usesOpenGL());
+
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
@@ -798,6 +802,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     mainGroupLayout->addWidget(resetButton);
     mainGroupLayout->addWidget(animateButton);
     mainGroupLayout->addWidget(showSourceButton);
+    mainGroupLayout->addWidget(enableOpenGLButton);
     mainGroupLayout->addWidget(whatsThisButton);
 
     connect(rotateSlider, SIGNAL(valueChanged(int)), view, SLOT(changeRotation(int)));
@@ -821,6 +826,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     connect(view, SIGNAL(descriptionEnabledChanged(bool)), view->hoverPoints(), SLOT(setDisabled(bool)));
     connect(view, SIGNAL(descriptionEnabledChanged(bool)), whatsThisButton, SLOT(setChecked(bool)));
     connect(showSourceButton, SIGNAL(clicked()), view, SLOT(showSource()));
+    connect(enableOpenGLButton, SIGNAL(clicked(bool)), view, SLOT(enableOpenGL(bool)));
 
     view->loadSourceFile(":res/xform.cpp");
     view->loadDescription(":res/xform.html");

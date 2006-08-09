@@ -124,6 +124,11 @@ PathStrokeWidget::PathStrokeWidget()
     QPushButton *showSourceButton = new QPushButton(mainGroup);
     showSourceButton->setText("Show Source");
 
+    QPushButton *enableOpenGLButton = new QPushButton(mainGroup);
+    enableOpenGLButton->setText("Use OpenGL");
+    enableOpenGLButton->setCheckable(true);
+    enableOpenGLButton->setChecked(m_renderer->usesOpenGL());
+
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
@@ -143,6 +148,7 @@ PathStrokeWidget::PathStrokeWidget()
     mainGroupLayout->addWidget(animated);
     mainGroupLayout->addStretch(1);
     mainGroupLayout->addWidget(showSourceButton);
+    mainGroupLayout->addWidget(enableOpenGLButton);
     mainGroupLayout->addWidget(whatsThisButton);
 
     QVBoxLayout *capGroupLayout = new QVBoxLayout(capGroup);
@@ -195,6 +201,7 @@ PathStrokeWidget::PathStrokeWidget()
     connect(customDashLine, SIGNAL(clicked()), m_renderer, SLOT(setCustomDashLine()));
 
     connect(showSourceButton, SIGNAL(clicked()), m_renderer, SLOT(showSource()));
+    connect(enableOpenGLButton, SIGNAL(clicked(bool)), m_renderer, SLOT(enableOpenGL(bool)));
 
     connect(whatsThisButton, SIGNAL(clicked(bool)), m_renderer, SLOT(setDescriptionEnabled(bool)));
     connect(m_renderer, SIGNAL(descriptionEnabledChanged(bool)),
@@ -213,9 +220,8 @@ PathStrokeWidget::PathStrokeWidget()
 }
 
 
-extern bool USE_OPENGL;
 PathStrokeRenderer::PathStrokeRenderer(QWidget *parent)
-    : ArthurFrame(parent, USE_OPENGL)
+    : ArthurFrame(parent)
 {
     m_pointSize = 10;
     m_activePoint = -1;

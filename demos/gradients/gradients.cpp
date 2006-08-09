@@ -243,7 +243,6 @@ void GradientEditor::setGradientStops(const QGradientStops &stops)
 
 }
 
-
 GradientWidget::GradientWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -284,6 +283,11 @@ GradientWidget::GradientWidget(QWidget *parent)
     QPushButton *showSourceButton = new QPushButton(mainGroup);
     showSourceButton->setText("Show Source");
 
+    QPushButton *enableOpenGLButton = new QPushButton(mainGroup);
+    enableOpenGLButton->setText("Use OpenGL");
+    enableOpenGLButton->setCheckable(true);
+    enableOpenGLButton->setChecked(m_renderer->usesOpenGL());
+
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
@@ -301,6 +305,7 @@ GradientWidget::GradientWidget(QWidget *parent)
     mainGroupLayout->addWidget(defaultsGroup);
     mainGroupLayout->addStretch(1);
     mainGroupLayout->addWidget(showSourceButton);
+    mainGroupLayout->addWidget(enableOpenGLButton);
     mainGroupLayout->addWidget(whatsThisButton);
 
     QVBoxLayout *editorGroupLayout = new QVBoxLayout(editorGroup);
@@ -339,7 +344,8 @@ GradientWidget::GradientWidget(QWidget *parent)
     connect(default4Button, SIGNAL(clicked()), this, SLOT(setDefault4()));
 
     connect(showSourceButton, SIGNAL(clicked()), m_renderer, SLOT(showSource()));
-
+    connect(enableOpenGLButton, SIGNAL(clicked(bool)), m_renderer, SLOT(enableOpenGL(bool)));
+    
     connect(whatsThisButton, SIGNAL(clicked(bool)), m_renderer, SLOT(setDescriptionEnabled(bool)));
     connect(whatsThisButton, SIGNAL(clicked(bool)),
             m_renderer->hoverPoints(), SLOT(setDisabled(bool)));
@@ -419,10 +425,9 @@ void GradientWidget::setDefault(int config)
     m_renderer->setGradientStops(stops);
 }
 
-extern bool USE_OPENGL;
 
 GradientRenderer::GradientRenderer(QWidget *parent)
-    : ArthurFrame(parent, USE_OPENGL)
+    : ArthurFrame(parent)
 {
     m_hoverPoints = new HoverPoints(this, HoverPoints::CircleShape);
     m_hoverPoints->setPointSize(QSize(20, 20));

@@ -24,21 +24,18 @@
 
 extern QPixmap cached(const QString &img);
 
-ArthurFrame::ArthurFrame(QWidget *parent, bool use_opengl)
+ArthurFrame::ArthurFrame(QWidget *parent)
     : QWidget(parent)
     , m_prefer_image(false)
 {
 #ifdef QT_OPENGL_SUPPORT
-    if (use_opengl) {
-        glw = new GLWidget(this);
-        glw->setGeometry(0, 0, width(), height());
-        glw->setAutoFillBackground(false);
-        glw->disableAutoBufferSwap();
-    } else {
-        glw = 0;
-    }
-#else
-    Q_UNUSED(use_opengl);
+    glw = new GLWidget(this);
+    glw->setGeometry(0, 0, width(), height());
+    glw->setAutoFillBackground(false);
+    glw->disableAutoBufferSwap();
+
+    enableOpenGL(true);
+    enableOpenGL(false);
 #endif
     m_document = 0;
     m_show_doc = false;
@@ -84,7 +81,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
         painter.fillRect(width() - o, height() - o, o, o, bg);
     } else {
 #ifdef QT_OPENGL_SUPPORT
-        if (glw) {
+        if (m_use_opengl) {
             painter.begin(glw);
             painter.fillRect(QRectF(0, 0, glw->width(), glw->height()), palette().color(backgroundRole()));
         } else {
@@ -143,7 +140,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     }
 
 #ifdef QT_OPENGL_SUPPORT
-    if (glw && (inherits("PathDeformRenderer") || inherits("PathStrokeRenderer") || m_show_doc))
+    if (m_use_opengl && (inherits("PathDeformRenderer") || inherits("PathStrokeRenderer") || m_show_doc))
         glw->swapBuffers();
 #endif
 }
@@ -151,8 +148,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
 void ArthurFrame::resizeEvent(QResizeEvent *e)
 {
 #ifdef QT_OPENGL_SUPPORT
-    if (glw)
-        glw->setGeometry(0, 0, e->size().width()-1, e->size().height()-1);
+    glw->setGeometry(0, 0, e->size().width()-1, e->size().height()-1);
 #endif
     QWidget::resizeEvent(e);
 }

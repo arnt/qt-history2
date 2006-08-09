@@ -150,7 +150,7 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
             paintPoints();
 #ifdef QT_OPENGL_SUPPORT
             ArthurFrame *af = qobject_cast<ArthurFrame *>(that_widget);
-            if (af && af->glWidget())
+            if (af && af->usesOpenGL())
                 af->glWidget()->swapBuffers();
 #endif
             return true;
@@ -169,7 +169,7 @@ void HoverPoints::paintPoints()
     QPainter p;
 #ifdef QT_OPENGL_SUPPORT
     ArthurFrame *af = qobject_cast<ArthurFrame *>(m_widget);
-    if (af && af->glWidget())
+    if (af && af->usesOpenGL())
         p.begin(af->glWidget());
     else
         p.begin(m_widget);
