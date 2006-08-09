@@ -163,6 +163,7 @@ private slots:
     void htmlResourceLoading();
     void someCaseInsensitiveAttributeValues();
     void backgroundImage();
+    void dontMergePreAndNonPre();
 
 private:
     int blockCount();
@@ -2378,6 +2379,14 @@ void tst_QTextDocumentFragment::backgroundImage()
     QBrush bg = doc.begin().blockFormat().background();
     QVERIFY(bg.style() == Qt::TexturePattern);
     QVERIFY(bg.texture().serialNumber() == doc.testPixmap.serialNumber());
+}
+
+void tst_QTextDocumentFragment::dontMergePreAndNonPre()
+{
+    doc->setHtml("<pre>Pre text</pre>Text that should be wrapped");
+    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->begin().text(), QString("Pre text"));
+    QCOMPARE(doc->begin().next().text(), QString("Text that should be wrapped"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
