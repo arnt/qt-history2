@@ -1321,7 +1321,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 void QDirModelPrivate::init()
 {
-    filters = QDir::AllEntries;
+    filters = QDir::AllEntries | QDir::NoDotAndDotDot;
     sort = QDir::Name;
     nameFilters << QLatin1String("*");
     root.parent = 0;
@@ -1423,13 +1423,13 @@ void QDirModelPrivate::restorePersistentIndexes()
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
 {
     const QDir dir(path);
-    return dir.entryInfoList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
+    return dir.entryInfoList(nameFilters, filters, sort);
 }
 
 QStringList QDirModelPrivate::entryList(const QString &path) const
 {
     const QDir dir(path);
-    return dir.entryList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
+    return dir.entryList(nameFilters, filters, sort);
 }
 
 QString QDirModelPrivate::name(const QModelIndex &index) const

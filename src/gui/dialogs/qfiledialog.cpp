@@ -1917,7 +1917,7 @@ void QFileDialogPrivate::setDirFilter(QDir::Filters filters)
 
 QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)
 {
-    QDir::Filters f = QDir::Drives | QDir::AllDirs;
+    QDir::Filters f = QDir::Drives | QDir::AllDirs | QDir::NoDotAndDotDot;
     if (mode != QFileDialog::DirectoryOnly)
         f |= QDir::Files;
     return f;
