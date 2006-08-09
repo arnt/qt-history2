@@ -164,6 +164,7 @@ private slots:
     void someCaseInsensitiveAttributeValues();
     void backgroundImage();
     void dontMergePreAndNonPre();
+    void leftMarginInsideHtml();
 
 private:
     int blockCount();
@@ -2387,6 +2388,13 @@ void tst_QTextDocumentFragment::dontMergePreAndNonPre()
     QCOMPARE(blockCount(), 2);
     QCOMPARE(doc->begin().text(), QString("Pre text"));
     QCOMPARE(doc->begin().next().text(), QString("Text that should be wrapped"));
+}
+
+void tst_QTextDocumentFragment::leftMarginInsideHtml()
+{
+    doc->setHtml("<html><dl><dd>Blah");
+    QCOMPARE(blockCount(), 1);
+    QVERIFY(doc->begin().blockFormat().leftMargin() > 0);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

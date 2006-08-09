@@ -582,7 +582,7 @@ int QTextHtmlParser::margin(int i, int mar) const {
         while (i) {
             node = &at(i);
             if (!node->isBlock)
-                return 0;
+                break;
             if (node->isTableCell)
                 break;
             m += node->margin[mar];
