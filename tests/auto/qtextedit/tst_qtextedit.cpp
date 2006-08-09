@@ -90,6 +90,7 @@ private slots:
     void ctrlEnterShouldInsertLineSeparator();
     void selectWordsFromStringsContainingSeparators_data();
     void selectWordsFromStringsContainingSeparators();
+    void canPaste();
 
 private:
     void createSelection();
@@ -1120,6 +1121,16 @@ void tst_QTextEdit::selectWordsFromStringsContainingSeparators()
     QVERIFY(cursor.hasSelection());
     QCOMPARE(cursor.selection().toPlainText(), selectedWord);
     cursor.clearSelection();
+}
+
+void tst_QTextEdit::canPaste()
+{
+    QApplication::clipboard()->setText(QString());
+    QVERIFY(!ed->canPaste());
+    QApplication::clipboard()->setText("Test");
+    QVERIFY(ed->canPaste());
+    ed->setTextInteractionFlags(Qt::NoTextInteraction);
+    QVERIFY(!ed->canPaste());
 }
 
 QTEST_MAIN(tst_QTextEdit)

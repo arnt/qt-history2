@@ -132,6 +132,8 @@ public:
 
     void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
+    bool canPaste() const;
+
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);

@@ -1761,8 +1761,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
     if (d->interactionFlags & Qt::TextEditable) {
 #if !defined(QT_NO_CLIPBOARD)
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
-        const QMimeData *md = QApplication::clipboard()->mimeData();
-        a->setEnabled(md && canInsertFromMimeData(md));
+        a->setEnabled(canPaste());
 #endif
         a = menu->addAction(tr("Delete"), this, SLOT(_q_deleteSelected()));
         a->setEnabled(d->cursor.hasSelection());
@@ -1981,6 +1980,17 @@ void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMo
         emit cursorPositionChanged();
 }
 
+bool QTextControl::canPaste() const
+{
+    Q_D(const QTextControl);
+    if (d->interactionFlags & Qt::TextEditable) {
+        const QMimeData *md = QApplication::clipboard()->mimeData();
+        return md && canInsertFromMimeData(md);
+    } else {
+        return false;
+    }
+}
+
 QMimeData *QTextControl::createMimeDataFromSelection() const
 {
     Q_D(const QTextControl);
@@ -1992,12 +2002,12 @@ bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
 {
     Q_D(const QTextControl);
     if (d->acceptRichText)
-        return source->hasText()
+        return (source->hasText() && !source->text().isEmpty())
             || source->hasHtml()
             || source->hasFormat(QLatin1String("application/x-qrichtext"))
             || source->hasFormat(QLatin1String("application/x-qt-richtext"));
     else
-        return source->hasText();
+        return source->hasText() && !source->text().isEmpty();
 }
 
 void QTextControl::insertFromMimeData(const QMimeData *source)

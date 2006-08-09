@@ -1932,6 +1932,16 @@ void QTextEdit::moveCursor(QTextCursor::MoveOperation operation, QTextCursor::Mo
     d->control->moveCursor(operation, mode);
 }
 
+/*!
+    \since 4.2
+    Returns whether text can be pasted from the clipboard into the textedit.
+*/
+bool QTextEdit::canPaste() const
+{
+    Q_D(const QTextEdit);
+    return d->control->canPaste();
+}
+
 /*! \property QTextEdit::tabChangesFocus
   \brief whether \gui Tab changes focus or is accepted as input
 
