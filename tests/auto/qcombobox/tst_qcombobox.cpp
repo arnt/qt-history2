@@ -79,6 +79,7 @@ private slots:
     void findText();
     void flaggedItems_data();
     void flaggedItems();
+    void pixmapIcon();
 
 protected slots:
     void onEditTextChanged( const QString &newString );
@@ -1605,7 +1606,25 @@ void tst_QComboBox::flaggedItems()
     QCOMPARE(comboBox.currentIndex() , expectedIndex );
 }
 
+void tst_QComboBox::pixmapIcon()
+{
+    QComboBox box;
+    QStandardItemModel *model = new QStandardItemModel(2, 1, &box);
 
+    QPixmap pix(10, 10);
+    pix.fill(Qt::red);
+    model->setData(model->index(0, 0), "Element 1");
+    model->setData(model->index(0, 0), pix, Qt::DecorationRole);
+
+    QIcon icon(pix);
+    model->setData(model->index(1, 0), "Element 2");
+    model->setData(model->index(1, 0), icon, Qt::DecorationRole);
+
+    box.setModel(model);
+
+    QCOMPARE( box.itemIcon(0).isNull(), false );
+    QCOMPARE( box.itemIcon(1).isNull(), false );
+}
 
 QTEST_MAIN(tst_QComboBox)
 #include "tst_qcombobox.moc"

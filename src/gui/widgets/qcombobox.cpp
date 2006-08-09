@@ -72,7 +72,12 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
     menuOption.checked = mCombo->currentIndex() == index.row();
     menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-    menuOption.icon = qvariant_cast<QIcon>(index.model()->data(index, Qt::DecorationRole));
+    QVariant decoration = index.model()->data(index, Qt::DecorationRole);
+    if (decoration.type() == QVariant::Pixmap )
+        menuOption.icon = QIcon(qvariant_cast<QPixmap>(decoration));
+    else
+        menuOption.icon = qvariant_cast<QIcon>(decoration);
+
     menuOption.text = index.model()->data(index, Qt::DisplayRole).toString()
                            .replace(QLatin1Char('&'), QLatin1String("&&"));
     menuOption.tabWidth = 0;
@@ -137,7 +142,7 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
 }
 
 /*
-    Computes a size hint based on the maximum width 
+    Computes a size hint based on the maximum width
     for the items in the combobox.
 */
 int QComboBoxPrivate::computeWidthHint() const
@@ -1632,8 +1637,11 @@ QString QComboBox::itemText(int index) const
 QIcon QComboBox::itemIcon(int index) const
 {
     Q_D(const QComboBox);
-    QModelIndex item = model()->index(index, d->modelColumn, rootModelIndex());
-    return qvariant_cast<QIcon>(model()->data(item, Qt::DecorationRole));
+    QVariant decoration = model()->data(model()->index(index, d->modelColumn, rootModelIndex()), Qt::DecorationRole);
+    if (decoration.type() == QVariant::Pixmap)
+        return QIcon(qvariant_cast<QPixmap>(decoration));
+    else
+        return qvariant_cast<QIcon>(decoration);
 }
 
 /*!
@@ -1903,15 +1911,15 @@ void QComboBox::showPopup()
 
         // Position horizontally.
         listRect.moveLeft(above.x());
-        
+
         // Position vertically so the curently selected item lines up
         // with the combo box.
         const QRect currentItemRect = view()->visualRect(view()->currentIndex());
         const int offset = listRect.top() -  currentItemRect.top();
         listRect.moveTop(above.y() + offset);
 
-        // Clamp the listRect height and vertical position so we don't expand outside the 
-        // available screen geometry.This may override the vertical position, but it is more 
+        // Clamp the listRect height and vertical position so we don't expand outside the
+        // available screen geometry.This may override the vertical position, but it is more
         // important to show as much as possible of the popup.
         const int height = qMin(listRect.height(), screen.height());
         listRect.setHeight(height);
@@ -1946,7 +1954,7 @@ void QComboBox::showPopup()
 
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
         view()->scrollTo(view()->currentIndex(), QAbstractItemView::PositionAtCenter);
-    else 
+    else
         view()->scrollTo(view()->currentIndex(), QAbstractItemView::EnsureVisible);
 
     container->raise();
