@@ -377,7 +377,7 @@ public:
     QVector<StyleRule> styleRulesForNode(NodePtr node);
     QVector<Declaration> declarationsForNode(NodePtr node);
 
-    virtual bool hasNodeName(NodePtr node, const QString& nodeName) const = 0;
+    virtual bool nodeNameEquals(NodePtr node, const QString& nodeName) const = 0;
     virtual QString attribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttributes(NodePtr node) const = 0;

@@ -60,7 +60,7 @@ void QRenderRules::init(const QVector<QCss::StyleRule>& styleRules)
             if (decl.property.endsWith("-size", Qt::CaseInsensitive)) {
                 sizes[decl.property.left(decl.property.length() - 5)] = decl.sizeValue();
             } else if (decl.propertyId == MinimumWidth) {
-                decl.realValue(&minWidth, "px"); 
+                decl.realValue(&minWidth, "px");
             } else if (decl.propertyId == MinimumHeight) {
                 decl.realValue(&minHeight, "px");
             } else if (decl.propertyId == Width) {
@@ -890,8 +890,8 @@ class QStyleSheetStyleSelector : public StyleSelector
 public:
     QStyleSheetStyleSelector() { }
 
-    bool hasNodeName(NodePtr node, const QString& name) const
-    { 
+    bool nodeNameEquals(NodePtr node, const QString& name) const
+    {
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
         if (name == QLatin1String("QToolTip")
@@ -926,7 +926,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStyle *QStyleSheetStyle::baseStyle() const
-{ 
+{
     if (base)
         return base;
     if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
@@ -1017,7 +1017,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
 #else
     QPalette p = qApp->palette();
 #endif
-    
+
     for (int i = 0; i < 2; i++) {
         const QRenderRule &rule = renderRule(w, map[i].state);
         p.setCurrentColorGroup(map[i].group);
@@ -1350,7 +1350,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     case CE_ToolBar:
         if (rule.hasBackground()) {
             qDrawBackground(p, rule, opt->rect, opt->direction);
-        } 
+        }
         if (rule.hasBorder()) {
             qDrawBorder(p, rule, rule.borderRect(opt->rect));
         } else {
@@ -1669,7 +1669,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ToolTipLabelFrameWidth: // border + margin (support only one width)
     case PM_MenuPanelWidth:
-    case PM_MenuBarPanelWidth: 
+    case PM_MenuBarPanelWidth:
     case PM_ToolBarFrameWidth:
         if (rule.hasBorder() || rule.hasBox())
             return rule.border() ? rule.border()->borders[LeftEdge] : 0
@@ -1703,7 +1703,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_SmallIconSize:
     case PM_MenuDesktopFrameWidth:
     case PM_MenuTearoffHeight:
-    case PM_MenuScrollerHeight: 
+    case PM_MenuScrollerHeight:
         break;
     case PM_ToolBarExtensionExtent:
         break;
@@ -1742,7 +1742,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         return baseStyle()->sizeFromContents(ct, opt, csz, w);
 
     QSize sz = csz.expandedTo(rules.minSize());
-    
+
     switch (ct) {
     case CT_PushButton:
         if (rule.hasBorder() || rule.hasBox()) {

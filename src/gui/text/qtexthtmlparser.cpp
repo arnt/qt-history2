@@ -1585,7 +1585,7 @@ public:
     inline QTextHtmlStyleSelector(const QTextHtmlParser *parser)
         : parser(parser) {}
 
-    virtual bool hasNodeName(NodePtr node, const QString& name) const;
+    virtual bool nodeNameEquals(NodePtr node, const QString& name) const;
     virtual QString attribute(NodePtr node, const QString &name) const;
     virtual bool hasAttribute(NodePtr node, const QString &name) const;
     virtual bool hasAttributes(NodePtr node) const;
@@ -1599,7 +1599,7 @@ private:
     const QTextHtmlParser *parser;
 };
 
-bool QTextHtmlStyleSelector::hasNodeName(NodePtr node, const QString& name) const
+bool QTextHtmlStyleSelector::nodeNameEquals(NodePtr node, const QString& name) const
 {
     return parser->at(node.id).tag == name;
 }

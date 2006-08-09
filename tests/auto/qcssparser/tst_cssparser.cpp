@@ -785,7 +785,7 @@ public:
         styleSheets.append(sheet);
     }
 
-    virtual bool hasNodeName(NodePtr node, const QString& name) const { return reinterpret_cast<QDomElement *>(node.ptr)->tagName() == name; }
+    virtual bool nodeNameEquals(NodePtr node, const QString& name) const { return reinterpret_cast<QDomElement *>(node.ptr)->tagName() == name; }
     virtual QString attribute(NodePtr node, const QString &name) const { return reinterpret_cast<QDomElement *>(node.ptr)->attribute(name); }
     virtual bool hasAttribute(NodePtr node, const QString &name) const { return reinterpret_cast<QDomElement *>(node.ptr)->hasAttribute(name); }
     virtual bool hasAttributes(NodePtr node) const { return reinterpret_cast<QDomElement *>(node.ptr)->hasAttributes(); }

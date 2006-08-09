@@ -864,7 +864,7 @@ bool StyleSelector::basicSelectorMatches(const BasicSelector &sel, NodePtr node)
     }
 
     if (!sel.elementName.isEmpty()
-        && !hasNodeName(node, sel.elementName))
+        && !nodeNameEquals(node, sel.elementName))
             return false;
 
     if (!sel.ids.isEmpty()
