@@ -95,9 +95,12 @@ QTextEditPrivate::QTextEditPrivate()
     : control(0),
       autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
       lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
-      ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
-      preferRichText(false)
-{}
+      textFormat(Qt::AutoText)
+{
+    ignoreAutomaticScrollbarAdjustement = false;
+    preferRichText = false;
+    showCursorOnInitialShow = true;
+}
 
 void QTextEditPrivate::createAutoBulletList()
 {
@@ -1466,6 +1469,10 @@ void QTextEdit::showEvent(QShowEvent *)
     if (!d->anchorToScrollToWhenVisible.isEmpty()) {
         scrollToAnchor(d->anchorToScrollToWhenVisible);
         d->anchorToScrollToWhenVisible.clear();
+        d->showCursorOnInitialShow = false;
+    } else if (d->showCursorOnInitialShow) {
+        d->showCursorOnInitialShow = false;
+        ensureCursorVisible();
     }
 }
 

@@ -81,12 +81,13 @@ public:
     QTextEdit::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
 
-    bool ignoreAutomaticScrollbarAdjustement;
+    uint ignoreAutomaticScrollbarAdjustement : 1;
+    uint preferRichText : 1;
+    uint showCursorOnInitialShow : 1;
 
     // Qt3 COMPAT only
     // ### non-compat'ed append needs it, too
     Qt::TextFormat textFormat;
-    bool preferRichText;
 
     QString anchorToScrollToWhenVisible;
 

@@ -18,7 +18,7 @@
 #include <qclipboard.h>
 #include <qtextbrowser.h>
 #include <private/qtextcontrol_p.h>
-
+#include <qscrollbar.h>
 #include <qtextobject.h>
 
 #include <qabstracttextdocumentlayout.h>
@@ -91,6 +91,7 @@ private slots:
     void selectWordsFromStringsContainingSeparators_data();
     void selectWordsFromStringsContainingSeparators();
     void canPaste();
+    void ensureCursorVisibleOnInitialShow();
 
 private:
     void createSelection();
@@ -1131,6 +1132,27 @@ void tst_QTextEdit::canPaste()
     QVERIFY(ed->canPaste());
     ed->setTextInteractionFlags(Qt::NoTextInteraction);
     QVERIFY(!ed->canPaste());
+}
+
+void tst_QTextEdit::ensureCursorVisibleOnInitialShow()
+{
+    QString manyPagesOfPlainText;
+    for (int i = 0; i < 800; ++i)
+        manyPagesOfPlainText += QLatin1String("Blah blah blah blah blah blah\n");
+
+    ed->setPlainText(manyPagesOfPlainText);
+    QCOMPARE(ed->textCursor().position(), 0);
+
+    ed->moveCursor(QTextCursor::End);
+    ed->show();
+    QVERIFY(ed->verticalScrollBar()->value() > 10);
+
+    ed->moveCursor(QTextCursor::Start);
+    QVERIFY(ed->verticalScrollBar()->value() < 10);
+    ed->hide();
+    ed->verticalScrollBar()->setValue(ed->verticalScrollBar()->maximum());
+    ed->show();
+    QCOMPARE(ed->verticalScrollBar()->value(), ed->verticalScrollBar()->maximum());
 }
 
 QTEST_MAIN(tst_QTextEdit)
