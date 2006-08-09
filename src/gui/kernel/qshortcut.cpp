@@ -99,7 +99,7 @@ class QShortcutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QShortcut)
 public:
-    QShortcutPrivate() : sc_context(Qt::WindowShortcut), sc_enabled(true), sc_id(0) {}
+    QShortcutPrivate() : sc_context(Qt::WindowShortcut), sc_enabled(true), sc_autorepeat(true), sc_id(0) {}
     QKeySequence sc_sequence;
     Qt::ShortcutContext sc_context;
     bool sc_enabled;
@@ -159,7 +159,6 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
     Q_ASSERT(parent != 0);
     d->sc_context = context;
     d->sc_sequence = key;
-    d->sc_autorepeat = true;
     d->redoGrab(qApp->d_func()->shortcutMap);
     if (member)
         connect(this, SIGNAL(activated()), parent, member);
