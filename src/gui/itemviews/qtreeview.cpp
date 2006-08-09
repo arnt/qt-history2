@@ -213,16 +213,28 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_D(QTreeView);
     Q_ASSERT(selectionModel);
-    if (d->selectionModel) // support row editing
+    if (d->selectionModel) {
+        if (d->allColumnsShowFocus) {
+            QObject::disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                                this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+        }
+        // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
+    }
 
     d->header->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
 
-    if (d->selectionModel) // support row editing
+    if (d->selectionModel) {
+        if (d->allColumnsShowFocus) {
+            QObject::connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                             this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+        }
+        // support row editing
         connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                 d->model, SLOT(submit()));
+    }
 }
 
 /*!
@@ -693,12 +705,14 @@ void QTreeView::setAllColumnsShowFocus(bool enable)
     Q_D(QTreeView);
     if (d->allColumnsShowFocus == enable)
         return;
-    if (enable) {
-        QObject::connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                         this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
-    } else {
-        QObject::disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                            this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+    if (d->selectionModel) {
+        if (enable) {
+            QObject::connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                             this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+        } else {
+            QObject::disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                                this, SLOT(_q_currentChanged(QModelIndex,QModelIndex)));
+        }
     }
     d->allColumnsShowFocus = enable;
     d->viewport->update();
