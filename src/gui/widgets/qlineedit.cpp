@@ -2519,16 +2519,19 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update, bool edi
         bool wasValidInput = validInput;
         validInput = true;
 #ifndef QT_NO_VALIDATOR
-        if (validator && validateFromState >= 0) {
-            QString textCopy = text;
-            int cursorCopy = cursor;
-            validInput = (validator->validate(textCopy, cursorCopy) != QValidator::Invalid);
-            if (validInput) {
-                if (text != textCopy) {
-                    setText(textCopy, cursorCopy);
-                    return;
+        if (validator) {
+            validInput = false;
+            if (validateFromState >= 0) {
+                QString textCopy = text;
+                int cursorCopy = cursor;
+                validInput = (validator->validate(textCopy, cursorCopy) != QValidator::Invalid);
+                if (validInput) {
+                    if (text != textCopy) {
+                        setText(textCopy, cursorCopy);
+                        return;
+                    }
+                    cursor = cursorCopy;
                 }
-                cursor = cursorCopy;
             }
         }
 #endif
