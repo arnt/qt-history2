@@ -90,6 +90,7 @@ private slots:
     void checkFocus();
     void focusChainOnHide();
     void focusChainOnDelete();
+    void focusChainOnReparent();
     void setTabOrder();
     void activation();
     void reparent();
@@ -801,6 +802,42 @@ void tst_QWidget::mapToGlobal()
     delete qhb;
 
 }
+
+void tst_QWidget::focusChainOnReparent()
+{
+    QWidget window;
+    QWidget *child1 = new QWidget(&window);
+    QWidget *child2 = new QWidget(&window);
+    QWidget *child3 = new QWidget(&window);
+    QWidget *child21 = new QWidget(child2);
+    QWidget *child22 = new QWidget(child2);
+    QWidget *child4 = new QWidget(&window);
+
+    QWidget *expectedOriginalChain[8] = {&window, child1,  child2,  child3,  child21, child22, child4, &window};
+    QWidget *w = &window;
+    for (int i = 0; i <8; ++i) {
+        QCOMPARE(w, expectedOriginalChain[i]);
+        w = w->nextInFocusChain();
+    }
+
+    QWidget window2;
+    child2->setParent(&window2);
+
+    QWidget *expectedNewChain[5] = {&window2, child2,  child21, child22, &window2};
+    w = &window2;
+    for (int i = 0; i <5; ++i) {
+        QCOMPARE(w, expectedNewChain[i]);
+        w = w->nextInFocusChain();
+    }
+
+    QWidget *expectedOldChain[5] = {&window, child1,  child3, child4, &window};
+    w = &window;
+    for (int i = 0; i <5; ++i) {
+        QCOMPARE(w, expectedOldChain[i]);
+        w = w->nextInFocusChain();
+    }
+}
+
 
 void tst_QWidget::focusChainOnHide()
 {
@@ -2370,7 +2407,7 @@ void tst_QWidget::style()
     window2->setStyle(0);
     window2->setStyleSheet("");
     qApp->setStyle(0);
-    
+
     qApp->setStyleSheet("may insanity prevail"); // app has styleshet
     QCOMPARE(window1->style(), qApp->style());
     QCOMPARE(window1->style()->metaObject()->className(), "QStyleSheetStyle");
@@ -2385,7 +2422,7 @@ void tst_QWidget::style()
     proxy = (QStyleSheetStyle *) window1->style();
     QCOMPARE(proxy->baseStyle(), newStyle); // magic ;) the widget still follows the application
     QCOMPARE(static_cast<QStyle *>(proxy), widget1->style()); // child still follows...
-    
+
     window1->setStyleSheet(""); // remove stylesheet
     QCOMPARE(window1->style(), qApp->style()); // is this cool or what
     QCOMPARE(widget1->style(), qApp->style()); // annoying child follows...
