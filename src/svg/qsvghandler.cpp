@@ -1555,8 +1555,16 @@ static void cssStyleLookup(QSvgNode *node,
         if (val.type == QCss::Value::Uri) {
             valueStr.prepend(QLatin1String("url("));
             valueStr.append(QLatin1Char(')'));
+        } else if (val.type == QCss::Value::Function) {
+            QStringList lst = val.variant.toStringList();
+            valueStr.append(lst.first());
+            valueStr.append("(");
+            for (int i = 1; i < lst.count(); ++i) {
+                valueStr.append(lst.at(i));
+            }
+            valueStr.append(")");
         }
-
+            
         attributes.append(decl.property, QString(),
                           decl.property, valueStr);
     }
@@ -1607,7 +1615,10 @@ static bool parseDefaultTextStyle(QSvgNode *node,
     }
     if (initial) {
         QSvgFontStyle *fontStyle = static_cast<QSvgFontStyle*>(
-            node->parent()->styleProperty(QSvgStyleProperty::FONT));
+            node->styleProperty(QSvgStyleProperty::FONT));
+        if (!fontStyle)
+            fontStyle = static_cast<QSvgFontStyle*>(
+                node->parent()->styleProperty(QSvgStyleProperty::FONT));
         if (fontStyle) {
             font = fontStyle->qfont();
             if (anchor.isEmpty())
@@ -2518,11 +2529,45 @@ static bool parseStopNode(QSvgStyleProperty *parent,
 {
     if (parent->type() != QSvgStyleProperty::GRADIENT)
         return false;
+    QString nodeIdStr     = attributes.value(QLatin1String("id"));
+    QString xmlClassStr   = attributes.value(QLatin1String("class"));
+
+    if (nodeIdStr.isEmpty()) {
+        nodeIdStr     = attributes.value(QLatin1String("xml:id"));
+    }
+    //### nasty hack because stop gradients are not in the rendering tree
+    //    we force a dummy node with the same id and class into a rendering
+    //    tree to figure out whether the selector has a style for it
+    //    QSvgStyleSelector should be coded in a way that could avoid it
+    QSvgAnimation anim;
+    anim.setNodeId(nodeIdStr);
+    anim.setXmlClass(xmlClassStr);
+
+    QCss::StyleSelector::NodePtr cssNode;
+    cssNode.ptr = &anim;
+    QVector<QCss::Declaration> decls = handler->selector()->declarationsForNode(cssNode);
 
     QXmlAttributes attrs = attributes;
     QString cssStyle = attrs.value(QLatin1String("style"));
     if (!cssStyle.isEmpty()) {
         parseCSStoXMLAttrs(cssStyle, attrs);
+    }
+    
+    for (int i = 0; i < decls.count(); ++i) {
+        const QCss::Declaration &decl = decls.at(i);
+        
+        if (decl.property.isEmpty())
+            continue;
+        if (decl.values.count() != 1)
+            continue;
+        QCss::Value val = decl.values.first();
+        QString valueStr = val.variant.toString();
+        if (val.type == QCss::Value::Uri) {
+            valueStr.prepend(QLatin1String("url("));
+            valueStr.append(QLatin1Char(')'));
+        }
+        attrs.append(decl.property, QString(),
+                          decl.property, valueStr);
     }
 
     QSvgGradientStyle *style =
@@ -2686,6 +2731,8 @@ static bool parseTspanNode(QSvgNode *parent,
                            const QXmlAttributes &attributes,
                            QSvgHandler *handler)
 {
+    
+    cssStyleLookup(parent, handler, handler->selector());
     return parseDefaultTextStyle(parent, attributes, false, handler);
 }
 
