@@ -187,6 +187,8 @@ public:
     void setExtraSelections(const QList<ExtraSelection> &selections);
     QList<ExtraSelection> extraSelections() const;
 
+    void moveCursor(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+
 public Q_SLOTS:
     void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);
@@ -222,8 +224,6 @@ public Q_SLOTS:
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
-
-    void moveCursor(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
 Q_SIGNALS:
     void textChanged();
