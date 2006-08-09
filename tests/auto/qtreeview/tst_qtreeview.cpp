@@ -111,7 +111,7 @@ public:
         if (row < 0 || column < 0 || column >= cols || row >= rows) {
             return QModelIndex();
         }
-        qint64 level = parent.isValid() ? parent.internalId() : -1;
+        qint32 level = parent.isValid() ? parent.internalId() : -1;
         QModelIndex i = createIndex(row, column, ++level);
 	parentHash[i] = parent;
 	return i;
