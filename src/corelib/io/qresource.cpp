@@ -94,16 +94,36 @@ Q_GLOBAL_STATIC(QStringList, resourceSearchPaths)
     the resource file will be loaded as one big set of data and then given
     out in pieces via references into the resource tree.
 
-    A QResource can either be loaded with an absolute path (either treated
-    as a file system rooted with /, or in resource notation rooted with
-    :). A relative resource can also be opened which will be found through
-    the searchPaths().
+    A QResource can either be loaded with an absolute path, either treated
+    as a file system rooted with a \c{/} character, or in resource notation
+    rooted with a \c{:} character. A relative resource can also be opened
+    which will be found through the searchPaths().
 
     A QResource that is representing a file will have data backing it, this
     data can possibly be compressed, in which case qUncompress() must be
     used to access the real data; this happens implicitly when accessed
     through a QFile. A QResource that is representing a directory will have
     only children and no data.
+
+    \section1 Dynamic Resource Loading
+
+    A resource can be left out of an application's binary and loaded when it
+    is needed at run-time by using the registerResource() function.
+    This can often be useful when loading a large set of application icons
+    that may change based on a setting, or that can be edited by a user and
+    later recreated. The resource is immediately loaded into memory, either
+    as a result of a single file read operation, or as a memory mapped file.
+
+    This approach can prove to be a significant performance gain as only a
+    single file will be loaded, and pieces of data will be given out via the
+    path requested in QResource::setFile().
+
+    The unregisterResource() function removes a reference to a particular
+    file. If there are QResources that currently reference resources related
+    to the unregistered file, they will continue to be valid but the resource
+    file itself will be removed from the resource roots, and thus no further
+    QResource can be created pointing into this resource data. The resource
+    itself will be unmapped from memory when the last QResource points into it.
 
     \sa {The Qt Resource System}, QFile, QDir, QFileInfo
 */
@@ -361,7 +381,6 @@ bool QResource::isValid() const
 
 /*!
     \fn bool QResource::isFile() const
-    \internal
 
     Returns true if the resource represents a file and thus has data
     backing it, false if it represents a directory.
@@ -413,8 +432,7 @@ const uchar *QResource::data() const
     return d->data;
 }
 
-/*! \internal
-
+/*!
     Returns true if the resource represents a directory and thus may have
     children() in it, false if it represents a file.
 
@@ -428,9 +446,7 @@ bool QResource::isDir() const
     return d->container;
 }
 
-/*! \internal
-
-
+/*!
     Returns a list of all resources in this directory, if the resource
     represents a file the list will be empty.
 
@@ -449,8 +465,6 @@ QStringList QResource::children() const
   not specified with an absolute path. The default search path is to search
   only in the root (\c{:/}). The last path added will be consulted first
   upon next QResource creation.
-
-  \sa QResource::QResource, addSearchPath()
 */
 
 void
@@ -469,7 +483,7 @@ QResource::addSearchPath(const QString &path)
   Returns the current search path list. This list is consulted when
   creating a relative resource.
 
-  \sa QResource::QResource, addSearchPath()
+  \sa addSearchPath()
 */
 
 QStringList
@@ -858,15 +872,11 @@ public:
 };
 
 /*!
-   A resource can be left out of your binary and then loaded at runtime,
-   this can often be useful to load a large set of icons into your
-   application that may change based on a setting or that can be edited by
-   a user and later recreated. The resource is immediately loaded into
-   memory (either by reading as a single file, or being memory mapped),
-   this can prove to be a significant gain as only a single file will be
-   loaded and then pieces of the data will be given out via the path
-   requested in QResource::setFileName(). Returns true upon successful opening
-   of \a rccFileName, false upon failure.
+   \fn bool QResource::registerResource(const QString &rccFileName, const QString &mapRoot)
+
+   Registers the resource with the given \a rccFileName at the location in the
+   resource tree specified by \a mapRoot, and returns true if the file is
+   successfully opened; otherwise returns false.
 
    \sa unregisterResource()
 */
@@ -900,13 +910,11 @@ QResource::registerResource(const QString &rccFilename, const QString &resourceR
 }
 
 /*!
-  Removes a reference to \a rccFilename, returns true if the resource could
-  be unloaded, false otherwise. If there are QResources that currently
-  reference resources inside of the resource they will continue to be valid
-  but the resource file itself will be removed from the resource roots and
-  thus no further QResource can be created pointing into this resource
-  data. The resource itself will be unmapped from memory when the last
-  QResource points into it.
+  \fn bool QResource::unregisterResource(const QString &rccFileName, const QString &mapRoot)
+
+  Unregisters the resource with the given \a rccFileName at the location in the
+  resource tree specified by \a mapRoot, and returns true if the resource is
+  successfully unloaded; otherwise returns false.
 
   \sa registerResource()
 */
