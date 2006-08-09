@@ -41,7 +41,7 @@ public:
     int shortcutId;
 #endif
 
-    void _q_fixFocus();
+    void _q_fixFocus(Qt::FocusReason reason);
     void _q_setChildrenEnabled(bool b);
     void click();
     bool flat;
@@ -296,7 +296,7 @@ bool QGroupBox::event(QEvent *e)
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
             if (!isCheckable()) {
-                d->_q_fixFocus();
+                d->_q_fixFocus(Qt::ShortcutFocusReason);
             } else {
                 d->click();
                 setFocus(Qt::ShortcutFocusReason);
@@ -384,7 +384,7 @@ void QGroupBox::childEvent(QChildEvent *c)
     focus, and gives the focus to that widget.
 */
 
-void QGroupBoxPrivate::_q_fixFocus()
+void QGroupBoxPrivate::_q_fixFocus(Qt::FocusReason reason)
 {
     Q_Q(QGroupBox);
     QWidget *fw = q->focusWidget();
@@ -411,7 +411,7 @@ void QGroupBoxPrivate::_q_fixFocus()
                 fw = candidate;
     }
     if (fw)
-        fw->setFocus();
+        fw->setFocus(reason);
 }
 
 
@@ -432,11 +432,11 @@ void QGroupBoxPrivate::calculateFrame()
 
 /*! \reimp
  */
-void QGroupBox::focusInEvent(QFocusEvent *)
+void QGroupBox::focusInEvent(QFocusEvent *fe)
 { // note no call to super
     Q_D(QGroupBox);
     if (focusPolicy() == Qt::NoFocus) {
-        d->_q_fixFocus();
+        d->_q_fixFocus(fe->reason());
     } else {
         QStyleOptionGroupBox box = d->getStyleOption();
         QRect rect = style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this)

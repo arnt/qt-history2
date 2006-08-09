@@ -1752,6 +1752,9 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
         if (focus && (reason == Qt::BacktabFocusReason || reason == Qt::TabFocusReason)
             && qt_in_tab_key_event)
             focus->window()->setAttribute(Qt::WA_KeyboardFocusChange);
+        else if (focus && reason == Qt::ShortcutFocusReason) {
+            focus->window()->setAttribute(Qt::WA_KeyboardFocusChange);
+        }
         QWidget *prev = focus_widget;
 
         if (prev && reason != Qt::PopupFocusReason && reason != Qt::MenuBarFocusReason) {
