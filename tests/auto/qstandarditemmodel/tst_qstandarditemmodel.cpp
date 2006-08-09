@@ -404,11 +404,11 @@ void tst_QStandardItemModel::setHeaderData()
         int count = vertical ? model->rowCount() : model->columnCount();
         QCOMPARE(count, defaultSize);
         Qt::Orientation orient = vertical ? Qt::Vertical : Qt::Horizontal;
-        
+
         // check default values are ok
         for (int i = 0; i < count; ++i)
             QCOMPARE(model->headerData(i, orient).toString(), QString::number(i + 1));
-        
+
         QSignalSpy headerDataChangedSpy(
             model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
         // insert custom values and check
@@ -422,7 +422,7 @@ void tst_QStandardItemModel::setHeaderData()
             QCOMPARE(args.at(2).toInt(), i);
             QCOMPARE(model->headerData(i, orient).toString(), customString);
         }
-        
+
         //check read from invalid sections
         QVERIFY(!model->headerData(count, orient).isValid());
         QVERIFY(!model->headerData(-1, orient).isValid());
@@ -922,7 +922,6 @@ void tst_QStandardItemModel::getSetHeaderItem()
     QCOMPARE(hheader->model(), &model);
     model.setHorizontalHeaderItem(0, 0);
     QCOMPARE(model.horizontalHeaderItem(0), static_cast<QStandardItem*>(0));
-    QCOMPARE(hheader->model(), static_cast<QStandardItemModel*>(0));
 
     QCOMPARE(model.verticalHeaderItem(0), static_cast<QStandardItem*>(0));
     QStandardItem *vheader = new QStandardItem();
@@ -932,7 +931,6 @@ void tst_QStandardItemModel::getSetHeaderItem()
     QCOMPARE(vheader->model(), &model);
     model.setVerticalHeaderItem(0, 0);
     QCOMPARE(model.verticalHeaderItem(0), static_cast<QStandardItem*>(0));
-    QCOMPARE(vheader->model(), static_cast<QStandardItemModel*>(0));
 }
 
 void tst_QStandardItemModel::indexFromItem()
