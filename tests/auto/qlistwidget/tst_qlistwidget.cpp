@@ -520,6 +520,7 @@ void tst_QListWidget::insertItems_data()
     QTest::newRow("Insert/Create 10 items using insertItem") << 10 << 2;
     QTest::newRow("Insert/Create 100 items using insertItem") << 100 << 2;
 
+    QTest::newRow("Insert 0 items with insertItems") << 0 << 3;
     QTest::newRow("Insert 1 item with insertItems") << 1 << 3;
     QTest::newRow("Insert 10 items with insertItems") << 10 << 3;
     QTest::newRow("Insert 100 items with insertItems") << 100 << 3;
@@ -530,27 +531,33 @@ void tst_QListWidget::insertItems()
     QFETCH(int, rowCount);
     QFETCH(int, insertType);
 
-    for (int r = 0; r < rowCount; ++r) {
-        if (insertType == 0) {
-            // insert with QListWidgetItem constructor
-            new QListWidgetItem(QString::number(r), testWidget);
-        } else if (insertType == 1) {
-            // insert actual item
-            testWidget->insertItem(r, new QListWidgetItem(QString::number(r)));
-        } else if (insertType == 2) {
-            // insert/creating with string
-            testWidget->insertItem(r, QString::number(r));
-        } else if (insertType == 3) {
-            QStringList strings;
-            for (int i=0; i<rowCount; ++i)
-                strings << QString::number(i);
-            testWidget->insertItems(0, strings);
-            break;
-        } else {
-            QVERIFY(0);
+    if (insertType == 3) {
+        QStringList strings;
+        for (int i=0; i<rowCount; ++i)
+            strings << QString::number(i);
+        testWidget->insertItems(0, strings);
+    } else {
+        for (int r = 0; r < rowCount; ++r) {
+            if (insertType == 0) {
+                // insert with QListWidgetItem constructor
+                new QListWidgetItem(QString::number(r), testWidget);
+            } else if (insertType == 1) {
+                // insert actual item
+                testWidget->insertItem(r, new QListWidgetItem(QString::number(r)));
+            } else if (insertType == 2) {
+                // insert/creating with string
+                testWidget->insertItem(r, QString::number(r));
+            } else if (insertType == 3) {
+                QStringList strings;
+                for (int i=0; i<rowCount; ++i)
+                    strings << QString::number(i);
+                testWidget->insertItems(0, strings);
+                break;
+            } else {
+                QVERIFY(0);
+            }
         }
     }
-
     // compare the results
     QCOMPARE(testWidget->count(), rowCount);
 
