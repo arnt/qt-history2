@@ -301,7 +301,7 @@ QImage QClipboard::image(Mode mode) const
 
     \code
         QMimeData *data = new QMimeData;
-        data->setPixmap(image);
+        data->setImageData(image);
         clipboard->setMimeData(data, mode);
     \endcode
 
