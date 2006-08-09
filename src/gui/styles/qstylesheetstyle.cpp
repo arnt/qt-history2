@@ -60,7 +60,7 @@ void QRenderRules::init(const QVector<QCss::StyleRule>& styleRules)
             if (decl.property.endsWith("-size", Qt::CaseInsensitive)) {
                 sizes[decl.property.left(decl.property.length() - 5)] = decl.sizeValue();
             } else if (decl.propertyId == MinimumWidth) {
-                decl.realValue(&minWidth, "px");
+                decl.realValue(&minWidth, "px"); 
             } else if (decl.propertyId == MinimumHeight) {
                 decl.realValue(&minHeight, "px");
             } else if (decl.propertyId == Width) {
@@ -891,7 +891,7 @@ public:
     QStyleSheetStyleSelector() { }
 
     bool nodeNameEquals(NodePtr node, const QString& name) const
-    {
+    { 
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
         if (name == QLatin1String("QToolTip")
@@ -926,7 +926,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////
 QStyle *QStyleSheetStyle::baseStyle() const
-{
+{ 
     if (base)
         return base;
     if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
@@ -1017,7 +1017,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
 #else
     QPalette p = qApp->palette();
 #endif
-
+    
     for (int i = 0; i < 2; i++) {
         const QRenderRule &rule = renderRule(w, map[i].state);
         p.setCurrentColorGroup(map[i].group);
@@ -1158,7 +1158,7 @@ QVector<QCss::StyleRule> QStyleSheetStyle::computeStyleSheet(QWidget *w)
 
     StyleSelector::NodePtr n;
     n.ptr = w;
-    return styleSelector.styleRulesForNode(n);
+    return styleSelector.styleRulesForNode(n).value(QString());
 }
 
 void QStyleSheetStyle::polish(QApplication *app)
@@ -1260,7 +1260,6 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 //         break;
 
     default:
-        qDebug() << "drawComplexControl: panic " << cc;
         break;
     }
 
@@ -1350,7 +1349,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     case CE_ToolBar:
         if (rule.hasBackground()) {
             qDrawBackground(p, rule, opt->rect, opt->direction);
-        }
+        } 
         if (rule.hasBorder()) {
             qDrawBorder(p, rule, rule.borderRect(opt->rect));
         } else {
@@ -1457,7 +1456,6 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         break;
 
     default:
-        qDebug() << "controlElement: Panic " << ce;
         break;
     }
 
@@ -1669,7 +1667,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ToolTipLabelFrameWidth: // border + margin (support only one width)
     case PM_MenuPanelWidth:
-    case PM_MenuBarPanelWidth:
+    case PM_MenuBarPanelWidth: 
     case PM_ToolBarFrameWidth:
         if (rule.hasBorder() || rule.hasBox())
             return rule.border() ? rule.border()->borders[LeftEdge] : 0
@@ -1703,7 +1701,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_SmallIconSize:
     case PM_MenuDesktopFrameWidth:
     case PM_MenuTearoffHeight:
-    case PM_MenuScrollerHeight:
+    case PM_MenuScrollerHeight: 
         break;
     case PM_ToolBarExtensionExtent:
         break;
@@ -1721,13 +1719,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_CheckBoxLabelSpacing:
         break;
 
-    default: {
-        static QList<int> panics;
-        if (!panics.contains(m)) {
-            qDebug() << "pixelMetric: Panic " << m;
-            panics.append(m);
-        }
-             }
+    default:
+        break;
     }
 
     return baseStyle()->pixelMetric(m, opt, w);
@@ -1738,10 +1731,11 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 {
     const QRenderRules &rules = renderRules(w);
     const QRenderRule &rule = renderRule(w, opt);
-    if (rule.isEmpty())
-        return baseStyle()->sizeFromContents(ct, opt, csz, w);
 
     QSize sz = csz.expandedTo(rules.minSize());
+    
+    if (rule.isEmpty())
+        return baseStyle()->sizeFromContents(ct, opt, sz, w);
 
     switch (ct) {
     case CT_PushButton:
@@ -1823,11 +1817,6 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
 
     default:
-        static QList<int> panics;
-        if (!panics.contains(ct)) {
-            qDebug() << "sizeFromContents: Panic " << ct;
-            panics.append(ct);
-        }
         break;
     }
 

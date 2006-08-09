@@ -750,22 +750,30 @@ int Selector::specificity() const
         if (!sel.elementName.isEmpty())
             val += 1;
 
-        val += (sel.pseudoClasses.count() + sel.attributeSelectors.count()) * 0x10;
+        val += (sel.pseudos.count() + sel.attributeSelectors.count()) * 0x10;
         val += sel.ids.count() * 0x100;
     }
     return val;
 }
 
+QString Selector::pseudoElement() const
+{
+    const BasicSelector& bs = basicSelectors.last();
+    if (!bs.pseudos.isEmpty() && bs.pseudos.first().type == PseudoState_Unknown)
+        return bs.pseudos.first().name;
+    return QString();
+}
+
 int Selector::pseudoState() const
 {
     const BasicSelector& bs = basicSelectors.last();
-    if (bs.pseudoClasses.isEmpty())
+    if (bs.pseudos.isEmpty())
         return PseudoState_Unspecified;
     int state = PseudoState_Unknown;
-    for (int i = 0; i < bs.pseudoClasses.count(); i++) {
-        if (bs.pseudoClasses.at(i).type == PseudoState_Unknown)
+    for (int i = 0; i < bs.pseudos.count(); i++) {
+        if (bs.pseudos.at(i).type == PseudoState_Unknown)
             return PseudoState_Unknown;
-        state |= bs.pseudoClasses.at(i).type;
+        state |= bs.pseudos.at(i).type;
     }
     return state;
 }
@@ -909,7 +917,8 @@ static void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
 #endif
 
 // Returns style rules that are in ascending order of specificity
-QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
+// Each of the StyleRule returned will contain exactly one Selector
+QVector<StyleRule> StyleSelector::weightedRulesForNode(NodePtr node)
 {
     QVector<StyleRule> rules;
     if (styleSheets.isEmpty())
@@ -937,11 +946,24 @@ QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
     return rules;
 }
 
+QHash<QString, QVector<StyleRule> > StyleSelector::styleRulesForNode(NodePtr node)
+{
+    QVector<StyleRule> rules = weightedRulesForNode(node);
+    QHash<QString, QVector<StyleRule> > hash;
+    for (int i = 0; i < rules.count(); i++) {
+        const StyleRule& rule = rules.at(i);
+        QString pseudoElement = rule.selectors.at(0).pseudoElement();
+        QVector<StyleRule>& rules = hash[pseudoElement];
+        rules.append(rule);
+    }
+    return hash;
+}
+
 // for qtexthtmlparser which requires just the declarations with Enabled state
 QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 {
     QVector<Declaration> decls;
-    QVector<StyleRule> rules = styleRulesForNode(node);
+    QVector<StyleRule> rules = styleRulesForNode(node).value(QString());
     for (int i = 0; i < rules.count(); i++) {
         int pseudoState = rules.at(i).selectors.at(0).pseudoState();
         if (pseudoState == PseudoState_Enabled || pseudoState == PseudoState_Unspecified)
@@ -949,6 +971,7 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
     }
     return decls;
 }
+
 static inline bool isHexDigit(const char c)
 {
     return (c >= '0' && c <= '9')
@@ -1317,9 +1340,9 @@ bool Parser::parseSimpleSelector(BasicSelector *basicSel)
             basicSel->attributeSelectors.append(a);
         } else if (testPseudo()) {
             onceMore = true;
-            PseudoClass ps;
+            Pseudo ps;
             if (!parsePseudo(&ps)) return false;
-            basicSel->pseudoClasses.append(ps);
+            basicSel->pseudos.append(ps);
         }
         if (onceMore) ++count;
     } while (onceMore);
@@ -1369,8 +1392,9 @@ bool Parser::parseAttrib(AttributeSelector *attr)
     return next(RBRACKET);
 }
 
-bool Parser::parsePseudo(PseudoClass *pseudo)
+bool Parser::parsePseudo(Pseudo *pseudo)
 {
+    test(COLON);
     if (test(IDENT)) {
         pseudo->name = lexem();
         pseudo->type = static_cast<PseudoState>(findKnownValue(pseudo->name, pseudos, NumPseudos));

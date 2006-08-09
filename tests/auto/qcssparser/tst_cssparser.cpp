@@ -39,6 +39,8 @@ private slots:
     void rulesForNode();
     void shorthandBackgroundProperty_data();
     void shorthandBackgroundProperty();
+    void pseudoElement_data();
+    void pseudoElement();
 };
 
 void tst_CssParser::scanner_data()
@@ -371,12 +373,12 @@ void tst_CssParser::ruleset()
         QCOMPARE(rule.selectors.count(), 2);
 
         QCOMPARE(rule.selectors.at(0).basicSelectors.count(), 1);
-        QCOMPARE(rule.selectors.at(0).basicSelectors.at(0).pseudoClasses.count(), 1);
-        QCOMPARE(rule.selectors.at(0).basicSelectors.at(0).pseudoClasses.at(0).name, QString("before"));
+        QCOMPARE(rule.selectors.at(0).basicSelectors.at(0).pseudos.count(), 1);
+        QCOMPARE(rule.selectors.at(0).basicSelectors.at(0).pseudos.at(0).name, QString("before"));
 
         QCOMPARE(rule.selectors.at(1).basicSelectors.count(), 1);
-        QCOMPARE(rule.selectors.at(1).basicSelectors.at(0).pseudoClasses.count(), 1);
-        QCOMPARE(rule.selectors.at(1).basicSelectors.at(0).pseudoClasses.at(0).name, QString("after"));
+        QCOMPARE(rule.selectors.at(1).basicSelectors.at(0).pseudos.count(), 1);
+        QCOMPARE(rule.selectors.at(1).basicSelectors.at(0).pseudos.at(0).name, QString("after"));
 
         QVERIFY(rule.declarations.isEmpty());
     }
@@ -460,9 +462,9 @@ void tst_CssParser::selector_data()
         QCss::BasicSelector basic;
 
         basic.elementName = "e";
-        QCss::PseudoClass pseudo;
+        QCss::Pseudo pseudo;
         pseudo.name = "first-child";
-        basic.pseudoClasses.append(pseudo);
+        basic.pseudos.append(pseudo);
         sel.basicSelectors << basic;
 
         QTest::newRow("first-child") << QString("e:first-child") << sel;
@@ -473,10 +475,10 @@ void tst_CssParser::selector_data()
         QCss::BasicSelector basic;
 
         basic.elementName = "e";
-        QCss::PseudoClass pseudo;
+        QCss::Pseudo pseudo;
         pseudo.name = "c";
         pseudo.function = "lang";
-        basic.pseudoClasses.append(pseudo);
+        basic.pseudos.append(pseudo);
         sel.basicSelectors << basic;
 
         QTest::newRow("lang") << QString("e:lang(c)") << sel;
@@ -604,10 +606,10 @@ void tst_CssParser::selector()
         QCOMPARE(sel.elementName, expectedSel.elementName);
         QCOMPARE(int(sel.relationToNext), int(expectedSel.relationToNext));
 
-        QCOMPARE(sel.pseudoClasses.count(), expectedSel.pseudoClasses.count());
-        for (int i = 0; i < sel.pseudoClasses.count(); ++i) {
-            QCOMPARE(sel.pseudoClasses.at(i).name, expectedSel.pseudoClasses.at(i).name);
-            QCOMPARE(sel.pseudoClasses.at(i).function, expectedSel.pseudoClasses.at(i).function);
+        QCOMPARE(sel.pseudos.count(), expectedSel.pseudos.count());
+        for (int i = 0; i < sel.pseudos.count(); ++i) {
+            QCOMPARE(sel.pseudos.at(i).name, expectedSel.pseudos.at(i).name);
+            QCOMPARE(sel.pseudos.at(i).function, expectedSel.pseudos.at(i).function);
         }
 
         QCOMPARE(sel.attributeSelectors.count(), expectedSel.attributeSelectors.count());
@@ -1128,7 +1130,7 @@ void tst_CssParser::rulesForNode()
     QDomElement e = doc.documentElement().firstChildElement();
     QCss::StyleSelector::NodePtr n;
     n.ptr = &e;
-    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n).value(QString());
 
     QVector<QCss::Declaration> decls;
     for (int i = 0; i < rules.count(); i++) {
@@ -1185,6 +1187,62 @@ void tst_CssParser::shorthandBackgroundProperty()
     QTEST(int(repeat), "expectedRepeatValue");
     QTEST(int(alignment), "expectedAlignment");
 }
+
+void tst_CssParser::pseudoElement_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QString>("pseudoElement");
+    QTest::addColumn<int>("ruleCount");
+    
+    // QComboBox::dropDown { border-image: blah; }
+    QTest::newRow("no pseudo-elements") << QString("dummy:hover { color: red }") << "" << 1;
+    QTest::newRow("no pseudo-elements") << QString("dummy:hover { color: red }") << "pe" << 0;
+
+    QTest::newRow("1 pseudo-element (1)") << QString("dummy::pe:hover { color: red }") << "pe" << 1;
+    QTest::newRow("1 pseudo-element (2)") << QString("dummy::pe:hover { color: red }") << "x" << 0;
+    QTest::newRow("1 pseudo-element (2)") << QString("whatever::pe:hover { color: red }") << "pe" << 0;
+
+    QTest::newRow("1 pseudo-element (3)") 
+        << QString("dummy { color: white; } dummy::pe:hover { color: red }") << "x" << 0;
+    QTest::newRow("1 pseudo-element (4)") 
+        << QString("dummy { color: white; } dummy::pe:hover { color: red } dummy { x:y }") << "" << 2;
+    QTest::newRow("1 pseudo-element (5)") 
+        << QString("dummy { color: white; } dummy::pe:hover { color: red }") << "pe" << 1;
+    QTest::newRow("1 pseudo-element (6)") 
+      << QString("dummy { color: white; } dummy::pe:hover { color: red } dummy::pe:checked { x: y} ") << "pe" << 2;
+
+    QTest::newRow("2 pseudo-elements (1)") 
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+      << "" << 1;
+    QTest::newRow("2 pseudo-elements (1)") 
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+      << "pe1" << 1;
+    QTest::newRow("2 pseudo-elements (2)") 
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+      << "pe2" << 1;
+}
+
+void tst_CssParser::pseudoElement()
+{
+    QFETCH(QString, css);
+    QFETCH(QString, pseudoElement);
+    QFETCH(int, ruleCount);
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(QLatin1String("<!DOCTYPE test><test> <dummy/> </test>")));
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    DomStyleSelector testSelector(doc, sheet);
+    QDomElement e = doc.documentElement().firstChildElement();
+    QCss::StyleSelector::NodePtr n;
+    n.ptr = &e;
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n).value(pseudoElement);
+    QVERIFY(rules.count() == ruleCount);
+}
+
 
 QTEST_MAIN(tst_CssParser)
 #include "tst_cssparser.moc"

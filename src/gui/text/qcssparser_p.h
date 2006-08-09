@@ -225,6 +225,12 @@ struct Q_GUI_EXPORT Value
     QVariant variant;
 };
 
+// 1. StyleRule - x:hover, y:clicked > z:checked { prop1: value1; prop2: value2; }
+// 2. QVector<Selector> - x:hover, y:clicked z:checked
+// 3. QVector<BasicSelector> - y:clicked z:checked
+// 4. QVector<Declaration> - { prop1: value1; prop2: value2; }
+// 5. Declaration - prop1: value1;
+
 struct Q_GUI_EXPORT Declaration
 {
     inline Declaration() : propertyId(UnknownProperty), important(false) {}
@@ -274,7 +280,7 @@ enum PseudoState
     NumPseudos = 9
 };
 
-struct Q_GUI_EXPORT PseudoClass
+struct Q_GUI_EXPORT Pseudo
 {
     PseudoState type;
     QString name;
@@ -310,7 +316,7 @@ struct Q_GUI_EXPORT BasicSelector
     QString elementName;
 
     QStringList ids;
-    QVector<PseudoClass> pseudoClasses;
+    QVector<Pseudo> pseudos;
     QVector<AttributeSelector> attributeSelectors;
 
     Relation relationToNext;
@@ -321,6 +327,7 @@ struct Q_GUI_EXPORT Selector
     QVector<BasicSelector> basicSelectors;
     int specificity() const;
     int pseudoState() const;
+    QString pseudoElement() const;
 };
 
 struct StyleRule;
@@ -374,7 +381,8 @@ public:
         int id;
     };
 
-    QVector<StyleRule> styleRulesForNode(NodePtr node);
+    QVector<StyleRule> weightedRulesForNode(NodePtr node);
+    QHash<QString, QVector<StyleRule> > styleRulesForNode(NodePtr node);
     QVector<Declaration> declarationsForNode(NodePtr node);
 
     virtual bool nodeNameEquals(NodePtr node, const QString& nodeName) const = 0;
@@ -483,7 +491,7 @@ public:
     bool parseClass(QString *name);
     bool parseElementName(QString *name);
     bool parseAttrib(AttributeSelector *attr);
-    bool parsePseudo(PseudoClass *pseudo);
+    bool parsePseudo(Pseudo *pseudo);
     bool parseNextDeclaration(Declaration *declaration);
     bool parsePrio(Declaration *declaration);
     bool parseExpr(QVector<Value> *values);
