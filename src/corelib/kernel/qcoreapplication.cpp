@@ -312,7 +312,7 @@ QString qAppName()
     operations can call processEvents() to keep the application
     responsive.
 
-    Some Qt classes (e.g., QString) can be used without a
+    Some Qt classes, such as QString, can be used without a
     QCoreApplication object. However, in general, we recommend that
     you create a QCoreApplication or a QApplication object in your \c
     main() function as early as possible.
