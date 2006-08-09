@@ -106,6 +106,7 @@ private slots:
     void lastWinClosed();
     void setIndexingProgress(int prog);
     void showListItemMenu(const QPoint &pos);
+    void showIndexItemMenu(const QPoint &pos);
     void showTreeItemMenu(const QPoint &pos);
     void insertBookmarks();
     void processEvents();

@@ -221,15 +221,15 @@ void HelpDialog::initialize()
 {
     connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
 
-    connect(ui.listContents, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listContents, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listContents, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
+    ui.listContents->viewport()->installEventFilter(this);
 
     connect(ui.editIndex, SIGNAL(returnPressed()), this, SLOT(showTopic()));
     connect(ui.editIndex, SIGNAL(textEdited(QString)), this, SLOT(searchInIndex(QString)));
 
     connect(ui.listIndex, SIGNAL(activated(QModelIndex)), this, SLOT(showTopic()));
-    connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showListItemMenu(QPoint)));
+    connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showIndexItemMenu(QPoint)));
 
     connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listBookmarks, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
@@ -272,7 +272,6 @@ void HelpDialog::initialize()
     setupTitleMap();
 
 }
-
 
 void HelpDialog::processEvents()
 {
@@ -699,6 +698,14 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
 
             default:
                 break;
+        }
+    } else if (o == ui.listContents->viewport())
+        if (e->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *me = static_cast<QMouseEvent*>(e);
+        if (me->button() == Qt::LeftButton) {
+            QTreeWidgetItem *item = ui.listContents->itemAt(me->pos());
+            if (item)
+                showTopic(item);
         }
     }
 
@@ -1148,62 +1155,67 @@ void HelpDialog::showResultPage(QListWidgetItem *item)
         emit showSearchLink(foundDocs[ui.resultBox->row(item)], terms);
 }
 
+void HelpDialog::showIndexItemMenu(const QPoint &pos)
+{
+    QListView *listView = qobject_cast<QListView*>(sender());
+    if (!listView)
+        return;
+
+    QModelIndex idx = listView->indexAt(pos);
+    if (!idx.isValid())
+        return;
+
+    QAction *action = itemPopup->exec(listView->viewport()->mapToGlobal(pos));
+    if (action == actionOpenCurrentTab) {
+        showTopic();
+    } else if (action) {
+        HelpWindow *hw = help->browsers()->currentBrowser();
+        QString itemName = idx.data().toString();
+        ui.editIndex->setText(itemName);
+        QStringList links = indexModel->links(idx.row());
+        if (links.count() == 1) {
+            if (action == actionOpenLinkInNewWindow)
+                hw->openLinkInNewWindow(links.first());
+            else
+                hw->openLinkInNewPage(links.first());
+        } else {
+            QStringList::Iterator it = links.begin();
+            QStringList linkList;
+            QStringList linkNames;
+            for (; it != links.end(); ++it) {
+                linkList << *it;
+                linkNames << titleOfLink(*it);
+            }
+            QString link = TopicChooser::getLink(this, linkNames, linkList, itemName);
+            if (!link.isEmpty()) {
+                if (action == actionOpenLinkInNewWindow)
+                    hw->openLinkInNewWindow(link);
+                else
+                    hw->openLinkInNewPage(link);
+            }
+        }
+    }
+}
+
 void HelpDialog::showListItemMenu(const QPoint &pos)
 {
     QListWidget *listWidget = qobject_cast<QListWidget*>(sender());
-
     if (!listWidget)
         return;
-
     QListWidgetItem *item = listWidget->itemAt(pos);
     if (!item)
         return;
 
-    QString currentTabText = ui.tabWidget->tabText(ui.tabWidget->currentIndex());
-
     QAction *action = itemPopup->exec(listWidget->viewport()->mapToGlobal(pos));
-    if (action == actionOpenCurrentTab) {
-        if (stripAmpersand(currentTabText).contains(tr("Index")))
-            showTopic();
-        else {
-            showResultPage(item);
-        }
+    if (action == actionOpenCurrentTab) {        
+        showResultPage(item);
     } else if (action) {
         HelpWindow *hw = help->browsers()->currentBrowser();
-        if (stripAmpersand(currentTabText).contains(tr("Index"))) {
-            ui.editIndex->setText(item->text());
-
-            HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
-
-            QStringList links = hi->links();
-            if (links.count() == 1) {
-                if (action == actionOpenLinkInNewWindow)
-                    hw->openLinkInNewWindow(links.first());
-                else
-                    hw->openLinkInNewPage(links.first());
-            } else {
-                QStringList::Iterator it = links.begin();
-                QStringList linkList;
-                QStringList linkNames;
-                for (; it != links.end(); ++it) {
-                    linkList << *it;
-                    linkNames << titleOfLink(*it);
-                }
-                QString link = TopicChooser::getLink(this, linkNames, linkList, item->text());
-                if (!link.isEmpty()) {
-                    if (action == actionOpenLinkInNewWindow)
-                        hw->openLinkInNewWindow(link);
-                    else
-                        hw->openLinkInNewPage(link);
-                }
-            }
-        } else {
-            QString link = foundDocs[ ui.resultBox->row(item) ];
-            if (action == actionOpenLinkInNewWindow)
-                hw->openLinkInNewWindow(link);
-            else
-                hw->openLinkInNewPage(link);
-        }
+        QString link = foundDocs[ui.resultBox->row(item)];
+        if (action == actionOpenLinkInNewWindow)
+            hw->openLinkInNewWindow(link);
+        else
+            hw->openLinkInNewPage(link);
     }
 }
 
