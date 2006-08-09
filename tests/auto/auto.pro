@@ -309,6 +309,7 @@ SUBDIRS += bic \
            qxmlsimplereader \
            selftests \
            symbols \
-           qrand
+           qrand \
+           casttest
 
 
