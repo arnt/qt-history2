@@ -94,10 +94,12 @@ struct QTexturedBrushData : public QBrushData
     QTexturedBrushData() {
         m_pixmap = 0;
     }
+    ~QTexturedBrushData() {
+        delete m_pixmap;
+    }
 
     void setPixmap(const QPixmap &pm) {
-        if (m_pixmap)
-            delete m_pixmap;
+        delete m_pixmap;
 
         if (pm.isNull())
             m_pixmap = 0;
