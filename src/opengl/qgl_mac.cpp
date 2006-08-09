@@ -675,6 +675,8 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     glcx = olcx = 0;
     autoSwap = true;
 
+    if (!context->device())
+        context->setDevice(q);
     q->setAttribute(Qt::WA_NoSystemBackground);
     q->setContext(context, shareWidget ? shareWidget->context() : 0);
 
