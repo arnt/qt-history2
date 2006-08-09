@@ -2194,7 +2194,8 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
         w = leaveList.at(i);
         if (!qApp->activeModalWidget() || QApplicationPrivate::tryModalHelper(w, 0)) {
             QApplication::sendEvent(w, &leaveEvent);
-            if (w->testAttribute(Qt::WA_Hover)) {
+            if (w->testAttribute(Qt::WA_Hover) &&
+                (!qApp->activePopupWidget() || qApp->activePopupWidget() == w->window())) {
                 Q_ASSERT(instance());
                 QHoverEvent he(QEvent::HoverLeave, QPoint(-1, -1), w->mapFromGlobal(QApplicationPrivate::instance()->hoverGlobalPos));
                 qApp->d_func()->notify_helper(w, &he);
@@ -2207,7 +2208,8 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
         w = enterList.at(i);
         if (!qApp->activeModalWidget() || QApplicationPrivate::tryModalHelper(w, 0)) {
             QApplication::sendEvent(w, &enterEvent);
-            if (w->testAttribute(Qt::WA_Hover)) {
+            if (w->testAttribute(Qt::WA_Hover) &&
+                (!qApp->activePopupWidget() || qApp->activePopupWidget() == w->window())) {
                 QHoverEvent he(QEvent::HoverEnter, w->mapFromGlobal(posEnter), QPoint(-1, -1));
                 qApp->d_func()->notify_helper(w, &he);
             }
@@ -3135,7 +3137,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 relpos = mouse->pos();
                 QPoint diff = relpos - w->mapFromGlobal(d->hoverGlobalPos);
                 while (w) {
-                    if (w->testAttribute(Qt::WA_Hover)) {
+                    if (w->testAttribute(Qt::WA_Hover) && 
+                        (!qApp->activePopupWidget() || qApp->activePopupWidget() == w->window())) {
                         QHoverEvent he(QEvent::HoverMove, relpos, relpos - diff);
                         d->notify_helper(w, &he);
                     }
@@ -3386,7 +3389,8 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
         QWidget *widget = static_cast<QWidget *>(receiver);
 
         // toggle HasMouse widget state on enter and leave
-        if (e->type() == QEvent::Enter || e->type() == QEvent::DragEnter)
+        if ((e->type() == QEvent::Enter || e->type() == QEvent::DragEnter) &&
+            (!qApp->activePopupWidget() || qApp->activePopupWidget() == widget->window()))
             widget->setAttribute(Qt::WA_UnderMouse, true);
         else if (e->type() == QEvent::Leave || e->type() == QEvent::DragLeave)
             widget->setAttribute(Qt::WA_UnderMouse, false);
