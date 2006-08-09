@@ -716,7 +716,7 @@ void tst_QLineEdit::hasAcceptableInputMask()
     testWidget->setInputMask(requiredMask);
     validInput = TRUE;
     testWidget->setText(invalid);
-    qApp->sendEvent(testWidget, &lostFocus);
+    validInput = testWidget->hasAcceptableInput();
     QVERIFY(!validInput);
 
     validInput = FALSE;
