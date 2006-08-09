@@ -49,6 +49,7 @@ private slots:
     void clicked();
     void singleSelectionRemoveRow();
     void singleSelectionRemoveColumn();
+    void modelColumn();
 };
 
 // Testing get/set functions
@@ -502,6 +503,61 @@ void tst_QListView::singleSelectionRemoveColumn()
     index = view.currentIndex();
     QCOMPARE(view.model()->data(index).toString(), QString("1,2"));
 }
+
+void tst_QListView::modelColumn()
+{
+    int numCols = 3;
+    int numRows = 3;
+    QStandardItemModel model(numCols, numRows);
+    for (int r = 0; r < numRows; ++r)
+        for (int c = 0; c < numCols; ++c)
+            model.setData(model.index(r, c), QString("%1,%2").arg(r).arg(c));
+
+
+    QListView view;
+    view.setModel(&model);
+    
+    
+    
+    //
+    // Set and get with a valid model
+    //
+    
+    // Default is column 0
+    QCOMPARE(view.modelColumn(), 0);
+   
+    view.setModelColumn(0);
+    QCOMPARE(view.modelColumn(), 0);
+    view.setModelColumn(1);
+    QCOMPARE(view.modelColumn(), 1);
+    view.setModelColumn(2);
+    QCOMPARE(view.modelColumn(), 2);
+    
+    // Out of bound cases should not modify the modelColumn
+    view.setModelColumn(-1);
+    QCOMPARE(view.modelColumn(), 2);
+    view.setModelColumn(INT_MAX);
+    QCOMPARE(view.modelColumn(), 2);
+    
+    
+    // See if it displays the right column using indexAt()...
+    view.resize(400,400);
+    view.show();
+
+    for (int c = 0; c < 3; ++c) {
+        view.setModelColumn(c);
+        int startrow = 0;
+        for (int y = 0; y < view.height(); ++y) {
+            QModelIndex idx = view.indexAt( QPoint(1, y) );
+            if (idx.row() == startrow + 1) ++startrow;
+            else if (idx.row() == -1) break;
+            QCOMPARE(idx.row(), startrow);
+            QCOMPARE(idx.column(), c);
+        }
+        QCOMPARE(startrow, 2);
+    }
+}
+
 
 QTEST_MAIN(tst_QListView)
 #include "tst_qlistview.moc"
