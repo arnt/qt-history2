@@ -1411,6 +1411,14 @@ void TrWindow::setupMenuBar()
     connect(m_batchTranslateDlg, SIGNAL(finished()), this, SLOT(finishedBatchTranslation()));
     connect(m_ui.actionPreviewForm, SIGNAL(triggered()), this, SLOT(previewForm()));
 
+#if defined(Q_WS_MAC)
+    // Window menu
+    QMenu *windowMenu = new QMenu(tr("&Window"), this);
+    menuBar()->insertMenu(m_ui.menuHelp->menuAction(), windowMenu);
+    windowMenu->addAction(tr("Minimize"), this,
+        SLOT(showMinimized()), QKeySequence(tr("Ctrl+M")));
+#endif
+
     // Help
     connect(m_ui.actionManual, SIGNAL(triggered()), this, SLOT(manual()));
     connect(m_ui.actionAbout, SIGNAL(triggered()), this, SLOT(about()));

@@ -55,7 +55,7 @@ MainWindow::MainWindow()
 
     goActions = QList<QAction*>();
     goActionDocFiles = new QMap<QAction*,QString>;
-
+    
     windows.append(this);
     tabs = new TabbedBrowser(this);
     setCentralWidget(tabs);
@@ -84,6 +84,10 @@ MainWindow::MainWindow()
     tabs->setup();
     QTimer::singleShot(0, this, SLOT(setup()));
 #if defined(Q_WS_MAC)
+    QMenu *windowMenu = new QMenu(tr("&Window"), this);
+    menuBar()->insertMenu(ui.helpMenu->menuAction(), windowMenu);
+    windowMenu->addAction(tr("Minimize"), this,
+        SLOT(showMinimized()), QKeySequence(tr("Ctrl+M")));
     // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
     // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
     // works just fine, since that's how Microsoft hacked it.
