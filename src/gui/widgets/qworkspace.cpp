@@ -2425,9 +2425,8 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::Window
     if (titlebar) {
         if (!childWidget->windowIcon().isNull())
             titlebar->setWindowIcon(childWidget->windowIcon());
-        if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
-            th += frameWidth();
-        else
+
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th -= contentsRect().y();
 
         p = QPoint(contentsRect().x(),
