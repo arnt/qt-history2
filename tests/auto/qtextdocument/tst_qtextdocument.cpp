@@ -46,6 +46,7 @@ private slots:
     void isEmpty();
     void find_data();
     void find();
+    void find2();
     void basicIsModifiedChecks();
     void moreIsModified();
     void isModified2();
@@ -226,6 +227,16 @@ void tst_QTextDocument::find()
     } else {
         QVERIFY(cursor.isNull());
     }
+}
+
+void tst_QTextDocument::find2()
+{
+    doc->setPlainText("aaa");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    QTextCursor hit = doc->find("a", cursor);
+    QCOMPARE(hit.position(), 2);
+    QCOMPARE(hit.anchor(), 1);
 }
 
 void tst_QTextDocument::basicIsModifiedChecks()
