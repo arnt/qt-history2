@@ -1233,20 +1233,8 @@ QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
 
 double QDoubleSpinBoxPrivate::round(double value) const
 {
-    const int dec = decimals + 1;
-    const QString strDbl = QString::number(value, 'f', dec);
-
-    const double intPart = strDbl.left(strDbl.length() - dec - 1).toDouble();
-
-    qlonglong decPart = strDbl.right(dec).toLongLong();
-    decPart = (decPart + 5) / 10;
-
-    const double power = pow(10.0, decimals);
-
-    if (value >= 0.0)
-        return intPart + decPart / power;
-    else
-        return intPart - decPart / power;
+    const QString strDbl = QString::number(value, 'f', decimals);
+    return strDbl.toDouble();
 }
 
 
