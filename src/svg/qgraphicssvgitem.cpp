@@ -22,7 +22,7 @@
 class QGraphicsSvgItemPrivate : public QObjectPrivate
 {
 public:
-    Q_DECLARE_PUBLIC(QGraphicsSvgItem);
+    Q_DECLARE_PUBLIC(QGraphicsSvgItem)
 
     QGraphicsSvgItemPrivate()
         : renderer(0), shared(false), dirty(true),
