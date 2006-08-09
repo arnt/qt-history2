@@ -59,9 +59,7 @@ public:
 
     QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
-#ifndef QT_NO_FREETYPE
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
-#endif
     QByteArray getSfntTable(uint tag) const;
     int synthesized() const;
 

@@ -69,11 +69,6 @@ QFixed QFontEngine::averageCharWidth() const
 }
 
 
-void QFontEngine::addGlyphsToPath(glyph_t *, QFixedPoint *, int ,
-                                  QPainterPath *, QTextItem::RenderFlags)
-{
-}
-
 void QFontEngine::getGlyphPositions(const QGlyphLayout *glyphs, int nglyphs, const QMatrix &matrix, QTextItem::RenderFlags flags,
                                     QVarLengthArray<glyph_t> &glyphs_out, QVarLengthArray<QFixedPoint> &positions)
 {
@@ -291,9 +286,13 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
                                       QPainterPath *path, QTextItem::RenderFlags flags)
 {
     glyph_metrics_t metrics = boundingBox(glyphs, numGlyphs);
-    QBitmap bm(metrics.width.toInt(), metrics.height.toInt());
+    int w = metrics.width.toInt();
+    int h = metrics.height.toInt();
+    if (w <= 0 || h <= 0)
+        return;
+    QBitmap bm(w, h);
     QPainter p(&bm);
-    p.fillRect(0, 0, metrics.width.toInt(), metrics.height.toInt(), Qt::color0);
+    p.fillRect(0, 0, w, h, Qt::color0);
     p.setPen(Qt::color1);
 
     QTextItemInt item;
@@ -316,8 +315,32 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     image = image.convertToFormat(QImage::Format_Mono);
     const uchar *image_data = image.bits();
     uint bpl = image.bytesPerLine();
-    qt_addBitmapToPath(x, y - item.ascent.toReal(), image_data, bpl, image.width(), image.height(), path);
+    qt_addBitmapToPath(x, y - item.ascent.toReal(), image_data, bpl, w, h, path);
 }
+
+void QFontEngine::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, int nGlyphs,
+                                  QPainterPath *path, QTextItem::RenderFlags flags)
+{
+    qreal x = positions[0].x.toReal();
+    qreal y = positions[0].y.toReal();
+    QVarLengthArray<QGlyphLayout> g(nGlyphs);
+    memset(g.data(), 0, nGlyphs*sizeof(QGlyphLayout));
+
+    for (int i = 0; i < nGlyphs; ++i) {
+        g[i].glyph = glyphs[i];
+        if (i < nGlyphs - 1) {
+            g[i].advance.x = positions[i+1].x - positions[i].x;
+            g[i].advance.y = positions[i+1].y - positions[i].y;
+        } else {
+            g[i].advance.x = QFixed::fromReal(maxCharWidth());
+            g[i].advance.y = 0;
+        }
+    }
+
+    addBitmapFontToPath(x, y, g.data(), nGlyphs, path, flags);
+}
+
+
 
 QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 {
@@ -367,6 +390,11 @@ QFontEngine::Properties QFontEngine::properties() const
 #else
     QByteArray psname = fontDef.family.toUtf8();
 #endif
+    psname += '-';
+    psname += QByteArray::number(fontDef.style);
+    psname += '-';
+    psname += QByteArray::number(fontDef.weight);
+
     p.postscriptName = psname;
     p.ascent = ascent();
     p.descent = descent();

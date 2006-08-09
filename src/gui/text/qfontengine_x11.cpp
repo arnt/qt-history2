@@ -963,8 +963,13 @@ QFontEngine::FaceId QFontEngineXLFD::faceId() const
         face_id = ::fontFile(_name, &freetype, &synth);
         if (_codec)
             face_id.encoding = _codec->mibEnum();
-        if (freetype)
+        if (freetype) {
             const_cast<QFontEngineXLFD *>(this)->fsType = freetype->fsType();
+        } else {
+            QFontEngine::Properties properties = QFontEngine::properties();
+            face_id.index = 0;
+            face_id.filename = "-" + properties.postscriptName;
+        }
     }
 #endif
 
@@ -980,18 +985,22 @@ QFontEngine::Properties QFontEngineXLFD::properties() const
     if (freetype)
         return freetype->properties();
 #endif
-    return Properties();
+    return QFontEngine::properties();
 }
-
-#ifndef QT_NO_FREETYPE
 
 void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     if (face_id.index == -1)
         (void)faceId();
+#ifndef QT_NO_FREETYPE
     if (!freetype)
+#endif
+    {
+        QFontEngine::getUnscaledGlyph(glyph, path, metrics);
         return;
+    }
 
+#ifndef QT_NO_FREETYPE
     freetype->lock();
 
     FT_Face face = freetype->face;
@@ -1026,9 +1035,9 @@ void QFontEngineXLFD::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_
     }
     FT_Set_Transform(face, &freetype->matrix, 0);
     freetype->unlock();
+#endif // QT_NO_FREETYPE
 }
 
-#endif // QT_NO_FREETYPE
 
 QByteArray QFontEngineXLFD::getSfntTable(uint tag) const
 {
