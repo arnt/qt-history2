@@ -17,6 +17,7 @@ HEADERS += \
 	itemviews/qitemselectionmodel_p.h \
 	itemviews/qdirmodel.h \
 	itemviews/qlistwidget.h \
+	itemviews/qlistwidget_p.h \
 	itemviews/qtablewidget.h \
     itemviews/qtablewidget_p.h \
 	itemviews/qtreewidget.h \

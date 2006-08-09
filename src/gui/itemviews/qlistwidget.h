@@ -31,6 +31,7 @@ class QWidgetItemData;
 class Q_GUI_EXPORT QListWidgetItem
 {
     friend class QListModel;
+    friend class QListWidget;
 public:
     enum ItemType { Type = 0, UserType = 1000 };
     explicit QListWidgetItem(QListWidget *view = 0, int type = Type);

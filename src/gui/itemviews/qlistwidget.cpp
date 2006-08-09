@@ -15,9 +15,9 @@
 
 #ifndef QT_NO_LISTWIDGET
 #include <qitemdelegate.h>
-#include <qpainter.h>
 #include <private/qlistview_p.h>
 #include <private/qwidgetitemdata_p.h>
+#include <private/qlistwidget_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QPair<QListWidgetItem*,int>&,const QPair<QListWidgetItem*,int>&);
@@ -27,77 +27,6 @@ class QListWidgetMimeData : public QMimeData
     Q_OBJECT
 public:
     QList<QListWidgetItem*> items;
-};
-
-class QListModelLessThan
-{
-public:
-    inline bool operator()(QListWidgetItem *i1, QListWidgetItem *i2) const
-        { return *i1 < *i2; }
-};
-
-class QListModelGreaterThan
-{
-public:
-    inline bool operator()(QListWidgetItem *i1, QListWidgetItem *i2) const
-        { return *i2 < *i1; }
-};
-
-class QListModel : public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    QListModel(QListWidget *parent);
-    ~QListModel();
-
-    void clear();
-    QListWidgetItem *at(int row) const;
-    void insert(int row, QListWidgetItem *item);
-    void insert(int row, const QStringList &items);
-    void remove(QListWidgetItem *item);
-    QListWidgetItem *take(int row);
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-
-    QModelIndex index(QListWidgetItem *item) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-
-    bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
-    bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
-
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-
-    void sort(int column, Qt::SortOrder order);
-    void ensureSorted(int column, Qt::SortOrder order, int start, int end);
-    static bool itemLessThan(const QPair<QListWidgetItem*,int> &left,
-                             const QPair<QListWidgetItem*,int> &right);
-    static bool itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
-                                const QPair<QListWidgetItem*,int> &right);
-    static QList<QListWidgetItem*>::iterator sortedInsertionIterator(
-        const QList<QListWidgetItem*>::iterator &begin,
-        const QList<QListWidgetItem*>::iterator &end,
-        Qt::SortOrder order, QListWidgetItem *item);
-
-    void itemChanged(QListWidgetItem *item);
-
-    // dnd
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
-#ifndef QT_NO_DRAGANDDROP
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-                      int row, int column, const QModelIndex &parent);
-    Qt::DropActions supportedDropActions() const;
-#endif
-
-    QMimeData *internalMimeData()  const;
-private:
-    QList<QListWidgetItem*> lst;
-
-    // A cache must be mutable if get-functions should have const modifiers
-    mutable QModelIndexList cachedIndexes;
 };
 
 #include "qlistwidget.moc"
@@ -114,32 +43,32 @@ QListModel::~QListModel()
 
 void QListModel::clear()
 {
-    for (int i = 0; i < lst.count(); ++i) {
-        if (lst.at(i)) {
-            lst.at(i)->model = 0;
-            lst.at(i)->view = 0;
-            delete lst.at(i);
+    for (int i = 0; i < items.count(); ++i) {
+        if (items.at(i)) {
+            items.at(i)->model = 0;
+            items.at(i)->view = 0;
+            delete items.at(i);
         }
     }
-    lst.clear();
+    items.clear();
     reset();
 }
 
 QListWidgetItem *QListModel::at(int row) const
 {
-    return lst.value(row);
+    return items.value(row);
 }
 
 void QListModel::remove(QListWidgetItem *item)
 {
     if (!item)
         return;
-    int row = lst.indexOf(item);
+    int row = items.indexOf(item);
     Q_ASSERT(row != -1);
     beginRemoveRows(QModelIndex(), row, row);
-    lst.at(row)->model = 0;
-    lst.at(row)->view = 0;
-    lst.removeAt(row);
+    items.at(row)->model = 0;
+    items.at(row)->view = 0;
+    items.removeAt(row);
     endRemoveRows();
 }
 
@@ -153,17 +82,17 @@ void QListModel::insert(int row, QListWidgetItem *item)
     if (item->view && item->view->isSortingEnabled()) {
         // sorted insertion
         QList<QListWidgetItem*>::iterator it;
-        it = sortedInsertionIterator(lst.begin(), lst.end(),
+        it = sortedInsertionIterator(items.begin(), items.end(),
                                      item->view->sortOrder(), item);
-        row = qMax(it - lst.begin(), 0);
+        row = qMax(it - items.begin(), 0);
     } else {
         if (row < 0)
             row = 0;
-        else if (row > lst.count())
-            row = lst.count();
+        else if (row > items.count())
+            row = items.count();
     }
     beginInsertRows(QModelIndex(), row, row);
-    lst.insert(row, item);
+    items.insert(row, item);
     endInsertRows();
 }
 
@@ -182,14 +111,14 @@ void QListModel::insert(int row, const QStringList &labels)
     } else {
         if (row < 0)
             row = 0;
-        else if (row > lst.count())
-            row = lst.count();
+        else if (row > items.count())
+            row = items.count();
         beginInsertRows(QModelIndex(), row, row + count - 1);
         for (int i = 0; i < count; ++i) {
             QListWidgetItem *item = new QListWidgetItem(labels.at(i));
             item->model = this;
             item->view = ::qobject_cast<QListWidget*>(QObject::parent());
-            lst.insert(row++, item);
+            items.insert(row++, item);
         }
         endInsertRows();
     }
@@ -197,27 +126,27 @@ void QListModel::insert(int row, const QStringList &labels)
 
 QListWidgetItem *QListModel::take(int row)
 {
-    if (row < 0 || row >= lst.count())
+    if (row < 0 || row >= items.count())
         return 0;
 
     beginRemoveRows(QModelIndex(), row, row);
-    lst.at(row)->model = 0;
-    lst.at(row)->view = 0;
-    QListWidgetItem *item = lst.takeAt(row);
+    items.at(row)->model = 0;
+    items.at(row)->view = 0;
+    QListWidgetItem *item = items.takeAt(row);
     endRemoveRows();
     return item;
 }
 
 int QListModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : lst.count();
+    return parent.isValid() ? 0 : items.count();
 }
 
 QModelIndex QListModel::index(QListWidgetItem *item) const
 {
-    if (!item)
+    if (!item || item->model != this)
         return QModelIndex();
-    int row = lst.lastIndexOf(item);
+    int row = items.lastIndexOf(item);  // lastIndexOf is an optimization in favor of indexOf
     if (row != -1)
         return createIndex(row, 0, item);
     return QModelIndex();
@@ -226,77 +155,67 @@ QModelIndex QListModel::index(QListWidgetItem *item) const
 QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (hasIndex(row, column, parent))
-        return createIndex(row, column, lst.at(row));
+        return createIndex(row, column, items.at(row));
     return QModelIndex();
 }
 
 QVariant QListModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= lst.count())
+    if (!index.isValid() || index.row() >= items.count())
         return QVariant();
-    return lst.at(index.row())->data(role);
+    return items.at(index.row())->data(role);
 }
 
 bool QListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || index.row() >= lst.count())
+    if (!index.isValid() || index.row() >= items.count())
         return false;
-    lst.at(index.row())->setData(role, value);
+    items.at(index.row())->setData(role, value);
     return true;
 }
 
-bool QListModel::insertRows(int row, int count, const QModelIndex &)
+bool QListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    if (count < 1 || row < 0 || row > rowCount())
+    if (count < 1 || row < 0 || row > rowCount() || parent.isValid())
         return false;
 
     beginInsertRows(QModelIndex(), row, row + count - 1);
     QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
-    if (row < rowCount()) {
-        for (int r = row; r < row + count; ++r) {
-            itm = new QListWidgetItem;
-            itm->view = view;
-            itm->model = this;
-            lst.insert(r, itm);
-        }
-    } else {
-        for (int r = 0; r < count; ++r) {
-            itm = new QListWidgetItem;
-            itm->view = view;
-            itm->model = this;
-            lst.append(itm);
-        }
+
+    for (int r = row; r < row + count; ++r) {
+        itm = new QListWidgetItem;
+        itm->view = view;
+        itm->model = this;
+        items.insert(r, itm);
     }
+
     endInsertRows();
     return true;
 }
 
-bool QListModel::removeRows(int row, int count, const QModelIndex &)
+bool QListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (count < 1 || row < 0 || (row + count) > rowCount())
+    if (count < 1 || row < 0 || (row + count) > rowCount() || parent.isValid())
         return false;
 
-    if (row >= 0 && row < rowCount()) {
-        beginRemoveRows(QModelIndex(), row, row + count - 1);
-        QListWidgetItem *itm = 0;
-        for (int r = row; r < row + count; ++r) {
-            itm = lst.takeAt(row);
-            itm->view = 0;
-            itm->model = 0;
-            delete itm;
-        }
-        endRemoveRows();
-        return true;
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    QListWidgetItem *itm = 0;
+    for (int r = row; r < row + count; ++r) {
+        itm = items.takeAt(row);
+        itm->view = 0;
+        itm->model = 0;
+        delete itm;
     }
-    return false;
+    endRemoveRows();
+    return true;
 }
 
 Qt::ItemFlags QListModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.row() >= lst.count())
+    if (!index.isValid() || index.row() >= items.count() || index.model() != this)
         return Qt::ItemIsDropEnabled; // we allow drops outside the items
-    return lst.at(index.row())->flags();
+    return items.at(index.row())->flags();
 }
 
 void QListModel::sort(int column, Qt::SortOrder order)
@@ -306,26 +225,37 @@ void QListModel::sort(int column, Qt::SortOrder order)
 
     emit layoutAboutToBeChanged();
 
-    QVector < QPair<QListWidgetItem*,int> > sorting(lst.count());
-    for (int i = 0; i < lst.count(); ++i) {
-        sorting[i].first = lst.at(i);
+    QVector < QPair<QListWidgetItem*,int> > sorting(items.count());
+    for (int i = 0; i < items.count(); ++i) {
+        sorting[i].first = items.at(i);
         sorting[i].second = i;
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
+    QModelIndexList fromIndexes;
+    QModelIndexList toIndexes;
     for (int r = 0; r < sorting.count(); ++r) {
         QListWidgetItem *item = sorting.at(r).first;
-        lst[r] = item;
+        items[r] = item;
         QModelIndex from = createIndex(sorting.at(r).second, 0, item);
         QModelIndex to = createIndex(r, 0, item);
-        changePersistentIndex(from, to);
+        fromIndexes.append(from);
+        toIndexes.append(to);
     }
+    changePersistentIndexList(fromIndexes, toIndexes);
 
     emit layoutChanged();
 }
 
+/**
+ * This function assumes that all items in the model except the items that are between 
+ * (inclusive) start and end are sorted.
+ * With these assumptions, this function can ensure that the model is sorted in a
+ * much more efficient way than doing a naive 'sort everything'.
+ * (provided that the range is relatively small compared to the total number of items)
+ */
 void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int end)
 {
     if (column != 0)
@@ -334,7 +264,7 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
     int count = end - start + 1;
     QVector < QPair<QListWidgetItem*,int> > sorting(count);
     for (int i = 0; i < count; ++i) {
-        sorting[i].first = lst.at(start + i);
+        sorting[i].first = items.at(start + i);
         sorting[i].second = start + i;
     }
 
@@ -343,7 +273,7 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
 
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     QModelIndexList newPersistentIndexes = oldPersistentIndexes;
-    QList<QListWidgetItem*> tmp = lst;
+    QList<QListWidgetItem*> tmp = items;
     QList<QListWidgetItem*>::iterator lit = tmp.begin();
     bool changed = false;
     for (int i = 0; i < count; ++i) {
@@ -380,7 +310,7 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
 
     if (changed) {
         emit layoutAboutToBeChanged();
-        lst = tmp;
+        items = tmp;
         changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
         emit layoutChanged();
     }
@@ -427,13 +357,13 @@ QMimeData *QListModel::internalMimeData()  const
 
 QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
 {
-    QList<QListWidgetItem*> items;
+    QList<QListWidgetItem*> itemlist;
     for (int i = 0; i < indexes.count(); ++i)
-        items << at(indexes.at(i).row());
+        itemlist << at(indexes.at(i).row());
     const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
 
     cachedIndexes = indexes;
-    QMimeData *mimeData = view->mimeData(items);
+    QMimeData *mimeData = view->mimeData(itemlist);
     cachedIndexes.clear();
     return mimeData;
 }
@@ -444,10 +374,11 @@ bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 {
     Q_UNUSED(column);
     QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
-    if (index.isValid()) row = index.row();
-    else if (row == -1) {
-        row = lst.count();
-    }
+    if (index.isValid()) 
+        row = index.row();
+    else if (row == -1)
+        row = items.count();
+
     return view->dropMimeData(row, data, action);
 }
 
@@ -493,9 +424,9 @@ Qt::DropActions QListModel::supportedDropActions() const
     By default, items are enabled, selectable, checkable, and can be the source
     of a drag and drop operation.
     Each item's flags can be changed by calling setFlags() with the appropriate
-    value (see \l{Qt::ItemFlags}). Checkable items can be checked and unchecked
-    with the setChecked() function. The corresponding checked() function
-    indicates whether the item is currently checked.
+    value (see \l{Qt::ItemFlags}). Checkable items can be checked, unchecked and
+    partially checked with the setCheckState() function. The corresponding 
+    checkState() function indicates what check state the item currently has.
 
     The isItemHidden() function can be used to determine whether the
     item is hidden.  Items can be hidden with setItemHidden().
@@ -1022,26 +953,6 @@ void QListWidgetItem::setFlags(Qt::ItemFlags aflags) {
     \sa checkState()
 */
 
-class QListWidgetPrivate : public QListViewPrivate
-{
-    Q_DECLARE_PUBLIC(QListWidget)
-public:
-    QListWidgetPrivate() : QListViewPrivate(), sortOrder(Qt::AscendingOrder), sortingEnabled(false) {}
-    inline QListModel *model() const { return ::qobject_cast<QListModel*>(q_func()->model()); }
-    void setup();
-    void _q_emitItemPressed(const QModelIndex &index);
-    void _q_emitItemClicked(const QModelIndex &index);
-    void _q_emitItemDoubleClicked(const QModelIndex &index);
-    void _q_emitItemActivated(const QModelIndex &index);
-    void _q_emitItemEntered(const QModelIndex &index);
-    void _q_emitItemChanged(const QModelIndex &index);
-    void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
-    void _q_sort();
-    void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    Qt::SortOrder sortOrder;
-    bool sortingEnabled;
-};
-
 void QListWidgetPrivate::setup()
 {
     Q_Q(QListWidget);
@@ -1051,7 +962,8 @@ void QListWidgetPrivate::setup()
     QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(_q_emitItemClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
                      q, SLOT(_q_emitItemDoubleClicked(QModelIndex)));
-    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(_q_emitItemActivated(QModelIndex)));
+    QObject::connect(q, SIGNAL(activated(QModelIndex)), 
+                     q, SLOT(_q_emitItemActivated(QModelIndex)));
     QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(_q_emitItemEntered(QModelIndex)));
     QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                      q, SLOT(_q_emitItemChanged(QModelIndex)));
@@ -1339,8 +1251,6 @@ QListWidgetItem *QListWidget::item(int row) const
 int QListWidget::row(const QListWidgetItem *item) const
 {
     Q_D(const QListWidget);
-    if (!item)
-        return -1;
     return d->model()->index(const_cast<QListWidgetItem*>(item)).row();
 }
 
@@ -1354,7 +1264,8 @@ int QListWidget::row(const QListWidgetItem *item) const
 void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
     Q_D(QListWidget);
-    d->model()->insert(row, item);
+    if (item && !item->model && !item->view)
+        d->model()->insert(row, item);
 }
 
 /*!
@@ -1462,10 +1373,8 @@ void QListWidget::setCurrentRow(int row)
 QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 {
     Q_D(const QListWidget);
-    QModelIndex index = indexAt(p);
-    if (index.isValid())
-        return d->model()->at(index.row());
-    return 0;
+    return d->model()->at(indexAt(p).row());
+
 }
 
 /*!
@@ -1482,8 +1391,6 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 {
     Q_D(const QListWidget);
-    if (!item)
-        return QRect();
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     return visualRect(index);
 }
@@ -1534,8 +1441,6 @@ Qt::SortOrder QListWidget::sortOrder() const
 void QListWidget::editItem(QListWidgetItem *item)
 {
     Q_D(QListWidget);
-    if (!item)
-        return;
     edit(d->model()->index(item));
 }
 
@@ -1547,8 +1452,6 @@ void QListWidget::editItem(QListWidgetItem *item)
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_D(QListWidget);
-    if (!item)
-        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -1591,8 +1494,6 @@ QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
 void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 {
     Q_D(QListWidget);
-    if (!item)
-        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::setIndexWidget(index, widget);
 }
@@ -1674,8 +1575,6 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 void QListWidget::scrollToItem(const QListWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
     Q_D(QListWidget);
-    if (!item)
-        return;
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     QListView::scrollTo(index, hint);
 }
@@ -1749,22 +1648,22 @@ void QListWidget::dropEvent(QDropEvent *event) {
         int col = -1;
         int row = -1;
         if (d->dropOn(event, &row, &col, &topIndex)) {
-            QList<QModelIndex> idxs = selectedIndexes();
-            QList<QPersistentModelIndex> indexes;
-            for(int i = 0; i < idxs.count(); i++)
-                indexes.append(idxs.at(i));
+            QList<QModelIndex> selIndexes = selectedIndexes();
+            QList<QPersistentModelIndex> persIndexes;
+            for(int i = 0; i < selIndexes.count(); i++)
+                persIndexes.append(selIndexes.at(i));
 
-            if (indexes.contains(topIndex))
+            if (persIndexes.contains(topIndex))
                 return;
 
             QPersistentModelIndex dropRow = model()->index(row, col, topIndex);
 
             QList<QListWidgetItem *> taken;
-            for (int i = 0; i < indexes.count(); ++i)
-                taken.append(takeItem(indexes.at(i).row()));
+            for (int i = 0; i < persIndexes.count(); ++i)
+                taken.append(takeItem(persIndexes.at(i).row()));
 
             // insert them back in at their new positions
-            for (int i = 0; i < indexes.count(); ++i) {
+            for (int i = 0; i < persIndexes.count(); ++i) {
                 // Either at a specific point or appended
                 if (row == -1) {
                     insertItem(count(), taken.takeFirst());
@@ -1790,7 +1689,8 @@ void QListWidget::dropEvent(QDropEvent *event) {
 */
 Qt::DropActions QListWidget::supportedDropActions() const
 {
-    return d_func()->model()->QAbstractListModel::supportedDropActions() | Qt::MoveAction;
+    Q_D(const QListWidget);
+    return d->model()->QAbstractListModel::supportedDropActions() | Qt::MoveAction;
 }
 #endif // QT_NO_DRAGANDDROP
 
