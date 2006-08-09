@@ -935,7 +935,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 
     data.crect = QRect(0,0,100,30);
 
-    focus_next = q; //### try not to crash
+    focus_next = focus_prev = q;
 
     if ((f & Qt::WindowType_Mask) == Qt::Desktop)
         q->create();
@@ -1109,13 +1109,16 @@ QWidget::~QWidget()
 
     // delete layout while we still are a valid widget
     delete d->layout;
-    // Remove myself focus list
-    // ### Focus: maybe remove children aswell?
-    QWidget *w = this;
-    while (w->d_func()->focus_next != this)
-        w = w->d_func()->focus_next;
-    w->d_func()->focus_next = d_func()->focus_next;
-    d_func()->focus_next = 0;
+    // Remove myself from focus list
+
+    Q_ASSERT(d->focus_next->d_func()->focus_prev == this);
+    Q_ASSERT(d->focus_prev->d_func()->focus_next == this);
+
+    if (d->focus_next != this) {
+        d->focus_next->d_func()->focus_prev = d->focus_prev;
+        d->focus_prev->d_func()->focus_next = d->focus_next;
+        d->focus_next = d->focus_prev = 0;
+    }
 
 #ifdef QT3_SUPPORT
     if (QApplicationPrivate::main_widget == this) {        // reset main widget
@@ -4245,16 +4248,34 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
         first = fp;
     }
 
+
     if (QWidget *sp = second->focusProxy())
         second = sp;
 
-    QWidget *p = second;
-    while (p->d_func()->focus_next != second)
-        p = p->d_func()->focus_next;
-    p->d_func()->focus_next = second->d_func()->focus_next;
+//    QWidget *fp = first->d_func()->focus_prev;
+    QWidget *fn = first->d_func()->focus_next;
 
-    second->d_func()->focus_next = first->d_func()->focus_next;
+    if (fn == second)
+        return;
+
+    QWidget *sp = second->d_func()->focus_prev;
+    QWidget *sn = second->d_func()->focus_next;
+
+    fn->d_func()->focus_prev = second;
     first->d_func()->focus_next = second;
+
+    second->d_func()->focus_next = fn;
+    second->d_func()->focus_prev = first;
+
+    sp->d_func()->focus_next = sn;
+    sn->d_func()->focus_prev = sp;
+
+
+    Q_ASSERT(first->d_func()->focus_next->d_func()->focus_prev == first);
+    Q_ASSERT(first->d_func()->focus_prev->d_func()->focus_next == first);
+
+    Q_ASSERT(second->d_func()->focus_next->d_func()->focus_prev == second);
+    Q_ASSERT(second->d_func()->focus_prev->d_func()->focus_next == second);
 }
 
 /*!\internal
@@ -4278,43 +4299,67 @@ void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
     if(focus_child)
         focus_child->clearFocus();
 
-    // separate the focus chain
-    QWidget *topLevel = q->window();
-    QWidget *w = q;
+    // separate the focus chain into new (children of myself) and old (the rest)
     QWidget *firstOld = 0;
-    QWidget *firstNew = 0;
-    QWidget *o = 0;
-    QWidget *n = 0;
-    do {
-        if (w == q || q->isAncestorOf(w)) {
-            if (!firstNew)
-                firstNew = w;
-            if (n)
+    //QWidget *firstNew = q; //invariant
+    QWidget *o = 0; // last in the old list
+    QWidget *n = q; // last in the new list
+
+    bool prevWasNew = true;
+    QWidget *w = focus_next;
+
+    //Note: for efficiency, we do not maintain the list invariant inside the loop
+    //we append items to the relevant list, and we optimize by not changing pointers
+    //when subsequent items are going into the same list.
+    while (w  != q) {
+        bool currentIsNew =  q->isAncestorOf(w);
+        if (currentIsNew) {
+            if (!prevWasNew) {
+                //prev was old -- append to new list
                 n->d_func()->focus_next = w;
+                w->d_func()->focus_prev = n;
+            }
             n = w;
         } else {
-            if (!firstOld)
-                firstOld = w;
-            if (o)
-                o->d_func()->focus_next = w;
+            if (prevWasNew) {
+                //prev was new -- append to old list, if there is one
+                if (o) {
+                    o->d_func()->focus_next = w;
+                    w->d_func()->focus_prev = o;
+                } else {
+                    // "create" the old list
+                    firstOld = w;
+                }
+            }
             o = w;
         }
-    } while ((w = w->d_func()->focus_next) != q);
-    if(o)
+        w = w->d_func()->focus_next;
+        prevWasNew = currentIsNew;
+    }
+
+    //repair the old list:
+    if (firstOld) {
         o->d_func()->focus_next = firstOld;
-    if(n)
-        n->d_func()->focus_next = firstNew;
+        firstOld->d_func()->focus_prev = o;
+    }
 
     if (!q->isWindow()) {
-        //insert chain
-        w = topLevel;
-        while (w->d_func()->focus_next != topLevel)
-            w = w->d_func()->focus_next;
-        w->d_func()->focus_next = q;
+        QWidget *topLevel = q->window();
+        //insert new chain into toplevel's chain
+
+        QWidget *prev = topLevel->d_func()->focus_prev;
+
+        topLevel->d_func()->focus_prev = n;
+        prev->d_func()->focus_next = q;
+
+        focus_prev = prev;
         n->d_func()->focus_next = topLevel;
     } else {
-        n->d_func()->focus_next = q;
+        //repair the new list
+            n->d_func()->focus_next = q;
+            focus_prev = n;
     }
+
 }
 
 /*!\internal

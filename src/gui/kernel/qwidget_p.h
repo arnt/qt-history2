@@ -322,6 +322,7 @@ public:
 
     QWExtra *extra;
     QWidget *focus_next;
+    QWidget *focus_prev;
     QWidget *focus_child;
 #ifndef QT_NO_ACTION
     QList<QAction*> actions;
