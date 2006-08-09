@@ -1500,6 +1500,10 @@ void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 
 /*!
   Returns true if \a item is selected; otherwise returns false.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QListWidgetItem::isSelected()} instead.
 */
 bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 {
@@ -1511,6 +1515,10 @@ bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 /*!
   Selects or deselects the given \a item depending on whether \a select is
   true of false.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QListWidgetItem::setSelected()} instead.
 */
 void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 {
@@ -1552,6 +1560,10 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text, Qt::MatchFla
 
 /*!
   Returns true if the \a item is explicitly hidden; otherwise returns false.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QListWidgetItem::isHidden()} instead.
 */
 bool QListWidget::isItemHidden(const QListWidgetItem *item) const
 {
@@ -1560,6 +1572,10 @@ bool QListWidget::isItemHidden(const QListWidgetItem *item) const
 
 /*!
   If \a hide is true, the \a item will be hidden; otherwise it will be shown.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QListWidgetItem::setHidden()} instead.
 */
 void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 {

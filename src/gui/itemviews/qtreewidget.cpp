@@ -913,6 +913,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
   Sets the selected state of the item to \a select.
 
   \sa isSelected()
+
 */
 
 /*!
@@ -2655,6 +2656,10 @@ void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widg
   Returns true if the \a item is selected; otherwise returns false.
 
   \sa itemSelectionChanged()
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::isSelected()} instead.
 */
 bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
@@ -2668,6 +2673,10 @@ bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
   deselected.
 
   \sa itemSelectionChanged()
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::setSelected()} instead.
 */
 void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 {
@@ -2711,6 +2720,10 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text, Qt::MatchFla
 
 /*!
   Returns true if the \a item is explicitly hidden, otherwise returns false.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::isHidden()} instead.
 */
 bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 {
@@ -2725,6 +2738,10 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
   Hides the given \a item if \a hide is true; otherwise shows the item.
 
   \sa itemChanged()
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::setHidden()} instead.
 */
 void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 {
@@ -2741,6 +2758,10 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
   Returns true if the given \a item is open; otherwise returns false.
 
   \sa itemExpanded()
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::isExpanded()} instead.
 */
 bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 {
@@ -2753,6 +2774,10 @@ bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
     depending on the value of \a expand.
 
     \sa expandItem(), collapseItem(), itemExpanded()
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTreeWidgetItem::setExpanded()} instead.
 */
 void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 {

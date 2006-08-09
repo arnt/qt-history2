@@ -2137,6 +2137,10 @@ void QTableWidget::setCellWidget(int row, int column, QWidget *widget)
 
 /*!
   Returns true if the \a item is selected, otherwise returns false.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTableWidgetItem::isSelected()} instead.
 */
 
 bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
@@ -2148,6 +2152,10 @@ bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
 
 /*!
   Selects or deselects \a item depending on \a select.
+
+  \obsolete
+
+  This function is deprecated. Use \l{QTableWidgetItem::setSelected()} instead.
 */
 void QTableWidget::setItemSelected(const QTableWidgetItem *item, bool select)
 {
