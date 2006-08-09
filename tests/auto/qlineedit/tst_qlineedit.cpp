@@ -189,6 +189,8 @@ private slots:
 
     void validateOnFocusOut();
 
+    void editUnvalidText();
+
 protected slots:
 #ifdef QT3_SUPPORT
     void lostFocus();
@@ -2912,6 +2914,30 @@ void tst_QLineEdit::validateOnFocusOut()
     QTest::keyPress(testWidget, '0');
     testWidget->clearFocus();
     QCOMPARE(editingFinishedSpy.count(), 1);
+}
+
+void tst_QLineEdit::editUnvalidText()
+{
+    testWidget->clear();
+    testWidget->setValidator(new QIntValidator(0, 120, 0));
+    testWidget->setText("1234");
+
+    QVERIFY(!testWidget->hasAcceptableInput());
+    QTest::keyPress(testWidget, Qt::Key_Backspace);
+    QTest::keyPress(testWidget, Qt::Key_A);
+    QTest::keyPress(testWidget, Qt::Key_B);
+    QTest::keyPress(testWidget, Qt::Key_C);
+    QTest::keyPress(testWidget, Qt::Key_0);
+    QVERIFY(!testWidget->hasAcceptableInput());
+    QCOMPARE(testWidget->text(), QString("123abc0"));
+    testWidget->cursorBackward(false);
+    testWidget->cursorBackward(true, 4);
+    QTest::keyPress(testWidget, Qt::Key_Delete);
+    QVERIFY(testWidget->hasAcceptableInput());
+    QCOMPARE(testWidget->text(), QString("120"));
+    QTest::keyPress(testWidget, Qt::Key_1);
+    QVERIFY(testWidget->hasAcceptableInput());
+    QCOMPARE(testWidget->text(), QString("120"));
 }
 
 QTEST_MAIN(tst_QLineEdit)
