@@ -668,8 +668,6 @@ bool QTextLayout::isValidCursorPosition(int pos) const
 }
 
 
-// ### DOC: Don't know what this really does.
-// added a bit more description
 /*!
     Returns a new text line to be laid out if there is text to be
     inserted into the layout; otherwise returns an invalid text line.
@@ -699,8 +697,11 @@ QTextLine QTextLayout::createLine()
         QTextLine(l-1, d).setNumColumns(INT_MAX);
     }
     int from = l > 0 ? d->lines.at(l-1).from + d->lines.at(l-1).length : 0;
-    if (l && from >= d->layoutData->string.length())
-        return QTextLine();
+    int strlen = d->layoutData->string.length();
+    if (l && from >= strlen) {
+        if (!d->lines.at(l-1).length || d->layoutData->string.at(strlen - 1) != QChar::LineSeparator)
+            return QTextLine();
+    }
 
     QScriptLine line;
     line.from = from;
@@ -902,39 +903,44 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
     QFixed pos_x = QFixed::fromReal(position.x());
     QFixed pos_y = QFixed::fromReal(position.y());
 
-    for (int i = 0; i < d->lines.size(); i++) {
-        QTextLine l(i, d);
-        const QScriptLine &sl = d->lines[i];
-
-        if ((sl.from <= cursorPosition && sl.from + (int)sl.length > cursorPosition)
-            || (sl.from + (int)sl.length == cursorPosition && cursorPosition == d->layoutData->string.length())) {
-
-            const qreal x = position.x() + l.cursorToX(cursorPosition);
-
-            int itm = d->findItem(cursorPosition - 1);
-            QFixed ascent = sl.ascent;
-            QFixed descent = sl.descent;
-            bool rightToLeft = (d->option.textDirection() == Qt::RightToLeft);
-            if (itm >= 0) {
-                const QScriptItem &si = d->layoutData->items.at(itm);
-                if (si.ascent > 0)
-                    ascent = si.ascent;
-                if (si.descent > 0)
-                    descent = si.descent;
-                rightToLeft = si.analysis.bidiLevel % 2;
-            }
-            qreal y = position.y() + (sl.y + sl.ascent - ascent).toReal();
-            p->fillRect(QRectF(x, y, qreal(width), (ascent + descent).toReal()), p->pen().brush());
-            if (d->layoutData->hasBidi) {
-                const int arrow_extent = 4;
-                int sign = rightToLeft ? -1 : 1;
-                p->drawLine(QLineF(x, y, x + (sign * arrow_extent/2), y + arrow_extent/2));
-                p->drawLine(QLineF(x, y+arrow_extent, x + (sign * arrow_extent/2), y + arrow_extent/2));
-            }
-            return;
+    int line = 0;
+    if (cursorPosition == d->layoutData->string.length()) {
+        line = d->lines.size() - 1;
+    } else {
+        // ### binary search
+        for (line = 0; line < d->lines.size(); line++) {
+            const QScriptLine &sl = d->lines[line];
+            if (sl.from <= cursorPosition && sl.from + (int)sl.length > cursorPosition)
+                break;
         }
     }
 
+    QTextLine l(line, d);
+    const QScriptLine &sl = d->lines[line];
+
+    const qreal x = position.x() + l.cursorToX(cursorPosition);
+
+    int itm = d->findItem(cursorPosition - 1);
+    QFixed ascent = sl.ascent;
+    QFixed descent = sl.descent;
+    bool rightToLeft = (d->option.textDirection() == Qt::RightToLeft);
+    if (itm >= 0) {
+        const QScriptItem &si = d->layoutData->items.at(itm);
+        if (si.ascent > 0)
+            ascent = si.ascent;
+        if (si.descent > 0)
+            descent = si.descent;
+        rightToLeft = si.analysis.bidiLevel % 2;
+    }
+    qreal y = position.y() + (sl.y + sl.ascent - ascent).toReal();
+    p->fillRect(QRectF(x, y, qreal(width), (ascent + descent).toReal()), p->pen().brush());
+    if (d->layoutData->hasBidi) {
+        const int arrow_extent = 4;
+        int sign = rightToLeft ? -1 : 1;
+        p->drawLine(QLineF(x, y, x + (sign * arrow_extent/2), y + arrow_extent/2));
+        p->drawLine(QLineF(x, y+arrow_extent, x + (sign * arrow_extent/2), y + arrow_extent/2));
+    }
+    return;
 }
 
 /*!
@@ -1169,7 +1175,7 @@ void QTextLine::layout_helper(int maxGlyphs)
     line.length = 0;
     line.textWidth = 0;
 
-    if (!eng->layoutData->items.size()) {
+    if (!eng->layoutData->items.size() || line.from >= eng->layoutData->string.length()) {
         line.setDefaultHeight(eng);
         return;
     }
