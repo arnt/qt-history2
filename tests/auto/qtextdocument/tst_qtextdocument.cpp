@@ -47,6 +47,8 @@ private slots:
     void find_data();
     void find();
     void find2();
+    void findWithRegExp_data();
+    void findWithRegExp();
     void basicIsModifiedChecks();
     void moreIsModified();
     void isModified2();
@@ -220,6 +222,59 @@ void tst_QTextDocument::find()
 
     cursor.insertText(haystack);
     cursor = doc->find(needle, from, QTextDocument::FindFlags(flags));
+
+    if (anchor != -1) {
+        QCOMPARE(cursor.anchor(), anchor);
+        QCOMPARE(cursor.position(), position);
+    } else {
+        QVERIFY(cursor.isNull());
+    }
+
+    //search using a regular expression
+    QRegExp expr(needle);
+    expr.setPatternSyntax(QRegExp::FixedString);
+    QTextDocument::FindFlags flg(flags);
+    expr.setCaseSensitivity((flg & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    cursor = doc->find(expr, from, flg);
+
+    if (anchor != -1) {
+        QCOMPARE(cursor.anchor(), anchor);
+        QCOMPARE(cursor.position(), position);
+    } else {
+        QVERIFY(cursor.isNull());
+    }
+}
+
+void tst_QTextDocument::findWithRegExp_data()
+{
+    QTest::addColumn<QString>("haystack");
+    QTest::addColumn<QString>("needle");
+    QTest::addColumn<int>("flags");
+    QTest::addColumn<int>("from");
+    QTest::addColumn<int>("anchor");
+    QTest::addColumn<int>("position");
+
+    // match integers 0 to 99
+    QTest::newRow("1") << "23" << "^\\d\\d?$" << int(QTextDocument::FindCaseSensitively) << 0 << 0 << 2;
+    // match ampersands but not &amp;
+    QTest::newRow("2") << "His &amp; hers & theirs" << "&(?!amp;)"<< int(QTextDocument::FindCaseSensitively) << 0 << 15 << 16;
+}
+
+void tst_QTextDocument::findWithRegExp()
+{
+    QFETCH(QString, haystack);
+    QFETCH(QString, needle);
+    QFETCH(int, flags);
+    QFETCH(int, from);
+    QFETCH(int, anchor);
+    QFETCH(int, position);
+
+    cursor.insertText(haystack);
+    //search using a regular expression
+    QRegExp expr(needle);
+    QTextDocument::FindFlags flg(flags);
+    expr.setCaseSensitivity((flg & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    cursor = doc->find(expr, from, flg);
 
     if (anchor != -1) {
         QCOMPARE(cursor.anchor(), anchor);
