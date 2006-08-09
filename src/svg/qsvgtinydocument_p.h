@@ -67,6 +67,7 @@ public:
     void draw(QPainter *p, const QString &id,
               const QRectF &bounds=QRectF());
 
+    QMatrix matrixForElement(const QString &id) const;
     QRectF boundsOnElement(const QString &id) const;
     bool   elementExists(const QString &id) const;
 

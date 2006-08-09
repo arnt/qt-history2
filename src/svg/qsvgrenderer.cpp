@@ -390,4 +390,18 @@ bool QSvgRenderer::elementExists(const QString &id) const
     return exists;
 }
 
+/*!
+    Returns the transformation matrix setup for the element
+    with the given id. That includes the transformation on
+    the element itself. 
+*/
+QMatrix QSvgRenderer::matrixForElement(const QString &id) const
+{
+    Q_D(const QSvgRenderer);
+    QMatrix mat;
+    if (d->render)
+        mat = d->render->matrixForElement(id);
+    return mat;
+}
+
 #include "moc_qsvgrenderer.cpp"

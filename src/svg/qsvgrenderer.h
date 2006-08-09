@@ -14,6 +14,7 @@
 #ifndef QSVGRENDERER_H
 #define QSVGRENDERER_H
 
+#include <QtGui/qmatrix.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qsize.h>
 #include <QtCore/qrect.h>
@@ -57,7 +58,8 @@ public:
 
     QRectF boundsOnElement(const QString &id) const;
     bool elementExists(const QString &id) const;
-
+    QMatrix matrixForElement(const QString &id) const;
+    
 public Q_SLOTS:
     bool load(const QString &filename);
     bool load(const QByteArray &contents);

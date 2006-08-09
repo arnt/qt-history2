@@ -257,3 +257,30 @@ bool QSvgTinyDocument::elementExists(const QString &id) const
     return (node!=0);
 }
 
+QMatrix QSvgTinyDocument::matrixForElement(const QString &id) const
+{
+    QSvgNode *node = scopeNode(id);
+    QMatrix mat;
+    
+    if (!node) {
+        qDebug("Couldn't find node %s. Skipping rendering.", qPrintable(id));
+        return mat;
+    }
+    QStack<QSvgNode*> parentApplyStack;
+    QSvgNode *parent = node->parent();
+    while (parent) {
+        parentApplyStack.push(parent);
+        parent = parent->parent();
+    }
+
+    QImage dummyImg(2, 2, QImage::Format_ARGB32_Premultiplied);
+    QPainter dummy(&dummyImg);
+    foreach(QSvgNode *par, parentApplyStack) {
+        par->applyStyle(&dummy);
+    }
+    node->applyStyle(&dummy);
+    mat = dummy.worldMatrix();
+    
+    return mat;
+}
+
