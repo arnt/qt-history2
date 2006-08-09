@@ -32,11 +32,23 @@ SUBDIRS         = brush \
 #                  pointer \
                   polygon \
                   process \
+                  qcalendarwidget \
+                  qdir-filepaths \
+                  qdir-listfiles \
+                  qdir-namefilters \
+                  qfontdatabase \
+                  qlabel \
+                  qlineargradient \
+                  qlistview-dnd \
+                  qlistview-using \
                   qlistwidget-dnd \
                   qlistwidget-using \
 #                  qmake \                  # not designed to be built
+                  qprocess \
+                  qprocess-environment \
 #                  qsignalmapper \
                   qsortfilterproxymodel-details \
+                  qsplashscreen \
                   qstack \
                   qstackedlayout \
                   qstackedwidget \
@@ -47,13 +59,18 @@ SUBDIRS         = brush \
                   qstringlistmodel \
                   qstyleoption \
                   qstyleplugin \
+                  qsvgwidget \
                   qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \
                   qtcast \
+                  qtreeview-dnd \
+                  qtreewidgetitemiterator-using \
                   qtreewidget-using \
+                  quiloader \
+                  qx11embedcontainer \
+                  qx11embedwidget \
                   reading-selections \
-                  separations \
                   scribe-overview \
                   separations \
 #                  settings \               # not designed to be built
@@ -78,6 +95,7 @@ SUBDIRS         = brush \
                   textdocument-listitems \
                   textdocument-lists \
                   textdocument-printing \
+#                  textdocument-resources \
                   textdocument-selections \
                   textdocument-tables \
 #                  threads \
