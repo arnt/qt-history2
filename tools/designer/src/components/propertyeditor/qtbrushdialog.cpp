@@ -16,6 +16,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushDialogPrivate
 {
     QtBrushDialog *q_ptr;
@@ -23,6 +27,8 @@ class QtBrushDialogPrivate
 public:
     Ui::QtBrushDialog m_ui;
 };
+
+}
 
 QtBrushDialog::QtBrushDialog(QWidget *parent)
     : QDialog(parent)

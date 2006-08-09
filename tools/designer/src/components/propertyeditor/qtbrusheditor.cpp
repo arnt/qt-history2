@@ -22,6 +22,10 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushEditorPrivate
 {
     QtBrushEditor *q_ptr;
@@ -49,6 +53,8 @@ public:
 
     Ui::QtBrushEditor m_ui;
 };
+
+}
 
 void QtBrushEditorPrivate::slotTextureChooserClicked()
 {

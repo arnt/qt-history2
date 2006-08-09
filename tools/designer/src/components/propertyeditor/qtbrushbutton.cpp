@@ -17,6 +17,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushButtonPrivate
 {
     QtBrushButton *q_ptr;
@@ -28,6 +32,8 @@ public:
     QDesignerBrushManagerInterface *m_brushManager;
     QtBrushDialog *m_dialog;
 };
+
+}
 
 void QtBrushButtonPrivate::slotEditBrush()
 {

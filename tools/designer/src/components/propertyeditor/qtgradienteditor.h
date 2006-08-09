@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtGradientEditor : public QWidget
 {
     Q_OBJECT
@@ -57,5 +59,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void centralConicalChanged(const QPointF &));
     Q_PRIVATE_SLOT(d_func(), void angleConicalChanged(qreal));
 };
+
+}
 
 #endif

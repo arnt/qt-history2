@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtBrushWidget : public QWidget
 {
     Q_OBJECT
@@ -44,5 +46,7 @@ private:
     Q_DECLARE_PRIVATE(QtBrushWidget)
     Q_DISABLE_COPY(QtBrushWidget)
 };
+
+}
 
 #endif

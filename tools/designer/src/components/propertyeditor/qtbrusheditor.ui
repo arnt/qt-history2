@@ -90,7 +90,7 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QtBrushWidget" name="brushWidget" />
+           <widget class="qdesigner_internal::QtBrushWidget" name="brushWidget" />
           </item>
          </layout>
         </widget>
@@ -195,7 +195,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtBrushWidget</class>
+   <class>qdesigner_internal::QtBrushWidget</class>
    <extends>QFrame</extends>
    <header>qtbrushwidget.h</header>
   </customwidget>

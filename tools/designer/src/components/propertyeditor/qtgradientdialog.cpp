@@ -15,6 +15,10 @@
 #include "ui_qtgradientdialog.h"
 #include <QPushButton>
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientDialogPrivate
 {
     QtGradientDialog *q_ptr;
@@ -22,6 +26,8 @@ class QtGradientDialogPrivate
 public:
     Ui::QtGradientDialog m_ui;
 };
+
+}
 
 QtGradientDialog::QtGradientDialog(QWidget *parent)
     : QDialog(parent)

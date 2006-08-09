@@ -16,6 +16,8 @@
 
 #include <QDialog>
 
+namespace qdesigner_internal {
+
 class QtGradientDialog : public QDialog
 {
     Q_OBJECT
@@ -31,5 +33,7 @@ private:
     Q_DECLARE_PRIVATE(QtGradientDialog)
     Q_DISABLE_COPY(QtGradientDialog)
 };
+
+}
 
 #endif

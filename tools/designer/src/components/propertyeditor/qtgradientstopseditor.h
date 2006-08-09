@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtGradientStopsEditor : public QWidget
 {
     Q_OBJECT
@@ -59,5 +61,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotZoomOut());
     Q_PRIVATE_SLOT(d_func(), void slotZoomAll());
 };
+
+}
 
 #endif

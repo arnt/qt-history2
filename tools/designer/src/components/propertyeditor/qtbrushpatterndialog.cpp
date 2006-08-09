@@ -14,6 +14,10 @@
 #include "qtbrushpatterndialog.h"
 #include "ui_qtbrushpatterndialog.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushPatternDialogPrivate
 {
     QtBrushPatternDialog *q_ptr;
@@ -21,6 +25,8 @@ class QtBrushPatternDialogPrivate
 public:
     Ui::QtBrushPatternDialog m_ui;
 };
+
+}
 
 QtBrushPatternDialog::QtBrushPatternDialog(QWidget *parent)
     : QDialog(parent)

@@ -16,6 +16,8 @@
 
 #include <QSpinBox>
 
+namespace qdesigner_internal {
+
 class QtSpinBox : public QSpinBox
 {
     Q_OBJECT
@@ -34,5 +36,7 @@ public:
 
     void stepBy(int steps);
 };
+
+}
 
 #endif

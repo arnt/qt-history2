@@ -19,6 +19,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtColorLinePrivate
 {
     QtColorLine *q_ptr;
@@ -94,6 +98,8 @@ private:
 
     PixData m_lastValidMainPixmapData;
 };
+
+}
 
 QtColorLinePrivate::QtColorLinePrivate()
     : m_color(Qt::black), m_component(QtColorLine::Value),

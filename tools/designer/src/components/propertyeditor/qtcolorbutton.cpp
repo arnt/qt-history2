@@ -15,6 +15,10 @@
 #include <QColorDialog>
 #include <QPainter>
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtColorButtonPrivate
 {
     QtColorButton *q_ptr;
@@ -25,6 +29,8 @@ public:
 
     void slotEditColor();
 };
+
+}
 
 void QtColorButtonPrivate::slotEditColor()
 {

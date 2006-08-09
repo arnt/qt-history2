@@ -18,6 +18,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientStopsEditorPrivate
 {
     QtGradientStopsEditor *q_ptr;
@@ -60,6 +64,8 @@ public:
 
     Ui::QtGradientStopsEditor m_ui;
 };
+
+}
 
 void QtGradientStopsEditorPrivate::enableCurrent(bool enable)
 {

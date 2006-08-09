@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtBrushPatternEditor : public QWidget
 {
     Q_OBJECT
@@ -43,5 +45,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotChangeValue(int color));
     Q_PRIVATE_SLOT(d_func(), void slotChangeAlpha(int color));
 };
+
+}
 
 #endif

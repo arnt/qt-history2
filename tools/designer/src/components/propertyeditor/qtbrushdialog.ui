@@ -32,7 +32,7 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QtBrushEditor" name="brushEditor" >
+    <widget class="qdesigner_internal::QtBrushEditor" name="brushEditor" >
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>3</hsizetype>
@@ -57,7 +57,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtBrushEditor</class>
+   <class>qdesigner_internal::QtBrushEditor</class>
    <extends>QFrame</extends>
    <header>qtbrusheditor.h</header>
   </customwidget>

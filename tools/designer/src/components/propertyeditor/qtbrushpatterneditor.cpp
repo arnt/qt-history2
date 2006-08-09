@@ -16,6 +16,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushPatternEditorPrivate
 {
     QtBrushPatternEditor *q_ptr;
@@ -40,6 +44,8 @@ public:
 
     Ui::QtBrushPatternEditor m_ui;
 };
+
+}
 
 void QtBrushPatternEditorPrivate::slotHsvClicked()
 {

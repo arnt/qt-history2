@@ -14,6 +14,10 @@
 #include "qtbrushwidget.h"
 #include <QPainter>
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtBrushWidgetPrivate
 {
     QtBrushWidget *q_ptr;
@@ -23,6 +27,8 @@ public:
     bool m_backgroundTransparent;
     int m_size;
 };
+
+}
 
 ///////////////
 

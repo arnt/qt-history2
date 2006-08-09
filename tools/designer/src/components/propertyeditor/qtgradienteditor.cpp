@@ -16,6 +16,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientEditorPrivate
 {
     QtGradientEditor *q_ptr;
@@ -47,6 +51,8 @@ public:
 
     Ui::QtGradientEditor m_ui;
 };
+
+}
 
 void QtGradientEditorPrivate::slotGradientStopsChanged(const QGradientStops &stops)
 {

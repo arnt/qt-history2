@@ -68,7 +68,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="saturationColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="saturationColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -122,7 +122,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="valueColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="valueColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -155,7 +155,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="hueColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="hueColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -188,7 +188,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="alphaColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="alphaColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -233,7 +233,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtBrushWidget" name="brushWidget" >
+       <widget class="qdesigner_internal::QtBrushWidget" name="brushWidget" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>3</hsizetype>
@@ -256,7 +256,7 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QtColorButton" name="colorButton" >
+      <widget class="qdesigner_internal::QtColorButton" name="colorButton" >
        <property name="text" >
         <string/>
        </property>
@@ -325,17 +325,17 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtBrushWidget</class>
+   <class>qdesigner_internal::QtBrushWidget</class>
    <extends>QFrame</extends>
    <header>qtbrushwidget.h</header>
   </customwidget>
   <customwidget>
-   <class>QtColorLine</class>
+   <class>qdesigner_internal::QtColorLine</class>
    <extends>QFrame</extends>
    <header>qtcolorline.h</header>
   </customwidget>
   <customwidget>
-   <class>QtColorButton</class>
+   <class>qdesigner_internal::QtColorButton</class>
    <extends>QToolButton</extends>
    <header>qtcolorbutton.h</header>
   </customwidget>

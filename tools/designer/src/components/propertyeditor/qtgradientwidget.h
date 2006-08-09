@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtGradientWidget : public QWidget
 {
     Q_OBJECT
@@ -84,5 +86,7 @@ private:
     Q_DECLARE_PRIVATE(QtGradientWidget)
     Q_DISABLE_COPY(QtGradientWidget)
 };
+
+}
 
 #endif

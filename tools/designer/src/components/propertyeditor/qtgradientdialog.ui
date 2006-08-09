@@ -32,7 +32,7 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QtGradientEditor" name="gradientEditor" >
+    <widget class="qdesigner_internal::QtGradientEditor" name="gradientEditor" >
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>3</hsizetype>
@@ -57,7 +57,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtGradientEditor</class>
+   <class>qdesigner_internal::QtGradientEditor</class>
    <extends>QFrame</extends>
    <header>qtgradienteditor.h</header>
   </customwidget>

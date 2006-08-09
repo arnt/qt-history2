@@ -18,6 +18,8 @@
 
 class QDesignerBrushManagerInterface;
 
+namespace qdesigner_internal {
+
 class QtBrushButton : public QToolButton
 {
     Q_OBJECT
@@ -47,5 +49,7 @@ private:
     Q_DISABLE_COPY(QtBrushButton)
     Q_PRIVATE_SLOT(d_func(), void slotEditBrush());
 };
+
+}
 
 #endif

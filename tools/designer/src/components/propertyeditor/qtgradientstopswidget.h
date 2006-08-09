@@ -16,6 +16,8 @@
 
 #include <QAbstractScrollArea>
 
+namespace qdesigner_internal {
+
 class QtGradientStopsModel;
 
 class QtGradientStopsWidget : public QAbstractScrollArea
@@ -62,5 +64,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotDelete());
     Q_PRIVATE_SLOT(d_func(), void slotSelectAll());
 };
+
+}
 
 #endif

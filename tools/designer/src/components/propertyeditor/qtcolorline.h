@@ -16,6 +16,8 @@
 
 #include <QWidget>
 
+namespace qdesigner_internal {
+
 class QtColorLine : public QWidget
 {
     Q_OBJECT
@@ -87,5 +89,7 @@ private:
     Q_DECLARE_PRIVATE(QtColorLine)
     Q_DISABLE_COPY(QtColorLine)
 };
+
+}
 
 #endif

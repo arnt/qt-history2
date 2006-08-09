@@ -16,6 +16,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientStopPrivate
 {
 public:
@@ -23,6 +27,8 @@ public:
     QColor m_color;
     QtGradientStopsModel *m_model;
 };
+
+}
 
 qreal QtGradientStop::position() const
 {
@@ -62,6 +68,8 @@ QtGradientStop::~QtGradientStop()
     delete d_ptr;
 }
 
+namespace qdesigner_internal {
+
 class QtGradientStopsModelPrivate
 {
     QtGradientStopsModel *q_ptr;
@@ -73,7 +81,7 @@ public:
     QtGradientStop *m_current;
 };
 
-
+}
 
 
 

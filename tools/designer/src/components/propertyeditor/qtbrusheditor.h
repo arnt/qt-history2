@@ -18,6 +18,8 @@
 
 class QDesignerBrushManagerInterface;
 
+namespace qdesigner_internal {
+
 class QtBrushEditor : public QWidget
 {
     Q_OBJECT
@@ -52,5 +54,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void slotBrushRemoved(const QString &));
     Q_PRIVATE_SLOT(d_func(), void slotCurrentBrushChanged(const QString &, const QBrush &));
 };
+
+}
 
 #endif

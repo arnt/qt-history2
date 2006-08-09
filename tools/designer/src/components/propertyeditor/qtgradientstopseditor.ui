@@ -39,7 +39,7 @@
     </widget>
    </item>
    <item row="1" column="4" >
-    <widget class="QtSpinBox" name="zoomSpinBox" >
+    <widget class="qdesigner_internal::QtSpinBox" name="zoomSpinBox" >
      <property name="suffix" >
       <string>%</string>
      </property>
@@ -58,7 +58,7 @@
     </widget>
    </item>
    <item row="1" column="1" >
-    <widget class="QtDoubleSpinBox" name="positionSpinBox" >
+    <widget class="qdesigner_internal::QtDoubleSpinBox" name="positionSpinBox" >
      <property name="decimals" >
       <number>3</number>
      </property>
@@ -113,7 +113,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="alphaColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="alphaColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>13</hsizetype>
@@ -146,7 +146,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="valueColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="valueColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>13</hsizetype>
@@ -179,7 +179,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="saturationColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="saturationColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>13</hsizetype>
@@ -197,7 +197,7 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="8" >
-    <widget class="QtGradientStopsWidget" name="gradientWidget" >
+    <widget class="qdesigner_internal::QtGradientStopsWidget" name="gradientWidget" >
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>13</hsizetype>
@@ -303,7 +303,7 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QtColorButton" name="colorButton" >
+      <widget class="qdesigner_internal::QtColorButton" name="colorButton" >
        <property name="text" >
         <string/>
        </property>
@@ -360,7 +360,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtColorLine" name="hueColorLine" >
+       <widget class="qdesigner_internal::QtColorLine" name="hueColorLine" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>13</hsizetype>
@@ -381,27 +381,27 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtDoubleSpinBox</class>
+   <class>qdesigner_internal::QtDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header>qtspinbox.h</header>
   </customwidget>
   <customwidget>
-   <class>QtGradientStopsWidget</class>
+   <class>qdesigner_internal::QtGradientStopsWidget</class>
    <extends>QFrame</extends>
    <header>qtgradientstopswidget.h</header>
   </customwidget>
   <customwidget>
-   <class>QtSpinBox</class>
+   <class>qdesigner_internal::QtSpinBox</class>
    <extends>QSpinBox</extends>
    <header>qtspinbox.h</header>
   </customwidget>
   <customwidget>
-   <class>QtColorLine</class>
+   <class>qdesigner_internal::QtColorLine</class>
    <extends>QFrame</extends>
    <header>qtcolorline.h</header>
   </customwidget>
   <customwidget>
-   <class>QtColorButton</class>
+   <class>qdesigner_internal::QtColorButton</class>
    <extends>QToolButton</extends>
    <header>qtcolorbutton.h</header>
   </customwidget>

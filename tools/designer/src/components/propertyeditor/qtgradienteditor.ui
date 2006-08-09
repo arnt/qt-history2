@@ -32,7 +32,7 @@
     <number>6</number>
    </property>
    <item row="2" column="0" colspan="3" >
-    <widget class="QtGradientStopsEditor" name="gradientStopsEditor" >
+    <widget class="qdesigner_internal::QtGradientStopsEditor" name="gradientStopsEditor" >
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>13</hsizetype>
@@ -108,7 +108,7 @@
         </widget>
        </item>
        <item row="3" column="1" >
-        <widget class="QtDoubleSpinBox" name="endLinearYSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="endLinearYSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -121,7 +121,7 @@
         </widget>
        </item>
        <item row="2" column="1" >
-        <widget class="QtDoubleSpinBox" name="endLinearXSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="endLinearXSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -134,7 +134,7 @@
         </widget>
        </item>
        <item row="1" column="1" >
-        <widget class="QtDoubleSpinBox" name="startLinearYSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="startLinearYSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -147,7 +147,7 @@
         </widget>
        </item>
        <item row="0" column="1" >
-        <widget class="QtDoubleSpinBox" name="startLinearXSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="startLinearXSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -191,7 +191,7 @@
         </widget>
        </item>
        <item row="0" column="1" >
-        <widget class="QtDoubleSpinBox" name="centralRadialXSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="centralRadialXSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -204,7 +204,7 @@
         </widget>
        </item>
        <item row="1" column="1" >
-        <widget class="QtDoubleSpinBox" name="centralRadialYSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="centralRadialYSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -217,7 +217,7 @@
         </widget>
        </item>
        <item row="2" column="1" >
-        <widget class="QtDoubleSpinBox" name="focalRadialXSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="focalRadialXSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -230,7 +230,7 @@
         </widget>
        </item>
        <item row="3" column="1" >
-        <widget class="QtDoubleSpinBox" name="focalRadialYSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="focalRadialYSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -250,7 +250,7 @@
         </widget>
        </item>
        <item row="4" column="1" >
-        <widget class="QtDoubleSpinBox" name="radiusRadialSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="radiusRadialSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -317,7 +317,7 @@
         </widget>
        </item>
        <item row="0" column="1" >
-        <widget class="QtDoubleSpinBox" name="centralConicalXSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="centralConicalXSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -330,7 +330,7 @@
         </widget>
        </item>
        <item row="1" column="1" >
-        <widget class="QtDoubleSpinBox" name="centralConicalYSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="centralConicalYSpinBox" >
          <property name="decimals" >
           <number>3</number>
          </property>
@@ -350,7 +350,7 @@
         </widget>
        </item>
        <item row="2" column="1" >
-        <widget class="QtDoubleSpinBox" name="angleConicalSpinBox" >
+        <widget class="qdesigner_internal::QtDoubleSpinBox" name="angleConicalSpinBox" >
          <property name="wrapping" >
           <bool>true</bool>
          </property>
@@ -416,7 +416,7 @@
        <number>6</number>
       </property>
       <item>
-       <widget class="QtGradientWidget" name="gradientWidget" />
+       <widget class="qdesigner_internal::QtGradientWidget" name="gradientWidget" />
       </item>
      </layout>
     </widget>
@@ -425,17 +425,17 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtGradientStopsEditor</class>
+   <class>qdesigner_internal::QtGradientStopsEditor</class>
    <extends>QFrame</extends>
    <header>qtgradientstopseditor.h</header>
   </customwidget>
   <customwidget>
-   <class>QtGradientWidget</class>
+   <class>qdesigner_internal::QtGradientWidget</class>
    <extends>QFrame</extends>
    <header>qtgradientwidget.h</header>
   </customwidget>
   <customwidget>
-   <class>QtDoubleSpinBox</class>
+   <class>qdesigner_internal::QtDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header>qtspinbox.h</header>
   </customwidget>

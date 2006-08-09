@@ -18,6 +18,8 @@
 
 class QDesignerBrushManagerInterface;
 
+namespace qdesigner_internal {
+
 class QtBrushDialog : public QDialog
 {
     Q_OBJECT
@@ -37,5 +39,7 @@ private:
     Q_DECLARE_PRIVATE(QtBrushDialog)
     Q_DISABLE_COPY(QtBrushDialog)
 };
+
+}
 
 #endif

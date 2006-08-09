@@ -23,6 +23,10 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientStopsWidgetPrivate
 {
     QtGradientStopsWidget *q_ptr;
@@ -63,6 +67,8 @@ public:
     QMap<QtGradientStop *, double> m_dragStops;
     QMap<double, QColor> m_dragOriginal;
 };
+
+}
 
 double QtGradientStopsWidgetPrivate::fromViewport(int x) const
 {

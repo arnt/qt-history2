@@ -15,6 +15,8 @@
 
 #include "qdebug.h"
 
+using namespace qdesigner_internal;
+
 QtSpinBox::QtSpinBox(QWidget *parent)
     : QSpinBox(parent)
 {

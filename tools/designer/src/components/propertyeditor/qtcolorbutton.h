@@ -16,6 +16,8 @@
 
 #include <QToolButton>
 
+namespace qdesigner_internal {
+
 class QtColorButton : public QToolButton
 {
     Q_OBJECT
@@ -40,5 +42,7 @@ private:
     Q_DISABLE_COPY(QtColorButton)
     Q_PRIVATE_SLOT(d_func(), void slotEditColor());
 };
+
+}
 
 #endif

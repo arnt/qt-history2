@@ -18,6 +18,9 @@
 #include <QMap>
 
 class QColor;
+
+namespace qdesigner_internal {
+
 class QtGradientStopsModel;
 
 class QtGradientStop
@@ -78,5 +81,7 @@ private:
     Q_DECLARE_PRIVATE(QtGradientStopsModel)
     Q_DISABLE_COPY(QtGradientStopsModel)
 };
+
+}
 
 #endif

@@ -28,6 +28,10 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace qdesigner_internal;
+
+namespace qdesigner_internal {
+
 class QtGradientWidgetPrivate
 {
     QtGradientWidget *q_ptr;
@@ -76,6 +80,8 @@ public:
     double m_angleOffset;
     double m_dragAngle;
 };
+
+}
 
 double QtGradientWidgetPrivate::correctAngle(double angle) const
 {
