@@ -65,9 +65,9 @@ public:
     QFileIconProvider *q_ptr;
 
 private:
-    mutable QIcon file;
+    QIcon file;
     mutable QIcon fileLink;
-    mutable QIcon directory;
+    QIcon directory;
     mutable QIcon directoryLink;
     mutable QIcon harddisk;
     mutable QIcon floppy;
@@ -83,21 +83,21 @@ private:
 
 QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
+    QStyle *style = QApplication::style();
+    file = style->standardIcon(QStyle::SP_FileIcon);
+    directory = style->standardIcon(QStyle::SP_DirIcon);
 }
 
 QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
 {
     QStyle *style = QApplication::style();
-
     switch(name) {
     case QStyle::SP_FileIcon:
-        if (file.isNull()) file = style->standardIcon(QStyle::SP_FileIcon);
         return file;
     case QStyle::SP_FileLinkIcon:
         if (fileLink.isNull()) fileLink = style->standardIcon(QStyle::SP_FileLinkIcon);
         return fileLink;
     case QStyle::SP_DirIcon:
-        if (directory.isNull()) directory = style->standardIcon(QStyle::SP_DirIcon);
         return directory;
     case QStyle::SP_DirLinkIcon:
         if (directoryLink.isNull())  directoryLink = style->standardIcon(QStyle::SP_DirLinkIcon);
