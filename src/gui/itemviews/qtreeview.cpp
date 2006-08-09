@@ -980,7 +980,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         return;
     }
 
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV2 option = d->viewOptionsV2();
     const QStyle::State state = option.state;
     const int deviceWidth = painter->device()->width();
     const int headerLength = d->header->length();
@@ -1046,7 +1046,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    QStyleOptionViewItem opt = option;
+    QStyleOptionViewItemV2 opt = option;
     const QPoint offset = d->scrollDelayOffset;
     const int y = option.rect.y() + offset.y();
     const QModelIndex parent = index.parent();
@@ -1970,7 +1970,7 @@ int QTreeView::sizeHintForColumn(int column) const
     if (d->viewItems.isEmpty())
         return -1;
     int w = 0;
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItemV2 option = d->viewOptionsV2();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int i = 0; i < viewItems.count(); ++i) {
         QModelIndex index = viewItems.at(i).index;
@@ -2018,8 +2018,12 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     end = qMax(tmp, end);
 
     int height = -1;
-    QStyleOptionViewItem option = viewOptions();
-    // ### Temporary hack to speed up the function
+    QStyleOptionViewItemV2 option = d->viewOptionsV2();
+    // ### If we want word wrapping in the items,
+    // ### we need to go through all the columns
+    // ### and set the width of the column
+
+    // ### Temporary hack to speed up the function    
     option.rect.setWidth(-1);
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
@@ -2749,6 +2753,15 @@ bool QTreeViewPrivate::hasVisibleChildren( const QModelIndex& parent) const
         }
     }
     return false;
+}
+
+QStyleOptionViewItemV2 QTreeViewPrivate::viewOptionsV2() const
+{
+    Q_Q(const QTreeView);
+    QStyleOptionViewItemV2 option = q->viewOptions();
+    // don't wrap text by default
+    // option.features = QStyleOptionViewItemV2::WrapText;
+    return option;
 }
 
 #include "moc_qtreeview.cpp"

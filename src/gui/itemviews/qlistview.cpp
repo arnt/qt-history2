@@ -1007,7 +1007,6 @@ void QListView::paintEvent(QPaintEvent *e)
     if (!d->itemDelegate)
         return;
     QStyleOptionViewItemV2 option = d->viewOptionsV2();
-    option.features = QStyleOptionViewItemV2::WrapText;
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
@@ -1085,6 +1084,7 @@ void QListView::paintEvent(QPaintEvent *e)
             painter.fillRect(option.rect, fill);
             previousRow = row;
         }
+
         d->delegateForIndex(*it)->paint(&painter, option, *it);
     }
 

@@ -36,6 +36,8 @@
 #include <private/qdnd_p.h>
 #include <qdebug.h>
 
+#include <limits.h>
+
 class QItemDelegatePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemDelegate)
@@ -61,6 +63,7 @@ public:
     QItemEditorFactory *f;
     bool clipPainting;
 
+    QRect textLayoutBounds(const QStyleOptionViewItemV2 &options) const;
     QSizeF doTextLayout(int lineWidth) const;
     mutable QTextLayout textLayout;
     mutable QTextOption textOption;
@@ -71,6 +74,24 @@ void QItemDelegatePrivate::_q_commitDataAndCloseEditor(QWidget *editor)
     Q_Q(QItemDelegate);
     emit q->commitData(editor);
     emit q->closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
+}
+
+QRect QItemDelegatePrivate::textLayoutBounds(const QStyleOptionViewItemV2 &option) const
+{
+    QRect rect = option.rect;
+    const bool wrapText = option.features & QStyleOptionViewItemV2::WrapText;
+    switch (option.decorationPosition) {
+    case QStyleOptionViewItem::Left:
+    case QStyleOptionViewItem::Right:
+        rect.setWidth(INT_MAX >> 6);
+        break;
+    case QStyleOptionViewItem::Top:
+    case QStyleOptionViewItem::Bottom:
+        rect.setWidth(wrapText ? option.decorationSize.width() : (INT_MAX >> 6));
+        break;
+    }
+
+    return rect;
 }
 
 QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
@@ -303,8 +324,7 @@ void QItemDelegate::paint(QPainter *painter,
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
         text = value.toString();
-        displayRect = textRectangle(painter, opt.features & QStyleOptionViewItemV2::WrapText
-                                    ? opt.rect : QRect(), opt.font, text);
+        displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
 
     QRect checkRect;
@@ -512,16 +532,19 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->restore();
     }
 
+    const QStyleOptionViewItemV2 opt = option;
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
-
-    d->textOption.setWrapMode(QTextOption::NoWrap);
+    const bool wrapText = opt.features & QStyleOptionViewItemV2::WrapText;
+    d->textOption.setWrapMode(wrapText ? QTextOption::WordWrap : QTextOption::ManualWrap);
     d->textOption.setTextDirection(option.direction);
     d->textOption.setAlignment(option.displayAlignment);
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(option.font);
     d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
+
     QSizeF textLayoutSize = d->doTextLayout(textRect.width());
+
     if (textRect.width() < textLayoutSize.width()
         || textRect.height() < textLayoutSize.height()) {
         const QString elided = option.fontMetrics.elidedText(text,
@@ -531,8 +554,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         textLayoutSize = d->doTextLayout(textRect.width());
     }
 
-    textRect.setTop(textRect.top() + (textRect.height() / 2)
-                    - (textLayoutSize.toSize().height() / 2));
+    textRect.setTop(textRect.top() + (textRect.height()/2) - (textLayoutSize.toSize().height()/2));
 
     d->textLayout.draw(painter, textRect.topLeft(), QVector<QTextLayout::FormatRange>(), textRect);
 }
@@ -541,7 +563,6 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     Renders the decoration \a pixmap within the rectangle specified by
     \a rect using the given \a painter and style \a option.
 */
-
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
@@ -865,23 +886,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             QString text = value.toString();
             value = index.data(Qt::FontRole);
             QFont fnt = qvariant_cast<QFont>(value).resolve(option.font);
-            QRect rect = option.rect;
-            QStyleOptionViewItemV2 opt = option;
-            if (opt.features & QStyleOptionViewItemV2::WrapText) {
-                switch (option.decorationPosition) {
-                case QStyleOptionViewItem::Left:
-                case QStyleOptionViewItem::Right:
-                    rect.setHeight(option.decorationSize.height());
-                    break;
-                case QStyleOptionViewItem::Top:
-                case QStyleOptionViewItem::Bottom:
-                    rect.setWidth(option.decorationSize.width());
-                    break;
-                }
-            } else {
-                rect.setWidth(0); // no wrapping text
-            }
-            return textRectangle(0, rect, fnt, text); }
+            return textRectangle(0, d->textLayoutBounds(option), fnt, text); }
         }
     }
     return QRect();
@@ -909,17 +914,13 @@ QRect QItemDelegate::textRectangle(QPainter */*painter*/, const QRect &rect,
                                    const QFont &font, const QString &text) const
 {
     Q_D(const QItemDelegate);
-    if (rect.width() > 0) {
-        d->textOption.setWrapMode(QTextOption::NoWrap);
-        d->textLayout.setTextOption(d->textOption);
-        d->textLayout.setFont(font);
-        d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
-        const QSize size = d->doTextLayout(rect.width()).toSize();
-        return QRect(0, 0, size.width(), size.height());
-    }
-    QFontMetrics fontMetrics(font);
-    const int lineCount = (text.count(QLatin1Char('\n')) + 1);
-    return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing() * lineCount);    
+    d->textOption.setWrapMode(QTextOption::WordWrap);
+    d->textLayout.setTextOption(d->textOption);
+    d->textLayout.setFont(font);
+    d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
+    const QSize size = d->doTextLayout(rect.width()).toSize();
+    const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    return QRect(0, 0, size.width() + 2 * textMargin, size.height());
 }
 
 /*!

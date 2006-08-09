@@ -116,6 +116,8 @@ public:
 
     QPair<int,int> startAndEndColumns(const QRect &rect) const;
 
+    QStyleOptionViewItemV2 viewOptionsV2() const;
+
     QHeaderView *header;
     int indent;
 
