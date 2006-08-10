@@ -1363,7 +1363,7 @@ void qt_init(QApplicationPrivate *priv, int,
                     X11->visual_id = static_cast<int>(strtol(argv[i], 0, 0));
             }
 #ifndef QT_NO_XIM
-        } else if (arg == "-inputstyle/") {
+        } else if (arg == "-inputstyle") {
             if (++i < argc) {
                 QString s = QString::fromLocal8Bit(argv[i]).toLower();
                 if (s == QLatin1String("onthespot"))
