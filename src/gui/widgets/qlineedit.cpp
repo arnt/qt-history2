@@ -2431,7 +2431,9 @@ void QLineEditPrivate::updateTextLayout()
 int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
 {
     Q_Q(const QLineEdit);
-    x-= q->contentsRect().x() - hscroll + horizontalMargin;
+    QStyleOptionFrame opt = getStyleOption();
+    QRect cr = q->style()->subElementRect(QStyle::SE_LineEditContents, &opt, q);
+    x-= cr.x() - hscroll + horizontalMargin;
     QTextLine l = textLayout.lineAt(0);
     return l.xToCursor(x, betweenOrOn);
 }
