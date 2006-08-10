@@ -444,6 +444,14 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath.mid(19), false));
     else if (rPath == QLatin1String("HKEY_LOCAL_MACHINE"))
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
+    else if (rPath.startsWith("HKEY_CLASSES_ROOT\\"))
+        regList.append(RegistryKey(HKEY_CLASSES_ROOT, rPath.mid(18), false));
+    else if (rPath == QLatin1String("HKEY_CLASSES_ROOT"))
+        regList.append(RegistryKey(HKEY_CLASSES_ROOT, QString(), false));
+    else if (rPath.startsWith("HKEY_USERS\\"))
+        regList.append(RegistryKey(HKEY_USERS, rPath.mid(11), false));
+    else if (rPath == QLatin1String("HKEY_USERS"))
+        regList.append(RegistryKey(HKEY_USERS, QString(), false));
     else
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath, false));
 }
