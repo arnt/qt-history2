@@ -116,6 +116,13 @@ embedded {
 		painting/qpaintdevice_qws.cpp
 } 
 
+x11|embedded {
+	SOURCES += painting\qcups.cpp
+	HEADERS += painting\qcups_p.h
+} else {
+	DEFINES += QT_NO_CUPS QT_NO_LPR
+}
+
 mac {
 
 } else:sse|win32-g++ {
