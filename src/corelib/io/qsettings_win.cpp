@@ -445,10 +445,7 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
     else if (rPath == QLatin1String("HKEY_LOCAL_MACHINE"))
         regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
     else
-        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
-
-    if (regList.isEmpty())
-        setStatus(QSettings::AccessError);
+        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath, false));
 }
 
 bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVariant *value) const
