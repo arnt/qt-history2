@@ -306,11 +306,11 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
 
     if (q->isWindow()) {
         QRect fs = frameStrut();
-        q->setGeometry(fs.left(), fs.top(), s.width(), s.height());
+        data.crect = QRect(fs.left(), fs.top(), s.width(), s.height());
         if ((data.window_flags & Qt::FramelessWindowHint) && extra && extra->topextra)
             extra->topextra->frameStrut.setCoords(0, 0, 0, 0);
     } else {
-        q->setGeometry(0, 0, s.width(), s.height());
+        data.crect = QRect(0, 0, s.width(), s.height());
     }
 
     q->setFocusPolicy(fp);
