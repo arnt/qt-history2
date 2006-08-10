@@ -33,6 +33,7 @@
 #include "private/qfontsubset_p.h"
 #include "private/qpaintengine_p.h"
 #include "qprintengine.h"
+#include "private/qcups_p.h"
 
 #ifndef QT_NO_PRINTER
 
@@ -128,6 +129,9 @@ public:
     ~QPdfBaseEngine() {}
 
     // reimplementations QPaintEngine
+    bool begin(QPaintDevice *pdev);
+    bool end();
+
     void drawPoints(const QPointF *points, int pointCount);
     void drawLines(const QLineF *lines, int lineCount);
     void drawRects(const QRectF *rects, int rectCount);
@@ -137,7 +141,13 @@ public:
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void updateState(const QPaintEngineState &state);
+
+    int metric(QPaintDevice::PaintDeviceMetric metricType) const;
     // end reimplementations QPaintEngine
+
+    // Printer stuff...
+    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
+    QVariant property(PrintEnginePropertyKey key) const;
 
     void setPen();
     virtual void setBrush() = 0;
@@ -150,14 +160,18 @@ class QPdfBaseEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPdfBaseEngine)
 public:
-    QPdfBaseEnginePrivate();
+    QPdfBaseEnginePrivate(QPrinter::PrinterMode m);
     ~QPdfBaseEnginePrivate();
 
-    virtual void begin();
-    virtual void end();
+    bool openPrintDevice();
+    void closePrintDevice();
+
 
     void drawTextItem(const QPointF &p, const QTextItemInt &ti);
     inline uint requestObject() { return currentObject++; }
+
+    QRect paperRect() const;
+    QRect pageRect() const;
 
     bool postscript;
     int currentObject;
@@ -175,6 +189,34 @@ public:
     bool hasBrush;
 
     QHash<QFontEngine::FaceId, QFontSubset *> fonts;
+
+    QPaintDevice *pdev;
+
+    // the device the output is in the end streamed to.
+    QIODevice *outDevice;
+    int fd;
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    QCUPSSupport cups;
+#endif
+
+    // printer options
+    QString outputFileName;
+    QString printerName;
+    QString printProgram;
+    QString selectionOption;
+    QString title;
+    QString creator;
+    bool duplex;
+    bool collate;
+    bool fullPage;
+    bool embedFonts;
+    int copies;
+    int resolution;
+    QPrinter::PageOrder pageOrder;
+    QPrinter::Orientation orientation;
+    QPrinter::PageSize pageSize;
+    QPrinter::ColorMode colorMode;
+    QPrinter::PaperSource paperSource;
 };
 
 #endif

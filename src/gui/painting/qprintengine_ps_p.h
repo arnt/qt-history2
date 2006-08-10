@@ -34,11 +34,9 @@
 #include "QtCore/qstringlist.h"
 #include "QtCore/qhash.h"
 #include "QtCore/qabstractitemmodel.h"
-#include "private/qcups_p.h"
 
 class QPrinter;
 class QPSPrintEnginePrivate;
-class QCUPSSupport;
 
 class QPSPrintEngine : public QPdfBaseEngine
 {
@@ -62,14 +60,8 @@ public:
 
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
-    // Printer stuff...
-    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
-    QVariant property(PrintEnginePropertyKey key) const;
-
     virtual bool newPage();
     virtual bool abort();
-
-    virtual int metric(QPaintDevice::PaintDeviceMetric metricType) const;
 
     virtual QPrinter::PrinterState printerState() const;
 
@@ -92,16 +84,10 @@ public:
     void emitPages();
     void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
     void flushPage(bool last = false);
-    QRect paperRect() const;
-    QRect pageRect() const;
 
     int         pageCount;
     bool        epsf;
     QByteArray     fontsUsed;
-
-    // the device the output is in the end streamed to.
-    QIODevice *outDevice;
-    int fd;
 
     // stores the descriptions of the n first pages.
     QByteArray buffer;
@@ -110,34 +96,8 @@ public:
 
     QRect boundingBox;
 
-    bool        collate;
-    int         copies;
-    QString printerName;
-    QString outputFileName;
-    QString selectionOption;
-    QString printProgram;
-    QString title;
-    QString creator;
-    QPrinter::Orientation orientation;
-    QPrinter::PageSize pageSize;
-    QPrinter::PageOrder pageOrder;
-    int resolution;
-    QPrinter::ColorMode colorMode;
-    bool fullPage;
-    QPrinter::PaperSource paperSource;
     QPrinter::PrinterState printerState;
-    bool embedFonts;
     bool hugeDocument;
-
-#ifndef QT_NO_LPR
-    pid_t pid;
-#endif
-
-    bool duplex;
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    QCUPSSupport cups;
-#endif
-
 };
 
 #endif // QT_NO_PRINTER

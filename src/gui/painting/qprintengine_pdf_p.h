@@ -71,18 +71,12 @@ public:
     // end reimplementations QPaintEngine
 
     // reimplementations QPrintEngine
-    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
-    QVariant property(PrintEnginePropertyKey key) const;
-    int metric(QPaintDevice::PaintDeviceMetric) const;
     bool abort() {return false;}
     bool newPage();
     QPrinter::PrinterState printerState() const {return state;}
     // end reimplementations QPrintEngine
 
     void setBrush();
-
-    QRect paperRect() const;
-    QRect pageRect() const;
 
     // ### unused, should have something for this in QPrintEngine
     void setAuthor(const QString &author);
@@ -93,10 +87,6 @@ public:
 private:
     Q_DISABLE_COPY(QPdfEngine)
 
-    QPrinter::PageSize pagesize_;
-
-    QIODevice* device_;
-    QFile* outFile_;
     QPrinter::PrinterState state;
 };
 
@@ -104,26 +94,22 @@ class QPdfEnginePrivate : public QPdfBaseEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPdfEngine)
 public:
-    QPdfEnginePrivate();
+    QPdfEnginePrivate(QPrinter::PrinterMode m);
     ~QPdfEnginePrivate();
 
     void newPage();
-    void setDimensions(int w, int h){width_ = w; height_ = h;}
 
-    void begin();
-    void end();
-
-    QString title, creator, author;
-
-    int width() const {return width_;}
-    int height() const {return height_;}
+    int width() const {
+        QRect r = paperRect();
+        return qRound(r.width()*72./resolution);
+    }
+    int height() const {
+        QRect r = paperRect();
+        return qRound(r.height()*72./resolution);
+    }
 
     void writeHeader();
     void writeTail();
-
-    QPrinter::PageOrder pageOrder;
-    QPrinter::Orientation orientation;
-    bool fullPage;
 
     int addImage(const QImage &image, bool *bitmap, qint64 serial_no);
     int addBrushPattern(const QMatrix &matrix, bool *specifyColor, int *gStateObject);
@@ -143,7 +129,6 @@ private:
     void embedFont(QFontSubset *font);
 
     QVector<int> xrefPositions;
-    int width_, height_;
     QDataStream* stream;
     int streampos;
 
@@ -165,7 +150,6 @@ private:
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
     QVector<uint> pages;
     QHash<qint64, uint> imageCache;
-    int resolution;
 };
 
 

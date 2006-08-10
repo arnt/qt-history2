@@ -34,8 +34,6 @@
 #include "qprintengine_pdf_p.h"
 #include "private/qdrawhelper_p.h"
 
-extern int qt_defaultDpi();
-
 extern qint64 qt_pixmap_id(const QPixmap &pixmap);
 extern qint64 qt_image_id(const QImage &image);
 
@@ -77,171 +75,38 @@ inline QPaintEngine::PaintEngineFeatures qt_pdf_decide_features()
 }
 
 QPdfEngine::QPdfEngine(QPrinter::PrinterMode m)
-    : QPdfBaseEngine(*new QPdfEnginePrivate, qt_pdf_decide_features()), outFile_(new QFile)
+    : QPdfBaseEngine(*new QPdfEnginePrivate(m), qt_pdf_decide_features())
 {
-    Q_D(QPdfEngine);
-    device_ = 0;
     state = QPrinter::Idle;
-
-    pagesize_ = QPrinter::A4;
-
-    if (m == QPrinter::HighResolution)
-        d->resolution = 1200;
-    else if (m == QPrinter::ScreenResolution)
-        d->resolution = qt_defaultDpi();
-
-    QRect r = paperRect();
-    d->setDimensions(qRound(r.width()*72./d->resolution),qRound(r.height()*72./d->resolution));
 }
 
 QPdfEngine::~QPdfEngine()
 {
-    delete outFile_;
 }
 
-
-void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+bool QPdfEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QPdfEngine);
-    switch (key) {
-    case PPK_Creator:
-        d->creator = value.toString();
-        break;
-    case PPK_DocumentName:
-        d->title = value.toString();
-        break;
-    case PPK_Orientation: {
-        d->orientation = QPrinter::Orientation(value.toInt());
-        break;
-    }
-    case PPK_OutputFileName: {
-        if (isActive()) {
-            qWarning("QPdfEngine::setFileName: Not possible while painting");
-            return;
-        }
-        QString filename = value.toString();
 
-        if (filename.isEmpty())
-            return;
-
-        outFile_->setFileName(filename);
-        setDevice(outFile_);
-    }
-        break;
-    case PPK_PageSize: {
-        pagesize_ = QPrinter::PageSize(value.toInt());
-    }
-        break;
-    case PPK_Resolution:
-        d->resolution = value.toInt();
-    case PPK_FullPage:
-        d->fullPage = value.toBool();
-        break;
-    default:
-        break;
-    }
-    QRect r = paperRect();
-    d->setDimensions(qRound(r.width()*72./d->resolution),qRound(r.height()*72./d->resolution));
-}
-
-QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
-{
-    Q_D(const QPdfEngine);
-    switch (key) {
-    case PPK_ColorMode:
-        return QPrinter::Color;
-    case PPK_Creator:
-        return d->creator;
-    case PPK_DocumentName:
-        return d->title;
-    case PPK_FullPage:
-        return d->fullPage;
-    case PPK_NumberOfCopies:
-        return 1;
-    case PPK_Orientation:
-        return d->orientation;
-    case PPK_OutputFileName:
-        return outFile_->fileName();
-    case PPK_PageRect:
-        return pageRect();
-    case PPK_PageSize:
-        return pagesize_;
-    case PPK_PaperRect:
-        return paperRect();
-    case PPK_PaperSource:
-        return QPrinter::Auto;
-    case PPK_Resolution:
-        return d->resolution;
-    case PPK_SupportedResolutions:
-        return QList<QVariant>() << d->resolution;
-    default:
-        break;
-    }
-    return QVariant();
-}
-
-void QPdfEngine::setAuthor(const QString &author)
-{
-    Q_D(QPdfEngine);
-    d->author = author;
-}
-
-QString QPdfEngine::author() const
-{
-    Q_D(const QPdfEngine);
-    return d->author;
-}
-
-QRect QPdfEngine::paperRect() const
-{
-    Q_D(const QPdfEngine);
-    QPdf::PaperSize s = QPdf::paperSize(pagesize_);
-    int w = qRound(s.width*d->resolution/72.);
-    int h = qRound(s.height*d->resolution/72.);
-    if (d->orientation == QPrinter::Portrait)
-        return QRect(0, 0, w, h);
-    else
-        return QRect(0, 0, h, w);
-}
-
-QRect QPdfEngine::pageRect() const
-{
-    Q_D(const QPdfEngine);
-    QRect r = paperRect();
-    if (d->fullPage)
-        return r;
-    // would be nice to get better margins than this.
-    return QRect(d->resolution/3, d->resolution/3, r.width()-2*d->resolution/3, r.height()-2*d->resolution/3);
-}
-
-void QPdfEngine::setDevice(QIODevice* dev)
-{
-    if (isActive()) {
-        qWarning("QPdfEngine::setDevice: Device cannot be set while painting");
-        return;
-    }
-    device_ = dev;
-}
-
-bool QPdfEngine::begin(QPaintDevice *)
-{
-    Q_D(QPdfEngine);
-    if (!device_) {
-        qWarning("QPdfEngine::begin: No valid device");
+    if(!QPdfBaseEngine::begin(pdev))
         return false;
-    }
+    d->stream->setDevice(d->outDevice);
 
-    if (device_->isOpen())
-        device_->close();
-    if(!device_->open(QIODevice::WriteOnly)) {
-        qWarning("QPdfEngine::begin: Cannot open IO device");
-        return false;
-    }
+    d->streampos = 0;
+    d->hasPen = true;
+    d->hasBrush = false;
+    d->clipEnabled = false;
+    d->allClipped = false;
 
-    d->stream->unsetDevice();
-    d->stream->setDevice(device_);
+    d->xrefPositions.clear();
+    d->pageRoot = 0;
+    d->catalog = 0;
+    d->info = 0;
+    d->graphicsState = 0;
+    d->patternColorSpace = 0;
 
-    d->begin();
+    d->pages.clear();
+    d->imageCache.clear();
 
     setActive(true);
     state = QPrinter::Active;
@@ -256,9 +121,8 @@ bool QPdfEngine::end()
     Q_D(QPdfEngine);
     d->writeTail();
 
-    device_->close();
     d->stream->unsetDevice();
-    d->end();
+    QPdfBaseEngine::end();
     setActive(false);
     state = QPrinter::Idle;
     return true;
@@ -368,46 +232,6 @@ void QPdfEngine::setBrush()
         *d->currentPage << "/GSa gs\n";
 }
 
-
-int QPdfEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
-{
-    Q_D(const QPdfEngine);
-    int val;
-    QRect r = d->fullPage ? paperRect() : pageRect();
-    switch (metricType) {
-    case QPaintDevice::PdmWidth:
-        val = r.width();
-        break;
-    case QPaintDevice::PdmHeight:
-        val = r.height();
-        break;
-    case QPaintDevice::PdmDpiX:
-    case QPaintDevice::PdmDpiY:
-        val = d->resolution;
-        break;
-    case QPaintDevice::PdmPhysicalDpiX:
-    case QPaintDevice::PdmPhysicalDpiY:
-        val = 1200;
-        break;
-    case QPaintDevice::PdmWidthMM:
-        val = qRound(r.width()*25.4/d->resolution);
-        break;
-    case QPaintDevice::PdmHeightMM:
-        val = qRound(r.height()*25.4/d->resolution);
-        break;
-    case QPaintDevice::PdmNumColors:
-        val = INT_MAX;
-        break;
-    case QPaintDevice::PdmDepth:
-        val = 32;
-        break;
-    default:
-        qWarning("QPdfEngine::metric: Invalid metric command");
-        return 0;
-    }
-    return val;
-}
-
 QPaintEngine::Type QPdfEngine::type() const
 {
     return QPaintEngine::User;
@@ -422,10 +246,9 @@ bool QPdfEngine::newPage()
     return true;
 }
 
-QPdfEnginePrivate::QPdfEnginePrivate()
+QPdfEnginePrivate::QPdfEnginePrivate(QPrinter::PrinterMode m)
+    : QPdfBaseEnginePrivate(m)
 {
-    width_ = 0;
-    height_ = 0;
     streampos = 0;
 
     stream = new QDataStream;
@@ -437,32 +260,6 @@ QPdfEnginePrivate::QPdfEnginePrivate()
 QPdfEnginePrivate::~QPdfEnginePrivate()
 {
     delete stream;
-}
-
-void QPdfEnginePrivate::begin()
-{
-    QPdfBaseEnginePrivate::begin();
-
-    streampos = 0;
-    hasPen = true;
-    hasBrush = false;
-    clipEnabled = false;
-    allClipped = false;
-
-    xrefPositions.clear();
-    pageRoot = 0;
-    catalog = 0;
-    info = 0;
-    graphicsState = 0;
-    patternColorSpace = 0;
-
-    pages.clear();
-    imageCache.clear();
-}
-
-void QPdfEnginePrivate::end()
-{
-    QPdfBaseEnginePrivate::end();
 }
 
 
@@ -772,7 +569,7 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
 QMatrix QPdfEnginePrivate::pageMatrix() const
 {
     qreal scale = 72./resolution;
-    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height_);
+    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height());
     if (!fullPage)
         tmp.translate(resolution/3, resolution/3);
     return tmp;
@@ -941,10 +738,12 @@ void QPdfEnginePrivate::writeInfo()
     info = addXrefEntry(-1);
     xprintf("<<\n"
             "/Title (%s)\n"
-            "/Author (%s)\n"
+//            "/Author (%s)\n"
             "/Creator (%s)\n"
             "/Producer (Qt %s (C) 1992-%s $TROLLTECH$)\n",
-            title.toUtf8().constData(), author.toUtf8().constData(), creator.toUtf8().constData(),
+            title.toUtf8().constData(),
+//            author.toUtf8().constData(),
+            creator.toUtf8().constData(),
             qVersion(), y.constData());
 
     if (newtime) {
@@ -977,7 +776,7 @@ void QPdfEnginePrivate::writePageRoot()
 
     xprintf("/Count %d\n"
             "/MediaBox [%d %d %d %d]\n",
-            pages.size(), 0, 0, width_, height_);
+            pages.size(), 0, 0, width(), height());
 
     xprintf("/ProcSet [/PDF /Text /ImageB /ImageC]\n"
             ">>\n"

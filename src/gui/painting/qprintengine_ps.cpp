@@ -31,7 +31,6 @@
 #include "qbytearray.h"
 #include "qhash.h"
 #include "qbuffer.h"
-#include "qfile.h"
 #include "qsettings.h"
 #include "qmap.h"
 #include "qbitmap.h"
@@ -54,8 +53,6 @@ void qt_generate_epsf(bool b)
 {
     qt_gen_epsf = b;
 }
-
-extern int qt_defaultDpi();
 
 static const char *const ps_header =
 "/BD{bind def}bind def/d2{dup dup}BD/ED{exch def}BD/D0{0 ED}BD/F{setfont}BD\n"
@@ -145,22 +142,12 @@ static QByteArray wrapDSC(const QByteArray &str)
 // ----------------------------- Internal class declarations -----------------------------
 
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
-    : outDevice(0), fd(-1),
-      collate(false), copies(1), orientation(QPrinter::Portrait),
-      pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
-      fullPage(false), printerState(QPrinter::Idle), hugeDocument(false), duplex(false)
+    : QPdfBaseEnginePrivate(m),
+      printerState(QPrinter::Idle), hugeDocument(false)
 {
-#ifndef QT_NO_LPR
-    pid = 0;
-#endif
     postscript = true;
 
     firstPage = true;
-    resolution = 72;
-    if (m == QPrinter::HighResolution)
-        resolution = 1200;
-    else if (m == QPrinter::ScreenResolution)
-        resolution = qt_defaultDpi();
 
 #ifndef QT_NO_SETTINGS
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
@@ -437,8 +424,6 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
 
     if (creator.isEmpty())
         creator = QLatin1String("Qt " QT_VERSION_STR);
-    outDevice = new QFile();
-    static_cast<QFile *>(outDevice)->open(fd, QIODevice::WriteOnly);
 
     QByteArray header;
     QPdf::ByteStream s(&header);
@@ -653,28 +638,6 @@ QPSPrintEngine::~QPSPrintEngine()
         ::close(d->fd);
 }
 
-#ifndef QT_NO_LPR
-static void closeAllOpenFds()
-{
-    // hack time... getting the maximum number of open
-    // files, if possible.  if not we assume it's the
-    // larger of 256 and the fd we got
-    int i;
-#if defined(_SC_OPEN_MAX)
-    i = (int)sysconf(_SC_OPEN_MAX);
-#elif defined(_POSIX_OPEN_MAX)
-    i = (int)_POSIX_OPEN_MAX;
-#elif defined(OPEN_MAX)
-    i = (int)OPEN_MAX;
-#else
-    i = 256;
-#endif
-    // leave stdin/out/err untouched
-    while(--i > 2)
-	::close(i);
-}
-#endif
-
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QPSPrintEngine);
@@ -682,198 +645,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (d->fd >= 0)
         return true;
 
-    d->pdev = pdev;
-    if (!d->outputFileName.isEmpty()) {
-        d->fd = QT_OPEN(d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
-#ifndef Q_OS_WIN
-                        | O_NOCTTY
-#endif
-                        ,
-#if defined(Q_OS_WIN)
-                        _S_IREAD | _S_IWRITE
-#else
-                        0666
-#endif
-            );
-        if (d->fd < 0)
-            return false;
-#ifndef QT_NO_LPR
-    } else {
-        QString pr;
-        if (!d->printerName.isEmpty())
-            pr = d->printerName;
-        int fds[2];
-        if (pipe(fds) != 0) {
-            qWarning("QPSPrinter: Could not open pipe to print");
-            return false;
-        }
-
-        d->pid = fork();
-        if (d->pid == 0) {       // child process
-            // if possible, exit quickly, so the actual lp/lpr
-            // becomes a child of init, and ::waitpid() is
-            // guaranteed not to wait.
-            if (fork() > 0) {
-                closeAllOpenFds();
-
-                // try to replace this process with "true" - this prevents
-                // global destructors from being called (that could possibly
-                // do wrong things to the parent process)
-                (void)execlp("true", "true", (char *)0);
-                (void)execl("/bin/true", "true", (char *)0);
-                (void)execl("/usr/bin/true", "true", (char *)0);
-                ::exit(0);
-            }
-            dup2(fds[0], 0);
-
-            closeAllOpenFds();
-
-            if (!d->printProgram.isEmpty()) {
-                if (!d->selectionOption.isEmpty())
-                    pr.prepend(d->selectionOption);
-                else
-                    pr.prepend(QLatin1String("-P"));
-                (void)execlp(d->printProgram.toLocal8Bit().data(), d->printProgram.toLocal8Bit().data(),
-                             pr.toLocal8Bit().data(), (char *)0);
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-            } else if (d->cups.isAvailable()) {
-
-                QStringList cupsArgList;
-
-                cupsArgList << QLatin1String("lpr");
-
-                if (!d->printerName.isEmpty()) {
-                    cupsArgList << QLatin1String("-P");
-                    cupsArgList << d->printerName;
-                }
-
-                cupsArgList << QLatin1String("-o");
-                const ppd_option_t* pageSizes = d->cups.pageSizes();
-                cupsArgList << QString::fromLatin1("media=%1").arg(
-                    QString::fromLocal8Bit(pageSizes->choices[d->pageSize].choice));
-
-                if (d->copies > 1) {
-                    cupsArgList << QLatin1String("-#");
-                    cupsArgList << QString::number(d->copies);
-                }
-
-#if 0 // ##########
-                if (d->printer->printRange() == QPrinter::PageRange) {
-                    cupsArgList << "-o";
-                    cupsArgList << QString("print-ranges=%1-%2").arg(d->printer->fromPage()).arg(d->printer->toPage());
-                }
-#endif
-
-                if (d->collate) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("Collate=True");
-                }
-
-                if (d->pageOrder == QPrinter::LastPageFirst) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("outputorder=reverse");
-                }
-
-                if (d->duplex) {
-                    cupsArgList << QLatin1String("-o");
-                    if (d->orientation == QPrinter::Portrait)
-                        cupsArgList << QLatin1String("sides=two-sided-long-edge");
-                    else
-                        cupsArgList << QLatin1String("sides=two-sided-short-edge");
-                }
-
-                if (d->orientation == QPrinter::Landscape) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QLatin1String("landscape");
-                }
-
-                if (!d->title.isEmpty()) {
-                    cupsArgList << QLatin1String("-J");
-                    cupsArgList << d->title;
-                }
-
-                QStringList list = d->cups.options();
-                QStringList::const_iterator it = list.constBegin();
-                while (it != list.constEnd()) {
-                    cupsArgList << QLatin1String("-o");
-                    cupsArgList << QString::fromLatin1("%1=%2").arg(*it).arg(*(it+1));
-                    it += 2;
-                }
-
-                char** lprargs = new char*[cupsArgList.count() + 1];
-                int i;
-                for (i = 0; i < cupsArgList.count(); ++i) {
-                    lprargs[i] = cupsArgList.at(i).toLocal8Bit().data();
-                }
-                lprargs[i] = 0;
-
-                // if the CUPS is available we expect lpr arround
-                (void)execvp( "lpr", lprargs );
-                (void)execv( "/bin/lpr", lprargs);
-                (void)execv( "/usr/bin/lpr", lprargs);
-
-#endif
-            } else {
-                // if no print program has been specified, be smart
-                // about the option string too.
-                QList<QByteArray> lprhack;
-                QList<QByteArray> lphack;
-                QByteArray media;
-                if (!pr.isEmpty() || !d->selectionOption.isEmpty()) {
-                    if (!d->selectionOption.isEmpty()) {
-                        QStringList list = d->selectionOption.split(QLatin1Char(' '));
-                        for (int i = 0; i < list.size(); ++i)
-                            lprhack.append(list.at(i).toLocal8Bit());
-                        lphack = lprhack;
-                    } else {
-                        lprhack.append("-P");
-                        lphack.append("-d");
-                    }
-                    lprhack.append(pr.toLocal8Bit());
-                    lphack.append(pr.toLocal8Bit());
-                }
-                char ** lpargs = new char *[lphack.size()+6];
-                lpargs[0] = "lp";
-                int i;
-                for (i = 0; i < lphack.size(); ++i)
-                    lpargs[i+1] = (char *)lphack.at(i).constData();
-#ifndef Q_OS_OSF
-                if (QPdf::paperSizeToString(d->pageSize)) {
-                    lpargs[++i] = "-o";
-                    lpargs[++i] = (char *)QPdf::paperSizeToString(d->pageSize);
-                    lpargs[++i] = "-o";
-                    media = "media=";
-                    media += QPdf::paperSizeToString(d->pageSize);
-                    lpargs[++i] = (char *)media.constData();
-                }
-#endif
-                lpargs[++i] = 0;
-                char **lprargs = new char *[lprhack.size()+2];
-                lprargs[0] = "lpr";
-                for (int i = 0; i < lprhack.size(); ++i)
-                    lprargs[i+1] = (char *)lprhack[i].constData();
-                lprargs[lprhack.size() + 1] = 0;
-                (void)execvp("lp", lpargs);
-                (void)execvp("lpr", lprargs);
-                (void)execv("/bin/lp", lpargs);
-                (void)execv("/bin/lpr", lprargs);
-                (void)execv("/usr/bin/lp", lpargs);
-                (void)execv("/usr/bin/lpr", lprargs);
-            }
-            // if we couldn't exec anything, close the fd,
-            // wait for a second so the parent process (the
-            // child of the GUI process) has exited.  then
-            // exit.
-            ::close(0);
-            (void)::sleep(1);
-            ::exit(0);
-        }
-        // parent process
-        ::close(fds[0]);
-        d->fd = fds[1];
-#endif
-    }
-    if (d->fd < 0)
+    if(!QPdfBaseEngine::begin(pdev))
         return false;
 
     d->pageCount = 1;                // initialize state
@@ -913,27 +685,13 @@ bool QPSPrintEngine::end()
     d->outDevice->write(trailer);
     ignoreSigPipe(false);
 
-    d->outDevice->close();
-    if (d->fd >= 0)
-        ::close(d->fd);
-    d->fd = -1;
-    delete d->outDevice;
-    d->outDevice = 0;
+    QPdfBaseEngine::end();
 
-    qDeleteAll(d->fonts);
-    d->fonts.clear();
     d->firstPage = true;
 
     setActive(false);
     d->printerState = QPrinter::Idle;
     d->pdev = 0;
-
-#ifndef QT_NO_LPR
-    if (d->pid) {
-        (void)::waitpid(d->pid, 0, 0);
-        d->pid = 0;
-    }
-#endif
 
     return true;
 }
@@ -1066,212 +824,10 @@ bool QPSPrintEngine::abort()
     return false;
 }
 
-QRect QPSPrintEnginePrivate::paperRect() const
-{
-    QPdf::PaperSize s = QPdf::paperSize(pageSize);
-    int w = qRound(s.width*resolution/72.);
-    int h = qRound(s.height*resolution/72.);
-    if (orientation == QPrinter::Portrait)
-        return QRect(0, 0, w, h);
-    else
-        return QRect(0, 0, h, w);
-}
-
-QRect QPSPrintEnginePrivate::pageRect() const
-{
-    QRect r = paperRect();
-    if (fullPage)
-        return r;
-    // would be nice to get better margins than this.
-    return QRect(resolution/3, resolution/3, r.width()-2*resolution/3, r.height()-2*resolution/3);
-}
-
-int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
-{
-    Q_D(const QPSPrintEngine);
-    int val;
-    QRect r = d->fullPage ? d->paperRect() : d->pageRect();
-    switch (metricType) {
-    case QPaintDevice::PdmWidth:
-        val = r.width();
-        break;
-    case QPaintDevice::PdmHeight:
-        val = r.height();
-        break;
-    case QPaintDevice::PdmDpiX:
-        val = d->resolution;
-        break;
-    case QPaintDevice::PdmDpiY:
-        val = d->resolution;
-        break;
-    case QPaintDevice::PdmPhysicalDpiX:
-    case QPaintDevice::PdmPhysicalDpiY:
-        val = 1200;
-        break;
-    case QPaintDevice::PdmWidthMM:
-        val = qRound(r.width()*25.4/d->resolution);
-        break;
-    case QPaintDevice::PdmHeightMM:
-        val = qRound(r.height()*25.4/d->resolution);
-        break;
-    case QPaintDevice::PdmNumColors:
-        val = INT_MAX;
-        break;
-    case QPaintDevice::PdmDepth:
-        val = 32;
-        break;
-    default:
-        qWarning("QPrinter::metric: Invalid metric command");
-        return 0;
-    }
-    return val;
-}
-
 QPrinter::PrinterState QPSPrintEngine::printerState() const
 {
     Q_D(const QPSPrintEngine);
     return d->printerState;
-}
-
-void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
-{
-    Q_D(QPSPrintEngine);
-    switch (key) {
-    case PPK_CollateCopies:
-        d->collate = value.toBool();
-        break;
-    case PPK_ColorMode:
-        d->colorMode = QPrinter::ColorMode(value.toInt());
-        break;
-    case PPK_Creator:
-        d->creator = value.toString();
-        break;
-    case PPK_DocumentName:
-        d->title = value.toString();
-        break;
-    case PPK_FullPage:
-        d->fullPage = value.toBool();
-        break;
-    case PPK_NumberOfCopies:
-        d->copies = value.toInt();
-        break;
-    case PPK_Orientation:
-        d->orientation = QPrinter::Orientation(value.toInt());
-        break;
-    case PPK_OutputFileName:
-        d->outputFileName = value.toString();
-        break;
-    case PPK_PageOrder:
-        d->pageOrder = QPrinter::PageOrder(value.toInt());
-        break;
-    case PPK_PageSize:
-        d->pageSize = QPrinter::PageSize(value.toInt());
-        break;
-    case PPK_PaperSource:
-        d->paperSource = QPrinter::PaperSource(value.toInt());
-        break;
-    case PPK_PrinterName:
-        d->printerName = value.toString();
-        break;
-    case PPK_PrinterProgram:
-        d->printProgram = value.toString();
-        break;
-    case PPK_Resolution:
-        d->resolution = value.toInt();
-        break;
-    case PPK_SelectionOption:
-        d->selectionOption = value.toString();
-        break;
-    case PPK_FontEmbedding:
-        d->embedFonts = value.toBool();
-        break;
-    case PPK_Duplex:
-        d->duplex = value.toBool();
-        break;
-    default:
-        break;
-    }
-}
-
-QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
-{
-    Q_D(const QPSPrintEngine);
-
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (d->cups.isAvailable() && d->cups.currentPPD()) {
-        if (key == PPK_PaperRect)
-            return QVariant(d->cups.paperRect());
-        else if (key == PPK_PageRect)
-            return QVariant(d->cups.pageRect());
-    }
-#endif
-
-    QVariant ret;
-    switch (key) {
-    case PPK_CollateCopies:
-        ret = d->collate;
-        break;
-    case PPK_ColorMode:
-        ret = d->colorMode;
-        break;
-    case PPK_Creator:
-        ret = d->creator;
-        break;
-    case PPK_DocumentName:
-        ret = d->title;
-        break;
-    case PPK_FullPage:
-        ret = d->fullPage;
-        break;
-    case PPK_NumberOfCopies:
-        ret = d->copies;
-        break;
-    case PPK_Orientation:
-        ret = d->orientation;
-        break;
-    case PPK_OutputFileName:
-        ret = d->outputFileName;
-        break;
-    case PPK_PageOrder:
-        ret = d->pageOrder;
-        break;
-    case PPK_PageSize:
-        ret = d->pageSize;
-        break;
-    case PPK_PaperSource:
-        ret = d->paperSource;
-        break;
-    case PPK_PrinterName:
-        ret = d->printerName;
-        break;
-    case PPK_PrinterProgram:
-        ret = d->printProgram;
-        break;
-    case PPK_Resolution:
-        ret = d->resolution;
-        break;
-    case PPK_SupportedResolutions:
-        ret = QList<QVariant>() << 72;
-        break;
-    case PPK_PaperRect:
-        ret = d->paperRect();
-        break;
-    case PPK_PageRect:
-        ret = d->pageRect();
-        break;
-    case PPK_SelectionOption:
-        ret = d->selectionOption;
-        break;
-    case PPK_FontEmbedding:
-        ret = d->embedFonts;
-        break;
-    case PPK_Duplex:
-        ret = d->duplex;
-        break;
-    default:
-        break;
-    }
-    return ret;
 }
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
