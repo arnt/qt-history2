@@ -13,7 +13,7 @@ void main()
     mat[1][0] = inv_matrix.z;
     mat[1][1] = inv_matrix.w;
 
-    vec2 A = mat*gl_FragCoord.xy + inv_matrix_offset;
+    vec2 A = gl_FragCoord.xy * mat + inv_matrix_offset;
 /*     float val = fmod((atan2(-A.y, A.x) + angle) / (2.0 * M_PI), 1); */
     if (abs(A.y) == abs(A.x))
  	A.y += 0.002;

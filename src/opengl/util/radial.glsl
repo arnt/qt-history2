@@ -12,7 +12,7 @@ void main()
     mat[0][1] = inv_matrix.y;
     mat[1][0] = inv_matrix.z;
     mat[1][1] = inv_matrix.w;
-    vec2 A = mat * gl_FragCoord.xy + inv_matrix_offset;
+    vec2 A = gl_FragCoord.xy * mat + inv_matrix_offset;
     vec2 B = fmp;
     float a = fmp2_m_radius2;
     float b = 2.0*dot(A, B);
