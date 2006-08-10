@@ -155,7 +155,7 @@ public:
     void setBlockFormat(const QTextBlock &from, const QTextBlock &to,
 			const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
 
-    void undoRedo(bool undo);
+    int undoRedo(bool undo);
     inline void undo() { undoRedo(true); }
     inline void redo() { undoRedo(false); }
     void appendUndoItem(QAbstractUndoItem *);

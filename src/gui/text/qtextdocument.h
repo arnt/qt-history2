@@ -189,6 +189,9 @@ public:
     void setDefaultStyleSheet(const QString &sheet);
     QString defaultStyleSheet() const;
 
+    void undo(QTextCursor *cursor);
+    void redo(QTextCursor *cursor);
+
 Q_SIGNALS:
     void contentsChange(int from, int charsRemoves, int charsAdded);
     void contentsChanged();

@@ -333,6 +333,43 @@ void QTextDocument::clear()
 }
 
 /*!
+    \since 4.2
+    Undoes the last editing operation on the document if
+    \link QTextDocument::isUndoAvailable() undo is available\endlink.
+
+    The provided \a cursor is positioned at the end of the location where
+    the edition operation was undone.
+*/
+void QTextDocument::undo(QTextCursor *cursor)
+{
+    Q_D(QTextDocument);
+    const int pos = d->undoRedo(true);
+    if (cursor && pos >= 0) {
+        *cursor = QTextCursor(this);
+        cursor->setPosition(pos);
+    }
+}
+
+/*!
+    \since 4.2
+    Redoes the last editing operation on the document if \link
+    QTextDocument::isRedoAvailable() redo is available\endlink.
+
+    The provided \a cursor is positioned at the end of the location where
+    the edition operation was redone.
+*/
+void QTextDocument::redo(QTextCursor *cursor)
+{
+    Q_D(QTextDocument);
+    const int pos = d->undoRedo(false);
+    if (cursor && pos >= 0) {
+        *cursor = QTextCursor(this);
+        cursor->setPosition(pos);
+    }
+}
+
+/*!
+    \overload
     Undoes the last editing operation on the document if
     \link QTextDocument::isUndoAvailable() undo is available\endlink.
 */
@@ -343,6 +380,7 @@ void QTextDocument::undo()
 }
 
 /*!
+    \overload
     Redoes the last editing operation on the document if \link
     QTextDocument::isRedoAvailable() redo is available\endlink.
 */
@@ -767,7 +805,7 @@ QTextCursor QTextDocument::find(const QString &subString, int from, FindFlags op
     QRegExp expr(subString);
     expr.setPatternSyntax(QRegExp::FixedString);
     expr.setCaseSensitivity((options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    
+
     return find(expr, from, options);
 }
 
@@ -803,7 +841,7 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QReg
                         QTextDocument::FindFlags options, QTextCursor &cursor)
 {
     const QRegExp expr(expression);
-    
+
     int idx = -1;
     while (offset >=0 && offset <= text.length()) {
         idx = (options & QTextDocument::FindBackward) ?
@@ -817,8 +855,8 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QReg
             if ((start != 0 && text.at(start - 1).isLetterOrNumber())
                 || (end != text.length() && text.at(end).isLetterOrNumber())) {
                 //if this is not a whole word, continue the search in the string
-                offset = (options & QTextDocument::FindBackward) ? idx-1 : end+1;  
-                continue; 
+                offset = (options & QTextDocument::FindBackward) ? idx-1 : end+1;
+                continue;
             }
         }
         //we have a hit, return the cursor for that.
@@ -839,7 +877,7 @@ static bool findInBlock(const QTextBlock &block, const QString &text, const QReg
     Finds the next occurrence, matching the regular expression, \a expr, in the document.
     The search starts at the given \a position, and proceeds forwards
     through the document unless specified otherwise in the search options.
-    The \a options control the type of search performed. The FindCaseSensitively 
+    The \a options control the type of search performed. The FindCaseSensitively
     option is ignored for this overload, use QRegExp::caseSensitivity instead.
 
     Returns a cursor with the match selected if a match was found; otherwise
@@ -896,7 +934,7 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
     Finds the next occurrence, matching the regular expression, \a expr, in the document.
     The search starts at the position of the given \a cursor, and proceeds
     forwards through the document unless specified otherwise in the search
-    options. The \a options control the type of search performed. The FindCaseSensitively 
+    options. The \a options control the type of search performed. The FindCaseSensitively
     option is ignored for this overload, use QRegExp::caseSensitivity instead.
 
     Returns a cursor with the match selected if a match was found; otherwise

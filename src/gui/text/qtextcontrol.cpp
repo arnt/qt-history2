@@ -635,33 +635,15 @@ void QTextControlPrivate::_q_deleteSelected()
 void QTextControl::undo()
 {
     Q_D(QTextControl);
-    QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                     this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
-    d->doc->undo();
-    QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                        this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
+    d->doc->undo(&d->cursor);
     ensureCursorVisible();
 }
 
 void QTextControl::redo()
 {
     Q_D(QTextControl);
-    QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                     this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
-    d->doc->redo();
-    QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                        this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
+    d->doc->redo(&d->cursor);
     ensureCursorVisible();
-}
-
-void QTextControlPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
-{
-    if (cursor.isNull())
-        return;
-
-    cursor.setPosition(undoPosition + charsAdded);
-    // don't call ensureCursorVisible here but wait until the text is layouted, which will
-    // be the case in QTextControl::undo() after calling undo() on the document.
 }
 
 QTextControl::QTextControl(QObject *parent)

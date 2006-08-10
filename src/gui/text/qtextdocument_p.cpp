@@ -719,11 +719,11 @@ bool QTextDocumentPrivate::unite(uint f)
 }
 
 
-void QTextDocumentPrivate::undoRedo(bool undo)
+int QTextDocumentPrivate::undoRedo(bool undo)
 {
     PMDEBUG("%s, undoState=%d, undoStack size=%d", undo ? "undo:" : "redo:", undoState, undoStack.size());
     if (!undoEnabled || (undo && undoState == 0) || (!undo && undoState == undoStack.size()))
-        return;
+        return -1;
 
     undoEnabled = false;
     beginEditBlock();
@@ -819,10 +819,15 @@ void QTextDocumentPrivate::undoRedo(bool undo)
         }
     }
     undoEnabled = true;
+    int editPos = -1;
+    if (docChangeFrom >= 0) {
+        editPos = qMin(docChangeFrom + docChangeLength, length() - 1);
+    }
     endEditBlock();
     Q_Q(QTextDocument);
     emit q->undoAvailable(isUndoAvailable());
     emit q->redoAvailable(isRedoAvailable());
+    return editPos;
 }
 
 /*!
