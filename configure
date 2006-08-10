@@ -3290,32 +3290,44 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
             if [ "$CFG_SQL_mysql" != "no" ]; then
-		QT_CFLAGS_MYSQL=`mysql_config --include 2>/dev/null`
-		QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
-		QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
-                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql_r "MySQL (thread-safe)" $QT_LFLAGS_MYSQL_R $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
-		    QMakeVar add CONFIG use_libmysqlclient_r
-                    if [ "$CFG_SQL_mysql" = "auto" ]; then
-                        CFG_SQL_mysql=plugin
-                    fi
-                    QT_LFLAGS_MYSQL="$QT_LFLAGS_MYSQL_R"
-                elif "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql "MySQL (thread-unsafe)" $QT_LFLAGS_MYSQL $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
-                    if [ "$CFG_SQL_mysql" = "auto" ]; then
-                        CFG_SQL_mysql=plugin
-                    fi
-                else
+                if [ `mysql_config --version | cut --delimiter=. --fields=1` -lt 4 ]; then
                     if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-                        echo "MySQL support cannot be enabled due to functionality tests!"
-                        echo " Turn on verbose messaging (-v) to $0 to see the final report."
+                        echo "This version of MySql is not supported (`mysql_config --version`)."
+                        echo " You need MySql 4.x.x or higher."
                         echo " If you believe this message is in error you may use the continue"
                         echo " switch (-continue) to $0 to continue."
                         exit 101
                     else
-                        CFG_SQL_mysql=no
+                        CFG_SQL_mysql="no"
+                    fi
+                else
+                    QT_CFLAGS_MYSQL=`mysql_config --include 2>/dev/null`
+                    QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
+                    QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
+                    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql_r "MySQL (thread-safe)" $QT_LFLAGS_MYSQL_R $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
+                        QMakeVar add CONFIG use_libmysqlclient_r
+                        if [ "$CFG_SQL_mysql" = "auto" ]; then
+                            CFG_SQL_mysql=plugin
+                        fi
+                        QT_LFLAGS_MYSQL="$QT_LFLAGS_MYSQL_R"
+                    elif "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql "MySQL (thread-unsafe)" $QT_LFLAGS_MYSQL $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
+                        if [ "$CFG_SQL_mysql" = "auto" ]; then
+                            CFG_SQL_mysql=plugin
+                        fi
+                    else
+                        if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+                            echo "MySQL support cannot be enabled due to functionality tests!"
+                            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+                            echo " If you believe this message is in error you may use the continue"
+                            echo " switch (-continue) to $0 to continue."
+                            exit 101
+                        else
+                            CFG_SQL_mysql=no
+                        fi
                     fi
                 fi
             fi
-        ;;
+            ;;
         psql)
             if [ "$CFG_SQL_psql" != "no" ]; then
                 QT_CFLAGS_PSQL=`pg_config --includedir 2>/dev/null`
