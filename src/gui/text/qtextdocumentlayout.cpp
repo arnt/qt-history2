@@ -584,14 +584,9 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPointF &point, int *po
         } else if (lr.bottom() <= pos.y()) {
             off = qMax(off, line.textStart() + line.textLength());
         } else {
-            if (lr.left() > pos.x()) {
-                off = line.textStart();
-            } else if (lr.right() < pos.x()) {
-                off = line.textStart() + line.textLength();
-            } else {
+            if (lr.left() <= pos.x() && lr.right() >= pos.x())
                 hit = PointExact;
-                off = line.xToCursor(pos.x());
-            }
+            off = line.xToCursor(pos.x());
             break;
         }
     }

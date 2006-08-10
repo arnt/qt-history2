@@ -1923,9 +1923,6 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
 
     int line_length = line.length;
 
-    if (line_length > 0 && eng->layoutData->string.at(line.from + line_length - 1) == QChar::LineSeparator)
-        --line_length;
-
     if (!line_length)
         return line.from;
 
@@ -1935,7 +1932,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
 
     x -= line.x;
     x -= alignLine(eng, line);
-//     qDebug("xToCursor: x=%f, cpos=%d", x, cpos);
+//     qDebug("xToCursor: x=%f, cpos=%d", x.toReal(), cpos);
 
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<unsigned char> levels(nItems);
@@ -1966,7 +1963,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
             if (!si.num_glyphs)
                 eng->shape(item);
             int item_length = eng->length(item);
-//             qDebug("    item %d, visual %d x_remain=%f", i, item, x);
+//             qDebug("    item %d, visual %d x_remain=%f", i, item, x.toReal());
 
             int start = qMax(line.from - si.position, 0);
             int end = qMin(line.from + line_length - si.position, item_length);
@@ -1989,7 +1986,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
                     ++g;
                 }
             }
-//             qDebug("      start=%d, end=%d, gs=%d, ge=%d item_width=%f", start, end, gs, ge, item_width);
+//             qDebug("      start=%d, end=%d, gs=%d, ge=%d item_width=%f", start, end, gs, ge, item_width.toReal());
 
             if (pos + item_width < x) {
                 pos += item_width;
@@ -2067,6 +2064,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
         }
     }
     // right of last item
+//     qDebug() << "right of last";
     int item = visualOrder[nItems-1]+firstItem;
     QScriptItem &si = eng->layoutData->items[item];
     if (!si.num_glyphs)
@@ -2082,7 +2080,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
     // character between lines is a space and we want
     // to position the cursor to the left of that
     // character.
-    // ###### breaks with japanese for example, fix > 4.1
+    // ###### breaks with japanese for example
     if (this->i < eng->lines.count() - 1)
         --maxPos;
 
