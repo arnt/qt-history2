@@ -411,16 +411,22 @@ void tst_QStandardItemModel::setHeaderData()
 
         QSignalSpy headerDataChangedSpy(
             model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+        QSignalSpy dataChangedSpy(
+            model, SIGNAL(dataChanged(QModelIndex, QModelIndex)));
         // insert custom values and check
         for (int i = 0; i < count; ++i) {
             QString customString = QString("custom") + QString::number(i);
             QCOMPARE(model->setHeaderData(i, orient, customString), true);
             QCOMPARE(headerDataChangedSpy.count(), 1);
+            QCOMPARE(dataChangedSpy.count(), 0);
             QVariantList args = headerDataChangedSpy.takeFirst();
             QCOMPARE(qvariant_cast<Qt::Orientation>(args.at(0)), orient);
             QCOMPARE(args.at(1).toInt(), i);
             QCOMPARE(args.at(2).toInt(), i);
             QCOMPARE(model->headerData(i, orient).toString(), customString);
+            QCOMPARE(model->setHeaderData(i, orient, customString), true);
+            QCOMPARE(headerDataChangedSpy.count(), 0);
+            QCOMPARE(dataChangedSpy.count(), 0);
         }
 
         //check read from invalid sections
@@ -683,11 +689,17 @@ void tst_QStandardItemModel::clear()
     model.insertRows(0, 10);
     QCOMPARE(model.columnCount(), 10);
     QCOMPARE(model.rowCount(), 10);
+
+    QSignalSpy modelResetSpy(&model, SIGNAL(modelReset()));
+    QSignalSpy layoutChangedSpy(&model, SIGNAL(layoutChanged()));
+    QSignalSpy rowsRemovedSpy(&model, SIGNAL(rowsRemoved(QModelIndex, int, int)));
     model.clear();
+
+    QCOMPARE(modelResetSpy.count(), 1);
+    QCOMPARE(layoutChangedSpy.count(), 0);
+    QCOMPARE(rowsRemovedSpy.count(), 0);
     QCOMPARE(model.index(0, 0), QModelIndex());
-#if QT_VERSION >= 0x040103
     QCOMPARE(model.columnCount(), 0);
-#endif
     QCOMPARE(model.rowCount(), 0);
     QCOMPARE(model.hasChildren(), false);
 }
@@ -831,8 +843,16 @@ void tst_QStandardItemModel::sort()
         model.setData(index, initial.at(row), Qt::DisplayRole);
     }
 
+    QSignalSpy layoutAboutToBeChangedSpy(
+        &model, SIGNAL(layoutAboutToBeChanged()));
+    QSignalSpy layoutChangedSpy(
+        &model, SIGNAL(layoutChanged()));
+
     // sort
     model.sort(0, static_cast<Qt::SortOrder>(sortOrder));
+
+    QCOMPARE(layoutAboutToBeChangedSpy.count(), 1);
+    QCOMPARE(layoutChangedSpy.count(), 1);
 
     // make sure the model is sorted
     for (int row = 0; row < model.rowCount(QModelIndex()); ++row) {
@@ -1112,12 +1132,20 @@ void tst_QStandardItemModel::setHeaderLabels()
     QFETCH(QStringList, labels);
     QFETCH(QStringList, expectedLabels);
     QStandardItemModel model(rows, columns);
+    QSignalSpy columnsInsertedSpy(
+        &model, SIGNAL(columnsInserted(QModelIndex,int,int)));
+    QSignalSpy rowsInsertedSpy(
+        &model, SIGNAL(rowsInserted(QModelIndex,int,int)));
     if (orientation == Qt::Horizontal)
         model.setHorizontalHeaderLabels(labels);
     else
         model.setVerticalHeaderLabels(labels);
     for (int i = 0; i < expectedLabels.count(); ++i)
         QCOMPARE(model.headerData(i, Qt::Orientation(orientation)).toString(), expectedLabels.at(i));
+    QCOMPARE(columnsInsertedSpy.count(),
+             (orientation == Qt::Vertical) ? 0 : labels.count() > columns);
+    QCOMPARE(rowsInsertedSpy.count(),
+             (orientation == Qt::Horizontal) ? 0 : labels.count() > rows);
 }
 
 void tst_QStandardItemModel::itemDataChanged()
