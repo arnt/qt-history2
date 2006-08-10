@@ -2908,14 +2908,20 @@ void tst_QLineEdit::validateOnFocusOut()
     testWidget->setValidator(new QIntValidator(100, 999, 0));
     QTest::keyPress(testWidget, '1');
     QTest::keyPress(testWidget, '0');
-    QFocusEvent e1(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
-    QApplication::sendEvent(testWidget, &e1);
+    QCOMPARE(testWidget->text(), QString("10"));
+    testWidget->clearFocus();
     QCOMPARE(editingFinishedSpy.count(), 0);
-    QFocusEvent e2(QEvent::FocusIn, Qt::ActiveWindowFocusReason);
-    QApplication::sendEvent(testWidget, &e2);
+    testWidget->setFocus();
     QTest::keyPress(testWidget, '0');
-    QFocusEvent e3(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
-    QApplication::sendEvent(testWidget, &e3);
+    QCOMPARE(testWidget->text(), QString("100"));
+    for (int i=0; i <10; ++i) {
+        if (testWidget->hasFocus())
+            break;
+        QTest::qWait(100);
+    }
+    if (!testWidget->hasFocus())
+        QSKIP("Your window manager is too broken for this test", SkipAll);
+    testWidget->clearFocus();
     QCOMPARE(editingFinishedSpy.count(), 1);
 }
 
