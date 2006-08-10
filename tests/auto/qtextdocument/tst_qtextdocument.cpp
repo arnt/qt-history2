@@ -258,6 +258,10 @@ void tst_QTextDocument::findWithRegExp_data()
     QTest::newRow("1") << "23" << "^\\d\\d?$" << int(QTextDocument::FindCaseSensitively) << 0 << 0 << 2;
     // match ampersands but not &amp;
     QTest::newRow("2") << "His &amp; hers & theirs" << "&(?!amp;)"<< int(QTextDocument::FindCaseSensitively) << 0 << 15 << 16;
+    //backward search
+    QTest::newRow("3") << QString::fromAscii("HelloBlahWorld Blah Hah")
+                              << "h" << int(QTextDocument::FindBackward) << 18 << 8 << 9;
+
 }
 
 void tst_QTextDocument::findWithRegExp()
