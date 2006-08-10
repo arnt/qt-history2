@@ -2908,11 +2908,14 @@ void tst_QLineEdit::validateOnFocusOut()
     testWidget->setValidator(new QIntValidator(100, 999, 0));
     QTest::keyPress(testWidget, '1');
     QTest::keyPress(testWidget, '0');
-    testWidget->clearFocus();
+    QFocusEvent e1(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
+    QApplication::sendEvent(testWidget, &e1);
     QCOMPARE(editingFinishedSpy.count(), 0);
-    testWidget->setFocus();
+    QFocusEvent e2(QEvent::FocusIn, Qt::ActiveWindowFocusReason);
+    QApplication::sendEvent(testWidget, &e2);
     QTest::keyPress(testWidget, '0');
-    testWidget->clearFocus();
+    QFocusEvent e3(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
+    QApplication::sendEvent(testWidget, &e3);
     QCOMPARE(editingFinishedSpy.count(), 1);
 }
 
