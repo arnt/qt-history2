@@ -70,6 +70,10 @@
 # define __NR_inotify_init      318
 # define __NR_inotify_add_watch 319
 # define __NR_inotify_rm_watch  320
+#elif defined (__mips__)
+# define __NR_inotify_init      284
+# define __NR_inotify_add_watch 285
+# define __NR_inotify_rm_watch  286
 #else
 # error "This architecture is not supported. Please talk to qt-bugs@trolltech.com"
 #endif
