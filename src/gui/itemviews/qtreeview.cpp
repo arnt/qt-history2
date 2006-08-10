@@ -573,7 +573,7 @@ void QTreeView::expand(const QModelIndex &index)
             updateGeometries();
             d->viewport->update();
         }
-    } else {
+    } else if (!d->expandedIndexes.contains(index)) {
         d->expandedIndexes.append(index);
         emit expanded(index);
     }
