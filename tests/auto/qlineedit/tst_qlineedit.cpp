@@ -191,6 +191,8 @@ private slots:
 
     void editUnvalidText();
 
+    void charWithAltOrCtrlModifier();
+
 protected slots:
 #ifdef QT3_SUPPORT
     void lostFocus();
@@ -2947,6 +2949,20 @@ void tst_QLineEdit::editUnvalidText()
     QTest::keyPress(testWidget, Qt::Key_1);
     QVERIFY(testWidget->hasAcceptableInput());
     QCOMPARE(testWidget->text(), QString("120"));
+
+    testWidget->setValidator(0);
+}
+
+void tst_QLineEdit::charWithAltOrCtrlModifier()
+{
+    testWidget->clear();
+    QCOMPARE(testWidget->text(), QString(""));
+    QTest::keyPress(testWidget, Qt::Key_Plus);
+    QCOMPARE(testWidget->text(), QString("+"));
+    QTest::keyPress(testWidget, Qt::Key_Plus, Qt::ControlModifier);
+    QCOMPARE(testWidget->text(), QString("+"));
+    QTest::keyPress(testWidget, Qt::Key_Plus, Qt::AltModifier);
+    QCOMPARE(testWidget->text(), QString("+"));
 }
 
 QTEST_MAIN(tst_QLineEdit)
