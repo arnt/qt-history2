@@ -1852,7 +1852,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         unknown = false;
     }
 
-    if (unknown && !d->readOnly) {
+    if (unknown && !d->readOnly && !(event->modifiers() & (Qt::ControlModifier | Qt::AltModifier))) {
         QString t = event->text();
         if (!t.isEmpty() && t.at(0).isPrint()) {
             insert(t);
