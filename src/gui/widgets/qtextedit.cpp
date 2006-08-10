@@ -97,7 +97,7 @@ QTextEditPrivate::QTextEditPrivate()
       lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
       textFormat(Qt::AutoText)
 {
-    ignoreAutomaticScrollbarAdjustement = false;
+    ignoreAutomaticScrollbarAdjustment = false;
     preferRichText = false;
     showCursorOnInitialShow = true;
 }
@@ -210,8 +210,9 @@ void QTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::Mo
 #ifndef QT_NO_SCROLLBAR
 void QTextEditPrivate::_q_adjustScrollbars()
 {
-    if (ignoreAutomaticScrollbarAdjustement)
+    if (ignoreAutomaticScrollbarAdjustment)
         return;
+    ignoreAutomaticScrollbarAdjustment = true; // avoid recursion, #106108
 
     QTextDocument *doc = control->document();
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
@@ -243,6 +244,9 @@ void QTextEditPrivate::_q_adjustScrollbars()
     // on the right, hence we need an update.
     if (q_func()->isRightToLeft())
         viewport->update();
+
+    _q_showOrHideScrollBars();
+    ignoreAutomaticScrollbarAdjustment = false;
 }
 #endif
 
@@ -1200,7 +1204,8 @@ void QTextEditPrivate::relayoutDocument()
     // ignore calls to _q_adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
     // later on our own anyway (or deliberately not) .
-    ignoreAutomaticScrollbarAdjustement = true;
+    const bool oldIgnoreScrollbarAdjustment = ignoreAutomaticScrollbarAdjustment;
+    ignoreAutomaticScrollbarAdjustment = true;
 
     int width = 0;
     switch (lineWrap) {
@@ -1222,7 +1227,7 @@ void QTextEditPrivate::relayoutDocument()
     if (tlayout)
         tlayout->ensureLayouted(verticalOffset() + viewport->height());
 
-    ignoreAutomaticScrollbarAdjustement = false;
+    ignoreAutomaticScrollbarAdjustment = oldIgnoreScrollbarAdjustment;
 
     QSize usedSize;
     if (tlayout)

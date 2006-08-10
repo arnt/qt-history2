@@ -81,7 +81,7 @@ public:
     QTextEdit::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
 
-    uint ignoreAutomaticScrollbarAdjustement : 1;
+    uint ignoreAutomaticScrollbarAdjustment : 1;
     uint preferRichText : 1;
     uint showCursorOnInitialShow : 1;
 

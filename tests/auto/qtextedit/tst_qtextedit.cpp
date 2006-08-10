@@ -92,6 +92,7 @@ private slots:
     void selectWordsFromStringsContainingSeparators();
     void canPaste();
     void ensureCursorVisibleOnInitialShow();
+    void setHtmlInsideResizeEvent();
 
 private:
     void createSelection();
@@ -1153,6 +1154,30 @@ void tst_QTextEdit::ensureCursorVisibleOnInitialShow()
     ed->verticalScrollBar()->setValue(ed->verticalScrollBar()->maximum());
     ed->show();
     QCOMPARE(ed->verticalScrollBar()->value(), ed->verticalScrollBar()->maximum());
+}
+
+class TestEdit : public QTextEdit
+{
+public:
+    TestEdit() : resizeEventCalled(false) {}
+
+    bool resizeEventCalled;
+
+protected:
+    virtual void resizeEvent(QResizeEvent *e)
+    {
+        QTextEdit::resizeEvent(e);
+        setHtml("<img src=qtextbrowser-resizeevent.png width=" + QString::number(size().width()) + "><br>Size is " + QString::number(size().width()) + " x " + QString::number(size().height()));
+        resizeEventCalled = true;
+    }
+};
+
+void tst_QTextEdit::setHtmlInsideResizeEvent()
+{
+    TestEdit edit;
+    edit.show();
+    edit.resize(800, 600);
+    QVERIFY(edit.resizeEventCalled);
 }
 
 QTEST_MAIN(tst_QTextEdit)
