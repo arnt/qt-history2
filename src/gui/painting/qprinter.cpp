@@ -43,6 +43,17 @@
 
 void QPrinterPrivate::createDefaultEngines()
 {
+#if defined (Q_OS_UNIX)
+    if(outputFormat == QPrinter::NativeFormat) {
+#if !defined(QT_NO_CUPS)
+        if(0 && QCUPSSupport::cupsVersion() >= 10200)
+            outputFormat = QPrinter::PdfFormat;
+        else
+#endif
+            outputFormat = QPrinter::PostscriptFormat;
+    }
+#endif
+
     switch (outputFormat) {
     case QPrinter::NativeFormat: {
 #if defined (Q_WS_WIN)
@@ -54,9 +65,7 @@ void QPrinterPrivate::createDefaultEngines()
         paintEngine = macEngine;
         printEngine = macEngine;
 #elif defined (Q_OS_UNIX)
-        QPSPrintEngine *psEngine = new QPSPrintEngine(printerMode);
-        paintEngine = psEngine;
-        printEngine = psEngine;
+        Q_ASSERT(false);
 #endif
         }
         break;

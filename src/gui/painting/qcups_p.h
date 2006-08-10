@@ -34,26 +34,14 @@
 #include <QtCore/qlibrary.h>
 #include <cups/cups.h>
 
-typedef int (*CupsGetDests)(cups_dest_t **dests);
-typedef const char* (*CupsGetPPD)(const char *printer);
-typedef int (*CupsMarkOptions)(ppd_file_t *ppd, int num_options, cups_option_t *options);
-typedef ppd_file_t* (*PPDOpenFile)(const char *filename);
-typedef void (*PPDMarkDefaults)(ppd_file_t *ppd);
-typedef int (*PPDMarkOption)(ppd_file_t *ppd, const char *keyword, const char *option);
-typedef void (*PPDClose)(ppd_file_t *ppd);
-typedef int (*PPDMarkOption)(ppd_file_t *ppd, const char *keyword, const char *option);
-typedef void (*CupsFreeOptions)(int num_options, cups_option_t *options);
-typedef void (*CupsSetDests)(int num_dests, cups_dest_t *dests);
-typedef int (*CupsAddOption)(const char *name, const char *value, int num_options, cups_option_t **options);
-
 class QCUPSSupport
 {
 public:
     QCUPSSupport();
     ~QCUPSSupport();
 
-    bool isAvailable() const;
-
+    static bool isAvailable();
+    static int cupsVersion() { return isAvailable() ? CUPS_VERSION_MAJOR*10000+CUPS_VERSION_MINOR*100+CUPS_VERSION_PATCH : 0; }
     int availablePrintersCount() const;
     const cups_dest_t* availablePrinters() const;
     int currentPrinterIndex() const;
@@ -76,19 +64,6 @@ public:
 private:
     void collectMarkedOptions(QStringList& list, const ppd_group_t* group = 0) const;
     void collectMarkedOptionsHelper(QStringList& list, const ppd_group_t* group) const;
-
-    QLibrary cupsLib;
-
-    CupsGetDests _cupsGetDests;
-    CupsGetPPD _cupsGetPPD;
-    PPDOpenFile _ppdOpenFile;
-    PPDMarkDefaults _ppdMarkDefaults;
-    PPDClose _ppdClose;
-    CupsMarkOptions _cupsMarkOptions;
-    PPDMarkOption _ppdMarkOption;
-    CupsFreeOptions _cupsFreeOptions;
-    CupsSetDests _cupsSetDests;
-    CupsAddOption _cupsAddOption;
 
     int prnCount;
     cups_dest_t *printers;

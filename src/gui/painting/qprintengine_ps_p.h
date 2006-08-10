@@ -98,6 +98,7 @@ public:
 
     QPrinter::PrinterState printerState;
     bool hugeDocument;
+    bool headerDone;
 };
 
 #endif // QT_NO_PRINTER

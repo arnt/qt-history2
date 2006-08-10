@@ -905,7 +905,7 @@ void QPrintDialogPrivate::init()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     cups = (static_cast<QPSPrintEngine*>(printer->printEngine()))->cupsSupport();
 
-    if (cups->isAvailable()) {
+    if (QCUPSSupport::isAvailable()) {
         cupsPPD = cups->currentPPD();
         cupsPrinterCount = cups->availablePrintersCount();
         cupsPrinters = cups->availablePrinters();
@@ -1052,7 +1052,7 @@ void QPrintDialogPrivate::_q_rbPrintRangeToggled(bool checked)
 void QPrintDialogPrivate::_q_printerChanged(int index)
 {
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (cups->isAvailable()) {
+    if (QCUPSSupport::isAvailable()) {
         cups->setCurrentPrinter(index);
         cupsPPD = cups->currentPPD();
         //only enable properties if ppd is valid
@@ -1095,7 +1095,7 @@ void QPrintDialogPrivate::refreshPageSizes()
     ui.cbPaperSize->clear();
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (cups->isAvailable() && ui.chbPrintToFile->checkState() !=  Qt::Checked) {
+    if (QCUPSSupport::isAvailable() && ui.chbPrintToFile->checkState() !=  Qt::Checked) {
         const ppd_option_t* pageSizes = cups->pageSizes();
         int numChoices = pageSizes ? pageSizes->num_choices : 0;
 

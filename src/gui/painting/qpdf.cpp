@@ -1161,7 +1161,7 @@ QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
     Q_D(const QPdfBaseEngine);
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (d->cups.isAvailable() && d->cups.currentPPD()) {
+    if (QCUPSSupport::isAvailable() && d->cups.currentPPD()) {
         if (key == PPK_PaperRect)
             return QVariant(d->cups.paperRect());
         else if (key == PPK_PageRect)
@@ -1321,8 +1321,6 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                         0666
 #endif
             );
-        if (fd < 0)
-            return false;
 #ifndef QT_NO_LPR
     } else {
         QString pr;

@@ -15,22 +15,34 @@
 
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
 
-// ================ CUPS Support class ========================
+typedef int (*CupsGetDests)(cups_dest_t **dests);
+typedef const char* (*CupsGetPPD)(const char *printer);
+typedef int (*CupsMarkOptions)(ppd_file_t *ppd, int num_options, cups_option_t *options);
+typedef ppd_file_t* (*PPDOpenFile)(const char *filename);
+typedef void (*PPDMarkDefaults)(ppd_file_t *ppd);
+typedef int (*PPDMarkOption)(ppd_file_t *ppd, const char *keyword, const char *option);
+typedef void (*PPDClose)(ppd_file_t *ppd);
+typedef int (*PPDMarkOption)(ppd_file_t *ppd, const char *keyword, const char *option);
+typedef void (*CupsFreeOptions)(int num_options, cups_option_t *options);
+typedef void (*CupsSetDests)(int num_dests, cups_dest_t *dests);
+typedef int (*CupsAddOption)(const char *name, const char *value, int num_options, cups_option_t **options);
 
-QCUPSSupport::QCUPSSupport()
-    : cupsLib(QLatin1String("cups"), 2),
-    _cupsGetDests(0),
-    _cupsGetPPD(0),
-    _ppdOpenFile(0),
-    _ppdMarkDefaults(0),
-    _cupsFreeOptions(0),
-    prnCount(0),
-    printers(0),
-    page_sizes(0),
-    currPrinterIndex(0),
-    currPPD(0)
+static bool cupsLoaded = false;
+static CupsGetDests _cupsGetDests = 0;
+static CupsGetPPD _cupsGetPPD = 0;
+static PPDOpenFile _ppdOpenFile = 0;
+static PPDMarkDefaults _ppdMarkDefaults = 0;
+static PPDClose _ppdClose = 0;
+static CupsMarkOptions _cupsMarkOptions = 0;
+static PPDMarkOption _ppdMarkOption = 0;
+static CupsFreeOptions _cupsFreeOptions = 0;
+static CupsSetDests _cupsSetDests = 0;
+static CupsAddOption _cupsAddOption = 0;
+
+static void resolveCups()
 {
-    if (cupsLib.load()) {
+    QLibrary cupsLib(QLatin1String("cups"), 2);
+    if(cupsLib.load()) {
         _cupsGetDests = (CupsGetDests) cupsLib.resolve("cupsGetDests");
         _cupsGetPPD = (CupsGetPPD) cupsLib.resolve("cupsGetPPD");
         _ppdOpenFile = (PPDOpenFile) cupsLib.resolve("ppdOpenFile");
@@ -41,17 +53,32 @@ QCUPSSupport::QCUPSSupport()
         _cupsFreeOptions = (CupsFreeOptions) cupsLib.resolve("cupsFreeOptions");
         _cupsSetDests = (CupsSetDests) cupsLib.resolve("cupsSetDests");
         _cupsAddOption = (CupsAddOption) cupsLib.resolve("cupsAddOption");
+    }
+    cupsLoaded = true;
+}
 
-        // getting all available printers
-        if (isAvailable())
-            prnCount = _cupsGetDests(&printers);
+// ================ CUPS Support class ========================
 
-        for (int i = 0; i <  prnCount; ++i) {
-            if (printers[i].is_default) {
-                currPrinterIndex = i;
-                setCurrentPrinter(i);
-                break;
-            }
+QCUPSSupport::QCUPSSupport()
+    :
+    prnCount(0),
+    printers(0),
+    page_sizes(0),
+    currPrinterIndex(0),
+    currPPD(0)
+{
+    if(!cupsLoaded)
+        resolveCups();
+
+    // getting all available printers
+    if (isAvailable())
+        prnCount = _cupsGetDests(&printers);
+
+    for (int i = 0; i <  prnCount; ++i) {
+        if (printers[i].is_default) {
+            currPrinterIndex = i;
+            setCurrentPrinter(i);
+            break;
         }
     }
 }
@@ -113,10 +140,11 @@ int QCUPSSupport::currentPrinterIndex() const
     return currPrinterIndex;
 }
 
-bool QCUPSSupport::isAvailable() const
+bool QCUPSSupport::isAvailable()
 {
-    return cupsLib.isLoaded() &&
-        _cupsGetDests &&
+    if(!cupsLoaded)
+        resolveCups();
+    return _cupsGetDests &&
         _cupsGetPPD &&
         _ppdOpenFile &&
         _ppdMarkDefaults &&

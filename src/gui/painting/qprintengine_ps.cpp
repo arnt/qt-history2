@@ -143,7 +143,7 @@ static QByteArray wrapDSC(const QByteArray &str)
 
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     : QPdfBaseEnginePrivate(m),
-      printerState(QPrinter::Idle), hugeDocument(false)
+      printerState(QPrinter::Idle), hugeDocument(false), headerDone(false)
 {
     postscript = true;
 
@@ -521,7 +521,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     s << "%%EndSetup\n";
 
     outDevice->write(header);
-
+    headerDone = true;
 }
 
 
@@ -577,7 +577,7 @@ void QPSPrintEnginePrivate::flushPage(bool last)
       << "\nQP\n";
     if (last || hugeDocument || buffer.size() > max_in_memory_size) {
 //        qDebug("emiting header at page %d", pageCount);
-        if (!outDevice)
+        if (!headerDone)
             emitHeader(last);
         emitPages();
     }
