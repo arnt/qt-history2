@@ -856,6 +856,13 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
         return QTextCursor();
 
     int pos = from;
+    //the cursor is positioned between characters, so for a backward search
+    //do not include the character given in the position.
+    if (options & FindBackward) {
+        --pos ;
+        if(pos < 0)
+            return QTextCursor();
+    }
 
     QTextCursor cursor;
     QTextBlock block = d->blocksFind(pos);
