@@ -583,21 +583,21 @@ void ResourceEditor::updateUi()
         name = QFileInfo(m_form->fileName()).fileName();
 
     QString suffix;
-    name.isEmpty() ? suffix = tr("Resource Editor") : suffix = tr("Resource Editor: %1");
+    name.isEmpty() ? suffix = tr("Resource Editor") : suffix = tr("Resource Editor: %1").arg(name);
 
     QWidget* widget = 0;
     if (m_form != 0)
         widget = m_form->core()->topLevel();
-    
+
     if (widget && (widget->objectName() == QLatin1String("MDIWindow"))) {
         QDockWidget* dockWidget = qFindChild<QDockWidget*>(widget, (parentWidget()->objectName() + QLatin1String("_dock")));
         if(dockWidget)
-            dockWidget->setWindowTitle(suffix.arg(name));
-    } 
+            dockWidget->setWindowTitle(suffix);
+    }
     else if ((widget = parentWidget()) != 0 && widget->isWindow())
-        widget->setWindowTitle(suffix.arg(name));
+        widget->setWindowTitle(suffix);
     else
-        setWindowTitle(suffix.arg(name));
+        setWindowTitle(suffix);
 }
 
 int ResourceEditor::currentIndex() const
