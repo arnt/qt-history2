@@ -1613,12 +1613,12 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         maxChildFrameWidth = qMax(maxChildFrameWidth, cd->size.width());
     }
 
-    qreal margin = fd->margin + fd->border;
+    qreal margin = fd->margin + fd->border + fd->padding;
     QLayoutStruct layoutStruct;
     layoutStruct.frame = f;
-    layoutStruct.x_left = margin + fd->padding;
-    layoutStruct.x_right = margin + newContentsWidth - fd->padding;
-    layoutStruct.y = margin + fd->padding;
+    layoutStruct.x_left = margin;
+    layoutStruct.x_right = layoutStruct.x_left + newContentsWidth;
+    layoutStruct.y = margin;
     layoutStruct.contentsWidth = 0;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
@@ -1648,7 +1648,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     fd->maximumWidth = layoutStruct.maximumWidth;
 
     qreal height = fd->contentsHeight == -1
-                 ? layoutStruct.y + margin + fd->padding
+                 ? layoutStruct.y + margin
                  : fd->contentsHeight + 2*margin;
     fd->size = QSizeF(actualWidth + 2*margin, height);
     fd->sizeDirty = false;
