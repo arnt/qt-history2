@@ -114,6 +114,10 @@ public:
     inline QString formula() const
         { return QTableWidgetItem::data(Qt::DisplayRole).toString(); }
 
+    static QVariant computeFormula(const QString &formula,
+                                   const QTableWidget *widget,
+                                   const QTableWidgetItem *self = 0);
+
 private:
     mutable bool isResolving;
 };
@@ -167,57 +171,93 @@ void SpreadSheetItem::setData(int role, const QVariant &value)
 
 QVariant SpreadSheetItem::display() const
 {
-    // check if the string is actually a formula or not
-    QString formula = this->formula();
-    QStringList list = formula.split(' ');
-    if (list.count() != 3)
-        return formula; // its a normal string
-
-    QString op = list.at(0).toLower();
-    int firstRow, firstCol, secondRow, secondCol;
-    decode_pos(list.at(1), &firstRow, &firstCol);
-    decode_pos(list.at(2), &secondRow, &secondCol);
-
-    const QTableWidgetItem *start = tableWidget()->item(firstRow, firstCol);
-    const QTableWidgetItem *end = tableWidget()->item(secondRow, secondCol);
-
-    if (!start || !end)
-        return "Error: Item does not exist!";
-
     // avoid circular dependencies
     if (isResolving)
         return QVariant();
     isResolving = true;
+    QVariant result = computeFormula(formula(), tableWidget(), this);
+    isResolving = false;
+    return result;
+}
+
+QVariant SpreadSheetItem::computeFormula(const QString &formula,
+                                         const QTableWidget *widget,
+                                         const QTableWidgetItem *self)
+{
+    // check if the string is actually a formula or not
+    QStringList list = formula.split(' ');
+    if (list.isEmpty() || !widget)
+        return formula; // its a normal string
+
+    QString op = list.value(0).toLower();
+
+    int firstRow = -1;
+    int firstCol = -1;
+    int secondRow = -1;
+    int secondCol = -1;
+
+    if (list.count() > 1)
+        decode_pos(list.value(1), &firstRow, &firstCol);
+    if (list.count() > 2)
+        decode_pos(list.value(2), &secondRow, &secondCol);
+
+    const QTableWidgetItem *start = widget->item(firstRow, firstCol);
+    const QTableWidgetItem *end = widget->item(secondRow, secondCol);
+
+    int firstVal = start ? start->text().toInt() : 0;
+    int secondVal = end ? end->text().toInt() : 0;
 
     QVariant result;
     if (op == "sum") {
         int sum = 0;
-        for (int r = tableWidget()->row(start); r <= tableWidget()->row(end); ++r) {
-            for (int c = tableWidget()->column(start); c <= tableWidget()->column(end); ++c) {
-                const QTableWidgetItem *tableItem = tableWidget()->item(r, c);
-                if (tableItem && tableItem != this)
+        for (int r = firstRow; r <= secondRow; ++r) {
+            for (int c = firstCol; c <= secondCol; ++c) {
+                const QTableWidgetItem *tableItem = widget->item(r, c);
+                if (tableItem && tableItem != self)
                     sum += tableItem->text().toInt();
             }
         }
         result = sum;
     } else if (op == "+") {
-        result = (start->text().toInt() + end->text().toInt());
+        result = (firstVal + secondVal);
     } else if (op == "-") {
-        result = (start->text().toInt() - end->text().toInt());
+        result = (firstVal - secondVal);
     } else if (op == "*") {
-        result = (start->text().toInt() * end->text().toInt());
+        result = (firstVal * secondVal);
     } else if (op == "/") {
-        if (end->text().toInt() == 0)
+        if (secondVal == 0)
             result = QString("nan");
         else
-            result = (start->text().toInt() / end->text().toInt());
+            result = (firstVal / secondVal);
+    } else if (op == "=") {
+        if (start)
+        result = start->text();
     } else {
         result = formula;
     }
 
-    isResolving = false;
     return result;
 }
+
+#ifndef QT_NO_DBUS
+#include <QtDBus>
+
+class SpreadSheetAdaptor : public QDBusAbstractAdaptor
+{
+    Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "com.trolltech.DBus.SpreadSheetDemo")
+
+public:
+    SpreadSheetAdaptor(QTableWidget *table) : QDBusAbstractAdaptor(table), table(table)
+    { QDBus::sessionBus().registerObject("/SpreadSheetDemo", table); }
+
+public slots:
+    QString computeFormula(const QString &formula)
+    { return SpreadSheetItem::computeFormula(formula, table).toString(); }
+private:
+    QTableWidget *table;
+};
+#endif // QT_NO_DBUS
 
 class SpreadSheet : public QMainWindow
 {
@@ -295,6 +335,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     }
     table->setItemPrototype(table->item(rows - 1, cols - 1));
     table->setItemDelegate(new SpreadSheetDelegate());
+    new SpreadSheetAdaptor(table);
     createActions();
 
     updateColor(0);
