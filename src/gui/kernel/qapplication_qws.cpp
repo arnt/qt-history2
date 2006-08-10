@@ -1483,7 +1483,7 @@ void QWSDisplay::grabMouse(QWidget *w, bool grab)
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
-    cmd.simpleData.windowid = top->internalWinId();
+    cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
     d->flush();
@@ -1496,7 +1496,7 @@ void QWSDisplay::grabKeyboard(QWidget *w, bool grab)
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
-    cmd.simpleData.windowid = top->internalWinId();
+    cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
     d->flush();
