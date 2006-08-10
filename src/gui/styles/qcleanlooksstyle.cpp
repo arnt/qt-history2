@@ -670,7 +670,8 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     int state = option->state;
     QColor outlineColor = option->palette.dark().color();
     QColor buttonShadow = option->palette.button().color().dark(110);
-    QColor buttonShadowAlpha = option->palette.background().color().dark(105);
+    QColor buttonShadowAlpha = option->palette.background().color().dark(110);
+    buttonShadowAlpha.setAlpha(128);
     QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),60);
     QColor gripShadow = grooveColor.dark(110);
     QColor shadow = option->palette.background().color().dark(120);
@@ -775,9 +776,6 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise)) {
             QRect rect = option->rect;
             QPen oldPen = painter->pen();
-
-            QColor gradientStartColor = option->palette.button().color().light(104);
-            QColor gradientStopColor = option->palette.button().color().dark(105);
 
             if (widget && widget->inherits("QDockWidgetTitleButton")) {
                    if (option->state & State_MouseOver)
@@ -992,7 +990,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                 QRect innerBorder = rect.adjusted(1, 1, -1, 0);
 
                 if (down) {
-		            painter->fillRect(gradRect, gradientStopColor.dark(110));
+                    painter->fillRect(gradRect, gradientStopColor.dark(110));
                     painter->setPen(gradientStopColor.dark(125));
                     painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
@@ -1006,12 +1004,6 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                                                     gradientStartColor,
                                                     gradientStopColor);
                     }
-                    painter->setPen(Qt::white);
-                    painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
-                    painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
-                    painter->setPen(buttonShadow);
-                    painter->drawLine(innerBorder.bottomLeft(), innerBorder.bottomRight());
-                    painter->drawLine(innerBorder.topRight(), innerBorder.bottomRight());
                 }
             } else {
                 QColor gradientStartColor = option->palette.button().color();
@@ -1047,18 +1039,25 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 
             painter->drawLine(QPoint(r.left() + 2, r.top()),
                               QPoint(r.right() - 2, r.top()));
-            painter->setPen(option->palette.light().color());
+            
+            QColor highlight = Qt::white;
+            highlight.setAlpha(150);
+            painter->setPen(highlight);
             painter->drawLine(QPoint(r.left() + 2, r.bottom() + 1),
                               QPoint(r.right() - 2, r.bottom() + 1));
             painter->setPen(buttonShadowAlpha.dark(130));
             painter->drawPoint(QPoint(r.right(), r.top() + 1));
             painter->drawPoint(QPoint(r.right() - 1, r.top() ));
+            painter->drawPoint(QPoint(r.right(), r.bottom() - 1));
+            painter->drawPoint(QPoint(r.right() - 1, r.bottom() ));
+            painter->drawPoint(QPoint(r.left() + 1, r.bottom()));
+            painter->drawPoint(QPoint(r.left(), r.bottom() - 1));
+            painter->drawPoint(QPoint(r.left() + 1, r.top()));
+            painter->drawPoint(QPoint(r.left(), r.top() + 1));
             painter->setPen(buttonShadowAlpha);
             painter->drawLine(QPoint(r.left() + 2, r.top() - 1),
                               QPoint(r.right() - 2, r.top() - 1));
-            painter->drawPoint(QPoint(r.left() + 1, r.top()));
-            painter->drawPoint(QPoint(r.left(), r.top() + 1));
-
+            
             if (isDefault) {
                 r.adjust(-1, -1, 1, 1);
                 painter->setPen(buttonShadow);
