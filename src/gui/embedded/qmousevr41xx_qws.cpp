@@ -19,6 +19,7 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "qscreen_qws.h"
+#include <qstringlist.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -52,13 +53,15 @@ private:
     uchar mouseBuf[mouseBufSize];
     QSocketNotifier *mouseNotifier;
     QWSVr41xxMouseHandler *handler;
+    QPoint currPos;
+    bool isPressed;
+    int pressLimit;
 };
 
 QWSVr41xxMouseHandler::QWSVr41xxMouseHandler(const QString &drv, const QString &dev)
     : QWSCalibratedMouseHandler(drv, dev)
 {
     d = new QWSVr41xxMouseHandlerPrivate(this, drv, dev);
-    setFilterSize(3);
 }
 
 QWSVr41xxMouseHandler::~QWSVr41xxMouseHandler()
@@ -77,11 +80,33 @@ void QWSVr41xxMouseHandler::suspend()
 }
 
 QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *h, const QString &, const QString &device)
-    : handler(h)
+    : handler(h), isPressed(false)
 {
-    QString dev = device;
-    if (dev.isEmpty())
+    QStringList options = device.split(":");
+    int index = -1;
+
+    int filterSize = 3;
+    QRegExp filterRegExp("filter=(\\d+)");
+    index = options.indexOf(filterRegExp);
+    if (index != -1) {
+        filterSize = filterRegExp.cap(1).toInt();
+        options.removeAt(index);
+    }
+    handler->setFilterSize(filterSize);
+
+    pressLimit = 750;
+    QRegExp pressRegExp("press=(\\d+)");
+    index = options.indexOf(pressRegExp);
+    if (index != -1) {
+        pressLimit = filterRegExp.cap(1).toInt();
+        options.removeAt(index);
+    }
+
+    QString dev;
+    if (options.isEmpty())
         dev = QLatin1String("/dev/vrtpanel");
+    else
+        dev = options.first();
 
     if ((mouseFD = open(dev.toLocal8Bit().constData(), O_RDONLY)) < 0) {
         qWarning("Cannot open %s (%s)", qPrintable(dev), strerror(errno));
@@ -94,8 +119,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
         return;
     }
 
-    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
-                                         this);
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 
     rtimer = new QTimer(this);
@@ -126,15 +150,12 @@ void QWSVr41xxMouseHandlerPrivate::resume()
 
 void QWSVr41xxMouseHandlerPrivate::sendRelease()
 {
-    handler->mouseChanged(handler->pos(), 0);
+    handler->sendFiltered(currPos, Qt::NoButton);
+    isPressed = false;
 }
 
 void QWSVr41xxMouseHandlerPrivate::readMouseData()
 {
-    if(!qt_screen)
-        return;
-    static bool pressed = false;
-
     int n;
     do {
         n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx);
@@ -147,16 +168,15 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
         uchar *mb = mouseBuf+idx;
         ushort *data = (ushort *) mb;
         if (data[0] & 0x8000) {
-            if (data[5] > 750) {
-                QPoint t(data[3]-data[4],data[2]-data[1]);
-                if (handler->sendFiltered(t, Qt::LeftButton))
-                    pressed = true;
-                if (pressed)
+            if (data[5] >= pressLimit) {
+                currPos = QPoint(data[3] - data[4], data[2] - data[1]);
+                if (handler->sendFiltered(currPos, Qt::LeftButton)) {
+                    isPressed = true;
                     rtimer->start(200); // release unreliable
+                }
             }
-        } else if (pressed) {
+        } else if (isPressed) {
             rtimer->start(50);
-            pressed = false;
         }
         idx += sizeof(ushort) * 6;
     }
