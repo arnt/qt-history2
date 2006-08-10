@@ -114,7 +114,7 @@ class QGLFormatPrivate
 {
 public:
     QGLFormatPrivate() {
-        opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
+        opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering | QGL::StencilBuffer;
         pln = 0;
         depthSize = accumSize = stencilSize = alphaSize = -1;
         numSamples = -1;
