@@ -113,10 +113,11 @@ static const char *const ps_header =
 "dup/FontName ED (-Base) StringAdd cvx cvn/Font ED/MaxPage Font/NumGlyphs get\n"
 "1 sub 256 idiv def/FDepVector MaxPage 1 add array def/Encoding MaxPage 1 add\n"
 "array def 0 1 MaxPage{dup Encoding exch dup put dup/Page ED FontName (-)\n"
-"StringAdd exch 20 string cvs StringAdd cvn dup Font 0 dict copy d2/CMap get\n"
-"Page get/Encoding exch put definefont FDepVector exch Page exch put}for\n"
-"FontName cvn <</FontType 0/FMapType 2/FontMatrix[1 0 0 1 0 0]/Encoding\n"
-"Encoding/FDepVector FDepVector >> definefont pop end}def\n";
+"StringAdd exch 20 string cvs StringAdd cvn Font 0 dict copy d2/CMap get Page\n"
+"get/Encoding exch put definefont FDepVector exch Page exch put}for FontName\n"
+"cvn <</FontType 0/FMapType 2/FontMatrix[1 0 0 1 0 0]/Encoding Encoding\n"
+"/FDepVector FDepVector >> definefont pop end}def\n";
+
 
 
 // ------------------------------End of static data ----------------------------------
