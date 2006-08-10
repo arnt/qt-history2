@@ -461,22 +461,20 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
     if (QTextTable *table = qobject_cast<QTextTable *>(frame))
         return hitTest(table, relativePoint, position, l);
 
-    HitPoint hit = PointInside;
     QTextFrame::Iterator it = frame->begin();
 
     if (frame == rootFrame) {
         it = frameIteratorForYPosition(relativePoint.y());
 
         Q_ASSERT(it.parentFrame() == frame);
-
-        if (it.currentFrame())
-            *position = it.currentFrame()->firstPosition();
-        else
-            *position = it.currentBlock().position();
-        hit = PointBefore;
     }
 
-    return hitTest(it, hit, relativePoint, position, l);
+    if (it.currentFrame())
+        *position = it.currentFrame()->firstPosition();
+    else
+        *position = it.currentBlock().position();
+
+    return hitTest(it, PointBefore, relativePoint, position, l);
 }
 
 QTextDocumentLayoutPrivate::HitPoint
