@@ -306,7 +306,8 @@ public:
     mutable int lazyLayoutStepSize;
     QBasicTimer layoutTimer;
     mutable QBasicTimer sizeChangedTimer;
-    bool showLayoutProgress;
+    uint showLayoutProgress : 1;
+    uint insideDocumentChange : 1;
 
     int lastPageCount;
 
@@ -375,9 +376,11 @@ QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
       cursorWidth(1),
       currentLazyLayoutPosition(-1),
       lazyLayoutStepSize(1000),
-      showLayoutProgress(true),
       lastPageCount(-1)
-{}
+{
+    showLayoutProgress = true;
+    insideDocumentChange = false;
+}
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(qreal y) const
 {
@@ -2244,6 +2247,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 
     d->lazyLayoutStepSize = 1000;
     d->sizeChangedTimer.stop();
+    d->insideDocumentChange = true;
 
     const int documentLength = document()->docHandle()->length();
     const bool fullLayout = (oldLength == 0 && length == documentLength);
@@ -2271,6 +2275,8 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 
     if (!d->layoutTimer.isActive() && d->currentLazyLayoutPosition != -1)
         d->layoutTimer.start(10, this);
+
+    d->insideDocumentChange = false;
 
     if (d->showLayoutProgress) {
         const QSizeF newSize = dynamicDocumentSize();
@@ -2601,7 +2607,8 @@ void QTextDocumentLayout::layoutFinished()
 {
     Q_D(QTextDocumentLayout);
     d->layoutTimer.stop();
-    d->sizeChangedTimer.start(0, this);
+    if (!d->insideDocumentChange)
+        d->sizeChangedTimer.start(0, this);
     // reset
     d->showLayoutProgress = true;
 }
