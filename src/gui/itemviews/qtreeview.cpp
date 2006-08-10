@@ -2251,7 +2251,8 @@ void QTreeViewPrivate::layout(int i)
     QModelIndex parent = (i < 0) ? (QModelIndex)root : modelIndex(i);
     // modelIndex() will return an index that don't have a parent if column 0 is hidden, 
     // so we must make sure that parent points to the actual parent that has children.
-    parent = model->index(parent.row(), 0, parent.parent());
+    if (parent != root)
+        parent = model->index(parent.row(), 0, parent.parent());
 
     int count = 0;
     if (model->hasChildren(parent))
