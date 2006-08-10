@@ -37,7 +37,7 @@
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf(stderr, "%s\n", text); return 1; }
 
 
-#ifndef QT_NO_DBUS
+#if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusAbstractAdaptor>
 
@@ -324,7 +324,7 @@ int main( int argc, char ** argv )
                      mw, SLOT(showLinkFromClient(QString)) );
     }
 
-#ifndef QT_NO_DBUS
+#if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
     new AssistantAdaptor(mw);
 #endif // QT_NO_DBUS
 
