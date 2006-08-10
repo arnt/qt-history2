@@ -46,7 +46,7 @@ public:
     QStyleOptionButton getStyleOption() const;
     QDialog *dialogParent() const;
     QPointer<QMenu> menu;
-    uint autoDefault : 2; 
+    uint autoDefault : 2;
     uint defaultButton : 1;
     uint flat : 1;
     uint menuOpen : 1;
@@ -192,8 +192,8 @@ public:
     (depending on the GUI style).
 
     The default button behavior is provided only in dialogs. Buttons
-    can always be clicked from the keyboard by pressing Enter (or
-    Return) or the Spacebar when the button has focus.
+    can always be clicked from the keyboard by pressing Spacebar when
+    the button has focus.
 
     This property's default is false.
 */
