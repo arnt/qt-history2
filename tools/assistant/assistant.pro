@@ -1,16 +1,19 @@
 TEMPLATE = app
 LANGUAGE = C++
-TARGET         = assistant
+TARGET = assistant
 
-CONFIG        += qt warn_on
+CONFIG += qt warn_on
+
+unix:!embedded:contains(QT_CONFIG, qdbus):CONFIG += qdbus
+
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
 }
-QT            += xml network
+QT += xml network
 
-PROJECTNAME        = Assistant
-DESTDIR            = ../../bin
+PROJECTNAME = Assistant
+DESTDIR = ../../bin
 
 FORMS += helpdialog.ui \
         mainwindow.ui \
@@ -28,7 +31,7 @@ SOURCES += main.cpp \
         mainwindow.cpp \
         tabbedbrowser.cpp
 
-HEADERS        += helpwindow.h \
+HEADERS += helpwindow.h \
         topicchooser.h \
         docuparser.h \
         index.h \

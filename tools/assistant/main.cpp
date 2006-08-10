@@ -36,6 +36,28 @@
 
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf(stderr, "%s\n", text); return 1; }
 
+
+#ifndef QT_NO_DBUS
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusAbstractAdaptor>
+
+class AssistantAdaptor : public QDBusAbstractAdaptor
+{
+    Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "com.trolltech.DBus.Assistant")
+
+public:
+    AssistantAdaptor(MainWindow *mw) : QDBusAbstractAdaptor(mw), mw(mw)
+    { QDBus::sessionBus().registerObject("/Assistant", mw) ;}
+
+public slots:
+    void showLink(const QString &link) { mw->showLink(link); }
+
+private:
+    MainWindow *mw;
+};
+#endif // QT_NO_DBUS
+
 class AssistantSocket : public QTcpSocket
 {
     Q_OBJECT
@@ -69,7 +91,6 @@ public slots:
 private:
     quint16 p;
 };
-
 
 AssistantSocket::AssistantSocket( int sock, QObject *parent )
     : QTcpSocket( parent )
@@ -302,6 +323,10 @@ int main( int argc, char ** argv )
         as->connect( as, SIGNAL(showLinkRequest(QString)),
                      mw, SLOT(showLinkFromClient(QString)) );
     }
+
+#ifndef QT_NO_DBUS
+    new AssistantAdaptor(mw);
+#endif // QT_NO_DBUS
 
     mw->show();
 
