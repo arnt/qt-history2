@@ -2594,6 +2594,8 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
 void MetaObjectGenerator::readInterfaceInfo()
 {
     ITypeInfo *typeinfo = dispInfo;
+    if (!typeinfo)
+        return;
     typeinfo->AddRef();
     int interface_serial = 0;
     while (typeinfo) {
