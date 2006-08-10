@@ -1649,8 +1649,11 @@ QVariant QMetaProperty::read(const QObject *object) const
             t = QMetaType::type(typeName);
         if (t == QVariant::Invalid)
             t = QVariant::nameToType(typeName);
-        if (t == QVariant::Invalid || t == QVariant::UserType)
+        if (t == QVariant::Invalid || t == QVariant::UserType) {
+            if (t == QVariant::Invalid)
+                qWarning("QMetaProperty::read: Unable to handle unregistered datatype '%s'", typeName);
             return QVariant();
+        }
     }
     QVariant value;
     void *argv[1];
