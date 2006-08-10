@@ -996,7 +996,7 @@ added.
 
 \section1 Menus
 
-Menus are added to the menu bar by modifying the \gui{<menu>} placeholders.
+Menus are added to the menu bar by modifying the \gui{Type Here} placeholders.
 One of these is always present for editing purposes, and will not be
 displayed in the preview or in the finished window.
 
@@ -1006,7 +1006,7 @@ and each menu can be accessed for this purpose via the
 \l{Qt Designer's Widget Editing Mode#The Object Inspector}{The Object Inspector}.
 
 Existing menus can be removed by opening a context menu over the
-label in the menu bar, and selecting \gui{Remove Menu}.
+label in the menu bar, and selecting \gui{Remove Menu 'menu_name'}.
 
 \target CreatingAMenu
 \table
