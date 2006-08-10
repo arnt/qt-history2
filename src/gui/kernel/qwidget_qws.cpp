@@ -566,7 +566,10 @@ void QWidgetPrivate::show_sys()
             && q->windowType() != Qt::ToolTip ) {
             QWidget::qwsDisplay()->requestFocus(data.winid,true);
         }
-	bool staysontop = (q->windowFlags() & Qt::WindowStaysOnTopHint) || (q->windowState() & Qt::WindowFullScreen);
+	bool staysontop =
+            (q->windowFlags() & Qt::WindowStaysOnTopHint)
+            || (q->windowState() & Qt::WindowFullScreen)
+            || q->windowType() == Qt::Popup;
         QWidget::qwsDisplay()->setAltitude(data.winid, staysontop ? 1 : 0 , true);
     }
 
