@@ -3358,6 +3358,9 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
     case PM_ToolBarItemMargin:
         ret = 1;
         break;
+    case PM_SmallIconSize:
+        ret = 20;
+        break;
     default:
         break;
     }
