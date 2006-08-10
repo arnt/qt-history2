@@ -43,7 +43,7 @@ int main(int argc, char **argv)
         QMessageBox message;
         message.setText("<p>The next screen will let you test the calibration "
                         "by drawing into a widget.</p><p>This program will "
-                        "automaticly close after 20 seconds.<p>");
+                        "automatically close after 20 seconds.<p>");
         QTimer::singleShot(10 * 1000, &message, SLOT(accept()));
         message.exec();
     }
