@@ -1206,14 +1206,17 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
+        QPointF start = brush.matrix().map(g->start());
+        QPointF stop = brush.matrix().map(g->finalStop());
+
         float tr[4], f;
-        tr[0] = g->finalStop().x() - g->start().x();
-        tr[1] = g->finalStop().y() - g->start().y();
+        tr[0] = stop.x() - start.x();
+        tr[1] = stop.y() - start.y();
         f = 1.0 / (tr[0]*tr[0] + tr[1]*tr[1]);
         tr[0] *= f;
         tr[1] *= f;
         tr[2] = 0;
-        tr[3] = -(g->start().x()*tr[0] + g->start().y()*tr[1]);
+        tr[3] = -(start.x()*tr[0] + start.y()*tr[1]);
         setGLBrush(Qt::white);
         glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
         glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
