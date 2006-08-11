@@ -728,11 +728,15 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocu
     charFormat(), and the format of the current block is returned by
     blockFormat().
 
-    Formatting can be applied to the current character (the character
-    immedately after position()) using applyCharFormatModifier(), and
-    to the current block (the block that contains position()) using
-    setBlockFormat() and applyBlockFormatModifier(). The text at the
-    current character position can be turned into a list using
+    Formatting can be applied to the current text document using the
+    setCharFormat(), mergeCharFormat(), setBlockFormat() and
+    mergeBlockFormat() functions. The 'set' functions will replace the
+    cursor's current character or block format, while the 'merge'
+    functions add the given format properties to the cursor's current
+    format. If the cursor has a selection the given format is applied
+    to the current selection. Note that when only parts of a block is
+    selected the block format is applied to the entire block. The text
+    at the current character position can be turned into a list using
     createList().
 
     Deletions can be achieved using deleteChar(),
@@ -1389,7 +1393,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
     Sets the block format of the current block (or all blocks that
     are contained in the selection) to \a format.
 
-    \sa blockFormat()
+    \sa blockFormat(), mergeBlockFormat()
 */
 void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 {
@@ -1404,7 +1408,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
     are contained in the selection) with the block format specified by
     \a modifier.
 
-    \sa setBlockFormat()
+    \sa setBlockFormat(), blockFormat()
 */
 void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 {
@@ -1492,10 +1496,11 @@ QTextCharFormat QTextCursor::charFormat() const
 }
 
 /*!
-    Set the character format to the given \a format for the current selection.
-    Does nothing if the cursor does not have a selection.
+    Sets the cursor's current character format to the given \a
+    format. If the cursor has a selection, the given \a format is
+    applied to the current selection.
 
-    \sa hasSelection()
+    \sa hasSelection(), mergeCharFormat()
 */
 void QTextCursor::setCharFormat(const QTextCharFormat &format)
 {
@@ -1509,11 +1514,12 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 }
 
 /*!
-    Applies all the properties set in \a modifier to all the character formats
-    that are part of the selection. Does nothing if the cursor does not
-    have a selection.
+    Merges the cursor's current character format with the properties
+    described by the given \a format. If the cursor has a selection,
+    this function applies all the properties set in \a modifier to all
+    the character formats that are part of the selection.
 
-    \sa hasSelection()
+    \sa hasSelection(), setCharFormat()
 */
 void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 {
