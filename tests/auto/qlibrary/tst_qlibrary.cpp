@@ -10,6 +10,7 @@
 #include <QtTest/QtTest>
 #include <qdir.h>
 #include <qlibrary.h>
+#include <QtCore/QRegExp>
 
 // Helper macros to let us know if some suffixes are valid
 #define bundle_VALID    false
@@ -64,6 +65,11 @@ public:
     tst_QLibrary();
     virtual ~tst_QLibrary();
 
+enum QLibraryOperation {
+    Load,
+    Unload,
+    Resolve
+};
 private slots:
     void load();
     void load_data();
@@ -76,6 +82,8 @@ private slots:
     void isLibrary();
     void version_data();
     void version();
+    void lastError_data();
+    void lastError();
 
 };
 
@@ -261,6 +269,65 @@ void tst_QLibrary::isLibrary()
     QFETCH( bool, valid );
 
     QCOMPARE(QLibrary::isLibrary(filename), valid);
+}
+
+void tst_QLibrary::lastError_data()
+{
+    QTest::addColumn<int>("operation");
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<bool>("success");
+    QTest::addColumn<QString>("errorString");
+
+    QString currDir = QDir::currentPath();
+
+    QTest::newRow("bad load()") << (int)Load << QString("nosuchlib") << false << QString("QLibrary::load_sys: Cannot load nosuchlib \\(.*\\)");
+    QTest::newRow("bad resolve") << (int)Resolve << currDir + "/mylib" << false << QString("QLibrary::resolve_sys: Symbol \"nosuchsymbol\" undefined in \\S+ \\(.*\\)");
+    QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("");
+
+
+#ifdef Q_OS_WIN
+    QTest::newRow("bad load()") << (int)Load << QString("nosuchlib.dll") << false << QString("QLibrary::load_sys: Cannot load nosuchlib.dll \\(The specified module could not be found.\\)");
+//    QTest::newRow("bad unload") << (int)Unload << QString("nosuchlib.dll") << false << QString("QLibrary::unload_sys: Cannot unload nosuchlib.dll (The specified module could not be found.)");
+    QTest::newRow("bad resolve") << (int)Resolve << currDir + "/mylib" << false << QString("QLibrary::resolve_sys: Symbol \"nosuchsymbol\" undefined in \\S+ \\(The specified procedure could not be found.\\)");
+    QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("");
+#elif Q_OS_MAC
+
+#else
+
+#endif
+}
+
+void tst_QLibrary::lastError()
+{
+    QFETCH(int, operation); 
+    QFETCH(QString, fileName);
+    QFETCH(bool, success);
+    QFETCH(QString, errorString);
+    
+    
+    QLibrary lib(fileName);
+
+    bool ok = false;
+    switch (operation) {
+        case Load:
+            ok = lib.load();
+            break;
+        case Unload:
+            ok = lib.load();    //###
+            ok = lib.unload();
+            break;
+        case Resolve: {
+            ok = lib.load();
+            QCOMPARE(ok, true);
+            ok = success ? lib.resolve("version") : lib.resolve("nosuchsymbol") ? true : false;
+            break;}
+        default:
+            Q_ASSERT(0);
+            break;
+    }
+    QRegExp re(errorString);
+    QVERIFY(re.exactMatch(lib.lastError()));
+    QCOMPARE(ok, success);
 }
 
 QTEST_APPLESS_MAIN(tst_QLibrary)

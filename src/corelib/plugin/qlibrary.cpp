@@ -855,4 +855,8 @@ void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
     Use load(), isLoaded(), and unload() as necessary instead.
 */
 
+QString QLibrary::lastError() const
+{
+    return d->lastError;
+}
 #endif // QT_NO_LIBRARY

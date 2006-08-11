@@ -41,21 +41,27 @@ bool QLibraryPrivate::load_sys()
         }
     }
 
-#if defined(QT_DEBUG_COMPONENT)
     if (!pHnd) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::load_sys: Cannot load %s (%s)",
                  QFile::encodeName(fileName).constData(),
                  qt_error_string(GetLastError()).toLatin1().data());
-    }
 #endif
-    if (pHnd)
+    }
+    if (pHnd) {
         qualifiedFileName = attempt;
+        lastError.clear();
+    }
     return (pHnd != 0);
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(::qt_error_string());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::unload_sys: Cannot unload %s (%s)",
                  QFile::encodeName(fileName).constData(),
@@ -63,6 +69,7 @@ bool QLibraryPrivate::unload_sys()
 #endif
         return false;
     }
+    lastError.clear();
     return true;
 }
 
@@ -73,13 +80,19 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else
     void* address = (void*)GetProcAddress(pHnd, symbol);
 #endif
+    if (!address) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+            QString::fromAscii(symbol)).arg(fileName).arg(::qt_error_string());
 #if defined(QT_DEBUG_COMPONENT)
-    if (!address)
         qWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s (%s)",
                  symbol,
                  QFile::encodeName(fileName).constData(),
                  qt_error_string(GetLastError()).toLatin1().data());
 #endif
+    } else {
+        lastError.clear();
+    }
     return address;
 }
 
