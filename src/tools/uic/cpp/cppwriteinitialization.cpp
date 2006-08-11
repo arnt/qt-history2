@@ -145,7 +145,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 
     QString savedParentWidget = parentWidget;
 
-    if (uic->isContainer(parentClass))
+    if (uic->isContainer(parentClass) || uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3ToolBar")))
         parentWidget.clear();
 
     if (m_widgetChain.size() != 1)
@@ -541,7 +541,6 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
         isMenu = uic->isMenu(w->attributeClass());
         bool inQ3ToolBar = uic->customWidgetsInfo()->extends(m_widgetChain.top()->attributeClass(), QLatin1String("Q3ToolBar"));
         if (!isMenu && inQ3ToolBar) {
-            actionOut << option.indent << actionName << "->setParent(0);\n";
             actionOut << option.indent << actionName << "->setParent(" << varName << ");\n";
             return;
         }
