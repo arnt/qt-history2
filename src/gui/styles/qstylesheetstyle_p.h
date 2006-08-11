@@ -195,7 +195,7 @@ class QFrame;
 
 struct Q_AUTOTEST_EXPORT QRenderRules
 {
-    QRenderRules() : width(-1), height(-1), minWidth(-1), minHeight(-1) { }
+    QRenderRules() : minWidth(-1), minHeight(-1), width(-1), height(-1) { }
     QHash<int, QRenderRule> computedRulesCache;
 
     QSize minSize() const { return QSize(qRound(minWidth), qRound(minHeight)); }
