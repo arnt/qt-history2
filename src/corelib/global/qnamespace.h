@@ -37,7 +37,7 @@ Qt {
     Q_ENUMS(DockWidgetArea)
     Q_ENUMS(TextElideMode)
     Q_ENUMS(TextInteractionFlags)
-    Q_ENUMS(WindowModality)
+    Q_ENUMS(WindowModality ToolBarAreas DayOfWeek)
 public:
 #endif
     enum GlobalColor {
