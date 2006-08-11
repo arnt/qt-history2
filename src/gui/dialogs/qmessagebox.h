@@ -234,6 +234,7 @@ public:
 
     QString buttonText(int button) const;
     void setButtonText(int button, const QString &text);
+    void setDetailedText(const QString &text);
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QMessageBox(const QString &title, const QString &text, Icon icon,

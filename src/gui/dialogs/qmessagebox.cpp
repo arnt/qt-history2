@@ -25,11 +25,38 @@
 #include <QtGui/qtextdocument.h>
 #include <QtGui/qmessagebox.h>
 #include <QtGui/qapplication.h>
+#include <QtGui/qtextedit.h>
 #include "qdialog_p.h"
+#include <QDebug>
 
 enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5, Old_Retry = 6,
               Old_Ignore = 7, Old_YesAll = 8, Old_NoAll = 9, Old_ButtonMask = 0xFF,
               NewButtonFlag = 0xFFFFFC00 };
+
+enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
+class QMessageBoxDetailsText : public QWidget
+{
+public:
+    QMessageBoxDetailsText(QWidget *parent=0)
+        : QWidget(parent)
+    {
+        QVBoxLayout *layout = new QVBoxLayout;
+        QFrame *line = new QFrame(this);
+        line->setFrameShape(QFrame::HLine);
+        line->setFrameShadow(QFrame::Sunken);
+        layout->addWidget(line);
+        textEdit = new QTextEdit();
+        textEdit->setFixedHeight(100);
+        textEdit->setFocusPolicy(Qt::NoFocus);
+        textEdit->setReadOnly(true);
+        layout->addWidget(textEdit);
+        setLayout(layout);
+    }
+    void setText(const QString &text) { textEdit->setPlainText(text); }
+    QString label( DetailButtonLabel label) { return tr(label==ShowLabel? "Show Details..." : "Hide Details..."); }
+private:
+    QTextEdit *textEdit;
+};
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 /* XPM */
@@ -113,8 +140,8 @@ class QMessageBoxPrivate : public QDialogPrivate
     Q_DECLARE_PUBLIC(QMessageBox)
 
 public:
-    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), compatMode(false),
-                           autoAddOkButton(true) { }
+    QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), detailsButton(0),
+                           detailsText(0), compatMode(false), autoAddOkButton(true) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
     void _q_buttonClicked(QAbstractButton *);
@@ -148,6 +175,8 @@ public:
     QAbstractButton *escapeButton;
     QPushButton *defaultButton;
     QAbstractButton *clickedButton;
+    QPushButton *detailsButton;
+    QMessageBoxDetailsText *detailsText;
     bool compatMode;
     bool autoAddOkButton;
 };
@@ -274,8 +303,14 @@ int QMessageBoxPrivate::execReturnCode(QAbstractButton *button)
 void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 {
     Q_Q(QMessageBox);
-    clickedButton = button;
-    q->done(execReturnCode(button)); // does not trigger closeEvent
+    if (detailsButton && detailsText && button == detailsButton) {
+        detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
+        detailsText->setMaximumWidth(buttonBox->width());
+        detailsText->setHidden(!detailsText->isHidden());
+    } else {
+        clickedButton = button;
+        q->done(execReturnCode(button)); // does not trigger closeEvent
+    }
 }
 
 /*!
@@ -854,6 +889,8 @@ void QMessageBox::showEvent(QShowEvent *e)
     Q_D(QMessageBox);
     if (d->autoAddOkButton)
         addButton(Ok);
+    if (d->detailsButton)
+        addButton(d->detailsButton, QMessageBox::ActionRole);
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
 #endif
@@ -1586,7 +1623,6 @@ int QMessageBox::critical(QWidget *parent, const QString &title, const QString& 
                                                    defaultButtonNumber, escapeButtonNumber);
 }
 
-#include <QtDebug>
 
 /*!
     \obsolete
@@ -1627,6 +1663,41 @@ void QMessageBox::setButtonText(int button, const QString &text)
         // for compatibility with Qt 4.0/4.1
         addButton(QMessageBox::Ok)->setText(text);
     }
+}
+
+/*!
+    Sets the text of the details box. This will create an additional button
+    for expanding/collapsing the details area.
+
+    \a text will be interpreted as plain text. Passing an empty string will
+    remove the details area.
+*/
+void QMessageBox::setDetailedText(const QString &text)
+{
+    qDebug() << "setDetailedText";
+    Q_D(QMessageBox);
+    if (text.isEmpty()) {
+        delete d->detailsText;
+        d->detailsText = 0;
+        removeButton(d->detailsButton);
+        delete d->detailsButton;
+        d->detailsButton = 0;
+        return;
+    }
+
+    if (!d->detailsText) {
+        d->detailsText = new QMessageBoxDetailsText(this);
+        QGridLayout* grid = qobject_cast<QGridLayout*>(layout());
+        if (grid)
+            grid->addWidget(d->detailsText, grid->rowCount(), 0, 1, grid->columnCount());
+        d->detailsText->hide();
+    }
+    if (!d->detailsButton) {
+        d->detailsButton = addButton(d->detailsText->label(ShowLabel), QMessageBox::ActionRole);
+        QPushButton hideDetails(d->detailsText->label(HideLabel));
+        d->detailsButton->setFixedSize(d->detailsButton->sizeHint().expandedTo(hideDetails.sizeHint()));
+    }
+    d->detailsText->setText(text);
 }
 
 #ifdef QT3_SUPPORT
