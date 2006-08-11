@@ -36,15 +36,13 @@ static inline bool isWidgetOpaque(const QWidget *w)
 
 static inline QScreen *getScreen(const QWidget *w)
 {
-    const int screen = QApplication::desktop()->screenNumber(w);
-    if (screen < 0)
-        return qt_screen;
-
     const QList<QScreen*> subScreens = qt_screen->subScreens();
     if (subScreens.isEmpty())
         return qt_screen;
 
-    return qt_screen->subScreens().at(screen);
+    const int screen = QApplication::desktop()->screenNumber(w);
+
+    return qt_screen->subScreens().at(screen < 0 ? 0 : screen);
 }
 
 

@@ -855,10 +855,8 @@ QScreen* QWidgetPrivate::getScreen() const
         return qt_screen;
 
     const int screen = QApplication::desktop()->screenNumber(q);
-    if (screen < 0)
-        return qt_screen;
 
-    return qt_screen->subScreens().at(screen);
+    return qt_screen->subScreens().at(screen < 0 ? 0 : screen);
 }
 
 void QWidget::scroll(int dx, int dy)

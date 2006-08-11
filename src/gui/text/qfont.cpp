@@ -124,7 +124,11 @@ Q_GUI_EXPORT int qt_defaultDpi()
 #elif defined(Q_WS_QWS)
     if (!qt_screen)
         return 72;
-    dpi = qRound(qt_screen->height() / double(qt_screen->physicalHeight() / 25.4));
+    QScreen *screen = qt_screen;
+    const QList<QScreen*> subScreens = qt_screen->subScreens();
+    if (!subScreens.isEmpty())
+        screen = subScreens.at(0);
+    dpi = qRound(screen->height() / double(screen->physicalHeight() / 25.4));
 #endif // Q_WS_X11
 
     return dpi;
