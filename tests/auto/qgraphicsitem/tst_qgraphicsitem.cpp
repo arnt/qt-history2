@@ -1199,14 +1199,6 @@ public:
     int type() const { return Type; }
 };
 
-
-class MyRectItem : public QGraphicsRectItem
-{
-public:
-    QPainterPath opaqueArea() const
-    { return shape(); }
-};
-
 void tst_QGraphicsItem::isObscuredBy()
 {
     QGraphicsScene scene;
@@ -1232,11 +1224,13 @@ void tst_QGraphicsItem::isObscuredBy()
     QVERIFY(!myitem2.isObscuredBy(&myitem1));
     QVERIFY(!myitem1.isObscuredBy(&myitem2));
 
-    MyRectItem rect1, rect2;
+    QGraphicsRectItem rect1, rect2;
 
     rect1.setRect(QRectF(-40, -40, 50, 50));
+    rect1.setBrush(QBrush(Qt::red));
     rect2.setRect(QRectF(-30, -20, 20, 20));    
     rect2.setZValue(-1.0);
+    rect2.setBrush(QBrush(Qt::blue));
     
     QVERIFY(rect2.isObscuredBy(&rect1));
     QVERIFY(!rect1.isObscuredBy(&rect2));
