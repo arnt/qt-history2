@@ -1387,9 +1387,9 @@ const char* QMetaEnum::valueToKey(int value) const
 }
 
 /*!
-    Returns the value derived from combining together the values of the
-    \a keys using the OR operator. Note that the strings in \a keys
-    must be '|'-separated.
+    Returns the value derived from combining together the values of
+    the \a keys using the OR operator, or -1 if \a keys is not
+    defined. Note that the strings in \a keys must be '|'-separated.
 
     \sa isFlag(), valueToKey(), valueToKeys()
 */
