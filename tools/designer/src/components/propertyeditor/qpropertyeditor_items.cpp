@@ -757,6 +757,18 @@ FontProperty::FontProperty(const QFont &value, const QString &name, QWidget *sel
     i->setParent(this);
     m_properties << i;
 
+    i = new BoolProperty(value.kerning(), QLatin1String("Kerning"));
+    i->setFake(true);
+    i->setHasReset(true);
+    i->setParent(this);
+    m_properties << i;
+
+    i = new BoolProperty(value.styleStrategy() == QFont::PreferDefault, QLatin1String("Antialiasing"));
+    i->setFake(true);
+    i->setHasReset(true);
+    i->setParent(this);
+    m_properties << i;
+
     m_font = value;
 }
 
@@ -799,6 +811,8 @@ void FontProperty::setValue(const QVariant &value)
     propertyAt(3)->setValue(m_font.italic());
     propertyAt(4)->setValue(m_font.underline());
     propertyAt(5)->setValue(m_font.strikeOut());
+    propertyAt(6)->setValue(m_font.kerning());
+    propertyAt(7)->setValue(m_font.styleStrategy() == QFont::PreferDefault);
 }
 
 QVariant FontProperty::decoration() const

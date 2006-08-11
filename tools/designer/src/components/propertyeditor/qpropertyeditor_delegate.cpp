@@ -264,7 +264,9 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
                 property->propertyName() == QLatin1String("Bold") ||
                 property->propertyName() == QLatin1String("Italic") ||
                 property->propertyName() == QLatin1String("Underline") ||
-                property->propertyName() == QLatin1String("Strikeout")) {
+                property->propertyName() == QLatin1String("Strikeout") ||
+                property->propertyName() == QLatin1String("Kerning") ||
+                property->propertyName() == QLatin1String("Antialiasing")) {
             QModelIndex parentIndex = index.parent();
             if (IProperty *fontProperty = static_cast<const QPropertyEditorModel*>(model)->privateData(parentIndex)) {
                 QFont f = qvariant_cast<QFont>(fontProperty->value());
@@ -280,6 +282,10 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
                     f.setUnderline(property->value().toBool());
                 else if (property->propertyName() == QLatin1String("Strikeout"))
                     f.setStrikeOut(property->value().toBool());
+                else if (property->propertyName() == QLatin1String("Kerning"))
+                    f.setKerning(property->value().toBool());
+                else if (property->propertyName() == QLatin1String("Antialiasing"))
+                    f.setStyleStrategy(property->value().toBool() ? QFont::PreferDefault : QFont::NoAntialias);
                 fontProperty->setValue(f);
                 model->setData(parentIndex, f, Qt::EditRole);
                 return;
@@ -311,7 +317,9 @@ void QPropertyEditorDelegate::resetProperty(const IProperty *property, QProperty
             propName == QLatin1String("Bold") ||
             propName == QLatin1String("Italic") ||
             propName == QLatin1String("Underline") ||
-            propName == QLatin1String("Strikeout")) {
+            propName == QLatin1String("Strikeout") ||
+            propName == QLatin1String("Kerning") ||
+            propName == QLatin1String("Antialiasing")) {
         IProperty *fontProperty = property->parent();
         if (fontProperty) {
             QFont f = qvariant_cast<QFont>(fontProperty->value());
@@ -328,6 +336,10 @@ void QPropertyEditorDelegate::resetProperty(const IProperty *property, QProperty
                 mask &= ~QFontPrivate::Underline;
             else if (property->propertyName() == QLatin1String("Strikeout"))
                 mask &= ~QFontPrivate::StrikeOut;
+            else if (property->propertyName() == QLatin1String("Kerning"))
+                mask &= ~QFontPrivate::Kerning;
+            else if (property->propertyName() == QLatin1String("Antialias"))
+                mask &= ~QFontPrivate::StyleStrategy;
             f.resolve(mask);
             if (mask) {
                 QModelIndex fontIndex = model->indexOf(fontProperty);

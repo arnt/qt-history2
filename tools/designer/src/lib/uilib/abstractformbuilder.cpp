@@ -861,6 +861,11 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         f.setBold(font->elementBold());
         f.setUnderline(font->elementUnderline());
         f.setStrikeOut(font->elementStrikeOut());
+        if (font->hasElementKerning())
+            f.setKerning(font->elementKerning());
+        if (font->hasElementAntialiasing()) {
+            f.setStyleStrategy(font->elementAntialiasing() ? QFont::PreferDefault : QFont::NoAntialias);
+        }
         v = qVariantFromValue(f);
     } break;
 
@@ -1692,6 +1697,8 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             fnt->setElementStrikeOut(font.strikeOut());
             fnt->setElementUnderline(font.underline());
             fnt->setElementWeight(font.weight());
+            fnt->setElementKerning(font.kerning());
+            fnt->setElementAntialiasing(font.styleStrategy() == QFont::PreferDefault);
             dom_prop->setElementFont(fnt);
         } break;
 

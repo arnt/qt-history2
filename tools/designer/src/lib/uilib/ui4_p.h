@@ -1738,6 +1738,16 @@ public:
     inline bool hasElementStrikeOut() const { return m_children & StrikeOut; }
     void clearElementStrikeOut();
 
+    inline bool elementAntialiasing() { return m_antialiasing; }
+    void setElementAntialiasing(bool a);
+    inline bool hasElementAntialiasing() const { return m_children & Antialiasing; }
+    void clearElementAntialiasing();
+
+    inline bool elementKerning() { return m_kerning; }
+    void setElementKerning(bool a);
+    inline bool hasElementKerning() const { return m_children & Kerning; }
+    void clearElementKerning();
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -1752,6 +1762,8 @@ private:
     bool m_bold;
     bool m_underline;
     bool m_strikeOut;
+    bool m_antialiasing;
+    bool m_kerning;
     enum Child {
         Family = 1,
         PointSize = 2,
@@ -1760,6 +1772,8 @@ private:
         Bold = 16,
         Underline = 32,
         StrikeOut = 64,
+        Antialiasing = 128,
+        Kerning = 256,
     };
 
     DomFont(const DomFont &other);
