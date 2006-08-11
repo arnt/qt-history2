@@ -367,6 +367,102 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
     return false;
 }
 
+// ---- SetFormPropertyCommand ----
+SetFormPropertyCommand::SetFormPropertyCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow),
+      m_index(-1),
+      m_propertySheet(0),
+      m_changed(false)
+{
+}
+
+void SetFormPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &newValue)
+{
+    Q_ASSERT(object);
+    
+    m_newValue = newValue;
+    m_propertyName = propertyName;
+
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
+    Q_ASSERT(m_propertySheet);
+
+    m_index = m_propertySheet->indexOf(m_propertyName);
+    Q_ASSERT(m_index != -1);
+
+    m_changed = m_propertySheet->isChanged(m_index);
+    m_oldValue = m_propertySheet->property(m_index);
+
+    setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
+}
+
+void SetFormPropertyCommand::redo()
+{
+    m_changed = m_propertySheet->isChanged(m_index);
+    m_propertySheet->setChanged(m_index, true);
+
+    if (m_propertyName == QLatin1String("geometry"))
+        updateFormWindowGeometry(m_newValue);
+}
+
+void SetFormPropertyCommand::undo()
+{
+    m_propertySheet->setChanged(m_index, m_changed);
+
+    if (m_propertyName == QLatin1String("geometry"))
+        updateFormWindowGeometry(m_oldValue);
+}
+
+
+int SetFormPropertyCommand::id() const
+{
+    return 1977;
+}
+
+bool SetFormPropertyCommand::mergeWith(const QUndoCommand *other)
+{
+    if (id() != other->id())
+        return false;
+
+    if (const SetFormPropertyCommand *cmd = static_cast<const SetFormPropertyCommand*>(other)) {
+        if (cmd->propertyName() == propertyName() && cmd->formWindow() == formWindow()) {
+            m_newValue = cmd->newValue();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void SetFormPropertyCommand::updateFormWindowGeometry(const QVariant &value)
+{
+    if (QWidget *container = containerWindow(formWindow())) {
+        QRect r = container->geometry();
+        if (container->parentWidget() && container->parentWidget()->metaObject()->className() == QLatin1String("QWorkspaceChild")) {
+            QRect windowRect = container->parentWidget()->rect();
+            QSize diff = windowRect.size() - r.size();
+            windowRect.setSize(value.toRect().size() + diff);
+            container->parentWidget()->setGeometry(windowRect);
+        } else {
+            r.setSize(value.toRect().size());
+            container->setGeometry(r);
+        }
+    }
+}
+
+QWidget *SetFormPropertyCommand::containerWindow(QWidget *widget)
+{
+    while (widget) {
+        if (widget->isWindow())
+            break;
+        if (widget->parentWidget() && !qstrcmp(widget->parentWidget()->metaObject()->className(), "QWorkspaceChild"))
+            break;
+
+        widget = widget->parentWidget();
+    }
+
+    return widget;
+}
 // ---- ResetPropertyCommand ----
 ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow),

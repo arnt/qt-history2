@@ -38,15 +38,18 @@ public:
 public slots:
     void updateWindowTitle(const QString &fileName);
     void updateChanged();
+    void geometryChanged();
 
 protected:
     virtual void changeEvent(QEvent *e);
     virtual void closeEvent(QCloseEvent *ev);
+    virtual void resizeEvent(QResizeEvent* rev);
 
 private:
     QDesignerFormWindowInterface *m_editor;
     QPointer<QDesignerWorkbench> m_workbench;
     QAction *m_action;
+    bool initialized;
 };
 
 #endif // QDESIGNER_FORMWINDOW_H

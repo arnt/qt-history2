@@ -21,6 +21,7 @@
 
 // shared
 #include <QtGui/QUndoCommand>
+#include <qdesigner_command_p.h>
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
@@ -35,7 +36,8 @@
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
       m_editor(editor),
-      m_workbench(workbench)
+      m_workbench(workbench),
+      initialized(false)
 {
     Q_ASSERT(workbench);
 
@@ -54,6 +56,7 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
 
     connect(m_editor->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(updateChanged()));
     connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
+    connect(m_editor, SIGNAL(geometryChanged()), this, SLOT(geometryChanged()));
 }
 
 QDesignerFormWindow::~QDesignerFormWindow()
@@ -104,8 +107,8 @@ QDesignerWorkbench *QDesignerFormWindow::workbench() const
 }
 
 void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
-{
-    QString fn = fileName;
+{    
+    QString fn = QFileInfo(fileName).fileName();
 
     if (fn.isEmpty()) {
         // Try to preserve its "untitled" number.
@@ -164,4 +167,22 @@ void QDesignerFormWindow::updateChanged()
 {
     setWindowModified(m_editor->isDirty());
     updateWindowTitle(m_editor->fileName());
+}
+
+void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
+{
+    if(initialized)
+        m_editor->setDirty(true);
+
+    initialized = true;
+    QMainWindow::resizeEvent(rev);
+}
+
+void QDesignerFormWindow::geometryChanged()
+{
+    if(QObject *object = m_editor->core()->propertyEditor()->object()) {
+        QDesignerPropertySheetExtension *sheet = 
+            qt_extension<QDesignerPropertySheetExtension*>(m_editor->core()->extensionManager(), object);
+        m_editor->core()->propertyEditor()->setPropertyValue("geometry", sheet->property(sheet->indexOf("geometry")));
+    }
 }
