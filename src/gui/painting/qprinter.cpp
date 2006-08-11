@@ -46,7 +46,7 @@ void QPrinterPrivate::createDefaultEngines()
 #if defined (Q_OS_UNIX)
     if(outputFormat == QPrinter::NativeFormat) {
 #if !defined(QT_NO_CUPS)
-        if(0 && QCUPSSupport::cupsVersion() >= 10200)
+        if(QCUPSSupport::cupsVersion() >= 10200)
             outputFormat = QPrinter::PdfFormat;
         else
 #endif

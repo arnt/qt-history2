@@ -243,9 +243,9 @@ QRect QCUPSSupport::pageRect() const
     for (int i = 0; i < currPPD->num_sizes; ++i) {
         if (currPPD->sizes[i].marked == 0)
             return QRect((int)currPPD->sizes[i].left,
-                         (int)currPPD->sizes[i].right,
+                         (int)currPPD->sizes[i].length - (int)currPPD->sizes[i].top,
                          (int)(currPPD->sizes[i].right - currPPD->sizes[i].left),
-                         (int)(currPPD->sizes[i].bottom - currPPD->sizes[i].top));
+                         (int)(currPPD->sizes[i].top - currPPD->sizes[i].bottom));
     }
     return QRect();
 }

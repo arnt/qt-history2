@@ -1159,15 +1159,7 @@ void QPdfBaseEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
 QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
 {
     Q_D(const QPdfBaseEngine);
-
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-    if (QCUPSSupport::isAvailable() && d->cups.currentPPD()) {
-        if (key == PPK_PaperRect)
-            return QVariant(d->cups.paperRect());
-        else if (key == PPK_PageRect)
-            return QVariant(d->cups.pageRect());
-    }
-#endif
+    qDebug() << "cups page rect" << d->cups.pageRect() << "paperrect" << d->cups.paperRect();
 
     QVariant ret;
     switch (key) {
@@ -1646,9 +1638,22 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
 
 QRect QPdfBaseEnginePrivate::paperRect() const
 {
-    QPdf::PaperSize s = QPdf::paperSize(pageSize);
-    int w = qRound(s.width*resolution/72.);
-    int h = qRound(s.height*resolution/72.);
+    int w;
+    int h;
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    if (QCUPSSupport::isAvailable() && cups.currentPPD()) {
+        QRect r = cups.paperRect();
+        w = r.width();
+        h = r.height();
+    } else
+#endif
+    {
+        QPdf::PaperSize s = QPdf::paperSize(pageSize);
+        w = s.width;
+        h = s.height;
+    }
+    w = qRound(w*resolution/72.);
+    h = qRound(h*resolution/72.);
     if (orientation == QPrinter::Portrait)
         return QRect(0, 0, w, h);
     else
@@ -1657,11 +1662,22 @@ QRect QPdfBaseEnginePrivate::paperRect() const
 
 QRect QPdfBaseEnginePrivate::pageRect() const
 {
-    QRect r = paperRect();
-    if (fullPage)
-        return r;
-    // would be nice to get better margins than this.
-    return QRect(resolution/3, resolution/3, r.width()-2*resolution/3, r.height()-2*resolution/3);
+    if(fullPage)
+        return paperRect();
+
+    QRect r;
+
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    if (QCUPSSupport::isAvailable() && cups.currentPPD()) {
+        r = cups.pageRect();
+    } else
+#endif
+    {
+        QPdf::PaperSize s = QPdf::paperSize(pageSize);
+        r = QRect(72/3, 72/3, s.width - 2*72/3, s.height - 2*72/3);
+    }
+    return QRect(qRound(r.left()*resolution/72.), qRound(r.top()*resolution/72.),
+                 qRound(r.width()*resolution/72.), qRound(r.height()*resolution/72.));
 }
 
 
