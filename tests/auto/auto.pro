@@ -88,14 +88,6 @@ SUBDIRS += bic \
            qdate \
            qdatetime \
            qdatetimeedit \
-           qdbusabstractadaptor \
-           qdbusconnection \
-           qdbusinterface \
-           qdbusmarshall \
-           qdbusmetaobject \
-           qdbusmetatype \
-           qdbusreply \
-           qdbusxmlparser \
            qdebug \
            qdeepcopy \
            qdesktopservices \
@@ -311,4 +303,12 @@ SUBDIRS += bic \
            symbols \
            qrand 
 
-
+unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += \
+           qdbusabstractadaptor \
+           qdbusconnection \
+           qdbusinterface \
+           qdbusmarshall \
+           qdbusmetaobject \
+           qdbusmetatype \
+           qdbusreply \
+           qdbusxmlparser
