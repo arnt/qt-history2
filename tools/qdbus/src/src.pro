@@ -37,8 +37,7 @@ unix {
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
    QMAKE_PKGCONFIG_DESCRIPTION = Qt DBus module
-   CONFIG(debug, debug|release):QMAKE_PKGCONFIG_NAME = QtDBus_debug
-   else:QMAKE_PKGCONFIG_NAME = QtDBus
+   QMAKE_PKGCONFIG_NAME = QtDBus
 }
 
 win32 {
@@ -71,8 +70,8 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {
-      unix:TARGET = $$member(TARGET, 0)_debug
-      else:TARGET = $$member(TARGET, 0)d
+      mac:TARGET = $$member(TARGET, 0)_debug
+      win32:TARGET = $$member(TARGET, 0)d
    }
 }
 

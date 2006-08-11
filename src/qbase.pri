@@ -34,7 +34,7 @@ win32:DLLDESTDIR = $$[QT_INSTALL_PREFIX]/bin
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt 
 CONFIG          -= fix_output_dirs
-!macx-xcode:CONFIG += debug_and_release
+win32|mac:!macx-xcode:CONFIG += debug_and_release
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, largefile):CONFIG += largefile
@@ -123,8 +123,8 @@ DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our ge
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {
-      unix:TARGET = $$member(TARGET, 0)_debug
-      else:TARGET = $$member(TARGET, 0)d
+      mac:TARGET = $$member(TARGET, 0)_debug
+      win32:TARGET = $$member(TARGET, 0)d
    }
 }
 

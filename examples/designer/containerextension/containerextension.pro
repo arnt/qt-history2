@@ -3,8 +3,8 @@ CONFIG  += designer plugin debug_and_release
 DESTDIR  = $$QT_BUILD_TREE/plugins/designer
 
 CONFIG(debug, debug|release) {
-    unix: TARGET = $$join(TARGET,,,_debug)
-    else: TARGET = $$join(TARGET,,d)
+    mac: TARGET = $$join(TARGET,,,_debug)
+    win32: TARGET = $$join(TARGET,,d)
 }
 
 HEADERS += multipagewidget.h \

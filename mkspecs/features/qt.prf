@@ -22,7 +22,7 @@ INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH #prepending prevents us from picki
 win32:INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 
 # As order does matter for static libs, we reorder the QT variable here
-TMPLIBS = svg canvas qt3support sql xml opengl gui network core
+TMPLIBS = svg qt3support sql xml opengl gui network core
 for(QTLIB, $$list($$TMPLIBS)) {
    contains(QT, $$QTLIB): QT_ORDERED += $$QTLIB
 }
@@ -34,13 +34,7 @@ QT = $$QT_ORDERED
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
    qlib_style = 
-   false:contains(QTLIB, ".*_debug$") {
-      qlib_style = debug
-      QTLIB ~= s,_debug$,,g
-   } else:false:contains(QTLIB, ".*_release$") {
-      qlib_style = release
-      QTLIB ~= s,_release$,,g
-   } else:!qt_debug:!qt_release {
+   !qt_debug:!qt_release {
       CONFIG(debug, debug|release):qlib_style = debug
       else:qlib_style = release
    } else:CONFIG(qt_debug, qt_debug|qt_release) {
@@ -72,59 +66,13 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
 	 isEqual(QTLIB, opengl):CONFIG += opengl
 	 isEqual(QTLIB, qt3support):DEFINES *= QT3_SUPPORT
 
-	 QT_LINKAGE =
-	 mac {
-	    CONFIG(qt_framework, qt_framework|qt_no_framework) { #forced
-	       QMAKE_CFLAGS *= -F$${QMAKE_LIBDIR_QT}
-	       QMAKE_CXXFLAGS *= -F$${QMAKE_LIBDIR_QT}
-	       QMAKE_LIBDIR_FLAGS *= -F$${QMAKE_LIBDIR_QT}
-	       FRAMEWORK_INCLUDE = $$QMAKE_LIBDIR_QT/$${qlib}.framework/Headers
-	       !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
-	          INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-	          INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
-               }
-	       QT_LINKAGE = -framework $${qlib}
-            } else:!qt_no_framework { #detection
-  	       for(frmwrk_dir, $$list($$QMAKE_LIBDIR $$(DYLD_FRAMEWORK_PATH) /Library/Frameworks)) {
-	          exists($${frmwrk_dir}/$${qlib}.framework) {
-	            QMAKE_CFLAGS *= -F$${frmwrk_dir}
-	            QMAKE_CXXFLAGS *= -F$${frmwrk_dir}
-	            QMAKE_LIBDIR_FLAGS *= -F$${frmwrk_dir}
-	            FRAMEWORK_INCLUDE = $$frmwrk_dir/$${qlib}.framework/Headers
-	            !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
-	               INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-	               INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
-                    }
-		    QT_LINKAGE = -framework $${qlib}
-		    break()
-                  }
-               }
-            }
-	 }
-	 false {
-	    QT_LINKAGE = -l$${qlib}
-	 } else:isEmpty(QT_LINKAGE) {
-            win32 {
-	       CONFIG(debug, debug|release):QT_LINKAGE = -l$${qlib}d
-	       else:QT_LINKAGE = -l$${qlib}
-	    } else { 
-	       isEqual(qlib_style, debug):QT_LINKAGE = -l$${qlib}_debug
-	       else:QT_LINKAGE = -l$${qlib}
-            }
-         }
-	 LIBS += $$QT_LINKAGE
+     qtAddLibrary($$qlib)
       }
    }
 }
 for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
    qplugin_style = 
-   false:contains(QTPLUG, ".*_debug$") {
-      qplugin_style = debug
-      QTPLUG ~= s,_debug$,,g
-   } else:false:contains(QTPLUG, ".*_release$") {
-      qplugin_style = release
-      QTPLUG ~= s,_release$,,g
-   } else:!qt_debug:!qt_release {
+   !qt_debug:!qt_release {
       CONFIG(debug, debug|release):qplugin_style = debug
       else:qplugin_style = release
    } else:CONFIG(qt_debug, qt_debug|qt_release) {
@@ -163,22 +111,16 @@ for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
     target_qt:isEqual(TARGET, QTPLUG) {
        warning($$TARGET cannot have a QTPLUGIN of $$QTPLUG)
     } else {
-       QT_LINKAGE =
-       false {
           QT_LINKAGE = -l$${QTPLUG}
-       } else:isEmpty(QT_LINKAGE) {
           win32 {
              CONFIG(debug, debug|release):QT_LINKAGE = -l$${QTPLUG}d
-             else:QT_LINKAGE = -l$${QTPLUG}
-          } else { 
+          } else:mac { 
              isEqual(qplugin_style, debug):QT_LINKAGE = -l$${QTPLUG}_debug
-             else:QT_LINKAGE = -l$${QTPLUG}
           }
        }
        
-       !isEmpty(QT_PLUGINPATH): LIBS += -L$$QT_PLUGINPATH
-       LIBS += $$QT_LINKAGE
-    }
+    !isEmpty(QT_PLUGINPATH): LIBS += -L$$QT_PLUGINPATH
+    LIBS += $$QT_LINKAGE
 }
 
 qt_compat {

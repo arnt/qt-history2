@@ -9,8 +9,8 @@ SOURCES        = main.cpp \
 LIBS           = -L../plugandpaintplugins/basictools -lpnp_basictools
 
 CONFIG(debug, debug|release) {
-   unix:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)_debug
-   else:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)d
+   mac:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)_debug
+   win32:LIBS = $$member(LIBS, 0) $$member(LIBS, 1)d
 }
 
 # install

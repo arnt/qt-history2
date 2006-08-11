@@ -32,8 +32,7 @@ unix {
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
    QMAKE_PKGCONFIG_DESCRIPTION = Qt Unit Testing Library
-   CONFIG(debug, debug|release):QMAKE_PKGCONFIG_NAME = QtTest_debug
-   else:QMAKE_PKGCONFIG_NAME = QtTest
+   QMAKE_PKGCONFIG_NAME = QtTest
 }
 
 
@@ -61,8 +60,8 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {
-      unix:TARGET = $$member(TARGET, 0)_debug
-      else:TARGET = $$member(TARGET, 0)d
+      mac:TARGET = $$member(TARGET, 0)_debug
+      win32:TARGET = $$member(TARGET, 0)d
    }
 }
 

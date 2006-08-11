@@ -16,48 +16,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lQtOpenGL):QT_SHARED_LIB_NAME = QtOpenGL
 
     !isEmpty(QT_SHARED_LIB_NAME) {
-        LIBS -= -l$${QT_SHARED_LIB_NAME}
-
-	QT_SHARED_LINKAGE =
-	mac {
-	   CONFIG(qt_framework, qt_framework|qt_no_framework) { #forced
-	         QMAKE_CFLAGS *= -F$${QMAKE_LIBDIR_QT}
-		 QMAKE_CXXFLAGS *= -F$${QMAKE_LIBDIR_QT}
-		 QMAKE_LIBDIR_FLAGS *= -F$${QMAKE_LIBDIR_QT}
-		 FRAMEWORK_INCLUDE = $$QMAKE_LIBDIR_QT/$${QT_SHARED_LIB_NAME}.framework/Headers
-		 exists($$FRAMEWORK_INCLUDE) {
-		      INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-		      INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
-		 }
-		 QT_SHARED_LINKAGE = -framework $${QT_SHARED_LIB_NAME}
-            } else:!qt_no_framework { #detection
-	         for(frmwrk_dir, $$list($$QMAKE_LIBDIR_QT $$QMAKE_LIBDIR $$(DYLD_FRAMEWORK_PATH) /Library/Frameworks)) {
-		      exists($${frmwrk_dir}/$${QT_SHARED_LIB_NAME}.framework) {
-		         QMAKE_CFLAGS *= -F$${frmwrk_dir}
-			 QMAKE_CXXFLAGS *= -F$${frmwrk_dir}
-			 QMAKE_LIBDIR_FLAGS *= -F$${frmwrk_dir}
-			 FRAMEWORK_INCLUDE = $$frmwrk_dir/$${QT_SHARED_LIB_NAME}.framework/Headers
-			 INCLUDEPATH -= $$FRAMEWORK_INCLUDE
-			 INCLUDEPATH = $$FRAMEWORK_INCLUDE $$INCLUDEPATH
-		      }
-		      QT_SHARED_LINKAGE = -framework $${QT_SHARED_LIB_NAME}
-		      break()
-	          }
-            }
-       }
-
-       false {
-           QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}
-       } else:isEmpty(QT_SHARED_LINKAGE) {
-          win32 {
-             CONFIG(debug, debug|release):QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}d
-             else:QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}
-          } else { 
-            CONFIG(debug, debug|release):QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}_debug
-            else:QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}
-          }
-       }
+        qtAddLibrary($$QT_SHARED_LIB_NAME)
     }
-    LIBS += $$QT_SHARED_LINKAGE
 }
 

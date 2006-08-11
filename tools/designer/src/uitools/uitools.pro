@@ -4,10 +4,10 @@ QT += xml
 CONFIG += qt staticlib
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin
-CONFIG += debug_and_release
+win32|mac:CONFIG += debug_and_release
 CONFIG(debug, debug|release) {
-    unix:TARGET = $$member(TARGET, 0)_debug
-    else:TARGET = $$member(TARGET, 0)d
+    mac:TARGET = $$member(TARGET, 0)_debug
+    win32:TARGET = $$member(TARGET, 0)d
 }
 
 DEFINES += QFORMINTERNAL_NAMESPACE QT_DESIGNER_STATIC
