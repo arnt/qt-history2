@@ -28,7 +28,7 @@ class QMenu;
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_ENUMS(Qt::ToolButtonStyle Qt::ArrowType)
+    Q_ENUMS(Qt::ToolButtonStyle Qt::ArrowType ToolButtonPopupMode)
 #ifndef QT_NO_MENU
     Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
 #endif

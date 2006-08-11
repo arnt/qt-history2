@@ -28,6 +28,7 @@ class QFontComboBoxPrivate;
 class Q_GUI_EXPORT QFontComboBox : public QComboBox
 {
     Q_OBJECT
+    Q_FLAGS(FontFilters)
     Q_PROPERTY(QFontDatabase::WritingSystem writingSystem READ writingSystem WRITE setWritingSystem)
     Q_PROPERTY(FontFilters fontFilters READ fontFilters WRITE setFontFilters)
     Q_PROPERTY(QFont currentFont READ currentFont WRITE setCurrentFont NOTIFY currentFontChanged)
