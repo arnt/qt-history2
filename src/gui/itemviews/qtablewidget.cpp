@@ -698,12 +698,13 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
         return;
     if (item->flags() & ItemIsHeaderItem) {
         int row = verticalHeaderItems.indexOf(item);
-        if (row >= 0)
+        if (row >= 0) {
             emit headerDataChanged(Qt::Vertical, row, row);
-    } else if (item->flags() & ItemIsHeaderItem) {
-        int column = horizontalHeaderItems.indexOf(item);
-        if (column >= 0)
-            emit headerDataChanged(Qt::Horizontal, column, column);
+        } else {
+            int column = horizontalHeaderItems.indexOf(item);
+            if (column >= 0)
+                emit headerDataChanged(Qt::Horizontal, column, column);
+        }
     } else {
         QModelIndex idx = index(item);
         if (idx.isValid())
