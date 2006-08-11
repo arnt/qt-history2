@@ -22,12 +22,14 @@ class ImageModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    ImageModel(const QImage &image, QObject *parent = 0);
+    ImageModel(QObject *parent = 0);
+    void setImage(const QImage &image);
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:
     QImage modelImage;

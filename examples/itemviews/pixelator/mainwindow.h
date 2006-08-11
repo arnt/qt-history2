@@ -16,7 +16,7 @@
 
 #include <QMainWindow>
 
-class QAbstractItemModel;
+class ImageModel;
 class QAction;
 class QTableView;
 
@@ -36,7 +36,7 @@ public slots:
     void updateView();
 
 private:
-    QAbstractItemModel *model;
+    ImageModel *model;
     QAction *printAction;
     QString currentPath;
     QTableView *view;

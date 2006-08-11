@@ -20,7 +20,7 @@
 MainWindow::MainWindow() : QMainWindow()
 {
     currentPath = QDir::home().absolutePath();
-    model = new ImageModel(QImage(), this);
+    model = new ImageModel(this);
 
     QWidget *centralWidget = new QWidget;
 
@@ -28,6 +28,9 @@ MainWindow::MainWindow() : QMainWindow()
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
+    view->horizontalHeader()->setMinimumSectionSize(1);
+    view->verticalHeader()->setMinimumSectionSize(1);
+    view->setModel(model);
 
     PixelDelegate *delegate = new PixelDelegate(this);
     view->setItemDelegate(delegate);
@@ -95,11 +98,7 @@ void MainWindow::openImage(const QString &fileName)
     QImage image;
 
     if (image.load(fileName)) {
-        ImageModel *newModel = new ImageModel(image, this);
-        view->setModel(newModel);
-        delete model;
-        model = newModel;
-
+        model->setImage(image);
         if (!fileName.startsWith(":/")) {
             currentPath = fileName;
             setWindowTitle(tr("%1 - Pixelator").arg(currentPath));
@@ -194,8 +193,6 @@ void MainWindow::showAboutBox()
 
 void MainWindow::updateView()
 {
-    for (int row = 0; row < model->rowCount(QModelIndex()); ++row)
-        view->resizeRowToContents(row);
-    for (int column = 0; column < model->columnCount(QModelIndex()); ++column)
-        view->resizeColumnToContents(column);
+    view->resizeColumnsToContents();
+    view->resizeRowsToContents();
 }
