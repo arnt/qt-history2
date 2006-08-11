@@ -31,9 +31,29 @@
 #ifndef QT_NO_STYLE_WINDOWS
 #include <QList>
 #include <QTime>
+#include <QHash>
 
+class QStringList;
 class QTime;
 class QProgressBar;
+
+class IconTheme
+{
+
+public:
+    IconTheme(QHash <int, QString> dirList, QStringList parents) :
+          _dirList(dirList), _parents(parents), _valid(true){ }
+    IconTheme() : _valid(false){ }
+
+    QHash <int, QString> dirList() {return _dirList;}
+    QStringList parents() {return _parents;}
+    bool isValid() {return _valid;}
+
+private:
+    QHash <int, QString> _dirList;
+    QStringList _parents;
+    bool _valid;
+};
 
 class QWindowsStylePrivate : public QCommonStylePrivate
 {
@@ -56,6 +76,16 @@ public:
     QColor activeGradientCaptionColor;
     QColor inactiveCaptionColor;
     QColor inactiveGradientCaptionColor;
+    
+    //icon detection on X11
+    QPixmap findIcon(int size, const QString &) const;
+#ifdef Q_WS_X11
+    QPixmap findIconHelper(int size, const QString &, const QString &) const;
+    IconTheme parseIndexFile(const QString &themeName) const;
+    QString themeName;
+    QStringList iconDirs;
+    mutable QHash <QString, IconTheme> themeList;
+#endif
 };
 
 #endif // QT_NO_STYLE_WINDOWS

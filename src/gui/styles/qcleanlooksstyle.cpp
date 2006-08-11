@@ -18,8 +18,6 @@
 #include "qwindowsstyle_p.h"
 #include <QComboBox>
 #include <qpainter.h>
-#include <QFile>
-#include <QTextStream>
 #include <QDir>
 #include <QHash>
 #include <qstyleoption.h>
@@ -455,23 +453,6 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "             "};
 
 
-class IconTheme {
-
-public:
-    IconTheme(QHash <int, QString> dirList, QStringList parents) :
-          _dirList(dirList), _parents(parents), _valid(true){ }
-    IconTheme() : _valid(false){ }
-
-    QHash <int, QString> dirList() {return _dirList;}
-    QStringList parents() {return _parents;}
-    bool isValid() {return _valid;}
-
-private:
-    QHash <int, QString> _dirList;
-    QStringList _parents;
-    bool _valid;
-};
-
 class QCleanlooksStylePrivate : public QWindowsStylePrivate
 {
     Q_DECLARE_PUBLIC(QCleanlooksStyle)
@@ -482,12 +463,6 @@ public:
 
 ~QCleanlooksStylePrivate()
     { }
-    QPixmap findIcon(int size, const QString &) const;
-    QPixmap findIconHelper(int size, const QString &, const QString &) const;
-    IconTheme parseIndexFile(const QString &themeName) const;
-    QString themeName;
-    QStringList iconDirs;
-    mutable QHash <QString, IconTheme> themeList;
 };
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
@@ -3958,118 +3933,6 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     return icon;
 }
 
-IconTheme QCleanlooksStylePrivate::parseIndexFile(const QString &themeName) const
-{
-    IconTheme theme;
-    QFile themeIndex;
-    QStringList parents;
-    QHash <int, QString> dirList;
-
-    for ( int i = 0 ; i < iconDirs.size() && !themeIndex.exists() ; ++i) {
-          themeIndex.setFileName(iconDirs[i] + "/icons/" +
-                                 themeName + QLatin1String("/index.theme"));
-    }
-
-    if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-        QTextStream in(&themeIndex);
-
-        while (!in.atEnd()) {
-
-            QString line = in.readLine();
-
-            if (line.startsWith(QLatin1String("Inherits="))) {
-                line = line.right(line.length() - 9);
-                parents = line.split(QLatin1Char(','));
-            }
-
-            if (line.startsWith(QLatin1String("["))) {
-                line = line.trimmed();
-                line.chop(1);
-                QString dirName = line.right(line.length() - 1);
-                if (!in.atEnd()) {
-                    line = in.readLine();
-                    int size;
-                    if (line.startsWith("Size=")) {
-                        size = line.right(line.length() - 5).toInt();
-                        if (size)
-                            dirList.insertMulti(size, dirName);
-                    }
-                }
-            }
-        }
-    }
-
-    if (parents.isEmpty() && themeName != "hicolor")
-        parents.append("hicolor");
-
-    theme = IconTheme(dirList, parents);
-    return theme;
-}
-
-QPixmap QCleanlooksStylePrivate::findIconHelper(int size,
-                                                   const QString &themeName,
-                                                   const QString &iconName) const
-{
-    QPixmap pixmap;
-
-    if (!themeName.isEmpty()) {
-
-        IconTheme theme = themeList.value(themeName);
-
-        if (!theme.isValid()) {
-            theme = parseIndexFile(themeName);
-            themeList.insert(themeName, theme);
-        }
-
-        if (!theme.isValid())
-            return QPixmap();
-
-        QList <QString> subDirs = theme.dirList().values(size);
-
-        for ( int i = 0 ; i < iconDirs.size() ; ++i) {
-            for ( int j = 0 ; j < subDirs.size() ; ++j) {
-                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName;
-                pixmap.load(fileName);
-                if (!pixmap.isNull())
-                    break;
-            }
-        }
-
-        if (pixmap.isNull()) {
-            QStringList parents = theme.parents();
-            //search recursively through inherited themes
-            for (int i = 0 ; pixmap.isNull() && i < parents.size() ; ++i) {
-               QString parentTheme = parents[i].trimmed();
-               if (parentTheme != themeName)
-                  pixmap = findIconHelper(size, parentTheme, iconName);
-            }
-        }
-    }
-    return pixmap;
-}
-
-QPixmap QCleanlooksStylePrivate::findIcon(int size, const QString &name) const
-{
-#ifdef Q_WS_X11
-    QPixmap pixmap;
-    QString pixmapName = QLatin1String("$qt") + name + QString::number(size);
-
-    if (QPixmapCache::find(pixmapName, pixmap))
-        return pixmap;
-
-    if (!themeName.isEmpty())
-        pixmap = findIconHelper(size, themeName, name);
-
-    QPixmapCache::insert(pixmapName, pixmap);
-
-    return pixmap;
-#else
-    Q_UNUSED(size);
-    Q_UNUSED(name);
-    return QPixmap();
-#endif
-}
 
 /*!
  \reimp

@@ -21,6 +21,7 @@ static const bool AnimateProgressBar = false;
 // #define QPlastique_MaskButtons
 static const int ProgressBarFps = 25;
 
+#include "qwindowsstyle_p.h"
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qabstractitemview.h>
@@ -54,6 +55,7 @@ static const int ProgressBarFps = 25;
 #include <qtoolbox.h>
 #include <qtoolbutton.h>
 #include <qworkspace.h>
+#include <qprocess.h>
 
 #include <limits.h>
 
@@ -923,30 +925,28 @@ static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *opti
 }
 #endif
 
-class QPlastiqueStylePrivate
+class QPlastiqueStylePrivate : public QWindowsStylePrivate
 {
+    Q_DECLARE_PUBLIC(QPlastiqueStyle)
 public:
-    QPlastiqueStylePrivate(QPlastiqueStyle *qq);
+    QPlastiqueStylePrivate();
     virtual ~QPlastiqueStylePrivate();
-
+    
 #ifndef QT_NO_PROGRESSBAR
     QList<QProgressBar *> bars;
     int progressBarAnimateTimer;
     QTime timer;
-    int animateStep;
 #endif
-
-    QPlastiqueStyle *q;
 };
 
 /*!
   \internal
  */
-QPlastiqueStylePrivate::QPlastiqueStylePrivate(QPlastiqueStyle *qq) :
+QPlastiqueStylePrivate::QPlastiqueStylePrivate() :
+    QWindowsStylePrivate(),
 #ifndef QT_NO_PROGRESSBAR
-    progressBarAnimateTimer(0), animateStep(0),
+    progressBarAnimateTimer(0)
 #endif
-    q(qq)
 {
     if (!qgetenv("QT_STYLE_NO_PIXMAPCACHE").isNull())
         UsePixmapCache = false;
@@ -976,8 +976,9 @@ QPlastiqueStylePrivate::~QPlastiqueStylePrivate()
     Constructs a QPlastiqueStyle object.
 */
 QPlastiqueStyle::QPlastiqueStyle()
-    : QWindowsStyle(), d(new QPlastiqueStylePrivate(this))
+    : QWindowsStyle(*new QPlastiqueStylePrivate)
 {
+    setObjectName(QLatin1String("Plastique"));
 }
 
 /*!
@@ -985,7 +986,6 @@ QPlastiqueStyle::QPlastiqueStyle()
 */
 QPlastiqueStyle::~QPlastiqueStyle()
 {
-    delete d;
 }
 
 /*!
@@ -1867,6 +1867,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *option,
                                   QPainter *painter, const QWidget *widget) const
 {
+    Q_D(const QPlastiqueStyle);
     QColor borderColor = option->palette.background().color().dark(178);
     QColor alphaCornerColor;
     if (widget) {
@@ -5457,6 +5458,23 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 */
 void QPlastiqueStyle::polish(QApplication *app)
 {
+#ifdef Q_WS_X11
+    Q_D(QPlastiqueStyle);
+
+    QString dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
+
+    if (dataDirs.isEmpty())
+        dataDirs = "/usr/local/share/:/usr/share/";
+
+    d->iconDirs = dataDirs.split(":");
+
+    QProcess kreadconfig;
+    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group icons -key Theme --default crystalsvg"));
+
+    if (kreadconfig.waitForFinished())
+        d->themeName = QLatin1String(kreadconfig.readLine().trimmed());
+    
+#endif
     QWindowsStyle::polish(app);
 }
 
@@ -5485,10 +5503,193 @@ QIcon QPlastiqueStyle::standardIconImplementation(StandardPixmap standardIcon, c
 }
 
 /*!
+ \reimp
+ */
+QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+                                      const QWidget *widget) const
+{
+    Q_D(const QPlastiqueStyle);
+    QPixmap pixmap;
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    switch (standardPixmap) {
+    case SP_MessageBoxInformation:
+        {
+            pixmap = d->findIcon(32, QLatin1String("messagebox_info.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxWarning:
+        {
+            pixmap = d->findIcon(32, QLatin1String("messagebox_warning.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxCritical:
+        {
+            pixmap = d->findIcon(32, QLatin1String("messagebox_critical.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxQuestion:
+        {
+            pixmap = d->findIcon(32, QLatin1String("help.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogOpenButton:
+    case SP_DirOpenIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("folder_open.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("empty.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileLinkIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("link_overlay.png"));
+            if (!pixmap.isNull()) {
+                QPixmap fileIcon = d->findIcon(16, QLatin1String("empty.png"));
+                QPainter painter(&fileIcon);
+                painter.drawPixmap(0, 0, 16, 16, pixmap);
+                return fileIcon;
+            }
+            break;
+       }
+    case SP_DirClosedIcon:
+    case SP_DirIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("folder.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DirLinkIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("link_overlay.png"));
+            if (!pixmap.isNull()) {
+                QPixmap dirIcon = d->findIcon(16, QLatin1String("folder.png"));
+                QPainter painter(&dirIcon);
+                painter.drawPixmap(0, 0, 16, 16, pixmap);
+                return dirIcon;
+            }
+            break;
+       }
+    case SP_DriveFDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("3floppy_unmount.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ComputerIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("system.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DesktopIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("desktop.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_TrashIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("trashcan_empty.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("cdrom_unmount.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DriveHDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("hdd_unmount.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileDialogToParent:
+        {
+            pixmap = d->findIcon(16, QLatin1String("up.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileDialogNewFolder:
+        {
+            pixmap = d->findIcon(16, QLatin1String("folder.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowUp:
+        {
+            pixmap = d->findIcon(16, QLatin1String("up.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowDown:
+        {
+            pixmap = d->findIcon(16, QLatin1String("down.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowRight:
+        {
+            if (QApplication::layoutDirection() == Qt::RightToLeft)
+                return QPlastiqueStyle::standardPixmap(SP_ArrowLeft, opt, widget);
+            pixmap = d->findIcon(16, QLatin1String("forward.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowLeft:
+    case SP_FileDialogBack:
+        {
+            if (QApplication::layoutDirection() == Qt::RightToLeft)
+                return QPlastiqueStyle::standardPixmap(SP_ArrowRight, opt, widget);
+            pixmap = d->findIcon(16, QLatin1String("back.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    default:
+        break;
+    }
+#endif //QT_NO_IMAGEFORMAT_XPM
+
+    return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
+}
+
+
+/*!
     \reimp
 */
 bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
 {
+    Q_D(QPlastiqueStyle);
 #ifndef QT_NO_PROGRESSBAR
     switch (event->type()) {
     case QEvent::Show:
@@ -5542,6 +5743,7 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
 */
 void QPlastiqueStyle::timerEvent(QTimerEvent *event)
 {
+    Q_D(QPlastiqueStyle);
 #ifndef QT_NO_PROGRESSBAR
     if (event->timerId() == d->progressBarAnimateTimer) {
         Q_ASSERT(ProgressBarFps > 0);

@@ -32,6 +32,9 @@
 #include "qwidget.h"
 #include "qdebug.h"
 #include "qmainwindow.h"
+#include "qfile.h"
+#include "qtextstream.h"
+#include "qpixmapcache.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -3006,6 +3009,122 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     if (icon.isNull())
         icon = QIcon(standardPixmap(standardIcon, option, widget));
     return icon;
+}
+
+
+#ifdef Q_WS_X11
+IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
+{
+    IconTheme theme;
+    QFile themeIndex;
+    QStringList parents;
+    QHash <int, QString> dirList;
+
+    for ( int i = 0 ; i < iconDirs.size() && !themeIndex.exists() ; ++i) {
+          themeIndex.setFileName(iconDirs[i] + "/icons/" +
+                                 themeName + QLatin1String("/index.theme"));
+    }
+
+    if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+        QTextStream in(&themeIndex);
+
+        while (!in.atEnd()) {
+
+            QString line = in.readLine();
+
+            if (line.startsWith(QLatin1String("Inherits="))) {
+                line = line.right(line.length() - 9);
+                parents = line.split(QLatin1Char(','));
+            }
+
+            if (line.startsWith(QLatin1String("["))) {
+                line = line.trimmed();
+                line.chop(1);
+                QString dirName = line.right(line.length() - 1);
+                if (!in.atEnd()) {
+                    line = in.readLine();
+                    int size;
+                    if (line.startsWith("Size=")) {
+                        size = line.right(line.length() - 5).toInt();
+                        if (size)
+                            dirList.insertMulti(size, dirName);
+                    }
+                }
+            }
+        }
+    }
+
+    if (parents.isEmpty() && themeName != "hicolor")
+        parents.append("hicolor");
+
+    theme = IconTheme(dirList, parents);
+    return theme;
+}
+
+QPixmap QWindowsStylePrivate::findIconHelper(int size,
+                                                   const QString &themeName,
+                                                   const QString &iconName) const
+{
+    QPixmap pixmap;
+
+    if (!themeName.isEmpty()) {
+
+        IconTheme theme = themeList.value(themeName);
+
+        if (!theme.isValid()) {
+            theme = parseIndexFile(themeName);
+            themeList.insert(themeName, theme);
+        }
+
+        if (!theme.isValid())
+            return QPixmap();
+
+        QList <QString> subDirs = theme.dirList().values(size);
+
+        for ( int i = 0 ; i < iconDirs.size() ; ++i) {
+            for ( int j = 0 ; j < subDirs.size() ; ++j) {
+                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName;
+                pixmap.load(fileName);
+                if (!pixmap.isNull())
+                    break;
+            }
+        }
+
+        if (pixmap.isNull()) {
+            QStringList parents = theme.parents();
+            //search recursively through inherited themes
+            for (int i = 0 ; pixmap.isNull() && i < parents.size() ; ++i) {
+               QString parentTheme = parents[i].trimmed();
+               if (parentTheme != themeName)
+                  pixmap = findIconHelper(size, parentTheme, iconName);
+            }
+        }
+    }
+    return pixmap;
+}
+#endif
+
+QPixmap QWindowsStylePrivate::findIcon(int size, const QString &name) const
+{
+#ifdef Q_WS_X11
+    QPixmap pixmap;
+    QString pixmapName = QLatin1String("$qt") + name + QString::number(size);
+
+    if (QPixmapCache::find(pixmapName, pixmap))
+        return pixmap;
+
+    if (!themeName.isEmpty())
+        pixmap = findIconHelper(size, themeName, name);
+
+    QPixmapCache::insert(pixmapName, pixmap);
+
+    return pixmap;
+#else
+    Q_UNUSED(size);
+    Q_UNUSED(name);
+    return QPixmap();
+#endif
 }
 
 #endif // QT_NO_STYLE_WINDOWS
