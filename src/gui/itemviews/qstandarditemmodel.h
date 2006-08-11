@@ -159,7 +159,6 @@ public:
     int column() const;
     QModelIndex index() const;
     QStandardItemModel *model() const;
-    bool isTopLevelItem() const;
 
     int rowCount() const;
     void setRowCount(int rows);
@@ -329,7 +328,7 @@ public:
     QStandardItem *item(int row, int column = 0) const;
     void setItem(int row, int column, QStandardItem *item);
     inline void setItem(int row, QStandardItem *item);
-    QStandardItem *topLevelParent() const;
+    QStandardItem *invisibleRootItem() const;
 
     QStandardItem *horizontalHeaderItem(int column) const;
     void setHorizontalHeaderItem(int column, QStandardItem *item);

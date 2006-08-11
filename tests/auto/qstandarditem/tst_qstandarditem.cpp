@@ -37,7 +37,6 @@ private slots:
     void getSetChild_data();
     void getSetChild();
     void parent();
-    void isTopLevelItem();
     void insertColumn_data();
     void insertColumn();
     void insertColumns_data();
@@ -386,31 +385,24 @@ void tst_QStandardItem::getSetChild()
 
 void tst_QStandardItem::parent()
 {
-    QStandardItem item;
-    QStandardItem *child = new QStandardItem;
-    QCOMPARE(child->parent(), static_cast<QStandardItem*>(0));
-    item.setChild(0, 0, child);
-    QCOMPARE(child->parent(), &item);
+    {
+        QStandardItem item;
+        QStandardItem *child = new QStandardItem;
+        QCOMPARE(child->parent(), static_cast<QStandardItem*>(0));
+        item.setChild(0, 0, child);
+        QCOMPARE(child->parent(), &item);
+        
+        QStandardItem *childOfChild = new QStandardItem;
+        child->setChild(0, 0, childOfChild);
+        QCOMPARE(childOfChild->parent(), child);
+    }
 
-    QStandardItem *childOfChild = new QStandardItem;
-    child->setChild(0, 0, childOfChild);
-    QCOMPARE(childOfChild->parent(), child);
-}
-
-void tst_QStandardItem::isTopLevelItem()
-{
-    QStandardItemModel model;
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            QStandardItem *item = new QStandardItem;
-            model.setItem(i, j, item);
-            QVERIFY(item->isTopLevelItem());
-            for (int k = 0; k < 10; ++k) {
-                QStandardItem *child = new QStandardItem;
-                item->setChild(k, child);
-                QVERIFY(!child->isTopLevelItem());
-            }
-        }
+    {
+        QStandardItemModel model;
+        QStandardItem *item = new QStandardItem;
+        model.appendRow(item);
+        // parent of a top-level item should be 0
+        QCOMPARE(item->parent(), static_cast<QStandardItem*>(0));
     }
 }
 
@@ -947,7 +939,7 @@ void tst_QStandardItem::sortChildren()
 {
     for (int x = 0; x < 2; ++x) {
         QStandardItemModel *model = new QStandardItemModel;
-        QStandardItem *item = (x == 0) ? new QStandardItem : model->topLevelParent();
+        QStandardItem *item = (x == 0) ? new QStandardItem : model->invisibleRootItem();
         QStandardItem *one = new QStandardItem;
         one->appendRow(new QStandardItem(QLatin1String("a")));
         one->appendRow(new QStandardItem(QLatin1String("b")));

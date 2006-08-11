@@ -957,7 +957,7 @@ void tst_QStandardItemModel::indexFromItem()
 {
     QStandardItemModel model;
 
-    QCOMPARE(model.indexFromItem(model.topLevelParent()), QModelIndex());
+    QCOMPARE(model.indexFromItem(model.invisibleRootItem()), QModelIndex());
 
     QStandardItem *item = new QStandardItem;
     model.setItem(10, 20, item);
@@ -990,7 +990,7 @@ void tst_QStandardItemModel::itemFromIndex()
 {
     QStandardItemModel model;
 
-    QCOMPARE(model.itemFromIndex(QModelIndex()), model.topLevelParent());
+    QCOMPARE(model.itemFromIndex(QModelIndex()), (QStandardItem*)0);
 
     QStandardItem *item = new QStandardItem;
     model.setItem(10, 20, item);
@@ -1256,7 +1256,7 @@ static void createChildren(QStandardItemModel *model, QStandardItem *parent, int
             QStandardItem *theItem = model->itemFromIndex(index);
             QCOMPARE(theItem, item);
             QStandardItem *theParent = model->itemFromIndex(parentIndex);
-            QCOMPARE(theParent, parent);
+            QCOMPARE(theParent, (level == 0) ? (QStandardItem*)0 : parent);
         }
 
         {
@@ -1271,7 +1271,7 @@ void tst_QStandardItemModel::useCase2()
 {
     QStandardItemModel model;
     model.setColumnCount(2);
-    createChildren(&model, model.topLevelParent(), 0);
+    createChildren(&model, model.invisibleRootItem(), 0);
 }
 
 void tst_QStandardItemModel::useCase3()
@@ -1290,7 +1290,7 @@ void tst_QStandardItemModel::useCase3()
     model.appendRow(childItem);
 
     // make sure each item has the correct model and parent
-    QStandardItem *parentItem = model.topLevelParent();
+    QStandardItem *parentItem = 0;
     while (childItem) {
         QCOMPARE(childItem->model(), &model);
         QCOMPARE(childItem->parent(), parentItem);

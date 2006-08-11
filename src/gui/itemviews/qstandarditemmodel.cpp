@@ -84,7 +84,7 @@ int QStandardItemPrivate::childIndex(int row, int column) const
 */
 QPair<int, int> QStandardItemPrivate::itemPosition(const QStandardItem *item) const
 {
-    if (QStandardItem *par = item->parent()) {
+    if (QStandardItem *par = item->d_func()->parent) {
         int idx = par->d_func()->childIndex(item);
         if (idx == -1)
             return QPair<int, int>(-1, -1);
@@ -113,7 +113,7 @@ void QStandardItemPrivate::setChild(int row, int column, QStandardItem *item,
     if (item == oldItem)
         return;
     if (item) {
-        if (item->parent() == 0) {
+        if (item->d_func()->parent == 0) {
             item->d_func()->setParentAndModel(q, model);
         } else {
             qWarning("QStandardItem::setChild(): ignoring duplicate insertion of item %p",
@@ -323,7 +323,7 @@ bool QStandardItemPrivate::insertRows(int row, int count, const QList<QStandardI
         for (int i = 0; i < limit; ++i) {
             QStandardItem *item = items.at(i);
             if (item) {
-                if (item->parent() == 0) {
+                if (item->d_func()->parent == 0) {
                     item->d_func()->setParentAndModel(q, model);
                 } else {
                     qWarning("QStandardItem::insertRows(): ignoring duplicate insertion of item %p",
@@ -366,7 +366,7 @@ bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QSta
         for (int i = 0; i < limit; ++i) {
             QStandardItem *item = items.at(i);
             if (item) {
-                if (item->parent() == 0) {
+                if (item->d_func()->parent == 0) {
                     item->d_func()->setParentAndModel(q, model);
                 } else {
                     qWarning("QStandardItem::insertColumns(): ignoring duplicate insertion of item %p",
@@ -391,7 +391,7 @@ bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QSta
 void QStandardItemModelPrivate::itemChanged(QStandardItem *item)
 {
     Q_Q(QStandardItemModel);
-    if (item->parent() == 0) {
+    if (item->d_func()->parent == 0) {
         // Header item
         int idx = columnHeaderItems.indexOf(item);
         if (idx != -1) {
@@ -691,15 +691,14 @@ QStandardItem::~QStandardItem()
 /*!
   Returns the item's parent item, or 0 if the item has no parent.
 
-  Note that the parent of top-level items in a model is
-  QStandardItemModel::topLevelParent().
-
-  \sa child(), isTopLevelItem()
+  \sa child()
 */
 QStandardItem *QStandardItem::parent() const
 {
     Q_D(const QStandardItem);
-    return d->parent;
+    if (!d->model || (d->model->d_func()->root != d->parent))
+        return d->parent;
+    return 0;
 }
 
 /*!
@@ -1541,23 +1540,6 @@ QStandardItem *QStandardItem::child(int row, int column) const
 }
 
 /*!
-    Returns true if this item is a top-level item; otherwise returns false.
-
-    This function is useful e.g. when you have a recursive function that works
-    its way up the item hierarchy, and you want to know if you have reached a
-    root item.
-
-    \sa QStandardItemModel::topLevelParent(), parent()
-*/
-bool QStandardItem::isTopLevelItem() const
-{
-    Q_D(const QStandardItem);
-    if (d->model)
-        return (d->model->topLevelParent() == d->parent);
-    return (0 == d->parent);
-}
-
-/*!
     Removes the child item at \a(row, column) without deleting it, and returns
     a pointer to the item. If there was no child at the given location, then
     this function returns 0.
@@ -1841,7 +1823,7 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
 
     \code
             QStandardItemModel model;
-            QStandardItem *parentItem = model.topLevelParent();
+            QStandardItem *parentItem = model.invisibleRootItem();
             for (int i = 0; i < 4; ++i) {
                 QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
                 parentItem->appendRow(item);
@@ -1978,16 +1960,14 @@ void QStandardItemModel::clear()
     itemPrototype()), and set it in the parent item's child table, if no item
     already exists at that index.
 
-    If \a index is an invalid index, topLevelParent() is returned.
+    If \a index is an invalid index, this function returns 0.
 
     \sa indexFromItem()
 */
 QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QStandardItemModel);
-    if (!index.isValid())
-        return d->root;
-    if (index.model() != this)
+    if ((index.row() < 0) || (index.column() < 0) || (index.model() != this))
         return 0;
     QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
     if (parent == 0)
@@ -2015,8 +1995,8 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
 */
 QModelIndex QStandardItemModel::indexFromItem(const QStandardItem *item) const
 {
-    if (item && item->parent())
-        return createIndex(item->row(), item->column(), item->parent());
+    if (item && item->d_func()->parent)
+        return createIndex(item->row(), item->column(), item->d_func()->parent);
     return QModelIndex();
 }
 
@@ -2088,16 +2068,14 @@ QStandardItem *QStandardItemModel::item(int row, int column) const
 /*!
     \since 4.2
 
-    Returns the model's top-level parent item.
+    Returns the model's invisible root item.
 
-    This item usually plays the role of an "invisible root" item; many of the
-    QStandardItemModel functions, such as setItem() and appendRow(), operate
-    on the top-level parent item internally. Normally you don't have to care
-    about it. However, being able to access this item makes it possible to
-    write functions that can treat top-level items and their children in a
-    uniform way; for example, recursive functions involving a tree model.
+    The invisible root item provides access to the model's top-level items
+    through the QStandardItem API, making it possible to write functions that
+    can treat top-level items and their children in a uniform way; for
+    example, recursive functions involving a tree model.
 */
-QStandardItem *QStandardItemModel::topLevelParent() const
+QStandardItem *QStandardItemModel::invisibleRootItem() const
 {
     Q_D(const QStandardItemModel);
     return d->root;
@@ -2327,7 +2305,7 @@ QList<QStandardItem*> QStandardItemModel::findItems(const QString &text,
 */
 void QStandardItemModel::appendRow(const QList<QStandardItem*> &items)
 {
-    topLevelParent()->appendRow(items);
+    invisibleRootItem()->appendRow(items);
 }
 
 /*!
@@ -2340,7 +2318,7 @@ void QStandardItemModel::appendRow(const QList<QStandardItem*> &items)
 */
 void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
 {
-    topLevelParent()->appendColumn(items);
+    invisibleRootItem()->appendColumn(items);
 }
 
 /*!
@@ -2362,7 +2340,7 @@ void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
 */
 void QStandardItemModel::insertRow(int row, const QList<QStandardItem*> &items)
 {
-    topLevelParent()->insertRow(row, items);
+    invisibleRootItem()->insertRow(row, items);
 }
 
 /*!
@@ -2387,7 +2365,7 @@ void QStandardItemModel::insertRow(int row, const QList<QStandardItem*> &items)
 */
 void QStandardItemModel::insertColumn(int column, const QList<QStandardItem*> &items)
 {
-    topLevelParent()->insertColumn(column, items);
+    invisibleRootItem()->insertColumn(column, items);
 }
 
 /*!
@@ -2600,7 +2578,8 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 */
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = parent.isValid() ? itemFromIndex(parent) : d->root;
     if (item == 0)
         return false;
     return item->d_func()->insertColumns(column, count, QList<QStandardItem*>());
@@ -2611,7 +2590,8 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
 */
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = parent.isValid() ? itemFromIndex(parent) : d->root;
     if (item == 0)
         return false;
     return item->d_func()->insertRows(row, count, QList<QStandardItem*>());
