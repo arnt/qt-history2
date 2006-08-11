@@ -42,7 +42,7 @@ public:
     {
     public:
         TextEdit(QWidget *parent=0) : QTextEdit(parent) { }
-        void TextEdit::contextMenuEvent(QContextMenuEvent * e)
+        void contextMenuEvent(QContextMenuEvent * e)
         {
             QMenu *menu = createStandardContextMenu();
             menu->exec(e->globalPos());
