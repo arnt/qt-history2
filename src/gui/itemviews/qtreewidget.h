@@ -225,6 +225,7 @@ public:
     int columnCount() const;
     void setColumnCount(int columns);
 
+    QTreeWidgetItem *invisibleRootItem() const;
     QTreeWidgetItem *topLevelItem(int index) const;
     int topLevelItemCount() const;
     void insertTopLevelItem(int index, QTreeWidgetItem *item);

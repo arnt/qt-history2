@@ -72,7 +72,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
     Q_ASSERT(model);
     d_ptr = new QTreeWidgetItemIteratorPrivate(this, model);
     model->iterators.append(this);
-    if (!model->topLevelItems.isEmpty()) current = model->topLevelItems.first();
+    if (!model->rootItem->children.isEmpty()) current = model->rootItem->children.first();
     if (current && !matchesFlags(current))
         ++(*this);
 }
@@ -101,13 +101,13 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, Iterator
     // the beginning.
     QTreeWidgetItem *parent = item;
     parent = parent->parent();
-    QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->topLevelItems;
+    QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->rootItem->children;
     d->m_currentIndex = children.indexOf(item);
 
     while (parent) {
         QTreeWidgetItem *itm = parent;
         parent = parent->parent();
-        QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->topLevelItems;
+        QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->rootItem->children;
         int index = children.indexOf(itm);
         d->m_parentIndex.prepend(index);
     }
@@ -276,13 +276,13 @@ QTreeWidgetItem *QTreeWidgetItemIteratorPrivate::next(const QTreeWidgetItem *cur
         // walk the sibling
         QTreeWidgetItem *parent = current->parent();
         next = parent ? parent->child(m_currentIndex + 1)
-            : m_model->topLevelItems.value(m_currentIndex + 1);
+                      : m_model->rootItem->child(m_currentIndex + 1);
         while (!next && parent) {
             // if we had no sibling walk up the parent and try the sibling of that
             parent = parent->parent();
             m_currentIndex = m_parentIndex.pop();
             next = parent ? parent->child(m_currentIndex + 1)
-                : m_model->topLevelItems.value(m_currentIndex + 1);
+                          : m_model->rootItem->child(m_currentIndex + 1);
         }
         if (next) ++(m_currentIndex);
     }
@@ -297,7 +297,7 @@ QTreeWidgetItem *QTreeWidgetItemIteratorPrivate::previous(const QTreeWidgetItem 
     // walk the previous sibling
     QTreeWidgetItem *parent = current->parent();
     prev = parent ? parent->child(m_currentIndex - 1)
-        : m_model->topLevelItems.value(m_currentIndex - 1);
+                  : m_model->rootItem->child(m_currentIndex - 1);
     if (prev) {
         // Yes, we had a previous sibling but we need go down to the last leafnode.
         --m_currentIndex;

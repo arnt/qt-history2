@@ -84,10 +84,6 @@ public:
         const QList<QTreeWidgetItem*>::iterator &end,
         Qt::SortOrder order, QTreeWidgetItem *item);
 
-    void insertInTopLevel(int row, QTreeWidgetItem *item);
-
-    void insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items);
-
     bool insertRows(int row, int count, const QModelIndex &);
     bool insertColumns(int column, int count, const QModelIndex &);
 
@@ -112,7 +108,7 @@ protected:
     void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
 private:
-    QList<QTreeWidgetItem*> topLevelItems;
+    QTreeWidgetItem *rootItem;
     QTreeWidgetItem *headerItem;
 
     mutable QModelIndexList cachedIndexes;
