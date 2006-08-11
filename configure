@@ -507,6 +507,7 @@ CFG_GLIB=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
 CFG_PRECOMPILE=no
+CFG_SEPARATE_DEBUG_INFO=no
 CFG_REDUCE_EXPORTS=auto
 CFG_IPV6=auto
 CFG_NAS=no
@@ -647,7 +648,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1108,6 +1109,13 @@ while [ "$#" -gt 0 ]; do
     pch)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_PRECOMPILE="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    separate-debug-info)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_SEPARATE_DEBUG_INFO="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2072,6 +2080,15 @@ elif [ "$CFG_PRECOMPILE" = "yes" ] && [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
     echo "WARNING: Using universal binaries disables precompiled headers."
     echo
     CFG_PRECOMPILE=no
+fi
+
+# auto-detect support for separate debug info in objcopy
+if [ "$CFG_SEPARATE_DEBUG_INFO" = "auto" ]; then
+    if "$unixtests/objcopy.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+       CFG_SEPARATE_DEBUG_INFO=no
+    else
+       CFG_SEPARATE_DEBUG_INFO=yes
+    fi
 fi
 
 # auto-detect -fvisibility support
@@ -4079,6 +4096,11 @@ if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
 fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
+    QMakeVar add QMAKE_CFLAGS -g
+    QMakeVar add QMAKE_CXXFLAGS -g
+    QMAKE_CONFIG="$QMAKE_CONFIG separate_debug_info"
+fi
 [ "$CFG_HAVE_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
 [ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x86 ppc"
@@ -4709,6 +4731,7 @@ QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
 QMAKE_UIC        = \$\$QT_BUILD_TREE/bin/uic
 QMAKE_UIC3       = \$\$QT_BUILD_TREE/bin/uic3
 QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
+QMAKE_QDBUSXML2CPP = \$\$QT_BUILD_TREE/bin/dbusxml2cpp
 QMAKE_INCDIR_QT  = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
 
