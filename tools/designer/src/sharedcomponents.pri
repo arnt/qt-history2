@@ -16,6 +16,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lQtOpenGL):QT_SHARED_LIB_NAME = QtOpenGL
 
     !isEmpty(QT_SHARED_LIB_NAME) {
+        LIBS -= -l$${QT_SHARED_LIB_NAME}
         qtAddLibrary($$QT_SHARED_LIB_NAME)
     }
 }
