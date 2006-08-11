@@ -40,7 +40,7 @@ QStringList QMngPlugin::keys() const
 QImageIOPlugin::Capabilities QMngPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
     if (format == "mng")
-        return Capabilities(CanRead | CanWrite);
+        return Capabilities(CanRead);
     if (!format.isEmpty())
         return 0;
     if (!device->isOpen())
@@ -49,8 +49,6 @@ QImageIOPlugin::Capabilities QMngPlugin::capabilities(QIODevice *device, const Q
     Capabilities cap;
     if (device->isReadable() && QMngHandler::canRead(device))
         cap |= CanRead;
-    if (device->isWritable())
-        cap |= CanWrite;
     return cap;
 }
 
