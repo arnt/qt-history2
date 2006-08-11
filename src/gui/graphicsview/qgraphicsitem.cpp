@@ -3107,7 +3107,10 @@ bool QAbstractGraphicsShapeItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QAbstractGraphicsShapeItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    Q_D(const QAbstractGraphicsShapeItem);
+    if (d->brush.isOpaque())
+        return shape();
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!
