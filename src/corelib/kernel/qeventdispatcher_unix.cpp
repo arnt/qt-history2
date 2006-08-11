@@ -214,25 +214,13 @@ void QTimerInfoList::updateWatchTime(const timeval &currentTime)
 */
 void QTimerInfoList::timerInsert(QTimerInfo *ti)
 {
-    int index = 0;
-#if defined(QT_DEBUG)
-    int dangerCount = 0;
-#endif
-    for (; index < size(); ++index) {
+    int index = size();
+    while (index--) {
         register const QTimerInfo * const t = at(index);
-#if defined(QT_DEBUG)
-        if (t->obj == ti->obj) ++dangerCount;
-#endif
-        if (ti->timeout < t->timeout) break;
+        if (!(ti->timeout < t->timeout))
+            break;
     }
-    insert(index, ti);
-
-#if defined(QT_DEBUG)
-    if (dangerCount > 16)
-        qDebug("QObject: %d timers now exist for object %s::%s",
-               dangerCount, ti->obj->metaObject()->className(),
-               ti->obj->objectName().toLocal8Bit().data());
-#endif
+    insert(index+1, ti);
 }
 
 /*
