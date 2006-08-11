@@ -1009,8 +1009,6 @@ void tst_QComboBox::currentIndex()
         if (edit) {
             testWidget->setCurrentIndex(-1);
             testWidget->setInsertPolicy(QComboBox::InsertAtBottom);
-            QTest::mouseClick(testWidget, Qt::LeftButton);
-            QVERIFY(testWidget->hasFocus());
             QTest::keyPress(testWidget, 'a');
             QTest::keyPress(testWidget, 'b');
             QCOMPARE(testWidget->currentText(), QString("ab"));
