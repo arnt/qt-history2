@@ -3311,7 +3311,9 @@ fi
 for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
-            if [ "$CFG_SQL_mysql" != "no" ]; then
+            if ! $WHICH mysql_config >/dev/null 2>&1; then
+                CFG_SQL_mysql="no"
+            elif [ "$CFG_SQL_mysql" != "no" ]; then
                 if [ `mysql_config --version | cut --delimiter=. --fields=1` -lt 4 ]; then
                     if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                         echo "This version of MySql is not supported (`mysql_config --version`)."
