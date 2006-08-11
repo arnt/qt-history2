@@ -234,6 +234,20 @@ void QMainWindowPrivate::init()
     under the mouse pointer. This indicates that the QDockWidget will
     be floating when the mouse button is released.
 
+    \section1 Managing Dock Widgets and Toolbars
+
+    By default, QMainWindow provides a context menu that can be used to toggle
+    the visibility of the toolbars and dock widgets attached to a main window.
+    This menu is usually accessed by right-clicking on a dock window or toolbar,
+    but it can also be obtained programmatically by calling createPopupMenu().
+
+    \image mainwindow-contextmenu.png A typical main window context menu.
+
+    This popup menu can be replaced or customized to suit the specific needs
+    of an application: In a QMainWindow subclass, reimplement createPopupMenu()
+    to either create a custom popup menu by constructing a new QMenu on demand,
+    or to modify the QMenu object obtained by calling the default implementation.
+
     \sa QMenuBar, QToolBar, QStatusBar, QDockWidget, {Application Example},
         {Dock Widgets Example}, {MDI Example}, {SDI Example}
 */
@@ -1076,11 +1090,18 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 #ifndef QT_NO_MENU
 /*!
-    This function is called to create a popup menu when the user
-    right-clicks on the menu bar, a toolbar or a dock widget. If you
-    want to create a custom popup menu, reimplement this function and
-    return the created popup menu. Ownership of the popup menu is
-    transferred to the caller.
+    Returns a popup menu containing checkable entries for the toolbars and
+    dock widgets present in the main window.
+
+    By default, this function is called by the main window when the user
+    activates a context menu, typically by right-clicking on a toolbar or a dock
+    widget.
+
+    If you want to create a custom popup menu, reimplement this function and
+    return a newly-created popup menu. Ownership of the popup menu is transferred
+    to the caller.
+
+    \sa addDockWidget(), addToolBar(), menuBar()
 */
 QMenu *QMainWindow::createPopupMenu()
 {
