@@ -957,7 +957,7 @@ enum PseudoElement {
 };
 
 // FIX for COMBO BOX
-struct PseudoElementInfo {
+static struct PseudoElementInfo {
     PseudoElement pseudoElement;
     QStyle::SubControl subControl;
     const char *name;
