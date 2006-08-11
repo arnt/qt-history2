@@ -727,8 +727,7 @@ QFile::link(const QString &fileName, const QString &linkName)
     Note that if a file with the name \a newName already exists,
     copy() returns false (i.e. QFile will not overwrite it).
 
-    The source file is closed before it is copied, and the new file's
-    timestamp will be the time of the copy operation.
+    The source file is closed before it is copied.
 
     \sa setFileName()
 */
