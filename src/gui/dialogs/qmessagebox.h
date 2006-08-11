@@ -37,6 +37,7 @@ class Q_GUI_EXPORT QMessageBox : public QDialog
     Q_PROPERTY(QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap)
     Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
     Q_PROPERTY(StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
+    Q_PROPERTY(QString detailedText READ detailedText WRITE setDetailedText)
 
 public:
     enum Icon {
@@ -234,6 +235,7 @@ public:
 
     QString buttonText(int button) const;
     void setButtonText(int button, const QString &text);
+    QString detailedText() const;
     void setDetailedText(const QString &text);
 
 #ifdef QT3_SUPPORT

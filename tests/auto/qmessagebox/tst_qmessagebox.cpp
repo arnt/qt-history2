@@ -70,6 +70,7 @@ private slots:
     void button();
     void statics();
     void about();
+    void detailsText();
 
     void shortcut();
 
@@ -141,10 +142,10 @@ void tst_QMessageBox::button()
     QCOMPARE(msgBox.standardButton(b1), QMessageBox::Ok);
     msgBox.addButton(QMessageBox::Cancel);
     QCOMPARE(msgBox.standardButtons(), QMessageBox::Ok | QMessageBox::Cancel);
-    
+
     // remove the cancel, should not exist anymore
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    QVERIFY(msgBox.button(QMessageBox::Cancel) == 0); 
+    QVERIFY(msgBox.button(QMessageBox::Cancel) == 0);
     QVERIFY(msgBox.button(QMessageBox::Yes) != 0);
 
     // should not crash
@@ -203,7 +204,7 @@ void tst_QMessageBox::escapeButton()
 void tst_QMessageBox::statics()
 {
     QMessageBox::StandardButton (*statics[4])(QWidget *, const QString &,
-         const QString&, QMessageBox::StandardButtons buttons, 
+         const QString&, QMessageBox::StandardButtons buttons,
          QMessageBox::StandardButton);
 
     statics[0] = QMessageBox::information;
@@ -214,28 +215,28 @@ void tst_QMessageBox::statics()
     for (int i = 0; i < 4; i++) {
         keyToSend = Qt::Key_Escape;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
-        QMessageBox::StandardButton sb = (*statics[i])(0, "caption", 
+        QMessageBox::StandardButton sb = (*statics[i])(0, "caption",
            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
            QMessageBox::NoButton);
         QCOMPARE(sb, QMessageBox::Cancel);
 
         keyToSend = -2; // close()
         QTimer::singleShot(1000, this, SLOT(sendKey()));
-        sb = (*statics[i])(0, "caption", 
+        sb = (*statics[i])(0, "caption",
            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
            QMessageBox::NoButton);
         QCOMPARE(sb, QMessageBox::Cancel);
 
         keyToSend = Qt::Key_Enter;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
-        sb = (*statics[i])(0, "caption", 
+        sb = (*statics[i])(0, "caption",
            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
            QMessageBox::NoButton);
         QCOMPARE(sb, QMessageBox::Yes);
 
         keyToSend = Qt::Key_Enter;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
-        sb = (*statics[i])(0, "caption", 
+        sb = (*statics[i])(0, "caption",
            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
             QMessageBox::No);
         QCOMPARE(sb, QMessageBox::No);
@@ -294,7 +295,7 @@ void tst_QMessageBox::staticSourceCompat()
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes, QMessageBox::No | QMessageBox::Default);
     QCOMPARE(ret, int(QMessageBox::No));
-    
+
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes | QMessageBox::Default, QMessageBox::No | QMessageBox::Escape);
@@ -517,6 +518,14 @@ void tst_QMessageBox::testSymbols()
     QMessageBox::about(&mb1, "title", "text");
     QMessageBox::aboutQt(&mb1);
     QMessageBox::aboutQt(&mb1, "title");
+}
+
+void tst_QMessageBox::detailsText()
+{
+    QMessageBox box;
+    QString text("This is the details text.");
+    box.setDetailedText(text);
+    QCOMPARE(box.detailedText(), text);
 }
 
 QTEST_MAIN(tst_QMessageBox)

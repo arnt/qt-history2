@@ -67,6 +67,7 @@ public:
         setLayout(layout);
     }
     void setText(const QString &text) { textEdit->setPlainText(text); }
+    QString text() const { return textEdit->text(); }
     QString label(DetailButtonLabel label) { return label==ShowLabel? tr("Show Details...") : tr("Hide Details..."); }
 private:
     TextEdit *textEdit;
@@ -1680,12 +1681,17 @@ void QMessageBox::setButtonText(int button, const QString &text)
 }
 
 /*!
-    Sets the text of the details box. This will create an additional button
-    for expanding/collapsing the details area.
+    \property QMessageBox::detailedText
+    \brief the text to be displayed in the details area.
 
-    \a text will be interpreted as plain text. Passing an empty string will
-    remove the details area.
+    The text will be interpreted as a plain text. The default value of this property is an empty string.
 */
+QString QMessageBox::detailedText() const
+{
+    Q_D(const QMessageBox);
+    return d->detailsText ? d->detailsText->text() : QString();
+}
+
 void QMessageBox::setDetailedText(const QString &text)
 {
     Q_D(QMessageBox);
