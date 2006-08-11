@@ -400,20 +400,38 @@ void QWSCalibratedMouseHandler::readCalibration()
 */
 void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *data)
 {
-    QPoint dev_tl = data->devPoints[QWSPointerCalibrationData::TopLeft];
-    QPoint dev_br = data->devPoints[QWSPointerCalibrationData::BottomRight];
-    QPoint screen_tl = data->screenPoints[QWSPointerCalibrationData::TopLeft];
-    QPoint screen_br = data->screenPoints[QWSPointerCalibrationData::BottomRight];
+    // Algorithm derived from
+    // "How To Calibrate Touch Screens" by Carlos E. Vidales,
+    // printed in Embedded Systems Programming, Vol. 15 no 6, June 2002
+    // URL: http://www.embedded.com/showArticle.jhtml?articleID=9900629
 
-    s = 1 << 16;
+    const QPoint pd0 = data->devPoints[QWSPointerCalibrationData::TopLeft];
+    const QPoint pd1 = data->devPoints[QWSPointerCalibrationData::TopRight];
+    const QPoint pd2 = data->devPoints[QWSPointerCalibrationData::BottomRight];
+    const QPoint p0 = data->screenPoints[QWSPointerCalibrationData::TopLeft];
+    const QPoint p1 = data->screenPoints[QWSPointerCalibrationData::TopRight];
+    const QPoint p2 = data->screenPoints[QWSPointerCalibrationData::BottomRight];
 
-    a = s * (screen_tl.x() - screen_br.x()) / (dev_tl.x() - dev_br.x());
-    b = 0;
-    c = s * screen_tl.x() - a * dev_tl.x();
+    const int xd0 = pd0.x();
+    const int xd1 = pd1.x();
+    const int xd2 = pd2.x();
+    const int yd0 = pd0.y();
+    const int yd1 = pd1.y();
+    const int yd2 = pd2.y();
+    const int x0 = p0.x();
+    const int x1 = p1.x();
+    const int x2 = p2.x();
+    const int y0 = p0.y();
+    const int y1 = p1.y();
+    const int y2 = p2.y();
 
-    d = 0;
-    e = s * (screen_tl.y() - screen_br.y()) / (dev_tl.y() - dev_br.y());
-    f = s * screen_tl.y() - e * dev_tl.y();
+    s = ((xd0 - xd2)*(yd1 - yd2) - (xd1 - xd2)*(yd0 - yd2));
+    a = ((x0 - x2)*(yd1 - yd2) - (x1 - x2)*(yd0 - yd2));
+    b = ((xd0 - xd2)*(x1 - x2) - (x0 - x2)*(xd1 - xd2));
+    c = (yd0*(xd2*x1 - xd1*x2) + yd1*(xd0*x2 - xd2*x0) + yd2*(xd1*x0 - xd0*x1));
+    d = ((y0 - y2)*(yd1 - yd2) - (y1 - y2)*(yd0 - yd2));
+    e = ((xd0 - xd2)*(y1 - y2) - (y0 - y2)*(xd1 - xd2));
+    f = (yd0*(xd2*y1 - xd1*y2) + yd1*(xd0*y2 - xd2*y0) + yd2*(xd1*y0 - xd0*y1));
 
     writeCalibration();
 }
