@@ -21,6 +21,7 @@
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
 
 #include <iconloader_p.h>
 
@@ -237,6 +238,17 @@ Qt::ItemFlags ConnectionModel::flags(const QModelIndex&) const
 void ConnectionModel::connectionChanged(Connection *con)
 {
     int idx = m_editor->indexOfConnection(con);
+    SignalSlotConnection *changedCon = static_cast<SignalSlotConnection*>(m_editor->connection(idx));
+    SignalSlotConnection *c = 0;
+    for (int i=0; i<m_editor->connectionCount(); ++i) {
+        if (i == idx)
+            continue;
+        c = static_cast<SignalSlotConnection*>(m_editor->connection(i));
+        if (c->sender() == changedCon->sender() && c->signal() == changedCon->signal()
+            && c->receiver() == changedCon->receiver() && c->slot() == changedCon->slot())
+            QMessageBox::warning(m_editor->parentWidget(), tr("Signal and Slot Editor"),
+                tr("The connection already exists!"));
+    }
     emit dataChanged(createIndex(idx, 0), createIndex(idx, 3));
 }
 
