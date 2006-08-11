@@ -141,44 +141,9 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
 
 #ifdef Q_OS_WIN
     isRoot = false;
-    rootDir.clear();
-
-    long res;
-    HKEY hKey;
-    QString key = "CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}";
-    QT_WA( {
-	    res = RegOpenKeyExW(HKEY_CLASSES_ROOT, reinterpret_cast<const wchar_t *>(key.utf16()),
-                            0, KEY_QUERY_VALUE, &hKey);
-    } , {
-        res = RegOpenKeyExA(HKEY_CLASSES_ROOT, key.toLocal8Bit(), 0, KEY_QUERY_VALUE, &hKey);
-    } );
-
-    if (res == ERROR_SUCCESS) {
-        DWORD dataType;
-        char value[1024];
-	    DWORD size = sizeof(value);
-        key.clear(); // "" empty to read default key
-        
-        QT_WA( {
-            res = RegQueryValueExW(hKey, reinterpret_cast<const wchar_t *>(key.utf16()), 0, 
-                                    &dataType, reinterpret_cast<unsigned char*>(value), &size);
-        }, {
-            res = RegQueryValueExA(hKey, key.toLocal8Bit(), 0, &dataType,
-                                    reinterpret_cast<unsigned char*>(value), &size);
-        } );
-        
-        if (res == ERROR_SUCCESS) {
-            QByteArray data(reinterpret_cast<const char*>(value), size);
-            if (REG_SZ == dataType) {
-                QT_WA( {
-                    rootDir = QString::fromUtf16(((const ushort*)data.constData()));
-                }, {
-                    rootDir = QString::fromLatin1(data.constData());
-                } );
-            }
-        }
-    }
-    RegCloseKey(hKey);
+    
+    QSettings myComputer("HKEY_CLASSES_ROOT\\CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}", QSettings::NativeFormat);
+    rootDir = myComputer.value(".").toString();
 #endif
 
     updateButtons();
