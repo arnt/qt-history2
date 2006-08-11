@@ -461,8 +461,13 @@ bool QDBusMarshaller::appendCrossMarshalling(QDBusDemarshaller *demarshaller)
     QDBusMarshaller mrecursed;  // create on the stack makes it autoclose
     open(mrecursed, code, drecursed->currentSignature().toLatin1());
 
-    while (!drecursed->atEnd())
-        if (!mrecursed.appendCrossMarshalling(drecursed))
+    while (!drecursed->atEnd()) {
+        if (!mrecursed.appendCrossMarshalling(drecursed)) {
+            delete drecursed;
             return false;
+        }
+    }
+    
+    delete drecursed;
     return true;
 }
