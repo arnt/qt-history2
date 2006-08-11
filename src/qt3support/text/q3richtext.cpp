@@ -7625,6 +7625,7 @@ Q3TextTable::Q3TextTable(Q3TextDocument *p, const QMap<QString, QString> & attr 
                 stretch = s.left(s.length()-1).toInt();
         }
     }
+    us_fixwidth = fixwidth;
 
     place = PlaceInline;
     if (attr["align"] == "left")
@@ -7682,6 +7683,7 @@ void Q3TextTable::adjustToPainter(QPainter* p)
     border = scale(us_b , p);
     innerborder = scale(us_ib, p);
     outerborder = scale(us_ob ,p);
+    fixwidth = scale( us_fixwidth, p);
     width = 0;
     cachewidth = 0;
     for (int idx = 0; idx < cells.size(); ++idx) {

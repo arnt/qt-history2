@@ -675,6 +675,7 @@ private:
     int stretch;
     int innerborder;
     int us_cp, us_ib, us_b, us_ob, us_cs;
+    int us_fixwidth;
     QMap<QString, QString> attributes;
     QMap<Q3TextCursor*, int> currCell;
     Placement place;
