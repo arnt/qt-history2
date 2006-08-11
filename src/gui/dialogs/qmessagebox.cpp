@@ -26,6 +26,7 @@
 #include <QtGui/qmessagebox.h>
 #include <QtGui/qapplication.h>
 #include <QtGui/qtextedit.h>
+#include <QtGui/qmenu.h>
 #include "qdialog_p.h"
 #include <QDebug>
 
@@ -37,15 +38,28 @@ enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
 class QMessageBoxDetailsText : public QWidget
 {
 public:
+    class TextEdit : public QTextEdit
+    {
+    public:
+        TextEdit(QWidget *parent=0) : QTextEdit(parent) { }
+        void TextEdit::contextMenuEvent(QContextMenuEvent * e)
+        {
+            QMenu *menu = createStandardContextMenu();
+            menu->exec(e->globalPos());
+            delete menu;
+        }
+    };
+
     QMessageBoxDetailsText(QWidget *parent=0)
         : QWidget(parent)
     {
         QVBoxLayout *layout = new QVBoxLayout;
+        layout->setMargin(0);
         QFrame *line = new QFrame(this);
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
         layout->addWidget(line);
-        textEdit = new QTextEdit();
+        textEdit = new TextEdit();
         textEdit->setFixedHeight(100);
         textEdit->setFocusPolicy(Qt::NoFocus);
         textEdit->setReadOnly(true);
@@ -53,9 +67,9 @@ public:
         setLayout(layout);
     }
     void setText(const QString &text) { textEdit->setPlainText(text); }
-    QString label( DetailButtonLabel label) { return tr(label==ShowLabel? "Show Details..." : "Hide Details..."); }
+    QString label(DetailButtonLabel label) { return label==ShowLabel? tr("Show Details...") : tr("Hide Details..."); }
 private:
-    QTextEdit *textEdit;
+    TextEdit *textEdit;
 };
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
@@ -926,7 +940,7 @@ static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent,
         if (msgBox.defaultButton())
             continue;
         if ((defaultButton == QMessageBox::NoButton && buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
-            || (defaultButton != QMessageBox::NoButton && sb == defaultButton))
+            || (defaultButton != QMessageBox::NoButton && sb == uint(defaultButton)))
             msgBox.setDefaultButton(button);
     }
     if (msgBox.exec() == -1)
@@ -1674,7 +1688,6 @@ void QMessageBox::setButtonText(int button, const QString &text)
 */
 void QMessageBox::setDetailedText(const QString &text)
 {
-    qDebug() << "setDetailedText";
     Q_D(QMessageBox);
     if (text.isEmpty()) {
         delete d->detailsText;
