@@ -335,7 +335,9 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     }
     table->setItemPrototype(table->item(rows - 1, cols - 1));
     table->setItemDelegate(new SpreadSheetDelegate());
+#ifndef QT_NO_DBUS
     new SpreadSheetAdaptor(table);
+#endif
     createActions();
 
     updateColor(0);
