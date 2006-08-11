@@ -96,6 +96,8 @@ QTreeModel::~QTreeModel()
 {
     clear();
     delete headerItem;
+    rootItem->view = 0;
+    delete rootItem;
 }
 
 /*!
