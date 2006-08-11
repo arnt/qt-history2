@@ -2023,7 +2023,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     // ### we need to go through all the columns
     // ### and set the width of the column
 
-    // ### Temporary hack to speed up the function    
+    // ### Temporary hack to speed up the function
     option.rect.setWidth(-1);
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
@@ -2249,7 +2249,7 @@ void QTreeViewPrivate::layout(int i)
     Q_Q(QTreeView);
     QModelIndex current;
     QModelIndex parent = (i < 0) ? (QModelIndex)root : modelIndex(i);
-    // modelIndex() will return an index that don't have a parent if column 0 is hidden, 
+    // modelIndex() will return an index that don't have a parent if column 0 is hidden,
     // so we must make sure that parent points to the actual parent that has children.
     if (parent != root)
         parent = model->index(parent.row(), 0, parent.parent());
@@ -2748,10 +2748,13 @@ bool QTreeViewPrivate::hasVisibleChildren( const QModelIndex& parent) const
 {
     Q_Q(const QTreeView);
     if (model->hasChildren(parent)) {
-        for (int i=0; i < model->rowCount(parent); i++) {
-            if (!q->isRowHidden(i,parent))
+        int rowCount = model->rowCount(parent);
+        for (int i = 0; i < rowCount; ++i) {
+            if (!q->isRowHidden(i, parent))
                 return true;
         }
+        if (rowCount == 0)
+            return true;
     }
     return false;
 }
