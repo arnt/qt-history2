@@ -529,7 +529,7 @@ QMetaCallEvent::~QMetaCallEvent()
     All Qt widgets inherit QObject. The convenience function
     isWidgetType() returns whether an object is actually a widget. It
     is much faster than
-    \l{qobject_cast()}{qobject_cast}<QWidget>(\e{obj}) or
+    \l{qobject_cast()}{qobject_cast}<QWidget *>(\e{obj}) or
     \e{obj}->\l{inherits()}{inherits}("QWidget").
 
     Some QObject functions, e.g. children(), return a QObjectList.
@@ -828,7 +828,7 @@ QObject::~QObject()
         QTimer *timer = qobject_cast<QTimer *>(obj);
         // timer == (QObject *)obj
 
-        QAbstractButton *button = qobject_cast<QAbstractButton *)(obj);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(obj);
         // button == 0
     \endcode
 
