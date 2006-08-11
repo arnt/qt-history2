@@ -319,7 +319,11 @@ void tst_QLibrary::lastError()
         case Resolve: {
             ok = lib.load();
             QCOMPARE(ok, true);
-            ok = success ? lib.resolve("version") : lib.resolve("nosuchsymbol") ? true : false;
+            if (success) {
+                ok = lib.resolve("version");
+            } else {
+                ok = lib.resolve("nosuchsymbol");
+            }
             break;}
         default:
             Q_ASSERT(0);

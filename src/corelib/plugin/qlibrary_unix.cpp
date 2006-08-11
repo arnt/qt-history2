@@ -16,6 +16,7 @@
 #include <qfile.h>
 #include "qlibrary_p.h"
 #include <qfileinfo.h>
+#include <qcoreapplication.h>
 
 #ifndef QT_NO_LIBRARY
 
@@ -42,19 +43,29 @@ bool QLibraryPrivate::load_sys()
                                    BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
         }
     }
+    if (!pHnd) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString());
 #if defined(QT_DEBUG_COMPONENT)
-    if (!pHnd)
         qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
 #endif
+    } else {
+        lastError.clear();
+    }
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (shl_unload((shl_t)pHnd)) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString());
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
+#endif
         return false;
     }
+    lastError.clear();
     return true;
 }
 
@@ -62,10 +73,15 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 {
     void* address = 0;
     if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+            QString::fromAscii(symbol)).arg(fileName).arg(QString());
 #if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
+        qWarning("QLibrary: Symbol \"%s\" undefined in %s", symbol, QFile::encodeName(fileName).constData());
 #endif
         address = 0;
+    } else {
+        lastError.clear();
     }
     return address;
 }
@@ -73,13 +89,11 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else // POSIX
 #include <dlfcn.h>
 
-#if defined(QT_DEBUG_COMPONENT)
 static const char *qdlerror()
 {
     const char *err = dlerror();
     return err ? err : "";
 }
-#endif
 
 bool QLibraryPrivate::load_sys()
 {
@@ -149,26 +163,33 @@ bool QLibraryPrivate::load_sys()
         }
     }
 # endif
-#if defined(QT_DEBUG_COMPONENT)
     if (!pHnd) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot load %s: %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
-    }
 #endif
-    if (pHnd)
+    }
+    if (pHnd) {
         qualifiedFileName = attempt;
+        lastError.clear();
+    }
     return (pHnd != 0);
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
 #endif
         return false;
     }
+    lastError.clear();
     return true;
 }
 
@@ -191,10 +212,16 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #else
     void* address = dlsym(pHnd, symbol);
 #endif
+    if (!address) {
+        lastError = QCoreApplication::translate("QLibrary", 
+            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+            QString::fromAscii(symbol)).arg(fileName).arg(QString::fromAscii(qdlerror()));
 #if defined(QT_DEBUG_COMPONENT)
-    if (!address)
         qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
 #endif
+    } else {
+        lastError.clear();
+    }
     return address;
 }
 
