@@ -3277,8 +3277,8 @@ int QDateTimeParser::absoluteMax(int s) const
 int QDateTimeParser::absoluteMin(int s) const
 {
     const SectionNode sn = sectionNode(s);
-    switch (sn.type)
-    case Hour24Section:{
+    switch (sn.type){
+    case Hour24Section:
     case Hour12Section:
     case MinuteSection:
     case SecondSection:
