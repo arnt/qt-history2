@@ -50,7 +50,7 @@
 
     Adding a Q_DECLARE_METATYPE() makes the type known to all template
     based functions, including QVariant. In addition to declaring the type,
-    you must call qInitMetaType() if you intend to use the type in
+    you must call qRegisterMetaType() if you intend to use the type in
     queued signal and slot connections.
 
     This example shows a typical use case of Q_DECLARE_METATYPE():
@@ -90,7 +90,7 @@
         MyStruct s2 = var.value<MyStruct>();
     \endcode
 
-    \sa qInitMetaType(), Q_DECLARE_METATYPE()
+    \sa qRegisterMetaType()
 */
 
 /*!
@@ -109,14 +109,53 @@
 
     \value VoidStar \c{void *}
     \value Long \c{long}
+    \value LongLong LongLong
     \value Short \c{short}
     \value Char \c{char}
     \value ULong \c{unsigned long}
+    \value ULongLong ULongLong
     \value UShort \c{unsigned short}
     \value UChar \c{unsigned char}
     \value Float \c float
     \value QObjectStar QObject *
     \value QWidgetStar QWidget *
+
+    \value QColorGroup QColorGroup
+    \value QCursor QCursor
+    \value QDate QDate
+    \value QSize QSize
+    \value QTime QTime
+    \value QVariantList QVariantList
+    \value QPolygon QPolygon
+    \value QColor QColor
+    \value QSizeF QSizeF
+    \value QRectF QRectF
+    \value QLine QLine
+    \value QTextLength QTextLength
+    \value QStringList QStringList
+    \value QVariantMap QVariantMap
+    \value QIcon QIcon
+    \value QPen QPen
+    \value QLineF QLineF
+    \value QTextFormat QTextFormat
+    \value QRect QRect
+    \value QPoint QPoint
+    \value QUrl QUrl
+    \value QRegExp QRegExp
+    \value QDateTime QDateTime
+    \value QPointF QPointF
+    \value QPalette QPalette
+    \value QFont QFont
+    \value QBrush QBrush
+    \value QRegion QRegion
+    \value QBitArray QBitArray
+    \value QImage QImage
+    \value QKeySequence QKeySequence
+    \value QSizePolicy QSizePolicy
+    \value QPixmap QPixmap
+    \value QLocale QLocale
+    \value QBitmap QBitmap
+    \value QMatrix QMatrix
 
     \value User  Base value for user types
 
@@ -137,7 +176,7 @@
     name to a type so that it can be created and destructed
     dynamically at run-time. Declare new types with Q_DECLARE_METATYPE()
     to make them available to QVariant and other template-based functions.
-    Call qInitMetaType() to make type available to non-template based
+    Call qRegisterMetaType() to make type available to non-template based
     functions, such as the queued signal and slot connections.
 
     Any class or struct that has a public default
