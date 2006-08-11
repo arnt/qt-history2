@@ -4197,13 +4197,6 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
-    case SP_FileDialogBack:
-        {
-            pixmap = d->findIcon(16, QLatin1String("stock_left.png"));
-            if (!pixmap.isNull())
-                return pixmap;
-            break;
-        }
     case SP_FileDialogToParent:
         {
             pixmap = d->findIcon(16, QLatin1String("stock_up.png"));
@@ -4214,7 +4207,39 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_FileDialogNewFolder:
         {
             pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
-
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowUp:
+        {
+            pixmap = d->findIcon(16, QLatin1String("stock-up.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowDown:
+        {
+            pixmap = d->findIcon(16, QLatin1String("stock-down.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowRight:
+        {
+            if (QApplication::layoutDirection() == Qt::RightToLeft)
+                return QCleanlooksStyle::standardPixmap(SP_ArrowLeft, opt, widget);
+            pixmap = d->findIcon(16, QLatin1String("stock_right.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ArrowLeft:
+    case SP_FileDialogBack:
+        {
+            if (QApplication::layoutDirection() == Qt::RightToLeft)
+                return QCleanlooksStyle::standardPixmap(SP_ArrowRight, opt, widget);
+            pixmap = d->findIcon(16, QLatin1String("stock_left.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
