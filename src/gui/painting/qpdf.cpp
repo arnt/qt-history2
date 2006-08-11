@@ -1159,7 +1159,7 @@ void QPdfBaseEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
 QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
 {
     Q_D(const QPdfBaseEngine);
-    qDebug() << "cups page rect" << d->cups.pageRect() << "paperrect" << d->cups.paperRect();
+//     qDebug() << "cups page rect" << d->cups.pageRect() << "paperrect" << d->cups.paperRect();
 
     QVariant ret;
     switch (key) {
@@ -1292,7 +1292,7 @@ static void closeAllOpenFds()
 #endif
     // leave stdin/out/err untouched
     while(--i > 2)
-	::close(i);
+        ::close(i);
 }
 #endif
 
