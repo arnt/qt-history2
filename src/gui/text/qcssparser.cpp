@@ -108,6 +108,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "border-top-style", BorderTopStyle },
     { "border-top-width", BorderTopWidth },
     { "border-width", BorderWidth },
+    { "bottom", Bottom },
     { "color", Color },
     { "float", Float },
     { "font", Font },
@@ -116,6 +117,8 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-style", FontStyle },
     { "font-weight", FontWeight },
     { "height", Height },
+    { "image", Image },
+    { "left", Left },
     { "margin" , Margin },
     { "margin-bottom", MarginBottom },
     { "margin-left", MarginLeft },
@@ -130,11 +133,13 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "padding-left", PaddingLeft },
     { "padding-right", PaddingRight },
     { "padding-top", PaddingTop },
+    { "right", Right },
     { "selection-background", SelectionBackground },
     { "selection-foreground", SelectionForeground },
     { "spacing", Spacing },
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
+    { "top", Top },
     { "vertical-align", VerticalAlignment },
     { "white-space", Whitespace },
     { "width", Width }
@@ -770,7 +775,7 @@ int Selector::pseudoState() const
     if (bs.pseudos.isEmpty())
         return PseudoState_Unspecified;
     int state = PseudoState_Unknown;
-    for (int i = 0; i < bs.pseudos.count(); i++) {
+    for (int i = !pseudoElement().isEmpty(); i < bs.pseudos.count(); i++) {
         if (bs.pseudos.at(i).type == PseudoState_Unknown)
             return PseudoState_Unknown;
         state |= bs.pseudos.at(i).type;
@@ -918,7 +923,7 @@ static void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
 
 // Returns style rules that are in ascending order of specificity
 // Each of the StyleRule returned will contain exactly one Selector
-QVector<StyleRule> StyleSelector::weightedRulesForNode(NodePtr node)
+QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
 {
     QVector<StyleRule> rules;
     if (styleSheets.isEmpty())
@@ -946,26 +951,17 @@ QVector<StyleRule> StyleSelector::weightedRulesForNode(NodePtr node)
     return rules;
 }
 
-QHash<QString, QVector<StyleRule> > StyleSelector::styleRulesForNode(NodePtr node)
-{
-    QVector<StyleRule> rules = weightedRulesForNode(node);
-    QHash<QString, QVector<StyleRule> > hash;
-    for (int i = 0; i < rules.count(); i++) {
-        const StyleRule& rule = rules.at(i);
-        QString pseudoElement = rule.selectors.at(0).pseudoElement();
-        QVector<StyleRule>& rules = hash[pseudoElement];
-        rules.append(rule);
-    }
-    return hash;
-}
-
 // for qtexthtmlparser which requires just the declarations with Enabled state
+// and without pseudo elements
 QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 {
     QVector<Declaration> decls;
-    QVector<StyleRule> rules = styleRulesForNode(node).value(QString());
+    QVector<StyleRule> rules = styleRulesForNode(node);
     for (int i = 0; i < rules.count(); i++) {
-        int pseudoState = rules.at(i).selectors.at(0).pseudoState();
+        const Selector& selector = rules.at(i).selectors.at(0);
+        if (!selector.pseudoElement().isEmpty()) // skip rules with pseudo elements
+            continue;
+        int pseudoState = selector.pseudoState();
         if (pseudoState == PseudoState_Enabled || pseudoState == PseudoState_Unspecified)
             decls += rules.at(i).declarations;
     }

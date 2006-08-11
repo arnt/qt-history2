@@ -104,6 +104,11 @@ enum Property {
     MinimumHeight,
     MaximumWidth,
     MaximumHeight,
+    Image,
+    Left,
+    Right,
+    Top,
+    Bottom,
     NumProperties
 };
 
@@ -381,8 +386,7 @@ public:
         int id;
     };
 
-    QVector<StyleRule> weightedRulesForNode(NodePtr node);
-    QHash<QString, QVector<StyleRule> > styleRulesForNode(NodePtr node);
+    QVector<StyleRule> styleRulesForNode(NodePtr node);
     QVector<Declaration> declarationsForNode(NodePtr node);
 
     virtual bool nodeNameEquals(NodePtr node, const QString& nodeName) const = 0;

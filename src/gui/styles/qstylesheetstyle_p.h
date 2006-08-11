@@ -128,24 +128,36 @@ struct Q_AUTOTEST_EXPORT QStyleSheetPaletteData : public QSharedData
     QBrush alternateBackground;
 };
 
+struct Q_AUTOTEST_EXPORT QStyleSheetGeometryData : public QSharedData
+{
+    QStyleSheetGeometryData() : minWidth(-1), minHeight(-1), width(-1), height(-1) { }
+
+    qreal minWidth, minHeight, width, height;
+};
+
+struct Q_AUTOTEST_EXPORT QStyleSheetPositionData : public QSharedData
+{
+    QStyleSheetPositionData() : left(0), right(0), top(0), bottom(0) { }
+
+    qreal left, right, top, bottom;
+};
+
 class Q_AUTOTEST_EXPORT QRenderRule
 {
 public:
-    inline QRenderRule() : pal(0), b(0), bg(0), bd(0) { }
+    inline QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
     inline ~QRenderRule() { }
 
     void merge(const QVector<QCss::Declaration>& declarations);
     bool isEmpty() const
-    { return pal == 0 && b == 0 && bg == 0 && bd == 0 && icons.isEmpty(); }
+    { return pal == 0 && b == 0 && bg == 0 && bd == 0 && geo == 0 && image.isNull(); }
 
     QRect borderRect(const QRect &r) const;
     QRect paddingRect(const QRect &r) const;
     QRect contentsRect(const QRect &r) const;
     QRect boxRect(const QRect &r) const;
-
-    QSize sizeWithBorder(const QSize &r) const;
-    QSize sizeWithPadding(const QSize &r) const;
-    QSize sizeWithMargin(const QSize &r) const;
+    QSize boxSize(const QSize &s) const;
+    QRect positionRect(const QRect &r) const;
 
     QRectF borderRect(const QRectF& r) const;
     QRectF paddingRect(const QRectF& r) const;
@@ -156,6 +168,8 @@ public:
     const QStyleSheetBoxData *box() const { return b; }
     const QStyleSheetBackgroundImageData *backgroundImage() const { return bg; }
     const QStyleSheetBorderData *border() const { return bd; }
+    const QStyleSheetGeometryData *geometry() const { return geo; }
+    const QStyleSheetPositionData *position() const { return p; }
 
     QStyleSheetPaletteData *_palette()
     { if (!pal) pal = new QStyleSheetPaletteData(); return pal; }
@@ -165,6 +179,10 @@ public:
     { if (!bg) bg = new QStyleSheetBackgroundImageData(); return bg; }
     QStyleSheetBorderData *_border()
     { if (!bd) bd = new QStyleSheetBorderData(); return bd; }
+    QStyleSheetGeometryData *_geometry()
+    { if (!geo) geo = new QStyleSheetGeometryData(); return geo; }
+    QStyleSheetPositionData *_position()
+    { if (!p) p = new QStyleSheetPositionData(); return p; }
 
     void cutBorderImage();
     void fixupBorder();
@@ -173,41 +191,32 @@ public:
     bool hasBackgroundImage() const { return bg != 0; }
     bool hasBox() const { return b != 0; }
     bool hasBorder() const { return bd != 0; }
+    bool hasGeometry() const { return geo != 0 || !image.isNull(); }
+    bool hasPosition() const { return p != 0; }
     bool hasBackground() const
     { return bg != 0 || (pal != 0 && pal->background.style() != Qt::NoBrush); }
     bool hasFrame() const { return hasBorder() || hasBackground(); }
 
-    bool hasIcon(const char *p) const { return icons.contains(QLatin1String(p)); }
-    QIcon icon(const char *p) const { return icons.value(QLatin1String(p)); }
-    QPixmap pixmap(const char *p, const QSize& sz) const
-    { return icon(p).pixmap(sz); }
+    QSize minimumContentsSize() const 
+    { return geo ? QSizeF(geo->minWidth, geo->minHeight).toSize() : QSize(0, 0); }
 
-    QHash<QString, QIcon> icons;
+    QSize size() const 
+    { return boxSize(geo ? QSizeF(geo->width, geo->height).toSize() : image.size()); }
+
+    QPixmap image;
 
 private:
     QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
     QSharedDataPointer<QStyleSheetBackgroundImageData> bg;
     QSharedDataPointer<QStyleSheetBorderData> bd;
+    QSharedDataPointer<QStyleSheetGeometryData> geo;
+    QSharedDataPointer<QStyleSheetPositionData> p;
 };
 
 class QFrame;
 
-struct Q_AUTOTEST_EXPORT QRenderRules
-{
-    QRenderRules() : minWidth(-1), minHeight(-1), width(-1), height(-1) { }
-    QHash<int, QRenderRule> computedRulesCache;
-
-    QSize minSize() const { return QSize(qRound(minWidth), qRound(minHeight)); }
-
-    bool hasIconSize(const char *icon) const { return sizes.contains(QLatin1String(icon)); }
-    QSize iconSize(const char *icon) const { return sizes.value(QLatin1String(icon)); }
-
-    void init(const QVector<QCss::StyleRule>& rules);
-
-    QHash<QString, QSize> sizes;
-    qreal minWidth, minHeight, width, height;
-};
+typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
 
 class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
 {
@@ -274,19 +283,18 @@ private Q_SLOTS:
 private:
     int refcount;
 
-    enum WidgetType {
-        PushButton, LineEdit, ComboBox, GroupBox, Frame
-    };
-    bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
     void update(const QList<const QWidget *>& widgets);
 
     void setPalette(QWidget *);
     void unsetPalette(QWidget *);
-    QVector<QCss::StyleRule> computeStyleSheet(QWidget *widget);
+    QVector<QCss::StyleRule> styleRules(QWidget *widget);
 
-    QRenderRules renderRules(const QWidget *w) const;
-    QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
-    QRenderRule renderRule(const QWidget *w, QStyle::State state) const;
+    bool hasStyleRule(const QWidget *w) const;
+    bool hasStyleRule(const QWidget *w, int part) const;
+
+    QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int part = 0) const;
+    QRenderRule renderRule(const QWidget *w, QStyle::State state, const QString &part = QString()) const;
+    QRenderRule renderRule(const QWidget *w, QStyle::State state, int pseudoElement) const;
 
     static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
     static QHash<const QWidget *, QRenderRules> renderRulesCache;
