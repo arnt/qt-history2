@@ -431,7 +431,7 @@ void QAbstractScrollArea::setViewport(QWidget *widget)
 /*!
     Returns the viewport widget.
 
-    Use the QScrollBar::widget() function to retrieve the contents of
+    Use the QScrollArea::widget() function to retrieve the contents of
     the viewport widget.
 
     \sa QScrollArea::widget()
