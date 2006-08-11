@@ -1629,17 +1629,21 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_DockWidgetCloseButton  Close button on dock windows (see also QDockWidget).
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars.
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars.
-    \value SP_StandardButtonOk Icon for a standard OK button in a QDialogButtonBox.
-    \value SP_StandardButtonCancel Icon for a standard Cancel button in a QDialogButtonBox.
-    \value SP_StandardButtonHelp Icon for a standard Help button in a QDialogButtonBox.
-    \value SP_StandardButtonOpen Icon for a standard Open button in a QDialogButtonBox.
-    \value SP_StandardButtonSave Icon for a standard Save button in a QDialogButtonBox.
-    \value SP_StandardButtonClose Icon for a standard Close button in a QDialogButtonBox.
-    \value SP_StandardButtonApply Icon for a standard Apply button in a QDialogButtonBox.
-    \value SP_StandardButtonReset Icon for a standard Reset button in a QDialogButtonBox.
-    \value SP_StandardButtonDiscard Icon for a standard Discard button in a QDialogButtonBox.
-    \value SP_StandardButtonYes Icon for a standard Yes button in a QDialogButtonBox.
-    \value SP_StandardButtonNo Icon for a standard No button in a QDialogButtonBox.
+    \value SP_DialogOkButton Icon for a standard OK button in a QDialogButtonBox.
+    \value SP_DialogCancelButton Icon for a standard Cancel button in a QDialogButtonBox.
+    \value SP_DialogHelpButton Icon for a standard Help button in a QDialogButtonBox.
+    \value SP_DialogOpenButton Icon for a standard Open button in a QDialogButtonBox.
+    \value SP_DialogSaveButton Icon for a standard Save button in a QDialogButtonBox.
+    \value SP_DialogCloseButton Icon for a standard Close button in a QDialogButtonBox.
+    \value SP_DialogApplyButton Icon for a standard Apply button in a QDialogButtonBox.
+    \value SP_DialogResetButton Icon for a standard Reset button in a QDialogButtonBox.
+    \value SP_DialogDiscardButton Icon for a standard Discard button in a QDialogButtonBox.
+    \value SP_DialogYesButton Icon for a standard Yes button in a QDialogButtonBox.
+    \value SP_DialogNoButton Icon for a standard No button in a QDialogButtonBox.
+    \value SP_ArrowUp Icon arrow pointing up.
+    \value SP_ArrowDown Icon arrow pointing down.
+    \value SP_ArrowLeft Icon arrow pointing left. The image is reversed when the current layout direction is Qt::RightToLeft.
+    \value SP_ArrowRight Icon arrow pointing right. The image is reversed when the current layout direction is Qt::RightToLeft.
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 

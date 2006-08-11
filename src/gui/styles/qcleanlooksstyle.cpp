@@ -4109,7 +4109,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
-    case SP_StandardButtonOpen:
+    case SP_DialogOpenButton:
     case SP_DirOpenIcon:
         {
             pixmap = d->findIcon(24, QLatin1String("gnome-fs-directory-accept.png"));

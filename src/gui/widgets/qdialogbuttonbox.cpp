@@ -406,53 +406,53 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
 
     switch (sbutton) {
     case QDialogButtonBox::Ok:
-        icon = QStyle::SP_StandardButtonOk;
+        icon = QStyle::SP_DialogOkButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "OK");
         break;
     case QDialogButtonBox::Save:
-        icon = QStyle::SP_StandardButtonSave;
+        icon = QStyle::SP_DialogSaveButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Save");
         break;
     case QDialogButtonBox::Open:
-        icon = QStyle::SP_StandardButtonOpen;
+        icon = QStyle::SP_DialogOpenButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Open");
         break;
     case QDialogButtonBox::Cancel:
-        icon = QStyle::SP_StandardButtonCancel;
+        icon = QStyle::SP_DialogCancelButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Cancel");
         break;
     case QDialogButtonBox::Close:
-        icon = QStyle::SP_StandardButtonClose;
+        icon = QStyle::SP_DialogCloseButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close");
         break;
     case QDialogButtonBox::Apply:
-        icon = QStyle::SP_StandardButtonApply;
+        icon = QStyle::SP_DialogApplyButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Apply");
         break;
     case QDialogButtonBox::Reset:
-        icon = QStyle::SP_StandardButtonReset;
+        icon = QStyle::SP_DialogResetButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Reset");
         break;
     case QDialogButtonBox::Help:
-        icon = QStyle::SP_StandardButtonHelp;
+        icon = QStyle::SP_DialogHelpButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Help");
         break;
     case QDialogButtonBox::Discard:
-        icon = QStyle::SP_StandardButtonDiscard;
+        icon = QStyle::SP_DialogDiscardButton;
         if (layoutPolicy == QDialogButtonBox::MacLayout)
             buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Don't Save");
         else
             buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Discard");
         break;
     case QDialogButtonBox::Yes:
-        icon = QStyle::SP_StandardButtonYes;
+        icon = QStyle::SP_DialogYesButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&Yes");
         break;
     case QDialogButtonBox::YesToAll:
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Yes to &All");
         break;
     case QDialogButtonBox::No:
-        icon = QStyle::SP_StandardButtonNo;
+        icon = QStyle::SP_DialogNoButton;
         buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "&No");
         break;
     case QDialogButtonBox::NoToAll:

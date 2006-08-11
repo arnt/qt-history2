@@ -3793,10 +3793,18 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
         return QPixmap(filedialog_end_xpm);
 #endif // QT_NO_IMAGEFORMAT_XPM
 #ifndef QT_NO_IMAGEFORMAT_PNG
-    case SP_CalendarWidgetPrev:
-        return standardPixmap(SP_FileDialogBack, opt, w);
-    case SP_CalendarWidgetNext:
-        return standardPixmap(SP_FileDialogBack, opt, w).transformed(QMatrix().scale(-1, 1));
+    case SP_ArrowLeft:
+        if (QApplication::layoutDirection() == Qt::RightToLeft)
+            return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
+    case SP_ArrowRight:
+        if (QApplication::layoutDirection() == Qt::RightToLeft)
+            return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
+    case SP_ArrowUp:
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-up-16.png"));
+    case SP_ArrowDown:
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-down-16.png"));
     case SP_FileDialogToParent:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-16.png"));
     case SP_FileDialogNewFolder:
@@ -3836,27 +3844,27 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/file-16.png"));
     case SP_FileLinkIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/filelink-16.png"));
-    case SP_StandardButtonOk:
+    case SP_DialogOkButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-16.png"));
-    case SP_StandardButtonCancel:
+    case SP_DialogCancelButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-16.png"));
-    case SP_StandardButtonHelp:
+    case SP_DialogHelpButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-help-16.png"));
-    case SP_StandardButtonOpen:
+    case SP_DialogOpenButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-open-16.png"));
-    case SP_StandardButtonSave:
+    case SP_DialogSaveButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-save-16.png"));
-    case SP_StandardButtonClose:
+    case SP_DialogCloseButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-close-16.png"));
-    case SP_StandardButtonApply:
+    case SP_DialogApplyButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-16.png"));
-    case SP_StandardButtonReset:
+    case SP_DialogResetButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-reset-16.png"));
-    case SP_StandardButtonDiscard:
+    case SP_DialogDiscardButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-discard-16.png"));
-    case SP_StandardButtonYes:
+    case SP_DialogYesButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-yes-16.png"));
-    case SP_StandardButtonNo:
+    case SP_DialogNoButton:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-16.png"));
     case SP_DirIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/dirclosed-16.png"));
@@ -3988,71 +3996,91 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/filelink-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/filelink-128.png"));
         break;
-    case SP_StandardButtonOk:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-32.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-64.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-128.png"));
+    case SP_DialogOkButton:
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-32.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-64.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-ok-128.png"));
         break;
-    case SP_StandardButtonCancel:
+    case SP_DialogCancelButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-cancel-128.png"));
         break;
-    case SP_StandardButtonHelp:
+    case SP_DialogHelpButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-help-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-help-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-help-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-help-128.png"));
         break;
-    case SP_StandardButtonOpen:
+    case SP_DialogOpenButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-open-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-open-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-open-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-open-128.png"));
         break;
-    case SP_StandardButtonSave:
+    case SP_DialogSaveButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-save-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-save-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-save-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-save-128.png"));
         break;
-    case SP_StandardButtonClose:
+    case SP_DialogCloseButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-close-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-close-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-close-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-close-128.png"));
         break;
-    case SP_StandardButtonApply:
+    case SP_DialogApplyButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-apply-128.png"));
         break;
-    case SP_StandardButtonReset:
+    case SP_DialogResetButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-reset-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-reset-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-reset-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-reset-128.png"));
         break;
-    case SP_StandardButtonDiscard:
+    case SP_DialogDiscardButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-discard-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-discard-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-discard-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-discard-128.png"));
         break;
-    case SP_StandardButtonYes:
+    case SP_DialogYesButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-yes-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-yes-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-yes-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-yes-128.png"));
         break;
-    case SP_StandardButtonNo:
+    case SP_DialogNoButton:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-128.png"));
+        break;
+    case SP_ArrowLeft:
+        if (QApplication::layoutDirection() == Qt::LeftToRight)
+            return standardIconImplementation(SP_ArrowRight, opt, widget);
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-previous-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-previous-128.png"));
+        break;
+    case SP_ArrowRight:
+        if (QApplication::layoutDirection() == Qt::LeftToRight)
+            return standardIconImplementation(SP_ArrowLeft, opt, widget);
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-next-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-next-128.png"));
+        break;
+    case SP_ArrowUp:
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-up-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-up-128.png"));
+        break;
+    case SP_ArrowDown:
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-down-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-down-128.png"));
         break;
     case SP_DirIcon:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/dirclosed-16.png"),

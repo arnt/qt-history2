@@ -834,8 +834,8 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     prevMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     nextMonth->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     nextMonth->setAutoRaise(true);
-    prevMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetPrev));
-    nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_CalendarWidgetNext));
+    prevMonth->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowLeft));
+    nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowRight));
     prevMonth->setAutoRepeat(true);
     nextMonth->setAutoRepeat(true);
 

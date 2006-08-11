@@ -48,5 +48,14 @@
 <file>trash-16.png</file>
 <file>trash-32.png</file>
 <file>trash-64.png</file>
+<file>go-next-16.png</file>
+<file>go-next-128.png</file>
+<file>go-previous-16.png</file>
+<file>go-previous-128.png</file>
+<file>go-up-16.png</file>
+<file>go-up-128.png</file>
+<file>go-down-16.png</file>
+<file>go-down-128.png</file>
+
 </qresource>
 </RCC>
