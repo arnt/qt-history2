@@ -92,11 +92,14 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
     if (model()->hasChildren(index)) {
         option.state |= QStyle::State_Children;
 
+        const bool reverse = isRightToLeft();
         int indent = level(model(), index)*indentation();
-        QRect primitive(rect.left() + indent - 2, rect.top(), indentation(), rect.height());
+        QRect primitive(reverse ? rect.left() : rect.left() + indent - 2,
+                        rect.top(), indentation(), rect.height());
 
         if (!mac_style) {
-            primitive.moveLeft(primitive.left() + (primitive.width() - windows_deco_size)/2);
+            primitive.moveLeft(reverse ? primitive.left()
+                               : primitive.left() + (primitive.width() - windows_deco_size)/2);
             primitive.moveTop(primitive.top() + (primitive.height() - windows_deco_size)/2);
             primitive.setWidth(windows_deco_size);
             primitive.setHeight(windows_deco_size);
