@@ -255,7 +255,7 @@ static uint QT_FASTCALL fetchPixel_MonoLSB(const uchar *scanLine, int x, const Q
 
 static uint QT_FASTCALL fetchPixel_Indexed8(const uchar *scanLine, int x, const QVector<QRgb> *rgb)
 {
-    return rgb->at(scanLine[x]);
+    return PREMUL(rgb->at(scanLine[x]));
 }
 
 static uint QT_FASTCALL fetchPixel_RGB32(const uchar *scanLine, int x, const QVector<QRgb> *)
