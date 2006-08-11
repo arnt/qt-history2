@@ -33,7 +33,7 @@ class QAbstractItemViewPrivate;
 class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 {
     Q_OBJECT
-    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint ScrollMode)
+    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint ScrollMode DragDropMode)
     Q_FLAGS(EditTriggers)
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
@@ -42,7 +42,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
     Q_PROPERTY(bool dragDropOverwriteMode READ dragDropOverwriteMode WRITE setDragDropOverwriteMode)
-    Q_PROPERTY(QAbstractItemView::DragDropMode dragDropMode READ dragDropMode WRITE setDragDropMode)
+    Q_PROPERTY(DragDropMode dragDropMode READ dragDropMode WRITE setDragDropMode)
 #endif
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
