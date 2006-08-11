@@ -244,8 +244,8 @@ void QScrollBarPrivate::activateControl(uint control, int threshold)
     }
 
     if (action) {
-        q_func()->triggerAction(action);
         q_func()->setRepeatAction(action, threshold);
+        q_func()->triggerAction(action);
     }
 }
 
