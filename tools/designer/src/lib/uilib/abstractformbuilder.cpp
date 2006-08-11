@@ -1411,6 +1411,18 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
             if (m_laidout.contains(childWidget) || recursive == false)
                 continue;
 
+            if (QMenu *menu = qobject_cast<QMenu *>(childWidget)) {
+                QList<QAction *> actions = menu->parentWidget()->actions();
+                QListIterator<QAction *> it(actions);
+                bool found = false;
+                while (it.hasNext()) {
+                    if (it.next()->menu() == menu)
+                        found = true;
+                }
+                if (!found)
+                    continue;
+            }
+
             if (DomWidget *ui_child = createDom(childWidget, ui_widget)) {
                 ui_widgets.append(ui_child);
             }
