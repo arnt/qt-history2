@@ -66,6 +66,9 @@
 
     \section1 The Project File: containerextension.pro
 
+    The project file must contain some additional information to
+    ensure that the plugin will work as expected:
+
     \quotefromfile designer/containerextension/containerextension.pro
     \printline TEMPLATE
     \printline CONFIG
@@ -80,7 +83,7 @@
 
     \list
         \o \c designer: Since custom widgets plugins rely on components
-           supplied with \QD, this value ensures that our plugin link against
+           supplied with \QD, this value ensures that our plugin links against
            \QD's library (\c libQtDesigner.so).
 
         \o \c plugin: We also need to ensure that \c qmake considers the
@@ -90,39 +93,51 @@
     When Qt is configured to build in both debug and release modes,
     \QD will be built in release mode.  When this occurs, it is
     necessary to ensure that plugins are also built in release
-    mode. For that reason we add a \c debug_and_release value to
-    the \c CONFIG variable. Otherwise, if a plugin is built in a mode
-    that is incompatible with \QD, it won't be loaded and
-    installed. For more information about plugins, see the \l {How to
-    Create Qt Plugins} documentation.
+    mode. For that reason we add a \c debug_and_release value to the
+    \c CONFIG variable. Otherwise, if a plugin is built in a mode that
+    is incompatible with \QD, it won't be loaded and installed.
+
+    In addition, when building in both debug and release mode, we must
+    ensure that the proper suffix is added to the debug plugin (i.e.,
+    \c _debug on X11 and \c d on any other platform):
+
+    \skipto CONFIG
+    \printuntil /^\}/
+
+    The header and source files for the widget are declared in the
+    usual way:
 
     \skipto HEADERS
     \printuntil multipagewidgetextensionfactory.cpp
 
-    The header and source files for the widget are declared in the
-    usual way, and in addition we provide an implementation of the
-    plugin interface so that \QD can use the custom widget. In this
-    particular example we also provide implementations of the
-    container extension interface and the extension factory.
+    We provide an implementation of the plugin interface so that \QD
+    can use the custom widget. In this particular example we also
+    provide implementations of the container extension interface and
+    the extension factory.
 
-    It is important to ensure that the plugin is installed in a location that
-    is searched by \QD. We do this by specifying a target path for the project
-    and adding it to the list of items to install:
+    It is important to ensure that the plugin is installed in a
+    location that is searched by \QD. We do this by specifying a
+    target path for the project and adding it to the list of items to
+    install:
 
     \code
         target.path = $$[QT_INSTALL_PLUGINS]/designer
         INSTALLS += target
     \endcode
 
-    The container extension is created as a library, and will be installed
-    alongside the other \QD plugins when the project is installed (using
-    \c{make install} or an equivalent installation procedure).
+    The container extension is created as a library, and will be
+    installed alongside the other \QD plugins when the project is
+    installed (using \c{make install} or an equivalent installation
+    procedure).
 
     Note that if you want the plugins to appear in a Visual Studio
     integration, the plugins must be built in release mode and their
     libraries must be copied into the plugin directory in the install
-    path of the integration (for an example, see C:/program
-    files/trolltech as/visual studio integration/plugins).
+    path of the integration (for an example, see \c {C:/program
+    files/trolltech as/visual studio integration/plugins}).
+
+    For more information about plugins, see the \l {How to Create Qt
+    Plugins} documentation.
 
     \section1 MultiPageWidgetPlugin Class Definition
 

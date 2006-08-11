@@ -124,17 +124,14 @@
     \quotefromfile designer/worldtimeclockplugin/worldtimeclockplugin.pro
     \printline CONFIG
     \printline TEMPLATE
-    \printline DESTDIR
 
     The \c TEMPLATE variable's value make \c qmake create the custom
-    widget as a library.
-
-    The \c CONFIG variable contains two values, \c designer and \c
-    plugin:
+    widget as a library. The \c CONFIG variable contains two values,
+    \c designer and \c plugin:
 
     \list
         \o \c designer: Since custom widgets plugins rely on components
-           supplied with \QD, this value ensures that our plugin link against
+           supplied with \QD, this value ensures that our plugin links against
            \QD's library (\c libQtDesigner.so).
 
         \o \c plugin: We also need to ensure that \c qmake considers the
@@ -147,19 +144,21 @@
     mode. For that reason you might have to add a \c release value to
     your \c CONFIG variable. Otherwise, if a plugin is built in a mode
     that is incompatible with \QD, it won't be loaded and
-    installed. For more information about plugins, see the \l {How to
-    Create Qt Plugins} document.
+    installed.
 
-    The \c DESTDIR variable's value makes qmake install the plugin
-    alongside the other \QD widget plugins which is useful for testing
-    purposes.
+    In addition, when building in both debug and release mode, we must
+    ensure that the proper suffix is added to the debug plugin (i.e.,
+    \c _debug on X11 and \c d on any other platform):
 
-    \skipto HEADERS
-    \printuntil worldtimeclockplugin.cpp
+    \skipto CONFIG
+    \printuntil /^\}/
 
     The header and source files for the widget are declared in the
     usual way, and in addition we provide an implementation of the
     plugin interface so that \QD can use the custom widget.
+
+    \skipto HEADERS
+    \printuntil worldtimeclockplugin.cpp
 
     It is important to ensure that the plugin is installed in a location that
     is searched by \QD. We do this by specifying a target path for the project
@@ -180,6 +179,9 @@
     Note that if you want the plugins to appear in a Visual Studio
     integration, the plugins must be built in release mode and their
     libraries must be copied into the plugin directory in the install
-    path of the integration (for an example, see C:/program
-    files/trolltech as/visual studio integration/plugins).
+    path of the integration (for an example, see \c {C:/program
+    files/trolltech as/visual studio integration/plugins}).
+
+    For more information about plugins, see the \l {How to Create Qt
+    Plugins} document.
 */
