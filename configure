@@ -2089,7 +2089,8 @@ fi
 
 # auto-detect support for separate debug info in objcopy
 if [ "$CFG_SEPARATE_DEBUG_INFO" = "auto" ]; then
-    if "$unixtests/objcopy.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
+    COMPILER_WITH_FLAGS="$TEST_COMPILER `getQMakeConf | sed -n -e 's/QMAKE_CFLAGS[^_].*=//p'`"
+    if "$unixtests/objcopy.test" "$COMPILER_WITH_FLAGS" "$OPT_VERBOSE"; then
        CFG_SEPARATE_DEBUG_INFO=no
     else
        CFG_SEPARATE_DEBUG_INFO=yes
