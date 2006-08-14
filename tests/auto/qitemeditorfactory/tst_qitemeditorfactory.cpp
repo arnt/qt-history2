@@ -16,7 +16,7 @@ void tst_QItemEditorFactory::createEditor()
     QWidget parent;
 
     QWidget *w = factory->createEditor(QVariant::String, &parent);
-    QCOMPARE(w->metaObject()->className(), "QLineEdit");
+    QCOMPARE(w->metaObject()->className(), "QExpandingLineEdit");
 }
 
 void tst_QItemEditorFactory::createCustomEditor()
