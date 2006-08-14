@@ -493,6 +493,7 @@ static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColo
     *color = QColor();
     *image = QString();
     *repeat = Repeat_XY;
+    *alignment = Qt::AlignTop | Qt::AlignLeft;
 
     for (int i = 0; i < values.count(); ++i) {
         const Value v = values.at(i);

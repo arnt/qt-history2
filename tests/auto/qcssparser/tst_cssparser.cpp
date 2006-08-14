@@ -785,14 +785,26 @@ void tst_CssParser::marginValue_data()
     QTest::addColumn<QString>("css");
     QTest::addColumn<QString>("expectedMargin");
 
+    QFont f;
+    int ex = QFontMetrics(f).xHeight();
+    int em = QFontMetrics(f).height();
+
     QTest::newRow("one value") << "margin: 1px" << "1 1 1 1";
     QTest::newRow("two values") << "margin: 1px 2px" << "1 2 1 2";
     QTest::newRow("three value") << "margin: 1px 2px 3px" << "1 2 3 2";
     QTest::newRow("four values") << "margin: 1px 2px 3px 4px" << "1 2 3 4";
     QTest::newRow("default px") << "margin: 1 2 3 4" << "1 2 3 4";
     QTest::newRow("no unit") << "margin: 1 2 3 4" << "1 2 3 4";
-    QTest::newRow("em") << "margin: 1em 2em 3em 4em" << "1 2 3 4";
-    QTest::newRow("ex") << "margin: 1em 2em 3px 4px" << "1 2 1 2"; // Fix later
+    QTest::newRow("em") << "margin: 1ex 2ex 3ex 4ex" << QString("%1 %2 %3 %4").arg(ex).arg(2*ex).arg(3*ex).arg(4*ex);
+    QTest::newRow("ex") << "margin: 1 2em 3px 4ex" << QString("%1 %2 %3 %4").arg(1).arg(2*em).arg(3).arg(4*ex);
+
+    f.setPointSize(20);
+    f.setBold(true);
+    ex = QFontMetrics(f).xHeight();
+    em = QFontMetrics(f).height();
+    QTest::newRow("em2") << "font: bold 20pt; margin: 1ex 2ex 3ex 4ex" << QString("%1 %2 %3 %4").arg(ex).arg(2*ex).arg(3*ex).arg(4*ex);
+    QTest::newRow("ex2") << "margin: 1 2em 3px 4ex; font-size: 20pt; font-weight: bold;" << QString("%1 %2 %3 %4").arg(1).arg(2*em).arg(3).arg(4*ex);
+
     QTest::newRow("crap") << "margin: crap" << "0 0 0 0";
 }
 
@@ -1163,12 +1175,12 @@ void tst_CssParser::shorthandBackgroundProperty_data()
     QTest::addColumn<int>("expectedRepeatValue");
     QTest::addColumn<int>("expectedAlignment");
 
-    QTest::newRow("simple color") << "background: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(0);
-    QTest::newRow("plain color") << "background-color: red" << QColor("red") << QString() << int(QCss::Repeat_Unknown) << int(0);
-    QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QColor("blue") << QString("chess.png") << int(QCss::Repeat_Y) << int(0);
-    QTest::newRow("plain alignment") << "background-position: center" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignCenter);
-    QTest::newRow("plain alignment2") << "background-position: left top" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignLeft | Qt::AlignTop);
-    QTest::newRow("plain alignment3") << "background-position: left" << QColor() << QString() << int(QCss::Repeat_Unknown) << int(Qt::AlignLeft | Qt::AlignVCenter);
+    QTest::newRow("simple color") << "background: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain color") << "background-color: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QColor("blue") << QString("chess.png") << int(QCss::Repeat_Y) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain alignment") << "background-position: center" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignCenter);
+    QTest::newRow("plain alignment2") << "background-position: left top" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain alignment3") << "background-position: left" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignVCenter);
     QTest::newRow("multi") << "background: left url(blah.png) repeat-x" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignLeft | Qt::AlignVCenter);
     QTest::newRow("multi2") << "background: url(blah.png) repeat-x top" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignTop | Qt::AlignHCenter);
     QTest::newRow("multi3") << "background: url(blah.png) top right" << QColor() << QString("blah.png") << int(QCss::Repeat_XY) << int(Qt::AlignTop | Qt::AlignRight);
@@ -1178,6 +1190,9 @@ void tst_CssParser::shorthandBackgroundProperty()
 {
     QFETCH(QString, css);
 
+    QDomDocument doc;
+    QVERIFY(doc.setContent(QLatin1String("<!DOCTYPE test><test> <dummy/> </test>")));
+
     css.prepend("dummy {");
     css.append("}");
 
@@ -1185,13 +1200,20 @@ void tst_CssParser::shorthandBackgroundProperty()
     QCss::StyleSheet sheet;
     QVERIFY(parser.parse(&sheet));
 
+    DomStyleSelector testSelector(doc, sheet);
+    QDomElement e = doc.documentElement().firstChildElement();
+    QCss::StyleSelector::NodePtr n;
+    n.ptr = &e;
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
+    QVector<QCss::Declaration> decls = rules.at(0).declarations;
+    QCss::ValueExtractor v(decls);
+
     QColor color;
     QString image;
     QCss::Repeat repeat;
     Qt::Alignment alignment;
     QCss::Origin origin;
-    QCss::ValueExtractor ve(sheet.styleRules.first().declarations);
-    ve.extractBackground(&color, &image, &repeat, &alignment, &origin);
+    v.extractBackground(&color, &image, &repeat, &alignment, &origin);
 
     QTEST(color, "expectedColor");
     QTEST(image, "expectedImage");
