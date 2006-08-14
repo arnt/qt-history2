@@ -2366,15 +2366,17 @@ case CE_DockWidgetTitle:
                 QFont titleFont = oldFont;
                 titleFont.setBold(true);
                 p->setFont(titleFont);
-                if (isActive) {
+                
+                int result = TST_NONE;
+                pGetThemeEnumValue(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
+                if (result != TST_NONE) {
                     COLORREF textShadowRef;
-                    pGetThemeColor(theme.handle(), WP_CAPTION, CS_ACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                    pGetThemeColor(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
                     QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
                     p->setPen(textShadow);
                     drawItemText(p, rect.adjusted(indent + 2,
                                                   rect.bottom() - p->fontMetrics().lineSpacing() - 3,
-                                                  - (2 * iconSize),
-                                                  - 1),
+                                                  - (2 * iconSize), - 1),
                                  Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                  dwOpt->state & State_Enabled, dwOpt->title);
                 }
@@ -2940,20 +2942,21 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                     theme.partId = partId;
                     theme.stateId = stateId;
-                    // Using a native buffer here always (never direct), so that ClearType is handled correctly by Qt,
-                    // as the textrender buffer needs to know the pixel data in the doublebuffer.
-                    d->drawBackgroundThruNativeBuffer(theme);
+                    d->drawBackground(theme);
+                    
                     QRect ir = subControlRect(CC_TitleBar, tb, SC_TitleBarLabel, widget);
 
-                    if(isActive) {
-                        COLORREF textShadowRef;
-                        pGetThemeColor(theme.handle(), WP_CAPTION, CS_ACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                    int result = TST_NONE;
+                    pGetThemeEnumValue(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
+                    if (result != TST_NONE) {
+                        COLORREF textShadowRef;      
+                        pGetThemeColor(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
                         QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
                         p->setPen(textShadow);
                         p->drawText(ir.x() + 3, ir.y() + 2, ir.width() - 1, ir.height(),
                                     Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                     }
-                    p->setPen(tb->palette.highlightedText().color());
+                    p->setPen(tb-> palette.highlightedText().color());
                     p->drawText(ir.x() + 2, ir.y() + 1, ir.width() - 2, ir.height(),
                                 Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                 }
