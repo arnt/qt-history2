@@ -48,7 +48,7 @@ For this release, the following platforms have been tested:
   win32-g++
   win32-icc
   win32-msvc
-  win32-msvc.net
+  win32-msvc.net (only supported by the commercial edition of Qt)
 
   aix-g++
   aix-xlc
@@ -70,7 +70,10 @@ For this release, the following platforms have been tested:
   macx-g++
 
 For a complete list of supported platforms, see
-http://www.trolltech.com/products/qt/qt4-platforms.html.
+http://www.trolltech.com/developer/notes/supported_platforms
+
+For a description of Qt's platform support policy, see
+http://www.trolltech.com/developer/notes/supportpolicy
 
 
 COMMERCIAL EDITIONS
