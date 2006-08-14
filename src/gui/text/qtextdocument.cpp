@@ -1833,10 +1833,10 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
             switch (style) {
                 case QTextListFormat::ListDecimal: html += QLatin1String("<ol"); break;
                 case QTextListFormat::ListDisc: html += QLatin1String("<ul"); break;
-                case QTextListFormat::ListCircle: html += QLatin1String("<ul type=circle"); break;
-                case QTextListFormat::ListSquare: html += QLatin1String("<ul type=square"); break;
-                case QTextListFormat::ListLowerAlpha: html += QLatin1String("<ol type=a"); break;
-                case QTextListFormat::ListUpperAlpha: html += QLatin1String("<ol type=A"); break;
+                case QTextListFormat::ListCircle: html += QLatin1String("<ul type=\"circle\""); break;
+                case QTextListFormat::ListSquare: html += QLatin1String("<ul type=\"square\""); break;
+                case QTextListFormat::ListLowerAlpha: html += QLatin1String("<ol type=\"a\""); break;
+                case QTextListFormat::ListUpperAlpha: html += QLatin1String("<ol type=\"A\""); break;
                 default: html += QLatin1String("<ul"); // ### should not happen
             }
 
