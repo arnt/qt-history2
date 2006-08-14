@@ -121,6 +121,18 @@
             \o The number of items (quint32)
             \o For all items, the key (Key) and value (T)
             \endlist
+    \row \o QIcon
+         \o \list
+            \o The number of pixmap entries (quint32)
+            \o For all pixmap entries:
+               \list
+               \o The pixmap (QPixmap)
+               \o The file name (QString)
+               \o The pixmap size (QSize)
+               \o The \l{QIcon::Mode}{mode} (quint32)
+               \o The \l{QIcon::State}{state} (quint32)
+               \endlist
+            \endlist
     \row \o QImage
          \o \list
             \o If the image is null a "null image" marker is saved;
