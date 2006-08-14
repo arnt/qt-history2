@@ -587,10 +587,17 @@ void ColorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
         painter->restore();
     }
     QItemDelegate::paint(painter, option, index);
+    
+    
+    QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
+    QPen oldPen = painter->pen();
+    painter->setPen(QPen(color));
+
     painter->drawLine(option.rect.right(), option.rect.y(),
             option.rect.right(), option.rect.bottom());
     painter->drawLine(option.rect.x(), option.rect.bottom(),
             option.rect.right(), option.rect.bottom());
+    painter->setPen(oldPen);
 }
 
 QSize ColorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
