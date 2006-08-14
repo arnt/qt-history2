@@ -849,7 +849,10 @@ class QDataStream;
 #  if !defined(MAC_OS_X_VERSION_10_4)
 #       define MAC_OS_X_VERSION_10_4 MAC_OS_X_VERSION_10_3 + 1
 #  endif
-#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_4)
+#  if !defined(MAC_OS_X_VERSION_10_5)
+#       define MAC_OS_X_VERSION_10_5 MAC_OS_X_VERSION_10_5 + 1
+#  endif
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
 #    error "This version of Mac OS X is unsupported"
 #  endif
 #endif
@@ -1070,13 +1073,15 @@ public:
         MV_10_2 = 0x0004,
         MV_10_3 = 0x0005,
         MV_10_4 = 0x0006,
+        MV_10_5 = 0x0007,
 
         /* codenames */
         MV_CHEETAH = MV_10_0,
         MV_PUMA = MV_10_1,
         MV_JAGUAR = MV_10_2,
         MV_PANTHER = MV_10_3,
-        MV_TIGER = MV_10_4
+        MV_TIGER = MV_10_4,
+        MV_LEOPARD = MV_10_5
     };
     static const MacVersion MacintoshVersion;
 #endif
