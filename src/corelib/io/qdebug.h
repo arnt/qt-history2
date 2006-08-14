@@ -74,7 +74,7 @@ public:
         { stream->ts << QString::number(t); return maybeSpace(); }
     inline QDebug &operator<<(float t) { stream->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(double t) { stream->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(const char* t) { stream->ts  << t; return maybeSpace(); }
+    inline QDebug &operator<<(const char* t) { stream->ts << QString::fromAscii(t); return maybeSpace(); }
     inline QDebug &operator<<(const QString & t) { stream->ts << "\"" << t  << "\""; return maybeSpace(); }
     inline QDebug &operator<<(const QLatin1String &t) { stream->ts << "\""  << t.latin1() << "\""; return maybeSpace(); }
     inline QDebug &operator<<(const QByteArray & t) { stream->ts  << "\"" << t << "\""; return maybeSpace(); }
@@ -121,7 +121,7 @@ inline QDebug &operator<<(QDebug debug, const QVector<T> &vec)
 #else
 template <typename T>
 inline QDebug operator<<(QDebug debug, const QVector<T> &vec)
-#endif    
+#endif
 {
     debug.nospace() << "QVector";
     return operator<<(debug, vec.toList());
@@ -133,7 +133,7 @@ inline QDebug &operator<<(QDebug debug, const QMap<aKey, aT> &map)
 #else
 template <class aKey, class aT>
 inline QDebug operator<<(QDebug debug, const QMap<aKey, aT> &map)
-#endif    
+#endif
 {
     debug.nospace() << "QMap(";
     for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
@@ -150,7 +150,7 @@ inline QDebug &operator<<(QDebug debug, const QHash<aKey, aT> &hash)
 #else
 template <class aKey, class aT>
 inline QDebug operator<<(QDebug debug, const QHash<aKey, aT> &hash)
-#endif    
+#endif
 {
     debug.nospace() << "QHash(";
     for (typename QHash<aKey, aT>::const_iterator it = hash.constBegin();
@@ -166,7 +166,7 @@ inline QDebug &operator<<(QDebug debug, const QPair<T1, T2> &pair)
 #else
 template <class T1, class T2>
 inline QDebug operator<<(QDebug debug, const QPair<T1, T2> &pair)
-#endif    
+#endif
 {
     debug.nospace() << "QPair(" << pair.first << "," << pair.second << ")";
     return debug.space();
