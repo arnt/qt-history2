@@ -249,9 +249,10 @@
     When creating a model index to return, we must specify the row and
     column numbers of the parent item within its own parent. We can
     easily discover the row number with the \c TreeItem::row() function,
-    and we simply reuse the column number of the child. The model index
-    is created with \l{QAbstractItemModel::createIndex()}{createIndex()}
-    in the same way as in the \c index() function.
+    but we follow a convention of specifying 0 as the column number of
+    the parent. The model index is created with
+    \l{QAbstractItemModel::createIndex()}{createIndex()} in the same way
+    as in the \c index() function.
 
     The \c rowCount() function simply returns the number of child items
     for the \c TreeItem that corresponds to a given model index, or the
