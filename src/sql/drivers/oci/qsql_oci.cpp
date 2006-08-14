@@ -69,7 +69,10 @@ typedef QVarLengthArray<ub2, 32> SizeArray;
 static QByteArray qMakeOraDate(const QDateTime& dt);
 static QDateTime qMakeDate(const char* oraDate);
 static QString qOraWarn(const QOCIPrivate* d);
-static void qOraWarning(const char* msg, const QOCIPrivate* d);
+#ifndef Q_CC_SUN
+static // for some reason, Sun CC can't use qOraWarning when it's declared static
+#endif
+void qOraWarning(const char* msg, const QOCIPrivate* d);
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPrivate* p);
 
 class QOCIRowId: public QSharedData
@@ -1322,7 +1325,10 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues
     return true;
 }
 
-static int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
+#ifndef Q_CC_SUN
+static // for some reason, Sun CC can't use qInitialLobSize when it's declared static
+#endif
+int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
 {
     ub4 i;
     int r = OCILobGetChunkSize(d->svc, d->err, lob, &i);
