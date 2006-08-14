@@ -121,6 +121,7 @@ private:
     QHash<QDesignerWidgetDataBaseItemInterface*, bool> m_usedCustomWidgets;
     int m_topLevelSpacerCount;
     bool m_copyWidget;
+    QWidget *m_selected;
 };
 
 }  // namespace qdesigner_internal

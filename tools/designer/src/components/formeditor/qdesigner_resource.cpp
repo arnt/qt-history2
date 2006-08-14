@@ -74,6 +74,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
 
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
+    m_selected = 0;
 
     // ### generalise
     m_internal_to_qt.insert(QLatin1String("QLayoutWidget"), QLatin1String("QWidget"));
@@ -1014,6 +1015,9 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
          if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj->parent()))
             check_widget = promoted;
 
+         if (m_selected && m_selected == check_widget)
+             return true;
+
         return !LayoutInfo::isWidgetLaidout(core(), check_widget);
     }
 
@@ -1091,7 +1095,9 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
 
     for (int i=0; i<selection.size(); ++i) {
         QWidget *w = selection.at(i);
+        m_selected = w;
         DomWidget *ui_child = createDom(w, ui_widget);
+        m_selected = 0;
         if (!ui_child)
             continue;
 
