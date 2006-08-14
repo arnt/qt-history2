@@ -910,7 +910,7 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 /*!
   \internal
 */
-QRect QItemDelegate::textRectangle(QPainter */*painter*/, const QRect &rect,
+QRect QItemDelegate::textRectangle(QPainter * /*painter*/, const QRect &rect,
                                    const QFont &font, const QString &text) const
 {
     Q_D(const QItemDelegate);
