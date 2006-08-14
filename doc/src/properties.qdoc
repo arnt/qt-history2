@@ -14,7 +14,7 @@
     \section1 Requirements
 
     The Q_PROPERTY() macro in a class declaration declares a property.
-    Properties can only be declared in classes that inherit QObject. 
+    Properties can only be declared in classes that inherit QObject.
 
     To the outer world, a property appears to be similar to a data member.
     But properties have several features that distinguish them from
@@ -109,7 +109,7 @@
                    READ getFunction
                    [WRITE setFunction]
                    [RESET resetFunction]
-                   [DESIGNABLE bool] 
+                   [DESIGNABLE bool]
                    [SCRIPTABLE bool]
                    [STORED bool])
     \endcode
@@ -173,6 +173,12 @@
             Priority priority() const;
         };
     \endcode
+
+    Note that if you want to register an enum (using Q_ENUMS()) that
+    is declared in another class, the enum must be fully qualified
+    with the name of the class defining it. In addition, the class \e
+    defining the enum has to inherit QObject as well as declare the
+    enum using Q_ENUMS().
 
     Another similar macro is Q_FLAGS(). Like Q_ENUMS(), it
     registers an enumeration type but marks it in addition as a set

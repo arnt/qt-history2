@@ -3325,11 +3325,28 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     This macro registers one or several enum types to the meta-object
     system.
 
-    Example:
+    For example:
 
     \code
-        Q_ENUMS(Option AlignmentFlag EditMode TransformationMode)
+    class MyClass : public QObject
+    {
+        Q_OBJECT
+        Q_ENUMS(Priority)
+
+    public:
+        MyClass(QObject *parent = 0);
+        ~MyClass();
+
+        enum Priority { High, Low, VeryHigh, VeryLow };
+        void setPriority(Priority priority);
+        Priority priority() const;
+    };
     \endcode
+
+    If you want to register an enum that is declared in another class,
+    the enum must be fully qualified with the name of the class
+    defining it. In addition, the class \e defining the enum has to
+    inherit QObject as well as declare the enum using Q_ENUMS().
 
     \sa {Qt's Property System}
 */
