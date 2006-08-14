@@ -18,6 +18,13 @@
         #include <QtTest>
     \endcode
 
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \code
+        CONFIG += qtestlib
+    \endcode
+
     See the \l{QTestLib Manual} for a detailed introduction on how to use
     Qt's unit testing features with your applications.
 
