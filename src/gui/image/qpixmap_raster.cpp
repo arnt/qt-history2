@@ -347,10 +347,27 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 }
 
 
+static void sendResizeEvents(QWidget *target)
+{
+    QResizeEvent e(target->size(), QSize());
+    QApplication::sendEvent(target, &e);
+
+    const QObjectList children = target->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = static_cast<QWidget*>(children.at(i));
+        if (child->isWidgetType() && !child->isWindow() && child->testAttribute(Qt::WA_PendingResizeEvent))
+            sendResizeEvents(child);
+    }
+}
+
+
 QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 {
     if (!widget)
         return QPixmap();
+
+    if (widget->testAttribute(Qt::WA_PendingResizeEvent) || !widget->testAttribute(Qt::WA_WState_Created))
+        sendResizeEvents(widget);
 
     QRect r(rect);
     if (r.width() < 0)

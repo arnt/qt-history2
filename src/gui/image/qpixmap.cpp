@@ -738,6 +738,19 @@ int QPixmap::serialNumber() const
         return data->ser_no;
 }
 
+static void sendResizeEvents(QWidget *target)
+{
+    QResizeEvent e(target->size(), QSize());
+    QApplication::sendEvent(target, &e);
+
+    const QObjectList children = target->children();
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *child = static_cast<QWidget*>(children.at(i));
+        if (child->isWidgetType() && !child->isWindow() && child->testAttribute(Qt::WA_PendingResizeEvent))
+            sendResizeEvents(child);
+    }
+}
+
 /*!
     \fn QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rectangle)
 
@@ -771,6 +784,9 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
     if (!widget)
         return QPixmap();
 
+    if (widget->testAttribute(Qt::WA_PendingResizeEvent) || !widget->testAttribute(Qt::WA_WState_Created))
+        sendResizeEvents(widget);
+
     QRect r(rect);
     if (r.width() < 0)
         r.setWidth(widget->width() - rect.x());
@@ -781,7 +797,6 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
         return QPixmap();
 
      QPixmap res(r.size());
-
 #ifdef Q_WS_MAC
     QPixmap buf(r.size());
     if(res.isNull() || buf.isNull())
