@@ -1455,6 +1455,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 void QTextEdit::focusInEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
+    QAbstractScrollArea::focusInEvent(e);
     d->sendControlEvent(e);
 }
 
@@ -1463,6 +1464,7 @@ void QTextEdit::focusInEvent(QFocusEvent *e)
 void QTextEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
+    QAbstractScrollArea::focusOutEvent(e);
     d->sendControlEvent(e);
 }
 
