@@ -855,8 +855,12 @@ void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
     Use load(), isLoaded(), and unload() as necessary instead.
 */
 
-QString QLibrary::lastError() const
+/*!
+    Returns a text string with the description of the last error that happened.
+    Currently, errorString will only be set if load(), unload() or resolve() for some reason fails.
+*/
+QString QLibrary::errorString() const
 {
-    return d->lastError;
+    return d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
 }
 #endif // QT_NO_LIBRARY

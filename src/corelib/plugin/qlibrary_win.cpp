@@ -42,8 +42,7 @@ bool QLibraryPrivate::load_sys()
     }
 
     if (!pHnd) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
+        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::load_sys: Cannot load %s (%s)",
                  QFile::encodeName(fileName).constData(),
@@ -52,7 +51,7 @@ bool QLibraryPrivate::load_sys()
     }
     if (pHnd) {
         qualifiedFileName = attempt;
-        lastError.clear();
+        errorString.clear();
     }
     return (pHnd != 0);
 }
@@ -60,8 +59,7 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(::qt_error_string());
+        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(::qt_error_string());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::unload_sys: Cannot unload %s (%s)",
                  QFile::encodeName(fileName).constData(),
@@ -69,7 +67,7 @@ bool QLibraryPrivate::unload_sys()
 #endif
         return false;
     }
-    lastError.clear();
+    errorString.clear();
     return true;
 }
 
@@ -81,8 +79,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
     void* address = (void*)GetProcAddress(pHnd, symbol);
 #endif
     if (!address) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+        errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
             QString::fromAscii(symbol)).arg(fileName).arg(::qt_error_string());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s (%s)",
@@ -91,7 +88,7 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
                  qt_error_string(GetLastError()).toLatin1().data());
 #endif
     } else {
-        lastError.clear();
+        errorString.clear();
     }
     return address;
 }

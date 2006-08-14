@@ -44,13 +44,12 @@ bool QLibraryPrivate::load_sys()
         }
     }
     if (!pHnd) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString());
+        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
 #endif
     } else {
-        lastError.clear();
+        errorString.clear();
     }
     return pHnd != 0;
 }
@@ -58,14 +57,13 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (shl_unload((shl_t)pHnd)) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString());
+        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
 #endif
         return false;
     }
-    lastError.clear();
+    errorString.clear();
     return true;
 }
 
@@ -73,15 +71,14 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 {
     void* address = 0;
     if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+        errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
             QString::fromAscii(symbol)).arg(fileName).arg(QString());
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Symbol \"%s\" undefined in %s", symbol, QFile::encodeName(fileName).constData());
 #endif
         address = 0;
     } else {
-        lastError.clear();
+        errorString.clear();
     }
     return address;
 }
@@ -164,8 +161,7 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
     if (!pHnd) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
+        errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot load %s: %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
@@ -173,7 +169,7 @@ bool QLibraryPrivate::load_sys()
     }
     if (pHnd) {
         qualifiedFileName = attempt;
-        lastError.clear();
+        errorString.clear();
     }
     return (pHnd != 0);
 }
@@ -181,15 +177,14 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
+        errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
 #endif
         return false;
     }
-    lastError.clear();
+    errorString.clear();
     return true;
 }
 
@@ -213,14 +208,13 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
     void* address = dlsym(pHnd, symbol);
 #endif
     if (!address) {
-        lastError = QCoreApplication::translate("QLibrary", 
-            "QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
+        errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
             QString::fromAscii(symbol)).arg(fileName).arg(QString::fromAscii(qdlerror()));
 #if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
 #endif
     } else {
-        lastError.clear();
+        errorString.clear();
     }
     return address;
 }

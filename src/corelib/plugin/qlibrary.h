@@ -48,7 +48,7 @@ public:
     QString fileName() const;   
        
     void setFileNameAndVersion(const QString &fileName, int verNum);
-    QString lastError() const;
+    QString errorString() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QString library() const { return fileName(); }

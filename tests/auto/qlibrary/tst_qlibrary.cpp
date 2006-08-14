@@ -82,8 +82,8 @@ private slots:
     void isLibrary();
     void version_data();
     void version();
-    void lastError_data();
-    void lastError();
+    void errorString_data();
+    void errorString();
 
 };
 
@@ -271,7 +271,7 @@ void tst_QLibrary::isLibrary()
     QCOMPARE(QLibrary::isLibrary(filename), valid);
 }
 
-void tst_QLibrary::lastError_data()
+void tst_QLibrary::errorString_data()
 {
     QTest::addColumn<int>("operation");
     QTest::addColumn<QString>("fileName");
@@ -282,14 +282,12 @@ void tst_QLibrary::lastError_data()
 
     QTest::newRow("bad load()") << (int)Load << QString("nosuchlib") << false << QString("QLibrary::load_sys: Cannot load nosuchlib \\(.*\\)");
     QTest::newRow("bad resolve") << (int)Resolve << currDir + "/mylib" << false << QString("QLibrary::resolve_sys: Symbol \"nosuchsymbol\" undefined in \\S+ \\(.*\\)");
-    QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("");
+    QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("Unknown error");
 
 
 #ifdef Q_OS_WIN
     QTest::newRow("bad load()") << (int)Load << QString("nosuchlib.dll") << false << QString("QLibrary::load_sys: Cannot load nosuchlib.dll \\(The specified module could not be found.\\)");
 //    QTest::newRow("bad unload") << (int)Unload << QString("nosuchlib.dll") << false << QString("QLibrary::unload_sys: Cannot unload nosuchlib.dll (The specified module could not be found.)");
-    QTest::newRow("bad resolve") << (int)Resolve << currDir + "/mylib" << false << QString("QLibrary::resolve_sys: Symbol \"nosuchsymbol\" undefined in \\S+ \\(The specified procedure could not be found.\\)");
-    QTest::newRow("good resolve") << (int)Resolve << currDir + "/mylib" << true << QString("");
 #elif Q_OS_MAC
 
 #else
@@ -297,7 +295,7 @@ void tst_QLibrary::lastError_data()
 #endif
 }
 
-void tst_QLibrary::lastError()
+void tst_QLibrary::errorString()
 {
     QFETCH(int, operation); 
     QFETCH(QString, fileName);
@@ -330,7 +328,7 @@ void tst_QLibrary::lastError()
             break;
     }
     QRegExp re(errorString);
-    QVERIFY(re.exactMatch(lib.lastError()));
+    QVERIFY(re.exactMatch(lib.errorString()));
     QCOMPARE(ok, success);
 }
 

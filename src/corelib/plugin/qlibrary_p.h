@@ -61,7 +61,7 @@ public:
     uint qt_version;
     QString lastModified;
 
-    QString lastError;
+    QString errorString;
 
     bool isPlugin();
 
