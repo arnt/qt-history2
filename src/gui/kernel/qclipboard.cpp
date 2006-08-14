@@ -93,7 +93,7 @@
 
     \i Windows and Mac OS X do not support the global mouse
     selection; they only supports the global clipboard, i.e. they
-    only adds text to the clipboard when an explicit copy or cut is
+    only add text to the clipboard when an explicit copy or cut is
     made.
 
     \i Windows and Mac OS X does not have the concept of ownership;
