@@ -1788,10 +1788,10 @@ Qt::TextInteractionFlags QTextEdit::textInteractionFlags() const
 }
 
 /*!
+    Merges the properties specified in \a modifier into the current character
+    format by calling QTextCursor::mergeCharFormat on the editor's cursor.
     If the editor has a selection then the properties of \a modifier are
-    applied to the selection. Without a selection the properties are applied
-    to the word under the cursor. In addition they are always merged into
-    the current char format.
+    directly applied to the selection.
 
     \sa QTextCursor::mergeCharFormat()
  */
@@ -1803,7 +1803,9 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 
 /*!
     Sets the char format that is be used when inserting new text to
-    \a format .
+    \a format by calling QTextCursor::setCharFormat on the editor's cursor.
+    If the editor has a selection then the char format is directly applied
+    to the selection.
  */
 void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
 {

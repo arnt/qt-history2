@@ -93,6 +93,7 @@ private slots:
     void canPaste();
     void ensureCursorVisibleOnInitialShow();
     void setHtmlInsideResizeEvent();
+    void colorfulAppend();
 
 private:
     void createSelection();
@@ -463,8 +464,10 @@ void tst_QTextEdit::mergeCurrentCharFormat()
 
     cursor.movePosition(QTextCursor::Right);
     cursor.movePosition(QTextCursor::Right);
-    QVERIFY(cursor.charFormat().fontItalic());
-    QVERIFY(cursor.charFormat().foreground().color() == Qt::red);
+    // do NOT select the current word under the cursor, /JUST/
+    // call mergeCharFormat on the cursor
+    QVERIFY(!cursor.charFormat().fontItalic());
+    QVERIFY(cursor.charFormat().foreground().color() != Qt::red);
 }
 
 void tst_QTextEdit::mergeCurrentBlockCharFormat()
@@ -474,7 +477,7 @@ void tst_QTextEdit::mergeCurrentBlockCharFormat()
     cursor.movePosition(QTextCursor::Start);
     cursor.movePosition(QTextCursor::Down);
 
-    // meka sure we're in the empty second line
+    // make sure we're in the empty second line
     QVERIFY(cursor.atBlockStart());
     QVERIFY(cursor.atBlockEnd());
 
@@ -484,7 +487,7 @@ void tst_QTextEdit::mergeCurrentBlockCharFormat()
     mod.setForeground(Qt::red);
     ed->mergeCurrentCharFormat(mod);
 
-    QVERIFY(cursor.blockCharFormat().foreground().color() == Qt::red);
+    QVERIFY(cursor.blockCharFormat().foreground().color() != Qt::red);
     cursor.movePosition(QTextCursor::Up);
     QVERIFY(cursor.blockCharFormat().foreground().color() != Qt::red);
     cursor.movePosition(QTextCursor::Down);
@@ -1178,6 +1181,27 @@ void tst_QTextEdit::setHtmlInsideResizeEvent()
     edit.show();
     edit.resize(800, 600);
     QVERIFY(edit.resizeEventCalled);
+}
+
+void tst_QTextEdit::colorfulAppend()
+{
+    ed->setTextColor(Qt::red);
+    ed->append("Red");
+    ed->setTextColor(Qt::blue);
+    ed->append("Blue");
+    ed->setTextColor(Qt::green);
+    ed->append("Green");
+
+    QCOMPARE(ed->document()->blockCount(), 3);
+    QTextBlock block = ed->document()->begin();
+    QCOMPARE(block.begin().fragment().text(), QString("Red"));
+    QVERIFY(block.begin().fragment().charFormat().foreground().color() == Qt::red);
+    block = block.next();
+    QCOMPARE(block.begin().fragment().text(), QString("Blue"));
+    QVERIFY(block.begin().fragment().charFormat().foreground().color() == Qt::blue);
+    block = block.next();
+    QCOMPARE(block.begin().fragment().text(), QString("Green"));
+    QVERIFY(block.begin().fragment().charFormat().foreground().color() == Qt::green);
 }
 
 QTEST_MAIN(tst_QTextEdit)

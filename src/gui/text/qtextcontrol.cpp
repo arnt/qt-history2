@@ -2215,16 +2215,6 @@ Qt::TextInteractionFlags QTextControl::textInteractionFlags() const
 void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
     Q_D(QTextControl);
-
-    if (!d->cursor.hasSelection()) {
-        if (d->cursor.atBlockStart() && d->cursor.atBlockEnd()) {
-            d->cursor.mergeBlockCharFormat(modifier);
-        } else {
-            QTextCursor word = d->cursor;
-            word.select(QTextCursor::WordUnderCursor);
-            word.mergeCharFormat(modifier);
-        }
-    }
     d->cursor.mergeCharFormat(modifier);
     d->lastCharFormat = d->cursor.charFormat();
 }
@@ -2324,6 +2314,8 @@ void QTextControl::append(const QString &text)
 
     if (!d->doc->isEmpty())
         cursor.insertBlock(d->cursor.blockFormat(), d->cursor.charFormat());
+    else
+        cursor.setCharFormat(d->cursor.charFormat());
 
     // preserve the char format
     QTextCharFormat oldCharFormat = d->cursor.charFormat();

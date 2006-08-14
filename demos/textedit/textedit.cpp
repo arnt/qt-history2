@@ -454,27 +454,37 @@ void TextEdit::filePrintPdf()
 
 void TextEdit::textBold()
 {
-    textEdit->setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
+    QTextCharFormat fmt;
+    fmt.setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
+    mergeFormatOnWordOrSelection(fmt);
 }
 
 void TextEdit::textUnderline()
 {
-    textEdit->setFontUnderline(actionTextUnderline->isChecked());
+    QTextCharFormat fmt;
+    fmt.setFontUnderline(actionTextUnderline->isChecked());
+    mergeFormatOnWordOrSelection(fmt);
 }
 
 void TextEdit::textItalic()
 {
-    textEdit->setFontItalic(actionTextItalic->isChecked());
+    QTextCharFormat fmt;
+    fmt.setFontItalic(actionTextItalic->isChecked());
+    mergeFormatOnWordOrSelection(fmt);
 }
 
 void TextEdit::textFamily(const QString &f)
 {
-    textEdit->setFontFamily(f);
+    QTextCharFormat fmt;
+    fmt.setFontFamily(f);
+    mergeFormatOnWordOrSelection(fmt);
 }
 
 void TextEdit::textSize(const QString &p)
 {
-    textEdit->setFontPointSize(p.toFloat());
+    QTextCharFormat fmt;
+    fmt.setFontPointSize(p.toFloat());
+    mergeFormatOnWordOrSelection(fmt);
 }
 
 void TextEdit::textStyle(int styleIndex)
@@ -538,7 +548,9 @@ void TextEdit::textColor()
     QColor col = QColorDialog::getColor(textEdit->textColor(), this);
     if (!col.isValid())
         return;
-    textEdit->setTextColor(col);
+    QTextCharFormat fmt;
+    fmt.setForeground(col);
+    mergeFormatOnWordOrSelection(fmt);
     colorChanged(col);
 }
 
@@ -568,6 +580,15 @@ void TextEdit::cursorPositionChanged()
 void TextEdit::clipboardDataChanged()
 {
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
+}
+
+void TextEdit::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
+{
+    QTextCursor cursor = textEdit->textCursor();
+    if (!cursor.hasSelection())
+        cursor.select(QTextCursor::WordUnderCursor);
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
 }
 
 void TextEdit::fontChanged(const QFont &f)
