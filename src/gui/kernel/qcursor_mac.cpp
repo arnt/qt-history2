@@ -96,8 +96,7 @@ protected:
 };
 
 static QCursorData *currentCursor = 0; //current cursor
-static Point currentPoint = { 0, 0 };
-void qt_mac_set_cursor(const QCursor *c, const QPoint &p)
+void qt_mac_set_cursor(const QCursor *c, const QPoint &)
 {
     if (!c) {
         currentCursor = 0;
@@ -112,8 +111,6 @@ void qt_mac_set_cursor(const QCursor *c, const QPoint &p)
 
         if(c->d->type == QCursorData::TYPE_CursPtr) {
             SetCursor(c->d->curs.cp.hcurs);
-        } else if(c->d->type == QCursorData::TYPE_CursorImage) {
-
         } else if(c->d->type == QCursorData::TYPE_ThemeCursor) {
             if(SetAnimatedThemeCursor(c->d->curs.tc.curs, 0) == themeBadCursorIndexErr) {
                 SetThemeCursor(c->d->curs.tc.curs);
@@ -147,8 +144,6 @@ QCursorData::~QCursorData()
     if (type == TYPE_CursPtr) {
         if (curs.cp.hcurs && curs.cp.my_cursor)
             free(curs.cp.hcurs);
-    } else if (type == TYPE_CursorImage) {
-        free(curs.ci);
 #ifdef QMAC_USE_BIG_CURSOR_API
     } else if(type == TYPE_BigCursor) {
         QDUnregisterNamedPixMapCursur(curs.big_cursor_name);
@@ -314,14 +309,6 @@ void QCursorData::update()
             else
                 free(curs.big_cursor_name);
 #endif
-        }
-        if(type == QCursorData::TYPE_None) {
-            type = QCursorData::TYPE_CursorImage;
-            curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
-            curs.ci->majorVersion = kCursorImageMajorVersion;
-            curs.ci->minorVersion = kCursorImageMinorVersion;
-            curs.ci->cursorPixMap = GetGWorldPixMap(qt_mac_qd_context(bm));
-            curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_mac_qd_context(bmm));
         }
         break; }
     case Qt::ArrowCursor: {

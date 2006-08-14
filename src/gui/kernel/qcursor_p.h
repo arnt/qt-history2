@@ -68,7 +68,7 @@ struct QCursorData {
     Cursor hcurs;
     Pixmap pm, pmm;
 #elif defined (Q_WS_MAC)
-    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
+    enum { TYPE_None, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
     union {
         struct {
             uint my_cursor:1;
@@ -83,7 +83,6 @@ struct QCursorData {
 #ifdef QMAC_USE_BIG_CURSOR_API
         char *big_cursor_name;
 #endif
-        CursorImageRec *ci;
         struct {
             QMacAnimateCursor *anim;
             ThemeCursor curs;
