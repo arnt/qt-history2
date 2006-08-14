@@ -6123,7 +6123,8 @@ void QString::updateProperties() const
     \printuntil }
 
     Note that the pointer remains valid only as long as the string is
-    not modified by other means.
+    not modified by other means. For read-only access, constData() is
+    faster because it never causes a \l{deep copy} to occur.
 
     \sa constData(), operator[]()
 */

@@ -934,7 +934,8 @@ QByteArray &QByteArray::operator=(const char *str)
     \endcode
 
     The pointer remains valid as long as the byte array isn't
-    reallocated.
+    reallocated. For read-only access, constData() is faster
+    because it never causes a \l{deep copy} to occur.
 
     This function is mostly useful to pass a byte array to a function
     that accepts a \c{const char *}.
