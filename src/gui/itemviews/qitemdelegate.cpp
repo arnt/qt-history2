@@ -35,6 +35,7 @@
 #include <private/qobject_p.h>
 #include <private/qdnd_p.h>
 #include <qdebug.h>
+#include <qlocale.h>
 
 #include <limits.h>
 
@@ -323,7 +324,10 @@ void QItemDelegate::paint(QPainter *painter,
     QRect displayRect;
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
-        text = value.toString();
+        if (value.type() == QVariant::Double)
+            text = QLocale().toString(value.toDouble());
+        else
+            text = value.toString();
         displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
 
