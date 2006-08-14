@@ -1437,7 +1437,9 @@ QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 }
 
 /*!
-  Lays out the items in the tree view.
+    \internal
+
+    Lays out the items in the tree view.
 */
 void QTreeView::doItemsLayout()
 {
