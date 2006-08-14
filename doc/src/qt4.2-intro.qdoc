@@ -282,6 +282,10 @@
   such as \gui{Undo}, \gui{Copy}, and \gui{Paste}, and enable shortcuts to be
   specified in a true cross-platform way.
 
+  Support for \l{Qt's Property System#Dynamic Properties}{dynamic properties}
+  extends the standard Qt property system, enabling
+  \bold{new properties to be added to instances of QObject subclasses at run-time}.
+
   \section1 Qtopia Core
 
   Many improvements in Qt are specific to Qtopia Core and are concerned with
@@ -314,7 +318,5 @@
   * Linguist improvements
 
   * Text control (not 100% certain we'll have a public API)
-
-  * \l{Qt's Property System#Dynamic Properties}{Dynamic property support}
   \endomit
 */
