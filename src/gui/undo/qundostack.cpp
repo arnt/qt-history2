@@ -78,7 +78,7 @@
 */
 
 /*!
-    Constructs a QUndoCommand object with parent \a parent and text \a text.
+    Constructs a QUndoCommand object with the given \a parent and \a text.
 
     If \a parent is not 0, this command is appended to parent's child list.
     The parent command then owns this command and will delete it in its
@@ -210,10 +210,13 @@ void QUndoCommand::undo()
 }
 
 /*!
-    Returns a short text string describing what this command does, f.ex. "insert text".
-    It is used to update the text properties of the stack's undo and redo actions.
+    Returns a short text string describing what this command does; for example,
+    "insert text".
 
-    \sa setText() QUndoStack::createUndoAction() QUndoStack::createRedoAction()
+    The text is used when the text properties of the stack's undo and redo
+    actions are updated.
+
+    \sa setText(), QUndoStack::createUndoAction(), QUndoStack::createRedoAction()
 */
 
 QString QUndoCommand::text() const
@@ -772,14 +775,14 @@ QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) co
 }
 
 /*!
-    Begins composition of a macro command with text \a text.
+    Begins composition of a macro command with the given \a text description.
 
-    An empty command with text \a text is pushed on the stack. Any subsequent
-    commands pushed on the stack will be appended to the empty command's children,
-    until endMacro() is called.
+    An empty command described by the specified \a text is pushed on the stack.
+    Any subsequent commands pushed on the stack will be appended to the empty
+    command's children until endMacro() is called.
 
-    Calls to beginMacro() and endMacro() mey be nested, but every call to beginMacro()
-    must have a matching call to endMacro().
+    Calls to beginMacro() and endMacro() may be nested, but every call to
+    beginMacro() must have a matching call to endMacro().
 
     While a macro is composed, the stack is disabled. This means that:
     \list
@@ -788,8 +791,9 @@ QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) co
     \i calling undo() or redo() has no effect,
     \i the undo/redo actions are disabled.
     \endlist
-    The stack becomes enabled and appropriate signals are emitted when endMacro() is called
-    for the outermost macro.
+
+    The stack becomes enabled and appropriate signals are emitted when endMacro()
+    is called for the outermost macro.
 
     \code
     stack.beginMacro("insert red text");
