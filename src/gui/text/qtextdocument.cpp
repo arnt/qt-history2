@@ -660,6 +660,10 @@ bool QTextDocument::isRedoAvailable() const
 /*!
     Sets the document to use the given \a layout. The previous layout
     is deleted.
+
+    Note that when setting a new layout for a QTextEdit you have to create a
+    new QTextDocument first, set the new layout on it and then set the new
+    document on QTextEdit.
 */
 void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 {
