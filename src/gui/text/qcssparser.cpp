@@ -284,7 +284,7 @@ void ValueExtractor::lengthValues(const Declaration &decl, int *m)
     else if (i == 3) m[3] = m[1];
 }
 
-bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh) 
+bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
 {
     extractFont();
     bool hit = false;
@@ -303,7 +303,7 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
     return hit;
 }
 
-bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom) 
+bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom)
 {
     extractFont();
     bool hit = false;
@@ -720,8 +720,8 @@ void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
 bool ValueExtractor::extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg)
 {
     bool hit = false;
-    *fg = QColor();
-    *sfg = *sbg = *abg = QBrush();
+    *fg = *sfg = QColor();
+    *sbg = *abg = QBrush();
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
