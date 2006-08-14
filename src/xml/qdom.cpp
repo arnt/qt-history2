@@ -5154,8 +5154,12 @@ bool QDomElement::hasAttributeNS(const QString& nsURI, const QString& localName)
     <h1>Hello <b>Qt</b> <![CDATA[<xml is cool>]]></h1>
     \endcode
 
-    The function text() of the QDomElement for the &lt;h1&gt; tag,
-    will return "Hello Qt &lt;xml is cool&gt;".
+    The function text() of the QDomElement for the \c{<h1>} tag,
+    will return the following text:
+
+    \code
+    Hello Qt &lt;xml is cool&gt;
+    \endcode
 
     Comments are ignored by this function. It only evaluates QDomText
     and QDomCDATASection objects.
