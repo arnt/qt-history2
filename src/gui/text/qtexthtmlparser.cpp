@@ -1223,6 +1223,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
 
 void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> &declarations, const QTextDocument *resourceProvider)
 {
+    QCss::ValueExtractor extractor(declarations);
+    int ignoredBorders[4];
+    extractor.extractBox(margin, ignoredBorders);
+
     for (int i = 0; i < declarations.count(); ++i) {
         const QCss::Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty()) continue;
@@ -1265,10 +1269,6 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                         default: break;
                     }
                 }
-            case QCss::MarginTop: decl.intValue(&margin[QTextHtmlParser::MarginTop], "px"); break;
-            case QCss::MarginBottom: decl.intValue(&margin[QTextHtmlParser::MarginBottom], "px"); break;
-            case QCss::MarginLeft: decl.intValue(&margin[QTextHtmlParser::MarginLeft], "px"); break;
-            case QCss::MarginRight: decl.intValue(&margin[QTextHtmlParser::MarginRight], "px"); break;
             case QCss::VerticalAlignment:
                 if (decl.values.first().type == QCss::Value::KnownIdentifier) {
                     switch (decl.values.first().variant.toInt()) {
@@ -1284,7 +1284,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
 
     QFont f;
     int adjustment = -255;
-    QCss::extractFontProperties(declarations, &f, &adjustment);
+    extractor.extractFont(&f, &adjustment);
     if (f.resolve() & QFontPrivate::Size) {
         if (f.pointSize() > 0) {
             fontPointSize = f.pointSize();
@@ -1322,7 +1322,9 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         QCss::Repeat ignoredRepeat;
         QString bgImage;
         QColor bgColor;
-        QCss::extractBackgroundProperties(declarations, &bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment);
+        QCss::Origin ignoredOrigin;
+        extractor.extractBackground(&bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment, 
+                                    &ignoredOrigin);
 
         if (!bgImage.isEmpty() && resourceProvider) {
             QVariant val = resourceProvider->resource(QTextDocument::ImageResource, bgImage);

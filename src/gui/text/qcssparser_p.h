@@ -30,7 +30,7 @@
 #include <QVariant>
 #include <QPair>
 #include <QSize>
-#include <QBrush>
+#include <QFont>
 
 namespace QCss
 {
@@ -157,18 +157,6 @@ enum BorderStyle {
     NumKnownBorderStyles
 };
 
-struct BorderStyles
-{
-    BorderStyles() : left(BorderStyle_None), right(BorderStyle_None),
-                     top(BorderStyle_None), bottom(BorderStyle_None) { }
-    BorderStyle left, right, top, bottom;
-};
-
-struct BorderBrushes
-{
-    QBrush left, right, top, bottom;
-};
-
 enum Edge {
     TopEdge,
     RightEdge,
@@ -249,25 +237,21 @@ struct Q_GUI_EXPORT Declaration
     QColor colorValue() const;
     void colorValues(QColor *c) const;
     QBrush brushValue() const;
-    bool realValue(qreal *value, const char *unit = 0) const;
-    bool realValue(Value v, qreal *real, const char *unit = 0) const;
-    bool intValue(int *value, const char *unit = 0) const;
-    bool intValue(Value v, int *real, const char *unit = 0) const;
-    void realValues(qreal *reals, const char *unit = 0, int offset = 0) const;
-    void intValues(int *ints, const char *unit = 0, int offset = 0) const;
+
     BorderStyle styleValue() const;
     BorderStyle styleValue(Value v) const;
     void styleValues(BorderStyle *s) const;
-    void radiiValues(QSize *radii, const char *unit = 0) const;
-    void radiusValue(QSize *radius, const char *unit = 0) const;
+
     Origin originValue() const;
     Repeat repeatValue() const;
     Qt::Alignment alignmentValue() const;
+
+    bool intValue(int *i, const char *unit = 0) const;
+    bool realValue(qreal *r, const char *unit = 0) const;
+
     QString uriValue() const;
-    void pixmapValue(QPixmap *pixmap, QSize *size) const;
-    QIcon iconValue() const;
-    QSize sizeValue(const char *unit = 0, int offset = 0) const;
-    void borderImageValue(QPixmap *pixmap, int *cuts, TileMode *h, TileMode *v) const;
+
+    void borderImageValue(QString *image, int *cuts, TileMode *h, TileMode *v) const;
 };
 
 enum PseudoState
@@ -340,9 +324,31 @@ struct MediaRule;
 struct PageRule;
 struct ImportRule;
 
-void extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment);
-Q_AUTOTEST_EXPORT void extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
-                                                   Repeat *repeat, Qt::Alignment *alignment);
+struct Q_GUI_EXPORT ValueExtractor
+{
+    ValueExtractor(const QVector<Declaration> &declarations);
+    
+    void extractFont(QFont *font, int *fontSizeAdjustment);
+    bool extractBackground(QColor *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *);
+    bool extractGeometry(int *w, int *h, int *mw, int *mh);
+    bool extractPosition(int *left, int *top, int *right, int *bottom);
+    bool extractBox(int *margins, int *paddings, int *spacing = 0);
+    bool extractBorder(int *borders, QColor *colors, BorderStyle *Styles, QSize *radii);
+    bool extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg);
+
+private:
+    void extractFont();
+    int lengthValue(const Declaration &decl);
+    int lengthValue(const Value& v);
+    void lengthValues(const Declaration &decl, int *m);
+    QSize sizeValue(const Declaration &decl);
+    void sizeValues(const Declaration &decl, QSize *radii);
+
+    QVector<Declaration> declarations;
+    QFont f;
+    int adjustment;
+    bool fontExtracted;
+};
 
 struct Q_GUI_EXPORT StyleRule
 {

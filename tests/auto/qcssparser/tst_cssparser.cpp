@@ -738,46 +738,6 @@ void tst_CssParser::colorValue()
     QCOMPARE(col, expectedColor);
 }
 
-void tst_CssParser::marginValue_data()
-{
-    QTest::addColumn<QString>("css");
-    QTest::addColumn<QString>("unit");
-    QTest::addColumn<QString>("expectedMargin");
-
-    QTest::newRow("one value") << "margin: 1px" << "px" << "1 1 1 1";
-    QTest::newRow("two values") << "margin: 1px 2px" << "px" << "1 2 1 2";
-    QTest::newRow("three value") << "margin: 1px 2px 3px" << "px" << "1 2 3 2";
-    QTest::newRow("four values") << "margin: 1px 2px 3px 4px" << "px" << "1 2 3 4";
-    QTest::newRow("default px") << "margin: 1 2 3 4" << "px" << "1 2 3 4";
-    QTest::newRow("no unit") << "margin: 1 2 3 4" << QString() << "1 2 3 4";
-    QTest::newRow("em") << "margin: 1em 2em 3em 4em" << "em" << "1 2 3 4";
-    QTest::newRow("em") << "margin: 1em 2em 3px 4px" << "em" << "1 2 1 2"; // Fix later
-    QTest::newRow("em") << "margin: crap" << "em" << "0 0 0 0";
-}
-
-void tst_CssParser::marginValue()
-{
-    QFETCH(QString, css);
-    QFETCH(QString, unit);
-    QFETCH(QString, expectedMargin);
-
-    QCss::Parser parser(css);
-    QCss::Declaration decl;
-    QVERIFY(parser.parseNextDeclaration(&decl));
-    {
-    int m[4];
-    decl.intValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
-    QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
-    QCOMPARE(str, expectedMargin);
-    }
-    {
-    qreal m[4];
-    decl.realValues(m, unit.isEmpty() ? 0 : unit.toAscii().constData());
-    QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
-    QCOMPARE(str, expectedMargin);
-    }
-}
-
 class DomStyleSelector : public QCss::StyleSelector
 {
 public:
@@ -819,6 +779,55 @@ private:
 };
 
 Q_DECLARE_METATYPE(QDomDocument);
+
+void tst_CssParser::marginValue_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QString>("expectedMargin");
+
+    QTest::newRow("one value") << "margin: 1px" << "1 1 1 1";
+    QTest::newRow("two values") << "margin: 1px 2px" << "1 2 1 2";
+    QTest::newRow("three value") << "margin: 1px 2px 3px" << "1 2 3 2";
+    QTest::newRow("four values") << "margin: 1px 2px 3px 4px" << "1 2 3 4";
+    QTest::newRow("default px") << "margin: 1 2 3 4" << "1 2 3 4";
+    QTest::newRow("no unit") << "margin: 1 2 3 4" << "1 2 3 4";
+    QTest::newRow("em") << "margin: 1em 2em 3em 4em" << "1 2 3 4";
+    QTest::newRow("ex") << "margin: 1em 2em 3px 4px" << "1 2 1 2"; // Fix later
+    QTest::newRow("crap") << "margin: crap" << "0 0 0 0";
+}
+
+void tst_CssParser::marginValue()
+{
+    QFETCH(QString, css);
+    QFETCH(QString, expectedMargin);
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(QLatin1String("<!DOCTYPE test><test> <dummy/> </test>")));
+
+    css.prepend("dummy {");
+    css.append("}");
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    DomStyleSelector testSelector(doc, sheet);
+    QDomElement e = doc.documentElement().firstChildElement();
+    QCss::StyleSelector::NodePtr n;
+    n.ptr = &e;
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
+    QVector<QCss::Declaration> decls = rules.at(0).declarations;
+    QCss::ValueExtractor v(decls);
+
+    {
+    int m[4];
+    int p[4];
+    int spacing;
+    v.extractBox(m, p, &spacing);
+    QString str = QString("%1 %2 %3 %4").arg(m[0]).arg(m[1]).arg(m[2]).arg(m[3]);
+    QCOMPARE(str, expectedMargin);
+    }
+}
 
 void tst_CssParser::styleSelector_data()
 {
@@ -1130,7 +1139,7 @@ void tst_CssParser::rulesForNode()
     QDomElement e = doc.documentElement().firstChildElement();
     QCss::StyleSelector::NodePtr n;
     n.ptr = &e;
-    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n).value(QString());
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
 
     QVector<QCss::Declaration> decls;
     for (int i = 0; i < rules.count(); i++) {
@@ -1180,7 +1189,9 @@ void tst_CssParser::shorthandBackgroundProperty()
     QString image;
     QCss::Repeat repeat;
     Qt::Alignment alignment;
-    QCss::extractBackgroundProperties(sheet.styleRules.first().declarations, &color, &image, &repeat, &alignment);
+    QCss::Origin origin;
+    QCss::ValueExtractor ve(sheet.styleRules.first().declarations);
+    ve.extractBackground(&color, &image, &repeat, &alignment, &origin);
 
     QTEST(color, "expectedColor");
     QTEST(image, "expectedImage");
@@ -1192,7 +1203,7 @@ void tst_CssParser::pseudoElement_data()
 {
     QTest::addColumn<QString>("css");
     QTest::addColumn<QString>("pseudoElement");
-    QTest::addColumn<int>("ruleCount");
+    QTest::addColumn<int>("declCount");
     
     // QComboBox::dropDown { border-image: blah; }
     QTest::newRow("no pseudo-elements") << QString("dummy:hover { color: red }") << "" << 1;
@@ -1226,7 +1237,7 @@ void tst_CssParser::pseudoElement()
 {
     QFETCH(QString, css);
     QFETCH(QString, pseudoElement);
-    QFETCH(int, ruleCount);
+    QFETCH(int, declCount);
 
     QDomDocument doc;
     QVERIFY(doc.setContent(QLatin1String("<!DOCTYPE test><test> <dummy/> </test>")));
@@ -1239,8 +1250,16 @@ void tst_CssParser::pseudoElement()
     QDomElement e = doc.documentElement().firstChildElement();
     QCss::StyleSelector::NodePtr n;
     n.ptr = &e;
-    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n).value(pseudoElement);
-    QVERIFY(rules.count() == ruleCount);
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
+    QVector<QCss::Declaration> decls;
+    for (int i = 0; i < rules.count(); i++) {
+        const QCss::Selector& selector = rules.at(i).selectors.at(0);
+        if (pseudoElement.compare(selector.pseudoElement(), Qt::CaseInsensitive) != 0)
+            continue;
+        decls += rules.at(i).declarations;
+
+    }
+    QVERIFY(decls.count() == declCount);
 }
 
 

@@ -233,10 +233,10 @@ class QTextHtmlParser
 {
 public:
     enum Margin {
-        MarginLeft,
-        MarginRight,
         MarginTop,
-        MarginBottom
+        MarginRight,
+        MarginBottom,
+        MarginLeft
     };
 
     inline const QTextHtmlParserNode &at(int i) const { return nodes.at(i); }

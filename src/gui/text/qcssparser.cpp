@@ -16,9 +16,9 @@
 #include <QDebug>
 #include <QColor>
 #include <QFont>
-#include <QPixmap>
-#include <QIcon>
 #include <QFileInfo>
+#include <QFontMetrics>
+#include <QBrush>
 
 #include "qcssscanner.cpp"
 
@@ -235,9 +235,212 @@ static int findKnownValue(const QString &name, const QCssKnownValue *start, int 
     return prop->id;
 }
 
-QBrush Declaration::brushValue() const
+///////////////////////////////////////////////////////////////////////////////
+// Value Extractor
+ValueExtractor::ValueExtractor(const QVector<Declaration> &decls)
+: declarations(decls), adjustment(0), fontExtracted(false)
 {
-    return colorValue(); // FIXME
+}
+
+int ValueExtractor::lengthValue(const Value& v)
+{
+    QString s = v.variant.toString();
+    QRegExp re("([\\d\\.]*)(px|em|ex)?", Qt::CaseInsensitive);
+    if (re.indexIn(s) == -1)
+        return 0;
+    QString real = re.cap(1);
+    QString unit = re.cap(2);
+
+    bool ok;
+    qreal number = real.toDouble(&ok);
+    if (!ok)
+        return 0;
+
+    QFontMetrics fm(f);
+    if (unit.compare("ex", Qt::CaseInsensitive) == 0)
+        return qRound(fm.xHeight() * number);
+    else if (unit.compare("em", Qt::CaseInsensitive) == 0)
+        return qRound(fm.height() * number);
+
+    return qRound(number);
+}
+
+int ValueExtractor::lengthValue(const Declaration &decl)
+{
+    if (decl.values.count() < 1)
+        return 0;
+    return lengthValue(decl.values.first());
+}
+
+void ValueExtractor::lengthValues(const Declaration &decl, int *m)
+{
+    int i;
+    for (i = 0; i < qMin(decl.values.count(), 4); i++)
+        m[i] = lengthValue(decl.values[i]);
+
+    if (i == 0) m[0] = m[1] = m[2] = m[3] = 0;
+    else if (i == 1) m[3] = m[2] = m[1] = m[0];
+    else if (i == 2) m[2] = m[0], m[3] = m[1];
+    else if (i == 3) m[3] = m[1];
+}
+
+bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh) 
+{
+    extractFont();
+    bool hit = false;
+    *w = *h = *mw = *mh = -1;
+    for (int i = 0; i < declarations.count(); i++) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case Width: *w = lengthValue(decl); break;
+        case Height: *h = lengthValue(decl); break;
+        case MinimumWidth: *mw = lengthValue(decl); break;
+        case MinimumHeight: *mh = lengthValue(decl); break;
+        default: break;
+        }
+    }
+
+    return hit;
+}
+
+bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom) 
+{
+    extractFont();
+    bool hit = false;
+    *left = *top = *right = *bottom = -1;
+    for (int i = 0; i < declarations.count(); i++) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case Left: *left = lengthValue(decl); break;
+        case Top: *top = lengthValue(decl); break;
+        case Right: *right = lengthValue(decl); break;
+        case Bottom: *bottom = lengthValue(decl); break;
+        default: continue;
+        }
+        hit = true;
+    }
+
+    return hit;
+}
+
+bool ValueExtractor::extractBox(int *margins, int *paddings, int *spacing)
+{
+    extractFont();
+    bool hit = false;
+    if (spacing) *spacing = 0;
+    for (int i = 0; i < 4; i++)
+        margins[i] = paddings[i] = 0;
+
+    for (int i = 0; i < declarations.count(); i++) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case PaddingLeft: paddings[LeftEdge] = lengthValue(decl); break;
+        case PaddingRight: paddings[RightEdge] = lengthValue(decl); break;
+        case PaddingTop: paddings[TopEdge] = lengthValue(decl); break;
+        case PaddingBottom: paddings[BottomEdge] = lengthValue(decl); break;
+        case Padding: lengthValues(decl, paddings); break;
+
+        case MarginLeft: margins[LeftEdge] = lengthValue(decl); break;
+        case MarginRight: margins[RightEdge] = lengthValue(decl); break;
+        case MarginTop: margins[TopEdge] = lengthValue(decl); break;
+        case MarginBottom: margins[BottomEdge] = lengthValue(decl); break;
+        case Margin: lengthValues(decl, margins); break;
+        case Spacing: if (spacing) *spacing = lengthValue(decl); break;
+
+        default: continue;
+        }
+        hit = true;
+    }
+
+    return hit;
+}
+
+QSize ValueExtractor::sizeValue(const Declaration &decl)
+{
+    int x[2] = { 0, 0 };
+    if (decl.values.count() > 0)
+        x[0] = lengthValue(decl.values.at(0));
+    if (decl.values.count() > 1)
+        x[1] = lengthValue(decl.values.at(1));
+    else
+        x[1] = x[0];
+    return QSize(x[0], x[1]);
+}
+
+void ValueExtractor::sizeValues(const Declaration &decl, QSize *radii)
+{
+    radii[0] = sizeValue(decl);
+    for (int i = 1; i < 4; i++)
+        radii[i] = radii[0];
+}
+
+bool ValueExtractor::extractBorder(int *borders, QColor *colors, BorderStyle *styles,
+                                   QSize *radii)
+{
+    extractFont();
+    bool hit = false;
+    for (int i = 0; i < 4; i++) {
+        borders[i] = 0;
+        styles[i] = BorderStyle_None;
+        colors[i] = Qt::transparent;
+    }
+
+    for (int i = 0; i < declarations.count(); i++) {
+        const Declaration &decl = declarations.at(i);
+        switch (decl.propertyId) {
+        case BorderLeftWidth: borders[LeftEdge] = lengthValue(decl); break;
+        case BorderRightWidth: borders[RightEdge] = lengthValue(decl); break;
+        case BorderTopWidth: borders[TopEdge] = lengthValue(decl); break;
+        case BorderBottomWidth: borders[BottomEdge] = lengthValue(decl); break;
+        case BorderWidth: lengthValues(decl, borders); break;
+
+        case BorderLeftColor: colors[LeftEdge] = decl.colorValue(); break;
+        case BorderRightColor: colors[RightEdge] = decl.colorValue(); break;
+        case BorderTopColor: colors[TopEdge] = decl.colorValue(); break;
+        case BorderBottomColor: colors[BottomEdge] = decl.colorValue(); break;
+        case BorderColor: decl.colorValues(colors); break;
+
+        case BorderTopStyle: styles[TopEdge] = decl.styleValue(); break;
+        case BorderBottomStyle: styles[BottomEdge] = decl.styleValue(); break;
+        case BorderLeftStyle: styles[LeftEdge] = decl.styleValue(); break;
+        case BorderRightStyle: styles[RightEdge] = decl.styleValue(); break;
+        case BorderStyles:  decl.styleValues(styles); break;
+
+        case BorderTopLeftRadius: radii[0] = sizeValue(decl); break;
+        case BorderTopRightRadius: radii[1] = sizeValue(decl); break;
+        case BorderBottomLeftRadius: radii[2] = sizeValue(decl); break;
+        case BorderBottomRightRadius: radii[3] = sizeValue(decl); break;
+        case BorderRadius: sizeValues(decl, radii); break;
+
+        default: continue;
+        }
+        hit = true;
+    }
+
+    return hit;
+}
+
+static Qt::Alignment parseAlignment(const Value *values, int count)
+{
+    Qt::Alignment a[2];
+    for (int i = 0; i < qMin(2, count); i++) {
+        if (values[i].type != Value::KnownIdentifier)
+            break;
+        switch (values[i].variant.toInt()) {
+        case Value_Left: a[i] = Qt::AlignLeft; break;
+        case Value_Right: a[i] = Qt::AlignRight; break;
+        case Value_Top: a[i] = Qt::AlignTop; break;
+        case Value_Bottom: a[i] = Qt::AlignBottom; break;
+        case Value_Center: a[i] = Qt::AlignCenter; break;
+        default: break;
+        }
+    }
+
+    if (a[0] == Qt::AlignCenter && a[1] != 0 && a[1] != Qt::AlignCenter)
+        a[0] = (a[1] == Qt::AlignLeft || a[1] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
+    if ((a[1] == 0 || a[1] == Qt::AlignCenter) && a[0] != Qt::AlignCenter)
+        a[1] = (a[0] == Qt::AlignLeft || a[0] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
+    return a[0] | a[1];
 }
 
 static QColor parseColorValue(Value v)
@@ -285,255 +488,84 @@ static QColor parseColorValue(Value v)
                   colorDigits.at(4).variant.toInt());
 }
 
-QColor Declaration::colorValue() const
+static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColor *color, QString *image, Repeat *repeat, Qt::Alignment *alignment)
 {
-    if (values.count() != 1)
-        return QColor();
+    *color = QColor();
+    *image = QString();
+    *repeat = Repeat_XY;
 
-    return parseColorValue(values.first());
-}
-
-bool Declaration::realValue(qreal *r, const char *unit) const
-{
-    if (values.count() != 1)
-        return false;
-    return realValue(values.first(), r, unit);
-}
-
-bool Declaration::realValue(Value v, qreal *real, const char *unit) const
-{
-    if (unit && v.type != Value::Length) {
-        if (v.type != Value::Number || qstricmp(unit, "px") != 0)
-            return false;
-        unit = 0;
-    }
-    QString s = v.variant.toString();
-    if (unit) {
-        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
-            return false;
-        s.chop(qstrlen(unit));
-    }
-    bool ok = false;
-    qreal val = s.toDouble(&ok);
-    if (ok)
-        *real = val;
-    return ok;
-}
-
-bool Declaration::intValue(int *i, const char *unit) const
-{
-    if (values.count() != 1)
-        return false;
-    return intValue(values.first(), i, unit);
-}
-
-bool Declaration::intValue(Value v, int *i, const char *unit) const
-{
-    if (unit && v.type != Value::Length) {
-        if (v.type != Value::Number || qstricmp(unit, "px") != 0)
-            return false;
-        unit = 0;
-    }
-    QString s = v.variant.toString();
-    if (unit) {
-        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
-            return false;
-        s.chop(qstrlen(unit));
-    }
-    bool ok = false;
-    int val = s.toInt(&ok);
-    if (ok)
-        *i = val;
-    return ok;
-}
-
-void Declaration::realValues(qreal *m, const char *unit, int offset) const
-{
-    int i;
-    for (i = 0; i < qMin(values.count()-offset, 4); i++) {
-        const Value& v = values.at(i+offset);
-        if (!realValue(v, &m[i], unit))
-            break;
-    }
-    if (i == 0) m[0] = m[1] = m[2] = m[3] = 0;
-    else if (i == 1) m[3] = m[2] = m[1] = m[0];
-    else if (i == 2) m[2] = m[0], m[3] = m[1];
-    else if (i == 3) m[3] = m[1];
-}
-
-void Declaration::intValues(int *m, const char *unit, int offset) const
-{
-    int i;
-    for (i = 0; i < qMin(values.count()-offset, 4); i++) {
-        const Value& v = values.at(i+offset);
-        if (!intValue(v, &m[i], unit))
-            break;
-    }
-    if (i == 0) m[0] = m[1] = m[2] = m[3] = 0;
-    else if (i == 1) m[3] = m[2] = m[1] = m[0];
-    else if (i == 2) m[2] = m[0], m[3] = m[1];
-    else if (i == 3) m[3] = m[1];
-}
-
-void Declaration::colorValues(QColor *c) const
-{
-    int i;
-    for (i = 0; i < qMin(values.count(), 4); i++)
-        c[i] = parseColorValue(values.at(i));
-    if (i == 0) c[0] = c[1] = c[2] = c[3] = QColor();
-    else if (i == 1) c[3] = c[2] = c[1] = c[0];
-    else if (i == 2) c[2] = c[0], c[3] = c[1];
-    else if (i == 3) c[3] = c[1];
-}
-
-BorderStyle Declaration::styleValue() const
-{
-    if (values.count() != 1)
-        return BorderStyle_None;
-    return styleValue(values.first());
-}
-
-BorderStyle Declaration::styleValue(Value v) const
-{
-    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
-                                        borderStyles, NumKnownBorderStyles));
-}
-
-void Declaration::styleValues(BorderStyle *s) const
-{
-    int i;
-    for (i = 0; i < qMin(values.count(), 4); i++)
-        s[i] = styleValue(values.at(i));
-    if (i == 0) s[0] = s[1] = s[2] = s[3] = BorderStyle_None;
-    else if (i == 1) s[3] = s[2] = s[1] = s[0];
-    else if (i == 2) s[2] = s[0], s[3] = s[1];
-    else if (i == 3) s[3] = s[1];
-}
-
-void Declaration::radiiValues(QSize *radii, const char *unit) const
-{
-    radii[0] = sizeValue(unit);
-    for (int i = 1; i < 4; i++)
-        radii[i] = radii[0];
-}
-
-QSize Declaration::sizeValue(const char *unit, int offset) const
-{
-    int x[2] = { 0, 0 };
-    if (values.count() > offset)
-        intValue(values.at(offset), &x[0], unit);
-    if (values.count() > 1+offset)
-        intValue(values.at(1+offset), &x[1], unit);
-    else
-        x[1] = x[0];
-    return QSize(x[0], x[1]);
-}
-
-Repeat Declaration::repeatValue() const
-{
-    if (values.count() != 1)
-        return Repeat_Unknown;
-    return static_cast<Repeat>(findKnownValue(values.first().variant.toString(),
-                                repeats, NumKnownRepeats));
-}
-
-Origin Declaration::originValue() const
-{
-    if (values.count() != 1)
-        return Origin_Unknown;
-    return static_cast<Origin>(findKnownValue(values.first().variant.toString(),
-                               origins, NumKnownOrigins));
-}
-
-QString Declaration::uriValue() const
-{
-    if (values.isEmpty() || values.first().type != Value::Uri)
-        return QString();
-    return values.first().variant.toString();
-}
-
-QIcon Declaration::iconValue() const
-{
-    QIcon icon(uriValue());
-    if (!QFileInfo(uriValue()).exists())
-        qWarning("Failed to load icon '%s;", qPrintable(uriValue()));
-    return icon;
-}
-
-void Declaration::pixmapValue(QPixmap *pixmap, QSize *size) const
-{
-    *pixmap = QPixmap(uriValue());
-    *size = QSize();
-    if (pixmap->isNull()) {
-        qWarning("Failed to load pixmap '%s'", qPrintable(uriValue()));
-        return;
-    }
-    if (values.count() > 1) {
-        if (values.at(1).type == Value::KnownIdentifier) {
-            if (values.at(1).variant.toInt() == Value_Auto)
-               *size = pixmap->size();
-        } else
-            *size = sizeValue(0, 1);
-    }
-}
-
-static Qt::Alignment parseAlignment(const Value *values, int count)
-{
-    Qt::Alignment a[2];
-    for (int i = 0; i < qMin(2, count); i++) {
-        if (values[i].type != Value::KnownIdentifier)
-            break;
-        switch (values[i].variant.toInt()) {
-        case Value_Left: a[i] = Qt::AlignLeft; break;
-        case Value_Right: a[i] = Qt::AlignRight; break;
-        case Value_Top: a[i] = Qt::AlignTop; break;
-        case Value_Bottom: a[i] = Qt::AlignBottom; break;
-        case Value_Center: a[i] = Qt::AlignCenter; break;
-        default: break;
+    for (int i = 0; i < values.count(); ++i) {
+        const Value v = values.at(i);
+        if (v.type == Value::Uri) {
+            *image = v.variant.toString();
+            continue;
         }
-    }
+        Repeat repeatAttempt = static_cast<Repeat>(findKnownValue(v.variant.toString(),
+                                                   repeats, NumKnownRepeats));
+        if (repeatAttempt != Repeat_Unknown) {
+            *repeat = repeatAttempt;
+            continue;
+        }
 
-    if (a[0] == Qt::AlignCenter && a[1] != 0 && a[1] != Qt::AlignCenter)
-        a[0] = (a[1] == Qt::AlignLeft || a[1] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
-    if ((a[1] == 0 || a[1] == Qt::AlignCenter) && a[0] != Qt::AlignCenter)
-        a[1] = (a[0] == Qt::AlignLeft || a[0] == Qt::AlignRight) ? Qt::AlignVCenter : Qt::AlignHCenter;
-    return a[0] | a[1];
+        if (v.type == Value::KnownIdentifier) {
+            const int start = i;
+            int count = 1;
+            if (i < values.count() - 1
+                && values.at(i + 1).type == Value::KnownIdentifier) {
+                ++i;
+                ++count;
+            }
+            Qt::Alignment a = parseAlignment(values.constData() + start, count);
+            if (int(a) != 0) {
+                *alignment = a;
+                continue;
+            }
+            i -= count - 1;
+        }
+
+        *color = parseColorValue(v);
+    }
 }
 
-Qt::Alignment Declaration::alignmentValue() const
+bool ValueExtractor::extractBackground(QColor *color, QString *image, Repeat *repeat,
+                                       Qt::Alignment *alignment, Origin *origin)
 {
-    if (values.isEmpty() || values.count() > 2)
-        return Qt::AlignLeft | Qt::AlignTop;
+    bool hit = false;
+    *color = QColor();
+    *image = QString();
+    *repeat = Repeat_XY;
+    *alignment = Qt::AlignTop | Qt::AlignLeft;
+    *origin = Origin_Padding;
 
-    return parseAlignment(values.constData(), values.count());
-}
-
-void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
-                                   TileMode *h, TileMode *v) const
-{
-    *pixmap = QPixmap(uriValue());
-    if (pixmap->isNull())
-        qWarning("Failed to load url '%s'", qPrintable(uriValue()));
-    for (int i = 0; i < 4; i++)
-        cuts[i] = -1;
-    *h = *v = TileMode_Stretch;
-
-    if (values.count() < 2)
-        return;
-
-    if (values.at(1).type == Value::Number) // cuts!
-        intValues(cuts, 0, 1);
-
-    if (values.last().type == Value::Identifier) {
-        *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(),
-                                      tileModes, NumKnownTileModes));
+    for (int i = 0; i < declarations.count(); ++i) {
+        const Declaration &decl = declarations.at(i);
+        if (decl.values.isEmpty())
+            continue;
+        const Value val = decl.values.first();
+        switch (decl.propertyId) {
+            case BackgroundColor: *color = parseColorValue(val); break;
+            case BackgroundImage:
+                if (val.type == Value::Uri)
+                    *image = val.variant.toString();
+                break;
+            case BackgroundRepeat:
+                *repeat = static_cast<Repeat>(findKnownValue(val.variant.toString(),
+                                              repeats, NumKnownRepeats));
+                break;
+            case BackgroundPosition:
+                *alignment = decl.alignmentValue();
+                break;
+            case BackgroundOrigin:
+                *origin = decl.originValue();
+                break;
+            case Background:
+                parseShorthandBackgroundProperty(decl.values, color, image, repeat, alignment);
+                break;
+            default: continue;
+        }
+        hit = true;
     }
-    if (values[values.count() - 2].type == Value::Identifier) {
-        *h = static_cast<TileMode>
-                        (findKnownValue(values[values.count()-2].variant.toString(),
-                                        tileModes, NumKnownTileModes));
-    } else
-        *h = *v;
+    return hit;
 }
 
 static bool setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)
@@ -652,8 +684,14 @@ static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font
     }
 }
 
-void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment)
+void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
 {
+    if (fontExtracted) {
+        *font = f;
+        *fontSizeAdjustment = adjustment;
+        return;
+    }
+
     *font = QFont();
     *fontSizeAdjustment = -255;
 
@@ -672,81 +710,200 @@ void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont
             default: break;
         }
     }
+
+    f = *font;
+    adjustment = *fontSizeAdjustment;
+    fontExtracted = true;
 }
 
-static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColor *color, QString *image, Repeat *repeat, Qt::Alignment *alignment)
+bool ValueExtractor::extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg)
 {
-    *color = QColor();
-    *image = QString();
-    *repeat = Repeat_XY;
-
-    for (int i = 0; i < values.count(); ++i) {
-        const Value v = values.at(i);
-        if (v.type == Value::Uri) {
-            *image = v.variant.toString();
-            continue;
-        }
-        Repeat repeatAttempt = static_cast<Repeat>(findKnownValue(v.variant.toString(),
-                                                   repeats, NumKnownRepeats));
-        if (repeatAttempt != Repeat_Unknown) {
-            *repeat = repeatAttempt;
-            continue;
-        }
-
-        if (v.type == Value::KnownIdentifier) {
-            const int start = i;
-            int count = 1;
-            if (i < values.count() - 1
-                && values.at(i + 1).type == Value::KnownIdentifier) {
-                ++i;
-                ++count;
-            }
-            Qt::Alignment a = parseAlignment(values.constData() + start, count);
-            if (int(a) != 0) {
-                *alignment = a;
-                continue;
-            }
-            i -= count - 1;
-        }
-
-        *color = parseColorValue(v);
-    }
-}
-
-void QCss::extractBackgroundProperties(const QVector<Declaration> &declarations, QColor *color, QString *image,
-                                       Repeat *repeat, Qt::Alignment *alignment)
-{
-    *color = QColor();
-    *image = QString();
-    *repeat = Repeat_Unknown;
-    *alignment = Qt::Alignment();
-
+    bool hit = false;
+    *fg = QColor();
+    *sfg = *sbg = *abg = QBrush();
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
-        if (decl.values.isEmpty())
-            continue;
-        const Value val = decl.values.first();
         switch (decl.propertyId) {
-            case BackgroundColor: *color = parseColorValue(val); break;
-            case BackgroundImage:
-                if (val.type == Value::Uri)
-                    *image = val.variant.toString();
-                break;
-            case BackgroundRepeat:
-                *repeat = static_cast<Repeat>(findKnownValue(val.variant.toString(),
-                                              repeats, NumKnownRepeats));
-                break;
-            case BackgroundPosition:
-                *alignment = decl.alignmentValue();
-                break;
-            case Background:
-                parseShorthandBackgroundProperty(decl.values, color, image, repeat, alignment);
-                break;
-            default: break;
+        case Color: *fg = decl.colorValue(); break;
+        case SelectionForeground: *sfg = decl.colorValue(); break;
+        case SelectionBackground: *sbg = decl.brushValue(); break;
+        case AlternateBackground: *abg = decl.brushValue(); break;
+        default: continue;
         }
+        hit = true;
     }
+    return hit;
 }
 
+void ValueExtractor::extractFont()
+{
+    if (fontExtracted)
+        return;
+    int dummy;
+    extractFont(&f, &dummy);
+    fontExtracted = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Declaration
+QColor Declaration::colorValue() const
+{
+    if (values.count() != 1)
+        return QColor();
+
+    return parseColorValue(values.first());
+}
+
+QBrush Declaration::brushValue() const
+{
+    return colorValue(); // FIXME: add support images, gradients here
+}
+
+bool Declaration::realValue(qreal *real, const char *unit) const
+{
+    if (values.count() != 1)
+        return false;
+    const Value &v = values.first();
+    if (unit && v.type != Value::Length)
+        return false;
+    QString s = v.variant.toString();
+    if (unit) {
+        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
+            return false;
+        s.chop(qstrlen(unit));
+    }
+    bool ok = false;
+    qreal val = s.toDouble(&ok);
+    if (ok)
+        *real = val;
+    return ok;
+}
+
+bool Declaration::intValue(int *i, const char *unit) const
+{
+    if (values.count() != 1)
+        return false;
+    const Value &v = values.first();
+    if (unit && v.type != Value::Length)
+        return false;
+    QString s = v.variant.toString();
+    if (unit) {
+        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
+            return false;
+        s.chop(qstrlen(unit));
+    }
+    bool ok = false;
+    int val = s.toInt(&ok);
+    if (ok)
+        *i = val;
+    return ok;
+}
+
+void Declaration::colorValues(QColor *c) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count(), 4); i++)
+        c[i] = parseColorValue(values.at(i));
+    if (i == 0) c[0] = c[1] = c[2] = c[3] = QColor();
+    else if (i == 1) c[3] = c[2] = c[1] = c[0];
+    else if (i == 2) c[2] = c[0], c[3] = c[1];
+    else if (i == 3) c[3] = c[1];
+}
+
+BorderStyle Declaration::styleValue(Value v) const
+{
+    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
+                                        borderStyles, NumKnownBorderStyles));
+}
+
+BorderStyle Declaration::styleValue() const
+{
+    if (values.count() != 1)
+        return BorderStyle_None;
+    return styleValue(values.first());
+}
+
+void Declaration::styleValues(BorderStyle *s) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count(), 4); i++)
+        s[i] = styleValue(values.at(i));
+    if (i == 0) s[0] = s[1] = s[2] = s[3] = BorderStyle_None;
+    else if (i == 1) s[3] = s[2] = s[1] = s[0];
+    else if (i == 2) s[2] = s[0], s[3] = s[1];
+    else if (i == 3) s[3] = s[1];
+}
+
+Repeat Declaration::repeatValue() const
+{
+    if (values.count() != 1)
+        return Repeat_Unknown;
+    return static_cast<Repeat>(findKnownValue(values.first().variant.toString(),
+                                repeats, NumKnownRepeats));
+}
+
+Origin Declaration::originValue() const
+{
+    if (values.count() != 1)
+        return Origin_Unknown;
+    return static_cast<Origin>(findKnownValue(values.first().variant.toString(),
+                               origins, NumKnownOrigins));
+}
+
+QString Declaration::uriValue() const
+{
+    if (values.isEmpty() || values.first().type != Value::Uri)
+        return QString();
+    return values.first().variant.toString();
+}
+
+Qt::Alignment Declaration::alignmentValue() const
+{
+    if (values.isEmpty() || values.count() > 2)
+        return Qt::AlignLeft | Qt::AlignTop;
+
+    return parseAlignment(values.constData(), values.count());
+}
+
+void Declaration::borderImageValue(QString *image, int *cuts,
+                                   TileMode *h, TileMode *v) const
+{
+    *image = uriValue();
+    for (int i = 0; i < 4; i++)
+        cuts[i] = -1;
+    *h = *v = TileMode_Stretch;
+
+    if (values.count() < 2)
+        return;
+
+    if (values.at(1).type == Value::Number) { // cuts!
+        int i;
+        for (i = 0; i < qMin(values.count()-1, 4); i++) {
+            const Value& v = values.at(i+1);
+            if (v.type != Value::Number)
+                break;
+            cuts[i] = values.at(i).variant.toString().toInt();
+        }
+        if (i == 0) cuts[0] = cuts[1] = cuts[2] = cuts[3] = 0;
+        else if (i == 1) cuts[3] = cuts[2] = cuts[1] = cuts[0];
+        else if (i == 2) cuts[2] = cuts[0], cuts[3] = cuts[1];
+        else if (i == 3) cuts[3] = cuts[1];
+    }
+
+    if (values.last().type == Value::Identifier) {
+        *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(),
+                                      tileModes, NumKnownTileModes));
+    }
+    if (values[values.count() - 2].type == Value::Identifier) {
+        *h = static_cast<TileMode>
+                        (findKnownValue(values[values.count()-2].variant.toString(),
+                                        tileModes, NumKnownTileModes));
+    } else
+        *h = *v;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Selector
 int Selector::specificity() const
 {
     int val = 0;
@@ -783,6 +940,8 @@ int Selector::pseudoState() const
     return state;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// StyleSelector
 StyleSelector::~StyleSelector()
 {
 }
