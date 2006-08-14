@@ -1573,7 +1573,7 @@ bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *drop
     if (model->supportedDropActions() & event->proposedAction()) {
         int row = -1;
         int col = -1;
-        if (index.isValid() &&
+        if ((index != root) &&
             (model->flags(index) & Qt::ItemIsDropEnabled
             || model->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
             dropIndicatorPosition = position(event->pos(), q->visualRect(index));
