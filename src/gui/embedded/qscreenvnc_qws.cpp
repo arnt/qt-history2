@@ -1279,7 +1279,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
     QString dspec = displaySpec;
     if (dspec.startsWith("VNC:", Qt::CaseInsensitive))
         dspec = dspec.mid(QString("VNC:").size());
-    else if (dspec == QLatin1String("VNC"))
+    else if (dspec.compare(QLatin1String("VNC"), Qt::CaseInsensitive) == 0)
         dspec = QString();
 
     const QString displayIdSpec = QString(" :%1").arg(displayId);
