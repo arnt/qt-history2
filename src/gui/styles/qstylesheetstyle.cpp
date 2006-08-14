@@ -148,8 +148,8 @@ struct QStyleSheetPaletteData
 
 struct QStyleSheetGeometryData
 {
-    QStyleSheetGeometryData(int mw, int mh, int w, int h) 
-        : minWidth(mw), minHeight(mh), width(w), height(h) { }
+    QStyleSheetGeometryData(int w, int h, int minw, int minh) 
+        : minWidth(minw), minHeight(minh), width(w), height(h) { }
 
     int minWidth, minHeight, width, height;
 };
@@ -185,6 +185,7 @@ public:
     void drawBackground(QPainter *, const QRect&, Qt::LayoutDirection);
     void drawBackgroundImage(QPainter *, const QRect&, Qt::LayoutDirection);
     void drawFrame(QPainter *, const QRect&, Qt::LayoutDirection);
+    void drawImage(QPainter *p, const QRect &rect);
     void drawRule(QPainter *, const QRect&, Qt::LayoutDirection);
     void configurePalette(QPalette *, QPalette::ColorRole, QPalette::ColorRole);
 
@@ -201,18 +202,28 @@ public:
     bool hasBackground() const { return bg != 0; }
     bool hasBox() const { return b != 0; }
     bool hasBorder() const { return bd != 0; }
-    bool hasGeometry() const { return geo != 0 || !image.isNull(); }
     bool hasPosition() const { return p != 0; }
     bool hasFrame() const { return hasBorder() || hasBackground(); }
+    bool hasDrawable() const { return hasFrame() || hasImage(); }
 
     QSize minimumContentsSize() const 
-    { return geo ? QSizeF(geo->minWidth, geo->minHeight).toSize() : QSize(0, 0); }
+    { return geo ? QSize(geo->minWidth, geo->minHeight) : QSize(0, 0); }
+
+    QSize contentsSize() const 
+    { return geo ? QSize(geo->width, geo->height) : image.size(); }
+    bool hasContentsSize() const 
+    { return (geo && (geo->width != -1 || geo->height != -1)) || !image.isNull(); }
 
     QSize size() const 
     { return boxSize(geo ? QSizeF(geo->width, geo->height).toSize() : image.size()); }
 
+    bool hasImage() const { return !image.isNull(); }
     QPixmap image;
     QFont font;
+
+    QHash<QString, int> styleHints;
+    bool hasStyleHint(const QString& sh) const { return styleHints.contains(sh); }
+    int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
 private:
     // note that copy constructor will just copy pointers. this is intentional
@@ -226,13 +237,19 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+static const char *knownStyleHints[] = {
+    "lineedit-password-character"
+};
+
+static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
+
 QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
     ValueExtractor v(declarations);
-    int w, h, mw, mh;
-    if (v.extractGeometry(&w, &h, &mw, &mh))
-        geo = new QStyleSheetGeometryData(w, h, mw, mh);
+    int w, h, minw, minh;
+    if (v.extractGeometry(&w, &h, &minw, &minh))
+        geo = new QStyleSheetGeometryData(w, h, minw, minh);
 
     int left, top, right, bottom;
     if (v.extractPosition(&left, &top, &right, &bottom))
@@ -280,6 +297,10 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
                 bi->pixmap = QPixmap(uri);
         } else if (decl.propertyId == Image) {
             image = QPixmap(decl.uriValue());
+        } else if (qBinaryFind(knownStyleHints, endKnownStyleHints, decl.property) != endKnownStyleHints) {
+            int hint;
+            decl.intValue(&hint);
+            styleHints[decl.property] = hint;
         } else if (decl.propertyId == UnknownProperty) {
             qWarning() <<  "Unknown property " << decl.property;
         }
@@ -955,11 +976,24 @@ void QRenderRule::drawFrame(QPainter *p, const QRect& rect, Qt::LayoutDirection 
         drawBorder(p, borderRect(rect), dir);
 }
 
+void QRenderRule::drawImage(QPainter *p, const QRect &rect)
+{
+    if (!hasImage())
+        return;
+    if (geo && QSize(geo->width, geo->height).isValid()) {
+        // align center if we had a width, height set
+        QRect aligned = QStyle::alignedRect(Qt::LeftToRight, QFlag(Qt::AlignCenter), image.size(), rect);
+        QRect inter = aligned.intersected(rect);
+        p->drawPixmap(inter.x(), inter.y(), image, inter.x() - aligned.x(), 
+                      inter.y() - aligned.y(), inter.width(), inter.height());
+    } else
+        p->drawPixmap(rect, image);
+}
+
 void QRenderRule::drawRule(QPainter *p, const QRect& rect, Qt::LayoutDirection dir)
 {
     drawFrame(p, rect, dir);
-    if (!image.isNull())
-        p->drawPixmap(contentsRect(rect), image);
+    drawImage(p, contentsRect(rect));
 }
 
 void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette::ColorRole br)
@@ -1087,7 +1121,6 @@ enum PseudoElement {
     MenuIndicator,
 };
 
-// FIX for COMBO BOX
 static struct PseudoElementInfo {
     PseudoElement pseudoElement;
     QStyle::SubControl subControl;
@@ -1237,7 +1270,7 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
     renderRulesCache.remove(static_cast<const QWidget *>(o));
 }
 
-static bool unstylable(QWidget *w)
+bool unstylable(QWidget *w)
 {
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
@@ -1442,7 +1475,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         return;
 
     case CE_Splitter:
-        if (rule.hasFrame() || !rule.image.isNull()) {
+        if (rule.hasDrawable()) {
             rule.drawRule(p, opt->rect, opt->direction);
             return;
         }
@@ -1509,7 +1542,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         return;
 
     case CE_SizeGrip:
-        if (rule.isEmpty())
+        if (!rule.hasImage())
             break;
         if (const QStyleOptionSizeGrip *sgOpt = qstyleoption_cast<const QStyleOptionSizeGrip *>(opt)) {
             p->save();
@@ -1520,7 +1553,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             case Qt::TopRightCorner: p->rotate(270); break;
             default: break;
             }
-            rule.drawRule(p, opt->rect, opt->direction);
+            rule.drawImage(p, opt->rect);
             p->restore();
             return;
         }
@@ -1631,12 +1664,12 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             if (!rule.hasBorder()) {
+                // Only background brush is supported on a LineEdit
                 if (pe == PE_Frame)
                     rule.drawBackground(p, opt->rect, opt->direction);
-                // LineEdit background is set on the palette
                 QStyleOptionFrame frmOpt(*frm);
                 rule.configurePalette(&frmOpt.palette, QPalette::Text, QPalette::Base);
-                frmOpt.rect = rule.borderRect(frmOpt.rect); // apply padding
+                frmOpt.rect = rule.borderRect(frmOpt.rect); // apply margin
                 baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
             } else {
                 rule.drawFrame(p, opt->rect, opt->direction);
@@ -1727,8 +1760,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     switch (m) {
     case PM_MenuButtonIndicator:
         subRule = renderRule(w, opt, MenuIndicator);
-        if (subRule.hasGeometry())
-            return subRule.size().width();
+        if (subRule.hasContentsSize())
+            return subRule.contentsSize().width();
         break;
 
     case PM_ButtonShiftHorizontal:
@@ -1747,10 +1780,10 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ExclusiveIndicatorHeight:
     case PM_IndicatorHeight:
         subRule = renderRule(w, QStyle::State_Enabled | QStyle::State_Off, Indicator);
-        if (subRule.hasGeometry()) {
+        if (subRule.hasContentsSize()) {
             return (m == PM_ExclusiveIndicatorWidth) || (m == PM_IndicatorWidth)
-                        ? subRule.size().width() 
-                        : subRule.size().height();
+                        ? subRule.contentsSize().width() 
+                        : subRule.contentsSize().height();
         }
         break;
 
@@ -1797,8 +1830,10 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ToolBarHandleExtent:
     case PM_SplitterWidth:
-        if (rule.hasGeometry())
-            return rule.size().width();
+        if (rule.hasContentsSize()) {
+            qDebug() << rule.contentsSize().width();
+            return rule.contentsSize().width();
+        }
         break;
 
     case PM_SizeGripSize: // not used by QSizeGrip!
@@ -1883,8 +1918,8 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
 
     case CT_SizeGrip:
-        if (rule.hasGeometry())
-            return sz.expandedTo(rule.size());
+        if (rule.hasContentsSize())
+            return rule.contentsSize();
         break;
 
     case CT_Splitter:
@@ -1920,6 +1955,18 @@ QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QS
 int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
                            QStyleHintReturn *shret) const
 {
+    if (!hasStyleRule(w))
+        return baseStyle()->styleHint(sh, opt, w, shret);
+
+    QRenderRule rule = renderRule(w, opt);
+    QString s;
+    switch (sh) {
+        case SH_LineEdit_PasswordCharacter: s = QLatin1String("lineedit-password-character"); break;
+        default: break;
+    }
+    if (!s.isEmpty() && rule.hasStyleHint(s))
+        return rule.styleHint(s);
+
     return baseStyle()->styleHint(sh, opt, w, shret);
 }
 
@@ -1985,6 +2032,7 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         if (rule.hasBorder()) {
             return visualRect(opt->direction, opt->rect, rule.contentsRect(opt->rect));
         } else {
+            // ugly hack to support native frames with padding
             QRect baseRect = baseStyle()->subElementRect(se, opt, w);
             if (!rule.hasBox())
                 return baseRect;
