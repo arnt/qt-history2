@@ -267,7 +267,7 @@ bool QSystemTrayIcon::event(QEvent *e)
 */
 
 /*!
-    \fn void QSystemTrayIcon::activated(int reason)
+    \fn void QSystemTrayIcon::activated(QSystemTrayIcon::ActivationReason reason)
 
     This signal is emitted when the user activates the system tray icon. \a reason
     specifies the reason for activation. QSystemTrayIcon::ActivationReason enumerates
