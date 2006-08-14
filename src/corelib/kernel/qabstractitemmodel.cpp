@@ -1324,15 +1324,20 @@ QStringList QAbstractItemModel::mimeTypes() const
     list of \a indexes specified. The formats used to describe the encoded data
     is obtained from the mimeTypes() function.
 
-    If the list of indexes is empty, 0 is returned rather than a serialized
-    empty list.
+    If the list of indexes is empty, or there are no supported MIME types,
+    0 is returned rather than a serialized empty list.
+
+    \sa mimeTypes(), dropMimeData()
 */
 QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
         return 0;
+    QStringList types = mimeTypes();
+    if (types.isEmpty())
+        return 0;
     QMimeData *data = new QMimeData();
-    QString format = mimeTypes().at(0);
+    QString format = types.at(0);
     QByteArray encoded;
     QDataStream stream(&encoded, QIODevice::WriteOnly);
     encodeData(indexes, stream);
@@ -1360,7 +1365,10 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
     // check if the format is supported
-    QString format = mimeTypes().at(0);
+    QStringList types = mimeTypes();
+    if (types.isEmpty())
+        return false;
+    QString format = types.at(0);
     if (!data->hasFormat(format))
         return false;
     if (row > rowCount(parent))
@@ -2347,7 +2355,10 @@ bool QAbstractTableModel::dropMimeData(const QMimeData *data, Qt::DropAction act
     if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
 
-    QString format = mimeTypes().at(0);
+    QStringList types = mimeTypes();
+    if (types.isEmpty())
+        return false;
+    QString format = types.at(0);
     if (!data->hasFormat(format))
         return false;
 
@@ -2395,7 +2406,10 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
 
-    QString format = mimeTypes().at(0);
+    QStringList types = mimeTypes();
+    if (types.isEmpty())
+        return false;
+    QString format = types.at(0);
     if (!data->hasFormat(format))
         return false;
 

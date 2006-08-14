@@ -2605,11 +2605,14 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
     Q_D(QAbstractItemView);
     QModelIndexList indexes = selectedIndexes();
     if (indexes.count() > 0) {
+        QMimeData *data = d->model->mimeData(indexes);
+        if (!data)
+            return;
         QRect rect;
         QPixmap pixmap = d->renderToPixmap(indexes, &rect);
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
-        drag->setMimeData(d->model->mimeData(indexes));
+        drag->setMimeData(data);
         drag->setHotSpot(d->viewport->mapFromGlobal(QCursor::pos()) - rect.topLeft());
         if (drag->start(supportedActions) == Qt::MoveAction)
             d->clearOrRemove();
