@@ -560,6 +560,18 @@ void QWidgetPrivate::show_sys()
             r.translate(-data.crect.topLeft());
         }
 #endif
+
+        const QWidgetBackingStore *bs = maybeBackingStore();
+        if (bs) {
+            QTLWExtra *topextra = q->window()->d_func()->maybeTopData();
+            QRect br(r.translated(data.crect.topLeft()).boundingRect());
+            topextra->frameStrut.setCoords(data.crect.x()-br.x(),
+                                           data.crect.y()-br.y(),
+                                           br.right()-data.crect.right(),
+                                           br.bottom()-data.crect.bottom());
+            bs->windowSurface->setGeometry(br);
+        }
+
         invalidateBuffer(r);
         if (q->windowType() != Qt::Popup
             && q->windowType() != Qt::Tool
