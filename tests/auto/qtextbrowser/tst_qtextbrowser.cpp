@@ -62,6 +62,7 @@ private slots:
     void clearHistory();
     void sourceInsideLoadResource();
     void textInteractionFlags_vs_readOnly();
+    void anchorsWithSelfBuiltHtml();
 
 private:
     TestBrowser *browser;
@@ -363,6 +364,15 @@ void tst_QTextBrowser::textInteractionFlags_vs_readOnly()
     QVERIFY(browser->textInteractionFlags() == Qt::TextEditorInteraction);
     browser->setReadOnly(true);
     QVERIFY(browser->textInteractionFlags() == Qt::TextBrowserInteraction);
+}
+
+void tst_QTextBrowser::anchorsWithSelfBuiltHtml()
+{
+    browser->setHtml("<p>Hello <a href=\"#anchor\">Link</a>"
+                     "<p><a name=\"anchor\"/>Blah</p>");
+    QVERIFY(browser->document()->blockCount() > 1);
+    browser->setSource(QUrl("#anchor"));
+    QVERIFY(browser->document()->blockCount() > 1);
 }
 
 QTEST_MAIN(tst_QTextBrowser)

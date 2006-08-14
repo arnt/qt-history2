@@ -70,7 +70,7 @@ public:
     inline void _q_documentModified()
     {
         textOrSourceChanged = true;
-        forceLoadOnSourceChange = true;
+        forceLoadOnSourceChange = !currentURL.path().isEmpty();
     }
 
     void _q_activateAnchor(const QString &href);
