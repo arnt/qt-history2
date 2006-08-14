@@ -296,8 +296,9 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
         case Height: *h = lengthValue(decl); break;
         case MinimumWidth: *mw = lengthValue(decl); break;
         case MinimumHeight: *mh = lengthValue(decl); break;
-        default: break;
+        default: continue;
         }
+        hit = true;
     }
 
     return hit;
