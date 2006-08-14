@@ -214,9 +214,6 @@ void Layout::widgetDestroyed()
 
 bool Layout::prepareLayout(bool &needMove, bool &needReparent)
 {
-    if (!m_widgets.count())
-        return false;
-
     foreach (QWidget *widget, m_widgets) {
         widget->raise();
     }
@@ -425,7 +422,7 @@ void Layout::breakLayout()
         m_parentWidget = layoutBase;
     }
 
-    if (m_widgets.first() && m_widgets.first()->isVisibleTo(formWindow))
+    if (!m_widgets.isEmpty() && m_widgets.first() && m_widgets.first()->isVisibleTo(formWindow))
         formWindow->selectWidget(m_widgets.first());
     else
         formWindow->selectWidget(formWindow);

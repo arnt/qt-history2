@@ -23,6 +23,7 @@
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
+#include <qlayout_widget_p.h>
 
 #include <QtGui/QUndoGroup>
 #include <QtGui/QUndoStack>
@@ -459,8 +460,9 @@ void FormWindowManager::slotActionBreakLayoutActivated()
         while (currentWidget && currentWidget != m_activeFormWindow) {
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
                 // ### generalize (put in function)
-                if ((!layout->isEmpty() || qobject_cast<QSplitter*>(currentWidget))
-                     && !layoutBaseList.contains(layout->parentWidget())) {
+                QLayoutWidget* layoutWidget = qobject_cast<QLayoutWidget*>(widget);
+                if (((layoutWidget ? !layout->isEmpty() : layout != 0) || qobject_cast<QSplitter*>(currentWidget)) 
+                    && !layoutBaseList.contains(layout->parentWidget())) {
                     layoutBaseList.prepend(layout->parentWidget());
                 }
             }
@@ -558,10 +560,14 @@ void FormWindowManager::slotUpdateActions()
 
                 breakAvailable = LayoutInfo::isWidgetLaidout(m_core, widget);
 
-                if (! breakAvailable && layout != 0)
-                    breakAvailable = ! layout->isEmpty();
+                if (!breakAvailable && layout != 0) {
+                    if(qobject_cast<QLayoutWidget*>(widget))
+                        breakAvailable = !layout->isEmpty();
+                    else
+                        breakAvailable = true;  // we have a *hidden* layout
+                }
 
-                if (! breakAvailable && qobject_cast<QSplitter*>(widget))
+                if (!breakAvailable && qobject_cast<QSplitter*>(widget))
                     breakAvailable = qobject_cast<QSplitter*>(widget)->count() != 0;
             }
         } else {
