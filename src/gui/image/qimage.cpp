@@ -273,6 +273,8 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
 
 QImageData::~QImageData()
 {
+    if (qt_image_cleanup_hook)
+        qt_image_cleanup_hook(ser_no);
     delete paintEngine;
     if (data && own_data)
         free(data);
@@ -1132,11 +1134,8 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
 
 QImage::~QImage()
 {
-    if (d && !d->ref.deref()) {
-        if (qt_image_cleanup_hook)
-            qt_image_cleanup_hook(d->ser_no);
+    if (d && !d->ref.deref())
         delete d;
-    }
 }
 
 /*!
