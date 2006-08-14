@@ -98,9 +98,9 @@
     that is incompatible with \QD, it won't be loaded and
     installed.
 
-    In addition, when building in both debug and release mode, we must
-    ensure that the proper suffix is added to the debug plugin (i.e.,
-    \c _debug on X11 and \c d on any other platform):
+    When building in both debug and release mode, we must (on Mac and
+    Windows) also ensure that the proper suffix is added to the debug
+    plugin:
 
     \skipto CONFIG
     \printuntil /^\}/
