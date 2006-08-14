@@ -118,13 +118,16 @@ void tst_QListView::getSetCheck()
     obj1.setUniformItemSizes(true);
     QCOMPARE(true, obj1.uniformItemSizes());
 
-#if QT_VERSION >= 0x040200
     // make sure setViewMode() doesn't reset resizeMode
     obj1.clearPropertyFlags();
     obj1.setResizeMode(QListView::Adjust);
     obj1.setViewMode(QListView::IconMode);
     QCOMPARE(obj1.resizeMode(), QListView::Adjust);
-#endif
+
+    obj1.setWordWrap(false);
+    QCOMPARE(false, obj1.wordWrap());
+    obj1.setWordWrap(true);
+    QCOMPARE(true, obj1. wordWrap());
 }
 
 class QtTestModel: public QAbstractListModel
