@@ -119,7 +119,91 @@
 
 /*!
     \class QAbstractTextDocumentLayout::PaintContext
+
+    \brief The QAbstractTextDocumentLayout::PaintContext class is a
+    convenience class defining the parameters of a painter context.
+
+    A painter context is used when rendering custom layouts for
+    QTextDocuments with the QAbstractTextDocumentLayout::draw()
+    function, and is specified by a \l {cursorPosition}{cursor
+    position}, a \l {palette}{default text color}, a \l clip rectangle
+    and a collection of \l selections.
+
+    \sa QAbstractTextDocumentLayout
+*/
+
+/*!
+    \fn QAbstractTextDocumentLayout::PaintContext::PaintContext()
     \internal
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::PaintContext::cursorPosition
+    \brief the position within the document, where the cursor
+    line should be drawn.
+
+    The default value is -1.
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::PaintContext::palette
+    \brief the default color that is used for the text, when no color
+    is specified in the text.
+
+    The default value of this variable uses the application's default
+    palette.
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::PaintContext::clip
+
+    \brief a hint to the layout avoiding that paragraphs, frames or
+    text that are clearly outside the specified rectangle, are drawn
+
+    Specifying a clip rectangle can speed up drawing of large
+    documents significantly. Note that the clip rectangle is in
+    document coordinates (i.e., not in viewport coordinates), and that
+    it is not a substitute for a clip region set on the painter.
+
+    The default value is a null rectangle.
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::PaintContext::selections
+
+    \brief the collection of selections that will be rendered when
+    passing this painter context to QAbstractTextDocumentLayout's
+    draw() function.
+
+    The default value of this variable is an empty vector.
+*/
+
+/*!
+    \class QAbstractTextDocumentLayout::Selection
+
+    \brief The QAbstractTextDocumentLayout::Selection class is a
+    convenience class defining the parameters of a selection.
+
+    A selection can be used to specify a part of a document that
+    should be rendere when drawing custom layouts for QTextDocuments
+    with the QAbstractTextDocumentLayout::draw() function, and is
+    specified by a \l cursor and a \l format.
+
+    \sa QAbstractTextDocumentLayout, PaintContext
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::Selection::format
+    \brief the format of the selection
+
+    The default value is QTextFormat::InvalidFormat.
+*/
+
+/*!
+    \variable QAbstractTextDocumentLayout::Selection::cursor
+    \brief the selection's cursor
+
+    The default value is a null cursor.
 */
 
 /*!
