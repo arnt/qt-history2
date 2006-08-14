@@ -611,6 +611,7 @@ void QAbstractItemModelPrivate::columnsRemoved(const QModelIndex &parent,
 
 void QAbstractItemModelPrivate::reset()
 {
+    // invalidate persistent indexes
     for (int i = 0; i < persistent.indexes.count(); ++i)
         persistent.indexes[i]->index = QModelIndex();
 }
@@ -2008,13 +2009,14 @@ void QAbstractItemModel::endRemoveColumns()
     other components when the underlying data source, or its structure,
     has changed.
 
-    \sa modelReset()
+    \sa modelAboutToBeReset(), modelReset()
 */
 void QAbstractItemModel::reset()
 {
     Q_D(QAbstractItemModel);
-    emit modelReset();
+    emit modelAboutToBeReset();
     d->reset();
+    emit modelReset();
 }
 
 /*!
@@ -2448,12 +2450,23 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 }
 
 /*!
+    \fn QAbstractItemModel::modelAboutToBeReset()
+    \since 4.2
+
+    This signal is emitted when reset() is called, before the model's internal
+    state (e.g. persistent model indexes) has been invalidated.
+
+    \sa reset(), modelReset()
+*/
+
+/*!
     \fn QAbstractItemModel::modelReset()
     \since 4.1
 
-    This signal is emitted when reset() is called.
+    This signal is emitted when reset() is called, after the model's internal
+    state (e.g. persistent model indexes) has been invalidated.
 
-    \sa reset()
+    \sa reset(), modelAboutToBeReset()
 */
 
 /*!

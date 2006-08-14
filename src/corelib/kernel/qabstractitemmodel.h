@@ -201,6 +201,7 @@ private: // can only be emitted by QAbstractItemModel
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
 
+    void modelAboutToBeReset();
     void modelReset();
 
 public Q_SLOTS:
