@@ -1415,7 +1415,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
     // signal handlers may change the model
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
-    if (!((event->button() & Qt::LeftButton) && edit(persistent, DoubleClicked, event))
+    if ((event->button() & Qt::LeftButton) && !edit(persistent, DoubleClicked, event)
         && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
         emit activated(persistent);
 }
