@@ -34,8 +34,10 @@
 Q_DECLARE_METATYPE(sqlite3*)
 Q_DECLARE_METATYPE(sqlite3_stmt*)
 
-static QVariant::Type qGetColumnType(const QString &typeName)
+static QVariant::Type qGetColumnType(const QString &tpName)
 {
+    const QString typeName = tpName.toLower();
+
     if (typeName == QLatin1String("integer")
         || typeName == QLatin1String("int"))
         return QVariant::Int;
