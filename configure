@@ -2363,6 +2363,13 @@ if [ "$OPT_HELP" = "yes" ]; then
         PHY="*"
         PHN=" "
     fi
+    if [ "$CFG_SEPARATE_DEBUG_INFO" = "auto" ] || [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
+        SBY="*"
+        SBN=" "
+    else
+        SBY=" "
+        SBN="*"
+    fi
 
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
@@ -2555,6 +2562,9 @@ Additional options:
 
  $DBN  -no-qdbus........... Do not compile the QtDBus module.
  $DBY  -qdbus.............. Compile the QtDBus module.
+
+ $SBN  -no-separate-debug-info Do not store debug information in a separate file
+ $SBY  -separate-debug-info    Strip debug information into a separate .debug file
 
 EOF
 
