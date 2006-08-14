@@ -1564,7 +1564,7 @@ static void cssStyleLookup(QSvgNode *node,
             }
             valueStr.append(")");
         }
-            
+
         attributes.append(decl.property, QString(),
                           decl.property, valueStr);
     }
@@ -2552,10 +2552,10 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     if (!cssStyle.isEmpty()) {
         parseCSStoXMLAttrs(cssStyle, attrs);
     }
-    
+
     for (int i = 0; i < decls.count(); ++i) {
         const QCss::Declaration &decl = decls.at(i);
-        
+
         if (decl.property.isEmpty())
             continue;
         if (decl.values.count() != 1)
@@ -2731,7 +2731,7 @@ static bool parseTspanNode(QSvgNode *parent,
                            const QXmlAttributes &attributes,
                            QSvgHandler *handler)
 {
-    
+
     cssStyleLookup(parent, handler, handler->selector());
     return parseDefaultTextStyle(parent, attributes, false, handler);
 }
@@ -2806,6 +2806,7 @@ QSvgHandler::QSvgHandler()
         init();
     }
     m_selector = new QSvgStyleSelector;
+    m_inStyle = false;
 }
 
 bool QSvgHandler::startElement(const QString &namespaceURI,
