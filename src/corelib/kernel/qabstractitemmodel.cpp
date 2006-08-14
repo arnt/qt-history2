@@ -434,7 +434,7 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
     int data_index = persistent.indexes.indexOf(data);
     persistent.indexes.removeAt(data_index);
     Q_ASSERT(!persistent.indexes.contains(data));
-    // update the references to moved persistend indexes
+    // update the references to moved persistent indexes
     for (int i = persistent.moved.count() - 1; i >= 0; --i) {
         QList<int> moved = persistent.moved.at(i);
         for (int j = moved.count() - 1; j >= 0; --j) {
@@ -444,7 +444,7 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
                 persistent.moved[i].removeAll(j);
         }
     }
-    // update the references to invalidated persistend indexes
+    // update the references to invalidated persistent indexes
     for (int i = persistent.invalidated.count() - 1; i >= 0; --i) {
         QList<int> invalidated = persistent.invalidated.at(i);
         for (int j = invalidated.count() - 1; j >= 0; --j) {
@@ -1006,8 +1006,8 @@ void QAbstractItemModelPrivate::reset()
     Components connected to this signal use it to adapt to changes
     in the model's layout.
 
-    When changing the layout subclasses should update any persistant model index's after
-    layoutAboutToBeChanged is called.
+    Subclasses should update any persistent model indexes after emitting
+    layoutAboutToBeChanged().
 
     \sa layoutChanged(), changePersistentIndex()
 */
@@ -1025,8 +1025,8 @@ void QAbstractItemModelPrivate::reset()
     altering the structure of the data you expose to views, and emit
     layoutChanged() after changing the layout.
 
-    When changing the layout subclasses should update any persistant model index's before
-    layoutChanged() is called.
+    Subclasses should update any persistent model indexes before
+    emitting layoutChanged().
 
     \sa layoutAboutToBeChanged(), dataChanged(), headerDataChanged(), reset(), changePersistentIndex()
 */
