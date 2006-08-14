@@ -145,7 +145,7 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 #else
                         if ((*doopen =
                             open(path, O_CREAT|O_EXCL|O_RDWR, 0600)) >= 0)
-#endif	
+#endif
 				return(1);
 			if (errno != EEXIST)
 				return(0);
@@ -362,7 +362,7 @@ QTemporaryFile::QTemporaryFile()
     If \a templateName is a relative path, the path will be relative to the
     current working directory. You can use QDir::tempPath() to construct \a
     templateName if you want use the system's temporary directory.
-    
+
     \sa open(), fileTemplate()
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName)
@@ -372,7 +372,8 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 }
 
 /*!
-    Constructs a QTemporaryFile with the given \a parent, but with no name.
+    Constructs a QTemporaryFile (with the given \a parent) in
+    QDir::tempPath(), using the file template "qt_temp.XXXXXX".
 
     \sa setFileTemplate()
 */
