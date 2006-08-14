@@ -158,8 +158,10 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     // make it possible for vs integration to reimplement edit action dialog
     connect(m_actionRepository, SIGNAL(itemActivated(QListWidgetItem*)),
             this, SIGNAL(itemActivated(QListWidgetItem*)));
+    connect(m_actionRepository, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)),
+            this, SIGNAL(contextMenuRequested(QContextMenuEvent*, QListWidgetItem*)));
     connect(this, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(editAction(QListWidgetItem*)));
+            this, SLOT(editAction(QListWidgetItem*)));    
 }
 
 ActionEditor::~ActionEditor()

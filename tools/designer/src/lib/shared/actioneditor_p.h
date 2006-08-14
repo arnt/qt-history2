@@ -74,9 +74,10 @@ private slots:
     void slotNewAction();
     void slotDeleteAction();
     void slotNotImplemented();
-
+    
 signals:
     void itemActivated(QListWidgetItem *item);
+    void contextMenuRequested(QContextMenuEvent*, QListWidgetItem *item);
 
 private:
     QListWidgetItem *createListWidgetItem(QAction *action);

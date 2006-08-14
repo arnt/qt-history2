@@ -44,6 +44,9 @@ public:
     ActionRepository(QWidget *parent = 0);
     virtual ~ActionRepository();
 
+signals:
+    void contextMenuRequested(QContextMenuEvent *event, QListWidgetItem *item);
+
 public slots:
     void filter(const QString &text);
 
@@ -51,6 +54,7 @@ protected:
     virtual void startDrag(Qt::DropActions supportedActions);
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
     virtual void focusInEvent(QFocusEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
 };
 
 class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
