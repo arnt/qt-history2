@@ -1673,7 +1673,31 @@ QObjectList QObject::queryList(const char *inheritsClass,
 */
 
 /*!
+    \fn T qFindChild(const QObject *obj, const QString &name = QString(), T = 0)
+    \relates QObject
+
+    This function is equivalent to
+    \a{obj}->\l{QObject::findChild()}{findChild}<T>(\a name). It is
+    provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
+
+    \sa QObject::findChild()
+*/
+
+/*!
     \fn QList<T> qFindChildren(const QObject *obj, const QString &name)
+    \relates QObject
+
+    This function is equivalent to
+    \a{obj}->\l{QObject::findChildren()}{findChildren}<T>(\a name). It is
+    provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
+
+    \sa QObject::findChildren()
+*/
+
+/*!
+    \fn QList<T> qFindChildren(const QObject *obj, const QString &name = QString(), T = 0)
     \relates QObject
 
     This function is equivalent to
@@ -2951,7 +2975,7 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m,
   Changing the value of a dynamic property causes a QDynamicPropertyChangeEvent
   to be sent to the object.
 
-  \sa property(), metaObject(), dynamicProperties()
+  \sa property(), metaObject(), dynamicPropertyNames()
 */
 bool QObject::setProperty(const char *name, const QVariant &value)
 {
@@ -3032,7 +3056,7 @@ QVariant QObject::property(const char *name) const
     \since 4.2
 
     Returns the names of all properties that were dynamically added to
-    the object, using setProperty.
+    the object using setProperty().
 */
 QList<QByteArray> QObject::dynamicPropertyNames() const
 {
