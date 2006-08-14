@@ -1604,6 +1604,29 @@ bool QListView::uniformItemSizes() const
     return d->uniformItemSizes;
 }
 
+/*!
+    \property QListView::wordWrap
+    \brief the item text word-wrapping policy
+
+    If this property is true then item text text is wrapped where
+    necessary at word-breaks; otherwise it is not wrapped at all.
+    This property is false by default.
+*/
+void QListView::setWordWrap(bool on)
+{
+    Q_D(QListView);
+    if (d->wrapItemText == on)
+        return;
+    d->wrapItemText = on;
+    d->doDelayedItemsLayout();
+}
+
+bool QListView::wordWrap() const
+{
+    Q_D(const QListView);
+    return d->wrapItemText;
+}
+
 /* \reimp */
 bool QListView::event(QEvent *e)
 {
