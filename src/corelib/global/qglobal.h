@@ -850,7 +850,7 @@ class QDataStream;
 #       define MAC_OS_X_VERSION_10_4 MAC_OS_X_VERSION_10_3 + 1
 #  endif
 #  if !defined(MAC_OS_X_VERSION_10_5)
-#       define MAC_OS_X_VERSION_10_5 MAC_OS_X_VERSION_10_5 + 1
+#       define MAC_OS_X_VERSION_10_5 MAC_OS_X_VERSION_10_4 + 1
 #  endif
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
 #    error "This version of Mac OS X is unsupported"
