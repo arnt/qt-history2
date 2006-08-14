@@ -82,14 +82,83 @@ Q_GLOBAL_STATIC(CustomFormatVector, customFormatVectorFunc)
 Q_GLOBAL_STATIC(QMutex, globalMutex)
 
 #ifndef Q_OS_WIN
+inline bool qt_isEvilFsTypeName(const char *name)
+{
+    return (qstrncmp(name, "nfs", 3) == 0
+            || qstrncmp(name, "autofs", 6) == 0
+            || qstrncmp(name, "cachefs", 7) == 0);
+}
+
+#if defined(Q_OS_BSD4)
+# include <sys/param.h>
+# include <sys/mount.h>
+
+static bool isLikelyToBeNfs(int handle)
+{
+    struct statfs buf;
+    if (fstatfs(handle, &buf) != 0)
+        return false;
+    return qt_isEvilFsTypeName(buf.f_fstypename);
+}
+
+#elif defined(Q_OS_LINUX) || defined(Q_OS_HURD)
+# include <sys/vfs.h>
+# ifndef NFS_SUPER_MAGIC
+#  define NFS_SUPER_MAGIC       0x00006969
+# endif
+# ifndef AUTOFS_SUPER_MAGIC
+#  define AUTOFS_SUPER_MAGIC    0x00000187
+# endif
+# ifndef AUTOFSNG_SUPER_MAGIC
+#  define AUTOFSNG_SUPER_MAGIC  0x7d92b1a0
+# endif
+
+static bool isLikelyToBeNfs(int handle)
+{
+    struct statfs buf;
+    if (fstatfs(handle, &buf) != 0)
+        return false;
+    return buf.f_type == NFS_SUPER_MAGIC
+           || buf.f_type == AUTOFS_SUPER_MAGIC
+           || buf.f_type == AUTOFSNG_SUPER_MAGIC;
+}
+
+#elif defined(Q_OS_SOLARIS) || defined(Q_OS_IRIX) || defined(Q_OS_AIX) || defined(Q_OS_HPUX) \
+      || defined(Q_OS_OSF) || defined(Q_OS_QNX) || defined(Q_OS_QNX6) || defined(Q_OS_SCO) \
+      || defined(Q_OS_UNIXWARE) || defined(Q_OS_RELIANT)
+# include <sys/statvfs.h>
+
+static bool isLikelyToBeNfs(int handle)
+{
+    struct statvfs buf;
+    if (fstatvfs(handle, &buf) != 0)
+        return false;
+    return qt_isEvilFsTypeName(buf.f_basetype);
+}
+#else
+static inline bool isLikelyToBeNfs(int /* handle */)
+{
+    return true;
+}
+#endif
+
 static bool unixLock(int handle, int lockType)
 {
+    /*
+        NFS hangs on the fcntl() call below when statd or lockd isn't
+        running. There's no way to detect this. Our work-around for
+        now is to disable locking when we detect NFS (or AutoFS or
+        CacheFS, which are probably wrapping NFS).
+    */
+    if (isLikelyToBeNfs(handle))
+        return false;
+
     struct flock fl;
     fl.l_whence = SEEK_SET;
     fl.l_start = 0;
     fl.l_len = 0;
     fl.l_type = lockType;
-    return !fcntl(handle, F_SETLKW, &fl);
+    return fcntl(handle, F_SETLKW, &fl) == 0;
 }
 #endif
 
@@ -1321,7 +1390,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
     // If we have created the file, apply the file perms
     if (file.isOpen()) {
         if (createFile) {
-            QFile::Permissions perms = QFile::ReadOwner|QFile::WriteOwner;
+            QFile::Permissions perms = QFile::ReadOwner | QFile::WriteOwner;
             if (!confFile->userPerms)
                 perms |= QFile::ReadGroup|QFile::ReadOther;
             file.setPermissions(perms);
@@ -1795,6 +1864,9 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     QSettings's API is based on QVariant, allowing you to save
     most value-based types, such as QString, QRect, and QImage,
     with the minimum of effort.
+
+    If all you need is a non-persistent memory-based structure,
+    consider using QMap<QString, QVariant> instead.
 
     \tableofcontents section1
 
@@ -2359,8 +2431,7 @@ QSettings::QSettings(Scope scope, const QString &organization, const QString &ap
 */
 QSettings::QSettings(Format format, Scope scope, const QString &organization,
                      const QString &application, QObject *parent)
-    : QObject(*QSettingsPrivate::create(format, scope, organization, application),
-              parent)
+    : QObject(*QSettingsPrivate::create(format, scope, organization, application), parent)
 {
 }
 
