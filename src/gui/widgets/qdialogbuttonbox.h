@@ -71,8 +71,10 @@ public:
         Reset              = 0x04000000,
         RestoreDefaults    = 0x08000000,
 
+#ifndef Q_MOC_RUN
         FirstButton        = Ok,
         LastButton         = RestoreDefaults
+#endif
     };
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
