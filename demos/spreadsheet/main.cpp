@@ -239,7 +239,7 @@ QVariant SpreadSheetItem::computeFormula(const QString &formula,
     return result;
 }
 
-#ifndef QT_NO_DBUS
+#if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
 #include <QtDBus>
 
 class SpreadSheetAdaptor : public QDBusAbstractAdaptor
@@ -335,7 +335,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     }
     table->setItemPrototype(table->item(rows - 1, cols - 1));
     table->setItemDelegate(new SpreadSheetDelegate());
-#ifndef QT_NO_DBUS
+#if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
     new SpreadSheetAdaptor(table);
 #endif
     createActions();
