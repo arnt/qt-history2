@@ -987,7 +987,7 @@ bool QDirModel::isReadOnly() const
   \brief Whether the directory model optimizes the hasChildren function
   to only check if the item is a directory.
 
-  If this property is set to true, the directory model will make sure that a directory
+  If this property is set to false, the directory model will make sure that a directory
   actually containes any files before reporting that it has children.
   Otherwise the directory model will report that an item has children if the item
   is a directory.
