@@ -20,7 +20,7 @@
 #include <QtDebug>
 
 Driver::Driver()
-    : m_stdout(stdout, QFile::WriteOnly)
+    : m_stdout(stdout, QFile::WriteOnly | QFile::Text)
 {
     m_output = &m_stdout;
 }
@@ -240,7 +240,7 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
     if (out) {
         m_output = out;
     } else {
-        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
+        m_output = new QTextStream(stdout, QIODevice::WriteOnly | QFile::Text);
         deleteOutput = true;
     }
 
