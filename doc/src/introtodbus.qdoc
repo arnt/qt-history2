@@ -15,6 +15,7 @@
     \title Introduction to D-BUS
 
     \keyword QtDBus
+    \ingroup architecture
 
     \section1 Introduction
 

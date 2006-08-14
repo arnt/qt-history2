@@ -137,6 +137,7 @@
         <li><a href="functions.html">All Functions</a></li>
         <li><a href="qtopiacore.html">Qtopia Core</a></li>
         <li><a href="overviews.html">All Overviews and HOWTOs</a></li>
+        <li><a href="gallery.html">Qt Widget Gallery</a></li>
         </ul>
         </td>
         <td valign="top">
@@ -149,7 +150,7 @@
         <li><a href="containers.html">Tool and Container Classes</a></li>
         <li><a href="i18n.html">Internationalization</a></li>
         <li><a href="plugins-howto.html">Plugin System</a></li>
-        <li><a href="gallery.html">Qt Widget Gallery</a></li>
+        <li><a href="intro-to-dbus.html">Inter-process Communication</a></li>
         <li><a href="qtestlib-manual.html">Unit Testing Framework</a></li>
         </ul>
         </td>
