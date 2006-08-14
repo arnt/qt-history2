@@ -5,7 +5,7 @@ qt:load(qt)
 QTUITOOLS_LINKAGE = -lQtUiTools
 CONFIG(debug, debug|release) {
     mac: QTUITOOLS_LINKAGE = -lQtUiTools_debug
-    win: QTUITOOLS_LINKAGE = -lQtUiToolsd
+    win32: QTUITOOLS_LINKAGE = -lQtUiToolsd
 }
 LIBS += $$QTUITOOLS_LINKAGE
 
