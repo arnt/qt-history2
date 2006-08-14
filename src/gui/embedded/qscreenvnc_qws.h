@@ -56,7 +56,6 @@ public:
 
     void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
     void solidFill(const QColor &color, const QRegion &region);
-    void blit(QWSWindow *bs, const QRegion &clip);
     void setDirty(const QRect&);
 
     QWSWindowSurface* createSurface(QWidget *widget) const;

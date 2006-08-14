@@ -1524,17 +1524,6 @@ void QVNCScreen::solidFill(const QColor &color, const QRegion &region)
 /*!
     \reimp
 */
-void QVNCScreen::blit(QWSWindow *bs, const QRegion &clip)
-{
-    if (d_ptr->subscreen)
-        d_ptr->subscreen->blit(bs, clip);
-    else
-        QScreen::blit(bs, clip);
-}
-
-/*!
-    \reimp
-*/
 QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
 {
     if (d_ptr->subscreen)
