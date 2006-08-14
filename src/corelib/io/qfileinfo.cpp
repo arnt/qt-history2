@@ -1217,8 +1217,10 @@ QFileInfo::permissions() const
 
 
 /*!
-    Returns the file size in bytes, or 0 if the file does not exist or
-    if the size is 0 or if the size cannot be fetched.
+    Returns the file size in bytes. If the file does not exist or cannot be
+    fetched, 0 is returned.
+
+    \sa exists()
 */
 
 qint64
