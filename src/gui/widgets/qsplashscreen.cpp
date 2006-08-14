@@ -33,12 +33,12 @@ public:
 };
 
 /*!
-   \class QSplashScreen qsplashscreen.h
+   \class QSplashScreen
    \brief The QSplashScreen widget provides a splash screen that can
    be shown during application startup.
 
-    \ingroup misc
-    \mainclass
+   \ingroup misc
+   \mainclass
 
    A splash screen is a widget that is usually displayed when an
    application is being started. Splash screens are often used for
@@ -68,30 +68,35 @@ public:
    \skipto MainWindow
    \printuntil /^\}/
 
-   It is sometimes useful to update the splash screen with messages,
-   for example, announcing connections established or modules loaded
-   as the application starts up. QSplashScreen supports this with the
-   showMessage() function. If you wish to do your own drawing you can
-   get a pointer to the pixmap used in the splash screen with pixmap().
-   Alternatively, you can subclass QSplashScreen and reimplement
-   drawContents().
-
    The user can hide the splash screen by clicking on it with the
    mouse. Since the splash screen is typically displayed before the
    event loop has started running, it is necessary to periodically
    call QApplication::processEvents() to receive the mouse clicks.
 
+   It is sometimes useful to update the splash screen with messages,
+   for example, announcing connections established or modules loaded
+   as the application starts up:
+
    \code
-   QSplashScreen *splash = new QSplashScreen("splash.png");
-   splash->show();
-   ... // Loading some items
-   splash->showMessage("Loaded modules");
-   qApp->processEvents();
-   ... // Establishing connections
-   splash->showMessage("Established connections");
-   qApp->processEvents();
+       QPixmap pixmap(":/splash.png");
+       QSplashScreen *splash = new QSplashScreen(pixmap);
+       splash->show();
+
+       ... // Loading some items
+       splash->showMessage("Loaded modules");
+
+       qApp->processEvents();
+
+       ... // Establishing connections
+       splash->showMessage("Established connections");
+
+       qApp->processEvents();
    \endcode
 
+   QSplashScreen supports this with the showMessage() function. If you
+   wish to do your own drawing you can get a pointer to the pixmap
+   used in the splash screen with pixmap().  Alternatively, you can
+   subclass QSplashScreen and reimplement drawContents().
 */
 
 /*!
