@@ -371,15 +371,15 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
 SetFormPropertyCommand::SetFormPropertyCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow),
       m_index(-1),
-      m_propertySheet(0),
-      m_changed(false)
+      m_changed(false),
+      m_propertySheet(0)
 {
 }
 
 void SetFormPropertyCommand::init(QObject *object, const QString &propertyName, const QVariant &newValue)
 {
     Q_ASSERT(object);
-    
+
     m_newValue = newValue;
     m_propertyName = propertyName;
 
