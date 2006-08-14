@@ -576,7 +576,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     linebreaks.
 
     The height of the bounding rectangle is at least as large as the
-    value returned height().
+    value returned by height().
 
     \sa width(), height(), QPainter::boundingRect()
 */
