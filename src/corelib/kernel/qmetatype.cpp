@@ -284,6 +284,8 @@ static const struct { const char * typeName; int type; } types[] = {
     {"quint64", QMetaType::ULongLong},
     {"QList<QVariant>", QMetaType::QVariantList},
     {"QMap<QString,QVariant>", QMetaType::QVariantMap},
+    // let QMetaTypeId2 figure out the type at compile time
+    {"qreal", QMetaTypeId2<qreal>::MetaType},
 
     {0, QMetaType::Void}
 };

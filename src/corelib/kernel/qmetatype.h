@@ -195,7 +195,7 @@ struct QMetaTypeId< TYPE > \
 #define Q_DECLARE_BUILTIN_METATYPE(TYPE, NAME) \
 template<> struct QMetaTypeId2<TYPE> \
 { \
-    enum { Defined = 1 }; \
+    enum { Defined = 1, MetaType = QMetaType::NAME }; \
     static inline int qt_metatype_id() { return QMetaType::NAME; } \
 };
 

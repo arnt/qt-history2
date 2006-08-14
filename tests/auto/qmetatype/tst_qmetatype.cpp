@@ -216,6 +216,9 @@ void tst_QMetaType::typedefs()
     QCOMPARE(QMetaType::type("quint32"), int(QMetaType::UInt));
     QCOMPARE(QMetaType::type("qint64"), int(QMetaType::LongLong));
     QCOMPARE(QMetaType::type("quint64"), int(QMetaType::ULongLong));
+
+    // make sure the qreal typeId is the type id of the type it's defined to
+    QCOMPARE(QMetaType::type("qreal"), ::qMetaTypeId<qreal>());
 }
 
 QTEST_MAIN(tst_QMetaType)
