@@ -268,11 +268,12 @@
     \quotefromfile snippets/qmake/scopes.pro
     \printuntil }
 
-    The assignments inside the scope are only made if the condition is
+    The assignments inside the braces are only made if the condition is
     true. In this case, the special \c win32 variable must be set; this
     happens automatically on Windows, but this can also be specified on
     other platforms by running \c qmake with the \c{-win32} command line
-    option (see \l{Running qmake} for more information).
+    option (see \l{Running qmake} for more information). The opening
+    brace must stand on the same line as the condition.
 
     Simple loops are constructed by iterating over lists of values using
     the built-in \c for function. The following code adds directories
