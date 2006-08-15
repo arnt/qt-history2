@@ -569,7 +569,7 @@ typedef unsigned long long quint64; /* 64 bit unsigned */
 typedef qint64 qlonglong;
 typedef quint64 qulonglong;
 
-#if defined(Q_OS_WIN64)
+#if defined(Q_OS_WIN64) || defined(Q_WS_MAC64)
 # define QT_POINTER_SIZE 8
 #elif defined(Q_OS_WIN32)
 # define QT_POINTER_SIZE 4

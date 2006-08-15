@@ -1497,9 +1497,16 @@ Q_CORE_EXPORT QString qt_mac_from_pascal_string(const Str255 pstr) {
     return QCFString(CFStringCreateWithPascalString(0, pstr, CFStringGetSystemEncoding()));
 }
 
+
+
 static QSysInfo::MacVersion macVersion()
 {
-    long gestalt_version;
+#if __LP64__
+typedef signed int SInt32;
+#else
+typedef signed long SInt32;
+#endif
+    SInt32 gestalt_version;
     if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
         if (gestalt_version >= 0x1050 && gestalt_version < 0x1060)
             return QSysInfo::MV_10_5;
