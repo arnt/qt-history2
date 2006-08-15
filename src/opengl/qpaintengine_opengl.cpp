@@ -1663,8 +1663,8 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         d->setGradientOps(d->pen_brush_style);
         glColor4ubv(d->pen_color);
         if (d->has_fast_pen) {
-            float vertexArray[pointCount*2];
-            glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+            QVarLengthArray<float> vertexArray(pointCount*2);
+            glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
             int i;
             for (i=0; i<pointCount; ++i) {
                 vertexArray[i*2] = points[i].x();
