@@ -476,7 +476,7 @@ void tst_QFile::readLineStdin()
         lotsOfData[i] = '\n';
 
     QProcess process;
-    process.start("stdinprocess/stdinprocess line");
+    process.start("stdinprocess/stdinprocess line", QIODevice::Text | QIODevice::ReadWrite);
     for (int i = 0; i < 5; ++i) {
         QTest::qWait(1000);
         process.write(lotsOfData);
