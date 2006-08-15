@@ -439,7 +439,7 @@ QPrinter::~QPrinter()
 
     Sets the output format for this printer to \a format.
 
-    Setting the output format will reset the state of the printer
+    Setting the output format will reset the state of the printer.
 */
 void QPrinter::setOutputFormat(OutputFormat format)
 {
@@ -461,7 +461,7 @@ void QPrinter::setOutputFormat(OutputFormat format)
 /*!
     \since 4.1
 
-    Returns the output format for this printer
+    Returns the output format for this printer.
 */
 QPrinter::OutputFormat QPrinter::outputFormat() const
 {
