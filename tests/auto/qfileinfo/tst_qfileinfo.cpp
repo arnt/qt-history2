@@ -295,9 +295,11 @@ void tst_QFileInfo::absFilePath_data()
     QTest::addColumn<QString>("expected");
 
     QTest::newRow("relativeFile") << "tmp.txt" << QDir::currentPath() + "/tmp.txt";
-    QTest::newRow(".")            << "\\depot\\qt-4.2\\tests\\auto\\qfileinfo"       << QDir::convertSeparators(QDir::currentPath());
     QTest::newRow("relativeFileInSubDir") << "temp/tmp.txt" << QDir::currentPath() + "/" + "temp/tmp.txt";
 #ifdef Q_OS_WIN
+    QString curr = QDir::currentPath();
+    curr.remove(0, 2);   // Make it a absolute path with no drive specifier: \depot\qt-4.2\tests\auto\qfileinfo 
+    QTest::newRow(".")            << curr << QDir::convertSeparators(QDir::currentPath());
     QTest::newRow("absFilePath") << "c:\\home\\andy\\tmp.txt" << "C:/home/andy/tmp.txt";
 #else
     QTest::newRow("absFilePath") << "/home/andy/tmp.txt" << "/home/andy/tmp.txt";
