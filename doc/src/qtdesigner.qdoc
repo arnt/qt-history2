@@ -1190,6 +1190,8 @@
     \dots
     \skipto /^\};/
     \printuntil /^\};/
+
+    \sa {Creating Custom Widgets for Qt Designer}
 */
 
 
