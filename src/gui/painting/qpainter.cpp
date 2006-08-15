@@ -5752,7 +5752,6 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
         }
 }
 
-
 /*!
     Returns the replacement for given \a device. The optional out
     parameter \a offset returns the offset within the replaced device.
@@ -5775,6 +5774,18 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
     return 0;
 }
 
+
+void qt_painter_removePaintDevice(QPaintDevice *dev)
+{
+    if(QPaintDeviceRedirectionList *redirections = globalRedirections()) {
+        for (int i = 0; i < redirections->size(); ) {
+            if(redirections->at(i) == dev || redirections->at(i).replacement == dev)
+                redirections->removeAt(i);
+            else
+                ++i;
+        }
+    }
+}
 
 void qt_format_text(const QFont &fnt, const QRectF &_r,
                     int tf, const QString& str, QRectF *brect,

@@ -30,6 +30,8 @@ QPaintDevice::~QPaintDevice()
     if (paintingActive())
         qWarning("QPaintDevice: Cannot destroy paint device that is being "
                   "painted.  Be sure to QPainter::end() painters!");
+    extern void qt_painter_removePaintDevice(QPaintDevice *); //qpainter.cpp
+    qt_painter_removePaintDevice(this);
 }
 
 int QPaintDevice::metric(PaintDeviceMetric) const
