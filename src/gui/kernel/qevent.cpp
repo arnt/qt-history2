@@ -756,8 +756,10 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 
 
 /*!
-  Returns true if the key associated with this keyEvent, or false
-  otherwise.
+    \fn bool QKeyEvent::matches(QKeySequence::StandardKey key) const
+
+    Returns true if the key event matches the given standard \a key;
+    otherwise returns false.
 */
 bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
 {
