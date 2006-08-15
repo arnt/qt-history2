@@ -129,6 +129,13 @@ void tst_QPointer::equality_operators()
     QVERIFY(p1 != p2);
     p2 = p1;
     QVERIFY(p1 == p2);
+
+    // compare to zero
+    p1 = 0;
+    QVERIFY(p1 == 0);
+    QVERIFY(0 == p1);
+    QVERIFY(p2 != 0);
+    QVERIFY(0 != p2);
 }
 
 void tst_QPointer::isNull()
