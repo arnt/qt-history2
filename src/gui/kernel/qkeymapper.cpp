@@ -18,30 +18,11 @@
 #include "qkeymapper_p.h"
 #include <qwidget.h>
 
-/*!
-    \class QKeyMapper QKeyMapper.h
-    \brief <Add brief class description>
-
-    \ingroup <Add which group this widget is part of>
-
-    <Add detailed description>
-
-    \sa QObject
-*/
-
-/*!
-    Constructs a key mapper.
-*/
 QKeyMapper::QKeyMapper()
     : QObject(*new QKeyMapperPrivate, 0)
 {
 }
 
-/*!
-    Destroys the QKeyMapper.
-
-    All this QKeyMapper's children are deleted first.
-*/
 QKeyMapper::~QKeyMapper()
 {
 }
@@ -76,10 +57,6 @@ void QKeyMapper::changeKeyboard()
 }
 
 Q_GLOBAL_STATIC(QKeyMapper, keymapper)
-/*!
-    Returns the pointer to the single instance of QKeyMapper in the application. If none yet exists,
-    the function ensures that one is created.
-*/
 QKeyMapper *QKeyMapper::instance()
 {
     return keymapper();
