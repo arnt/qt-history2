@@ -292,7 +292,7 @@ void tst_qmake::prompt()
     qmake.start(QLatin1String("qmake CONFIG-=debug_and_release CONFIG-=debug CONFIG+=release"),
                 QIODevice::Text | QIODevice::ReadWrite);
     qmake.write("promptetiprompt\n");
-    QVERIFY(qmake.waitForFinished(5000));
+    QVERIFY(qmake.waitForFinished(20000));
     QCOMPARE(qmake.readAll(), QByteArray("Project PROMPT: Prompteroo? "));
 }
 
