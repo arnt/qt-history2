@@ -493,8 +493,10 @@ void QGraphicsScenePrivate::removeSceneEventFilter(QGraphicsItem *watched, QGrap
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = sceneEventFilters.upperBound(watched);
     do {
         if (it.value() == filter)
-            sceneEventFilters.erase(it);
-    } while (++it != end);
+            it = sceneEventFilters.erase(it);
+        else
+            ++it;
+    } while (it != end);
 }
 
 /*!
