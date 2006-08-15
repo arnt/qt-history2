@@ -1449,8 +1449,11 @@ static void qt_gl_image_cleanup(int serial)
 QImage QGLContextPrivate::convertToBGRA(const QImage &image)
 {
     QImage img = image;
-    if (image.format() != QImage::Format_ARGB32)
-        img = image.convertToFormat(QImage::Format_ARGB32);
+
+    if (image.format() != QImage::Format_ARGB32_Premultiplied
+        || image.format() != QImage::Format_ARGB32) {
+        img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
 
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         // mirror + swizzle

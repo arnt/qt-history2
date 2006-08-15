@@ -341,17 +341,19 @@ public:
         {}
 
     inline void setGLPen(const QColor &c) {
-        pen_color[0] = c.red();
-        pen_color[1] = c.green();
-        pen_color[2] = c.blue();
-        pen_color[3] = qRound(c.alpha() * opacity);
+        uchar alpha = qRound(c.alpha() * opacity);
+        pen_color[0] = (c.red() * alpha) >> 8;
+        pen_color[1] = (c.green() * alpha) >> 8;
+        pen_color[2] = (c.blue() * alpha) >> 8;
+        pen_color[3] = alpha;
     }
 
     inline void setGLBrush(const QColor &c) {
-        brush_color[0] = c.red();
-        brush_color[1] = c.green();
-        brush_color[2] = c.blue();
-        brush_color[3] = qRound(c.alpha() * opacity);
+        uchar alpha = qRound(c.alpha() * opacity);
+        brush_color[0] = (c.red() * alpha) >> 8;
+        brush_color[1] = (c.green() * alpha) >> 8;
+        brush_color[2] = (c.blue() * alpha) >> 8;
+        brush_color[3] = alpha;
     }
 
     inline void setGradientOps(Qt::BrushStyle style);
@@ -847,8 +849,9 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
     for (int i = 0; i < s.size(); ++i)
         colors[i] = s[i].second.rgba();
 
+    uint alpha = qRound(opacity * 255);
     while (fpos < s.first().first) {
-        colorTable[pos] = colors[0];
+        colorTable[pos] = PREMUL(ARGB_COMBINE_ALPHA(colors[0], alpha));
         pos++;
         fpos += incr;
     }
@@ -856,13 +859,15 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
     for (int i = 0; i < s.size() - 1; ++i) {
         qreal delta = 1/(s[i+1].first - s[i].first);
         while (fpos < s[i+1].first && pos < size) {
-            int dist = int(255 * ((fpos - s[i].first) * delta));
-            int idist = 255 - dist;
+            int dist = int(256 * ((fpos - s[i].first) * delta));
+            int idist = 256 - dist;
+            uint current_color = PREMUL(ARGB_COMBINE_ALPHA(colors[i], alpha));
+            uint next_color = PREMUL(ARGB_COMBINE_ALPHA(colors[i+1], alpha));
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-            colorTable[pos] = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
+            colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
 #else
-            uint c = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
-            colorTable[pos] = ((c << 24) & 0xff000000)
+            uint c = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
+            colorTable[pos] = ( (c << 24) & 0xff000000)
                               | ((c >> 24) & 0x000000ff)
                               | ((c << 8) & 0x00ff0000)
                               | ((c >> 8) & 0x0000ff00);
@@ -1039,7 +1044,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glOrtho(0, sz.width(), sz.height(), 0, -999999, 999999);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
 
@@ -2177,7 +2182,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             for (int y=0; y<glyph_im.height(); ++y) {
                 uchar *s = (uchar *) glyph_im.scanLine(y);
                 for (int x=0; x<glyph_im.width(); ++x) {
-                    tex_data[idx] = 0xff;
+                    tex_data[idx] = *s;
                     tex_data[idx+1] = *s;
                     ++s;
                     idx += 2;
