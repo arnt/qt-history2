@@ -137,6 +137,7 @@ QRubberBand::QRubberBand(Shape s, QWidget *p)
     setVisible(false);
 #ifdef Q_WS_MAC
     if(isWindow()) {
+        winId();
         extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
         ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
     }
