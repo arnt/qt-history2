@@ -919,11 +919,6 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
             desktopIcon = loadIconFromShell32(319, 16);
             break;
         }
-    case SP_FileDialogToParent:
-        {
-            desktopIcon = loadIconFromShell32(255, 16);
-            break;
-        }
     case SP_TrashIcon:
         {
             desktopIcon = loadIconFromShell32(191, 16);

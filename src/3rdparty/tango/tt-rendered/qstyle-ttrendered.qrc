@@ -56,6 +56,8 @@
 <file>go-up-128.png</file>
 <file>go-down-16.png</file>
 <file>go-down-128.png</file>
+<file>folder-new-16.png</file>
+<file>folder-new-128.png</file>
 
 </qresource>
 </RCC>

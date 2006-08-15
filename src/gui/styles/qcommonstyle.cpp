@@ -3808,9 +3808,9 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
     case SP_ArrowDown:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-down-16.png"));
     case SP_FileDialogToParent:
-        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-16.png"));
+        return standardPixmap(SP_ArrowUp, opt, w);
     case SP_FileDialogNewFolder:
-        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-16.png"));
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-16.png"));
     case SP_FileDialogDetailedView:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/viewdetailed-16.png"));
     case SP_FileDialogInfoView:
@@ -3890,10 +3890,8 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-128.png"));
         break;
     case SP_FileDialogNewFolder:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-32.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-64.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-128.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-128.png"));
         break;
     case SP_FileDialogDetailedView:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/viewdetailed-16.png"));
@@ -4067,22 +4065,22 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
     case SP_ArrowLeft:
         if (QApplication::layoutDirection() == Qt::LeftToRight)
             return standardIconImplementation(SP_ArrowRight, opt, widget);
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-previous-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-previous-128.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-128.png"));
         break;
     case SP_ArrowRight:
         if (QApplication::layoutDirection() == Qt::LeftToRight)
             return standardIconImplementation(SP_ArrowLeft, opt, widget);
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-next-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-next-128.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-128.png"));
         break;
     case SP_ArrowUp:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-up-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-up-128.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-up-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-up-128.png"));
         break;
     case SP_ArrowDown:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-down-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/go-down-128.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-down-16.png"));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-down-128.png"));
         break;
     case SP_DirIcon:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/dirclosed-16.png"),

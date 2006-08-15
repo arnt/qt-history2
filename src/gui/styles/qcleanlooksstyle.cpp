@@ -4118,7 +4118,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_FileDialogNewFolder:
         {
-            pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
+            pixmap = d->findIcon(16, QLatin1String("folder-new.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
