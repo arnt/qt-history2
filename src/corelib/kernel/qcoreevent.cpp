@@ -464,9 +464,6 @@ QCustomEvent::~QCustomEvent()
 */
 
 /*!
-    Constructs a
-*/
-/*!
     Constructs a dynamic property change event object with the property name set to
     \a name.
 */
