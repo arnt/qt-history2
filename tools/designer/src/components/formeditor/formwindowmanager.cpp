@@ -452,7 +452,8 @@ void FormWindowManager::slotActionBreakLayoutActivated()
 
     m_activeFormWindow->simplifySelection(&widgets);
 
-    QWidget* layoutBase = 0;
+    QList<QWidget*> layoutBaseList;
+
     foreach (QWidget *widget, widgets) {
         QWidget *currentWidget = core()->widgetFactory()->containerOfWidget(widget);
 
@@ -460,21 +461,24 @@ void FormWindowManager::slotActionBreakLayoutActivated()
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
                 // ### generalize (put in function)
                 QLayoutWidget* layoutWidget = qobject_cast<QLayoutWidget*>(widget);
-                if ((layoutWidget ? !layout->isEmpty() : layout != 0) || qobject_cast<QSplitter*>(currentWidget)) {
-                    layoutBase = layout->parentWidget();
-                    break;
+                if (((layoutWidget ? !layout->isEmpty() : layout != 0) || qobject_cast<QSplitter*>(currentWidget)) 
+                    && !layoutBaseList.contains(layout->parentWidget())) {
+                    layoutBaseList.prepend(layout->parentWidget());
                 }
             }
             currentWidget = currentWidget->parentWidget();
         }
     }
 
-    // nothing to do
-    if (layoutBase == 0)
+    if (layoutBaseList.isEmpty()) {
+        // nothing to do
         return;
+    }
 
     m_activeFormWindow->beginCommand(tr("Break Layout"));
-    m_activeFormWindow->breakLayout(layoutBase);
+    foreach (QWidget *layoutBase, layoutBaseList) {
+        m_activeFormWindow->breakLayout(layoutBase);
+    }
     m_activeFormWindow->endCommand();
 }
 
