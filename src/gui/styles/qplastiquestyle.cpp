@@ -5469,11 +5469,9 @@ void QPlastiqueStyle::polish(QApplication *app)
     d->iconDirs = dataDirs.split(":");
 
     QProcess kreadconfig;
-    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group icons -key Theme --default crystalsvg"));
-
+    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
     if (kreadconfig.waitForFinished())
         d->themeName = QLatin1String(kreadconfig.readLine().trimmed());
-    
 #endif
     QWindowsStyle::polish(app);
 }
