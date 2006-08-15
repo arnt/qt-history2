@@ -17,9 +17,9 @@
 #include "mainwindow.h"
 #include "pixeldelegate.h"
 
-MainWindow::MainWindow() : QMainWindow()
+MainWindow::MainWindow()
 {
-    currentPath = QDir::home().absolutePath();
+    currentPath = QDir::homePath();
     model = new ImageModel(this);
 
     QWidget *centralWidget = new QWidget;

@@ -23,6 +23,7 @@ class ImageModel : public QAbstractTableModel
 
 public:
     ImageModel(QObject *parent = 0);
+
     void setImage(const QImage &image);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

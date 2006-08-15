@@ -29,7 +29,7 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     int size = qMin(option.rect.width(), option.rect.height());
     int brightness = index.model()->data(index, Qt::DisplayRole).toInt();
     double radius = (size/2.0) - (brightness/255.0 * size/2.0);
-    if (radius == 0)
+    if (radius == 0.0)
         return;
 
     painter->save();
