@@ -244,6 +244,7 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
 */
 void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
 {
+    Q_Q(QGraphicsScene);
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
         int index = item->d_func()->index;
         if (index != -1) {
@@ -255,6 +256,11 @@ void QGraphicsScenePrivate::removeFromIndex(QGraphicsItem *item)
 
             foreach (QGraphicsItem *child, item->children())
                 child->removeFromIndex();
+        }
+
+        if (!generatingBspTree) {
+            generatingBspTree = true;
+            QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
         }
     }
 }
