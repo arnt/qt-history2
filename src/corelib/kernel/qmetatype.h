@@ -170,7 +170,7 @@ inline int qMetaTypeId(
 
 template <typename T>
 inline int qRegisterMetaType(
-#ifndef qdoc
+#if !defined(qdoc) && !defined(Q_CC_SUN)
     T * dummy = 0
 #endif
 )
