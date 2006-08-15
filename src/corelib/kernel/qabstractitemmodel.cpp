@@ -792,7 +792,7 @@ void QAbstractItemModelPrivate::reset()
 /*!
   \fn QModelIndex QModelIndex::parent() const
 
-  Return the parent of the model index, or QModelIndex() if it has no
+  Returns the parent of the model index, or QModelIndex() if it has no
   parent.
 
   \sa child() sibling() model()
@@ -961,7 +961,8 @@ void QAbstractItemModelPrivate::reset()
 /*!
     \fn QModelIndex QAbstractItemModel::parent(const QModelIndex &index) const = 0
 
-    Returns the parent of the model item with the given \a index.
+    Returns the parent of the model item with the given \a index, or QModelIndex()
+    if it has no parent.
 */
 
 /*!
