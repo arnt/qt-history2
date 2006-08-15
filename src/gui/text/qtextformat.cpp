@@ -1916,8 +1916,8 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
     \image qtexttableformat-cell.png
 
-    The table's background color can be read with the backgroundColor() function,
-    and can be specified with setBackgroundColor(). The background color of each
+    The table's background color can be read with the background() function,
+    and can be specified with setBackground(). The background color of each
     cell can be set independently, and will control the color of the cell within
     the padded area.
 
