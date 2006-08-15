@@ -255,7 +255,7 @@ QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
 void QDialogButtonBoxPrivate::initLayout()
 {
     Q_Q(QDialogButtonBox);
-    layoutPolicy = QDialogButtonBox::ButtonLayout(q->style()->styleHint(QStyle::SH_DialogButtonLayout));
+    layoutPolicy = QDialogButtonBox::ButtonLayout(q->style()->styleHint(QStyle::SH_DialogButtonLayout, 0, q));
     if (orientation == Qt::Horizontal)
         buttonLayout = new QHBoxLayout(q);
     else
