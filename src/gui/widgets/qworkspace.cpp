@@ -1247,9 +1247,10 @@ void QWorkspacePrivate::place(QWidget *w)
                 ++it;
 
                 if (maxWindow == l)
-                    r2 = maxRestore;
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
                 else
-                    r2.setRect(l->x(), l->y(), l->width(), l->height());
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                                            QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if (r2.intersects(r1)) {
                     r2.setCoords(qMax(r1.left(), r2.left()),
@@ -1287,9 +1288,10 @@ void QWorkspacePrivate::place(QWidget *w)
                 l = *it;
                 ++it;
                 if (maxWindow == l)
-                    r2 = maxRestore;
-                else
-                    r2.setRect(l->x(), l->y(), l->width(), l->height());
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
+                else 
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                                            QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if((y < r2.bottom()) && (r2.top() < w->height() + y)) {
                     if(r2.right() > x)
@@ -1315,9 +1317,10 @@ void QWorkspacePrivate::place(QWidget *w)
                 l = *it;
                 ++it;
                 if (maxWindow == l)
-                    r2 = maxRestore;
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
                 else
-                    r2.setRect(l->x(), l->y(), l->width(), l->height());
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                                            QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if(r2.bottom() > y)
                     possible = possible < r2.bottom() ?
@@ -1333,7 +1336,9 @@ void QWorkspacePrivate::place(QWidget *w)
     }
     while(overlap != 0 && overlap != -1);
 
-    w->move(wpos);
+    QRect resultRect = w->geometry();
+    resultRect.moveTo(wpos);
+    w->setGeometry(QStyle::visualRect(q->layoutDirection(), maxRect, resultRect));
     updateWorkspace();
 }
 
