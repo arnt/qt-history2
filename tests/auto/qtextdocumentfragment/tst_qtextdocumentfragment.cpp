@@ -165,6 +165,7 @@ private slots:
     void backgroundImage();
     void dontMergePreAndNonPre();
     void leftMarginInsideHtml();
+    void html_margins();
 
 private:
     int blockCount();
@@ -2395,6 +2396,15 @@ void tst_QTextDocumentFragment::leftMarginInsideHtml()
     doc->setHtml("<html><dl><dd>Blah");
     QCOMPARE(blockCount(), 1);
     QVERIFY(doc->begin().blockFormat().leftMargin() > 0);
+}
+
+void tst_QTextDocumentFragment::html_margins()
+{
+    doc->setHtml("<p style=\"margin-left: 42px\">Test");
+    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->begin().blockFormat().topMargin(), 12.);
+    QCOMPARE(doc->begin().blockFormat().bottomMargin(), 12.);
+    QCOMPARE(doc->begin().blockFormat().leftMargin(), 42.);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
