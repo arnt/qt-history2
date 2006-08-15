@@ -153,6 +153,7 @@ public:
 
     void clear_mapping();
 
+    void sort();
     void sort_source_rows(QVector<int> &source_rows,
                           const QModelIndex &source_parent) const;
     QVector<QPair<int, QVector<int > > > proxy_intervals_for_source_items_to_add(
@@ -286,6 +287,27 @@ QModelIndex QSortFilterProxyModelPrivate::source_to_proxy(const QModelIndex &sou
     if (proxy_row == -1 || proxy_column == -1)
         return QModelIndex();
     return create_index(proxy_row, proxy_column, it);
+}
+
+/*!
+  \internal
+
+  Sorts the existing mappings.
+*/
+void QSortFilterProxyModelPrivate::sort()
+{
+    Q_Q(QSortFilterProxyModel);
+    emit q->layoutAboutToBeChanged();
+    QModelIndexList source_indexes = store_persistent_indexes();
+    IndexMap::const_iterator it = source_index_mapping.constBegin();
+    for (; it != source_index_mapping.constEnd(); ++it) {
+        QModelIndex source_parent = it.key();
+        Mapping *m = it.value();
+        sort_source_rows(m->source_rows, source_parent);
+        build_source_to_proxy_mapping(m->source_rows, m->proxy_rows);
+    }
+    update_persistent_indexes(source_indexes);
+    emit q->layoutChanged();
 }
 
 /*!
@@ -1572,9 +1594,11 @@ QSize QSortFilterProxyModel::span(const QModelIndex &index) const
 void QSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
     Q_D(QSortFilterProxyModel);
+    if (d->sort_column == column && d->sort_order == order)
+        return;
     d->sort_column = column;
     d->sort_order = order;
-    clear();
+    d->sort();
 }
 
 /*!
@@ -1667,7 +1691,7 @@ void QSortFilterProxyModel::setSortCaseSensitivity(Qt::CaseSensitivity cs)
         return;
 
     d->sort_casesensitivity = cs;
-    clear();
+    d->sort();
 }
 
 /*!
@@ -1752,8 +1776,10 @@ int QSortFilterProxyModel::sortRole() const
 void QSortFilterProxyModel::setSortRole(int role)
 {
     Q_D(QSortFilterProxyModel);
+    if (d->sort_role == role)
+        return;
     d->sort_role = role;
-    clear();
+    d->sort();
 }
 
 /*!
@@ -1774,8 +1800,10 @@ int QSortFilterProxyModel::filterRole() const
 void QSortFilterProxyModel::setFilterRole(int role)
 {
     Q_D(QSortFilterProxyModel);
+    if (d->filter_role == role)
+        return;
     d->filter_role = role;
-    clear();
+    d->filter_changed();
 }
 
 /*!
@@ -1793,10 +1821,10 @@ void QSortFilterProxyModel::clear()
 
 /*!
    \since 4.2
-   Updates the mapping// , to reflect the change in the filter.
+   Updates the mapping to reflect a change in the filter.
 
-   This function should be called if you are implementing
-   custom filtering, and you filter parameters changed.
+   This function should be called if you are implementing custom filtering
+   (e.g. filterAcceptsRow()), and your filter parameters have changed.
 
    \sa clear()
 */
