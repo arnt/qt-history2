@@ -774,7 +774,7 @@ bool QTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 Qt::DropActions QTableModel::supportedDropActions() const
 {
     const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
-    return (view ? view->supportedDropActions() : Qt::IgnoreAction);
+    return (view ? view->supportedDropActions() : Qt::DropActions(Qt::IgnoreAction));
 }
 
 /*!
