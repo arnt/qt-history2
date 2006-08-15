@@ -47,6 +47,7 @@ public:
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
+    void updateCompositionMode(QPainter::CompositionMode composition_mode);
 
     void drawRects(const QRectF *r, int rectCount);
     void drawLines(const QLineF *lines, int lineCount);

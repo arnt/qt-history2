@@ -341,18 +341,18 @@ public:
         {}
 
     inline void setGLPen(const QColor &c) {
-        uchar alpha = qRound(c.alpha() * opacity);
-        pen_color[0] = (c.red() * alpha) >> 8;
-        pen_color[1] = (c.green() * alpha) >> 8;
-        pen_color[2] = (c.blue() * alpha) >> 8;
+        uint alpha = qRound(c.alpha() * opacity);        
+        pen_color[0] = (c.red() * alpha + 128) >> 8;
+        pen_color[1] = (c.green() * alpha + 128) >> 8;
+        pen_color[2] = (c.blue() * alpha + 128) >> 8;
         pen_color[3] = alpha;
     }
 
     inline void setGLBrush(const QColor &c) {
-        uchar alpha = qRound(c.alpha() * opacity);
-        brush_color[0] = (c.red() * alpha) >> 8;
-        brush_color[1] = (c.green() * alpha) >> 8;
-        brush_color[2] = (c.blue() * alpha) >> 8;
+        uint alpha = qRound(c.alpha() * opacity);
+        brush_color[0] = (c.red() * alpha + 128) >> 8;
+        brush_color[1] = (c.green() * alpha + 128) >> 8;
+        brush_color[2] = (c.blue() * alpha + 128) >> 8;
         brush_color[3] = alpha;
     }
 
@@ -1033,6 +1033,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glDisable(GL_CULL_FACE);
     glShadeModel(GL_FLAT);
 
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     if (d->drawable.autoFillBackground())
@@ -1046,7 +1048,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glLoadIdentity();
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-
 
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
         && (pdev != d->shader_dev))
@@ -1191,6 +1192,10 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyHints) {
         updateRenderHints(state.renderHints());
+    }
+
+    if (flags & DirtyCompositionMode) {
+        updateCompositionMode(state.compositionMode());
     }
 
     if (update_fast_pen) {
@@ -1482,6 +1487,48 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
         glEnable(GL_MULTISAMPLE);
     else
         glDisable(GL_MULTISAMPLE);
+}
+
+void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composition_mode)
+{
+    switch(composition_mode) {
+    case QPainter::CompositionMode_DestinationOver:
+        glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE);
+        break;
+    case QPainter::CompositionMode_Clear:
+        glBlendFunc(GL_ZERO, GL_ZERO);
+        break;
+    case QPainter::CompositionMode_Source:
+        glBlendFunc(GL_ONE, GL_ZERO);
+        break;
+    case QPainter::CompositionMode_Destination:
+        glBlendFunc(GL_ZERO, GL_ONE);
+        break;
+    case QPainter::CompositionMode_SourceIn:
+        glBlendFunc(GL_DST_ALPHA, GL_ZERO);
+        break;
+    case QPainter::CompositionMode_DestinationIn:
+        glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+        break;
+    case QPainter::CompositionMode_SourceOut:
+        glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ZERO);
+        break;
+    case QPainter::CompositionMode_DestinationOut:
+        glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case QPainter::CompositionMode_SourceAtop:
+        glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case QPainter::CompositionMode_DestinationAtop:
+        glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_SRC_ALPHA);
+        break;
+    case QPainter::CompositionMode_Xor:
+        glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        break;
+    case QPainter::CompositionMode_SourceOver:
+    default:        
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
 }
 
 static void qt_add_rect_to_array(const QRectF &r, float *array)
