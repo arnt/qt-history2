@@ -1210,9 +1210,9 @@ void tst_CssParser::shorthandBackgroundProperty()
 
     QColor color;
     QString image;
-    QCss::Repeat repeat;
-    Qt::Alignment alignment;
-    QCss::Origin origin;
+    QCss::Repeat repeat = QCss::Repeat_XY;
+    Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
+    QCss::Origin origin = QCss::Origin_Padding;
     v.extractBackground(&color, &image, &repeat, &alignment, &origin);
 
     QTEST(color, "expectedColor");

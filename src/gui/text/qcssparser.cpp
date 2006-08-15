@@ -288,7 +288,6 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
 {
     extractFont();
     bool hit = false;
-    *w = *h = *mw = *mh = -1;
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
@@ -308,7 +307,6 @@ bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *botto
 {
     extractFont();
     bool hit = false;
-    *left = *top = *right = *bottom = -1;
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
@@ -328,10 +326,6 @@ bool ValueExtractor::extractBox(int *margins, int *paddings, int *spacing)
 {
     extractFont();
     bool hit = false;
-    if (spacing) *spacing = 0;
-    for (int i = 0; i < 4; i++)
-        margins[i] = paddings[i] = 0;
-
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
@@ -380,12 +374,6 @@ bool ValueExtractor::extractBorder(int *borders, QColor *colors, BorderStyle *st
 {
     extractFont();
     bool hit = false;
-    for (int i = 0; i < 4; i++) {
-        borders[i] = 0;
-        styles[i] = BorderStyle_None;
-        colors[i] = Qt::transparent;
-    }
-
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
@@ -533,12 +521,6 @@ bool ValueExtractor::extractBackground(QColor *color, QString *image, Repeat *re
                                        Qt::Alignment *alignment, Origin *origin)
 {
     bool hit = false;
-    *color = QColor();
-    *image = QString();
-    *repeat = Repeat_XY;
-    *alignment = Qt::AlignTop | Qt::AlignLeft;
-    *origin = Origin_Padding;
-
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty())
@@ -694,9 +676,6 @@ void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
         return;
     }
 
-    *font = QFont();
-    *fontSizeAdjustment = -255;
-
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty())
@@ -721,8 +700,6 @@ void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
 bool ValueExtractor::extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg)
 {
     bool hit = false;
-    *fg = *sfg = QColor();
-    *sbg = *abg = QBrush();
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
@@ -799,6 +776,22 @@ bool Declaration::intValue(int *i, const char *unit) const
     if (ok)
         *i = val;
     return ok;
+}
+
+QRect Declaration::rectValue() const
+{
+    if (values.count() != 1)
+        return QRect();
+    const Value &v = values.first();
+    if (v.type != Value::Function)
+        return QRect();
+    QStringList func = v.variant.toStringList();
+    if (func.count() != 2 || func.first().compare(QLatin1String("rect")) != 0)
+        return QRect();
+    QStringList args = func[1].split(" ", QString::SkipEmptyParts);
+    if (args.count() != 4)
+        return QRect();
+    return QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
 }
 
 void Declaration::colorValues(QColor *c) const

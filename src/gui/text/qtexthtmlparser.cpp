@@ -1225,11 +1225,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
 {
     QCss::ValueExtractor extractor(declarations);
     int ignoredBorders[4];
-    int cssMargins[4];
-    if (extractor.extractBox(cssMargins, ignoredBorders)) {
-        for (int i = 0; i < 4; ++i)
-            margin[i] = cssMargins[i];
-    }
+    extractor.extractBox(margin, ignoredBorders);
 
     for (int i = 0; i < declarations.count(); ++i) {
         const QCss::Declaration &decl = declarations.at(i);

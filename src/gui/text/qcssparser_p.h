@@ -249,6 +249,7 @@ struct Q_GUI_EXPORT Declaration
     bool intValue(int *i, const char *unit = 0) const;
     bool realValue(qreal *r, const char *unit = 0) const;
 
+    QRect rectValue() const;
     QString uriValue() const;
 
     void borderImageValue(QString *image, int *cuts, TileMode *h, TileMode *v) const;
