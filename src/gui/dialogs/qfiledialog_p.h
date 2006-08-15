@@ -33,6 +33,7 @@
 #include "QtGui/qtreeview.h"
 #include "QtGui/qtoolbutton.h"
 #include "QtGui/qevent.h"
+#include "QtGui/qdialogbuttonbox.h"
 
 class QDirModel;
 class QComboBox;
@@ -149,8 +150,7 @@ public:
     QAction *unsortedAction;
     QAction *showHiddenAction;
 
-    QPushButton *acceptButton;
-    QPushButton *rejectButton;
+    QDialogButtonBox *buttonBox;
 
     QToolButton *backButton;
     QToolButton *toParentButton;

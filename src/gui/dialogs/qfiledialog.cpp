@@ -654,7 +654,8 @@ void QFileDialog::setAcceptMode(AcceptMode mode)
     Q_D(QFileDialog);
     d->acceptMode = mode;
     d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
-    d->acceptButton->setText(mode == AcceptOpen ? tr("Open") : tr("Save"));
+    d->buttonBox->setStandardButtons((mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save) | 
+                                     QDialogButtonBox::Cancel);
 }
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const
@@ -804,6 +805,7 @@ QFileIconProvider *QFileDialog::iconProvider() const
 void QFileDialog::setLabelText(DialogLabel label, const QString &text)
 {
     Q_D(QFileDialog);
+    QPushButton *button;
     switch (label) {
     case LookIn:
         d->lookInLabel->setText(text);
@@ -815,11 +817,16 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
         d->fileTypeLabel->setText(text);
         break;
     case Accept:
-        d->acceptButton->setText(text);
+        if (acceptMode() == AcceptOpen)
+            button = d->buttonBox->button(QDialogButtonBox::Open);
+        else
+            button = d->buttonBox->button(QDialogButtonBox::Save);
+        button->setText(text);
         d->openAction->setText(text);
         break;
     case Reject:
-        d->rejectButton->setText(text);
+        button = d->buttonBox->button(QDialogButtonBox::Cancel);
+        button->setText(text);
         break;
     }
 }
@@ -829,6 +836,7 @@ void QFileDialog::setLabelText(DialogLabel label, const QString &text)
 */
 QString QFileDialog::labelText(DialogLabel label) const
 {
+    QPushButton *button;
     Q_D(const QFileDialog);
     switch (label) {
     case LookIn:
@@ -838,9 +846,14 @@ QString QFileDialog::labelText(DialogLabel label) const
     case FileType:
         return d->fileTypeLabel->text();
     case Accept:
-        return d->acceptButton->text();
+        if (acceptMode() == AcceptOpen)
+            button = d->buttonBox->button(QDialogButtonBox::Open);
+        else
+            button = d->buttonBox->button(QDialogButtonBox::Save);
+        return button->text();
     case Reject:
-        return d->rejectButton->text();
+        button = d->buttonBox->button(QDialogButtonBox::Cancel);
+        return button->text();
     }
     return QString();
 }
@@ -884,8 +897,10 @@ void QFileDialog::accept()
         if (!info.exists()) {
             QString message = tr("\nFile not found.\nPlease verify the "
                                  "correct file name was given");
-            QMessageBox::warning(this, d->acceptButton->text(),
-                                 info.fileName() + message);
+            
+            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ? 
+                                                       QDialogButtonBox::Open : QDialogButtonBox::Save);
+            QMessageBox::warning(this, button->text(), info.fileName() + message);
             return;
         }
         if (info.isDir()) {
@@ -903,9 +918,11 @@ void QFileDialog::accept()
             return;
         }
         // check if we have to ask for permission to overwrite the file
+        QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ? 
+                                                    QDialogButtonBox::Open : QDialogButtonBox::Save);
         if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen)
             QDialog::accept();
-        else if (QMessageBox::warning(this, d->acceptButton->text(),
+        else if (QMessageBox::warning(this, button->text(),
                                       tr("%1 already exists.\nDo you want to replace it?")
                                       .arg(info.fileName()),
                                       QMessageBox::Yes | QMessageBox::No)
@@ -922,8 +939,10 @@ void QFileDialog::accept()
             if (!info.exists()) {
                 QString message = tr("%1\nFile not found.\nPlease verify the "
                                      "correct file name was given.");
-                QMessageBox::warning(this, d->acceptButton->text(),
-                                     message.arg(info.fileName()));
+                QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
+                                                            QDialogButtonBox::Open : QDialogButtonBox::Save);
+
+                QMessageBox::warning(this, button->text(), message.arg(info.fileName()));
                 return;
             }
             if (info.isDir()) {
@@ -963,8 +982,7 @@ QFileDialogPrivate::QFileDialogPrivate()
       sortByDateAction(0),
       unsortedAction(0),
       showHiddenAction(0),
-      acceptButton(0),
-      rejectButton(0),
+      buttonBox(0),
       backButton(0),
       toParentButton(0),
       newFolderButton(0),
@@ -1617,9 +1635,8 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     QWidget::setTabOrder(listView, treeView);
     QWidget::setTabOrder(treeView, fileNameEdit);
     QWidget::setTabOrder(fileNameEdit, fileTypeCombo);
-    QWidget::setTabOrder(fileTypeCombo, acceptButton);
-    QWidget::setTabOrder(acceptButton, rejectButton);
-    QWidget::setTabOrder(rejectButton, lookInCombo);
+    QWidget::setTabOrder(fileTypeCombo, buttonBox);
+    QWidget::setTabOrder(buttonBox, lookInCombo);
 
     // last init
     q->resize(530, 340);
@@ -1808,13 +1825,13 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     grid->addWidget(fileTypeLabel, 3, 0);
 
     // push buttons
-    acceptButton = new QPushButton(QFileDialog::tr("Open"), q);
-    QObject::connect(acceptButton, SIGNAL(clicked()), q, SLOT(accept()));
-    grid->addWidget(acceptButton, 2, 5, Qt::AlignLeft);
-
-    rejectButton = new QPushButton(QFileDialog::tr("Cancel"), q);
-    QObject::connect(rejectButton, SIGNAL(clicked()), q, SLOT(reject()));
-    grid->addWidget(rejectButton, 3, 5, Qt::AlignLeft);
+    
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel, Qt::Vertical, q);
+    
+    grid->addWidget(buttonBox, 2, 5, 2, 1, Qt::AlignLeft);
+    QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+    QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+ 
 
     // "lookin" combobox
     lookInCombo = new QComboBox(q);
