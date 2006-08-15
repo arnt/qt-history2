@@ -3818,7 +3818,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
     case SP_FileDialogListView:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-16.png"));
     case SP_FileDialogBack:
-        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/back-16.png"));
+        return standardPixmap(SP_ArrowLeft, opt, w);
     case SP_DriveHDIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/harddrive-16.png"));
     case SP_TrashIcon:
