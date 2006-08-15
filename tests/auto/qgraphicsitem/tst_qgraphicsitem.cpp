@@ -2529,7 +2529,9 @@ void tst_QGraphicsItem::prepareGeometryChange()
     {
         QGraphicsScene scene;
         QGraphicsItem *item = scene.addRect(QRectF(0, 0, 100, 100));
+        QVERIFY(scene.items(QRectF(0, 0, 100, 100)).contains(item));
         ((GeometryChanger *)item)->changeGeometry();
+        QVERIFY(scene.items(QRectF(0, 0, 100, 100)).contains(item));
     }
 }
 
