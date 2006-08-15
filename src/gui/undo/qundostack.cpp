@@ -22,7 +22,7 @@
     \class QUndoCommand
     \brief The QUndoCommand class is the base class of all commands stored on a QUndoStack.
     \since 4.2
-    \ingroup miscellaneous
+    \ingroup misc
 
     For an overview of Qt's Undo Framework, see the
     \l{Overview of Qt's Undo Framework}{overview document}.
@@ -246,7 +246,7 @@ void QUndoCommand::setText(const QString &text)
     \class QUndoStack
     \brief The QUndoStack class is a stack of QUndoCommand objects.
     \since 4.2
-    \ingroup miscellaneous
+    \ingroup misc
 
     For an overview of Qt's Undo Framework, see the
     \l{Overview of Qt's Undo Framework}{overview document}.
