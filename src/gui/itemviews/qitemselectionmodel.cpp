@@ -159,7 +159,16 @@
 
     Returns true if the model item specified by the \a index lies within the
     range of selected items; otherwise returns false.
+*/
 
+/*!
+    \fn bool QItemSelectionRange::contains(int row, int column,
+                                           const QModelIndex &parentIndex) const
+    \overload
+
+    Returns true if the model item specified by (\a row, \a column)
+    and with \a parentIndex as the parent item lies within the range
+    of selected items; otherwise returns false.
 */
 
 /*!
@@ -1265,7 +1274,7 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
   \since 4.2
   Returns the indexes in the given \a column for the rows where all columns are selected.
   
-  \sa selectedIndexes selectedColumns
+  \sa selectedIndexes(), selectedColumns()
 */
 
 QModelIndexList QItemSelectionModel::selectedRows(int column) const
@@ -1283,10 +1292,10 @@ QModelIndexList QItemSelectionModel::selectedRows(int column) const
 }
 
 /*!
-  \since 4.2
-  Returns the indexes in the given \a row for columns where all rows are selected.
+    \since 4.2
+    Returns the indexes in the given \a row for columns where all rows are selected.
 
-  \sa selectedIndexes selectedRows
+    \sa selectedIndexes(), selectedRows()
 */
 
 QModelIndexList QItemSelectionModel::selectedColumns(int row) const

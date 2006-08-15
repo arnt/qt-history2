@@ -623,6 +623,7 @@ QKeyEvent::~QKeyEvent()
 }
 
 /*!
+    \internal
 */
 QKeyEvent *QKeyEvent::createExtendedKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
                                              quint32 nativeScanCode, quint32 nativeVirtualKey,
@@ -632,6 +633,11 @@ QKeyEvent *QKeyEvent::createExtendedKeyEvent(Type type, int key, Qt::KeyboardMod
     return new QKeyEventEx(type, key, modifiers, text, autorep, count,
                            nativeScanCode, nativeVirtualKey, nativeModifiers);
 }
+
+/*!
+    \fn bool QKeyEvent::hasExtendedInfo() const
+    \internal
+*/
 
 /*!
     Returns the native scan code of the key event.
@@ -1964,7 +1970,7 @@ QTabletEvent::~QTabletEvent()
     of the pen. Earlier versions would report a different value when using
     the eraser-end versus the pen-end of the stylus on some OS's.
 
-    \sa pointerType
+    \sa pointerType()
 */
 
 /*!
@@ -3217,7 +3223,7 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 
     \relates QKeyEvent
 
-    Returns true if \a the key is currently bound to the key combination
+    Returns true if \a key is currently bound to the key combination
     specified by \a e.
 
     Equivalent to \c {e->matches(key)}.

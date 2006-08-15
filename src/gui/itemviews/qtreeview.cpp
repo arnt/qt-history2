@@ -1036,11 +1036,11 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
 }
 
 /*!
-  Draws the row in the tree view that contains the model item \a index,
-  using the \a painter given. The \a option control how the item is
-  displayed.
+    Draws the row in the tree view that contains the model item \a index,
+    using the \a painter given. The \a option control how the item is
+    displayed.
 
-  \sa QStyleOptionViewItem(), setAlternatingRowColors()
+    \sa setAlternatingRowColors()
 */
 void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const

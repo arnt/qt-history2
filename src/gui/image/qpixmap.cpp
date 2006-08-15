@@ -579,7 +579,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
                   + QString::number(data->type);
 
     if (QPixmapCache::find(key, *this))
-            return true;
+        return true;
     QImage image = QImageReader(fileName, format).read();
     if (image.isNull())
         return false;
@@ -944,7 +944,6 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
  *****************************************************************************/
 #if !defined(QT_NO_DATASTREAM)
 /*!
-    \fn QDataStream &operator<<(QDataStream &stream, const QPixmap &pixmap)
     \relates QPixmap
 
     Writes the given \a pixmap to the the given \a stream as a PNG
@@ -954,14 +953,12 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
     \sa QPixmap::save(), {Format of the QDataStream Operators}
 */
 
-QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
+QDataStream &operator<<(QDataStream &stream, const QPixmap &pixmap)
 {
-    s << pixmap.toImage();
-    return s;
+    return stream << pixmap.toImage();
 }
 
 /*!
-    \fn QDataStream &operator>>(QDataStream &stream, QPixmap &pixmap)
     \relates QPixmap
 
     Reads an image from the given \a stream into the given \a pixmap.
@@ -969,15 +966,20 @@ QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
     \sa QPixmap::load(), {Format of the QDataStream Operators}
 */
 
-QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
+QDataStream &operator>>(QDataStream &stream, QPixmap &pixmap)
 {
-    QImage img;
-    s >> img;
-    if (pixmap.data->type == QPixmap::BitmapType)
-        pixmap = QBitmap::fromImage(img);
-    else
-        pixmap = QPixmap::fromImage(img);
-    return s;
+    QImage image;
+    stream >> image;
+
+    QPixmap::Type type = pixmap.data->type;
+    if (image.isNull()) {
+        pixmap = QPixmap(QSize(0, 0), type);
+    } else if (pixmap.data->type == QPixmap::BitmapType) {
+        pixmap = QBitmap::fromImage(image);
+    } else {
+        pixmap = QPixmap::fromImage(image);
+    }
+    return stream;
 }
 
 #endif //QT_NO_DATASTREAM
@@ -986,8 +988,8 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
                           const QPixmap *src, int sx, int sy, int sw, int sh)
 {
-    Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non null");
-    Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non null");
+    Q_ASSERT_X(dst, "::copyBlt", "Destination pixmap must be non-null");
+    Q_ASSERT_X(src, "::copyBlt", "Source pixmap must be non-null");
 
     if (src->hasAlphaChannel()) {
         if (dst->paintEngine()->hasFeature(QPaintEngine::PorterDuff)) {
@@ -1207,10 +1209,10 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     if the system allows, the preferred format is premultiplied alpha.
     Note also that QPixmap, unlike QImage, may be hardware dependent.
     On X11 and Mac, a QPixmap is stored on the server side while a
-    QImage is stored on the client side(on Windows, these two classes
+    QImage is stored on the client side (on Windows, these two classes
     have an equivalent internal representation, i.e. both QImage and
-    QPixmap are stored on the client side which means that QPixmap
-    doesn't use GDI resources).
+    QPixmap are stored on the client side and don't use any GDI
+    resources).
 
     There are functions to convert between QImage and
     QPixmap. Typically, the QImage class is used to load an image

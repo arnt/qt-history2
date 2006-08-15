@@ -361,7 +361,7 @@ QPixmapData::~QPixmapData()
 
     A pixmap is automatically detached by Qt whenever its contents are
     about to change. This is done in almost all QPixmap member
-    functions that modify the pixmap (fill(), convertFromImage(),
+    functions that modify the pixmap (fill(), fromImage(),
     load(), etc.), and in QPainter::begin() on a pixmap.
 
     There are two exceptions in which detach() must be called
@@ -680,7 +680,7 @@ int QPixmap::metric(PaintDeviceMetric m) const
     Note that for the moment, alpha masks on monochrome images are
     ignored.
 
-    \sa convertFromImage(), {QImage#Image Formats}{Image Formats}
+    \sa fromImage(), {QImage#Image Formats}{Image Formats}
 */
 
 QImage QPixmap::toImage() const
@@ -981,7 +981,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 {
     QPixmap pixmap;
     if (img.isNull()) {
-        qWarning("QPixmap::convertFromImage: Cannot convert a null image");
+        qWarning("QPixmap::fromImage: Cannot convert a null image");
         return pixmap;
     }
 
@@ -1636,7 +1636,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             free(newbits);
             newbits = (uchar *)newerbits;
         } else if (xi->bits_per_pixel != 8) {
-            qWarning("QPixmap::convertFromImage: Display not supported "
+            qWarning("QPixmap::fromImage: Display not supported "
                      "(bpp=%d)", xi->bits_per_pixel);
         }
         xi->data = (char *)newbits;

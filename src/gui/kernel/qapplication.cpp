@@ -1043,7 +1043,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
     \property QApplication::styleSheet
     \brief the application style sheet
 
-    \sa QWidget::setStyle, QApplication::styleSheet
+    \sa QWidget::setStyle()
 */
 QString QApplication::styleSheet() const
 {
@@ -1543,11 +1543,9 @@ void QApplicationPrivate::setSystemPalette(const QPalette &pal)
 }
 
 /*!
-  \fn QFont QApplication::font(const QWidget *widget)
+    Returns the default application font.
 
-  Returns the default application font.
-
-  \sa setFont(), fontMetrics(), QWidget::font()
+    \sa fontMetrics(), QWidget::font()
 */
 QFont QApplication::font()
 {
@@ -1556,23 +1554,24 @@ QFont QApplication::font()
     return *QApplicationPrivate::app_font;
 }
 
-/*! \overload
-  \fn QFont QApplication::font(const QWidget *widget)
+/*!
+    \overload
 
-  Returns the default font for the \a widget.
+    Returns the default font for the \a widget.
 
-  \sa setFont(), fontMetrics(), QWidget::font()
+    \sa fontMetrics(), QWidget::setFont()
 */
 
-QFont QApplication::font(const QWidget *w)
+QFont QApplication::font(const QWidget *widget)
 {
     FontHash *hash = app_fonts();
-    if (w && hash  && hash->size()) {
-        QHash<QByteArray, QFont>::ConstIterator it = hash->constFind(w->metaObject()->className());
+    if (widget && hash  && hash->size()) {
+        QHash<QByteArray, QFont>::ConstIterator it =
+                hash->constFind(widget->metaObject()->className());
         if (it != hash->constEnd())
             return it.value();
         for (it = hash->constBegin(); it != hash->constEnd(); ++it) {
-            if (w->inherits(it.key()))
+            if (widget->inherits(it.key()))
                 return it.value();
         }
     }
@@ -1598,20 +1597,21 @@ QFont QApplication::font(const char *className)
 }
 
 
-/*! Changes the default application font to \a font.  If \a className
-  is passed, the change applies only to classes that inherit \a
-  className (as reported by QObject::inherits()).
+/*!
+    Changes the default application font to \a font. If \a className
+    is passed, the change applies only to classes that inherit \a
+    className (as reported by QObject::inherits()).
 
-  On application start-up, the default font depends on the window
-  system. It can vary depending on both the window system version and
-  the locale. This function lets you override the default font; but
-  overriding may be a bad idea because, for example, some locales need
-  extra-large fonts to support their special characters.
+    On application start-up, the default font depends on the window
+    system. It can vary depending on both the window system version and
+    the locale. This function lets you override the default font; but
+    overriding may be a bad idea because, for example, some locales need
+    extra large fonts to support their special characters.
 
-  \sa font(), fontMetrics(), QWidget::setFont()
+    \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont(const QFont &font, const char* className)
+void QApplication::setFont(const QFont &font, const char *className)
 {
     bool all = false;
     FontHash *hash = app_fonts();
@@ -2558,7 +2558,7 @@ QString QApplication::sessionKey() const
 
 /*!
   \since 4.2
-  \fn void QApplication::commitDataRequest(QSessionManager &sessionManager)
+  \fn void QApplication::commitDataRequest(QSessionManager &manager)
 
   This signal deals with \link session.html session
   management\endlink. It is emited when the QSessionManager wants the
@@ -2573,8 +2573,8 @@ QString QApplication::sessionKey() const
   depending on the context.
 
   \warning Within this signal, no user interaction is possible, \e
-  unless you ask the session manager \a manager for explicit permission.
-  See QSessionManager::allowsInteraction() and
+  unless you ask the \a manager for explicit permission. See
+  QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details and example
   usage.
 
@@ -2597,8 +2597,8 @@ QString QApplication::sessionKey() const
   depending on the context.
 
   \warning Within this function, no user interaction is possible, \e
-  unless you ask the session manager \a manager for explicit permission.
-  See QSessionManager::allowsInteraction() and
+  unless you ask the \a manager for explicit permission. See
+  QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details and example
   usage.
 
@@ -2633,7 +2633,7 @@ void QApplication::commitData(QSessionManager& manager )
 
 /*!
   \since 4.2
-  \fn void QApplication::saveStateRequest(QSessionManager &sessionManager)
+  \fn void QApplication::saveStateRequest(QSessionManager &manager)
 
   This signal deals with \link session.html session
   management\endlink. It is invoked when the
@@ -2652,8 +2652,8 @@ void QApplication::commitData(QSessionManager& manager )
   to learn about the application's restart policy.
 
   \warning Within this function, no user interaction is possible, \e
-  unless you ask the session manager \a manager for explicit permission.
-  See QSessionManager::allowsInteraction() and
+  unless you ask the \a manager for explicit permission. See
+  QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details.
 
   Note:: You should use Qt::DirectConnection when connecting to this signal.
@@ -2679,16 +2679,16 @@ void QApplication::commitData(QSessionManager& manager )
   to learn about the application's restart policy.
 
   \warning Within this function, no user interaction is possible, \e
-  unless you ask the session manager \a manager for explicit permission.
-  See QSessionManager::allowsInteraction() and
+  unless you ask the \a manager for explicit permission. See
+  QSessionManager::allowsInteraction() and
   QSessionManager::allowsErrorInteraction() for details.
 
   \sa isSessionRestored(), sessionId(), commitData(), {Session Management}
 */
 
-void QApplication::saveState(QSessionManager& sessionManager)
+void QApplication::saveState(QSessionManager &manager)
 {
-    emit saveStateRequest(sessionManager);
+    emit saveStateRequest(manager);
 }
 #endif //QT_NO_SESSIONMANAGER
 /*
@@ -4084,7 +4084,8 @@ void QApplicationPrivate::_q_tryEmitLastWindowClosed()
     Sets whether Qt should use focus navigation suitable for use with a
     minimal keypad.
 
-    If enabled, Qt::Key_Up and Qt::Key_Down are used to change focus.
+    If \a enable is true, Qt::Key_Up and Qt::Key_Down are used to
+    change focus.
 
     This feature is available in Qtopia Core only.
 
@@ -4095,7 +4096,7 @@ void QApplication::setKeypadNavigationEnabled(bool enable)
     QApplicationPrivate::keypadNavigation = enable;
 }
 
-/*
+/*!
     Returns true if Qt is set to use keypad navigation; otherwise returns
     false. The default is false.
 

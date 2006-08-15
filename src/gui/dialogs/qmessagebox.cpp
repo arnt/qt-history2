@@ -70,7 +70,9 @@ public:
     }
     void setText(const QString &text) { textEdit->setPlainText(text); }
     QString text() const { return textEdit->toPlainText(); }
-    QString label(DetailButtonLabel label) { return label==ShowLabel? QMessageBox::tr("Show Details...") : QMessageBox::tr("Hide Details..."); }
+    QString label(DetailButtonLabel label)
+        { return label == ShowLabel ? QMessageBox::tr("Show Details...")
+                                    : QMessageBox::tr("Hide Details..."); }
 private:
     TextEdit *textEdit;
 };
@@ -180,7 +182,7 @@ public:
                                  int defaultButtonNumber,
                                  int escapeButtonNumber);
 
-    static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent,
+    static QMessageBox::StandardButton showNewMessageBox(QWidget *parent,
                 QMessageBox::Icon icon, const QString& title, const QString& text,
                 QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
@@ -409,9 +411,53 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QMessageBox as well as other built-in Qt dialogs.
 
-    \sa QDialogButtonBox, QMessageBox, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}, {Application Example}
+    \sa QDialogButtonBox, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}, {Application Example}
 */
 
+/*!
+    \enum QMessageBox::StandardButton
+
+    These enums describe flags for standard buttons. Each button has a
+    defined \l ButtonRole.
+
+    \value Ok An "OK" button defined with the \l AcceptRole.
+    \value Open A "Open" button defined with the \l AcceptRole.
+    \value Save A "Save" button defined with the \l AcceptRole.
+    \value Cancel A "Cancel" button defined with the \l RejectRole.
+    \value Close A "Close" button defined with the \l RejectRole.
+    \value Discard A "Discard" or "Don't Save" button, depending on the platform,
+                    defined with the \l DestructiveRole.
+    \value Apply An "Apply" button defined with the \l ApplyRole.
+    \value Reset A "Reset" button defined with the \l ResetRole.
+    \value RestoreDefaults A "Restore Defaults" button defined with the \l ResetRole.
+    \value Help A "Help" button defined with the \l HelpRole.
+    \value SaveAll A "Save All" button defined with the \l AcceptRole.
+    \value Yes A "Yes" button defined with the \l YesRole.
+    \value YesToAll A "Yes to All" button defined with the \l YesRole.
+    \value No A "No" button defined with the \l NoRole.
+    \value NoToAll A "No to All" button defined with the \l NoRole.
+    \value Abort An "Abort" button defined with the \l RejectRole.
+    \value Retry A "Retry" button defined with the \l AcceptRole.
+    \value Ignore An "Ignore" button defined with the \l AcceptRole.
+
+    \value NoButton An invalid button.
+
+    \omitvalue FirstButton
+    \omitvalue LastButton
+
+    The following values are obsolete:
+
+    \value YesAll Use YesToAll instead.
+    \value NoAll Use NoToAll instead.
+    \value Default Use the \c defaultButton argument of
+           information(), warning(), etc. instead, or call
+           setDefaultButton().
+    \value Escape Call setEscapeButton() instead.
+    \value FlagMask
+    \value ButtonMask
+
+    \sa ButtonRole, standardButtons
+*/
 
 /*!
     Constructs a message box with no text and no buttons.
@@ -461,55 +507,8 @@ QMessageBox::~QMessageBox()
 }
 
 /*!
-    \enum QMessageBox::ButtonRole
-
-    This enum describes the roles that can be used to describe buttons in
-    the message box. Combinations of these roles are as flags used to
-    describe different aspects of their behavior.
-
-    \value InvalidRole The button is invalid.
-    \value AcceptRole Clicking the button causes the dialog to be accepted
-           (e.g. OK).
-    \value RejectRole Clicking the button causes the dialog to be rejected
-           (e.g. Cancel).
-    \value DestructiveRole Clicking the button causes a destructive change
-           (e.g. for Discarding Changes).
-    \value ActionRole Clicking the button causes changes to the elements in
-           the dialog (e.g. reset all the values or read defaults).
-    \value HelpRole The button can be clicked to request help.
-    \omitvalue NRoles
-*/
-
-/*!
-    \enum QMessageBox::StandardButton
-
-    These enums describe flags for standard buttons. Each button has a
-    defined \l ButtonRole.
-
-    \value Ok An "OK" button defined with the \l AcceptRole.
-    \value Open A "Open" button defined with the \l AcceptRole.
-    \value Save A "Save" button defined with the \l AcceptRole.
-    \value Cancel A "Cancel" button defined with the \l RejectRole.
-    \value Close A "Close" button defined with the \l RejectRole.
-    \value Discard A "Discard" or "Don't Save" button, depending on the platform,
-                    defined with the \l DestructiveRole.
-    \value Apply An "Apply" button defined with the \l ActionRole.
-    \value Reset A "Reset" button defined with the \l ActionRole.
-    \value Help A "Help" button defined with the \l HelpRole.
-    \value SaveAll A "Save All" button defined with the \l AcceptRole
-    \value Yes A "Yes" button defined with the \l AcceptRole
-    \value YesToAll A "Yes to All" button defined with the \l AcceptRole
-    \value No A "No" button defined with the \l RejectRole
-    \value NoToAll A "No to All" button defined with the \l RejectRole
-    \value Abort An "Abort" button defined with the \l RejectRole
-    \value Retry A "Retry" button defined with the \l ActionRole
-    \value Ignore An "Ignore" button defined with the \l ActionRole
-    \omitvalue NoButton
-*/
-
-/*!
-    Creates a button with the given \a text, adds it to the message box for the
-    specified \a role, and returns it.
+    Adds the given \a button to the message box with the specified \a
+    role.
 
     \sa removeButton(), button(), setStandardButtons()
 */
@@ -542,6 +541,8 @@ QPushButton *QMessageBox::addButton(const QString& text, ButtonRole role)
 
     Adds a standard \a button to the message box if it is valid to do so, and
     returns the push button.
+
+    \sa setStandardButtons()
 */
 QPushButton *QMessageBox::addButton(StandardButton button)
 {
@@ -599,7 +600,7 @@ QMessageBox::StandardButtons QMessageBox::standardButtons() const
     Returns the standard button enum value corresponding to the given \a button,
     or NoButton if the given \a button isn't a standard button.
 
-    \sa button(), buttons(), standardButtons()
+    \sa button(), standardButtons()
 */
 QMessageBox::StandardButton QMessageBox::standardButton(QAbstractButton *button) const
 {
@@ -672,10 +673,10 @@ QAbstractButton *QMessageBox::clickedButton() const
 
 /*!
     Returns the button that should be the message box's
-    \l{QPushButton::setDefaultButton()}{default button}. Returns 0
+    \l{QPushButton::setDefault()}{default button}. Returns 0
     if no default button was set.
 
-    \sa addButton(), setDefaultButton()
+    \sa addButton(), QPushButton::setDefault()
 */
 QPushButton *QMessageBox::defaultButton() const
 {
@@ -684,10 +685,10 @@ QPushButton *QMessageBox::defaultButton() const
 }
 
 /*!
-    Sets the message box's \l{QPushButton::setDefaultButton()}{default button}
+    Sets the message box's \l{QPushButton::setDefault()}{default button}
     to \a button.
 
-    \sa addButton(), defaultButton()
+    \sa addButton(), QPushButton::setDefault()
 */
 void QMessageBox::setDefaultButton(QPushButton *button)
 {
@@ -755,11 +756,11 @@ void QMessageBox::setText(const QString &text)
     The icon of the message box can be one of the following predefined
     icons:
     \list
-    \i QMessageBox::NoIcon
-    \i QMessageBox::Question
-    \i QMessageBox::Information
-    \i QMessageBox::Warning
-    \i QMessageBox::Critical
+    \o QMessageBox::NoIcon
+    \o QMessageBox::Question
+    \o QMessageBox::Information
+    \o QMessageBox::Warning
+    \o QMessageBox::Critical
     \endlist
 
     The actual pixmap used for displaying the icon depends on the
@@ -910,7 +911,7 @@ void QMessageBox::showEvent(QShowEvent *e)
     QDialog::showEvent(e);
 }
 
-static QMessageBox::StandardButton showMessageBoxEx(QWidget *parent,
+static QMessageBox::StandardButton showNewMessageBox(QWidget *parent,
     QMessageBox::Icon icon,
     const QString& title, const QString& text,
     QMessageBox::StandardButtons buttons,
@@ -967,8 +968,8 @@ QMessageBox::StandardButton QMessageBox::information(QWidget *parent, const QStr
                                const QString& text, StandardButtons buttons,
                                StandardButton defaultButton)
 {
-    return showMessageBoxEx(parent, Information, title, text, buttons,
-                            defaultButton);
+    return showNewMessageBox(parent, Information, title, text, buttons,
+                             defaultButton);
 }
 
 
@@ -992,7 +993,7 @@ QMessageBox::StandardButton QMessageBox::question(QWidget *parent, const QString
                             const QString& text, StandardButtons buttons,
                             StandardButton defaultButton)
 {
-    return showMessageBoxEx(parent, Question, title, text, buttons, defaultButton);
+    return showNewMessageBox(parent, Question, title, text, buttons, defaultButton);
 }
 
 /*!
@@ -1015,7 +1016,7 @@ QMessageBox::StandardButton QMessageBox::warning(QWidget *parent, const QString 
                         const QString& text, StandardButtons buttons,
                         StandardButton defaultButton)
 {
-    return showMessageBoxEx(parent, Warning, title, text, buttons, defaultButton);
+    return showNewMessageBox(parent, Warning, title, text, buttons, defaultButton);
 }
 
 /*!
@@ -1038,7 +1039,7 @@ QMessageBox::StandardButton QMessageBox::critical(QWidget *parent, const QString
                          const QString& text, StandardButtons buttons,
                          StandardButton defaultButton)
 {
-    return showMessageBoxEx(parent, Critical, title, text, buttons, defaultButton);
+    return showNewMessageBox(parent, Critical, title, text, buttons, defaultButton);
 }
 
 /*!
@@ -1047,12 +1048,12 @@ QMessageBox::StandardButton QMessageBox::critical(QWidget *parent, const QString
 
     about() looks for a suitable icon in four locations:
     \list 1
-    \i It prefers \link QWidget::windowIcon() parent->icon() \endlink
+    \o It prefers \link QWidget::windowIcon() parent->icon() \endlink
     if that exists.
-    \i If not, it tries the top-level widget containing \a parent.
-    \i If that fails, it tries the \link
+    \o If not, it tries the top-level widget containing \a parent.
+    \o If that fails, it tries the \link
     QApplication::activeWindow() active window. \endlink
-    \i As a last resort it uses the Information icon.
+    \o As a last resort it uses the Information icon.
     \endlist
 
     The about box has a single button labelled "OK".
@@ -1070,7 +1071,7 @@ void QMessageBox::about(QWidget *parent, const QString &title,
 }
 
 /*!
-    Displays a simple message box about Qt, with caption \a caption
+    Displays a simple message box about Qt, with the given \a title
     and centered over \a parent (if \a parent is not 0). The message
     includes the version number of Qt being used by the application.
 
@@ -1117,9 +1118,12 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &title)
     mb.exec();
 }
 
-// for binary compatibility
+/*!
+    \internal
+*/
 QSize QMessageBox::sizeHint() const
 {
+    // ### Qt 5: remove
     return QDialog::sizeHint();
 }
 
@@ -1244,31 +1248,32 @@ int QMessageBoxPrivate::showOldMessageBox(QWidget *parent, QMessageBox::Icon ico
 
 /*!
     \obsolete
-    Constructs a message box with a \a caption, a \a text, an \a icon,
+
+    Constructs a message box with a \a title, a \a text, an \a icon,
     and up to three buttons.
 
     The \a icon must be one of the following:
     \list
-    \i QMessageBox::NoIcon
-    \i QMessageBox::Question
-    \i QMessageBox::Information
-    \i QMessageBox::Warning
-    \i QMessageBox::Critical
+    \o QMessageBox::NoIcon
+    \o QMessageBox::Question
+    \o QMessageBox::Information
+    \o QMessageBox::Warning
+    \o QMessageBox::Critical
     \endlist
 
     Each button, \a button0, \a button1 and \a button2, can have one
     of the following values:
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \o QMessageBox::NoButton
+    \o QMessageBox::Ok
+    \o QMessageBox::Cancel
+    \o QMessageBox::Yes
+    \o QMessageBox::No
+    \o QMessageBox::Abort
+    \o QMessageBox::Retry
+    \o QMessageBox::Ignore
+    \o QMessageBox::YesAll
+    \o QMessageBox::NoAll
     \endlist
 
     Use QMessageBox::NoButton for the later parameters to have fewer
@@ -1311,22 +1316,23 @@ QMessageBox::QMessageBox(const QString &title, const QString &text, Icon icon,
 
 /*!
     \obsolete
-    Opens an information message box with the caption \a caption and
-    the text \a text. The dialog may have up to three buttons. Each of
-    the buttons, \a button0, \a button1 and \a button2 may be set to
-    one of the following values:
+
+    Opens an information message box with the given \a title and the
+    \a text. The dialog may have up to three buttons. Each of the
+    buttons, \a button0, \a button1 and \a button2 may be set to one
+    of the following values:
 
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \o QMessageBox::NoButton
+    \o QMessageBox::Ok
+    \o QMessageBox::Cancel
+    \o QMessageBox::Yes
+    \o QMessageBox::No
+    \o QMessageBox::Abort
+    \o QMessageBox::Retry
+    \o QMessageBox::Ignore
+    \o QMessageBox::YesAll
+    \o QMessageBox::NoAll
     \endlist
 
     If you don't want all three buttons, set the last button, or last
@@ -1355,9 +1361,9 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
     \obsolete
     \overload
 
-    Displays an information message box with caption \a caption, text
-    \a text and one, two or three buttons. Returns the index of the
-    button that was clicked (0, 1 or 2).
+    Displays an information message box with the given \a title and
+    \a text, as well as one, two or three buttons. Returns the index
+    of the button that was clicked (0, 1 or 2).
 
     \a button0Text is the text of the first button, and is optional.
     If \a button0Text is not supplied, "OK" (translated) will be used.
@@ -1394,22 +1400,23 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
 
 /*!
     \obsolete
-    Opens a question message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    buttons, \a button0, \a button1 and \a button2 may be set to one
-    of the following values:
+
+    Opens a question message box with the given \a title and \a text.
+    The dialog may have up to three buttons. Each of the buttons, \a
+    button0, \a button1 and \a button2 may be set to one of the
+    following values:
 
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \o QMessageBox::NoButton
+    \o QMessageBox::Ok
+    \o QMessageBox::Cancel
+    \o QMessageBox::Yes
+    \o QMessageBox::No
+    \o QMessageBox::Abort
+    \o QMessageBox::Retry
+    \o QMessageBox::Ignore
+    \o QMessageBox::YesAll
+    \o QMessageBox::NoAll
     \endlist
 
     If you don't want all three buttons, set the last button, or last
@@ -1438,9 +1445,9 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
     \obsolete
     \overload
 
-    Displays a question message box with caption \a caption, text \a
-    text and one, two or three buttons. Returns the index of the
-    button that was clicked (0, 1 or 2).
+    Displays a question message box with the given \a title and \a
+    text, as well as one, two or three buttons. Returns the index of
+    the button that was clicked (0, 1 or 2).
 
     \a button0Text is the text of the first button, and is optional.
     If \a button0Text is not supplied, "OK" (translated) will be used.
@@ -1477,22 +1484,23 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
 
 /*!
     \obsolete
-    Opens a warning message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    button parameters, \a button0, \a button1 and \a button2 may be
-    set to one of the following values:
+
+    Opens a warning message box with the given \a title and \a text.
+    The dialog may have up to three buttons. Each of the button
+    parameters, \a button0, \a button1 and \a button2 may be set to
+    one of the following values:
 
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \o QMessageBox::NoButton
+    \o QMessageBox::Ok
+    \o QMessageBox::Cancel
+    \o QMessageBox::Yes
+    \o QMessageBox::No
+    \o QMessageBox::Abort
+    \o QMessageBox::Retry
+    \o QMessageBox::Ignore
+    \o QMessageBox::YesAll
+    \o QMessageBox::NoAll
     \endlist
 
     If you don't want all three buttons, set the last button, or last
@@ -1521,9 +1529,9 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
     \obsolete
     \overload
 
-    Displays a warning message box with a caption, a text, and 1, 2 or
-    3 buttons. Returns the number of the button that was clicked (0,
-    1, or 2).
+    Displays a warning message box with the given \a title and \a
+    text, as well as one, two, or three buttons. Returns the number
+    of the button that was clicked (0, 1, or 2).
 
     \a button0Text is the text of the first button, and is optional.
     If \a button0Text is not supplied, "OK" (translated) will be used.
@@ -1559,22 +1567,23 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
 
 /*!
     \obsolete
-    Opens a critical message box with the caption \a caption and the
-    text \a text. The dialog may have up to three buttons. Each of the
-    button parameters, \a button0, \a button1 and \a button2 may be
-    set to one of the following values:
+
+    Opens a critical message box with the given \a title and \a text.
+    The dialog may have up to three buttons. Each of the button
+    parameters, \a button0, \a button1 and \a button2 may be set to
+    one of the following values:
 
     \list
-    \i QMessageBox::NoButton
-    \i QMessageBox::Ok
-    \i QMessageBox::Cancel
-    \i QMessageBox::Yes
-    \i QMessageBox::No
-    \i QMessageBox::Abort
-    \i QMessageBox::Retry
-    \i QMessageBox::Ignore
-    \i QMessageBox::YesAll
-    \i QMessageBox::NoAll
+    \o QMessageBox::NoButton
+    \o QMessageBox::Ok
+    \o QMessageBox::Cancel
+    \o QMessageBox::Yes
+    \o QMessageBox::No
+    \o QMessageBox::Abort
+    \o QMessageBox::Retry
+    \o QMessageBox::Ignore
+    \o QMessageBox::YesAll
+    \o QMessageBox::NoAll
     \endlist
 
     If you don't want all three buttons, set the last button, or last
@@ -1594,19 +1603,19 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
 */
 
 int QMessageBox::critical(QWidget *parent, const QString &title, const QString& text,
-                            int button0, int button1, int button2)
+                          int button0, int button1, int button2)
 {
     return QMessageBoxPrivate::showOldMessageBox(parent, Critical, title, text,
-                                                   button0, button1, button2);
+                                                 button0, button1, button2);
 }
 
 /*!
     \obsolete
     \overload
 
-    Displays a critical error message box with a caption, a text, and
-    1, 2 or 3 buttons. Returns the number of the button that was
-    clicked (0, 1 or 2).
+    Displays a critical error message box with the given \a title and
+    \a text, as well as one, two, or three buttons. Returns the
+    number of the button that was clicked (0, 1 or 2).
 
     \a button0Text is the text of the first button, and is optional.
     If \a button0Text is not supplied, "OK" (translated) will be used.
@@ -1759,8 +1768,6 @@ QMessageBox::QMessageBox(QWidget *parent, const char *name)
 }
 
 /*!
-  \obsolete
-
   Returns the pixmap used for a standard icon. This
   allows the pixmaps to be used in more complex message boxes.
   \a icon specifies the required icon, e.g. QMessageBox::Information,
@@ -1774,6 +1781,48 @@ QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
     Q_UNUSED(style);
     return QMessageBox::standardIcon(icon);
 }
+
+/*!
+    \fn int QMessageBox::message(const QString &title, const QString &text,
+                                 const QString &buttonText, QWidget *parent = 0,
+                                 const char *name = 0)
+
+    Opens a modal message box with the given \a caption and showing the
+    given \a text. The message box has a single button which has the
+    given \a buttonText (or tr("OK")). The message box is centred over
+    its \a parent and is called \a name.
+
+    Use information(), warning(), question(), or critical() instead.
+
+    \oldcode
+        QMessageBox::message(tr("My App"), tr("All occurrences replaced."),
+                             tr("Close"), this);
+    \newcode
+        QMessageBox::information(this, tr("My App"),
+                                 tr("All occurrences replaced."),
+                                 QMessageBox::Close);
+    \endcode
+*/
+
+/*!
+    \fn bool QMessageBox::query(const QString &caption,
+                                const QString& text,
+                                const QString& yesButtonText,
+                                const QString& noButtonText,
+                                QWidget *parent, const char *name)
+
+    \obsolete
+
+    Queries the user using a modal message box with up to two buttons.
+    The message box has the given \a caption (although some window
+    managers don't show it), and shows the given \a text. The left
+    button has the \a yesButtonText (or tr("OK")), and the right button
+    has the \a noButtonText (or isn't shown). The message box is centred
+    over its \a parent and is called \a name.
+
+    Use information(), question(), warning(), or critical() instead.
+*/
+
 #endif
 
 /*!
@@ -1813,6 +1862,30 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     return QPixmap();
 }
 
+/*!
+    \typedef QMessageBox::Button
+    \obsloete
+
+    Use QMessageBox::StandardButton instead.
+*/
+
+/*!
+    \fn int QMessageBox::information(QWidget *parent, const QString &title,
+                                     const QString& text, StandardButton button0,
+                                     StandardButton button1)
+    \fn int QMessageBox::warning(QWidget *parent, const QString &title,
+                                 const QString& text, StandardButton button0,
+                                 StandardButton button1)
+    \fn int QMessageBox::critical(QWidget *parent, const QString &title,
+                                  const QString& text, StandardButton button0,
+                                  StandardButton button1)
+    \fn int QMessageBox::question(QWidget *parent, const QString &title,
+                                  const QString& text, StandardButton button0,
+                                  StandardButton button1)
+    \internal
+
+    ### Needed for Qt 4 source compatibility
+*/
 
 /*!
     \macro QT_REQUIRE_VERSION(int argc, char **argv, const char *version)

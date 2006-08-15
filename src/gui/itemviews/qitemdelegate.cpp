@@ -638,8 +638,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
 
 /*!
     Renders the item background for the given \a index,
-    using the given \a painter and style \a option, using the
-    given \a state.
+    using the given \a painter and style \a option.
 */
 
 void QItemDelegate::drawBackground(QPainter *painter,

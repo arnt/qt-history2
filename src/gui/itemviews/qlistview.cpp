@@ -27,7 +27,7 @@
 #include <qdebug.h>
 
 /*!
-    \class QListView qlistview.h
+    \class QListView
 
     \brief The QListView class provides a list or icon view onto a model.
 
@@ -458,11 +458,8 @@ void QListView::clearPropertyFlags()
 }
 
 /*!
-  Returns true if the \a row is hidden, otherwise returns false.
-
-  \sa setRowHidden
+    Returns true if the \a row is hidden; otherwise returns false.
 */
-
 bool QListView::isRowHidden(int row) const
 {
     Q_D(const QListView);
@@ -470,9 +467,9 @@ bool QListView::isRowHidden(int row) const
 }
 
 /*!
-  If \a hide is true the \a row will be hidden, otherwise the \a row will be shown.
+    If \a hide is true, the given \a row will be hidden; otherwise
+    the \a row will be shown.
 */
-
 void QListView::setRowHidden(int row, bool hide)
 {
     Q_D(QListView);
@@ -1627,7 +1624,9 @@ bool QListView::wordWrap() const
     return d->wrapItemText;
 }
 
-/* \reimp */
+/*!
+    \reimp
+*/
 bool QListView::event(QEvent *e)
 {
     return QAbstractItemView::event(e);

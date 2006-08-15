@@ -1241,7 +1241,9 @@ void QStyleSheetStyle::repolish(QWidget *w)
     update(children);
 }
 
-/*!\reimp*/
+/*!
+    \internal
+*/
 QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                                    const QWidget *widget) const
 {

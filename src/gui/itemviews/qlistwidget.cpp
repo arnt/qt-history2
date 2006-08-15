@@ -1753,7 +1753,9 @@ void QListWidget::setModel(QAbstractItemModel * /*model*/)
     qFatal("QListWidget::setModel() - Changing the model of the QListWidget is not allowed.");
 }
 
-/* \reimp */
+/*!
+    \reimp
+*/
 bool QListWidget::event(QEvent *e)
 {
     return QListView::event(e);

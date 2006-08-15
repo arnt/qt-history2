@@ -3063,10 +3063,20 @@ QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
 #endif
 
 /*!
-    Returns true if (\a x, \a y) is valid coordinates within the
+    \fn bool QImage::valid(const QPoint &pos) const
+
+    Returns true if \a pos is a valid coordinate pair within the
     image; otherwise returns false.
+
+    \sa rect(), QRect::contains()
 */
 
+/*!
+    \overload
+
+    Returns true if QPoint(\a x, \a y) is a valid coordinate pair
+    within the image; otherwise returns false.
+*/
 bool QImage::valid(int x, int y) const
 {
     return d
@@ -3075,15 +3085,21 @@ bool QImage::valid(int x, int y) const
 }
 
 /*!
-    Returns the pixel index at the given coordinates.
+    \fn int QImage::pixelIndex(const QPoint &position) const
 
-    If (\a x, \a y) is not valid, or if the image is not a paletted
+    Returns the pixel index at the given \a position.
+
+    If \a position is not valid, or if the image is not a paletted
     image (depth() > 8), the results are undefined.
 
-    \sa valid(), depth(), {QImage#Pixel Manipulation}{Pixel
-    Manipulation}
+    \sa valid(), depth(), {QImage#Pixel Manipulation}{Pixel Manipulation}
 */
 
+/*!
+    \overload
+
+    Returns the pixel index at (\a x, \a y).
+*/
 int QImage::pixelIndex(int x, int y) const
 {
     if (!d || x < 0 || x >= d->width) {
@@ -3106,7 +3122,9 @@ int QImage::pixelIndex(int x, int y) const
 
 
 /*!
-    Returns the color of the pixel at the given  coordinates.
+    \fn QRgb QImage::pixel(const QPoint &position) const
+
+    Returns the color of the pixel at the given \a position.
 
     If (\a x, \a y) is not valid, the results are undefined.
 
@@ -3114,6 +3132,11 @@ int QImage::pixelIndex(int x, int y) const
     Manipulation}
 */
 
+/*!
+    \overload
+
+    Returns the color of the pixel at coordinates (\a x, \a y).
+*/
 QRgb QImage::pixel(int x, int y) const
 {
     if (!d || x < 0 || x >= d->width) {
@@ -3137,20 +3160,27 @@ QRgb QImage::pixel(int x, int y) const
 
 
 /*!
-    Sets the pixel index or color at the coordinates (\a x, \a y) to
-    \a index_or_rgb.
+    \fn void QImage::setPixel(const QPoint &position, uint index_or_rgb)
+
+    Sets the pixel index or color at the given \a position to \a
+    index_or_rgb.
 
     If the image's format is either monochrome or 8-bit, the given \a
     index_or_rgb value must be an index in the image's color table,
     otherwise the parameter must be a QRgb value.
 
-    If (\a x, \a y) is not valid coordinates in the image, or if \a
-    index_or_rgb >= numColors() in the case of monochrome and 8-bit
-    images, the result is undefined.
+    If \a position is not a valid coordinate pair in the image, or if
+    \a index_or_rgb >= numColors() in the case of monochrome and
+    8-bit images, the result is undefined.
 
     \sa pixel(), {QImage#Pixel Manipulation}{Pixel Manipulation}
 */
 
+/*!
+    \overload
+
+    Sets the pixel index or color at (\a x, \a y) to \a index_or_rgb.
+*/
 void QImage::setPixel(int x, int y, uint index_or_rgb)
 {
     if (!d || x < 0 || x >= width()) {

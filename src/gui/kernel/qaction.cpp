@@ -297,7 +297,7 @@ QWidget *QAction::parentWidget() const
   \since 4.2
   Returns a list of widgets this action has been added to.
 
-  \sa QWidget::addAction
+  \sa QWidget::addAction()
 */
 QList<QWidget *> QAction::associatedWidgets() const
 {
@@ -327,8 +327,10 @@ void QAction::setShortcut(const QKeySequence &shortcut)
 /*!
     \since 4.2
 
-    Sets a list of shortcuts that trigger the action.
-    The first element of the list is the primary shortcut.
+    Sets \a shortcuts as the list of shortcuts that trigger the
+    action. The first element of the list is the primary shortcut.
+
+    \sa shortcut
 */
 void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
 {
@@ -358,7 +360,7 @@ void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
     Note that more than one shortcut can assigned by this action.
     If only the primary shortcut is required, use setShortcut instead.
 
-    \sa QKeySequence::keyBindings
+    \sa QKeySequence::keyBindings()
 */
 void QAction::setShortcuts(QKeySequence::StandardKey key)
 {

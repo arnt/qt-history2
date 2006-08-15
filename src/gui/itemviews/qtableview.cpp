@@ -550,7 +550,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
 /*!
     \internal
 
-    Scroll the contents of the table view by \a(dx, dy).
+    Scroll the contents of the table view by (\a dx, \a dy).
 */
 void QTableView::scrollContentsBy(int dx, int dy)
 {
@@ -2033,11 +2033,12 @@ bool QTableView::isIndexHidden(const QModelIndex &index) const
 }
 
 /*!
-  \since 4.2
+    \since 4.2
 
-  Sets the span of the table element at \a(row, column) to \a(rowSpan, columnSpan).
+    Sets the span of the table element at (\a row, \a column) to (\a
+    rowSpan, \a columnSpan).
 
-  \sa rowSpan(), columnSpan()
+    \sa rowSpan(), columnSpan()
 */
 void QTableView::setSpan(int row, int column, int rowSpan, int columnSpan)
 {
@@ -2049,8 +2050,8 @@ void QTableView::setSpan(int row, int column, int rowSpan, int columnSpan)
 /*!
   \since 4.2
 
-  Returns the row span of the table element at \a(row, column). The default is
-  1.
+  Returns the row span of the table element at (\a row, \a column).
+  The default is 1.
 
   \sa setSpan(), columnSpan()
 */
@@ -2063,11 +2064,11 @@ int QTableView::rowSpan(int row, int column) const
 /*!
   \since 4.2
 
-  Returns the column span of the table element at \a(row, column). The default
-  is 1.
+  Returns the column span of the table element at (\a row, \a
+  column). The default is 1.
 
   \sa setSpan(), rowSpan()
- */
+*/
 int QTableView::columnSpan(int row, int column) const
 {
     Q_D(const QTableView);

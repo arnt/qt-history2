@@ -1670,22 +1670,6 @@ void QScreen::paintBackground(const QRegion &r)
 */
 
 /*!
-    \fn int * QScreen::opType()
-
-    Returns the screen's operation type.
-
-    \sa lastOp()
-*/
-
-/*!
-    \fn int * QScreen::lastOp()
-
-    Returns the screens last operation.
-
-    \sa opType()
-*/
-
-/*!
     \fn QScreen::setDirty(const QRect& rectangle)
 
     This virtual function allows subclasses of QScreen to indicate

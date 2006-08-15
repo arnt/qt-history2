@@ -121,21 +121,6 @@ QVFbScreenPrivate::~QVFbScreenPrivate()
 */
 
 /*!
-    \variable QVFbScreen::success
-    \internal
-*/
-
-/*!
-    \variable QVFbScreen::shmrgn
-    \internal
-*/
-
-/*!
-    \variable QVFbScreen::hdr
-    \internal
-*/
-
-/*!
     \fn QVFbScreen::QVFbScreen(int displayId)
 
     Constructs a QVNCScreen object. The \a displayId argument

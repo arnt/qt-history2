@@ -113,9 +113,9 @@ QMotifStyle::~QMotifStyle()
     delete focus;
 }
 
-/*
-  \internal
-  Animate indeterminate progressbars only when visible
+/*!
+    \internal
+    Animate indeterminate progressbars only when visible
 */
 bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
 {
@@ -150,7 +150,9 @@ bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
     return QStyle::eventFilter(o, e);
 }
 
-/*!\reimp*/
+/*!
+    \internal
+*/
 QIcon QMotifStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                               const QWidget *widget) const
 {

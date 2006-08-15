@@ -23,6 +23,7 @@
 #include <private/qwidgetitemdata_p.h>
 #include <private/qtreewidget_p.h>
 #include <private/qtreewidgetitemiterator_p.h>
+
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QPair<QTreeWidgetItem*,int>&,const QPair<QTreeWidgetItem*,int>&);
 
@@ -1038,7 +1039,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
 
     Returns the brush used to render the background of the specified \a column.
 
-    \sa foreground() setBackground()
+    \sa foreground()
 */
 
 /*!
@@ -1048,7 +1049,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
     Sets the background brush of the label in the given \a column to the
     specified \a brush.
 
-    \sa background() setForeground()
+    \sa setForeground()
 */
 
 /*!
@@ -1072,7 +1073,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
     Returns the brush used to render the foreground (e.g. text) of the
     specified \a column.
 
-    \sa background() setForeground()
+    \sa background()
 */
 
 /*!
@@ -1082,7 +1083,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
     Sets the foreground brush of the label in the given \a column to the
     specified \a brush.
 
-    \sa background() setForeground()
+    \sa setBackground()
 */
 
 /*!
@@ -2045,21 +2046,32 @@ void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
     \fn void QTreeWidget::itemPressed(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user presses a mouse button inside
-    the widget. The specified \a item is the item that was clicked.
+    the widget.
+
+    The specified \a item is the item that was clicked, or 0 if no
+    item was clicked. The \a column is the item's column that was
+    clicked, or -1 if no item was clicked.
 */
 
 /*!
     \fn void QTreeWidget::itemClicked(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user clicks inside the widget.
-    The specified \a item is the item that was clicked.
+
+    The specified \a item is the item that was clicked, or 0 if no
+    item was clicked. The \a column is the item's column that was
+    clicked, or -1 if no item was clicked.
 */
 
 /*!
     \fn void QTreeWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user double clicks inside the
-    widget.  The specified \a item is the item that was clicked.
+    widget.
+
+    The specified \a item is the item that was clicked, or 0 if no
+    item was clicked. The \a column is the item's column that was
+    clicked, or -1 if no item was clicked.
 */
 
 /*!
@@ -2357,9 +2369,9 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
   Adds a column in the header for each item in the \a labels list, and sets
   the label for each column.
 
-  Note that setHeaderLabels wont remove existing columns.
+  Note that setHeaderLabels() won't remove existing columns.
 
-  \sa setHeaderItem()
+  \sa setHeaderItem(), setHeaderLabel()
 */
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
@@ -2371,6 +2383,13 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
     for (int i = 0; i < labels.count(); ++i)
         item->setText(i, labels.at(i));
 }
+
+/*!
+    \fn void QTreeWidget::setHeaderLabel(const QString &label)
+    \since 4.2
+
+    Same as setHeaderLabels(QStringList(\a label)).
+*/
 
 /*!
     Returns the current item in the tree widget.
@@ -2906,7 +2925,9 @@ void QTreeWidget::setModel(QAbstractItemModel * /*model*/)
     qFatal("QTreeWidget::setModel() - Changing the model of the QTreeWidget is not allowed.");
 }
 
-/* \reimp */
+/*!
+    \reimp
+*/
 bool QTreeWidget::event(QEvent *e)
 {
     return QTreeView::event(e);

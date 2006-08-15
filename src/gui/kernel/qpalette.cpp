@@ -728,10 +728,10 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 }
 
 /*!
-    Returns true if the ColorGroup \a cg and ColorRole \a cr has been set
-    previously on this palette, returns false otherwise.
+    Returns true if the ColorGroup \a cg and ColorRole \a cr has been
+    set previously on this palette; otherwise returns false.
 
-    \sa setBrush
+    \sa setBrush()
 */
 bool QPalette::isBrushSet(ColorGroup cg, ColorRole cr) const
 {
@@ -1224,4 +1224,3 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     Returns true if this color group is not equal to \a other;
     otherwise returns false.
 */
-

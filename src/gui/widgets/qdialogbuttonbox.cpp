@@ -556,6 +556,7 @@ QDialogButtonBox::~QDialogButtonBox()
 
 /*!
     \enum QDialogButtonBox::ButtonRole
+    \enum QMessageBox::ButtonRole
 
     This enum describes the roles that can be used to describe buttons in
     the button box. Combinations of these roles are as flags used to
@@ -605,9 +606,13 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Abort An "Abort" button defined with the \l RejectRole.
     \value Retry A "Retry" button defined with the \l AcceptRole.
     \value Ignore An "Ignore" button defined with the \l AcceptRole.
-    \omitvalue NoButton
 
-    \sa ButtonRole
+    \value NoButton An invalid button.
+
+    \omitvalue FirstButton
+    \omitvalue LastButton
+
+    \sa ButtonRole, standardButtons
 */
 
 /*!
@@ -620,6 +625,8 @@ QDialogButtonBox::~QDialogButtonBox()
     \value MacLayout Use a policy appropriate for applications on Mac OS X.
     \value KdeLayout Use a policy appropriate for applications on KDE.
     \value GnomeLayout Use a policy appropriate for applications on GNOME.
+
+    The button layout is specified by the \l{style()}{current style}.
 */
 
 /*!
@@ -628,7 +635,7 @@ QDialogButtonBox::~QDialogButtonBox()
     This signal is emitted when a button inside the button box is clicked. The
     specific button that was pressed is specified by \a button.
 
-    \sa accepted(), rejected() helpRequested()
+    \sa accepted(), rejected(), helpRequested()
 */
 
 /*!

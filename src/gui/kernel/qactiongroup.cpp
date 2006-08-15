@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qactiongroup.h"
 
 #ifndef QT_NO_ACTION
@@ -72,11 +73,11 @@ void QActionGroupPrivate::_q_actionHovered()
     \ingroup application
 
     In some situations it is useful to group actions together. For
-    example, if you have a \gui{Left Align} action, a \l{Right Right}
-    action, a \gui{Justify} action, and a \gui{Center} action, only
-    one of these actions should be active at any one time. One simple
-    way of achieving this is to group the actions together in an
-    action group.
+    example, if you have a \gui{Left Align} action, a \gui{Right
+    Align} action, a \gui{Justify} action, and a \gui{Center} action,
+    only one of these actions should be active at any one time. One
+    simple way of achieving this is to group the actions together in
+    an action group.
 
     Here's a example (from the \l{mainwindows/menus}{Menus} example):
 

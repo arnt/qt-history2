@@ -140,9 +140,21 @@ QClipboard::~QClipboard()
 #endif
 
 /*!
+    \fn void QClipboard::changed(QClipboard::Mode mode)
+    \since 4.2
+
+    This signal is emitted when the data for one of the clipboards is
+    changed.
+
+    \sa dataChanged(), selectionChanged(), findBufferChanged()
+*/
+
+/*!
     \fn void QClipboard::dataChanged()
 
     This signal is emitted when the clipboard data is changed.
+
+    \sa findBufferChanged(), selectionChanged(), changed()
 */
 
 /*!
@@ -150,14 +162,19 @@ QClipboard::~QClipboard()
 
     This signal is emitted when the selection is changed. This only
     applies to windowing systems that support selections, e.g. X11.
-    Windows doesn't support selections.
+    Windows and Mac OS X don't support selections.
+
+    \sa dataChanged(), findBufferChanged(), changed()
 */
 
 /*!
     \fn void QClipboard::findBufferChanged()
+    \since 4.2
 
     This signal is emitted when the find buffer is changed. This only
     applies to Mac OS X.
+
+    \sa dataChanged(), selectionChanged(), changed()
 */
 
 
@@ -176,6 +193,8 @@ QClipboard::~QClipboard()
     
     \value FindBuffer indicates that data should be stored and retrieved from
     the Find buffer. This mode is used for holding search strings on Mac OS X.
+
+    \omitvalue LastMode
 
     \sa QClipboard::supportsSelection()
 */

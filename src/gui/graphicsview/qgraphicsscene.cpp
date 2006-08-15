@@ -2530,7 +2530,8 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
     implementation prepares the painter matrix, and calls
     QGraphicsItem::paint() on all items. \a options is the list of style
     option objects for each item in \a items. \a numItems is the number of
-    items in \a items and options in \a options.
+    items in \a items and options in \a options. \a widget is optional;
+    if specified, it should point to the widget that is being painted on.
 
     All painting is done in \e scene coordinates. Before drawing each item,
     the painter must be transformed using QGraphicsItem::sceneMatrix().

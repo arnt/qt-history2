@@ -416,7 +416,7 @@ QSize QHeaderView::sizeHint() const
 /*!
     Returns a suitable size hint for the section specified by \a logicalIndex.
 
-    \sa sizeHint(), defaultSectionSize(), minimumSectionSize(), SizeHintRole
+    \sa sizeHint(), defaultSectionSize(), minimumSectionSize(), Qt::SizeHintRole
 */
 
 int QHeaderView::sectionSizeHint(int logicalIndex) const

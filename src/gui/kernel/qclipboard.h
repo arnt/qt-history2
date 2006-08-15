@@ -54,8 +54,8 @@ public:
     void setText(const QString &, Mode mode = Clipboard);
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT QMimeSource *data(Mode mode  = Clipboard) const;
-    QT3_SUPPORT void setData(QMimeSource*, Mode mode  = Clipboard);
+    QT3_SUPPORT QMimeSource *data(Mode mode = Clipboard) const;
+    QT3_SUPPORT void setData(QMimeSource*, Mode mode = Clipboard);
 #endif
     const QMimeData *mimeData(Mode mode = Clipboard ) const;
     void setMimeData(QMimeData *data, Mode mode = Clipboard);
@@ -66,7 +66,7 @@ public:
     void setPixmap(const QPixmap &, Mode mode  = Clipboard);
 
 Q_SIGNALS:
-    void changed(QClipboard::Mode);
+    void changed(QClipboard::Mode mode);
     void selectionChanged();
     void findBufferChanged();
     void dataChanged();

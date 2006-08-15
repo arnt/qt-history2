@@ -321,7 +321,7 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     override this behavior by reimplementing QAbstractItemDelegate::setModelData()
     and QAbstractItemDelegate::setEditorData().
 
-    \sa QMetaProperty::userProperty(), QItemEditorFactory::registerEditor()
+    \sa QMetaObject::userProperty(), QItemEditorFactory::registerEditor()
 */
 
 /*! 
@@ -345,6 +345,22 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     QVariant::DateTime will be edited in \c{MyFancyDateTimeEdit}.
 
     \sa QItemEditorCreatorBase, QItemEditorFactory, QItemDelegate
+*/
+
+/*!
+    \fn QStandardItemEditorCreator::QStandardItemEditorCreator()
+
+    Constructs an editor creator object.
+*/
+
+/*!
+    \fn QWidget *QStandardItemEditorCreator::createWidget(QWidget *parent) const
+    \reimp
+*/
+
+/*!
+    \fn QByteArray QStandardItemEditorCreator::valuePropertyName() const
+    \reimp
 */
 
 #ifndef QT_NO_LINEEDIT

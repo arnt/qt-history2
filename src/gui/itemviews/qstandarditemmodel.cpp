@@ -704,7 +704,7 @@ QStandardItem *QStandardItem::parent() const
 /*!
     Sets the item's data for the given \a role to the specified \a value.
 
-    \sa Qt::ItemDataRole, data(), itemChanged(), setFlags()
+    \sa Qt::ItemDataRole, data(), setFlags()
 */
 void QStandardItem::setData(const QVariant &value, int role)
 {
@@ -1399,6 +1399,16 @@ void QStandardItem::insertColumns(int column, int count)
 */
 
 /*!
+    \fn bool QStandardItemModel::insertRow(int row, const QModelIndex &parent)
+    \internal
+*/
+
+/*!
+    \fn bool QStandardItemModel::insertColumn(int column, const QModelIndex &parent)
+    \internal
+*/
+
+/*!
     \fn QStandardItem::insertRow(int row, QStandardItem *item)
     \overload
 
@@ -1505,7 +1515,7 @@ bool QStandardItem::hasChildren() const
 }
 
 /*!
-    Sets the child item at \a(row, column) to \a item. This item (the parent
+    Sets the child item at (\a row, \a column) to \a item. This item (the parent
     item) takes ownership of \a item. If necessary, the row count and column
     count are increased to fit the item.
 
@@ -1525,7 +1535,7 @@ void QStandardItem::setChild(int row, int column, QStandardItem *item)
 */
 
 /*!
-    Returns the child item at \a(row, column) if one has been set; otherwise
+    Returns the child item at (\a row, \a column) if one has been set; otherwise
     returns 0.
 
     \sa setChild(), takeChild(), parent()
@@ -1540,7 +1550,7 @@ QStandardItem *QStandardItem::child(int row, int column) const
 }
 
 /*!
-    Removes the child item at \a(row, column) without deleting it, and returns
+    Removes the child item at (\a row, \a column) without deleting it, and returns
     a pointer to the item. If there was no child at the given location, then
     this function returns 0.
 
@@ -2327,7 +2337,7 @@ void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
     \overload
 
     When building a list or a tree that has only one column, this function
-    provides a convenient way to append a single new item.
+    provides a convenient way to append a single new \a item.
 */
 
 /*!
@@ -2371,7 +2381,7 @@ void QStandardItemModel::insertColumn(int column, const QList<QStandardItem*> &i
 /*!
     \since 4.2
 
-    Removes the item at \a(row, column) without deleting it. The model
+    Removes the item at (\a row, \a column) without deleting it. The model
     releases ownership of the item.
 
     \sa item(), takeRow(), takeColumn()

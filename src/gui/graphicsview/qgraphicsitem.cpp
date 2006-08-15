@@ -158,13 +158,14 @@
     doubleclick events
     \endlist
 
-    You can filter events for any other item by installing event filters.
-    This functionaly is separate from from Qt's regular event filters, (see
-    QObject::installEventFilter(),) which only work on subclasses of QObject.
-    After installing your item as an event filter for another item by calling
-    installEventFilter(), the filtered events will be received by the virtual
-    function sceneEventFilter(). You can remove item event filters by calling
-    removeEventFilter().
+    You can filter events for any other item by installing event
+    filters. This functionaly is separate from from Qt's regular
+    event filters (see QObject::installEventFilter()), which only
+    work on subclasses of QObject. After installing your item as an
+    event filter for another item by calling
+    installSceneEventFilter(), the filtered events will be received
+    by the virtual function sceneEventFilter(). You can remove item
+    event filters by calling removeSceneEventFilter().
 
     Sometimes it's useful to register custom data with an item, be it a custom
     item, or a standard item. You can call setData() on any item to store data
@@ -1820,7 +1821,7 @@ QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, const QPointF &point
 }
 
 /*!
-    \fn QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, qreal x, qreal y) const
+    \fn QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal x, qreal y) const
     \overload
 
     This convenience function is equivalent to calling mapToItem(\a item,
@@ -2003,7 +2004,7 @@ QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, const QPointF &poi
 }
 
 /*!
-    \fn QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, qreal x, qreal y) const
+    \fn QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, qreal x, qreal y) const
     \overload
 
     This convenience function is equivalent to calling mapFromItem(\a item,
@@ -2318,7 +2319,7 @@ void QGraphicsItem::removeSceneEventFilter(QGraphicsItem *filterItem)
     event filter for another item to intersect all the other item's
     events.
 
-    \sa installEventFilter()
+    \sa installSceneEventFilter()
 */
 bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
@@ -3392,6 +3393,7 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
 
 /*!
     \fn void QGraphicsRectItem::setRect(qreal x, qreal y, qreal w, qreal h)
+    \fn void QGraphicsEllipseItem::setRect(qreal x, qreal y, qreal w, qreal h)
 
     This convenience function is equivalent to calling
     setRect(QRectF(\a x, \a y, \a w, \a h));
@@ -3654,7 +3656,7 @@ int QGraphicsEllipseItem::spanAngle() const
 }
 
 /*!
-    Sets the span angle for an ellipse segment to \a agnel, which is in 16ths
+    Sets the span angle for an ellipse segment to \a angle, which is in 16ths
     of a degree. This angle is used together with startAngle() to represent an
     ellipse segment (a pie). By default, the span angle is 5760 (360 * 16, a
     full ellipse).
@@ -4113,6 +4115,13 @@ void QGraphicsLineItem::setLine(const QLineF &line)
     d->line = line;
     addToIndex();
 }
+
+/*!
+    \fn void QGraphicsLineItem::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+    \overload
+
+    This is the same as calling setLine(QLineF(\a x1, \a y1, \a x2, \a y2)).
+*/
 
 /*!
     \reimp
@@ -5286,7 +5295,9 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 */
 
 /*!
-    Constructs a QGraphicsSimpleTextItem. parent and scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsSimpleTextItem.
+    
+    \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
@@ -5294,7 +5305,9 @@ QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphic
 }
 
 /*!
-    Constructs a QGraphicsSimpleTextItem, using text as the default plain text. parent and scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsSimpleTextItem, using \a text as the default plain text.
+
+    \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent , QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
@@ -5310,9 +5323,10 @@ QGraphicsSimpleTextItem::~QGraphicsSimpleTextItem()
 }
 
 /*!
-    Sets the item's text to \a text. The text will be displayed as plain text.
-    Newlines characters ('\n') as well as characters of type QChar::LineSeparator
-    will cause item to break the text into multiple lines.
+    Sets the item's text to \a text. The text will be displayed as
+    plain text. Newline characters ('\n') as well as characters of
+    type QChar::LineSeparator will cause item to break the text into
+    multiple lines.
 */
 void QGraphicsSimpleTextItem::setText(const QString &text)
 {
@@ -5331,7 +5345,7 @@ QString QGraphicsSimpleTextItem::text() const
 }
 
 /*!
-    Sets the font that is used to draw the item's text.
+    Sets the font that is used to draw the item's text to \a font.
 */
 void QGraphicsSimpleTextItem::setFont(const QFont &font)
 {
@@ -5350,7 +5364,7 @@ QFont QGraphicsSimpleTextItem::font() const
 }
 
 /*!
-    Sets the pen that is used to draw the item's text.
+    Sets the pen that is used to draw the item's text to \a pen.
 */
 void QGraphicsSimpleTextItem::setPen(const QPen &pen)
 {

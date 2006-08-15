@@ -268,8 +268,9 @@ void QDataWidgetMapperPrivate::_q_modelDestroyed()
 /*!
     \fn void QDataWidgetMapper::currentIndexChanged(int index)
 
-    This signal is emitted after the current index has changed and all widgets
-    were populated with new data.
+    This signal is emitted after the current index has changed and
+    all widgets were populated with new data. \a index is the new
+    current index.
 
     \sa currentIndex(), setCurrentIndex()
  */
@@ -344,8 +345,6 @@ QAbstractItemModel *QDataWidgetMapper::model() const
 
     The delegate also decides when to apply data and when to change the editor,
     using QAbstractItemDelegate::commitData() and QAbstractItemDelegate::closeEditor().
-
-    \sa QAbstractItemDelegate, itemDelegate()
  */
 void QDataWidgetMapper::setItemDelegate(QAbstractItemDelegate *delegate)
 {
@@ -370,8 +369,6 @@ void QDataWidgetMapper::setItemDelegate(QAbstractItemDelegate *delegate)
 
 /*!
     Returns the current item delegate.
-
-    \sa setDelegate()
  */
 QAbstractItemDelegate *QDataWidgetMapper::itemDelegate() const
 {
@@ -471,7 +468,7 @@ int QDataWidgetMapper::mappedSection(QWidget *widget) const
 }
 
 /*!
-    Returns the \a widget that is mapped at \a section, or
+    Returns the widget that is mapped at \a section, or
     0 if no widget is mapped at that section.
 
     \sa addMapping(), removeMapping()
@@ -511,7 +508,7 @@ void QDataWidgetMapper::revert()
     Note: For database models, QSqlQueryModel::lastError() can be
     used to retrieve the last error.
 
-    \sa revert(), setSumbitPolicy()
+    \sa revert(), setSubmitPolicy()
  */
 bool QDataWidgetMapper::submit()
 {
@@ -550,7 +547,7 @@ void QDataWidgetMapper::toFirst()
 
     Calls setCurrentIndex() internally.
 
-    \sa toLast(), setCurrentIndex()
+    \sa toFirst(), setCurrentIndex()
  */
 void QDataWidgetMapper::toLast()
 {
@@ -592,14 +589,15 @@ void QDataWidgetMapper::toPrevious()
 }
 
 /*!
-    Populates the widgets with data from the row at \a index
-    if the orientation is horizontal (the default), otherwise
-    with data from the column at \a index.
-
-    Does nothing if no such row/column exists.
+    \property QDataWidgetMapper::currentIndex
+    \brief the current row or column
+    
+    The widgets are populated with with data from the row at \a index
+    if the orientation is horizontal (the default), otherwise with
+    data from the column at \a index.
 
     \sa setCurrentModelIndex(), toFirst(), toNext(), toPrevious(), toLast()
- */
+*/
 void QDataWidgetMapper::setCurrentIndex(int index)
 {
     Q_D(QDataWidgetMapper);
@@ -614,7 +612,13 @@ void QDataWidgetMapper::setCurrentIndex(int index)
     emit currentIndexChanged(index);
 }
 
-/*
+int QDataWidgetMapper::currentIndex() const
+{
+    Q_D(const QDataWidgetMapper);
+    return d->currentIdx();
+}
+
+/*!
     Sets the current index to the row of the \a index if the
     orientation is horizontal (the default), otherwise to the
     column of the \a index.
@@ -634,7 +638,7 @@ void QDataWidgetMapper::setCurrentIndex(int index)
     \endcode
 
     \sa currentModelIndex()
- */
+*/
 void QDataWidgetMapper::setCurrentModelIndex(const QModelIndex &index)
 {
     Q_D(QDataWidgetMapper);
@@ -663,56 +667,53 @@ void QDataWidgetMapper::clearMapping()
     }
 }
 
-/*! \fn void QDataWidgetMapper::setOrientation(Qt::Orientation orientation)
+/*!
+    \property QDataWidgetMapper::orientation
+    \brief the orientation of the model
 
-    Sets the orientation to \a orientation. If the orientation is
-    horizontal (the default), a widget is mapped to a column of a
-    data model. The widget will be populated with the model's data
-    from its mapped column and the row that currentIndex() points at.
+    If the orientation is Qt::Horizontal (the default), a widget is
+    mapped to a column of a data model. The widget will be populated
+    with the model's data from its mapped column and the row that
+    currentIndex() points at.
 
-    Use horizontal orientation on tabular data like follows:
+    Use Qt::Horizontal for tabular data that looks like this:
 
     \table
-    \row \o 1 \o $TROLLTECH$    \o Oslo
+    \row \o 1 \o $TROLLTECH$     \o Oslo
     \row \o 2 \o Trolltech Pty   \o Brisbane
-    \row \o 3 \o Trolltech Inc   \o Palo Alto
+    \row \o 3 \o Trolltech Inc   \o Silicon Valley
     \row \o 4 \o Trolltech China \o Beijing
     \row \o 5 \o Trolltech GmbH  \o Berlin
     \endtable
 
-    If the orientation is set to vertical, a widget is mapped to a
-    row. Calling setCurrentIndex() will change the current column.
-    The widget will be populates with the model's data from its mapped
-    row and the column that currentIndex() points at.
+    If the orientation is set to Qt::Vertical, a widget is mapped to
+    a row. Calling setCurrentIndex() will change the current column.
+    The widget will be populates with the model's data from its
+    mapped row and the column that currentIndex() points at.
 
-    Use vertical orientation on tabular data like follows:
+    Use Qt::Vertical for tabular data that looks like this:
 
     \table
     \row \o 1 \o 2 \o 3 \o 4 \o 5
     \row \o $TROLLTECH$ \o Trolltech Pty \o Trolltech Inc \o Trolltech China \o Trolltech GmbH
-    \row \o Oslo \o Brisbane \o Palo Alto \o Beijing \i Berlin
+    \row \o Oslo \o Brisbane \o Silicon Valley \o Beijing \i Berlin
     \endtable
 
-    Note: Changing the orientation clears all existing mappings.
+    Changing the orientation clears all existing mappings.
 
     \sa orientation()
  */
-void QDataWidgetMapper::setOrientation(Qt::Orientation aOrientation)
+void QDataWidgetMapper::setOrientation(Qt::Orientation orientation)
 {
     Q_D(QDataWidgetMapper);
 
-    if (d->orientation == aOrientation)
+    if (d->orientation == orientation)
         return;
 
     clearMapping();
-    d->orientation = aOrientation;
+    d->orientation = orientation;
 }
 
-/*!
-    Returns the current orientation of the model.
-
-    \sa setOrientation()
- */
 Qt::Orientation QDataWidgetMapper::orientation() const
 {
     Q_D(const QDataWidgetMapper);
@@ -720,14 +721,12 @@ Qt::Orientation QDataWidgetMapper::orientation() const
 }
 
 /*!
-    Sets the submit policy to \a policy. See SubmitPolicy for an
-    explanation which submit policies are supported.
+    \property QDataWidgetMapper::submitPolicy
+    \brief the current submit policy
 
-    Note: Changing the current submit policy will revert all widgets
+    Changing the current submit policy will revert all widgets
     to the current data from the model.
-
-    \sa SubmitPolicy, submitPolicy()
- */
+*/
 void QDataWidgetMapper::setSubmitPolicy(SubmitPolicy policy)
 {
     Q_D(QDataWidgetMapper);
@@ -738,28 +737,10 @@ void QDataWidgetMapper::setSubmitPolicy(SubmitPolicy policy)
     d->submitPolicy = policy;
 }
 
-/*!
-    Returns the current submit policy. See SubmitPolicy for an
-    explanation which policies are supported.
-
-    \sa setSubmitPolicy()
- */
 QDataWidgetMapper::SubmitPolicy QDataWidgetMapper::submitPolicy() const
 {
     Q_D(const QDataWidgetMapper);
     return d->submitPolicy;
-}
-
-/*!
-    Returns the current row if the orientation is horizontal (the default)
-    or the current column if the orientation is vertical.
-
-    \sa setCurrentIndex()
- */
-int QDataWidgetMapper::currentIndex() const
-{
-    Q_D(const QDataWidgetMapper);
-    return d->currentIdx();
 }
 
 #include "moc_qdatawidgetmapper.cpp"

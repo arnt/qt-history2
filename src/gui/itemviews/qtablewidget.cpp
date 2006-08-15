@@ -1142,7 +1142,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Returns the brush used to render the item's background.
 
-    \sa foreground() setBackground()
+    \sa foreground()
 */
 
 /*!
@@ -1151,7 +1151,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Sets the item's background brush to the specified \a brush.
 
-    \sa background() setForeground()
+    \sa setForeground()
 */
 
 /*!
@@ -1174,7 +1174,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Returns the brush used to render the item's foreground (e.g. text).
 
-    \sa foreground() setBackground()
+    \sa background()
 */
 
 /*!
@@ -1183,7 +1183,7 @@ void QTableWidgetItem::setFlags(Qt::ItemFlags aflags) {
 
     Sets the item's foreground brush to the specified \a brush.
 
-    \sa background() setForeground()
+    \sa setBackground()
 */
 
 /*!

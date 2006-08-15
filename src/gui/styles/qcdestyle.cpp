@@ -247,7 +247,9 @@ QPalette QCDEStyle::standardPalette() const
     return palette;
 }
 
-/*!\reimp*/
+/*!
+    \internal
+*/
 QIcon QCDEStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                             const QWidget *widget) const
 {
