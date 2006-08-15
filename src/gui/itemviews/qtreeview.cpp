@@ -1318,7 +1318,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
         if (edit(persistent, DoubleClicked, event) || state() != NoState)
             return; // the double click triggered editing
 
-        if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+        if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, 0, this))
             emit activated(persistent);
 
         d->executePostedLayout(); // we need to make sure viewItems is updated

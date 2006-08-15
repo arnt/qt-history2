@@ -1397,7 +1397,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
         emit clicked(index);
         if (edited)
             return;
-        if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+        if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, 0, this))
             emit activated(index);
     }
 }
@@ -1416,7 +1416,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
     if ((event->button() & Qt::LeftButton) && !edit(persistent, DoubleClicked, event)
-        && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+        && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, 0, this))
         emit activated(persistent);
 }
 
@@ -2645,7 +2645,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.displayAlignment = Qt::AlignLeft|Qt::AlignVCenter;
     option.textElideMode = d->textElideMode;
     option.rect = QRect();
-    option.showDecorationSelected = style()->styleHint(QStyle::SH_ItemView_ShowDecorationSelected);
+    option.showDecorationSelected = style()->styleHint(QStyle::SH_ItemView_ShowDecorationSelected, 0, this);
     return option;
 }
 
