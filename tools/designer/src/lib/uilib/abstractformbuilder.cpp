@@ -52,6 +52,7 @@
 #include <QtCore/qdebug.h>
 
 #include <limits.h>
+#include <private/qfont_p.h>
 
 #ifdef QFORMINTERNAL_NAMESPACE
 using namespace QFormInternal;
@@ -851,16 +852,20 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         DomFont *font = p->elementFont();
 
         QFont f;
-        if (!font->elementFamily().isEmpty())
+        if (font->hasElementFamily() && !font->elementFamily().isEmpty())
             f.setFamily(font->elementFamily());
-        if (font->elementPointSize() > 0)
+        if (font->hasElementPointSize() && font->elementPointSize() > 0)
             f.setPointSize(font->elementPointSize());
-        if (font->elementWeight() > 0)
+        if (font->hasElementWeight() && font->elementWeight() > 0)
             f.setWeight(font->elementWeight());
-        f.setItalic(font->elementItalic());
-        f.setBold(font->elementBold());
-        f.setUnderline(font->elementUnderline());
-        f.setStrikeOut(font->elementStrikeOut());
+        if (font->hasElementItalic())
+            f.setItalic(font->elementItalic());
+        if (font->hasElementBold())
+            f.setBold(font->elementBold());
+        if (font->hasElementUnderline())
+            f.setUnderline(font->elementUnderline());
+        if (font->hasElementStrikeOut())
+            f.setStrikeOut(font->elementStrikeOut());
         if (font->hasElementKerning())
             f.setKerning(font->elementKerning());
         if (font->hasElementAntialiasing()) {
@@ -1690,15 +1695,25 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
         case QVariant::Font: {
             DomFont *fnt = new DomFont();
             QFont font = qvariant_cast<QFont>(v);
-            fnt->setElementBold(font.bold());
-            fnt->setElementFamily(font.family());
-            fnt->setElementItalic(font.italic());
-            fnt->setElementPointSize(font.pointSize());
-            fnt->setElementStrikeOut(font.strikeOut());
-            fnt->setElementUnderline(font.underline());
-            fnt->setElementWeight(font.weight());
-            fnt->setElementKerning(font.kerning());
-            fnt->setElementAntialiasing(font.styleStrategy() == QFont::PreferDefault);
+            uint mask = font.resolve();
+            if (mask & QFontPrivate::Weight) {
+                fnt->setElementBold(font.bold());
+                fnt->setElementWeight(font.weight());
+            }
+            if (mask & QFontPrivate::Family)
+                fnt->setElementFamily(font.family());
+            if (mask & QFontPrivate::Style)
+                fnt->setElementItalic(font.italic());
+            if (mask & QFontPrivate::Size)
+                fnt->setElementPointSize(font.pointSize());
+            if (mask & QFontPrivate::StrikeOut)
+                fnt->setElementStrikeOut(font.strikeOut());
+            if (mask & QFontPrivate::Underline)
+                fnt->setElementUnderline(font.underline());
+            if (mask & QFontPrivate::Kerning)
+                fnt->setElementKerning(font.kerning());
+            if (mask & QFontPrivate::StyleStrategy)
+                fnt->setElementAntialiasing(font.styleStrategy() == QFont::PreferDefault);
             dom_prop->setElementFont(fnt);
         } break;
 

@@ -3716,6 +3716,8 @@ void DomFont::clear(bool clear_all)
     m_bold = false;
     m_underline = false;
     m_strikeOut = false;
+    m_antialiasing = false;
+    m_kerning = false;
 }
 
 DomFont::DomFont()
@@ -3727,6 +3729,8 @@ DomFont::DomFont()
     m_bold = false;
     m_underline = false;
     m_strikeOut = false;
+    m_antialiasing = false;
+    m_kerning = false;
 }
 
 DomFont::~DomFont()
@@ -3767,6 +3771,14 @@ void DomFont::read(const QDomElement &node)
         }
         if (tag == QLatin1String("strikeout")) {
             setElementStrikeOut((e.text() == QLatin1String("true") ? true : false));
+            continue;
+        }
+        if (tag == QLatin1String("antialiasing")) {
+            setElementAntialiasing((e.text() == QLatin1String("true") ? true : false));
+            continue;
+        }
+        if (tag == QLatin1String("kerning")) {
+            setElementKerning((e.text() == QLatin1String("true") ? true : false));
             continue;
         }
     }
@@ -3826,6 +3838,18 @@ QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
         e.appendChild(child);
     }
 
+    if (m_children & Antialiasing) {
+        child = doc.createElement(QLatin1String("antialiasing"));
+        child.appendChild(doc.createTextNode((m_antialiasing ? QLatin1String("true") : QLatin1String("false"))));
+        e.appendChild(child);
+    }
+
+    if (m_children & Kerning) {
+        child = doc.createElement(QLatin1String("kerning"));
+        child.appendChild(doc.createTextNode((m_kerning ? QLatin1String("true") : QLatin1String("false"))));
+        e.appendChild(child);
+    }
+
     if (!m_text.isEmpty())
         e.appendChild(doc.createTextNode(m_text));
 
@@ -3874,6 +3898,18 @@ void DomFont::setElementStrikeOut(bool a)
     m_strikeOut = a;
 }
 
+void DomFont::setElementAntialiasing(bool a)
+{
+    m_children |= Antialiasing;
+    m_antialiasing = a;
+}
+
+void DomFont::setElementKerning(bool a)
+{
+    m_children |= Kerning;
+    m_kerning = a;
+}
+
 void DomFont::clearElementFamily()
 {
     m_children &= ~Family;
@@ -3907,6 +3943,16 @@ void DomFont::clearElementUnderline()
 void DomFont::clearElementStrikeOut()
 {
     m_children &= ~StrikeOut;
+}
+
+void DomFont::clearElementAntialiasing()
+{
+    m_children &= ~Antialiasing;
+}
+
+void DomFont::clearElementKerning()
+{
+    m_children &= ~Kerning;
 }
 
 void DomPoint::clear(bool clear_all)
@@ -5884,14 +5930,14 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
         }
         case Float: {
             QDomElement child = doc.createElement(QLatin1String("float"));
-            QDomText text = doc.createTextNode(QString::number(elementFloat()));
+            QDomText text = doc.createTextNode(QString::number(elementFloat(), 'f', 8));
             child.appendChild(text);
             e.appendChild(child);
             break;
         }
         case Double: {
             QDomElement child = doc.createElement(QLatin1String("double"));
-            QDomText text = doc.createTextNode(QString::number(elementDouble(), 'g', 15));
+            QDomText text = doc.createTextNode(QString::number(elementDouble(), 'f', 15));
             child.appendChild(text);
             e.appendChild(child);
             break;

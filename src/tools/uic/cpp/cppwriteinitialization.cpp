@@ -689,26 +689,42 @@ void WriteInitialization::writeProperties(const QString &varName,
             DomFont *f = p->elementFont();
             QString fontName = driver->unique(QLatin1String("font"));
             output << option.indent << "QFont " << fontName << ";\n";
-            if (!f->elementFamily().isEmpty()) {
+            if (f->hasElementFamily() && !f->elementFamily().isEmpty()) {
                 output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily(), option.indent)
                     << "));\n";
             }
-            if (f->elementPointSize() > 0) {
+            if (f->hasElementPointSize() && f->elementPointSize() > 0) {
                 output << option.indent << fontName << ".setPointSize(" << f->elementPointSize()
                     << ");\n";
             }
-            output << option.indent << fontName << ".setBold("
-                << (f->elementBold() ? "true" : "false") << ");\n";
-            output << option.indent << fontName << ".setItalic("
-                <<  (f->elementItalic() ? "true" : "false") << ");\n";
-            output << option.indent << fontName << ".setUnderline("
-                << (f->elementUnderline() ? "true" : "false") << ");\n";
-            if (f->elementWeight() > 0) {
+            if (f->hasElementBold()) {
+                output << option.indent << fontName << ".setBold("
+                    << (f->elementBold() ? "true" : "false") << ");\n";
+            }
+            if (f->hasElementItalic()) {
+                output << option.indent << fontName << ".setItalic("
+                    <<  (f->elementItalic() ? "true" : "false") << ");\n";
+            }
+            if (f->hasElementUnderline()) {
+                output << option.indent << fontName << ".setUnderline("
+                    << (f->elementUnderline() ? "true" : "false") << ");\n";
+            }
+            if (f->hasElementWeight() && f->elementWeight() > 0) {
                 output << option.indent << fontName << ".setWeight("
                     << f->elementWeight() << ");" << endl;
             }
-            output << option.indent << fontName << ".setStrikeOut("
-                << (f->elementStrikeOut() ? "true" : "false") << ");\n";
+            if (f->hasElementStrikeOut()) {
+                output << option.indent << fontName << ".setStrikeOut("
+                    << (f->elementStrikeOut() ? "true" : "false") << ");\n";
+            }
+            if (f->hasElementKerning()) {
+                output << option.indent << fontName << ".setKerning("
+                    << (f->elementKerning() ? "true" : "false") << ");\n";
+            }
+            if (f->hasElementAntialiasing()) {
+                output << option.indent << fontName << ".setStyleStrategy("
+                    << (f->elementAntialiasing() ? "QFont::PreferDefault" : "QFont::NoAntialias") << ");\n";
+            }
             propertyValue = fontName;
             break;
         }
