@@ -746,7 +746,7 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
     return (w && !w->isWindow() && w->parentWidget() &&
             (qobject_cast<const QAbstractSpinBox *>(w))
              || (le && qobject_cast<const QAbstractSpinBox*>(le->parentWidget()))
-             || (le && !qobject_cast<const QComboBox *>(le->parentWidget()))
+             || (le && !le->isReadOnly() && !qobject_cast<const QComboBox *>(le->parentWidget()))
 #ifdef QT3_SUPPORT
              || w->inherits("QListBox") || w->inherits("QListView")
 #endif
