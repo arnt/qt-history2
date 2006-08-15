@@ -590,8 +590,11 @@ void WriteInitialization::writeProperties(const QString &varName,
             DomRect *r = p->elementRect();
             int w = r->elementWidth();
             int h = r->elementHeight();
-            output << option.indent << varName << "->resize(QSize(" << w << ", " << h << ").expandedTo("
-                << varName << "->minimumSizeHint()));\n";
+			QString tempName = driver->unique(QLatin1String("size"));
+			output << option.indent << "QSize " << tempName << "(" << w << ", " << h << ");\n"
+			       << option.indent << tempName << " = " << tempName << ".expandedTo("
+				                    << varName << "->minimumSizeHint());\n"
+                   << option.indent << varName << "->resize(" << tempName << ");\n";                
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") && buttonGroupWidget) { // Q3ButtonGroup support
             output << option.indent << driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
