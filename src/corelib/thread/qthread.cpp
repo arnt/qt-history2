@@ -258,13 +258,8 @@ QAdoptedThread::~QAdoptedThread()
 */
 
 /*!
-    Returns a pointer to the currently executing QThread.  If the
-    current thread was not started using the QThread API, this
-    function returns zero.
-
-    Note that QApplication creates a QThread object to represent the
-    main thread; calling this function from main() after creating
-    QApplication will return a valid pointer.
+    Returns a pointer to a QThread which represents the currently
+    executing thread.
 */
 QThread *QThread::currentThread()
 {

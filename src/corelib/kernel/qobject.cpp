@@ -507,13 +507,10 @@ QMetaCallEvent::~QMetaCallEvent()
 
     Events are delivered in the thread in which the object was
     created; see \l{Thread Support in Qt} and thread() for details.
-    Note that for QObjects that are created before QApplication,
-    thread() returns zero. This means that the main thread will only
-    handle posted events for these objects; other event processing is
-    not done at all for objects with no thread. Use the
-    moveToThread() function to change the thread affinity for an
-    object and its children (the object cannot be moved if it has a
-    parent).
+    Note that event processing is not done at all for QObjects with no
+    thread affinity (thread() returns zero). Use the moveToThread()
+    function to change the thread affinity for an object and its
+    children (the object cannot be moved if it has a parent).
 
     Last but not least, QObject provides the basic timer support in
     Qt; see QTimer for high-level support for timers.
@@ -1218,10 +1215,6 @@ bool QObject::blockSignals(bool block)
 /*!
     Returns the thread in which the object lives.
 
-    \warning This function returns 0 if the QObject was created
-    before QApplication or QCoreApplication was constructed. This
-    behavior might change in future versions of Qt.
-
     \sa moveToThread()
 */
 QThread *QObject::thread() const
@@ -1235,10 +1228,8 @@ QThread *QObject::thread() const
     continue in the \a targetThread. To move an object to the main
     thread, pass QCoreApplication::thread() as the \a targetThread.
 
-    If \a targetThread is zero, only
-    \l{QCoreApplication::postEvent()}{posted events} are processed by
-    the main thread; all other event processing for this object and
-    its children stops.
+    If \a targetThread is zero, all event processing for this object
+    and its children stops.
 
     Note that all active timers for the object will be reset. The
     timers are first stopped in the current thread and restarted (with
