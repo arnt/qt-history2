@@ -256,9 +256,11 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
         qDebug("QGLFramebufferObject: Framebuffer incomplete, missing attachment.");
         break;
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT
     case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
         qDebug("QGLFramebufferObject: Framebuffer incomplete, duplicate attachment.");
         break;
+#endif
     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
         qDebug("QGLFramebufferObject: Framebuffer incomplete, attached images must have same dimensions.");
         break;

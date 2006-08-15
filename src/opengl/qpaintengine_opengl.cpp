@@ -952,7 +952,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
 
-#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL)  // This removes warnings.
+// This removes warnings on OS X 10.4 and below.
+#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5) 
     gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
     gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
                     reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
