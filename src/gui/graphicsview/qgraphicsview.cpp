@@ -1691,7 +1691,7 @@ void QGraphicsView::setBackgroundBrush(const QBrush &brush)
     This property sets the foreground brush for the scene in this view. It is
     used to override the scene's own foreground, and defines the behavior of
     drawForeground(). To provide custom background drawing for this view, you
-    can reimplement foreBackground() instead.
+    can reimplement drawBackground() instead.
 
     \sa QGraphicsScene::foregroundBrush, backgroundBrush
 */
