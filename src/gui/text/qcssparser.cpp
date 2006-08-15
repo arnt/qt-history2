@@ -718,7 +718,7 @@ void ValueExtractor::extractFont()
 {
     if (fontExtracted)
         return;
-    int dummy;
+    int dummy = -255;
     extractFont(&f, &dummy);
     fontExtracted = true;
 }
