@@ -515,6 +515,10 @@ bool Q3ProgressDialog::wasCanceled() const
 
   Use \l wasCanceled instead.
 */
+
+/*!
+    Use wasCanceled() instead.
+*/
 bool Q3ProgressDialog::wasCancelled() const
 {
     return d->cancellation_flag;

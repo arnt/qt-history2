@@ -190,14 +190,17 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
 /*!
     Shows \a text as a tool tip, at global position \a pos. If you
     specify a non-empty rect the tip will be hidden as soon as you
-    move your cursor out of this area. The rect is in the coordinates
-    of the widget you specify with \a w. If the rect is not empty you
-    must specify a widget. Otherwise this argument can be 0 but it is
-    used to determine the appropriate screen on multi-head systems. If
-    \a text is empty the tool tip is hidden. If the text is the same
-    as the currently shown tooltip, the tip will \e not move. You can
-    force moving by first hiding the tip with an empty text, and then
-    showing the new tip at the new position.
+    move your cursor out of this area.
+    
+    The \a rect is in the coordinates of the widget you specify with
+    \a w. If the \a rect is not empty you must specify a widget.
+    Otherwise this argument can be 0 but it is used to determine the
+    appropriate screen on multi-head systems.
+
+    If \a text is empty the tool tip is hidden. If the text is the
+    same as the currently shown tooltip, the tip will \e not move.
+    You can force moving by first hiding the tip with an empty text,
+    and then showing the new tip at the new position.
 */
 
 void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w, const QRect &rect)

@@ -1714,7 +1714,7 @@ void QWidget::createWinId()
     \property QWidget::styleSheet
     \brief the widget's style sheet
 
-    \sa QWidget::setStyle, QApplication::styleSheet
+    \sa setStyle(), QApplication::styleSheet
 */
 QString QWidget::styleSheet() const
 {
@@ -2233,7 +2233,7 @@ void QWidget::addActions(QList<QAction*> actions)
 
     A QWidget should only have one of each action.
 
-    \sa removeAction(), addAction(), QMenu, ContextMenuPolicy, actions()
+    \sa removeAction(), addAction(), QMenu, contextMenuPolicy, actions()
 */
 void QWidget::insertAction(QAction *before, QAction *action)
 {
@@ -2267,7 +2267,7 @@ void QWidget::insertAction(QAction *before, QAction *action)
 
     A QWidget should only have one of each action.
 
-    \sa removeAction(), QMenu, insertAction(), insertActions(), ContextMenuPolicy
+    \sa removeActions(), QMenu, insertAction(), contextMenuPolicy
 */
 void QWidget::insertActions(QAction *before, QList<QAction*> actions)
 {
@@ -2298,7 +2298,7 @@ void QWidget::removeAction(QAction *action)
 /*!
     Returns the (possibly empty) list of this widget's actions.
 
-    \sa ContextMenuPolicy, insertAction(), removeAction()
+    \sa contextMenuPolicy, insertAction(), removeAction()
 */
 QList<QAction*> QWidget::actions() const
 {

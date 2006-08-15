@@ -2100,7 +2100,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
     Equivalent to \c{flags( flags() | bits )}.
 
-    \sa setf(), unsetf()
+    \sa unsetf()
 */
 
 /*!

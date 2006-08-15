@@ -99,12 +99,11 @@ public:
     \sa QSvgWidget, {QtSvg Module}, QGraphicsItem, QGraphicsView
 */
 
-
 /*!
-    Constructs a new svg item with the given \a parent.
+    Constructs a new SVG item with the given \a parent.
 */
-QGraphicsSvgItem::QGraphicsSvgItem(QGraphicsItem *parentItem)
-    : QObject(*new QGraphicsSvgItemPrivate(), 0), QGraphicsItem(parentItem)
+QGraphicsSvgItem::QGraphicsSvgItem(QGraphicsItem *parent)
+    : QObject(*new QGraphicsSvgItemPrivate(), 0), QGraphicsItem(parent)
 {
     Q_D(QGraphicsSvgItem);
     d->init();
@@ -112,10 +111,10 @@ QGraphicsSvgItem::QGraphicsSvgItem(QGraphicsItem *parentItem)
 
 /*!
     Constructs a new item with the given \a parent and loads the contents of the
-    SVG file with the specified \a filename.
+    SVG file with the specified \a fileName.
 */
-QGraphicsSvgItem::QGraphicsSvgItem(const QString &fileName, QGraphicsItem *parentItem)
-    : QObject(*new QGraphicsSvgItemPrivate(), 0), QGraphicsItem(parentItem)
+QGraphicsSvgItem::QGraphicsSvgItem(const QString &fileName, QGraphicsItem *parent)
+    : QObject(*new QGraphicsSvgItemPrivate(), 0), QGraphicsItem(parent)
 {
     Q_D(QGraphicsSvgItem);
     d->init();
@@ -140,8 +139,10 @@ QRectF QGraphicsSvgItem::boundingRect() const
     return d->boundingRect;
 }
 
-void QGraphicsSvgItem::paint(QPainter *painter,
-                             const QStyleOptionGraphicsItem *option,
+/*!
+    \reimp
+*/
+void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                              QWidget *widget)
 {
     Q_UNUSED(option);
@@ -187,6 +188,9 @@ void QGraphicsSvgItem::paint(QPainter *painter,
     painter->drawPixmap(0, 0, d->pixmap);
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsSvgItem::type() const
 {
     return Type;
@@ -194,7 +198,10 @@ int QGraphicsSvgItem::type() const
 
 
 /*!
-    Sets the size of the item.
+    Sets the size of the item to \a size.
+
+    This function doesn't take the current transformation matrix into
+    account and sets the untransformed size.
 */
 void QGraphicsSvgItem::setSize(const QSize &size)
 {
@@ -207,11 +214,11 @@ void QGraphicsSvgItem::setSize(const QSize &size)
     update();
 }
 
-
 /*!
-    Returns the current size of the item. Method
-    doesn't take the current transformation matrix
-    into account and return untransformed size.
+    Returns the current size of the item.
+
+    This function doesn't take the current transformation matrix into
+    account and return the untransformed size.
 */
 QSize QGraphicsSvgItem::size() const
 {
@@ -219,10 +226,9 @@ QSize QGraphicsSvgItem::size() const
     return d->pixmapSize;
 }
 
-
 /*!
-    Sets the XML ID of the element that this item should
-    render. 
+    Sets the XML ID of the element that this item should render to \a
+    id.
 */
 void QGraphicsSvgItem::setElementId(const QString &id)
 {
@@ -231,7 +237,6 @@ void QGraphicsSvgItem::setElementId(const QString &id)
     d->dirty = true;
     update();
 }
-
 
 /*!
     Returns the XML ID the element that is currently
@@ -245,11 +250,11 @@ QString QGraphicsSvgItem::elementId() const
 }
 
 /*!
-    Sets a shared QSvgRenderer on the item. By using this method
-    one can share the same QSvgRenderer on a number of items. This
-    means that the SVG file will be parsed only once.
-    QSvgRenderer passed to this method has to exist for as long
-    as this item is used.
+    Sets \a renderer to be a shared QSvgRenderer on the item. By
+    using this method one can share the same QSvgRenderer on a number
+    of items. This means that the SVG file will be parsed only once.
+    QSvgRenderer passed to this method has to exist for as long as
+    this item is used.
 */
 void QGraphicsSvgItem::setSharedRenderer(QSvgRenderer *renderer)
 {
@@ -263,6 +268,9 @@ void QGraphicsSvgItem::setSharedRenderer(QSvgRenderer *renderer)
     update();
 }
 
+/*!
+    \reimp
+*/
 QVariant QGraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     Q_D(QGraphicsSvgItem);
@@ -280,23 +288,26 @@ QVariant QGraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant 
 
 
 /*!
-    Sets caching strategy on the item. For performance
-    reasons it is advised to always keep the caching on.
+    If \a caching is true, enables caching on the item; otherwise
+    disables it.
+    
+    By defaylt, caching is on. For performance reasons, it is advised
+    to keep the caching on.
 */
-void QGraphicsSvgItem::setCachingEnabled(bool b)
+void QGraphicsSvgItem::setCachingEnabled(bool caching)
 {
     Q_D(QGraphicsSvgItem);
-    if (b) {
+    if (caching) {
         d->pixmap = QPixmap(d->pixmapSize);
     }
-    d->cached = b;
+    d->cached = caching;
     d->dirty = true;
     update();
 }
 
 /*!
-   Returns true if the contents of the SVG file to be
-   renderer is cached.
+    Returns true if the contents of the SVG file to be
+    renderer is cached.
 */
 bool QGraphicsSvgItem::isCachingEnabled() const
 {
@@ -305,13 +316,13 @@ bool QGraphicsSvgItem::isCachingEnabled() const
 }
 
 /*!
-  If the item is caching the contents of the SVG file
-  to be renderer then this method returns its contents
-  in the pixmap of the size of this item. The size of the
-  pixmap is adjusted by the current transformation matrix
-  of this item.
-  If the item isn't cached the method returns a null pixmap.
- */
+    If the item is caching the contents of the SVG file
+    to be renderer then this method returns its contents
+    in the pixmap of the size of this item. The size of the
+    pixmap is adjusted by the current transformation matrix
+    of this item.
+    If the item isn't cached the method returns a null pixmap.
+*/
 QPixmap QGraphicsSvgItem::cache() const
 {
     Q_D(const QGraphicsSvgItem);
@@ -321,6 +332,5 @@ QPixmap QGraphicsSvgItem::cache() const
         return QPixmap();
     
 }
-
 
 #include "moc_qgraphicssvgitem.cpp"

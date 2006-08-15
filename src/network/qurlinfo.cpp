@@ -627,31 +627,42 @@ bool QUrlInfo::equal(const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-    Compares this QUrlInfo with \a i and returns true if they are
-    equal; otherwise returns false.
+    Returns true if this QUrlInfo is equal to \a other; otherwise
+    returns false.
+
+    \sa lessThan(), equal()
 */
 
-bool QUrlInfo::operator==(const QUrlInfo &i) const
+bool QUrlInfo::operator==(const QUrlInfo &other) const
 {
     if (!d)
-        return i.d == 0;
-    if (!i.d)
+        return other.d == 0;
+    if (!other.d)
         return false;
 
-    return (d->name == i.d->name &&
-             d->permissions == i.d->permissions &&
-             d->owner == i.d->owner &&
-             d->group == i.d->group &&
-             d->size == i.d->size &&
-             d->lastModified == i.d->lastModified &&
-             d->lastRead == i.d->lastRead &&
-             d->isDir == i.d->isDir &&
-             d->isFile == i.d->isFile &&
-             d->isSymLink == i.d->isSymLink &&
-             d->isWritable == i.d->isWritable &&
-             d->isReadable == i.d->isReadable &&
-             d->isExecutable == i.d->isExecutable);
+    return (d->name == other.d->name &&
+            d->permissions == other.d->permissions &&
+            d->owner == other.d->owner &&
+            d->group == other.d->group &&
+            d->size == other.d->size &&
+            d->lastModified == other.d->lastModified &&
+            d->lastRead == other.d->lastRead &&
+            d->isDir == other.d->isDir &&
+            d->isFile == other.d->isFile &&
+            d->isSymLink == other.d->isSymLink &&
+            d->isWritable == other.d->isWritable &&
+            d->isReadable == other.d->isReadable &&
+            d->isExecutable == other.d->isExecutable);
 }
+
+/*!
+    \fn bool QUrlInfo::operator!=(const QUrlInfo &other) const
+
+    Returns true if this QUrlInfo is not equal to \a other; otherwise
+    returns false.
+
+    \sa lessThan(), equal()
+*/
 
 /*!
     Returns true if the URL info is valid; otherwise returns false.

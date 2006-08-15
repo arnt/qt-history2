@@ -25,7 +25,7 @@
     of Q3GroupBox. Think of it as a Q3VBox that offers a frame with a
     title.
 
-    \sa QVGroupBox
+    \sa Q3HGroupBox
 */
 
 /*!

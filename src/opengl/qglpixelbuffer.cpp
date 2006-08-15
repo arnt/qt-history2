@@ -54,24 +54,21 @@
 #include <qimage.h>
 
 
-void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &format, QGLWidget *shareWidget)
 {
     Q_Q(QGLPixelBuffer);
-    if(init(size, f, shareWidget)) {
+    if(init(size, format, shareWidget)) {
         req_size = size;
-        req_format = f;
+        req_format = format;
         req_shareWidget = shareWidget;
         invalid = false;
-        qctx = new QGLContext(f);
+        qctx = new QGLContext(format);
         qctx->d_func()->sharing = (shareWidget != 0);
         qctx->d_func()->paintDevice = q;
     }
 }
 
-/*! \fn QGLPixelBuffer::QGLPixelBuffer(const QSize &size,
-                                       const QGLFormat &format,
-                                       QGLWidget *shareWidget)
-
+/*!
     Constructs an OpenGL pbuffer of the given \a size. If no \a
     format is specified, the \l{QGLFormat::defaultFormat()}{default
     format} is used. If the \a shareWidget parameter points to a
@@ -84,11 +81,11 @@ void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &f, Q
 
     \sa size(), format()
 */
-QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &format, QGLWidget *shareWidget)
     : d_ptr(new QGLPixelBufferPrivate)
 {
     Q_D(QGLPixelBuffer);
-    d->common_init(size, f, shareWidget);
+    d->common_init(size, format, shareWidget);
 }
 
 
@@ -106,11 +103,11 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
 
     \sa size(), format()
 */
-QGLPixelBuffer::QGLPixelBuffer(int width, int height, const QGLFormat &f, QGLWidget *shareWidget)
+QGLPixelBuffer::QGLPixelBuffer(int width, int height, const QGLFormat &format, QGLWidget *shareWidget)
     : d_ptr(new QGLPixelBufferPrivate)
 {
     Q_D(QGLPixelBuffer);
-    d->common_init(QSize(width, height), f, shareWidget);
+    d->common_init(QSize(width, height), format, shareWidget);
 }
 
 

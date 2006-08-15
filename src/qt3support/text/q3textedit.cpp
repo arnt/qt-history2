@@ -775,8 +775,6 @@ static bool block_set_alignment = false;
     format has changed.
 
     The new vertical alignment is \a a.
-
-    \sa setVerticalAlignment()
 */
 
 /*!
@@ -1602,7 +1600,7 @@ static bool qtextedit_ignore_readonly = false;
     key event handler.
 */
 
-void Q3TextEdit::doKeyboardAction(KeyboardAction action)
+void Q3TextEdit::doKeyboardAction(Q3TextEdit::KeyboardAction action)
 {
     if (isReadOnly() && !qtextedit_ignore_readonly)
         return;
@@ -1865,7 +1863,7 @@ void Q3TextEdit::removeSelectedText(int selNum)
     should be selected.
 */
 
-void Q3TextEdit::moveCursor(CursorAction action, bool select)
+void Q3TextEdit::moveCursor(Q3TextEdit::CursorAction action, bool select)
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode)
@@ -1948,7 +1946,7 @@ void Q3TextEdit::moveCursor(CursorAction action, bool select)
     \overload
 */
 
-void Q3TextEdit::moveCursor(CursorAction action)
+void Q3TextEdit::moveCursor(Q3TextEdit::CursorAction action)
 {
     resetInputContext();
     switch (action) {

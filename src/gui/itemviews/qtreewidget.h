@@ -276,7 +276,8 @@ public:
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
 public Q_SLOTS:
-    void scrollToItem(const QTreeWidgetItem *item, ScrollHint hint = EnsureVisible);
+    void scrollToItem(const QTreeWidgetItem *item,
+                      QAbstractItemView::ScrollHint hint = EnsureVisible);
     void expandItem(const QTreeWidgetItem *item);
     void collapseItem(const QTreeWidgetItem *item);
     void clear();

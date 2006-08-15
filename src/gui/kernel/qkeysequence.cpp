@@ -342,71 +342,69 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
     Note that the key bindings are platform dependent.
     The currently bound shortcuts can be queried through \a keyBindings.
     
-        \value UnknownKey       Unbound key
-        \value HelpContents     Open help contents. Usually "F1".
-        \value WhatsThis        Activate whats this. Usually "Shift + F1".
-        \value Open             Open Document. Usually "Ctrl + O".
-        \value Close            Close Document/Tab. Usually "Ctrl + W".
-        \value Save             Save Document. Usually "Ctrl + S".
-        \value New              Create new Document. Usually "Ctrl + N".
-        \value Delete           Delete
-        \value Cut              Cut. Usually "Ctrl + X".
-        \value Copy             Copy. Usually "Ctrl + C".
-        \value Paste            Paste. Usually "Ctrl + V".
-        \value Undo             Undo. Usually "Ctrl + Z".
-        \value Redo             Redo. Usually "Ctrl + Shift + Z".
-        \value Back             Navigate back. Usually "Alt + Left".
-        \value Forward          Navigate forward. Usually "Alt + Right".
-        \value Refresh          Refresh or reload current document. This is usually F5.
-        \value ZoomIn           Zoom in. Usually "Ctrl + Plus".
-        \value ZoomOut          Zoom out. Usually "Ctrl + Minus".
-        \value Print            Print document. Usually "Ctrl + P".
-        \value AddTab           Add new tab. Usually "Ctrl + T".
-        \value NextChild        Navigate to next tab or child window. Usually "Ctrl + Tab".
-        \value PreviousChild    Navigate to previous tab or child window. Usually "Ctrl + Shift + Tab".
-        \value Find             Find in document. Usually "Ctrl + F".
-        \value FindNext         Find next result. Usually "Ctrl + G".
-        \value FindPrevious     Find previous result. Usually "Ctrl + Shift + G".
-        \value Replace          Find and replace. Usually "Ctrl + H".
-        \value SelectAll        Select all text. Usually "Ctrl + A".
-        \value Bold             Bold text. Usually "Ctrl + B".
-        \value Italic           Italic text. Usually "Ctrl + I".
-        \value Underline        Underline text. Usually "Ctrl + U".
-        \value Return           This usually indicates either the enter or return key.
-        \value Backspace        This usually indicates the backspace key.
-        \value MoveToNextChar           Move to next character. Usually right arrow key.
-        \value MoveToPreviousChar       Move to previous character. Usually right arrow key.
-        \value MoveToNextWord           Move to next word. Usually "Ctrl + Right".
-        \value MoveToPreviousWord       Move to previous word. Usually "Ctrl + Right".
-        \value MoveToNextLine           Move to next line. Usually the down arrow key.
-        \value MoveToPreviousLine       Move to previous line. Usually up arrow key.
-        \value MoveToNextPage           Move to next page. Usually the page down key.
-        \value MoveToPreviousPage       Move to previous page. Usually the page up key.
-        \value MoveToStartOfLine        Move to start of line. Usually the home key.
-        \value MoveToEndOfLine          Move to end of line. Usually the end key.
-        \value MoveToStartOfBlock       Move to start of a block. This corresponds to "command + up" on Mac.
-        \value MoveToEndOfBlock         Move to end of block. This corresponds to "command + down" on Mac.
-        \value MoveToStartOfDocument    Move to start of document. Usually "Ctrl + Home".
-        \value MoveToEndOfDocument      Move to end of document. Usually "Ctrl + End".
-        \value SelectNextChar           Extend selection to next character. Usually "Shift + Right".
-        \value SelectPreviousChar       Extend selection to previous character. Usually "Shift + Left".
-        \value SelectNextWord           Extend selection to next word. Usually "Ctrl + Shift + Right".
-        \value SelectPreviousWord       Extend selection to previous word. Usually "Ctrl + Shift + Right".
-        \value SelectNextLine           Extend selection to next line. Usually "Shift + Down".
-        \value SelectPreviousLine       Extend selection to previous line. Usually "Shift + Up".
-        \value SelectNextPage           Extend selection to next page. Usually "Shift + PageDown".
-        \value SelectPreviousPage       Extend selection to previous page. Usually "Shift + PageUp".
-        \value SelectStartOfLine        Extend selection to start of line. Usually "Shift + Home".
-        \value SelectEndOfLine          Extend selection to end of line. Usually "Shift + End".
-        \value SelectStartOfBlock       Extend selection to the start of a text block. This corresponds to "command + shift + up" on Mac.
-        \value SelectEndOfBlock         Extend selection to the end of a text block. This corresponds to "command + shift + down" on Mac.
-        \value SelectStartOfDocument    Extend selection to start of document. This is usually "Ctrl + Shift + Home".
-        \value SelectEndOfDocument      Extend selection to end of document. This is usually "Ctrl + Shift + End".
-        \value DeleteStartOfWord        Delete the beginning of a word up to the cursor. This is usually "Ctrl + Backspace". 
-        \value DeleteEndOfWord          Delete word from the end of the cursor. This is usually "Ctrl + Delete".
-        \value DeleteEndOfLine          Delete end of line. Usually "Ctrl + K".
-
-    \sa drawPrimitive()
+    \value UnknownKey       Unbound key
+    \value HelpContents     Open help contents. Usually "F1".
+    \value WhatsThis        Activate whats this. Usually "Shift + F1".
+    \value Open             Open Document. Usually "Ctrl + O".
+    \value Close            Close Document/Tab. Usually "Ctrl + W".
+    \value Save             Save Document. Usually "Ctrl + S".
+    \value New              Create new Document. Usually "Ctrl + N".
+    \value Delete           Delete
+    \value Cut              Cut. Usually "Ctrl + X".
+    \value Copy             Copy. Usually "Ctrl + C".
+    \value Paste            Paste. Usually "Ctrl + V".
+    \value Undo             Undo. Usually "Ctrl + Z".
+    \value Redo             Redo. Usually "Ctrl + Shift + Z".
+    \value Back             Navigate back. Usually "Alt + Left".
+    \value Forward          Navigate forward. Usually "Alt + Right".
+    \value Refresh          Refresh or reload current document. This is usually F5.
+    \value ZoomIn           Zoom in. Usually "Ctrl + Plus".
+    \value ZoomOut          Zoom out. Usually "Ctrl + Minus".
+    \value Print            Print document. Usually "Ctrl + P".
+    \value AddTab           Add new tab. Usually "Ctrl + T".
+    \value NextChild        Navigate to next tab or child window. Usually "Ctrl + Tab".
+    \value PreviousChild    Navigate to previous tab or child window. Usually "Ctrl + Shift + Tab".
+    \value Find             Find in document. Usually "Ctrl + F".
+    \value FindNext         Find next result. Usually "Ctrl + G".
+    \value FindPrevious     Find previous result. Usually "Ctrl + Shift + G".
+    \value Replace          Find and replace. Usually "Ctrl + H".
+    \value SelectAll        Select all text. Usually "Ctrl + A".
+    \value Bold             Bold text. Usually "Ctrl + B".
+    \value Italic           Italic text. Usually "Ctrl + I".
+    \value Underline        Underline text. Usually "Ctrl + U".
+    \value Return           This usually indicates either the enter or return key.
+    \value Backspace        This usually indicates the backspace key.
+    \value MoveToNextChar           Move to next character. Usually right arrow key.
+    \value MoveToPreviousChar       Move to previous character. Usually right arrow key.
+    \value MoveToNextWord           Move to next word. Usually "Ctrl + Right".
+    \value MoveToPreviousWord       Move to previous word. Usually "Ctrl + Right".
+    \value MoveToNextLine           Move to next line. Usually the down arrow key.
+    \value MoveToPreviousLine       Move to previous line. Usually up arrow key.
+    \value MoveToNextPage           Move to next page. Usually the page down key.
+    \value MoveToPreviousPage       Move to previous page. Usually the page up key.
+    \value MoveToStartOfLine        Move to start of line. Usually the home key.
+    \value MoveToEndOfLine          Move to end of line. Usually the end key.
+    \value MoveToStartOfBlock       Move to start of a block. This corresponds to "command + up" on Mac.
+    \value MoveToEndOfBlock         Move to end of block. This corresponds to "command + down" on Mac.
+    \value MoveToStartOfDocument    Move to start of document. Usually "Ctrl + Home".
+    \value MoveToEndOfDocument      Move to end of document. Usually "Ctrl + End".
+    \value SelectNextChar           Extend selection to next character. Usually "Shift + Right".
+    \value SelectPreviousChar       Extend selection to previous character. Usually "Shift + Left".
+    \value SelectNextWord           Extend selection to next word. Usually "Ctrl + Shift + Right".
+    \value SelectPreviousWord       Extend selection to previous word. Usually "Ctrl + Shift + Right".
+    \value SelectNextLine           Extend selection to next line. Usually "Shift + Down".
+    \value SelectPreviousLine       Extend selection to previous line. Usually "Shift + Up".
+    \value SelectNextPage           Extend selection to next page. Usually "Shift + PageDown".
+    \value SelectPreviousPage       Extend selection to previous page. Usually "Shift + PageUp".
+    \value SelectStartOfLine        Extend selection to start of line. Usually "Shift + Home".
+    \value SelectEndOfLine          Extend selection to end of line. Usually "Shift + End".
+    \value SelectStartOfBlock       Extend selection to the start of a text block. This corresponds to "command + shift + up" on Mac.
+    \value SelectEndOfBlock         Extend selection to the end of a text block. This corresponds to "command + shift + down" on Mac.
+    \value SelectStartOfDocument    Extend selection to start of document. This is usually "Ctrl + Shift + Home".
+    \value SelectEndOfDocument      Extend selection to end of document. This is usually "Ctrl + Shift + End".
+    \value DeleteStartOfWord        Delete the beginning of a word up to the cursor. This is usually "Ctrl + Backspace". 
+    \value DeleteEndOfWord          Delete word from the end of the cursor. This is usually "Ctrl + Delete".
+    \value DeleteEndOfLine          Delete end of line. Usually "Ctrl + K".
 */
 
 /*!
@@ -420,7 +418,7 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
     
     \sa setKey()
 */
-QKeySequence::QKeySequence(QKeySequence::StandardKey key)
+QKeySequence::QKeySequence(StandardKey key)
 {
     const QList <QKeySequence> bindings = keyBindings(key);
     //pick only the first/primary shortcut from current bindings
@@ -505,7 +503,7 @@ QKeySequence::QKeySequence(const QKeySequence& keysequence)
     If the result contains more than one result, these can
     be considered alternative shortcuts on the same platform for the given \a key.
 */
-QList <QKeySequence> QKeySequence::keyBindings(QKeySequence::StandardKey key)
+QList <QKeySequence> QKeySequence::keyBindings(StandardKey key)
 {
     uint platform = QApplicationPrivate::currentPlatform();
     QList <QKeySequence> list;

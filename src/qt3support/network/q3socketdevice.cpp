@@ -310,7 +310,10 @@ bool Q3SocketDevice::open( OpenMode mode )
     return true;
 }
 
-
+/*
+    \fn bool Q3SocketDevice::open(int mode)
+    \overload
+*/
 /*!
     The current Q3SocketDevice implementation does not buffer at all,
     so this is a no-op.

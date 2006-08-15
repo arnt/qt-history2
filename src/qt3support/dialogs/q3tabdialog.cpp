@@ -21,6 +21,7 @@
 #include "qapplication.h"
 #include "q3widgetstack.h"
 #include "qlayout.h"
+
 using namespace Qt;
 
 /*!
@@ -316,7 +317,7 @@ bool Q3TabDialog::hasOkButton() const
   the dialog's contents. The dialog should reflect the current state
   of the application when it appears; if there is any possibility that
   the state of the application may change between the time you call
-  Q3TabDialog::Q3TabDialog() and Q3TabDialog::show(), you should set the
+  Q3TabDialog() and show(), you should set the
   dialog's state in a slot and connect this signal to it.
 
   This applies mainly to Q3TabDialog objects that are kept around
@@ -327,7 +328,7 @@ bool Q3TabDialog::hasOkButton() const
 
 
 /*!
-    \internal
+    Implemented to delay show()'ing of every page.
 */
 void Q3TabDialog::show()
 {

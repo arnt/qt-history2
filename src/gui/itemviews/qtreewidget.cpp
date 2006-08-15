@@ -2723,7 +2723,7 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 
     \sa currentItem(), itemAt(), topLevelItem()
 */
-void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
+void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
     Q_D(QTreeWidget);
     QTreeView::scrollTo(d->index(item), hint);

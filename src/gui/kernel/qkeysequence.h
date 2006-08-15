@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QKeySequence
 {
 public:
     enum StandardKey {
-        UnknownKey,         
+        UnknownKey,
         HelpContents,
         WhatsThis,
         Open,
@@ -131,9 +131,9 @@ public:
 
     SequenceMatch matches(const QKeySequence &seq) const;
     static QKeySequence mnemonic(const QString &text);
-    static QList<QKeySequence> keyBindings(StandardKey key);    
+    static QList<QKeySequence> keyBindings(StandardKey key);
 
-    // ### Qt 5: kill 'operator QString' - it's evil (ask Trenton or Jasmin if you need more reasons)
+    // ### Qt 5: kill 'operator QString' - it's evil
     operator QString() const;
     operator QVariant() const;
     operator int() const;

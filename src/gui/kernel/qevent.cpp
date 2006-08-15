@@ -3134,9 +3134,10 @@ QClipboardEvent::~QClipboardEvent()
     \sa QShortcut::id()
 */
 
-// Remove in Qt 5
+// ### Remove in Qt 5
 /*!
     \fn int QShortcutEvent::shortcutId()
+    \overload
 
     \internal
 */

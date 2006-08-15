@@ -79,8 +79,9 @@ QString QNetworkInterfacePrivate::makeHwAddress(int len, uchar *data)
 
 /*!
     \class QNetworkAddressEntry
-    \brief One IP address supported by a network interface, along with
-    its associated netmask and broadcast address.
+    \brief The QNetworkAddressEntry class stores one IP address
+    supported by a network interface, along with its associated
+    netmask and broadcast address.
 
     Each network interface can contain zero or more IP addresses, which
     in turn can be associated with a netmask and/or a broadcast

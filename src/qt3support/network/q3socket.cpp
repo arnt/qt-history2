@@ -621,6 +621,10 @@ bool Q3Socket::open( OpenMode m )
     return true;
 }
 
+/*!
+    \fn bool Q3Socket::open(int m)
+    \overload
+*/
 
 /*!
     Closes the socket.
