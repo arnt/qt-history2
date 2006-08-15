@@ -140,6 +140,7 @@ private slots:
     void toEncoded();
     void setAuthority_data();
     void setAuthority();
+    void errorString();
 };
 
 // Testing get/set functions
@@ -3218,6 +3219,14 @@ void tst_QUrl::setAuthority()
     QFETCH(QString, url);
     u.setAuthority(authority);
     QCOMPARE(u.toString(), url);
+}
+
+void tst_QUrl::errorString()
+{
+    QUrl u = QUrl::fromEncoded("http://strange<username>@ok_hostname/");
+    QVERIFY(!u.isValid());
+    QCOMPARE(u.errorString(), QString("Invalid URL \"http://strange<username>@ok_hostname/\": "
+            "error at position 14: expected end of URL, but found '<'"));
 }
 
 QTEST_MAIN(tst_QUrl)
