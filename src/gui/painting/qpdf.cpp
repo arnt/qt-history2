@@ -1302,9 +1302,14 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
         return false;
 
     if (!outputFileName.isEmpty()) {
+
+#if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
+        _sopen_s(&fd, outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY , _SH_DENYNO 
+#else
         fd = QT_OPEN(outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
 #ifndef Q_OS_WIN
                         | O_NOCTTY
+#endif
 #endif
                         ,
 #if defined(Q_OS_WIN)
@@ -1505,7 +1510,11 @@ void QPdfBaseEnginePrivate::closePrintDevice()
         return;
     outDevice->close();
     if (fd >= 0)
+#if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
+        ::_close(fd);
+#else
         ::close(fd);
+#endif
     fd = -1;
     delete outDevice;
     outDevice = 0;

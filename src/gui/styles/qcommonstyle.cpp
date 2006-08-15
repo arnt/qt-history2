@@ -3776,6 +3776,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
                                      const QWidget *w) const
 {
+    Q_UNUSED(w);
+    Q_UNUSED(opt);
     switch (sp) {
 #ifndef QT_NO_IMAGEFORMAT_XPM
     case SP_ToolBarHorizontalExtensionButton:

@@ -125,9 +125,7 @@ QAdoptedThread::QAdoptedThread(QThreadData *data)
 
 QAdoptedThread::~QAdoptedThread()
 {
-    Q_D(QThread);
-
-    d->finish(this);
+    QThreadPrivate::finish(this);
 
     // fprintf(stderr, "~QAdoptedThread = %p\n", this);
 }

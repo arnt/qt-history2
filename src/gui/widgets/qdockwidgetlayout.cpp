@@ -2140,7 +2140,6 @@ void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
 void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
                                 QVector<QLayoutStruct> *hor_struct_list)
 {
-    bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
 
     // top ---------------------------------------------------
 

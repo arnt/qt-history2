@@ -718,7 +718,6 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
     modifs += *gmodifs; // Test non-translated ones last
 
     QString sl = accel;
-    int len = sl.length();
     int i = 0;
     int lastI = 0;
     while ((i = sl.indexOf('+', i + 1)) != -1) {

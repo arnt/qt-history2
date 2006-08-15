@@ -626,6 +626,7 @@ extern void qt_win_set_cursor(QWidget *, const QCursor &); // qapplication_win.c
 
 void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
+    Q_UNUSED(cursor);
     Q_Q(QWidget);
     qt_win_set_cursor(q, q->cursor());
 }
