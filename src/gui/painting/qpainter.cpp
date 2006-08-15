@@ -629,11 +629,10 @@ void QPainterPrivate::updateState(QPainterState *newState)
        lines or boundaries.
 
     \o backgroundMode() defines whether there is a background() or
-       not, i.e it is either \l {Qt::BGMode}{Qt::Opaque} or \l
-       {Qt::BGMode}{Qt::TransparentMode}.
+       not, i.e it is either Qt::OpaqueMode or Qt::TransparentMode.
 
     \o background() only applies when backgroundMode() is \l
-       {Qt::BGMode}{Qt::Opaque} and pen() is a stipple. In that case, it
+       Qt::OpaqueMode and pen() is a stipple. In that case, it
        describes the color of the background pixels in the stipple.
 
     \o brushOrigin() defines the origin of the tiled brushes, normally
