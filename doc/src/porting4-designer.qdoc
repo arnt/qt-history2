@@ -188,7 +188,7 @@
 
     \code
         uic3 myform.ui > myform.h
-        uic3 -impl myform.h > myform.cpp
+        uic3 -impl myform.h myform.ui > myform.cpp
     \endcode
 
     The resulting files \c myform.h and \c myform.cpp implement the
