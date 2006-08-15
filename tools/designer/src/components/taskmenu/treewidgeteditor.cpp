@@ -155,6 +155,7 @@ void TreeWidgetEditor::on_newItemButton_clicked()
     ui.treeWidget->setCurrentItem(newItem);
     m_updating = false;
     updateEditor();
+    ui.treeWidget->editItem(newItem, ui.listWidget->currentRow());
 }
 
 void TreeWidgetEditor::on_newSubItemButton_clicked()
@@ -170,9 +171,9 @@ void TreeWidgetEditor::on_newSubItemButton_clicked()
     newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
 
     ui.treeWidget->setCurrentItem(newItem);
-
     m_updating = false;
     updateEditor();
+    ui.treeWidget->editItem(newItem, ui.listWidget->currentRow());
 }
 
 void TreeWidgetEditor::on_deleteItemButton_clicked()
