@@ -257,8 +257,9 @@ void QGraphicsViewPrivate::recalculateContentSize()
 {
     Q_Q(QGraphicsView);
 
-    int width = q->viewport()->width();
-    int height = q->viewport()->height();
+    QSize maxSize = q->maximumViewportSize();
+    int width = maxSize.width();
+    int height = maxSize.height();
     QRectF viewRect = matrix.mapRect(q->sceneRect());
 
     // Setting the ranges of these scroll bars can/will cause the values to
