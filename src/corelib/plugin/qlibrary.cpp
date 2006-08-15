@@ -32,6 +32,7 @@
 #endif // NO_ERROR_H
 #include <qdebug.h>
 #include <qvector.h>
+
 //#define QT_DEBUG_COMPONENT
 
 #ifdef QT_NO_DEBUG
@@ -293,10 +294,10 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 {
     QFile file(library);
     if (!file.open(QIODevice::ReadOnly)) {
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("%s: %s", (const char*) QFile::encodeName(library),
-            qPrintable(qt_error_string(errno)));
-#endif
+        if (qt_debug_component()) {
+            qWarning("%s: %s", (const char*) QFile::encodeName(library),
+                qPrintable(qt_error_string(errno)));
+        }
         return false;
     }
 
@@ -314,9 +315,9 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
         fdlen = maplen;
     } else {
         // mmap failed
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("mmap: %s", qPrintable(qt_error_string(errno)));
-#endif
+        if (qt_debug_component()) {
+            qWarning("mmap: %s", qPrintable(qt_error_string(errno)));
+        }
 #endif // USE_MMAP
         // try reading the data into memory instead
         data = file.readAll();
@@ -337,9 +338,8 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("munmap: %s", qPrintable(qt_error_string(errno)));
-#endif
+        if (qt_debug_component())
+            qWarning("munmap: %s", qPrintable(qt_error_string(errno)));
     }
 #endif // USE_MMAP
 
@@ -558,22 +558,22 @@ bool QLibraryPrivate::isPlugin()
     pluginState = IsNotAPlugin; // be pessimistic
 
     if ((qt_version > QT_VERSION) || ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("In %s:\n"
+        if (qt_debug_component()) {
+            qWarning("In %s:\n"
                  "  Plugin uses incompatible Qt library (%d.%d.%d) [%s]",
                  (const char*) QFile::encodeName(fileName),
                  (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff,
                  debug ? "debug" : "release");
-#endif
+        }
     } else if (key != QT_BUILD_KEY) {
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("In %s:\n"
+        if (qt_debug_component()) {
+            qWarning("In %s:\n"
                  "  Plugin uses incompatible Qt library\n"
                  "  expected build key \"%s\", got \"%s\"",
                  (const char*) QFile::encodeName(fileName),
                  QT_BUILD_KEY,
                  key.isEmpty() ? "<null>" : (const char *) key);
-#endif
+        }
 #ifndef QT_NO_DEBUG_PLUGIN_CHECK
     } else if(debug != QLIBRARY_AS_DEBUG) {
         //don't issue a qWarning since we will hopefully find a non-debug? --Sam
@@ -863,4 +863,20 @@ QString QLibrary::errorString() const
 {
     return d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
 }
+
+
+/* Internal, for debugging */
+bool qt_debug_component()
+{
+#if defined(QT_DEBUG_COMPONENT)
+    return true;    //compatibility?
+#else
+    static int debug_env = -1;
+    if (debug_env == -1) 
+       debug_env = ::qgetenv("QT_DEBUG_PLUGINS").toInt();
+    
+    return debug_env != 0;
+#endif
+}
+
 #endif // QT_NO_LIBRARY

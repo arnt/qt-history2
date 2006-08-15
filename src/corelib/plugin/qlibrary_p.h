@@ -35,6 +35,8 @@
 
 #ifndef QT_NO_LIBRARY
 
+bool qt_debug_component();
+
 class QLibraryPrivate
 {
 public:
