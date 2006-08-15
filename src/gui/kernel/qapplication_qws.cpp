@@ -571,6 +571,12 @@ void QWSDisplay::Data::reinit( const QString& newAppName )
 
     qApp->desktop();
 
+    // We wait for creation mainly so that we can process important
+    // initialization events such as MaxWindowRect that are sent
+    // before object id creation.  Waiting here avoids later window
+    // resizing since we have the MWR before windows are displayed.
+    waitForCreation();
+
     sharedRam = static_cast<uchar *>(shm.address());
 
     sharedRamSize -= sizeof(int);
@@ -651,6 +657,12 @@ void QWSDisplay::Data::init()
             qFatal("Client can't attach to main ram memory.");
         }
         sharedRam = static_cast<uchar *>(shm.address());
+
+        // We wait for creation mainly so that we can process important
+        // initialization events such as MaxWindowRect that are sent
+        // before object id creation.  Waiting here avoids later window
+        // resizing since we have the MWR before windows are displayed.
+        waitForCreation();
     } else
 #endif
     {
@@ -837,7 +849,7 @@ void QWSDisplay::Data::fillQueue()
 #endif // 0 (RegionModified)
         } else if (e->type==QWSEvent::MaxWindowRect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
-           setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
+            setMaxWindowRect((static_cast<QWSMaxWindowRectEvent*>(e))->simpleData.rect);
             delete e;
 #ifndef QT_NO_COP
         } else if (e->type == QWSEvent::QCopMessage) {
