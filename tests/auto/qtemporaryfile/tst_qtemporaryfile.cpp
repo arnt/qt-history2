@@ -27,6 +27,7 @@ public slots:
     void init();
     void cleanup();
 private slots:
+    void construction();
     void fileTemplate();
     void fileTemplate_data();
     void getSetCheck();
@@ -35,6 +36,14 @@ private slots:
     void openCloseOpenClose();
 public:
 };
+
+void tst_QTemporaryFile::construction()
+{
+    QTemporaryFile file(0);
+    QString tmp = QDir::tempPath();
+    QCOMPARE(file.fileTemplate().left(tmp.size()), tmp);
+    QCOMPARE(file.fileTemplate().at(tmp.size()), QChar('/'));
+}
 
 // Testing get/set functions
 void tst_QTemporaryFile::getSetCheck()
