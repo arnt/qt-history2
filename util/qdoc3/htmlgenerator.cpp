@@ -1655,7 +1655,8 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             FakeNode *fakeNode = static_cast<FakeNode *>(child);
 
             // Check whether the page is part of a group or is the group
-            // definition page.
+            // definition page. Those that are both are automatically
+            // treated as normal pages.
             QString group;
             bool isGroupPage = false;
             if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
