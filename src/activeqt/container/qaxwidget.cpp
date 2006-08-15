@@ -1745,8 +1745,8 @@ QAxWidget::~QAxWidget()
 }
 
 /*!
-    Calls QAxBase::initialize(), and embeds the control in this widget by
-    calling createHostWindow(false) if successful
+    Calls QAxBase::initialize(\a ptr), and embeds the control in this
+    widget by calling createHostWindow(false) if successful.
 
     To initialize the control before it is activated, reimplement this
     function and add your initialization code before you call

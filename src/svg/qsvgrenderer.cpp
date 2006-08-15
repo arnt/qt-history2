@@ -145,8 +145,9 @@ QSize QSvgRenderer::defaultSize() const
 }
 
 /*!
-    \property QSvgRenderer::viewBox
-    \brief the rectangle specifying the visible area of the document in logical coordinates
+    Returns viewBoxF().toRect().
+
+    \sa viewBoxF()
 */
 QRect QSvgRenderer::viewBox() const
 {
@@ -157,6 +158,10 @@ QRect QSvgRenderer::viewBox() const
         return QRect();
 }
 
+/*!
+    \property QSvgRenderer::viewBox
+    \brief the rectangle specifying the visible area of the document in logical coordinates
+*/
 void QSvgRenderer::setViewBox(const QRect &viewbox)
 {
     Q_D(QSvgRenderer);
@@ -295,16 +300,14 @@ bool QSvgRenderer::load(const QByteArray &contents)
 }
 
 /*!
-    \fn void QSvgRenderer::render(QPainter *painter)
-
     Renders the current document, or the current frame of an animated
     document, using the given \a painter.
 */
-void QSvgRenderer::render(QPainter *p)
+void QSvgRenderer::render(QPainter *painter)
 {
     Q_D(QSvgRenderer);
     if (d->render) {
-        d->render->draw(p);
+        d->render->draw(painter);
     }
 }
 
@@ -320,29 +323,26 @@ void QSvgRenderer::render(QPainter *p)
     on the specified \a bounds. If the bounding rectangle is not specified
     the SVG element is mapped to the whole paint device.
 */
-void QSvgRenderer::render(QPainter *p, const QString &elementId,
+void QSvgRenderer::render(QPainter *painter, const QString &elementId,
                           const QRectF &bounds)
 {
     Q_D(QSvgRenderer);
     if (d->render) {
-        d->render->draw(p, elementId, bounds);
+        d->render->draw(painter, elementId, bounds);
     }
 }
 
-
 /*!
-    \fn void QSvgRenderer::render(QPainter *painter)
-
     Renders the current document, or the current frame of an animated
-    document, using the given \a painter on the specified bounds within
+    document, using the given \a painter on the specified \a bounds within
     the painter.  If the bounding rectangle is not specified
     the SVG file is mapped to the whole paint device.
 */
-void QSvgRenderer::render(QPainter *p, const QRectF &bounds)
+void QSvgRenderer::render(QPainter *painter, const QRectF &bounds)
 {
     Q_D(QSvgRenderer);
     if (d->render) {
-        d->render->draw(p, bounds);
+        d->render->draw(painter, bounds);
     }
 }
 
@@ -363,7 +363,7 @@ void QSvgRenderer::setViewBox(const QRectF &viewbox)
 }
 
 /*!
-    Returns bounding rectangle of the item with the given id.
+    Returns bounding rectangle of the item with the given \a id.
     The transformation matrix of parent elements is not affecting
     the bounds of the element.
 */
@@ -378,7 +378,7 @@ QRectF QSvgRenderer::boundsOnElement(const QString &id) const
 
 
 /*!
-    Returns true if the element with the given id exists
+    Returns true if the element with the given \a id exists
     in the currently parsed SVG file.
 */
 bool QSvgRenderer::elementExists(const QString &id) const
@@ -392,7 +392,7 @@ bool QSvgRenderer::elementExists(const QString &id) const
 
 /*!
     Returns the transformation matrix setup for the element
-    with the given id. That includes the transformation on
+    with the given \a id. That includes the transformation on
     the element itself. 
 */
 QMatrix QSvgRenderer::matrixForElement(const QString &id) const
