@@ -346,6 +346,8 @@ void tst_QGridLayout::spacingAndSpacers()
     SizeHinter rightChild(200,100);
     rightChild.setPalette(QPalette(Qt::green));
     layout.addWidget(&rightChild, 0, 2);
+    QApplication::processEvents();
+    QCOMPARE(rightChild.sizeHint(), QSize(200,100));
 
     expectedSizeHint += QSize(rightChild.sizeHint().width(), 0);
     DBG;
@@ -355,6 +357,7 @@ void tst_QGridLayout::spacingAndSpacers()
     widget.adjustSize();
     expectedSizeHint += QSize(100,0);
     DBG;
+    QApplication::processEvents();
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
     rightChild.hide();
