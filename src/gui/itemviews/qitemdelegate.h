@@ -30,7 +30,7 @@ class QItemEditorFactory;
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
-    Q_PROPERTY(int clipping READ hasClipping WRITE setClipping)
+    Q_PROPERTY(bool clipping READ hasClipping WRITE setClipping)
 
 public:
     explicit QItemDelegate(QObject *parent = 0);
