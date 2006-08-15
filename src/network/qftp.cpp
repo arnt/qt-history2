@@ -885,7 +885,7 @@ bool QFtpPI::processReply()
 
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
-    if (replyCodeInt == 226) {
+    if (replyCodeInt == 226 || (replyCodeInt == 150 && currentCmd.startsWith(QLatin1String("RETR")))) {
         if (dtp.state() != QTcpSocket::UnconnectedState) {
             waitForDtpToClose = true;
             return false;
