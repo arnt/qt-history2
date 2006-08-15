@@ -92,6 +92,64 @@ static qint64 qt_native_write(int fd, const char *data, qint64 len)
     return ret;
 }
 
+static void qt_native_close(int fd)
+{
+    int ret;
+    do {
+        ret = ::close(fd);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_sigaction(int signum, const struct sigaction *act,
+                                struct sigaction *oldact)
+{
+    int ret;
+    do {
+        ret = ::sigaction(signum, act, oldact);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_dup2(int oldfd, int newfd)
+{
+    int ret;
+    do {
+        ret = ::dup2(oldfd, newfd);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_chdir(const char *path)
+{
+    int ret;
+    do {
+        ret = ::chdir(path);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_execve(const char *filename, char *const argv[],
+                              char *const envp[])
+{
+    int ret;
+    do {
+        ret = ::execve(filename, argv, envp);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_execv(const char *path, char *const argv[])
+{
+    int ret;
+    do {
+        ret = ::execv(path, argv);
+    } while (ret == -1 && errno == EINTR);
+}
+
+static void qt_native_execvp(const char *file, char *const argv[])
+{
+    int ret;
+    do {
+        ret = ::execvp(file, argv);
+    } while (ret == -1 && errno == EINTR);
+}
+
 static int qt_qprocess_deadChild_pipe[2];
 static void (*qt_sa_old_sigchld_handler)(int) = 0;
 static void qt_sa_sigchld_handler(int signum)
@@ -157,7 +215,7 @@ QProcessManager::QProcessManager()
     memset(&action, 0, sizeof(action));
     action.sa_handler = qt_sa_sigchld_handler;
     action.sa_flags = SA_NOCLDSTOP;
-    ::sigaction(SIGCHLD, &action, &oldAction);
+    qt_native_sigaction(SIGCHLD, &action, &oldAction);
     if (oldAction.sa_handler != qt_sa_sigchld_handler)
 	qt_sa_old_sigchld_handler = oldAction.sa_handler;
 }
@@ -166,12 +224,12 @@ QProcessManager::~QProcessManager()
 {
     // notify the thread that we're shutting down.
     qt_native_write(qt_qprocess_deadChild_pipe[1], "@", 1);
-    ::close(qt_qprocess_deadChild_pipe[1]);
+    qt_native_close(qt_qprocess_deadChild_pipe[1]);
     wait();
 
     // on certain unixes, closing the reading end of the pipe will cause
     // select in run() to block forever, rather than return with EBADF.
-    ::close(qt_qprocess_deadChild_pipe[0]);
+    qt_native_close(qt_qprocess_deadChild_pipe[0]);
 
     qt_qprocess_deadChild_pipe[0] = -1;
     qt_qprocess_deadChild_pipe[1] = -1;
@@ -293,9 +351,9 @@ void QProcessManager::unlock()
 static void qt_create_pipe(int *pipe)
 {
     if (pipe[0] != -1)
-        ::close(pipe[0]);
+        qt_native_close(pipe[0]);
     if (pipe[1] != -1)
-        ::close(pipe[1]);
+        qt_native_close(pipe[1]);
 #ifdef Q_OS_IRIX
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, pipe) == -1) {
         qWarning("QProcessPrivate::createPipe: Cannot create pipe %p: %s",
@@ -314,11 +372,11 @@ static void qt_create_pipe(int *pipe)
 void QProcessPrivate::destroyPipe(int *pipe)
 {
     if (pipe[1] != -1) {
-        ::close(pipe[1]);
+        qt_native_close(pipe[1]);
         pipe[1] = -1;
     }
     if (pipe[0] != -1) {
-        ::close(pipe[0]);
+        qt_native_close(pipe[0]);
         pipe[0] = -1;
     }
 }
@@ -497,11 +555,11 @@ void QProcessPrivate::startProcess()
     // parent
     // close the ends we don't use and make all pipes non-blocking
     ::fcntl(deathPipe[0], F_SETFL, ::fcntl(deathPipe[0], F_GETFL) | O_NONBLOCK);
-    ::close(childStartedPipe[1]);
+    qt_native_close(childStartedPipe[1]);
     childStartedPipe[1] = -1;
 
     if (stdinChannel.pipe[0] != -1) {
-        ::close(stdinChannel.pipe[0]);
+        qt_native_close(stdinChannel.pipe[0]);
         stdinChannel.pipe[0] = -1;
     }
 
@@ -509,7 +567,7 @@ void QProcessPrivate::startProcess()
         ::fcntl(stdinChannel.pipe[1], F_SETFL, ::fcntl(stdinChannel.pipe[1], F_GETFL) | O_NONBLOCK);
 
     if (stdoutChannel.pipe[1] != -1) {
-        ::close(stdoutChannel.pipe[1]);
+        qt_native_close(stdoutChannel.pipe[1]);
         stdoutChannel.pipe[1] = -1;
     }
 
@@ -517,7 +575,7 @@ void QProcessPrivate::startProcess()
         ::fcntl(stdoutChannel.pipe[0], F_SETFL, ::fcntl(stdoutChannel.pipe[0], F_GETFL) | O_NONBLOCK);
 
     if (stderrChannel.pipe[1] != -1) {
-        ::close(stderrChannel.pipe[1]);
+        qt_native_close(stderrChannel.pipe[1]);
         stderrChannel.pipe[1] = -1;
     }
     if (stderrChannel.pipe[0] != -1)
@@ -566,34 +624,34 @@ void QProcessPrivate::execChild(const QByteArray &programName)
     }
 
     // copy the stdin socket
-    ::dup2(stdinChannel.pipe[0], fileno(stdin));
+    qt_native_dup2(stdinChannel.pipe[0], fileno(stdin));
 
     // copy the stdout and stderr if asked to
     if (processChannelMode != QProcess::ForwardedChannels) {
-        ::dup2(stdoutChannel.pipe[1], fileno(stdout));
+        qt_native_dup2(stdoutChannel.pipe[1], fileno(stdout));
 
         // merge stdout and stderr if asked to
         if (processChannelMode == QProcess::MergedChannels) {
-            ::dup2(fileno(stdout), fileno(stderr));
+            qt_native_dup2(fileno(stdout), fileno(stderr));
         } else {
-            ::dup2(stderrChannel.pipe[1], fileno(stderr));
+            qt_native_dup2(stderrChannel.pipe[1], fileno(stderr));
         }
     }
 
     // make sure this fd is closed if execvp() succeeds
-    ::close(childStartedPipe[0]);
+    qt_native_close(childStartedPipe[0]);
     ::fcntl(childStartedPipe[1], F_SETFD, FD_CLOEXEC);
 
     // enter the working directory
     if (!workingDirectory.isEmpty())
-        ::chdir(QFile::encodeName(workingDirectory).constData());
+        qt_native_chdir(QFile::encodeName(workingDirectory).constData());
 
     // this is a virtual call, and it base behavior is to do nothing.
     q->setupChildProcess();
 
     // execute the process
     if (environment.isEmpty()) {
-        ::execvp(argv[0], argv);
+        qt_native_execvp(argv[0], argv);
     } else {
         // if LD_LIBRARY_PATH exists in the current environment, but
         // not in the environment list passed by the programmer, then
@@ -634,14 +692,14 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 #if defined (QPROCESS_DEBUG)
                     fprintf(stderr, "QProcessPrivate::execChild() searching / starting %s\n", argv[0]);
 #endif
-                    ::execve(argv[0], argv, envp);
+                    qt_native_execve(argv[0], argv, envp);
                 }
             }
         } else {
 #if defined (QPROCESS_DEBUG)
             fprintf(stderr, "QProcessPrivate::execChild() starting %s\n", argv[0]);
 #endif
-            ::execve(argv[0], argv, envp);
+            qt_native_execve(argv[0], argv, envp);
         }
     }
 
@@ -650,7 +708,7 @@ void QProcessPrivate::execChild(const QByteArray &programName)
     fprintf(stderr, "QProcessPrivate::execChild() failed, notifying parent process\n");
 #endif
     qt_native_write(childStartedPipe[1], "", 1);
-    ::close(childStartedPipe[1]);
+    qt_native_close(childStartedPipe[1]);
     childStartedPipe[1] = -1;
 }
 
@@ -663,7 +721,7 @@ bool QProcessPrivate::processStarted()
         delete startupSocketNotifier;
         startupSocketNotifier = 0;
     }
-    ::close(childStartedPipe[0]);
+    qt_native_close(childStartedPipe[0]);
     childStartedPipe[0] = -1;
 
 #if defined (QPROCESS_DEBUG)
@@ -724,7 +782,7 @@ static void qt_ignore_sigpipe()
         struct sigaction noaction;
         memset(&noaction, 0, sizeof(noaction));
         noaction.sa_handler = SIG_IGN;
-        ::sigaction(SIGPIPE, &noaction, 0);
+        qt_native_sigaction(SIGPIPE, &noaction, 0);
     }
 }
 
@@ -1085,7 +1143,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     if (childPid == 0) {
         ::setsid();
         ::signal(SIGHUP, SIG_IGN);
-        ::close(startedPipe[0]);
+        qt_native_close(startedPipe[0]);
         ::signal(SIGPIPE, SIG_DFL);
 
         pid_t doubleForkPid = fork();
@@ -1111,52 +1169,52 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                         if (!tmp.endsWith('/')) tmp += '/';
                         tmp += QFile::encodeName(program);
                         argv[0] = tmp.data();
-                        ::execv(argv[0], argv);
+                        qt_native_execv(argv[0], argv);
                     }
                 }
             } else {
                 QByteArray tmp = QFile::encodeName(program);
                 argv[0] = tmp.data();
-                ::execv(argv[0], argv);
+                qt_native_execv(argv[0], argv);
             }
 
             struct sigaction noaction;
             memset(&noaction, 0, sizeof(noaction));
             noaction.sa_handler = SIG_IGN;
-            ::sigaction(SIGPIPE, &noaction, 0);
+            qt_native_sigaction(SIGPIPE, &noaction, 0);
 
             // '\1' means execv failed
             char c = '\1';
             qt_native_write(startedPipe[1], &c, 1);
-            ::close(startedPipe[1]);
+            qt_native_close(startedPipe[1]);
             ::_exit(1);
         } else if (doubleForkPid == -1) {
             struct sigaction noaction;
             memset(&noaction, 0, sizeof(noaction));
             noaction.sa_handler = SIG_IGN;
-            ::sigaction(SIGPIPE, &noaction, 0);
+            qt_native_sigaction(SIGPIPE, &noaction, 0);
 
             // '\2' means internal error
             char c = '\2';
             qt_native_write(startedPipe[1], &c, 1);
         }
 
-        ::close(startedPipe[1]);
-        ::chdir("/");
+        qt_native_close(startedPipe[1]);
+        qt_native_chdir("/");
         ::_exit(1);
     }
 
-    ::close(startedPipe[1]);
+    qt_native_close(startedPipe[1]);
 
     if (childPid == -1) {
-        ::close(startedPipe[0]);
+        qt_native_close(startedPipe[0]);
         return false;
     }
 
     char reply = '\0';
     int startResult = qt_native_read(startedPipe[0], &reply, 1);
     int result;
-    ::close(startedPipe[0]);
+    qt_native_close(startedPipe[0]);
     ::waitpid(childPid, &result, 0);
     return startResult != -1 && reply == '\0';
 }
