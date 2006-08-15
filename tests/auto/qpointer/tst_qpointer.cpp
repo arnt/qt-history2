@@ -117,6 +117,7 @@ void tst_QPointer::equality_operators()
     QVERIFY(p1 == p2);
 
     QObject *object = 0;
+    QWidget *widget = 0;
 
     p1 = object;
     QVERIFY(p1 == p2);
@@ -136,6 +137,14 @@ void tst_QPointer::equality_operators()
     QVERIFY(0 == p1);
     QVERIFY(p2 != 0);
     QVERIFY(0 != p2);
+    QVERIFY(p1 == object);
+    QVERIFY(object == p1);
+    QVERIFY(p2 != object);
+    QVERIFY(object != p2);
+    QVERIFY(p1 == widget);
+    QVERIFY(widget == p1);
+    QVERIFY(p2 != widget);
+    QVERIFY(widget != p2);
 }
 
 void tst_QPointer::isNull()
