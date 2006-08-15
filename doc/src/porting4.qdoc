@@ -54,9 +54,8 @@
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \l{What's New in
     Qt 4}{key features} offered by Qt 4. See also
-    \l{http://www.trolltech.com/products/qt/readyforqt4.html}{Getting
-    Ready for Qt 4} for tips on how to write Qt 3 code that is easy
-    to port to Qt 4.
+    \l{Moving from Qt 3 to Qt 4} for tips on how to write Qt 3 code
+    that is easy to port to Qt 4.
 
     The Qt 4 series is not binary compatible with the 3 series. This
     means programs compiled for Qt 3 must be recompiled to work with
@@ -1672,6 +1671,11 @@
     functionality is available via the QWidget::nextInFocusChain()
     and QWidget::focusNextPrevChild() functions.
 
+    \section1 QFocusEvent
+
+    The setReason() function is no longer present in Qt 4. It is
+    necessary to define the reason when constructing a focus event.
+
     \section1 QFont
 
     \c QFont::Script has been moved to QFontDatabase::WritingSystem.
@@ -1842,8 +1846,13 @@
 
     \section1 QIconFactory
 
-    The QIconFactory is no longer part of Qt. It has been replaced by
+    The QIconFactory class is no longer part of Qt. It has been replaced by
     the QIconEngine class.
+
+    \section1 QIconSet
+
+    The QIconSet class is no longer part of Qt. It has been replaced by
+    the QIcon class.
 
     \section1 QIconView
 
@@ -2401,10 +2410,14 @@
     and features that are specific to popup menus.
 
     In Qt 3, it was common practice to add entries to popup menus using the
-    insertItem() function. In Qt 4, menu entries are completely represented
+    insertItem() function, maintaining identifiers for future use; for
+    example, to dynamically change menu items.
+    In Qt 4, menu entries are completely represented
     by actions for consistency with other user interface components, such as
     toolbar buttons. Create new menus with the QMenu class, and use the
     overloaded QMenu::addAction() functions to insert new entries.
+    If you need to manage a set of actions created for a particular menu,
+    we suggest that you construct a QActionGroup and add them to that.
 
     The \l{Qt Examples#Main Window Examples}{Main Window examples} provided
     show how to use Qt's action system to construct menus, toolbars, and other
@@ -3504,6 +3517,10 @@
     \o  QString::arg() now converts two-digit place markers, allowing
         up to 99 place markers to be used in any given string.
 
+    \o  Comparisons between QStrings and \c NULL in order to determine
+        whether strings are empty are no longer allowed.
+        Use \l{QString::}{isEmpty()} instead.
+
     \endlist
 
     \section1 QStringList
@@ -3657,6 +3674,12 @@
     Q3TableSelection and moved to the Qt3Support library.
     New Qt applications should use the new QTableWidget or QTableView
     class instead.
+
+    Some of these classes behave differently with respect to the way
+    they handle \c NULL pointers. For example, Q3TableItem::setPixmap()
+    no longer accepts \c NULL or 0 to indicate that the item should
+    contain a null pixmap; in this case, a null pixmap should be
+    constructed and passed explicitly to the function.
 
     See \l{Model/View Programming} for an overview of the new item
     view classes.
@@ -4036,7 +4059,10 @@
     \o QWidget::unsetCursor()
     \endlist
 
-    \c QWidget::setWFlags() was renamed QWidget::setWindowFlags().
+    The internal clearWState() function was removed. Use
+    QWidget::setWindowState() instead.
+
+    setWFlags() was renamed QWidget::setWindowFlags().
 
     See \l{#properties}{Properties} for a list of QWidget properties
     in Qt 3 that have changed in Qt 4.
