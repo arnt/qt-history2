@@ -1225,7 +1225,11 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
 {
     QCss::ValueExtractor extractor(declarations);
     int ignoredBorders[4];
-    extractor.extractBox(margin, ignoredBorders);
+    int cssMargins[4];
+    if (extractor.extractBox(cssMargins, ignoredBorders)) {
+        for (int i = 0; i < 4; ++i)
+            margin[i] = cssMargins[i];
+    }
 
     for (int i = 0; i < declarations.count(); ++i) {
         const QCss::Declaration &decl = declarations.at(i);
@@ -1323,7 +1327,7 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         QString bgImage;
         QColor bgColor;
         QCss::Origin ignoredOrigin;
-        extractor.extractBackground(&bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment, 
+        extractor.extractBackground(&bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment,
                                     &ignoredOrigin);
 
         if (!bgImage.isEmpty() && resourceProvider) {
