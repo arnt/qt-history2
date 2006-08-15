@@ -954,7 +954,7 @@ const QAccessibleInterface *other, int otherChild) const
 */
 
 /*!
-    Invokes an \a action on a \child with the given parameters \a params
+    Invokes an \a action on \a child with the given parameters \a params
     and returns the result of the operation as QVariant.
 
     Note that the type of the returned QVariant depends on the action.
