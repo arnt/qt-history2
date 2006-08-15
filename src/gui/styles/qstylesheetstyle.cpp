@@ -26,7 +26,6 @@
 #include <qcombobox.h>
 #include <qwindowsstyle.h>
 #include <qplastiquestyle.h>
-#include <qframe.h>
 #include "private/qcssparser_p.h"
 #include "private/qmath_p.h"
 #include <qabstractscrollarea.h>
@@ -238,7 +237,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 static const char *knownStyleHints[] = {
-    "lineedit-password-character"
+    "activate-on-singleclick",
+    "etch-disabled-text",
+    "gridline-color",
+    "lineedit-password-character",
+    "show-decoration-selected"
 };
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
@@ -1962,6 +1965,10 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
     QString s;
     switch (sh) {
         case SH_LineEdit_PasswordCharacter: s = QLatin1String("lineedit-password-character"); break;
+        case SH_EtchDisabledText: s = "etch-disabled-text"; break;
+        case SH_ItemView_ActivateItemOnSingleClick: s = "activate-on-singleclick"; break;
+        case SH_ItemView_ShowDecorationSelected: s = "show-decoration-selected"; break;
+        case SH_Table_GridLineColor: s = "gridline-color"; break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s))
