@@ -44,9 +44,11 @@ public:
         TextEdit(QWidget *parent=0) : QTextEdit(parent) { }
         void contextMenuEvent(QContextMenuEvent * e)
         {
+#ifndef QT_NO_CONTEXTMENU
             QMenu *menu = createStandardContextMenu();
             menu->exec(e->globalPos());
             delete menu;
+#endif
         }
     };
 
@@ -67,7 +69,7 @@ public:
         setLayout(layout);
     }
     void setText(const QString &text) { textEdit->setPlainText(text); }
-    QString text() const { return textEdit->text(); }
+    QString text() const { return textEdit->toPlainText(); }
     QString label(DetailButtonLabel label) { return label==ShowLabel? tr("Show Details...") : tr("Hide Details..."); }
 private:
     TextEdit *textEdit;
