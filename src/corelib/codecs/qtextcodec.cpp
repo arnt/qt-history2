@@ -161,6 +161,7 @@ QTextCodecCleanup::~QTextCodecCleanup()
         delete all->takeFirst();
     delete all;
     all = 0;
+    localeMapper = 0;
 
     destroying_is_ok = false;
 }
