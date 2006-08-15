@@ -104,6 +104,22 @@ static const int GraphicsViewRegionRectThreshold = 20;
 */
 
 /*!
+    \enum QGraphicsView::ViewportAnchor
+
+    This enums describe the possible anchors that QGraphicsView can
+    use when the user resizes the view or when the view is
+    transformed.
+
+    \value NoAnchor No anchor, i.e. the view leaves the scene's
+                    position unchanged.
+    \value AnchorViewCenter The scene point at the center of the view
+                            is used as the anchor.
+    \value AnchorUnderMouse The point under the mouse is used as the anchor.
+
+    \sa resizeAnchor, transformationAnchor
+*/
+
+/*!
     \enum QGraphicsView::CacheModeFlag
 
     This enum describes the flags that you can set for a QGraphicsView's cache
@@ -627,12 +643,12 @@ void QGraphicsView::setAlignment(Qt::Alignment alignment)
     during transformations (e.g., when rotating, the scene will appear to
     rotate around the center of the view).
 
-    Note that the effect of this property is noticable when only a part of the
+    Note that the effect of this property is noticeable when only a part of the
     scene is visible (i.e., when there are scrollbars). Otherwise, if the
     whole scene fits in the view, QGraphicsScene uses the view \l alignment to
     position the scene in the view.
 
-    \sa aligment, resizeAnchor
+    \sa alignment, resizeAnchor
 */
 QGraphicsView::ViewportAnchor QGraphicsView::transformationAnchor() const
 {
@@ -654,12 +670,12 @@ void QGraphicsView::setTransformationAnchor(ViewportAnchor anchor)
     behavior, NoAnchor, leaves the scene's position unchanged during a resize;
     the top-left corner of the view will appear to be anchored while resizing.
 
-    Note that the effect of this property is noticable when only a part of the
+    Note that the effect of this property is noticeable when only a part of the
     scene is visible (i.e., when there are scrollbars). Otherwise, if the
     whole scene fits in the view, QGraphicsScene uses the view \l alignment to
     position the scene in the view.
 
-    \sa aligment, transformationAnchor, Qt::WNorthWestGravity
+    \sa alignment, transformationAnchor, Qt::WNorthWestGravity
 */
 QGraphicsView::ViewportAnchor QGraphicsView::resizeAnchor() const
 {
