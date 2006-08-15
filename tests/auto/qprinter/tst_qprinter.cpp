@@ -71,8 +71,6 @@ void tst_QPrinter::getSetCheck()
     // void QPrinter::setOutputFormat(OutputFormat)
     obj1.setOutputFormat(QPrinter::OutputFormat(QPrinter::PdfFormat));
     QCOMPARE(QPrinter::OutputFormat(QPrinter::PdfFormat), obj1.outputFormat());
-    obj1.setOutputFormat(QPrinter::OutputFormat(QPrinter::NativeFormat));
-    QCOMPARE(QPrinter::OutputFormat(QPrinter::NativeFormat), obj1.outputFormat());
 
     // bool QPrinter::collateCopies()
     // void QPrinter::setCollateCopies(bool)
