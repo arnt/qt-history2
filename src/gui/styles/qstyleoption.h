@@ -444,7 +444,8 @@ public:
 
     enum ViewItemFeature {
         None = 0x00,
-        WrapText = 0x01
+        WrapText = 0x01,
+        Alternate = 0x02
     };
     Q_DECLARE_FLAGS(ViewItemFeatures, ViewItemFeature)
     ViewItemFeatures features;

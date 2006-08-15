@@ -1074,10 +1074,10 @@ void QListView::paintEvent(QPaintEvent *e)
             }
             QBrush fill;
             if (alternateBase) {
-                option.state |= QStyle::State_Alternate;
+                option.features |= QStyleOptionViewItemV2::Alternate;
                 fill = option.palette.brush(QPalette::AlternateBase);
             } else {
-                option.state &= ~QStyle::State_Alternate;
+                option.features &= ~QStyleOptionViewItemV2::Alternate;
                 fill = option.palette.brush(QPalette::Base);
             }
             alternateBase = !alternateBase;

@@ -1122,10 +1122,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
         if (alternate) {
             if (d->current & 1) {
-                opt.state |= QStyle::State_Alternate;
+                opt.features |= QStyleOptionViewItemV2::Alternate;
                 fill = opt.palette.brush(QPalette::AlternateBase);
             } else {
-                opt.state &= ~QStyle::State_Alternate;
+                opt.features &= ~QStyleOptionViewItemV2::Alternate;
                 fill = opt.palette.brush(QPalette::Base);
             }
         } else {

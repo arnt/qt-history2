@@ -282,9 +282,9 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
         opt.rect = rect;
         alternateBase = alternatingColors && (span.top() & 1);
         if (alternateBase)
-            opt.state |= QStyle::State_Alternate;
+            opt.features |= QStyleOptionViewItemV2::Alternate;
         else
-            opt.state &= ~QStyle::State_Alternate;
+            opt.features &= ~QStyleOptionViewItemV2::Alternate;
         drawCell(painter, opt, index);
     }
 }
@@ -319,7 +319,7 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItemV2
             opt.state |= QStyle::State_HasFocus;
     }
 
-    QBrush fill = (opt.state & QStyle::State_Alternate)
+    QBrush fill = (opt.features & QStyleOptionViewItemV2::Alternate)
                   ? opt.palette.brush(QPalette::AlternateBase)
                   : opt.palette.brush(QPalette::Base);
     painter->fillRect(opt.rect, fill);
@@ -674,11 +674,10 @@ void QTableView::paintEvent(QPaintEvent *event)
                 if (index.isValid()) {
                     option.rect = QRect(colp, rowY, colw, rowh);
                     if (alternate) {
-                        option.state = state;
                         if (alternateBase)
-                            option.state |= QStyle::State_Alternate;
+                            option.features |= QStyleOptionViewItemV2::Alternate;
                         else
-                            option.state &= ~QStyle::State_Alternate;
+                            option.features &= ~QStyleOptionViewItemV2::Alternate;
                     }
                     d->drawCell(&painter, option, index);
                 }

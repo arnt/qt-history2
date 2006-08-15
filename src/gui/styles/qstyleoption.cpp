@@ -722,8 +722,9 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
 
     This enum describles the different types of features an item can have.
 
-    \value None     Indicates a normal item.
-    \value WrapText Indicates an item with wrapped text.
+    \value None      Indicates a normal item.
+    \value WrapText  Indicates an item with wrapped text.
+    \value Alternate Indicates that the item's background is rendered using alternateBase.
 */
 
 
