@@ -1073,24 +1073,24 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
 #else
 
 /*!
-  Returns a fallback locale, that will get used for everything that is not explicitly
-  overridden by the system locale.
+    Returns a fallback locale, that will get used for everything that
+    is not explicitly overridden by the system locale.
 */
 QLocale QSystemLocale::fallbackLocale() const
 {
     return QLocale(QLatin1String(envVarLocale()));
 }
 
-/*! \fn QVariant QSystemLocale::query(QueryType type, QVariant in) const
+/*!
+    Performs a query of the given \a type in the system locale for
+    customized values or conversion. If the method returns a null
+    QVariant, the conversion of the fallbackLocale() will be used.
 
-  Queries the system locale for customized values or conversion. If the method
-  returns a null QVariant, the comversion of the fallbackLocale() will be used.
+    \a in is unused for some of the query types.
 
-  \a in is unused for some of the types.
-
-  \sa QSystemLocale::QueryType
+    \sa QSystemLocale::QueryType
 */
-QVariant QSystemLocale::query(QueryType, QVariant) const
+QVariant QSystemLocale::query(QueryType /* type */, QVariant /* in */) const
 {
     return QVariant();
 }
@@ -1116,7 +1116,9 @@ static QLocalePrivate *system_lp = 0;
     all the functionality required for application development.
 
     QSystemLocale allows to override the values provided by the system
-    locale (\sa QLocale::system()).
+    locale (QLocale::system()).
+
+    \sa QLocale
 */
 
 /*!
@@ -1987,6 +1989,26 @@ QLocale &QLocale::operator=(const QLocale &other)
 }
 
 /*!
+    Sets the \a options related to number conversions for this
+    QLocale instance.
+*/
+void QLocale::setNumberOptions(NumberOptions options)
+{
+    ::setNumberOptions(&v, options);
+}
+
+/*!
+    Returns the options related to number conversions for this
+    QLocale instance.
+
+    By default, no options are set for the standard locales.
+*/
+QLocale::NumberOptions QLocale::numberOptions() const
+{
+    return static_cast<NumberOption>(::numberOptions(v));
+}
+
+/*!
     \nonreentrant
 
     Sets the global default locale to \a locale. These
@@ -2001,19 +2023,6 @@ QLocale &QLocale::operator=(const QLocale &other)
     \sa system() c()
 */
 
-void QLocale::setNumberOptions(NumberOptions options)
-{
-    ::setNumberOptions(&v, options);
-}
-
-QLocale::NumberOptions QLocale::numberOptions() const
-{
-    return static_cast<NumberOption>(::numberOptions(v));
-}
-
-/*!
-    Sets the default locale for the application to the given \a locale.
-*/
 void QLocale::setDefault(const QLocale &locale)
 {
     default_lp = locale.d();
@@ -2874,9 +2883,12 @@ QLocale QLocale::system()
 }
 
 /*!
-  returns the localized name of \a month, in the format specified by \a type.
+    Returns the localized name of \a month, in the format specified
+    by \a type.
+
+    \sa dayName()
 */
-QString QLocale::monthName(int month, QLocale::FormatType type) const
+QString QLocale::monthName(int month, FormatType type) const
 {
     if (month < 1 || month > 12)
         return QString();
@@ -2896,9 +2908,12 @@ QString QLocale::monthName(int month, QLocale::FormatType type) const
 }
 
 /*!
-  returns the localized name of \a day, in the format specified by \a type.
+    Returns the localized name of \a day, in the format specified by
+    \a type.
+
+    \sa monthName()
 */
-QString QLocale::dayName(int day, QLocale::FormatType type) const
+QString QLocale::dayName(int day, FormatType type) const
 {
     if (day < 1 || day > 7)
         return QString();

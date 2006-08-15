@@ -209,8 +209,9 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     \value EaseInCurve The value starts growing slowly, then increases in speed.
     \value EaseOutCurve The value starts growing steadily, then ends slowly.
     \value EaseInOutCurve The value starts growing slowly, the runs steadily, then grows slowly again.
-    \value LinearCurve The value grows linearily (e.g., if the duration is 1000 ms,
+    \value LinearCurve The value grows linearly (e.g., if the duration is 1000 ms,
            the value at time 500 ms is 0.5).
+    \value SineCurve The value grows sinusoidally.
 */
 
 /*!

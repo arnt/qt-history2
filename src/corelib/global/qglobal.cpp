@@ -320,7 +320,7 @@
     \title Global Qt Declarations
     \ingroup architecture
 
-    \brief The <QtGlobal> header file provides basic declarations and
+    \brief The <QtGlobal> header provides basic declarations and
     is included by all other Qt headers.
 
     The declarations include \l {types}, \l functions and

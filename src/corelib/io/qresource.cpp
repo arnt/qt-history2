@@ -297,11 +297,11 @@ QResource::~QResource()
 }
 
 /*!
-  Sets a QResource to only load the localization of resource to for \a
-  locale. If a resource for the specific locale is not found then the
-  C locale is used.
+    Sets a QResource to only load the localization of resource to for \a
+    locale. If a resource for the specific locale is not found then the
+    C locale is used.
 
-  \sa locale(), setFileName(), QLocale
+    \sa setFileName()
 */
 
 void QResource::setLocale(const QLocale &locale)
@@ -312,9 +312,7 @@ void QResource::setLocale(const QLocale &locale)
 }
 
 /*!
-  Returns the locale used to locate the data for the QResource.
-
-   \sa setLocale(), QLocale
+    Returns the locale used to locate the data for the QResource.
 */
 
 QLocale QResource::locale() const
@@ -328,7 +326,7 @@ QLocale QResource::locale() const
     in which case it is opened directly, if relative then the file will be
     tried to be found in searchPaths().
 
-    \sa fileName(), absoluteFilePath()
+    \sa absoluteFilePath()
 */
 
 void QResource::setFileName(const QString &file)
@@ -342,7 +340,7 @@ void QResource::setFileName(const QString &file)
     Returns the full path to the file that this QResource represents as it
     was passed.
 
-    \sa setFilePath(), absoluteFilePath()
+    \sa absoluteFilePath()
 */
 
 QString QResource::fileName() const

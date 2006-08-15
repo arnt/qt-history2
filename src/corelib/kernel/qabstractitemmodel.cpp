@@ -134,8 +134,9 @@ QPersistentModelIndex::~QPersistentModelIndex()
 
 /*!
   Returns true if this persistent model index is equal to the \a other
-  persistent model index, otherwist returns false.
-  Note that all values in the persistent model index are used when comparing
+  persistent model index; otherwise returns false.
+
+  All values in the persistent model index are used when comparing
   with another persistent model index.
 */
 
@@ -151,7 +152,8 @@ bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
 
     Returns true if this persistent model index is smaller than the \a other
     persistent model index; otherwise returns false.
-    Note that all values in the persistent model index are used when comparing
+
+    All values in the persistent model index are used when comparing
     with another persistent model index.
 */
 
@@ -161,6 +163,14 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
         return d->index < other.d->index;
     return d < other.d;
 }
+
+/*!
+    \fn bool QPersistentModelIndex::operator\!=(const QPersistentModelIndex &other) const
+    \since 4.2
+
+    Returns true if this persistent model index is not equal to the \a
+    other persistent model index; otherwise returns false.
+*/
 
 /*!
     Sets the persistent model index to refer to the same item in a model
@@ -2266,7 +2276,7 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
     \endlist
 
     \sa {Model/View Programming}, QAbstractItemView, QAbstractTableModel,
-        {Puzzle Example}
+        {Item Views Puzzle Example}
 */
 
 /*!

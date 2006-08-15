@@ -1178,11 +1178,12 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \omitvalue CString
     \omitvalue ColorGroup
     \omitvalue IconSet
-    \omitvalue LastType
+    \omitvalue LastGuiType
+    \omitvalue LastCoreType
 */
 
 /*!
-  \fn QVariant::QVariant()
+    \fn QVariant::QVariant()
 
     Constructs an invalid variant.
 */

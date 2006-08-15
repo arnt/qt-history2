@@ -2786,10 +2786,10 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
         QDate utcDate = QDate::currentDate(Qt::UTC);
     \newcode
         QDate localDate = QDate::currentDate();
-        QDate utcDate = QDateTime::currentDateTime().toUtc().date();
+        QDate utcDate = QDateTime::currentDateTime().toUTC().date();
     \endcode
 
-    \sa QDateTime::toUtc()
+    \sa QDateTime::toUTC()
 */
 
 /*!
@@ -2806,10 +2806,10 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
         QTime utcTime = QTime::currentTime(Qt::UTC);
     \newcode
         QTime localTime = QTime::currentTime();
-        QTime utcTime = QTimeTime::currentDateTime().toUtc().time();
+        QTime utcTime = QTimeTime::currentDateTime().toUTC().time();
     \endcode
 
-    \sa QDateTime::toUtc()
+    \sa QDateTime::toUTC()
 */
 
 /*!

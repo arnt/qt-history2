@@ -2041,7 +2041,7 @@ void QObject::deleteLater()
     Returns a translated version of \a sourceText, or
     QString::fromUtf8(\a sourceText) if there is no appropriate
     version. It is otherwise identical to tr(\a sourceText, \a
-    comment).
+    comment, \a n).
 
     \warning This method is reentrant only if all translators are
     installed \e before calling this method. Installing or removing

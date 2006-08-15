@@ -1462,7 +1462,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
 
     A property has a name() and a type(), as well as various
     attributes that specify its behavior: isReadable(), isWritable(),
-    isDesignable(), isScriptable(), isStored(), and isEditable().
+    isDesignable(), isScriptable(), and isStored().
 
     If the property is an enumeration, isEnumType() returns true; if the
     property is an enumeration that is also a flag (i.e. its values
@@ -1794,7 +1794,7 @@ bool QMetaProperty::isWritable() const
     \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise
     returns true (if the attribute is true or is a function or expression).
 
-    \sa isScriptable(), isStored(), isEditable()
+    \sa isScriptable(), isStored()
 */
 bool QMetaProperty::isDesignable(const QObject *object) const
 {
@@ -1820,7 +1820,7 @@ bool QMetaProperty::isDesignable(const QObject *object) const
     \c{Q_PROPERTY()}'s \c SCRIPTABLE attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
-    \sa isDesignable(), isStored(), isEditable()
+    \sa isDesignable(), isStored()
 */
 bool QMetaProperty::isScriptable(const QObject *object) const
 {
@@ -1844,7 +1844,7 @@ bool QMetaProperty::isScriptable(const QObject *object) const
     \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
-    \sa isDesignable(), isScriptable(), isEditable()
+    \sa isDesignable(), isScriptable()
 */
 bool QMetaProperty::isStored(const QObject *object) const
 {
@@ -1869,7 +1869,7 @@ bool QMetaProperty::isStored(const QObject *object) const
     \c{Q_PROPERTY()}'s \c USER attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
-    \sa QMetaObject::userProperty(), isDesignable(), isScriptable(), isEditable()
+    \sa QMetaObject::userProperty(), isDesignable(), isScriptable()
 */
 bool QMetaProperty::isUser(const QObject *object) const
 {
@@ -1886,13 +1886,13 @@ bool QMetaProperty::isUser(const QObject *object) const
 }
 
 /*!
-    \internal
+    \obsolete
 
     Returns true if the property is editable for the given \a object;
     otherwise returns false.
 
     If no \a object is given, the function returns false if the
-    \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise returns
+    \c{Q_PROPERTY()}'s \c EDITABLE attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
     \sa isDesignable(), isScriptable(), isStored()

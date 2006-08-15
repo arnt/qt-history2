@@ -218,7 +218,7 @@ const QString::Null QString::null = QString::Null();
 
     \tableofcontents
 
-    \section1 Initializing a string
+    \section1 Initializing a String
 
     One way to initialize a QString is simply to pass a \c{const char
     *} to its constructor. For example, the following code creates a
@@ -297,7 +297,7 @@ const QString::Null QString::null = QString::Null();
     which returns the given QString as a \c{const char *}. This is
     equivalent to calling <QString>.toAscii().constData().
 
-    \section1 Manipulating string data
+    \section1 Manipulating String Data
 
     QString provides the following basic functions for modifying the
     character data: append(), prepend(), insert(), replace(), and
@@ -353,8 +353,8 @@ const QString::Null QString::null = QString::Null();
     strings from a string list that contain a particular substring or
     that match a particular QRegExp using the QStringList::find()
     function.
-
-    \section1 Querying string data.
+:
+    \section1 Querying String Data
 
     If you want to see if a QString starts or ends with a particular
     substring use startsWith() or endsWith(). If you simply want to
@@ -375,7 +375,7 @@ const QString::Null QString::null = QString::Null();
     the QChar data. The pointer is guaranteed to remain valid until a
     non-const function is called on the QString.
 
-    \section1 Converting between 8-bit strings and Unicode strings
+    \section1 Converting Between 8-Bit Strings and Unicode Strings
 
     QString provides the following four functions that return a
     \c{const char *} version of the string as QByteArray: toAscii(),
@@ -437,7 +437,7 @@ const QString::Null QString::null = QString::Null();
     \table 100 %
     \row
     \o
-    \section1 Note for C programmers
+    \section1 Note for C Programmers
 
     Due to C++'s type system and the fact that QString is
     \l{implicitly shared}, QStrings may be treated like \c{int}s or
@@ -454,7 +454,7 @@ const QString::Null QString::null = QString::Null();
 
     \endtable
 
-    \section1 Distinguishing between null and empty strings
+    \section1 Distinction Between Null and Empty Strings
 
     For historical reasons, QString distinguishes between a null
     string and an empty string. A \e null string is a string that is
@@ -4068,6 +4068,7 @@ int QString::compare(const QString &other) const
 /*!
     \overload
     \since 4.2
+
     Same as compare(*this, \a other, \a cs).
 */
 int QString::compare(const QString &other, Qt::CaseSensitivity cs) const
@@ -4078,6 +4079,8 @@ int QString::compare(const QString &other, Qt::CaseSensitivity cs) const
 /*!
     \overload
     \since 4.2
+
+    Same as compare(*this, \a other, \a cs).
 */
 int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
 {

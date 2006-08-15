@@ -133,6 +133,25 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
 }
 
 /*!
+    \fn QAbstractFileEngine *QAbstractFileEngineHandler::create(const QString &fileName) const
+
+    Creates a file engine for file \a fileName. Returns 0 if this
+    file handler cannot handle \a fileName.
+
+    Example:
+
+    \code
+        QAbstractSocketEngine *ZipEngineHandler::create(const QString &fileName) const
+        {
+            // ZipEngineHandler returns a ZipEngine for all .zip files
+            return fileName.toLower().endsWith(".zip") ? new ZipEngine(fileName) : 0;
+        }
+    \endcode
+
+    \sa QAbstractFileEngine::create()
+*/    
+
+/*!
     Creates and returns a QAbstractFileEngine suitable for processing \a
     fileName.
 

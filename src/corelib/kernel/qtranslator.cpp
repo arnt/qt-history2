@@ -646,6 +646,19 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
     return translate(context, sourceText, comment, -1);
 }
 
+
+/*!
+    \overload
+
+    Returns the translation for the key (\a context, \a sourceText,
+    \a comment). If none is found, also tries (\a context, \a
+    sourceText, ""). If that still fails, returns an empty string.
+
+    If \a n is not -1, it is used to choose an appropriate form for
+    the translation (e.g. "%n file found" vs. "%n files found").
+
+    \sa load()
+*/
 QString QTranslator::translate(const char *context, const char *sourceText, const char *comment,
                                int n) const
 {

@@ -740,7 +740,7 @@ void QCoreApplication::exit(int returnCode)
 
     \threadsafe
 
-    \sa sendEvent(), notify(), sendPostedEvent()
+    \sa sendEvent(), notify(), sendPostedEvents()
 */
 
 void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
@@ -1128,17 +1128,17 @@ bool QCoreApplication::event(QEvent *e)
 
 /*! \enum QCoreApplication::Encoding
 
-  This enum type defines the 8-bit encoding of character string
-  arguments to translate():
+    This enum type defines the 8-bit encoding of character string
+    arguments to translate():
 
-  \value CodecForTr  The encoding specified by
-  QTextCodec::codecForTr() (Latin-1 if none has been set)
-  \value UnicodeUTF8  UTF-8
+    \value CodecForTr  The encoding specified by
+                       QTextCodec::codecForTr() (Latin-1 if none has
+                       been set).
+    \value UnicodeUTF8  UTF-8.
+    \value DefaultCodec  (Obsolete) Use CodecForTr instead.
 
-  \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
+    \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
 */
-
-
 
 /*!
     Tells the application to exit with return code 0 (success).
@@ -2029,7 +2029,8 @@ int QCoreApplication::loopLevel()
         };
     \endcode
 
-    The \e context parameter is normally the class name.
+    The \a context parameter is normally the class name, but it can
+    be any string.
 
     \sa Q_OBJECT, QObject::tr(), QObject::trUtf8()
 */

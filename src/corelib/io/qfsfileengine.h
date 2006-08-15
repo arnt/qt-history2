@@ -50,8 +50,8 @@ public:
     QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
     FileFlags fileFlags(FileFlags type) const;
     bool setPermissions(uint perms);
-    QString fileName(QAbstractFileEngine::FileName file) const;
-    uint ownerId(QAbstractFileEngine::FileOwner) const;
+    QString fileName(FileName file) const;
+    uint ownerId(FileOwner) const;
     QString owner(FileOwner) const;
     QDateTime fileTime(FileTime time) const;
     void setFileName(const QString &file);
