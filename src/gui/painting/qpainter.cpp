@@ -4085,7 +4085,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 
     // Emulate opaque background for bitmaps
     if (d->state->bgMode == Qt::OpaqueMode && pm.isQBitmap()) {
-        fillRect(x, y, w, h, d->state->bgBrush.color());
+        fillRect(QRectF(x, y, w, h), d->state->bgBrush.color());
     }
 
     d->updateState(d->state);
