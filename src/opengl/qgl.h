@@ -267,8 +267,7 @@ private:
 #ifdef Q_WS_WIN
     friend class QGLFramebufferObject;
     friend class QGLFramebufferObjectPrivate;
-    friend bool qt_resolve_frag_program_extensions(QGLContext *);
-    friend bool qt_resolve_framebufferobject_extensions(QGLContext *);
+    friend QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
     friend bool qt_resolve_GLSL_functions(QGLContext *ctx);
     friend bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_src, GLuint &shader);
 #endif

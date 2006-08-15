@@ -341,7 +341,7 @@ public:
         {}
 
     inline void setGLPen(const QColor &c) {
-        uint alpha = qRound(c.alpha() * opacity);        
+        uint alpha = qRound(c.alpha() * opacity);
         pen_color[0] = (c.red() * alpha + 128) >> 8;
         pen_color[1] = (c.green() * alpha + 128) >> 8;
         pen_color[2] = (c.blue() * alpha + 128) >> 8;
@@ -574,34 +574,36 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #define GL_LINK_STATUS 0x8B82
 #endif
 
+extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
+
 #ifdef Q_WS_WIN
-#define glProgramStringARB ctx->d_ptr->qt_glProgramStringARB
-#define glBindProgramARB ctx->d_ptr->qt_glBindProgramARB
-#define glDeleteProgramsARB ctx->d_ptr->qt_glDeleteProgramsARB
-#define glGenProgramsARB ctx->d_ptr->qt_glGenProgramsARB
-#define glProgramLocalParameter4fvARB ctx->d_ptr->qt_glProgramLocalParameter4fvARB
+#define glProgramStringARB qt_glctx_get_dptr(ctx)->qt_glProgramStringARB
+#define glBindProgramARB qt_glctx_get_dptr(ctx)->qt_glBindProgramARB
+#define glDeleteProgramsARB qt_glctx_get_dptr(ctx)->qt_glDeleteProgramsARB
+#define glGenProgramsARB qt_glctx_get_dptr(ctx)->qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB qt_glctx_get_dptr(ctx)->qt_glProgramLocalParameter4fvARB
 // GLSL definitions
-#define glCreateShader ctx->d_ptr->qt_glCreateShader
-#define glShaderSource ctx->d_ptr->qt_glShaderSource
-#define glCompileShader ctx->d_ptr->qt_glCompileShader
-#define glDeleteShader ctx->d_ptr->qt_glDeleteShader
+#define glCreateShader qt_glctx_get_dptr(ctx)->qt_glCreateShader
+#define glShaderSource qt_glctx_get_dptr(ctx)->qt_glShaderSource
+#define glCompileShader qt_glctx_get_dptr(ctx)->qt_glCompileShader
+#define glDeleteShader qt_glctx_get_dptr(ctx)->qt_glDeleteShader
 
-#define glCreateProgram ctx->d_ptr->qt_glCreateProgram
-#define glAttachShader ctx->d_ptr->qt_glAttachShader
-#define glDetachShader ctx->d_ptr->qt_glDetachShader
-#define glLinkProgram ctx->d_ptr->qt_glLinkProgram
-#define glUseProgram ctx->d_ptr->qt_glUseProgram
-#define glDeleteProgram ctx->d_ptr->qt_glDeleteProgram
+#define glCreateProgram qt_glctx_get_dptr(ctx)->qt_glCreateProgram
+#define glAttachShader qt_glctx_get_dptr(ctx)->qt_glAttachShader
+#define glDetachShader qt_glctx_get_dptr(ctx)->qt_glDetachShader
+#define glLinkProgram qt_glctx_get_dptr(ctx)->qt_glLinkProgram
+#define glUseProgram qt_glctx_get_dptr(ctx)->qt_glUseProgram
+#define glDeleteProgram qt_glctx_get_dptr(ctx)->qt_glDeleteProgram
 
-#define glGetShaderInfoLog ctx->d_ptr->qt_glGetShaderInfoLog
-#define glGetProgramiv ctx->d_ptr->qt_glGetProgramiv
+#define glGetShaderInfoLog qt_glctx_get_dptr(ctx)->qt_glGetShaderInfoLog
+#define glGetProgramiv qt_glctx_get_dptr(ctx)->qt_glGetProgramiv
 
-#define glGetUniformLocation ctx->d_ptr->qt_glGetUniformLocation
-#define glUniform4fv ctx->d_ptr->qt_glUniform4fv
-#define glUniform3fv ctx->d_ptr->qt_glUniform3fv
-#define glUniform2fv ctx->d_ptr->qt_glUniform2fv
-#define glUniform1fv ctx->d_ptr->qt_glUniform1fv
-#define glUniform1i ctx->d_ptr->qt_glUniform1i
+#define glGetUniformLocation qt_glctx_get_dptr(ctx)->qt_glGetUniformLocation
+#define glUniform4fv qt_glctx_get_dptr(ctx)->qt_glUniform4fv
+#define glUniform3fv qt_glctx_get_dptr(ctx)->qt_glUniform3fv
+#define glUniform2fv qt_glctx_get_dptr(ctx)->qt_glUniform2fv
+#define glUniform1fv qt_glctx_get_dptr(ctx)->qt_glUniform1fv
+#define glUniform1i qt_glctx_get_dptr(ctx)->qt_glUniform1i
 
 #else
 static _glProgramStringARB qt_glProgramStringARB = 0;
@@ -958,7 +960,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
 
 // This removes warnings on OS X 10.4 and below.
-#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5) 
+#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)
     gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
     gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
                     reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glVertex3dv));
@@ -1526,7 +1528,7 @@ void QOpenGLPaintEngine::updateCompositionMode(QPainter::CompositionMode composi
         glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
     case QPainter::CompositionMode_SourceOver:
-    default:        
+    default:
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 }
@@ -1578,7 +1580,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (d->has_brush) {
             d->setGradientOps(d->brush_style);
             glColor4ubv(d->brush_color);
-            
+
             glVertexPointer(2, GL_FLOAT, 0, vertexArray);
             glEnableClientState(GL_VERTEX_ARRAY);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -1590,7 +1592,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
             glColor4ubv(d->pen_color);
             if (d->has_fast_pen) {
                 glColor4ubv(d->pen_color);
-                
+
                 vertexArray[8] = vertexArray[0];
                 vertexArray[9] = vertexArray[1];
 
@@ -1657,7 +1659,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
                 Q_ASSERT(sizeof(QLineF) == 16);
                 glVertexPointer(2, GL_FLOAT, 0, vertexArray);
             }
-            
+
             glEnableClientState(GL_VERTEX_ARRAY);
             glDrawArrays(GL_LINES, 0, lineCount*2);
             glDisableClientState(GL_VERTEX_ARRAY);
@@ -1925,7 +1927,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
-    
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -1973,13 +1975,13 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 
     float vertexArray[4*2];
     float texCoordArray[4*2];
-        
+
     qt_add_rect_to_array(r, vertexArray);
     qt_add_texcoords_to_array(x1, y2, x2, y1, texCoordArray);
-        
+
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
-    
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -2295,7 +2297,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     glVertexPointer(2, GL_FLOAT, 0, vertexArray);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
-    
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 

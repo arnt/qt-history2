@@ -1117,6 +1117,8 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     sharing = false;
 }
 
+QGLContextPrivate *qt_glctx_get_dptr(QGLContext *ctx) { return ctx->d_ptr; }
+
 QGLContext* QGLContext::currentCtx = 0;
 
 // returns the highest number closest to v, which is a power of 2

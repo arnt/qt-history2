@@ -133,7 +133,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
     QLibrary lib(QLatin1String("GL"));
 #else // Q_WS_MAC
     QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
-#endif    
+#endif
 
     qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
     qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
@@ -161,23 +161,23 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 
 #define QGL_FUNC_CONTEXT QGLContext *ctx = d_ptr->ctx;
 
-#define glIsRenderbufferEXT ctx->d_ptr->qt_glIsRenderbufferEXT
-#define glBindRenderbufferEXT ctx->d_ptr->qt_glBindRenderbufferEXT
-#define glDeleteRenderbuffersEXT ctx->d_ptr->qt_glDeleteRenderbuffersEXT
-#define glGenRenderbuffersEXT ctx->d_ptr->qt_glGenRenderbuffersEXT
-#define glRenderbufferStorageEXT ctx->d_ptr->qt_glRenderbufferStorageEXT
-#define glGetRenderbufferParameterivEXT ctx->d_ptr->qt_glGetRenderbufferParameterivEXT
-#define glIsFramebufferEXT ctx->d_ptr->qt_glIsFramebufferEXT
-#define glBindFramebufferEXT ctx->d_ptr->qt_glBindFramebufferEXT
-#define glDeleteFramebuffersEXT ctx->d_ptr->qt_glDeleteFramebuffersEXT
-#define glGenFramebuffersEXT ctx->d_ptr->qt_glGenFramebuffersEXT
-#define glCheckFramebufferStatusEXT ctx->d_ptr->qt_glCheckFramebufferStatusEXT
-#define glFramebufferTexture1DEXT ctx->d_ptr->qt_glFramebufferTexture1DEXT
-#define glFramebufferTexture2DEXT ctx->d_ptr->qt_glFramebufferTexture2DEXT
-#define glFramebufferTexture3DEXT ctx->d_ptr->qt_glFramebufferTexture3DEXT
-#define glFramebufferRenderbufferEXT ctx->d_ptr->qt_glFramebufferRenderbufferEXT
-#define glGetFramebufferAttachmentParameterivEXT ctx->d_ptr->qt_glGetFramebufferAttachmentParameterivEXT
-#define glGenerateMipmapEXT ctx->d_ptr->qt_glGenerateMipmapEXT
+#define glIsRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glIsRenderbufferEXT
+#define glBindRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glBindRenderbufferEXT
+#define glDeleteRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteRenderbuffersEXT
+#define glGenRenderbuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenRenderbuffersEXT
+#define glRenderbufferStorageEXT qt_glctx_get_dptr(ctx)->qt_glRenderbufferStorageEXT
+#define glGetRenderbufferParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetRenderbufferParameterivEXT
+#define glIsFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glIsFramebufferEXT
+#define glBindFramebufferEXT qt_glctx_get_dptr(ctx)->qt_glBindFramebufferEXT
+#define glDeleteFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glDeleteFramebuffersEXT
+#define glGenFramebuffersEXT qt_glctx_get_dptr(ctx)->qt_glGenFramebuffersEXT
+#define glCheckFramebufferStatusEXT qt_glctx_get_dptr(ctx)->qt_glCheckFramebufferStatusEXT
+#define glFramebufferTexture1DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture1DEXT
+#define glFramebufferTexture2DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture2DEXT
+#define glFramebufferTexture3DEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferTexture3DEXT
+#define glFramebufferRenderbufferEXT qt_glctx_get_dptr(ctx)->qt_glFramebufferRenderbufferEXT
+#define glGetFramebufferAttachmentParameterivEXT qt_glctx_get_dptr(ctx)->qt_glGetFramebufferAttachmentParameterivEXT
+#define glGenerateMipmapEXT qt_glctx_get_dptr(ctx)->qt_glGenerateMipmapEXT
 
 bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {
