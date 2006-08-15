@@ -110,6 +110,19 @@
 */
 
 /*!
+    \enum QAccessible::Method
+
+    This enum describes the possible types of methods that can be
+    invoked on an accessible object.
+
+    \value ListSupportedMethods
+    \value SetCursorPosition
+    \value GetCursorPosition
+
+    \sa QAccessibleInterface::invokeMethod()
+*/
+
+/*!
     \enum QAccessible::StateFlag
 
     This enum type defines bit flags that can be combined to indicate
@@ -954,7 +967,9 @@ const QAccessibleInterface *other, int otherChild) const
 */
 
 /*!
-    Invokes an \a action on \a child with the given parameters \a params
+    \since 4.2
+
+    Invokes a \a method on \a child with the given parameters \a params
     and returns the result of the operation as QVariant.
 
     Note that the type of the returned QVariant depends on the action.
