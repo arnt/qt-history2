@@ -3289,6 +3289,7 @@ void QUrlPrivate::validate() const
 void QUrlPrivate::parse(ParseOptions parseOptions) const
 {
     QUrlPrivate *that = (QUrlPrivate *)this;
+    that->errorInfo.setParams(0, "", '\0', '\0');
     if (encodedOriginal.isEmpty()) {
         that->isValid = false;
         that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "empty"), '\0', '\0');
@@ -3499,6 +3500,9 @@ const QByteArray & QUrlPrivate::normalized()
 
 QString QUrlPrivate::createErrorString()
 {
+    if (isValid)
+        return QString();
+
     QString original(encodedOriginal);
     QString errorString(QT_TRANSLATE_NOOP(QUrl, "Invalid URL \""));
     errorString.append(original);
@@ -5371,6 +5375,10 @@ QDebug operator<<(QDebug d, const QUrl &url)
 }
 #endif
 
+/*!
+    Returns a text string that explains why an URL is invalid in the case being;
+    otherwise returns an empty string.
+*/
 QString QUrl::errorString() const
 {
     return d->createErrorString();
