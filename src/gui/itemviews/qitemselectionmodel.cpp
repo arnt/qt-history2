@@ -672,7 +672,9 @@ static QItemSelection mergeIndexes(const QList<QPersistentModelIndex> &indexes)
         QModelIndex br = tl;
         while (++i < indexes.count()) {
             QModelIndex next = indexes.at(i);
-            if ((next.row() == br.row()) && (next.column() == br.column() + 1))
+            if ((next.parent() == br.parent())
+                 && (next.row() == br.row())
+                 && (next.column() == br.column() + 1))
                 br = next;
             else
                 break;
