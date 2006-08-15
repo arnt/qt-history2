@@ -70,7 +70,7 @@ public:
     }
     void setText(const QString &text) { textEdit->setPlainText(text); }
     QString text() const { return textEdit->toPlainText(); }
-    QString label(DetailButtonLabel label) { return label==ShowLabel? tr("Show Details...") : tr("Hide Details..."); }
+    QString label(DetailButtonLabel label) { return label==ShowLabel? QMessageBox::tr("Show Details...") : QMessageBox::tr("Hide Details..."); }
 private:
     TextEdit *textEdit;
 };
@@ -376,11 +376,7 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
                           QMessageBox::Save);
     \endcode
 
-
-
-
     The order of the buttons is platform-dependent.
-
 
     The text part of all message box messages can be either rich text
     or plain text. With certain strings that contain XML meta characters,

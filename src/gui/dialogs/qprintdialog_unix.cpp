@@ -1155,11 +1155,11 @@ bool QPrintDialogPrivate::setupPrinter()
         bool exists = fi.exists();
         if((exists && !fi.isWritable()) || !f.open(QFile::WriteOnly)) {
             QMessageBox::warning(q, q->windowTitle(),
-                                 q->tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
+			    QPrintDialog::tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
             return false;
         } else if (exists) {
             int ret = QMessageBox::question(q, q->windowTitle(),
-                                            q->tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
+                                            QPrintDialog::tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
                                             QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
             if (ret == QMessageBox::No)
                 return false;
