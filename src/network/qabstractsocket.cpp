@@ -29,8 +29,8 @@
     \list
     \i  Instantiate QTcpSocket or QUdpSocket.
     \i  Create a native socket descriptor, instantiate
-	QAbstractSocket, and call setSocketDescriptor() to wrap the
-	native socket.
+        QAbstractSocket, and call setSocketDescriptor() to wrap the
+        native socket.
     \endlist
 
     TCP (Transmission Control Protocol) is a reliable,
@@ -51,15 +51,16 @@
     values.
 
     At any time, QAbstractSocket has a state (returned by
-    state()). The initial state is QAbstractSocket::UnconnectedState. After
+    state()). The initial state is UnconnectedState. After
     calling connectToHost(), the socket first enters
-    QAbstractSocket::HostLookupState. If the host is found, QAbstractSocket enters
-    QAbstractSocket::ConnectingState and emits the hostFound() signal. When the
-    connection has been established, it enters QAbstractSocket::ConnectedState and
+    HostLookupState. If the host is found, QAbstractSocket enters
+    ConnectingState and emits the hostFound() signal. When the
+    connection has been established, it enters ConnectedState and
     emits connected(). If an error occurs at any stage, error() is
     emitted. Whenever the state changes, stateChanged() is emitted.
     For convenience, isValid() returns true if the socket is ready for
-    reading and writing.
+    reading and writing, but note that the socket's state must be
+    ConnectedState before reading and writing can occur.
 
     Read or write data by calling read() or write(), or use the
     convenience functions readLine() and readAll(). QAbstractSocket
@@ -968,6 +969,9 @@ QAbstractSocket::~QAbstractSocket()
 /*!
     Returns true if the socket is valid and ready for use; otherwise
     returns false.
+
+    \bold{Note:} The socket's state must be ConnectedState before reading and
+    writing can occur.
 
     \sa state()
 */
