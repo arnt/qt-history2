@@ -348,8 +348,6 @@ void TreeWidgetEditor::on_treeWidget_currentItemChanged(QTreeWidgetItem *,
     ui.listWidget->setCurrentRow(idx.column());
     m_updating = false;
     updateEditor();
-    ui.itemTextLineEdit->selectAll();
-    ui.itemTextLineEdit->setFocus();
 }
 
 void TreeWidgetEditor::on_treeWidget_itemChanged(QTreeWidgetItem *)

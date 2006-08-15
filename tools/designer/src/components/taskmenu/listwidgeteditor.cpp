@@ -131,8 +131,6 @@ void ListWidgetEditor::on_moveItemDownButton_clicked()
 void ListWidgetEditor::on_listWidget_currentRowChanged(int)
 {
     updateEditor();
-    ui.itemTextLineEdit->selectAll();
-    ui.itemTextLineEdit->setFocus();
 }
 
 void ListWidgetEditor::on_listWidget_itemChanged(QListWidgetItem *)

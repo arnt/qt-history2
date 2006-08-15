@@ -176,8 +176,6 @@ void TableWidgetEditor::on_tableWidget_currentCellChanged(int currentRow, int cu
     ui.columnsListWidget->setCurrentRow(currentCol);
     m_updating = false;
     updateEditor();
-    ui.itemTextLineEdit->selectAll();
-    ui.itemTextLineEdit->setFocus();
 }
 
 void TableWidgetEditor::on_tableWidget_itemChanged(QTableWidgetItem *)
