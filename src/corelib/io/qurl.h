@@ -198,6 +198,8 @@ public:
     }
 #endif
 
+    QString errorString() const;
+
 protected:
 #if defined (QT3_SUPPORT)
     inline QT3_SUPPORT void reset() { clear(); }

@@ -168,6 +168,22 @@ static const uint initial_n = 128;
 #define QURL_UNSETFLAG(a, b) { (a) &= ~(b); }
 #define QURL_HASFLAG(a, b) (((a) & (b)) == (b))
 
+struct ErrorInfo {
+    char *_source;
+    QString _message;
+    QChar _expected;
+    QChar _found;
+
+    inline void setParams(char *source, const QString &message,
+                          const QChar &expected, const QChar &found)
+    {
+        _source = source;
+        _message = message;
+        _expected = expected;
+        _found = found;
+    }
+};
+
 class QUrlPrivate
 {
 public:
@@ -226,19 +242,23 @@ public:
 
     QByteArray encodedNormalized;
     const QByteArray & normalized();
+
+    mutable ErrorInfo errorInfo;
+    QString createErrorString();
 };
 
-static bool QT_FASTCALL _char(char **ptr, char expected)
+static bool QT_FASTCALL _char(char **ptr, char expected, ErrorInfo *errorInfo)
 {
     if (*((*ptr)) == expected) {
         ++(*ptr);
         return true;
     }
 
+    errorInfo->setParams(*ptr, "", expected, *((*ptr)));
     return false;
 }
 
-static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig)
+static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig, ErrorInfo *errorInfo)
 {
     char ch = **ptr;
     if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
@@ -247,18 +267,20 @@ static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig)
         return true;
     }
 
+    errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected hexdigit number (0-9, a-f, A-F)"),
+                         '\0', ch);
     return false;
 }
 
 // pct-encoded = "%" HEXDIG HEXDIG
-static bool QT_FASTCALL _pctEncoded(char **ptr, char pct[])
+static bool QT_FASTCALL _pctEncoded(char **ptr, char pct[], ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
-    if (!_char(ptr, '%')) return false;
+    if (!_char(ptr, '%', errorInfo)) return false;
 
     char hex1, hex2;
-    if (!_HEXDIG(ptr, &hex1)) { *ptr = ptrBackup; return false; }
-    if (!_HEXDIG(ptr, &hex2)) { *ptr = ptrBackup; return false; }
+    if (!_HEXDIG(ptr, &hex1, errorInfo)) { *ptr = ptrBackup; return false; }
+    if (!_HEXDIG(ptr, &hex2, errorInfo)) { *ptr = ptrBackup; return false; }
 
     pct[0] = '%';
     pct[1] = hex1;
@@ -287,7 +309,7 @@ static bool QT_FASTCALL _genDelims(char **ptr, char *c)
 
 // sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
 //             / "*" / "+" / "," / ";" / "="
-static bool QT_FASTCALL _subDelims(char **ptr, char *c)
+static bool QT_FASTCALL _subDelims(char **ptr, char *c, ErrorInfo *errorInfo)
 {
     char ch = **ptr;
     switch (ch) {
@@ -298,6 +320,10 @@ static bool QT_FASTCALL _subDelims(char **ptr, char *c)
         ++(*ptr);
         return true;
     default:
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected sub-delimiter ")
+                             + QString("(\"!\", \"$\", \"&\", \"\'\", \"(\", \")\",")
+                             + QString("\"*\", \"+\", \",\", \";\", \"=\")"),
+                             '\0', ch);
         return false;
     }
 }
@@ -327,7 +353,7 @@ static bool QT_FASTCALL _DIGIT_(char **ptr, char *c)
 }
 
 // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-static bool QT_FASTCALL _unreserved(char **ptr, char *c)
+static bool QT_FASTCALL _unreserved(char **ptr, char *c, ErrorInfo *errorInfo)
 {
     if (_ALPHA_(ptr, c) || _DIGIT_(ptr, c))
         return true;
@@ -339,6 +365,8 @@ static bool QT_FASTCALL _unreserved(char **ptr, char *c)
         ++(*ptr);
         return true;
     default:
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected unreserved (alpha, digit,")
+                             + QString("\'=\', \'.\', \'_\', \'~\'"), '\0', ch);
         return false;
     }
 }
@@ -366,40 +394,44 @@ static bool QT_FASTCALL _scheme(char **ptr, QByteArray *scheme)
 }
 
 // IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
-static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host)
+static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
     char ch = *((*ptr)++);
     if (ch != 'v') {
         *ptr = ptrBackup;
+        errorInfo->setParams(*ptr, "", 'v', ch);
         return false;
     }
 
     *host += ch;
 
-    if (!_HEXDIG(ptr, &ch)) {
+    if (!_HEXDIG(ptr, &ch, errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
 
     *host += ch;
 
-    while (_HEXDIG(ptr, &ch))
+    while (_HEXDIG(ptr, &ch, errorInfo))
         *host += ch;
 
-    if (*((*ptr)++) != '.') {
+    char c = *((*ptr)++);
+    if (c != '.') {
         *ptr = ptrBackup;
+        errorInfo->setParams(*ptr, "", '.', c);
         return false;
     }
 
-    if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch) && (ch = *((*ptr)++)) != ':') {
+    if (!_unreserved(ptr, &ch, errorInfo) && !_subDelims(ptr, &ch, errorInfo) && (ch = *((*ptr)++)) != ':') {
         *ptr = ptrBackup;
+        errorInfo->setParams(*ptr, "", ':', ch);
         return false;
     }
 
     *host += ch;
 
-    while (_unreserved(ptr, &ch) || _subDelims(ptr, &ch) || (ch = *((*ptr)++)) == ':')
+    while (_unreserved(ptr, &ch, errorInfo) || _subDelims(ptr, &ch, errorInfo) || (ch = *((*ptr)++)) == ':')
         *host += ch;
 
     return true;
@@ -407,15 +439,15 @@ static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host)
 
 // h16         = 1*4HEXDIG
 //             ; 16 bits of address represented in hexadecimal
-static bool QT_FASTCALL _h16(char **ptr, QByteArray *c)
+static bool QT_FASTCALL _h16(char **ptr, QByteArray *c, ErrorInfo *errorInfo)
 {
     char ch;
-    if (!_HEXDIG(ptr, &ch))
+    if (!_HEXDIG(ptr, &ch, errorInfo))
         return false;
     *c += ch;
 
     for (int i = 0; i < 3; ++i) {
-        if (!_HEXDIG(ptr, &ch))
+        if (!_HEXDIG(ptr, &ch, errorInfo))
             break;
         *c += ch;
     }
@@ -428,12 +460,14 @@ static bool QT_FASTCALL _h16(char **ptr, QByteArray *c)
 //             / "1" 2DIGIT            ; 100-199
 //             / "2" %x30-34 DIGIT     ; 200-249
 //             / "25" %x30-35          ; 250-255
-static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
+static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet, ErrorInfo *errorInfo)
 {
     char c1 = **ptr;
 
-    if (c1 < '0' || c1 > '9')
+    if (c1 < '0' || c1 > '9') {
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected decimal digit (0-9)"), '\0', c1);
         return false;
+    }
 
     *octet += c1;
 
@@ -459,8 +493,10 @@ static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
 
     // If there is a three digit number larger than 255, reject the
     // whole token.
-    if (c1 >= '2' && c2 >= '5' && c3 > '5')
+    if (c1 >= '2' && c2 >= '5' && c3 > '5') {
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "digit number larger than 255"), '\0', '\0');
         return false;
+    }
 
     ++(*ptr);
 
@@ -468,25 +504,27 @@ static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
 }
 
 // IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
-static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
+static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
     QByteArray tmp1; tmp1.reserve(32);
 
-    if (!_decOctet(ptr, &tmp1)) {
+    if (!_decOctet(ptr, &tmp1, errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
 
     for (int i = 0; i < 3; ++i) {
-        if (*((*ptr)++) != '.') {
+        char ch = *((*ptr)++);
+        if (ch != '.') {
             *ptr = ptrBackup;
+            errorInfo->setParams(*ptr, "", '.', ch);
             return false;
         }
 
         tmp1 += '.';
 
-        if (!_decOctet(ptr, &tmp1)) {
+        if (!_decOctet(ptr, &tmp1, errorInfo)) {
             *ptr = ptrBackup;
             return false;
         }
@@ -499,12 +537,12 @@ static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
 
 // ls32        = ( h16 ":" h16 ) / IPv4address
 //             ; least-significant 32 bits of address
-static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
+static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
     QByteArray tmp1;
     QByteArray tmp2;
-    if (_h16(ptr, &tmp1) && _char(ptr, ':') && _h16(ptr, &tmp2)) {
+    if (_h16(ptr, &tmp1, errorInfo) && _char(ptr, ':', errorInfo) && _h16(ptr, &tmp2, errorInfo)) {
         *c += tmp1;
         *c += ':';
         *c += tmp2;
@@ -512,7 +550,7 @@ static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
     }
 
     *ptr = ptrBackup;
-    return _IPv4Address(ptr, c);
+    return _IPv4Address(ptr, c, errorInfo);
 }
 
 // IPv6address =                            6( h16 ":" ) ls32 // case 1
@@ -524,7 +562,7 @@ static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
 //             / [ *4( h16 ":" ) h16 ] "::"              ls32 // case 7
 //             / [ *5( h16 ":" ) h16 ] "::"              h16  // case 8
 //             / [ *6( h16 ":" ) h16 ] "::"                   // case 9
-static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
+static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
 
@@ -536,11 +574,11 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
     int rightHexColons = 0;
 
     // first count the number of (h16 ":") on the left of ::
-    while (_h16(ptr, &tmp)) {
+    while (_h16(ptr, &tmp, errorInfo)) {
 
         // an h16 not followed by a colon is considered an
         // error.
-        if (!_char(ptr, ':')) {
+        if (!_char(ptr, ':', errorInfo)) {
             *ptr = ptrBackup;
             return false;
         }
@@ -548,19 +586,19 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
         ++leftHexColons;
 
         // check for case 1, the only time when there can be no ::
-        if (leftHexColons == 6 && _ls32(ptr, &tmp)) {
+        if (leftHexColons == 6 && _ls32(ptr, &tmp, errorInfo)) {
             *host += tmp;
             return true;
         }
     }
 
     // check for case 2 where the address starts with a :
-    if (leftHexColons == 0 && _char(ptr, ':'))
+    if (leftHexColons == 0 && _char(ptr, ':', errorInfo))
         tmp += ':';
 
 
     // check for the second colon in ::
-    if (!_char(ptr, ':')) {
+    if (!_char(ptr, ':', errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
@@ -575,10 +613,12 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
     // count the number of (h16 ":") on the right of ::
     for (;;) {
         tmpBackup = *ptr;
-        if (!_h16(ptr, &tmp2)) {
-            if (!_ls32(ptr, &tmp)) {
+        if (!_h16(ptr, &tmp2, errorInfo)) {
+            if (!_ls32(ptr, &tmp, errorInfo)) {
                 if (rightHexColons != 0) {
                     *ptr = ptrBackup;
+                    errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl,
+                                         "too many colons (\':\'))"), '\0', '\0');
                     return false;
                 }
 
@@ -591,13 +631,13 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
             break;
         }
         ++rightHexColons;
-        if (!_char(ptr, ':')) {
+        if (!_char(ptr, ':', errorInfo)) {
             // no colon could mean that what was read as an h16
             // was in fact the first part of an ls32. we backtrack
             // and retry.
             char *pb = *ptr;
             *ptr = tmpBackup;
-            if (_ls32(ptr, &tmp)) {
+            if (_ls32(ptr, &tmp, errorInfo)) {
                 ls32WasRead = true;
                 --rightHexColons;
             } else {
@@ -627,6 +667,7 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
     // based on the case we need to check that the number of leftHexColons is valid
     if (leftHexColons > (canBeCase - 2)) {
         *ptr = ptrBackup;
+        errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "too many colons (\':\')"), '\0', '\0');
         return false;
     }
 
@@ -635,20 +676,20 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 }
 
 // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
-static bool QT_FASTCALL _IPLiteral(char **ptr, QByteArray *host)
+static bool QT_FASTCALL _IPLiteral(char **ptr, QByteArray *host, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
-    if (!_char(ptr, '['))
+    if (!_char(ptr, '[', errorInfo))
         return false;
 
     *host += '[';
 
-    if (!_IPv6Address(ptr, host) && !_IPvFuture(ptr, host)) {
+    if (!_IPv6Address(ptr, host, errorInfo) && !_IPvFuture(ptr, host, errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
 
-    if (!_char(ptr, ']')) {
+    if (!_char(ptr, ']', errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
@@ -659,13 +700,13 @@ static bool QT_FASTCALL _IPLiteral(char **ptr, QByteArray *host)
 }
 
 // reg-name    = *( unreserved / pct-encoded / sub-delims )
-static bool QT_FASTCALL _regName(char **ptr, QByteArray *host)
+static bool QT_FASTCALL _regName(char **ptr, QByteArray *host, ErrorInfo *errorInfo)
 {
     char pctTmp[4];
     for (;;) {
         char ch;
-        if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch)) {
-            if (!_pctEncoded(ptr, pctTmp))
+        if (!_unreserved(ptr, &ch, errorInfo) && !_subDelims(ptr, &ch, errorInfo)) {
+            if (!_pctEncoded(ptr, pctTmp, errorInfo))
                 break;
             *host += pctTmp;
         } else {
@@ -677,23 +718,23 @@ static bool QT_FASTCALL _regName(char **ptr, QByteArray *host)
 }
 
 // host        = IP-literal / IPv4address / reg-name
-static bool QT_FASTCALL _host(char **ptr, QByteArray *host)
+static bool QT_FASTCALL _host(char **ptr, QByteArray *host, ErrorInfo *errorInfo)
 {
-    return (_IPLiteral(ptr, host) || _IPv4Address(ptr, host) || _regName(ptr, host));
+    return (_IPLiteral(ptr, host, errorInfo) || _IPv4Address(ptr, host, errorInfo) || _regName(ptr, host, errorInfo));
 }
 
 // userinfo    = *( unreserved / pct-encoded / sub-delims / ":" )
-static bool QT_FASTCALL _userInfo(char **ptr, QByteArray *userInfo)
+static bool QT_FASTCALL _userInfo(char **ptr, QByteArray *userInfo, ErrorInfo *errorInfo)
 {
     for (;;) {
         char ch;
-        if (_unreserved(ptr, &ch) || _subDelims(ptr, &ch)) {
+        if (_unreserved(ptr, &ch, errorInfo) || _subDelims(ptr, &ch, errorInfo)) {
             *userInfo += ch;
         } else {
             char pctTmp[4];
-            if (_pctEncoded(ptr, pctTmp)) {
+            if (_pctEncoded(ptr, pctTmp, errorInfo)) {
                 *userInfo += pctTmp;
-            } else if (_char(ptr, ':')) {
+            } else if (_char(ptr, ':', errorInfo)) {
                 *userInfo += ':';
             } else {
                 break;
@@ -730,10 +771,10 @@ static bool QT_FASTCALL _port(char **ptr, int *port)
 }
 
 // authority   = [ userinfo "@" ] host [ ":" port ]
-static bool QT_FASTCALL _authority(char **ptr, QByteArray *userInfo, QByteArray *host, int *port)
+static bool QT_FASTCALL _authority(char **ptr, QByteArray *userInfo, QByteArray *host, int *port, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
-    if (_userInfo(ptr, userInfo)) {
+    if (_userInfo(ptr, userInfo, errorInfo)) {
         if (*((*ptr)++) != '@') {
             *ptr = ptrBackup;
             userInfo->clear();
@@ -741,7 +782,7 @@ static bool QT_FASTCALL _authority(char **ptr, QByteArray *userInfo, QByteArray 
         }
     }
 
-    if (!_host(ptr, host)) {
+    if (!_host(ptr, host, errorInfo)) {
         *ptr = ptrBackup;
         return false;
     }
@@ -761,7 +802,7 @@ static bool QT_FASTCALL _authority(char **ptr, QByteArray *userInfo, QByteArray 
 }
 
 // pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
-static bool QT_FASTCALL _pchar(char **ptr, char pc[])
+static bool QT_FASTCALL _pchar(char **ptr, char pc[], ErrorInfo *errorInfo)
 {
     char c = *(*ptr);
 
@@ -784,18 +825,20 @@ static bool QT_FASTCALL _pchar(char **ptr, char pc[])
         return true;
     }
 
-    if (_pctEncoded(ptr, pc))
+    if (_pctEncoded(ptr, pc, errorInfo))
         return true;
 
+    errorInfo->setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected pchar (unreserved / pct-encoded"
+                         "/ sub-delims / \":\" / \"@\""), '\0', c);
     return false;
 }
 
 // segment       = *pchar
-static bool QT_FASTCALL _segment(char **ptr, QByteArray *segment)
+static bool QT_FASTCALL _segment(char **ptr, QByteArray *segment, ErrorInfo *errorInfo)
 {
     for (;;) {
         char pctTmp[4];
-        if (!_pchar(ptr, pctTmp))
+        if (!_pchar(ptr, pctTmp, errorInfo))
             break;
 
         *segment += pctTmp;
@@ -805,16 +848,16 @@ static bool QT_FASTCALL _segment(char **ptr, QByteArray *segment)
 }
 
 // segment       = *pchar
-static bool QT_FASTCALL _segmentNZ(char **ptr, QByteArray *segment)
+static bool QT_FASTCALL _segmentNZ(char **ptr, QByteArray *segment, ErrorInfo *errorInfo)
 {
     char pctTmp[4];
-    if (!_pchar(ptr, pctTmp))
+    if (!_pchar(ptr, pctTmp, errorInfo))
         return false;
 
     *segment += pctTmp;
 
     for (;;) {
-        if (!_pchar(ptr, pctTmp))
+        if (!_pchar(ptr, pctTmp, errorInfo))
             break;
 
         *segment += pctTmp;
@@ -824,7 +867,7 @@ static bool QT_FASTCALL _segmentNZ(char **ptr, QByteArray *segment)
 }
 
 // path-abempty  = *( "/" segment )
-static bool QT_FASTCALL _pathAbEmpty(char **ptr, QByteArray *path)
+static bool QT_FASTCALL _pathAbEmpty(char **ptr, QByteArray *path, ErrorInfo *errorInfo)
 {
     for (;;) {
         char *ptrBackup = *ptr;
@@ -836,9 +879,9 @@ static bool QT_FASTCALL _pathAbEmpty(char **ptr, QByteArray *path)
         *path += '/';
 
         char pctTmp[4];
-        if (_pchar(ptr, pctTmp)) {
+        if (_pchar(ptr, pctTmp, errorInfo)) {
             *path += pctTmp;
-            while (_pchar(ptr, pctTmp))
+            while (_pchar(ptr, pctTmp, errorInfo))
                 *path += pctTmp;
         }
     }
@@ -847,12 +890,13 @@ static bool QT_FASTCALL _pathAbEmpty(char **ptr, QByteArray *path)
 }
 
 // path-abs      = "/" [ segment-nz *( "/" segment ) ]
-static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path)
+static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path, ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
     char ch = *((*ptr)++);
     if (ch != '/') {
         *ptr = ptrBackup;
+        errorInfo->setParams(*ptr, "", '/', ch);
         return false;
     }
 
@@ -860,7 +904,7 @@ static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path)
 
     // we might be able to unnest this to gain some performance.
     QByteArray tmp;
-    if (!_segmentNZ(ptr, &tmp))
+    if (!_segmentNZ(ptr, &tmp, errorInfo))
         return true;
 
     *path += tmp;
@@ -875,7 +919,7 @@ static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path)
         // we might be able to unnest this to gain some
         // performance.
         QByteArray segment;
-        if (!_segment(ptr, &segment)) {
+        if (!_segment(ptr, &segment, errorInfo)) {
             *ptr = ptrBackup2;
             break;
         }
@@ -888,11 +932,11 @@ static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path)
 }
 
 // path-rootless = segment-nz *( "/" segment )
-static bool QT_FASTCALL _pathRootless(char **ptr, QByteArray *path)
+static bool QT_FASTCALL _pathRootless(char **ptr, QByteArray *path, ErrorInfo *errorInfo)
 {
     // we might be able to unnest this to gain some performance.
     QByteArray segment;
-    if (!_segmentNZ(ptr, &segment))
+    if (!_segmentNZ(ptr, &segment, errorInfo))
         return false;
 
     *path += segment;
@@ -906,7 +950,7 @@ static bool QT_FASTCALL _pathRootless(char **ptr, QByteArray *path)
 
         // we might be able to unnest this to gain some performance.
         QByteArray segment;
-        if (!_segment(ptr, &segment)) {
+        if (!_segment(ptr, &segment, errorInfo)) {
             *ptr = ptrBackup2;
             break;
         }
@@ -919,7 +963,7 @@ static bool QT_FASTCALL _pathRootless(char **ptr, QByteArray *path)
 }
 
 // path-empty    = 0<pchar>
-static bool QT_FASTCALL _pathEmpty(char **, QByteArray *path)
+static bool QT_FASTCALL _pathEmpty(char **, QByteArray *path, ErrorInfo *)
 {
     path->truncate(0);
     return true;
@@ -929,25 +973,27 @@ static bool QT_FASTCALL _pathEmpty(char **, QByteArray *path)
 //             / path-abs
 //             / path-rootless
 //             / path-empty
-static bool QT_FASTCALL _hierPart(char **ptr, QByteArray *userInfo, QByteArray *host, int *port, QByteArray *path)
+static bool QT_FASTCALL _hierPart(char **ptr, QByteArray *userInfo, QByteArray *host, int *port, QByteArray *path,
+                                  ErrorInfo *errorInfo)
 {
     char *ptrBackup = *ptr;
     if (*((*ptr)++) == '/' && *((*ptr)++) == '/') {
-        if (!_authority(ptr, userInfo, host, port)) { *ptr = ptrBackup; return false; }
-        if (!_pathAbEmpty(ptr, path)) { *ptr = ptrBackup; return false; }
+        if (!_authority(ptr, userInfo, host, port, errorInfo)) { *ptr = ptrBackup; return false; }
+        if (!_pathAbEmpty(ptr, path, errorInfo)) { *ptr = ptrBackup; return false; }
         return true;
     } else {
         *ptr = ptrBackup;
-        return (_pathAbs(ptr, path) || _pathRootless(ptr, path) || _pathEmpty(ptr, path));
+        return (_pathAbs(ptr, path, errorInfo) || _pathRootless(ptr, path, errorInfo)
+                || _pathEmpty(ptr, path, errorInfo));
     }
 }
 
 // query       = *( pchar / "/" / "?" )
-static bool QT_FASTCALL _query(char **ptr, QByteArray *query)
+static bool QT_FASTCALL _query(char **ptr, QByteArray *query, ErrorInfo *errorInfo)
 {
     for (;;) {
         char tmp[4];
-        if (_pchar(ptr, tmp)) {
+        if (_pchar(ptr, tmp, errorInfo)) {
             *query += tmp;
         } else {
             char *ptrBackup = *ptr;
@@ -965,11 +1011,11 @@ static bool QT_FASTCALL _query(char **ptr, QByteArray *query)
 }
 
 // fragment    = *( pchar / "/" / "?" )
-static bool QT_FASTCALL _fragment(char **ptr, QByteArray *fragment)
+static bool QT_FASTCALL _fragment(char **ptr, QByteArray *fragment, ErrorInfo *errorInfo)
 {
     for (;;) {
         char tmp[4];
-        if (_pchar(ptr, tmp)) {
+        if (_pchar(ptr, tmp, errorInfo)) {
             *fragment += tmp;
         } else {
             char *ptrBackup = *ptr;
@@ -3226,11 +3272,17 @@ void QUrlPrivate::validate() const
         return;
 
     if (scheme == QLatin1String("mailto")) {
-        if (!host.isEmpty() || port != -1 || !userName.isEmpty() || !password.isEmpty())
+        if (!host.isEmpty() || port != -1 || !userName.isEmpty() || !password.isEmpty()) {
             that->isValid = false;
+            that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "expected empty host, username,"
+                                      "port and password"), '\0', '\0');
+        }
     } else if (scheme == QLatin1String("ftp") || scheme == QLatin1String("http")) {
-        if (host.isEmpty() && !path.isEmpty())
+        if (host.isEmpty() && !path.isEmpty()) {
             that->isValid = false;
+            that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "the host is empty, but not the path"),
+                                      '\0', '\0');
+        }
     }
 }
 
@@ -3239,6 +3291,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     QUrlPrivate *that = (QUrlPrivate *)this;
     if (encodedOriginal.isEmpty()) {
         that->isValid = false;
+        that->errorInfo.setParams(0, QT_TRANSLATE_NOOP(QUrl, "empty"), '\0', '\0');
         QURL_SETFLAG(that->stateFlags, Validated | Parsed);
         return;
     }
@@ -3270,7 +3323,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     }
 
     // hierpart, fails on syntax error
-    if (!_hierPart(ptr, &__userInfo, &__host, &__port, &__path)) {
+    if (!_hierPart(ptr, &__userInfo, &__host, &__port, &__path, &errorInfo)) {
         that->isValid = false;
         QURL_SETFLAG(that->stateFlags, Validated | Parsed);
         return;
@@ -3280,16 +3333,17 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     char ch = *((*ptr)++);
     if (ch == '?') {
         that->hasQuery = true;
-        if (_query(ptr, &__query))
+        if (_query(ptr, &__query, &errorInfo))
             ch = *((*ptr)++);
     }
 
     // optional fragment
     if (ch == '#') {
         that->hasFragment = true;
-        (void) _fragment(ptr, &__fragment);
+        (void) _fragment(ptr, &__fragment, &errorInfo);
     } else if (ch != '\0') {
         that->isValid = false;
+        that->errorInfo.setParams(*ptr, QT_TRANSLATE_NOOP(QUrl, "expected end of URL"), '\0', ch);
         QURL_SETFLAG(that->stateFlags, Validated | Parsed);
 #if defined (QURL_DEBUG)
         qDebug("QUrlPrivate::parse(), unrecognized: %c%s", ch, *ptr);
@@ -3441,6 +3495,35 @@ const QByteArray & QUrlPrivate::normalized()
     encodedNormalized = tmp.toEncoded();
 
     return encodedNormalized;
+}
+
+QString QUrlPrivate::createErrorString()
+{
+    QString original(encodedOriginal);
+    QString errorString(QT_TRANSLATE_NOOP(QUrl, "Invalid URL \""));
+    errorString.append(original);
+    errorString.append(QT_TRANSLATE_NOOP(QUrl, "\""));
+
+    if (errorInfo._source) {
+        QString source = QString::fromLatin1(errorInfo._source);
+        int position = original.indexOf(source) - 1;
+        if (position > 0)
+            errorString.append(QT_TRANSLATE_NOOP(QUrl, ": error at position ")
+                               + QString::number(position));
+        else
+            errorString.append(QT_TRANSLATE_NOOP(QUrl, ": ") + source);
+    }
+
+    if (!errorInfo._expected.isNull())
+        errorString.append(QT_TRANSLATE_NOOP(QUrl, ": expected \'") + QString(errorInfo._expected)
+                           + QT_TRANSLATE_NOOP(QUrl, "\'"));
+    else
+        errorString.append(QT_TRANSLATE_NOOP(QUrl, ": ") + errorInfo._message);
+    if (!errorInfo._found.isNull())
+        errorString.append(QT_TRANSLATE_NOOP(QUrl, ", but found \'") + QString(errorInfo._found)
+                           + QT_TRANSLATE_NOOP(QUrl, "\'"));
+
+    return errorString;
 }
 
 /*!
@@ -5287,3 +5370,8 @@ QDebug operator<<(QDebug d, const QUrl &url)
     return d.space();
 }
 #endif
+
+QString QUrl::errorString() const
+{
+    return d->createErrorString();
+}
