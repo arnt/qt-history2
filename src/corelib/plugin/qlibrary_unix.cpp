@@ -27,7 +27,6 @@
 #if defined(QT_AOUT_UNDERSCORE)
 #include <string.h>
 #endif
-//#define QT_DEBUG_COMPONENT
 
 #if defined(QT_HPUX_LD) // for HP-UX < 11.x and 32 bit
 
@@ -45,9 +44,6 @@ bool QLibraryPrivate::load_sys()
     }
     if (!pHnd) {
         errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString());
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
-#endif
     } else {
         errorString.clear();
     }
@@ -58,9 +54,6 @@ bool QLibraryPrivate::unload_sys()
 {
     if (shl_unload((shl_t)pHnd)) {
         errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString());
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
-#endif
         return false;
     }
     errorString.clear();
@@ -73,9 +66,6 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
     if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0) {
         errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
             QString::fromAscii(symbol)).arg(fileName).arg(QString());
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Symbol \"%s\" undefined in %s", symbol, QFile::encodeName(fileName).constData());
-#endif
         address = 0;
     } else {
         errorString.clear();
@@ -162,10 +152,6 @@ bool QLibraryPrivate::load_sys()
 # endif
     if (!pHnd) {
         errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Cannot load %s: %s", QFile::encodeName(fileName).constData(),
-                 qdlerror());
-#endif
     }
     if (pHnd) {
         qualifiedFileName = attempt;
@@ -178,10 +164,6 @@ bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
         errorString = QLibrary::tr("QLibrary::unload_sys: Cannot unload %1 (%2)").arg(fileName).arg(QString::fromAscii(qdlerror()));
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
-                 qdlerror());
-#endif
         return false;
     }
     errorString.clear();
@@ -210,9 +192,6 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
     if (!address) {
         errorString = QLibrary::tr("QLibrary::resolve_sys: Symbol \"%1\" undefined in %2 (%3)").arg(
             QString::fromAscii(symbol)).arg(fileName).arg(QString::fromAscii(qdlerror()));
-#if defined(QT_DEBUG_COMPONENT)
-        qWarning("QLibrary: Undefined symbol \"%s\" in %s", symbol, QFile::encodeName(fileName).constData());
-#endif
     } else {
         errorString.clear();
     }
