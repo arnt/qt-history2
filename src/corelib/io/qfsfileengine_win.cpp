@@ -479,6 +479,7 @@ bool QFSFileEngine::rename(const QString &newName)
 qint64 QFSFileEngine::size() const
 {
     Q_D(const QFSFileEngine);
+    const_cast<QFSFileEngine *>(this)->flush();
     if(d->fd != -1) {
         HANDLE fh = (HANDLE)_get_osfhandle(d->fd);
         if (fh != INVALID_HANDLE_VALUE) {
