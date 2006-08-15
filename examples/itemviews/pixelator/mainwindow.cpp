@@ -37,7 +37,7 @@ MainWindow::MainWindow()
 
     QLabel *pixelSizeLabel = new QLabel(tr("Pixel size:"));
     QSpinBox *pixelSizeSpinBox = new QSpinBox;
-    pixelSizeSpinBox->setMinimum(1);
+    pixelSizeSpinBox->setMinimum(4);
     pixelSizeSpinBox->setMaximum(32);
     pixelSizeSpinBox->setValue(12);
 

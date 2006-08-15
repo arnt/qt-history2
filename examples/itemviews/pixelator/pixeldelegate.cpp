@@ -26,6 +26,7 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 {
     if (option.state & QStyle::State_Selected)
         painter->fillRect(option.rect, option.palette.highlight());
+
     int size = qMin(option.rect.width(), option.rect.height());
     int brightness = index.model()->data(index, Qt::DisplayRole).toInt();
     double radius = (size/2.0) - (brightness/255.0 * size/2.0);
@@ -39,9 +40,10 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         painter->setBrush(option.palette.highlightedText());
     else
         painter->setBrush(QBrush(Qt::black));
+
     painter->drawEllipse(QRectF(option.rect.x() + option.rect.width()/2 - radius,
-                            option.rect.y() + option.rect.height()/2 - radius,
-                            2*radius, 2*radius));
+                                option.rect.y() + option.rect.height()/2 - radius,
+                                2*radius, 2*radius));
     painter->restore();
 }
 
