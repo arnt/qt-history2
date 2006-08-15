@@ -210,7 +210,8 @@ bool QVFbScreen::connect(const QString &displaySpec)
         physHeight = qRound(dh * 25.4 / dpi);
     }
 
-    qDebug("Connected to VFB server: %d x %d x %d", w, h, d);
+    qDebug("Connected to VFB server %s: %d x %d x %d %dx%dmm (%dx%ddpi)", displaySpec.toLatin1().data(),
+        w, h, d, physWidth, physHeight, int(dw*25.4/physWidth), int(dh*25.4/physHeight) );
 
     size = lstep * h;
     mapsize = size;
