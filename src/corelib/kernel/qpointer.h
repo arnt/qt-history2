@@ -97,12 +97,12 @@ inline bool operator!= (const QPointer<T> &p1, const QPointer<T> &p2)
 // Make MSVC < 1400 (2005) handle "if (NULL == p)" syntax
 #if defined(Q_CC_MSVC) && (_MSC_VER < 1400)
 template<class T>
-inline bool operator== (void *o, const QPointer<T> &p)
-{ return o == p.operator->(); }
+inline bool operator== (int i, const QPointer<T> &p)
+{ Q_ASSERT(i == 0); return !i && p.isNull(); }
 
 template<class T>
-inline bool operator!= (void *o, const QPointer<T> &p)
-{ return o != p.operator->(); }
+inline bool operator!= (int i, const QPointer<T> &p)
+{ Q_ASSERT(i == 0); return !i && !p.isNull(); }
 #endif
 
 QT_END_HEADER
