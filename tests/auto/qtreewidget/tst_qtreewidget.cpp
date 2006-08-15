@@ -15,6 +15,7 @@
 #include <qdebug.h>
 #include <qheaderview.h>
 #include <qlineedit.h>
+#include <QScrollBar>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/itemviews/qtreewidget.h gui/itemviews/qtreewidget.cpp
@@ -1308,17 +1309,18 @@ void tst_QTreeWidget::keyboardNavigation()
     fillTreeWidget(testWidget, rows);
 
     QVector<Qt::Key> keymoves;
-    keymoves << Qt::Key_Down << Qt::Key_Right << Qt::Key_Right << Qt::Key_Left
+    keymoves << Qt::Key_Down << Qt::Key_Right << Qt::Key_Left
 	     << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down << Qt::Key_Down
-	     << Qt::Key_Right << Qt::Key_Right << Qt::Key_Right
-	     << Qt::Key_Left << Qt::Key_Up << Qt::Key_Left << Qt::Key_Left
+	     << Qt::Key_Right
+	     << Qt::Key_Up << Qt::Key_Left << Qt::Key_Left
 	     << Qt::Key_Up << Qt::Key_Down << Qt::Key_Up << Qt::Key_Up
 	     << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up
              << Qt::Key_Down << Qt::Key_Right << Qt::Key_Down << Qt::Key_Down
              << Qt::Key_Down << Qt::Key_Right << Qt::Key_Down << Qt::Key_Down
 	     << Qt::Key_Left << Qt::Key_Left << Qt::Key_Up << Qt::Key_Down
              << Qt::Key_Up << Qt::Key_Up << Qt::Key_Up << Qt::Key_Left
-             << Qt::Key_Down;
+             << Qt::Key_Down << Qt::Key_Right << Qt::Key_Right << Qt::Key_Right
+             << Qt::Key_Left << Qt::Key_Left << Qt::Key_Right << Qt::Key_Left;
 
     int row    = 0;
     QTreeWidgetItem *item = testWidget->topLevelItem(0);
@@ -1326,8 +1328,15 @@ void tst_QTreeWidget::keyboardNavigation()
     QCOMPARE(testWidget->currentItem(), item);
     QApplication::instance()->processEvents();
 
+    QScrollBar *scrollBar = testWidget->horizontalScrollBar();
+    bool checkScroll = false;
     for (int i = 0; i < keymoves.size(); ++i) {
         Qt::Key key = keymoves.at(i);
+        int valueBeforeClick = scrollBar->value();
+        if (valueBeforeClick >= scrollBar->singleStep())
+            checkScroll = true;
+        else
+            checkScroll = false;
         QTest::keyClick(testWidget, key);
         QApplication::instance()->processEvents();
 
@@ -1357,10 +1366,17 @@ void tst_QTreeWidget::keyboardNavigation()
             }
             break;
         case Qt::Key_Left:
-	    QVERIFY(!testWidget->isItemExpanded(item));
+            if (checkScroll) {
+                QVERIFY(testWidget->isItemExpanded(item));
+                QCOMPARE(scrollBar->value(), valueBeforeClick - scrollBar->singleStep());
+            } else {
+                QVERIFY(!testWidget->isItemExpanded(item));
+            }
             break;
         case Qt::Key_Right:
-	    QVERIFY(testWidget->isItemExpanded(item));
+            if (checkScroll)
+                QCOMPARE(scrollBar->value(), valueBeforeClick + scrollBar->singleStep());
+            QVERIFY(testWidget->isItemExpanded(item));
 	    break;
         default:
             QVERIFY(false);
