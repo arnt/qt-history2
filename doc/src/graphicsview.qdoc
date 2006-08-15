@@ -454,7 +454,7 @@
         See also the \l{Drag and Drop Robot Example}{Drag and Drop Robot}
         example for an illustration of timeline-based animation techniques.
 
-      \section2 OpenGL
+      \section2 OpenGL Rendering
 
         To enable OpenGL rendering, you simply set a new QGLWidget as the
         viewport of QGraphicsView by calling QGraphicsView::setViewport(). If
