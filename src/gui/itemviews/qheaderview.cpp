@@ -1402,12 +1402,12 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = visualIndices.at(l);
             for (int v = 0; v < sectionCount; ++v) {
-                if (logicalIndex(v) > l) // no need to move the positions before l
-                    --(logicalIndices[v]);
                 if (v > visual) {
                     int logical = logicalIndex(v);
                     --(visualIndices[logical]);
                 }
+                if (logicalIndex(v) > l) // no need to move the positions before l
+                    --(logicalIndices[v]);
             }
             hiddenSectionSize.remove(l);
             logicalIndices.remove(visual);
