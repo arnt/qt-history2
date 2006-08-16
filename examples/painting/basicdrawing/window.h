@@ -42,6 +42,7 @@ private:
     QLabel *penCapLabel;
     QLabel *penJoinLabel;
     QLabel *brushStyleLabel;
+    QLabel *otherOptionsLabel;
     QComboBox *shapeComboBox;
     QSpinBox *penWidthSpinBox;
     QComboBox *penStyleComboBox;
@@ -50,6 +51,7 @@ private:
     QComboBox *brushStyleComboBox;
     QCheckBox *antialiasingCheckBox;
     QCheckBox *transformationsCheckBox;
+    QCheckBox *stretchToDeviceCheckBox;
 };
 
 #endif

@@ -20,9 +20,11 @@ RenderArea::RenderArea(QWidget *parent)
 {
     shape = Polygon;
     antialiased = false;
+    transformed = false;
     pixmap.load(":/images/qt-logo.png");
 
     setBackgroundRole(QPalette::Base);
+    setAutoFillBackground(true);
 }
 
 QSize RenderArea::minimumSizeHint() const
@@ -65,7 +67,7 @@ void RenderArea::setTransformed(bool transformed)
     update();
 }
 
-void RenderArea::paintEvent(QPaintEvent *)
+void RenderArea::paintEvent(QPaintEvent * /* event */)
 {
     static const QPoint points[4] = {
         QPoint(10, 80),
@@ -87,8 +89,10 @@ void RenderArea::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setPen(pen);
     painter.setBrush(brush);
-    if (antialiased)
-        painter.setRenderHint(QPainter::Antialiasing);
+    if (antialiased) {
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.translate(+0.5, +0.5);
+    }
 
     for (int x = 0; x < width(); x += 100) {
         for (int y = 0; y < height(); y += 100) {
@@ -144,4 +148,8 @@ void RenderArea::paintEvent(QPaintEvent *)
             painter.restore();
         }
     }
+
+    painter.setPen(palette().dark().color());
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 }

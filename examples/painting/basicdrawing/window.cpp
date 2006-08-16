@@ -23,12 +23,12 @@ Window::Window()
     renderArea = new RenderArea;
 
     shapeComboBox = new QComboBox;
+    shapeComboBox->addItem(tr("Polygon"), RenderArea::Polygon);
     shapeComboBox->addItem(tr("Rectangle"), RenderArea::Rect);
     shapeComboBox->addItem(tr("Round Rectangle"), RenderArea::RoundRect);
     shapeComboBox->addItem(tr("Ellipse"), RenderArea::Ellipse);
     shapeComboBox->addItem(tr("Pie"), RenderArea::Pie);
     shapeComboBox->addItem(tr("Chord"), RenderArea::Chord);
-    shapeComboBox->addItem(tr("Polygon"), RenderArea::Polygon);
     shapeComboBox->addItem(tr("Path"), RenderArea::Path);
     shapeComboBox->addItem(tr("Line"), RenderArea::Line);
     shapeComboBox->addItem(tr("Polyline"), RenderArea::Polyline);
@@ -42,6 +42,7 @@ Window::Window()
 
     penWidthSpinBox = new QSpinBox;
     penWidthSpinBox->setRange(0, 20);
+    penWidthSpinBox->setSpecialValueText(tr("0 (cosmetic pen)"));
 
     penWidthLabel = new QLabel(tr("Pen &Width:"));
     penWidthLabel->setBuddy(penWidthSpinBox);
@@ -100,8 +101,10 @@ Window::Window()
     brushStyleLabel = new QLabel(tr("&Brush Style:"));
     brushStyleLabel->setBuddy(brushStyleComboBox);
 
+    otherOptionsLabel = new QLabel(tr("Other Options:"));
     antialiasingCheckBox = new QCheckBox(tr("&Antialiasing"));
     transformationsCheckBox = new QCheckBox(tr("&Transformations"));
+    stretchToDeviceCheckBox = new QCheckBox(tr("Stretch to &Device"));
 
     connect(shapeComboBox, SIGNAL(activated(int)),
             this, SLOT(shapeChanged()));
@@ -119,79 +122,89 @@ Window::Window()
             renderArea, SLOT(setAntialiased(bool)));
     connect(transformationsCheckBox, SIGNAL(toggled(bool)),
             renderArea, SLOT(setTransformed(bool)));
-
-    QHBoxLayout *checkBoxLayout = new QHBoxLayout;
-    checkBoxLayout->addWidget(antialiasingCheckBox);
-    checkBoxLayout->addWidget(transformationsCheckBox);
+    connect(stretchToDeviceCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(brushChanged()));
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->addWidget(renderArea, 0, 0, 1, 2);
-    mainLayout->addWidget(shapeLabel, 1, 0);
-    mainLayout->addWidget(shapeComboBox, 1, 1);
-    mainLayout->addWidget(penWidthLabel, 2, 0);
-    mainLayout->addWidget(penWidthSpinBox, 2, 1);
-    mainLayout->addWidget(penStyleLabel, 3, 0);
-    mainLayout->addWidget(penStyleComboBox, 3, 1);
-    mainLayout->addWidget(penCapLabel, 4, 0);
-    mainLayout->addWidget(penCapComboBox, 4, 1);
-    mainLayout->addWidget(penJoinLabel, 5, 0);
-    mainLayout->addWidget(penJoinComboBox, 5, 1);
-    mainLayout->addWidget(brushStyleLabel, 6, 0);
-    mainLayout->addWidget(brushStyleComboBox, 6, 1);
-    mainLayout->addLayout(checkBoxLayout, 7, 0, 1, 2);
+    mainLayout->setColumnStretch(0, 1);
+    mainLayout->setColumnStretch(3, 1);
+    mainLayout->addWidget(renderArea, 0, 0, 1, 4);
+    mainLayout->setRowMinimumHeight(1, 6);
+    mainLayout->addWidget(shapeLabel, 2, 1, Qt::AlignRight);
+    mainLayout->addWidget(shapeComboBox, 2, 2);
+    mainLayout->addWidget(penWidthLabel, 3, 1, Qt::AlignRight);
+    mainLayout->addWidget(penWidthSpinBox, 3, 2);
+    mainLayout->addWidget(penStyleLabel, 4, 1, Qt::AlignRight);
+    mainLayout->addWidget(penStyleComboBox, 4, 2);
+    mainLayout->addWidget(penCapLabel, 5, 1, Qt::AlignRight);
+    mainLayout->addWidget(penCapComboBox, 5, 2);
+    mainLayout->addWidget(penJoinLabel, 6, 1, Qt::AlignRight);
+    mainLayout->addWidget(penJoinComboBox, 6, 2);
+    mainLayout->addWidget(brushStyleLabel, 7, 1, Qt::AlignRight);
+    mainLayout->addWidget(brushStyleComboBox, 7, 2);
+    mainLayout->setRowMinimumHeight(8, 6);
+    mainLayout->addWidget(otherOptionsLabel, 9, 1, Qt::AlignRight);
+    mainLayout->addWidget(antialiasingCheckBox, 9, 2);
+    mainLayout->addWidget(transformationsCheckBox, 10, 2);
+    mainLayout->addWidget(stretchToDeviceCheckBox, 11, 2);
     setLayout(mainLayout);
 
     shapeChanged();
     penChanged();
     brushChanged();
-    renderArea->setAntialiased(false);
-    renderArea->setTransformed(false);
+    antialiasingCheckBox->setChecked(true);
 
     setWindowTitle(tr("Basic Drawing"));
 }
 
 void Window::shapeChanged()
 {
-    RenderArea::Shape shape =
-        (RenderArea::Shape)shapeComboBox->itemData(shapeComboBox->currentIndex(), IdRole).toInt();
+    RenderArea::Shape shape = RenderArea::Shape(shapeComboBox->itemData(
+            shapeComboBox->currentIndex(), IdRole).toInt());
     renderArea->setShape(shape);
 }
 
 void Window::penChanged()
 {
     int width = penWidthSpinBox->value();
-    Qt::PenStyle style =
-        (Qt::PenStyle)penStyleComboBox->itemData(penStyleComboBox->currentIndex(), IdRole).toInt();
-    Qt::PenCapStyle cap =
-        (Qt::PenCapStyle)penCapComboBox->itemData(penCapComboBox->currentIndex(), IdRole).toInt();
-    Qt::PenJoinStyle join =
-        (Qt::PenJoinStyle)penJoinComboBox->itemData(penJoinComboBox->currentIndex(), IdRole).toInt();
+    Qt::PenStyle style = Qt::PenStyle(penStyleComboBox->itemData(
+            penStyleComboBox->currentIndex(), IdRole).toInt());
+    Qt::PenCapStyle cap = Qt::PenCapStyle(penCapComboBox->itemData(
+            penCapComboBox->currentIndex(), IdRole).toInt());
+    Qt::PenJoinStyle join = Qt::PenJoinStyle(penJoinComboBox->itemData(
+            penJoinComboBox->currentIndex(), IdRole).toInt());
 
     renderArea->setPen(QPen(Qt::blue, width, style, cap, join));
 }
 
 void Window::brushChanged()
 {
-    Qt::BrushStyle style =
-        (Qt::BrushStyle)brushStyleComboBox->itemData(brushStyleComboBox->currentIndex(), IdRole).toInt();
+    Qt::BrushStyle style = Qt::BrushStyle(brushStyleComboBox->itemData(
+            brushStyleComboBox->currentIndex(), IdRole).toInt());
 
     if (style == Qt::LinearGradientPattern) {
         QLinearGradient linearGradient(0, 0, 100, 100);
         linearGradient.setColorAt(0.0, Qt::white);
         linearGradient.setColorAt(0.2, Qt::green);
         linearGradient.setColorAt(1.0, Qt::black);
+        if (stretchToDeviceCheckBox->isChecked())
+            linearGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(linearGradient);
     } else if (style == Qt::RadialGradientPattern) {
         QRadialGradient radialGradient(50, 50, 50, 70, 70);
         radialGradient.setColorAt(0.0, Qt::white);
         radialGradient.setColorAt(0.2, Qt::green);
         radialGradient.setColorAt(1.0, Qt::black);
+        if (stretchToDeviceCheckBox->isChecked())
+            radialGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(radialGradient);
     } else if (style == Qt::ConicalGradientPattern) {
         QConicalGradient conicalGradient(50, 50, 150);
         conicalGradient.setColorAt(0.0, Qt::white);
         conicalGradient.setColorAt(0.2, Qt::green);
         conicalGradient.setColorAt(1.0, Qt::black);
+        if (stretchToDeviceCheckBox->isChecked())
+            conicalGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(conicalGradient);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
