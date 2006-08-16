@@ -1085,7 +1085,7 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
             selected = !d->currentSelection.contains(index);
         else if (d->currentCommand & Toggle)
             selected ^= d->currentSelection.contains(index);
-        else if (d->currentCommand & Select && !selected)
+        else if ((d->currentCommand & Select) && !selected)
             selected = d->currentSelection.contains(index);
     }
 
@@ -1273,7 +1273,7 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 /*!
   \since 4.2
   Returns the indexes in the given \a column for the rows where all columns are selected.
-  
+
   \sa selectedIndexes(), selectedColumns()
 */
 
