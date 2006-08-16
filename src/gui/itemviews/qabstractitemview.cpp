@@ -1145,7 +1145,7 @@ Qt::TextElideMode QAbstractItemView::textElideMode() const
 bool QAbstractItemView::focusNextPrevChild(bool next)
 {
     Q_D(QAbstractItemView);
-    if (d->tabKeyNavigation) {
+    if (d->tabKeyNavigation && (state() != EditingState)) {
         QKeyEvent event(QEvent::KeyPress, next ? Qt::Key_Tab : Qt::Key_Backtab, Qt::NoModifier);
         keyPressEvent(&event);
         return true;
@@ -1454,43 +1454,55 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 {
     Q_D(QAbstractItemView);
-
     if (dragDropMode() == InternalMove
         && (event->source() != this || !(event->possibleActions() & Qt::MoveAction)))
         return;
 
-    // the ignore by default
+    // ignore by default
     event->ignore();
 
     QModelIndex index = indexAt(event->pos());
-    if (!(event->source() == this && selectedIndexes().contains(index)) && d->canDecode(event)) {
+    if (!(event->source() == this && selectedIndexes().contains(index))
+        && d->canDecode(event)) {
         if (index.isValid() && d->showDropIndicator) {
             QRect rect = visualRect(index);
             d->dropIndicatorPosition = d->position(event->pos(), rect);
             switch (d->dropIndicatorPosition) {
             case AboveItem:
-                d->dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0);
-                event->accept();
+                if (d->model->flags(index.parent()) & Qt::ItemIsDropEnabled) {
+                    d->dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0);
+                    event->accept();
+                } else {
+                    d->dropIndicatorRect = QRect();
+                }
                 break;
             case BelowItem:
-                d->dropIndicatorRect = QRect(rect.left(), rect.bottom(), rect.width(), 0);
-                event->accept();
+                if (d->model->flags(index.parent()) & Qt::ItemIsDropEnabled) {
+                    d->dropIndicatorRect = QRect(rect.left(), rect.bottom(), rect.width(), 0);
+                    event->accept();
+                } else {
+                    d->dropIndicatorRect = QRect();
+                }
                 break;
             case OnItem:
                 if (d->model->flags(index) & Qt::ItemIsDropEnabled) {
                     d->dropIndicatorRect = rect;
                     event->accept();
+                } else {
+                    d->dropIndicatorRect = QRect();
                 }
                 break;
             case OnViewport:
+                d->dropIndicatorRect = QRect();
                 break;
             }
-            d->viewport->update();
         } else {
             d->dropIndicatorRect = QRect();
-            d->dropIndicatorPosition = QAbstractItemView::OnViewport;
-            event->accept(); // allow dropping in empty areas
+            d->dropIndicatorPosition = OnViewport;
+            if (d->model->flags(rootIndex()) & Qt::ItemIsDropEnabled)
+                event->accept(); // allow dropping in empty areas
         }
+        d->viewport->update();
     } // can decode
 
     if (d->shouldAutoScroll(event->pos()))
