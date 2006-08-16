@@ -237,8 +237,8 @@
     \brief whether auto resize is enabled
     \obsolete
 
-  If this property is set to true then the combobox will resize itself
-  whenever its contents change. The default is false.
+    If this property is set to true then the combobox will resize
+    itself whenever its contents change. The default is false.
 */
 
 /*!
@@ -1067,12 +1067,6 @@ void Q3ComboBox::setCurrentItem( int index )
     currentChanged();
 }
 
-/*!
-    \property Q3ComboBox::autoResize
-
-    If this property is set to true, the combobox will resize itself
-    whenever its contents change. The default is false.
-*/
 bool Q3ComboBox::autoResize() const
 {
     return d->autoresize;

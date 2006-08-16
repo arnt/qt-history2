@@ -165,7 +165,7 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 }
 
 /*!
-    \fn bool QPersistentModelIndex::operator\!=(const QPersistentModelIndex &other) const
+    \fn bool QPersistentModelIndex::operator!=(const QPersistentModelIndex &other) const
     \since 4.2
 
     Returns true if this persistent model index is not equal to the \a

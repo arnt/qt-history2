@@ -1864,7 +1864,7 @@ QPixmap QMessageBox::standardIcon(Icon icon)
 
 /*!
     \typedef QMessageBox::Button
-    \obsloete
+    \obsolete
 
     Use QMessageBox::StandardButton instead.
 */
