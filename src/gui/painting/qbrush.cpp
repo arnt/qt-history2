@@ -755,18 +755,17 @@ bool QBrush::isOpaque() const
 
 
 /*!
-    \fn void QBrush::setMatrix(const QMatrix &matrix)
     \since 4.2
 
-    Sets an explicit transformation matrix on the current brush.
-    The brush transformation matrix is merged with QPainter
-    transformation matrix to produce the final result.
+    Sets \a matrix as an explicit transformation matrix on the
+    current brush. The brush transformation matrix is merged with
+    QPainter transformation matrix to produce the final result.
 
     \sa matrix()
 */
-void QBrush::setMatrix(const QMatrix &mat)
+void QBrush::setMatrix(const QMatrix &matrix)
 {
-    d->transform = mat;
+    d->transform = matrix;
 }
 
 
@@ -1181,13 +1180,23 @@ QGradientStops QGradient::stops() const
     return m_stops;
 }
 
-
 /*!
-    Returns the coordinate mode of this gradient.
+    \enum QGradient::CoordinateMode
+    \internal
 
-    \sa setCoordinateMode(), CoordinateMode
+    This enum specifies how gradient coordinates map to the paint
+    device on which the gradient is used.
+
+    \value LogicalMode
+    \value StretchToDeviceMode 
 */
 
+/*!
+    \internal
+
+    Returns the coordinate mode of this gradient. The default mode is
+    LogicalMode.
+*/
 QGradient::CoordinateMode QGradient::coordinateMode() const
 {
     if (dummy == 0)
@@ -1197,11 +1206,12 @@ QGradient::CoordinateMode QGradient::coordinateMode() const
 }
 
 /*!
-    Sets the coordinate mode of this gradient to mode
+    \internal
 
-    \sa coordinateMode(), CoordinateMode
+    Sets the coordinate mode of this gradient to \a mode. The default
+    mode is LogicalMode.
 */
-void QGradient::setCoordinateMode(QGradient::CoordinateMode mode)
+void QGradient::setCoordinateMode(CoordinateMode mode)
 {
     if (mode == LogicalMode)
         dummy = 0;
@@ -1210,9 +1220,20 @@ void QGradient::setCoordinateMode(QGradient::CoordinateMode mode)
 }
 
 
+/*!
+    \fn bool QGradient::operator!=(const QGradient &gradient) const
+
+    Returns true if the gradient is the same as the other \a gradient
+    specified; otherwise returns false.
+
+    \sa operator==()
+*/
 
 /*!
-    \internal
+    Returns true if the gradient is the same as the other \a gradient
+    specified; otherwise returns false.
+
+    \sa operator!=()
 */
 bool QGradient::operator==(const QGradient &gradient) const
 {
@@ -1244,14 +1265,12 @@ bool QGradient::operator==(const QGradient &gradient) const
 }
 
 /*!
-    Returns true if the gradient is the same as the other \a gradient
-    specified; otherwise returns false.
+    \internal
 */
 bool QGradient::operator==(const QGradient &gradient)
 {
     return const_cast<const QGradient *>(this)->operator==(gradient);
 }
-
 
 /*!
     \class QLinearGradient
@@ -1765,7 +1784,8 @@ QConicalGradient::QConicalGradient()
 
 
 /*!
-    Returns the center of the conical gradient in logical coordinates
+    Returns the center of the conical gradient in logical
+    coordinates.
 
     \sa stops()
 */
@@ -1803,7 +1823,8 @@ void QConicalGradient::setCenter(const QPointF &center)
 }
 
 /*!
-    Returns the start angle of the conical gradient in logical coordinates
+    Returns the start angle of the conical gradient in logical
+    coordinates.
 
     \sa stops()
 */
@@ -1816,8 +1837,8 @@ qreal QConicalGradient::angle() const
 
 
 /*!
-    Sets the start angle for this conical gradient in logical
-    coordinates
+    Sets \a angle to be the start angle for this conical gradient in
+    logical coordinates.
 
     \sa angle()
 */
