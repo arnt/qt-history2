@@ -37,7 +37,15 @@ static pthread_key_t current_thread_data_key;
 
 static void destroy_current_thread_data(void *p)
 {
+    // POSIX says the value in our key is set to zero before calling
+    // this destructor function, so we need to set it back to the
+    // right value...
+    pthread_setspecific(current_thread_data_key, p);
     reinterpret_cast<QThreadData *>(p)->deref();
+    // ... but we must reset it to zero before returning so we aren't
+    // called again (POSIX allows implementations to call destructor
+    // functions repeatedly until all values are zero)
+    pthread_setspecific(current_thread_data_key, 0);
 }
 
 static void create_current_thread_data_key()
@@ -53,10 +61,8 @@ QThreadData *QThreadData::current()
         data = new QThreadData;
         pthread_setspecific(current_thread_data_key, data);
         data->thread = new QAdoptedThread(data);
-        
-        const bool isMainThread = q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
-        if (!isMainThread)
-            data->thread->moveToThread(QCoreApplicationPrivate::theMainThread);
+        data->deref();
+        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
     }
     return data;
 }
