@@ -2220,16 +2220,10 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     }
 
     // search from start with wraparound
-    QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
-    QModelIndexList match;
-    match = d->model->match(start, Qt::DisplayRole, searchString);
-    if (!match.isEmpty() && match.at(0).isValid()) {
-        d->selectionModel->setCurrentIndex(match.at(0),
-            (d->selectionMode == SingleSelection
-             ? QItemSelectionModel::SelectionFlags(QItemSelectionModel::ClearAndSelect
-                                                   | d->selectionBehaviorFlags())
-             : QItemSelectionModel::SelectionFlags(QItemSelectionModel::NoUpdate)));
-    }
+    const QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
+    const QModelIndexList match = d->model->match(start, Qt::DisplayRole, searchString);
+    if (match.value(0).isValid())
+        setCurrentIndex(match.first());
 }
 
 /*!
