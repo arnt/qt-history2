@@ -155,7 +155,7 @@ struct QStyleSheetGeometryData
 
 struct QStyleSheetPositionData
 {
-    QStyleSheetPositionData(int l, int r, int t, int b) 
+    QStyleSheetPositionData(int l, int t, int r, int b) 
         : left(l), right(r), top(t), bottom(b) { }
 
     int left, right, top, bottom;
@@ -325,7 +325,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     fixupBorder();
 }
 
-QRect QRenderRule::positionRect(const QRect& subRect) const
+QRect QRenderRule::positionRect(const QRect &subRect) const
 {
     if (!hasPosition())
         return subRect;
@@ -1445,10 +1445,11 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
     case CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (rule.hasDrawable()
+            QStyleOptionButton btnOpt(*btn);
+            btnOpt.rect = rule.borderRect(opt->rect);
+            if (rule.hasBox() || rule.hasDrawable()
                 || ((btn->features & QStyleOptionButton::HasMenu) && hasStyleRule(w, MenuIndicator))) {
-                QStyleOptionButton btnOpt(*btn);
-                if (rule.hasDrawable()) {
+                if (rule.hasBox() || rule.hasDrawable()) {
                     rule.drawFrame(p, opt->rect, opt->direction);
                 } else {
                     btnOpt.features &= ~QStyleOptionButton::HasMenu;
@@ -1457,21 +1458,21 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 
                 if (btn->features & QStyleOptionButton::HasMenu) {
                     QRenderRule subRule = renderRule(w, opt, MenuIndicator);
-                    QRect r = rule.paddingRect(opt->rect);
-                    if (!subRule.isEmpty()) {
-                        r.setLeft(r.left() + r.width() - subRule.image.width());
-                        r.setTop(r.top() + r.height() - subRule.image.height());
-                        r = subRule.positionRect(r);
-                        subRule.drawRule(p, visualRect(opt->direction, opt->rect, r), opt->direction);
+                    QRect ir = btnOpt.rect;
+                    if (subRule.hasImage()) {
+                        QSize sz = subRule.contentsSize();
+                        ir.setLeft(ir.left() + ir.width() - sz.width());
+                        ir.setTop(ir.top() + ir.height() - sz.height());
+                        ir = subRule.positionRect(ir);
+                        subRule.drawImage(p, ir);
                     } else {
-                        int mbi = baseStyle()->pixelMetric(PM_MenuButtonIndicator, btn, w);
-                        QRect ir = btnOpt.rect;
+                        int mbi = pixelMetric(PM_MenuButtonIndicator, btn, w);
                         btnOpt.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
                         baseStyle()->drawPrimitive(PE_IndicatorArrowDown, &btnOpt, p, w);
                     }
                 }
             } else {
-                baseStyle()->drawControl(ce, opt, p, w);
+                baseStyle()->drawControl(ce, &btnOpt, p, w);
             }
         }
         return;
@@ -1674,12 +1675,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     switch (pe) {
     case PE_PanelButtonCommand:
-        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (!rule.hasBorder()) {
-                baseStyle()->drawPrimitive(pe, opt, p, w);
-            } else {
-                rule.drawBorder(p, opt->rect, opt->direction);
-            }
+        if (!rule.hasBorder()) {
+            baseStyle()->drawPrimitive(pe, opt, p, w);
+        } else {
+            rule.drawBorder(p, opt->rect, opt->direction);
         }
         return;
 
