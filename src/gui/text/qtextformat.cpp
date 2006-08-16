@@ -1447,10 +1447,10 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A document is composed of a list of blocks. Each block can contain an item
-    of some kind, such as a paragraph of text, a table, a list, or an image.
-    Every block has an associated QTextBlockFormat that specifies its
-    characteristics.
+    A document is composed of a list of blocks, represented by QTextBlock
+    objects. Each block can contain an item of some kind, such as a
+    paragraph of text, a table, a list, or an image. Every block has an
+    associated QTextBlockFormat that specifies its characteristics.
 
     To cater for left-to-right and right-to-left languages you can set
     a block's direction with setDirection(). Paragraph alignment is
@@ -1471,7 +1471,7 @@ QFont QTextCharFormat::font() const
     If a text block is part of a list, it can also have a list format that
     is accessible with the listFormat() function.
 
-    \sa QTextCharFormat
+    \sa QTextBlock, QTextCharFormat
 */
 
 /*!
