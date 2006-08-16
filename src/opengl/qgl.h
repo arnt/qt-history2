@@ -163,7 +163,7 @@ public:
         OpenGL_ES_CommonLite_Version_1_0  = 0x00000100,
         OpenGL_ES_Common_Version_1_1      = 0x00000200,
         OpenGL_ES_CommonLite_Version_1_1  = 0x00000400,
-        OpenGL_ES_Version_2_0             = 0x00000800,
+        OpenGL_ES_Version_2_0             = 0x00000800
     };
     Q_DECLARE_FLAGS(OpenGLVersionFlags, OpenGLVersionFlag)
 
