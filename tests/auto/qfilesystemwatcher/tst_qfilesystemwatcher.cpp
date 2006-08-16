@@ -21,6 +21,9 @@ private slots:
 
     void watchDirectory_data() { basicTest_data(); }
     void watchDirectory();
+
+    void addPath();
+    void removePath();
 };
 
 tst_QFileSystemWatcher::tst_QFileSystemWatcher()
@@ -251,6 +254,28 @@ void tst_QFileSystemWatcher::watchDirectory()
     QCOMPARE(changedSpy.count(), 0);
 
     QVERIFY(QDir().rmdir("testDir"));
+}
+
+void tst_QFileSystemWatcher::addPath()
+{
+    QFileSystemWatcher watcher;
+    QString home = QDir::homePath();
+    watcher.addPath(home);
+    QCOMPARE(watcher.directories().count(), 1);
+    QCOMPARE(watcher.directories().first(), home);
+    watcher.addPath(home);
+    QCOMPARE(watcher.directories().count(), 1);
+}
+
+void tst_QFileSystemWatcher::removePath()
+{
+    QFileSystemWatcher watcher;
+    QString home = QDir::homePath();
+    watcher.addPath(home);
+    watcher.removePath(home);
+    QCOMPARE(watcher.directories().count(), 0);
+    watcher.removePath(home);
+    QCOMPARE(watcher.directories().count(), 0);
 }
 
 QTEST_MAIN(tst_QFileSystemWatcher)
