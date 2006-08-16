@@ -63,6 +63,7 @@ private slots:
     void sourceInsideLoadResource();
     void textInteractionFlags_vs_readOnly();
     void anchorsWithSelfBuiltHtml();
+    void relativeNonLocalUrls();
 
 private:
     TestBrowser *browser;
@@ -373,6 +374,33 @@ void tst_QTextBrowser::anchorsWithSelfBuiltHtml()
     QVERIFY(browser->document()->blockCount() > 1);
     browser->setSource(QUrl("#anchor"));
     QVERIFY(browser->document()->blockCount() > 1);
+}
+
+class HelpBrowser : public QTextBrowser
+{
+public:
+    virtual QVariant loadResource(int type, const QUrl &name) {
+        QString url = name.toString();
+        if(url == "qhelp://docs/index.html") {
+            return "index";
+        } else if (url == "qhelp://docs/classes.html") {
+            return "classes";
+        } else if (url == "qhelp://docs/someclass.html") {
+            return "someclass";
+        }
+        return QVariant();
+    }
+};
+
+void tst_QTextBrowser::relativeNonLocalUrls()
+{
+    HelpBrowser browser;
+    browser.setSource(QUrl("qhelp://docs/index.html"));
+    QCOMPARE(browser.toPlainText(), QString("index"));
+    browser.setSource(QUrl("classes.html"));
+    QCOMPARE(browser.toPlainText(), QString("classes"));
+    browser.setSource(QUrl("someclass.html"));
+    QCOMPARE(browser.toPlainText(), QString("someclass"));
 }
 
 QTEST_MAIN(tst_QTextBrowser)

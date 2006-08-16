@@ -129,13 +129,12 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
 
     textOrSourceChanged = false;
 
-    const QUrl url = isAbsoluteFileName(currentURL.toLocalFile())
-                     ? currentURL.resolved(href) : QUrl(href);
+    const QUrl url(href);
 
     if (openExternalLinks
         && url.scheme() != QLatin1String("file")
         && url.scheme() != QLatin1String("qrc")) {
-        QDesktopServices::openUrl(url);
+        QDesktopServices::openUrl(currentURL.resolved(url));
         return;
     }
 
@@ -163,8 +162,7 @@ void QTextBrowserPrivate::_q_highlightLink(const QString &anchor)
         viewport->setCursor(Qt::PointingHandCursor);
 #endif
 
-        const QUrl url = isAbsoluteFileName(currentURL.toLocalFile())
-                         ? currentURL.resolved(anchor) : QUrl(anchor);
+        const QUrl url = currentURL.resolved(anchor);
         emit q->highlighted(url);
         // convenience to ease connecting to QStatusBar::showMessage(const QString &)
         emit q->highlighted(url.toString());
@@ -191,7 +189,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
 
     if (url.isValid()
         && (newUrlWithoutFragment != currentUrlWithoutFragment || forceLoadOnSourceChange)) {
-        QVariant data = q->loadResource(QTextDocument::HtmlResource, url);
+        QVariant data = q->loadResource(QTextDocument::HtmlResource, currentURL.resolved(url));
         if (data.type() == QVariant::String) {
             txt = data.toString();
         } else if (data.type() == QVariant::ByteArray) {
@@ -451,6 +449,12 @@ QUrl QTextBrowser::source() const
         return QUrl();
     else
         return d->stack.top().url;
+}
+
+QUrl QTextBrowser::resolvedSource() const
+{
+    Q_D(const QTextBrowser);
+    return d->currentURL;
 }
 
 /*!
