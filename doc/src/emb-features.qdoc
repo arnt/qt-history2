@@ -8,9 +8,10 @@
     On the Qtopia Core platform the set of applications is often
     fixed, and reducing the size of Qt is important to save resources.
     It is possible to optimize the Qt installation by avoiding to
-    compile the features that are not required, i.e by creating a
+    compile the features that are not required, either by creating a
     custom configuration file that defines the preferred subset of
-    Qt's functionality.
+    Qt's functionality, or by using the \c configure script's feature
+    option.
 
     A custom configuration file uses macros to disable the various
     features, and can either be created manually or by using the \c
@@ -45,6 +46,14 @@
     Qt provides several ready-made custom configuration files defining
     a minimal, small, medium and large installation, respectively,
     located in the \c /src/corelib/global directory.
+
+    To enable or disable a particular option, it might be easier to
+    just run \c configure with the \c -no-feature-<feature> or \c
+    -feature-<feature> option, respectively. For example:
+
+    \code
+        configure -no-feature-thread
+    \endcode
 
     \sa {Performance Tuning}
 */

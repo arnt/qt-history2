@@ -2372,23 +2372,31 @@ if [ "$OPT_HELP" = "yes" ]; then
     fi
 
     cat <<EOF
-Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
-        [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
-        [-translationdir dir] [-sysconfdir dir] [-examplesdir dir]
-        [-demosdir dir] [-debug] [-release] [-debug-and-release]
-        [-no-gif] [-qt-gif] [-no-sm] [-sm] [-no-zlib] [-qt-zlib]
-        [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
-        [-no-libpng] [-qt-libpng] [-system-libpng] [-no-libmng]
-        [-qt-libmng] [-system-libmng] [-system-sqlite] [-no-nis]
-        [-nis] [-no-cups] [-cups] [-no-iconv] [-iconv] [-no-largefile]
-        [-largefile] [-no-stl] [-stl] [-no-pch] [-pch] [-Istring]
-        [-lstring] [-Lstring] [-Rstring] [-fast] [-no-fast]
+Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir>]
+        [-docdir <dir>] [-headerdir <dir>] [-plugindir <dir> ] [-datadir <dir>]
+        [-translationdir <dir>] [-sysconfdir <dir>] [-examplesdir <dir>]
+        [-demosdir <dir>] [-buildkey <key>] [-release] [-debug]  
+        [-debug-and-release] [-shared] [-static] [-no-fast] [-fast] [-no-largefile]
+        [-largefile] [-no-exceptions] [-exceptions] [-no-accessibility] 
+        [-accessibility] [-no-stl] [-stl] [-no-sql-<driver>] [-sql-<driver>] 
+        [-plugin-sql-<driver>] [-system-sqlite] [-no-qt3support] [-qt3support] 
+        [-platform] [-D <string>] [-I <string>] [-L <string>] [-help] [-no-zlib] 
+        [-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng] [-qt-libpng] 
+        [-system-libpng] [-no-libmng] [-qt-libmng] [-system-libmng] [-no-libjpeg] 
+        [-qt-libjpeg] [-system-libjpeg] [-make <part>] [-no-make <part>] 
+        [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
+        [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
+        [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
+        [-separate-debug-info] 
+
+        [additional platform specific options (see below)]
+          
 
 Installation options:
 
  These are optional, but you may specify install directories.
 
-    -prefix dir ........ This will install everything relative to dir
+    -prefix <dir> ...... This will install everything relative to <dir>
                          (default $QT_INSTALL_PREFIX)
 
   * -prefix-install .... Force a sandboxed "local" installation of
@@ -2401,31 +2409,31 @@ Installation options:
 
  You may use these to separate different parts of the install:
 
-    -bindir dir ........ Executables will be installed to dir
-                         (default PREFIX/bin)
-    -libdir dir ........ Libraries will be installed to dir
-                         (default PREFIX/lib)
-    -docdir dir ........ Documentation will be installed to dir
-                         (default PREFIX/doc)
-    -headerdir dir ..... Headers will be installed to dir
-                         (default PREFIX/include)
-    -plugindir dir ..... Plugins will be installed to dir
-                         (default PREFIX/plugins)
-    -datadir dir ....... Data used by Qt programs will be installed to dir
-                         (default PREFIX)
-    -translationdir dir  Translations of Qt programs will be installed to dir
-                         (default PREFIX/translations)
-    -sysconfdir dir ...  Settings used by Qt programs will be looked for in dir
-                         (default PREFIX/etc/settings)
-    -examplesdir dir ... Examples will be installed to dir
-                         (default PREFIX/examples)
-    -demosdir dir ...... Demos will be installed to dir
-                         (default PREFIX/demos)
+    -bindir <dir> ......... Executables will be installed to <dir>
+                            (default PREFIX/bin)
+    -libdir <dir> ......... Libraries will be installed to <dir>
+                            (default PREFIX/lib)
+    -docdir <dir> ......... Documentation will be installed to <dir>
+                            (default PREFIX/doc)
+    -headerdir <dir> ...... Headers will be installed to <dir>
+                            (default PREFIX/include)
+    -plugindir <dir> ...... Plugins will be installed to <dir>
+                            (default PREFIX/plugins)
+    -datadir <dir> ........ Data used by Qt programs will be installed to <dir>
+                            (default PREFIX)
+    -translationdir <dir>.. Translations of Qt programs will be installed to <dir>
+                            (default PREFIX/translations)
+    -sysconfdir <dir> ..... Settings used by Qt programs will be looked for in <dir>
+                            (default PREFIX/etc/settings)
+    -examplesdir <dir> .... Examples will be installed to <dir>
+                            (default PREFIX/examples)
+    -demosdir <dir> ....... Demos will be installed to <dir>
+                            (default PREFIX/demos)
 
  You may use these options to turn on strict plugin loading.
 
-    -buildkey key ...... Build the Qt library and plugins using the specified
-                         key.  When the library loads plugins, it will only
+    -buildkey <key> .... Build the Qt library and plugins using the specified
+                         <key>.  When the library loads plugins, it will only
                          load those that have a matching key.
 
 Configure options:
@@ -2447,6 +2455,9 @@ Configure options:
     -fast .............. Configure Qt quickly by generating Makefiles only for
                          library and subdirectory targets.  All other Makefiles
                          are created as wrappers, which will in turn run qmake.
+
+    -no-largefile....... Disables large file support.
+ +  -largefile.......... Enables Qt to access files larger than 4 GB.
 
 EOF
 if [ "$PLATFORM_QWS" = "yes" ]; then
@@ -2484,7 +2495,8 @@ fi
 
     -system-sqlite ..... Use sqlite from the operating system.
 
-    -no-qt3support       Disables the Qt 3 support functionality.
+    -no-qt3support ..... Disables the Qt 3 support functionality.
+ *  -qt3support ........ Enables the Qt 3 support functionality.
 
     -platform target ... The operating system and compiler you are building
                          on ($PLATFORM).
@@ -2492,9 +2504,9 @@ fi
                          See the README file for a list of supported
                          operating systems and compilers.
 
-    -Dstring ........... Add an explicit define to the preprocessor.
-    -Istring ........... Add an explicit include path.
-    -Lstring ........... Add an explicit library path.
+    -D <string> ........ Add an explicit define to the preprocessor.
+    -I <string> ........ Add an explicit include path.
+    -L <string> ........ Add an explicit library path.
 
     -help, -h .......... Display this information.
 
@@ -2530,9 +2542,9 @@ Additional options:
                          ($QT_DEFAULT_BUILD_PARTS)
     -nomake <part> ..... Exclude part from the list of parts to be built.
 
-    -Rstring ........... Add an explicit runtime library path to the Qt
+    -R <string> ........ Add an explicit runtime library path to the Qt
                          libraries.
-    -lstring ........... Add an explicit library.
+    -l <string> ........ Add an explicit library.
 
     -no-rpath .......... Do not use the library install path as a runtime
                          library path.
@@ -2653,6 +2665,9 @@ Qt/X11 only:
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
                          See http://radscan.com/nas.html
+  
+    -no-opengl.......... Do not support OpenGL.
+ +  -opengl............. Enable OpenGL support.
 
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
@@ -2726,28 +2741,32 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 
 Qtopia Core only:
 
-    -xplatform target .. The target platform when cross-compiling.
+    -xplatform target ... The target platform when cross-compiling.
 
-    -embedded arch...... This will enable the embedded build, you must have a
-                         proper license for this switch to work.
+    -no-feature-<feature> Do not compile in <feature>.
+    -feature-<feature> .. Compile in <feature>. The available features
+                          are described in src/corelib/global/qfeatures.txt
 
-    -little-endian ..... Target platform is little endian (LSB first).
-    -big-endian ........ Target platform is big endian (MSB first).
+    -embedded arch....... This will enable the embedded build, you must have a
+                          proper license for this switch to work.
 
-                         You only need to specify the endianness when
-                         cross-compiling, otherwise the host
-                         endianness will be used.
+    -little-endian ...... Target platform is little endian (LSB first).
+    -big-endian ......... Target platform is big endian (MSB first).
 
-    -no-freetype ....... Do not compile in Freetype2 support.
-    -qt-freetype ....... Use the libfreetype bundled with Qt.
- *  -system-libfreetype  Use libfreetype from the operating system.
-                         See http://www.freetype.org/
+                          You only need to specify the endianness when
+                          cross-compiling, otherwise the host
+                          endianness will be used.
 
-    -qconfig local ..... Use src/corelib/global/qconfig-local.h rather than the
-                         default ($CFG_QCONFIG).
+    -no-freetype ........ Do not compile in Freetype2 support.
+    -qt-freetype ........ Use the libfreetype bundled with Qt.
+ *  -system-libfreetype.  Use libfreetype from the operating system.
+                          See http://www.freetype.org/
 
-    -depths list ....... Comma-separated list of supported bit-per-pixel
-                         depths, from: 4, 8, 16, 18, 24, and 32.
+    -qconfig local ...... Use src/corelib/global/qconfig-local.h rather than the
+                          default ($CFG_QCONFIG).
+
+    -depths <list> ...... Comma-separated list of supported bit-per-pixel
+                          depths, from: 4, 8, 16, 18, 24, and 32.
 
     -qt-decoration-<style> ....Enable a decoration <style> in the QtGui library,
                                by default all available decorations are on.
