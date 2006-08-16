@@ -1170,7 +1170,7 @@ static void blit_32_to_18(const blit_data *data)
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
 
-    Copies the given region \a reg in the given \a image to the point
+    Copies the given \a region in the given \a image to the point
     specified by \a topLeft using device coordinates.
 
     Reimplement this function to use accelerated hardware. Note that

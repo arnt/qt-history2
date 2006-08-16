@@ -1787,7 +1787,7 @@ QPixmap QMessageBox::standardIcon(Icon icon, Qt::GUIStyle style)
                                  const QString &buttonText, QWidget *parent = 0,
                                  const char *name = 0)
 
-    Opens a modal message box with the given \a caption and showing the
+    Opens a modal message box with the given \a title and showing the
     given \a text. The message box has a single button which has the
     given \a buttonText (or tr("OK")). The message box is centred over
     its \a parent and is called \a name.

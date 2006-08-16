@@ -116,6 +116,8 @@ void qws_setScreenTransformation(int t)
 */
 
 /*!
+    \fn QTransformedScreen::QTransformedScreen(int displayId)
+
     Constructs a QTransformedScreen object. The \a displayId argument
     identifies the Qtopia Core server to connect to.
 */
