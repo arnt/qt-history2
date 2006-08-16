@@ -879,9 +879,11 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
     switch (depth()) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
+#ifdef QT_QWS_DEPTH_16
         if (image.depth() == 16)
             SET_BLIT_FUNC(quint16, quint32, trans, func);
         else
+#endif
             SET_BLIT_FUNC(quint32, quint32, trans, func);
         break;
 #endif

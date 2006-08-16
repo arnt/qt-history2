@@ -1191,9 +1191,11 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &reg)
     switch(d) {
 #ifdef QT_QWS_DEPTH_32
     case 32:
+#ifdef QT_QWS_DEPTH_16
         if (img.depth() == 16)
             func = blit_16_to_32;
         else
+#endif
             func = blit_32_to_32;
         break;
 #endif
