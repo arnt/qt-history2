@@ -1005,8 +1005,7 @@ void QTabWidget::setUsesScrollButtons(bool useButtons)
 }
 
 /*!
-    \fn void QTabWidget::insertTab(QWidget * widget, const QString
-    &label, int index)
+    \fn void QTabWidget::insertTab(QWidget *widget, const QString &label, int index)
 
     Use insertTab(index, widget, label) instead.
 */
