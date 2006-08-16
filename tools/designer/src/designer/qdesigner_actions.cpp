@@ -768,6 +768,8 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
     if (fi.exists())
         backupFile = createBackup(saveFile);
 
+    QByteArray utf8Array = fw->contents().toUtf8();
+
     QFile f(saveFile);
     while (!f.open(QFile::WriteOnly)) {
         QMessageBox box(tr("Save Form?"),
@@ -805,7 +807,6 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                 return false;
         }
     }
-    QByteArray utf8Array = fw->contents().toUtf8();
     while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
         QMessageBox box(tr("Save Form?"),
                         tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
