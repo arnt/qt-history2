@@ -202,6 +202,8 @@ public:
 
         DynamicPropertyChange = 170,            // A dynamic property was changed through setProperty/property
 
+        TabletEnterProximity = 171,
+        TabletLeaveProximity = 172,
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

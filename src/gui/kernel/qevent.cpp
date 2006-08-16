@@ -1703,10 +1703,12 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \l{TabletDevice}). It can also give you the minimum and maximum values for
     each device's pressure and high resolution coordinates.
 
-    A tablet event contains a special accept flag that indicates
-    whether the receiver wants the event. You should call
-    QTabletEvent::accept() if you handle the tablet event; otherwise
-    it will be sent to the parent widget.
+    A tablet event contains a special accept flag that indicates whether the
+    receiver wants the event. You should call QTabletEvent::accept() if you
+    handle the tablet event; otherwise it will be sent to the parent widget.
+    The exception are TabletEnterProximity and TabletLeaveProximity events,
+    these are only sent to QApplication and don't check whether or not they are
+    accepted.
 
     The QWidget::setEnabled() function can be used to enable or
     disable mouse and keyboard events for a widget.
@@ -1716,7 +1718,6 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     accepted, it will send a mouse event. This allows applications that
     don't utilize tablets to use a tablet like a mouse, while also
     enabling those who want to use both tablets and mouses differently.
-
 */
 
 /*!

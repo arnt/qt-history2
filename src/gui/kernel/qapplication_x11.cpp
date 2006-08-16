@@ -1783,6 +1783,8 @@ void qt_init(QApplicationPrivate *priv, int,
                     device_data.xinput_key_release = -1;
                     device_data.xinput_button_press = -1;
                     device_data.xinput_button_release = -1;
+                    device_data.xinput_proximity_in = -1;
+                    device_data.xinput_proximity_out = -1;
 
                     if (dev->num_classes > 0) {
                         for (ip = dev->classes, j = 0; j < devs->num_classes;
@@ -1791,26 +1793,36 @@ void qt_init(QApplicationPrivate *priv, int,
                             case KeyClass:
                                 DeviceKeyPress(dev, device_data.xinput_key_press,
                                                device_data.eventList[device_data.eventCount]);
-                                ++device_data.eventCount;
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
                                 DeviceKeyRelease(dev, device_data.xinput_key_release,
                                                  device_data.eventList[device_data.eventCount]);
-                                ++device_data.eventCount;
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
                                 break;
                             case ButtonClass:
                                 DeviceButtonPress(dev, device_data.xinput_button_press,
                                                   device_data.eventList[device_data.eventCount]);
-                                ++device_data.eventCount;
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
                                 DeviceButtonRelease(dev, device_data.xinput_button_release,
                                                     device_data.eventList[device_data.eventCount]);
-                                ++device_data.eventCount;
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
                                 break;
                             case ValuatorClass:
                                 // I'm only going to be interested in motion when the
                                 // stylus is already down anyway!
                                 DeviceMotionNotify(dev, device_data.xinput_motion,
                                                    device_data.eventList[device_data.eventCount]);
-                                ++device_data.eventCount;
-                                break;
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
+                                ProximityIn(dev, device_data.xinput_proximity_in, device_data.eventList[device_data.eventCount]);
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
+                                ProximityOut(dev, device_data.xinput_proximity_in, device_data.eventList[device_data.eventCount]);
+                                if (device_data.eventList[device_data.eventCount])
+                                    ++device_data.eventCount;
                             default:
                                 break;
                             }
@@ -3691,8 +3703,12 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
     XEvent mouseMotionEvent;
     const XDeviceMotionEvent *motion = 0;
     XDeviceButtonEvent *button = 0;
+    const XProximityNotifyEvent *proximity = 0;
     QEvent::Type t;
     Qt::KeyboardModifiers modifiers = 0;
+#if !defined (Q_OS_IRIX)
+    XID device_id;
+#endif
 
     if (ev->type == tablet->xinput_motion) {
         motion = reinterpret_cast<const XDeviceMotionEvent*>(ev);
@@ -3714,7 +3730,10 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
         t = QEvent::TabletMove;
         global = QPoint(motion->x_root, motion->y_root);
         curr = QPoint(motion->x, motion->y);
-    } else {
+#if !defined (Q_OS_IRIX)
+        device_id = motion->deviceid;
+#endif
+    } else if (ev->type == tablet->xinput_button_press || ev->type == tablet->xinput_button_release) {
         if (ev->type == tablet->xinput_button_press) {
             t = QEvent::TabletPress;
         } else {
@@ -3724,6 +3743,19 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
 
         global = QPoint(button->x_root, button->y_root);
         curr = QPoint(button->x, button->y);
+#if !defined (Q_OS_IRIX)
+        device_id = button->deviceid;
+#endif
+    } else { // Proximity
+        qDebug("sending key event");
+        if (ev->type == tablet->xinput_proximity_in)
+            t = QEvent::TabletEnterProximity;
+        else
+            t = QEvent::TabletLeaveProximity;
+        proximity = (const XProximityNotifyEvent*)ev;
+#if !defined (Q_OS_IRIX)
+        device_id = proximity->deviceid;
+#endif
     }
 
     qint64 uid;
@@ -3777,23 +3809,25 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
                 uid = 0;
             }
 
-            // apparently Wacom needs a cast for the +/- values to make sense
-            xTilt = short(vs->valuators[WAC_XTILT_I]);
-            yTilt = short(vs->valuators[WAC_YTILT_I]);
-            pressure = vs->valuators[WAC_PRESSURE_I];
-            if (deviceType == QTabletEvent::FourDMouse
-                    || deviceType == QTabletEvent::RotationStylus) {
-                rotation = vs->valuators[WAC_ROTATION_I] / 64.0;
-                if (deviceType == QTabletEvent::FourDMouse)
-                    z = vs->valuators[WAC_ZCOORD_I];
-            } else if (deviceType == QTabletEvent::Airbrush) {
-                tangentialPressure = vs->valuators[WAC_TAN_PRESSURE_I]
-                                        / qreal(tablet->maxTanPressure - tablet->minTanPressure);
-            }
+            if (!proximity) {
+                // apparently Wacom needs a cast for the +/- values to make sense
+                xTilt = short(vs->valuators[WAC_XTILT_I]);
+                yTilt = short(vs->valuators[WAC_YTILT_I]);
+                pressure = vs->valuators[WAC_PRESSURE_I];
+                if (deviceType == QTabletEvent::FourDMouse
+                        || deviceType == QTabletEvent::RotationStylus) {
+                    rotation = vs->valuators[WAC_ROTATION_I] / 64.0;
+                    if (deviceType == QTabletEvent::FourDMouse)
+                        z = vs->valuators[WAC_ZCOORD_I];
+                } else if (deviceType == QTabletEvent::Airbrush) {
+                    tangentialPressure = vs->valuators[WAC_TAN_PRESSURE_I]
+                                            / qreal(tablet->maxTanPressure - tablet->minTanPressure);
+                }
 
-            hiRes = tablet->scaleCoord(vs->valuators[WAC_XCOORD_I], vs->valuators[WAC_YCOORD_I],
-                                       screenArea.x(), screenArea.width(),
-                                       screenArea.y(), screenArea.height());
+                hiRes = tablet->scaleCoord(vs->valuators[WAC_XCOORD_I], vs->valuators[WAC_YCOORD_I],
+                                           screenArea.x(), screenArea.width(),
+                                           screenArea.y(), screenArea.height());
+            }
             break;
         }
         iClass = reinterpret_cast<XInputClass*>(reinterpret_cast<char*>(iClass) + iClass->length);
@@ -3801,7 +3835,6 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
     XFreeDeviceState(s);
 #else
     QTabletDeviceDataList *tablet_list = qt_tablet_devices();
-    XID device_id = ev->type == tablet->xinput_motion ? motion->deviceid : button->deviceid;
     for (int i = 0; i < tablet_list->size(); ++i) {
         const QTabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {
@@ -3831,7 +3864,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
         hiRes = tablet->scaleCoord(motion->axis_data[0], motion->axis_data[1],
                                     screenArea.x(), screenArea.width(),
                                     screenArea.y(), screenArea.height());
-    } else {
+    } else if (button) {
         hibyte1 = (button->axis_data[3] & 0xffff0000) >> 16;
         hibyte2 = (button->axis_data[4] & 0xffff0000) >> 16;
         hibyte3 = (button->axis_data[5] & 0xffff0000) >> 16;
@@ -3842,6 +3875,12 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
                                     screenArea.x(), screenArea.width(),
                                     screenArea.y(), screenArea.height());
         modifiers = X11->translateModifiers(button->state);
+    } else if (proximity) {
+        hibyte1 = (button->axis_data[3] & 0xffff0000) >> 16;
+        hibyte2 = (button->axis_data[4] & 0xffff0000) >> 16;
+        hibyte3 = (button->axis_data[5] & 0xffff0000) >> 16;
+        pressure = 0;
+        modifiers = 0;
     }
     // There are newer drivers out that do report the serial number.
     // But the older ones  will have values of 0xffff or 0;
@@ -3856,7 +3895,10 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
                    deviceType, pointerType,
                    qreal(pressure / qreal(tablet->maxPressure - tablet->minPressure)),
                    xTilt, yTilt, tangentialPressure, rotation, z, modifiers, uid);
-    QApplication::sendSpontaneousEvent(w, &e);
+    if (proximity)
+        QApplication::sendSpontaneousEvent(qApp, &e);
+    else
+        QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }
 #endif

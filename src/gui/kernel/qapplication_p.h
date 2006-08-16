@@ -89,6 +89,12 @@ struct QTabletDeviceData
     int xinput_key_release;
     int xinput_button_press;
     int xinput_button_release;
+    int xinput_proximity_in;
+    int xinput_proximity_out;
+#elif defined(Q_WS_WIN)
+    qint64 llId;
+    int currentDevice;
+    int currentPointerType;
 #endif
 };
 

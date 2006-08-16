@@ -151,6 +151,8 @@
     \value TabletMove                       Wacom tablet move (QTabletEvent).
     \value TabletPress                      Wacom tablet press (QTabletEvent).
     \value TabletRelease                    Wacom tablet release (QTabletEvent).
+    \value TabletEnterProximity             Wacom tablet enter proximity event (QTabletEvent), sent to QApplication.
+    \value TabletLeaveProximity             Wacom tablet leave proximity event (QTabletEvent), sent to QApplication.
     \value Timer                            Regular timer events (QTimerEvent).
     \value ToolBarChange                    The toolbar button is toggled on Mac OS X.
     \value ToolTip                          A tooltip was requested (QHelpEvent).

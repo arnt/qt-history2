@@ -1524,6 +1524,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             default:
                 currTabletDevice = QTabletEvent::NoDevice;
             }
+            QTabletEvent tabletProximity(proxRec.enterProximity ? QEvent::TabletEnterProximity : QEvent::TabletLeaveProximity,
+                                         QPoint(), QPoint(), QPointF(), currTabletDevice, currPointerType, 0, 0, 0, 0, 0, 0,
+                                         0, tabletUniqueID);
+            QApplication::sendSpontaneousEvent(qApp, &tabletProximity);
         }
         break;
     case kEventClassMouse:
@@ -1870,6 +1874,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             OSStatus err = GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, 0,
                                              sizeof(key_event), 0, &key_event);
             Q_ASSERT(err == noErr);
+            Q_UNUSED(err);
         }
         const UInt32 key_ekind = GetEventKind(key_event);
         Q_ASSERT(GetEventClass(key_event) == kEventClassKeyboard);

@@ -110,6 +110,7 @@ static void qt_tablet_init()
         return;
     firstTime = false;
     qt_tablet_widget = new QWidget(0);
+    qt_tablet_widget->createWinId();
     qt_tablet_widget->setObjectName(QLatin1String("Qt internal tablet widget"));
     LOGCONTEXT lcMine;
     qAddPostRoutine(qt_tablet_cleanup);
@@ -141,7 +142,7 @@ static void qt_tablet_init()
         lcMine.lcOutExtX = lcMine.lcInExtX;
         lcMine.lcOutOrgY = 0;
         lcMine.lcOutExtY = -lcMine.lcInExtY;
-        qt_tablet_context = ptrWTOpen(qt_tablet_widget->internalWinId(), &lcMine, true);
+        qt_tablet_context = ptrWTOpen(qt_tablet_widget->winId(), &lcMine, true);
 #ifdef TABLET_DEBUG
         qDebug("Tablet is %p", qt_tablet_context);
 #endif
