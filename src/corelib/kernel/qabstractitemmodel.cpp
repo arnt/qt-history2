@@ -1880,12 +1880,32 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
     store.
 
     The \a parent index corresponds to the parent into which the new
-    rows are inserted; \a first and \a last are the row numbers of the new
-    rows to be inserted.
+    rows are inserted; \a first and \a last are the row numbers that the
+    new rows will have after they have been inserted.
 
-    Examples:
-    When inserting 5 rows to a model that currently has 15 rows
-    beginInsertRows(parent, 15, 19);
+    \table 80%
+    \row \o \inlineimage modelview-begin-insert-rows.png Inserting rows
+    \o Specify the first and last row numbers for the span of rows
+       you want to insert into an item in a model.
+
+    For example, as shown in the diagram, we insert three rows before
+    row 2, so \a first is 2 and \a last is 4:
+    \code
+    beginInsertRows(parent, 2, 4);
+    \endcode
+    This inserts the three new rows as rows 2, 3, and 4.
+    \row
+    \o \inlineimage modelview-begin-append-rows.png Appending rows
+    \o To append rows, insert them after the last row.
+
+    For example, as shown in the diagram, we append two rows to a
+    collection of 4 existing rows (ending in row 3), so \a first is 4
+    and \a last is 5:
+    \code
+    beginInsertRows(parent, 4, 5);
+    \endcode
+    This appends the two new rows as rows 4 and 5.
+    \endtable
 
     \sa endInsertRows()
 */
@@ -1927,9 +1947,17 @@ void QAbstractItemModel::endInsertRows()
     rows are removed; \a first and \a last are the row numbers of the
     rows to be removed.
 
-    Examples:
-    When removeing the last 5 rows to a model that has 15 rows
-    beginInsertRows(parent, 11, 15);
+    \table 80%
+    \row \o \inlineimage modelview-begin-remove-rows.png Removing rows
+    \o Specify the first and last row numbers for the span of rows
+       you want to remove from an item in a model.
+
+    For example, as shown in the diagram, we remove the two rows from
+    row 2 to row 3, so \a first is 2 and \a last is 3:
+    \code
+    beginRemoveRows(parent, 2, 3);
+    \endcode
+    \endtable
 
     \sa endRemoveRows()
 */
@@ -1969,7 +1997,31 @@ void QAbstractItemModel::endRemoveRows()
 
     The \a parent index corresponds to the parent into which the new
     columns are inserted; \a first and \a last are the column numbers of
-    the new columns to be inserted.
+    the new columns will have after they have been inserted.
+
+    \table 80%
+    \row \o \inlineimage modelview-begin-insert-columns.png Inserting columns
+    \o Specify the first and last column numbers for the span of columns
+       you want to insert into an item in a model.
+
+    For example, as shown in the diagram, we insert three columns before
+    column 4, so \a first is 4 and \a last is 6:
+    \code
+    beginInsertColumns(parent, 4, 6);
+    \endcode
+    This inserts the three new columns as columns 4, 5, and 6.
+    \row
+    \o \inlineimage modelview-begin-append-columns.png Appending columns
+    \o To append columns, insert them after the last column.
+
+    For example, as shown in the diagram, we append three columns to a
+    collection of six existing columns (ending in column 5), so \a first
+    is 6 and \a last is 8:
+    \code
+    beginInsertColumns(parent, 6, 8);
+    \endcode
+    This appends the two new columns as columns 6, 7, and 8.
+    \endtable
 
     \sa endInsertColumns()
 */
@@ -2008,8 +2060,20 @@ void QAbstractItemModel::endInsertColumns()
     store.
 
     The \a parent index corresponds to the parent from which the new
-    columns are removed; \a first and \a last are the column numbers of the
-    columns to be removed.
+    columns are removed; \a first and \a last are the column numbers of
+    the first and last columns to be removed.
+
+    \table 80%
+    \row \o \inlineimage modelview-begin-remove-columns.png Removing columns
+    \o Specify the first and last column numbers for the span of columns
+       you want to remove from an item in a model.
+
+    For example, as shown in the diagram, we remove the three columns
+    from column 4 to column 6, so \a first is 4 and \a last is 6:
+    \code
+    beginRemoveColumns(parent, 4, 6);
+    \endcode
+    \endtable
 
     \sa endRemoveColumns()
 */
