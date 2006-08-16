@@ -69,7 +69,7 @@ typedef void (APIENTRY *_glShaderSource) (GLuint, GLsizei, const char **, const 
 typedef void (APIENTRY *_glCompileShader) (GLuint);
 typedef void (APIENTRY *_glDeleteShader) (GLuint);
 
-typedef GLuint (APIENTRY *_glCreateProgram) (GLvoid);
+typedef GLuint (APIENTRY *_glCreateProgram) ();
 typedef void (APIENTRY *_glAttachShader) (GLuint, GLuint);
 typedef void (APIENTRY *_glDetachShader) (GLuint, GLuint);
 typedef void (APIENTRY *_glLinkProgram) (GLuint);
