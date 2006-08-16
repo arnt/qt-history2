@@ -97,8 +97,10 @@ public:
     QSize scaledSize();
     void setScaledSize(const QSize &size);
 
-    CacheMode cacheMode();
+    CacheMode cacheMode() const;
     void setCacheMode(CacheMode mode);
+
+    CacheMode cacheMode(); // ### Qt 5: remove me
 
 Q_SIGNALS:
     void started();
