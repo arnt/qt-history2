@@ -74,7 +74,7 @@ public:
     { layout = 0; userData = 0; userState = -1; }
     void invalidate() const;
     inline void free()
-    { delete layout; delete userData; }
+    { delete layout; layout = 0; delete userData; userData = 0; }
 
     mutable int format;
     // ##### probably store a QTextEngine * here!
