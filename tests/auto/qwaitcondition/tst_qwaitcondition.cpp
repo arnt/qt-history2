@@ -304,7 +304,7 @@ class wait_RaceConditionThread : public QThread
 public:
     wait_RaceConditionThread(QMutex *mutex, QWaitCondition *startup, QWaitCondition *waitCondition,
                              ulong timeout = ULONG_MAX)
-        : timeout(timeout), returnValue(false), ready(false), 
+        : timeout(timeout), returnValue(false), ready(false),
           mutex(mutex), startup(startup), waitCondition(waitCondition) {}
 
     unsigned long timeout;
@@ -335,25 +335,20 @@ void tst_QWaitCondition::wait_RaceCondition()
     QWaitCondition waitCondition;
 
     wait_RaceConditionThread timeoutThread(&mutex, &startup, &waitCondition, 1000),
-                             waitingThread1(&mutex, &startup, &waitCondition),
-                             waitingThread2(&mutex, &startup, &waitCondition);
+        waitingThread1(&mutex, &startup, &waitCondition);
 
     timeoutThread.start();
     waitingThread1.start();
-    waitingThread2.start();
-
     mutex.lock();
 
     // wait for the threads to start up
     while (!timeoutThread.ready
-           || !waitingThread1.ready
-           || !waitingThread2.ready) {
+           || !waitingThread1.ready) {
         startup.wait(&mutex);
     }
 
     QTest::qWait(2000);
 
-    waitCondition.wakeOne();
     waitCondition.wakeOne();
 
     mutex.unlock();
@@ -362,16 +357,6 @@ void tst_QWaitCondition::wait_RaceCondition()
     QVERIFY(!timeoutThread.returnValue);
     QVERIFY(waitingThread1.wait(5000));
     QVERIFY(waitingThread1.returnValue);
-
-    QVERIFY(!waitingThread2.wait(5000));
-
-    // cleanup
-    mutex.lock();
-    waitCondition.wakeOne();
-    mutex.unlock();
-
-    QVERIFY(waitingThread2.wait(5000));
-    QVERIFY(waitingThread2.returnValue);
 }
 
 QTEST_MAIN(tst_QWaitCondition)
