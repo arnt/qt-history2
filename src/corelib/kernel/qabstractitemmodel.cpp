@@ -1410,6 +1410,37 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
 }
 
 /*!
+  Returns the actions supported by the data in this model.
+
+  The default implementation returns supportedDropActions() unless
+  specific values have been set with setSupportedDragActions().
+
+  supportedDragActions() is used by QAbstractItemView::startDrag() as
+  the default values when a drag occurs.
+
+  \sa Qt::DropActions
+*/
+Qt::DropActions QAbstractItemModel::supportedDragActions() const
+{
+    // ### Qt5 make this virtual or these properties
+    Q_D(const QAbstractItemModel);
+    if (d->supportedDragActions != -1)
+        return d->supportedDragActions;
+    return supportedDropActions();
+}
+
+/*!
+  Sets the supported drag \a actions for the items in the model.
+
+  \sa supportedDragActions()
+*/
+void QAbstractItemModel::setSupportedDragActions(Qt::DropActions actions)
+{
+    Q_D(QAbstractItemModel);
+    d->supportedDragActions = actions;
+}
+
+/*!
   On models that support this, inserts \a count rows into the model before the
   given \a row.  The items in the new row will be children of the item
   represented by the \a parent model index.

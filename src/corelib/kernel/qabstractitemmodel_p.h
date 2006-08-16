@@ -45,6 +45,7 @@ class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractItemModel)
 
 public:
+    QAbstractItemModelPrivate() : QObjectPrivate(), supportedDragActions(-1) {}
     void removePersistentIndexData(QPersistentModelIndexData *data);
     void invalidate(int position);
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
@@ -93,6 +94,8 @@ public:
         QStack<QList<int> > moved;
         QStack<QList<int> > invalidated;
     } persistent;
+
+    Qt::DropActions supportedDragActions;
 };
 
 #endif // QABSTRACTITEMMODEL_P_H
