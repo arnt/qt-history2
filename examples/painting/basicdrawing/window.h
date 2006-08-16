@@ -51,7 +51,6 @@ private:
     QComboBox *brushStyleComboBox;
     QCheckBox *antialiasingCheckBox;
     QCheckBox *transformationsCheckBox;
-    QCheckBox *stretchToDeviceCheckBox;
 };
 
 #endif

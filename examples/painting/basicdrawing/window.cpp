@@ -104,7 +104,6 @@ Window::Window()
     otherOptionsLabel = new QLabel(tr("Other Options:"));
     antialiasingCheckBox = new QCheckBox(tr("&Antialiasing"));
     transformationsCheckBox = new QCheckBox(tr("&Transformations"));
-    stretchToDeviceCheckBox = new QCheckBox(tr("Stretch to &Device"));
 
     connect(shapeComboBox, SIGNAL(activated(int)),
             this, SLOT(shapeChanged()));
@@ -122,8 +121,6 @@ Window::Window()
             renderArea, SLOT(setAntialiased(bool)));
     connect(transformationsCheckBox, SIGNAL(toggled(bool)),
             renderArea, SLOT(setTransformed(bool)));
-    connect(stretchToDeviceCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(brushChanged()));
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setColumnStretch(0, 1);
@@ -146,7 +143,6 @@ Window::Window()
     mainLayout->addWidget(otherOptionsLabel, 9, 1, Qt::AlignRight);
     mainLayout->addWidget(antialiasingCheckBox, 9, 2);
     mainLayout->addWidget(transformationsCheckBox, 10, 2);
-    mainLayout->addWidget(stretchToDeviceCheckBox, 11, 2);
     setLayout(mainLayout);
 
     shapeChanged();
@@ -187,24 +183,18 @@ void Window::brushChanged()
         linearGradient.setColorAt(0.0, Qt::white);
         linearGradient.setColorAt(0.2, Qt::green);
         linearGradient.setColorAt(1.0, Qt::black);
-        if (stretchToDeviceCheckBox->isChecked())
-            linearGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(linearGradient);
     } else if (style == Qt::RadialGradientPattern) {
         QRadialGradient radialGradient(50, 50, 50, 70, 70);
         radialGradient.setColorAt(0.0, Qt::white);
         radialGradient.setColorAt(0.2, Qt::green);
         radialGradient.setColorAt(1.0, Qt::black);
-        if (stretchToDeviceCheckBox->isChecked())
-            radialGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(radialGradient);
     } else if (style == Qt::ConicalGradientPattern) {
         QConicalGradient conicalGradient(50, 50, 150);
         conicalGradient.setColorAt(0.0, Qt::white);
         conicalGradient.setColorAt(0.2, Qt::green);
         conicalGradient.setColorAt(1.0, Qt::black);
-        if (stretchToDeviceCheckBox->isChecked())
-            conicalGradient.setCoordinateMode(QGradient::StretchToDeviceMode);
         renderArea->setBrush(conicalGradient);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
