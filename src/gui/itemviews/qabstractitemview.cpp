@@ -114,29 +114,28 @@ void QAbstractItemViewPrivate::init()
 
     QAbstractItemView provides common slots such as edit() and
     setCurrentIndex(). Many protected slots are also provided, including
-    dataChanged(), rowsInserted(), rowsAboutToBeRemoved(),
-    columnsInserted(), _q_columnsRemoved(),
-    selectionChanged(), and currentChanged().
+    dataChanged(), rowsInserted(), rowsAboutToBeRemoved(), selectionChanged(),
+    and currentChanged().
 
     The root item is returned by rootIndex(), and the current item by
     currentIndex(). To make sure that an item is visible use
     scrollTo().
 
     Some of QAbstractItemView's functions are concerned with
-    scrolling, for example setHorizontalFactor() and
-    setVerticalFactor(). Several other functions are concerned with
+    scrolling, for example setHorizontalScrollMode() and
+    setVerticalScrollMode(). Several other functions are concerned with
     selection control; for example setSelectionMode(), and
     setSelectionBehavior(). This class provides a default selection
     model to work with (selectionModel()), but this can be replaced
     by using setSelectionModel() with an instance of
     QItemSelectionModel.
 
-    When implimenting a view that will have scrollbars you want to overload
-    resizeEvent to set the scrollbars range so they will turn on and off, for example:
+    When implementing a view that will have scrollbars you want to overload
+    resizeEvent() to set the scrollbars range so they will turn on and off, for example:
     \code
         horizontalScrollBar()->setRange(0, realWidth - width());
     \endcode
-    Note that QAbstractScrollArea wont turn on/off the scroolbars based upon the
+    Note that QAbstractScrollArea won't turn on/off the scroolbars based upon the
     ranges until the widget is shown.  They should be manually turned
     on and off in if other functions require that information.
 
@@ -269,6 +268,8 @@ void QAbstractItemViewPrivate::init()
     might encompasses, touch or cause drawing.
 
     In the base class this is a pure virtual function.
+
+    \sa indexAt(), visualRegionForSelection()
 */
 
 /*!
@@ -281,13 +282,13 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::indexAt(const QPoint &point) const
-
-    \overload
+    \fn QModelIndex QAbstractItemView::indexAt(const QPoint &point) const = 0
 
     Returns the model index of the item at point \a point.
 
     In the base class this is a pure virtual function.
+
+    \sa visualRect()
 */
 
 /*!
@@ -346,6 +347,8 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index.
     The signal is only emitted when the index is valid.
+
+    \sa clicked(), activated()
 */
 
 /*!
@@ -353,6 +356,8 @@ void QAbstractItemViewPrivate::init()
 
     Moves the cursor in the view according to the given \a cursorAction and
     keyboard modifiers specified by \a modifiers.
+
+    In the base class this is a pure virtual function.
 */
 
 /*!
@@ -361,6 +366,8 @@ void QAbstractItemViewPrivate::init()
     Returns the horizontal offset of the view.
 
     In the base class this is a pure virtual function.
+
+    \sa verticalOffset()
 */
 
 /*!
@@ -369,6 +376,8 @@ void QAbstractItemViewPrivate::init()
     Returns the vertical offset of the view.
 
     In the base class this is a pure virtual function.
+
+    \sa horizontalOffset()
 */
 
 /*!
@@ -394,7 +403,7 @@ void QAbstractItemViewPrivate::init()
     is either an empty QModelIndex or a QItemSelection that contains
     all items that are contained in \a rect.
 
-    \sa selectionCommand()
+    \sa selectionCommand(), selectedIndexes()
 */
 
 /*!
@@ -402,6 +411,10 @@ void QAbstractItemViewPrivate::init()
 
     Returns the region from the viewport of the items in the given
     \a selection.
+
+    In the base class this is a pure virtual function.
+
+    \sa visualRect(), selectedIndexes()
 */
 
 /*!
@@ -504,7 +517,7 @@ QAbstractItemModel *QAbstractItemView::model() const
 }
 
 /*!
-    Sets the current selection to the given \a selectionModel.
+    Sets the current selection model to the given \a selectionModel.
 
     Note that, if you call setModel() after this function, the given \a selectionModel
     will be replaced by a one created by the view.
@@ -542,9 +555,9 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 }
 
 /*!
-    Returns the current selection.
+    Returns the current selection model.
 
-    \sa setSelectionModel(), clearSelection()
+    \sa setSelectionModel(), selectedIndexes()
 */
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
@@ -622,7 +635,7 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
 }
 
 /*!
-   Returns the item delegate uset by this view and model for
+   Returns the item delegate used by this view and model for
    the given \a row.
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
@@ -653,7 +666,7 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
 }
 
 /*!
-   Returns the item delegate uset by this view and model for
+   Returns the item delegate used by this view and model for
    the given \a column.
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegateForColumn(int column) const
@@ -663,7 +676,7 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegateForColumn(int column) cons
 }
 
 /*!
-   Returns the item delegate uset by this view and model for
+   Returns the item delegate used by this view and model for
    the given \a index.
 */
 QAbstractItemDelegate *QAbstractItemView::itemDelegate(const QModelIndex &index) const
@@ -724,7 +737,7 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 
     \c{selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);}
 
-    \sa currentIndex(), setSelectionMode(), selectionMode()
+    \sa currentIndex(), currentChanged(), selectionMode
 */
 void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
@@ -787,6 +800,8 @@ QModelIndex QAbstractItemView::rootIndex() const
 
 /*!
   Selects all non-hidden items.
+
+  \sa setSelection(), selectedIndexes(), clearSelection()
 */
 void QAbstractItemView::selectAll()
 {
@@ -826,6 +841,8 @@ void QAbstractItemView::edit(const QModelIndex &index)
 
 /*!
     Clears all selected items. The current index will not be changed.
+
+    \sa setSelection(), selectAll()
 */
 void QAbstractItemView::clearSelection()
 {
@@ -1673,7 +1690,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *event)
     This function is where editing is initiated by key press, e.g. if F2 is
     pressed.
 
-    \sa edit()
+    \sa edit(), moveCursor(), keyboardSearch(), tabKeyNavigation
 */
 void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 {
@@ -2036,7 +2053,7 @@ void QAbstractItemView::horizontalScrollbarAction(int)
     operation. For example, the hint may indicate that the next item in
     the view should be opened for editing.
 
-    \sa edit()
+    \sa edit(), commitData()
 */
 
 void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
@@ -2106,7 +2123,9 @@ void QAbstractItemView::commitData(QWidget *editor)
 }
 
 /*!
-  Remove the editor \a editor from the map.
+  This function is called when the given \a editor has been destroyed.
+
+  \sa closeEditor()
 */
 void QAbstractItemView::editorDestroyed(QObject *editor)
 {
@@ -2229,6 +2248,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 /*!
     Returns the size hint for the item with the specified \a index or
     an invalid size for invalid indexes.
+
+    \sa sizeHintForRow(), sizeHintForColumn()
 */
 QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 {
@@ -2300,6 +2321,8 @@ int QAbstractItemView::sizeHintForColumn(int column) const
 /*!
     Opens a persistent editor on the item at the given \a index.
     If no editor exists, the delegate will create a new editor.
+
+    \sa closePersistentEditor()
 */
 void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 {
@@ -2317,6 +2340,8 @@ void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 
 /*!
   Closes the persistent editor for the item at the given \a index.
+
+  \sa openPersistentEditor()
 */
 void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 {
@@ -2382,6 +2407,8 @@ QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
     \since 4.1
 
     Scrolls the view to the top.
+
+    \sa scrollTo(), scrollToBottom()
 */
 void QAbstractItemView::scrollToTop()
 {
@@ -2392,6 +2419,8 @@ void QAbstractItemView::scrollToTop()
     \since 4.1
 
     Scrolls the view to the bottom.
+
+    \sa scrollTo(), scrollToTop()
 */
 void QAbstractItemView::scrollToBottom()
 {
@@ -2564,6 +2593,8 @@ void QAbstractItemViewPrivate::_q_modelDestroyed()
     This slot is called when the selection is changed. The previous
     selection (which may be empty), is specified by \a deselected, and the
     new selection by \a selected.
+
+    \sa setSelection()
 */
 void QAbstractItemView::selectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected)
@@ -2632,7 +2663,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
 #endif // QT_NO_DRAGANDDROP
 
 /*!
-    Returns QStyleOptionViewItem structure populated with the view's
+    Returns a QStyleOptionViewItem structure populated with the view's
     palette, font, state, alignments etc.
 */
 QStyleOptionViewItem QAbstractItemView::viewOptions() const
@@ -2672,7 +2703,7 @@ QAbstractItemView::State QAbstractItemView::state() const
 }
 
 /*!
-    Sets the item view's state to the given \a state
+    Sets the item view's state to the given \a state.
 
     \sa state()
 */
@@ -2823,6 +2854,8 @@ void QAbstractItemView::doAutoScroll()
     such as a mouse or keyboard event.
 
     Reimplement this function to define your own selection behavior.
+
+    \sa setSelection()
 */
 QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QModelIndex &index,
                                                                         const QEvent *event) const
