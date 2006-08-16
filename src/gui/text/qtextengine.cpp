@@ -1090,7 +1090,7 @@ QFont QTextEngine::font(const QScriptItem &si) const
     QTextCharFormat f = format(&si);
     QFont font = f.font();
 
-    if (block.docHandle()) {
+    if (block.docHandle() && block.docHandle()->layout()) {
         // Make sure we get the right dpi on printers
         QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
         if (pdev)
@@ -1127,7 +1127,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         QTextCharFormat f = format(&si);
         QFont font = f.font();
 
-        if (block.docHandle()) {
+        if (block.docHandle() && block.docHandle()->layout()) {
             // Make sure we get the right dpi on printers
             QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
             if (pdev)
@@ -1369,7 +1369,7 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
     QFont f;
     QFontEngine *e;
 
-    if (eng->block.docHandle()) {
+    if (eng->block.docHandle() && eng->block.docHandle()->layout()) {
         f = eng->block.charFormat().font();
         // Make sure we get the right dpi on printers
         QPaintDevice *pdev = eng->block.docHandle()->layout()->paintDevice();
