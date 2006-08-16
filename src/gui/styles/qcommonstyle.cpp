@@ -3890,11 +3890,7 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
     case SP_FileDialogBack:
         return standardIconImplementation(SP_ArrowBack, option, widget);
     case SP_FileDialogToParent:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-32.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-64.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-128.png"));
-        break;
+        return standardIconImplementation(SP_ArrowUp, option, widget);
     case SP_FileDialogNewFolder:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-128.png"));
