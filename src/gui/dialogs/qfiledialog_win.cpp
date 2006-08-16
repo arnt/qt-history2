@@ -404,6 +404,19 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     modal_widget.setAttribute(Qt::WA_NoChildEventsForParent, true);
     modal_widget.setParent(args.parent, Qt::Window);
     QApplicationPrivate::enterModal(&modal_widget);
+    
+    QString defaultSaveExt;
+    if (selectedFilter && !selectedFilter->isEmpty()) {
+        defaultSaveExt = qt_win_extract_filter(*selectedFilter);
+        // make sure we only have the extension
+        int firstDot = defaultSaveExt.indexOf(QLatin1Char('.'));
+        if (firstDot != -1) {
+            defaultSaveExt.remove(0, firstDot + 1);
+        } else {
+            defaultSaveExt.clear();
+        }
+    }
+
     QT_WA({
         // Use Unicode strings and API
         OPENFILENAME *ofn = qt_win_make_OFN(args.parent, args.selection,
@@ -411,6 +424,9 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
                                             qt_win_filter(args.filter),
 					    QFileDialog::AnyFile,
 					    args.options);
+
+        ofn->lpstrDefExt = defaultSaveExt.utf16();
+        
         if (idx)
             ofn->nFilterIndex = idx + 1;
         if (GetSaveFileName(ofn)) {
@@ -425,6 +441,9 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
                                               qt_win_filter(args.filter),
 					      QFileDialog::AnyFile,
 					      args.options);
+        QByteArray asciiExt = defaultSaveExt.toAscii();
+        ofn->lpstrDefExt = asciiExt.data();
+        
         if (idx)
             ofn->nFilterIndex = idx + 1;
         if (GetSaveFileNameA(ofn)) {
