@@ -190,6 +190,8 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     \skipto QSqlQuery
     \printuntil boundValue(
 
+    Note that unbound parameters will retain their values.
+
     \sa QSqlDatabase, QSqlQueryModel, QSqlTableModel, QVariant
 */
 

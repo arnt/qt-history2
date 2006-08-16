@@ -1545,7 +1545,7 @@ void tst_QSqlQuery::prepare_bind_exec()
     QVERIFY(q.prepare("insert into " + qTableName("qtest_prepare") + " (id, name) values (:id, :name)"));
     int i;
     for (i = 0; i < 6; ++i) {
-	q.bindValue(":name", values[ i ]);
+	q.bindValue(":name", values[i]);
 	q.bindValue(":id", i);
 	QVERIFY2(q.exec(),
 		tst_Databases::printError(q.lastError()));
@@ -1554,6 +1554,9 @@ void tst_QSqlQuery::prepare_bind_exec()
 	QCOMPARE(m[":name"].toString(), values[i]);
 	QCOMPARE(m[":id"].toInt(), i);
     }
+
+    q.bindValue(":id", 8);
+    QVERIFY_SQL(q, q.exec());
 
     if (useUnicode) {
 	q.bindValue(":id", 7);
@@ -1575,6 +1578,10 @@ void tst_QSqlQuery::prepare_bind_exec()
 	QCOMPARE(q.value(0).toInt(), 7);
 	QCOMPARE(q.value(1).toString(), utf8str);
     }
+
+    QVERIFY_SQL(q, q.next());
+    QCOMPARE(q.value(0).toInt(), 8);
+    QCOMPARE(q.value(1).toString(), values[5]);
 
     QVERIFY(q.prepare("insert into " + qTableName("qtest_prepare") + " (id, name) values (:id, 'Bart')"));
     q.bindValue(":id", 99);
