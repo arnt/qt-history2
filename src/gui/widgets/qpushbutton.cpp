@@ -460,11 +460,18 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 void QPushButton::setMenu(QMenu* menu)
 {
     Q_D(QPushButton);
+    if (menu == d->menu)
+        return;
+
     if (menu && !d->menu) {
         disconnect(this, SIGNAL(pressed()), this, SLOT(_q_popupPressed()));
         connect(this, SIGNAL(pressed()), this, SLOT(_q_popupPressed()));
     }
+    if (d->menu)
+        removeAction(d->menu->menuAction());
     d->menu = menu;
+    if (d->menu)
+        addAction(d->menu->menuAction());
     update();
     updateGeometry();
 }
