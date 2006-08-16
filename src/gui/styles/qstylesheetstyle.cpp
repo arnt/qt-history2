@@ -200,8 +200,7 @@ public:
     bool hasBox() const { return b != 0; }
     bool hasBorder() const { return bd != 0; }
     bool hasPosition() const { return p != 0; }
-    bool hasFrame() const { return hasBorder() || hasBackground(); }
-    bool hasDrawable() const { return hasFrame() || hasImage(); }
+    bool hasDrawable() const { return hasBorder() || hasBackground() || hasImage(); }
 
     QSize minimumContentsSize() const 
     { return geo ? QSize(geo->minWidth, geo->minHeight) : QSize(0, 0); }
@@ -243,6 +242,7 @@ static const char *knownStyleHints[] = {
     "etch-disabled-text",
     "gridline-color",
     "lineedit-password-character",
+    "opacity",
     "show-decoration-selected"
 };
 
@@ -981,7 +981,8 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, Qt::LayoutDirec
 {
     if (!hasBackground())
         return;
-    p->fillRect(borderRect(rect), background()->color);
+    if (background()->color.isValid())
+        p->fillRect(borderRect(rect), background()->color);
     drawBackgroundImage(p, rect, dir);
 }
 
@@ -1284,8 +1285,8 @@ void QStyleSheetStyle::update(const QList<const QWidget *>& widgets)
 
 void QStyleSheetStyle::widgetDestroyed(QObject *o)
 {
-    renderRulesCache.remove(static_cast<const QWidget *>(o));
-    renderRulesCache.remove(static_cast<const QWidget *>(o));
+    renderRulesCache.remove((const QWidget *)o);
+    renderRulesCache.remove((const QWidget *)o);
 }
 
 bool unstylable(QWidget *w)
@@ -1513,7 +1514,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
     case CE_ToolBar:
         if (rule.hasBackground()) {
             rule.drawBackground(p, opt->rect, opt->direction);
-        } 
+        }
         if (rule.hasBorder()) {
             rule.drawBorder(p, rule.borderRect(opt->rect), opt->direction);
         } else {
@@ -1716,8 +1717,8 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         break;
 
     case PE_IndicatorToolBarHandle:
-        if (rule.hasBackground()) {
-            rule.drawBackground(p, opt->rect, opt->direction);
+        if (rule.hasDrawable()) {
+            rule.drawRule(p, opt->rect, opt->direction);
             return;
         }
         break;
@@ -1730,12 +1731,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
 
     case PE_PanelTipLabel:
-        if (rule.hasFrame()) {
+        if (rule.hasDrawable()) {
             rule.drawFrame(p, opt->rect, opt->direction);
             return;
         }
-        if (rule.hasBackground())
-            rule.drawBackground(p, opt->rect, opt->direction);
         break;
 
     case PE_FrameGroupBox:
@@ -1818,8 +1817,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_MenuBarPanelWidth: 
     case PM_ToolBarFrameWidth:
         if (rule.hasBorder() || rule.hasBox())
-            return rule.border() ? rule.border()->borders[LeftEdge] : 0
-                   + rule.hasBox() ? rule.box()->margins[LeftEdge] : 0;
+            return (rule.border() ? rule.border()->borders[LeftEdge] : 0)
+                   + (rule.hasBox() ? rule.box()->margins[LeftEdge] + rule.box()->paddings[LeftEdge]: 0);
         break;
 
     case PM_MenuHMargin:
@@ -1837,7 +1836,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ToolBarItemSpacing:
     case PM_MenuBarItemSpacing:
-        if (rule.hasBox())
+        if (rule.hasBox() && rule.box()->spacing != -1)
             return rule.box()->spacing;
         break;
 
@@ -1855,6 +1854,9 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         break;
 
     case PM_ToolBarHandleExtent:
+        if (rule.hasBox() || rule.hasBorder() || rule.hasContentsSize())
+            return rule.boxSize(rule.contentsSize()).expandedTo(rule.minimumContentsSize()).width();
+
     case PM_SplitterWidth:
         if (rule.hasContentsSize())
             return rule.contentsSize().width();
@@ -1993,6 +1995,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
         case SH_ItemView_ShowDecorationSelected: s = "show-decoration-selected"; break;
         case SH_Table_GridLineColor: s = "gridline-color"; break;
         case SH_DialogButtonLayout: s = "button-layout"; break;
+        case SH_ToolTipLabel_Opacity: s = "opacity"; break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s))
