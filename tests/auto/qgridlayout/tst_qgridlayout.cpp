@@ -322,8 +322,6 @@ private:
     QSize sh;
 };
 
-#define DBG if (widget.sizeHint() != expectedSizeHint) qDebug() << widget.sizeHint() << expectedSizeHint
-
 void tst_QGridLayout::spacingAndSpacers()
 {
     QWidget widget;
@@ -350,26 +348,22 @@ void tst_QGridLayout::spacingAndSpacers()
     QCOMPARE(rightChild.sizeHint(), QSize(200,100));
 
     expectedSizeHint += QSize(rightChild.sizeHint().width(), 0);
-    DBG;
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
     layout.setColumnMinimumWidth(1, 100);
     widget.adjustSize();
     expectedSizeHint += QSize(100,0);
-    DBG;
     QApplication::processEvents();
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
     rightChild.hide();
     QApplication::processEvents();
     expectedSizeHint -= QSize(rightChild.sizeHint().width(), 0);
-    DBG;
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
 
     layout.setColumnMinimumWidth(1, 0);
     expectedSizeHint -= QSize(100, 0);
-    DBG;
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
     rightChild.show();
@@ -384,7 +378,6 @@ void tst_QGridLayout::spacingAndSpacers()
 
     layout.removeWidget(&rightChild);
     QApplication::processEvents();
-    DBG;
     QCOMPARE(widget.sizeHint(), expectedSizeHint);
 
 
