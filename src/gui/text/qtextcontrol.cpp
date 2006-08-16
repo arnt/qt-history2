@@ -1026,10 +1026,12 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
                 tmp.setPosition(tmp.selectionStart());
             tmp.movePosition(QTextCursor::NextCharacter);
             const QString href = tmp.charFormat().anchorHref();
-            if (openExternalLinks)
-                QDesktopServices::openUrl(href);
-            else
-                emit q->linkActivated(href);
+            if (!href.isEmpty()) {
+                if (openExternalLinks)
+                    QDesktopServices::openUrl(href);
+                else
+                    emit q->linkActivated(href);
+            }
             return;
         }
     }
