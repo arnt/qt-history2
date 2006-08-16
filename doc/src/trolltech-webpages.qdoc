@@ -34,8 +34,8 @@
 */
 
 /*!
- \externalpage http://www.trolltech.com/products/qt/readyforqt4.html
- \title Getting Ready for Qt 4
+ \externalpage http://www.trolltech.com/products/qt/whatsnew/porting
+ \title Moving from Qt 3 to Qt 4
 */
 
 /*!
@@ -79,7 +79,7 @@
 */
 
 /*!
- \externalpage http://www.trolltech.com/developer/tasktracker.html
+ \externalpage http://www.trolltech.com/developer/task-tracker
  \title Task Tracker
 */
 
