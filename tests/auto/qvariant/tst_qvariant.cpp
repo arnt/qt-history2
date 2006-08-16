@@ -1424,15 +1424,15 @@ void tst_QVariant::operator_eq_eq_data()
     QTest::newRow( "ull1ull1" ) << ull1 << ull1 << true;
     QTest::newRow( "ull1i1" ) << ull1 << ull1 << true;
 
-    QVariant mInt((int)-42);
+    QVariant mInt(-42);
     QVariant mIntString(QByteArray("-42"));
     QVariant mIntQString(QString("-42"));
 
-    QVariant mUInt((uint)42);
+    QVariant mUInt(42u);
     QVariant mUIntString(QByteArray("42"));
     QVariant mUIntQString(QString("42"));
 
-    QVariant mDouble((double)42.11);
+    QVariant mDouble(42.11);
     QVariant mDoubleString(QByteArray("42.11"));
     QVariant mDoubleQString(QString("42.11"));
 
@@ -1448,6 +1448,7 @@ void tst_QVariant::operator_eq_eq_data()
     QVariant mBoolString(QByteArray("false"));
     QVariant mBoolQString(QString("false"));
 
+    QTest::newRow( "double_int" ) << QVariant(42.0) << QVariant(42) << true;
     QTest::newRow( "mInt_mIntString" ) << mInt << mIntString << true;
     QTest::newRow( "mIntString_mInt" ) << mIntString << mInt << true;
     QTest::newRow( "mInt_mIntQString" ) << mInt << mIntQString << true;
