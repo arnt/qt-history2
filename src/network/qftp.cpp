@@ -510,7 +510,7 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
     QTime time;
     QString dateStr;
     dateStr += QLatin1String("Sun ");
-    lst[5] = lst[5].toUpper();
+    lst[5][0] = lst[5][0].toUpper();
     dateStr += lst[5];
     dateStr += QLatin1Char(' ');
     dateStr += lst[6];
