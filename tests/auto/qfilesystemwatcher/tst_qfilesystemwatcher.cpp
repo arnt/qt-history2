@@ -8,6 +8,10 @@ QTEST_NOOP_MAIN
 
 #include <QFileSystemWatcher>
 
+#if defined(Q_OS_LINUX) && !defined(QT_NO_INOTIFY)
+#include <sys/inotify.h>
+#endif
+
 class tst_QFileSystemWatcher : public QObject
 {
     Q_OBJECT
@@ -24,16 +28,26 @@ private slots:
 
     void addPath();
     void removePath();
+
+private:
+    bool do_force_native;
 };
 
 tst_QFileSystemWatcher::tst_QFileSystemWatcher()
+    : do_force_native(true)
 {
+#if defined(Q_OS_LINUX) && !defined(QT_NO_INOTIFY)
+    if (inotify_init() == -1)
+        do_force_native = false;
+#endif
+
 }
 
 void tst_QFileSystemWatcher::basicTest_data()
 {
     QTest::addColumn<QString>("backend");
-    QTest::newRow("native") << "native";
+    if (do_force_native)
+        QTest::newRow("native") << "native";
     QTest::newRow("poller") << "poller";
 }
 
