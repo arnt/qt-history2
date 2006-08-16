@@ -29,7 +29,7 @@
 /*!
     \class QDBusConnectionInterface
     \inmodule QtDBus
-    \brief Provides access to the D-Bus bus daemon service.
+    \brief The QDBusConnectionInterface class provides access to the D-Bus bus daemon service.
 
     The D-BUS bus server daemon provides one special interface \c
     org.freedesktop.DBus that allows clients to access certain

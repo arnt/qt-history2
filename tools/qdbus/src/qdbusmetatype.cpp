@@ -129,24 +129,24 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 */
 
 /*!
-    \fn int qDBusRegisterMetaType(const char *typeName)
+    \fn int qDBusRegisterMetaType()
     \relates QDBusArgument
     \threadsafe
 
     Registers the \a typeName to the type \c{T} with the
     \l {qdbustypesystem.html}{QtDBus type system} and the Qt \l
-    {QMetaType}{meta type system}, if it's not already registered.
+    {QMetaType}{meta-type system}, if it's not already registered.
 
-    In order to register a type, it must be declared as a meta-type
-    with the Q_DECLARE_METATYPE() macro, and then registered as in the
+    To register a type, it must be declared as a meta-type with the
+    Q_DECLARE_METATYPE() macro, and then registered as in the
     following example:
 
     \code
-        qDBusRegisterMetaType<MyClass>("MyClass");
+        qDBusRegisterMetaType<MyClass>();
     \endcode
 
-    If \c{T} isn't a type derived from one of \l
-    {containers.html}{Qt's container classes}, the \c{operator<<} and
+    If \c{T} isn't a type derived from one of
+    Qt's \l{container classes}, the \c{operator<<} and
     \c{operator>>} streaming operators between \c{T} and QDBusArgument
     must be already declared. See the \l {qdbustypesystem.html}{QtDBus
     type system} page for more information on how to declare such
@@ -155,8 +155,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
     This function returns the Qt meta type id for the type (the same
     value that is returned from qRegisterMetaType()).
 
-    \sa {qdbustypesystem.html}{QtDBus type system},
-        qRegisterMetaType(), QMetaType
+    \sa {qdbustypesystem.html}{QtDBus type system}, qRegisterMetaType(), QMetaType
 */
 
 /*!

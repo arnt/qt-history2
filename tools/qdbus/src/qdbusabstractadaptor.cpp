@@ -69,7 +69,7 @@ void QDBusAbstractAdaptorPrivate::saveIntrospectionXml(QDBusAbstractAdaptor *ada
 /*!
     \class QDBusAbstractAdaptor
     \inmodule QtDBus
-    \brief Abstract adaptor for D-Bus adaptor classes.
+    \brief The QDBusAbstractAdaptor class is the base class of D-Bus adaptor classes.
 
     The QDBusAbstractAdaptor class is the starting point for all objects intending to provide
     interfaces to the external world using D-Bus. This is accomplished by attaching a one or more

@@ -18,7 +18,7 @@
 /*!
     \class QDBusReply
     \inmodule QtDBus
-    \brief The reply for a method call to a remote object.
+    \brief The QDBusReply class stores the reply for a method call to a remote object.
 
     A QDBusReply object is a subset of the QDBusMessage object that represents a method call's
     reply. It contains only the first output argument or the error code and is used by
@@ -89,10 +89,21 @@
 */
 
 /*!
+    \fn bool QDBusReply::isValid() const
+
+    Returns true if no error occurred; otherwise, returns false.
+
+    \sa error()
+*/
+
+/*!
     \fn QDBusReply::error()
+
     Returns the error code that was returned from the remote function call. If the remote call did
     not return an error (i.e., if it succeeded), then the QDBusError object that is returned will
     not be a valid error code (QDBusError::isValid() will return false).
+
+    \sa isValid()
 */
 
 /*!

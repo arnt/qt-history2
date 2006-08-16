@@ -453,7 +453,7 @@ QString QDBusArgument::currentSignature() const
 
 /*!
     Extracts one D-BUS primitive argument of type \c{BYTE} from the
-    D-BUS stream.
+    D-BUS stream and puts it into \a arg.
 */
 const QDBusArgument &QDBusArgument::operator>>(uchar &arg) const
 {
@@ -732,7 +732,7 @@ void QDBusArgument::endStructure()
     marshalling the data. The same applies for STL's sequence
     containers, such as \c {std::list}, \c {std::vector}, etc.
 
-    \sa endArray(), beginStructure(), begniMap()
+    \sa endArray(), beginStructure(), beginMap()
 */
 void QDBusArgument::beginArray(int id)
 {
@@ -896,7 +896,7 @@ void QDBusArgument::endStructure() const
     demarshalling the data. The same applies for STL's sequence
     containers, such as \c {std::list}, \c {std::vector}, etc.
 
-    \sa newArray(), atEnd(), structure(), map()
+    \sa atEnd(), beginStructure(), beginMap()
 */
 void QDBusArgument::beginArray() const
 {

@@ -117,7 +117,7 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
 /*!
     \class QDBusInterface
     \inmodule QtDBus
-    \brief Proxy class for interfaces on remote objects.
+    \brief The QDBusInterface class is a proxy for interfaces on remote objects.
 
     QDBusInterface is a generic accessor class that is used to place calls to remote objects,
     connect to signals exported by remote objects and get/set the value of remote properties. This
@@ -145,17 +145,22 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
             printf( "%d", reply.value() );          // prints 4
     \endcode
 
-    \sa dbusxml2cpp
+    \sa {dbusxml2cpp.html}{The dbusxml2cpp compiler}
 */
 
 /*!
-    Creates a dynamic QDBusInterface associated with the interface \a interface on object at path \a
-    path on service \a service. If \a interface is an empty string, the object created will
-    refer to the merging of all interfaces found in that object.
+    Creates a dynamic QDBusInterface object associated with the
+    interface \a interface on object at path \a path on service \a
+    service, using the given \a connection. If \a interface is an
+    empty string, the object created will refer to the merging of all
+    interfaces found in that object.
 
-    If the remote service \a service is not present or if an error occurs trying
-    to obtain the description of the remote interface \a interface, the object created
-    will not be valid (see isValid()).
+    \a parent is passed to the base class constructor.
+
+    If the remote service \a service is not present or if an error
+    occurs trying to obtain the description of the remote interface
+    \a interface, the object created will not be valid (see
+    isValid()).
 */
 QDBusInterface::QDBusInterface(const QString &service, const QString &path, const QString &interface,
                                const QDBusConnection &connection, QObject *parent)

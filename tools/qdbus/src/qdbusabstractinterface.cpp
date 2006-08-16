@@ -122,7 +122,7 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
 /*!
     \class QDBusAbstractInterface
     \inmodule QtDBus
-    \brief Base class for all D-Bus interfaces in the QtDBus binding, allowing access to remote interfaces.
+    \brief The QDBusAbstractInterface class is the base class for all D-Bus interfaces in the QtDBus binding, allowing access to remote interfaces
 
     Generated-code classes also derive from QDBusAbstractInterface, all methods described here are also
     valid for generated-code classes. In addition to those described here, generated-code classes
@@ -134,20 +134,20 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
 */
 
 /*!
-    \enum QDBusAbstractInterface::CallMode
+    \enum QDBus::CallMode
 
     Specifies how a call should be placed. The valid options are:
-    \value AutoDetect           automatically detect if the called function has a reply to be returned
-    \value NoWaitForReply       place the call but don't wait for the reply (the reply's contents
+    \value AutoDetect           Automatically detect if the called function has a reply to be returned
+    \value NoBlock              Place the call but don't wait for the reply (the reply's contents
                                 will be discarded)
-    \value NoUseEventLoop       don't use an event loop to wait for a reply, but instead block on
+    \value Block                Don't use an event loop to wait for a reply, but instead block on
                                 network operations while waiting. This option means the
                                 user-interface may not be updated for the duration of the call.
-    \value UseEventLoop         use the Qt event loop to wait for a reply. This option means the
+    \value BlockWithGui         Use the Qt event loop to wait for a reply. This option means the
                                 user-interface will update, but it also means other events may
                                 happen, like signal delivery and other D-Bus method calls.
 
-    When using UseEventLoop, applications must be prepared for reentrancy in any function.
+    When using BlockWithGui, applications must be prepared for reentrancy in any function.
 */
 
 /*!

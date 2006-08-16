@@ -555,36 +555,28 @@
     \fn char *QTest::toString(const QLatin1String &string)
     \overload
 
-    Returns a textual representation of the given \a string. This function is
-    used by \l QCOMPARE() to output verbose information in case of a test
-    failure.
+    Returns a textual representation of the given \a string.
 */
 
 /*!
     \fn char *QTest::toString(const QString &string)
     \overload
 
-    Returns a textual representation of the given \a string. This function is
-    used by \l QCOMPARE() to output verbose information in case of a test
-    failure.
+    Returns a textual representation of the given \a string.
 */
 
 /*!
     \fn char *QTest::toString(const QTime &time)
     \overload
 
-    Returns a textual representation of the given \a time. This function is
-    used by \l QCOMPARE() to output verbose information in case of a test
-    failure.
+    Returns a textual representation of the given \a time.
 */
 
 /*!
     \fn char *QTest::toString(const QDate &date)
     \overload
 
-    Returns a textual representation of the given \a date. This function is
-    used by \l QCOMPARE() to output verbose information in case of a test
-    failure.
+    Returns a textual representation of the given \a date.
 */
 
 /*!
@@ -592,17 +584,56 @@
     \overload
 
     Returns a textual representation of the date and time specified by
-    \a dateTime. This function is used by \l QCOMPARE() to output verbose
-    information in case of a test failure.
+    \a dateTime.
 */
 
 /*!
     \fn char *QTest::toString(const QChar &character)
     \overload
 
-    Returns a textual representation of the given \a character. This function
-    is used by \l QCOMPARE() to output verbose information in case of a test
-    failure.
+    Returns a textual representation of the given \a character.
+*/
+
+/*!
+    \fn char *QTest::toString(const QPoint &point)
+    \overload
+
+    Returns a textual representation of the given \a point.
+*/
+
+/*!
+    \fn char *QTest::toString(const QSize &size)
+    \overload
+
+    Returns a textual representation of the given \a size.
+*/
+
+/*!
+    \fn char *QTest::toString(const QRect &rectangle)
+    \overload
+
+    Returns a textual representation of the given \a rectangle.
+*/
+
+/*!
+    \fn char *QTest::toString(const QPointF &point)
+    \overload
+
+    Returns a textual representation of the given \a point.
+*/
+
+/*!
+    \fn char *QTest::toString(const QSizeF &size)
+    \overload
+
+    Returns a textual representation of the given \a size.
+*/
+
+/*!
+    \fn char *QTest::toString(const QRectF &rectangle)
+    \overload
+
+    Returns a textual representation of the given \a rectangle.
 */
 
 /*! \fn void QTest::qWait(int ms)
