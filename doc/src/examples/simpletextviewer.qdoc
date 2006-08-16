@@ -225,18 +225,14 @@
     relevant directory.
 
     \quotefromfile assistant/simpletextviewer/findfiledialog.h
-    \skipto help
-    \printline help
-    \dots
-    \skipto helpButton
-    \printline helpButton
+    \skipto class FindFileDialog
+    \printuntil /^\}/
 
-    The relevant members to observe in the \c FindFileDialog class
-    definition is the private \c help() slot and the associated
-    private \c helpButton. The slot is connected to the button's \l
-    {QAbstractButton::clicked()}{clicked()} signal, and brings the
-    current Qt Assistant instance to the foreground showing the
-    documentation for the dialog.
+    The only relevant members to observe in the \c FindFileDialog
+    class definition is the private \c help() slot. The slot is
+    connected to the dialog's \gui Help button, and brings the current
+    Qt Assistant instance to the foreground showing the documentation
+    for the dialog.
 
     \section1 FindFileDialog Class Implementation
 

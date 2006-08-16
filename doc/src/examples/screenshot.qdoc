@@ -24,7 +24,7 @@
 
     \section1 Screenshot Class Definition
 
-    \quotefromfile widgets/screenshot/screenshot.h
+    \quotefromfile desktop/screenshot/screenshot.h
     \skipto class Screenshot
     \printuntil /^\};/
 
@@ -59,7 +59,7 @@
 
     \section1 Screenshot Class Implementation
 
-    \quotefromfile widgets/screenshot/screenshot.cpp
+    \quotefromfile desktop/screenshot/screenshot.cpp
     \skipto Screenshot
     \printuntil /^\}/
 
