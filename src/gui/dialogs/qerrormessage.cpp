@@ -25,6 +25,8 @@
 #include "qtextedit.h"
 #include "qdialog_p.h"
 #include "qpixmap.h"
+#include "qmetaobject.h"
+#include "qthread.h"
 #include <qhash.h>
 
 #include <stdio.h>
@@ -141,7 +143,14 @@ static void jump(QtMsgType t, const char * m)
         rich.chop(4);
 
     if (!metFatal) {
-        qtMessageHandler->showMessage(rich);
+        if (QThread::currentThread() == qApp->thread()) {
+            qtMessageHandler->showMessage(rich);
+        } else {
+            QMetaObject::invokeMethod(qtMessageHandler,
+                                      "showMessage",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(QString, rich));
+        }
         metFatal = (t == QtFatalMsg);
     }
 }
