@@ -345,18 +345,31 @@ void QTextBrowserPrivate::keypadMove(bool next)
 
     \ingroup text
 
-    This class extends QTextEdit (in read-only mode), adding some
-    navigation functionality so that users can follow links in
-    hypertext documents. The contents of QTextEdit are set with
-    setHtml() or setPlainText(), but QTextBrowser also implements the
-    setSource() function, making it possible to set the text to a named
-    document. The name is looked up in a list of search paths and in the
-    directory of the current document factory. If a document name ends with
+    This class extends QTextEdit (in read-only mode), adding some navigation
+    functionality so that users can follow links in hypertext documents.
+
+    If you want to provide your users with an editable rich text editor,
+    use QTextEdit. If you want a text browser without hypertext navigation
+    use QTextEdit, and use QTextEdit::setReadOnly() to disable
+    editing. If you just need to display a small piece of rich text
+    use QLabel.
+
+    \section1 Document Source and Contents
+
+    The contents of QTextEdit are set with setHtml() or setPlainText(),
+    but QTextBrowser also implements the setSource() function, making it
+    possible to use a named document as the source text. The name is looked
+    up in a list of search paths and in the directory of the current document
+    factory.
+
+    If a document name ends with
     an anchor (for example, "\c #anchor"), the text browser automatically
     scrolls to that position (using scrollToAnchor()). When the user clicks
     on a hyperlink, the browser will call setSource() itself with the link's
     \c href value as argument. You can track the current source by connecting
     to the sourceChanged() signal.
+
+    \section1 Navigation
 
     QTextBrowser provides backward() and forward() slots which you can
     use to implement Back and Forward buttons. The home() slot sets
@@ -366,14 +379,8 @@ void QTextBrowserPrivate::keypadMove(bool next)
     function to supply new document text in a slot connected to this
     signal.
 
-    If you want to provide your users with editable rich text use
-    QTextEdit. If you want a text browser without hypertext navigation
-    use QTextEdit, and use QTextEdit::setReadOnly() to disable
-    editing. If you just need to display a small piece of rich text
-    use QLabel.
-
     If you want to load documents stored in the Qt resource system use
-    qrc as the scheme in the URL to load. For example, for the document
+    \c{qrc} as the scheme in the URL to load. For example, for the document
     resource path \c{:/docs/index.html} use \c{qrc:/docs/index.html} as
     the URL with setSource().
 
