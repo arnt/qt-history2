@@ -72,16 +72,34 @@ QString QCoreApplicationPrivate::appName() const
     return ::appName;
 }
 
+class QWinMsgHandlerCriticalSection
+{
+    CRITICAL_SECTION cs;
+public:
+    QWinMsgHandlerCriticalSection() 
+    { InitializeCriticalSection(&cs); }
+    ~QWinMsgHandlerCriticalSection() 
+    { DeleteCriticalSection(&cs); }
+
+    void lock()
+    { EnterCriticalSection(&cs); }
+    void unlock()
+    { LeaveCriticalSection(&cs); }
+};
+
 Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
 {
     Q_UNUSED(t);
     // OutputDebugString is not threadsafe.
-    static QMutex staticMutex;
+
+    // cannot use QMutex here, because qWarning()s in the QMutex
+    // implementation may cause this function to recurse
+    static QWinMsgHandlerCriticalSection staticCriticalSection;
 
     if (!str)
         str = "(null)";
 
-    staticMutex.lock();
+    staticCriticalSection.lock();
     QT_WA({
         QString s(str);
         s += "\n";
@@ -91,7 +109,7 @@ Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
         s += "\n";
         OutputDebugStringA(s.data());
     })
-    staticMutex.unlock();
+    staticCriticalSection.unlock();
 }
 
 
