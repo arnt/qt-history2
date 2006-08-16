@@ -56,7 +56,9 @@ static const int ProgressBarFps = 25;
 #include <qtoolbutton.h>
 #include <qworkspace.h>
 #include <qprocess.h>
-
+#include <qfileinfo.h>
+#include <qsettings.h>
+#include <qdir.h>
 #include <limits.h>
 
 // from windows style
@@ -5492,11 +5494,23 @@ void QPlastiqueStyle::unpolish(QApplication *app)
 void QPlastiqueStylePrivate::lookupIconTheme () const
 {
 #ifdef Q_WS_X11
-    if (!themeName.isEmpty())
-        return;    QProcess kreadconfig;
-    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
-    if (kreadconfig.waitForFinished())
-        themeName = QLatin1String(kreadconfig.readLine().trimmed());
+    QFileInfo fileInfo("/usr/share/icons/default.kde");
+    QDir dir(fileInfo.canonicalFilePath());
+    QString defaultTheme = dir.exists() ? dir.dirName() : "crystalsvg";
+
+    QSettings settings(QDir::homePath() + "/.kde/share/config/kdeglobals", QSettings::IniFormat);
+    settings.beginGroup("Icons");
+    if (settings.allKeys().contains("Theme")) {
+        themeName = settings.value("Theme", defaultTheme).toString();
+    } else {
+        /*
+        // This can be enabled if there are bug reports that this doesn't cover all cases (which it doesn't)
+        QProcess kreadconfig;
+        kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
+        if (kreadconfig.waitForFinished())
+            themeName = QLatin1String(kreadconfig.readLine().trimmed());
+        */
+    }
 #endif
 }
 

@@ -36,6 +36,12 @@
 #include "qtextstream.h"
 #include "qpixmapcache.h"
 
+#ifdef Q_WS_X11
+#include "qfileinfo.h"
+#include "qdir.h"
+#include <private/qt_x11_p.h>
+#endif
+
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #  ifndef COLOR_GRADIENTACTIVECAPTION
@@ -3048,6 +3054,14 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
                 }
             }
         }
+    }
+
+    if (X11->desktopEnvironment == DE_KDE) {
+        QFileInfo fileInfo("/usr/share/icons/default.kde");
+        QDir dir(fileInfo.canonicalFilePath());
+        QString defaultKDETheme = dir.exists() ? dir.dirName() : "crystalsvg";
+        if (!parents.contains(defaultKDETheme))
+            parents.append(defaultKDETheme);
     }
 
     if (parents.isEmpty() && themeName != "hicolor")
