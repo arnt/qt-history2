@@ -49,6 +49,7 @@ private:
     QFont displayFont;
     int lastKey;
     int squareSize;
+    int rows;
 };
 
 #endif
