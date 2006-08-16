@@ -88,8 +88,8 @@ public:
 
     bool isOpaque() const {return opaque && _opacity == 255;}
     uint opacity() const { return _opacity; }
-    QWSWindowSurface* windowSurface() { return surface; }
-    void createSurface(const QString &key, const QByteArray &data);
+
+    QWSWindowSurface* windowSurface() const { return surface; }
 
 private:
     bool hidden() const { return requested_region.isEmpty(); }
@@ -104,6 +104,8 @@ private:
     void shuttingDown() { last_focus_time=0; }
 
     inline void setAllocatedRegion(const QRegion &region);
+
+    void createSurface(const QString &key, const QByteArray &data);
 
 private:
     int id;

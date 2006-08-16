@@ -143,6 +143,11 @@ QWSEvent *QWSEvent::factory(int type)
 */
 
 /*!
+   \fn  int QWSEvent::window() const
+   \internal
+*/
+
+/*!
    \fn  QWSEvent *QWSEvent::factory(int type)
    \internal
 */

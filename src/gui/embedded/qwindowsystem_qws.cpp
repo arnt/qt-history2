@@ -269,7 +269,6 @@ public:
 
 /*
     \fn bool QWSWindow::isPartiallyObscured() const
-    \internal
 
     Returns true if the window is partially obsured by another window
     or by the bounds of the screen; otherwise returns false.
@@ -282,6 +281,11 @@ public:
     or by the bounds of the screen; otherwise returns false.
 
     \sa isVisible()
+*/
+
+/*!
+    \fn QWSWindowSurface* QWSWindow::windowSurface() const
+    \internal
 */
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
