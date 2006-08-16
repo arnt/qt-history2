@@ -153,7 +153,7 @@ void Window::validatorChanged(int index)
             999.0, 2, validatorLineEdit));
     }
 
-    validatorLineEdit->setText("");
+    validatorLineEdit->clear();
 }
 
 void Window::alignmentChanged(int index)
