@@ -287,9 +287,9 @@
 \row \o QMutex::~QMutex() \o Value type.
 \row \o bool QObject::checkConnectArgs(const char *, const QObject *, const char *) \o Reimplementing this function is no longer possible.
 \row \o const char * QObject::className() const \o Reimplementing this function is no longer supported.
-\row \o void QObject::insertChild(QObject *) \o Reimplement QObject::childEvent() instead and handle QEvent:ChildAdded events.
+\row \o void QObject::insertChild(QObject *) \o Reimplement QObject::childEvent() instead and handle QEvent::ChildAdded events.
 \row \o QVariant QObject::property(const char *) const \o Reimplementing this function is no longer supported.
-\row \o void QObject::removeChild(QObject *) \o  Reimplement QObject::childEvent() instead and handle QEvent:ChildRemoved events.
+\row \o void QObject::removeChild(QObject *) \o  Reimplement QObject::childEvent() instead and handle QEvent::ChildRemoved events.
 \row \o void QObject::setName(const char *) \o Setter.
 \row \o bool QObject::setProperty(const char *, const QVariant &) \o Setter.
 \row \o bool QPaintDevice::cmd(int , QPainter * , QPDevCmdParam *) \o Port to the new QPaintEngine API.
