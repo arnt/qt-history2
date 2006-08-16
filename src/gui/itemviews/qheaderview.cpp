@@ -1363,7 +1363,7 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
     int oldCount = d->sectionCount;
     int oldLastSection = qMax(oldCount - 1, 0);
     initializeSections(qMin(oldLastSection, logicalFirst), lastSection);
-    d->invalidateCachedSizeHint();
+    resizeSections();
     emit sectionCountChanged(oldCount, count());
 }
 
