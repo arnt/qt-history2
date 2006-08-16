@@ -53,7 +53,6 @@ static QMenuBar *findMenuBar(const QWidget *widget)
     return 0;
 }
 
-#if 0 // ### unused
 static QStatusBar *findStatusBar(const QWidget *widget)
 {
     QList<QObject*> children = widget->children();
@@ -65,7 +64,6 @@ static QStatusBar *findStatusBar(const QWidget *widget)
 
     return 0;
 }
-#endif
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
@@ -100,6 +98,9 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
 
     m_addStatusBar = new QAction(tr("Create Status Bar"), this);
     connect(m_addStatusBar, SIGNAL(triggered()), this, SLOT(createStatusBar()));
+
+    m_removeStatusBar = new QAction(tr("Remove Status Bar"), this);
+    connect(m_removeStatusBar, SIGNAL(triggered()), this, SLOT(removeStatusBar()));
 
     m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
     connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
@@ -177,6 +178,21 @@ void QDesignerTaskMenu::createStatusBar()
     }
 }
 
+void QDesignerTaskMenu::removeStatusBar()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
+        if (!mw) {
+            // ### warning message
+            return;
+        }
+
+        DeleteStatusBarCommand *cmd = new DeleteStatusBarCommand(fw);
+        cmd->init(findStatusBar(mw));
+        fw->commandHistory()->push(cmd);
+    }
+}
+
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
     QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
@@ -194,10 +210,10 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
             actions.append(m_addToolBar);
             // ### create the status bar
-#if 0
             if (!findStatusBar(mw))
                 actions.append(m_addStatusBar);
-#endif
+            else
+                actions.append(m_removeStatusBar);
             actions.append(m_separator2);
         }
     }

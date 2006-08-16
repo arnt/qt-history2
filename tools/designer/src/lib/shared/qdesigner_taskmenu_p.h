@@ -65,6 +65,7 @@ private slots:
     void createMenuBar();
     void addToolBar();
     void createStatusBar();
+    void removeStatusBar();
 
 private:
     QPointer<QWidget> m_widget;
@@ -81,6 +82,7 @@ private:
     QAction *m_addMenuBar;
     QAction *m_addToolBar;
     QAction *m_addStatusBar;
+    QAction *m_removeStatusBar;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory

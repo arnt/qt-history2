@@ -732,6 +732,22 @@ private:
     QPointer<QStatusBar> m_statusBar;
 };
 
+class QDESIGNER_SHARED_EXPORT DeleteStatusBarCommand: public QDesignerFormWindowCommand
+{
+
+public:
+    DeleteStatusBarCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QStatusBar *statusBar);
+
+    virtual void undo();
+    virtual void redo();
+
+private:
+    QPointer<QMainWindow> m_mainWindow;
+    QPointer<QStatusBar> m_statusBar;
+};
+
 class QDESIGNER_SHARED_EXPORT AddToolBarCommand: public QDesignerFormWindowCommand
 {
 

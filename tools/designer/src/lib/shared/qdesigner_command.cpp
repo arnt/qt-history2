@@ -1737,6 +1737,7 @@ void CreateStatusBarCommand::init(QMainWindow *mainWindow)
     m_mainWindow = mainWindow;
     QDesignerFormEditorInterface *core = formWindow()->core();
     m_statusBar = qobject_cast<QStatusBar*>(core->widgetFactory()->createWidget("QStatusBar", m_mainWindow));
+    core->widgetFactory()->initialize(m_statusBar);
 }
 
 void CreateStatusBarCommand::redo()
@@ -1748,7 +1749,7 @@ void CreateStatusBarCommand::redo()
 
     m_statusBar->setObjectName("statusBar");
     formWindow()->ensureUniqueObjectName(m_statusBar);
-    formWindow()->manageWidget(m_statusBar);
+    core->metaDataBase()->add(m_statusBar);
     formWindow()->emitSelectionChanged();
 }
 
@@ -1764,8 +1765,55 @@ void CreateStatusBarCommand::undo()
         }
     }
 
-    formWindow()->unmanageWidget(m_statusBar);
+    core->metaDataBase()->remove(m_statusBar);
     formWindow()->emitSelectionChanged();
+}
+
+// ---- DeleteStatusBarCommand ----
+DeleteStatusBarCommand::DeleteStatusBarCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Delete Status Bar"), formWindow)
+{
+}
+
+void DeleteStatusBarCommand::init(QStatusBar *statusBar)
+{
+    m_statusBar = statusBar;
+    m_mainWindow = qobject_cast<QMainWindow*>(statusBar->parentWidget());
+}
+
+void DeleteStatusBarCommand::redo()
+{
+    if (m_mainWindow) {
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+        Q_ASSERT(c != 0);
+        for (int i=0; i<c->count(); ++i) {
+            if (c->widget(i) == m_statusBar) {
+                c->remove(i);
+                break;
+            }
+        }
+    }
+
+    core()->metaDataBase()->remove(m_statusBar);
+    m_statusBar->hide();
+    m_statusBar->setParent(formWindow());
+    formWindow()->emitSelectionChanged();
+}
+
+void DeleteStatusBarCommand::undo()
+{
+    if (m_mainWindow) {
+        m_statusBar->setParent(m_mainWindow);
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), m_mainWindow);
+
+        c->addWidget(m_statusBar);
+
+        core()->metaDataBase()->add(m_statusBar);
+        m_statusBar->show();
+        formWindow()->emitSelectionChanged();
+    }
 }
 
 // ---- AddToolBarCommand ----
