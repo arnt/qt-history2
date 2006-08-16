@@ -1194,11 +1194,13 @@ bool QObject::eventFilter(QObject * /* watched */, QEvent * /* event */)
 */
 
 /*!
-    Blocks signals if \a block is true, or unblocks signals if \a
-    block is false.
+    If \a block is true, signals emitted by this object is blocked
+    (i.e., emitted signals disappear into hyperspace). If \a block is
+    false, no such blocking will occur.
 
-    Emitted signals disappear into hyperspace if signals are blocked.
-    Note that the destroyed() signals will be emitted even if the signals
+    The return value is the previous value of signalsBlocked().
+
+    Note that the destroyed() signal will be emitted even if the signals
     for this object have been blocked.
 
     \sa signalsBlocked()
