@@ -9,7 +9,7 @@
 
 #include <QtTest/QtTest>
 
-#ifndef QTEST_REDUCED_EXPORTS
+#ifdef QTEST_REDUCED_EXPORTS
 #define private public
 #endif
 
@@ -36,7 +36,7 @@ public:
     tst_QTextPieceTable();
 
 
-#ifndef QTEST_REDUCED_EXPORTS
+#ifdef QTEST_REDUCED_EXPORTS
 public slots:
     void init();
     void cleanup();
@@ -101,7 +101,7 @@ tst_QTextPieceTable::tst_QTextPieceTable()
 { doc = 0; table = 0; }
 
 
-#ifndef QTEST_REDUCED_EXPORTS
+#ifdef QTEST_REDUCED_EXPORTS
 
 void tst_QTextPieceTable::init()
 {
