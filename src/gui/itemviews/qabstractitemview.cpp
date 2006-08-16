@@ -2179,6 +2179,10 @@ int QAbstractItemView::verticalStepsPerItem() const
 /*!
   Moves to and selects the item best matching the string \a search.
   If no item is found nothing happens.
+
+  In the default implementation, the search is reset if \a search is empty, or
+  the time interval since the last search has exceeded
+  QApplication::keyboardInputInterval().
 */
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
@@ -2190,7 +2194,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
                         : d->model->index(0, 0, d->root);
     QTime now(QTime::currentTime());
     bool skipRow = false;
-    if (d->keyboardInputTime.msecsTo(now) > QApplication::keyboardInputInterval()) {
+    if (search.isEmpty()
+        || (d->keyboardInputTime.msecsTo(now) > QApplication::keyboardInputInterval())) {
         d->keyboardInput = search;
         skipRow = true;
     } else {
