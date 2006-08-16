@@ -459,6 +459,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (q->testAttribute(Qt::WA_DropSiteRegistered))
         registerDropSite(true);
+
+    if (maybeTopData() && maybeTopData()->opacity != 255)
+        q->setWindowOpacity(maybeTopData()->opacity/255.);
 }
 
 
