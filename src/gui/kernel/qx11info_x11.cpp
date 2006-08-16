@@ -28,7 +28,8 @@
     of static functions that provide the default information for the
     application.
 
-    \warning This class is only available on X11.
+    \warning This class is only available on X11. For querying
+    per-screen information in a portable way, use QDesktopWidget.
 
     \sa QWidget::x11Info(), QPixmap::x11Info(), QDesktopWidget
 */
@@ -168,6 +169,11 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
     Returns the horizontal resolution of the given \a screen in terms of the
     number of dots per inch.
 
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
+
     \sa setAppDpiX(), appDpiY()
 */
 int QX11Info::appDpiX(int screen)
@@ -184,6 +190,11 @@ int QX11Info::appDpiX(int screen)
 /*!
     Sets the horizontal resolution of the given \a screen to the number of
     dots per inch specified by \a xdpi.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 
     \sa appDpiX(), setAppDpiY()
 */
@@ -203,6 +214,11 @@ void QX11Info::setAppDpiX(int screen, int xdpi)
     Returns the vertical resolution of the given \a screen in terms of the
     number of dots per inch.
 
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
+
     \sa setAppDpiY(), appDpiX()
 */
 
@@ -220,6 +236,11 @@ int QX11Info::appDpiY(int screen)
 /*!
     Sets the vertical resolution of the given \a screen to the number of
     dots per inch specified by \a ydpi.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 
     \sa appDpiY(), setAppDpiX()
 */
@@ -312,6 +333,11 @@ int QX11Info::appScreen()
 /*!
     Returns a handle for the application's color map on the given \a screen.
 
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
+
     \sa colormap(), defaultColormap()
 */
 Qt::HANDLE QX11Info::appColormap(int screen)
@@ -322,6 +348,11 @@ Qt::HANDLE QX11Info::appColormap(int screen)
 /*!
     Returns the current visual used by the application on the given
     \a screen.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 
     \sa visual(), defaultVisual()
 */
@@ -334,6 +365,11 @@ void *QX11Info::appVisual(int screen)
 /*!
     Returns a handle for the applications root window on the given \a screen.
 
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
+
     \sa QApplication::desktop()
 */
 Qt::HANDLE QX11Info::appRootWindow(int screen)
@@ -344,6 +380,11 @@ Qt::HANDLE QX11Info::appRootWindow(int screen)
 /*!
     Returns the color depth (bits per pixel) used by the application on the
     given \a screen.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 
     \sa depth()
 */
@@ -356,6 +397,11 @@ int QX11Info::appDepth(int screen)
 /*!
     Returns the number of cells used by the application on the given \a screen.
 
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
+
     \sa cells()
 */
 
@@ -365,6 +411,11 @@ int QX11Info::appCells(int screen)
 /*!
     Returns true if the application has a default color map on the given
     \a screen; otherwise returns false.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 */
 bool QX11Info::appDefaultColormap(int screen)
 { return X11 ? X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultColormap : true; }
@@ -372,12 +423,22 @@ bool QX11Info::appDefaultColormap(int screen)
 /*!
     Returns true if the application has a default visual on the given \a screen;
     otherwise returns false.
+
+    The \a screen argument is an X screen number. Be aware that if
+    the user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 */
 bool QX11Info::appDefaultVisual(int screen)
 { return X11 ? X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultVisual : true; }
 
 /*!
     Returns the number of the screen currently in use.
+
+    The return value is an X screen number. Be aware that if the
+    user's system uses Xinerama (as opposed to traditional X11
+    multiscreen), there is only one X screen. Use QDesktopWidget to
+    query for information about Xinerama screens.
 
     \sa appScreen()
 */
