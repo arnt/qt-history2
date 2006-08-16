@@ -41,7 +41,6 @@ public:
     virtual ~QTextBrowser();
 
     QUrl source() const;
-    QUrl resolvedSource() const;
 
     QStringList searchPaths() const;
     void setSearchPaths(const QStringList &paths);

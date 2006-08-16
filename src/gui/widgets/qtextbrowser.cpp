@@ -470,12 +470,6 @@ QUrl QTextBrowser::source() const
         return d->stack.top().url;
 }
 
-QUrl QTextBrowser::resolvedSource() const
-{
-    Q_D(const QTextBrowser);
-    return d->currentURL;
-}
-
 /*!
     \property QTextBrowser::searchPaths
     \brief the search paths used by the text browser to find supporting
