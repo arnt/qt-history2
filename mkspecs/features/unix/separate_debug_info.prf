@@ -1,5 +1,5 @@
 
-!staticlib:!contains(TEMPLATE, subdirs) {
+!staticlib:!static:!contains(TEMPLATE, subdirs) {
     QMAKE_POST_LINK = $$QMAKE_SEPARATE_DEBUG_INFO $$QMAKE_POST_LINK
     
     install_separate_debug_info.commands = -target_path=$$target.path && $$QMAKE_INSTALL_SEPARATE_DEBUG_INFO
