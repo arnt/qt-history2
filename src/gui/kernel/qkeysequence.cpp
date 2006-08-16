@@ -372,8 +372,6 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
     \value Bold             Bold text. Usually "Ctrl + B".
     \value Italic           Italic text. Usually "Ctrl + I".
     \value Underline        Underline text. Usually "Ctrl + U".
-    \value Return           This usually indicates either the enter or return key.
-    \value Backspace        This usually indicates the backspace key.
     \value MoveToNextChar           Move to next character. Usually right arrow key.
     \value MoveToPreviousChar       Move to previous character. Usually right arrow key.
     \value MoveToNextWord           Move to next word. Usually "Ctrl + Right".
