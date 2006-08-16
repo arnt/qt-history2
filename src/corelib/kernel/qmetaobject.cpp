@@ -581,6 +581,7 @@ QMetaEnum QMetaObject::enumerator(int index) const
 
 /*!
     Returns the meta-data for the property with the given \a index.
+    If no such property exists, a null QMetaProperty is returned.
 
     \sa propertyCount(), propertyOffset(), indexOfProperty()
 */
