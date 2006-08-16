@@ -154,11 +154,13 @@ QAbstractSpinBox::ButtonSymbols QAbstractSpinBox::buttonSymbols() const
     return d->buttonSymbols;
 }
 
-void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
+void QAbstractSpinBox::setButtonSymbols(ButtonSymbols buttonSymbols)
 {
     Q_D(QAbstractSpinBox);
-    if (d->buttonSymbols != (d->buttonSymbols = bs))
+    if (d->buttonSymbols != buttonSymbols) {
+        d->buttonSymbols = buttonSymbols;
         update();
+    }
 }
 
 /*!
@@ -213,15 +215,14 @@ QString QAbstractSpinBox::text() const
 QString QAbstractSpinBox::specialValueText() const
 {
     Q_D(const QAbstractSpinBox);
-
     return d->specialValueText;
 }
 
-void QAbstractSpinBox::setSpecialValueText(const QString &s)
+void QAbstractSpinBox::setSpecialValueText(const QString &specialValueText)
 {
     Q_D(QAbstractSpinBox);
 
-    d->specialValueText = s;
+    d->specialValueText = specialValueText;
     d->clearCache();
     d->updateEdit();
 }
@@ -259,10 +260,10 @@ bool QAbstractSpinBox::wrapping() const
     return (d->wrapping & QAbstractSpinBoxPrivate::WrapOn);
 }
 
-void QAbstractSpinBox::setWrapping(bool w)
+void QAbstractSpinBox::setWrapping(bool wrapping)
 {
     Q_D(QAbstractSpinBox);
-    d->wrapping = (w ? QAbstractSpinBoxPrivate::WrapOn : QAbstractSpinBoxPrivate::WrapOff) | QAbstractSpinBoxPrivate::WrapChanged;
+    d->wrapping = (wrapping ? QAbstractSpinBoxPrivate::WrapOn : QAbstractSpinBoxPrivate::WrapOff) | QAbstractSpinBoxPrivate::WrapChanged;
 }
 
 
@@ -326,10 +327,10 @@ void QAbstractSpinBox::setFrame(bool enable)
     the longer you hold the button down. This only applied
 */
 
-void QAbstractSpinBox::setAccelerate(bool on)
+void QAbstractSpinBox::setAccelerate(bool accelerate)
 {
     Q_D(QAbstractSpinBox);
-    d->accelerate = on;
+    d->accelerate = accelerate;
 
 }
 bool QAbstractSpinBox::accelerate() const
@@ -351,10 +352,10 @@ bool QAbstractSpinBox::accelerate() const
     valid value.
 */
 
-void QAbstractSpinBox::setCorrectionMode(CorrectionMode cm)
+void QAbstractSpinBox::setCorrectionMode(CorrectionMode correctionMode)
 {
     Q_D(QAbstractSpinBox);
-    d->correctionMode = cm;
+    d->correctionMode = correctionMode;
 
 }
 QAbstractSpinBox::CorrectionMode QAbstractSpinBox::correctionMode() const
@@ -665,11 +666,11 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
     \reimp
 */
 
-void QAbstractSpinBox::changeEvent(QEvent *e)
+void QAbstractSpinBox::changeEvent(QEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    switch(e->type()) {
+    switch (event->type()) {
         case QEvent::StyleChange:
             d->spinClickTimerInterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->spinClickThresholdTimerInterval = thresholdTime;
@@ -695,17 +696,17 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
         default:
             break;
     }
-    QWidget::changeEvent(e);
+    QWidget::changeEvent(event);
 }
 
 /*!
     \reimp
 */
 
-void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
+void QAbstractSpinBox::resizeEvent(QResizeEvent *event)
 {
     Q_D(QAbstractSpinBox);
-    QWidget::resizeEvent(e);
+    QWidget::resizeEvent(event);
 
     d->updateEditFieldGeometry();
     update();
@@ -820,15 +821,15 @@ void QAbstractSpinBox::paintEvent(QPaintEvent *)
 */
 
 
-void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
+void QAbstractSpinBox::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    if (!e->text().isEmpty() && d->edit->cursorPosition() < d->prefix.size())
+    if (!event->text().isEmpty() && d->edit->cursorPosition() < d->prefix.size())
         d->edit->setCursorPosition(d->prefix.size());
 
     int steps = 1;
-    switch(e->key()) {
+    switch (event->key()) {
     case Qt::Key_PageUp:
     case Qt::Key_PageDown:
         steps *= 10;
@@ -837,14 +838,15 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled()) {
             // Reserve up/down for nav - use left/right for edit.
-            if (!hasEditFocus() && (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down)) {
-                e->ignore();
+            if (!hasEditFocus() && (event->key() == Qt::Key_Up
+                                    || event->key() == Qt::Key_Down)) {
+                event->ignore();
                 return;
             }
         }
 #endif
-        e->accept();
-        const bool up = (e->key() == Qt::Key_PageUp || e->key() == Qt::Key_Up);
+        event->accept();
+        const bool up = (event->key() == Qt::Key_PageUp || event->key() == Qt::Key_Up);
         if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
             return;
         if (!up)
@@ -859,7 +861,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
     case Qt::Key_Right:
         if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-            const bool up = (e->key() == Qt::Key_Right);
+            const bool up = (event->key() == Qt::Key_Right);
             if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
                 return;
             if (!up)
@@ -873,7 +875,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Back:
         if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-            e->ignore();
+            event->ignore();
             return;
         }
         break;
@@ -882,7 +884,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
         selectAll();
-        e->ignore();
+        event->ignore();
         emit editingFinished();
         return;
 
@@ -899,8 +901,8 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
 #ifdef Q_WS_X11 // only X11
     case Qt::Key_U:
-        if (e->modifiers() & Qt::ControlModifier) {
-            e->accept();
+        if (event->modifiers() & Qt::ControlModifier) {
+            event->accept();
             if (!isReadOnly())
                 clear();
             return;
@@ -908,9 +910,9 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         break;
 #else // Mac and Windows
     case Qt::Key_A:
-        if (e->modifiers() & Qt::ControlModifier) {
+        if (event->modifiers() & Qt::ControlModifier) {
             selectAll();
-            e->accept();
+            event->accept();
             return;
         }
         break;
@@ -918,10 +920,10 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_End:
     case Qt::Key_Home:
-        if (e->modifiers() & Qt::ShiftModifier) {
+        if (event->modifiers() & Qt::ShiftModifier) {
             int currentPos = d->edit->cursorPosition();
             const QString text = d->edit->displayText();
-            if (e->key() == Qt::Key_End) {
+            if (event->key() == Qt::Key_End) {
                 if ((currentPos == 0 && !d->prefix.isEmpty()) || text.size() - d->suffix.size() <= currentPos) {
                     break; // let lineedit handle this
                 } else {
@@ -934,15 +936,15 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
                     d->edit->setSelection(currentPos, d->prefix.size() - currentPos);
                 }
             }
-            e->accept();
+            event->accept();
             return;
         }
         break;
 
     case Qt::Key_Z:
     case Qt::Key_Y:
-        if (e->modifiers() & Qt::ControlModifier) {
-            e->ignore();
+        if (event->modifiers() & Qt::ControlModifier) {
+            event->ignore();
             return;
         }
         break;
@@ -950,22 +952,22 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         break;
     }
 
-    d->edit->event(e);
+    d->edit->event(event);
 }
 
 /*!
     \reimp
 */
 
-void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
+void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->buttonState & Keyboard && !e->isAutoRepeat()
+    if (d->buttonState & Keyboard && !event->isAutoRepeat()
         && style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
         d->reset();
     } else {
-        d->edit->event(e);
+        d->edit->event(event);
     }
 }
 
@@ -974,12 +976,12 @@ void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 */
 
 #ifndef QT_NO_WHEELEVENT
-void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
+void QAbstractSpinBox::wheelEvent(QWheelEvent *event)
 {
-    const int steps = (e->delta() > 0 ? 1 : -1);
+    const int steps = (event->delta() > 0 ? 1 : -1);
     if (stepEnabled() & (steps > 0 ? StepUpEnabled : StepDownEnabled))
-        stepBy(e->modifiers() & Qt::ControlModifier ? steps * 10 : steps);
-    e->accept();
+        stepBy(event->modifiers() & Qt::ControlModifier ? steps * 10 : steps);
+    event->accept();
 }
 #endif
 
@@ -987,22 +989,22 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
 /*!
     \reimp
 */
-void QAbstractSpinBox::focusInEvent(QFocusEvent *e)
+void QAbstractSpinBox::focusInEvent(QFocusEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    d->edit->event(e);
-    if (e->reason() == Qt::TabFocusReason || e->reason() == Qt::BacktabFocusReason) {
+    d->edit->event(event);
+    if (event->reason() == Qt::TabFocusReason || event->reason() == Qt::BacktabFocusReason) {
         selectAll();
     }
-    QWidget::focusInEvent(e);
+    QWidget::focusInEvent(event);
 }
 
 /*!
     \reimp
 */
 
-void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
+void QAbstractSpinBox::focusOutEvent(QFocusEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
@@ -1010,8 +1012,8 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
         d->interpret(EmitIfChanged);
 
     d->reset();
-    d->edit->event(e);
-    QWidget::focusOutEvent(e);
+    d->edit->event(event);
+    QWidget::focusOutEvent(event);
     emit editingFinished();
 }
 
@@ -1019,44 +1021,44 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
     \reimp
 */
 
-void QAbstractSpinBox::closeEvent(QCloseEvent *e)
+void QAbstractSpinBox::closeEvent(QCloseEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
     d->reset();
     if (d->pendingEmit)
         d->interpret(EmitIfChanged);
-    QWidget::closeEvent(e);
+    QWidget::closeEvent(event);
 }
 
 /*!
     \reimp
 */
 
-void QAbstractSpinBox::hideEvent(QHideEvent *e)
+void QAbstractSpinBox::hideEvent(QHideEvent *event)
 {
     Q_D(QAbstractSpinBox);
     d->reset();
     if (d->pendingEmit)
         d->interpret(EmitIfChanged);
-    QWidget::hideEvent(e);
+    QWidget::hideEvent(event);
 }
 
 /*!
     \reimp
 */
 
-void QAbstractSpinBox::timerEvent(QTimerEvent *e)
+void QAbstractSpinBox::timerEvent(QTimerEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
     bool doStep = false;
-    if (e->timerId() == d->spinClickThresholdTimerId) {
+    if (event->timerId() == d->spinClickThresholdTimerId) {
         killTimer(d->spinClickThresholdTimerId);
         d->spinClickThresholdTimerId = -1;
         d->spinClickTimerId = startTimer(d->spinClickTimerInterval);
         doStep = true;
-    } else if (e->timerId() == d->spinClickTimerId) {
+    } else if (event->timerId() == d->spinClickTimerId) {
         if (d->accelerate) {
             d->acceleration = d->acceleration + (int)(d->spinClickTimerInterval * 0.05);
             if (d->spinClickTimerInterval - d->acceleration >= 10) {
@@ -1084,7 +1086,7 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
         }
         return;
     }
-    QWidget::timerEvent(e);
+    QWidget::timerEvent(event);
     return;
 }
 
@@ -1092,10 +1094,10 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
     \reimp
 */
 
-void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
+void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *event)
 {
 #ifdef QT_NO_CONTEXTMENU
-    Q_UNUSED(e);
+    Q_UNUSED(event);
 #else
     Q_D(QAbstractSpinBox);
 
@@ -1109,8 +1111,8 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
     down->setEnabled(se & StepDownEnabled);
 
     const QPointer<QAbstractSpinBox> that = this;
-    const QPoint pos = (e->reason() == QContextMenuEvent::Mouse)
-        ? e->globalPos() : mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
+    const QPoint pos = (event->reason() == QContextMenuEvent::Mouse)
+        ? event->globalPos() : mapToGlobal(QPoint(event->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
     const QAction *action = menu->exec(pos);
     delete static_cast<QMenu *>(menu);
     if (that) {
@@ -1120,7 +1122,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
             stepBy(-1);
         }
     }
-    e->accept();
+    event->accept();
 #endif // QT_NO_CONTEXTMENU
 }
 
@@ -1128,11 +1130,11 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
     \reimp
 */
 
-void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
+void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    d->updateHoverControl(e->pos());
+    d->updateHoverControl(event->pos());
 
     // If we have a timer ID, update the state
     const StepEnabled se = stepEnabled();
@@ -1143,7 +1145,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
             d->updateState(false);
         else
             d->reset();
-        e->accept();
+        event->accept();
     }
 }
 
@@ -1151,16 +1153,16 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
     \reimp
 */
 
-void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
+void QAbstractSpinBox::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
-    if (e->button() != Qt::LeftButton || d->buttonState != None) {
+    if (event->button() != Qt::LeftButton || d->buttonState != None) {
         return;
     }
 
-    d->updateHoverControl(e->pos());
-    e->accept();
+    d->updateHoverControl(event->pos());
+    event->accept();
 
     const StepEnabled se = stepEnabled();
     if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp) {
@@ -1168,20 +1170,20 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     } else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown) {
         d->updateState(false);
     } else {
-        e->ignore();
+        event->ignore();
     }
 }
 
 /*!
     \reimp
 */
-void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
+void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QAbstractSpinBox);
 
     if ((d->buttonState & Mouse) != 0)
         d->reset();
-    e->accept();
+    event->accept();
 }
 
 // --- QAbstractSpinBoxPrivate ---

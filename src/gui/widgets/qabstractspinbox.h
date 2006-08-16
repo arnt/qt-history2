@@ -65,7 +65,7 @@ public:
     QString text() const;
 
     QString specialValueText() const;
-    void setSpecialValueText(const QString &s);
+    void setSpecialValueText(const QString &txt);
 
     bool wrapping() const;
     void setWrapping(bool w);
@@ -99,25 +99,25 @@ public Q_SLOTS:
     virtual void clear();
 
 protected:
-    void resizeEvent(QResizeEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void keyReleaseEvent(QKeyEvent *e);
-    void wheelEvent(QWheelEvent *e);
-    void focusInEvent(QFocusEvent *e);
-    void focusOutEvent(QFocusEvent *e);
-    void contextMenuEvent(QContextMenuEvent *e);
-    void changeEvent(QEvent *e);
-    void closeEvent(QCloseEvent *e);
-    void hideEvent(QHideEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void timerEvent(QTimerEvent *e);
-    void paintEvent(QPaintEvent *e);
-    void showEvent(QShowEvent *e);
+    void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent *event);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
+    void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent *event);
+    void hideEvent(QHideEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void timerEvent(QTimerEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void showEvent(QShowEvent *event);
 
     QLineEdit *lineEdit() const;
-    void setLineEdit(QLineEdit *e);
+    void setLineEdit(QLineEdit *edit);
 
     virtual StepEnabled stepEnabled() const;
 Q_SIGNALS:

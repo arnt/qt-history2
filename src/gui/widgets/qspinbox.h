@@ -46,10 +46,10 @@ public:
     int value() const;
 
     QString prefix() const;
-    void setPrefix(const QString &p);
+    void setPrefix(const QString &prefix);
 
     QString suffix() const;
-    void setSuffix(const QString &s);
+    void setSuffix(const QString &suffix);
 
     QString cleanText() const;
 
@@ -73,10 +73,10 @@ public:
 #endif
 
 protected:
-    bool event(QEvent *e);
+    bool event(QEvent *event);
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual int valueFromText(const QString &text) const;
-    virtual QString textFromValue(int v) const;
+    virtual QString textFromValue(int val) const;
     virtual void fixup(QString &str) const;
 
 
@@ -111,10 +111,10 @@ public:
     double value() const;
 
     QString prefix() const;
-    void setPrefix(const QString &p);
+    void setPrefix(const QString &prefix);
 
     QString suffix() const;
-    void setSuffix(const QString &s);
+    void setSuffix(const QString &suffix);
 
     QString cleanText() const;
 
@@ -134,7 +134,7 @@ public:
 
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual double valueFromText(const QString &text) const;
-    virtual QString textFromValue(double v) const;
+    virtual QString textFromValue(double val) const;
     virtual void fixup(QString &str) const;
 
 public Q_SLOTS:

@@ -663,7 +663,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
 
     The calendar popup will be shown upon clicking the arrow button.
     This property is valid only if there is a vaild date display format.
-    
+
     \sa setDisplayFormat()
 */
 
@@ -727,10 +727,10 @@ QSize QDateTimeEdit::sizeHint() const
   \reimp
 */
 
-bool QDateTimeEdit::event(QEvent *e)
+bool QDateTimeEdit::event(QEvent *event)
 {
     Q_D(QDateTimeEdit);
-    switch (e->type()) {
+    switch (event->type()) {
     case QEvent::ApplicationLayoutDirectionChange: {
         const bool was = d->formatExplicitlySet;
         setDisplayFormat(d->displayFormat);
@@ -739,7 +739,7 @@ bool QDateTimeEdit::event(QEvent *e)
     default:
         break;
     }
-    return QAbstractSpinBox::event(e);
+    return QAbstractSpinBox::event(event);
 }
 
 /*!
@@ -755,7 +755,7 @@ void QDateTimeEdit::clear()
   \reimp
 */
 
-void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
+void QDateTimeEdit::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QDateTimeEdit);
     int oldCurrent = d->currentSectionIndex;
@@ -763,7 +763,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     bool inserted = false;
 
     bool forward = true;
-    switch (e->key()) {
+    switch (event->key()) {
 #ifdef QT_KEYPAD_NAVIGATION
     case Qt::Key_Select:
         if (QApplication::keypadNavigationEnabled()) {
@@ -780,7 +780,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
         d->setSelected(d->currentSectionIndex, true);
-        e->ignore();
+        event->ignore();
         emit editingFinished();
         return;
 
@@ -795,14 +795,14 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
 #endif
 #ifndef Q_WS_QWS
-        if (!(e->modifiers() & Qt::ControlModifier)) {
+        if (!(event->modifiers() & Qt::ControlModifier)) {
             select = false;
             break;
         }
 #endif
 #ifdef Q_WS_MAC
         else {
-            select = (e->modifiers() & Qt::ShiftModifier);
+            select = (event->modifiers() & Qt::ShiftModifier);
             break;
         }
 #endif
@@ -810,12 +810,12 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         // fallthroughs intended
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
-        e->accept();
+        event->accept();
         if (d->specialValue()) {
             d->edit->setSelection(d->edit->cursorPosition(), 0);
             return;
         }
-        if (e->key() == Qt::Key_Backtab || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
+        if (event->key() == Qt::Key_Backtab || (event->key() == Qt::Key_Tab && event->modifiers() & Qt::ShiftModifier)) {
             forward = false;
         }
 
@@ -833,11 +833,11 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->setSelected(newSection, true);
         return; }
     default:
-        inserted = select = !e->text().isEmpty() && e->text().at(0).isPrint() && !(e->modifiers() & ~Qt::ShiftModifier);
+        inserted = select = !event->text().isEmpty() && event->text().at(0).isPrint() && !(event->modifiers() & ~Qt::ShiftModifier);
         break;
     }
-    QAbstractSpinBox::keyPressEvent(e);
-    if (select && !(e->modifiers() & Qt::ShiftModifier) && !d->edit->hasSelectedText()) {
+    QAbstractSpinBox::keyPressEvent(event);
+    if (select && !(event->modifiers() & Qt::ShiftModifier) && !d->edit->hasSelectedText()) {
         if (inserted && d->sectionAt(d->edit->cursorPosition()) == QDateTimeParser::NoSectionIndex) {
             QString str = d->displayText();
             int pos = d->edit->cursorPosition();
@@ -845,7 +845,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->validateAndInterpret(str, pos, state);
             if (state == QValidator::Acceptable
                 && (d->sectionNode(oldCurrent).count != 1 || d->sectionSize(oldCurrent) == d->sectionMaxSize(oldCurrent))) {
-                QDTEDEBUG << "Setting currentsection to" << d->closestSection(d->edit->cursorPosition(), true) << e->key()
+                QDTEDEBUG << "Setting currentsection to" << d->closestSection(d->edit->cursorPosition(), true) << event->key()
                           << oldCurrent;
                 const int tmp = d->closestSection(d->edit->cursorPosition(), true);
                 if (tmp >= 0)
@@ -866,11 +866,11 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 */
 
 #ifndef QT_NO_WHEELEVENT
-void QDateTimeEdit::wheelEvent(QWheelEvent *e)
+void QDateTimeEdit::wheelEvent(QWheelEvent *event)
 {
     Q_D(QDateTimeEdit);
     int fw = d->frame ? style()->pixelMetric(QStyle::PM_SpinBoxFrameWidth) : 0;
-    QPoint pnt(e->pos() - QPoint(fw, fw));
+    QPoint pnt(event->pos() - QPoint(fw, fw));
     pnt.rx() -= d->edit->x();
     int index = d->edit->cursorPositionAt(pnt);
     int s = d->closestSection(index, d->edit->cursorPosition() > index); // should it be > pos?
@@ -885,7 +885,7 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
     case QDateTimeParser::LastSection:
         break;
     default:
-        QAbstractSpinBox::wheelEvent(e);
+        QAbstractSpinBox::wheelEvent(event);
         break;
     }
 }
@@ -895,10 +895,10 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
   \reimp
 */
 
-void QDateTimeEdit::focusInEvent(QFocusEvent *e)
+void QDateTimeEdit::focusInEvent(QFocusEvent *event)
 {
     Q_D(QDateTimeEdit);
-    QAbstractSpinBox::focusInEvent(e);
+    QAbstractSpinBox::focusInEvent(event);
     QString *frm = 0;
     const int oldPos = d->edit->cursorPosition();
     if (!d->formatExplicitlySet) {
@@ -920,7 +920,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     const bool oldHasHadFocus = d->hasHadFocus;
     d->hasHadFocus = true;
     bool first = true;
-    switch (e->reason()) {
+    switch (event->reason()) {
     case Qt::BacktabFocusReason:
         first = false;
         break;
@@ -1147,14 +1147,14 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
   \reimp
 */
 
-void QDateTimeEdit::mousePressEvent(QMouseEvent *e)
+void QDateTimeEdit::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QDateTimeEdit);
     if (!d->showCalendarPopup()) {
-        QAbstractSpinBox::mousePressEvent(e);
+        QAbstractSpinBox::mousePressEvent(event);
         return;
     }
-    d->updateHoverControl(e->pos());
+    d->updateHoverControl(event->pos());
     if (d->hoverControl == QStyle::SC_ComboBoxArrow) {
         d->updateArrow(QStyle::State_Sunken);
         if (!d->monthCalendar) {
@@ -1191,19 +1191,19 @@ void QDateTimeEdit::mousePressEvent(QMouseEvent *e)
         }
         if (pos.y() + size.height() > screen.bottom())
             pos.setY(pos2.y() - size.height());
-        else if (pos.y() < screen.top()) 
+        else if (pos.y() < screen.top())
             pos.setY(screen.top());
         if (pos.y() < screen.top())
             pos.setY(screen.top());
         if (pos.y()+size.height() > screen.bottom())
             pos.setY(screen.bottom()-size.height());
-        //Show the calendar 
+        //Show the calendar
         d->monthCalendar->move(pos);
         d->monthCalendar->show();
-        e->accept();   
+        event->accept();
     }
     else {
-        QAbstractSpinBox::mousePressEvent(e);
+        QAbstractSpinBox::mousePressEvent(event);
     }
 }
 
@@ -1908,18 +1908,18 @@ QDateTimeEdit::Sections QDateTimeEditPrivate::convertSections(QDateTimeParser::S
     \reimp
 */
 
-void QDateTimeEdit::paintEvent(QPaintEvent *e)
+void QDateTimeEdit::paintEvent(QPaintEvent *event)
 {
     Q_D(QDateTimeEdit);
     if (!d->showCalendarPopup()) {
-        QAbstractSpinBox::paintEvent(e);
+        QAbstractSpinBox::paintEvent(event);
         return;
     }
 
     QStyleOptionSpinBox opt = d->getStyleOption();
     QStyleOptionComboBox optCombo;
 
-    optCombo.init(this); 
+    optCombo.init(this);
     optCombo.editable = true;
     optCombo.subControls = opt.subControls;
     optCombo.activeSubControls = opt.activeSubControls;
@@ -1973,7 +1973,7 @@ QStyleOptionSpinBox QDateTimeEditPrivate::getStyleOption() const
     QStyleOptionSpinBox opt = QAbstractSpinBoxPrivate::getStyleOption();
     if (showCalendarPopup()) {
         opt.subControls = QStyle::SC_ComboBoxFrame| QStyle::SC_ComboBoxEditField| QStyle::SC_ComboBoxArrow;
-        if (arrowState == QStyle::State_Sunken) 
+        if (arrowState == QStyle::State_Sunken)
             opt.state |= QStyle::State_Sunken;
         else
             opt.state &= ~QStyle::State_Sunken;
@@ -2078,17 +2078,19 @@ void QCalendarPopup::setDateRange(const QDate &min, const QDate &max)
     calendar->setMaximumDate(max);
 }
 
-void QCalendarPopup::mousePressEvent(QMouseEvent *e)
+void QCalendarPopup::mousePressEvent(QMouseEvent *event)
 {
     QDateTimeEdit *dateTime = qobject_cast<QDateTimeEdit *>(parentWidget());
-    QStyleOptionComboBox opt;
-    opt.init(dateTime);
-    QRect arrowRect = dateTime->style()->subControlRect(QStyle::CC_ComboBox, &opt,
-                                            QStyle::SC_ComboBoxArrow, dateTime);
-    arrowRect.moveTo(dateTime->mapToGlobal(arrowRect .topLeft()));
-    if (arrowRect.contains(e->globalPos()) || rect().contains(e->pos()))
-        setAttribute(Qt::WA_NoMouseReplay);
-    QWidget::mousePressEvent(e);
+    if (dateTime) {
+        QStyleOptionComboBox opt;
+        opt.init(dateTime);
+        QRect arrowRect = dateTime->style()->subControlRect(QStyle::CC_ComboBox, &opt,
+                                                            QStyle::SC_ComboBoxArrow, dateTime);
+        arrowRect.moveTo(dateTime->mapToGlobal(arrowRect .topLeft()));
+        if (arrowRect.contains(event->globalPos()) || rect().contains(event->pos()))
+            setAttribute(Qt::WA_NoMouseReplay);
+    }
+    QWidget::mousePressEvent(event);
 }
 
 void QCalendarPopup::mouseReleaseEvent(QMouseEvent*)
@@ -2096,14 +2098,14 @@ void QCalendarPopup::mouseReleaseEvent(QMouseEvent*)
     emit resetButton();
 }
 
-bool QCalendarPopup::event(QEvent *e)
+bool QCalendarPopup::event(QEvent *event)
 {
-     if (e->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(e);
+     if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key()== Qt::Key_Escape)
             dateChanged = false;
     }
-     return QWidget::event(e);
+     return QWidget::event(event);
 }
 
 void QCalendarPopup::dateSelectionChanged()
@@ -2119,10 +2121,10 @@ void QCalendarPopup::dateSelected(const QDate &date)
 }
 
 void QCalendarPopup::hideEvent(QHideEvent *)
-{ 
+{
     emit resetButton();
     if (!dateChanged)
-        emit  hidingCalendar(oldDate);
+        emit hidingCalendar(oldDate);
 }
 
 #include "moc_qdatetimeedit.cpp"
