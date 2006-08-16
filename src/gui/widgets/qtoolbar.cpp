@@ -858,6 +858,11 @@ void QToolBar::actionEvent(QActionEvent *event)
                 item.widget->hide();
                 item.widget->deleteLater();
             }
+            // show all widgets that might be hidden in the extension
+            // menu, so that QLayout can recalculate their positions
+            for (int i = 0; i< d->items.size(); ++i)
+                d->items[i].widget->show();
+
             QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
