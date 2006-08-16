@@ -4139,18 +4139,13 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_ArrowRight:
         {
-            if (QApplication::layoutDirection() == Qt::RightToLeft)
-                return QCleanlooksStyle::standardPixmap(SP_ArrowLeft, opt, widget);
             pixmap = d->findIcon(16, QLatin1String("stock_right.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowLeft:
-    case SP_FileDialogBack:
         {
-            if (QApplication::layoutDirection() == Qt::RightToLeft)
-                return QCleanlooksStyle::standardPixmap(SP_ArrowRight, opt, widget);
             pixmap = d->findIcon(16, QLatin1String("stock_left.png"));
             if (!pixmap.isNull())
                 return pixmap;

@@ -5658,18 +5658,13 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
         }
     case SP_ArrowRight:
         {
-            if (QApplication::layoutDirection() == Qt::RightToLeft)
-                return QPlastiqueStyle::standardPixmap(SP_ArrowLeft, opt, widget);
             pixmap = d->findIcon(16, QLatin1String("forward.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowLeft:
-    case SP_FileDialogBack:
         {
-            if (QApplication::layoutDirection() == Qt::RightToLeft)
-                return QPlastiqueStyle::standardPixmap(SP_ArrowRight, opt, widget);
             pixmap = d->findIcon(16, QLatin1String("back.png"));
             if (!pixmap.isNull())
                 return pixmap;

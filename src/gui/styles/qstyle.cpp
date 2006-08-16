@@ -1642,8 +1642,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_DialogNoButton Icon for a standard No button in a QDialogButtonBox.
     \value SP_ArrowUp Icon arrow pointing up.
     \value SP_ArrowDown Icon arrow pointing down.
-    \value SP_ArrowLeft Icon arrow pointing left. The image is reversed when the current layout direction is Qt::RightToLeft.
-    \value SP_ArrowRight Icon arrow pointing right. The image is reversed when the current layout direction is Qt::RightToLeft.
+    \value SP_ArrowLeft Icon arrow pointing left.
+    \value SP_ArrowRight Icon arrow pointing right.
+    \value SP_ArrowBack Equivalent to SP_ArrowLeft when the current layout direction is Qt::LeftToRight, otherwise SP_ArrowRight.
+    \value SP_ArrowForward Equivalent to SP_ArrowRight when the current layout direction is Qt::LeftToRight, otherwise SP_ArrowLeft.
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 

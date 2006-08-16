@@ -3775,11 +3775,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
-                                     const QWidget *w) const
+QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *option,
+                                     const QWidget *widget) const
 {
-    Q_UNUSED(w);
-    Q_UNUSED(opt);
     switch (sp) {
 #ifndef QT_NO_IMAGEFORMAT_XPM
     case SP_ToolBarHorizontalExtensionButton:
@@ -3797,20 +3795,24 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
         return QPixmap(filedialog_end_xpm);
 #endif // QT_NO_IMAGEFORMAT_XPM
 #ifndef QT_NO_IMAGEFORMAT_PNG
-    case SP_ArrowLeft:
+    case SP_ArrowForward:
         if (QApplication::layoutDirection() == Qt::RightToLeft)
-            return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
+            return standardPixmap(SP_ArrowLeft, option, widget);
+        return standardPixmap(SP_ArrowRight, option, widget);
+    case SP_ArrowBack:
+        if (QApplication::layoutDirection() == Qt::RightToLeft)
+            return standardPixmap(SP_ArrowRight, option, widget);
+        return standardPixmap(SP_ArrowLeft, option, widget);
+    case SP_ArrowLeft:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
     case SP_ArrowRight:
-        if (QApplication::layoutDirection() == Qt::RightToLeft)
-            return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
     case SP_ArrowUp:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-up-16.png"));
     case SP_ArrowDown:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-down-16.png"));
     case SP_FileDialogToParent:
-        return standardPixmap(SP_ArrowUp, opt, w);
+        return standardPixmap(SP_ArrowUp, option, widget);
     case SP_FileDialogNewFolder:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/folder-new-16.png"));
     case SP_FileDialogDetailedView:
@@ -3822,7 +3824,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
     case SP_FileDialogListView:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-16.png"));
     case SP_FileDialogBack:
-        return standardPixmap(SP_ArrowLeft, opt, w);
+        return standardPixmap(SP_ArrowBack, option, widget);
     case SP_DriveHDIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/harddrive-16.png"));
     case SP_TrashIcon:
@@ -3879,12 +3881,14 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opt,
     return QPixmap();
 }
 
-QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                               const QWidget *widget) const
 {
     QIcon icon;
     switch (standardIcon) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
+    case SP_FileDialogBack:
+        return standardIconImplementation(SP_ArrowBack, option, widget);
     case SP_FileDialogToParent:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-32.png"));
@@ -3918,12 +3922,6 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-128.png"));
-        break;
-    case SP_FileDialogBack:
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/back-16.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/back-32.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/back-64.png"));
-        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/back-128.png"));
         break;
     case SP_DriveHDIcon:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/harddrive-16.png"));
@@ -4064,15 +4062,19 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-64.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/standardbutton-no-128.png"));
         break;
+    case SP_ArrowForward:
+        if (QApplication::layoutDirection() == Qt::RightToLeft)
+            return standardIconImplementation(SP_ArrowLeft, option, widget);
+        return standardIconImplementation(SP_ArrowRight, option, widget);
+    case SP_ArrowBack:
+        if (QApplication::layoutDirection() == Qt::RightToLeft)
+            return standardIconImplementation(SP_ArrowRight, option, widget);
+        return standardIconImplementation(SP_ArrowLeft, option, widget);
     case SP_ArrowLeft:
-        if (QApplication::layoutDirection() == Qt::LeftToRight)
-            return standardIconImplementation(SP_ArrowRight, opt, widget);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-previous-128.png"));
         break;
     case SP_ArrowRight:
-        if (QApplication::layoutDirection() == Qt::LeftToRight)
-            return standardIconImplementation(SP_ArrowLeft, opt, widget);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-16.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/go-next-128.png"));
         break;
@@ -4104,7 +4106,7 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         break;
 #endif // QT_NO_IMAGEFORMAT_PNG
     default:
-        icon.addPixmap(standardPixmap(standardIcon, opt, widget));
+        icon.addPixmap(standardPixmap(standardIcon, option, widget));
         break;
     }
     return icon;
