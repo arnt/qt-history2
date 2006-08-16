@@ -78,6 +78,8 @@ public:
 
     void setSource(const QUrl &url);
 
+    QUrl resolveUrl(const QUrl &url) const;
+
 #ifdef QT_KEYPAD_NAVIGATION
     void keypadMove(bool next);
 #endif
@@ -114,11 +116,28 @@ QString QTextBrowserPrivate::findFile(const QUrl &name) const
             return path;
     }
 
-    if (stack.isEmpty())
-        return fileName;
+    return fileName;
+}
 
-    QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), fileName);
-    return path.absoluteFilePath();
+QUrl QTextBrowserPrivate::resolveUrl(const QUrl &url) const
+{
+    if (!url.isRelative())
+        return url;
+
+    // For the second case QUrl can merge "#someanchor" with "foo.html"
+    // correctly to "foo.html#someanchor"
+    if (!currentURL.isRelative() || (url.hasFragment() && url.path().isEmpty()))
+        return currentURL.resolved(url);
+
+    // this is our last resort when current url and new url are both relative
+    // we try to resolve against the current working directory in the local
+    // file system.
+    QFileInfo fi(currentURL.toLocalFile());
+    if (fi.exists()) {
+        return QUrl::fromLocalFile(fi.absolutePath() + QDir::separator()).resolved(url);
+    }
+
+    return url;
 }
 
 void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
@@ -129,12 +148,12 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
 
     textOrSourceChanged = false;
 
-    const QUrl url(href);
+    const QUrl url = resolveUrl(href);
 
     if (openExternalLinks
         && url.scheme() != QLatin1String("file")
         && url.scheme() != QLatin1String("qrc")) {
-        QDesktopServices::openUrl(currentURL.resolved(url));
+        QDesktopServices::openUrl(url);
         return;
     }
 
@@ -162,7 +181,7 @@ void QTextBrowserPrivate::_q_highlightLink(const QString &anchor)
         viewport->setCursor(Qt::PointingHandCursor);
 #endif
 
-        const QUrl url = currentURL.resolved(anchor);
+        const QUrl url = resolveUrl(anchor);
         emit q->highlighted(url);
         // convenience to ease connecting to QStatusBar::showMessage(const QString &)
         emit q->highlighted(url.toString());
@@ -189,7 +208,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
 
     if (url.isValid()
         && (newUrlWithoutFragment != currentUrlWithoutFragment || forceLoadOnSourceChange)) {
-        QVariant data = q->loadResource(QTextDocument::HtmlResource, currentURL.resolved(url));
+        QVariant data = q->loadResource(QTextDocument::HtmlResource, resolveUrl(url));
         if (data.type() == QVariant::String) {
             txt = data.toString();
         } else if (data.type() == QVariant::ByteArray) {
@@ -217,7 +236,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
             }
         }
 
-        currentURL = currentURL.resolved(url);
+        currentURL = resolveUrl(url);
         doSetText = true;
     }
 
@@ -790,16 +809,14 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     Q_D(QTextBrowser);
 
     QByteArray data;
-    QUrl resolved = name;
-    if (!isAbsoluteFileName(name.toLocalFile()) && isAbsoluteFileName(source().toLocalFile()))
-        resolved = source().resolved(name);
-    QString fileName = d->findFile(resolved);
+    QString fileName = d->findFile(name);
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         data = f.readAll();
         f.close();
     } else {
         qWarning("QTextBrowser: Cannot open '%s' for reading", fileName.toLocal8Bit().data());
+        return QVariant();
     }
 
     return data;

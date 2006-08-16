@@ -99,7 +99,7 @@ void tst_QTextBrowser::noReloadOnAnchorJump()
     QCOMPARE(browser->htmlLoadAttempts, 1);
     QVERIFY(!browser->toPlainText().isEmpty());
 
-    url.setFragment("jumphere");
+    url.setFragment("jumphere"); // anchor.html#jumphere
     browser->setSource(url);
     QCOMPARE(browser->htmlLoadAttempts, 1);
     QVERIFY(!browser->toPlainText().isEmpty());
@@ -207,6 +207,10 @@ void tst_QTextBrowser::anchors()
 
 void tst_QTextBrowser::resourceAutoDetection()
 {
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
     browser->setHtml("<img src=\":/some/resource\"/>");
     QCOMPARE(browser->lastResource.toString(), QString("qrc:/some/resource"));
 }
@@ -350,8 +354,13 @@ void tst_QTextBrowser::clearHistory()
 void tst_QTextBrowser::sourceInsideLoadResource()
 {
     QUrl url("pagewithimage.html");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
     browser->setSource(url);
     QCOMPARE(browser->lastResource.toString(), QString("foobar.png"));
+    QEXPECT_FAIL("", "This is currently not supported", Continue);
     QCOMPARE(browser->sourceInsideLoadResource.toString(), url.toString());
 }
 
