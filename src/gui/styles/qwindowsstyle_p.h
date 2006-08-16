@@ -82,7 +82,7 @@ public:
 #ifdef Q_WS_X11
     QPixmap findIconHelper(int size, const QString &, const QString &) const;
     IconTheme parseIndexFile(const QString &themeName) const;
-    QString themeName;
+    mutable QString themeName;
     QStringList iconDirs;
     mutable QHash <QString, IconTheme> themeList;
 #endif

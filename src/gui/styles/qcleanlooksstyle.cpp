@@ -459,10 +459,10 @@ class QCleanlooksStylePrivate : public QWindowsStylePrivate
 public:
     QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
-    { }
-
+    { }    
 ~QCleanlooksStylePrivate()
     { }
+    void lookupIconTheme() const;
 };
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
@@ -3446,12 +3446,6 @@ void QCleanlooksStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
-
-    QProcess gconftool;
-    gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
-
-    if (gconftool.waitForFinished())
-        d->themeName = QLatin1String(gconftool.readLine().trimmed());
 #endif
 }
 
@@ -3912,11 +3906,24 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
         r.adjust(0, 1, 0, -1);
         break;
     default:
-        break;
+        break;  
     }
     return r;
 }
 
+void QCleanlooksStylePrivate::lookupIconTheme() const
+{
+#ifdef Q_WS_X11
+    if (!themeName.isEmpty())
+        return;
+    QProcess gconftool;
+    gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
+    if (gconftool.waitForFinished())
+        themeName = QLatin1String(gconftool.readLine().trimmed());
+    if (themeName.isEmpty())
+        themeName = "gnome";
+#endif
+}
 
 /*!
     \internal
@@ -3926,7 +3933,11 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QWidget *widget) const
 {
     Q_D(const QCleanlooksStyle);
+ 
     QIcon icon(standardPixmap(standardIcon, option, widget));
+    if (!qApp->desktopSettingsAware())
+        return icon;
+ 
     QPixmap pixmap;
     QPixmap link;
     switch (standardIcon) {
@@ -3982,7 +3993,6 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     return icon;
 }
 
-
 /*!
  \reimp
  */
@@ -3991,6 +4001,11 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
 {
     Q_D(const QCleanlooksStyle);
     QPixmap pixmap;
+    if (!qApp->desktopSettingsAware())
+        return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
+  
+    d->lookupIconTheme();
+
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_MessageBoxInformation:

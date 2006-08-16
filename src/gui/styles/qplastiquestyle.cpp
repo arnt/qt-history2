@@ -931,7 +931,8 @@ class QPlastiqueStylePrivate : public QWindowsStylePrivate
 public:
     QPlastiqueStylePrivate();
     virtual ~QPlastiqueStylePrivate();
-    
+    void lookupIconTheme() const;
+
 #ifndef QT_NO_PROGRESSBAR
     QList<QProgressBar *> bars;
     int progressBarAnimateTimer;
@@ -5467,11 +5468,6 @@ void QPlastiqueStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
-
-    QProcess kreadconfig;
-    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
-    if (kreadconfig.waitForFinished())
-        d->themeName = QLatin1String(kreadconfig.readLine().trimmed());
 #endif
     QWindowsStyle::polish(app);
 }
@@ -5493,13 +5489,25 @@ void QPlastiqueStyle::unpolish(QApplication *app)
     QWindowsStyle::unpolish(app);
 }
 
+void QPlastiqueStylePrivate::lookupIconTheme () const
+{
+#ifdef Q_WS_X11
+    if (!themeName.isEmpty())
+        return;    QProcess kreadconfig;
+    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
+    if (kreadconfig.waitForFinished())
+        themeName = QLatin1String(kreadconfig.readLine().trimmed());
+#endif
+}
+
 /*!
     \internal
 */
 QIcon QPlastiqueStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                                   const QWidget *widget) const
 {
-    return QWindowsStyle::standardIconImplementation(standardIcon, opt, widget);
+    QIcon icon(standardPixmap(standardIcon, opt, widget));
+    return icon;
 }
 
 /*!
@@ -5510,6 +5518,9 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
 {
     Q_D(const QPlastiqueStyle);
     QPixmap pixmap;
+    if (!qApp->desktopSettingsAware())
+        return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
+    d->lookupIconTheme();
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
