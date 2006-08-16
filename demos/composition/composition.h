@@ -22,6 +22,10 @@
 class QPushButton;
 class QRadioButton;
 
+#ifdef QT_OPENGL_SUPPORT
+#include <QtOpenGL>
+#endif
+
 class CompositionWidget : public QWidget
 {
     Q_OBJECT
@@ -96,6 +100,9 @@ void setClearMode() { m_composition_mode = QPainter::CompositionMode_Clear; upda
 
 private:
     void updateCirclePos();
+    void drawBase(QPainter &p);
+    void drawSource(QPainter &p);
+
     QPainter::CompositionMode m_composition_mode;
 
     QImage m_image;
@@ -110,6 +117,12 @@ private:
 
     ObjectType m_current_object;
     bool m_animation_enabled;
+
+#ifdef QT_OPENGL_SUPPORT
+    QGLPixelBuffer *m_pbuffer;
+    GLuint m_base_tex;
+    GLuint m_compositing_tex;
+#endif
 };
 
 #endif // COMPOSITION_H

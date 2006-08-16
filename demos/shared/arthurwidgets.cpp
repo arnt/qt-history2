@@ -29,6 +29,13 @@ ArthurFrame::ArthurFrame(QWidget *parent)
     , m_prefer_image(false)
 {
 #ifdef QT_OPENGL_SUPPORT
+    QGLFormat f = QGLFormat::defaultFormat();
+    f.setSampleBuffers(true);
+    f.setStencil(true);
+    f.setAlpha(true);
+    f.setAlphaBufferSize(8);
+    QGLFormat::setDefaultFormat(f);
+
     glw = new GLWidget(this);
     glw->setGeometry(0, 0, width(), height());
     glw->setAutoFillBackground(false);
@@ -140,7 +147,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     }
 
 #ifdef QT_OPENGL_SUPPORT
-    if (m_use_opengl && (inherits("PathDeformRenderer") || inherits("PathStrokeRenderer") || m_show_doc))
+    if (m_use_opengl && (inherits("PathDeformRenderer") || inherits("PathStrokeRenderer") || inherits("CompositionRenderer") || m_show_doc))
         glw->swapBuffers();
 #endif
 }

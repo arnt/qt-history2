@@ -76,7 +76,12 @@ CompositionWidget::CompositionWidget(QWidget *parent)
 
     QPushButton *showSourceButton = new QPushButton(mainGroup);
     showSourceButton->setText("Show Source");
-
+#ifdef QT_OPENGL_SUPPORT
+    QPushButton *enableOpenGLButton = new QPushButton(mainGroup);
+    enableOpenGLButton->setText("Use OpenGL");
+    enableOpenGLButton->setCheckable(true);
+    enableOpenGLButton->setChecked(view->usesOpenGL());
+#endif
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
@@ -98,6 +103,9 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     mainGroupLayout->addWidget(animateButton);
     mainGroupLayout->addWidget(whatsThisButton);
     mainGroupLayout->addWidget(showSourceButton);
+#ifdef QT_OPENGL_SUPPORT
+    mainGroupLayout->addWidget(enableOpenGLButton);
+#endif
 
     QVBoxLayout *modesLayout = new QVBoxLayout(modesGroup);
     modesLayout->addWidget(rbClear);
@@ -125,6 +133,9 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     connect(whatsThisButton, SIGNAL(clicked(bool)), view, SLOT(setDescriptionEnabled(bool)));
     connect(view, SIGNAL(descriptionEnabledChanged(bool)), whatsThisButton, SLOT(setChecked(bool)));
     connect(showSourceButton, SIGNAL(clicked()), view, SLOT(showSource()));
+#ifdef QT_OPENGL_SUPPORT
+    connect(enableOpenGLButton, SIGNAL(clicked(bool)), view, SLOT(enableOpenGL(bool)));
+#endif
     connect(animateButton, SIGNAL(toggled(bool)), view, SLOT(setAnimationEnabled(bool)));
 
     circleColorSlider->setValue(270);
@@ -168,6 +179,9 @@ CompositionRenderer::CompositionRenderer(QWidget *parent)
     m_circle_pos = QPoint(200, 100);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+#ifdef QT_OPENGL_SUPPORT
+    m_pbuffer = 0;
+#endif
 }
 
 QRectF rectangle_around(const QPointF &p, const QSizeF &size = QSize(250, 200))
@@ -190,70 +204,161 @@ void CompositionRenderer::updateCirclePos()
     m_circle_pos = QLineF(m_circle_pos, QPointF(x, y)).pointAt(0.01);
 }
 
+void CompositionRenderer::drawBase(QPainter &p)
+{
+    p.setPen(Qt::NoPen);
+
+    QLinearGradient rect_gradient(0, 0, 0, height());
+    rect_gradient.setColorAt(0, Qt::red);
+    rect_gradient.setColorAt(.17, Qt::yellow);
+    rect_gradient.setColorAt(.33, Qt::green);
+    rect_gradient.setColorAt(.50, Qt::cyan);
+    rect_gradient.setColorAt(.66, Qt::blue);
+    rect_gradient.setColorAt(.81, Qt::magenta);
+    rect_gradient.setColorAt(1, Qt::red);
+    p.setBrush(rect_gradient);
+    p.drawRect(width() / 2, 0, width() / 2, height());
+
+    QLinearGradient alpha_gradient(0, 0, width(), 0);
+    alpha_gradient.setColorAt(0, Qt::white);
+    alpha_gradient.setColorAt(0.2, Qt::white);
+    alpha_gradient.setColorAt(0.5, Qt::transparent);
+    alpha_gradient.setColorAt(0.8, Qt::white);
+    alpha_gradient.setColorAt(1, Qt::white);
+
+    p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+    p.setBrush(alpha_gradient);
+    p.drawRect(0, 0, width(), height());
+
+    p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+
+    p.setPen(Qt::NoPen);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
+    p.drawImage(rect(), m_image);
+}
+
+void CompositionRenderer::drawSource(QPainter &p)
+{
+    p.setPen(Qt::NoPen);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setCompositionMode(m_composition_mode);
+
+    QRectF circle_rect = rectangle_around(m_circle_pos);
+    QColor color = QColor::fromHsvF(m_circle_hue / 360.0, 1, 1, m_circle_alpha / 255.0);
+    QLinearGradient circle_gradient(circle_rect.topLeft(), circle_rect.bottomRight());
+    circle_gradient.setColorAt(0, color.light());
+    circle_gradient.setColorAt(0.5, color);
+    circle_gradient.setColorAt(1, color.dark());
+    p.setBrush(circle_gradient);
+
+    p.drawEllipse(circle_rect);
+}
+
 void CompositionRenderer::paint(QPainter *painter)
 {
     if (m_animation_enabled)
         updateCirclePos();
 
-    if (m_buffer.size() != size()) {
-        m_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
-        m_base_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
+#ifdef QT_OPENGL_SUPPORT
+    if (usesOpenGL()) {
+        if (!m_pbuffer || m_pbuffer->size() != size()) {
 
-        m_base_buffer.fill(0);
+            if (m_pbuffer) {
+                m_pbuffer->deleteTexture(m_base_tex);
+                m_pbuffer->deleteTexture(m_compositing_tex);
+                delete m_pbuffer;
+            }
 
-        QPainter p(&m_base_buffer);
-        p.setPen(Qt::NoPen);
+            m_pbuffer = new QGLPixelBuffer(size(), QGLFormat::defaultFormat(), glWidget());
+            m_base_tex = m_pbuffer->generateDynamicTexture();
+            m_compositing_tex = m_pbuffer->generateDynamicTexture();
+            {
+                QPainter p(m_pbuffer);
+                p.fillRect(QRect(0, 0, width(), height()), Qt::transparent);
+                drawBase(p);
+                m_pbuffer->updateDynamicTexture(m_base_tex);
+            }
+        }
+        
+        {
+            QPainter p(m_pbuffer);
 
-        QLinearGradient rect_gradient(0, 0, 0, height());
-        rect_gradient.setColorAt(0, Qt::red);
-        rect_gradient.setColorAt(.17, Qt::yellow);
-        rect_gradient.setColorAt(.33, Qt::green);
-        rect_gradient.setColorAt(.50, Qt::cyan);
-        rect_gradient.setColorAt(.66, Qt::blue);
-        rect_gradient.setColorAt(.81, Qt::magenta);
-        rect_gradient.setColorAt(1, Qt::red);
-        p.setBrush(rect_gradient);
-        p.drawRect(width() / 2, 0, width() / 2, height());
+            p.setCompositionMode(QPainter::CompositionMode_Source);
+            p.fillRect(QRect(0, 0, width(), height()), Qt::transparent);
 
-        QLinearGradient alpha_gradient(0, 0, width(), 0);
-        alpha_gradient.setColorAt(0, Qt::white);
-        alpha_gradient.setColorAt(0.2, Qt::white);
-        alpha_gradient.setColorAt(0.5, Qt::transparent);
-        alpha_gradient.setColorAt(0.8, Qt::white);
-        alpha_gradient.setColorAt(1, Qt::white);
+            p.save();
+            glBindTexture(GL_TEXTURE_2D, m_base_tex);
+            glEnable(GL_TEXTURE_2D);
+            glColor4f(1.,1.,1.,1.);
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(0, 1.0);
+                glVertex2f(0, 0);
+                
+                glTexCoord2f(1.0, 1.0);
+                glVertex2f(width(), 0);
+                
+                glTexCoord2f(1.0, 0);
+                glVertex2f(width(), height());
+                
+                glTexCoord2f(0, 0);
+                glVertex2f(0, height());
+            }
+            glEnd();
+            
+            glDisable(GL_TEXTURE_2D);
+            p.restore();
 
-        p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-        p.setBrush(alpha_gradient);
-        p.drawRect(0, 0, width(), height());
+            drawSource(p);
+            m_pbuffer->updateDynamicTexture(m_compositing_tex);  
+        }
 
-        p.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+        glWidget()->makeCurrent();
+        glBindTexture(GL_TEXTURE_2D, m_compositing_tex);
+        glEnable(GL_TEXTURE_2D);
+        glColor4f(1.,1.,1.,1.);
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2f(0, 1.0);
+            glVertex2f(0, 0);
+                
+            glTexCoord2f(1.0, 1.0);
+            glVertex2f(width(), 0);
+                
+            glTexCoord2f(1.0, 0);
+            glVertex2f(width(), height());
+                
+            glTexCoord2f(0, 0);
+            glVertex2f(0, height());
+        }
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
 
-        p.setPen(Qt::NoPen);
-        p.setRenderHint(QPainter::SmoothPixmapTransform);
-        p.drawImage(rect(), m_image);
-    }
-
-    memcpy(m_buffer.bits(), m_base_buffer.bits(), m_buffer.numBytes());
-
+    } else
+#endif
     {
-        QPainter p(&m_buffer);
-        p.setPen(Qt::NoPen);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.setCompositionMode(m_composition_mode);
+        // using an image
+        if (m_buffer.size() != size()) {
+            m_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
+            m_base_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
 
-        QRectF circle_rect = rectangle_around(m_circle_pos);
-        QColor color = QColor::fromHsvF(m_circle_hue / 360.0, 1, 1, m_circle_alpha / 255.0);
-        QLinearGradient circle_gradient(circle_rect.topLeft(), circle_rect.bottomRight());
-        circle_gradient.setColorAt(0, color.light());
-        circle_gradient.setColorAt(0.5, color);
-        circle_gradient.setColorAt(1, color.dark());
-        p.setBrush(circle_gradient);
+            m_base_buffer.fill(0);
 
-        p.drawEllipse(circle_rect);
+            QPainter p(&m_base_buffer);
+
+            drawBase(p);
+        }
+
+        memcpy(m_buffer.bits(), m_base_buffer.bits(), m_buffer.numBytes());
+
+        {
+            QPainter p(&m_buffer);
+            drawSource(p);
+        }
+
+        painter->drawImage(0, 0, m_buffer);
     }
-
-    painter->drawImage(0, 0, m_buffer);
-
+    
     if (m_animation_enabled)
         update();
 }
