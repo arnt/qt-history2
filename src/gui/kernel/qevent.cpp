@@ -3063,15 +3063,15 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 
 #ifndef QT_NO_CLIPBOARD
 /*!
-    \internal
-
     \class QClipboardEvent
     \ingroup events
 
     \brief The QClipboardEvent class provides the parameters used in a clipboard event.
 
     This class is for internal use only, and exists to aid the clipboard on various
-    platforms to get all the information it needs.  Use QEvent::Clipboard instead.
+    platforms to get all the information it needs. Use QEvent::Clipboard instead.
+
+    \sa QClipboard
 */
 
 QClipboardEvent::QClipboardEvent(QEventPrivate *data)
