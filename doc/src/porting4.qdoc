@@ -1692,10 +1692,20 @@
     \list
     \o  QFrame no longer has a \c margin property (which wasn't
         honored by Qt's layout managers anyway).
-    \o  QFrame used to have drawFrame(QPainter *),
-        drawContents(QPainter *), and frameChanged() virtual
-        functions. These are now gone. If you want to change the way
-        QFrame paints itself, reimplement QFrame:paintEvent().
+
+    \o  QFrame no longer has a frameChanged() function, reimplement
+        QFrame::resizeEvent() instead.
+
+    \o  QFrame used to have drawFrame(QPainter *) and
+        drawContents(QPainter *) virtual functions. These are now
+        gone. In Qt 4, the frame is drawn by the QFrame::paintEvent()
+        function. If you want to change the way QFrame paints itself,
+        reimplement this function. To draw the contents of the frame,
+        reimplement QFrame:paintEvent() and call the base class
+        implementation of the function before you use the
+        \l {QWidget::}{contentsRect()} function inherited from QWidget,
+        to retrieve the rectangle to paint on.
+
     \endlist
 
     To help with porting, the Qt3Support library contains a Q3Frame
