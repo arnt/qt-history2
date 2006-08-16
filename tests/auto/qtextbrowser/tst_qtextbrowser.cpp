@@ -92,7 +92,7 @@ void tst_QTextBrowser::cleanup()
 
 void tst_QTextBrowser::noReloadOnAnchorJump()
 {
-    QUrl url = QUrl::fromLocalFile("anchor.html");
+    QUrl url("anchor.html");
 
     browser->htmlLoadAttempts = 0;
     browser->setSource(url);
@@ -108,11 +108,11 @@ void tst_QTextBrowser::noReloadOnAnchorJump()
 
 void tst_QTextBrowser::bgColorOnSourceChange()
 {
-    browser->setSource(QUrl::fromLocalFile("pagewithbg.html"));
+    browser->setSource(QUrl("pagewithbg.html"));
     QVERIFY(browser->document()->rootFrame()->frameFormat().hasProperty(QTextFormat::BackgroundBrush));
     QVERIFY(browser->document()->rootFrame()->frameFormat().background().color() == Qt::blue);
 
-    browser->setSource(QUrl::fromLocalFile("pagewithoutbg.html"));
+    browser->setSource(QUrl("pagewithoutbg.html"));
     QVERIFY(!browser->document()->rootFrame()->frameFormat().hasProperty(QTextFormat::BackgroundBrush));
 }
 
@@ -121,7 +121,7 @@ void tst_QTextBrowser::forwardButton()
     QSignalSpy forwardEmissions(browser, SIGNAL(forwardAvailable(bool)));
     QSignalSpy backwardEmissions(browser, SIGNAL(backwardAvailable(bool)));
 
-    browser->setSource(QUrl::fromLocalFile("pagewithbg.html"));
+    browser->setSource(QUrl("pagewithbg.html"));
 
     QVERIFY(!forwardEmissions.isEmpty());
     QVariant val = forwardEmissions.takeLast()[0];
@@ -133,7 +133,7 @@ void tst_QTextBrowser::forwardButton()
     QVERIFY(val.type() == QVariant::Bool);
     QVERIFY(val.toBool() == false);
 
-    browser->setSource(QUrl::fromLocalFile("anchor.html"));
+    browser->setSource(QUrl("anchor.html"));
 
     QVERIFY(!forwardEmissions.isEmpty());
     val = forwardEmissions.takeLast()[0];
@@ -157,7 +157,7 @@ void tst_QTextBrowser::forwardButton()
     QVERIFY(val.type() == QVariant::Bool);
     QVERIFY(val.toBool() == false);
 
-    browser->setSource(QUrl::fromLocalFile("pagewithoutbg.html"));
+    browser->setSource(QUrl("pagewithoutbg.html"));
 
     QVERIFY(!forwardEmissions.isEmpty());
     val = forwardEmissions.takeLast()[0];
@@ -172,11 +172,11 @@ void tst_QTextBrowser::forwardButton()
 
 void tst_QTextBrowser::viewportPositionInHistory()
 {
-    browser->setSource(QUrl::fromLocalFile("bigpage.html"));
+    browser->setSource(QUrl("bigpage.html"));
     browser->scrollToAnchor("bottom");
     QVERIFY(browser->verticalScrollBar()->value() > 0);
 
-    browser->setSource(QUrl::fromLocalFile("pagewithbg.html"));
+    browser->setSource(QUrl("pagewithbg.html"));
     QCOMPARE(browser->verticalScrollBar()->value(), 0);
 
     browser->backward();
@@ -200,7 +200,7 @@ void tst_QTextBrowser::relativeLinks()
 
 void tst_QTextBrowser::anchors()
 {
-    browser->setSource(QUrl::fromLocalFile("bigpage.html"));
+    browser->setSource(QUrl("bigpage.html"));
     browser->setSource(QUrl("#bottom"));
     QVERIFY(browser->verticalScrollBar()->value() > 0);
 }
@@ -219,7 +219,7 @@ void tst_QTextBrowser::forwardBackwardAvailable()
     QVERIFY(!browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
 
-    browser->setSource(QUrl::fromLocalFile("anchor.html"));
+    browser->setSource(QUrl("anchor.html"));
     QVERIFY(!browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
     QCOMPARE(backwardSpy.count(), 1);
@@ -230,7 +230,7 @@ void tst_QTextBrowser::forwardBackwardAvailable()
     backwardSpy.clear();
     forwardSpy.clear();
 
-    browser->setSource(QUrl::fromLocalFile("bigpage.html"));
+    browser->setSource(QUrl("bigpage.html"));
     QVERIFY(browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
     QCOMPARE(backwardSpy.count(), 1);
@@ -241,7 +241,7 @@ void tst_QTextBrowser::forwardBackwardAvailable()
     backwardSpy.clear();
     forwardSpy.clear();
 
-    browser->setSource(QUrl::fromLocalFile("pagewithbg.html"));
+    browser->setSource(QUrl("pagewithbg.html"));
     QVERIFY(browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
     QCOMPARE(backwardSpy.count(), 1);
@@ -316,7 +316,7 @@ void tst_QTextBrowser::clearHistory()
     backwardSpy.clear();
     forwardSpy.clear();
 
-    browser->setSource(QUrl::fromLocalFile("anchor.html"));
+    browser->setSource(QUrl("anchor.html"));
     QVERIFY(!browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
     QCOMPARE(backwardSpy.count(), 1);
@@ -327,7 +327,7 @@ void tst_QTextBrowser::clearHistory()
     backwardSpy.clear();
     forwardSpy.clear();
 
-    browser->setSource(QUrl::fromLocalFile("bigpage.html"));
+    browser->setSource(QUrl("bigpage.html"));
     QVERIFY(browser->isBackwardAvailable());
     QVERIFY(!browser->isForwardAvailable());
     QCOMPARE(backwardSpy.count(), 1);
