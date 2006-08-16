@@ -28,7 +28,7 @@
 class QWaitConditionEvent
 {
 public:
-    inline QWaitConditionEvent() : priority(0)
+    inline QWaitConditionEvent() : priority(0), wokenUp(false)
     {
         QT_WA ({
             event = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -38,6 +38,7 @@ public:
     }
     inline ~QWaitConditionEvent() { CloseHandle(event); }
     int priority;
+    bool wokenUp;
     HANDLE event;
 };
 
@@ -61,6 +62,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     QWaitConditionEvent *wce =
         freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeFirst();
     wce->priority = GetThreadPriority(GetCurrentThread());
+    wce->wokenUp = false;
 
     // insert 'wce' into the queue (sorted by priority)
     int index = 0;
@@ -86,10 +88,19 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     mutex->lock();
 
     mtx.lock();
+
     // remove 'wce' from the queue
     queue.removeAll(wce);
     ResetEvent(wce->event);
     freeQueue.append(wce);
+
+    // wakeups delivered after the timeout should be forwarded to the next waiter
+    if (!ret && wce->wokenUp && !queue.isEmpty()) {
+        QWaitConditionEvent *other = queue.first();
+        SetEvent(other->event);
+        other->wokenUp = true;
+    }
+
     mtx.unlock();
 
     return ret;
@@ -134,6 +145,7 @@ void QWaitCondition::wakeOne()
     if (!d->queue.isEmpty()) {
         QWaitConditionEvent *first = d->queue.first();
         SetEvent(first->event);
+        first->wokenUp = true;
     }
 }
 
@@ -144,5 +156,6 @@ void QWaitCondition::wakeAll()
     for (int i = 0; i < d->queue.size(); ++i) {
         QWaitConditionEvent *current = d->queue.at(i);
         SetEvent(current->event);
+        current->wokenUp = true;
     }
 }

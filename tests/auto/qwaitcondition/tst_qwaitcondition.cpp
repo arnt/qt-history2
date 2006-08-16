@@ -30,6 +30,7 @@ private slots:
     void wait_QMutex();
     void wakeOne();
     void wakeAll();
+    void wait_RaceCondition();
 };
 
 static const int iterations = 10;
@@ -296,6 +297,81 @@ void tst_QWaitCondition::wakeAll()
 	QCOMPARE(wake_Thread::count, 0);
     }
 #endif
+}
+
+class wait_RaceConditionThread : public QThread
+{
+public:
+    wait_RaceConditionThread(QMutex *mutex, QWaitCondition *startup, QWaitCondition *waitCondition,
+                             ulong timeout = ULONG_MAX)
+        : timeout(timeout), returnValue(false), ready(false), 
+          mutex(mutex), startup(startup), waitCondition(waitCondition) {}
+
+    unsigned long timeout;
+    bool returnValue;
+
+    bool ready;
+
+    QMutex *mutex;
+    QWaitCondition *startup;
+    QWaitCondition *waitCondition;
+
+    void run() {
+        mutex->lock();
+
+        ready = true;
+        startup->wakeOne();
+
+        returnValue = waitCondition->wait(mutex, timeout);
+
+        mutex->unlock();
+    }
+};
+
+void tst_QWaitCondition::wait_RaceCondition()
+{
+    QMutex mutex;
+    QWaitCondition startup;
+    QWaitCondition waitCondition;
+
+    wait_RaceConditionThread timeoutThread(&mutex, &startup, &waitCondition, 1000),
+                             waitingThread1(&mutex, &startup, &waitCondition),
+                             waitingThread2(&mutex, &startup, &waitCondition);
+
+    timeoutThread.start();
+    waitingThread1.start();
+    waitingThread2.start();
+
+    mutex.lock();
+
+    // wait for the threads to start up
+    while (!timeoutThread.ready
+           || !waitingThread1.ready
+           || !waitingThread2.ready) {
+        startup.wait(&mutex);
+    }
+
+    QTest::qWait(2000);
+
+    waitCondition.wakeOne();
+    waitCondition.wakeOne();
+
+    mutex.unlock();
+
+    QVERIFY(timeoutThread.wait(5000));
+    QVERIFY(!timeoutThread.returnValue);
+    QVERIFY(waitingThread1.wait(5000));
+    QVERIFY(waitingThread1.returnValue);
+
+    QVERIFY(!waitingThread2.wait(5000));
+
+    // cleanup
+    mutex.lock();
+    waitCondition.wakeOne();
+    mutex.unlock();
+
+    QVERIFY(waitingThread2.wait(5000));
+    QVERIFY(waitingThread2.returnValue);
 }
 
 QTEST_MAIN(tst_QWaitCondition)
