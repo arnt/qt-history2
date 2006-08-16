@@ -220,8 +220,7 @@
 
     \section2 Native Widgets
 
-    Qt/Mac has support for sheets, drawers. Represented by Qt::Sheet
-    and Qt::Drawer in the window flags respectiviely. Brushed metal
-    windows are also possible using Qt::WA_MacMetalStyle window
-    attribute.
+    Qt/Mac has support for sheets and drawers, represented in the window flags
+    by Qt::Sheet and Qt::Drawer respectiviely. Brushed metal windows can also
+    be created by using the Qt::WA_MacMetalStyle window attribute.
 */
