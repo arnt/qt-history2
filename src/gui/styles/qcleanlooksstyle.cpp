@@ -4039,7 +4039,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DialogOpenButton:
     case SP_DirOpenIcon:
         {
-            pixmap = d->findIcon(24, QLatin1String("gnome-fs-directory-accept.png"));
+            pixmap = d->findIcon(24, QLatin1String("stock_open.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4133,21 +4133,21 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_FileDialogNewFolder:
         {
-            pixmap = d->findIcon(16, QLatin1String("folder-new.png"));
+            pixmap = d->findIcon(16, QLatin1String("folder_new.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowUp:
         {
-            pixmap = d->findIcon(16, QLatin1String("stock-up.png"));
+            pixmap = d->findIcon(16, QLatin1String("stock_up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowDown:
         {
-            pixmap = d->findIcon(16, QLatin1String("stock-down.png"));
+            pixmap = d->findIcon(16, QLatin1String("stock_down.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
