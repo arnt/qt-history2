@@ -2499,12 +2499,29 @@ bool QVariant::convert(Type t)
     with qRegisterMetaType().
 */
 
+static bool qIsNumericType(uint tp)
+{
+    return (tp >= QVariant::Bool && tp <= QVariant::Double)
+           || (tp >= QMetaType::Long && tp <= QMetaType::Float);
+}
+
+static bool qIsFloatingPoint(uint tp)
+{
+    return tp == QVariant::Double || tp == QMetaType::Float;
+}
+
 /*! \internal
  */
 bool QVariant::cmp(const QVariant &v) const
 {
     QVariant v2 = v;
     if (d.type != v2.d.type) {
+        if (qIsNumericType(d.type) && qIsNumericType(v.d.type)) {
+            if (qIsFloatingPoint(d.type) || qIsFloatingPoint(v.d.type))
+                return qFuzzyCompare(toDouble(), v.toDouble());
+            else
+                return toLongLong() == v.toLongLong();
+        }
         if (!v2.canConvert(Type(d.type)) || !v2.convert(Type(d.type)))
             return false;
     }
