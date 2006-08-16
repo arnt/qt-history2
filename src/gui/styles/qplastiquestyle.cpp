@@ -5498,7 +5498,10 @@ void QPlastiqueStylePrivate::lookupIconTheme () const
     QDir dir(fileInfo.canonicalFilePath());
     QString defaultTheme = dir.exists() ? dir.dirName() : "crystalsvg";
 
-    QSettings settings(QDir::homePath() + "/.kde/share/config/kdeglobals", QSettings::IniFormat);
+    QString kdeHome = qgetenv("KDEHOME");
+    if (kdeHome.isEmpty())
+        kdeHome = QDir::homePath() + QLatin1String("/.kde");
+    QSettings settings(kdeHome + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
     settings.beginGroup("Icons");
     if (settings.allKeys().contains("Theme")) {
         themeName = settings.value("Theme", defaultTheme).toString();
