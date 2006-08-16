@@ -89,6 +89,11 @@ public:
     \sa QScreen, QScreenDriverPlugin, {Running Applications}
 */
 
+/*!
+    \fn bool QLinuxFbScreen::useOffscreen()
+    \internal
+*/
+
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
 
@@ -1041,10 +1046,3 @@ void QLinuxFbScreen::blank(bool on)
 
 #endif // QT_NO_QWS_LINUXFB
 
-/*
-    \fn bool QLinuxFbScreen::useOffscreen ()
-
-    (doc: subject to change)
-
-    The default implementation returns false.
-*/

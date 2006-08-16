@@ -116,13 +116,16 @@ void qws_setScreenTransformation(int t)
 */
 
 /*!
-    \fn QTransformedScreen::QTransformedScreen(int displayId)
+    \fn bool QTransformedScreen::isTransformed() const
+    \reimp
+*/
 
+/*!
     Constructs a QTransformedScreen object. The \a displayId argument
     identifies the Qtopia Core server to connect to.
 */
-QTransformedScreen::QTransformedScreen(int display_id)
-    : QScreen(display_id), d_ptr(new QTransformedScreenPrivate)
+QTransformedScreen::QTransformedScreen(int displayId)
+    : QScreen(displayId), d_ptr(new QTransformedScreenPrivate)
 {
     d_ptr->transformation = None;
     qt_trans_screen = this;
@@ -132,6 +135,9 @@ QTransformedScreen::QTransformedScreen(int display_id)
 #endif
 }
 
+/*!
+    Destroys the QTransformedScreen object.
+*/
 QTransformedScreen::~QTransformedScreen()
 {
     delete d_ptr;
@@ -853,6 +859,9 @@ do {                                                           \
     }                                                          \
 } while (0)
 
+/*!
+    \reimp
+*/
 void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
                               const QRegion &region)
 {

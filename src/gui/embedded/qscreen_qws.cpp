@@ -1928,17 +1928,39 @@ void QScreen::resumeUpdates()
 {
 }
 
+/*!
+    \internal
+*/
 
+/*!
+    \fn QRegion QScreen::region() const
+
+    Returns the region covered by this screen.
+*/
+
+/*!
+    \internal
+*/
 void QScreen::setOffset(const QPoint &p)
 {
     d_ptr->offset = p;
 }
 
+/*!
+    Returns the logical offset of the screen.
+*/
 QPoint QScreen::offset() const
 {
     return d_ptr->offset;
 }
 
+/*!
+    Returns the index of the subScreen at position \a p; returns -1 if no
+    screen is found.
+
+    The QScreen instance can be retreived as the index in the list returned by
+    subScreens().
+*/
 int QScreen::subScreenIndexAt(const QPoint &p) const
 {
     const QList<QScreen*> screens = subScreens();
