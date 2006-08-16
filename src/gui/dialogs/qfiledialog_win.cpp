@@ -405,6 +405,11 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     modal_widget.setParent(args.parent, Qt::Window);
     QApplicationPrivate::enterModal(&modal_widget);
     
+    // This block is used below for the lpstrDefExt member.
+    // Note that the current MSDN docs document this member wrong.
+    // It should rather be documented as "the default extension if no extension was given and if the
+    // current filter does not have a extension (e.g (*.*)). If the current filter have an extension, use
+    // the extension of the current filter"
     QString defaultSaveExt;
     if (selectedFilter && !selectedFilter->isEmpty()) {
         defaultSaveExt = qt_win_extract_filter(*selectedFilter);
