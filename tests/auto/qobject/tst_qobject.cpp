@@ -23,6 +23,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QProcess>
 
 #include "qobject.h"
 
@@ -69,6 +70,7 @@ private slots:
     void dynamicProperties();
     void floatProperty();
     void property();
+    void recursiveSignalEmission();
 
 protected:
 };
@@ -1859,6 +1861,15 @@ void tst_QObject::dynamicProperties()
     QVERIFY(obj.property("myuserproperty").isNull());
 
     QVERIFY(obj.dynamicPropertyNames().isEmpty());
+}
+
+void tst_QObject::recursiveSignalEmission()
+{
+    QProcess proc;
+    proc.start("./signalbug");
+    QVERIFY(proc.waitForFinished());
+    QVERIFY(proc.exitStatus() == QProcess::NormalExit);
+    QCOMPARE(proc.exitCode(), 0);
 }
 
 QTEST_MAIN(tst_QObject)

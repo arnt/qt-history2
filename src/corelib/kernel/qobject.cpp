@@ -66,8 +66,8 @@ struct QConnection {
     int signal;
     QObject *receiver;
     int method;
-    uint inUse:1;
-    uint type:31; // 0 == auto, 1 == direct, 2 == queued
+    uint refCount:30;
+    uint type:2; // 0 == auto, 1 == direct, 2 == queued
     int *types;
 };
 Q_DECLARE_TYPEINFO(QConnection, Q_MOVABLE_TYPE);
@@ -129,9 +129,9 @@ void QConnectionList::remove(QObject *object)
                     }
                 }
 
-                int inUse = c.inUse;
+                uint refCount = c.refCount;
                 memset(&c, 0, sizeof(c));
-                c.inUse = inUse;
+                c.refCount = refCount;
                 Q_ASSERT(!unusedConnections.contains(at));
                 unusedConnections.prepend(at);
             } else {
@@ -152,7 +152,7 @@ void QConnectionList::addConnection(QObject *sender, int signal,
     c.type = type; // don't warn on VC++6
     int at = -1;
     for (int i = 0; i < unusedConnections.size(); ++i) {
-        if (!connections.at(unusedConnections.at(i)).inUse) {
+        if (!connections.at(unusedConnections.at(i)).refCount) {
             // reuse an unused connection
             at = unusedConnections.takeAt(i);
             connections[at] = c;
@@ -203,9 +203,9 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
                 }
             }
 
-            int inUse = c.inUse;
+            uint refCount = c.refCount;
             memset(&c, 0, sizeof(c));
-            c.inUse = inUse;
+            c.refCount = refCount;
             unusedConnections << at;
             success = true;
         } else {
@@ -2851,63 +2851,64 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
     QVarLengthArray<int> connections(i);
     for (i = 0, it = start; it != end && it.key() == sender; ++i, ++it) {
         connections.data()[i] = it.value();
-        list->connections[it.value()].inUse = 1;
+        ++list->connections[it.value()].refCount;
     }
 
     for (i = 0; i < connections.size(); ++i) {
         const int at = connections.constData()[connections.size() - (i + 1)];
         QConnectionList * const list = ::connectionList();
-        QConnection &c = list->connections[at];
-        c.inUse = 0;
-        if (!c.receiver || ((c.signal < from_signal_index || c.signal > to_signal_index) &&
-                            c.signal != -1))
+        QConnection *c = &list->connections[at];
+        --c->refCount;
+        if (!c->receiver || ((c->signal < from_signal_index || c->signal > to_signal_index) &&
+                            c->signal != -1))
             continue;
 
         // determine if this connection should be sent immediately or
         // put into the event queue
-        if ((c.type == Qt::AutoConnection
+        if ((c->type == Qt::AutoConnection
              && (currentThreadData != sender->d_func()->threadData
-                 || c.receiver->d_func()->threadData != sender->d_func()->threadData))
-            || (c.type == Qt::QueuedConnection)) {
-            ::queued_activate(sender, c, argv, from_signal_index, to_signal_index);
+                 || c->receiver->d_func()->threadData != sender->d_func()->threadData))
+            || (c->type == Qt::QueuedConnection)) {
+            ::queued_activate(sender, *c, argv, from_signal_index, to_signal_index);
             continue;
         }
 
-        const int method = c.method;
-        QObject * const previousSender = c.receiver->d_func()->currentSender;
-        int previousFrom = c.receiver->d_func()->currentSenderSignalIdStart;
-        int previousTo = c.receiver->d_func()->currentSenderSignalIdEnd;
-        c.receiver->d_func()->currentSender = sender;
-        c.receiver->d_func()->currentSenderSignalIdStart = from_signal_index;
-        c.receiver->d_func()->currentSenderSignalIdEnd = to_signal_index;
+        const int method = c->method;
+        QObject * const previousSender = c->receiver->d_func()->currentSender;
+        int previousFrom = c->receiver->d_func()->currentSenderSignalIdStart;
+        int previousTo = c->receiver->d_func()->currentSenderSignalIdEnd;
+        c->receiver->d_func()->currentSender = sender;
+        c->receiver->d_func()->currentSenderSignalIdStart = from_signal_index;
+        c->receiver->d_func()->currentSenderSignalIdEnd = to_signal_index;
         locker.unlock();
 
         if (qt_signal_spy_callback_set.slot_begin_callback != 0)
-            qt_signal_spy_callback_set.slot_begin_callback(c.receiver, method, argv ? argv : empty_argv);
+            qt_signal_spy_callback_set.slot_begin_callback(c->receiver, method, argv ? argv : empty_argv);
 
 #if defined(QT_NO_EXCEPTIONS)
-        c.receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
+        c->receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
 #else
         try {
-            c.receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
+            c->receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
         } catch (...) {
-            if (c.receiver) {
-                c.receiver->d_func()->currentSender = previousSender;
-                c.receiver->d_func()->currentSenderSignalIdStart = previousFrom;
-                c.receiver->d_func()->currentSenderSignalIdEnd = previousTo;
+            if (c->receiver) {
+                c->receiver->d_func()->currentSender = previousSender;
+                c->receiver->d_func()->currentSenderSignalIdStart = previousFrom;
+                c->receiver->d_func()->currentSenderSignalIdEnd = previousTo;
             }
             throw;
         }
 #endif
+        c = &list->connections[at];
 
         if (qt_signal_spy_callback_set.slot_end_callback != 0)
-            qt_signal_spy_callback_set.slot_end_callback(c.receiver, method);
+            qt_signal_spy_callback_set.slot_end_callback(c->receiver, method);
 
         locker.relock();
-        if (c.receiver) {
-            c.receiver->d_func()->currentSender = previousSender;
-            c.receiver->d_func()->currentSenderSignalIdStart = previousFrom;
-            c.receiver->d_func()->currentSenderSignalIdEnd = previousTo;
+        if (c->receiver) {
+            c->receiver->d_func()->currentSender = previousSender;
+            c->receiver->d_func()->currentSenderSignalIdStart = previousFrom;
+            c->receiver->d_func()->currentSenderSignalIdEnd = previousTo;
         }
     }
 
