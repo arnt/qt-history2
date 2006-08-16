@@ -61,6 +61,7 @@ private slots:
     void usleep();
 
     void nativeThreadAdoption();
+    void adoptedThreadAffinity();
     void adoptedThreadSetPriority();
     void adoptedThreadExit();
     void adoptedThreadExec();
@@ -554,7 +555,7 @@ public:
     void join();
     void setWaitForStop() { waitForStop = true; }
     void stop();
-    
+
     ThreadHandle nativeThread;
     QThread *qthread;
     QWaitCondition startCondition;
@@ -564,7 +565,7 @@ public:
 protected:
     static void *runUnix(void *data);
     static void runWin(void *data);
-    
+
     FunctionPointer functionPointer;
     void *data;
 };
@@ -612,14 +613,14 @@ void *NativeThreadWrapper::runUnix(void *that)
 
     // Run function.
     nativeThreadWrapper->functionPointer(nativeThreadWrapper->data);
-    
+
     // Wait for stop.
     {
         QMutexLocker lock(&nativeThreadWrapper->mutex);
         if (nativeThreadWrapper->waitForStop)
             nativeThreadWrapper->stopCondition.wait(lock.mutex());
     }
-    
+
     return 0;
 }
 
@@ -643,7 +644,7 @@ void testNativeThreadAdoption(void *)
                        && QThread::currentThread() != 0
                        && QThread::currentThread() != mainThread);
 
-    //TODO: where does the QThread object for an odopted thread live? 
+    //TODO: where does the QThread object for an odopted thread live?
     // In the main thread or the adopted thread?
     // QCOMPARE(QThread::currentThread()->thread(), QThread::currentThread());
 }
@@ -659,6 +660,27 @@ void tst_QThread::nativeThreadAdoption()
     nativeThread.join();
     QVERIFY(threadAdoptedOk);
 }
+
+void adoptedThreadAffinityFunction(void *arg)
+{
+    QThread **affinity = reinterpret_cast<QThread **>(arg);
+    QThread *current = QThread::currentThread();
+    affinity[0] = current;
+    affinity[1] = current->thread();
+}
+
+void tst_QThread::adoptedThreadAffinity()
+{
+    QThread *affinity[2] = { 0, 0 };
+
+    NativeThreadWrapper thread;
+    thread.startAndWait(adoptedThreadAffinityFunction, affinity);
+    thread.join();
+
+    // adopted thread should have affinity to itself
+    QCOMPARE(affinity[0], affinity[1]);
+}
+
 void tst_QThread::adoptedThreadSetPriority()
 {
 
@@ -682,7 +704,7 @@ void tst_QThread::adoptedThreadSetPriority()
     QCOMPARE(nativeThread.qthread->priority(), QThread::HighestPriority);
     nativeThread.qthread->setPriority(QThread::TimeCriticalPriority);
     QCOMPARE(nativeThread.qthread->priority(), QThread::TimeCriticalPriority);
-    
+
     nativeThread.stop();
     nativeThread.join();
 }
@@ -708,7 +730,7 @@ void tst_QThread::adoptedThreadExit()
 
 /*
     TODO: To start the eventloop on an adopted thread we need to call
-    QThread::exec in the adopted thread context. But that function is 
+    QThread::exec in the adopted thread context. But that function is
     protected and we can't access is from the QThread object returned by
     QThread::currentThread().
 */
@@ -741,7 +763,7 @@ void tst_QThread::adoptedThreadTerminated()
 {
 #ifdef Q_OS_WIN
     QSKIP("Not implemented on Widnows yet, task: 122365", SkipAll);
-#endif   
+#endif
     NativeThreadWrapper nativeThread;
     nativeThread.setWaitForStop();
     nativeThread.startAndWait();
