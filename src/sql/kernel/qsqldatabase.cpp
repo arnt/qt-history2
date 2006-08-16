@@ -371,7 +371,7 @@ void QSqlDatabasePrivate::disable()
     isDriverAvailable(). If you have created your own custom driver,
     you can register it with registerSqlDriver().
 
-    \sa QSqlDriver, QSqlQuery
+    \sa QSqlDriver, QSqlQuery, {QtSql Module}
 */
 
 /*!

@@ -35,8 +35,9 @@
                framework.
     \endtable
 
-    To include the definitions of the module's classes, use the
-    following directive:
+    Note that to use any of these classes, a QCoreApplication object
+    must have been instantiated first. To include the definitions of
+    the module's classes, use the following directive:
 
     \code
         #include <QtSql>
