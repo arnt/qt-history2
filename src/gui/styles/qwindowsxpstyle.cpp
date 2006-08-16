@@ -98,6 +98,9 @@
 #ifndef TMT_TEXTSHADOWCOLOR
 #  define TMT_TEXTSHADOWCOLOR 3818
 #endif
+#ifndef TST_NONE
+#  define TST_NONE 0
+#endif
 
 #ifndef GT_NONE
 #  define GT_NONE 0
