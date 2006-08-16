@@ -4005,12 +4005,12 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     \ingroup multimedia
 
     To set the item's line, pass a QLineF to QGraphicsLineItem's constructor,
-    or call setLine(). line() returns the current line.
+    or call setLine(). line() returns the current line. By default the line is
+    black with a width of 1.0, but you can change this by calling setPen(). 
 
     QGraphicsLineItem uses the line and the pen width to provide a reasonable
     implementation of boundingRect(), shape(), and contains(). The paint()
-    function draws the line using the item's associated pen, which you can set
-    by calling setPen().
+    function draws the line using the item's associated pen.
 
     \img graphicsview-lineitem.png
 
@@ -4023,6 +4023,8 @@ class QGraphicsLineItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsLineItem)
 public:
+    inline QGraphicsLineItemPrivate() : pen(QBrush(), 1.0)
+        { }
     QLineF line;
     QPen pen;
 };
@@ -4068,7 +4070,7 @@ QGraphicsLineItem::~QGraphicsLineItem()
 }
 
 /*!
-    Returns the item's pen, or QPen() if no pen has been set.
+    Returns the item's pen, or a QPen() with a width of 1.0 if no pen has been set.
 
     \sa setPen()
 */
@@ -4147,8 +4149,17 @@ QPainterPath QGraphicsLineItem::shape() const
     QPainterPath path;
     if (d->line.isNull())
         return path;
+
+    qreal width = d->pen.widthF();
     path.moveTo(d->line.p1());
     path.lineTo(d->line.p2());
+
+    if (width != 0.0) {
+        QPainterPathStroker ps;
+        ps.setCapStyle(d->pen.capStyle());
+        ps.setWidth(width);
+        path = ps.createStroke(path);
+    }
     return path;
 }
 
@@ -4157,18 +4168,7 @@ QPainterPath QGraphicsLineItem::shape() const
 */
 bool QGraphicsLineItem::contains(const QPointF &point) const
 {
-    Q_D(const QGraphicsLineItem);
-
-    const qreal twopi = 3.14159265359 * 2.0;
-
-    QLineF hypo = QLineF(d->line.p1(), point);
-
-    qreal angle = (twopi * d->line.angle(hypo)) / 360.0;
-    qreal dist = hypo.length() * ::sin(angle);
-    if ((d->pen.widthF() == 0 && dist > 0.5) || (d->pen.widthF() > 0 && dist > d->pen.widthF() / 2))
-        return false;
-
-    return QRectF(d->line.p1(), QSizeF(d->line.dx(), d->line.dy())).normalized().contains(point);
+    return QGraphicsItem::contains(point);
 }
 
 /*!
