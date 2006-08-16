@@ -31,10 +31,9 @@ class QBrush;
 class QWSWindow;
 class QWSWindowSurface;
 
-#ifdef QT_QWS_DEPTH_16
-# ifndef QT_QWS_DEPTH16_RGB
-#  define QT_QWS_DEPTH16_RGB 565
-# endif
+#ifndef QT_QWS_DEPTH16_RGB
+#define QT_QWS_DEPTH16_RGB 565
+#endif
 static const int qt_rbits = (QT_QWS_DEPTH16_RGB/100);
 static const int qt_gbits = (QT_QWS_DEPTH16_RGB/10%10);
 static const int qt_bbits = (QT_QWS_DEPTH16_RGB%10);
@@ -89,8 +88,6 @@ inline void qt_conv16ToRgb(ushort c, int& r, int& g, int& b)
     g = tg >> qt_green_shift | tg >> qt_green_rounding_shift;
     b = tb << qt_neg_blue_shift | tb >> qt_blue_rounding_shift;
 }
-#endif // QT_QWS_DEPTH_16
-
 
 const int SourceSolid=0;
 const int SourcePixmap=1;
