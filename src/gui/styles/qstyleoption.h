@@ -459,6 +459,8 @@ protected:
     QStyleOptionViewItemV2(int version);
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionViewItemV2::ViewItemFeatures)
+
 class Q_GUI_EXPORT QStyleOptionToolBox : public QStyleOption
 {
 public:

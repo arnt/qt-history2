@@ -498,6 +498,7 @@ private:
     const QLocalePrivate *d() const;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QLocale::NumberOptions)
 
 inline QString QLocale::toString(short i) const
     { return toString(qlonglong(i)); }
