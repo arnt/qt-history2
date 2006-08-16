@@ -1011,7 +1011,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                 }
                 break;
         }
-        return;
     }
 
     if (e == QKeySequence::MoveToStartOfLine) {
@@ -1074,6 +1073,9 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     }
 #endif
 
+    if (readOnly)
+        return;
+    
     {
         QTextCursor cursor = d->control->textCursor();
         const QString text = e->text();
