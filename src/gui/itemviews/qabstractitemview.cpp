@@ -1304,7 +1304,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - d->offset();
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
-            startDrag(d->model->supportedDropActions());
+            startDrag(d->model->supportedDragActions());
             setState(NoState); // the startDrag will return when the dnd operation is done
             stopAutoScroll();
         }
