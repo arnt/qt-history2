@@ -185,8 +185,10 @@ void tst_QGraphicsItem::construction()
         QCOMPARE(item->matrix(), QMatrix());
         QCOMPARE(item->sceneMatrix(), QMatrix());
         QCOMPARE(item->zValue(), qreal(0));
-        QCOMPARE(item->boundingRect(), QRectF());
-        QCOMPARE(item->sceneBoundingRect(), QRectF());
+        if (item->type() == QGraphicsLineItem::Type)
+            QCOMPARE(item->sceneBoundingRect(), QRectF(-0.5, -0.5, 1, 1));
+        else
+            QCOMPARE(item->sceneBoundingRect(), QRectF());
         QCOMPARE(item->shape(), QPainterPath());
         QVERIFY(!item->contains(QPointF(0, 0)));
         QVERIFY(!item->collidesWithItem(0));
@@ -991,10 +993,31 @@ void tst_QGraphicsItem::zValue()
 void tst_QGraphicsItem::shape()
 {
     QGraphicsLineItem line(QLineF(-10, -10, 20, 20));
+
+    QPainterPathStroker ps;
+    ps.setWidth(line.pen().widthF());
+
     QPainterPath path(line.line().p1());
     path.lineTo(line.line().p2());
-    QCOMPARE(line.shape(), path);
+    QCOMPARE(line.shape(), ps.createStroke(path));
 
+    QPen linePen;
+    linePen.setWidthF(5.0);
+    linePen.setCapStyle(Qt::RoundCap);
+    line.setPen(linePen);
+
+    ps.setCapStyle(line.pen().capStyle());
+    ps.setWidth(line.pen().widthF());
+    QCOMPARE(line.shape(), ps.createStroke(path));
+    linePen.setCapStyle(Qt::FlatCap);
+    line.setPen(linePen);
+    ps.setCapStyle(line.pen().capStyle());
+    QCOMPARE(line.shape(), ps.createStroke(path));
+    linePen.setCapStyle(Qt::SquareCap);
+    line.setPen(linePen);
+    ps.setCapStyle(line.pen().capStyle());
+    QCOMPARE(line.shape(), ps.createStroke(path));
+    
     QGraphicsRectItem rect(QRectF(-10, -10, 20, 20));
     path = QPainterPath();
     path.addRect(rect.rect());
