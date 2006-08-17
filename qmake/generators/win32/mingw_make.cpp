@@ -21,8 +21,6 @@
 
 MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
-    Option::obj_ext = ".o";
-    Option::res_ext = ".o";
 }
 
 bool MingwMakefileGenerator::findLibraries()
