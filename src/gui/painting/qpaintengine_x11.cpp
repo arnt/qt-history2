@@ -1340,7 +1340,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         vals.foreground = cmap.pixel(d->cbrush.color());
         vals.background = cmap.pixel(QColor(Qt::transparent));
 
-        if (!d->has_pattern && !brush.isOpaque()) {
+        if (!X11->use_xrender && d->has_brush && !d->has_pattern && !brush.isOpaque()) {
             QPixmap pattern = qt_patternForAlpha(brush.color().alpha(), d->scrn);
             mask |= GCStipple;
             vals.stipple = pattern.handle();
