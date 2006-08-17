@@ -1398,11 +1398,13 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 /*!
   Returns the drop actions supported by this model.
 
-  The default implementation returns Qt::CopyAction. It is only necessary to reimplement
-  this function in subclasses if you wish to support more types of drag and drop
-  operation.
+  The default implementation returns Qt::CopyAction. Reimplement this
+  function if you wish to support additional actions. Note that you
+  must also reimplement the dropMimeData() function to handle the
+  additional operations.
 
-  \sa Qt::DropActions
+  \sa dropMimeData(), Qt::DropActions, {Using Drag and Drop with Item
+  Views}
 */
 Qt::DropActions QAbstractItemModel::supportedDropActions() const
 {
@@ -1418,7 +1420,7 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
   supportedDragActions() is used by QAbstractItemView::startDrag() as
   the default values when a drag occurs.
 
-  \sa Qt::DropActions
+  \sa Qt::DropActions, {Using Drag and Drop with Item Views}
 */
 Qt::DropActions QAbstractItemModel::supportedDragActions() const
 {
@@ -1432,7 +1434,7 @@ Qt::DropActions QAbstractItemModel::supportedDragActions() const
 /*!
   Sets the supported drag \a actions for the items in the model.
 
-  \sa supportedDragActions()
+  \sa supportedDragActions(), {Using Drag and Drop with Item Views}
 */
 void QAbstractItemModel::setSupportedDragActions(Qt::DropActions actions)
 {
