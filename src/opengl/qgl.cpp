@@ -717,7 +717,8 @@ int QGLFormat::depthBufferSize() const
 
 /*!
     Set the preferred alpha buffer size to \a size.
-
+    This function implicitly enables the alpha channel.
+    
     \sa alpha(), setAlpha(), alphaBufferSize()
 */
 void QGLFormat::setAlphaBufferSize(int size)
@@ -727,6 +728,7 @@ void QGLFormat::setAlphaBufferSize(int size)
         return;
     }
     d->alphaSize = size;
+    setOption(QGL::AlphaChannel);
 }
 
 /*!
