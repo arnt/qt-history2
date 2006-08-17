@@ -73,7 +73,9 @@ struct QCssKnownValue
 static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-block-indent", QtBlockIndent },
     { "-qt-list-indent", QtListIndent },
+    { "-qt-origin", QtOrigin },
     { "-qt-paragraph-type", QtParagraphType },
+    { "-qt-position", QtPosition },
     { "-qt-table-type", QtTableType },
     { "alternate-background", AlternateBackground },
     { "background", Background },
@@ -200,6 +202,7 @@ static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
 static const QCssKnownValue origins[NumKnownOrigins - 1] = {
     { "border", Origin_Border },
     { "content", Origin_Content },
+    { "margin", Origin_Margin }, // not in css
     { "padding", Origin_Padding }
 };
 
@@ -245,7 +248,7 @@ ValueExtractor::ValueExtractor(const QVector<Declaration> &decls)
 int ValueExtractor::lengthValue(const Value& v)
 {
     QString s = v.variant.toString();
-    QRegExp re("([\\d\\.]*)(px|em|ex)?", Qt::CaseInsensitive);
+    QRegExp re("(-?[\\d\\.]*)(px|em|ex)?", Qt::CaseInsensitive);
     if (re.indexIn(s) == -1)
         return 0;
     QString real = re.cap(1);
@@ -303,7 +306,8 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
     return hit;
 }
 
-bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom)
+bool ValueExtractor::extractPosition(int *left, int *top, QCss::Origin *origin, 
+                                     Qt::Alignment *position)
 {
     extractFont();
     bool hit = false;
@@ -312,8 +316,10 @@ bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *botto
         switch (decl.propertyId) {
         case Left: *left = lengthValue(decl); break;
         case Top: *top = lengthValue(decl); break;
-        case Right: *right = lengthValue(decl); break;
-        case Bottom: *bottom = lengthValue(decl); break;
+        case Right: *left = -lengthValue(decl); break;
+        case Bottom: *top = -lengthValue(decl); break;
+        case QtOrigin: *origin = decl.originValue(); break;
+        case QtPosition: *position = decl.alignmentValue(); break;
         default: continue;
         }
         hit = true;
