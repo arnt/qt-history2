@@ -31,6 +31,7 @@ HEADERS += \
         widgets/qmainwindowlayout_p.h \
         widgets/qmenu.h \
         widgets/qmenubar.h \
+        widgets/qmenudata.h \
         widgets/qprogressbar.h \
         widgets/qpushbutton.h \
         widgets/qradiobutton.h \
