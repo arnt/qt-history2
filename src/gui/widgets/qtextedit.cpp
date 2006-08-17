@@ -1806,10 +1806,10 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 }
 
 /*!
-    Sets the char format that is be used when inserting new text to
-    \a format by calling QTextCursor::setCharFormat on the editor's cursor.
-    If the editor has a selection then the char format is directly applied
-    to the selection.
+    Sets the char format that is be used when inserting new text to \a
+    format by calling QTextCursor::setCharFormat() on the editor's
+    cursor.  If the editor has a selection then the char format is
+    directly applied to the selection.
  */
 void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
 {
