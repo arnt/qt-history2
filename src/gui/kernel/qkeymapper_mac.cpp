@@ -517,20 +517,10 @@ QKeyMapperPrivate::updateKeyboard()
     keyboard_kind = LMGetKbdType();
     currentKeyboardLayout = keyLayoutRef;
     keyboard_dead = 0;
-
-#if 0
-    ScriptLanguageRecord language;
-    GetTextServiceLanguage(&language);
-    qDebug() << language.fScript << language.fLanguage;
-
-    QCFType<CFLocaleRef> cf_locale = CFLocaleCopyCurrent();
-    SInt16 currentKeyScript = GetScriptManagerVariable(smKeyScript);
-    SInt16 locale = GetScriptVariable(currentKeyScript, smScriptLang);
-    keyboardInputLocale = QLocale();
-    keyboardInputDirection = GetScriptVariable(currentKeyScript, smScriptRight) ? Qt::RightToLeft : Qt::LeftToRight;
-    qDebug() << locale << QCFString::toQString(CFLocaleGetIdentifier(cf_locale)) << QCFString::toQString(CFLocaleGetIdentifier(CFLocaleGetSystem()))
-             << keyboardInputDirection;
-#endif
+    CFStringRef iso639Code;
+    KLGetKeyboardLayoutProperty(currentKeyboardLayout, kKLLanguageCode,
+                                reinterpret_cast<const void **>(&iso639Code));
+    keyboardInputLocale = QLocale(QCFString::toQString(iso639Code));
     return true;
 }
 
