@@ -655,11 +655,16 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
 
     switch (t->type) {
     case ::TimerInfo::Fast:
-        EnterCriticalSection(&d->fastTimerCriticalSection);
-        t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
-        LeaveCriticalSection(&d->fastTimerCriticalSection);
-        QCoreApplicationPrivate::removePostedTimerEvent(t->obj, t->timerId);
-        break;
+        {
+            // save these here, because the timer callback may delete t right when we leave critical section
+            QObject *obj = t->obj;
+            int timerId = t->timerId;
+            EnterCriticalSection(&d->fastTimerCriticalSection);
+            t->type = ::TimerInfo::Off; // kill timer (and delete t) from callback
+            LeaveCriticalSection(&d->fastTimerCriticalSection);
+            QCoreApplicationPrivate::removePostedTimerEvent(obj, timerId);
+            break;
+        }
     case ::TimerInfo::Normal:
         KillTimer(d->internalHwnd(), t->timerId);
         delete t;
