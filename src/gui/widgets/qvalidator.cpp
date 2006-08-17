@@ -13,6 +13,7 @@
 
 #include "qvalidator.h"
 #ifndef QT_NO_VALIDATOR
+#include "private/qobject_p.h"
 
 #include <limits.h>
 #include <math.h>
@@ -376,6 +377,25 @@ void QIntValidator::setTop(int top)
 
 #ifndef QT_NO_REGEXP
 
+QValidator::QValidator(QObjectPrivate &d, QObject *parent)
+        : QObject(d, parent)
+{
+}
+
+class QDoubleValidatorPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QDoubleValidator);
+public:
+    QDoubleValidatorPrivate()
+        : QObjectPrivate()
+        , notation(QDoubleValidator::ScientificNotation)
+    {
+    }
+
+    QDoubleValidator::Notation notation;
+};
+
+
 /*!
     \class QDoubleValidator
 
@@ -396,17 +416,28 @@ void QIntValidator::setTop(int top)
     \sa QIntValidator, QRegExpValidator, {Line Edits Example}
 */
 
+ /*!
+    \enum QDoubleValidator::Notation
+    This enum defines the allowed notations for entering a double.
+
+    \value StandardNotation      The string is written as a standard number
+                                 (i.e. 0.015).
+    \value ScientificNotation    The string is written in scientific
+                                 form divided into coefficient and
+                                 exponent part(i.e. 1.5E-2). This is the default.
+*/
+
 /*!
     Constructs a validator object with a \a parent object
     that accepts any double.
 */
 
 QDoubleValidator::QDoubleValidator(QObject * parent)
-    : QValidator(parent)
+    : QValidator(*new QDoubleValidatorPrivate , parent)
 {
     b = -HUGE_VAL;
     t = HUGE_VAL;
-    d = 1000;
+    dec = 1000;
 }
 
 
@@ -418,11 +449,11 @@ QDoubleValidator::QDoubleValidator(QObject * parent)
 
 QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
                                     QObject * parent)
-    : QValidator(parent)
+    : QValidator(*new QDoubleValidatorPrivate , parent)
 {
     b = bottom;
     t = top;
-    d = decimals;
+    dec = decimals;
 }
 
 #ifdef QT3_SUPPORT
@@ -434,12 +465,12 @@ QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
 */
 
 QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
-    : QValidator(parent)
+    : QValidator(*new QDoubleValidatorPrivate , parent)
 {
     setObjectName(QString::fromAscii(name));
     b = -HUGE_VAL;
     t = HUGE_VAL;
-    d = 1000;
+    dec = 1000;
 }
 
 
@@ -453,12 +484,12 @@ QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
 
 QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
                                     QObject * parent, const char* name)
-    : QValidator(parent)
+    : QValidator(*new QDoubleValidatorPrivate, parent)
 {
     setObjectName(QString::fromAscii(name));
     b = bottom;
     t = top;
-    d = decimals;
+    dec = decimals;
 }
 #endif
 
@@ -491,6 +522,7 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate(QString & input, int &) const
 {
+    Q_D(const QDoubleValidator);
     QRegExp empty(QString::fromLatin1("-?\\.?"));
     if (input.contains(QLatin1Char(' ')))
         return Invalid;
@@ -501,6 +533,9 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
     bool ok = true;
     double entered = input.toDouble(&ok);
     int nume = input.count(QLatin1Char('e'), Qt::CaseInsensitive);
+    if ((!ok || nume > 0) && d->notation != ScientificNotation)
+        return Invalid;
+
     if (!ok) {
         // explicit exponent regexp
         QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?(\\d*)$"));
@@ -526,12 +561,12 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         int j = i;
         while(input[j].isDigit())
             j++;
-        if (j - i > d)
-            return Intermediate;
+        if (j - i > dec)
+            return d->notation == ScientificNotation ? Intermediate : Invalid;
     }
 
     if (entered < b || entered > t)
-        return Intermediate;
+        return d->notation == ScientificNotation ? Intermediate : Invalid;
     return Acceptable;
 }
 
@@ -546,7 +581,7 @@ void QDoubleValidator::setRange(double minimum, double maximum, int decimals)
 {
     b = minimum;
     t = maximum;
-    d = decimals;
+    dec = decimals;
 }
 
 /*!
@@ -586,6 +621,24 @@ void QDoubleValidator::setDecimals(int decimals)
     setRange(bottom(), top(), decimals);
 }
 
+/*!
+    \property QDoubleValidator::notation
+    \brief the notation of how a string can describe a number
+
+    \sa Notation
+*/
+
+void QDoubleValidator::setNotation(Notation newNotation)
+{
+    Q_D(QDoubleValidator);
+    d->notation = newNotation;
+}
+
+QDoubleValidator::Notation QDoubleValidator::notation() const
+{
+    Q_D(const QDoubleValidator);
+    return d->notation;
+}
 
 /*!
     \class QRegExpValidator
