@@ -407,6 +407,9 @@ QSqlField::RequiredStatus QSqlField::requiredStatus() const
 /*!
     Returns the field's length.
 
+    If the returned value is negative, it means that the information
+    is not available from the database.
+
     \sa setLength() type() requiredStatus() precision() defaultValue() isGenerated()
 */
 int QSqlField::length() const
@@ -417,6 +420,9 @@ int QSqlField::length() const
 /*!
     Returns the field's precision; this is only meaningful for numeric
     types.
+
+    If the returned value is negative, it means that the information
+    is not available from the database.
 
     \sa setPrecision() type() requiredStatus() length() defaultValue() isGenerated()
 */
@@ -439,6 +445,9 @@ QVariant QSqlField::defaultValue() const
     \internal
 
     Returns the type ID for the field.
+
+    If the returned value is negative, it means that the information
+    is not available from the database.
 */
 int QSqlField::typeID() const
 {
