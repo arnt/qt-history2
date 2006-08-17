@@ -362,6 +362,10 @@ void QItemDelegate::paint(QPainter *painter,
     Returns the size needed by the delegate to display the item
     specified by \a index, taking into account the style information
     provided by \a option.
+
+    When reimplementing this function, note that in case of text
+    items, QItemDelegate adds a margin (i.e. 2 *
+    QStyle::PM_FocusFrameHMargin) to the length of the text.
 */
 
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
