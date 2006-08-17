@@ -1131,6 +1131,30 @@ void tst_QGraphicsItem::collidesWith_item()
     ellipse2.setPos(-17, -17);
     QVERIFY(!ellipse.collidesWithItem(&ellipse2));
     QVERIFY(!ellipse2.collidesWithItem(&ellipse));
+
+    {
+        QGraphicsScene scene;
+        QGraphicsRectItem rect(20, 20, 100, 100, 0, &scene);
+        QGraphicsRectItem rect2(40, 40, 50, 50, 0, &scene);
+        rect2.setZValue(1);
+        QGraphicsLineItem line(0, 0, 200, 200, 0, &scene);
+        line.setZValue(2);
+
+        QList<QGraphicsItem *> col1 = rect.collidingItems();
+        QCOMPARE(col1.size(), 2);
+        QCOMPARE(col1.first(), &line);
+        QCOMPARE(col1.last(), &rect2);
+
+        QList<QGraphicsItem *> col2 = rect2.collidingItems();
+        QCOMPARE(col2.size(), 2);
+        QCOMPARE(col2.first(), &line);
+        QCOMPARE(col2.last(), &rect);
+
+        QList<QGraphicsItem *> col3 = line.collidingItems();
+        QCOMPARE(col3.size(), 2);
+        QCOMPARE(col3.first(), &rect2);
+        QCOMPARE(col3.last(), &rect);
+    }
 }
 
 void tst_QGraphicsItem::collidesWith_path_data()
@@ -2469,7 +2493,6 @@ public:
 protected:
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     {
-        qDebug() << "EventFilterTesterItem::sceneEventFilter:" << watched << event;
         filteredEvents << event->type();
         filteredEventReceivers << watched;
         return handlesSceneEvents;
@@ -2477,7 +2500,6 @@ protected:
 
     bool sceneEvent(QEvent *event)
     {
-        qDebug() << "EventFilterTesterItem::sceneEvent:" << event;
         return QGraphicsLineItem::sceneEvent(event);
     }
 };
