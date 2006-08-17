@@ -4095,13 +4095,13 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/dirclosed-128.png"),
                      QSize(), QIcon::Normal, QIcon::Off);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/diropen-16.png"),
-                     QSize(), QIcon::Normal, QIcon::Off);
+                     QSize(), QIcon::Normal, QIcon::On);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/diropen-32.png"),
-                     QSize(), QIcon::Normal, QIcon::Off);
+                     QSize(), QIcon::Normal, QIcon::On);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/diropen-64.png"),
-                     QSize(), QIcon::Normal, QIcon::Off);
+                     QSize(), QIcon::Normal, QIcon::On);
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/tt-rendered/diropen-128.png"),
-                     QSize(), QIcon::Normal, QIcon::Off);
+                     QSize(), QIcon::Normal, QIcon::On);
         break;
 #endif // QT_NO_IMAGEFORMAT_PNG
     default:

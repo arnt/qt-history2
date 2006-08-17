@@ -4605,6 +4605,16 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
         return pixmap;
         }
         break;
+    case SP_DirIcon: {
+        // A rather special case
+        QIcon closeIcon = QStyle::standardIcon(SP_DirClosedIcon, opt, widget);
+        QIcon openIcon = QStyle::standardIcon(SP_DirOpenIcon, opt, widget);
+        closeIcon.addPixmap(openIcon.pixmap(16, 16), QIcon::Normal, QIcon::On);
+        closeIcon.addPixmap(openIcon.pixmap(32, 32), QIcon::Normal, QIcon::On);
+        closeIcon.addPixmap(openIcon.pixmap(64, 64), QIcon::Normal, QIcon::On);
+        closeIcon.addPixmap(openIcon.pixmap(128, 128), QIcon::Normal, QIcon::On);
+        return closeIcon;
+    }
     default:
         break;
     }
