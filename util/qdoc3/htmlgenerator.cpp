@@ -587,7 +587,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << "</table></p>\n";
         break;
     case Atom::TableHeaderLeft:
-        out() << "<thead><tr valign=\"top\" bgcolor=\"#a2c511\">";
+        out() << "<thead><tr valign=\"top\" class=\"qt-style\">";
         inTableHeader = true;
         break;
     case Atom::TableHeaderRight:
@@ -596,9 +596,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         break;
     case Atom::TableRowLeft:
         if (++numTableRows % 2 == 1)
-            out() << "<tr valign=\"top\" bgcolor=\"#f0f0f0\">";
+            out() << "<tr valign=\"top\" class=\"odd\">";
         else
-            out() << "<tr valign=\"top\" bgcolor=\"#e0e0e0\">";
+            out() << "<tr valign=\"top\" class=\"even\">";
         break;
     case Atom::TableRowRight:
         out() << "</tr>\n";
@@ -1393,13 +1393,20 @@ void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *mar
 void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *marker,
                                           const QMap<QString, const Node *> &nodeMap)
 {
-    out() << "<p><table width=\"100%\">\n";
+    out() << "<p><table width=\"100%\" class=\"annotated\">\n";
     QMap<QString, const Node *>::ConstIterator n = nodeMap.begin();
+    int row = 0;
     while (n != nodeMap.end()) {
-        out() << "<tr valign=\"top\" bgcolor=\"#f0f0f0\">";
-        out() << "<td><b>";
+        if (!((*n)->type() == Node::Fake)) {
+            if (++row % 2 == 1)
+                out() << "<tr valign=\"top\" class=\"odd\">";
+            else
+                out() << "<tr valign=\"top\" class=\"even\">";
+        } else
+            out() << "<tr valign=\"top\">";
+        out() << "<th>";
         generateFullName(*n, relative, marker);
-        out() << "</b></td>";
+        out() << "</th>";
         Text brief = (*n)->doc().trimmedBriefText((*n)->name());
         if (!brief.isEmpty()) {
             out() << "<td>";

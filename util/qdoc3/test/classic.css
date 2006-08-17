@@ -32,6 +32,30 @@ body
   color: black
 }
 
+table tr.odd {
+  background: #f0f0f0;
+  color: black;
+}
+
+table tr.even {
+  background: #e4e4e4;
+  color: black;
+}
+
+table.annotated {
+  border-spacing: 0px;
+}
+
+table.annotated th {
+  font-weight: bold;
+  padding: 3px;
+  text-align: left
+}
+
+table.annotated td {
+  padding: 3px;
+}
+
 table tr pre
 {
   padding-top: none;
@@ -40,6 +64,12 @@ table tr pre
   padding-right: none;
   border: none;
   background: none
+}
+
+tr.qt-style
+{
+  background: #a2c511;
+  color: black
 }
 
 body pre
