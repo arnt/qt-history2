@@ -312,6 +312,7 @@ void QColormap::initialize()
         QColormapPrivate * const d = cmaps[i]->d;
 
         bool use_stdcmap = false;
+        int color_count = X11->color_count;
 
         // defaults
         d->depth = DefaultDepth(display, i);
@@ -330,6 +331,14 @@ void QColormap::initialize()
             // look for a specific visual or type of visual
             d->visual = find_visual(display, i, X11->visual_class, X11->visual_id,
                                     &d->depth, &d->defaultVisual);
+        } else if (QApplication::colorSpec() == QApplication::ManyColor) {
+            // look for a TrueColor w/ a depth higher than 8bpp
+            d->visual = find_visual(display, i, TrueColor, -1, &d->depth, &d->defaultVisual);
+            if (d->depth <= 8) {
+                d->visual = DefaultVisual(display, i);
+                d->defaultVisual = true;
+                color_count = 216;
+            }
         } else if (!X11->custom_cmap) {
             XStandardColormap *stdcmap = 0;
             int ncmaps = 0;
@@ -404,7 +413,9 @@ void QColormap::initialize()
                 d->mode = Gray;
 
                 // follow precedent set in libXmu...
-                if (d->visual->map_entries > 65000)
+                if (color_count != 0)
+                    d->r_max = d->g_max = d->b_max = color_count;
+                else if (d->visual->map_entries > 65000)
                     d->r_max = d->g_max = d->b_max = 4096;
                 else if (d->visual->map_entries > 4000)
                     d->r_max = d->g_max = d->b_max = 512;
@@ -426,7 +437,9 @@ void QColormap::initialize()
                 d->mode = Indexed;
 
                 // follow precedent set in libXmu...
-                if (d->visual->map_entries > 65000)
+                if (color_count != 0)
+                    d->r_max = d->g_max = d->b_max = cube_root(color_count);
+                else if (d->visual->map_entries > 65000)
                     d->r_max = d->g_max = d->b_max = 27;
                 else if (d->visual->map_entries > 4000)
                     d->r_max = d->g_max = d->b_max = 12;
