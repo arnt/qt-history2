@@ -1132,6 +1132,8 @@ bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
     glPopAttrib();
+    if (d->has_glsl)
+        glUseProgram(0); // GLSL program state is not part of GL_ALL_ATTRIB_BITS
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.doneCurrent();
@@ -1294,9 +1296,13 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             createGradientPaletteTexture(*brush.gradient());
         }
     }
+
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    if (has_glsl)
+        glUseProgram(0);
+    else
+        glDisable(GL_FRAGMENT_PROGRAM_ARB);
 }
 
 
