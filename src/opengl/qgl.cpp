@@ -1119,7 +1119,11 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     sharing = false;
 }
 
+#ifdef Q_WS_WIN
+
 QGLContextPrivate *qt_glctx_get_dptr(QGLContext *ctx) { return ctx->d_ptr; }
+
+#endif
 
 QGLContext* QGLContext::currentCtx = 0;
 
