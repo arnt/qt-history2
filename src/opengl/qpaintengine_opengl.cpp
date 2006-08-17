@@ -34,8 +34,10 @@
 
 #ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
+#define QGL_D_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
 #else
 #define QGL_FUNC_CONTEXT
+#define QGL_D_FUNC_CONTEXT
 #endif
 
 #ifdef Q_OS_MAC
@@ -1130,8 +1132,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 bool QOpenGLPaintEngine::end()
 {
-    QGL_FUNC_CONTEXT;
     Q_D(QOpenGLPaintEngine);
+    QGL_D_FUNC_CONTEXT;
     glPopAttrib();
     if (d->has_glsl)
         glUseProgram(0); // GLSL program state is not part of GL_ALL_ATTRIB_BITS
