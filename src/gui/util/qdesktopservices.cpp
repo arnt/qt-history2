@@ -148,8 +148,9 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     mailto:user@foo.com?subject=Test&body=Just a test
     \endcode
 
-    \bold{Note:} Although many e-mail clients can send attachments and are
-    unicode-aware, the user may have configured their client without these features.
+    \warning Although many e-mail clients can send attachments and are
+    Unicode-aware, the user may have configured their client without these features.
+    Also, certain e-mail clients (e.g., Lotus Notes) have problems with long URLs.
 
     \sa setUrlHandler()
 */

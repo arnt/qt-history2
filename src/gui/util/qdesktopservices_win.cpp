@@ -24,68 +24,6 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
-/*!
-   CreateInternetShortcut()
-
-   pszShortcut - Path and file name of the Internet shortcut file. This
-   must have the URL extension for the shortcut to be used correctly.
-
-   pszURL - URL to be stored in the Internet shortcut file.
-**/
-
-bool CreateInternetShortcut(const QString& shortcut, const QUrl& url)
-{
-    Q_UNUSED(shortcut);
-    Q_UNUSED(url);
-
-#if 0
-    IUniformResourceLocator *purl;
-    HRESULT                 hr;
-
-    hr = CoInitialize(NULL);
-
-    if(SUCCEEDED(hr)) {
-        //Get a pointer to the IShellLink interface.
-        hr = CoCreateInstance(CLSID_InternetShortcut, NULL,
-                              CLSCTX_INPROC_SERVER, IID_IUniformResourceLocator, (LPVOID*)&purl);
-    if(SUCCEEDED(hr)) {
-        IPersistFile* ppf;
-
-      hr = purl->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
-
-      if(SUCCEEDED(hr))
-         {
-         hr = purl->SetURL(pszURL, (DWORD)0);
-
-         if(SUCCEEDED(hr))
-            {
-            WCHAR wszShortcut[MAX_PATH];
-
-#ifdef UNICODE
-            lstrcpyn(wszShortcut, pszShortcut, MAX_PATH);
-#else
-            MultiByteToWideChar( CP_ACP,
-                                 0,
-                                 pszShortcut,
-                                 -1,
-                                 wszShortcut,
-                                 MAX_PATH);
-#endif
-
-            hr = ppf->Save(wszShortcut, FALSE);
-            }
-         ppf->Release();
-         }
-       purl->Release();
-       }
-
-   CoUninitialize();
-   }
-
-#endif
-   return true;
-}
-
 static bool openDocument(const QUrl &file)
 {
     if (!file.isValid())
@@ -102,23 +40,59 @@ static bool openDocument(const QUrl &file)
 
 static bool launchWebBrowser(const QUrl &url)
 {
-    if (url.scheme() == "mailto" && url.toEncoded().length() >= 2083){
-        QTemporaryFile temp(QDir::tempPath() + "/" + "qt_XXXXXX.url");
-        if (!temp.open())
-            return false;
-        temp.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
-        QString fileName = temp.fileName();
-        CreateInternetShortcut(fileName, url);
-        QT_WA({
-            ShellExecute(0, 0,(TCHAR *)(fileName.utf16()), 0, 0, SW_SHOWNORMAL);
-        } , {
-            ShellExecuteA(0, 0, fileName.toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
-        });
-        // http://support.microsoft.com/kb/q263909/
-        // The temporary file can be safely deleted after calling ShellExecute
-        return true;
-    }
 
+    if (url.scheme() == "mailto"){
+        //Retrieve the commandline for the default mail cleint
+        //the key used below is the command line for the mailto: shell command
+        long  bufferSize = 2*MAX_PATH;    
+        long  returnValue =  -1;
+        QString command;
+        QT_WA ({
+            wchar_t subKey[] = L"mailto\\shell\\open\\command";    
+            wchar_t keyValue[2*MAX_PATH];    
+            returnValue = RegQueryValue(HKEY_CLASSES_ROOT, subKey, keyValue, &bufferSize);
+            if (!returnValue)
+                command = QString::fromRawData((QChar*)keyValue, bufferSize);
+        }, {
+            char subKey[] = "mailto\\shell\\open\\command";    
+            char keyValue[2*MAX_PATH];    
+            returnValue = RegQueryValueA(HKEY_CLASSES_ROOT, subKey, keyValue, &bufferSize);
+            if (!returnValue)
+                command = QString::fromLocal8Bit(keyValue);
+        });
+        if(returnValue)
+            return false;
+        command = command.trimmed();
+        //Make sure the path for the process is in quotes
+        int index = -1 ;
+        if (command[0]!= QChar('\"')) {
+            index = command.indexOf(".exe ", 0, Qt::CaseInsensitive);
+            command.insert(index+4, QChar('\"'));
+            command.insert(0, QChar('\"'));
+        }
+        //pass the url as the parameter
+        index =  command.lastIndexOf(QString("%1"));
+        if (index != -1){
+            command.replace(index, 2, url.toString());
+        }
+        //start the process
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        ZeroMemory( &si, sizeof(si) );
+        si.cb = sizeof(si);
+        ZeroMemory( &pi, sizeof(pi) );
+
+        QT_WA ({
+          returnValue = CreateProcess( NULL, (TCHAR*)command.unicode(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+        }, {
+            returnValue = CreateProcess( NULL, (TCHAR*)command.toLocal8Bit().constData(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+        });
+        if (!returnValue)
+            return false;
+        CloseHandle( pi.hProcess );
+        CloseHandle( pi.hThread );
+        return true;
+    } 
     return openDocument(url);
 }
 
