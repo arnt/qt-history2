@@ -438,6 +438,9 @@ void QTabWidget::setTabEnabled(int index, bool enable)
 
   Only the horizontal element of the \a corner will be used.
 
+  Note: Corner widgets are designed for \l North and \l South tab positions;
+  other orientations are known to not work properly.
+
   \sa cornerWidget(), setTabPosition()
 */
 void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
