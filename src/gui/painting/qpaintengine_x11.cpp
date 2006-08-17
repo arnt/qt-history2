@@ -182,10 +182,10 @@ static const uchar base_dither_matrix[DITHER_SIZE][DITHER_SIZE] = {
   { 170,106,154, 90,166,102,150, 86,169,105,153, 89,165,101,149, 85 }
 };
 
-static QPixmap qt_patternForAlpha(uchar alpha)
+static QPixmap qt_patternForAlpha(uchar alpha, int screen)
 {
     QPixmap pm;
-    QString key = QLatin1String("$qt-alpha-brush$") + QString::number(alpha);
+    QString key = QLatin1String("$qt-alpha-brush$") + QString::number(alpha) + QString::number(screen);
     if (!QPixmapCache::find(key, pm)) {
         // #### why not use a mono image here????
         QImage pattern(DITHER_SIZE, DITHER_SIZE, QImage::Format_ARGB32);
@@ -197,6 +197,7 @@ static QPixmap qt_patternForAlpha(uchar alpha)
             }
         }
         pm = QBitmap::fromImage(pattern);
+        pm.x11SetScreen(screen);
         QPixmapCache::insert(key, pm);
     }
     return pm;
@@ -1340,7 +1341,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         vals.background = cmap.pixel(QColor(Qt::transparent));
 
         if (!d->has_pattern && !brush.isOpaque()) {
-            QPixmap pattern = qt_patternForAlpha(brush.color().alpha());
+            QPixmap pattern = qt_patternForAlpha(brush.color().alpha(), d->scrn);
             mask |= GCStipple;
             vals.stipple = pattern.handle();
             s = FillStippled;
