@@ -91,7 +91,7 @@ void tst_QUdpSocket::init()
 #ifdef TEST_QNETWORK_PROXY
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "smokesignal.troll.no", 1080));
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "fluke.troll.no", 1080));
         }
 #endif
     }
@@ -508,7 +508,7 @@ void tst_QUdpSocket::writeDatagramToNonExistingPeer_data()
     QTest::addColumn<bool>("bind");
     QTest::addColumn<QHostAddress>("peerAddress");
     QHostAddress localhost(QHostAddress::LocalHost);
-    QHostAddress remote = QHostInfo::fromName("smokesignal.troll.no").addresses().first();
+    QHostAddress remote = QHostInfo::fromName("fluke.troll.no").addresses().first();
 
     QTest::newRow("localhost-unbound") << false << localhost;
     QTest::newRow("localhost-bound") << true << localhost;
@@ -537,7 +537,7 @@ void tst_QUdpSocket::writeToNonExistingPeer_data()
 {
     QTest::addColumn<QHostAddress>("peerAddress");
     QHostAddress localhost(QHostAddress::LocalHost);
-    QHostAddress remote = QHostInfo::fromName("smokesignal.troll.no").addresses().first();
+    QHostAddress remote = QHostInfo::fromName("fluke.troll.no").addresses().first();
 
     // write (required to be connected)
     QTest::newRow("localhost") << localhost;

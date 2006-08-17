@@ -144,7 +144,7 @@ void tst_QHttp::init()
 #ifdef TEST_QNETWORK_PROXY
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "smokesignal.troll.no", 1080));
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "office247.troll.no", 1080));
         }
 #endif
     }
@@ -939,6 +939,11 @@ void tst_QHttp::caseInsensitiveKeys()
     QCOMPARE(header.value("x-been-there"), QString("True"));
     QCOMPARE(header.value("location"), QString("http://www.TrollTech.com/"));
     QCOMPARE(header.allValues("location"), QStringList("http://www.TrollTech.com/"));
+
+    header.addValue("Content-Length", "213");
+    header.addValue("Content-Length", "214");
+    header.addValue("Content-Length", "215");
+    qDebug() << header.toString();
 }
 
 QTEST_MAIN(tst_QHttp)

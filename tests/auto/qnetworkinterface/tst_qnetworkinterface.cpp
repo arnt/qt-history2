@@ -68,12 +68,12 @@ void tst_QNetworkInterface::loopbackIPv6()
 void tst_QNetworkInterface::localAddress()
 {
     QTcpSocket socket;
-    socket.connectToHost("smokesignal.troll.no", 80);
+    socket.connectToHost("fluke.troll.no", 80);
     QVERIFY(socket.waitForConnected(5000));
 
     QHostAddress local = socket.localAddress();
 
-    // make Apache happy on smokesignal
+    // make Apache happy on fluke
     socket.write("GET / HTTP/1.0\r\n\r\n");
     socket.waitForBytesWritten(1000);
     socket.close();

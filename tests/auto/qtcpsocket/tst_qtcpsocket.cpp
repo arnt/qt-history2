@@ -167,7 +167,7 @@ void tst_QTcpSocket::init()
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
             QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy,
-                                                             QHostInfo::fromName("smokesignal.troll.no").addresses().first().toString(), 1080));
+                                                             QHostInfo::fromName("fluke.troll.no").addresses().first().toString(), 1080));
         }
 #endif
     }
@@ -1380,7 +1380,7 @@ void tst_QTcpSocket::hammerTest()
     stopWatch.start();
 
     foreach (QTcpSocket *socket, sockets)
-        socket->connectToHost("smokesignal.troll.no", 21 /* ftp */);
+        socket->connectToHost("fluke.troll.no", 21 /* ftp */);
 
     int timeout = 100;
     do {
@@ -1420,7 +1420,7 @@ void tst_QTcpSocket::connectionRefused()
     connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), &loop, SLOT(quit()));
     QTimer::singleShot(5000, &loop, SLOT(quit()));
 
-    socket.connectToHost("smokesignal.troll.no", 144);
+    socket.connectToHost("fluke.troll.no", 144);
     
     loop.exec();
 

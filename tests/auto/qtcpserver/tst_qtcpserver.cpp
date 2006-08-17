@@ -107,7 +107,7 @@ void tst_QTcpServer::init()
 #ifdef TEST_QNETWORK_PROXY
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "smokesignal.troll.no", 1080));
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "fluke.troll.no", 1080));
         }
 #endif
     }
@@ -481,7 +481,7 @@ void tst_QTcpServer::waitForConnectionTest()
     }
 
     QTcpSocket findLocalIpSocket;
-    findLocalIpSocket.connectToHost("smokesignal.troll.no", 21);
+    findLocalIpSocket.connectToHost("fluke.troll.no", 21);
     QVERIFY(findLocalIpSocket.waitForConnected(2000));
 
     QTcpServer server;

@@ -178,7 +178,7 @@ void tst_QFtp::init()
 #ifdef TEST_QNETWORK_PROXY
         QFETCH_GLOBAL(int, proxyType);
         if (proxyType == QNetworkProxy::Socks5Proxy) {
-            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "smokesignal.troll.no", 1080));
+            QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::Socks5Proxy, "fluke.troll.no", 1080));
         }
 #endif
     }
@@ -228,7 +228,7 @@ void tst_QFtp::connectToHost_data()
     QTest::addColumn<uint>("port");
     QTest::addColumn<int>("state");
 
-    QTest::newRow( "ok01" ) << QString("smokesignal.troll.no") << (uint)21 << (int)QFtp::Connected;
+    QTest::newRow( "ok01" ) << QString("fluke.troll.no") << (uint)21 << (int)QFtp::Connected;
 
     QTest::newRow( "error01" ) << QString("shusaku.troll.no") << (uint)2121 << (int)QFtp::Unconnected;
     QTest::newRow( "error02" ) << QString("foo.bar") << (uint)21 << (int)QFtp::Unconnected;
@@ -267,13 +267,13 @@ void tst_QFtp::login_data()
     QTest::addColumn<QString>("password");
     QTest::addColumn<int>("success");
 
-    QTest::newRow( "ok01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << 1;
-    QTest::newRow( "ok02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftp") << QString() << 1;
-    QTest::newRow( "ok03" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftp") << QString("foo") << 1;
-    QTest::newRow( "ok04" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest") << QString("ftP2Ptf") << 1;
+    QTest::newRow( "ok01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << 1;
+    QTest::newRow( "ok02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftp") << QString() << 1;
+    QTest::newRow( "ok03" ) << QString("fluke.troll.no") << (uint)21 << QString("ftp") << QString("foo") << 1;
+    QTest::newRow( "ok04" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest") << QString("ftP2Ptf") << 1;
 
-    QTest::newRow( "error01" ) << QString("smokesignal.troll.no") << (uint)21 << QString("foo") << QString() << 0;
-    QTest::newRow( "error02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("foo") << QString("bar") << 0;
+    QTest::newRow( "error01" ) << QString("fluke.troll.no") << (uint)21 << QString("foo") << QString() << 0;
+    QTest::newRow( "error02" ) << QString("fluke.troll.no") << (uint)21 << QString("foo") << QString("bar") << 0;
 }
 
 void tst_QFtp::login()
@@ -311,12 +311,12 @@ void tst_QFtp::close_data()
     QTest::addColumn<QString>("password");
     QTest::addColumn<bool>("login");
 
-    QTest::newRow( "login01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << (bool)TRUE;
-    QTest::newRow( "login02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftp") << QString() << (bool)TRUE;
-    QTest::newRow( "login03" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftp") << QString("foo") << (bool)TRUE;
-    QTest::newRow( "login04" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest") << QString("ftP2Ptf") << (bool)TRUE;
+    QTest::newRow( "login01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << (bool)TRUE;
+    QTest::newRow( "login02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftp") << QString() << (bool)TRUE;
+    QTest::newRow( "login03" ) << QString("fluke.troll.no") << (uint)21 << QString("ftp") << QString("foo") << (bool)TRUE;
+    QTest::newRow( "login04" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest") << QString("ftP2Ptf") << (bool)TRUE;
 
-    QTest::newRow( "no-login01" ) << QString("smokesignal.troll.no") << (uint)21 << QString("") << QString("") << (bool)FALSE;
+    QTest::newRow( "no-login01" ) << QString("fluke.troll.no") << (uint)21 << QString("") << QString("") << (bool)FALSE;
 }
 
 void tst_QFtp::close()
@@ -355,23 +355,23 @@ void tst_QFtp::list_data()
     QTest::addColumn<int>("success");
     QTest::addColumn<QStringList>("entryNames"); // ### we should rather use a QList<QUrlInfo> here
 
-    QStringList smokesignalRoot;
-    smokesignalRoot << "qtest";
-    QStringList smokesignalQtest;
-    smokesignalQtest << "bigfile";
-    smokesignalQtest << "nonASCII";
-    smokesignalQtest << "rfc3252";
-    smokesignalQtest << "rfc3252.txt";
-    smokesignalQtest << "upload";
+    QStringList flukeRoot;
+    flukeRoot << "qtest";
+    QStringList flukeQtest;
+    flukeQtest << "bigfile";
+    flukeQtest << "nonASCII";
+    flukeQtest << "rfc3252";
+    flukeQtest << "rfc3252.txt";
+    flukeQtest << "upload";
 
-    QTest::newRow( "workDir01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString() << 1 << smokesignalRoot;
-    QTest::newRow( "workDir02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString() << 1 << smokesignalRoot;
+    QTest::newRow( "workDir01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString() << 1 << flukeRoot;
+    QTest::newRow( "workDir02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString() << 1 << flukeRoot;
 
-    QTest::newRow( "relPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "relPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "relPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("qtest") << 1 << flukeQtest;
+    QTest::newRow( "relPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "absPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "absPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << flukeQtest;
+    QTest::newRow( "absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << flukeQtest;
 
     QTest::newRow( "nonExist01" ) << QString("trueblue.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
     QTest::newRow( "nonExist02" ) << QString("trueblue.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
@@ -424,23 +424,23 @@ void tst_QFtp::cd_data()
     QTest::addColumn<int>("success");
     QTest::addColumn<QStringList>("entryNames"); // ### we should rather use a QList<QUrlInfo> here
 
-    QStringList smokesignalRoot;
-    smokesignalRoot << "qtest";
-    QStringList smokesignalQtest;
-    smokesignalQtest << "bigfile";
-    smokesignalQtest << "nonASCII";
-    smokesignalQtest << "rfc3252";
-    smokesignalQtest << "rfc3252.txt";
-    smokesignalQtest << "upload";
+    QStringList flukeRoot;
+    flukeRoot << "qtest";
+    QStringList flukeQtest;
+    flukeQtest << "bigfile";
+    flukeQtest << "nonASCII";
+    flukeQtest << "rfc3252";
+    flukeQtest << "rfc3252.txt";
+    flukeQtest << "upload";
 
-    QTest::newRow( "relPath01" ) << QString("smokesignal.troll.no")<< (uint)21 << QString() << QString() << QString("qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "relPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "relPath01" ) << QString("fluke.troll.no")<< (uint)21 << QString() << QString() << QString("qtest") << 1 << flukeQtest;
+    QTest::newRow( "relPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "absPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "absPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << flukeQtest;
+    QTest::newRow( "absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "nonExist01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
-    QTest::newRow( "nonExist03" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
+    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
+    QTest::newRow( "nonExist03" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
 }
 
 void tst_QFtp::cd()
@@ -493,19 +493,19 @@ void tst_QFtp::get_data()
 
     // test the two get() overloads in one routine
     for ( int i=0; i<2; i++ ) {
-	QTest::newRow( QString("relPath01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("relPath01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << "qtest/rfc3252" << 1 << rfc3252 << (bool)(i==1);
-	QTest::newRow( QString("relPath02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("relPath02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << "qtest/rfc3252" << 1 << rfc3252 << (bool)(i==1);
 
-	QTest::newRow( QString("absPath01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("absPath01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << "/qtest/rfc3252" << 1 << rfc3252 << (bool)(i==1);
-	QTest::newRow( QString("absPath02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("absPath02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << "/srv/ftp/qtest/rfc3252" << 1 << rfc3252 << (bool)(i==1);
 
-	QTest::newRow( QString("nonExist01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("nonExist01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("foo")  << 0 << QByteArray() << (bool)(i==1);
-	QTest::newRow( QString("nonExist02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("nonExist02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("/foo") << 0 << QByteArray() << (bool)(i==1);
     }
 }
@@ -583,31 +583,31 @@ void tst_QFtp::put_data()
 
     // test the two put() overloads in one routine
     for ( int i=0; i<2; i++ ) {
-	QTest::newRow( QString("relPath01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("relPath01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("qtest/upload/rel01_%1") << rfc3252
 	    << (bool)(i==1) << 1;
 /*
-	QTest::newRow( QString("relPath02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("relPath02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << QString("qtest/upload/rel02_%1") << rfc3252
 	    << (bool)(i==1) << 1;
-	QTest::newRow( QString("relPath03_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("relPath03_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << QString("qtest/upload/rel03_%1") << QByteArray()
 	    << (bool)(i==1) << 1;
-	QTest::newRow( QString("relPath04_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("relPath04_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << QString("qtest/upload/rel04_%1") << bigData
 	    << (bool)(i==1) << 1;
 
-	QTest::newRow( QString("absPath01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("absPath01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("/qtest/upload/abs01_%1") << rfc3252
 	    << (bool)(i==1) << 1;
-	QTest::newRow( QString("absPath02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+	QTest::newRow( QString("absPath02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	    << QString("/srv/ftp/qtest/upload/abs02_%1") << rfc3252
 	    << (bool)(i==1) << 1;
 
-	QTest::newRow( QString("nonExist01_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("nonExist01_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("foo")  << QByteArray()
 	    << (bool)(i==1) << 0;
-	QTest::newRow( QString("nonExist02_%1").arg(i).toLatin1().constData() ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+	QTest::newRow( QString("nonExist02_%1").arg(i).toLatin1().constData() ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	    << QString("/foo") << QByteArray()
 	    << (bool)(i==1) << 0;
 */
@@ -738,22 +738,22 @@ void tst_QFtp::mkdir_data()
     QTest::addColumn<QString>("dirToCreate");
     QTest::addColumn<int>("success");
 
-    QTest::newRow( "relPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+    QTest::newRow( "relPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
         << "qtest/upload" << QString("rel01_%1") << 1;
-    QTest::newRow( "relPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+    QTest::newRow( "relPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	<< "qtest/upload" << QString("rel02_%1") << 1;
-    QTest::newRow( "relPath03" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+    QTest::newRow( "relPath03" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	<< "qtest/upload" << QString("rel03_%1") << 1;
 
-    QTest::newRow( "absPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+    QTest::newRow( "absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	<< "." << QString("/qtest/upload/abs01_%1") << 1;
-    QTest::newRow( "absPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
+    QTest::newRow( "absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")
 	<< "." << QString("/srv/ftp/qtest/upload/abs02_%1") << 1;
 
-//    QTest::newRow( "nonExist01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0;
-    QTest::newRow( "nonExist01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+//    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0;
+    QTest::newRow( "nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	<< "." << QString("foo")  << 0;
-    QTest::newRow( "nonExist02" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString()
+    QTest::newRow( "nonExist02" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString()
 	<< "." << QString("/foo") << 0;
 }
 
@@ -837,7 +837,7 @@ QVERIFY( !dirExists( host, port, user, password, cdDir, dirToCreate ) );
 void tst_QFtp::mkdir2()
 {
     ftp = new QFtp;
-    ftp->connectToHost("smokesignal.troll.no");
+    ftp->connectToHost("fluke.troll.no");
     ftp->login();
     current_id = ftp->cd("kake/test");
 
@@ -886,39 +886,39 @@ void tst_QFtp::rename_data()
     QTest::addColumn<QString>("renamedFile");
     QTest::addColumn<int>("success");
 
-    QTest::newRow("relPath01") << QString("smokesignal.troll.no") << QString() << QString()
+    QTest::newRow("relPath01") << QString("fluke.troll.no") << QString() << QString()
 	<< "qtest/upload"
 	<< QString("rel_old01_%1") << QString("rel_new01_%1")
 	<< QString("qtest/upload/rel_old01_%1") << QString("qtest/upload/rel_new01_%1")
 	<< 1;
-    QTest::newRow("relPath02") << QString("smokesignal.troll.no") << QString("ftptest")     << "ftP2Ptf"
+    QTest::newRow("relPath02") << QString("fluke.troll.no") << QString("ftptest")     << "ftP2Ptf"
 	<< "qtest/upload"
 	<< QString("rel_old02_%1") << QString("rel_new02_%1")
 	<< QString("qtest/upload/rel_old02_%1") << QString("qtest/upload/rel_new02_%1")
 	<< 1;
-    QTest::newRow("relPath03") << QString("smokesignal.troll.no") << QString("ftptest")     << "ftP2Ptf"
+    QTest::newRow("relPath03") << QString("fluke.troll.no") << QString("ftptest")     << "ftP2Ptf"
 	<< "qtest/upload"
 	<< QString("rel_old03_%1")<< QString("rel_new03_%1")
 	<< QString("qtest/upload/rel_old03_%1") << QString("qtest/upload/rel_new03_%1")
 	<< 1;
 
-    QTest::newRow("absPath01") << QString("smokesignal.troll.no") << QString() << QString()
+    QTest::newRow("absPath01") << QString("fluke.troll.no") << QString() << QString()
 	<< QString()
 	<< QString("/qtest/upload/abs_old01_%1") << QString("/qtest/upload/abs_new01_%1")
 	<< QString("/qtest/upload/abs_old01_%1") << QString("/qtest/upload/abs_new01_%1")
 	<< 1;
-    QTest::newRow("absPath02") << QString("smokesignal.troll.no") << QString("ftptest")     << "ftP2Ptf"
+    QTest::newRow("absPath02") << QString("fluke.troll.no") << QString("ftptest")     << "ftP2Ptf"
 	<< QString()
 	<< QString("/srv/ftp/qtest/upload/abs_old02_%1") << QString("/srv/ftp/qtest/upload/abs_new02_%1")
 	<< QString("/srv/ftp/qtest/upload/abs_old02_%1") << QString("/srv/ftp/qtest/upload/abs_new02_%1")
 	<< 1;
 
-    QTest::newRow("nonExist01") << QString("smokesignal.troll.no") << QString() << QString()
+    QTest::newRow("nonExist01") << QString("fluke.troll.no") << QString() << QString()
 	<< QString()
 	<< QString("foo") << "new_foo"
 	<< QString() << QString()
 	<< 0;
-    QTest::newRow("nonExist02") << QString("smokesignal.troll.no") << QString() << QString()
+    QTest::newRow("nonExist02") << QString("fluke.troll.no") << QString() << QString()
 	<< QString()
 	<< QString("/foo") << QString("/new_foo")
 	<< QString() << QString()
@@ -1077,7 +1077,7 @@ void tst_QFtp::commandSequence_data()
 {
     // some "constants"
     QStringList argConnectToHost01;
-    argConnectToHost01 << QString("smokesignal.troll.no") << "21";
+    argConnectToHost01 << QString("fluke.troll.no") << "21";
 
     QStringList argLogin01, argLogin02, argLogin03, argLogin04;
     argLogin01 << QString() << QString();
@@ -1205,8 +1205,8 @@ void tst_QFtp::abort_data()
     QTest::addColumn<QString>("file");
     QTest::addColumn<QByteArray>("uploadData");
 
-    QTest::newRow( "get_smokesignal01" ) << QString("smokesignal.troll.no") << (uint)21 << QString("qtest/bigfile") << QByteArray();
-    QTest::newRow( "get_smokesignal02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("qtest/rfc3252") << QByteArray();
+    QTest::newRow( "get_fluke01" ) << QString("fluke.troll.no") << (uint)21 << QString("qtest/bigfile") << QByteArray();
+    QTest::newRow( "get_fluke02" ) << QString("fluke.troll.no") << (uint)21 << QString("qtest/rfc3252") << QByteArray();
     QTest::newRow( "get_trolltech01" ) << "ftp.trolltech.com" << (uint)21 << QString("qt/source/qt-x11-free-3.0.0.tar.gz") << QByteArray();
     // ### The microsoft server does not seem to work properly at the moment --
     // I am also not able to open a data connection with other, non-Qt FTP
@@ -1216,7 +1216,7 @@ void tst_QFtp::abort_data()
     QByteArray bigData( 10*1024*1024, 0 );
     bigData.fill( 'B' );
 
-    QTest::newRow( "put_smokesignal01" ) << QString("smokesignal.troll.no") << (uint)21 << QString("qtest/upload/abort_put") << bigData;
+    QTest::newRow( "put_fluke01" ) << QString("fluke.troll.no") << (uint)21 << QString("qtest/upload/abort_put") << bigData;
 }
 
 void tst_QFtp::abort()
@@ -1254,9 +1254,9 @@ void tst_QFtp::abort()
     QVERIFY( it != resultMap.end() );
     // ### how to test the abort?
     if ( it.value().success ) {
-	// The FTP server on smokesignal is sadly returning a success, even when
+	// The FTP server on fluke is sadly returning a success, even when
 	// the operation was aborted. So we have to use some heuristics.
-        if ( host == "smokesignal.troll.no" ) {
+        if ( host == "fluke.troll.no" ) {
             if ( cmd == QFtp::Get ) {
                 QVERIFY(bytesDone <= bytesTotal);
             } else {
@@ -1302,11 +1302,11 @@ void tst_QFtp::bytesAvailable_data()
     QTest::addColumn<qlonglong>("bytesAvailFinished");
     QTest::addColumn<qlonglong>("bytesAvailDone");
 
-    QTest::newRow( "smokesignal01" ) << QString("smokesignal.troll.no") << QString("qtest/bigfile") << 0 << (qlonglong)519240 << (qlonglong)519240 << (qlonglong)519240;
-    QTest::newRow( "smokesignal02" ) << QString("smokesignal.troll.no") << QString("qtest/rfc3252") << 0 << (qlonglong)25962 << (qlonglong)25962 << (qlonglong)25962;
+    QTest::newRow( "fluke01" ) << QString("fluke.troll.no") << QString("qtest/bigfile") << 0 << (qlonglong)519240 << (qlonglong)519240 << (qlonglong)519240;
+    QTest::newRow( "fluke02" ) << QString("fluke.troll.no") << QString("qtest/rfc3252") << 0 << (qlonglong)25962 << (qlonglong)25962 << (qlonglong)25962;
 
-    QTest::newRow( "smokesignal03" ) << QString("smokesignal.troll.no") << QString("qtest/bigfile") << 1 << (qlonglong)519240 << (qlonglong)0 << (qlonglong)0;
-    QTest::newRow( "smokesignal04" ) << QString("smokesignal.troll.no") << QString("qtest/rfc3252") << 1 << (qlonglong)25962 << (qlonglong)0 << (qlonglong)0;
+    QTest::newRow( "fluke03" ) << QString("fluke.troll.no") << QString("qtest/bigfile") << 1 << (qlonglong)519240 << (qlonglong)0 << (qlonglong)0;
+    QTest::newRow( "fluke04" ) << QString("fluke.troll.no") << QString("qtest/rfc3252") << 1 << (qlonglong)25962 << (qlonglong)0 << (qlonglong)0;
 }
 
 void tst_QFtp::bytesAvailable()
@@ -1350,7 +1350,7 @@ void tst_QFtp::activeMode()
     file.open(QIODevice::ReadWrite);
     QFtp ftp;
     ftp.setTransferMode(QFtp::Active);
-    ftp.connectToHost("smokesignal.troll.no", 21);
+    ftp.connectToHost("fluke.troll.no", 21);
     ftp.login();
     ftp.list();
     ftp.get("/qtest/rfc3252.txt", &file);
@@ -1377,23 +1377,23 @@ void tst_QFtp::proxy_data()
     QTest::addColumn<int>("success");
     QTest::addColumn<QStringList>("entryNames"); // ### we should rather use a QList<QUrlInfo> here
 
-    QStringList smokesignalRoot;
-    smokesignalRoot << "qtest";
-    QStringList smokesignalQtest;
-    smokesignalQtest << "bigfile";
-    smokesignalQtest << "nonASCII";
-    smokesignalQtest << "rfc3252";
-    smokesignalQtest << "rfc3252.txt";
-    smokesignalQtest << "upload";
+    QStringList flukeRoot;
+    flukeRoot << "qtest";
+    QStringList flukeQtest;
+    flukeQtest << "bigfile";
+    flukeQtest << "nonASCII";
+    flukeQtest << "rfc3252";
+    flukeQtest << "rfc3252.txt";
+    flukeQtest << "upload";
 
-    QTest::newRow( "proxy_relPath01" ) << QString("smokesignal.troll.no")<< (uint)21 << QString() << QString() << QString("qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "proxy_relPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "proxy_relPath01" ) << QString("fluke.troll.no")<< (uint)21 << QString() << QString() << QString("qtest") << 1 << flukeQtest;
+    QTest::newRow( "proxy_relPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "proxy_absPath01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << smokesignalQtest;
-    QTest::newRow( "proxy_absPath02" ) << QString("smokesignal.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << smokesignalQtest;
+    QTest::newRow( "proxy_absPath01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/qtest") << 1 << flukeQtest;
+    QTest::newRow( "proxy_absPath02" ) << QString("fluke.troll.no") << (uint)21 << QString("ftptest")     << QString("ftP2Ptf")     << QString("/srv/ftp/qtest") << 1 << flukeQtest;
 
-    QTest::newRow( "proxy_nonExist01" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
-    QTest::newRow( "proxy_nonExist03" ) << QString("smokesignal.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
+    QTest::newRow( "proxy_nonExist01" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("foo")  << 0 << QStringList();
+    QTest::newRow( "proxy_nonExist03" ) << QString("fluke.troll.no") << (uint)21 << QString() << QString() << QString("/foo") << 0 << QStringList();
 }
 
 void tst_QFtp::proxy()
@@ -1405,7 +1405,7 @@ void tst_QFtp::proxy()
     QFETCH( QString, dir );
 
     ftp = newFtp();
-    addCommand( QFtp::SetProxy, ftp->setProxy( "smokesignal.troll.no", 2121 ) );
+    addCommand( QFtp::SetProxy, ftp->setProxy( "fluke.troll.no", 2121 ) );
     addCommand( QFtp::ConnectToHost, ftp->connectToHost( host, port ) );
     addCommand( QFtp::Login, ftp->login( user, password ) );
     addCommand( QFtp::Cd, ftp->cd( dir ) );
@@ -1442,7 +1442,7 @@ void tst_QFtp::binaryAscii()
 
     init();
     ftp = newFtp();
-    addCommand(QFtp::ConnectToHost, ftp->connectToHost("smokesignal.troll.no", 21));
+    addCommand(QFtp::ConnectToHost, ftp->connectToHost("fluke.troll.no", 21));
     addCommand(QFtp::Login, ftp->login("ftptest", "ftP2Ptf"));
     addCommand(QFtp::Cd, ftp->cd("qtest/upload"));
     addCommand(QFtp::Put, ftp->put(putData, file, QFtp::Ascii));
@@ -1462,7 +1462,7 @@ void tst_QFtp::binaryAscii()
 
     init();
     ftp = newFtp();
-    addCommand(QFtp::ConnectToHost, ftp->connectToHost("smokesignal.troll.no", 21));
+    addCommand(QFtp::ConnectToHost, ftp->connectToHost("fluke.troll.no", 21));
     addCommand(QFtp::Login, ftp->login("ftptest", "ftP2Ptf"));
     addCommand(QFtp::Cd, ftp->cd("qtest/upload"));
     addCommand(QFtp::Get, ftp->get(file, &getBuf, QFtp::Binary));
@@ -1482,7 +1482,7 @@ void tst_QFtp::binaryAscii()
     // cleanup (i.e. remove the file) -- this also tests the remove command
     init();
     ftp = newFtp();
-    addCommand(QFtp::ConnectToHost, ftp->connectToHost("smokesignal.troll.no", 21));
+    addCommand(QFtp::ConnectToHost, ftp->connectToHost("fluke.troll.no", 21));
     addCommand(QFtp::Login, ftp->login("ftptest", "ftP2Ptf"));
     addCommand(QFtp::Cd, ftp->cd("qtest/upload"));
     addCommand(QFtp::Remove, ftp->remove(file));
@@ -1497,7 +1497,7 @@ void tst_QFtp::binaryAscii()
     QVERIFY( it != resultMap.end() );
     QCOMPARE( it.value().success, 1 );
 
-    QVERIFY(!fileExists("smokesignal.troll.no", 21, "ftptest", "ftP2Ptf", file));
+    QVERIFY(!fileExists("fluke.troll.no", 21, "ftptest", "ftP2Ptf", file));
 }
 
 

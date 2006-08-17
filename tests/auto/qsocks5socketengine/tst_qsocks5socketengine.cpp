@@ -60,7 +60,7 @@ private:
 };
 
 static const char *IMAP_IP = "62.70.27.18";
-static const char *PROXY_IP = "smokesignal.troll.no";
+static const char *PROXY_IP = "fluke.troll.no";
 
 tst_QSocks5SocketEngine::tst_QSocks5SocketEngine()
 {
