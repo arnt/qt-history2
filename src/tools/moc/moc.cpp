@@ -21,7 +21,7 @@
 #include <private/qmetaobject_p.h>
 
 // only moc needs this function
-QByteArray normalizeType(const char *s, bool fixScope)
+static QByteArray normalizeType(const char *s, bool fixScope = false)
 {
     int len = qstrlen(s);
     char stackbuf[64];
@@ -117,6 +117,7 @@ Type Moc::parseType()
     Type type;
     bool hasSignedOrUnsigned = false;
     bool isVoid = false;
+    type.firstToken = lookup();
     for (;;) {
         switch (next()) {
             case SIGNED:
@@ -130,6 +131,14 @@ Type Moc::parseType()
                 if (lookup(0) == VOLATILE)
                     type.isVolatile = true;
                 continue;
+            case Q_MOC_COMPAT_TOKEN:
+            case Q_QT3_SUPPORT_TOKEN:
+            case Q_INVOKABLE_TOKEN:
+            case Q_SCRIPTABLE_TOKEN:
+            case Q_SIGNALS_TOKEN:
+            case Q_SLOTS_TOKEN:
+                type.name += lexem();
+                return type;
             default:
                 prev();
                 break;
@@ -267,15 +276,15 @@ bool Moc::parseFunction(FunctionDef *def, bool inMacro)
     } else {
         Type tempType = parseType();;
         while (!tempType.name.isEmpty() && lookup() != LPAREN) {
-            if (def->type.name == "QT_MOC_COMPAT" || def->type.name == "QT3_SUPPORT")
+            if (def->type.firstToken == Q_MOC_COMPAT_TOKEN || def->type.firstToken == Q_QT3_SUPPORT_TOKEN)
                 def->isCompat = true;
-            else if (def->type.name == "Q_INVOKABLE")
+            else if (def->type.firstToken == Q_INVOKABLE_TOKEN)
                 def->isInvokable = true;
-            else if (def->type.name == "Q_SCRIPTABLE")
+            else if (def->type.firstToken == Q_SCRIPTABLE_TOKEN)
                 def->isInvokable = def->isScriptable = true;
-            else if (def->type.name == "Q_SIGNAL")
+            else if (def->type.firstToken == Q_SIGNALS_TOKEN)
                 error();
-            else if (def->type.name == "Q_SLOT")
+            else if (def->type.firstToken == Q_SLOTS_TOKEN)
                 error();
             else {
                 if (!def->tag.isEmpty())

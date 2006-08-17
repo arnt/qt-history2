@@ -17,6 +17,7 @@
 #include "no-keywords.h"
 #include "backslash-newlines.h"
 #include "slots-with-void-template.h"
+#include "qinvokable.h"
 
 #if defined(PARSE_BOOST)
 #include "parse-boost.h"
