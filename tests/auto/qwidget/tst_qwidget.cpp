@@ -2410,11 +2410,11 @@ void tst_QWidget::style()
     window2->setStyleSheet("");
     qApp->setStyle(0);
 
-    qApp->setStyleSheet("may insanity prevail"); // app has styleshet
+    qApp->setStyleSheet("may_insanity_prevail { }"); // app has styleshet
     QCOMPARE(window1->style(), qApp->style());
     QCOMPARE(window1->style()->metaObject()->className(), "QStyleSheetStyle");
     QCOMPARE(widget1->style()->metaObject()->className(), "QStyleSheetStyle"); // check the child
-    window1->setStyleSheet("may more insanity prevail"); // window has stylesheet
+    window1->setStyleSheet("may_more_insanity_prevail { }"); // window has stylesheet
     QCOMPARE(window1->style()->metaObject()->className(), "QStyleSheetStyle"); // a new one
     QCOMPARE(widget1->style(), window1->style()); // child follows...
     proxy = (QStyleSheetStyle *) window1->style();
