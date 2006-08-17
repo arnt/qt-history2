@@ -599,6 +599,9 @@ void QWSPcMouseHandlerPrivate::openDevices()
             //qDebug("/dev/input/mice fd %d #%d", fd, nsub-1);
         }
 
+// include the code below to auto-detect serial mice, and to mess up
+// any sort of serial communication
+#if 0
         const char fn[4][11] = { "/dev/ttyS0", "/dev/ttyS1", "/dev/ttyS2", "/dev/ttyS3" };
         for (int ch = 0; ch < 4; ++ch) {
             fd = open(fn[ch], O_RDWR | O_NDELAY);
@@ -609,6 +612,7 @@ void QWSPcMouseHandlerPrivate::openDevices()
                 notify(fd);
             }
         }
+#endif
     }
 }
 
