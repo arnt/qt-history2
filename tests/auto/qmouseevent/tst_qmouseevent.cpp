@@ -92,6 +92,8 @@ private slots:
     void checkMouseReleaseEvent_data();
     void checkMouseReleaseEvent();
 
+    void qt3supportConstructors();
+
 private:
     MouseEventWidget* testMouseWidget;
 };
@@ -230,6 +232,23 @@ void tst_QMouseEvent::checkMouseReleaseEvent()
 #endif
 }
 
+void tst_QMouseEvent::qt3supportConstructors()
+{
+    // make sure the state() and stateAfter() functions return the
+    // same thing they did in Qt 3 when using these constructors
+
+    {
+        QMouseEvent e(QEvent::MouseButtonPress, QPoint(0, 0), Qt::LeftButton, 0);
+        QCOMPARE(e.state(), Qt::ButtonState(Qt::NoButton));
+        QCOMPARE(e.stateAfter(), Qt::ButtonState(Qt::LeftButton));
+    }
+
+    {
+        QMouseEvent e(QEvent::MouseButtonPress, QPoint(0, 0), QPoint(0, 0), Qt::LeftButton, 0);
+        QCOMPARE(e.state(), Qt::ButtonState(Qt::NoButton));
+        QCOMPARE(e.stateAfter(), Qt::ButtonState(Qt::LeftButton));
+    }
+}
 
 QTEST_MAIN(tst_QMouseEvent)
 #include "tst_qmouseevent.moc"

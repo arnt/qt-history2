@@ -142,7 +142,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, i
     : QInputEvent(type), p(pos), b((Qt::MouseButton)button)
 {
     g = QCursor::pos();
-    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    mouseState = Qt::MouseButtons((state ^ b) & Qt::MouseButtonMask);
     modState = Qt::KeyboardModifiers(state & (int)Qt::KeyButtonMask);
 }
 
@@ -156,7 +156,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                          Qt::ButtonState button, int state)
     : QInputEvent(type), p(pos), g(globalPos), b((Qt::MouseButton)button)
 {
-    mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
+    mouseState = Qt::MouseButtons((state ^ b) & Qt::MouseButtonMask);
     modState = Qt::KeyboardModifiers(state & (int)Qt::KeyButtonMask);
 }
 #endif
