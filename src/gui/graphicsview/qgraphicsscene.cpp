@@ -606,14 +606,20 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     mouseEvent->ignore();
 
     // Set focus on the topmost enabled item that can take focus.
+    bool setFocus = false;
     foreach (QGraphicsItem *item, q->items(mouseEvent->scenePos())) {
         if (item->isEnabled() && (item->flags() & QGraphicsItem::ItemIsFocusable)) {
+            setFocus = true;
             if (item != q->focusItem())
                 q->setFocusItem(item, Qt::MouseFocusReason);
             break;
         }
     }
 
+    // If nobody could take focus, we clear it.
+    if (!setFocus)
+        q->setFocusItem(0, Qt::MouseFocusReason);
+    
     // Find a mouse grabber by sending mouse press events to all mouse grabber
     // candidates one at a time, until the event is accepted. It's accepted by
     // default, so the receiver has to explicitly ignore it for it to pass
@@ -654,7 +660,6 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     if (!mouseEvent->isAccepted()) {
         lastMouseGrabberItem = mouseGrabberItem;
         q->clearSelection();
-        q->setFocusItem(0, Qt::MouseFocusReason);
     }
 }
 
