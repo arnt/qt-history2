@@ -103,6 +103,8 @@ private slots:
 
     void disallowSettingObjectIndicesOnCharFormats();
 
+    void blockAndColumnNumber();
+
 private:
     int blockCount();
 
@@ -1241,6 +1243,41 @@ void tst_QTextCursor::disallowSettingObjectIndicesOnCharFormats()
     QVERIFY(!cursor.isNull());
     QCOMPARE(cursor.blockCharFormat().objectIndex(), table->objectIndex());
 #endif
+}
+
+void tst_QTextCursor::blockAndColumnNumber()
+{
+    QCOMPARE(QTextCursor().columnNumber(), 0);
+    QCOMPARE(QTextCursor().blockNumber(), 0);
+
+    QCOMPARE(cursor.columnNumber(), 0);
+    QCOMPARE(cursor.blockNumber(), 0);
+    cursor.insertText("Hello");
+    QCOMPARE(cursor.columnNumber(), 5);
+    QCOMPARE(cursor.blockNumber(), 0);
+
+    cursor.insertBlock();
+    QCOMPARE(cursor.columnNumber(), 0);
+    QCOMPARE(cursor.blockNumber(), 1);
+    cursor.insertText("Blah");
+    QCOMPARE(cursor.blockNumber(), 1);
+
+    // trigger a layout
+    doc->documentLayout();
+
+    cursor.insertBlock();
+    QCOMPARE(cursor.columnNumber(), 0);
+    QCOMPARE(cursor.blockNumber(), 2);
+    cursor.insertText("Test");
+    QCOMPARE(cursor.columnNumber(), 4);
+    QCOMPARE(cursor.blockNumber(), 2);
+    cursor.insertText(QString(QChar(QChar::LineSeparator)));
+    QCOMPARE(cursor.columnNumber(), 0);
+    QCOMPARE(cursor.blockNumber(), 2);
+    cursor.insertText("A");
+    QCOMPARE(cursor.columnNumber(), 1);
+    QCOMPARE(cursor.blockNumber(), 2);
+
 }
 
 QTEST_MAIN(tst_QTextCursor)

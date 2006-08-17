@@ -2096,3 +2096,53 @@ bool QTextCursor::isCopyOf(const QTextCursor &other) const
 {
     return d == other.d;
 }
+
+/*!
+    Returns the number of the block the cursor is in.
+
+    Note that this function only makes sense in documents without complex objects such
+    as tables or frames.
+*/
+int QTextCursor::blockNumber() const
+{
+    if (!d || !d->priv)
+        return 0;
+
+    // ### naive implementation for now
+    QTextBlock currentBlock = d->block();
+    if (!currentBlock.isValid())
+        return 0;
+
+    int count = 0;
+    for (QTextBlock block = d->priv->blocksBegin();
+         block.isValid() && block != currentBlock;
+         block = block.next(), ++count) {
+    }
+    return count;
+}
+
+/*!
+    Returns the position of the cursor within its containing line.
+*/
+int QTextCursor::columnNumber() const
+{
+    if (!d || !d->priv)
+        return 0;
+
+    QTextBlock block = d->block();
+    if (!block.isValid())
+        return 0;
+
+    const QTextLayout *layout = block.layout();
+    Q_ASSERT(layout); // can't happen
+
+    const int relativePos = d->position - block.position();
+
+    if (layout->lineCount() == 0)
+        return relativePos;
+
+    QTextLine line = layout->lineForTextPosition(relativePos);
+    if (!line.isValid())
+        return 0;
+    return relativePos - line.textStart();
+}

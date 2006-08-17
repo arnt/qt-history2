@@ -172,6 +172,9 @@ public:
 
     bool isCopyOf(const QTextCursor &other) const;
 
+    int blockNumber() const;
+    int columnNumber() const;
+
 private:
     QSharedDataPointer<QTextCursorPrivate> d;
     friend class QTextDocumentFragmentPrivate;
