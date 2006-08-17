@@ -104,14 +104,14 @@ QWidgetAction::~QWidgetAction()
 void QWidgetAction::setDefaultWidget(QWidget *widget)
 {
     Q_D(QWidgetAction);
-    if (w == d->defaultWidget || d->defaultWidgetInUse)
+    if (widget == d->defaultWidget || d->defaultWidgetInUse)
         return;
     delete d->defaultWidget;
-    d->defaultWidget = w;
-    if (!w)
+    d->defaultWidget = widget;
+    if (!widget)
         return;
 
-    setVisible(!(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide)));
+    setVisible(!(widget->isHidden() && widget->testAttribute(Qt::WA_WState_ExplicitShowHide)));
     d->defaultWidget->hide();
     d->defaultWidget->setParent(0);
     d->defaultWidgetInUse = false;
