@@ -74,35 +74,43 @@ void QWindowsFileSystemWatcherEngine::run()
                 int at = r - WAIT_OBJECT_0;
                 Q_ASSERT(at < handlesCopy.count());
                 HANDLE handle = handlesCopy.at(at);
-                if (!FindNextChangeNotification(handle))
-                    qErrnoWarning("QFileSystemWatcher: FindNextChangeNotification failed");
+                
+                // When removing a path, FindCloseChangeNotification might actually fire a notification 
+                // for some reason, so we must check if the handle exist in the handles vector
+                if (handles.contains(handle)) {
+                    //qDebug("Acknowledged handle: %d, %p", at, handle);
+                    if (!FindNextChangeNotification(handle)) {
+                        qErrnoWarning("QFileSystemWatcher: FindNextChangeNotification failed");
+                    }
 
-                QHash<QString, PathInfo> &h = pathInfoForHandle[handle];
-                QMutableHashIterator<QString, PathInfo> it(h);
-                while (it.hasNext()) {
-                    QHash<QString, PathInfo>::iterator x = it.next();
-                    QFileInfo fileInfo(x.value().path);
-                    // qDebug() << "checking" << x.key();
-                    if (!fileInfo.exists()) {
-                        // qDebug() << x.key() << "removed!";
-                        if (x.value().isDir)
-                            emit directoryChanged(x.value().path, true);
-                        else
-                            emit fileChanged(x.value().path, true);
-                        h.erase(x);
-                    } else if (fileInfo.lastModified() != x.value().timestamp) {
-                        // qDebug() << x.key() << "changed!";
-                        if (x.value().isDir)
-                            emit directoryChanged(x.value().path, false);
-                        else
-                            emit fileChanged(x.value().path, false);
-                        x.value().timestamp = fileInfo.lastModified();
+                    QHash<QString, PathInfo> &h = pathInfoForHandle[handle];
+                    QMutableHashIterator<QString, PathInfo> it(h);
+                    while (it.hasNext()) {
+                        QHash<QString, PathInfo>::iterator x = it.next();
+                        QFileInfo fileInfo(x.value().path);
+                        //qDebug() << "checking" << x.key();
+                        if (!fileInfo.exists()) {
+                            // qDebug() << x.key() << "removed!";
+                            if (x.value().isDir)
+                                emit directoryChanged(x.value().path, true);
+                            else
+                                emit fileChanged(x.value().path, true);
+                            h.erase(x);
+                        } else if (fileInfo.lastModified() != x.value().timestamp) {
+                            // qDebug() << x.key() << "changed!";
+                            if (x.value().isDir)
+                                emit directoryChanged(x.value().path, false);
+                            else
+                                emit fileChanged(x.value().path, false);
+                            x.value().timestamp = fileInfo.lastModified();
+                        }
                     }
                 }
             } else {
                 qErrnoWarning("QFileSystemWatcher: error while waiting for change notification");
                 break;  // avoid endless loop
             }
+            handlesCopy = handles;
             r = WaitForMultipleObjects(handlesCopy.count(), handlesCopy.constData(), false, 0);
         } while (r != WAIT_TIMEOUT);
     }
@@ -121,7 +129,10 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
     QMutableListIterator<QString> it(p);
     while (it.hasNext()) {
         QString path = it.next();
-        QFileInfo fileInfo(path.toLower());
+        QString normalPath = path;
+        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\'))) 
+            normalPath.chop(1);
+        QFileInfo fileInfo(normalPath.toLower());
         if (!fileInfo.exists())
             continue;
 
@@ -133,7 +144,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                 handle = FindFirstChangeNotificationW((TCHAR *) absolutePath.utf16(),
                                                       false,
                                                       ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
+                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME 
                                                         : FILE_NOTIFY_CHANGE_FILE_NAME)
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
@@ -143,7 +154,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                 handle = FindFirstChangeNotificationA(absolutePath.toLocal8Bit(),
                                                       false,
                                                       ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
+                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME 
                                                         : FILE_NOTIFY_CHANGE_FILE_NAME)
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
@@ -152,6 +163,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
             })
             if (!handle)
                 continue;
+            //qDebug("Added handle: %p", handle);
             handles.append(handle);
             handleForDir.insert(absolutePath, handle);
         }
@@ -189,7 +201,10 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
     QMutableListIterator<QString> it(p);
     while (it.hasNext()) {
         QString path = it.next();
-        QFileInfo fileInfo(path.toLower());
+        QString normalPath = path;
+        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\'))) 
+            normalPath.chop(1);
+        QFileInfo fileInfo(normalPath.toLower());
 
         const QString absolutePath = fileInfo.absolutePath();
         HANDLE handle = handleForDir.value(absolutePath);
@@ -203,7 +218,8 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
             directories->removeAll(path);
 
             if (h.isEmpty()) {
-                FindCloseChangeNotification(handle);
+                FindCloseChangeNotification(handle);    // This one might generate a notification
+                //qDebug() << "Closed handle";
 
                 int indexOfHandle = handles.indexOf(handle);
                 Q_ASSERT(indexOfHandle != -1);
