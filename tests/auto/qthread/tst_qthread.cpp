@@ -719,15 +719,26 @@ void tst_QThread::adoptedThreadExit()
     nativeThread.join();
 }
 
-/*
-    TODO: To start the eventloop on an adopted thread we need to call
-    QThread::exec in the adopted thread context. But that function is
-    protected and we can't access is from the QThread object returned by
-    QThread::currentThread().
-*/
+void adoptedThreadExecFunction(void *)
+{
+    QThread  * const adoptedThread = QThread::currentThread();
+    QEventLoop eventLoop(adoptedThread);
+
+    const int code = 1;
+    Exit_Object o;
+    o.thread = adoptedThread;
+    o.code = code;
+    QTimer::singleShot(100, &o, SLOT(slot()));
+    
+    const int result = eventLoop.exec();
+    QCOMPARE(result, code);
+}
+
 void tst_QThread::adoptedThreadExec()
 {
-    qDebug() << "TDOO!";
+    NativeThreadWrapper nativeThread;
+    nativeThread.start(adoptedThreadExecFunction);
+    nativeThread.join();
 }
 
 /*
