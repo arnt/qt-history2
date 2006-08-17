@@ -1361,10 +1361,12 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     d->brush_style = brush.style();
     d->has_brush = (d->brush_style != Qt::NoBrush);
 
-    if (d->brush_style >= Qt::LinearGradientPattern
-        && d->brush_style <= Qt::ConicalGradientPattern) {
-        d->updateGradient(brush);
-    } else {
+    // This is to update the gradient GL settings even when
+    // the brush does not have a gradient (disable unwanted states etc)
+    d->updateGradient(brush);
+
+    if (!(d->brush_style >= Qt::LinearGradientPattern
+        && d->brush_style <= Qt::ConicalGradientPattern)) {
         d->setGLBrush(brush.color());
         glColor4ubv(d->brush_color);
     }
