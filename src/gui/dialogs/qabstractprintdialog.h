@@ -29,6 +29,7 @@ class QPrinter;
 class Q_GUI_EXPORT QAbstractPrintDialog : public QDialog
 {
     Q_DECLARE_PRIVATE(QAbstractPrintDialog)
+    Q_OBJECT
 
 public:
     enum PrintRange {

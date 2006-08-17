@@ -26,7 +26,7 @@ class QPageSetupDialogPrivate;
 
 class Q_GUI_EXPORT QPageSetupDialog : public QAbstractPageSetupDialog
 {
-    // ### Qt 5: Add Q_OBJECT macro
+    Q_OBJECT
     Q_DECLARE_PRIVATE(QPageSetupDialog)
 
 public:
