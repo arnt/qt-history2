@@ -1298,14 +1298,8 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
     if (trippleClickTimer.isActive()
         && ((pos - trippleClickPoint).toPoint().manhattanLength() < QApplication::startDragDistance())) {
 
-#if defined(Q_WS_MAC)
-        cursor.select(QTextCursor::LineUnderCursor);
-        selectedLineOnDoubleClick = cursor;
-        selectedWordOnDoubleClick = QTextCursor();
-#else
         cursor.movePosition(QTextCursor::StartOfBlock);
         cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-#endif
 
         trippleClickTimer.stop();
     } else {
