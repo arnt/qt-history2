@@ -542,7 +542,15 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
         CGPathMoveToPoint(path, 0, x, y);
         CGPathAddLineToPoint(path, 0, x, y);
     }
+
+    const bool nedPenWidthChange = !d->cosmeticPen && !(state->renderHints() & QPainter::Antialiasing);
+
+    if (nedPenWidthChange)
+        CGContextSetLineWidth(d->hd, d->current.pen.widthF());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
+    if (nedPenWidthChange)
+        CGContextSetLineWidth(d->hd, d->adjustPenWidth(d->current.pen.widthF()));
+
     CGPathRelease(path);
 }
 
