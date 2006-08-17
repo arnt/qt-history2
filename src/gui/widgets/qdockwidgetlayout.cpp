@@ -1709,8 +1709,8 @@ QDockWidgetLayout::QDockWidgetLayout(QMainWindow *win)
 {
     mainWindow = win;
     sep = win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
-    docks[LeftPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedWest, win);
-    docks[RightPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedEast, win);
+    docks[LeftPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedSouth, win);
+    docks[RightPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedSouth, win);
     docks[TopPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, QTabBar::RoundedNorth, win);
     docks[BottomPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, QTabBar::RoundedSouth, win);
     centralWidgetItem = 0;
