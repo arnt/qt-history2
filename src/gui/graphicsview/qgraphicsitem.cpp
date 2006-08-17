@@ -728,6 +728,14 @@ void QGraphicsItem::setCursor(const QCursor &cursor)
 {
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraCursor, cursor);
     d_ptr->hasCursor = 1;
+    if (d_ptr->scene) {
+        foreach (QGraphicsView *view, d_ptr->scene->views()) {
+            if (view->underMouse() && view->itemAt(view->mapFromGlobal(QCursor::pos())) == this) {
+                view->viewport()->setCursor(cursor);
+                break;
+            }
+        }
+    }
 }
 
 /*!
