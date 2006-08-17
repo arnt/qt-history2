@@ -631,6 +631,11 @@ bool QSqlTableModel::deleteRowFromTable(int row)
     Returns false on error, detailed error information can be
     obtained with lastError().
 
+    Note: In OnManualSubmit mode, already submitted changes won't
+    be cleared from the cache when submitAll() fails. This allows
+    transactions to be rolled back and resubmitted again without
+    losing data.
+
     \sa revertAll(), lastError()
 */
 bool QSqlTableModel::submitAll()
