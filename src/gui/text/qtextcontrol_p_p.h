@@ -100,7 +100,7 @@ public:
     void mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &pos);
     void mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos);
     void mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos);
-    void contextMenuEvent(const QPoint &screenPos, const QPointF &docPos);
+    void contextMenuEvent(const QPoint &screenPos, const QPointF &docPos, QWidget *contextWidget);
     void focusEvent(QFocusEvent *e);
 
     bool dragEnterEvent(QEvent *e, const QMimeData *mimeData);

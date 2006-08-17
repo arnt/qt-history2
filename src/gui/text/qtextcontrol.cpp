@@ -822,7 +822,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             break;
         case QEvent::ContextMenu: {
             QContextMenuEvent *ev = static_cast<QContextMenuEvent *>(e);
-            d->contextMenuEvent(ev->globalPos(), matrix.map(ev->pos()));
+            d->contextMenuEvent(ev->globalPos(), matrix.map(ev->pos()), contextWidget);
             break; }
 
         case QEvent::FocusIn:
@@ -877,7 +877,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             break; }
         case QEvent::GraphicsSceneContextMenu: {
             QGraphicsSceneContextMenuEvent *ev = static_cast<QGraphicsSceneContextMenuEvent *>(e);
-            d->contextMenuEvent(ev->screenPos(), matrix.map(ev->pos()));
+            d->contextMenuEvent(ev->screenPos(), matrix.map(ev->pos()), contextWidget);
             break; }
 
         case QEvent::GraphicsSceneHoverMove: {
@@ -1522,7 +1522,7 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
 }
 
-void QTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPointF &docPos)
+void QTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPointF &docPos, QWidget *contextWidget)
 {
 #ifdef QT_NO_CONTEXTMENU
     Q_UNUSED(screenPos);
@@ -1531,7 +1531,7 @@ void QTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPoint
     Q_Q(QTextControl);
     if (!hasFocus)
         return;
-    QMenu *menu = q->createStandardContextMenu(docPos);
+    QMenu *menu = q->createStandardContextMenu(docPos, contextWidget);
     if (!menu)
         return;
     menu->exec(screenPos);
@@ -1703,7 +1703,7 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
 }
 
 #ifndef QT_NO_CONTEXTMENU
-QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
+QMenu *QTextControl::createStandardContextMenu(const QPointF &pos, QWidget *parent)
 {
     Q_D(QTextControl);
 
@@ -1716,7 +1716,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
     if (d->linkToCopy.isEmpty() && !showTextSelectionActions)
         return 0;
 
-    QMenu *menu = new QMenu(qobject_cast<QWidget *>(parent()));
+    QMenu *menu = new QMenu(parent);
     QAction *a;
 
     if (d->interactionFlags & Qt::TextEditable) {

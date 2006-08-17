@@ -1075,7 +1075,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 
     if (readOnly)
         return;
-    
+
     {
         QTextCursor cursor = d->control->textCursor();
         const QString text = e->text();
@@ -1536,7 +1536,7 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
 QMenu *QTextEdit::createStandardContextMenu()
 {
     Q_D(QTextEdit);
-    return d->control->createStandardContextMenu();
+    return d->control->createStandardContextMenu(QPointF(), this);
 }
 #endif // QT_NO_CONTEXTMENU
 

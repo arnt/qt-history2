@@ -1468,7 +1468,7 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
     if (linkToCopy.isEmpty() && !control)
         return 0;
 
-    return control->createStandardContextMenu(p);
+    return control->createStandardContextMenu(p, q_func());
 }
 #endif
 
