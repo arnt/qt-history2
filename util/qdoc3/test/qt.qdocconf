@@ -41,7 +41,8 @@ imagedirs               = $QTDIR/doc/src/images \
 outputdir               = $QTDIR/doc/html
 base                    = file:$QTDIR/doc/html
 versionsym              = QT_VERSION_STR
-defines                 = Q_QDOC \
+defines                 = Q_MOC_RUN \
+                          Q_QDOC \
                           QT_.*_SUPPORT \
                           QT_.*_LIB \
                           QT_COMPAT \
