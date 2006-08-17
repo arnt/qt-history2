@@ -836,6 +836,9 @@ QObject::~QObject()
     qobject_cast() can also be used in conjunction with interfaces;
     see the \l{tools/plugandpaint}{Plug & Paint} example for details.
 
+    \warning If T isn't declared with the Q_OBJECT macro, this
+    function's return value is undefined.
+
     \sa QObject::inherits()
 */
 
