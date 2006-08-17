@@ -49,9 +49,10 @@
     type is used in a QVariant.
 
     Adding a Q_DECLARE_METATYPE() makes the type known to all template
-    based functions, including QVariant. In addition to declaring the type,
-    you must call qRegisterMetaType() if you intend to use the type in
-    queued signal and slot connections.
+    based functions, including QVariant. Note that if you intend to
+    use the type in \e queued signal and slot connections, you also
+    have to call qRegisterMetaType() since such connections are
+    resolved at runtime.
 
     This example shows a typical use case of Q_DECLARE_METATYPE():
 
