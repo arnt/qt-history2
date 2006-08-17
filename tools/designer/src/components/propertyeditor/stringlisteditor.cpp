@@ -69,6 +69,7 @@ QStringList StringListEditor::stringList() const
 
 void StringListEditor::currentIndexChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    Q_UNUSED(previous);
     setCurrentIndex(current.row());
     updateUi();
 }

@@ -293,11 +293,10 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     QDesignerFormEditorInterface *core = fw->core();
     QWidget *wgt = widget();
     QDesignerWidgetDataBaseInterface *db = core->widgetDataBase();
-    WidgetFactory *factory = qobject_cast<WidgetFactory*>(core->widgetFactory());
 
     Q_ASSERT(qobject_cast<QDesignerPromotedWidget*>(wgt) == 0);
 
-    QString base_class_name = QLatin1String(factory->classNameOf(wgt));
+    QString base_class_name = QLatin1String(WidgetFactory::classNameOf(wgt));
 
     PromoteToCustomWidgetDialog dialog(db, base_class_name);
     if (!dialog.exec())

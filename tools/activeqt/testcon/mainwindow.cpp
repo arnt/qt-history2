@@ -30,6 +30,7 @@ static QTextEdit *debuglog = 0;
 
 static void redirectDebugOutput(QtMsgType type, const char*msg)
 {
+    Q_UNUSED(type);
     debuglog->append(msg);
 }
 
@@ -395,6 +396,7 @@ void MainWindow::logSignal(const QString &signal, int argc, void *argv)
 
 void MainWindow::logException(int code, const QString&source, const QString&desc, const QString&help)
 {
+    Q_UNUSED(desc);
     QAxWidget *container = qobject_cast<QAxWidget*>(sender());
     if (!container)
         return;

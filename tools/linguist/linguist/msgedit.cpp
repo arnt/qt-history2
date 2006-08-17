@@ -221,6 +221,7 @@ TransEditor::TransEditor(QWidget *parent /*= 0*/)
 
 void TransEditor::gotFocusInEvent ( QFocusEvent * e)
 {
+    Q_UNUSED(e);
     emit gotFocusIn();
 }
 

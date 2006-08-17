@@ -56,6 +56,7 @@ void TranslationSettingsDialog::on_buttonBox_accepted()
 
 void TranslationSettingsDialog::showEvent(QShowEvent *e)
 {
+    Q_UNUSED(e);
     QLocale::Language lang = m_messageModel->language();
     if (lang == QLocale::C) {
         QLocale locale;

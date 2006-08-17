@@ -815,7 +815,7 @@ void Q3TextStream::ts_putc( QChar c )
 	int len = 1;
 	QString s = c;
 	Q3CString block = mapper->fromUnicode( s.data(), len );//, &mapperReadState );
-	qint64 written = dev->writeBlock( block );
+	dev->writeBlock( block );
     } else
 #endif
     if ( latin1 ) {
