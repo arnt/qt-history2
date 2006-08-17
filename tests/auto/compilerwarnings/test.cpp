@@ -18,7 +18,7 @@
 
 #include <QtTest/QtTest>
 
-#ifndef QT_NO_MEMBER_TEMPLATES
+#if !defined(QT_NO_DBUS) && defined(Q_OS_UNIX)
 #include <QtDBus/QtDBus>
 #endif
 
