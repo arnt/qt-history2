@@ -737,7 +737,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                                  const char* bg = 0, const char* button = 0)
 {
 
-    QString resFont, resFG, resBG, resEF, sysFont;
+    QString resFont, resFG, resBG, resEF, sysFont, selectBackground, selectForeground;
 
     QApplication::setEffectEnabled(Qt::UI_General, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateMenu, false);
@@ -757,98 +757,96 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         // loop... so I have to save this value to be able to use it later
         paletteAlreadySet = (QApplicationPrivate::sys_pal != 0);
 
-        const char *style = QApplication::style()->metaObject()->className();
-        if (qstrcmp(style, "QWindowsStyle") == 0
-            || qstrcmp(style, "QMotifStyle") == 0
-            || qstrcmp(style, "QCDEStyle") == 0) {
-            // ### Only plain styles currently work fine with RESOURCE_MANAGER
-            // provided palette entries. For now, we apply this code to only
-            // our own plain styles, until we can get complex styles to work
-            // properly. We might also introduce a style hint for this.
+        // second, parse the RESOURCE_MANAGER property
+        int format;
+        ulong  nitems, after = 1;
+        QString res;
+        long offset = 0;
+        Atom type = XNone;
 
-            // second, parse the RESOURCE_MANAGER property
-            int format;
-            ulong  nitems, after = 1;
-            QString res;
-            long offset = 0;
-            Atom type = XNone;
+        while (after > 0) {
+            uchar *data = 0;
+            XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
+                               ATOM(RESOURCE_MANAGER),
+                               offset, 8192, False, AnyPropertyType,
+                               &type, &format, &nitems, &after,
+                               &data);
+            if (type == XA_STRING)
+                res += QString::fromLatin1((char*)data);
+            else
+                res += QString::fromLocal8Bit((char*)data);
+            offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
+            if (data)
+                XFree((char *)data);
+        }
 
-            while (after > 0) {
-                uchar *data = 0;
-                XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
-                                   ATOM(RESOURCE_MANAGER),
-                                   offset, 8192, False, AnyPropertyType,
-                                   &type, &format, &nitems, &after,
-                                   &data);
-                if (type == XA_STRING)
-                    res += QString::fromLatin1((char*)data);
-                else
-                    res += QString::fromLocal8Bit((char*)data);
-                offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
-                if (data)
-                    XFree((char *)data);
-            }
+        QString key, value;
+        int l = 0, r;
+        QString apn = QString::fromLocal8Bit(appName);
+        QString apc = QString::fromLocal8Bit(appClass);
+        int apnl = apn.length();
+        int apcl = apc.length();
+        int resl = res.length();
 
-            QString key, value;
-            int l = 0, r;
-            QString apn = QString::fromLocal8Bit(appName);
-            QString apc = QString::fromLocal8Bit(appClass);
-            int apnl = apn.length();
-            int apcl = apc.length();
-            int resl = res.length();
-
-            while (l < resl) {
-                r = res.indexOf(QLatin1Char('\n'), l);
-                if (r < 0)
-                    r = resl;
-                while (QUnicodeTables::isSpace(res.at(l)))
-                    l++;
-                bool mine = false;
-                QChar sc = res.at(l + 1);
-                if (res.at(l) == QLatin1Char('*') &&
-                    (sc == QLatin1Char('f') || sc == QLatin1Char('b') || sc == QLatin1Char('g') ||
-                     sc == QLatin1Char('F') || sc == QLatin1Char('B') || sc == QLatin1Char('G') ||
-                     sc == QLatin1Char('s') || sc == QLatin1Char('S'))) {
-                    // OPTIMIZED, since we only want "*[fbgs].."
+        while (l < resl) {
+            r = res.indexOf(QLatin1Char('\n'), l);
+            if (r < 0)
+                r = resl;
+            while (QUnicodeTables::isSpace(res.at(l)))
+                l++;
+            bool mine = false;
+            QChar sc = res.at(l + 1);
+            if (res.at(l) == QLatin1Char('*') &&
+                (sc == QLatin1Char('f') || sc == QLatin1Char('b') || sc == QLatin1Char('g') ||
+                 sc == QLatin1Char('F') || sc == QLatin1Char('B') || sc == QLatin1Char('G') ||
+                 sc == QLatin1Char('s') || sc == QLatin1Char('S')
+                 // capital T only, since we're looking for "Text.selectSomething"
+                 || sc == QLatin1Char('T'))) {
+                // OPTIMIZED, since we only want "*[fbgsT].."
+                QString item = res.mid(l, r - l).simplified();
+                int i = item.indexOf(QLatin1Char(':'));
+                key = item.left(i).trimmed().mid(1).toLower();
+                value = item.right(item.length() - i - 1).trimmed();
+                mine = true;
+            } else if (apnl && res.at(l) == apn.at(0) || (appClass && apcl && res.at(l) == apc.at(0))) {
+                if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
+                                               || res.at(l+apnl) == QLatin1Char('*'))) {
                     QString item = res.mid(l, r - l).simplified();
                     int i = item.indexOf(QLatin1Char(':'));
-                    key = item.left(i).trimmed().mid(1).toLower();
+                    key = item.left(i).trimmed().mid(apnl+1).toLower();
                     value = item.right(item.length() - i - 1).trimmed();
                     mine = true;
-                } else if (apnl && res.at(l) == apn.at(0) || (appClass && apcl && res.at(l) == apc.at(0))) {
-                    if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
-                                                   || res.at(l+apnl) == QLatin1Char('*'))) {
-                        QString item = res.mid(l, r - l).simplified();
-                        int i = item.indexOf(QLatin1Char(':'));
-                        key = item.left(i).trimmed().mid(apnl+1).toLower();
-                        value = item.right(item.length() - i - 1).trimmed();
-                        mine = true;
-                    } else if (res.mid(l,apcl) == apc && (res.at(l+apcl) == QLatin1Char('.')
-                                                          || res.at(l+apcl) == QLatin1Char('*'))) {
-                        QString item = res.mid(l, r - l).simplified();
-                        int i = item.indexOf(QLatin1Char(':'));
-                        key = item.left(i).trimmed().mid(apcl+1).toLower();
-                        value = item.right(item.length() - i - 1).trimmed();
-                        mine = true;
-                    }
+                } else if (res.mid(l,apcl) == apc && (res.at(l+apcl) == QLatin1Char('.')
+                                                      || res.at(l+apcl) == QLatin1Char('*'))) {
+                    QString item = res.mid(l, r - l).simplified();
+                    int i = item.indexOf(QLatin1Char(':'));
+                    key = item.left(i).trimmed().mid(apcl+1).toLower();
+                    value = item.right(item.length() - i - 1).trimmed();
+                    mine = true;
                 }
-
-                if (mine) {
-                    if (!font && key == QLatin1String("systemfont"))
-                        sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
-                    if (!font && key == QLatin1String("font"))
-                        resFont = value;
-                    else if  (!paletteAlreadySet && !fg && key == QLatin1String("foreground"))
-                        resFG = value;
-                    else if (!paletteAlreadySet && !bg && key == QLatin1String("background"))
-                        resBG = value;
-                    else if (key == QLatin1String("guieffects"))
-                        resEF = value;
-                    // NOTE: if you add more, change the [fbg] stuff above
-                }
-
-                l = r + 1;
             }
+
+            if (mine) {
+                if (!font && key == QLatin1String("systemfont"))
+                    sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
+                if (!font && key == QLatin1String("font"))
+                    resFont = value;
+                else if (!fg && !paletteAlreadySet) {
+                    if (key == QLatin1String("foreground"))
+                        resFG = value;
+                    else if (!bg && key == QLatin1String("background"))
+                        resBG = value;
+                    else if (key == QLatin1String("text.selectbackground")) {
+                        selectBackground = value;
+                    } else if (key == QLatin1String("text.selectforeground")) {
+                        selectForeground = value;
+                    }
+                } else if (key == QLatin1String("guieffects"))
+                    resEF = value;
+                // NOTE: if you add more, change the [fbg] stuff above
+            }
+
+            l = r + 1;
         }
     }
     if (!sysFont.isEmpty())
@@ -922,25 +920,35 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
 
         QPalette pal(fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg);
-        if (bright_mode) {
-            pal.setColor(QPalette::HighlightedText, base);
-            pal.setColor(QPalette::Highlight, Qt::white);
-        } else {
-            pal.setColor(QPalette::HighlightedText, Qt::white);
-            pal.setColor(QPalette::Highlight, Qt::darkBlue);
-        }
         QColor disabled((fg.red()   + btn.red())  / 2,
                         (fg.green() + btn.green())/ 2,
                         (fg.blue()  + btn.blue()) / 2);
         pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.light(125),
                           btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
-        if (bright_mode) {
+
+        if (!selectBackground.isEmpty() && !selectForeground.isEmpty()) {
+            QColor highlight = QColor(selectBackground).toHsv();
+            QColor highlightText = QColor(selectForeground).toHsv();
+            pal.setColor(QPalette::Highlight, highlight);
+            pal.setColor(QPalette::HighlightedText, highlightText);
+
+            // calculate disabled colors by removing saturation
+            highlight.setHsv(highlight.hue(), 0, highlight.value(), highlight.alpha());
+            highlightText.setHsv(highlightText.hue(), 0, highlightText.value(), highlightText.alpha());
+            pal.setColor(QPalette::Disabled, QPalette::Highlight, highlight);
+            pal.setColor(QPalette::Disabled, QPalette::HighlightedText, highlightText);
+        } else if (bright_mode) {
+            pal.setColor(QPalette::HighlightedText, base);
+            pal.setColor(QPalette::Highlight, Qt::white);
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, base);
             pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::white);
         } else {
+            pal.setColor(QPalette::HighlightedText, Qt::white);
+            pal.setColor(QPalette::Highlight, Qt::darkBlue);
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, Qt::white);
             pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
         }
+
         QApplicationPrivate::setSystemPalette(pal);
     }
 
