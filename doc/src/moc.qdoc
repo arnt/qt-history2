@@ -371,6 +371,11 @@
         };
     \endcode
 
+    \section2 Signal/Slot return types cannot be references
+
+    Signals and slots can have return types, but signals or slots returning references
+    will be treated as returning void.
+
     \section2 Only Signals and Slots May Appear in the \c signals and \c slots Sections of a Class
 
     \c moc will complain if you try to put other constructs in the \c
