@@ -19,7 +19,7 @@ CharacterWidget::CharacterWidget(QWidget *parent)
     : QWidget(parent)
 {
     squareSize = 24;
-    rows = 16;
+    columns = 16;
     lastKey = -1;
     setMouseTracking(true);
 }
@@ -63,13 +63,13 @@ void CharacterWidget::updateFontMerging(bool enable)
 
 QSize CharacterWidget::sizeHint() const
 {
-    return QSize(rows*squareSize, (65536/rows)*squareSize);
+    return QSize(columns*squareSize, (65536/columns)*squareSize);
 }
 
 void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint widgetPosition = mapFromGlobal(event->globalPos());
-    uint key = (widgetPosition.y()/squareSize)*rows + widgetPosition.x()/squareSize;
+    uint key = (widgetPosition.y()/squareSize)*columns + widgetPosition.x()/squareSize;
 
     QString text = QString::fromLatin1("<p>Character: <span style=\"font-size: 24pt; font-family: %1\">").arg(displayFont.family())
                   + QChar(key)
@@ -81,7 +81,7 @@ void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
 void CharacterWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        lastKey = (event->y()/squareSize)*rows + event->x()/squareSize;
+        lastKey = (event->y()/squareSize)*columns + event->x()/squareSize;
         if (QChar(lastKey).category() != QChar::NoCategory)
             emit characterSelected(QString(QChar(lastKey)));
         update();
@@ -115,7 +115,7 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
 
         for (int column = beginColumn; column <= endColumn; ++column) {
 
-            int key = row*rows + column;
+            int key = row*columns + column;
             painter.setClipRect(column*squareSize, row*squareSize, squareSize, squareSize);
 
             if (key == lastKey)

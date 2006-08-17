@@ -47,9 +47,9 @@ protected:
 
 private:
     QFont displayFont;
+    int columns;
     int lastKey;
     int squareSize;
-    int rows;
 };
 
 #endif

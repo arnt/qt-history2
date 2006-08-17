@@ -52,9 +52,9 @@ As a courtesy, the widget provides a tooltip that shows the current
 character value. We reimplement the \l{QWidget::mouseMoveEvent()} event
 handler and define showToolTip() to enable this feature.
 
-The \c displayFont and \c currentKey private data members are used to
-record the current font and the currently highlighted character in the
-widget.
+The \c columns, \c displayFont and \c currentKey private data members
+are used to record the number of columns to be shown, the current font,
+and the currently highlighted character in the widget.
 
 \section1 CharacterWidget Class Implementation
 
@@ -129,9 +129,10 @@ We are only interested when the user clicks with the left mouse button
 over the widget. When this happens, we calculate which character was
 selected and emit the characterSelected() signal.
 The character's number is found by dividing the x and y-coordinates of
-the click by the size of each character's grid square. Since there are
-32 of these to a row, we simply multiply the row index by 32 and add
-the column number to obtain the character number.
+the click by the size of each character's grid square. Since the number
+of columns in the widget is defined by the \c columns variable, we
+simply multiply the row index by that value and add the column number
+to obtain the character number.
 
 If any other mouse button is pressed, the event is passed on to the
 QWidget base class. This ensures that the event can be handled properly
