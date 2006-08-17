@@ -1034,6 +1034,14 @@ void QGLWidgetPrivate::cleanupColormaps()
 /*! \reimp */
 bool QGLWidget::event(QEvent *e)
 {
+    // prevents X errors on some systems, where we get a flush to a
+    // hidden widget
+    if (e->type() == QEvent::Hide) {
+        makeCurrent();
+        glFinish();
+        doneCurrent();
+    }
+
     return QWidget::event(e);
 }
 
