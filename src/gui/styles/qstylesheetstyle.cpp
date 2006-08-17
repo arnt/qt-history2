@@ -1344,7 +1344,7 @@ void QStyleSheetStyle::polish(QWidget *w)
     if (unstylable(w))
         return;
 
-    QObject::connect(w, SIGNAL(destroyed(QObject *)), this, SLOT(widgetDestroyed(QObject *)));
+    QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(widgetDestroyed(QObject*)));
     renderRulesCache.remove(w);
     QVector<QCss::StyleRule> rules = styleRules(w);
     styleRulesCache[w] = rules;
@@ -1405,8 +1405,8 @@ void QStyleSheetStyle::unpolish(QWidget *w)
     styleRulesCache.remove(w);
     renderRulesCache.remove(w);
     baseStyle()->unpolish(w);
-    QObject::disconnect(w, SIGNAL(destroyed(QObject *)),
-                       this, SLOT(widgetDestroyed(QObject *)));
+    QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
+                       this, SLOT(widgetDestroyed(QObject*)));
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)

@@ -637,8 +637,8 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     standard Qt signals.
 
     \code
-        connect(webBrowser, SIGNAL(TitleChanged(const QString&)),
-	        this, SLOT(setCaption(const QString&)));
+        connect(webBrowser, SIGNAL(TitleChanged(QString)),
+	        this, SLOT(setCaption(QString)));
     \endcode
 
     QAxBase transparently converts between COM data types and the

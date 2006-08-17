@@ -2395,8 +2395,8 @@ void Q3FileDialog::init()
              this, SLOT(urlStart(Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(finished(Q3NetworkOperation*)),
              this, SLOT(urlFinished(Q3NetworkOperation*)));
-    connect(&d->url, SIGNAL(newChildren(const Q3ValueList<QUrlInfo> &,Q3NetworkOperation*)),
-             this, SLOT(insertEntry(const Q3ValueList<QUrlInfo> &,Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+             this, SLOT(insertEntry(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(removed(Q3NetworkOperation*)),
              this, SLOT(removeEntry(Q3NetworkOperation*)));
     connect(&d->url, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),

@@ -273,16 +273,16 @@ Q3FtpDTP::Q3FtpDTP( Q3FtpPI *p, QObject *parent, const char *name ) :
 {
     clearData();
 
-    connect( &socket, SIGNAL( connected() ),
-	     SLOT( socketConnected() ) );
-    connect( &socket, SIGNAL( readyRead() ),
-	     SLOT( socketReadyRead() ) );
-    connect( &socket, SIGNAL( error(int) ),
-	     SLOT( socketError(int) ) );
-    connect( &socket, SIGNAL( connectionClosed() ),
-	     SLOT( socketConnectionClosed() ) );
-    connect( &socket, SIGNAL( bytesWritten(int) ),
-	     SLOT( socketBytesWritten(int) ) );
+    connect( &socket, SIGNAL(connected()),
+	     SLOT(socketConnected()) );
+    connect( &socket, SIGNAL(readyRead()),
+	     SLOT(socketReadyRead()) );
+    connect( &socket, SIGNAL(error(int)),
+	     SLOT(socketError(int)) );
+    connect( &socket, SIGNAL(connectionClosed()),
+	     SLOT(socketConnectionClosed()) );
+    connect( &socket, SIGNAL(bytesWritten(int)),
+	     SLOT(socketBytesWritten(int)) );
 }
 
 void Q3FtpDTP::setData( QByteArray *ba )
@@ -1233,19 +1233,19 @@ void Q3Ftp::init()
 
     connect( &d->pi, SIGNAL(connectState(int)),
 	    SLOT(piConnectState(int)) );
-    connect( &d->pi, SIGNAL(finished(const QString&)),
-	    SLOT(piFinished(const QString&)) );
-    connect( &d->pi, SIGNAL(error(int,const QString&)),
-	    SLOT(piError(int,const QString&)) );
-    connect( &d->pi, SIGNAL(rawFtpReply(int,const QString&)),
-	    SLOT(piFtpReply(int,const QString&)) );
+    connect( &d->pi, SIGNAL(finished(QString)),
+	    SLOT(piFinished(QString)) );
+    connect( &d->pi, SIGNAL(error(int,QString)),
+	    SLOT(piError(int,QString)) );
+    connect( &d->pi, SIGNAL(rawFtpReply(int,QString)),
+	    SLOT(piFtpReply(int,QString)) );
 
     connect( &d->pi.dtp, SIGNAL(readyRead()),
 	    SIGNAL(readyRead()) );
     connect( &d->pi.dtp, SIGNAL(dataTransferProgress(int,int)),
 	    SIGNAL(dataTransferProgress(int,int)) );
-    connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
-	    SIGNAL(listInfo(const QUrlInfo&)) );
+    connect( &d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
+	    SIGNAL(listInfo(QUrlInfo)) );
 }
 
 /*!
@@ -2177,8 +2177,8 @@ bool Q3Ftp::checkConnection( Q3NetworkOperation *op )
 {
     Q3FtpPrivate *d = ::d( this );
     if ( state() == Unconnected && !d->npWaitForLoginDone ) {
-	connect( this, SIGNAL(listInfo(const QUrlInfo&)),
-		this, SLOT(npListInfo(const QUrlInfo&)) );
+	connect( this, SIGNAL(listInfo(QUrlInfo)),
+		this, SLOT(npListInfo(QUrlInfo)) );
 	connect( this, SIGNAL(done(bool)),
 		this, SLOT(npDone(bool)) );
 	connect( this, SIGNAL(stateChanged(int)),
@@ -2301,8 +2301,8 @@ void Q3Ftp::npDone( bool err )
     d->npWaitForLoginDone = false;
 
     if ( state() == Unconnected ) {
-	disconnect( this, SIGNAL(listInfo(const QUrlInfo&)),
-		    this, SLOT(npListInfo(const QUrlInfo&)) );
+	disconnect( this, SIGNAL(listInfo(QUrlInfo)),
+		    this, SLOT(npListInfo(QUrlInfo)) );
 	disconnect( this, SIGNAL(done(bool)),
 		    this, SLOT(npDone(bool)) );
 	disconnect( this, SIGNAL(stateChanged(int)),

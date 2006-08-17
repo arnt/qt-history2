@@ -151,7 +151,7 @@ Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal, Qt::Wind
     Q_CHECK_PTR(d);
 
     d->tw = new QTabWidget(this, "tab widget");
-    connect (d->tw, SIGNAL (selected(const QString&)), this, SIGNAL(selected(const QString&)));
+    connect (d->tw, SIGNAL (selected(QString)), this, SIGNAL(selected(QString)));
     connect (d->tw, SIGNAL (currentChanged(QWidget*)), this, SIGNAL(currentChanged(QWidget*)));
 
     d->ok = new QPushButton(this, "ok");

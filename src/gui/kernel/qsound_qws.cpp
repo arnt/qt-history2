@@ -224,13 +224,13 @@ QAuServerQWS::QAuServerQWS(QObject* parent) :
 #ifdef QT_NO_QWS_SOUNDSERVER
     server = new QWSSoundServer( this ); // ### only suitable for single application
 
-    connect( server, SIGNAL( soundCompleted( int ) ),
-        this, SLOT( complete( int ) ) );
+    connect( server, SIGNAL(soundCompleted(int)),
+        this, SLOT(complete(int)) );
 #else
     client = new QWSSoundClient( this ); // ### requires successful connection
 
-    connect( client, SIGNAL( soundCompleted( int ) ),
-        this, SLOT( complete( int ) ) );
+    connect( client, SIGNAL(soundCompleted(int)),
+        this, SLOT(complete(int)) );
 #endif
 
 #endif // MEDIA_SERVER
@@ -245,8 +245,8 @@ QAuBucketQWS::QAuBucketQWS( QAuServerQWS *server, QSound *sound, QObject* parent
     sound->setObjectName( m_id.toString() );
 
     m_channel = new QCopChannel( QString( "QPE/QSound/" ).append( m_id ), this );
-    connect( m_channel, SIGNAL(received(const QString&,const QByteArray&)),
-        this, SLOT(processMessage(const QString&,const QByteArray&)) );
+    connect( m_channel, SIGNAL(received(QString,QByteArray)),
+        this, SLOT(processMessage(QString,QByteArray)) );
 
     {
         QCopMessage message( SERVER_CHANNEL, "subscribe(QUuid)" );

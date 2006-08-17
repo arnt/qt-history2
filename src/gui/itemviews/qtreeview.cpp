@@ -176,8 +176,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
     if (d->selectionModel) { // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
-        disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-                   this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsRemoved(QModelIndex,int,int)));
     }
     d->viewItems.clear();
     d->expandedIndexes.clear();
@@ -189,8 +189,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
     disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
     // QTreeView has a public slot for this
-    connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-            this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
+    connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(rowsRemoved(QModelIndex,int,int)));
 
     if (d->sortingEnabled)
         sortByColumn(header()->sortIndicatorSection());

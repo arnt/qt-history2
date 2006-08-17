@@ -3885,7 +3885,7 @@ void Q3Table::contentsMouseReleaseEvent(QMouseEvent *e)
 
 void Q3Table::contentsContextMenuEvent(QContextMenuEvent *e)
 {
-    if (!receivers(SIGNAL(contextMenuRequested(int,int,const QPoint&)))) {
+    if (!receivers(SIGNAL(contextMenuRequested(int,int,QPoint)))) {
         e->ignore();
         return;
     }

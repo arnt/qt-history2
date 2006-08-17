@@ -618,8 +618,8 @@ script_engine(0)
 {
     if (manager) {
         manager->d->scriptDict.insert(name, this);
-        connect(this, SIGNAL(error(int,const QString&,int,const QString&)), 
-            manager, SLOT(scriptError(int,const QString&,int,const QString&)));
+        connect(this, SIGNAL(error(int,QString,int,QString)), 
+            manager, SLOT(scriptError(int,QString,int,QString)));
     }
     
 #ifndef QT_NO_QAXSCRIPT

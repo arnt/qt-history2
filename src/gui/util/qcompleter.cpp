@@ -154,11 +154,11 @@ void QCompletionModel::setSourceModel(QAbstractItemModel *source)
     connect(model, SIGNAL(modelReset()), this, SLOT(invalidate()));
     connect(model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
     connect(model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
-    connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(invalidate()));
+    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(invalidate()));
 
     invalidate();
 }
@@ -963,12 +963,12 @@ void QCompleter::setPopup(QAbstractItemView *popup)
     popup->installEventFilter(this);
     popup->setItemDelegate(new QCompleterItemDelegate(popup));
 
-    QObject::connect(popup, SIGNAL(clicked(const QModelIndex&)),
+    QObject::connect(popup, SIGNAL(clicked(QModelIndex)),
                      this, SLOT(_q_complete(QModelIndex)));
-    QObject::connect(popup, SIGNAL(clicked(const QModelIndex&)), popup, SLOT(hide()));
+    QObject::connect(popup, SIGNAL(clicked(QModelIndex)), popup, SLOT(hide()));
 
-    QObject::connect(popup->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-                     this, SLOT(_q_completionSelected(const QItemSelection&)));
+    QObject::connect(popup->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     this, SLOT(_q_completionSelected(QItemSelection)));
     d->popup = popup;
 }
 

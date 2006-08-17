@@ -1158,10 +1158,10 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    connect(d->m_view, SIGNAL(changeDate(const QDate&, bool)),
-            this, SLOT(_q_slotChangeDate(const QDate&, bool)));
-    connect(d->m_view, SIGNAL(clicked(const QDate&)),
-            this, SIGNAL(clicked(const QDate&)));
+    connect(d->m_view, SIGNAL(changeDate(QDate,bool)),
+            this, SLOT(_q_slotChangeDate(QDate,bool)));
+    connect(d->m_view, SIGNAL(clicked(QDate)),
+            this, SIGNAL(clicked(QDate)));
     connect(d->m_view, SIGNAL(editingFinished()),
             this, SLOT(_q_editingFinished()));
 

@@ -838,18 +838,18 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
         return;
 
     if (d->scene) {
-        disconnect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
-                   this, SLOT(updateScene(const QList<QRectF> &)));
-        disconnect(d->scene, SIGNAL(sceneRectChanged(const QRectF &)),
-                   this, SLOT(updateSceneRect(const QRectF &)));
+        disconnect(d->scene, SIGNAL(changed(QList<QRectF>)),
+                   this, SLOT(updateScene(QList<QRectF>)));
+        disconnect(d->scene, SIGNAL(sceneRectChanged(QRectF)),
+                   this, SLOT(updateSceneRect(QRectF)));
         d->scene->d_func()->views.removeAll(this);
     }
 
     if ((d->scene = scene)) {
-        connect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
-                this, SLOT(updateScene(const QList<QRectF> &)));
-        connect(d->scene, SIGNAL(sceneRectChanged(const QRectF &)),
-                this, SLOT(updateSceneRect(const QRectF &)));
+        connect(d->scene, SIGNAL(changed(QList<QRectF>)),
+                this, SLOT(updateScene(QList<QRectF>)));
+        connect(d->scene, SIGNAL(sceneRectChanged(QRectF)),
+                this, SLOT(updateSceneRect(QRectF)));
         d->scene->d_func()->views << this;
         d->recalculateContentSize();
         d->lastCenterPoint = sceneRect().center();

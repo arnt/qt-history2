@@ -553,9 +553,9 @@ void QLineEdit::setCompleter(QCompleter *c)
     if (c == d->completer)
         return;
     if (d->completer) {
-        QObject::disconnect(d->completer, SIGNAL(activated(const QString&)),
+        QObject::disconnect(d->completer, SIGNAL(activated(QString)),
                             this, SLOT(setText(QString)));
-        QObject::disconnect(d->completer, SIGNAL(highlighted(const QString&)),
+        QObject::disconnect(d->completer, SIGNAL(highlighted(QString)),
                          this, SLOT(_q_completionHighlighted(QString)));
         d->completer->setWidget(0);
         if (d->completer->parent() == this)
@@ -565,9 +565,9 @@ void QLineEdit::setCompleter(QCompleter *c)
     if (!c)
         return;
     c->setWidget(this);
-    QObject::connect(c, SIGNAL(activated(const QString&)),
+    QObject::connect(c, SIGNAL(activated(QString)),
                      this, SLOT(setText(QString)));
-    QObject::connect(c, SIGNAL(highlighted(const QString&)),
+    QObject::connect(c, SIGNAL(highlighted(QString)),
                      this, SLOT(_q_completionHighlighted(QString)));
 }
 

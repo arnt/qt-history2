@@ -185,7 +185,7 @@ void QAbstractScrollAreaPrivate::replaceScrollBar(QScrollBar *scrollBar,
 
     QObject::connect(scrollBar, SIGNAL(valueChanged(int)),
                      q, horizontal ? SLOT(_q_hslide(int)) : SLOT(_q_vslide(int)));
-    QObject::connect(scrollBar, SIGNAL(rangeChanged(int, int)),
+    QObject::connect(scrollBar, SIGNAL(rangeChanged(int,int)),
                      q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
 }
 

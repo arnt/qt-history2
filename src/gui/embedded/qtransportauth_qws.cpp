@@ -281,8 +281,8 @@ void QTransportAuth::registerPolicyReceiver( QObject *pr )
         QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
         while ( it != d->buffers.end() )
         {
-            connect( it.value(), SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
-                pr, SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
+            connect( it.value(), SIGNAL(policyCheck(QTransportAuth::Data&,QString)),
+                pr, SLOT(policyCheck(QTransportAuth::Data&,QString)));
             ++it;
         }
     }
@@ -496,8 +496,8 @@ QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *data, QIODevice *iod
     QAuthDevice *authBuf = new QAuthDevice( iod, data, QAuthDevice::Receive );
     for ( int i = 0; i < d->policyReceivers.count(); ++i )
     {
-        connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
-                d->policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
+        connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data&,QString)),
+                d->policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data&,QString)));
     }
     // qDebug( "created new authbuf %p", authBuf );
     d->buffers[data] = authBuf;

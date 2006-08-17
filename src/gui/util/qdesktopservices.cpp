@@ -212,8 +212,8 @@ void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, c
     h.receiver = receiver;
     h.name = method;
     registry->handlers.insert(scheme, h);
-    QObject::connect(receiver, SIGNAL(destroyed(QObject *)),
-                     registry, SLOT(handlerDestroyed(QObject *)));
+    QObject::connect(receiver, SIGNAL(destroyed(QObject*)),
+                     registry, SLOT(handlerDestroyed(QObject*)));
 }
 
 /*!

@@ -784,14 +784,14 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(QModelIndex,int,int)));
         connect(model, SIGNAL(layoutAboutToBeChanged()),
                 this, SLOT(_q_layoutAboutToBeChanged()));
         connect(model, SIGNAL(layoutChanged()),
@@ -807,14 +807,14 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(QModelIndex,int,int)));
         connect(model, SIGNAL(layoutAboutToBeChanged()),
                 this, SLOT(_q_layoutAboutToBeChanged()));
         connect(model, SIGNAL(layoutChanged()),
@@ -830,14 +830,14 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
 {
     d_func()->model = model;
     if (model) {
-        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeRemoved(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeRemoved(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
-        connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
-                this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(QModelIndex,int,int)));
         connect(model, SIGNAL(layoutAboutToBeChanged()),
                 this, SLOT(_q_layoutAboutToBeChanged()));
         connect(model, SIGNAL(layoutChanged()),

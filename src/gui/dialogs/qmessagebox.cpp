@@ -253,8 +253,8 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     buttonBox = new QDialogButtonBox;
     buttonBox->setObjectName(QLatin1String("qt_msgboxex_buttonbox"));
     buttonBox->setCenterButtons(q->style()->styleHint(QStyle::SH_MessageBox_CenterButtons));
-    QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton *)),
-                     q, SLOT(_q_buttonClicked(QAbstractButton *)));
+    QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton*)),
+                     q, SLOT(_q_buttonClicked(QAbstractButton*)));
 
     QGridLayout *grid = new QGridLayout;
     grid->addWidget(iconLabel, 0, 0, 1, 1, Qt::AlignTop);

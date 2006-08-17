@@ -1854,8 +1854,8 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
     \code
         QTreeView *treeView = new QTreeView(this);
         treeView->setModel(myStandardItemModel);
-        connect(treeView, SIGNAL(clicked(const QModelIndex &)),
-                this, SLOT(clicked(const QModelIndex &)));
+        connect(treeView, SIGNAL(clicked(QModelIndex)),
+                this, SLOT(clicked(QModelIndex)));
     \endcode
 
     When you receive the signal, you call itemFromIndex() on the given model

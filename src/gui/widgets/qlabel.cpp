@@ -1396,12 +1396,12 @@ void QLabelPrivate::ensureTextControl()
     control->setOpenExternalLinks(openExternalLinks);
     control->setPalette(q->palette());
     control->setFocus(q->hasFocus());
-    QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
+    QObject::connect(control, SIGNAL(updateRequest(QRectF)),
                      q, SLOT(update()));
-    QObject::connect(control, SIGNAL(linkHovered(const QString &)),
-                     q, SLOT(_q_linkHovered(const QString &)));
-    QObject::connect(control, SIGNAL(linkActivated(const QString &)),
-                     q, SIGNAL(linkActivated(const QString &)));
+    QObject::connect(control, SIGNAL(linkHovered(QString)),
+                     q, SLOT(_q_linkHovered(QString)));
+    QObject::connect(control, SIGNAL(linkActivated(QString)),
+                     q, SIGNAL(linkActivated(QString)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)

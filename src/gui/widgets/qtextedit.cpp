@@ -130,10 +130,10 @@ void QTextEditPrivate::init(const QString &html)
 
     QObject::connect(control, SIGNAL(microFocusChanged()), q, SLOT(updateMicroFocus()));
     QObject::connect(control, SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(_q_adjustScrollbars()));
-    QObject::connect(control, SIGNAL(updateRequest(const QRectF &)), q, SLOT(_q_repaintContents(const QRectF &)));
-    QObject::connect(control, SIGNAL(visibilityRequest(const QRectF &)), q, SLOT(_q_ensureVisible(const QRectF &)));
-    QObject::connect(control, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
-                     q, SLOT(_q_currentCharFormatChanged(const QTextCharFormat &)));
+    QObject::connect(control, SIGNAL(updateRequest(QRectF)), q, SLOT(_q_repaintContents(QRectF)));
+    QObject::connect(control, SIGNAL(visibilityRequest(QRectF)), q, SLOT(_q_ensureVisible(QRectF)));
+    QObject::connect(control, SIGNAL(currentCharFormatChanged(QTextCharFormat)),
+                     q, SLOT(_q_currentCharFormatChanged(QTextCharFormat)));
 
     QObject::connect(control, SIGNAL(textChanged()), q, SIGNAL(textChanged()));
     QObject::connect(control, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));

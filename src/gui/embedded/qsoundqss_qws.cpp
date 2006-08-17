@@ -678,38 +678,38 @@ void QWSSoundServerSocket::newConnection()
     while (QWS_SOCK_BASE *sock = nextPendingConnection()) {
         QWSSoundServerClient* client = new QWSSoundServerClient(sock,this);
 
-        connect(client, SIGNAL(play(int, int, const QString&)),
-                this, SIGNAL(playFile(int, int, const QString&)));
-        connect(client, SIGNAL(play(int, int, const QString&, int, int)),
-                this, SIGNAL(playFile(int, int, const QString&, int, int)));
-        connect(client, SIGNAL(playRaw(int, int, const QString&, int, int, int, int)),
-                this, SIGNAL(playRawFile(int, int, const QString&, int, int, int, int)));
+        connect(client, SIGNAL(play(int,int,QString)),
+                this, SIGNAL(playFile(int,int,QString)));
+        connect(client, SIGNAL(play(int,int,QString,int,int)),
+                this, SIGNAL(playFile(int,int,QString,int,int)));
+        connect(client, SIGNAL(playRaw(int,int,QString,int,int,int,int)),
+                this, SIGNAL(playRawFile(int,int,QString,int,int,int,int)));
 
-        connect(client, SIGNAL(pause(int, int)),
-                this, SIGNAL(pauseFile(int, int)));
-        connect(client, SIGNAL(stop(int, int)),
-                this, SIGNAL(stopFile(int, int)));
+        connect(client, SIGNAL(pause(int,int)),
+                this, SIGNAL(pauseFile(int,int)));
+        connect(client, SIGNAL(stop(int,int)),
+                this, SIGNAL(stopFile(int,int)));
         connect(client, SIGNAL(playPriorityOnly(bool)),
                 this, SIGNAL(playPriorityOnly(bool)));
         connect(client, SIGNAL(stopAll(int)),
                 this, SIGNAL(stopAll(int)));
-        connect(client, SIGNAL(resume(int, int)),
-                this, SIGNAL(resumeFile(int, int)));
+        connect(client, SIGNAL(resume(int,int)),
+                this, SIGNAL(resumeFile(int,int)));
 
         connect(client, SIGNAL(setSilent(bool)),
                 this, SIGNAL(setSilent(bool)));
 
-        connect(client, SIGNAL(setMute(int, int, bool)),
-                this, SIGNAL(setMute(int, int, bool)));
-        connect(client, SIGNAL(setVolume(int, int, int, int)),
-                this, SIGNAL(setVolume(int, int, int, int)));
+        connect(client, SIGNAL(setMute(int,int,bool)),
+                this, SIGNAL(setMute(int,int,bool)));
+        connect(client, SIGNAL(setVolume(int,int,int,int)),
+                this, SIGNAL(setVolume(int,int,int,int)));
 
-        connect(this, SIGNAL(soundFileCompleted(int, int)),
-                client, SLOT(sendSoundCompleted(int, int)));
-        connect(this, SIGNAL(deviceReady(int, int)),
-                client, SLOT(sendDeviceReady(int, int)));
-        connect(this, SIGNAL(deviceError(int, int, int)),
-                client, SLOT(sendDeviceError(int, int, int)));
+        connect(this, SIGNAL(soundFileCompleted(int,int)),
+                client, SLOT(sendSoundCompleted(int,int)));
+        connect(this, SIGNAL(deviceReady(int,int)),
+                client, SLOT(sendDeviceReady(int,int)));
+        connect(this, SIGNAL(deviceError(int,int,int)),
+                client, SLOT(sendDeviceError(int,int,int)));
     }
 }
 
@@ -728,38 +728,38 @@ public:
 #ifndef QT_NO_QWS_SOUNDSERVER
         server = new QWSSoundServerSocket(this);
 
-	connect(server, SIGNAL(playFile(int, int, const QString&)),
-		this, SLOT(playFile(int, int, const QString&)));
-	connect(server, SIGNAL(playFile(int, int, const QString&, int, int)),
-		this, SLOT(playFile(int, int, const QString&, int, int)));
-	connect(server, SIGNAL(playRawFile(int, int, const QString&, int, int, int, int)),
-		this, SLOT(playRawFile(int, int, const QString&, int, int, int, int)));
+	connect(server, SIGNAL(playFile(int,int,QString)),
+		this, SLOT(playFile(int,int,QString)));
+	connect(server, SIGNAL(playFile(int,int,QString,int,int)),
+		this, SLOT(playFile(int,int,QString,int,int)));
+	connect(server, SIGNAL(playRawFile(int,int,QString,int,int,int,int)),
+		this, SLOT(playRawFile(int,int,QString,int,int,int,int)));
 
-	connect(server, SIGNAL(pauseFile(int, int)),
-		this, SLOT(pauseFile(int, int)));
+	connect(server, SIGNAL(pauseFile(int,int)),
+		this, SLOT(pauseFile(int,int)));
 	connect(server, SIGNAL(stopFile(int,int)),
 		this, SLOT(stopFile(int,int)));
 	connect(server, SIGNAL(stopAll(int)),
 		this, SLOT(stopAll(int)));
 	connect(server, SIGNAL(playPriorityOnly(bool)),
 		this, SLOT(playPriorityOnly(bool)));
-	connect(server, SIGNAL(resumeFile(int, int)),
-		this, SLOT(resumeFile(int, int)));
+	connect(server, SIGNAL(resumeFile(int,int)),
+		this, SLOT(resumeFile(int,int)));
 
         connect( server, SIGNAL(setSilent(bool)),
                 this, SLOT(setSilent(bool)));
 
-        connect(server, SIGNAL(setMute(int, int, bool)),
-                this, SLOT(setMute(int, int, bool)));
-	connect(server, SIGNAL(setVolume(int, int, int, int)),
-		this, SLOT(setVolume(int, int, int, int)));
+        connect(server, SIGNAL(setMute(int,int,bool)),
+                this, SLOT(setMute(int,int,bool)));
+	connect(server, SIGNAL(setVolume(int,int,int,int)),
+		this, SLOT(setVolume(int,int,int,int)));
 
-	connect(this, SIGNAL(soundFileCompleted(int, int)),
-		server, SIGNAL(soundFileCompleted(int, int)));
-	connect(this, SIGNAL(deviceReady(int, int)),
-		server, SIGNAL(deviceReady(int, int)));
-	connect(this, SIGNAL(deviceError(int, int, int)),
-		server, SIGNAL(deviceError(int, int, int)));
+	connect(this, SIGNAL(soundFileCompleted(int,int)),
+		server, SIGNAL(soundFileCompleted(int,int)));
+	connect(this, SIGNAL(deviceReady(int,int)),
+		server, SIGNAL(deviceReady(int,int)));
+	connect(this, SIGNAL(deviceError(int,int,int)),
+		server, SIGNAL(deviceError(int,int,int)));
 
 #endif
         silent = false;
@@ -1293,8 +1293,8 @@ QWSSoundServer::QWSSoundServer(QObject* parent) :
 {
     d = new QWSSoundServerPrivate(this);
 
-    connect( d, SIGNAL( soundFileCompleted( int, int ) ),
-        this, SLOT( translateSoundCompleted( int, int ) ) );
+    connect( d, SIGNAL(soundFileCompleted(int,int)),
+        this, SLOT(translateSoundCompleted(int,int)) );
 }
 
 void QWSSoundServer::playFile( int sid, const QString& filename )

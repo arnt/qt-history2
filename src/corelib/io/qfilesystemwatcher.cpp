@@ -172,13 +172,13 @@ void QFileSystemWatcherPrivate::init()
     native = createNativeEngine();
     if (native) {
         QObject::connect(native,
-                         SIGNAL(fileChanged(const QString &, bool)),
+                         SIGNAL(fileChanged(QString,bool)),
                          q,
-                         SLOT(_q_fileChanged(const QString &, bool)));
+                         SLOT(_q_fileChanged(QString,bool)));
         QObject::connect(native,
-                         SIGNAL(directoryChanged(const QString &, bool)),
+                         SIGNAL(directoryChanged(QString,bool)),
                          q,
-                         SLOT(_q_directoryChanged(const QString &, bool)));
+                         SLOT(_q_directoryChanged(QString,bool)));
     }
 }
 
@@ -324,13 +324,13 @@ void QFileSystemWatcher::addPaths(const QStringList &paths)
         if (!d->poller) {
             d->poller = new QPollingFileSystemWatcherEngine; // that was a mouthful
             QObject::connect(d->poller,
-                             SIGNAL(fileChanged(const QString &, bool)),
+                             SIGNAL(fileChanged(QString,bool)),
                              this,
-                             SLOT(_q_fileChanged(const QString &, bool)));
+                             SLOT(_q_fileChanged(QString,bool)));
             QObject::connect(d->poller,
-                             SIGNAL(directoryChanged(const QString &, bool)),
+                             SIGNAL(directoryChanged(QString,bool)),
                              this,
-                             SLOT(_q_directoryChanged(const QString &, bool)));
+                             SLOT(_q_directoryChanged(QString,bool)));
         }
         p = d->poller->addPaths(p, &d->files, &d->directories);
     } else{

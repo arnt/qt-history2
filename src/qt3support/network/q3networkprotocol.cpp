@@ -359,38 +359,38 @@ Q3NetworkProtocol::Q3NetworkProtocol()
 {
     d = new Q3NetworkProtocolPrivate( this );
 
-    connect( d->opStartTimer, SIGNAL( timeout() ),
-	     this, SLOT( startOps() ) );
-    connect( d->removeTimer, SIGNAL( timeout() ),
-	     this, SLOT( removeMe() ) );
+    connect( d->opStartTimer, SIGNAL(timeout()),
+	     this, SLOT(startOps()) );
+    connect( d->removeTimer, SIGNAL(timeout()),
+	     this, SLOT(removeMe()) );
 
     if ( url() ) {
-	connect( this, SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( finished(Q3NetworkOperation*) ),
-		 url(), SIGNAL( finished(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( start(Q3NetworkOperation*) ),
-		 url(), SIGNAL( start(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		 url(), SLOT( addEntry(const Q3ValueList<QUrlInfo>&) ) );
-	connect( this, SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( removed(Q3NetworkOperation*) ),
-		 url(), SIGNAL( removed(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( itemChanged(Q3NetworkOperation*) ),
-		 url(), SIGNAL( itemChanged(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ),
-		 url(), SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( connectionStateChanged(int,const QString&) ),
-		 url(), SIGNAL( connectionStateChanged(int,const QString&) ) );
+	connect( this, SIGNAL(data(QByteArray,Q3NetworkOperation*)),
+		 url(), SIGNAL(data(QByteArray,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(finished(Q3NetworkOperation*)),
+		 url(), SIGNAL(finished(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(start(Q3NetworkOperation*)),
+		 url(), SIGNAL(start(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		 url(), SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		 url(), SLOT(addEntry(Q3ValueList<QUrlInfo>)) );
+	connect( this, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),
+		 url(), SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(removed(Q3NetworkOperation*)),
+		 url(), SIGNAL(removed(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(itemChanged(Q3NetworkOperation*)),
+		 url(), SIGNAL(itemChanged(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)),
+		 url(), SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(connectionStateChanged(int,QString)),
+		 url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
-    connect( this, SIGNAL( finished(Q3NetworkOperation*) ),
-	     this, SLOT( processNextOperation(Q3NetworkOperation*) ) );
-    connect( this, SIGNAL( newChild(const QUrlInfo&,Q3NetworkOperation*) ),
-	     this, SLOT( emitNewChildren(const QUrlInfo&,Q3NetworkOperation*) ) );
+    connect( this, SIGNAL(finished(Q3NetworkOperation*)),
+	     this, SLOT(processNextOperation(Q3NetworkOperation*)) );
+    connect( this, SIGNAL(newChild(QUrlInfo,Q3NetworkOperation*)),
+	     this, SLOT(emitNewChildren(QUrlInfo,Q3NetworkOperation*)) );
 
 }
 
@@ -412,26 +412,26 @@ Q3NetworkProtocol::~Q3NetworkProtocol()
 void Q3NetworkProtocol::setUrl( Q3UrlOperator *u )
 {
     if ( url() ) {
-	disconnect( this, SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ),
-		    url(), SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( finished(Q3NetworkOperation*) ),
-		    url(), SIGNAL( finished(Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( start(Q3NetworkOperation*) ),
-		    url(), SIGNAL( start(Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		    url(), SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		    url(), SLOT( addEntry(const Q3ValueList<QUrlInfo>&) ) );
-	disconnect( this, SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ),
-		    url(), SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( removed(Q3NetworkOperation*) ),
-		    url(), SIGNAL( removed(Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( itemChanged(Q3NetworkOperation*) ),
-		    url(), SIGNAL( itemChanged(Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ),
-		    url(), SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ) );
-	disconnect( this, SIGNAL( connectionStateChanged(int,const QString&) ),
-		    url(), SIGNAL( connectionStateChanged(int,const QString&) ) );
+	disconnect( this, SIGNAL(data(QByteArray,Q3NetworkOperation*)),
+		    url(), SIGNAL(data(QByteArray,Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(finished(Q3NetworkOperation*)),
+		    url(), SIGNAL(finished(Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(start(Q3NetworkOperation*)),
+		    url(), SIGNAL(start(Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		    url(), SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		    url(), SLOT(addEntry(Q3ValueList<QUrlInfo>)) );
+	disconnect( this, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),
+		    url(), SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(removed(Q3NetworkOperation*)),
+		    url(), SIGNAL(removed(Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(itemChanged(Q3NetworkOperation*)),
+		    url(), SIGNAL(itemChanged(Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)),
+		    url(), SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)) );
+	disconnect( this, SIGNAL(connectionStateChanged(int,QString)),
+		    url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
 
@@ -443,26 +443,26 @@ void Q3NetworkProtocol::setUrl( Q3UrlOperator *u )
     d->url = u;
 
     if ( url() ) {
-	connect( this, SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( finished(Q3NetworkOperation*) ),
-		 url(), SIGNAL( finished(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( start(Q3NetworkOperation*) ),
-		 url(), SIGNAL( start(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( newChildren(const Q3ValueList<QUrlInfo>&,Q3NetworkOperation*) ),
-		 url(), SLOT( addEntry(const Q3ValueList<QUrlInfo>&) ) );
-	connect( this, SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ),
-		 url(), SIGNAL( createdDirectory(const QUrlInfo&,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( removed(Q3NetworkOperation*) ),
-		 url(), SIGNAL( removed(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( itemChanged(Q3NetworkOperation*) ),
-		 url(), SIGNAL( itemChanged(Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ),
-		 url(), SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ) );
-	connect( this, SIGNAL( connectionStateChanged(int,const QString&) ),
-		 url(), SIGNAL( connectionStateChanged(int,const QString&) ) );
+	connect( this, SIGNAL(data(QByteArray,Q3NetworkOperation*)),
+		 url(), SIGNAL(data(QByteArray,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(finished(Q3NetworkOperation*)),
+		 url(), SIGNAL(finished(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(start(Q3NetworkOperation*)),
+		 url(), SIGNAL(start(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		 url(), SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(newChildren(Q3ValueList<QUrlInfo>,Q3NetworkOperation*)),
+		 url(), SLOT(addEntry(Q3ValueList<QUrlInfo>)) );
+	connect( this, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),
+		 url(), SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(removed(Q3NetworkOperation*)),
+		 url(), SIGNAL(removed(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(itemChanged(Q3NetworkOperation*)),
+		 url(), SIGNAL(itemChanged(Q3NetworkOperation*)) );
+	connect( this, SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)),
+		 url(), SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)) );
+	connect( this, SIGNAL(connectionStateChanged(int,QString)),
+		 url(), SIGNAL(connectionStateChanged(int,QString)) );
     }
 
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )
@@ -922,8 +922,8 @@ Q3NetworkOperation::Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
 {
     d = new Q3NetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL( timeout() ),
-	     this, SLOT( deleteMe() ) );
+    connect( d->deleteTimer, SIGNAL(timeout()),
+	     this, SLOT(deleteMe()) );
     d->operation = operation;
     d->state = Q3NetworkProtocol::StWaiting;
     d->args[ 0 ] = arg0;
@@ -951,8 +951,8 @@ Q3NetworkOperation::Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
 {
     d = new Q3NetworkOperationPrivate;
     d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL( timeout() ),
-	     this, SLOT( deleteMe() ) );
+    connect( d->deleteTimer, SIGNAL(timeout()),
+	     this, SLOT(deleteMe()) );
     d->operation = operation;
     d->state = Q3NetworkProtocol::StWaiting;
     d->args[ 0 ].clear();

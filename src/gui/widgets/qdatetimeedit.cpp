@@ -1160,10 +1160,10 @@ void QDateTimeEdit::mousePressEvent(QMouseEvent *event)
         if (!d->monthCalendar) {
             d->monthCalendar = new QCalendarPopup(date(), this);
             d->monthCalendar->setObjectName("qt_datetimedit_calendar");
-            connect(d->monthCalendar, SIGNAL(newDateSelected(const QDate&)), this, SLOT(setDate(const QDate&)));
-            connect(d->monthCalendar, SIGNAL(hidingCalendar(const QDate&)), this, SLOT(setDate(const QDate&)));
-            connect(d->monthCalendar, SIGNAL(activated(const QDate&)), this, SLOT(setDate(const QDate&)));
-            connect(d->monthCalendar, SIGNAL(activated(const QDate&)), d->monthCalendar, SLOT(close()));
+            connect(d->monthCalendar, SIGNAL(newDateSelected(QDate)), this, SLOT(setDate(QDate)));
+            connect(d->monthCalendar, SIGNAL(hidingCalendar(QDate)), this, SLOT(setDate(QDate)));
+            connect(d->monthCalendar, SIGNAL(activated(QDate)), this, SLOT(setDate(QDate)));
+            connect(d->monthCalendar, SIGNAL(activated(QDate)), d->monthCalendar, SLOT(close()));
             connect(d->monthCalendar, SIGNAL(resetButton()), this, SLOT(_q_resetButton()));
         }
         else
@@ -2059,8 +2059,8 @@ QCalendarPopup::QCalendarPopup(const QDate &date, QWidget * parent)
     widgetLayout->setSpacing(0);
     widgetLayout->addWidget(calendar);
 
-    connect(calendar, SIGNAL(activated(const QDate&)), this, SLOT(dateSelected(const QDate&)));
-    connect(calendar, SIGNAL(clicked(const QDate&)), this, SLOT(dateSelected(const QDate&)));
+    connect(calendar, SIGNAL(activated(QDate)), this, SLOT(dateSelected(QDate)));
+    connect(calendar, SIGNAL(clicked(QDate)), this, SLOT(dateSelected(QDate)));
     connect(calendar, SIGNAL(selectionChanged()), this, SLOT(dateSelectionChanged()));
 
     calendar->setFocus();

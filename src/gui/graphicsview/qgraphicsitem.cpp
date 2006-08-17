@@ -5117,16 +5117,16 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
         control = new QTextControl(that);
         control->setTextInteractionFlags(Qt::NoTextInteraction);
 
-        QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
+        QObject::connect(control, SIGNAL(updateRequest(QRectF)),
                          qq, SLOT(_q_update(QRectF)));
-        QObject::connect(control, SIGNAL(documentSizeChanged(const QSizeF &)),
-                         qq, SLOT(_q_updateBoundingRect(const QSizeF &)));
-        QObject::connect(control, SIGNAL(visibilityRequest(const QRectF &)),
+        QObject::connect(control, SIGNAL(documentSizeChanged(QSizeF)),
+                         qq, SLOT(_q_updateBoundingRect(QSizeF)));
+        QObject::connect(control, SIGNAL(visibilityRequest(QRectF)),
                          qq, SLOT(_q_ensureVisible(QRectF)));
-        QObject::connect(control, SIGNAL(linkActivated(const QString &)),
-                         qq, SIGNAL(linkActivated(const QString &)));
-        QObject::connect(control, SIGNAL(linkHovered(const QString &)),
-                         qq, SIGNAL(linkHovered(const QString &)));
+        QObject::connect(control, SIGNAL(linkActivated(QString)),
+                         qq, SIGNAL(linkActivated(QString)));
+        QObject::connect(control, SIGNAL(linkHovered(QString)),
+                         qq, SIGNAL(linkHovered(QString)));
 
         const QSizeF pgSize = control->document()->pageSize();
         if (pgSize.height() != -1) {

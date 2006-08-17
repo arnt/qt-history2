@@ -1971,7 +1971,7 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
     menu->setObjectName("qt_customize_menu");
     d->dockWindowModes.replace( menu, dockWindows );
     menu->setCheckable(true);
-    connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );
+    connect( menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()) );
     return menu;
 }
 

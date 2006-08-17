@@ -2148,7 +2148,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         qt_context_cache.insert(context, font_cache);
         if (context->isValid() && context->device()->devType() == QInternal::Widget) {
             QWidget *widget = static_cast<QWidget *>(context->device());
-            connect(widget, SIGNAL(destroyed(QObject *)), SLOT(widgetDestroyed(QObject *)));
+            connect(widget, SIGNAL(destroyed(QObject*)), SLOT(widgetDestroyed(QObject*)));
         }
     } else {
         font_cache = dev_it.value();
@@ -2160,7 +2160,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
     if (cache_it == font_cache->constEnd()) {
         cache = new QGLGlyphHash;
         font_cache->insert(ti.fontEngine, cache);
-        connect(ti.fontEngine, SIGNAL(destroyed(QObject *)), SLOT(fontEngineDestroyed(QObject *)));
+        connect(ti.fontEngine, SIGNAL(destroyed(QObject*)), SLOT(fontEngineDestroyed(QObject*)));
     } else {
         cache = cache_it.value();
     }

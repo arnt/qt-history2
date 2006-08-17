@@ -2278,8 +2278,8 @@ void Q3ComboBox::setLineEdit( QLineEdit *edit )
     if ( edit->parent() != this )
 	edit->reparent( this, QPoint(0,0), false );
 
-    connect (edit, SIGNAL( textChanged(const QString&) ),
-	     this, SIGNAL( textChanged(const QString&) ) );
+    connect (edit, SIGNAL(textChanged(QString)),
+	     this, SIGNAL(textChanged(QString)) );
     connect( edit, SIGNAL(returnPressed()), SLOT(returnPressed()) );
 
     edit->setFrame( false );

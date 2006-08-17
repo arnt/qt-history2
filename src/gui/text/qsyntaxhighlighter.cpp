@@ -339,8 +339,8 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
 {
     Q_D(QSyntaxHighlighter);
     if (d->doc) {
-        disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                   this, SLOT(_q_reformatBlocks(int, int, int)));
+        disconnect(d->doc, SIGNAL(contentsChange(int,int,int)),
+                   this, SLOT(_q_reformatBlocks(int,int,int)));
 
         QTextCursor cursor(d->doc);
         cursor.beginEditBlock();
@@ -350,8 +350,8 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     }
     d->doc = doc;
     if (d->doc) {
-        connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                this, SLOT(_q_reformatBlocks(int, int, int)));
+        connect(d->doc, SIGNAL(contentsChange(int,int,int)),
+                this, SLOT(_q_reformatBlocks(int,int,int)));
         QTimer::singleShot(0, this, SLOT(_q_delayedRehighlight()));
         d->rehighlightPending = true;
     }

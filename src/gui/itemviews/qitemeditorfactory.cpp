@@ -368,13 +368,13 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 QExpandingLineEdit::QExpandingLineEdit(QWidget *parent)
     : QLineEdit(parent), originalWidth(-1)
 {
-    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(resizeToContents()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
 
 QExpandingLineEdit::QExpandingLineEdit(const QString &contents, QWidget *parent)
     : QLineEdit(contents, parent), originalWidth(-1)
 {
-    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(resizeToContents()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(resizeToContents()));
 }
 
 void QExpandingLineEdit::resizeToContents()
