@@ -21,6 +21,7 @@
 #include "qstyle.h"
 #include "qapplication.h"
 #include "qvariant.h"
+#include "qdebug.h"
 #include "private/qlayoutengine_p.h"
 
 
@@ -89,6 +90,11 @@
     widget, it may be necessary to call QWidget::setMinimumSize() to
     ensure that the contents of the widget are shown correctly within
     the scroll area.
+
+    Two convenience functions ensureVisible() and
+    ensureWidgetVisible() ensure a certain region of the contents is
+    visible inside the viewport, by scrolling the contents if
+    necessary.
 
     For a complete example using the QScrollArea class, see the \l
     {widgets/imageviewer}{Image Viewer} example. The example shows how
@@ -194,23 +200,23 @@ QWidget *QScrollArea::widget() const
 
     \sa widget()
 */
-void QScrollArea::setWidget(QWidget *w)
+void QScrollArea::setWidget(QWidget *widget)
 {
     Q_D(QScrollArea);
-    if (w == d->widget || !w)
+    if (widget == d->widget || !widget)
         return;
 
     delete d->widget;
     d->widget = 0;
     d->hbar->setValue(0);
     d->vbar->setValue(0);
-    if (w->parentWidget() != d->viewport)
-        w->setParent(d->viewport);
-    if (!w->testAttribute(Qt::WA_Resized))
-        w->resize(w->sizeHint());
-    d->widget = w;
+    if (widget->parentWidget() != d->viewport)
+        widget->setParent(d->viewport);
+    if (!widget->testAttribute(Qt::WA_Resized))
+        widget->resize(widget->sizeHint());
+    d->widget = widget;
     d->widget->setAutoFillBackground(true);
-    w->installEventFilter(this);
+    widget->installEventFilter(this);
     d->widgetSize = QSize();
     d->updateScrollBars();
     d->widget->show();
@@ -263,23 +269,8 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
     if (d->widget && o != d->widget && e->type() == QEvent::FocusIn
             && QApplication::keypadNavigationEnabled()) {
-        if (o->isWidgetType()) {
-            QWidget *w = (QWidget*)o;
-            if (d->widget->isAncestorOf(w)) {
-                QRect focusRect(w->mapTo(d->widget, QPoint(0,0)), w->size());
-                QRect visibleRect(-d->widget->pos(), d->viewport->size());
-                if (!visibleRect.contains(focusRect)) {
-                    if (focusRect.right() > visibleRect.right())
-                        d->hbar->setValue(focusRect.right() - d->viewport->width());
-                    else if (focusRect.left() < visibleRect.left())
-                        d->hbar->setValue(focusRect.left());
-                    if (focusRect.bottom() > visibleRect.bottom())
-                        d->vbar->setValue(focusRect.bottom() - d->viewport->height());
-                    else if (focusRect.top() < visibleRect.top())
-                        d->vbar->setValue(focusRect.top());
-                }
-            }
-        }
+        if (o->isWidgetType())
+            ensureWidgetVisible(static_cast<QWidget *>(o));
     }
 #endif
     if (o == d->widget && e->type() == QEvent::Resize) {
@@ -370,25 +361,9 @@ QSize QScrollArea::sizeHint() const
  */
 bool QScrollArea::focusNextPrevChild(bool next)
 {
-    Q_D(QScrollArea);
     if (QWidget::focusNextPrevChild(next)) {
-        if (QWidget *fw = focusWidget()) {
-            if (d->widget && fw != d->widget && d->widget->isAncestorOf(fw)) {
-                QRect focusRect = fw->inputMethodQuery(Qt::ImMicroFocus).toRect();
-                focusRect.moveTopLeft(fw->mapTo(d->widget, focusRect.topLeft()));
-                QRect visibleRect(-d->widget->pos(), d->viewport->size());
-                if (!visibleRect.contains(focusRect)) {
-                    if (focusRect.right() > visibleRect.right())
-                        d->hbar->setValue(focusRect.right() - d->viewport->width());
-                    else if (focusRect.left() < visibleRect.left())
-                        d->hbar->setValue(focusRect.left());
-                    if (focusRect.bottom() > visibleRect.bottom())
-                        d->vbar->setValue(focusRect.bottom() - d->viewport->height());
-                    else if (focusRect.top() < visibleRect.top())
-                        d->vbar->setValue(focusRect.top());
-                }
-            }
-        }
+        if (QWidget *fw = focusWidget())
+            ensureWidgetVisible(fw);
         return true;
     }
     return false;
@@ -399,27 +374,6 @@ bool QScrollArea::focusNextPrevChild(bool next)
     inside the region of the viewport with margins specified in pixels by \a xmargin and
     \a ymargin. If the specified point cannot be reached, the contents are scrolled to
     the nearest valid position. The default value for both margins is 50 pixels.
-
-    \bold{Note:} A scroll area automatically ensures the visibility of
-    any child widget of the scrolled form that gets focus. This can
-    conflict with calling this function, e.g. when you call it before
-    entering the event loop. To avoid having the viewport scroll to a
-    different position, you can set the focus on the QScrollArea
-    widget itself as shown in the example.
-
-    Example:
-
-    \code
-        QScrollArea sa;
-        sa.setBackgroundRole(QPalette::Dark);
-        sa.setWidget(childWidget);
-        sa.show();
-
-        sa.setFocus();
-        sa.ensureVisible(640, 480, 10, 10);
-
-        qapp.exec();
-    \endcode
 */
 void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 {
@@ -437,6 +391,34 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
         d->vbar->setValue(qMax(0, y - ymargin));
     } else if (y > d->vbar->value() + d->viewport->height() - ymargin) {
         d->vbar->setValue(qMin(y - d->viewport->height() + ymargin, d->vbar->maximum()));
+    }
+}
+
+/*!
+    Scrolls the contents of the scroll area so that the \a childWidget
+    of the scroll area's widget() is visible inside the region of the
+    viewport with margins specified in pixels by \a xmargin and \a
+    ymargin. If the specified point cannot be reached, the contents
+    are scrolled to the nearest valid position. The default value for
+    both margins is 50 pixels.
+*/
+void QScrollArea::ensureWidgetVisible(QWidget *childWidget, int xmargin, int ymargin)
+{
+    Q_D(QScrollArea);
+    if (d->widget->isAncestorOf(childWidget)) {
+        QRect focusRect(childWidget->mapTo(d->widget, QPoint(0,0)), childWidget->size());
+        focusRect.adjust(-xmargin, -ymargin, xmargin, ymargin);
+        QRect visibleRect(-d->widget->pos(), d->viewport->size());
+        if (!visibleRect.contains(focusRect)) {
+            if (focusRect.right() > visibleRect.right())
+                d->hbar->setValue(focusRect.right() - d->viewport->width());
+            else if (focusRect.left() < visibleRect.left())
+                d->hbar->setValue(focusRect.left());
+            if (focusRect.bottom() > visibleRect.bottom())
+                d->vbar->setValue(focusRect.bottom() - d->viewport->height());
+            else if (focusRect.top() < visibleRect.top())
+                d->vbar->setValue(focusRect.top());
+        }
     }
 }
 

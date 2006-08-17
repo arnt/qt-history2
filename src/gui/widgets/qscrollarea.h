@@ -35,7 +35,7 @@ public:
     ~QScrollArea();
 
     QWidget *widget() const;
-    void setWidget(QWidget *w);
+    void setWidget(QWidget *widget);
     QWidget *takeWidget();
 
     bool widgetResizable() const;
@@ -48,6 +48,7 @@ public:
     void setAlignment(Qt::Alignment);
 
     void ensureVisible(int x, int y, int xmargin = 50, int ymargin = 50);
+    void ensureWidgetVisible(QWidget *childWidget, int xmargin = 50, int ymargin = 50);
 
 protected:
     QScrollArea(QScrollAreaPrivate &dd, QWidget *parent = 0);
