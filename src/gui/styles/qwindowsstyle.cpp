@@ -2764,8 +2764,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-            QBrush editBrush = (cmb->state & State_Enabled) ? cmb->palette.brush(QPalette::Base)
-                                : cmb->palette.brush(QPalette::Background);
+            QBrush editBrush = cmb->palette.brush(QPalette::Base);
             if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame)
                 qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);
             else
