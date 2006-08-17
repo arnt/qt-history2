@@ -82,6 +82,7 @@ void QX11WindowSurface::setGeometry(const QRect &rect)
     const QSize size = rect.size();
     if (d_ptr->device.size() == size)
         return;
+    QPixmap::x11SetDefaultScreen(d_ptr->widget->x11Screen());
     d_ptr->device = QPixmap(size);
 }
 
