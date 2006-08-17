@@ -59,6 +59,12 @@
     ts.conf configuration file and setting the neccessary environment
     variables, see the README file provided with tslib for details.
 
+    The ts.conf file will usually contain the following two lines
+    \code
+        module_raw input
+        module linear
+    \code
+
     To make \l {Qtopia Core} explicitly choose the tslib mouse
     handler, set the QWS_MOUSE_PROTO environment variable.
 
