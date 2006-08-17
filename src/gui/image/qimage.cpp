@@ -2904,6 +2904,12 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         QImage image(d->width, d->height, format);
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
+
+#ifndef QT_NO_IMAGE_TEXT
+        image.d->text = d->text;
+        image.d->text_lang = d->text_lang;
+#endif QT_NO_IMAGE_TEXT
+
         converter(image.d, d, flags);
         return image;
     }

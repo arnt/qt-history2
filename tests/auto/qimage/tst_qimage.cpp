@@ -46,6 +46,7 @@ private slots:
     void dotsPerMeterZero();
 
     void convertToFormatPreserveDotsPrMeter();
+    void convertToFormatPreserveText();
 
     void rotate90();
 
@@ -403,8 +404,8 @@ void tst_QImage::createAlphaMask_data()
 
     int alphas[] = { 0, 127, 255 };
 
-    for (int a1 = 0; a1 < sizeof(alphas) / sizeof(int); ++a1) {
-        for (int a2 = 0; a2 < sizeof(alphas) / sizeof(int); ++a2) {
+    for (unsigned a1 = 0; a1 < sizeof(alphas) / sizeof(int); ++a1) {
+        for (unsigned a2 = 0; a2 < sizeof(alphas) / sizeof(int); ++a2) {
             if (a1 == a2)
                 continue;
             for (int x=10; x<18; x+=3) {
@@ -629,6 +630,17 @@ void tst_QImage::convertToFormatPreserveDotsPrMeter()
     QCOMPARE(img.dotsPerMeterY(), dpmy);
 }
 
+void tst_QImage::convertToFormatPreserveText()
+{
+    QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
+
+    img.setText("foo", "bar");
+    img = img.convertToFormat(QImage::Format_RGB32);
+
+    QCOMPARE(img.text(), QString("foo: bar"));
+    QCOMPARE(img.textKeys(), QStringList("foo"));
+}
+
 void tst_QImage::setNumColors()
 {
     QImage img(0, 0, QImage::Format_Indexed8);
@@ -714,7 +726,7 @@ void tst_QImage::destructor()
     ptPix.setPen(Qt::black);
     ptPix.setBrush(Qt::black);
     ptPix.drawPolygon(poly, Qt::WindingFill);
-    ptPix.end(); 
+    ptPix.end();
 
 }
 
