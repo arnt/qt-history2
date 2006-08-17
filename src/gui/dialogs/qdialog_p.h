@@ -26,10 +26,11 @@
 //
 
 #include "private/qwidget_p.h"
+#include "QtCore/qpointer.h"
 #include "QtGui/qdialog.h"
+#include "QtGui/qpushbutton.h"
 
 class QEventLoop;
-class QPushButton;
 class QSizeGrip;
 
 class QDialogPrivate : public QWidgetPrivate
@@ -45,7 +46,7 @@ public:
           rescode(0), eventLoop(0)
         {}
 
-    QPushButton* mainDef;
+    QPointer<QPushButton> mainDef;
     Qt::Orientation orientation;
     QWidget* extension;
     bool doShowExtension;
