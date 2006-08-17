@@ -115,8 +115,10 @@ private:
     bool hasStyleRule(const QWidget *w, int part) const;
 
     QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int part = 0) const;
-    QRenderRule renderRule(const QWidget *w, QStyle::State state, const QString &part = QString()) const;
-    QRenderRule renderRule(const QWidget *w, QStyle::State state, int pseudoElement) const;
+    QRenderRule renderRule(const QWidget *w, const QString &part = QString(), 
+                           QStyle::State state = QStyle::State_None) const;
+    QRenderRule renderRule(const QWidget *w, int pseudoElement, 
+                           QStyle::State state = QStyle::State_None) const;
 
     static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
     static QHash<const QWidget *, QRenderRules> renderRulesCache;

@@ -155,18 +155,28 @@ struct QStyleSheetGeometryData
 
 struct QStyleSheetPositionData
 {
-    QStyleSheetPositionData(int l, int t, int r, int b) 
-        : left(l), right(r), top(t), bottom(b) { }
+    QStyleSheetPositionData(int l, int t, Origin o, Qt::Alignment p) 
+        : left(l), top(t), origin(o), position(p) { }
 
-    int left, right, top, bottom;
+    int left, top;
+    Origin origin;
+    Qt::Alignment position;
 };
 
 class QRenderRule
 {
 public:
-    QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
+    QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0), isCopy(false) { }
+    QRenderRule(const QRenderRule &other) : image(other.image), imageRect(other.imageRect),
+       font(other.font), styleHints(other.styleHints), pal(other.pal), b(other.b), bg(other.bg), 
+       bd(other.bd), geo(other.geo), p(other.p), isCopy(true) { }
     QRenderRule(const QVector<QCss::Declaration> &);
-    ~QRenderRule() { }
+    ~QRenderRule() 
+    { 
+        if (isCopy) 
+            return;
+        //delete pal; delete b; delete bg; delete bd; delete geo; delete p;
+    }
 
     bool isEmpty() const
     { return pal == 0 && b == 0 && bg == 0 && bd == 0 && geo == 0 && image.isNull(); }
@@ -176,7 +186,11 @@ public:
     QRect contentsRect(const QRect &r) const;
     QRect boxRect(const QRect &r) const;
     QSize boxSize(const QSize &s) const;
-    QRect positionRect(const QRect &r) const;
+    QRect originRect(const QRect &rect, Origin origin) const;
+    QRect positionRect(const QRenderRule &rule, Qt::LayoutDirection dir, const QRect &rect,
+                       const QSize &defSize, Origin defOrigin, Qt::Alignment defPosition) const;
+    QRect positionRect(const QRect &originRect, Qt::LayoutDirection dir,
+                       const QSize &defSize, Qt::Alignment defPosition) const;
 
     bool paintsOver(Edge e1, Edge e2);
     void drawBorder(QPainter *, const QRect&, Qt::LayoutDirection);
@@ -222,7 +236,7 @@ public:
     bool hasStyleHint(const QString& sh) const { return styleHints.contains(sh); }
     int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
-private:    
+private:
     void fixupBorder();
 
     // note that copy constructor will just copy pointers. this is intentional
@@ -233,6 +247,8 @@ private:
     QStyleSheetBorderData *bd;
     QStyleSheetGeometryData *geo;
     QStyleSheetPositionData *p;
+
+    bool isCopy;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -256,9 +272,11 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     if (v.extractGeometry(&w, &h, &minw, &minh))
         geo = new QStyleSheetGeometryData(w, h, minw, minh);
 
-    int left = 0, top = 0, right = 0, bottom = 0;
-    if (v.extractPosition(&left, &top, &right, &bottom))
-        p = new QStyleSheetPositionData(left, top, right, bottom);
+    int left = 0, top = 0;
+    Origin origin = Origin_Unknown;
+    Qt::Alignment position = 0;
+    if (v.extractPosition(&left, &top, &origin, &position))
+        p = new QStyleSheetPositionData(left, top, origin, position);
 
     int margins[4], paddings[4], spacing = -1;
     for (int i = 0; i < 4; i++) 
@@ -281,7 +299,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     QString uri;
     Repeat repeat = Repeat_XY;
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
-    Origin origin = Origin_Padding;
+    origin = Origin_Padding;
     if (v.extractBackground(&color, &uri, &repeat, &alignment, &origin))
         bg = new QStyleSheetBackgroundData(color, QPixmap(uri), repeat, alignment, origin);
 
@@ -325,14 +343,24 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     fixupBorder();
 }
 
-QRect QRenderRule::positionRect(const QRect &subRect) const
+QRect QRenderRule::positionRect(const QRect &originRect, Qt::LayoutDirection dir, 
+                                const QSize &defSize, Qt::Alignment defPosition) const
 {
-    if (!hasPosition())
-        return subRect;
-    QRect r = subRect;
-    r.translate(position()->left, -position()->top);
-    r.translate(-position()->right, -position()->bottom);
+    Qt::Alignment position = (p && p->position != 0) ? p->position : defPosition;
+    QSize sz = hasContentsSize() ? boxSize(contentsSize()) : defSize;
+
+    QRect r = QStyle::alignedRect(dir, position, sz, originRect);
+    if (p)
+        r.translate(p->left, p->top);
     return r;
+}
+
+QRect QRenderRule::positionRect(const QRenderRule &rule, Qt::LayoutDirection dir, 
+                                const QRect &rect, const QSize &defSize,
+                                Origin defOrigin, Qt::Alignment defPosition) const
+{
+    Origin origin = (p && p->origin != Origin_Unknown) ? p->origin : defOrigin;
+    return positionRect(rule.originRect(rect, origin), dir, defSize, defPosition);
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -844,25 +872,19 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect, Qt::LayoutDire
     }
 }
 
-static QRect qBackgroundImageRect(const QRenderRule &rule, const QRect &rect)
+QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
 {
-    Q_ASSERT(rule.hasBackground());
-    QRect r;
-    const QStyleSheetBackgroundData *background = rule.background();
-    switch (background->origin) {
-        case Origin_Padding:
-            r = rule.paddingRect(rect);
-            break;
-        case Origin_Border:
-            r = rule.borderRect(rect);
-            break;
-        case Origin_Content:
-            r = rule.contentsRect(rect);
-            break;
-        default:
-            break;
+    switch (origin) {
+    case Origin_Padding:
+        return paddingRect(rect);
+    case Origin_Border:
+        return borderRect(rect);
+    case Origin_Content:
+        return contentsRect(rect);
+    case Origin_Margin:
+    default:
+        return rect;
     }
-    return r;
 }
 
 void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, Qt::LayoutDirection dir)
@@ -871,7 +893,7 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect, Qt::Layout
     const QPixmap& bgp = background()->pixmap;
     if (bgp.isNull())
         return;
-    QRect r = qBackgroundImageRect(*this, rect);
+    QRect r = originRect(rect, background()->origin);
     QRect aligned = QStyle::alignedRect(dir, background()->position, bgp.size(), r);
     QRect inter = aligned.intersected(r);
 
@@ -1088,16 +1110,20 @@ QStyle *QStyleSheetStyle::baseStyle() const
     return qApp->style();
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state,
-                                         const QString &part) const
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part,
+                                         QStyle::State state) const
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
     const QVector<StyleRule> &styleRules = styleRulesCache[w];
     QHash<int, QRenderRule> &renderRules = renderRulesCache[w][part];
 
-    int pseudoState = (state & QStyle::State_Enabled)
-                                ? PseudoState_Enabled : PseudoState_Disabled;
+    int pseudoState;
+    if (state & QStyle::State_Enabled)
+        pseudoState = PseudoState_Enabled;
+    else if (state != QStyle::State_None)
+        pseudoState = PseudoState_Disabled;
+
     if (state & QStyle::State_Sunken)
         pseudoState |= PseudoState_Pressed;
     if (state & QStyle::State_MouseOver)
@@ -1149,10 +1175,10 @@ static struct PseudoElementInfo {
     { MenuIndicator, QStyle::SC_None, "menu-indicator" }
 };
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state,
-                                         int pseudoElement) const
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, 
+                                         QStyle::State state) const
 {
-    return renderRule(w, state, knownPseudoElements[pseudoElement].name);
+    return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
 bool QStyleSheetStyle::hasStyleRule(const QWidget *w) const
@@ -1162,7 +1188,7 @@ bool QStyleSheetStyle::hasStyleRule(const QWidget *w) const
 
 bool QStyleSheetStyle::hasStyleRule(const QWidget *w, int part) const
 {
-    QRenderRule rule = renderRule(w, QStyle::State_Enabled, knownPseudoElements[part].name);
+    QRenderRule rule = renderRule(w, knownPseudoElements[part].name);
     return !rule.isEmpty();
 }
 
@@ -1170,7 +1196,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
                                          int pseudoElement) const
 {
     Q_ASSERT(hasStyleRule(w));
-    QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
+    QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
     // Add hacks for <w, opt> here
 #ifndef QT_NO_LINEEDIT
@@ -1187,13 +1213,13 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         }
     }
 
-    return renderRule(w, state, knownPseudoElements[pseudoElement].name);
+    return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
 // remember to revert changes in unsetPalette
 void QStyleSheetStyle::setPalette(QWidget *w)
 {
-    const QRenderRule &hoverRule = renderRule(w, QStyle::State_MouseOver);
+    const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
     if (!hoverRule.isEmpty())
         w->setAttribute(Qt::WA_Hover);
 
@@ -1214,7 +1240,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
 #endif
 
     for (int i = 0; i < 2; i++) {
-        QRenderRule rule = renderRule(w, map[i].state);
+        QRenderRule rule = renderRule(w, PseudoElement_None, map[i].state);
         if (i == 0)
             w->setFont(rule.font);
 
@@ -1460,15 +1486,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 if (btn->features & QStyleOptionButton::HasMenu) {
                     QRenderRule subRule = renderRule(w, opt, MenuIndicator);
                     QRect ir = btnOpt.rect;
+                    int mbi = pixelMetric(PM_MenuButtonIndicator, btn, w);
+                    ir = subRule.positionRect(rule, opt->direction, opt->rect, QSize(mbi, mbi),
+                                              Origin_Content, Qt::AlignBottom | Qt::AlignRight);
                     if (subRule.hasImage()) {
-                        QSize sz = subRule.contentsSize();
-                        ir.setLeft(ir.left() + ir.width() - sz.width());
-                        ir.setTop(ir.top() + ir.height() - sz.height());
-                        ir = subRule.positionRect(ir);
                         subRule.drawImage(p, ir);
                     } else {
-                        int mbi = pixelMetric(PM_MenuButtonIndicator, btn, w);
-                        btnOpt.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
+                        btnOpt.rect = ir;
                         baseStyle()->drawPrimitive(PE_IndicatorArrowDown, &btnOpt, p, w);
                     }
                 }
@@ -1644,9 +1668,10 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         return;
     }
 
-    int pseudoElement;
+    int pseudoElement = PseudoElement_None;
 
-    // Primitives that are styled using pseudo elements
+    QRenderRule rule = renderRule(w, opt);
+
     switch (pe) {
     case PE_IndicatorArrowDown:
         pseudoElement = ArrowDown;
@@ -1657,24 +1682,6 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         pseudoElement = Indicator;
         break;
 
-    default:
-        pseudoElement = PseudoElement_None;
-        break;
-    }
-
-    if (pseudoElement != PseudoElement_None) {
-        QRenderRule subRule = renderRule(w, opt, pseudoElement);
-        if (!subRule.isEmpty()) {
-            subRule.drawImage(p, opt->rect);
-        } else {
-            baseStyle()->drawPrimitive(pe, opt, p, w);
-        }
-        return;
-    }
-
-    QRenderRule rule = renderRule(w, opt);
-
-    switch (pe) {
     case PE_PanelButtonCommand:
         if (!rule.hasBorder()) {
             baseStyle()->drawPrimitive(pe, opt, p, w);
@@ -1748,7 +1755,16 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         break;
     }
 
-    baseStyle()->drawPrimitive(pe, opt, p, w);
+    if (pseudoElement != PseudoElement_None) {
+        QRenderRule subRule = renderRule(w, opt, pseudoElement);
+        if (!subRule.isEmpty()) {
+            subRule.drawImage(p, opt->rect);
+        } else {
+            baseStyle()->drawPrimitive(pe, opt, p, w);
+        }
+    } else {
+        baseStyle()->drawPrimitive(pe, opt, p, w);
+    }
 }
 
 QPixmap QStyleSheetStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap& pixmap,
@@ -1804,7 +1820,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_IndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
     case PM_IndicatorHeight:
-        subRule = renderRule(w, QStyle::State_Enabled | QStyle::State_Off, Indicator);
+        subRule = renderRule(w, Indicator);
         if (subRule.hasContentsSize()) {
             return (m == PM_ExclusiveIndicatorWidth) || (m == PM_IndicatorWidth)
                         ? subRule.contentsSize().width() 
@@ -2080,9 +2096,12 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
     case SE_CheckBoxIndicator:
     case SE_RadioButtonIndicator:
         if (rule.hasBox() || rule.hasBorder() || hasStyleRule(w, Indicator)) {
-            QStyleOption optCopy(*opt);
-            optCopy.rect = rule.contentsRect(opt->rect);
-            return ParentStyle::subElementRect(se, &optCopy, w);
+            QRenderRule subRule = renderRule(w, opt, Indicator);
+            const bool cb = se == SE_CheckBoxIndicator;
+            int wid = pixelMetric(cb ? PM_ExclusiveIndicatorWidth : PM_IndicatorWidth, opt, w);
+            int hei = pixelMetric(cb ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, opt, w);
+            return subRule.positionRect(rule, opt->direction, opt->rect, QSize(wid, hei),
+                                        Origin_Content, Qt::AlignLeft | Qt::AlignVCenter);
         }
         break;
 
