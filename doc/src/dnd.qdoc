@@ -154,7 +154,7 @@
     We may also ignore the proposed action, and perform some other action on
     the data. To do this, we would call the event object's
     \l{QDropEvent::setDropAction()}{setDropAction()} with the preferred
-    action from Qt::DropAction before calling \l{QDropEvent::}{accept()}.
+    action from Qt::DropAction before calling \l{QEvent::}{accept()}.
     This ensures that the replacement drop action is used instead of the
     proposed action.
 
@@ -312,7 +312,7 @@
     To do this, you need to check for the presence of each action in the value
     supplied by the event's \l{QDropEvent::}{possibleActions()}, set the drop
     action with \l{QDropEvent::}{setDropAction()}, and call
-    \l{QDropEvent::}{accept()}.
+    \l{QEvent::}{accept()}.
 
     \section1 Drop Rectangles
 

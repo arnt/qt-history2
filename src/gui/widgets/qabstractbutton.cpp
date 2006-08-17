@@ -28,108 +28,108 @@
 
 
 /*!
-\class QAbstractButton qabstractbutton.h
+    \class QAbstractButton
 
-\brief The QAbstractButton class is the abstract base class of
-button widgets, providing functionality common to buttons.
+    \brief The QAbstractButton class is the abstract base class of
+    button widgets, providing functionality common to buttons.
 
-\ingroup abstractwidgets
+    \ingroup abstractwidgets
 
-This class implements an \e abstract button.
-Subclasses of this class handle user actions, and specify how the button
-is drawn.
+    This class implements an \e abstract button.
+    Subclasses of this class handle user actions, and specify how the button
+    is drawn.
 
-QAbstractButton provides support for both push buttons and checkable
-(toggle) buttons. Checkable buttons are implemented in the QRadioButton
-and QCheckBox classes. Push buttons are implemented in the
-QPushButton and QToolButton classes; these also provide toggle
-behavior if required.
+    QAbstractButton provides support for both push buttons and checkable
+    (toggle) buttons. Checkable buttons are implemented in the QRadioButton
+    and QCheckBox classes. Push buttons are implemented in the
+    QPushButton and QToolButton classes; these also provide toggle
+    behavior if required.
 
-Any button can display a label containing text and an icon. setText()
-sets the text; setIcon() sets the icon. If a button is disabled, its label
-is changed to give the button a "disabled" appearance.
+    Any button can display a label containing text and an icon. setText()
+    sets the text; setIcon() sets the icon. If a button is disabled, its label
+    is changed to give the button a "disabled" appearance.
 
-If the button is a text button with a string containing an ampersand (\&),
-QAbstractButton creates an automatic shortcut key, called a mnemonic, that may
-change based on the button translation. The following code creates
-a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
+    If the button is a text button with a string containing an ampersand (\&),
+    QAbstractButton creates an automatic shortcut key, called a mnemonic, that may
+    change based on the button translation. The following code creates
+    a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
 
-\code
-    QPushButton *button = new QPushButton(tr("Ro&ck && Roll"), this);
-\endcode
+    \code
+        QPushButton *button = new QPushButton(tr("Ro&ck && Roll"), this);
+    \endcode
 
-In this example, the shortcut \key Alt+C is assigned to the button, so that when
-the user presses \key Alt+C the button will call animateClick().
+    In this example, the shortcut \key Alt+C is assigned to the button, so that when
+    the user presses \key Alt+C the button will call animateClick().
 
-You can also set a custom shortcut key using the setShortcut()
-function. This is useful mostly for buttons that do not have any
-text, because they have no automatic shortcut.
+    You can also set a custom shortcut key using the setShortcut()
+    function. This is useful mostly for buttons that do not have any
+    text, because they have no automatic shortcut.
 
-\code
-    button->setIcon(QIcon(":/images/print.png"));
-    button->setShortcut(tr("Alt+F7"));
-\endcode
+    \code
+        button->setIcon(QIcon(":/images/print.png"));
+        button->setShortcut(tr("Alt+F7"));
+    \endcode
 
-All of the buttons provided by Qt (QPushButton, QToolButton,
-QCheckBox, and QRadioButton) can display both \l text and \l{icon}{icons}.
+    All of the buttons provided by Qt (QPushButton, QToolButton,
+    QCheckBox, and QRadioButton) can display both \l text and \l{icon}{icons}.
 
-A button can be made the default button in a dialog are provided by
-QPushButton::setDefault() and QPushButton::setAutoDefault().
+    A button can be made the default button in a dialog are provided by
+    QPushButton::setDefault() and QPushButton::setAutoDefault().
 
-QAbstractButton provides most of the states used for buttons:
+    QAbstractButton provides most of the states used for buttons:
 
-\list
+    \list
 
-\i isDown() indicates whether the button is \e pressed down.
+    \o isDown() indicates whether the button is \e pressed down.
 
-\i isChecked() indicates whether the button is \e checked.  Only
-checkable buttons can be checked and unchecked (see below).
+    \o isChecked() indicates whether the button is \e checked.  Only
+    checkable buttons can be checked and unchecked (see below).
 
-\i isEnabled() indicates whether the button can be pressed by the
-user.
+    \o isEnabled() indicates whether the button can be pressed by the
+    user.
 
-\i setAutoRepeat() sets whether the button will auto-repeat if the
-user holds it down. \l autoRepeatDelay and \l autoRepeatInterval
-define how auto-repetition is done.
+    \o setAutoRepeat() sets whether the button will auto-repeat if the
+    user holds it down. \l autoRepeatDelay and \l autoRepeatInterval
+    define how auto-repetition is done.
 
-\i setCheckable() sets whether the button is a toggle button or not.
+    \o setCheckable() sets whether the button is a toggle button or not.
 
-\endlist
+    \endlist
 
-The difference between isDown() and isChecked() is as follows.
-When the user clicks a toggle button to check it, the button is first
-\e pressed then released into the \e checked state. When the user
-clicks it again (to uncheck it), the button moves first to the
-\e pressed state, then to the \e unchecked state (isChecked() and
-isDown() are both false).
+    The difference between isDown() and isChecked() is as follows.
+    When the user clicks a toggle button to check it, the button is first
+    \e pressed then released into the \e checked state. When the user
+    clicks it again (to uncheck it), the button moves first to the
+    \e pressed state, then to the \e unchecked state (isChecked() and
+    isDown() are both false).
 
-QAbstractButton provides five signals:
+    QAbstractButton provides five signals:
 
-\list 1
+    \list 1
 
-\i pressed() is emitted when the left mouse button is pressed while
-the mouse cursor is inside the button.
+    \o pressed() is emitted when the left mouse button is pressed while
+    the mouse cursor is inside the button.
 
-\i released() is emitted when the left mouse button is released.
+    \o released() is emitted when the left mouse button is released.
 
-\i clicked() is emitted when the button is first pressed and then
-released, when the shortcut key is typed, or when click() or
-animateClick() is called.
+    \o clicked() is emitted when the button is first pressed and then
+    released, when the shortcut key is typed, or when click() or
+    animateClick() is called.
 
-\i toggled(bool) is emitted when the state of a toggle button
-changes.
+    \o toggled(bool) is emitted when the state of a toggle button
+    changes.
 
-\endlist
+    \endlist
 
-To subclass QAbstractButton, you must reimplement at least
-paintEvent() to draw the button's outline and its text or pixmap. It
-is generally advisable to reimplement sizeHint() as well, and
-sometimes hitButton() (to determine whether a button press is within
-the button). For buttons with more than two states (like tri-state
-buttons), you will also have to reimplement checkStateSet() and
-nextCheckState().
+    To subclass QAbstractButton, you must reimplement at least
+    paintEvent() to draw the button's outline and its text or pixmap. It
+    is generally advisable to reimplement sizeHint() as well, and
+    sometimes hitButton() (to determine whether a button press is within
+    the button). For buttons with more than two states (like tri-state
+    buttons), you will also have to reimplement checkStateSet() and
+    nextCheckState().
 
-\sa QButtonGroup
+    \sa QButtonGroup
 */
 
 QAbstractButtonPrivate::QAbstractButtonPrivate()
@@ -779,7 +779,7 @@ int QAbstractButton::autoRepeatDelay() const
 If \l autoRepeat is enabled, then autoRepeatInterval defines the
 length of the auto-repetition interval in millisecons.
 
-\sa autoRepeatInterval
+\sa autoRepeatDelay
 */
 
 void QAbstractButton::setAutoRepeatInterval(int autoRepeatInterval)

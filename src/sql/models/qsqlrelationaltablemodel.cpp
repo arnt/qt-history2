@@ -519,6 +519,9 @@ QString QSqlRelationalTableModel::orderByClause() const
     return s;
 }
 
+/*!
+    \reimp
+*/
 bool QSqlRelationalTableModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QSqlRelationalTableModel);

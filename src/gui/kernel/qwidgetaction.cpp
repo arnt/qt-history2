@@ -51,7 +51,7 @@
     over ownership of the default widget.
 
     Note that it is up to the widget to activate the action, for example by
-    re-implementing mouse event handlers and calling QAction::trigger().
+    reimplementing mouse event handlers and calling QAction::trigger().
 
     \bold {Mac OS X}: If you add widgets to a menu in the application's menu
     bar on Mac OS X, the widget will be added and function but there are some
@@ -67,12 +67,14 @@
 
     \ingroup application
     \mainclass
+
+    \sa QAction, QActionGroup, QWidget
 */
 
 /*!
     Constructs an action with \a parent.
 */
-QWidgetAction::QWidgetAction(QObject* parent)
+QWidgetAction::QWidgetAction(QObject *parent)
     : QAction(*(new QWidgetActionPrivate), parent)
 {
 }
@@ -93,12 +95,13 @@ QWidgetAction::~QWidgetAction()
 }
 
 /*!
-    Sets the default widget. The ownership is transferred to QWidgetAction.
-    Unless createWidget() is re-implemented by a subclass to return a
-    new widget the default widget is used when a container widget requests
-    a widget through requestWidget().
+    Sets \a widget to be the default widget. The ownership is
+    transferred to QWidgetAction. Unless createWidget() is
+    reimplemented by a subclass to return a new widget the default
+    widget is used when a container widget requests a widget through
+    requestWidget().
 */
-void QWidgetAction::setDefaultWidget(QWidget *w)
+void QWidgetAction::setDefaultWidget(QWidget *widget)
 {
     Q_D(QWidgetAction);
     if (w == d->defaultWidget || d->defaultWidgetInUse)
@@ -124,8 +127,13 @@ QWidget *QWidgetAction::defaultWidget() const
 }
 
 /*!
-    Container widgets that support actions call this function to request a
-    widget as visual representation of the action.
+    Returns a widget that represents the action, with the given \a
+    parent.
+
+    Container widgets that support actions can call this function to
+    request a widget as visual representation of the action.
+
+    \sa releaseWidget(), createWidget(), defaultWidget()
 */
 QWidget *QWidgetAction::requestWidget(QWidget *parent)
 {
@@ -147,39 +155,39 @@ QWidget *QWidgetAction::requestWidget(QWidget *parent)
 }
 
 /*!
-    \fn void QWidgetAction::releaseWidget(QWidget *widget)
-
     Releases the specified \a widget.
 
     Container widgets that support actions call this function when a widget
     action is removed.
+
+    \sa requestWidget(), deleteWidget(), defaultWidget()
 */
-void QWidgetAction::releaseWidget(QWidget *w)
+void QWidgetAction::releaseWidget(QWidget *widget)
 {
     Q_D(QWidgetAction);
 
-    if (w == d->defaultWidget) {
+    if (widget == d->defaultWidget) {
         d->defaultWidget->hide();
         d->defaultWidget->setParent(0);
         d->defaultWidgetInUse = false;
         return;
     }
 
-    if (!d->createdWidgets.contains(w))
+    if (!d->createdWidgets.contains(widget))
         return;
 
-    disconnect(w, SIGNAL(destroyed(QObject*)),
-               this, SLOT(_q_widgetDestroyed(QObject*)));
-    d->createdWidgets.removeAll(w);
-    deleteWidget(w);
+    disconnect(widget, SIGNAL(destroyed(QObject *)),
+               this, SLOT(_q_widgetDestroyed(QObject *)));
+    d->createdWidgets.removeAll(widget);
+    deleteWidget(widget);
 }
 
 /*!
-  \reimp
+    \reimp
 */
-bool QWidgetAction::event(QEvent *e)
+bool QWidgetAction::event(QEvent *event)
 {
-    return QAction::event(e);
+    return QAction::event(event);
 }
 
 /*!
@@ -187,6 +195,8 @@ bool QWidgetAction::event(QEvent *e)
     that supports custom widgets. If you don't want a custom widget to be
     used as representation of the action in the specified \a parent widget then
     0 should be returned.
+
+    \sa deleteWidget()
 */
 QWidget *QWidgetAction::createWidget(QWidget *parent)
 {
@@ -195,10 +205,13 @@ QWidget *QWidgetAction::createWidget(QWidget *parent)
 }
 
 /*!
-    This function is called whenever the action is removed from a container
-    widget that displays the action using a custom widget previously created
-    using createWidget(). The default implementation hides the widget and
-    schedules it for deletion using QObject::deleteLater().
+    This function is called whenever the action is removed from a
+    container widget that displays the action using a custom \a
+    widget previously created using createWidget(). The default
+    implementation hides the \a widget and schedules it for deletion
+    using QObject::deleteLater().
+
+    \sa createWidget()
 */
 void QWidgetAction::deleteWidget(QWidget *widget)
 {

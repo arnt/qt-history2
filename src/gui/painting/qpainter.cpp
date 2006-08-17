@@ -1427,6 +1427,8 @@ QFontInfo QPainter::fontInfo() const
 }
 
 /*!
+    \since 4.2
+
     Returns the opacity of the painter. The default value is
     1.
 */
@@ -1438,9 +1440,11 @@ qreal QPainter::opacity() const
 }
 
 /*!
-    Sets the opacity of the painter. The value should be in
-    the range of 0 to 1 where 0 is fully transparent and 1 is
-    fully opaque.
+    \since 4.2
+
+    Sets the opacity of the painter to \a opacity. The value should
+    be in the range 0.0 to 1.0, where 0.0 is fully transparent and
+    1.0 is fully opaque.
 
     Opacity set on the painter will apply to all drawing operations
     individually.
@@ -1912,7 +1916,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     and window-viewport conversion, see \l {The Coordinate System}
     documentation.
 
-    \sa setWorldMatrix(), worldMatrixEnabled(), QMatrix
+    \sa worldMatrixEnabled(), QMatrix
 */
 
 void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
@@ -1938,8 +1942,7 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 /*!
     Returns the world transformation matrix.
 
-    \sa setWorldMatrix(), {QPainter#Coordinate Transformations}{Coordinate
-    Transformations}, {The Coordinate System}
+    \sa {QPainter#Coordinate Transformations}{Coordinate Transformations}, {The Coordinate System}
 */
 
 const QMatrix &QPainter::worldMatrix() const

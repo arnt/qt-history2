@@ -226,8 +226,6 @@ QStatusBar::~QStatusBar()
     widget (see addPermanentWidget()) and may be obscured by temporary
     messages.
 
-    Note that this function may cause some flicker.
-
     \sa insertWidget(), removeWidget(), addPermanentWidget()
 */
 
@@ -251,16 +249,21 @@ void QStatusBar::addWidget(QWidget * widget, int stretch)
 }
 
 /*!
+    \since 4.2
+
     Inserts the given \a widget at the given \a index to this status bar,
     reparenting the widget if it isn't already a child of this
     QStatusBar object. If \a index is out of range, the widget is appended
     (in which case it is the actual index of the widget that is returned).
 
+    The \a stretch parameter is used to compute a suitable size for
+    the given \a widget as the status bar grows and shrinks. The
+    default stretch factor is 0, i.e giving the widget a minimum of
+    space.
+
     The widget is located to the far left of the first permanent
     widget (see addPermanentWidget()) and may be obscured by temporary
     messages.
-
-    Note that this function may cause some flicker.
 
     \sa addWidget(), removeWidget(), addPermanentWidget()
 */
@@ -301,9 +304,7 @@ int QStatusBar::insertWidget(int index, QWidget *widget, int stretch)
     Permanently means that the widget may not be obscured by temporary
     messages. It is is located at the far right of the status bar.
 
-    Note that this function may cause some flicker.
-
-    \sa insertPermanentWidget, removeWidget(), addWidget()
+    \sa insertPermanentWidget(), removeWidget(), addWidget()
 */
 
 void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
@@ -324,6 +325,8 @@ void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
 
 
 /*!
+    \since 4.2
+
     Inserts the given \a widget at the given \a index permanently to this status bar,
     reparenting the widget if it isn't already a child of this
     QStatusBar object. If \a index is out of range, the widget is appended
@@ -337,9 +340,7 @@ void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
     Permanently means that the widget may not be obscured by temporary
     messages. It is is located at the far right of the status bar.
 
-    Note that this function may cause some flicker.
-
-    \sa addPermanentWidget, removeWidget(), addWidget()
+    \sa addPermanentWidget(), removeWidget(), addWidget()
 */
 int QStatusBar::insertPermanentWidget(int index, QWidget *widget, int stretch)
 {
@@ -368,12 +369,10 @@ int QStatusBar::insertPermanentWidget(int index, QWidget *widget, int stretch)
     Removes the specifed \a widget from the status bar (without
     deleting it).
 
-    This function may cause some flicker.
-
     \sa addWidget(), addPermanentWidget(), clearMessage()
 */
 
-void QStatusBar::removeWidget(QWidget* widget)
+void QStatusBar::removeWidget(QWidget *widget)
 {
     if (!widget)
         return;

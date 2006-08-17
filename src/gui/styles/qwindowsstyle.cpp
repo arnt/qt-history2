@@ -2913,6 +2913,9 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     return sz;
 }
 
+/*!
+    \internal
+*/
 QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                                 const QWidget *widget) const
 {

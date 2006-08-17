@@ -771,7 +771,7 @@ void QTextDocument::setHtml(const QString &html)
     This enum describes the options available to QTextDocument's find function. The options
     can be OR-red together from the following list:
 
-    \value FindBackward
+    \value FindBackward Search backwards instead of forwards.
     \value FindCaseSensitively By default find works case insensitive. Specifying this option
     changes the behaviour to a case sensitive find operation.
     \value FindWholeWords Makes find match only complete words.
@@ -798,8 +798,8 @@ void QTextDocument::setHtml(const QString &html)
     through the document unless specified otherwise in the search options.
     The \a options control the type of search performed.
 
-    Returns a cursor with the match selected if \a expr was found; otherwise
-    returns a null cursor.
+    Returns a cursor with the match selected if \a subString
+    was found; otherwise returns a null cursor.
 
     If the \a position is 0 (the default) the search begins from the beginning
     of the document; otherwise it begins at the specified position.

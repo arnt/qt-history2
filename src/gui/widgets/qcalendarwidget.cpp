@@ -1049,28 +1049,29 @@ void QCalendarWidgetPrivate::_q_editingFinished()
     can be retrieved using the currentPageMonth() and currentPageYear()
     functions, respectively.
 
-    By default, today's date is selected, and the user can
-    select a date using both mouse and keyboard. The currently
-    selected date can be retrieved using the date()
-    function. It is possible to constrain the user selection to a
-    given date range by setting the minimumDate and maximumDate
-    properties. Alternatively, both properties can be set in one go
-    using the setDateRange() convenience slot. Set the \l selectable
-    property to false to prohibit the user from selecting at all. Note
-    that a date also can be selected programmatically using the
-    setDate() slot.
+    By default, today's date is selected, and the user can select a
+    date using both mouse and keyboard. The currently selected date
+    can be retrieved using the selectedDate() function. It is
+    possible to constrain the user selection to a given date range by
+    setting the minimumDate and maximumDate properties.
+    Alternatively, both properties can be set in one go using the
+    setDateRange() convenience slot. Set the \l selectionMode
+    property to NoSelection to prohibit the user from selecting at
+    all. Note that a date also can be selected programmatically using
+    the setSelectedDate() slot.
 
     A newly created calendar widget uses abbreviated day names, and
     both Saturdays and Sundays are marked in red. The calendar grid is
     not visible. The week numbers are displayed, and the first column
     day is Sunday.
 
-    The notation of the days can be altered to a single letter abbreviations
-    (M for Monday) by setting the horizontalHeaderFormat property to
-    QCalendarWidget::SingleLetterDayNames. Setting the same property to
-    QCalendarWidget::LongDayNames makes the header display the
-    complete day names. The week numbers can be
-    removed by setting the verticalHeaderFormat property to
+    The notation of the days can be altered to a single letter
+    abbreviations ("M" for "Monday") by setting the
+    horizontalHeaderFormat property to
+    QCalendarWidget::SingleLetterDayNames. Setting the same property
+    to QCalendarWidget::LongDayNames makes the header display the
+    complete day names. The week numbers can be removed by setting
+    the verticalHeaderFormat property to
     QCalendarWidget::NoVerticalHeader.  The calendar grid can be
     turned on by setting the gridVisible property to true using the
     setGridVisible() function:
@@ -1429,7 +1430,7 @@ void QCalendarWidget::showToday()
     \property QCalendarWidget::minimumDate
     \brief the minimum date of the currently specified date range.
 
-    The user will not be able to select a date which is before the
+    The user will not be able to select a date that is before the
     currently set minimum date.
 
     \table
@@ -1447,7 +1448,7 @@ void QCalendarWidget::showToday()
     By default, the minimum date is the earliest date that the QDate
     class can handle.
 
-    When setting a minimum date, the maximumDate and \l date
+    When setting a minimum date, the maximumDate and selectedDate
     properties are adjusted if the selection range becomes invalid. If
     the provided date is not a valid QDate object, the
     setMinimumDate() function does nothing.
@@ -1501,7 +1502,7 @@ void QCalendarWidget::setMinimumDate(const QDate &date)
     By default, the maximum date is the last day the QDate class can
     handle.
 
-    When setting a maximum date, the minimumDate and \l date
+    When setting a maximum date, the minimumDate and selectedDate
     properties are adjusted if the selection range becomes invalid. If
     the provided date is not a valid QDate object, the
     setMaximumDate() function does nothing.
@@ -1747,7 +1748,7 @@ Qt::DayOfWeek QCalendarWidget::firstDayOfWeek() const
 }
 
 /*!
-  returns the text char format for rendering the header.
+    Returns the text char format for rendering the header.
 */
 QTextCharFormat QCalendarWidget::headerTextFormat() const
 {
@@ -1756,7 +1757,7 @@ QTextCharFormat QCalendarWidget::headerTextFormat() const
 }
 
 /*!
-  Sets a text char format for rendering the header.
+    Sets the text char format for rendering the header to \a format.
 */
 void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 {
@@ -1767,7 +1768,9 @@ void QCalendarWidget::setHeaderTextFormat(const QTextCharFormat &format)
 }
 
 /*!
-  returns the text char format for rendering of a specific day in the week.
+    Returns the text char format for rendering of day in the week \a dayOfWeek.
+
+    \sa headerTextFormat()
 */
 QTextCharFormat QCalendarWidget::weekdayTextFormat(Qt::DayOfWeek dayOfWeek) const
 {
@@ -1776,7 +1779,9 @@ QTextCharFormat QCalendarWidget::weekdayTextFormat(Qt::DayOfWeek dayOfWeek) cons
 }
 
 /*!
-  Sets the text char format for rendering of a specific day in the week.
+    Sets the text char format for rendering of day in the week \a dayOfWeek to \a format.
+
+    \sa setHeaderTextFormat()
 */
 void QCalendarWidget::setWeekdayTextFormat(Qt::DayOfWeek dayOfWeek, const QTextCharFormat &format)
 {
@@ -1787,8 +1792,8 @@ void QCalendarWidget::setWeekdayTextFormat(Qt::DayOfWeek dayOfWeek, const QTextC
 }
 
 /*!
-  returns a QMap from QDate to QTextCharFormat showing all dates
-  that use a special format that alters their rendering.
+    Returns a QMap from QDate to QTextCharFormat showing all dates
+    that use a special format that alters their rendering.
 */
 QMap<QDate, QTextCharFormat> QCalendarWidget::dateTextFormat() const
 {
@@ -1796,9 +1801,9 @@ QMap<QDate, QTextCharFormat> QCalendarWidget::dateTextFormat() const
     return d->m_model->m_dateFormats;
 }
 
-/*
-  returns a QTextCharFormat for \a date. The char format can be be
-  empty if the date is not renderd specially.
+/*!
+    Returns a QTextCharFormat for \a date. The char format can be be
+    empty if the date is not renderd specially.
 */
 QTextCharFormat QCalendarWidget::dateTextFormat(const QDate &date) const
 {
@@ -1806,8 +1811,8 @@ QTextCharFormat QCalendarWidget::dateTextFormat(const QDate &date) const
     return d->m_model->m_dateFormats.value(date);
 }
 
-/*
-  Sets \a format to render \a date.
+/*!
+    Sets \a format to render \a date.
 */
 void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat &format)
 {
@@ -1817,6 +1822,26 @@ void QCalendarWidget::setDateTextFormat(const QDate &date, const QTextCharFormat
     d->m_view->updateGeometry();
 }
 
+/*!
+    \fn void QCalendarWidget::selectionChanged()
+
+    This signal is emitted when the currently selected date is
+    changed.
+
+    The currently selected date can be changed by the user using the
+    mouse or keyboard, or by the programmer using setSelectedDate().
+
+    \sa selectedDate()
+*/
+
+/*!
+    \fn void QCalendarWidget::currentPageChanged(int year, int month)
+
+    This signal is emitted when the currently shown month is changed.
+    The new \a year and \a month are passed as parameters.
+
+    \sa setCurrentPage()
+*/
 
 /*!
     \fn void QCalendarWidget::activated(const QDate &date)

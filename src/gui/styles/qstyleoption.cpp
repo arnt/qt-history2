@@ -218,7 +218,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Default} for
+    \value Type The type of style option provided (\l{SO_Default} for
            this class).
 
     The type is used internally by QStyleOption, its subclasses, and
@@ -324,7 +324,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     parameters for drawing a focus rectangle with QStyle.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -360,7 +360,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_FocusRect} for this class).
+    \value Type The type of style option provided (\l{SO_FocusRect} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -461,7 +461,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Frame} for this class).
+    \value Type The type of style option provided (\l{SO_Frame} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -633,7 +633,6 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     \sa StyleOptionType
 */
 
-
 /*!
     \class QStyleOptionViewItemV2
 
@@ -645,7 +644,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     QStyleOptionViewItemV2 inherits QStyleOptionViewItem.
 
     An instance of the QStyleOptionViewItemV2 class has \l type SO_ViewItem
-    and \l version 2.  The type is used internally by QStyleOption,
+    and \l version 2. The type is used internally by QStyleOption,
     its subclasses, and qstyleoption_cast() to determine the type of
     style option. In general you do not need to worry about this
     unless you want to create your own QStyleOption subclass and your
@@ -653,10 +652,32 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     implement extensions without breaking compatibility. If you use
     qstyleoption_cast(), you normally don't need to check it.
 
-    For an example demonstrating how style options can be used, see
-    the \l {widgets/styles}{Styles} example.
+    See QStyleOptionFrameV2's detailed description for a discussion
+    of how to handle "V2" classes.
 
     \sa QStyleOptionViewItem, QStyleOption
+*/
+
+/*!
+    \enum QStyleOptionViewItemV2::StyleOptionVersion
+
+    This enum is used to hold information about the version of the
+    style option, and is defined for each QStyleOption subclass.
+
+    \value Version 2
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
+/*!
+    \variable ViewItemFeatures QStyleOptionViewItemV2::features
+    \brief a bitwise OR of the features that describe this view item.
+
+    \sa ViewItemFeature
 */
 
 /*!
@@ -665,13 +686,12 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 QStyleOptionViewItemV2::QStyleOptionViewItemV2()
     : QStyleOptionViewItem(Version), features(None)
 {
-
 }
 
 /*!
     \fn QStyleOptionViewItemV2::QStyleOptionViewItemV2(const QStyleOptionViewItemV2 &other)
 
-    Constructs a QStyleOptionViewItemV2 copy of the \a other style option.
+    Constructs a copy of \a other.
 */
 
 /*!
@@ -686,13 +706,15 @@ QStyleOptionViewItemV2::QStyleOptionViewItemV2()
 
     \sa version
 */
-
 QStyleOptionViewItemV2::QStyleOptionViewItemV2(const QStyleOptionViewItem &other)
     : QStyleOptionViewItem(Version)
 {
     (void)QStyleOptionViewItemV2::operator=(other);
 }
 
+/*!
+    \internal
+*/
 QStyleOptionViewItemV2::QStyleOptionViewItemV2(int version)
     : QStyleOptionViewItem(version)
 {
@@ -744,7 +766,7 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
     {textAlignment}{alignment} and \l {textColor}{color}.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -760,7 +782,7 @@ QStyleOptionViewItemV2 &QStyleOptionViewItemV2::operator=(const QStyleOptionView
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_GroupBox} for this class).
+    \value Type The type of style option provided (\l{SO_GroupBox} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -870,7 +892,7 @@ QStyleOptionGroupBox::QStyleOptionGroupBox(int version)
     arrow, and header label.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -925,7 +947,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Header} for this class).
+    \value Type The type of style option provided (\l{SO_Header} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1055,7 +1077,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     QCheckBox, and QRadioButton.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -1109,7 +1131,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Button} for this class).
+    \value Type The type of style option provided (\l{SO_Button} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1179,7 +1201,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
     functions need to draw QToolBar.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -1325,7 +1347,7 @@ QStyleOptionToolBar::QStyleOptionToolBar(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ToolBar} for this class).
+    \value Type The type of style option provided (\l{SO_ToolBar} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1420,7 +1442,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Tab} for this class).
+    \value Type The type of style option provided (\l{SO_Tab} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1730,7 +1752,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ProgressBar} for this class).
+    \value Type The type of style option provided (\l{SO_ProgressBar} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1959,7 +1981,7 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ProgressBar} for this class).
+    \value Type The type of style option provided (\l{SO_ProgressBar} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -1995,7 +2017,7 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
     used for drawing other menu-related widgets.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2037,7 +2059,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_MenuItem} for this class).
+    \value Type The type of style option provided (\l{SO_MenuItem} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2190,7 +2212,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     QStyleOptionSpinBox.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator).
+    direct (i.e., using the \c . or \c -> operator).
 
     For an example demonstrating how style options can be used, see
     the \l {widgets/styles}{Styles} example.
@@ -2221,7 +2243,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Complex} for this class).
+    \value Type The type of style option provided (\l{SO_Complex} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2276,7 +2298,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     functions need to draw QSlider and QScrollBar.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2322,7 +2344,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Slider} for this class).
+    \value Type The type of style option provided (\l{SO_Slider} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2473,7 +2495,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     functions need to draw QSpinBox and QDateTimeEdit.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2515,7 +2537,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_SpinBox} for this class).
+    \value Type The type of style option provided (\l{SO_SpinBox} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2579,7 +2601,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     QStyle functions need to draw the Q3ListView items.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2636,7 +2658,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Q3ListViewItem} for this class).
+    \value Type The type of style option provided (\l{SO_Q3ListViewItem} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2712,7 +2734,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     functions need to draw Q3ListView.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2754,7 +2776,7 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Q3ListView} for this class).
+    \value Type The type of style option provided (\l{SO_Q3ListView} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2849,7 +2871,7 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
     functions need to draw Q3DockWindow and its parts.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2889,7 +2911,7 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_Q3DockWindow} for this class).
+    \value Type The type of style option provided (\l{SO_Q3DockWindow} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -2936,7 +2958,7 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
     functions need to draw graphical elements like QDockWidget.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -2977,7 +2999,7 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_DockWidget} for this class).
+    \value Type The type of style option provided (\l{SO_DockWidget} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3039,7 +3061,7 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
     functions need to draw QToolButton.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3094,7 +3116,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ToolButton} for this class).
+    \value Type The type of style option provided (\l{SO_ToolButton} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3200,7 +3222,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     functions need to draw QComboBox.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3240,7 +3262,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ComboBox} for this class).
+    \value Type The type of style option provided (\l{SO_ComboBox} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3311,9 +3333,9 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
     The default value is a null rectangle, i.e. a rectangle with both
     the width and the height set to 0.
 
-    This variable is currently unused, you can safely ignore it.
+    This variable is currently unused. You can safely ignore it.
 
-    \sa SC_ComboBoxListBoxPopup
+    \sa QStyle::SC_ComboBoxListBoxPopup
 */
 
 /*!
@@ -3325,7 +3347,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
     functions need to draw QToolBox.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3365,7 +3387,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ToolBox} for this class).
+    \value Type The type of style option provided (\l{SO_ToolBox} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3415,7 +3437,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     QStyle functions need to draw QRubberBand.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3455,7 +3477,7 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_RubberBand} for this class).
+    \value Type The type of style option provided (\l{SO_RubberBand} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3505,7 +3527,7 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
     children.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3537,7 +3559,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar()
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_TitleBar} for this class).
+    \value Type The type of style option provided (\l{SO_TitleBar} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3614,7 +3636,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     functions need to draw the items for Qt's model/view classes.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3699,7 +3721,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_ViewItem} for this class).
+    \value Type The type of style option provided (\l{SO_ViewItem} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3799,7 +3821,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     QStyle functions need to draw the frame around QTabWidget.
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3838,7 +3860,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_TabWidgetFrame} for this class).
+    \value Type The type of style option provided (\l{SO_TabWidgetFrame} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -3921,7 +3943,7 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
     QTabWidget).
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
@@ -3951,13 +3973,14 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
     Constructs a copy of \a other.
 */
+
 /*!
     \enum QStyleOptionTabBarBase::StyleOptionType
 
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_TabBarBase} for this class).
+    \value Type The type of style option provided (\l{SO_TabBarBase} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -4013,7 +4036,26 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 #ifndef QT_NO_SIZEGRIP
 /*!
-    Constructs a QStyleOptionSizeGrip
+    \class QStyleOptionSizeGrip
+    \brief The QStyleOptionSizeGrip class is used to describe the
+    parameter for drawing a size grip.
+
+    QStyleOptionButton contains all the information that QStyle
+    functions need to draw QSizeGrip.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionComplex, QSizeGrip
+*/
+
+/*!
+    Constructs a QStyleOptionSizeGrip.
 */
 QStyleOptionSizeGrip::QStyleOptionSizeGrip()
     : QStyleOptionComplex(Version, Type), corner(Qt::BottomRightCorner)
@@ -4022,7 +4064,7 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip()
 
 /*!
     \fn QStyleOptionSizeGrip::QStyleOptionSizeGrip(const QStyleOptionSizeGrip &other)
-    \since 4.2
+
     Constructs a copy of the \a other style option.
 */
 
@@ -4037,7 +4079,38 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
 /*!
     \variable QStyleOptionSizeGrip::corner
 
-    The corner in which the size grip is located
+    The corner in which the size grip is located.
+*/
+
+/*!
+    \enum QStyleOptionSizeGrip::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\l{SO_TabBarBase} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleOptionSizeGrip::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 #endif // QT_NO_SIZEGRIP
 
@@ -4049,7 +4122,7 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
     \ingroup multimedia
 
     For performance reasons, the access to the member variables is
-    direct (i.e., using the . or -> operator). This low-level feel
+    direct (i.e., using the \c . or \c -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters.
 
@@ -4065,7 +4138,7 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleOption subclass.
 
-    \value Type The type of style option provided (\c{SO_GraphicsItem} for this class).
+    \value Type The type of style option provided (\l SO_GraphicsItem for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
@@ -4184,7 +4257,7 @@ QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleHintReturn subclass.
 
-    \value Type The type of style option provided (\c{SH_Default} for
+    \value Type The type of style option provided (\l SH_Default for
            this class).
 
     The type is used internally by QStyleHintReturn, its subclasses, and
@@ -4284,7 +4357,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
     This enum is used to hold information about the type of the style option, and
     is defined for each QStyleHintReturn subclass.
 
-    \value Type The type of style option provided (\c{SH_Mask} for
+    \value Type The type of style option provided (\l{SH_Mask} for
            this class).
 
     The type is used internally by QStyleHintReturn, its subclasses, and

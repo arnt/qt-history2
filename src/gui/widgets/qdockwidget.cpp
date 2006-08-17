@@ -529,6 +529,11 @@ void QDockWidgetPrivate::plug(const QRect &rect)
 */
 
 /*!
+    \property QDockWidget::windowTitle
+    \internal
+*/
+
+/*!
     Constructs a QDockWidget with parent \a parent and window flags \a
     flags. The dock widget will be placed in the left dock widget
     area.

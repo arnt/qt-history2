@@ -424,7 +424,7 @@
              Slots intending to take a long time to complete should make that fact clear in
              documentation so that callers properly set higher timeouts.
 
-    \section1 Delayed replies
+    \section1 Delayed Replies
 
     In some circumstances, the called slot may not be able to process
     the request immediately. This is frequently the case when the

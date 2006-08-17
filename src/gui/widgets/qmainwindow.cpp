@@ -1035,6 +1035,9 @@ bool QMainWindow::event(QEvent *event)
     return QWidget::event(event);
 }
 
+/*!
+    \internal
+*/
 bool QMainWindow::isSeparator(const QPoint &pos) const
 {
     Q_D(const QMainWindow);

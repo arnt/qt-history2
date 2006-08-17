@@ -38,19 +38,19 @@
     applications and services are available, as well as activate one
     on demand.
 
-    \section1 The busses
+    \section1 The Buses
 
-    D-BUS busses are used to when many-to-many communication is
+    D-BUS buses are used to when many-to-many communication is
     desired. In order to achieve that, a central server is launched
     before any applications can connect to the bus: this server is
     responsible for keeping track of the applications that are
     connected and for properly routing messages from their source to
     their destination.
 
-    In addition, D-BUS defines two well-known busses, called the
-    system bus and the session bus. These busses are special in the
+    In addition, D-BUS defines two well-known buses, called the
+    system bus and the session bus. These buses are special in the
     sense that they have well-defined semantics: some services are
-    defined to be found in one or both of these busses.
+    defined to be found in one or both of these buses.
 
     For example, an application wishing to query the list of hardware
     devices attached to the computer will probably communicate to a
@@ -85,7 +85,7 @@
       developers. In most cases, the developer need not worry about
       sending or receiving messages.
 
-      \section2 Services names
+      \section2 Service Names
 
       When communicating over a bus, applications obtain what is
       called a "service name": it is how that application choses to be
@@ -117,7 +117,7 @@
         org.freedesktop.DBus
       \endcode
 
-      \section2 Object paths
+      \section2 Object Paths
 
       Like network hosts, applications provide specific services to
       other applications by exporting objects. Those objects are
@@ -146,17 +146,17 @@
       available as well as the behavior that is expected from either
       side when communication is established.
 
-      Qt uses a very similar mechanism in its \l
-      {plugins-howto}{Plugin system}: base classes in C++ are
-      associated with a unique identifier by way of the
-      Q_DECLARE_INTERFACE() macro.
+      Qt uses a very similar mechanism in its \l {How to Create Qt
+      Plugins}{Plugin system}: Base classes in C++ are associated
+      with a unique identifier by way of the Q_DECLARE_INTERFACE()
+      macro.
 
       D-BUS interface names are, in fact, named in a manner similar to
       what is suggested by the Qt Plugin System: an identifier usually
       constructed from the domain name of the entity that defined that
       interface.
 
-      \section2 Cheat sheet
+      \section2 Cheat Sheet
 
       To facilitate remembering of the naming formats and their
       purposes, the following table can be used:

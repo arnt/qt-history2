@@ -238,9 +238,10 @@ bool QWidget::hasEditFocus() const
 /*!
     \fn void QWidget::setEditFocus(bool enable)
 
-    Sets whether this widget has edit focus. If a widget has edit focus
-    Qt::Key_Up and Qt::Key_Down will be delivered to the widget normally,
-    otherwise they are used to change focus.
+    If \a enable is true, make this widget have edit focus, in which
+    case Qt::Key_Up and Qt::Key_Down will be delivered to the widget
+    normally; otherwise, Qt::Key_Up and Qt::Key_Down are used to
+    change focus.
 
     This feature is available in Qtopia Core only.
 
@@ -4495,33 +4496,30 @@ QByteArray QWidget::saveGeometry() const
 
 /*!
     \since 4.2
-    Restores the geometry and state top-level widgets.
 
-    If the restored geometry is off screen, it will be modified to be
+    Restores the geometry and state top-level widgets. Returns true
+    on success; otherwise returns false.
+
+    If the restored geometry is off-screen, it will be modified to be
     inside the the available screen geometry.
 
-    This function returns true if the restore was successful, false otherwise.
+    To restore geometry saved using QSettings, you can use code like
+    this:
 
-    To restore geometry saved with QSettings, you can use code like this:
     \code
-    QSettings settings("MyCompany", "MyApp");
-    const QVariant geometry = settings.value("geometry");
-    restoreGeometry(geometry);
+        QSettings settings("MyCompany", "MyApp");
+        myWidget->restoreGeometry(settings.value("myWidget/geometry").toByteArray());
     \endcode
 
     See the \link geometry.html Window Geometry documentation\endlink
     for an overview of geometry issues with windows.
 
-    \sa saveGeometry()
+    \sa saveGeometry(), QSettings
 */
 bool QWidget::restoreGeometry(const QByteArray &geometry)
 {
-    if (geometry.isEmpty())
-        return false;
-
-    QByteArray b = geometry;
-    QDataStream stream(&b, QIODevice::ReadOnly);
-    quint32 currentVersion = 1;
+    QDataStream stream(geometry);
+    const quint32 currentVersion = 1;
     quint32 dataVersion;
     stream >> dataVersion;
     if (dataVersion != currentVersion)
@@ -4539,10 +4537,10 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
     stream >> fullScreen;
 
     const int frameHeight = 20;
-    if (restoredFrameGeometry.isValid() == false)
+    if (!restoredFrameGeometry.isValid())
         restoredFrameGeometry = QRect(QPoint(0,0), sizeHint());
 
-    if (restoredNormalGeometry.isValid() == false)
+    if (!restoredNormalGeometry.isValid())
         restoredNormalGeometry = QRect(QPoint(0, frameHeight), sizeHint());
 
     const QDesktopWidget * const desktop = QApplication::desktop();
@@ -4563,18 +4561,18 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
     restoredNormalGeometry.setHeight(qMin(restoredNormalGeometry.height(), availableGeometry.height() - frameHeight));
 #endif
 
-    if (restoredFrameGeometry.intersects(availableGeometry) == false) {
+    if (!restoredFrameGeometry.intersects(availableGeometry)) {
         restoredFrameGeometry.moveBottom(qMin(restoredFrameGeometry.bottom(), availableGeometry.bottom()));
         restoredFrameGeometry.moveLeft(qMax(restoredFrameGeometry.left(), availableGeometry.left()));
         restoredFrameGeometry.moveRight(qMin(restoredFrameGeometry.right(), availableGeometry.right()));
-     }
+    }
     restoredFrameGeometry.moveTop(qMax(restoredFrameGeometry.top(), availableGeometry.top()));
 
-    if (restoredNormalGeometry.intersects(availableGeometry) == false) {
+    if (!restoredNormalGeometry.intersects(availableGeometry)) {
         restoredNormalGeometry.moveBottom(qMin(restoredNormalGeometry.bottom(), availableGeometry.bottom()));
         restoredNormalGeometry.moveLeft(qMax(restoredNormalGeometry.left(), availableGeometry.left()));
         restoredNormalGeometry.moveRight(qMin(restoredNormalGeometry.right(), availableGeometry.right()));
-     }
+    }
     restoredNormalGeometry.moveTop(qMax(restoredNormalGeometry.top(), availableGeometry.top() + frameHeight));
 
     if (maximized || fullScreen) {

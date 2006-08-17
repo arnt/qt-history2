@@ -730,12 +730,12 @@ void QGLExtensions::init()
     GLint attribs[] = { AGL_RGBA, AGL_NONE };
     AGLPixelFormat fmt = aglChoosePixelFormat(0, 0, attribs);
     if (!fmt) {
-        qDebug("QGLExtensions: couldn't find any RGB visuals.");
+        qDebug("QGLExtensions: Couldn't find any RGB visuals");
         return;
     }
     AGLContext ctx = aglCreateContext(fmt, 0);
     if (!ctx) {
-        qDebug("QGLExtensions: unable to create context.");
+        qDebug("QGLExtensions: Unable to create context");
     } else {
         aglSetCurrentContext(ctx);
         init_extensions();

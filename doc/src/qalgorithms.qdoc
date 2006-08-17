@@ -3,7 +3,7 @@
     \title Generic Algorithms
     \ingroup architecture
 
-    \brief The <QtAlgorithms> header file provides generic template-based algorithms.
+    \brief The <QtAlgorithms> header provides generic template-based algorithms.
 
     Qt provides a number of global template functions in \c
     <QtAlgorithms> that work on containers and perform well-know

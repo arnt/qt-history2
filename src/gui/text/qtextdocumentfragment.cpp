@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #include "qtextdocumentfragment.h"
 #include "qtextdocumentfragment_p.h"
 #include "qtextcursor_p.h"
@@ -355,9 +354,11 @@ QString QTextDocumentFragment::toHtml() const
 
 /*!
     \since 4.2
-    Returns the contents of the document fragment as HTML.
 
-    \sa toPlainText(), QTextDocument::toHtml()
+    Returns the contents of the document fragment as HTML,
+    using the specified \a encoding (e.g., "UTF-8", "ISO 8859-1").
+
+    \sa toPlainText(), QTextDocument::toHtml(), QTextCodec
 */
 QString QTextDocumentFragment::toHtml(const QByteArray &encoding) const
 {

@@ -345,8 +345,21 @@ static void qt_debug_path(const QPainterPath &path)
 */
 
 /*!
-    \fn bool QPainterPath::Element::operator== ( const Element & e ) const
-    \internal
+    \fn bool QPainterPath::Element::operator==(const Element &other) const
+
+    Returns true if this element is equal to \a other;
+    otherwise returns false.
+
+    \sa operator!=()
+*/
+
+/*!
+    \fn bool QPainterPath::Element::operator!=(const Element &other) const
+
+    Returns true if this element is not equal to \a other;
+    otherwise returns false.
+
+    \sa operator==()
 */
 
 /*!
@@ -839,7 +852,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
     \overload
 
-    Creates a move to that lies on the arc that occupies the \a
+    Creates a move to that lies on the arc that occupies the
     QRectF(\a x, \a y, \a width, \a height) at \a angle.
 */
 

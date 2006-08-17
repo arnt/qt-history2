@@ -26,6 +26,7 @@ QT_MODULE(Gui)
 class QLineEdit;
 
 class QAbstractSpinBoxPrivate;
+
 class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
     Q_OBJECT

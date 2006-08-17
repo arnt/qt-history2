@@ -1249,7 +1249,9 @@ void QLineEdit::insert(const QString &newText)
 }
 
 /*!
-    Clears the contents of the line edit.
+    Programmatically clears the contents of the line edit.
+
+    Unlike setText(""), this function doesn't reset the undo stack.
 
     \sa setText(), insert()
 */

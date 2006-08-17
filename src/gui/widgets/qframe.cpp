@@ -159,6 +159,9 @@ QFramePrivate::QFramePrivate()
     \value Shadow_Mask The \l Shadow part of frameStyle()
     \value Shape_Mask  The \l Shape part of frameStyle()
 
+    \omitvalue MShadow
+    \omitvalue MShape
+
     Normally, you don't need to use these, since frameShadow() and
     frameShape() already extract the \l Shadow and the \l Shape parts
     of frameStyle().

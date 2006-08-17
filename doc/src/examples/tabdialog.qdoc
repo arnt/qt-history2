@@ -51,12 +51,10 @@
     We create two standard push buttons, and connect each of them to
     the appropriate slots in the dialog:
 
-    \skipto okButton
+    \printline buttonBox =
     \printuntil reject()
 
-    We arrange the buttons in a horizontal layout with extra space at
-    the left hand side of the widget then arrange the tab widget above
-    the buttons in the dialog:
+    We arrange the the tab widget above the buttons in the dialog:
 
     \skipto QHBoxLayout
     \printuntil addLayout

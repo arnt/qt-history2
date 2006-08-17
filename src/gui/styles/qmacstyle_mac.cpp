@@ -4541,7 +4541,9 @@ bool QMacStyle::event(QEvent *e)
     return false;
 }
 
-
+/*!
+    \internal
+*/
 QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
                                             const QWidget *widget) const
 {

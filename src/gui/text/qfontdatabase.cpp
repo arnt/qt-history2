@@ -1427,7 +1427,7 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 
 /*!
     Returns a sorted list of the writing systems supported by a given
-    font.
+    font \a family.
 
     \sa families()
 */
@@ -2288,7 +2288,7 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
     \since 4.2
 
     Loads the font from the file specified by \a fileName and makes it available to
-    the application. An id is returned that can be used to remove the font again
+    the application. An ID is returned that can be used to remove the font again
     with removeApplicationFont() or to retrieve the list of family names contained
     in the font.
 
@@ -2299,7 +2299,7 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
     \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
     currently not supported.
 
-    \sa applicationFontFamilies()
+    \sa addApplicationFontFromData(), applicationFontFamilies(), removeApplicationFont()
 */
 int QFontDatabase::addApplicationFont(const QString &fileName)
 {
@@ -2317,7 +2317,7 @@ int QFontDatabase::addApplicationFont(const QString &fileName)
     \since 4.2
 
     Loads the font from binary data specified by \a fontData and makes it available to
-    the application. An id is returned that can be used to remove the font again
+    the application. An ID is returned that can be used to remove the font again
     with removeApplicationFont() or to retrieve the list of family names contained
     in the font.
 
@@ -2328,18 +2328,20 @@ int QFontDatabase::addApplicationFont(const QString &fileName)
     \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
     currently not supported.
 
-    \sa applicationFontFamilies()
+    \sa addApplicationFont(), applicationFontFamilies(), removeApplicationFont()
 */
 int QFontDatabase::addApplicationFontFromData(const QByteArray &fontData)
 {
-    return privateDb()->addAppFont(fontData, /*fileName*/QString());
+    return privateDb()->addAppFont(fontData, QString() /* fileName */);
 }
 
 /*!
     \since 4.2
 
     Returns a list of font families for the given application font identified by
-    \a id, as returned by a addApplicationFont().
+    \a id.
+
+    \sa addApplicationFont(), addApplicationFontFromData()
 */
 QStringList QFontDatabase::applicationFontFamilies(int id)
 {
@@ -2347,13 +2349,15 @@ QStringList QFontDatabase::applicationFontFamilies(int id)
 }
 
 /*!
-    \fn bool QFontDatabase::removeApplicationFont(int handle)
+    \fn bool QFontDatabase::removeApplicationFont(int id)
     \since 4.2
 
-    Removes a previously loaded application font.
-    Returns true if unloading of the font succeeded, false otherwise.
+    Removes the previously loaded application font identified by \a
+    id. Returns true if unloading of the font succeeded; otherwise
+    returns false.
 
-    \sa addApplicationFont(), addApplicationFontFromData()
+    \sa removeAllApplicationFonts(), addApplicationFont(),
+        addApplicationFontFromData()
 */
 
 /*!
@@ -2363,8 +2367,10 @@ QStringList QFontDatabase::applicationFontFamilies(int id)
     Removes all application-local fonts previously added using addApplicationFont()
     and addApplicationFontFromData().
 
-    Returns true if unloading of the fonts succeeded, false otherwise.
+    Returns true if unloading of the fonts succeeded; otherwise
+    returns false.
+
+    \sa removeApplicationFont(), addApplicationFont(), addApplicationFontFromData()
 */
 
 #include "qfontdatabase.moc"
-

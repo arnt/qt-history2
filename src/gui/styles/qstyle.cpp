@@ -472,6 +472,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PE_PanelButtonCommand  Button used to initiate an action, for
         example, a QPushButton.
+
     \value PE_FrameDefaultButton  This frame around a default button, e.g. in a dialog.
     \value PE_PanelButtonBevel  Generic panel with a button bevel.
     \value PE_PanelButtonTool  Panel for a Tool button, used with QToolButton.
@@ -503,6 +504,9 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_Frame  Generic frame; see also QFrame.
     \value PE_FrameMenu  Frame for popup windows/menus; see also QMenu.
     \value PE_PanelMenuBar  Panel for menu bars.
+    \value PE_PanelScrollAreaCorner  Panel at the bottom-right (or
+        bottom-left) corner of a scroll area.
+
     \value PE_FrameDockWidget  Panel frame for dock windows and toolbars.
     \value PE_FrameTabWidget  Frame for tab widgets.
     \value PE_FrameLineEdit  Panel frame for line edits.
@@ -534,6 +538,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_FrameTabBarBase The frame that is drawn for a tabbar, ususally drawn for a tabbar that isn't part of a tab widget.
     \value PE_IndicatorTabTear An indicator that a tab is partially scrolled out of the visible tab bar when there are many tabs.
 
+    \value PE_Widget  A plain QWidget.
+
     \value PE_CustomBase Base value for custom primitive elements.
     All values above this are reserved for custom use. Custom values
     must be greater than this value.
@@ -561,6 +567,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     flags may mean different things to different items.
 
     \value State_Active
+    \value sTate_Alternate
     \value State_AutoRaise
     \value State_Bottom
     \value State_Children
@@ -849,8 +856,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_DialogButtonIgnore  Area for a dialog's ignore button.
     \value SE_DialogButtonCustom  Area for a dialog's custom widget area (in the button row).
 
+    \value SE_FrameContents  Area for a frame's contents.
+
     \value SE_HeaderArrow Area for the sort indicator for a header.
     \value SE_HeaderLabel Area for the label in a header.
+
+    \value SE_LineEditContents  Area for a line edit's contents.
 
     \value SE_TabWidgetLeftCorner Area for the left corner widget in a tab widget.
     \value SE_TabWidgetRightCorner Area for the right corner widget in a tab widget.
@@ -943,16 +954,16 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_ScrollBarGroove  Special sub-control which contains the
         area in which the slider handle may move.
 
-    \value SC_SpinBoxUp  Spinwidget up/increase; see also QSpinBox.
-    \value SC_SpinBoxDown  Spinwidget down/decrease.
-    \value SC_SpinBoxFrame  Spinwidget frame.
-    \value SC_SpinBoxEditField  Spinwidget edit field.
+    \value SC_SpinBoxUp  Spin widget up/increase; see also QSpinBox.
+    \value SC_SpinBoxDown  Spin widget down/decrease.
+    \value SC_SpinBoxFrame  Spin widget frame.
+    \value SC_SpinBoxEditField  Spin widget edit field.
 
     \value SC_ComboBoxEditField  Combobox edit field; see also QComboBox.
     \value SC_ComboBoxArrow  Combobox arrow button.
     \value SC_ComboBoxFrame  Combobox frame.
     \value SC_ComboBoxListBoxPopup  The reference rectangle for the combobox popup.
-    Used to calculate the position of the popup.
+        Used to calculate the position of the popup.
 
     \value SC_SliderGroove  Special sub-control which contains the area
         in which the slider handle may move.
@@ -1343,7 +1354,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_GUIStyle The GUI style to use.
 
-    \value SH_ScrollBar_ContextMenu Whether or not a scrollbar has a context menu.
+    \value SH_ScrollBar_ContextMenu Whether or not a scroll bar has a context menu.
 
     \value SH_ScrollBar_MiddleClickAbsolutePosition  A boolean value.
         If true, middle clicking on a scroll bar causes the slider to
@@ -1363,10 +1374,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         SubControl.
 
     \value SH_ScrollBar_RollBetweenButtons A boolean value.
-    If true, when clicking a scrollbar button (SC_ScrollBarAddLine or
-    SC_ScrollBarSubLine) and dragging over to the opposite button (rolling)
-    will press the new button and release the old one. When it is false, the
-    original button is released and nothing happens (like a pushbutton).
+        If true, when clicking a scroll bar button (SC_ScrollBarAddLine or
+        SC_ScrollBarSubLine) and dragging over to the opposite button (rolling)
+        will press the new button and release the old one. When it is false, the
+        original button is released and nothing happens (like a pushbutton).
 
     \value SH_TabBar_Alignment  The alignment for tabs in a
         QTabWidget. Possible values are Qt::AlignLeft,
@@ -1490,6 +1501,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_UnderlineShortcut  Whether shortcuts are underlined.
 
+    \value SH_SpellCheckUnderlineStyle  A
+        QTextCharFormat::UnderlineStyle value that specifies the way
+        misspelled words should be underlined.
+
     \value SH_SpinBox_AnimateButton  Animate a click when up or down is
     pressed in a spin box.
     \value SH_SpinBox_KeyPressAutoRepeatRate  Auto-repeat interval for
@@ -1509,37 +1524,44 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Custom values must be greater than this value.
 
     \value SH_MenuBar_DismissOnSecondClick A boolean indicating if a menu in
-     the menubar should be dismissed when it is clicked on a second time. (Example:
-     Clicking and releasing on the File Menu in a menubar and then
-     immediately clicking on the File Menu again.)
+    the menubar should be dismissed when it is clicked on a second time. (Example:
+    Clicking and releasing on the File Menu in a menubar and then
+    immediately clicking on the File Menu again.)
 
-     \value SH_MessageBox_UseBorderForButtonSpacing A boolean indicating what the to
-     use the border of the buttons (computed as half the button height) for the spacing
-     of the button in a message box.
+    \value SH_MessageBox_UseBorderForButtonSpacing A boolean indicating what the to
+    use the border of the buttons (computed as half the button height) for the spacing
+    of the button in a message box.
 
-     \value SH_TitleBar_AutoRaise A boolean indicating whether
-     controls on a title bar ought to update when the mouse is over them.
+    \value SH_MessageBox_CenterButtons A boolean indicating whether the buttons in the
+    message box should be centered or not (see QDialogButtonBox::setCentered()).
 
-     \value SH_ToolButton_PopupDelay An int indicating the popup delay in milliseconds
-     for menus attached to tool buttons.
+    \value SH_MessageBox_TextInteractionFlags A boolean indicating if
+    the text in a message box should allow user interfactions (e.g.
+    selection) or not.
 
-     \value SH_FocusFrame_Mask The mask of the focus frame.
+    \value SH_TitleBar_AutoRaise A boolean indicating whether
+    controls on a title bar ought to update when the mouse is over them.
 
-     \value SH_RubberBand_Mask The mask of the rubber band.
+    \value SH_ToolButton_PopupDelay An int indicating the popup delay in milliseconds
+    for menus attached to tool buttons.
 
-     \value SH_WindowFrame_Mask The mask of the window frame.
+    \value SH_FocusFrame_Mask The mask of the focus frame.
 
-     \value SH_SpinControls_DisableOnBounds Determines if the spin controls will shown
-     as disabled when reaching the spin range boundary.
+    \value SH_RubberBand_Mask The mask of the rubber band.
 
-     \value SH_Dial_BackgroundRole Defines the style's preferred
-     background role (as QPalette::ColorRole) for a dial widget.
+    \value SH_WindowFrame_Mask The mask of the window frame.
 
-     \value SH_ScrollBar_BackgroundMode The background mode for a scroll bar.
+    \value SH_SpinControls_DisableOnBounds Determines if the spin controls will shown
+    as disabled when reaching the spin range boundary.
 
-     \value SH_ComboBox_LayoutDirection The layout direction for the
-     combo box.  By default it should be the same as indicated by the
-     QStyleOption::direction variable.
+    \value SH_Dial_BackgroundRole Defines the style's preferred
+    background role (as QPalette::ColorRole) for a dial widget.
+
+    \value SH_ScrollBar_BackgroundMode The background mode for a scroll bar.
+
+    \value SH_ComboBox_LayoutDirection The layout direction for the
+    combo box.  By default it should be the same as indicated by the
+    QStyleOption::direction variable.
 
     \value SH_ItemView_EllipsisLocation The location where ellipses should be
     added for item text that is too long to fit in an view item.
@@ -1563,7 +1585,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
 
-    \value SH_DialogButton_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.
+    \value SH_DialogButtonBox_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.
 
     \omitvalue SH_UnderlineAccelerator
 

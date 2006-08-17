@@ -340,18 +340,29 @@ bool QAbstractSpinBox::accelerate() const
 }
 
 /*!
-    \property QAbstractSpinBox::correctionMode
+    \enum QAbstractSpinBox::CorrectionMode
 
-    \brief This enum type describes the mode the spinbox will use to
-    correct an Intermediate value if editing finishes.
+    This enum type describes the mode the spinbox will use to correct
+    an \l{QValidator::}{Intermediate} value if editing finishes.
 
-    If the mode is CorrectToPreviousValue the spinbox will revert to the last
-    valid value.
+    \value CorrectToPreviousValue The spinbox will revert to the last
+                                  valid value.
 
-    If the mode is CorrectToNearestValue the spinbox will revert to the nearest
-    valid value.
+    \value CorrectToNearestValue The spinbox will revert to the nearest
+                                 valid value.
+
+    \sa correctionMode
 */
 
+/*!
+    \property QAbstractSpinBox::correctionMode
+    \brief the mode to correct an \l{QValidator::}{Intermediate}
+           value if editing finishes
+
+    The default mode is QAbstractSpinBox::CorrectToPreviousValue.
+
+    \sa acceptableInput(), validate(), fixup()
+*/
 void QAbstractSpinBox::setCorrectionMode(CorrectionMode correctionMode)
 {
     Q_D(QAbstractSpinBox);
@@ -369,7 +380,7 @@ QAbstractSpinBox::CorrectionMode QAbstractSpinBox::correctionMode() const
   \property QAbstractSpinBox::acceptableInput
   \brief whether the input satisfies the current validation
 
-  \sa validate(), fixup()
+  \sa validate(), fixup(), correctionMode
 */
 
 bool QAbstractSpinBox::hasAcceptableInput() const

@@ -22,8 +22,10 @@
 #include <qvarlengtharray.h>
 
 #include <math.h>
+
 /*!
-  \class QTextItem
+    \class QTextItem
+    \internal
 */
 
 qreal QTextItem::descent() const
@@ -123,6 +125,7 @@ QFont QTextItem::font() const
   \value Antialiasing       The engine can use antialising to improve the appearance
                             of rendered primitives.
   \value BrushStroke
+  \value ConstantOpacity
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
   \value AllFeatures
@@ -146,7 +149,6 @@ QFont QTextItem::font() const
 
 /*!
     \enum QPaintEngine::DirtyFlag
-    \typedef QPaintEngine::DirtyFlags
 
     \value DirtyPen The pen is dirty and needs to be updated.
 
@@ -180,6 +182,8 @@ QFont QTextItem::font() const
 
     \value DirtyClipEnabled Whether clipping is enabled or not is
     dirty and needs to be updated.
+
+    \value DirtyOpacity
 
     \value AllDirty Convenience enum used internally.
 
@@ -269,6 +273,7 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     \value Windows
     \value MacPrinter
     \value CoreGraphics Mac OS X's Quartz2D (CoreGraphics)
+    \value QuickDraw Mac OS X's QuickDraw
     \value QWindowSystem Qtopia Core
     \value PostScript
     \value OpenGL

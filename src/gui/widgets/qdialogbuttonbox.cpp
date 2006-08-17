@@ -576,6 +576,7 @@ QDialogButtonBox::~QDialogButtonBox()
     \value NoRole The button is a "No"-like button.
     \value ApplyRole The button applies current changes.
     \value ResetRole The button resets the dialog's fields to default values.
+
     \omitvalue NRoles
 
     \sa StandardButton

@@ -537,7 +537,6 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
     \omitvalue AtBottom
     \omitvalue AfterCurrent
     \omitvalue BeforeCurrent
-    \omitvalue Alphabetically
 */
 
 /*!
@@ -1080,12 +1079,23 @@ int QComboBox::maxCount() const
 
     \sa editable
 */
+
+/*!
+    \obsolete
+
+    Use setCompleter() instead.
+*/
 bool QComboBox::autoCompletion() const
 {
     Q_D(const QComboBox);
     return d->autoCompletion;
 }
 
+/*!
+    \obsolete
+
+    Use setCompleter() instead.
+*/
 void QComboBox::setAutoCompletion(bool enable)
 {
     Q_D(QComboBox);
@@ -1114,9 +1124,15 @@ void QComboBox::setAutoCompletion(bool enable)
     By default, this property is Qt::CaseInsensitive.
 
     Use setCompleter() instead. Case sensitivity of the auto completion can be
-    changed using QCompleter::setCaseSensitivity()
+    changed using QCompleter::setCaseSensitivity().
 
     \sa autoCompletion
+*/
+
+/*!
+    \obsolete
+
+    Use setCompleter() and QCompleter::setCaseSensitivity() instead.
 */
 Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
 {
@@ -1124,6 +1140,11 @@ Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
     return d->autoCompletionCaseSensitivity;
 }
 
+/*!
+    \obsolete
+
+    Use setCompleter() and QCompleter::setCaseSensitivity() instead.
+*/
 void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity)
 {
     Q_D(QComboBox);

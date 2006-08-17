@@ -300,7 +300,7 @@ QFontComboBox::~QFontComboBox()
     If \a script is QFontDatabase::Any (the default), all fonts are
     listed.
 
-    \sa fontSelection
+    \sa fontFilters
 */
 
 void QFontComboBox::setWritingSystem(QFontDatabase::WritingSystem script)
@@ -376,7 +376,10 @@ void QFontComboBox::setCurrentFont(const QFont &font)
 /*!
     \fn QFontComboBox::currentFontChanged(const QFont &font)
 
-    This signal is emitted whenever the current font changes.
+    This signal is emitted whenever the current font changes, with
+    the new \a font.
+
+    \sa currentFont
 */
 
 /*!

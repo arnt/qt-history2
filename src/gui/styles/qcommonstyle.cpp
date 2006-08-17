@@ -3881,8 +3881,11 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
     return QPixmap();
 }
 
+/*!
+    \internal
+*/
 QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
-                                              const QWidget *widget) const
+                                               const QWidget *widget) const
 {
     QIcon icon;
     switch (standardIcon) {

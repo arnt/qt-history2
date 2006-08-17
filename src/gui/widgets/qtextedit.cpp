@@ -813,7 +813,15 @@ void QTextEdit::redo()
 }
 
 /*!
+    \fn void QTextEdit::undo() const
     \fn void QTextEdit::redo() const
+    \overload
+
+    Use the non-const overload instead.
+*/
+
+/*!
+    \fn void QTextEdit::redo()
 
     Redoes the last operation.
 
@@ -1778,6 +1786,18 @@ void QTextEdit::setReadOnly(bool ro)
     }
     d->control->setTextInteractionFlags(flags);
 }
+
+/*!
+    \property QTextEdit::textInteractionFlags
+
+    Specifies how the label should interact with user input if it displays text.
+
+    If the flags contain either Qt::LinksAccessibleByKeyboard or Qt::TextSelectableByKeyboard
+    then the focus policy is also automatically set to Qt::ClickFocus.
+
+    The default value depends on whether the QTextEdit is read-only
+    or editable, and whether it is a QTextBrowser or not.
+*/
 
 void QTextEdit::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {

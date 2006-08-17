@@ -1515,7 +1515,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 
 /*!
     Merges the cursor's current character format with the properties
-    described by the given \a format. If the cursor has a selection,
+    described by format \a modifier. If the cursor has a selection,
     this function applies all the properties set in \a modifier to all
     the character formats that are part of the selection.
 

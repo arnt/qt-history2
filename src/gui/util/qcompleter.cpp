@@ -125,7 +125,7 @@
     pathFromIndex(), returns the data for the completionRole() for list models
     and the absolute file path if the mode is a QDirModel.
 
-    \sa QAbstractItemMode, QLineEdit, QComboBox, {Completer Example}
+    \sa QAbstractItemModel, QLineEdit, QComboBox, {Completer Example}
 */
 
 #include "qcompleter_p.h"

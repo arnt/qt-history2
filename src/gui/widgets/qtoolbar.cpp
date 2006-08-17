@@ -1148,7 +1148,7 @@ QAction *QToolBar::toggleViewAction() const
 /*!
     Returns the widget associated with the specified \a action.
 
-    \sa QToolBar::addWidget
+    \sa addWidget()
 */
 QWidget* QToolBar::widgetForAction(QAction *action) const
 {

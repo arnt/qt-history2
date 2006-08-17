@@ -118,14 +118,13 @@
     attributes that define how the scene will be rendered.
 
     \skipto qglClearColor
-    \printuntil resizeGL
+    \printuntil setupViewport
 
-    Although the \l{QGLWidget::resizeGL()}{resizeGL()} implementation we provide
-    is called automatically whenever the widget is resized, we also call it here
-    to set up the projection used for the scene. This is unnecessary in OpenGL
-    examples that implement the \l{QGLWidget::paintGL()}{paintGL()} function
-    because the matrix stacks are usually unmodified between calls to
-    \l{QGLWidget::resizeGL()}{resizeGL()} and \l{QGLWidget::paintGL()}{paintGL()}.
+    We call the \c setupViewport() private function to set up the
+    projection used for the scene. This is unnecessary in OpenGL
+    examples that implement the \l{QGLWidget::}{paintGL()}
+    function because the matrix stacks are usually unmodified between
+    calls to \l{QGLWidget::}{resizeGL()} and \l{QGLWidget::}{paintGL()}.
 
     Since the widget's background is not drawn by the system or by Qt, we use
     an OpenGL call to paint it before positioning the object defined earlier
@@ -182,6 +181,12 @@
 
     We simply iterate over the bubbles in the \c bubbles list, updating the
     widget before and after each of them is moved.
+
+    The \c setupViewport() function is called from \c paintEvent()
+    and \c resizeGL().
+
+    \skipto ::setupViewport
+    \printuntil /^\}/
 
     The \c formatInstructions() function is used to prepare some basic instructions
     that will be painted with the other 2D graphics over the 3D scene.

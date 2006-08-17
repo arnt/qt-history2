@@ -591,7 +591,9 @@ QWidget *QAbstractScrollArea::cornerWidget() const
 
 /*!
     \since 4.2
-    Sets the widget in the \a corner between the two scroll bars.
+
+    Sets the widget in the corner between the two scroll bars to be
+    \a widget.
 
     You will probably also want to set at least one of the scroll bar
     modes to \c AlwaysOn.
@@ -684,7 +686,7 @@ void QAbstractScrollArea::addScrollBarWidget(QWidget *widget, Qt::Alignment alig
         widget->show();
 }
 
-/*
+/*!
     \since 4.2
     Returns a list of the currently set scroll bar widgets. \a alignment
     can be any combination of the four location flags.
@@ -1114,9 +1116,10 @@ QSize QAbstractScrollArea::sizeHint() const
 }
 
 /*!
-    This slot is called by QAbstractScrollArea after setViewport() has been
-    called. Reimplement this function in a subclass of QAbstractScrollArea to
-    initialize the new viewport before it is used.
+    This slot is called by QAbstractScrollArea after setViewport(\a
+    viewport) has been called. Reimplement this function in a
+    subclass of QAbstractScrollArea to initialize the new \a viewport
+    before it is used.
 
     \sa setViewport()
 */

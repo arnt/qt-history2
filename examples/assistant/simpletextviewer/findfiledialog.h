@@ -14,8 +14,8 @@
 #ifndef FINDFILEDIALOG_H
 #define FINDFILEDIALOG_H
 
-#include <QDialog>
 #include <QAssistantClient>
+#include <QDialog>
 
 class QComboBox;
 class QDialogButtonBox;

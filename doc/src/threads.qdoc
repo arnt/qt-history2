@@ -238,9 +238,9 @@
 
     \o \e{Event driven objects may only be used in a single thread.}
        Specifically, this applies to the \l{timers.html}{timer
-       mechanism} and the \l{QtNetwork}{network module.} For example,
+       mechanism} and the \l{QtNetwork}{network module}. For example,
        you cannot start a timer or connect a socket in a thread that
-       is not the \l{QObject::thread}{object's thread}.
+       is not the \l{QObject::thread()}{object's thread}.
 
     \o \e{You must ensure that all objects created in a thread are
        deleted before you delete the QThread.} This can be done
@@ -390,7 +390,7 @@
 
     \section1 Threads and Implicit Sharing
 
-    Qt uses an optimization called \l{implicit data sharing} for many
+    Qt uses an optimization called \l{implicit sharing} for many
     of its value class, notably QImage and QString. In many people's
     minds, implicit sharing and multithreading are incompatible
     concepts, because of the way the reference counting is typically

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qtabwidget.h"
+
 #ifndef QT_NO_TABWIDGET
 #include "private/qwidget_p.h"
 #include "qapplication.h"
@@ -119,20 +120,17 @@
     \value Triangular  triangular look
 */
 
-/* undocumented now
-  \obsolete
+/*!
+    \fn void QTabWidget::selected(const QString &tabLabel)
 
-  \fn void QTabWidget::selected(const QString &tabLabel);
+    This signal is emitted whenever a tab is selected (raised),
+    including during the first show().
 
-  This signal is emitted whenever a tab is selected (raised),
-  including during the first show().
-
-  \sa raise()
+    You can normally use currentChanged() instead.
 */
 
-
 /*!
-    \fn void QTabWidget::currentChanged(int index);
+    \fn void QTabWidget::currentChanged(int index)
 
     This signal is emitted whenever the current page index changes.
     The parameter is the new current page \a index position.

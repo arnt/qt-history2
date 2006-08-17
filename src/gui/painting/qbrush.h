@@ -173,7 +173,7 @@ public:
     CoordinateMode coordinateMode() const;
     void setCoordinateMode(CoordinateMode mode);
 
-    bool operator==(const QGradient &gradient); // 5.0 - remove me
+    bool operator==(const QGradient &gradient); // ### Qt 5.0 - remove me
     bool operator==(const QGradient &gradient) const;
     inline bool operator!=(const QGradient &other) const
     { return !operator==(other); }

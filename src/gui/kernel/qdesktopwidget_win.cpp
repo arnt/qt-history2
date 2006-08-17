@@ -206,18 +206,18 @@ void QDesktopWidgetPrivate::cleanup()
 }
 
 /*
-  \omit
-  Function is commented out in header
-  \fn void *QDesktopWidget::handle(int screen) const
+    \omit
+    Function is commented out in header
+    \fn void *QDesktopWidget::handle(int screen) const
 
-  Returns the window system handle of the display device with the
-  index \a screen, for low-level access.  Using this function is not
-  portable.
+    Returns the window system handle of the display device with the
+    index \a screen, for low-level access.  Using this function is not
+    portable.
 
-  The return type varies with platform; see qwindowdefs.h for details.
+    The return type varies with platform; see qwindowdefs.h for details.
 
-  \sa x11Display(), QPaintDevice::handle()
-  \endomit
+    \sa x11Display(), QPaintDevice::handle()
+    \endomit
 */
 
 /*!

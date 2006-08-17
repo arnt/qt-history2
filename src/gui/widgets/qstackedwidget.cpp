@@ -101,7 +101,7 @@ public:
     \fn void QStackedWidget::widgetRemoved(int index)
 
     This signal is emitted whenever a widget is removed. The widget's
-    index is passed as parameter.
+    \a index is passed as parameter.
 
     \sa removeWidget()
 */

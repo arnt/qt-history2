@@ -441,9 +441,12 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 }
 
 
-/*
+/*!
     \property QScrollArea::alignment
     \brief the alignment of the scroll area's widget
+
+    By default, the widget stays rooted to the top-left corner of the
+    scroll area.
 */
 
 void QScrollArea::setAlignment(Qt::Alignment alignment)

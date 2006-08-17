@@ -383,7 +383,7 @@
     \endlist
 
     See the \l{tools/plugandpaint}{Plug & Paint} example and the
-    associated \l{tools/plugandpaintplugin/basictools}{Basic Tools}
+    associated \l{tools/plugandpaintplugins/basictools}{Basic Tools}
     plugin for details on how to do this.
 
     \sa QPluginLoader, QLibrary, {Plug & Paint Example}

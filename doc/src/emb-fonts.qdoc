@@ -60,7 +60,7 @@
 
     \list
         \o TrueType (TTF)
-        \o Postscript Type1 (PFA/PFB)
+        \o PostScript Type1 (PFA/PFB)
         \o Bitmap Distribution Format (BDF)
         \o CID-keyed Type1
         \o Compact Font Format (CFF)

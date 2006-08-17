@@ -10,386 +10,409 @@
 **
 ****************************************************************************/
 
-/*! \page groups.html
+/*!
+    \page groups.html
 
-\title Grouped Classes
-\ingroup classlists
+    \title Grouped Classes
+    \ingroup classlists
 
-This page provides a way of navigating Qt's classes by grouping
-related classes together. Some classes may appear in more than one group.
+    This page provides a way of navigating Qt's classes by grouping
+    related classes together. Some classes may appear in more than one group.
 
-\table
-\header
-\o Group
-\o Description
+    \table
+    \header
+    \o Group
+    \o Description
 
-\row
-\o \l{Abstract Widget Classes}
-\o Abstract widget classes usable through subclassing.
+    \row
+    \o \l{Abstract Widget Classes}
+    \o Abstract widget classes usable through subclassing.
 
-\row
-\o \l{Accessibility Classes}
-\o Classes that provide support for accessibility.
+    \row
+    \o \l{Accessibility Classes}
+    \o Classes that provide support for accessibility.
 
-\row
-\o \l{Advanced Widgets}
-\o Advanced GUI widgets such as listviews and progress bars.
+    \row
+    \o \l{Advanced Widgets}
+    \o Advanced GUI widgets such as listviews and progress bars.
 
-\row
-\o \l{Basic Widgets}
-\o Basic GUI widgets such as buttons, comboboxes and scrollbars.
+    \row
+    \o \l{Basic Widgets}
+    \o Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
-\omit
-\row
-\o \l{Component Model}
-\o Interfaces and helper classes for the Qt Component Model.
-\endomit
+    \omit
+    \row
+    \o \l{Component Model}
+    \o Interfaces and helper classes for the Qt Component Model.
+    \endomit
 
-\row
-\o \l{Database Classes}
-\o Database related classes, e.g. for SQL databases.
+    \row
+    \o \l{Database Classes}
+    \o Database related classes, e.g. for SQL databases.
 
-\row
-\o \l{Date and Time}
-\o Classes for handling date and time.
+    \row
+    \o \l{Date and Time Classes}
+    \o Classes for handling date and time.
 
-\row
-\o \l{Desktop Environment}
-\o Classes for interacting with the user's desktop environment.
+    \row
+    \o \l{Desktop Environment Classes}
+    \o Classes for interacting with the user's desktop environment.
 
-\row
-\o \l{Drag and Drop}
-\o Classes dealing with drag and drop and mime type
-   encoding and decoding.
+    \row
+    \o \l{Drag and Drop}
+    \o Classes dealing with drag and drop and mime type
+       encoding and decoding.
 
-\row
-\o \l{Environment Classes}
-\o Classes providing various global services such as
-   event handling, access to system settings and internationalization.
+    \row
+    \o \l{Environment Classes}
+    \o Classes providing various global services such as
+       event handling, access to system settings and internationalization.
 
-\row
-\o \l{Event Classes}
-\o Classes used to create and handle events.
+    \row
+    \o \l{Event Classes}
+    \o Classes used to create and handle events.
 
-\row
-\o \l{Non-GUI Classes}
-\o Collection classes such as list, queue, stack and string, along
-with other classes that can be used without needing QApplication.
+    \row
+    \o \l{Non-GUI Classes}
+    \o Collection classes such as list, queue, stack and string, along
+    with other classes that can be used without needing QApplication.
 
-\row
-\o \l{Multimedia, Graphics, and Printing}
-\o Classes that provide support for graphics (2D, and with OpenGL, 3D),
-image encoding, decoding, and manipulation, sound, animation,
-printing, etc.
+    \row
+    \o \l{Multimedia, Graphics, and Printing}
+    \o Classes that provide support for graphics (2D, and with OpenGL, 3D),
+    image encoding, decoding, and manipulation, sound, animation,
+    printing, etc.
 
-\row
-\o \l{Help System}
-\o Classes used to provide online-help for applications.
+    \row
+    \o \l{Help System}
+    \o Classes used to provide online-help for applications.
 
-\row
-\o \l{Layout Management}
-\o Classes handling automatic resizing and moving of widgets, for
-        composing complex dialogs.
+    \row
+    \o \l{Layout Management}
+    \o Classes handling automatic resizing and moving of widgets, for
+            composing complex dialogs.
 
-\row
-\o \l{Shared Classes}
-\o Classes that use reference counting for fast copying.
+    \row
+    \o \l{Shared Classes}
+    \o Classes that use reference counting for fast copying.
 
-\row
-\o \l{Input/Output and Networking}
-\o Classes providing file input and output along with directory and
-network handling.
+    \row
+    \o \l{Input/Output and Networking}
+    \o Classes providing file input and output along with directory and
+    network handling.
 
-\row
-\o \l{Main Window and Related Classes}
-\o Everything you need for a typical modern main application window,
-including menus, toolbars, workspace, etc.
+    \row
+    \o \l{Main Window and Related Classes}
+    \o Everything you need for a typical modern main application window,
+    including menus, toolbars, workspace, etc.
 
-\row
-\o \l{Miscellaneous Classes}
-\o Various other useful classes.
+    \row
+    \o \l{Miscellaneous Classes}
+    \o Various other useful classes.
 
-\row
-\o \l{Model/View Classes}
-\o Classes that use the model/view design pattern.
+    \row
+    \o \l{Model/View Classes}
+    \o Classes that use the model/view design pattern.
 
-\row
-\o \l{Object Model}
-\o The Qt GUI toolkit's underlying object model.
+    \row
+    \o \l{Object Model}
+    \o The Qt GUI toolkit's underlying object model.
 
-\row
-\o \l{Organizers}
-\o User interface organizers such as splitters, tab bars, button groups, etc.
+    \row
+    \o \l{Organizers}
+    \o User interface organizers such as splitters, tab bars, button groups, etc.
 
-\row
-\o \l{Plugin Classes}
-\o Plugin related classes.
+    \row
+    \o \l{Plugin Classes}
+    \o Plugin related classes.
 
-\row
-\o \l{Standard Dialog Classes}
-\o Ready-made dialogs for file, font, color selection and more.
+    \row
+    \o \l{Standard Dialog Classes}
+    \o Ready-made dialogs for file, font, color selection and more.
 
-\row
-\o \l{Generic Containers}
-\o Qt's template-based container classes.
+    \row
+    \o \l{Generic Containers}
+    \o Qt's template-based container classes.
 
-\row
-\o \l{Text Related Classes}
-\o Classes for text
-processing. (See also \l{XML Classes}.)
+    \row
+    \o \l{Text Related Classes}
+    \o Classes for text
+    processing. (See also \l{XML Classes}.)
 
-\row
-\o \l{Threading Classes}
-\o Classes that provide threading support.
+    \row
+    \o \l{Threading Classes}
+    \o Classes that provide threading support.
 
-\row
-\o \l{Widget Appearance and Style}
-\o Appearance customization with styles, fonts, colors etc.
+    \row
+    \o \l{Widget Appearance and Style}
+    \o Appearance customization with styles, fonts, colors etc.
 
-\row
-\o \l{XML Classes}
-\o Classes that support XML, via, for example DOM and SAX.
+    \row
+    \o \l{XML Classes}
+    \o Classes that support XML, via, for example DOM and SAX.
 
-\row
-\o \l{Qtopia Core Classes}
-\o Classes that are specific to Qtopia Core (Qt for embedded Linux).
+    \row
+    \o \l{Qtopia Core Classes}
+    \o Classes that are specific to Qtopia Core (Qt for embedded Linux).
 
-\endtable
-
-*/
-
-/*! \group advanced
-
-\title Advanced Widgets
-
-These classes provide more complex user interface widgets (controls).
+    \endtable
 
 */
 
-/*! \group abstractwidgets
+/*!
+    \group advanced
 
-\title Abstract Widget Classes
+    \title Advanced Widgets
 
-These classes are abstract widgets; they are generally not usable in
-themselves, but provide functionality that can be used by inheriting
-these classes.
-
-*/
-
-/*! \group accessibility
-
-\title Accessibility Classes
-
-Classes that provide support for accessibility.
-
-Accessible applications are able to be used by users who cannot use
-conventional means of interaction. These classes provide support for
-accessible applications.
+    These classes provide more complex user interface widgets (controls).
 
 */
 
-/*! \group appearance
+/*!
+    \group abstractwidgets
 
-\title Widget Appearance and Style
+    \title Abstract Widget Classes
 
-These classes are used to customize an application's appearance and
-style.
-
-*/
-
-/*! \group application
-
-\title Main Window and Related Classes
-
-These classes provide everything you need for a typical modern main
-application window, like the main window itself, menu and tool bars,
-a statusbar, etc.
+    These classes are abstract widgets; they are generally not usable in
+    themselves, but provide functionality that can be used by inheriting
+    these classes.
 
 */
 
+/*!
+    \group accessibility
 
-/*! \group basic
+    \title Accessibility Classes
 
-\title Basic Widgets
+    Classes that provide support for accessibility.
 
-These basic widgets (controls) are designed for direct use.
-There are also some \l{Abstract Widget Classes} that are designed for
-subclassing, and some more complex \l{Advanced Widgets}.
+    Accessible applications are able to be used by users who cannot use
+    conventional means of interaction. These classes provide support for
+    accessible applications.
+
+*/
+
+/*!
+    \group appearance
+
+    \title Widget Appearance and Style
+
+    These classes are used to customize an application's appearance and
+    style.
+
+*/
+
+/*!
+    \group application
+
+    \title Main Window and Related Classes
+
+    These classes provide everything you need for a typical modern main
+    application window, like the main window itself, menu and tool bars,
+    a statusbar, etc.
+
+*/
+
+
+/*!
+    \group basic
+
+    \title Basic Widgets
+
+    These basic widgets (controls) are designed for direct use.
+    There are also some \l{Abstract Widget Classes} that are designed for
+    subclassing, and some more complex \l{Advanced Widgets}.
 
 */
 
 /* \group componentmodel
 
-\title Component Model
+    \title Component Model
 
-These classes and interfaces form the basis of the \l{Qt Component Model}.
-
-*/
-
-/*! \group database
-
-\title Database Classes
-
-These classes provide access to SQL databases.
-*/
-
-
-/*! \group dialogs
-
-\title Standard Dialog Classes
-
-These classes are complex widgets, composed of simpler widgets; dialog
-boxes, generally.
-*/
-
-/*! \group desktop
-
-\title Desktop Environment Classes
-
-These classes provide ways to interact with the user's desktop environment and
-take advantage of common services.
-*/
-
-/*! \group draganddrop
-
-\title Drag And Drop Classes
-
-These classes deal with drag and drop and the necessary mime type
-encoding and decoding. See also \link dnd.html Drag and Drop with
-Qt. \endlink
-*/
-
-/*! \group environment
-
-\title Environment Classes
-
-These classes providing various global services to your application such as
-event handling, access to system settings, internationalization, etc.
+    These classes and interfaces form the basis of the \l{Qt Component Model}.
 
 */
 
-/*! \group events
+/*!
+    \group database
 
-\title Event Classes
+    \title Database Classes
 
-These classes are used to create and handle events.
-
-For more information see the \link object.html Object model\endlink
-and \link signalsandslots.html Signals and Slots\endlink.
+    These classes provide access to SQL databases.
 */
 
 
-/*! \group geomanagement
+/*!
+    \group dialogs
 
-\title Layout Management
+    \title Standard Dialog Classes
 
-These classes provide automatic geometry (layout) management of widgets.
+    These classes are complex widgets, composed of simpler widgets; dialog
+    boxes, generally.
+*/
+
+/*!
+    \group desktop
+
+    \title Desktop Environment Classes
+
+    These classes provide ways to interact with the user's desktop environment and
+    take advantage of common services.
+*/
+
+/*!
+    \group draganddrop
+
+    \title Drag And Drop Classes
+
+    These classes deal with drag and drop and the necessary mime type
+    encoding and decoding. See also \link dnd.html Drag and Drop with
+    Qt. \endlink
+*/
+
+/*!
+    \group environment
+
+    \title Environment Classes
+
+    These classes providing various global services to your application such as
+    event handling, access to system settings, internationalization, etc.
 
 */
 
+/*!
+    \group events
 
-/*! \group helpsystem
+    \title Event Classes
 
-\title Help System
+    These classes are used to create and handle events.
 
-\keyword help system
+    For more information see the \link object.html Object model\endlink
+    and \link signalsandslots.html Signals and Slots\endlink.
+*/
 
-These classes provide for all forms of online-help in your application,
-with three levels of detail:
 
-\list 1
-    \o Tool Tips and Status Bar message - flyweight help, extremely brief,
-	entirely integrated in the user interface, requiring little
-	or no user interaction to invoke.
-    \o What's This? - lightweight, but can be
-	a three-paragraph explanation.
-    \o Online Help - can encompass any amount of information,
-	but is typically slower to call up, somewhat separated
-	from the user's work, and often users feel that using online
-	help is a digression from their real task.
-\endlist
+/*!
+    \group geomanagement
+
+    \title Layout Management
+
+    These classes provide automatic geometry (layout) management of widgets.
 
 */
 
 
-/*! \group io
+/*!
+    \group helpsystem
 
-\title Input/Output and Networking
+    \title Help System
 
-These classes are used to handle input and output to and from external
-devices, processes, files etc. as well as manipulating files and directories.
-*/
+    \keyword help system
 
-/*! \group misc
+    These classes provide for all forms of online-help in your application,
+    with three levels of detail:
 
-\title Miscellaneous Classes
-
-These classes are useful classes not fitting into any other category.
-
-*/
-
-
-/*! \group model-view
-
-\title Model/View Classes
-
-These classes use the model/view design pattern in which the
-underlying data (in the model) is kept separate from the way the data
-is presented and manipulated by the user (in the view). See also
-\link model-view-programming.html Model/View Programming\endlink.
-
-*/
-
-/*! \group multimedia
-
-\title Multimedia, Graphics, and Printing
-
-These classes provide support for graphics (2D, and with OpenGL, 3D),
-image encoding, decoding, and manipulation, sound, animation, printing
-etc.
-
-See also this introduction to the \link coordsys.html Qt
-coordinate system. \endlink
-
-*/
-
-/*! \group objectmodel
-
-\title Object Model
-
-These classes form the basis of the \l{Qt Object Model}.
-
-*/
-
-/*! \group organizers
-
-\title Organizers
-
-These classes are used to organize and group GUI primitives into more
-complex applications or dialogs.
+    \list 1
+        \o Tool Tips and Status Bar message - flyweight help, extremely brief,
+	    entirely integrated in the user interface, requiring little
+	    or no user interaction to invoke.
+        \o What's This? - lightweight, but can be
+	    a three-paragraph explanation.
+        \o Online Help - can encompass any amount of information,
+	    but is typically slower to call up, somewhat separated
+	    from the user's work, and often users feel that using online
+	    help is a digression from their real task.
+    \endlist
 
 */
 
 
-/*! \group plugins
+/*!
+    \group io
 
-\title Plugin Classes
+    \title Input/Output and Networking
 
-These classes deal with shared libraries, (e.g. .so and DLL files),
-and with Qt plugins.
+    These classes are used to handle input and output to and from external
+    devices, processes, files etc. as well as manipulating files and directories.
+*/
 
-See the \link plugins-howto.html plugins documentation\endlink.
+/*!
+    \group misc
 
-See also the \l{ActiveQt framework} for Windows.
+    \title Miscellaneous Classes
+
+    These classes are useful classes not fitting into any other category.
 
 */
 
-/*! \group qws
 
-\title Qtopia Core Classes
-\ingroup qtopiacore
+/*!
+    \group model-view
 
-These classes are relevant to \l{Qtopia Core} users.
+    \title Model/View Classes
+
+    These classes use the model/view design pattern in which the
+    underlying data (in the model) is kept separate from the way the data
+    is presented and manipulated by the user (in the view). See also
+    \link model-view-programming.html Model/View Programming\endlink.
+
+*/
+
+/*!
+    \group multimedia
+
+    \title Multimedia, Graphics, and Printing
+
+    These classes provide support for graphics (2D, and with OpenGL, 3D),
+    image encoding, decoding, and manipulation, sound, animation, printing
+    etc.
+
+    See also this introduction to the \link coordsys.html Qt
+    coordinate system. \endlink
+
+*/
+
+/*!
+    \group objectmodel
+
+    \title Object Model
+
+    These classes form the basis of the \l{Qt Object Model}.
+
+*/
+
+/*!
+    \group organizers
+
+    \title Organizers
+
+    These classes are used to organize and group GUI primitives into more
+    complex applications or dialogs.
+
+*/
+
+
+/*!
+    \group plugins
+
+    \title Plugin Classes
+
+    These classes deal with shared libraries, (e.g. .so and DLL files),
+    and with Qt plugins.
+
+    See the \link plugins-howto.html plugins documentation\endlink.
+
+    See also the \l{ActiveQt framework} for Windows.
+
+*/
+
+/*!
+    \group qws
+
+    \title Qtopia Core Classes
+    \ingroup qtopiacore
+
+    These classes are relevant to \l{Qtopia Core} users.
 */
 
 /*!
@@ -397,12 +420,12 @@ These classes are relevant to \l{Qtopia Core} users.
 
     \title Implicitly Shared Classes
 
+    \keyword implicit data sharing
     \keyword implicit sharing
     \keyword implicitly shared
     \keyword reference counting
     \keyword shared implicitly
     \keyword shared classes
-
 
     Many C++ classes in Qt use implicit data sharing to maximize
     resource usage and minimize copying of data. The only important
@@ -475,7 +498,7 @@ These classes are relevant to \l{Qtopia Core} users.
         }
     \endcode
 
-    \section1 Implicitly Shared Classes
+    \section1 List of Classes
 
     The classes listed below automatically detach from common data if
     an object is about to be changed. The programmer will not even
@@ -506,47 +529,51 @@ These classes are relevant to \l{Qtopia Core} users.
     \l{STL-style iterator}.
 */
 
-/*! \group text
+/*!
+    \group text
 
-\title Text Related Classes
+    \title Text Related Classes
 
-These classes are relevant to text processing. See also the
-\l{richtext.html}{Rich Text Processing} overview and the
-\l{XML classes}.
+    These classes are relevant to text processing. See also the
+    \l{richtext.html}{Rich Text Processing} overview and the
+    \l{XML classes}.
 */
 
-/*! \group thread
+/*!
+    \group thread
 
-\title Threading Classes
+    \title Threading Classes
 
-These classes are relevant to threaded applications.
-*/
-
-
-/*! \group time
-
-\title Date and Time
-
-These classes provide system-independent date and time abstractions.
-
-*/
-
-/*! \group tools
-
-\title Non-GUI Classes
-
-The non-GUI classes are general-purpose collection and string classes
-that may be used independently of the GUI classes.
-
-In particular, these classes do not depend on QApplication at all,
-and so can be used in non-GUI programs.
-
+    These classes are relevant to threaded applications.
 */
 
 
-/*! \group xml-tools
+/*!
+    \group time
 
-\title XML Classes
+    \title Date and Time Classes
 
-These classes are relevant to XML users.
+    These classes provide system-independent date and time abstractions.
+
+*/
+
+/*!
+    \group tools
+
+    \title Non-GUI Classes
+
+    The non-GUI classes are general-purpose collection and string classes
+    that may be used independently of the GUI classes.
+
+    In particular, these classes do not depend on QApplication at all,
+    and so can be used in non-GUI programs.
+
+*/
+
+/*!
+    \group xml-tools
+
+    \title XML Classes
+
+    These classes are relevant to XML users.
 */

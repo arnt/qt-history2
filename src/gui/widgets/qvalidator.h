@@ -34,10 +34,11 @@ public:
     enum State {
         Invalid,
         Intermediate,
-#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
-        Valid = Intermediate,
-#endif
         Acceptable
+
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
+        , Valid = Intermediate
+#endif
     };
 
     virtual State validate(QString &, int &) const = 0;

@@ -94,9 +94,11 @@ public:
     inline bool operator!=(const QRegion &r) const { return !(operator==(r)); }
     operator QVariant() const;
 
-#if defined(qdoc)
+#ifdef qdoc
     Handle handle() const;
-#elif defined(Q_WS_WIN)
+#endif
+#ifndef qdoc
+#if defined(Q_WS_WIN)
     inline HRGN    handle() const { return d->rgn; }
 #elif defined(Q_WS_X11)
     inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
@@ -106,6 +108,7 @@ public:
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
     inline void *handle() const { return d->qt_rgn; }
+#endif
 #endif
 
 #ifndef QT_NO_DATASTREAM

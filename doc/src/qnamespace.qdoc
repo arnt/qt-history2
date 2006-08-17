@@ -687,6 +687,7 @@
     widget has accepted the close event (see QWidget::closeEvent()).
 
     \omitvalue WA_ForceAcceptDrops
+    \omitvalue WA_DropSiteRegistered
 
     \value WA_QuitOnClose Makes Qt quit the application when the last
     widget with the attribute set has accepted closeEvent(). This
@@ -743,15 +744,18 @@
     WA_Disabled. This is set/cleared by QWidget::setEnabled() and
     QWidget::setDisabled().
 
-    \value WA_SetPalette Indicates that the widgets has a palette
+    \value WA_SetPalette Indicates that the widget has a palette
     of its own. This is set/cleared by QWidget::setPalette().
 
-    \value WA_SetFont Indicates that the widgets has a font of its
+    \value WA_SetFont Indicates that the widget has a font of its
     own. This is set/cleared by QWidget::setFont().
 
-    \value WA_SetCursor Indicates that the widgets has a cursor of its
+    \value WA_SetCursor Indicates that the widget has a cursor of its
     own. This is set/cleared by QWidget::setCursor() and
     QWidget::unsetCursor().
+
+    \value WA_SetStyle Indicates that the widget has a style of its
+    own. This is set/cleared by QWidget::setStyle().
 
     \value WA_NoBackground This value is obsolete. Use
     WA_OpaquePaintEvent instead.
@@ -886,6 +890,7 @@
     \value WA_NoMousePropagation Prohibits mouse events from being propagated to the widget's parent.
     \value WA_RightToLeft Indicates that the layout direction for the widget is right to left.
     \value WA_MacOpaqueSizeGrip Indicates that the native Carbon size grip should be opaque instead of transparent (the default). This attribute is only meaningfull on Mac OS X and is set by widget's author.
+    \value WA_AlwaysShowToolTips Enables tooltips for inactive windows.
     \value WA_ShowModal \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
 
     \omitvalue WA_SetLayoutDirection
@@ -2141,4 +2146,14 @@
 
     \value TextEditorInteraction      The default for a text editor.
     \value TextBrowserInteraction     The default for QTextBrowser.
+*/
+
+/*!
+    \enum Qt::DockWidgetAreaSizes
+    \internal
+*/
+
+/*!
+    \enum Qt::ToolBarAreaSizes
+    \internal
 */

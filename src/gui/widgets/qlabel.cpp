@@ -741,7 +741,7 @@ void QLabel::setOpenExternalLinks(bool open)
     If the flags contain either Qt::LinksAccessibleByKeyboard or Qt::TextSelectableByKeyboard
     then the focus policy is also automatically set to Qt::ClickFocus.
 
-    The default value is Qt::LinksAccessibleByMouse
+    The default value is Qt::LinksAccessibleByMouse.
 */
 void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
@@ -864,6 +864,9 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 #endif
 }
 
+/*!
+    \reimp
+*/
 void QLabel::focusInEvent(QFocusEvent *ev)
 {
     Q_D(QLabel);
@@ -874,6 +877,9 @@ void QLabel::focusInEvent(QFocusEvent *ev)
     QFrame::focusInEvent(ev);
 }
 
+/*!
+    \reimp
+*/
 void QLabel::focusOutEvent(QFocusEvent *ev)
 {
     Q_D(QLabel);
@@ -1472,17 +1478,23 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 }
 #endif
 
-/*!  \fn void QLabel::linkHovered(const QString &link)
+/*!
+    \fn void QLabel::linkHovered(const QString &link)
 
-     This signal is emitted when the user hovers over a link.
+    This signal is emitted when the user hovers over a link. The URL
+    referred to by the anchor is passed in \a link.
+
+    \sa linkActivated()
 */
 
 
 /*!
     \fn void QLabel::linkActivated(const QString &link)
 
-    This signal is emitted when the user clicks a link. The
-    URL referred to by the anchor is passed in \a link.
+    This signal is emitted when the user clicks a link. The URL
+    referred to by the anchor is passed in \a link.
+
+    \sa linkHovered()
 */
 
 #include "moc_qlabel.cpp"

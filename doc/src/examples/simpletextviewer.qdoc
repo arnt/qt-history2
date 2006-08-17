@@ -252,10 +252,10 @@
     \skipto help()
     \printuntil /^\}/
 
-    The \c help() slot is called when the user clicks the \gui Help
-    button in the dialog. It brings the current Qt Assistant instance
-    to the foreground and shows the application's manual page, using
-    the QAssistantClient::showPage() function.
+    The \c help() slot is called when the user clicks the dialog's
+    \gui Help button. It brings the current Qt Assistant instance to
+    the foreground and shows the application's manual page, using the
+    QAssistantClient::showPage() function.
 
     \section1 Summary
 
