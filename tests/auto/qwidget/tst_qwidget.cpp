@@ -1639,6 +1639,8 @@ void tst_QWidget::setGeometry()
     QCOMPARE(tlw.geometry(), tr);
     tlw.show();
     QTest::qWait(50);
+    if (tlw.frameGeometry() != tlw.geometry())
+        QSKIP("Your window manager is too broken for this test", SkipAll);
     QCOMPARE(tlw.geometry(), tr);
 
 }
