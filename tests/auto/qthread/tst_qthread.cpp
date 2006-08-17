@@ -643,10 +643,6 @@ void testNativeThreadAdoption(void *)
     threadAdoptedOk = (QThread::currentThreadId() != 0
                        && QThread::currentThread() != 0
                        && QThread::currentThread() != mainThread);
-
-    //TODO: where does the QThread object for an odopted thread live?
-    // In the main thread or the adopted thread?
-    // QCOMPARE(QThread::currentThread()->thread(), QThread::currentThread());
 }
 void tst_QThread::nativeThreadAdoption()
 {
@@ -721,11 +717,6 @@ void tst_QThread::adoptedThreadExit()
 
     nativeThread.stop();
     nativeThread.join();
-
-    // TODO: can we access the QThread object after the natve thread
-    // has finished?
-//    QVERIFY(nativeThread.qthread->isFinished());
-//    QVERIFY(!nativeThread.qthread->isRunning());
 }
 
 /*
