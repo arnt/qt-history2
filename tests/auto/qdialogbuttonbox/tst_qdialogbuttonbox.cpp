@@ -305,8 +305,6 @@ void tst_QDialogButtonBox::removeButton()
 
     buttonBox.removeButton(button);
     QCOMPARE(buttonBox.buttons().count(), 0);
-    QList<QAbstractButton *> children = qFindChildren<QAbstractButton *>(&buttonBox);
-    QTEST(children.count(), "expectedCount");
 }
 
 void tst_QDialogButtonBox::testDelete()

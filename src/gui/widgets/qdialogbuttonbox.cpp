@@ -232,7 +232,7 @@ public:
     Qt::Orientation orientation;
     QDialogButtonBox::ButtonLayout layoutPolicy;
     QBoxLayout *buttonLayout;
-    bool skipDisconnect;
+    bool internalRemove;
     bool center;
 
     void createStandardButtons(QDialogButtonBox::StandardButtons buttons);
@@ -248,7 +248,7 @@ public:
 };
 
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
-    : orientation(orient), skipDisconnect(false), center(false)
+    : orientation(orient), internalRemove(false), center(false)
 {
 }
 
@@ -747,13 +747,17 @@ QDialogButtonBox::ButtonRole QDialogButtonBox::buttonRole(QAbstractButton *butto
 }
 
 /*!
-    Removes \a button from the button box without deleting it.
+    Removes \a button from the button box without deleting it and sets its parent to zero.
 
     \sa clear(), buttons(), addButton()
 */
 void QDialogButtonBox::removeButton(QAbstractButton *button)
 {
     Q_D(QDialogButtonBox);
+
+    if (!button)
+        return;
+
     // Remove it from the standard button hash first and then from the roles
     if (QPushButton *pushButton = qobject_cast<QPushButton *>(button))
         d->standardButtonHash.remove(pushButton);
@@ -762,7 +766,7 @@ void QDialogButtonBox::removeButton(QAbstractButton *button)
         for (int j = 0; j < list.count(); ++j) {
             if (list.at(j) == button) {
                 list.takeAt(j);
-                if (!d->skipDisconnect) {
+                if (!d->internalRemove) {
                     disconnect(button, SIGNAL(clicked()), this, SLOT(_q_handleButtonClicked()));
                     disconnect(button, SIGNAL(destroyed()), this, SLOT(_q_handleButtonDestroyed()));
                 }
@@ -770,6 +774,8 @@ void QDialogButtonBox::removeButton(QAbstractButton *button)
             }
         }
     }
+    if (!d->internalRemove)
+        button->setParent(0);
 }
 
 /*!
@@ -907,7 +913,7 @@ void QDialogButtonBoxPrivate::_q_handleButtonDestroyed()
 {
     Q_Q(QDialogButtonBox);
     if (QObject *object = q->sender()) {
-        QBoolBlocker skippy(skipDisconnect);
+        QBoolBlocker skippy(internalRemove);
         q->removeButton(static_cast<QAbstractButton *>(object));
     }
 }
