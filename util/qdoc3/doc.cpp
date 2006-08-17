@@ -2155,7 +2155,7 @@ Text Doc::trimmedBriefText(const QString &className) const
 	    standardWording = false;
 
         if (!w.isEmpty() && (w.first() == "class" || w.first() == "widget"
-                             || w.first() == "namespace"))
+                             || w.first() == "namespace" || w.first() == "header"))
 	    w.removeFirst();
         else
 	    standardWording = false;
