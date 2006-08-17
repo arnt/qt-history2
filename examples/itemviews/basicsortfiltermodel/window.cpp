@@ -90,6 +90,7 @@ Window::Window()
     resize(500, 450);
 
     proxyView->header()->setSortIndicator(1, Qt::AscendingOrder);
+    proxyView->sortByColumn(1);
     filterPatternLineEdit->setText("Accounts|Expenses");
     filterCaseSensitivityCheckBox->setChecked(true);
     sortCaseSensitivityCheckBox->setChecked(true);
