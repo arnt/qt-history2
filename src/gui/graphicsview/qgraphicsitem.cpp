@@ -1631,12 +1631,13 @@ bool QGraphicsItem::collidesWithItem(QGraphicsItem *other) const
         return false;
     }
 
-    return collidesWithPath(matrixA.inverted().map(matrixB.map(other->shape())));
+    return collidesWithPath(mapFromItem(other, other->shape()));
 }
 
 /*!
-    Returns true if this item collides with \a path, which is in local
-    coordinates; otherwise returns false.
+    Returns true if this item collides with \a path (i.e., intersects with,
+    contains or is contained by \a path), which is in local coordinates;
+    otherwise returns false.
 
     \sa collidesWithItem(), contains(), shape()
 */
@@ -1658,35 +1659,22 @@ bool QGraphicsItem::collidesWithPath(const QPainterPath &path) const
         return true;
 
     // Convert this item and the other item's areas to polygons.
-    QList<QPolygonF> polysA = thisPath.toFillPolygons();
-    QList<QPolygonF> polysB = path.toFillPolygons();
+    QPolygonF polyA = thisPath.toFillPolygon();
+    QPolygonF polyB = path.toFillPolygon();
 
-    // Check if any lines intersect, O(N^4)
-    for (int a = 0; a < polysA.size(); ++a) {
-        const QPolygonF &polyA = polysA.at(a);
-        for (int i = 1; i < polyA.size(); ++i) {
-            QLineF lineA(polyA.at(i - 1), polyA.at(i));
-            for (int b = 0; b < polysB.size(); ++b) {
-                const QPolygonF &polyB = polysB.at(b);
-                for (int j = 1; j < polyB.size(); ++j) {
-                    QLineF lineB(polyB.at(j - 1), polyB.at(j));
-                    if (lineA.intersect(lineB, 0) == QLineF::BoundedIntersection)
-                        return true;
-                }
-            }
-        }
-    }
-
-    // No intersections, check if any point in A is inside B.
-    QPointF pointA;
-    if (!polysA.isEmpty()) {
-        const QPolygonF &polyA = polysA.first();
-        if (!polyA.isEmpty()) {
-            if (path.contains(polyA.first()))
+    // Check if any lines intersect, O(N^2)
+    for (int a = 1; a < polyA.size(); ++a) {
+        QLineF lineA(polyA.at(a - 1), polyA.at(a));
+        for (int b = 1; b < polyB.size(); ++b) {
+            QLineF lineB(polyB.at(b - 1), polyB.at(b));
+            if (lineA.intersect(lineB, 0) == QLineF::BoundedIntersection)
                 return true;
         }
     }
-    return false;
+
+    // No intersections, check if any point in A is inside B or vice verca.
+    return (!polyA.isEmpty() && path.contains(polyA.first()))
+        || (!polyB.isEmpty() && thisPath.contains(polyB.first()));
 }
 
 /*!
