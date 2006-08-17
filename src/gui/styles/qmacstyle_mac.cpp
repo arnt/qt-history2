@@ -2314,7 +2314,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 if (pe == PE_FrameLineEdit) {
                     fdi.kind = kHIThemeFrameTextFieldSquare;
                     GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-                    if (frame->state & State_ReadOnly)
+                    if ((frame->state & State_ReadOnly) || !(frame->state & State_Enabled))
                         fdi.state = kThemeStateInactive;
                 } else {
                     baseColor = QColor(150, 150, 150); //hardcoded since no query function --Sam

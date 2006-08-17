@@ -472,6 +472,7 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
             PaletteMap("QTextEdit", 0, 0),
             PaletteMap("QTextControl", 0, 0),
             PaletteMap("QToolTip", 0, 0),
+            PaletteMap("QLineEdit", 0, 0),
             PaletteMap(0, 0, 0) };
         QColor qc;
         RGBColor c;
@@ -527,6 +528,9 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                               pal.brush(QPalette::Active, QPalette::Text));
                 pal.setBrush(QPalette::Inactive, QPalette::HighlightedText,
                               pal.brush(QPalette::Active, QPalette::Text));
+            } else if (!strcmp(mac_widget_colors[i].qt_class, "QLineEdit")) {
+                pal.setBrush(QPalette::Disabled, QPalette::Base,
+                             pal.brush(QPalette::Active, QPalette::Base));
             } else if (!strcmp(mac_widget_colors[i].qt_class, "QToolTip")) {
                 pal.setBrush(QPalette::Window, QColor(255, 255, 199));
                 QToolTip::setPalette(pal);
