@@ -173,12 +173,14 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
         pathInfo.isDir = isDir;
         pathInfo.path = path;
         pathInfo.timestamp = fileInfo.lastModified();
-        pathInfoForHandle[handle].insert(fileInfo.absoluteFilePath(), pathInfo);
-
-        if (isDir)
-            directories->append(path);
-        else
-            files->append(path);
+        QHash<QString, PathInfo> &h = pathInfoForHandle[handle];
+        if (!h.contains(fileInfo.absoluteFilePath())) {
+            pathInfoForHandle[handle].insert(fileInfo.absoluteFilePath(), pathInfo);
+            if (isDir)
+                directories->append(path);
+            else
+                files->append(path);
+        }
 
         it.remove();
     }
