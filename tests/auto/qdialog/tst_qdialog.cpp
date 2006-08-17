@@ -41,6 +41,7 @@ private slots:
     void showFullScreen();
     void showAsTool();
     void toolDialogPosition();
+    void deleteMainDefault();
 
 private:
     QDialog *testWidget;
@@ -326,6 +327,25 @@ void tst_QDialog::toolDialogPosition()
 	dialog.show();
     const QPoint afterShowPosition = dialog.pos();
     QCOMPARE(afterShowPosition, beforeShowPosition);
+}
+
+class Dialog : public QDialog
+{
+public:
+    Dialog(QPushButton *&button)
+    {
+        button = new QPushButton(this);
+    }
+};
+
+void tst_QDialog::deleteMainDefault()
+{
+    QPushButton *button;
+    Dialog dialog(button);
+    button->setDefault(true);
+    delete button;
+    dialog.show();
+    QTestEventLoop::instance().enterLoop(2);
 }
 
 QTEST_MAIN(tst_QDialog)
