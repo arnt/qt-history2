@@ -37,9 +37,6 @@
 // We mean it.
 //
 
-class QRenderRule;
-typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
-
 class Q_AUTOTEST_EXPORT QStyleSheetStyle : public QWindowsStyle
 {
     typedef QWindowsStyle ParentStyle;
@@ -53,8 +50,6 @@ public:
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
                      const QWidget *w = 0) const;
     void drawItemPixmap(QPainter *painter, const QRect &rect, int alignment, const QPixmap &pixmap) const;
-    void drawIcon(QPainter *p, const QRect &rect, int alignment, const QRenderRules& rules,
-                  const QRenderRule& rule, const char *icon) const;
     void drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal,
               bool enabled, const QString& text, QPalette::ColorRole textRole  = QPalette::NoRole) const;
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
@@ -104,24 +99,6 @@ private Q_SLOTS:
 
 private:
     int refcount;
-
-    void update(const QList<const QWidget *>& widgets);
-
-    void setPalette(QWidget *);
-    void unsetPalette(QWidget *);
-    QVector<QCss::StyleRule> styleRules(QWidget *widget);
-
-    bool hasStyleRule(const QWidget *w) const;
-    bool hasStyleRule(const QWidget *w, int part) const;
-
-    QRenderRule renderRule(const QWidget *w, const QStyleOption *opt, int part = 0) const;
-    QRenderRule renderRule(const QWidget *w, const QString &part = QString(), 
-                           QStyle::State state = QStyle::State_None) const;
-    QRenderRule renderRule(const QWidget *w, int pseudoElement, 
-                           QStyle::State state = QStyle::State_None) const;
-
-    static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
-    static QHash<const QWidget *, QRenderRules> renderRulesCache;
 };
 
 #endif // QT_NO_STYLE_STYLESHEET

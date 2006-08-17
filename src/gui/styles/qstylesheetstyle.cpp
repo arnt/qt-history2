@@ -33,8 +33,11 @@
 
 using namespace QCss;
 
-QHash<const QWidget *, QVector<QCss::StyleRule> > QStyleSheetStyle::styleRulesCache;
-QHash<const QWidget *, QRenderRules> QStyleSheetStyle::renderRulesCache;
+class QRenderRule;
+typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
+
+static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
+static QHash<const QWidget *, QRenderRules> renderRulesCache;
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
@@ -1059,6 +1062,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Style rules
 #define WIDGET(x) (static_cast<QWidget *>(x.ptr))
 
 class QStyleSheetStyleSelector : public StyleSelector
@@ -1100,18 +1104,61 @@ public:
     { }
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-QStyle *QStyleSheetStyle::baseStyle() const
-{ 
-    if (base)
-        return base;
-    if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
-        return me->base;
-    return qApp->style();
+static QVector<QCss::StyleRule> styleRules(QWidget *w)
+{
+    QStyleSheetStyleSelector styleSelector;
+    StyleSheet appSs;
+    Parser parser1(qApp->styleSheet());
+    if (!parser1.parse(&appSs))
+        qWarning("Could not parse application stylesheet");
+    styleSelector.styleSheets += appSs;
+
+    QList<QCss::StyleSheet> inheritedSs;
+    for (QWidget *wid = w->parentWidget(); wid; wid = wid->parentWidget()) {
+        if (wid->styleSheet().isEmpty())
+            continue;
+        StyleSheet ss;
+        Parser parser(wid->styleSheet());
+        if (!parser.parse(&ss))
+            qWarning("Could not parse stylesheet");
+        inheritedSs.prepend(ss);
+    }
+    styleSelector.styleSheets += inheritedSs;
+
+    StyleSheet widgetSs;
+    Parser parser2(w->styleSheet());
+    if (!parser2.parse(&widgetSs))
+        qWarning("Could not parse widget stylesheet");
+
+    styleSelector.styleSheets += widgetSs;
+
+    StyleSelector::NodePtr n;
+    n.ptr = w;
+    return styleSelector.styleRulesForNode(n);
 }
 
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part,
-                                         QStyle::State state) const
+/////////////////////////////////////////////////////////////////////////////////////////
+// Rendering rules
+enum PseudoElement {
+    PseudoElement_None,
+    ArrowDown,
+    Indicator,
+    MenuIndicator,
+};
+
+static struct PseudoElementInfo {
+    PseudoElement pseudoElement;
+    QStyle::SubControl subControl;
+    const char *name;
+} knownPseudoElements[] = {
+    { PseudoElement_None, QStyle::SC_None, "", },
+    { ArrowDown, QStyle::SC_None, "down-arrow" },
+    { Indicator, QStyle::SC_None, "indicator" },
+    { MenuIndicator, QStyle::SC_None, "menu-indicator" }
+};
+
+static QRenderRule renderRule(const QWidget *w, const QString &part = QString(), 
+                              QStyle::State state = QStyle::State_None)
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
@@ -1157,45 +1204,16 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part,
     return newRule;
 }
 
-enum PseudoElement {
-    PseudoElement_None,
-    ArrowDown,
-    Indicator,
-    MenuIndicator,
-};
 
-static struct PseudoElementInfo {
-    PseudoElement pseudoElement;
-    QStyle::SubControl subControl;
-    const char *name;
-} knownPseudoElements[] = {
-    { PseudoElement_None, QStyle::SC_None, "", },
-    { ArrowDown, QStyle::SC_None, "down-arrow" },
-    { Indicator, QStyle::SC_None, "indicator" },
-    { MenuIndicator, QStyle::SC_None, "menu-indicator" }
-};
-
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, 
-                                         QStyle::State state) const
+static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State state = QStyle::State_None)
 {
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-bool QStyleSheetStyle::hasStyleRule(const QWidget *w) const
+static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,  
+                              int pseudoElement = PseudoElement_None)
 {
-    return w && !styleRulesCache.value(w).isEmpty();
-}
-
-bool QStyleSheetStyle::hasStyleRule(const QWidget *w, int part) const
-{
-    QRenderRule rule = renderRule(w, knownPseudoElements[part].name);
-    return !rule.isEmpty();
-}
-
-QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, 
-                                         int pseudoElement) const
-{
-    Q_ASSERT(hasStyleRule(w));
+    Q_ASSERT(w && !styleRulesCache.value(w).isEmpty());
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
 
     // Add hacks for <w, opt> here
@@ -1216,8 +1234,19 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
+static bool hasStyleRule(const QWidget *w)
+{
+    return w && !styleRulesCache.value(w).isEmpty();
+}
+
+static bool hasStyleRule(const QWidget *w, int part)
+{
+    QRenderRule rule = renderRule(w, knownPseudoElements[part].name);
+    return !rule.isEmpty();
+}
+
 // remember to revert changes in unsetPalette
-void QStyleSheetStyle::setPalette(QWidget *w)
+static void setPalette(QWidget *w)
 {
     const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
     if (!hoverRule.isEmpty())
@@ -1269,16 +1298,46 @@ void QStyleSheetStyle::setPalette(QWidget *w)
 #endif
 }
 
-void QStyleSheetStyle::unsetPalette(QWidget *w)
+static void unsetPalette(QWidget *w)
 {
     w->setPalette(qApp->palette(w));
+}
+
+static void updateWidgets(const QList<const QWidget *>& widgets)
+{
+    for (int i = 0; i < widgets.size(); ++i) {
+        QWidget *widget = const_cast<QWidget *>(widgets.at(i));
+        styleRulesCache.remove(widget);
+        renderRulesCache.remove(widget);
+        widget->style()->polish(widget);
+        QEvent e(QEvent::StyleChange);
+        QApplication::sendEvent(widget, &e);
+        widget->update();
+        widget->updateGeometry();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// The stylesheet style
+QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
+: base(base), refcount(1)
+{
+}
+
+QStyle *QStyleSheetStyle::baseStyle() const
+{ 
+    if (base)
+        return base;
+    if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
+        return me->base;
+    return qApp->style();
 }
 
 void QStyleSheetStyle::repolish(QWidget *w)
 {
     QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
     children.append(w);
-    update(children);
+    updateWidgets(children);
 }
 
 /*!
@@ -1292,21 +1351,7 @@ QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, 
 
 void QStyleSheetStyle::repolish(QApplication *)
 {
-    update(styleRulesCache.keys());
-}
-
-void QStyleSheetStyle::update(const QList<const QWidget *>& widgets)
-{
-    for (int i = 0; i < widgets.size(); ++i) {
-        QWidget *widget = const_cast<QWidget *>(widgets.at(i));
-        styleRulesCache.remove(widget);
-        renderRulesCache.remove(widget);
-        polish(widget);
-        QEvent e(QEvent::StyleChange);
-        QApplication::sendEvent(widget, &e);
-        widget->update();
-        widget->updateGeometry();
-    }
+    updateWidgets(styleRulesCache.keys());
 }
 
 void QStyleSheetStyle::widgetDestroyed(QObject *o)
@@ -1315,7 +1360,7 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
     renderRulesCache.remove((const QWidget *)o);
 }
 
-bool unstylable(QWidget *w)
+static bool unstylable(QWidget *w)
 {
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
@@ -1355,39 +1400,6 @@ void QStyleSheetStyle::polish(QWidget *w)
     }
 }
 
-QVector<QCss::StyleRule> QStyleSheetStyle::styleRules(QWidget *w)
-{
-    QStyleSheetStyleSelector styleSelector;
-    StyleSheet appSs;
-    Parser parser1(qApp->styleSheet());
-    if (!parser1.parse(&appSs))
-        qWarning("Could not parse application stylesheet");
-    styleSelector.styleSheets += appSs;
-
-    QList<QCss::StyleSheet> inheritedSs;
-    for (QWidget *wid = w->parentWidget(); wid; wid = wid->parentWidget()) {
-        if (wid->styleSheet().isEmpty())
-            continue;
-        StyleSheet ss;
-        Parser parser(wid->styleSheet());
-        if (!parser.parse(&ss))
-            qWarning("Could not parse stylesheet");
-        inheritedSs.prepend(ss);
-    }
-    styleSelector.styleSheets += inheritedSs;
-
-    StyleSheet widgetSs;
-    Parser parser2(w->styleSheet());
-    if (!parser2.parse(&widgetSs))
-        qWarning("Could not parse widget stylesheet");
-
-    styleSelector.styleSheets += widgetSs;
-
-    StyleSelector::NodePtr n;
-    n.ptr = w;
-    return styleSelector.styleRulesForNode(n);
-}
-
 void QStyleSheetStyle::polish(QApplication *app)
 {
     styleRulesCache.clear();
@@ -1414,12 +1426,6 @@ void QStyleSheetStyle::unpolish(QApplication *app)
     styleRulesCache.clear();
     renderRulesCache.clear();
     baseStyle()->unpolish(app);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
-: base(base), refcount(1)
-{
 }
 
 void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
