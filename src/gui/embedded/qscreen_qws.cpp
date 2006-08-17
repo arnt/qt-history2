@@ -999,13 +999,28 @@ static void blit_32_to_16(const blit_data *data)
 
     int h = data->h;
     while (h) {
+#if Q_BYTE_ORDER == Q_BIT_ENDIAN
+        for (int i = 0; i < data->w; ++i) {
+            const quint16 val = qt_convRgbTo16(src[i]);
+            dest[i] = ((val & 0xff00) >> 8) | ((val & 0x00ff) << 8);
+        }
+#else
         for (int i = 0; i < data->w; ++i)
             dest[i] = qt_convRgbTo16(src[i]);
+#endif
         src += sbpl;
         dest += dbpl;
         --h;
     }
 }
+
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+static inline void memblit_bigendian(quint16 *dst, const quint16 *src, int n)
+{
+    for (int i = 0; i < n; ++i)
+        dst[i] = ((src[i] & 0xff00) >> 8) | ((src[i] & 0x00ff) << 8);
+}
+#endif
 
 static void blit_16_to_16(const blit_data *data)
 {
@@ -1019,10 +1034,14 @@ static void blit_16_to_16(const blit_data *data)
 
     int h = data->h;
     while (h) {
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+        memblit_bigendian((quint16*)dest, (quint16*)src, data->w);
+#else
 #ifdef QT_USE_MEMCPY_DUFF
         QT_MEMCPY_USHORT(dest, src, data->w);
 #else
         memcpy(dest, src, data->w * 2);
+#endif
 #endif
         src += sbpl;
         dest += dbpl;
