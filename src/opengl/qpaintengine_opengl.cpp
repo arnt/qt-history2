@@ -1130,6 +1130,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 bool QOpenGLPaintEngine::end()
 {
+    QGL_FUNC_CONTEXT;
     Q_D(QOpenGLPaintEngine);
     glPopAttrib();
     if (d->has_glsl)
