@@ -256,6 +256,7 @@ public:
     class iterator
     {
         QHashData::Node *i;
+
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -263,6 +264,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
+        // ### Qt 5: get rid of 'operator Node *'
         inline operator Node *() const { return concrete(i); }
         inline iterator() : i(0) { }
         explicit inline iterator(void *node) : i(reinterpret_cast<QHashData::Node *>(node)) { }
@@ -298,19 +300,27 @@ public:
         inline iterator &operator+=(int j) { return *this = *this + j; }
         inline iterator &operator-=(int j) { return *this = *this - j; }
 
+        // ### Qt 5: not sure this is necessary anymore
 #ifdef QT_STRICT_ITERATORS
-    private: // must make them private to prevent implicit conversion to Node*
+    private:
+#else
+    public:
 #endif
         inline bool operator==(const const_iterator &o) const
             { return i == reinterpret_cast<const iterator &>(o).i; }
         inline bool operator!=(const const_iterator &o) const
             { return i != reinterpret_cast<const iterator &>(o).i; }
+
+    private:
+        // ### Qt 5: remove
+        inline operator bool() const { return false; }
     };
     friend class iterator;
 
     class const_iterator
     {
         QHashData::Node *i;
+
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -318,6 +328,7 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
+        // ### Qt 5: get rid of 'operator Node *'
         inline operator Node *() const { return concrete(i); }
         inline const_iterator() : i(0) { }
         explicit inline const_iterator(void *node)
@@ -359,13 +370,17 @@ public:
         inline const_iterator operator-(int j) const { return operator+(-j); }
         inline const_iterator &operator+=(int j) { return *this = *this + j; }
         inline const_iterator &operator-=(int j) { return *this = *this - j; }
+
+        // ### Qt 5: not sure this is necessary anymore
 #ifdef QT_STRICT_ITERATORS
     private:
-        // need to make these operators explicitely private, otherwise operator Node*
-        // is used for comparison
         inline bool operator==(const iterator &o) const { return operator==(const_iterator(o)); }
         inline bool operator!=(const iterator &o) const { return operator!=(const_iterator(o)); }
 #endif
+
+    private:
+        // ### Qt 5: remove
+        inline operator bool() const { return false; }
     };
     friend class const_iterator;
 

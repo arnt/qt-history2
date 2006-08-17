@@ -120,6 +120,7 @@ class QMap
     static inline Node *concrete(QMapData::Node *node) {
         return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - payload());
     }
+
 public:
     inline QMap() : d(&QMapData::shared_null) { d->ref.ref(); }
     inline QMap(const QMap<Key, T> &other) : d(other.d)
@@ -167,6 +168,7 @@ public:
     class iterator
     {
         QMapData::Node *i;
+
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -174,6 +176,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
+        // ### Qt 5: get rid of 'operator Node *'
         inline operator QMapData::Node *() const { return i; }
         inline iterator() : i(0) { }
         inline iterator(QMapData::Node *node) : i(node) { }
@@ -211,19 +214,28 @@ public:
         inline iterator operator-(int j) const { return operator+(-j); }
         inline iterator &operator+=(int j) { return *this = *this + j; }
         inline iterator &operator-=(int j) { return *this = *this - j; }
+
+        // ### Qt 5: not sure this is necessary anymore
 #ifdef QT_STRICT_ITERATORS
-    private: // disallow comparisons
+    private:
+#else
+    public:
 #endif
         inline bool operator==(const const_iterator &o) const
             { return i == reinterpret_cast<const iterator &>(o).i; }
         inline bool operator!=(const const_iterator &o) const
             { return i != reinterpret_cast<const iterator &>(o).i; }
+
+    private:
+        // ### Qt 5: remove
+        inline operator bool() const { return false; }
     };
     friend class iterator;
 
     class const_iterator
     {
         QMapData::Node *i;
+
     public:
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -231,6 +243,7 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
+        // ### Qt 5: get rid of 'operator Node *'
         inline operator QMapData::Node *() const { return i; }
         inline const_iterator() : i(0) { }
         inline const_iterator(QMapData::Node *node) : i(node) { }
@@ -274,11 +287,17 @@ public:
         inline const_iterator operator-(int j) const { return operator+(-j); }
         inline const_iterator &operator+=(int j) { return *this = *this + j; }
         inline const_iterator &operator-=(int j) { return *this = *this - j; }
+
+        // ### Qt 5: not sure this is necessary anymore
 #ifdef QT_STRICT_ITERATORS
     private:
         inline bool operator==(const iterator &o) { return operator==(const_iterator(o)); }
         inline bool operator!=(const iterator &o) { return operator!=(const_iterator(o)); }
 #endif
+
+    private:
+        // ### Qt 5: remove
+        inline operator bool() const { return false; }
     };
     friend class const_iterator;
 
