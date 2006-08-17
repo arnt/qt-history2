@@ -50,6 +50,7 @@ private slots:
     void singleSelectionRemoveRow();
     void singleSelectionRemoveColumn();
     void modelColumn();
+    void hideFirstRow();
 };
 
 // Testing get/set functions
@@ -405,7 +406,7 @@ void tst_QListView::indexAt()
     index = view.indexAt(QPoint(20,2 * sz.height()));
     QVERIFY(!index.isValid());
 
-    
+
 
     model.rCount = 30;
     QListViewShowEventListener view2;
@@ -420,7 +421,7 @@ void tst_QListView::indexAt()
     for (int i = 0; i < 5 && !view2.m_shown; ++i) {
         QTest::qWait(500);
     }
-    
+
     QVERIFY(view2.m_index.isValid());
     QVERIFY(view2.m_index.row() != 0);
 
@@ -519,30 +520,30 @@ void tst_QListView::modelColumn()
 
     QListView view;
     view.setModel(&model);
-    
-    
-    
+
+
+
     //
     // Set and get with a valid model
     //
-    
+
     // Default is column 0
     QCOMPARE(view.modelColumn(), 0);
-   
+
     view.setModelColumn(0);
     QCOMPARE(view.modelColumn(), 0);
     view.setModelColumn(1);
     QCOMPARE(view.modelColumn(), 1);
     view.setModelColumn(2);
     QCOMPARE(view.modelColumn(), 2);
-    
+
     // Out of bound cases should not modify the modelColumn
     view.setModelColumn(-1);
     QCOMPARE(view.modelColumn(), 2);
     view.setModelColumn(INT_MAX);
     QCOMPARE(view.modelColumn(), 2);
-    
-    
+
+
     // See if it displays the right column using indexAt()...
     view.resize(400,400);
     view.show();
@@ -561,6 +562,21 @@ void tst_QListView::modelColumn()
     }
 }
 
+
+void tst_QListView::hideFirstRow()
+{
+    QStringList items;
+    for (int i=0; i <100; ++i)
+        items << "item";
+    QStringListModel model(items);
+
+    QListView view;
+    view.setModel(&model);
+    view.setUniformItemSizes(true);
+    view.setRowHidden(0,true);
+    view.show();
+    QTest::qWait(100);
+}
 
 QTEST_MAIN(tst_QListView)
 #include "tst_qlistview.moc"
