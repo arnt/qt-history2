@@ -137,7 +137,7 @@ void QAuServerNAS::play(const QString& filename)
 
 static void callback(AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
-    if (inprogress->find(p) && e) {
+    if (inprogress->contains(p) && e) {
         if (e->type==AuEventTypeElementNotify &&
                     e->auelementnotify.kind==AuElementNotifyKindState) {
             if (e->auelementnotify.cur_state == AuStateStop) {
