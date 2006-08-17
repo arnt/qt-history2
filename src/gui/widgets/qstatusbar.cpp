@@ -233,19 +233,7 @@ void QStatusBar::addWidget(QWidget * widget, int stretch)
 {
     if (!widget)
         return;
-
-    Q_D(QStatusBar);
-    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, false);
-
-    int i = d->indexToLastNonPermanentWidget();
-    d->items.insert(i >= 0 ? i + 1 : 0, item);
-
-    if (!d->tempItem.isEmpty())
-        widget->hide();
-
-    reformat();
-    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
-        widget->show();
+    insertWidget(d_func()->indexToLastNonPermanentWidget() + 1, widget, stretch);
 }
 
 /*!
@@ -278,8 +266,7 @@ int QStatusBar::insertWidget(int index, QWidget *widget, int stretch)
     int idx = d->indexToLastNonPermanentWidget();
     if (index < 0 || index > d->items.size() || (idx >= 0 && index > idx + 1)) {
         qWarning("QStatusBar::insertWidget: Index out of range (%d), appending widget", index);
-        addWidget(widget);
-        return idx + 1;
+        index = idx + 1;
     }
     d->items.insert(index, item);
 
@@ -311,16 +298,7 @@ void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
 {
     if (!widget)
         return;
-
-    Q_D(QStatusBar);
-    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, true);
-
-    int i = d->items.size() - 1;
-    d->items.insert(i >= 0 ? i + 1 : 0, item);
-
-    reformat();
-    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
-        widget->show();
+    insertPermanentWidget(d_func()->items.size(), widget, stretch);
 }
 
 
@@ -353,8 +331,7 @@ int QStatusBar::insertPermanentWidget(int index, QWidget *widget, int stretch)
     int idx = d->indexToLastNonPermanentWidget();
     if (index < 0 || index > d->items.size() || (idx >= 0 && index <= idx)) {
         qWarning("QStatusBar::insertPermanentWidget: Index out of range (%d), appending widget", index);
-        addPermanentWidget(widget);
-        return d->items.size() - 1;
+        index = d->items.size();
     }
     d->items.insert(index, item);
 
