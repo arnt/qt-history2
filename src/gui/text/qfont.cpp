@@ -1007,6 +1007,9 @@ QFont::StyleHint QFont::styleHint() const
     \value PreferAntialias antialias if possible.
     \value OpenGLCompatible forces the use of OpenGL compatible
            fonts.
+    \value NoFontMerging If a font does not contain a character requested
+           to draw then Qt automatically chooses a similar looking for that contains
+           the character. This flag disables this feature.
 
     Any of these may be OR-ed with one of these flags:
 

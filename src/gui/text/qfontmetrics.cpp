@@ -239,6 +239,18 @@ bool QFontMetrics::operator ==(const QFontMetrics &other)
 */
 
 /*!
+    \fn bool QFontMetrics::operator !=(const QFontMetrics &other) const
+
+    Returns true if \a other is not equal to this object; otherwise returns false.
+
+    Two font metrics are considered equal if they were constructed
+    from the same QFont and the paint devices they were constructed
+    for are considered compatible.
+
+    \sa operator==()
+*/
+
+/*!
     Returns the ascent of the font.
 
     The ascent of a font is the distance from the baseline to the
@@ -374,6 +386,9 @@ int QFontMetrics::xHeight() const
     return qRound(engine->xHeight());
 }
 
+/*!
+    Returns the average width of glyphs in the font.
+*/
 int QFontMetrics::averageCharWidth() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
@@ -1135,6 +1150,9 @@ qreal QFontMetricsF::xHeight() const
     return engine->xHeight().toReal();
 }
 
+/*!
+    Returns the average width of glyphs in the font.
+*/
 qreal QFontMetricsF::averageCharWidth() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);

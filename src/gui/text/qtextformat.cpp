@@ -429,6 +429,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value TextUnderlineColor
     \value TextVerticalAlignment
     \value TextOutline
+    \value TextUnderlineStyle
 
     \value IsAnchor
     \value AnchorHref
@@ -464,6 +465,10 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value ImageName
     \value ImageWidth
     \value ImageHeight
+
+    Selection properties
+
+    \value FullWidthSelection
 
     \value UserProperty
 */
@@ -1051,6 +1056,25 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 */
 
 /*!
+    \enum QTextCharFormat::UnderlineStyle
+
+    This enum describes the different ways drawing underlined text.
+
+    \value NoUnderline          Text is draw without any underlining decoration.
+    \value SingleUnderline      A line is drawn using Qt::SolidLine.
+    \value DashUnderline        Dashes are drawn using Qt::DashLine.
+    \value DotLine              Dots are drawn using Qt::DotLine;
+    \value DashDotLine          Dashs and dots are drawn using Qt::DashDotLine.
+    \value DashDotDotLine       Underlines draw drawn using Qt::DashDotDotLine.
+    \value WaveUnderline        The text is underlined using a wave shaped line.
+    \value SpellCheckUnderline  The underline is drawn depending on the QStyle::SH_SpellCeckUnderlineStyle
+                                style hint of the QApplication style. By default this is mapped to
+                                WaveUnderline, on Mac OS X it is mapped to DashDotLine.
+
+    \sa Qt::PenStyle
+*/
+
+/*!
     \fn QTextCharFormat::QTextCharFormat()
 
     Constructs a new character format object.
@@ -1165,6 +1189,17 @@ bool QTextCharFormat::fontUnderline() const
     return boolProperty(FontUnderline);
 }
 
+/*!
+    \fn UnderlineStyle QTextCharFormat::underlineStyle() const
+
+    Returns the style of underlining the text.
+*/
+
+/*!
+    \fn void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
+
+    Sets the style of underlining the text.
+*/
 void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 {
     setProperty(TextUnderlineStyle, style);

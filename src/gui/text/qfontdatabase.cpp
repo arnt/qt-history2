@@ -1386,6 +1386,7 @@ QFontDatabase::QFontDatabase()
     \value Korean
     \value Vietnamese
     \value Symbol
+    \value Other (the same as Symbol)
     \value Ogham
     \value Runic
 
