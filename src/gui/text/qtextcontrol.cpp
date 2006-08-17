@@ -1716,7 +1716,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
     if (d->linkToCopy.isEmpty() && !showTextSelectionActions)
         return 0;
 
-    QMenu *menu = new QMenu;
+    QMenu *menu = new QMenu(qobject_cast<QWidget *>(parent()));
     QAction *a;
 
     if (d->interactionFlags & Qt::TextEditable) {
