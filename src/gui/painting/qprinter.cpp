@@ -43,7 +43,7 @@
 
 void QPrinterPrivate::createDefaultEngines()
 {
-#if defined (Q_OS_UNIX)
+#if defined (Q_OS_UNIX) && ! defined (Q_WS_MAC)
     if(outputFormat == QPrinter::NativeFormat) {
 #if !defined(QT_NO_CUPS)
         if(QCUPSSupport::cupsVersion() >= 10200)
