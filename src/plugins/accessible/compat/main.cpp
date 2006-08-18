@@ -62,7 +62,7 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
     QWidget *widget = static_cast<QWidget*>(object);
 
     if (classname == "Q3TextEdit") {
-        iface = new QAccessibleTextEdit(widget);
+        iface = new Q3AccessibleTextEdit(widget);
     } else if (classname == "Q3IconView") {
         iface = new QAccessibleIconView(widget);
     } else if (classname == "Q3ListView") {

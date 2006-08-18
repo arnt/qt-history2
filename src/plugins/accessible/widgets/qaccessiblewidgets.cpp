@@ -12,159 +12,113 @@
 ****************************************************************************/
 
 #include "qaccessiblewidgets.h"
+#include "qtextedit.h"
+#include "qtextdocument.h"
+#include "qtextobject.h"
 
 #ifndef QT_NO_ACCESSIBILITY
-#include <qstyle.h>
-#include <qgroupbox.h>
 
 /*!
-  \class QAccessibleViewport qaccessiblewidget.h
-  \brief The QAccessibleViewport class hides the viewport of scrollviews for accessibility.
+  \class QAccessibleTextEdit qaccessiblewidget.h
+  \brief The QAccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
   \internal
-
-  \ingroup accessibility
 */
 
-QAccessibleViewport::QAccessibleViewport(QWidget *o, QWidget *sv)
-    : QAccessibleWidget(o)
+static QTextBlock qTextBlockAt(const QTextDocument *doc, int pos)
 {
-    Q_ASSERT(sv->inherits("QScrollView"));
-    scrollview = static_cast<QAccessibleScrollView *>(queryAccessibleInterface(sv));
-}
-
-QAccessibleViewport::~QAccessibleViewport()
-{
-    delete scrollview;
-}
-
-int QAccessibleViewport::childAt(int x, int y) const
-{
-    int child = QAccessibleWidget::childAt(x, y);
-    if (child > 0)
-        return child;
-
-    QPoint p = widget()->mapFromGlobal(QPoint(x,y));
-    return scrollview->itemAt(p.x(), p.y());
-}
-
-QRect QAccessibleViewport::rect(int child) const
-{
-    if (!child)
-        return QAccessibleWidget::rect(child);
-    QRect rect = scrollview->itemRect(child);
-    QPoint tl = widget()->mapToGlobal(QPoint(0,0));
-    return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
-}
-
-/*
-int QAccessibleViewport::navigate(NavDirection direction, int startControl) const
-{
-    if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-        return QAccessibleWidget::navigate(direction, startControl);
-
-    // ### call itemUp/Down etc. here
-    const int items = scrollview->itemCount();
-    switch(direction) {
-    case NavFirstChild:
-        return 1;
-    case NavLastChild:
-        return items;
-    case NavNext:
-    case NavDown:
-        return startControl + 1 > items ? -1 : startControl + 1;
-    case NavPrevious:
-    case NavUp:
-        return startControl - 1 < 1 ? -1 : startControl - 1;
-    default:
-        break;
+    QTextBlock block = doc->begin();
+    int i = 0;
+    while (block.isValid() && i < pos) {
+        block = block.next();
+        ++i;
     }
-
-    return -1;
-}
-*/
-
-int QAccessibleViewport::childCount() const
-{
-    int widgets = QAccessibleWidget::childCount();
-    return widgets ? widgets : scrollview->itemCount();
-}
-
-QString QAccessibleViewport::text(Text t, int child) const
-{
-    return scrollview->text(t, child);
-}
-
-bool QAccessibleViewport::doAction(int action, int child, const QVariantList &params)
-{
-    return scrollview->doAction(action, child, params);
-}
-
-QAccessible::Role QAccessibleViewport::role(int child) const
-{
-    return scrollview->role(child);
-}
-
-QAccessible::State QAccessibleViewport::state(int child) const
-{
-    return scrollview->state(child);
-}
-
-bool QAccessibleViewport::setSelected(int /*child*/, bool /*on*/, bool /*extend*/)
-{
-//###    return scrollview->setSelected(child, on, extend);
-    return 0;
-}
-
-void QAccessibleViewport::clearSelection()
-{
-//###    scrollview->clearSelection();
-}
-
-QVector<int> QAccessibleViewport::selection() const
-{
-//###    return scrollview->selection();
-    return QVector<int>();
+    return block;
 }
 
 /*!
-  \class QAccessibleScrollView qaccessiblewidget.h
-  \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
-  \internal
+  \fn QAccessibleTextEdit::QAccessibleTextEdit(QWidget* widget)
 
-  \ingroup accessibility
+  Constructs a QAccessibleTextEdit object for a \a widget.
 */
-
-/*!
-  Constructs a QAccessibleScrollView object for a widtet, \a w.
-  The \a role is propagated to the QAccessibleWidget constructor.
-*/
-QAccessibleScrollView::QAccessibleScrollView(QWidget *w, Role role)
-: QAccessibleWidget(w, role)
+QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
+: QAccessibleWidget(o, Pane)
 {
+    Q_ASSERT(widget()->inherits("QTextEdit"));
 }
 
-/*!
-  Returns the ID of the item at viewport position \a x, \a y.
-*/
-int QAccessibleScrollView::itemAt(int /*x*/, int /*y*/) const
+/*! Returns the text edit. */
+QTextEdit *QAccessibleTextEdit::textEdit() const
 {
-    return 0;
+    return static_cast<QTextEdit *>(widget());
 }
 
-/*!
-  Returns the location in viewport coordinates of the item with ID \a
-  item.
-*/
-QRect QAccessibleScrollView::itemRect(int /*item*/) const
+#if 0
+/*! \reimp */
+int QAccessibleTextEdit::itemAt(int x, int y) const
 {
-    return QRect();
+    int p;
+    QPoint cp = textEdit()->viewportToContents(QPoint(x,y));
+    textEdit()->charAt(cp , &p);
+    return p + 1;
 }
 
-/*!
-  Returns the number of items.
-*/
-int QAccessibleScrollView::itemCount() const
+/*! \reimp */
+QRect QAccessibleTextEdit::itemRect(int item) const
 {
-    return 0;
+    QRect rect = textEdit()->paragraphRect(item - 1);
+    if (!rect.isValid())
+        return QRect();
+    QPoint ntl = textEdit()->contentsToViewport(QPoint(rect.x(), rect.y()));
+    return QRect(ntl.x(), ntl.y(), rect.width(), rect.height());
 }
+
+/*! \reimp */
+int QAccessibleTextEdit::itemCount() const
+{
+    return textEdit()->document()->blockCount();
+}
+#endif
+
+/*! \reimp */
+QString QAccessibleTextEdit::text(Text t, int child) const
+{
+    if ((t == Name || t == Value) && child > 0)
+        return qTextBlockAt(textEdit()->document(), child - 1).text();
+    if (t == Value)
+        return textEdit()->toPlainText();
+
+    return QAccessibleWidget::text(t, child);
+}
+
+/*! \reimp */
+void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
+{
+    if (t != Value) {
+        QAccessibleWidget::setText(t, child, text);
+        return;
+    }
+    if (textEdit()->isReadOnly())
+        return;
+
+    if (!child) {
+        textEdit()->setText(text);
+        return;
+    }
+    QTextBlock block = qTextBlockAt(textEdit()->document(), child);
+    if (!block.isValid())
+        return;
+
+    QTextCursor cursor(block);
+    cursor.select(QTextCursor::BlockUnderCursor);
+    cursor.insertText(text);
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleTextEdit::role(int child) const
+{
+    if (child)
+        return EditableText;
+    return QAccessibleWidget::role(child);
+}
+
 #endif // QT_NO_ACCESSIBILITY

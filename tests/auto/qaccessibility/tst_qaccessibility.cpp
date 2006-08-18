@@ -57,6 +57,7 @@ private slots:
     void tabTest();
     void menuTest();
     void spinBoxTest();
+    void textEditTest();
 
 private:
     QWidget *createGUI();
@@ -141,10 +142,10 @@ static QString stateNames(int state)
     if (state & 0x10000000) stateString += " AlertHigh";
     if (state & 0x20000000) stateString += " Protected";
     if (state & 0x3fffffff) stateString += " Valid";
-    
+
     if (stateString.isEmpty())
         stateString = "Unknown state " + QString::number(state);
-    
+
     return stateString;
 }
 
@@ -164,7 +165,7 @@ void printState(QWidget * const widget)
 
 void printState(QAccessibleInterface * const iface, const int child = 0)
 {
-    qDebug() << "State for" << iface->object()->className() << "child" << child 
+    qDebug() << "State for" << iface->object()->className() << "child" << child
              <<  iface->text(QAccessible::Name, child) << stateNames(iface->state(child));
 }
 
@@ -801,7 +802,7 @@ void tst_QAccessibility::navigateCovered()
     QWidget *w1 = new QWidget(w, "1");
     QWidget *w2 = new QWidget(w, "2");
     w->show();
-    
+
     w->setFixedSize(6, 6);
     w1->setFixedSize(5, 5);
     w2->setFixedSize(5, 5);
@@ -1302,10 +1303,10 @@ void tst_QAccessibility::hideShowTest()
 #ifdef QTEST_ACCESSIBILITY
     QWidget * const window = new QWidget();
     QWidget * const child = new QWidget(window);
-    
+
     QVERIFY(state(window) & QAccessible::Invisible);
     QVERIFY(state(child)  & QAccessible::Invisible);
-    
+
     QTestAccessibility::clearEvents();
 
     // show() and veryfy that both window and child are not invisible and get ObjectShow events.
@@ -1323,7 +1324,7 @@ void tst_QAccessibility::hideShowTest()
     QVERIFY(QTestAccessibility::events().contains(QTestAccessibilityEvent(window, 0, QAccessible::ObjectHide)));
     QVERIFY(QTestAccessibility::events().contains(QTestAccessibilityEvent(child, 0, QAccessible::ObjectHide)));
     QTestAccessibility::clearEvents();
-    
+
     delete window;
     QTestAccessibility::clearEvents();
 #else
@@ -1620,7 +1621,7 @@ void tst_QAccessibility::sliderTest()
     QCOMPARE(test->text(QAccessible::Value, 2), QString::number(sliderHorizontal.value()));
     QCOMPARE(test->text(QAccessible::Value, 3), QString());
 // Skip acton tests.
-#if 0 
+#if 0
     QCOMPARE(test->defaultAction(0), QAccessible::SetFocus);
     QCOMPARE(test->defaultAction(1), QAccessible::Press);
     QCOMPARE(test->defaultAction(2), QAccessible::NoAction);
@@ -1699,16 +1700,16 @@ void tst_QAccessibility::sliderTest()
     // Test that when we hide() a slider, the PageLeft, Indicator, and PageRight also gets the
     // Invisible state bit set.
     enum SubControls { PageLeft = 1, Position = 2, PageRight = 3 };
-    
+
     QSlider *slider  = new QSlider();
     QAccessibleInterface * const sliderInterface = QAccessible::queryAccessibleInterface(slider);
     QVERIFY(sliderInterface);
-   
+
     QVERIFY(sliderInterface->state(0)         & QAccessible::Invisible);
     QVERIFY(sliderInterface->state(PageLeft)  & QAccessible::Invisible);
     QVERIFY(sliderInterface->state(Position)  & QAccessible::Invisible);
     QVERIFY(sliderInterface->state(PageRight) & QAccessible::Invisible);
-            
+
     slider->show();
     QVERIFY(sliderInterface->state(0)         ^ QAccessible::Invisible);
     QVERIFY(sliderInterface->state(PageLeft)  ^ QAccessible::Invisible);
@@ -1716,7 +1717,7 @@ void tst_QAccessibility::sliderTest()
     QVERIFY(sliderInterface->state(PageRight) ^ QAccessible::Invisible);
     QVERIFY(QTestAccessibility::events().contains(QTestAccessibilityEvent(slider, 0, QAccessible::ObjectShow)));
     QTestAccessibility::clearEvents();
-    
+
     slider->hide();
     QVERIFY(sliderInterface->state(0)         & QAccessible::Invisible);
     QVERIFY(sliderInterface->state(PageLeft)  & QAccessible::Invisible);
@@ -1734,12 +1735,12 @@ void tst_QAccessibility::sliderTest()
     QVERIFY(sliderInterface->state(PageLeft)  ^ QAccessible::Unavailable);
     QVERIFY(sliderInterface->state(Position)  ^ QAccessible::Unavailable);
     QVERIFY(sliderInterface->state(PageRight) ^ QAccessible::Unavailable);
-    
+
     slider->setValue(0);
     QVERIFY(sliderInterface->state(PageLeft)  & QAccessible::Unavailable);
     QVERIFY(sliderInterface->state(Position)  ^ QAccessible::Unavailable);
     QVERIFY(sliderInterface->state(PageRight) ^ QAccessible::Unavailable);
-    
+
     slider->setValue(100);
     QVERIFY(sliderInterface->state(PageLeft)  ^ QAccessible::Unavailable);
     QVERIFY(sliderInterface->state(Position)  ^ QAccessible::Unavailable);
@@ -1757,7 +1758,7 @@ void tst_QAccessibility::sliderTest()
         slider->setMinimum(0);
         slider->setMaximum(100);
         slider->setValue(50);
-        
+
         const QRect sliderRect = sliderInterface->rect(0);
         QVERIFY(sliderRect.isValid());
 
@@ -1772,7 +1773,7 @@ void tst_QAccessibility::sliderTest()
         delete sliderInterface;
     }
 
- 
+
     QTestAccessibility::clearEvents();
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
@@ -1790,16 +1791,16 @@ void tst_QAccessibility::scrollBarTest()
         PageDown = 4,
         LineDown = 5
  };
-    
+
     QScrollBar *scrollBar  = new QScrollBar();
     QAccessibleInterface * const scrollBarInterface = QAccessible::queryAccessibleInterface(scrollBar);
     QVERIFY(scrollBarInterface);
-   
+
     QVERIFY(scrollBarInterface->state(0)         & QAccessible::Invisible);
     QVERIFY(scrollBarInterface->state(PageUp)    & QAccessible::Invisible);
     QVERIFY(scrollBarInterface->state(Position)  & QAccessible::Invisible);
     QVERIFY(scrollBarInterface->state(PageDown)  & QAccessible::Invisible);
-            
+
     scrollBar->show();
     QVERIFY(scrollBarInterface->state(0)         ^ QAccessible::Invisible);
     QVERIFY(scrollBarInterface->state(PageUp)    ^ QAccessible::Invisible);
@@ -1807,7 +1808,7 @@ void tst_QAccessibility::scrollBarTest()
     QVERIFY(scrollBarInterface->state(PageDown)  ^ QAccessible::Invisible);
     QVERIFY(QTestAccessibility::events().contains(QTestAccessibilityEvent(scrollBar, 0, QAccessible::ObjectShow)));
     QTestAccessibility::clearEvents();
-    
+
     scrollBar->hide();
     QVERIFY(scrollBarInterface->state(0)         & QAccessible::Invisible);
     QVERIFY(scrollBarInterface->state(PageUp)    & QAccessible::Invisible);
@@ -1825,12 +1826,12 @@ void tst_QAccessibility::scrollBarTest()
     QVERIFY(scrollBarInterface->state(PageUp)    ^ QAccessible::Unavailable);
     QVERIFY(scrollBarInterface->state(Position)  ^ QAccessible::Unavailable);
     QVERIFY(scrollBarInterface->state(PageDown)  ^ QAccessible::Unavailable);
-    
+
     scrollBar->setValue(0);
     QVERIFY(scrollBarInterface->state(PageUp)    & QAccessible::Unavailable);
     QVERIFY(scrollBarInterface->state(Position)  ^ QAccessible::Unavailable);
     QVERIFY(scrollBarInterface->state(PageDown)  ^ QAccessible::Unavailable);
-    
+
     scrollBar->setValue(100);
     QVERIFY(scrollBarInterface->state(PageUp)   ^ QAccessible::Unavailable);
     QVERIFY(scrollBarInterface->state(Position) ^ QAccessible::Unavailable);
@@ -1848,7 +1849,7 @@ void tst_QAccessibility::scrollBarTest()
         scrollBar->setMinimum(0);
         scrollBar->setMaximum(100);
         scrollBar->setValue(50);
-        
+
         QApplication::processEvents();
 
         const QRect scrollBarRect = scrollBarInterface->rect(0);
@@ -1876,21 +1877,21 @@ void tst_QAccessibility::tabTest()
 #ifdef QTEST_ACCESSIBILITY
     QTabBar *tabBar = new QTabBar();
     tabBar->show();
-        
+
     QAccessibleInterface * const interface = QAccessible::queryAccessibleInterface(tabBar);
     QVERIFY(interface);
     QCOMPARE(interface->childCount(), 2);
     interface->doAction(QAccessible::Press, 1);
     interface->doAction(QAccessible::Press, 2);
-    
+
     // Test that the Invisible bit for the navigation buttons gets set
     // and cleared correctly.
     QVERIFY(interface->state(1) & QAccessible::Invisible);
-    
+
     const int lots = 10;
     for (int i = 0; i < lots; ++i)
         tabBar->addTab("Foo");
-        
+
     QVERIFY((interface->state(1) & QAccessible::Invisible) == false);
     tabBar->hide();
     QVERIFY(interface->state(1) & QAccessible::Invisible);
@@ -1905,7 +1906,7 @@ void tst_QAccessibility::tabTest()
     // Test that sending a press action to a tab selects it.
     interface->doAction(QAccessible::Press, 2, QVariantList());
     QCOMPARE(tabBar->currentIndex(), 1);
-        
+
     delete tabBar;
     delete interface;
     QTestAccessibility::clearEvents();
@@ -2015,7 +2016,7 @@ void tst_QAccessibility::menuTest()
     if(menuFade)
         QTest::qWait(menuFadeDelay);
     QVERIFY(!file->isVisible() && !edit->isVisible() && !help->isVisible());
-    
+
     interface->doAction(QAccessible::DefaultAction, 1);
     delete interface;
     interface = QAccessible::queryAccessibleInterface(file);
@@ -2056,20 +2057,38 @@ void tst_QAccessibility::spinBoxTest()
 
     QAccessibleInterface * const interface = QAccessible::queryAccessibleInterface(spinBox);
     QVERIFY(interface);
-        
+
     const QRect widgetRect = spinBox->geometry();
     const QRect accessibleRect = interface->rect(0);
     QCOMPARE(accessibleRect, widgetRect);
-    
+
     // Test that we get valid rects for all the spinbox child interfaces.
     const int numChildren = interface->childCount();
     for (int i = 1; i <= numChildren; ++i) {
         const QRect childRect = interface->rect(i);
         QVERIFY(childRect.isNull() == false);
     }
-    
+
     delete spinBox;
     QTestAccessibility::clearEvents();
+#else
+    QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
+#endif
+}
+
+void tst_QAccessibility::textEditTest()
+{
+#ifdef QTEST_ACCESSIBILITY
+    QTextEdit edit;
+    QString text = "hello world\nhow are you today?\n";
+    edit.setText(text);
+
+    QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&edit);
+    QCOMPARE(iface->text(QAccessible::Value, 0), text);
+    QCOMPARE(iface->childCount(), 3);
+    QCOMPARE(iface->text(QAccessible::Value, 1), QString("hello world"));
+    QCOMPARE(iface->text(QAccessible::Value, 2), QString("how are you today?"));
+    QCOMPARE(iface->text(QAccessible::Value, 3), QString());
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif

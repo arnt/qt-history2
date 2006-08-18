@@ -84,8 +84,11 @@ QStringList AccessibleFactory::keys() const
     list << "QSizeGrip";
 #ifndef QT_NO_SPLITTER
     list << "QSplitter";
-#endif
     list << "QSplitterHandle";
+#endif
+#ifndef QT_NO_TEXTEDIT
+    list << "QTextEdit";
+#endif
     list << "QTipLabel";
     list << "QFrame";
     list << "QWidgetStack";
@@ -154,10 +157,6 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleButton(widget, role);
     } else if (classname == "QButton") {
         iface = new QAccessibleButton(widget, PushButton);
-    } else if (classname == "QAbstractScrollAreaWidget") {
-        iface = new QAccessibleViewport(widget, widget->parentWidget());
-    } else if (classname == "QClipperWidget") {
-        iface = new QAccessibleViewport(widget, widget->parentWidget()->parentWidget());
     } else if (classname == "QDialog") {
         iface = new QAccessibleWidget(widget, Dialog);
     } else if (classname == "QMessageBox") {
@@ -196,10 +195,16 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, Window);
     } else if (classname == "QSizeGrip") {
         iface = new QAccessibleWidget(widget, Grip);
+#ifndef QT_NO_SPLITTER
     } else if (classname == "QSplitter") {
         iface = new QAccessibleWidget(widget, Splitter);
     } else if (classname == "QSplitterHandle") {
         iface = new QAccessibleWidget(widget, Grip);
+#endif
+#ifndef QT_NO_TEXTEDIT
+    } else if (classname == "QTextEdit") {
+        iface = new QAccessibleTextEdit(widget);
+#endif
     } else if (classname == "QTipLabel") {
         iface = new QAccessibleWidget(widget, ToolTip);
     } else if (classname == "QFrame") {

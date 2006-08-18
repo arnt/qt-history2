@@ -485,31 +485,31 @@ QVector<int> QAccessibleIconView::selection() const
 
 
 /*!
-  \class QAccessibleTextEdit qaccessiblewidget.h
-  \brief The QAccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
+  \class Q3AccessibleTextEdit qaccessiblewidget.h
+  \brief The Q3AccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
   \internal
 */
 
 /*!
-  \fn QAccessibleTextEdit::QAccessibleTextEdit(QWidget* widget)
+  \fn Q3AccessibleTextEdit::Q3AccessibleTextEdit(QWidget* widget)
 
-  Constructs a QAccessibleTextEdit object for a \a widget.
+  Constructs a Q3AccessibleTextEdit object for a \a widget.
 */
-QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
+Q3AccessibleTextEdit::Q3AccessibleTextEdit(QWidget *o)
 : Q3AccessibleScrollView(o, Pane)
 {
     Q_ASSERT(widget()->inherits("Q3TextEdit"));
 }
 
 /*! Returns the text edit. */
-Q3TextEdit *QAccessibleTextEdit::textEdit() const
+Q3TextEdit *Q3AccessibleTextEdit::textEdit() const
 {
 
     return (Q3TextEdit*)widget();
 }
 
 /*! \reimp */
-int QAccessibleTextEdit::itemAt(int x, int y) const
+int Q3AccessibleTextEdit::itemAt(int x, int y) const
 {
     int p;
     QPoint cp = textEdit()->viewportToContents(QPoint(x,y));
@@ -518,7 +518,7 @@ int QAccessibleTextEdit::itemAt(int x, int y) const
 }
 
 /*! \reimp */
-QRect QAccessibleTextEdit::itemRect(int item) const
+QRect Q3AccessibleTextEdit::itemRect(int item) const
 {
     QRect rect = textEdit()->paragraphRect(item - 1);
     if (!rect.isValid())
@@ -528,13 +528,13 @@ QRect QAccessibleTextEdit::itemRect(int item) const
 }
 
 /*! \reimp */
-int QAccessibleTextEdit::itemCount() const
+int Q3AccessibleTextEdit::itemCount() const
 {
     return textEdit()->paragraphs();
 }
 
 /*! \reimp */
-QString QAccessibleTextEdit::text(Text t, int child) const
+QString Q3AccessibleTextEdit::text(Text t, int child) const
 {
     if (t == Name && child > 0)
         return textEdit()->text(child - 1);
@@ -549,7 +549,7 @@ QString QAccessibleTextEdit::text(Text t, int child) const
 }
 
 /*! \reimp */
-void QAccessibleTextEdit::setText(Text t, int control, const QString &text)
+void Q3AccessibleTextEdit::setText(Text t, int control, const QString &text)
 {
     if (t != Value || control) {
         Q3AccessibleScrollView::setText(t, control, text);
@@ -559,7 +559,7 @@ void QAccessibleTextEdit::setText(Text t, int control, const QString &text)
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleTextEdit::role(int child) const
+QAccessible::Role Q3AccessibleTextEdit::role(int child) const
 {
     if (child)
         return EditableText;

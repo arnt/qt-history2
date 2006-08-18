@@ -75,10 +75,10 @@ protected:
     Q3IconView *iconView() const;
 };
 
-class QAccessibleTextEdit : public Q3AccessibleScrollView
+class Q3AccessibleTextEdit : public Q3AccessibleScrollView
 {
 public:
-    explicit QAccessibleTextEdit(QWidget *o);
+    explicit Q3AccessibleTextEdit(QWidget *o);
 
     int itemAt(int x, int y) const;
     QRect itemRect(int item) const;
