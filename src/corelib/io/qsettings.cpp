@@ -2071,29 +2071,6 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     \printline /settings\(.*,$/
     \printline );
 
-    Sometimes you do want to access settings stored in a specific
-    file or registry path. In that case, you can use a constructor
-    that takes a file name (or registry path) and a file format. For
-    example:
-
-    \skipline }
-    \skipline {
-    \printline /QSettings settings.*Ini/
-
-    The file format can either be QSettings::IniFormat or QSettings::NativeFormat.
-    On Mac OS X, the native format is an XML-based format called \e
-    plist. On Windows, the native format is the Windows registry, and
-    the first argument is a path in the registry rather than a file
-    name, for example:
-
-    \skipline }
-    \skipline {
-    \printline HKEY
-    \printline Native
-
-    On Unix systems, QSettings::IniFormat and QSettings::NativeFormat
-    have the same meaning.
-
     The \l{tools/settingseditor}{Settings Editor} example lets you
     experiment with different settings location and with fallbacks
     turned on or off.
@@ -2150,6 +2127,8 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     process until sync() is called.
 
     \section1 Platform-Specific Notes
+
+    \section2 Locations Where Application Settings Are Stored
 
     As mentioned in the \l{Fallback Mechanism} section, QSettings
     stores settings for an application in up to four locations,
@@ -2217,6 +2196,52 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     setPath(). On Unix and Mac OS X, the user can override them by by
     setting the \c XDG_CONFIG_HOME environment variable; see
     setPath() for details.
+
+    \section2 Accessing INI and .plist Files Directly
+
+    Sometimes you do want to access settings stored in a specific
+    file or registry path. On all platforms, if you want to read an
+    INI file directly, you can use the QSettings constructor that
+    takes a file name as first argument and pass QSettings::IniFormat
+    as second argument. For example:
+
+    \code
+        QSettings settings("/home/petra/misc/myapp.ini",
+                           QSettings::IniFormat);
+    \endcode
+
+    You can then use the QSettings object to read and write settings
+    in the file.
+
+    On Mac OS X, you can access XML-based \c .plist files by passing
+    QSettings::NativeFormat as second argument. For example:
+
+    \code
+        QSettings settings("/Users/petra/misc/myapp.plist",
+                           QSettings::NativeFormat);
+    \endcode
+
+    \section2 Accessing the Windows Registry Directly
+
+    On Windows, QSettings also lets you access arbitrary entries in
+    the system registry. This is done by constructing a QSettings
+    object with a path in the registry and QSettings::NativeFormat.
+    For example:
+
+    \code
+        QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Office",
+                           QSettings::NativeFormat);
+    \endcode
+
+    All the registry entries that appear under the specified path can
+    be read or written through the QSettings object as usual (using
+    forward slashes instead of backslashes). For example:
+
+    \code
+        settings.setValue("11.0/Outlook/Security/DontTrustInstalledFiles", 0);
+    \endcode
+
+    \section2 Platform Limitations
 
     While QSettings attempts to smooth over the differences between
     the different supported platforms, there are still a few
@@ -2443,7 +2468,7 @@ QSettings::QSettings(Format format, Scope scope, const QString &organization,
     If \a format is QSettings::NativeFormat, the meaning of \a
     fileName depends on the platform. On Unix, \a fileName is the
     name of an INI file. On Mac OS X, \a fileName is the name of a
-    .plist file. On Windows, \a fileName is a path in the system
+    \c .plist file. On Windows, \a fileName is a path in the system
     registry.
 
     If \a format is QSettings::IniFormat, \a fileName is the name of an INI
