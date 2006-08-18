@@ -171,8 +171,10 @@ void QDesignerFormWindow::updateChanged()
 
 void QDesignerFormWindow::resizeEvent(QResizeEvent *rev)
 {
-    if(initialized)
+    if(initialized) {
         m_editor->setDirty(true);
+        setWindowModified(true);
+    }
 
     initialized = true;
     QMainWindow::resizeEvent(rev);
