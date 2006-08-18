@@ -955,7 +955,7 @@ QTextBlockUserData::~QTextBlockUserData()
 */
 
 /*!
-    Returns the starting position of the block within the document.
+    Returns the index of the block's first character within the document.
  */
 int QTextBlock::position() const
 {
