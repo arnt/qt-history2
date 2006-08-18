@@ -30,7 +30,7 @@
         <stop offset="100%" stop-color="#bbbbaa" stop-opacity=".75" />
       </radialGradient>
       <radialGradient id="background" gradientUnits="userSpaceOnUse"
-                      cx="0" cy="0" r="400" fx="400" fy="400">
+                      cx="0" cy="0" r="400" fx="250" fy="250">
         <stop offset="0%" stop-color="#ffffee" />
         <stop offset="100%" stop-color="#ccccaa" />
       </radialGradient>
