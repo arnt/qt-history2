@@ -17,9 +17,9 @@
 #include <locale.h>
 #include <stdio.h>
 
-// unistd.h is needed for the _XOPEN_VERSION macro
+// unistd.h is needed for the _XOPEN_UNIX macro
 #include <unistd.h>
-#if (_XOPEN_VERSION-0) >= 500 && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
+#if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
 #  include <langinfo.h>
 #endif
 
@@ -219,7 +219,7 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
     char *codeset = 0;
 #endif
 
-#if (_XOPEN_VERSION-0) >= 500 && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
+#if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     if (cd == (iconv_t) -1) {
         codeset = nl_langinfo(CODESET);
         if (codeset)
