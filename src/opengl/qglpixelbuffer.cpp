@@ -261,7 +261,10 @@ QImage QGLPixelBuffer::toImage() const
         return QImage();
 
     const_cast<QGLPixelBuffer *>(this)->makeCurrent();
-    QImage img(d->req_size, QImage::Format_ARGB32);
+    QImage::Format image_format = QImage::Format_RGB32;
+    if (format().alpha())
+        image_format = QImage::Format_ARGB32_Premultiplied;
+    QImage img(d->req_size, image_format);
     int w = d->req_size.width();
     int h = d->req_size.height();
     glReadPixels(0, 0, d->req_size.width(), d->req_size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
