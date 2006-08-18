@@ -411,7 +411,7 @@
     the previous translation as a possible translation candidate in the
     phrases and guesses area. If the
     previous translation is acceptable just click the \e {Done \& Next}
-    button (press \key{Alt+Enter}) to move on to the next unfinished phrase.
+    button (press \key{Ctrl+Return}) to move on to the next unfinished phrase.
 
     If a phrase occurs more than once in a particular context it will only
     be shown once in \e {Qt Linguist}'s context list and
@@ -447,28 +447,29 @@
     apply in other contexts.
 
     Ctrl key accelerators can exist independently of any visual
-    control. They are often used to invoke actions in menus that
-    would otherwise take several keystrokes or mouse clicks. They may
-    also be used to perform actions that do not appear in any menu or
-    on any button. For example, most applications that have a \e File
+    control. They are often used to invoke actions in menus that would
+    otherwise take several keystrokes or mouse clicks. They may also
+    be used to perform actions that do not appear in any menu or on
+    any button. For example, most applications that have a \e File
     menu have a submenu item called \e New. In many applications this
-    will appear as "\underline{N}ew Ctrl+N". This menu option could
-    be invoked by clicking \e File then clicking \e New with the
+    will appear as "\underline{N}ew Ctrl+N". This menu option could be
+    invoked by clicking \e File then clicking \e New with the
     mouse. Or you could press Alt+F then press N since these letters
     are underlined. But the same thing can be achieved simply by
-    pressing \key{Ctrl+Enter}. Accelerators that use the Ctrl key are
+    pressing \key{Ctrl+N}. Accelerators that use the Ctrl key are
     shown literally in the source text, e.g. \key{Ctrl+Enter}. Ctrl
-    key accelerators have no phrase so the translator must rely on
-    the programmer to add a "comment" which appears in the top right
-    hand pane. This comment should explain what action the Ctrl key
-    accelerator performs. Ideally Ctrl key accelerators are
-    translated simply by copying them by clicking the \e {Begin from
-    Source} button. However in some cases the letter will not make
-    sense in the target language and must be changed. Whatever letter
-    (or digit) is chosen, the translation should always be in the
-    form "Ctrl+" followed by the letter or digit in upper case. As
-    with Alt key accelerators, if the translator changes the key it
-    must not conflict with any other Ctrl key accelerator.
+    key accelerators have no phrase so the translator must rely on the
+    programmer to add a "comment" which appears in the top right hand
+    pane. This comment should explain what action the Ctrl key
+    accelerator performs. Ideally Ctrl key accelerators are translated
+    simply by copying them by choosing the \e {Begin from Source}
+    entry in the \gui Translation menu. However in some cases the
+    letter will not make sense in the target language and must be
+    changed. Whatever letter (or digit) is chosen, the translation
+    should always be in the form "Ctrl+" followed by the letter or
+    digit in upper case. As with Alt key accelerators, if the
+    translator changes the key it must not conflict with any other
+    Ctrl key accelerator.
 
     Later versions of \e {Qt Linguist} are expected to help the
     translator avoid accelerator conflicts.
@@ -491,9 +492,10 @@
 
     \section2 Reusing Translations
 
-    If the translated text is similar to the source text, click the
-    \e {Begin from Source} button (press \key{Alt+T}) which will copy the
-    source text into the translation area.
+    If the translated text is similar to the source text, choose the
+    \e {Begin from Source} entry in the \gui Translation menu (press
+    \key{Ctrl+B}) which will copy the source text into the translation
+    area.
 
     \e {Qt Linguist} automatically lists phrases from the open phrase
     books and similar or identical phrases that have already been translated
