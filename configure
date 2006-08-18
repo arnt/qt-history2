@@ -1504,6 +1504,9 @@ if [ "$CFG_DEBUG" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
         CFG_DEBUG_RELEASE=yes
         CFG_DEBUG=yes
+    elif [ "$Edition" = "Trolltech" ]; then
+        CFG_DEBUG_RELEASE=no
+        CFG_DEBUG=yes
     else
         CFG_DEBUG_RELEASE=no
         CFG_DEBUG=no
