@@ -1,3 +1,4 @@
+    * fix QWSPointerCalibrationData::devPoints and qwsServer
     * Fix QMenu::addAction(QAction *) overload, "using" etc.
     * fix space between two tables using <p></p>
     * qpixmap-qt3.html; remove 8 public functions inherited from QPaintDevice
