@@ -8,8 +8,12 @@ QTEST_NOOP_MAIN
 
 #include <QFileSystemWatcher>
 
-#if defined(Q_OS_LINUX) && !defined(QT_NO_INOTIFY)
-#include <sys/inotify.h>
+#ifdef Q_OS_LINUX
+# ifdef QT_NO_INOTIFY
+#  include <linux/version.h>
+# else
+#  include <sys/inotify.h>
+# endif
 #endif
 
 class tst_QFileSystemWatcher : public QObject
@@ -36,9 +40,14 @@ private:
 tst_QFileSystemWatcher::tst_QFileSystemWatcher()
     : do_force_native(true)
 {
-#if defined(Q_OS_LINUX) && !defined(QT_NO_INOTIFY)
+#ifdef Q_OS_LINUX
+#ifdef QT_NO_INOTIFY
+    if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13))
+        do_force_native = false;
+#else
     if (inotify_init() == -1)
         do_force_native = false;
+#endif
 #endif
 
 }
