@@ -160,6 +160,8 @@ inline void moo()
 {
     int numFiles;
     QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
+    progress.setWindowModality(Qt::WindowModal);
+
     for (int i = 0; i < numFiles; i++) {
         progress.setValue(i);
         qApp->processEvents();
