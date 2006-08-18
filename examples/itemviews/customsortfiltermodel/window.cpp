@@ -89,8 +89,7 @@ Window::Window()
     setWindowTitle(tr("Custom Sort/Filter Model"));
     resize(500, 450);
 
-    proxyView->header()->setSortIndicator(1, Qt::AscendingOrder);
-    proxyView->sortByColumn(1);
+    proxyView->sortByColumn(1, Qt::AscendingOrder);
     filterPatternLineEdit->setText("Grace|Sports");
     filterCaseSensitivityCheckBox->setChecked(true);
 
