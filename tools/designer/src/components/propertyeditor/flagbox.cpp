@@ -26,9 +26,11 @@ FlagBox::FlagBox(QWidget *parent)
     m_model = new FlagBoxModel(this);
     setModel(m_model);
 
-#ifdef Q_WS_MAC
-    setItemDelegate(new QItemDelegate(this));
-#endif
+    QStyleOptionComboBox opt;
+    opt.initFrom(this);
+    opt.editable = isEditable();
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+        setItemDelegate(new QItemDelegate(this));
 
     connect(this, SIGNAL(activated(int)), this, SLOT(slotActivated(int)));
 }
