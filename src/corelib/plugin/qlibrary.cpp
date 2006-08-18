@@ -290,10 +290,12 @@ static long qt_find_pattern(const char *s, ulong s_len,
                 information could not be read.
   Returns  true if version/key information is present and successfully read.
 */
-static bool qt_unix_query(const QString &library, uint *version, bool *debug, QByteArray *key)
+static bool qt_unix_query(const QString &library, uint *version, bool *debug, QByteArray *key, QLibraryPrivate *lib = 0)
 {
     QFile file(library);
     if (!file.open(QIODevice::ReadOnly)) {
+        if (lib)
+            lib->errorString = file.errorString();
         if (qt_debug_component()) {
             qWarning("%s: %s", (const char*) QFile::encodeName(library),
                 qPrintable(qt_error_string(errno)));
@@ -318,6 +320,10 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
         if (qt_debug_component()) {
             qWarning("mmap: %s", qPrintable(qt_error_string(errno)));
         }
+        if (lib)
+            lib->errorString = QLibrary::tr("Could not mmap '%1': %2")
+                .arg(library)
+                .arg(qt_error_string());
 #endif // USE_MMAP
         // try reading the data into memory instead
         data = file.readAll();
@@ -336,10 +342,16 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
     if (pos >= 0)
         ret = qt_parse_pattern(filedata + pos, version, debug, key);
 
+    if (!ret && lib)
+        lib->errorString = QLibrary::tr("Plugin verification data mismatch in '%1'").arg(library);
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
         if (qt_debug_component())
             qWarning("munmap: %s", qPrintable(qt_error_string(errno)));
+        if (lib)
+            lib->errorString = QLibrary::tr("Could not unmap '%1': %2")
+                .arg(library)
+                .arg( qt_error_string() );
     }
 #endif // USE_MMAP
 
@@ -518,7 +530,7 @@ bool QLibraryPrivate::isPlugin()
 #if defined(Q_OS_UNIX)
         if (!pHnd) {
             // use unix shortcut to avoid loading the library
-            success = qt_unix_query(fileName, &qt_version, &debug, &key);
+            success = qt_unix_query(fileName, &qt_version, &debug, &key, this);
         } else
 #endif
         {
@@ -565,6 +577,12 @@ bool QLibraryPrivate::isPlugin()
                  (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff,
                  debug ? "debug" : "release");
         }
+        errorString = QLibrary::tr("The plugin '%1' uses incompatible Qt library. (%2.%3.%4) [%5]")
+            .arg(fileName)
+            .arg((qt_version&0xff0000) >> 16)
+            .arg((qt_version&0xff00) >> 8)
+            .arg(qt_version&0xff)
+            .arg(debug ? QLatin1String("debug") : QLatin1String("release"));
     } else if (key != QT_BUILD_KEY) {
         if (qt_debug_component()) {
             qWarning("In %s:\n"
@@ -574,6 +592,11 @@ bool QLibraryPrivate::isPlugin()
                  QT_BUILD_KEY,
                  key.isEmpty() ? "<null>" : (const char *) key);
         }
+        errorString = QLibrary::tr("The plugin '%1' uses incompatible Qt library."
+                 " Expected build key \"%2\", got \"%3\"")
+                 .arg(fileName)
+                 .arg(QLatin1String(QT_BUILD_KEY))
+                 .arg(key.isEmpty() ? QLatin1String("<null>") : QLatin1String((const char *) key));
 #ifndef QT_NO_DEBUG_PLUGIN_CHECK
     } else if(debug != QLIBRARY_AS_DEBUG) {
         //don't issue a qWarning since we will hopefully find a non-debug? --Sam
@@ -856,7 +879,7 @@ void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
 */
 
 /*!
-    Returns a text string with the description of the last error that happened.
+    Returns a text string with the description of the last error that occured.
     Currently, errorString will only be set if load(), unload() or resolve() for some reason fails.
 */
 QString QLibrary::errorString() const

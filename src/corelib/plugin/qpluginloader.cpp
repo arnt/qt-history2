@@ -224,6 +224,15 @@ QString QPluginLoader::fileName() const
         return d->fileName;
     return QString();
 }
+
+/*!
+    Returns a text string with the description of the last error that occured.
+*/
+QString QPluginLoader::errorString() const
+{
+    return d->errorString.isEmpty() ? tr("Unknown error") : d->errorString;
+}
+
 typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
 Q_GLOBAL_STATIC(StaticInstanceFunctionList, staticInstanceFunctionList)
 
