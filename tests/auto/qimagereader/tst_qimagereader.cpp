@@ -86,7 +86,7 @@ private slots:
 
     void readFromResources_data();
     void readFromResources();
-    
+
 #if QT_VERSION > 0x040100
     void sizeBeforeRead_data();
     void sizeBeforeRead();
@@ -115,7 +115,7 @@ void tst_QImageReader::getSetCheck()
     // void QImageReader::setDevice(QIODevice *)
     QFile *var1 = new QFile;
     obj1.setDevice(var1);
-    QCOMPARE(var1, obj1.device());
+    QCOMPARE((QIODevice *)var1, obj1.device());
     obj1.setDevice((QIODevice *)0);
     QCOMPARE((QIODevice *)0, obj1.device());
     delete var1;
@@ -592,14 +592,14 @@ public slots:
         connect(&clientSocket, SIGNAL(connected()), this, SLOT(connected()));
         clientSocket.connectToHost(QHostAddress::LocalHost, server.serverPort());
     }
-    
+
 public:
     inline QTcpSocket *socket() const { return serverSocket; }
 
 signals:
     void ready();
 
-private slots:    
+private slots:
     void acceptNewConnection()
     {
         serverSocket = server.nextPendingConnection();
@@ -729,7 +729,7 @@ void tst_QImageReader::readFromFileAfterJunk()
         QString cause = QString("Skipping %1; no %2 support").arg(fileName).arg(QString(format));
         QSKIP(qPrintable(cause), SkipSingle);
     }
-    
+
     QFile::remove("junk");
     QFile junkFile("junk");
     QVERIFY(junkFile.open(QFile::WriteOnly));
@@ -746,7 +746,7 @@ void tst_QImageReader::readFromFileAfterJunk()
     if (format == "ppm" || format == "pbm" || format == "pgm")
 #endif
         iterations = 1;
-    
+
     if (format == "mng" || !QImageWriter::supportedImageFormats().contains(format)) {
         for (int i = 0; i < iterations; ++i) {
             junkFile.write("deadbeef", 9);
@@ -761,7 +761,7 @@ void tst_QImageReader::readFromFileAfterJunk()
     }
     junkFile.close();
     junkFile.open(QFile::ReadOnly);
-    
+
     for (int i = 0; i < iterations; ++i) {
         QByteArray ole = junkFile.read(9);
         junkFile.ungetChar(ole[ole.size() - 1]);
@@ -807,10 +807,10 @@ void tst_QImageReader::description()
     foreach (QString key, description.keys())
         QCOMPARE(reader.text(key), description.value(key));
     QCOMPARE(reader.textKeys(), QStringList(description.keys()));
-    
+
     QImage image = reader.read();
     QVERIFY(!image.isNull());
-    
+
     foreach (QString key, description.keys())
         QCOMPARE(image.text(key), description.value(key));
     QCOMPARE(image.textKeys(), QStringList(description.keys()));
