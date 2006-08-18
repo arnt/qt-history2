@@ -30,6 +30,7 @@ Q_DECLARE_METATYPE(QSize)
 Q_DECLARE_METATYPE(QColor)
 Q_DECLARE_METATYPE(QStringMap)
 Q_DECLARE_METATYPE(QIntList)
+Q_DECLARE_METATYPE(QIODevice *)
 
 //TESTED_FILES=gui/image/qimagereader.h gui/image/qimagereader.cpp
 
@@ -117,11 +118,10 @@ void tst_QImageReader::getSetCheck()
     obj1.setDevice(var1);
 
     //A bit ugly but that's the only way to compile under windows.
-    QCOMPARE(reinterpret_cast<char *>(var1),
-             reinterpret_cast<char *>(obj1.device()));
+    QCOMPARE((QIODevice *) var1, obj1.device()));
     obj1.setDevice((QIODevice *)0);
-    QCOMPARE(reinterpret_cast<char *>(0),
-             reinterpret_cast<char *>(obj1.device()));
+    QCOMPARE((QIODevice *) 0,
+             obj1.device());
     delete var1;
 }
 

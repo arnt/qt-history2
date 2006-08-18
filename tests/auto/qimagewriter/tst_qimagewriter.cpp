@@ -24,6 +24,8 @@ Q_DECLARE_METATYPE(QImage)
 Q_DECLARE_METATYPE(QStringMap)
 Q_DECLARE_METATYPE(QIntList)
 Q_DECLARE_METATYPE(QImageWriter::ImageWriterError)
+//Normally useless, but we'll see...
+Q_DECLARE_METATYPE(QIODevice *)
 
 //TESTED_FILES=gui/image/qimagewriter.h gui/image/qimagewriter.cpp
 
@@ -68,14 +70,12 @@ void tst_QImageWriter::getSetCheck()
     QFile *var1 = new QFile;
     obj1.setDevice(var1);
 
-    QCOMPARE(reinterpret_cast<char *>(var1),
-             reinterpret_cast<char *>(obj1.device()));
+    QCOMPARE((QIODevice *) var1, obj1.device());
     // The class should possibly handle a 0-pointer as a device, since
     // there is a default contructor, so it's "handling" a 0 device by default.
     // For example: QMovie::setDevice(0) works just fine
     obj1.setDevice((QIODevice *)0);
-    QCOMPARE(reinterpret_cast<char *>(0),
-             reinterpret_cast<char *>(obj1.device()));
+    QCOMPARE((QIODevice *) 0, obj1.device());
     delete var1;
 
     // int QImageWriter::quality()
