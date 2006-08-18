@@ -1160,6 +1160,16 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
     set up before being used with this function.
 
     This is only a convenience method to print the whole document to the printer.
+
+    If the document is already paginated through a specified height in the pageSize()
+    property it is printed as-is.
+
+    If the document is not paginated, like for example a document used in a QTextEdit,
+    then a temporary copy of the document is created and the copy is broken into
+    multiple pages according to the size of the QPrinter's paperRect(). The default
+    font size is also set to a font with 10 points and a 2 cm margin is set around the
+    document contents. In addition the current page number is printed at the bottom of
+    each page.
 */
 
 void QTextDocument::print(QPrinter *printer) const
