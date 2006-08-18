@@ -1589,8 +1589,10 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     if (!selectionModel())
         return;
 
-    QPoint tl(isRightToLeft() ? rect.right() : rect.left(), rect.top());
-    QPoint br(isRightToLeft() ? rect.left() : rect.right(), rect.bottom());
+    QPoint tl(isRightToLeft() ? qMax(rect.left(), rect.right())
+              : qMin(rect.left(), rect.right()), qMin(rect.top(), rect.bottom()));
+    QPoint br(isRightToLeft() ? qMin(rect.left(), rect.right()) :
+              qMax(rect.left(), rect.right()), qMax(rect.top(), rect.bottom()));
     QModelIndex topLeft = indexAt(tl);
     QModelIndex bottomRight = indexAt(br);
     if (selectionBehavior() != SelectRows) {

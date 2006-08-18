@@ -1367,8 +1367,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
 
         // Do the normalize ourselves, since QRect::normalized() is flawed
-        if (topLeft.y() > bottomRight.y()) qSwap(topLeft.ry(), bottomRight.ry());
-        if (topLeft.x() > bottomRight.x()) qSwap(topLeft.rx(), bottomRight.rx());
         QRect selectionRect = QRect(topLeft, bottomRight);
         QPersistentModelIndex persistent = index;
         setSelection(selectionRect, command);

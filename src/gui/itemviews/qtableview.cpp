@@ -977,9 +977,12 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(QTableView);
-    QModelIndex tl = indexAt(QPoint(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
-    QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
-
+    QModelIndex tl =
+        indexAt(QPoint(isRightToLeft() ? qMax(rect.left(), rect.right())
+                       : qMin(rect.left(), rect.right()), qMin(rect.top(), rect.bottom())));
+    QModelIndex br =
+        indexAt(QPoint(isRightToLeft() ? qMin(rect.left(), rect.right()) :
+                       qMax(rect.left(), rect.right()), qMax(rect.top(), rect.bottom())));
     if (!d->selectionModel || !tl.isValid() || !br.isValid())
         return;
 
