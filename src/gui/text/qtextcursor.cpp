@@ -2098,6 +2098,7 @@ bool QTextCursor::isCopyOf(const QTextCursor &other) const
 }
 
 /*!
+    \since 4.2
     Returns the number of the block the cursor is in.
 
     Note that this function only makes sense in documents without complex objects such
@@ -2122,6 +2123,7 @@ int QTextCursor::blockNumber() const
 }
 
 /*!
+    \since 4.2
     Returns the position of the cursor within its containing line.
 */
 int QTextCursor::columnNumber() const
