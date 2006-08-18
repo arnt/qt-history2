@@ -3918,7 +3918,7 @@ void QCleanlooksStylePrivate::lookupIconTheme() const
         return;
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
-    if (gconftool.waitForFinished())
+    if (gconftool.waitForStarted(500) && gconftool.waitForFinished(1000))
         themeName = QLatin1String(gconftool.readLine().trimmed());
     if (themeName.isEmpty())
         themeName = "gnome";
