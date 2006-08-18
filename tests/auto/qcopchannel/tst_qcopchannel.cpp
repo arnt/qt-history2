@@ -12,6 +12,7 @@
 #ifdef Q_WS_QWS
 
 #include <QCopChannel>
+#include <QProcess>
 
 class tst_QCopChannel : public QObject
 {
@@ -24,7 +25,23 @@ public:
 private slots:
     void channel();
     void isRegistered();
-    void sendreceive();
+    void sendreceivemp();
+    void sendreceivesp();
+protected:
+    void testSend(const QString& channel, const QString& msg, const QByteArray& data=QByteArray());
+};
+
+class tst_SendQCopProcess : public QProcess
+{
+    Q_OBJECT
+public:
+    tst_SendQCopProcess( QObject* par )
+	: QProcess( par )
+    {
+    }
+
+signals:
+    void messageSent();
 };
 
 void tst_QCopChannel::channel()
@@ -45,16 +62,42 @@ void tst_QCopChannel::isRegistered()
     QVERIFY(!QCopChannel::isRegistered(channelName));
 }
 
-void tst_QCopChannel::sendreceive()
+void tst_QCopChannel::sendreceivemp()
+{
+    const QString channelName("tst_QcopChannel::send()");
+    QCopChannel *channel = new QCopChannel(channelName);
+    QSignalSpy spy(channel, SIGNAL(received(const QString&, const QByteArray&)));
+
+    testSend("foo", "msg");
+    QApplication::processEvents();
+    QCOMPARE(spy.count(), 0);
+
+    testSend(channelName, "msg", "data");
+    QApplication::processEvents();
+    QCOMPARE(spy.count(), 1);
+
+    QList<QVariant> args = spy.takeFirst();
+    QCOMPARE(args.at(0).toString(), QString("msg"));
+    QCOMPARE(args.at(1).toByteArray(), QByteArray("data"));
+
+    QCOMPARE(spy.count(), 0);
+
+    delete channel;
+    testSend(channelName, "msg2");
+    QApplication::processEvents();
+    QCOMPARE(spy.count(), 0);
+}
+
+void tst_QCopChannel::sendreceivesp()
 {
     const QString channelName("tst_QcopChannel::send()");
     QCopChannel *channel = new QCopChannel(channelName);
     QSignalSpy spy(channel, SIGNAL(received(const QString&, const QByteArray&)));
     QCopChannel::send("foo", "msg");
-    QCopChannel::flush();
+    QApplication::processEvents();
     QCOMPARE(spy.count(), 0);
     QCopChannel::send(channelName, "msg", "data");
-    QCopChannel::flush();
+    QApplication::processEvents();
     QCOMPARE(spy.count(), 1);
 
     QList<QVariant> args = spy.takeFirst();
@@ -67,6 +110,23 @@ void tst_QCopChannel::sendreceive()
     QCopChannel::send(channelName, "msg2");
     QApplication::processEvents();
     QCOMPARE(spy.count(), 0);
+}
+
+void tst_QCopChannel::testSend( const QString& channel, const QString& msg, const QByteArray& data )
+{
+    QProcess* proc = new QProcess;
+    QStringList args;
+    args << channel << msg;
+    if( !data.isEmpty() )
+	args << data;
+    proc->start( "testSend/testSend", args );
+
+    QTest::qWait(100);
+
+    QVERIFY(proc->state() == QProcess::NotRunning || proc->waitForFinished());
+    QCOMPARE(proc->exitStatus(), QProcess::NormalExit);
+    QVERIFY(proc->readAll() == "done"); // sanity check
+    delete proc;
 }
 
 QTEST_MAIN(tst_QCopChannel)

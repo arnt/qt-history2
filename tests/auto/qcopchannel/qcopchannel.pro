@@ -1,3 +1,4 @@
-load(qttest_p4)
-SOURCES += tst_qcopchannel.cpp
+TEMPLATE = subdirs
+SUBDIRS = testSend
 
+SUBDIRS += test
