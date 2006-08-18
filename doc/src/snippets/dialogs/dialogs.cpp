@@ -163,7 +163,7 @@ inline void moo()
     for (int i = 0; i < numFiles; i++) {
         progress.setValue(i);
         qApp->processEvents();
-        
+
         if (progress.wasCanceled())
             break;
         //... copy one file
@@ -174,9 +174,9 @@ inline void moo()
 class Operation : public QObject
 {
 public:
-    Operation::Operation(QObject *parent);
-    void Operation::perform();
-    void Operation::cancel();
+    Operation(QObject *parent);
+    void perform();
+    void cancel();
 
 private:
     int steps;
