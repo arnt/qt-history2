@@ -213,7 +213,7 @@ void Generator::generateCode()
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
         const PropertyDef &p = cdef->propertyList.at(i);
         if (!isVariantType(p.type) && !metaTypes.contains(p.type)) {
-            int s = p.type.indexOf("::");
+            int s = p.type.lastIndexOf("::");
             if (s > 0) {
                 QByteArray scope = p.type.left(s);
                 if (scope != "Qt" && scope != cdef->classname && !extraList.contains(scope))

@@ -606,7 +606,7 @@ QMetaProperty QMetaObject::property(int index) const
             if (!result.menum.isValid()) {
                 QByteArray enum_name = type;
                 QByteArray scope_name = d.stringdata;
-                int s = enum_name.indexOf("::");
+                int s = enum_name.lastIndexOf("::");
                 if (s > 0) {
                     scope_name = enum_name.left(s);
                     enum_name = enum_name.mid(s + 2);

@@ -341,6 +341,7 @@ private slots:
     void namespaceTypeProperty();
     void slotsWithVoidTemplate();
     void structQObject();
+    void namespacedFlags();
 
 signals:
     void sigWithUnsignedArg(unsigned foo);
@@ -656,6 +657,22 @@ void tst_Moc::structQObject()
 {
     StructQObject o;
     QCOMPARE(QByteArray(o.metaObject()->className()), QByteArray("StructQObject"));
+}
+
+#include "namespaced-flags.h"
+
+void tst_Moc::namespacedFlags()
+{
+    Foo::Baz baz;
+    Foo::Bar bar;
+
+    bar.setFlags(Foo::Bar::Read | Foo::Bar::Write);
+    QVERIFY(baz.flags() != bar.flags());
+
+    const QVariant v = bar.property("flags");
+    QVERIFY(v.isValid());
+    QVERIFY(baz.setProperty("flags", v));
+    QVERIFY(baz.flags() == bar.flags());
 }
 
 QTEST_MAIN(tst_Moc)
