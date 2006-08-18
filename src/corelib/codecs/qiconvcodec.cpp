@@ -14,12 +14,22 @@
 #include "qiconvcodec_p.h"
 
 #include <errno.h>
-#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
-#include <langinfo.h>
-#else
 #include <locale.h>
-#endif
 #include <stdio.h>
+
+// unistd.h is needed for the _XOPEN_VERSION macro
+#include <unistd.h>
+#if (_XOPEN_VERSION-0) >= 500 && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
+#  include <langinfo.h>
+#endif
+
+#if defined(Q_OS_HPUX)
+#  define UTF16 "ucs2"
+#elif defined(Q_OS_AIX)
+#  define UTF16 "UCS-2"
+#else
+#  define UTF16 "UTF-16"
+#endif
 
 QIconvCodec::QIconvCodec()
     : utf16Codec(0)
@@ -43,7 +53,7 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
     if (utf16Codec == reinterpret_cast<QTextCodec *>(~0))
         return QString::fromAscii(chars, len);
 
-    iconv_t cd = createIconv_t("UTF-16", 0);
+    iconv_t cd = createIconv_t(UTF16, 0);
     if (cd == reinterpret_cast<iconv_t>(-1)) {
         static int reported = 0;
         if (!reported++) {
@@ -103,7 +113,7 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
 
 QByteArray QIconvCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
 {
-    iconv_t cd = createIconv_t(0, "UTF-16");
+    iconv_t cd = createIconv_t(0, UTF16);
     if (cd == reinterpret_cast<iconv_t>(-1)) {
         static int reported = 0;
         if (!reported++) {
@@ -196,9 +206,8 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
     cd = iconv_open(to ? to : codeset, from ? from : codeset);
 #else
     char *codeset = 0;
-#endif
 
-#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
+#if (_XOPEN_VERSION-0) >= 500 && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     if (cd == (iconv_t) -1) {
         codeset = nl_langinfo(CODESET);
         if (codeset)
@@ -269,6 +278,7 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
         delete [] ctype;
         delete [] lang;
     }
+#endif
 
     return cd;
 }
