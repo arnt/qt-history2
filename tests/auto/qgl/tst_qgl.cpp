@@ -209,11 +209,14 @@ void tst_QGL::getSetCheck()
 
 void tst_QGL::openGLVersionCheck()
 {
+#ifdef Q_WS_QWS
+    QSKIP("QGL not yet supported on QWS", SkipAll);
+#else
     extern QGLFormat::OpenGLVersionFlags qOpenGLVersionFlagsFromString(const QString &versionString);
     QString versionString;
     QGLFormat::OpenGLVersionFlags expectedFlag;
     QGLFormat::OpenGLVersionFlags versionFlag;
-    
+
     versionString = "1.1 Irix 6.5";
     expectedFlag = QGLFormat::OpenGL_Version_1_1;
     versionFlag = qOpenGLVersionFlagsFromString(versionString);
@@ -223,7 +226,7 @@ void tst_QGL::openGLVersionCheck()
     expectedFlag = QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
     versionFlag = qOpenGLVersionFlagsFromString(versionString);
     QCOMPARE(versionFlag, expectedFlag);
-    
+
     versionString = "1.2.1";
     expectedFlag = QGLFormat::OpenGL_Version_1_2 | QGLFormat::OpenGL_Version_1_1;
     versionFlag = qOpenGLVersionFlagsFromString(versionString);
@@ -292,6 +295,7 @@ void tst_QGL::openGLVersionCheck()
     // However, the complicated parts are in openGLVersionFlags(const QString &versionString)
     // tested above
     QVERIFY(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_1);
+#endif
 }
 
 QTEST_MAIN(tst_QGL)
