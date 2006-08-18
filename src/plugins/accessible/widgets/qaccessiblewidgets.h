@@ -20,7 +20,7 @@
 
 class QTextEdit;
 
-class QAccessibleTextEdit : public QAccessibleWidget
+class QAccessibleTextEdit : public QAccessibleWidgetEx
 {
 public:
     explicit QAccessibleTextEdit(QWidget *o);
@@ -28,6 +28,8 @@ public:
     QString text(Text t, int child) const;
     void setText(Text t, int control, const QString &text);
     Role role(int child) const;
+
+    QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
 
 protected:
     QTextEdit *textEdit() const;

@@ -41,7 +41,7 @@ static QTextBlock qTextBlockAt(const QTextDocument *doc, int pos)
   Constructs a QAccessibleTextEdit object for a \a widget.
 */
 QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
-: QAccessibleWidget(o, Pane)
+: QAccessibleWidgetEx(o, EditableText)
 {
     Q_ASSERT(widget()->inherits("QTextEdit"));
 }
@@ -87,14 +87,14 @@ QString QAccessibleTextEdit::text(Text t, int child) const
     if (t == Value)
         return textEdit()->toPlainText();
 
-    return QAccessibleWidget::text(t, child);
+    return QAccessibleWidgetEx::text(t, child);
 }
 
 /*! \reimp */
 void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
 {
     if (t != Value) {
-        QAccessibleWidget::setText(t, child, text);
+        QAccessibleWidgetEx::setText(t, child, text);
         return;
     }
     if (textEdit()->isReadOnly())
@@ -118,7 +118,30 @@ QAccessible::Role QAccessibleTextEdit::role(int child) const
 {
     if (child)
         return EditableText;
-    return QAccessibleWidget::role(child);
+    return QAccessibleWidgetEx::role(child);
 }
 
+QVariant QAccessibleTextEdit::invokeMethodEx(QAccessible::Method method, int child,
+                                                     const QVariantList &params)
+{
+    if (child)
+        return QVariant();
+
+    switch (method) {
+    case ListSupportedMethods: {
+        QVariantList list;
+        list << ListSupportedMethods << SetCursorPosition << GetCursorPosition;
+        return list;
+    }
+    case SetCursorPosition: {
+        QTextCursor cursor = textEdit()->textCursor();
+        cursor.setPosition(params.value(0).toInt());
+        textEdit()->setTextCursor(cursor);
+        return true; }
+    case GetCursorPosition:
+        return textEdit()->textCursor().position();
+    }
+
+    return QVariant();
+}
 #endif // QT_NO_ACCESSIBILITY
