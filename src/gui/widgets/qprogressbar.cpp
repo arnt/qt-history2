@@ -378,14 +378,14 @@ QString QProgressBar::text() const
     int totalSteps = d->maximum - d->minimum;
 
     QString result = d->format;
-    result.replace(QLatin1String("%m"), tr("%1").arg(totalSteps));
-    result.replace(QLatin1String("%v"), tr("%1").arg(d->value));
+    result.replace(QLatin1String("%m"), QString::fromLatin1("%1").arg(totalSteps));
+    result.replace(QLatin1String("%v"), QString::fromLatin1("%1").arg(d->value));
 
     // If max and min are equal and we get this far, it means that the
     // progress bar has one step and that we are on that step. Return
     // 100% here in order to avoid division by zero further down.
     if (totalSteps == 0) {
-        result.replace(QLatin1String("%p"), tr("%1").arg(100));
+        result.replace(QLatin1String("%p"), QString::fromLatin1("%1").arg(100));
         return result;
     }
 
@@ -396,7 +396,7 @@ QString QProgressBar::text() const
         totalSteps /= 1000;
     }
 
-    result.replace(QLatin1String("%p"), tr("%1").arg((progress * 100) / totalSteps));
+    result.replace(QLatin1String("%p"), QString::fromLatin1("%1").arg((progress * 100) / totalSteps));
     return result;
 }
 
