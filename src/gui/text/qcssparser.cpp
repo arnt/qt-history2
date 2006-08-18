@@ -181,6 +181,8 @@ static const QCssKnownValue pseudos[NumPseudos - 1] = {
     { "focus", PseudoState_Focus },
     { "hover", PseudoState_Hover },
     { "indeterminate" , PseudoState_Indeterminate },
+    { "off", PseudoState_Unchecked },
+    { "on", PseudoState_Checked },
     { "pressed", PseudoState_Pressed },
     { "unchecked" , PseudoState_Unchecked }
 };
@@ -441,7 +443,11 @@ static Qt::Alignment parseAlignment(const Value *values, int count)
 static QColor parseColorValue(Value v)
 {
     if (v.type == Value::Identifier || v.type == Value::String) {
-        v.variant.convert(QVariant::Color);
+        if (v.variant.toString().compare("transparent", Qt::CaseInsensitive) != 0) {
+            v.variant.convert(QVariant::Color);
+        } else {
+            v.variant = QColor(Qt::transparent);
+        }
         v.type = Value::Color;
     }
     if (v.type == Value::Color)

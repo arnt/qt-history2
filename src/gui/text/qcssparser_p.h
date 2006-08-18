@@ -267,10 +267,12 @@ enum PseudoState
     PseudoState_Focus           = 0x00000008,
     PseudoState_Hover           = 0x00000010,
     PseudoState_Checked         = 0x00000020,
+    PseudoState_On              = PseudoState_Checked,
     PseudoState_Unchecked       = 0x00000040,
+    PseudoState_Off             = PseudoState_Unchecked,
     PseudoState_Indeterminate   = 0x00000080,
     PseudoState_Unspecified     = 0x00000100,
-    NumPseudos = 9
+    NumPseudos = 11
 };
 
 struct Q_GUI_EXPORT Pseudo
