@@ -348,7 +348,7 @@ GradientWidget::GradientWidget(QWidget *parent)
     connect(showSourceButton, SIGNAL(clicked()), m_renderer, SLOT(showSource()));
 #ifdef QT_OPENGL_SUPPORT
     connect(enableOpenGLButton, SIGNAL(clicked(bool)), m_renderer, SLOT(enableOpenGL(bool)));
-#endif    
+#endif
     connect(whatsThisButton, SIGNAL(clicked(bool)), m_renderer, SLOT(setDescriptionEnabled(bool)));
     connect(whatsThisButton, SIGNAL(clicked(bool)),
             m_renderer->hoverPoints(), SLOT(setDisabled(bool)));
@@ -467,8 +467,10 @@ void GradientRenderer::paint(QPainter *p)
         g = QLinearGradient(pts.at(0), pts.at(1));
 
     } else if (m_gradientType == Qt::RadialGradientPattern) {
-        g = QRadialGradient(pts.at(0), qMin(width(), height()) / 3.0, pts.at(1));
-
+        QLineF line(pts.at(0), pts.at(1));
+        if (line.length() > 132)
+            line.setLength(132);
+        g = QRadialGradient(line.p1(), qMin(width(), height()) / 3.0, line.p2());
     } else {
         QLineF l(pts.at(0), pts.at(1));
         double angle = l.angle(QLineF(0, 0, 1, 0));
