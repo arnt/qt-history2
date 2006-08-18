@@ -366,10 +366,13 @@
         }
     \endcode
 
+    In the \c .pro file for your application, you need the following
+    entry:
+
     \code
-        TEMPLATE      = app
-        QTPLUGIN     += qjpeg qgif      # image formats
-        QTPLUGIN     += qkrcodecs       # text codecs
+        QTPLUGIN     += qjpeg \
+                        qgif \
+                        qkrcodecs
     \endcode
 
     It is also possible to create your own static plugins, by
