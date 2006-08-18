@@ -273,15 +273,11 @@ void tst_qmake::install_depends()
 }
 void tst_qmake::quotedfilenames()
 {
-#if QT_VERSION < 0x040200
-    QSKIP("Fixed in >= 4.2.0", SkipAll);
-#else
     QString workDir = base_path + "/testdata/quotedfilenames";
     QVERIFY( test_compiler.qmake( workDir, "quotedfilenames" ));
     QVERIFY( test_compiler.makeClean( workDir ));
     QVERIFY( test_compiler.make( workDir ));
     QVERIFY( test_compiler.exists( workDir, "quotedfilenames", Exe, "1.0.0" ));
-#endif
 }
 
 void tst_qmake::prompt()
