@@ -217,7 +217,7 @@
   \l{Dock Widgets Example}{Dock Widgets} example.
 
   \bold{Access to OpenGL framebuffer objects} is provided by the
-  QGLFrameBufferObject class; this enables textures to be painted with a series
+  QGLFramebufferObject class; this enables textures to be painted with a series
   of calls to QPainter functions in the usual way for QPaintDevice subclasses.
 
   \bold{Improved support for platform-native message boxes} is provided by
