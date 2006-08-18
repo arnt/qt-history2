@@ -91,7 +91,9 @@ Window::Window()
 
     proxyView->header()->setSortIndicator(1, Qt::AscendingOrder);
     proxyView->sortByColumn(1);
-    filterPatternLineEdit->setText("Accounts|Expenses");
+    filterColumnComboBox->setCurrentIndex(1);
+
+    filterPatternLineEdit->setText("Andy|Grace");
     filterCaseSensitivityCheckBox->setChecked(true);
     sortCaseSensitivityCheckBox->setChecked(true);
 }
