@@ -732,6 +732,8 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 /*!
     Sets the current item to be the item at \a index.
     Depending on the current selection mode, the item may also be selected.
+    Note that this function also updates the starting position for any
+    new selections the user performs.
 
     To set an item as the current item without selecting it, call
 
@@ -742,8 +744,12 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
-    if (d->selectionModel)
-        d->selectionModel->setCurrentIndex(index, selectionCommand(index, 0));
+    if (d->selectionModel) {
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, 0);
+        d->selectionModel->setCurrentIndex(index, command);
+        if ((command & QItemSelectionModel::Current) == 0)
+            d->pressedPosition = visualRect(currentIndex()).center() + d->offset();
+    }
 }
 
 /*!
@@ -1270,7 +1276,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
         d->pressedPosition = pos + offset;
 
     if (d->pressedPosition == QPoint(-1, -1))
-        d->pressedPosition = visualRect(d->selectionModel->currentIndex()).center() + offset;
+        d->pressedPosition = visualRect(currentIndex()).center() + offset;
 
     if (edit(index, NoEditTriggers, event))
         return;
@@ -1385,7 +1391,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
-    d->pressedPosition = QPoint(-1, -1);
 
     QPoint pos = event->pos();
     QPersistentModelIndex index = indexAt(pos);
