@@ -1,5 +1,8 @@
                           INSTALLING Qt/Windows Version %VERSION%
 
+Note: If you have obtained a binary package for this platform, consult the
+installation instructions provided instead of the ones in this document.
+
 1.  If you have the commercial edition of Qt, copy the license file
     from your account on dist.trolltech.com into your home directory
     (this may be known as the userprofile environment variable) and

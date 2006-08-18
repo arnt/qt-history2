@@ -17,8 +17,14 @@
 
 3.  Building
 
-    To configure the Qtopia Core library for your deployment
-    architecture, type:
+    Before building the Qtopia Core library, run the ./configure
+    script to configure the library for your deployment architecture.
+
+    By default, Qtopia Core is configured for installation in the
+    /usr/local/Trolltech/QtopiaCore-%VERSION% directory, but this
+    can be changed by using the -prefix option. Alternatively, the
+    -prefix-install option can be used to specify a "local"
+    installation within the source directory.
 
         cd /tmp/%DISTNAME%
         ./configure -embedded [architecture]
@@ -31,14 +37,16 @@
 
         make
 
-    To install the library, demos, examples, tools, and tutorials,
-    type:
+    On some systems the make utility is called differently, e.g. gmake.
+    The configure script tells you which make utility to use.
+
+    If you did not configure Qtopia Core using the -prefix-install
+    option, you need to install the library, demos, examples, tools,
+    and tutorials in the appropriate place. To do this, type:
 
         su -c "make install"
 
-    and enter the root password. Qtopia Core is by default installed
-    into /usr/local/Trolltech/QtopiaCore-%VERSION% but this can be
-    changed by using the -prefix parameter.
+    and enter the root password.
 
     Note that on some systems the make utility is named differently,
     e.g. gmake. The configure script tells you which make utility to

@@ -1,5 +1,8 @@
                           INSTALLING Qt/Mac Version %VERSION%
 
+Note: If you have obtained a binary package for this platform, consult the
+installation instructions provided instead of the ones in this document.
+
 1.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
 
@@ -16,7 +19,14 @@
 
 3.  Building
 
-    To configure the Qt library for your machine type:
+    To configure the Qt library for your machine type, run the
+    ./configure script in the package directory.
+
+    By default, Qt is configured for installation in the
+    /usr/local/Trolltech/Qt-%VERSION% directory, but this can be
+    changed by using the -prefix option. Alternatively, the
+    -prefix-install option can be used to specify a "local"
+    installation within the source directory.
 
         cd /tmp/%DISTNAME%
         ./configure
@@ -31,15 +41,14 @@
 
         make
 
-    To install the library, demos, examples, tools, and tutorials,
-    type:
+    If you did not configure Qt using the -prefix-install option,
+    you need to install the library, demos, examples, tools, and
+    tutorials in the appropriate place. To do this, type:
 
         sudo make install
 
     and enter your password, this requires that you have administrator access
-    to your machine. Qt is by default installed into
-    /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using the
-    -prefix parameter.
+    to your machine.
 
     If you need to reconfigure and rebuild Qt from the same location,
     ensure that all traces of the previous configuration are removed
