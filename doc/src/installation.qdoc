@@ -51,7 +51,14 @@ Please follow the instructions for your platform from the following list.
 
 \o  Building
 
-    To configure the Qt library for your machine type:
+    To configure the Qt library for your machine type, run the
+    \c{./configure} script in the package directory.
+
+    By default, Qt is configured for installation in the
+    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be
+    changed by using the \c{-prefix} option. Alternatively, the
+    \c{-prefix-install} option can be used to specify a "local"
+    installation within the source directory.
 
 \code
     cd /tmp/qt-x11-opensource-desktop-%VERSION%
@@ -60,10 +67,6 @@ Please follow the instructions for your platform from the following list.
 
     Type \c{./configure -help} to get a list of all available options.
 
-    By default, Qt is configured for installation in the
-    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be changed
-    by using the \c{-prefix} parameter.
-
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
 
@@ -71,8 +74,9 @@ Please follow the instructions for your platform from the following list.
     make
 \endcode
 
-    To install the library, demos, examples, tools, and tutorials,
-    type:
+    If you did not configure Qt using the \c{-prefix-install} option,
+    you need to install the library, demos, examples, tools, and
+    tutorials in the appropriate place. To do this, type:
 
 \code
     su -c "make install"
@@ -147,6 +151,10 @@ Please follow the instructions for your platform from the following list.
 
 \title Installing Qt/Windows
 \ingroup installation
+
+\bold{Note:} If you have obtained a binary package for this platform,
+consult the installation instructions provided instead of the ones in
+this document.
 
 \list 1
 \o  If you have the commercial edition of Qt, copy the license file
@@ -251,6 +259,10 @@ Please follow the instructions for your platform from the following list.
 \title Installing Qt/Mac
 \ingroup installation
 
+\bold{Note:} If you have obtained a binary package for this platform,
+consult the installation instructions provided instead of the ones in
+this document.
+
 \list 1
 \o  If you have the commercial edition of Qt, install your license
     file as \c{$HOME/.qt-license}.
@@ -272,7 +284,14 @@ Please follow the instructions for your platform from the following list.
 
 \o  Building
 
-    To configure the Qt library for your machine type:
+    To configure the Qt library for your machine type, run the
+    \c{./configure} script in the package directory.
+
+    By default, Qt is configured for installation in the
+    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be
+    changed by using the \c{-prefix} option. Alternatively, the
+    \c{-prefix-install} option can be used to specify a "local"
+    installation within the source directory.
 
 \code
     cd /tmp/qt-mac-opensource-desktop-%VERSION%
@@ -284,10 +303,6 @@ Please follow the instructions for your platform from the following list.
     build universal binaries, and also supply a path to the \c{-sdk}
     option if your development machine has a PowerPC CPU.
 
-    By default, Qt is configured for installation in the
-    \c{/usr/local/Trolltech/Qt-%VERSION%} directory, but this can be changed
-    by using the \c{-prefix} parameter.
-
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:
 
@@ -295,8 +310,9 @@ Please follow the instructions for your platform from the following list.
     make
 \endcode
 
-    To install the library, demos, examples, tools, and tutorials,
-    type:
+    If you did not configure Qt using the \c{-prefix-install} option,
+    you need to install the library, demos, examples, tools, and
+    tutorials in the appropriate place. To do this, type:
 
 \code
     sudo make install
