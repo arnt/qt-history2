@@ -655,6 +655,14 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor shadow = option->palette.background().color().dark(120);
 
     switch(elem) {
+    case PE_IndicatorViewItemCheck: 
+        {
+            QStyleOptionButton button;
+            button.QStyleOption::operator=(*option);
+            button.state &= ~State_MouseOver;
+            drawPrimitive(PE_IndicatorCheckBox, &button, painter, widget);
+        }
+        return;
     case PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
             QRect r = header->rect;
@@ -2240,9 +2248,9 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                             gradientStopColor, TopDown, option->palette.button());
                     if(upIsActive) {
                         if (sunken) {
-                            cachePainter.fillRect(upRect.adjusted(1, 1, 0, 0), gradientStopColor.dark(110));
+                            cachePainter.fillRect(upRect.adjusted(1, 0, 0, 0), gradientStopColor.dark(110));
                         } else if (hover) {
-                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(1, 1, 0, 0),
+                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(1, 0, 0, 0),
                                                     gradientStartColor.light(110),
                                                     gradientStopColor.light(110), TopDown, option->palette.button());
                         }
@@ -2252,7 +2260,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             cachePainter.fillRect(downRect.adjusted(1, 0, 0, 1), gradientStopColor.dark(110));
 
                         } else if (hover) {
-                                qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(1, 1, 0, 1),
+                                qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(1, 0, 0, 1),
                                                         gradientStartColor.light(110),
                                                         gradientStopColor.light(110), TopDown, option->palette.button());
                         }
@@ -2309,10 +2317,10 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (upIsActive && sunken) {
                     cachePainter.setPen(gradientStopColor.dark(130));
                     cachePainter.drawLine(upRect.left() + 1, upRect.top(), upRect.left() + 1, upRect.bottom());
-                    cachePainter.drawLine(upRect.left(), upRect.top(), upRect.right(), upRect.top());
+                    cachePainter.drawLine(upRect.left(), upRect.top() - 1, upRect.right(), upRect.top() - 1);
                 } else {
                     cachePainter.setPen(gradientStartColor.light());
-                    cachePainter.drawLine(upRect.topLeft() + QPoint(2,0), upRect.topRight() - QPoint(1,0));
+                    cachePainter.drawLine(upRect.topLeft() + QPoint(1, -1), upRect.topRight() + QPoint(-1, -1));
                     cachePainter.setPen(borderColor);
                     cachePainter.drawLine(upRect.bottomLeft(), upRect.bottomRight());
                 }
