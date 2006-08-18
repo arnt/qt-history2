@@ -24,8 +24,10 @@
 #endif
 
 #if defined(Q_OS_HPUX)
+#  define NO_BOM
 #  define UTF16 "ucs2"
 #elif defined(Q_OS_AIX)
+#  define NO_BOM
 #  define UTF16 "UCS-2"
 #else
 #  define UTF16 "UTF-16"
@@ -128,19 +130,28 @@ QByteArray QIconvCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
     ba.resize(outBytesLeft);
     char *outBytes = ba.data();
 
+#if defined(GNU_LIBICONV)
+    const char *inBytes;
+#else
+    char *inBytes;
+#endif
+    size_t inBytesLeft;
+
+#if !defined(NO_BOM)
     // give iconv() a BOM
     QChar bom[] = { QChar(QChar::ByteOrderMark) };
 #ifdef GNU_LIBICONV
     // GNU doesn't disagree with POSIX :/
-    const char *inBytes = reinterpret_cast<const char *>(bom);
+    inBytes = reinterpret_cast<const char *>(bom);
 #else
-    char *inBytes = reinterpret_cast<char *>(bom);
+    inBytes = reinterpret_cast<char *>(bom);
 #endif
-    size_t inBytesLeft = sizeof(bom);
+    inBytesLeft = sizeof(bom);
     if (iconv(cd, &inBytes, &inBytesLeft, &outBytes, &outBytesLeft) == (size_t) -1) {
         perror("QIconvCodec::convertFromUnicode: using ASCII for conversion, iconv failed for BOM");
         return QString(uc, len).toAscii();
     }
+#endif // NO_BOM
 
     // now feed iconv() the real data
 #ifdef GNU_LIBICONV
@@ -206,6 +217,7 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
     cd = iconv_open(to ? to : codeset, from ? from : codeset);
 #else
     char *codeset = 0;
+#endif
 
 #if (_XOPEN_VERSION-0) >= 500 && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     if (cd == (iconv_t) -1) {
@@ -278,7 +290,6 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
         delete [] ctype;
         delete [] lang;
     }
-#endif
 
     return cd;
 }
