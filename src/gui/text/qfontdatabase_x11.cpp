@@ -1672,7 +1672,8 @@ static QFontEngine *loadRaw(const QFontPrivate *fp, const QFontDef &request)
     QFontEngine *fe;
     XFontStruct *xfs;
     if (!(xfs = XLoadQueryFont(QX11Info::display(), xlfd.data())))
-        return 0;
+        if (!(xfs = XLoadQueryFont(QX11Info::display(), "fixed")))
+            return 0;
 
     fe = new QFontEngineXLFD(xfs, xlfd, 0);
     if (! qt_fillFontDef(xfs, &fe->fontDef, fp->dpi) &&
