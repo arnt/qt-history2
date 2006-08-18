@@ -46,7 +46,7 @@ struct QStyleSheetBorderImageData : public QSharedData
 {
     QStyleSheetBorderImageData()
     {
-        for (int i = 0; i < 4; i++) 
+        for (int i = 0; i < 4; i++)
             cuts[i] = -1;
     }
     QPixmap topEdge, bottomEdge, leftEdge, rightEdge, middle;
@@ -62,8 +62,8 @@ struct QStyleSheetBorderImageData : public QSharedData
 
 struct QStyleSheetBackgroundData : public QSharedData
 {
-    QStyleSheetBackgroundData(const QColor& c, const QPixmap& p, QCss::Repeat r, 
-                              Qt::Alignment a, QCss::Origin o) 
+    QStyleSheetBackgroundData(const QColor& c, const QPixmap& p, QCss::Repeat r,
+                              Qt::Alignment a, QCss::Origin o)
         : color(c), pixmap(p), repeat(r), position(a), origin(o) { }
 
     QColor color;
@@ -75,7 +75,7 @@ struct QStyleSheetBackgroundData : public QSharedData
 
 struct QStyleSheetBorderData : public QSharedData
 {
-    QStyleSheetBorderData() : bi(0) 
+    QStyleSheetBorderData() : bi(0)
     {
         for (int i = 0; i < 4; i++) {
             borders[i] = 0;
@@ -123,7 +123,7 @@ struct QStyleSheetBoxData : public QSharedData
 
 struct QStyleSheetPaletteData : public QSharedData
 {
-    QStyleSheetPaletteData(const QColor &fg, const QColor &sfg, const QBrush &sbg, 
+    QStyleSheetPaletteData(const QColor &fg, const QColor &sfg, const QBrush &sbg,
                            const QBrush &abg)
         : foreground(fg), selectionForeground(sfg), selectionBackground(sbg),
           alternateBackground(abg) { }
@@ -136,7 +136,7 @@ struct QStyleSheetPaletteData : public QSharedData
 
 struct QStyleSheetGeometryData : public QSharedData
 {
-    QStyleSheetGeometryData(int w, int h, int minw, int minh) 
+    QStyleSheetGeometryData(int w, int h, int minw, int minh)
         : minWidth(minw), minHeight(minh), width(w), height(h) { }
 
     int minWidth, minHeight, width, height;
@@ -144,7 +144,7 @@ struct QStyleSheetGeometryData : public QSharedData
 
 struct QStyleSheetPositionData : public QSharedData
 {
-    QStyleSheetPositionData(int l, int t, Origin o, Qt::Alignment p) 
+    QStyleSheetPositionData(int l, int t, Origin o, Qt::Alignment p)
         : left(l), top(t), origin(o), position(p) { }
 
     int left, top;
@@ -197,12 +197,12 @@ public:
     bool hasPosition() const { return p != 0; }
     bool hasDrawable() const { return hasBorder() || hasBackground() || hasImage(); }
 
-    QSize minimumContentsSize() const 
+    QSize minimumContentsSize() const
     { return geo ? QSize(geo->minWidth, geo->minHeight) : QSize(0, 0); }
 
-    QSize contentsSize() const 
+    QSize contentsSize() const
     { return geo ? QSize(geo->width, geo->height) : (imageRect.isValid() ? imageRect.size() : QSize()); }
-    bool hasContentsSize() const 
+    bool hasContentsSize() const
     { return (geo && (geo->width != -1 || geo->height != -1)) || imageRect.isValid(); }
 
     QSize size() const { return boxSize(contentsSize()); }
@@ -257,7 +257,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
         p = new QStyleSheetPositionData(left, top, origin, position);
 
     int margins[4], paddings[4], spacing = -1;
-    for (int i = 0; i < 4; i++) 
+    for (int i = 0; i < 4; i++)
         margins[i] = paddings[i] = 0;
     if (v.extractBox(margins, paddings, &spacing))
         b = new QStyleSheetBoxData(margins, paddings, spacing);
@@ -321,7 +321,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     fixupBorder();
 }
 
-QRect QRenderRule::positionRect(const QRect &originRect, Qt::LayoutDirection dir, 
+QRect QRenderRule::positionRect(const QRect &originRect, Qt::LayoutDirection dir,
                                 const QSize &defSize, Qt::Alignment defPosition) const
 {
     Qt::Alignment position = (p && p->position != 0) ? p->position : defPosition;
@@ -338,7 +338,7 @@ QRect QRenderRule::positionRect(const QRect &originRect, Qt::LayoutDirection dir
     return r;
 }
 
-QRect QRenderRule::positionRect(const QRenderRule &rule, Qt::LayoutDirection dir, 
+QRect QRenderRule::positionRect(const QRenderRule &rule, Qt::LayoutDirection dir,
                                 const QRect &rect, const QSize &defSize,
                                 Origin defOrigin, Qt::Alignment defPosition) const
 {
@@ -1013,7 +1013,7 @@ void QRenderRule::drawImage(QPainter *p, const QRect &rect)
         // align center if we had a width, height set
         QRect aligned = QStyle::alignedRect(Qt::LeftToRight, QFlag(Qt::AlignCenter), imageRect.size(), rect);
         QRect inter = aligned.intersected(rect);
-        p->drawPixmap(inter.x(), inter.y(), image, imageRect.x() + inter.x() - aligned.x(), 
+        p->drawPixmap(inter.x(), inter.y(), image, imageRect.x() + inter.x() - aligned.x(),
                       imageRect.y() + inter.y() - aligned.y(), inter.width(), inter.height());
     } else {
         p->drawPixmap(rect, image, imageRect);
@@ -1070,7 +1070,7 @@ public:
     QStyleSheetStyleSelector() { }
 
     bool nodeNameEquals(NodePtr node, const QString& name) const
-    { 
+    {
         if (WIDGET(node)->inherits(name.toLatin1()))
             return true;
         if (name == QLatin1String("QToolTip")
@@ -1154,11 +1154,11 @@ static struct PseudoElementInfo {
     { PseudoElement_None, QStyle::SC_None, "", },
     { ArrowDown, QStyle::SC_None, "down-arrow" },
     { Indicator, QStyle::SC_None, "indicator" },
-    { MenuIndicator, QStyle::SC_None, "menu-indicator" }
+    { MenuIndicator, QStyle::SC_None, "menu-indicator" },
     { DropDown, QStyle::SC_ComboBoxArrow, "drop-down" }
 };
 
-static QRenderRule renderRule(const QWidget *w, const QString &part = QString(), 
+static QRenderRule renderRule(const QWidget *w, const QString &part = QString(),
                               QStyle::State state = QStyle::State_None)
 {
     Q_ASSERT(w);
@@ -1207,7 +1207,7 @@ static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,  
+static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
                               int pseudoElement = PseudoElement_None)
 {
     Q_ASSERT(w && !styleRulesCache.value(w).isEmpty());
@@ -1223,7 +1223,7 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
             if (subControl == QStyle::SC_ComboBoxArrow) // Propagate State_On from EditField
                 state |= (opt->state & QStyle::State_On);
         }
-    } else { 
+    } else {
         // Add hacks for simple controls here
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
@@ -1337,7 +1337,7 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *base)
 }
 
 QStyle *QStyleSheetStyle::baseStyle() const
-{ 
+{
     if (base)
         return base;
     if (QStyleSheetStyle *me = qobject_cast<QStyleSheetStyle *>(qApp->style()))
@@ -1377,14 +1377,14 @@ static bool unstylable(QWidget *w)
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
             return true;
-    } 
+    }
 #ifndef QT_NO_LINEEDIT
     else if (qobject_cast<QLineEdit *>(w)) {
         if (0
 #ifndef QT_NO_COMBOBOX
             || qobject_cast<QComboBox *>(w->parentWidget())
 #endif
-#ifndef QT_NO_SPINBOX            
+#ifndef QT_NO_SPINBOX
             || qobject_cast<QAbstractSpinBox *>(w->parentWidget())
 #endif
             )
@@ -1456,13 +1456,13 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, DropDown)) {
                 rule.drawFrame(p, opt->rect, opt->direction);
                 QRenderRule subRule = renderRule(w, opt, DropDown);
-                QRect r = subRule.positionRect(rule, opt->direction, opt->rect, QSize(16, -1), 
-                                               cb->editable ? Origin_Padding : Origin_Content, 
+                QRect r = subRule.positionRect(rule, opt->direction, opt->rect, QSize(16, -1),
+                                               cb->editable ? Origin_Padding : Origin_Content,
                                                Qt::AlignBottom | Qt::AlignRight);
                 subRule.drawRule(p, r, opt->direction);
 
                 QRenderRule subRule2 = renderRule(w, opt, ArrowDown);
-                r = subRule2.positionRect(subRule, opt->direction, r, QSize(7, 7), Origin_Content, 
+                r = subRule2.positionRect(subRule, opt->direction, r, QSize(7, 7), Origin_Content,
                                           Qt::AlignCenter);
                 subRule2.drawRule(p, r, opt->direction);
             } else {
@@ -1836,14 +1836,14 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
         subRule = renderRule(w, Indicator);
         if (subRule.hasContentsSize()) {
             return (m == PM_ExclusiveIndicatorWidth) || (m == PM_IndicatorWidth)
-                        ? subRule.contentsSize().width() 
+                        ? subRule.contentsSize().width()
                         : subRule.contentsSize().height();
         }
         break;
 
     case PM_ToolTipLabelFrameWidth: // border + margin (support only one width)
     case PM_MenuPanelWidth:
-    case PM_MenuBarPanelWidth: 
+    case PM_MenuBarPanelWidth:
     case PM_ToolBarFrameWidth:
         if (rule.hasBorder() || rule.hasBox())
             return (rule.border() ? rule.border()->borders[LeftEdge] : 0)
@@ -1877,7 +1877,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_SmallIconSize:
     case PM_MenuDesktopFrameWidth:
     case PM_MenuTearoffHeight:
-    case PM_MenuScrollerHeight: 
+    case PM_MenuScrollerHeight:
         break;
     case PM_ToolBarExtensionExtent:
         break;
@@ -2055,7 +2055,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
             switch (sc) {
             case SC_ComboBoxArrow: {
                 QRenderRule subRule = renderRule(w, DropDown);
-                return subRule.positionRect(rule, opt->direction, opt->rect, QSize(16, -1), Origin_Padding, 
+                return subRule.positionRect(rule, opt->direction, opt->rect, QSize(16, -1), Origin_Padding,
                                             Qt::AlignBottom | Qt::AlignRight);
                 break;
                                    }
