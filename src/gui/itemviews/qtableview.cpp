@@ -1497,8 +1497,10 @@ void QTableView::setColumnHidden(int column, bool hide)
     \property QTableView::sortingEnabled
     \brief whether sorting is enabled
 
-    If this property is true sorting is enabled for the table; if the
+    If this property is true, sorting is enabled for the table; if the
     property is false, sorting is not enabled. The default value is false.
+
+    \sa sortByColumn()
 */
 
 void QTableView::setSortingEnabled(bool enable)
@@ -1990,14 +1992,31 @@ void QTableView::resizeColumnsToContents()
 }
 
 /*!
+  \obsolete
+  \overload
+
   Sorts the model by the values in the given \a column.
- */
+*/
 void QTableView::sortByColumn(int column)
 {
     Q_D(QTableView);
     if (column == -1)
         return;
     d->model->sort(column, d->horizontalHeader->sortIndicatorOrder());
+}
+
+/*!
+  \since 4.2
+
+  Sorts the model by the values in the given \a column in the given \a order.
+
+  \sa sortingEnabled
+ */
+void QTableView::sortByColumn(int column, Qt::SortOrder order)
+{
+    Q_D(QTableView);
+    d->horizontalHeader->setSortIndicator(column, order);
+    sortByColumn(column);
 }
 
 /*!

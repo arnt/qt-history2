@@ -643,8 +643,10 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
     \property QTreeView::sortingEnabled
     \brief whether sorting is enabled
 
-    If this property is true sorting is enabled for the table; if the
-    property is false, sorting is not enabled. The default value is false.
+    If this property is true, sorting is enabled for the tree; if the property
+    is false, sorting is not enabled. The default value is false.
+
+    \sa sortByColumn()
 */
 
 void QTreeView::setSortingEnabled(bool enable)
@@ -1863,14 +1865,31 @@ void QTreeView::resizeColumnToContents(int column)
 }
 
 /*!
+  \obsolete
+  \overload
+
   Sorts the model by the values in the given \a column.
- */
+*/
 void QTreeView::sortByColumn(int column)
 {
     Q_D(QTreeView);
     if (column == -1)
         return;
     d->model->sort(column, d->header->sortIndicatorOrder());
+}
+
+/*!
+  \since 4.2
+
+  Sorts the model by the values in the given \a column in the given \a order.
+
+  \sa sortingEnabled
+*/
+void QTreeView::sortByColumn(int column, Qt::SortOrder order)
+{
+    Q_D(QTreeView);
+    d->header->setSortIndicator(column, order);
+    sortByColumn(column);
 }
 
 /*!

@@ -79,6 +79,8 @@ public:
     int rowSpan(int row, int column) const;
     int columnSpan(int row, int column) const;
 
+    void sortByColumn(int column, Qt::SortOrder order);
+
 public Q_SLOTS:
     void selectRow(int row);
     void selectColumn(int column);

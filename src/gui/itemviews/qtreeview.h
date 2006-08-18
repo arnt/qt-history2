@@ -93,6 +93,8 @@ public:
     void doItemsLayout();
     void reset();
 
+    void sortByColumn(int column, Qt::SortOrder order);
+
 Q_SIGNALS:
     void expanded(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
