@@ -2119,7 +2119,6 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 QPalette QCleanlooksStyle::standardPalette () const
 {
     QPalette palette = QWindowsStyle::standardPalette();
-
     palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(98, 140, 178));
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(145, 141, 126));
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 141, 126));
@@ -3442,6 +3441,7 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 /*!
   \reimp
 */
+#include <qdebug.h>
 void QCleanlooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
@@ -3454,6 +3454,14 @@ void QCleanlooksStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
+    
+    if (app->palette().window().color().rgb() == 0xffefebe7) {
+        //Use clearlooks palette shades
+        QPalette syspal = app->palette();
+        QPalette pal = standardPalette();
+        pal.setBrush(QPalette::Highlight, syspal.highlight());
+        app->setPalette(pal);
+    }
 #endif
 }
 
@@ -3926,7 +3934,7 @@ void QCleanlooksStylePrivate::lookupIconTheme() const
         return;
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
-    if (gconftool.waitForStarted(500) && gconftool.waitForFinished(1000))
+    if (gconftool.waitForStarted(2000) && gconftool.waitForFinished(2000))
         themeName = QLatin1String(gconftool.readLine().trimmed());
     if (themeName.isEmpty())
         themeName = "gnome";
@@ -4166,10 +4174,52 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
             if (!pixmap.isNull())
                 return pixmap;
             break;
-        }
+        }    
     case SP_ArrowLeft:
         {
             pixmap = d->findIcon(16, QLatin1String("stock_left.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogCloseButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("dialog-close.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogApplyButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("dialog-apply.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogResetButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("gtk-clear.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogHelpButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("document-open.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogOkButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("dialog-ok.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DialogCancelButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("dialog-cancel.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
