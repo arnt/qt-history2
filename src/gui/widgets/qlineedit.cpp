@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-/* 
+/*
     Changes since 4.1:
-    
-    Platform specific (read emacs) shortcuts have been removed from the documentation. 
-    
+
+    Platform specific (read emacs) shortcuts have been removed from the documentation.
+
     Ctrl+A on X11 now means "Select all" like on other platforms, not home.
 
     Ctrl+D wil no longer work on Windows (but on X11/mac)
-    
+
     Ctrl+U, Ctrl+B, Ctr+E, Ctrl+H, Ctrl+F are completely removed from line edit. If they are popular, we can add them
     as standardshortcuts on X11 so that they work in other widgets as well.
-    
+
     ### consider removing the shortcut table from documentation entirely.
 */
 
@@ -640,7 +640,7 @@ QSize QLineEdit::sizeHint() const
     Q_D(const QLineEdit);
     ensurePolished();
     QFontMetrics fm(font());
-    int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin 
+    int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin
             + d->topmargin + d->bottommargin;
     int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin
             + d->leftmargin + d->rightmargin; // "some"
@@ -1249,9 +1249,7 @@ void QLineEdit::insert(const QString &newText)
 }
 
 /*!
-    Programmatically clears the contents of the line edit.
-
-    Unlike setText(""), this function doesn't reset the undo stack.
+    Clears the contents of the line edit.
 
     \sa setText(), insert()
 */
@@ -1695,35 +1693,35 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     if (event == QKeySequence::Undo) {
         if (!d->readOnly)
             undo();
-    } 
+    }
     else if (event == QKeySequence::Redo) {
         if (!d->readOnly)
             redo();
-    } 
+    }
     else if (event == QKeySequence::SelectAll) {
         selectAll();
-    }         
+    }
 #ifndef QT_NO_CLIPBOARD
     else if (event == QKeySequence::Copy) {
         copy();
-    } 
+    }
     else if (event == QKeySequence::Paste) {
         if (!d->readOnly)
             paste();
-    } 
+    }
     else if (event == QKeySequence::Cut) {
         if (!d->readOnly) {
             copy();
             del();
         }
-    } 
+    }
     else if (event == QKeySequence::DeleteEndOfLine) {
         if (!d->readOnly) {
             setSelection(d->cursor, d->text.size());
             copy();
             del();
         }
-    } 
+    }
 #endif //QT_NO_CLIPBOARD
     else if (event == QKeySequence::MoveToStartOfLine) {
         home(0);
@@ -2324,7 +2322,13 @@ QMenu *QLineEdit::createStandardContextMenu()
             popup->addAction(imActions.at(i));
     }
 #endif
+
+#if defined(Q_WS_WIN)
+    extern bool qt_use_rtl_extensions;
+    if (!d->readOnly && qt_use_rtl_extensions) {
+#elif defined(Q_WS_X11)
     if (!d->readOnly) {
+#endif
         popup->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, popup);
         popup->addMenu(ctrlCharacterMenu);
@@ -3161,17 +3165,17 @@ void QLineEditPrivate::redo() {
     \value Raised
     \value MShadow
     \value NoFrame
-    \value Panel 
+    \value Panel
     \value StyledPanel
-    \value HLine 
-    \value VLine 
+    \value HLine
+    \value VLine
     \value GroupBoxPanel
-    \value WinPanel 
-    \value ToolBarPanel 
-    \value MenuBarPanel 
-    \value PopupPanel 
-    \value LineEditPanel 
-    \value TabWidgetPanel 
+    \value WinPanel
+    \value ToolBarPanel
+    \value MenuBarPanel
+    \value PopupPanel
+    \value LineEditPanel
+    \value TabWidgetPanel
     \value MShape
 */
 
@@ -3223,15 +3227,15 @@ void QLineEditPrivate::redo() {
 /*!
     \fn void QLineEdit::setMargin(int margin)
     Sets the width of the margin around the contents of the widget to \a margin.
-    
+
     Use QWidget::setContentsMargins() instead.
     \sa margin(), QWidget::setContentsMargins()
 */
 
 /*!
-    \fn int QLineEdit::margin() const 
+    \fn int QLineEdit::margin() const
     Returns the with of the the margin around the contents of the widget.
-    
+
     Use QWidget::getContentsMargins() instead.
     \sa setMargin(), QWidget::getContentsMargins()
 */
