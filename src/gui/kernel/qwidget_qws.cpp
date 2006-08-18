@@ -89,6 +89,15 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
 
+#ifndef QT_NO_WARNING_OUTPUT
+    static bool toolWarningShown = false;
+    if (!toolWarningShown && type == Qt::Tool && !(flags & Qt::FramelessWindowHint)) {
+        qWarning() << "Qtopia Core " QT_VERSION_STR " does not support tool windows with frames.\n"
+            "This behavior will change in a later release. To ensure compatibility with\n"
+            "future versions, use (Qt::Tool | Qt::FramelessWindowHint).";
+    }
+#endif
+
     // a popup stays on top
     if (popup)
         flags |= Qt::WindowStaysOnTopHint;
