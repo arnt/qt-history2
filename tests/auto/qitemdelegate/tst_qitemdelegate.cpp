@@ -273,22 +273,29 @@ void tst_QItemDelegate::doLayout()
 
     option.rect = QRect(0, 0, 400, 400);
 
+    int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+
     //Subtest with QStyleOptionViewItem::Top
     option.decorationPosition = QStyleOptionViewItem::Top;
 
     option.direction = Qt::LeftToRight;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 56, 0, 1006, 1003 ));
-    QCOMPARE(textRect, QRect( 56, 1003, 1006, 400 ));
+    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 0,
+                                1000 + 2 * textMargin, 1000 + textMargin ));
+    QCOMPARE(textRect, QRect( 50 + 2 * textMargin, 1000 + textMargin,
+                              1000 + 2 * textMargin, 400 ));
 
     option.direction = Qt::RightToLeft;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1006, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 0, 0, 1006, 1003 ));
-    QCOMPARE(textRect, QRect( 0, 1003, 1006, 400 ));
+    QCOMPARE(checkRect, QRect( 1000 + 2 * textMargin, 0,
+                               50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 0, 0, 1000 + 2 * textMargin, 1000
+                                + textMargin ));
+    QCOMPARE(textRect, QRect( 0, 1000 + textMargin,
+                              1000 + 2 * textMargin, 400 ));
 
     //Subtest with QStyleOptionViewItem::Bottom
     option.decorationPosition = QStyleOptionViewItem::Bottom;
@@ -296,16 +303,20 @@ void tst_QItemDelegate::doLayout()
     option.direction = Qt::LeftToRight;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 56, 403, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 56, 0, 1006, 403 ));
+    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 400 + textMargin,
+                                1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 50 + 2 * textMargin, 0,
+                              1000 + 2 * textMargin, 400 + textMargin ));
 
     option.direction = Qt::RightToLeft;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1006, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 0, 403, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 0, 0, 1006, 403 ));
+    QCOMPARE(checkRect, QRect( 1000 + 2 * textMargin, 0,
+                               50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 0, 400 + textMargin,
+                                1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 0, 0, 1000 + 2 * textMargin, 400 + textMargin ));
 
 
     //Subtest with QStyleOptionViewItem::Left
@@ -314,16 +325,20 @@ void tst_QItemDelegate::doLayout()
     option.direction = Qt::LeftToRight;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 56, 0, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 1062, 0, 406, 1000 ));
+    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 50 + 2 * textMargin, 0,
+                                1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 1050 + 4 * textMargin, 0,
+                              400 + 2 * textMargin, 1000 ));
 
     option.direction = Qt::RightToLeft;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1412, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 406, 0, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 0, 0, 406, 1000 ));
+    QCOMPARE(checkRect, QRect( 1400 + 4 * textMargin, 0,
+                               50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 400 + 2 * textMargin, 0,
+                                1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 0, 0, 400 + 2 * textMargin, 1000 ));
 
 
     //Subtest with QStyleOptionViewItem::Right
@@ -332,16 +347,20 @@ void tst_QItemDelegate::doLayout()
     option.direction = Qt::LeftToRight;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 0, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 462, 0, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 56, 0, 406, 1000 ));
+    QCOMPARE(checkRect, QRect( 0, 0, 50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 450 + 4 * textMargin, 0,
+                                1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 50 + 2 * textMargin, 0,
+                              400 + 2 * textMargin, 1000 ));
 
     option.direction = Qt::RightToLeft;
     resetRect(checkRect, pixmapRect, textRect);
     qitemdelegate.doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-    QCOMPARE(checkRect, QRect( 1412, 0, 56, 1000 ));
-    QCOMPARE(pixmapRect, QRect( 0, 0, 1006, 1000 ));
-    QCOMPARE(textRect, QRect( 1006, 0, 406, 1000 ));
+    QCOMPARE(checkRect, QRect( 1400 + 4 * textMargin, 0,
+                               50 + 2 * textMargin, 1000 ));
+    QCOMPARE(pixmapRect, QRect( 0, 0, 1000 + 2 * textMargin, 1000 ));
+    QCOMPARE(textRect, QRect( 1000 + 2 * textMargin, 0,
+                              400 + 2 * textMargin, 1000 ));
 }
 
 
