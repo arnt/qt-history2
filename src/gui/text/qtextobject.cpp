@@ -1135,7 +1135,9 @@ QTextBlockUserData *QTextBlock::userData() const
     QTextBlockUserData can be used to store custom settings.  The
     ownership is passed to the underlying text document, i.e. the
     provided QTextBlockUserData object will be deleted if the
-    corresponding text block gets deleted.
+    corresponding text block gets deleted. The user data object is
+    not stored in the undo history, so it will not be available after
+    undoing the deletion of a text block.
 
     For example, if you write a programming editor in an IDE, you may
     want to let your user set breakpoints visually in your code for an
