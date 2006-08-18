@@ -45,14 +45,11 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
 
     iconv_t cd = createIconv_t("UTF-16", 0);
     if (cd == reinterpret_cast<iconv_t>(-1)) {
-#ifdef Q_OS_HPUX
-#warning Temporary fix submitted by Andreas to prevent flooding stderr on HP-UX
         static int reported = 0;
-        if (!reported++)
-#endif
-#ifndef QTOPIA_NO_ICONV_OPEN_ERRORS
-        fprintf(stderr, "QIconvCodec::convertToUnicode: using ASCII for conversion, iconv_open failed\n");
-#endif
+        if (!reported++) {
+            fprintf(stderr,
+                    "QIconvCodec::convertToUnicode: using ASCII for conversion, iconv_open failed\n");
+        }
         return QString::fromAscii(chars, len);
     }
 
@@ -108,14 +105,11 @@ QByteArray QIconvCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 {
     iconv_t cd = createIconv_t(0, "UTF-16");
     if (cd == reinterpret_cast<iconv_t>(-1)) {
-#ifdef Q_OS_HPUX
-#warning Temporary fix submitted by Andreas to prevent flooding stderr on HP-UX
         static int reported = 0;
-        if (!reported++)
-#endif
-#ifndef QTOPIA_NO_ICONV_OPEN_ERRORS
-        fprintf(stderr, "QIconvCodec::convertFromUnicode: using ASCII for conversion, iconv_open failed\n");
-#endif
+        if (!reported++) {
+            fprintf(stderr,
+                    "QIconvCodec::convertFromUnicode: using ASCII for conversion, iconv_open failed\n");
+        }
         return QString(uc, len).toAscii();
     }
 
@@ -196,12 +190,20 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
     Q_ASSERT((to == 0 && from != 0) || (to != 0 && from == 0));
 
     iconv_t cd = (iconv_t) -1;
+#if defined(__GLIBC__) || defined(GNU_LIBICONV)
+    // both GLIBC and libgnuiconv will use the locale's encoding if from or to is an empty string
+    char *codeset = "";
+    cd = iconv_open(to ? to : codeset, from ? from : codeset);
+#else
     char *codeset = 0;
+#endif
 
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
-    codeset = nl_langinfo(CODESET);
-    if (codeset)
-        cd = iconv_open(to ? to : codeset, from ? from : codeset);
+    if (cd == (iconv_t) -1) {
+        codeset = nl_langinfo(CODESET);
+        if (codeset)
+            cd = iconv_open(to ? to : codeset, from ? from : codeset);
+    }
 #endif
 
     if (cd == (iconv_t) -1) {
