@@ -1525,15 +1525,45 @@ qreal QFontMetricsF::lineWidth() const
     \fn QSize QFontMetrics::size(int flags, const QString &text, int len,
                                  int tabStops, int *tabArray) const
     \compat
+
+    Use the size() function in combination with QString::left()
+    instead.
+
+    \oldcode
+        QSize size = size(flags, str, len, tabstops, tabarray);
+    \newcode
+        QSize size = size(flags, str.left(len), tabstops, tabarray);
+    \endcode
 */
 
 /*!
     \fn QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flags,
         const QString& text, int len, int tabStops, int *tabArray) const
     \compat
+
+    Use the boundingRect() function in combination with
+    QString::left() and a QRect constructor instead.
+
+    \oldcode
+        QRect rect = boundingRect(x, y, w, h , flags, text, len,
+                                  tabStops, tabArray);
+    \newcode
+        QRect rect = boundingRect(QRect(x, y, w, h), flags, text.left(len),
+                                  tabstops, tabarray);
+    \endcode
+
 */
 
 /*!
     \fn QRect QFontMetrics::boundingRect(const QString &text, int len) const
     \compat
+
+    Use the boundingRect() function in combination with
+    QString::left() instead.
+
+    \oldcode
+        QRect rect = boundingRect(text, len);
+    \newcode
+        QRect rect = boundingRect(text.left(len));
+    \endcode
 */
