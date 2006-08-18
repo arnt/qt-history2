@@ -1249,7 +1249,7 @@ void QWorkspacePrivate::place(QWidget *w)
                 if (maxWindow == l)
                     r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
                 else
-                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect,
                                             QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if (r2.intersects(r1)) {
@@ -1289,8 +1289,8 @@ void QWorkspacePrivate::place(QWidget *w)
                 ++it;
                 if (maxWindow == l)
                     r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
-                else 
-                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                else
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect,
                                             QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if((y < r2.bottom()) && (r2.top() < w->height() + y)) {
@@ -1319,7 +1319,7 @@ void QWorkspacePrivate::place(QWidget *w)
                 if (maxWindow == l)
                     r2 = QStyle::visualRect(q->layoutDirection(), maxRect, maxRestore);
                 else
-                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect, 
+                    r2 = QStyle::visualRect(q->layoutDirection(), maxRect,
                                             QRect(l->x(), l->y(), l->width(), l->height()));
 
                 if(r2.bottom() > y)
@@ -1840,7 +1840,8 @@ void QWorkspacePrivate::showMaximizeControls()
         }
 
         b->setCornerWidget(maxcontrols);
-        maxcontrols->show();
+        if (b->isVisible())
+            maxcontrols->show();
         if (!active && becomeActive) {
             active = (QWorkspaceChild*)becomeActive->parentWidget();
             active->setActive(true);
@@ -1866,7 +1867,8 @@ void QWorkspacePrivate::showMaximizeControls()
                 maxtools->setPixmap(pm);
             }
             b->setCornerWidget(maxtools, Qt::TopLeftCorner);
-            maxtools->show();
+            if (b->isVisible())
+                maxtools->show();
         }
     }
 }
