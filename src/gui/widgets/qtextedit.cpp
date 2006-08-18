@@ -470,6 +470,7 @@ void QTextEditPrivate::ensureViewportLayouted()
     automatic bullet lists are supported.
 */
 
+#ifdef QT3_SUPPORT
 /*!
     \enum QTextEdit::CursorAction
 
@@ -489,6 +490,7 @@ void QTextEditPrivate::ensureViewportLayouted()
     \omitvalue MovePgUp
     \omitvalue MovePgDown
 */
+#endif
 
 /*!
     Constructs an empty QTextEdit with parent \a
