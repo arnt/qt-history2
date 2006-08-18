@@ -154,12 +154,18 @@ void QDBusViewer::callMethod(const BusSignature &sig)
     }
 
     QList<QByteArray> paramTypes = method.parameterTypes();
+    int paramTypeCount = 0;
     foreach (QByteArray paramType, paramTypes) {
+        if (paramType.endsWith('&'))
+            continue; // ignore OUT parameters
+
         if (!QVariant(QVariant::nameToType(paramType)).canConvert(QVariant::String)) {
             QMessageBox::warning(this, "Unable to call method",
                     QString("Cannot marshall parameter of type %1").arg(
                         QVariant::nameToType(paramType)));
+            return;
         }
+        ++paramTypeCount;
     }
 
     QList<QVariant> arguments;
@@ -176,10 +182,13 @@ void QDBusViewer::callMethod(const BusSignature &sig)
                 return;
 
             QStringList argStrings = input.split(',');
-            if (argStrings.count() != paramTypes.count())
+            if (argStrings.count() != paramTypeCount)
                 continue;
 
             for (int i = 0; i < argStrings.count(); ++i) {
+                if (paramTypes.at(i).endsWith('&'))
+                    continue; // ignore OUT paramters
+
                 QVariant v = argStrings.at(i);
                 if (!v.convert(QVariant::nameToType(paramTypes.at(i)))) {
                     arguments.clear();
