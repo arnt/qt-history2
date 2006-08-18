@@ -118,7 +118,7 @@ void tst_QImageReader::getSetCheck()
     obj1.setDevice(var1);
 
     //A bit ugly but that's the only way to compile under windows.
-    QCOMPARE((QIODevice *) var1, obj1.device()));
+    QCOMPARE((QIODevice *) var1, obj1.device());
     obj1.setDevice((QIODevice *)0);
     QCOMPARE((QIODevice *) 0,
              obj1.device());
