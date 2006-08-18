@@ -3010,7 +3010,7 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
 #endif
 
     if (icon.isNull())
-        icon = QIcon(standardPixmap(standardIcon, option, widget));
+        icon = QCommonStyle::standardIcon(standardIcon, option, widget);
     return icon;
 }
 
