@@ -2029,6 +2029,7 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
     Q_ASSERT(!cursor.isNull());
 
     int anchorStart = -1;
+    QString anchorHref;
     int anchorEnd = -1;
 
     if (next) {
@@ -2050,6 +2051,7 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
 
                 if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
                     anchorStart = fragment.position();
+                    anchorHref = fmt.anchorHref();
                     break;
                 }
             }
@@ -2062,7 +2064,7 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
                     const QTextFragment fragment = it.fragment();
                     const QTextCharFormat fmt = fragment.charFormat();
 
-                    if (!fmt.isAnchor()) {
+                    if (!fmt.isAnchor() || fmt.anchorHref() != anchorHref) {
                         anchorEnd = fragment.position();
                         break;
                     }
@@ -2110,6 +2112,7 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
 
                     if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
                         anchorStart = fragment.position() + fragment.length();
+                        anchorHref = fmt.anchorHref();
                         break;
                     }
 
@@ -2127,7 +2130,7 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
                     const QTextFragment fragment = it.fragment();
                     const QTextCharFormat fmt = fragment.charFormat();
 
-                    if (!fmt.isAnchor()) {
+                    if (!fmt.isAnchor() || fmt.anchorHref() != anchorHref) {
                         anchorEnd = fragment.position() + fragment.length();
                         break;
                     }

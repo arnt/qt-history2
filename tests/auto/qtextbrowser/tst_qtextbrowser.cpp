@@ -64,6 +64,7 @@ private slots:
     void textInteractionFlags_vs_readOnly();
     void anchorsWithSelfBuiltHtml();
     void relativeNonLocalUrls();
+    void adjacentAnchors();
 
 private:
     TestBrowser *browser;
@@ -410,6 +411,34 @@ void tst_QTextBrowser::relativeNonLocalUrls()
     QCOMPARE(browser.toPlainText(), QString("classes"));
     browser.setSource(QUrl("someclass.html"));
     QCOMPARE(browser.toPlainText(), QString("someclass"));
+}
+
+class HackBrowser : public QTextBrowser
+{
+public:
+    inline bool focusTheNextChild() { return QTextBrowser::focusNextChild(); }
+    inline bool focusThePreviousChild() { return QTextBrowser::focusPreviousChild(); }
+};
+
+void tst_QTextBrowser::adjacentAnchors()
+{
+    HackBrowser *browser = new HackBrowser;
+    browser->setHtml("<a href=\"#foo\">foo</a><a href=\"#bar\">bar</a>");
+    QVERIFY(browser->focusTheNextChild());
+    QCOMPARE(browser->textCursor().selectedText(), QString("foo"));
+
+    QVERIFY(browser->focusTheNextChild());
+    QCOMPARE(browser->textCursor().selectedText(), QString("bar"));
+
+    QVERIFY(!browser->focusTheNextChild());
+
+    browser->moveCursor(QTextCursor::End);
+    QVERIFY(browser->focusThePreviousChild());
+    QCOMPARE(browser->textCursor().selectedText(), QString("bar"));
+    QVERIFY(browser->focusThePreviousChild());
+    QCOMPARE(browser->textCursor().selectedText(), QString("foo"));
+
+    delete browser;
 }
 
 QTEST_MAIN(tst_QTextBrowser)
