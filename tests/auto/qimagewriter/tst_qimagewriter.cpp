@@ -24,7 +24,7 @@ Q_DECLARE_METATYPE(QImage)
 Q_DECLARE_METATYPE(QStringMap)
 Q_DECLARE_METATYPE(QIntList)
 Q_DECLARE_METATYPE(QImageWriter::ImageWriterError)
-    
+
 //TESTED_FILES=gui/image/qimagewriter.h gui/image/qimagewriter.cpp
 
 class tst_QImageWriter : public QObject
@@ -67,12 +67,15 @@ void tst_QImageWriter::getSetCheck()
     // void QImageWriter::setDevice(QIODevice *)
     QFile *var1 = new QFile;
     obj1.setDevice(var1);
-    QCOMPARE(var1, obj1.device());
+
+    QCOMPARE(reinterpret_cast<char *>(var1),
+             reinterpret_cast<char *>(obj1.device()));
     // The class should possibly handle a 0-pointer as a device, since
     // there is a default contructor, so it's "handling" a 0 device by default.
     // For example: QMovie::setDevice(0) works just fine
     obj1.setDevice((QIODevice *)0);
-    QCOMPARE((QIODevice *)0, obj1.device());
+    QCOMPARE(reinterpret_cast<char *>(0),
+             reinterpret_cast<char *>(obj1.device()));
     delete var1;
 
     // int QImageWriter::quality()
@@ -195,7 +198,7 @@ void tst_QImageWriter::setDescription_data()
                             "to the spec are present.";
     willem["Software"] = "Created on a NeXTstation color using \"pnmtopng\".";
     willem["Disclaimer"] = "Freeware.";
-    
+
     QTest::newRow("PNG") << QString("images/gen-pngwithtext.png") << willem;
 }
 
@@ -212,12 +215,12 @@ void tst_QImageWriter::setDescription()
     QImageReader reader(fileName);
     foreach (QString key, description.keys())
         QCOMPARE(reader.text(key), description.value(key));
-}    
+}
 
 void tst_QImageWriter::writeToInvalidDevice()
 {
     QLatin1String fileName("/these/directories/do/not/exist/001.png");
-    {    
+    {
         QImageWriter writer(fileName);
         QVERIFY(!writer.canWrite());
         QCOMPARE(writer.error(), QImageWriter::DeviceError);
@@ -315,7 +318,7 @@ void tst_QImageWriter::saveWithNoFormat()
         QCOMPARE(writer.error(), error);
         return;
     }
-    
+
     QVERIFY2(writer.write(niceImage), qPrintable(writer.errorString()));
 
     QImageReader reader(fileName);
