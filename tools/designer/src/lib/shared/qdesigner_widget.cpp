@@ -95,11 +95,21 @@ void QDesignerDialog::paintEvent(QPaintEvent *e)
 
 void QDesignerLabel::updateBuddy()
 {
-    if (myBuddy.isEmpty())
+    if (myBuddy.isEmpty()) {
+        QLabel::setBuddy(0);
         return;
+    }
 
-    if (QWidget *widget = qFindChild<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy)))
-        QLabel::setBuddy(widget);
+    QList<QWidget *> widgets = qFindChildren<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy));
+    QListIterator<QWidget *> it(widgets);
+    while (it.hasNext()) {
+        QWidget *widget = it.next();
+        if (widget && !widget->isHidden()) {
+            QLabel::setBuddy(widget);
+            return;
+        }
+    }
+    QLabel::setBuddy(0);
 }
 
 QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidget *parent)

@@ -661,6 +661,20 @@ void InsertWidgetCommand::redo()
         recursiveUpdate(parentWidget);
         parentWidget->layout()->invalidate();
     }
+
+    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    foreach (QDesignerLabel *label, label_list) {
+        QDesignerPropertySheetExtension* propertySheet
+            = qt_extension<QDesignerPropertySheetExtension*>
+                (core->extensionManager(), label);
+        if (propertySheet == 0)
+            continue;
+        int idx = propertySheet->indexOf(QLatin1String("buddy"));
+        if (idx == -1)
+            continue;
+        if (propertySheet->property(idx).toString() == m_widget->objectName())
+            propertySheet->setProperty(idx, m_widget->objectName());
+    }
 }
 
 void InsertWidgetCommand::undo()
@@ -680,6 +694,20 @@ void InsertWidgetCommand::undo()
         m_widget->hide();
     }
     formWindow()->emitSelectionChanged();
+
+    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    foreach (QDesignerLabel *label, label_list) {
+        QDesignerPropertySheetExtension* propertySheet
+            = qt_extension<QDesignerPropertySheetExtension*>
+                (core->extensionManager(), label);
+        if (propertySheet == 0)
+            continue;
+        int idx = propertySheet->indexOf(QLatin1String("buddy"));
+        if (idx == -1)
+            continue;
+        if (propertySheet->property(idx).toString() == m_widget->objectName())
+            propertySheet->setProperty(idx, m_widget->objectName());
+    }
 }
 
 // ---- RaiseWidgetCommand ----

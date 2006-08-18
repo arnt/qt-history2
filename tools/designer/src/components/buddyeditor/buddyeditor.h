@@ -32,13 +32,20 @@ public:
 
     QDesignerFormWindowInterface *formWindow() const;
     virtual void setBackground(QWidget *background);
+    virtual void deleteSelected();
+
+public slots:
+    virtual void updateBackground();
+    virtual void widgetRemoved(QWidget *w);
 
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
+    virtual void endConnection(QWidget *target, const QPoint &pos);
 
 private:
     QPointer<QDesignerFormWindowInterface> m_formWindow;
+    bool m_updating;
 };
 
 }  // namespace qdesigner_internal

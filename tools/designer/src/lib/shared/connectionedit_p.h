@@ -147,7 +147,7 @@ public:
     Connection *connection(int i) const { return m_con_list.at(i); }
     int indexOfConnection(Connection *con) const { return m_con_list.indexOf(con); }
 
-    void deleteSelected();
+    virtual void deleteSelected();
 
     virtual void setSource(Connection *con, const QString &obj_name);
     virtual void setTarget(Connection *con, const QString &obj_name);
@@ -172,8 +172,8 @@ signals:
 
 public slots:
     virtual void setBackground(QWidget *background);
-    void updateBackground();
-    void widgetRemoved(QWidget *w);
+    virtual void updateBackground();
+    virtual void widgetRemoved(QWidget *w);
     void updateLines();
     void enableUpdateBackground(bool enable);
 
@@ -196,6 +196,7 @@ protected:
     enum State { Editing, Connecting, Dragging };
     State state() const;
 
+    virtual void endConnection(QWidget *target, const QPoint &pos);
 private:
     QWidget *m_bg_widget;
     QUndoStack *m_undo_stack;
@@ -206,7 +207,6 @@ private:
     bool m_start_connection_on_drag;
     void startConnection(QWidget *source, const QPoint &pos);
     void continueConnection(QWidget *target, const QPoint &pos);
-    void endConnection(QWidget *target, const QPoint &pos);
     void abortConnection();
 
     void findObjectsUnderMouse(const QPoint &pos);
@@ -233,6 +233,7 @@ private:
 
 private:
     friend class Connection;
+    friend class BuddyEditor;
     friend class AddConnectionCommand;
     friend class DeleteConnectionsCommand;
     friend class SetEndPointCommand;
