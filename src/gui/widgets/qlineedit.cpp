@@ -20,10 +20,8 @@
 
     Ctrl+D wil no longer work on Windows (but on X11/mac)
 
-    Ctrl+U, Ctrl+B, Ctr+E, Ctrl+H, Ctrl+F are completely removed from line edit. If they are popular, we can add them
+    Ctrl+B, Ctr+E, Ctrl+H, Ctrl+F are completely removed from line edit. If they are popular, we can add them
     as standardshortcuts on X11 so that they work in other widgets as well.
-
-    ### consider removing the shortcut table from documentation entirely.
 */
 
 #include "qlineedit.h"
@@ -1802,6 +1800,17 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             case Qt::Key_Down:
                 d->complete(event->key());
                 break;
+#endif
+#if defined(Q_WS_X11)
+        case Qt::Key_U:
+            if (!d->readOnly) {
+                setSelection(0, d->text.size());
+#ifndef QT_NO_CLIPBOARD
+                copy();
+#endif
+                del();
+            }
+            break;
 #endif
             default:
                 unknown = true;
