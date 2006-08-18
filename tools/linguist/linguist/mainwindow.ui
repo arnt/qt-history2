@@ -599,12 +599,12 @@
   </action>
   <action name="actionAbout" >
    <property name="text" >
-    <string>&amp;About Qt Linguist</string>
+    <string>About Qt Linguist</string>
    </property>
   </action>
   <action name="actionAboutQt" >
    <property name="text" >
-    <string>About &amp;Qt</string>
+    <string>About Qt</string>
    </property>
    <property name="whatsThis" >
     <string>Display information about the Qt toolkit by Trolltech.</string>
