@@ -1187,9 +1187,6 @@ Q_CORE_EXPORT QT3_SUPPORT void qSystemWarning(const char *msg, int code = -1);
 Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
 Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
-class QDebug;
-class QNoDebug;
-
 #ifdef QT_NO_DEBUG_OUTPUT
 #  define qDebug if(1); else qDebug
 #endif
@@ -1198,6 +1195,21 @@ class QNoDebug;
 #endif
 #if (defined(QT_NO_DEBUG_OUTPUT) || defined(QT_NO_TEXTSTREAM)) && !defined(QT_NO_DEBUG_STREAM)
 #define QT_NO_DEBUG_STREAM
+#endif
+
+/*
+  Forward declarations only.
+
+  In order to use the qDebug() stream, you must #include<QDebug>
+*/
+class QDebug;
+class QNoDebug;
+#ifndef QT_NO_DEBUG_STREAM
+inline Q_CORE_EXPORT QDebug qDebug();
+inline Q_CORE_EXPORT QDebug qWarning();
+inline Q_CORE_EXPORT QDebug qCritical();
+#else
+inline QNoDebug qDebug();
 #endif
 
 inline void qt_noop() {}
