@@ -3018,6 +3018,7 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
 #ifdef Q_WS_X11
 IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
 {
+    Q_Q(const QWindowsStyle);
     IconTheme theme;
     QFile themeIndex;
     QStringList parents;
@@ -3056,19 +3057,17 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
                 }
             }
         }
-    }
+    }	
 
-    if (X11->desktopEnvironment == DE_KDE) {
+    if (q->inherits("QPlastiqueStyle")) {
         QFileInfo fileInfo("/usr/share/icons/default.kde");
         QDir dir(fileInfo.canonicalFilePath());
         QString defaultKDETheme = dir.exists() ? dir.dirName() : "crystalsvg";
-        if (!parents.contains(defaultKDETheme))
-            parents.append(defaultKDETheme);
-    }
-
-    if (parents.isEmpty() && themeName != "hicolor")
+        if (!parents.contains(defaultKDETheme) && themeName != defaultKDETheme)
+            parents.append(defaultKDETheme);        
+    } else if (parents.isEmpty() && themeName != "hicolor") {
         parents.append("hicolor");
-
+    }
     theme = IconTheme(dirList, parents);
     return theme;
 }
