@@ -142,7 +142,7 @@ void GLWidget::draw()
     // draw background
     glPushMatrix();
     glScalef(1.7f, 1.7f, 1.7f);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.45f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glCallList(tile_list);
     glPopMatrix();
 
