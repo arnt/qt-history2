@@ -305,7 +305,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	QStringList path = arg.split(" ")[0].split("::");
 	Node *node = tre->findNode(path, nodeTypeMap[command]);
 	if ( node == 0 ) {
-	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2'")
+	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2' in any header file")
 				   .arg(arg).arg(command));
 	    lastPath = path;
 
@@ -373,7 +373,9 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    if (from == 0) {
 		doc.location().warning(
                     tr("Cannot find base function for '\\%1' in %2()")
-		    .arg(COMMAND_REIMP).arg(node->name()));
+		    .arg(COMMAND_REIMP).arg(node->name()),
+                    tr("The function either doesn't exist in any base class "
+                       "with the same signature or it exists but isn't virtual."));
             }
 #if 0 // Ideally, we would enable this check to warn whenever \reimp is used
       // incorrectly, and only make the node internal if the function is a

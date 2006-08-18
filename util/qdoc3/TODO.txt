@@ -13,6 +13,7 @@
     * Use bullet list for the list of all functions, now that
       Assistant handles these gracefully.
     * Fix occasional crash caused by misuse of const_cast().
+    * Provide clearer error messages when resolves fail.
 
 
 
