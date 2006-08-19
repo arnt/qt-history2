@@ -60,13 +60,33 @@ struct QStyleSheetBorderImageData : public QSharedData
     void cutBorderImage();
 };
 
+static QBrush stretchedToDevice(const QBrush& brush)
+{
+    if (const QGradient *gradient = brush.gradient()) {
+        if (gradient->type() == QGradient::LinearGradient) {
+            QLinearGradient grad = *static_cast<const QLinearGradient *>(gradient);
+            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
+            return QBrush(grad);
+        } else if (gradient->type() == QGradient::RadialGradient) {
+            QRadialGradient grad = *static_cast<const QRadialGradient *>(gradient);
+            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
+            return QBrush(grad);
+        } else if (gradient->type() == QGradient::ConicalGradient) {
+            QConicalGradient grad = *static_cast<const QConicalGradient *>(gradient);
+            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
+            return QBrush(grad);
+        }
+    }
+    return brush;
+}
+
 struct QStyleSheetBackgroundData : public QSharedData
 {
-    QStyleSheetBackgroundData(const QColor& c, const QPixmap& p, QCss::Repeat r,
+    QStyleSheetBackgroundData(const QBrush& b, const QPixmap& p, QCss::Repeat r,
                               Qt::Alignment a, QCss::Origin o)
-        : color(c), pixmap(p), repeat(r), position(a), origin(o) { }
+        : brush(stretchedToDevice(b)), pixmap(p), repeat(r), position(a), origin(o) { }
 
-    QColor color;
+    QBrush brush;
     QPixmap pixmap;
     QCss::Repeat repeat;
     Qt::Alignment position;
@@ -273,13 +293,13 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
     if (v.extractBorder(borders, colors, styles, radii))
         bd = new QStyleSheetBorderData(borders, colors, styles, radii);
 
-    QColor color;
+    QBrush brush;
     QString uri;
     Repeat repeat = Repeat_XY;
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
     origin = Origin_Padding;
-    if (v.extractBackground(&color, &uri, &repeat, &alignment, &origin))
-        bg = new QStyleSheetBackgroundData(color, QPixmap(uri), repeat, alignment, origin);
+    if (v.extractBackground(&brush, &uri, &repeat, &alignment, &origin))
+        bg = new QStyleSheetBackgroundData(brush, QPixmap(uri), repeat, alignment, origin);
 
     QColor sfg, fg;
     QBrush sbg, abg;
@@ -993,8 +1013,8 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, Qt::LayoutDirec
 {
     if (!hasBackground())
         return;
-    if (background()->color.isValid())
-        p->fillRect(borderRect(rect), background()->color);
+    if (background()->brush.style() != Qt::NoBrush)
+        p->fillRect(borderRect(rect), background()->brush);
     drawBackgroundImage(p, rect, dir);
 }
 
@@ -1030,13 +1050,13 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
 {
     const bool isReadOnlyCombo = qobject_cast<const QComboBox *>(w) != 0;
 
-    if (bg && bg->color.isValid()) {
+    if (bg && bg->brush.style() == Qt::SolidPattern) {
         if (isReadOnlyCombo) {
-            p->setBrush(cg, QPalette::Base, bg->color); // for windows, windowxp
-            p->setBrush(cg, QPalette::Button, bg->color); // for plastique
+            p->setBrush(cg, QPalette::Base, bg->brush); // for windows, windowxp
+            p->setBrush(cg, QPalette::Button, bg->brush); // for plastique
         } else {
-            p->setBrush(cg, w->backgroundRole(), bg->color);
-            p->setBrush(cg, QPalette::Window, bg->color);
+            p->setBrush(cg, w->backgroundRole(), bg->brush);
+            p->setBrush(cg, QPalette::Window, bg->brush);
         }
     }
 

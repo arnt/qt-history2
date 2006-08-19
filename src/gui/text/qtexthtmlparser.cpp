@@ -1321,9 +1321,9 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
         Qt::Alignment ignoredAlignment;
         QCss::Repeat ignoredRepeat;
         QString bgImage;
-        QColor bgColor;
+        QBrush bgBrush;
         QCss::Origin ignoredOrigin;
-        extractor.extractBackground(&bgColor, &bgImage, &ignoredRepeat, &ignoredAlignment,
+        extractor.extractBackground(&bgBrush, &bgImage, &ignoredRepeat, &ignoredAlignment,
                                     &ignoredOrigin);
 
         if (!bgImage.isEmpty() && resourceProvider) {
@@ -1335,8 +1335,8 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                 if (pm.loadFromData(val.toByteArray()))
                     background = pm;
             }
-        } else if (bgColor.isValid()) {
-            background = bgColor;
+        } else if (bgBrush.style() != Qt::NoBrush) {
+            background = bgBrush;
         }
     }
 }

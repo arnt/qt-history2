@@ -41,6 +41,8 @@ private slots:
     void shorthandBackgroundProperty();
     void pseudoElement_data();
     void pseudoElement();
+    void gradient_data();
+    void gradient();
 };
 
 void tst_CssParser::scanner_data()
@@ -1170,20 +1172,20 @@ void tst_CssParser::rulesForNode()
 void tst_CssParser::shorthandBackgroundProperty_data()
 {
     QTest::addColumn<QString>("css");
-    QTest::addColumn<QColor>("expectedColor");
+    QTest::addColumn<QBrush>("expectedBrush");
     QTest::addColumn<QString>("expectedImage");
     QTest::addColumn<int>("expectedRepeatValue");
     QTest::addColumn<int>("expectedAlignment");
 
-    QTest::newRow("simple color") << "background: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
-    QTest::newRow("plain color") << "background-color: red" << QColor("red") << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
-    QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QColor("blue") << QString("chess.png") << int(QCss::Repeat_Y) << int(Qt::AlignLeft | Qt::AlignTop);
-    QTest::newRow("plain alignment") << "background-position: center" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignCenter);
-    QTest::newRow("plain alignment2") << "background-position: left top" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
-    QTest::newRow("plain alignment3") << "background-position: left" << QColor() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignVCenter);
-    QTest::newRow("multi") << "background: left url(blah.png) repeat-x" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignLeft | Qt::AlignVCenter);
-    QTest::newRow("multi2") << "background: url(blah.png) repeat-x top" << QColor() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignTop | Qt::AlignHCenter);
-    QTest::newRow("multi3") << "background: url(blah.png) top right" << QColor() << QString("blah.png") << int(QCss::Repeat_XY) << int(Qt::AlignTop | Qt::AlignRight);
+    QTest::newRow("simple color") << "background: red" << QBrush(QColor("red")) << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain color") << "background-color: red" << QBrush(QColor("red")) << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("multiple") << "background: url(chess.png) blue repeat-y" << QBrush(QColor("blue")) << QString("chess.png") << int(QCss::Repeat_Y) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain alignment") << "background-position: center" << QBrush() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignCenter);
+    QTest::newRow("plain alignment2") << "background-position: left top" << QBrush() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignTop);
+    QTest::newRow("plain alignment3") << "background-position: left" << QBrush() << QString() << int(QCss::Repeat_XY) << int(Qt::AlignLeft | Qt::AlignVCenter);
+    QTest::newRow("multi") << "background: left url(blah.png) repeat-x" << QBrush() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignLeft | Qt::AlignVCenter);
+    QTest::newRow("multi2") << "background: url(blah.png) repeat-x top" << QBrush() << QString("blah.png") << int(QCss::Repeat_X) << int(Qt::AlignTop | Qt::AlignHCenter);
+    QTest::newRow("multi3") << "background: url(blah.png) top right" << QBrush() << QString("blah.png") << int(QCss::Repeat_XY) << int(Qt::AlignTop | Qt::AlignRight);
 }
 
 void tst_CssParser::shorthandBackgroundProperty()
@@ -1208,14 +1210,16 @@ void tst_CssParser::shorthandBackgroundProperty()
     QVector<QCss::Declaration> decls = rules.at(0).declarations;
     QCss::ValueExtractor v(decls);
 
-    QColor color;
+    QBrush brush;
     QString image;
     QCss::Repeat repeat = QCss::Repeat_XY;
     Qt::Alignment alignment = Qt::AlignTop | Qt::AlignLeft;
     QCss::Origin origin = QCss::Origin_Padding;
-    v.extractBackground(&color, &image, &repeat, &alignment, &origin);
+    v.extractBackground(&brush, &image, &repeat, &alignment, &origin);
 
-    QTEST(color, "expectedColor");
+    QFETCH(QBrush, expectedBrush);
+    QVERIFY(expectedBrush.color() == brush.color());
+
     QTEST(image, "expectedImage");
     QTEST(int(repeat), "expectedRepeatValue");
     QTEST(int(alignment), "expectedAlignment");
@@ -1284,6 +1288,75 @@ void tst_CssParser::pseudoElement()
     QVERIFY(decls.count() == declCount);
 }
 
+void tst_CssParser::gradient_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QPointF>("start");
+    QTest::addColumn<QPointF>("finalStop");
+    QTest::addColumn<int>("spread");
+    QTest::addColumn<qreal>("stop0");
+    QTest::addColumn<QColor>("color0");
+    QTest::addColumn<qreal>("stop1");
+    QTest::addColumn<QColor>("color1");
+
+    QTest::newRow("color-string") << 
+     "selection-background: lineargradient(x1:1, y1:2, x2:3, y2:4, "
+         "stop:0.2 red, stop:0.5 green)" << QPointF(1, 2) << QPointF(3, 4)
+         << 0 << 0.2 << QColor("red") << 0.5 << QColor("green");
+
+    QTest::newRow("color-#") << 
+     "selection-background: gradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
+         "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << QPointF(0, 0) << QPointF(0, 1)
+         << 1 << 0.2 << QColor("#123") << 0.5 << QColor("#456");
+
+
+    /* wont pass: stop values are expected to be sorted
+     QTest::newRow("unsorted-stop") << 
+     "selection-background: lineargradient(x1:0, y1:0, x2:0, y2:1, "
+         "stop:0.5 green, stop:0.2 red)" << QPointF(0, 0) << QPointF(0, 1)
+         0 << 0.2 << QColor("red") << 0.5 << QColor("green");
+    */
+}
+ 
+void tst_CssParser::gradient()
+{
+    QFETCH(QString, css);
+    QFETCH(QPointF, finalStop);
+    QFETCH(QPointF, start);
+    QFETCH(int, spread);
+    QFETCH(qreal, stop0); QFETCH(QColor, color0);
+    QFETCH(qreal, stop1); QFETCH(QColor, color1);
+
+    QDomDocument doc;
+    QVERIFY(doc.setContent(QLatin1String("<!DOCTYPE test><test> <dummy/> </test>")));
+
+    css.prepend("dummy {");
+    css.append("}");
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    DomStyleSelector testSelector(doc, sheet);
+    QDomElement e = doc.documentElement().firstChildElement();
+    QCss::StyleSelector::NodePtr n;
+    n.ptr = &e;
+    QVector<QCss::StyleRule> rules = testSelector.styleRulesForNode(n);
+    QVector<QCss::Declaration> decls = rules.at(0).declarations;
+    QCss::ValueExtractor ve(decls);
+    QColor fg, sfg;
+    QBrush sbg, abg;
+    QVERIFY(ve.extractPalette(&fg, &sfg, &sbg, &abg));
+    QVERIFY(sbg.style() == Qt::LinearGradientPattern);
+    const QLinearGradient *lg = static_cast<const QLinearGradient *>(sbg.gradient());
+    QCOMPARE(lg->start(), start);
+    QCOMPARE(lg->finalStop(), finalStop);
+    QCOMPARE(lg->spread(), QGradient::Spread(spread));
+    QVERIFY(lg->stops().at(0).first == stop0);
+    QVERIFY(lg->stops().at(0).second == color0);
+    QVERIFY(lg->stops().at(1).first == stop1);
+    QVERIFY(lg->stops().at(1).second == color1);
+}
 
 QTEST_MAIN(tst_CssParser)
 #include "tst_cssparser.moc"

@@ -489,9 +489,87 @@ static QColor parseColorValue(Value v)
                   colorDigits.at(4).variant.toInt());
 }
 
-static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColor *color, QString *image, Repeat *repeat, Qt::Alignment *alignment)
+static QBrush parseBrushValue(Value v)
 {
-    *color = QColor();
+    QColor c = parseColorValue(v);
+    if (c.isValid())
+        return QBrush(c);
+
+    if (v.type != Value::Function)
+        return QBrush();
+
+    QStringList lst = v.variant.toStringList();
+    if (lst.count() != 2)
+        return QBrush();
+
+    QStringList gradFuncs;
+    gradFuncs << "lineargradient" << "radialgradient" << "conicalgradient" << "gradient";
+    int gradType = -1;
+
+    if (lst.at(0).compare(QLatin1String("gradient"), Qt::CaseInsensitive) != 0
+        && (gradType = gradFuncs.indexOf(lst.at(0))) == -1)
+        return QBrush();
+
+    QStringList gradientTypes;
+    gradientTypes << "linear" << "radial" << "conical" << "gradient";
+    QStringList params = lst.at(1).split(QLatin1String(","), QString::SkipEmptyParts);
+    QHash<QString, qreal> vars;
+    QVector<QGradientStop> stops;
+    QRegExp re("\\s*(\\S*):\\s*(\\S*)\\s*(\\S*)");
+    int spread = -1;
+    QStringList spreads;
+    spreads << "pad" << "reflect" << "repeat";
+    for (int i = 0; i < params.count(); i++) {
+        if (re.indexIn(params.at(i)) == -1)
+            continue;
+        QString attr = re.cap(1);
+        QString value = re.cap(2);
+
+        if (attr.compare(QLatin1String("type"), Qt::CaseInsensitive) == 0) {
+           gradType = gradientTypes.indexOf(value);
+        } else if (attr.compare(QLatin1String("spread"), Qt::CaseInsensitive) == 0) {
+            spread = spreads.indexOf(value);
+        } else if (attr.compare(QLatin1String("stop"), Qt::CaseInsensitive) == 0) {
+            stops.append(QGradientStop(value.toDouble(), QColor(re.cap(3))));
+        } else {
+            vars[attr] = value.toDouble();
+        }
+    }
+
+    if (gradType == 0) {
+        QLinearGradient lg(vars.value(QLatin1String("x1")), vars.value(QLatin1String("y1")), 
+                           vars.value(QLatin1String("x2")), vars.value(QLatin1String("y2")));
+        lg.setStops(stops);
+        if (spread != -1)
+            lg.setSpread(QGradient::Spread(spread));
+        return QBrush(lg);
+    } 
+    
+    if (gradType == 1) {
+        QRadialGradient rg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")), 
+                           vars.value(QLatin1String("radius")), vars.value(QLatin1String("fx")), 
+                           vars.value(QLatin1String("fy")));
+        rg.setStops(stops);
+        if (spread != -1)
+            rg.setSpread(QGradient::Spread(spread));
+        return QBrush(rg);
+    } 
+
+    if (gradType == 2) {
+        QConicalGradient cg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")),
+                            vars.value(QLatin1String("angle")));
+        cg.setStops(stops);
+        if (spread != -1)
+            cg.setSpread(QGradient::Spread(spread));
+        return QBrush(cg);
+    }
+
+    return QBrush();
+}
+
+static void parseShorthandBackgroundProperty(const QVector<Value> &values, QBrush *brush, QString *image, Repeat *repeat, Qt::Alignment *alignment)
+{
+    *brush = QBrush();
     *image = QString();
     *repeat = Repeat_XY;
     *alignment = Qt::AlignTop | Qt::AlignLeft;
@@ -525,11 +603,11 @@ static void parseShorthandBackgroundProperty(const QVector<Value> &values, QColo
             i -= count - 1;
         }
 
-        *color = parseColorValue(v);
+        *brush = parseBrushValue(v);
     }
 }
 
-bool ValueExtractor::extractBackground(QColor *color, QString *image, Repeat *repeat,
+bool ValueExtractor::extractBackground(QBrush *brush, QString *image, Repeat *repeat,
                                        Qt::Alignment *alignment, Origin *origin)
 {
     bool hit = false;
@@ -539,7 +617,7 @@ bool ValueExtractor::extractBackground(QColor *color, QString *image, Repeat *re
             continue;
         const Value val = decl.values.first();
         switch (decl.propertyId) {
-            case BackgroundColor: *color = parseColorValue(val); break;
+            case BackgroundColor: *brush = parseBrushValue(val); break;
             case BackgroundImage:
                 if (val.type == Value::Uri)
                     *image = val.variant.toString();
@@ -555,7 +633,7 @@ bool ValueExtractor::extractBackground(QColor *color, QString *image, Repeat *re
                 *origin = decl.originValue();
                 break;
             case Background:
-                parseShorthandBackgroundProperty(decl.values, color, image, repeat, alignment);
+                parseShorthandBackgroundProperty(decl.values, brush, image, repeat, alignment);
                 break;
             default: continue;
         }
@@ -747,7 +825,10 @@ QColor Declaration::colorValue() const
 
 QBrush Declaration::brushValue() const
 {
-    return colorValue(); // FIXME: add support images, gradients here
+    if (values.count() != 1)
+        return QBrush();
+
+    return parseBrushValue(values.first());
 }
 
 bool Declaration::realValue(qreal *real, const char *unit) const
