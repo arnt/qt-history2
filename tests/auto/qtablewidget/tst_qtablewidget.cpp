@@ -108,14 +108,16 @@ void tst_QTableWidget::getSetCheck()
     // QTableWidgetItem * QTableWidget::currentItem()
     // void QTableWidget::setCurrentItem(QTableWidgetItem *)
     QTableWidgetItem *var3 = new QTableWidgetItem("0,0");
-    obj1.setItem(0,0, var3);
-    obj1.setItem(1,1, new QTableWidgetItem("1,1"));
-    obj1.setItem(2,2, new QTableWidgetItem("2,2"));
-    obj1.setItem(3,3, new QTableWidgetItem("3,3"));
+    obj1.setItem(0, 0, var3);
+    obj1.setItem(1, 1, new QTableWidgetItem("1,1"));
+    obj1.setItem(2, 2, new QTableWidgetItem("2,2"));
+    obj1.setItem(3, 3, new QTableWidgetItem("3,3"));
     obj1.setCurrentItem(var3);
     QCOMPARE(var3, obj1.currentItem());
     obj1.setCurrentItem((QTableWidgetItem *)0);
     QCOMPARE((QTableWidgetItem *)0, obj1.currentItem());
+    obj1.setItem(0, 0, 0);
+    QCOMPARE((QTableWidgetItem *)0, obj1.item(0, 0));
 
     // const QTableWidgetItem * QTableWidget::itemPrototype()
     // void QTableWidget::setItemPrototype(const QTableWidgetItem *)
