@@ -8,7 +8,7 @@ public slots:
 
     void ping(QDBusMessage msg)
     {
-        if (!msg.sendReply(msg.arguments()))
+        if (!QDBusConnection::sessionBus().send(msg.createReply(msg.arguments())))
             exit(1);
     }
 };
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     if (!con.isConnected())
         exit(1);
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         exit(2);
 
     Pong pong;
-    con.registerObject("/org/kde/selftest", &pong, QDBusConnection::ExportSlots);
+    con.registerObject("/org/kde/selftest", &pong, QDBusConnection::ExportAllSlots);
 
     printf("ready.\n");
 

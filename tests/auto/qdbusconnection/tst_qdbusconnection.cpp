@@ -8,12 +8,18 @@ class MyObject: public QObject
 {
     Q_OBJECT
 public slots:
-    void method(const QDBusMessage &msg) { path = msg.path(); }
+    void method(const QDBusMessage &msg);
 
 public:
     QString path;
     MyObject() { }
 };
+
+void MyObject::method(const QDBusMessage &msg)
+{
+    path = msg.path();
+    //qDebug() << msg;
+}
 
 class tst_QDBusConnection: public QObject
 {
@@ -21,17 +27,19 @@ class tst_QDBusConnection: public QObject
 
 private slots:
     void noConnection();
-    void addConnection();
+    void connectToBus();
     void connect();
     void send();
     void sendAsync();
     void sendSignal();
 
+    void registerObject_data();
     void registerObject();
 
     void callSelf();
 
 public:
+    QString serviceName() const { return "com.trolltech.Qt.Autotests.QDBusConnection"; }
     bool callMethod(const QDBusConnection &conn, const QString &path);
 };
 
@@ -48,12 +56,12 @@ public:
 
 void tst_QDBusConnection::noConnection()
 {
-    QDBusConnection con = QDBusConnection::addConnection("unix:path=/dev/null", "testconnection");
+    QDBusConnection con = QDBusConnection::connectToBus("unix:path=/dev/null", "testconnection");
     QVERIFY(!con.isConnected());
 
     // try sending a message. This should fail
-    QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest", "/org/kde/selftest",
-                                                "org.kde.selftest", "Ping", con);
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest", "/org/kde/selftest",
+                                                      "org.kde.selftest", "Ping");
     msg << QLatin1String("ping");
 
     QVERIFY(!con.send(msg));
@@ -67,17 +75,17 @@ void tst_QDBusConnection::noConnection()
     QDBusReply<void> voidreply(reply);
     QVERIFY(!voidreply.isValid());
 
-    QDBusConnection::closeConnection("testconnection");
+    QDBusConnection::disconnectFromBus("testconnection");
 }
 
 void tst_QDBusConnection::sendSignal()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::signal("/org/kde/selftest", "org.kde.selftest",
-                                            "Ping", con);
+    QDBusMessage msg = QDBusMessage::createSignal("/org/kde/selftest", "org.kde.selftest",
+                                                  "Ping");
     msg << QLatin1String("ping");
 
     QVERIFY(con.send(msg));
@@ -87,29 +95,29 @@ void tst_QDBusConnection::sendSignal()
 
 void tst_QDBusConnection::send()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::methodCall("org.freedesktop.DBus",
-        "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", con);
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.freedesktop.DBus",
+        "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
 
     QDBusMessage reply = con.call(msg);
 
-    QCOMPARE(reply.count(), 1);
-    QCOMPARE(reply.at(0).typeName(), "QStringList");
-    QVERIFY(reply.at(0).toStringList().contains(con.baseService()));
+    QCOMPARE(reply.arguments().count(), 1);
+    QCOMPARE(reply.arguments().at(0).typeName(), "QStringList");
+    QVERIFY(reply.arguments().at(0).toStringList().contains(con.baseService()));
 }
 
 void tst_QDBusConnection::sendAsync()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     QDBusSpy spy;
 
-    QDBusMessage msg = QDBusMessage::methodCall("org.freedesktop.DBus",
-            "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", con);
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.freedesktop.DBus",
+            "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
     QVERIFY(con.call(msg, &spy, SLOT(asyncReply(QDBusMessage))));
 
     QTest::qWait(1000);
@@ -122,13 +130,13 @@ void tst_QDBusConnection::connect()
 {
     QDBusSpy spy;
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
 
     con.connect(con.baseService(), "/org/kde/selftest", "org.kde.selftest", "ping", &spy,
                  SLOT(handlePing(QString)));
 
-    QDBusMessage msg = QDBusMessage::signal("/org/kde/selftest", "org.kde.selftest",
-                                            "ping", con);
+    QDBusMessage msg = QDBusMessage::createSignal("/org/kde/selftest", "org.kde.selftest",
+                                                  "ping");
     msg << QLatin1String("ping");
 
     QVERIFY(con.send(msg));
@@ -139,10 +147,10 @@ void tst_QDBusConnection::connect()
     QCOMPARE(spy.args.at(0).toString(), QString("ping"));
 }
 
-void tst_QDBusConnection::addConnection()
+void tst_QDBusConnection::connectToBus()
 {
     {
-        QDBusConnection con = QDBusConnection::addConnection(
+        QDBusConnection con = QDBusConnection::connectToBus(
                 QDBusConnection::SessionBus, "bubu");
 
         QVERIFY(con.isConnected());
@@ -165,7 +173,7 @@ void tst_QDBusConnection::addConnection()
         QVERIFY(!con.lastError().isValid());
     }
 
-    QDBusConnection::closeConnection("bubu");
+    QDBusConnection::disconnectFromBus("bubu");
 
     {
         QDBusConnection con("bubu");
@@ -174,23 +182,52 @@ void tst_QDBusConnection::addConnection()
     }
 }
 
+void tst_QDBusConnection::registerObject_data()
+{
+    QTest::addColumn<QString>("path");
+
+    QTest::newRow("/") << "/";
+    QTest::newRow("/p1") << "/p1";
+    QTest::newRow("/p2") << "/p2";
+    QTest::newRow("/p1/q") << "/p1/q";
+    QTest::newRow("/p1/q/r") << "/p1/q/r";
+}
+
 void tst_QDBusConnection::registerObject()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QFETCH(QString, path);
+
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
+#if 1
+    //QVERIFY(!callMethod(con, path));
+    {
+        // register one object at root:
+        MyObject obj;
+        QVERIFY(con.registerObject(path, &obj, QDBusConnection::ExportAllSlots));
+        QCOMPARE(con.objectRegisteredAt(path), &obj);
+        QVERIFY(callMethod(con, path));
+        QCOMPARE(obj.path, path);
+    }
+    // make sure it's gone
+    QVERIFY(!callMethod(con, path));
+
+#else
+
     // make sure nothing is using our paths:
-    QVERIFY(!callMethod(con, "/"));
-    QVERIFY(!callMethod(con, "/p1"));
-    QVERIFY(!callMethod(con, "/p2"));
-    QVERIFY(!callMethod(con, "/p1/q"));
-    QVERIFY(!callMethod(con, "/p1/q/r"));
+     QVERIFY(!callMethod(con, "/"));
+     QVERIFY(!callMethod(con, "/p1"));
+     QVERIFY(!callMethod(con, "/p2"));
+     QVERIFY(!callMethod(con, "/p1/q"));
+     QVERIFY(!callMethod(con, "/p1/q/r"));
 
     {
         // register one object at root:
         MyObject obj;
         QVERIFY(con.registerObject("/", &obj, QDBusConnection::ExportSlots));
         QVERIFY(callMethod(con, "/"));
+        qDebug() << obj.path;
         QCOMPARE(obj.path, QString("/"));
     }
     // make sure it's gone
@@ -202,6 +239,7 @@ void tst_QDBusConnection::registerObject()
         QVERIFY(con.registerObject("/p1", &obj, QDBusConnection::ExportSlots));
         QVERIFY(!callMethod(con, "/"));
         QVERIFY(callMethod(con, "/p1"));
+        qDebug() << obj.path;
         QCOMPARE(obj.path, QString("/p1"));
 
         // re-register it somewhere else
@@ -263,13 +301,34 @@ void tst_QDBusConnection::registerObject()
         con.unregisterObject("/p1", QDBusConnection::UnregisterTree);
         QVERIFY(!callMethod(con, "/p1/q2")); // we removed the full tree
     }
+#endif
 }
 
 bool tst_QDBusConnection::callMethod(const QDBusConnection &conn, const QString &path)
 {
-    QDBusMessage msg = QDBusMessage::methodCall(conn.baseService(), path, "local.any", "method", conn);
-    QDBusMessage reply = conn.call(msg, QDBus::BlockWithGui);
-
+    QDBusMessage msg = QDBusMessage::createMethodCall(conn.baseService(), path, "", "method");
+    QDBusMessage reply = conn.call(msg, QDBus::Block/*WithGui*/);
+#if 0
+    switch (reply.type()) {
+        case QDBusMessage::InvalidMessage:
+            qDebug() << "InvalidMessage:" << reply;
+            break;
+        case QDBusMessage::MethodCallMessage:
+            qDebug() << "MethodCallMessage:" << reply;
+            break;
+        case QDBusMessage::ReplyMessage:
+            qDebug() << "ReplyMessage:" << reply;
+            break;
+        case QDBusMessage::ErrorMessage:
+            qDebug() << "ErrorMessage:" << reply;
+            break;
+        case QDBusMessage::SignalMessage:
+            qDebug() << "SignalMessage:" << reply;
+            break;
+        default:
+            break;
+    }
+#endif
     return reply.type() == QDBusMessage::ReplyMessage;
 }
 
@@ -292,12 +351,12 @@ public slots:
 void tst_QDBusConnection::callSelf()
 {
     TestObject testObject;
-    QDBusConnection connection = QDBus::sessionBus();
+    QDBusConnection connection = QDBusConnection::sessionBus();
     QVERIFY(connection.registerObject("/test", &testObject,
-                QDBusConnection::ExportContents
-                |QDBusConnection::ExportNonScriptableContents));
-    QVERIFY(connection.registerService("com.trolltech.Qt.Autotests.ToSelf"));
-    QDBusInterface interface("com.trolltech.Qt.Autotests.ToSelf","/test");
+            QDBusConnection::ExportAllContents));
+    QCOMPARE(connection.objectRegisteredAt("/test"), &testObject);
+    QVERIFY(connection.registerService(serviceName()));
+    QDBusInterface interface(serviceName(), "/test");
     QVERIFY(interface.isValid());
 
     interface.call(QDBus::Block, "test0");
@@ -306,13 +365,13 @@ void tst_QDBusConnection::callSelf()
     QCOMPARE(testObject.func, QString("test1 42"));
     QDBusMessage reply = interface.call(QDBus::Block, "test2");
     QCOMPARE(testObject.func, QString("test2"));
-    QCOMPARE(reply.value(0).toInt(), 43);
+    QCOMPARE(reply.arguments().value(0).toInt(), 43);
 
-    QDBusMessage msg = QDBusMessage::methodCall("com.trolltech.Qt.Autotests.ToSelf", "/test",
-            "com.trolltech.Qt.Autotests.ToSelf", "test3", connection);
+    QDBusMessage msg = QDBusMessage::createMethodCall(serviceName(), "/test",
+            serviceName(), "test3");
     msg << 44;
     reply = connection.call(msg);
-    QCOMPARE(reply.value(0).toInt(), 45);
+    QCOMPARE(reply.arguments().value(0).toInt(), 45);
 }
 
 QTEST_MAIN(tst_QDBusConnection)

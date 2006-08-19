@@ -46,7 +46,7 @@ public slots:
 
     void ping(QDBusMessage msg)
     {
-        if (!msg.sendReply(msg.arguments()))
+        if (!QDBusConnection::sessionBus().send(msg.createReply(msg.arguments())))
             exit(1);
     }
 };
@@ -72,9 +72,9 @@ public slots:
 // helper function
 void emitSignal(const QString &interface, const QString &name, const QString &arg)
 {
-    QDBusMessage msg = QDBusMessage::signal("/", interface, name, QDBus::sessionBus());
+    QDBusMessage msg = QDBusMessage::createSignal("/", interface, name);
     msg << arg;
-    msg.send();
+    QDBusConnection::sessionBus().send(msg);
 
     QTest::qWait(1000);
 }
@@ -94,12 +94,13 @@ private slots:
 
 void tst_QDBusInterface::initTestCase()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
     QTest::qWait(500);
 
-    con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSlots |
-                       QDBusConnection::ExportChildObjects);
+    con.registerObject("/", &obj, QDBusConnection::ExportAdaptors
+                       | QDBusConnection::ExportScriptableSlots
+                       | QDBusConnection::ExportChildObjects);
 }
 
 void tst_QDBusInterface::notConnected()
@@ -115,8 +116,8 @@ void tst_QDBusInterface::notConnected()
 
 void tst_QDBusInterface::introspect()
 {
-    QDBusConnection con = QDBus::sessionBus();
-    QDBusInterface iface(QDBus::sessionBus().baseService(), QLatin1String("/"),
+    QDBusConnection con = QDBusConnection::sessionBus();
+    QDBusInterface iface(QDBusConnection::sessionBus().baseService(), QLatin1String("/"),
                          TEST_INTERFACE_NAME);
 
     const QMetaObject *mo = iface.metaObject();
@@ -130,8 +131,8 @@ void tst_QDBusInterface::introspect()
 
 void tst_QDBusInterface::signal()
 {
-    QDBusConnection con = QDBus::sessionBus();
-    QDBusInterface iface(QDBus::sessionBus().baseService(), QLatin1String("/"),
+    QDBusConnection con = QDBusConnection::sessionBus();
+    QDBusInterface iface(QDBusConnection::sessionBus().baseService(), QLatin1String("/"),
                          TEST_INTERFACE_NAME);
 
     QString arg = "So long and thanks for all the fish";

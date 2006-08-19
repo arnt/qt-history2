@@ -139,7 +139,7 @@ QString printable(const QDBusIntrospection::Method& m)
 
     result += ")";
     return result;
-}    
+}
 
 QString printable(const QDBusIntrospection::Signal& s)
 {
@@ -153,7 +153,7 @@ QString printable(const QDBusIntrospection::Signal& s)
 
     result += ")";
     return result;
-}    
+}
 
 QString printable(const QDBusIntrospection::Property& p)
 {
@@ -165,13 +165,13 @@ QString printable(const QDBusIntrospection::Property& p)
     else
         result = "property readwrite %1 %2, ";
     result = result.arg(p.type, p.name);
-    
+
     AnnotationsMap::const_iterator it = p.annotations.begin();
     for ( ; it != p.annotations.end(); ++it)
         result += QString("%1 \"%2\", ").arg(it.key()).arg(it.value());
 
     return result;
-}    
+}
 
 template<typename T>
 char* printableMap(const QMap<QString, T>& map)
@@ -477,7 +477,7 @@ template<> bool compare(const QVariant &v1, const QVariant &v2)
     else if (id == qMetaTypeId<QVariant>())
         return compare(qvariant_cast<QVariant>(v1), qvariant_cast<QVariant>(v2));
 
-    else if (id == qMetaTypeId<QList<bool> >()) 
+    else if (id == qMetaTypeId<QList<bool> >())
         return qvariant_cast<QList<bool> >(v1) == qvariant_cast<QList<bool> >(v2);
 
     else if (id == qMetaTypeId<QList<short> >())
@@ -504,7 +504,7 @@ template<> bool compare(const QVariant &v1, const QVariant &v2)
     else if (id == qMetaTypeId<QVariant>())
         return compare(qvariant_cast<QVariant>(v1), qvariant_cast<QVariant>(v2));
 
-    else if (id == qMetaTypeId<QList<QList<bool> > >()) 
+    else if (id == qMetaTypeId<QList<QList<bool> > >())
         return qvariant_cast<QList<QList<bool> > >(v1) == qvariant_cast<QList<QList<bool> > >(v2);
 
     else if (id == qMetaTypeId<QList<QList<short> > >())
@@ -540,8 +540,14 @@ template<> bool compare(const QVariant &v1, const QVariant &v2)
     else if (id == qMetaTypeId<QMap<int, QString> >())
         return compare(qvariant_cast<QMap<int, QString> >(v1), qvariant_cast<QMap<int, QString> >(v2));
 
-    else if (id == qMetaTypeId<QMap<QString, QString> >())
+    else if (id == qMetaTypeId<QMap<QString, QString> >()) // ssmap
         return compare(qvariant_cast<QMap<QString, QString> >(v1), qvariant_cast<QMap<QString, QString> >(v2));
+
+    else if (id == qMetaTypeId<QMap<qint64, QDateTime> >()) // lldtmap
+        return compare(qvariant_cast<QMap<qint64, QDateTime> >(v1), qvariant_cast<QMap<qint64, QDateTime> >(v2));
+
+    else if (id == qMetaTypeId<MyStruct>()) // (is)
+            return qvariant_cast<MyStruct>(v1) == qvariant_cast<MyStruct>(v2);
 
     else {
         qWarning() << "Please write a comparison case for type" << v1.typeName();

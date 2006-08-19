@@ -72,8 +72,8 @@ public slots:
         signature = msg.signature();
         path = msg.path();
         value.clear();
-        if (msg.count())
-            value = msg.at(0);
+        if (msg.arguments().count())
+            value = msg.arguments().at(0);
     }
 
 public:
@@ -101,7 +101,7 @@ class Interface2: public QDBusAbstractAdaptor
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "local.Interface2")
     Q_PROPERTY(QString prop1 READ prop1)
-    Q_PROPERTY(QString prop2 READ prop2 WRITE setProp2)
+    Q_PROPERTY(QString prop2 READ prop2 WRITE setProp2 SCRIPTABLE true)
 public:
     Interface2(QObject *parent) : QDBusAbstractAdaptor(parent)
     { setAutoRelaySignals(true); }
@@ -259,7 +259,7 @@ signals:
     Q_SCRIPTABLE void scriptableSignalInt(int);
     Q_SCRIPTABLE void scriptableSignalString(QString);
     void nonScriptableSignalVoid();
-};        
+};
 
 class TypesInterface: public QDBusAbstractAdaptor
 {
@@ -316,7 +316,7 @@ public slots:
         slotSpy = __PRETTY_FUNCTION__;
         dataSpy.us = us;
     }
-    
+
     void methodInt(int i)
     {
         slotSpy = __PRETTY_FUNCTION__;
@@ -346,7 +346,7 @@ public slots:
         slotSpy = __PRETTY_FUNCTION__;
         dataSpy.d = d;
     }
-    
+
     void methodString(const QString &s)
     {
         slotSpy = __PRETTY_FUNCTION__;
@@ -388,7 +388,7 @@ public slots:
         slotSpy = __PRETTY_FUNCTION__;
         bytearraySpy = ba;
     }
-    
+
     void methodMap(const QVariantMap &m)
     {
         slotSpy = __PRETTY_FUNCTION__;
@@ -412,7 +412,7 @@ public slots:
         slotSpy = __PRETTY_FUNCTION__;
         structSpy = s;
     }
-    
+
     bool retrieveBool()
     {
         return dataSpy.b;
@@ -432,7 +432,7 @@ public slots:
     {
         return dataSpy.us;
     }
-    
+
     int retrieveInt()
     {
         return dataSpy.i;
@@ -457,7 +457,7 @@ public slots:
     {
         return dataSpy.d;
     }
-    
+
     QString retrieveString()
     {
         return stringSpy;
@@ -492,7 +492,7 @@ public slots:
     {
         return bytearraySpy;
     }
-    
+
     QVariantMap retrieveMap()
     {
         return mapSpy;
@@ -526,7 +526,7 @@ void tst_QDBusAbstractAdaptor::methodCalls_data()
 
 void tst_QDBusAbstractAdaptor::methodCalls()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     //QDBusInterface emptycon.baseService(), "/", QString());
@@ -583,7 +583,7 @@ void tst_QDBusAbstractAdaptor::methodCalls()
     QCOMPARE(slotSpy, "void Interface4::method(int)");
     QCOMPARE(if4.call(QDBus::BlockWithGui, "method.s", QString()).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface4::method(QString)");
-    
+
 }
 
 static void emitSignal(MyObject *obj, const QString &iface, const QString &name,
@@ -597,7 +597,7 @@ static void emitSignal(MyObject *obj, const QString &iface, const QString &name,
         obj->if4->emitSignal(name, parameter);
     else
         obj->emitSignal(name, parameter);
-    
+
     QTest::qWait(200);
 }
 
@@ -623,12 +623,13 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
     QFETCH(QString, name);
     QFETCH(QVariant, parameter);
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
     con.registerService("com.trolltech.tst_QDBusAbstractAdaptor");
 
     MyObject obj(3);
-    con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSignals);
+    con.registerObject("/", &obj, QDBusConnection::ExportAdaptors
+                                  | QDBusConnection::ExportScriptableSignals);
 
     // connect all signals and emit only one
     {
@@ -647,9 +648,9 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
                     &spy, SLOT(slot(QDBusMessage)));
         con.connect(con.baseService(), "/", "local.MyObject", "scriptableSignalString",
                     &spy, SLOT(slot(QDBusMessage)));
-        
+
         emitSignal(&obj, interface, name, parameter);
-        
+
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.interface, interface);
         QCOMPARE(spy.name, name);
@@ -668,7 +669,7 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
         emitSignal(&obj, "local.MyObject", "scriptableSignalVoid", QVariant());
         emitSignal(&obj, "local.MyObject", "scriptableSignalInt", QVariant(1));
         emitSignal(&obj, "local.MyObject", "scriptableSignalString", QVariant("foo"));
-        
+
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.interface, interface);
         QCOMPARE(spy.name, name);
@@ -679,7 +680,7 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
 
 void tst_QDBusAbstractAdaptor::sameSignalDifferentPaths()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj(2);
@@ -691,7 +692,7 @@ void tst_QDBusAbstractAdaptor::sameSignalDifferentPaths()
     con.connect(con.baseService(), "/p1", "local.Interface2", "signal", &spy, SLOT(slot(QDBusMessage)));
     obj.if2->emitSignal(QString(), QVariant());
     QTest::qWait(200);
-    
+
     QCOMPARE(spy.count, 1);
     QCOMPARE(spy.interface, QString("local.Interface2"));
     QCOMPARE(spy.name, QString("signal"));
@@ -702,13 +703,13 @@ void tst_QDBusAbstractAdaptor::sameSignalDifferentPaths()
     con.connect(con.baseService(), "/p2", "local.Interface2", "signal", &spy, SLOT(slot(QDBusMessage)));
     obj.if2->emitSignal(QString(), QVariant());
     QTest::qWait(200);
-    
+
     QCOMPARE(spy.count, 2);
 }
 
 void tst_QDBusAbstractAdaptor::sameObjectDifferentPaths()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj(2);
@@ -721,7 +722,7 @@ void tst_QDBusAbstractAdaptor::sameObjectDifferentPaths()
     con.connect(con.baseService(), "/p2", "local.Interface2", "signal", &spy, SLOT(slot(QDBusMessage)));
     obj.if2->emitSignal(QString(), QVariant());
     QTest::qWait(200);
-    
+
     QCOMPARE(spy.count, 1);
     QCOMPARE(spy.interface, QString("local.Interface2"));
     QCOMPARE(spy.name, QString("signal"));
@@ -730,13 +731,13 @@ void tst_QDBusAbstractAdaptor::sameObjectDifferentPaths()
 
 void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     {
         MyObject obj(0);
 
-        con.registerObject("/p1",&obj, QDBusConnection::ExportSignals);
+        con.registerObject("/p1",&obj, QDBusConnection::ExportScriptableSignals);
         con.registerObject("/p2",&obj, 0); // don't export anything
 
         QDBusSignalSpy spy;
@@ -747,7 +748,7 @@ void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
         obj.emitSignal("scriptableSignalVoid", QVariant());
         obj.emitSignal("nonScriptableSignalVoid", QVariant());
         QTest::qWait(200);
-    
+
         QCOMPARE(spy.count, 1);     // only /p1 must have emitted
         QCOMPARE(spy.interface, QString("local.MyObject"));
         QCOMPARE(spy.name, QString("scriptableSignalVoid"));
@@ -758,16 +759,16 @@ void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
     {
         MyObject obj(0);
 
-        con.registerObject("/p1",&obj, QDBusConnection::ExportSignals);
-        con.registerObject("/p2",&obj, QDBusConnection::ExportSignals |
-                           QDBusConnection::ExportNonScriptableSignals);
+        con.registerObject("/p1",&obj, QDBusConnection::ExportScriptableSignals);
+        con.registerObject("/p2",&obj, QDBusConnection::ExportScriptableSignals
+                                       | QDBusConnection::ExportNonScriptableSignals);
 
         QDBusSignalSpy spy;
         con.connect(con.baseService(), "/p1", "local.MyObject", "nonScriptableSignalVoid", &spy, SLOT(slot(QDBusMessage)));
         con.connect(con.baseService(), "/p2", "local.MyObject", "nonScriptableSignalVoid", &spy, SLOT(slot(QDBusMessage)));
         obj.emitSignal("nonScriptableSignalVoid", QVariant());
         QTest::qWait(200);
-    
+
         QCOMPARE(spy.count, 1);     // only /p2 must have emitted now
         QCOMPARE(spy.interface, QString("local.MyObject"));
         QCOMPARE(spy.name, QString("nonScriptableSignalVoid"));
@@ -783,13 +784,13 @@ void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
         {
             MyObject obj(0);
 
-            con.registerObject("/p1",&obj, QDBusConnection::ExportSignals);
-            con.registerObject("/p2",&obj, QDBusConnection::ExportSignals |
-                               QDBusConnection::ExportNonScriptableSignals);
+            con.registerObject("/p1",&obj, QDBusConnection::ExportScriptableSignals);
+            con.registerObject("/p2",&obj, QDBusConnection::ExportScriptableSignals
+                                           | QDBusConnection::ExportNonScriptableSignals);
         } // <--- QObject emits the destroyed(QObject*) signal at this point
-        
+
         QTest::qWait(200);
-    
+
         QCOMPARE(spy.count, 0);
     }
 }
@@ -805,7 +806,7 @@ void tst_QDBusAbstractAdaptor::overloadedSignalEmission_data()
 
 void tst_QDBusAbstractAdaptor::overloadedSignalEmission()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj;
@@ -815,7 +816,7 @@ void tst_QDBusAbstractAdaptor::overloadedSignalEmission()
     QString name = "signal";
     QFETCH(QVariant, parameter);
     //QDBusInterface *if4 = new QDBusInterface(con.baseService(), "/", interface, con);
-    
+
     // connect all signals and emit only one
     {
         QDBusSignalSpy spy;
@@ -825,9 +826,9 @@ void tst_QDBusAbstractAdaptor::overloadedSignalEmission()
                     &spy, SLOT(slot(QDBusMessage)));
         con.connect(con.baseService(), "/", "local.Interface4", "signal", "s",
                     &spy, SLOT(slot(QDBusMessage)));
-        
+
         emitSignal(&obj, interface, name, parameter);
-        
+
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.interface, interface);
         QCOMPARE(spy.name, name);
@@ -843,18 +844,18 @@ void tst_QDBusAbstractAdaptor::overloadedSignalEmission()
         emitSignal(&obj, "local.Interface4", "signal", QVariant());
         emitSignal(&obj, "local.Interface4", "signal", QVariant(1));
         emitSignal(&obj, "local.Interface4", "signal", QVariant("foo"));
-        
+
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.interface, interface);
         QCOMPARE(spy.name, name);
         QTEST(spy.signature, "signature");
         QCOMPARE(spy.value, parameter);
     }
-}    
+}
 
 void tst_QDBusAbstractAdaptor::readProperties()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj;
@@ -878,7 +879,7 @@ void tst_QDBusAbstractAdaptor::readProperties()
 
 void tst_QDBusAbstractAdaptor::writeProperties()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj;
@@ -1014,7 +1015,7 @@ void tst_QDBusAbstractAdaptor::objectTreeIntrospection()
         QVERIFY(tree.childObjects.contains("p1"));
     }
 
-    con.registerObject("/p1/q/r", &root);    
+    con.registerObject("/p1/q/r", &root);
     {
         QDBusObject dobj = con.findObject(con.baseService(), "/p1");
         QString xml = dobj.introspect();
@@ -1053,7 +1054,7 @@ void tst_QDBusAbstractAdaptor::objectTreeIntrospection()
         QVERIFY(!tree.childObjects.contains("p1"));
         QVERIFY(tree.childObjects.contains("p2"));
     }
-    
+
     QObject q;
     q.setParent(&p2);
     {
@@ -1129,7 +1130,7 @@ void tst_QDBusAbstractAdaptor::typeMatching_data()
     LLDateTimeMap lldtmap;
     lldtmap[-1] = QDateTime();
     QDateTime now = QDateTime::currentDateTime();
-    lldtmap[now.toTime_t()] = now;
+    lldtmap[now.toTime_t()] = now; // array of struct of int64 and struct of 3 ints and struct of 4 ints and int
     QTest::newRow("lldtmap") << "LLDateTimeMap" << "a{x((iii)(iiii)i)}" << qVariantFromValue(lldtmap);
 
     MyStruct s;
@@ -1143,7 +1144,7 @@ void tst_QDBusAbstractAdaptor::typeMatching()
     QObject obj;
     new TypesInterface(&obj);
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     con.registerObject("/types", &obj);
 
     QFETCH(QString, basename);
@@ -1159,15 +1160,15 @@ void tst_QDBusAbstractAdaptor::typeMatching()
 
     reply = iface.call(QDBus::BlockWithGui, "retrieve" + basename);
     QCOMPARE(reply.type(), QDBusMessage::ReplyMessage);
-    QCOMPARE(reply.count(), 1);
+    QCOMPARE(reply.arguments().count(), 1);
 
-    const QVariant &retval = reply.at(0);
+    const QVariant &retval = reply.arguments().at(0);
     QVERIFY(compare(retval, value));
 }
 
 void tst_QDBusAbstractAdaptor::methodWithMoreThanOneReturnValue()
 {
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
     QVERIFY(con.isConnected());
 
     MyObject obj;
@@ -1177,14 +1178,14 @@ void tst_QDBusAbstractAdaptor::methodWithMoreThanOneReturnValue()
 
     QDBusInterface remote(con.baseService(), "/", "local.Interface3", con);
     QDBusMessage reply = remote.call(QDBus::BlockWithGui, "methodStringString", testString);
-    QVERIFY(reply.count() == 2);
+    QVERIFY(reply.arguments().count() == 2);
 
     QDBusReply<int> intreply = reply;
     QVERIFY(intreply.isValid());
     QCOMPARE(intreply.value(), 42);
 
-    QCOMPARE(reply.at(1).userType(), int(QVariant::String));
-    QCOMPARE(qdbus_cast<QString>(reply.at(1)), testString);
+    QCOMPARE(reply.arguments().at(1).userType(), int(QVariant::String));
+    QCOMPARE(qdbus_cast<QString>(reply.arguments().at(1)), testString);
 }
 
 QTEST_MAIN(tst_QDBusAbstractAdaptor)

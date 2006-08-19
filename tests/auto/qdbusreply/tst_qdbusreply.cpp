@@ -86,7 +86,7 @@ public slots:
     {
         return 42U;
     }
-    
+
     int retrieveInt()
     {
         return -470000;
@@ -111,7 +111,7 @@ public slots:
     {
         return 1.5;
     }
-    
+
     QString retrieveString()
     {
         return "This string you should see";
@@ -141,7 +141,7 @@ public slots:
     {
         return "Hello, World";
     }
-    
+
     QVariantList retrieveList()
     {
         return QVariantList() << retrieveInt() << retrieveString()
@@ -176,10 +176,11 @@ public slots:
 tst_QDBusReply::tst_QDBusReply()
 {
     adaptor = new TypesInterface(this);
-    QDBus::sessionBus().registerObject("/", this);
+    QDBusConnection::sessionBus().registerObject("/", this);
 
-    iface = new QDBusInterface(QDBus::sessionBus().baseService(), "/",
-                               "com.trolltech.Qt.Autotests.TypesInterface", QDBus::sessionBus(),
+    iface = new QDBusInterface(QDBusConnection::sessionBus().baseService(), "/",
+                               "com.trolltech.Qt.Autotests.TypesInterface",
+                               QDBusConnection::sessionBus(),
                                this);
 }
 
@@ -250,7 +251,7 @@ void tst_QDBusReply::simpleTypes()
     QDBusReply<QByteArray> rbytearray = iface->call(QDBus::BlockWithGui, "retrieveByteArray");
     QVERIFY(rbytearray.isValid());
     QCOMPARE(rbytearray.value(), adaptor->retrieveByteArray());
-    
+
     QDBusReply<QStringList> rstringlist = iface->call(QDBus::BlockWithGui, "retrieveStringList");
     QVERIFY(rstringlist.isValid());
     QCOMPARE(rstringlist.value(), adaptor->retrieveStringList());

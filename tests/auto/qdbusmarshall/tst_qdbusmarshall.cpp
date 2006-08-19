@@ -65,6 +65,7 @@ void tst_QDBusMarshall::sendBasic_data()
 
     // basic types:
     QTest::newRow("bool") << QVariant(false) << "b";
+#if 1
     QTest::newRow("bool2") << QVariant(true) << "b";
     QTest::newRow("byte") << qVariantFromValue(uchar(1)) << "y";
     QTest::newRow("int16") << qVariantFromValue(short(2)) << "n";
@@ -79,6 +80,7 @@ void tst_QDBusMarshall::sendBasic_data()
     QTest::newRow("signature") << qVariantFromValue(QDBusSignature("g")) << "g";
     QTest::newRow("emptystring") << QVariant("") << "s";
     QTest::newRow("nullstring") << QVariant(QString()) << "s";
+#endif
 }
 
 void tst_QDBusMarshall::sendVariant_data()
@@ -122,7 +124,7 @@ void tst_QDBusMarshall::sendArrays_data()
         bytearray += QByteArray(1024, char(i));
     QTest::newRow("hugebytearray") << QVariant(bytearray) << "ay";
 
-    QList<bool> bools; 
+    QList<bool> bools;
     QTest::newRow("emptyboollist") << qVariantFromValue(bools) << "ab";
     bools << false << true << false;
     QTest::newRow("boollist") << qVariantFromValue(bools) << "ab";
@@ -198,7 +200,7 @@ void tst_QDBusMarshall::sendArrayOfArrays_data()
     bytearray << "foo" << "bar" << "baz" << "" << QByteArray();
     QTest::newRow("bytearray") << qVariantFromValue(bytearray) << "aay";
 
-    QList<QList<bool> > bools; 
+    QList<QList<bool> > bools;
     QTest::newRow("empty-list-of-boollist") << qVariantFromValue(bools) << "aab";
     bools << QList<bool>();
     QTest::newRow("list-of-emptyboollist") << qVariantFromValue(bools) << "aab";
@@ -391,42 +393,42 @@ void tst_QDBusMarshall::sendBasic()
 {
     QFETCH(QVariant, value);
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest",
-        "/org/kde/selftest", "org.kde.selftest", "ping", con);
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
+        "/org/kde/selftest", "org.kde.selftest", "ping");
     msg << value;
 
     QDBusMessage reply = con.call(msg);
- //   qDebug() << reply;
+    //qDebug() << reply;
 
-    QCOMPARE(reply.count(), msg.count());
+    QCOMPARE(reply.arguments().count(), msg.arguments().count());
     QTEST(reply.signature(), "sig");
-    for (int i = 0; i < reply.count(); ++i)
-        QVERIFY(compare(reply.at(i), msg.at(i)));
+    for (int i = 0; i < reply.arguments().count(); ++i)
+        QVERIFY(compare(reply.arguments().at(i), msg.arguments().at(i)));
 }
 
 void tst_QDBusMarshall::sendVariant()
 {
     QFETCH(QVariant, value);
 
-    QDBusConnection con = QDBus::sessionBus();
+    QDBusConnection con = QDBusConnection::sessionBus();
 
     QVERIFY(con.isConnected());
 
-    QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest",
-        "/org/kde/selftest", "org.kde.selftest", "ping", con);
+    QDBusMessage msg = QDBusMessage::createMethodCall("org.kde.selftest",
+        "/org/kde/selftest", "org.kde.selftest", "ping");
     msg << qVariantFromValue(QDBusVariant(value));
 
     QDBusMessage reply = con.call(msg);
  //   qDebug() << reply;
 
-    QCOMPARE(reply.count(), msg.count());
+    QCOMPARE(reply.arguments().count(), msg.arguments().count());
     QCOMPARE(reply.signature(), QString("v"));
-    for (int i = 0; i < reply.count(); ++i)
-        QVERIFY(compare(reply.at(i), msg.at(i)));
+    for (int i = 0; i < reply.arguments().count(); ++i)
+        QVERIFY(compare(reply.arguments().at(i), msg.arguments().at(i)));
 }
 
 void tst_QDBusMarshall::sendArrays()
