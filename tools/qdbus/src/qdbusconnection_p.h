@@ -27,6 +27,7 @@
 #define QDBUSCONNECTION_P_H
 
 #include <qdbuserror.h>
+#include <qdbusconnection.h>
 
 #include <QtCore/qatomic.h>
 #include <QtCore/qeventloop.h>
@@ -52,6 +53,9 @@ class QDBusInterfacePrivate;
 struct QDBusMetaObject;
 class QDBusAbstractInterface;
 class QDBusConnectionInterface;
+
+// QDBusConnectionPrivate holds the DBusConnection and
+// can have many QDBusConnection objects referring to it
 
 class QDBusConnectionPrivate: public QObject
 {
@@ -113,7 +117,7 @@ public:
     typedef QHash<int, DBusTimeout *> TimeoutHash;
     typedef QMultiHash<QString, SignalHook> SignalHookHash;
     typedef QHash<QString, QDBusMetaObject* > MetaObjectHash;
-    
+
 public:
     // public methods
     QDBusConnectionPrivate(QObject *parent = 0);
@@ -138,7 +142,7 @@ public:
                       QDBusAbstractInterface *receiver, const char *signal);
     void disconnectRelay(const QString &service, const QString &path, const QString &interface,
                          QDBusAbstractInterface *receiver, const char *signal);
-    
+
     bool handleSignal(const QString &key, const QDBusMessage &msg);
     bool handleSignal(const QDBusMessage &msg);
     bool handleObjectCall(const QDBusMessage &message);
@@ -155,7 +159,7 @@ public:
     void deliverCall(const CallDeliveryEvent &data) const;
 
     QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
-                                    const QString &interface);        
+                                    const QString &interface);
 
     void registerService(const QString &serviceName);
     void unregisterService(const QString &serviceName);
@@ -175,7 +179,7 @@ public slots:
 public:
     // public member variables
     QString name;               // this connection's name
-    
+
     DBusError error;
     QDBusError lastError;
 
@@ -228,11 +232,9 @@ extern bool qDBusCheckAsyncTag(const char *tag);
 
 // in qdbusinternalfilters.cpp
 extern QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node);
-extern void qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node,
-                                  const QDBusMessage &msg);
-extern void qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node,
-                             const QDBusMessage &msg);
-extern void qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node,
-                             const QDBusMessage &msg);
+extern QDBusMessage qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node,
+                                     const QDBusMessage &msg);
+extern QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node,
+                                     const QDBusMessage &msg);
 
 #endif

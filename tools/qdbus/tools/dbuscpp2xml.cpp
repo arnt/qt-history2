@@ -284,28 +284,28 @@ static void parseCmdLine(QStringList &arguments)
             flags |= QDBusConnection::ExportNonScriptableProperties;
             // fall through
         case 'p':
-            flags |= QDBusConnection::ExportProperties;
+            flags |= QDBusConnection::ExportScriptableProperties;
             break;
 
         case 'S':
             flags |= QDBusConnection::ExportNonScriptableSignals;
             // fall through
         case 's':
-            flags |= QDBusConnection::ExportSignals;
+            flags |= QDBusConnection::ExportScriptableSignals;
             break;
 
         case 'M':
             flags |= QDBusConnection::ExportNonScriptableSlots;
             // fall through
         case 'm':
-            flags |= QDBusConnection::ExportSlots;
+            flags |= QDBusConnection::ExportScriptableSlots;
             break;
 
         case 'A':
             flags |= QDBusConnection::ExportNonScriptableContents;
             // fall through
         case 'a':
-            flags |= QDBusConnection::ExportContents;
+            flags |= QDBusConnection::ExportScriptableContents;
             break;
 
         case 'o':
@@ -332,7 +332,8 @@ static void parseCmdLine(QStringList &arguments)
     }
 
     if (flags == 0)
-        flags = QDBusConnection::ExportContents | QDBusConnection::ExportNonScriptableContents;
+        flags = QDBusConnection::ExportScriptableContents
+                | QDBusConnection::ExportNonScriptableContents;
 }
 
 int main(int argc, char **argv)

@@ -27,7 +27,6 @@
 
 #include <qatomic.h>
 #include <qstring.h>
-#include <qdbusconnection.h>
 struct DBusMessage;
 
 class QDBusMessagePrivate
@@ -38,7 +37,6 @@ public:
 
     QList<QVariant> arguments;
     QString service, path, interface, name, message, signature;
-    QDBusConnection connection;
     DBusMessage *msg;
     DBusMessage *reply;
     int type;
@@ -49,13 +47,14 @@ public:
     uint localMessage : 1;
 
     static DBusMessage *toDBusMessage(const QDBusMessage &message);
-    static QDBusMessage fromDBusMessage(DBusMessage *dmsg, const QDBusConnection &connection);
+    static QDBusMessage fromDBusMessage(DBusMessage *dmsg);
     static QDBusMessage fromError(const QDBusError& error);
     static QDBusMessage updateSignature(const QDBusMessage &message, DBusMessage *dmsg);
 
     static void setLocal(const QDBusMessage *message, bool local);
     static bool isLocal(const QDBusMessage &message);
     static void setArguments(const QDBusMessage *message, const QList<QVariant> &arguments);
+    static void setType(const QDBusMessage *message, QDBusMessage::MessageType type);
 };
 
 #endif

@@ -26,13 +26,13 @@ class QDBUS_EXPORT QDBusInterface: public QDBusAbstractInterface
     friend class QDBusConnection;
 private:
     QDBusInterface(QDBusInterfacePrivate *p);
-    
+
 public:
     QDBusInterface(const QString &service, const QString &path, const QString &interface = QString(),
-                   const QDBusConnection &connection = QDBus::sessionBus(),
+                   const QDBusConnection &connection = QDBusConnection::sessionBus(),
                    QObject *parent = 0);
     ~QDBusInterface();
-    
+
     virtual const QMetaObject *metaObject() const;
     virtual void *qt_metacast(const char *);
     virtual int qt_metacall(QMetaObject::Call, int, void **);

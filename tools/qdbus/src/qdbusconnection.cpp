@@ -93,7 +93,7 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 }
 
 /*!
-    \fn QDBusConnection &QDBus::sessionBus()
+    \fn QDBusConnection &QDBusConnection::sessionBus()
     \relates QDBusConnection
 
     Returns a QDBusConnection object opened with the session bus. The object reference returned
@@ -101,7 +101,7 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
     connection will be closed and the object, deleted.
 */
 /*!
-    \fn QDBusConnection &QDBus::systemBus()
+    \fn QDBusConnection &QDBusConnection::systemBus()
     \relates QDBusConnection
 
     Returns a QDBusConnection object opened with the system bus. The object reference returned
@@ -117,21 +117,21 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
     This class is the initial point in a D-Bus session. Using it, you can get access to remote
     objects, interfaces; connect remote signals to your object's slots; register objects, etc.
 
-    D-Bus connections are created using the QDBusConnection::addConnection() function, which opens a
+    D-Bus connections are created using the QDBusConnection::connectToBus() function, which opens a
     connection to the server daemon and does the initial handshaking, associating that connection
     with a name. Further attempts to connect using the same name will return the same
     connection.
 
-    The connection is then torn down using the QDBusConnection::closeConnection() function.
+    The connection is then torn down using the QDBusConnection::disconnectFromBus() function.
 
-    As a convenience for the two most common connection types, the QDBus::sessionBus() and
-    QDBus::systemBus() functions return open connections to the session server daemon and the system
+    As a convenience for the two most common connection types, the QDBusConnection::sessionBus() and
+    QDBusConnection::systemBus() functions return open connections to the session server daemon and the system
     server daemon, respectively. Those connections are opened when first used and are closed when
     the QCoreApplication destructor is run.
 
     D-Bus also supports peer-to-peer connections, without the need for a bus server daemon. Using
     this facility, two applications can talk to each other and exchange messages. This can be
-    achieved by passing an address to QDBusConnection::addConnection()
+    achieved by passing an address to QDBusConnection::connectionToBus()
     function, which was opened by another D-Bus application using QDBusServer.
 */
 
@@ -214,7 +214,7 @@ QDBusConnection::QDBusConnection(const QDBusConnection &other)
 
 /*!
     Disposes of this object. This does not close the connection: you have to call
-    QDBusConnection::closeConnection to do that.
+    QDBusConnection::disconnectFromBus to do that.
 */
 QDBusConnection::~QDBusConnection()
 {
@@ -224,7 +224,7 @@ QDBusConnection::~QDBusConnection()
 
 /*!
     Creates a copy of the connection \a other in this object. The connection this object referenced
-    before the copy is not spontaneously disconnected. See QDBusConnection::closeConnection for more
+    before the copy is not spontaneously disconnected. See QDBusConnection::disconnectFromBus for more
     information.
 */
 QDBusConnection &QDBusConnection::operator=(const QDBusConnection &other)
@@ -243,7 +243,7 @@ QDBusConnection &QDBusConnection::operator=(const QDBusConnection &other)
     Opens a connection of type \a type to one of the known busses and associate with it the
     connection name \a name. Returns a QDBusConnection object associated with that connection.
 */
-QDBusConnection QDBusConnection::addConnection(BusType type, const QString &name)
+QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
 {
 //    Q_ASSERT_X(QCoreApplication::instance(), "QDBusConnection::addConnection",
 //               "Cannot create connection without a Q[Core]Application instance");
@@ -282,8 +282,8 @@ QDBusConnection QDBusConnection::addConnection(BusType type, const QString &name
     Opens a peer-to-peer connection on address \a address and associate with it the
     connection name \a name. Returns a QDBusConnection object associated with that connection.
 */
-QDBusConnection QDBusConnection::addConnection(const QString &address,
-                    const QString &name)
+QDBusConnection QDBusConnection::connectToBus(const QString &address,
+                                              const QString &name)
 {
 //    Q_ASSERT_X(QCoreApplication::instance(), "QDBusConnection::addConnection",
 //               "Cannot create connection without a Q[Core]Application instance");
@@ -315,7 +315,7 @@ QDBusConnection QDBusConnection::addConnection(const QString &address,
     connection will not be closed until all references are dropped. However, no further references
     can be created using the QDBusConnection::QDBusConnection constructor.
 */
-void QDBusConnection::closeConnection(const QString &name)
+void QDBusConnection::disconnectFromBus(const QString &name)
 {
     if (manager())
         manager()->removeConnection(name);
@@ -399,7 +399,7 @@ QDBusMessage QDBusConnection::call(const QDBusMessage &message, QDBus::CallMode 
     d->send(message);
     QDBusMessage retval;
     retval << QVariant(); // add one argument (to avoid .at(0) problems)
-    return retval; 
+    return retval;
 }
 
 /*!
@@ -594,6 +594,40 @@ void QDBusConnection::unregisterObject(const QString &path, UnregisterMode mode)
 }
 
 /*!
+    Return the object that was registered with the registerObject() at the object path given by
+    \a path.
+*/
+QObject *QDBusConnection::objectRegisteredAt(const QString &path) const
+{
+    Q_ASSERT_X(QDBusUtil::isValidObjectPath(path), "QDBusConnection::registeredObject",
+               "Invalid object path given");
+    if (!d || !d->connection || !QDBusUtil::isValidObjectPath(path))
+        return false;
+
+    QStringList pathComponents = path.split(QLatin1Char('/'));
+    if (pathComponents.last().isEmpty())
+        pathComponents.removeLast();
+
+    // lower-bound search for where this object should enter in the tree
+    QDBusConnectionPrivate::ObjectTreeNode *node = &d->rootNode;
+
+    int i = 1;
+    while (node) {
+        if (pathComponents.count() == i)
+            return node->obj;
+
+        QVector<QDBusConnectionPrivate::ObjectTreeNode::Data>::ConstIterator it =
+            qLowerBound(node->children.constBegin(), node->children.constEnd(), pathComponents.at(i));
+        if (it == node->children.constEnd() || it->name != pathComponents.at(i))
+            break;              // node not found
+
+        node = it->node;
+        ++i;
+    }
+    return 0;
+}
+
+/*!
     Returns a QDBusConnectionInterface object that represents the
     D-BUS server interface on this connection.
 */
@@ -607,10 +641,10 @@ QDBusConnectionInterface *QDBusConnection::interface() const
 /*!
     Returns true if this QDBusConnection object is connected.
 
-    If it isn't connected, calling QDBusConnection::addConnection on the same connection name
+    If it isn't connected, calling QDBusConnection::connectToBus on the same connection name
     will not make be connected. You need to call the QDBusConnection constructor again.
 */
-bool QDBusConnection::isConnected( ) const
+bool QDBusConnection::isConnected() const
 {
     return d && d->connection && dbus_connection_get_is_connected(d->connection);
 }
@@ -669,35 +703,33 @@ bool QDBusConnection::unregisterService(const QString &serviceName)
     return interface()->unregisterService(serviceName);
 }
 
-static const char sessionBusName[] = "qt_default_session_bus";
-static const char systemBusName[] = "qt_default_system_bus";
+static const char _q_sessionBusName[] = "qt_default_session_bus";
+static const char _q_systemBusName[] = "qt_default_system_bus";
 
 class QDBusDefaultConnection: public QDBusConnection
 {
     const char *ownName;
 public:
     inline QDBusDefaultConnection(BusType type, const char *name)
-        : QDBusConnection(addConnection(type, QString::fromLatin1(name))), ownName(name)
+        : QDBusConnection(connectToBus(type, QString::fromLatin1(name))), ownName(name)
     { }
 
     inline ~QDBusDefaultConnection()
-    { closeConnection(QString::fromLatin1(ownName)); }
+    { disconnectFromBus(QString::fromLatin1(ownName)); }
 };
 
-Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, sessionBus,
-                          (QDBusConnection::SessionBus, sessionBusName))
-Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, systemBus,
-                          (QDBusConnection::SystemBus, systemBusName))        
+Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, _q_sessionBus,
+                          (QDBusConnection::SessionBus, _q_sessionBusName))
+Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, _q_systemBus,
+                          (QDBusConnection::SystemBus, _q_systemBusName))
 
-namespace QDBus {
-    QDBusConnection sessionBus()
-    {
-        return *::sessionBus();
-    }
+QDBusConnection QDBusConnection::sessionBus()
+{
+    return *_q_sessionBus();
+}
 
-    QDBusConnection systemBus()
-    {
-        return *::systemBus();
-    }
+QDBusConnection QDBusConnection::systemBus()
+{
+    return *_q_systemBus();
 }
 

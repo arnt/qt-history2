@@ -19,14 +19,13 @@
 
 QT_BEGIN_HEADER
 
-
 struct DBusError;
 class QDBusMessage;
 
 class QDBUS_EXPORT QDBusError
 {
 public:
-    enum KnownErrors {
+    enum ErrorType {
         NoError = 0,
         Other = 1,
         Failed,
@@ -49,34 +48,28 @@ public:
         UnknownInterface,
         InternalError,
 
-#ifndef Q_QDOC        
+#ifndef Q_QDOC
         // don't use this one!
-        qKnownErrorsMax = InternalError
+        LastErrorType = InternalError
 #endif
     };
-    
+
     QDBusError(const DBusError *error = 0);
     QDBusError(const QDBusMessage& msg);
-    QDBusError(KnownErrors error, const QString &message);
+    QDBusError(ErrorType error, const QString &message);
+    QDBusError(const QDBusError &other);
+    QDBusError &operator=(const QDBusError &other);
 
-    inline QString name() const { return nm; }
-    inline QString message() const { return msg; }
-    inline bool isValid() const { return !nm.isNull() && !msg.isNull(); }
-
-    inline bool operator==(KnownErrors error) const
-    { return code == error; }
+    ErrorType type() const;
+    QString name() const;
+    QString message() const;
+    bool isValid() const;
 
 private:
-    KnownErrors code;
-    QString nm, msg;
+    ErrorType code;
+    QString msg;
+    void *unused;
 };
-
-inline bool operator==(QDBusError::KnownErrors p1, const QDBusError &p2)
-{ return p2 == p1; }
-inline bool operator!=(QDBusError::KnownErrors p1, const QDBusError &p2)
-{ return !(p2 == p1); }
-inline bool operator!=(const QDBusError &p1, QDBusError::KnownErrors p2)
-{ return !(p1 == p2); }
 
 #ifndef QT_NO_DEBUG_STREAM
 QDBUS_EXPORT QDebug operator<<(QDebug, const QDBusError &);

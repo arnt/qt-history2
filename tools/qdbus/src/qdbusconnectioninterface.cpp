@@ -19,6 +19,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
+#include <QtCore/QDebug>
 
 #include <dbus/dbus.h>          // for the DBUS_* constants
 
@@ -241,7 +242,7 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
     if (reply.type() == QDBusMessage::ReplyMessage) {
         uint code = 0;
 
-        switch (reply.at(0).toUInt()) {
+        switch (reply.arguments().at(0).toUInt()) {
         case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
         case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
             code = uint(ServiceRegistered);
@@ -274,7 +275,7 @@ QDBusConnectionInterface::unregisterService(const QString &serviceName)
 {
     QDBusMessage reply = call(QLatin1String("ReleaseName"), serviceName);
     if (reply.type() == QDBusMessage::ReplyMessage) {
-        bool success = reply.at(0).toUInt() == DBUS_RELEASE_NAME_REPLY_RELEASED;
+        bool success = reply.arguments().at(0).toUInt() == DBUS_RELEASE_NAME_REPLY_RELEASED;
         reply.setArguments(QVariantList() << success);
     }
     return reply;

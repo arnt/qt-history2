@@ -261,7 +261,7 @@ static void placeCall(const QString &service, const QString &path, const QString
 }
 
 static bool splitInterfaceAndName(const QString &interfaceAndName, const char *type,
-                           QString &interface, QString &member)
+                                  QString &interface, QString &member)
 {
     interface = interfaceAndName;
     int pos = interface.lastIndexOf(QLatin1Char('.'));
@@ -287,10 +287,10 @@ int main(int argc, char **argv)
     args.takeFirst();
 
     if (args.value(0) == QLatin1String("--system")) {
-        connection = QDBus::systemBus();
+        connection = QDBusConnection::systemBus();
         args.takeFirst();
     } else {
-        connection = QDBus::sessionBus();
+        connection = QDBusConnection::sessionBus();
     }
 
     if (!connection.isConnected()) {

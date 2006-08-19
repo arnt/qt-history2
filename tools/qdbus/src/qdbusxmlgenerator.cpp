@@ -33,14 +33,14 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
     QString retval;
 
     // start with properties:
-    if (flags & (QDBusConnection::ExportProperties |
+    if (flags & (QDBusConnection::ExportScriptableProperties |
                  QDBusConnection::ExportNonScriptableProperties)) {
         for (int i = propOffset; i < mo->propertyCount(); ++i) {
             static const char *accessvalues[] = {0, "read", "write", "readwrite"};
 
             QMetaProperty mp = mo->property(i);
 
-            if (!((mp.isScriptable() && (flags & QDBusConnection::ExportProperties)) ||
+            if (!((mp.isScriptable() && (flags & QDBusConnection::ExportScriptableProperties)) ||
                   (!mp.isScriptable() && (flags & QDBusConnection::ExportNonScriptableProperties))))
                 continue;
 
@@ -87,10 +87,10 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
         else
             continue;           // neither signal nor public slot
 
-        if (isSignal && !(flags & (QDBusConnection::ExportSignals |
+        if (isSignal && !(flags & (QDBusConnection::ExportScriptableSignals |
                                    QDBusConnection::ExportNonScriptableSignals)))
             continue;           // we're not exporting any signals
-        if (!isSignal && !(flags & (QDBusConnection::ExportSlots |
+        if (!isSignal && !(flags & (QDBusConnection::ExportScriptableSlots |
                                     QDBusConnection::ExportNonScriptableSlots)))
             continue;           // we're not exporting any slots
 
@@ -161,10 +161,11 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
 
         int wantedMask;
         if (isScriptable)
-            wantedMask = isSignal ? QDBusConnection::ExportSignals : QDBusConnection::ExportSlots;
+            wantedMask = isSignal ? QDBusConnection::ExportScriptableSignals
+                                  : QDBusConnection::ExportScriptableSlots;
         else
-            wantedMask = isSignal ? QDBusConnection::ExportNonScriptableSignals :
-                         QDBusConnection::ExportNonScriptableSlots;
+            wantedMask = isSignal ? QDBusConnection::ExportNonScriptableSignals
+                                  : QDBusConnection::ExportNonScriptableSlots;
         if ((flags & wantedMask) != wantedMask)
             continue;
 

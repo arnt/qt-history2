@@ -44,15 +44,20 @@ public:
     enum RegisterOption {
         ExportAdaptors = 0x01,
 
-        ExportSlots = 0x10,
-        ExportSignals = 0x20,
-        ExportProperties = 0x40,
-        ExportContents = 0xf0,
+        ExportScriptableSlots = 0x10,
+        ExportScriptableSignals = 0x20,
+        ExportScriptableProperties = 0x40,
+        ExportScriptableContents = 0xf0,
 
         ExportNonScriptableSlots = 0x100,
         ExportNonScriptableSignals = 0x200,
         ExportNonScriptableProperties = 0x400,
         ExportNonScriptableContents = 0xf00,
+
+        ExportAllSlots = ExportScriptableSlots|ExportNonScriptableSlots,
+        ExportAllSignal = ExportScriptableSignals|ExportNonScriptableSignals,
+        ExportAllProperties = ExportScriptableProperties|ExportNonScriptableProperties,
+        ExportAllContents = ExportScriptableContents|ExportNonScriptableContents,
 
         ExportChildObjects = 0x1000
     };
@@ -88,25 +93,24 @@ public:
     bool registerObject(const QString &path, QObject *object,
                         RegisterOptions options = ExportAdaptors);
     void unregisterObject(const QString &path, UnregisterMode mode = UnregisterNode);
+    QObject *objectRegisteredAt(const QString &path) const;
 
     bool registerService(const QString &serviceName);
     bool unregisterService(const QString &serviceName);
 
     QDBusConnectionInterface *interface() const;
 
-    static QDBusConnection addConnection(BusType type, const QString &name);
-    static QDBusConnection addConnection(const QString &address, const QString &name);
-    static void closeConnection(const QString &name);
+    static QDBusConnection connectToBus(BusType type, const QString &name);
+    static QDBusConnection connectToBus(const QString &address, const QString &name);
+    static void disconnectFromBus(const QString &name);
+
+    static QDBusConnection sessionBus();
+    static QDBusConnection systemBus();
 
 private:
     friend class QDBusConnectionPrivate;
     QDBusConnectionPrivate *d;
 };
-
-namespace QDBus {
-    QDBUS_EXPORT QDBusConnection sessionBus();
-    QDBUS_EXPORT QDBusConnection systemBus();
-}
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDBusConnection::RegisterOptions)
 

@@ -14,6 +14,7 @@
 #include "qdbusreply.h"
 #include "qdbusmetatype.h"
 #include "qdbusmetatype_p.h"
+#include <QDebug>
 
 /*!
     \class QDBusReply
@@ -118,7 +119,7 @@
 /*!
     \fn QDBusReply::operator Type() const
     Returns the same as value().
-    
+
     This function is not available if the remote call returns \c void.
 */
 
@@ -129,18 +130,19 @@
 void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data)
 {
     error = reply;
+
     if (error.isValid()) {
         data = QVariant();      // clear it
         return;
     }
 
-    if (reply.count() >= 1 && reply.at(0).userType() == data.userType()) {
-        data = reply.at(0);
+    if (reply.arguments().count() >= 1 && reply.arguments().at(0).userType() == data.userType()) {
+        data = reply.arguments().at(0);
         return;
-    } else if (reply.count() >= 1 &&
-               reply.at(0).userType() == QDBusMetaTypeId::argument) {
+    } else if (reply.arguments().count() >= 1 &&
+               reply.arguments().at(0).userType() == QDBusMetaTypeId::argument) {
         // compare signatures instead
-        QDBusArgument arg = qvariant_cast<QDBusArgument>(reply.at(0));
+        QDBusArgument arg = qvariant_cast<QDBusArgument>(reply.arguments().at(0));
         if (QDBusMetaType::typeToSignature(data.userType()) == arg.currentSignature().toLatin1()) {
             // matched. Demarshall it
             QDBusMetaType::demarshall(arg, data.userType(), data.data());
