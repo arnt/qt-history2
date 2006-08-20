@@ -4214,12 +4214,24 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 }
                 break;
             }
-            case SC_GroupBoxFrame:
             case SC_GroupBoxContents:
-                ret = QWindowsStyle::subControlRect(cc, groupBox, sc, widget);
-                ret.adjust(0, 2, 0, 0);
+            case SC_GroupBoxFrame: {
+                if (groupBox->features & QStyleOptionFrameV2::Flat) {
+                    ret = QWindowsStyle::subControlRect(cc, groupBox, sc, widget);
+                    break;
+                }
+                QFontMetrics fm = groupBox->fontMetrics;
+                bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
+                int yOffset = 3;
+                if (!checkable) {
+                    fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
+                    yOffset = 5;
+                }
+
+                ret = opt->rect.adjusted(0, fm.height() + yOffset, 0, 0);
                 if (sc == SC_GroupBoxContents)
-                    ret.adjust(4, 4, -4, -4);
+                    ret.adjust(6, 4, -6, -6);
+            }
                 break;
             default:
                 ret = QWindowsStyle::subControlRect(cc, groupBox, sc, widget);

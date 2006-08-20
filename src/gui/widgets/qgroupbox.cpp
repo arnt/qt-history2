@@ -423,9 +423,8 @@ void QGroupBoxPrivate::calculateFrame()
     Q_Q(QGroupBox);
     QStyleOptionGroupBox box = getStyleOption();
     QRect contentsRect = q->style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxContents, q);
-    QRect frameRect = q->style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxFrame, q);
-    q->setContentsMargins(contentsRect.left() - frameRect.left(), contentsRect.top() - frameRect.top(),
-                          frameRect.right() - contentsRect.right(), frameRect.bottom() - contentsRect.bottom());
+    q->setContentsMargins(contentsRect.left() - box.rect.left(), contentsRect.top() - box.rect.top(),
+                          box.rect.right() - contentsRect.right(), box.rect.bottom() - contentsRect.bottom());
 }
 
 
