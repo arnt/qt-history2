@@ -20,6 +20,9 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qvariant.h>
+#include <qdatetime.h>
+#include <qrect.h>
+#include <qline.h>
 
 #include "qdbusargument_p.h"
 #include "qdbusmetatype_p.h"
@@ -442,7 +445,7 @@ QDBusArgument &QDBusArgument::operator<<(const QByteArray &arg)
     \internal
     Returns the type signature of the D-BUS type this QDBusArgument
     object is currently pointing to.
-*/    
+*/
 QString QDBusArgument::currentSignature() const
 {
     if (d && d->checkRead())
@@ -626,7 +629,7 @@ const QDBusArgument &QDBusArgument::operator>>(QDBusVariant &arg) const
     widespread usage in Qt applications.
 
     Other arrays are supported through compound types in QtDBus.
-*/    
+*/
 const QDBusArgument &QDBusArgument::operator>>(QStringList &arg) const
 {
     if (d && d->checkRead())
@@ -644,7 +647,7 @@ const QDBusArgument &QDBusArgument::operator>>(QStringList &arg) const
     widespread usage in Qt applications.
 
     Other arrays are supported through compound types in QtDBus.
-*/    
+*/
 const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
 {
     if (d && d->checkRead())
@@ -1010,3 +1013,240 @@ bool QDBusArgument::atEnd() const
 // for optimization purposes, we include the marshallers here
 #include "qdbusmarshaller.cpp"
 #include "qdbusdemarshaller.cpp"
+
+// QDBusArgument operators
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
+{
+    QDBusVariant dbv;
+    a >> dbv;
+    v = dbv.variant();
+    return a;
+}
+
+// QVariant types
+#ifndef QDBUS_NO_SPECIALTYPES
+const QDBusArgument &operator>>(const QDBusArgument &a, QDate &date)
+{
+    int y, m, d;
+    a.beginStructure();
+    a >> y >> m >> d;
+    a.endStructure();
+
+    if (y != 0 && m != 0 && d != 0)
+        date.setYMD(y, m, d);
+    else
+        date = QDate();
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QDate &date)
+{
+    a.beginStructure();
+    if (date.isValid())
+        a << date.year() << date.month() << date.day();
+    else
+        a << 0 << 0 << 0;
+    a.endStructure();
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QTime &time)
+{
+    int h, m, s, ms;
+    a.beginStructure();
+    a >> h >> m >> s >> ms;
+    a.endStructure();
+
+    if (h < 0)
+        time = QTime();
+    else
+        time.setHMS(h, m, s, ms);
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QTime &time)
+{
+    a.beginStructure();
+    if (time.isValid())
+        a << time.hour() << time.minute() << time.second() << time.msec();
+    else
+        a << -1 << -1 << -1 << -1;
+    a.endStructure();
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QDateTime &dt)
+{
+    QDate date;
+    QTime time;
+    int timespec;
+
+    a.beginStructure();
+    a >> date >> time >> timespec;
+    a.endStructure();
+
+    dt = QDateTime(date, time, Qt::TimeSpec(timespec));
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QDateTime &dt)
+{
+    a.beginStructure();
+    a << dt.date() << dt.time() << int(dt.timeSpec());
+    a.endStructure();
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QRect &rect)
+{
+    int x, y, width, height;
+    a.beginStructure();
+    a >> x >> y >> width >> height;
+    a.endStructure();
+
+    rect.setRect(x, y, width, height);
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QRect &rect)
+{
+    a.beginStructure();
+    a << rect.x() << rect.y() << rect.width() << rect.height();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QRectF &rect)
+{
+    qreal x, y, width, height;
+    a.beginStructure();
+    a >> x >> y >> width >> height;
+    a.endStructure();
+
+    rect.setRect(x, y, width, height);
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QRectF &rect)
+{
+    a.beginStructure();
+    a << rect.x() << rect.y() << rect.width() << rect.height();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QSize &size)
+{
+    a.beginStructure();
+    a >> size.rwidth() >> size.rheight();
+    a.endStructure();
+
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QSize &size)
+{
+    a.beginStructure();
+    a << size.width() << size.height();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QSizeF &size)
+{
+    a.beginStructure();
+    a >> size.rwidth() >> size.rheight();
+    a.endStructure();
+
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QSizeF &size)
+{
+    a.beginStructure();
+    a << size.width() << size.height();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QPoint &pt)
+{
+    a.beginStructure();
+    a >> pt.rx() >> pt.ry();
+    a.endStructure();
+
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QPoint &pt)
+{
+    a.beginStructure();
+    a << pt.x() << pt.y();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QPointF &pt)
+{
+    a.beginStructure();
+    a >> pt.rx() >> pt.ry();
+    a.endStructure();
+
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QPointF &pt)
+{
+    a.beginStructure();
+    a << pt.x() << pt.y();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QLine &line)
+{
+    QPoint p1, p2;
+    a.beginStructure();
+    a >> p1 >> p2;
+    a.endStructure();
+
+    line = QLine(p1, p2);
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QLine &line)
+{
+    a.beginStructure();
+    a << line.p1() << line.p2();
+    a.endStructure();
+
+    return a;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &a, QLineF &line)
+{
+    QPointF p1, p2;
+    a.beginStructure();
+    a >> p1 >> p2;
+    a.endStructure();
+
+    line = QLineF(p1, p2);
+    return a;
+}
+
+QDBusArgument &operator<<(QDBusArgument &a, const QLineF &line)
+{
+    a.beginStructure();
+    a << line.p1() << line.p2();
+    a.endStructure();
+
+    return a;
+}
+#endif
