@@ -55,16 +55,16 @@ public:
     };
 
 public Q_SLOTS:
-    QDBusReply<QStringList> registeredServiceNames();        
-    QDBusReply<bool> isServiceRegistered(const QString &serviceName);
-    QDBusReply<QString> serviceOwner(const QString &name);
+    QDBusReply<QStringList> registeredServiceNames() const;
+    QDBusReply<bool> isServiceRegistered(const QString &serviceName) const;
+    QDBusReply<QString> serviceOwner(const QString &name) const;
     QDBusReply<bool> unregisterService(const QString &serviceName);
     QDBusReply<RegisterServiceReply> registerService(const QString &serviceName,
                                                      ServiceQueueOptions qoption = DontQueueService,
                                                      ServiceReplacementOptions roption = DontAllowReplacement);
 
-    QDBusReply<uint> servicePid(const QString &serviceName);
-    QDBusReply<uint> serviceUid(const QString &serviceName);
+    QDBusReply<uint> servicePid(const QString &serviceName) const;
+    QDBusReply<uint> serviceUid(const QString &serviceName) const;
 
     QDBusReply<void> startService(const QString &name);
 

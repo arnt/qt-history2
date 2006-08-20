@@ -146,44 +146,47 @@ QDBusConnectionInterface::~QDBusConnectionInterface()
     Returns the unique connection name of the primary owner of the name \a name. If the requested
     name doesn't have an owner, returns a org.freedesktop.DBus.Error.NameHasNoOwner error.
 */
-QDBusReply<QString> QDBusConnectionInterface::serviceOwner(const QString &name)
+QDBusReply<QString> QDBusConnectionInterface::serviceOwner(const QString &name) const
 {
-    return call(QLatin1String("GetNameOwner"), name);
+    return internalConstCall(QDBus::AutoDetect, QLatin1String("GetNameOwner"), QList<QVariant>() << name);
 }
 
 /*!
     Lists all names currently registered on the bus.
 */
-QDBusReply<QStringList> QDBusConnectionInterface::registeredServiceNames()
+QDBusReply<QStringList> QDBusConnectionInterface::registeredServiceNames() const
 {
-    return call(QLatin1String("ListNames"));
+    return internalConstCall(QDBus::AutoDetect, QLatin1String("ListNames"));
 }
 
 /*!
     Returns true if the service name \a serviceName has is currently
     registered.
 */
-QDBusReply<bool> QDBusConnectionInterface::isServiceRegistered(const QString &serviceName)
+QDBusReply<bool> QDBusConnectionInterface::isServiceRegistered(const QString &serviceName) const
 {
-    return call(QLatin1String("NameHasOwner"), serviceName);
+    return internalConstCall(QDBus::AutoDetect, QLatin1String("NameHasOwner"),
+                             QList<QVariant>() << serviceName);
 }
 
 /*!
     Returns the Unix Process ID (PID) for the process currently
     holding the bus service \a serviceName.
 */
-QDBusReply<uint> QDBusConnectionInterface::servicePid(const QString &serviceName)
+QDBusReply<uint> QDBusConnectionInterface::servicePid(const QString &serviceName) const
 {
-    return call(QLatin1String("GetConnectionUnixProcessID"), serviceName);
+    return internalConstCall(QDBus::AutoDetect, QLatin1String("GetConnectionUnixProcessID"),
+                             QList<QVariant>() << serviceName);
 }
 
 /*!
     Returns the Unix User ID (UID) for the process currently holding
     the bus service \a serviceName.
 */
-QDBusReply<uint> QDBusConnectionInterface::serviceUid(const QString &serviceName)
+QDBusReply<uint> QDBusConnectionInterface::serviceUid(const QString &serviceName) const
 {
-    return call(QLatin1String("GetConnectionUnixUser"), serviceName);
+    return internalConstCall(QDBus::AutoDetect, QLatin1String("GetConnectionUnixUser"),
+                             QList<QVariant>() << serviceName);
 }
 
 /*!

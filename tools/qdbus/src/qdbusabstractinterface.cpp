@@ -250,7 +250,9 @@ QDBusError QDBusAbstractInterface::lastError() const
 
     \threadsafe
 */
-QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode, const QString& method, const QList<QVariant>& args)
+QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
+                                                          const QString& method,
+                                                          const QList<QVariant>& args)
 {
     Q_D(QDBusAbstractInterface);
 
@@ -482,4 +484,16 @@ QDBusMessage QDBusAbstractInterface::call(QDBus::CallMode mode, const QString &m
     }
 
     return callWithArgumentList(mode, method, argList);
+}
+
+
+/*!
+    \internal
+*/
+QDBusMessage QDBusAbstractInterface::internalConstCall(QDBus::CallMode mode,
+                                                       const QString &method,
+                                                       const QList<QVariant> &args) const
+{
+    // ### move the code here, and make the other functions call this
+    return const_cast<QDBusAbstractInterface*>(this)->callWithArgumentList(mode, method, args);
 }

@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
- 
+
 #ifndef QDBUSABSTRACTINTERFACE_H
 #define QDBUSABSTRACTINTERFACE_H
 
@@ -75,6 +75,9 @@ protected:
     void disconnectNotify(const char *signal);
     QVariant internalPropGet(const char *propname) const;
     void internalPropSet(const char *propname, const QVariant &value);
+    QDBusMessage internalConstCall(QDBus::CallMode mode,
+                                   const QString &method,
+                                   const QList<QVariant> &args = QList<QVariant>()) const;
 
 private:
     Q_DECLARE_PRIVATE(QDBusAbstractInterface)

@@ -38,8 +38,8 @@ class QDBusAbstractInterfacePrivate: public QObjectPrivate
 {
 public:
     Q_DECLARE_PUBLIC(QDBusAbstractInterface)
-    
-    QDBusConnection connection;
+
+    mutable QDBusConnection connection; // mutable because we want to make calls from const functions
     QString service;
     QString path;
     QString interface;
