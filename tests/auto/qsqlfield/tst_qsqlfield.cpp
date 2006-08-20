@@ -67,7 +67,7 @@ void tst_QSqlField::getSetCheck()
     obj1.setLength(0);
     QCOMPARE(0, obj1.length());
     obj1.setLength(INT_MIN);
-    QCOMPARE(-1, obj1.length()); // Unknown values are -1
+    QCOMPARE(INT_MIN, obj1.length());
     obj1.setLength(INT_MAX);
     QCOMPARE(INT_MAX, obj1.length());
 
@@ -76,7 +76,7 @@ void tst_QSqlField::getSetCheck()
     obj1.setPrecision(0);
     QCOMPARE(0, obj1.precision());
     obj1.setPrecision(INT_MIN);
-    QCOMPARE(-1, obj1.precision()); // Unknown values are -1
+    QCOMPARE(INT_MIN, obj1.precision());
     obj1.setPrecision(INT_MAX);
     QCOMPARE(INT_MAX, obj1.precision());
 }
