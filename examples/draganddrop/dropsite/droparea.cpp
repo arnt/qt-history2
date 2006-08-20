@@ -35,6 +35,11 @@ void DropArea::dragEnterEvent(QDragEnterEvent *event)
     emit changed(event->mimeData());
 }
 
+void DropArea::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+}
+
 void DropArea::dropEvent(QDropEvent *event)
 {
     const QMimeData *mimeData = event->mimeData();
