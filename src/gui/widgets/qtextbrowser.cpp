@@ -810,13 +810,13 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     Q_D(QTextBrowser);
 
     QByteArray data;
-    QString fileName = d->findFile(name);
+    QString fileName = d->findFile(d->resolveUrl(name));
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         data = f.readAll();
         f.close();
     } else {
-        qWarning("QTextBrowser: Cannot open '%s' for reading", fileName.toLocal8Bit().data());
+        qWarning("QTextBrowser: Cannot open '%s' for reading", name.toString().toLocal8Bit().data());
         return QVariant();
     }
 

@@ -65,6 +65,7 @@ private slots:
     void anchorsWithSelfBuiltHtml();
     void relativeNonLocalUrls();
     void adjacentAnchors();
+    void loadResourceOnRelativeLocalFiles();
 
 private:
     TestBrowser *browser;
@@ -208,10 +209,10 @@ void tst_QTextBrowser::anchors()
 
 void tst_QTextBrowser::resourceAutoDetection()
 {
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open '://some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
+    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
     browser->setHtml("<img src=\":/some/resource\"/>");
     QCOMPARE(browser->lastResource.toString(), QString("qrc:/some/resource"));
 }
@@ -439,6 +440,16 @@ void tst_QTextBrowser::adjacentAnchors()
     QCOMPARE(browser->textCursor().selectedText(), QString("foo"));
 
     delete browser;
+}
+
+void tst_QTextBrowser::loadResourceOnRelativeLocalFiles()
+{
+    browser->setSource(QUrl("subdir/index.html"));
+    QVERIFY(!browser->toPlainText().isEmpty());
+    QVariant v = browser->loadResource(QTextDocument::HtmlResource, QUrl("../anchor.html"));
+    QVERIFY(v.isValid());
+    QVERIFY(v.type() == QVariant::ByteArray);
+    QVERIFY(!v.toByteArray().isEmpty());
 }
 
 QTEST_MAIN(tst_QTextBrowser)
