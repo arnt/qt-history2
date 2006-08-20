@@ -34,10 +34,10 @@ void Ping::start(const QString &name, const QString &oldValue, const QString &ne
 
     // find our remote
     iface = new QDBusInterface(SERVICE_NAME, "/", "com.trolltech.QtDBus.ComplexPong.Pong",
-                               QDBus::sessionBus(), this);
+                               QDBusConnection::sessionBus(), this);
     if (!iface->isValid()) {
         fprintf(stderr, "%s\n",
-                qPrintable(QDBus::sessionBus().lastError().message()));
+                qPrintable(QDBusConnection::sessionBus().lastError().message()));
         QCoreApplication::instance()->quit();
     }
 
@@ -59,7 +59,7 @@ void Ping::start(const QString &name, const QString &oldValue, const QString &ne
         } else {
             QDBusReply<QDBusVariant> reply = iface->call("query", line);
             if (reply.isValid())
-                printf("Reply was: %s\n", qPrintable(reply.value().value.toString()));
+                printf("Reply was: %s\n", qPrintable(reply.value().variant().toString()));
         }
 
         if (iface->lastError().isValid())
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    if (!QDBus::sessionBus().isConnected()) {
+    if (!QDBusConnection::sessionBus().isConnected()) {
         fprintf(stderr, "Cannot connect to the D-BUS session bus.\n"
                 "To start it, run:\n"
                 "\teval `dbus-launch --auto-syntax`\n");
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     }
 
     Ping ping;
-    ping.connect(QDBus::sessionBus().interface(),
+    ping.connect(QDBusConnection::sessionBus().interface(),
                  SIGNAL(serviceOwnerChanged(QString,QString,QString)),
                  SLOT(start(QString,QString,QString)));
 

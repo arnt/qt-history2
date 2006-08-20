@@ -33,10 +33,10 @@ ChatMainWindow::ChatMainWindow()
 
     // add our D-Bus interface and connect to D-Bus
     new ChatAdaptor(this);
-    QDBus::systemBus().registerObject("/", this);
+    QDBusConnection::systemBus().registerObject("/", this);
 
     com::trolltech::chat *iface;
-    iface = new com::trolltech::chat(QString(), QString(), QDBus::systemBus(), this);
+    iface = new com::trolltech::chat(QString(), QString(), QDBusConnection::systemBus(), this);
     connect(iface, SIGNAL(message(QString,QString)), this, SLOT(messageSlot(QString,QString)));
     connect(iface, SIGNAL(action(QString,QString)), this, SLOT(actionSlot(QString,QString)));
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    if (!QDBus::systemBus().isConnected()) {
+    if (!QDBusConnection::systemBus().isConnected()) {
         fprintf(stderr, "Cannot connect to the D-BUS system bus.\n"
                 "Please check your system settings and try again.\n");
         return 1;

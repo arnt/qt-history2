@@ -20,7 +20,7 @@ void method1()
 {
     qDebug() << "Method 1:";
 
-    QDBusReply<QStringList> reply = QDBus::sessionBus().interface()->registeredServiceNames();
+    QDBusReply<QStringList> reply = QDBusConnection::sessionBus().interface()->registeredServiceNames();
     if (!reply.isValid()) {
         qDebug() << "Error:" << reply.error().message();
         exit(1);
@@ -33,23 +33,23 @@ void method2()
 {
     qDebug() << "Method 2:";
 
-    QDBusConnection bus = QDBus::sessionBus();
+    QDBusConnection bus = QDBusConnection::sessionBus();
     QDBusInterface dbus_iface("org.freedesktop.DBus", "/org/freedesktop/DBus",
                               "org.freedesktop.DBus", bus);
-    qDebug() << dbus_iface.call("ListNames").at(0);
+    qDebug() << dbus_iface.call("ListNames").arguments().at(0);
 }
 
 void method3()
 {
     qDebug() << "Method 3:";
-    qDebug() << QDBus::sessionBus().interface()->registeredServiceNames().value();
+    qDebug() << QDBusConnection::sessionBus().interface()->registeredServiceNames().value();
 }
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    if (!QDBus::sessionBus().isConnected()) {
+    if (!QDBusConnection::sessionBus().isConnected()) {
         fprintf(stderr, "Cannot connect to the D-BUS session bus.\n"
                 "To start it, run:\n"
                 "\teval `dbus-launch --auto-syntax`\n");

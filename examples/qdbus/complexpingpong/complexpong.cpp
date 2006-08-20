@@ -63,11 +63,11 @@ int main(int argc, char **argv)
     Pong *pong = new Pong(&obj);
     pong->connect(&app, SIGNAL(aboutToQuit()), SIGNAL(aboutToQuit()));
     pong->setProperty("value", "initial value");
-    QDBus::sessionBus().registerObject("/", &obj);
+    QDBusConnection::sessionBus().registerObject("/", &obj);
 
-    if (!QDBus::sessionBus().registerService(SERVICE_NAME)) {
+    if (!QDBusConnection::sessionBus().registerService(SERVICE_NAME)) {
         fprintf(stderr, "%s\n",
-                qPrintable(QDBus::sessionBus().lastError().message()));        
+                qPrintable(QDBusConnection::sessionBus().lastError().message()));        
         exit(1);
     }
     
