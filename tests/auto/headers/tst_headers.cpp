@@ -33,6 +33,8 @@ QStringList getHeaders(const QString &path)
         headers += getHeaders(path + "/" + subdir);
 
     QStringList entries = dir.entryList(QStringList("*.h"), QDir::Files);
+    QRegExp reg("^(?!ui_)");
+    entries = entries.filter(reg);
     foreach (QString entry, entries)
         headers += path + "/" + entry;
 
@@ -62,7 +64,7 @@ void tst_Headers::licenseCheck()
 {
     QFETCH(QString, header);
 
-    if (header.endsWith("/qgifhandler.h"))
+    if (header.endsWith("/qgifhandler.h") || header.endsWith("/qconfig.h"))
         return;
 
     QFile f(header);
@@ -115,7 +117,8 @@ void tst_Headers::macros()
 {
     QFETCH(QString, header);
 
-    if (header.endsWith("_p.h") || header.endsWith("_pch.h") || header.contains("global/qconfig-")
+    if (header.endsWith("_p.h") || header.endsWith("_pch.h")
+        || header.contains("global/qconfig-") || header.endsWith("/qconfig.h")
         || header.contains("/src/tools/") || header.contains("/src/plugins/")
         || header.endsWith("/qiconset.h") || header.endsWith("/qfeatures.h"))
         return;
