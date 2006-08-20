@@ -19,7 +19,7 @@
 
 Q_DECLARE_METATYPE(QPoint)
 template<> struct QMetaTypeId<Q3ListView::StringComparisonMode>
-{ static inline int qt_metatype_id() { return QMetaType::Int; } };
+{ enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 
 
 //TESTED_CLASS=
