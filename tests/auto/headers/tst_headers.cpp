@@ -43,7 +43,9 @@ QStringList getHeaders(const QString &path)
 
 void tst_Headers::initTestCase()
 {
-    headers = getHeaders(QString::fromLocal8Bit(qgetenv("QTDIR")) + "/src");
+    QString qtSrcDir = QString::fromLocal8Bit(qgetenv("QTSRCDIR").isEmpty()
+            ? qgetenv("QTDIR") : qgetenv("QTSRCDIR"));
+    headers = getHeaders(qtSrcDir + "/src");
     if (headers.isEmpty())
         QSKIP("can't find any headers in your $QTDIR/src", SkipAll);
 }
