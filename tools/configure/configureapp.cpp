@@ -637,6 +637,13 @@ void Configure::parseCmdLine()
 	    dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
 	}
 
+	else if( configCmdLine.at(i) == "-make" ) {
+	    ++i;
+	    if(i==argCount)
+		break;
+	    dictionary[ "MAKE" ] = configCmdLine.at(i);
+	}
+
 	else if( configCmdLine.at(i).indexOf( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -682,13 +689,13 @@ void Configure::parseCmdLine()
             dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
             dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ||
             dictionary[ "QMAKESPEC" ].endsWith( "-msvc2005" )) {
-            dictionary[ "MAKE" ] = "nmake";
+            if ( dictionary[ "MAKE" ].isEmpty() ) dictionary[ "MAKE" ] = "nmake";
             dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
         } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
-            dictionary[ "MAKE" ] = "mingw32-make";
+            if ( dictionary[ "MAKE" ].isEmpty() ) dictionary[ "MAKE" ] = "mingw32-make";
             dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
         } else {
-            dictionary[ "MAKE" ] = "make";
+            if ( dictionary[ "MAKE" ].isEmpty() ) dictionary[ "MAKE" ] = "make";
             dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
         }
     }
