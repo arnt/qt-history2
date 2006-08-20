@@ -17,7 +17,6 @@
 #include <qwsmanager_qws.h>
 #include <qapplication.h>
 #include <qwsdisplay_qws.h>
-#include <qdatastream.h>
 #include <qrgb.h>
 #include <qpaintengine.h>
 #include <qdesktopwidget.h>
@@ -597,33 +596,48 @@ void QWSLocalMemSurface::release()
 const QByteArray QWSLocalMemSurface::data() const
 {
     QByteArray array;
-    QDataStream stream(&array, QIODevice::WriteOnly);
+    array.resize(sizeof(uchar*) + 2 * sizeof(int) + sizeof(QImage::Format) +
+                 sizeof(SurfaceFlags));
 
     Q_ASSERT(memlock == 0);
 
-    stream.writeRawData(reinterpret_cast<const char*>(&mem), sizeof(mem));
-    stream << img.width() << img.height() << int(img.format())
-           << surfaceFlags();
+    char *ptr = array.data();
+
+    *reinterpret_cast<uchar**>(ptr) = mem;
+    ptr += sizeof(uchar*);
+
+    reinterpret_cast<int*>(ptr)[0] = img.width();
+    reinterpret_cast<int*>(ptr)[1] = img.height();
+    ptr += 2 * sizeof(int);
+
+    *reinterpret_cast<QImage::Format*>(ptr) = img.format();
+    ptr += sizeof(QImage::Format);
+
+    *reinterpret_cast<SurfaceFlags*>(ptr) = surfaceFlags();
 
     return array;
 }
 
 bool QWSLocalMemSurface::attach(const QByteArray &data)
 {
-    QDataStream stream(data); // XXX: get rid of streaming
-
-    uchar *mem;
     int width;
     int height;
-    int f;
     QImage::Format format;
     SurfaceFlags flags;
 
-    stream.readRawData((char*)(&mem), sizeof(mem));
-    stream >> width >> height >> f;
-    format = (QImage::Format)(f); // XXX
-    stream >> f;
-    flags = (SurfaceFlags)(f);
+    const char *ptr = data.constData();
+
+    mem = *reinterpret_cast<uchar* const*>(ptr);
+    ptr += sizeof(uchar*);
+
+    width = reinterpret_cast<const int*>(ptr)[0];
+    height = reinterpret_cast<const int*>(ptr)[1];
+    ptr += 2 * sizeof(int);
+
+    format = *reinterpret_cast<const QImage::Format*>(ptr);
+    ptr += sizeof(QImage::Format);
+
+    flags = *reinterpret_cast<const SurfaceFlags*>(ptr);
 
     QWSMemorySurface::img = QImage(mem, width, height, format);
     setSurfaceFlags(flags);
@@ -673,20 +687,24 @@ bool QWSSharedMemSurface::setMemory(int memId)
 
 bool QWSSharedMemSurface::attach(const QByteArray &data)
 {
-    QDataStream stream(data);
-
     int memId;
     int width;
     int height;
     int lockId;
-    int f;
     QImage::Format format;
     SurfaceFlags flags;
 
-    stream >> memId >> width >> height >> lockId >> f;
-    format = (QImage::Format)(f); // XXX
-    stream >> f;
-    flags = (SurfaceFlags)(f);
+    const char *ptr = data.constData();
+
+    memId = reinterpret_cast<const int*>(ptr)[0];
+    width = reinterpret_cast<const int*>(ptr)[1];
+    height = reinterpret_cast<const int*>(ptr)[2];
+    lockId = reinterpret_cast<const int*>(ptr)[3];
+    ptr += 4 * sizeof(int);
+
+    format = *reinterpret_cast<const QImage::Format*>(ptr);
+    ptr += sizeof(QImage::Format);
+    flags = *reinterpret_cast<const SurfaceFlags*>(ptr);
 
     setSurfaceFlags(flags);
     setMemory(memId);
@@ -741,10 +759,22 @@ void QWSSharedMemSurface::release()
 const QByteArray QWSSharedMemSurface::data() const
 {
     QByteArray array;
-    QDataStream stream(&array, QIODevice::WriteOnly);
-    stream << mem.id() << img.width() << img.height()
-           << (memlock ? memlock->id() : -1) << int(img.format())
-           << surfaceFlags();
+    array.resize(4 * sizeof(int) + sizeof(QImage::Format) +
+                 sizeof(SurfaceFlags));
+
+    char *ptr = array.data();
+
+    reinterpret_cast<int*>(ptr)[0] = mem.id();
+    reinterpret_cast<int*>(ptr)[1] = img.width();
+    reinterpret_cast<int*>(ptr)[2] = img.height();
+    reinterpret_cast<int*>(ptr)[3] = (memlock ? memlock->id() : -1);
+    ptr += 4 * sizeof(uchar*);
+
+    *reinterpret_cast<QImage::Format*>(ptr) = img.format();
+    ptr += sizeof(QImage::Format);
+
+    *reinterpret_cast<SurfaceFlags*>(ptr) = surfaceFlags();
+
     return array;
 }
 
@@ -851,20 +881,21 @@ QWSYellowSurface::~QWSYellowSurface()
 const QByteArray QWSYellowSurface::data() const
 {
     QByteArray array;
-    QDataStream stream(&array, QIODevice::WriteOnly);
+    array.resize(2 * sizeof(int));
 
-    stream << surfaceSize.width() << surfaceSize.height();
+    int *ptr = reinterpret_cast<int*>(array.data());
+    ptr[0] = surfaceSize.width();
+    ptr[1] = surfaceSize.height();
+
     return array;
 }
 
 bool QWSYellowSurface::attach(const QByteArray &data)
 {
-    QDataStream stream(data);
+    const int *ptr = reinterpret_cast<const int*>(data.constData());
 
-    int width;
-    int height;
-
-    stream >> width >> height;
+    const int width = ptr[0];
+    const int height = ptr[1];
 
     img = QImage(width, height, QImage::Format_ARGB32);
     img.fill(qRgba(255,255,31,127));
