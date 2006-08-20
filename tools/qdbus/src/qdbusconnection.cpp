@@ -420,6 +420,20 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
 }
 
 /*!
+    Disconnects the signal specified by the \a service, \a path, \a interface and \a name parameters from
+    the slot \a slot in object \a receiver. The arguments \a service and \a path can be empty,
+    denoting a disconnection from all signals of the (\a interface, \a name) pair, from all remote
+    applications.
+
+    Returns true if the disconnection was successful.
+*/
+bool QDBusConnection::disconnect(const QString &service, const QString &path, const QString &interface,
+                                 const QString &name, QObject *receiver, const char *slot)
+{
+    return disconnect(service, path, interface, name, QString(), receiver, slot);
+}
+
+/*!
     \overload
     Connects the signal to the slot \a slot in object \a receiver. Unlike the other
     QDBusConnection::connect overload, this function allows one to specify the parameter signature
@@ -474,6 +488,63 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
 
     d->connectSignal(key, hook);
     return true;
+}
+
+/*!
+    \overload
+    Disconnects the signal from the slot \a slot in object \a receiver. Unlike the other
+    QDBusConnection::disconnect overload, this function allows one to specify the parameter signature
+    to be disconnected using the \a signature variable. The function will then verify that this
+    signature is connected to the slot specified by \a slot and return false otherwise.
+*/
+bool QDBusConnection::disconnect(const QString &service, const QString &path, const QString& interface,
+                                 const QString &name, const QString &signature,
+                                 QObject *receiver, const char *slot)
+{
+    if (!receiver || !slot || !d || !d->connection)
+        return false;
+    if (!interface.isEmpty() && !QDBusUtil::isValidInterfaceName(interface))
+        return false;
+    if (interface.isEmpty() && name.isEmpty())
+        return false;
+
+    QString source;
+    if (!service.isEmpty()) {
+        source = d->getNameOwner(service);
+        if (source.isEmpty())
+            return false;
+    }
+
+    // check the slot
+    QDBusConnectionPrivate::SignalHook hook;
+    QString key;
+    QString name2 = name;
+    if (name2.isNull())
+        name2.detach();
+
+    hook.signature = signature;
+    if (!d->prepareHook(hook, key, source, path, interface, name, receiver, slot, 0, false))
+        return false;           // don't disconnect
+
+    // avoid duplicating:
+    QWriteLocker locker(&d->lock);
+    QDBusConnectionPrivate::SignalHookHash::ConstIterator it = d->signalHooks.find(key);
+    QDBusConnectionPrivate::SignalHookHash::ConstIterator end = d->signalHooks.constEnd();
+    for ( ; it != end && it.key() == key; ++it) {
+        const QDBusConnectionPrivate::SignalHook &entry = it.value();
+        if (entry.sender == hook.sender &&
+            entry.path == hook.path &&
+            entry.signature == hook.signature &&
+            entry.obj == hook.obj &&
+            entry.midx == hook.midx) {
+            // no need to compare the parameters if it's the same slot
+            d->disconnectSignal(key, hook);
+            return true;        // it was there
+        }
+    }
+
+    // the slot was not found
+    return false;
 }
 
 /*!

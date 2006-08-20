@@ -1468,6 +1468,12 @@ void QDBusConnectionPrivate::connectSignal(const QString &key, const SignalHook 
     connect(hook.obj, SIGNAL(destroyed(QObject*)), SLOT(objectDestroyed(QObject*)));
 }
 
+void QDBusConnectionPrivate::disconnectSignal(const QString &key, const SignalHook &hook)
+{
+    hook.obj->disconnect(SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
+    signalHooks.remove(key);
+}
+
 void QDBusConnectionPrivate::registerObject(const ObjectTreeNode *node)
 {
     connect(node->obj, SIGNAL(destroyed(QObject*)), SLOT(objectDestroyed(QObject*)));
