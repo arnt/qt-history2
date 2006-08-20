@@ -13,6 +13,7 @@
 #include <QSlider>
 #include <QStyle>
 #include <QStyleOption>
+#include <QDebug>
 
 // defined to be 120 by the wheel mouse vendors according to the docs
 #define WHEEL_DELTA 120
@@ -847,7 +848,7 @@ void tst_QAbstractSlider::sliderPressedReleased_data()
                                << 0
                                << 20
                                << uint(QStyle::SC_SliderGroove)
-                               << 0;
+                               << ((qApp->style()->styleHint(QStyle::SH_Slider_AbsoluteSetButtons) & Qt::LeftButton) ? 1 : 0);
 
     QTest::newRow("scrollbar on the handle") << int(QStyle::CC_ScrollBar)
                                << 0
@@ -873,7 +874,8 @@ void tst_QAbstractSlider::sliderPressedReleased()
     QAbstractSlider *slider;
     switch (control) {
     default:
-        slider = 0;
+        qWarning("Bad input into test, leaving");
+        return;
         break;
     case QStyle::CC_Slider:
         slider = new QSlider;
@@ -884,11 +886,6 @@ void tst_QAbstractSlider::sliderPressedReleased()
         break;
     }
 
-    // Mac Style requires the control to be active to get the correct values...
-    slider->show();
-    slider->activateWindow();
-
-    Q_ASSERT(slider);
 
     slider->setMinimum(minimum);
     slider->setMaximum(maximum);
@@ -897,6 +894,10 @@ void tst_QAbstractSlider::sliderPressedReleased()
     slider->resize(slider->sizeHint().width(), slider->sizeHint().height() + 100);
     QSignalSpy spy1(slider, SIGNAL(sliderPressed()));
     QSignalSpy spy2(slider, SIGNAL(sliderReleased()));
+
+    // Mac Style requires the control to be active to get the correct values...
+    slider->show();
+    slider->activateWindow();
 
     QStyleOptionSlider option;
     option.init(slider);
