@@ -64,6 +64,8 @@ UnixMakefileGenerator::init()
         project->values("QMAKE_INSTALL_FILE").append("$(COPY_FILE)");
     if(project->isEmpty("QMAKE_INSTALL_DIR"))
         project->values("QMAKE_INSTALL_DIR").append("$(COPY_DIR)");
+    if(project->isEmpty("QMAKE_INSTALL_PROGRAM"))
+        project->values("QMAKE_INSTALL_PROGRAM").append("$(COPY_FILE)");
     if(project->isEmpty("QMAKE_LIBTOOL"))
         project->values("QMAKE_LIBTOOL").append("libtool --silent");
     if(project->isEmpty("QMAKE_SYMBOLIC_LINK"))
@@ -672,7 +674,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         if(!ret.isEmpty())
             ret += "\n\t";
 
-        const QString copy_cmd = QString(bundle ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
+        const QString copy_cmd = QString(bundle ? "-$(INSTALL_DIR)" : "-$(INSTALL_PROGRAM)") + " \"" +
                                  src_targ + "\" \"" + dst_targ + "\"";
         if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib")
            && project->values(t + ".CONFIG").indexOf("fix_rpath") != -1) {

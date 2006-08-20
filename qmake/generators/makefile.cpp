@@ -1366,8 +1366,14 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                             dst_file += Option::dir_sep;
                         dst_file += fi.fileName();
                     }
-                    QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " " +
-                                   wild + " " + dst_file + "\n";
+                    QString cmd;
+                    if (fi.isDir())
+                       cmd = "-$(INSTALL_DIR)";
+                    else if (fi.isExecutable())
+                       cmd = "-$(INSTALL_PROGRAM)";
+                    else
+                       cmd = "-$(INSTALL_FILE)";
+                    cmd += " " + wild + " " + dst_file + "\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") && !project->isActiveConfig("nostrip") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
@@ -1384,7 +1390,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     if(!target.isEmpty())
                         target += "\t";
                     QString dst_file = filePrefixRoot(root, dst);
-                    QString cmd =  QString("-$(INSTALL_FILE)") + " " +
+                    QFileInfo fi(fileInfo(wild));
+                    QString cmd =  QString(fi.isExecutable() ? "-$(INSTALL_PROGRAM)" : "-$(INSTALL_FILE)") + " " +
                                    wild + " " + dst_file + "\n";
                     target += cmd;
                     if(!uninst.isEmpty())
@@ -2374,6 +2381,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
     t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
     t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_PROGRAM = " << var("QMAKE_INSTALL_PROGRAM") << endl;
     t << "INSTALL_DIR   = " << var("QMAKE_INSTALL_DIR") << endl;
     t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
     t << "SYMLINK       = " << var("QMAKE_SYMBOLIC_LINK") << endl;
