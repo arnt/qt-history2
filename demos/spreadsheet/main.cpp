@@ -249,7 +249,7 @@ class SpreadSheetAdaptor : public QDBusAbstractAdaptor
 
 public:
     SpreadSheetAdaptor(QTableWidget *table) : QDBusAbstractAdaptor(table), table(table)
-    { QDBus::sessionBus().registerObject("/SpreadSheetDemo", table); }
+    { QDBusConnection::sessionBus().registerObject("/SpreadSheetDemo", table); }
 
 public slots:
     QString computeFormula(const QString &formula)
