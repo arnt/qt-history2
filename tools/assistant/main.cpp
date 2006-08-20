@@ -48,7 +48,7 @@ class AssistantAdaptor : public QDBusAbstractAdaptor
 
 public:
     AssistantAdaptor(MainWindow *mw) : QDBusAbstractAdaptor(mw), mw(mw)
-    { QDBus::sessionBus().registerObject("/Assistant", mw) ;}
+    { QDBusConnection::sessionBus().registerObject("/Assistant", mw) ;}
 
 public slots:
     void showLink(const QString &link) { mw->showLink(link); }
