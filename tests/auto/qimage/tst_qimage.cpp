@@ -635,10 +635,23 @@ void tst_QImage::convertToFormatPreserveText()
     QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
 
     img.setText("foo", "bar");
-    img = img.convertToFormat(QImage::Format_RGB32);
+    img.setText("foo2", "bar2");
 
-    QCOMPARE(img.text(), QString("foo: bar"));
-    QCOMPARE(img.textKeys(), QStringList("foo"));
+    QStringList listResult;
+    listResult << "foo" << "foo2";
+    QString result = "foo: bar\n\nfoo2: bar2";
+
+    QImage imgResult1 = img.convertToFormat(QImage::Format_RGB32);
+    QCOMPARE(imgResult1.text(), result);
+    QCOMPARE(imgResult1.textKeys(), listResult);
+
+    QVector<QRgb> colorTable(4);
+    for (int i = 0; i < 4; ++i)
+        colorTable[i] = QRgb(42);
+    QImage imgResult2 = img.convertToFormat(QImage::Format_MonoLSB,
+                                            colorTable);
+    QCOMPARE(imgResult2.text(), result);
+    QCOMPARE(imgResult2.textKeys(), listResult);
 }
 
 void tst_QImage::setNumColors()

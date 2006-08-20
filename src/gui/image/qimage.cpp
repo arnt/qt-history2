@@ -2905,10 +2905,10 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
 
-#ifndef QT_NO_IMAGE_TEXT
+#if !defined(QT_NO_IMAGE_TEXT)
         image.d->text = d->text;
         image.d->text_lang = d->text_lang;
-#endif QT_NO_IMAGE_TEXT
+#endif // !QT_NO_IMAGE_TEXT
 
         converter(image.d, d, flags);
         return image;
@@ -2924,6 +2924,12 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         QImage image(d->width, d->height, format);
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
+
+#if !defined(QT_NO_IMAGE_TEXT)
+        image.d->text = d->text;
+        image.d->text_lang = d->text_lang;
+#endif // !QT_NO_IMAGE_TEXT
+
         convert_32_to_16(image.d, tmp.d, flags);
         return image;
     } else if (d->format == Format_RGB16) {
@@ -2931,6 +2937,12 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         QImage image(d->width, d->height, targetDepth == 32 ? format : Format_RGB32);
         image.setDotsPerMeterY(dotsPerMeterY());
         image.setDotsPerMeterX(dotsPerMeterX());
+
+#if !defined(QT_NO_IMAGE_TEXT)
+        image.d->text = d->text;
+        image.d->text_lang = d->text_lang;
+#endif // !QT_NO_IMAGE_TEXT
+
         convert_16_to_32(image.d, d, flags);
         if (targetDepth == 32)
             return image;
@@ -2975,6 +2987,15 @@ static QImage convertWithPalette(const QImage &src, QImage::Format format,
                                  const QVector<QRgb> &clut) {
     QImage dest(src.size(), format);
     dest.setColorTable(clut);
+
+#if !defined(QT_NO_IMAGE_TEXT)
+    QString textsKeys = src.text();
+    QStringList textKeyList = textsKeys.split("\n", QString::SkipEmptyParts);
+    foreach (QString textKey, textKeyList) {
+        QStringList textKeySplitted = textKey.split(": ");
+        dest.setText(textKeySplitted[0], textKeySplitted[1]);
+    }
+#endif // !QT_NO_IMAGE_TEXT
 
     int h = src.height();
     int w = src.width();
@@ -3040,6 +3061,12 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
         return QImage();
 
     QImage image(d->width, d->height, format);
+
+#if !defined(QT_NO_IMAGE_TEXT)
+        image.d->text = d->text;
+        image.d->text_lang = d->text_lang;
+#endif // !QT_NO_IMAGE_TEXT
+
     converter(image.d, d, flags);
     return image;
 }
