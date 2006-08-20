@@ -40,6 +40,7 @@ private slots:
     void intersects_region();
     void intersects_rect_data();
     void intersects_rect();
+    void contains_point();
 };
 
 Q_DECLARE_METATYPE(QPolygon)
@@ -394,6 +395,12 @@ void tst_QRegion::intersects_rect()
     QFETCH(QRect, rect);
     QFETCH(bool, intersects);
     QCOMPARE(region.intersects(rect), intersects);
+}
+
+void tst_QRegion::contains_point()
+{
+    QCOMPARE(QRegion().contains(QPoint(1,1)),false);
+    QCOMPARE(QRegion(0,0,2,2).contains(QPoint(1,1)),true);
 }
 
 QTEST_MAIN(tst_QRegion)
