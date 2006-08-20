@@ -52,7 +52,6 @@ public:
     QLinuxFbScreenPrivate();
 
     void openTty();
-    void writeTty(const char *msg, int length);
     void closeTty();
 
     int fd;
