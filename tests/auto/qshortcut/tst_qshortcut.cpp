@@ -124,11 +124,11 @@ protected:
 };
 
 template<> struct QMetaTypeId<tst_QShortcut::Widget>
-{ static inline int qt_metatype_id() { return QMetaType::Int; } };
+{ enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 template<> struct QMetaTypeId<tst_QShortcut::Result>
-{ static inline int qt_metatype_id() { return QMetaType::Int; } };
+{ enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 template<> struct QMetaTypeId<tst_QShortcut::Action>
-{ static inline int qt_metatype_id() { return QMetaType::Int; } };
+{ enum { Defined = 1 }; static inline int qt_metatype_id() { return QMetaType::Int; } };
 
 #ifdef Q_WS_X11
     extern void qt_x11_wait_for_window_manager( QWidget* w );
