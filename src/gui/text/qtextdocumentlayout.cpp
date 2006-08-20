@@ -1788,9 +1788,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
 
                 // align only if there is space for alignment
                 if (right - left > cd->size.width()) {
-                    if (align == Qt::AlignRight)
+                    if (align & Qt::AlignRight)
                         pos.rx() += layoutStruct->x_right - cd->size.width();
-                    else if (align == Qt::AlignHCenter)
+                    else if (align & Qt::AlignHCenter)
                         pos.rx() += (layoutStruct->x_right - cd->size.width()) / 2;
                 }
 
