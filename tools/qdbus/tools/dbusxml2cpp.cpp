@@ -652,7 +652,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
             argPos++;
             if (method.outputArgs.count() > 1) {
-                hs << "        if (reply.type() == QDBusMessage::ReplyMessage && reply.count() == "
+                hs << "        if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() == "
                    << method.outputArgs.count() << ") {" << endl;
 
                 // yes, starting from 1
@@ -706,11 +706,11 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
                 ++i;
 
             // i parts matched
-            // close last.count() - i namespaces:
+            // close last.arguments().count() - i namespaces:
             for (int j = i; j < last.count(); ++j)
                 hs << QString((last.count() - j - 1 + i) * 2, QLatin1Char(' ')) << "}" << endl;
 
-            // open current.count() - i namespaces
+            // open current.arguments().count() - i namespaces
             for (int j = i; j < current.count(); ++j)
                 hs << QString(j * 2, QLatin1Char(' ')) << "namespace " << current.at(j) << " {" << endl;
 
