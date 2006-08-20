@@ -1,22 +1,16 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/trolltech/styles/commonstyle">
-<file>images/dvd-16.png</file>
 <file>images/filecontents-16.png</file>
 <file>images/filecontents-32.png</file>
-<file>images/filecontents-64.png</file>
 <file>images/filecontents-128.png</file>
 <file>images/fileinfo-16.png</file>
 <file>images/fileinfo-32.png</file>
-<file>images/fileinfo-64.png</file>
 <file>images/fileinfo-128.png</file>
-<file>images/filelink-16.png</file>
 <file>images/viewdetailed-16.png</file>
 <file>images/viewdetailed-32.png</file>
-<file>images/viewdetailed-64.png</file>
 <file>images/viewdetailed-128.png</file>
 <file>images/viewlist-16.png</file>
 <file>images/viewlist-32.png</file>
-<file>images/viewlist-64.png</file>
 <file>images/viewlist-128.png</file>
 <file>images/fontbitmap-16.png</file>
 <file>images/fonttruetype-16.png</file>
@@ -53,9 +47,5 @@
 <file>images/standardbutton-yes-128.png</file>
 <file>images/standardbutton-yes-16.png</file>
 <file>images/standardbutton-yes-32.png</file>
-<file>images/back-16.png</file>
-<file>images/back-32.png</file>
-<file>images/back-64.png</file>
-<file>images/back-128.png</file>
 </qresource>
 </RCC>
