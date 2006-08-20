@@ -659,7 +659,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
                 for (int i = 1; i < method.outputArgs.count(); ++i)
                     hs << "            " << argNames.at(argPos++) << " = qdbus_cast<"
                        << templateArg(qtTypeName(method.outputArgs.at(i).type, method.annotations, i, "Out"))
-                       << ">(reply.at(" << i << "));" << endl;
+                       << ">(reply.arguments().at(" << i << "));" << endl;
                 hs << "        }" << endl
                    << "        return reply;" << endl;
             }
