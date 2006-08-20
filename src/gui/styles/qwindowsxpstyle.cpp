@@ -1455,6 +1455,48 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     int  rotate = 0;
 
     switch (pe) {
+    case PE_FrameTabBarBase:
+        if (const QStyleOptionTabBarBase *tbb
+                = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
+            QRegion region(tbb->rect);
+            p->save();
+            switch (tbb->shape) {
+            case QTabBar::RoundedNorth:
+                region -= tbb->selectedTabRect.adjusted(-1, 0 , 1, 0);
+                p->setClipRegion(region);
+                p->setPen(QPen(tbb->palette.dark(), 0));
+                p->drawLine(tbb->rect.topLeft(), tbb->rect.topRight());
+                break;
+            case QTabBar::RoundedWest:
+                region -= tbb->selectedTabRect.adjusted(0, -1 , 0, 1);
+                p->setClipRegion(region);
+                p->setPen(QPen(tbb->palette.dark(), 0));
+                p->drawLine(tbb->rect.left(), tbb->rect.top(), tbb->rect.left(), tbb->rect.bottom());
+                break;
+            case QTabBar::RoundedSouth:
+                region -= tbb->selectedTabRect.adjusted(-1, 0 , 1, 0);
+                p->setClipRegion(region);
+                p->setPen(QPen(tbb->palette.dark(), 0));
+                p->drawLine(tbb->rect.left(), tbb->rect.top(),
+                            tbb->rect.right() - 1, tbb->rect.top());
+                break;
+            case QTabBar::RoundedEast:
+                region -= tbb->selectedTabRect.adjusted(0, -1 , 0, 1);
+                p->setClipRegion(region);
+                p->setPen(QPen(tbb->palette.dark(), 0));
+                p->drawLine(tbb->rect.topLeft(), tbb->rect.bottomLeft());
+                break;
+            case QTabBar::TriangularNorth:
+            case QTabBar::TriangularEast:
+            case QTabBar::TriangularWest:
+            case QTabBar::TriangularSouth:
+                p->restore();
+                QWindowsStyle::drawPrimitive(pe, option, p, widget);
+                return;
+            }
+            p->restore();
+        }
+        return;
     case PE_PanelButtonBevel:
         name = "BUTTON";
         partId = BP_PUSHBUTTON;
