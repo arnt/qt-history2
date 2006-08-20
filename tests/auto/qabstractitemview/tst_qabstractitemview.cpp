@@ -159,7 +159,7 @@ void tst_QAbstractItemView::getSetCheck()
     // void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *)
     MyAbstractItemDelegate *var1 = new MyAbstractItemDelegate;
     obj1->setItemDelegate(var1);
-    QCOMPARE(var1, obj1->itemDelegate());
+    QCOMPARE((QAbstractItemDelegate*)var1, obj1->itemDelegate());
 #if QT_VERSION >= 0x040200
     // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
     obj1->setItemDelegate((QAbstractItemDelegate *)0);
