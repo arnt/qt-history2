@@ -43,7 +43,7 @@ struct B5Map {
 };
 
 struct B5Index {
-    const B5Map * const table;
+    const B5Map * table;
     ushort tableSize;
 };
 
