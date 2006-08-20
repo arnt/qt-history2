@@ -45,11 +45,19 @@
 
     \section1 ImageModel Class Implementation
 
-    The constructor is only used to store the image that will be used by the model:
+    The constructor is trivial:
 
     \quotefromfile itemviews/pixelator/imagemodel.cpp
     \skipto ImageModel::ImageModel
     \printuntil /^\}/
+
+    The \c setImage() function sets the image that will be used by the model:
+   
+    \skipto ::setImage(
+    \printuntil /^\}/
+
+    The QAbstractItemModel::reset() call tells the view(s) that the model
+    has changed.
 
     The \c rowCount() and \c columnCount() functions return the height and width of
     the image respectively:
@@ -76,6 +84,16 @@
     This model can be used with QTableView to display the integer brightness values
     for the pixels in the image. However, we will implement a custom delegate to
     display this information in a more artistic way.
+
+    The \c headerData() function is also reimplemented:
+
+    \skipto ::headerData(
+    \printuntil /^\}/
+
+    We return (1, 1) as the size hint for a header item. If we
+    didn't, the headers would default to a larger size, preventing
+    us from displaying really small items (which can be specified
+    using the \gui{Pixel size} combobox).
 
     \section1 PixelDelegate Class Definition
 
@@ -112,35 +130,17 @@
     the model:
 
     \skipto PixelDelegate::paint
-    \printuntil setPen
-
-    For this delegate, we do not need to use a pen, but we would like the output
-    to be antialiased.
+    \printuntil fillRect
 
     The first task the delegate has to perform is to draw the item's background
     correctly. Usually, selected items appear differently to non-selected items,
-    so we begin by testing the state passed in the style option and setting the
-    painter's brush accordingly:
+    so we begin by testing the state passed in the style option and filling the
+    background if necessary.
 
-    \skipto if
-    \printuntil Qt::white
+    The radius of each circle is calculated in the following lines of code:
 
-    This ensures that the background of each item in the view has the correct
-    style for both selected and unselected items. Ideally, we would also test for
-    other states and draw each item in the appropriate style, too.
-
-    The foreground of the item (the circle representing a pixel) must also be
-    rendered using an appropriate brush. For unselected items, we will use a
-    solid black brush; selected items are drawn using a predefined brush from
-    the style option's palette:
-
-    \skipto if
-    \printuntil Qt::black
-
-    The radius of each circle is calculated in the following three lines of code:
-
-    \skipto int size
-    \printuntil double radius
+    \printline int size
+    \printuntil return
 
     First, the largest possible radius of the circle is determined by taking the
     smallest dimension of the style option's \c rect attribute.
@@ -149,11 +149,26 @@
     scaling the brightness to fit within the item and subtracting it from the
     largest possible radius.
 
-    Finally, we paint the circle within the rectangle specified by the style
-    option:
+    \printline save
+    \printline setRenderHint
+    \printline Qt::NoPen
+
+    We save the painter's state, turn on antialiasing (to obtain smoother
+    curves), and turn off the pen.
+
+    \printline State_Selected
+    \printuntil Qt::black
+
+    The foreground of the item (the circle representing a pixel) must be
+    rendered using an appropriate brush. For unselected items, we will use a
+    solid black brush; selected items are drawn using a predefined brush from
+    the style option's palette.
 
     \skipto painter->drawEllipse
     \printuntil /^\}/
+
+    Finally, we paint the circle within the rectangle specified by the style
+    option and we call \l{QPainter::}{restore()} on the painter.
 
     The \c paint() function does not have to be particularly complicated; it is
     only necessary to ensure that the state of the painter when the function
@@ -161,7 +176,7 @@
     means that any transformations applied to the painter must be preceded by
     a call to QPainter::save() and followed by a call to QPainter::restore().
 
-    The delegate's \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} function
+    The delegate's \l{QAbstractItemDelegate::}{sizeHint()} function
     returns a size for the item based on the predefined pixel size, initially set
     up in the constructor:
 
@@ -191,11 +206,16 @@
     \printuntil /^\{/
     \dots
     \skipto view = new QTableView
-    \printuntil view->verticalHeader
+    \printuntil setModel
 
     This enables the items to be drawn without any gaps between them. Removing
     the headers also prevents the user from adjusting the sizes of individual
-    rows and columns.
+    rows and columns. 
+    
+    We also set the minimum section size to 1 on the headers. If we
+    didn't, the headers would default to a larger size, preventing
+    us from displaying really small items (which can be specified
+    using the \gui{Pixel size} combobox).
 
     The custom delegate is constructed with the main window as its parent, so
     that it will be deleted correctly later, and we set it on the table view.
@@ -229,7 +249,6 @@
     \skipto MainWindow::updateView
     \printuntil /^\}/
 
-    The view will automatically update after receiving this information. Note
-    that we only have to iterate over each row and column, rather than over
-    each item in the model, since they all have the same dimensions.
+    We explicitly resize the columns and rows to match the
+    \gui{Pixel size} combobox.
 */
