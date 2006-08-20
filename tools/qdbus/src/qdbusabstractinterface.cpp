@@ -310,8 +310,9 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
 
     \sa QDBusError, QDBusMessage
 */
-bool QDBusAbstractInterface::callWithArgumentList(const QString &method, const QList<QVariant> &args,
-                                                  QObject *receiver, const char *slot)
+bool QDBusAbstractInterface::callWithArgumentListAsync(const QString &method,
+                                                       const QList<QVariant> &args,
+                                                       QObject *receiver, const char *slot)
 {
     Q_D(QDBusAbstractInterface);
 

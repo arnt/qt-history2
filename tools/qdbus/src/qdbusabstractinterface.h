@@ -44,15 +44,7 @@ public:
 
     QDBusError lastError() const;
 
-    QDBusMessage call(const QString &method, const QVariant &arg1 = QVariant(),
-                      const QVariant &arg2 = QVariant(),
-                      const QVariant &arg3 = QVariant(),
-                      const QVariant &arg4 = QVariant(),
-                      const QVariant &arg5 = QVariant(),
-                      const QVariant &arg6 = QVariant(),
-                      const QVariant &arg7 = QVariant(),
-                      const QVariant &arg8 = QVariant());
-    QDBusMessage call(QDBus::CallMode mode, const QString &method,
+    QDBusMessage call(const QString &method,
                       const QVariant &arg1 = QVariant(),
                       const QVariant &arg2 = QVariant(),
                       const QVariant &arg3 = QVariant(),
@@ -61,10 +53,25 @@ public:
                       const QVariant &arg6 = QVariant(),
                       const QVariant &arg7 = QVariant(),
                       const QVariant &arg8 = QVariant());
-    QDBusMessage callWithArgumentList(QDBus::CallMode mode, const QString &method,
+
+    QDBusMessage call(QDBus::CallMode mode,
+                      const QString &method,
+                      const QVariant &arg1 = QVariant(),
+                      const QVariant &arg2 = QVariant(),
+                      const QVariant &arg3 = QVariant(),
+                      const QVariant &arg4 = QVariant(),
+                      const QVariant &arg5 = QVariant(),
+                      const QVariant &arg6 = QVariant(),
+                      const QVariant &arg7 = QVariant(),
+                      const QVariant &arg8 = QVariant());
+
+    QDBusMessage callWithArgumentList(QDBus::CallMode mode,
+                                      const QString &method,
                                       const QList<QVariant> &args);
-    bool callWithArgumentList(const QString &method, const QList<QVariant> &args,
-                              QObject *receiver, const char *member);
+
+    bool callWithArgumentListAsync(const QString &method,
+                                   const QList<QVariant> &args,
+                                   QObject *receiver, const char *member);
 
 protected:
     QDBusAbstractInterface(const QString &service, const QString &path, const char *interface,

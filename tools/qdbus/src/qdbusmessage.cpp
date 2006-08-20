@@ -402,6 +402,15 @@ QString QDBusMessage::member() const
 }
 
 /*!
+    Returns the signature of the signal that was received or for the output arguments
+    of a method call.
+*/
+QString QDBusMessage::signature() const
+{
+    return d_ptr->signature;
+}
+
+/*!
     Returns the flag that indicates if this message should see a reply or not. This is only
     meaningful for MethodCall messages: any other kind of message cannot have replies and this
     function will always return false for them.
@@ -440,15 +449,6 @@ void QDBusMessage::setDelayedReply(bool enable) const
 bool QDBusMessage::isDelayedReply() const
 {
     return d_ptr->delayedReply;
-}
-
-/*!
-    Returns the signature of the signal that was received or for the output arguments
-    of a method call.
-*/
-QString QDBusMessage::signature() const
-{
-    return d_ptr->signature;
 }
 
 /*!

@@ -55,9 +55,9 @@ public:
     QString interface() const;
     QString member() const;
     MessageType type() const;
+    QString signature() const;
 
     bool isReplyRequired() const;
-    QString signature() const;
 
     void setDelayedReply(bool enable) const;
     bool isDelayedReply() const;
