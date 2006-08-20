@@ -67,7 +67,7 @@ void tst_QDBusConnection::noConnection()
     QVERIFY(!con.send(msg));
 
     QDBusSpy spy;
-    QVERIFY(con.call(msg, &spy, SLOT(asyncReply)) == 0);
+    QVERIFY(con.callWithCallback(msg, &spy, SLOT(asyncReply)) == 0);
 
     QDBusMessage reply = con.call(msg);
     QVERIFY(reply.type() == QDBusMessage::ErrorMessage);
@@ -118,7 +118,7 @@ void tst_QDBusConnection::sendAsync()
 
     QDBusMessage msg = QDBusMessage::createMethodCall("org.freedesktop.DBus",
             "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
-    QVERIFY(con.call(msg, &spy, SLOT(asyncReply(QDBusMessage))));
+    QVERIFY(con.callWithCallback(msg, &spy, SLOT(asyncReply(QDBusMessage))));
 
     QTest::qWait(1000);
 

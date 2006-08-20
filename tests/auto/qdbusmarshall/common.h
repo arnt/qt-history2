@@ -247,19 +247,19 @@ bool compare(const QByteArray &ba1, const QByteArray &ba2)
 template<>
 bool compare(const QDBusObjectPath &op1, const QDBusObjectPath &op2)
 {
-    return compare(op1.value, op2.value);
+    return compare(op1.path(), op2.path());
 }
 
 template<>
 bool compare(const QDBusSignature &s1, const QDBusSignature &s2)
 {
-    return compare(s1.value, s2.value);
+    return compare(s1.signature(), s2.signature());
 }
 
 template<>
 bool compare(const QDBusVariant &s1, const QDBusVariant &s2)
 {
-    return compare(s1.value, s2.value);
+    return compare(s1.variant(), s2.variant());
 }
 
 template<typename T>
@@ -466,13 +466,13 @@ template<> bool compare(const QVariant &v1, const QVariant &v2)
         return qvariant_cast<ushort>(v1) == qvariant_cast<ushort>(v2);
 
     else if (id == qMetaTypeId<QDBusObjectPath>())
-        return qvariant_cast<QDBusObjectPath>(v1).value == qvariant_cast<QDBusObjectPath>(v2).value;
+        return qvariant_cast<QDBusObjectPath>(v1).path() == qvariant_cast<QDBusObjectPath>(v2).path();
 
     else if (id == qMetaTypeId<QDBusSignature>())
-        return qvariant_cast<QDBusSignature>(v1).value == qvariant_cast<QDBusSignature>(v2).value;
+        return qvariant_cast<QDBusSignature>(v1).signature() == qvariant_cast<QDBusSignature>(v2).signature();
 
     else if (id == qMetaTypeId<QDBusVariant>())
-        return compare(qvariant_cast<QDBusVariant>(v1).value, qvariant_cast<QDBusVariant>(v2).value);
+        return compare(qvariant_cast<QDBusVariant>(v1).variant(), qvariant_cast<QDBusVariant>(v2).variant());
 
     else if (id == qMetaTypeId<QVariant>())
         return compare(qvariant_cast<QVariant>(v1), qvariant_cast<QVariant>(v2));

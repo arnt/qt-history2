@@ -356,19 +356,19 @@ public slots:
     void methodObjectPath(const QDBusObjectPath &op)
     {
         slotSpy = __PRETTY_FUNCTION__;
-        stringSpy = op.value;
+        stringSpy = op.path();
     }
 
     void methodSignature(const QDBusSignature &s)
     {
         slotSpy = __PRETTY_FUNCTION__;
-        stringSpy = s.value;
+        stringSpy = s.signature();
     }
 
     void methodVariant(const QDBusVariant &v)
     {
         slotSpy = __PRETTY_FUNCTION__;
-        variantSpy = v.value;
+        variantSpy = v.variant();
     }
 
     void methodList(const QVariantList &l)
