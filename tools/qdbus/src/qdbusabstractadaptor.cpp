@@ -131,6 +131,7 @@ void QDBusAbstractAdaptor::setAutoRelaySignals(bool enable)
 {
     const QMetaObject *us = metaObject();
     const QMetaObject *them = parent()->metaObject();
+    bool connected = false;
     for (int idx = staticMetaObject.methodCount(); idx < us->methodCount(); ++idx) {
         QMetaMethod mm = us->method(idx);
 
@@ -144,8 +145,20 @@ void QDBusAbstractAdaptor::setAutoRelaySignals(bool enable)
         sig.prepend(QSIGNAL_CODE + '0');
         parent()->disconnect(sig, this, sig);
         if (enable)
-            connect(parent(), sig, sig);
+            connected = connect(parent(), sig, sig) || connected;
     }
+    d_func()->autoRelaySignals = connected;
+}
+
+/*!
+    Returns true if automatic signal relaying from the real object (see object()) is enabled,
+    otherwiser returns false.
+
+    \sa setAutoRelaySignals
+*/
+bool QDBusAbstractAdaptor::autoRelaySignals() const
+{
+    return d_func()->autoRelaySignals;
 }
 
 QDBusAdaptorConnector::QDBusAdaptorConnector(QObject *obj)
@@ -199,7 +212,7 @@ void QDBusAdaptorConnector::disconnectAllSignals(QObject *obj)
 void QDBusAdaptorConnector::connectAllSignals(QObject *obj)
 {
     QMetaObject::connect(obj, -1, this, metaObject()->methodOffset(), Qt::DirectConnection);
-}    
+}
 
 void QDBusAdaptorConnector::polish()
 {

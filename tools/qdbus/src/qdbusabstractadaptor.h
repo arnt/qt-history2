@@ -32,6 +32,7 @@ public:
 
 protected:
     void setAutoRelaySignals(bool enable);
+    bool autoRelaySignals() const;
 
 private:
     Q_DECLARE_PRIVATE(QDBusAbstractAdaptor)

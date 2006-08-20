@@ -48,7 +48,9 @@ class QDBusAbstractAdaptorPrivate: public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QDBusAbstractAdaptor)
 public:
+    QDBusAbstractAdaptorPrivate() : autoRelaySignals(false) {}
     QString xml;
+    bool autoRelaySignals;
 
     static QString retrieveIntrospectionXml(QDBusAbstractAdaptor *adaptor);
     static void saveIntrospectionXml(QDBusAbstractAdaptor *adaptor, const QString &xml);
