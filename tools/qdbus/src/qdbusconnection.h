@@ -79,10 +79,10 @@ public:
     QDBusError lastError() const;
 
     bool send(const QDBusMessage &message) const;
+    bool callWithCallback(const QDBusMessage &message, QObject *receiver,
+                          const char *slot, int timeout = -1) const;
     QDBusMessage call(const QDBusMessage &message, QDBus::CallMode mode = QDBus::Block,
                       int timeout = -1) const;
-    bool call(const QDBusMessage &message, QObject *receiver,
-              const char *slot, int timeout = -1) const;
 
     bool connect(const QString &service, const QString &path, const QString &interface,
                  const QString &name, QObject *receiver, const char *slot);

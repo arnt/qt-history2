@@ -350,8 +350,8 @@ bool QDBusConnection::send(const QDBusMessage &message) const
 
     Returns the identification of the message that was sent or 0 if nothing was sent.
 */
-bool QDBusConnection::call(const QDBusMessage &message, QObject *receiver,
-                           const char *method, int timeout) const
+bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *receiver,
+                                       const char *method, int timeout) const
 {
     if (!d || !d->connection) {
         QDBusError err = QDBusError(QDBusError::Disconnected,

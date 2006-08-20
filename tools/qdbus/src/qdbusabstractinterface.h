@@ -69,9 +69,9 @@ public:
                                       const QString &method,
                                       const QList<QVariant> &args);
 
-    bool callWithArgumentListAsync(const QString &method,
-                                   const QList<QVariant> &args,
-                                   QObject *receiver, const char *member);
+    bool callWithCallback(const QString &method,
+                          const QList<QVariant> &args,
+                          QObject *receiver, const char *member);
 
 protected:
     QDBusAbstractInterface(const QString &service, const QString &path, const char *interface,
