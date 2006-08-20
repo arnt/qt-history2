@@ -30,16 +30,35 @@ public:
     QDBusConnectionManager() {}
     ~QDBusConnectionManager();
     void bindToApplication();
+
     QDBusConnectionPrivate *connection(const QString &name) const;
     void removeConnection(const QString &name);
     void setConnection(const QString &name, QDBusConnectionPrivate *c);
 
+    QDBusConnectionPrivate *sender() const;
+    void setSender(const QDBusConnectionPrivate *s);
+
 private:
     mutable QMutex mutex;
     QHash<QString, QDBusConnectionPrivate *> connectionHash;
+
+    mutable QMutex senderMutex;
+    QString senderName;
 };
 
 Q_GLOBAL_STATIC(QDBusConnectionManager, manager)
+
+QDBusConnectionPrivate *QDBusConnectionManager::sender() const
+{
+    QMutexLocker locker(&senderMutex);
+    return connection(senderName);
+}
+
+void QDBusConnectionManager::setSender(const QDBusConnectionPrivate *s)
+{
+    QMutexLocker locker(&senderMutex);
+    senderName = (s ? s->name : QString());
+}
 
 QDBusConnectionPrivate *QDBusConnectionManager::connection(const QString &name) const
 {
@@ -208,6 +227,17 @@ QDBusConnection::QDBusConnection(const QString &name)
 QDBusConnection::QDBusConnection(const QDBusConnection &other)
 {
     d = other.d;
+    if (d)
+        d->ref.ref();
+}
+
+/*!
+  \internal
+   Creates a connection object with the given \a dd as private object.
+*/
+QDBusConnection::QDBusConnection(QDBusConnectionPrivate *dd)
+{
+    d = dd;
     if (d)
         d->ref.ref();
 }
@@ -804,3 +834,12 @@ QDBusConnection QDBusConnection::systemBus()
     return *_q_systemBus();
 }
 
+QDBusConnection QDBusConnection::sender()
+{
+    return QDBusConnection(manager()->sender());
+}
+
+void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
+{
+    manager()->setSender(s);
+}

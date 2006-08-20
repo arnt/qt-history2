@@ -113,6 +113,11 @@ public:
     static QDBusConnection sessionBus();
     static QDBusConnection systemBus();
 
+    static QDBusConnection sender();
+
+protected:
+    QDBusConnection(QDBusConnectionPrivate *dd);
+
 private:
     friend class QDBusConnectionPrivate;
     QDBusConnectionPrivate *d;

@@ -609,7 +609,7 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
                 qFatal("Internal error: demarshalling function for type '%s' (%d) failed!",
                        out.typeName(), out.userType());
 
-            params.append( const_cast<void *>(out.constData()) );
+            params.append(const_cast<void *>(out.constData()) );
         } else {
             qFatal("Internal error: got invalid meta type %d when trying to convert to meta type %d",
                    msg.arguments().at(i - 1).userType(), id);
@@ -634,16 +634,19 @@ void QDBusConnectionPrivate::deliverCall(const CallDeliveryEvent& data) const
     for ( ; i < metaTypes.count(); ++i) {
         QVariant arg(metaTypes[i], null);
         outputArgs.append( arg );
-        params.append( const_cast<void*>(outputArgs.at( outputArgs.count() - 1 ).constData()) );
+        params.append(const_cast<void*>(outputArgs.at( outputArgs.count() - 1 ).constData()));
     }
 
     // make call:
     bool fail;
-    if (data.object.isNull())
+    if (data.object.isNull()) {
         fail = true;
-    else
+    } else {
+        QDBusConnectionPrivate::setSender(this);
         fail = data.object->qt_metacall(QMetaObject::InvokeMetaMethod,
                                         data.slotIdx, params.data()) >= 0;
+        QDBusConnectionPrivate::setSender(0);
+    }
 
     // do we create a reply? Only if the caller is waiting for a reply and one hasn't been sent
     // yet.
@@ -1673,4 +1676,3 @@ void QDBusReplyWaiter::reply(const QDBusMessage &msg)
     replyMsg = msg;
     quit();
 }
-

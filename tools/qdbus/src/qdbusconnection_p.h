@@ -166,6 +166,7 @@ public:
     void unregisterService(const QString &serviceName);
     bool isServiceRegisteredByThread(const QString &serviceName) const;
     QString baseService() const;
+
 protected:
     virtual void customEvent(QEvent *event);
 
@@ -214,6 +215,8 @@ public:
     static void messageResultReceived(DBusPendingCall *, void *);
 
     static QDBusConnectionPrivate *d(const QDBusConnection& q) { return q.d; }
+
+    static void setSender(const QDBusConnectionPrivate *s);
 };
 
 class QDBusReplyWaiter: public QEventLoop
