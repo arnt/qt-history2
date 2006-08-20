@@ -17,6 +17,7 @@
 #include <QtGui/QWidget>
 
 #include "private/qt_x11_p.h"
+#include "qx11info_x11.h"
 #include "qwindowsurface_x11_p.h"
 
 struct QX11WindowSurfacePrivate
@@ -82,7 +83,7 @@ void QX11WindowSurface::setGeometry(const QRect &rect)
     const QSize size = rect.size();
     if (d_ptr->device.size() == size)
         return;
-    QPixmap::x11SetDefaultScreen(d_ptr->widget->x11Screen());
+    QPixmap::x11SetDefaultScreen(d_ptr->widget->x11Info().screen());
     d_ptr->device = QPixmap(size);
 }
 
