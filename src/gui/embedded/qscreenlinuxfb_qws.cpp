@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/kd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
@@ -48,11 +49,67 @@ extern int qws_client_id;
 class QLinuxFbScreenPrivate
 {
 public:
+    QLinuxFbScreenPrivate();
+
+    void openTty();
+    void writeTty(const char *msg, int length);
+    void closeTty();
+
     int fd;
     int startupw;
     int startuph;
     int startupd;
+
+    bool doGraphicsMode;
+    int ttyfd;
+    long oldKdMode;
 };
+
+QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
+    : fd(-1), doGraphicsMode(true), ttyfd(-1), oldKdMode(KD_TEXT)
+{
+}
+
+void QLinuxFbScreenPrivate::openTty()
+{
+    const char *const devs[] = {"/dev/console", "/dev/tty", "/dev/tty0", 0};
+
+    for (const char * const *dev = devs; *dev; ++dev) {
+        ttyfd = ::open(*dev, O_RDWR);
+        if (ttyfd != -1)
+            break;
+        ++dev;
+    }
+
+    if (ttyfd == -1)
+        return;
+
+    if (doGraphicsMode) {
+        ioctl(ttyfd, KDGETMODE, &oldKdMode);
+        if (oldKdMode != KD_GRAPHICS)
+            ioctl(ttyfd, KDSETMODE, KD_GRAPHICS);
+    } else {
+        // No blankin' screen, no blinkin' cursor!, no cursor!
+        const char termctl[] = "\033[9;0]\033[?33l\033[?25l\033[?1c";
+        ::write(ttyfd, termctl, sizeof(termctl));
+    }
+}
+
+void QLinuxFbScreenPrivate::closeTty()
+{
+    if (ttyfd == -1)
+        return;
+
+    if (doGraphicsMode) {
+        ioctl(ttyfd, KDSETMODE, oldKdMode);
+    } else {
+        // Blankin' screen, blinkin' cursor!
+        const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
+        ::write(ttyfd, termctl, sizeof(termctl));
+    }
+
+    ::close(ttyfd);
+}
 
 /*!
     \class QLinuxFbScreen
@@ -134,6 +191,10 @@ QLinuxFbScreen::~QLinuxFbScreen()
 
 bool QLinuxFbScreen::connect(const QString &displaySpec)
 {
+    const QStringList args = displaySpec.split(":");
+    if (args.contains("nographicsmodeswitch"))
+        d_ptr->doGraphicsMode = false;
+
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
     int m = displaySpec.indexOf(QLatin1String("/dev/fb"));
@@ -319,20 +380,6 @@ void QLinuxFbScreen::disconnect()
 
 // #define DEBUG_VINFO
 
-static void writeTerm(const char* termctl, int sizeof_termctl)
-{
-    static const char *const tt[]={"/dev/console","/dev/tty","/dev/tty0",0};
-    const char*const* dev=tt;
-    while (*dev) {
-        int tty=::open(*dev,O_WRONLY);
-        if (tty>=0) {
-            ::write(tty,termctl,sizeof_termctl);
-            ::close(tty);
-        }
-        dev++;
-    }
-}
-
 void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_fix_screeninfo &finfo)
 {
     if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
@@ -474,9 +521,7 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 
 bool QLinuxFbScreen::initDevice()
 {
-    // No blankin' screen, no blinkin' cursor!, no cursor!
-    static const char termctl[]="\033[9;0]\033[?33l\033[?25l\033[?1c";
-    writeTerm(termctl,sizeof(termctl));
+    d_ptr->openTty();
 
     // Grab current mode so we can reset it
     fb_var_screeninfo vinfo;
@@ -866,10 +911,7 @@ void QLinuxFbScreen::shutdownDevice()
         startcmap = 0;
     }
 */
-
-    // Blankin' screen, blinkin' cursor!
-    static const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
-    writeTerm(termctl,sizeof(termctl));
+    d_ptr->closeTty();
 }
 
 /*!
