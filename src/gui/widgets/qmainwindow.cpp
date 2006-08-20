@@ -888,7 +888,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     return restored;
 }
 
-#ifndef QT_NO_DOCKWIDGET
+#if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_CURSOR)
 QCursor QMainWindowPrivate::separatorCursor(const QList<int> &path) const
 {
     QDockAreaLayoutInfo *info = layout->dockWidgetLayout.info(path);
