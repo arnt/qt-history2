@@ -507,7 +507,7 @@ static QBrush parseBrushValue(Value v)
     int gradType = -1;
 
     if (lst.at(0).compare(QLatin1String("gradient"), Qt::CaseInsensitive) != 0
-        && (gradType = gradFuncs.indexOf(lst.at(0))) == -1)
+        && (gradType = gradFuncs.indexOf(lst.at(0).toLower())) == -1)
         return QBrush();
 
     QStringList gradientTypes;
