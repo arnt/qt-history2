@@ -46,13 +46,14 @@ void tst_Headers::initTestCase()
     QString qtSrcDir = QString::fromLocal8Bit(qgetenv("QTSRCDIR").isEmpty()
             ? qgetenv("QTDIR") : qgetenv("QTSRCDIR"));
     headers = getHeaders(qtSrcDir + "/src");
-    if (headers.isEmpty())
-        QSKIP("can't find any headers in your $QTDIR/src", SkipAll);
 }
 
 void tst_Headers::allHeadersData()
 {
     QTest::addColumn<QString>("header");
+
+    if (headers.isEmpty())
+        QSKIP("can't find any headers in your $QTDIR/src", SkipAll);
 
     foreach (QString hdr, headers) {
         if (hdr.contains("/3rdparty/") || hdr.endsWith("/qclass_lib_map.h"))
