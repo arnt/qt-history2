@@ -15,10 +15,9 @@
 #define QDBUSINTERFACE_H
 
 #include <QtDBus/qdbusabstractinterface.h>
+#include <QtDBus/qdbusconnection.h>
 
 QT_BEGIN_HEADER
-
-namespace QDBus { QDBUS_EXPORT QDBusConnection sessionBus(); }
 
 class QDBusInterfacePrivate;
 class QDBUS_EXPORT QDBusInterface: public QDBusAbstractInterface
