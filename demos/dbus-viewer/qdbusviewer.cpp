@@ -199,8 +199,8 @@ void QDBusViewer::callMethod(const BusSignature &sig)
         }
     }
 
-    QDBusMessage message = QDBusMessage::methodCall(sig.mService, sig.mPath, sig.mInterface,
-            sig.mName, c);
+    QDBusMessage message = QDBusMessage::createMethodCall(sig.mService, sig.mPath, sig.mInterface,
+            sig.mName);
     message.setArguments(arguments);
     c.call(message, this, SLOT(dumpMessage(QDBusMessage)));
 }

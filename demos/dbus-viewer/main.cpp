@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     bool showSystemBus = app.arguments().contains(QLatin1String("--system"));
 
-    QDBusViewer viewer(showSystemBus ? QDBus::systemBus() : QDBus::sessionBus());
+    QDBusViewer viewer(showSystemBus ? QDBusConnection::systemBus() : QDBusConnection::sessionBus());
     viewer.show();
 
     return app.exec();
