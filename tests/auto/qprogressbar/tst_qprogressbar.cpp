@@ -23,6 +23,8 @@ private slots:
     void getSetCheck();
     void minMaxSameValue();
     void destroyIndeterminate();
+    void text();
+    void format();
 };
 
 // Testing get/set functions
@@ -88,6 +90,39 @@ void tst_QProgressBar::destroyIndeterminate()
 
     QVERIFY(!bar);
 }
+
+void tst_QProgressBar::text()
+{
+    QProgressBar bar;
+    bar.setRange(10, 10);
+    bar.setValue(10);
+    QCOMPARE(bar.text(), QString("100%"));
+    bar.setRange(0, 10);
+    QCOMPARE(bar.text(), QString("100%"));
+    bar.setValue(5);
+    QCOMPARE(bar.text(), QString("50%"));
+    bar.setRange(0, 5);
+    bar.setValue(0);
+    bar.setRange(5, 5);
+    QCOMPARE(bar.text(), QString());
+}
+
+void tst_QProgressBar::format()
+{
+    QProgressBar bar;
+    bar.setRange(0, 10);
+    bar.setValue(1);
+    bar.setFormat("%v of %m (%p%)");
+    QCOMPARE(bar.text(), QString("1 of 10 (10%)"));
+    bar.setRange(5, 5);
+    bar.setValue(5);
+    QCOMPARE(bar.text(), QString("5 of 0 (100%)"));
+    bar.setRange(0, 5);
+    bar.setValue(0);
+    bar.setRange(5, 5);
+    QCOMPARE(bar.text(), QString());
+}
+
 
 QTEST_MAIN(tst_QProgressBar)
 #include "tst_qprogressbar.moc"
