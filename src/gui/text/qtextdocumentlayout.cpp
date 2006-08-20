@@ -286,6 +286,19 @@ static bool operator<(const QCheckPoint &checkPoint, int pos)
     return checkPoint.positionInFrame < pos;
 }
 
+static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, QRectF gradientRect = QRectF())
+{
+    if (brush.style() >= Qt::LinearGradientPattern && brush.style() <= Qt::ConicalGradientPattern) {
+        if (gradientRect.isNull())
+            gradientRect = rect;
+        QMatrix m;
+        m.translate(gradientRect.left(), gradientRect.top());
+        m.scale(gradientRect.width(), gradientRect.height());
+        brush.setMatrix(m);
+    }
+    p->fillRect(rect, brush);
+}
+
 class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout)
@@ -646,10 +659,13 @@ static void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrame
         const qreal margin = fd->margin + fd->border;
         bgRect.adjust(margin, margin, -margin, -margin);
 
-        if (!frame->parentFrame())
+        QRectF gradientRect; // invalid makes it default to bgRect
+        if (!frame->parentFrame()) {
             bgRect = clip;
-
-        painter->fillRect(bgRect, bg);
+            gradientRect.setWidth(painter->device()->width());
+            gradientRect.setHeight(painter->device()->height());
+        }
+        fillBackground(painter, bgRect, bg, gradientRect);
     }
 }
 
@@ -898,7 +914,7 @@ void QTextDocumentLayoutPrivate::drawTableCell(const QRectF &cellRect, QPainter 
     {
         const QBrush bg = cell.format().background();
         if (bg != Qt::NoBrush)
-            painter->fillRect(cellRect, bg);
+            fillBackground(painter, cellRect, bg);
     }
 
     const QPointF cellPos = QPointF(cellRect.left() + td->cellPadding, cellRect.top() + td->cellPadding);
@@ -985,7 +1001,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
         // don't paint into the left margin. Right margin is already excluded by the line breaking
         QRectF contentsRect = r;
         contentsRect.setLeft(contentsRect.left() + bl.blockFormat().leftMargin());
-        painter->fillRect(contentsRect, bg);
+        fillBackground(painter, contentsRect, bg);
     }
 
     QVector<QTextLayout::FormatRange> selections;
