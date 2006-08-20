@@ -77,7 +77,7 @@ void tst_QPrinter::getSetCheck()
     obj1.setCollateCopies(false);
     QCOMPARE(false, obj1.collateCopies());
     obj1.setCollateCopies(true);
-#if !defined(Q_OS_UNIX) || defined(Q_WS_MAC)
+#if !defined(Q_OS_UNIX)
     QEXPECT_FAIL("", "Apparently only the Unix (ps) printer supports collate at the moment", Continue);
 #endif
     QCOMPARE(true, obj1.collateCopies());
@@ -87,7 +87,7 @@ void tst_QPrinter::getSetCheck()
     obj1.setFontEmbeddingEnabled(false);
     QCOMPARE(false, obj1.fontEmbeddingEnabled());
     obj1.setFontEmbeddingEnabled(true);
-#if !defined(Q_OS_UNIX) || defined(Q_WS_MAC)
+#if !defined(Q_OS_UNIX)
     QEXPECT_FAIL("", "Apparently only the Unix (ps) printer supports font embedding at the moment", Continue);
 #endif
     QCOMPARE(true, obj1.fontEmbeddingEnabled());
