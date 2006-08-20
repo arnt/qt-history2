@@ -82,14 +82,14 @@ inline void QDBusMarshaller::append(const QString &arg)
 
 inline void QDBusMarshaller::append(const QDBusObjectPath &arg)
 {
-    QByteArray data = arg.value.toUtf8();
+    QByteArray data = arg.path().toUtf8();
     const char *cdata = data.constData();
     qIterAppend(&iterator, ba, DBUS_TYPE_OBJECT_PATH, &cdata);
 }
 
 inline void QDBusMarshaller::append(const QDBusSignature &arg)
 {
-    QByteArray data = arg.value.toUtf8();
+    QByteArray data = arg.signature().toUtf8();
     const char *cdata = data.constData();
     qIterAppend(&iterator, ba, DBUS_TYPE_SIGNATURE, &cdata);
 }
@@ -116,7 +116,7 @@ inline bool QDBusMarshaller::append(const QDBusVariant &arg)
         return true;
     }
 
-    const QVariant &value = arg.value;
+    const QVariant &value = arg.variant();
     QVariant::Type id = QVariant::Type(value.userType());
     if (id == QVariant::Invalid) {
         qWarning("QDBusMarshaller: cannot add a null QDBusVariant");
@@ -467,7 +467,7 @@ bool QDBusMarshaller::appendCrossMarshalling(QDBusDemarshaller *demarshaller)
             return false;
         }
     }
-    
+
     delete drecursed;
     return true;
 }

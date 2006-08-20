@@ -25,7 +25,7 @@ inline const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
 {
     QDBusVariant dbv;
     a >> dbv;
-    v = dbv.value;
+    v = dbv.variant();
     return a;
 }
 

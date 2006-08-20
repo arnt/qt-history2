@@ -22,57 +22,74 @@
 
 QT_BEGIN_HEADER
 
-struct QDBUS_EXPORT QDBusObjectPath
+class QDBUS_EXPORT QDBusObjectPath : private QString
 {
+public:
     inline QDBusObjectPath() { }
 
     inline explicit QDBusObjectPath(const char *path)
-        : value(QString::fromLatin1(path))
+        : QString(QString::fromLatin1(path))
     { check(); }
 
     inline explicit QDBusObjectPath(const QLatin1String &path)
-        : value(path)
+        : QString(path)
     { check(); }
 
     inline explicit QDBusObjectPath(const QString &path)
-        : value(path)
+        : QString(path)
     { check(); }
 
-    QString value;
+    inline void setPath(const QString &path)
+    { QString::operator=(path); }
+
+    inline QString path() const
+    { return *this; }
 
 private:
     void check();
 };
 Q_DECLARE_METATYPE(QDBusObjectPath)
 
-struct QDBUS_EXPORT QDBusSignature
+class QDBUS_EXPORT QDBusSignature : private QString
 {
+public:
     inline QDBusSignature() { }
 
     inline explicit QDBusSignature(const char *signature)
-        : value(QString::fromLatin1(signature))
+        : QString(QString::fromAscii(signature))
     { check(); }
 
     inline explicit QDBusSignature(const QLatin1String &signature)
-        : value(signature)
+        : QString(signature)
     { check(); }
 
     inline explicit QDBusSignature(const QString &signature)
-        : value(signature)
+        : QString(signature)
     { check(); }
 
-    QString value;
+    inline void setSignature(const QString &signature)
+    { QString::operator=(signature); }
+
+    inline QString signature() const
+    { return *this; }
 
 private:
     void check();
 };
 Q_DECLARE_METATYPE(QDBusSignature)
 
-struct QDBusVariant
+class QDBusVariant : private QVariant
 {
+public:
     inline QDBusVariant() { }
-    inline explicit QDBusVariant(const QVariant &variant) : value(variant) { }
-    QVariant value;
+    inline explicit QDBusVariant(const QVariant &variant)
+        : QVariant(variant) { }
+
+    inline void setVariant(const QVariant &variant)
+    { QVariant::operator=(variant); }
+
+    inline QVariant variant() const
+    { return *this; }
 };
 Q_DECLARE_METATYPE(QDBusVariant)
 

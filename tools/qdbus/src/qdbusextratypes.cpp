@@ -16,12 +16,12 @@
 
 void QDBusObjectPath::check()
 {
-    if (!QDBusUtil::isValidObjectPath(value))
-        value.clear();
+    if (!QDBusUtil::isValidObjectPath(*this))
+        clear();
 }
 
 void QDBusSignature::check()
 {
-    if (!QDBusUtil::isValidSignature(value))
-        value.clear();
+    if (!QDBusUtil::isValidSignature(*this))
+        clear();
 }

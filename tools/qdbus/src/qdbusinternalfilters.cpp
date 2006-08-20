@@ -192,7 +192,7 @@ QDBusMessage qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node
     Q_ASSERT(msg.arguments().count() == 3);
     QString interface_name = msg.arguments().at(0).toString();
     QByteArray property_name = msg.arguments().at(1).toString().toUtf8();
-    QVariant value = qvariant_cast<QDBusVariant>(msg.arguments().at(2)).value;
+    QVariant value = qvariant_cast<QDBusVariant>(msg.arguments().at(2)).variant();
 
     QDBusAdaptorConnector *connector;
     if (node->flags & QDBusConnection::ExportAdaptors &&

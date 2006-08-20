@@ -72,13 +72,13 @@ QVariant QDBusAbstractInterfacePrivate::property(const QMetaProperty &mp) const
 
     if (reply.type() == QDBusMessage::ReplyMessage && reply.arguments().count() == 1 &&
         reply.signature() == QLatin1String("v")) {
-        QVariant value = qvariant_cast<QDBusVariant>(reply.arguments().at(0)).value;
+        QVariant value = qvariant_cast<QDBusVariant>(reply.arguments().at(0)).variant();
 
         // make sure the type is right
         if (qstrcmp(mp.typeName(), value.typeName()) == 0) {
             if (mp.type() == QVariant::LastType)
                 // QVariant is special in this context
-                return qvariant_cast<QDBusVariant>(reply.arguments().at(0)).value;
+                return qvariant_cast<QDBusVariant>(reply.arguments().at(0)).variant();
 
             return value;
         }

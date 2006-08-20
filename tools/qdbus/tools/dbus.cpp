@@ -252,7 +252,7 @@ static void placeCall(const QString &service, const QString &path, const QString
                 printf("%s\n", qPrintable(s));
         } else {
             if (v.userType() == qMetaTypeId<QDBusVariant>())
-                v = qvariant_cast<QDBusVariant>(v).value;
+                v = qvariant_cast<QDBusVariant>(v).variant();
             printf("%s\n", qPrintable(v.toString()));
         }
     }

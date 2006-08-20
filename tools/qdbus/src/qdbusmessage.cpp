@@ -589,11 +589,11 @@ static void debugVariant(QDebug dbg, const QVariant &v)
     default: {
         int id = v.userType();
         if (id == qMetaTypeId<QDBusVariant>())
-            debugVariant(dbg, qvariant_cast<QDBusVariant>(v).value);
+            debugVariant(dbg, qvariant_cast<QDBusVariant>(v).variant());
         else if (id == qMetaTypeId<QDBusObjectPath>())
-            dbg.nospace() << qvariant_cast<QDBusObjectPath>(v).value;
+            dbg.nospace() << qvariant_cast<QDBusObjectPath>(v).path();
         else if (id == qMetaTypeId<QDBusSignature>())
-            dbg.nospace() << qvariant_cast<QDBusSignature>(v).value;
+            dbg.nospace() << qvariant_cast<QDBusSignature>(v).signature();
         else
             dbg.nospace() << "unknown";
     }
