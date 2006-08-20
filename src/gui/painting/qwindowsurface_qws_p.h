@@ -72,15 +72,15 @@ public:
     void setClipRegion(const QRegion &);
 
     enum SurfaceFlag {
-        Reserved = 0x0,
-        Buffered = 0x1,
-        Opaque = 0x2
+        Reserved = 0x1,
+        Buffered = 0x2,
+        Opaque = 0x4
     };
     Q_DECLARE_FLAGS(SurfaceFlags, SurfaceFlag)
 
     SurfaceFlags surfaceFlags() const;
 
-    inline bool isReserved() const { return surfaceFlags() == Reserved; }
+    inline bool isReserved() const { return surfaceFlags() & Reserved; }
     inline bool isBuffered() const { return surfaceFlags() & Buffered; }
     inline bool isOpaque() const { return !isBuffered() || surfaceFlags() & Opaque; }
 
