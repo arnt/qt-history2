@@ -654,7 +654,7 @@ void QFileDialog::setAcceptMode(AcceptMode mode)
     Q_D(QFileDialog);
     d->acceptMode = mode;
     d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
-    d->buttonBox->setStandardButtons((mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save) | 
+    d->buttonBox->setStandardButtons((mode == AcceptOpen ? QDialogButtonBox::Open : QDialogButtonBox::Save) |
                                      QDialogButtonBox::Cancel);
 }
 
@@ -895,12 +895,14 @@ void QFileDialog::accept()
         if (!info.exists())
             info = QFileInfo(d->getEnvironmentVariable(fn));
         if (!info.exists()) {
+#ifndef QT_NO_MESSAGEBOX
             QString message = tr("\nFile not found.\nPlease verify the "
                                  "correct file name was given");
-            
-            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ? 
+
+            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
                                                        QDialogButtonBox::Open : QDialogButtonBox::Save);
             QMessageBox::warning(this, button->text(), info.fileName() + message);
+#endif // QT_NO_MESSAGEBOX
             return;
         }
         if (info.isDir()) {
@@ -918,16 +920,20 @@ void QFileDialog::accept()
             return;
         }
         // check if we have to ask for permission to overwrite the file
-        QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ? 
-                                                    QDialogButtonBox::Open : QDialogButtonBox::Save);
-        if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen)
+        if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen) {
             QDialog::accept();
-        else if (QMessageBox::warning(this, button->text(),
-                                      tr("%1 already exists.\nDo you want to replace it?")
-                                      .arg(info.fileName()),
-                                      QMessageBox::Yes | QMessageBox::No)
-                 == QMessageBox::Yes)
-            QDialog::accept();
+#ifndef QT_NO_MESSAGEBOX
+        } else {
+            QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
+                                                       QDialogButtonBox::Open : QDialogButtonBox::Save);
+            if (QMessageBox::warning(this, button->text(),
+                                     tr("%1 already exists.\nDo you want to replace it?")
+                                     .arg(info.fileName()),
+                                     QMessageBox::Yes | QMessageBox::No)
+                == QMessageBox::Yes)
+                QDialog::accept();
+#endif
+        }
         return;
     }
     case ExistingFile:
@@ -937,12 +943,14 @@ void QFileDialog::accept()
             if (!info.exists())
                 info = QFileInfo(d->getEnvironmentVariable(files.at(i)));
             if (!info.exists()) {
+#ifndef QT_NO_MESSAGEBOX
                 QString message = tr("%1\nFile not found.\nPlease verify the "
                                      "correct file name was given.");
                 QPushButton *button = d->buttonBox->button(acceptMode() == AcceptOpen ?
                                                             QDialogButtonBox::Open : QDialogButtonBox::Save);
 
                 QMessageBox::warning(this, button->text(), message.arg(info.fileName()));
+#endif // QT_NO_MESSAGEBOX
                 return;
             }
             if (info.isDir()) {
@@ -1072,17 +1080,21 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
 
 void QFileDialogPrivate::_q_enterDirectory(const QString &path)
 {
+#ifndef QT_NO_MESSAGEBOX
     Q_Q(QFileDialog);
+#endif
     QPersistentModelIndex index = model->index(path);
     if (!index.isValid())
         index = model->index(getEnvironmentVariable(path));
 
     if (index.isValid() || path.isEmpty() || path == QFileDialog::tr("My Computer")) {
         _q_enterDirectory(index);
+#ifndef QT_NO_MESSAGEBOX
     } else {
         QString message = QFileDialog::tr("%1\nDirectory not found.\nPlease verify the "
                                           "correct directory name was given.");
         QMessageBox::warning(q, q->windowTitle(), message.arg(path));
+#endif // QT_NO_MESSAGEBOX
     }
 }
 
@@ -1456,6 +1468,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
         return;
 
     QString fileName = model->fileName(index);
+#ifndef QT_NO_MESSAGEBOX
     if (!model->fileInfo(index).isWritable()
         && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
                                 QFileDialog::tr("'%1' is write protected.\nDo you want to delete it anyway?")
@@ -1467,11 +1480,14 @@ void QFileDialogPrivate::_q_deleteCurrent()
                                   .arg(fileName),
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return;
+#endif // QT_NO_MESSAGEBOX
 
     if (model->isDir(index)) {
         if (!model->rmdir(index)) {
+#ifndef QT_NO_MESSAGEBOX
             QMessageBox::warning(q, q->windowTitle(),
                                 QFileDialog::tr("Could not delete directory."));
+#endif
         }
     } else {
         model->remove(index);
@@ -1825,13 +1841,13 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     grid->addWidget(fileTypeLabel, 3, 0);
 
     // push buttons
-    
+
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel, Qt::Vertical, q);
-    
+
     grid->addWidget(buttonBox, 2, 5, 2, 1, Qt::AlignLeft);
     QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
     QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
- 
+
 
     // "lookin" combobox
     lookInCombo = new QComboBox(q);

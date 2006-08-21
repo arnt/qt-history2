@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/qmessagebox.h>
+
 #ifndef QT_NO_MESSAGEBOX
 
 #include <QtGui/qdialogbuttonbox.h>
@@ -23,7 +25,6 @@
 #include <QtGui/qaccessible.h>
 #include <QtGui/qicon.h>
 #include <QtGui/qtextdocument.h>
-#include <QtGui/qmessagebox.h>
 #include <QtGui/qapplication.h>
 #include <QtGui/qtextedit.h>
 #include <QtGui/qmenu.h>
@@ -666,7 +667,7 @@ void QMessageBoxPrivate::detectEscapeButton()
         detectedEscapeButton = buttons.first();
         return;
     }
-    
+
 #ifdef Q_WS_MAC
     // On the Mac, if the message box has one RejectRole button, make it the escape button
     for (int i = 0; i < buttons.count(); i++) {
