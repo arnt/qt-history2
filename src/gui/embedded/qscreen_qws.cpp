@@ -371,7 +371,7 @@ public:
 */
 
 /*!
-    \fn virtual QList<QScreen*> subScreens() const
+    \fn virtual QList<QScreen*> QScreen::subScreens() const
 
     Returns a list of this screen's subscreens. Use this function to
     retrieve access to a particular subscreen. Use the
