@@ -4138,7 +4138,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             ret = qt_qrectForHIRect(outrect);
             if (combo->editable) {
                 if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_4)
-                    ret.adjust(-4, 4, 10, -1);
+                    ret.adjust(-4, 3, 10, -1);
                 else
                     ret.adjust(-6, 2, 10, -1);
             } else {
