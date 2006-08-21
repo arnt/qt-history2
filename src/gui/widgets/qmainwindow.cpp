@@ -46,7 +46,7 @@ public:
     QList<int> hoverSeparator;
     QPoint hoverPos;
 
-#ifndef QT_NO_DOCKWIDGET
+#if !defined(QT_NO_DOCKWIDGET) && !defined(QT_NO_CURSOR)
     QCursor separatorCursor(const QList<int> &path) const;
     void adjustCursor(const QPoint &pos);
 #endif
@@ -949,6 +949,7 @@ bool QMainWindow::event(QEvent *event)
             break;
         }
 
+#ifndef QT_NO_CURSOR
         case QEvent::HoverMove:  {
             d->adjustCursor(static_cast<QHoverEvent*>(event)->pos());
             break;
@@ -957,6 +958,7 @@ bool QMainWindow::event(QEvent *event)
         case QEvent::HoverLeave:
             d->adjustCursor(QPoint(0, 0));
             break;
+#endif // QT_NO_CURSOR
 
         case QEvent::MouseButtonPress: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
@@ -971,8 +973,9 @@ bool QMainWindow::event(QEvent *event)
         case QEvent::MouseMove: {
             QMouseEvent *e = static_cast<QMouseEvent*>(event);
 
+#ifndef QT_NO_CURSOR
             d->adjustCursor(e->pos());
-
+#endif
             if (e->buttons() & Qt::LeftButton) {
                 if (d->layout->separatorMove(e->pos())) {
                     // We're moving a separator, eat this event

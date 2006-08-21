@@ -209,7 +209,7 @@ public:
 
     bool hasPalette() const { return pal != 0; }
     bool hasBackground() const { return bg != 0; }
-    bool hasGradientBackground() const { return bg && bg->brush.style() >= Qt::LinearGradientPattern 
+    bool hasGradientBackground() const { return bg && bg->brush.style() >= Qt::LinearGradientPattern
                                                    && bg->brush.style() <= Qt::ConicalGradientPattern; }
     bool hasBox() const { return b != 0; }
     bool hasBorder() const { return bd != 0; }
@@ -996,7 +996,7 @@ void QRenderRule::drawBackground(QPainter *p, const QRect& rect, Qt::LayoutDirec
     if (background()->brush.style() != Qt::NoBrush) {
         QRect fillRect = borderRect(rect);
         QBrush brush = background()->brush;
-        if (brush.style() >= Qt::LinearGradientPattern 
+        if (brush.style() >= Qt::LinearGradientPattern
             && brush.style() <= Qt::ConicalGradientPattern) {
             QMatrix m;
             m.translate(fillRect.left(), fillRect.top());
@@ -1411,9 +1411,9 @@ static QWidget *embeddedWidget(QWidget *w)
 {
 #ifndef QT_NO_COMBOBOX
     if (QComboBox *cmb = qobject_cast<QComboBox *>(w))
-        if (cmb->isEditable()) 
-            return cmb->lineEdit(); 
-        else 
+        if (cmb->isEditable())
+            return cmb->lineEdit();
+        else
             return cmb;
 #endif
 
@@ -1648,7 +1648,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
             // down button
             QRenderRule subRule1 = renderRule(w, opt, PseudoElement_SpinBoxDownButton);
-            QRect r = positionRect(rule, subRule1, PseudoElement_SpinBoxDownButton, 
+            QRect r = positionRect(rule, subRule1, PseudoElement_SpinBoxDownButton,
                                    opt->rect, opt->direction);
             subRule1.drawRule(p, r, opt->direction);
 
@@ -1656,7 +1656,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             QRenderRule subRule2 = renderRule(w, opt, PseudoElement_SpinBoxDownArrow);
             r = positionRect(subRule1, subRule2, PseudoElement_SpinBoxDownArrow, r, opt->direction);
             subRule2.drawRule(p, r, opt->direction);
-            
+
             // up button border
             QRenderRule subRule3 = renderRule(w, opt, PseudoElement_SpinBoxUpButton);
             r = positionRect(rule, subRule3, PseudoElement_SpinBoxUpButton, opt->rect, opt->direction);
@@ -1668,7 +1668,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             subRule4.drawRule(p, r, opt->direction);
 
             return;
-        } 
+        }
         break;
 
     case CC_GroupBox:
@@ -1785,11 +1785,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         if (rule.hasBorder()) {
             rule.drawBorder(p, rule.borderRect(opt->rect), opt->direction);
         } else {
+#ifndef QT_NO_TOOLBAR
             if (const QStyleOptionToolBar *tb = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
                 QStyleOptionToolBar newTb(*tb);
                 newTb.rect = rule.borderRect(opt->rect);
                 baseStyle()->drawControl(ce, &newTb, p, w);
             }
+#endif // QT_NO_TOOLBAR
         }
         return;
 
@@ -2338,7 +2340,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
         if (rule.hasBorder() || rule.hasBox() || hasStyleRule(w, PseudoElement_SpinBoxUpButton)
             || hasStyleRule(w, PseudoElement_SpinBoxDownButton)) {
             switch (sc) {
-            case SC_SpinBoxUp: 
+            case SC_SpinBoxUp:
             case SC_SpinBoxDown: {
                 int pe = (sc == SC_SpinBoxUp ? PseudoElement_SpinBoxUpButton : PseudoElement_SpinBoxDownButton);
                 QRenderRule subRule = renderRule(w, opt, pe);
