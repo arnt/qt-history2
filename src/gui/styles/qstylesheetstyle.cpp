@@ -34,11 +34,7 @@
 
 using namespace QCss;
 
-class QRenderRule;
-typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
-
 static QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
-static QHash<const QWidget *, QRenderRules> renderRulesCache;
 
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
 
@@ -245,6 +241,9 @@ public:
     QSharedDataPointer<QStyleSheetGeometryData> geo;
     QSharedDataPointer<QStyleSheetPositionData> p;
 };
+
+typedef QHash<QString, QHash<int, QRenderRule> > QRenderRules;
+static QHash<const QWidget *, QRenderRules> renderRulesCache;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 static const char *knownStyleHints[] = {
