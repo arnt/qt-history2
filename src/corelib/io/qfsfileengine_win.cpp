@@ -1030,6 +1030,13 @@ bool QFSFileEnginePrivate::doStat() const
         if (file.isEmpty())
             return could_stat;
         QString fname = file.endsWith(".lnk") ? readLink(file) : file;
+        if (q_ptr->isRelativePath()) {
+            QString currentPath = QDir::currentPath() + QLatin1Char('/');
+            if (currentPath.startsWith("//")) {
+                // UNC
+                fname.prepend(currentPath);
+            }
+        }
 
         UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
@@ -1459,7 +1466,7 @@ QString QFSFileEngine::fileName(FileName file) const
                 && d->file.at(2) != QLatin1Char('/') || // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
                 d->file.startsWith(QLatin1Char('/'))    // It's a absolute path to the current drive, so \a.txt -> Z:\a.txt
                 ) {
-                ret = QDir::toNativeSeparators(nativeAbsoluteFilePath(d->file));
+                ret = QDir::fromNativeSeparators(nativeAbsoluteFilePath(d->file));
             } else {
                 ret = d->file;
             }
