@@ -2961,8 +2961,6 @@ void tst_QLineEdit::charWithAltOrCtrlModifier()
     QCOMPARE(testWidget->text(), QString("+"));
     QTest::keyPress(testWidget, Qt::Key_Plus, Qt::ControlModifier);
     QCOMPARE(testWidget->text(), QString("+"));
-    QTest::keyPress(testWidget, Qt::Key_Plus, Qt::AltModifier);
-    QCOMPARE(testWidget->text(), QString("+"));
 }
 
 QTEST_MAIN(tst_QLineEdit)
