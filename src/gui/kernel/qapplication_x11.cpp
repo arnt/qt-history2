@@ -3613,17 +3613,20 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     } else {
         QWidget *widget = this;
         QWidget *w = QWidget::mouseGrabber();
+
+        if (((type == QEvent::MouseMove && buttons)
+             || (type == QEvent::MouseButtonRelease))
+            && !qt_button_down && !w)
+            return false; // don't send event
+
+
         if (!w)
             w = qt_button_down;
+
         if (w && w != this) {
             widget = w;
             pos = w->mapFromGlobal(globalPos);
         }
-
-        if (((type == QEvent::MouseMove && buttons)
-             || (type == QEvent::MouseButtonRelease))
-            && qt_button_down != widget)
-            return false; // don't send event
 
 
         if (type == QEvent::MouseButtonRelease && !buttons) {
