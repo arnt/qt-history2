@@ -493,6 +493,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
                           available space on the current page
     \value PageBreak_AlwaysBefore The page is always broken before the paragraph/table
     \value PageBreak_AlwaysAfter  A new page is always started after the paragraph/table
+*/
 
 /*!
     \fn bool QTextFormat::isValid() const
