@@ -1537,11 +1537,6 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *keyWidget, const XEvent *even
         }
     }
 
-    if (text.length() == 1 && text.unicode()->unicode() == '\n') {
-        code = Qt::Key_Return;
-        text = QLatin1Char('\r');
-    }
-
     return QKeyMapper::sendKeyEvent(keyWidget, grab, type, code, modifiers, text, autor,
                                     qMax(qMax(count,1), int(text.length())),
                                     event->xkey.keycode, keysym, event->xkey.state);
