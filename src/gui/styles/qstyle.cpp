@@ -766,7 +766,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \o Set if the menu item is down.
          (i.e., if the mouse button or the space bar is pressed).
     \row \o \l State_HasFocus \o Set if the menubar has input focus.
-    \row \o{1,5} \l CE_PushButton, \l CE_PushButtonLabel
+    \row \o{1,5} \l CE_PushButton, \l CE_PushButtonBevel, \l CE_PushButtonLabel
          \o{1,5} \l QStyleOptionButton
          \o \l State_Enabled \o Set if the button is enabled.
     \row \o \l State_HasFocus \o Set if the button has input focus.
@@ -792,7 +792,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \o{1,2} \l QStyleOptionProgressBar
          \o \l State_Enabled \o Set if the progressbar is enabled.
     \row \o \l State_HasFocus \o Set if the progressbar has input focus.
-    \row \o \l CE_Header, \l CE_HeaderSection, \c CE_HeaderLabel \o \l QStyleOptionHeader \o \o
+    \row \o \l CE_Header, \l CE_HeaderSection, \l CE_HeaderLabel \o \l QStyleOptionHeader \o \o
     \row \o{1,7} \l CE_ToolButtonLabel
          \o{1,7} \l QStyleOptionToolButton
          \o \l State_Enabled \o Set if the tool button is enabled.
