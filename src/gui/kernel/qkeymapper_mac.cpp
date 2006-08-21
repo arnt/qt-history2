@@ -383,6 +383,8 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         // The easy stuff; use the unicode stuff!
         UniChar string[4];
         UniCharCount actualLength;
+        UInt32 currentModifiers = GetCurrentEventKeyModifiers();
+        UInt32 currentModifiersWOAltOrControl = currentModifiers & ~(controlKey | optionKey);
         int keyAction;
         switch (ekind) {
         default:
@@ -397,11 +399,21 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
             break;
         }
         OSStatus err = UCKeyTranslate(uchrData, keyCode, keyAction,
-                                  ((GetCurrentEventKeyModifiers() >> 8) & 0xff), LMGetKbdType(),
+                                  ((currentModifiersWOAltOrControl >> 8) & 0xff), LMGetKbdType(),
                                   kUCKeyTranslateNoDeadKeysMask, &tmp_unused_state, 4, &actualLength,
                                   string);
         if(err == noErr) {
             *outChar = QChar(string[0]);
+            *qtKey = qt_mac_get_key(*outModifiers, *outChar, keyCode);
+            if (currentModifiersWOAltOrControl != currentModifiers) {
+                // Now get the real char.
+                err = UCKeyTranslate(uchrData, keyCode, keyAction,
+                                     ((currentModifiers >> 8) & 0xff), LMGetKbdType(),
+                                      kUCKeyTranslateNoDeadKeysMask, &tmp_unused_state, 4, &actualLength,
+                                      string);
+                if(err == noErr)
+                    *outChar = QChar(string[0]);
+            }
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
                      err, __FILE__, __LINE__);
@@ -428,6 +440,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         }
 
         //map it into qt keys
+        *qtKey = qt_mac_get_key(*outModifiers, QChar(translatedChar), keyCode);
         if(*outModifiers & (Qt::AltModifier | Qt::ControlModifier)) {
             if(translatedChar & (1 << 7)) //high ascii
                 translatedChar = 0;
