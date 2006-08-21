@@ -1388,7 +1388,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
             }
         }
     }
-    
+
     if (tl.isValid() && br.isValid())
         selection.select(tl, br);
     d->selectionModel->select(selection, command);
@@ -2144,7 +2144,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 	    size.setWidth(right - pos.x());
 	}
     }
-    
+
     return QListViewItem(QRect(pos, size), index.row());
 }
 
@@ -2322,8 +2322,12 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
     const QVector<int> positions = (wrap ? segmentPositions : flowPositions);
     if (positions.isEmpty() || bounds <= length)
         return positions.count();
-    if (uniformItemSizes)
-        return length / positions.at(1);
+    if (uniformItemSizes) {
+        for (int i = 1; i < positions.count(); ++i)
+            if (positions.at(i) > 0)
+                return length / positions.at(i);
+        return 0; // all items had height 0
+    }
     int pageSteps = 0;
     int steps = positions.count() - 1;
     int max = qMax(length, bounds);
