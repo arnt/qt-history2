@@ -43,10 +43,10 @@ private:
     QHash<QString, QDBusConnectionPrivate *> connectionHash;
 
     mutable QMutex senderMutex;
-    QString senderName;
+    QString senderName; // internal; will probably change
 };
 
-Q_GLOBAL_STATIC(QDBusConnectionManager, manager)
+Q_GLOBAL_STATIC(QDBusConnectionManager, _q_manager)
 
 QDBusConnectionPrivate *QDBusConnectionManager::sender() const
 {
@@ -102,7 +102,7 @@ void QDBusConnectionManager::bindToApplication()
 QDBUS_EXPORT void qDBusBindToApplication();
 void qDBusBindToApplication()
 {
-    manager()->bindToApplication();
+    _q_manager()->bindToApplication();
 }
 
 void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionPrivate *c)
@@ -215,7 +215,7 @@ QDBusConnection::QDBusConnection(const QString &name)
     if (name.isEmpty()) {
         d = 0;
     } else {
-        d = manager()->connection(name);
+        d = _q_manager()->connection(name);
         if (d)
             d->ref.ref();
     }
@@ -278,7 +278,7 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
 //    Q_ASSERT_X(QCoreApplication::instance(), "QDBusConnection::addConnection",
 //               "Cannot create connection without a Q[Core]Application instance");
 
-    QDBusConnectionPrivate *d = manager()->connection(name);
+    QDBusConnectionPrivate *d = _q_manager()->connection(name);
     if (d || name.isEmpty())
         return QDBusConnection(name);
 
@@ -297,7 +297,7 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
     }
     d->setConnection(c); //setConnection does the error handling for us
 
-    manager()->setConnection(name, d);
+    _q_manager()->setConnection(name, d);
 
     QDBusConnection retval(name);
 
@@ -318,7 +318,7 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
 //    Q_ASSERT_X(QCoreApplication::instance(), "QDBusConnection::addConnection",
 //               "Cannot create connection without a Q[Core]Application instance");
 
-    QDBusConnectionPrivate *d = manager()->connection(name);
+    QDBusConnectionPrivate *d = _q_manager()->connection(name);
     if (d || name.isEmpty())
         return QDBusConnection(name);
 
@@ -326,7 +326,7 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
     // setConnection does the error handling for us
     d->setConnection(dbus_connection_open(address.toUtf8().constData(), &d->error));
 
-    manager()->setConnection(name, d);
+    _q_manager()->setConnection(name, d);
 
     QDBusConnection retval(name);
 
@@ -347,8 +347,8 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
 */
 void QDBusConnection::disconnectFromBus(const QString &name)
 {
-    if (manager())
-        manager()->removeConnection(name);
+    if (_q_manager())
+        _q_manager()->removeConnection(name);
 }
 
 /*!
@@ -834,12 +834,19 @@ QDBusConnection QDBusConnection::systemBus()
     return *_q_systemBus();
 }
 
+/*!
+  Returns the connection that sent the signal, if called in a slot activated
+  by QDBus; otherwise it returns 0.
+*/
 QDBusConnection QDBusConnection::sender()
 {
-    return QDBusConnection(manager()->sender());
+    return QDBusConnection(_q_manager()->sender());
 }
 
+/*!
+  \internal
+*/
 void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 {
-    manager()->setSender(s);
+    _q_manager()->setSender(s);
 }
