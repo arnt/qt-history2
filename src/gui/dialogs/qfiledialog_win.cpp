@@ -430,7 +430,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
 					    QFileDialog::AnyFile,
 					    args.options);
 
-        ofn->lpstrDefExt = defaultSaveExt.utf16();
+        ofn->lpstrDefExt = (TCHAR *)defaultSaveExt.utf16();
         
         if (idx)
             ofn->nFilterIndex = idx + 1;
