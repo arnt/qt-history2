@@ -60,6 +60,22 @@
     library, the call will fail, and unloading will only happen when
     every instance has called unload().
 
+    In order to speed up loading and validation of plugins, some of
+    the information that is collected during loading is cached in
+    persistent memory (through QSettings). For instance, the  result
+    of a load operation (e.g. succeeded or failed) is stored in the
+    cache, so that subsequent load operations don't have try to load
+    an invalid plugin. However, if the 'last modified' timestamp of
+    a plugin has changed, the plugins' cache entry is invalidated
+    and the plugin is reloaded regardless of the values in the cache
+    entry. The cache entry is then updated with the new values of the
+    plugin.
+
+    This also means that the timestamp must be updated each time the
+    plugin or any dependent resources (such as a shared library) is
+    updated, since the dependent resources might influence the result
+    of loading a plugin.
+
     See \l{How to Create Qt Plugins} for more information about
     how to make your application extensible through plugins.
 
