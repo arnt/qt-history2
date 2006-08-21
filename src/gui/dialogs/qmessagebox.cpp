@@ -161,7 +161,7 @@ class QMessageBoxPrivate : public QDialogPrivate
 public:
     QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), detailsButton(0),
                            detailsText(0), compatMode(false), autoAddOkButton(true),
-                           detectedEscapeButton(0) { }
+                           detectedEscapeButton(0), informationLabel(0) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
     void _q_buttonClicked(QAbstractButton *);
@@ -202,6 +202,7 @@ public:
     bool compatMode;
     bool autoAddOkButton;
     QAbstractButton *detectedEscapeButton;
+    QLabel *informationLabel;
 };
 
 static QString *translatedTextAboutQt = 0;
@@ -243,7 +244,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     }
 
     label = new QLabel;
-    label->setObjectName(QLatin1String("qt_msgboxex_label"));
+    label->setObjectName(QLatin1String("qt_msgbox_label"));
     label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
     label->setOpenExternalLinks(true);
@@ -255,7 +256,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     iconLabel->setPixmap(QPixmap());
 
     buttonBox = new QDialogButtonBox;
-    buttonBox->setObjectName(QLatin1String("qt_msgboxex_buttonbox"));
+    buttonBox->setObjectName(QLatin1String("qt_msgbox_buttonbox"));
     buttonBox->setCenterButtons(q->style()->styleHint(QStyle::SH_MessageBox_CenterButtons));
     QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton*)),
                      q, SLOT(_q_buttonClicked(QAbstractButton*)));
@@ -263,27 +264,24 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     QGridLayout *grid = new QGridLayout;
     grid->addWidget(iconLabel, 0, 0, 1, 1, Qt::AlignTop);
     grid->addWidget(label, 0, 1, 1, 1);
-    grid->addItem(new QSpacerItem(0, 10), 1, 0, 1, 2);
-    grid->addWidget(buttonBox, 2, 0, 1, 2);
+    // -- leave space for information label will --
+    grid->addItem(new QSpacerItem(0, 10), 2, 0, 1, 2);
+    grid->addWidget(buttonBox, 3, 0, 1, 2);
     grid->setSizeConstraint(QLayout::SetFixedSize);
     q->setLayout(grid);
 
     if (!title.isEmpty() || !text.isEmpty()) {
-#ifdef Q_WS_MAC
-        // Make our message box look a little more mac like.
-        QString finalText = QLatin1String("<p><b>") + title + QLatin1String("</b></p>");
-        if (Qt::mightBeRichText(text))
-            finalText += QLatin1String("<br><br>") + text;
-        else
-            finalText += Qt::convertFromPlainText(text);
-
-        q->setText(finalText);
-#else
         q->setWindowTitle(title);
         q->setText(text);
-#endif
     }
     q->setModal(true);
+
+    q->ensurePolished(); // get the right font
+#ifdef Q_OS_MAC
+    QFont f = q->font();
+    f.setBold(true);
+    label->setFont(f);
+#endif
 }
 
 static int oldButton(int button)
@@ -953,6 +951,7 @@ void QMessageBox::showEvent(QShowEvent *e)
     if (d->detailsButton)
         addButton(d->detailsButton, QMessageBox::ActionRole);
     d->detectEscapeButton();
+
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
 #endif
@@ -1772,6 +1771,62 @@ void QMessageBox::setDetailedText(const QString &text)
         d->detailsButton->setFixedSize(d->detailsButton->sizeHint().expandedTo(hideDetails.sizeHint()));
     }
     d->detailsText->setText(text);
+}
+
+/*!
+    \property QMessageBox::informativeText
+    \brief the informative text that provides a fuller description for the message
+
+    Infromative text can be used to expand upon the text() to give more information
+    to the user. On the Mac, this text appears in small system font below the text().
+    On other platforms, it is simply appended to the existing text.
+*/
+QString QMessageBox::informativeText() const
+{
+    Q_D(const QMessageBox);
+    return d->informationLabel ? d->informationLabel->text() : QString();
+}
+
+void QMessageBox::setInformativeText(const QString &text)
+{
+    Q_D(QMessageBox);
+    if (text.isEmpty()) {
+        layout()->removeWidget(d->informationLabel);
+        delete d->informationLabel;
+        d->informationLabel = 0;
+        return;
+    }
+
+    if (!d->informationLabel) {
+        QLabel *label = new QLabel;
+        label->setObjectName(QLatin1String("qt_msgbox_informativelabel"));
+        label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
+        label->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+        label->setOpenExternalLinks(true);
+        label->setIndent(15);
+        QGridLayout *grid = static_cast<QGridLayout *>(layout());
+        grid->addWidget(label, 1, 1, 1, 1);
+#ifdef Q_OS_MAC
+        // apply a smaller font the information label on the mac
+        extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
+        label->setFont(qt_app_fonts_hash()->value("QTipLabel"));
+#endif
+        d->informationLabel = label;
+    }
+    d->informationLabel->setText(text);
+}
+
+/*!
+    \overload
+
+    Sets the title of the message box to \a title.
+*/
+void QMessageBox::setWindowTitle(const QString &title)
+{
+    // Message boxes on the mac do not have a title
+#ifndef Q_WS_MAC
+    QDialog::setWindowTitle(title);
+#endif
 }
 
 #ifdef QT3_SUPPORT
