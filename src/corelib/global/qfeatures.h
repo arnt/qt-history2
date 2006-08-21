@@ -518,11 +518,6 @@
 #define QT_NO_TREEVIEW
 #endif
 
-// QCalendarWidget
-#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW))
-#define QT_NO_CALENDARWIDGET
-#endif
-
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_SPINBOX))
 #define QT_NO_COLORDIALOG
@@ -531,11 +526,6 @@
 // QCompleter
 #if !defined(QT_NO_COMPLETER) && (defined(QT_NO_PROXYMODEL))
 #define QT_NO_COMPLETER
-#endif
-
-// QDateTimeEdit
-#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_SPINBOX) || defined(QT_NO_DATESTRING))
-#define QT_NO_DATETIMEEDIT
 #endif
 
 // QListWidget
@@ -568,6 +558,11 @@
 #define QT_NO_TOOLBAR
 #endif
 
+// QCalendarWidget
+#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU))
+#define QT_NO_CALENDARWIDGET
+#endif
+
 // QDockwidget
 #if !defined(QT_NO_DOCKWIDGET) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_MAINWINDOW))
 #define QT_NO_DOCKWIDGET
@@ -581,6 +576,11 @@
 // QUndoView
 #if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOSTACK) || defined(QT_NO_LISTVIEW))
 #define QT_NO_UNDOVIEW
+#endif
+
+// QDateTimeEdit
+#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_CALENDARWIDGET) || defined(QT_NO_DATESTRING))
+#define QT_NO_DATETIMEEDIT
 #endif
 
 // QComboBox

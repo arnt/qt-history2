@@ -185,7 +185,7 @@ SeeAlso: ???
 Feature: DATETIMEEDIT
 Description: Supports editing dates and times.
 Section: Widgets
-Requires: SPINBOX DATESTRING
+Requires: CALENDARWIDGET DATESTRING
 Name: QDateTimeEdit
 SeeAlso: ???
 
@@ -475,7 +475,7 @@ Feature: CALENDARWIDGET
 Description: Provides a monthly based calendar widget allowing the user to select 
 a date.
 Section: Widgets
-Requires: TABLEVIEW
+Requires: TABLEVIEW MENU
 Name: QCalendarWidget
 SeeAlso: ???
 
