@@ -836,6 +836,8 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     fmt.setBorder(node.tableBorder);
     fmt.setWidth(node.width);
     fmt.setHeight(node.height);
+    if (node.pageBreakPolicy != QTextFormat::PageBreak_Auto)
+        fmt.setPageBreakPolicy(node.pageBreakPolicy);
 
     if (node.direction < 2)
         fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));

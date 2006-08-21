@@ -135,6 +135,8 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "padding-left", PaddingLeft },
     { "padding-right", PaddingRight },
     { "padding-top", PaddingTop },
+    { "page-break-after", PageBreakAfter },
+    { "page-break-before", PageBreakBefore },
     { "right", Right },
     { "selection-background", SelectionBackground },
     { "selection-foreground", SelectionForeground },
@@ -148,6 +150,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
 };
 
 static const QCssKnownValue values[NumKnownValues - 1] = {
+    { "always", Value_Always },
     { "auto", Value_Auto },
     { "bold", Value_Bold },
     { "bottom", Value_Bottom },
@@ -308,7 +311,7 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
     return hit;
 }
 
-bool ValueExtractor::extractPosition(int *left, int *top, QCss::Origin *origin, 
+bool ValueExtractor::extractPosition(int *left, int *top, QCss::Origin *origin,
                                      Qt::Alignment *position)
 {
     extractFont();
@@ -537,23 +540,23 @@ static QBrush parseBrushValue(Value v)
     }
 
     if (gradType == 0) {
-        QLinearGradient lg(vars.value(QLatin1String("x1")), vars.value(QLatin1String("y1")), 
+        QLinearGradient lg(vars.value(QLatin1String("x1")), vars.value(QLatin1String("y1")),
                            vars.value(QLatin1String("x2")), vars.value(QLatin1String("y2")));
         lg.setStops(stops);
         if (spread != -1)
             lg.setSpread(QGradient::Spread(spread));
         return QBrush(lg);
-    } 
-    
+    }
+
     if (gradType == 1) {
-        QRadialGradient rg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")), 
-                           vars.value(QLatin1String("radius")), vars.value(QLatin1String("fx")), 
+        QRadialGradient rg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")),
+                           vars.value(QLatin1String("radius")), vars.value(QLatin1String("fx")),
                            vars.value(QLatin1String("fy")));
         rg.setStops(stops);
         if (spread != -1)
             rg.setSpread(QGradient::Spread(spread));
         return QBrush(rg);
-    } 
+    }
 
     if (gradType == 2) {
         QConicalGradient cg(vars.value(QLatin1String("cx")), vars.value(QLatin1String("cy")),

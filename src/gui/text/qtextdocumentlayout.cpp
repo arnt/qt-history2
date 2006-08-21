@@ -101,7 +101,7 @@ struct QLayoutStruct {
     QRectF updateRect;
 
     inline void newPage()
-    { pageBottom += pageHeight; y = pageBottom - pageHeight + 2 * pageMargin; }
+    { if (pageHeight == INT_MAX) return; pageBottom += pageHeight; y = pageBottom - pageHeight + 2 * pageMargin; }
 };
 
 class QTextTableData : public QTextFrameData
@@ -1767,6 +1767,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             QTextFrameData *cd = data(c);
             Q_ASSERT(!cd->sizeDirty);
             if (cd->flow_position == QTextFrameFormat::InFlow) {
+                if (c->frameFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
+                    layoutStruct->newPage();
+
                 qreal left, right;
                 floatMargins(layoutStruct->y, layoutStruct, &left, &right);
                 left = qMax(left, layoutStruct->x_left);
@@ -1823,6 +1826,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                         layoutStruct->y += cd->size.height();
                     }
                 }
+
+                if (c->frameFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
+                    layoutStruct->newPage();
             } else {
                 positionFloat(c);
             }
@@ -1835,6 +1841,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             previousIt = it;
             QTextBlock block = it.currentBlock();
             ++it;
+
+            if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysBefore)
+                layoutStruct->newPage();
 
             const qreal origY = layoutStruct->y;
 
@@ -1859,6 +1868,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
                 layout->setPosition(pos);
                 layoutStruct->y = origY;
             }
+
+            if (block.blockFormat().pageBreakPolicy() & QTextFormat::PageBreak_AlwaysAfter)
+                layoutStruct->newPage();
         }
     }
 
@@ -2091,8 +2103,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
         else
             layoutStruct->maximumWidth = qMax(layoutStruct->maximumWidth, maxW);
     }
-
-
 }
 
 void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayoutStruct *layoutStruct)

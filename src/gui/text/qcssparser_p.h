@@ -70,6 +70,8 @@ enum Property {
     PaddingRight,
     PaddingTop,
     PaddingBottom,
+    PageBreakBefore,
+    PageBreakAfter,
     AlternateBackground,
     BorderLeftStyle,
     BorderRightStyle,
@@ -140,6 +142,7 @@ enum KnownValue {
     Value_Center,
     Value_Native,
     Value_Auto,
+    Value_Always,
     NumKnownValues
 };
 
@@ -333,7 +336,7 @@ struct ImportRule;
 struct Q_GUI_EXPORT ValueExtractor
 {
     ValueExtractor(const QVector<Declaration> &declarations);
-    
+
     void extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);

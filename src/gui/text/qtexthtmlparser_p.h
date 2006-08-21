@@ -157,6 +157,7 @@ struct QTextHtmlParserNode {
     uint isTextFrame : 1;
     uint direction : 2; // 3 means unset
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
+    QTextFormat::PageBreakFlags pageBreakPolicy;
     QString fontFamily;
     int fontPointSize;
     int fontPixelSize;

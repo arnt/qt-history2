@@ -421,6 +421,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     margin[QTextHtmlParser::MarginRight] = 0;
     margin[QTextHtmlParser::MarginTop] = 0;
     margin[QTextHtmlParser::MarginBottom] = 0;
+    pageBreakPolicy = QTextFormat::PageBreak_Auto;
 }
 
 QTextCharFormat QTextHtmlParserNode::charFormat() const
@@ -482,6 +483,9 @@ QTextBlockFormat QTextHtmlParserNode::blockFormat() const
         format.setIndent(cssBlockIndent);
     if (text_indent != 0.)
         format.setTextIndent(text_indent);
+
+    if (pageBreakPolicy != QTextFormat::PageBreak_Auto)
+        format.setPageBreakPolicy(pageBreakPolicy);
 
     return format;
 }
@@ -1275,6 +1279,22 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
                         case QCss::Value_Sub: verticalAlignment = QTextCharFormat::AlignSubScript; break;
                         case QCss::Value_Super: verticalAlignment = QTextCharFormat::AlignSuperScript; break;
                         default: verticalAlignment = QTextCharFormat::AlignNormal; break;
+                    }
+                }
+                break;
+            case QCss::PageBreakBefore:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Always: pageBreakPolicy |= QTextFormat::PageBreak_AlwaysBefore; break;
+                        case QCss::Value_Auto: pageBreakPolicy &= ~QTextFormat::PageBreak_AlwaysBefore; break;
+                    }
+                }
+                break;
+            case QCss::PageBreakAfter:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Always: pageBreakPolicy |= QTextFormat::PageBreak_AlwaysAfter; break;
+                        case QCss::Value_Auto: pageBreakPolicy &= ~QTextFormat::PageBreak_AlwaysAfter; break;
                     }
                 }
                 break;

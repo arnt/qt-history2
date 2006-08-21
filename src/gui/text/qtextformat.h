@@ -180,6 +180,9 @@ public:
         // selection properties
         FullWidthSelection = 0x06000,
 
+        // page break properties
+        PageBreakPolicy = 0x7000,
+
         // --
         UserProperty = 0x100000
     };
@@ -191,6 +194,14 @@ public:
 
         UserObject = 0x1000
     };
+
+    enum PageBreakFlag {
+        PageBreak_Auto = 0,
+        PageBreak_AlwaysBefore = 0x001,
+        PageBreak_AlwaysAfter  = 0x010
+        // PageBreak_AlwaysInside = 0x100
+    };
+    Q_DECLARE_FLAGS(PageBreakFlags, PageBreakFlag)
 
     QTextFormat();
 
@@ -282,6 +293,8 @@ private:
 
 inline void QTextFormat::setObjectType(int atype)
 { setProperty(ObjectType, atype); }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextFormat::PageBreakFlags)
 
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
@@ -442,6 +455,11 @@ public:
     { setProperty(BlockNonBreakableLines, b); }
     inline bool nonBreakableLines() const
     { return boolProperty(BlockNonBreakableLines); }
+
+    inline void setPageBreakPolicy(PageBreakFlags flags)
+    { setProperty(PageBreakPolicy, int(flags)); }
+    inline PageBreakFlags pageBreakPolicy() const
+    { return static_cast<PageBreakFlags>(intProperty(PageBreakPolicy)); }
 };
 
 inline void QTextBlockFormat::setAlignment(Qt::Alignment aalignment)
@@ -554,6 +572,11 @@ public:
     inline void setHeight(const QTextLength &height);
     inline QTextLength height() const
     { return lengthProperty(FrameHeight); }
+
+    inline void setPageBreakPolicy(PageBreakFlags flags)
+    { setProperty(PageBreakPolicy, int(flags)); }
+    inline PageBreakFlags pageBreakPolicy() const
+    { return static_cast<PageBreakFlags>(intProperty(PageBreakPolicy)); }
 };
 
 inline void QTextFrameFormat::setBorder(qreal aborder)
