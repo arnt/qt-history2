@@ -916,9 +916,7 @@ static QString macTimeToString(const QTime &time, bool short_format)
                                                                     mylocale,
                                                                     kCFDateFormatterNoStyle,
                                                                     style);
-    const QString ret(QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate)));
-    qDebug() << time << short_format << ret;
-    return ret;
+    return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
 }
 
 static QString macToQtFormat(const QString &sys_fmt)
