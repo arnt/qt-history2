@@ -674,7 +674,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 */
 
 /*!
-    \variable ViewItemFeatures QStyleOptionViewItemV2::features
+    \variable QStyleOptionViewItemV2::features
     \brief a bitwise OR of the features that describe this view item.
 
     \sa ViewItemFeature

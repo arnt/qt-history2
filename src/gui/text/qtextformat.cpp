@@ -1211,7 +1211,7 @@ bool QTextCharFormat::fontUnderline() const
 /*!
     \fn void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 
-    Sets the style of underlining the text.
+    Sets the style of underlining the text to \a style.
 */
 void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
 {

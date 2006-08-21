@@ -1669,31 +1669,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 */
 
 /*!
-    \fn T qFindChild(const QObject *obj, const QString &name = QString(), T = 0)
-    \relates QObject
-
-    This function is equivalent to
-    \a{obj}->\l{QObject::findChild()}{findChild}<T>(\a name). It is
-    provided as a work-around for MSVC 6, which doesn't support
-    member template functions.
-
-    \sa QObject::findChild()
-*/
-
-/*!
     \fn QList<T> qFindChildren(const QObject *obj, const QString &name)
-    \relates QObject
-
-    This function is equivalent to
-    \a{obj}->\l{QObject::findChildren()}{findChildren}<T>(\a name). It is
-    provided as a work-around for MSVC 6, which doesn't support
-    member template functions.
-
-    \sa QObject::findChildren()
-*/
-
-/*!
-    \fn QList<T> qFindChildren(const QObject *obj, const QString &name = QString(), T = 0)
     \relates QObject
 
     This function is equivalent to
@@ -1713,6 +1689,34 @@ QObjectList QObject::queryList(const char *inheritsClass,
     \a{obj}->\l{QObject::findChildren()}{findChildren}<T>(\a regExp). It is
     provided as a work-around for MSVC 6, which doesn't support
     member template functions.
+*/
+
+/*!
+    \internal
+    \fn T qFindChild(const QObject *obj, const QString &name = QString(), T dummy = 0)
+    \relates QObject
+    \overload
+
+    This function is equivalent to
+    \a{obj}->\l{QObject::findChild()}{findChild}<T>(\a name). It is
+    provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
+
+    \sa QObject::findChild()
+*/
+
+/*!
+    \internal
+    \fn QList<T> qFindChildren(const QObject *obj, const QString &name = QString(), T dummy = 0)
+    \relates QObject
+    \overload
+
+    This function is equivalent to
+    \a{obj}->\l{QObject::findChildren()}{findChildren}<T>(\a name). It is
+    provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
+
+    \sa QObject::findChildren()
 */
 
 /*!

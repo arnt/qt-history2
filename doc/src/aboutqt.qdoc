@@ -26,18 +26,16 @@
     Qt provides application developers with all the functionality
     needed to build complex, high-performance GUI and console
     applications. Qt is fully object-oriented, easily extensible, and
-    allows true component programming. Read the \link
-    http://www.trolltech.com/products/qt/learnmore/whitepapers
-    Whitepaper\endlink for a comprehensive technical overview.
+    allows true component programming. Read the \l{Whitepapers}{Whitepaper}
+    for a comprehensive technical overview.
 
     Since its commercial introduction in early 1996, Qt has formed
     the basis of many thousands of successful applications worldwide,
     including Google Earth, Adobe Photoshop Elements, and Skype. Qt
     is also the basis of the popular \link http://www.kde.org/ KDE
     \endlink Linux desktop environment, a standard component of all
-    major Linux distributions. See our \link
-    http://www.trolltech.com/success/ Customer Success
-    Stories\endlink for some examples of commercial Qt development.
+    major Linux distributions. See our \l{Customer Success Stories}
+    for some examples of commercial Qt development.
 
     Qt is supported on the following platforms:
     \list
@@ -48,10 +46,8 @@
      \o \bold{Embedded Linux} -- Linux platforms with framebuffer support
     \endlist
 
-    See
-    \l{http://www.trolltech.com/developer/platforms/supported.html}{Trolltech's
-    web site} for the complete list of supported platform and
-    compilers.
+    See \l{Qt 4 Platforms Overview}{Trolltech's web site} for the
+    complete list of supported platform and compilers.
 
     Qt is released in different editions:
 
@@ -72,9 +68,8 @@
     Public License\endlink.
     \endlist
 
-    Trolltech also provides \link
-    http://www.trolltech.com/products/solutions/index.html Qt
-    Solutions\endlink, a growing range of industry and platform specific
-    components that complement Qt. Some of these are only available to
-    commercial customers, others are available to all Qt users.
+    Trolltech also provides \l{Qt Solutions}, a growing range of
+    industry and platform specific components that complement Qt.
+    Some of these are only available to commercial customers, others
+    are available to all Qt users.
 */

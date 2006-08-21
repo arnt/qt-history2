@@ -81,7 +81,7 @@ public:
     GUI server for doing window compositioning.
 */
 
-/*
+/*!
     \enum QWSWindowSurface::SurfaceFlag
 
     This enum is used to specify various properties for the window surface.
@@ -115,19 +115,21 @@ public:
 */
 
 /*!
-    \fn void QWSWindowSurface::beginPaint(const QRegion &)
+    \fn void QWSWindowSurface::beginPaint(const QRegion &region)
 
-    This function is called before painting onto the surface begins.
+    This function is called before painting onto the surface begins,
+    with the \a region in which painting will occur.
 */
 
 /*!
-    \fn void QWSWindowSurface::endPaint(const QRegion &)
+    \fn void QWSWindowSurface::endPaint(const QRegion &region)
 
-    This function is called after painting onto the surface has ended.
+    This function is called after painting onto the surface has ended,
+    with the \a region in which painting could occur.
 */
 
 /*!
-    \fn const QWSWindowSurface::QString key() const
+    \fn const QString QWSWindowSurface::key() const
 
     Returns a string that uniquely identifies the class of the surface.
 
@@ -136,7 +138,7 @@ public:
 */
 
 /*!
-    \fn const QWSWindowSurface::QByteArray data() const
+    \fn const QByteArray QWSWindowSurface::data() const
 
     Returns a QByteArray containing whatever data neccessary for creating a
     server-side representation of the surface.
@@ -305,7 +307,7 @@ QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
 }
 
 /*!
-    Set the properties of this surface.
+    Set the properties of this surface to \a flags.
 */
 void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 {
@@ -313,7 +315,7 @@ void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
 }
 
 /*!
-    Set the geometry on the surface.
+    Set the geometry on the surface to \a rect.
 
     This function is called whenever the area neccessary for the top-level
     window to be drawn is changed. The default implementation will communicate
@@ -369,10 +371,12 @@ static inline void flushUpdate(QWidget *widget, const QRegion &region,
 }
 
 /*!
-    Flushes the \a region onto the screen.
+    Flushes the \a region from \a widget onto the screen.
 
     The default implementation will communicate the \a region to the
     Qtopia Core GUI server.
+
+    \a offset is currently unused. Always pass QPoint(0, 0).
 */
 void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
                              const QPoint &offset)

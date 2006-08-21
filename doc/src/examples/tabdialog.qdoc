@@ -56,8 +56,8 @@
 
     We arrange the the tab widget above the buttons in the dialog:
 
-    \skipto QHBoxLayout
-    \printuntil addLayout
+    \skipto mainLayout = new
+    \printuntil setLayout
 
     Finally, we set the dialog's title:
 

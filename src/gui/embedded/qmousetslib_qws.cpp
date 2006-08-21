@@ -60,6 +60,7 @@
     variables, see the README file provided with tslib for details.
 
     The ts.conf file will usually contain the following two lines
+
     \code
         module_raw input
         module linear

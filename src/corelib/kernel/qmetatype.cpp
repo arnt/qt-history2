@@ -160,6 +160,12 @@
 
     \value User  Base value for user types
 
+    \omitvalue FirstCoreExtType
+    \omitvalue FirstGuiType
+    \omitvalue LastCoreExtType
+    \omitvalue LastCoreType
+    \omitvalue LastGuiType
+
     Additional types can be registered using Q_DECLARE_METATYPE().
 
     \sa type(), typeName()

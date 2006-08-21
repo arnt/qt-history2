@@ -210,7 +210,7 @@ static const struct {
 };
 
 //Table of key bindings. It must be sorted on key sequence.
-//A priority of 1 indicates that this is the primary keyBinding when multiple are defined.
+//A priority of 1 indicates that this is the primary key binding when multiple are defined.
 
 const QKeyBinding QKeySequencePrivate::keyBindings[] = {
 //   StandardKey                            Priority    Key Sequence                            Platforms
@@ -335,13 +335,14 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
 /*!
     \enum QKeySequence::StandardKey
 
-    This enum represent standard key bindings. They can be used to assign platform
-    dependent keyboard shortcuts to a \a QAction. \a QKeyEvent also provides the function 
-    QKeyEvent::standardKey() \a to query if it matches an existing keyBinding.
-    
-    Note that the key bindings are platform dependent.
-    The currently bound shortcuts can be queried through \a keyBindings.
-    
+    This enum represent standard key bindings. They can be used to
+    assign platform dependent keyboard shortcuts to a QAction.
+    QKeyEvent also provides the function  QKeyEvent::standardKey() to
+    query if it matches an existing key binding.
+
+    Note that the key bindings are platform dependent. The currently
+    bound shortcuts can be queried using keyBindings().
+
     \value UnknownKey       Unbound key
     \value HelpContents     Open help contents. Usually "F1".
     \value WhatsThis        Activate whats this. Usually "Shift + F1".
@@ -412,9 +413,7 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
     The result will depend on the currently running platform. 
 
     The resulting object will be based on the first element in the 
-    list of \a keyBindings for the \a key.
-    
-    \sa setKey()
+    list of key bindings for the \a key.
 */
 QKeySequence::QKeySequence(StandardKey key)
 {

@@ -567,7 +567,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     flags may mean different things to different items.
 
     \value State_Active
-    \value sTate_Alternate
+    \value State_Alternate
     \value State_AutoRaise
     \value State_Bottom
     \value State_Children

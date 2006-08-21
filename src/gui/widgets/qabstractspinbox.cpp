@@ -361,7 +361,7 @@ bool QAbstractSpinBox::accelerate() const
 
     The default mode is QAbstractSpinBox::CorrectToPreviousValue.
 
-    \sa acceptableInput(), validate(), fixup()
+    \sa acceptableInput, validate(), fixup()
 */
 void QAbstractSpinBox::setCorrectionMode(CorrectionMode correctionMode)
 {

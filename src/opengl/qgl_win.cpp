@@ -810,7 +810,7 @@ static bool qLogEq(bool a, bool b)
 }
 
 /*!
-    <strong>Win32 only</strong> This virtual function chooses a pixel
+    \bold{Win32 only:} This virtual function chooses a pixel
     format that matches the OpenGL \link setFormat() format\endlink.
     Reimplement this function in a subclass if you need a custom
     context.

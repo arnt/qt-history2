@@ -4113,11 +4113,17 @@
     \section1 QWizard
 
     The \c QWizard class is no longer part of the Qt public API. It
-    has been renamed Q3Wizard and moved to Qt3Support. In Qt 4 applications,
-    you can obtain the same result by combining a QStackedWidget with
-    a QDialog and provide \l{QPushButton}s yourself. There is also
-    a \l{http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtwizard/}{QtWizard}
-    solution available from Trolltech.
+    has been renamed Q3Wizard and moved to Qt3Support. In Qt 4
+    applications, you can obtain the same result by combining a
+    QStackedWidget with a QDialog and provide \l{QPushButton}s
+    yourself.
+
+    There is also a \l{QtWizard} solution available from Trolltech.
+    The new class was designed to work both for linear wizards and
+    for wizards with more complex structures which let users reach
+    different pages depending on the options they select. Based on
+    the feedback we get, \l{QtWizard} may be considered for inclusion
+    in a future Qt release.
 
     \section1 QWorkspace
 

@@ -133,7 +133,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
     \relates QDBusArgument
     \threadsafe
 
-    Registers the \a typeName to the type \c{T} with the
+    Registers \c{T} with the
     \l {qdbustypesystem.html}{QtDBus type system} and the Qt \l
     {QMetaType}{meta-type system}, if it's not already registered.
 

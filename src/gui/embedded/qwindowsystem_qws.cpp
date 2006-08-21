@@ -268,7 +268,7 @@ public:
     \sa isOpaque()
 */
 
-/*
+/*!
     \fn bool QWSWindow::isPartiallyObscured() const
 
     Returns true if the window is partially obsured by another window
@@ -423,7 +423,7 @@ QWSWindow::~QWSWindow()
     delete d;
 }
 
-/*
+/*!
     Returns the region that the window is allowed to draw onto,
     including any window decorations but excluding regions covered by
     other windows.

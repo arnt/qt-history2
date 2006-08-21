@@ -408,12 +408,10 @@ void QSpinBox::setRange(int minimum, int maximum)
 }
 
 /*!
-    \fn QString QSpinBox::textFromValue(int value) const
-
-    This virtual function is used by the spin box whenever it needs to
-    display value \a v. The default implementation returns a string
-    containing \a v printed in the standard way using
-    QLocale().toString(v). Reimplementations may return anything. (See
+    This virtual function is used by the spin box whenever it needs
+    to display the given \a value. The default implementation returns
+    a string containing \a value printed in the standard way using
+    QLocale().toString(). Reimplementations may return anything. (See
     the example in the detailed description.)
 
     Note: QSpinBox does not call this function for specialValueText()
@@ -827,11 +825,9 @@ void QDoubleSpinBox::setDecimals(int decimals)
 }
 
 /*!
-    \fn QString QDoubleSpinBox::textFromValue(double v) const
-
     This virtual function is used by the spin box whenever it needs to
-    display value \a v. The default implementation returns a string
-    containing \a v printed using QLocale().toString(v,
+    display the given \a value. The default implementation returns a string
+    containing \a value printed using QLocale().toString(\a value,
     QLatin1Char('f'), decimals()) and will remove the thousand
     seperator. Reimplementations may return anything.
 

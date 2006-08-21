@@ -397,7 +397,7 @@ bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *rec
 
 /*!
     Sends the \a message over this connection and blocks, waiting for
-    a reply, for at most \a timeouyt milliseconds. This function is
+    a reply, for at most \a timeout milliseconds. This function is
     suitable for method calls only. It returns the reply message as
     its return value, which will be either of type
     QDBusMessage::ReplyMessage or QDBusMessage::ErrorMessage.

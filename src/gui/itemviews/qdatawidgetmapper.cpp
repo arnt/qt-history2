@@ -637,7 +637,7 @@ int QDataWidgetMapper::currentIndex() const
             mapper, SLOT(setCurrentModelIndex(QModelIndex)));
     \endcode
 
-    \sa currentModelIndex()
+    \sa currentIndex()
 */
 void QDataWidgetMapper::setCurrentModelIndex(const QModelIndex &index)
 {
@@ -700,9 +700,7 @@ void QDataWidgetMapper::clearMapping()
     \endtable
 
     Changing the orientation clears all existing mappings.
-
-    \sa orientation()
- */
+*/
 void QDataWidgetMapper::setOrientation(Qt::Orientation orientation)
 {
     Q_D(QDataWidgetMapper);

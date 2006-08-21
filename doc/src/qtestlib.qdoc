@@ -56,9 +56,8 @@
     \endtable
 
     Note: For higher-level GUI and application testing needs, please
-    see the
-    \l{http://www.trolltech.com/products/3rdparty/tools.html}{Qt
-    testing products provided by Trolltech partners}.
+    see the \l{Third-Party Tools}{Qt testing products provided by
+    Trolltech partners}.
 
 
     \section1 QTestLib API

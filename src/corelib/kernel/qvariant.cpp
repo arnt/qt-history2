@@ -1180,6 +1180,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \omitvalue IconSet
     \omitvalue LastGuiType
     \omitvalue LastCoreType
+    \omitvalue LastType
 */
 
 /*!

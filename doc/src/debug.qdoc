@@ -83,11 +83,6 @@
     looks or acts strangely. More useful if you use \l{QObject::setObjectName()}{object names}
     than not, but often useful even without names.
 
-    The
-    \l{http://www.trolltech.com/products/solutions/catalog/Tools/qtobjectinspector/}{Object
-    Inspector}, is also an option for Qt Commercial Edition
-    licensees.
-
     \section1 Debugging Macros
 
     The header file \c <QtGlobal> contains some debugging macros and
@@ -95,14 +90,14 @@
 
     Three important macros are:
     \list
-    \o Q_ASSERT(cond), where \c cond is a boolean
+    \o \l{Q_ASSERT()}{Q_ASSERT}(cond), where \c cond is a boolean
        expression, writes the warning "ASSERT: '\e{cond}' in file xyz.cpp, line
        234" and exits if \c cond is false.
-    \o Q_ASSERT_X(cond, where, what), where \c cond is a
+    \o \l{Q_ASSERT_X()}{Q_ASSERT_X}(cond, where, what), where \c cond is a
        boolean expression, \c where a location, and \c what a message,
        writes the warning: "ASSERT failure in \c{where}: '\c{what}', file xyz.cpp, line 234"
        and exits if \c cond is false.
-    \o Q_CHECK_PTR(ptr), where \c ptr is a pointer.
+    \o \l{Q_CHECK_PTR()}{Q_CHECK_PTR}(ptr), where \c ptr is a pointer.
        Writes the warning "In file xyz.cpp, line 234: Out of memory" and
        exits if \c ptr is 0.
     \endlist

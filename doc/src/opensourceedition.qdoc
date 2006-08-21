@@ -37,8 +37,8 @@
     A separate Edition of Qt is also available for embedded Linux.
     \endomit
 
-    The Open Source Edition can be downloaded from here: \l
-    http://www.trolltech.com/download/.
+    The Open Source Edition can be downloaded from
+    \l{Downloads}{Trolltech's website}.
 
     It is also possible to develop commercial software using Qt: but to do
     so you must buy a commercial license for one of the \l{Qt Commercial Editions}.
@@ -51,12 +51,12 @@
     enjoy the freedoms guaranteed by the GPL. Users are entitled to:
 
     \list 1
-    \i Run your software for any purpose.
-    \i Obtain and study your software's source code, and adapt it to their
+    \o Run your software for any purpose.
+    \o Obtain and study your software's source code, and adapt it to their
        needs.
-    \i Redistribute your software and its source code to others (under the
+    \o Redistribute your software and its source code to others (under the
        same terms).
-    \i Improve or modify your software, and release these changes to the
+    \o Improve or modify your software, and release these changes to the
        public.
     \endlist
 
@@ -74,20 +74,18 @@
     interface definitions or any sort of non-disclosure agreement. In
     these circumstances you must use a commercial edition of Qt.
 
-    See the
-    \l{http://www.trolltech.com/developer/faqs/index.html?catid=1953}{License
-    FAQ} for answers to frequently asked questions on Qt Open Source Edition
-    licensing and its implications.
+    See the \l{License FAQ} for answers to frequently asked questions
+    on Qt Open Source Edition licensing and its implications.
 
     More information on Free and Open Source software is available online:
 
     \list
-    \i GNU GPL: \l http://www.gnu.org/.
-    \i Open Source licensing: \l http://www.opensource.org/.
+    \o GNU GPL: \l http://www.gnu.org/.
+    \o Open Source licensing: \l http://www.opensource.org/.
     \endlist
 
-    Information about Qt Commercial License Agreements is available at
-    \l http://www.trolltech.com/products/qt/pricing.html or by email from 
+    Information about Qt Commercial License Agreements is available
+    at \l{Pricing Information} or by email from 
     \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
 
     If you are in doubt what edition of Qt is right for your project,

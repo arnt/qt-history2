@@ -386,7 +386,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 
 /*!
-  <strong>X11 only</strong>: This virtual function tries to find a
+  \bold{X11 only:} This virtual function tries to find a
   visual that matches the format, reducing the demands if the original
   request cannot be met.
 
@@ -465,7 +465,7 @@ void *QGLContext::chooseVisual()
 
   \internal
 
-  <strong>X11 only</strong>: This virtual function chooses a visual
+  \bold{X11 only:} This virtual function chooses a visual
   that matches the OpenGL \link format() format\endlink. Reimplement this
   function in a subclass if you need a custom visual.
 

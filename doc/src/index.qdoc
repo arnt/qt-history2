@@ -183,11 +183,11 @@
         <tr>
         <td valign="top">
         <ul>
-        <li><a href="http://www.trolltech.com/products/solutions/">Qt Solutions</a></li>
-        <li><a href="http://www.trolltech.com/products/3rdparty/">Partner Add-ons</a></li>
-        <li><a href="http://www.trolltech.com/freesoftware/">Contributed Qt Components</a></li>
+        <li><a href="http://www.trolltech.com/products/qt/addon/solutions/">Qt Solutions</a></li>
+        <li><a href="http://www.trolltech.com/products/qt/3rdparty/">Partner Add-ons</a></li>
+        <li><a href="http://www.trolltech.com/developer/downloads/freesoftware">Contributed Qt Components</a></li>
         <li><a href="http://www.trolltech.com/support/">Support</a></li>
-        <li><a href="http://www.trolltech.com/training/">Training</a></li>
+        <li><a href="http://www.trolltech.com/support/training/">Training</a></li>
         </ul>
         </td>
         <td valign="top">

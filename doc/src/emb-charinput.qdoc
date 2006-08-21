@@ -47,9 +47,8 @@
     focus is to set the Qt::Tool widget flag in the QWidget
     constructor.
 
-    The \l {http://www.trolltech.com/products/qtopia/ }{Qtopia}
-    environment contains various input widgets such as Handwriting
-    Recognition and Virtual Keyboard.
+    The \l{Qtopia} environment contains various input widgets such as
+    Handwriting Recognition and Virtual Keyboard.
     \endtable
 
     The various keyboard drivers can be compiled into the library or

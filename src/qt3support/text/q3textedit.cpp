@@ -3645,7 +3645,7 @@ void Q3TextEdit::setColor(const QColor &c)
     \sa color() setPaper()
 */
 
-void Q3TextEdit::setVerticalAlignment(VerticalAlignment a)
+void Q3TextEdit::setVerticalAlignment(Q3TextEdit::VerticalAlignment a)
 {
     Q3TextFormat f(*currentFormat);
     f.setVAlign((Q3TextFormat::VerticalAlignment)a);

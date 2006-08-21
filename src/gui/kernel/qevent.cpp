@@ -2907,10 +2907,21 @@ QToolBarChangeEvent::~QToolBarChangeEvent()
 
 #ifndef QT_NO_SHORTCUT
 
+/*!
+    Constructs a shortcut event for the given \a key press,
+    associated with the QShortcut ID \a id.
+
+    \a ambiguous specifies whether there is more than one QShortcut
+    for the same key sequence.
+*/
 QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous)
     : QEvent(Shortcut), sequence(key), ambig(ambiguous), sid(id)
-{}
+{
+}
 
+/*!
+    Destroys the event object.
+*/
 QShortcutEvent::~QShortcutEvent()
 {
 }
@@ -3066,6 +3077,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 /*!
     \class QClipboardEvent
     \ingroup events
+    \internal
 
     \brief The QClipboardEvent class provides the parameters used in a clipboard event.
 
@@ -3077,7 +3089,9 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 
 QClipboardEvent::QClipboardEvent(QEventPrivate *data)
     : QEvent(QEvent::Clipboard)
-{ d = data; }
+{
+    d = data;
+}
 
 QClipboardEvent::~QClipboardEvent()
 {
@@ -3095,22 +3109,6 @@ QClipboardEvent::~QClipboardEvent()
     provides a higher-level interface to handle shortcut keys.
 
     \sa QShortcut
-*/
-
-/*!
-    \fn QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous = false)
-
-    Constructs a shortcut event for the given \a key press,
-    associated with the QShortcut ID \a id.
-
-    \a ambiguous specifies whether there is more than one QShortcut
-    for the same key sequence.
-*/
-
-/*!
-    \fn QShortcutEvent::~QShortcutEvent()
-
-    Destroys the event object.
 */
 
 /*!

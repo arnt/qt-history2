@@ -107,6 +107,7 @@
     We create a QComboBox for the \gui {Brush Style} parameter, and add
     the associated items (i.e. the values of the Qt::BrushStyle enum).
 
+    \printline otherOptionsLabel
     \printline antialiasingCheckBox
 
     Antialiasing is a feature that "smoothes" the pixels to create
@@ -135,16 +136,12 @@
     RenderArea widget is updated whenever the user changes the shape,
     or any of the other parameters.
 
-    \skipto QHBoxLayout
+    \printline mainLayout = new QGridLayout
     \printuntil /^\}/
 
     Finally, we add the various widgets to a layout, and call the \c
-    shapeChanged(), \c penChanged() and \c brushChanged() slots to
-    initialize the application.
-
-    We also initially disable both the \gui Antialiasing and the \gui
-    Transformations options using the \c RenderArea::setAntialiased()
-    and \c RenderArea::setTransformed() slots.
+    shapeChanged(), \c penChanged(), and \c brushChanged() slots to
+    initialize the application. We also turn on antialiasing.
 
     \skipto shapeChanged
     \printuntil /^\}/

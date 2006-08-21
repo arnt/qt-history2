@@ -1379,7 +1379,7 @@ void QColorDialogPrivate::_q_addCustom()
 
 
 /*!
-    \class QColorDialog qcolordialog.h
+    \class QColorDialog
     \brief The QColorDialog class provides a dialog widget for specifying colors.
 
     \mainclass
@@ -1406,9 +1406,7 @@ void QColorDialogPrivate::_q_addCustom()
     the custom colors, and use customColor() to get them.
 
     Additional widgets that allow users to pick colors are available
-    as \link
-    http://www.trolltech.com/products/solutions/index.html Qt
-    Solutions\endlink.
+    as \l{Qt Solutions}.
 
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QColorDialog as well as other built-in Qt dialogs.

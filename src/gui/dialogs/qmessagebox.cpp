@@ -237,7 +237,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
                    "of Open Source applications. You need a commercial Qt "
                    "license for development of proprietary (closed source) "
                    "applications.</p>"
-                   "<p>Please see <a href=\"http://www.trolltech.com/company/model.html\">www.trolltech.com/company/model.html</a> "
+                   "<p>Please see <a href=\"http://www.trolltech.com/company/model/\">www.trolltech.com/company/model/</a> "
                    "for an overview of Qt licensing.</p>"))
 #endif
            .arg(QLatin1String(QT_VERSION_STR));
@@ -615,7 +615,7 @@ QMessageBox::StandardButton QMessageBox::standardButton(QAbstractButton *button)
     Returns a pointer corresponding to the standard button \a which,
     or 0 if the standard button doesn't exist in this message box.
 
-    \sa standardButtons, buttons()
+    \sa standardButtons, standardButton()
 */
 QAbstractButton *QMessageBox::button(StandardButton which) const
 {

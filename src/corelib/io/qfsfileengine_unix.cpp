@@ -341,7 +341,10 @@ bool QFSFileEnginePrivate::isMacHidden(const QString &path) const
 }
 #endif
 
-QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
+/*!
+    \reimp
+*/
+QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(FileFlags type) const
 {
     Q_D(const QFSFileEngine);
     // Force a stat, so that we're guaranteed to get up-to-date results

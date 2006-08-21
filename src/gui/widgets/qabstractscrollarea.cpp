@@ -236,10 +236,10 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
     const bool hasCornerWidget = (cornerWidget != 0);
 
-// If the scrollbars are at the very right and bottom of the window we
+// If the scroll bars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
 #ifdef Q_WS_MAC
-    // Use small scrollbars for tool windows.
+    // Use small scroll bars for tool windows.
     const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
     const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
     QWidget * const window = q->window();
@@ -300,12 +300,12 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         cornerOffset =  extPoint;
 
 #ifdef Q_WS_MAC
-    // Also move the scrollbars if they are covered by the native Mac size grip.
+    // Also move the scroll bars if they are covered by the native Mac size grip.
     if (hasMacSizeGrip)
         cornerOffset =  extPoint;
 #endif
 
-    // The corner point is where the scrollbar rects, the corner widget rect and the
+    // The corner point is where the scroll bar rects, the corner widget rect and the
     // viewport rect meets.
     const QPoint cornerPoint(controlsRect.bottomRight() + QPoint(1, 1) - cornerOffset);
 
@@ -330,18 +330,18 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 #endif
 
     if (needh) {
-        QRect horizontalScrollbarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
+        QRect horizontalScrollBarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
 #ifdef Q_WS_MAC
         if (hasMacReverseSizeGrip)
-            horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
+            horizontalScrollBarRect.adjust(vsbExt, 0, 0, 0);
 #endif
-        scrollBarContainers[Qt::Horizontal]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
+        scrollBarContainers[Qt::Horizontal]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollBarRect));
         scrollBarContainers[Qt::Horizontal]->raise();
     }
 
     if (needv) {
-        const QRect verticalScrollbarRect  (QPoint(cornerPoint.x(), controlsRect.top()),  QPoint(controlsRect.right(), cornerPoint.y() - 1));
-        scrollBarContainers[Qt::Vertical]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollbarRect));
+        const QRect verticalScrollBarRect  (QPoint(cornerPoint.x(), controlsRect.top()),  QPoint(controlsRect.right(), cornerPoint.y() - 1));
+        scrollBarContainers[Qt::Vertical]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollBarRect));
         scrollBarContainers[Qt::Vertical]->raise();
     }
 
@@ -500,25 +500,25 @@ QScrollBar *QAbstractScrollArea::verticalScrollBar() const
 
 /*!
    \since 4.2
-   Replaces the existing vertical scrollbar with \a scrollbar, and sets all
-   the former scrollbar's slider properties on the new scrollbar. The former
-   scrollbar is then deleted.
+   Replaces the existing vertical scroll bar with \a scrollBar, and sets all
+   the former scroll bar's slider properties on the new scroll bar. The former
+   scroll bar is then deleted.
 
-   QAbstractScrollArea already provides vertical and horizontal scrollbars by
+   QAbstractScrollArea already provides vertical and horizontal scroll bars by
    default. You can call this function to replace the default vertical
-   scrollbar with your own custom scrollbar.
+   scroll bar with your own custom scroll bar.
 
    \sa verticalScrollBar(), setHorizontalScrollBar()
 */
-void QAbstractScrollArea::setVerticalScrollBar(QScrollBar *scrollbar)
+void QAbstractScrollArea::setVerticalScrollBar(QScrollBar *scrollBar)
 {
     Q_D(QAbstractScrollArea);
-    if (!scrollbar) {
-        qWarning("QAbstractScrollArea::setVerticalScrollBar: cannot set a 0 scrollbar");
+    if (!scrollBar) {
+        qWarning("QAbstractScrollArea::setVerticalScrollBar: Cannot set a null scroll bar");
         return;
     }
 
-    d->replaceScrollBar(scrollbar, Qt::Vertical);
+    d->replaceScrollBar(scrollBar, Qt::Vertical);
 }
 
 /*!
@@ -557,25 +557,26 @@ QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 
 /*!
     \since 4.2
-   Replaces the existing horizontal scrollbar with \a scrollbar, and sets all
-   the former scrollbar's slider properties on the new scrollbar. The former
-   scrollbar is then deleted.
 
-   QAbstractScrollArea already provides horizontal and vertical scrollbars by
-   default. You can call this function to replace the default horizontal
-   scrollbar with your own custom scrollbar.
+    Replaces the existing horizontal scroll bar with \a scrollBar, and sets all
+    the former scroll bar's slider properties on the new scroll bar. The former
+    scroll bar is then deleted.
 
-   \sa horizontalScrollBar(), setVerticalScrollBar()
+    QAbstractScrollArea already provides horizontal and vertical scroll bars by
+    default. You can call this function to replace the default horizontal
+    scroll bar with your own custom scroll bar.
+
+    \sa horizontalScrollBar(), setVerticalScrollBar()
 */
-void QAbstractScrollArea::setHorizontalScrollBar(QScrollBar *scrollbar)
+void QAbstractScrollArea::setHorizontalScrollBar(QScrollBar *scrollBar)
 {
     Q_D(QAbstractScrollArea);
-    if (!scrollbar) {
-        qWarning("QAbstractScrollArea::setHorizontalScrollBar: cannot set a 0 scrollbar");
+    if (!scrollBar) {
+        qWarning("QAbstractScrollArea::setHorizontalScrollBar: Cannot set a null scroll bar");
         return;
     }
 
-    d->replaceScrollBar(scrollbar, Qt::Horizontal);
+    d->replaceScrollBar(scrollBar, Qt::Horizontal);
 }
 
 /*!
@@ -600,7 +601,7 @@ QWidget *QAbstractScrollArea::cornerWidget() const
 
     Passing 0 shows no widget in the corner.
 
-    Any previous \a corner widget is hidden.
+    Any previous corner widget is hidden.
 
     You may call setCornerWidget() with the same widget at different
     times.

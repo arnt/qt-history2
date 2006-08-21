@@ -793,8 +793,6 @@ void QTextEdit::setCurrentFont(const QFont &f)
 }
 
 /*!
-    \fn void QTextEdit::undo() const
-
     Undoes the last operation.
 
     If there is no operation to undo, i.e. there is no undo step in

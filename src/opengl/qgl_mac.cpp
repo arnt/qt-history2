@@ -236,6 +236,20 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     return aglChoosePixelFormat(0, 0, attribs);
 }
 
+/*!
+    \bold{Mac OS X only:} This virtual function tries to find a visual that
+    matches the format, reducing the demands if the original request
+    cannot be met.
+
+    The algorithm for reducing the demands of the format is quite
+    simple-minded, so override this method in your subclass if your
+    application has spcific requirements on visual selection.
+
+    \a device is currently ignored.
+
+    \sa chooseContext()
+*/
+
 void *QGLContext::chooseMacVisual(GDHandle /* device */)
 {
     Q_D(QGLContext);
@@ -251,7 +265,7 @@ void *QGLContext::chooseMacVisual(GDHandle /* device */)
         fmt = d->tryFormat(d->glFormat);
     }
     if(!fmt)
-        qWarning("QGLContext::chooseMacVisual(): unable to choose a pixel format (error: %d).",
+        qWarning("QGLContext::chooseMacVisual: Unable to choose a pixel format (error: %d)",
                  (int)aglGetError());
     return fmt;
 }

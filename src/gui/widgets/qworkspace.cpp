@@ -690,12 +690,10 @@ QSize QWorkspaceTitleBar::sizeHint() const
     window changes, and the function activeWindow() returns a pointer to the
     active child window, or 0 if no window is active.
 
-    The convenience function windowList() returns a list of all
-    child windows. This information could be used in a
-    popup menu containing a list of windows, for example.
-    This feature is also available as part of the
-    \link http://www.trolltech.com/products/solutions/catalog/Widgets/qtwindowlistmenu/
-    Window Menu \endlink Qt Solution.
+    The convenience function windowList() returns a list of all child
+    windows. This information could be used in a popup menu
+    containing a list of windows, for example. This feature is also
+    available as part of the \l{Window Menu} Solution.
 
     QWorkspace provides two built-in layout strategies for child
     windows: cascade() and tile(). Both are slots so you can easily

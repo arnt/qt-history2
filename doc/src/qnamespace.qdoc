@@ -1602,6 +1602,8 @@
            ability to understand Motif and/or NETWM hints. Most existing
            modern window managers can handle this.
 
+    \value CustomizeWindowHint  Turns off the default window title hints.
+
     \value WindowTitleHint  Gives the window a title bar.
 
     \value WindowSystemMenuHint  Adds a window system menu, and possibly a close button.
@@ -2106,7 +2108,7 @@
     \value ElideNone    Ellipsis should NOT appear in the text.
 
     Qt::ElideMiddle is normally the most appropriate choice for URLs (e.g.,
-    "\l{http://www.trolltech.cn/newsroom/announcements/Beijing-Office-Opening.pdf}{http://www.trolltech.cn/news...s/Beijing-Office-Opening.pdf}"),
+    "\l{http://www.trolltech.com/careers/movingto/beijing/}{http://www.troll...ovingto/beijing/}"),
     whereas Qt::ElideRight is appropriate
     for other strings (e.g.,
     "\l{http://doc.trolltech.com/qq/qq09-mac-deployment.html}{Deploying Applications on Ma...}").

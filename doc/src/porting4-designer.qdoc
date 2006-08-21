@@ -7,8 +7,7 @@
     have moved away from viewing Qt Designer as an IDE and
     concentrated on creating a robust form builder which can be
     extended and embedded in existing IDEs. Our efforts are ongoing
-    and include the
-    \l{http://www.trolltech.com/products/qt/vs-integration.html}{Qt Visual Studio Integration},
+    and include the \l{Visual Studio Integration},
     as well as integrating Designer with KDevelop and possibly other
     IDEs.
 

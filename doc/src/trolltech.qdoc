@@ -6,20 +6,18 @@ Trolltech is an international software company with
 headquarters in Oslo, Norway, and with offices
 in Brisbane, Australia and Redwood City, California.
 
-Our flagship product is \l{http://www.trolltech.com/products/qt/}{Qt},
-the cross-platform C++ GUI toolkit. Qt enables you to develop professional,
-efficient, portable, and maintainable GUI applications quickly and
-easily.
+Our flagship product is \l{Qt Homepage}{Qt}, the cross-platform C++
+GUI toolkit. Qt enables you to develop professional, efficient,
+portable, and maintainable GUI applications quickly and easily.
 
-\l{http://www.trolltech.com/products/embedded}{Qtopia Core}, the embedded
-Linux version of Qt, is designed to power today's new generation of
-single-application embedded devices. Qtopia Core sits at the heart of
-Trolltech's product portfolio, optimizing Qt for embedded development and
-forming the core of \l{Qtopia}, Trolltech's product family for mobile and
+\l{Qtopia}{Qtopia Core}, the embedded Linux version of Qt,
+is designed to power today's new generation of single-application
+embedded devices. Qtopia Core sits at the heart of Trolltech's
+product portfolio, optimizing Qt for embedded development and forming
+the core of \l{Qtopia}, Trolltech's product family for mobile and
 embedded devices.
 
-See the \l{http://www.trolltech.com/products/}{Product Overview}
-for a complete list of products.
+See the \l{Product Overview} for a complete list of products.
 
 \section1 Software that Makes Sense
 
@@ -43,8 +41,7 @@ development projects world wide. At Trolltech, we continuously work to
 improve and expand Qt to ensure that it always represents the state of the
 art in usability, look and feel, performance, and stability.
 
-For more information, please visit the
-\l{http://www.trolltech.com/}{Trolltech website}.
+For more information, please visit the \l{Trolltech website}.
 
 \section1 Contact Information
 
@@ -71,7 +68,7 @@ For more information, please visit the
  <td colspan="2">
   <a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
  </td><td colspan="2">
-  <a href="http://www.trolltech.com/developer/tasktracker.html">
+  <a href="http://www.trolltech.com/developer/task-tracker/">
    <strong>Task Tracker</strong></a>
  </td>
 </tr><tr>

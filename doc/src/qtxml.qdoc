@@ -24,11 +24,10 @@
     For more information about the DOM classes in Qt is provided, see
     \l{The Qt DOM Classes}.
 
-    In addition to SAX and DOM support, QSvgRenderer can read a subset of SVG.
-    Additional XML support is provided by the
-    \l{http://www.trolltech.com/products/solutions/index.html}{Qt Solutions}
-    group who provide, for example, classes that support SOAP and MML with
-    the Qt XML classes.
+    In addition to SAX and DOM support, QSvgRenderer can read a
+    subset of SVG. Additional XML support is provided by the \l{Qt
+    Solutions} group who provide, for example, classes that support
+    SOAP and MML with the Qt XML classes.
 
     To include the definitions of the module's classes, use the
     following directive:

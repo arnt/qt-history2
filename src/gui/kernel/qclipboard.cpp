@@ -143,8 +143,8 @@ QClipboard::~QClipboard()
     \fn void QClipboard::changed(QClipboard::Mode mode)
     \since 4.2
 
-    This signal is emitted when the data for one of the clipboards is
-    changed.
+    This signal is emitted when the data for the given clipboard \a
+    mode is changed.
 
     \sa dataChanged(), selectionChanged(), findBufferChanged()
 */

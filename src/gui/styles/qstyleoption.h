@@ -448,6 +448,7 @@ public:
         Alternate = 0x02
     };
     Q_DECLARE_FLAGS(ViewItemFeatures, ViewItemFeature)
+
     ViewItemFeatures features;
 
     QStyleOptionViewItemV2();

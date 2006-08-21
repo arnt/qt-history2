@@ -3157,8 +3157,9 @@ int QImage::pixelIndex(int x, int y) const
 /*!
     \fn QRgb QImage::pixel(const QPoint &position) const
 
-    Returns the color of the pixel at the given \a position. If the
-    given \a position is not valid, the results are undefined.
+    Returns the color of the pixel at the given \a position.
+
+    If the \a position is not valid, the results are undefined.
 
     \sa setPixel(), valid(), {QImage#Pixel Manipulation}{Pixel
     Manipulation}

@@ -68,11 +68,9 @@
 
     \endtable
 
-    The \l
-    {http://www.trolltech.com/products/qtopia/index.html}{Qtopia}
-    platform is an example using this apporach: It can be built either
-    as a set of dynamically linked executables, or as a single static
-    application.
+    The \l Qtopia platform is an example using this apporach: It can
+    be built either as a set of dynamically linked executables, or as
+    a single static application.
 
     When installing end-user applications, this approach may not be an
     option, but when building a single application suite for a device

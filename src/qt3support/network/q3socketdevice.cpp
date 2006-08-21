@@ -310,7 +310,7 @@ bool Q3SocketDevice::open( OpenMode mode )
     return true;
 }
 
-/*
+/*!
     \fn bool Q3SocketDevice::open(int mode)
     \overload
 */

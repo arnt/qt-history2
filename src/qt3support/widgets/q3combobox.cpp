@@ -233,8 +233,9 @@
     non-editable comboboxes it has no effect. It is false by default.
 */
 
-/*! \property Q3ComboBox::autoResize
-    \brief whether auto resize is enabled
+/*!
+    \property Q3ComboBox::autoResize
+    \brief whether auto-resize is enabled
     \obsolete
 
     If this property is set to true then the combobox will resize
@@ -1067,10 +1068,26 @@ void Q3ComboBox::setCurrentItem( int index )
     currentChanged();
 }
 
+/*!
+    \obsolete
+
+    Returns true if auto-resize is enabled; otherwise returns false.
+
+    \sa autoResize
+*/
+
 bool Q3ComboBox::autoResize() const
 {
     return d->autoresize;
 }
+
+/*!
+    \obsolete
+
+    If \a enable is true, enable auto-resize; disable it otherwise.
+
+    \sa autoResize
+*/
 
 void Q3ComboBox::setAutoResize( bool enable )
 {
