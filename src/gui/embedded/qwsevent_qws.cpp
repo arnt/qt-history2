@@ -131,8 +131,10 @@ QWSEvent *QWSEvent::factory(int type)
               non-Latin alphabets. See also QWSInputMethod.
     \value IMQuery An input method query for a specified property has occurred.
              See also QWSInputMethod.
-    \value IMInit
     \value NEvent The number of events has changed.
+    \value Embed An event used internally to implement
+           \l {QWSEmbedWidget}{embedded windows}.
+    \omitvalue IMInit
 */
 
 /*!

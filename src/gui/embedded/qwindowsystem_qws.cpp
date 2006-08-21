@@ -289,6 +289,16 @@ public:
     \internal
 */
 
+/*!
+    \fn QRegion QWSWindow::allocatedRegion() const
+    \internal
+*/
+
+/*!
+    \fn QRegion QWSWindow::isPartiallyObscured() const
+    \internal
+*/
+
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
           onTop(false), c(client), last_focus_time(0), _opacity(255),
@@ -3921,10 +3931,10 @@ void QWSInputMethod::sendCommitString(const QString &commitString, int replaceFr
 */
 
 /*!
-    \fn QWSInputMethod::sendEvent(const QInputMethodEvent *)
+    \fn QWSInputMethod::sendEvent(const QInputMethodEvent *event)
 
-    Sends a QInputMethodEvent object to the focus widget.
-a
+    Sends the given \a event to the focus widget.
+
     \sa sendPreeditString(), sendCommitString(), reset()
 */
 

@@ -63,7 +63,7 @@
     \code
         module_raw input
         module linear
-    \code
+    \endcode
 
     To make \l {Qtopia Core} explicitly choose the tslib mouse
     handler, set the QWS_MOUSE_PROTO environment variable.

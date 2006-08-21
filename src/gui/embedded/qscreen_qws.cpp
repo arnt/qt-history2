@@ -362,6 +362,43 @@ public:
     \fn static QScreen* QScreen::instance()
 
     Returns a pointer to the application's QScreen instance.
+
+    If this screen consists of several subscreens, operations to this
+    instance will affect all subscreens. Use the subscreens() function
+    to retrieve access to a particular subscreen.
+
+    \sa subScreens(), subScreenIndexAt()
+*/
+
+/*!
+    \fn virtual QList<QScreen*> subScreens() const
+
+    Returns a list of this screen's subscreens. Use this function to
+    retrieve access to a particular subscreen. Use the
+    subScreenIndexAt() function to retrieve the index of a screen at a
+    given position.
+
+    Note that if \e this screen consists of several subscreens,
+    operations to \e this instance will affect all subscreens by
+    default.
+
+    \sa instance(), subScreenIndexAt()
+*/
+
+/*!
+    \fn int  QScreen::physicalWidth() const
+
+    Returns the physical width of the screen (in millimeters).
+
+    \sa physicalHeight()
+*/
+
+/*!
+    \fn int QScreen::physicalHeight() const
+
+    Returns the physical height of the screen (in millimeters).
+
+    \sa physicalWidth()
 */
 
 /*!
@@ -1950,10 +1987,6 @@ void QScreen::resumeUpdates()
 }
 
 /*!
-    \internal
-*/
-
-/*!
     \fn QRegion QScreen::region() const
 
     Returns the region covered by this screen.
@@ -1976,11 +2009,15 @@ QPoint QScreen::offset() const
 }
 
 /*!
-    Returns the index of the subScreen at position \a p; returns -1 if no
-    screen is found.
+    \fn int QScreen::subScreenIndexAt(const QPoint &position) const
 
-    The QScreen instance can be retreived as the index in the list returned by
-    subScreens().
+    Returns the index of the subscreen at the given \a position;
+    returns -1 if no screen is found.
+
+    The index identifies the subscreen in the list of pointers
+    returned by the subScreens() function.
+
+    \sa instance(), subScreens()
 */
 int QScreen::subScreenIndexAt(const QPoint &p) const
 {
