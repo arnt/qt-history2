@@ -124,8 +124,12 @@ QFont QTextItem::font() const
   \value PainterPaths       The engine has path support.
   \value Antialiasing       The engine can use antialising to improve the appearance
                             of rendered primitives.
-  \value BrushStroke
-  \value ConstantOpacity
+  \value BrushStroke        The engine supports drawing strokes that
+                            contain brushes as fills, not just solid
+                            colors (e.g. a dashed gradient line of
+                            width 2).
+  \value ConstantOpacity    The engine supports the feature provided by
+                            QPainter::setOpacity().
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
   \value AllFeatures
@@ -183,7 +187,9 @@ QFont QTextItem::font() const
     \value DirtyClipEnabled Whether clipping is enabled or not is
     dirty and needs to be updated.
 
-    \value DirtyOpacity
+    \value DirtyOpacity The constant opacity has changed and needs to
+                        be updated as part of the state change in
+                        QPaintEngine::updateState().
 
     \value AllDirty Convenience enum used internally.
 
