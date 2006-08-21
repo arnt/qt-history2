@@ -117,6 +117,7 @@ private slots:
     void mouseEventPropagation_ignore();
     void mouseEventPropagation_focus();
     void mouseEventPropagation_doubleclick();
+    void mouseEventPropagation_mouseMove();
     void dragAndDrop_simple();
     void dragAndDrop_disabledOrInvisible();
     void dragAndDrop_propagate();
@@ -1417,6 +1418,36 @@ void tst_QGraphicsScene::mouseEventPropagation_doubleclick()
     QCOMPARE(a->eventTypes.size(), 2);
     QCOMPARE(b->eventTypes.size(), 2);
     QCOMPARE(b->eventTypes.last(), QEvent::GraphicsSceneMouseRelease);
+}
+
+class Scene : public QGraphicsScene
+{
+public:
+    QList<QPointF> mouseMovePoints;
+
+protected:
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+    {
+        mouseMovePoints << event->scenePos();
+    }
+};
+
+void tst_QGraphicsScene::mouseEventPropagation_mouseMove()
+{
+    Scene scene;
+    scene.addRect(QRectF(5, 0, 12, 12));
+    scene.addRect(QRectF(15, 0, 12, 12))->setAcceptsHoverEvents(true);
+    for (int i = 0; i < 30; ++i) {
+        QGraphicsSceneMouseEvent event(QEvent::GraphicsSceneMouseMove);
+        event.setScenePos(QPointF(i, 5));
+        QApplication::sendEvent(&scene, &event);
+    }
+
+    QCOMPARE(scene.mouseMovePoints.size(), 17);
+    for (int i = 0; i < 15; ++i)
+        QCOMPARE(scene.mouseMovePoints.at(i), QPointF(i, 5));
+    QCOMPARE(scene.mouseMovePoints.at(15), QPointF(28, 5));
+    QCOMPARE(scene.mouseMovePoints.at(16), QPointF(29, 5));
 }
 
 class DndTester : public QGraphicsEllipseItem
