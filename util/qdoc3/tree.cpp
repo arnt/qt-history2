@@ -1075,7 +1075,8 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         }
     }
 
-    // Construct the opening tag for the node.
+    // Construct the opening tag for the node and determine if it should
+    // be closed, or if it is followed by child nodes and a closing tag.
 
     out << thisNode;
 
@@ -1100,7 +1101,8 @@ void Tree::generateIndexSections(const QString &fileName, const QString &url,
 
     out << "<!DOCTYPE QDOCINDEX>\n";
     out << "<INDEX url=\"" << HtmlGenerator::protect(url)
-        << "\" title=\"" << HtmlGenerator::protect(title) + "\">\n";
+        << "\" title=\"" << HtmlGenerator::protect(title)
+        << "\" version=\"" << HtmlGenerator::protect(version()) + "\">\n";
 
     generateIndexSubSections("", out, root());
 
