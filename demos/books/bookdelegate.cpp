@@ -85,3 +85,19 @@ bool BookDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
 
     return true;
 }
+
+QWidget *BookDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                                    const QModelIndex &index) const
+{
+    if (index.column() != 4)
+        return QSqlRelationalDelegate::createEditor(parent, option, index);
+
+    // for editing the year, return a spinbox with a range from -1000 to 2100.
+    QSpinBox *sb = new QSpinBox(parent);
+    sb->setFrame(false);
+    sb->setMaximum(2100);
+    sb->setMinimum(-1000);
+
+    return sb;
+}
+
