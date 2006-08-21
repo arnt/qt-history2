@@ -1826,7 +1826,28 @@ void QMessageBox::setWindowTitle(const QString &title)
     // Message boxes on the mac do not have a title
 #ifndef Q_WS_MAC
     QDialog::setWindowTitle(title);
+#else
+    Q_UNUSED(title);
 #endif
+}
+
+
+/*!
+    This function shadows QWidget::setWindowModality()
+    Sets the modality of the message box to \a windowModality.
+
+    On Mac OS X, if the modality is set to Qt::WindowModal and the message box
+    has a parent, then the message box will be a Qt::Sheet, otherwise the
+    message box will be a standard dialog.
+*/
+void QMessageBox::setWindowModality(Qt::WindowModality windowModality)
+{
+    QDialog::setWindowModality(windowModality);
+
+    if (parentWidget() && windowModality == Qt::WindowModal)
+        setParent(parentWidget(), Qt::Sheet);
+    else
+        setParent(parentWidget(), Qt::Dialog);
 }
 
 #ifdef QT3_SUPPORT

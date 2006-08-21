@@ -113,8 +113,6 @@ public:
     QPushButton *addButton(StandardButton button);
     void removeButton(QAbstractButton *button);
 
-    // ### override setWindowTitle()
-
 /*
     These are probably overkill:
 
@@ -244,6 +242,7 @@ public:
     void setDetailedText(const QString &text);
 
     void setWindowTitle(const QString &title);
+    void setWindowModality(Qt::WindowModality windowModality);
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QMessageBox(const QString &title, const QString &text, Icon icon,
