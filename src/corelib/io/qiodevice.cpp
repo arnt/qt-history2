@@ -1359,6 +1359,9 @@ QByteArray QIODevice::peek(qint64 maxSize)
     If called from within a slot connected to the readyRead() signal,
     readyRead() will not be reemitted.
 
+    Reimplement this function to provide a blocking API for a custom
+    device. The default implementation does nothing, and returns false.
+
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
@@ -1387,6 +1390,9 @@ bool QIODevice::waitForReadyRead(int msecs)
 
     If called from within a slot connected to the bytesWritten() signal,
     bytesWritten() will not be reemitted.
+
+    Reimplement this function to provide a blocking API for a custom
+    device. The default implementation does nothing, and returns false.
 
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
