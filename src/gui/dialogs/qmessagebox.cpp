@@ -160,7 +160,8 @@ class QMessageBoxPrivate : public QDialogPrivate
 
 public:
     QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), detailsButton(0),
-                           detailsText(0), compatMode(false), autoAddOkButton(true) { }
+                           detailsText(0), compatMode(false), autoAddOkButton(true),
+                           detectedEscapeButton(0) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
     void _q_buttonClicked(QAbstractButton *);
@@ -170,6 +171,8 @@ public:
 
     QAbstractButton *abstractButtonForId(int id) const;
     int execReturnCode(QAbstractButton *button);
+
+    void detectEscapeButton();
 
     static int showOldMessageBox(QWidget *parent, QMessageBox::Icon icon,
                                  const QString &title, const QString &text,
@@ -198,6 +201,7 @@ public:
     QMessageBoxDetailsText *detailsText;
     bool compatMode;
     bool autoAddOkButton;
+    QAbstractButton *detectedEscapeButton;
 };
 
 static QString *translatedTextAboutQt = 0;
@@ -645,6 +649,40 @@ void QMessageBox::setEscapeButton(QAbstractButton *button)
         d->escapeButton = button;
 }
 
+
+void QMessageBoxPrivate::detectEscapeButton()
+{
+    if (escapeButton) { // Escape button explicitly set
+        detectedEscapeButton = escapeButton;
+        return;
+    }
+
+    // Cancel button automatically becomes escape button
+    detectedEscapeButton = buttonBox->button(QDialogButtonBox::Cancel);
+    if (detectedEscapeButton)
+        return;
+
+    // If there is only one button, make it the escape button
+    const QList<QAbstractButton *> buttons = buttonBox->buttons();
+    if (buttons.count() == 1) {
+        detectedEscapeButton = buttons.first();
+        return;
+    }
+    
+#ifdef Q_WS_MAC
+    // On the Mac, if the message box has one RejectRole button, make it the escape button
+    for (int i = 0; i < buttons.count(); i++) {
+        if (buttonBox->buttonRole(buttons.at(i)) == QDialogButtonBox::RejectRole) {
+            if (detectedEscapeButton) { // already detected!
+                detectedEscapeButton = 0;
+                return;
+            }
+            detectedEscapeButton = buttons.at(i);
+        }
+    }
+#endif
+}
+
 /*!
     Returns the button that was clicked by the user,
     or 0 if the user hit the \key Escape key and
@@ -845,8 +883,13 @@ void QMessageBox::resizeEvent(QResizeEvent *event)
 void QMessageBox::closeEvent(QCloseEvent *e)
 {
     Q_D(QMessageBox);
+    if (!d->detectedEscapeButton) {
+        e->ignore();
+        return;
+    }
     QDialog::closeEvent(e);
-    setResult(d->execReturnCode(d->escapeButton));
+    d->clickedButton = d->detectedEscapeButton;
+    setResult(d->execReturnCode(d->detectedEscapeButton));
 }
 
 /*!\reimp
@@ -871,12 +914,16 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
         || (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period)
 #endif
         ) {
-        if (d->escapeButton)
-            d->escapeButton->animateClick();
-        else
-            close();
-        return;
-    }
+            if (d->detectedEscapeButton) {
+#ifdef Q_WS_MAC
+                d->detectedEscapeButton->animateClick();
+#else
+                d->detectedEscapeButton->click();
+#endif
+            }
+            return;
+        }
+
 #ifndef QT_NO_SHORTCUT
     if (!(e->modifiers() & Qt::AltModifier)) {
         int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
@@ -905,6 +952,7 @@ void QMessageBox::showEvent(QShowEvent *e)
         addButton(Ok);
     if (d->detailsButton)
         addButton(d->detailsButton, QMessageBox::ActionRole);
+    d->detectEscapeButton();
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
 #endif
