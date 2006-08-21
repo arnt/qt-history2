@@ -144,7 +144,7 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     *d->currentPage << "q\n";
     *d->currentPage
         << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
-                                        rectangle.x(), rectangle.y()) * d->stroker.matrix);
+                                        rectangle.x(), rectangle.y()) * (d->simplePen ? QMatrix() : d->stroker.matrix));
     bool bitmap = true;
     int object = d->addImage(image, &bitmap, qt_pixmap_id(pm));
     if (bitmap) {
@@ -170,7 +170,7 @@ void QPdfEngine::drawImage(const QRectF & rectangle, const QImage & image, const
     *d->currentPage << "q\n";
     *d->currentPage
         << QPdf::generateMatrix(QMatrix(rectangle.width() / sr.width(), 0, 0, rectangle.height() / sr.height(),
-                                        rectangle.x(), rectangle.y()) * d->stroker.matrix);
+                                        rectangle.x(), rectangle.y()) * (d->simplePen ? QMatrix() : d->stroker.matrix));
     bool bitmap = false;
     int object = d->addImage(im, &bitmap, qt_image_id(im));
     d->currentPage->streamImage(image.width(), image.height(), object);
@@ -243,7 +243,7 @@ bool QPdfEngine::newPage()
     if (!isActive())
         return false;
     d->newPage();
-    return true;
+    return QPdfBaseEngine::newPage();
 }
 
 QPdfEnginePrivate::QPdfEnginePrivate(QPrinter::PrinterMode m)
@@ -586,7 +586,7 @@ void QPdfEnginePrivate::newPage()
 
     *currentPage << "/GSa gs /CSp cs /CSp CS\n"
                  << QPdf::generateMatrix(pageMatrix())
-                 << "q\n";
+                 << "q q\n";
 }
 
 
@@ -669,6 +669,8 @@ int QPdfEnginePrivate::writeImage(const QByteArray &data, int width, int height,
     } else {
         if (do_compress)
             xprintf("/Filter /FlateDecode\n>>\nstream\n");
+        else
+            xprintf(">>\nstream\n");
         len = writeCompressed(data);
     }
     xprintf("endstream\n"
@@ -910,7 +912,7 @@ void QPdfEnginePrivate::writePage()
     if (pages.empty())
         return;
 
-    *currentPage << "Q\n";
+    *currentPage << "Q Q\n";
 
     uint pageStream = requestObject();
     uint pageStreamLength = requestObject();

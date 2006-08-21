@@ -146,11 +146,13 @@ public:
     // end reimplementations QPaintEngine
 
     // Printer stuff...
+    bool newPage();
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
     QVariant property(PrintEnginePropertyKey key) const;
 
     void setPen();
     virtual void setBrush() = 0;
+    void setupGraphicsState(QPaintEngine::DirtyFlags flags);
 
 private:
     void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
@@ -187,6 +189,7 @@ public:
     bool allClipped;
     bool hasPen;
     bool hasBrush;
+    bool simplePen;
 
     QHash<QFontEngine::FaceId, QFontSubset *> fonts;
 

@@ -820,11 +820,26 @@ void QPdfBaseEngine::drawRects (const QRectF *rects, int rectCount)
     if (!rects)
         return;
 
-    QPainterPath p;
-    for (int i=0; i!=rectCount; ++i) {
-        p.addRect(rects[i]);
+    Q_D(QPdfBaseEngine);
+    if (d->clipEnabled && d->allClipped)
+        return;
+
+    QBrush penBrush = d->pen.brush();
+    if (d->simplePen || !d->hasPen) {
+        // draw strokes natively in this case for better output
+        if(!d->simplePen && !d->stroker.matrix.isIdentity())
+            *d->currentPage << "q\n" << QPdf::generateMatrix(d->stroker.matrix);
+        for (int i = 0; i < rectCount; ++i)
+            *d->currentPage << rects[i].x() << rects[i].y() << rects[i].width() << rects[i].height() << "re\n";
+        *d->currentPage << (d->hasPen ? (d->hasBrush ? "B\n" : "S\n") : "f\n");
+        if(!d->simplePen && !d->stroker.matrix.isIdentity())
+            *d->currentPage << "Q\n";
+    } else {
+        QPainterPath p;
+        for (int i=0; i!=rectCount; ++i)
+            p.addRect(rects[i]);
+        drawPath(p);
     }
-    drawPath(p);
 }
 
 void QPdfBaseEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
@@ -868,18 +883,12 @@ void QPdfBaseEngine::drawPath (const QPainterPath &p)
     if (d->clipEnabled && d->allClipped)
         return;
 
-    QBrush penBrush = d->pen.brush();
-    if (d->hasPen && penBrush == Qt::SolidPattern && penBrush.isOpaque()) {
+    if (d->simplePen) {
         // draw strokes natively in this case for better output
-        *d->currentPage << "q\n";
-        setPen();
-        *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
         *d->currentPage << QPdf::generatePath(p, QMatrix(), d->hasBrush ? QPdf::FillAndStrokePath : QPdf::StrokePath);
-        *d->currentPage << "Q\n";
     } else {
-        if (d->hasBrush) {
+        if (d->hasBrush)
             *d->currentPage << QPdf::generatePath(p, d->stroker.matrix, QPdf::FillPath);
-        }
         if (d->hasPen) {
             *d->currentPage << "q\n";
             QBrush b = d->brush;
@@ -899,7 +908,9 @@ void QPdfBaseEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     if (!d->hasPen || (d->clipEnabled && d->allClipped))
         return;
 
-    *d->currentPage << "q " << QPdf::generateMatrix(d->stroker.matrix);
+    *d->currentPage << "q\n";
+    if(!d->simplePen)
+        *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
 
     bool hp = d->hasPen;
     d->hasPen = false;
@@ -928,6 +939,11 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->pen = state.pen();
         d->hasPen = d->pen.style() != Qt::NoPen;
         d->stroker.setPen(d->pen);
+        QBrush penBrush = d->pen.brush();
+        bool oldSimple = d->simplePen;
+        d->simplePen = (d->hasPen && penBrush == Qt::SolidPattern && penBrush.isOpaque());
+        if (oldSimple != d->simplePen)
+            flags |= DirtyTransform;
     }
     if (flags & DirtyBrush) {
         d->brush = state.brush();
@@ -959,12 +975,23 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
     else if (!d->clipEnabled)
         flags &= ~DirtyClipPath;
 
-    if (flags & DirtyClipPath) {
-        *d->currentPage << "Q q\n";
+    setupGraphicsState(flags);
+}
+
+void QPdfBaseEngine::setupGraphicsState(QPaintEngine::DirtyFlags flags)
+{
+    Q_D(QPdfBaseEngine);
+    if (flags & DirtyClipPath)
+        flags |= DirtyTransform|DirtyPen|DirtyBrush;
+
+    if (flags & DirtyTransform) {
+        *d->currentPage << "Q\n";
         flags |= DirtyPen|DirtyBrush;
     }
 
     if (flags & DirtyClipPath) {
+        *d->currentPage << "Q q\n";
+
         d->allClipped = false;
         if (d->clipEnabled && !d->clips.isEmpty()) {
             for (int i = 0; i < d->clips.size(); ++i) {
@@ -981,8 +1008,15 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         }
     }
 
+    if (flags & DirtyTransform) {
+        *d->currentPage << "q\n";
+        if (d->simplePen && !d->stroker.matrix.isIdentity())
+            *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
+    }
     if (flags & DirtyBrush)
         setBrush();
+    if (d->simplePen && flags & DirtyPen)
+        setPen();
 }
 
 void QPdfBaseEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
@@ -1056,6 +1090,13 @@ void QPdfBaseEngine::setPen()
 
     *d->currentPage << QPdf::generateDashes(d->pen) << " 0 d\n";
 }
+
+bool QPdfBaseEngine::newPage()
+{
+    setupGraphicsState(DirtyBrush|DirtyPen|DirtyClipPath);
+    return true;
+}
+
 
 int QPdfBaseEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
@@ -1230,7 +1271,8 @@ QVariant QPdfBaseEngine::property(PrintEnginePropertyKey key) const
 }
 
 QPdfBaseEnginePrivate::QPdfBaseEnginePrivate(QPrinter::PrinterMode m)
-    : outDevice(0), fd(-1),
+    : clipEnabled(false), allClipped(false), hasPen(true), hasBrush(false), simplePen(true),
+      outDevice(0), fd(-1),
       duplex(false), collate(false), fullPage(false), embedFonts(true), copies(1),
       pageOrder(QPrinter::FirstPageFirst), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), colorMode(QPrinter::Color), paperSource(QPrinter::Auto)
@@ -1304,7 +1346,7 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
     if (!outputFileName.isEmpty()) {
 
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
-        _sopen_s(&fd, outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY , _SH_DENYNO 
+        _sopen_s(&fd, outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY , _SH_DENYNO
 #else
         fd = QT_OPEN(outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
 #ifndef Q_OS_WIN

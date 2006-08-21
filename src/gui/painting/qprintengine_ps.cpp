@@ -572,9 +572,9 @@ void QPSPrintEnginePrivate::flushPage(bool last)
     for (int i = 0; i < currentPage->fonts.size(); ++i)
         s << "(F" << QByteArray::number(currentPage->fonts.at(i)) << ") T1Setup\n";
 
-    s << "%%EndPageSetup\n"
+    s << "%%EndPageSetup\nq\n"
       << currentPage->content()
-      << "\nQP\n";
+      << "\nQ QP\n";
     if (last || hugeDocument || buffer.size() > max_in_memory_size) {
 //        qDebug("emiting header at page %d", pageCount);
         if (!headerDone)
@@ -819,7 +819,7 @@ bool QPSPrintEngine::newPage()
     d->currentPage = new QPdfPage;
     d->stroker.stream = d->currentPage;
 
-    return true;
+    return QPdfBaseEngine::newPage();
 }
 
 bool QPSPrintEngine::abort()
