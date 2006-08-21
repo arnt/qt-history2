@@ -1841,9 +1841,6 @@ static void init_display()
 {
     if (qt_fbdpy) return; // workaround server==client case
 
-    setlocale(LC_ALL, "");                // use correct char set mapping
-    setlocale(LC_NUMERIC, "C");        // make sprintf()/scanf() work
-
     // Connect to FB server
     qt_fbdpy = new QWSDisplay();
 

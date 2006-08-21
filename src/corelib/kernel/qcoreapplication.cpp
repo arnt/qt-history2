@@ -393,6 +393,12 @@ extern void set_winapp_name();
 void QCoreApplication::init()
 {
     Q_D(QCoreApplication);
+
+#ifdef Q_OS_UNIX
+    setlocale(LC_ALL, "");                // use correct char set mapping
+    setlocale(LC_NUMERIC, "C");        // make sprintf()/scanf() work
+#endif
+    
 #ifdef Q_WS_WIN
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();

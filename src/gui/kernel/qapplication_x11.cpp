@@ -1206,9 +1206,6 @@ static void getXDefault(const char *group, const char *key, bool *val)
 void qt_init(QApplicationPrivate *priv, int,
 	     Display *display, Qt::HANDLE visual, Qt::HANDLE colormap)
 {
-    setlocale(LC_ALL, "");                // use correct char set mapping
-    setlocale(LC_NUMERIC, "C");        // make sprintf()/scanf() work
-
     X11 = new QX11Data;
     X11->display = display;
     X11->displayName = 0;
