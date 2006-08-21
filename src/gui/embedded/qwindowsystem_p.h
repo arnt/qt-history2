@@ -31,7 +31,6 @@
 #include "qbrush.h"
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws_p.h"
-#include "qwsmemid_qws.h"
 
 class QWSServerPrivate : public QObjectPrivate {
     friend class QCopChannel;

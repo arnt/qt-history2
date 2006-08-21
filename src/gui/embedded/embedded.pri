@@ -23,7 +23,6 @@ embedded {
 		    embedded/qwsevent_qws.h \
 		    embedded/qwsmanager_qws.h \
 		    embedded/qwsmanager_p.h \
-		    embedded/qwsmemid_qws.h \
 		    embedded/qwsproperty_qws.h \
 		    embedded/qwsprotocolitem_qws.h \
                     embedded/qtransportauth_qws.h \

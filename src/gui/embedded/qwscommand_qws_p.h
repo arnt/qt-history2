@@ -42,7 +42,6 @@
 #include <QtCore/qvarlengtharray.h>
 #include <QtGui/qwsevent_qws.h>
 #include "qwsprotocolitem_qws.h"
-#include "qwsmemid_qws.h"
 
 QT_MODULE(Gui)
 
