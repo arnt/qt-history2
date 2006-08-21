@@ -200,7 +200,7 @@ void QButtonGroup::addButton(QAbstractButton *button, int id)
 {
     Q_D(QButtonGroup);
     if (QButtonGroup *previous = button->d_func()->group)
-        if (previous && previous != this)
+        if (previous)
             previous->removeButton(button);
     button->d_func()->group = this;
     d->buttonList.append(button);
