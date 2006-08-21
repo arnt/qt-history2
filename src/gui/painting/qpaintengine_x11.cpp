@@ -1360,7 +1360,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             if (X11->use_xrender) {
                 XRenderPictureAttributes attrs;
                 attrs.repeat = true;
-                XRenderChangePicture(d->dpy, d->cbrush.texture().x11PictureHandle(), CPRepeat, &attrs);
+                XRenderChangePicture(d->dpy, pm.x11PictureHandle(), CPRepeat, &attrs);
+                if (pm.data->mask_picture)
+                    XRenderChangePicture(d->dpy, pm.data->mask_picture, CPRepeat, &attrs);
             }
 #endif
         } else {
