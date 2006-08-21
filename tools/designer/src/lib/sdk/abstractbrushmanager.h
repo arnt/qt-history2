@@ -26,7 +26,7 @@ class QDESIGNER_SDK_EXPORT QDesignerBrushManagerInterface : public QObject
 {
     Q_OBJECT
 public:
-    QDesignerBrushManagerInterface(QObject *parent = 0) : QObject(parent) {}
+    QDesignerBrushManagerInterface(QObject *parentObject = 0) : QObject(parentObject) {}
 
     virtual QBrush brush(const QString &name) const = 0;
     virtual QMap<QString, QBrush> brushes() const = 0;

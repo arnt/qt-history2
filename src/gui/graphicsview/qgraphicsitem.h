@@ -132,12 +132,11 @@ public:
     inline qreal y() const { return pos().y(); }
     QPointF scenePos() const;
     void setPos(const QPointF &pos);
-    inline void setPos(qreal x, qreal y) { setPos(QPointF(x, y)); }
+    inline void setPos(qreal x, qreal y);
     inline void moveBy(qreal dx, qreal dy) { setPos(pos().x() + dx, pos().y() + dy); }
 
     void ensureVisible(const QRectF &rect = QRectF(), int xmargin = 50, int ymargin = 50);
-    inline void ensureVisible(qreal x, qreal y, qreal w, qreal h, int xmargin = 50, int ymargin = 50)
-    { ensureVisible(QRectF(x, y, w, h), xmargin, ymargin); }
+    inline void ensureVisible(qreal x, qreal y, qreal w, qreal h, int xmargin = 50, int ymargin = 50);
 
     // Local transformation
     QMatrix matrix() const;
@@ -170,8 +169,7 @@ public:
     // Drawing
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
     void update(const QRectF &rect = QRectF());
-    inline void update(qreal x, qreal y, qreal width, qreal height)
-    { update(QRectF(x, y, width, height)); }
+    inline void update(qreal x, qreal y, qreal width, qreal height);
 
     // Coordinate mapping
     QPointF mapToItem(const QGraphicsItem *item, const QPointF &point) const;
@@ -199,18 +197,12 @@ public:
     QPainterPath mapFromParent(const QPainterPath &path) const;
     QPainterPath mapFromScene(const QPainterPath &path) const;
 
-    inline QPointF mapToItem(const QGraphicsItem *item, qreal x, qreal y) const
-    { return mapToItem(item, QPointF(x, y)); }
-    inline QPointF mapToParent(qreal x, qreal y) const
-    { return mapToParent(QPointF(x, y)); }
-    inline QPointF mapToScene(qreal x, qreal y) const
-    { return mapToScene(QPointF(x, y));  }
-    inline QPointF mapFromItem(const QGraphicsItem *item, qreal x, qreal y) const
-    { return mapFromItem(item, QPointF(x, y)); }
-    inline QPointF mapFromParent(qreal x, qreal y) const
-    { return mapFromParent(QPointF(x, y));  }
-    inline QPointF mapFromScene(qreal x, qreal y) const
-    { return mapFromScene(QPointF(x, y));  }
+    inline QPointF mapToItem(const QGraphicsItem *item, qreal x, qreal y) const;
+    inline QPointF mapToParent(qreal x, qreal y) const;
+    inline QPointF mapToScene(qreal x, qreal y) const;
+    inline QPointF mapFromItem(const QGraphicsItem *item, qreal x, qreal y) const;
+    inline QPointF mapFromParent(qreal x, qreal y) const;
+    inline QPointF mapFromScene(qreal x, qreal y) const;
 
     bool isAncestorOf(const QGraphicsItem *child) const;
 
@@ -282,6 +274,25 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)
 
+inline void QGraphicsItem::setPos(qreal ax, qreal ay)
+{ setPos(QPointF(ax, ay)); }
+inline void QGraphicsItem::ensureVisible(qreal ax, qreal ay, qreal w, qreal h, int xmargin, int ymargin)
+{ ensureVisible(QRectF(ax, ay, w, h), xmargin, ymargin); }
+inline void QGraphicsItem::update(qreal ax, qreal ay, qreal width, qreal height)
+{ update(QRectF(ax, ay, width, height)); }
+inline QPointF QGraphicsItem::mapToItem(const QGraphicsItem *item, qreal ax, qreal ay) const
+{ return mapToItem(item, QPointF(ax, ay)); }
+inline QPointF QGraphicsItem::mapToParent(qreal ax, qreal ay) const
+{ return mapToParent(QPointF(ax, ay)); }
+inline QPointF QGraphicsItem::mapToScene(qreal ax, qreal ay) const
+{ return mapToScene(QPointF(ax, ay));  }
+inline QPointF QGraphicsItem::mapFromItem(const QGraphicsItem *item, qreal ax, qreal ay) const
+{ return mapFromItem(item, QPointF(ax, ay)); }
+inline QPointF QGraphicsItem::mapFromParent(qreal ax, qreal ay) const
+{ return mapFromParent(QPointF(ax, ay));  }
+inline QPointF QGraphicsItem::mapFromScene(qreal ax, qreal ay) const
+{ return mapFromScene(QPointF(ax, ay));  }
+
 class QAbstractGraphicsShapeItemPrivate;
 class Q_GUI_EXPORT QAbstractGraphicsShapeItem : public QGraphicsItem
 {
@@ -351,8 +362,7 @@ public:
 
     QRectF rect() const;
     void setRect(const QRectF &rect);
-    inline void setRect(qreal x, qreal y, qreal w, qreal h)
-    { setRect(QRectF(x, y, w, h)); }
+    inline void setRect(qreal x, qreal y, qreal w, qreal h);
 
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -376,6 +386,9 @@ private:
     Q_DECLARE_PRIVATE(QGraphicsRectItem)
 };
 
+inline void QGraphicsRectItem::setRect(qreal ax, qreal ay, qreal w, qreal h)
+{ setRect(QRectF(ax, ay, w, h)); }
+
 class QGraphicsEllipseItemPrivate;
 class Q_GUI_EXPORT QGraphicsEllipseItem : public QAbstractGraphicsShapeItem
 {
@@ -387,8 +400,7 @@ public:
 
     QRectF rect() const;
     void setRect(const QRectF &rect);
-    inline void setRect(qreal x, qreal y, qreal w, qreal h)
-    { setRect(QRectF(x, y, w, h)); }
+    inline void setRect(qreal x, qreal y, qreal w, qreal h);
 
     int startAngle() const;
     void setStartAngle(int angle);
@@ -417,6 +429,9 @@ private:
     Q_DISABLE_COPY(QGraphicsEllipseItem)
     Q_DECLARE_PRIVATE(QGraphicsEllipseItem)
 };
+
+inline void QGraphicsEllipseItem::setRect(qreal ax, qreal ay, qreal w, qreal h)
+{ setRect(QRectF(ax, ay, w, h)); }
 
 class QGraphicsPolygonItemPrivate;
 class Q_GUI_EXPORT QGraphicsPolygonItem : public QAbstractGraphicsShapeItem

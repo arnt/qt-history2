@@ -207,8 +207,8 @@ inline void QGraphicsView::centerOn(qreal ax, qreal ay)
 { centerOn(QPointF(ax, ay)); }
 inline void QGraphicsView::ensureVisible(qreal ax, qreal ay, qreal aw, qreal ah, int xmargin, int ymargin)
 { ensureVisible(QRectF(ax, ay, aw, ah), xmargin, ymargin); }
-inline void QGraphicsView::fitInView(qreal x, qreal y, qreal w, qreal h, Qt::AspectRatioMode mode)
-{ fitInView(QRectF(x, y, w, h), mode); }
+inline void QGraphicsView::fitInView(qreal ax, qreal ay, qreal w, qreal h, Qt::AspectRatioMode mode)
+{ fitInView(QRectF(ax, ay, w, h), mode); }
 inline QList<QGraphicsItem *> QGraphicsView::items(int ax, int ay) const
 { return items(QPoint(ax, ay)); }
 inline QGraphicsItem *QGraphicsView::itemAt(int ax, int ay) const
