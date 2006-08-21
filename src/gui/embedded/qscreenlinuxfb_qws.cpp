@@ -34,7 +34,7 @@
 
 #include "qwindowsystem_qws.h"
 
-#if !defined(Q_OS_DARWIN) && !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_FREEBSD)
 #include <linux/fb.h>
 
 #ifdef __i386__
@@ -233,7 +233,9 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     }
 
     grayscale = vinfo.grayscale;
-    d=vinfo.bits_per_pixel;
+    d = vinfo.bits_per_pixel;
+    if (d == 24)
+        d = vinfo.red.length + vinfo.green.length + vinfo.blue.length;
     lstep=finfo.line_length;
     int xoff = vinfo.xoffset;
     int yoff = vinfo.yoffset;
