@@ -1403,7 +1403,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     setState(NoState);
 
-    bool click = (index == d_func()->pressedIndex && index.isValid());
+    bool click = (index == d->pressedIndex && index.isValid());
     EditTrigger trigger = (click
                            && (event->button() & Qt::LeftButton)
                            && d->pressedAlreadySelected
@@ -1429,9 +1429,12 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 */
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    Q_D(QAbstractItemView);
     QModelIndex index = indexAt(event->pos());
-    if (!index.isValid())
+    if (!index.isValid() || (d->pressedIndex != index)) {
+        mousePressEvent(event);
         return;
+    }
     // signal handlers may change the model
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
