@@ -1013,6 +1013,12 @@ Ideas for other sections:
     \row    \o \c background
             \o [ <'background-color'> || <'background-image'> ]
             \o Background shorthand property
+    \row    \o \c page-break-before
+            \o [ auto | always ]
+            \o Make it possible to enforce a page break before the paragraph/table
+    \row    \o \c page-break-after
+            \o [ auto | always ]
+            \o Make it possible to enforce a page break after the paragraph/table
     \endtable
 
     \section1 Supported CSS Selectors

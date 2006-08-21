@@ -470,6 +470,10 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
     \value FullWidthSelection
 
+    Page break properties
+
+    \value PageBreakPolicy
+
     \value UserProperty
 */
 
@@ -481,6 +485,14 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value TableObject
     \value UserObject The first object that can be used for application-specific purposes.
 */
+
+/*!
+    \enum QTextFormat::PageBreakFlag
+
+    \value PageBreak_Auto The page break is determined automatically depending on the
+                          available space on the current page
+    \value PageBreak_AlwaysBefore The page is always broken before the paragraph/table
+    \value PageBreak_AlwaysAfter  A new page is always started after the paragraph/table
 
 /*!
     \fn bool QTextFormat::isValid() const
@@ -1690,7 +1702,22 @@ QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
     \sa setNonBreakableLines()
 */
 
+/*!
+    \fn QTextFormat::PageBreakFlags QTextBlockFormat::pageBreakPolicy() const
 
+    Returns the currently set page break policy for the paragraph. The default is
+    QTextFormat::PageBreak_Auto.
+
+    \sa setPageBreakPolicy()
+*/
+
+/*!
+    \fn void QTextBlockFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+
+    Sets the page break policy for the paragraph to \a policy.
+
+    \sa pageBreakPolicy()
+*/
 
 /*!
     \class QTextListFormat
@@ -1898,6 +1925,23 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
     Convenience method that sets the width of the frame's border
     rectangle's width to the specified fixed \a width.
+*/
+
+/*!
+    \fn QTextFormat::PageBreakFlags QTextFrameFormat::pageBreakPolicy() const
+
+    Returns the currently set page break policy for the frame/table. The default is
+    QTextFormat::PageBreak_Auto.
+
+    \sa setPageBreakPolicy()
+*/
+
+/*!
+    \fn void QTextFrameFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+
+    Sets the page break policy for the frame/table to \a policy.
+
+    \sa pageBreakPolicy()
 */
 
 /*!
