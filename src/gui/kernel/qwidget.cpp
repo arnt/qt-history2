@@ -2266,9 +2266,9 @@ void QWidget::insertAction(QAction *before, QAction *action)
     before the action \a before. It appends the action if \a before is 0 or
     \a before is not a valid action for this widget.
 
-    A QWidget should only have one of each action.
+    A QWidget can have at most one of each action.
 
-    \sa removeActions(), QMenu, insertAction(), contextMenuPolicy
+    \sa removeAction(), QMenu, insertAction(), contextMenuPolicy
 */
 void QWidget::insertActions(QAction *before, QList<QAction*> actions)
 {
@@ -4497,8 +4497,9 @@ QByteArray QWidget::saveGeometry() const
 /*!
     \since 4.2
 
-    Restores the geometry and state top-level widgets. Returns true
-    on success; otherwise returns false.
+    Restores the geometry and state top-level widgets stored in the
+    byte array \a geometry. Returns true on success; otherwise
+    returns false.
 
     If the restored geometry is off-screen, it will be modified to be
     inside the the available screen geometry.
@@ -8238,7 +8239,9 @@ QRect QWidgetPrivate::frameStrut() const
     return maybeTopData() ? maybeTopData()->frameStrut : QRect();
 }
 
-
+/*!
+    \preliminary
+*/
 void QWidget::setWindowSurface(QWindowSurface *surface)
 {
     if (!isTopLevel())
@@ -8248,7 +8251,9 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
     d_func()->topData()->windowSurface = surface;
 }
 
-
+/*!
+    \preliminary
+*/
 QWindowSurface *QWidget::windowSurface() const
 {
     if (!isTopLevel())
