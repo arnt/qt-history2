@@ -440,7 +440,7 @@ void QDirPrivate::detach(bool createFileEngine)
     \endtable
 
     The setCurrent() static function can also be used to set the application's
-    working directory. 
+    working directory.
 
     If you want to find the directory containing the application's executable,
     see \l{QCoreApplication::applicationDirPath()}.
@@ -1818,7 +1818,9 @@ QString QDir::homePath()
     Returns the absolute path of the system's temporary directory.
 
     On Unix/Linux systems this is usually \c{/tmp}; on Windows this is
-    usually the path in the \c TEMP or \c TMP environment variable.
+    usually the path in the \c TEMP or \c TMP environment
+    variable. Whether a "/" is added to the end or not, depends on the
+    operating system.
 
     \sa temp(), currentPath(), homePath(), rootPath()
 */
