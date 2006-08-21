@@ -3238,7 +3238,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     case PM_ScrollBarExtent:
         {
-            XPThemeData theme(widget, 0, "SCROLLBAR", SBP_LOWERTRACKHORZ);
+            XPThemeData theme(widget, 0, "SCROLLBAR", SBP_SIZEBOX); 
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
