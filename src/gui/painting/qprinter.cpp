@@ -43,18 +43,19 @@
 
 void QPrinterPrivate::createDefaultEngines()
 {
+    QPrinter::OutputFormat realOutputFormat = outputFormat;
 #if defined (Q_OS_UNIX) && ! defined (Q_WS_MAC)
     if(outputFormat == QPrinter::NativeFormat) {
 #if !defined(QT_NO_CUPS)
         if(QCUPSSupport::cupsVersion() >= 10200)
-            outputFormat = QPrinter::PdfFormat;
+            realOutputFormat = QPrinter::PdfFormat;
         else
 #endif
-            outputFormat = QPrinter::PostScriptFormat;
+            realOutputFormat = QPrinter::PostScriptFormat;
     }
 #endif
 
-    switch (outputFormat) {
+    switch (realOutputFormat) {
     case QPrinter::NativeFormat: {
 #if defined (Q_WS_WIN)
         QWin32PrintEngine *winEngine = new QWin32PrintEngine(printerMode);
