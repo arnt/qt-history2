@@ -5456,6 +5456,16 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 #endif
 }
 
+#ifdef Q_WS_X11
+static QString kdeHome()
+{
+    QString home = qgetenv("KDEHOME");
+    if (home.isEmpty())
+        home = QDir::homePath() + QLatin1String("/.kde");
+    return home;
+}
+#endif
+
 /*!
   \reimp
 */
@@ -5468,6 +5478,8 @@ void QPlastiqueStyle::polish(QApplication *app)
 
     if (dataDirs.isEmpty())
         dataDirs = "/usr/local/share/:/usr/share/";
+
+    dataDirs += ":" + kdeHome() + "/share";
 
     d->iconDirs = dataDirs.split(":");
 #endif
@@ -5491,17 +5503,16 @@ void QPlastiqueStyle::unpolish(QApplication *app)
     QWindowsStyle::unpolish(app);
 }
 
-void QPlastiqueStylePrivate::lookupIconTheme () const
+void QPlastiqueStylePrivate::lookupIconTheme() const
 {
 #ifdef Q_WS_X11
+    if (!themeName.isEmpty())
+        return;
     QFileInfo fileInfo("/usr/share/icons/default.kde");
     QDir dir(fileInfo.canonicalFilePath());
-    QString defaultTheme = dir.exists() ? dir.dirName() : "crystalsvg";
+    QString defaultTheme = fileInfo.exists() ? dir.dirName() : "crystalsvg";
 
-    QString kdeHome = qgetenv("KDEHOME");
-    if (kdeHome.isEmpty())
-        kdeHome = QDir::homePath() + QLatin1String("/.kde");
-    QSettings settings(kdeHome + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
+    QSettings settings(kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
     settings.beginGroup("Icons");
     if (settings.allKeys().contains("Theme")) {
         themeName = settings.value("Theme", defaultTheme).toString();
