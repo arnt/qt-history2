@@ -1940,7 +1940,8 @@ bool QGraphicsScene::event(QEvent *event)
             hover.setPos(mouseEvent->pos());
             hover.setScenePos(mouseEvent->scenePos());
             hover.setScreenPos(mouseEvent->screenPos());
-            d->dispatchHoverEvent(&hover);
+            if (!d->dispatchHoverEvent(&hover))
+                mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         }
         break;
     case QEvent::GraphicsSceneMousePress:
@@ -2210,7 +2211,7 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 
     \sa QGraphicsItem::hoverEvent(), QGraphicsItem::setAcceptsHoverEvents()
 */
-void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
+bool QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 {
     Q_Q(QGraphicsScene);
     // Find the first item that accepts hover events
@@ -2231,7 +2232,7 @@ void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEv
             if (lastItem->acceptsHoverEvents())
                 sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
         }
-        return;
+        return false;
     }
 
     int itemIndex = hoverItems.indexOf(item);
@@ -2270,6 +2271,7 @@ void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEv
         // Generate a move event for the item itself
         sendHoverEvent(QEvent::GraphicsSceneHoverMove, item, hoverEvent);
     }
+    return true;
 }
 
 /*!

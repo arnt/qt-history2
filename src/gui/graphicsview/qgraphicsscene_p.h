@@ -98,7 +98,7 @@ public:
     bool filterEvent(QGraphicsItem *item, QEvent *event);
     bool sendEvent(QGraphicsItem *item, QEvent *event);
 
-    void dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent);
+    bool dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent);
     void leaveScene();
 
     void cloneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
