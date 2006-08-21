@@ -340,7 +340,10 @@ void tst_QImageWriter::saveToTemporaryFile()
         QTemporaryFile file;
         QVERIFY(file.open());
         QImageWriter writer(&file, "PNG");
-        QVERIFY(writer.write(image));
+        if (writer.canWrite())
+            QVERIFY(writer.write(image));
+        else
+            qWarning() << file.errorString();
         QCOMPARE(QImage(writer.fileName()), image);
     }
     {
