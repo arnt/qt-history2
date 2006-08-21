@@ -12,7 +12,8 @@
 #include <qcoreapplication.h>
 #include <qdebug.h>
 #include <qstackedwidget.h>
-
+#include <qpushbutton.h>
+#include <QHBoxLayout>
 
 //TESTED_CLASS=
 //TESTED_FILES=qstackedwidget.h
@@ -27,6 +28,7 @@ public:
 
 private slots:
     void getSetCheck();
+	void testMinimumSize();
 };
 
 tst_QStackedWidget::tst_QStackedWidget()
@@ -35,6 +37,20 @@ tst_QStackedWidget::tst_QStackedWidget()
 
 tst_QStackedWidget::~tst_QStackedWidget()
 {
+}
+
+// Testing that stackedwidget respect the minimum size of it's contents (task 95319)
+void tst_QStackedWidget::testMinimumSize()
+{
+	QWidget w;
+    QStackedWidget sw(&w);
+    QPushButton button("Text", &sw);
+	sw.addWidget(&button);
+    QHBoxLayout hboxLayout;
+    hboxLayout.addWidget(&sw);
+    w.setLayout(&hboxLayout);
+    w.show();
+	QVERIFY(w.minimumSize() != QSize(0, 0));
 }
 
 // Testing get/set functions
