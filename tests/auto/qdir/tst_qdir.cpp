@@ -103,6 +103,8 @@ private slots:
     void matchAllDirs();
 #endif
     void homePath();
+
+    void nativeSeparators();
 };
 
 // Testing get/set functions
@@ -991,6 +993,20 @@ void tst_QDir::homePath()
 	}
 }
 
+void tst_QDir::nativeSeparators()
+{
+#ifdef Q_OS_WIN
+    QCOMPARE(QDir::toNativeSeparators(QLatin1String("/")), QString("\\"));
+    QCOMPARE(QDir::toNativeSeparators(QLatin1String("\\")), QString("\\"));
+    QCOMPARE(QDir::fromNativeSeparators(QLatin1String("/")), QString("/"));
+    QCOMPARE(QDir::fromNativeSeparators(QLatin1String("\\")), QString("/"));
+#else
+    QCOMPARE(QDir::toNativeSeparators(QLatin1String("/")), QString("/"));
+    QCOMPARE(QDir::toNativeSeparators(QLatin1String("\\")), QString("\\"));
+    QCOMPARE(QDir::fromNativeSeparators(QLatin1String("/")), QString("/"));
+    QCOMPARE(QDir::fromNativeSeparators(QLatin1String("\\")), QString("\\"));
+#endif
+}
 
 QTEST_MAIN(tst_QDir)
 #include "tst_qdir.moc"
