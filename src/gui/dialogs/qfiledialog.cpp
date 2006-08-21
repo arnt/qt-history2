@@ -106,6 +106,15 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
         e->accept();
 }
 
+class QFileDialogModeButton : public QToolButton
+{
+public:
+    QFileDialogModeButton(QWidget* parent)
+            : QToolButton(parent) {}
+protected:
+    void focusOutEvent(QFocusEvent *e) {QWidget::focusOutEvent(e);}
+};
+
 /*!
   \class QFileDialog
   \brief The QFileDialog class provides a dialog that allow users to select files or directories.
@@ -598,6 +607,11 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 {
     Q_D(const QFileDialog);
     return d->viewMode();
+}
+
+QFileDialog::ViewMode QFileDialogPrivate::viewMode() const
+{
+    return (listModeButton->isDown() ? QFileDialog::List : QFileDialog::Detail);
 }
 
 /*!
@@ -1804,7 +1818,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
     QObject::connect(newFolderButton, SIGNAL(clicked()), q, SLOT(_q_createDirectory()));
     box->addWidget(newFolderButton);
 
-    listModeButton = new QToolButton(q);
+    listModeButton = new QFileDialogModeButton(q);
     listModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogListView));
 #ifndef QT_NO_TOOLTIP
     listModeButton->setToolTip(QFileDialog::tr("List View"));
@@ -1815,7 +1829,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
     QObject::connect(listModeButton, SIGNAL(clicked()), q, SLOT(_q_showList()));
     box->addWidget(listModeButton);
 
-    detailModeButton = new QToolButton(q);
+    detailModeButton = new QFileDialogModeButton(q);
     detailModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogDetailedView));
 #ifndef QT_NO_TOOLTIP
     detailModeButton->setToolTip(QFileDialog::tr("Detail View"));

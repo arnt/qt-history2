@@ -40,6 +40,7 @@ class QComboBox;
 class QAction;
 class QPushButton;
 class QFileDialogLineEdit;
+class QFileDialogModeButton;
 class QGridLayout;
 class QLabel;
 class QFileDialogListView;
@@ -114,8 +115,7 @@ public:
             return path;
 #endif
         }
-    inline QFileDialog::ViewMode viewMode() const
-        { return (listModeButton->isDown() ? QFileDialog::List : QFileDialog::Detail); }
+    QFileDialog::ViewMode viewMode() const;
 
     // static stuff
     static QString workingDirectory(const QString &path);
@@ -155,8 +155,8 @@ public:
     QToolButton *backButton;
     QToolButton *toParentButton;
     QToolButton *newFolderButton;
-    QToolButton *detailModeButton;
-    QToolButton *listModeButton;
+    QFileDialogModeButton *detailModeButton;
+    QFileDialogModeButton *listModeButton;
 
     QLabel *lookInLabel;
     QLabel *fileNameLabel;
