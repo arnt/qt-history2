@@ -25,7 +25,7 @@ class QWSEmbedWidgetPrivate;
 class Q_GUI_EXPORT QWSEmbedWidget : public QWidget
 {
 public:
-    QWSEmbedWidget(WId winId, QWidget *parent = 0, Qt::WindowFlags f = 0);
+    QWSEmbedWidget(WId winId, QWidget *parent = 0);
     ~QWSEmbedWidget();
 
 protected:

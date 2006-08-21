@@ -66,11 +66,27 @@ void QWSEmbedWidgetPrivate::setWindow(QWidget *w)
     window->installEventFilter(q);
 }
 
-QWSEmbedWidget::QWSEmbedWidget(WId id, QWidget *parent, Qt::WindowFlags f)
-    : QWidget(*new QWSEmbedWidgetPrivate(id, parent), parent, f)
+/*!
+    \class QWSEmbedWidget
+
+    \brief The QWSEmbedWidget class provides embedding of a top-level window.
+
+    The window ID of the window to be embedded must be known and be passed
+    in the constructor.
+*/
+
+/*!
+    Constructs a QWSEmbedWidget object which embeds the window with the given
+    \a id and \a parent.
+*/
+QWSEmbedWidget::QWSEmbedWidget(WId id, QWidget *parent)
+    : QWidget(*new QWSEmbedWidgetPrivate(id, parent), parent, 0)
 {
 }
 
+/*!
+    Destroys the QWSEmbedWidget object.
+*/
 QWSEmbedWidget::~QWSEmbedWidget()
 {
     Q_D(QWSEmbedWidget);
@@ -82,6 +98,9 @@ QWSEmbedWidget::~QWSEmbedWidget()
     QWSDisplay::instance()->d->sendCommand(command);
 }
 
+/*!
+    \reimp
+*/
 bool QWSEmbedWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Move)
@@ -89,6 +108,9 @@ bool QWSEmbedWidget::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
+/*!
+    \reimp
+*/
 void QWSEmbedWidget::changeEvent(QEvent *event)
 {
     Q_D(QWSEmbedWidget);
@@ -96,6 +118,9 @@ void QWSEmbedWidget::changeEvent(QEvent *event)
         d->setWindow(window());
 }
 
+/*!
+    \reimp
+*/
 void QWSEmbedWidget::resizeEvent(QResizeEvent*)
 {
     Q_D(QWSEmbedWidget);
@@ -108,6 +133,9 @@ void QWSEmbedWidget::resizeEvent(QResizeEvent*)
     QWSDisplay::instance()->d->sendCommand(command);
 }
 
+/*!
+    \reimp
+*/
 void QWSEmbedWidget::moveEvent(QMoveEvent*)
 {
     resizeEvent(0);
