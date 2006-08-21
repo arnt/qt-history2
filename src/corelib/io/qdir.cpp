@@ -1819,8 +1819,8 @@ QString QDir::homePath()
 
     On Unix/Linux systems this is usually \c{/tmp}; on Windows this is
     usually the path in the \c TEMP or \c TMP environment
-    variable. Whether a "/" is added to the end or not, depends on the
-    operating system.
+    variable. Whether a directory separator is added to the end or
+    not, depends on the operating system.
 
     \sa temp(), currentPath(), homePath(), rootPath()
 */
