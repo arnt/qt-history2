@@ -616,10 +616,12 @@ void tst_QGraphicsScene::addEllipse()
 void tst_QGraphicsScene::addLine()
 {
     QGraphicsScene scene;
+    QPen pen(Qt::red);
+    pen.setWidthF(1.0);
     QGraphicsLineItem *line = scene.addLine(QLineF(-10, -10, 20, 20),
-                                            QPen(Qt::red));
+                                            pen);
     QCOMPARE(line->pos(), QPointF());
-    QCOMPARE(line->pen(), QPen(Qt::red));
+    QCOMPARE(line->pen(), pen);
     QCOMPARE(line->line(), QLineF(-10, -10, 20, 20));
     QCOMPARE(scene.itemAt(0, 0), line);
     QCOMPARE(scene.itemAt(-10, -10), line);
