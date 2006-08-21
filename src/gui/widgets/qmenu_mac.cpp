@@ -351,13 +351,13 @@ static QString qt_mac_menu_merge_text(QMacMenuAction *action)
     if (action->action->menuRole() == QAction::ApplicationSpecificRole)
         ret = action->action->text();
     else if (action->command == kHICommandAbout)
-        ret = QT_MAC_MENU_TRANSLATE("About") + QLatin1String(" ") + QString(qAppName());
+        ret = QT_MAC_MENU_TRANSLATE("About %1").arg(qAppName());
     else if (action->command == kHICommandAboutQt)
         ret = QT_MAC_MENU_TRANSLATE("About Qt");
     else if (action->command == kHICommandPreferences)
         ret = QT_MAC_MENU_TRANSLATE("Preferences");
     else if (action->command == kHICommandQuit)
-        ret = QT_MAC_MENU_TRANSLATE("Quit") + QLatin1String(" ") + QString(qAppName());
+        ret = QT_MAC_MENU_TRANSLATE("Quit %1").arg(qAppName());
     return ret;
 }
 
@@ -785,6 +785,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
         QWidget *widget = qmenu ? qmenu->widgetItems.value(action->action) : 0;
+        qDebug("    widget is %p", widget);
         if (widget) {
             ChangeMenuAttributes(action->menu, kMenuAttrDoNotCacheImage, 0);
             attr = kMenuItemAttrCustomDraw;
