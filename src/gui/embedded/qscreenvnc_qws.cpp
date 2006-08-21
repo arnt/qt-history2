@@ -37,7 +37,7 @@ extern QString qws_qtePipeFilename();
 class QVirtualScreen : public QScreen
 {
 public:
-    QVirtualScreen(int displayId) : QScreen(displayId), shm(0) {}
+    QVirtualScreen(int displayId);
     ~QVirtualScreen();
 
     bool initDevice();
@@ -51,6 +51,14 @@ private:
     QSharedMemory *shm;
 #endif
 };
+
+QVirtualScreen::QVirtualScreen(int displayId)
+    : QScreen(displayId)
+{
+#ifndef QT_NO_QWS_MULTIPROCESS
+    shm = 0;
+#endif
+}
 
 QVirtualScreen::~QVirtualScreen()
 {
