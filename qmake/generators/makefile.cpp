@@ -1295,9 +1295,12 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 QString
 MakefileGenerator::filePrefixRoot(const QString &root, const QString &path)
 {
+    QString ret(root + path);
     if(path.length() > 2 && path[1] == ':') //c:\foo
-        return path.mid(0, 2) + root + path.mid(2);
-    return root + path;
+        ret = QString(path.mid(0, 2) + root + path.mid(2));
+    while(ret.endsWith("\\"))
+	ret = ret.left(ret.length()-1);
+    return ret;
 }
 
 void
@@ -1416,7 +1419,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     }
                     QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " " +
                                   dirstr + file + " " + dst_file + "\n";
-                    target += cmd;
+		    target += cmd;
                     if(!project->isActiveConfig("debug") && !project->isActiveConfig("nostrip") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " " +
