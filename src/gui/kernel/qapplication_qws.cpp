@@ -252,6 +252,7 @@ public:
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionEvent(const QWSRegionEvent *);
+    void translateEmbedEvent(const QWSEmbedEvent *event);
     bool translateWheelEvent(const QWSMouseEvent *me);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -1133,7 +1134,7 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
     cmd.simpleData.windowid = winId;
-    cmd.simpleData.altitude = alt;
+    cmd.simpleData.altitude = QWSChangeAltitudeCommand::Altitude(alt);
     cmd.simpleData.fixed = fixed;
     if (d->directServerConnection()) {
         qwsServer->d_func()->set_altitude(&cmd);
@@ -2741,6 +2742,9 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             break;
         }
         break;
+    case QWSEvent::Embed:
+        widget->translateEmbedEvent(static_cast<QWSEmbedEvent*>(event));
+        break;
     default:
         break;
     }
@@ -3326,20 +3330,34 @@ bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
 {
     Q_D(QWidget);
 
-    const QWidget *win = QWidget::find(WId(event->window()));
+    QWidget *win = QWidget::find(WId(event->window()));
     if (!win)
         return true;
 
     QWidgetBackingStore *bs = d->topData()->backingStore;
     QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
 
-    QRegion r;
-    r.setRects(event->rectangles, event->simpleData.nrectangles);
-    r.translate(-win->geometry().topLeft());
+    QRegion region;
+    region.setRects(event->rectangles, event->simpleData.nrectangles);
 
-    surface->setClipRegion(r);
+    switch (event->simpleData.type) {
+    case QWSRegionEvent::Allocation:
+        region.translate(-win->geometry().topLeft());
+        surface->setClipRegion(region);
+        break;
+    case QWSRegionEvent::Request:
+        win->setGeometry(region.boundingRect());
+        break;
+    default:
+        break;
+    }
 
     return true;
+}
+
+void QETWidget::translateEmbedEvent(const QWSEmbedEvent *event)
+{
+    Q_UNUSED(event);
 }
 
 void QETWidget::repaintDecoration(QRegion r, bool post)

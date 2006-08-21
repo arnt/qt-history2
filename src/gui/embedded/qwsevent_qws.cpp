@@ -75,8 +75,11 @@ QWSEvent *QWSEvent::factory(int type)
         event = new QWSIMInitEvent;
         break;
 #endif
+    case QWSEvent::Embed:
+        event = new QWSEmbedEvent;
+        break;
     default:
-        qDebug("QWSDisplayData::readMore() : Protocol error - got %08x!", type);
+        qCritical("QWSEvent::factory() : Unknown event type %08x!", type);
     }
     return event;
 }

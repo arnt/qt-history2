@@ -173,6 +173,7 @@ class QWSWindowPrivate
 {
 public:
     QRegion allocatedRegion;
+    QList<QWSWindow*> embedded;
 };
 
 /*!
@@ -310,6 +311,8 @@ void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 void QWSWindow::raise()
 {
     qwsServerPrivate->raiseWindow(this);
+    foreach (QWSWindow *w, d->embedded)
+        w->raise();
 }
 
 /*!
@@ -319,6 +322,8 @@ void QWSWindow::raise()
 void QWSWindow::lower()
 {
     qwsServerPrivate->lowerWindow(this);
+    foreach (QWSWindow *w, d->embedded)
+        w->lower();
 }
 
 /*!
@@ -328,6 +333,8 @@ void QWSWindow::lower()
 void QWSWindow::show()
 {
     operation(QWSWindowOperationEvent::Show);
+    foreach (QWSWindow *w, d->embedded)
+        w->show();
 }
 
 /*!
@@ -337,6 +344,8 @@ void QWSWindow::show()
 void QWSWindow::hide()
 {
     operation(QWSWindowOperationEvent::Hide);
+    foreach (QWSWindow *w, d->embedded)
+        w->hide();
 }
 
 /*!
@@ -347,6 +356,9 @@ void QWSWindow::hide()
 void QWSWindow::setActiveWindow()
 {
     qwsServerPrivate->setFocus(this, true);
+    foreach (QWSWindow *w, d->embedded)
+        w->setActiveWindow();
+
 }
 
 void QWSWindow::setName(const QString &n)
@@ -374,6 +386,9 @@ void QWSWindow::focus(bool get)
     event.simpleData.window = id;
     event.simpleData.get_focus = get;
     c->sendEvent(&event);
+    foreach (QWSWindow *w, d->embedded)
+        w->focus(get);
+
 }
 
 void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
@@ -413,6 +428,16 @@ QRegion QWSWindow::allocatedRegion() const
 inline void QWSWindow::setAllocatedRegion(const QRegion &region)
 {
     d->allocatedRegion = region;
+}
+
+inline void QWSWindow::startEmbed(QWSWindow *w)
+{
+    d->embedded.append(w);
+}
+
+inline void QWSWindow::stopEmbed(QWSWindow *w)
+{
+    d->embedded.removeAll(w);
 }
 
 /*********************************************************************
@@ -675,6 +700,16 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     event.simpleData.requestor = cmd->simpleData.requestor;
     event.simpleData.property = cmd->simpleData.selection;
     event.simpleData.mimeTypes = cmd->simpleData.mimeTypes;
+    sendEvent(&event);
+}
+
+/*!
+   \internal
+*/
+void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type)
+{
+    QWSEmbedEvent event;
+    event.setData(windowid, type);
     sendEvent(&event);
 }
 
@@ -1012,7 +1047,7 @@ void QWSServerPrivate::initServer(int flags)
     QObject::connect(ssocket, SIGNAL(newConnection()), q, SLOT(_q_newConnection()));
 
     if ( !ssocket->isListening()) {
-        perror("Error");
+        perror("QWSServerPrivate::initServer: server socket not listening");
         qFatal("Failed to bind to %s", qws_qtePipeFilename().toLatin1().constData());
     }
 
@@ -1487,6 +1522,10 @@ void QWSServerPrivate::doClient(QWSClient *client)
                                 cs->client);
             cs->client->d_func()->unlockCommunication();
             break;
+        case QWSCommand::Embed:
+            invokeEmbed(static_cast<QWSEmbedCommand*>(cs->command),
+                        cs->client);
+            break;
         }
         delete cs;
     }
@@ -1867,6 +1906,14 @@ void QWSServerPrivate::sendQCopEvent(QWSClient *c, const QString &ch,
     c->sendEvent(&event);
 }
 #endif
+
+void QWSServerPrivate::sendRegionEvent(QWSWindow *window,
+                                       const QRegion &region) const
+{
+    QWSRegionEvent event;
+    event.setData(window->winId(), region, QWSRegionEvent::Request);
+    window->client()->sendEvent(&event);
+}
 
 /*!
     \fn QWSWindow *QWSServer::windowAt(const QPoint& position)
@@ -2359,7 +2406,8 @@ void QWSServerPrivate::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClie
 void QWSServerPrivate::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
                                    QWSClient *client)
 {
-    Q_UNUSED( client );
+    Q_UNUSED(client);
+
     int winId = cmd->simpleData.windowid;
     int alt = cmd->simpleData.altitude;
     bool fixed = cmd->simpleData.fixed;
@@ -2381,7 +2429,7 @@ void QWSServerPrivate::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
     if (fixed && alt >= 1) {
         changingw->onTop = true;
     }
-    if (alt < 0)
+    if (alt == QWSChangeAltitudeCommand::Lower)
         lowerWindow(changingw, alt);
     else
         raiseWindow(changingw, alt);
@@ -2631,6 +2679,37 @@ void QWSServerPrivate::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
     repaint_region(cmd->simpleData.windowid, cmd->simpleData.opaque, r);
 }
 
+void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
+{
+    // Should find these two windows in a single loop
+    QWSWindow *embedder = findWindow(cmd->simpleData.embedder, client);
+    QWSWindow *embedded = findWindow(cmd->simpleData.embedded);
+
+    Q_ASSERT(embedder); // XXX
+    Q_ASSERT(embedded); // XXX
+
+    switch (cmd->simpleData.type) {
+    case QWSEmbedEvent::StartEmbed:
+        embedder->startEmbed(embedded);
+        update_regions();
+        break;
+    case QWSEmbedEvent::StopEmbed:
+        embedded->stopEmbed(embedded);
+        update_regions();
+        break;
+    case QWSEmbedEvent::Region:
+        // XXX: not neccessary if region is forwarded below
+        embedded->client()->sendRegionEvent(cmd->simpleData.embedded,
+                                            cmd->region,
+                                            QWSRegionEvent::Request);
+        break;
+    }
+
+    // XXX: also forward region..
+    embedded->client()->sendEmbedEvent(embedded->winId(),
+                                       cmd->simpleData.type);
+}
+
 QWSWindow* QWSServerPrivate::newWindow(int id, QWSClient* client)
 {
     Q_Q(QWSServer);
@@ -2665,7 +2744,6 @@ QWSWindow* QWSServerPrivate::findWindow(int windowid, QWSClient* client)
     else
         return 0;
 }
-
 
 void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
 {
@@ -2745,7 +2823,11 @@ void QWSServerPrivate::update_regions()
 
     for (int i = 0; i < windows.count(); ++i) {
         QWSWindow *w = windows.at(i);
-        const QRegion r = (w->requested_region & available);
+        QRegion r = (w->requested_region & available);
+
+        // Subtract regions needed for embedded windows
+        foreach (QWSWindow *w, w->d->embedded)
+            r -= w->requested_region;
 
         if (!w->isOpaque()) {
             transparentWindows.append(w);

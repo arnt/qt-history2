@@ -107,6 +107,8 @@ private:
     static QBrush *bgBrush;
 
     void sendMaxWindowRectEvents(const QRect &rect);
+    void sendRegionEvent(QWSWindow *window, const QRegion &region) const;
+
     void invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client);
     void invokeCreate(QWSCreateCommand *cmd, QWSClient *client);
     void invokeRegionName(const QWSRegionNameCommand *cmd, QWSClient *client);
@@ -144,6 +146,7 @@ private:
 #endif
     void invokeRepaintRegion(QWSRepaintRegionCommand *cmd,
                               QWSClient *client);
+    void invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client);
 #ifndef QT_NO_QWS_INPUTMETHODS
     void invokeIMResponse(const QWSIMResponseCommand *cmd,
                          QWSClient *client);
@@ -229,7 +232,7 @@ private:
     QList<QWSWindow*> windows; // first=topmost
     int nReserved;
     QWSWindow* newWindow(int id, QWSClient* client);
-    QWSWindow* findWindow(int windowid, QWSClient* client);
+    QWSWindow* findWindow(int windowid, QWSClient* client = 0);
     void moveWindowRegion(QWSWindow*, int dx, int dy);
     void setWindowRegion(QWSWindow*, QRegion r);
     void raiseWindow(QWSWindow *, int = 0);

@@ -17,6 +17,8 @@
 #include <QtGui/qwsutils_qws.h>
 #include <QtGui/qwsprotocolitem_qws.h>
 #include <QtCore/qrect.h>
+#include <QtGui/qregion.h>
+#include <QtCore/qvector.h>
 
 QT_BEGIN_HEADER
 
@@ -49,6 +51,7 @@ struct QWSEvent : QWSProtocolItem {
         IMEvent,
         IMQuery,
         IMInit,
+        Embed,
         NEvent
     };
 
@@ -201,6 +204,15 @@ struct QWSRegionEvent : QWSEvent {
         rectangles = reinterpret_cast<QRect*>(rawDataPtr);
     }
 
+    void setData(int winId, const QRegion &region, uint type) {
+        const QVector<QRect> rects = region.rects();
+        setData(reinterpret_cast<const char*>(rects.constData()),
+            rects.size() * sizeof(QRect));
+        simpleData.window = winId;
+        simpleData.nrectangles = rects.size();
+        simpleData.type = type;
+    }
+
     enum Type {Allocation, Request};
     struct SimpleData {
         int window;
@@ -209,6 +221,25 @@ struct QWSRegionEvent : QWSEvent {
     } simpleData;
 
     QRect *rectangles;
+};
+
+struct QWSEmbedEvent : QWSEvent
+{
+    QWSEmbedEvent() : QWSEvent(QWSEvent::Embed, sizeof(simpleData),
+                               reinterpret_cast<char*>(&simpleData))
+    {}
+
+    typedef enum Type { StartEmbed = 1, StopEmbed = 2, Region = 4 };
+
+    void setData(int winId, Type type) {
+        simpleData.window = winId;
+        simpleData.type = type;
+    }
+
+    struct SimpleData {
+        int window;
+        Type type;
+    } simpleData;
 };
 
 #ifndef QT_NO_QWS_PROPERTIES

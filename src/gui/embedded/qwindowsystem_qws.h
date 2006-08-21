@@ -107,6 +107,9 @@ private:
 
     void createSurface(const QString &key, const QByteArray &data);
 
+    void startEmbed(QWSWindow *window);
+    void stopEmbed(QWSWindow *window);
+
 private:
     int id;
     QString rgnName;
@@ -409,6 +412,7 @@ public:
     void sendSelectionClearEvent(int windowid);
     void sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int windowid);
     void sendRegionEvent(int winid, QRegion rgn, int type);
+    void sendEmbedEvent(int winid, QWSEmbedEvent::Type type);
     QWSCommand* readMoreCommand();
 
     int clientId() const { return cid; }

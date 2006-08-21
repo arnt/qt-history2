@@ -546,6 +546,9 @@ QWSCommand *QWSCommand::factory(int type)
     case QWSCommand::PositionCursor:
         command = new QWSPositionCursorCommand;
         break;
+    case QWSCommand::Embed:
+        command = new QWSEmbedCommand;
+        break;
     default:
         qWarning("QWSCommand::factory : Type error - got %08x!", type);
     }

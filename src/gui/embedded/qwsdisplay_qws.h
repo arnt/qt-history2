@@ -47,11 +47,15 @@ public:
 #define QT_QWS_PROPERTY_WINDOWNAME 998
 #define QT_QWS_PROPERTY_MARKEDTEXT 997
 
+extern QWSDisplay *qt_fbdpy;
+
 class Q_GUI_EXPORT QWSDisplay
 {
 public:
     QWSDisplay();
     ~QWSDisplay();
+
+    static QWSDisplay* instance() { return qt_fbdpy; }
 
     bool eventPending() const;
     QWSEvent *getEvent();
@@ -129,6 +133,8 @@ private:
     friend void qt_app_reinit( const QString& newAppName );
     friend class QApplication;
     friend class QCopChannel;
+    friend class QWSEmbedWidget;
+    friend class QWSEmbedWidgetPrivate;
     class Data;
     Data *d;
 
@@ -138,8 +144,6 @@ private:
     char *getPropertyData;
     static QLock *lock;
 };
-
-extern QWSDisplay *qt_fbdpy;
 
 QT_END_HEADER
 

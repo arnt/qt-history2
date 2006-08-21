@@ -591,7 +591,9 @@ void QWidgetPrivate::show_sys()
             (q->windowFlags() & Qt::WindowStaysOnTopHint)
             || (q->windowState() & Qt::WindowFullScreen)
             || q->windowType() == Qt::Popup;
-        QWidget::qwsDisplay()->setAltitude(data.winid, staysontop ? 1 : 0 , true);
+        QWSChangeAltitudeCommand::Altitude altitude;
+        altitude = staysontop ? QWSChangeAltitudeCommand::StaysOnTop : QWSChangeAltitudeCommand::Raise;
+        QWidget::qwsDisplay()->setAltitude(data.winid, altitude, true);
     }
 
     if (!q->window()->data->in_show) {
@@ -709,7 +711,8 @@ void QWidgetPrivate::raise_sys()
     //@@@ transaction
     if (q->isWindow()) {
         Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
-        QWidget::qwsDisplay()->setAltitude(q->internalWinId(), 0);
+        QWidget::qwsDisplay()->setAltitude(q->internalWinId(),
+                                           QWSChangeAltitudeCommand::Raise);
 #ifdef QT_NO_WINDOWGROUPHINT
 #else
         QObjectList childObjects =  q->children();
@@ -741,7 +744,8 @@ void QWidgetPrivate::lower_sys()
     Q_Q(QWidget);
     if (q->isWindow()) {
         Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
-        QWidget::qwsDisplay()->setAltitude(data.winid, -1);
+        QWidget::qwsDisplay()->setAltitude(data.winid,
+                                           QWSChangeAltitudeCommand::Lower);
     } else if (QWidget *p = q->parentWidget()) {
         p->update(q->geometry());
     }

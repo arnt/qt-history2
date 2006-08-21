@@ -31,7 +31,8 @@ embedded {
 		    embedded/qwssocket_qws.h \
 		    embedded/qwslock_p.h \
 		    embedded/qwsutils_qws.h \
-		    embedded/qwssignalhandler_p.h
+		    embedded/qwssignalhandler_p.h \
+		    embedded/qwsembedwidget.h
 
 	 !mac:SOURCES += embedded/qsoundqss_qws.cpp
          SOURCES +=  \
@@ -52,7 +53,8 @@ embedded {
                     embedded/qtransportauth_qws.cpp \
 		    embedded/qwslock.cpp \
 		    embedded/qwssocket_qws.cpp \
-		    embedded/qwssignalhandler.cpp
+		    embedded/qwssignalhandler.cpp \
+		    embedded/qwsembedwidget.cpp
 
         contains(QT_CONFIG,sxe)|contains(QT_CONFIG,qtopia) {
             SOURCES += embedded/qunixsocket.cpp embedded/qunixsocketserver.cpp

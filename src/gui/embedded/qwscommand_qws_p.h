@@ -40,6 +40,7 @@
 #include <QtGui/qregion.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qvarlengtharray.h>
+#include <QtGui/qwsevent_qws.h>
 #include "qwsprotocolitem_qws.h"
 #include "qwsmemid_qws.h"
 
@@ -92,7 +93,8 @@ struct QWSCommand : QWSProtocolItem
         RepaintRegion,
         IMMouse,
         IMUpdate,
-        IMResponse
+        IMResponse,
+        Embed
     };
     static QWSCommand *factory(int type);
 };
@@ -314,9 +316,15 @@ struct QWSChangeAltitudeCommand : public QWSCommand
     QWSChangeAltitudeCommand() :
         QWSCommand(QWSCommand::ChangeAltitude, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) {}
 
+    typedef enum Altitude {
+        Lower = -1,
+        Raise = 0,
+        StaysOnTop = 1
+    };
+
     struct SimpleData {
         int windowid;
-        int altitude;
+        Altitude altitude;
         bool fixed;
     } simpleData;
 
@@ -654,5 +662,44 @@ struct QWSIMUpdateCommand: public QWSCommand
 };
 
 #endif
+
+struct QWSEmbedCommand : public QWSCommand
+{
+    QWSEmbedCommand() : QWSCommand(QWSCommand::Embed,
+                                   sizeof(simpleData),
+                                   reinterpret_cast<char*>(&simpleData))
+    {}
+
+    void setData(const char *d, int len, bool allocateMem = true)
+    {
+        QWSCommand::setData(d, len, allocateMem);
+        region.setRects(reinterpret_cast<QRect*>(rawDataPtr),
+                        simpleData.rects);
+    }
+
+    void setData(WId embedder, WId embedded, QWSEmbedEvent::Type type,
+                 const QRegion reg = QRegion())
+    {
+        simpleData.embedder = embedder;
+        simpleData.embedded = embedded;
+        simpleData.type = type;
+
+        region = reg;
+        const QVector<QRect> rects = reg.rects();
+        simpleData.rects = rects.count();
+
+        QWSCommand::setData(reinterpret_cast<const char*>(rects.constData()),
+                            rects.count() * sizeof(QRect));
+    }
+
+    struct {
+        WId embedder;
+        WId embedded;
+        QWSEmbedEvent::Type type;
+        int rects;
+    } simpleData;
+
+    QRegion region;
+};
 
 #endif // QWSCOMMAND_QWS_P_H
