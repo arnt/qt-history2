@@ -341,6 +341,14 @@ void tst_QListView::hideRows()
     view.setRowHidden(2, false);
     QVERIFY(!view.isRowHidden(2));
 
+    // show in per-item mode, then hide the first row
+    view.setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+    QVERIFY(!view.isRowHidden(0));
+    view.setRowHidden(0, true);
+    QVERIFY(view.isRowHidden(0));
+    view.setRowHidden(0, false);
+    QVERIFY(!view.isRowHidden(0));
+
 }
 
 void tst_QListView::moveCursor()
