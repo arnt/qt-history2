@@ -1184,6 +1184,8 @@ QList<QGraphicsItem *> QGraphicsScene::selectedItems() const
 
     For an item to be selected, it must be marked as \e selectable
     (QGraphicsItem::ItemIsSelectable). Items are selectable by default.
+
+    \sa clearSelection()
 */
 void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 {
