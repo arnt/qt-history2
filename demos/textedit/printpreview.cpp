@@ -45,46 +45,6 @@ static inline qreal mmToInches(double mm)
     return mm*0.039370147;
 }
 
-#define Q_MM(n) int((n * 720 + 127) / 254)
-#define Q_IN(n) int(n * 72)
-
-static const struct Size {
-   int width;
-   int height;
-} paperSizes[QPrinter::NPageSize] =
-{
-    {  Q_MM(210), Q_MM(297) },      // A4
-    {  Q_MM(176), Q_MM(250) },      // B5
-    {  Q_IN(8.5), Q_IN(11) },       // Letter
-    {  Q_IN(8.5), Q_IN(14) },       // Legal
-    {  Q_IN(7.5), Q_IN(10) },       // Executive
-    {  Q_MM(841), Q_MM(1189) },     // A0
-    {  Q_MM(594), Q_MM(841) },      // A1
-    {  Q_MM(420), Q_MM(594) },      // A2
-    {  Q_MM(297), Q_MM(420) },      // A3
-    {  Q_MM(148), Q_MM(210) },      // A5
-    {  Q_MM(105), Q_MM(148) },      // A6
-    {  Q_MM(74), Q_MM(105)},        // A7
-    {  Q_MM(52), Q_MM(74) },        // A8
-    {  Q_MM(37), Q_MM(52) },        // A9
-    {  Q_MM(1000), Q_MM(1414) },    // B0
-    {  Q_MM(707), Q_MM(1000) },     // B1
-    {  Q_MM(31), Q_MM(44) },        // B10
-    {  Q_MM(500), Q_MM(707) },      // B2
-    {  Q_MM(353), Q_MM(500) },      // B3
-    {  Q_MM(250), Q_MM(353) },      // B4
-    {  Q_MM(125), Q_MM(176) },      // B6
-    {  Q_MM(88), Q_MM(125) },       // B7
-    {  Q_MM(62), Q_MM(88) },        // B8
-    {  Q_MM(44), Q_MM(62) },        // B9
-    {  Q_MM(162),    Q_MM(229) },   // C5E
-    {  Q_IN(4.125),  Q_IN(9.5) },   // Comm10E
-    {  Q_MM(110),    Q_MM(220) },   // DLE
-    {  Q_IN(8.5),    Q_IN(13) },    // Folio
-    {  Q_IN(17),     Q_IN(11) },    // Ledger
-    {  Q_IN(11),     Q_IN(17) }     // Tabloid
-};
-
 class PreviewView : public QAbstractScrollArea
 {
     Q_OBJECT
@@ -290,10 +250,9 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
 
 void PrintPreview::setup()
 {
-    QSizeF page(paperSizes[printer.pageSize()].width,
-                paperSizes[printer.pageSize()].height);
-    page.setWidth(page.width() * view->logicalDpiX() / 72.);
-    page.setHeight(page.height() * view->logicalDpiY() / 72.);
+    QSizeF page = printer.pageRect().size();
+    page.setWidth(page.width() * view->logicalDpiX() / printer.logicalDpiX());
+    page.setHeight(page.height() * view->logicalDpiY() / printer.logicalDpiY());
 
     if (printer.orientation() == QPrinter::Landscape) {
         qSwap(page.rwidth(), page.rheight());
