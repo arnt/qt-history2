@@ -183,7 +183,7 @@ public:
                            const QString& button2Text = QString(),
                            int defaultButtonNumber = 0,
                            int escapeButtonNumber = -1);
-    inline static int information(QWidget *parent, const QString &title,
+    inline static StandardButton information(QWidget *parent, const QString &title,
                                   const QString& text,
                                   StandardButton button0, StandardButton button1 = NoButton)
     { return information(parent, title, text, StandardButtons(button0), button1); }

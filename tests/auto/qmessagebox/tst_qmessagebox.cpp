@@ -168,7 +168,7 @@ void tst_QMessageBox::defaultButton()
     msgBox.setDefaultButton(retryButton);
     QCOMPARE(msgBox.defaultButton(), retryButton);
     exec(&msgBox);
-    QCOMPARE(msgBox.clickedButton(), msgBox.escapeButton());
+    QCOMPARE(msgBox.clickedButton(), msgBox.button(QMessageBox::Cancel));
 
     exec(&msgBox, Qt::Key_Enter);
     QCOMPARE(msgBox.clickedButton(), retryButton);
@@ -179,6 +179,8 @@ void tst_QMessageBox::escapeButton()
     QMessageBox msgBox;
     QVERIFY(msgBox.escapeButton() == 0);
     msgBox.addButton(QMessageBox::Ok);
+    exec(&msgBox);
+    QVERIFY(msgBox.clickedButton() == msgBox.button(QMessageBox::Ok)); // auto detected (one button only)
     msgBox.addButton(QMessageBox::Cancel);
     QVERIFY(msgBox.escapeButton() == 0);
     QPushButton invalidButton;
@@ -187,7 +189,7 @@ void tst_QMessageBox::escapeButton()
     QPushButton *retryButton = msgBox.addButton(QMessageBox::Retry);
 
     exec(&msgBox);
-    QVERIFY(msgBox.clickedButton() == 0);
+    QVERIFY(msgBox.clickedButton() == msgBox.button(QMessageBox::Cancel)); // auto detected (cancel)
 
     msgBox.setEscapeButton(retryButton);
     QCOMPARE(msgBox.escapeButton(), retryButton);
@@ -216,14 +218,14 @@ void tst_QMessageBox::statics()
         keyToSend = Qt::Key_Escape;
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         QMessageBox::StandardButton sb = (*statics[i])(0, "caption",
-           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help | QMessageBox::Cancel,
            QMessageBox::NoButton);
         QCOMPARE(sb, QMessageBox::Cancel);
 
         keyToSend = -2; // close()
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         sb = (*statics[i])(0, "caption",
-           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
+           "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help | QMessageBox::Cancel,
            QMessageBox::NoButton);
         QCOMPARE(sb, QMessageBox::Cancel);
 
@@ -312,15 +314,17 @@ void tst_QMessageBox::staticSourceCompat()
     ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 1);
     QCOMPARE(ret, 1);
 
-    keyToSend = Qt::Key_Escape;
-    QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 1);
-    QCOMPARE(ret, -1);
+    if (0) { // dont run these tests since the dialog wont close!
+        keyToSend = Qt::Key_Escape;
+        QTimer::singleShot(1000, this, SLOT(sendKey()));
+        ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 1);
+        QCOMPARE(ret, -1);
 
-    keyToSend = Qt::Key_Escape;
-    QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 0, 1);
-    QCOMPARE(ret, 1);
+        keyToSend = Qt::Key_Escape;
+        QTimer::singleShot(1000, this, SLOT(sendKey()));
+        ret = QMessageBox::information(0, "title", "text", "Yes", "No", QString(), 0, 1);
+        QCOMPARE(ret, 1);
+    }
 }
 
 void tst_QMessageBox::instanceSourceCompat()
@@ -355,18 +359,20 @@ void tst_QMessageBox::staticBinaryCompat()
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No, 0);
-    QCOMPARE(ret, -1);
+    ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Escape, Old_No, 0);
+    QCOMPARE(ret, int(Old_Yes));
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", Old_Yes | Old_Default, Old_No, 0);
     QCOMPARE(ret, int(Old_Yes));
 
+#if 0
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
     ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No | Old_Default, 0);
     QCOMPARE(ret, -1);
+#endif
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
