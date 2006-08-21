@@ -112,6 +112,7 @@ TestCompiler::~TestCompiler()
 
 bool TestCompiler::runChild( bool showOutput, QStringList argList, QStringList *envList )
 {
+    //qDebug() << "executing" << argList;
     exit_ok = FALSE;
     if (childProc)
 	delete childProc;
@@ -210,10 +211,8 @@ void TestCompiler::setBaseCommands( QString makeCmd, QString qmakeCmd, bool qwsM
 
     qmake_cmd = qmakeCmd;
     // also not sure if i need this, but it doesn't hurt...
-    if (qmake_cmd.startsWith("\""))
-        qmake_cmd = qmake_cmd.remove(0,1);
-    if (qmake_cmd.endsWith("\""))
-        qmake_cmd = qmake_cmd.remove(qmake_cmd.length()-1,1);
+    if(qmake_cmd.length() >= 2 && (qmake_cmd.at(0) == '"' || qmake_cmd.at(0) == '\'') && qmake_cmd.at(qmake_cmd.length()-1) == qmake_cmd.at(0))
+        qmake_cmd = qmake_cmd.mid(1, qmake_cmd.length()-2);
 }
 
 bool TestCompiler::cleanAll( const QString &workPath, const QString &destPath, const QString &exeName, const QString &exeExt )

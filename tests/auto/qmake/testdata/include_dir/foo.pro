@@ -1,3 +1,5 @@
+UI_DIR =
+MOC_DIR=
 TEMPLATE=app
 TARGET=foo
 FORMS=untitled.ui
