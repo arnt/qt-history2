@@ -62,6 +62,8 @@ private slots:
     void exclusiveWithActions();
     void testSignals();
 
+    void checkedButton();
+
     // fixed for Qt 4.2.0
 #if QT_VERSION >= 0x040200
     void task106609();
@@ -368,6 +370,38 @@ void tst_QButtonGroup::task106609()
     QCOMPARE(spy1.count(), 2);
 }
 #endif
+
+void tst_QButtonGroup::checkedButton()
+{
+    QButtonGroup *buttons = new QButtonGroup;
+    buttons->setExclusive(false);
+    QPushButton *pb1 = new QPushButton;
+    pb1->setCheckable(true);
+    QPushButton *pb2 = new QPushButton;
+    pb2->setCheckable(true);
+    buttons->addButton(pb1);
+    buttons->addButton(pb2, 23);
+    
+    QVERIFY(buttons->checkedButton() == 0);
+    pb1->setChecked(true);
+    QVERIFY(buttons->checkedButton() == pb1);
+    pb2->setChecked(true);
+    QVERIFY(buttons->checkedButton() == pb2);
+    pb2->setChecked(false);
+    QVERIFY(buttons->checkedButton() == pb1);
+    pb1->setChecked(false);
+    QVERIFY(buttons->checkedButton() == 0);
+
+    buttons->setExclusive(true);
+    QVERIFY(buttons->checkedButton() == 0);
+    pb1->setChecked(true);
+    QVERIFY(buttons->checkedButton() == pb1);
+    pb2->setChecked(true);
+    QVERIFY(buttons->checkedButton() == pb2);
+    // checked button cannot be unchecked
+    pb2->setChecked(false);
+    QVERIFY(buttons->checkedButton() == pb2);
+}
 
 QTEST_MAIN(tst_QButtonGroup)
 #include "tst_qbuttongroup.moc"

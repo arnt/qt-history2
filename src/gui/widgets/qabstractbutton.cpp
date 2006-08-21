@@ -156,6 +156,7 @@ public:
     QButtonGroupPrivate():exclusive(true){}
     QList<QAbstractButton *> buttonList;
     QPointer<QAbstractButton> checkedButton;
+    void detectCheckedButton();
     void notifyChecked(QAbstractButton *button);
     bool exclusive;
     QMap<QAbstractButton*, int> mapping;
@@ -212,8 +213,9 @@ void QButtonGroup::addButton(QAbstractButton *button, int id)
 void QButtonGroup::removeButton(QAbstractButton *button)
 {
     Q_D(QButtonGroup);
-    if (d->checkedButton == button)
-        d->checkedButton = 0;
+    if (d->checkedButton == button) {
+        d->detectCheckedButton();
+    }
     if (button->d_func()->group == this) {
         button->d_func()->group = 0;
         d->buttonList.removeAll(button);
@@ -256,6 +258,21 @@ int QButtonGroup::checkedId() const
 {
     Q_D(const QButtonGroup);
     return d->mapping.value(d->checkedButton, -1);
+}
+
+// detect a checked button other than the current one
+void QButtonGroupPrivate::detectCheckedButton()
+{
+    QAbstractButton *previous = checkedButton;
+    checkedButton = 0;
+    if (exclusive)
+        return;
+    for (int i = 0; i < buttonList.count(); i++) {
+        if (buttonList.at(i) != previous && buttonList.at(i)->isChecked()) {
+            checkedButton = buttonList.at(i);
+            return;
+        }
+    }
 }
 
 #endif // QT_NO_BUTTONGROUP
@@ -671,6 +688,9 @@ void QAbstractButton::setChecked(bool checked)
         if (d->autoExclusive)
 #endif
             return;
+
+        if (d->group)
+            d->group->d_func()->detectCheckedButton();
     }
 
     QPointer<QAbstractButton> guard(this);
