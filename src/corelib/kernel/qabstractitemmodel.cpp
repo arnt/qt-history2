@@ -973,6 +973,9 @@ void QAbstractItemModelPrivate::reset()
 
     Returns the parent of the model item with the given \a index, or QModelIndex()
     if it has no parent.
+
+    If the datastructure in the model is a tree, it is common that only indexes in
+    column 0 have children.
 */
 
 /*!
