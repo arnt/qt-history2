@@ -1201,6 +1201,11 @@ public:
     inline void setAttributeName(const QString& a) { m_attr_name = a; m_has_attr_name = true; }
     inline void clearAttributeName() { m_has_attr_name = false; }
 
+    inline bool hasAttributeNative() { return m_has_attr_native; }
+    inline bool attributeNative() { return m_attr_native; }
+    inline void setAttributeNative(bool a) { m_attr_native = a; m_has_attr_native = true; }
+    inline void clearAttributeNative() { m_has_attr_native = false; }
+
     // child element accessors
     inline QStringList elementClass() { return m_class; }
     void setElementClass(const QStringList& a);
@@ -1245,6 +1250,9 @@ private:
 
     QString m_attr_name;
     bool m_has_attr_name;
+
+    bool m_attr_native;
+    bool m_has_attr_native;
 
     // child element data
     QStringList m_class;

@@ -2537,6 +2537,8 @@ void DomWidget::clear(bool clear_all)
     m_text = QString();
     m_has_attr_class = false;
     m_has_attr_name = false;
+    m_has_attr_native = false;
+    m_attr_native = false;
     }
 
 }
@@ -2545,6 +2547,8 @@ DomWidget::DomWidget()
 {
     m_has_attr_class = false;
     m_has_attr_name = false;
+    m_has_attr_native = false;
+    m_attr_native = false;
 }
 
 DomWidget::~DomWidget()
@@ -2588,6 +2592,8 @@ void DomWidget::read(const QDomElement &node)
         setAttributeClass(node.attribute(QLatin1String("class")));
     if (node.hasAttribute(QLatin1String("name")))
         setAttributeName(node.attribute(QLatin1String("name")));
+    if (node.hasAttribute(QLatin1String("native")))
+        setAttributeNative((node.attribute(QLatin1String("native")) == QLatin1String("true") ? true : false));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -2678,6 +2684,9 @@ QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
 
     if (hasAttributeName())
         e.setAttribute(QLatin1String("name"), attributeName());
+
+    if (hasAttributeNative())
+        e.setAttribute(QLatin1String("native"), attributeNative());
 
     for (int i = 0; i < m_class.size(); ++i) {
         QString v = m_class[i];

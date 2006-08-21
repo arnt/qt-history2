@@ -307,7 +307,8 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         parentWidget = promoted->child();
 
     QString className = ui_widget->attributeClass();
-    if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
+    if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size() &&
+                !ui_widget->hasAttributeNative()) {
         // ### check if elementLayout.size() == 1
 
         QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), parentWidget);
@@ -620,6 +621,10 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = createDom(promoted->child(), ui_parentWidget, recursive);
     else
         w = QAbstractFormBuilder::createDom(widget, ui_parentWidget, recursive);
+
+    if (!qobject_cast<QLayoutWidget*>(widget) && w->attributeClass() == QLatin1String("QWidget")) {
+        w->setAttributeNative(true);
+    }
 
     Q_ASSERT( w != 0 );
 
