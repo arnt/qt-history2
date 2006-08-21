@@ -2354,16 +2354,6 @@ void QMenu::actionEvent(QActionEvent *e)
     setAttribute(Qt::WA_Resized, false);
     if (d->tornPopup)
         d->tornPopup->syncWithMenu(this, e);
-#ifdef Q_WS_MAC
-    if (d->mac_menu) {
-        if (e->type() == QEvent::ActionAdded)
-            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()), d);
-        else if (e->type() == QEvent::ActionRemoved)
-            d->mac_menu->removeAction(e->action());
-        else if (e->type() == QEvent::ActionChanged)
-            d->mac_menu->syncAction(e->action());
-    }
-#endif
     if (e->type() == QEvent::ActionAdded) {
         connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
         connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
@@ -2385,6 +2375,17 @@ void QMenu::actionEvent(QActionEvent *e)
                 wa->releaseWidget(widget);
         }
     }
+
+#ifdef Q_WS_MAC
+    if (d->mac_menu) {
+        if (e->type() == QEvent::ActionAdded)
+            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()), d);
+        else if (e->type() == QEvent::ActionRemoved)
+            d->mac_menu->removeAction(e->action());
+        else if (e->type() == QEvent::ActionChanged)
+            d->mac_menu->syncAction(e->action());
+    }
+#endif
 
     if (isVisible()) {
         d->updateActions();
