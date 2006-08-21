@@ -37,7 +37,7 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QPrinter *printer, QWidget *p
     d->printer = printer;
 
     if (printer->outputFormat() != QPrinter::NativeFormat) {
-        qWarning("QAbstractPageSetupDialog::QAbstractPageSetupDialog: Page setup dialog cannot be"
+        qWarning("QAbstractPageSetupDialog::QAbstractPageSetupDialog: Page setup dialog cannot be "
                  "used on non-native printers");    
     }
 }
@@ -53,7 +53,7 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QAbstractPageSetupDialogPriva
     d->printer = printer;
 
     if (printer->outputFormat() != QPrinter::NativeFormat) {
-        qWarning("QAbstractPageSetupDialog::QAbstractPageSetupDialog: Page setup dialog cannot be"
+        qWarning("QAbstractPageSetupDialog::QAbstractPageSetupDialog: Page setup dialog cannot be "
                  "used on non-native printers");    
     }
 }
