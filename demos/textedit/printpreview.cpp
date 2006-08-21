@@ -51,7 +51,7 @@ class PreviewView : public QAbstractScrollArea
 public:
     PreviewView(QTextDocument *document);
 
-    inline void updateLayout() { resizeEvent(0); update(); }
+    inline void updateLayout() { resizeEvent(0); viewport()->update(); }
 
 public slots:
     void zoomIn();
@@ -253,10 +253,6 @@ void PrintPreview::setup()
     QSizeF page = printer.pageRect().size();
     page.setWidth(page.width() * view->logicalDpiX() / printer.logicalDpiX());
     page.setHeight(page.height() * view->logicalDpiY() / printer.logicalDpiY());
-
-    if (printer.orientation() == QPrinter::Landscape) {
-        qSwap(page.rwidth(), page.rheight());
-    }
 
     // add a nice 2 cm margin
     const qreal margin = inchesToPixels(mmToInches(20), this);
