@@ -366,6 +366,7 @@ int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lin
 bool qt_is_gui_used;
 bool Q_GUI_EXPORT qt_tab_all_widgets = true;
 bool qt_in_tab_key_event = false;
+int qt_antialiasing_threshold = -1;
 static int drag_time = 500;
 static int drag_distance = 4;
 static Qt::LayoutDirection layout_direction = Qt::LeftToRight;

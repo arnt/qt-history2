@@ -36,6 +36,8 @@
 
 #include <string.h>
 
+extern int qt_antialiasing_threshold; // QApplication.cpp
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -799,12 +801,13 @@ void QCoreGraphicsPaintEngine::drawTextItem(const QPointF &pos, const QTextItem 
 
     Q_ASSERT(type() == QPaintEngine::CoreGraphics);
 
-    const bool textAA = state->renderHints() & QPainter::TextAntialiasing;
+    QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
+
+    const bool textAA = state->renderHints() & QPainter::TextAntialiasing && fe->fontDef.pointSize > qt_antialiasing_threshold;
     const bool lineAA = state->renderHints() & QPainter::Antialiasing;
     if(textAA != lineAA)
         CGContextSetShouldAntialias(d->hd, textAA);
 
-    QFontEngineMac *fe = static_cast<QFontEngineMac *>(ti.fontEngine);
     if (ti.num_glyphs)
         fe->draw(d->hd, pos.x(), pos.y(), ti, paintDevice()->height());
 

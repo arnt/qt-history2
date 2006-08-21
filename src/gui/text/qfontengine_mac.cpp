@@ -33,6 +33,7 @@
  *****************************************************************************/
 //#define DEBUG_ADVANCES
 
+extern int qt_antialiasing_threshold; // QApplication.cpp
 
 #ifndef FixedToQFixed
 #define FixedToQFixed(a) QFixed::fromFixed((a) >> 10)
@@ -929,7 +930,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
                                              cgflags);
     CGColorSpaceRelease(colorspace);
     CGContextSetFontSize(ctx, fontDef.pixelSize);
-    CGContextSetShouldAntialias(ctx, true);
+    CGContextSetShouldAntialias(ctx, fontDef.pointSize > qt_antialiasing_threshold);
     CGAffineTransform oldTextMatrix = CGContextGetTextMatrix(ctx);
     CGAffineTransform cgMatrix = CGAffineTransformMake(1, 0, 0, 1, 0, 0);
     CGAffineTransformConcat(cgMatrix, oldTextMatrix);

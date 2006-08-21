@@ -121,6 +121,7 @@ extern bool qt_app_has_font;
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
+extern int qt_antialiasing_threshold; // from qapplication.cpp
 QPointer<QWidget> qt_button_down;                // widget got last button-down
 static QPointer<QWidget> qt_mouseover;
 static QHash<WindowRef, int> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
@@ -334,6 +335,11 @@ void qt_mac_update_os_settings()
     /* First worked as of 10.3.3 */
     appleValue = appleSettings.value(QLatin1String("AppleMiniaturizeOnDoubleClick"), true);
     qt_mac_collapse_on_dblclick = appleValue.toBool();
+
+    // Anti-aliasing threshold
+    appleValue = appleSettings.value(QLatin1String("AppleAntiAliasingThreshold"));
+    if (appleValue.isValid())
+        qt_antialiasing_threshold = appleValue.toInt();
 
 #ifdef DEBUG_PLATFORM_SETTINGS
     qDebug("qt_mac_update_os_settings *********************************************************************");
