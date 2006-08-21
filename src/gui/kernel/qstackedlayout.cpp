@@ -16,6 +16,7 @@
 
 #include <qlist.h>
 #include <qwidget.h>
+#include "private/qlayoutengine_p.h"
 
 class QStackedLayoutPrivate : public QLayoutPrivate
 {
@@ -408,7 +409,7 @@ QSize QStackedLayout::minimumSize() const
 
     for (int i = 0; i < n; ++i)
         if (QWidget *widget = d->list.at(i)->widget())
-            s = s.expandedTo(widget->minimumSizeHint());
+            s = s.expandedTo(qSmartMinSize(widget));
     return s;
 }
 
