@@ -358,7 +358,9 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
     if (qobject_cast<QMainWindow*>(q->parentWidget()) == 0)
         return;
 
-    Q_ASSERT(!state);
+    if (state != 0)
+        return;
+
     state = new QDockWidgetPrivate::DragState;
 
     state->pressPos = event->pos();
@@ -738,6 +740,7 @@ void QDockWidget::paintEvent(QPaintEvent *event)
 bool QDockWidget::event(QEvent *event)
 {
     Q_D(QDockWidget);
+
     switch (event->type()) {
 #ifndef QT_NO_ACTION
     case QEvent::Hide:
