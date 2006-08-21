@@ -813,7 +813,7 @@ void SetupWizardImpl::prepareEnvironment()
 	}
     }
     else {
-	qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( optionsPage->installPath->text() ) );
+	qtDir = QDir::toNativeSeparators( QEnvironment::getFSFileName( optionsPage->installPath->text() ) );
     }
 
 #if defined(Q_OS_WIN32)

@@ -56,7 +56,7 @@ void PluginDialog::findPlugins(const QString &path,
 {
     label->setText(tr("Plug & Paint found the following plugins\n"
                       "(looked in %1):")
-                   .arg(QDir::convertSeparators(path)));
+                   .arg(QDir::toNativeSeparators(path)));
 
     QDir dir(path);
 

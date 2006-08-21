@@ -153,7 +153,7 @@ void TrPreviewTool::openForm()
 	else {
 	    FormHolder* formHolder = createFormFromFile(path);
 	    if(!formHolder) {
-		noGoodPaths += QDir::convertSeparators(path) + QLatin1Char('\n');
+		noGoodPaths += QDir::toNativeSeparators(path) + QLatin1Char('\n');
 	    }
 	    else {
 		formHolder->show();
@@ -257,7 +257,7 @@ void TrPreviewTool::loadTranslation()
     if(!path.isEmpty()) {
 	    initDir = QFileInfo(path).absolutePath();
         if (!loadTranslation(path)) {
-	        showWarning(tr("Could not load translation file:\n") + QDir::convertSeparators(path));
+	        showWarning(tr("Could not load translation file:\n") + QDir::toNativeSeparators(path));
         }
     }
 }
@@ -275,7 +275,7 @@ void TrPreviewTool::reloadTranslations()
 	            trDict.insert(path, newTr);
 	        }
 	        else {
-	            noGoodPaths += QDir::convertSeparators(path) + QLatin1Char('\n');
+	            noGoodPaths += QDir::toNativeSeparators(path) + QLatin1Char('\n');
 	        }
         }
     }

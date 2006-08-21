@@ -268,7 +268,7 @@ static bool uncListSharesOnServer(const QString &server, QStringList *list)
 
 static bool isUncRoot(const QString &server)
 {
-    QString localPath = QDir::convertSeparators(server);
+    QString localPath = QDir::toNativeSeparators(server);
     QStringList parts = localPath.split('\\', QString::SkipEmptyParts);
     return localPath.startsWith("\\\\") && parts.count() <= 1;
 }
@@ -562,7 +562,7 @@ bool QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) con
 {
     QString dirName = name;
     if (createParentDirectories) {
-        dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
+        dirName = QDir::toNativeSeparators(QDir::cleanPath(dirName));
         // We spefically search for / so \ would break it..
         int oldslash = -1;
         if (dirName.startsWith(QString("\\\\"))) {
@@ -605,7 +605,7 @@ bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) co
 {
     QString dirName = name;
     if (recurseParentDirectories) {
-        dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
+        dirName = QDir::toNativeSeparators(QDir::cleanPath(dirName));
         for (int oldslash = 0, slash=dirName.length(); slash > 0; oldslash = slash) {
             QString chunk = dirName.left(slash);
             if (chunk.length() == 2 && chunk.at(0).isLetter() && chunk.at(1) == QLatin1Char(':'))
@@ -689,7 +689,7 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 
     if (ff == FF_ERROR) {
         if (d->file.startsWith("//") && doDirs)
-            uncEntryList(QDir::convertSeparators(d->file), (filters & QDir::AllDirs) ? QStringList() : filterNames, &ret);
+            uncEntryList(QDir::toNativeSeparators(d->file), (filters & QDir::AllDirs) ? QStringList() : filterNames, &ret);
         return ret; // cannot read the directory or was //unc
     }
     for (;;) {
@@ -1055,7 +1055,7 @@ bool QFSFileEnginePrivate::doStat() const
                     fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
                     could_stat = true;
                 } else {
-                    QString path = QDir::convertSeparators(fname);
+                    QString path = QDir::toNativeSeparators(fname);
                     bool is_dir = false;
                     if (path.startsWith("\\\\")) {
                         // UNC - stat doesn't work for all cases (Windows bug)
@@ -1459,7 +1459,7 @@ QString QFSFileEngine::fileName(FileName file) const
                 && d->file.at(2) != QLatin1Char('/') || // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
                 d->file.startsWith(QLatin1Char('/'))    // It's a absolute path to the current drive, so \a.txt -> Z:\a.txt
                 ) {
-                ret = QDir::convertSeparators(nativeAbsoluteFilePath(d->file));
+                ret = QDir::toNativeSeparators(nativeAbsoluteFilePath(d->file));
             } else {
                 ret = d->file;
             }

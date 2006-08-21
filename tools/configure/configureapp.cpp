@@ -95,12 +95,12 @@ Configure::Configure( int& argc, char** argv )
     qtDir = sourcePath.absolutePath();
     // Only use the lines below if configure resides in QTDIR/bin
     //QDir srcDir(sourcePath.absolutePath() + "/..");
-    //qtDir = QDir::convertSeparators( srcDir.absolutePath() );
+    //qtDir = QDir::toNativeSeparators( srcDir.absolutePath() );
     QString installPath = QString("C:\\Qt\\%1").arg(QT_VERSION_STR);
 
-    dictionary[ "QT_SOURCE_TREE" ]    = QDir::convertSeparators( qtDir );
-    dictionary[ "QT_BUILD_TREE" ]     = QDir::convertSeparators( qtDir );
-    dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( qtDir ); //installPath;
+    dictionary[ "QT_SOURCE_TREE" ]    = QDir::toNativeSeparators( qtDir );
+    dictionary[ "QT_BUILD_TREE" ]     = QDir::toNativeSeparators( qtDir );
+    dictionary[ "QT_INSTALL_PREFIX" ] = QDir::toNativeSeparators( qtDir ); //installPath;
 
     dictionary[ "QMAKESPEC" ] = getenv( "QMAKESPEC" );
     if (dictionary[ "QMAKESPEC" ].size() == 0) {
@@ -1466,27 +1466,27 @@ void Configure::generateOutputVars()
 
     // if QT_INSTALL_* have not been specified on commandline, define them now from QT_INSTALL_PREFIX
     if( !dictionary[ "QT_INSTALL_DOCS" ].size() )
-	dictionary[ "QT_INSTALL_DOCS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/doc" );
+	dictionary[ "QT_INSTALL_DOCS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/doc" );
     if( !dictionary[ "QT_INSTALL_HEADERS" ].size() )
-	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
+	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
     if( !dictionary[ "QT_INSTALL_LIBS" ].size() )
-	dictionary[ "QT_INSTALL_LIBS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/lib" );
+	dictionary[ "QT_INSTALL_LIBS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/lib" );
     if( !dictionary[ "QT_INSTALL_BINS" ].size() )
-	dictionary[ "QT_INSTALL_BINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/bin" );
+	dictionary[ "QT_INSTALL_BINS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/bin" );
     if( !dictionary[ "QT_INSTALL_PLUGINS" ].size() )
-	dictionary[ "QT_INSTALL_PLUGINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/plugins" );
+	dictionary[ "QT_INSTALL_PLUGINS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/plugins" );
     if( !dictionary[ "QT_INSTALL_DATA" ].size() )
-	dictionary[ "QT_INSTALL_DATA" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] );
+	dictionary[ "QT_INSTALL_DATA" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] );
     if( !dictionary[ "QT_INSTALL_TRANSLATIONS" ].size() )
-	dictionary[ "QT_INSTALL_TRANSLATIONS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/translations" );
+	dictionary[ "QT_INSTALL_TRANSLATIONS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/translations" );
     if( !dictionary[ "QT_INSTALL_EXAMPLES" ].size() )
-	dictionary[ "QT_INSTALL_EXAMPLES" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/examples");
+	dictionary[ "QT_INSTALL_EXAMPLES" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/examples");
     if( !dictionary[ "QT_INSTALL_DEMOS" ].size() )
-	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/demos" );
+	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/demos" );
 
-    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString("RCC_DIR=") + QDir::convertSeparators("tmp/rcc/" + dictionary["QMAKE_OUTDIR"]);
+    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::toNativeSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString( "MOC_DIR=" ) + QDir::toNativeSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString("RCC_DIR=") + QDir::toNativeSeparators("tmp/rcc/" + dictionary["QMAKE_OUTDIR"]);
 
     if (!qmakeDefines.isEmpty())
         qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
@@ -2055,19 +2055,19 @@ void Configure::generateMakefiles()
 
 	int i = 0;
         QString pwd = QDir::currentPath();
-        QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
+        QString qtDir = QDir::toNativeSeparators(dictionary["QT_SOURCE_TREE"] + "/");
         if (dictionary["FAST"] != "yes") {
             QString dirName;
             bool generate = true;
             bool doDsp = (dictionary["DSPFILES"] == "yes" || dictionary["VCPFILES"] == "yes"
                           || dictionary["VCPROJFILES"] == "yes");
             while (generate) {
-                QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
+                QString qtDir = QDir::toNativeSeparators(dictionary["QT_SOURCE_TREE"] + "/");
                 QString pwd = QDir::currentPath();
-                QString dirPath = QDir::convertSeparators(qtDir + dirName);
+                QString dirPath = QDir::toNativeSeparators(qtDir + dirName);
                 QStringList args;
 
-                args << QDir::convertSeparators( qtDir + "/bin/qmake" );
+                args << QDir::toNativeSeparators( qtDir + "/bin/qmake" );
 
                 if (doDsp) {
                     if( dictionary[ "DEPENDENCIES" ] == "no" )
@@ -2083,7 +2083,7 @@ void Configure::generateMakefiles()
                 args << dictionary[ "QMAKESPEC" ];
                 args << "-r";
 
-                QDir::setCurrent( QDir::convertSeparators( dirPath ) );
+                QDir::setCurrent( QDir::toNativeSeparators( dirPath ) );
                 if( int exitCode = Environment::execute(args, QStringList(), QStringList()) ) {
                     cout << "Qmake failed, return code " << exitCode  << endl << endl;
                     dictionary[ "DONE" ] = "error";
@@ -2094,12 +2094,12 @@ void Configure::generateMakefiles()
             for ( i=0; i<3; i++ ) {
                 for ( int j=0; j<makeList[i].size(); ++j) {
                     MakeItem *it=makeList[i][j];
-                    QString dirPath = QDir::convertSeparators( it->directory + "/" );
+                    QString dirPath = QDir::toNativeSeparators( it->directory + "/" );
                     QString projectName = dirPath + it->proFile;
                     QString makefileName = dirPath + it->target;
                     QStringList args;
 
-                    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
+                    args << QDir::toNativeSeparators( qtDir + "/bin/qmake" );
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
 
@@ -2109,7 +2109,7 @@ void Configure::generateMakefiles()
                     args << "-spec";
                     args << dictionary[ "QMAKESPEC" ];
 
-                    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
+                    QDir::setCurrent( QDir::toNativeSeparators( dirPath ) );
 
                     QFile file(makefileName);
                     if (!file.open(QFile::WriteOnly)) {

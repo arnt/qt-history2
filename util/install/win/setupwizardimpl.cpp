@@ -906,7 +906,7 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 {
     if (var == "COMSPEC" || !(globalInformation.sysId() == GlobalInformation::MSVC || 
 	globalInformation.sysId() == GlobalInformation::MSVCNET)) {
-	QString fn = QDir::convertSeparators(QFileDialog::getOpenFileName(QString(), QString(), this, 0,
+	QString fn = QDir::toNativeSeparators(QFileDialog::getOpenFileName(QString(), QString(), this, 0,
 						  "Please find " + file));
 	QString envs = getenv(var);
 	if (var != "COMSPEC") {
@@ -1122,7 +1122,7 @@ void SetupWizardImpl::assistantDone()
     QStringList lst;
     lst << "assistant";
     lst << "-addContentFile";
-    lst << QDir::convertSeparators( html.filePath( contentFile ) );
+    lst << QDir::toNativeSeparators( html.filePath( contentFile ) );
     assistant.setArguments( lst );
     if( !assistant.start() ) {
 	logOutput( "Installing QSA documentation failed\n" );
@@ -1705,7 +1705,7 @@ void SetupWizardImpl::showPageFolders()
 	    QDir msdevDir( QEnvironment::getEnv("MSDEVDIR") );
 	    msdevDir.cdUp();
 	    msdevDir.cdUp();
-	    devPath = QDir::convertSeparators( msdevDir.absPath() );
+	    devPath = QDir::toNativeSeparators( msdevDir.absPath() );
 	}
 	foldersPage->devSysPath->setText( devPath );
     } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {

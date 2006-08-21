@@ -276,7 +276,7 @@ void OptionsPageImpl::choosePath()
 	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation with the Borland linker" );
     else {
 	dir.setPath( dest );
-	installPath->setText( QDir::convertSeparators(dir.absPath()) );
+	installPath->setText( QDir::toNativeSeparators(dir.absPath()) );
     }
 #elif defined(Q_OS_MAC)
     if( !dir.exists() )

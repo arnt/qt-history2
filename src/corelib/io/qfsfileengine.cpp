@@ -171,10 +171,10 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
     do {
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
         d->fh = 0;
-        fopen_s(&d->fh, QFile::encodeName(QDir::convertSeparators(d->file)).constData(),
+        fopen_s(&d->fh, QFile::encodeName(QDir::toNativeSeparators(d->file)).constData(),
                          openModeToFopenMode(flags, d->file).constData());
 #else
-        d->fh = QT_FOPEN(QFile::encodeName(QDir::convertSeparators(d->file)).constData(),
+        d->fh = QT_FOPEN(QFile::encodeName(QDir::toNativeSeparators(d->file)).constData(),
                          openModeToFopenMode(flags, d->file).constData());
 #endif
     } while (!d->fh && errno == EINTR);

@@ -509,7 +509,7 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
             QStringList fileNames;
             int size = sizeof(DROPFILES)+2;
             for (int i=0; i<urls.size(); i++) {
-                QString fn = QDir::convertSeparators(urls.at(i).toLocalFile());
+                QString fn = QDir::toNativeSeparators(urls.at(i).toLocalFile());
                 if (!fn.isEmpty()) {
                     QT_WA({
                         size += sizeof(TCHAR)*(fn.length()+1);

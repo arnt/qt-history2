@@ -1132,7 +1132,7 @@ QMakeProject::read(uchar cmd)
             int cache_depth = -1;
             QString qmake_cache = Option::mkfile::cachefile;
             if(qmake_cache.isEmpty())  { //find it as it has not been specified
-                QString dir = QDir::convertSeparators(Option::output_dir);
+                QString dir = QDir::toNativeSeparators(Option::output_dir);
                 while(!QFile::exists((qmake_cache = dir + QDir::separator() + ".qmake.cache"))) {
                     dir = dir.left(dir.lastIndexOf(QDir::separator()));
                     if(dir.isEmpty() || dir.indexOf(QDir::separator()) == -1) {
@@ -1479,7 +1479,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
             include_roots << qmake_getpwd();
         include_roots << Option::output_dir;
         for(int root = 0; root < include_roots.size(); ++root) {
-		QString testName = QDir::convertSeparators(include_roots[root]);
+		QString testName = QDir::toNativeSeparators(include_roots[root]);
 		if (!testName.endsWith(QString(QDir::separator())))
 			testName += QDir::separator();
 		testName += file;

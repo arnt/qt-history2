@@ -152,11 +152,11 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
         parent = qApp->activeWindow();
 
     aTitle = title.toLocal8Bit();
-    aInitDir = QDir::convertSeparators(initialDirectory).toLocal8Bit();
+    aInitDir = QDir::toNativeSeparators(initialDirectory).toLocal8Bit();
     if (initialSelection.isEmpty()) {
         aInitSel = "";
     } else {
-        aInitSel = QDir::convertSeparators(initialSelection).toLocal8Bit();
+        aInitSel = QDir::toNativeSeparators(initialSelection).toLocal8Bit();
 	aInitSel.replace("<", "");
 	aInitSel.replace(">", "");
 	aInitSel.replace("\"", "");
@@ -224,10 +224,10 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
     else
         parent = qApp->activeWindow();
 
-    tInitDir = QDir::convertSeparators(initialDirectory);
+    tInitDir = QDir::toNativeSeparators(initialDirectory);
     tFilters = filters;
     tTitle = title;
-    QString initSel = QDir::convertSeparators(initialSelection);
+    QString initSel = QDir::toNativeSeparators(initialSelection);
     if (!initSel.isEmpty()) {
 	initSel.replace("<", "");
 	initSel.replace(">", "");
@@ -656,7 +656,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
     QApplicationPrivate::enterModal(&modal_widget);
     QT_WA({
         qt_win_resolve_libs();
-        QString initDir = QDir::convertSeparators(args.directory);
+        QString initDir = QDir::toNativeSeparators(args.directory);
         TCHAR path[MAX_PATH];
         TCHAR initPath[MAX_PATH];
         initPath[0] = 0;
@@ -686,7 +686,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
             result = QString();
         tTitle = QString();
     } , {
-        QString initDir = QDir::convertSeparators(args.directory);
+        QString initDir = QDir::toNativeSeparators(args.directory);
         char path[MAX_PATH];
         char initPath[MAX_PATH];
         QByteArray ctitle = title.toLocal8Bit();

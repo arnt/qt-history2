@@ -48,7 +48,7 @@ FileWriter::WriteResult FileWriter::writeFileVerbously(QString filePath, QByteAr
     const WriteResult result = writeFile(filePath, contents);
     if (result == WriteSucceeded) {
         QString cleanPath = QDir::cleanPath(filePath);
-        printf("Wrote to file: %s \n", QDir::convertSeparators(cleanPath).toLocal8Bit().constData());
+        printf("Wrote to file: %s \n", QDir::toNativeSeparators(cleanPath).toLocal8Bit().constData());
     }
     return result;
 }
@@ -59,7 +59,7 @@ FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray conte
         return WriteFailed;
     QString path = QFileInfo(filePath).path();
     if (!QDir().mkpath(path)){
-         printf("Error creating path %s \n", QDir::convertSeparators(path).toLocal8Bit().constData());
+         printf("Error creating path %s \n", QDir::toNativeSeparators(path).toLocal8Bit().constData());
     }
 
     QString cleanPath = QDir::cleanPath(filePath);
@@ -67,11 +67,11 @@ FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray conte
     if (f.exists()) {
         if (overWriteFiles == DontOverWrite) {
             printf("Error writing file %s: It already exists \n",
-                QDir::convertSeparators(cleanPath).toLatin1().constData());
+                QDir::toNativeSeparators(cleanPath).toLatin1().constData());
             return WriteFailed;
         } else if(overWriteFiles == AskOnOverWrite) {
             printf("%s%s? (Y)es, (N)o, (A)ll ", overwriteMessage.toLatin1().constData(),
-                QDir::convertSeparators(cleanPath).toLatin1().constData());
+                QDir::toNativeSeparators(cleanPath).toLatin1().constData());
             
             char answer = 0;
             while (answer != 'y' && answer != 'n' && answer != 'a') {
@@ -95,7 +95,7 @@ FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray conte
         return WriteSucceeded;
 
     printf("Could not write to to file: %s. Is it write protected?\n",
-        QDir::convertSeparators(filePath).toLatin1().constData());
+        QDir::toNativeSeparators(filePath).toLatin1().constData());
 
     return WriteFailed;
 }

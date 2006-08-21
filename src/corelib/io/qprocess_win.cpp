@@ -527,7 +527,7 @@ void QProcessPrivate::startProcess()
                                  0, 0, TRUE, dwCreationFlags,
                                  environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.isEmpty() ? 0
-                                    : (WCHAR*)QDir::convertSeparators(workingDirectory).utf16(),
+                                    : (WCHAR*)QDir::toNativeSeparators(workingDirectory).utf16(),
                                  &startupInfo, pid);
     } else
 #endif // UNICODE
@@ -545,7 +545,7 @@ void QProcessPrivate::startProcess()
 	    success = CreateProcessA(0, args.toLocal8Bit().data(),
                                      0, 0, TRUE, dwCreationFlags, environment.isEmpty() ? 0 : envlist.data(),
                                      workingDirectory.isEmpty() ? 0
-                                        : QDir::convertSeparators(workingDirectory).toLocal8Bit().data(),
+                                        : QDir::toNativeSeparators(workingDirectory).toLocal8Bit().data(),
                                      &startupInfo, pid);
 #endif // Q_OS_TEMP
     }

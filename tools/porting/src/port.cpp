@@ -205,7 +205,7 @@ int main(int argc, char**argv)
 
     // Read rule file and create PortingRules instance.
     printf("Using rules file: ");
-    puts(QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData());
+    puts(QDir::toNativeSeparators(rulesFilePath).toLocal8Bit().constData());
     PortingRules::createInstance(rulesFilePath);
 
 
@@ -232,7 +232,7 @@ int main(int argc, char**argv)
             else
                 porter.portFile(canonicalFileName);
         } else {
-            printf("File not found: %s \n", QDir::convertSeparators(inFileName).toLocal8Bit().constData());
+            printf("File not found: %s \n", QDir::toNativeSeparators(inFileName).toLocal8Bit().constData());
         }
     }
 

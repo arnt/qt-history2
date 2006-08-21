@@ -173,7 +173,7 @@ static QString settingsPath(const char *path = "")
     QString tempPath = QDir::tempPath();
     if (tempPath.endsWith("/"))
 	tempPath.truncate(tempPath.size() - 1);
-    return QDir::convertSeparators(tempPath + "/tst_QSettings/" + QLatin1String(path));
+    return QDir::toNativeSeparators(tempPath + "/tst_QSettings/" + QLatin1String(path));
 }
 
 #if QT_VERSION >= 0x040100

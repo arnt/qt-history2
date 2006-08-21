@@ -62,7 +62,7 @@ void MainWindow::saveAs()
         ret = QMessageBox::warning(this, tr("Recent Files"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
-                     .arg(QDir::convertSeparators(fileName)),
+                     .arg(QDir::toNativeSeparators(fileName)),
                      QMessageBox::Yes | QMessageBox::Cancel);
         if (ret == QMessageBox::Cancel)
             return;

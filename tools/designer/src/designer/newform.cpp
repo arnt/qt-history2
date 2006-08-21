@@ -285,7 +285,7 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         if (index2 != -1)
             index = index2;
         visiblePath = visiblePath.mid(index + 1);
-        visiblePath = QDir::convertSeparators(visiblePath);
+        visiblePath = QDir::toNativeSeparators(visiblePath);
     }
 
     root->setText(0, visiblePath.replace(QLatin1String("_"), QLatin1String(" ")));

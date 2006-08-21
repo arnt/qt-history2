@@ -163,11 +163,11 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
         parent = qApp->activeWindow();
 
     aTitle = title.local8Bit();
-    aInitDir = QDir::convertSeparators(initialDirectory).local8Bit();
+    aInitDir = QDir::toNativeSeparators(initialDirectory).local8Bit();
     if (initialSelection.isEmpty())
         aInitSel = "";
     else
-        aInitSel = QDir::convertSeparators(initialSelection).local8Bit();
+        aInitSel = QDir::toNativeSeparators(initialSelection).local8Bit();
     int maxLen = mode == Q3FileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize(maxLen + 1);                // make room for return value
     aFilter = filters.local8Bit();
@@ -227,10 +227,10 @@ OPENFILENAME* makeOFN(QWidget* parent,
     else
         parent = qApp->activeWindow();
 
-    tInitDir = QDir::convertSeparators(initialDirectory);
+    tInitDir = QDir::toNativeSeparators(initialDirectory);
     tFilters = filters;
     tTitle = title;
-    QString initSel = QDir::convertSeparators(initialSelection);
+    QString initSel = QDir::toNativeSeparators(initialSelection);
 
     int maxLen = mode == Q3FileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     TCHAR *tInitSel = new TCHAR[maxLen+1];
@@ -640,7 +640,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
     }
     QT_WA({
         resolveLibs();
-        QString initDir = QDir::convertSeparators(initialDirectory);
+        QString initDir = QDir::toNativeSeparators(initialDirectory);
         TCHAR path[MAX_PATH];
         TCHAR initPath[MAX_PATH];
         initPath[0] = 0;
@@ -669,7 +669,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
             result.clear();
         tTitle.clear();
     } , {
-        QString initDir = QDir::convertSeparators(initialDirectory);
+        QString initDir = QDir::toNativeSeparators(initialDirectory);
         char path[MAX_PATH];
         char initPath[MAX_PATH];
         QByteArray ctitle = title.toLocal8Bit();

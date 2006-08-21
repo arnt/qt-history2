@@ -1414,7 +1414,7 @@ QStringList QCompleter::splitPath(const QString& path) const
     if (!isDirModel || path.isEmpty())
         return QStringList(completionPrefix());
 
-    QString pathCopy = QDir::convertSeparators(path);
+    QString pathCopy = QDir::toNativeSeparators(path);
     QString sep = QDir::separator();
 #ifdef Q_OS_WIN
     if (pathCopy == QLatin1String("\\") || pathCopy == QLatin1String("\\\\"))

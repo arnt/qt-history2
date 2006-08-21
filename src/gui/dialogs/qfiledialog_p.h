@@ -102,7 +102,7 @@ public:
     // inlined stuff
     inline QString tr(const char *text) const { return QObject::tr(text); }
     inline QString toNative(const QString &path) const
-        { return QDir::convertSeparators(path); }
+        { return QDir::toNativeSeparators(path); }
     inline QString toInternal(const QString &path) const
         {
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)

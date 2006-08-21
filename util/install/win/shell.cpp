@@ -267,7 +267,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 		link->SetPath( (const wchar_t*) target.ucs2() );
 		QString _wrkDir = wrkDir;
 		if( !_wrkDir.length() ) {
-		    _wrkDir = QDir::convertSeparators( target );
+		    _wrkDir = QDir::toNativeSeparators( target );
 		    // remove the filename
 		    int pos = _wrkDir.findRev( '\\' );
 		    if ( pos > 0 )
@@ -299,7 +299,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( target.local8Bit().data() );
-		QString wrkDir = QDir::convertSeparators( target );
+		QString wrkDir = QDir::toNativeSeparators( target );
 
 		// remove the filename
 		int pos = wrkDir.findRev( '\\' );

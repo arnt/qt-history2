@@ -462,7 +462,7 @@ void QDirPrivate::detach(bool createFileEngine)
     and ".." elements.
 
     It is sometimes necessary to be able to show a path in the native
-    representation for the user's platform. The static convertSeparators()
+    representation for the user's platform. The static toNativeSeparators()
     function returns a copy of the specified path in which each directory
     separator is replaced by the appropriate separator for the underlying
     operating system.
@@ -612,7 +612,7 @@ void QDir::setPath(const QString &path)
     setPath()).
 
     \sa setPath(), absolutePath(), exists(), cleanPath(), dirName(),
-    absoluteFilePath(), convertSeparators(), makeAbsolute()
+    absoluteFilePath(), toNativeSeparators(), makeAbsolute()
 */
 
 QString QDir::path() const
@@ -823,26 +823,63 @@ QString QDir::relativeFilePath(const QString &fileName) const
 }
 
 /*!
+    \obsolete
+
+    Use QDir::toNativeSeparators() instead.
+*/
+QString QDir::convertSeparators(const QString &pathName)
+{
+    return toNativeSeparators(pathName);
+}
+
+/*!
+    \since 4.2
+
     Returns \a pathName with the '/' separators converted to
     separators that are appropriate for the underlying operating
     system.
 
-    On Windows, convertSeparators("c:/winnt/system32") returns
+    On Windows, toNativeSeparators("c:/winnt/system32") returns
     "c:\\winnt\\system32".
 
     The returned string may be the same as the argument on some
     operating systems, for example on Unix.
 
-    \sa separator()
+    \sa fromNativeSeparators(), separator()
 */
-
-QString QDir::convertSeparators(const QString &pathName)
+QString QDir::toNativeSeparators(const QString &pathName)
 {
     QString n(pathName);
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
     for (int i=0; i<(int)n.length(); i++) {
         if (n[i] == '/')
             n[i] = '\\';
+    }
+#endif
+    return n;
+}
+
+/*!
+    \since 4.2
+
+    Returns \a pathName with the native '\\' separators converted to
+    '/' separators.
+
+    On Windows, toNativeSeparators("c:\\winnt\\system32") returns
+    "c:/winnt/system32".
+
+    The returned string may be the same as the argument on some
+    operating systems, for example on Unix.
+
+    \sa toNativeSeparators(), separator()
+*/
+QString QDir::fromNativeSeparators(const QString &pathName)
+{
+    QString n(pathName);
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
+    for (int i=0; i<(int)n.length(); i++) {
+        if (n[i] == '\\')
+            n[i] = '/';
     }
 #endif
     return n;
@@ -1701,7 +1738,7 @@ QFileInfoList QDir::drives()
     always use "/", Qt will translate your paths to conform to the
     underlying operating system. If you want to display paths to the
     user using their operating system's separator use
-    convertSeparators().
+    toNativeSeparators().
 */
 
 QChar QDir::separator()

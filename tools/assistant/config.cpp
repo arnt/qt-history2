@@ -282,7 +282,7 @@ QStringList Config::mimePaths()
             lst << dcfPath;
 
         // Image dir for .dcf
-        QString imgDir = QDir::convertSeparators( dcfPath + QDir::separator()
+        QString imgDir = QDir::toNativeSeparators( dcfPath + QDir::separator()
                                                   + profil->imageDirs[it.key()] );
         if (!lst.contains(imgDir))
             lst << imgDir;

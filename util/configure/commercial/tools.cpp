@@ -217,8 +217,8 @@ void Tools::checkLicense(QMap<QString,QString> &dictionary, QMap<QString,QString
         fromLicenseFile += "-US";
 
     if (!QFileInfo(toLicenseFile).exists()) {
-        if (!CopyFileA(QDir::convertSeparators(fromLicenseFile).toLocal8Bit(),
-            QDir::convertSeparators(toLicenseFile).toLocal8Bit(), FALSE)) {
+        if (!CopyFileA(QDir::toNativeSeparators(fromLicenseFile).toLocal8Bit(),
+            QDir::toNativeSeparators(toLicenseFile).toLocal8Bit(), FALSE)) {
             cout << "Failed to copy license file (" << fromLicenseFile << ")";
             dictionary["DONE"] = "error";
             return;

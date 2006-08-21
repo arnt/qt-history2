@@ -318,7 +318,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 
     // Set up the initial directory.
     // If the dir does not exist, try to create it
-    dirName = QDir::convertSeparators( outpath );
+    dirName = QDir::toNativeSeparators( outpath );
     outDir.setPath( dirName );
     if( !outDir.exists( dirName ) && !createDir( dirName ) )
 	return false;
@@ -338,7 +338,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    if( entryName == "../" ) {
 		outDir.cdUp();
 	    } else {
-		dirName = QDir::convertSeparators( outDir.absPath() +
+		dirName = QDir::toNativeSeparators( outDir.absPath() +
 						   QString( "/" ) + entryName.left( entryName.length() - 1 ) );
 		if( verbosityMode & Destination )
 		    emit operationFeedback( "Directory " + dirName + "... " );
@@ -357,7 +357,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 
 	    int filePerm;
 	    QDateTime timeStamp;
-	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
+	    QString fileName = QDir::toNativeSeparators( outDir.absPath() + QString( "/" ) + entryName );
 	    outFile.setName( fileName );
 	    if( outFile.open( IO_WriteOnly ) ) {
 		*inStream >> timeStamp; 		// Get timestamp from the archive
@@ -406,7 +406,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    inBuffer.resize( entryLength );
 	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
-	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
+	    QString fileName = QDir::toNativeSeparators( outDir.absPath() + QString( "/" ) + entryName );
 
 	    *inStream >> entryLength;
 	    inBuffer.resize( entryLength );
