@@ -786,22 +786,15 @@ void QSqlTableModel::revertAll()
     case OnFieldChange:
         break;
     case OnRowChange:
-        d->editBuffer.clear();
-        if (d->editIndex != -1) {
-            int oldIndex = d->editIndex;
-            d->editIndex = -1;
-            emit dataChanged(createIndex(oldIndex, 0),
-                             createIndex(oldIndex, columnCount()));
-        }
-        d->revertInsertedRow();
+        if (d->editIndex != -1)
+            revertRow(d->editIndex);
+        else if (d->insertIndex != -1)
+            revertRow(d->insertIndex);
         break;
-    case OnManualSubmit: {
-        QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
-        while (it != d->cache.constEnd()) {
-            d->revertCachedRow(it.key());
-            it = d->cache.constBegin();
-        }
-        break; }
+    case OnManualSubmit:
+        while (!d->cache.isEmpty())
+            revertRow(d->cache.constBegin().key());
+        break;
     }
 }
 
@@ -812,12 +805,23 @@ void QSqlTableModel::revertAll()
 */
 void QSqlTableModel::revertRow(int row)
 {
+    if (row < 0)
+        return;
+
     Q_D(QSqlTableModel);
     switch (d->strategy) {
     case OnFieldChange:
-    case OnRowChange:
-        revertAll();
         break;
+    case OnRowChange: {
+        if (d->editIndex == row) {
+            d->editBuffer.clear();
+            int oldIndex = d->editIndex;
+            d->editIndex = -1;
+            emit dataChanged(createIndex(oldIndex, 0), createIndex(oldIndex, columnCount()));
+        } else if (d->insertIndex == row) {
+            d->revertInsertedRow();
+        }
+        break; }
     case OnManualSubmit:
         d->revertCachedRow(row);
         break;

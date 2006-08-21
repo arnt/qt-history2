@@ -43,6 +43,7 @@ private slots:
     void removeColumn();
     void filter();
     void sort();
+    void revert();
 };
 
 
@@ -318,13 +319,58 @@ void tst_QSqlRelationalTableModel::sort()
 
     model.setSort(3, Qt::AscendingOrder);
     QVERIFY2(model.select(), model.lastError().text().toLatin1());
-    qDebug() << model.query().lastQuery();
 
     QCOMPARE(model.rowCount(), 4);
     QCOMPARE(model.data(model.index(0, 3)).toString(), QString("herr"));
     QCOMPARE(model.data(model.index(1, 3)).toString(), QString("mister"));
     QCOMPARE(model.data(model.index(2, 3)).toString(), QString("mister"));
     QCOMPARE(model.data(model.index(3, 3)).toString(), QString("mister"));
+}
+
+static void testRevert(QSqlRelationalTableModel &model)
+{
+    /* revert single row */
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+    QVERIFY(model.setData(model.index(0, 2), 2, Qt::EditRole));
+    QVERIFY(model.setData(model.index(0, 2), "mister", Qt::DisplayRole));
+
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("mister"));
+    model.revertRow(0);
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+
+    /* revert all */
+    QVERIFY(model.setData(model.index(0, 2), 2, Qt::EditRole));
+    QVERIFY(model.setData(model.index(0, 2), "mister", Qt::DisplayRole));
+
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("mister"));
+    model.revertAll();
+    QCOMPARE(model.data(model.index(0, 2)).toString(), QString("herr"));
+}
+
+void tst_QSqlRelationalTableModel::revert()
+{
+    QFETCH_GLOBAL(QString, dbName);
+    QSqlDatabase db = QSqlDatabase::database(dbName);
+    CHECK_DATABASE(db);
+
+    QSqlRelationalTableModel model(0, db);
+
+    model.setTable(qTableName("reltest1"));
+    model.setRelation(2, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+    model.setRelation(3, QSqlRelation(qTableName("reltest2"), "tid", "title"));
+
+    model.setSort(0, Qt::AscendingOrder);
+
+    QVERIFY_SQL(model, model.select());
+    QCOMPARE(model.data(model.index(0, 0)).toString(), QString("1"));
+
+    testRevert(model);
+    if (QTest::currentTestFailed())
+        return;
+
+    /* and again with OnManualSubmit */
+    model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+    testRevert(model);
 }
 
 QTEST_MAIN(tst_QSqlRelationalTableModel)
