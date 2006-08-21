@@ -35,6 +35,7 @@ public:
     QTextTableCell &operator=(const QTextTableCell &o)
     { table = o.table; fragment = o.fragment; return *this; }
 
+    void setFormat(const QTextCharFormat &format);
     QTextCharFormat format() const;
 
     int row() const;

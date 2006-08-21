@@ -49,6 +49,7 @@ private slots:
     void blocksForTableShouldHaveEmptyFormat();
     void removeTableByRemoveRows();
     void removeTableByRemoveColumns();
+    void setCellFormat();
 
 private:
     QTextTable *create4x4Table();
@@ -570,6 +571,21 @@ void tst_QTextTable::removeTableByRemoveColumns()
     QVERIFY(table1);
     QVERIFY(!table2);
     QVERIFY(table3);
+}
+
+void tst_QTextTable::setCellFormat()
+{
+    QTextTable *table = cursor.insertTable(2, 2);
+    table->cellAt(0, 0).firstCursorPosition().insertText("First");
+    table->cellAt(0, 1).firstCursorPosition().insertText("Second");
+    table->cellAt(1, 0).firstCursorPosition().insertText("Third");
+    table->cellAt(1, 1).firstCursorPosition().insertText("Fourth");
+    QTextTableCell cell = table->cellAt(0, 0);
+    QTextCharFormat fmt;
+    fmt.setObjectIndex(23);
+    fmt.setBackground(Qt::blue);
+    cell.setFormat(fmt);
+    QVERIFY(cell.format().background().color() == QColor(Qt::blue));
 }
 
 QTEST_MAIN(tst_QTextTable)

@@ -68,6 +68,28 @@
 */
 
 /*!
+    \since 4.2
+
+    Sets the cell's character format. This can for example be used to change
+    the background color of the entire cell:
+
+    QTextTableCell cell = table->cellAt(2, 3);
+    QTextCharFormat format = cell.format();
+    format.setBackground(Qt::blue);
+    cell.setFormat(format);
+
+    \sa format()
+*/
+void QTextTableCell::setFormat(const QTextCharFormat &format)
+{
+    QTextCharFormat fmt = format;
+    fmt.clearProperty(QTextFormat::ObjectIndex);
+    QTextDocumentPrivate *p = table->docHandle();
+    QTextDocumentPrivate::FragmentIterator frag(&p->fragmentMap(), fragment);
+    p->setCharFormat(frag.position(), 1, fmt, QTextDocumentPrivate::SetFormatAndPreserveObjectIndices);
+}
+
+/*!
     Returns the cell's character format.
 */
 QTextCharFormat QTextTableCell::format() const
@@ -262,11 +284,11 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
 
     QTextTablePrivate *d = table->d_func();
     d->blockFragmentUpdates = true;
-    
+
     d->fragment_start = pieceTable->insertBlock(QTextBeginningOfFrame, pos, cellIdx, charIdx);
     d->cells.append(d->fragment_start);
     ++pos;
-    
+
     for (int i = 1; i < rows*cols; ++i) {
         d->cells.append(pieceTable->insertBlock(QTextBeginningOfFrame, pos, cellIdx, charIdx));
 // 	    qDebug("      addCell at %d", pos);
@@ -279,7 +301,7 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
 
     d->blockFragmentUpdates = false;
     d->dirty = true;
-    
+
     pieceTable->endEditBlock();
 
     return table;
@@ -360,7 +382,7 @@ void QTextTablePrivate::update() const
 
     QTextDocumentPrivate *p = pieceTable;
     QTextFormatCollection *c = p->formatCollection();
-    
+
     cellIndices.resize(cells.size());
 
     int cell = 0;
@@ -817,18 +839,18 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
     p->beginEditBlock();
 
     const int origCellPosition = cell.firstPosition() - 1;
-    
+
     const int cellFragment = d->grid[row * d->nCols + column];
 
     QVarLengthArray<int> cellMarkersToDelete((numCols - colSpan) * rowSpan
                                              + (numRows - rowSpan) * numCols);
 
     int idx = 0;
-    
+
     d->blockFragmentUpdates = true;
 
     for (int r = row; r < row + rowSpan; ++r) {
-        
+
         const int fragment = d->grid[r * d->nCols + column + colSpan];
         const uint pos = p->fragmentMap().position(fragment);
         QFragmentFindHelper helper(pos, p->fragmentMap());
@@ -837,7 +859,7 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
         Q_ASSERT(*it == fragment);
         d->cellIndices.remove(it - d->cells.begin(), numCols - colSpan);
         d->cells.erase(it, it + numCols - colSpan);
-        
+
         for (int c = column + colSpan; c < column + numCols; ++c) {
             const int cell = d->grid[r * d->nCols + c];
             QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
@@ -847,7 +869,7 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
     }
 
     for (int r = row + rowSpan; r < row + numRows; ++r) {
-        
+
         const int fragment = d->grid[r * d->nCols + column];
         const uint pos = p->fragmentMap().position(fragment);
         QFragmentFindHelper helper(pos, p->fragmentMap());
@@ -856,7 +878,7 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
         Q_ASSERT(*it == fragment);
         d->cellIndices.remove(it - d->cells.begin(), numCols);
         d->cells.erase(it, it + numCols);
-        
+
         for (int c = column; c < column + numCols; ++c) {
             const int cell = d->grid[r * d->nCols + c];
             QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
@@ -864,12 +886,12 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
             d->grid[r * d->nCols + c] = cellFragment;
         }
     }
-    
+
     for (int i = 0; i < cellMarkersToDelete.size(); ++i)
         p->remove(cellMarkersToDelete[i] - i, 1);
-    
+
     d->fragment_start = d->cells.first();
-   
+
     fmt.setTableCellRowSpan(numRows);
     fmt.setTableCellColumnSpan(numCols);
     p->setCharFormat(origCellPosition, 1, fmt);
@@ -949,7 +971,7 @@ void QTextTable::splitCell(int row, int column, int numRows, int numCols)
 
     int insertAdjustement = 0;
     for (int i = 0; i < numRows; ++i) {
-        for (int c = 0; c < colSpan - numCols; ++c) 
+        for (int c = 0; c < colSpan - numCols; ++c)
             p->insertBlock(QTextBeginningOfFrame, rowPositions[i] + insertAdjustement + c, blockIndex, fmtIndex);
         insertAdjustement += colSpan - numCols;
     }
