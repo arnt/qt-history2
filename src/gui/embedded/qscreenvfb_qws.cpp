@@ -44,18 +44,26 @@ public:
     unsigned char *shmrgn;
     QVFbHeader *hdr;
     QWSMouseHandler *mouse;
+#ifndef QT_NO_QWS_KEYBOARD
     QWSKeyboardHandler *keyboard;
+#endif
 };
 
 QVFbScreenPrivate::QVFbScreenPrivate()
-    : mouse(0), keyboard(0)
+    : mouse(0)
+
 {
+#ifndef QT_NO_QWS_KEYBOARD
+    keyboard = 0;
+#endif
 }
 
 QVFbScreenPrivate::~QVFbScreenPrivate()
 {
     delete mouse;
+#ifndef QT_NO_QWS_KEYBOARD
     delete keyboard;
+#endif
 }
 
 /*!
@@ -210,8 +218,10 @@ bool QVFbScreen::connect(const QString &displaySpec)
         d_ptr->mouse->setScreen(this);
 
         const QString keyboardDev = QString(QT_VFB_KEYBOARD_PIPE).arg(displayId);
+#ifndef QT_NO_QWS_KEYBOARD
         d_ptr->keyboard = QKbdDriverFactory::create("QVFbKbd", keyboardDev);
         qwsServer->setDefaultKeyboard("None");
+#endif
 
         if (d_ptr->hdr->dataoffset >= (int)sizeof(QVFbHeader))
             d_ptr->hdr->serverVersion = QT_VERSION;
