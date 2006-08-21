@@ -46,9 +46,9 @@ SUPPORTED PLATFORMS
 For this release, the following platforms have been tested:
 
   win32-g++
-  win32-icc
-  win32-msvc
-  win32-msvc.net (only supported by the commercial edition of Qt)
+  win32-icc (commercial edition only)
+  win32-msvc (commercial edition only)
+  win32-msvc.net (commercial edition only)
 
   aix-g++
   aix-xlc
