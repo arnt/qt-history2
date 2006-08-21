@@ -3620,6 +3620,12 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             pos = w->mapFromGlobal(globalPos);
         }
 
+        if (((type == QEvent::MouseMove && buttons)
+             || (type == QEvent::MouseButtonRelease))
+            && qt_button_down != widget)
+            return false; // don't send event
+
+
         if (type == QEvent::MouseButtonRelease && !buttons) {
             // no more buttons pressed on the widget
             qt_button_down = 0;
