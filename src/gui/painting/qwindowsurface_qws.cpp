@@ -964,6 +964,7 @@ QWSDirectPainterSurface::~QWSDirectPainterSurface()
 QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
     : QWSWindowSurface((QWidget*)0)
 {
+    setSurfaceFlags(Reserved);
     if (isClient) {
         winId  = QWidget::qwsDisplay()->takeId();
         qApp->d_func()->directPainterID = winId;
