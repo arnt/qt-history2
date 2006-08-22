@@ -16,6 +16,7 @@
 #ifndef QT_NO_ITEMVIEWS
 #include <qpointer.h>
 #include <qapplication.h>
+#include <qclipboard.h>
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qdrag.h>
@@ -1723,6 +1724,15 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
             event->ignore();
             return;
         }
+    }
+#endif
+
+#ifndef QT_NO_CLIPBOARD
+    if (event == QKeySequence::Copy) {
+        QVariant variant = model()->data(currentIndex(), Qt::DisplayRole);
+        if (variant.type() == QVariant::String)
+            QApplication::clipboard()->setText(variant.toString());
+        event->accept();
     }
 #endif
 
