@@ -76,6 +76,23 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     in menus. On Mac OS X, the appropriate symbols are used to describe
     keyboard shortcuts using special keys on the Macintosh keyboard.
 
+    \section1 Standard Shortcuts
+
+    QKeySequence defines many \l{StandardKey} standard keyboard shortcuts to
+    reduce the amount of effort required when setting up actions in a typical
+    application. The table below shows the different key sequences that these
+    standard shortcuts represent on some common platforms:
+
+    \table
+    \header \i StandardKey  \i Windows      \i Mac OS X   \i KDE  \i GNOME
+    \row    \i HelpContents \i              \i            \i      \i
+    \endtable
+
+    Note that, since the key sequences used for the standard shortcuts differ
+    between platforms, you still need to test your shortcuts on each platform
+    to ensure that you do not unintentionally assign the same key sequence to
+    many actions.
+
     \sa QShortcut
 */
 
@@ -340,6 +357,7 @@ const uint QKeySequencePrivate::numberOfKeyBindings = sizeof(QKeySequencePrivate
 
 /*!
     \enum QKeySequence::StandardKey
+    \since 4.2
 
     This enum represent standard key bindings. They can be used to
     assign platform dependent keyboard shortcuts to a QAction.
