@@ -386,6 +386,10 @@ static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
             return 0;
         if (X11->ignore_badwindow)
             return 0;
+    } else if (err->request_code == X11->xinput_major
+                && err->error_code == (X11->xinput_errorbase + XI_BadDevice)
+                && err->minor_code == 3 /* X_OpenDevice */) {
+        return 0;
     } else if (err->error_code == BadMatch && err->request_code == 42 /* X_SetInputFocus */) {
         return 0;
     }
@@ -1774,10 +1778,8 @@ void qt_init(QApplicationPrivate *priv, int,
                 if (gotStylus || gotEraser) {
                     dev = XOpenDevice(X11->display, devs->id);
 
-                    if (!dev) {
-                        qWarning("QApplication: Failed to open device");
+                    if (!dev)
                         continue;
-                    }
 
                     QTabletDeviceData device_data;
                     device_data.deviceType = deviceType;
