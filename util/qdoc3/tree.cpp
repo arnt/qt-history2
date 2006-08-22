@@ -811,8 +811,8 @@ void Tree::resolveIndex()
     }
 }
 
-void Tree::generateIndexSubSections(QString indent, QTextStream& out,
-                                    const Node *node) const
+void Tree::generateIndexSection(QString indent, QTextStream& out,
+                                const Node *node, bool inlineChildren) const
 {
     if (!node->url().isEmpty())
         return;
@@ -1040,15 +1040,23 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         QString temp;
         QTextStream childOut(&temp);
         foreach (Node *child, inner->childNodes()) {
-            generateIndexSubSections(indent + " ", childOut, child);
+            if (inlineChildren)
+                generateIndexSection(indent + " ", childOut, child, inlineChildren);
+            else
+                out << "<reference id=\""
+                    << HtmlGenerator::protect(child->name()) << "\" />\n";
         }
 
         childNodes += temp;
         temp.clear();
 
-        foreach (Node *child, inner->relatedNodes())
-            generateIndexSubSections(indent + "  ", childOut, child);
-
+        foreach (Node *child, inner->relatedNodes()) {
+            if (inlineChildren)
+                generateIndexSection(indent + "  ", childOut, child, inlineChildren);
+            else
+                out << "<reference id=\""
+                    << HtmlGenerator::protect(child->name()) << "\" />\n";
+        }
 
     } else if (node->type() == Node::Function) {
 
@@ -1090,7 +1098,7 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
     out.flush();
 }
 
-void Tree::generateIndexSections(const QString &fileName, const QString &url,
+void Tree::generateIndex(const QString &fileName, const QString &url,
                                  const QString &title) const
 {
     QFile file(fileName);
@@ -1104,7 +1112,7 @@ void Tree::generateIndexSections(const QString &fileName, const QString &url,
         << "\" title=\"" << HtmlGenerator::protect(title)
         << "\" version=\"" << HtmlGenerator::protect(version()) + "\">\n";
 
-    generateIndexSubSections("", out, root());
+    generateIndexSection("", out, root(), true);
 
     out << "</INDEX>\n";
     out.flush();

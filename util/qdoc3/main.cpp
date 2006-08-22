@@ -25,6 +25,7 @@
 #include "qscodemarker.h"
 #include "qscodeparser.h"
 #include "sgmlgenerator.h"
+#include "webxmlgenerator.h"
 #include "tokenizer.h"
 #include "tree.h"
 
@@ -220,6 +221,7 @@ int main( int argc, char **argv )
     LoutGenerator loutGenerator;
     ManGenerator manGenerator;
     SgmlGenerator smglGenerator;
+    WebXMLGenerator webxmlGenerator;
 
     QStringList qdocFiles;
     QString opt;

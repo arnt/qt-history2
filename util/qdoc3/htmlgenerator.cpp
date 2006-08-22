@@ -2487,8 +2487,7 @@ void HtmlGenerator::generateDcf(const QString &fileBase, const QString &startPag
 void HtmlGenerator::generateIndex(const QString &fileBase, const QString &url,
                                   const QString &title)
 {
-    tre->generateIndexSections(outputDir() + "/" + fileBase + ".index", url,
-                               title);
+    tre->generateIndex(outputDir() + "/" + fileBase + ".index", url, title);
 }
 void HtmlGenerator::generateStatus( const Node *node, CodeMarker *marker )
 {

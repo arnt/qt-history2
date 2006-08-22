@@ -43,7 +43,8 @@ HEADERS += apigenerator.h \
 	   tokenizer.h \
 	   tr.h \
 	   tree.h \
-	   uncompressor.h
+	   uncompressor.h \
+           webxmlgenerator.h
 SOURCES += apigenerator.cpp \
            archiveextractor.cpp \
 	   atom.cpp \
@@ -82,4 +83,5 @@ SOURCES += apigenerator.cpp \
 	   tokenizer.cpp \
 	   tree.cpp \
 	   uncompressor.cpp \
+           webxmlgenerator.cpp \
 	   yyindent.cpp

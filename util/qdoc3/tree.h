@@ -52,9 +52,10 @@ public:
     Atom *findTarget(const QString &target, const Node *node) const;
     const NamespaceNode *root() const { return &roo; }
     void readIndexes(const QStringList &indexFiles);
-    void generateIndexSubSections(QString indent, QTextStream& out,
-                                  const Node *node) const;
-    void generateIndexSections(const QString &fileName, const QString &url,
+    void generateIndexSection(QString indent, QTextStream& out,
+                              const Node *node, bool inlineChildren = false)
+                              const;
+    void generateIndex(const QString &fileName, const QString &url,
                                const QString &title) const;
     void addExternalLink(const QString &url, const Node *relative);
     QString fullDocumentName(const Node *node) const;
