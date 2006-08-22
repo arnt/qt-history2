@@ -285,7 +285,7 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn QModelIndex QAbstractItemView::indexAt(const QPoint &point) const = 0
 
-    Returns the model index of the item at point \a point.
+    Returns the model index of the item at the viewport coordinates \a point.
 
     In the base class this is a pure virtual function.
 
