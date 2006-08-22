@@ -133,6 +133,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_linkHovered(const QString &))
 
     friend class QTipLabel;
+    friend class QMessageBoxPrivate;
 };
 
 QT_END_HEADER
