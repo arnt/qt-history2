@@ -226,7 +226,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::MoveToPreviousPage,      1,          Qt::Key_PageUp,                         QApplicationPrivate::KB_All},
     {QKeySequence::MoveToNextPage,          1,          Qt::Key_PageDown,                       QApplicationPrivate::KB_All},
     {QKeySequence::HelpContents,            0,          Qt::Key_F1,                             QApplicationPrivate::KB_All},
-    {QKeySequence::FindNext,                1,          Qt::Key_F3,                             QApplicationPrivate::KB_KDE},
+    {QKeySequence::FindNext,                0,          Qt::Key_F3,                             QApplicationPrivate::KB_All},
     {QKeySequence::Refresh,                 0,          Qt::Key_F5,                             QApplicationPrivate::KB_All},
     {QKeySequence::Undo,                    0,          Qt::Key_F14,                            QApplicationPrivate::KB_X11}, //Undo on sun keyboards
     {QKeySequence::Copy,                    0,          Qt::Key_F16,                            QApplicationPrivate::KB_X11}, //Copy on sun keyboards
@@ -245,7 +245,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::SelectPreviousPage,      0,          Qt::SHIFT | Qt::Key_PageUp,             QApplicationPrivate::KB_All},
     {QKeySequence::SelectNextPage,          0,          Qt::SHIFT | Qt::Key_PageDown,           QApplicationPrivate::KB_All},
     {QKeySequence::WhatsThis,               1,          Qt::SHIFT | Qt::Key_F1,                 QApplicationPrivate::KB_All},
-    {QKeySequence::FindPrevious,            1,          Qt::SHIFT | Qt::Key_F3,                 QApplicationPrivate::KB_KDE},
+    {QKeySequence::FindPrevious,            0,          Qt::SHIFT | Qt::Key_F3,                 QApplicationPrivate::KB_All},
     {QKeySequence::ZoomIn,                  1,          Qt::CTRL | Qt::Key_Plus,                QApplicationPrivate::KB_All},
     {QKeySequence::ZoomOut,                 1,          Qt::CTRL | Qt::Key_Minus,               QApplicationPrivate::KB_All},
     {QKeySequence::SelectAll,               1,          Qt::CTRL | Qt::Key_A,                   QApplicationPrivate::KB_All},
@@ -254,7 +254,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::Delete,                  0,          Qt::CTRL | Qt::Key_D,                   QApplicationPrivate::KB_X11}, //emacs (line edit only)
     {QKeySequence::MoveToEndOfLine,         0,          Qt::CTRL | Qt::Key_E,                   QApplicationPrivate::KB_X11}, //emacs (line edit only)
     {QKeySequence::Find,                    0,          Qt::CTRL | Qt::Key_F,                   QApplicationPrivate::KB_All},
-    {QKeySequence::FindNext,                0,          Qt::CTRL | Qt::Key_G,                   QApplicationPrivate::KB_All},
+    {QKeySequence::FindNext,                1,          Qt::CTRL | Qt::Key_G,                   QApplicationPrivate::KB_Gnome},
     {QKeySequence::Replace,                 0,          Qt::CTRL | Qt::Key_H,                   QApplicationPrivate::KB_All}, 
     {QKeySequence::Italic,                  0,          Qt::CTRL | Qt::Key_I,                   QApplicationPrivate::KB_All}, 
     {QKeySequence::DeleteEndOfLine,         0,          Qt::CTRL | Qt::Key_K,                   QApplicationPrivate::KB_All}, //emacs (line edit only)
@@ -289,7 +289,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::MoveToEndOfDocument,     0,          Qt::CTRL | Qt::Key_Down,                QApplicationPrivate::KB_Mac},
     {QKeySequence::Close,                   0,          Qt::CTRL | Qt::Key_F4,                  QApplicationPrivate::KB_All},
     {QKeySequence::NextChild,               0,          Qt::CTRL | Qt::Key_F6,                  QApplicationPrivate::KB_Win},
-    {QKeySequence::FindPrevious,            0,          Qt::CTRL | Qt::SHIFT | Qt::Key_G,       QApplicationPrivate::KB_All},
+    {QKeySequence::FindPrevious,            1,          Qt::CTRL | Qt::SHIFT | Qt::Key_G,       QApplicationPrivate::KB_Gnome},
     {QKeySequence::Redo,                    0,          Qt::CTRL | Qt::SHIFT | Qt::Key_Z,       QApplicationPrivate::KB_All},
     {QKeySequence::PreviousChild,           1,          Qt::CTRL | Qt::SHIFT | Qt::Key_Tab,     QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
     {QKeySequence::PreviousChild,           0,          Qt::CTRL | Qt::SHIFT | Qt::Key_Tab,     QApplicationPrivate::KB_Mac },//different priority from above 
