@@ -748,7 +748,9 @@ void QPSPrintEngine::drawImageInternal(const QRectF &r, QImage image, bool bitma
             mask = image.createAlphaMask(Qt::OrderedAlphaDither);
         }
     }
-    *d->currentPage << "q\n" << QPdf::generateMatrix(d->stroker.matrix);
+    *d->currentPage << "q\n";
+    if(!d->simplePen)
+        *d->currentPage << QPdf::generateMatrix(d->stroker.matrix);
     QBrush b = d->brush;
     if (image.depth() == 1) {
         // set current pen as brush
