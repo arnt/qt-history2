@@ -2031,25 +2031,6 @@ int QScreen::subScreenIndexAt(const QPoint &p) const
     return -1;
 }
 
-/*!
-    \fn QList<QScreen *> QScreen::subScreens() const
-    \internal
-*/
-
-/*!
-    \fn int QScreen::physicalWidth() const
-    \internal
-
-    Returns the physical display size in millimeters.
-*/
-
-/*!
-    \fn int QScreen::physicalHeight() const
-    \internal
-
-    Returns the physical display size in millimeters.
-*/
-
 #if 0
 #ifdef QT_LOADABLE_MODULES
 
