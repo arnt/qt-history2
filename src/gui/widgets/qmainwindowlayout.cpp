@@ -1404,6 +1404,9 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
     if (pluggingWidget != 0)
         return QList<int>();
 
+    QDockWidget *dockWidget = qobject_cast<QDockWidget*>(dockWidgetItem->widget());
+    Q_ASSERT(dockWidget != 0);
+
     QPoint pos = parentWidget()->mapFromGlobal(mousePos);
 
     if (!savedDockWidgetLayout.isValid())
@@ -1411,7 +1414,12 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
 
     QList<int> pathToGap = savedDockWidgetLayout.gapIndex(pos, dockNestingEnabled);
 
-//    qDebug() << "QMainWindowLayout::hover():" << pathToGap;
+    if (!pathToGap.isEmpty()) {
+        Qt::DockWidgetArea area
+            = static_cast<Qt::DockWidgetArea>(areaForPosition(pathToGap.first()));
+        if (!dockWidget->isAreaAllowed(area))
+            pathToGap.clear();
+    }
 
     if (pathToGap == currentGapPos)
         return currentGapPos; // the gap is already there
