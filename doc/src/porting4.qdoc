@@ -2337,6 +2337,14 @@
     \l{http://doc.trolltech.com/3.3/qpainter.html#RasterOP-enum}{QPainter::RasterOP}
     enum has been replaced with QPainter::CompositionMode.
 
+    \section1 QPicture
+
+    In Qt 3, a QPicture could be saved in the SVG file format. In Qt
+    4, the SVG support is separated into the QtSvg module, which
+    provides classes for \e displaying the contents of SVG files. Qt 4
+    does not currently support saving of pictures in this format, but
+    it can be achieved using the Q3Picture compatibility class.
+
     \section1 QPixmap
 
     The mask() function has been changed to return a reference to a QBitmap
