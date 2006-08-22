@@ -25,7 +25,9 @@
 // We mean it.
 //
 
+#include <QtCore/qmap.h>
 #include <QtCore/qvector.h>
+#include <signal.h>
 
 class QWSSignalHandler
 {
@@ -42,7 +44,7 @@ public:
 private:
     QWSSignalHandler();
     static void handleSignal(int signal);
-
+    QMap<int, sighandler_t> oldHandlers;
     QVector<int> semaphores;
 };
 

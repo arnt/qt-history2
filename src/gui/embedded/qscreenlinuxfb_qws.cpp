@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <limits.h>
+#include <signal.h>
 
 #include <qdebug.h>
 
@@ -62,7 +63,15 @@ public:
     bool doGraphicsMode;
     int ttyfd;
     long oldKdMode;
+
+private:
+    static QLinuxFbScreenPrivate *instance;
+    void installSignalHandler();
+    static void signalHandler(int signum);
+    QMap<int, sighandler_t> oldHandlers;
 };
+
+QLinuxFbScreenPrivate* QLinuxFbScreenPrivate::instance = 0;
 
 QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
     : fd(-1), doGraphicsMode(true), ttyfd(-1), oldKdMode(KD_TEXT)
@@ -92,6 +101,8 @@ void QLinuxFbScreenPrivate::openTty()
         const char termctl[] = "\033[9;0]\033[?33l\033[?25l\033[?1c";
         ::write(ttyfd, termctl, sizeof(termctl));
     }
+
+    installSignalHandler();
 }
 
 void QLinuxFbScreenPrivate::closeTty()
@@ -108,6 +119,28 @@ void QLinuxFbScreenPrivate::closeTty()
     }
 
     ::close(ttyfd);
+}
+
+void QLinuxFbScreenPrivate::installSignalHandler()
+{
+    const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
+                            SIGKILL, SIGSEGV, SIGTERM, SIGBUS };
+    const int n = sizeof(signums)/sizeof(int);
+
+    instance = this;
+
+    for (int i = 0; i < n; ++i) {
+        int signum = signums[i];
+        sighandler_t old = signal(signum, signalHandler);
+        oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
+    }
+}
+
+void QLinuxFbScreenPrivate::signalHandler(int signum)
+{
+    signal(signum, instance->oldHandlers[signum]);
+    instance->closeTty();
+    raise(signum);
 }
 
 /*!

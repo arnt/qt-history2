@@ -13,32 +13,29 @@
 
 #include "qwssignalhandler_p.h"
 
-#include <signal.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
-#include <qdebug.h>
-
 QWSSignalHandler::QWSSignalHandler()
 {
-    QList<int> signums;
+    const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
+                            SIGKILL, SIGSEGV, SIGTERM, SIGBUS };
+    const int n = sizeof(signums)/sizeof(int);
 
-    signums << SIGTERM << SIGINT << SIGQUIT << SIGHUP << SIGILL << SIGSEGV
-            << SIGABRT;
-
-    for (int i = 0; i < signums.size(); ++i)
-        signal(signums.at(i), handleSignal);
+    for (int i = 0; i < n; ++i) {
+        const int signum = signums[i];
+        sighandler_t old = signal(signum, handleSignal);
+        oldHandlers[signum] = (old == SIG_ERR ? SIG_DFL : old);
+    }
 }
 
 void QWSSignalHandler::handleSignal(int signum)
 {
-    Q_UNUSED(signum);
-
     QWSSignalHandler *h = instance();
+
+    signal(signum, h->oldHandlers[signum]);
     for (int i = 0; i < h->semaphores.size(); ++i)
         semctl(h->semaphores.at(i), 0, IPC_RMID, 0);
-
-    signal(signum, SIG_DFL);
     raise(signum);
 }
