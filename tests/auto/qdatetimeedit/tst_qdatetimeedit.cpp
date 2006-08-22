@@ -633,11 +633,7 @@ void tst_QDateTimeEdit::backspaceKey()
     QCOMPARE(testWidget->text(), QString("11/05/2004"));
     QTest::keyClick(testWidget, Qt::Key_Backspace);
     QCOMPARE(testWidget->text(), QString("11/05/200"));
-#ifdef Q_WS_X11
-    QTest::keyClick(testWidget, Qt::Key_H, Qt::ControlModifier); // Acts the same as backspace on X11
-#else
     QTest::keyClick(testWidget, Qt::Key_Backspace);
-#endif
     QCOMPARE(testWidget->text(), QString("11/05/20"));
     // Check that moving into another field reverts it
     for (int i=0;i<3;i++)
