@@ -3775,7 +3775,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
     }
 
     qint64 uid;
-    QRect screenArea = qApp->desktop()->screenGeometry(global);
+    QRect screenArea = qApp->desktop()->screenGeometry(this);
 #if defined (Q_OS_IRIX)
     s = XQueryDeviceState(X11->display, static_cast<XDevice *>(tablet->device));
     if (!s)
