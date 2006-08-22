@@ -147,7 +147,7 @@ QByteArray composePreprocessorOutput(const Symbols &symbols) {
 }
 
 
-int main(int argc, char **argv)
+int main(int _argc, char **_argv)
 {
     bool autoInclude = true;
     Preprocessor pp;
@@ -159,7 +159,36 @@ int main(int argc, char **argv)
     FILE *in = 0;
     FILE *out = 0;
     bool ignoreConflictingOptions = false;
-    for (int n = 1; n < argc; ++n) {
+
+    QVector<QByteArray> argv;
+    argv.resize(_argc - 1);
+    for (int n = 1; n < _argc; ++n)
+        argv[n - 1] = _argv[n];
+    int argc = argv.count();
+
+    for (int n = 0; n < argv.count(); ++n) {
+        if (argv.at(n).startsWith('@')) {
+            QByteArray optionsFile = argv.at(n);
+            optionsFile.remove(0, 1);
+            if (optionsFile.isEmpty())
+                error("The @ option requires an input file");
+            QFile f(optionsFile);
+            if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+                error("Cannot open options file specified with @");
+            argv.remove(n);
+            while (!f.atEnd()) {
+                QByteArray line = f.readLine();
+                if (line.endsWith('\n'))
+                    line.chop(1);
+                if (!line.isEmpty())
+                    argv.insert(n++, line);
+            }
+        }
+    }
+
+    argc = argv.count();
+
+    for (int n = 0; n < argc; ++n) {
         QByteArray arg(argv[n]);
         if (arg[0] != '-') {
             if (filename.isEmpty()) {
