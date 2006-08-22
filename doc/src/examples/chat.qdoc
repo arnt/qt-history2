@@ -1,0 +1,10 @@
+/*!
+    \example network/chat
+    \title Chat Example
+
+    The Chat example demonstrates a stateful peer-to-peer Chat
+    client that uses broadcasting with QUdpSocket and QNetworkInterface
+    to discover its peers.
+
+    \image chat-example.png
+*/
