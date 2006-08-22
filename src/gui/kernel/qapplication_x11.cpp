@@ -75,6 +75,7 @@
 
 #define XK_MISCELLANY
 #include <X11/keysymdef.h>
+#include <X11/extensions/XI.h>
 
 #include <stdlib.h>
 #include <string.h>
