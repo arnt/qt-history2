@@ -3410,6 +3410,8 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                         exit 101
                     else
                         CFG_SQL_psql=no
+                        QT_CFLAGS_PSQL=""
+                        QT_LFLAGS_PSQL=""
                     fi
                 fi
             fi
