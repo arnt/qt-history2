@@ -349,10 +349,12 @@ void tst_QKeySequence::streamOperators()
 	QVERIFY( copyOrgK == orgK );
 
 	QDataStream in(&data, QIODevice::WriteOnly);
-	QDataStream out(&data, QIODevice::ReadOnly);
-
 	in << refK;
-	out >> orgK;
+        QDataStream out(&data, QIODevice::ReadOnly);
+        out >> orgK;
+
+        qDebug() << hex << refK[0] << refK[1] << refK[2] << refK[3];
+        qDebug() << hex << orgK[0] << orgK[1] << orgK[2] << orgK[3];
 	QVERIFY( orgK == refK );
 
 	// check if detached
