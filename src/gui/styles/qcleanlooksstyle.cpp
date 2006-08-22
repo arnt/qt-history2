@@ -3454,14 +3454,7 @@ void QCleanlooksStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
-    
-    if (app->palette().window().color().rgb() == 0xffefebe7) {
-        //Use clearlooks palette shades
-        QPalette syspal = app->palette();
-        QPalette pal = standardPalette();
-        pal.setBrush(QPalette::Highlight, syspal.highlight());
-        app->setPalette(pal);
-    }
+    app->setPalette(standardPalette());    
 #endif
 }
 
