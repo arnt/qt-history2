@@ -420,6 +420,38 @@ bool QTextDocument::isUndoRedoEnabled() const
     return d->isUndoRedoEnabled();
 }
 
+/*
+    \property QTextDocument::maximumBlockCount
+    \since 4.2
+
+    Specifies the maximum number of blocks the document may have. If there are
+    more blocks in the document that specified with this property blocks are removed
+    from the beginning of the document.
+
+    A negative or zero value specifies that the document may contain an unlimited
+    amount of blocks.
+
+    The default value is 0.
+
+    Note that setting this property will apply the limit immediately to the document
+    contents.
+
+    This property is undefined in documents with tables or frames.
+*/
+
+int QTextDocument::maximumBlockCount() const
+{
+    Q_D(const QTextDocument);
+    return d->maximumBlockCount;
+}
+
+void QTextDocument::setMaximumBlockCount(int maximum)
+{
+    Q_D(QTextDocument);
+    d->maximumBlockCount = maximum;
+    d->ensureMaximumBlockCount();
+}
+
 /*!
     \fn void QTextDocument::markContentsDirty(int position, int length)
 
@@ -555,6 +587,8 @@ QSizeF QTextDocument::size() const
     \since 4.2
 
     Returns the number of text blocks in the document.
+
+    The value of this property is undefined in documents with tables or frames.
 */
 int QTextDocument::blockCount() const
 {

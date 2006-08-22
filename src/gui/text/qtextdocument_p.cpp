@@ -160,6 +160,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     inContentsChange = false;
 
     useDesignMetrics = false;
+    maximumBlockCount = 0;
 }
 
 void QTextDocumentPrivate::init()
@@ -344,6 +345,9 @@ int QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
 
     appendUndoItem(c);
     Q_ASSERT(undoState == undoStack.size());
+
+    if (formats.charFormat(charFormat).objectIndex() == -1)
+        ensureMaximumBlockCount();
 
     endEditBlock();
     return fragment;
@@ -1328,5 +1332,26 @@ void QTextDocumentPrivate::setModified(bool m)
         modifiedState = -1;
 
     emit q->modificationChanged(modified);
+}
+
+void QTextDocumentPrivate::ensureMaximumBlockCount()
+{
+    if (maximumBlockCount <= 0)
+        return;
+    if (blocks.numNodes() <= maximumBlockCount)
+        return;
+
+    beginEditBlock();
+
+    const int blocksToRemove = blocks.numNodes() - maximumBlockCount;
+    QTextCursor cursor(this, 0);
+    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor, blocksToRemove);
+
+    // preserve the char format of the paragraph that is to become the new first one
+    QTextCharFormat charFmt = cursor.blockCharFormat();
+    cursor.removeSelectedText();
+    cursor.setBlockCharFormat(charFmt);
+
+    endEditBlock();
 }
 

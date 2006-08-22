@@ -238,6 +238,8 @@ public:
     QTextDocument *document() { return q_func(); }
     const QTextDocument *document() const { return q_func(); }
 
+    void ensureMaximumBlockCount();
+
 private:
     QTextDocumentPrivate(const QTextDocumentPrivate& m);
     QTextDocumentPrivate& operator= (const QTextDocumentPrivate& m);
@@ -279,6 +281,7 @@ private:
 
 public:
     QCss::StyleSheet parsedDefaultStyleSheet;
+    int maximumBlockCount;
     bool inContentsChange;
     QSizeF pageSize;
     QString title;

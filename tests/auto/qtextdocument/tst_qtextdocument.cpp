@@ -93,6 +93,8 @@ private slots:
 
     void deleteTextObjectsOnClear();
 
+    void maximumBlockCount();
+
 private:
     QTextDocument *doc;
     QTextCursor cursor;
@@ -1536,6 +1538,51 @@ void tst_QTextDocument::defaultStyleSheet()
     cursor.insertHtml("<p>test");
     fmt = doc->begin().blockFormat();
     QVERIFY(fmt.background().color() != QColor("green"));
+}
+
+void tst_QTextDocument::maximumBlockCount()
+{
+    QCOMPARE(doc->maximumBlockCount(), 0);
+
+    cursor.insertBlock();
+    cursor.insertText("Blah");
+    cursor.insertBlock();
+    cursor.insertText("Foo");
+    QCOMPARE(doc->blockCount(), 3);
+    QCOMPARE(doc->toPlainText(), QString("\nBlah\nFoo"));
+
+    doc->setMaximumBlockCount(1);
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(doc->toPlainText(), QString("Foo"));
+
+    cursor.insertBlock();
+    cursor.insertText("Hello");
+    doc->setMaximumBlockCount(1);
+    QCOMPARE(doc->blockCount(), 1);
+    QCOMPARE(doc->toPlainText(), QString("Hello"));
+
+    doc->setMaximumBlockCount(100);
+    for (int i = 0; i < 1000; ++i) {
+        cursor.insertBlock();
+        cursor.insertText("Blah)");
+        QVERIFY(doc->blockCount() <= 100);
+    }
+
+    cursor.movePosition(QTextCursor::End);
+    QCOMPARE(cursor.blockNumber(), 99);
+    QTextCharFormat fmt;
+    fmt.setFontItalic(true);
+    cursor.setBlockCharFormat(fmt);
+    cursor.movePosition(QTextCursor::Start);
+    QVERIFY(!cursor.blockCharFormat().fontItalic());
+
+    doc->setMaximumBlockCount(1);
+    QVERIFY(cursor.blockCharFormat().fontItalic());
+
+    QTextTable *table = cursor.insertTable(2, 2);
+    QCOMPARE(doc->blockCount(), 6);
+    cursor.insertBlock();
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 QTEST_MAIN(tst_QTextDocument)

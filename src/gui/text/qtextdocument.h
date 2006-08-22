@@ -88,6 +88,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(qreal textWidth READ textWidth WRITE setTextWidth)
     Q_PROPERTY(int blockCount READ blockCount)
     Q_PROPERTY(QString defaultStyleSheet READ defaultStyleSheet WRITE setDefaultStyleSheet)
+    Q_PROPERTY(int maximumBlockCount READ maximumBlockCount WRITE setMaximumBlockCount)
 
 public:
     explicit QTextDocument(QObject *parent = 0);
@@ -191,6 +192,9 @@ public:
 
     void undo(QTextCursor *cursor);
     void redo(QTextCursor *cursor);
+
+    int maximumBlockCount() const;
+    void setMaximumBlockCount(int maximum);
 
 Q_SIGNALS:
     void contentsChange(int from, int charsRemoves, int charsAdded);
