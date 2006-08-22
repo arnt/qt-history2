@@ -1000,11 +1000,13 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             q->selectAll();
             return;
     }
+#ifndef QT_NO_CLIPBOARD
     else if (e == QKeySequence::Copy) {
             e->accept();
             q->copy();
             return;
     }
+#endif
 
     if (interactionFlags & Qt::TextSelectableByKeyboard
         && cursorMoveKeyEvent(e))
@@ -1960,13 +1962,14 @@ void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMo
 
 bool QTextControl::canPaste() const
 {
+#ifndef QT_NO_CLIPBOARD
     Q_D(const QTextControl);
     if (d->interactionFlags & Qt::TextEditable) {
         const QMimeData *md = QApplication::clipboard()->mimeData();
         return md && canInsertFromMimeData(md);
-    } else {
-        return false;
     }
+#endif
+    return false;
 }
 
 QMimeData *QTextControl::createMimeDataFromSelection() const
@@ -2399,9 +2402,11 @@ void QTextControlPrivate::_q_copyLink()
 {
     QMimeData *md = new QMimeData;
     md->setText(linkToCopy);
+#ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setMimeData(md);
+#endif
 }
 
-#endif // QT_NO_TEXTCONTROL
-
 #include "moc_qtextcontrol_p.cpp"
+
+#endif // QT_NO_TEXTCONTROL
