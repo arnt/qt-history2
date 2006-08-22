@@ -226,8 +226,11 @@
     QObject is reentrant. Most of its non-GUI subclasses, such as
     QTimer, QTcpSocket, QUdpSocket, QHttp, QFtp, and QProcess, are
     also reentrant, making it possible to use these classes from
-    multiple threads simultaneously. There are three constraints to be
-    aware of:
+    multiple threads simultaneously. Note that these classes are
+    designed to be created and used from within a single thread;
+    creating an object in one thread and calling its functions from
+    another thread is not guaranteed to work. There are three
+    constraints to be aware of:
 
     \list
     \o \e{The child of a QObject must always be created in the thread
@@ -324,8 +327,8 @@
     \section2 Accessing QObject Subclasses from Other Threads
 
     QObject and all of its subclasses are not thread-safe. This
-    includes the entire event delivery system. It is important to
-    keep in mind that the event loop may be delivering events to your
+    includes the entire event delivery system. It is important to keep
+    in mind that the event loop may be delivering events to your
     QObject subclass while you are accessing the object from another
     thread.
 
