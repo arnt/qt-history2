@@ -11,95 +11,19 @@
 **
 ****************************************************************************/
 
-#include "qlabel.h"
 #include "qpainter.h"
 #include "qevent.h"
 #include "qdrawutil.h"
-#include "qmovie.h"
-#include "qimage.h"
-#include "qbitmap.h"
-#include "qpicture.h"
 #include "qapplication.h"
-#include "qtextdocument.h"
 #include "qabstractbutton.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
-#include "qframe_p.h"
 #include <limits.h>
-#include "qtextdocumentfragment.h"
 #include "qaction.h"
-#include "qmenu.h"
 #include "qclipboard.h"
-#include "../text/qtextdocumentlayout_p.h"
-#include "private/qtextcontrol_p.h"
 #include <qdebug.h>
 #include <qurl.h>
-
-class QLabelPrivate : public QFramePrivate
-{
-    Q_DECLARE_PUBLIC(QLabel)
-public:
-    QLabelPrivate() {}
-
-    void init();
-    void clearContents();
-    void updateLabel();
-    QSize sizeForWidth(int w) const;
-
-    mutable QSize sh;
-    mutable QSize msh;
-    mutable bool valid_hints;
-    int margin;
-    QString text;
-    QPixmap  *pixmap;
-    QPixmap *scaledpixmap;
-    QImage *cachedimage;
-#ifndef QT_NO_PICTURE
-    QPicture *picture;
-#endif
-#ifndef QT_NO_MOVIE
-    QPointer<QMovie> movie;
-    void _q_movieUpdated(const QRect&);
-    void _q_movieResized(const QSize&);
-#endif
-#ifndef QT_NO_SHORTCUT
-    void updateShortcut();
-#endif
-    bool isRichText() const {
-        return textformat == Qt::RichText
-               || (textformat == Qt::AutoText && Qt::mightBeRichText(text));
-    }
-#ifndef QT_NO_SHORTCUT
-    QPointer<QWidget> buddy;
-    int shortcutId;
-#endif
-    ushort align;
-    short indent;
-    uint scaledcontents :1;
-    Qt::TextFormat textformat;
-    QTextDocument* doc;
-    QTextControl *control;
-    Qt::TextInteractionFlags textInteractionFlags;
-
-    void ensureTextControl();
-    void sendControlEvent(QEvent *e);
-
-    void _q_linkHovered(const QString &link);
-
-    QRect layoutRect() const;
-    QRect documentRect() const;
-    QPoint layoutPoint(const QPoint& p) const;
-#ifndef QT_NO_CONTEXTMENU
-    QMenu *createStandardContextMenu(const QPoint &pos);
-#endif
-
-    bool openExternalLinks;
-
-    bool hasCustomCursor;
-#ifndef QT_NO_CURSOR
-    QCursor cursor;
-#endif
-};
+#include "qlabel_p.h"
 
 /*!
     \class QLabel
