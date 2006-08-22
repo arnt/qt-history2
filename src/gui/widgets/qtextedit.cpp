@@ -346,6 +346,10 @@ void QTextEditPrivate::ensureViewportLayouted()
     The find() function can be used to find and select a given string
     within the text.
 
+    If you want to limit the total number of paragraphs in a QTextEdit,
+    as it is for example open useful in a log viewer, then you can use
+    QTextDocument's maximumBlockCount property for that.
+
     \section2 Read-only Key Bindings
 
     When QTextEdit is used read-only the key bindings are limited to
