@@ -1,4 +1,4 @@
-#ifdef (__sgi)
+#if defined(__sgi)
 #error "iconv not supported on IRIX"
 #endif
 #include <iconv.h>
