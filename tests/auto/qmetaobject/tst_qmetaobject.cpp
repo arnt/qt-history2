@@ -28,6 +28,8 @@ class tst_QMetaObject : public QObject
     Q_PROPERTY(EnumType value WRITE setValue READ getValue)
     Q_PROPERTY(EnumType value2 WRITE set_value READ get_value)
     Q_PROPERTY(MyStruct value3 WRITE setVal3 READ val3)
+    Q_PROPERTY(QList<QVariant> value4 WRITE setVal4 READ val4)
+    Q_PROPERTY(QVariantList value5 WRITE setVal5 READ val5)
 
 public:
     enum EnumType { EnumType1 };
@@ -43,6 +45,15 @@ public:
 
     void setVal3(MyStruct) {}
     MyStruct val3() const { MyStruct s = {42}; return s; }
+
+    void setVal4(const QList<QVariant> &list) { value4 = list; }
+    QList<QVariant> val4() const { return value4; }
+
+    void setVal5(const QVariantList &list) { value5 = list; }
+    QVariantList val5() const { return value5; }
+
+    QList<QVariant> value4;
+    QVariantList value5;
 
 public slots:
     void initTestCase();
@@ -525,6 +536,12 @@ void tst_QMetaObject::customPropertyType()
 
     qRegisterMetaType<MyStruct>("MyStruct");
     QCOMPARE(prop.userType(), QMetaType::type("MyStruct"));
+
+    prop = metaObject()->property(metaObject()->indexOfProperty("value4"));
+    QCOMPARE(prop.type(), QVariant::List);
+
+    prop = metaObject()->property(metaObject()->indexOfProperty("value5"));
+    QCOMPARE(prop.type(), QVariant::List);
 }
 
 QTEST_MAIN(tst_QMetaObject)
