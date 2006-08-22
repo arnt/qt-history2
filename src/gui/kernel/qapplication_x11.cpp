@@ -2666,7 +2666,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     if (app_do_modal)                                // modal event handling
         if (!qt_try_modal(widget, event)) {
-            if (event->type == ClientMessage)
+            if (event->type == ClientMessage && !widget->x11Event(event))
                 x11ClientMessage(widget, event, true);
             return 1;
         }
