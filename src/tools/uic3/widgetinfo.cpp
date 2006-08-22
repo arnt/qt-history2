@@ -234,8 +234,11 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
 
     QString enumerator = name;
     int i = enumerator.indexOf(QLatin1String("::"));
-    if (i != -1)
+    if (i != -1) {
+        if (scope != enumerator.left(i))
+            return QString();
         enumerator = enumerator.mid(i + 2);
+    }
     QByteArray key = enumerator.toLatin1();
     for (int idx = 0; idx < metaEnum.keyCount(); ++idx) {
         if (metaEnum.key(idx) == key)
