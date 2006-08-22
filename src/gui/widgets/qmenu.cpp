@@ -1532,6 +1532,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 */
 QAction *QMenu::exec()
 {
+    createWinId();
     return exec(pos());
 }
 
