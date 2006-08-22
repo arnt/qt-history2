@@ -35,7 +35,7 @@ protected:
     void moveEvent(QMoveEvent *event);
 
 private:
-    Q_DECLARE_PRIVATE(QWSEmbedWidget);
+    Q_DECLARE_PRIVATE(QWSEmbedWidget)
 };
 
 QT_END_HEADER

@@ -27,20 +27,11 @@ class QDBUS_EXPORT QDBusObjectPath : private QString
 public:
     inline QDBusObjectPath() { }
 
-    inline explicit QDBusObjectPath(const char *path)
-        : QString(QString::fromLatin1(path))
-    { check(); }
+    inline explicit QDBusObjectPath(const char *path);
+    inline explicit QDBusObjectPath(const QLatin1String &path);
+    inline explicit QDBusObjectPath(const QString &path);
 
-    inline explicit QDBusObjectPath(const QLatin1String &path)
-        : QString(path)
-    { check(); }
-
-    inline explicit QDBusObjectPath(const QString &path)
-        : QString(path)
-    { check(); }
-
-    inline void setPath(const QString &path)
-    { QString::operator=(path); }
+    inline void setPath(const QString &path);
 
     inline QString path() const
     { return *this; }
@@ -50,25 +41,32 @@ private:
 };
 Q_DECLARE_METATYPE(QDBusObjectPath)
 
+inline QDBusObjectPath::QDBusObjectPath(const char *ObjectPath)
+    : QString(QString::fromLatin1(ObjectPath))
+{ check(); }
+
+inline QDBusObjectPath::QDBusObjectPath(const QLatin1String &ObjectPath)
+    : QString(ObjectPath)
+{ check(); }
+
+inline QDBusObjectPath::QDBusObjectPath(const QString &ObjectPath)
+    : QString(ObjectPath)
+{ check(); }
+
+inline void QDBusObjectPath::setPath(const QString &ObjectPath)
+{ QString::operator=(ObjectPath); }
+
+
 class QDBUS_EXPORT QDBusSignature : private QString
 {
 public:
     inline QDBusSignature() { }
 
-    inline explicit QDBusSignature(const char *signature)
-        : QString(QString::fromAscii(signature))
-    { check(); }
+    inline explicit QDBusSignature(const char *signature);
+    inline explicit QDBusSignature(const QLatin1String &signature);
+    inline explicit QDBusSignature(const QString &signature);
 
-    inline explicit QDBusSignature(const QLatin1String &signature)
-        : QString(signature)
-    { check(); }
-
-    inline explicit QDBusSignature(const QString &signature)
-        : QString(signature)
-    { check(); }
-
-    inline void setSignature(const QString &signature)
-    { QString::operator=(signature); }
+    inline void setSignature(const QString &signature);
 
     inline QString signature() const
     { return *this; }
@@ -78,20 +76,40 @@ private:
 };
 Q_DECLARE_METATYPE(QDBusSignature)
 
+inline QDBusSignature::QDBusSignature(const char *dBusSignature)
+    : QString(QString::fromAscii(dBusSignature))
+{ check(); }
+
+inline QDBusSignature::QDBusSignature(const QLatin1String &dBusSignature)
+    : QString(dBusSignature)
+{ check(); }
+
+inline QDBusSignature::QDBusSignature(const QString &dBusSignature)
+    : QString(dBusSignature)
+{ check(); }
+
+inline void QDBusSignature::setSignature(const QString &dBusSignature)
+{ QString::operator=(dBusSignature); }
+
 class QDBusVariant : private QVariant
 {
 public:
     inline QDBusVariant() { }
-    inline explicit QDBusVariant(const QVariant &variant)
-        : QVariant(variant) { }
+    inline explicit QDBusVariant(const QVariant &variant);
 
-    inline void setVariant(const QVariant &variant)
-    { QVariant::operator=(variant); }
+    inline void setVariant(const QVariant &variant);
 
     inline QVariant variant() const
     { return *this; }
 };
 Q_DECLARE_METATYPE(QDBusVariant)
+
+inline  QDBusVariant::QDBusVariant(const QVariant &dBusVariant)
+    : QVariant(dBusVariant) { }
+
+inline void QDBusVariant::setVariant(const QVariant &dBusVariant)
+{ QVariant::operator=(dBusVariant); }
+
 
 QT_END_HEADER
 
