@@ -459,7 +459,7 @@ public:
     inline void setPageBreakPolicy(PageBreakFlags flags)
     { setProperty(PageBreakPolicy, int(flags)); }
     inline PageBreakFlags pageBreakPolicy() const
-    { return static_cast<PageBreakFlags>(intProperty(PageBreakPolicy)); }
+    { return PageBreakFlags(intProperty(PageBreakPolicy)); }
 };
 
 inline void QTextBlockFormat::setAlignment(Qt::Alignment aalignment)
@@ -576,7 +576,7 @@ public:
     inline void setPageBreakPolicy(PageBreakFlags flags)
     { setProperty(PageBreakPolicy, int(flags)); }
     inline PageBreakFlags pageBreakPolicy() const
-    { return static_cast<PageBreakFlags>(intProperty(PageBreakPolicy)); }
+    { return PageBreakFlags(intProperty(PageBreakPolicy)); }
 };
 
 inline void QTextFrameFormat::setBorder(qreal aborder)
