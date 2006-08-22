@@ -205,10 +205,10 @@ void tst_QWorkspace::windowActivated()
         workspace->addWindow(widget);
         widget->showMaximized();
         qApp->sendPostedEvents();
-        QCOMPARE(spy.count(), 1);
+        QCOMPARE(spy.count(), 0);
         spy.clear();
         workspace->show();
-        QCOMPARE(spy.count(), 0);
+        QCOMPARE(spy.count(), 1);
         spy.clear();
         QVERIFY( activeWidget == widget );
         widget->close();
