@@ -196,7 +196,7 @@ struct GPostEventSource
     GSource source;
     GPollFD pollfd;
     int wakeUpPipe[2];
-    QEventLoop::ProcessEventsFlags flags;
+    QEventLoop::ProcessEventsFlags flags, previousFlags;
 };
 
 static gboolean postEventSourcePrepare(GSource *s, gint *timeout)
@@ -204,12 +204,15 @@ static gboolean postEventSourcePrepare(GSource *s, gint *timeout)
     QThreadData *data = QThreadData::current();
     if (!data)
         return false;
+
     gint dummy;
     if (!timeout)
         timeout = &dummy;
     *timeout = data->canWait ? -1 : 0;
+
+    GPostEventSource *source = reinterpret_cast<GPostEventSource *>(s);
     return (!data->canWait
-            || !(reinterpret_cast<GPostEventSource *>(s)->flags & QEventLoop::WaitForMoreEvents));
+            || (source->flags != source->previousFlags));
 }
 
 static gboolean postEventSourceCheck(GSource *source)
@@ -226,6 +229,7 @@ static gboolean postEventSourceDispatch(GSource *s, GSourceFunc, gpointer)
     while (::read(source->wakeUpPipe[0], c, sizeof(c)) > 0)
         ;
 
+    source->previousFlags = source->flags;
     QCoreApplication::sendPostedEvents(0, (source->flags & QEventLoop::DeferredDeletion) ? -1 : 0);
     return true; // i dunno, george...
 }
@@ -264,7 +268,7 @@ QEventDispatcherGlibPrivate::QEventDispatcherGlibPrivate()
 
     postEventSource->pollfd.fd = postEventSource->wakeUpPipe[0];
     postEventSource->pollfd.events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-    postEventSource->flags = QEventLoop::AllEvents;
+    postEventSource->flags = postEventSource->previousFlags = QEventLoop::AllEvents;
 
     g_source_add_poll(&postEventSource->source, &postEventSource->pollfd);
     g_source_attach(&postEventSource->source, mainContext);
