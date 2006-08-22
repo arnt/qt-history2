@@ -767,7 +767,7 @@ public:
         if (unmapPointer && unmapLength) {
 #if defined(QT_USE_MMAP)
             if(fromMM)
-                munmap(unmapPointer, unmapLength);
+                munmap((char*)unmapPointer, unmapLength);
             else
 #endif
                 delete [] unmapPointer;

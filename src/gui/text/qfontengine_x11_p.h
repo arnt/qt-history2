@@ -227,6 +227,7 @@ public:
         mutable QHash<int, Glyph *> glyph_data; // maps from glyph index to glyph data
         Glyph *loadGlyph(const QFontEngineFT *fe, uint glyph, GlyphFormat = Format_None) const;
     };
+    friend struct Font;
     mutable Font fnt;
 #ifndef QT_NO_XRENDER
     int xglyph_format;
