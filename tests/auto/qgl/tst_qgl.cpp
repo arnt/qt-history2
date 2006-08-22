@@ -64,6 +64,9 @@ void tst_QGL::getSetCheck()
 #ifdef Q_WS_QWS
     QSKIP("QGL not yet supported on QWS", SkipAll);
 #else
+    if (!QGLFormat::hasOpenGL())
+        QSKIP("QGL not supported on this platform", SkipAll);
+
     QGLFormat obj1;
     // int QGLFormat::depthBufferSize()
     // void QGLFormat::setDepthBufferSize(int)
