@@ -287,6 +287,9 @@ void tst_QGL::openGLVersionCheck()
     versionFlag = qOpenGLVersionFlagsFromString(versionString);
     QCOMPARE(versionFlag, expectedFlag);
 
+    if (!QGLFormat::hasOpenGL())
+        return;
+
     QGLWidget glWidget;
     glWidget.show();
     glWidget.makeCurrent();
@@ -295,8 +298,6 @@ void tst_QGL::openGLVersionCheck()
     // However, the complicated parts are in openGLVersionFlags(const QString &versionString)
     // tested above
 
-    if (!QGLFormat::hasOpenGL())
-        return;
     QVERIFY(QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_1_1);
 #endif
 }
