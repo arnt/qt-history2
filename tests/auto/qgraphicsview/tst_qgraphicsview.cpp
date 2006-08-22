@@ -759,7 +759,7 @@ void tst_QGraphicsView::centerOnItem()
     QGraphicsView view(&scene);
     view.setSceneRect(-1000, -1000, 2000, 2000);
     view.show();
-    int tolerance = 5;
+    int tolerance = 7;
         
     for (int x = 0; x < 3; ++x) {
         for (int i = 0; i < 4; ++i) {
@@ -777,7 +777,7 @@ void tst_QGraphicsView::centerOnItem()
                 QFAIL(qPrintable(error));
             }
 
-            QTest::qWait(25);
+            QTest::qWait(250);
         }
         
         // gneh gneh gneh
