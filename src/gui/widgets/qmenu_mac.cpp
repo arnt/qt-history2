@@ -785,7 +785,6 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
         QWidget *widget = qmenu ? qmenu->widgetItems.value(action->action) : 0;
-        qDebug("    widget is %p", widget);
         if (widget) {
             ChangeMenuAttributes(action->menu, kMenuAttrDoNotCacheImage, 0);
             attr = kMenuItemAttrCustomDraw;
