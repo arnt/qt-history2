@@ -21,6 +21,7 @@
 #include <QtGui/qstyle.h>
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qgridlayout.h>
+#include <QtGui/qdesktopwidget.h>
 #include <QtGui/qpushbutton.h>
 #include <QtGui/qaccessible.h>
 #include <QtGui/qicon.h>
@@ -270,7 +271,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     grid->addWidget(iconLabel, 0, 0, 3, 1, Qt::AlignTop);
     grid->addWidget(label, 0, 1, 1, 1);
     // -- leave space for information label --
-    
+
 #ifdef Q_OS_MAC
     grid->addWidget(buttonBox, 3, 1, 1, 2);
 #else
@@ -316,8 +317,8 @@ void QMessageBoxPrivate::updateGeometry()
     // Make the label as large as the title or the information size or its text but not larger
     // than the screen width
     int minw = qMin(qMax(qMax(labelSize.width(), infoSize.width()), titleSize.width()), screenWidth);
-    // enable word wrapping, if the line is really big or rich text        
-    
+    // enable word wrapping, if the line is really big or rich text
+
     if (labelSize.width() > minw)
         label->setWordWrap(true);
 
