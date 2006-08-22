@@ -184,6 +184,9 @@ private slots:
     void status_QHash_QMap();
 
     void status_QLinkedList_QList_QVector();
+
+    void streamToAndFromQByteArray();
+
 private:
     void writebool(QDataStream *s);
     void writeQBool(QDataStream *s);
@@ -2899,6 +2902,20 @@ void tst_QDataStream::status_QLinkedList_QList_QVector()
 
     LIST_TEST(QByteArray(), QDataStream::ReadPastEnd, List());
     LIST_TEST(QByteArray("\x00\x00\x00\x00", 4), QDataStream::Ok, List());
+}
+
+void tst_QDataStream::streamToAndFromQByteArray()
+{
+    QByteArray data;
+    QDataStream in(&data, QIODevice::WriteOnly);
+    QDataStream out(&data, QIODevice::ReadOnly);
+
+    quint32 x = 0xdeadbeef;
+    quint32 y;
+    in << x;
+    out >> y;
+
+    QCOMPARE(y, x);
 }
 
 QTEST_MAIN(tst_QDataStream)
