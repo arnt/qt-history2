@@ -475,7 +475,7 @@ Feature: CALENDARWIDGET
 Description: Provides a monthly based calendar widget allowing the user to select 
 a date.
 Section: Widgets
-Requires: TABLEVIEW MENU
+Requires: TABLEVIEW MENU TEXTDATE
 Name: QCalendarWidget
 SeeAlso: ???
 

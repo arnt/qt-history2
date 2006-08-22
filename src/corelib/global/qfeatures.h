@@ -558,11 +558,6 @@
 #define QT_NO_TOOLBAR
 #endif
 
-// QCalendarWidget
-#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU))
-#define QT_NO_CALENDARWIDGET
-#endif
-
 // QDockwidget
 #if !defined(QT_NO_DOCKWIDGET) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_MAINWINDOW))
 #define QT_NO_DOCKWIDGET
@@ -576,6 +571,11 @@
 // QUndoView
 #if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOSTACK) || defined(QT_NO_LISTVIEW))
 #define QT_NO_UNDOVIEW
+#endif
+
+// QCalendarWidget
+#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU) || defined(QT_NO_TEXTDATE))
+#define QT_NO_CALENDARWIDGET
 #endif
 
 // QDateTimeEdit
