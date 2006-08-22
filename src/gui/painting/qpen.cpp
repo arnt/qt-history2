@@ -509,7 +509,11 @@ QVector<qreal> QPen::dashPattern() const
     extend 0.5 pixels out in each direction resulting in a total width
     of 2.
 
-    \sa setStyle(), dashPattern()
+    Note that the default cap style is Qt::SquareCap, meaning that a
+    square line end covers the end point and extends beyond it by half
+    the line width.
+
+    \sa setStyle(), dashPattern(), setCapStyle()
  */
 void QPen::setDashPattern(const QVector<qreal> &pattern)
 {
