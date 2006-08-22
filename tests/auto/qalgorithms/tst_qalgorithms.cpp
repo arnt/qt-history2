@@ -779,14 +779,11 @@ void tst_QAlgorithms::convenienceAPI()
     qFind(list, 1);
     qFind(list.begin(), list.end(), 1);
 
-    int count1 = 0 , count2 = 0, count3, count4;
+    int count1 = 0 , count2 = 0, count3;
     qCount(list, 1, count1);
     qCount(list.begin(), list.end(), 1, count2);
-    count3 = qCount(list, 1);
-    count4 = qCount(list.begin(), list.end(), 1);
     QCOMPARE(count1, count2);
     QCOMPARE(count2, count3);
-    QCOMPARE(count3, count4);
 
     qSort(list);
     qSort(list.begin(), list.end());
