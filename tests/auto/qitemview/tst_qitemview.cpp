@@ -60,6 +60,9 @@ private slots:
     void scrollTo_data();
     void scrollTo();
 
+    void moveCursor_data();
+    void moveCursor();
+
 private:
     void setupWithNoTestData();
     void populate();
@@ -87,6 +90,12 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex & index) const {
         Q_ASSERT(index.isValid());
+        if (index.row() == 2 || index.row() == rowCount() - 3
+            || index.column() == 2 || index.column() == columnCount() - 3) {
+            Qt::ItemFlags f = QStandardItemModel::flags(index);
+            f &= ~Qt::ItemIsEnabled;
+            return f;
+        }
         return QStandardItemModel::flags(index);
     };
 
@@ -183,7 +192,7 @@ void tst_QItemView::populate()
 {
     treeModel = new CheckerModel;
     QModelIndex parent;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 40; ++i) {
         parent = treeModel->index(0, 0, parent);
         treeModel->insertRows(0, 26+i, parent);
         treeModel->insertColumns(0, 26+i, parent);
@@ -454,13 +463,14 @@ void tst_QItemView::visualRect()
     QVERIFY(topIndex == view->indexAt(view->visualRect(topIndex).topLeft()));
     QVERIFY(topIndex == view->indexAt(view->visualRect(topIndex).topRight()));
 
-    QModelIndex hiddenIndex = testViews->hiddenIndex(view);
+    testViews->hideIndexes(view);
+    QModelIndex hiddenIndex = treeModel->index(1, 0);
     QVERIFY(view->visualRect(hiddenIndex) == QRect());
 }
 
 void tst_QItemView::walkScreen(QAbstractItemView *view)
 {
-    QModelIndex hiddenIndex = view->model() ? testViews->hiddenIndex(view) : QModelIndex();
+    QModelIndex hiddenIndex = view->model() ? view->model()->index(1, 0) : QModelIndex();
     int width = view->width();
     int height = view->height();
     for (int w = 0; w < width; ++w)
@@ -615,6 +625,190 @@ void tst_QItemView::scrollTo()
     view->scrollToBottom();
     view->scrollTo(idx);
     QCOMPARE(rect, view->visualRect(idx));
+}
+
+void tst_QItemView::moveCursor_data()
+{
+    setupWithNoTestData();
+}
+
+class Event {
+public:
+    Event(){}
+    Event(Qt::Key k, QModelIndex s, QModelIndex e, QString n) : key(k), start(s), end(e), name(n){}
+    Qt::Key key;
+    QModelIndex start;
+    QModelIndex end;
+    QString name;
+};
+
+
+void tst_QItemView::moveCursor()
+{
+    QFETCH(QString, viewType);
+    view = testViews->createView(viewType);
+    if (view->objectName() == "QHeaderView")
+        return;
+
+    view->setModel(treeModel);
+    testViews->hideIndexes(view);
+    view->resize(100, 100);
+
+    QModelIndex invalidIndex = QModelIndex();
+    QModelIndex firstRow = treeModel->index(0, 0);
+    QModelIndex hiddenRowT = treeModel->index(1, 0);
+    QModelIndex disabledRowT = treeModel->index(2, 0);
+    QModelIndex secondRow = treeModel->index(3, 0);
+
+    QModelIndex secondToLastRow = treeModel->index(treeModel->rowCount() - 4, 0);
+    QModelIndex disabledRowB = treeModel->index(treeModel->rowCount() - 3, 0);
+    QModelIndex hiddenRowB = treeModel->index(treeModel->rowCount() - 2, 0);
+    QModelIndex lastRow = treeModel->index(treeModel->rowCount() - 1, 0);
+
+    QStack<Event> events;
+
+    events.push(Event(Qt::Key_Up, invalidIndex,      firstRow, "inv, first"));
+    events.push(Event(Qt::Key_Up, hiddenRowT,        firstRow, "hid, first"));
+    events.push(Event(Qt::Key_Up, disabledRowT,      firstRow, "dis, first"));
+    events.push(Event(Qt::Key_Up, firstRow,          firstRow, "first, first"));
+    events.push(Event(Qt::Key_Up, secondRow,         firstRow, "sec, first"));
+    events.push(Event(Qt::Key_Up, hiddenRowB,        firstRow, "hidB, first"));
+    events.push(Event(Qt::Key_Up, disabledRowB,      secondToLastRow, "disB, secLast"));
+    events.push(Event(Qt::Key_Up, lastRow,           secondToLastRow, "last, secLast"));
+
+    events.push(Event(Qt::Key_Down, invalidIndex,    firstRow, "inv, first"));
+    events.push(Event(Qt::Key_Down, hiddenRowT,      firstRow, "hid, first"));
+    events.push(Event(Qt::Key_Down, disabledRowT,    secondRow, "dis, sec"));
+    events.push(Event(Qt::Key_Down, firstRow,        secondRow, "first, sec"));
+    events.push(Event(Qt::Key_Down, secondToLastRow, lastRow, "secLast, last" ));
+    events.push(Event(Qt::Key_Down, disabledRowB,    lastRow, "disB, last"));
+    events.push(Event(Qt::Key_Down, hiddenRowB,      firstRow, "hidB, first"));
+    events.push(Event(Qt::Key_Down, lastRow,         lastRow, "last, last"));
+
+    events.push(Event(Qt::Key_Home, invalidIndex,    firstRow, "inv, first"));
+    events.push(Event(Qt::Key_End, invalidIndex,     firstRow, "inv, first"));
+
+    if (view->objectName() == "QTableView") {
+        // In a table we move to the first/last column
+        events.push(Event(Qt::Key_Home, hiddenRowT,      firstRow, "hid, first"));
+        events.push(Event(Qt::Key_Home, disabledRowT,    disabledRowT, "dis, dis"));
+        events.push(Event(Qt::Key_Home, firstRow,        firstRow, "first, first"));
+        events.push(Event(Qt::Key_Home, secondRow,       secondRow, "sec, sec"));
+        events.push(Event(Qt::Key_Home, disabledRowB,    disabledRowB, "disB, disB"));
+        events.push(Event(Qt::Key_Home, hiddenRowB,      firstRow, "hidB, first"));
+        events.push(Event(Qt::Key_Home, secondToLastRow, secondToLastRow, "secLast, secLast"));
+        events.push(Event(Qt::Key_Home, lastRow,         lastRow, "last, last"));
+
+        int col = treeModel->columnCount() - 1;
+        events.push(Event(Qt::Key_End, hiddenRowT,      firstRow, "hidT, hidT"));
+        events.push(Event(Qt::Key_End, disabledRowT,    disabledRowT, "disT, disT"));
+        events.push(Event(Qt::Key_End, firstRow,        firstRow.sibling(firstRow.row(), col), "first, first_C"));
+        events.push(Event(Qt::Key_End, secondRow,       secondRow.sibling(secondRow.row(), col), "sec, sec_C"));
+        events.push(Event(Qt::Key_End, disabledRowB,    disabledRowB, "disB, disB"));
+        events.push(Event(Qt::Key_End, hiddenRowB,      firstRow, "hidB, hidB"));
+        events.push(Event(Qt::Key_End, secondToLastRow, secondToLastRow.sibling(secondToLastRow.row(), col), "secLast, secLast_C"));
+        events.push(Event(Qt::Key_End, lastRow,         lastRow.sibling(lastRow.row(), col), "last, last_C"));
+    } else {
+        events.push(Event(Qt::Key_Home, hiddenRowT,      firstRow, "hid, first"));
+        events.push(Event(Qt::Key_Home, disabledRowT,    firstRow, "dis, first"));
+        events.push(Event(Qt::Key_Home, firstRow,        firstRow, "first, first"));
+        events.push(Event(Qt::Key_Home, secondRow,       firstRow, "sec, first"));
+        events.push(Event(Qt::Key_Home, disabledRowB,    firstRow, "disB, first"));
+        events.push(Event(Qt::Key_Home, hiddenRowB,      firstRow, "hidB, first"));
+        events.push(Event(Qt::Key_Home, secondToLastRow, firstRow, "sec, first"));
+        events.push(Event(Qt::Key_Home, lastRow,         firstRow, "last, first"));
+
+        events.push(Event(Qt::Key_End, hiddenRowT,       firstRow, "hid, last"));
+        events.push(Event(Qt::Key_End, disabledRowT,     lastRow, "dis, last"));
+        events.push(Event(Qt::Key_End, firstRow,         lastRow, "first, last"));
+        events.push(Event(Qt::Key_End, secondRow,        lastRow, "sec, last"));
+        events.push(Event(Qt::Key_End, disabledRowB,     lastRow, "disB, last"));
+        events.push(Event(Qt::Key_End, hiddenRowB,       firstRow, "hidB, last"));
+        events.push(Event(Qt::Key_End, secondToLastRow,  lastRow, "sec, last"));
+        events.push(Event(Qt::Key_End, lastRow,          lastRow, "last, last"));
+    }
+
+    events.push(Event(Qt::Key_PageDown, invalidIndex,    firstRow, "inv, first"));
+    events.push(Event(Qt::Key_PageDown, firstRow,        QModelIndex(), "first, x"));
+    events.push(Event(Qt::Key_PageDown, secondRow,       QModelIndex(), "sec, x"));
+    events.push(Event(Qt::Key_PageDown, hiddenRowT,      QModelIndex(), "hid, x"));
+    events.push(Event(Qt::Key_PageDown, disabledRowT,    QModelIndex(), "dis, x"));
+    events.push(Event(Qt::Key_PageDown, disabledRowB,    lastRow, "disB, last"));
+    events.push(Event(Qt::Key_PageDown, hiddenRowB,      lastRow, "hidB, last"));
+    events.push(Event(Qt::Key_PageDown, secondToLastRow, lastRow, "secLast, last"));
+    events.push(Event(Qt::Key_PageDown, lastRow,         lastRow, "last, last"));
+
+    events.push(Event(Qt::Key_PageUp, invalidIndex,    firstRow, "inv, first"));
+    events.push(Event(Qt::Key_PageUp, firstRow,        firstRow, "first, first"));
+    events.push(Event(Qt::Key_PageUp, secondRow,       firstRow, "sec, first"));
+    events.push(Event(Qt::Key_PageUp, secondToLastRow, QModelIndex(), "secLast, x"));
+    events.push(Event(Qt::Key_PageUp, lastRow,         QModelIndex(), "last, x"));
+
+    if (view->objectName() == "QTableView") {
+        events.push(Event(Qt::Key_Left, firstRow,                      firstRow, "first_0, first"));
+        events.push(Event(Qt::Key_Left, firstRow.sibling(0, 1),        firstRow, "first_1, first"));
+        events.push(Event(Qt::Key_Left, firstRow.sibling(0, 2),        firstRow, "first_2, first"));
+        events.push(Event(Qt::Key_Left, firstRow.sibling(0, 3),        firstRow, "first_3, first"));
+        events.push(Event(Qt::Key_Left, secondRow,        secondRow, "sec, sec"));
+
+        events.push(Event(Qt::Key_Right, firstRow,                      firstRow.sibling(0, 3), "first, first_3"));
+        events.push(Event(Qt::Key_Right, firstRow.sibling(0, 1),        firstRow, "first_1, first"));
+        events.push(Event(Qt::Key_Right, firstRow.sibling(0, 2),        firstRow.sibling(0, 3), "first_2, first_3"));
+        events.push(Event(Qt::Key_Right, firstRow.sibling(0, treeModel->columnCount()-1), firstRow.sibling(0, treeModel->columnCount()-1), "first_3, sec"));
+    }
+
+    // ### hide the first/last row,column and re-run all of these tests
+    // ### Not 100% sure, but I think the next to are tableview specific only and everyone else just does up/down
+    // QAbstractItemView::MoveNext, AbstractItemView::MovePrevious
+
+    while (!events.isEmpty()) {
+        Event event = events.pop();
+        view->setCurrentIndex(event.start);
+        QCOMPARE(view->currentIndex(), event.start);
+
+        if (event.key == Qt::Key_PageUp && event.end == QModelIndex()) {
+            QModelIndex x = view->indexAt(QPoint(1,1));
+            if (x.row() == 0)
+                event.end = x;
+            else
+                event.end = x.sibling(x.row() - 1, x.column());
+        }
+        if (event.key == Qt::Key_PageDown && event.end == QModelIndex()) {
+            QModelIndex x = view->indexAt(QPoint(1, view->viewport()->height() - 10));
+            if (x.row() == view->model()->rowCount() - 1)
+                event.end = x;
+            else
+                event.end = x.sibling(x.row() + 1, x.column());
+        }
+
+        QTest::keyPress(view, event.key);
+        QTest::keyRelease(view, event.key);
+        QModelIndex current = view->currentIndex();
+        if (event.key == Qt::Key_PageUp) {
+            int diff = event.end.row() - current.row();
+            QVERIFY(diff <= 2);
+            continue;
+        }
+        if (event.key == Qt::Key_PageDown) {
+            int diff = current.row() - event.end.row();
+            QVERIFY(diff <= 2);
+            continue;
+        }
+
+        if (current != event.end) {
+            QString k;
+            if (event.key == Qt::Key_Up) k = "up";
+            if (event.key == Qt::Key_Right) k = "right";
+            if (event.key == Qt::Key_Left) k = "left";
+            if (event.key == Qt::Key_PageUp) k = "page up";
+            if (event.key == Qt::Key_PageDown) k = "page down";
+            if (event.key == Qt::Key_Down) k = "down";
+            if (event.key == Qt::Key_Home) k = "home";
+            if (event.key == Qt::Key_End) k = "end";
+            qDebug() << k << event.name << event.start << event.end << current;
+        }
+        QCOMPARE(current, event.end);
+    }
 }
 
 QTEST_MAIN(tst_QItemView)

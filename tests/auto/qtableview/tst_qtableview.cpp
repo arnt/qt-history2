@@ -569,7 +569,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << 3 << 3; // ###
 
     QTest::newRow("MoveRight, hidden column 1 (0,0)")
         << 4 << 4 << -1 << 1
@@ -581,7 +581,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << 3
         << 0 << 2
         << int(QtTestTableView::MoveRight) << int(Qt::NoModifier)
-        << -1 << -1; // ###
+        << 0 << 2; // ###
 
     // MoveNext should in addition wrap
     QTest::newRow("MoveNext (0,0)")
@@ -637,7 +637,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 0 << 0;
 
     QTest::newRow("MoveLeft (0,3)")
         << 4 << 4 << -1 << -1
@@ -649,7 +649,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 1 << 0
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 1 << 0;
 
     QTest::newRow("MoveLeft, hidden column 0 (0,2)")
         << 4 << 4 << -1 << 1
@@ -661,7 +661,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << 0
         << 0 << 1
         << int(QtTestTableView::MoveLeft) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 0 << 1;
 
     // MovePrevious should in addition wrap
     QTest::newRow("MovePrevious (0,3)")
@@ -723,13 +723,13 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 3 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 3 << 0;
 
     QTest::newRow("MoveDown (3,3)")
         << 4 << 4 << -1 << -1
         << 3 << 3
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 3 << 3;
 
     QTest::newRow("MoveDown, hidden row 1 (0,0)")
         << 4 << 4 << 1 << -1
@@ -741,21 +741,20 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << 3 << -1
         << 2 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 2 << 0;
 
     QTest::newRow("MoveDown, hidden row 0 hidden column 0 (0,0)")
         << 4 << 4 << 0 << 0
         << 0 << 0
         << int(QtTestTableView::MoveDown) << int(Qt::NoModifier)
-        << -1 << -1; // ###
-    
+        << 1 << 1;
 
     // MoveUp
     QTest::newRow("MoveUp (0,0)")
         << 4 << 4 << -1 << -1
         << 0 << 0
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 0 << 0;
 
     QTest::newRow("MoveUp (3, 0)")
         << 4 << 4 << -1 << -1
@@ -767,7 +766,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << -1 << -1
         << 0 << 1
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 0 << 1;
 
     QTest::newRow("MoveUp, hidden row 1 (2,0)")
         << 4 << 4 << 1 << -1
@@ -779,7 +778,7 @@ void tst_QTableView::moveCursor_data()
         << 4 << 4 << 0 << -1
         << 1 << 0
         << int(QtTestTableView::MoveUp) << int(Qt::NoModifier)
-        << -1 << -1;
+        << 1 << 0;
 
     // MoveHome
     QTest::newRow("MoveHome (0,0)")
@@ -911,7 +910,7 @@ void tst_QTableView::moveCursor()
 
     QModelIndex index = model.index(startRow, startColumn);
     view.setCurrentIndex(index);
-    
+
     QModelIndex newIndex = view.moveCursor((QtTestTableView::CursorAction)cursorMoveAction,
                                            (Qt::KeyboardModifiers)modifier);
 

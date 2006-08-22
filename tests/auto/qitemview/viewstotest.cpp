@@ -32,8 +32,8 @@ public:
     ViewsToTest();
 
     QAbstractItemView *createView(const QString &viewType);
-    QModelIndex hiddenIndex(QAbstractItemView *view);
-    
+    void hideIndexes(QAbstractItemView *view);
+
     enum Display { DisplayNone, DisplayRoot };
 
     struct test {
@@ -70,58 +70,67 @@ QAbstractItemView *ViewsToTest::createView(const QString &viewType)
     QAbstractItemView *view = 0;
     if (viewType == "QListView_ScrollPerItem") {
         view = new QListView();
+        view->setObjectName("QListView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     } else if (viewType == "QListView_ScrollPerPixel") {
         view = new QListView();
+        view->setObjectName("QListView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     } else if (viewType == "QHeaderViewHorizontal") {
         view = new QHeaderView(Qt::Horizontal);
+        view->setObjectName("QHeaderView");
     } else if (viewType == "QHeaderViewVertical") {
         view = new QHeaderView(Qt::Vertical);
+        view->setObjectName("QHeaderView");
     } else if (viewType == "QTableView_ScrollPerItem") {
         view = new QTableView();
+        view->setObjectName("QTableView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     } else if (viewType == "QTableView_ScrollPerPixel") {
         view = new QTableView();
+        view->setObjectName("QTableView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     } else if (viewType == "QTableViewNoGrid") {
         QTableView *table = new QTableView();
+        table->setObjectName("QTableView");
         table->setShowGrid(false);
         view = table;
     } else if (viewType == "QTreeView_ScrollPerItem") {
         view = new QTreeView();
+        view->setObjectName("QTreeView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerItem);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+        view->setSelectionBehavior(QAbstractItemView::SelectItems);
     } else if (viewType == "QTreeView_ScrollPerPixel") {
         view = new QTreeView();
+        view->setObjectName("QTreeView");
         view->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        view->setSelectionBehavior(QAbstractItemView::SelectItems);
     }
     Q_ASSERT(view);
     return view;
 }
 
-/*!
-    Returns a hidden index or QModelIndex() if the view doesn't support them
- */
-QModelIndex ViewsToTest::hiddenIndex(QAbstractItemView *view)
+void ViewsToTest::hideIndexes(QAbstractItemView *view)
 {
     if (QTableView *tableView = qobject_cast<QTableView *>(view)) {
         tableView->setColumnHidden(1, true);
-        return tableView->model()->index(0, 1);
+        tableView->setRowHidden(1, true);
+        tableView->setRowHidden(tableView->model()->rowCount()-2, true);
     }
     if (QTreeView *treeView = qobject_cast<QTreeView *>(view)) {
         treeView->setColumnHidden(1, true);
-        return treeView->model()->index(0, 1);
+        treeView->setRowHidden(1, QModelIndex(), true);
+        treeView->setRowHidden(treeView->model()->rowCount()-2, QModelIndex(), true);
     }
     if (QListView *listView = qobject_cast<QListView *>(view)) {
         listView->setRowHidden(1, true);
-        return listView->model()->index(1, 0);
+        listView->setRowHidden(listView->model()->rowCount()-2, true);
     }
-    return QModelIndex();
 }
 
