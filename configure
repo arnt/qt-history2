@@ -3381,6 +3381,9 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                             exit 101
                         else
                             CFG_SQL_mysql=no
+			    QT_LFLAGS_MYSQL=""
+			    QT_LFLAGS_MYSQL_R=""
+			    QT_CFLAGS_MYSQL=""
                         fi
                     fi
                 fi
