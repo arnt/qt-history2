@@ -474,10 +474,23 @@ void QAbstractButtonPrivate::click()
 
     down = false;
     blockRefresh = true;
+    bool uncheckable = true;
+    if (checked && queryCheckedButton() == q) {
+        // the checked button of an exclusive or autoexclusive group cannot be  unchecked
+#ifndef QT_NO_BUTTONGROUP
+        if (group ? group->d_func()->exclusive : autoExclusive)
+#else
+        if (autoExclusive)
+#endif
+            uncheckable = false;
+    }
+
     QPointer<QAbstractButton> guard(q);
-    q->nextCheckState();
-    if (!guard)
-        return;
+    if (uncheckable) {
+        q->nextCheckState();
+        if (!guard)
+            return;
+    }
     blockRefresh = false;
     refresh();
     q->repaint(); //flush paint event before invoking potentially expensive operation
