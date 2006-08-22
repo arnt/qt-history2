@@ -275,14 +275,30 @@ void QTabBarPrivate::layoutTabs()
     QSize size = q->size();
     int last, available;
     int maxExtent;
-    bool vertTabs = verticalTabs(shape);
     int i;
-    QVector<QLayoutStruct> tabChain(tabList.count() + 1);
+    bool vertTabs = verticalTabs(shape);
+    int tabChainIndex = 0;
+    Qt::Alignment tabAlignment = Qt::Alignment(q->style()->styleHint(QStyle::SH_TabBar_Alignment, 0, q));
+    QVector<QLayoutStruct> tabChain(tabList.count() + 2);
+
+    // We put an empty item at the front and back and set its expansive attribute
+    // depending on tabAlignment.
+    tabChain[tabChainIndex].init();
+    tabChain[tabChainIndex].expansive = tabAlignment != Qt::AlignLeft;
+    tabChain[tabChainIndex].empty = true;
+    ++tabChainIndex;
+    
+    // We now go through our list of tabs and set the minimum size and the size hint
+    // This will allow us to elide text if necessary. Since we don't set
+    // a maximum size, tabs will EXPAND to fill up the empty space.
+    // Since tab widget is rather *ahem* strict about keeping the geometry of the
+    // tabbar to its absolute minimum, this won't bleed through, but will show up
+    // if you use tabbar on its own (a.k.a. not a bug, but a feature).
     if (!vertTabs) {
         int minx = 0;
         int x = 0;
         int maxHeight = 0;
-        for (i = 0; i < tabList.count(); ++i) {
+        for (i = 0; i < tabList.count(); ++i, ++tabChainIndex) {
             QSize sz = q->tabSizeHint(i);
             tabList[i].maxRect = QRect(x, 0, sz.width(), sz.height());
             x += sz.width();
@@ -290,12 +306,11 @@ void QTabBarPrivate::layoutTabs()
             sz = minimumTabSizeHint(i);
             tabList[i].minRect = QRect(minx, 0, sz.width(), sz.height());
             minx += sz.width();
-            tabChain[i].init();
-            tabChain[i].sizeHint = sz.width();
-            tabChain[i].minimumSize = sz.width();
-            tabChain[i].maximumSize = tabList.at(i).maxRect.width();
-            tabChain[i].empty = false;
-            tabChain[i].expansive = true;
+            tabChain[tabChainIndex].init();
+            tabChain[tabChainIndex].sizeHint = tabList.at(i).maxRect.width();
+            tabChain[tabChainIndex].minimumSize = sz.width();
+            tabChain[tabChainIndex].empty = false;
+            tabChain[tabChainIndex].expansive = true;
         }
 
         last = minx;
@@ -305,7 +320,7 @@ void QTabBarPrivate::layoutTabs()
         int miny = 0;
         int y = 0;
         int maxWidth = 0;
-        for (i = 0; i < tabList.count(); ++i) {
+        for (i = 0; i < tabList.count(); ++i, ++tabChainIndex) {
             QSize sz = q->tabSizeHint(i);
             tabList[i].maxRect = QRect(0, y, sz.width(), sz.height());
             y += sz.height();
@@ -313,12 +328,11 @@ void QTabBarPrivate::layoutTabs()
             sz = minimumTabSizeHint(i);
             tabList[i].minRect = QRect(0, miny, sz.width(), sz.height());
             miny += sz.height();
-            tabChain[i].init();
-            tabChain[i].sizeHint = sz.height();
-            tabChain[i].minimumSize = sz.height();
-            tabChain[i].maximumSize = tabList.at(i).maxRect.height();
-            tabChain[i].empty = false;
-            tabChain[i].expansive = true;
+            tabChain[tabChainIndex].init();
+            tabChain[tabChainIndex].sizeHint = tabList.at(i).maxRect.height();
+            tabChain[tabChainIndex].minimumSize = sz.height();
+            tabChain[tabChainIndex].empty = false;
+            tabChain[tabChainIndex].expansive = true;
         }
 
         last = miny;
@@ -326,17 +340,18 @@ void QTabBarPrivate::layoutTabs()
         maxExtent = maxWidth;
     }
 
-    // Add an empty item at the end to make things nice (i == tabList.count()
-    //                                                     == tabChain.count() - 1).
-    Q_ASSERT(i == tabChain.count() - 1); // add an assert just to make sure.
-    tabChain[i].init();
-    tabChain[i].expansive = false;
-    tabChain[i].empty = true;
+    Q_ASSERT(tabChainIndex == tabChain.count() - 1); // add an assert just to make sure.
+    // Mirror our front item.
+    tabChain[tabChainIndex].init();
+    tabChain[tabChainIndex].expansive = tabAlignment != Qt::AlignRight;
+    tabChain[tabChainIndex].empty = true;
+
+    // Do the calculation
     qGeomCalc(tabChain, 0, tabChain.count(), 0, qMax(available, last), 0);
 
-    // Now walk through it, (look ma I only had to do this twice.)
+    // Use the results
     for (i = 0; i < tabList.count(); ++i) {
-        const QLayoutStruct &lstruct = tabChain.at(i);
+        const QLayoutStruct &lstruct = tabChain.at(i + 1);
         if (!vertTabs)
             tabList[i].rect.setRect(lstruct.pos, 0, lstruct.size, maxExtent);
         else
