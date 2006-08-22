@@ -109,7 +109,7 @@
 
     When a widget has been embedded and the container receives tab
     focus, focus is passed on to the widget. When the widget reaches
-    the end of his focus chain, focus is passed back to the
+    the end of its focus chain, focus is passed back to the
     container. Window activation, accelerator support, modality and
     drag and drop (XDND) are also handled.
 
