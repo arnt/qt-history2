@@ -2530,7 +2530,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
 
         // Scroll the background pixmap
         if (!d->backgroundPixmap.isNull()) {
-#if defined(Q_OS_WIN) || defined(Q_WS_QWS)
+#if defined(Q_OS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
             QPixmap tmp = d->backgroundPixmap;
             QPainter painter(&d->backgroundPixmap);
             painter.drawPixmap(dx, dy, tmp);
