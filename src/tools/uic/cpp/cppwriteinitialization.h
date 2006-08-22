@@ -159,6 +159,9 @@ private:
 
     QString m_delayedActionInitialization;
     QTextStream actionOut;
+
+    QString m_delayedResize;
+    QTextStream resizeOut;
 };
 
 } // namespace CPP

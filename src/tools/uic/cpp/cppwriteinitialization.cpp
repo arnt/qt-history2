@@ -31,7 +31,8 @@ WriteInitialization::WriteInitialization(Uic *uic)
       m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
       delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
-      actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly)
+      actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly),
+      resizeOut(&m_delayedResize, QIODevice::WriteOnly)
 {
     this->uic = uic;
 }
@@ -94,7 +95,6 @@ void WriteInitialization::acceptUI(DomUI *node)
             continue;
         }
 
-
         output << option.indent << b.objName << "->setBuddy(" << b.buddy << ");\n";
     }
 
@@ -104,7 +104,10 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (m_delayedActionInitialization.size())
         output << "\n" << m_delayedActionInitialization;
 
-    output << option.indent << "retranslateUi(" << varName << ");\n";
+    output << "\n" << option.indent << "retranslateUi(" << varName << ");\n";
+
+    if (!m_delayedResize.isEmpty())
+        output << "\n" << m_delayedResize << "\n";
 
     if (node->elementConnections())
         acceptConnections(node->elementConnections());
@@ -591,10 +594,10 @@ void WriteInitialization::writeProperties(const QString &varName,
             int w = r->elementWidth();
             int h = r->elementHeight();
 			QString tempName = driver->unique(QLatin1String("size"));
-			output << option.indent << "QSize " << tempName << "(" << w << ", " << h << ");\n"
-			       << option.indent << tempName << " = " << tempName << ".expandedTo("
-				                    << varName << "->minimumSizeHint());\n"
-                   << option.indent << varName << "->resize(" << tempName << ");\n";                
+			resizeOut << option.indent << "QSize " << tempName << "(" << w << ", " << h << ");\n"
+                      << option.indent << tempName << " = " << tempName << ".expandedTo("
+                      << varName << "->minimumSizeHint());\n"
+                      << option.indent << varName << "->resize(" << tempName << ");\n";                
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") && buttonGroupWidget) { // Q3ButtonGroup support
             output << option.indent << driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
