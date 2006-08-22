@@ -193,9 +193,9 @@ void GLEngine::prepare(const QSize &_size)
     if (usePixelBuffers) {
 #if (QT_VERSION < 0x040200) && defined(Q_WS_MAC)
         pbuffer = new QGLPixelBuffer(QSize(512, 512), QGLFormat(QGL::SampleBuffers));
-#else        
+#else
         pbuffer = new QGLPixelBuffer(size, QGLFormat(QGL::SampleBuffers));
-#endif        
+#endif
     } else {
         widget = new QGLWidget(QGLFormat(QGL::SampleBuffers));
     }
@@ -375,6 +375,7 @@ void PSEngine::prepare(const QSize &size)
 
     m_size = size;
     printer = new QPrinter(QPrinter::ScreenResolution);
+    printer->setOutputFormat(QPrinter::PostScriptFormat);
     printer->setFullPage(true);
     m_tempFile = QDir::tempPath() + QString("temp%1.ps").arg(i++);
     printer->setOutputFileName(m_tempFile);
@@ -425,7 +426,6 @@ void PSEngine::cleanup()
 {
     delete printer; printer = 0;
 }
-
 #endif
 
 RSVGEngine::RSVGEngine()
