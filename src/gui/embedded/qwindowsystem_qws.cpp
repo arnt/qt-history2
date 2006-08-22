@@ -270,6 +270,7 @@ public:
 
 /*!
     \fn bool QWSWindow::isPartiallyObscured() const
+    \internal
 
     Returns true if the window is partially obsured by another window
     or by the bounds of the screen; otherwise returns false.
@@ -286,16 +287,6 @@ public:
 
 /*!
     \fn QWSWindowSurface* QWSWindow::windowSurface() const
-    \internal
-*/
-
-/*!
-    \fn QRegion QWSWindow::allocatedRegion() const
-    \internal
-*/
-
-/*!
-    \fn QRegion QWSWindow::isPartiallyObscured() const
     \internal
 */
 
@@ -424,6 +415,8 @@ QWSWindow::~QWSWindow()
 }
 
 /*!
+    \internal
+
     Returns the region that the window is allowed to draw onto,
     including any window decorations but excluding regions covered by
     other windows.
