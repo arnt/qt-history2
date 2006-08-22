@@ -89,7 +89,6 @@ private slots:
     void mapToGlobal();
     void checkFocus();
     void focusChainOnHide();
-    void focusChainOnDelete();
     void focusChainOnReparent();
     void setTabOrder();
     void activation();
@@ -868,41 +867,6 @@ void tst_QWidget::focusChainOnHide()
 
     delete parent;
     testWidget->show(); //don't disturb later tests
-}
-
-void tst_QWidget::focusChainOnDelete()
-{
-#if defined(Q_WS_MAC) && QT_VERSION < 0x040200
-    QSKIP("This test will \"XPASS\" on the mac at the moment in 4.1,"
-           " so only test in 4.2 where the XFAIL should be pass", SkipAll);
-#endif
-    // deleting a widget should really do the same as hide.
-    QWidget *parent = new QWidget();
-    parent->setObjectName(QLatin1String("Parent"));
-    parent->setFocusPolicy(Qt::StrongFocus);
-    QWidget *child = new QWidget(parent);
-    child->setObjectName(QLatin1String("child"));
-    child->setFocusPolicy(Qt::StrongFocus);
-
-    QWidget::setTabOrder(child, parent);
-
-    parent->show();
-    qApp->setActiveWindow(parent->window());
-    child->setFocus();
-    qApp->processEvents();
-
-    QCOMPARE(child->hasFocus(), true);
-    delete child;
-    qApp->processEvents();
-#if 1
-    QEXPECT_FAIL("", "Currently this is expected, but it should really have the same behaviour as when you do a hide. Task is 100027.", Continue);
-    QCOMPARE(parent->hasFocus(), true);
-#else
-    QCOMPARE(parent->hasFocus(), true);
-    QCOMPARE(parent, qApp->focusWidget());
-#endif
-
-    delete parent;
 }
 
 void tst_QWidget::checkFocus()
