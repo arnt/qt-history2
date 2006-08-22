@@ -489,25 +489,25 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QString &sep)
 /*!
     \fn QStringList QStringList::grep(const QString &str, bool cs = true) const
 
-    Use find() instead.
+    Use filter() instead.
 */
 
 /*!
     \fn QStringList QStringList::grep(const QRegExp &rx) const
 
-    Use find() instead.
+    Use filter() instead.
 */
 
 /*!
     \fn QStringList &QStringList::gres(const QString &before, const QString &after, bool cs = true)
 
-    Use replace() instead.
+    Use replaceInStrings() instead.
 */
 
 /*!
     \fn QStringList &QStringList::gres(const QRegExp &rx, const QString &after)
 
-    Use replace() instead.
+    Use replaceInStrings() instead.
 */
 
 /*!
