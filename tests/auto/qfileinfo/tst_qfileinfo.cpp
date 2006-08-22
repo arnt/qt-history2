@@ -264,11 +264,15 @@ void tst_QFileInfo::absolutePath_data()
     QTest::addColumn<QString>("path");
     QTest::addColumn<QString>("filename");
 
-    QTest::newRow("0") << "/machine/share/dir1/" << "/machine/share/dir1" << "";
-    QTest::newRow("1") << "/machine/share/dir1" << "/machine/share" << "dir1";
-    QTest::newRow("2") << "/usr/local/bin" << "/usr/local" << "bin";
-    QTest::newRow("3") << "/usr/local/bin/" << "/usr/local/bin" << "";
-    QTest::newRow("/test") << "/test" << "/" << "test";
+    QString drivePrefix;
+#ifdef Q_OS_WIN
+    drivePrefix = QDir::currentPath().left(2);
+#endif
+    QTest::newRow("0") << "/machine/share/dir1/" << drivePrefix + "/machine/share/dir1" << "";
+    QTest::newRow("1") << "/machine/share/dir1" << drivePrefix + "/machine/share" << "dir1";
+    QTest::newRow("2") << "/usr/local/bin" << drivePrefix + "/usr/local" << "bin";
+    QTest::newRow("3") << "/usr/local/bin/" << drivePrefix + "/usr/local/bin" << "";
+    QTest::newRow("/test") << "/test" << drivePrefix + "/" << "test";
 
 #ifdef Q_OS_WIN
     // see task 102898
