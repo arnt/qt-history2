@@ -1827,7 +1827,7 @@ void qt_init(QApplicationPrivate *priv, int,
                                 ProximityIn(dev, device_data.xinput_proximity_in, device_data.eventList[device_data.eventCount]);
                                 if (device_data.eventList[device_data.eventCount])
                                     ++device_data.eventCount;
-                                ProximityOut(dev, device_data.xinput_proximity_in, device_data.eventList[device_data.eventCount]);
+                                ProximityOut(dev, device_data.xinput_proximity_out, device_data.eventList[device_data.eventCount]);
                                 if (device_data.eventList[device_data.eventCount])
                                     ++device_data.eventCount;
                             default:
@@ -2678,9 +2678,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
     QTabletDeviceDataList *tablets = qt_tablet_devices();
     for (int i = 0; i < tablets->size(); ++i) {
         const QTabletDeviceData &tab = tablets->at(i);
-        if (event->type == tab.xinput_motion ||
-            event->type == tab.xinput_button_release ||
-            event->type == tab.xinput_button_press) {
+        if (event->type == tab.xinput_motion
+            || event->type == tab.xinput_button_release
+            || event->type == tab.xinput_button_press
+            || event->type == tab.xinput_proximity_in
+            || event->type == tab.xinput_proximity_out) {
             widget->translateXinputEvent(event, &tab);
             return 0;
         }
@@ -3763,7 +3765,6 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
         device_id = button->deviceid;
 #endif
     } else { // Proximity
-        qDebug("sending key event");
         if (ev->type == tablet->xinput_proximity_in)
             t = QEvent::TabletEnterProximity;
         else
@@ -3892,9 +3893,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
                                     screenArea.y(), screenArea.height());
         modifiers = X11->translateModifiers(button->state);
     } else if (proximity) {
-        hibyte1 = (button->axis_data[3] & 0xffff0000) >> 16;
-        hibyte2 = (button->axis_data[4] & 0xffff0000) >> 16;
-        hibyte3 = (button->axis_data[5] & 0xffff0000) >> 16;
+        hibyte1 = (proximity->axis_data[3] & 0xffff0000) >> 16;
+        hibyte2 = (proximity->axis_data[4] & 0xffff0000) >> 16;
+        hibyte3 = (proximity->axis_data[5] & 0xffff0000) >> 16;
         pressure = 0;
         modifiers = 0;
     }
