@@ -14,31 +14,18 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtNetwork/QAbstractSocket>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QHostAddress>
+#include <QAbstractSocket>
+#include <QHash>
+#include <QHostAddress>
+
+#include "server.h"
 
 class PeerManager;
-class Connection;
-
-class Server : public QTcpServer
-{
-    Q_OBJECT
-public:
-    Server(QObject *parent = 0);
-
-signals:
-    void newConnection(Connection *);
-
-protected:
-    void incomingConnection(int socketDescriptor);
-};
 
 class Client : public QObject
 {
     Q_OBJECT
+
 public:
     Client();
 
@@ -58,12 +45,11 @@ private slots:
     void readyForUse();
 
 private:
+    void removeConnection(Connection *connection);
+
     PeerManager *peerManager;
     Server server;
     QHash<QHostAddress, Connection *> peers;
-
-    void removeConnection(Connection *connection);
 };
 
-#endif // CLIENT_H
-
+#endif

@@ -14,18 +14,19 @@
 #ifndef PEERMANAGER_H
 #define PEERMANAGER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtNetwork/QUdpSocket>
+#include <QByteArray>
+#include <QList>
+#include <QObject>
+#include <QTimer>
+#include <QUdpSocket>
 
-class Connection;
 class Client;
+class Connection;
 
 class PeerManager : public QObject
 {
     Q_OBJECT
+
 public:
     PeerManager(Client *client);
 
@@ -34,13 +35,15 @@ public:
     void startBroadcasting();
 
 signals:
-    void newConnection(Connection *);
+    void newConnection(Connection *connection);
 
 private slots:
     void sendBroadcastDatagram();
     void readBroadcastDatagram();
 
 private:
+    void updateAddresses();
+
     Client *client;
     QList<QHostAddress> broadcastAddresses;
     QList<QHostAddress> ipAddresses;
@@ -48,9 +51,6 @@ private:
     QTimer broadcastTimer;
     QByteArray username;
     int serverPort;
-
-    void updateAddresses();
 };
 
-#endif // PEERMANAGER_H
-
+#endif

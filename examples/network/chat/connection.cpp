@@ -13,34 +13,30 @@
 
 #include "connection.h"
 
-#include <QtCore/QTimerEvent>
+#include <QtNetwork>
 
-static const int TransferTimeout = 30000; // msecs
-static const int PongTimeout = 60000; // msecs
-static const int PingInterval = 5000;
+static const int TransferTimeout = 30 * 1000;
+static const int PongTimeout = 60 * 1000;
+static const int PingInterval = 5 * 1000;
 static const char SeparatorToken = ' ';
 
 Connection::Connection(QObject *parent)
-    : QTcpSocket(parent),
-      greetingMessage(tr("not defined")),
-      username(tr("unknown")),
-      state(WaitingForGreeting),
-      currentDataType(Undefined),
-      numBytesForCurrentDataType(-1),
-      transferTimerId(0),
-      isGreetingMessageSent(false)
+    : QTcpSocket(parent)
 {
+    greetingMessage = tr("not defined");
+    username = tr("unknown");
+    state = WaitingForGreeting;
+    currentDataType = Undefined;
+    numBytesForCurrentDataType = -1;
+    transferTimerId = 0;
+    isGreetingMessageSent = false;
     pingTimer.setInterval(PingInterval);
+
     QObject::connect(this, SIGNAL(readyRead()), this, SLOT(processReadyRead()));
     QObject::connect(this, SIGNAL(disconnected()), &pingTimer, SLOT(stop()));
     QObject::connect(&pingTimer, SIGNAL(timeout()), this, SLOT(sendPing()));
-    QObject::connect(this, SIGNAL(connected()), this, SLOT(sendGreetingMessage()));
-}
-
-Connection::~Connection()
-{
-    if (transferTimerId)
-        killTimer(transferTimerId);
+    QObject::connect(this, SIGNAL(connected()),
+                     this, SLOT(sendGreetingMessage()));
 }
 
 void Connection::setName(const QString &name)
@@ -168,7 +164,8 @@ int Connection::readDataIntoBuffer(int maxSize)
 
 int Connection::dataLengthForCurrentDataType()
 {
-    if (bytesAvailable() <= 0 || readDataIntoBuffer() <= 0 || !buffer.endsWith(SeparatorToken))
+    if (bytesAvailable() <= 0 || readDataIntoBuffer() <= 0
+            || !buffer.endsWith(SeparatorToken))
         return 0;
 
     buffer.chop(1);
@@ -180,27 +177,25 @@ int Connection::dataLengthForCurrentDataType()
 bool Connection::readProtocolHeader()
 {
     if (transferTimerId) {
-        QObject::killTimer(transferTimerId);
+        killTimer(transferTimerId);
         transferTimerId = 0;
     }
 
     if (readDataIntoBuffer() <= 0) {
-        transferTimerId = QObject::startTimer(TransferTimeout);
+        transferTimerId = startTimer(TransferTimeout);
         return false;
     }
 
-    if (buffer == "PING ")
+    if (buffer == "PING ") {
         currentDataType = Ping;
-    else if (buffer == "PONG ")
+    } else if (buffer == "PONG ") {
         currentDataType = Pong;
-    else if (buffer == "MESSAGE ")
+    } else if (buffer == "MESSAGE ") {
         currentDataType = PlainText;
-    else if (buffer == "GREETING ")
+    } else if (buffer == "GREETING ") {
         currentDataType = Greeting;
-    else
+    } else {
         currentDataType = Undefined;
-
-    if (currentDataType == Undefined) {
         abort();
         return false;
     }
@@ -220,8 +215,9 @@ bool Connection::hasEnoughData()
     if (numBytesForCurrentDataType <= 0)
         numBytesForCurrentDataType = dataLengthForCurrentDataType();
 
-    if ((bytesAvailable() < numBytesForCurrentDataType) || (numBytesForCurrentDataType <= 0)) {
-        transferTimerId = QObject::startTimer(TransferTimeout);
+    if (bytesAvailable() < numBytesForCurrentDataType
+            || numBytesForCurrentDataType <= 0) {
+        transferTimerId = startTimer(TransferTimeout);
         return false;
     }
 
@@ -231,7 +227,7 @@ bool Connection::hasEnoughData()
 void Connection::processData()
 {
     buffer = read(numBytesForCurrentDataType);
-    if (buffer.size() != numBytesForCurrentDataType) { // Read Error
+    if (buffer.size() != numBytesForCurrentDataType) {
         abort();
         return;
     }
@@ -243,10 +239,9 @@ void Connection::processData()
     case Ping:
         write("PONG 1 p");
         break;
-    case Pong: {
+    case Pong:
         pongTime.restart();
         break;
-    }
     default:
         break;
     }
@@ -255,4 +250,3 @@ void Connection::processData()
     numBytesForCurrentDataType = 0;
     buffer.clear();
 }
-

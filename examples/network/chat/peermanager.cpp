@@ -11,18 +11,20 @@
 **
 ****************************************************************************/
 
-#include "peermanager.h"
-#include "connection.h"
-#include "client.h"
-
 #include <QtNetwork>
+
+#include "client.h"
+#include "connection.h"
+#include "peermanager.h"
 
 static const qint32 BroadcastInterval = 2000;
 static const unsigned broadcastPort = 45000;
 
 PeerManager::PeerManager(Client *client)
-    : QObject(client), client(client)
+    : QObject(client)
 {
+    this->client = client;
+
     QStringList envVariables;
     envVariables << "USERNAME.*" << "USER.*" << "USERDOMAIN.*"
                  << "HOSTNAME.*" << "DOMAINNAME.*";
@@ -46,10 +48,12 @@ PeerManager::PeerManager(Client *client)
     serverPort = 0;
 
     broadcastSocket.bind(QHostAddress::Any, broadcastPort);
-    connect(&broadcastSocket, SIGNAL(readyRead()), this, SLOT(readBroadcastDatagram()));
+    connect(&broadcastSocket, SIGNAL(readyRead()),
+            this, SLOT(readBroadcastDatagram()));
 
     broadcastTimer.setInterval(BroadcastInterval);
-    connect(&broadcastTimer, SIGNAL(timeout()), this, SLOT(sendBroadcastDatagram()));
+    connect(&broadcastTimer, SIGNAL(timeout()),
+            this, SLOT(sendBroadcastDatagram()));
 }
 
 void PeerManager::setServerPort(int port)
@@ -70,12 +74,13 @@ void PeerManager::startBroadcasting()
 void PeerManager::sendBroadcastDatagram()
 {
     QByteArray datagram(username);
-    datagram.append(QLatin1Char('@').toLatin1());
+    datagram.append('@');
     datagram.append(QByteArray::number(serverPort));
 
     bool validBroadcastAddresses = true;
-    foreach (QHostAddress ba, broadcastAddresses) {
-        if (broadcastSocket.writeDatagram(datagram, ba, broadcastPort) == -1)
+    foreach (QHostAddress address, broadcastAddresses) {
+        if (broadcastSocket.writeDatagram(datagram, address,
+                                          broadcastPort) == -1)
             validBroadcastAddresses = false;
     }
 
@@ -90,8 +95,10 @@ void PeerManager::readBroadcastDatagram()
         quint16 senderPort;
         QByteArray datagram;
         datagram.resize(broadcastSocket.pendingDatagramSize());
-        if (broadcastSocket.readDatagram(datagram.data(), datagram.size(), &senderIp, &senderPort) == -1)
+        if (broadcastSocket.readDatagram(datagram.data(), datagram.size(),
+                                         &senderIp, &senderPort) == -1)
             continue;
+
         bool isPackageFromMe = false;
         foreach (QHostAddress ip, ipAddresses) {
             if (ip == senderIp) {
@@ -101,9 +108,9 @@ void PeerManager::readBroadcastDatagram()
         }
 
         if (!isPackageFromMe && !client->hasConnection(senderIp)) {
-            QList<QByteArray> list = datagram.split(QLatin1Char('@').toLatin1());
+            QList<QByteArray> list = datagram.split('@');
             if (list.size() != 2)
-                continue; // not a valid package (user@port)
+                continue;
 
             Connection *connection = new Connection(this);
             connection->setName(list.at(0));
@@ -117,12 +124,12 @@ void PeerManager::updateAddresses()
 {
     broadcastAddresses.clear();
     ipAddresses.clear();
-    foreach (QNetworkInterface networkInterface, QNetworkInterface::allInterfaces()) {
-        foreach (QNetworkAddressEntry addressEntry, networkInterface.addressEntries()) {
-            QHostAddress broadcastAddress = addressEntry.broadcast();
+    foreach (QNetworkInterface interface, QNetworkInterface::allInterfaces()) {
+        foreach (QNetworkAddressEntry entry, interface.addressEntries()) {
+            QHostAddress broadcastAddress = entry.broadcast();
             if (broadcastAddress != QHostAddress::Null) {
                 broadcastAddresses << broadcastAddress;
-                ipAddresses << addressEntry.ip();
+                ipAddresses << entry.ip();
             }
         }
     }

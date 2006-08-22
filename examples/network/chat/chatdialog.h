@@ -14,12 +14,13 @@
 #ifndef CHATDIALOG_H
 #define CHATDIALOG_H
 
-#include "ui_chat.h"
+#include "ui_chatdialog.h"
 #include "client.h"
 
-class ChatDialog : public QDialog, private Ui::Dialog
+class ChatDialog : public QDialog, private Ui::ChatDialog
 {
     Q_OBJECT
+
 public:
     ChatDialog(QWidget *parent = 0);
 
@@ -38,4 +39,4 @@ private:
     QTextTableFormat tableFormat;
 };
 
-#endif // CHATDIALOG_H
+#endif

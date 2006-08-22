@@ -11,14 +11,20 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
+#include <QtNetwork>
 
-#include "chatdialog.h"
+#include "connection.h"
+#include "server.h"
 
-int main(int argc, char *argv[])
+Server::Server(QObject *parent)
+    : QTcpServer(parent)
 {
-    QApplication app(argc, argv);
-    ChatDialog dialog;
-    dialog.show();
-    return app.exec();
+    listen(QHostAddress::Any);
+}
+
+void Server::incomingConnection(int socketDescriptor)
+{
+    Connection *connection = new Connection(this);
+    connection->setSocketDescriptor(socketDescriptor);
+    emit newConnection(connection);
 }

@@ -14,24 +14,24 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QHostAddress>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
-#include <QtCore/QTime>
+#include <QHostAddress>
+#include <QString>
+#include <QTcpSocket>
+#include <QTime>
+#include <QTimer>
 
 static const int MaxBufferSize = 1024000;
 
 class Connection : public QTcpSocket
 {
     Q_OBJECT
+
 public:
     enum ConnectionState {
         WaitingForGreeting,
         ReadingGreeting,
         ReadyForUse
     };
-
     enum DataType {
         PlainText,
         Ping,
@@ -41,7 +41,6 @@ public:
     };
 
     Connection(QObject *parent = 0);
-    ~Connection();
 
     void setName(const QString &name);
     QString name() const;
@@ -62,6 +61,12 @@ private slots:
     void sendGreetingMessage();
 
 private:
+    int readDataIntoBuffer(int maxSize = MaxBufferSize);
+    int dataLengthForCurrentDataType();
+    bool readProtocolHeader();
+    bool hasEnoughData();
+    void processData();
+
     QString greetingMessage;
     QString username;
     QTimer pingTimer;
@@ -72,13 +77,6 @@ private:
     int numBytesForCurrentDataType;
     int transferTimerId;
     bool isGreetingMessageSent;
-
-    int readDataIntoBuffer(int maxSize = MaxBufferSize);
-    int dataLengthForCurrentDataType();
-    bool readProtocolHeader();
-    bool hasEnoughData();
-    void processData();
 };
 
-#endif // CONNECTION_H
-
+#endif

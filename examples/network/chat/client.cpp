@@ -11,28 +11,15 @@
 **
 ****************************************************************************/
 
+#include <QtNetwork>
+
 #include "client.h"
-#include "peermanager.h"
 #include "connection.h"
-
-#include <QtCore/QDebug>
-
-Server::Server(QObject *parent)
-    : QTcpServer(parent)
-{
-    listen(QHostAddress::Any);
-}
-
-void Server::incomingConnection(int socketDescriptor)
-{
-    Connection *connection = new Connection(this);
-    connection->setSocketDescriptor(socketDescriptor);
-    emit newConnection(connection);
-}
+#include "peermanager.h"
 
 Client::Client()
-    : peerManager(new PeerManager(this))
 {
+    peerManager = new PeerManager(this);
     peerManager->setServerPort(server.serverPort());
     peerManager->startBroadcasting();
 

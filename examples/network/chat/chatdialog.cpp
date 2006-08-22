@@ -11,16 +11,14 @@
 **
 ****************************************************************************/
 
-#include "chatdialog.h"
+#include <QtGui>
 
-#include <QtGui/QTextTable>
-#include <QtGui/QScrollBar>
+#include "chatdialog.h"
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
-    setWindowTitle(tr("Chat example"));
 
     lineEdit->setFocusPolicy(Qt::StrongFocus);
     textEdit->setFocusPolicy(Qt::NoFocus);
@@ -60,10 +58,11 @@ void ChatDialog::returnPressed()
     if (text.isEmpty())
         return;
 
-    if (text.startsWith(QLatin1Char('/'))) {
+    if (text.startsWith(QChar('/'))) {
         QColor color = textEdit->textColor();
         textEdit->setTextColor(Qt::red);
-        textEdit->append(tr("! Unknown command: %1").arg(text.left(text.indexOf(' '))));
+        textEdit->append(tr("! Unknown command: %1")
+                         .arg(text.left(text.indexOf(' '))));
         textEdit->setTextColor(color);
     } else {
         client.sendMessage(text);
@@ -100,4 +99,3 @@ void ChatDialog::participantLeft(const QString &nick)
         textEdit->setTextColor(color);
     }
 }
-
