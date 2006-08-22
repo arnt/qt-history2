@@ -43,6 +43,9 @@
 #endif
 
 #include <stdlib.h>
+#ifdef Q_OS_UNIX
+#include <locale.h>
+#endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 extern QString qAppFileName();
