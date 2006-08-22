@@ -348,7 +348,6 @@ void prepare(QCustomRasterPaintDevice *device);
     QPainter::CompositionMode compositionMode;
     QImage::Format format;
     DrawHelper *drawHelper;
-    QImage tempImage;
     QImage colorizeBitmap(const QImage &image, const QColor &color);
 
     void resetClip() { delete clip; clip = 0; }

@@ -170,6 +170,7 @@ struct QSpanData
     } type : 8;
     int txop : 8;
     bool bilinear;
+    QImage tempImage;
     union {
         SolidData solid;
         GradientData gradient;

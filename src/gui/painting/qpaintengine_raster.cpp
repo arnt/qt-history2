@@ -3163,11 +3163,11 @@ void QSpanData::setup(const QBrush &brush, int alpha)
                              ? brush.texture().toImage()
                              : qt_imageForBrush(brushStyle, true);
 
-            rasterBuffer->tempImage = (texture.depth() == 1)
-                                      ? rasterBuffer->colorizeBitmap(texture, brush.color())
-                                      : texture;
+            tempImage = (texture.depth() == 1)
+                        ? rasterBuffer->colorizeBitmap(texture, brush.color())
+                        : texture;
 
-            initTexture(&rasterBuffer->tempImage, alpha, TextureData::Tiled);
+            initTexture(&tempImage, alpha, TextureData::Tiled);
         }
         break;
 
