@@ -41,20 +41,20 @@ private:
 };
 Q_DECLARE_METATYPE(QDBusObjectPath)
 
-inline QDBusObjectPath::QDBusObjectPath(const char *ObjectPath)
-    : QString(QString::fromLatin1(ObjectPath))
+inline QDBusObjectPath::QDBusObjectPath(const char *objectPath)
+    : QString(QString::fromLatin1(objectPath))
 { check(); }
 
-inline QDBusObjectPath::QDBusObjectPath(const QLatin1String &ObjectPath)
-    : QString(ObjectPath)
+inline QDBusObjectPath::QDBusObjectPath(const QLatin1String &objectPath)
+    : QString(objectPath)
 { check(); }
 
-inline QDBusObjectPath::QDBusObjectPath(const QString &ObjectPath)
-    : QString(ObjectPath)
+inline QDBusObjectPath::QDBusObjectPath(const QString &objectPath)
+    : QString(objectPath)
 { check(); }
 
-inline void QDBusObjectPath::setPath(const QString &ObjectPath)
-{ QString::operator=(ObjectPath); }
+inline void QDBusObjectPath::setPath(const QString &objectPath)
+{ QString::operator=(objectPath); }
 
 
 class QDBUS_EXPORT QDBusSignature : private QString
