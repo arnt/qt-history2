@@ -181,6 +181,7 @@ CompositionRenderer::CompositionRenderer(QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 #ifdef QT_OPENGL_SUPPORT
     m_pbuffer = 0;
+    m_pbuffer_size = 1024;
 #endif
 }
 
@@ -261,47 +262,63 @@ void CompositionRenderer::paint(QPainter *painter)
 
 #ifdef QT_OPENGL_SUPPORT
     if (usesOpenGL()) {
-        if (!m_pbuffer || m_pbuffer->size() != size()) {
 
+        int new_pbuf_size = m_pbuffer_size;
+        if (size().width() > m_pbuffer_size ||
+            size().height() > m_pbuffer_size)
+            new_pbuf_size *= 2;
+
+        if (size().width() < m_pbuffer_size/2 &&
+            size().height() < m_pbuffer_size/2)
+            new_pbuf_size /= 2;
+
+        if (!m_pbuffer || new_pbuf_size != m_pbuffer_size) {
             if (m_pbuffer) {
                 m_pbuffer->deleteTexture(m_base_tex);
                 m_pbuffer->deleteTexture(m_compositing_tex);
                 delete m_pbuffer;
             }
-
-            m_pbuffer = new QGLPixelBuffer(size(), QGLFormat::defaultFormat(), glWidget());
+            
+            m_pbuffer = new QGLPixelBuffer(QSize(new_pbuf_size, new_pbuf_size), QGLFormat::defaultFormat(), glWidget());
             m_base_tex = m_pbuffer->generateDynamicTexture();
             m_compositing_tex = m_pbuffer->generateDynamicTexture();
-            {
-                QPainter p(m_pbuffer);
-                p.fillRect(QRect(0, 0, width(), height()), Qt::transparent);
-                drawBase(p);
-                m_pbuffer->updateDynamicTexture(m_base_tex);
-            }
+            m_pbuffer_size = new_pbuf_size;
         }
-        
+
+        if (size() != m_previous_size) {
+            m_previous_size = size();
+            QPainter p(m_pbuffer);
+            p.setCompositionMode(QPainter::CompositionMode_Source);
+            p.fillRect(QRect(0, 0, m_pbuffer->width(), m_pbuffer->height()), Qt::transparent);
+            drawBase(p);
+            m_pbuffer->updateDynamicTexture(m_base_tex);
+        }
+
+        qreal x_fraction = width()/float(m_pbuffer->width());
+        qreal y_fraction = height()/float(m_pbuffer->height());
+
         {
             QPainter p(m_pbuffer);
-
             p.setCompositionMode(QPainter::CompositionMode_Source);
-            p.fillRect(QRect(0, 0, width(), height()), Qt::transparent);
+            p.fillRect(QRect(0, 0, m_pbuffer->width(), m_pbuffer->height()), Qt::transparent);
 
             p.save();
             glBindTexture(GL_TEXTURE_2D, m_base_tex);
             glEnable(GL_TEXTURE_2D);
             glColor4f(1.,1.,1.,1.);
+
             glBegin(GL_QUADS);
-            {
+            {                
                 glTexCoord2f(0, 1.0);
                 glVertex2f(0, 0);
                 
-                glTexCoord2f(1.0, 1.0);
+                glTexCoord2f(x_fraction, 1.0);
                 glVertex2f(width(), 0);
                 
-                glTexCoord2f(1.0, 0);
+                glTexCoord2f(x_fraction, 1.0-y_fraction);
                 glVertex2f(width(), height());
                 
-                glTexCoord2f(0, 0);
+                glTexCoord2f(0, 1.0-y_fraction);
                 glVertex2f(0, height());
             }
             glEnd();
@@ -310,7 +327,7 @@ void CompositionRenderer::paint(QPainter *painter)
             p.restore();
 
             drawSource(p);
-            m_pbuffer->updateDynamicTexture(m_compositing_tex);  
+            m_pbuffer->updateDynamicTexture(m_compositing_tex);
         }
 
         glWidget()->makeCurrent();
@@ -322,22 +339,21 @@ void CompositionRenderer::paint(QPainter *painter)
             glTexCoord2f(0, 1.0);
             glVertex2f(0, 0);
                 
-            glTexCoord2f(1.0, 1.0);
+            glTexCoord2f(x_fraction, 1.0);
             glVertex2f(width(), 0);
                 
-            glTexCoord2f(1.0, 0);
+            glTexCoord2f(x_fraction, 1.0-y_fraction);
             glVertex2f(width(), height());
                 
-            glTexCoord2f(0, 0);
+            glTexCoord2f(0, 1.0-y_fraction);
             glVertex2f(0, height());
         }
         glEnd();
         glDisable(GL_TEXTURE_2D);
-
     } else
 #endif
     {
-        // using an image
+        // using a QImage
         if (m_buffer.size() != size()) {
             m_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
             m_base_buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);

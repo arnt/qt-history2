@@ -122,6 +122,8 @@ private:
     QGLPixelBuffer *m_pbuffer;
     GLuint m_base_tex;
     GLuint m_compositing_tex;
+    int m_pbuffer_size; // width==height==size of pbuffer
+    QSize m_previous_size;
 #endif
 };
 
