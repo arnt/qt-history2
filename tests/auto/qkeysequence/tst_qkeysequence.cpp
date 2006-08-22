@@ -208,8 +208,8 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("addTab") << (int)QKeySequence::AddTab<< QString("CTRL+T");
     QTest::newRow("find") << (int)QKeySequence::Find<< QString("CTRL+F");
 #ifdef Q_WS_WIN
-    QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("CTRL+G");
-    QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("CTRL+SHIFT+G");
+    QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("F3");
+    QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("SHIFT+F3");
 #endif
     QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");
     QTest::newRow("bold") << (int)QKeySequence::Bold << QString("CTRL+B");
