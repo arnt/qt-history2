@@ -371,8 +371,8 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)
 
-#endif // QT_NO_TEXTEDIT
-
 QT_END_HEADER
+
+#endif // QT_NO_TEXTEDIT
 
 #endif // QTEXTEDIT_H
