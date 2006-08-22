@@ -4682,8 +4682,10 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     smd->sessionKey  = QString::number(qulonglong(tv.tv_sec)) + QLatin1Char('_') + QString::number(qulonglong(tv.tv_usec));
 
     QStringList arguments = qApp->arguments();
+    QString argument0 = arguments.isEmpty() ? qApp->applicationFilePath() : arguments.at(0);
+
     // tell the session manager about our program in best POSIX style
-    sm_setProperty(QString::fromLatin1(SmProgram), arguments.at(0));
+    sm_setProperty(QString::fromLatin1(SmProgram), argument0);
     // tell the session manager about our user as well.
     struct passwd *entryPtr = 0;
 #if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
@@ -4698,7 +4700,7 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
 
     // generate a restart and discard command that makes sense
     QStringList restart;
-    restart  << arguments.at(0) << QLatin1String("-session")
+    restart  << argument0 << QLatin1String("-session")
              << smd->sessionId + QLatin1Char('_') + smd->sessionKey;
     if (qstricmp(appName, QX11Info::appClass()) != 0)
         restart << QLatin1String("-name") << qAppName();
