@@ -1763,6 +1763,14 @@ qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 
     Sets the port on the local side of a connection to \a port.
 
+    You can call this function in a subclass of QAbstractSocket to
+    change the return value of the localPort() function after a
+    connection has been established. This feature is commonly used by
+    proxy connections for virtual connection settings.
+
+    Note that this function does not bind the local port of the socket
+    prior to a connection (e.g., QUdpSocket::bind()).
+
     \sa localAddress(), setLocalAddress(), setPeerPort()
 */
 void QAbstractSocket::setLocalPort(quint16 port)
@@ -1776,6 +1784,14 @@ void QAbstractSocket::setLocalPort(quint16 port)
 
     Sets the address on the local side of a connection to
     \a address.
+
+    You can call this function in a subclass of QAbstractSocket to
+    change the return value of the localAddress() function after a
+    connection has been established. This feature is commonly used by
+    proxy connections for virtual connection settings.
+
+    Note that this function does not bind the local address of the socket
+    prior to a connection (e.g., QUdpSocket::bind()).
 
     \sa localAddress(), setLocalPort(), setPeerAddress()
 */
@@ -1791,6 +1807,11 @@ void QAbstractSocket::setLocalAddress(const QHostAddress &address)
     Sets the port of the remote side of the connection to
     \a port.
 
+    You can call this function in a subclass of QAbstractSocket to
+    change the return value of the peerPort() function after a
+    connection has been established. This feature is commonly used by
+    proxy connections for virtual connection settings.
+
     \sa peerPort(), setPeerAddress(), setLocalPort()
 */
 void QAbstractSocket::setPeerPort(quint16 port)
@@ -1805,6 +1826,11 @@ void QAbstractSocket::setPeerPort(quint16 port)
     Sets the address of the remote side of the connection
     to \a address.
 
+    You can call this function in a subclass of QAbstractSocket to
+    change the return value of the peerAddress() function after a
+    connection has been established. This feature is commonly used by
+    proxy connections for virtual connection settings.
+
     \sa peerAddress(), setPeerPort(), setLocalAddress()
 */
 void QAbstractSocket::setPeerAddress(const QHostAddress &address)
@@ -1817,6 +1843,11 @@ void QAbstractSocket::setPeerAddress(const QHostAddress &address)
     \since 4.1
 
     Sets the host name of the remote peer to \a name.
+
+    You can call this function in a subclass of QAbstractSocket to
+    change the return value of the peerName() function after a
+    connection has been established. This feature is commonly used by
+    proxy connections for virtual connection settings.
 
     \sa peerName()
 */
