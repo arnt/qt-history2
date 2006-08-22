@@ -125,11 +125,6 @@
     the enumeration type \c Priority for the property, this type must be
     registered with the property system as well.
 
-    There are two exceptions to the above: The type of a property can
-    also be either QList<QVariant> or QMap<QString, QVariant>. In
-    these cases the type must be specified as \c QList or as \c QMap,
-    without any template parameters.
-
     It is possible to set a value by name, like this:
 
     \code
