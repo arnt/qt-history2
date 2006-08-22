@@ -591,9 +591,9 @@ void QSyntaxHighlighter::setCurrentBlockState(int newState)
         };
 
         struct BlockData : public QTextBlockUserData
-       {
-           QVector<ParenthesisInfo> parentheses;
-       };
+        {
+            QVector<ParenthesisInfo> parentheses;
+        };
     \endcode
 
     During cursor navigation in the associated editor, you can ask the
