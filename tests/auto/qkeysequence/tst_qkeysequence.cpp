@@ -195,7 +195,7 @@ void tst_QKeySequence::ensureSorted()
 }
 
 void tst_QKeySequence::standardKeys_data()
-{ 
+{
     QTest::addColumn<int>("standardKey");
     QTest::addColumn<QString>("expected");
     QTest::newRow("unknownkey") << (int)QKeySequence::UnknownKey<< QString("");
@@ -207,8 +207,10 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+W");
     QTest::newRow("addTab") << (int)QKeySequence::AddTab<< QString("CTRL+T");
     QTest::newRow("find") << (int)QKeySequence::Find<< QString("CTRL+F");
+#ifdef Q_WS_WIN
     QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("CTRL+G");
     QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("CTRL+SHIFT+G");
+#endif
     QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");
     QTest::newRow("bold") << (int)QKeySequence::Bold << QString("CTRL+B");
     QTest::newRow("italic") << (int)QKeySequence::Italic << QString("CTRL+I");
@@ -220,8 +222,8 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("zoomOut") << (int)QKeySequence::ZoomOut<< QString("CTRL+-");
     QTest::newRow("help") << (int)QKeySequence::HelpContents<< QString("F1");
     QTest::newRow("whatsthis") << (int)QKeySequence::WhatsThis<< QString("SHIFT+F1");
-    
-#ifndef Q_WS_MAC    
+
+#ifndef Q_WS_MAC
     QTest::newRow("nextChild") << (int)QKeySequence::NextChild<< QString("CTRL+Tab");
     QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild<< QString("CTRL+SHIFT+TAB");
     QTest::newRow("forward") << (int)QKeySequence::Forward << QString("ALT+RIGHT");
@@ -345,7 +347,7 @@ void tst_QKeySequence::streamOperators()
 	QKeySequence orgK( "Ctrl+A" );
 	QKeySequence copyOrgK = orgK;
 	QVERIFY( copyOrgK == orgK );
-	
+
 	QDataStream in(&data, QIODevice::WriteOnly);
 	QDataStream out(&data, QIODevice::ReadOnly);
 
@@ -392,12 +394,12 @@ void tst_QKeySequence::translated_data()
     QTest::newRow("Ctrl++")  << QString(tr("Ctrl++")) << QString("Strg++");
     QTest::newRow("Alt++")   << QString(tr("Alt++")) << QString("Alt++");
     QTest::newRow("Meta++")  << QString(tr("Meta++")) << QString("Meta++");
- 
+
      QTest::newRow("Shift+,, Shift++") << QString(tr("Shift+,, Shift++")) << QString("Umschalt+,, Umschalt++");
      QTest::newRow("Shift+,, Ctrl++")  << QString(tr("Shift+,, Ctrl++")) << QString("Umschalt+,, Strg++");
      QTest::newRow("Shift+,, Alt++")   << QString(tr("Shift+,, Alt++")) << QString("Umschalt+,, Alt++");
      QTest::newRow("Shift+,, Meta++")  << QString(tr("Shift+,, Meta++")) << QString("Umschalt+,, Meta++");
- 
+
      QTest::newRow("Ctrl+,, Shift++") << QString(tr("Ctrl+,, Shift++")) << QString("Strg+,, Umschalt++");
      QTest::newRow("Ctrl+,, Ctrl++") << QString(tr("Ctrl+,, Ctrl++")) << QString("Strg+,, Strg++");
      QTest::newRow("Ctrl+,, Alt++") << QString(tr("Ctrl+,, Alt++")) << QString("Strg+,, Alt++");
