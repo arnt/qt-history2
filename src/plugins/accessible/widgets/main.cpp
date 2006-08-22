@@ -64,8 +64,6 @@ QStringList AccessibleFactory::keys() const
     list << "QRadioButton";
     list << "QPushButton";
     list << "QButton";
-    list << "QAbstractScrollAreaWidget";
-    list << "QClipperWidget";
     list << "QDialog";
     list << "QMessageBox";
     list << "QMainWindow";
@@ -82,6 +80,7 @@ QStringList AccessibleFactory::keys() const
     list << "QToolBar";
     list << "QWorkspaceChild";
     list << "QSizeGrip";
+    list << "QAbstractItemView";
 #ifndef QT_NO_SPLITTER
     list << "QSplitter";
     list << "QSplitterHandle";
@@ -186,6 +185,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 #ifndef QT_NO_ITEMVIEWS
     } else if (classname == "QHeaderView") {
         iface = new QAccessibleHeader(widget);
+    } else if (classname == "QAbstractItemView") {
+        iface = new QAccessibleItemView(widget);
 #endif
 #ifndef QT_NO_TABBAR
     } else if (classname == "QTabBar") {

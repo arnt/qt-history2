@@ -20,6 +20,7 @@
 #include <qtabbar.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qtableview.h>
 #include <qlineedit.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
@@ -33,6 +34,314 @@
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 #ifndef QT_NO_ITEMVIEWS
+
+QAccessibleItemRow::QAccessibleItemRow(QAbstractItemView *aView, const QModelIndex &index)
+    : row(index), view(aView)
+{
+}
+
+QRect QAccessibleItemRow::rect(int child) const
+{
+    if (!row.isValid() || !view)
+        return QRect();
+
+    QRect r;
+
+    if (!child) {
+        QModelIndex parent = row.parent();
+        const int colCount = row.model()->columnCount(parent);
+        for (int i = 0; i < colCount; ++i)
+            r |= view->visualRect(row.model()->index(row.row(), i, parent));
+        return r;
+    }
+
+    return view->visualRect(childIndex(child));
+}
+
+QString QAccessibleItemRow::text(Text t, int child) const
+{
+    if (!child)
+        return QString();
+
+    QModelIndex idx = childIndex(child);
+    if (!idx.isValid())
+        return QString();
+
+    QString value;
+
+    switch (t) {
+    case Description:
+        value = idx.model()->data(idx, Qt::AccessibleDescriptionRole).toString();
+        break;
+    case Value:
+        value = idx.model()->data(idx, Qt::AccessibleTextRole).toString();
+        if (value.isEmpty())
+            value = idx.model()->data(idx, Qt::DisplayRole).toString();
+        break;
+    default:
+        break;
+    }
+    return value;
+}
+
+void QAccessibleItemRow::setText(Text t, int child, const QString &text)
+{
+    if (!child)
+        return;
+
+    QModelIndex idx = childIndex(child);
+    if (!idx.isValid())
+        return;
+
+    switch (t) {
+    case Description:
+        const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text,
+                                         Qt::AccessibleDescriptionRole);
+        break;
+    case Value:
+        const_cast<QAbstractItemModel *>(idx.model())->setData(idx, text, Qt::EditRole);
+        break;
+    default:
+        break;
+    }
+}
+
+QModelIndex QAccessibleItemRow::childIndex(int child) const
+{
+    return row.sibling(row.row(), child - 1);
+}
+
+bool QAccessibleItemRow::isValid() const
+{
+    return row.isValid();
+}
+
+QObject *QAccessibleItemRow::object() const
+{
+    return 0;
+}
+
+int QAccessibleItemRow::childCount() const
+{
+    return row.model()->columnCount(row.parent());
+}
+
+int QAccessibleItemRow::indexOfChild(const QAccessibleInterface *iface) const
+{
+    if (!iface || iface->role(0) != Row)
+        return -1;
+
+    QModelIndex idx = static_cast<const QAccessibleItemRow *>(iface)->row;
+    if (!idx.isValid())
+        return -1;
+
+    return idx.column() + 1;
+}
+
+QAccessible::Relation QAccessibleItemRow::relationTo(int child, const QAccessibleInterface *other,
+        int otherChild) const
+{
+    if (!child && !otherChild && other->object() == view)
+        return Child;
+    if (!child && !otherChild && other == this)
+        return Self;
+    if (!child && otherChild && other == this)
+        return Ancestor;
+    if (child && otherChild && other == this)
+        return Sibling;
+    return Unrelated;
+}
+
+int QAccessibleItemRow::childAt(int x, int y) const
+{
+    if (!view)
+        return -1;
+
+    QModelIndex idx = view->indexAt(view->mapFromGlobal(QPoint(x, y)));
+    if (idx.isValid() && idx.parent() == row.parent() && idx.row() == row.row())
+        return idx.column() + 1;
+
+    return -1;
+}
+
+int QAccessibleItemRow::navigate(RelationFlag relation, int index,
+                                 QAccessibleInterface **iface) const
+{
+    *iface = 0;
+    if (!view)
+        return -1;
+
+    switch (relation) {
+    case Ancestor: {
+        QObject *object = view;
+        for (int i = 0; i < index - 1; ++i) {
+            if (object)
+                object = object->parent();
+        }
+        if (object) {
+            *iface = QAccessibleInterface::queryAccessibleInterface(object);
+            return 0;
+        }
+        return -1; }
+    case Child: {
+        QModelIndex idx = childIndex(index);
+        if (!idx.isValid())
+            return -1;
+        return idx.column() + 1; }
+    default:
+        break;
+    }
+
+    return -1;
+}
+
+QAccessible::Role QAccessibleItemRow::role(int child) const
+{
+    if (!child)
+        return Row;
+    return Cell;
+}
+
+QAccessible::State QAccessibleItemRow::state(int child) const
+{
+    State st = Normal;
+
+    if (!view)
+        return st;
+
+    if (child) {
+        QModelIndex idx = childIndex(child);
+        if (!idx.isValid())
+            return st;
+
+        if (view->selectionModel()->isSelected(idx))
+            st |= Selected;
+        if (idx.model()->data(idx, Qt::CheckStateRole).toInt() == Qt::Checked)
+            st |= Checked;
+
+        Qt::ItemFlags flags = idx.flags();
+        if (flags & Qt::ItemIsSelectable) {
+            st |= Selectable;
+            if (view->selectionMode() == QAbstractItemView::MultiSelection)
+                st |= MultiSelectable;
+            if (view->selectionMode() == QAbstractItemView::ExtendedSelection)
+                st |= ExtSelectable;
+        }
+
+    } else {
+        if (view->selectionModel()->isRowSelected(row.row(), row.parent()))
+            st |= Selected;
+    }
+
+
+    return st;
+}
+
+int QAccessibleItemRow::userActionCount(int) const
+{
+    return 0;
+}
+
+QString QAccessibleItemRow::actionText(int, Text, int) const
+{
+    return QString();
+}
+
+bool QAccessibleItemRow::doAction(int, int, const QVariantList &)
+{
+    return false;
+}
+
+QAccessibleItemView::QAccessibleItemView(QWidget *w)
+    : QAccessibleWidget(w)
+{
+    Q_ASSERT(itemView());
+}
+
+QAbstractItemView *QAccessibleItemView::itemView() const
+{
+    return qobject_cast<QAbstractItemView *>(object());
+}
+
+QModelIndex QAccessibleItemView::childIndex(int child) const
+{
+    return itemView()->model()->index(child - 1, 0);
+}
+
+int QAccessibleItemView::childCount() const
+{
+    return itemView()->model()->rowCount();
+}
+
+QString QAccessibleItemView::text(Text t, int child) const
+{
+    if (!child)
+        return QAccessibleWidget::text(t, child);
+
+    QAccessibleItemRow item(itemView(), childIndex(child));
+    return item.text(t, child);
+}
+
+void QAccessibleItemView::setText(Text t, int child, const QString &text)
+{
+    if (!child) {
+        QAccessibleWidget::setText(t, child, text);
+        return;
+    }
+
+    QAccessibleItemRow item(itemView(), childIndex(child));
+    return item.setText(t, child, text);
+}
+
+QRect QAccessibleItemView::rect(int child) const
+{
+    if (!child)
+        return QAccessibleWidget::rect(child);
+
+    QAccessibleItemRow item(itemView(), childIndex(child));
+    return item.rect(0);
+}
+
+QAccessible::Role QAccessibleItemView::role(int child) const
+{
+    if (child)
+        return Row;
+
+    QAbstractItemView *view = itemView();
+    if (qobject_cast<QTableView *>(view))
+        return Table;
+    if (qobject_cast<QListView *>(view))
+        return List;
+    return Tree;
+}
+
+QAccessible::State QAccessibleItemView::state(int child) const
+{
+    if (!child)
+        return QAccessibleWidget::state(child);
+
+    QAccessibleItemRow item(itemView(), childIndex(child));
+    return item.state(0);
+}
+
+int QAccessibleItemView::navigate(RelationFlag relation, int index,
+                                  QAccessibleInterface **iface) const
+{
+    if (relation == Child) {
+        QModelIndex idx = childIndex(index);
+        if (!idx.isValid()) {
+            *iface = 0;
+            return -1;
+        }
+        *iface = new QAccessibleItemRow(itemView(), childIndex(index));
+        return 0;
+    }
+
+    return QAccessibleWidget::navigate(relation, index, iface);
+}
+
+
+
 /*!
   \class QAccessibleHeader qaccessiblewidget.h
   \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
@@ -270,7 +579,7 @@ bool QAccessibleTabBar::doAction(int action, int child, const QVariantList &)
 
     if (action != QAccessible::DefaultAction && action != QAccessible::Press)
         return false;
-    
+
     if (child > tabBar()->count()) {
         QAbstractButton *bt = button(child);
         if (!bt->isEnabled())
