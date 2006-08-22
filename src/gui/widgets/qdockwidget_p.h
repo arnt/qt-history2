@@ -62,6 +62,7 @@ class QDockWidgetPrivate : public QWidgetPrivate
         bool dragging;
         QWidgetItem *widgetItem;
         QList<int> pathToGap;
+        bool ownWidgetItem;
     };
 
 public:

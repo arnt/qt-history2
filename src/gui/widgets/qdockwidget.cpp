@@ -366,6 +366,7 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
     state->pressPos = event->pos();
     state->dragging = false;
     state->widgetItem = 0;
+    state->ownWidgetItem = false;
 #endif // !defined(QT_NO_MAINWINDOW)
 }
 
@@ -397,7 +398,14 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
         && layout->pluggingWidget == 0
         && (event->pos() - state->pressPos).manhattanLength() > QApplication::startDragDistance()) {
         state->widgetItem = layout->unplug(q);
-        Q_ASSERT(state->widgetItem != 0);
+        if (state->widgetItem == 0) {
+            /* I have a QMainWindow parent, but I was never inserted with QMainWindow::addDockWidget,
+               so the QMainWindowLayout has no widget item for me. :(
+               I have to create it myself, and then delete it if I don't get dropped into a
+               dock area. */
+            state->widgetItem = new QWidgetItem(q);
+            state->ownWidgetItem = true;
+        }
         q->grabMouse();
         state->dragging = true;
     }
@@ -427,15 +435,14 @@ void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
 
         q->releaseMouse();
 
-        bool plugged = false;
         if (!(event->modifiers() & Qt::ControlModifier) && !state->pathToGap.isEmpty()) {
             layout->plug(state->widgetItem, state->pathToGap);
-            plugged = true;
         } else {
             layout->restore();
-        }
 
-        if (!plugged) {
+            if (state->ownWidgetItem)
+                delete state->widgetItem;
+
             q->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
             updateButtons();
             resizer->setActive(QWidgetResizeHandler::Resize, true);
