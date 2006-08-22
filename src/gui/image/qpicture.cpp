@@ -60,6 +60,9 @@
     \skipto QPicture
     \printuntil save
 
+    Note that the list of painter commands is reset on each call to
+    the QPainter::begin() function.
+
     Example of how to replay a picture:
     \quotefromfile snippets/picture/picture.cpp
     \skipto REPLAY
