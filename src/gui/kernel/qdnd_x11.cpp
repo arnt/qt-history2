@@ -1157,9 +1157,14 @@ void QDragManager::timerEvent(QTimerEvent* e)
         move(QCursor::pos());
     } else if (e->timerId() == transaction_expiry_timer) {
         for (int i = 0; i < X11->dndDropTransactions.count(); ++i) {
-            X11->dndDropTransactions.at(i).object->deleteLater();
+            const QXdndDropTransaction &t = X11->dndDropTransactions.at(i);
+            if (t.targetWidget) {
+                // dnd within the same process, don't delete these
+                continue;
+            }
+            t.object->deleteLater();
+            X11->dndDropTransactions.removeAt(i--);
         }
-        X11->dndDropTransactions.clear();
 
         killTimer(transaction_expiry_timer);
         transaction_expiry_timer = -1;
@@ -1578,6 +1583,7 @@ void QDragManager::drop()
         X11->time,
         qt_xdnd_current_target,
         qt_xdnd_current_proxy_target,
+        w,
         current_embedding_widget,
         object
     };

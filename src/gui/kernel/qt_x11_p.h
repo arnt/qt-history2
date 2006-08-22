@@ -221,6 +221,7 @@ extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 
 #ifdef QT_MITSHM
+
 #  include <X11/extensions/XShm.h>
 #endif // QT_MITSHM
 
@@ -247,6 +248,7 @@ struct QXdndDropTransaction
     Time timestamp;
     Window target;
     Window proxy_target;
+    QWidget *targetWidget;
     QWidget *embedding_widget;
     QDrag *object;
 };
