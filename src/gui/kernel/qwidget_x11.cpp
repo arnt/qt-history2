@@ -618,9 +618,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XChangeProperty(dpy, id, ATOM(_NET_WM_PID), XA_CARDINAL, 32, PropModeReplace,
                         (unsigned char *) &curr_pid, 1);
 
-        // when we create a toplevel widget, the frame strut should be dirty
-        data.fstrut_dirty = 1;
-
         // declare the widget's object name as window role
         QByteArray objName = q->objectName().toLocal8Bit();
         XChangeProperty(dpy, id,
@@ -631,11 +628,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XChangeProperty(dpy, id, ATOM(WM_CLIENT_LEADER),
                         XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&X11->wm_client_leader, 1);
-    } else {
-        // non-toplevel widgets don't have a frame, so no need to
-        // update the strut
-        data.fstrut_dirty = 0;
     }
+
+    // a new widget has no frame yet
+    if (QTLWExtra *topData = maybeTopData())
+        topData->frameStrut.setCoords(0 ,0, 0, 0);
+    data.fstrut_dirty = false;
 
     if (initializeWindow) {
         // don't erase when resizing
@@ -820,7 +818,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         topData->waitingForMapNotify = 0;
         topData->validWMState = 0;
     }
-    data.fstrut_dirty = (!parent || (f & Qt::Window)); // toplevels get a dirty framestrut
 
     QObjectPrivate::setParent_helper(parent);
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
@@ -1640,7 +1637,6 @@ void QWidgetPrivate::show_sys()
             qt_x11_wait_for_window_manager(q);
 
             // if the wm was not smart enough to adjust our size, do that manually
-            data.fstrut_dirty = true;
             QRect maxRect = QApplication::desktop()->availableGeometry(q);
 
             QTLWExtra *top = topData();
@@ -1748,9 +1744,9 @@ void QWidgetPrivate::hide_sys()
             const QRect fs = x->frameStrut;
             data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
                                               data.crect.y() - fs.top()));
-            // zero the frame strut and mark it dirty
+            // zero the frame strut and mark it clean
             x->frameStrut.setCoords(0, 0, 0, 0);
-            data.fstrut_dirty = true;
+            data.fstrut_dirty = false;
         }
 
         XFlush(X11->display);
@@ -2501,7 +2497,7 @@ void QWidgetPrivate::updateFrameStrut()
                                wattr.border_width);
     }
 
-   data.fstrut_dirty = 0;
+   data.fstrut_dirty = false;
 }
 
 void QWidget::setWindowOpacity(qreal opacity)

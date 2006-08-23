@@ -915,7 +915,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     Q_UNUSED(desktopWidget);
 #endif
 
-    data.fstrut_dirty = 1;
+    data.fstrut_dirty = false;
 
     data.winid = 0;
     data.widget_attributes = 0;
@@ -4881,6 +4881,7 @@ void QWidgetPrivate::show_helper()
     QAccessible::updateAccessibility(q, 0, QAccessible::ObjectShow);
 #endif
 
+    data.fstrut_dirty = true;
     data.in_show = false;  // reset qws optimization
 }
 
@@ -5858,7 +5859,7 @@ bool QWidget::event(QEvent *event)
 #endif
     case QEvent::EmbeddingControl:
         d->topData()->frameStrut.setCoords(0 ,0, 0, 0);
-        data->fstrut_dirty = 0;
+        data->fstrut_dirty = false;
         break;
 #ifndef QT_NO_ACTION
     case QEvent::ActionAdded:
