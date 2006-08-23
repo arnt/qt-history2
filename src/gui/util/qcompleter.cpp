@@ -17,8 +17,8 @@
     \since 4.2
 
     You can use QCompleter to provide auto completions in any Qt
-    widget (e.g. QLineEdit, QComboBox or QTextEdit). When the user
-    starts typing a word, QCompleter suggests possible ways of
+    widget, such as QLineEdit and QComboBox.
+    When the user starts typing a word, QCompleter suggests possible ways of
     completing the word, based on a word list. The word list is
     provided as a QAbstractItemModel. (For simple applications, where
     the word list is static, you can pass a QStringList to
@@ -28,9 +28,9 @@
 
     \section1 Basic Usage
 
-    A QCompleter is used typically with a QLineEdit, QComboBox or a
-    QTextEdit. For example, here's how to provide auto completions
-    from a simple word list in a QLineEdit:
+    A QCompleter is used typically with a QLineEdit or QComboBox.
+    For example, here's how to provide auto completions from a simple
+    word list in a QLineEdit:
 
     \code
         QStringList wordList;
