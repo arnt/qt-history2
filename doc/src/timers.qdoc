@@ -43,10 +43,11 @@
     \printline connect(
     \printline start(1000
 
-    The QTimer object is made into a child of this widget, so that
-    when this widget is deleted, the timer is deleted too. Next, its
-    timeout signal is connected to the slot that will do the work,
-    and finally it's started.
+    The QTimer object is made into a child of this widget so that,
+    when this widget is deleted, the timer is deleted too.
+    Next, its \l{QTimer::}{timeout()} signal is connected to the slot
+    that will do the work, it is started with a value of 1000
+    milliseconds, indicating that it will time out every second.
 
     QTimer also provides a static function for single-shot timers.
     For example:
