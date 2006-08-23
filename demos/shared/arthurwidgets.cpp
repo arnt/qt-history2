@@ -298,6 +298,7 @@ void ArthurFrame::showSource()
     sourceViewer->setWindowTitle("Source: " + m_sourceFileName.mid(5));
     sourceViewer->setParent(this, Qt::Dialog);
     sourceViewer->setAttribute(Qt::WA_DeleteOnClose);
+    sourceViewer->setLineWrapMode(QTextEdit::NoWrap);
     sourceViewer->setHtml(html);
     sourceViewer->resize(600, 600);
     sourceViewer->show();
