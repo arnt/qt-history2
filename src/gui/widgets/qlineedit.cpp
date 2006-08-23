@@ -1802,14 +1802,18 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 break;
 #endif
 #if defined(Q_WS_X11)
-        case Qt::Key_U:
-            if (!d->readOnly) {
-                setSelection(0, d->text.size());
+            case Qt::Key_E:
+                end(0);
+                break;     
+                   
+            case Qt::Key_U:
+                if (!d->readOnly) {
+                    setSelection(0, d->text.size());
 #ifndef QT_NO_CLIPBOARD
-                copy();
+                    copy();
 #endif
-                del();
-            }
+                    del();
+                }
             break;
 #endif
             default:
