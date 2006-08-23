@@ -1821,7 +1821,7 @@ private:
     int m_y;
     enum Child {
         X = 1,
-        Y = 2,
+        Y = 2
     };
 
     DomPoint(const DomPoint &other);
