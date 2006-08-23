@@ -15,7 +15,7 @@
 
 #include <QtGui>
 
-#include <cmath>
+#include <math.h>
 
 static const int MouseCount = 7;
 
