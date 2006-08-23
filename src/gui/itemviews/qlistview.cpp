@@ -517,7 +517,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
         const bool above = (hint == EnsureVisible && rect.top() < area.top());
         const bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
         int verticalValue = verticalScrollBar()->value();
-        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
+        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
             const QListViewItem item = d->indexToListViewItem(index);
             const int itemIndex = d->itemIndex(item);
             verticalValue = qBound(0, verticalValue, d->flowPositions.count() - 1);
@@ -554,7 +554,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
                              : (rect.right() > area.right()) && (rect.left() > area.left());
         int horizontalValue = horizontalScrollBar()->value();
 
-        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
+        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
             const QListViewItem item = d->indexToListViewItem(index);
             const int itemIndex = d->itemIndex(item);
             horizontalValue = qBound(0, horizontalValue, d->flowPositions.count() - 1);
