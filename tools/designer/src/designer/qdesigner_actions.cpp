@@ -44,6 +44,8 @@
 #include <QtCore/QBuffer>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
+#include <QtCore/QTimer>
+#include <QtXml/QDomDocument>
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
@@ -352,6 +354,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
     fixActionContext();
     activeFormWindowChanged(core()->formWindowManager()->activeFormWindow());
+
+    m_backupTimer = new QTimer(this);
+    m_backupTimer->start(180000); // 3min
+    connect(m_backupTimer, SIGNAL(timeout()), this, SLOT(backupForms()));
 }
 
 QDesignerActions::~QDesignerActions()
@@ -684,7 +690,8 @@ static QSize checkSize(const QSize &size)
 bool QDesignerActions::readInForm(const QString &fileName)
 {
     QString fn = fileName;
-    if (QFileInfo(fn).suffix() != QLatin1String("ui"))
+    QString suffix = QFileInfo(fn).suffix();
+    if (suffix != QLatin1String("ui") && suffix != QLatin1String("bak"))
         fn.append(QLatin1String(".ui"));
 
     // First make sure that we don't have this one open already.
@@ -769,7 +776,8 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
         backupFile = createBackup(saveFile);
 
     QByteArray utf8Array = fw->contents().toUtf8();
-
+    m_workbench->updateBackup(fw);
+    
     QFile f(saveFile);
     while (!f.open(QFile::WriteOnly)) {
         QMessageBox box(tr("Save Form?"),
@@ -1082,4 +1090,102 @@ void QDesignerActions::showFormSettings()
         formWindow->setDirty(true);
         window->updateChanged();
     }
+}
+
+void QDesignerActions::backupForms()
+{
+    int count = m_workbench->formWindowCount();
+    if (!count)
+        return;
+
+    QString backupPath = QDir::convertSeparators(QDir::homePath() + QDir::separator() 
+                       + QLatin1String(".designer") + QDir::separator() + QLatin1String("backup"));
+    QString backupTmpPath = QDir::convertSeparators(backupPath + QDir::separator() + QLatin1String("tmp"));
+
+    QDir backupDir(backupPath);
+    QDir backupTmpDir(backupTmpPath);
+    if (!backupDir.exists()) backupDir.mkpath(backupPath);
+    if (!backupTmpDir.exists()) backupTmpDir.mkpath(backupTmpPath);
+
+    QStringList tmpFiles;
+    QMap<QString, QString> backupMap;
+    for (int i = 0; i < count; ++i) {
+        QDesignerFormWindow *fw = m_workbench->formWindow(i);
+        QDesignerFormWindowInterface *fwi = fw->editor();
+
+        QString formBackupName;
+        QTextStream(&formBackupName) << backupPath << QDir::separator() 
+                                     << QLatin1String("backup") << i << QLatin1String(".bak");
+
+        QString fwn = QDir::convertSeparators(fwi->fileName());
+        if (fwn.isEmpty())
+            fwn = fw->windowTitle();
+
+        backupMap.insert(fwn, formBackupName);
+
+        QFile file(formBackupName.replace(backupPath, backupTmpPath));
+        if (file.open(QFile::WriteOnly)){
+            QByteArray utf8Array = fixResourceFileBackupPath(fwi, backupDir).toUtf8();
+            if (file.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
+                backupMap.remove(fwn);
+                qDebug() << "Could not write backup file:" << file.fileName();
+            } else
+                tmpFiles.append(formBackupName);
+
+            file.close();
+        }
+    }
+
+    if(!tmpFiles.isEmpty()) {
+        QStringList backupFiles = backupDir.entryList(QDir::Files);
+        if(!backupFiles.isEmpty()) {
+            QStringListIterator it(backupFiles);
+            while (it.hasNext())
+                backupDir.remove(it.next());
+        }
+
+        QString name;
+        QStringListIterator it(tmpFiles);
+        while (it.hasNext()) {
+            name = it.next();
+            QFile file(name);
+            file.copy(name.replace(backupTmpPath, backupPath));
+            file.remove();
+        }
+        
+        QDesignerSettings().setBackup(backupMap);
+    }
+}
+
+QString QDesignerActions::fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir)
+{
+    QString content = fwi->contents();
+    QDomDocument domDoc("backup");
+    if(!domDoc.setContent(content))
+        return content;
+
+    QDomNodeList list = domDoc.elementsByTagName(QLatin1String("resources"));
+    if (list.isEmpty())
+        return content;
+
+    for (int i = 0; i < list.count(); i++) {
+        QDomNode node = list.at(i);
+        if (!node.isNull()) {
+            QDomElement element = node.toElement();
+            if(!element.isNull() && element.tagName() == QLatin1String("resources")) {
+                QDomNode childNode = element.firstChild();
+                while (!childNode.isNull()) {
+                    QDomElement childElement = childNode.toElement();
+                    if(!childElement.isNull() && childElement.tagName() == QLatin1String("include")) {
+                        QString attr = childElement.attribute(QLatin1String("location"));
+                        QString path = fwi->absoluteDir().absoluteFilePath(attr);
+                        childElement.setAttribute(QLatin1String("location"), backupDir.relativeFilePath(path));
+                    }
+                    childNode = childNode.nextSibling();
+                }
+            }
+        }
+    }
+    
+    return domDoc.toString();
 }

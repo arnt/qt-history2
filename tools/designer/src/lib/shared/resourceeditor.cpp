@@ -682,7 +682,7 @@ void ResourceEditor::updateQrcPaths()
 {
     for (int i = 0; i < m_qrc_stack->count(); ++i) {
         ResourceModel *model = this->model(i);
-        m_qrc_combo->setItemText(i, model->fileName());
+        m_qrc_combo->setItemText(i, QDir(model->fileName()).absolutePath());
     }
 
     updateUi();

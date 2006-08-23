@@ -195,3 +195,35 @@ void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
     setValue(QLatin1String("MainWindowState"), mainWindowState);
 }
 
+void QDesignerSettings::clearBackup()
+{
+    remove("backup/fileListOrg");
+    remove("backup/fileListBak");
+}
+
+void QDesignerSettings::setBackup(const QMap<QString, QString> &map)
+{
+    QMapIterator<QString, QString> it(map);
+    QStringList org, bak;
+    while (it.hasNext()) {
+        it.next();
+        bak.append(it.value());
+        org.append(it.key());
+    }
+
+    setValue(QLatin1String("backup/fileListOrg"), org);
+    setValue(QLatin1String("backup/fileListBak"), bak);
+}
+
+QMap<QString, QString> QDesignerSettings::backup() const
+{
+    QStringList org, bak;
+    org = value(QLatin1String("backup/fileListOrg"), QStringList()).toStringList();
+    bak = value(QLatin1String("backup/fileListBak"), QStringList()).toStringList();
+    
+    QMap<QString, QString> map;
+    for (int i = 0; i < org.count(); ++i)
+        map.insert(org.at(i), bak.at(i));
+
+    return map;
+}

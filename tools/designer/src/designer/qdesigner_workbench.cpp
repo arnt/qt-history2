@@ -58,12 +58,14 @@ QDesignerWorkbench::QDesignerWorkbench()
 
 QDesignerWorkbench::~QDesignerWorkbench()
 {
+    QDesignerSettings settings;
+    settings.clearBackup();
+
     if (m_mode == DockedMode) {
         Q_ASSERT(m_workspace != 0);
         QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
         Q_ASSERT(mw != 0);
 
-        QDesignerSettings settings;
         settings.setMainWindowState(mw->saveState(2));
     }
 
@@ -656,6 +658,7 @@ void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
 
 void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 {
+    updateBackup(formWindow->editor());
     int index = m_formWindows.indexOf(formWindow);
     if (index != -1) {
         m_formWindows.removeAt(index);
@@ -856,4 +859,43 @@ QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
 
     QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->objectName() + QLatin1String("_dock"));
     return dockWidget;
+}
+
+bool QDesignerWorkbench::readInBackup()
+{
+    QMap<QString, QString> backupFileMap;
+    backupFileMap = QDesignerSettings().backup();
+    if(!backupFileMap.isEmpty()) {
+        if (QMessageBox::question(0, tr("Backup Information"), 
+                                    tr("Designer was not correctly terminated during your last session."
+                                       "There are existing Backup files, do you wan't to load them?"),
+                                    tr("&Yes"), tr("&No"), QString(), 0, 1) == 0) 
+        {
+            QMapIterator<QString, QString> it(backupFileMap);
+            while(it.hasNext()) {
+                it.next();
+
+                QString fileName = it.key();
+                fileName.replace(QLatin1String("[*]"), QString());
+
+                if(m_actionManager->readInForm(it.value())) {
+                    formWindowManager()->activeFormWindow()->setFileName(fileName);
+                }
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void QDesignerWorkbench::updateBackup(QDesignerFormWindowInterface* fwi)
+{
+    QString fwn = QDir::convertSeparators(fwi->fileName());
+    if (fwn.isEmpty())
+        fwn = fwi->parentWidget()->windowTitle();
+
+    QMap<QString, QString> map = QDesignerSettings().backup();
+    map.remove(fwn);
+    QDesignerSettings().setBackup(map);
 }

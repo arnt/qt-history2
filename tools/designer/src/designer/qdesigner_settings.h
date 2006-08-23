@@ -14,6 +14,7 @@
 #ifndef QDESIGNER_SETTINGS_H
 #define QDESIGNER_SETTINGS_H
 
+#include <QtCore/Qmap>
 #include <QtCore/QRect>
 #include <QtCore/QSettings>
 
@@ -42,6 +43,10 @@ public:
 
     QByteArray mainWindowState() const;
     void setMainWindowState(const QByteArray &mainWindowState);
+
+    void clearBackup();
+    void setBackup(const QMap<QString, QString> &map);
+    QMap<QString, QString> backup() const;
 
 private:
     QStringList defaultFormTemplatePaths() const;

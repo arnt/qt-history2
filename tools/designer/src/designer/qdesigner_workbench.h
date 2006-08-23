@@ -87,6 +87,8 @@ public:
     bool saveForm(QDesignerFormWindowInterface *fw);
     bool handleClose();
     void closeAllToolWindows();
+    bool readInBackup();
+    void updateBackup(QDesignerFormWindowInterface* fwi);
 
 signals:
     void modeChanged(UIMode mode);

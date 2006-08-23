@@ -118,6 +118,8 @@ void QDesigner::initialize()
 
     emit initialized();
 
+    suppressNewFormShow = m_workbench->readInBackup();
+
     foreach (QString file, files) {
         if (m_workbench->readInForm(file) && !suppressNewFormShow)
             suppressNewFormShow = true;

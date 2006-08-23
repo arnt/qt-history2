@@ -21,6 +21,7 @@
 class QDesignerMainWindow;
 class QDesignerWorkbench;
 
+class QTimer;
 class QAction;
 class QActionGroup;
 class QDesignerFormEditorInterface;
@@ -140,6 +141,7 @@ private slots:
     void updateUIMode(QAction *act);
     void showWidgetSpecificHelp();
     void showFormSettings();
+    void backupForms();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -147,6 +149,7 @@ private:
     void updateRecentFileActions();
     void addRecentFile(const QString &fileName);
     void showHelp(const QString &help);
+    QString fixResourceFileBackupPath(QDesignerFormWindowInterface *fwi, const QDir& backupDir);
 
 private:
     enum { MaxRecentFiles = 10 };
@@ -155,7 +158,8 @@ private:
     QAssistantClient *m_assistantClient;
     QString m_openDirectory;
     QString m_saveDirectory;
-
+    QTimer* m_backupTimer;
+    
     QActionGroup *m_fileActions;
     QActionGroup *m_recentFilesActions;
     QActionGroup *m_editActions;
