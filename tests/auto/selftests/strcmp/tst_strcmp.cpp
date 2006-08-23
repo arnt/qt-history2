@@ -21,7 +21,7 @@ private slots:
 
 void tst_StrCmp::compare_charstars()
 {
-    QCOMPARE("foo", "foo");
+    QCOMPARE((const char *)"foo", (const char *)"foo");
 
     const char *str1 = "foo";
     QCOMPARE("foo", str1);
@@ -36,8 +36,8 @@ void tst_StrCmp::compare_charstars()
     QCOMPARE(str2, str1);
 
     const char str3[] = "foo";
-    QCOMPARE(str3, "foo");
-    QCOMPARE("foo", str3);
+    QCOMPARE((const char *)str3, "foo");
+    QCOMPARE("foo", (const char *)str3);
     QCOMPARE((const char *)str3, str1);
     QCOMPARE((const char *)str3, str2);
     QCOMPARE(str1, (const char *)str3);
