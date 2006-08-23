@@ -34,19 +34,32 @@ void Client::sendMessage(const QString &message)
     if (message.isEmpty())
         return;
 
-    QHashIterator<QHostAddress, Connection *> it(peers);
-    while (it.hasNext())
-        it.next().value()->sendMessage(message);
+    QList<Connection *> connections = peers.values();
+    foreach (Connection *connection, connections)
+        connection->sendMessage(message);
 }
 
 QString Client::nickName() const
 {
-    return QString(peerManager->userName());
+    return QString(peerManager->userName()) + "@" + QHostInfo::localHostName()
+           + ":" + QString::number(server.serverPort());
 }
 
-bool Client::hasConnection(const QHostAddress &senderIp) const
+bool Client::hasConnection(const QHostAddress &senderIp, int senderPort) const
 {
-    return peers.contains(senderIp);
+    if (senderPort == -1)
+        return peers.contains(senderIp);
+
+    if (!peers.contains(senderIp))
+        return false;
+
+    QList<Connection *> connections = peers.values(senderIp);
+    foreach (Connection *connection, connections) {
+        if (connection->peerPort() == senderPort)
+            return true;
+    }
+
+    return false;
 }
 
 void Client::newConnection(Connection *connection)
@@ -62,7 +75,8 @@ void Client::newConnection(Connection *connection)
 void Client::readyForUse()
 {
     Connection *connection = qobject_cast<Connection *>(sender());
-    if (!connection || peers.contains(connection->peerAddress()))
+    if (!connection || hasConnection(connection->peerAddress(),
+                                     connection->peerPort()))
         return;
 
     connect(connection, SIGNAL(newMessage(const QString &, const QString &)),

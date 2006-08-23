@@ -47,7 +47,8 @@ PeerManager::PeerManager(Client *client)
     updateAddresses();
     serverPort = 0;
 
-    broadcastSocket.bind(QHostAddress::Any, broadcastPort);
+    broadcastSocket.bind(QHostAddress::Any, broadcastPort, QUdpSocket::ShareAddress
+                         | QUdpSocket::ReuseAddressHint);
     connect(&broadcastSocket, SIGNAL(readyRead()),
             this, SLOT(readBroadcastDatagram()));
 
@@ -69,6 +70,15 @@ QByteArray PeerManager::userName() const
 void PeerManager::startBroadcasting()
 {
     broadcastTimer.start();
+}
+
+bool PeerManager::isLocalHostAddress(const QHostAddress &address)
+{
+    foreach (QHostAddress localAddress, ipAddresses) {
+        if (address == localAddress)
+            return true;
+    }
+    return false;
 }
 
 void PeerManager::sendBroadcastDatagram()
@@ -99,23 +109,18 @@ void PeerManager::readBroadcastDatagram()
                                          &senderIp, &senderPort) == -1)
             continue;
 
-        bool isPackageFromMe = false;
-        foreach (QHostAddress ip, ipAddresses) {
-            if (ip == senderIp) {
-                isPackageFromMe = true;
-                break;
-            }
-        }
+        QList<QByteArray> list = datagram.split('@');
+        if (list.size() != 2)
+            continue;
 
-        if (!isPackageFromMe && !client->hasConnection(senderIp)) {
-            QList<QByteArray> list = datagram.split('@');
-            if (list.size() != 2)
-                continue;
+        int senderServerPort = list.at(1).toInt();
+        if (isLocalHostAddress(senderIp) && senderServerPort == serverPort)
+            continue;
 
+        if (!client->hasConnection(senderIp)) {
             Connection *connection = new Connection(this);
-            connection->setName(list.at(0));
             emit newConnection(connection);
-            connection->connectToHost(senderIp, list.at(1).toInt());
+            connection->connectToHost(senderIp, senderServerPort);
         }
     }
 }

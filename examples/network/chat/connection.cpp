@@ -23,7 +23,7 @@ static const char SeparatorToken = ' ';
 Connection::Connection(QObject *parent)
     : QTcpSocket(parent)
 {
-    greetingMessage = tr("not defined");
+    greetingMessage = tr("undefined");
     username = tr("unknown");
     state = WaitingForGreeting;
     currentDataType = Undefined;
@@ -37,11 +37,6 @@ Connection::Connection(QObject *parent)
     QObject::connect(&pingTimer, SIGNAL(timeout()), this, SLOT(sendPing()));
     QObject::connect(this, SIGNAL(connected()),
                      this, SLOT(sendGreetingMessage()));
-}
-
-void Connection::setName(const QString &name)
-{
-    username = name;
 }
 
 QString Connection::name() const
@@ -95,7 +90,8 @@ void Connection::processReadyRead()
             return;
         }
 
-        username = QString(buffer);
+        username = QString(buffer) + "@" + peerAddress().toString() + ":"
+                   + QString::number(peerPort());
         currentDataType = Undefined;
         numBytesForCurrentDataType = 0;
         buffer.clear();

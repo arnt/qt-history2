@@ -31,11 +31,11 @@ private slots:
     void returnPressed();
     void newParticipant(const QString &nick);
     void participantLeft(const QString &nick);
+    void showInformation();
 
 private:
     Client client;
     QString myNickName;
-    QHash<QString, int> nickNames;
     QTextTableFormat tableFormat;
 };
 

@@ -42,9 +42,7 @@ public:
 
     Connection(QObject *parent = 0);
 
-    void setName(const QString &name);
     QString name() const;
-
     void setGreetingMessage(const QString &message);
     bool sendMessage(const QString &message);
 

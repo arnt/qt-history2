@@ -33,6 +33,7 @@ public:
     void setServerPort(int port);
     QByteArray userName() const;
     void startBroadcasting();
+    bool isLocalHostAddress(const QHostAddress &address);
 
 signals:
     void newConnection(Connection *connection);
