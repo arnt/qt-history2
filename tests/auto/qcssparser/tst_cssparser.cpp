@@ -50,7 +50,11 @@ void tst_CssParser::scanner_data()
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("output");
 
+#ifndef Q_OS_IRIX
     QDir d(SRCDIR);
+#else
+    QDir d(QDir::current());
+#endif    
     d.cd("testdata");
     d.cd("scanner");
     foreach (QFileInfo test, d.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
