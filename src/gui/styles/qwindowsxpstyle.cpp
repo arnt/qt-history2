@@ -89,6 +89,9 @@
 #ifndef TMT_BGTYPE
 #  define TMT_BGTYPE 4001
 #endif
+#ifndef TMT_TEXTSHADOWTYPE
+#    define TMT_TEXTSHADOWTYPE 4010
+#endif
 #ifndef BT_IMAGEFILE
 #  define BT_IMAGEFILE 0
 #endif
