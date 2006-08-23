@@ -525,7 +525,7 @@ bool QX11Data::clipboardReadProperty(Window win, Atom property, bool deletePrope
 
         // zero-terminate (for text)
         if (nullterm)
-            buffer[buffer_offset] = '\0';
+            buffer->data()[buffer_offset] = '\0';
     }
 
     // correct size, not 0-term.
