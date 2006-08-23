@@ -223,8 +223,10 @@ public:
     QGraphicsView::ViewportAnchor resizeAnchor;
 
     QGraphicsScene *scene;
+#ifndef QT_NO_RUBBERBAND
     QRubberBand *rubberBand;
     bool rubberBanding;
+#endif
     bool handScrolling;
 
     QGraphicsView::CacheMode cacheMode;
@@ -257,7 +259,10 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       transformationAnchor(QGraphicsView::AnchorViewCenter), resizeAnchor(QGraphicsView::NoAnchor),
-      scene(0), rubberBand(0), rubberBanding(false),
+      scene(0),
+#ifndef QT_NO_RUBBERBAND
+      rubberBand(0), rubberBanding(false),
+#endif
       handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
       hasViewCursor(false),
@@ -2112,14 +2117,16 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
         if (mouseEvent.isAccepted())
             return;
     }
-
+#ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (!d->scene) {
             d->rubberBanding = true;
         } else if ((d->rubberBanding = !d->scene->itemAt(d->mousePressScenePoint))) {
             d->scene->clearSelection();
         }
-    } else if (d->dragMode == QGraphicsView::ScrollHandDrag
+    } else
+#endif
+        if (d->dragMode == QGraphicsView::ScrollHandDrag
                && event->button() == Qt::LeftButton) {
         d->handScrolling = true;
 #ifndef QT_NO_CURSOR
@@ -2140,7 +2147,8 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     Q_D(QGraphicsView);
     if (!d->sceneInteractionAllowed)
         return;
-    
+
+#ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         d->storeMouseEvent(event);
         if (d->rubberBanding) {
@@ -2163,7 +2171,9 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
                 d->rubberBand->show();
             return;
         }
-    } else if (d->dragMode == QGraphicsView::ScrollHandDrag) {
+    } else
+#endif // QT_NO_RUBBERBAND
+    if (d->dragMode == QGraphicsView::ScrollHandDrag) {
         if (d->handScrolling) {
             QScrollBar *hBar = horizontalScrollBar();
             QScrollBar *vBar = verticalScrollBar();
@@ -2226,6 +2236,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     if (!d->sceneInteractionAllowed)
         return;
 
+#ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (d->rubberBanding) {
             // Withdraw El Rubber
@@ -2234,7 +2245,9 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
             d->rubberBanding = false;
             return;
         }
-    } else if (d->dragMode == QGraphicsView::ScrollHandDrag) {
+    } else
+#endif
+    if (d->dragMode == QGraphicsView::ScrollHandDrag) {
 #ifndef QT_NO_CURSOR
         if (d->hasViewCursor) {
             d->hasViewCursor = false;

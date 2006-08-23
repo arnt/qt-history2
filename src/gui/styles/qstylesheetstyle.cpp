@@ -1285,6 +1285,7 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
         case PseudoElement_SpinBoxDownButton:
         case PseudoElement_SpinBoxUpArrow:
         case PseudoElement_SpinBoxDownArrow:
+#ifndef QT_NO_SPINBOX
             if (const QStyleOptionSpinBox *sb = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
                 bool on = false;
                 bool up = pseudoElement == PseudoElement_SpinBoxUpButton
@@ -1295,6 +1296,7 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
                     on = true;
                 state |= (on ? QStyle::State_On : QStyle::State_Off);
             }
+#endif // QT_NO_SPINBOX
             break;
         case PseudoElement_None:
         default:
