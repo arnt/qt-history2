@@ -162,3 +162,17 @@ Qt::DropActions PiecesModel::supportedDropActions() const
 {
     return Qt::CopyAction | Qt::MoveAction;
 }
+
+void PiecesModel::addPieces(const QPixmap& pixmap)
+{
+    beginRemoveRows(QModelIndex(), 0, 24);
+    pixmaps.clear();
+    locations.clear();
+    endRemoveRows();
+    for (int y = 0; y < 5; ++y) {
+        for (int x = 0; x < 5; ++x) {
+            QPixmap pieceImage = pixmap.copy(x*80, y*80, 80, 80);
+            addPiece(pieceImage, QPoint(x, y));
+        }
+    }
+}

@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setupMenus();
     setupWidgets();
+    model = new PiecesModel(this);
+    piecesList->setModel(model);
 
     setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     setWindowTitle(tr("Puzzle"));
@@ -66,20 +68,9 @@ void MainWindow::setupPuzzle()
         (puzzleImage.height() - size)/2, size, size).scaled(400,
             400, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-    QAbstractItemModel *oldModel = piecesList->model();
-    PiecesModel *newModel = new PiecesModel(this);
-    piecesList->setModel(newModel);
-    delete oldModel;
-
     qsrand(QCursor::pos().x() ^ QCursor::pos().y());
 
-    for (int y = 0; y < 5; ++y) {
-        for (int x = 0; x < 5; ++x) {
-            QPixmap pieceImage = puzzleImage.copy(x*80, y*80, 80, 80);
-            newModel->addPiece(pieceImage, QPoint(x, y));
-        }
-    }
-
+    model->addPieces(puzzleImage);
     puzzleWidget->clear();
 }
 
@@ -109,7 +100,7 @@ void MainWindow::setupWidgets()
 
     piecesList = new QListView;
     piecesList->setDragEnabled(true);
-    piecesList->setViewMode(QListView::IconMode);
+//    piecesList->setViewMode(QListView::IconMode);
     piecesList->setIconSize(QSize(60, 60));
     piecesList->setGridSize(QSize(80, 80));
     piecesList->setSpacing(10);

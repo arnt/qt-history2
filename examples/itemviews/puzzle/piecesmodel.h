@@ -41,6 +41,7 @@ public:
     Qt::DropActions supportedDropActions() const;
 
     void addPiece(const QPixmap &pixmap, const QPoint &location);
+    void addPieces(const QPixmap& pixmap);
 
 private:
     QList<QPoint> locations;
