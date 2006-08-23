@@ -254,9 +254,12 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setOpenExternalLinks(true);
+#ifndef Q_WS_MAC
     label->setContentsMargins(2, 7, 0, 6);
     label->setIndent(9);
-
+#else
+    label->setContentsMargins(10, 0, 0, 10);
+#endif
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel;
     iconLabel->setObjectName(QLatin1String("qt_msgboxex_icon_label"));
@@ -269,14 +272,22 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
                      q, SLOT(_q_buttonClicked(QAbstractButton*)));
 
     QGridLayout *grid = new QGridLayout;
+#ifndef Q_WS_MAC
     grid->addWidget(iconLabel, 0, 0, 3, 1, Qt::AlignTop);
     grid->addWidget(label, 0, 1, 1, 1);
     // -- leave space for information label --
-#ifdef Q_OS_MAC
-    grid->addWidget(buttonBox, 3, 1, 1, 2);
-#else
     grid->addWidget(buttonBox, 2, 0, 1, 2);
+#else
+    grid->setMargin(0);
+    grid->setSpacing(0);
+    buttonBox->layout()->setMargin(0);
+    q->setContentsMargins(28, 15, 18, 13);
+    grid->addWidget(iconLabel, 0, 0, 2, 1, Qt::AlignTop);
+    grid->addWidget(label, 0, 1, 1, 1);
+    // -- leave space for information label --
+    grid->addWidget(buttonBox, 2, 1, 1, 1);
 #endif
+
     grid->setSizeConstraint(QLayout::SetNoConstraint);
     q->setLayout(grid);
 
@@ -287,7 +298,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     q->setModal(true);
 
     q->ensurePolished(); // get the right font
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     QFont f = q->font();
     f.setBold(true);
     label->setFont(f);
@@ -324,7 +335,11 @@ void QMessageBoxPrivate::updateSize()
     Q_Q(QMessageBox);
 
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
+#ifndef Q_WS_MAC
     int softLimit = qMin(screenSize.width()/2, 500); 
+#else
+    int softLimit = qMin(screenSize.width()/2, 450); 
+#endif
     int hardLimit = qMin(4 * screenSize.width()/5, 1000); // can never get bigger than this
 
     if (informativeLabel)
@@ -1882,7 +1897,9 @@ void QMessageBox::setInformativeText(const QString &text)
         layout()->removeWidget(d->informativeLabel);
         delete d->informativeLabel;
         d->informativeLabel = 0;
+#ifndef Q_WS_MAC
         d->label->setContentsMargins(2, 7, 0, 6);
+#endif
         return;
     }
 
@@ -1892,17 +1909,19 @@ void QMessageBox::setInformativeText(const QString &text)
         label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
         label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
         label->setOpenExternalLinks(true);
+#ifndef Q_WS_MAC
         d->label->setContentsMargins(2, 7, 0, 0);
         label->setContentsMargins(2, 0, 0, 6);
         label->setIndent(9);
-        label->setWordWrap(true);
-        QGridLayout *grid = static_cast<QGridLayout *>(layout());
-        grid->addWidget(label, 1, 1, 1, 1);
-#ifdef Q_OS_MAC
+#else
+        label->setContentsMargins(10, 0, 0, 15);
         // apply a smaller font the information label on the mac
         extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
         label->setFont(qt_app_fonts_hash()->value("QTipLabel"));
 #endif
+        label->setWordWrap(true);
+        QGridLayout *grid = static_cast<QGridLayout *>(layout());
+        grid->addWidget(label, 1, 1, 1, 1);
         d->informativeLabel = label;
     }
     d->informativeLabel->setText(text);
