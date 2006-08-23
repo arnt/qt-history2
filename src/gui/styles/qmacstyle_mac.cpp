@@ -34,6 +34,7 @@
 #include <qheaderview.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+#include <qlistview.h>
 #include <qmainwindow.h>
 #include <qmap.h>
 #include <qmenubar.h>
@@ -747,8 +748,9 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
             (qobject_cast<const QAbstractSpinBox *>(w))
              || (le && qobject_cast<const QAbstractSpinBox*>(le->parentWidget()))
              || (le && !le->isReadOnly() && !qobject_cast<const QComboBox *>(le->parentWidget()))
+             || qobject_cast<const QListView *>(w) || qobject_cast<const QTreeView *>(w)
 #ifdef QT3_SUPPORT
-             || w->inherits("QListBox") || w->inherits("QListView")
+             || w->inherits("Q3ListBox") || w->inherits("Q3ListView")
 #endif
            );
 }
@@ -4537,7 +4539,7 @@ bool QMacStyle::event(QEvent *e)
                 }
             }
 #endif
-            if (!(top && (f->width() < top->width() - 30 || f->height() < top->height() - 40)))
+            if (!(top && (f->width() < top->width() - 5 || f->height() < top->height() - 5)))
                 f = 0;
         }
         if (f) {
