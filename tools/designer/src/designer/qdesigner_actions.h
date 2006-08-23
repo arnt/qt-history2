@@ -21,6 +21,7 @@
 class QDesignerMainWindow;
 class QDesignerWorkbench;
 
+class QDir;
 class QTimer;
 class QAction;
 class QActionGroup;

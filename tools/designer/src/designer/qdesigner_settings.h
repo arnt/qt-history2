@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_SETTINGS_H
 #define QDESIGNER_SETTINGS_H
 
-#include <QtCore/Qmap>
+#include <QtCore/QMap>
 #include <QtCore/QRect>
 #include <QtCore/QSettings>
 
