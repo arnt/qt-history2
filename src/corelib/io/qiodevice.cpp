@@ -631,6 +631,10 @@ bool QIODevice::atEnd() const
     true on success; otherwise returns false (for example, if the
     device is not open).
 
+    Note that when using a QTextStream on a QFile, calling reset() on
+    the QFile will not have the expected result because QTextStream
+    buffers the file. Use the QTextStream::seek() function instead.
+
     \sa seek()
 */
 bool QIODevice::reset()

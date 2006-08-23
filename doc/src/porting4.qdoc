@@ -3756,6 +3756,11 @@
        (formerly \c{IO_Translate}).
     \endlist
 
+    Note that when using a QTextStream on a QFile in Qt 4, calling
+    QIODevice::reset() on the QFile will not have the expected result
+    because QTextStream now buffers the file. Use the
+    QTextStream::seek() function instead.
+
     \section1 QTextView
 
     The \c QTextView class has been renamed Q3TextView and moved to the
