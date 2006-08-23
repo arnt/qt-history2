@@ -258,7 +258,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setContentsMargins(2, 7, 0, 6);
     label->setIndent(9);
 #else
-    label->setContentsMargins(10, 0, 0, 10);
+    label->setContentsMargins(16, 0, 0, 10);
 #endif
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel;
@@ -281,8 +281,8 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     grid->setMargin(0);
     grid->setSpacing(0);
     buttonBox->layout()->setMargin(0);
-    q->setContentsMargins(28, 15, 18, 13);
-    grid->addWidget(iconLabel, 0, 0, 2, 1, Qt::AlignTop);
+    q->setContentsMargins(24, 15, 18, 12);
+    grid->addWidget(iconLabel, 0, 0, 2, 1, Qt::AlignTop | Qt::AlignLeft);
     grid->addWidget(label, 0, 1, 1, 1);
     // -- leave space for information label --
     grid->addWidget(buttonBox, 2, 1, 1, 1);
@@ -338,7 +338,7 @@ void QMessageBoxPrivate::updateSize()
 #ifndef Q_WS_MAC
     int softLimit = qMin(screenSize.width()/2, 500); 
 #else
-    int softLimit = qMin(screenSize.width()/2, 450); 
+    int softLimit = qMin(screenSize.width()/2, 420); 
 #endif
     int hardLimit = qMin(4 * screenSize.width()/5, 1000); // can never get bigger than this
 
@@ -1914,7 +1914,7 @@ void QMessageBox::setInformativeText(const QString &text)
         label->setContentsMargins(2, 0, 0, 6);
         label->setIndent(9);
 #else
-        label->setContentsMargins(10, 0, 0, 15);
+        label->setContentsMargins(16, 0, 0, 10);
         // apply a smaller font the information label on the mac
         extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
         label->setFont(qt_app_fonts_hash()->value("QTipLabel"));
