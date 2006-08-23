@@ -1,6 +1,6 @@
 load(qttest_p4)
 
-SOURCES = tst_crashes.cpp
+SOURCES += tst_crashes.cpp
 QT = core
 
 mac:CONFIG -= app_bundle
