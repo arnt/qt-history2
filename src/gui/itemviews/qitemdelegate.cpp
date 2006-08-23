@@ -931,15 +931,31 @@ QRect QItemDelegate::textRectangle(QPainter * /*painter*/, const QRect &rect,
 }
 
 /*!
-    If the \a object is the current editor: if the \a event is an Esc
-    key press the current edit is cancelled and ended, or if the \a
-    event is an Enter or Return key press the current edit is accepted
-    and ended. If editing is ended the event filter returns true to
-    signify that it has handled the event; in all other cases it does
-    nothing and returns false to signify that the event hasn't been
-    handled.
+    \fn bool QItemDelegate::eventFilter(QObject *editor, QEvent *event)
 
-    \sa closeEditor()
+    Returns true if the given \a editor is a valid QWidget and the
+    given \a event is handled; otherwise returns false. The following
+    key press events are handled by default:
+
+    \list
+        \o \gui Tab
+        \o \gui Backtab
+        \o \gui Enter
+        \o \gui Return
+        \o \gui Esc
+    \endlist
+
+    In the case of \gui Tab, \gui Backtab, \gui Enter and \gui Return
+    key press events, the \a editor's data is comitted to the model
+    and the editor is closed. If the \a event is a \gui Tab key press
+    the view will open an editor on the next item in the
+    view. Likewise, if the \a event is a \gui Backtab key press the
+    view will open an editor on the \e previous item in the view.
+
+    If the event is a \gui Esc key press event, the \a editor is
+    closed \e without committing its data.
+
+    \sa commitData(), closeEditor()
 */
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
