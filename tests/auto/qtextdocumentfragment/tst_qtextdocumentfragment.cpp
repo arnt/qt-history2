@@ -166,6 +166,7 @@ private slots:
     void dontMergePreAndNonPre();
     void leftMarginInsideHtml();
     void html_margins();
+    void newlineInsidePreShouldBecomeNewParagraph();
 
 private:
     inline void setHtml(const QString &html)
@@ -2397,6 +2398,39 @@ void tst_QTextDocumentFragment::html_margins()
     QCOMPARE(doc->begin().blockFormat().topMargin(), 12.);
     QCOMPARE(doc->begin().blockFormat().bottomMargin(), 12.);
     QCOMPARE(doc->begin().blockFormat().leftMargin(), 42.);
+}
+
+void tst_QTextDocumentFragment::newlineInsidePreShouldBecomeNewParagraph()
+{
+    // rationale: we used to map newlines inside <pre> to QChar::LineSeparator, but
+    // if you display a lot of text inside pre it all ended up inside one single paragraph,
+    // which doesn't scale very well with our text engine. Paragraphs spanning thousands of
+    // lines are not a common use-case otherwise.
+
+    doc->setHtml("<pre>Foo\nBar</pre>");
+    QCOMPARE(doc->blockCount(), 2);
+    QTextBlock block = doc->begin();
+    QCOMPARE(block.blockFormat().topMargin(), qreal(12));
+    QVERIFY(qIsNull(block.blockFormat().bottomMargin()));
+
+    block = block.next();
+
+    QVERIFY(qIsNull(block.blockFormat().topMargin()));
+    QCOMPARE(block.blockFormat().bottomMargin(), qreal(12));
+
+    doc->setHtml("<pre style=\"margin-top: 32px; margin-bottom: 45px; margin-left: 50px\">Foo\nBar</pre>");
+    QCOMPARE(doc->blockCount(), 2);
+    block = doc->begin();
+    QCOMPARE(block.blockFormat().topMargin(), qreal(32));
+    QVERIFY(qIsNull(block.blockFormat().bottomMargin()));
+    QCOMPARE(block.blockFormat().leftMargin(), qreal(50));
+
+    block = block.next();
+
+    QVERIFY(qIsNull(block.blockFormat().topMargin()));
+    QCOMPARE(block.blockFormat().bottomMargin(), qreal(45));
+    QCOMPARE(block.blockFormat().leftMargin(), qreal(50));
+
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

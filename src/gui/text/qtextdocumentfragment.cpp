@@ -673,8 +673,34 @@ void QTextHtmlImporter::import()
             setNamedAnchorInNextOutput = false;
         }
 
-        if (!text.isEmpty())
-            cursor.insertText(text, format);
+        int textStart = 0;
+        for (int i = 0; i < text.length(); ++i) {
+            QChar ch = text.at(i);
+
+            const int textEnd = i;
+
+            if (ch == QLatin1Char('\n')
+                || ch == QChar::ParagraphSeparator) {
+
+                if (textEnd > textStart)
+                    cursor.insertText(text.mid(textStart, textEnd - textStart), format);
+
+                textStart = i + 1;
+
+                QTextBlockFormat fmt = cursor.blockFormat();
+
+                if (fmt.hasProperty(QTextFormat::BlockBottomMargin)) {
+                    QTextBlockFormat tmp = fmt;
+                    tmp.clearProperty(QTextFormat::BlockBottomMargin);
+                    cursor.setBlockFormat(tmp);
+                }
+
+                fmt.clearProperty(QTextFormat::BlockTopMargin);
+                cursor.insertBlock(fmt);
+            }
+        }
+        if (textStart < text.length())
+            cursor.insertText(text.mid(textStart, text.length() - textStart), format);
     }
 
     cursor.endEditBlock();

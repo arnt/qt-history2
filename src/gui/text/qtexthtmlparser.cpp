@@ -697,14 +697,12 @@ void QTextHtmlParser::parse() {
             if (c.isSpace() && c != QChar(QChar::Nbsp) && c != QChar::ParagraphSeparator) {
                 if (wsm == QTextHtmlParserNode::WhiteSpacePre
                     || textEditMode) {
-                    if (c == QLatin1Char('\n'))
-                        c = QChar::LineSeparator;
-                    else if (c == QLatin1Char('\r'))
+                    if (c == QLatin1Char('\n')) {
+                        if (textEditMode)
+                            continue;
+                    } else if (c == QLatin1Char('\r')) {
                         continue;
-
-                    if (textEditMode
-                        && c == QChar::LineSeparator)
-                        continue;
+                    }
                 } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
                            && txt.at(pos) != QChar::Nbsp)
