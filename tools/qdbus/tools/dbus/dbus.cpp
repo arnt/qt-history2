@@ -280,6 +280,27 @@ static bool splitInterfaceAndName(const QString &interfaceAndName, const char *t
     return true;
 }
 
+static void printAllServices(QDBusConnectionInterface *bus)
+{
+    const QStringList services = bus->registeredServiceNames();
+    QMap<QString, QStringList> servicesWithAliases;
+
+    foreach (QString serviceName, services) {
+        QDBusReply<QString> reply = bus->serviceOwner(serviceName);
+        QString owner = reply;
+        if (owner.isEmpty())
+            owner = serviceName;
+        servicesWithAliases[owner].append(serviceName);
+    }
+
+    for (QMap<QString,QStringList>::const_iterator it = servicesWithAliases.begin();
+         it != servicesWithAliases.end(); ++it) {
+        QStringList names = it.value();
+        names.sort();
+        printf("%s\n", qPrintable(names.join("\n ")));
+    }
+}
+
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -299,12 +320,10 @@ int main(int argc, char **argv)
                 qPrintable(connection.lastError().message()));
         return 1;
     }
-    QDBusConnectionInterface *bus = connection.interface();
 
+    QDBusConnectionInterface *bus = connection.interface();
     if (args.isEmpty()) {
-        QStringList names = bus->registeredServiceNames();
-        foreach (QString name, names)
-            printf("%s\n", qPrintable(name));
+        printAllServices(bus);
         exit(0);
     }
 
