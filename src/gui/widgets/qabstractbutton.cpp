@@ -474,19 +474,19 @@ void QAbstractButtonPrivate::click()
 
     down = false;
     blockRefresh = true;
-    bool uncheckable = true;
+    bool changeState = true;
     if (checked && queryCheckedButton() == q) {
-        // the checked button of an exclusive or autoexclusive group cannot be  unchecked
+        // the checked button of an exclusive or autoexclusive group cannot be unchecked
 #ifndef QT_NO_BUTTONGROUP
         if (group ? group->d_func()->exclusive : autoExclusive)
 #else
         if (autoExclusive)
 #endif
-            uncheckable = false;
+            changeState = false;
     }
 
     QPointer<QAbstractButton> guard(q);
-    if (uncheckable) {
+    if (changeState) {
         q->nextCheckState();
         if (!guard)
             return;
