@@ -17,6 +17,7 @@
     number of 2D graphical items.
     \since 4.2
     \ingroup multimedia
+    \mainclass
 
     The class serves as a container for QGraphicsItems. It is used together
     with QGraphicsView for visualizing graphical items, such as lines,
