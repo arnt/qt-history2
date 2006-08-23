@@ -29,21 +29,23 @@
     \since 4.1
 
     QAbstractFileEngineHandler is a factory for creating QAbstractFileEngine
-    objects (file engines), which are used internally by QFile, QFileInfo and
-    QDir when working with files and direcories.
+    objects (file engines), which are used internally by QFile, QFileInfo, and
+    QDir when working with files and directories.
 
     When you open a file, Qt chooses a suitable file engine by passing the
     file name from QFile or QDir through an internal list of registered file
     engine handlers. The first handler to recognize the file name is used to
     create the engine. Qt provides internal file engines for working with
     regular files and resources, but you can also register your own
-    QAbstractFileEngine subclass.
+    QAbstractFileEngine subclasses.
 
     To install an application-specific file engine, you subclass
-    QAbstractFileEngineHandler and reimplement create(). When you instanciate
-    the handler (e.g., by creating an instance on the stack, the heap or using
-    Q_GLOBAL_STATIC()), it will automatically register with Qt. (The latest
-    registered handler takes presedence over existing handlers.) Example:
+    QAbstractFileEngineHandler and reimplement create(). When you instantiate
+    the handler (e.g. by creating an instance on the stack or on the heap), it
+    will automatically register with Qt. (The latest registered handler takes
+    precedence over existing handlers.)
+
+    For example:
 
     \code
         class ZipEngineHandler : public QAbstractFileEngineHandler
@@ -76,7 +78,7 @@
     The most common approach to registering a handler is to create an instance
     as part of the start-up phase of your application. It is also possible to
     limit the scope of the file engine handler to a particular area of
-    interest (e.g., a special file dialog that needs a custom file engine). By
+    interest (e.g. a special file dialog that needs a custom file engine). By
     creating the handler inside a local scope, you can precisely control the
     area in which your engine will be applied without disturbing file
     operations in other parts of your application.
