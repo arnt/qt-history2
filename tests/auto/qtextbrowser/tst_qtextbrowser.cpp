@@ -78,10 +78,11 @@ tst_QTextBrowser::tst_QTextBrowser()
 tst_QTextBrowser::~tst_QTextBrowser()
 {
 }
-
 void tst_QTextBrowser::init()
 {
+#ifndef Q_OS_IRIX
     QDir::setCurrent(SRCDIR);
+#endif    
     browser = new TestBrowser;
     browser->show();
 }
