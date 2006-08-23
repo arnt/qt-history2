@@ -5,6 +5,7 @@
     \ingroup tools
     \ingroup shared
     \reentrant
+    \mainclass
 
     QSet<T> is one of Qt's generic \l{container classes}. It stores
     values in an unspecified order and provides very fast lookup of
