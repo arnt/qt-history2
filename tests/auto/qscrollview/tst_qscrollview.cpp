@@ -38,14 +38,8 @@ public slots:
     void init();
     void cleanup();
 private slots:
-    void drawContents_data();
-    void drawContents();
-
     void resizePolicy();
     void setResizePolicy();
-
-    void center_data();
-    void center();
 
 private:
     QTestScrollView *testWidget;
@@ -543,29 +537,6 @@ void tst_Q3ScrollView::cleanup()
     }
 }
 
-void tst_Q3ScrollView::drawContents_data()
-{
-    QTest::addColumn<QString>("text");
-    QTest::addColumn<QPixmap>("res");
-
-// #ifdef Q_OS_WIN32
-//     QTest::newRow( "win32_data0" ) << QString( "This is a test");
-//     QTest::newRow( "win32_data1" ) << QString( "1234567890");
-// #else
-//    QTest::newRow( "data0" ) << QString( "This is a test");
-//    QTest::newRow( "data1" ) << QString( "1234567890");
-    QSKIP( "Currently not tested", SkipAll);
-// #endif
-}
-
-void tst_Q3ScrollView::drawContents()
-{
-    QFETCH( QString, text );
-    testWidget->scroll_text = text;
-    testWidget->repaintContents( TRUE );
-    QTEST( testWidget, "res" );
-}
-
 void tst_Q3ScrollView::resizePolicy()
 {
     DEPENDS_ON( "setResizePolicy");
@@ -585,39 +556,6 @@ void tst_Q3ScrollView::setResizePolicy()
     testWidget->setResizePolicy( Q3ScrollView::AutoOneFit );
     QVERIFY( testWidget->resizePolicy() == Q3ScrollView::AutoOneFit );
 }
-
-void tst_Q3ScrollView::center_data()
-{
-    QTest::addColumn<int>("x");
-    QTest::addColumn<int>("y");
-    QTest::addColumn<QPixmap>("pix");
-
-// #ifdef Q_OS_WIN32
-//     QTest::newRow( "" ) << 0 << 0; // This is not centering at all
-//     QTest::newRow( "" ) << 100 << 100; // This should be just centered because the widgetsize = 200 x 200
-//     QTest::newRow( "" ) << 150 << 150; // No problem centering
-// #else
-    QSKIP( "Currently not Windows", SkipAll);
-// #endif
-
-}
-
-void tst_Q3ScrollView::center()
-{
-    ScrollViewExample ve1( 1, 0, "ve1" );
-    testWidget->hide();
-    ve1.resize(200,200);
-    ve1.show();
-    qApp->setMainWidget( &ve1 );
-
-    QFETCH( int, x );
-    QFETCH( int, y );
-
-    ve1.center( x, y );
-    QTest::qWait(1000);
-    QTEST( &ve1, "pix" );
-}
-
 
 QTEST_MAIN(tst_Q3ScrollView)
 #include "tst_qscrollview.moc"
