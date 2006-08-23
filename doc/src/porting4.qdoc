@@ -250,8 +250,8 @@
          \omit ### Check with Sam \endomit
     \endtable
 
-    In Qt 4.1, the widget flags used to determine window modality have
-    been replaced by a single enum that can be used to specify the modal
+    In Qt 4.1, the widget flags used to determine window modality were
+    replaced by a single enum that can be used to specify the modal
     behavior of top-level widgets:
 
     \table
@@ -1114,10 +1114,8 @@
     \section1 QDataBrowser
 
     The \c QDataBrowser class has been renamed Q3DataBrowser and
-    moved to the Qt3Support library. It is expected that
-    Qt 4.1 will offer a replacement class. In the meantime, you can
-    use Q3DataBrowser for creating data-aware forms or you can roll
-    your own.
+    moved to the Qt3Support library. In Qt 4.2, you should use the
+    QDataWidgetMapper class to create data-aware forms.
 
     See \l{QtSql Module} for an overview of the new SQL
     classes.
@@ -1145,20 +1143,16 @@
     \section1 QDataTable
 
     The \c QDataTable class has been renamed Q3DataTable and moved to
-    the Qt3Support library. It is expected that Qt 4.1
-    will offer a replacement class. In the meantime, you can use
-    Q3DataTable for creating data-aware forms or you can roll your
-    own.
+    the Qt3Support library. In Qt 4.2, you should use the
+    QDataWidgetMapper class to create data-aware forms.
 
     See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QDataView
 
     The \c QDataView class has been renamed Q3DataView and moved to
-    the Qt3Support library. It is expected that Qt 4.1
-    will offer a replacement class. In the meantime, you can use
-    Q3DataTable for creating data-aware forms or you can roll your
-    own.
+    the Qt3Support library. In Qt 4.2, you should use the
+    QDataWidgetMapper class to create data-aware forms.
 
     See \l{QtSql Module} for an overview of the new SQL classes.
 
@@ -3285,7 +3279,7 @@
     internal class that offers a low-level socket API similar to
     Q3SocketDevice. Should the need for such functionality arise in
     Qt 4 applications, we will consider making this class public in a
-    later release (e.g., Qt 4.1).
+    future release.
     \endlist
 
     \section1 QSortedList
