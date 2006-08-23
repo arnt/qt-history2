@@ -1061,7 +1061,11 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette
 
 void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const QWidget *w)
 {
+#ifdef QT_NO_COMBOBOX
+    const bool isReadOnlyCombo = false;
+#else
     const bool isReadOnlyCombo = qobject_cast<const QComboBox *>(w) != 0;
+#endif
 
     if (bg && bg->brush.style() == Qt::SolidPattern) {
         if (isReadOnlyCombo) {
