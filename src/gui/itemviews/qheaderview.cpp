@@ -347,6 +347,11 @@ void QHeaderView::setOffset(int newOffset)
     else
         d->viewport->scroll(0, ndelta);
     if (d->state == QHeaderViewPrivate::ResizeSection) {
+        QPoint cursorPos = QCursor::pos();
+        if (d->orientation == Qt::Horizontal)
+            QCursor::setPos(cursorPos.x() + ndelta, cursorPos.y());
+        else
+            QCursor::setPos(cursorPos.x(), cursorPos.y() + ndelta);
         d->firstPos += ndelta;
         d->lastPos += ndelta;
     }
