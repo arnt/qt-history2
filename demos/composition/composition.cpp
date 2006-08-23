@@ -280,6 +280,7 @@ void CompositionRenderer::paint(QPainter *painter)
             }
             
             m_pbuffer = new QGLPixelBuffer(QSize(new_pbuf_size, new_pbuf_size), QGLFormat::defaultFormat(), glWidget());
+            m_pbuffer->makeCurrent();
             m_base_tex = m_pbuffer->generateDynamicTexture();
             m_compositing_tex = m_pbuffer->generateDynamicTexture();
             m_pbuffer_size = new_pbuf_size;
