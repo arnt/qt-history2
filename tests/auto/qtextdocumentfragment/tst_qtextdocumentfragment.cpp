@@ -168,7 +168,6 @@ private slots:
     void html_margins();
 
 private:
-    int blockCount();
     inline void setHtml(const QString &html)
     // don't take the shortcut in QTextDocument::setHtml
     { doc->clear(); QTextCursor(doc).insertFragment(QTextDocumentFragment::fromHtml(html)); }
@@ -210,14 +209,6 @@ static void dumpTable(const QTextDocumentPrivate *pt)
     qDebug() << "---dump----";
 }
 static void dumpTable(QTextDocument *doc) { dumpTable(doc->docHandle()); }
-
-int tst_QTextDocumentFragment::blockCount()
-{
-    int cnt = 0;
-    for (QTextBlock blk = doc->begin(); blk.isValid(); blk = blk.next())
-        ++cnt;
-    return cnt;
-}
 
 void tst_QTextDocumentFragment::listCopying()
 {
@@ -645,7 +636,7 @@ void tst_QTextDocumentFragment::initialBlock()
 {
     const char html[] = "<p>Test</p>";
     setHtml(QString::fromLatin1(html));
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 void tst_QTextDocumentFragment::clone()
@@ -692,6 +683,7 @@ void tst_QTextDocumentFragment::dosLineFeed()
     const char html[] = "<pre>Test\r\n</pre>";
     setHtml(QString::fromLatin1(html));
     QVERIFY(!doc->toPlainText().contains('\r'));
+    QCOMPARE(doc->toPlainText(), QString("Test\n"));
 }
 
 void tst_QTextDocumentFragment::unorderedListEnumeration()
@@ -902,7 +894,7 @@ void tst_QTextDocumentFragment::toPlainText()
     input += QChar::ParagraphSeparator;
     input += "Blah";
     doc->setPlainText(input);
-    QCOMPARE(blockCount(), 3);
+    QCOMPARE(doc->blockCount(), 3);
 }
 
 void tst_QTextDocumentFragment::copyTableRow()
@@ -1173,7 +1165,7 @@ void tst_QTextDocumentFragment::html_listStart1()
     const char html[] = "<ul>        <li>list item</li><ul>";
     cursor.insertFragment(QTextDocumentFragment::fromHtml(QByteArray::fromRawData(html, sizeof(html) / sizeof(html[0]))));
 
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 void tst_QTextDocumentFragment::html_listStart2()
@@ -1182,7 +1174,7 @@ void tst_QTextDocumentFragment::html_listStart2()
     const char html[] = "<ul>buggy, but text should appear<li>list item</li><ul>";
     cursor.insertFragment(QTextDocumentFragment::fromHtml(QByteArray::fromRawData(html, sizeof(html) / sizeof(html[0]))));
 
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
 }
 
 void tst_QTextDocumentFragment::html_cssMargin()
@@ -1320,7 +1312,7 @@ void tst_QTextDocumentFragment::html_emptyParapgraphs1()
     const char html[] = "<p style=\"-qt-paragraph-type:empty;\">&nbsp;</p><p>Two paragraphs</p>";
     setHtml(html);
 
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
     QVERIFY(doc->begin().text().isEmpty());
     QCOMPARE(doc->begin().next().text(), QString("Two paragraphs"));
 }
@@ -1330,7 +1322,7 @@ void tst_QTextDocumentFragment::html_emptyParapgraphs2()
     const char html[] = "<p></p><p>One paragraph</p>";
     setHtml(html);
 
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 void tst_QTextDocumentFragment::html_font()
@@ -1594,7 +1586,7 @@ void tst_QTextDocumentFragment::html_emptyDocument()
 {
     const char html[] = "<html><body><p style=\"-qt-paragraph-type:empty;\"></p></body></html>";
     setHtml(html);
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 void tst_QTextDocumentFragment::html_closingTag()
@@ -1670,7 +1662,7 @@ void tst_QTextDocumentFragment::html_dontMergeCenterBlocks()
     const char html[] = "<center>This should be centered</center>And this should not be centered anymore";
     cursor.insertFragment(QTextDocumentFragment::fromHtml(QString::fromLatin1(html)));
 
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
     QTextBlock blk = doc->begin();
     QVERIFY(blk.blockFormat().alignment() == Qt::AlignCenter);
     blk = blk.next();
@@ -1766,7 +1758,7 @@ void tst_QTextDocumentFragment::html_charFormatPropertiesUnset()
 void tst_QTextDocumentFragment::html_headings()
 {
     setHtml("<h1>foo</h1>bar");
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
 }
 
 void tst_QTextDocumentFragment::html_quotedFontFamily()
@@ -2032,7 +2024,7 @@ void tst_QTextDocumentFragment::html_rowSpans()
 void tst_QTextDocumentFragment::html_implicitParagraphs()
 {
     setHtml("<p>foo</p>bar");
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
 }
 
 void tst_QTextDocumentFragment::html_missingCloseTag()
@@ -2067,7 +2059,7 @@ void tst_QTextDocumentFragment::html_anchorColor()
 void tst_QTextDocumentFragment::html_lastParagraphClosing()
 {
     setHtml("<p>Foo<b>Bar</b>Baz");
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
 }
 
 void tst_QTextDocumentFragment::html_tableHeaderBodyFootParent()
@@ -2386,7 +2378,7 @@ void tst_QTextDocumentFragment::backgroundImage()
 void tst_QTextDocumentFragment::dontMergePreAndNonPre()
 {
     doc->setHtml("<pre>Pre text</pre>Text that should be wrapped");
-    QCOMPARE(blockCount(), 2);
+    QCOMPARE(doc->blockCount(), 2);
     QCOMPARE(doc->begin().text(), QString("Pre text"));
     QCOMPARE(doc->begin().next().text(), QString("Text that should be wrapped"));
 }
@@ -2394,14 +2386,14 @@ void tst_QTextDocumentFragment::dontMergePreAndNonPre()
 void tst_QTextDocumentFragment::leftMarginInsideHtml()
 {
     doc->setHtml("<html><dl><dd>Blah");
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
     QVERIFY(doc->begin().blockFormat().leftMargin() > 0);
 }
 
 void tst_QTextDocumentFragment::html_margins()
 {
     doc->setHtml("<p style=\"margin-left: 42px\">Test");
-    QCOMPARE(blockCount(), 1);
+    QCOMPARE(doc->blockCount(), 1);
     QCOMPARE(doc->begin().blockFormat().topMargin(), 12.);
     QCOMPARE(doc->begin().blockFormat().bottomMargin(), 12.);
     QCOMPARE(doc->begin().blockFormat().leftMargin(), 42.);
