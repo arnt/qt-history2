@@ -305,7 +305,11 @@ public:
 
 static QString srcify(const char *path)
 {
+#ifndef Q_OS_IRIX    
     return QString(SRCDIR) + QLatin1Char('/') + QLatin1String(path);
+#else
+    return QString(QLatin1String(path));
+#endif    
 }
 
 class tst_Moc : public QObject
