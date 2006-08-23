@@ -156,7 +156,8 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         } break;
 
         case QEvent::WindowDeactivate: {
-            fw->repaintSelection();
+            if (o == fw && o == activeFormWindow())
+                fw->repaintSelection();
         } break;
 
         case QEvent::KeyPress: {
