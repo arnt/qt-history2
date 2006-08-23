@@ -36,7 +36,7 @@
       Graphics View provides an item-based approach to model-view programming,
       much like InterView's convenience classes QTableWidget, QTreeWidget and
       QListWidget. Several views can observe a single scene, and the scene
-      contains items of varying geometric shape.
+      contains items of varying geometric shapes.
 
       \section2 The Scene
 
@@ -106,8 +106,9 @@
         \endcode
 
         The view receives input events from the keyboard and mouse, and
-        translates these from to scene coordinates events (scene events),
-        before sending the events to the visualized scene.
+        translates these to scene events (converting the coordinates used
+        to scene coordinates where appropriate), before sending the events
+        to the visualized scene.
 
         Using its transformation matrix, QGraphicsView::matrix(), the view can
         \e transform the scene's coordinate system. This allows advanced
