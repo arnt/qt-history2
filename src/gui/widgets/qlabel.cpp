@@ -609,6 +609,9 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 
         // restore state
         doc->setTextWidth(oldTextWidth);
+    } else {
+        QFontMetrics fm = q->fontMetrics();
+        br = QRect(QPoint(0, 0), QSize(fm.averageCharWidth(), q->fontMetrics().lineSpacing()));
     }
 
     const QSize contentsSize(br.width() + hextra, br.height() + vextra);
