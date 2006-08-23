@@ -47,15 +47,16 @@ QRect QAccessibleItemRow::rect(int child) const
 
     QRect r;
 
-    if (!child) {
+    if (child) {
+        r = view->visualRect(childIndex(child));
+    } else {
         QModelIndex parent = row.parent();
         const int colCount = row.model()->columnCount(parent);
         for (int i = 0; i < colCount; ++i)
             r |= view->visualRect(row.model()->index(row.row(), i, parent));
-        return r;
     }
 
-    return view->visualRect(childIndex(child));
+    return r.translated(view->viewport()->mapToGlobal(QPoint(0, 0)));
 }
 
 QString QAccessibleItemRow::text(Text t, int child) const
@@ -157,7 +158,7 @@ int QAccessibleItemRow::childAt(int x, int y) const
     if (!view)
         return -1;
 
-    QModelIndex idx = view->indexAt(view->mapFromGlobal(QPoint(x, y)));
+    QModelIndex idx = view->indexAt(view->viewport()->mapFromGlobal(QPoint(x, y)));
     if (idx.isValid() && idx.parent() == row.parent() && idx.row() == row.row())
         return idx.column() + 1;
 
