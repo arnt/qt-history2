@@ -444,6 +444,8 @@ void TextEdit::filePrintPdf()
     QString fileName = QFileDialog::getSaveFileName(this, "Export PDF",
                                                     QString(), "*.pdf");
     if (!fileName.isEmpty()) {
+        if (QFileInfo(fileName).suffix().isEmpty())
+            fileName.append(".pdf");
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(fileName);
