@@ -47,7 +47,7 @@ private:
     class QtBrushButtonPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QtBrushButton)
     Q_DISABLE_COPY(QtBrushButton)
-    Q_PRIVATE_SLOT(d_func(), void slotEditBrush());
+    Q_PRIVATE_SLOT(d_func(), void slotEditBrush())
 };
 
 }

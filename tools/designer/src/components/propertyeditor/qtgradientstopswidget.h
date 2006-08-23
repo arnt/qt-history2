@@ -54,15 +54,15 @@ private:
     class QtGradientStopsWidgetPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QtGradientStopsWidget)
     Q_DISABLE_COPY(QtGradientStopsWidget)
-    Q_PRIVATE_SLOT(d_func(), void slotStopAdded(QtGradientStop *stop));
-    Q_PRIVATE_SLOT(d_func(), void slotStopRemoved(QtGradientStop *stop));
-    Q_PRIVATE_SLOT(d_func(), void slotStopMoved(QtGradientStop *stop, qreal newPos));
-    Q_PRIVATE_SLOT(d_func(), void slotStopChanged(QtGradientStop *stop, const QColor &newColor));
-    Q_PRIVATE_SLOT(d_func(), void slotStopSelected(QtGradientStop *stop, bool selected));
-    Q_PRIVATE_SLOT(d_func(), void slotCurrentStopChanged(QtGradientStop *stop));
-    Q_PRIVATE_SLOT(d_func(), void slotNewStop());
-    Q_PRIVATE_SLOT(d_func(), void slotDelete());
-    Q_PRIVATE_SLOT(d_func(), void slotSelectAll());
+    Q_PRIVATE_SLOT(d_func(), void slotStopAdded(QtGradientStop *stop))
+    Q_PRIVATE_SLOT(d_func(), void slotStopRemoved(QtGradientStop *stop))
+    Q_PRIVATE_SLOT(d_func(), void slotStopMoved(QtGradientStop *stop, qreal newPos))
+    Q_PRIVATE_SLOT(d_func(), void slotStopChanged(QtGradientStop *stop, const QColor &newColor))
+    Q_PRIVATE_SLOT(d_func(), void slotStopSelected(QtGradientStop *stop, bool selected))
+    Q_PRIVATE_SLOT(d_func(), void slotCurrentStopChanged(QtGradientStop *stop))
+    Q_PRIVATE_SLOT(d_func(), void slotNewStop())
+    Q_PRIVATE_SLOT(d_func(), void slotDelete())
+    Q_PRIVATE_SLOT(d_func(), void slotSelectAll())
 };
 
 }
