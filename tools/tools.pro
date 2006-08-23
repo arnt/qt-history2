@@ -2,7 +2,7 @@ TEMPLATE        = subdirs
 no-png {
     message("Tools not available without PNG support")
 } else {
-    unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
+    unix:contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
     SUBDIRS		+= assistant/lib \
 			assistant \
 			porting \

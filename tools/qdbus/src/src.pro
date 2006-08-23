@@ -77,8 +77,6 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 
 # Input
 
-embedded:QMAKE_CXXFLAGS+=-fno-rtti
-
 target.path=$$[QT_INSTALL_LIBS]
 
 qt_install_headers {

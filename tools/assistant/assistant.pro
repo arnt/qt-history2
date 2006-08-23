@@ -4,7 +4,7 @@ TARGET = assistant
 
 CONFIG += qt warn_on
 
-unix:!embedded:contains(QT_CONFIG, qdbus):CONFIG += qdbus
+unix:contains(QT_CONFIG, qdbus):CONFIG += qdbus
 
 build_all:!build_pass {
     CONFIG -= build_all
