@@ -718,7 +718,7 @@ int QGLFormat::depthBufferSize() const
 /*!
     Set the preferred alpha buffer size to \a size.
     This function implicitly enables the alpha channel.
-    
+
     \sa alpha(), setAlpha(), alphaBufferSize()
 */
 void QGLFormat::setAlphaBufferSize(int size)
@@ -1454,12 +1454,13 @@ static void qt_gl_image_cleanup(int serial)
 }
 
 
-QImage QGLContextPrivate::convertToBGRA(const QImage &image)
+QImage QGLContextPrivate::convertToBGRA(const QImage &image, bool force_premul)
 {
     QImage img = image;
 
-    if (image.format() != QImage::Format_ARGB32_Premultiplied
-        || image.format() != QImage::Format_ARGB32) {
+    if ((force_premul && image.format() != QImage::Format_ARGB32_Premultiplied)
+        || (!force_premul && image.format() != QImage::Format_ARGB32_Premultiplied
+            && image.format() != QImage::Format_ARGB32)) {
         img = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     }
 
@@ -1502,10 +1503,13 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     int tx_w = nearest_gl_texture_size(image.width());
     int tx_h = nearest_gl_texture_size(image.height());
 
+    // Note: the clean param is only true when a texture is bound
+    // from the QOpenGLPaintEngine - in that case we have to force
+    // a premultiplied texture format
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
-        tx = convertToBGRA(image.scaled(tx_w, tx_h));
+        tx = convertToBGRA(image.scaled(tx_w, tx_h), clean);
     else
-        tx = convertToBGRA(image);
+        tx = convertToBGRA(image, clean);
 
     GLuint tx_id;
     glGenTextures(1, &tx_id);
