@@ -130,6 +130,8 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
         case QEvent::Resize:
         {
             QResizeEvent *e = (QResizeEvent *) event;
+            if (e->oldSize().width() == 0 || e->oldSize().height() == 0)
+                break;
             double stretch_x = e->size().width() / double(e->oldSize().width());
             double stretch_y = e->size().height() / double(e->oldSize().height());
             for (int i=0; i<m_points.size(); ++i) {
