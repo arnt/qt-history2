@@ -109,6 +109,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *ev);
     void focusInEvent(QFocusEvent *ev);
     void focusOutEvent(QFocusEvent *ev);
+    bool focusNextPrevChild(bool next);
 
 #ifdef QT3_SUPPORT
 public:

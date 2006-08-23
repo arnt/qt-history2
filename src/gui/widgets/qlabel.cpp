@@ -673,7 +673,7 @@ void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
     d->textInteractionFlags = flags;
     if ((flags & Qt::LinksAccessibleByKeyboard)
         || (flags & Qt::TextSelectableByKeyboard))
-        setFocusPolicy(Qt::ClickFocus);
+        setFocusPolicy(Qt::StrongFocus);
     else
         setFocusPolicy(Qt::NoFocus);
     if (d->control)
@@ -813,6 +813,16 @@ void QLabel::focusOutEvent(QFocusEvent *ev)
 
 /*!\reimp
 */
+bool QLabel::focusNextPrevChild(bool next)
+{
+    Q_D(QLabel);
+    if (d->control && d->control->setFocusToNextOrPreviousAnchor(next))
+        return true;
+    return QFrame::focusNextPrevChild(next);
+}
+
+/*!\reimp
+*/
 void QLabel::keyPressEvent(QKeyEvent *ev)
 {
     Q_D(QLabel);
@@ -898,20 +908,12 @@ void QLabel::paintEvent(QPaintEvent *)
         painter.save();
         painter.translate(lr.topLeft());
         painter.setClipRect(lr.translated(-lr.x(), -lr.y()));
-        QTextCursor cursor;
-        if (d->control)
-            cursor= d->control->textCursor();
-        if (cursor.hasSelection()) {
-            QAbstractTextDocumentLayout::Selection s;
-            s.cursor = cursor;
-            s.format.setBackground(palette().brush(QPalette::Highlight));
-            s.format.setForeground(palette().brush(QPalette::HighlightedText));
-            context.selections.append(s);
+        if (d->control) {
+            d->control->setPalette(context.palette);
+            d->control->drawContents(&painter);
+        } else {
+            layout->draw(&painter, context);
         }
-        if (!cursor.isNull() && hasFocus()
-            && (d->control->textInteractionFlags() & Qt::TextSelectableByKeyboard))
-            context.cursorPosition = cursor.position();
-        layout->draw(&painter, context);
         painter.restore();
     } else
 #ifndef QT_NO_PICTURE
