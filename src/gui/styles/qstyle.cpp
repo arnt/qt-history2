@@ -627,7 +627,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \o{1,2} \l PE_IndicatorCheckBox \o{1,2} \l QStyleOptionButton
           \o \l State_NoChange \o Indicates a "tri-state" checkbox.
     \row \o \l State_On \o Indicates the indicator is checked.
-
     \row \o \l PE_IndicatorRadioButton \o \l QStyleOptionButton
           \o \l State_On \o Indicates that a radio button is selected.
     \row \o{1,3} \l PE_Q3CheckListExclusiveIndicator, \l PE_Q3CheckListIndicator
@@ -635,9 +634,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \o Indicates whether or not the controller is selected.
     \row \o \l State_NoChange \o Indicates a "tri-state" controller.
     \row \o \l State_Enabled \o Indicates the controller is enabled.
-    \row \o{1,2} \l PE_IndicatorBranch \o{1,2} \l QStyleOption
-         \o \l State_DownArrow \o Indicates that the Tree Branch is pressed
+    \row \o{1,4} \l PE_IndicatorBranch \o{1,4} \l QStyleOption
+         \o \l State_Children \o Indicates that the control for expanding the tree to show child items, should be drawn.
+    \row \o \l State_Item \o Indicates that a horizontal branch (to show a child item), should be drawn.
     \row \o \l State_Open \o Indicates that the tree branch is expanded.
+    \row \o \l State_Sibling \o Indicates that a vertical line (to show a sibling item), should be drawn.
     \row \o \l PE_IndicatorHeaderArrow \o \l QStyleOptionHeader
          \o \l State_UpArrow \o Indicates that the arrow should be drawn up;
          otherwise it should be down.
@@ -758,13 +759,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \table
     \header \o Control Element \o QStyleOption Subclass \o Style Flag \o Remark
-    \row \o{1,4} \l CE_MenuItem, \l CE_MenuBarItem
-         \o{1,4} \l QStyleOptionMenuItem
+    \row \o{1,5} \l CE_MenuItem, \l CE_MenuBarItem
+         \o{1,5} \l QStyleOptionMenuItem
          \o \l State_Selected \o The menu item is currently selected item.
     \row \o \l State_Enabled \o The item is enabled.
-    \row \o \l State_DownArrow
-         \o Set if the menu item is down.
-         (i.e., if the mouse button or the space bar is pressed).
+    \row \o \l State_DownArrow \o Indicates that a scroll down arrow should be drawn.
+    \row \o \l State_UpArrow \o Indicates that a scroll up arrow should be drawn
     \row \o \l State_HasFocus \o Set if the menubar has input focus.
     \row \o{1,5} \l CE_PushButton, \l CE_PushButtonBevel, \l CE_PushButtonLabel
          \o{1,5} \l QStyleOptionButton
