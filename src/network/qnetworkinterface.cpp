@@ -34,7 +34,7 @@ QSharedDataPointer<QNetworkInterfacePrivate> QNetworkInterfaceManager::interface
         if ((*it)->name == name)
             return *it;
 
-    return QSharedDataPointer<QNetworkInterfacePrivate>(&empty);
+    return empty;
 }
 
 QSharedDataPointer<QNetworkInterfacePrivate> QNetworkInterfaceManager::interfaceFromIndex(int index)
@@ -45,7 +45,7 @@ QSharedDataPointer<QNetworkInterfacePrivate> QNetworkInterfaceManager::interface
         if ((*it)->index == index)
             return *it;
 
-    return QSharedDataPointer<QNetworkInterfacePrivate>(&empty);
+    return empty;
 }
 
 QList<QSharedDataPointer<QNetworkInterfacePrivate> > QNetworkInterfaceManager::allInterfaces()

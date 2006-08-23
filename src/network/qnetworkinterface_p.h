@@ -74,7 +74,7 @@ public:
     QList<QSharedDataPointer<QNetworkInterfacePrivate> > allInterfaces();
 
     // convenience:
-    QNetworkInterfacePrivate empty;
+    QSharedDataPointer<QNetworkInterfacePrivate> empty;
 
 private:
     QList<QNetworkInterfacePrivate *> scan();
