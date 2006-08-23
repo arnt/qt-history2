@@ -5,9 +5,9 @@ INCLUDEPATH += .
 CONFIG += qdbus
 
 # Input
-HEADERS += chat.h
-SOURCES += chat.cpp
+HEADERS += chat.h chat_adaptor.h chat_interface.h
+SOURCES += chat.cpp chat_adaptor.cpp chat_interface.cpp
 FORMS += chatmainwindow.ui chatsetnickname.ui
 
-DBUS_ADAPTORS += com.trolltech.chat.xml
-DBUS_INTERFACES += com.trolltech.chat.xml
+#DBUS_ADAPTORS += com.trolltech.chat.xml
+#DBUS_INTERFACES += com.trolltech.chat.xml
