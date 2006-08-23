@@ -1917,7 +1917,7 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glPushAttrib(GL_CURRENT_BIT);
-    glColor4f(1.0, 1.0, 1.0, d->opacity);
+    glColor4f(d->opacity, d->opacity, d->opacity, d->opacity);
     glEnable(GL_TEXTURE_2D);
 
     GLdouble tc_w = r.width()/pm.width();
@@ -1968,7 +1968,7 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 {
     Q_D(QOpenGLPaintEngine);
     glPushAttrib(GL_CURRENT_BIT);
-    glColor4f(1.0, 1.0, 1.0, d->opacity);
+    glColor4f(d->opacity, d->opacity, d->opacity, d->opacity);
     glEnable(target);
 
     qreal x1, x2, y1, y2;
