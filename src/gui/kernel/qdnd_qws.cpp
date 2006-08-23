@@ -60,7 +60,11 @@ public:
     QShapedPixmapWidget() :
         QWidget(0, Qt::Tool | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint)
     {
-        setAttribute(Qt::WA_TransparentForMouseEvents);
+        // ### Temporary workaround for 4.2-rc1!!! To prevent flickering when
+        // using drag'n drop in a client application. (task 126956)
+        // setAttribute() should be done unconditionally!
+        if (QApplication::type() == QApplication::GuiServer)
+            setAttribute(Qt::WA_TransparentForMouseEvents);
     }
 
     void setPixmap(QPixmap pm)
