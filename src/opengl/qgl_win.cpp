@@ -602,7 +602,7 @@ public:
 
         int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
         SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
-        HGLRC dmy_rc = wglCreateContext(dmy_pdc);
+        dmy_rc = wglCreateContext(dmy_pdc);
         wglMakeCurrent(dmy_pdc, dmy_rc);
     }
     ~QGLTempContext() {
