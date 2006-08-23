@@ -72,6 +72,7 @@ bool QSvgIOHandler::read(QImage *image)
     if (!d->r->isValid())
         return false;
     *image = QImage(d->currentSize, QImage::Format_ARGB32_Premultiplied);
+    image->fill(0x00000000);
     QPainter p(image);
     d->r->render(&p);
     p.end();
