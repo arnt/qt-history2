@@ -663,7 +663,7 @@ void QLabel::setOpenExternalLinks(bool open)
     Specifies how the label should interact with user input if it displays text.
 
     If the flags contain either Qt::LinksAccessibleByKeyboard or Qt::TextSelectableByKeyboard
-    then the focus policy is also automatically set to Qt::ClickFocus.
+    then the focus policy is also automatically set to Qt::StrongFocus.
 
     The default value is Qt::LinksAccessibleByMouse.
 */
