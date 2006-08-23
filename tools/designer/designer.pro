@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 CONFIG += qt
 
-SUBDIRS = src
+unset(TOOLS_DESIGNER_SUBDIRS)
+include(src/src.pro)

@@ -1,6 +1,5 @@
 TEMPLATE = subdirs
 
-# this order is important
 unset(SRC_SUBDIRS)
 win32:SRC_SUBDIRS += src_winmain
 SRC_SUBDIRS += src_tools_moc src_tools_rcc src_tools_uic src_corelib src_xml src_gui src_sql src_network src_svg
@@ -17,34 +16,29 @@ src_tools_moc.subdir = $$QT_BUILD_TREE/src/tools/moc
 src_tools_rcc.subdir = $$QT_BUILD_TREE/src/tools/rcc
 src_tools_uic.subdir = $$QT_BUILD_TREE/src/tools/uic
 src_corelib.subdir = $$QT_BUILD_TREE/src/corelib
+src_corelib.depends = src_tools_moc src_tools_rcc
 src_xml.subdir = $$QT_BUILD_TREE/src/xml
+src_xml.depends = src_corelib
 src_gui.subdir = $$QT_BUILD_TREE/src/gui
+src_gui.depends = src_corelib src_tools_uic
 src_sql.subdir = $$QT_BUILD_TREE/src/sql
+src_sql.depends = src_gui
 src_network.subdir = $$QT_BUILD_TREE/src/network
+src_network.depends = src_gui
 src_svg.subdir = $$QT_BUILD_TREE/src/svg
+src_svg.depends = src_xml src_gui
 src_opengl.subdir = $$QT_BUILD_TREE/src/opengl
+src_opengl.depends = src_gui
 src_qt3support.subdir = $$QT_BUILD_TREE/src/qt3support
+src_qt3support.depends = src_gui src_xml src_network src_sql
 src_tools_uic3.subdir = $$QT_BUILD_TREE/src/tools/uic3
+src_tools_uic3.depends = src_qt3support src_xml
 src_activeqt.subdir = $$QT_BUILD_TREE/src/activeqt
+src_tools_activeqt.depends = src_tools_idc src_gui
 src_tools_idc.subdir = $$QT_BUILD_TREE/src/tools/idc
+src_tools_idc.depends = src_corelib
 src_plugins.subdir = $$QT_BUILD_TREE/src/plugins
-
-#CONFIG += ordered
-!ordered {
-   src_corelib.depends = src_tools_moc src_tools_rcc
-   src_gui.depends = src_corelib src_tools_uic
-   src_xml.depends = src_corelib
-   src_svg.depends = src_xml src_gui
-   src_network.depends = src_gui
-   src_opengl.depends = src_gui
-   src_sql.depends = src_gui
-   src_qt3support.depends = src_gui src_xml src_network src_sql
-   src_tools_uic3.depends = src_qt3support src_xml
-   src_tools_idc.depends = src_corelib
-   src_tools_activeqt.depends = src_tools_idc src_gui
-   src_plugins.depends = src_gui src_sql src_svg
-   contains(QT_CONFIG, qt3support): src_plugins.depends += src_qt3support
-}
+src_plugins.depends = src_gui src_sql src_svg src_qt3support
 
 # This creates a sub-src rule
 sub_src_target.CONFIG = recursive
