@@ -603,15 +603,17 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 #ifndef QT_NO_DOCKWIDGET
     // restore dockwidget layout
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(parentWidget());
-    savedDockWidgetLayout = dockWidgetLayout;
-    dockWidgetLayout.clear();
-    if (!dockWidgetLayout.restoreState(stream, dockwidgets))
+    QMainWindow *win = qobject_cast<QMainWindow*>(parentWidget());
+    Q_ASSERT(win != 0);
+
+    QDockWidgetLayout newLayout(win);
+
+    if (!newLayout.restoreState(stream, dockwidgets))
         stream.setStatus(QDataStream::ReadCorruptData);
 
     if (stream.status() != QDataStream::Ok) {
-        dockWidgetLayout.deleteAllLayoutItems();
-        dockWidgetLayout = savedDockWidgetLayout;
-        savedDockWidgetLayout.clear();
+        newLayout.deleteAllLayoutItems();
+        applyDockWidgetLayout(dockWidgetLayout); // hides tabBars allocated by newLayout
         return false;
     }
 
@@ -621,15 +623,15 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     for (int i = 0; i < dockwidgets.size(); ++i) {
         QDockWidget *w = dockwidgets.at(i);
 
-        QList<int> path = dockWidgetLayout.indexOf(w, IndexOfFindsAll);
+        QList<int> path = newLayout.indexOf(w, IndexOfFindsAll);
         if (path.isEmpty()) {
-            QList<int> old_path = savedDockWidgetLayout.indexOf(w, IndexOfFindsAll);
+            QList<int> old_path = dockWidgetLayout.indexOf(w, IndexOfFindsAll);
             if (old_path.isEmpty()) {
                 qWarning("QMainWindowLayout::restoreState(): failed to find %p "
                          "in the old layout", w);
                 continue;
             }
-            QDockAreaLayoutInfo *info = dockWidgetLayout.info(old_path);
+            QDockAreaLayoutInfo *info = newLayout.info(old_path);
             if (info == 0) {
                 qWarning("QMainWindowLayout::restoreState(): failed to find location for %p "
                          "in the new layout", w);
@@ -639,8 +641,12 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         }
     }
 
-    savedDockWidgetLayout.deleteAllLayoutItems();
-    savedDockWidgetLayout.clear();
+    newLayout.centralWidgetItem = dockWidgetLayout.centralWidgetItem;
+    dockWidgetLayout.deleteAllLayoutItems();
+    dockWidgetLayout = newLayout;
+    applyDockWidgetLayout(dockWidgetLayout);
+    foreach (QTabBar *tab_bar, usedTabBars)
+        tab_bar->show();
 #endif // QT_NO_DOCKWIDGET
 
     return true;
@@ -1323,7 +1329,6 @@ void QMainWindowLayout::applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool
 {
     QSet<QTabBar*> used = newLayout.usedTabBars();
     QSet<QTabBar*> retired = usedTabBars - used;
-    QSet<QTabBar*> fresh = used - usedTabBars;
     usedTabBars = used;
     foreach (QTabBar *tab_bar, retired) {
         tab_bar->hide();
@@ -1486,12 +1491,8 @@ void QMainWindowLayout::allAnimationsFinished()
 {
     parentWidget()->update(dockWidgetLayout.separatorRegion());
 
-    if (!currentGapPos.isEmpty()) {
-        updateGapIndicator();
-        QDockAreaLayoutInfo *info = dockWidgetLayout.info(currentGapPos);
-        if (info->tabbed)
-            info->tabBar->show();
-    }
+    foreach (QTabBar *tab_bar, usedTabBars)
+        tab_bar->show();
 }
 
 void QMainWindowLayout::animationFinished(QWidget *widget)

@@ -1245,6 +1245,7 @@ void QDockAreaLayoutInfo::apply(bool animate)
     if (tabbed) {
         QRect tab_rect;
         QSize tbh = tabBarSizeHint();
+
         if (tabBarVisible) {
             switch (tabBarShape) {
                 case QTabBar::RoundedNorth:
@@ -1452,7 +1453,25 @@ void QDockAreaLayoutInfo::deleteAllLayoutItems()
 
 void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
 {
-    stream << (uchar) Marker << (uchar) o << item_list.count();
+    if (tabbed) {
+        stream << (uchar) TabMarker;
+
+        // write the index in item_list of the widget that's currently on top.
+        quintptr id = currentTabId();
+        int index = -1;
+        for (int i = 0; i < item_list.count(); ++i) {
+            if (tabId(item_list.at(i)) == id) {
+                index = i;
+                break;
+            }
+        }
+        stream << index;
+    } else {
+        stream << (uchar) SequenceMarker;
+    }
+
+    stream << (uchar) o << item_list.count();
+
     for (int i = 0; i < item_list.count(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
         if (item.widgetItem != 0) {
@@ -1479,8 +1498,7 @@ void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
                         << pick(o, item.maximumSize());
             }
         } else if (item.subinfo != 0) {
-            stream << (uchar) Marker << item.pos << item.size << pick(o, item.minimumSize())
-                        << pick(o, item.maximumSize());
+            stream << (uchar) SequenceMarker << item.pos << item.size << pick(o, item.minimumSize()) << pick(o, item.maximumSize());
             item.subinfo->saveState(stream);
         }
     }
@@ -1490,8 +1508,14 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
 {
     uchar marker;
     stream >> marker;
-    if (marker != Marker)
+    if (marker != TabMarker && marker != SequenceMarker)
         return false;
+
+    tabbed = marker == TabMarker;
+
+    int index = -1;
+    if (tabbed)
+        stream >> index;
 
     uchar orientation;
     stream >> orientation;
@@ -1548,7 +1572,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             }
 
             item_list.append(item);
-        } else if (nextMarker == Marker) {
+        } else if (nextMarker == SequenceMarker) {
             int dummy;
             QDockAreaLayoutInfo *info = new QDockAreaLayoutInfo(sep, o,
                                                                 tabBarShape, mainWindow);
@@ -1556,10 +1580,18 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             stream >> item.pos >> item.size >> dummy >> dummy;
             if (!info->restoreState(stream, widgets))
                 return false;
+
+            item_list.append(item);
         } else {
             return false;
         }
     }
+
+    if (tabbed && index >= 0 && index < item_list.count()) {
+        updateTabBar();
+        setCurrentTabId(tabId(item_list.at(index)));
+    }
+
     return true;
 }
 

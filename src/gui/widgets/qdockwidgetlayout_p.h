@@ -94,7 +94,8 @@ public:
     QDockAreaLayoutInfo *info(QWidget *widget);
 
     enum { // sentinel values used to validate state data
-        Marker = 0xfc,
+        SequenceMarker = 0xfc,
+        TabMarker = 0xfa,
         WidgetMarker = 0xfb
     };
     void saveState(QDataStream &stream) const;
