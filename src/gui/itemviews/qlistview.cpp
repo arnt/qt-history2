@@ -1658,6 +1658,7 @@ void QListViewPrivate::clear()
     cachedItemSize = QSize();
     tree.destroy();
     items.clear();
+    moved.clear();
     flowPositions.clear();
     segmentPositions.clear();
     segmentStartRows.clear();
