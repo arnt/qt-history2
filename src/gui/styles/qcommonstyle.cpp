@@ -3766,6 +3766,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_MessageBox_CenterButtons:
         ret = true;
         break;
+    case SH_ItemView_MovementWithoutUpdatingSelection:
+        ret = true;
+        break;
     default:
         ret = 0;
         break;

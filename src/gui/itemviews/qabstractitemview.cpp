@@ -1773,17 +1773,20 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     QPersistentModelIndex oldCurrent = currentIndex();
     if (newCurrent != oldCurrent && newCurrent.isValid()) {
         QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
-        if (command & QItemSelectionModel::Current) {
-            d->selectionModel->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
-            if (d->pressedPosition == QPoint(-1, -1))
-                d->pressedPosition = visualRect(oldCurrent).center();
-            QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
-            setSelection(rect, command);
-        } else {
-            d->selectionModel->setCurrentIndex(newCurrent, command);
-            d->pressedPosition = visualRect(newCurrent).center() + d->offset();
+        if (command != QItemSelectionModel::NoUpdate
+             || style()->styleHint(QStyle::SH_ItemView_MovementWithoutUpdatingSelection, 0, this)) {
+            if (command & QItemSelectionModel::Current) {
+                d->selectionModel->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
+                if (d->pressedPosition == QPoint(-1, -1))
+                    d->pressedPosition = visualRect(oldCurrent).center();
+                QRect rect(d->pressedPosition - d->offset(), visualRect(newCurrent).center());
+                setSelection(rect, command);
+            } else {
+                d->selectionModel->setCurrentIndex(newCurrent, command);
+                d->pressedPosition = visualRect(newCurrent).center() + d->offset();
+            }
+            return;
         }
-        return;
     }
 
     switch (event->key()) {

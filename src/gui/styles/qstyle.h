@@ -591,6 +591,7 @@ public:
         SH_SpellCheckUnderlineStyle,
         SH_MessageBox_CenterButtons,
         SH_Menu_SelectionWrap,
+        SH_ItemView_MovementWithoutUpdatingSelection,
 
         // Add new style hint values here
 
