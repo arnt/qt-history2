@@ -45,7 +45,7 @@ QCursorData::QCursorData(Qt::CursorShape s)
 
 QCursorData::~QCursorData()
 {
-    Display *dpy = X11->display;
+    Display *dpy = X11 ? X11->display : (Display*)0;
 
     // Add in checking for the display too as on HP-UX
     // we seem to get a core dump as the cursor data is
