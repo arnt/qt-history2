@@ -291,7 +291,7 @@ void QAccessibleItemView::setText(Text t, int child, const QString &text)
     }
 
     QAccessibleItemRow item(itemView(), childIndex(child));
-    return item.setText(t, child, text);
+    item.setText(t, child, text);
 }
 
 QRect QAccessibleItemView::rect(int child) const
