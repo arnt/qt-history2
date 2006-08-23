@@ -7028,10 +7028,7 @@ void Q3ListView::contentsDragEnterEvent(QDragEnterEvent *e)
         d->focusItem->dragEntered();
         d->focusItem->repaint();
     }
-    if (i && i->dropEnabled() && i->acceptDrop(e) || acceptDrops())
-        e->accept();
-    else
-        e->ignore();
+    e->accept();
 }
 
 /*! \reimp */
