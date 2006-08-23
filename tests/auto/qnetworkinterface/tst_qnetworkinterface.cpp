@@ -32,6 +32,7 @@ private slots:
     void loopbackIPv6();
     void localAddress();
     void interfaceFromXXX();
+    void copyInvalidInterface();
 };
 
 tst_QNetworkInterface::tst_QNetworkInterface()
@@ -90,6 +91,12 @@ void tst_QNetworkInterface::interfaceFromXXX()
     foreach (QNetworkInterface iface, allInterfaces) {
         QVERIFY(QNetworkInterface::interfaceFromName(iface.name()).isValid());
     }
+}
+
+void tst_QNetworkInterface::copyInvalidInterface()
+{
+    // Force a copy of an interfaces that isn't likely to exist
+    QNetworkInterface i = QNetworkInterface::interfaceFromName("plopp");
 }
 
 QTEST_MAIN(tst_QNetworkInterface)
