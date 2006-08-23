@@ -7,12 +7,13 @@
 
 #include <qmap.h>
 #include <qregexp.h>
+#include <qdom.h>
 
 #include "codemarker.h"
 #include "config.h"
-#include "htmlgenerator.h"
+#include "pagegenerator.h"
 
-class WebXMLGenerator : public HtmlGenerator
+class WebXMLGenerator : public PageGenerator
 {
 public:
     WebXMLGenerator();
@@ -31,8 +32,21 @@ protected:
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
     virtual QString fileExtension();
 
+    virtual const Atom *addAtomElements(QDomElement &parent, const Atom *atom,
+                                 const Node *relative, CodeMarker *marker);
+    QDomElement generateIndexSections(QDomDocument &document, const Node *node,
+                                      CodeMarker *marker);
+
 private:
     const Tree *tre;
+    bool inLink;
+    bool inContents;
+    bool inSectionHeading;
+    bool inTableHeader;
+    int numTableRows;
+    bool threeColumnEnumValueTable;
+    QString link;
+    QStringList sectionNumber;
 };
 
 #endif

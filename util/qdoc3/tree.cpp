@@ -811,11 +811,10 @@ void Tree::resolveIndex()
     }
 }
 
-void Tree::generateIndexSection(QString indent, QTextStream& out,
-                                const Node *node, bool inlineChildren) const
+QDomElement Tree::generateIndexSection(QDomDocument &document, const Node *node) const
 {
     if (!node->url().isEmpty())
-        return;
+        return QDomElement();
 
     QString nodeName;
     switch (node->type()) {
@@ -847,8 +846,10 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
             nodeName = "target";
             break;
         default:
-            return;
+            return QDomElement();
     }
+
+    QDomElement element = document.createElement(nodeName);
 
     QString access;
     switch (node->access()) {
@@ -860,25 +861,21 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
             break;
         case Node::Private:     // Do not include private nodes in the index.
         default:
-            return;
+            return QDomElement();
     }
 
     QString objName = node->name();
-    QString childNodes;
-    QString thisNode;
-    QTextStream thisStream(&thisNode);
 
-    thisStream << indent << "<" << nodeName
-        << " access=\"" << access << "\""
-        << " name=\"" << HtmlGenerator::protect(objName) << "\""
-        << " location=\"" << node->location().fileName() << "\""
-        << " href=\"" << fullDocumentName(node) << "\"";
+    element.setAttribute("access", access);
+    element.setAttribute("name", objName);
+    element.setAttribute("href", fullDocumentName(node));
+    element.setAttribute("location", node->location().fileName());
 
     if (node->type() == Node::Class) {
 
         // Classes contain information about their base classes.
         if (objName.isEmpty())
-            return;
+            return QDomElement();
 
         const ClassNode *classNode = static_cast<const ClassNode*>(node);
         QList<RelatedClass> bases = classNode->baseClasses();
@@ -887,8 +884,7 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
             ClassNode *baseClassNode = related.node;
             baseStrings.append(baseClassNode->name());
         }
-        thisStream << " bases=\"" + HtmlGenerator::protect(baseStrings.join(","))
-                   << "\"";
+        element.setAttribute("bases", baseStrings.join(","));
     }
 
     // Fake nodes (such as manual pages) contain subtypes, titles and other
@@ -897,38 +893,38 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
     else if (node->type() == Node::Fake) {
 
         if (objName.isEmpty())
-            return;
+            return QDomElement();
 
         const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
         switch (fakeNode->subType()) {
             case FakeNode::Example:
-                thisStream << " subtype=\"example\"";
+                element.setAttribute("subtype", "example");
                 break;
             case FakeNode::HeaderFile:
-                thisStream << " subtype=\"header\"";
+                element.setAttribute("subtype", "header");
                 break;
             case FakeNode::File:
-                thisStream << " subtype=\"file\"";
+                element.setAttribute("subtype", "file");
                 break;
             case FakeNode::Group:
-                thisStream << " subtype=\"group\"";
+                element.setAttribute("subtype", "group");
                 break;
             case FakeNode::Module:
-                thisStream << " subtype=\"module\"";
+                element.setAttribute("subtype", "module");
                 break;
             case FakeNode::Page:
-                thisStream << " subtype=\"page\"";
+                element.setAttribute("subtype", "page");
                 break;
             case FakeNode::ExternalPage:
-                thisStream << " subtype=\"externalpage\"";
+                element.setAttribute("subtype", "externalpage");
                 break;
             default:
                 break;
         }
-        thisStream << " title=\"" << HtmlGenerator::protect(fakeNode->title()) << "\"";
-        thisStream << " fulltitle=\"" << HtmlGenerator::protect(fakeNode->fullTitle()) << "\"";
-        thisStream << " subtitle=\"" << HtmlGenerator::protect(fakeNode->subTitle()) << "\"";
-        thisStream << " location=\"" << HtmlGenerator::protect(fakeNode->doc().location().fileName()) << "\"";
+        element.setAttribute("title", fakeNode->title());
+        element.setAttribute("fulltitle", fakeNode->fullTitle());
+        element.setAttribute("subtitle", fakeNode->subTitle());
+        element.setAttribute("location", fakeNode->doc().location().fileName());
     }
 
     // Function nodes contain information about the type of function being
@@ -937,54 +933,53 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
     else if (node->type() == Node::Function) {
 
         if (objName.isEmpty())
-            return;
+            return QDomElement();
 
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
 
         switch (functionNode->virtualness()) {
             case FunctionNode::NonVirtual:
-                thisStream << " virtual=\"non\"";
+                element.setAttribute("virtual", "non");
                 break;
             case FunctionNode::ImpureVirtual:
-                thisStream << " virtual=\"impure\"";
+                element.setAttribute("virtual", "impure");
                 break;
             case FunctionNode::PureVirtual:
-                thisStream << " virtual=\"pure\"";
+                element.setAttribute("virtual", "pure");
                 break;
             default:
                 break;
         }
         switch (functionNode->metaness()) {
             case FunctionNode::Plain:
-                thisStream << " meta=\"plain\"";
+                element.setAttribute("meta", "plain");
                 break;
             case FunctionNode::Signal:
-                thisStream << " meta=\"signal\"";
+                element.setAttribute("meta", "signal");
                 break;
             case FunctionNode::Slot:
-                thisStream << " meta=\"slot\"";
+                element.setAttribute("meta", "slot");
                 break;
             case FunctionNode::Ctor:
-                thisStream << " meta=\"constructor\"";
+                element.setAttribute("meta", "constructor");
                 break;
             case FunctionNode::Dtor:
-                thisStream << " meta=\"destructor\"";
+                element.setAttribute("meta", "destructor");
                 break;
             case FunctionNode::MacroWithParams:
-                thisStream << " meta=\"macrowithparams\"";
+                element.setAttribute("meta", "macrowithparams");
                 break;
             case FunctionNode::MacroWithoutParams:
-                thisStream << " meta=\"macrowithoutparams\"";
+                element.setAttribute("meta", "macrowithoutparams");
                 break;
             default:
                 break;
         }
-        thisStream << " const=\"" << (functionNode->isConst()?"true":"false") << "\"";
-        thisStream << " static=\"" << (functionNode->isStatic()?"true":"false") << "\"";
-        thisStream << " overload=\"" << (functionNode->isOverload()?"true":"false") << "\"";
+        element.setAttribute("const", functionNode->isConst()?"true":"false");
+        element.setAttribute("static", functionNode->isStatic()?"true":"false");
+        element.setAttribute("overload", functionNode->isOverload()?"true":"false");
         if (functionNode->relates())
-            thisStream << " relates=\"" << HtmlGenerator::protect(
-                functionNode->relates()->name()) << "\"";
+            element.setAttribute("relates", functionNode->relates()->name());
     }
 
     // Inner nodes and function nodes contain child nodes of some sort, either
@@ -1014,48 +1009,27 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
                 QString targetName = target->string();
                 if (!external)
                     targetName = Doc::canonicalTitle(targetName);
-                childNodes += indent + " <target name=\""
-                            + HtmlGenerator::protect(targetName) + "\" />\n";
+
+                QDomElement childElement = document.createElement("target");
+                childElement.setAttribute("name", targetName);
+                element.appendChild(childElement);
             }
         }
         if (inner->doc().hasKeywords()) {
             foreach (Atom *keyword, inner->doc().keywords()) {
-                childNodes += indent + " <keyword name=\""
-                            + HtmlGenerator::protect(
-                                Doc::canonicalTitle(keyword->string()))
-                            + "\" />\n";
+                QDomElement childElement = document.createElement("keyword");
+                childElement.setAttribute("name", Doc::canonicalTitle(keyword->string()));
+                element.appendChild(childElement);
             }
         }
         if (inner->doc().hasTableOfContents()) {
             foreach (Atom *item, inner->doc().tableOfContents()) {
                 QString title = Text::sectionHeading(item).toString();
-                childNodes += indent + " <contents name=\""
-                            + HtmlGenerator::protect(
-                                Doc::canonicalTitle(title))
-                            + "\" title=\""
-                            + HtmlGenerator::protect(title) + "\" />\n";
+                QDomElement childElement = document.createElement("contents");
+                childElement.setAttribute("name", Doc::canonicalTitle(title));
+                childElement.setAttribute("title", title);
+                element.appendChild(childElement);
             }
-        }
-
-        QString temp;
-        QTextStream childOut(&temp);
-        foreach (Node *child, inner->childNodes()) {
-            if (inlineChildren)
-                generateIndexSection(indent + " ", childOut, child, inlineChildren);
-            else
-                out << "<reference id=\""
-                    << HtmlGenerator::protect(child->name()) << "\" />\n";
-        }
-
-        childNodes += temp;
-        temp.clear();
-
-        foreach (Node *child, inner->relatedNodes()) {
-            if (inlineChildren)
-                generateIndexSection(indent + "  ", childOut, child, inlineChildren);
-            else
-                out << "<reference id=\""
-                    << HtmlGenerator::protect(child->name()) << "\" />\n";
         }
 
     } else if (node->type() == Node::Function) {
@@ -1064,57 +1038,77 @@ void Tree::generateIndexSection(QString indent, QTextStream& out,
         foreach (Parameter parameter, functionNode->parameters()) {
             // Do not supply a default value for the parameter; it will only
             // cause disagreement when it is read from an index file later on.
-            childNodes += indent + " <parameter"
-                + " left=\"" + HtmlGenerator::protect(parameter.leftType()) + "\""
-                + " right=\"" + HtmlGenerator::protect(parameter.rightType()) + "\""
-                + " name=\"" + HtmlGenerator::protect(parameter.name()) + "\""
-//                + " default=\"" + HtmlGenerator::protect(parameter.defaultValue())
-                + " />\n";
+            QDomElement childElement = document.createElement("parameter");
+            childElement.setAttribute("left", parameter.leftType());
+            childElement.setAttribute("right", parameter.rightType());
+            childElement.setAttribute("name", parameter.name());
+            //childElement.setAttribute("default", parameter.defaultValue());
+            element.appendChild(childElement);
         }
 
     } else if (node->type() == Node::Enum) {
 
         const EnumNode *enumNode = static_cast<const EnumNode*>(node);
         foreach (EnumItem item, enumNode->items()) {
-            childNodes += indent + " <value"
-                + " name=\"" + HtmlGenerator::protect(item.name()) + "\""
-                + " value=\"" + HtmlGenerator::protect(item.value()) + "\""
-                + " />\n";
+            QDomElement childElement = document.createElement("value");
+            childElement.setAttribute("name", item.name());
+            childElement.setAttribute("value", item.value());
+            element.appendChild(childElement);
         }
     }
 
-    // Construct the opening tag for the node and determine if it should
-    // be closed, or if it is followed by child nodes and a closing tag.
+    return element;
+}
 
-    out << thisNode;
+QDomElement Tree::generateIndexSections(QDomDocument &document,
+                                       const Node *node) const
+{
+    QDomElement element = generateIndexSection(document, node);
 
-    if (!childNodes.isEmpty()) {
-        out << ">\n";
-        out << childNodes;
-        out << indent << "</" << nodeName << ">\n";
-    } else
-        out << " />\n";
+    if (node->isInnerNode()) {
+        const InnerNode *inner = static_cast<const InnerNode *>(node);
 
-    out.flush();
+        foreach (Node *child, inner->childNodes()) {
+            // Recurse to generate a DOM element for this child node and all
+            // its children.
+            QDomElement childElement = generateIndexSections(document, child);
+            element.appendChild(childElement);
+        }
+/*
+        foreach (Node *child, inner->relatedNodes()) {
+            QDomElement childElement = generateIndexSections(document, child);
+            element.appendChild(childElement);
+        }
+*/
+    }
+
+    return element;
 }
 
 void Tree::generateIndex(const QString &fileName, const QString &url,
-                                 const QString &title) const
+                         const QString &title) const
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text))
         return ;
 
     QTextStream out(&file);
+    QDomDocument document("QDOCINDEX");
+    QDomProcessingInstruction process = document.createProcessingInstruction(
+        "xml", QString("version=\"1.0\" encoding=\"%1\"").arg("iso-8859-1"));
 
-    out << "<!DOCTYPE QDOCINDEX>\n";
-    out << "<INDEX url=\"" << HtmlGenerator::protect(url)
-        << "\" title=\"" << HtmlGenerator::protect(title)
-        << "\" version=\"" << HtmlGenerator::protect(version()) + "\">\n";
+    QDomElement indexElement = document.createElement("INDEX");
+    indexElement.setAttribute("url", url);
+    indexElement.setAttribute("title", title);
+    indexElement.setAttribute("version", version());
 
-    generateIndexSection("", out, root(), true);
+    document.appendChild(process);
+    document.appendChild(indexElement);
 
-    out << "</INDEX>\n";
+    QDomElement rootElement = generateIndexSections(document, root());
+    indexElement.appendChild(rootElement);
+
+    out << document;
     out.flush();
 }
 
@@ -1160,31 +1154,31 @@ QString Tree::fullDocumentName(const Node *node) const
     switch (node->type()) {
         case Node::Class:
             if (parentNode && parentNode->type() == Node::Class)
-                return HtmlGenerator::protect(parentNode->name()).toLower()
-                     + "-" + HtmlGenerator::protect(node->name()).toLower()
+                return parentNode->name().toLower()
+                     + "-" + node->name().toLower()
                      + ".html";
             else
-                return HtmlGenerator::protect(node->name()).toLower() + ".html";
+                return node->name().toLower() + ".html";
         case Node::Function:
             {
                 // Functions can be overloaded.
                 const FunctionNode *functionNode = static_cast<const FunctionNode *>(node);
                 if (functionNode->overloadNumber() > 1)
-                    return parentName + "#" + HtmlGenerator::protect(node->name())
+                    return parentName + "#" + node->name()
                            + "-" + QString::number(functionNode->overloadNumber());
-                return parentName + "#" + HtmlGenerator::protect(node->name());
+                return parentName + "#" + node->name();
             }
 
         case Node::Enum:
-            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-enum";
+            return parentName + "#" + node->name() + "-enum";
         case Node::Typedef:
-            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-typedef";
+            return parentName + "#" + node->name() + "-typedef";
         case Node::Property:
-            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-prop";
+            return parentName + "#" + node->name() + "-prop";
         case Node::Variable:
-            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-var";
+            return parentName + "#" + node->name() + "-var";
         case Node::Target:
-            return parentName + "#" + HtmlGenerator::protect(node->name());
+            return parentName + "#" + node->name();
         case Node::Namespace:
         case Node::Fake:
         default:
