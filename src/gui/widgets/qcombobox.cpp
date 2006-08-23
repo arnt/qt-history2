@@ -172,7 +172,7 @@ QSize QComboBoxPrivate::recomputeSizeHint(QSize &sh) const
 {
     Q_Q(const QComboBox);
     if (!sh.isValid()) {
-        bool hasIcon = false;
+        bool hasIcon = sizeAdjustPolicy == QComboBox::AdjustToMinimumContentsLengthWithIcon ? true : false;
         int count = q->count();
         QSize iconSize = q->iconSize();
         const QFontMetrics &fm = q->fontMetrics();
@@ -548,6 +548,7 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
     \value AdjustToContents              The combobox will always adjust to the contents
     \value AdjustToContentsOnFirstShow   The combobox will adjust to its contents the first time it is show.
     \value AdjustToMinimumContentsLength Use AdjustToContents or AdjustToContentsOnFirstShow instead.
+    \value AdjustToMinimumContentsLengthWithIcon The combobox will adjust to \l minimumContentsLength plus space for an icon. For performance reasons use this policy on large models.
 */
 
 /*!
@@ -1275,7 +1276,8 @@ void QComboBox::setMinimumContentsLength(int characters)
     d->minimumContentsLength = characters;
 
     if (d->sizeAdjustPolicy == AdjustToContents
-            || d->sizeAdjustPolicy == AdjustToMinimumContentsLength) {
+            || d->sizeAdjustPolicy == AdjustToMinimumContentsLength
+            || d->sizeAdjustPolicy == AdjustToMinimumContentsLengthWithIcon) {
         d->sizeHint = QSize();
         updateGeometry();
     }
