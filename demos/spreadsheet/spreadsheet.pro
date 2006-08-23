@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 CONFIG += qt warn_on
-unix:!embedded:contains(QT_CONFIG, qdbus):CONFIG += qdbus
+unix:contains(QT_CONFIG, qdbus):CONFIG += qdbus
 
 SOURCES += main.cpp
 RESOURCES += spreadsheet.qrc
