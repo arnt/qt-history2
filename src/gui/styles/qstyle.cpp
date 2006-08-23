@@ -578,7 +578,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_FocusAtBorder
     \value State_HasEditFocus
     \value State_HasFocus
-    \value State_HasFocus
     \value State_Horizontal
     \value State_Item
     \value State_MouseOver
