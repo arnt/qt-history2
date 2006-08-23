@@ -530,6 +530,9 @@ QKeyMapperPrivate::updateKeyboard()
     keyboard_kind = LMGetKbdType();
     currentKeyboardLayout = keyLayoutRef;
     keyboard_dead = 0;
+#ifndef kKLLanguageCode
+#define kKLLanguageCode 9
+#endif
     CFStringRef iso639Code;
 #ifndef kKLLanguageCode
 #define kKLLanguageCode 9
