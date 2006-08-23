@@ -18,7 +18,7 @@ QTEST_NOOP_MAIN
 #include <qgraphicssceneevent.h>
 #include <qgraphicsview.h>
 
-#include <cmath>
+#include <math.h>
 
 #include <QtGui/QBitmap>
 #include <QtGui/QGridLayout>
