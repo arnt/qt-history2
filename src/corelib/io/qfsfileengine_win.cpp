@@ -349,7 +349,25 @@ QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
     return ret;
 }
 
-static QString nativeAbsoluteFilePath(const QString &path)
+// If you change this function, remember to also change the UNICODE version
+static QString nativeAbsoluteFilePathA(const QString &path)
+{
+    QString ret;
+    QVarLengthArray<char, MAX_PATH> buf(MAX_PATH);
+    char *fileName = 0;
+    QByteArray ba = path.toLocal8Bit();
+    DWORD retLen = GetFullPathNameA(ba.constData(), buf.size(), buf.data(), &fileName);
+    if (retLen > (DWORD)buf.size()) {
+        buf.resize(retLen);
+        retLen = GetFullPathNameA(ba.constData(), buf.size(), buf.data(), &fileName);
+    }
+    if (retLen != 0)
+        ret = QString::fromLocal8Bit(buf.data(), retLen);
+    return ret;
+}
+
+// If you change this function, remember to also change the NON-UNICODE version
+static QString nativeAbsoluteFilePathW(const QString &path)
 {
     QString ret;
     QVarLengthArray<wchar_t, MAX_PATH> buf(MAX_PATH);
@@ -389,7 +407,7 @@ QByteArray QFSFileEnginePrivate::win95Name(const QString &path)
 */
 QString QFSFileEnginePrivate::longFileName(const QString &path)
 {
-    QString absPath = nativeAbsoluteFilePath(path);
+    QString absPath = QT_WA_INLINE(nativeAbsoluteFilePathW(path), nativeAbsoluteFilePathA(path));
     QString prefix = "\\\\?\\";
     if (isUncPath(path)) {
         prefix = "\\\\?\\UNC\\";
@@ -1466,7 +1484,7 @@ QString QFSFileEngine::fileName(FileName file) const
                 && d->file.at(2) != QLatin1Char('/') || // It's a drive-relative path, so Z:a.txt -> Z:\currentpath\a.txt
                 d->file.startsWith(QLatin1Char('/'))    // It's a absolute path to the current drive, so \a.txt -> Z:\a.txt
                 ) {
-                ret = QDir::fromNativeSeparators(nativeAbsoluteFilePath(d->file));
+                ret = QDir::fromNativeSeparators(QT_WA_INLINE(nativeAbsoluteFilePathW(d->file), nativeAbsoluteFilePathA(d->file)));
             } else {
                 ret = d->file;
             }
