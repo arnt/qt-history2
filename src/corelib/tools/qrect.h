@@ -124,9 +124,9 @@ public:
     bool contains(int x, int y, bool proper) const;
     bool contains(const QRect &r, bool proper = false) const;
     QRect unite(const QRect &r) const;  // ### Qt 5: make QT4_SUPPORT
-    inline QRect united(const QRect &other) const { return unite(other); }
+    QRect united(const QRect &other) const;
     QRect intersect(const QRect &r) const;  // ### Qt 5: make QT4_SUPPORT
-    inline QRect intersected(const QRect &other) const { return intersect(other); }
+    QRect intersected(const QRect &other) const;
     bool intersects(const QRect &r) const;
 
     friend Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
@@ -446,9 +446,20 @@ inline QRect QRect::intersect(const QRect &r) const
 {
     return *this & r;
 }
+
+inline QRect QRect::intersected(const QRect &other) const 
+{ 
+    return intersect(other); 
+}
+
 inline QRect QRect::unite(const QRect &r) const
 {
     return *this | r;
+}
+
+inline QRect QRect::united(const QRect &r) const
+{ 
+     return unite(r); 
 }
 
 inline bool operator==(const QRect &r1, const QRect &r2)
@@ -548,9 +559,9 @@ public:
     bool contains(qreal x, qreal y) const;
     bool contains(const QRectF &r) const;
     QRectF unite(const QRectF &r) const;  // ### Qt 5: make QT4_SUPPORT
-    inline QRectF united(const QRectF &other) const { return unite(other); }
+    QRectF united(const QRectF &other) const;
     QRectF intersect(const QRectF &r) const;  // ### Qt 5: make QT4_SUPPORT
-    inline QRectF intersected(const QRectF &other) const { return intersect(other); }
+    QRectF intersected(const QRectF &other) const;
     bool intersects(const QRectF &r) const;
 
     friend Q_CORE_EXPORT inline bool operator==(const QRectF &, const QRectF &);
@@ -762,9 +773,20 @@ inline QRectF QRectF::intersect(const QRectF &r) const
 {
     return *this & r;
 }
+
+inline QRectF QRectF::intersected(const QRectF &r) const
+{ 
+    return intersect(r); 
+}
+
 inline QRectF QRectF::unite(const QRectF &r) const
 {
     return *this | r;
+}
+
+inline QRectF QRectF::united(const QRectF &r) const
+{
+    return unite(r);
 }
 
 inline bool operator==(const QRectF &r1, const QRectF &r2)
