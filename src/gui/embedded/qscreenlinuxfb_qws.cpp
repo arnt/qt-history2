@@ -124,7 +124,7 @@ void QLinuxFbScreenPrivate::closeTty()
 void QLinuxFbScreenPrivate::installSignalHandler()
 {
     const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
-                            SIGKILL, SIGSEGV, SIGTERM, SIGBUS };
+                            SIGSEGV, SIGTERM, SIGBUS };
     const int n = sizeof(signums)/sizeof(int);
 
     instance = this;

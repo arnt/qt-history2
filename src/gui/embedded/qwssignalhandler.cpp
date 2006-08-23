@@ -20,7 +20,7 @@
 QWSSignalHandler::QWSSignalHandler()
 {
     const int signums[] = { SIGHUP, SIGINT, SIGQUIT, SIGILL, SIGABRT, SIGFPE,
-                            SIGKILL, SIGSEGV, SIGTERM, SIGBUS };
+                            SIGSEGV, SIGTERM, SIGBUS };
     const int n = sizeof(signums)/sizeof(int);
 
     for (int i = 0; i < n; ++i) {
