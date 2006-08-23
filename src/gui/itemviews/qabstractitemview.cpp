@@ -1965,6 +1965,11 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (!d->isIndexValid(index))
         return false;
 
+    if (QWidget *w = (d->persistent.isEmpty() ? 0 : d->editorForIndex(index))) {
+        w->setFocus();
+        return true;
+    }
+
     if (trigger == DoubleClicked)
         d->delayedEditing.stop();
 
@@ -1973,8 +1978,10 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
         return true;
     }
 
-    if (!d->shouldEdit(trigger, d->model->buddy(index)))
+    if (!d->shouldEdit(trigger, d->model->buddy(index))) {
+        d->viewport->setFocus();
         return false;
+    }
 
     if (trigger == SelectedClicked) // we may get a double click event later
         d->delayedEditing.start(QApplication::doubleClickInterval() + 100, this);
