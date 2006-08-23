@@ -1,4 +1,4 @@
-The Simpel Text Viewer enables the user to select and view existing
+The Simple Text Viewer enables the user to select and view existing
 files.
 
 HTML files is displayed using rich text, while other files are
