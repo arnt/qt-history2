@@ -214,6 +214,8 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 {
+    if (!w->testAttribute(Qt::WA_WState_Created))
+        return;
     HIViewFeatures bits;
     HIViewRef hiview = qt_mac_hiview_for(w);
     HIViewGetFeatures(hiview, &bits);
@@ -1283,6 +1285,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 registerDropSite(true);
         }
     }
+    updateIsOpaque();
 
     if(destroyid) {
         HIViewRemoveFromSuperview(destroyid);
@@ -2357,7 +2360,9 @@ QPaintEngine *QWidget::paintEngine() const
 void QWidgetPrivate::setModal_sys()
 {
     Q_Q(QWidget);
-    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
 
     const QWidget * const windowParent = q->window()->parentWidget();
     const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
@@ -2365,7 +2370,7 @@ void QWidgetPrivate::setModal_sys()
     const bool modal = q->testAttribute(Qt::WA_ShowModal);
 
     //setup the proper window class
-    const WindowRef window = qt_mac_window_for(qt_mac_hiview_for(q));
+    const WindowRef window = qt_mac_window_for(q);
     WindowClass old_wclass;
     GetWindowClass(window, &old_wclass);
 
@@ -2374,7 +2379,8 @@ void QWidgetPrivate::setModal_sys()
             HIWindowChangeClass(window ? window : qt_mac_window_for(q), kMovableModalWindowClass);
         }
     } else if(window) {
-        if (old_wclass != topData()->wclass)
-            HIWindowChangeClass(qt_mac_window_for(q), topData()->wclass);
+        WindowClass newClass = topData()->wclass;
+        if (old_wclass != newClass && newClass != 0)
+            HIWindowChangeClass(qt_mac_window_for(q), newClass);
     }
 }

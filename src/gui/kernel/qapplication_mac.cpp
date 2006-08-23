@@ -484,7 +484,7 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
         RGBColor c;
         for(int i = 0; mac_widget_colors[i].qt_class; i++) {
             QPalette pal;
-            if (mac_widget_colors[i].active == 0) {
+            if (mac_widget_colors[i].active != 0) {
                 if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
                     qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
                     pal.setColor(QPalette::Active, QPalette::Text, qc);
