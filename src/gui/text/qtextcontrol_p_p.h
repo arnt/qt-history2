@@ -130,7 +130,6 @@ public:
 
     bool mightStartDrag;
     QPoint dragStartPos;
-    QBasicTimer dragStartTimer;
     QPointer<QWidget> contextWidget;
 
     bool lastSelectionState;

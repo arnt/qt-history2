@@ -972,9 +972,6 @@ void QTextControl::timerEvent(QTimerEvent *e)
                             != 0);
 
         d->repaintCursor();
-    } else if (e->timerId() == d->dragStartTimer.timerId()) {
-        d->dragStartTimer.stop();
-        d->startDrag();
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     }
@@ -1340,7 +1337,6 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 #ifndef QT_NO_DRAGANDDROP
                 mightStartDrag = true;
                 dragStartPos = pos.toPoint();
-                dragStartTimer.start(QApplication::startDragTime(), q);
 #endif
                 return;
             }
@@ -1390,11 +1386,8 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     const int oldCursorPos = cursor.position();
 
     if (mightStartDrag) {
-        dragStartTimer.stop();
-
         if ((mousePos.toPoint() - dragStartPos).manhattanLength() > QApplication::startDragDistance())
             startDrag();
-
         return;
     }
     const qreal mouseX = qreal(mousePos.x());
@@ -1460,10 +1453,6 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     }
 
     repaintOldAndNewSelection(oldSelection);
-#ifndef QT_NO_DRAGANDDROP
-    if (dragStartTimer.isActive())
-        dragStartTimer.stop();
-#endif
 
     if (interactionFlags & Qt::LinksAccessibleByMouse) {
         if (!(button & Qt::LeftButton))
