@@ -531,6 +531,9 @@ QKeyMapperPrivate::updateKeyboard()
     currentKeyboardLayout = keyLayoutRef;
     keyboard_dead = 0;
     CFStringRef iso639Code;
+#ifndef kKLLanguageCode
+#define kKLLanguageCode 9
+#endif
     KLGetKeyboardLayoutProperty(currentKeyboardLayout, kKLLanguageCode,
                                 reinterpret_cast<const void **>(&iso639Code));
     if (iso639Code) {
