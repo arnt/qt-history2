@@ -409,7 +409,7 @@
     \o QPaintEngine
     \o
     The QPaintEngine class provides an abstract definition of how
-    QPainter draws to a given device on a given platform.  Qt 4.0
+    QPainter draws to a given device on a given platform.  Qt 4
     provides several premade implementations of QPaintEngine for the
     different painter backends we support; it provides one paint
     engine for each supported window system and painting

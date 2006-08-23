@@ -227,7 +227,7 @@
 
     \section2 Java-Style Iterators
 
-    The Java-style iterators are new in Qt 4.0 and are the standard
+    The Java-style iterators are new in Qt 4 and are the standard
     ones used in Qt applications. They are more convenient to use than
     the STL-style iterators, at the price of being slightly less
     efficient. Their API is modelled on Java's iterator classes.
@@ -696,7 +696,7 @@
         foreach (QString str, map.uniqueKeys()) {
             foreach (int i, map.values(str))
                 qDebug() << str << ":" << i;
-	}
+        }
     \endcode
 
     Qt automatically takes a copy of the container when it enters a
