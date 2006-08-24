@@ -50,8 +50,6 @@ public:
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
-    virtual bool event(QEvent *);
-
 
 private:
     void allow(Qt::DockWidgetArea area, bool allow);

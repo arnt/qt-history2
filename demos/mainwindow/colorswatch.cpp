@@ -30,6 +30,8 @@
 #include <QHBoxLayout>
 #include <QtDebug>
 
+#undef DEBUG_SIZEHINTS
+
 QColor bgColorForName(const QString &name)
 {
     if (name == "Black")
@@ -114,6 +116,8 @@ void ColorDock::paintEvent(QPaintEvent *)
     render_qt_text(&p, width(), height(), fgColorForName(color));
 
     p.restore();
+
+#ifdef DEBUG_SIZEHINTS
     p.setRenderHint(QPainter::Antialiasing, false);
 
     QSize sz = size();
@@ -137,6 +141,7 @@ void ColorDock::paintEvent(QPaintEvent *)
     p.setPen(Qt::black);
     p.drawRect(r);
     p.drawText(rect(), Qt::AlignLeft|Qt::AlignTop, text);
+#endif // DEBUG_SIZEHINTS
 }
 
 static QSpinBox *createSpinBox(int value, QWidget *parent)
@@ -310,13 +315,6 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
 void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
 {
     event->accept();
-    menu->exec(event->globalPos());
-}
-
-bool ColorSwatch::event(QEvent *e)
-{
-    if (e->type() != QEvent::Polish)
-        return QDockWidget::event(e);
 
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
@@ -367,7 +365,8 @@ bool ColorSwatch::event(QEvent *e)
         topAction->setEnabled(areas & Qt::TopDockWidgetArea);
         bottomAction->setEnabled(areas & Qt::BottomDockWidgetArea);
     }
-    return QDockWidget::event(e);
+
+    menu->exec(event->globalPos());
 }
 
 void ColorSwatch::allow(Qt::DockWidgetArea area, bool a)
