@@ -1344,22 +1344,9 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
         return false;
 
     if (!outputFileName.isEmpty()) {
-
-#if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
-        _sopen_s(&fd, outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY , _SH_DENYNO
-#else
-        fd = QT_OPEN(outputFileName.toLocal8Bit().constData(), O_CREAT | O_TRUNC | O_WRONLY
-#ifndef Q_OS_WIN
-                        | O_NOCTTY
-#endif
-#endif
-                        ,
-#if defined(Q_OS_WIN)
-                        _S_IREAD | _S_IWRITE
-#else
-                        0666
-#endif
-            );
+        QFile *file = new QFile(outputFileName);
+        outDevice = file;
+        file->open(QFile::WriteOnly|QFile::Truncate);
 #ifndef QT_NO_LPR
     } else {
         QString pr;
@@ -1535,13 +1522,14 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
         ::close(fds[0]);
         fd = fds[1];
         (void)::waitpid(pid, 0, 0);
+
+        if (fd < 0)
+            return false;
+
+        outDevice = new QFile();
+        static_cast<QFile *>(outDevice)->open(fd, QIODevice::WriteOnly);
 #endif
     }
-    if (fd < 0)
-        return false;
-
-    outDevice = new QFile();
-    static_cast<QFile *>(outDevice)->open(fd, QIODevice::WriteOnly);
 
     return true;
 }
