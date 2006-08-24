@@ -6621,11 +6621,12 @@ bool QWidget::qwsEvent(QWSEvent *)
     Ensures that the widget has been polished by QStyle (i.e., has a
     proper font and palette).
 
-    QWidget calls this function after it has been fully constructed but
-    before it is shown the very first time. You can call this function if you
-    want to ensure that the widget is polished before doing an operation
-    (e.g., the correct font size might be needed in the widget's sizeHint()
-    reimplementation).
+    QWidget calls this function after it has been fully constructed
+    but before it is shown the very first time. You can call this
+    function if you want to ensure that the widget is polished before
+    doing an operation, e.g., the correct font size might be needed in
+    the widget's sizeHint() reimplementation. Note that this function
+    \e is called from the default implementation of sizeHint().
 
     Polishing is useful for final initialization that must happen after
     all constructors (from base classes as well as from subclasses)
