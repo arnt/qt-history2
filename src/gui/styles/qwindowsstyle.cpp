@@ -2346,13 +2346,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setFont(font);
                 }
                 QPalette palette = dwOpt->palette;
-                palette.setColor(QPalette::Background, inactiveCaptionTextColor);
+                palette.setColor(QPalette::Window, inactiveCaptionTextColor);
                 bool active = dwOpt->state & State_Active;
                 const int indent = p->fontMetrics().descent();
                 drawItemText(p, r.adjusted(indent + 1, - menuOffset, -indent - 1, -1),
                             Qt::AlignLeft | Qt::AlignVCenter, palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
-                            floating ? (active ? QPalette::BrightText : QPalette::Background) : QPalette::Foreground);
+                            floating ? (active ? QPalette::BrightText : QPalette::Window) : QPalette::WindowText);
                 p->setFont(oldFont);
             }
         }

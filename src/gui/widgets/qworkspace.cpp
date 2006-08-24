@@ -244,7 +244,7 @@ void QWorkspaceTitleBarPrivate::readColors()
         pal.setColor(QPalette::Inactive, QPalette::Base,
                       pal.color(QPalette::Inactive, QPalette::Dark));
         pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
-                      pal.color(QPalette::Inactive, QPalette::Background));
+                      pal.color(QPalette::Inactive, QPalette::Window));
     }
 
     q->setPalette(pal);
@@ -2369,7 +2369,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::Window
     titlebar = 0;
     setAutoFillBackground(true);
 
-    setBackgroundRole(QPalette::Background);
+    setBackgroundRole(QPalette::Window);
     if (window) {
         if (flags)
             window->setParent(this, flags & ~Qt::WindowType_Mask);
@@ -3052,7 +3052,7 @@ void QWorkspace::setScrollBarsEnabled(bool enable)
         d->hbar->setObjectName(QLatin1String("horizontal scrollbar"));
         connect(d->hbar, SIGNAL(valueChanged(int)), this, SLOT(_q_scrollBarChanged()));
         d->corner = new QWidget(this);
-        d->corner->setBackgroundRole(QPalette::Background);
+        d->corner->setBackgroundRole(QPalette::Window);
         d->corner->setObjectName(QLatin1String("qt_corner"));
         d->updateWorkspace();
     } else {

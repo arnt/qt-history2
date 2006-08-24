@@ -42,7 +42,7 @@ DragWidget::DragWidget(QWidget *parent)
     }
 
     QPalette newPalette = palette();
-    newPalette.setColor(QPalette::Background, Qt::white);
+    newPalette.setColor(QPalette::Window, Qt::white);
     setPalette(newPalette);
 
     setAcceptDrops(true);

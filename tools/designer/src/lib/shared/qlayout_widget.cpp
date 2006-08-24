@@ -242,7 +242,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
     // ### cleanup
     if (isEmptyItem(item)) {
         QPalette p;
-        p.setColor(QPalette::Background, Qt::red);
+        p.setColor(QPalette::Window, Qt::red);
         m_indicatorRight->setPalette(p);
         m_indicatorBottom->setPalette(p);
 
@@ -274,7 +274,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         }
     } else {
         QPalette p;
-        p.setColor(QPalette::Background, Qt::blue);
+        p.setColor(QPalette::Window, Qt::blue);
         m_indicatorRight->setPalette(p);
         m_indicatorBottom->setPalette(p);
 

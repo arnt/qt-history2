@@ -835,7 +835,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
     case CE_ScrollBarSubPage:
     case CE_ScrollBarAddPage:
-        p->fillRect(opt->rect, opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
+        p->fillRect(opt->rect, opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Window));
         break;
 
     case CE_ScrollBarSlider: {
@@ -1518,7 +1518,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
             if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
                 qDrawShadePanel(p, groove, opt->palette, true, pixelMetric(PM_DefaultFrameWidth),
-                                &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
+                                &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Window));
                 if ((opt->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOption focusOpt = *opt;
                     focusOpt.rect = subElementRect(SE_SliderFocusRect, opt, widget);
@@ -1616,7 +1616,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         if (opt->subControls & SC_ScrollBarGroove)
             qDrawShadePanel(p, opt->rect, opt->palette, true,
                             pixelMetric(PM_DefaultFrameWidth, opt, widget),
-                            &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
+                            &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Window));
 
         QCommonStyle::drawComplexControl(cc, opt, p, widget);
         break; }
@@ -2640,7 +2640,7 @@ QPalette QMotifStyle::standardPalette() const
     QColor mid = QColor(0xa6, 0xa6, 0xa6);
     QColor dark = QColor(0x79, 0x7d, 0x79);
     QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
-    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::WindowText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Base, background);

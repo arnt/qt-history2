@@ -264,7 +264,7 @@ void PieView::paintEvent(QPaintEvent *event)
     QStyle::State state = option.state;
 
     QBrush background = option.palette.base();
-    QPen foreground(option.palette.color(QPalette::Foreground));
+    QPen foreground(option.palette.color(QPalette::WindowText));
     QPen textPen(option.palette.color(QPalette::Text));
     QPen highlightedPen(option.palette.color(QPalette::HighlightedText));
 

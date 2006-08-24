@@ -159,7 +159,7 @@ void QDesignerToolBox::itemInserted(int index)
 
 QPalette::ColorRole QDesignerToolBox::currentItemBackgroundRole() const
 {
-    return widget(0) ? widget(0)->backgroundRole() : QPalette::Background;
+    return widget(0) ? widget(0)->backgroundRole() : QPalette::Window;
 }
 
 void QDesignerToolBox::setCurrentItemBackgroundRole(QPalette::ColorRole role)

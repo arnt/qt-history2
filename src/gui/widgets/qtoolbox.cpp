@@ -35,7 +35,7 @@ public:
     QToolBoxButton(QWidget *parent)
         : QAbstractButton(parent), selected(false)
     {
-        setBackgroundRole(QPalette::Background);
+        setBackgroundRole(QPalette::Window);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
         setFocusPolicy(Qt::NoFocus);
     }
@@ -135,8 +135,8 @@ void QToolBoxPrivate::updateTabs()
             p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole()));
             tB->setPalette(p);
             tB->update();
-        } else if (tB->backgroundRole() != QPalette::Background) {
-            tB->setBackgroundRole(QPalette::Background);
+        } else if (tB->backgroundRole() != QPalette::Window) {
+            tB->setBackgroundRole(QPalette::Window);
             tB->update();
         }
         after = (*i).button == lastButton;

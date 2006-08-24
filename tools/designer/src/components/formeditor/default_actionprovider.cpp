@@ -32,7 +32,7 @@ QDesignerActionProvider::QDesignerActionProvider(QWidget *widget, QObject *paren
 
     m_indicator = new InvisibleWidget(m_widget);
     m_indicator->setAutoFillBackground(true);
-    m_indicator->setBackgroundRole(QPalette::Background);
+    m_indicator->setBackgroundRole(QPalette::Window);
 
     QPalette p;
     p.setColor(m_indicator->backgroundRole(), Qt::red);

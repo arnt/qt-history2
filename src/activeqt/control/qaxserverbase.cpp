@@ -3164,7 +3164,7 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange(DISPID dispID)
 	    else
 		break;
 	    QPalette pal = qt.widget->palette();
-	    pal.setColor(dispID == DISPID_AMBIENT_BACKCOLOR ? QPalette::Background : QPalette::Foreground,
+	    pal.setColor(dispID == DISPID_AMBIENT_BACKCOLOR ? QPalette::Window : QPalette::WindowText,
 		OLEColorToQColor(rgb));
 	    qt.widget->setPalette(pal);
 	}

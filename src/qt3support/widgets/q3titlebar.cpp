@@ -173,7 +173,7 @@ void Q3TitleBarPrivate::readColors()
         pal.setColor(QPalette::Inactive, QPalette::Base,
                       pal.color(QPalette::Inactive, QPalette::Dark));
         pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
-                      pal.color(QPalette::Inactive, QPalette::Background));
+                      pal.color(QPalette::Inactive, QPalette::Window));
     }
 
     q->setPalette(pal);

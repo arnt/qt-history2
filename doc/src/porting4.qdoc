@@ -944,13 +944,13 @@
     widget. This means that if you had code like
 
     \badcode
-        painter.setBrush(colorGroup().brush(QColorGroup::Background));
+        painter.setBrush(colorGroup().brush(QColorGroup::Text));
     \endcode
 
     you can simply replace colorGroup() with palette():
 
     \code
-        painter.setBrush(palette().brush(QPalette::Background));
+        painter.setBrush(palette().brush(QPalette::Text));
     \endcode
 
     \section1 QColorDrag

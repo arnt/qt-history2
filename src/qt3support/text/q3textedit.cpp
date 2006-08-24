@@ -4482,10 +4482,10 @@ void Q3TextEdit::setPaper(const QBrush& pap)
     if ( pap.pixmap() )
         viewport()->setBackgroundPixmap( *pap.pixmap() );
     QPalette pal = palette();
-    pal.setColor(QPalette::Background, pap.color());
+    pal.setColor(QPalette::Window, pap.color());
     setPalette(pal);
     pal = viewport()->palette();
-    pal.setColor(QPalette::Background, pap.color());
+    pal.setColor(QPalette::Window, pap.color());
     viewport()->setPalette(pal);
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     // force a repaint of the entire viewport - using updateContents()

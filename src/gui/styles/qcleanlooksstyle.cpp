@@ -1424,7 +1424,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 drawItemText(painter, r.adjusted(indent + 1, 0, - indent - 1, -1),
                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                             dwOpt->state & State_Enabled, dwOpt->title,
-                            QPalette::Foreground);
+                            QPalette::WindowText);
             }
         }
         painter->restore();
@@ -2132,7 +2132,7 @@ QPalette QCleanlooksStyle::standardPalette () const
     //### Find the correct disabled text color
     palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(190, 190, 190));
 
-    palette.setBrush(QPalette::Background, backGround);
+    palette.setBrush(QPalette::Window, backGround);
     palette.setBrush(QPalette::Mid, backGround.dark(130));
     palette.setBrush(QPalette::Light, light);
 

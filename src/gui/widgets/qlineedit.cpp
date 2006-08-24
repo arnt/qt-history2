@@ -2182,7 +2182,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
             o.start = d->cursor;
             o.length = 1;
             o.format.setBackground(pal.brush(QPalette::Text));
-            o.format.setForeground(pal.brush(QPalette::Background));
+            o.format.setForeground(pal.brush(QPalette::Window));
         }
         selections.append(o);
     }

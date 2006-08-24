@@ -197,7 +197,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
             QPainter p(&dest);
             p.drawImage(margin, margin, image);
 
-            p.setPen(QPen(palette().brush(QPalette::Foreground), 0));
+            p.setPen(QPen(palette().brush(QPalette::WindowText), 0));
 
             p.drawRect(margin-1, margin-1, image.width() + 1, image.height() + 1);
 

@@ -1343,7 +1343,7 @@ void QMacStyle::polish(QPalette &pal)
         pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
     }
     QBrush background(pc, px);
-    pal.setBrush(QPalette::All, QPalette::Background, background);
+    pal.setBrush(QPalette::All, QPalette::Window, background);
     pal.setBrush(QPalette::All, QPalette::Button, background);
     pal.setBrush(QPalette::All, QPalette::AlternateBase, QColor(237, 243, 254));
 }
@@ -1367,7 +1367,7 @@ void QMacStyle::polish(QWidget* w)
         // Set a clear brush so that the metal shines through.
         QPalette pal = w->palette();
         QBrush background(Qt::transparent);
-        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Window, background);
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
     }
@@ -1385,7 +1385,7 @@ void QMacStyle::polish(QWidget* w)
     if (!px.isNull()) {
         QPalette pal = w->palette();
         QBrush background(px);
-        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Window, background);
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
     }
@@ -1407,7 +1407,7 @@ void QMacStyle::unpolish(QWidget* w)
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
-        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Window, background);
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
         w->setWindowOpacity(1.0);
@@ -2888,7 +2888,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
                               Qt::AlignCenter, dwOpt->palette,
                               dwOpt->state & State_Enabled, dwOpt->title,
-                              QPalette::Foreground);
+                              QPalette::WindowText);
                 p->setFont(oldFont);
             }
         }

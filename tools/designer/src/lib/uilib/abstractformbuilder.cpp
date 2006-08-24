@@ -1063,7 +1063,7 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
     QList<DomColorRole*> colorRoles;
 
     uint mask = palette.resolve();
-    for (int role = QPalette::Foreground; role < QPalette::NColorRoles; ++role) {
+    for (int role = QPalette::WindowText; role < QPalette::NColorRoles; ++role) {
         if (mask & (1 << role)) {
             QBrush br = palette.brush(QPalette::ColorRole(role));
 

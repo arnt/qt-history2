@@ -38,12 +38,12 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     palette.setBrush(QPalette::Highlight, Qt::darkGreen);
     setTexture(palette, QPalette::Button, buttonImage);
     setTexture(palette, QPalette::Mid, midImage);
-    setTexture(palette, QPalette::Background, backgroundImage);
+    setTexture(palette, QPalette::Window, backgroundImage);
 
     QBrush brush = palette.background();
     brush.setColor(brush.color().dark());
 
-    palette.setBrush(QPalette::Disabled, QPalette::Foreground, brush);
+    palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush);
     palette.setBrush(QPalette::Disabled, QPalette::Text, brush);
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush);
     palette.setBrush(QPalette::Disabled, QPalette::Base, brush);

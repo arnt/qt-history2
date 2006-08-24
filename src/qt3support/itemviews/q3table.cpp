@@ -1534,7 +1534,7 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
     QSize sz = QSize(table()->style()->pixelMetric(QStyle::PM_IndicatorWidth),
                       table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
     QPalette pal2(pal);
-    pal2.setBrush(QPalette::Background, pal.brush(QPalette::Base));
+    pal2.setBrush(QPalette::Window, pal.brush(QPalette::Base));
     QStyleOptionButton opt;
     opt.initFrom(table());
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());

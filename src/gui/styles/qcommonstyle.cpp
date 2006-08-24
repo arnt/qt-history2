@@ -792,7 +792,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
             if (!btn->text.isEmpty()){
                 drawItemText(p, textRect, alignment | Qt::TextShowMnemonic,
-                    btn->palette, btn->state & State_Enabled, btn->text, QPalette::Foreground);
+                    btn->palette, btn->state & State_Enabled, btn->text, QPalette::WindowText);
             }
         }
         break;
@@ -855,7 +855,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_ProgressBarGroove:
         qDrawShadePanel(p, opt->rect, opt->palette, true, 1,
-                        &opt->palette.brush(QPalette::Background));
+                        &opt->palette.brush(QPalette::Window));
         break;
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
@@ -1268,7 +1268,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 tr.setLeft(tr.left() + iconSize.width() + 4);
             }
 
-            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::WindowText);
             if (verticalTabs)
                 p->restore();
 
@@ -1382,7 +1382,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (styleHint(QStyle::SH_RubberBand_Mask, opt, widget, &mask))
                 p->setClipRegion(mask.region);
             p->drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), tiledPixmap);
-            p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
+            p->setPen(opt->palette.color(QPalette::Active, QPalette::WindowText));
             p->setBrush(Qt::NoBrush);
             p->drawRect(r.adjusted(0, 0, -1, -1));
             if (rbOpt->shape == QRubberBand::Rectangle)
@@ -1405,7 +1405,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
                               Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                               dwOpt->state & State_Enabled, dwOpt->title,
-                              QPalette::Foreground);
+                              QPalette::WindowText);
             }
         }
         break;
@@ -2630,7 +2630,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                     drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
                                  groupBox->palette, groupBox->state & State_Enabled, groupBox->text,
-                                 textColor.isValid() ? QPalette::NoRole : QPalette::Foreground);
+                                 textColor.isValid() ? QPalette::NoRole : QPalette::WindowText);
 
                     if (groupBox->state & State_HasFocus) {
                         QStyleOptionFocusRect fropt;
@@ -3720,7 +3720,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_Dial_BackgroundRole:
-        ret = QPalette::Background;
+        ret = QPalette::Window;
         break;
 
     case SH_ComboBox_LayoutDirection:
@@ -4098,7 +4098,7 @@ QPixmap QCommonStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &p
         QImage im = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
 
         // Create a colortable based on the background (black -> bg -> white)
-        QColor bg = opt->palette.color(QPalette::Disabled, QPalette::Background);
+        QColor bg = opt->palette.color(QPalette::Disabled, QPalette::Window);
         int red = bg.red();
         int green = bg.green();
         int blue = bg.blue();

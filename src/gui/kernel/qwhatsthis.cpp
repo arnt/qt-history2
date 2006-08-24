@@ -286,7 +286,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     QPainter p(this);
     p.drawPixmap(0, 0, background);
     p.setPen(palette().foreground().color());
-    p.setBrush(palette().brush(QPalette::Background));
+    p.setBrush(palette().brush(QPalette::Window));
     p.drawRect(r);
     int w = r.width();
     int h = r.height();

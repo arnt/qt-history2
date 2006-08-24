@@ -3335,7 +3335,7 @@ QPalette::ColorRole QWidget::backgroundRole() const
             break;
         w = w->parentWidget();
     } while (w);
-    return QPalette::Background;
+    return QPalette::Window;
 }
 
 /*!

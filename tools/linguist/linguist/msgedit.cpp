@@ -476,11 +476,11 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
     p.setColor(QPalette::Active, QPalette::Base, QColor(Qt::white));
     p.setColor(QPalette::Inactive, QPalette::Base, QColor(Qt::white));
     p.setColor(QPalette::Disabled, QPalette::Base, QColor(Qt::white));
-    p.setColor(QPalette::Active, QPalette::Background,
+    p.setColor(QPalette::Active, QPalette::Window,
                 p.color(QPalette::Active, QPalette::Base));
-    p.setColor(QPalette::Inactive, QPalette::Background,
+    p.setColor(QPalette::Inactive, QPalette::Window,
                 p.color(QPalette::Inactive, QPalette::Base));
-    p.setColor(QPalette::Disabled, QPalette::Background,
+    p.setColor(QPalette::Disabled, QPalette::Window,
                 p.color(QPalette::Disabled, QPalette::Base));
 
     parent->setPalette(p);

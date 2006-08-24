@@ -528,7 +528,7 @@ void Q3DateTimeEditor::paintEvent(QPaintEvent *)
     }
 
     QPainter p(this);
-    const QBrush &bg = palette().brush(isEnabled() ? QPalette::Base : QPalette::Background);
+    const QBrush &bg = palette().brush(isEnabled() ? QPalette::Base : QPalette::Window);
     p.fillRect(0, 0, width(), height(), bg);
     d->paint(txt, hasFocus(), p, palette(), rect(), style());
 }

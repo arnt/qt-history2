@@ -239,7 +239,7 @@ protected:
             return;
         QPainter p(this);
         p.setClipRegion(e->rect());
-        p.fillRect(e->rect(), palette().brush(QPalette::Background));
+        p.fillRect(e->rect(), palette().brush(QPalette::Window));
         int x = 0;
         for (int i = 0; i < childs.size(); ++i) {
             QObject *o = childs.at(i);

@@ -305,7 +305,7 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
         QDate date = dateForCell(row, col);
         format.merge(m_dateFormats.value(date));
         if(date < minimumDate || date > maximumDate)
-            format.setBackground(pal.brush(cg, QPalette::Background));
+            format.setBackground(pal.brush(cg, QPalette::Window));
         if (shownMonth != date.month())
             format.setForeground(pal.brush(QPalette::Disabled, QPalette::Text));
     }

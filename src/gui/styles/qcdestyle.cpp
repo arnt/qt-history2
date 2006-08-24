@@ -220,7 +220,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             QColor fillColor = on ? opt->palette.dark().color() : opt->palette.background().color();
             p->setPen(fillColor);
             p->setBrush(on ? opt->palette.brush(QPalette::Dark) :
-                         opt->palette.brush(QPalette::Background));
+                         opt->palette.brush(QPalette::Window));
             p->drawPolygon(a);
             if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
                 p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
@@ -240,7 +240,7 @@ QPalette QCDEStyle::standardPalette() const
     QColor mid = background.dark(150);
     QColor dark = background.dark();
     QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
-    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::WindowText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Base, background);

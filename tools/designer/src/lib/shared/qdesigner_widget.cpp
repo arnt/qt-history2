@@ -89,7 +89,7 @@ void QDesignerDialog::paintEvent(QPaintEvent *e)
         paintGrid(this, m_formWindow, e);
     } else {
         QPainter p(this);
-        p.fillRect(e->rect(), palette().brush(QPalette::Background));
+        p.fillRect(e->rect(), palette().brush(QPalette::Window));
     }
 }
 
@@ -116,7 +116,7 @@ QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidg
     : QWidget(parent), m_formWindow(formWindow)
 {
     need_frame = true;
-    setBackgroundRole(QPalette::Background);
+    setBackgroundRole(QPalette::Window);
 }
 
 QDesignerWidget::~QDesignerWidget()

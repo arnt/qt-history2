@@ -1937,7 +1937,7 @@ QPalette QStyle::standardPalette() const
     QColor dark(background.dark());
     QColor mid(Qt::gray);
     QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
-    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::WindowText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Base, background);

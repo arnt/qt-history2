@@ -71,7 +71,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         pal.setColor(QPalette::Inactive, QPalette::Base,
                       pal.color(QPalette::Inactive, QPalette::Dark));
         pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
-                      pal.color(QPalette::Inactive, QPalette::Background));
+                      pal.color(QPalette::Inactive, QPalette::Window));
     }
 
     Qt::WindowFlags flags = widget->windowFlags();

@@ -1078,7 +1078,7 @@ void Q3Canvas::drawViewArea(Q3CanvasView* view, QPainter* p, const QRect& vr, bo
 	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
 	    qt_setclipregion(p, QRegion(cvr)-QRegion(a));
 	    p->fillRect(vr,view->viewport()->palette()
-                        .brush(QPalette::Active,QColorGroup::Background));
+                        .brush(QPalette::Active,QPalette::Window));
 	}
 	qt_setclipregion(p, a);
     }

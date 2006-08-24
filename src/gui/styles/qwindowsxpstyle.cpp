@@ -2365,7 +2365,7 @@ case CE_DockWidgetTitle:
                         drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
                                     Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                     dwOpt->state & State_Enabled, dwOpt->title,
-                                    QPalette::Foreground);
+                                    QPalette::WindowText);
                     }
                     return;
                 }

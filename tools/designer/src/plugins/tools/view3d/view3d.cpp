@@ -197,7 +197,7 @@ void QView3DWidget::initializeGL()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    qglClearColor(palette().color(QPalette::Background).dark());
+    qglClearColor(palette().color(QPalette::Window).dark());
     glColor3f (1.0, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);

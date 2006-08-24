@@ -571,7 +571,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
                     br.height(), pal, false,
-                    &pal.brush(QPalette::Background));
+                    &pal.brush(QPalette::Window));
         if (porterDuff)
             painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         handled |= true;
@@ -586,7 +586,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             titleBrush = pal.brush(QPalette::Highlight);
             titlePen   = pal.color(QPalette::HighlightedText);
         } else {
-            titleBrush = pal.brush(QPalette::Background);
+            titleBrush = pal.brush(QPalette::Window);
             titlePen   = pal.color(QPalette::Text);
         }
 
@@ -650,13 +650,13 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
     if (state & QDecoration::Pressed) {
         if (porterDuff)
             painter->setCompositionMode(QPainter::CompositionMode_Source);
-        qDrawWinPanel(painter, brect, pal, true, &pal.brush(QPalette::Background));
+        qDrawWinPanel(painter, brect, pal, true, &pal.brush(QPalette::Window));
         if (porterDuff)
             painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         ++xoff;
         ++yoff;
     } else {
-        painter->fillRect(brect, pal.brush(QPalette::Background));
+        painter->fillRect(brect, pal.brush(QPalette::Window));
     }
 
     if (!pm.isNull())

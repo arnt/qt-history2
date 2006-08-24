@@ -305,10 +305,10 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
 
         if (widget == qApp->activeWindow() || qApp->activeWindow() == qApp->activePopupWidget()) {
             fromBrush = pal.color(QPalette::Highlight);
-            titlePen   = pal.color(QPalette::HighlightedText);
+            titlePen  = pal.color(QPalette::HighlightedText);
         } else {
-            fromBrush = pal.color(QPalette::Background);
-            titlePen   = pal.color(QPalette::Text);
+            fromBrush = pal.color(QPalette::Window);
+            titlePen  = pal.color(QPalette::Text);
         }
         toBrush = fromBrush.light(300);
 
@@ -336,10 +336,10 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *widget, i
 
     if (widget == qApp->activeWindow() || qApp->activeWindow() == qApp->activePopupWidget()) {
         fromBrush = pal.brush(QPalette::Highlight);
-        titlePen   = pal.color(QPalette::HighlightedText);
+        titlePen  = pal.color(QPalette::HighlightedText);
     } else {
-        fromBrush = pal.brush(QPalette::Background);
-        titlePen   = pal.color(QPalette::Text);
+        fromBrush = pal.brush(QPalette::Window);
+        titlePen  = pal.color(QPalette::Text);
     }
     toBrush = fromBrush.color().light(300);
 
@@ -356,10 +356,10 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *widget, i
     if (buttonRegion != Menu) {
         if (state & Normal) {
             qDrawWinPanel(painter, brect.x(), brect.y() + 2, brect.width(),
-                          brect.height() - 4, pal, false, &pal.brush(QPalette::Background));
+                          brect.height() - 4, pal, false, &pal.brush(QPalette::Window));
         } else if (state & Pressed) {
             qDrawWinPanel(painter, brect.x(), brect.y() + 2, brect.width(),
-                          brect.height() - 4, pal, true, &pal.brush(QPalette::Background));
+                          brect.height() - 4, pal, true, &pal.brush(QPalette::Window));
             ++xoff;
             ++yoff;
         }
