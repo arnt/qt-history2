@@ -136,25 +136,30 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
         frameTime += renderTime.elapsed();
         avgRate = frameTime/numFrames;
         if (numFrames > 20) {
-            if (avgRate > 20 && X11->use_xrender) {
-                timer.stop();
-                int result = QMessageBox::question(this,
-                                                   QObject::tr("Disable XRender?"),
-                                                   QObject::tr("Your XRender implementation does not appear to be accelerated.\n"
-                                                               "This may cause this demo to run very slowly.\n"
-                                                               "Do you wish to turn XRender support off in this demo to improve\n"
-                                                               "the frame rate?"),
-                                                   QMessageBox::Yes|QMessageBox::No);
-
-                if (result == QMessageBox::Yes)
-                    X11->use_xrender = false;
-                enableUpdates();
-            }
             testDrawSpeed = false;
+            if (avgRate > 20 && X11->use_xrender)
+                QTimer::singleShot(0, this, SLOT(toggleXRender()));
         }
     }
 #endif
 }
+
+#if defined(Q_WS_X11)
+void DisplayWidget::toggleXRender()
+{
+    timer.stop();
+    int result = QMessageBox::question(this,
+                                       QObject::tr("Disable XRender?"),
+                                       QObject::tr("Your XRender implementation does not appear to be accelerated.\n"
+                                                   "This may cause this demo to run very slowly.\n"
+                                                   "Do you wish to turn XRender support off in this demo to improve\n"
+                                                   "the frame rate?"),
+                                       QMessageBox::Yes|QMessageBox::No);
+    if (result == QMessageBox::Yes)
+        X11->use_xrender = false;
+    enableUpdates();
+}
+#endif
 
 void DisplayWidget::reset()
 {
