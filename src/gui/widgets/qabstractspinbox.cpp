@@ -643,7 +643,8 @@ bool QAbstractSpinBox::event(QEvent *event)
     Q_D(QAbstractSpinBox);
     switch (event->type()) {
     case QEvent::ApplicationLayoutDirectionChange:
-        d->updateEdit();
+    case QEvent::LayoutDirectionChange:
+        d->updateEditFieldGeometry();
         break;
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
