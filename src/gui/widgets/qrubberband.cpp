@@ -222,7 +222,9 @@ void QRubberBand::changeEvent(QEvent *e)
         break;
     }
 
-    raise();
+    // calling raise() on LayoutDirectionChange breaks QWidgetPrivate::setLayoutDirection_helper()
+    if (e->type() != QEvent::LayoutDirectionChange)
+        raise();
 }
 
 /*!

@@ -153,11 +153,12 @@ ToolBar::ToolBar(QWidget *parent)
     menu->addSeparator();
     menu->addActions(areaActions->actions());
 
+    connect(menu, SIGNAL(aboutToShow()), this, SLOT(updateMenu()));
+
     randomize();
 }
 
-
-void ToolBar::polishEvent(QEvent *)
+void ToolBar::updateMenu()
 {
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     Q_ASSERT(mainWindow != 0);
