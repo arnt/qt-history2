@@ -48,6 +48,8 @@
       \tableofcontents{1 qmake Project Files}
     \o \l{Running qmake}
       \tableofcontents{1 Running qmake}
+    \o \l{qmake Platform Notes}
+      \tableofcontents{1 qmake Platform Notes}
     \o \l{qmake Advanced Usage}
       \tableofcontents{1 qmake Advanced Usage}
     \o \l{Using Precompiled Headers}
@@ -277,7 +279,8 @@
 
     Simple loops are constructed by iterating over lists of values using
     the built-in \c for function. The following code adds directories
-    to the \c SUBDIRS variable, but only if they exist:
+    to the \l{qmake Variable Reference#SUBDIRS}{SUBDIRS} variable, but
+    only if they exist:
 
     \quotefromfile snippets/qmake/functions.pro
     \printuntil /^\}/
@@ -303,8 +306,9 @@
     \header \o Template      \o Description of \c qmake output
     \row    \o app (default) \o Creates a Makefile to build an application.
     \row    \o lib           \o Creates a Makefile to build a library.
-    \row    \o subdirs       \o Creates a Makefile that will go into the specified
-                             directories and run \c qmake on any project files found.
+    \row    \o subdirs       \o Creates a Makefile containing rules for the
+    subdirectories specified using the \l{qmake Variable Reference#SUBDIRS}{SUBDIRS}
+    variable. Each subdirectory must contain its own project file.
     \row    \o vcapp         \o Creates a Visual Studio Project file to build
                              an application.
     \row    \o vclib         \o Creates a Visual Studio Project file to build a library.
@@ -345,6 +349,9 @@
             release modes.
     \row    \o build_all \o If \c debug_and_release is specified, the project is
             built in both debug and release modes by default.
+    \row    \o ordered  \o When using the \c subdirs template, this option
+            specifies that the directories listed should be processed in the
+            order in which they are given.
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
             This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
@@ -483,6 +490,32 @@
     {Adding New Configuration Features} section of the \l{qmake Advanced Usage}
     chapter.
 
+    \section1 Declaring Other Libraries
+
+    If you are using other libraries in your project in addition to those
+    supplied with Qt, you need to specify them in your project file.
+
+    The paths that \c qmake searches for libraries and the specific libraries
+    to link against can be added to the list of values in the
+    \l{qmake Variable Reference#LIBS}{LIBS} variable. The paths to the libraries
+    themselves can be given, or the familiar Unix-style notation for specifying
+    libraries and paths can be used if preferred.
+
+    For example, the following lines show how a library can be specified:
+
+    \code
+        LIBS += -L/usr/local/lib -lmath
+    \endcode
+
+    The paths containing header files can also be specified in a similar way
+    using the \l{qmake Variable Reference#INCLUDEPATH}{INCLUDEPATH} variable.
+
+    For example, it is possible to add several paths to be searched for header
+    files:
+
+    \code
+        INCLUDEPATH = c:/msdev/include d:/stl/include
+    \endcode
 */
 
 /*!
@@ -490,7 +523,7 @@
     \title Running qmake
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Project Files
-    \nextpage qmake Advanced Usage
+    \nextpage qmake Platform Notes
 
     The behavior of \c qmake can be customized when it is run by
     specifying various options on the command line. These allow the
@@ -680,6 +713,108 @@
 */
 
 /*!
+    \page qmake-platform-notes.html
+    \title qmake Platform Notes
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Running qmake
+    \nextpage qmake Advanced Usage
+
+    Many cross-platform projects can be handled by the \c{qmake}'s basic
+    configuration features. On some platforms, it is sometimes useful, or even
+    necessary, to take advantage of platform-specific features. \c qmake knows
+    about many of these features, and these can be accessed via specific
+    variables that only have an effect on the platforms where they are relevant.
+
+    \tableofcontents
+
+    \section1 Mac OS X
+
+    Features specific to this platform include support for creating universal
+    binaries, frameworks and bundles.
+
+    \section2 Frameworks
+
+    \c qmake is able to automatically generate build rules for linking against
+    frameworks in the standard framework directory on Mac OS X, located at
+    \c{/Library/Frameworks/}.
+
+    Directories other than the standard framework directory need to be specified
+    to the build system, and this is achieved by appending linker options to the
+    \l{qmake Variable Reference#QMAKE_LFLAGS}{QMAKE_LFLAGS} variable, as shown
+    in the following example:
+
+    \code
+        QMAKE_LFLAGS += -L/path/to/framework/directory/
+    \endcode
+
+    The framework itself is linked in by appending the \c{-framework} options and
+    the name of the framework to the \l{qmake Variable Reference#LIBS}{LIBS}
+    variable:
+
+    \code
+        LIBS += -framework TheFramework
+    \endcode
+
+    \section2 Creating Universal Binaries
+
+    To create a universal binary for your application, you need to be using
+    a version of Qt that has been configured with the \c{-universal} option.
+
+    The architectures to be supported in the binary are specified with the
+    \l{qmake Variable Reference#CONFIG}{CONFIG} variable. For example, the
+    following assignment causes \c qmake to generate build rules to create
+    a universal binary for both PowerPC and x86 architectures:
+
+    \code
+        CONFIG += x86 ppc
+    \endcode
+
+    Additionally, developers using a PowerPC-based platform need to set the
+    \l{qmake Variable Reference#QMAKE_MAC_SDK}{QMAKE_MAC_SDK} variable.
+    This process is discussed in more detail in the 
+    \l{Deploying an Application on Qt/Mac#Architecture Dependencies}{deployment guide for Mac OS X}.
+
+    \section1 Windows
+
+    Features specific to this platform include support for creating Visual
+    Studio project files and handling manifest files when deploying Qt
+    applications developed using Visual Studio 2005.
+
+    \section2 Creating Visual Studio Project Files
+
+    Developers using Visual Studio to write Qt applications can use the
+    Visual Studio integration facilities provided with the
+    \l{Qt Commercial Editions} and do not need to worry about how
+    project dependencies are managed.
+
+    However, some developers may need to import an existing \c qmake project
+    into Visual Studio. \c qmake is able to take a project file and create a
+    Visual Studio project that contains all the necessary information required
+    by their development environment. This is achieved by setting the \c qmake
+    \l{qmake Variable Reference#TEMPLATE}{project template} to either \c vcapp
+    (for application projects) or \c vclib (for library projects).
+
+    Each time you update the project file, you need to run \c qmake to generate
+    an updated Visual Studio project.
+
+    \section2 Visual Studio 2005 Manifest Files
+
+    When deploying Qt applications built using Visual Studio 2005, it is
+    necessary to ensure that the manifest file, created when the application
+    was linked, is handled correctly. This is handled automatically for
+    projects that generate DLLs, but it is necessary to explicitly enable
+    manifest embedding for application executables with the following
+    assignment to the \l{qmake Variable Reference#CONFIG}{CONFIG} variable:
+
+    \code
+        CONFIG += embed_manifest_exe
+    \endcode
+
+    This is discussed in more detail in the
+    \l{Deploying an Application on Qt/Windows#Visual Studio 2005}{deployment guide for Windows}.
+*/
+
+/*!
     \page qmake-reference.html
     \title qmake Reference
     \contentspage {qmake Manual}{Contents}
@@ -771,6 +906,9 @@
             release modes.
     \row    \o build_all \o If \c debug_and_release is specified, the project is
             built in both debug and release modes by default.
+    \row    \o ordered  \o When using the \c subdirs template, this option
+            specifies that the directories listed should be processed in the
+            order in which they are given.
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
             This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
@@ -848,7 +986,14 @@
          regardless of what directory they reside in.  Turning this
          option off will group the files within the source/header group depending
          on the directory they reside. This is turned on by default.
+    \row \o embed_manifest_dll \o Embeds a manifest file in the DLL created
+         as part of a library project.
+    \row \o embed_manifest_dll \o Embeds a manifest file in the DLL created
+         as part of an application project.
     \endtable
+
+    See \l{qmake Platform Notes#Visual Studio 2005 Manifest Files}{qmake Platform Notes}
+    for more information on the options for embedding manifest files.
 
     These options only have an effect on Mac OS X:
 
@@ -1578,6 +1723,13 @@
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
+    \section1 QMAKE_LFLAGS
+
+    This variable contains a general set of flags that are passed to
+    the linker. If you need to change the flags used for a particular
+    platform or type of project, use one of the specialized variables
+    for that purpose instead of this variable.
+
     \target QMAKE_LFLAGS_CONSOLE
     \section1 QMAKE_LFLAGS_CONSOLE
 
@@ -2020,15 +2172,23 @@
     \target SUBDIRS
     \section1 SUBDIRS
 
-    This variable, when used with the \c subdirs
-    \l{#TEMPLATE}{TEMPLATE} contains the names of all subdirectories
-    to look for a project file.
+    This variable, when used with the \l{#TEMPLATE}{\c subdirs template}
+    contains the names of all subdirectories that contain parts of the project
+    that need be built. Each subdirectory must contain its own project file.
 
     For example:
 
     \code
         SUBDIRS = kernel \
-              tools
+                  tools
+    \endcode
+
+    If you need to ensure that the subdirectories are built in the order in
+    which they are specified, update the \l{#CONFIG}{CONFIG} variable to
+    include the \c ordered option:
+
+    \code
+        CONFIG += ordered
     \endcode
 
     \target TARGET
@@ -2071,16 +2231,20 @@
     This variable contains the name of the template to use when
     generating the project.  The allowed values are:
 
-    \list
-    \o app - Creates a Makefile for building applications (the default)
-    \o lib - Creates a Makefile for building libraries
-    \o subdirs - Creates a Makefile for building targets in subdirectories
-    \o vcapp - \e {win32 only}  Creates an application project file for
-    Visual Studio
-    \o vclib - \e {win32 only}  Creates a library project file for Visual
-    Studio
-
-    \endlist
+    \table
+    \header \o Option \o Description
+    \row    \o app    \o Creates a Makefile for building applications (the default).
+    \row    \o lib    \o Creates a Makefile for building libraries.
+    \row    \o subdirs \o Creates a Makefile for building targets in subdirectories.
+            The subdirectories are specified using the \l{#SUBDIRS}{SUBDIRS}
+            variable.
+    \row    \o vcapp  \o \e {Windows only} Creates an application project for Visual Studio.
+            (See \l{qmake Platform Notes#Creating Visual Studio Project Files}{qmake Platform Notes}
+            for more information.)
+    \row    \o vclib  \o \e {Windows only} Creates a library project for Visual Studio.
+            (See \l{qmake Platform Notes#Creating Visual Studio Project Files}{qmake Platform Notes}
+            for more information.)
+    \endtable
 
     For example:
 
@@ -2844,7 +3008,7 @@
     \page qmake-advanced-usage.html
     \title qmake Advanced Usage
     \contentspage {qmake Manual}{Contents}
-    \previouspage Running qmake
+    \previouspage qmake Platform Notes
     \nextpage Using Precompiled Headers
 
     Many \c qmake project files simply describe the sources and header files used
