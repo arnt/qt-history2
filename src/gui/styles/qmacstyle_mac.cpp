@@ -243,8 +243,13 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         qDebug("Not sure how to return this...");
         return ret;
     }
-    if (widg && widg->testAttribute(Qt::WA_SetFont)) //if you're using a custom font, no constraints for you!
-        return ret;
+    if (widg && widg->testAttribute(Qt::WA_SetFont)) {
+        // If you're using a custom font and it's bigger than the default font,
+        // then no constraints for you. If you are smaller, we can try to help you out
+        QFont font = qt_app_fonts_hash()->value(widg->className(), QFont());
+        if (widg->font().pointSize() > font.pointSize())
+            return ret;
+    }
 
     if (ct == QStyle::CT_CustomBase && widg) {
         if (qobject_cast<const QPushButton *>(widg))
@@ -527,6 +532,17 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     else if (small_delta < large_delta)
         return QAquaSizeSmall;
 #endif
+    if (widg && widg->testAttribute(Qt::WA_SetFont)) {
+        // If we are here the font is smaller, so we can "guess the size"
+        // based on the difference.
+        QFont font = qt_app_fonts_hash()->value(widg->className(), QFont());
+        int difference = font.pointSize() - widg->font().pointSize();
+        if (difference > 1 && difference < 4)
+            return QAquaSizeSmall;
+        if (difference >= 4)
+            return QAquaSizeMini;
+        // otherwise, no real difference, use the large size (fall through)
+    }
     return QAquaSizeLarge;
 }
 #endif
@@ -3214,9 +3230,6 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
         break;
     case SE_PushButtonContents:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            HIRect inRect = CGRectMake(btn->rect.x(), btn->rect.y(),
-                                       btn->rect.width(), btn->rect.height());
-            HIRect outRect;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
@@ -3224,7 +3237,7 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             switch (qt_aqua_size_constrain(widget)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                bdi.kind = kThemePushButtonNormal;
+                bdi.kind = kThemePushButton;
                 break;
             case QAquaSizeMini:
                 bdi.kind = kThemePushButtonMini;
@@ -3236,14 +3249,22 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
 
             if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
                 || ((btn->rect.width() < 50 || btn->rect.height() < 30)
-                      && bdi.kind == kThemePushButtonNormal))
+                      && bdi.kind == kThemePushButton))
                 bdi.kind = kThemeBevelButton;
 
+            HIRect newRect = qt_hirectForQRect(btn->rect);
+            HIRect outRect;
+            QRect off_rct;
+            HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
+            off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
+                            int(newRect.origin.y - outRect.origin.y),
+                            int(outRect.size.width - newRect.size.width),
+                            int(outRect.size.height - newRect.size.height));
+            newRect = qt_hirectForQRect(btn->rect, off_rct);
             bdi.adornment = kThemeAdornmentNone;
-            HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-            rect.setRect(int(outRect.origin.x), int(outRect.origin.y - 2),
-                      int(qMin(qAbs(btn->rect.width() - 2 * outRect.origin.x), outRect.size.width)),
-                      int(qMin(qAbs(btn->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
+            HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
+            rect.setRect(int(outRect.origin.x), int(outRect.origin.y),
+                         int(outRect.size.width), int(outRect.size.height));
         }
         break;
     case SE_HeaderLabel:
@@ -4450,7 +4471,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             switch (widgetSize) {
             default:
             case QAquaSizeLarge:
-                bkind = kThemePushButtonNormal;
+                bkind = kThemePushButton;
                 break;
             case QAquaSizeSmall:
                 bkind = kThemePushButtonSmall;
