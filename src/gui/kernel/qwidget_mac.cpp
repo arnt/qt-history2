@@ -1222,7 +1222,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     hd = 0;
     cg_hd = 0;
-    if(window) {                                // override the old window
+    if(window) {                                // override the old window (with a new HIViewRef)
         HIViewRef hiview = (HIViewRef)window, parent = 0;
         CFRetain(hiview);
         if(destroyOldWindow)
@@ -1245,7 +1245,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             }
             if(!parent)
                 transfer = true;
-        } else if(parentWidget) {
+        } else if (parentWidget) {
+            // I need to be added to my parent, therefore my parent needs an HIViewRef
+            parentWidget->createWinId();
             parent = qt_mac_hiview_for(parentWidget);
         }
         if(parent)
