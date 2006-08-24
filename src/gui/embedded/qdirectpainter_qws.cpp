@@ -24,8 +24,6 @@
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 
-Q_GLOBAL_STATIC_WITH_ARGS(QWSDirectPainterSurface, surface, (true));
-
 /*!
     \class QDirectPainter
     \ingroup multimedia
@@ -47,7 +45,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QWSDirectPainterSurface, surface, (true));
     necessary functionality: The reserveRegion() function attempts to
     reserve the given region and returns the region actually
     reserved. The reserved region can also be retrieved using the
-    region() function.
+    reservedRegion() function.
 
     Depending on the hardware, it might be necessary to lock the video
     hardware for exclusive use while writing to it. This is possible
@@ -92,6 +90,111 @@ static inline QSize devS()
     return QSize(screen->deviceWidth(), screen->deviceHeight());
 }
 
+
+class QDirectPainterPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QDirectPainter);
+public:
+
+    QWSDirectPainterSurface *surface;
+    QRegion requested_region;
+
+    static QDirectPainter *staticPainter;
+    static bool seenStaticRegion;
+};
+
+QDirectPainter *QDirectPainterPrivate::staticPainter = 0;
+bool QDirectPainterPrivate::seenStaticRegion = false;
+
+void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc)
+{
+    QDirectPainterPrivate *d = dp->d_func();
+
+    QRegion r = alloc;
+    QScreen *screen = d->surface->screen();
+    if (screen->isTransformed()) {
+        const QSize screenSize(screen->width(), screen->height());
+        r = screen->mapToDevice(r, screenSize);
+    }
+    d->surface->setClipRegion(r);
+    if (dp == QDirectPainterPrivate::staticPainter)
+        QDirectPainterPrivate::seenStaticRegion = true;
+    else
+        dp->regionChanged(r);
+}
+
+
+QDirectPainter::QDirectPainter(QObject *parentObject, SurfaceFlag flag)
+    :QObject(*new QDirectPainterPrivate, parentObject)
+{
+    Q_D(QDirectPainter);
+    d->surface = new QWSDirectPainterSurface(true);
+
+    if (flag == Reserved)
+        d->surface->setReserved();
+
+    QApplicationPrivate *ad = qApp->d_func();
+    if (!ad->directPainters)
+        ad->directPainters = new QMap<WId, QDirectPainter*>;
+    ad->directPainters->insert(d->surface->windowId(), this);
+}
+
+QDirectPainter::~QDirectPainter()
+{
+}
+
+void QDirectPainter::setGeometry(const QRect &r)
+{
+    setRegion(r);
+}
+
+QRect QDirectPainter::geometry() const
+{
+    Q_D(const QDirectPainter);
+    return d->requested_region.boundingRect();
+}
+
+void QDirectPainter::setRegion(const QRegion &region)
+{
+    Q_D(QDirectPainter);
+    d->requested_region = region;
+
+    d->surface->setRegion(region);
+}
+
+QRegion QDirectPainter::requestedRegion() const
+{
+    Q_D(const QDirectPainter);
+    return d->requested_region;
+}
+
+QRegion QDirectPainter::allocatedRegion() const
+{
+    Q_D(const QDirectPainter);
+    return d->surface ? d->surface->region() : QRegion();
+}
+
+WId QDirectPainter::winId() const
+{
+    Q_D(const QDirectPainter);
+    return d->surface ? d->surface->windowId() : WId(0);
+}
+
+void QDirectPainter::regionChanged(const QRegion &exposedRegion)
+{
+    Q_UNUSED(exposedRegion);
+}
+
+void QDirectPainter::startPainting(bool lockDisplay)
+{
+    Q_UNUSED(lockDisplay);
+}
+
+void QDirectPainter::endPainting()
+{
+}
+
+
 /*!
     \fn QRegion QDirectPainter::reserveRegion(const QRegion &region)
 
@@ -102,12 +205,22 @@ static inline QSize devS()
     any. If not released explicitly, the region will be released on
     application exit.
 
-    \sa region()
+    \sa reservedRegion()
 */
 QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
-    surface()->setRegion(reg);
-    return surface()->region();
+    if (!QDirectPainterPrivate::staticPainter)
+        QDirectPainterPrivate::staticPainter = new QDirectPainter(qApp, Reserved);
+
+    QWSDirectPainterSurface *surface = QDirectPainterPrivate::staticPainter->d_func()->surface;
+    surface->setRegion(reg);
+
+    //### slightly dirty way to do a blocking wait for the region event
+    QDirectPainterPrivate::seenStaticRegion = false;
+    while (!QDirectPainterPrivate::seenStaticRegion)
+        QApplication::processEvents();
+
+    return surface->region();
 }
 
 /*!
@@ -116,7 +229,7 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
     Note that it is the applications responsibility to limit itself to
     modifying only the reserved region.
 
-    \sa region(), linestep()
+    \sa reservedRegion(), linestep()
 */
 uchar* QDirectPainter::frameBuffer()
 {
@@ -131,9 +244,11 @@ uchar* QDirectPainter::frameBuffer()
 
     \sa reserveRegion(), frameBuffer()
 */
-QRegion QDirectPainter::region()
+QRegion QDirectPainter::reservedRegion()
 {
-    return surface()->clipRegion();
+    return QDirectPainterPrivate::staticPainter
+        ? QDirectPainterPrivate::staticPainter->d_func()->surface->clipRegion()
+        : QRegion();
 }
 
 /*!

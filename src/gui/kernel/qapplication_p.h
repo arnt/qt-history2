@@ -63,6 +63,7 @@ extern QSysInfo::MacVersion qt_macver;
 #endif
 #if defined(Q_WS_QWS)
 class QWSManager;
+class QDirectPainter;
 #endif
 
 #ifndef QT_NO_TABLET
@@ -285,9 +286,7 @@ public:
 #ifdef Q_WS_QWS
     QPointer<QWSManager> last_manager;
 # ifndef QT_NO_DIRECTPAINTER
-    int directPainterID;
-    bool seenRegionEvent;
-    QRegion directPainterRegion;
+    QMap<WId, QDirectPainter *> *directPainters;
 # endif
     QRect maxWindowRect(const QScreen *screen) const { return maxWindowRects[screen]; }
     void setMaxWindowRect(const QScreen *screen, const QRect &rect);

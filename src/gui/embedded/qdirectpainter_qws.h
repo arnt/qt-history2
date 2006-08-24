@@ -28,11 +28,28 @@ class Q_GUI_EXPORT QDirectPainter : public QObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDirectPainter)
 public:
-    //    explicit QDirectPainter(const QRegion&);
-    //~QDirectPainter();
+
+    enum SurfaceFlag { NonReserved, Reserved };
+    explicit QDirectPainter(QObject *parentObject = 0, SurfaceFlag flag = NonReserved);
+    ~QDirectPainter();
+
+    void setRegion(const QRegion&);
+    QRegion requestedRegion() const;
+    QRegion allocatedRegion() const;
+
+    //convenience functions
+    void setGeometry(const QRect&);
+    QRect geometry() const;
+
+    WId winId() const;
+    virtual void regionChanged(const QRegion &exposedRegion);
+
+    void startPainting(bool lockDisplay = false);
+    void endPainting();
 
     static QRegion reserveRegion(const QRegion&);
-    static QRegion region();
+    static QRegion reservedRegion();
+    static QRegion region() { return reservedRegion(); }  // deprecated
 
     static uchar* frameBuffer();
     static int screenDepth();
@@ -42,6 +59,8 @@ public:
 
     static void lock();
     static void unlock();
+private:
+    friend  void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc);
 };
 
 #endif

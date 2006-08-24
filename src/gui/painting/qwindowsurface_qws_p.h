@@ -235,6 +235,7 @@ public:
     QWSDirectPainterSurface(bool isClient = false);
     ~QWSDirectPainterSurface();
 
+    void setReserved() { setSurfaceFlags(Reserved); }
     void release();
 
     void setGeometry(const QRect &rect) { setRegion(rect); }
@@ -249,17 +250,20 @@ public:
     bool isValidFor(const QWidget*) const { return false; }
 
     const QString key() const { return QLatin1String("DirectPainter"); }
-    const QByteArray data() const { return QByteArray(); }
+    const QByteArray data() const;
 
-    bool attach(const QByteArray &) { return true; }
+    bool attach(const QByteArray &);
     void detach() {}
 
     const QImage image() const { return QImage(); }
     QPaintDevice *paintDevice() { return 0; }
 
+    WId windowId() const { return static_cast<WId>(winId); }
+
+    QScreen *screen() const { return _screen; }
 private:
     int winId;
-    QScreen *screen;
+    QScreen *_screen;
 };
 
 #endif // QT_NO_DIRECTPAINTER

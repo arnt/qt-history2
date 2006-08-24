@@ -964,21 +964,19 @@ QWSDirectPainterSurface::~QWSDirectPainterSurface()
 QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
     : QWSWindowSurface((QWidget*)0)
 {
-    setSurfaceFlags(Reserved);
     if (isClient) {
         winId  = QWidget::qwsDisplay()->takeId();
-        qApp->d_func()->directPainterID = winId;
         QWidget::qwsDisplay()->nameRegion(winId,
                                           QLatin1String("QDirectPainter reserved space"),
                                           QLatin1String("reserved"));
     }
-    screen = QScreen::instance();
-    if (!screen->base()) {
-        QList<QScreen*> subScreens = screen->subScreens();
+    _screen = QScreen::instance();
+    if (!_screen->base()) {
+        QList<QScreen*> subScreens = _screen->subScreens();
         if (subScreens.size() < 1)
-            screen = 0;
+            _screen = 0;
         else
-            screen = subScreens.at(0);
+            _screen = subScreens.at(0);
     }
 }
 
@@ -986,30 +984,36 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
 {
     QRegion reg = region;
 
-    if (screen->isTransformed()) {
-        const QSize devSize(screen->deviceWidth(), screen->deviceHeight());
-        reg = screen->mapFromDevice(region, devSize);
+    if (_screen->isTransformed()) {
+        const QSize devSize(_screen->deviceWidth(), _screen->deviceHeight());
+        reg = _screen->mapFromDevice(region, devSize);
     }
 
     QWidget::qwsDisplay()->requestRegion(winId, key(), data(), reg);
 
-    //### slightly dirty way to do a blocking wait for the region event
-    QApplicationPrivate *ad = qApp->d_func();
-    ad->seenRegionEvent = false;
-    while (!ad->seenRegionEvent)
-        QApplication::processEvents();
-
-    reg = ad->directPainterRegion;
-    if (screen->isTransformed()) {
-        const QSize screenSize(screen->width(), screen->height());
-        reg = screen->mapToDevice(reg, screenSize);
-    }
-    setClipRegion(reg);
 }
 
 void QWSDirectPainterSurface::release()
 {
     QWidget::qwsDisplay()->requestRegion(winId, key(), data(), QRegion());
 }
+
+
+
+const QByteArray QWSDirectPainterSurface::data() const
+{
+    QByteArray res;
+    if (isReserved())
+        res.append( 'r');
+    return res;
+}
+
+bool QWSDirectPainterSurface::attach(const QByteArray &ba)
+{
+    if (ba.size() > 0 && ba.at(0) == 'r')
+        setReserved();
+    return true;
+}
+
 
 #endif // QT_NO_DIRECTPAINTER

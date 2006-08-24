@@ -1025,12 +1025,18 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
   \threadsafe
 */
 
+//#define PAUL_TESTING
+
 void QCoreApplication::removePostedEvents(QObject *receiver)
 {
+#ifdef PAUL_TESTING
+    QThreadData *data = receiver ? receiver->d_func()->threadData : self->d_func()->threadData;
+#else
     if (!receiver)
         return;
 
     QThreadData *data = receiver->d_func()->threadData;
+#endif
 
     QMutexLocker locker(&data->postEventList.mutex);
 
@@ -1038,10 +1044,34 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
+#ifdef PAUL_TESTING
+    if (receiver && !receiver->d_func()->postedEvents) return;
+#else
     if (!receiver->d_func()->postedEvents) return;
-
+#endif
     int n = data->postEventList.size();
     int j = 0;
+
+#ifdef PAUL_TESTING
+    if (!receiver) {
+        for (int i = 0; i < n; ++i) {
+            const QPostEvent &pe = data->postEventList.at(i);
+            if (pe.event) {
+                --pe.receiver->d_func()->postedEvents;
+#ifdef QT3_SUPPORT
+                if (pe.event->type() == QEvent::ChildInserted)
+                    --pe.receiver->d_func()->postedChildInsertedEvents;
+#endif
+                pe.event->posted = false;
+                delete pe.event;
+                const_cast<QPostEvent &>(pe).event = 0;
+
+            }
+        }
+        data->postEventList.clear();
+        return;
+    }
+#endif
 
     for (int i = 0; i < n; ++i) {
         const QPostEvent &pe = data->postEventList.at(i);

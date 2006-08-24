@@ -82,6 +82,11 @@
 #endif
 #endif
 
+#ifndef QT_NO_DIRECTPAINTER
+class QDirectPainter;
+extern void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc);
+#endif
+
 const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
 
 extern QApplication::Type qt_appType;
@@ -2419,18 +2424,6 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     if (qwsEventFilter(event))                        // send through app filter
         return 1;
 
-#ifndef QT_NO_DIRECTPAINTER
-    if (event->type == QWSEvent::Region) {
-        QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
-
-        if (e->simpleData.window == d->directPainterID && e->simpleData.type == QWSRegionEvent::Allocation) {
-            d->directPainterRegion.setRects(e->rectangles, e->simpleData.nrectangles);
-            d->seenRegionEvent = true;
-//            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" <<  d->directPainterRegion;
-            return 1;
-        }
-    }
-#endif
 
 #ifndef QT_NO_QWS_PROPERTIES
     if (event->type == QWSEvent::PropertyNotify) {
@@ -2466,6 +2459,23 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
 
     QPointer<QETWidget>  widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+
+#ifndef QT_NO_DIRECTPAINTER
+    if (!widget && event->type == QWSEvent::Region) {
+        if (d->directPainters) {
+            QDirectPainter *dp = d->directPainters->value(WId(event->window()));
+            if (dp) {
+                QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
+                QRegion reg;
+                reg.setRects(e->rectangles, e->simpleData.nrectangles);
+                qt_directpainter_region(dp, reg);
+                return 1;
+            }
+        }
+    }
+#endif
+
+
 #ifndef QT_NO_QWS_MANAGER
     if (d->last_manager && event->type == QWSEvent::Mouse) {
         QPoint pos(event->asMouse()->simpleData.x_root, event->asMouse()->simpleData.y_root);

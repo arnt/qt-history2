@@ -90,8 +90,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     qt_dispatchAccelEvent = 0;
 #endif
 #if defined(Q_WS_QWS) && !defined(QT_NO_DIRECTPAINTER)
-    directPainterID = -1;
-    seenRegionEvent = false;
+    directPainters = 0;
 #endif
 
     if (!self)
@@ -3138,7 +3137,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 relpos = mouse->pos();
                 QPoint diff = relpos - w->mapFromGlobal(d->hoverGlobalPos);
                 while (w) {
-                    if (w->testAttribute(Qt::WA_Hover) && 
+                    if (w->testAttribute(Qt::WA_Hover) &&
                         (!qApp->activePopupWidget() || qApp->activePopupWidget() == w->window())) {
                         QHoverEvent he(QEvent::HoverMove, relpos, relpos - diff);
                         d->notify_helper(w, &he);
