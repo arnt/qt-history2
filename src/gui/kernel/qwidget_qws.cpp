@@ -236,6 +236,18 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             QApplicationPrivate::leaveModal(this);
         else if ((windowType() == Qt::Popup))
             qApp->d_func()->closePopup(this);
+
+        if (d->ic) {
+            delete d->ic;
+            d->ic =0;
+        } else {
+            // release previous focus information participating with
+            // preedit preservation of qic -- while we still have a winId
+            QInputContext *qic = inputContext();
+            if (qic)
+                qic->widgetDestroyed(this);
+        }
+
         if ((windowType() == Qt::Desktop)) {
         } else {
             if (parentWidget() && parentWidget()->testAttribute(Qt::WA_WState_Created)) {
@@ -247,16 +259,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             }
         }
         d->setWinId(0);
-
-        if (d->ic) {
-            delete d->ic;
-        } else {
-            // release previous focus information participating with
-            // preedit preservation of qic
-            QInputContext *qic = inputContext();
-            if (qic)
-                qic->widgetDestroyed(this);
-        }
     }
 }
 

@@ -48,9 +48,9 @@ void QWSInputContext::setFocusWidget( QWidget *w )
 
     if (oldFocus) {
         QWidget *tlw = oldFocus->window();
-        int winid = tlw->winId();
+        int winid = tlw->internalWinId();
 
-        int widgetid = oldFocus->winId();
+        int widgetid = oldFocus->internalWinId();
         QPaintDevice::qwsDisplay()->sendIMUpdate(QWSInputMethod::FocusOut, winid, widgetid);
     }
 
