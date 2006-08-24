@@ -153,4 +153,31 @@ QItemSelection QAbstractProxyModel::mapSelectionFromSource(const QItemSelection 
     return proxySelection;
 }
 
+/*!
+    \reimp
+ */
+QVariant QAbstractProxyModel::data(const QModelIndex &proxyIndex, int role) const
+{
+    Q_D(const QAbstractProxyModel);
+    return d->model->data(mapToSource(proxyIndex), role);
+}
+
+/*!
+    \reimp
+ */
+QVariant QAbstractProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    Q_D(const QAbstractProxyModel);
+    return d->model->headerData(section, orientation, role);
+}
+
+/*!
+    \reimp
+ */
+Qt::ItemFlags QAbstractProxyModel::flags(const QModelIndex &index) const
+{
+    Q_D(const QAbstractProxyModel);
+    return d->model->flags(mapToSource(index));
+}
+
 #endif // QT_NO_PROXYMODEL
