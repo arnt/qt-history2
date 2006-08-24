@@ -24,7 +24,7 @@
 
 class MetricAccessor : public QWidget {
 public:
-    int metric(PaintDeviceMetric m) { return QWidget::metric(m); }
+    int metric(PaintDeviceMetric m) const { return QWidget::metric(m); }
 };
 
 class QRasterPaintDevice : public QPaintDevice
