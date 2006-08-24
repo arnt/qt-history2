@@ -699,6 +699,9 @@ QDBusConnectionPrivate::QDBusConnectionPrivate(QObject *p)
     dbus_error_init(&error);
 
     rootNode.flags = 0;
+
+    connect(this, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+            this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
 
 QDBusConnectionPrivate::~QDBusConnectionPrivate()
@@ -861,6 +864,27 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
     dbus_message_unref(msg);
 }
 
+void QDBusConnectionPrivate::_q_serviceOwnerChanged(const QString &name,
+                                                    const QString &oldOwner, const QString &newOwner)
+{
+    if (isServiceRegisteredByThread(oldOwner))
+        unregisterService(name);
+    if (isServiceRegisteredByThread(newOwner))
+        registerService(name);
+
+    //qDebug() << "QDBusConnectionPrivaste::_q_serviceOwnerChanged" << name << oldOwner << newOwner;
+
+    // ### if the service is disabled, it's not gona send us signals, is it ?
+    // ### so why should we care about disabling the signal hooks
+    #if 0
+    QMutableHashIterator<QString, SignalHook> it(signalHooks);
+    it.toFront();
+    while (it.hasNext())
+        if (it.next().value().owner == oldOwner && it.value().sender == name)
+            it.value().owner = newOwner;
+    #endif
+}
+
 int QDBusConnectionPrivate::findSlot(QObject* obj, const QByteArray &normalizedName,
                                      QList<int> &params)
 {
@@ -876,8 +900,8 @@ int QDBusConnectionPrivate::findSlot(QObject* obj, const QByteArray &normalizedN
 }
 
 bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hook, QString &key,
-                                         const QString &service, const QString &path,
-                                         const QString &interface, const QString &name,
+                                         const QString &service, /*const QString &owner,*/
+                                         const QString &path, const QString &interface, const QString &name,
                                          QObject *receiver, const char *signal, int minMIdx,
                                          bool buildSignature)
 {
@@ -893,7 +917,11 @@ bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hoo
         return false;
     }
 
+    //if (owner.isEmpty())
+    //    return false; // getNameOwner failed
+
     hook.sender = service;
+    //hook.owner = owner;
     hook.path = path;
     hook.obj = receiver;
 
@@ -1153,13 +1181,15 @@ bool QDBusConnectionPrivate::handleSignal(const QString &key, const QDBusMessage
     //qDBusDebug() << signalHooks.keys();
     for ( ; it != end && it.key() == key; ++it) {
         const SignalHook &hook = it.value();
-        if ( !hook.sender.isEmpty() && hook.sender != msg.service() )
+        //if (hook.owner.isEmpty()) // the service was disabled
+        //    continue; // ### if the service is disabled, it's not gona send us signals, is it ?
+        if (!hook.sender.isEmpty() && hook.sender != msg.service())
             continue;
-        if ( !hook.path.isEmpty() && hook.path != msg.path() )
+        if (!hook.path.isEmpty() && hook.path != msg.path())
             continue;
-        if ( !hook.signature.isEmpty() && hook.signature != msg.signature() )
+        if (!hook.signature.isEmpty() && hook.signature != msg.signature())
             continue;
-        if ( hook.signature.isEmpty() && !hook.signature.isNull() && !msg.signature().isEmpty())
+        if (hook.signature.isEmpty() && !hook.signature.isNull() && !msg.signature().isEmpty())
             continue;
 
         // yes, |=
@@ -1509,7 +1539,9 @@ void QDBusConnectionPrivate::connectRelay(const QString &service, const QString 
     // we set up a relay from D-Bus into it
     SignalHook hook;
     QString key;
-    if (!prepareHook(hook, key, service, path, interface, QString(), receiver, signal,
+    //QString owner = getNameOwner(service);
+
+    if (!prepareHook(hook, key, service, /*owner,*/ path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))
         return;                 // don't connect
 
@@ -1539,7 +1571,10 @@ void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QStri
     // we remove relay from D-Bus into it
     SignalHook hook;
     QString key;
-    if (!prepareHook(hook, key, service, path, interface, QString(), receiver, signal,
+
+    //QString owner = getNameOwner(service);
+
+    if (!prepareHook(hook, key, service, /*owner,*/ path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))
         return;                 // don't connect
 

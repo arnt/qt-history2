@@ -119,7 +119,6 @@
 const char *QDBusConnectionInterface::staticInterfaceName()
 { return "org.freedesktop.DBus"; }
 
-
 /*!
     \internal
 */

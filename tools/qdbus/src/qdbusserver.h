@@ -19,7 +19,6 @@
 
 QT_BEGIN_HEADER
 
-
 class QDBusConnectionPrivate;
 class QDBusError;
 

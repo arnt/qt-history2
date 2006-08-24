@@ -305,6 +305,10 @@ QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
     d->busService = new QDBusConnectionInterface(retval, d);
     d->ref.deref();              // busService has a increased the refcounting to us
                                  // avoid cyclic refcounting
+
+    QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                     d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
+
     return retval;
 }
 
@@ -335,6 +339,9 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
     d->busService = new QDBusConnectionInterface(retval, d);
     d->ref.deref();              // busService has a increased the refcounting to us
                                  // avoid cyclic refcounting
+    QObject::connect(d->busService, SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                     d, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
+
     return retval;
 }
 
@@ -481,13 +488,6 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
     if (interface.isEmpty() && name.isEmpty())
         return false;
 
-    QString source;
-    if (!service.isEmpty()) {
-        source = d->getNameOwner(service);
-        if (source.isEmpty())
-            return false;
-    }
-
     // check the slot
     QDBusConnectionPrivate::SignalHook hook;
     QString key;
@@ -495,8 +495,10 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
     if (name2.isNull())
         name2.detach();
 
+    //QString owner = d->getNameOwner(service);
+    //if (owner.isEmpty()) return false; // ###  service name owner might get started later
     hook.signature = signature;
-    if (!d->prepareHook(hook, key, source, path, interface, name, receiver, slot, 0, false))
+    if (!d->prepareHook(hook, key, service, /*owner,*/ path, interface, name, receiver, slot, 0, false))
         return false;           // don't connect
 
     // avoid duplicating:
@@ -514,7 +516,6 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
             return true;        // already there
         }
     }
-
 
     d->connectSignal(key, hook);
     return true;
@@ -538,13 +539,6 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
     if (interface.isEmpty() && name.isEmpty())
         return false;
 
-    QString source;
-    if (!service.isEmpty()) {
-        source = d->getNameOwner(service);
-        if (source.isEmpty())
-            return false;
-    }
-
     // check the slot
     QDBusConnectionPrivate::SignalHook hook;
     QString key;
@@ -552,8 +546,10 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
     if (name2.isNull())
         name2.detach();
 
+    //QString owner = d->getNameOwner(service);
+    //if (owner.isEmpty()) return false; // ### service name owner might get started later
     hook.signature = signature;
-    if (!d->prepareHook(hook, key, source, path, interface, name, receiver, slot, 0, false))
+    if (!d->prepareHook(hook, key, service, /*owner,*/ path, interface, name, receiver, slot, 0, false))
         return false;           // don't disconnect
 
     // avoid duplicating:

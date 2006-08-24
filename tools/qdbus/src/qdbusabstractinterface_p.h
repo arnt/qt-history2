@@ -34,7 +34,7 @@
 
 #define ANNOTATION_NO_WAIT      "org.freedesktop.DBus.Method.NoReply"
 
-class QDBusAbstractInterfacePrivate: public QObjectPrivate
+class QDBusAbstractInterfacePrivate : public QObjectPrivate
 {
 public:
     Q_DECLARE_PUBLIC(QDBusAbstractInterface)
@@ -57,7 +57,8 @@ public:
     // return conn's d pointer
     inline QDBusConnectionPrivate *connectionPrivate() const
     { return QDBusConnectionPrivate::d(connection); }
-};
 
+    void _q_serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
+};
 
 #endif

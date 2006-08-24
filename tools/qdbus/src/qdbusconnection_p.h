@@ -75,7 +75,7 @@ public:
     struct SignalHook
     {
         inline SignalHook() : obj(0), midx(-1) { }
-        QString sender, path, signature;
+        QString sender, /*owner,*/ path, signature;
         QObject* obj;
         int midx;
         QList<int> params;
@@ -177,6 +177,10 @@ public slots:
     void socketWrite(int);
     void objectDestroyed(QObject *o);
     void relaySignal(QObject *obj, const QMetaObject *, int signalId, const QVariantList &args);
+    void _q_serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
+
+signals:
+    void serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
 
 public:
     // public member variables
@@ -207,8 +211,8 @@ public:
     // static methods
     static int findSlot(QObject *obj, const QByteArray &normalizedName, QList<int>& params);
     static bool prepareHook(QDBusConnectionPrivate::SignalHook &hook, QString &key,
-                            const QString &service, const QString &path,
-                            const QString &interface, const QString &name,
+                            const QString &service, /*const QString &owner,*/
+                            const QString &path, const QString &interface, const QString &name,
                             QObject *receiver, const char *signal, int minMIdx,
                             bool buildSignature);
     static DBusHandlerResult messageFilter(DBusConnection *, DBusMessage *, void *);

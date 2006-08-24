@@ -109,7 +109,7 @@ PUB_HEADERS =  qdbusargument.h \
 HEADERS += $$PUB_HEADERS \
            qdbusconnection_p.h qdbusmessage_p.h \
            qdbusinterface_p.h qdbusxmlparser_p.h qdbusabstractadaptor_p.h \
-           qdbusargument_p.h qdbusutil_p.h
+           qdbusargument_p.h qdbusutil_p.h qdbusabstractinterface_p.h
 
 SOURCES += qdbusconnection.cpp  \
 	qdbusconnectioninterface.cpp \

@@ -22,6 +22,7 @@ QDBusServer::QDBusServer(const QString &addr, QObject *p)
     if (addr.isEmpty())
         return;
 
+    // server = dbus_server_listen( "unix:tmpdir=/tmp",  &error );
     d->setServer(dbus_server_listen(addr.toUtf8().constData(), &d->error));
 }
 

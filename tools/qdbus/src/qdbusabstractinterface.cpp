@@ -17,6 +17,8 @@
 #include "qdbusmetaobject_p.h"
 #include "qdbusutil_p.h"
 
+#include <QDebug>
+
 QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv,
                                                              const QString &p,
                                                              const QString &iface,
@@ -48,12 +50,10 @@ QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv
         isValid = false;
     } else if (!service.isEmpty()) {
         // check if it's there first -- FIXME: add binding mode
-        QString owner = connectionPrivate()->getNameOwner(service);
+        QString owner = connectionPrivate()->getNameOwner(service); // verify the name owner
         if (owner.isEmpty()) {
             isValid = false;
             lastError = connectionPrivate()->lastError;
-        } else {
-            service = owner;
         }
     }
 }
@@ -119,6 +119,17 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
         lastError = reply;
 }
 
+void QDBusAbstractInterfacePrivate::_q_serviceOwnerChanged(const QString &name,
+                                                           const QString &oldOwner,
+                                                           const QString &newOwner)
+{
+    Q_UNUSED(oldOwner);
+    //qDebug() << "QDBusAbstractInterfacePrivate serviceOwnerChanged" << name << oldOwner << newOwner;
+    if (name == service)
+        isValid = !newOwner.isEmpty();
+}
+
+
 /*!
     \class QDBusAbstractInterface
     \inmodule QtDBus
@@ -157,6 +168,9 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
 QDBusAbstractInterface::QDBusAbstractInterface(QDBusAbstractInterfacePrivate &d, QObject *parent)
     : QObject(d, parent)
 {
+    // keep track of the service owner
+    QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                     this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
 
 /*!
@@ -170,6 +184,9 @@ QDBusAbstractInterface::QDBusAbstractInterface(const QString &service, const QSt
     : QObject(*new QDBusAbstractInterfacePrivate(service, path, QString::fromLatin1(interface),
                                                  con, false), parent)
 {
+    // keep track of the service owner
+    QObject::connect(d_func()->connectionPrivate(), SIGNAL(serviceOwnerChanged(QString,QString,QString)),
+                     this, SLOT(_q_serviceOwnerChanged(QString,QString,QString)));
 }
 
 /*!
@@ -498,3 +515,5 @@ QDBusMessage QDBusAbstractInterface::internalConstCall(QDBus::CallMode mode,
     // ### move the code here, and make the other functions call this
     return const_cast<QDBusAbstractInterface*>(this)->callWithArgumentList(mode, method, args);
 }
+
+#include "moc_qdbusabstractinterface.cpp"

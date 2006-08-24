@@ -64,7 +64,7 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
 
             if (QDBusMetaType::signatureToType(signature) == QVariant::Invalid) {
                 const char *typeName = QVariant::typeToName( QVariant::Type(typeId) );
-                retval += QString::fromLatin1("/>\n      <annotation name=\"com.trolltech.QtDBus.QtTypeName\" value=\"%3\"/>\n    </property>\n")
+                retval += QString::fromLatin1(">\n      <annotation name=\"com.trolltech.QtDBus.QtTypeName\" value=\"%3\"/>\n    </property>\n")
                           .arg(QLatin1String(typeName));
             } else {
                 retval += QLatin1String("/>\n");

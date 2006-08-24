@@ -88,6 +88,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QDBusAbstractInterface)
+    Q_PRIVATE_SLOT(d_func(), void _q_serviceOwnerChanged(QString,QString,QString))
 };
 
 QT_END_HEADER
