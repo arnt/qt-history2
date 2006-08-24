@@ -299,11 +299,6 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
     Q_D(QShortcutMap);
 
-    // Modifiers can NOT be shortcuts...
-    if (e->key() >= Qt::Key_Shift &&
-        e->key() <= Qt::Key_Alt)
-        return false;
-
     bool wasAccepted = e->isAccepted();
     if (d->currentState == QKeySequence::NoMatch) {
         ushort orgType = e->t;
@@ -350,6 +345,11 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 {
     Q_D(QShortcutMap);
+    // Modifiers can NOT be shortcuts...
+    if (e->key() >= Qt::Key_Shift &&
+        e->key() <= Qt::Key_Alt)
+        return d->currentState;
+
     QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
 
     // We start fresh each time..
