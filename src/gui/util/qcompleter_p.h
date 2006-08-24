@@ -58,6 +58,8 @@ public:
     int column;
     QCompleter::ModelSorting sorting;
 
+    bool eatFocusOut;
+
     void showPopup(const QRect&);
     void _q_complete(QModelIndex, bool = false);
     void _q_completionSelected(const QItemSelection&);

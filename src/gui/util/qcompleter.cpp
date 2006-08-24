@@ -672,7 +672,7 @@ QMatchData QUnsortedModelEngine::filter(const QString& part, const QModelIndex& 
 ///////////////////////////////////////////////////////////////////////////////
 QCompleterPrivate::QCompleterPrivate()
 : widget(0), proxy(0), popup(0), cs(Qt::CaseSensitive), role(Qt::EditRole), column(0),
-  sorting(QCompleter::UnsortedModel)
+  sorting(QCompleter::UnsortedModel), eatFocusOut(true)
 {
 }
 
@@ -837,6 +837,8 @@ void QCompleter::setWidget(QWidget *widget)
 {
     Q_D(QCompleter);
     d->widget = widget;
+    if (d->popup)
+        d->popup->setFocusProxy(d->widget);
     setCompletionMode(d->mode); // will install event filter depending on mode
 }
 
@@ -960,6 +962,7 @@ void QCompleter::setPopup(QAbstractItemView *popup)
     popup->hide();
     popup->setParent(0, Qt::Popup);
     popup->setFocusPolicy(Qt::NoFocus);
+    popup->setFocusProxy(d->widget);
     popup->installEventFilter(this);
     popup->setItemDelegate(new QCompleterItemDelegate(popup));
 
@@ -998,7 +1001,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QCompleter);
 
-    if (o == d->widget && e->type() == QEvent::FocusOut) {
+    if (d->eatFocusOut && o == d->widget && e->type() == QEvent::FocusOut) {
         if (d->popup && d->popup->isVisible())
             return true;
     }
@@ -1009,33 +1012,38 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
     switch (e->type()) {
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+
+        // Send the event to the widget first. If the widget accepted the event, do nothing
+        // If the widget did not accept the event, provide a default implementation
+        d->eatFocusOut = false;
+        QApplication::sendEvent(d->widget, ke);
+        d->eatFocusOut = true;
+        if (e->isAccepted()) {
+            // widget lost focus, hide the popup
+            if (!d->widget->hasFocus())
+                d->popup->hide();
+            return true;
+        }
+
         QModelIndex curIndex = d->popup->currentIndex();
         QModelIndexList selList = d->popup->selectionModel()->selectedIndexes();
 
         const int key = ke->key();
+        // In UnFilteredPopup mode, select the current item
         if ((key == Qt::Key_Up || key == Qt::Key_Down) && selList.isEmpty() && curIndex.isValid()
             && d->mode == QCompleter::UnfilteredPopupCompletion) {
               d->setCurrentIndex(curIndex);
               return true;
         }
 
+        // default implementation for keys not handled by the widget when popup is open
         switch (key) {
         case Qt::Key_Return:
         case Qt::Key_Enter:
+        case Qt::Key_Tab:
             d->popup->hide();
             if (curIndex.isValid())
                 d->_q_complete(curIndex);
-            break; // propagate the event
-
-        case Qt::Key_Tab:
-            d->popup->hide();
-            d->_q_complete(curIndex);
-            if (d->mode == QCompleter::PopupCompletion || !selList.isEmpty())
-                break;
-            return true;
-
-        case Qt::Key_Backtab:
-            d->popup->hide();
             break;
 
         case Qt::Key_F4:
@@ -1045,6 +1053,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
             }
             break;
 
+        case Qt::Key_Backtab:
         case Qt::Key_Escape:
             d->popup->hide();
             return true;
@@ -1086,7 +1095,6 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
             break;
         }
 
-        QApplication::sendEvent(d->widget, ke);
         return true;
     }
 

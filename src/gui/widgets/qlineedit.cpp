@@ -592,7 +592,7 @@ void QLineEditPrivate::complete(int key)
             QString prefix = text.left(cursor);
             int row = completer->currentRow();
             if (prefix != completer->completionPrefix()) {
-                completer->setCompletionPrefix(text.left(cursor));
+                completer->setCompletionPrefix(prefix);
                 row = 0;
             } else if (key == Qt::Key_Up)
                 --row;
@@ -1617,6 +1617,27 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 void QLineEdit::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QLineEdit);
+
+    if (d->completer && d->completer->popup()->isVisible()) {
+        // The following keys are forwarded by the completer to the widget
+        // Ignoring the events lets the completer provide suitable default behavior
+       switch (event->key()) {
+       case Qt::Key_Escape:
+       case Qt::Key_PageUp:
+       case Qt::Key_PageDown:
+       case Qt::Key_Up:
+       case Qt::Key_Down:
+            event->ignore(); 
+            return;
+       case Qt::Key_Enter:
+       case Qt::Key_Return:
+       case Qt::Key_F4:
+           d->completer->popup()->hide(); // just hide. will end up propagating to parent
+       default:
+           break; // normal key processing
+       }
+    }
+
 #ifdef QT_KEYPAD_NAVIGATION
     bool select = false;
     switch (event->key()) {
