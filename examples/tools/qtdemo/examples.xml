@@ -89,6 +89,7 @@
   <category dirname="painting" name="Painting">
     <example filename="basicdrawing" name="Basic Drawing" />
     <example filename="concentriccircles" name="Concentric Circles" />
+    <example filename="fontsampler" name="Font Sampler" />
     <example filename="imagecomposition" name="Image Composition" />
     <example filename="painterpaths" name="Painter Paths" />
     <example filename="svgviewer" name="SVG Viewer" />

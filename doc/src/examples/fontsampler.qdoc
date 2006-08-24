@@ -1,0 +1,8 @@
+/*!
+  \example painting/fontsampler
+  \title Font Sampler Example
+
+  The Font Sampler example shows two ways to print multi-page documents.
+
+  \image fontsampler-example.png
+*/

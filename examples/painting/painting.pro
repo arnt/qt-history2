@@ -2,6 +2,7 @@ TEMPLATE      = subdirs
 unset(EXAMPLES_PAINTING_SUBDIRS)
 EXAMPLES_PAINTING_SUBDIRS = examples_painting_basicdrawing \
                             examples_painting_concentriccircles \
+                            examples_painting_fontsampler \
                             examples_painting_imagecomposition \
                             examples_painting_painterpaths \
                             examples_painting_svgviewer \
