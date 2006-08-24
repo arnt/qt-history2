@@ -39,6 +39,7 @@ enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5
               NewButtonFlag = 0xFFFFFC00 };
 
 enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
+#ifndef QT_NO_TEXTEDIT
 class QMessageBoxDetailsText : public QWidget
 {
 public:
@@ -80,6 +81,7 @@ public:
 private:
     TextEdit *textEdit;
 };
+#endif // QT_NO_TEXTEDIT
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 /* XPM */
@@ -164,7 +166,10 @@ class QMessageBoxPrivate : public QDialogPrivate
 
 public:
     QMessageBoxPrivate() : escapeButton(0), defaultButton(0), clickedButton(0), detailsButton(0),
-                           detailsText(0), compatMode(false), autoAddOkButton(true),
+#ifndef QT_NO_TEXTEDIT
+                           detailsText(0),
+#endif
+                           compatMode(false), autoAddOkButton(true),
                            detectedEscapeButton(0), informativeLabel(0) { }
 
     void init(const QString &title = QString(), const QString &text = QString());
@@ -204,7 +209,9 @@ public:
     QPushButton *defaultButton;
     QAbstractButton *clickedButton;
     QPushButton *detailsButton;
+#ifndef QT_NO_TEXTEDIT
     QMessageBoxDetailsText *detailsText;
+#endif
     bool compatMode;
     bool autoAddOkButton;
     QAbstractButton *detectedEscapeButton;
@@ -309,7 +316,7 @@ static bool isPreformatted(const QString &text, Qt::TextFormat textFormat)
 {
     static const char * const patterns[2] = {
         "<[ \n\t]*[bB][rR]\\b[^<>]*>",
-        "[^ \n\t][ \t]*\n[ \t]*[^ \n\t]" 
+        "[^ \n\t][ \t]*\n[ \t]*[^ \n\t]"
     };
 
     int isPlainText;
@@ -336,9 +343,9 @@ void QMessageBoxPrivate::updateSize()
 
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
 #ifndef Q_WS_MAC
-    int softLimit = qMin(screenSize.width()/2, 500); 
+    int softLimit = qMin(screenSize.width()/2, 500);
 #else
-    int softLimit = qMin(screenSize.width()/2, 420); 
+    int softLimit = qMin(screenSize.width()/2, 420);
 #endif
     int hardLimit = qMin(4 * screenSize.width()/5, 1000); // can never get bigger than this
 
@@ -375,7 +382,7 @@ void QMessageBoxPrivate::updateSize()
                 control->setWordWrapMode(QTextOption::WrapAnywhere);
         }
     }
-    
+
     QFontMetrics fm(qApp->font("QWorkspaceTitleBar"));
     int windowTitleWidth = qMin(fm.width(q->windowTitle()) + 50, hardLimit);
     if (windowTitleWidth > width)
@@ -428,11 +435,14 @@ int QMessageBoxPrivate::execReturnCode(QAbstractButton *button)
 void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 {
     Q_Q(QMessageBox);
+#ifndef QT_NO_TEXTEDIT
     if (detailsButton && detailsText && button == detailsButton) {
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
         detailsText->setMaximumWidth(buttonBox->width());
         detailsText->setHidden(!detailsText->isHidden());
-    } else {
+    } else
+#endif
+    {
         clickedButton = button;
         q->done(execReturnCode(button)); // does not trigger closeEvent
     }
@@ -1837,6 +1847,7 @@ void QMessageBox::setButtonText(int button, const QString &text)
     }
 }
 
+#ifndef QT_NO_TEXTEDIT
 /*!
     \property QMessageBox::detailedText
     \brief the text to be displayed in the details area.
@@ -1875,6 +1886,7 @@ void QMessageBox::setDetailedText(const QString &text)
     }
     d->detailsText->setText(text);
 }
+#endif // QT_NO_TEXTEDIT
 
 /*!
     \property QMessageBox::informativeText
