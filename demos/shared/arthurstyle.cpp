@@ -107,7 +107,7 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
                 painter->setBrushOrigin(0,0);
             }
 
-            bool down = pushButton && ((button->state & State_Sunken) || (button->state & State_On));
+            bool down = (button->state & State_Sunken) || (button->state & State_On);
 
             QPixmap left, right, mid;
             if (down) {
