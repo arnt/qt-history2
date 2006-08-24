@@ -94,7 +94,7 @@ QVariant BackTabTextEdit::loadResource ( int type, const QUrl & name )
     if (type == QTextDocument::ImageResource) {
         img = m_backTabOmages.value(name);
         if (img.isNull()) {
-            for (int i = 0; i < sizeof(MessageEditor::backTab); ++i) {
+            for (int i = 0; i < strlen(MessageEditor::backTab); ++i) {
                 if (backTabImages[i] && name == QUrl(QLatin1String(backTabImages[i]))) {
 
                     QFont fnt = font();

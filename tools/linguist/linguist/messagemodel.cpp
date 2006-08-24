@@ -431,6 +431,7 @@ bool MessageModel::compare(const ContextItem *left, const ContextItem *right)
             return true;
         break;
     default:
+        nleft = nright = 0;
         break;
     }
 
