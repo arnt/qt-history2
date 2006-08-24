@@ -66,7 +66,6 @@ private slots:
     void adoptedThreadExit();
     void adoptedThreadExec();
     void adoptedThreadFinished();
-    void adoptedThreadTerminated();
     void adoptMultipleThreads();
 
     void stressTest();
@@ -757,22 +756,6 @@ void tst_QThread::adoptedThreadFinished()
     nativeThread.stop();
     nativeThread.join();
 
-    QTestEventLoop::instance().enterLoop(5);
-    QVERIFY(!QTestEventLoop::instance().timeout());
-}
-
-void tst_QThread::adoptedThreadTerminated()
-{
-    NativeThreadWrapper nativeThread;
-    nativeThread.setWaitForStop();
-    nativeThread.startAndWait();
-
-    QObject::connect(nativeThread.qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
-
-    nativeThread.qthread->terminate();
-    nativeThread.stop();
-    nativeThread.join();
-   
     QTestEventLoop::instance().enterLoop(5);
     QVERIFY(!QTestEventLoop::instance().timeout());
 }
