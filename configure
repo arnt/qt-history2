@@ -883,7 +883,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     nomake)
-	CFG_BUILD_PARTS="$CFG_NOBUILD_PARTS $VAL"
+	CFG_NOBUILD_PARTS="$CFG_NOBUILD_PARTS $VAL"
         ;;
     make)
 	CFG_BUILD_PARTS="$CFG_BUILD_PARTS $VAL"
