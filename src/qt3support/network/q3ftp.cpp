@@ -2347,7 +2347,6 @@ void Q3Ftp::npReadyRead()
     emit data( readAll(), operationInProgress() );
 }
 
-// ### unused -- delete in Qt 4.0
 /*!  \internal
 */
 void Q3Ftp::hostFound()
