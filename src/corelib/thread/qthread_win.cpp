@@ -14,6 +14,7 @@
 #include "qthread.h"
 #include "qthread_p.h"
 #include "qthreadstorage.h"
+#include "qmutex.h"
 
 #include <qcoreapplication.h>
 #include <qpointer.h>
@@ -31,6 +32,9 @@
 #include <process.h>
 #endif
 
+void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread);
+void qt_adopted_thread_watcher_function(void *);
+
 static DWORD qt_current_thread_data_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
@@ -40,6 +44,7 @@ void qt_create_tls()
     QMutexLocker locker(&mutex);
     qt_current_thread_data_tls_index = TlsAlloc();
 }
+
 
 /*
     QThreadData
@@ -52,11 +57,19 @@ QThreadData *QThreadData::current()
         threadData = new QThreadData;
         TlsSetValue(qt_current_thread_data_tls_index, threadData);
         threadData->thread = new QAdoptedThread(threadData);
-
+        threadData->deref();
         const bool isMainThread = q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, threadData->thread);
-        if (!isMainThread)
-            threadData->thread->moveToThread(QCoreApplicationPrivate::theMainThread);
-
+        if (!isMainThread) {
+            HANDLE realHandle;
+            DuplicateHandle(GetCurrentProcess(), 
+                    GetCurrentThread(), 
+                    GetCurrentProcess(),
+                    &realHandle, 
+                    0,
+                    FALSE,
+                    DUPLICATE_SAME_ACCESS);
+            qt_watch_adopted_thread(realHandle, threadData->thread);
+        }    
     }
     return threadData;
 }
@@ -65,6 +78,80 @@ void QAdoptedThread::init()
 {
     d_func()->handle = GetCurrentThread();
     d_func()->id = GetCurrentThreadId();
+}
+
+static QVector<HANDLE> qt_adopted_thread_handles;
+static QVector<QThread *> qt_adopted_qthreads;
+static QMutex qt_adopted_thread_watcher_mutex;
+static HANDLE qt_adopted_thread_watcher_handle = 0;
+static HANDLE qt_adopted_thread_wakeup = 0;
+
+/*! \internal
+    Adds an adopted thread to the list of threads that Qt watches to make sure 
+    the thread data is properly cleaned up. This function starts the watcher 
+    thread if neccesary.
+*/
+void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread)
+{
+    QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
+    qt_adopted_thread_handles.append(adoptedThreadHandle);
+    qt_adopted_qthreads.append(qthread);
+    
+    // Start watcher thread if it is not already running.
+    if (qt_adopted_thread_watcher_handle == 0) {
+        if (qt_adopted_thread_wakeup == 0) {
+            qt_adopted_thread_wakeup = QT_WA_INLINE(CreateEventW(0, false, false, 0),
+                                                    CreateEventA(0, false, false, 0));
+            qt_adopted_thread_handles.prepend(qt_adopted_thread_wakeup);
+        }
+        
+        qt_adopted_thread_watcher_handle =
+            (HANDLE)_beginthread(qt_adopted_thread_watcher_function, 0, NULL);
+    } else {
+        SetEvent(qt_adopted_thread_wakeup);
+    }
+}
+
+/*! \internal
+    This function loops and waits for native adopted threads to finish.
+    When this happens it derefs the QThreadData for the adopted thread
+    to make sure it gets cleaned up properly.
+*/
+void qt_adopted_thread_watcher_function(void *)
+{
+    forever { 
+        qt_adopted_thread_watcher_mutex.lock();
+        
+        const uint handleCount = qt_adopted_thread_handles.count();
+        
+        if (handleCount == 1) {
+            CloseHandle(qt_adopted_thread_watcher_handle);
+            qt_adopted_thread_watcher_handle = 0;
+            qt_adopted_thread_watcher_mutex.unlock();        
+            break;
+        }
+        
+        QVector<HANDLE> handlesCopy = qt_adopted_thread_handles;
+        qt_adopted_thread_watcher_mutex.unlock();
+
+        DWORD ret = WaitForMultipleObjects(handlesCopy.count(), handlesCopy.constData(), false, INFINITE);
+
+        if (ret == WAIT_FAILED || !(ret >= WAIT_OBJECT_0 && ret < WAIT_OBJECT_0 + handleCount)) {
+            qWarning("QThread internal error while waiting for adopted threads: %d", int(GetLastError()));
+            continue;
+        }
+        const int handleIndex = ret - WAIT_OBJECT_0;   
+
+        if (handleIndex == 0){
+            // New handle to watch was added.
+            continue;
+        } else {
+            QThreadData::get2(qt_adopted_qthreads.at(handleIndex -1))->deref();
+            CloseHandle(qt_adopted_thread_handles.at(handleIndex));
+            QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
+            qt_adopted_thread_handles.remove(handleIndex);
+        }
+    }
 }
 
 /**************************************************************************
