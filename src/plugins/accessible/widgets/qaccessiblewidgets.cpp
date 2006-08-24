@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "qaccessiblewidgets.h"
+#include "qabstracttextdocumentlayout.h"
 #include "qtextedit.h"
 #include "qtextdocument.h"
 #include "qtextobject.h"
+#include "qscrollbar.h"
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
@@ -35,6 +37,17 @@ static QTextBlock qTextBlockAt(const QTextDocument *doc, int pos)
     return block;
 }
 
+static int qTextBlockPosition(QTextBlock block)
+{
+    int child = 0;
+    while (block.isValid()) {
+        block = block.previous();
+        ++child;
+    }
+
+    return child;
+}
+
 /*!
   \fn QAccessibleTextEdit::QAccessibleTextEdit(QWidget* widget)
 
@@ -52,32 +65,40 @@ QTextEdit *QAccessibleTextEdit::textEdit() const
     return static_cast<QTextEdit *>(widget());
 }
 
-#if 0
-/*! \reimp */
-int QAccessibleTextEdit::itemAt(int x, int y) const
+QRect QAccessibleTextEdit::rect(int child) const
 {
-    int p;
-    QPoint cp = textEdit()->viewportToContents(QPoint(x,y));
-    textEdit()->charAt(cp , &p);
-    return p + 1;
+    if (!child)
+        return QAccessibleWidgetEx::rect(child);
+
+     QTextEdit *edit = textEdit();
+     QTextBlock block = qTextBlockAt(edit->document(), child);
+     if (!block.isValid())
+         return QRect();
+
+     QRect rect = edit->document()->documentLayout()->blockBoundingRect(block).toRect();
+     rect.translate(-edit->horizontalScrollBar()->value(), -edit->verticalScrollBar()->value());
+
+     rect = edit->viewport()->rect().intersect(rect);
+     if (rect.isEmpty())
+         return QRect();
+
+     return rect.translated(edit->viewport()->mapToGlobal(QPoint(0, 0)));
 }
 
-/*! \reimp */
-QRect QAccessibleTextEdit::itemRect(int item) const
+int QAccessibleTextEdit::childAt(int x, int y) const
 {
-    QRect rect = textEdit()->paragraphRect(item - 1);
-    if (!rect.isValid())
-        return QRect();
-    QPoint ntl = textEdit()->contentsToViewport(QPoint(rect.x(), rect.y()));
-    return QRect(ntl.x(), ntl.y(), rect.width(), rect.height());
-}
+    QTextEdit *edit = textEdit();
 
-/*! \reimp */
-int QAccessibleTextEdit::itemCount() const
-{
-    return textEdit()->document()->blockCount();
+    QPoint point = edit->viewport()->mapFromGlobal(QPoint(x, y));
+    QTextBlock block = edit->cursorForPosition(point).block();
+    if (block.isValid())
+        return qTextBlockPosition(block);
+
+    if (edit->viewport()->rect().contains(point))
+        return 0;
+
+    return -1;
 }
-#endif
 
 /*! \reimp */
 QString QAccessibleTextEdit::text(Text t, int child) const

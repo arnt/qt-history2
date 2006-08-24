@@ -31,6 +31,9 @@ public:
 
     QVariant invokeMethodEx(QAccessible::Method method, int child, const QVariantList &params);
 
+    QRect rect(int child) const;
+    int childAt(int x, int y) const;
+
 protected:
     QTextEdit *textEdit() const;
 };
