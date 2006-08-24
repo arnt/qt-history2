@@ -52,7 +52,10 @@ bool MingwMakefileGenerator::findLibraries()
             }
 	        extension += suffix;
 	        (*it) += extension;
-	    }
+	    } else if((*it).startsWith("-L")) {
+            dirs.append(QMakeLocalFileName((*it).mid(2)));
+        }
+
         ++it;
     }
     return true;
