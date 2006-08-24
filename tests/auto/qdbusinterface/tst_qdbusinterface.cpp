@@ -46,7 +46,10 @@ public slots:
 
     void ping(QDBusMessage msg)
     {
-        if (!QDBusConnection::sessionBus().send(msg.createReply(msg.arguments())))
+        QDBusConnection sender = QDBusConnection::sender();
+        if (!sender.isConnected())
+            exit(1);
+        if (!sender.send(msg.createReply(msg.arguments())))
             exit(1);
     }
 };
