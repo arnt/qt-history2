@@ -1780,8 +1780,6 @@ void TrWindow::readConfig()
     m_ui.actionEndingPunctuation->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
     m_ui.actionPhraseMatches->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
     m_ui.actionPlaceMarkerMatches->setChecked(config.value(keybase+ "Validators/PlaceMarkers", true).toBool());
-
-    QApplication::sendPostedEvents();
 }
 
 void TrWindow::writeConfig()
