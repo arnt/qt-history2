@@ -247,19 +247,39 @@ static QList<QNetworkInterfacePrivate *> createInterfaces(ifaddrs *rawList)
 {
     QList<QNetworkInterfacePrivate *> interfaces;
 
-    // on Linux we use AF_PACKET and sockaddr_ll
-    // scan the list for that family
-    for (ifaddrs *ptr = rawList; ptr; ptr = ptr->ifa_next)
-        if (ptr->ifa_addr && ptr->ifa_addr->sa_family == AF_PACKET) {
-            QNetworkInterfacePrivate *iface = new QNetworkInterfacePrivate;
-            interfaces << iface;
+    for (ifaddrs *ptr = rawList; ptr; ptr = ptr->ifa_next) {
+        if ( !ptr->ifa_addr )
+            continue;
 
+        // Get the interface index
+        int ifindex = if_nametoindex(ptr->ifa_name);
+
+        // on Linux we use AF_PACKET and sockaddr_ll to obtain hHwAddress
+        QList<QNetworkInterfacePrivate *>::Iterator if_it = interfaces.begin();
+        for ( ; if_it != interfaces.end(); ++if_it)
+            if ((*if_it)->index == ifindex) {
+                // this one has been added already
+                if ( ptr->ifa_addr->sa_family == AF_PACKET
+                        && (*if_it)->hardwareAddress.isEmpty()) {
+                    sockaddr_ll *sll = (sockaddr_ll *)ptr->ifa_addr;
+                    (*if_it)->hardwareAddress = (*if_it)->makeHwAddress(sll->sll_halen, (uchar*)sll->sll_addr);
+                }
+                break;
+            }
+        if ( if_it != interfaces.end() ) 
+            continue;
+        
+        QNetworkInterfacePrivate *iface = new QNetworkInterfacePrivate;
+        interfaces << iface;
+        iface->index = ifindex;
+        iface->name = QString::fromLatin1(ptr->ifa_name);
+        iface->flags = convertFlags(ptr->ifa_flags);
+
+        if ( ptr->ifa_addr->sa_family == AF_PACKET ) {
             sockaddr_ll *sll = (sockaddr_ll *)ptr->ifa_addr;
-            iface->index = sll->sll_ifindex;
-            iface->name = QString::fromLatin1(ptr->ifa_name);
-            iface->flags = convertFlags(ptr->ifa_flags);
             iface->hardwareAddress = iface->makeHwAddress(sll->sll_halen, (uchar*)sll->sll_addr);
         }
+    }
 
     return interfaces;
 }
