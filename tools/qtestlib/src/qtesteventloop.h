@@ -14,6 +14,8 @@
 #ifndef QTESTEVENTLOOP_H
 #define QTESTEVENTLOOP_H
 
+#include <QtTest/qtest_global.h>
+
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qeventloop.h>
 #include <QtCore/qobject.h>
@@ -21,13 +23,15 @@
 
 QT_BEGIN_HEADER
 
-class QTestEventLoop : public QObject
+class Q_TESTLIB_EXPORT QTestEventLoop : public QObject
 {
+    Q_OBJECT
+
 public:
     inline QTestEventLoop(QObject *aParent = 0)
         : QObject(aParent), inLoop(false), _timeout(false), timerId(-1), loop(0) {}
     inline void enterLoop(int secs);
-    inline void exitLoop();
+
 
     inline void changeInterval(int secs)
     { killTimer(timerId); timerId = startTimer(secs * 1000); }
@@ -42,6 +46,9 @@ public:
             testLoop = new QTestEventLoop(QCoreApplication::instance());
         return *static_cast<QTestEventLoop *>(testLoop);
     }
+
+public Q_SLOTS:
+    inline void exitLoop();
 
 protected:
     inline void timerEvent(QTimerEvent *e);
