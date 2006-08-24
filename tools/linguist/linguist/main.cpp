@@ -61,8 +61,7 @@ int main(int argc, char **argv)
     TrWindow tw;
     tw.show();
 
-    if (splash)
-        splash->finish(&tw);
+    splash->finish(&tw);
 
     if (app.argc() > 1)
         tw.openFile(QString(app.argv()[app.argc() - 1]));
