@@ -652,8 +652,10 @@ void tst_QThread::nativeThreadAdoption()
     nativeThread.setWaitForStop();
     nativeThread.startAndWait(testNativeThreadAdoption);
     QVERIFY(nativeThread.qthread);
+    
     nativeThread.stop();
     nativeThread.join();
+    
     QVERIFY(threadAdoptedOk);
 }
 
@@ -746,37 +748,33 @@ void tst_QThread::adoptedThreadExec()
 */
 void tst_QThread::adoptedThreadFinished()
 {
-#ifdef Q_OS_WIN
-    QSKIP("Not implemented on Widnows yet, task: 122365", SkipAll);
-#endif
     NativeThreadWrapper nativeThread;
     nativeThread.setWaitForStop();
     nativeThread.startAndWait();
 
-    SignalRecorder recorder;
-    QObject::connect(nativeThread.qthread, SIGNAL(finished()), &recorder, SLOT(slot()), Qt::DirectConnection);
+    QObject::connect(nativeThread.qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
 
     nativeThread.stop();
     nativeThread.join();
-    QVERIFY(recorder.wasActivated());
+
+    QTestEventLoop::instance().enterLoop(5);
+    QVERIFY(!QTestEventLoop::instance().timeout());
 }
 
 void tst_QThread::adoptedThreadTerminated()
 {
-#ifdef Q_OS_WIN
-    QSKIP("Not implemented on Widnows yet, task: 122365", SkipAll);
-#endif
     NativeThreadWrapper nativeThread;
     nativeThread.setWaitForStop();
     nativeThread.startAndWait();
 
-    SignalRecorder recorder;
-    connect(nativeThread.qthread, SIGNAL(terminated()), &recorder, SLOT(slot()), Qt::DirectConnection);
+    QObject::connect(nativeThread.qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
 
     nativeThread.qthread->terminate();
     nativeThread.stop();
     nativeThread.join();
-    QVERIFY(recorder.wasActivated());
+   
+    QTestEventLoop::instance().enterLoop(5);
+    QVERIFY(!QTestEventLoop::instance().timeout());
 }
 
 void tst_QThread::stressTest()
