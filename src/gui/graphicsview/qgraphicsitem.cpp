@@ -348,6 +348,30 @@ static void qt_graphicsItem_fullUpdate(QGraphicsItem *item)
 /*!
     \internal
 
+    Returns a QPainterPath of \a path when stroked with the \a pen.
+    Ignoring dash pattern.
+*/
+static QPainterPath qt_graphicsItem_shapeFromPath(const QPainterPath &path, const QPen &pen)
+{
+    // We unfortunately need this hack as QPainterPathStroker will set a width of 1.0
+    // if we pass a value of 0.0 to QPainterPathStroker::setWidth()
+    const qreal penWidthZero = qreal(0.00000001);
+
+    if (path == QPainterPath())
+        return path;
+    QPainterPathStroker ps;
+    ps.setCapStyle(pen.capStyle());
+    ps.setWidth(pen.widthF() <= 0.0 ? penWidthZero : pen.widthF());
+    ps.setJoinStyle(pen.joinStyle());
+    ps.setMiterLimit(pen.miterLimit());
+    QPainterPath p = ps.createStroke(path);
+    p.addPath(path);
+    return p;
+}
+
+/*!
+    \internal
+
     Propagates child event handling for this item and all its children.
 */
 void QGraphicsItemPrivate::setAncestorHandlesChildEvents(bool enabled)
@@ -3212,7 +3236,7 @@ QRectF QGraphicsPathItem::boundingRect() const
 QPainterPath QGraphicsPathItem::shape() const
 {
     Q_D(const QGraphicsPathItem);
-    return d->path;
+    return qt_graphicsItem_shapeFromPath(d->path, d->pen);
 }
 
 /*!
@@ -3416,7 +3440,7 @@ QPainterPath QGraphicsRectItem::shape() const
     Q_D(const QGraphicsRectItem);
     QPainterPath path;
     path.addRect(d->rect);
-    return path;
+    return qt_graphicsItem_shapeFromPath(path, d->pen);
 }
 
 /*!
@@ -3424,8 +3448,7 @@ QPainterPath QGraphicsRectItem::shape() const
 */
 bool QGraphicsRectItem::contains(const QPointF &point) const
 {
-    Q_D(const QGraphicsRectItem);
-    return d->rect.contains(point);
+    return QAbstractGraphicsShapeItem::contains(point);
 }
 
 /*!
@@ -3686,15 +3709,16 @@ QPainterPath QGraphicsEllipseItem::shape() const
 {
     Q_D(const QGraphicsEllipseItem);
     QPainterPath path;
-    if (!d->rect.isNull()) {
-        if (d->spanAngle != 360 * 16) {
-            path.moveTo(d->rect.center());
-            path.arcTo(d->rect, d->startAngle / 16.0, d->spanAngle / 16.0);
-        } else {
-            path.addEllipse(d->rect);
-        }
+    if (d->rect.isNull())
+        return path;
+    if (d->spanAngle != 360 * 16) {
+        path.moveTo(d->rect.center());
+        path.arcTo(d->rect, d->startAngle / 16.0, d->spanAngle / 16.0);
+    } else {
+        path.addEllipse(d->rect);
     }
-    return path;
+
+    return qt_graphicsItem_shapeFromPath(path, d->pen);
 }
 
 /*!
@@ -3913,7 +3937,7 @@ QPainterPath QGraphicsPolygonItem::shape() const
     Q_D(const QGraphicsPolygonItem);
     QPainterPath path;
     path.addPolygon(d->polygon);
-    return path;
+    return qt_graphicsItem_shapeFromPath(path, d->pen);
 }
 
 /*!
@@ -4019,8 +4043,6 @@ class QGraphicsLineItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsLineItem)
 public:
-    inline QGraphicsLineItemPrivate() : pen(QBrush(), 1.0)
-        { }
     QLineF line;
     QPen pen;
 };
@@ -4146,17 +4168,9 @@ QPainterPath QGraphicsLineItem::shape() const
     if (d->line.isNull())
         return path;
 
-    qreal width = d->pen.widthF();
     path.moveTo(d->line.p1());
     path.lineTo(d->line.p2());
-
-    if (width != 0.0) {
-        QPainterPathStroker ps;
-        ps.setCapStyle(d->pen.capStyle());
-        ps.setWidth(width);
-        path = ps.createStroke(path);
-    }
-    return path;
+    return qt_graphicsItem_shapeFromPath(path, d->pen);
 }
 
 /*!
