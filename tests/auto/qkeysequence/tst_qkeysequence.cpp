@@ -204,12 +204,14 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("paste") << (int)QKeySequence::Paste << QString("CTRL+V");
     QTest::newRow("delete") << (int)QKeySequence::Delete<< QString("DEL");
     QTest::newRow("open") << (int)QKeySequence::Open << QString("CTRL+O");
-    QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+W");
     QTest::newRow("addTab") << (int)QKeySequence::AddTab<< QString("CTRL+T");
     QTest::newRow("find") << (int)QKeySequence::Find<< QString("CTRL+F");
 #ifdef Q_WS_WIN
     QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("F3");
     QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("SHIFT+F3");
+	QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+F4");
+#else
+	QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+W");
 #endif
     QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");
     QTest::newRow("bold") << (int)QKeySequence::Bold << QString("CTRL+B");

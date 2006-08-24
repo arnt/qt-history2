@@ -90,7 +90,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     \row    \i HelpContents     \i F1                                   \i Ctrl+?                   \i F1           \i F1
     \row    \i WhatsThis        \i Shift+F1                             \i Shift+F1                 \i Shift+F1     \i Shift+F1
     \row    \i Open             \i Ctrl+O                               \i Ctrl+O                   \i Ctrl+O       \i Ctrl+O
-    \row    \i Close            \i Ctrl+F4, Ctrl+W                      \i Ctrl+W, Ctrl+F4          \i Ctrl+W       \i Shift+F1
+    \row    \i Close            \i Ctrl+F4, Ctrl+W                      \i Ctrl+W, Ctrl+F4          \i Ctrl+W       \i Ctrl+W
     \row    \i Save             \i Ctrl+S                               \i Ctrl+S                   \i Ctrl+S       \i Ctrl+S
     \row    \i New              \i Ctrl+N                               \i Ctrl+N                   \i Ctrl+N       \i Ctrl+N
     \row    \i Delete           \i Del                                  \i Del, Meta+D              \i Del, Ctrl+D  \i Del, Ctrl+D
