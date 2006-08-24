@@ -442,7 +442,39 @@ private:
     The XML subsystem constructs an instance of this class when it
     detects an error. You can retrieve the place where the error
     occurred using systemId(), publicId(), lineNumber() and
-    columnNumber(), along with the error message().
+    columnNumber(), along with the error message(). The possible error
+    messages are:
+
+
+    \list
+        \o "no error occurred"
+        \o "error triggered by consumer"
+        \o "unexpected end of file"
+        \o "more than one document type definition"
+        \o "error occurred while parsing element"
+        \o "tag mismatch"
+        \o "error occurred while parsing content"
+        \o "unexpected character"
+        \o "invalid name for processing instruction"
+        \o "version expected while reading the XML declaration"
+        \o "wrong value for standalone declaration"
+        \o "encoding declaration or standalone declaration expected while reading the XML declaration"
+        \o "standalone declaration expected while reading the XML declaration"
+        \o "error occurred while parsing document type definition"
+        \o "letter is expected"
+        \o "error occurred while parsing comment"
+        \o "error occurred while parsing reference"
+        \o "internal general entity reference not allowed in DTD"
+        \o "external parsed general entity reference not allowed in attribute value"
+        \o "external parsed general entity reference not allowed in DTD"
+        \o "unparsed entity reference n wrong context"
+        \o "recursive entities"
+        \o "error in the text declaration of an external entity"
+    \endlist
+
+    Note that, if you want to display these error messages to your
+    application's users, they will be displayed in English unless
+    they are explicitly translated.
 
     \sa QXmlErrorHandler, QXmlReader
 */
