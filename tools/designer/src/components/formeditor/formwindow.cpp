@@ -1898,19 +1898,18 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
     QObjectList child_list = w->children();
     for (int i = child_list.size() - 1; i >= 0; --i) {
         QObject *child_obj = child_list[i];
-        if (!child_obj->isWidgetType())
-            continue;
         if (qobject_cast<WidgetHandle*>(child_obj) != 0)
             continue;
-        QWidget *child = static_cast<QWidget*>(child_obj);
-        if (!child->geometry().contains(pos))
+        QWidget *child = qobject_cast<QWidget*>(child_obj);
+        if (!child || child->isWindow() ||
+                !child->geometry().contains(pos) || child->testAttribute(Qt::WA_TransparentForMouseEvents))
             continue;
-        pos = child->mapFromParent(pos);
-        QWidget *res = childAt_SkipDropLine(child, pos);
-        if (res == 0)
-            return child;
-        else
+        QPoint childPos = child->mapFromParent(pos);
+        if (QWidget *res = childAt_SkipDropLine(child, childPos))
             return res;
+        if (child->testAttribute(Qt::WA_MouseNoMask) || child->mask().contains(pos)
+                || child->mask().isEmpty())
+            return child;
     }
 
     return 0;
