@@ -559,17 +559,8 @@ bool QWinInputContext::composition(LPARAM lParam)
     if (fw) {
         Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         HIMC imc = getContext(fw->winId());
-        if (lParam & GCS_RESULTSTR) {
-            if(imePosition == -1)
-                startComposition();
-            // a fixed result, return the converted string
-            *imeComposition = getString(imc, GCS_RESULTSTR);
-            imePosition = -1;
-            QInputMethodEvent e;
-            e.setCommitString(*imeComposition);
-            imeComposition->clear();
-            result = qt_sendSpontaneousEvent(fw, &e);
-        } else if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
+        QInputMethodEvent e;
+        if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
             if (imePosition == -1)
                 // need to send a start event
                 startComposition();
@@ -600,10 +591,19 @@ bool QWinInputContext::composition(LPARAM lParam)
            if(imePosition >= 0)
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, imePosition, selLength ? 0 : 1, QVariant());
 
-           QInputMethodEvent e(*imeComposition, attrs);
-           result = qt_sendSpontaneousEvent(fw, &e);
-           update();
+           e = QInputMethodEvent(*imeComposition, attrs);
         }
+        if (lParam & GCS_RESULTSTR) {
+            if(imePosition == -1)
+                startComposition();
+            // a fixed result, return the converted string
+            *imeComposition = getString(imc, GCS_RESULTSTR);
+            imePosition = -1;
+            e.setCommitString(*imeComposition);
+            imeComposition->clear();
+        }
+        result = qt_sendSpontaneousEvent(fw, &e);
+        update();
         releaseContext(fw->winId(), imc);
     }
 #ifdef Q_IME_DEBUG
