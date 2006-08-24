@@ -129,8 +129,8 @@ public:
     QRect intersected(const QRect &other) const;
     bool intersects(const QRect &r) const;
 
-    friend Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
-    friend Q_CORE_EXPORT inline bool operator!=(const QRect &, const QRect &);
+    friend Q_CORE_EXPORT_INLINE bool operator==(const QRect &, const QRect &);
+    friend Q_CORE_EXPORT_INLINE bool operator!=(const QRect &, const QRect &);
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
@@ -157,8 +157,8 @@ private:
 };
 Q_DECLARE_TYPEINFO(QRect, Q_MOVABLE_TYPE);
 
-Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
-Q_CORE_EXPORT inline bool operator!=(const QRect &, const QRect &);
+Q_CORE_EXPORT_INLINE bool operator==(const QRect &, const QRect &);
+Q_CORE_EXPORT_INLINE bool operator!=(const QRect &, const QRect &);
 
 
 /*****************************************************************************
@@ -564,8 +564,8 @@ public:
     QRectF intersected(const QRectF &other) const;
     bool intersects(const QRectF &r) const;
 
-    friend Q_CORE_EXPORT inline bool operator==(const QRectF &, const QRectF &);
-    friend Q_CORE_EXPORT inline bool operator!=(const QRectF &, const QRectF &);
+    friend Q_CORE_EXPORT_INLINE bool operator==(const QRectF &, const QRectF &);
+    friend Q_CORE_EXPORT_INLINE bool operator!=(const QRectF &, const QRectF &);
 
     QRect toRect() const;
 
@@ -577,8 +577,8 @@ private:
 };
 Q_DECLARE_TYPEINFO(QRectF, Q_MOVABLE_TYPE);
 
-Q_CORE_EXPORT inline bool operator==(const QRectF &, const QRectF &);
-Q_CORE_EXPORT inline bool operator!=(const QRectF &, const QRectF &);
+Q_CORE_EXPORT_INLINE bool operator==(const QRectF &, const QRectF &);
+Q_CORE_EXPORT_INLINE bool operator!=(const QRectF &, const QRectF &);
 
 
 /*****************************************************************************

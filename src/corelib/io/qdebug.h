@@ -179,9 +179,9 @@ inline QDebug operator<<(QDebug debug, const QSet<T> &set)
     return operator<<(debug, set.toList());
 }
 
-inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
-inline Q_CORE_EXPORT QDebug qWarning() { return QDebug(QtWarningMsg); }
-inline Q_CORE_EXPORT QDebug qCritical() { return QDebug(QtCriticalMsg); }
+Q_CORE_EXPORT_INLINE QDebug qDebug() { return QDebug(QtDebugMsg); }
+Q_CORE_EXPORT_INLINE QDebug qWarning() { return QDebug(QtWarningMsg); }
+Q_CORE_EXPORT_INLINE QDebug qCritical() { return QDebug(QtCriticalMsg); }
 
 #else // QT_NO_DEBUG_STREAM
 

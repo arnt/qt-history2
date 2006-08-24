@@ -90,7 +90,7 @@ namespace QUnicodeTables {
     }
 
     Q_CORE_EXPORT int QT_FASTCALL script(uint ucs4);
-    Q_CORE_EXPORT inline int QT_FASTCALL script(const QChar &ch) {
+    Q_CORE_EXPORT_INLINE int QT_FASTCALL script(const QChar &ch) {
         return script(ch.unicode());
     }
 

@@ -283,10 +283,10 @@ Q_DECLARE_TYPEINFO(QImage, Q_MOVABLE_TYPE);
 
 // Inline functions...
 
-inline Q_GUI_EXPORT bool QImage::valid(const QPoint &pt) const { return valid(pt.x(), pt.y()); }
-inline Q_GUI_EXPORT int QImage::pixelIndex(const QPoint &pt) const { return pixelIndex(pt.x(), pt.y());}
-inline Q_GUI_EXPORT QRgb QImage::pixel(const QPoint &pt) const { return pixel(pt.x(), pt.y()); }
-inline Q_GUI_EXPORT void QImage::setPixel(const QPoint &pt, uint index_or_rgb) { setPixel(pt.x(), pt.y(), index_or_rgb); }
+Q_GUI_EXPORT_INLINE bool QImage::valid(const QPoint &pt) const { return valid(pt.x(), pt.y()); }
+Q_GUI_EXPORT_INLINE int QImage::pixelIndex(const QPoint &pt) const { return pixelIndex(pt.x(), pt.y());}
+Q_GUI_EXPORT_INLINE QRgb QImage::pixel(const QPoint &pt) const { return pixel(pt.x(), pt.y()); }
+Q_GUI_EXPORT_INLINE void QImage::setPixel(const QPoint &pt, uint index_or_rgb) { setPixel(pt.x(), pt.y(), index_or_rgb); }
 
 // QImage stream functions
 

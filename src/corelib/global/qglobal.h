@@ -254,6 +254,9 @@
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  define Q_C_CALLBACKS
+#  if defined(__MINGW32__)
+#    define Q_CC_MINGW
+#  endif
 #  if defined(__INTEL_COMPILER)
 /* Intel C++ also masquerades as GCC 3.2.0 */
 #    define Q_CC_INTEL
@@ -996,6 +999,24 @@ class QDataStream;
 #  endif
 #endif
 
+// Functions marked as Q_GUI_EXPORT_INLINE were exported and inlined by mistake.
+// Compilers like MinGW complain that the import attribute is ignored.
+#if defined(Q_CC_MINGW)
+#    if defined(QT_BUILD_CORE_LIB)
+#      define Q_CORE_EXPORT_INLINE Q_CORE_EXPORT inline
+#    else
+#      define Q_CORE_EXPORT_INLINE inline
+#    endif
+#    if defined(QT_BUILD_GUI_LIB)
+#      define Q_GUI_EXPORT_INLINE Q_GUI_EXPORT inline
+#    else
+#      define Q_GUI_EXPORT_INLINE inline
+#    endif
+#else
+#    define Q_CORE_EXPORT_INLINE Q_CORE_EXPORT inline
+#    define Q_GUI_EXPORT_INLINE Q_GUI_EXPORT inline
+#endif
+
 /*
    No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
    for Trolltech's internal unit tests. If you want slower loading times and more
@@ -1208,9 +1229,9 @@ Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 class QDebug;
 class QNoDebug;
 #ifndef QT_NO_DEBUG_STREAM
-inline Q_CORE_EXPORT QDebug qDebug();
-inline Q_CORE_EXPORT QDebug qWarning();
-inline Q_CORE_EXPORT QDebug qCritical();
+Q_CORE_EXPORT_INLINE QDebug qDebug();
+Q_CORE_EXPORT_INLINE QDebug qWarning();
+Q_CORE_EXPORT_INLINE QDebug qCritical();
 #else
 inline QNoDebug qDebug();
 #endif
