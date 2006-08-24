@@ -471,9 +471,11 @@ QFontEngine::Type QFontEngineFT::type() const
     return Freetype;
 }
 
-#ifndef QT_NO_OPENTYPE
 QOpenType *QFontEngineFT::openType() const
 {
+#ifdef QT_NO_OPENTYPE
+    return 0;
+#else
 //     qDebug("openTypeIface requested!");
     if (_openType)
         return _openType;
@@ -484,8 +486,8 @@ QOpenType *QFontEngineFT::openType() const
     QFontEngineFT *that = const_cast<QFontEngineFT *>(this);
     that->_openType = new QOpenType(that, that->face);
     return _openType;
-}
 #endif // QT_NO_OPENTYPE
+}
 
 void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
