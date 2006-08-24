@@ -1199,11 +1199,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (widget) {
                 if (wParam == SPI_SETNONCLIENTMETRICS)
                     widget->markFrameStrutDirty();
-                if (!widget->parentWidget())
-                    qt_set_windows_resources();
             }
         }
         break;
+    case WM_FONTCHANGE:
     case WM_SYSCOLORCHANGE:
         if (qApp->type() == QApplication::Tty)
             break;
