@@ -1783,8 +1783,10 @@ void QTextEdit::setReadOnly(bool ro)
     Qt::TextInteractionFlags flags = Qt::NoTextInteraction;
     if (ro) {
         flags = Qt::TextSelectableByMouse;
+#ifndef QT_NO_TEXTBROWSER
         if (qobject_cast<QTextBrowser *>(this))
             flags |= Qt::TextBrowserInteraction;
+#endif
     } else {
         flags = Qt::TextEditorInteraction;
     }
