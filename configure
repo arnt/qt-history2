@@ -2096,7 +2096,15 @@ if [ "$CFG_SEPARATE_DEBUG_INFO" = "auto" ] && [ "$CFG_SHARED" = "yes" ]; then
     if "$unixtests/objcopy.test" "$COMPILER_WITH_FLAGS" "$OPT_VERBOSE"; then
        CFG_SEPARATE_DEBUG_INFO=no
     else
-       CFG_SEPARATE_DEBUG_INFO=yes
+       case "$PLATFORM" in
+       hpux-*)
+           # binutils on HP-UX is buggy; default to no.
+           CFG_SEPARATE_DEBUG_INFO=no
+           ;;
+       *)
+           CFG_SEPARATE_DEBUG_INFO=yes
+           ;;
+       esac
     fi
 fi
 
