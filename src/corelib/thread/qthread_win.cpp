@@ -146,10 +146,12 @@ void qt_adopted_thread_watcher_function(void *)
             // New handle to watch was added.
             continue;
         } else {
-            QThreadData::get2(qt_adopted_qthreads.at(handleIndex -1))->deref();
+            const int qthreadIndex = handleIndex - 1;
+            QThreadData::get2(qt_adopted_qthreads.at(qthreadIndex))->deref();
             CloseHandle(qt_adopted_thread_handles.at(handleIndex));
             QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
             qt_adopted_thread_handles.remove(handleIndex);
+            qt_adopted_qthreads.remove(qthreadIndex);
         }
     }
 }
