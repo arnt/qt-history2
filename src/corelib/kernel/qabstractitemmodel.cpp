@@ -1427,7 +1427,7 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
 */
 Qt::DropActions QAbstractItemModel::supportedDragActions() const
 {
-    // ### Qt5 make this virtual or these properties
+    // ### Qt 5: make this virtual or these properties
     Q_D(const QAbstractItemModel);
     if (d->supportedDragActions != -1)
         return d->supportedDragActions;

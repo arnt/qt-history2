@@ -245,8 +245,8 @@ void QDockWidgetPrivate::updateButtons()
     relayout();
 }
 
-// ### Todo 4.1: Add subrects to style API, this will cover our styles for now
-//               Also, add posibilty to get standardIcons
+// ### Qt 4.1: Add subrects to style API, this will cover our styles for now
+//             Also, add posibilty to get standardIcons
 void QDockWidgetPrivate::relayout()
 {
     Q_Q(QDockWidget);
@@ -276,7 +276,7 @@ void QDockWidgetPrivate::relayout()
 
     QPoint buttonOffset(0, 0);
 #ifdef Q_OS_WIN
-    //### Fix this properly in Qt 4.2
+    // ### Qt 4.2: Fix this properly
     if (q->style()->inherits("QWindowsXPStyle")) {
         if(q->isFloating())
             buttonOffset = QPoint(2, -1);
@@ -285,7 +285,7 @@ void QDockWidgetPrivate::relayout()
     }
 #endif
     if (closeButton) {
-        //### Fix this properly in Qt 4.2
+        // ### Qt 4.2: Fix this properly
         closeButton->setGeometry(QStyle::visualRect(
 				    q->layoutDirection(),
                                     titleArea, QRect(posX - closeSize.width() - mw + buttonOffset.x(),
@@ -295,7 +295,7 @@ void QDockWidgetPrivate::relayout()
     }
 
     if (floatButton) {
-        //### Fix this properly in Qt 4.2
+        // ### Qt 4.2: Fix this properly
         floatButton->setGeometry(QStyle::visualRect(
 				    q->layoutDirection(),
                                     titleArea, QRect(posX - floatSize.width() - mw + buttonOffset.x(),

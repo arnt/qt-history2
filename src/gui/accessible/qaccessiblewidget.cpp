@@ -864,8 +864,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
     return state;
 }
 
-// ### Binary compatibility hack, remove in Qt 5
-
+// ### Qt 5: remove me - binary compatibility hack
 QAccessibleWidgetEx::QAccessibleWidgetEx(QWidget *o, Role role, const QString& name)
     : QAccessibleObjectEx(o)
 {

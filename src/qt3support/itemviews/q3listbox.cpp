@@ -1052,7 +1052,6 @@ uint Q3ListBox::count() const
     return d->count;
 }
 
-// ### fix before Qt 4.0
 #if 0
 /*!
     Inserts the string list \a list into the list at position \a
@@ -1106,7 +1105,6 @@ void Q3ListBox::insertStringList(const QStringList & list, int index)
 }
 
 
-// ### fix me
 #if 0
 /*!
     \overload

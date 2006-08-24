@@ -1113,7 +1113,7 @@ void Q3ScrollView::resizeEvent(QResizeEvent* event)
 /*!
     \reimp
 */
-void  Q3ScrollView::mousePressEvent(QMouseEvent * e) //#### remove for 4.0
+void  Q3ScrollView::mousePressEvent(QMouseEvent * e)
 {
     e->ignore();
 }
@@ -1121,7 +1121,7 @@ void  Q3ScrollView::mousePressEvent(QMouseEvent * e) //#### remove for 4.0
 /*!
     \reimp
 */
-void  Q3ScrollView::mouseReleaseEvent(QMouseEvent *e) //#### remove for 4.0
+void  Q3ScrollView::mouseReleaseEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -1130,7 +1130,7 @@ void  Q3ScrollView::mouseReleaseEvent(QMouseEvent *e) //#### remove for 4.0
 /*!
     \reimp
 */
-void  Q3ScrollView::mouseDoubleClickEvent(QMouseEvent *e) //#### remove for 4.0
+void  Q3ScrollView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -1138,7 +1138,7 @@ void  Q3ScrollView::mouseDoubleClickEvent(QMouseEvent *e) //#### remove for 4.0
 /*!
     \reimp
 */
-void  Q3ScrollView::mouseMoveEvent(QMouseEvent *e) //#### remove for 4.0
+void  Q3ScrollView::mouseMoveEvent(QMouseEvent *e)
 {
     e->ignore();
 }

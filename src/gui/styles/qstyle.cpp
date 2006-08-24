@@ -1967,7 +1967,7 @@ QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *opti
                            const QWidget *widget) const
 {
     QIcon result;
-    // ### 4.1: invokeMethod should accept const functions, to avoid this dirty cast
+    // ### Qt 4.1: invokeMethod should accept const functions, to avoid this dirty cast
     QMetaObject::invokeMethod(const_cast<QStyle*>(this),
                               "standardIconImplementation", Qt::DirectConnection,
                               Q_RETURN_ARG(QIcon, result),

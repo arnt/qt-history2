@@ -152,7 +152,7 @@ static void resolveUsp10()
         if (!ScriptFreeCache)
             return;
 
-        // ### Disable uniscript for windows 9x for now. Fix for Qt 4.0
+        // ### Disable uniscript for windows 9x for now
         if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
             return;
 

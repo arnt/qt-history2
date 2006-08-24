@@ -1333,7 +1333,7 @@ static bool hasStyleRule(const QWidget *w, int part)
     return !rule.isEmpty();
 }
 
-// ### FIXME: For 4.3, maybe have the rules intelligently initialized with default values
+// ### Qt 4.3: maybe have the rules intelligently initialized with default values
 static Qt::Alignment defaultPosition(int pe)
 {
     switch (pe) {

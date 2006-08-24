@@ -352,7 +352,7 @@ QString QAccessibleApplication::actionText(int action, Text text, int child) con
     return QAccessibleObject::actionText(action, text, child);
 }
 
-// ##### Binary compatibility hack. Qt 5 - remove me
+// ### Qt 5: remove me - binary compatibility hack
 QAccessibleObjectEx::QAccessibleObjectEx(QObject *object)
 {
     d = new QAccessibleObjectPrivate;

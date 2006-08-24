@@ -977,7 +977,7 @@ static QString computeElidedText(Qt::TextElideMode mode, const QString &text)
 QSize QTabBarPrivate::minimumTabSizeHint(int index)
 {
     Q_Q(QTabBar);
-    // ### Make this a protected virtual function in QTabBar in Qt 5.0
+    // ### Qt 5: make this a protected virtual function in QTabBar
     Tab &tab = tabList[index];
     QString oldText = tab.text;
     tab.text = computeElidedText(elideMode, oldText);

@@ -6027,7 +6027,7 @@ Q3CheckListItem::Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
 void Q3CheckListItem::init()
 {
     d = new Q3CheckListItemPrivate();
-    on = false; // ### remove on ver 4
+    on = false;
     // CheckBoxControllers by default have tristate set to true
     if (myType == CheckBoxController)
         setTristate(true);

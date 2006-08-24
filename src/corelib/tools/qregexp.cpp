@@ -3838,7 +3838,7 @@ QStringList QRegExp::capturedTexts()
         for (int i = 0; i < priv->matchState.captured.size(); i += 2) {
             QString m;
             if (priv->matchState.captured.at(i + 1) == 0)
-                m = QLatin1String(""); // ### Qt 5.0: don't distinguish between null and empty
+                m = QLatin1String(""); // ### Qt 5: don't distinguish between null and empty
             else if (priv->matchState.captured.at(i) >= 0)
                 m = priv->t.mid(priv->matchState.captured.at(i), priv->matchState.captured.at(i + 1));
             priv->capturedCache.append(m);

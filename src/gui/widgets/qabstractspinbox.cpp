@@ -32,7 +32,7 @@
 #if defined(Q_WS_X11)
 #include <limits.h>
 #endif
-static const int thresholdTime = 500; // ### make this a stylehint in 4.1
+static const int thresholdTime = 500; // ### Qt 4.1: make this a stylehint
 
 //#define QABSTRACTSPINBOX_QSBDEBUG
 #ifdef QABSTRACTSPINBOX_QSBDEBUG

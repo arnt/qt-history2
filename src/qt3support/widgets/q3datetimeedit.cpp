@@ -2546,8 +2546,6 @@ QSize Q3TimeEdit::minimumSizeHint() const
     for this widget.
 */
 
-// ### Remove in 4.0?
-
 void Q3TimeEdit::updateButtons()
 {
     if (!isEnabled())
