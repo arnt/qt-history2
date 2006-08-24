@@ -571,18 +571,7 @@ void QWidgetPrivate::show_sys()
             r.translate(-data.crect.topLeft());
         }
 #endif
-
-        const QWidgetBackingStore *bs = maybeBackingStore();
-        if (bs) {
-            QTLWExtra *topextra = q->window()->d_func()->maybeTopData();
-            QRect br(r.translated(data.crect.topLeft()).boundingRect());
-            topextra->frameStrut.setCoords(data.crect.x()-br.x(),
-                                           data.crect.y()-br.y(),
-                                           br.right()-data.crect.right(),
-                                           br.bottom()-data.crect.bottom());
-            bs->windowSurface->setGeometry(br);
-        }
-
+        data.fstrut_dirty = true;
         invalidateBuffer(r);
         if (q->windowType() != Qt::Popup
             && q->windowType() != Qt::Tool
@@ -803,7 +792,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
     if (q->isVisible()) {
 
-        QRegion myregion;
         bool toplevelMove = false;
         if (q->isWindow()) {
             //### ConfigPending not implemented, do we need it?
@@ -817,23 +805,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
 
             } else {
-                myregion = localRequestedRegion();
-                myregion.translate(x,y);
-#ifndef QT_NO_QWS_MANAGER
-                if (topextra && topextra->qwsManager) {
-                    myregion += topextra->qwsManager->region();
-                }
-#endif
-                if (topextra) {
-                    QRect br(myregion.boundingRect());
-                    topextra->frameStrut.setCoords(data.crect.x()-br.x(),
-                                                   data.crect.y()-br.y(),
-                                                   br.right()-data.crect.right(),
-                                                   br.bottom()-data.crect.bottom());
-                    QWindowSurface *surface;
-                    surface = topextra->backingStore->windowSurface;
-                    surface->setGeometry(br);
-                }
+                    updateFrameStrut();
             }
         }
 
@@ -1011,23 +983,7 @@ void QWidget::setMask(const QRegion& region)
 
     if (isVisible()) {
         if (isWindow()) {
-            QTLWExtra *topextra = d->extra->topextra;
-            QRegion myregion = d->localRequestedRegion();
-            myregion.translate(geometry().topLeft());
-            if (topextra) {
-#ifndef QT_NO_QWS_MANAGER
-                if (topextra->qwsManager)
-                    myregion += topextra->qwsManager->region();
-#endif
-                QRect br(myregion.boundingRect());
-                topextra->frameStrut.setCoords(d->data.crect.x()-br.x(),
-                                               d->data.crect.y()-br.y(),
-                                               br.right()-d->data.crect.right(),
-                                               br.bottom()-d->data.crect.bottom());
-                QWindowSurface *surface = topextra->backingStore->windowSurface;
-                if (surface)
-                    surface->setGeometry(frameGeometry());
-            }
+            d->data.fstrut_dirty = true;
             d->invalidateBuffer(rect());
         } else {
             parentR += d->extra->mask;
@@ -1049,28 +1005,30 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut()
 {
-#if 0
     Q_Q(QWidget);
 
     if(!q->isVisible() || (q->windowType() == Qt::Desktop)) {
         data.fstrut_dirty = q->isVisible();
         return;
     }
+
 #ifndef QT_NO_QWS_MANAGER
-    QRegion r = localRequestedRegion();
-    r.translate(data.crect.topLeft());
     if (extra && extra->topextra && extra->topextra->qwsManager) {
+        QTLWExtra *topextra = extra->topextra;
+        const QRect oldFrameStrut = topextra->frameStrut;
+        const QRect contents = data.crect;
+        QRegion r = localRequestedRegion().translated(contents.topLeft());
         r += extra->topextra->qwsManager->region();
+        const QRect frame = r.boundingRect();
+
+        topextra->frameStrut.setCoords(contents.left() - frame.left(),
+                                       contents.top() - frame.top(),
+                                       frame.right() - contents.right(),
+                                       frame.bottom() - contents.bottom());
+        topextra->qwsManager->repaintRegion(QDecoration::All, QDecoration::Normal);
     }
-    QRect contents = geometry();
-    QRect frame = r.boundingRect();
-    top->frameStrut.setCoords(contents.left() - frame.left(),
-                              contents.top() - frame.top(),
-                              frame.right() - contents.right(),
-                              frame.bottom() - contents.bottom());
 #endif
     data.fstrut_dirty = false;
-#endif
 }
 
 #ifndef QT_NO_CURSOR

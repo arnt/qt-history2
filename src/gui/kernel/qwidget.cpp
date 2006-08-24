@@ -5916,10 +5916,16 @@ void QWidget::changeEvent(QEvent * event)
         break;
 
     case QEvent::FontChange:
-    case QEvent::StyleChange:
+    case QEvent::StyleChange: {
         update();
         updateGeometry();
+#ifdef Q_WS_QWS
+        Q_D(QWidget);
+        if (isWindow())
+            d->data.fstrut_dirty = true;
+#endif
         break;
+    }
 
     case QEvent::PaletteChange:
         update();
