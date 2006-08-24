@@ -5514,17 +5514,14 @@ void QPlastiqueStylePrivate::lookupIconTheme() const
 
     QSettings settings(kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
     settings.beginGroup("Icons");
-    if (settings.allKeys().contains("Theme")) {
-        themeName = settings.value("Theme", defaultTheme).toString();
-    } else {
-        /*
-        // This can be enabled if there are bug reports that this doesn't cover all cases (which it doesn't)
-        QProcess kreadconfig;
-        kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
-        if (kreadconfig.waitForFinished())
-            themeName = QLatin1String(kreadconfig.readLine().trimmed());
-        */
-    }
+    themeName = settings.value("Theme", defaultTheme).toString();
+    /*
+    // This can be enabled if there are bug reports that this doesn't cover all cases (which it doesn't)
+    QProcess kreadconfig;
+    kreadconfig.start(QLatin1String("kreadconfig --file kdeglobals --group Icons --key Theme --default crystalsvg"));
+    if (kreadconfig.waitForFinished())
+        themeName = QLatin1String(kreadconfig.readLine().trimmed());
+    */
 #endif
 }
 
