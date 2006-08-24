@@ -177,6 +177,10 @@ int StringSimilarityMatcher::getSimilarityScore(const QString &strCandidate)
     return score;
 }
 
+StringSimilarityMatcher::~StringSimilarityMatcher()
+{
+    delete m_cm;
+}
 
 /**
  * Checks how similar two strings are.

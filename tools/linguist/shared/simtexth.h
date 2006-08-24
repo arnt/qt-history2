@@ -49,6 +49,7 @@ struct CoMatrix;
 class StringSimilarityMatcher {
 public:
     StringSimilarityMatcher(const QString &stringToMatch);
+    ~StringSimilarityMatcher();
     int getSimilarityScore(const QString &strCandidate);
 
 private:
