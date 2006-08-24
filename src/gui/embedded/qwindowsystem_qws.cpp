@@ -312,8 +312,9 @@ void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 void QWSWindow::raise()
 {
     qwsServerPrivate->raiseWindow(this);
-    foreach (QWSWindow *w, d->embedded)
-        w->raise();
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->raise();
 }
 
 /*!
@@ -323,8 +324,9 @@ void QWSWindow::raise()
 void QWSWindow::lower()
 {
     qwsServerPrivate->lowerWindow(this);
-    foreach (QWSWindow *w, d->embedded)
-        w->lower();
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->lower();
 }
 
 /*!
@@ -334,8 +336,9 @@ void QWSWindow::lower()
 void QWSWindow::show()
 {
     operation(QWSWindowOperationEvent::Show);
-    foreach (QWSWindow *w, d->embedded)
-        w->show();
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->show();
 }
 
 /*!
@@ -345,8 +348,9 @@ void QWSWindow::show()
 void QWSWindow::hide()
 {
     operation(QWSWindowOperationEvent::Hide);
-    foreach (QWSWindow *w, d->embedded)
-        w->hide();
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->hide();
 }
 
 /*!
@@ -357,9 +361,9 @@ void QWSWindow::hide()
 void QWSWindow::setActiveWindow()
 {
     qwsServerPrivate->setFocus(this, true);
-    foreach (QWSWindow *w, d->embedded)
-        w->setActiveWindow();
-
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->setActiveWindow();
 }
 
 void QWSWindow::setName(const QString &n)
@@ -387,9 +391,10 @@ void QWSWindow::focus(bool get)
     event.simpleData.window = id;
     event.simpleData.get_focus = get;
     c->sendEvent(&event);
-    foreach (QWSWindow *w, d->embedded)
-        w->focus(get);
 
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->focus(get);
 }
 
 void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
@@ -2829,8 +2834,9 @@ void QWSServerPrivate::update_regions()
         QRegion r = (w->requested_region & available);
 
         // Subtract regions needed for embedded windows
-        foreach (QWSWindow *w, w->d->embedded)
-            r -= w->requested_region;
+        const int n = w->d->embedded.size();
+        for (int i = 0; i < n; ++i)
+            r -= w->d->embedded.at(i)->requested_region;
 
         if (!w->isOpaque()) {
             transparentWindows.append(w);
