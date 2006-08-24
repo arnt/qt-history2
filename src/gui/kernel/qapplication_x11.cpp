@@ -1641,7 +1641,7 @@ void qt_init(QApplicationPrivate *priv, int,
         X11->desktopEnvironment = DE_UNKNOWN;
 
         // See if the current window manager is using the freedesktop.org spec to give its name
-        Window windowManagerWindow = 0;
+        Window windowManagerWindow = XNone;
         Atom typeReturned;
         int formatReturned;
         unsigned long nitemsReturned;
@@ -1657,20 +1657,22 @@ void qt_init(QApplicationPrivate *priv, int,
             if (data)
                 XFree(data);
 
-            QString wmName;
-            Atom utf8atom = ATOM(UTF8_STRING);
-            if (XGetWindowProperty(QX11Info::display(), windowManagerWindow, ATOM(_NET_WM_NAME),
-                           0, 1024, False, utf8atom, &typeReturned,
-                           &formatReturned, &nitemsReturned, &unused, &data)
-                == Success) {
-                if (typeReturned == utf8atom && formatReturned == 8)
-                    wmName = QString::fromUtf8((const char*)data);
-                if (data)
-                    XFree(data);
-                if (wmName == QLatin1String("KWin"))
-                    X11->desktopEnvironment = DE_KDE;
-                if (wmName == QLatin1String("Metacity"))
-                    X11->desktopEnvironment = DE_GNOME;
+            if (windowManagerWindow != XNone) {
+                QString wmName;
+                Atom utf8atom = ATOM(UTF8_STRING);
+                if (XGetWindowProperty(QX11Info::display(), windowManagerWindow, ATOM(_NET_WM_NAME),
+                                       0, 1024, False, utf8atom, &typeReturned,
+                                       &formatReturned, &nitemsReturned, &unused, &data)
+                    == Success) {
+                    if (typeReturned == utf8atom && formatReturned == 8)
+                        wmName = QString::fromUtf8((const char*)data);
+                    if (data)
+                        XFree(data);
+                    if (wmName == QLatin1String("KWin"))
+                        X11->desktopEnvironment = DE_KDE;
+                    if (wmName == QLatin1String("Metacity"))
+                        X11->desktopEnvironment = DE_GNOME;
+                }
             }
         }
 
