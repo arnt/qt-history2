@@ -1875,7 +1875,10 @@ void QTableView::selectRow(int row)
         QModelIndex tl = d->model->index(qMin(d->rowSectionAnchor, row), 0, d->root);
         QModelIndex br = d->model->index(qMax(d->rowSectionAnchor, row),
                                          d->model->columnCount(d->root) - 1, d->root);
-        d->selectionModel->select(QItemSelection(tl, br), command);
+        if (verticalHeader()->sectionsMoved() && tl.row() != br.row())
+            setSelection(visualRect(tl)|visualRect(br), command);
+        else
+            d->selectionModel->select(QItemSelection(tl, br), command);
     }
 }
 
@@ -1902,7 +1905,10 @@ void QTableView::selectColumn(int column)
         QModelIndex tl = d->model->index(0, qMin(d->columnSectionAnchor, column), d->root);
         QModelIndex br = d->model->index(d->model->rowCount(d->root) - 1,
                                          qMax(d->columnSectionAnchor, column), d->root);
-        d->selectionModel->select(QItemSelection(tl, br), command);
+        if (horizontalHeader()->sectionsMoved() && tl.column() != br.column())
+            setSelection(visualRect(tl)|visualRect(br), command);
+        else
+            d->selectionModel->select(QItemSelection(tl, br), command);
     }
 }
 
