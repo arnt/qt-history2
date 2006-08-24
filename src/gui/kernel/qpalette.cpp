@@ -113,9 +113,9 @@ QColorGroup QPalette::createColorGroup(ColorGroup cr) const
 
 void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 {
-    setColorGroup(cg, g.brush(Foreground), g.brush(Button), g.brush(Light),
+    setColorGroup(cg, g.brush(WindowText), g.brush(Button), g.brush(Light),
                   g.brush(Dark), g.brush(Mid), g.brush(Text), g.brush(BrightText),
-                  g.brush(Base), g.brush(AlternateBase), g.brush(Background),
+                  g.brush(Base), g.brush(AlternateBase), g.brush(Window),
                   g.brush(Midlight), g.brush(ButtonText), g.brush(Shadow),
                   g.brush(Highlight), g.brush(HighlightedText), g.brush(Link),
                   g.brush(LinkVisited));
@@ -458,13 +458,13 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     By default, the highlighted text color is Qt::white.
 
     Finally, there is a special role for text that needs to be drawn where \c
-    Text or \c Foreground would give poor contrast, such as on pressed push
+    Text or \c WindowText would give poor contrast, such as on pressed push
     buttons.  Note that text colors can be used for things other than just
     words; text colors are \e usually used for text, but it's quite common to
     use the text color roles for lines, icons, etc.
 
     \value BrightText  A text color that is very different from
-                       \c Foreground, and contrasts well with e.g. \c Dark.
+                       \c WindowText, and contrasts well with e.g. \c Dark.
 
     \value Link  A text color used for unvisited hyperlinks.
                  By default, the link color is Qt::blue.
@@ -1020,7 +1020,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
                         const QBrush &link, const QBrush &link_visited)
 {
     detach();
-    setBrush(cg, Foreground, foreground);
+    setBrush(cg, WindowText, foreground);
     setBrush(cg, Button, button);
     setBrush(cg, Light, light);
     setBrush(cg, Dark, dark);
@@ -1029,7 +1029,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     setBrush(cg, BrightText, bright_text);
     setBrush(cg, Base, base);
     setBrush(cg, AlternateBase, alternate_base);
-    setBrush(cg, Background, background);
+    setBrush(cg, Window, background);
     setBrush(cg, Midlight, midlight);
     setBrush(cg, ButtonText, button_text);
     setBrush(cg, Shadow, shadow);

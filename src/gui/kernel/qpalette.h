@@ -54,10 +54,10 @@ public:
     enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
     enum ColorRole { WindowText, Button, Light, Midlight, Dark, Mid,
                      Text, BrightText, ButtonText, Base, Window, Shadow,
-                     Highlight, HighlightedText, Link, LinkVisited, AlternateBase,
-                     NColorRoles, NoRole = NColorRoles
-                     // ## deprecated
-                     , Foreground = WindowText, Background = Window
+                     Highlight, HighlightedText,
+                     Link, LinkVisited, // ### Qt 5: remove
+                     AlternateBase, NColorRoles, NoRole = NColorRoles
+                     , Foreground = WindowText, Background = Window // ### Qt 5: remove
                    };
 
     inline ColorGroup currentColorGroup() const { return static_cast<ColorGroup>(current_group); }
@@ -79,7 +79,7 @@ public:
 
     inline const QColor &color(ColorRole cr) const { return color(Current, cr); }
     inline const QBrush &brush(ColorRole cr) const { return brush(Current, cr); }
-    inline const QBrush &foreground() const { return brush(Foreground); }
+    inline const QBrush &foreground() const { return brush(WindowText); }
     inline const QBrush &windowText() const { return brush(WindowText); }
     inline const QBrush &button() const { return brush(Button); }
     inline const QBrush &light() const { return brush(Light); }
@@ -88,7 +88,7 @@ public:
     inline const QBrush &text() const { return brush(Text); }
     inline const QBrush &base() const { return brush(Base); }
     inline const QBrush &alternateBase() const { return brush(AlternateBase); }
-    inline const QBrush &background() const { return brush(Background); }
+    inline const QBrush &background() const { return brush(Window); }
     inline const QBrush &window() const { return brush(Window); }
     inline const QBrush &midlight() const { return brush(Midlight); }
     inline const QBrush &brightText() const { return brush(BrightText); }
@@ -172,14 +172,14 @@ public:
     inline bool operator!=(const QColorGroup &other) const { return !(operator==(other)); }
     operator QVariant() const;
 
-    inline QT3_SUPPORT const QColor &foreground() const { return color(Foreground); }
+    inline QT3_SUPPORT const QColor &foreground() const { return color(WindowText); }
     inline QT3_SUPPORT const QColor &button() const { return color(Button); }
     inline QT3_SUPPORT const QColor &light() const { return color(Light); }
     inline QT3_SUPPORT const QColor &dark() const { return color(Dark); }
     inline QT3_SUPPORT const QColor &mid() const { return color(Mid); }
     inline QT3_SUPPORT const QColor &text() const { return color(Text); }
     inline QT3_SUPPORT const QColor &base() const { return color(Base); }
-    inline QT3_SUPPORT const QColor &background() const { return color(Background); }
+    inline QT3_SUPPORT const QColor &background() const { return color(Window); }
     inline QT3_SUPPORT const QColor &midlight() const { return color(Midlight); }
     inline QT3_SUPPORT const QColor &brightText() const { return color(BrightText); }
     inline QT3_SUPPORT const QColor &buttonText() const { return color(ButtonText); }

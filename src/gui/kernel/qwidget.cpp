@@ -3188,7 +3188,7 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     if (testAttribute(Qt::WA_NoSystemBackground))
         return Qt::NoBackground;
     switch(backgroundRole()) {
-    case QPalette::Foreground:
+    case QPalette::WindowText:
         return Qt::PaletteForeground;
     case QPalette::Button:
         return Qt::PaletteButton;
@@ -3206,7 +3206,7 @@ Qt::BackgroundMode QWidget::backgroundMode() const
         return Qt::PaletteBrightText;
     case QPalette::Base:
         return Qt::PaletteBase;
-    case QPalette::Background:
+    case QPalette::Window:
         return Qt::PaletteBackground;
     case QPalette::Shadow:
         return Qt::PaletteShadow;
@@ -3249,7 +3249,7 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     case Qt::FixedPixmap:
         break;
     case Qt::PaletteForeground:
-        role = QPalette::Foreground;
+        role = QPalette::WindowText;
         break;
     case Qt::PaletteButton:
         role = QPalette::Button;
@@ -3276,7 +3276,7 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
         role = QPalette::Base;
         break;
     case Qt::PaletteBackground:
-        role = QPalette::Background;
+        role = QPalette::Window;
         break;
     case Qt::PaletteShadow:
         role = QPalette::Shadow;
@@ -3376,7 +3376,7 @@ QPalette::ColorRole QWidget::foregroundRole() const
     QPalette::ColorRole rl = QPalette::ColorRole(d->fg_role);
     if (rl != QPalette::NoRole)
         return rl;
-    QPalette::ColorRole role = QPalette::Foreground;
+    QPalette::ColorRole role = QPalette::WindowText;
     switch (backgroundRole()) {
     case QPalette::Button:
         role = QPalette::ButtonText;

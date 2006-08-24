@@ -1641,11 +1641,11 @@ static void qt_set_qws_resources()
         if (appBGCol)
             bg = QColor(appBGCol);
         else
-            bg = QApplicationPrivate::sys_pal->color(QPalette::Background);
+            bg = QApplicationPrivate::sys_pal->color(QPalette::Window);
         if (appFGCol)
             fg = QColor(appFGCol);
         else
-            fg = QApplicationPrivate::sys_pal->color(QPalette::Foreground);
+            fg = QApplicationPrivate::sys_pal->color(QPalette::WindowText);
         if (appBTNCol)
             btn = QColor(appBTNCol);
         else

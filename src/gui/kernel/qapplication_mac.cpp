@@ -173,8 +173,8 @@ static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, const QString &where)
 {
     const char *const groups[] = {"Active", "Disabled", "Inactive" };
-    const char *const roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
-                            "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
+    const char *const roles[] = { "WindowText", "Button", "Light", "Midlight", "Dark", "Mid",
+                            "Text", "BrightText", "ButtonText", "Base", "Window", "Shadow",
                             "Highlight", "HighlightedText", "Link", "LinkVisited" };
     if(!where.isNull())
         qDebug("qt-internal: %s", where.toLatin1().constData());
@@ -370,16 +370,16 @@ void qt_mac_update_os_settings()
         if(!GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c)) {
             qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
             pal.setColor(QPalette::Active, QPalette::Text, qc);
-            pal.setColor(QPalette::Active, QPalette::Foreground, qc);
+            pal.setColor(QPalette::Active, QPalette::WindowText, qc);
             pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
         }
         if(!GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &c)) {
             qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
             pal.setColor(QPalette::Inactive, QPalette::Text, qc);
-            pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
+            pal.setColor(QPalette::Inactive, QPalette::WindowText, qc);
             pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
             pal.setColor(QPalette::Disabled, QPalette::Text, qc);
-            pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
+            pal.setColor(QPalette::Disabled, QPalette::WindowText, qc);
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
         }
         QApplicationPrivate::setSystemPalette(pal);
@@ -488,15 +488,15 @@ void QApplicationPrivate::initializeWidgetPaletteHash()
                 if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
                     qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
                     pal.setColor(QPalette::Active, QPalette::Text, qc);
-                    pal.setColor(QPalette::Active, QPalette::Foreground, qc);
+                    pal.setColor(QPalette::Active, QPalette::WindowText, qc);
                     pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
                 }
                 if(!GetThemeTextColor(mac_widget_colors[i].inactive, 32, true, &c)) {
                     qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
                     pal.setColor(QPalette::Inactive, QPalette::Text, qc);
                     pal.setColor(QPalette::Disabled, QPalette::Text, qc);
-                    pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
-                    pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
+                    pal.setColor(QPalette::Inactive, QPalette::WindowText, qc);
+                    pal.setColor(QPalette::Disabled, QPalette::WindowText, qc);
                     pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
                     pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
                 }

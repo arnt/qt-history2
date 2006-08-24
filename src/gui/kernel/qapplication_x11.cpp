@@ -903,11 +903,11 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         if (!resBG.isEmpty())
             bg = QColor(QString(resBG));
         else
-            bg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Background);
+            bg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Window);
         if (!resFG.isEmpty())
             fg = QColor(QString(resFG));
         else
-            fg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Foreground);
+            fg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::WindowText);
         if (button)
             btn = QColor(button);
         else if (!resBG.isEmpty())
