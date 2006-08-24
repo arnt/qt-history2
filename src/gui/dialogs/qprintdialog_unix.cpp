@@ -801,7 +801,7 @@ static void populatePaperSizes(QComboBox* cb)
 
 static int getLprPrinters(QList<QPrinterDescription>& printers)
 {
-    char *etcLpDefault = 0;
+    QByteArray etcLpDefault;
     parsePrintcap(&printers, QLatin1String("/etc/printcap"));
     parseEtcLpMember(&printers);
     parseSpoolInterface(&printers);
@@ -813,17 +813,11 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
         parseEtcLpPrinters(&printers);
         QFile def(QLatin1String("/etc/lp/default"));
         if (def.open(QIODevice::ReadOnly)) {
-            if (etcLpDefault)
-                delete[] etcLpDefault;
-            etcLpDefault = new char[1025];
-            if (def.readLine(etcLpDefault, 1024) > 0) {
-                char *p = etcLpDefault;
-                while (p && *p) {
-                    if (!isprint((uchar) *p) || isspace((uchar) *p))
-                        *p = 0;
-                    else
-                        ++p;
-		}
+            etcLpDefault.resize(1025);
+            if (def.readLine(etcLpDefault.data(), 1024) > 0) {
+                QRegExp rx("^(\\S+)");
+                if (rx.indexIn(etcLpDefault) != -1)
+                    etcLpDefault = rx.cap(1).toAscii();
             }
         }
     }
@@ -839,9 +833,8 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
     }
 
     if (def) {
-        if (etcLpDefault)
-            delete[] etcLpDefault;
         etcLpDefault = def;
+        delete [] def;
     }
 
     // all printers hopefully known.  try to find a good default
@@ -866,7 +859,7 @@ static int getLprPrinters(QList<QPrinterDescription>& printers)
         if (quality < 4 && name == dollarPrinter) {
             best = i;
             quality = 4;
-        } else if (quality < 3 && etcLpDefault &&
+        } else if (quality < 3 && !etcLpDefault.isEmpty() &&
                     name == QLatin1String(etcLpDefault)) {
             best = i;
             quality = 3;
