@@ -58,8 +58,8 @@ void tst_QPen::getSetCheck()
     // void QPen::setWidth(int)
     obj1.setWidth(0);
     QCOMPARE(0, obj1.width());
-    obj1.setWidth(INT_MIN);
-    QCOMPARE(INT_MIN, obj1.width());
+    obj1.setWidth(INT_MIN + 1);
+    QCOMPARE(INT_MIN + 1, obj1.width());
     obj1.setWidth(INT_MAX);
     QCOMPARE(INT_MAX, obj1.width());
 }
