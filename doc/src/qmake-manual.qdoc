@@ -732,7 +732,7 @@
     Features specific to this platform include support for creating universal
     binaries, frameworks and bundles.
 
-    \section2 Frameworks
+    \section2 Using Frameworks
 
     \c qmake is able to automatically generate build rules for linking against
     frameworks in the standard framework directory on Mac OS X, located at
@@ -754,6 +754,66 @@
     \code
         LIBS += -framework TheFramework
     \endcode
+
+    \section2 Creating Library Bundles
+
+    Any given library project can be configured so
+    that the resulting library file is placed in a library bundle, ready for
+    deployment. To do this, set up the project to use the
+    \l{qmake Variable Reference#TEMPLATE}{\c lib template} and add the
+    \c lib_bundle option to the \l{qmake Variable Reference#CONFIG}{CONFIG}
+    variable:
+
+    \code
+        TEMPLATE = lib
+        CONFIG += lib_bundle
+    \endcode
+
+    The data associated with the library is specified using the
+    \l{qmake Variable Reference#QMAKE_BUNDLE_DATA}{QMAKE_BUNDLE_DATA}
+    variable. This holds items that will be installed with a library
+    bundle, and is often used to specify a collection of header files,
+    as in the following example:
+
+    \code
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files = path/to/header_one.h path/to/header_two.h
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+    \endcode
+
+    Here, the \c FRAMEWORK_HEADERS variable is a user-defined variable that
+    is used to define the headers required to use a particular framework.
+    Appending it to the \c QMAKE_BUNDLE_DATA variable ensures that the
+    information about these headers are added to the collection of
+    resources that will be installed with the library bundle.
+
+    See \l{Deploying an Application on Qt/Mac} for more information about
+    deploying applications and libraries.
+
+    \section2 Creating Frameworks
+
+    In addition to libraries and library bundles, \c qmake can generate rules
+    to build frameworks.
+
+    To enable this, you need to configure the project to generate a library
+    bundle as described in the previous section:
+
+    \code
+        TEMPLATE = lib
+        CONFIG += lib_bundle
+    \endcode
+
+    The end product of the build process is a framework whose name and version
+    are specified by the
+    \l{qmake Variable Reference#QMAKE_FRAMEWORK_BUNDLE_NAME}{QMAKE_FRAMEWORK_BUNDLE_NAME}
+    and \l{qmake Variable Reference#QMAKE_FRAMEWORK_VERSION}{QMAKE_FRAMEWORK_VERSION}
+    variables. By default, the values used for these are obtained from the
+    \l{qmake Variable Reference#TARGET}{TARGET} and
+    \l{qmake Variable Reference#VERSION}{VERSION} variables.
+
+    See \l{Deploying an Application on Qt/Mac} for more information about
+    building and deploying frameworks.
 
     \section2 Creating Universal Binaries
 
@@ -1416,7 +1476,25 @@
     resources that will be installed with the library bundle.
 
     Library bundles are created when the \c lib_bundle option is added to the
-    \c CONFIG variable.
+    \l{#CONFIG}{CONFIG} variable.
+
+    See \l{qmake Platform Notes#Creating Library Bundles}{qmake Platform Notes} for
+    more information about creating library bundles.
+
+    \e{This is used on Mac OS X only.}
+
+    \section1 QMAKE_BUNDLE_EXTENSION
+
+    This variable defines the extension to be used for library bundles.
+    This allows frameworks to be created with custom extensions instead of the
+    standard \c{.framework} directory name extension.
+
+    For example, the following definition will result in a framework with the
+    \c{.myframework} extension:
+
+    \code
+    QMAKE_BUNDLE_EXTENSION = .myframework
+    \endcode
 
     \e{This is used on Mac OS X only.}
 
@@ -1672,12 +1750,31 @@
     and HEADERS.  The value of this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
+    \section1 QMAKE_FRAMEWORK_BUNDLE_NAME
+
+    In a framework project, this variable contains the name to be used for the
+    framework that is built.
+
+    By default, this variable contains the same value as the \l{#TARGET}{TARGET}
+    variable.
+
+    See \l{qmake Platform Notes#Creating Frameworks}{qmake Platform Notes} for
+    more information about creating frameworks and library bundles.
+
+    \e{This is used on Mac OS X only.}
+
     \target QMAKE_FRAMEWORK_VERSION
     \section1 QMAKE_FRAMEWORK_VERSION
 
     For projects where the build target is a Mac OS X framework, this variable
-    is used to specify the version number that will be applied to the resulting
-    framework.
+    is used to specify the version number that will be applied to the framework
+    that is built.
+
+    By default, this variable contains the same value as the \l{#VERSION}{VERSION}
+    variable.
+
+    See \l{qmake Platform Notes#Creating Frameworks}{qmake Platform Notes} for
+    more information about creating frameworks.
 
     \e{This is used on Mac OS X only.}
 
