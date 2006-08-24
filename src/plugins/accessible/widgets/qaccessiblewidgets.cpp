@@ -29,6 +29,8 @@
 
 static QTextBlock qTextBlockAt(const QTextDocument *doc, int pos)
 {
+    Q_ASSERT(pos >= 0);
+
     QTextBlock block = doc->begin();
     int i = 0;
     while (block.isValid() && i < pos) {
@@ -58,6 +60,7 @@ QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
 : QAccessibleWidgetEx(o, EditableText)
 {
     Q_ASSERT(widget()->inherits("QTextEdit"));
+    childOffset = QAccessibleWidgetEx::childCount();
 }
 
 /*! Returns the text edit. */
@@ -68,11 +71,11 @@ QTextEdit *QAccessibleTextEdit::textEdit() const
 
 QRect QAccessibleTextEdit::rect(int child) const
 {
-    if (!child)
+    if (child <= childOffset)
         return QAccessibleWidgetEx::rect(child);
 
      QTextEdit *edit = textEdit();
-     QTextBlock block = qTextBlockAt(edit->document(), child - 1);
+     QTextBlock block = qTextBlockAt(edit->document(), child - childOffset - 1);
      if (!block.isValid())
          return QRect();
 
@@ -93,21 +96,20 @@ int QAccessibleTextEdit::childAt(int x, int y) const
     QPoint point = edit->viewport()->mapFromGlobal(QPoint(x, y));
     QTextBlock block = edit->cursorForPosition(point).block();
     if (block.isValid())
-        return qTextBlockPosition(block);
+        return qTextBlockPosition(block) + childOffset;
 
-    if (edit->viewport()->rect().contains(point))
-        return 0;
-
-    return -1;
+    return QAccessibleWidgetEx::childAt(x, y);
 }
 
 /*! \reimp */
 QString QAccessibleTextEdit::text(Text t, int child) const
 {
-    if ((t == Name || t == Value) && child > 0)
-        return qTextBlockAt(textEdit()->document(), child - 1).text();
-    if (t == Value)
-        return textEdit()->toPlainText();
+    if (t == Value) {
+        if (child > childOffset)
+            return qTextBlockAt(textEdit()->document(), child - childOffset - 1).text();
+        if (!child)
+            return textEdit()->toPlainText();
+    }
 
     return QAccessibleWidgetEx::text(t, child);
 }
@@ -115,7 +117,7 @@ QString QAccessibleTextEdit::text(Text t, int child) const
 /*! \reimp */
 void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
 {
-    if (t != Value) {
+    if (t != Value || (child > 0 && child <= childOffset)) {
         QAccessibleWidgetEx::setText(t, child, text);
         return;
     }
@@ -126,7 +128,7 @@ void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
         textEdit()->setText(text);
         return;
     }
-    QTextBlock block = qTextBlockAt(textEdit()->document(), child);
+    QTextBlock block = qTextBlockAt(textEdit()->document(), child - childOffset - 1);
     if (!block.isValid())
         return;
 
@@ -138,7 +140,7 @@ void QAccessibleTextEdit::setText(Text t, int child, const QString &text)
 /*! \reimp */
 QAccessible::Role QAccessibleTextEdit::role(int child) const
 {
-    if (child)
+    if (child > childOffset)
         return EditableText;
     return QAccessibleWidgetEx::role(child);
 }

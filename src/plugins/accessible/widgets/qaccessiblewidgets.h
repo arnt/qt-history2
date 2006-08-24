@@ -36,6 +36,9 @@ public:
 
 protected:
     QTextEdit *textEdit() const;
+
+private:
+    int childOffset;
 };
 
 #endif // QT_NO_ACCESSIBILITY
