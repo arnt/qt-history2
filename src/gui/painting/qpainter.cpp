@@ -401,6 +401,13 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
                          ((s->brush.style() > Qt::SolidPattern
                            && s->brush.style() < Qt::LinearGradientPattern)
                           || s->brush.style() == Qt::TexturePattern));
+
+        if (((penBrush.style() == Qt::TexturePattern && penBrush.texture().hasAlpha())
+             || (s->brush.style() == Qt::TexturePattern && s->brush.texture().hasAlpha()))
+            && !engine->hasFeature(QPaintEngine::MaskedBrush))
+            s->emulationSpecifier |= QPaintEngine::MaskedBrush;
+        else
+            s->emulationSpecifier &= ~QPaintEngine::MaskedBrush;
     }
 
     if (s->state() & (QPaintEngine::DirtyHints

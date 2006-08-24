@@ -660,6 +660,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
     if (X11->use_xrender) {
         features |= QPaintEngine::Antialiasing;
         features |= QPaintEngine::PorterDuff;
+        features |= QPaintEngine::MaskedBrush;
 #if 0
         if (X11->xrender_version > 10) {
             features |= QPaintEngine::LinearGradientFill;

@@ -130,6 +130,9 @@ QFont QTextItem::font() const
                             width 2).
   \value ConstantOpacity    The engine supports the feature provided by
                             QPainter::setOpacity().
+  \value MaskedBrush        The engine is capable of rendering brushes that has a
+                            texture with an alpha channel or a mask.
+
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
   \value AllFeatures
