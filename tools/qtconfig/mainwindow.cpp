@@ -49,10 +49,10 @@ static const char *appearance_text =
 "<p>Any GUI Style plugins in your plugin path will automatically be added "
 "to the list of built-in Qt styles. (See the Library Paths tab for "
 "information on adding new plugin paths.)</p>"
-"<p>When you choose 3-D Effects and Window colors, the Qt Configuration "
-"program will automatically generate a palette for you.  To customize "
-"colors further, press the Tune Palette button to open the advanced "
-"palette editor."
+"<p>When you choose 3-D Effects and Window Background colors, the Qt "
+"Configuration program will automatically generate a palette for you. "
+"To customize colors further, press the Tune Palette button to open "
+"the advanced palette editor."
 "<p>The Preview Window shows what the selected Style and colors look "
 "like.";
 
