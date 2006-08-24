@@ -520,6 +520,8 @@ QDBusMetaObject *QDBusMetaObject::createMetaObject(const QString &interface, con
             if ( (obj->cached = !it.key().startsWith( QLatin1String("local.") )) )
                 // cache it
                 cache.insert(it.key(), obj);
+            else if (!us)
+                delete obj;
 
         }
 
