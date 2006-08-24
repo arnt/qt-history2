@@ -1873,9 +1873,9 @@ QDomNodePrivate* QDomNodePrivate::insertAfter(QDomNodePrivate* newChild, QDomNod
 
 QDomNodePrivate* QDomNodePrivate::replaceChild(QDomNodePrivate* newChild, QDomNodePrivate* oldChild)
 {
-    if (oldChild->parent() != this)
-        return 0;
     if (!newChild || !oldChild)
+        return 0;
+    if (oldChild->parent() != this)
         return 0;
     if (newChild == oldChild)
         return 0;
