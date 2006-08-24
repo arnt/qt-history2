@@ -74,7 +74,7 @@ public:
     The widget() function returns the widget at a given index
     position. The index of the widget that is shown on screen is given
     by currentIndex() and can be changed using setCurrentIndex(). In a
-    similar manor, the currently shown widget can be retrieved using
+    similar manner, the currently shown widget can be retrieved using
     the currentWidget() function, and altered using the
     setCurrentWidget() function.
 
