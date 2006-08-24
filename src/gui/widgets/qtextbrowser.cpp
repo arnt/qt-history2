@@ -150,12 +150,14 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
 
     const QUrl url = resolveUrl(href);
 
+#ifndef QT_NO_DESKTOPSERVICES
     if (openExternalLinks
         && url.scheme() != QLatin1String("file")
         && url.scheme() != QLatin1String("qrc")) {
         QDesktopServices::openUrl(url);
         return;
     }
+#endif
 
     emit q->anchorClicked(url);
 

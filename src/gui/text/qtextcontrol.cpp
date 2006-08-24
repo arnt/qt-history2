@@ -1026,9 +1026,11 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             tmp.movePosition(QTextCursor::NextCharacter);
             const QString href = tmp.charFormat().anchorHref();
             if (!href.isEmpty()) {
+#ifndef QT_NO_DESKTOPSERVICES
                 if (openExternalLinks)
                     QDesktopServices::openUrl(href);
                 else
+#endif
                     emit q->linkActivated(href);
             }
             return;
@@ -1465,9 +1467,11 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 
         if (!cursor.hasSelection()
             || (anchor == anchorOnMousePress && hadSelectionOnMousePress))
+#ifndef QT_NO_DESKTOPSERVICES
             if (openExternalLinks)
                 QDesktopServices::openUrl(anchor);
             else
+#endif
                 emit q->linkActivated(anchor);
     }
 }
