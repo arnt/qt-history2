@@ -17,6 +17,7 @@
 #include "qtextdocument.h"
 #include "qtextobject.h"
 #include "qscrollbar.h"
+#include "qdebug.h"
 
 #if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
@@ -71,7 +72,7 @@ QRect QAccessibleTextEdit::rect(int child) const
         return QAccessibleWidgetEx::rect(child);
 
      QTextEdit *edit = textEdit();
-     QTextBlock block = qTextBlockAt(edit->document(), child);
+     QTextBlock block = qTextBlockAt(edit->document(), child - 1);
      if (!block.isValid())
          return QRect();
 
