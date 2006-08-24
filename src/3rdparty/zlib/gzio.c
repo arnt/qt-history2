@@ -600,7 +600,7 @@ int ZEXPORT gzwrite (file, buf, len)
 #ifdef STDC
 #include <stdarg.h>
 
-int ZEXPORTVA gzprintf (gzFile file, const char *format, /* args */ ...)
+int Q_ZEXPORT gzprintf (gzFile file, const char *format, /* args */ ...)
 {
     char buf[Z_PRINTF_BUFSIZE];
     va_list va;
@@ -634,7 +634,7 @@ int ZEXPORTVA gzprintf (gzFile file, const char *format, /* args */ ...)
 }
 #else /* not ANSI C */
 
-int ZEXPORTVA gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+int Q_ZEXPORT gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
                        a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
     gzFile file;
     const char *format;
