@@ -160,8 +160,10 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
             if (!ok)
                 freetype->fontData = QByteArray();
         } else if (!(file.fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::LocalDiskFlag)) {
-            if (!file.open(QIODevice::ReadOnly))
+            if (!file.open(QIODevice::ReadOnly)) {
+                delete freetype;
                 return 0;
+            }
             freetype->fontData = file.readAll();
         }
         if (!freetype->fontData.isEmpty()) {
