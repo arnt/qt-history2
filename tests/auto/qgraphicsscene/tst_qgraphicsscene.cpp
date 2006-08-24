@@ -320,11 +320,11 @@ void tst_QGraphicsScene::items_QPointF_data()
     QTest::newRow("3")
         << (QList<QRectF>() << QRectF(0, 0, 10, 10))
         << QPointF(10, 10)
-        << QList<int>();
+        << (QList<int>() << 0);
     QTest::newRow("4")
         << (QList<QRectF>() << QRectF(0, 0, 10, 10) << QRectF(10, 10, 10, 10))
         << QPointF(10, 10)
-        << (QList<int>() << 1);
+        << (QList<int>() << 1 << 0);
     QTest::newRow("5")
         << (QList<QRectF>() << QRectF(5, 5, 10, 10) << QRectF(10, 10, 10, 10))
         << QPointF(10, 10)
@@ -663,7 +663,7 @@ void tst_QGraphicsScene::addPath()
     QCOMPARE(scene.itemAt(-10, 20), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(10, 20), (QGraphicsItem *)0);
     QCOMPARE(scene.itemAt(-10, 30), (QGraphicsItem *)0);
-    QCOMPARE(scene.itemAt(10, 30), (QGraphicsItem *)0);
+    QCOMPARE(scene.itemAt(10.1, 30), (QGraphicsItem *)0);
 }
 
 void tst_QGraphicsScene::addPixmap()

@@ -185,10 +185,7 @@ void tst_QGraphicsItem::construction()
         QCOMPARE(item->matrix(), QMatrix());
         QCOMPARE(item->sceneMatrix(), QMatrix());
         QCOMPARE(item->zValue(), qreal(0));
-        if (item->type() == QGraphicsLineItem::Type)
-            QCOMPARE(item->sceneBoundingRect(), QRectF(-0.5, -0.5, 1, 1));
-        else
-            QCOMPARE(item->sceneBoundingRect(), QRectF());
+        QCOMPARE(item->sceneBoundingRect(), QRectF());
         QCOMPARE(item->shape(), QPainterPath());
         QVERIFY(!item->contains(QPointF(0, 0)));
         QVERIFY(!item->collidesWithItem(0));
@@ -994,12 +991,18 @@ void tst_QGraphicsItem::shape()
 {
     QGraphicsLineItem line(QLineF(-10, -10, 20, 20));
 
+    // We unfortunately need this hack as QPainterPathStroker will set a width of 1.0
+    // if we pass a value of 0.0 to QPainterPathStroker::setWidth()
+    const qreal penWidthZero = qreal(0.00000001);
+
     QPainterPathStroker ps;
-    ps.setWidth(line.pen().widthF());
+    ps.setWidth(penWidthZero);
 
     QPainterPath path(line.line().p1());
     path.lineTo(line.line().p2());
-    QCOMPARE(line.shape(), ps.createStroke(path));
+    QPainterPath p = ps.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(line.shape(), p);
 
     QPen linePen;
     linePen.setWidthF(5.0);
@@ -1008,28 +1011,48 @@ void tst_QGraphicsItem::shape()
 
     ps.setCapStyle(line.pen().capStyle());
     ps.setWidth(line.pen().widthF());
-    QCOMPARE(line.shape(), ps.createStroke(path));
+    p = ps.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(line.shape(), p);
+    
     linePen.setCapStyle(Qt::FlatCap);
     line.setPen(linePen);
     ps.setCapStyle(line.pen().capStyle());
-    QCOMPARE(line.shape(), ps.createStroke(path));
+    p = ps.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(line.shape(), p);
+
     linePen.setCapStyle(Qt::SquareCap);
     line.setPen(linePen);
     ps.setCapStyle(line.pen().capStyle());
-    QCOMPARE(line.shape(), ps.createStroke(path));
-    
+    p = ps.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(line.shape(), p);
+ 
     QGraphicsRectItem rect(QRectF(-10, -10, 20, 20));
+    QPainterPathStroker ps1;
+    ps1.setWidth(penWidthZero);
     path = QPainterPath();
     path.addRect(rect.rect());
-    QCOMPARE(rect.shape(), path);
+    p = ps1.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(rect.shape(), p);
 
     QGraphicsEllipseItem ellipse(QRectF(-10, -10, 20, 20));
+    QPainterPathStroker ps2;
+    ps2.setWidth(ellipse.pen().widthF() <= 0.0 ? penWidthZero : ellipse.pen().widthF());
     path = QPainterPath();
     path.addEllipse(ellipse.rect());
-    QCOMPARE(ellipse.shape(), path);
+    p = ps2.createStroke(path);
+    p.addPath(path);
+    QCOMPARE(ellipse.shape(), p);
 
+    QPainterPathStroker ps3;
+    ps3.setWidth(penWidthZero);
+    p = ps3.createStroke(path);
+    p.addPath(path);
     QGraphicsPathItem pathItem(path);
-    QCOMPARE(pathItem.shape(), path);
+    QCOMPARE(pathItem.shape(), p);
 
     QRegion region(QRect(0, 0, 300, 200));
     region = region.subtracted(QRect(50, 50, 200, 100));
@@ -1053,7 +1076,12 @@ void tst_QGraphicsItem::shape()
     QGraphicsPolygonItem polygon(poly);
     path = QPainterPath();
     path.addPolygon(poly);
-    QCOMPARE(polygon.shape(), path);
+
+    QPainterPathStroker ps4;
+    ps4.setWidth(penWidthZero);
+    p = ps4.createStroke(path);
+    p.addPath(path);   
+    QCOMPARE(polygon.shape(), p);
 }
 
 void tst_QGraphicsItem::contains()
