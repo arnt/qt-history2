@@ -443,7 +443,7 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                const QVariant &value, int role)
 {
-    if (section < 0 || !headerItem || orientation != Qt::Horizontal || !headerItem)
+    if (section < 0 || orientation != Qt::Horizontal || !headerItem)
         return false;
 
     headerItem->setData(section, role, value);
