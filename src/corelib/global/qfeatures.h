@@ -573,14 +573,14 @@
 #define QT_NO_UNDOVIEW
 #endif
 
-// QCalendarWidget
-#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU) || defined(QT_NO_TEXTDATE) || defined(QT_NO_SPINBOX))
-#define QT_NO_CALENDARWIDGET
-#endif
-
 // QComboBox
 #if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_STANDARDITEMMODEL) || defined(QT_NO_LISTVIEW))
 #define QT_NO_COMBOBOX
+#endif
+
+// QCalendarWidget
+#if !defined(QT_NO_CALENDARWIDGET) && (defined(QT_NO_TABLEVIEW) || defined(QT_NO_MENU) || defined(QT_NO_TEXTDATE) || defined(QT_NO_SPINBOX) || defined(QT_NO_TOOLBUTTON))
+#define QT_NO_CALENDARWIDGET
 #endif
 
 // QDateTimeEdit
