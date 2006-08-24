@@ -163,6 +163,7 @@ void testAdoptedThreadStorageWin(void *p)
         threadStorageOk = false;
         return;
     }
+    QObject::connect(QThread::currentThread(), SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
 }
 void *testAdoptedThreadStorageUnix(void *pointers)
 {
@@ -171,6 +172,7 @@ void *testAdoptedThreadStorageUnix(void *pointers)
 }
 void tst_QThreadStorage::adoptedThreads()
 {
+    QTestEventLoop::instance(); // Make sure the instance is created in this thread.
     QThreadStorage<Pointer *> pointers;
     int c = Pointer::count;
     threadStorageOk = true;
@@ -188,9 +190,10 @@ void tst_QThreadStorage::adoptedThreads()
 #endif
     }
     QVERIFY(threadStorageOk);
-    #ifdef Q_OS_WIN
-        QEXPECT_FAIL("", "Not implemented on Windows yet", Abort);
-    #endif
+    
+    QTestEventLoop::instance().enterLoop(2);
+    QVERIFY(!QTestEventLoop::instance().timeout());
+    
     QCOMPARE(Pointer::count, c);
 }
 
