@@ -152,6 +152,8 @@ sub classNames {
         push @ret, "QtEvents";
     } elsif(basename($iheader) eq "qnamespace.h") {
         push @ret, "Qt"
+    } elsif(basename($iheader) eq "qtest.h") {
+        push @ret, "QTest"
     }
 
     my $parsable = "";
