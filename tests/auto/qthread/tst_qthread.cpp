@@ -67,6 +67,7 @@ private slots:
     void adoptedThreadExec();
     void adoptedThreadFinished();
     void adoptedThreadTerminated();
+    void adoptMultipleThreads();
 
     void stressTest();
 };
@@ -76,22 +77,21 @@ enum { one_minute = 60 * 1000, five_minutes = 5 * one_minute };
 class SignalRecorder : public QObject
 {
     Q_OBJECT
-
-    bool activated;
-
 public:
+    QAtomic activationCount;
+
     inline SignalRecorder()
-    { activated = false; }
+    { activationCount = 0; }
 
     bool wasActivated()
-    { return activated; }
+    { return activationCount > 0; }
 
 public slots:
     void slot();
 };
 
 void SignalRecorder::slot()
-{ activated = true; }
+{ activationCount.ref(); }
 
 class Current_Thread : public QThread
 {
@@ -775,6 +775,32 @@ void tst_QThread::adoptedThreadTerminated()
    
     QTestEventLoop::instance().enterLoop(5);
     QVERIFY(!QTestEventLoop::instance().timeout());
+}
+
+void tst_QThread::adoptMultipleThreads()
+{
+    const int numThreads = 5;
+    QVector<NativeThreadWrapper*> nativeThreads;
+
+    SignalRecorder recorder;
+    
+    for (int i = 0; i < numThreads; ++i) {
+        nativeThreads.append(new NativeThreadWrapper());
+        nativeThreads.at(i)->setWaitForStop();
+        nativeThreads.at(i)->startAndWait();  
+        QObject::connect(nativeThreads.at(i)->qthread, SIGNAL(finished()), &recorder, SLOT(slot()));
+    }
+
+    QObject::connect(nativeThreads.at(0)->qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    
+    for (int i = 0; i < numThreads; ++i) {
+        nativeThreads.at(i)->stop();
+        nativeThreads.at(i)->join();  
+    }
+
+    QTestEventLoop::instance().enterLoop(5);
+    QVERIFY(!QTestEventLoop::instance().timeout());
+    QCOMPARE(int(recorder.activationCount), numThreads);
 }
 
 void tst_QThread::stressTest()
