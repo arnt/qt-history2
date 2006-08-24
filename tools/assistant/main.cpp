@@ -44,11 +44,15 @@
 class AssistantAdaptor : public QDBusAbstractAdaptor
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "com.trolltech.DBus.Assistant")
+    Q_CLASSINFO("D-Bus Interface", "com.trolltech.Assistant.HelpViewer")
 
 public:
     AssistantAdaptor(MainWindow *mw) : QDBusAbstractAdaptor(mw), mw(mw)
-    { QDBusConnection::sessionBus().registerObject("/Assistant", mw) ;}
+    {
+        QDBusConnection connection = QDBusConnection::sessionBus();
+        connection.registerService("com.trolltech.Assistant");
+        connection.registerObject("/Assistant", mw);
+    }
 
 public slots:
     void showLink(const QString &link) { mw->showLink(link); }
