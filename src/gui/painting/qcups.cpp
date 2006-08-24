@@ -114,6 +114,8 @@ const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
 
     if (currPPD)
         _ppdClose(currPPD);
+    currPPD = 0;
+    page_sizes = 0;
 
     const char *ppdFile = _cupsGetPPD(printers[index].name);
 
