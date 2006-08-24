@@ -1112,6 +1112,7 @@ void QComboBox::setAutoCompletion(bool enable)
         d->completer->setModel(model());
         d->completer->setCompletionColumn(d->modelColumn);
         d->lineEdit->setCompleter(d->completer);
+        d->completer->setWidget(this);
     } else {
         d->lineEdit->setCompleter(0);
     }
@@ -1450,6 +1451,8 @@ void QComboBox::setCompleter(QCompleter *c)
     if (!d->lineEdit)
         return;
     d->lineEdit->setCompleter(c);
+    if (c)
+        c->setWidget(this);
 }
 
 /*!
