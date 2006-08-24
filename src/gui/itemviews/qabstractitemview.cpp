@@ -2289,8 +2289,15 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
     Returns the height size hint for the specified \a row or -1 if
     there is no model.
 
-    This function is used in views with a vertical header to find the size hint for
-    a header section based on the contents of the given \a row.
+    The returned height is calculated using the size hints of the
+    given \a row's items, i.e. the returned value is the maximum
+    height among the items. Note that to control the height of a row,
+    you must reimplement the QAbstractItemDelegate::sizeHint()
+    function.
+
+    This function is used in views with a vertical header to find the
+    size hint for a header section based on the contents of the given
+    \a row.
 
     \sa sizeHintForColumn()
 */
