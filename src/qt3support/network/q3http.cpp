@@ -1972,6 +1972,7 @@ void Q3Http::slotReadyRead()
 			if ( !ok ) {
 			    finishedWithError( QHttp::tr("Invalid HTTP chunked body"), WrongContentLength );
 			    close();
+                            delete arr;
 			    return;
 			}
 			if ( d->chunkedSize == 0 ) // last-chunk
