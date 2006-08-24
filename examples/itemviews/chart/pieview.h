@@ -69,7 +69,6 @@ private:
     int pieSize;
     int validItems;
     double totalValue;
-    QRect selectionRect;
 };
 
 #endif

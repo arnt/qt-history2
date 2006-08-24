@@ -223,7 +223,6 @@ int PieView::horizontalOffset() const
 void PieView::mouseReleaseEvent(QMouseEvent *event)
 {
     QAbstractItemView::mouseReleaseEvent(event);
-    selectionRect = QRect();
     viewport()->update();
 }
 
@@ -419,8 +418,9 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
     // Use content widget coordinates because we will use the itemRegion()
     // function to check for intersections.
 
-    QRect contentsRect = rect.translated(horizontalScrollBar()->value(),
-                                         verticalScrollBar()->value());
+    QRect contentsRect = rect.translated(
+                            horizontalScrollBar()->value(),
+                            verticalScrollBar()->value()).normalized();
 
     int rows = model()->rowCount(rootIndex());
     int columns = model()->columnCount(rootIndex());
@@ -458,7 +458,6 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
         selectionModel()->select(selection, command);
     }
 
-    selectionRect = rect;
     update();
 }
 
