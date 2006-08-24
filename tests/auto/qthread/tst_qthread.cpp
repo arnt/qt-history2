@@ -791,7 +791,7 @@ void tst_QThread::adoptMultipleThreads()
         QObject::connect(nativeThreads.at(i)->qthread, SIGNAL(finished()), &recorder, SLOT(slot()));
     }
 
-    QObject::connect(nativeThreads.at(0)->qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    QObject::connect(nativeThreads.at(numThreads - 1)->qthread, SIGNAL(finished()), &QTestEventLoop::instance(), SLOT(exitLoop()));
     
     for (int i = 0; i < numThreads; ++i) {
         nativeThreads.at(i)->stop();
