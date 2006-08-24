@@ -1894,7 +1894,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
 
                         NEWPAR;
 
-                        if (curtag.style->displayMode() == Q3StyleSheetItem::DisplayListItem) {
+                        if (curtag.style && curtag.style->displayMode() == Q3StyleSheetItem::DisplayListItem) {
                             it = attr.find("value");
                             if (it != end)
                                 curpar->setListValue((*it).toInt());
