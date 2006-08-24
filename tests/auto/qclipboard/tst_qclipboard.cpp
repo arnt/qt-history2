@@ -12,6 +12,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 
+
 //TESTED_CLASS=QClipboard
 //TESTED_FILES=gui/kernel/qclipboard.h gui/kernel/qclipboard.cpp
 
@@ -114,6 +115,9 @@ void tst_QClipboard::testSignals()
 */
 void tst_QClipboard::copy_exit_paste()
 {
+#ifdef Q_WS_X11
+    QSKIP("This test does not make sense on X11, copied data disappears from the clipboard when the application exits ", SkipAll);
+#endif
     const QStringList stringArgument = QStringList() << "Test string.";
     QCOMPARE(QProcess::execute("copier/copier", stringArgument), 0);
     QCOMPARE(QProcess::execute("paster/paster", stringArgument), 0);
