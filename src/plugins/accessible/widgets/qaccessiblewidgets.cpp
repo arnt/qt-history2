@@ -16,7 +16,7 @@
 #include "qtextdocument.h"
 #include "qtextobject.h"
 
-#ifndef QT_NO_ACCESSIBILITY
+#if !defined(QT_NO_ACCESSIBILITY) && !defined(QT_NO_TEXTEDIT)
 
 /*!
   \class QAccessibleTextEdit qaccessiblewidget.h
