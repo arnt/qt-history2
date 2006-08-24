@@ -1,0 +1,9 @@
+/*!
+    \example tools/customcompleter
+    \title Completer Example
+
+    The Completer example shows how to provide string-completion facilities for an
+    input widget based on data provided by a model.
+
+    \image customcompleter-example.png
+*/
