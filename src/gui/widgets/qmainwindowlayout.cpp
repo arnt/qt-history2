@@ -1493,6 +1493,8 @@ void QMainWindowLayout::allAnimationsFinished()
 
     foreach (QTabBar *tab_bar, usedTabBars)
         tab_bar->show();
+
+    updateGapIndicator();
 }
 
 void QMainWindowLayout::animationFinished(QWidget *widget)
@@ -1511,8 +1513,6 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
 
     currentGapPos.clear();
     pluggingWidget = 0;
-    parentWidget()->update(dockWidgetLayout.separatorRegion());
-    updateGapIndicator();
 }
 
 void QMainWindowLayout::restore()
