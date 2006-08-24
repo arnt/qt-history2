@@ -225,16 +225,6 @@
                     <string>HighlightText</string>
                   </property>
                 </item>
-                <item>
-                  <property name="text" >
-                    <string>Link</string>
-                  </property>
-                </item>
-                <item>
-                  <property name="text" >
-                    <string>LinkVisited</string>
-                  </property>
-                </item>
               </widget>
             </item>
             <item>

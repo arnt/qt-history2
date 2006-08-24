@@ -146,10 +146,6 @@ QColorGroup::ColorRole PaletteEditorAdvanced::centralFromItem( int item )
             return QColorGroup::Highlight;
         case 8:
             return QColorGroup::HighlightedText;
-        case 9:
-            return QColorGroup::Link;
-        case 10:
-            return QColorGroup::LinkVisited;
         default:
             return QColorGroup::NColorRoles;
     }
