@@ -70,9 +70,6 @@ void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)
         formatItem->setTextAlignment(Qt::AlignTop | Qt::AlignLeft);
 
         QString text;
-
-        qApp->processEvents();
-
         if (format == "text/plain") {
             text = mimeData->text().simplified();
         } else if (format == "text/html") {
