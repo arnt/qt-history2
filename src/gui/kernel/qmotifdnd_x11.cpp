@@ -45,6 +45,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 
 #ifndef QT_NO_DRAGANDDROP
 
+#include "qdebug.h"
 #include "qwidget.h"
 #include "qevent.h"
 #include "qt_x11_p.h"
@@ -664,12 +665,6 @@ QByteArray QX11Data::motifdndFormat(int n)
     if (!motifdnd_active)
         return 0; // should not happen
 
-    if (n == 0)
-        return "text/plain";
-    if (n == 1)
-        return "text/uri-list";
-    n -= 2;
-
     if (n >= num_src_targets)
         return 0;
 
@@ -707,18 +702,7 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
     } while(qstricmp(mimeType, f.data()));
 
     // found one
-    Atom conversion_type;
-
-    if (qstrnicmp(f, "text/", 5) == 0) {
-        // always convert text to XA_STRING for compatibility with
-        // prior Qt versions
-        conversion_type = XA_STRING;
-    } else {
-        conversion_type = X11->xdndStringToAtom(f);
-        // qDebug("found format '%s' 0x%lx '%s'", f, conversion_type,
-        // X11->xdndAtomToString(conversion_type));
-    }
-
+    Atom conversion_type = X11->xdndStringToAtom(f);
     if (XGetSelectionOwner(X11->display,
                              Dnd_selection) == XNone) {
         return result; // should never happen?
