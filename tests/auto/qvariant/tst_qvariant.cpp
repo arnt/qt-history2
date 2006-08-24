@@ -1995,6 +1995,8 @@ void tst_QVariant::variant_to()
     QCOMPARE(qvariant_cast<int>(n), 44);
     QCOMPARE(qvariant_cast<ulong>(n), 44ul);
     QCOMPARE(qvariant_cast<float>(n), 44.0f);
+
+    QCOMPARE(qVariantFromValue(0.25f).toDouble(), 0.25);
 }
 
 void tst_QVariant::saveLoadCustomTypes()
