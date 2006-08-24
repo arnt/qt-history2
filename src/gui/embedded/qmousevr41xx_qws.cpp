@@ -126,8 +126,6 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
     rtimer->setSingleShot(true);
     connect(rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
     mouseIdx = 0;
-
-    printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 }
 
 QWSVr41xxMouseHandlerPrivate::~QWSVr41xxMouseHandlerPrivate()
