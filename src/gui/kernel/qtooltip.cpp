@@ -30,8 +30,8 @@
 /*!
     \class QToolTip
 
-    \brief The QToolTip class provides tool tips (balloon help) for
-    any widget.
+    \brief The QToolTip class provides tooltips (balloon help) for any
+    widget.
 
     \ingroup helpsystem
     \mainclass
@@ -47,12 +47,19 @@
     The simplest and most common way to set a widget's tooltip is by
     calling its QWidget::setToolTip() function.
 
-    It is also possible to show different tool tips for different
+    It is also possible to show different tooltips for different
     regions of a widget, by using a QHelpEvent of type
-    QEvent::ToolTip. Intercept the help event in your widget's
-    QWidget::event() function and call QToolTip::showText() with the
-    text you want to display. The \l{widgets/tooltips}{Tooltips}
+    QEvent::ToolTip. Intercept the help event in your widget's \l
+    {QWidget::}{event()} function and call QToolTip::showText() with
+    the text you want to display. The \l{widgets/tooltips}{Tooltips}
     example illustrates this technique.
+
+    Note that if you want to show tooltips in an item view, the
+    model/view architecture provides functionality to set an item's
+    tootip, e.g., the QTableWidgetItem::setToolTip() function. But if
+    you want to provide custom tooltips in an item view you must
+    intercept the help event in the QAbstractItemView::viewportEvent()
+    function instead.
 
     The default tooltip color and font can be customized with
     setPalette() and setFont().
@@ -191,7 +198,7 @@ bool QTipLabel::eventFilter(QObject *o, QEvent *e)
     Shows \a text as a tool tip, at global position \a pos. If you
     specify a non-empty rect the tip will be hidden as soon as you
     move your cursor out of this area.
-    
+
     The \a rect is in the coordinates of the widget you specify with
     \a w. If the \a rect is not empty you must specify a widget.
     Otherwise this argument can be 0 but it is used to determine the
