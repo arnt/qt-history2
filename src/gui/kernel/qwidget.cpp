@@ -685,15 +685,15 @@ void QWidget::setAutoFillBackground(bool enabled)
     set to achieve different effects:
 
     \list
-    \o The top-left widget has no additional properties or widget attributes
+    \o The left widget has no additional properties or widget attributes
        set. This default state suits most custom widgets that use transparency
        or are irregularly-shaped, and that do not paint over their entire area
        with an opaque brush.
-    \o The top-right widget has the \l autoFillBackground property set.
+    \o The center widget has the \l autoFillBackground property set.
        This property is used with custom widgets that rely on the widget
        to supply a default background, and do not paint over their entire area
        with an opaque brush.
-    \o The bottom-left widget has the Qt::WA_OpaquePaintEvent widget attribute
+    \o The right widget has the Qt::WA_OpaquePaintEvent widget attribute
        set. This indicates that the widget will paint over its entire area with
        opaque colors. The widget's area will initially be \e{uninitialized}
        (represented in the diagram by a red diagonal grid pattern that shines
