@@ -49,7 +49,7 @@ static const char *appearance_text =
 "<p>Any GUI Style plugins in your plugin path will automatically be added "
 "to the list of built-in Qt styles. (See the Library Paths tab for "
 "information on adding new plugin paths.)</p>"
-"<p>When you choose 3-D Effects and Background colors, the Qt Configuration "
+"<p>When you choose 3-D Effects and Window colors, the Qt Configuration "
 "program will automatically generate a palette for you.  To customize "
 "colors further, press the Tune Palette button to open the advanced "
 "palette editor."
@@ -110,8 +110,8 @@ static const char *printer_text =
 static QColorGroup::ColorRole centralFromItem( int item )
 {
     switch( item ) {
-    case 0:  return QColorGroup::Background;
-    case 1:  return QColorGroup::Foreground;
+    case 0:  return QColorGroup::Window;
+    case 1:  return QColorGroup::WindowText;
     case 2:  return QColorGroup::Button;
     case 3:  return QColorGroup::Base;
     case 4:  return QColorGroup::Text;
@@ -204,7 +204,7 @@ MainWindow::MainWindow()
     buttonMainColor->setColor(palette().color(QPalette::Active,
                                               QColorGroup::Button));
     buttonMainColor2->setColor(palette().color(QPalette::Active,
-                                               QColorGroup::Background));
+                                               QColorGroup::Window));
     connect(buttonMainColor, SIGNAL(colorChanged(QColor)),
                 this, SLOT(buildPalette()));
     connect(buttonMainColor2, SIGNAL(colorChanged(QColor)),
@@ -486,7 +486,7 @@ void MainWindow::buildPalette()
     cg = editPalette.inactive();
 
     QPalette temp( editPalette.active().color( QColorGroup::Button ),
-                   editPalette.active().color( QColorGroup::Background ) );
+                   editPalette.active().color( QColorGroup::Window ) );
 
     for (i = 0; i<9; i++)
         cg.setColor( centralFromItem(i), temp.inactive().color( centralFromItem(i) ) );
@@ -561,7 +561,7 @@ void MainWindow::buildDisabled()
 {
     QColorGroup cg = editPalette.active();
     cg.setColor( QColorGroup::ButtonText, Qt::darkGray );
-    cg.setColor( QColorGroup::Foreground, Qt::darkGray );
+    cg.setColor( QColorGroup::WindowText, Qt::darkGray );
     cg.setColor( QColorGroup::Text, Qt::darkGray );
     cg.setColor( QColorGroup::HighlightedText, Qt::darkGray );
     editPalette.setDisabled( cg );
@@ -622,7 +622,7 @@ void MainWindow::setPreviewPalette( const QPalette& pal )
 void MainWindow::updateColorButtons()
 {
     buttonMainColor->setColor( editPalette.active().color( QColorGroup::Button ));
-    buttonMainColor2->setColor( editPalette.active().color( QColorGroup::Background ));
+    buttonMainColor2->setColor( editPalette.active().color( QColorGroup::Window ));
 }
 
 

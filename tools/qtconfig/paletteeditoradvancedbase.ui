@@ -178,16 +178,16 @@
                   <string>Choose central color role</string>
                 </property>
                 <property name="whatsThis" stdset="0" >
-                  <string>&lt;b>Select a color role.&lt;/b>&lt;p>Available central roles are: &lt;ul> &lt;li>Background - general background color.&lt;/li> &lt;li>Foreground - general foreground color. &lt;/li> &lt;li>Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li> &lt;li>Text - the forground color used with Base. Usually this is the same as the Foreground, in what case it must provide good contrast both with Background and Base. &lt;/li> &lt;li>Button - general button background color, where buttons need a background different from Background, as in the Macintosh style. &lt;/li> &lt;li>ButtonText - a foreground color used with the Button color. &lt;/li> &lt;li>Highlight - a color to indicate a selected or highlighted item. &lt;/li> &lt;li>HighlightedText - a text color that contrasts to Highlight. &lt;/li> &lt;li>BrightText - a text color that is very different from Foreground and contrasts well with e.g. black. &lt;/li> &lt;/ul> &lt;/p></string>
+                  <string>&lt;b>Select a color role.&lt;/b>&lt;p>Available central roles are: &lt;ul> &lt;li>Window - general background color.&lt;/li> &lt;li>WindowText - general foreground color. &lt;/li> &lt;li>Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li> &lt;li>Text - the foreground color used with Base. Usually this is the same as WindowText, in what case it must provide good contrast both with Window and Base. &lt;/li> &lt;li>Button - general button background color, where buttons need a background different from Window, as in the Macintosh style. &lt;/li> &lt;li>ButtonText - a foreground color used with the Button color. &lt;/li> &lt;li>Highlight - a color to indicate a selected or highlighted item. &lt;/li> &lt;li>HighlightedText - a text color that contrasts to Highlight. &lt;/li> &lt;li>BrightText - a text color that is very different from WindowText and contrasts well with e.g. black. &lt;/li> &lt;/ul> &lt;/p></string>
                 </property>
                 <item>
                   <property name="text" >
-                    <string>Background</string>
+                    <string>Window</string>
                   </property>
                 </item>
                 <item>
                   <property name="text" >
-                    <string>Foreground</string>
+                    <string>WindowText</string>
                   </property>
                 </item>
                 <item>

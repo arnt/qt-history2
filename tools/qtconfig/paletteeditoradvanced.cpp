@@ -129,9 +129,9 @@ QColorGroup::ColorRole PaletteEditorAdvanced::centralFromItem( int item )
 {
     switch( item ) {
         case 0:
-            return QColorGroup::Background;
+            return QColorGroup::Window;
         case 1:
-            return QColorGroup::Foreground;
+            return QColorGroup::WindowText;
         case 2:
             return QColorGroup::Button;
         case 3:
@@ -379,7 +379,7 @@ void PaletteEditorAdvanced::buildDisabled()
 {
     QColorGroup cg = editPalette.active();
     cg.setColor( QColorGroup::ButtonText, Qt::darkGray );
-    cg.setColor( QColorGroup::Foreground, Qt::darkGray );
+    cg.setColor( QColorGroup::WindowText, Qt::darkGray );
     cg.setColor( QColorGroup::Text, Qt::darkGray );
     cg.setColor( QColorGroup::HighlightedText, Qt::darkGray );
     editPalette.setDisabled( cg );
