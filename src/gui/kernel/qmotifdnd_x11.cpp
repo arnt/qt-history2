@@ -46,6 +46,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 #ifndef QT_NO_DRAGANDDROP
 
 #include "qdebug.h"
+#include "qtextcodec.h"
 #include "qwidget.h"
 #include "qevent.h"
 #include "qt_x11_p.h"
@@ -674,11 +675,12 @@ QByteArray QX11Data::motifdndFormat(int n)
         return "text/plain;charset=ISO-8859-1";
     if (target == ATOM(UTF8_STRING))
         return "text/plain;charset=UTF-8";
-    if (target == ATOM(TEXT) ||
-         target == ATOM(COMPOUND_TEXT))
+    if (target == ATOM(COMPOUND_TEXT))
+        return QByteArray("text/plain;charset=") + QTextCodec::codecForLocale()->name();
+    if (target == ATOM(TEXT))
         return "text/plain";
 
-    return X11->xdndAtomToString(target);
+    return ("x-motif-dnd/" + X11->xdndAtomToString(target));
 }
 
 
@@ -701,10 +703,21 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
         n++;
     } while(qstricmp(mimeType, f.data()));
 
-    // found one
-    Atom conversion_type = X11->xdndStringToAtom(f);
-    if (XGetSelectionOwner(X11->display,
-                             Dnd_selection) == XNone) {
+    Atom conversion_type = XNone;
+    if (f == "text/plain;charset=ISO-8859-1") {
+        conversion_type = XA_STRING;
+    } else if (f == "text/plain;charset=UTF-8") {
+        conversion_type = ATOM(UTF8_STRING);
+    } else if (f == (QByteArray("text/plain;charset=") + QTextCodec::codecForLocale()->name())) {
+        conversion_type = ATOM(COMPOUND_TEXT);
+    } else if (f == "text/plain") {
+        conversion_type = ATOM(TEXT);
+    } else if (f.startsWith("x-motif-dnd/")) {
+        // strip off the "x-motif-dnd/" prefix
+        conversion_type = X11->xdndStringToAtom(f.remove(0, 12));
+    }
+
+    if (XGetSelectionOwner(X11->display, Dnd_selection) == XNone) {
         return result; // should never happen?
     }
 
