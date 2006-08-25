@@ -57,8 +57,10 @@ void Window::browse()
 {
     QString directory = QFileDialog::getExistingDirectory(this,
                                tr("Find Files"), QDir::currentPath());
-    directoryComboBox->addItem(directory);
-    directoryComboBox->setCurrentIndex(directoryComboBox->currentIndex() + 1);
+    if (!directory.isEmpty()) {
+        directoryComboBox->addItem(directory);
+        directoryComboBox->setCurrentIndex(directoryComboBox->currentIndex() + 1);
+    }
 }
 
 void Window::find()
