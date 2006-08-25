@@ -496,4 +496,35 @@ bool TranslatorMessage::operator<(const TranslatorMessage& m) const
              : (m_sourcetext != m.m_sourcetext ? m_sourcetext < m.m_sourcetext : m_comment < m.m_comment));
 }
 
+bool getNumerusInfo(QLocale::Language language, QLocale::Country country,
+                           QByteArray *rules, QStringList *forms)
+{
+    forever {
+        for (int i = 0; i < NumerusTableSize; ++i) {
+            const NumerusTableEntry &entry = numerusTable[i];
+            for (int j = 0; entry.languages[j] != EOL; ++j) {
+                if (entry.languages[j] == language
+                        && ((!entry.countries && country == QLocale::AnyCountry)
+                            || (entry.countries && entry.countries[j] == country))) {
+                    if (rules) {
+                        *rules = QByteArray::fromRawData(reinterpret_cast<const char *>(entry.rules),
+                                                    entry.rulesSize);
+                    }
+                    if (forms) {
+                        forms->clear();
+                        for (int k = 0; entry.forms[k]; ++k)
+                            forms->append(QLatin1String(entry.forms[k]));
+                    }
+                    return true;
+                }
+            }
+        }
+
+        if (country == QLocale::AnyCountry)
+            break;
+        country = QLocale::AnyCountry;
+    }
+    return false;
+}
+
 #endif // QT_NO_TRANSLATION
