@@ -7,7 +7,8 @@ unix:contains(QT_CONFIG, qdbus):include(qdbus/qdbus.pro)
 include(porting/porting.pro)
 include(qtestlib/qtestlib.pro)
 TOOLS_SUBDIRS = tools_assistant_lib \
-                tools_assistant
+                tools_assistant \
+                pixeltool
     contains(QT_EDITION, Console) {
 TOOLS_SUBDIRS += tools_designer_src_uitools
     } else {
