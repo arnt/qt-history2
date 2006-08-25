@@ -2147,6 +2147,10 @@ bool QComboBox::event(QEvent *event)
 {
     Q_D(QComboBox);
     switch(event->type()) {
+    case QEvent::LayoutDirectionChange:
+    case QEvent::ApplicationLayoutDirectionChange:
+        d->updateLineEditGeometry();
+        break;
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
