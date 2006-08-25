@@ -945,7 +945,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     } else
 #endif // !QT_NO_XRENDER
     {
-        if (d->has_brush & d->has_pen) {
+        if (d->has_brush && d->has_pen) {
             for (int i = 0; i < rectCount; ++i) {
                 QRect r(rects[i]);
                 if (d->txop == QPainterPrivate::TxTranslate)
@@ -954,10 +954,8 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 if (r.isEmpty())
                     continue;
                 d->setupAdaptedOrigin(r.topLeft());
-                if (d->has_brush)
-                    XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
-                if (d->has_pen)
-                    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
+                XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
+                XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
             }
             d->resetAdaptedOrigin();
         } else {
