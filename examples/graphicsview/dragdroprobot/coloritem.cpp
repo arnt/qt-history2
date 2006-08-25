@@ -58,7 +58,7 @@ void ColorItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	mime->setImageData(image);
 
 	drag->setPixmap(QPixmap::fromImage(image).scaled(30, 40));
-	drag->setHotSpot(QPoint(30, 40));
+        drag->setHotSpot(QPoint(15, 30));
     } else {
 	mime->setColorData(color);
 	mime->setText(QString("#%1%2%3")
@@ -67,12 +67,15 @@ void ColorItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 		      .arg(color.blue(), 2, 16, QLatin1Char('0')));
 
 	QPixmap pixmap(34, 34);
-	pixmap.fill(Qt::transparent);
+	pixmap.fill(Qt::white);
+
 	QPainter painter(&pixmap);
 	painter.translate(15, 15);
 	painter.setRenderHint(QPainter::Antialiasing);
 	paint(&painter, 0, 0);
 	painter.end();
+
+	pixmap.setMask(pixmap.createHeuristicMask());
 
 	drag->setPixmap(pixmap);
 	drag->setHotSpot(QPoint(15, 20));
