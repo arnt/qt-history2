@@ -238,5 +238,32 @@ void QGLPixelBuffer::releaseFromDynamicTexture()
 
 bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
-    return qt_resolve_pbuffer_extensions();
+    bool ret = qt_resolve_pbuffer_extensions();
+
+    if (!ret)
+	return false;
+
+    int i = 0;
+    int attribs[40];
+    int num_configs = 0;
+
+    attribs[i++] = GLX_RENDER_TYPE;
+    attribs[i++] = GLX_RGBA_BIT;
+    attribs[i++] = GLX_DRAWABLE_TYPE;
+    attribs[i++] = GLX_PBUFFER_BIT;
+    attribs[i] = XNone;
+
+    GLXFBConfig *configs = glXChooseFBConfig(X11->display, X11->defaultScreen, attribs, &num_configs);
+    GLXPbuffer pbuf = 0;
+    GLXContext ctx = 0;
+
+    if (configs && num_configs) {
+        int pb_attribs[] = {GLX_PBUFFER_WIDTH, 128, GLX_PBUFFER_HEIGHT, 128, XNone};
+        pbuf = glXCreatePbuffer(X11->display, configs[0], pb_attribs);
+        ctx = glXCreateNewContext(X11->display, configs[0], GLX_RGBA_TYPE, 0, true);
+        XFree(configs);
+	glXDestroyContext(X11->display, ctx);
+	glXDestroyPbuffer(X11->display, pbuf);
+    }
+    return pbuf && ctx;
 }
