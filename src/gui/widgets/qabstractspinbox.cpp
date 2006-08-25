@@ -1475,8 +1475,8 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
         opt.state |= QStyle::State_Sunken;
 
     opt.stepEnabled = q->style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-                      ? (QAbstractSpinBox::StepDownEnabled|QAbstractSpinBox::StepUpEnabled)
-                      : q->stepEnabled();
+                      ? q->stepEnabled() 
+                      : (QAbstractSpinBox::StepDownEnabled|QAbstractSpinBox::StepUpEnabled);
 
     opt.frame = frame;
     return opt;
