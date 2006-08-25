@@ -797,6 +797,10 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
         if(msg.wParam == VK_PROCESSKEY)
             return true;
 
+        // Ignore invalid virtual keycode (see bug 127424)
+        if (msg.wParam == 0xFF)
+            return true;
+
         // Translate VK_* (native) -> Key_* (Qt) keys
         // If it's a dead key, we cannot use the toKeyOrUnicode() function, since that will change
         // the internal state of the keyboard driver, resulting in that dead keys no longer works.
