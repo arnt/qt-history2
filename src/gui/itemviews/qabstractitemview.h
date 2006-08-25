@@ -312,6 +312,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_modelDestroyed())
 
     friend class QTreeViewPrivate; // needed to compile with MSVC
+    friend class QAccessibleItemRow;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers)
