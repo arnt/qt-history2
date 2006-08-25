@@ -125,12 +125,16 @@ void atWrapper::ftpMgetDone( bool error)
         for ( int i = 1; i < mgetDirList.size(); ++i )
         {
             file = new QFile( QString( output ) + "/" + mgetDirList.at( 0 ) + "/" + mgetDirList.at( i ) );
-            file->open(QIODevice::WriteOnly); //FIXME: Add safety net here.
-            ftp.get( ftpBaseDir + "/" + mgetDirList.at( 0 ) + "/" + mgetDirList.at( i ), file );
-            ftp.list(); //Only there to fill up a slot in the pendingCommands queue.
-            while ( ftp.hasPendingCommands() )
-                QCoreApplication::instance()->processEvents();
-            file->close();
+            if (file->open(QIODevice::WriteOnly)) {
+                ftp.get( ftpBaseDir + "/" + mgetDirList.at( 0 ) + "/" + mgetDirList.at( i ), file );
+                ftp.list(); //Only there to fill up a slot in the pendingCommands queue.
+                while ( ftp.hasPendingCommands() )
+                    QCoreApplication::instance()->processEvents();
+                file->close();                            
+            } else {
+                qDebug() << "Couldn't open file for writing: " << file->fileName();
+            }
+            delete file;
         }
 
 
