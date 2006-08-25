@@ -43,6 +43,7 @@ private slots:
     void timeout();
     void livelock_data();
     void livelock();
+    void zeroTimerInfiniteRecursion();
 };
 
 class TimerHelper : public QObject
@@ -166,7 +167,7 @@ public:
                 killTimer(extraTimerId);
                 extraTimerId = -1;
 		QApplication::postEvent(this, new QEvent(static_cast<QEvent::Type>(4002)));
-                secondTimerId = startTimer(interval);  
+                secondTimerId = startTimer(interval);
             }
         } else if (te->timerId() == secondTimerId) {
             ++timeoutsForSecond;
@@ -210,6 +211,41 @@ void tst_QTimer::livelock()
     QEXPECT_FAIL("non-zero timer", "", Continue);
 #endif
     QVERIFY(tester.postEventAtRightTime);
+}
+
+class ZeroTimerInfiniteRecursionObject : public QObject
+{
+public:
+    bool inTimerEvent;
+    bool timerEventRecursed;
+
+    ZeroTimerInfiniteRecursionObject()
+        : inTimerEvent(false), timerEventRecursed(false)
+    { }
+
+    void timerEvent(QTimerEvent *timerEvent)
+    {
+        timerEventRecursed = inTimerEvent;
+        if (timerEventRecursed) {
+            // bug detected!
+            return;
+        }
+
+        inTimerEvent = true;
+        QApplication::processEvents();
+        inTimerEvent = false;
+
+        killTimer(timerEvent->timerId());
+    }
+};
+
+
+void tst_QTimer::zeroTimerInfiniteRecursion()
+{
+    ZeroTimerInfiniteRecursionObject object;
+    (void) object.startTimer(0);
+    QApplication::processEvents();
+    QVERIFY(!object.timerEventRecursed);
 }
 
 QTEST_MAIN(tst_QTimer)
