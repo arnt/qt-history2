@@ -583,8 +583,10 @@ void tst_QSettings::testErrorHandling_data()
     QTest::newRow("0600 0700") << 0600 << 0700 << (int)QSettings::NoError     << false << (int)QSettings::NoError     << (int)QSettings::NoError;
 
     // Behavior on the next two changed in 4.1.3 - QSettings will change the permissions if it is able to.
+#ifndef Q_WS_MAC
     QTest::newRow("0400 0700") << 0400 << 0700 << (int)QSettings::NoError     << false << (int)QSettings::NoError     << (int)QSettings::NoError;
     QTest::newRow("0200 0700") << 0200 << 0700 << (int)QSettings::AccessError     << false  << (int)QSettings::AccessError << (int)QSettings::AccessError;
+#endif
 
     QTest::newRow("  -1 0700") <<   -1 << 0700 << (int)QSettings::NoError     << true  << (int)QSettings::NoError     << (int)QSettings::NoError;
 
@@ -3190,6 +3192,7 @@ void tst_QSettings::childGroups()
     for (int pass = 0; pass < 3; ++pass) {
         QConfFile::clearCache();
         QSettings settings(format, QSettings::SystemScope, "software.org");
+        settings.setFallbacksEnabled(false);
         // make sure laziness doesn't mess up things
         if (pass == 1) {
             settings.value("gamma/d");
@@ -3252,6 +3255,7 @@ void tst_QSettings::childKeys()
     for (int pass = 0; pass < 3; ++pass) {
         QConfFile::clearCache();
         QSettings settings(format, QSettings::SystemScope, "software.org");
+        settings.setFallbacksEnabled(false);
         // make sure laziness doesn't mess up things
         if (pass == 1) {
             settings.value("gamma/d");
@@ -3308,6 +3312,8 @@ void tst_QSettings::allKeys()
     for (int pass = 0; pass < 3; ++pass) {
         QConfFile::clearCache();
         QSettings settings(format, QSettings::SystemScope, "software.org");
+        settings.setFallbacksEnabled(false);
+
         // make sure laziness doesn't mess up things
         if (pass == 1) {
             settings.value("gamma/d");
