@@ -209,9 +209,9 @@ void tst_QKeySequence::standardKeys_data()
 #ifdef Q_WS_WIN
     QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("F3");
     QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("SHIFT+F3");
-	QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+F4");
+    QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+F4");
+    QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");    
 #endif
-    QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");
     QTest::newRow("bold") << (int)QKeySequence::Bold << QString("CTRL+B");
     QTest::newRow("italic") << (int)QKeySequence::Italic << QString("CTRL+I");
     QTest::newRow("underline") << (int)QKeySequence::Underline << QString("CTRL+U");
