@@ -329,6 +329,7 @@ void QGraphicsScenePrivate::_q_generateBspTree()
         bspTree.initialize(q->sceneRect(), newDepth);
         newItems = allItems;
         lastItemCount = allItems.size();
+        q->update();
     }
 
     for (int i = 0; i < newItems.size(); ++i) {
@@ -339,8 +340,6 @@ void QGraphicsScenePrivate::_q_generateBspTree()
 
     if (!hasSceneRect && growingItemsBoundingRect != oldGrowingItemsBoundingRect)
         emit q->sceneRectChanged(growingItemsBoundingRect);
-
-    q->update();
 }
 
 /*!
