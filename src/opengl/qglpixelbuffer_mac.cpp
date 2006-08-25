@@ -46,6 +46,12 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
     attribs[i++] = 32;
     attribs[i++] = AGL_LEVEL;
     attribs[i++] = f.plane();
+    attribs[cnt++] = AGL_RED_SIZE;
+    attribs[cnt++] = format.redBufferSize() == -1 ? 1 : format.redBufferSize();
+    attribs[cnt++] = AGL_GREEN_SIZE;
+    attribs[cnt++] = format.greenBufferSize() == -1 ? 1 : format.greenBufferSize();
+    attribs[cnt++] = AGL_BLUE_SIZE;
+    attribs[cnt++] = format.blueBufferSize() == -1 ? 1 : format.blueBufferSize();
     if (f.stereo())
         attribs[i++] = AGL_STEREO;
     if (f.alpha()) {
@@ -97,6 +103,12 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
 	this->format.setDepthBufferSize(res);
     aglDescribePixelFormat(format, AGL_RGBA, &res);
     this->format.setRgba(res);
+    aglDescribePixelFormat(fmt, AGL_RED_SIZE, &res);
+    d->glFormat.setRedBufferSize(res);
+    aglDescribePixelFormat(fmt, AGL_GREEN_SIZE, &res);
+    d->glFormat.setGreenBufferSize(res);
+    aglDescribePixelFormat(fmt, AGL_BLUE_SIZE, &res);
+    d->glFormat.setBlueBufferSize(res);
     aglDescribePixelFormat(format, AGL_ALPHA_SIZE, &res);
     this->format.setAlpha(res);
     if (this->format.alpha())

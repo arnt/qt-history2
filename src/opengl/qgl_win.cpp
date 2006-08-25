@@ -498,6 +498,9 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     if (fmt.depth())
         fmt.setDepthBufferSize(pfd->cDepthBits);
     fmt.setRgba(pfd->iPixelType == PFD_TYPE_RGBA);
+    fmt.setRedBufferSize(pfd->cRedBits);
+    fmt.setGreenBufferSize(pfd->cGreenBits);
+    fmt.setBlueBufferSize(pfd->cBlueBits);
     fmt.setAlpha(pfd->cAlphaBits);
     if (fmt.alpha())
         fmt.setAlphaBufferSize(pfd->cAlphaBits);
@@ -526,14 +529,17 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB; // 0
     iAttributes[i++] = WGL_DEPTH_BITS_ARB; // 1
     iAttributes[i++] = WGL_PIXEL_TYPE_ARB; // 2
-    iAttributes[i++] = WGL_ALPHA_BITS_ARB; // 3
-    iAttributes[i++] = WGL_ACCUM_BITS_ARB; // 4
-    iAttributes[i++] = WGL_STENCIL_BITS_ARB; // 5
-    iAttributes[i++] = WGL_STEREO_ARB; // 6
-    iAttributes[i++] = WGL_ACCELERATION_ARB; // 7
-    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 8
-    iAttributes[i++] = WGL_SAMPLES_ARB; // 9
-    iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 10
+    iAttributes[i++] = WGL_RED_BITS_ARB; // 3
+    iAttributes[i++] = WGL_GREEN_BITS_ARB; // 4
+    iAttributes[i++] = WGL_BLUE_BITS_ARB; // 5
+    iAttributes[i++] = WGL_ALPHA_BITS_ARB; // 6
+    iAttributes[i++] = WGL_ACCUM_BITS_ARB; // 7
+    iAttributes[i++] = WGL_STENCIL_BITS_ARB; // 8
+    iAttributes[i++] = WGL_STEREO_ARB; // 9
+    iAttributes[i++] = WGL_ACCELERATION_ARB; // 10
+    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 11
+    iAttributes[i++] = WGL_SAMPLES_ARB; // 12
+    iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 13
     PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB =
         (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
@@ -547,38 +553,44 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
         if (fmt.depth())
             fmt.setDepthBufferSize(iValues[1]);
         fmt.setRgba(iValues[2] == WGL_TYPE_RGBA_ARB);
-        fmt.setAlpha(iValues[3]);
+        fmt.setRedBufferSize(iValues[3]);
+        fmt.setGreenBufferSize(iValues[4]);
+        fmt.setBlueBufferSize(iValues[5]);
+        fmt.setAlpha(iValues[6]);
         if (fmt.alpha())
-            fmt.setAlphaBufferSize(iValues[3]);
-        fmt.setAccum(iValues[4]);
+            fmt.setAlphaBufferSize(iValues[6]);
+        fmt.setAccum(iValues[7]);
         if (fmt.accum())
-            fmt.setAccumBufferSize(iValues[4]);
-        fmt.setStencil(iValues[5]);
+            fmt.setAccumBufferSize(iValues[7]);
+        fmt.setStencil(iValues[8]);
         if (fmt.stencil())
-            fmt.setStencilBufferSize(iValues[5]);
-        fmt.setStereo(iValues[6]);
-        if (iValues[7] == WGL_FULL_ACCELERATION_ARB)
+            fmt.setStencilBufferSize(iValues[8]);
+        fmt.setStereo(iValues[9]);
+        if (iValues[10] == WGL_FULL_ACCELERATION_ARB)
             fmt.setDirectRendering(true);
         else
             fmt.setDirectRendering(false);
-        fmt.setSampleBuffers(iValues[8]);
+        fmt.setSampleBuffers(iValues[11]);
         if (fmt.sampleBuffers())
-            fmt.setSamples(iValues[9]);
-        fmt.setOverlay(iValues[10]);
+            fmt.setSamples(iValues[12]);
+        fmt.setOverlay(iValues[13]);
     }
 #if 0
     qDebug() << "values for pfi:" << pfi;
     qDebug() << "doublebuffer  0:" << fmt.doubleBuffer();
     qDebug() << "depthbuffer   1:" << fmt.depthBufferSize();
     qDebug() << "rgba          2:" << fmt.rgba();
-    qDebug() << "alpha size    3:" << fmt.alphaBufferSize();
-    qDebug() << "accum size    4:" << fmt.accumBufferSize();
-    qDebug() << "stencil size  5:" << fmt.stencilBufferSize();
-    qDebug() << "stereo        6:" << fmt.stereo();
-    qDebug() << "direct        7:" << fmt.directRendering();
-    qDebug() << "sample buffer 8:" << fmt.sampleBuffers();
-    qDebug() << "num samples   9:" << fmt.samples();
-    qDebug() << "has overlays 10:" << fmt.hasOverlay();
+    qDebug() << "red size      3:" << fmt.redBufferSize();
+    qDebug() << "green size    4:" << fmt.greenBufferSize();
+    qDebug() << "blue size     5:" << fmt.blueBufferSize();
+    qDebug() << "alpha size    6:" << fmt.alphaBufferSize();
+    qDebug() << "accum size    7:" << fmt.accumBufferSize();
+    qDebug() << "stencil size  8:" << fmt.stencilBufferSize();
+    qDebug() << "stereo        9:" << fmt.stereo();
+    qDebug() << "direct       10:" << fmt.directRendering();
+    qDebug() << "sample buff  11:" << fmt.sampleBuffers();
+    qDebug() << "num samples  12:" << fmt.samples();
+    qDebug() << "has overlays 13:" << fmt.hasOverlay();
 #endif
     return fmt;
 }
@@ -683,6 +695,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setDoubleBuffer(lpfd.dwFlags & LPD_DOUBLEBUFFER);
         d->glFormat.setDepth(lpfd.cDepthBits);
         d->glFormat.setRgba(lpfd.iPixelType == PFD_TYPE_RGBA);
+        if (d->glFormat.rgba()) {
+            if (d->glFormat.redBufferSize() != -1)
+                d->glFormat.setRedBufferSize(lpfd.cRedBits);
+            if (d->glFormat.greenBufferSize() != -1)
+                d->glFormat.setGreenBufferSize(lpfd.cGreenBits);
+            if (d->glFormat.blueBufferSize() != -1)
+                d->glFormat.setBlueBufferSize(lpfd.cBlueBits);
+        }
         d->glFormat.setAlpha(lpfd.cAlphaBits);
         d->glFormat.setAccum(lpfd.cAccumBits);
         d->glFormat.setStencil(lpfd.cStencilBits);
@@ -864,10 +884,23 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             iAttributes[i++] = d->glFormat.depthBufferSize() == -1 ? 24 : d->glFormat.depthBufferSize();
         }
         iAttributes[i++] = WGL_PIXEL_TYPE_ARB;
-        if (d->glFormat.rgba())
+        if (d->glFormat.rgba()) {
             iAttributes[i++] = WGL_TYPE_RGBA_ARB;
-        else
+            if (d->glFormat.redBufferSize() != -1) {
+                iAttributes[i++] = WGL_RED_BITS_ARB;
+                iAttributes[i++] = d->glFormat.redBufferSize();
+            }
+            if (d->glFormat.greenBufferSize() != -1) {
+                iAttributes[i++] = WGL_GREEN_BITS_ARB;
+                iAttributes[i++] = d->glFormat.greenBufferSize();
+            }
+            if (d->glFormat.blueBufferSize() != -1) {
+                iAttributes[i++] = WGL_BLUE_BITS_ARB;
+                iAttributes[i++] = d->glFormat.blueBufferSize();
+            }
+        } else {
             iAttributes[i++] = WGL_TYPE_COLORINDEX_ARB;
+        }
         if (d->glFormat.alpha()) {
             iAttributes[i++] = WGL_ALPHA_BITS_ARB;
             iAttributes[i++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
@@ -929,6 +962,12 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             p->dwFlags |= PFD_DEPTH_DONTCARE;
         if (d->glFormat.rgba()) {
             p->iPixelType = PFD_TYPE_RGBA;
+            if (d->glFormat.redBufferSize() != -1)
+                p->cRedBits = d->glFormat.redBufferSize();
+            if (d->glFormat.greenBufferSize() != -1)
+                p->cGreenBits = d->glFormat.greenBufferSize();
+            if (d->glFormat.blueBufferSize() != -1)
+                p->cBlueBits = d->glFormat.blueBufferSize();
             if (deviceIsPixmap())
                 p->cColorBits = pmDepth;
             else

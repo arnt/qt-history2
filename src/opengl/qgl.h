@@ -101,6 +101,15 @@ public:
     void setAccumBufferSize(int size);
     int  accumBufferSize() const;
 
+    void setRedBufferSize(int size);
+    int  redBufferSize() const;
+
+    void setGreenBufferSize(int size);
+    int  greenBufferSize() const;
+
+    void setBlueBufferSize(int size);
+    int  blueBufferSize() const;
+
     void setAlphaBufferSize(int size);
     int  alphaBufferSize() const;
 

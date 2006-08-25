@@ -95,7 +95,12 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
     attribs[i++] = GLX_RGBA_BIT;
     attribs[i++] = GLX_DRAWABLE_TYPE;
     attribs[i++] = GLX_PBUFFER_BIT;
-
+    attribs[i++] = GLX_RED_SIZE;
+    attribs[i++] = f.redBufferSize() == -1 ? 1 : f.redBufferSize();
+    attribs[i++] = GLX_GREEN_SIZE;
+    attribs[i++] = f.greenBufferSize() == -1 ? 1 : f.greenBufferSize();
+    attribs[i++] = GLX_BLUE_SIZE;
+    attribs[i++] = f.blueBufferSize() == -1 ? 1 : f.blueBufferSize();
     if (f.doubleBuffer()) {
         attribs[i++] = GLX_DOUBLEBUFFER;
         attribs[i++] = true;
@@ -150,6 +155,12 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
             format.setDepthBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_RGBA, &res);
         format.setRgba(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_RED_SIZE, &res);
+        format.setRedBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_GREEN_SIZE, &res);
+        format.setGreenBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_BLUE_SIZE, &res);
+        format.setBlueBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_ALPHA_SIZE, &res);
         format.setAlpha(res);
         if (format.alpha())

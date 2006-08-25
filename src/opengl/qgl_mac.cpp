@@ -97,6 +97,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setDepthBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
     d->glFormat.setRgba(res);
+    aglDescribePixelFormat(fmt, AGL_RED_SIZE, &res);
+    d->glFormat.setRedBufferSize(res);
+    aglDescribePixelFormat(fmt, AGL_GREEN_SIZE, &res);
+    d->glFormat.setGreenBufferSize(res);
+    aglDescribePixelFormat(fmt, AGL_BLUE_SIZE, &res);
+    d->glFormat.setBlueBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
     if (d->glFormat.alpha())
@@ -188,6 +194,12 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     attribs[cnt++] = device_is_pixmap ? static_cast<QPixmap *>(paintDevice)->depth() : 32;
     attribs[cnt++] = AGL_LEVEL;
     attribs[cnt++] = format.plane();
+    attribs[cnt++] = AGL_RED_SIZE;
+    attribs[cnt++] = format.redBufferSize() == -1 ? 1 : format.redBufferSize();
+    attribs[cnt++] = AGL_GREEN_SIZE;
+    attribs[cnt++] = format.greenBufferSize() == -1 ? 1 : format.greenBufferSize();
+    attribs[cnt++] = AGL_BLUE_SIZE;
+    attribs[cnt++] = format.blueBufferSize() == -1 ? 1 : format.blueBufferSize();
 
     if (device_is_pixmap) {
         attribs[cnt++] = AGL_PIXEL_SIZE;

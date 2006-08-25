@@ -139,14 +139,14 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
 {
     QGLWidget dmy;
     dmy.makeCurrent(); // needed for wglGetProcAddress() to succeed
-    
-    PFNWGLCREATEPBUFFERARBPROC wglCreatePbufferARB = 
+
+    PFNWGLCREATEPBUFFERARBPROC wglCreatePbufferARB =
 	(PFNWGLCREATEPBUFFERARBPROC) wglGetProcAddress("wglCreatePbufferARB");
     PFNWGLGETPBUFFERDCARBPROC wglGetPbufferDCARB =
 	(PFNWGLGETPBUFFERDCARBPROC) wglGetProcAddress("wglGetPbufferDCARB");
-    PFNWGLQUERYPBUFFERARBPROC wglQueryPbufferARB = 
+    PFNWGLQUERYPBUFFERARBPROC wglQueryPbufferARB =
 	(PFNWGLQUERYPBUFFERARBPROC) wglGetProcAddress("wglQueryPbufferARB");
-    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = 
+    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB =
 	(PFNWGLCHOOSEPIXELFORMATARBPROC) wglGetProcAddress("wglChoosePixelFormatARB");
 
     if (!wglCreatePbufferARB) // assumes that if one can be resolved, all of them can
@@ -167,6 +167,7 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
     attribs[i++] = 32;
     attribs[i++] = WGL_DOUBLE_BUFFER_ARB;
     attribs[i++] = FALSE;
+
     if (f.stereo()) {
 	attribs[i++] = WGL_STEREO_ARB;
 	attribs[i++] = TRUE;
@@ -174,6 +175,18 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
     if (f.depth()) {
 	attribs[i++] = WGL_DEPTH_BITS_ARB;
 	attribs[i++] = f.depthBufferSize() == -1 ? 24 : f.depthBufferSize();
+    }
+    if (f.redBufferSize() != -1) {
+	attribs[i++] = WGL_RED_BITS_ARB;
+	attribs[i++] = f.redBufferSize();
+    }
+    if (f.greenBufferSize() != -1) {
+	attribs[i++] = WGL_GREEN_BITS_ARB;
+	attribs[i++] = f.greenBufferSize();
+    }
+    if (f.blueBufferSize() != -1) {
+	attribs[i++] = WGL_BLUE_BITS_ARB;
+	attribs[i++] = f.blueBufferSize();
     }
     if (f.alpha()) {
 	attribs[i++] = WGL_ALPHA_BITS_ARB;
@@ -243,7 +256,7 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
 
 bool QGLPixelBufferPrivate::cleanup()
 {
-    PFNWGLRELEASEPBUFFERDCARBPROC wglReleasePbufferDCARB = 
+    PFNWGLRELEASEPBUFFERDCARBPROC wglReleasePbufferDCARB =
 	(PFNWGLRELEASEPBUFFERDCARBPROC) wglGetProcAddress("wglReleasePbufferDCARB");
     PFNWGLDESTROYPBUFFERARBPROC wglDestroyPbufferARB =
 	(PFNWGLDESTROYPBUFFERARBPROC) wglGetProcAddress("wglDestroyPbufferARB");
@@ -261,7 +274,7 @@ bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)
     Q_D(QGLPixelBuffer);
     if (d->invalid)
 	return false;
-    PFNWGLBINDTEXIMAGEARBPROC wglBindTexImageARB = 
+    PFNWGLBINDTEXIMAGEARBPROC wglBindTexImageARB =
 	(PFNWGLBINDTEXIMAGEARBPROC) wglGetProcAddress("wglBindTexImageARB");
     if (wglBindTexImageARB) {
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -275,7 +288,7 @@ void QGLPixelBuffer::releaseFromDynamicTexture()
     Q_D(QGLPixelBuffer);
     if (d->invalid)
 	return;
-    PFNWGLRELEASETEXIMAGEARBPROC wglReleaseTexImageARB = 
+    PFNWGLRELEASETEXIMAGEARBPROC wglReleaseTexImageARB =
 	(PFNWGLRELEASETEXIMAGEARBPROC) wglGetProcAddress("wglReleaseTexImageARB");
     if (wglReleaseTexImageARB)
 	wglReleaseTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
@@ -301,7 +314,7 @@ bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
     QGLWidget dmy;
     dmy.makeCurrent();
-    PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 
+    PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB =
 	(PFNWGLGETEXTENSIONSSTRINGARBPROC) wglGetProcAddress("wglGetExtensionsStringARB");
     if (wglGetExtensionsStringARB) {
 	QString extensions(QLatin1String(wglGetExtensionsStringARB(wglGetCurrentDC())));

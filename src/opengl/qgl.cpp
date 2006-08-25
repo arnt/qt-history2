@@ -716,6 +716,78 @@ int QGLFormat::depthBufferSize() const
 }
 
 /*!
+    Set the preferred red buffer size to \a size.
+
+    \sa redBufferSize()
+*/
+void QGLFormat::setRedBufferSize(int size)
+{
+    if (size < 0) {
+        qWarning("QGLFormat::setRedBufferSize: Cannot set negative red buffer size %d", size);
+        return;
+    }
+    d->redSize = size;
+}
+
+/*!
+    Returns the red buffer size.
+
+    \sa setRedBufferSize()
+*/
+int QGLFormat::redBufferSize() const
+{
+   return d->redSize;
+}
+
+/*!
+    Set the preferred green buffer size to \a size.
+
+    \sa greenBufferSize()
+*/
+void QGLFormat::setGreenBufferSize(int size)
+{
+    if (size < 0) {
+        qWarning("QGLFormat::setGreenBufferSize: Cannot set negative green buffer size %d", size);
+        return;
+    }
+    d->greenSize = size;
+}
+
+/*!
+    Returns the green buffer size.
+
+    \sa setGreenBufferSize()
+*/
+int QGLFormat::greenBufferSize() const
+{
+   return d->greenSize;
+}
+
+/*!
+    Set the preferred blue buffer size to \a size.
+
+    \sa blueBufferSize()
+*/
+void QGLFormat::setBlueBufferSize(int size)
+{
+    if (size < 0) {
+        qWarning("QGLFormat::setBlueBufferSize: Cannot set negative blue buffer size %d", size);
+        return;
+    }
+    d->blueSize = size;
+}
+
+/*!
+    Returns the blue buffer size.
+
+    \sa setBlueBufferSize()
+*/
+int QGLFormat::blueBufferSize() const
+{
+   return d->blueSize;
+}
+
+/*!
     Set the preferred alpha buffer size to \a size.
     This function implicitly enables the alpha channel.
 

@@ -116,7 +116,7 @@ public:
     QGLFormatPrivate() {
         opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering | QGL::StencilBuffer;
         pln = 0;
-        depthSize = accumSize = stencilSize = alphaSize = -1;
+        depthSize = accumSize = stencilSize = redSize = greenSize = blueSize = alphaSize = -1;
         numSamples = -1;
         swapInterval = -1;
     }
@@ -125,6 +125,9 @@ public:
     int depthSize;
     int accumSize;
     int stencilSize;
+    int redSize;
+    int greenSize;
+    int blueSize;
     int alphaSize;
     int numSamples;
     int swapInterval;

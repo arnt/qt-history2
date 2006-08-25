@@ -317,6 +317,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setDepthBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RGBA, &res);
     d->glFormat.setRgba(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RED_SIZE, &res);
+    d->glFormat.setRedBufferSize(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_GREEN_SIZE, &res);
+    d->glFormat.setGreenBufferSize(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_BLUE_SIZE, &res);
+    d->glFormat.setBlueBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
     if (d->glFormat.alpha())
@@ -530,11 +536,11 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
     if (f.rgba()) {
         spec[i++] = GLX_RGBA;
         spec[i++] = GLX_RED_SIZE;
-        spec[i++] = 1;
+        spec[i++] = f.redBufferSize() == -1 ? 1 : f.redBufferSize();
         spec[i++] = GLX_GREEN_SIZE;
-        spec[i++] = 1;
+        spec[i++] = f.greenBufferSize() == -1 ? 1 : f.greenBufferSize();
         spec[i++] = GLX_BLUE_SIZE;
-        spec[i++] = 1;
+        spec[i++] = f.blueBufferSize() == -1 ? 1 : f.blueBufferSize();
         if (f.alpha()) {
             spec[i++] = GLX_ALPHA_SIZE;
             spec[i++] = f.alphaBufferSize() == -1 ? 1 : f.alphaBufferSize();
