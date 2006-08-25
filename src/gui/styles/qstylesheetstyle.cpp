@@ -1136,7 +1136,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
         StyleSheet ss;
         Parser parser(wid->styleSheet());
         if (!parser.parse(&ss))
-            qWarning("Could not parse stylesheet");
+            qWarning() << "Could not parse stylesheet of " << wid;
         inheritedSs.prepend(ss);
     }
     styleSelector.styleSheets += inheritedSs;
@@ -1144,7 +1144,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
     StyleSheet widgetSs;
     Parser parser2(w->styleSheet());
     if (!parser2.parse(&widgetSs))
-        qWarning("Could not parse widget stylesheet");
+        qWarning() << "Could not parse stylesheet of " << w;
 
     styleSelector.styleSheets += widgetSs;
 
@@ -1468,7 +1468,19 @@ static void setPalette(QWidget *w)
 
 static void unsetPalette(QWidget *w)
 {
-    w->setPalette(qApp->palette(w));
+    QFont font;
+    QPalette pal;
+#ifndef QT_NO_TOOLTIP
+    const bool isToolTip = QLatin1String(w->metaObject()->className()) == "QTipLabel";
+    if (isToolTip) {
+        pal = QToolTip::palette();
+        font = QToolTip::font();
+    } else
+#endif
+        pal = qApp->palette(w);
+    
+    w->setPalette(pal);
+    w->setFont(font);
 }
 
 static void updateWidgets(const QList<const QWidget *>& widgets)
@@ -1502,27 +1514,6 @@ QStyle *QStyleSheetStyle::baseStyle() const
     return qApp->style();
 }
 
-void QStyleSheetStyle::repolish(QWidget *w)
-{
-    QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
-    children.append(w);
-    updateWidgets(children);
-}
-
-/*!
-    \internal
-*/
-QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
-                                                   const QWidget *widget) const
-{
-    return QCommonStyle::standardIconImplementation(standardIcon, opt, widget);
-}
-
-void QStyleSheetStyle::repolish(QApplication *)
-{
-    updateWidgets(styleRulesCache.keys());
-}
-
 void QStyleSheetStyle::widgetDestroyed(QObject *o)
 {
     styleRulesCache.remove((const QWidget *)o);
@@ -1551,7 +1542,6 @@ static bool unstylable(QWidget *w)
     return false;
 }
 
-// remember to revert changes in unpolish
 void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);
@@ -1581,11 +1571,24 @@ void QStyleSheetStyle::polish(QPalette &pal)
     baseStyle()->polish(pal);
 }
 
+void QStyleSheetStyle::repolish(QWidget *w)
+{
+    QList<const QWidget *> children = qFindChildren<const QWidget *>(w, QString());
+    children.append(w);
+    updateWidgets(children);
+}
+
+void QStyleSheetStyle::repolish(QApplication *)
+{
+    updateWidgets(styleRulesCache.keys());
+}
+
 void QStyleSheetStyle::unpolish(QWidget *w)
 {
     styleRulesCache.remove(w);
     renderRulesCache.remove(w);
     baseStyle()->unpolish(w);
+    unsetPalette(w);
     QObject::disconnect(w, SIGNAL(destroyed(QObject*)),
                        this, SLOT(widgetDestroyed(QObject*)));
 }
@@ -2077,11 +2080,6 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
             return rule.box()->spacing;
         break;
 
-    case PM_ProgressBarChunkWidth:
-        //if (rules.hasIconSize("chunk"))
-        //    return rules.iconSize("chunk").width();
-        break;
-
     case PM_SmallIconSize:
     case PM_MenuDesktopFrameWidth:
     case PM_MenuTearoffHeight:
@@ -2097,9 +2095,6 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_SplitterWidth:
         if (rule.hasContentsSize())
             return rule.contentsSize().width();
-        break;
-
-    case PM_SizeGripSize: // not used by QSizeGrip!
         break;
 
     case PM_CheckBoxLabelSpacing: // group box
@@ -2213,6 +2208,15 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     }
 
     return baseStyle()->sizeFromContents(ct, opt, sz, w);
+}
+
+/*!
+    \internal
+*/
+QIcon QStyleSheetStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                                   const QWidget *widget) const
+{
+    return QCommonStyle::standardIconImplementation(standardIcon, opt, widget);
 }
 
 QIcon QStyleSheetStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
