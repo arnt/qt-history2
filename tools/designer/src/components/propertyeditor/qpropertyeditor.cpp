@@ -149,3 +149,9 @@ QStyleOptionViewItem QPropertyEditor::viewOptions() const
     option.showDecorationSelected = true;
     return option;
 }
+
+void QPropertyEditor::focusInEvent(QFocusEvent *event)
+{
+    QAbstractScrollArea::focusInEvent(event);
+    viewport()->update();
+}
