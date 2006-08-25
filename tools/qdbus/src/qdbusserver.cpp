@@ -14,28 +14,51 @@
 #include "qdbusserver.h"
 #include "qdbusconnection_p.h"
 
-QDBusServer::QDBusServer(const QString &addr, QObject *p)
-    : QObject(p)
+/*!
+    \class QDBusServer
+
+    The QDBusServer is useful for doing D-Bus peer-to-peer communication
+    between processes on the same computer.
+*/
+
+/*!
+  Constructs a QDBusServer with the given \a address, and the given \a parent.
+*/
+QDBusServer::QDBusServer(const QString &address, QObject *parent)
+    : QObject(parent)
 {
     d = new QDBusConnectionPrivate(this);
 
-    if (addr.isEmpty())
+    if (address.isEmpty())
         return;
 
     // server = dbus_server_listen( "unix:tmpdir=/tmp",  &error );
-    d->setServer(dbus_server_listen(addr.toUtf8().constData(), &d->error));
+    d->setServer(dbus_server_listen(address.toUtf8().constData(), &d->error));
 }
 
+/*!
+    Returns true if this QDBusServer object is connected.
+
+    If it isn't connected, you need to call the QDBusServer constructor again.
+*/
 bool QDBusServer::isConnected() const
 {
     return d->server && dbus_server_get_is_connected(d->server);
 }
 
+/*!
+    Returns the last error that happened in this server.
+
+    This function is provided for low-level code.
+*/
 QDBusError QDBusServer::lastError() const
 {
     return d->lastError;
 }
 
+/*!
+    Returns the address this server is assosiated width.
+*/
 QString QDBusServer::address() const
 {
     QString addr;
