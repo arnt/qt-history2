@@ -618,6 +618,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XChangeProperty(dpy, id, ATOM(_NET_WM_PID), XA_CARDINAL, 32, PropModeReplace,
                         (unsigned char *) &curr_pid, 1);
 
+        // when we create a toplevel widget, the frame strut should be dirty
+        data.fstrut_dirty = 1;
+
         // declare the widget's object name as window role
         QByteArray objName = q->objectName().toLocal8Bit();
         XChangeProperty(dpy, id,
@@ -628,12 +631,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XChangeProperty(dpy, id, ATOM(WM_CLIENT_LEADER),
                         XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&X11->wm_client_leader, 1);
+    } else {
+        // non-toplevel widgets don't have a frame, so no need to
+        // update the strut
+        data.fstrut_dirty = 0;
     }
-
-    // a new widget has no frame yet
-    if (QTLWExtra *topData = maybeTopData())
-        topData->frameStrut.setCoords(0 ,0, 0, 0);
-    data.fstrut_dirty = false;
 
     if (initializeWindow) {
         // don't erase when resizing
@@ -818,6 +820,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         topData->waitingForMapNotify = 0;
         topData->validWMState = 0;
     }
+    data.fstrut_dirty = (!parent || (f & Qt::Window)); // toplevels get a dirty framestrut
 
     QObjectPrivate::setParent_helper(parent);
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
@@ -1634,6 +1637,7 @@ void QWidgetPrivate::show_sys()
             && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                  && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
             XMapWindow(X11->display, q->internalWinId());
+            data.fstrut_dirty = true;
             qt_x11_wait_for_window_manager(q);
 
             // if the wm was not smart enough to adjust our size, do that manually
@@ -1744,9 +1748,9 @@ void QWidgetPrivate::hide_sys()
             const QRect fs = x->frameStrut;
             data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
                                               data.crect.y() - fs.top()));
-            // zero the frame strut and mark it clean
+            // zero the frame strut and mark it dirty
             x->frameStrut.setCoords(0, 0, 0, 0);
-            data.fstrut_dirty = false;
+            data.fstrut_dirty = true;
         }
 
         XFlush(X11->display);
@@ -1795,10 +1799,11 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
     XSizeHints s;
     s.flags = 0;
     if (x) {
-        s.x = widget->x();
-        s.y = widget->y();
-        s.width = widget->width();
-        s.height = widget->height();
+        QRect g = widget->geometry();
+        s.x = g.x();
+        s.y = g.y();
+        s.width = g.width();
+        s.height = g.height();
         if (x->minw > 0 || x->minh > 0) {
             // add minimum size hints
             s.flags |= PMinSize;
@@ -2431,6 +2436,11 @@ void QWidgetPrivate::updateFrameStrut()
 {
     Q_Q(QWidget);
 
+    QTLWExtra *top = topData();
+    if (!top->validWMState) {
+        return;
+    }
+
     Atom type_ret;
     Window l = q->internalWinId(), w = l, p, r; // target window, it's parent, root
     Window *c;
@@ -2479,7 +2489,6 @@ void QWidgetPrivate::updateFrameStrut()
     if (XTranslateCoordinates(X11->display, l, w,
                               0, 0, &transx, &transy, &p) &&
         XGetWindowAttributes(X11->display, w, &wattr)) {
-        QTLWExtra *top = topData();
         top->frameStrut.setCoords(transx,
                                   transy,
                                   wattr.width - data.crect.width() - transx,

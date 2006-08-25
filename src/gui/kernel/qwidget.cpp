@@ -915,7 +915,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     Q_UNUSED(desktopWidget);
 #endif
 
-    data.fstrut_dirty = false;
+    data.fstrut_dirty = true;
 
     data.winid = 0;
     data.widget_attributes = 0;
@@ -4881,7 +4881,6 @@ void QWidgetPrivate::show_helper()
     QAccessible::updateAccessibility(q, 0, QAccessible::ObjectShow);
 #endif
 
-    data.fstrut_dirty = true;
     data.in_show = false;  // reset qws optimization
 }
 
