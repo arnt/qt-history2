@@ -3132,11 +3132,27 @@ fi
 setBootstrapVariable()
 {
     variableRegExp="$1[^_A-Z0-9]"
-    if [ -n "$2" ]; then
-	getQMakeConf | grep "$variableRegExp" | sed 's/\+=/=/' | sed "$2" >> "$mkfile"
-    else
-	getQMakeConf | grep "$variableRegExp" | sed 's/\+=/=/' >> "$mkfile"
-    fi
+    getQMakeConf | grep "$variableRegExp" | ( [ -n "$2" ] && sed "$2" ; [ -z "$2" ] && cat ) | $AWK '
+{
+    varLength = index($0, "=") - 1
+    valStart = varLength + 2
+    if (substr($0, varLength, 1) == "+") {
+        varLength = varLength - 1
+        valStart = valStart + 1
+    }
+    var = substr($0, 0, varLength)
+    gsub("[ \t]+", "", var)
+    val = substr($0, valStart)
+    printf "%s_%s = %s\n", var, NR, val
+}
+END {
+    if (length(var) > 0) {
+        printf "%s = ", var
+        for (i = 1; i <= NR; ++i)
+            printf "$(%s_%s) ", var, i
+            printf "\n"
+    }
+}' >> "$mkfile"
 }
 
 # build qmake
