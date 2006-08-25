@@ -488,7 +488,7 @@ void QWSDisplay::Data::setMouseFilter(void (*filter)(QWSMouseEvent*))
 QWSLock* QWSDisplay::Data::clientLock = 0;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void qt_app_reinit( const QString& newAppName )
+void Q_GUI_EXPORT qt_app_reinit( const QString& newAppName )
 {
     qt_fbdpy->d->reinit( newAppName );
 }
