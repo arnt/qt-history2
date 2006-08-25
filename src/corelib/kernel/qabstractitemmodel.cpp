@@ -946,6 +946,11 @@ void QAbstractItemModelPrivate::reset()
 
     Returns the index of the item in the model specified by the given \a row,
     \a column and \a parent index.
+
+    When reimplementing this function in a subclass, call createIndex() to generate
+    model indexes that other components can use to refer to items in your model.
+
+    \sa createIndex()
 */
 
 /*!
@@ -974,8 +979,13 @@ void QAbstractItemModelPrivate::reset()
     Returns the parent of the model item with the given \a index, or QModelIndex()
     if it has no parent.
 
-    If the datastructure in the model is a tree, it is common that only indexes in
-    column 0 have children.
+    A common convention used in models that expose tree data structures is that
+    only items in the first column have children. When reimplementing this function
+    in a subclass that provides a tree model, you should return a model index
+    corresponding to an item in the first column by calling createIndex() with a
+    value of 0 for the column number.
+
+    \sa createIndex()
 */
 
 /*!
