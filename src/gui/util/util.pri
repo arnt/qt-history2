@@ -4,7 +4,8 @@ HEADERS += \
         util/qsystemtrayicon.h \
 		util/qcompleter.h \
 		util/qcompleter_p.h \
-                util/qdesktopservices.h
+                util/qdesktopservices.h \
+                util/qsystemtrayicon_p.h
 		
 SOURCES += \
         util/qsystemtrayicon.cpp \
