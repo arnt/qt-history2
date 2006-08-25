@@ -2120,11 +2120,9 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
     }
 #ifndef QT_NO_RUBBERBAND
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
-        if (!d->scene) {
-            d->rubberBanding = true;
-        } else if ((d->rubberBanding = !d->scene->itemAt(d->mousePressScenePoint))) {
+        d->rubberBanding = true;
+        if (d->scene)
             d->scene->clearSelection();
-        }
     } else
 #endif
         if (d->dragMode == QGraphicsView::ScrollHandDrag
