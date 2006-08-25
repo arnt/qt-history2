@@ -165,6 +165,25 @@ int QAccessibleItemRow::childAt(int x, int y) const
     return -1;
 }
 
+QAbstractItemView::CursorAction QAccessibleItemRow::toCursorAction(
+                                           QAccessible::Relation rel)
+{
+    switch (rel) {
+    case QAccessible::Up:
+        return QAbstractItemView::MoveUp;
+    case QAccessible::Down:
+        return QAbstractItemView::MoveDown;
+    case QAccessible::Left:
+        return QAbstractItemView::MoveLeft;
+    case QAccessible::Right:
+        return QAbstractItemView::MoveRight;
+    default:
+        Q_ASSERT(false);
+    }
+    // should never be reached.
+    return QAbstractItemView::MoveRight;
+}
+
 int QAccessibleItemRow::navigate(RelationFlag relation, int index,
                                  QAccessibleInterface **iface) const
 {
@@ -185,10 +204,38 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
         }
         return -1; }
     case Child: {
+        if (!index)
+            return -1;
         QModelIndex idx = childIndex(index);
         if (!idx.isValid())
             return -1;
         return idx.column() + 1; }
+    case Sibling:
+	if (index)
+            return navigate(Child, index, iface);
+        return -1;
+    case Up:
+    case Down:
+    case Left:
+    case Right: {
+        // This is in the "not so nice" category. In order to find out which item
+        // is geometrically around, we have to set the current index, navigate
+        // and restore the index as well as the old selection
+        QModelIndex oldIdx = view->currentIndex();
+        QModelIndex currentIndex = index ? childIndex(index) : QModelIndex(row);
+        bool oldSelection = view->selectionModel()->isSelected(currentIndex);
+        view->setCurrentIndex(currentIndex);
+        QModelIndex idx = view->moveCursor(toCursorAction(relation), Qt::NoModifier);
+        view->setCurrentIndex(oldIdx);
+        qDebug() << oldIdx << oldSelection;
+        view->selectionModel()->select(currentIndex, oldSelection ? QItemSelectionModel::Select
+                                                            : QItemSelectionModel::Deselect);
+
+        if (!idx.isValid())
+            return -1;
+        if (idx.parent() != row.parent() || idx.row() != row.row())
+            *iface = new QAccessibleItemRow(view, idx);
+        return index ? idx.column() + 1 : 0; }
     default:
         break;
     }
