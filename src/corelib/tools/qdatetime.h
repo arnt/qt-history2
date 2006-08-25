@@ -54,6 +54,7 @@ public:
     QString toString(const QString &format) const;
 #endif
     bool setYMD(int y, int m, int d);
+    bool setDate(int year, int month, int date);
 
     QDate addDays(int days) const;
     QDate addMonths(int months) const;
@@ -78,6 +79,7 @@ public:
     inline static QT3_SUPPORT bool leapYear(int year) { return isLeapYear(year); }
 #endif
 
+    // ### Qt 5: remove these two functions
     static uint gregorianToJulian(int y, int m, int d);
     static void julianToGregorian(uint jd, int &y, int &m, int &d);
 

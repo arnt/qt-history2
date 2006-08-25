@@ -21,7 +21,6 @@ public:
     tst_QDate();
     virtual ~tst_QDate();
 
-
 public slots:
     void init();
     void cleanup();
@@ -50,6 +49,8 @@ private slots:
     void fromString();
     void toString_format_data();
     void toString_format();
+    void isLeapYear();
+    void yearsZeroToNinetyNine();
 };
 
 Q_DECLARE_METATYPE(QDate)
@@ -99,7 +100,7 @@ void tst_QDate::isValid_data()
     QTest::newRow("400-years leap 2") << 2400 << 2 << 29 << 2597701U << true;
 #if QT_VERSION >= 0x040200
     QTest::newRow("400-years leap 3") << 1600 << 2 << 29 << 2305507U << true;
-    QTest::newRow("year 0") << 0 << 2 << 29 << 1721117U << true;
+    QTest::newRow("year 0") << 0 << 2 << 27 << 0U << false;
 #endif
 
     // test the number of days in months:
@@ -134,10 +135,10 @@ void tst_QDate::isValid_data()
 #if QT_VERSION >= 0x040200
     QTest::newRow("jd negative1") << -4714 << 1 << 1 << 0U << false;
     QTest::newRow("jd negative2") << -4713 << 1 << 1 << 0U << false;
-    QTest::newRow("jd negative3") << -4713 << 10 << 1 << 0U << false;
-    QTest::newRow("jd negative4") << -4713 << 11 << 1 << 0U << false;
-    QTest::newRow("jd 0") << -4713 << 11 << 24 << 0U << false;
-    QTest::newRow("jd 1") << -4713 << 11 << 25 << 1U << true;
+    QTest::newRow("jd negative3") << -4713 << 1 << 2 << 1U << true;
+    QTest::newRow("jd negative4") << -4713 << 1 << 3 << 2U << true;
+    QTest::newRow("jd 0") << -4713 << 1 << 1 << 0U << false;
+    QTest::newRow("jd 1") << -4713 << 1 << 2 << 1U << true;
     QTest::newRow("imminent overflow") << 11754508 << 12 << 13 << 4294967295U << true;
 #endif
 }
@@ -148,18 +149,11 @@ void tst_QDate::isValid()
     QFETCH(int, month);
     QFETCH(int, day);
 
-    QEXPECT_FAIL("year 0", "QDate converts years in the range 0..99 to 1900..1999", Abort);
     QTEST(QDate::isValid(year, month, day), "valid");
 
-    {
-        QDate d(year, month, day);
-        QTEST(d.isValid(), "valid");
-    }
-    {
-        QDate d;
-        d.setYMD(year, month, day);
-        QTEST(d.isValid(), "valid");
-    }
+    QDate d;
+    d.setDate(year, month, day);
+    QTEST(d.isValid(), "valid");
 }
 
 void tst_QDate::julianDay_data()
@@ -175,8 +169,8 @@ void tst_QDate::julianDay()
     QFETCH(uint, jd);
 
     {
-        QDate d(year, month, day);
-        QEXPECT_FAIL("year 0", "QDate converts years in the range 0..99 to 1900..1999", Abort);
+        QDate d;
+        d.setDate(year, month, day);
         QCOMPARE(uint(d.toJulianDay()), jd);
     }
 
@@ -597,6 +591,117 @@ void tst_QDate::toString_format()
     QFETCH( QString, str );
 
     QCOMPARE( t.toString( format ), str );
+}
+
+void tst_QDate::isLeapYear()
+{
+    QVERIFY(QDate::isLeapYear(-4444));
+    QVERIFY(!QDate::isLeapYear(-4443));
+    QVERIFY(QDate::isLeapYear(-8));
+    QVERIFY(!QDate::isLeapYear(-7));
+    QVERIFY(QDate::isLeapYear(-4));
+    QVERIFY(!QDate::isLeapYear(-3));
+    QVERIFY(!QDate::isLeapYear(-2));
+    QVERIFY(!QDate::isLeapYear(-1));
+    QVERIFY(!QDate::isLeapYear(1));
+    QVERIFY(!QDate::isLeapYear(1));
+    QVERIFY(!QDate::isLeapYear(1));
+    QVERIFY(QDate::isLeapYear(4));
+    QVERIFY(!QDate::isLeapYear(7));
+    QVERIFY(QDate::isLeapYear(8));
+    QVERIFY(QDate::isLeapYear(100));
+    QVERIFY(QDate::isLeapYear(400));
+    QVERIFY(QDate::isLeapYear(700));
+    QVERIFY(QDate::isLeapYear(1500));
+    QVERIFY(QDate::isLeapYear(1600));
+    QVERIFY(!QDate::isLeapYear(1700));
+    QVERIFY(!QDate::isLeapYear(1800));
+    QVERIFY(!QDate::isLeapYear(1900));
+    QVERIFY(QDate::isLeapYear(2000));
+    QVERIFY(!QDate::isLeapYear(2100));
+    QVERIFY(!QDate::isLeapYear(2200));
+    QVERIFY(!QDate::isLeapYear(2300));
+    QVERIFY(QDate::isLeapYear(2400));
+    QVERIFY(!QDate::isLeapYear(2500));
+    QVERIFY(!QDate::isLeapYear(2600));
+    QVERIFY(!QDate::isLeapYear(2700));
+    QVERIFY(QDate::isLeapYear(2800));
+
+    for (int i = -4713; i <= 10000; ++i) {
+        if (i == 0)
+            continue;
+        QVERIFY(!QDate(i, 2, 29).isValid() == !QDate::isLeapYear(i));
+    }
+}
+
+void tst_QDate::yearsZeroToNinetyNine()
+{
+    {
+        QDate dt(-1, 2, 3);
+        QCOMPARE(dt.year(), -1);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt(0, 2, 3);
+        QCOMPARE(dt.year(), 1900);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt(1, 2, 3);
+        QCOMPARE(dt.year(), 1901);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt(98, 2, 3);
+        QCOMPARE(dt.year(), 1998);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt(99, 2, 3);
+        QCOMPARE(dt.year(), 1999);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt(100, 2, 3);
+        QCOMPARE(dt.year(), 100);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    QVERIFY(!QDate::isValid(0, 2, 3));
+
+    QVERIFY(QDate::isValid(1, 2, 3));
+    QVERIFY(QDate::isValid(-1, 2, 3));
+
+    {
+        QDate dt;
+        dt.setYMD(1, 2, 3);
+        QCOMPARE(dt.year(), 1901);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+    }
+
+    {
+        QDate dt;
+        dt.setDate(1, 2, 3);
+        QCOMPARE(dt.year(), 1);
+        QCOMPARE(dt.month(), 2);
+        QCOMPARE(dt.day(), 3);
+
+        dt.setDate(0, 2, 3);
+        QVERIFY(!dt.isValid());
+    }
+
 }
 
 QTEST_APPLESS_MAIN(tst_QDate)
