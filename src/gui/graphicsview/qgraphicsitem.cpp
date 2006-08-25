@@ -615,6 +615,10 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
             d_ptr->setAncestorHandlesChildEvents(parent->handlesChildEvents()
                                              || parent->d_func()->ancestorHandlesChildEvents);
         }
+    } else {
+        // Item is a top-level; clear the ancestor event handling flag
+        d_ptr->setAncestorHandlesChildEvents(false);
+        addToIndex();
     }
 }
 
