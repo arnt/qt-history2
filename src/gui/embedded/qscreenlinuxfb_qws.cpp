@@ -94,9 +94,13 @@ void QLinuxFbScreenPrivate::openTty()
 
     if (doGraphicsMode) {
         ioctl(ttyfd, KDGETMODE, &oldKdMode);
-        if (oldKdMode != KD_GRAPHICS)
-            ioctl(ttyfd, KDSETMODE, KD_GRAPHICS);
-    } else {
+        if (oldKdMode != KD_GRAPHICS) {
+            int ret = ioctl(ttyfd, KDSETMODE, KD_GRAPHICS);
+            if (ret == -1)
+                doGraphicsMode = false;
+        }
+    }
+    if (!doGraphicsMode) {
         // No blankin' screen, no blinkin' cursor!, no cursor!
         const char termctl[] = "\033[9;0]\033[?33l\033[?25l\033[?1c";
         ::write(ttyfd, termctl, sizeof(termctl));
