@@ -1300,13 +1300,17 @@ void tst_QStandardItemModel::useCase3()
 
     // take the item, make sure model is set to 0, but that parents are the same
     childItem = model.takeItem(0);
-    parentItem = 0;
-    while (childItem) {
-        QCOMPARE(childItem->model(), static_cast<QStandardItemModel*>(0));
-        QCOMPARE(childItem->parent(), parentItem);
-        parentItem = childItem;
-        childItem = childItem->child(0);
+    {
+        parentItem = 0;
+        QStandardItem *item = childItem;
+        while (item) {
+            QCOMPARE(item->model(), static_cast<QStandardItemModel*>(0));
+            QCOMPARE(item->parent(), parentItem);
+            parentItem = item;
+            item = item->child(0);
+        }
     }
+    delete childItem;
 }
 
 #endif // QT_VERSION >= 0x040200
