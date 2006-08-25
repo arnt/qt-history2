@@ -640,7 +640,7 @@ bool MessageModel::save(const QString &fileName)
 {
     MetaTranslator tor;
     MessageItem *m;
-    for (iterator it = begin(); m = it.current(); ++it) {
+    for (iterator it = begin(); (m = it.current()); ++it) {
         tor.insert(m->message());
     }
     QLocale locale(m_language, m_country);
@@ -679,7 +679,7 @@ bool MessageModel::release(QIODevice *iod,
     MessageItem *m;
     QLocale locale(m_language, m_country);
     tor.setLanguageCode(locale.name());
-    for (MessageModel::iterator it = begin() ; m = it.current() ; ++it) {
+    for (MessageModel::iterator it = begin() ; (m = it.current()) ; ++it) {
         tor.insert(m->message());
     }
     return tor.release(iod, verbose, ignoreUnfinished, mode);
@@ -736,7 +736,7 @@ void MessageModel::updateStatistics()
     int trC = 0;
     int trCS = 0;
 
-    for (MessageModel::iterator it = begin(); mi = it.current(); ++it) {
+    for (MessageModel::iterator it = begin(); (mi = it.current()); ++it) {
         if (mi->finished() && !(mi->message().type() == MetaTranslatorMessage::Obsolete))
             doCharCounting(mi->translation(), trW, trC, trCS);
     }

@@ -109,6 +109,7 @@ Qt::Orientation QDesignerActionProvider::orientation() const
     if (QToolBar *toolBar = qobject_cast<QToolBar*>(m_widget)) {
         return toolBar->orientation();
     } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(m_widget)) {
+        Q_UNUSED(menuBar);
         return Qt::Horizontal;
     }
 

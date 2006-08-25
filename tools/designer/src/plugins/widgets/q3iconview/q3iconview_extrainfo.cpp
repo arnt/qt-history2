@@ -100,6 +100,7 @@ bool Q3IconViewExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
 {
     Q3IconView *iconView = qobject_cast<Q3IconView*>(widget());
     Q_ASSERT(iconView != 0);
+    Q_UNUSED(iconView);
 
     if (ui_widget->elementItem().size()) {
         initializeQ3IconViewItems(ui_widget->elementItem());

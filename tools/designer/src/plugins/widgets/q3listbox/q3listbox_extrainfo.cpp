@@ -54,7 +54,7 @@ bool Q3ListBoxExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3ListBox *listBox = qobject_cast<Q3ListBox*>(widget());
     Q_ASSERT(listBox != 0);
-
+    Q_UNUSED(listBox);
     return true;
 }
 
@@ -64,6 +64,7 @@ bool Q3ListBoxExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3ListBox *listBox = qobject_cast<Q3ListBox*>(widget());
     Q_ASSERT(listBox != 0);
+    Q_UNUSED(listBox);
     return true;
 }
 

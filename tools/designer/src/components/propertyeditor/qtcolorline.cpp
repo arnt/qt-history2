@@ -548,7 +548,7 @@ QPointF QtColorLinePrivate::pointFromColor(const QColor &color) const
     else
         hue *= 36000.0 / 35999.0;
 
-    double pos;
+    double pos = 0.0;
     switch (m_component) {
         case QtColorLine::Red:
             pos = color.redF();

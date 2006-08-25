@@ -157,6 +157,7 @@ void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, c
 {
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
     Q_ASSERT(sheet);
+    Q_UNUSED(sheet);
 
     SetPropertyCommand *cmd = new SetPropertyCommand(m_formWindow);
     cmd->init(widget, name, value);
@@ -167,6 +168,7 @@ void FormWindowCursor::resetWidgetProperty(QWidget *widget, const QString &name)
 {
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_formWindow->core()->extensionManager(), widget);
     Q_ASSERT(sheet);
+    Q_UNUSED(sheet);
 
     ResetPropertyCommand *cmd = new ResetPropertyCommand(m_formWindow);
     cmd->init(widget, name);

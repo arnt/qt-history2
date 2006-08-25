@@ -54,7 +54,7 @@ bool Q3TableExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3Table *table = qobject_cast<Q3Table*>(widget());
     Q_ASSERT(table != 0);
-
+    Q_UNUSED(table);
     return true;
 }
 
@@ -64,6 +64,7 @@ bool Q3TableExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3Table *table = qobject_cast<Q3Table*>(widget());
     Q_ASSERT(table != 0);
+    Q_UNUSED(table);
     return true;
 }
 

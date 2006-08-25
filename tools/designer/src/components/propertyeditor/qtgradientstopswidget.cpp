@@ -442,8 +442,8 @@ void QtGradientStopsWidget::mouseMoveEvent(QMouseEvent *e)
         return;
 
     if (!d_ptr->m_dragStops.isEmpty()) {
-        double maxOffset;
-        double minOffset;
+        double maxOffset = 0.0;
+        double minOffset = 0.0;
         bool first = true;
         QMap<QtGradientStop *, double>::ConstIterator itStop = d_ptr->m_dragStops.constBegin();
         while (itStop != d_ptr->m_dragStops.constEnd()) {

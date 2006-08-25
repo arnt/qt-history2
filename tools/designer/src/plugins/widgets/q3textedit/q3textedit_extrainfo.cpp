@@ -54,7 +54,7 @@ bool Q3TextEditExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3TextEdit *textEdit = qobject_cast<Q3TextEdit*>(widget());
     Q_ASSERT(textEdit != 0);
-
+    Q_UNUSED(textEdit);
     return true;
 }
 
@@ -64,6 +64,7 @@ bool Q3TextEditExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
 
     Q3TextEdit *textEdit = qobject_cast<Q3TextEdit*>(widget());
     Q_ASSERT(textEdit != 0);
+    Q_UNUSED(textEdit);
     return true;
 }
 

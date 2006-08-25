@@ -295,7 +295,7 @@ void TrWindow::openFile( const QString& name )
     }
 
     MessageItem *m;
-    for (MessageModel::iterator it = cmdl->begin() ; m = it.current() ; ++it) {
+    for (MessageModel::iterator it = cmdl->begin() ; (m = it.current()) ; ++it) {
         updateDanger(m);
     }
 
@@ -1196,7 +1196,7 @@ bool TrWindow::setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished)
     if (currentIndex->isValid()) {
         QModelIndex idx = *currentIndex;
         do {
-            int row;
+            int row = -1;
             QModelIndex par = idx.parent();
             if (par.isValid()) {
                 row = idx.row() - 1;

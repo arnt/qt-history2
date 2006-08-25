@@ -54,6 +54,7 @@ InPlaceEditor::~InPlaceEditor()
 bool InPlaceEditor::eventFilter(QObject *object, QEvent *e)
 {
     Q_ASSERT(object == m_widget);
+    Q_UNUSED(object);
 
     if (e->type() == QEvent::Resize) {
         QResizeEvent *event = static_cast<QResizeEvent*>(e);
