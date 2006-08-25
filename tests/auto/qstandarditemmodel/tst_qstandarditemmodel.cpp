@@ -100,7 +100,7 @@ private slots:
 #endif
 
 private:
-    QAbstractItemModel *model;
+    QAbstractItemModel *m_model;
     QPersistentModelIndex persistent;
     QVector<QModelIndex> rcParent;
     QVector<int> rcFirst;
@@ -116,7 +116,7 @@ Q_DECLARE_METATYPE(QStandardItem*)
 Q_DECLARE_METATYPE(Qt::Orientation)
 Q_DECLARE_METATYPE(QVariantList)
 
-tst_QStandardItemModel::tst_QStandardItemModel() : model(0), rcParent(8), rcFirst(8,0), rcLast(8,0)
+tst_QStandardItemModel::tst_QStandardItemModel() : m_model(0), rcParent(8), rcFirst(8,0), rcLast(8,0)
 {
 }
 
@@ -142,23 +142,23 @@ void tst_QStandardItemModel::init()
 #endif
     qRegisterMetaType<Qt::Orientation>("Qt::Orientation");
 
-    model = new QStandardItemModel(defaultSize, defaultSize);
-    connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
+    m_model = new QStandardItemModel(defaultSize, defaultSize);
+    connect(m_model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
             this, SLOT(rowsAboutToBeInserted(QModelIndex, int, int)));
-    connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
             this, SLOT(rowsInserted(QModelIndex, int, int)));
-    connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
             this, SLOT(rowsAboutToBeRemoved(QModelIndex, int, int)));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
             this, SLOT(rowsRemoved(QModelIndex, int, int)));
 
-    connect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
             this, SLOT(columnsAboutToBeInserted(QModelIndex, int, int)));
-    connect(model, SIGNAL(columnsInserted(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(columnsInserted(QModelIndex, int, int)),
             this, SLOT(columnsInserted(QModelIndex, int, int)));
-    connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
             this, SLOT(columnsAboutToBeRemoved(QModelIndex, int, int)));
-    connect(model, SIGNAL(columnsRemoved(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(columnsRemoved(QModelIndex, int, int)),
             this, SLOT(columnsRemoved(QModelIndex, int, int)));
 
     rcFirst.fill(-1);
@@ -167,25 +167,25 @@ void tst_QStandardItemModel::init()
 
 void tst_QStandardItemModel::cleanup()
 {
-    disconnect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)),
                this, SLOT(rowsAboutToBeInserted(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(rowsInserted(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
                this, SLOT(rowsInserted(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)),
                this, SLOT(rowsAboutToBeRemoved(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
                this, SLOT(rowsRemoved(QModelIndex, int, int)));
 
-    disconnect(model, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
                this, SLOT(columnsAboutToBeInserted(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(columnsInserted(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(columnsInserted(QModelIndex, int, int)),
                this, SLOT(columnsInserted(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
                this, SLOT(columnsAboutToBeRemoved(QModelIndex, int, int)));
-    disconnect(model, SIGNAL(columnsRemoved(QModelIndex, int, int)),
+    disconnect(m_model, SIGNAL(columnsRemoved(QModelIndex, int, int)),
                this, SLOT(columnsRemoved(QModelIndex, int, int)));
-    delete model;
-    model = 0;
+    delete m_model;
+    m_model = 0;
 }
 
 void tst_QStandardItemModel::insertRow_data()
@@ -207,17 +207,17 @@ void tst_QStandardItemModel::insertRow()
 
     QIcon icon;
     // default all initial items to DisplayRole: "initalitem"
-    for (int r=0; r < model->rowCount(); ++r) {
-        for (int c=0; c < model->columnCount(); ++c) {
-            model->setData(model->index(r,c), "initialitem", Qt::DisplayRole);
+    for (int r=0; r < m_model->rowCount(); ++r) {
+        for (int c=0; c < m_model->columnCount(); ++c) {
+            m_model->setData(m_model->index(r,c), "initialitem", Qt::DisplayRole);
         }
     }
 
     // check that inserts changes rowCount
-    QCOMPARE(model->rowCount(), defaultSize);
-    model->insertRow(insertRow);
+    QCOMPARE(m_model->rowCount(), defaultSize);
+    m_model->insertRow(insertRow);
     if (insertRow >= 0 && insertRow <= defaultSize) {
-        QCOMPARE(model->rowCount(), defaultSize + 1);
+        QCOMPARE(m_model->rowCount(), defaultSize + 1);
 
         // check that signals were emitted with correct info
         QCOMPARE(rcFirst[RowsAboutToBeInserted], expectedRow);
@@ -226,10 +226,10 @@ void tst_QStandardItemModel::insertRow()
         QCOMPARE(rcLast[RowsInserted], expectedRow);
 
         //check that the inserted item has different DisplayRole than initial items
-        QVERIFY(model->data(model->index(expectedRow, 0), Qt::DisplayRole).toString() != "initialitem");
+        QVERIFY(m_model->data(m_model->index(expectedRow, 0), Qt::DisplayRole).toString() != "initialitem");
     } else {
         // We inserted something outside the bounds, do nothing
-        QCOMPARE(model->rowCount(), defaultSize);
+        QCOMPARE(m_model->rowCount(), defaultSize);
         QCOMPARE(rcFirst[RowsAboutToBeInserted], -1);
         QCOMPARE(rcLast[RowsAboutToBeInserted], -1);
         QCOMPARE(rcFirst[RowsInserted], -1);
@@ -239,43 +239,43 @@ void tst_QStandardItemModel::insertRow()
 
 void tst_QStandardItemModel::insertRows()
 {
-    int rowCount = model->rowCount();
+    int rowCount = m_model->rowCount();
     QCOMPARE(rowCount, defaultSize);
 
     // insert custom header label
     QString headerLabel = "custom";
-    model->setHeaderData(0, Qt::Vertical, headerLabel);
+    m_model->setHeaderData(0, Qt::Vertical, headerLabel);
 
     // insert one row
-    model->insertRows(0, 1);
-    QCOMPARE(model->rowCount(), rowCount + 1);
-    rowCount = model->rowCount();
+    m_model->insertRows(0, 1);
+    QCOMPARE(m_model->rowCount(), rowCount + 1);
+    rowCount = m_model->rowCount();
 
     // check header data has moved
-    QCOMPARE(model->headerData(1, Qt::Vertical).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(1, Qt::Vertical).toString(), headerLabel);
 
     // insert two rows
-    model->insertRows(0, 2);
-    QCOMPARE(model->rowCount(), rowCount + 2);
+    m_model->insertRows(0, 2);
+    QCOMPARE(m_model->rowCount(), rowCount + 2);
 
     // check header data has moved
-    QCOMPARE(model->headerData(3, Qt::Vertical).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(3, Qt::Vertical).toString(), headerLabel);
 }
 
 void tst_QStandardItemModel::insertRowInHierarcy()
 {
-    QVERIFY(model->insertRows(0, 1, QModelIndex()));
-    QVERIFY(model->insertColumns(0, 1, QModelIndex()));
-    QVERIFY(model->hasIndex(0, 0, QModelIndex()));
+    QVERIFY(m_model->insertRows(0, 1, QModelIndex()));
+    QVERIFY(m_model->insertColumns(0, 1, QModelIndex()));
+    QVERIFY(m_model->hasIndex(0, 0, QModelIndex()));
 
-    QModelIndex parent = model->index(0, 0, QModelIndex());
+    QModelIndex parent = m_model->index(0, 0, QModelIndex());
     QVERIFY(parent.isValid());
 
-    QVERIFY(model->insertRows(0, 1, parent));
-    QVERIFY(model->insertColumns(0, 1, parent));
-    QVERIFY(model->hasIndex(0, 0, parent));
+    QVERIFY(m_model->insertRows(0, 1, parent));
+    QVERIFY(m_model->insertColumns(0, 1, parent));
+    QVERIFY(m_model->hasIndex(0, 0, parent));
 
-    QModelIndex child = model->index(0, 0, parent);
+    QModelIndex child = m_model->index(0, 0, parent);
     QVERIFY(child.isValid());
 }
 
@@ -297,17 +297,17 @@ void tst_QStandardItemModel::insertColumn()
     QFETCH(int, expectedColumn);
 
     // default all initial items to DisplayRole: "initalitem"
-    for (int r=0; r < model->rowCount(); ++r) {
-        for (int c=0; c < model->columnCount(); ++c) {
-            model->setData(model->index(r,c), "initialitem", Qt::DisplayRole);
+    for (int r=0; r < m_model->rowCount(); ++r) {
+        for (int c=0; c < m_model->columnCount(); ++c) {
+            m_model->setData(m_model->index(r,c), "initialitem", Qt::DisplayRole);
         }
     }
 
     // check that inserts changes columnCount
-    QCOMPARE(model->columnCount(), defaultSize);
-    model->insertColumn(insertColumn);
+    QCOMPARE(m_model->columnCount(), defaultSize);
+    m_model->insertColumn(insertColumn);
     if (insertColumn >= 0 && insertColumn <= defaultSize) {
-        QCOMPARE(model->columnCount(), defaultSize +  1);
+        QCOMPARE(m_model->columnCount(), defaultSize +  1);
         // check that signals were emitted with correct info
         QCOMPARE(rcFirst[ColumnsAboutToBeInserted], expectedColumn);
         QCOMPARE(rcLast[ColumnsAboutToBeInserted], expectedColumn);
@@ -315,10 +315,10 @@ void tst_QStandardItemModel::insertColumn()
         QCOMPARE(rcLast[ColumnsInserted], expectedColumn);
 
         //check that the inserted item has different DisplayRole than initial items
-        QVERIFY(model->data(model->index(0, expectedColumn), Qt::DisplayRole).toString() != "initialitem");
+        QVERIFY(m_model->data(m_model->index(0, expectedColumn), Qt::DisplayRole).toString() != "initialitem");
     } else {
         // We inserted something outside the bounds, do nothing
-        QCOMPARE(model->columnCount(), defaultSize);
+        QCOMPARE(m_model->columnCount(), defaultSize);
         QCOMPARE(rcFirst[ColumnsAboutToBeInserted], -1);
         QCOMPARE(rcLast[ColumnsAboutToBeInserted], -1);
         QCOMPARE(rcFirst[ColumnsInserted], -1);
@@ -329,71 +329,71 @@ void tst_QStandardItemModel::insertColumn()
 
 void tst_QStandardItemModel::insertColumns()
 {
-    int columnCount = model->columnCount();
+    int columnCount = m_model->columnCount();
     QCOMPARE(columnCount, defaultSize);
 
     // insert custom header label
     QString headerLabel = "custom";
-    model->setHeaderData(0, Qt::Horizontal, headerLabel);
+    m_model->setHeaderData(0, Qt::Horizontal, headerLabel);
 
     // insert one column
-    model->insertColumns(0, 1);
-    QCOMPARE(model->columnCount(), columnCount + 1);
-    columnCount = model->columnCount();
+    m_model->insertColumns(0, 1);
+    QCOMPARE(m_model->columnCount(), columnCount + 1);
+    columnCount = m_model->columnCount();
 
     // check header data has moved
-    QCOMPARE(model->headerData(1, Qt::Horizontal).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(1, Qt::Horizontal).toString(), headerLabel);
 
     // insert two columns
-    model->insertColumns(0, 2);
-    QCOMPARE(model->columnCount(), columnCount + 2);
+    m_model->insertColumns(0, 2);
+    QCOMPARE(m_model->columnCount(), columnCount + 2);
 
     // check header data has moved
-    QCOMPARE(model->headerData(3, Qt::Horizontal).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(3, Qt::Horizontal).toString(), headerLabel);
 }
 
 void tst_QStandardItemModel::removeRows()
 {
-    int rowCount = model->rowCount();
+    int rowCount = m_model->rowCount();
     QCOMPARE(rowCount, defaultSize);
 
     // insert custom header label
     QString headerLabel = "custom";
-    model->setHeaderData(rowCount - 1, Qt::Vertical, headerLabel);
+    m_model->setHeaderData(rowCount - 1, Qt::Vertical, headerLabel);
 
     // remove one row
-    model->removeRows(0, 1);
-    QCOMPARE(model->rowCount(), rowCount - 1);
-    rowCount = model->rowCount();
+    m_model->removeRows(0, 1);
+    QCOMPARE(m_model->rowCount(), rowCount - 1);
+    rowCount = m_model->rowCount();
 
     // check header data has moved
-    QCOMPARE(model->headerData(rowCount - 1, Qt::Vertical).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(rowCount - 1, Qt::Vertical).toString(), headerLabel);
 
     // remove two rows
-    model->removeRows(0, 2);
-    QCOMPARE(model->rowCount(), rowCount - 2);
+    m_model->removeRows(0, 2);
+    QCOMPARE(m_model->rowCount(), rowCount - 2);
 }
 
 void tst_QStandardItemModel::removeColumns()
 {
-    int columnCount = model->columnCount();
+    int columnCount = m_model->columnCount();
     QCOMPARE(columnCount, defaultSize);
 
     // insert custom header label
     QString headerLabel = "custom";
-    model->setHeaderData(columnCount - 1, Qt::Horizontal, headerLabel);
+    m_model->setHeaderData(columnCount - 1, Qt::Horizontal, headerLabel);
 
     // remove one column
-    model->removeColumns(0, 1);
-    QCOMPARE(model->columnCount(), columnCount - 1);
-    columnCount = model->columnCount();
+    m_model->removeColumns(0, 1);
+    QCOMPARE(m_model->columnCount(), columnCount - 1);
+    columnCount = m_model->columnCount();
 
     // check header data has moved
-    QCOMPARE(model->headerData(columnCount - 1, Qt::Horizontal).toString(), headerLabel);
+    QCOMPARE(m_model->headerData(columnCount - 1, Qt::Horizontal).toString(), headerLabel);
 
     // remove two columns
-    model->removeColumns(0, 2);
-    QCOMPARE(model->columnCount(), columnCount - 2);
+    m_model->removeColumns(0, 2);
+    QCOMPARE(m_model->columnCount(), columnCount - 2);
 }
 
 
@@ -401,52 +401,52 @@ void tst_QStandardItemModel::setHeaderData()
 {
     for (int x = 0; x < 2; ++x) {
         bool vertical = (x == 0);
-        int count = vertical ? model->rowCount() : model->columnCount();
+        int count = vertical ? m_model->rowCount() : m_model->columnCount();
         QCOMPARE(count, defaultSize);
         Qt::Orientation orient = vertical ? Qt::Vertical : Qt::Horizontal;
 
         // check default values are ok
         for (int i = 0; i < count; ++i)
-            QCOMPARE(model->headerData(i, orient).toString(), QString::number(i + 1));
+            QCOMPARE(m_model->headerData(i, orient).toString(), QString::number(i + 1));
 
         QSignalSpy headerDataChangedSpy(
-            model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+            m_model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
         QSignalSpy dataChangedSpy(
-            model, SIGNAL(dataChanged(QModelIndex, QModelIndex)));
+            m_model, SIGNAL(dataChanged(QModelIndex, QModelIndex)));
         // insert custom values and check
         for (int i = 0; i < count; ++i) {
             QString customString = QString("custom") + QString::number(i);
-            QCOMPARE(model->setHeaderData(i, orient, customString), true);
+            QCOMPARE(m_model->setHeaderData(i, orient, customString), true);
             QCOMPARE(headerDataChangedSpy.count(), 1);
             QCOMPARE(dataChangedSpy.count(), 0);
             QVariantList args = headerDataChangedSpy.takeFirst();
             QCOMPARE(qvariant_cast<Qt::Orientation>(args.at(0)), orient);
             QCOMPARE(args.at(1).toInt(), i);
             QCOMPARE(args.at(2).toInt(), i);
-            QCOMPARE(model->headerData(i, orient).toString(), customString);
-            QCOMPARE(model->setHeaderData(i, orient, customString), true);
+            QCOMPARE(m_model->headerData(i, orient).toString(), customString);
+            QCOMPARE(m_model->setHeaderData(i, orient, customString), true);
             QCOMPARE(headerDataChangedSpy.count(), 0);
             QCOMPARE(dataChangedSpy.count(), 0);
         }
 
         //check read from invalid sections
-        QVERIFY(!model->headerData(count, orient).isValid());
-        QVERIFY(!model->headerData(-1, orient).isValid());
+        QVERIFY(!m_model->headerData(count, orient).isValid());
+        QVERIFY(!m_model->headerData(-1, orient).isValid());
         //check write to invalid section
-        QCOMPARE(model->setHeaderData(count, orient, "foo"), false);
-        QCOMPARE(model->setHeaderData(-1, orient, "foo"), false);
-        QVERIFY(!model->headerData(count, orient).isValid());
-        QVERIFY(!model->headerData(-1, orient).isValid());
+        QCOMPARE(m_model->setHeaderData(count, orient, "foo"), false);
+        QCOMPARE(m_model->setHeaderData(-1, orient, "foo"), false);
+        QVERIFY(!m_model->headerData(count, orient).isValid());
+        QVERIFY(!m_model->headerData(-1, orient).isValid());
     }
 }
 
 void tst_QStandardItemModel::persistentIndexes()
 {
-    QCOMPARE(model->rowCount(), defaultSize);
-    QCOMPARE(model->columnCount(), defaultSize);
+    QCOMPARE(m_model->rowCount(), defaultSize);
+    QCOMPARE(m_model->columnCount(), defaultSize);
 
     // create a persisten index at 0,0
-    QPersistentModelIndex persistentIndex(model->index(0, 0));
+    QPersistentModelIndex persistentIndex(m_model->index(0, 0));
 
     // verify it is ok and at the correct spot
     QVERIFY(persistentIndex.isValid());
@@ -454,61 +454,61 @@ void tst_QStandardItemModel::persistentIndexes()
     QCOMPARE(persistentIndex.column(), 0);
 
     // insert row and check that the persisten index has moved
-    QVERIFY(model->insertRow(0));
+    QVERIFY(m_model->insertRow(0));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 0);
 
     // insert row after the persisten index and see that it stays the same
-    QVERIFY(model->insertRow(model->rowCount()));
+    QVERIFY(m_model->insertRow(m_model->rowCount()));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 0);
 
     // insert column and check that the persisten index has moved
-    QVERIFY(model->insertColumn(0));
+    QVERIFY(m_model->insertColumn(0));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 1);
 
     // insert column after the persisten index and see that it stays the same
-    QVERIFY(model->insertColumn(model->columnCount()));
+    QVERIFY(m_model->insertColumn(m_model->columnCount()));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 1);
 
     // removes a row beyond the persistent index and see it stays the same
-    QVERIFY(model->removeRow(model->rowCount() - 1));
+    QVERIFY(m_model->removeRow(m_model->rowCount() - 1));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 1);
 
     // removes a column beyond the persistent index and see it stays the same
-    QVERIFY(model->removeColumn(model->columnCount() - 1));
+    QVERIFY(m_model->removeColumn(m_model->columnCount() - 1));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 1);
     QCOMPARE(persistentIndex.column(), 1);
 
     // removes a row before the persistent index and see it moves the same
-    QVERIFY(model->removeRow(0));
+    QVERIFY(m_model->removeRow(0));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 0);
     QCOMPARE(persistentIndex.column(), 1);
 
     // removes a column before the persistent index and see it moves the same
-    QVERIFY(model->removeColumn(0));
+    QVERIFY(m_model->removeColumn(0));
     QVERIFY(persistentIndex.isValid());
     QCOMPARE(persistentIndex.row(), 0);
     QCOMPARE(persistentIndex.column(), 0);
 
     // remove the row where the persistent index is, and see that it becomes invalid
-    QVERIFY(model->removeRow(0));
+    QVERIFY(m_model->removeRow(0));
     QVERIFY(!persistentIndex.isValid());
 
     // remove the row where the persistent index is, and see that it becomes invalid
-    persistentIndex = model->index(0, 0);
+    persistentIndex = m_model->index(0, 0);
     QVERIFY(persistentIndex.isValid());
-    QVERIFY(model->removeColumn(0));
+    QVERIFY(m_model->removeColumn(0));
     QVERIFY(!persistentIndex.isValid());
 }
 
@@ -525,81 +525,81 @@ void tst_QStandardItemModel::checkRemoved()
 void tst_QStandardItemModel::removingPersistentIndexes()
 {
     // add 10 rows and columns to model to make it big enough
-    QVERIFY(model->insertRows(0, 10));
-    QVERIFY(model->insertColumns(0, 10));
+    QVERIFY(m_model->insertRows(0, 10));
+    QVERIFY(m_model->insertColumns(0, 10));
 
-    QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::connect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                      this, SLOT(checkAboutToBeRemoved()));
-    QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+    QObject::connect(m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                      this, SLOT(checkRemoved()));
-    QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::connect(m_model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                      this, SLOT(checkAboutToBeRemoved()));
-    QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+    QObject::connect(m_model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                      this, SLOT(checkRemoved()));
 
 
     // test removeRow
     // add child table 3x3 to parent index(0, 0)
-    QVERIFY(model->insertRows(0, 3, model->index(0, 0)));
-    QVERIFY(model->insertColumns(0, 3, model->index(0, 0)));
+    QVERIFY(m_model->insertRows(0, 3, m_model->index(0, 0)));
+    QVERIFY(m_model->insertColumns(0, 3, m_model->index(0, 0)));
 
     // set child to persistent and delete parent row
-    persistent = model->index(0, 0, model->index(0, 0));
+    persistent = m_model->index(0, 0, m_model->index(0, 0));
     QVERIFY(persistent.isValid());
-    QVERIFY(model->removeRow(0));
+    QVERIFY(m_model->removeRow(0));
 
     // set persistent to index(0, 0) and remove that row
-    persistent = model->index(0, 0);
+    persistent = m_model->index(0, 0);
     QVERIFY(persistent.isValid());
-    QVERIFY(model->removeRow(0));
+    QVERIFY(m_model->removeRow(0));
 
 
     // test removeColumn
     // add child table 3x3 to parent index (0, 0)
-    QVERIFY(model->insertRows(0, 3, model->index(0, 0)));
-    QVERIFY(model->insertColumns(0, 3, model->index(0, 0)));
+    QVERIFY(m_model->insertRows(0, 3, m_model->index(0, 0)));
+    QVERIFY(m_model->insertColumns(0, 3, m_model->index(0, 0)));
 
     // set child to persistent and delete parent column
-    persistent = model->index(0, 0, model->index(0, 0));
+    persistent = m_model->index(0, 0, m_model->index(0, 0));
     QVERIFY(persistent.isValid());
-    QVERIFY(model->removeColumn(0));
+    QVERIFY(m_model->removeColumn(0));
 
     // set persistent to index(0, 0) and remove that column
-    persistent = model->index(0, 0);
+    persistent = m_model->index(0, 0);
     QVERIFY(persistent.isValid());
-    QVERIFY(model->removeColumn(0));
+    QVERIFY(m_model->removeColumn(0));
 
 
-    QObject::disconnect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::disconnect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                         this, SLOT(checkAboutToBeRemoved()));
-    QObject::disconnect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+    QObject::disconnect(m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                         this, SLOT(checkRemoved()));
-    QObject::disconnect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::disconnect(m_model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                         this, SLOT(checkAboutToBeRemoved()));
-    QObject::disconnect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+    QObject::disconnect(m_model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                         this, SLOT(checkRemoved()));
 }
 
 void tst_QStandardItemModel::updateRowAboutToBeRemoved()
 {
-    QModelIndex idx = model->index(0, 0);
+    QModelIndex idx = m_model->index(0, 0);
     QVERIFY(idx.isValid());
     persistent = idx;
 }
 
 void tst_QStandardItemModel::updatingPersistentIndexes()
 {
-    QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::connect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                      this, SLOT(updateRowAboutToBeRemoved()));
 
-    persistent = model->index(1, 0);
+    persistent = m_model->index(1, 0);
     QVERIFY(persistent.isValid());
-    QVERIFY(model->removeRow(1));
+    QVERIFY(m_model->removeRow(1));
     QVERIFY(persistent.isValid());
-    QPersistentModelIndex tmp = model->index(0, 0);
+    QPersistentModelIndex tmp = m_model->index(0, 0);
     QCOMPARE(persistent, tmp);
 
-    QObject::disconnect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+    QObject::disconnect(m_model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                         this, SLOT(updateRowAboutToBeRemoved()));
 }
 
@@ -666,19 +666,19 @@ void tst_QStandardItemModel::checkChildren()
 void tst_QStandardItemModel::data()
 {
     // bad args
-    model->setData(QModelIndex(), "bla", Qt::DisplayRole);
+    m_model->setData(QModelIndex(), "bla", Qt::DisplayRole);
 
     QIcon icon;
-    for (int r=0; r < model->rowCount(); ++r) {
-        for (int c=0; c < model->columnCount(); ++c) {
-            model->setData(model->index(r,c), "initialitem", Qt::DisplayRole);
-            model->setData(model->index(r,c), "tooltip", Qt::ToolTipRole);
-            model->setData(model->index(r,c), icon, Qt::DecorationRole);
+    for (int r=0; r < m_model->rowCount(); ++r) {
+        for (int c=0; c < m_model->columnCount(); ++c) {
+            m_model->setData(m_model->index(r,c), "initialitem", Qt::DisplayRole);
+            m_model->setData(m_model->index(r,c), "tooltip", Qt::ToolTipRole);
+            m_model->setData(m_model->index(r,c), icon, Qt::DecorationRole);
         }
     }
 
-    QVERIFY(model->data(model->index(0, 0), Qt::DisplayRole).toString() == "initialitem");
-    QVERIFY(model->data(model->index(0, 0), Qt::ToolTipRole).toString() == "tooltip");
+    QVERIFY(m_model->data(m_model->index(0, 0), Qt::DisplayRole).toString() == "initialitem");
+    QVERIFY(m_model->data(m_model->index(0, 0), Qt::ToolTipRole).toString() == "tooltip");
 
 }
 
@@ -967,7 +967,7 @@ void tst_QStandardItemModel::indexFromItem()
     QCOMPARE(itemIndex.row(), 10);
     QCOMPARE(itemIndex.column(), 20);
     QCOMPARE(itemIndex.parent(), QModelIndex());
-    QCOMPARE(itemIndex.model(), &model);
+    QCOMPARE(itemIndex.model(), (const QAbstractItemModel*)(&model));
 
     QStandardItem *child = new QStandardItem;
     item->setChild(4, 2, child);
@@ -1028,7 +1028,7 @@ void tst_QStandardItemModel::getSetItemPrototype()
 
     const CustomItem *proto = new CustomItem;
     model.setItemPrototype(proto);
-    QCOMPARE(model.itemPrototype(), proto);
+    QCOMPARE(model.itemPrototype(), (const QStandardItem*)proto);
 
     model.setRowCount(1);
     model.setColumnCount(1);
