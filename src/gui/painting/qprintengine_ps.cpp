@@ -692,6 +692,7 @@ bool QPSPrintEngine::end()
     QPdfBaseEngine::end();
 
     d->firstPage = true;
+    d->headerDone = false;
 
     setActive(false);
     d->printerState = QPrinter::Idle;
