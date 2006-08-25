@@ -578,6 +578,23 @@ QCompleter *QLineEdit::completer() const
     return d->completer;
 }
 
+bool QLineEditPrivate::advanceToNextEnabledItem(int n /* n = 1 ? forward : backward */)
+{
+    int save = completer->currentRow();
+
+    while (true) {
+        if (!completer->setCurrentRow(completer->currentRow() + n)) {
+            completer->setCurrentRow(save);
+            break;
+        }
+        QModelIndex currentIndex = completer->currentIndex();
+        if (completer->completionModel()->flags(currentIndex) & Qt::ItemIsEnabled)
+            break;
+    }
+
+    return save != completer->currentRow();
+}
+
 void QLineEditPrivate::complete(int key)
 {
     if (!completer || readOnly || echoMode != QLineEdit::Normal)
@@ -590,15 +607,10 @@ void QLineEditPrivate::complete(int key)
             if (selend != 0 && selend != text.length())
                 return;
             QString prefix = text.left(cursor);
-            int row = completer->currentRow();
-            if (prefix != completer->completionPrefix()) {
-                completer->setCompletionPrefix(prefix);
-                row = 0;
-            } else if (key == Qt::Key_Up)
-                --row;
-            else
-                ++row;
-            if (!completer->setCurrentRow(row))
+            if (prefix != completer->completionPrefix())
+                return;
+            int n = (key == Qt::Key_Up) ? -1 : +1;
+            if (!advanceToNextEnabledItem(n))
                 return;
         } else
             completer->setCompletionPrefix(text);

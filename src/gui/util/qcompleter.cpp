@@ -725,12 +725,13 @@ void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
 {
     Q_Q(QCompleter);
     QString completion;
+
     if (!index.isValid())
         completion = prefix;
     else {
-        index = proxy->mapToSource(index);
-        index = index.sibling(index.row(), column); // for clicked()
-        completion = q->pathFromIndex(index);
+        QModelIndex si = proxy->mapToSource(index);
+        si = si.sibling(si.row(), column); // for clicked()
+        completion = q->pathFromIndex(si);
 #ifndef QT_NO_DIRMODEL
         // add a trailing separator in inline
         if (mode == QCompleter::InlineCompletion) {
@@ -749,7 +750,6 @@ void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
     }
 }
 
-// FIXME: Does not work for RTL
 void QCompleterPrivate::showPopup(const QRect& rect)
 {
     const QRect screen = QApplication::desktop()->availableGeometry(widget);
@@ -1323,14 +1323,14 @@ QString QCompleter::completionPrefix() const
 }
 
 /*!
-    Returns the model index of the current completion in the model.
+    Returns the model index of the current completion in the completionModel().
 
     \sa setCurrentRow(), currentCompletion(), model()
 */
 QModelIndex QCompleter::currentIndex() const
 {
     Q_D(const QCompleter);
-    return d->proxy->currentIndex(true);
+    return d->proxy->currentIndex(false);
 }
 
 /*!
@@ -1342,7 +1342,8 @@ QModelIndex QCompleter::currentIndex() const
 */
 QString QCompleter::currentCompletion() const
 {
-    return pathFromIndex(currentIndex());
+    Q_D(const QCompleter);
+    return pathFromIndex(d->proxy->currentIndex(true));
 }
 
 /*!
@@ -1452,7 +1453,8 @@ QStringList QCompleter::splitPath(const QString& path) const
     \fn void QCompleter::activated(const QModelIndex& index)
 
     This signal is sent when an item in the popup() is activated by the user.
-    (by clicking or pressing return). The item's \a index is given.
+    (by clicking or pressing return). The item's \a index in the completionModel()
+    is given.
 
 */
 
@@ -1469,7 +1471,8 @@ QStringList QCompleter::splitPath(const QString& path) const
 
     This signal is sent when an item in the popup() is highlighted by
     the user. It is also sent if complete() is called with the completionMode()
-    set to QCompleter::InlineCompletion. The item's \a index is given.
+    set to QCompleter::InlineCompletion. The item's \a index in the completionModel()
+    is given.
 */
 
 /*!

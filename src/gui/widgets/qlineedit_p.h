@@ -195,6 +195,7 @@ public:
     QPointer<QCompleter> completer;
     void complete(int key = -1);
     void _q_completionHighlighted(QString);
+    bool advanceToNextEnabledItem(int n);
 #endif
 };
 
