@@ -63,6 +63,7 @@ public:
     bool doGraphicsMode;
     int ttyfd;
     long oldKdMode;
+    QString ttyDevice;
 
 private:
     static QLinuxFbScreenPrivate *instance;
@@ -82,10 +83,14 @@ void QLinuxFbScreenPrivate::openTty()
 {
     const char *const devs[] = {"/dev/tty0", "/dev/tty", "/dev/console", 0};
 
-    for (const char * const *dev = devs; *dev; ++dev) {
-        ttyfd = ::open(*dev, O_RDWR);
-        if (ttyfd != -1)
-            break;
+    if (ttyDevice.isEmpty()) {
+        for (const char * const *dev = devs; *dev; ++dev) {
+            ttyfd = ::open(*dev, O_RDWR);
+            if (ttyfd != -1)
+                break;
+        }
+    } else {
+        ttyfd = ::open(ttyDevice.toAscii().constData(), O_RDWR);
     }
 
     if (ttyfd == -1)
@@ -229,6 +234,9 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
     const QStringList args = displaySpec.split(":");
     if (args.contains("nographicsmodeswitch"))
         d_ptr->doGraphicsMode = false;
+    QRegExp ttyRegExp("tty=(.*)");
+    if (args.indexOf(ttyRegExp) != -1)
+        d_ptr->ttyDevice = ttyRegExp.cap(1);
 
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
