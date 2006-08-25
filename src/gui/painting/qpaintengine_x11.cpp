@@ -1554,6 +1554,10 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         has_fill_pattern = true;
     }
 
+    // don't take the XRender path unless we really, really have to
+    if (has_fill_texture && !fill.texture().hasAlpha())
+        has_fill_texture = false;
+
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender
         && picture
