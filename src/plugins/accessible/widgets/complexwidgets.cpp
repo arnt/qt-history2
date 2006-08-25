@@ -221,18 +221,18 @@ int QAccessibleItemRow::navigate(RelationFlag relation, int index,
         // This is in the "not so nice" category. In order to find out which item
         // is geometrically around, we have to set the current index, navigate
         // and restore the index as well as the old selection
-        QModelIndex oldIdx = view->currentIndex();
-        QModelIndex currentIndex = index ? childIndex(index) : QModelIndex(row);
-        bool oldSelection = view->selectionModel()->isSelected(currentIndex);
+        view->setUpdatesEnabled(false);
+        const QModelIndex oldIdx = view->currentIndex();
+        const QModelIndex currentIndex = index ? childIndex(index) : QModelIndex(row);
+        const QItemSelection oldSelection = view->selectionModel()->selection();
         view->setCurrentIndex(currentIndex);
-        QModelIndex idx = view->moveCursor(toCursorAction(relation), Qt::NoModifier);
+        const QModelIndex idx = view->moveCursor(toCursorAction(relation), Qt::NoModifier);
         view->setCurrentIndex(oldIdx);
-        qDebug() << oldIdx << oldSelection;
-        view->selectionModel()->select(currentIndex, oldSelection ? QItemSelectionModel::Select
-                                                            : QItemSelectionModel::Deselect);
-
+        view->selectionModel()->select(oldSelection, QItemSelectionModel::ClearAndSelect);
+        view->setUpdatesEnabled(true);
         if (!idx.isValid())
             return -1;
+
         if (idx.parent() != row.parent() || idx.row() != row.row())
             *iface = new QAccessibleItemRow(view, idx);
         return index ? idx.column() + 1 : 0; }
@@ -295,9 +295,54 @@ QString QAccessibleItemRow::actionText(int, Text, int) const
     return QString();
 }
 
-bool QAccessibleItemRow::doAction(int, int, const QVariantList &)
+static QItemSelection rowAt(const QModelIndex &idx)
 {
-    return false;
+    return QItemSelection(idx.sibling(idx.row(), 0),
+                idx.sibling(idx.row(), idx.model()->columnCount(idx.parent())));
+}
+
+bool QAccessibleItemRow::doAction(int action, int child, const QVariantList & /*params*/)
+{
+    if (!view)
+        return false;
+
+    QModelIndex idx = child ? childIndex(child) : QModelIndex(row);
+    if (!idx.isValid())
+        return false;
+
+    QItemSelectionModel::SelectionFlags command = QItemSelectionModel::NoUpdate;
+
+    switch  (action) {
+    case SetFocus:
+        view->setCurrentIndex(idx);
+        return true;
+    case ExtendSelection:
+        if (!child)
+            return false;
+        view->selectionModel()->select(QItemSelection(view->currentIndex(), idx),
+                    QItemSelectionModel::SelectCurrent);
+        return true;
+    case Select:
+        command = QItemSelectionModel::ClearAndSelect;
+        break;
+    case ClearSelection:
+        command = QItemSelectionModel::Clear;
+        break;
+    case RemoveSelection:
+        command = QItemSelectionModel::Deselect;
+        break;
+    case AddToSelection:
+        command = QItemSelectionModel::SelectCurrent;
+        break;
+    }
+    if (command == QItemSelectionModel::NoUpdate)
+        return false;
+
+    if (child)
+        view->selectionModel()->select(idx, command);
+    else
+        view->selectionModel()->select(rowAt(row), command);
+    return true;
 }
 
 QAccessibleItemView::QAccessibleItemView(QWidget *w)
