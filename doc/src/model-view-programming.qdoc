@@ -466,7 +466,7 @@
        underlying data structures.
     \o Items are referred to by their row and column numbers, and by the model
        index of their parent items.
-    \o Model indexes are constructed by models at the request of other 
+    \o Model indexes are constructed by models at the request of other
        components, such as views and delegates.
     \o If a valid model index is specified for the parent item when an index is
        requested using \l{QAbstractItemModel::index()}{index()}, the index
@@ -614,7 +614,7 @@
     facilities, and can be customized to suit the needs of more specialized
     user interfaces.
 
-    \section2 Using a Model 
+    \section2 Using a Model
 
     We take the string list model that \l{Creating New Models}{we created as
     an example model}, set it up with some data, and construct a view to
@@ -864,7 +864,7 @@
     the model with the value it contains using the index specified.
 
     The standard \l QItemDelegate class informs the view when it has
-    finished editing by emitting the 
+    finished editing by emitting the
     \l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal.
     The view ensures that the editor widget is closed and destroyed. In
     this example, we only provide simple editing facilities, so we need
@@ -1137,14 +1137,14 @@
     \l{QItemSelectionModel::SelectionFlag}{Rows}, the
     entire row containing the item referred to will be selected.
     The following code demonstrates the use of the
-    \l{QItemSelectionModel::SelectionFlag}{Rows} and 
+    \l{QItemSelectionModel::SelectionFlag}{Rows} and
     \l{QItemSelectionModel::SelectionFlag}{Columns} flags:
 
     \skipto QItemSelection columnSelection
     \printuntil QItemSelectionModel::Select | QItemSelectionModel::Rows
 
     Although only four indexes are supplied to the selection model, the
-    use of the 
+    use of the
     \l{QItemSelectionModel::SelectionFlag}{Columns} and
     \l{QItemSelectionModel::SelectionFlag}{Rows} selection flags means
     that two columns and two rows are selected. The following image shows
@@ -1456,7 +1456,7 @@
 
     The function to remove rows from the model is also simple to write.
     The rows to be removed from the model are specified by the position and
-    the number of rows given. 
+    the number of rows given.
     We ignore the parent index to simplify our implementation, and just
     remove the corresponding items from the string list.
 
@@ -1603,7 +1603,7 @@
     \l{QTreeWidgetItem::takeChild()}{takeChild()} function.
     Items are inserted in the top level of the tree with the
     \l{QTreeWidget::insertTopLevelItem()}{insertTopLevelItem()} function.
-    At lower levels in the tree, the parent item's 
+    At lower levels in the tree, the parent item's
     \l{QTreeWidgetItem::insertChild()}{insertChild()} function is used.
 
     It is easy to move items around between the top level and lower levels
@@ -1674,7 +1674,7 @@
     rather than remove them. Items for all of the above widgets can be
     hidden and later shown again. You can determine whether an item is hidden
     by calling the isItemHidden() function, and items can be hidden with
-    \c setItemHidden(). 
+    \c setItemHidden().
 
     Since this operation is item-based, the same function is available for
     all three convenience classes.
@@ -1812,9 +1812,15 @@
     \skipto QListWidget *listWidget
     \printuntil setDropIndicatorShown
 
-    The result is a list widget which allows the items to be copied around within
-    the view, and even lets the user drag items between views containing the same
-    type of data. In both situations, the items are copied rather than moved.
+    The result is a list widget which allows the items to be copied
+    around within the view, and even lets the user drag items between
+    views containing the same type of data. In both situations, the
+    items are copied rather than moved.
+
+    To enable the user to move the items around within the view, we
+    must set the list widget's \l {QAbstractItemView::}{dragDropMode}:
+
+    \printline setDragDropMode
 
     \section1 Using Model/View Classes
 

@@ -17,6 +17,7 @@ listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 listWidget->setDragEnabled(true);
 listWidget->setAcceptDrops(true);
 listWidget->setDropIndicatorShown(true);
+listWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
     this->listWidget = listWidget;
 
