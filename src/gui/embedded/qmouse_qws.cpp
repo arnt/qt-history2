@@ -506,7 +506,7 @@ bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &position, int button)
 {
     if (!button) {
         if (numSamples >= samples.count())
-            mouseChanged(mousePos, 0);
+            mouseChanged(transform(position), 0);
         currSample = 0;
         numSamples = 0;
         return true;
