@@ -299,9 +299,13 @@ this document.
 \endcode
 
     Type \c{./configure -help} to get a list of all available options.
+
     Note that you will need to specify \c{-universal} if you want to
     build universal binaries, and also supply a path to the \c{-sdk}
-    option if your development machine has a PowerPC CPU.
+    option if your development machine has a PowerPC CPU. By default,
+    Qt is built as a framework, but you can built it as a set of
+    dynamic libraries (dylibs) by specifying the \c{-no-framework}
+    option.
 
     To create the library and compile all the demos, examples, tools,
     and tutorials, type:

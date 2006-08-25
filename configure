@@ -5032,7 +5032,7 @@ if [ "$CFG_SHARED" = "no" ]; then
 fi
 if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG" = "yes" ] && [ "$CFG_DEBUG_RELEASE" = "no" ]; then
     echo
-    echo "NOTE: Mac OS X frameworks implicitely build debug and release Qt libraries."
+    echo "NOTE: Mac OS X frameworks implicitly build debug and release Qt libraries."
     echo
 fi
 echo
