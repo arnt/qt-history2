@@ -1126,7 +1126,7 @@ uint QDate::gregorianToJulian(int y, int m, int d)
 */
 void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 {
-    return getDateFromJulianDay(jd, &y, &m, &d);
+    getDateFromJulianDay(jd, &y, &m, &d);
 }
 
 /*! \fn static QDate QDate::fromJulianDay(int jd)
