@@ -2710,8 +2710,15 @@ void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
 */
 void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d_ptr->selected) {
-        setSelected(true);
+    if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable)) {
+        bool multiSelect = (event->modifiers() & Qt::ControlModifier) != 0;
+        if (!multiSelect) {
+            if (!d_ptr->selected) {
+                if (d_ptr->scene)
+                    d_ptr->scene->clearSelection();
+                setSelected(true);
+            }
+        }
     } else if (!(flags() & ItemIsMovable)) {
         event->ignore();
     }
@@ -2753,9 +2760,13 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
         // Move all selected items
         foreach (QGraphicsItem *item, selectedItems) {
-            if ((item->flags() & ItemIsMovable) && !item->parentItem() || !item->parentItem()->isSelected())
+            if ((item->flags() & ItemIsMovable) && !item->parentItem() || !item->parentItem()->isSelected()) {
                 item->setPos(item == this ? newPos : item->pos() + diff);
+                if (item->flags() & ItemIsSelectable)
+                    item->setSelected(true);
+            }
         }
+
     } else {
         event->ignore();
     }
@@ -2778,16 +2789,18 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (d_ptr->selected && !contains(event->buttonDownPos(Qt::LeftButton))) {
-        if (d_ptr->scene) {
-            if ((event->modifiers() & Qt::ControlModifier) == 0)
-                d_ptr->scene->clearSelection();
-            d_ptr->scene->d_func()->selectedItems << this;
-            d_ptr->selected = 1;
-            update();
+    if (flags() & ItemIsSelectable) {
+        bool multiSelect = (event->modifiers() & Qt::ControlModifier) != 0;
+        if (event->scenePos() == event->buttonDownScenePos(Qt::LeftButton)) {
+            // The item didn't move
+            if (multiSelect) {
+                setSelected(!isSelected());
+            } else {
+                if (d_ptr->scene)
+                    d_ptr->scene->clearSelection();
+                setSelected(true);
+            }
         }
-    } else if (!(flags() & ItemIsMovable)) {
-        event->ignore();
     }
 }
 

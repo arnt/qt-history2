@@ -577,12 +577,10 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
 void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     for (int i = 0x1; i <= 0x10; i <<= 1) {
-        if (mouseEvent->buttons() & i) {
-            Qt::MouseButton button = Qt::MouseButton(i);
-            mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));
-            mouseEvent->setButtonDownScenePos(button, mouseGrabberButtonDownScenePos.value(button, mouseEvent->scenePos()));
-            mouseEvent->setButtonDownScreenPos(button, mouseGrabberButtonDownScreenPos.value(button, mouseEvent->screenPos()));
-        }
+        Qt::MouseButton button = Qt::MouseButton(i);
+        mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));
+        mouseEvent->setButtonDownScenePos(button, mouseGrabberButtonDownScenePos.value(button, mouseEvent->scenePos()));
+        mouseEvent->setButtonDownScreenPos(button, mouseGrabberButtonDownScreenPos.value(button, mouseEvent->screenPos()));
     }
     mouseEvent->setPos(mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
     mouseEvent->setLastPos(mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
@@ -2412,9 +2410,6 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     if (!mouseEvent->buttons()) {
         d->lastMouseGrabberItem = d->mouseGrabberItem;
         d->mouseGrabberItem = 0;
-        d->mouseGrabberButtonDownPos.clear();
-        d->mouseGrabberButtonDownScenePos.clear();
-        d->mouseGrabberButtonDownScreenPos.clear();
 
         // Generate a hoverevent
         QGraphicsSceneHoverEvent hoverEvent;
