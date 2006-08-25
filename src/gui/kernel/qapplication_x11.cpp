@@ -3870,9 +3870,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
         }
     }
 
-    uint hibyte1;  // ID
-    uint hibyte2;  // Serial # part 1
-    uint hibyte3;  // Serial # part 2
+    uint hibyte1 = 0;  // ID
+    uint hibyte2 = 0;  // Serial # part 1
+    uint hibyte3 = 0;  // Serial # part 2
     if (motion) {
         hibyte1 = (motion->axis_data[3] & 0xffff0000) >> 16;
         hibyte2 = (motion->axis_data[4] & 0xffff0000) >> 16;
