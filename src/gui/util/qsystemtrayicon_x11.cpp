@@ -22,44 +22,6 @@
 #include "qmenu.h"
 #include "qtimer.h"
 #include "qsystemtrayicon_p.h"
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-
-class QSystemTrayIconSys : public QWidget
-{
-    friend class QSystemTrayIconPrivate;
-
-public:
-    QSystemTrayIconSys(QSystemTrayIcon *q);
-    ~QSystemTrayIconSys();
-    enum {
-        SYSTEM_TRAY_REQUEST_DOCK = 0,
-        SYSTEM_TRAY_BEGIN_MESSAGE = 1,
-        SYSTEM_TRAY_CANCEL_MESSAGE =2
-    };
-
-    void addToTray();
-    void updateIcon();
-
-    static Window sysTrayWindow;
-    static QList<QSystemTrayIconSys *> trayIcons;
-    static QCoreApplication::EventFilter oldEventFilter;
-    static bool sysTrayTracker(void *message, long *result);
-    static Window locateSystemTray();
-    static Atom sysTraySelection;
-
-protected:
-    void paintEvent(QPaintEvent *pe);
-    void resizeEvent(QResizeEvent *re);
-    bool x11Event(XEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-
-private:
-    QSystemTrayIcon *q;
-    QPixmap cachedPixmap;
-};
 
 Window QSystemTrayIconSys::sysTrayWindow = None;
 QList<QSystemTrayIconSys *> QSystemTrayIconSys::trayIcons;
@@ -224,6 +186,14 @@ void QSystemTrayIconSys::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     if (ev->button() == Qt::LeftButton)
         emit q->activated(QSystemTrayIcon::DoubleClick);
+}
+
+bool QSystemTrayIconSys::event(QEvent *e)
+{
+    if (e->type() == QEvent::ToolTip) {
+        return QApplication::sendEvent(q, e);
+    }
+    return QWidget::event(e);
 }
 
 bool QSystemTrayIconSys::x11Event(XEvent *event)

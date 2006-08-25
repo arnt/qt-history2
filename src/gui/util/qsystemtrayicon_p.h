@@ -88,6 +88,54 @@ private:
     int timerId;
 };
 
+#if defined(Q_WS_X11)
+#include <QtCore/qcoreapplication.h>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
+
+class QSystemTrayIconSys : public QWidget
+{
+    friend class QSystemTrayIconPrivate;
+
+public:
+    QSystemTrayIconSys(QSystemTrayIcon *q);
+    ~QSystemTrayIconSys();
+    enum {
+        SYSTEM_TRAY_REQUEST_DOCK = 0,
+        SYSTEM_TRAY_BEGIN_MESSAGE = 1,
+        SYSTEM_TRAY_CANCEL_MESSAGE =2
+    };
+
+    void addToTray();
+    void updateIcon();
+
+    // QObject::event is public but QWidget's ::event() re-implementation
+    // is protected ;(
+    inline bool deliverToolTipEvent(QEvent *e)
+    { return QWidget::event(e); }
+
+    static Window sysTrayWindow;
+    static QList<QSystemTrayIconSys *> trayIcons;
+    static QCoreApplication::EventFilter oldEventFilter;
+    static bool sysTrayTracker(void *message, long *result);
+    static Window locateSystemTray();
+    static Atom sysTraySelection;
+
+protected:
+    void paintEvent(QPaintEvent *pe);
+    void resizeEvent(QResizeEvent *re);
+    bool x11Event(XEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    bool event(QEvent *e);
+
+private:
+    QSystemTrayIcon *q;
+    QPixmap cachedPixmap;
+};
+#endif // Q_WS_X11
+
 #endif // QT_NO_SYSTEMTRAYICON
 #endif // QSYSTEMTRAYICON_P_H
 

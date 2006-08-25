@@ -65,6 +65,9 @@
 
     The activated() signal is emitted when the user activates the icon.
 
+    Only on X11 when a tooltip is requested the QSystemTrayIcon receives a QHelpEvent
+    of type QEvent::ToolTip. This is not supported on any other platform.
+
     \sa QDesktopServices, QDesktopWidget, {Desktop Integration}
 */
 
@@ -248,6 +251,12 @@ bool QSystemTrayIcon::isVisible() const
 */
 bool QSystemTrayIcon::event(QEvent *e)
 {
+#if defined(Q_WS_X11)
+    if (e->type() == QEvent::ToolTip) {
+        Q_D(QSystemTrayIcon);
+        return d->sys->deliverToolTipEvent(e);
+    }
+#endif
     return QObject::event(e);
 }
 
