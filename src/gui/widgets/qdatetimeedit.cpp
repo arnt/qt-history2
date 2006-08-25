@@ -1092,8 +1092,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 
 #ifdef QT_KEYPAD_NAVIGATION
     if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-        if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-                || d->wrapping)
+        if (d->wrapping)
             return StepEnabled(StepUpEnabled | StepDownEnabled);
         // 3 cases.  date, time, datetime.  each case look
         // at just the relavant component.
@@ -1127,7 +1126,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     case QDateTimeParser::LastSection: return 0;
     default: break;
     }
-    if (d->wrapping & QDateTimeEditPrivate::WrapOn)
+    if (d->wrapping)
         return StepEnabled(StepDownEnabled|StepUpEnabled);
 
     QVariant v = d->stepBy(d->currentSectionIndex, 1, true);
@@ -1650,9 +1649,9 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     const int max = absoluteMax(sectionIndex);
 
     if (val < min) {
-        val = ((wrapping & WrapOn) ? max - (min - val) + 1 : min);
+        val = (wrapping ? max - (min - val) + 1 : min);
     } else if (val > max) {
-        val = ((wrapping & WrapOn) ? min + val - max - 1 : max);
+        val = (wrapping ? min + val - max - 1 : max);
     }
 
     const int tmp = v.toDate().day();
@@ -1664,7 +1663,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
         const int localmin = getDigit(minimum, sn.type);
         const int localmax = getDigit(maximum, sn.type);
 
-        if (wrapping & WrapOn) {
+        if (wrapping) {
             // just because we hit the roof in one direction, it
             // doesn't mean that we hit the floor in the other
             if (steps > 0) {
@@ -1704,7 +1703,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     }
 
     if (variantCompare(v, minimum) < 0) {
-        if (wrapping & WrapOn) {
+        if (wrapping) {
             QVariant t = v;
             setDigit(t, sn.type, steps < 0 ? max : min);
             int mincmp = variantCompare(t, minimum);
@@ -1723,7 +1722,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
             v = value;
         }
     } else if (variantCompare(v, maximum) > 0) {
-        if (wrapping & WrapOn) {
+        if (wrapping) {
             QVariant t = v;
             setDigit(t, sn.type, steps > 0 ? min : max);
             int mincmp = variantCompare(t, minimum);
@@ -2045,7 +2044,7 @@ bool QDateTimeEditPrivate::showCalendarPopup() const
 }
 
 QCalendarPopup::QCalendarPopup(const QDate &date, QWidget * parent)
-: QWidget(parent, Qt::Popup), oldDate(date)
+    : QWidget(parent, Qt::Popup), oldDate(date)
 {
     setAttribute(Qt::WA_WindowPropagation);
 
