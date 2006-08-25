@@ -64,4 +64,14 @@
     \o \l{demos/mainwindow}{Main Window} shows Qt's extensive support for main window
        features, such as tool bars, dock windows, and menus.
     \endlist
+
+    \section1 Graphics View
+
+    \list
+    \o \l{demos/chip}{40000 Chips} uses the
+       \l{The Graphics View Framework}{Graphics View} framework to efficiently
+       display a large number of individual graphical items on a scrolling canvas,
+       highlighting features such as rotation, zooming, level of detail control,
+       and item selection.
+    \endlist
 */
