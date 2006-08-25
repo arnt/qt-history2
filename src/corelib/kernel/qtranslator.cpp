@@ -202,7 +202,8 @@ public:
     uint numerusRulesLength;
 
     bool do_load(const uchar *data, int len);
-
+    QString do_translate(const char *context, const char *sourceText, const char *comment,
+                         int n) const;
     void clear();
 };
 
@@ -532,40 +533,6 @@ bool QTranslatorPrivate::do_load(const uchar *data, int len)
     return ok;
 }
 
-/*!
-    Empties this translator of all contents.
-
-    This function works with stripped translator files.
-*/
-
-void QTranslatorPrivate::clear()
-{
-    Q_Q(QTranslator);
-    if (unmapPointer && unmapLength) {
-#if defined(QT_USE_MMAP)
-        if (used_mmap)
-            munmap(unmapPointer, unmapLength);
-        else
-#endif
-            delete [] unmapPointer;
-    }
-
-    unmapPointer = 0;
-    unmapLength = 0;
-    messageArray = 0;
-    contextArray = 0;
-    offsetArray = 0;
-    numerusRulesArray = 0;
-    messageLength = 0;
-    contextLength = 0;
-    offsetLength = 0;
-    numerusRulesLength = 0;
-
-    if (QCoreApplicationPrivate::isTranslatorInstalled(q))
-        QCoreApplication::postEvent(QCoreApplication::instance(),
-                                    new QEvent(QEvent::LanguageChange));
-}
-
 static QString getMessage(const uchar *m, const uchar *end, const char *context,
                           const char *sourceText, const char *comment, int numerus)
 {
@@ -634,6 +601,128 @@ end:
     return str;
 }
 
+QString QTranslatorPrivate::do_translate(const char *context, const char *sourceText,
+                                         const char *comment, int n) const
+{
+    if (context == 0)
+        context = "";
+    if (sourceText == 0)
+        sourceText = "";
+    if (comment == 0)
+        comment = "";
+
+    if (!offsetLength)
+        return QString();
+
+    /*
+        Check if the context belongs to this QTranslator. If many
+        translators are installed, this step is necessary.
+    */
+    if (contextLength) {
+        quint16 hTableSize = read16(contextArray);
+        uint g = elfHash(context) % hTableSize;
+        const uchar *c = contextArray + 2 + (g << 1);
+        quint16 off = read16(c);
+        c += 2;
+        if (off == 0)
+            return QString();
+        c = contextArray + (2 + (hTableSize << 1) + (off << 1));
+
+        for (;;) {
+            quint8 len = read8(c++);
+            if (len == 0)
+                return QString();
+            if (match(c, context, len))
+                break;
+            c += len;
+        }
+    }
+
+    size_t numItems = offsetLength / (2 * sizeof(quint32));
+    if (!numItems)
+        return QString();
+
+    int numerus = 0;
+    if (n >= 0)
+        numerus = ::numerus(n, numerusRulesArray, numerusRulesLength);
+
+    for (;;) {
+        quint32 h = elfHash(QByteArray(sourceText) + comment);
+
+        const uchar *start = offsetArray;
+        const uchar *end = start + ((numItems-1) << 3);
+        while (start <= end) {
+            const uchar *middle = start + (((end - start) >> 4) << 3);
+            uint hash = read32(middle);
+            if (h == hash) {
+                start = middle;
+                break;
+            } else if (hash < h) {
+                start = middle + 8;
+            } else {
+                end = middle - 8;
+            }
+        }
+
+        if (start <= end) {
+            // go back on equal key
+            while (start != offsetArray && read32(start) == read32(start-8))
+                start -= 8;
+
+            while (start < offsetArray + offsetLength) {
+                quint32 rh = read32(start);
+                start += 4;
+                if (rh != h)
+                    break;
+                quint32 ro = read32(start);
+                start += 4;
+                QString tn = getMessage(messageArray + ro, messageArray + messageLength, context,
+                                        sourceText, comment, numerus);
+                if (!tn.isNull())
+                    return tn;
+            }
+        }
+        if (!comment[0])
+            break;
+        comment = "";
+    }
+    return QString();
+}
+
+/*!
+    Empties this translator of all contents.
+
+    This function works with stripped translator files.
+*/
+
+void QTranslatorPrivate::clear()
+{
+    Q_Q(QTranslator);
+    if (unmapPointer && unmapLength) {
+#if defined(QT_USE_MMAP)
+        if (used_mmap)
+            munmap(unmapPointer, unmapLength);
+        else
+#endif
+            delete [] unmapPointer;
+    }
+
+    unmapPointer = 0;
+    unmapLength = 0;
+    messageArray = 0;
+    contextArray = 0;
+    offsetArray = 0;
+    numerusRulesArray = 0;
+    messageLength = 0;
+    contextLength = 0;
+    offsetLength = 0;
+    numerusRulesLength = 0;
+
+    if (QCoreApplicationPrivate::isTranslatorInstalled(q))
+        QCoreApplication::postEvent(QCoreApplication::instance(),
+                                    new QEvent(QEvent::LanguageChange));
+}
+
 /*!
     Returns the translation for the key (\a context, \a sourceText,
     \a comment). If none is found, also tries (\a context, \a
@@ -643,7 +732,8 @@ end:
 */
 QString QTranslator::translate(const char *context, const char *sourceText, const char *comment) const
 {
-    return translate(context, sourceText, comment, -1);
+    Q_D(const QTranslator);
+    return d->do_translate(context, sourceText, comment, -1);
 }
 
 
@@ -663,89 +753,10 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
                                int n) const
 {
     Q_D(const QTranslator);
-    if (context == 0)
-        context = "";
-    if (sourceText == 0)
-        sourceText = "";
-    if (comment == 0)
-        comment = "";
-
-    if (!d->offsetLength)
-        return QString();
-
-    /*
-        Check if the context belongs to this QTranslator. If many
-        translators are installed, this step is necessary.
-    */
-    if (d->contextLength) {
-        quint16 hTableSize = read16(d->contextArray);
-        uint g = elfHash(context) % hTableSize;
-        const uchar *c = d->contextArray + 2 + (g << 1);
-        quint16 off = read16(c);
-        c += 2;
-        if (off == 0)
-            return QString();
-        c = d->contextArray + (2 + (hTableSize << 1) + (off << 1));
-
-        for (;;) {
-            quint8 len = read8(c++);
-            if (len == 0)
-                return QString();
-            if (match(c, context, len))
-                break;
-            c += len;
-        }
-    }
-
-    size_t numItems = d->offsetLength / (2 * sizeof(quint32));
-    if (!numItems)
-        return QString();
-
-    int numerus = 0;
-    if (n >= 0)
-        numerus = ::numerus(n, d->numerusRulesArray, d->numerusRulesLength);
-
-    for (;;) {
-        quint32 h = elfHash(QByteArray(sourceText) + comment);
-
-        const uchar *start = d->offsetArray;
-        const uchar *end = start + ((numItems-1) << 3);
-        while (start <= end) {
-            const uchar *middle = start + (((end - start) >> 4) << 3);
-            uint hash = read32(middle);
-            if (h == hash) {
-                start = middle;
-                break;
-            } else if (hash < h) {
-                start = middle + 8;
-            } else {
-                end = middle - 8;
-            }
-        }
-
-        if (start <= end) {
-            // go back on equal key
-            while (start != d->offsetArray && read32(start) == read32(start-8))
-                start -= 8;
-
-            while (start < d->offsetArray + d->offsetLength) {
-                quint32 rh = read32(start);
-                start += 4;
-                if (rh != h)
-                    break;
-                quint32 ro = read32(start);
-                start += 4;
-                QString tn = getMessage(d->messageArray + ro, d->messageArray + d->messageLength, context,
-                                        sourceText, comment, numerus);
-                if (!tn.isNull())
-                    return tn;
-            }
-        }
-        if (!comment[0])
-            break;
-        comment = "";
-    }
-    return QString();
+    // this step is necessary because the 3-parameter translate() overload is virtual
+    if (n == -1)
+        translate(context, sourceText, comment);
+    return d->do_translate(context, sourceText, comment, n);
 }
 
 /*!
