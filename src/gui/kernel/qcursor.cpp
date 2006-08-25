@@ -113,12 +113,12 @@
 /*!
     \fn HCURSOR_or_HANDLE QCursor::handle() const
 
-    Returns a handle to the cursor.
+    Returns a platform-specific cursor handle. The \c
+    HCURSOR_or_HANDLE type is \c HCURSOR on Windows and Qt::HANDLE on X11
+    and Mac OS X. On \l {Qtopia Core} it is an integer.
 
     \warning Using the value returned by this function is not
     portable.
-
-    \sa Qt::HANDLE
 */
 
 /*!

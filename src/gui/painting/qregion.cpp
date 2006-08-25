@@ -150,7 +150,7 @@
 
     Returns a platform-specific region handle. The \c Handle type is
     \c HRGN on Windows, \c Region on X11, and \c RgnHandle on Mac OS
-    X.
+    X. On \l {Qtopia Core} it is \c {void *}.
 
     \warning This function is not portable.
 */
