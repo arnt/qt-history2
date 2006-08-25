@@ -1674,7 +1674,7 @@ bool TrWindow::danger( const MessageItem *m,
     if (m_ui.actionEndingPunctuation->isChecked()) {
         bool endingok = true;
         for (int i = 0; i < translations.count() && endingok; ++i) {
-            endingok &= ending( source, cmdl->language()) == ending(translations[i], cmdl->language() );
+            endingok &= (ending( source, cmdl->language()) == ending(translations[i], cmdl->language() ));
         }
 
         if (!endingok) {
