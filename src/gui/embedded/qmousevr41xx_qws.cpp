@@ -20,6 +20,7 @@
 #include "qapplication.h"
 #include "qscreen_qws.h"
 #include <qstringlist.h>
+#include <qvarlengtharray.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,6 +31,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+
+static const int defaultFilterSize = 4;
 
 class QWSVr41xxMouseHandlerPrivate : public QObject
 {
@@ -46,15 +49,18 @@ private slots:
     void readMouseData();
 
 private:
-    enum { mouseBufSize = 128 };
+    bool getSample();
+    ushort currSample[6];
+    uint currLength;
+
     int mouseFD;
     int mouseIdx;
     QTimer *rtimer;
-    uchar mouseBuf[mouseBufSize];
     QSocketNotifier *mouseNotifier;
     QWSVr41xxMouseHandler *handler;
-    QPoint currPos;
+    QPoint lastPos;
     bool isPressed;
+    int filterSize;
     int pressLimit;
 };
 
@@ -80,12 +86,12 @@ void QWSVr41xxMouseHandler::suspend()
 }
 
 QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *h, const QString &, const QString &device)
-    : handler(h), isPressed(false)
+    : currLength(0), handler(h)
 {
     QStringList options = device.split(":");
     int index = -1;
 
-    int filterSize = 3;
+    filterSize = defaultFilterSize;
     QRegExp filterRegExp("filter=(\\d+)");
     index = options.indexOf(filterRegExp);
     if (index != -1) {
@@ -148,41 +154,58 @@ void QWSVr41xxMouseHandlerPrivate::resume()
 
 void QWSVr41xxMouseHandlerPrivate::sendRelease()
 {
-    handler->sendFiltered(currPos, Qt::NoButton);
+    handler->sendFiltered(lastPos, Qt::NoButton);
     isPressed = false;
+}
+
+bool QWSVr41xxMouseHandlerPrivate::getSample()
+{
+    const int n = read(mouseFD,
+                       reinterpret_cast<uchar*>(currSample) + currLength,
+                       sizeof(currSample) - currLength);
+
+    if (n > 0)
+        currLength += n;
+
+    if (currLength < sizeof(currSample))
+        return false;
+
+    currLength = 0;
+    return true;
 }
 
 void QWSVr41xxMouseHandlerPrivate::readMouseData()
 {
-    int n;
-    do {
-        n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx);
-        if (n > 0)
-            mouseIdx += n;
-    } while (n > 0 && mouseIdx < mouseBufSize);
+    const int sampleLength = sizeof(currSample) / sizeof(ushort);
+    QVarLengthArray<ushort, sampleLength * defaultFilterSize> samples(sampleLength * filterSize);
 
-    int idx = 0;
-    while (mouseIdx-idx >= (int)sizeof(short) * 6) {
-        uchar *mb = mouseBuf+idx;
-        ushort *data = (ushort *) mb;
-        if (data[0] & 0x8000) {
-            if (data[5] >= pressLimit) {
-                currPos = QPoint(data[3] - data[4], data[2] - data[1]);
-                if (handler->sendFiltered(currPos, Qt::LeftButton)) {
-                    isPressed = true;
-                    rtimer->start(200); // release unreliable
-                }
-            }
-        } else if (isPressed) {
-            rtimer->start(50);
-        }
-        idx += sizeof(ushort) * 6;
+    // Only return last 'filterSize' samples
+    int head = 0;
+    int tail = 0;
+    int nSamples = 0;
+    while (getSample()) {
+        if (!(currSample[0] & 0x8000) || (currSample[5] < pressLimit))
+            continue;
+
+        ushort *data = samples.data() + head * sampleLength;
+        memcpy(data, currSample, sizeof(currSample));
+        ++nSamples;
+        head = (head + 1) % filterSize;
+        if (nSamples > filterSize)
+                tail = (tail + 1) % filterSize;
     }
 
-    int surplus = mouseIdx - idx;
-    for (int i = 0; i < surplus; i++)
-        mouseBuf[i] = mouseBuf[idx+i];
-    mouseIdx = surplus;
+    // send mouse events
+    while (tail != head) {
+        const ushort *data = samples.data() + tail * sampleLength;
+        lastPos = QPoint(data[3] - data[4], data[2] - data[1]);
+        handler->sendFiltered(lastPos, Qt::LeftButton);
+        isPressed = true;
+        tail = tail + 1 % samples.size();
+    }
+
+    if (isPressed)
+        rtimer->start(50); // release unreliable
 }
 
 #include "qmousevr41xx_qws.moc"
