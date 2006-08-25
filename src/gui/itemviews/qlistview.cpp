@@ -2355,8 +2355,8 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
         const int topCoordinate = flowPositions.at(topIndex);
         int bottomIndex = topIndex;
         int bottomCoordinate = topCoordinate;
-        while ((bottomCoordinate - topCoordinate) < (viewportSize - 1)
-               && bottomIndex < flowCount)
+        while ((bottomCoordinate - topCoordinate) <= (viewportSize) 
+               && bottomIndex <= flowCount)
             bottomCoordinate = flowPositions.at(++bottomIndex);
         const int itemCount = bottomIndex - topIndex - 1;
         switch (hint) {
