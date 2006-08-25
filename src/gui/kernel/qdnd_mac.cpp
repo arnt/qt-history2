@@ -64,8 +64,6 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 /*****************************************************************************
   QDnD utility functions
  *****************************************************************************/
-//promise keeper
-static DragSendDataUPP qt_mac_send_handlerUPP = 0;
 
 //default pixmap
 static const int default_pm_hotx = -2;
@@ -461,7 +459,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             QString s = dragPrivate()->data->hasText() ? dragPrivate()->data->text()
                                                 : dragPrivate()->data->urls().first().toString();
             if(s.length() > 26)
-                s = s.left(23) + "...";
+                s = s.left(23) + QChar(0x2026);
             if(!s.isEmpty()) {
                 //draw it
                 QFont f(qApp->font());

@@ -201,18 +201,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         p->setFont(f);
     }
 
-    QString txt;
-    if (p->fontMetrics().width(text) < tr.width()) {
-        txt = text;
-    } else {
-        txt = text.left(1);
-        int ew = p->fontMetrics().width(QLatin1String("..."));
-        int i = 1;
-        while (p->fontMetrics().width(txt) + ew +
-                p->fontMetrics().width(text[i])  < tr.width())
-            txt += text[i++];
-        txt += QLatin1String("...");
-    }
+    QString txt = fontMetrics().elidedText(text, Qt::ElideRight, tr.width());
 
     if (ih)
         p->drawPixmap(ir.left(), (height() - ih) / 2, pm);
