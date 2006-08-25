@@ -182,6 +182,8 @@ public:
     void setTextWidth(qreal width);
     qreal textWidth() const;
 
+    qreal idealWidth() const;
+
     void adjustSize();
     QSizeF size() const;
 

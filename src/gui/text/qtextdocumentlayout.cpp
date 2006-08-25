@@ -323,6 +323,7 @@ public:
     uint insideDocumentChange : 1;
 
     int lastPageCount;
+    qreal idealWidth;
 
     qreal indent(QTextBlock bl) const;
 
@@ -393,6 +394,7 @@ QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
 {
     showLayoutProgress = true;
     insideDocumentChange = false;
+    idealWidth = 0;
 }
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::frameIteratorForYPosition(qreal y) const
@@ -1652,10 +1654,14 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
             layoutStruct.pageHeight = INT_MAX;
         layoutStruct.pageBottom = layoutStruct.pageHeight - fd->margin;
         layoutStruct.pageMargin = fd->margin;
+        idealWidth = 0; // reset
     }
 
     QTextFrame::Iterator it = f->begin();
     layoutFlow(it, &layoutStruct, layoutFrom, layoutTo);
+
+    if (!f->parentFrame())
+        idealWidth = qMax(maxChildFrameWidth, layoutStruct.contentsWidth);
 
     qreal actualWidth = qMax(newContentsWidth, qMax(maxChildFrameWidth, layoutStruct.contentsWidth));
     fd->contentsWidth = actualWidth;
@@ -1957,6 +1963,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
     //QTextFrameData *fd = data(layoutStruct->frame);
 
     const qreal indent = this->indent(bl);
+    const qreal totalLeftMargin = blockFormat.leftMargin() + (dir == Qt::RightToLeft ? 0 : indent);
+    const qreal totalRightMargin = blockFormat.rightMargin() + (dir == Qt::RightToLeft ? indent : 0);
 
     const QPointF oldPosition = tl->position();
     tl->setPosition(QPointF(layoutStruct->x_left, layoutStruct->y));
@@ -1968,8 +1976,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
 //         qDebug() << "    layouting block at" << bl.position();
         const qreal cy = layoutStruct->y;
-        const qreal l = layoutStruct->x_left  + blockFormat.leftMargin()  + (dir == Qt::RightToLeft ? 0 : indent);
-        const qreal r = layoutStruct->x_right - blockFormat.rightMargin() - (dir == Qt::RightToLeft ? indent : 0);
+        const qreal l = layoutStruct->x_left  + totalLeftMargin;
+        const qreal r = layoutStruct->x_right - totalRightMargin;
 
         tl->beginLayout();
         bool firstLine = true;
@@ -2053,7 +2061,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
             line.setPosition(QPointF(left - layoutStruct->x_left, layoutStruct->y - cy));
             layoutStruct->y += lineHeight;
             layoutStruct->contentsWidth
-                = qMax<qreal>(layoutStruct->contentsWidth, left - layoutStruct->x_left + line.naturalTextWidth());
+                = qMax<qreal>(layoutStruct->contentsWidth, line.x() + line.naturalTextWidth() + totalRightMargin);
 
             // position floats
             for (int i = 0; i < layoutStruct->pendingFloats.size(); ++i) {
@@ -2068,7 +2076,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
         for (int i = 0; i < cnt; ++i) {
             QTextLine line = tl->lineAt(i);
             layoutStruct->contentsWidth
-                = qMax(layoutStruct->contentsWidth, line.x() + tl->lineAt(i).naturalTextWidth());
+                = qMax(layoutStruct->contentsWidth, line.x() + tl->lineAt(i).naturalTextWidth() + totalRightMargin);
             const qreal lineHeight = line.height();
             if (layoutStruct->pageHeight > 0.0 && layoutStruct->y + lineHeight > layoutStruct->pageBottom)
                 layoutStruct->newPage();
@@ -2642,6 +2650,13 @@ void QTextDocumentLayout::layoutFinished()
 void QTextDocumentLayout::ensureLayouted(qreal y)
 {
     d_func()->ensureLayouted(y);
+}
+
+qreal QTextDocumentLayout::idealWidth() const
+{
+    Q_D(const QTextDocumentLayout);
+    d->ensureLayoutFinished();
+    return d->idealWidth;
 }
 
 #include "moc_qtextdocumentlayout_p.cpp"

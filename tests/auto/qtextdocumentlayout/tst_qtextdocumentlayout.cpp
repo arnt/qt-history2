@@ -28,9 +28,8 @@ public slots:
     void cleanup();
 
 private slots:
-#if QT_VERSION >= 0x040200
     void defaultPageSizeHandling();
-#endif
+    void idealWidth();
 
 private:
     QTextDocument *doc;
@@ -47,7 +46,6 @@ void tst_QTextDocumentLayout::cleanup()
     doc = 0;
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTextDocumentLayout::defaultPageSizeHandling()
 {
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
@@ -65,7 +63,27 @@ void tst_QTextDocumentLayout::defaultPageSizeHandling()
     QVERIFY(docSize.width() != INT_MAX);
     QVERIFY(docSize.height() != INT_MAX);
 }
-#endif
+
+void tst_QTextDocumentLayout::idealWidth()
+{
+    doc->setPlainText("Some text\nwith a few lines\nand not real information\nor anything otherwise useful");
+    doc->setTextWidth(1000);
+    QCOMPARE(doc->textWidth(), qreal(1000));
+    QCOMPARE(doc->size().width(), doc->textWidth());
+    QVERIFY(doc->idealWidth() < doc->textWidth());
+    QVERIFY(doc->idealWidth() > 0);
+
+    QTextBlockFormat fmt;
+    fmt.setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+    QTextCursor cursor(doc);
+    cursor.select(QTextCursor::Document);
+    cursor.mergeBlockFormat(fmt);
+
+    QCOMPARE(doc->textWidth(), qreal(1000));
+    QCOMPARE(doc->size().width(), doc->textWidth());
+    QVERIFY(doc->idealWidth() < doc->textWidth());
+    QVERIFY(doc->idealWidth() > 0);
+}
 
 QTEST_MAIN(tst_QTextDocumentLayout)
 #include "tst_qtextdocumentlayout.moc"

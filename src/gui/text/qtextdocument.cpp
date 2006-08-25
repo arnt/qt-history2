@@ -511,7 +511,9 @@ void QTextDocument::drawContents(QPainter *p, const QRectF &rect)
 
     The text width specifies the preferred width for text in the document. If
     the text (or content in general) is wider than the specified with it is broken
-    into multiple lines and grows vertically.
+    into multiple lines and grows vertically. If the text cannot be broken into multiple
+    lines to fit into the specified text width it will be larger and the size() and the
+    idealWidth() property will reflect that.
 
     If the text width is set to -1 then the text will not be broken into multiple lines
     unless it is enforced through an explicit line break or a new paragraph.
@@ -522,7 +524,7 @@ void QTextDocument::drawContents(QPainter *p, const QRectF &rect)
     grow or shrink vertically in a continuous way. If you want the document layout to break
     the text into multiple pages then you have to set the pageSize property instead.
 
-    \sa size(), pageSize()
+    \sa size(), idealWidth(), pageSize()
 */
 void QTextDocument::setTextWidth(qreal width)
 {
@@ -537,6 +539,22 @@ qreal QTextDocument::textWidth() const
 {
     Q_D(const QTextDocument);
     return d->pageSize.width();
+}
+
+/*!
+    \since 4.2
+
+    Returns the ideal width of the text document. The ideal width is the actually used width
+    of the document without optional alignments taken into account. It is always <= size().width();
+
+    You can use the ideal width for example to find out
+*/
+qreal QTextDocument::idealWidth() const
+{
+    QAbstractTextDocumentLayout *lout = documentLayout();
+    if (lout->metaObject()->indexOfProperty("idealWidth") == -1)
+        return textWidth();
+    return lout->property("idealWidth").toDouble();
 }
 
 /*!
@@ -574,6 +592,8 @@ void QTextDocument::adjustSize()
 
     The size of the document can be changed either by setting
     a text width or setting an entire page size.
+
+    Note that the width is always >= pageSize().width().
 
     \sa setTextWidth(), setPageSize()
 */
