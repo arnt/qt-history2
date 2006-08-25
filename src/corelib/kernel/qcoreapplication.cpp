@@ -168,7 +168,8 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     qt_application_thread_id = QThread::currentThreadId();
 #endif
 
-    if (QThread::currentThread() != mainThread())
+    // note: this call to QThread::currentThread() may end up setting theMainThread!
+    if (QThread::currentThread() != theMainThread)
         qWarning("WARNING: QApplication was not created in the main() thread.");
 }
 
