@@ -923,12 +923,8 @@ void tst_QVariant::toKeySequence_data()
     QTest::newRow( "int" ) << QVariant( 67108929 ) << QKeySequence( Qt::CTRL + Qt::Key_A );
 
 
-    QTest::newRow( "qstring" ) 
-#ifndef Q_WS_MAC
+    QTest::newRow( "qstring" )
         << QVariant( QString( "Ctrl+A" ) )
-#else
-        << QVariant( QString(QChar(0x2318)) + "A" )
-#endif
         << QKeySequence( Qt::CTRL + Qt::Key_A );
 
 }
