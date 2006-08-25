@@ -4586,7 +4586,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     QLineF line(pos.x(), pos.y(), pos.x() + ti.width.toReal(), pos.y());
     // deliberately ceil the offset to avoid the underline coming too close to
     // the text above it.
-    const int underlinePos = int(ceil(fe->underlinePosition().toReal()));
+    const int underlinePos = int(ceil(pos.y() + fe->underlinePosition().toReal()));
 
     QTextCharFormat::UnderlineStyle underlineStyle = ti.underlineStyle;
     if (underlineStyle == QTextCharFormat::SpellCheckUnderline) {
@@ -4596,7 +4596,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     if (underlineStyle == QTextCharFormat::WaveUnderline) {
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
-        painter->translate(pos.x(), pos.y() + underlinePos);
+        painter->translate(pos.x(), underlinePos);
 
         if (ti.underlineColor.isValid())
             painter->setPen(ti.underlineColor);
@@ -4604,8 +4604,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
         painter->drawPath(generateWavyPath(ti.width.toReal(), painter->device()));
         painter->restore();
     } else if (underlineStyle != QTextCharFormat::NoUnderline) {
-        QLineF underLine = line;
-        underLine.translate(0.0, qreal(underlinePos));
+        QLineF underLine(line.x1(), underlinePos, line.x2(), underlinePos);
 
         if (ti.underlineColor.isValid())
             pen.setColor(ti.underlineColor);
