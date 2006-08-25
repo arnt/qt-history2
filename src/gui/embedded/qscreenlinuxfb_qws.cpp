@@ -80,13 +80,12 @@ QLinuxFbScreenPrivate::QLinuxFbScreenPrivate()
 
 void QLinuxFbScreenPrivate::openTty()
 {
-    const char *const devs[] = {"/dev/console", "/dev/tty", "/dev/tty0", 0};
+    const char *const devs[] = {"/dev/tty0", "/dev/tty", "/dev/console", 0};
 
     for (const char * const *dev = devs; *dev; ++dev) {
         ttyfd = ::open(*dev, O_RDWR);
         if (ttyfd != -1)
             break;
-        ++dev;
     }
 
     if (ttyfd == -1)
