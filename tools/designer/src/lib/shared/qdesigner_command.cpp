@@ -359,6 +359,9 @@ bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
 
     if (const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other)) {
         if (cmd->propertyName() == propertyName() && cmd->widget() == widget()) {
+            if (!formWindow()->isDirty())
+                return false;
+
             m_newValue = cmd->newValue();
             return true;
         }
