@@ -121,11 +121,11 @@ void tst_QTableWidget::getSetCheck()
 
     // const QTableWidgetItem * QTableWidget::itemPrototype()
     // void QTableWidget::setItemPrototype(const QTableWidgetItem *)
-    QTableWidgetItem *var4 = new QTableWidgetItem;
+    const QTableWidgetItem *var4 = new QTableWidgetItem;
     obj1.setItemPrototype(var4);
     QCOMPARE(var4, obj1.itemPrototype());
     obj1.setItemPrototype((QTableWidgetItem *)0);
-    QCOMPARE((QTableWidgetItem *)0, obj1.itemPrototype());
+    QCOMPARE((const QTableWidgetItem *)0, obj1.itemPrototype());
 }
 
 tst_QTableWidget::tst_QTableWidget(): testWidget(0)
