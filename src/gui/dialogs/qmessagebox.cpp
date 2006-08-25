@@ -1948,7 +1948,6 @@ void QMessageBox::setWindowTitle(const QString &title)
 {
     // Message boxes on the mac do not have a title
 #ifndef Q_WS_MAC
-    Q_D(QMessageBox);
     QDialog::setWindowTitle(title);
 #else
     Q_UNUSED(title);

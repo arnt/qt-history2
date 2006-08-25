@@ -64,6 +64,7 @@ static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
     }
 }
 
+/*
 #ifndef QT_NO_TEXTSTREAM
 
 static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
@@ -112,6 +113,7 @@ static void dump(QDebug debug, const QDockWidgetLayout &layout)
     dump(debug, layout.docks[QDockWidgetLayout::RightPos], QString());
 }
 #endif // QT_NO_TEXTSTREAM
+*/
 
 /******************************************************************************
 ** QDockAreaLayoutItem

@@ -99,7 +99,6 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
 
 QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
 {
-    QStyle *style = QApplication::style();
     switch(name) {
     case QStyle::SP_FileIcon:
         return file;

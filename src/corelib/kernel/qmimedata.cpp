@@ -184,7 +184,7 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
     \row    \o hasText()    \o text()       \o setText()        \o \c text/plain
     \row    \o hasHtml()    \o html()       \o setHtml()        \o \c text/html
     \row    \o hasUrls()    \o urls()       \o setUrls()        \o \c text/uri-list
-    \row    \o hasImage()   \o imageData()  \o setImageData()   \o \c image/*
+    \row    \o hasImage()   \o imageData()  \o setImageData()   \o \c image/ *
     \row    \o hasColor()   \o colorData()  \o setColorData()   \o \c application/x-color
     \endtable
 

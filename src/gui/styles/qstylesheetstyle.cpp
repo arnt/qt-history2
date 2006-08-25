@@ -56,26 +56,6 @@ struct QStyleSheetBorderImageData : public QSharedData
     void cutBorderImage();
 };
 
-static QBrush stretchedToDevice(const QBrush& brush)
-{
-    if (const QGradient *gradient = brush.gradient()) {
-        if (gradient->type() == QGradient::LinearGradient) {
-            QLinearGradient grad = *static_cast<const QLinearGradient *>(gradient);
-            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
-            return QBrush(grad);
-        } else if (gradient->type() == QGradient::RadialGradient) {
-            QRadialGradient grad = *static_cast<const QRadialGradient *>(gradient);
-            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
-            return QBrush(grad);
-        } else if (gradient->type() == QGradient::ConicalGradient) {
-            QConicalGradient grad = *static_cast<const QConicalGradient *>(gradient);
-            grad.setCoordinateMode(QGradient::StretchToDeviceMode);
-            return QBrush(grad);
-        }
-    }
-    return brush;
-}
-
 struct QStyleSheetBackgroundData : public QSharedData
 {
     QStyleSheetBackgroundData(const QBrush& b, const QPixmap& p, QCss::Repeat r,
