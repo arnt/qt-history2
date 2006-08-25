@@ -20,7 +20,7 @@ TranslationSettingsDialog::TranslationSettingsDialog(QWidget *w /*= 0*/) : QDial
 {
     m_ui.setupUi(this);    
 
-    for (int i = QLocale::C; i < QLocale::LastLanguage; ++i) {
+    for (int i = QLocale::C + 1; i < QLocale::LastLanguage; ++i) {
         QString lang = QLocale::languageToString(QLocale::Language(i));
         m_ui.cbLanguageList->addItem(lang, QVariant(int(i)));
     }
@@ -58,10 +58,6 @@ void TranslationSettingsDialog::showEvent(QShowEvent *e)
 {
     Q_UNUSED(e);
     QLocale::Language lang = m_messageModel->language();
-    if (lang == QLocale::C) {
-        QLocale locale;
-        lang = locale.language();
-    }
     int itemindex = m_ui.cbLanguageList->findData(QVariant(int(lang)));
     m_ui.cbLanguageList->setCurrentIndex(itemindex == -1 ? 0 : itemindex);
 

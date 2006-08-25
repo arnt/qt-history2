@@ -1050,7 +1050,7 @@ void MessageEditor::showMessage(const QString &text,
         editorPage->m_transTexts[0]->setLabel(tr("Translation (%1)").arg(editorPage->m_numerusForms.first()));
     }
     int i;
-    for (i = 0; i < editorPage->m_numerusForms.count(); ++i) {
+    for (i = 0; i < qMax(1, editorPage->m_numerusForms.count()); ++i) {
         bool shouldShow = i < translations.count();
         if (shouldShow) {
             setTranslation(translations[i], i, false);

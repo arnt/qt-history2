@@ -619,6 +619,11 @@ bool MessageModel::load(const QString &fileName)
         QLocale::Language l;
         QLocale::Country c;
         MetaTranslator::languageAndCountry(lang, &l, &c);
+        if (l == QLocale::C) {
+            QLocale sys = QLocale::system();
+            l = sys.language();
+            c = sys.country();
+        }
         setLanguage(l);
         setCountry(c);
         // locale will be 'C' if we could not find the language in the ts file nor 
