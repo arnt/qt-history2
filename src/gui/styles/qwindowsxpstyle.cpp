@@ -2360,9 +2360,10 @@ case CE_DockWidgetTitle:
                 if (!dw->isFloating()){
                     p->setPen(dwOpt->palette.color(QPalette::Dark));
                     p->drawRect(r);
+                    QRect titleRect = visualRect(dwOpt->direction, r, r.adjusted(0, 0, -31, 0));
                     if (!dwOpt->title.isEmpty()) {
                         const int indent = p->fontMetrics().descent();
-                        drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
+                        drawItemText(p, titleRect.adjusted(indent + 1, 1, -indent - 1, -1),
                                     Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                     dwOpt->state & State_Enabled, dwOpt->title,
                                     QPalette::WindowText);
