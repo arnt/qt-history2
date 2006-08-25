@@ -736,6 +736,16 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
         return 0;
 
     if (delta > 0) {
+        int growlimit = 0;
+        for (int i = 0; i<=index; ++i)
+            if (growlimit != QLAYOUTSIZE_MAX)
+                if (list[i].maximumSize == QLAYOUTSIZE_MAX)
+                    growlimit = QLAYOUTSIZE_MAX;
+                else
+                    growlimit += list[i].maximumSize - list[i].size;
+        if (delta > growlimit)
+            delta = growlimit;
+      
         int d = 0;
         for (int i = index + 1; d < delta && i < list.count(); ++i)
             d += shrink(list[i], delta - d);
@@ -743,9 +753,17 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
         d = 0;
         for (int i = index; d < delta && i >= 0; --i)
             d += grow(list[i], delta - d);
-        // ### handle case where maximum size hint is exceeded by spreading
-        // remaining space equally among widgets
     } else if (delta < 0) {
+        int growlimit = 0;
+        for (int i = index + 1; i < list.count(); ++i)
+            if (growlimit != QLAYOUTSIZE_MAX)
+                if (list[i].maximumSize == QLAYOUTSIZE_MAX)
+                    growlimit = QLAYOUTSIZE_MAX;
+                else
+                    growlimit += list[i].maximumSize - list[i].size;
+        if (-delta > growlimit)
+            delta = -growlimit;
+
         int d = 0;
         for (int i = index; d < -delta && i >= 0; --i)
             d += shrink(list[i], -delta - d);
@@ -753,8 +771,6 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
         d = 0;
         for (int i = index + 1; d < -delta && i < list.count(); ++i)
             d += grow(list[i], -delta - d);
-        // ### handle case where maximum size hint is exceeded by spreading
-        // remaining space equally among widgets
     }
 
     // adjust positions
