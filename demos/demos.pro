@@ -10,7 +10,8 @@ DEMOS_SUBDIRS     = \
         demos_interview \
         demos_mainwindow \
         demos_spreadsheet \
-        demos_textedit 
+        demos_textedit \
+	demos_chip
 
 unix:!embedded:contains(QT_CONFIG, qdbus):DEMOS_SUBDIRS += demos_dbus-viewer
 !contains(QT_EDITION, Console):!cross_compile:DEMOS_SUBDIRS += demos_arthurplugin
@@ -57,5 +58,6 @@ demos_arthurplugin.subdir = $$QT_BUILD_TREE/demos/arthurplugin
 demos_arthurplugin.depends = demos_shared tools_designer_src_lib
 demos_sqlbrowser.subdir = $$QT_BUILD_TREE/demos/sqlbrowser
 demos_sqlbrowser.depends = src_sql src_gui
+demos_chip.subdir = chip
 
 SUBDIRS += $$DEMOS_SUBDIRS
