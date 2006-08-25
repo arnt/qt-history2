@@ -38,9 +38,11 @@ private:
 };
 
 tst_QFileSystemWatcher::tst_QFileSystemWatcher()
-    : do_force_native(true)
+    : do_force_native(false)
 {
 #ifdef Q_OS_LINUX
+    // the inotify implementation in the kernel is known to be buggy in certain versions of the linux kernel
+    do_force_native = true;
 #ifdef QT_NO_INOTIFY
     if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,13))
         do_force_native = false;
@@ -48,8 +50,10 @@ tst_QFileSystemWatcher::tst_QFileSystemWatcher()
     if (inotify_init() == -1)
         do_force_native = false;
 #endif
+#elif defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || defined(Q_OS_FREEBSD)
+    // we have native engines for win32, macosx and freebsd
+    do_force_native = true;
 #endif
-
 }
 
 void tst_QFileSystemWatcher::basicTest_data()
