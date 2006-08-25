@@ -41,6 +41,8 @@ class QPollingFileSystemWatcherEngine : public QFileSystemWatcherEngine
     QHash<QString, QDateTime> files, directories;
 
 public:
+    QPollingFileSystemWatcherEngine();
+    
     void run();
 
     QStringList addPaths(const QStringList &paths, QStringList *files, QStringList *directories);
@@ -51,6 +53,11 @@ public:
 private slots:
     void timeout();
 };
+
+QPollingFileSystemWatcherEngine::QPollingFileSystemWatcherEngine()
+{
+    moveToThread(this);
+}
 
 void QPollingFileSystemWatcherEngine::run()
 {
@@ -105,6 +112,7 @@ QStringList QPollingFileSystemWatcherEngine::removePaths(const QStringList &path
         }
     }
     if (this->files.isEmpty() && this->directories.isEmpty()) {
+        locker.unlock();
         stop();
         wait();
     }
@@ -113,7 +121,7 @@ QStringList QPollingFileSystemWatcherEngine::removePaths(const QStringList &path
 
 void QPollingFileSystemWatcherEngine::stop()
 {
-    quit();
+    QMetaObject::invokeMethod(this, "quit");
 }
 
 void QPollingFileSystemWatcherEngine::timeout()
