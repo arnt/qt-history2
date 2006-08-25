@@ -755,7 +755,7 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
     Q_D(const QTranslator);
     // this step is necessary because the 3-parameter translate() overload is virtual
     if (n == -1)
-        translate(context, sourceText, comment);
+        return translate(context, sourceText, comment);
     return d->do_translate(context, sourceText, comment, n);
 }
 
