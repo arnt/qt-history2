@@ -2711,13 +2711,7 @@ void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
 void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d_ptr->selected) {
-        if (d_ptr->scene) {
-            if ((event->modifiers() & Qt::ControlModifier) == 0)
-                d_ptr->scene->clearSelection();
-            d_ptr->scene->d_func()->selectedItems << this;
-        }
-        d_ptr->selected = 1;
-        update();
+        setSelected(true);
     } else if (!(flags() & ItemIsMovable)) {
         event->ignore();
     }
