@@ -205,6 +205,7 @@ QMainWindowLayout::~QMainWindowLayout()
 
 #ifndef QT_NO_DOCKWIDGET
     dockWidgetLayout.deleteAllLayoutItems();
+    delete dockWidgetLayout.centralWidgetItem;
 #else
     delete centralWidgetItem;
 #endif
