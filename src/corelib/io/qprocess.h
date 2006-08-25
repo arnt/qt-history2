@@ -17,10 +17,10 @@
 #include <QtCore/qiodevice.h>
 #include <QtCore/qstringlist.h>
 
-#if defined(Q_OS_WIN32)
-typedef struct _PROCESS_INFORMATION* Q_PID;
-#else
+#if !defined(Q_OS_WIN32) || defined(qdoc)
 typedef qint64 Q_PID;
+#else
+typedef struct _PROCESS_INFORMATION *Q_PID;
 #endif
 
 QT_BEGIN_HEADER
