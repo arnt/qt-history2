@@ -94,7 +94,7 @@ QVariant BackTabTextEdit::loadResource ( int type, const QUrl & name )
     if (type == QTextDocument::ImageResource) {
         img = m_backTabOmages.value(name);
         if (img.isNull()) {
-            for (int i = 0; i < strlen(MessageEditor::backTab); ++i) {
+            for (uint i = 0; i < qstrlen(MessageEditor::backTab); ++i) {
                 if (backTabImages[i] && name == QUrl(QLatin1String(backTabImages[i]))) {
 
                     QFont fnt = font();
@@ -206,6 +206,8 @@ TransEditor::TransEditor(QWidget *parent /*= 0*/)
     m_label = new QLabel(this);
     lout->addWidget(m_label);
     m_editor = new BackTabTextEdit(this);
+    m_label->setFocusProxy(m_editor );
+    setFocusProxy(m_editor);
     lout->addWidget(m_editor);
     setLayout(lout);
 
@@ -1086,6 +1088,7 @@ void MessageEditor::showMessage(const QString &text,
     editorPage->handleCommentChanges();
     editorPage->adjustTranslationFieldHeights();
     editorPage->updateCommentField();
+    setEditorFocus();
 }
 
 void MessageEditor::setNumerusForms(const QString &invariantForm, const QStringList &numerusForms)
@@ -1284,7 +1287,7 @@ void MessageEditor::beginFromSource()
 void MessageEditor::setEditorFocus()
 {
     if (!editorPage->hasFocus())
-        editorPage->setFocus();
+        editorPage->activeTransText()->setFocus();
 }
 
 void MessageEditor::updateCutAndCopy()
