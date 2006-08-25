@@ -1098,8 +1098,12 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         CGContextBeginPath(hd);
 
         // Make sure the cosmetic pen stays one pixel wide.
-        if (cosmeticPen)
-            CGContextSetLineWidth(hd,  cosmeticPenSize - 0.0001);
+        if (cosmeticPen) {
+            if (q->state->renderHints() & QPainter::Antialiasing)
+                CGContextSetLineWidth(hd,  cosmeticPenSize);
+            else
+                CGContextSetLineWidth(hd, 0.00001f);
+        }
 
         if (!(q->state->renderHints() & QPainter::Antialiasing))
             CGContextTranslateCTM(hd, 0, double(pixelSize.y()) / 10.0);
