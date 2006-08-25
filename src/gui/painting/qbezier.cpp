@@ -318,9 +318,15 @@ static void addCircle(const QBezier *b, qreal offset, QBezier *o)
     QPointF normals[3];
 
     normals[0] = QPointF(b->y2 - b->y1, b->x1 - b->x2);
-    normals[0] /= sqrt(normals[0].x()*normals[0].x() + normals[0].y()*normals[0].y());
+    qreal dist = sqrt(normals[0].x()*normals[0].x() + normals[0].y()*normals[0].y());
+    if (qFuzzyCompare(dist, 0))
+        return;
+    normals[0] /= dist;
     normals[2] = QPointF(b->y4 - b->y3, b->x3 - b->x4);
-    normals[2] /= sqrt(normals[2].x()*normals[2].x() + normals[2].y()*normals[2].y());
+    dist = sqrt(normals[2].x()*normals[2].x() + normals[2].y()*normals[2].y());
+    if (qFuzzyCompare(dist, 0))
+        return;
+    normals[2] /= dist;
 
     normals[1] = QPointF(b->x1 - b->x2 - b->x3 + b->x4, b->y1 - b->y2 - b->y3 + b->y4);
     normals[1] /= -1*sqrt(normals[1].x()*normals[1].x() + normals[1].y()*normals[1].y());
