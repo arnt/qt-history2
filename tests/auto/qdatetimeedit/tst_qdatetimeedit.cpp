@@ -141,7 +141,6 @@ private slots:
 
 #if QT_VERSION >= 0x040200
     void setSelectedSection();
-    void wrapping();
 #endif
 private:
     EditorDateEdit* testWidget;
@@ -2538,51 +2537,6 @@ void tst_QDateTimeEdit::setSelectedSection()
     testWidget->setSelectedSection(QDateTimeEdit::NoSection);
     QVERIFY(!testWidget->lineEdit()->hasSelectedText());
 
-}
-
-class Style : public QWindowsStyle
-{
-public:
-    Style(int val)
-        : disableOnBounds(val)
-    {}
-
-    int styleHint(StyleHint stylehint, const QStyleOption *opt = 0,
-                  const QWidget *widget = 0,
-                  QStyleHintReturn* returnData = 0) const
-    {
-        if (stylehint == SH_SpinControls_DisableOnBounds) {
-            return disableOnBounds;
-        }
-        return QWindowsStyle::styleHint(stylehint, opt, widget, returnData);
-    }
-    int disableOnBounds;
-};
-
-void tst_QDateTimeEdit::wrapping()
-{
-    QDateTimeEdit dt;
-    Style disableOnBoundsStyle(1);
-    Style enableOnBoundsStyle(0);
-    dt.setStyle(&disableOnBoundsStyle);
-    QCOMPARE(dt.wrapping(), false);
-    dt.setStyle(&enableOnBoundsStyle);
-    QCOMPARE(dt.wrapping(), true);
-    dt.setWrapping(true);
-    QCOMPARE(dt.wrapping(), true);
-    dt.setWrapping(false);
-    QCOMPARE(dt.wrapping(), false);
-    dt.setStyle(&disableOnBoundsStyle);
-    dt.setWrapping(true);
-    QCOMPARE(dt.wrapping(), true);
-    dt.setWrapping(false);
-    QCOMPARE(dt.wrapping(), false);
-    dt.setWrapping(true);
-    dt.setStyle(&disableOnBoundsStyle);
-    QCOMPARE(dt.wrapping(), true);
-    dt.setWrapping(false);
-    dt.setStyle(&enableOnBoundsStyle);
-    QCOMPARE(dt.wrapping(), false);
 }
 
 void tst_QDateTimeEdit::calendarPopup()

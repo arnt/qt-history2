@@ -422,6 +422,7 @@ void tst_QSpinBox::setWrapping()
     QFETCH(IntList, expected);
 
     QSpinBox spin(0);
+    QVERIFY(!spin.wrapping());
     spin.setMinimum(minimum);
     spin.setMaximum(maximum);
     spin.setValue(startValue);
