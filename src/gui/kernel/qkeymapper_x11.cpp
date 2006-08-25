@@ -526,7 +526,7 @@ void QKeyMapperPrivate::clearMappings()
                 SETMASK(keySym, mask);
             }
         }
-        XkbFreeClientMap(xkbDesc, XkbAllClientInfoMask, true);
+        XkbFreeKeyboard(xkbDesc, XkbAllComponentsMask, true);
     } else
 #endif // QT_NO_XKB
         {
