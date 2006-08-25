@@ -317,6 +317,7 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
     getTime(currentTime);
     t->timeout = currentTime + t->interval;
     t->obj = obj;
+    t->inTimerEvent = false;
 
     Q_D(QEventDispatcherUNIX);
     d->timerList.timerInsert(t);                                // put timer in list
@@ -591,9 +592,15 @@ int QEventDispatcherUNIX::activateTimers()
         if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
             n_act++;
 
-        // send event
-        QTimerEvent e(t->id);
-        QCoreApplication::sendEvent(t->obj, &e);
+        if (!t->inTimerEvent) {
+            // send event, but don't allow it to recurse
+            t->inTimerEvent = true;
+
+            QTimerEvent e(t->id);
+            QCoreApplication::sendEvent(t->obj, &e);
+
+            t->inTimerEvent = false;
+        }
 
         if (!d->timerList.contains(begin)) begin = 0;
     }

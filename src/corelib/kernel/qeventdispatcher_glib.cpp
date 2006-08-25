@@ -171,9 +171,15 @@ static gboolean timerSourceDispatch(GSource *source, GSourceFunc, gpointer)
         if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
             n_act++;
 
-        // send event
-        QTimerEvent e(t->id);
-        QCoreApplication::sendEvent(t->obj, &e);
+        if (!t->inTimerEvent) {
+            // send event, but don't allow it to recurse
+            t->inTimerEvent = true;
+
+            QTimerEvent e(t->id);
+            QCoreApplication::sendEvent(t->obj, &e);
+
+            t->inTimerEvent = false;
+        }
 
         if (!src->timerList.contains(begin))
             begin = 0;
@@ -453,6 +459,7 @@ void QEventDispatcherGlib::registerTimer(int timerId, int interval, QObject *obj
     getTime(currentTime);
     t->timeout = currentTime + t->interval;
     t->obj = object;
+    t->inTimerEvent = false;
 
     d->timerSource->timerList.timerInsert(t);
 }

@@ -93,6 +93,7 @@ struct QTimerInfo {
     timeval interval; // - timer interval
     timeval timeout;  // - when to sent event
     QObject *obj;     // - object to receive event
+    bool inTimerEvent;
 };
 
 class QTimerInfoList : public QList<QTimerInfo*>
