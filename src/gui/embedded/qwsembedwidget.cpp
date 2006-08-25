@@ -29,24 +29,26 @@ class QWSEmbedWidgetPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QWSEmbedWidget);
 
 public:
-    QWSEmbedWidgetPrivate(int winId, QWidget *parent);
-    void setWindow(QWidget *parent);
+    QWSEmbedWidgetPrivate(int winId);
+    void updateWindow();
 
     QWidget *window;
     WId windowId;
     WId embeddedId;
 };
 
-QWSEmbedWidgetPrivate::QWSEmbedWidgetPrivate(int winId, QWidget *parent)
+QWSEmbedWidgetPrivate::QWSEmbedWidgetPrivate(int winId)
     : window(0), windowId(0), embeddedId(winId)
 {
-    if (parent)
-        setWindow(parent);
 }
 
-void QWSEmbedWidgetPrivate::setWindow(QWidget *w)
+void QWSEmbedWidgetPrivate::updateWindow()
 {
     Q_Q(QWSEmbedWidget);
+
+    QWidget *win = q->window();
+    if (win == window)
+        return;
 
     if (window) {
         window->removeEventFilter(q);
@@ -55,7 +57,7 @@ void QWSEmbedWidgetPrivate::setWindow(QWidget *w)
         QWSDisplay::instance()->d->sendCommand(command);
     }
 
-    window = w->window();
+    window = win;
     if (!window)
         return;
     windowId = window->winId();
@@ -80,8 +82,10 @@ void QWSEmbedWidgetPrivate::setWindow(QWidget *w)
     \a id and \a parent.
 */
 QWSEmbedWidget::QWSEmbedWidget(WId id, QWidget *parent)
-    : QWidget(*new QWSEmbedWidgetPrivate(id, parent), parent, 0)
+    : QWidget(*new QWSEmbedWidgetPrivate(id), parent, 0)
 {
+    Q_D(QWSEmbedWidget);
+    d->updateWindow();
 }
 
 /*!
@@ -115,7 +119,7 @@ void QWSEmbedWidget::changeEvent(QEvent *event)
 {
     Q_D(QWSEmbedWidget);
     if (event->type() == QEvent::ParentChange)
-        d->setWindow(window());
+        d->updateWindow();
 }
 
 /*!
