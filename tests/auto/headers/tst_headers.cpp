@@ -72,8 +72,8 @@ void tst_Headers::licenseCheck()
 
     QFile f(header);
     QVERIFY(f.open(QIODevice::ReadOnly));
-
-    QStringList content = QString::fromLocal8Bit(f.readAll()).split("\n");
+    QByteArray data = f.readAll();
+    QStringList content = QString::fromLocal8Bit(data.replace('\r',"")).split("\n");
     QString licenseType = content.at(6).contains("$TROLLTECH_")
         ? content.at(6).mid(14, content.at(6).count() - 9 - 14)
         : content.at(4).mid(14, content.at(4).count() - 9 - 14);
@@ -129,7 +129,8 @@ void tst_Headers::macros()
     QFile f(header);
     QVERIFY(f.open(QIODevice::ReadOnly));
 
-    QStringList content = QString::fromLocal8Bit(f.readAll()).split("\n");
+    QByteArray data = f.readAll();
+    QStringList content = QString::fromLocal8Bit(data.replace('\r', "")).split("\n");
 
     int beginHeader = content.indexOf("QT_BEGIN_HEADER");
     int endHeader = content.indexOf("QT_END_HEADER");
