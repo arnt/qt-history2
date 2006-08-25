@@ -134,7 +134,6 @@ void atWrapper::ftpMgetDone( bool error)
             } else {
                 qDebug() << "Couldn't open file for writing: " << file->fileName();
             }
-            delete file;
         }
 
 
