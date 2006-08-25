@@ -104,7 +104,7 @@ void qt_mac_set_cursor(const QCursor *c, const QPoint &)
     }
     c->handle(); //force the cursor to get loaded, if it's not
 
-    if(currentCursor != c->d) {
+    if(1 || currentCursor != c->d) {
         if(currentCursor && currentCursor->type == QCursorData::TYPE_ThemeCursor
                 && currentCursor->curs.tc.anim)
             currentCursor->curs.tc.anim->stop();
