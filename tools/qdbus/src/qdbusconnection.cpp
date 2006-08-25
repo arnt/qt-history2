@@ -160,7 +160,8 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 
     \value SessionBus           the session bus, associated with the running desktop session
     \value SystemBus            the system bus, used to communicate with system-wide processes
-    \value ActivationBus        the activation bus, whose purpose I have no idea...
+    \value ActivationBus        the activation bus, the "alias" for the bus that started the
+                                service
 
     On the Session Bus, one can find other applications by the same user that are sharing the same
     desktop session (hence the name). On the System Bus, however, processes shared for the whole

@@ -29,7 +29,7 @@
     It can be used in the following manner:
     \code
         QDBusReply<QString> reply = interface->call("RemoteMethod");
-        if (reply.isSuccess())
+        if (reply.isValid())
             // use the returned value
             useValue(reply.value());
         else

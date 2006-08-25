@@ -251,9 +251,9 @@ QDBusMessage QDBusMessage::createSignal(const QString &path, const QString &inte
 }
 
 /*!
-    Constructs a new DBus message representing a method call on the
-    given \a connection. A method call always informs its destination
-    address (\a service, \a path, \a interface and \a method).
+    Constructs a new DBus message representing a method call.
+    A method call always informs its destination address
+    (\a service, \a path, \a interface and \a method).
 
     The DBus bus allows calling a method on a given remote object without specifying the
     destination interface, if the method name is unique. However, if two interfaces on the
@@ -316,7 +316,7 @@ QDBusMessage QDBusMessage::createReply(const QVariantList &arguments) const
 }
 
 /*!
-   \fn QDBusMessage QDBusMessage::reply(const QVariant &retval)
+   \fn QDBusMessage QDBusMessage::createReply(const QVariant &retval)
     Constructs a new DBus message representing a the reply to the
     message , with the given \a retval.
 */

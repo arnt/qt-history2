@@ -202,7 +202,7 @@ QDBusAbstractInterface::~QDBusAbstractInterface()
     application does not exist).
 
     Note: when dealing with remote objects, it is not always possible to determine if it
-    exists when creating a QDBusInterface or QDBusInterfacePtr object.
+    exists when creating a QDBusInterface.
 */
 bool QDBusAbstractInterface::isValid() const
 {
