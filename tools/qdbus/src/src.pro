@@ -131,4 +131,5 @@ SOURCES += qdbusconnection.cpp  \
 	qdbusargument.cpp	\
 	qdbusreply.cpp		\
 	qdbusmetatype.cpp	\
-	qdbusextratypes.cpp
+	qdbusextratypes.cpp \
+	qdbusmarshaller.cpp
