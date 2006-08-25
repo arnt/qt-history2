@@ -302,6 +302,7 @@ QEventDispatcherGlib::~QEventDispatcherGlib()
     qDeleteAll(d->timerSource->timerList);
     d->timerSource->timerList.~QTimerInfoList();
     g_source_destroy(&d->timerSource->source);
+    g_source_unref(&d->timerSource->source);
     d->timerSource = 0;
 
     // destroy socket notifier source
@@ -312,6 +313,7 @@ QEventDispatcherGlib::~QEventDispatcherGlib()
     }
     d->socketNotifierSource->pollfds.~QList<GPollFDWithQSocketNotifier *>();
     g_source_destroy(&d->socketNotifierSource->source);
+    g_source_unref(&d->socketNotifierSource->source);
     d->socketNotifierSource = 0;
 
     // destroy post event source
@@ -322,6 +324,7 @@ QEventDispatcherGlib::~QEventDispatcherGlib()
     d->postEventSource->wakeUpPipe[1] = 0;
 
     g_source_destroy(&d->postEventSource->source);
+    g_source_unref(&d->postEventSource->source);
     d->postEventSource = 0;
 
     g_main_context_unref(d->mainContext);
