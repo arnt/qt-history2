@@ -80,6 +80,8 @@ private slots:
     void flaggedItems_data();
     void flaggedItems();
     void pixmapIcon();
+    void mouseWheel_data();
+    void mouseWheel();
 
 protected slots:
     void onEditTextChanged( const QString &newString );
@@ -1637,5 +1639,66 @@ void tst_QComboBox::pixmapIcon()
     QCOMPARE( box.itemIcon(1).isNull(), false );
 }
 
+// defined to be 120 by the wheel mouse vendors according to the docs
+#define WHEEL_DELTA 120
+
+void tst_QComboBox::mouseWheel_data()
+{
+    QTest::addColumn<IntList>("disabledItems");
+    QTest::addColumn<int>("startIndex");
+    QTest::addColumn<int>("wheelDirection");
+    QTest::addColumn<int>("expectedIndex");
+
+    IntList disabled;
+    disabled << 0 << 1 << 2 << 4;
+    int start = 3;
+    int wheel = 1;
+    int expected = 3;
+    QTest::newRow("upper locked") << disabled << start << wheel << expected;
+
+    wheel = -1;
+    expected = 5;
+    QTest::newRow("jump over") << disabled << start << wheel << expected;
+
+    disabled.clear();
+    disabled << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9;
+    start = 0;
+    wheel = -1;
+    expected = 0;
+    QTest::newRow("single Item enabled") << disabled << start << wheel << expected;
+}
+
+void tst_QComboBox::mouseWheel()
+{
+    QFETCH(IntList, disabledItems);
+    QFETCH(int, startIndex);
+    QFETCH(int, wheelDirection);
+    QFETCH(int, expectedIndex);
+
+    QCoreApplication *applicationInstance = QCoreApplication::instance();
+    QVERIFY(applicationInstance != 0);
+
+    QComboBox box;
+    QStringList list;
+    list << "one" << "two" << "three" << "four" << "five" << "six" << "seven" << "eight" << "nine" << "ten";
+
+    QListWidget listWidget;
+    listWidget.addItems(list);
+
+    foreach (int index, disabledItems)
+        listWidget.item(index)->setFlags(listWidget.item(index)->flags() & ~Qt::ItemIsEnabled);
+
+    box.setModel(listWidget.model());
+    box.setView(&listWidget);
+    for (int i=0; i < 2; ++i) {
+        box.setEditable(i==0?false:true);
+        box.setCurrentIndex(startIndex);
+
+        QWheelEvent event = QWheelEvent(box.rect().bottomRight() , WHEEL_DELTA * wheelDirection, Qt::NoButton);
+        QVERIFY(applicationInstance->sendEvent(&box,&event));
+
+        QCOMPARE(box.currentIndex(), expectedIndex);
+    }
+}
 QTEST_MAIN(tst_QComboBox)
 #include "tst_qcombobox.moc"

@@ -2369,12 +2369,17 @@ void QComboBox::wheelEvent(QWheelEvent *e)
     if (!d->viewContainer()->isVisible()) {
         int newIndex = currentIndex();
 
-        if (e->delta() > 0)
-            --newIndex;
-        else
-            ++newIndex;
+        if (e->delta() > 0) {
+            newIndex--;
+            while ((newIndex >= 0) && !(model()->flags(model()->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+                newIndex--;
+        } else {
+            newIndex++;
+            while ((newIndex < count()) && !(model()->flags(model()->index(newIndex,d->modelColumn,rootModelIndex())) & Qt::ItemIsEnabled))
+                newIndex++;
+        }
 
-        if (newIndex >= 0 && newIndex < count()) {
+        if (newIndex >= 0 && newIndex < count() && newIndex != currentIndex()) {
             setCurrentIndex(newIndex);
             d->emitActivated(d->currentIndex);
         }
