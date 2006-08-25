@@ -2698,23 +2698,54 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             // windows style if it has an icon, then it should be more like a
             // tab. So, cheat a little here.
             if (btn->icon.isNull()) {
+                bool useHIThemeDrawText = false;
                 QFont oldFont = p->font();
                 QFont newFont = qt_app_fonts_hash()->value("QPushButton", oldFont);
+                ThemeFontID themeId = kThemePushButtonFont;
                 if (oldFont == newFont) {
+                    useHIThemeDrawText = true;
                     switch (qt_aqua_size_constrain(w)) {
                     default:
                         break;
                     case QAquaSizeSmall:
+                        themeId = kThemeSmallSystemFont;
                         newFont = qt_app_fonts_hash()->value("QToolButton", newFont);
                         break;
                     case QAquaSizeMini:
                         newFont = qt_app_fonts_hash()->value("QMiniPushButton", newFont);
+                        themeId = kThemeMiniSystemFont;
                         break;
                     }
-                    p->setFont(newFont);
                 }
-                QWindowsStyle::drawControl(ce, btn, p, w);
-                p->setFont(oldFont);
+                if (!useHIThemeDrawText) {
+                    p->setFont(newFont);
+                    QWindowsStyle::drawControl(ce, btn, p, w);
+                    p->setFont(oldFont);
+                } else {
+                    p->save();
+                    CGContextSetShouldAntialias(cg, true);
+                    CGContextSetShouldSmoothFonts(cg, true);
+                    HIThemeTextInfo tti;
+                    tti.version = qt_mac_hitheme_version;
+                    tti.state = tds;
+                    QColor textColor = btn->palette.text().color();
+                    float colorComp[] = { textColor.redF(), textColor.greenF(),
+                                          textColor.blueF(), textColor.alphaF() };
+                    CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
+                    CGContextSetFillColor(cg, colorComp);
+                    tti.fontID = themeId;
+                    tti.horizontalFlushness = kHIThemeTextHorizontalFlushCenter;
+                    tti.verticalFlushness = kHIThemeTextVerticalFlushCenter;
+                    tti.options = kHIThemeTextBoxOptionNone;
+                    tti.truncationPosition = kHIThemeTextTruncationNone;
+                    tti.truncationMaxLines = 1 + btn->text.count(QLatin1Char('\n'));
+                    QCFString buttonText = btn->text;
+                    QRect r = btn->rect;
+                    HIRect bounds = qt_hirectForQRect(r);
+                    HIThemeDrawTextBox(buttonText, &bounds, &tti,
+                                       cg, kHIThemeOrientationNormal);
+                    p->restore();
+                }
             } else {
                 QRect br = p->boundingRect(btn->rect, Qt::AlignCenter, btn->text);
                 QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal
