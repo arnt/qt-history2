@@ -275,6 +275,13 @@ QTabWidget::~QTabWidget()
     label is "Bro\&wse" then Alt+W becomes a shortcut which will
     move the focus to this tab.
 
+    If you call addTab() after show(), the layout system will try
+    to adjust to the changes in it's widgets hierarchy and may cause
+    flicker. To prevent this, you can set the QWidget::updatesEnabled
+    property to false prior to changes; remember to set the property
+    to true when the changes are done, making the widget receive paint
+    events again.
+
     \sa insertTab()
 */
 int QTabWidget::addTab(QWidget *child, const QString &label)
@@ -321,8 +328,12 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
     less than or equal to the current index will increment the current
     index, but keep the current page.
 
-    If you call insertTab() after show(), the screen will flicker and
-    the user may be confused.
+    If you call insertTab() after show(), the layout system will try
+    to adjust to the changes in it's widgets hierarchy and may cause
+    flicker. To prevent this, you can set the QWidget::updatesEnabled
+    property to false prior to changes; remember to set the property
+    to true when the changes are done, making the widget receive paint
+    events again.
 
     \sa addTab()
 */
