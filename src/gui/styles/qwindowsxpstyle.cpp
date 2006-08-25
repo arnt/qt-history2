@@ -3478,7 +3478,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
-            int x = 0, y = 0, wi = cmb->rect.width(), he = cmb->rect.height();
+            int x = cmd->rect.x(), y = cmd->rect.y(), wi = cmb->rect.width(), he = cmb->rect.height();
             int xpos = x;
             xpos += wi - 1 - 16;
 
