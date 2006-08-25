@@ -70,6 +70,29 @@ static inline bool isTreeView(const QWidget *widget)
              ));
 }
 
+static QString removeMnemonics(const QString &original)
+{
+    // copied from qt_format_text (to be bug-for-bug compatible).
+    QString returnText(original.size(), 0);
+    int finalDest = 0;
+    int currPos = 0;
+    int l = original.length();
+    while (l) {
+        if (original.at(currPos) == QLatin1Char('&')) {
+            ++currPos;
+            --l;
+            if (l == 0)
+                break;
+        }
+        returnText[finalDest] = original.at(currPos);
+        ++currPos;
+        ++finalDest;
+        --l;
+    }
+    returnText.truncate(finalDest);
+    return returnText;
+}
+
 static inline ThemeTabDirection getTabDirection(QTabBar::Shape shape)
 {
     ThemeTabDirection ttd;
@@ -2739,7 +2762,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     tti.options = kHIThemeTextBoxOptionNone;
                     tti.truncationPosition = kHIThemeTextTruncationNone;
                     tti.truncationMaxLines = 1 + btn->text.count(QLatin1Char('\n'));
-                    QCFString buttonText = btn->text;
+                    QCFString buttonText = removeMnemonics(btn->text);
                     QRect r = btn->rect;
                     HIRect bounds = qt_hirectForQRect(r);
                     HIThemeDrawTextBox(buttonText, &bounds, &tti,
@@ -3822,13 +3845,36 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox
                 = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
-            bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
 
-            QFont oldFont = p->font();
-            if (!checkable)
-                p->setFont(qt_app_fonts_hash()->value("QHeaderView", p->font()));
-            QWindowsStyle::drawComplexControl(cc, groupBox, p, widget);
-            p->setFont(oldFont);
+            QStyleOptionGroupBox groupBoxCopy(*groupBox);
+            if (widget && !widget->testAttribute(Qt::WA_SetFont))
+                groupBoxCopy.subControls = groupBoxCopy.subControls & ~SC_GroupBoxLabel;
+            QWindowsStyle::drawComplexControl(cc, &groupBoxCopy, p, widget);
+            if (groupBoxCopy.subControls != groupBox->subControls) {
+                bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
+                p->save();
+                CGContextSetShouldAntialias(cg, true);
+                CGContextSetShouldSmoothFonts(cg, true);
+                HIThemeTextInfo tti;
+                tti.version = qt_mac_hitheme_version;
+                tti.state = tds;
+                QColor textColor = groupBox->palette.text().color();
+                float colorComp[] = { textColor.redF(), textColor.greenF(),
+                                      textColor.blueF(), textColor.alphaF() };
+                CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
+                CGContextSetFillColor(cg, colorComp);
+                tti.fontID = checkable ? kThemeSystemFont : kThemeSmallSystemFont;
+                tti.horizontalFlushness = kHIThemeTextHorizontalFlushCenter;
+                tti.verticalFlushness = kHIThemeTextVerticalFlushCenter;
+                tti.options = kHIThemeTextBoxOptionNone;
+                tti.truncationPosition = kHIThemeTextTruncationNone;
+                tti.truncationMaxLines = 1 + groupBox->text.count(QLatin1Char('\n'));
+                QCFString groupText = removeMnemonics(groupBox->text);
+                QRect r = subControlRect(CC_GroupBox, groupBox, SC_GroupBoxLabel, widget);
+                HIRect bounds = qt_hirectForQRect(r);
+                HIThemeDrawTextBox(groupText, &bounds, &tti, cg, kHIThemeOrientationNormal);
+                p->restore();
+            }
         }
         break;
     case CC_ToolButton:
