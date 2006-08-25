@@ -365,17 +365,18 @@ void TreeWidgetEditor::on_listWidget_currentRowChanged(int)
     updateEditor();
 }
 
-void TreeWidgetEditor::on_listWidget_itemChanged(QListWidgetItem *item)
+void TreeWidgetEditor::on_listWidget_itemChanged(QListWidgetItem *)
 {
     if (m_updating)
         return;
-    QString str = item->text();
-    int row = ui.listWidget->row(item);
-    ui.treeWidget->headerItem()->setText(row, str);
+    updateEditor();
 }
 
 void TreeWidgetEditor::updateEditor()
 {
+    for (int i = 0; i < ui.listWidget->count(); i++)
+        ui.treeWidget->headerItem()->setText(i, ui.listWidget->item(i)->text());
+
     QTreeWidgetItem *current = ui.treeWidget->currentItem();
     QListWidgetItem *currentColumn = ui.listWidget->currentItem();
 

@@ -199,17 +199,11 @@ void TableWidgetEditor::on_columnsListWidget_currentRowChanged(int col)
     updateEditor();
 }
 
-void TableWidgetEditor::on_columnsListWidget_itemChanged(QListWidgetItem *item)
+void TableWidgetEditor::on_columnsListWidget_itemChanged(QListWidgetItem *)
 {
     if (m_updating)
         return;
-    QString str = item->text();
-    int col = ui.columnsListWidget->row(item);
-    QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(col);
-    if (!headerItem)
-        headerItem = new QTableWidgetItem;
-    headerItem->setText(str);
-    ui.tableWidget->setHorizontalHeaderItem(col, headerItem);
+    updateEditor();
 }
 
 void TableWidgetEditor::on_rowsListWidget_currentRowChanged(int row)
@@ -226,21 +220,27 @@ void TableWidgetEditor::on_rowsListWidget_currentRowChanged(int row)
     updateEditor();
 }
 
-void TableWidgetEditor::on_rowsListWidget_itemChanged(QListWidgetItem *item)
+void TableWidgetEditor::on_rowsListWidget_itemChanged(QListWidgetItem *)
 {
     if (m_updating)
         return;
-    QString str = item->text();
-    int row = ui.rowsListWidget->row(item);
-    QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(row);
-    if (!headerItem)
-        headerItem = new QTableWidgetItem;
-    headerItem->setText(str);
-    ui.tableWidget->setVerticalHeaderItem(row, headerItem);
+    updateEditor();
 }
 
 void TableWidgetEditor::updateEditor()
 {
+    for (int i = 0; i < ui.columnsListWidget->count(); i++) {
+        QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(i);
+        if (!headerItem)
+            headerItem = new QTableWidgetItem;
+        headerItem->setText(ui.columnsListWidget->item(i)->text());
+    }
+    for (int i = 0; i < ui.rowsListWidget->count(); i++) {
+        QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(i);
+        if (!headerItem)
+            headerItem = new QTableWidgetItem;
+        headerItem->setText(ui.rowsListWidget->item(i)->text());
+    }
     QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
     QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
 
@@ -578,6 +578,12 @@ void TableWidgetEditor::on_moveColumnUpButton_clicked()
     ui.columnsListWidget->insertItem(idx - 1, currentColumn);
     ui.columnsListWidget->setCurrentItem(currentColumn);
 
+    QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
+    if (currentRow) {
+        int row = ui.rowsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(row, idx - 1);
+    }
+
     m_updating = false;
     updateEditor();
 }
@@ -600,6 +606,12 @@ void TableWidgetEditor::on_moveColumnDownButton_clicked()
     ui.columnsListWidget->takeItem(idx);
     ui.columnsListWidget->insertItem(idx + 1, currentColumn);
     ui.columnsListWidget->setCurrentItem(currentColumn);
+
+    QListWidgetItem *currentRow = ui.rowsListWidget->currentItem();
+    if (currentRow) {
+        int row = ui.rowsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(row, idx + 1);
+    }
 
     m_updating = false;
     updateEditor();
@@ -750,6 +762,12 @@ void TableWidgetEditor::on_moveRowUpButton_clicked()
     ui.rowsListWidget->insertItem(idx - 1, currentRow);
     ui.rowsListWidget->setCurrentItem(currentRow);
 
+    QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
+    if (currentColumn) {
+        int col = ui.columnsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(idx - 1, col);
+    }
+
     m_updating = false;
     updateEditor();
 }
@@ -772,6 +790,12 @@ void TableWidgetEditor::on_moveRowDownButton_clicked()
     ui.rowsListWidget->takeItem(idx);
     ui.rowsListWidget->insertItem(idx + 1, currentRow);
     ui.rowsListWidget->setCurrentItem(currentRow);
+
+    QListWidgetItem *currentColumn = ui.columnsListWidget->currentItem();
+    if (currentColumn) {
+        int col = ui.columnsListWidget->currentRow();
+        ui.tableWidget->setCurrentCell(idx + 1, col);
+    }
 
     m_updating = false;
     updateEditor();
