@@ -59,7 +59,8 @@
     true, or "off", isOn() returns false.
 
     Actions are added to widgets (menus or toolbars) using addTo(),
-    and removed using removeFrom().
+    and removed using removeFrom(). Note that when using Q3ToolBar and
+    Q3PopupMenu, their actions must be Q3Actions.
 
     Once a Q3Action has been created it should be added to the relevant
     menu and toolbar and then connected to the slot which will perform

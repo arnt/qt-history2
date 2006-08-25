@@ -497,7 +497,8 @@
     The old \c QAction and \c QActionGroup classes have been renamed
     Q3Action and Q3ActionGroup and moved to Qt3Support. In addition,
     the new QAction class has compatibility functions to ease
-    transition to Qt 4.
+    transition to Qt 4. Note that when using Q3ToolBar and
+    Q3PopupMenu, their actions must be \l {Q3Action}s.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QAction virtual member functions in Qt 3 that are no longer
@@ -2417,9 +2418,11 @@
 
     \section1 QPopupMenu
 
-    For most purposes, QPopupMenu has been replaced by QMenu in Qt 4. For
-    compatibility with older applications, Q3PopupMenu provides the old API
-    and features that are specific to popup menus.
+    For most purposes, QPopupMenu has been replaced by QMenu in Qt
+    4. For compatibility with older applications, Q3PopupMenu provides
+    the old API and features that are specific to popup menus. Note
+    that, when using Q3PopupMenu, the menu's actions must be \l
+    {Q3Action}s.
 
     In Qt 3, it was common practice to add entries to popup menus using the
     insertItem() function, maintaining identifiers for future use; for
@@ -3787,7 +3790,10 @@
 
     The old \c QToolBar class, which worked with the old \c
     QMainWindow and \c QDockArea classes and inherited from \c
-    QDockWindow, has been renamed Q3ToolBar and moved to Qt3Support.
+    QDockWindow, has been renamed Q3ToolBar and moved to
+    Qt3Support. Note that, when using Q3ToolBar, the toolbar's actions
+    must be \l {Q3Action}s.
+
     Use the new QToolBar class in new applications.
 
     \section1 QToolButton
