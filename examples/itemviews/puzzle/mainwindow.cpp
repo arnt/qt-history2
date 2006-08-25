@@ -100,7 +100,7 @@ void MainWindow::setupWidgets()
 
     piecesList = new QListView;
     piecesList->setDragEnabled(true);
-//    piecesList->setViewMode(QListView::IconMode);
+    piecesList->setViewMode(QListView::IconMode);
     piecesList->setIconSize(QSize(60, 60));
     piecesList->setGridSize(QSize(80, 80));
     piecesList->setSpacing(10);
