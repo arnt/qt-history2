@@ -387,8 +387,12 @@ bool QBuffer::canReadLine() const
 qint64 QBuffer::readData(char *data, qint64 len)
 {
     Q_D(QBuffer);
-    if ((len = qMin(len, qint64(d->size) - d->ioIndex)) < 0)
-        return qint64(0);
+    if ((len = qMin(len, qint64(d->size) - d->ioIndex)) <= 0) {
+        if (d->buf && d->size != d->buf->size())
+            const_cast<QBufferPrivate *>(d)->size = d->buf->size();
+        if ((len = qMin(len, qint64(d->size) - d->ioIndex)) <= 0)
+            return qint64(0);
+    }
     memcpy(data, d->buf->constData() + d->ioIndex, len);
     d->ioIndex += int(len);
     return len;
