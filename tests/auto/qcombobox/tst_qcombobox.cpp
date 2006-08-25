@@ -30,6 +30,7 @@
 #include <qdialog.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
+#include <qcompleter.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/widgets/qcombobox.h gui/widgets/qcombobox.cpp
@@ -1612,11 +1613,13 @@ void tst_QComboBox::flaggedItems()
     comboBox.setModel(listWidget.model());
     comboBox.setView(&listWidget);
 
-    foreach (Qt::Key key, keyMovementList)
-            QTest::keyClick(&comboBox, key);
+    if (editable)
+        comboBox.lineEdit()->selectAll();
 
-    QEXPECT_FAIL("editable:broken autocompletion" , "Fix in autocompletion needed" , Continue);
-    QCOMPARE(comboBox.currentIndex() , expectedIndex );
+    foreach (Qt::Key key, keyMovementList)
+        QTest::keyClick(&comboBox, key);
+
+    QCOMPARE(comboBox.currentIndex() , expectedIndex);
 }
 
 void tst_QComboBox::pixmapIcon()

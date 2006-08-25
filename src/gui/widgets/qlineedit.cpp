@@ -580,19 +580,17 @@ QCompleter *QLineEdit::completer() const
 
 bool QLineEditPrivate::advanceToNextEnabledItem(int n /* n = 1 ? forward : backward */)
 {
-    int save = completer->currentRow();
-
     while (true) {
-        if (!completer->setCurrentRow(completer->currentRow() + n)) {
-            completer->setCurrentRow(save);
-            break;
-        }
         QModelIndex currentIndex = completer->currentIndex();
+        if (!currentIndex.isValid())
+            return false;
         if (completer->completionModel()->flags(currentIndex) & Qt::ItemIsEnabled)
+            return true;
+        if (!completer->setCurrentRow(completer->currentRow() + n))
             break;
     }
 
-    return save != completer->currentRow();
+    return false;
 }
 
 void QLineEditPrivate::complete(int key)
@@ -603,17 +601,21 @@ void QLineEditPrivate::complete(int key)
     if (completer->completionMode() == QCompleter::InlineCompletion) {
         if (key == Qt::Key_Backspace)
             return;
+        int n = 1;
         if (key == Qt::Key_Up || key == Qt::Key_Down) {
             if (selend != 0 && selend != text.length())
                 return;
             QString prefix = text.left(cursor);
-            if (prefix != completer->completionPrefix())
-                return;
-            int n = (key == Qt::Key_Up) ? -1 : +1;
-            if (!advanceToNextEnabledItem(n))
-                return;
+            if (prefix != completer->completionPrefix()) {
+                completer->setCompletionPrefix(prefix);
+            } else {
+                n = (key == Qt::Key_Up) ? -1 : +1;
+                completer->setCurrentRow(completer->currentRow() + n);
+            }
         } else
             completer->setCompletionPrefix(text);
+        if (!advanceToNextEnabledItem(n))
+            return;
     } else {
         if (text.isEmpty()) {
             completer->popup()->hide();
