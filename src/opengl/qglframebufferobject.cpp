@@ -81,7 +81,7 @@
 #define GL_CLAMP_TO_EDGE                  0x812F
 #endif
 
-#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+#if defined(Q_WS_X11) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 
 #define QGL_FUNC_CONTEXT
 
@@ -129,7 +129,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
     else if (resolved)
         return false;
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     QLibrary lib(QLatin1String("GL"));
 #else // Q_WS_MAC
     QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
@@ -217,8 +217,8 @@ bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {                                                         \
     GLenum err = glGetError();                            \
     if (err != GL_NO_ERROR) {                             \
-        qDebug("[%s line %d] GL Error: %s",               \
-               __FILE__, __LINE__, gluErrorString(err));  \
+        qDebug("[%s line %d] GL Error: %d",               \
+               __FILE__, __LINE__, err);                  \
     }                                                     \
 }
 

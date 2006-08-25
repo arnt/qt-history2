@@ -41,6 +41,10 @@ class QPixmap;
 class QMacWindowChangeEvent;
 #endif
 
+#ifdef Q_WS_QWS
+#include <GLES/egl.h>
+#endif
+
 // extension prototypes
 #ifndef Q_WS_MAC
 # ifndef APIENTRYP
@@ -243,6 +247,11 @@ public:
     bool update;
     AGLPixelFormat tryFormat(const QGLFormat &format);
 #endif
+#elif defined(Q_WS_QWS)
+    EGLDisplay dpy;
+    EGLContext cx;
+    EGLConfig  config;
+    EGLSurface surface;
 #endif
     QGLFormat glFormat;
     QGLFormat reqFormat;
@@ -337,6 +346,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
 #ifndef GL_BGRA
 #define GL_BGRA 0x80E1
 #endif
+    
 struct QGLThreadContext {
     QGLContext *context;
 };

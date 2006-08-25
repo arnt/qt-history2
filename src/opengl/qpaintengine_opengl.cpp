@@ -28,9 +28,18 @@
 #include <private/qpainter_p.h>
 #include <qglpixelbuffer.h>
 #include <private/qglpixelbuffer_p.h>
-#include <private/qstroker_p.h>
 #include <private/qbezier_p.h>
 #include <qglframebufferobject.h>
+#ifdef Q_WS_QWS
+#include "qttessellator_p.h"
+#else
+#include <private/qstroker_p.h>
+# ifdef Q_OS_MAC
+#  include <OpenGL/glu.h>
+# else
+#  include <GL/glu.h>
+# endif
+#endif
 
 #ifdef Q_WS_WIN
 #define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
@@ -40,13 +49,13 @@
 #define QGL_D_FUNC_CONTEXT
 #endif
 
-#ifdef Q_OS_MAC
-# include <OpenGL/glu.h>
-#else
-# include <GL/glu.h>
-#endif
 #include <stdlib.h>
+#include "qpaintengine_opengl_p.h"
 
+#define QREAL_MAX 9e100
+#define QREAL_MIN -9e100
+
+#ifndef Q_WS_QWS
 struct QSubpath
 {
     int start, end;
@@ -80,8 +89,6 @@ QDebug operator<<(QDebug s, const QSubpath &p)
     return s;
 }
 
-#define QREAL_MAX 9e100
-#define QREAL_MIN -9e100
 
 void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<QSubpath> *subpaths)
 {
@@ -89,86 +96,120 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
 
     // reset the old buffers...
     paths->reset();
-    subpaths->reset();
+   subpaths->reset();
 
     // Create the set of current subpaths...
     {
         QSubpath *current = 0;
         for (int i=0; i<path.elementCount(); ++i) {
-            const QPainterPath::Element &e = path.elementAt(i);
+           const QPainterPath::Element &e = path.elementAt(i);
             switch (e.type) {
             case QPainterPath::MoveToElement: {
                 if (current)
                     current->end = i-1;
                 QSubpath sp = { i, 0, QREAL_MAX, QREAL_MIN, QREAL_MAX, QREAL_MIN, false, false };
-                sp.unite(e.x, e.y);
+               sp.unite(e.x, e.y);
                 subpaths->add(sp);
                 current = &subpaths->data()[subpaths->size() - 1];
                 break;
             }
             case QPainterPath::LineToElement:
-                Q_ASSERT(current);
+               Q_ASSERT(current);
                 current->unite(e.x, e.y);
                 break;
             case QPainterPath::CurveToElement: {
                 const QPainterPath::Element &cp2 = path.elementAt(i+1);
                 const QPainterPath::Element &ep = path.elementAt(i+2);
-                Q_ASSERT(current);
+               Q_ASSERT(current);
                 current->unite(e.x, e.y);
                 current->unite(cp2.x, cp2.y);
                 current->unite(ep.x, ep.y);
                 i+=2;
                 break;
-            }
+           }
             default:
                 break;
             }
         }
         if (current)
-            current->end = path.elementCount() - 1;
+           current->end = path.elementCount() - 1;
     }
 
 //     for (int i=0; i<subpaths->size(); ++i) {
 //         qDebug() << subpaths->at(i);
 //     }
-
     // Check which intersect and merge in paths variable
     {
         for (int spi=0; spi<subpaths->size(); ++spi) {
             if (subpaths->at(spi).processed)
                 continue;
 
-            paths->add(spi);
+           paths->add(spi);
             (subpaths->data() + spi)->added = true;
 
 //             qDebug() << " - matching: " << spi << subpaths->at(spi) << paths->size();
 
             for (int i=paths->size() - 1; i<paths->size(); ++i) {
-                QSubpath *s1 = subpaths->data() + paths->at(i);
+               QSubpath *s1 = subpaths->data() + paths->at(i);
                 s1->processed = true;
 //                 qDebug() << "   - checking" << paths->at(i) << *(subpaths->data() + paths->at(i));
 
                 for (int j=spi+1; j<subpaths->size(); ++j) {
                     QSubpath *s2 = subpaths->data() + j;
-                    if (s2->processed || s2->added)
+                   if (s2->processed || s2->added)
                         continue;
 //                     qDebug() << "      - against" << j << *s2;
                     if (s1->intersects(*s2)) {
 //                         qDebug() << "        - intersects...";
                         s2->added = true;
-                        paths->add(j);
+                       paths->add(j);
 
                     }
                 }
             }
 
-            paths->add(-1);
+           paths->add(-1);
 //             qDebug() << "paths...";
 //             for (int i=0; i<paths->size(); ++i)
 //                 qDebug() << "  " << paths->at(i);
         }
     }
 }
+
+#ifndef CALLBACK // for Windows
+#define CALLBACK
+#endif
+
+// Need to allocate space for new vertices on intersecting lines and
+// they need to be alive until gluTessEndPolygon() has returned
+static QList<GLdouble *> vertexStorage;
+static void CALLBACK qgl_tess_combine(GLdouble coords[3],
+                                      GLdouble *[4],
+                                      GLfloat [4], GLdouble **dataOut)
+{
+    GLdouble *vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
+    vertex[0] = coords[0];
+    vertex[1] = coords[1];
+    vertex[2] = coords[2];
+    *dataOut = vertex;
+    vertexStorage.append(vertex);
+}
+
+static void CALLBACK qgl_tess_error(GLenum errorCode)
+{
+    qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
+}
+
+struct QGLUTesselatorCleanupHandler
+{
+    inline QGLUTesselatorCleanupHandler() { qgl_tess = gluNewTess(); }
+    inline ~QGLUTesselatorCleanupHandler() { gluDeleteTess(qgl_tess); }
+    GLUtesselator *qgl_tess;
+};
+
+Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
+
+#endif
 
 class QGLDrawable {
 public:
@@ -292,39 +333,6 @@ inline bool QGLDrawable::autoFillBackground() const
     return false;
 }
 
-#ifndef CALLBACK // for Windows
-#define CALLBACK
-#endif
-
-// Need to allocate space for new vertices on intersecting lines and
-// they need to be alive until gluTessEndPolygon() has returned
-static QList<GLdouble *> vertexStorage;
-static void CALLBACK qgl_tess_combine(GLdouble coords[3],
-                                      GLdouble *[4],
-                                      GLfloat [4], GLdouble **dataOut)
-{
-    GLdouble *vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
-    vertex[0] = coords[0];
-    vertex[1] = coords[1];
-    vertex[2] = coords[2];
-    *dataOut = vertex;
-    vertexStorage.append(vertex);
-}
-
-static void CALLBACK qgl_tess_error(GLenum errorCode)
-{
-    qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
-}
-
-struct QGLUTesselatorCleanupHandler
-{
-    inline QGLUTesselatorCleanupHandler() { qgl_tess = gluNewTess(); }
-    inline ~QGLUTesselatorCleanupHandler() { gluDeleteTess(qgl_tess); }
-    GLUtesselator *qgl_tess;
-};
-
-Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
-
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
@@ -334,9 +342,11 @@ public:
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
         , moveToCount(0)
+#ifndef Q_WS_QWS
         , dashStroker(0)
         , stroker(0)
         , tessVector(20000)
+#endif
         , shader_dev(0)
         , grad_palette(0)
         , has_glsl(false)
@@ -364,11 +374,41 @@ public:
     void createGradientPaletteTexture(const QGradient& g);
 
     void updateGradient(const QBrush &brush);
+
+#ifndef Q_WS_QWS
     void beginPath(QPaintEngine::PolygonDrawMode mode);
     void endPath();
     inline void moveTo(const QPointF &p);
     inline void lineTo(const QPointF &p);
     inline void curveTo(const QPointF &cp1, const QPointF &cp2, const QPointF &ep);
+#else
+    void fillPath(const QPainterPath &path);
+
+    inline QPainterPath strokeForPath(const QPainterPath &path) {
+        QPainterPathStroker stroker;
+        if (cpen.style() == Qt::CustomDashLine)
+            stroker.setDashPattern(cpen.dashPattern());
+        else
+            stroker.setDashPattern(cpen.style());
+
+        stroker.setCapStyle(cpen.capStyle());
+        stroker.setJoinStyle(cpen.joinStyle());
+        stroker.setMiterLimit(cpen.miterLimit());
+
+        qreal width = cpen.widthF();
+        if (width == 0) {
+            stroker.setWidth(1);
+        } else
+            stroker.setWidth(width);
+
+        QPainterPath stroke = stroker.createStroke(path);
+        stroke.setFillRule(Qt::WindingFill);
+        return stroke;
+    }
+
+    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+                         const QRectF &bounds, Qt::FillRule fill);
+#endif
 
     QPen cpen;
     QBrush cbrush;
@@ -391,14 +431,18 @@ public:
     qreal inverseScale;
 
     int moveToCount;
+#ifndef Q_WS_QWS
     QStroker basicStroker;
     QDashStroker *dashStroker;
     QStrokerOps *stroker;
+#endif
     QPointF path_start;
 
+#ifndef Q_WS_QWS
     QDataBuffer<QSubpath> subpath_buffer;
     QDataBuffer<int> int_buffer;
     QDataBuffer<GLdouble> tessVector;
+#endif
 
     QPaintDevice *shader_dev;
     GLuint grad_palette;
@@ -425,6 +469,7 @@ public:
     GLuint conical_tex_location;
 };
 
+#ifndef Q_WS_QWS
 void QOpenGLPaintEnginePrivate::beginPath(QPaintEngine::PolygonDrawMode mode)
 {
     Q_ASSERT(mode != QPaintEngine::PolylineMode);
@@ -512,7 +557,7 @@ inline void QOpenGLPaintEnginePrivate::curveTo(const QPointF &cp1, const QPointF
         } else {
             // split, second half of the polygon goes lower into the stack
             b->split(b+1, b);
-            ++b;
+           ++b;
         }
     }
 }
@@ -544,6 +589,7 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
                                                   QPointF(qt_fixed_to_real(ex),
                                                           qt_fixed_to_real(ey)));
 }
+#endif
 
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
@@ -954,6 +1000,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                                            | ConicalGradientFill
                                            | PatternBrush)))
 {
+#ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
     d->basicStroker.setMoveToHook(strokeMoveTo);
     d->basicStroker.setLineToHook(strokeLineTo);
@@ -981,18 +1028,21 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
     gluTessCallback(qgl_tess, GLU_TESS_ERROR,
                     reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
 #endif
+#endif
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
+#ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
     if (d->dashStroker)
         delete d->dashStroker;
+#endif
 }
 
 bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_src, GLuint &shader)
 {
- #ifndef Q_WS_WIN
+#ifndef Q_WS_WIN
     Q_UNUSED(ctx);
 #endif
     program = glCreateProgram();
@@ -1308,6 +1358,128 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         glDisable(GL_FRAGMENT_PROGRAM_ARB);
 }
 
+#ifdef Q_WS_QWS
+static inline void qt_XTrapToTriangle(QVector<float> &vertices, const qt_XTrapezoid &trap)
+{
+    QPointF topLeft;
+    QPointF topRight;
+    QPointF bottomLeft;
+    QPointF bottomRight;
+
+    topLeft.setY(qt_XFixedToDouble(trap.top));
+    topRight.setY(qt_XFixedToDouble(trap.top));
+    bottomLeft.setY(qt_XFixedToDouble(trap.bottom));
+    bottomRight.setY(qt_XFixedToDouble(trap.bottom));
+
+    qreal p1x = qt_XFixedToDouble(trap.left.p1.x);
+    qreal p2x = qt_XFixedToDouble(trap.left.p2.x);
+
+    qt_XFixed yf = trap.left.p1.y - trap.left.p2.y;
+    if (!yf)
+        return;
+
+    qreal y = qt_XFixedToDouble(yf);
+
+    qreal topLeftX    = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.left.p1.y) - qt_XFixedToDouble(trap.top))/y;
+    qreal bottomLeftX = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.left.p1.y) - qt_XFixedToDouble(trap.bottom))/y;
+
+
+    p1x = qt_XFixedToDouble(trap.right.p1.x);
+    p2x = qt_XFixedToDouble(trap.right.p2.x);
+    yf =  trap.right.p1.y - trap.right.p2.y;
+    if (!yf)
+        return;
+
+    y = qt_XFixedToDouble(yf);
+
+    qreal topRightX    = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.right.p1.y) - qt_XFixedToDouble(trap.top))/y;
+    qreal bottomRightX = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.right.p1.y) - qt_XFixedToDouble(trap.bottom))/y;
+
+    topLeft.setX(topLeftX);
+    topRight.setX(topRightX);
+    bottomLeft.setX(bottomLeftX);
+    bottomRight.setX(bottomRightX);
+
+    //qDebug()<<topLeft<<topRight<<bottomLeft<<bottomRight;
+
+#define ADD_VERTEX(vtx) vertices.append((vtx).x()); vertices.append((vtx).y())
+    ADD_VERTEX(topLeft);
+    ADD_VERTEX(topRight);
+    ADD_VERTEX(bottomLeft);
+
+    ADD_VERTEX(bottomLeft);
+    ADD_VERTEX(topRight);
+    ADD_VERTEX(bottomRight);
+#undef ADD_VERTEX
+}
+
+void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+                                                const QRectF &bounds, Qt::FillRule fill)
+{
+    QVector<qt_XTrapezoid> traps;
+    traps.reserve(128);
+    QRect br;
+    qt_polygon_trapezoidation(&traps, polygonPoints, pointCount,
+                              fill == Qt::WindingFill, &br);
+    //each trap decomposed in 2 triangles, each triangle 3 vertices,
+    //each triangle 2 coords
+    QVector<float> vertices(traps.count() * 12);
+    for (int i = 0; i < traps.count(); ++i) {
+        const qt_XTrapezoid &trap = traps[i];
+        qt_XTrapToTriangle(vertices, trap);
+    }
+
+    glVertexPointer(2, GL_FLOAT, 0, vertices.constData());
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_TRIANGLES, 0, vertices.count()/2);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
+{
+    QList<QPolygonF> polys = path.toFillPolygons(matrix);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_TRUE);
+    glStencilMask(~0);
+
+    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    for (int i = 0; i < polys.size(); ++i) {
+        const QPolygonF &poly = polys.at(i);
+        fillPolygon_dev(poly.data(), poly.count(),
+                        poly.boundingRect(),
+                        path.fillRule());
+    }
+    glMatrixMode(GL_MODELVIEW);
+
+    GLdouble mat[4][4];
+    QMatrix mtx = matrix;
+    mat[0][0] = mtx.m11();
+    mat[0][1] = mtx.m12();
+    mat[0][2] = 0;
+    mat[0][3] = 0;
+
+    mat[1][0] = mtx.m21();
+    mat[1][1] = mtx.m22();
+    mat[1][2] = 0;
+    mat[1][3] = 0;
+
+    mat[2][0] = 0;
+    mat[2][1] = 0;
+    mat[2][2] = 1;
+    mat[2][3] = 0;
+
+    mat[3][0] = mtx.dx();
+    mat[3][1] = mtx.dy();
+    mat[3][2] = 0;
+    mat[3][3] = 1;
+
+    glLoadMatrixd(&mat[0][0]);
+}
+#endif
 
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
@@ -1327,6 +1499,7 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
         glColor4ubv(d->pen_color);
     }
 
+#ifndef Q_WS_QWS
     d->basicStroker.setJoinStyle(pen.joinStyle());
     d->basicStroker.setCapStyle(pen.capStyle());
     d->basicStroker.setMiterLimit(pen.miterLimit());
@@ -1355,6 +1528,8 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     } else {
         d->stroker = 0;
     }
+#endif
+
 }
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
@@ -1612,6 +1787,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 glDrawArrays(GL_LINE_STRIP, 0, 5);
                 glDisableClientState(GL_VERTEX_ARRAY);
             } else {
+#ifndef Q_WS_QWS
                 d->beginPath(QPaintEngine::WindingMode);
                 d->stroker->begin(d);
                 d->stroker->moveTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
@@ -1621,6 +1797,16 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 d->stroker->lineTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
                 d->stroker->end();
                 d->endPath();
+#else
+                QPainterPath path; path.setFillRule(Qt::WindingFill);
+                path.moveTo(left, top);
+                path.lineTo(right, top);
+                path.lineTo(right, bottom);
+                path.lineTo(left, bottom);
+                path.lineTo(left, top);
+                QPainterPath stroke = d->strokeForPath(path);
+                d->fillPath(stroke);
+#endif
             }
         }
     }
@@ -1678,12 +1864,20 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             glColor4ubv(d->pen_color);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
+#ifndef Q_WS_QWS
                 d->beginPath(QPaintEngine::WindingMode);
                 d->stroker->begin(d);
                 d->stroker->moveTo(qt_real_to_fixed(l.x1()), qt_real_to_fixed(l.y1()));
                 d->stroker->lineTo(qt_real_to_fixed(l.x2()), qt_real_to_fixed(l.y2()));
                 d->stroker->end();
                 d->endPath();
+#else
+                QPainterPath path; path.setFillRule(Qt::WindingFill);
+                path.moveTo(l.x1(), l.y1());
+                path.lineTo(l.x2(), l.y2());
+                QPainterPath stroke = d->strokeForPath(path);
+                d->fillPath(stroke);
+#endif
             }
         }
     }
@@ -1716,11 +1910,21 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
             glColor4ubv(d->brush_color);
+#ifndef Q_WS_QWS
             d->beginPath(mode);
             d->moveTo(points[0]);
             for (int i=1; i<pointCount; ++i)
                 d->lineTo(points[i]);
             d->endPath();
+#else
+            QPainterPath path;
+            path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
+            path.moveTo(points[0]);
+            for (int i=1; i<pointCount; ++i)
+                path.lineTo(points[i]);
+            //path.closeSubpath();
+            d->fillPath(path);
+#endif
         }
     }
 
@@ -1747,9 +1951,20 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
+#ifndef Q_WS_QWS
             d->beginPath(WindingMode);
             d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
             d->endPath();
+#else
+            QPainterPath path(points[0]);
+            for (int i = 1; i < pointCount; ++i)
+                path.lineTo(points[i]);
+
+            QPainterPath stroke = d->strokeForPath(path);
+            if (stroke.isEmpty())
+                return;
+            d->fillPath(stroke);
+#endif
         }
     }
 }
@@ -1763,6 +1978,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->has_brush) {
         d->setGradientOps(d->brush_style);
+#ifndef Q_WS_QWS
         // Don't split "simple" paths...
         if (path.elementCount() > 32) {
             qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
@@ -1817,6 +2033,10 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             }
             d->endPath();
         }
+#else
+        glColor4ubv(d->brush_color);
+        d->fillPath(path);
+#endif
     }
 
     if (d->has_pen) {
@@ -1838,49 +2058,54 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                     break;
 
                 case QPainterPath::CurveToElement:
-                    {
-                        QPointF sp = path.elementAt(i-1);
-                        QPointF cp2 = path.elementAt(i+1);
-                        QPointF ep = path.elementAt(i+2);
-                        i+=2;
+                {
+                    QPointF sp = path.elementAt(i-1);
+                    QPointF cp2 = path.elementAt(i+1);
+                    QPointF ep = path.elementAt(i+2);
+                    i+=2;
 
-                        qreal inverseScaleHalf = d->inverseScale / 2;
-                        beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
-                        QBezier *b = beziers;
-                        while (b >= beziers) {
-                            // check if we can pop the top bezier curve from the stack
-                            qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
-                            qreal d;
-                            if (l > d_func()->inverseScale) {
-                                d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
-                                          - (b->y4 - b->y1)*(b->x1 - b->x2) )
-                                    + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
-                                            - (b->y4 - b->y1)*(b->x1 - b->x3) );
-                                d /= l;
-                            } else {
-                                d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
-                                    qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
-                            }
-                            if (d < inverseScaleHalf || b == beziers + 31) {
-                                // good enough, we pop it off and add the endpoint
-                                glVertex2d(b->x4, b->y4);
-                                --b;
-                            } else {
-                                // split, second half of the polygon goes lower into the stack
-                                b->split(b+1, b);
-                                ++b;
-                            }
+                    qreal inverseScaleHalf = d->inverseScale / 2;
+                    beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
+                    QBezier *b = beziers;
+                    while (b >= beziers) {
+                        // check if we can pop the top bezier curve from the stack
+                        qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+                        qreal d;
+                        if (l > d_func()->inverseScale) {
+                            d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
+                                      - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                                + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
+                                        - (b->y4 - b->y1)*(b->x1 - b->x3) );
+                            d /= l;
+                        } else {
+                            d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                                qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
                         }
-                    } // case CurveToElement
+                        if (d < inverseScaleHalf || b == beziers + 31) {
+                            // good enough, we pop it off and add the endpoint
+                            glVertex2d(b->x4, b->y4);
+                            --b;
+                        } else {
+                            // split, second half of the polygon goes lower into the stack
+                            b->split(b+1, b);
+                            ++b;
+                        }
+                    }
+                } // case CurveToElement
                 default:
                     break;
                 } // end of switch
             }
             glEnd(); // GL_LINE_STRIP
         } else {
+#ifndef Q_WS_QWS
             d->beginPath(WindingMode);
             d->stroker->strokePath(path, d, QMatrix());
             d->endPath();
+#else
+            QPainterPath npath = d->strokeForPath(path);
+            d->fillPath(npath);
+#endif
         }
     }
 }

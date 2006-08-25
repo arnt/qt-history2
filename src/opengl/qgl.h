@@ -36,10 +36,8 @@ Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
 
 #if defined(Q_WS_MAC)
 # include <OpenGL/gl.h>
-# include <OpenGL/glu.h>
 #else
 # include <GL/gl.h>
-# include <GL/glu.h>
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)

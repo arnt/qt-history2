@@ -20,7 +20,6 @@
 #include <private/qpaintengine_opengl_p.h>
 #include "qcolormap.h"
 #include "qcache.h"
-
 #include "qfile.h"
 
 extern Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
@@ -197,6 +196,48 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
     \sa QGLContext, QGLWidget
 */
 
+static inline void
+transform_point(GLdouble out[4], const GLdouble m[16], const GLdouble in[4])
+{
+#define M(row,col)  m[col*4+row]
+    out[0] =
+        M(0, 0) * in[0] + M(0, 1) * in[1] + M(0, 2) * in[2] + M(0, 3) * in[3];
+    out[1] =
+        M(1, 0) * in[0] + M(1, 1) * in[1] + M(1, 2) * in[2] + M(1, 3) * in[3];
+    out[2] =
+        M(2, 0) * in[0] + M(2, 1) * in[1] + M(2, 2) * in[2] + M(2, 3) * in[3];
+    out[3] =
+        M(3, 0) * in[0] + M(3, 1) * in[1] + M(3, 2) * in[2] + M(3, 3) * in[3];
+#undef M
+}
+static inline GLint
+qgluProject(GLdouble objx, GLdouble objy, GLdouble objz,
+	   const GLdouble model[16], const GLdouble proj[16],
+	   const GLint viewport[4],
+	   GLdouble * winx, GLdouble * winy, GLdouble * winz)
+{
+   GLdouble in[4], out[4];
+
+   in[0] = objx;
+   in[1] = objy;
+   in[2] = objz;
+   in[3] = 1.0;
+   transform_point(out, model, in);
+   transform_point(in, proj, out);
+
+   if (in[3] == 0.0)
+      return GL_FALSE;
+
+   in[0] /= in[3];
+   in[1] /= in[3];
+   in[2] /= in[3];
+
+   *winx = viewport[0] + (1 + in[0]) * viewport[2] / 2;
+   *winy = viewport[1] + (1 + in[1]) * viewport[3] / 2;
+
+   *winz = (1 + in[2]) / 2;
+   return GL_TRUE;
+}
 
 /*!
     Constructs a QGLFormat object with the factory default settings:
@@ -3275,7 +3316,8 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
         glGetIntegerv(GL_VIEWPORT, &view[0]);
 
         GLdouble win_x, win_y, win_z;
-        gluProject(x, y, z, &model[0][0], &proj[0][0], &view[0], &win_x, &win_y, &win_z);
+        qgluProject(x, y, z, &model[0][0], &proj[0][0], &view[0],
+                    &win_x, &win_y, &win_z);
         win_y = height() - win_y; // y is inverted
 
         glMatrixMode(GL_PROJECTION);

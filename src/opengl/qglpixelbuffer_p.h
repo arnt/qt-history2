@@ -93,6 +93,8 @@ struct GLXFBConfig {
 DECLARE_HANDLE(HPBUFFERARB);
 #elif defined(Q_WS_MACX)
 #include <AGL/agl.h>
+#elif defined(Q_WS_QWS)
+#include <GLES/egl.h>
 #endif
 
 class QGLPixelBufferPrivate {
@@ -135,6 +137,9 @@ public:
 #endif
     AGLContext ctx;
     AGLContext share_ctx;
+#elif defined(Q_WS_QWS)
+    void *pbuf;
+    EGLContext ctx;
 #endif
 };
 
