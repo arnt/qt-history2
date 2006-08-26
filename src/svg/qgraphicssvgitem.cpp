@@ -12,6 +12,8 @@
 ****************************************************************************/
 #include "qgraphicssvgitem.h"
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qpainter.h"
 #include "qstyleoption.h"
 #include "qsvgrenderer.h"
@@ -28,7 +30,7 @@ public:
         : renderer(0), shared(false), dirty(true),
           cached(true)
     { }
-    
+
     void init()
     {
         Q_Q(QGraphicsSvgItem);
@@ -58,7 +60,7 @@ public:
 
     \brief The QGraphicsSvgItem class is a QGraphicsItem that can be used to render
            the contents of SVG files.
-    
+
     \since 4.2
 
     QGraphicsSvgItem provides a way of rendering SVG files onto QGraphicsView.
@@ -84,7 +86,7 @@ public:
 
     black->setSharedRenderer(renderer);
     black->setElementId(QLatin1String("black_joker"));
-    
+
     red->setSharedRenderer(renderer);
     red->setElementId(QLatin1String("black_joker"));
     \endcode
@@ -159,7 +161,7 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             d->renderer->render(painter, d->elemId, d->boundingRect);
         return;
     }
-    
+
     if (d->dirty) {
         if (d->pixmap.isNull())
             d->pixmap = QPixmap(d->pixmapSize);
@@ -184,7 +186,7 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
                   d->boundingRect.height()/d->pixmapSize.height());
         painter->setWorldMatrix(mat);
     }
-                                                             
+
     painter->drawPixmap(0, 0, d->pixmap);
 }
 
@@ -261,7 +263,7 @@ void QGraphicsSvgItem::setSharedRenderer(QSvgRenderer *renderer)
     Q_D(QGraphicsSvgItem);
     if (!d->shared)
         delete d->renderer;
-    
+
     d->renderer = renderer;
     d->shared = true;
     d->dirty = true;
@@ -290,7 +292,7 @@ QVariant QGraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant 
 /*!
     If \a caching is true, enables caching on the item; otherwise
     disables it.
-    
+
     By defaylt, caching is on. For performance reasons, it is advised
     to keep the caching on.
 */
@@ -330,7 +332,9 @@ QPixmap QGraphicsSvgItem::cache() const
         return d->pixmap;
     else
         return QPixmap();
-    
+
 }
 
 #include "moc_qgraphicssvgitem.cpp"
+
+#endif // QT_NO_GRAPHICSVIEW

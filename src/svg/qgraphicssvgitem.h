@@ -16,10 +16,12 @@
 #include <QtGui/qgraphicsitem.h>
 #include <QtCore/qobject.h>
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Svg)
-    
+
 class QSvgRenderer;
 class QGraphicsSvgItemPrivate;
 
@@ -30,13 +32,13 @@ class Q_SVG_EXPORT QGraphicsSvgItem : public QObject, public QGraphicsItem
 public:
     QGraphicsSvgItem(QGraphicsItem *parentItem=0);
     QGraphicsSvgItem(const QString &fileName, QGraphicsItem *parentItem=0);
-    
+
     void setSharedRenderer(QSvgRenderer *renderer);
     QSvgRenderer *renderer() const;
 
     void setElementId(const QString &id);
     QString elementId() const;
-    
+
     void setSize(const QSize &size);
     QSize size() const;
 
@@ -45,9 +47,9 @@ public:
 
     QPixmap cache() const;
 
-    
+
     virtual QRectF boundingRect() const;
-    
+
     virtual void paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *option,
                        QWidget *widget=0);
@@ -72,4 +74,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_GRAPHICSVIEW
 #endif // QGRAPHICSSVGITEM_H
