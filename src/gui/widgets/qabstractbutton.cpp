@@ -697,13 +697,13 @@ void QAbstractButton::setChecked(bool checked)
         // the checked button of an exclusive or autoexclusive group cannot be  unchecked
 #ifndef QT_NO_BUTTONGROUP
         if (d->group ? d->group->d_func()->exclusive : d->autoExclusive)
-#else
-        if (d->autoExclusive)
-#endif
             return;
-
         if (d->group)
             d->group->d_func()->detectCheckedButton();
+#else
+        if (d->autoExclusive)
+            return;
+#endif
     }
 
     QPointer<QAbstractButton> guard(this);
