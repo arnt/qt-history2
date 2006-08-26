@@ -88,7 +88,7 @@ View::View(const QString &name, QWidget *parent)
     openGlButton->setCheckable(true);
     openGlButton->setEnabled(QGLFormat::hasOpenGL());
     printButton = new QToolButton;
-    printButton->setIcon(QIcon(QPixmap("fileprint.png")));
+    printButton->setIcon(QIcon(QPixmap(":/fileprint.png")));
 
     labelLayout->addWidget(label);
     labelLayout->addStretch();
