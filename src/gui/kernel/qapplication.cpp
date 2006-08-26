@@ -1220,8 +1220,10 @@ void QApplication::setStyle(QStyle *style)
                 // create a new proxy themselves (depending on whether they too have stylesheets)
                 if (!w->testAttribute(Qt::WA_SetStyle))
                     QApplicationPrivate::app_style->polish(w);                // repolish
+#ifndef QT_NO_STYLE_STYLESHEET
                 else
                     w->setStyleSheet(w->styleSheet()); // touch
+#endif
             }
         }
 
@@ -1240,9 +1242,12 @@ void QApplication::setStyle(QStyle *style)
         }
     }
 
+#ifndef QT_NO_STYLE_STYLESHEET
     if (QStyleSheetStyle *oldProxy = qobject_cast<QStyleSheetStyle *>(old)) {
         oldProxy->deref();
-    } else if (old && old->parent() == qApp) {
+    } else
+#endif
+    if (old && old->parent() == qApp) {
         delete old;
     }
 

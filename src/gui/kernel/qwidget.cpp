@@ -28,6 +28,7 @@
 #include "qstylefactory.h"
 #include "qvariant.h"
 #include "qwidget.h"
+#include "qstyleoption.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -1807,7 +1808,9 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
     Q_Q(QWidget);
     createExtra();
     QStyle *oldStyle  = q->style();
+#ifndef QT_NO_STYLE_STYLESHEET
     QStyle *origStyle = extra->style;
+#endif
     extra->style = newStyle;
 
     if (propagate) {
@@ -1839,9 +1842,9 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
 // Inherits style from the current parent and propagates it as necessary
 void QWidgetPrivate::inheritStyle()
 {
+#ifndef QT_NO_STYLE_STYLESHEET
     Q_Q(QWidget);
 
-#ifndef QT_NO_STYLE_STYLESHEET
     QStyleSheetStyle *proxy = extra ? qobject_cast<QStyleSheetStyle *>(extra->style) : 0;
 
     if (!q->styleSheet().isEmpty()) {
@@ -1875,7 +1878,7 @@ void QWidgetPrivate::inheritStyle()
         origStyle = 0;
 
     setStyle_helper(origStyle, true);
-#endif
+#endif // QT_NO_STYLE_STYLESHEET
 }
 
 #ifdef QT3_SUPPORT
