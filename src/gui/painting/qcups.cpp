@@ -13,7 +13,7 @@
 #include <qdebug.h>
 #include "qcups_p.h"
 
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+#ifndef QT_NO_CUPS
 
 typedef int (*CupsGetDests)(cups_dest_t **dests);
 typedef const char* (*CupsGetPPD)(const char *printer);
@@ -282,8 +282,5 @@ void QCUPSSupport::collectMarkedOptionsHelper(QStringList& list, const ppd_group
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-
-#endif // !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+#endif // QT_NO_CUPS
 

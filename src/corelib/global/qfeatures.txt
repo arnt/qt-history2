@@ -783,7 +783,7 @@ SeeAlso: ???
 Feature: CUPS
 Description Supports the Common UNIX Printing System
 Section: Painting
-Requires: PRINTER
+Requires: PRINTER LIBRARY
 Name: Common UNIX Printing System
 SeeAlso: ???
 

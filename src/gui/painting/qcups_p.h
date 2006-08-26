@@ -28,9 +28,7 @@
 #include "QtCore/qstringlist.h"
 #include "QtGui/qprinter.h"
 
-#ifndef QT_NO_PRINTER
-
-#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+#ifndef QT_NO_CUPS
 #include <QtCore/qlibrary.h>
 #include <cups/cups.h>
 
@@ -72,8 +70,5 @@ private:
     ppd_file_t *currPPD;
 };
 
-#endif // !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
-
-#endif
-
+#endif // QT_NO_CUPS
 #endif
