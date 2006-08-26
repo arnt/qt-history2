@@ -401,10 +401,14 @@ QAccessible::Role QAccessibleItemView::role(int child) const
         return Row;
 
     QAbstractItemView *view = itemView();
+#ifndef QT_NO_TABLEVIEW
     if (qobject_cast<QTableView *>(view))
         return Table;
+#endif
+#ifndef QT_NO_LISTVIEW
     if (qobject_cast<QListView *>(view))
         return List;
+#endif
     return Tree;
 }
 

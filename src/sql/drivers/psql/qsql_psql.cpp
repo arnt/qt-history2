@@ -265,9 +265,14 @@ QVariant QPSQLResult::data(int i)
         if (val[0] == '\0') {
             return QVariant(QDate());
         } else {
+#ifndef QT_NO_DATESTRING
             return QVariant(QDate::fromString(QString::fromLatin1(val), Qt::ISODate));
+#else
+            return QVariant(QDate());
+#endif
         }
     case QVariant::Time: {
+#ifndef QT_NO_DATESTRING
         const QString str = QString::fromLatin1(val);
         if (str.isEmpty())
             return QVariant(QTime());
@@ -275,8 +280,12 @@ QVariant QPSQLResult::data(int i)
             // strip the timezone
             return QVariant(QTime::fromString(str.left(str.length() - 3), Qt::ISODate));
         return QVariant(QTime::fromString(str, Qt::ISODate));
+#else
+        return QVariant(QTime());
+#endif
     }
     case QVariant::DateTime: {
+#ifndef QT_NO_DATESTRING
         QString dtval = QString::fromLatin1(val);
         if (dtval.length() < 10)
             return QVariant(QDateTime());
@@ -290,6 +299,9 @@ QVariant QPSQLResult::data(int i)
             return QVariant(QDateTime());
         else
             return QVariant(QDateTime::fromString(dtval, Qt::ISODate));
+#else
+        return QVariant(QDateTime());
+#endif
     }
     case QVariant::ByteArray: {
         size_t len;
@@ -823,6 +835,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
     } else {
         switch (field.type()) {
         case QVariant::DateTime:
+#ifndef QT_NO_DATESTRING
             if (field.value().toDateTime().isValid()) {
                 QDate dt = field.value().toDateTime().date();
                 QTime tm = field.value().toDateTime().time();
@@ -834,14 +847,20 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
                           + tm.toString() + QLatin1String(".")
                           + QString::number(tm.msec()).rightJustified(3, QLatin1Char('0'))
                           + QLatin1String("'");
-            } else {
+            } else
+#else
+            {
                 r = QLatin1String("NULL");
             }
+#endif // QT_NO_DATESTRING
             break;
         case QVariant::Time:
+#ifndef QT_NO_DATESTRING
             if (field.value().toTime().isValid()) {
                 r = field.value().toTime().toString(Qt::ISODate);
-            } else {
+            } else
+#endif
+            {
                 r = QLatin1String("NULL");
             }
         case QVariant::String:
