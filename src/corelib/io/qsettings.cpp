@@ -101,7 +101,7 @@ static bool isLikelyToBeNfs(int handle)
     return qt_isEvilFsTypeName(buf.f_fstypename);
 }
 
-#elif defined(Q_OS_LINUX) || defined(Q_OS_HURD)
+#elif (defined(Q_OS_LINUX) || defined(Q_OS_HURD)) && !defined(QT_LSB)
 # include <sys/vfs.h>
 # ifndef NFS_SUPER_MAGIC
 #  define NFS_SUPER_MAGIC       0x00006969

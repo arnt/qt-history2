@@ -125,6 +125,10 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
+#ifndef SIOCGIFBRDADDR
+#  define SIOCGIFBRDADDR 0x8919
+#endif
+
 #if defined(__GLIBC__) && (__GLIBC__ >= 2)
 #define QT_SOCKLEN_T		socklen_t
 #else
