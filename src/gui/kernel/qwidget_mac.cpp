@@ -394,7 +394,12 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDragWithin },
     { kEventClassControl, kEventControlDragLeave },
     { kEventClassControl, kEventControlDragReceive },
-    { kEventClassControl, kEventControlOwningWindowChanged }
+    { kEventClassControl, kEventControlOwningWindowChanged },
+
+    { kEventClassMouse, kEventMouseDown },
+    { kEventClassMouse, kEventMouseUp },
+    { kEventClassMouse, kEventMouseMoved },
+    { kEventClassMouse, kEventMouseDragged }
 };
 static EventHandlerUPP mac_widget_eventUPP = 0;
 static void cleanup_widget_eventUPP()
@@ -409,7 +414,7 @@ static const EventHandlerUPP make_widget_eventUPP()
     qAddPostRoutine(cleanup_widget_eventUPP);
     return mac_widget_eventUPP = NewEventHandlerUPP(QWidgetPrivate::qt_widget_event);
 }
-OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, void *)
+OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event, void *)
 {
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
@@ -486,7 +491,6 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
                         qWarning("QWidget::repaint: Recursive repaint detected");
 
-
                     QPoint redirectionOffset(0, 0);
                     // handle the first paintable point since Mac doesn't.
                     if(QWidget *tl = widget->window()) {
@@ -504,6 +508,10 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     if (engine && !widget->testAttribute(Qt::WA_NoSystemBackground)
                         && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
                         QRect rr = qrgn.boundingRect();
+#ifdef DEBUG_WIDGET_PAINT
+                        qDebug(" Handling erase for [%s::%s]", widget->metaObject()->className(),
+                               widget->objectName().local8Bit().data());
+#endif
                         if (!redirectionOffset.isNull()) {
                             QPainter::setRedirected(widget, widget, redirectionOffset);
                             rr.setWidth(rr.width()+redirectionOffset.x());
@@ -534,6 +542,9 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         if (!redirectionOffset.isNull())
                             QPainter::restoreRedirected(widget);
                     }
+
+                    if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget))
+                        CallNextEventHandler(er, event);
 
                     //send the paint
                     redirectionOffset += widget->data->wrect.topLeft(); // Map from system to qt coordinates
@@ -567,17 +578,29 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 widget->d_func()->clp_serial++;
                 widget->d_func()->clp = QRegion();
                 widget->d_func()->hd = 0;
+            } else if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
+                CallNextEventHandler(er, event);
             }
         } else if(ekind == kEventControlInitialize) {
-            UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation | kControlSupportsFocus;
-            SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
+            if(HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
+                UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation | kControlSupportsFocus;
+                SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
+            } else {
+                handled_event = false;
+            }
         } else if(ekind == kEventControlSetFocusPart) {
+            if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget))
+                CallNextEventHandler(er, event);
         } else if(ekind == kEventControlGetClickActivation) {
             ClickActivationResult clickT = kActivateAndIgnoreClick;
             SetEventParameter(event, kEventParamClickActivation, typeClickActivationResult,
                               sizeof(clickT), &clickT);
         } else if(ekind == kEventControlGetPartRegion) {
             handled_event = false;
+            if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget) && CallNextEventHandler(er, event) == noErr) {
+                handled_event = true;
+                break;
+            }
             if(widget && !widget->isWindow()) {
                 ControlPartCode part;
                 GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0,
@@ -609,6 +632,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 }
             }
         } else if(ekind == kEventControlOwningWindowChanged) {
+            if(!HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget))
+                CallNextEventHandler(er, event);
             if(widget && qt_mac_window_for(hiview)) {
                 WindowRef foo = 0;
                 GetEventParameter(event, kEventParamControlCurrentOwningWindow, typeWindowRef, 0,
@@ -633,6 +658,19 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                         sizeof(wouldAccept), &wouldAccept);
             }
+        }
+        break; }
+    case kEventClassMouse: {
+        bool send_to_app = false;
+        extern QPointer<QWidget> qt_button_down; //qapplication_mac.cpp
+        if(qt_button_down)
+            send_to_app = true;
+        if(send_to_app) {
+            OSStatus err = SendEventToApplication(event);
+            if(err != noErr)
+                handled_event = false;
+        } else {
+            CallNextEventHandler(er, event);
         }
         break; }
     default:
@@ -813,9 +851,9 @@ bool QWidgetPrivate::qt_recreate_root_win() {
 
 bool QWidgetPrivate::qt_widget_rgn(QWidget *widget, short wcode, RgnHandle rgn, bool force = false)
 {
+    bool ret = false;
     switch(wcode) {
     case kWindowStructureRgn: {
-        bool ret = false;
         if(widget) {
             if(widget->d_func()->extra && !widget->d_func()->extra->mask.isEmpty()) {
                 QRegion rin = qt_mac_convert_mac_region(rgn);
@@ -848,10 +886,11 @@ bool QWidgetPrivate::qt_widget_rgn(QWidget *widget, short wcode, RgnHandle rgn, 
                 ret = true;
             }
         }
-        return ret; }
+        break; }
     default: break;
     }
-    return false;
+    //qDebug() << widget << ret << wcode << qt_mac_convert_mac_region(rgn);
+    return ret;
 }
 
 /*****************************************************************************
@@ -1229,6 +1268,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             destroyid = qt_mac_hiview_for(q);
         bool transfer = false;
         setWinId((WId)hiview);
+        HIViewInstallEventHandler(hiview, make_widget_eventUPP(), GetEventTypeCount(widget_events), widget_events, 0, 0);
         if(topLevel) {
             determineWindowClass();
             for(int i = 0; i < 2; ++i) {
@@ -2104,8 +2144,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
 
         Rect r; SetRect(&r, x, y, x+w, y+h);
-        if(w == 829)
-            qDebug() << x << y << w << h;
         HIViewSetDrawingEnabled(qt_mac_hiview_for(q), false);
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
         HIViewSetDrawingEnabled(qt_mac_hiview_for(q), true);
