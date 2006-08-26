@@ -39,7 +39,7 @@ class Q_AUTOTEST_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
     Q_OBJECT
     Q_PROPERTY(double tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
-    Q_PROPERTY(qreal idealWidth READ idealWidth);
+    Q_PROPERTY(qreal idealWidth READ idealWidth)
 public:
     explicit QTextDocumentLayout(QTextDocument *doc);
 
