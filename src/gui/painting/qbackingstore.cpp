@@ -276,8 +276,10 @@ void qt_syncBackingStore(QWidget *widget)
     if(bs)
         surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
     else
-        qWarning() << "request to sync backing store of "<<widget<<", which does not have its backing store defined yet";
-    
+        qWarning("request to sync backing store of widget %p, "
+                 "which does not have its backing store defined yet",
+                 (void*)widget);
+
     QRegion toClean;
 
     if (surface)
