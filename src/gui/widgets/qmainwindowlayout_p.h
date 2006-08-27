@@ -135,15 +135,20 @@ public:
     QTimer *separatorMoveTimer;
     QVector<QLayoutStruct> separatorMoveCache;
 
+#ifndef QT_NO_TABBAR
     QTabBar *getTabBar();
     QSet<QTabBar*> usedTabBars;
     QList<QTabBar*> unusedTabBars;
+#endif
 
 private slots:
     void animationFinished(QWidget *widget);
     void allAnimationsFinished();
     void doSeparatorMove();
+#ifndef QT_NO_TABBAR
     void tabChanged();
+#endif
+
 public:
 #else
     QLayoutItem *centralWidgetItem; // a window compiled with QT_NO_TOOLBAR still needs

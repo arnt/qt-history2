@@ -136,6 +136,7 @@ public:
     QMainWindow *mainWindow;
     QList<QDockAreaLayoutItem> item_list;
 
+#ifndef QT_NO_TABBAR
     quintptr currentTabId() const;
     void setCurrentTab(QWidget *widget);
     void setCurrentTabId(quintptr id);
@@ -151,6 +152,7 @@ public:
     QSize tabBarSizeHint() const;
 
     QSet<QTabBar*> usedTabBars() const;
+#endif // QT_NO_TABBAR
 };
 
 // utilities

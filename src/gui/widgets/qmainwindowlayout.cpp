@@ -646,8 +646,10 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     dockWidgetLayout.deleteAllLayoutItems();
     dockWidgetLayout = newLayout;
     applyDockWidgetLayout(dockWidgetLayout);
+#ifndef QT_NO_TABBAR
     foreach (QTabBar *tab_bar, usedTabBars)
         tab_bar->show();
+#endif
 #endif // QT_NO_DOCKWIDGET
 
     return true;
@@ -1328,6 +1330,7 @@ void QMainWindowLayout::invalidate()
 #ifndef QT_NO_DOCKWIDGET
 void QMainWindowLayout::applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool animate)
 {
+#ifndef QT_NO_TABBAR
     QSet<QTabBar*> used = newLayout.usedTabBars();
     QSet<QTabBar*> retired = usedTabBars - used;
     usedTabBars = used;
@@ -1337,10 +1340,12 @@ void QMainWindowLayout::applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool
             tab_bar->removeTab(0);
         unusedTabBars.append(tab_bar);
     }
+#endif // QT_NO_TABBAR
 
     newLayout.apply(animationEnabled && animate);
 }
 
+#ifndef QT_NO_TABBAR
 QTabBar *QMainWindowLayout::getTabBar()
 {
     QTabBar *result = 0;
@@ -1366,6 +1371,7 @@ void QMainWindowLayout::tabChanged()
         return;
     info->apply(false);
 }
+#endif // QT_NO_TABBAR
 
 QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
 {
@@ -1492,8 +1498,10 @@ void QMainWindowLayout::allAnimationsFinished()
 {
     parentWidget()->update(dockWidgetLayout.separatorRegion());
 
+#ifndef QT_NO_TABBAR
     foreach (QTabBar *tab_bar, usedTabBars)
         tab_bar->show();
+#endif
 
     updateGapIndicator();
 }
@@ -1507,9 +1515,11 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
     pluggingWidget->d_func()->plug(gapRect);
 
     applyDockWidgetLayout(dockWidgetLayout, false);
+#ifndef QT_NO_TABBAR
     QDockAreaLayoutInfo *info = dockWidgetLayout.info(widget);
     Q_ASSERT(info != 0);
     info->setCurrentTab(widget);
+#endif
     savedDockWidgetLayout.clear();
 
     currentGapPos.clear();
@@ -1579,9 +1589,13 @@ bool QMainWindowLayout::endSeparatorMove(const QPoint&)
 void QMainWindowLayout::raise(QDockWidget *widget)
 {
     QDockAreaLayoutInfo *info = dockWidgetLayout.info(widget);
-    if (info == 0 || !info->tabbed)
+    if (info == 0)
+        return;
+#ifndef QT_NO_TABBAR
+    if (!info->tabbed)
         return;
     info->setCurrentTab(widget);
+#endif
 }
 
 #endif // QT_NO_DOCKWIDGET

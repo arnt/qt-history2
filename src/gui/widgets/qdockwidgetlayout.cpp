@@ -246,16 +246,23 @@ static quintptr tabId(const QDockAreaLayoutItem &item)
 }
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo()
-    : sep(0), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0), tabbed(false),
-        tabBar(0), tabBarShape(-1)
+    : sep(0), o(Qt::Horizontal), rect(0, 0, -1, -1), mainWindow(0)
+#ifndef QT_NO_TABBAR
+    , tabbed(false), tabBar(0), tabBarShape(-1)
+#endif
 {
 }
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo(int _sep, Qt::Orientation _o, int tbshape,
                                             QMainWindow *window)
-    : sep(_sep), o(_o), rect(0, 0, -1, -1), mainWindow(window), tabbed(false),
-        tabBar(0), tabBarShape(tbshape)
+    : sep(_sep), o(_o), rect(0, 0, -1, -1), mainWindow(window)
+#ifndef QT_NO_TABBAR
+    , tabbed(false), tabBar(0), tabBarShape(tbshape)
+#endif
 {
+#ifdef QT_NO_TABBAR
+    Q_UNUSED(tbshape);
+#endif
 }
 
 QSize QDockAreaLayoutInfo::size() const
@@ -267,8 +274,10 @@ void QDockAreaLayoutInfo::clear()
 {
     item_list.clear();
     rect = QRect(0, 0, -1, -1);
+#ifndef QT_NO_TABBAR
     tabbed = false;
     tabBar = 0;
+#endif
 }
 
 bool QDockAreaLayoutInfo::isEmpty() const
@@ -289,9 +298,12 @@ QSize QDockAreaLayoutInfo::minimumSize() const
             continue;
 
         QSize min_size = item.minimumSize();
+#ifndef QT_NO_TABBAR
         if (tabbed) {
             a = qMax(a, pick(o, min_size));
-        } else {
+        } else
+#endif
+        {
             if (!first)
                 a += sep;
             a += pick(o, min_size);
@@ -305,6 +317,7 @@ QSize QDockAreaLayoutInfo::minimumSize() const
     rpick(o, result) = a;
     rperp(o, result) = b;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         QSize tbm = tabBarMinimumSize();
         switch (tabBarShape) {
@@ -322,6 +335,7 @@ QSize QDockAreaLayoutInfo::minimumSize() const
                 break;
         }
     }
+#endif // QT_NO_TABBAR
 
     return result;
 }
@@ -341,9 +355,12 @@ QSize QDockAreaLayoutInfo::maximumSize() const
 
         QSize max_size = item.maximumSize();
 
+#ifndef QT_NO_TABBAR
         if (tabbed) {
             a = qMax(a, pick(o, max_size));
-        } else {
+        } else
+#endif
+        {
             if (!first)
                 a += sep;
             a += pick(o, max_size);
@@ -360,6 +377,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
     rpick(o, result) = a;
     rperp(o, result) = b;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         QSize tbh = tabBarSizeHint();
         switch (tabBarShape) {
@@ -377,7 +395,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
                 break;
         }
     }
-
+#endif // QT_NO_TABBAR
 
     return result;
 }
@@ -399,9 +417,12 @@ QSize QDockAreaLayoutInfo::sizeHint() const
 
         QSize size_hint = item.sizeHint();
 
+#ifndef QT_NO_TABBAR
         if (tabbed) {
             a = qMax(a, gap ? item.size : pick(o, size_hint));
-        } else {
+        } else
+#endif
+        {
             if (!first && !gap && !prev_gap)
                 a += sep;
             a += gap ? item.size : pick(o, size_hint);
@@ -416,6 +437,7 @@ QSize QDockAreaLayoutInfo::sizeHint() const
     rpick(o, result) = a;
     rperp(o, result) = b;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         QSize tbh = tabBarSizeHint();
         switch (tabBarShape) {
@@ -433,6 +455,7 @@ QSize QDockAreaLayoutInfo::sizeHint() const
                 break;
         }
     }
+#endif // QT_NO_TABBAR
 
     return result;
 }
@@ -448,9 +471,11 @@ bool QDockAreaLayoutInfo::expansive(Qt::Orientation o) const
 
 void QDockAreaLayoutInfo::fitItems()
 {
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         return;
     }
+#endif
 
     QVector<QLayoutStruct> layout_struct_list(item_list.size()*2);
     int j = 0;
@@ -627,9 +652,12 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos, bool nestingEnabled
     QRect item_rect;
     int item_index = 0;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         item_rect = tabContentRect();
-    } else {
+    } else
+#endif
+    {
         int pos = pick(o, _pos);
 
         int last = -1;
@@ -643,7 +671,11 @@ QList<int> QDockAreaLayoutInfo::gapIndex(const QPoint& _pos, bool nestingEnabled
             if (item.pos + item.size < pos)
                 continue;
 
-            if (item.subinfo != 0 && !item.subinfo->tabbed) {
+            if (item.subinfo != 0
+#ifndef QT_NO_TABBAR
+                && !item.subinfo->tabbed
+#endif
+                ) {
                 result = item.subinfo->gapIndex(_pos, nestingEnabled);
                 result.prepend(i);
                 return result;
@@ -745,7 +777,7 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
                     growlimit += list[i].maximumSize - list[i].size;
         if (delta > growlimit)
             delta = growlimit;
-      
+
         int d = 0;
         for (int i = index + 1; d < delta && i < list.count(); ++i)
             d += shrink(list[i], delta - d);
@@ -896,9 +928,12 @@ QRect QDockAreaLayoutInfo::convertToWidget(QList<int> path, QWidgetItem *dockWid
 
     QRect result;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         result = tabContentRect();
-    } else {
+    } else
+#endif
+    {
         int prev = this->prev(index);
         int next = this->next(index);
 
@@ -941,8 +976,11 @@ QWidgetItem *QDockAreaLayoutInfo::convertToGap(QList<int> path)
     Q_ASSERT(!item.gap);
     item.gap = true;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
-    } else {
+    } else
+#endif
+    {
         if (prev != -1 && !item_list.at(prev).gap) {
             item.pos -= sep;
             item.size += sep;
@@ -953,6 +991,8 @@ QWidgetItem *QDockAreaLayoutInfo::convertToGap(QList<int> path)
 
     return item.widgetItem;
 }
+
+#ifndef QT_NO_TABBAR
 
 quintptr QDockAreaLayoutInfo::currentTabId() const
 {
@@ -983,8 +1023,10 @@ void QDockAreaLayoutInfo::setCurrentTabId(quintptr id)
         }
     }
 
-    qDebug() << "QDockAreaLayoutInfo::setCurrentTabId(): not found!";
+    qDebug("QDockAreaLayoutInfo::setCurrentTabId(): not found!");
 }
+
+#endif // QT_NO_TABBAR
 
 bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem)
 {
@@ -1002,7 +1044,11 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
     if (!path.isEmpty()) {
         QDockAreaLayoutItem &item = item_list[index];
 
-        if (item.subinfo == 0 || item.subinfo->tabbed && !insert_tabbed) {
+        if (item.subinfo == 0
+#ifndef QT_NO_TABBAR
+            || item.subinfo->tabbed && !insert_tabbed
+#endif
+            ) {
             // this is not yet a nested layout - make it
 
             QDockAreaLayoutInfo *subinfo = item.subinfo;
@@ -1010,6 +1056,9 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             QRect r = subinfo == 0 ? widgetItem->geometry() : subinfo->rect;
 
             Qt::Orientation opposite = o == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal;
+#ifdef QT_NO_TABBAR
+            const int tabBarShape = 0;
+#endif
             QDockAreaLayoutInfo *new_info
                 = new QDockAreaLayoutInfo(sep, opposite, tabBarShape, mainWindow);
 
@@ -1023,9 +1072,11 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             new_item.size = pick(opposite, r.size());
             new_item.pos = pick(opposite, r.topLeft());
             new_info->item_list.append(new_item);
+#ifndef QT_NO_TABBAR
             if (insert_tabbed) {
                 new_info->tabbed = true;
             }
+#endif
         }
 
         bool result = item.subinfo->insertGap(path, dockWidgetItem);
@@ -1037,8 +1088,10 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
     gap_item.gap = true;
     gap_item.widgetItem = dockWidgetItem;   // so minimumSize(), maximumSize() and
                                             // sizeHint() will work
-
-    if (!tabbed) {
+#ifndef QT_NO_TABBAR
+    if (!tabbed)
+#endif
+    {
         int prev = this->prev(index);
         int next = this->next(index - 1);
         // find out how much space we have in the layout
@@ -1088,8 +1141,10 @@ QDockAreaLayoutInfo *QDockAreaLayoutInfo::info(QWidget *widget)
         if (item.skip())
             continue;
 
+#ifndef QT_NO_TABBAR
         if (tabbed && widget == tabBar)
             return this;
+#endif
 
         if (item.widgetItem != 0 && item.widgetItem->widget() == widget)
             return this;
@@ -1124,10 +1179,13 @@ QRect QDockAreaLayoutInfo::itemRect(int index) const
 
     QRect result;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         if (tabId(item) == currentTabId())
             result = tabContentRect();
-    } else {
+    } else
+#endif
+    {
         QPoint pos;
         rpick(o, pos) = item.pos;
         rperp(o, pos) = perp(o, rect.topLeft());
@@ -1155,8 +1213,10 @@ QRect QDockAreaLayoutInfo::itemRect(QList<int> path) const
 
 QRect QDockAreaLayoutInfo::separatorRect(int index) const
 {
+#ifndef QT_NO_TABBAR
     if (tabbed)
         return QRect();
+#endif
 
     const QDockAreaLayoutItem &item = item_list.at(index);
     if (item.skip())
@@ -1184,8 +1244,10 @@ QRect QDockAreaLayoutInfo::separatorRect(QList<int> path) const
 
 QList<int> QDockAreaLayoutInfo::findSeparator(const QPoint &_pos) const
 {
+#ifndef QT_NO_TABBAR
     if (tabbed)
         return QList<int>();
+#endif
 
     int pos = pick(o, _pos);
 
@@ -1260,6 +1322,7 @@ void QDockAreaLayoutInfo::apply(bool animate)
 {
     QWidgetAnimator *widgetAnimator = mainWindowLayout()->widgetAnimator;
 
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         QRect tab_rect;
         QSize tbh = tabBarSizeHint();
@@ -1291,6 +1354,7 @@ void QDockAreaLayoutInfo::apply(bool animate)
             widgetAnimator->animate(tabBar, tab_rect, animate);
 //        dump(qDebug() << "QDockAreaLayoutInfo::apply():" << tabIndex, *this, QString());
     }
+#endif // QT_NO_TABBAR
 
     for (int i = 0; i < item_list.size(); ++i) {
         QDockAreaLayoutItem &item = item_list[i];
@@ -1327,8 +1391,12 @@ QRegion QDockAreaLayoutInfo::separatorRegion() const
 {
     QRegion result;
 
-    if (isEmpty() || tabbed)
+    if (isEmpty())
         return result;
+#ifndef QT_NO_TABBAR
+    if (tabbed)
+        return result;
+#endif
 
     for (int i = 0; i < item_list.count(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
@@ -1353,8 +1421,12 @@ void QDockAreaLayoutInfo::paintSeparators(QPainter *p, QWidget *widget,
                                                     const QRegion &clip,
                                                     const QPoint &mouse) const
 {
-    if (isEmpty() || tabbed)
+    if (isEmpty())
         return;
+#ifndef QT_NO_TABBAR
+    if (tabbed)
+        return;
+#endif
 
     for (int i = 0; i < item_list.count(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
@@ -1403,6 +1475,9 @@ void QDockAreaLayoutInfo::split(int index, Qt::Orientation orientation,
     if (orientation == o) {
         item_list.insert(index + 1, QDockAreaLayoutItem(dockWidgetItem));
     } else {
+#ifdef QT_NO_TABBAR
+        const int tabBarShape = 0;
+#endif
         QDockAreaLayoutInfo *new_info
             = new QDockAreaLayoutInfo(sep, orientation, tabBarShape, mainWindow);
         item_list[index].subinfo = new_info;
@@ -1471,6 +1546,7 @@ void QDockAreaLayoutInfo::deleteAllLayoutItems()
 
 void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
 {
+#ifndef QT_NO_TABBAR
     if (tabbed) {
         stream << (uchar) TabMarker;
 
@@ -1484,7 +1560,9 @@ void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
             }
         }
         stream << index;
-    } else {
+    } else
+#endif // QT_NO_TABBAR
+    {
         stream << (uchar) SequenceMarker;
     }
 
@@ -1529,11 +1607,13 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
     if (marker != TabMarker && marker != SequenceMarker)
         return false;
 
+#ifndef QT_NO_TABBAR
     tabbed = marker == TabMarker;
 
     int index = -1;
     if (tabbed)
         stream >> index;
+#endif
 
     uchar orientation;
     stream >> orientation;
@@ -1592,6 +1672,9 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
             item_list.append(item);
         } else if (nextMarker == SequenceMarker) {
             int dummy;
+#ifdef QT_NO_TABBAR
+            const int tabBarShape = 0;
+#endif
             QDockAreaLayoutInfo *info = new QDockAreaLayoutInfo(sep, o,
                                                                 tabBarShape, mainWindow);
             QDockAreaLayoutItem item(info);
@@ -1605,14 +1688,17 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
         }
     }
 
+#ifndef QT_NO_TABBAR
     if (tabbed && index >= 0 && index < item_list.count()) {
         updateTabBar();
         setCurrentTabId(tabId(item_list.at(index)));
     }
+#endif
 
     return true;
 }
 
+#ifndef QT_NO_TABBAR
 void QDockAreaLayoutInfo::updateTabBar() const
 {
     if (!tabbed)
@@ -1750,6 +1836,7 @@ QRect QDockAreaLayoutInfo::tabContentRect() const
 
     return result;
 }
+#endif // QT_NO_TABBAR
 
 /******************************************************************************
 ** QDockWidgetLayout
@@ -1759,10 +1846,15 @@ QDockWidgetLayout::QDockWidgetLayout(QMainWindow *win)
 {
     mainWindow = win;
     sep = win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
-    docks[LeftPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedSouth, win);
-    docks[RightPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, QTabBar::RoundedSouth, win);
-    docks[TopPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, QTabBar::RoundedSouth, win);
-    docks[BottomPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, QTabBar::RoundedSouth, win);
+#ifndef QT_NO_TABBAR
+    const int tabShape = QTabBar::RoundedSouth;
+#else
+    const int tabShape = 0;
+#endif
+    docks[LeftPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, tabShape, win);
+    docks[RightPos] = QDockAreaLayoutInfo(sep, Qt::Vertical, tabShape, win);
+    docks[TopPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, tabShape, win);
+    docks[BottomPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, tabShape, win);
     centralWidgetItem = 0;
     centralWidgetRect = QRect(0, 0, -1, -1);
 
@@ -2390,11 +2482,14 @@ void QDockWidgetLayout::addDockWidget(DockPos pos, QDockWidget *dockWidget,
     if (orientation == info.o || info.isEmpty()) {
         QDockAreaLayoutItem new_item(dockWidgetItem);
         info.item_list.append(new_item);
+#ifndef QT_NO_TABBAR
         if (info.tabbed && !new_item.skip()) {
             info.updateTabBar();
             info.setCurrentTabId(tabId(new_item));
         }
+#endif
     } else {
+#ifndef QT_NO_TABBAR
         int tbshape = QTabBar::RoundedSouth;
         switch (pos) {
             case TopPos:
@@ -2412,6 +2507,9 @@ void QDockWidgetLayout::addDockWidget(DockPos pos, QDockWidget *dockWidget,
             default:
                 break;
         }
+#else
+        int tbshape = 0;
+#endif
         QDockAreaLayoutInfo new_info(sep, orientation, tbshape, mainWindow);
         new_info.item_list.append(new QDockAreaLayoutInfo(info));
         new_info.item_list.append(dockWidgetItem);
@@ -2569,6 +2667,7 @@ void QDockWidgetLayout::deleteAllLayoutItems()
         docks[i].deleteAllLayoutItems();
 }
 
+#ifndef QT_NO_TABBAR
 QSet<QTabBar*> QDockWidgetLayout::usedTabBars() const
 {
     QSet<QTabBar*> result;
@@ -2580,6 +2679,7 @@ QSet<QTabBar*> QDockWidgetLayout::usedTabBars() const
     }
     return result;
 }
+#endif
 
 QRect QDockWidgetLayout::gapRect(QList<int> path)
 {
@@ -2597,9 +2697,12 @@ QRect QDockWidgetLayout::gapRect(QList<int> path)
 
     QRect result;
 
+#ifndef QT_NO_TABBAR
     if (info->tabbed) {
         result = info->tabContentRect();
-    } else {
+    } else
+#endif
+    {
         int pos = item.pos;
         int size = item.size;
 
