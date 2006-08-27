@@ -2209,11 +2209,13 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QComboBox);
 
+#ifndef QT_NO_COMPLETER
     if (d->lineEdit && d->lineEdit->completer() && d->lineEdit->completer()->popup()->isVisible()) {
         // provide same autocompletion support as line edit
         d->lineEdit->event(e);
         return;
     }
+#endif
 
     enum Move { NoMove=0 , MoveUp , MoveDown , MoveFirst , MoveLast};
 

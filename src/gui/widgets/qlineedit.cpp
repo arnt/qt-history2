@@ -1632,6 +1632,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QLineEdit);
 
+#ifndef QT_NO_COMPLETER
     if (d->completer && d->completer->popup()->isVisible()) {
         // The following keys are forwarded by the completer to the widget
         // Ignoring the events lets the completer provide suitable default behavior
@@ -1641,7 +1642,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
        case Qt::Key_PageDown:
        case Qt::Key_Up:
        case Qt::Key_Down:
-            event->ignore(); 
+            event->ignore();
             return;
        case Qt::Key_Enter:
        case Qt::Key_Return:
@@ -1651,6 +1652,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
            break; // normal key processing
        }
     }
+#endif // QT_NO_COMPLETER
 
 #ifdef QT_KEYPAD_NAVIGATION
     bool select = false;
@@ -1839,8 +1841,8 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 #if defined(Q_WS_X11)
             case Qt::Key_E:
                 end(0);
-                break;     
-                   
+                break;
+
             case Qt::Key_U:
                 if (!d->readOnly) {
                     setSelection(0, d->text.size());
