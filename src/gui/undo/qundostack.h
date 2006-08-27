@@ -76,10 +76,12 @@ public:
     int index() const;
     QString text(int idx) const;
 
+#ifndef QT_NO_ACTION
     QAction *createUndoAction(QObject *parent,
                                 const QString &prefix = QString()) const;
     QAction *createRedoAction(QObject *parent,
                                 const QString &prefix = QString()) const;
+#endif // QT_NO_ACTION
 
     bool isActive() const;
     bool isClean() const;

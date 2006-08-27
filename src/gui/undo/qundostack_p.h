@@ -60,6 +60,7 @@ public:
     void setIndex(int idx, bool clean);
 };
 
+#ifndef QT_NO_ACTION
 class QUndoAction : public QAction
 {
     Q_OBJECT
@@ -70,6 +71,7 @@ public Q_SLOTS:
 private:
     QString m_prefix;
 };
+#endif // QT_NO_ACTION
 
 #endif // QT_NO_UNDOSTACK
 #endif // QUNDOSTACK_P_H

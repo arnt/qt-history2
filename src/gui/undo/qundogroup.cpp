@@ -320,6 +320,8 @@ bool QUndoGroup::isClean() const
     return d->active == 0 || d->active->isClean();
 }
 
+#ifndef QT_NO_ACTION
+
 /*!
     Creates an undo QAction object with parent \a parent.
 
@@ -375,6 +377,8 @@ QAction *QUndoGroup::createRedoAction(QObject *parent, const QString &prefix) co
     connect(result, SIGNAL(triggered()), this, SLOT(redo()));
     return result;
 }
+
+#endif // QT_NO_ACTION
 
 /*! \fn void QUndoGroup::activeStackChanged(QUndoStack *stack)
 

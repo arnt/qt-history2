@@ -320,6 +320,8 @@ void QUndoCommand::setText(const QString &text)
     \sa QUndoCommand, QUndoView
 */
 
+#ifndef QT_NO_ACTION
+
 QUndoAction::QUndoAction(const QString &prefix, QObject *parent)
     : QAction(parent)
 {
@@ -334,6 +336,8 @@ void QUndoAction::setPrefixedText(const QString &text)
     s.append(text);
     setText(s);
 }
+
+#endif // QT_NO_ACTION
 
 /*! \internal
     Sets the current index to \a idx, emitting appropriate signals. If \a clean is true,
@@ -720,6 +724,8 @@ QString QUndoStack::redoText() const
     return QString();
 }
 
+#ifndef QT_NO_ACTION
+
 /*!
     Creates an undo QAction object with the given \a parent.
 
@@ -773,6 +779,8 @@ QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) co
     connect(result, SIGNAL(triggered()), this, SLOT(redo()));
     return result;
 }
+
+#endif // QT_NO_ACTION
 
 /*!
     Begins composition of a macro command with the given \a text description.
