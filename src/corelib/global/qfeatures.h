@@ -104,6 +104,9 @@
 //  Universally Unique Identifier Convertion
 //#define QT_NO_QUUID_STRING
 
+// QWSEmbedWidget
+//#define QT_NO_QWSEMBEDWIDGET
+
 // Alpha Cursor
 //#define QT_NO_QWS_ALPHA_CURSOR
 

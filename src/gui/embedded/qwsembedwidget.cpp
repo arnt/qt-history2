@@ -13,6 +13,8 @@
 
 #include "qwsembedwidget.h"
 
+#ifndef QT_NO_QWSEMBEDWIDGET
+
 #include <qwsdisplay_qws.h>
 #include <private/qwidget_p.h>
 #include <private/qwsdisplay_qws_p.h>
@@ -145,3 +147,4 @@ void QWSEmbedWidget::moveEvent(QMoveEvent*)
     resizeEvent(0);
 }
 
+#endif // QT_NO_QWSEMBEDWIDGET

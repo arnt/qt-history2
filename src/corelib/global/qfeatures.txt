@@ -1065,3 +1065,10 @@ Section: Qtopia Core
 Requires: QWS_MULTIPROCESS
 Name: SXE
 SeeAlso: ???
+
+Feature: QWSEMBEDWIDGET
+Description: Provides embedding of a top-level window.
+Section: Qtopia Core
+Requires:
+Name: QWSEmbedWidget
+SeeAlso: ???

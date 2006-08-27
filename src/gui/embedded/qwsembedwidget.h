@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+#ifndef QT_NO_QWSEMBEDWIDGET
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
@@ -40,4 +42,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_QWSEMBEDWIDGET
 #endif // QWSEMBEDWIDGET_H
