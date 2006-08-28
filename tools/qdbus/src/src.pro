@@ -2,6 +2,7 @@ TEMPLATE = lib
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_release build_all
+win32|mac:!macx-xcode:CONFIG += debug_and_release
 contains(QT_CONFIG, embedded):CONFIG += embedded
 !contains(CONFIG, static) {
 	CONFIG += dll

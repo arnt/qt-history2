@@ -3,6 +3,7 @@ DESTDIR = ../../../bin
 TARGET = dbusxml2cpp
 QT = core xml
 CONFIG += qdbus
+CONFIG -= app_bundle
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
