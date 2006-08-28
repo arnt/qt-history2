@@ -730,6 +730,24 @@ void QWinSettingsPrivate::set(const QString &uKey, const QVariant &value)
             break;
         }
 
+        case QVariant::ByteArray:
+            // On Win95/98/Me QString::toLocal8Bit() fails to handle chars > 0x7F. So we don't go through variantToString() at all.
+            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+                QByteArray ba = value.toByteArray();
+                regValueBuff = "@ByteArray(";
+                regValueBuff += ba;
+                regValueBuff += ')';
+                if (ba.contains('\0')) {
+                    type = REG_BINARY;
+                } else {
+                    type = REG_SZ;
+                    regValueBuff += '\0';
+                }
+                    
+                break;
+            }
+            // fallthrough intended
+
         default: {
             // If the string does not contain '\0', we can use REG_SZ, the native registry
             // string type. Otherwise we use REG_BINARY.
