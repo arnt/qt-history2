@@ -22,8 +22,6 @@
 #include "private/qmath_p.h"
 #include "private/qnumeric_p.h"
 
-#if !defined(QT_NO_XRENDER)
-
 /*
  * Polygon tesselator - can probably be optimized a bit more
  */
@@ -42,6 +40,7 @@ struct QEdge {
     qreal m;
     qreal b;
     signed char winding;
+    qreal intersection;
 };
 
 Q_DECLARE_TYPEINFO(QEdge, Q_PRIMITIVE_TYPE);
@@ -62,15 +61,15 @@ struct QIntersectionPoint {
 };
 Q_DECLARE_TYPEINFO(QIntersectionPoint, Q_PRIMITIVE_TYPE);
 
-static inline bool compareIntersections(const QIntersectionPoint &i1, const QIntersectionPoint &i2)
+static inline bool compareIntersections(const QEdge *i1, const QEdge *i2)
 {
-    if (qAbs(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
-        return i1.x < i2.x;
+    if (qAbs(i1->intersection - i2->intersection) > 0.01) { // x != other.x in 99% of the cases
+        return i1->intersection < i2->intersection;
     } else {
-        qreal x1 = !qIsFinite(i1.edge->b) ? qt_XFixedToDouble(i1.edge->p1.x) :
-                   (currentY+1.f - i1.edge->b)*i1.edge->m;
-        qreal x2 = !qIsFinite(i2.edge->b) ? qt_XFixedToDouble(i2.edge->p1.x) :
-                   (currentY+1.f - i2.edge->b)*i2.edge->m;
+        qreal x1 = !qIsFinite(i1->b) ? qt_XFixedToDouble(i1->p1.x) :
+                   (currentY+1.f - i1->b)*i1->m;
+        qreal x2 = !qIsFinite(i2->b) ? qt_XFixedToDouble(i2->p1.x) :
+                   (currentY+1.f - i2->b)*i2->m;
         return x1 < x2;
     }
 }
@@ -123,7 +122,7 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
                                const QPointF *pg, int pgSize,
                                bool winding, QRect *br)
 {
-    QVector<QEdge> edges;
+      QVector<QEdge> edges;
     edges.reserve(128);
     qreal ymin(INT_MAX/256);
     qreal ymax(INT_MIN/256);
@@ -191,21 +190,15 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
 	return;
     QList<const QEdge *> aet; 	    // edges that intersects the current scanline
 
-//     if (ymin < 0)
-// 	ymin = 0;
-//     if (paintEventClipRegion) // don't scan more lines than we have to
-// 	ymax = paintEventClipRegion->boundingRect().height();
-
-#ifdef QT_DEBUG_TESSELATOR
-    qDebug("==> ymin = %f, ymax = %f", ymin, ymax);
-#endif // QT_DEBUG_TESSELATOR
-
     currentY = ymin; // used by the less than op
+    QMap<qreal, qreal> segInters;
     for (qreal y = ymin; y < ymax;) {
+        qt_XFixed yf = qt_XDoubleToFixed(y);
+        
 	// fill active edge table with edges that intersect the current line
 	for (int i = 0; i < et.size(); ++i) {
             const QEdge *edge = et.at(i);
-            if (edge->p1.y > qt_XDoubleToFixed(y))
+            if (edge->p1.y > yf)
                 break;
             aet.append(edge);
             et.removeAt(i);
@@ -214,15 +207,13 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
 
 	// remove processed edges from active edge table
 	for (int i = 0; i < aet.size(); ++i) {
-	    if (aet.at(i)->p2.y <= qt_XDoubleToFixed(y)) {
+	    if (aet.at(i)->p2.y <= yf) {
 		aet.removeAt(i);
  		--i;
 	    }
 	}
         if (aet.size()%2 != 0) {
-#ifndef QT_NO_DEBUG
-            qWarning("QX11PaintEngine: Internal error: aet out of sync");
-#endif
+            qWarning("QX11PaintEngine: aet out of sync - this should not happen.");
             return;
         }
 
@@ -247,9 +238,18 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
 	if (et.size() && next_y > qt_XFixedToDouble(et.at(0)->p1.y))
 	    next_y = qt_XFixedToDouble(et.at(0)->p1.y);
 
+	// calc intersection points
+ 	for (int i = 0; i < aet.size(); ++i) {
+            QEdge *edge = const_cast<QEdge*>(aet.at(i));
+            edge->intersection = (edge->p1.x != edge->p2.x) ?
+                                 ((y - edge->b)*edge->m) : qt_XFixedToDouble(edge->p1.x);
+	}
+        qSort(aet.begin(), aet.end(), compareIntersections);
+        
         int aetSize = aet.size();
 	for (int i = 0; i < aetSize; ++i) {
-	    for (int k = i+1; k < aetSize; ++k) {
+            int aetEnd = qMin(aetSize, i+2);
+	    for (int k = i+1; k < aetEnd; ++k) {
                 const QEdge *edgeI = aet.at(i);
                 const QEdge *edgeK = aet.at(k);
 		qreal m1 = edgeI->m;
@@ -261,7 +261,7 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
                     continue;
 
                 // ### intersect is not calculated correctly when optimized with -O2 (gcc)
-                volatile qreal intersect;
+                volatile qreal intersect = 0;
                 if (!qIsFinite(b1))
                     intersect = (1.f / m2) * qt_XFixedToDouble(edgeI->p1.x) + b2;
                 else if (!qIsFinite(b2))
@@ -269,51 +269,29 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
                 else
                     intersect = (b1*m1 - b2*m2) / (m1 - m2);
 
- 		if (intersect > y && intersect < next_y)
-		    next_y = intersect;
+                if (intersect > y && intersect < next_y) {
+                    next_y = intersect;
+                }
 	    }
 	}
 
-        qt_XFixed yf, next_yf;
-        yf = qrealToXFixed(y);
-        next_yf = qrealToXFixed(next_y);
+        qt_XFixed next_yf = qrealToXFixed(next_y);
 
         if (yf == next_yf) {
             y = currentY = next_y;
             continue;
         }
 
-#ifdef QT_DEBUG_TESSELATOR
-        qDebug("###> y = %f, next_y = %f, %d active edges", y, next_y, aet.size());
-        qDebug("===> edges");
-        dump_edges(et);
-        qDebug("===> active edges");
-        dump_edges(aet);
-#endif
-	// calc intersection points
- 	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
- 	for (int i = 0; i < isects.size()-1; ++i) {
-            const QEdge *edge = aet.at(i);
- 	    isects[i].x = (edge->p1.x != edge->p2.x) ?
-			  ((y - edge->b)*edge->m) : qt_XFixedToDouble(edge->p1.x);
-	    isects[i].edge = edge;
-	}
-
-	Q_ASSERT(isects.size()%2 == 1);
-
-	// sort intersection points
- 	qSort(&isects[0], &isects[isects.size()-1], compareIntersections);
-
         if (winding) {
             // winding fill rule
-            for (int i = 0; i < isects.size()-1;) {
+            for (int i = 0; i < aet.size();) {
                 int winding = 0;
-                const QEdge *left = isects[i].edge;
+                const QEdge *left = aet[i];
                 const QEdge *right = 0;
-                winding += isects[i].edge->winding;
-                for (++i; i < isects.size()-1 && winding != 0; ++i) {
-                    winding += isects[i].edge->winding;
-                    right = isects[i].edge;
+                winding += aet[i]->winding;
+                for (++i; i < aet.size() && winding != 0; ++i) {
+                    winding += aet[i]->winding;
+                    right = aet[i];
                 }
                 if (!left || !right)
                     break;
@@ -321,35 +299,10 @@ void qt_polygon_trapezoidation(QVector<qt_XTrapezoid> *traps,
             }
         } else {
             // odd-even fill rule
-            for (int i = 0; i < isects.size()-2; i += 2)
-                traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+            for (int i = 0; i < aet.size()-1; i += 2) {
+                traps->append(toXTrapezoid(yf, next_yf, *aet[i], *aet[i+1]));
+            }
         }
 	y = currentY = next_y;
     }
-
-#ifdef QT_DEBUG_TESSELATOR
-    qDebug("==> number of trapezoids: %d - edge table size: %d\n", traps->size(), et.size());
-
-    for (int i = 0; i < traps->size(); ++i)
-        dump_trap(traps->at(i));
-#endif
-
-    // optimize by unifying trapezoids that share left/right lines
-    // and have a common top/bottom edge
-//     for (int i = 0; i < tps.size(); ++i) {
-// 	for (int k = i+1; k < tps.size(); ++k) {
-// 	    if (i != k && tps.at(i).right == tps.at(k).right
-// 		&& tps.at(i).left == tps.at(k).left
-// 		&& (tps.at(i).top == tps.at(k).bottom
-// 		    || tps.at(i).bottom == tps.at(k).top))
-// 	    {
-// 		tps[i].bottom = tps.at(k).bottom;
-// 		tps.removeAt(k);
-//                 i = 0;
-// 		break;
-// 	    }
-// 	}
-//     }
 }
-
-#endif // !defined(QT_NO_XRENDER)
