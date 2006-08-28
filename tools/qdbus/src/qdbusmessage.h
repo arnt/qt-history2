@@ -51,7 +51,7 @@ public:
     { return createReply(QList<QVariant>() << argument); }
 
     QDBusMessage createErrorReply(const QString name, const QString &msg) const;
-    inline QDBusMessage createErrorReply(const QDBusError &err)
+    inline QDBusMessage createErrorReply(const QDBusError &err) const
     { return createErrorReply(err.name(), err.message()); }
 
     QString service() const;
