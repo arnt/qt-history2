@@ -24,6 +24,7 @@ HEADERS += \
         widgets/qframe_p.h \
         widgets/qgroupbox.h \
         widgets/qlabel.h \
+        widgets/qlabel_p.h \
         widgets/qlcdnumber.h \
         widgets/qlineedit.h \
         widgets/qlineedit_p.h \
