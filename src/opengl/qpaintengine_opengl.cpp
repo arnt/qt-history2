@@ -333,6 +333,8 @@ inline bool QGLDrawable::autoFillBackground() const
     return false;
 }
 
+#define MAX_TESS_POINTS 80000
+
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
@@ -345,7 +347,7 @@ public:
 #ifndef Q_WS_QWS
         , dashStroker(0)
         , stroker(0)
-        , tessVector(20000)
+        , tessVector(MAX_TESS_POINTS)
 #endif
         , shader_dev(0)
         , grad_palette(0)
@@ -520,7 +522,7 @@ inline void QOpenGLPaintEnginePrivate::lineTo(const QPointF &p)
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
     // ### temp crash fix - the GLU tesselator can't handle the
     // ### realloc being done after this
-    if (tessVector.size() + 3 > 20000)
+    if (tessVector.size() + 3 > MAX_TESS_POINTS)
         return;
     tessVector.add(p.x());
     tessVector.add(p.y());
