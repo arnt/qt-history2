@@ -316,9 +316,32 @@ QDBusMessage QDBusMessage::createReply(const QVariantList &arguments) const
 }
 
 /*!
+    Constructs a new DBus message representing an error reply message,
+    with the given \a name and \a msg.
+*/
+QDBusMessage QDBusMessage::createErrorReply(const QString name, const QString &msg) const
+{
+    QDBusMessage reply = QDBusMessage::createError(name, msg);
+    if (d_ptr->msg)
+        reply.d_ptr->reply = dbus_message_ref(d_ptr->msg);
+    else
+        d_ptr->localMessage = true;
+    Q_ASSERT(d_ptr->msg || d_ptr->localMessage);
+
+    return reply;
+}
+
+/*!
    \fn QDBusMessage QDBusMessage::createReply(const QVariant &retval)
     Constructs a new DBus message representing a the reply to the
     message , with the given \a retval.
+*/
+
+/*!
+  \fn QDBusMessage QDBusMessage::createErrorReply(const QDBusError &error)
+
+  Constructs a new DBus message representing an error reply message,
+  from the given \a &error object.
 */
 
 /*!

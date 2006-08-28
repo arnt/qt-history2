@@ -50,6 +50,10 @@ public:
     inline QDBusMessage createReply(const QVariant &argument) const
     { return createReply(QList<QVariant>() << argument); }
 
+    QDBusMessage createErrorReply(const QString name, const QString &msg) const;
+    inline QDBusMessage createErrorReply(const QDBusError &err)
+    { return createErrorReply(err.name(), err.message()); }
+
     QString service() const;
     QString path() const;
     QString interface() const;
