@@ -1616,7 +1616,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const 
                 const QString funcname = var.mid(19);
                 val += project->expand(funcname, QList<QStringList>() << in);
             } else if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
-                filePath = true;
+                //filePath = true;
                 for(int i = 0; i < in.size(); ++i) {
                     QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in.at(i))));
                     QString base = fi.completeBaseName();
@@ -1640,7 +1640,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &orig_var, const 
                 for(int i = 0; i < out.size(); ++i)
                     val += fileInfo(Option::fixPathToLocalOS(out.at(i))).filePath();
             } else if(var == QLatin1String("QMAKE_FILE_OUT_BASE")) {
-                filePath = true;
+                //filePath = true;
                 for(int i = 0; i < out.size(); ++i) {
                     QFileInfo fi(fileInfo(Option::fixPathToLocalOS(out.at(i))));
                     QString base = fi.completeBaseName();
