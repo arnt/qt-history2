@@ -2,4 +2,4 @@
 INCLUDEPATH = $$QMAKE_INCDIR_QT/QtAssistant $$INCLUDEPATH
 
 qtAddLibrary(QtAssistantClient)
-
+QT += network
