@@ -95,7 +95,11 @@ public:
                                orient(QPrinter::Portrait), format(0), settings(0), session(0),
                                paintEngine(0), suppressStatus(false) {}
     ~QMacPrintEnginePrivate() {
-        Q_ASSERT(session == 0);
+        if (session) {
+            PMRelease(session);
+            session = 0;
+        }
+
         PMRelease(settings);
         PMRelease(format);
         delete paintEngine;
