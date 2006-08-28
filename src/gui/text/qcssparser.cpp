@@ -973,7 +973,7 @@ void Declaration::borderImageValue(QString *image, int *cuts,
             const Value& v = values.at(i+1);
             if (v.type != Value::Number)
                 break;
-            cuts[i] = values.at(i).variant.toString().toInt();
+            cuts[i] = v.variant.toString().toInt();
         }
         if (i == 0) cuts[0] = cuts[1] = cuts[2] = cuts[3] = 0;
         else if (i == 1) cuts[3] = cuts[2] = cuts[1] = cuts[0];
