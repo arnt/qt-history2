@@ -147,11 +147,8 @@ QLock::~QLock()
             unlink(data->file);
     }
 #else
-    if(data->owned) {
-        semun arg; arg.val = 0;
-        semctl(data->id, 0, IPC_RMID, arg);
+    if(data->owned)
         QWSSignalHandler::instance()->removeSemaphore(data->id);
-    }
 #endif
     delete data;
 #endif

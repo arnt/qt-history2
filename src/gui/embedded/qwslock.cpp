@@ -64,7 +64,6 @@ QWSLock::~QWSLock()
 {
     if (semId == -1)
         return;
-    semctl(semId, 0, IPC_RMID, 0);
     QWSSignalHandler::instance()->removeSemaphore(semId);
 }
 

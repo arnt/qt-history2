@@ -34,12 +34,10 @@ class QWSSignalHandler
 public:
     Q_GLOBAL_STATIC(QWSSignalHandler, instance);
 
+    ~QWSSignalHandler();
+
     inline void addSemaphore(int semno) { semaphores.append(semno); }
-    inline void removeSemaphore(int semno) {
-        const int index = semaphores.lastIndexOf(semno);
-        if (index != -1)
-            semaphores.remove(index);
-    }
+    void removeSemaphore(int semno);
 
 private:
     QWSSignalHandler();

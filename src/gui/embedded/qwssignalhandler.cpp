@@ -30,6 +30,21 @@ QWSSignalHandler::QWSSignalHandler()
     }
 }
 
+QWSSignalHandler::~QWSSignalHandler()
+{
+    while (!semaphores.isEmpty())
+        removeSemaphore(semaphores.last());
+}
+
+void QWSSignalHandler::removeSemaphore(int semno)
+{
+    const int index = semaphores.lastIndexOf(semno);
+    if (index != -1) {
+        semctl(semaphores.at(index), 0, IPC_RMID, 0);
+        semaphores.remove(index);
+    }
+}
+
 void QWSSignalHandler::handleSignal(int signum)
 {
     QWSSignalHandler *h = instance();
