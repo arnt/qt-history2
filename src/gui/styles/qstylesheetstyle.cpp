@@ -31,6 +31,7 @@
 #include <qabstractscrollarea.h>
 #include <qtooltip.h>
 #include <qshareddata.h>
+#include <qradiobutton.h>
 
 using namespace QCss;
 
@@ -152,11 +153,8 @@ class QRenderRule
 {
 public:
     QRenderRule() : pal(0), b(0), bg(0), bd(0), geo(0), p(0) { }
-   QRenderRule(const QVector<QCss::Declaration> &);
+   QRenderRule(const QVector<QCss::Declaration> &, const QWidget *, const QString&, QStyle *);
     ~QRenderRule() { }
-
-    bool isEmpty() const
-    { return pal == 0 && b == 0 && bg == 0 && bd == 0 && geo == 0 && image.isNull(); }
 
     QRect borderRect(const QRect &r) const;
     QRect paddingRect(const QRect &r) const;
@@ -213,6 +211,7 @@ public:
     int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
     void fixupBorder();
+    void fixupGeometry(const QWidget *w, QString part, QStyle *);
 
     QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
@@ -245,14 +244,15 @@ static const char *knownStyleHints[] = {
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
 
-QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
+QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget, 
+                         const QString &part, QStyle *style)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
     ValueExtractor v(declarations);
     int w = -1, h = -1, minw = -1, minh = -1;
     if (v.extractGeometry(&w, &h, &minw, &minh))
         geo = new QStyleSheetGeometryData(w, h, minw, minh);
-
+    
     int left = 0, top = 0;
     Origin origin = Origin_Unknown;
     Qt::Alignment position = 0;
@@ -317,11 +317,12 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations)
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
         } else if (decl.propertyId == UnknownProperty) {
-            qWarning("Unknown property %s", qPrintable(decl.property));
+            qWarning() <<  "Unknown property " << decl.property;
         }
     }
 
     fixupBorder();
+    fixupGeometry(widget, part, style);
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -403,6 +404,33 @@ void QRenderRule::fixupBorder()
             bi->cuts[i] = int(border()->borders[i]);
     }
     bi->cutBorderImage();
+}
+
+void QRenderRule::fixupGeometry(const QWidget *w, QString part, QStyle *style)
+{
+    if (part.isEmpty() || hasGeometry())
+        return;
+    int width = -1, height = -1;
+    part = part.toLower();
+    if (part.compare(QLatin1String("up-button")) == 0
+        || part.compare(QLatin1String("down-button")) == 0)
+        width = 16;
+    else if (part.compare(QLatin1String("drop-down")) == 0)
+        width = 16;
+    else if (part.compare(QLatin1String("indicator")) == 0) {
+        if (qobject_cast<const QRadioButton *>(w)) {
+            width = style->pixelMetric(QStyle::PM_ExclusiveIndicatorWidth, 0, w);
+            height = style->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight, 0, w);
+        } else {
+            width = style->pixelMetric(QStyle::PM_IndicatorWidth, 0, w);
+            height = style->pixelMetric(QStyle::PM_IndicatorWidth, 0, w);
+        }
+    } else if (part.compare(QLatin1String("menu-indicator")) == 0) {
+        width = height = style->pixelMetric(QStyle::PM_MenuButtonIndicator, 0, w);
+    } else if (part.endsWith("-arrow")) {
+        width = height = 7;
+    }
+    geo = new QStyleSheetGeometryData(width, height, width, height);
 }
 
 void QStyleSheetBorderImageData::cutBorderImage()
@@ -739,9 +767,9 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
     QRectF tlc(0, 0, c[LeftEdge], c[TopEdge]);
     if (tlc.isValid())
         p->drawPixmap(QRectF(br.topLeft(), QSizeF(l, t)), pix, tlc);
-    QRectF trc(pix.width() - c[RightEdge], 0, c[RightEdge], c[LeftEdge]);
+    QRectF trc(pix.width() - c[RightEdge], 0, c[RightEdge], c[TopEdge]);
     if (trc.isValid())
-        p->drawPixmap(QRectF(br.left() + br.width() - r, br.y(), l, t), pix, trc);
+        p->drawPixmap(QRectF(br.left() + br.width() - r, br.y(), r, t), pix, trc);
     QRectF blc(0, pix.height() - c[BottomEdge], c[LeftEdge], c[BottomEdge]);
     if (blc.isValid())
         p->drawPixmap(QRectF(br.x(), br.y() + br.height() - b, l, b), pix, blc);
@@ -1136,7 +1164,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
         StyleSheet ss;
         Parser parser(wid->styleSheet());
         if (!parser.parse(&ss))
-            qWarning("Could not parse stylesheet of widget %p", (void*)wid);
+            qWarning() << "Could not parse stylesheet of " << wid;
         inheritedSs.prepend(ss);
     }
     styleSelector.styleSheets += inheritedSs;
@@ -1144,7 +1172,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
     StyleSheet widgetSs;
     Parser parser2(w->styleSheet());
     if (!parser2.parse(&widgetSs))
-        qWarning("Could not parse stylesheet of widget %p", (void*)w);
+        qWarning() << "Could not parse stylesheet of " << w;
 
     styleSelector.styleSheets += widgetSs;
 
@@ -1197,8 +1225,7 @@ static struct PseudoElementInfo {
     { QStyle::SC_GroupBoxCheckBox, "indicator" }
 };
 
-static QRenderRule renderRule(const QWidget *w, const QString &part = QString(),
-                              QStyle::State state = QStyle::State_None)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QString &part, QStyle::State state) const
 {
     Q_ASSERT(w);
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
@@ -1235,19 +1262,18 @@ static QRenderRule renderRule(const QWidget *w, const QString &part = QString(),
             declarations += styleRules.at(i).declarations;
     }
 
-    QRenderRule newRule(declarations);
+    QRenderRule newRule(declarations, w, part, baseStyle());
     renderRules[pseudoState] = newRule;
     return newRule;
 }
 
 
-static QRenderRule renderRule(const QWidget *w, int pseudoElement, QStyle::State state = QStyle::State_None)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, int pseudoElement, QStyle::State state) const
 {
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
-                              int pseudoElement = PseudoElement_None)
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt, int pseudoElement) const
 {
     Q_ASSERT(w && !styleRulesCache.value(w).isEmpty());
     QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_None);
@@ -1302,18 +1328,24 @@ static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt,
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
 }
 
-static bool hasStyleRule(const QWidget *w)
+bool QStyleSheetStyle::hasStyleRule(const QWidget *w, int part) const
 {
-    return w && !styleRulesCache.value(w).isEmpty();
+    const QVector<StyleRule> &styleRules = styleRulesCache.value(w);
+    if (part == PseudoElement_None)
+        return w && !styleRules.isEmpty();
+
+    // ### cache the result
+    QString pseudoElement = knownPseudoElements[part].name;
+    QVector<Declaration> declarations;
+    for (int i = 0; i < styleRules.count(); i++) {
+        const Selector& selector = styleRules.at(i).selectors.at(0);
+        if (pseudoElement.compare(selector.pseudoElement(), Qt::CaseInsensitive) == 0)
+            return true;
+    }
+
+    return false;
 }
 
-static bool hasStyleRule(const QWidget *w, int part)
-{
-    QRenderRule rule = renderRule(w, knownPseudoElements[part].name);
-    return !rule.isEmpty();
-}
-
-// ### Qt 4.3: maybe have the rules intelligently initialized with default values
 static Qt::Alignment defaultPosition(int pe)
 {
     switch (pe) {
@@ -1345,27 +1377,10 @@ static QSize expandedSize(QSize sz, const QRect& rect, int pe)
     switch (pe) {
     case PseudoElement_SpinBoxUpButton:
     case PseudoElement_SpinBoxDownButton:
-        if (sz.width() == -1) sz.setWidth(16);
         if (sz.height() == -1) sz.setHeight(rect.height()/2);
         break;
     case PseudoElement_DropDown:
-        if (sz.width() == -1) sz.setWidth(16);
         if (sz.height() == -1) sz.setHeight(rect.height());
-        break;
-    case PseudoElement_Indicator:
-        if (sz.width() == -1) sz.setWidth(8);
-        if (sz.height() == -1) sz.setHeight(8);
-        break;
-    case PseudoElement_DropDownArrow:
-    case PseudoElement_SpinBoxDownArrow:
-    case PseudoElement_SpinBoxUpArrow:
-    case PseudoElement_DownArrow:
-        if (sz.width() == -1) sz.setWidth(7);
-        if (sz.height() == -1) sz.setHeight(7);
-        break;
-    case PseudoElement_MenuIndicator:
-        if (sz.width() == -1) sz.setWidth(12);
-        if (sz.height() == -1) sz.setHeight(12);
         break;
     default:
         break;
@@ -1384,7 +1399,6 @@ static QRect positionRect(const QRenderRule& rule1, const QRenderRule& rule2, in
     QRect originRect = rule1.originRect(rect, origin);
     QSize sz = expandedSize(rule2.size(), originRect, pe);
     sz = sz.expandedTo(rule2.minimumContentsSize());
-    sz = rule2.boxSize(sz);
     Qt::Alignment position = (p && p->position != 0) ? p->position : defPosition;
     QRect r = QStyle::alignedRect(dir, position, sz, originRect);
     if (p)
@@ -1416,10 +1430,10 @@ static QWidget *embeddedWidget(QWidget *w)
 }
 
 // remember to revert changes in unsetPalette
-static void setPalette(QWidget *w)
+void QStyleSheetStyle::setPalette(QWidget *w)
 {
     const QRenderRule &hoverRule = renderRule(w, PseudoElement_None, QStyle::State_MouseOver);
-    if (!hoverRule.isEmpty())
+    if (hoverRule.hasDrawable())
         w->setAttribute(Qt::WA_Hover);
 
     // put stuff for which palette is not set here
@@ -1427,7 +1441,7 @@ static void setPalette(QWidget *w)
     if (qobject_cast<QMenuBar *>(w)) {
         // MenuBar has autoFillBackground set which does not play well with our stuff
         const QRenderRule& subRule = renderRule(w, PseudoElement_Item, QStyle::State_MouseOver);
-        if (!subRule.isEmpty())
+        if (subRule.hasDrawable())
             w->setAttribute(Qt::WA_Hover);
         return;
     }
@@ -1478,7 +1492,7 @@ static void unsetPalette(QWidget *w)
     } else
 #endif
         pal = qApp->palette(w);
-
+    
     w->setPalette(pal);
     w->setFont(font);
 }
@@ -1668,7 +1682,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
                 newGb.subControls &= ~(QStyle::SC_GroupBoxLabel | QStyle::SC_GroupBoxCheckBox);
                 ParentStyle::drawComplexControl(cc, &newGb, p, w);
                 QRenderRule labelRule = renderRule(w, opt, PseudoElement_GroupBoxTitle);
-                if (!labelRule.isEmpty()) {
+                if (labelRule.hasDrawable()) {
                     QRect r1 = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, w);
                     QRect r2 = subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, w);
                     labelRule.drawRule(p, r1.united(r2));
@@ -1738,7 +1752,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             QStyleOptionButton butOpt(*btn);
             rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
-            if (rule.hasBox()) // text can be shifted with padding
+            if (rule.hasBox() || rule.hasDrawable()) // text can be shifted with padding
                 ParentStyle::drawControl(ce, &butOpt, p, w);
             else
                 baseStyle()->drawControl(ce, &butOpt, p, w);
@@ -1977,7 +1991,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     if (pseudoElement != PseudoElement_None) {
         QRenderRule subRule = renderRule(w, opt, pseudoElement);
-        if (!subRule.isEmpty()) {
+        if (subRule.hasDrawable()) {
             subRule.drawRule(p, opt->rect);
         } else {
             baseStyle()->drawPrimitive(pe, opt, p, w);
@@ -2029,7 +2043,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ButtonShiftVertical:
     case PM_ButtonMargin:
         // do it with the padding, if you want a shift
-        if (rule.hasBox())
+        if (rule.hasBox() || rule.hasDrawable())
             return 0;
 
     case PM_DefaultFrameWidth:
