@@ -133,6 +133,8 @@ void QDBusAbstractInterfacePrivate::_q_serviceOwnerChanged(const QString &name,
 /*!
     \class QDBusAbstractInterface
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusAbstractInterface class is the base class for all D-Bus interfaces in the QtDBus binding, allowing access to remote interfaces
 
     Generated-code classes also derive from QDBusAbstractInterface, all methods described here are also

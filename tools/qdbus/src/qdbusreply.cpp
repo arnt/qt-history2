@@ -19,6 +19,8 @@
 /*!
     \class QDBusReply
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusReply class stores the reply for a method call to a remote object.
 
     A QDBusReply object is a subset of the QDBusMessage object that represents a method call's

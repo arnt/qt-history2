@@ -94,6 +94,8 @@ bool QDBusArgumentPrivate::checkRead()
 /*!
     \class QDBusArgument
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusArgument class is used to marshall and demarshall D-BUS arguments.
 
     The class is used to send arguments over D-BUS to remote

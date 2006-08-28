@@ -201,6 +201,8 @@ void QDBusMessagePrivate::setType(const QDBusMessage *message, QDBusMessage::Mes
 /*!
     \class QDBusMessage
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusMessage class represents one message sent or received over the D-Bus bus.
 
     This object can represent any of four different types of messages possible on the bus

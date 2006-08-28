@@ -117,6 +117,8 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
 /*!
     \class QDBusInterface
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusInterface class is a proxy for interfaces on remote objects.
 
     QDBusInterface is a generic accessor class that is used to place calls to remote objects,
@@ -127,7 +129,7 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
     Calls are usually placed by using the call() function, which constructs the message, sends it
     over the bus, waits for the reply and decodes the reply. Signals are connected to by using the
     normal QObject::connect() function. Finally, properties are accessed using the
-    QObject::property() and QObject::setProperty() functions. 
+    QObject::property() and QObject::setProperty() functions.
 
     The following code snippet demonstrates how to perform a
     mathematical operation of \tt{"2 + 2"} in a remote application
@@ -215,15 +217,15 @@ int QDBusInterface::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
 {
     Q_Q(QDBusInterface);
-    
+
     if (c == QMetaObject::InvokeMetaMethod) {
         int offset = metaObject->methodOffset();
         QMetaMethod mm = metaObject->method(id + offset);
-        
+
         if (mm.methodType() == QMetaMethod::Signal) {
             // signal relay from D-Bus world to Qt world
             QMetaObject::activate(q, metaObject, id, argv);
-            
+
         } else if (mm.methodType() == QMetaMethod::Slot) {
             // method call relay from Qt world to D-Bus world
             // get D-Bus equivalent signature

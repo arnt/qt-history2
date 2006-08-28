@@ -85,6 +85,8 @@ Q_GLOBAL_STATIC(ErrorMessageMapping, errorMessages)
 /*!
     \class QDBusError
     \inmodule QtDBus
+    \since 4.2
+
     \brief The QDBusError class represents an error received from the
     D-Bus bus or from remote applications found in the bus.
 
