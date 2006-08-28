@@ -379,8 +379,11 @@ void QMessageBoxPrivate::updateSize()
             if (QTextControl *control = informativeLabel->d_func()->control)
                 control->setWordWrapMode(QTextOption::WrapAnywhere);
         }
-        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, label->wordWrap());
-        informativeLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored, true);
+        QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        policy.setHeightForWidth(label->wordWrap());
+        label->setSizePolicy(policy);
+        policy.setHeightForWidth(true);
+        informativeLabel->setSizePolicy(policy);
     }
 
     QFontMetrics fm(qApp->font("QWorkspaceTitleBar"));
