@@ -142,7 +142,7 @@ void View::setResetButtonEnabled()
 
 void View::setupMatrix()
 {
-    qreal scale = ::pow(2, (zoomSlider->value() - 250) / 50.0);
+    qreal scale = ::pow(2.0, (zoomSlider->value() - 250) / 50.0);
 
     QMatrix matrix;
     matrix.scale(scale, scale);
