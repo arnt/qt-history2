@@ -946,9 +946,9 @@ public:
   \internal
  */
 QPlastiqueStylePrivate::QPlastiqueStylePrivate() :
-    QWindowsStylePrivate(),
+    QWindowsStylePrivate()
 #ifndef QT_NO_PROGRESSBAR
-    progressBarAnimateTimer(0)
+    , progressBarAnimateTimer(0)
 #endif
 {
     if (!qgetenv("QT_STYLE_NO_PIXMAPCACHE").isNull())
