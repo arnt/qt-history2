@@ -1268,6 +1268,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             destroyid = qt_mac_hiview_for(q);
         bool transfer = false;
         setWinId((WId)hiview);
+#ifndef HIViewInstallEventHandler
+        // Macro taken from the CarbonEvents Header on Tiger
+#define HIViewInstallEventHandler( target, handler, numTypes, list, userData, outHandlerRef ) \
+               InstallEventHandler( HIObjectGetEventTarget( (HIObjectRef) (target) ), (handler), (numTypes), (list), (userData), (outHandlerRef) )
+#endif
         HIViewInstallEventHandler(hiview, make_widget_eventUPP(), GetEventTypeCount(widget_events), widget_events, 0, 0);
         if(topLevel) {
             determineWindowClass();
