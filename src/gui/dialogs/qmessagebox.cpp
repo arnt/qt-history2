@@ -373,14 +373,14 @@ void QMessageBoxPrivate::updateSize()
     }
 
     if (informativeLabel) {
-        // ideally we do the same thing as above
-        informativeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        informativeLabel->setWordWrap(true); // ### fix for 4.3 : its here because qlabel cache's size wrongly
-        if (informativeLabel->minimumSizeHint().width() > hardLimit) { // longest word is really big
+        label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        if (layoutMinimumWidth() > hardLimit) { // longest word is really big, so wrap anywhere
             informativeLabel->d_func()->ensureTextControl();
             if (QTextControl *control = informativeLabel->d_func()->control)
                 control->setWordWrapMode(QTextOption::WrapAnywhere);
         }
+        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred, label->wordWrap());
+        informativeLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored, true);
     }
 
     QFontMetrics fm(qApp->font("QWorkspaceTitleBar"));
@@ -389,9 +389,9 @@ void QMessageBoxPrivate::updateSize()
         width = windowTitleWidth;
 
     q->layout()->activate();
-    int height = q->layout()->totalHeightForWidth(width);
-    if (height < 1)
-        height = q->layout()->totalMinimumSize().height();
+    int height = (q->layout()->hasHeightForWidth()) 
+                     ? q->layout()->totalHeightForWidth(width)
+                     : q->layout()->totalMinimumSize().height();
     q->setFixedSize(width, height);
 }
 
@@ -1921,6 +1921,7 @@ void QMessageBox::setInformativeText(const QString &text)
         label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
         label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
         label->setOpenExternalLinks(true);
+        label->setWordWrap(true);
 #ifndef Q_WS_MAC
         d->label->setContentsMargins(2, 7, 0, 0);
         label->setContentsMargins(2, 0, 0, 6);

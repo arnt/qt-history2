@@ -52,6 +52,7 @@ public:
     mutable QSize sh;
     mutable QSize msh;
     mutable bool valid_hints;
+    mutable QSizePolicy sizePolicy;
     int margin;
     QString text;
     QPixmap  *pixmap;

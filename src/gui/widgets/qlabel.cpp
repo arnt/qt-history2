@@ -707,8 +707,10 @@ QSize QLabel::sizeHint() const
 QSize QLabel::minimumSizeHint() const
 {
     Q_D(const QLabel);
-    if (d->valid_hints)
-        return d->msh;
+    if (d->valid_hints) {
+        if (d->sizePolicy == sizePolicy())
+            return d->msh;
+    }
 
     ensurePolished();
     d->valid_hints = true;
@@ -723,11 +725,8 @@ QSize QLabel::minimumSizeHint() const
         if (d->sh.height() < msh.height())
             msh.rheight() = d->sh.height();
     }
-    if (sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
-        msh.rwidth() = -1;
-    if (sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
-        msh.rheight() = -1;
     d->msh = msh;
+    d->sizePolicy = sizePolicy();
     return msh;
 }
 
