@@ -837,7 +837,7 @@ QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
 #endif
             QKeyEventEx ke(type, code, modifiers, text, autorepeat, qMax(1, text.length()),
                            nativeScanCode, nativeVirtualKey, nativeModifiers);
-            qt_sendSpontaneousEvent(widget,&ke);
+            return qt_sendSpontaneousEvent(widget,&ke);
         }
     }
     return false;
