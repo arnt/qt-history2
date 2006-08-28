@@ -1522,12 +1522,14 @@ void QStyleSheetStyle::widgetDestroyed(QObject *o)
 
 static bool unstylable(QWidget *w)
 {
+#ifndef QT_NO_SCROLLAREA
     if (QAbstractScrollArea *sa = qobject_cast<QAbstractScrollArea *>(w->parentWidget())) {
         if (sa->viewport() == w)
             return true;
-    }
+    } else
+#endif
 #ifndef QT_NO_LINEEDIT
-    else if (qobject_cast<QLineEdit *>(w)) {
+    if (qobject_cast<QLineEdit *>(w)) {
         if (0
 #ifndef QT_NO_COMBOBOX
             || qobject_cast<QComboBox *>(w->parentWidget())
