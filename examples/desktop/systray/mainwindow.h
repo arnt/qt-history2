@@ -24,6 +24,9 @@ class MainWindow : public QWidget
 public:
     MainWindow(QWidget *parent = 0);
 
+protected:
+    void closeEvent(QCloseEvent *);
+
 private slots:
     void updateMenu();
     void toggleVisibility();

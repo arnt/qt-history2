@@ -13,6 +13,7 @@
 
 #include "mainwindow.h"
 #include <QSystemTrayIcon>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
@@ -80,6 +81,16 @@ MainWindow::MainWindow(QWidget *parent)
     setLayout(layout);
 }
 
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    if (trayIcon->isVisible()) {
+        QMessageBox::information(this, tr("System tray example"),
+                    tr("Application will continue running. Quit using context menu in the system tray"));
+        hide();
+        e->ignore();
+    }
+}
+
 void MainWindow::updateMenu()
 {
     toggleVisibilityAction->setText(isVisible() ? tr("Hide") : tr("Show"));
@@ -95,9 +106,14 @@ void MainWindow::toggleVisibility()
 
 void MainWindow::showMessage()
 {
+#ifdef Q_WS_MAC
+    QMessageBox::information(this, tr("System tray example"),
+                tr("Balloon tips are not supported on Mac OS X"));
+#else
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(typeCombo->currentIndex());
     trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, 10000);
     trayIcon->setToolTip(titleEdit->text());
+#endif
 }
 
 void MainWindow::balloonClicked()
@@ -147,4 +163,3 @@ void MainWindow::changeIcon(int index)
     QPixmap pix(iconname);
     trayIcon->setIcon(QIcon(pix));
 }
-
