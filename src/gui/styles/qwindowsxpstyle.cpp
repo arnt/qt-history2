@@ -2417,10 +2417,10 @@ case CE_DockWidgetTitle:
                 p->setFont(titleFont);
                 
                 int result = TST_NONE;
-                pGetThemeEnumValue(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
+                pGetThemeEnumValue(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
                 if (result != TST_NONE) {
                     COLORREF textShadowRef;
-                    pGetThemeColor(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                    pGetThemeColor(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
                     QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
                     p->setPen(textShadow);
                     drawItemText(p, rect.adjusted(indent + 2,
@@ -2429,7 +2429,10 @@ case CE_DockWidgetTitle:
                                  Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                  dwOpt->state & State_Enabled, dwOpt->title);
                 }
-                p->setPen(isActive ? dwOpt->palette.highlightedText().color() : d->inactiveCaptionText);
+                
+                COLORREF captionText = GetSysColor(isActive ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+                QColor textColor = qRgb(GetRValue(captionText), GetGValue(captionText), GetBValue(captionText));
+                p->setPen(textColor);
                 drawItemText(p, rect.adjusted(indent + 1, rect.bottom() - p->fontMetrics().lineSpacing() - 4,
                                               - (2 * iconSize), -1),
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
@@ -3005,7 +3008,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         p->drawText(ir.x() + 3, ir.y() + 2, ir.width() - 1, ir.height(),
                                     Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                     }
-                    p->setPen(tb-> palette.highlightedText().color());
+                    COLORREF captionText = GetSysColor(isActive ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+                    QColor textColor = qRgb(GetRValue(captionText), GetGValue(captionText), GetBValue(captionText));
+                    p->setPen(textColor);
                     p->drawText(ir.x() + 2, ir.y() + 1, ir.width() - 2, ir.height(),
                                 Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
                 }
