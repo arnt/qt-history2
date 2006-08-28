@@ -126,6 +126,9 @@ void tst_QImageWriter::writeImage_data()
     QTest::newRow("PBM: ship63") << QString("ship63.pbm") << true << QByteArray("pbm");
     QTest::newRow("XBM: gnus") << QString("gnus.xbm") << false << QByteArray("xbm");
     QTest::newRow("JPEG: beavis") << QString("beavis.jpg") << true << QByteArray("jpeg");
+#if defined QTEST_HAVE_TIFF
+    QTest::newRow("TIFF: teapot") << QString("teapot.tiff") << false << QByteArray("tiff");
+#endif
 }
 
 void tst_QImageWriter::writeImage()
@@ -302,6 +305,9 @@ void tst_QImageWriter::saveWithNoFormat_data()
     QTest::newRow("png") << QString("images/gen-out.png") << QByteArray("png") << QImageWriter::ImageWriterError(0);
     QTest::newRow("ppm") << QString("images/gen-out.ppm") << QByteArray("ppm") << QImageWriter::ImageWriterError(0);
     QTest::newRow("pbm") << QString("images/gen-out.pbm") << QByteArray("pbm") << QImageWriter::ImageWriterError(0);
+#if defined QTEST_HAVE_TIFF
+    QTest::newRow("tiff") << QString("images/gen-out.tiff") << QByteArray("tiff") << QImageWriter::ImageWriterError(0);
+#endif
 }
 
 void tst_QImageWriter::saveWithNoFormat()

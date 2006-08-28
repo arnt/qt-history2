@@ -454,6 +454,7 @@ CFG_XINERAMA=auto
 CFG_ZLIB=auto
 CFG_SQLITE=qt
 CFG_GIF=no
+CFG_TIFF=no
 CFG_PNG=yes
 CFG_LIBPNG=auto
 CFG_JPEG=auto
@@ -1066,6 +1067,13 @@ while [ "$#" -gt 0 ]; do
         [ "$VAL" = "qt" ] && VAL=yes
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_GIF="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    libtiff)
+        if [ "$VAL" = "system" ] || [ "$VAL" = "no" ]; then
+            CFG_TIFF="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2392,10 +2400,10 @@ Usage:  $relconf [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir <dir
         [-accessibility] [-no-stl] [-stl] [-no-sql-<driver>] [-sql-<driver>] 
         [-plugin-sql-<driver>] [-system-sqlite] [-no-qt3support] [-qt3support] 
         [-platform] [-D <string>] [-I <string>] [-L <string>] [-help] [-no-zlib] 
-        [-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng] [-qt-libpng] 
-        [-system-libpng] [-no-libmng] [-qt-libmng] [-system-libmng] [-no-libjpeg] 
-        [-qt-libjpeg] [-system-libjpeg] [-make <part>] [-no-make <part>] 
-        [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
+        [-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libtiff] [-system-libtiff] 
+        [-no-libpng] [-qt-libpng] [-system-libpng] [-no-libmng] [-qt-libmng] 
+        [-system-libmng] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-make <part>] 
+        [-no-make <part>] [-R <string>]  [-l <string>] [-no-rpath]  [-rpath] [-continue] 
         [-verbose] [-v] [-silent] [-no-nis] [-nis] [-no-cups] [-cups] [-no-iconv] 
         [-iconv] [-no-pch] [-pch] [-no-qdbus] [-qdbus] [-no-separate-debug-info] 
         [-separate-debug-info] 
@@ -2531,6 +2539,10 @@ Third Party Libraries:
  *  -no-gif ............ Do not compile the plugin for GIF reading support.
     -qt-gif ............ Compile the plugin for GIF reading support.
                          See also src/plugins/imageformats/gif/qgifhandler.h
+
+ *  -no-libtiff ........ Do not compile the plugin for TIFF support.
+    -system-libtiff .... Use libtiff from the operating system.
+                         See http://www.libtiff.org
 
     -no-libpng ......... Do not compile in PNG support.
     -qt-libpng ......... Use the libpng bundled with Qt.
@@ -3330,6 +3342,15 @@ if [ "$CFG_LIBJPEG" = "auto" ]; then
        CFG_LIBJPEG=system
     else
        CFG_LIBJPEG=qt
+    fi
+fi
+
+# detect tiff
+if [ "$CFG_TIFF" = "system" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libtiff "libtiff" $L_FLAGS $I_FLAGS $l_FLAGS; then
+        CFG_TIFF=system
+    else
+        CFG_TIFF=no
     fi
 fi
 
@@ -4228,6 +4249,11 @@ if [ "$CFG_GIF" = "no" ]; then
 elif [ "$CFG_GIF" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG gif"
 fi
+if [ "$CFG_TIFF" = "no" ]; then
+    QT_CONFIG="$QT_CONFIG no-tiff"
+elif [ "$CFG_TIFF" = "system" ]; then
+    QT_CONFIG="$QT_CONFIG tiff"
+fi
 if [ "$CFG_LIBFREETYPE" = "no" ]; then
     QT_CONFIG="$QT_CONFIG no-freetype"
 elif [ "$CFG_LIBFREETYPE" = "system" ]; then
@@ -4424,6 +4450,7 @@ esac
 #     system-mng no-mng mng
 #     system-png no-png png
 #     system-zlib no-zlib zlib
+#     system-libtiff no-libtiff
 #     no-gif gif
 #     debug release
 #     dll staticlib
@@ -4643,6 +4670,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 
 # Add other configuration options to the qconfig.h file
 [ "$CFG_GIF" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_BUILTIN_GIF_READER=1"
+[ "$CFG_TIFF" != "system" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_TIFF"
 [ "$CFG_PNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_PNG"
 [ "$CFG_JPEG" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_JPEG"
 [ "$CFG_MNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_MNG"
@@ -4974,6 +5002,7 @@ echo "Iconv support ....... $CFG_ICONV"
 echo "Glib support ........ $CFG_GLIB"
 echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
+echo "TIFF support ........ $CFG_TIFF"
 if [ "$CFG_JPEG" = "no" ]; then
     echo "JPEG support ........ $CFG_JPEG"
 else

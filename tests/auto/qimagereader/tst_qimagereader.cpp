@@ -106,6 +106,12 @@ private slots:
     void supportsOption_data();
     void supportsOption();
 #endif
+
+#if defined QTEST_HAVE_TIFF
+    void tiffCompression_data();
+    void tiffCompression();
+    void tiffEndianness();
+#endif
 };
 
 // Testing get/set functions
@@ -1017,6 +1023,42 @@ void tst_QImageReader::supportsOption()
 
     foreach (QImageIOHandler::ImageOption option, allOptions)
         QVERIFY(!reader.supportsOption(option));
+}
+#endif
+
+#if defined QTEST_HAVE_TIFF
+void tst_QImageReader::tiffCompression_data()
+{
+    QTest::addColumn<QString>("uncompressedFile");
+    QTest::addColumn<QString>("compressedFile");
+
+    QTest::newRow("TIFF: adobedeflate") << "images/rgba_nocompression_littleendian.tif"
+                                        << "images/rgba_adobedeflate_littleendian.tif";
+    QTest::newRow("TIFF: lzw") << "images/rgba_nocompression_littleendian.tif"
+                               << "images/rgba_lzw_littleendian.tif";
+    QTest::newRow("TIFF: packbits") << "images/rgba_nocompression_littleendian.tif"
+                                    << "images/rgba_packbits_littleendian.tif";
+    QTest::newRow("TIFF: zipdeflate") << "images/rgba_nocompression_littleendian.tif"
+                                      << "images/rgba_zipdeflate_littleendian.tif";
+}
+
+void tst_QImageReader::tiffCompression()
+{
+    QFETCH(QString, uncompressedFile);
+    QFETCH(QString, compressedFile);
+
+    QImage uncompressedImage(uncompressedFile);
+    QImage compressedImage(compressedFile);
+
+    QCOMPARE(uncompressedImage, compressedImage);
+}
+
+void tst_QImageReader::tiffEndianness()
+{
+    QImage littleEndian("images/rgba_nocompression_littleendian.tif");
+    QImage bigEndian("images/rgba_nocompression_bigendian.tif");
+
+    QCOMPARE(littleEndian, bigEndian);
 }
 #endif
 
