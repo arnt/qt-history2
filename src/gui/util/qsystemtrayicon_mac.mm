@@ -73,7 +73,6 @@ void QSystemTrayIconPrivate::install_sys()
         updateIcon_sys();
         updateMenu_sys();
         updateToolTip_sys();
-        qDebug() << globalPos_sys();
     }
 }
 
@@ -231,7 +230,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
             [item setAction:@selector(selectedAction:)];
             if(action->menu()) {
                 QNSMenu *sub = [[QNSMenu alloc] initWithQMenu:action->menu()];
-                [sub setSupermenu:menu];
+                [item setSubmenu:sub];
             }
             if(!accel.isEmpty()) {
                 quint32 modifier, key;
