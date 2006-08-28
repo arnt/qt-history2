@@ -166,13 +166,19 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             eglSwapInterval(d->dpy, interval);
     }
 
-    d->surface = eglCreateWindowSurface(d->dpy, d->config,
-                                        (NativeWindowType)d->paintDevice,
-                                        configAttribs);
+    if (deviceIsPixmap()) {
+        d->surface = eglCreatePixmapSurface(d->dpy, d->config,
+                                            (NativeWindowType)d->paintDevice,
+                                            configAttribs);
+    } else {
+        d->surface = eglCreateWindowSurface(d->dpy, d->config,
+                                            (NativeWindowType)d->paintDevice,
+                                            configAttribs);
+    }
+        
     if (!d->surface)
         return false;
     
-
     return true;
 }
 
