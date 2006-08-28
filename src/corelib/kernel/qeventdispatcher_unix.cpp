@@ -568,7 +568,7 @@ int QEventDispatcherUNIX::activateTimers()
         }
 
         if (d->timerList.isEmpty()) break;
-        register QTimerInfo *t = d->timerList.first();
+        QTimerInfo *t = d->timerList.first();
         if (currentTime < t->timeout)
             break; // no timer has expired
 
@@ -599,7 +599,8 @@ int QEventDispatcherUNIX::activateTimers()
             QTimerEvent e(t->id);
             QCoreApplication::sendEvent(t->obj, &e);
 
-            t->inTimerEvent = false;
+            if (d->timerList.contains(t))
+                t->inTimerEvent = false;
         }
 
         if (!d->timerList.contains(begin)) begin = 0;

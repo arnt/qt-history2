@@ -147,7 +147,7 @@ static gboolean timerSourceDispatch(GSource *source, GSourceFunc, gpointer)
 
         if (src->timerList.isEmpty())
             break;
-        register QTimerInfo *t = src->timerList.first();
+        QTimerInfo *t = src->timerList.first();
         if (currentTime < t->timeout)
             break; // no timer has expired
 
@@ -178,7 +178,8 @@ static gboolean timerSourceDispatch(GSource *source, GSourceFunc, gpointer)
             QTimerEvent e(t->id);
             QCoreApplication::sendEvent(t->obj, &e);
 
-            t->inTimerEvent = false;
+            if (src->timerList.contains(t))
+                t->inTimerEvent = false;
         }
 
         if (!src->timerList.contains(begin))
