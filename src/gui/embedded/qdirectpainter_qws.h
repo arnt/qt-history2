@@ -47,6 +47,10 @@ public:
     void startPainting(bool lockDisplay = false);
     void endPainting();
 
+    void raise();
+    void lower();
+
+
     static QRegion reserveRegion(const QRegion&);
     static QRegion reservedRegion();
     static QRegion region() { return reservedRegion(); }  // deprecated
@@ -60,7 +64,7 @@ public:
     static void lock();
     static void unlock();
 private:
-    friend  void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc);
+    friend  void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type);
 };
 
 #endif

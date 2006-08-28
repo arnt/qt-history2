@@ -84,7 +84,7 @@
 
 #ifndef QT_NO_DIRECTPAINTER
 class QDirectPainter;
-extern void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc);
+extern void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type);
 #endif
 
 const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
@@ -2468,7 +2468,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
                 QRegion reg;
                 reg.setRects(e->rectangles, e->simpleData.nrectangles);
-                qt_directpainter_region(dp, reg);
+                qt_directpainter_region(dp, reg, e->simpleData.type);
                 return 1;
             }
         }

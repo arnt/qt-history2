@@ -20,6 +20,7 @@
 #include "qwidget.h"
 #include "qimage.h"
 #include <private/qwindowsurface_qws_p.h>
+#include <private/qwsdisplay_qws_p.h>
 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
@@ -31,6 +32,7 @@
 
     \brief The QDirectPainter class provides direct access to the
     video hardware.
+    \preliminary
 
     When the hardware is known and well defined, as is often the case
     with software for embedded devices, it may be useful to manipulate
@@ -95,6 +97,11 @@ class QDirectPainterPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QDirectPainter);
 public:
+    ~QDirectPainterPrivate() {
+        if (QPaintDevice::qwsDisplay()) // make sure not in QApplication destructor
+            surface->release();
+        delete surface;
+    }
 
     QWSDirectPainterSurface *surface;
     QRegion requested_region;
@@ -106,7 +113,7 @@ public:
 QDirectPainter *QDirectPainterPrivate::staticPainter = 0;
 bool QDirectPainterPrivate::seenStaticRegion = false;
 
-void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc)
+void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type)
 {
     QDirectPainterPrivate *d = dp->d_func();
 
@@ -116,11 +123,15 @@ void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc)
         const QSize screenSize(screen->width(), screen->height());
         r = screen->mapToDevice(r, screenSize);
     }
-    d->surface->setClipRegion(r);
-    if (dp == QDirectPainterPrivate::staticPainter)
-        QDirectPainterPrivate::seenStaticRegion = true;
-    else
-        dp->regionChanged(r);
+    if (type == QWSRegionEvent::Allocation) {
+        d->surface->setClipRegion(r);
+        if (dp == QDirectPainterPrivate::staticPainter)
+            QDirectPainterPrivate::seenStaticRegion = true;
+        else
+            dp->regionChanged(r);
+    } else if (type == QWSRegionEvent::Request) {
+        dp->setRegion(alloc);
+    }
 }
 
 
@@ -141,6 +152,10 @@ QDirectPainter::QDirectPainter(QObject *parentObject, SurfaceFlag flag)
 
 QDirectPainter::~QDirectPainter()
 {
+    /* should not be necessary
+    if (this == QDirectPainterPrivate::staticPainter)
+        QDirectPainterPrivate::staticPainter = 0;
+    */
 }
 
 void QDirectPainter::setGeometry(const QRect &r)
@@ -171,13 +186,13 @@ QRegion QDirectPainter::requestedRegion() const
 QRegion QDirectPainter::allocatedRegion() const
 {
     Q_D(const QDirectPainter);
-    return d->surface ? d->surface->region() : QRegion();
+    return d->surface->region();
 }
 
 WId QDirectPainter::winId() const
 {
     Q_D(const QDirectPainter);
-    return d->surface ? d->surface->windowId() : WId(0);
+    return d->surface->windowId();
 }
 
 void QDirectPainter::regionChanged(const QRegion &exposedRegion)
@@ -192,6 +207,17 @@ void QDirectPainter::startPainting(bool lockDisplay)
 
 void QDirectPainter::endPainting()
 {
+}
+
+
+void QDirectPainter::raise()
+{
+    QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Raise);
+}
+
+void QDirectPainter::lower()
+{
+    QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Lower);
 }
 
 

@@ -995,7 +995,7 @@ void QWSDirectPainterSurface::setRegion(const QRegion &region)
 
 void QWSDirectPainterSurface::release()
 {
-    QWidget::qwsDisplay()->requestRegion(winId, key(), data(), QRegion());
+    QWidget::qwsDisplay()->destroyRegion(winId);
 }
 
 
