@@ -14,6 +14,6 @@ FORMS += chatmainwindow.ui chatsetnickname.ui
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
-sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.xml
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro *.xml
 sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
 INSTALLS += target sources
