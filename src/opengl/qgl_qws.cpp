@@ -16,6 +16,7 @@
 #if defined(Q_WS_QWS)
 #include <GLES/egl.h>
 #include <GL/gl.h>
+#include <qdirectpainter_qws.h>
 #endif
 
 #include <private/qfont_p.h>
@@ -53,16 +54,30 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
     EGLConfig configs[5];
     EGLint matchingConfigs;
-    const EGLint configAttribs[] = {
-        EGL_RED_SIZE,       8,
-        EGL_GREEN_SIZE,     8,
-        EGL_BLUE_SIZE,      8,
-        EGL_ALPHA_SIZE,     8,
+    EGLint configAttribs[] = {
+        EGL_RED_SIZE,        8,
+        EGL_GREEN_SIZE,      8,
+        EGL_BLUE_SIZE,       8,
+        EGL_ALPHA_SIZE,      8,
+        EGL_ALPHA_MASK_SIZE, 8, 
         EGL_DEPTH_SIZE,     16,
         EGL_STENCIL_SIZE,   EGL_DONT_CARE,
         EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
         EGL_NONE,           EGL_NONE
     };
+
+    if (d->paintDevice->devType() == QInternal::Image) {
+        QImage *img = static_cast<QImage*>(d->paintDevice);
+        if (img->format() == QImage::Format_RGB16) {
+            configAttribs[1] = 5;
+            configAttribs[3] = 6;
+            configAttribs[5] = 5;
+            configAttribs[7] = 0;
+        }
+    }
+
+    if (deviceIsPixmap() || d->paintDevice->devType() == QInternal::Image)
+        configAttribs[15] = EGL_PIXMAP_BIT;
 
     //Ask for an available display
     d->dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -166,7 +181,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             eglSwapInterval(d->dpy, interval);
     }
 
-    if (deviceIsPixmap()) {
+    if (deviceIsPixmap() || d->paintDevice->devType() == QInternal::Image) {
         d->surface = eglCreatePixmapSurface(d->dpy, d->config,
                                             (NativeWindowType)d->paintDevice,
                                             configAttribs);
@@ -279,7 +294,8 @@ void QGLWidget::resizeEvent(QResizeEvent *)
         glInit();
     eglWaitNative(EGL_CORE_NATIVE_ENGINE);
     resizeGL(width(), height());
-
+    
+    d->directPainter.setGeometry(geometry());
     //handle overlay
 }
 

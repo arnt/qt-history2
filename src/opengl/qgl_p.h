@@ -43,6 +43,7 @@ class QMacWindowChangeEvent;
 
 #ifdef Q_WS_QWS
 #include <GLES/egl.h>
+#include "QtGui/qdirectpainter_qws.h"
 #endif
 
 // extension prototypes
@@ -163,6 +164,8 @@ public:
     QGLContext *olcx;
     void updatePaintDevice();
     QMacWindowChangeEvent *watcher;
+#elif defined(Q_WS_QWS)
+    QDirectPainter directPainter;
 #endif
 };
 
