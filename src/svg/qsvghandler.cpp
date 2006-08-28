@@ -533,6 +533,7 @@ static void parseBrush(QSvgNode *node,
 {
     QString value = attributes.value(QLatin1String("fill"));
     QString myId = attributes.value(QLatin1String("id"));
+
     value = value.trimmed();
     if (!value.isEmpty()) {
         if (value.startsWith(QLatin1String("url"))) {
@@ -1526,7 +1527,18 @@ static bool parseCSStoXMLAttrs(QString css,
         if (val.type == QCss::Value::Uri) {
             valueStr.prepend(QLatin1String("url("));
             valueStr.append(QLatin1Char(')'));
+        } else if (val.type == QCss::Value::Function) {
+            QStringList lst = val.variant.toStringList();
+            valueStr.append(lst.at(0));
+            valueStr.append("(");
+            for (int i = 1; i < lst.count(); ++i) {
+                valueStr.append(lst.at(i));
+                if ((i +1) < lst.count())
+                    valueStr.append(",");
+            }
+            valueStr.append(")");
         }
+            
         attributes.append(decl.property, QString(),
                           decl.property, valueStr);
     }
