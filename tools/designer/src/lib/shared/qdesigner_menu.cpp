@@ -495,7 +495,7 @@ void QDesignerMenu::paintEvent(QPaintEvent *event)
     }
 
     QRect g = actionGeometry(current);
-    drawSelection(&p, g.adjusted(1, 1, -3, -2));
+    drawSelection(&p, g.adjusted(1, 1, -3, -3));
 }
 
 bool QDesignerMenu::dragging() const
@@ -1219,7 +1219,7 @@ void QDesignerMenu::drawSelection(QPainter *p, const QRect &r)
     p->save();
 
     QColor c = Qt::blue;
-    p->setPen(c);
+    p->setPen(QPen(c, 1));
     c.setAlpha(32);
     p->setBrush(c);
     p->drawRect(r);

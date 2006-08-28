@@ -844,7 +844,7 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     QPainter p(this);
 
     if (layout() != 0) {
-        p.setPen(QPen(QColor(255, 0, 0, 35)));
+        p.setPen(QPen(QColor(255, 0, 0, 35), 1));
 
         int index = 0;
 
@@ -857,7 +857,7 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
 
     }
 
-    p.setPen(QPen(Qt::red));
+    p.setPen(QPen(Qt::red, 1));
     p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
