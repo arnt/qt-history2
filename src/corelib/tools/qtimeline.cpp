@@ -54,7 +54,7 @@ public:
     int currentTime;
     int timerId;
     QTime timer;
-    
+
     QTimeLine::Direction direction;
     QTimeLine::CurveShape curveShape;
     QTimeLine::State state;
@@ -167,13 +167,15 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     which provides a value that grows slowly, then grows steadily, and
     finally grows slowly. For a custom timeline, you can reimplement
     valueForTime(), in which case QTimeLine's curveShape property is ignored.
+
+    \sa QProgressBar, QProgressDialog
 */
 
 /*!
     \enum QTimeLine::State
 
     This enum describes the state of the timeline.
-    
+
     \value NotRunning The timeline is not running. This is the initial state
     of QTimeLine, and the state QTimeLine reenters when finished. The current
     time, frame and value remain unchanged until either setCurrentTime() is
@@ -185,18 +187,22 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     \value Running The timeline is running. While control is in the event
     loop, QTimeLine will update its current time at regular intervals,
     emitting valueChanged() and frameChanged() when appropriate.
+
+    \sa state(), stateChanged()
 */
 
 /*!
     \enum QTimeLine::Direction
 
     This enum describes the direction of the timeline when in \l Running state.
-    
+
     \value Forward The current time of the timeline increases with time (i.e.,
     moves from 0 and towards the end / duration).
 
     \value Backward The current time of the timeline decreases with time (i.e.,
     moves from the end / duration and towards 0).
+
+    \sa setDirection()
 */
 
 /*!
@@ -205,13 +211,15 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     This enum describes the default shape of QTimeLine's value curve. The
     default, shape is EaseInOutCurve. The curve defines the relation
     between the value and the timeline.
-    
+
     \value EaseInCurve The value starts growing slowly, then increases in speed.
     \value EaseOutCurve The value starts growing steadily, then ends slowly.
     \value EaseInOutCurve The value starts growing slowly, the runs steadily, then grows slowly again.
     \value LinearCurve The value grows linearly (e.g., if the duration is 1000 ms,
            the value at time 500 ms is 0.5).
     \value SineCurve The value grows sinusoidally.
+
+    \sa setCurveShape()
 */
 
 /*!
@@ -245,7 +253,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     This signal is emitted when QTimeLine finishes (i.e., reaches the end of
     its time line), and does not loop.
 */
-    
+
 /*!
     Constructs a timeline with a duration of \a duration milliseconds. \a
     parent is passed to QObject's constructor. The default duration is 1000
@@ -517,7 +525,7 @@ qreal QTimeLine::valueForTime(int msec) const
 
     // Simple linear interpolation
     qreal value = msec / qreal(d->duration);
-    
+
     switch (d->curveShape) {
     case EaseInOutCurve:
         value = qt_sinProgress(value);

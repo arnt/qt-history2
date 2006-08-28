@@ -130,7 +130,7 @@ static const char * const dock_widget_restore_xpm[] = {
     "+%       #+",
     ".+@@@@@@@+.",
     "           "};
-    
+
 static const char * const workspace_minimize[] = {
     "11 13 7 1",
     " 	c None",
@@ -153,7 +153,7 @@ static const char * const workspace_minimize[] = {
     "+%       #+",
     ".+@@@@@@@+.",
     "           "};
-    
+
 
 static const char * const qt_titlebar_context_help[] = {
     "27 27 5 1",
@@ -459,7 +459,7 @@ class QCleanlooksStylePrivate : public QWindowsStylePrivate
 public:
     QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
-    { }    
+    { }
 ~QCleanlooksStylePrivate()
     { }
     void lookupIconTheme() const;
@@ -525,7 +525,7 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
         painter->fillRect(tmp.adjusted(1, 1, -1, -1), QColor(255, 255, 255, 20));
     else if (sunken)
         painter->fillRect(tmp.adjusted(1, 1, -1, -1), option->palette.highlight().color().dark(130));
-    
+
     QColor mdiButtonGradientStartColor;
     QColor mdiButtonGradientStopColor;
 
@@ -534,7 +534,7 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 
     if (sunken)
         titleBarHighlight = option->palette.highlight().color().dark(130);
-    
+
     QLinearGradient gradient(tmp.center().x(), tmp.top(), tmp.center().x(), tmp.bottom());
     gradient.setColorAt(0, mdiButtonGradientStartColor);
     gradient.setColorAt(1, mdiButtonGradientStopColor);
@@ -553,7 +553,7 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
     painter->setPen(titleBarHighlight);
     painter->drawLine(tmp.left() + 2, tmp.top() + 1, tmp.right() - 2, tmp.top() + 1);
     painter->drawLine(tmp.left() + 1, tmp.top() + 2, tmp.left() + 1, tmp.bottom() - 2);
-    
+
     painter->setPen(QPen(gradient, 1));
     painter->drawLine(tmp.right() + 1, tmp.top() + 2, tmp.right() + 1, tmp.bottom() - 2);
     painter->drawPoint(tmp.right() , tmp.top() + 1);
@@ -594,16 +594,20 @@ QCleanlooksStyle::~QCleanlooksStyle()
 }
 
 /*!
-    Draws the \a text in rectangle \a rect using \a painter and
-    palette \a pal.
+    \fn void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rectangle, int alignment, const QPalette &palette,
+                                    bool enabled, const QString& text, QPalette::ColorRole textRole) const
+
+    Draws the given \a text in the specified \c rectangle using the
+    provided \a painter and \a palette.
 
     Text is drawn using the painter's pen. If an explicit \a textRole
-    is specified, then the text is drawn using the color specified in
-    \a pal for the specified role.  The \a enabled bool indicates
-    whether or not the item is enabled; when reimplementing this bool
-    should influence how the item is drawn.
+    is specified, then the text is drawn using the \a palette's color
+    for the specified role.  The \a enabled value indicates whether or
+    not the item is enabled; when reimplementing, this value should
+    influence how the item is drawn.
 
-    The text is aligned and wrapped according to \a alignment.
+    The text is aligned and wrapped according to the specified \a
+    alignment.
 
     \sa Qt::Alignment
 */
@@ -655,7 +659,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor shadow = option->palette.background().color().dark(120);
 
     switch(elem) {
-    case PE_IndicatorViewItemCheck: 
+    case PE_IndicatorViewItemCheck:
         {
             QStyleOptionButton button;
             button.QStyleOption::operator=(*option);
@@ -1024,7 +1028,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 
             painter->drawLine(QPoint(r.left() + 2, r.top()),
                               QPoint(r.right() - 2, r.top()));
-            
+
             QColor highlight = Qt::white;
             highlight.setAlpha(130);
             painter->setPen(highlight);
@@ -1034,7 +1038,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                               QPoint(r.left() + 1, r.bottom() - 2));
             painter->drawPoint(QPoint(r.left(), r.bottom()));
             painter->drawPoint(QPoint(r.right(), r.bottom() ));
-            
+
             painter->setPen(buttonShadowAlpha.dark(130));
             painter->drawPoint(QPoint(r.right(), r.top() + 1));
             painter->drawPoint(QPoint(r.right() - 1, r.top() ));
@@ -1049,7 +1053,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                               QPoint(r.right() - 1, r.bottom() - 2));
             painter->drawLine(QPoint(r.left() + 2, r.top() - 1),
                               QPoint(r.right() - 2, r.top() - 1));
-            
+
             if (isDefault) {
                 r.adjust(-1, -1, 1, 1);
                 painter->setPen(buttonShadowAlpha.dark(120));
@@ -1589,7 +1593,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             item.rect = mbi->rect.adjusted(0, 3, 0, -1);
             QColor highlightOutline = option->palette.highlight().color().dark(130);
             QLinearGradient gradient(rect.topLeft(), QPoint(rect.bottomLeft().x(), rect.bottomLeft().y()*2));
-            
+
             if (option->palette.button().gradient()) {
                 gradient.setStops(option->palette.button().gradient()->stops());
             } else {
@@ -1661,7 +1665,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             bool selected = menuItem->state & State_Selected && menuItem->state & State_Enabled;
             if (selected) {
                 QRect r = option->rect.adjusted(1, 0, -2, -1);
-                qt_cleanlooks_draw_gradient(painter, r, option->palette.highlight().color(), highlightOutline, TopDown, 
+                qt_cleanlooks_draw_gradient(painter, r, option->palette.highlight().color(), highlightOutline, TopDown,
                                             option->palette.highlight());
                 r = r.adjusted(-1, 0, 1, 0);
                 painter->setPen(QPen(highlightOutline, 0));
@@ -1859,7 +1863,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             if (!button->icon.isNull()) {
                 //Center both icon and text
                 QPoint point;
-                
+
                 QIcon::Mode mode = button->state & State_Enabled ? QIcon::Normal
                                                               : QIcon::Disabled;
                 if (mode == QIcon::Normal && button->state & State_HasFocus)
@@ -1867,40 +1871,40 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 QIcon::State state = QIcon::Off;
                 if (button->state & State_On)
                     state = QIcon::On;
-            
+
                 QPixmap pixmap = button->icon.pixmap(button->iconSize, mode, state);
                 int w = pixmap.width();
                 int h = pixmap.height();
-                
+
                 if (!button->text.isEmpty())
                     w += button->fontMetrics.width(button->text) + 2;
-                
+
                 point = QPoint(ir.x() + ir.width() / 2 - w / 2,
                                ir.y() + ir.height() / 2 - h / 2);
-                
+
                 if (button->direction == Qt::RightToLeft)
                     point.rx() += pixmap.width();
-                
+
                 painter->drawPixmap(visualPos(button->direction, button->rect, point), pixmap);
 
                 if (button->direction == Qt::RightToLeft)
                     ir.translate(-point.x() - 2, 0);
                 else
                     ir.translate(point.x() + pixmap.width(), 0);
-                
+
                 // left-align text if there is
                 if (!button->text.isEmpty())
                     tf |= Qt::AlignLeft;
-            
+
             } else {
                 tf |= Qt::AlignHCenter;
             }
-            
+
             //this tweak ensures the font is perfectly centered on small sizes
             //but slightly downward to make it more gnomeish if not
-            if (button->fontMetrics.height() > 14) 
+            if (button->fontMetrics.height() > 14)
                 ir.translate(0, 1);
-                
+
             drawItemText(painter, ir, tf, button->palette, (button->state & State_Enabled),
                          button->text, QPalette::ButtonText);
         }
@@ -2026,7 +2030,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             if (option->palette.button().gradient()) {
                 if (selected)
                     gradient.setStops(option->palette.button().gradient()->stops());
-                else 
+                else
                     gradient.setStops(option->palette.background().gradient()->stops());
             }
             else if (selected) {
@@ -2687,7 +2691,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (!horizontal)
                         gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
                                                    pixmapRect.right(), pixmapRect.center().y());
-                    
+
                     if (option->palette.button().gradient()) {
                         gradient.setStops(option->palette.button().gradient()->stops());
                     } else {
@@ -2950,7 +2954,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                     //remove shadow from left side of edit field when pressed:
                     if (comboBox->direction != Qt::RightToLeft)
-                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(), 
+                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(),
                         editRect.bottom() - 3, option->palette.base());
 
                     cachePainter.setPen(option->palette.dark().color());
@@ -3131,12 +3135,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
 
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
-                    
+
                     if (horizontal)
                         groove.adjust(0, 0, -1, 0);
                     else
                         groove.adjust(0, 0, 0, -1);
-                        
+
                     // draw groove
                     painter->setPen(QPen(palette.dark(), 0));
 
@@ -3168,7 +3172,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     } else {
                         painter->setBrush(gradient2);
                         painter->setPen(QPen(activeHighlight.dark(150), 0));
-                        painter->drawRect(QRect(groove.left(), handle.bottom(), groove.width() , 
+                        painter->drawRect(QRect(groove.left(), handle.bottom(), groove.width() ,
                                                 groove.height() - handle.bottom()));
                     }
                 }
@@ -3181,7 +3185,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                                option->palette.dark().color().light(140), 50);
                     QColor gradientStopColor = gradientStartColor.dark(115);
                     QRect gradRect = handle.adjusted(1, 1, -1, -1);
-                    
+
                     if (option->state & State_MouseOver) {
                         gradientStartColor = gradientStartColor.light(110);
                         gradientStopColor = gradientStopColor.light(110);
@@ -3205,12 +3209,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->setPen(QPen(option->palette.dark().color().light(130), 0));
                     painter->drawLine(innerBorder.bottomLeft(), innerBorder.bottomRight());
                     painter->drawLine(innerBorder.topRight(), innerBorder.bottomRight());
-                    
+
                     painter->setPen(QPen(option->palette.dark().color().dark(120), 1));
                     painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right() - 2, r.bottom()));
-                    
+
                     QColor cornerAlpha = option->palette.dark().color().dark(140);
                     cornerAlpha.setAlpha(150);
                     painter->setPen(cornerAlpha);
@@ -3218,7 +3222,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
                     painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
                     painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
-                    
+
                     painter->setPen(QPen(option->palette.dark().color().dark(140), 1));
                     painter->drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
                      //draw grips
@@ -3454,7 +3458,7 @@ void QCleanlooksStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
-    app->setPalette(standardPalette());    
+    app->setPalette(standardPalette());
 #endif
 }
 
@@ -3915,7 +3919,7 @@ QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
         r.adjust(0, 1, 0, -1);
         break;
     default:
-        break;  
+        break;
     }
     return r;
 }
@@ -3942,11 +3946,11 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QWidget *widget) const
 {
     Q_D(const QCleanlooksStyle);
- 
+
     QIcon icon(standardPixmap(standardIcon, option, widget));
     if (!qApp->desktopSettingsAware())
         return icon;
- 
+
     QPixmap pixmap;
     QPixmap link;
     switch (standardIcon) {
@@ -4012,7 +4016,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     QPixmap pixmap;
     if (!qApp->desktopSettingsAware())
         return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
-  
+
     d->lookupIconTheme();
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
@@ -4167,7 +4171,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
             if (!pixmap.isNull())
                 return pixmap;
             break;
-        }    
+        }
     case SP_ArrowLeft:
         {
             pixmap = d->findIcon(16, QLatin1String("stock_left.png"));

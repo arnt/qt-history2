@@ -487,4 +487,6 @@ QDynamicPropertyChangeEvent::~QDynamicPropertyChangeEvent()
 
     Returns the name of the dynamic property that was added, changed or
     removed.
+
+    \sa QObject::setProperty(), QObject::dynamicPropertyNames()
 */

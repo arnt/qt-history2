@@ -903,6 +903,8 @@ QAbstractItemModel *QCompleter::model() const
     \value PopupCompletion            Current completions are displayed in a popup window.
     \value InlineCompletion           Completions appear inline (as selected text).
     \value UnfilteredPopupCompletion  All possible completions are displayed in a popup window with the most likely suggestion selected.
+
+    \sa setCompletionMode()
 */
 
 /*!
@@ -1187,7 +1189,7 @@ int QCompleter::completionCount() const
     \value CaseSensitivelySortedModel       The model is sorted case sensitively.
     \value CaseInsensitivelySortedModel     The model is sorted case insensitively.
 
-    \sa completionRole, completionColumn
+    \sa setModelSorting()
 */
 
 /*!

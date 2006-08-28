@@ -140,7 +140,7 @@ bool QProgressBarPrivate::repaintRequired() const
          \o A progress bar shown in the Plastique widget style.
     \endtable
 
-    \sa QProgressDialog, {fowler}{GUI Design Handbook: Progress Indicator}
+    \sa QTimeLine(), QProgressDialog, {fowler}{GUI Design Handbook: Progress Indicator}
 */
 
 /*!

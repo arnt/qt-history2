@@ -1136,7 +1136,7 @@ static QLocalePrivate *system_lp = 0;
   \value TimeFormatLong a QString specifying the long time format
   \value TimeFormatShort a QString specifying the short time format
   \value DayNameLong a QString specifying the name of a weekday. the in variant contains an integer between 1 and 7 (Monday - Friday)
-  \value DayNameShort, a QString specifying the short name of a weekday. the in variant contains an integer between 1 and 7 (Monday - Friday)
+  \value DayNameShort a QString specifying the short name of a weekday. the in variant contains an integer between 1 and 7 (Monday - Friday)
   \value MonthNameLong a QString specifying the name of a month. the in variant contains an integer between 1 and 12
   \value MonthNameShort a QString specifying the short name of a month. the in variant contains an integer between 1 and 12
   \value DateToStringLong converts the QDate stored in the in variant to a QString using the long date format

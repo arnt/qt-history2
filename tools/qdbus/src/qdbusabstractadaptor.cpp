@@ -154,7 +154,7 @@ void QDBusAbstractAdaptor::setAutoRelaySignals(bool enable)
     Returns true if automatic signal relaying from the real object (see object()) is enabled,
     otherwiser returns false.
 
-    \sa setAutoRelaySignals
+    \sa setAutoRelaySignals()
 */
 bool QDBusAbstractAdaptor::autoRelaySignals() const
 {
