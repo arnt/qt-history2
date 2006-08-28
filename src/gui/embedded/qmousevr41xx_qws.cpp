@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <termios.h>
 
-static const int defaultFilterSize = 4;
+static const int defaultFilterSize = 3;
 
 class QWSVr41xxMouseHandlerPrivate : public QObject
 {
@@ -191,8 +191,8 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
         memcpy(data, currSample, sizeof(currSample));
         ++nSamples;
         head = (head + 1) % filterSize;
-        if (nSamples > filterSize)
-                tail = (tail + 1) % filterSize;
+        if (nSamples >= filterSize)
+            tail = (tail + 1) % filterSize;
     }
 
     // send mouse events
@@ -201,7 +201,7 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
         lastPos = QPoint(data[3] - data[4], data[2] - data[1]);
         handler->sendFiltered(lastPos, Qt::LeftButton);
         isPressed = true;
-        tail = tail + 1 % samples.size();
+        tail = (tail + 1) % filterSize;
     }
 
     if (isPressed)
