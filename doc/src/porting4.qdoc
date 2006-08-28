@@ -1517,6 +1517,9 @@
     In Qt 4, a copy operation is performed by default; the user has to
     hold down the \key{Shift} key to perform a move operation.
 
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
+
     \section1 QDropSite
 
     The \c QDropSite class has been renamed Q3DropSite and moved to
@@ -1547,6 +1550,9 @@
         ...
     }
     \endcode
+
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
 
     \section1 QEditorFactory
 
@@ -1885,6 +1891,9 @@
     The \c QImageDrag class has been renamed Q3ImageDrag and moved to
     the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setImage() to set the image.
+
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
 
     \section1 QImageIO
 
@@ -3395,6 +3404,9 @@
     to the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setData() to set the data.
 
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
+
     \section1 QStr(I)List
 
     The QStrList and QStrIList convenience classes have been
@@ -3705,6 +3717,9 @@
     the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setText() to set the data.
 
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
+
     \section1 QTextEdit
 
     The old QTextEdit and QTextBrowser classes have been renamed
@@ -3813,6 +3828,9 @@
     The \c QUriDrag class has been renamed Q3UriDrag and moved to the
     Qt3Support library. In Qt 4, use QMimeData instead
     and call QMimeData::setUrl() to set the URL.
+
+    See \l{Porting to Qt 4 (Drag and Drop)} for a comparison between
+    the drag and drop APIs in Qt 3 and Qt 4.
 
     \section1 QUrl
 
