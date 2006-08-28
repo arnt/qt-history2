@@ -83,6 +83,10 @@ QString QNetworkInterfacePrivate::makeHwAddress(int len, uchar *data)
     supported by a network interface, along with its associated
     netmask and broadcast address.
 
+    \since 4.2
+    \reentrant
+    \ingroup io
+
     Each network interface can contain zero or more IP addresses, which
     in turn can be associated with a netmask and/or a broadcast
     address (depending on support from the operating system).
@@ -196,12 +200,12 @@ void QNetworkAddressEntry::setBroadcast(const QHostAddress &newBroadcast)
 
 /*!
     \class QNetworkInterface
-
     \brief The QNetworkInterface class provides a listing of the host's IP
     addresses and network interfaces.
 
+    \since 4.2
     \reentrant
-    \module network
+    \ingroup io
 
     QNetworkInterface represents one network interface attached to the
     host where the program is being run. Each network interface may

@@ -72,6 +72,7 @@ public:
     \class QWSWindowSurface
     \brief The QWSWindowSurface class provides the drawing area of a top-level
     window.
+    \since 4.2
     \preliminary
 
     This class is used for implementing different types of memory allocation

@@ -72,6 +72,7 @@ void QWSEmbedWidgetPrivate::updateWindow()
 
 /*!
     \class QWSEmbedWidget
+    \since 4.2
 
     \brief The QWSEmbedWidget class provides embedding of a top-level window.
 

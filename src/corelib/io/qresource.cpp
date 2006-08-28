@@ -82,6 +82,7 @@ Q_GLOBAL_STATIC(QStringList, resourceSearchPaths)
     \ingroup io
     \mainclass
     \reentrant
+    \since 4.2
 
     QResource is an object that represents a set of data (and possibly
     children) relating to a single resource entity. QResource gives direct

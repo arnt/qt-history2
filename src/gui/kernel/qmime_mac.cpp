@@ -64,6 +64,7 @@ CFStringRef qt_mac_mime_typeUTI = CFSTR("com.pasteboard.trolltech.marker");
 /*!
   \class QMacPasteBoardMime
   \brief The QMacPasteBoardMime class maps open-standard MIME to Mac flavors.
+  \since 4.2
   \ingroup io
   \ingroup draganddrop
   \ingroup misc

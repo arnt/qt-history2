@@ -635,10 +635,8 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 
 /*!
     \class QStyleOptionViewItemV2
-
     \brief The QStyleOptionViewItemV2 class is used to describe the
     parameters necessary for drawing a frame in Qt 4.2 or above.
-
     \since 4.2
 
     QStyleOptionViewItemV2 inherits QStyleOptionViewItem.
@@ -4039,6 +4037,7 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
     \class QStyleOptionSizeGrip
     \brief The QStyleOptionSizeGrip class is used to describe the
     parameter for drawing a size grip.
+    \since 4.2
 
     QStyleOptionButton contains all the information that QStyle
     functions need to draw QSizeGrip.

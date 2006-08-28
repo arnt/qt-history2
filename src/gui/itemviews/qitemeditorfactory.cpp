@@ -50,6 +50,7 @@ private:
     \class QItemEditorFactory
     \brief The QItemEditorFactory class provides widgets for editing item data
     in views and delegates.
+    \since 4.2
     \ingroup model-view
 
     When editing the data shown by an item delegate, the QItemDelegate responsible
@@ -274,6 +275,7 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \class QItemEditorCreatorBase
     \brief The QItemEditorCreatorBase class provides an abstract base class that
     must be subclassed when implementing new item editor creators.
+    \since 4.2
     \ingroup model-view
 
     Item editor creators are specialized widget factories that provide editor widgets
