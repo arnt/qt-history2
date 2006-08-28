@@ -70,7 +70,11 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
 {
     static QImage *static_image = 0;
     QPainter painter;
-    if (preferImage()) {
+    if (preferImage()
+#ifdef QT_OPENGL_SUPPORT
+        && !m_use_opengl
+#endif        
+        ) {
         if (!static_image) {
             static_image = new QImage(size(), QImage::Format_RGB32);
         } else if (static_image->size() != size()) {
@@ -140,7 +144,11 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(clipPath);
 
-    if (preferImage()) {
+    if (preferImage()
+#ifdef QT_OPENGL_SUPPORT
+        && !m_use_opengl
+#endif        
+        ) {
         painter.end();
         painter.begin(this);
         painter.drawImage(e->rect(), *static_image, e->rect());
