@@ -21,7 +21,10 @@
 #include <QModelIndex>
 #include <QRect>
 #include <QSize>
+#include <QPoint>
 #include <QWidget>
+
+class QRubberBand;
 
 class PieView : public QAbstractItemView
 {
@@ -51,7 +54,11 @@ protected:
 
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
 
+    void mousePressEvent(QMouseEvent *event);
+
+    void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
@@ -69,6 +76,8 @@ private:
     int pieSize;
     int validItems;
     double totalValue;
+    QPoint origin;
+    QRubberBand *rubberBand;
 };
 
 #endif

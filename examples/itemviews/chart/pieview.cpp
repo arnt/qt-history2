@@ -31,6 +31,7 @@ PieView::PieView(QWidget *parent)
     pieSize = totalSize - 2*margin;
     validItems = 0;
     totalValue = 0.0;
+    rubberBand = 0;
 }
 
 void PieView::dataChanged(const QModelIndex &topLeft,
@@ -220,9 +221,26 @@ int PieView::horizontalOffset() const
     return horizontalScrollBar()->value();
 }
 
+void PieView::mousePressEvent(QMouseEvent *event)
+{
+    QAbstractItemView::mousePressEvent(event);
+    origin = event->pos();
+    if (!rubberBand)
+        rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+    rubberBand->setGeometry(QRect(origin, QSize()));
+    rubberBand->show();
+}
+
+void PieView::mouseMoveEvent(QMouseEvent *event)
+{
+    rubberBand->setGeometry(QRect(origin, event->pos()).normalized());
+    QAbstractItemView::mouseMoveEvent(event);
+}
+
 void PieView::mouseReleaseEvent(QMouseEvent *event)
 {
     QAbstractItemView::mouseReleaseEvent(event);
+    rubberBand->hide();
     viewport()->update();
 }
 
