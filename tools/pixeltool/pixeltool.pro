@@ -1,7 +1,5 @@
 TEMPLATE = app
 CONFIG  += qt assistant warn_on
-QT += network
-
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release

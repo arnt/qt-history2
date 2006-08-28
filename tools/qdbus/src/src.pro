@@ -2,7 +2,6 @@ TEMPLATE = lib
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_release build_all
-win32|mac:!macx-xcode:CONFIG += debug_and_release
 contains(QT_CONFIG, embedded):CONFIG += embedded
 !contains(CONFIG, static) {
 	CONFIG += dll
@@ -110,7 +109,7 @@ PUB_HEADERS =  qdbusargument.h \
 HEADERS += $$PUB_HEADERS \
            qdbusconnection_p.h qdbusmessage_p.h \
            qdbusinterface_p.h qdbusxmlparser_p.h qdbusabstractadaptor_p.h \
-           qdbusargument_p.h qdbusutil_p.h qdbusabstractinterface_p.h
+           qdbusargument_p.h qdbusutil_p.h
 
 SOURCES += qdbusconnection.cpp  \
 	qdbusconnectioninterface.cpp \
@@ -132,5 +131,4 @@ SOURCES += qdbusconnection.cpp  \
 	qdbusargument.cpp	\
 	qdbusreply.cpp		\
 	qdbusmetatype.cpp	\
-	qdbusextratypes.cpp \
-	qdbusmarshaller.cpp
+	qdbusextratypes.cpp

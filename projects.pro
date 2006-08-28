@@ -2,25 +2,37 @@
 # Main projectfile
 #####################################################################
 
-#CONFIG += ordered
+CONFIG += ordered
 TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
    #fallback defaults
 #  SUBDIRS = qmake
    include(src/src.pro)
-   !cross_compile:include(tools/tools.pro)
-   else:include(tools/qtestlib/qtestlib.pro)
-   include(demos/demos.pro) 
-   include(examples/examples.pro)
+   !cross_compile:SUBDIRS += tools
+   else:SUBDIRS += tools/qtestlib
+   SUBDIRS += demos examples
 } else {
+   #make sure the order makes sense
+   contains(QT_PROJECTS, tools) {
+       QT_PROJECTS -= tools
+       QT_PROJECTS = tools $$QT_PROJECTS
+   }
+   contains(QT_PROJECTS, libs) {
+       QT_PROJECTS -= libs
+       QT_PROJECTS = libs $$QT_PROJECTS
+   }
+   contains(QT_PROJECTS, qmake) {
+       QT_PROJECTS -= qmake
+       QT_PROJECTS = qmake $$QT_PROJECTS
+   }
+
    #process the projects
    for(PROJECT, $$list($$lower($$unique(QT_PROJECTS)))) {
        isEqual(PROJECT, tools) {
-          !cross_compile:include(tools/tools.pro)
-          else:include(tools/qtestlib/qtestlib.pro)
+          !cross_compile:SUBDIRS += tools
+          else:SUBDIRS += tools/qtestlib
        } else:isEqual(PROJECT, examples) {
-          include(demos/demos.pro) 
-	  include(examples/examples.pro)
+          SUBDIRS += demos examples
        } else:isEqual(PROJECT, libs) {
           include(src/src.pro)
        } else:isEqual(PROJECT, qmake) {

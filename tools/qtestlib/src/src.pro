@@ -2,7 +2,6 @@ TEMPLATE = lib
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_release build_all
-win32|mac:!macx-xcode:CONFIG += debug_and_release
 contains(QT_CONFIG, embedded):CONFIG += embedded
 !contains(CONFIG, static) {
 	CONFIG += dll
@@ -67,7 +66,7 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 }
 
 # Input
-HEADERS = qtest_global.h qtestcase.h qtestdata.h qtesteventloop.h
+HEADERS = qtest_global.h qtestcase.h qtestdata.h
 SOURCES = qtestcase.cpp qtestlog.cpp qtesttable.cpp qtestdata.cpp qtestresult.cpp qasciikey.cpp qplaintestlogger.cpp qxmltestlogger.cpp qsignaldumper.cpp qabstracttestlogger.cpp
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QTESTLIB_MAKEDLL QT_NO_DATASTREAM
