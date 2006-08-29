@@ -994,7 +994,7 @@ QString QFSFileEngine::tempPath()
     } , {
         char tempPath[MAX_PATH];
         GetTempPathA(MAX_PATH, tempPath);
-        ret = QString(tempPath);
+        ret = QString::fromLocal8Bit(tempPath);
     });
     if (ret.isEmpty()) {
         ret = QString::fromLatin1("c:/tmp");
