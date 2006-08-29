@@ -79,10 +79,13 @@
   </category>
   <category dirname="opengl" name="OpenGL">
     <example filename="2dpainting" name="2D Painting" />
+    <example filename="framebufferobject" name="Framebuffer Object" />
+    <example filename="framebufferobject2" name="Framebuffer Object 2" />
     <example filename="grabber" name="Grabber" />
     <example filename="hellogl" name="Hello GL" />
     <example filename="overpainting" name="Overpainting" />
     <example filename="pbuffers" name="Pixel Buffers" />
+    <example filename="pbuffers2" name="Pixel Buffers 2" />
     <example filename="samplebuffers" name="Sample Buffers" />
     <example filename="textures" name="Textures" />
   </category>
