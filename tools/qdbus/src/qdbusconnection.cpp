@@ -81,7 +81,7 @@ QDBusConnectionManager::~QDBusConnectionManager()
     for (QHash<QString, QDBusConnectionPrivate *>::const_iterator it = connectionHash.constBegin();
          it != connectionHash.constEnd(); ++it) {
         QDBusConnectionPrivate *d = it.value();
-        if (d && !d->ref.deref())
+        if (!d->ref.deref())
             delete d;
         else
             d->closeConnection();
