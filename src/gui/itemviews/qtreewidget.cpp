@@ -1622,7 +1622,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
                                                 order, child);
             index = qMax(it - children.begin(), 0);
 #else
-            // do a delayed sort instead 
+            // do a delayed sort instead
             index = children.count(); // append
             model->sortPending = true;
 #endif
@@ -2798,6 +2798,10 @@ QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*>) const
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
     the given \a action in the \a index in the given \a parent item.
+
+    The default implementation returns true if the drop was
+    successfully handled by decoding the mime data and inserting it
+    into the model; otherwise it returns false.
 
     \sa supportedDropActions()
 */
