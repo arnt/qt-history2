@@ -165,9 +165,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
 void QTextDocumentPrivate::init()
 {
-    QTextFrameFormat defaultRootFrameFormat;
-    defaultRootFrameFormat.setMargin(2);
-    frame = qobject_cast<QTextFrame *>(createObject(defaultRootFrameFormat));
+    rtFrame = 0;
     framesDirty = false;
 
     bool undoState = undoEnabled;
@@ -193,7 +191,7 @@ void QTextDocumentPrivate::clear()
 
     QMap<int, QTextObject *>::Iterator objectIt = objects.begin();
     while (objectIt != objects.end()) {
-        if (*objectIt != frame) {
+        if (*objectIt != rtFrame) {
             delete *objectIt;
             objectIt = objects.erase(objectIt);
         } else {
@@ -218,7 +216,7 @@ void QTextDocumentPrivate::clear()
     q->contentsChange(0, len, 0);
     if (lout)
         lout->documentChanged(0, len, 0);
-    delete frame;
+    delete rtFrame;
     init();
     cursors = oldCursors;
 }
@@ -1113,9 +1111,19 @@ static QTextFrame *findChildFrame(QTextFrame *f, int pos)
     return 0;
 }
 
+QTextFrame *QTextDocumentPrivate::rootFrame() const
+{
+    if (!rtFrame) {
+        QTextFrameFormat defaultRootFrameFormat;
+        defaultRootFrameFormat.setMargin(2);
+        rtFrame = qobject_cast<QTextFrame *>(const_cast<QTextDocumentPrivate *>(this)->createObject(defaultRootFrameFormat));
+    }
+    return rtFrame;
+}
+
 QTextFrame *QTextDocumentPrivate::frameAt(int pos) const
 {
-    QTextFrame *f = frame;
+    QTextFrame *f = rootFrame();
 
     while (1) {
         QTextFrame *c = findChildFrame(f, pos);
@@ -1140,7 +1148,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAdded
     Q_UNUSED(charsRemoved);
     Q_UNUSED(charsAdded);
 
-    QTextFrame *f = frame;
+    QTextFrame *f = rootFrame();
     clearFrame(f);
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
@@ -1174,7 +1182,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAdded
             Q_ASSERT(false);
         }
     }
-    Q_ASSERT(f == frame);
+    Q_ASSERT(f == rtFrame);
     framesDirty = false;
 }
 

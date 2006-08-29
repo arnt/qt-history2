@@ -226,7 +226,7 @@ public:
     inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); changedCursors.removeAll(c); }
 
     QTextFrame *frameAt(int pos) const;
-    QTextFrame *rootFrame() const { return frame; }
+    QTextFrame *rootFrame() const;
 
     QTextObject *objectForIndex(int objectIndex) const;
     QTextObject *objectForFormat(int formatIndex) const;
@@ -264,7 +264,7 @@ private:
     bool framesDirty;
 
     QTextFormatCollection formats;
-    QTextFrame *frame;
+    mutable QTextFrame *rtFrame;
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;

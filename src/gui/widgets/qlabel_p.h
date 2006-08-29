@@ -80,11 +80,13 @@ public:
     ushort align;
     short indent;
     uint scaledcontents :1;
+    mutable uint textDirty : 1;
     Qt::TextFormat textformat;
     QTextDocument* doc;
     QTextControl *control;
     Qt::TextInteractionFlags textInteractionFlags;
 
+    void ensureTextLayouted() const;
     void ensureTextControl();
     void sendControlEvent(QEvent *e);
 

@@ -256,6 +256,7 @@ void QLabelPrivate::init()
     align = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextExpandTabs;
     indent = -1;
     scaledcontents = false;
+    textDirty = false;
     textformat = Qt::AutoText;
     doc = 0;
     control = 0;
@@ -579,6 +580,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         br = movie->currentPixmap().rect();
 #endif
     else if (doc) {
+        ensureTextLayouted();
         const qreal oldTextWidth = doc->textWidth();
         // Add indentation
         QFontMetrics fm(q->fontMetrics());
@@ -857,7 +859,7 @@ bool QLabel::event(QEvent *e)
     } else
 #endif
     if (e->type() == QEvent::Resize && d->doc) {
-        d->doc->setTextWidth(d->documentRect().width());
+        d->textDirty = true;
     } else if (e->type() == QEvent::StyleChange) {
         d->updateLabel();
     }
@@ -887,6 +889,7 @@ void QLabel::paintEvent(QPaintEvent *)
     else
 #endif
     if (d->doc) {
+        d->ensureTextLayouted();
         QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
         QRect lr = d->layoutRect();
 
@@ -978,29 +981,11 @@ void QLabelPrivate::updateLabel()
 
     if (doc) {
         QSizePolicy policy = q->sizePolicy();
-        const bool wrap = align & Qt::TextWordWrap;;
+        const bool wrap = align & Qt::TextWordWrap;
         policy.setHeightForWidth(wrap);
         if (policy != q->sizePolicy())
             q->setSizePolicy(policy);
-
-        // Select all and apply the block format
-        QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-        Q_ASSERT(lout);
-
-        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
-        int flags = (wrap? 0 : Qt::TextSingleLine) | align;
-        flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
-        lout->setBlockTextFlags(flags);
-
-        if (wrap) {
-            // ensure that we break at words and not just about anywhere
-            lout->setWordWrapMode(QTextOption::WordWrap);
-        }
-
-        QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-        fmt.setMargin(0);
-        doc->rootFrame()->setFrameFormat(fmt);
-        doc->setTextWidth(documentRect().width());
+        textDirty = true;
     }
     q->updateGeometry();
     q->update(q->contentsRect());
@@ -1322,11 +1307,40 @@ QRect QLabelPrivate::documentRect() const
     return cr;
 }
 
+void QLabelPrivate::ensureTextLayouted() const
+{
+    if (!textDirty)
+        return;
+    Q_Q(const QLabel);
+    if (doc) {
+        QTextDocumentLayout *lout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
+        Q_ASSERT(lout);
+
+        const bool wrap = align & Qt::TextWordWrap;
+        int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
+        int flags = (wrap? 0 : Qt::TextSingleLine) | align;
+        flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
+        lout->setBlockTextFlags(flags);
+
+        if (wrap) {
+            // ensure that we break at words and not just about anywhere
+            lout->setWordWrapMode(QTextOption::WordWrap);
+        }
+
+        QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+        fmt.setMargin(0);
+        doc->rootFrame()->setFrameFormat(fmt);
+        doc->setTextWidth(documentRect().width());
+    }
+    textDirty = false;
+}
+
 void QLabelPrivate::ensureTextControl()
 {
     Q_Q(QLabel);
     if (control || !doc)
         return;
+    ensureTextLayouted();
     control = new QTextControl(doc, q);
     control->setTextInteractionFlags(textInteractionFlags);
     control->setOpenExternalLinks(openExternalLinks);
@@ -1373,6 +1387,7 @@ void QLabelPrivate::_q_linkHovered(const QString &anchor)
 // done by the text layout code
 QRect QLabelPrivate::layoutRect() const
 {
+    ensureTextLayouted();
     QRect cr = documentRect();
     // Caculate y position manually
     int rh = qRound(doc->documentLayout()->documentSize().height());

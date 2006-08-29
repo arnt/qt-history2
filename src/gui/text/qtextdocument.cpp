@@ -478,7 +478,8 @@ void QTextDocument::setUseDesignMetrics(bool b)
 {
     Q_D(QTextDocument);
     d->useDesignMetrics = b;
-    documentLayout()->documentChanged(0, 0, d->length());
+    if (d->lout)
+        d->lout->documentChanged(0, 0, d->length());
 }
 
 bool QTextDocument::useDesignMetrics() const
@@ -1115,7 +1116,8 @@ void QTextDocument::setPageSize(const QSizeF &size)
 {
     Q_D(QTextDocument);
     d->pageSize = size;
-    documentLayout()->documentChanged(0, 0, d->length());
+    if (d->lout)
+        d->lout->documentChanged(0, 0, d->length());
 }
 
 QSizeF QTextDocument::pageSize() const
@@ -1139,7 +1141,8 @@ void QTextDocument::setDefaultFont(const QFont &font)
 {
     Q_D(QTextDocument);
     d->setDefaultFont(font);
-    documentLayout()->documentChanged(0, 0, d->length());
+    if (d->lout)
+        d->lout->documentChanged(0, 0, d->length());
 }
 
 /*!
