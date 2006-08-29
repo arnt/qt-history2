@@ -87,6 +87,15 @@ void tst_QImageWriter::getSetCheck()
     obj1.setQuality(INT_MAX);
     QCOMPARE(INT_MAX, obj1.quality());
 
+    // int QImageWriter::compression()
+    // void QImageWriter::setCompression(int)
+    obj1.setCompression(0);
+    QCOMPARE(0, obj1.compression());
+    obj1.setCompression(INT_MIN);
+    QCOMPARE(INT_MIN, obj1.compression());
+    obj1.setCompression(INT_MAX);
+    QCOMPARE(INT_MAX, obj1.compression());
+
     // float QImageWriter::gamma()
     // void QImageWriter::setGamma(float)
     obj1.setGamma(0.0f);
@@ -259,6 +268,11 @@ void tst_QImageWriter::supportsOption_data()
                               << QImageIOHandler::Description
                               << QImageIOHandler::Quality
                               << QImageIOHandler::Size);
+#if defined QTEST_HAVE_TIFF
+    QTest::newRow("tiff") << QString("images/gen-black.tiff")
+                          << (QIntList() << QImageIOHandler::Size
+                              << QImageIOHandler::CompressionRatio);
+#endif
 }
 
 void tst_QImageWriter::supportsOption()

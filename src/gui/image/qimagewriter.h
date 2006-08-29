@@ -52,6 +52,9 @@ public:
     void setQuality(int quality);
     int quality() const;
 
+    void setCompression(int compression);
+    int compression() const;
+
     void setGamma(float gamma);
     float gamma() const;
 
@@ -60,7 +63,7 @@ public:
     QString description() const;
 
     void setText(const QString &key, const QString &text);
-    
+
     bool canWrite() const;
     bool write(const QImage &image);
 
