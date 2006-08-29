@@ -40,6 +40,7 @@ contains(QT_CONFIG, embedded):CONFIG += embedded
 
 embed_testlib {
     QTESTDIR = $$(QTDIR)/tools/qtestlib/src
+    HEADERS += $${QTESTDIR}/qtesteventloop.h
     SOURCES += $${QTESTDIR}/qasciikey.cpp \
                $${QTESTDIR}/qabstracttestlogger.cpp \
                $${QTESTDIR}/qsignaldumper.cpp \
