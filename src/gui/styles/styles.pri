@@ -16,8 +16,7 @@ SOURCES += \
 	styles/qcommonstyle.cpp \
 	styles/qstylesheetstyle.cpp
 
-RESOURCES += styles/qstyle.qrc \
-             ../3rdparty/tango/tt-rendered/qstyle-ttrendered.qrc
+RESOURCES += styles/qstyle.qrc
 
 contains( styles, all ) {
 	styles = mac windows windowsxp
