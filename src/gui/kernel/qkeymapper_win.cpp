@@ -122,7 +122,7 @@ void KeyRecorder::clearKeys()
 //   Key_unknown = Unknown Virtual Key, no translation possible, ignore
 static const uint KeyTbl[] = { // Keyboard mapping table
                         // Dec |  Hex | Windows Virtual key
-    Qt::Key_unknown,    //   0   0x00  
+    Qt::Key_unknown,    //   0   0x00
     Qt::Key_unknown,    //   1   0x01   VK_LBUTTON          | Left mouse button
     Qt::Key_unknown,    //   2   0x02   VK_RBUTTON          | Right mouse button
     Qt::Key_Cancel,     //   3   0x03   VK_CANCEL           | Control-Break processing
@@ -397,11 +397,13 @@ static const Qt::KeyboardModifiers ModsTbl[] = {
 };
 
 // Translate a VK into a Qt key code, or unicode character
-static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
+static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *)
 {
     Q_ASSERT(vk > 0 && vk < 256);
     int code = 0;
     QChar unicodeBuffer[5];
+    unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
+    GetKeyboardState(kbdBuffer);
     int res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
     if (res)
         code = unicodeBuffer[0].toUpper().unicode();
@@ -692,25 +694,24 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
     bool k1 = false;
     int  msgType = msg.message;
 
-    unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
-    GetKeyboardState(kbdBuffer);
     quint32 scancode = (msg.lParam >> 16) & 0xfff;
     quint32 vk_key = MapVirtualKey(scancode, 1);
     bool isDeadKey = MapVirtualKey(msg.wParam, 2) & 0x80008000; // High-order on 95 is 0x8000
+    bool isNumpad = (msg.wParam >= VK_NUMPAD0 && msg.wParam <= VK_NUMPAD9);
     quint32 nModifiers = 0;
     // Map native modifiers to some bit representation
-    nModifiers |= (kbdBuffer[VK_LSHIFT  ] & 0x80 ? ShiftLeft : 0);
-    nModifiers |= (kbdBuffer[VK_RSHIFT  ] & 0x80 ? ShiftRight : 0);
-    nModifiers |= (kbdBuffer[VK_LCONTROL] & 0x80 ? ControlLeft : 0);
-    nModifiers |= (kbdBuffer[VK_RCONTROL] & 0x80 ? ControlRight : 0);
-    nModifiers |= (kbdBuffer[VK_LMENU   ] & 0x80 ? AltLeft : 0);
-    nModifiers |= (kbdBuffer[VK_RMENU   ] & 0x80 ? AltRight : 0);
-    nModifiers |= (kbdBuffer[VK_LWIN    ] & 0x80 ? MetaLeft : 0);
-    nModifiers |= (kbdBuffer[VK_RWIN    ] & 0x80 ? MetaRight : 0);
+    nModifiers |= (GetKeyState(VK_LSHIFT  ) & 0x80 ? ShiftLeft : 0);
+    nModifiers |= (GetKeyState(VK_RSHIFT  ) & 0x80 ? ShiftRight : 0);
+    nModifiers |= (GetKeyState(VK_LCONTROL) & 0x80 ? ControlLeft : 0);
+    nModifiers |= (GetKeyState(VK_RCONTROL) & 0x80 ? ControlRight : 0);
+    nModifiers |= (GetKeyState(VK_LMENU   ) & 0x80 ? AltLeft : 0);
+    nModifiers |= (GetKeyState(VK_RMENU   ) & 0x80 ? AltRight : 0);
+    nModifiers |= (GetKeyState(VK_LWIN    ) & 0x80 ? MetaLeft : 0);
+    nModifiers |= (GetKeyState(VK_RWIN    ) & 0x80 ? MetaRight : 0);
     // Add Lock keys to the same bits
-    nModifiers |= (kbdBuffer[VK_CAPITAL ] & 0x01 ? CapsLock : 0);
-    nModifiers |= (kbdBuffer[VK_NUMLOCK ] & 0x01 ? NumLock : 0);
-    nModifiers |= (kbdBuffer[VK_SCROLL  ] & 0x01 ? ScrollLock : 0);
+    nModifiers |= (GetKeyState(VK_CAPITAL ) & 0x01 ? CapsLock : 0);
+    nModifiers |= (GetKeyState(VK_NUMLOCK ) & 0x01 ? NumLock : 0);
+    nModifiers |= (GetKeyState(VK_SCROLL  ) & 0x01 ? ScrollLock : 0);
 
     // Get the modifier states (may be altered later, depending on key code)
     int state = 0;
@@ -804,7 +805,12 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
         // Translate VK_* (native) -> Key_* (Qt) keys
         // If it's a dead key, we cannot use the toKeyOrUnicode() function, since that will change
         // the internal state of the keyboard driver, resulting in that dead keys no longer works.
-        int code = isDeadKey ? 0 : toKeyOrUnicode(msg.wParam, scancode, kbdBuffer);
+        // ..also if we're typing numbers on the keypad, while holding down the Alt modifier.
+        int code = 0;
+        if (isNumpad && (nModifiers & AltAny)) {
+            code = KeyTbl[msg.wParam];
+        } else if (!isDeadKey)
+            code = toKeyOrUnicode(msg.wParam, scancode, 0);
 
         // Invert state logic:
         // If the key actually pressed is a modifier key, then we remove its modifier key from the
