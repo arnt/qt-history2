@@ -631,6 +631,8 @@ int QTextDocument::blockCount() const
 
     \bold{Note:} Changing the default style sheet does not have any effect to the existing content
     of the document.
+
+    \sa {Supported HTML Subset}
 */
 
 void QTextDocument::setDefaultStyleSheet(const QString &sheet)
