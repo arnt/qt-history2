@@ -143,6 +143,7 @@ enum KnownValue {
     Value_Native,
     Value_Auto,
     Value_Always,
+    Value_None,
     NumKnownValues
 };
 

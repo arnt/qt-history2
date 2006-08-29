@@ -161,6 +161,7 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "line-through", Value_LineThrough },
     { "medium", Value_Medium },
     { "native", Value_Native },
+    { "none", Value_None },
     { "normal", Value_Normal },
     { "nowrap", Value_NoWrap },
     { "oblique", Value_Oblique },
@@ -198,7 +199,7 @@ static const QCssKnownValue borderStyles[NumKnownBorderStyles - 1] = {
     { "double", BorderStyle_Double },
     { "groove", BorderStyle_Groove },
     { "inset", BorderStyle_Inset },
-    { "none", BorderStyle_None },
+    { "none", BorderStyle_None }, // note: parsed as Value_None
     { "outset", BorderStyle_Outset },
     { "ridge", BorderStyle_Ridge },
     { "solid", BorderStyle_Solid }
@@ -582,7 +583,11 @@ static void parseShorthandBackgroundProperty(const QVector<Value> &values, QBrus
         if (v.type == Value::Uri) {
             *image = v.variant.toString();
             continue;
+        } else if (v.type == Value::KnownIdentifier && v.variant.toInt() == Value_None) {
+            *image = QString();
+            continue;
         }
+
         Repeat repeatAttempt = static_cast<Repeat>(findKnownValue(v.variant.toString(),
                                                    repeats, NumKnownRepeats));
         if (repeatAttempt != Repeat_Unknown) {
@@ -903,6 +908,12 @@ void Declaration::colorValues(QColor *c) const
 
 BorderStyle Declaration::styleValue(Value v) const
 {
+    if (v.type == Value::KnownIdentifier) {
+        if (v.variant.toInt() == Value_None)
+            return BorderStyle_None;
+        return BorderStyle_Unknown;
+    }
+
     return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
                                         borderStyles, NumKnownBorderStyles));
 }
