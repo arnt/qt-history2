@@ -853,8 +853,10 @@ public:
         DotLine,
         DashDotLine,
         DashDotDotLine,
-        CustomDashLine,
-        MPenStyle = 0x0f
+        CustomDashLine
+#ifndef Q_MOC_RUN
+        , MPenStyle = 0x0f
+#endif
     };
 
     enum PenCapStyle { // line endcap style
