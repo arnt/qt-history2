@@ -222,7 +222,7 @@
                 </item>
                 <item>
                   <property name="text" >
-                    <string>HighlightText</string>
+                    <string>HighlightedText</string>
                   </property>
                 </item>
               </widget>
