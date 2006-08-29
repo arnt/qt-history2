@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "qboxlayout.h"
 
 
@@ -144,8 +143,7 @@ void QBoxLayoutPrivate::setupGeom()
 
     int n = list.count();
     geomArray.clear();
-    geomArray.resize(n);
-    QVector<QLayoutStruct> &a = geomArray;
+    QVector<QLayoutStruct> a(n);
 
     bool first = true; // empty so far?
     for (int i = 0; i < n; i++) {
@@ -197,6 +195,7 @@ void QBoxLayoutPrivate::setupGeom()
         a[i].empty = empty;
         hasHfw = hasHfw || box->item->hasHeightForWidth();
     }
+    geomArray = a;
 
     expanding = (Qt::Orientations)
                        ((horexp ? Qt::Horizontal : 0)
