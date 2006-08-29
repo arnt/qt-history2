@@ -2768,10 +2768,14 @@ QPair<int,int> QTreeViewPrivate::startAndEndColumns(const QRect &rect) const
     return qMakePair<int,int>(qMin(start, end), qMax(start, end));
 }
 
-bool QTreeViewPrivate::hasVisibleChildren( const QModelIndex& parent) const
+bool QTreeViewPrivate::hasVisibleChildren(const QModelIndex& parent) const
 {
     Q_Q(const QTreeView);
     if (model->hasChildren(parent)) {
+        if (hiddenIndexes.isEmpty())
+            return true;
+        if (q->isIndexHidden(parent))
+            return false;
         int rowCount = model->rowCount(parent);
         for (int i = 0; i < rowCount; ++i) {
             if (!q->isRowHidden(i, parent))
