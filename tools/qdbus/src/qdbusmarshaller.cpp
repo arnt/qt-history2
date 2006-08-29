@@ -328,9 +328,10 @@ bool QDBusMarshaller::appendVariantInternal(const QVariant &arg)
     case DBUS_TYPE_STRING:
     case DBUS_TYPE_OBJECT_PATH:
     case DBUS_TYPE_SIGNATURE: {
-        const char *data =
-            reinterpret_cast<const QString *>(arg.constData())->toUtf8().constData();
-        qIterAppend(&iterator, ba, *signature, &data);
+        const QByteArray data =
+            reinterpret_cast<const QString *>(arg.constData())->toUtf8();
+        const char *rawData = data.constData();
+        qIterAppend(&iterator, ba, *signature, &rawData);
         return true;
     }
 #else
