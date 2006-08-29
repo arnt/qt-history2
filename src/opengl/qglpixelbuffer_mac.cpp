@@ -46,12 +46,18 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
     attribs[i++] = 32;
     attribs[i++] = AGL_LEVEL;
     attribs[i++] = f.plane();
-    attribs[i++] = AGL_RED_SIZE;
-    attribs[i++] = format.redBufferSize() == -1 ? 1 : format.redBufferSize();
-    attribs[i++] = AGL_GREEN_SIZE;
-    attribs[i++] = format.greenBufferSize() == -1 ? 1 : format.greenBufferSize();
-    attribs[i++] = AGL_BLUE_SIZE;
-    attribs[i++] = format.blueBufferSize() == -1 ? 1 : format.blueBufferSize();
+    if (f.redBufferSize() != -1) {    
+        attribs[i++] = AGL_RED_SIZE;
+        attribs[i++] = f.redBufferSize();
+    }
+    if (f.greenBufferSize() != -1) {    
+        attribs[i++] = AGL_GREEN_SIZE;
+        attribs[i++] = f.greenBufferSize();
+    }
+    if (f.blueBufferSize() != -1) {    
+        attribs[i++] = AGL_BLUE_SIZE;
+        attribs[i++] = f.blueBufferSize();
+    }
     if (f.stereo())
         attribs[i++] = AGL_STEREO;
     if (f.alpha()) {
