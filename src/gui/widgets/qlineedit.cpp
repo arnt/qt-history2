@@ -2666,7 +2666,7 @@ void QLineEditPrivate::setCursorVisible(bool visible)
     if (cursorTimer)
         cursorVisible = visible;
     QRect r = cursorRect();
-    if (maskData || !q->contentsRect().contains(r))
+    if (maskData)
         q->update();
     else
         q->update(r);
