@@ -127,7 +127,12 @@ struct GradientData
         ConicalGradientData conical;
     };
 
+#ifdef Q_WS_QWS
+#define GRADIENT_STOPTABLE_SIZE 256
+#else
 #define GRADIENT_STOPTABLE_SIZE 1024
+#endif
+
     uint colorTable[GRADIENT_STOPTABLE_SIZE];
 
     uint alphaColor : 1;
