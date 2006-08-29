@@ -16,7 +16,7 @@
 #include <QtGui>
 #include <QtOpenGL>
 
-#include <cmath>
+#include <math.h>
 
 View::View(const QString &name, QWidget *parent)
     : QFrame(parent)
