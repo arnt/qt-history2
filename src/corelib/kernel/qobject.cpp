@@ -2062,7 +2062,7 @@ void QObject::deleteLater()
     literals to trUtf8(). For example:
 
     \code
-        label->setText(tr("F\252r \310lise"));
+        label->setText(tr("F\374r \310lise"));
     \endcode
 
     \sa tr(), QApplication::translate(), {Internationalization with Qt}
