@@ -305,6 +305,8 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     menu->addSeparator();
     menu->addActions(areaActions->actions());
 
+    connect(menu, SIGNAL(aboutToShow()), this, SLOT(updateContextMenu()));
+
     if(colorName == "Black") {
         leftAction->setShortcut(Qt::CTRL|Qt::Key_W);
         rightAction->setShortcut(Qt::CTRL|Qt::Key_E);
@@ -312,10 +314,8 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     }
 }
 
-void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
+void ColorSwatch::updateContextMenu()
 {
-    event->accept();
-
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
     const Qt::DockWidgetAreas areas = allowedAreas();
@@ -365,7 +365,11 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
         topAction->setEnabled(areas & Qt::TopDockWidgetArea);
         bottomAction->setEnabled(areas & Qt::BottomDockWidgetArea);
     }
+}
 
+void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->accept();
     menu->exec(event->globalPos());
 }
 

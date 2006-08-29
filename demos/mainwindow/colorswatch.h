@@ -60,6 +60,7 @@ private slots:
     void changeMovable(bool on);
     void changeFloatable(bool on);
     void changeFloating(bool on);
+    void updateContextMenu();
 
     void allowLeft(bool a);
     void allowRight(bool a);
