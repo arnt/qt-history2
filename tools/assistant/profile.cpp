@@ -72,6 +72,7 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
 Profile::Profile()
     : valid( true ), dparser( 0 )
 {
+    type = DefaultProfile;
 }
 
 bool Profile::isValid() const
