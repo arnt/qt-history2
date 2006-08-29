@@ -149,8 +149,8 @@ VersionDialog::VersionDialog(QWidget *parent)
                     "Qt is a comprehensive C++ framework for cross-platform application "
                     "development.<br/><br/>"
                     "You need a commercial Qt license for development of proprietary (closed "
-                    "source) applications. Please see <tt>http://www.trolltech.com/company/model"
-                    ".html</tt> for an overview of Qt licensing.<br/>"
+                    "source) applications. Please see <a href=\"http://www.trolltech.com/company/model.html\">http://www.trolltech.com/company/model"
+                    ".html</a> for an overview of Qt licensing.<br/>"
 #else
                     "This program is licensed to you under the terms of the "
                     "Qt Commercial License Agreement. For details, see the file LICENSE "
@@ -162,6 +162,7 @@ VersionDialog::VersionDialog(QWidget *parent)
                     " PARTICULAR PURPOSE.<br/> ").arg(tr("Qt Designer"))
                     .arg(QLatin1String(QT_VERSION_STR)));
     lbl->setWordWrap(true);
+    lbl->setOpenExternalLinks(true);
     QPushButton *cmd = new QPushButton("OK", this);
     cmd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     cmd->setDefault(true);
