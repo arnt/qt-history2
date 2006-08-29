@@ -36,6 +36,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QStatusBar>
 #include <QtCore/QVariant>
+#include <QtGui/QDialogButtonBox>
 
 #include <QtCore/qdebug.h>
 
@@ -89,6 +90,9 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
 
     m_changeWhatsThis = new QAction(tr("Change whatsThis..."), this);
     connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
+
+    m_changeStyleSheet = new QAction(tr("Change styleSheet..."), this);
+    connect(m_changeStyleSheet, SIGNAL(triggered()), this, SLOT(changeStyleSheet()));
 
     m_addMenuBar = new QAction(tr("Create Menu Bar"), this);
     connect(m_addMenuBar, SIGNAL(triggered()), this, SLOT(createMenuBar()));
@@ -221,6 +225,7 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_separator);
     actions.append(m_changeToolTip);
     actions.append(m_changeWhatsThis);
+    actions.append(m_changeStyleSheet);
 
     if (!isMainContainer) {
         actions.append(m_separator);
@@ -377,6 +382,37 @@ void QDesignerTaskMenu::changeStatusTip()
 void QDesignerTaskMenu::changeWhatsThis()
 {
     changeRichTextProperty(QLatin1String("whatsThis"));
+}
+
+void QDesignerTaskMenu::changeStyleSheet()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QDialog *dialog = new QDialog;
+        dialog->setWindowTitle(tr("Edit Style Sheet"));
+        QVBoxLayout *layout = new QVBoxLayout;
+        QTextEdit *editor = new QTextEdit;
+        QDialogButtonBox *buttonBox = new QDialogButtonBox;
+        buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        QObject::connect(buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+        QObject::connect(buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+
+        layout->addWidget(editor);;
+        layout->addWidget(buttonBox);
+        dialog->setLayout(layout);
+
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(fw->core()->extensionManager(), m_widget);
+        Q_ASSERT(sheet != 0);
+
+        editor->setText(sheet->property(sheet->indexOf("styleSheet")).toString());
+        editor->setFocus();
+
+        if (dialog->exec()) {
+            QString text = editor->toPlainText();
+            fw->cursor()->setWidgetProperty(m_widget, "styleSheet", QVariant(text));
+        }
+
+        delete dialog;
+    }
 }
 
 } // namespace qdesigner_internal

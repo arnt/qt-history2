@@ -62,6 +62,7 @@ private slots:
     void changeToolTip();
     void changeStatusTip();
     void changeWhatsThis();
+    void changeStyleSheet();
     void createMenuBar();
     void addToolBar();
     void createStatusBar();
@@ -75,6 +76,7 @@ private:
     QAction *m_changeToolTip;
     QAction *m_changeStatusTip;
     QAction *m_changeWhatsThis;
+    QAction *m_changeStyleSheet;
     QAction *m_createDockWidgetAction;
     QAction *m_promoteToCustomWidgetAction;
     QAction *m_demoteFromCustomWidgetAction;
