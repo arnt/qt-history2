@@ -42,4 +42,16 @@ win32 {
 	       qglpixelbuffer_win.cpp
 }
 
+embedded {
+    SOURCES += qgl_qws.cpp \
+	       qglpixelbuffer_qws.cpp \
+               qttessellator.cpp
+    HEADERS += qttessellator_p.h
+     	contains(QT_CONFIG, fontconfig) {
+ 		include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
+	} else {
+	    DEFINES *= QT_NO_FREETYPE
+ 	}
+}
+
 QMAKE_LIBS += $$QMAKE_LIBS_OPENGL

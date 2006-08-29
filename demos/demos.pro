@@ -12,7 +12,8 @@ SUBDIRS     = \
         demos_spreadsheet \
         demos_textedit 
 
-unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += dbus-viewer
+contains(QT_CONFIG, opengl):DEMOS_SUBDIRS += demos_chip
+unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += demos_dbus_viewer
 !contains(QT_EDITION, Console):!cross_compile:SUBDIRS += demos_arthurplugin
 
 !cross_compile:SUBDIRS += demos_sqlbrowser
@@ -22,6 +23,8 @@ sources.files = README *.pro
 sources.path = $$[QT_INSTALL_DEMOS]
 INSTALLS += sources
 
+demos_chip.subdir = chip
+demos_dbus_viewer.subdir = dbus-viewer
 demos_shared.subdir = shared
 demos_deform.subdir = deform
 demos_gradients.subdir = gradients

@@ -13,7 +13,7 @@ contains(QT_CONFIG, opengl) {
 
 # install
 target.path = $$[QT_INSTALL_DEMOS]/composition
-sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html
+sources.files = $$SOURCES $$HEADERS $$RESOURCES *.png *.pro *.html
 sources.path = $$[QT_INSTALL_DEMOS]/composition
 INSTALLS += target sources
 

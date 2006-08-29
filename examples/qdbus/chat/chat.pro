@@ -11,3 +11,9 @@ FORMS += chatmainwindow.ui chatsetnickname.ui
 
 #DBUS_ADAPTORS += com.trolltech.chat.xml
 #DBUS_INTERFACES += com.trolltech.chat.xml
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro *.xml
+sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/chat
+INSTALLS += target sources

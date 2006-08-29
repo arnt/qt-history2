@@ -32,7 +32,6 @@ HEADERS        += finddialog.h \
 	translatedialog.h \
         batchtranslationdialog.h \
         translationsettingsdialog.h \
-	about.cpp \
         about.h \
 	statistics.h \
 	messagemodel.h \
