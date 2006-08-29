@@ -1320,7 +1320,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 #endif // QT_NO_DRAGANDDROP
 
     QModelIndex index = indexAt(bottomRight);
-    QModelIndex buddy = d->model ? d->model->buddy(d->pressedIndex) : QModelIndex();
+    QModelIndex buddy = d->model->buddy(d->pressedIndex);
     if (state() == EditingState && d->hasEditor(buddy)
         || edit(index, NoEditTriggers, event))
         return;
