@@ -81,6 +81,9 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     enableOpenGLButton->setText("Use OpenGL");
     enableOpenGLButton->setCheckable(true);
     enableOpenGLButton->setChecked(view->usesOpenGL());
+
+    if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers())
+        enableOpenGLButton->hide();
 #endif
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
@@ -278,7 +281,7 @@ void CompositionRenderer::paint(QPainter *painter)
                 m_pbuffer->deleteTexture(m_compositing_tex);
                 delete m_pbuffer;
             }
-            
+
             m_pbuffer = new QGLPixelBuffer(QSize(new_pbuf_size, new_pbuf_size), QGLFormat::defaultFormat(), glWidget());
             m_pbuffer->makeCurrent();
             m_base_tex = m_pbuffer->generateDynamicTexture();

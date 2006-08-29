@@ -768,6 +768,8 @@ XFormWidget::XFormWidget(QWidget *parent)
     enableOpenGLButton->setText("Use OpenGL");
     enableOpenGLButton->setCheckable(true);
     enableOpenGLButton->setChecked(view->usesOpenGL());
+    if (!QGLFormat::hasOpenGL())
+        enableOpenGLButton->hide();
 #endif
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");

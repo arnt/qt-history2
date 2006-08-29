@@ -287,6 +287,8 @@ GradientWidget::GradientWidget(QWidget *parent)
     enableOpenGLButton->setText("Use OpenGL");
     enableOpenGLButton->setCheckable(true);
     enableOpenGLButton->setChecked(m_renderer->usesOpenGL());
+    if (!QGLFormat::hasOpenGL())
+        enableOpenGLButton->hide();
 #endif
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
     whatsThisButton->setText("What's This?");
