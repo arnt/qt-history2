@@ -401,6 +401,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 /*!
     \enum QPalette::ColorRole
 
+    \img palette.png Color Roles
+
     The ColorRole enum defines the different symbolic color roles used
     in current GUIs.
 
@@ -430,6 +432,17 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 
     \value ButtonText  A foreground color used with the \c Button color.
 
+    \value BrightText  A text color that is very different from
+                       \c WindowText, and contrasts well with e.g. \c
+                       Dark. Typically used for text that needs to be
+                       drawn where \c Text or \c WindowText would give
+                       poor contrast, such as on pressed push buttons.
+                       Note that text colors can be used for things
+                       other than just words; text colors are \e
+                       usually used for text, but it's quite common to
+                       use the text color roles for lines, icons, etc.
+
+
     There are some color roles used mostly for 3D bevel and shadow effects.
     All of these are normally derived from \c Window, and used in ways that
     depend on that relationship. For example, buttons depend on it to make the
@@ -455,16 +468,9 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
                        Qt::darkBlue.
 
     \value HighlightedText  A text color that contrasts with \c Highlight.
-    By default, the highlighted text color is Qt::white.
+                            By default, the highlighted text color is Qt::white.
 
-    Finally, there is a special role for text that needs to be drawn where \c
-    Text or \c WindowText would give poor contrast, such as on pressed push
-    buttons.  Note that text colors can be used for things other than just
-    words; text colors are \e usually used for text, but it's quite common to
-    use the text color roles for lines, icons, etc.
-
-    \value BrightText  A text color that is very different from
-                       \c WindowText, and contrasts well with e.g. \c Dark.
+    There are two color roles related to hyperlinks:
 
     \value Link  A text color used for unvisited hyperlinks.
                  By default, the link color is Qt::blue.
@@ -472,12 +478,17 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \value LinkVisited  A text color used for already visited hyperlinks.
                         By default, the linkvisited color is Qt::magenta.
 
+    Note that we do not use the \c Link and \c LinkVisited roles when
+    rendering rich text in Qt, and that we recommend that you use CSS
+    and the QTextDocument::setDefaultStyleSheet() function to alter
+    the appearance of links. For example:
+
+    \quotefromfile doc/src/snippets/textdocument-css/main.cpp
+    \skipto QTextBrowser
+    \printuntil browser.document
+
     \omitvalue NColorRoles
     \omitvalue NoRole
-
-
-    This image shows most of the color roles in use:
-    \img palette.png Color Roles
 */
 
 /*!
