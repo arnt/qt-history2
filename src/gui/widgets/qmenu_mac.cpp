@@ -1263,6 +1263,7 @@ bool QMenuBar::macUpdateMenuBar()
     } else if (qt_mac_current_menubar.qmenubar) {
         const bool modal = QApplicationPrivate::modalState();
         if (modal != qt_mac_current_menubar.modal) {
+            ret = true;
             if (MenuRef menu = qt_mac_current_menubar.qmenubar->macMenu()) {
                 SetRootMenu(menu);
                 if (qt_mac_current_menubar.qmenubar != menubars()->value(qApp->activeModalWidget()))
@@ -1271,6 +1272,8 @@ bool QMenuBar::macUpdateMenuBar()
             qt_mac_current_menubar.modal = modal;
         }
     }
+    if(!ret)
+        qt_mac_clear_menubar();
     return ret;
 }
 
