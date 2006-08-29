@@ -770,8 +770,8 @@ QImage::QImage(const QSize &size, Format format)
 /*!
     Constructs an image with the given \a width, \a height and \a
     format, that uses an existing memory buffer, \a data. The \a width
-    and \a height must be specified in pixels, and that \a data must
-    be 32-bit aligned.
+    and \a height must be specified in pixels, \a data must be 32-bit aligned,
+    and each scanline of data in the image must also be 32-bit aligned.
 
     The buffer must remain valid throughout the life of the
     QImage. The image does not delete the buffer at destruction.
@@ -802,8 +802,8 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 /*!
     Constructs an image with the given \a width, \a height and \a
     format, that uses an existing read-only memory buffer, \a data. The \a width
-    and \a height must be specified in pixels, and that \a data must
-    be 32-bit aligned.
+    and \a height must be specified in pixels, \a data must be 32-bit aligned,
+    and each scanline of data in the image must also be 32-bit aligned.
 
     The buffer must remain valid throughout the life of the
     QImage and all copies that have not been modified or otherwise detached from
@@ -1093,8 +1093,9 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
 
     \warning This constructor is only available in Qtopia Core.
 
-    The data has to be 32-bit aligned, so it's no longer possible to specify
-    a custom \a bytesPerLine.
+    The data has to be 32-bit aligned, and each scanline of data in the image
+    must also be 32-bit aligned, so it's no longer possible to specify a custom
+    \a bytesPerLine value.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colortable, int numColors, Endian bitOrder)
     : QPaintDevice()
