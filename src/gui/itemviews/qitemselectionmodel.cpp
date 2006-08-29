@@ -850,6 +850,21 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
 */
 QItemSelectionModel::~QItemSelectionModel()
 {
+    Q_D(QItemSelectionModel);
+    if (d->model) {
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(layoutAboutToBeChanged()),
+                this, SLOT(_q_layoutAboutToBeChanged()));
+        disconnect(d->model, SIGNAL(layoutChanged()),
+                this, SLOT(_q_layoutChanged()));
+    }
 }
 
 /*!

@@ -457,24 +457,25 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     Q_D(QAbstractItemView);
     if (model == d->model)
         return;
-    disconnect(d->model, SIGNAL(destroyed()),
-               this, SLOT(_q_modelDestroyed()));
-    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-               this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-               this, SLOT(rowsInserted(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-               this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-               this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-               this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
-    disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-               this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
+    if (d->model) {
+        disconnect(d->model, SIGNAL(destroyed()),
+                   this, SLOT(_q_modelDestroyed()));
+        disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                   this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                   this, SLOT(rowsInserted(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                   this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
-    disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
-    disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
-
+        disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
+        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
+    }
     d->model = (model ? model : QAbstractItemModelPrivate::staticEmptyModel());
 
     // These asserts do basic sanity checking of the model
@@ -486,25 +487,28 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                "QAbstractItemView::setModel",
                "The parent of a top level index should be invalid");
 
-    connect(d->model, SIGNAL(destroyed()),
-            this, SLOT(_q_modelDestroyed()));
-    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(rowsInserted(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-            this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-            this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
-    connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-            this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
+    if (d->model) {
+        connect(d->model, SIGNAL(destroyed()),
+                this, SLOT(_q_modelDestroyed()));
+        connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(rowsInserted(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                this, SLOT(_q_columnsRemoved(QModelIndex,int,int)));
 
-    connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
-    connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
-
+        connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
+        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
+    }
+    QItemSelectionModel *selModel = selectionModel();
     setSelectionModel(new QItemSelectionModel(d->model, this));
+    delete selModel;
     reset(); // kill editors, set new root and do layout
 }
 
