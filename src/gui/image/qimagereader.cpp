@@ -219,10 +219,10 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     QByteArray testFormat = !form.isEmpty() ? form : suffix;
 
 #ifndef QT_NO_LIBRARY
-    if (device && suffixPluginIndex != -1) {
+    if (suffixPluginIndex != -1) {
         // check if the plugin that claims support for this format can load
         // from this device with this format.
-        const qint64 pos = device->pos();
+        const qint64 pos = device ? device->pos() : 0;
         QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(suffix));
         if (plugin && plugin->capabilities(device, testFormat) & QImageIOPlugin::CanRead) {
             handler = plugin->create(device, testFormat);
@@ -231,14 +231,14 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
                      << "plugin";
 #endif
         }
-        if (!device->isSequential())
+        if (device && !device->isSequential())
             device->seek(pos);
     }
 
     if (!handler && !testFormat.isEmpty()) {
         // check if any plugin supports the format (they are not allowed to
         // read from the device yet).
-        const qint64 pos = device->pos();
+        const qint64 pos = device ? device->pos() : 0;
         for (int i = 0; i < keys.size(); ++i) {
             if (i != suffixPluginIndex) {
                 QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
@@ -251,7 +251,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
                 }
             }
         }
-        if (!device->isSequential())
+        if (device && !device->isSequential())
             device->seek(pos);
     }
 #endif // QT_NO_LIBRARY
@@ -294,7 +294,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 #ifndef QT_NO_LIBRARY
     if (!handler) {
         // check if any of our plugins recognize the file from its contents.
-        const qint64 pos = device->pos();
+        const qint64 pos = device ? device->pos() : 0;
         for (int i = 0; i < keys.size(); ++i) {
             if (i != suffixPluginIndex) {
                 QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
@@ -307,7 +307,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
                 }
             }
         }
-        if (!device->isSequential())
+        if (device && !device->isSequential())
             device->seek(pos);
     }
 #endif
@@ -332,7 +332,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
         while (numFormats >= 0) {
             const _qt_BuiltInFormatStruct *formatStruct = &_qt_BuiltInFormats[currentFormat];
 
-            const qint64 pos = device->pos();
+            const qint64 pos = device ? device->pos() : 0;
             switch (formatStruct->type) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
             case _qt_PngFormat:
@@ -371,7 +371,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             default:
                 break;
             }
-            if (!device->isSequential())
+            if (device && !device->isSequential())
                 device->seek(pos);
 
             if (handler) {
