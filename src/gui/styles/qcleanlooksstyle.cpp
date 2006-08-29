@@ -1618,8 +1618,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 painter->drawLine(QPoint(r.left() + 1, r.top()), QPoint(r.right() - 1, r.top()));
 
                 //draw text
-                QPalette::ColorRole textRole = dis ? QPalette::Text:
-                                               act ? QPalette::HighlightedText : QPalette::ButtonText;
+                QPalette::ColorRole textRole = dis ? QPalette::Text : QPalette::HighlightedText;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                     alignment |= Qt::TextHideMnemonic;
