@@ -182,8 +182,8 @@ bool QDBusArgumentPrivate::checkRead()
     functions may produce a different number of reads/writes. This can
     confuse the QtDBus type system and should be avoided.
 
-    \sa QDBusAbstractInterface, {qdbustypesystem.html}{The QtDBus type system}
-    {usingadaptors.html}{Using Adaptors}, qdbus_cast(const QDBusArgument&)
+    \sa QDBusAbstractInterface, {qdbustypesystem.html}{The QtDBus type
+    system}, {usingadaptors.html}{Using Adaptors}, qdbus_cast()
 */
 
 /*!
@@ -731,7 +731,7 @@ void QDBusArgument::endStructure()
     \endcode
 
     If the type you want to marshall is a QList, QVector or any of the
-    Qt's {containers.html}{containers} that take one template
+    Qt's \l {containers.html}{containers} that take one template
     parameter, you need not declare an \c{operator<<} function for
     it, since QtDBus provides generic templates to do the job of
     marshalling the data. The same applies for STL's sequence
@@ -895,7 +895,7 @@ void QDBusArgument::endStructure() const
     \endcode
 
     If the type you want to demarshall is a QList, QVector or any of the
-    Qt's {containers.html}{containers} that take one template
+    Qt's \l {containers.html}{containers} that take one template
     parameter, you need not declare an \c{operator>>} function for
     it, since QtDBus provides generic templates to do the job of
     demarshalling the data. The same applies for STL's sequence
