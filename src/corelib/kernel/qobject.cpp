@@ -2789,7 +2789,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
 
 static void queued_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo)
 {
-    if (!c.types && c.types != &DIRECT_CONNECTION_ONLY) {
+    if (!c.types || c.types != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(c.signal);
         QConnection &x = const_cast<QConnection &>(c);
         int *tmp = ::queuedConnectionTypes(m.parameterTypes());
