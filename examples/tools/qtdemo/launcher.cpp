@@ -294,7 +294,8 @@ QString Launcher::findExecutable(const QDir &dir) const
         if (info.fileName().endsWith(".app"))
             return info.absoluteFilePath();
         QDir currentDir(info.absoluteFilePath());
-        if (currentDir != dir && currentDir != parentDir) {
+        if (currentDir != dir && currentDir != parentDir &&
+            currentDir.dirName() != "plugins") {
             QString path = findExecutable(currentDir);
             if (!path.isNull())
                 return path;
