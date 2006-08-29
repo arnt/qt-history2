@@ -561,8 +561,9 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
         return;
 
     Q_D(QMainWindow);
-    Q_ASSERT_X(toolbar->isAreaAllowed(area),
-               "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
+
+    if (!toolbar->isAreaAllowed(area))
+        qWarning() << "QMainWIndow::addToolBar(): specified 'area' is not an allowed for this toolbar";
 
     disconnect(this, SIGNAL(iconSizeChanged(QSize)),
                toolbar, SLOT(_q_updateIconSize(QSize)));
@@ -742,8 +743,9 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
         return;
 
-    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
-               "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
+    if (!dockwidget->isAreaAllowed(area))
+        qWarning() << "QMainWindow::addDockWidget(): specified 'area' is not an allowed for this widget";
+
     Qt::Orientation orientation = Qt::Vertical;
     switch (area) {
     case Qt::TopDockWidgetArea:
@@ -781,9 +783,10 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
         return;
 
+    if (!dockwidget->isAreaAllowed(area))
+        qWarning() << "QMainWindow::addDockWidget(): specified 'area' is not an allowed for this widget";
+
     // add a window to an area, placing done relative to the previous
-    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
-               "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
     d_func()->layout->addDockWidget(area, dockwidget, orientation);
     if (isVisible())
         d_func()->layout->relayout();
@@ -807,8 +810,8 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)
 {
-    Q_ASSERT_X(dockwidget->isAreaAllowed(dockWidgetArea(after)),
-               "QMainWindow::splitDockWidget", "specified 'area' is not an allowed area");
+    if (!dockwidget->isAreaAllowed(dockWidgetArea(after)))
+        qWarning() << "QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget";
     d_func()->layout->splitDockWidget(after, dockwidget, orientation);
     if (isVisible())
         d_func()->layout->relayout();
