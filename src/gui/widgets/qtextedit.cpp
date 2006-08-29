@@ -256,11 +256,19 @@ void QTextEditPrivate::_q_ensureVisible(const QRectF &_rect)
     const QRect rect = _rect.toRect();
     const int visibleWidth = viewport->width();
     const int visibleHeight = viewport->height();
+    const bool rtl = q_func()->isRightToLeft();
 
-    if (rect.x() < horizontalOffset())
-        hbar->setValue(rect.x());
-    else if (rect.x() + rect.width() > horizontalOffset() + visibleWidth)
-        hbar->setValue(rect.x() + rect.width() - visibleWidth);
+    if (rect.x() < horizontalOffset()) {
+        if (rtl)
+            hbar->setValue(hbar->maximum() - rect.x());
+        else
+            hbar->setValue(rect.x());
+    } else if (rect.x() + rect.width() > horizontalOffset() + visibleWidth) {
+        if (rtl)
+            hbar->setValue(hbar->maximum() - (rect.x() + rect.width() - visibleWidth));
+        else
+            hbar->setValue(rect.x() + rect.width() - visibleWidth);
+    }
 
     if (rect.y() < verticalOffset())
         vbar->setValue(rect.y());

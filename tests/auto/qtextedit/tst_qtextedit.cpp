@@ -94,6 +94,7 @@ private slots:
     void ensureCursorVisibleOnInitialShow();
     void setHtmlInsideResizeEvent();
     void colorfulAppend();
+    void ensureVisibleWithRtl();
 
 private:
     void createSelection();
@@ -1202,6 +1203,30 @@ void tst_QTextEdit::colorfulAppend()
     block = block.next();
     QCOMPARE(block.begin().fragment().text(), QString("Green"));
     QVERIFY(block.begin().fragment().charFormat().foreground().color() == Qt::green);
+}
+
+void tst_QTextEdit::ensureVisibleWithRtl()
+{
+    ed->setLayoutDirection(Qt::RightToLeft);
+    ed->setLineWrapMode(QTextEdit::NoWrap);
+    QString txt(500, QChar(QLatin1Char('a')));
+    QCOMPARE(txt.length(), 500);
+    ed->setPlainText(txt);
+    ed->resize(100, 100);
+    ed->show();
+
+    qApp->processEvents();
+
+    QVERIFY(ed->horizontalScrollBar()->maximum() > 0);
+
+    ed->moveCursor(QTextCursor::Start);
+    QCOMPARE(ed->horizontalScrollBar()->value(), ed->horizontalScrollBar()->maximum());
+    ed->moveCursor(QTextCursor::End);
+    QCOMPARE(ed->horizontalScrollBar()->value(), 0);
+    ed->moveCursor(QTextCursor::Start);
+    QCOMPARE(ed->horizontalScrollBar()->value(), ed->horizontalScrollBar()->maximum());
+    ed->moveCursor(QTextCursor::End);
+    QCOMPARE(ed->horizontalScrollBar()->value(), 0);
 }
 
 QTEST_MAIN(tst_QTextEdit)
