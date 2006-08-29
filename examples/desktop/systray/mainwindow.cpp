@@ -108,7 +108,7 @@ void MainWindow::showMessage()
 {
 #ifdef Q_WS_MAC
     QMessageBox::information(this, tr("System tray example"),
-                tr("Balloon tips are not supported on Mac OS X"));
+        tr("Balloon tips are not supported on Mac OS X"));
 #else
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(typeCombo->currentIndex());
     trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, 10000);
@@ -163,3 +163,4 @@ void MainWindow::changeIcon(int index)
     QPixmap pix(iconname);
     trayIcon->setIcon(QIcon(pix));
 }
+
