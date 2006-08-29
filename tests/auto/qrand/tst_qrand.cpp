@@ -11,7 +11,7 @@ void tst_QRand::testqrand()
 {
     const int numTestValues = 100;
 
-    unsigned int generatedNumbers[numTestValues];
+    int generatedNumbers[numTestValues];
     bool generatesSameSequence = true;
 
     // test without calling srand() first

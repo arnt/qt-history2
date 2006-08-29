@@ -2263,7 +2263,7 @@ void qsrand(uint seed)
 
     \sa qsrand()
 */
-uint qrand()
+int qrand()
 {
 #if defined(Q_OS_UNIX) && !defined(QT_NO_THREAD)
     if (!randTLS.hasLocalData()) {
