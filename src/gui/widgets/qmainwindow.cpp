@@ -383,10 +383,10 @@ void QMainWindow::setMenuBar(QMenuBar *menuBar)
 }
 
 /*!
+    \since 4.2
+
     Returns the menu bar for the main window. This function returns
     null if a menubar hasn't been constructed yet.
-
-    \sa setMenuWidget()
 */
 QWidget *QMainWindow::menuWidget() const
 {
@@ -395,12 +395,12 @@ QWidget *QMainWindow::menuWidget() const
 }
 
 /*!
+    \since 4.2
+
     Sets the menu bar for the main window to \a menuBar.
 
-    Note: QMainWindow takes ownership of the \a menuBar pointer and
+    QMainWindow takes ownership of the \a menuBar pointer and
     deletes it at the appropriate time.
-
-    \sa menuWidget()
 */
 void QMainWindow::setMenuWidget(QWidget *menuBar)
 {
@@ -678,6 +678,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 
 /*! \property QMainWindow::animationEnabled
     \brief whether manipulating dock widgets is animated
+    \since 4.2
 
     When a dock widget is dragged over the main window, other dock widgets in the
     window will adjust themselves to make space for the dragged widget. If this
@@ -697,6 +698,7 @@ void QMainWindow::setAnimationEnabled(bool enabled)
 
 /*! \property QMainWindow::dockNestingEnabled
     \brief whether docks can be nested
+    \since 4.2
 
     If this property is set to false, dock areas can only contain a single row
     (horizontal or vertical) of dock widgets. If this property is set to true,

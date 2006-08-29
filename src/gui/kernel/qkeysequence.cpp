@@ -598,7 +598,7 @@ QKeySequence::QKeySequence(const QKeySequence& keysequence)
     If the result contains more than one result, these can
     be considered alternative shortcuts on the same platform for the given \a key.
 */
-QList <QKeySequence> QKeySequence::keyBindings(StandardKey key)
+QList<QKeySequence> QKeySequence::keyBindings(StandardKey key)
 {
     uint platform = QApplicationPrivate::currentPlatform();
     QList <QKeySequence> list;

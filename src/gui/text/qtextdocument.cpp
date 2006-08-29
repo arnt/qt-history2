@@ -546,9 +546,9 @@ qreal QTextDocument::textWidth() const
     \since 4.2
 
     Returns the ideal width of the text document. The ideal width is the actually used width
-    of the document without optional alignments taken into account. It is always <= size().width();
+    of the document without optional alignments taken into account. It is always <= size().width().
 
-    You can use the ideal width for example to find out
+    \sa adjustSize(), textWidth
 */
 qreal QTextDocument::idealWidth() const
 {
@@ -563,7 +563,11 @@ qreal QTextDocument::idealWidth() const
 }
 
 /*!
+    \since 4.2
+
     Adjusts the document to a reasonable size.
+
+    \sa idealWidth(), textWidth, size
 */
 void QTextDocument::adjustSize()
 {
@@ -600,7 +604,7 @@ void QTextDocument::adjustSize()
 
     Note that the width is always >= pageSize().width().
 
-    \sa setTextWidth(), setPageSize()
+    \sa setTextWidth(), setPageSize(), idealWidth()
 */
 QSizeF QTextDocument::size() const
 {

@@ -1076,6 +1076,8 @@ bool QTextStream::seek(qint64 pos)
 }
 
 /*!
+    \since 4.2
+
     Returns the device position corresponding to the current position of the
     stream, or -1 if an error occurs (e.g., if there is no device or string,
     or if there's a device error).

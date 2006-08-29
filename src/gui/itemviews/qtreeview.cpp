@@ -1927,7 +1927,8 @@ void QTreeView::expandAll()
 
 /*!
   \since 4.2
-  Collpses all expanded items.
+
+  Collapses all expanded items.
 
   \sa expandAll() expand()  collapse() setExpanded()
 */

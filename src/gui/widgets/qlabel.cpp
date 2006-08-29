@@ -664,6 +664,7 @@ void QLabel::setOpenExternalLinks(bool open)
 
 /*!
     \property QLabel::textInteractionFlags
+    \since 4.2
 
     Specifies how the label should interact with user input if it displays text.
 
@@ -1425,6 +1426,7 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 
 /*!
     \fn void QLabel::linkHovered(const QString &link)
+    \since 4.2
 
     This signal is emitted when the user hovers over a link. The URL
     referred to by the anchor is passed in \a link.
@@ -1435,6 +1437,7 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 
 /*!
     \fn void QLabel::linkActivated(const QString &link)
+    \since 4.2
 
     This signal is emitted when the user clicks a link. The URL
     referred to by the anchor is passed in \a link.

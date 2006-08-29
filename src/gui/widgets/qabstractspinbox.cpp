@@ -316,6 +316,7 @@ void QAbstractSpinBox::setFrame(bool enable)
     \property QAbstractSpinBox::accelerate
     \brief whether the spin box will accelerate the frequency of the steps when
     pressing the step Up/Down buttons.
+    \since 4.2
 
     If enabled the spin box will increase/decrease the value faster
     the longer you hold the button down. This only applied
@@ -352,6 +353,7 @@ bool QAbstractSpinBox::accelerate() const
     \property QAbstractSpinBox::correctionMode
     \brief the mode to correct an \l{QValidator::}{Intermediate}
            value if editing finishes
+    \since 4.2
 
     The default mode is QAbstractSpinBox::CorrectToPreviousValue.
 
@@ -373,6 +375,7 @@ QAbstractSpinBox::CorrectionMode QAbstractSpinBox::correctionMode() const
 /*!
   \property QAbstractSpinBox::acceptableInput
   \brief whether the input satisfies the current validation
+  \since 4.2
 
   \sa validate(), fixup(), correctionMode
 */

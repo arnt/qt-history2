@@ -640,8 +640,11 @@ QKeyEvent *QKeyEvent::createExtendedKeyEvent(Type type, int key, Qt::KeyboardMod
 */
 
 /*!
+    \since 4.2
+
     Returns the native scan code of the key event.
     If the key event does not contain this data 0 is returned.
+
     Note: The native scan code may be 0, even if the key event contains extended information.
 */
 quint32 QKeyEvent::nativeScanCode() const
@@ -651,8 +654,11 @@ quint32 QKeyEvent::nativeScanCode() const
 }
 
 /*!
+    \since 4.2
+
     Returns the native virtual key, or key sym of the key event.
     If the key event does not contain this data 0 is returned.
+
     Note: The native virtual key may be 0, even if the key event contains extended information.
 */
 quint32 QKeyEvent::nativeVirtualKey() const
@@ -662,8 +668,11 @@ quint32 QKeyEvent::nativeVirtualKey() const
 }
 
 /*!
+    \since 4.2
+
     Returns the native modifiers of a key event.
     If the key event does not contain this data 0 is returned.
+
     Note: The native modifiers may be 0, even if the key event contains extended information.
 */
 quint32 QKeyEvent::nativeModifiers() const
@@ -763,6 +772,7 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 
 /*!
     \fn bool QKeyEvent::matches(QKeySequence::StandardKey key) const
+    \since 4.2
 
     Returns true if the key event matches the given standard \a key;
     otherwise returns false.

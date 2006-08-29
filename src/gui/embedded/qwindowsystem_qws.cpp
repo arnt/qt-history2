@@ -999,6 +999,7 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type)
 
 /*!
     \fn static QWSServer* QWSServer::instance()
+    \since 4.2
 
     Returns a pointer to the application's QWSServer instance. The pointer
     will be 0 if the application is not the window server, e.g.

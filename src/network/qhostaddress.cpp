@@ -403,6 +403,7 @@ QHostAddress &QHostAddress::operator=(const QString &address)
 
 /*!
     \fn bool QHostAddress::operator!=(const QHostAddress &other) const
+    \since 4.2
 
     Returns true if this host address is not the same as the \a other
     address given; otherwise returns false.

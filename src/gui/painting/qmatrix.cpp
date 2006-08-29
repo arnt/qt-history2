@@ -1113,7 +1113,9 @@ QMatrix &QMatrix::operator=(const QMatrix &matrix)
 }
 
 /*!
-   Returns the matrix as a QVariant
+    \since 4.2
+
+    Returns the matrix as a QVariant.
 */
 QMatrix::operator QVariant() const
 {

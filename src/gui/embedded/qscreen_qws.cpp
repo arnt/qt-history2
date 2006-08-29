@@ -66,6 +66,7 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
 
 /*!
     \fn static QScreenCursor* QScreenCursor::instance()
+    \since 4.2
 
     Returns a pointer to the application's QScreenCursor instance.
 */
@@ -371,7 +372,8 @@ public:
 */
 
 /*!
-    \fn virtual QList<QScreen*> QScreen::subScreens() const
+    \fn QList<QScreen*> QScreen::subScreens() const
+    \since 4.2
 
     Returns a list of this screen's subscreens. Use this function to
     retrieve access to a particular subscreen. Use the
@@ -386,7 +388,8 @@ public:
 */
 
 /*!
-    \fn int  QScreen::physicalWidth() const
+    \fn int QScreen::physicalWidth() const
+    \since 4.2
 
     Returns the physical width of the screen (in millimeters).
 
@@ -395,6 +398,7 @@ public:
 
 /*!
     \fn int QScreen::physicalHeight() const
+    \since 4.2
 
     Returns the physical height of the screen (in millimeters).
 
@@ -1510,6 +1514,8 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 }
 
 /*!
+    \since 4.2
+
     Creates a new QWSWindowSurface matching the name given by \a key.
 
     This function is used by the application that runs as a GuiServer when
@@ -1988,6 +1994,7 @@ void QScreen::resumeUpdates()
 
 /*!
     \fn QRegion QScreen::region() const
+    \since 4.2
 
     Returns the region covered by this screen.
 */
@@ -2001,6 +2008,8 @@ void QScreen::setOffset(const QPoint &p)
 }
 
 /*!
+    \since 4.2
+
     Returns the logical offset of the screen.
 */
 QPoint QScreen::offset() const
@@ -2010,6 +2019,7 @@ QPoint QScreen::offset() const
 
 /*!
     \fn int QScreen::subScreenIndexAt(const QPoint &position) const
+    \since 4.2
 
     Returns the index of the subscreen at the given \a position;
     returns -1 if no screen is found.

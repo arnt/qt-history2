@@ -1264,8 +1264,10 @@ bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelInde
 }
 
 /*!
-  Returns true if the selection model contains any selection ranges;
-  otherwise returns false.
+    \since 4.2
+
+    Returns true if the selection model contains any selection ranges;
+    otherwise returns false.
 */
 bool QItemSelectionModel::hasSelection() const
 {

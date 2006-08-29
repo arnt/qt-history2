@@ -579,6 +579,8 @@ QString QImageWriter::errorString() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if the writer supports \a option; otherwise returns
     false.
 

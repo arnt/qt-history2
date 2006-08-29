@@ -359,7 +359,7 @@ bool QCopChannel::send(const QString& channel, const QString& msg,
 }
 
 /*!
-    \fn bool QCopChannel::flush()
+    \since 4.2
 
     Flushes any pending messages queued through QCopChannel::send() to any subscribed clients.
     Returns false if no QApplication has been constructed, otherwise returns true.

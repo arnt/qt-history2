@@ -1024,7 +1024,6 @@ void QAbstractItemModelPrivate::reset()
 
 /*!
     \fn void QAbstractItemModel::layoutAboutToBeChanged()
-
     \since 4.2
 
     This signal is emitted just before the layout of a model is changed.
@@ -1409,6 +1408,8 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 }
 
 /*!
+  \since 4.2
+
   Returns the drop actions supported by this model.
 
   The default implementation returns Qt::CopyAction. Reimplement this
@@ -1445,9 +1446,11 @@ Qt::DropActions QAbstractItemModel::supportedDragActions() const
 }
 
 /*!
-  Sets the supported drag \a actions for the items in the model.
+    \since 4.2
 
-  \sa supportedDragActions(), {Using Drag and Drop with Item Views}
+    Sets the supported drag \a actions for the items in the model.
+
+    \sa supportedDragActions(), {Using Drag and Drop with Item Views}
 */
 void QAbstractItemModel::setSupportedDragActions(Qt::DropActions actions)
 {

@@ -132,6 +132,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
     \fn int qDBusRegisterMetaType()
     \relates QDBusArgument
     \threadsafe
+    \since 4.2
 
     Registers \c{T} with the
     \l {qdbustypesystem.html}{QtDBus type system} and the Qt \l

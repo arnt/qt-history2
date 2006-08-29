@@ -480,6 +480,8 @@ Q3TextStream::~Q3TextStream()
 }
 
 /*!
+    \since 4.2
+
     Positions the read pointer at the first non-whitespace character.
 */
 void Q3TextStream::skipWhiteSpace()
@@ -867,9 +869,9 @@ void Q3TextStream::ts_ungetc( QChar c )
     d->ungetcBuf.prepend( c );
 }
 
-
-
 /*!
+    \since 4.2
+
     Reads \a len bytes from the stream into \a s and returns a
     reference to the stream.
 
@@ -890,6 +892,8 @@ Q3TextStream &Q3TextStream::readRawBytes( char *s, uint len )
 }
 
 /*!
+    \since 4.2
+
     Writes the \a len bytes from \a s to the stream and returns a
     reference to the stream.
 
@@ -964,6 +968,8 @@ Q3TextStream &Q3TextStream::writeBlock( const QChar* p, uint len )
 }
 
 /*!
+    \since 4.2
+
     Resets the text stream.
 
     \list
@@ -986,6 +992,7 @@ void Q3TextStream::reset()
 
 /*!
     \fn QIODevice *Q3TextStream::device() const
+    \since 4.2
 
     Returns the IO device currently set.
 
@@ -993,6 +1000,8 @@ void Q3TextStream::reset()
 */
 
 /*!
+    \since 4.2
+
     Sets the IO device to \a iod.
 
     \sa device(), unsetDevice()
@@ -1009,6 +1018,8 @@ void Q3TextStream::setDevice( QIODevice *iod )
 }
 
 /*!
+    \since 4.2
+
     Unsets the IO device. Equivalent to setDevice( 0 ).
 
     \sa device(), setDevice()
@@ -1022,6 +1033,7 @@ void Q3TextStream::unsetDevice()
 
 /*!
     \fn bool Q3TextStream::atEnd() const
+    \since 4.2
 
     Returns TRUE if the IO device has reached the end position (end of
     the stream or file) or if there is no IO device set; otherwise
@@ -1531,6 +1543,8 @@ Q3TextStream &Q3TextStream::operator>>( Q3CString &str )
 
 
 /*!
+    \since 4.2
+
     Reads a line from the stream and returns a string containing the
     text.
 
@@ -1622,10 +1636,12 @@ QString Q3TextStream::readLine()
 
 
 /*!
+    \since 4.2
+
     Reads the entire stream from the current position, and returns a string
     containing the text.
 
-    \sa QIODevice::readLine()
+    \sa readLine()
 */
 
 QString Q3TextStream::read()
@@ -1682,6 +1698,8 @@ QString Q3TextStream::read()
  *****************************************************************************/
 
 /*!
+    \since 4.2
+
     Writes character \c char to the stream and returns a reference to
     the stream.
 
@@ -1697,6 +1715,7 @@ Q3TextStream &Q3TextStream::operator<<( QChar c )
 
 /*!
     \overload
+    \since 4.2
 
     Writes character \a c to the stream and returns a reference to the
     stream.
@@ -1814,6 +1833,7 @@ Q3TextStream &Q3TextStream::output_int( int format, ulong n, bool neg )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a \c short integer \a i to the stream and returns a
     reference to the stream.
@@ -1827,6 +1847,7 @@ Q3TextStream &Q3TextStream::operator<<( signed short i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes an \c unsigned \c short integer \a i to the stream and
     returns a reference to the stream.
@@ -1840,6 +1861,7 @@ Q3TextStream &Q3TextStream::operator<<( unsigned short i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes an \c int \a i to the stream and returns a reference to the
     stream.
@@ -1853,6 +1875,7 @@ Q3TextStream &Q3TextStream::operator<<( signed int i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes an \c unsigned \c int \a i to the stream and returns a
     reference to the stream.
@@ -1866,6 +1889,7 @@ Q3TextStream &Q3TextStream::operator<<( unsigned int i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a \c long \c int \a i to the stream and returns a reference
     to the stream.
@@ -1879,6 +1903,7 @@ Q3TextStream &Q3TextStream::operator<<( signed long i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes an \c unsigned \c long \c int \a i to the stream and
     returns a reference to the stream.
@@ -1892,6 +1917,7 @@ Q3TextStream &Q3TextStream::operator<<( unsigned long i )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a \c float \a f to the stream and returns a reference to
     the stream.
@@ -1904,6 +1930,7 @@ Q3TextStream &Q3TextStream::operator<<( float f )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a \c double \a f to the stream and returns a reference to
     the stream.
@@ -1947,6 +1974,7 @@ Q3TextStream &Q3TextStream::operator<<( double f )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a string to the stream and returns a reference to the
     stream.
@@ -1990,6 +2018,7 @@ Q3TextStream &Q3TextStream::operator<<( const char* s )
 
 /*!
     \overload
+    \since 4.2
 
     Writes \a s to the stream and returns a reference to the stream.
 
@@ -2004,6 +2033,7 @@ Q3TextStream &Q3TextStream::operator<<( const Q3CString & s )
 
 /*!
     \overload
+    \since 4.2
 
     Writes \a s to the stream and returns a reference to the stream.
 */
@@ -2029,6 +2059,7 @@ Q3TextStream &Q3TextStream::operator<<( const QString& s )
 
 /*!
     \overload
+    \since 4.2
 
     Writes a pointer to the stream and returns a reference to the
     stream.
@@ -2050,6 +2081,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::flags() const
+    \since 4.2
 
     Returns the current stream flags. The default value is 0.
 
@@ -2094,6 +2126,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::setf( int bits )
+    \since 4.2
 
     Sets the stream flag bits \a bits. Returns the previous stream
     flags.
@@ -2118,6 +2151,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::unsetf( int bits )
+    \since 4.2
 
     Clears the stream flag bits \a bits. Returns the previous stream
     flags.
@@ -2129,6 +2163,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::width() const
+    \since 4.2
 
     Returns the field width. The default value is 0.
 */
@@ -2143,6 +2178,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::fill() const
+    \since 4.2
 
     Returns the fill character. The default value is ' ' (space).
 */
@@ -2156,6 +2192,7 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
 
 /*!
     \fn int Q3TextStream::precision() const
+    \since 4.2
 
     Returns the precision. The default value is 6.
 */
@@ -2216,6 +2253,8 @@ Q3TextStream &reset( Q3TextStream &s )
 }
 
 /*!
+  \since 4.2
+
   Sets the encoding of this stream to \a e, where \a e is one of the
   following values:
   \table
@@ -2337,6 +2376,8 @@ void Q3TextStream::setEncoding( Encoding e )
 
 #ifndef QT_NO_TEXTCODEC
 /*!
+    \since 4.2
+
     Sets the codec for this stream to \a codec. Will not try to
     autodetect Unicode.
 
@@ -2359,6 +2400,7 @@ void Q3TextStream::setCodec( QTextCodec *codec )
 
 /*!
   Returns the codec actually used for this stream.
+  \since 4.2
 
   If Unicode is automatically detected in input, a codec with \link
   QTextCodec::name() name() \endlink "ISO-10646-UCS-2" is returned.

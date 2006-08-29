@@ -783,13 +783,14 @@ bool QAbstractButton::autoRepeat() const
 }
 
 /*!
-\property QAbstractButton::autoRepeatDelay
-\brief the initial delay of auto-repetition
+    \property QAbstractButton::autoRepeatDelay
+    \brief the initial delay of auto-repetition
+    \since 4.2
 
-If \l autoRepeat is enabled, then autoRepeatDelay defines the initial
-delay in milliseconds before auto-repetition kicks in.
+    If \l autoRepeat is enabled, then autoRepeatDelay defines the initial
+    delay in milliseconds before auto-repetition kicks in.
 
-\sa autoRepeatInterval
+    \sa autoRepet, autoRepeatInterval
 */
 
 void QAbstractButton::setAutoRepeatDelay(int autoRepeatDelay)
@@ -805,13 +806,14 @@ int QAbstractButton::autoRepeatDelay() const
 }
 
 /*!
-\property QAbstractButton::autoRepeatInterval
-\brief the interval of auto-repetition
+    \property QAbstractButton::autoRepeatInterval
+    \brief the interval of auto-repetition
+    \since 4.2
 
-If \l autoRepeat is enabled, then autoRepeatInterval defines the
-length of the auto-repetition interval in millisecons.
+    If \l autoRepeat is enabled, then autoRepeatInterval defines the
+    length of the auto-repetition interval in millisecons.
 
-\sa autoRepeatDelay
+    \sa autoRepeat, autoRepeatDelay
 */
 
 void QAbstractButton::setAutoRepeatInterval(int autoRepeatInterval)

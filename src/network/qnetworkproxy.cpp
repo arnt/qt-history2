@@ -219,6 +219,8 @@ QNetworkProxy::~QNetworkProxy()
 }
 
 /*!
+    \since 4.2
+
     Assigns the value of the network proxy \a other to this network proxy.
 */
 QNetworkProxy &QNetworkProxy::operator=(const QNetworkProxy &other)

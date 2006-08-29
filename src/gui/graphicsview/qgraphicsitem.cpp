@@ -2262,6 +2262,7 @@ void QGraphicsItem::setData(int key, const QVariant &value)
 /*!
     \fn T qgraphicsitem_cast(QGraphicsItem *item)
     \relates QGraphicsItem
+    \since 4.2
 
     Returns the given \a item cast to type T if \a item is of type T;
     otherwise, 0 is returned.

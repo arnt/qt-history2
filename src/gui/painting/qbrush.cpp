@@ -666,6 +666,8 @@ void QBrush::setTexture(const QPixmap &pixmap)
 
 
 /*!
+    \since 4.2
+
     Returns the custom brush pattern, or a null image if no custom
     brush pattern has been set.
 
@@ -684,6 +686,8 @@ QImage QBrush::textureImage() const
 
 
 /*!
+    \since 4.2
+
     Sets the brush image to \a image. The style is set to
     Qt::TexturePattern.
 
@@ -1222,6 +1226,7 @@ void QGradient::setCoordinateMode(CoordinateMode mode)
 
 /*!
     \fn bool QGradient::operator!=(const QGradient &gradient) const
+    \since 4.2
 
     Returns true if the gradient is the same as the other \a gradient
     specified; otherwise returns false.
@@ -1380,8 +1385,8 @@ QPointF QLinearGradient::start() const
 
 /*!
     \fn void QLinearGradient::setStart(qreal x, qreal y)
-
     \overload
+    \since 4.2
 
     Sets the start point of this linear gradient in logical
     coordinates to \a x, \a y.
@@ -1390,6 +1395,8 @@ QPointF QLinearGradient::start() const
 */
 
 /*!
+    \since 4.2
+
     Sets the start point of this linear gradient in logical
     coordinates to \a start.
 
@@ -1406,8 +1413,8 @@ void QLinearGradient::setStart(const QPointF &start)
 
 /*!
     \fn void QLinearGradient::setFinalStop(qreal x, qreal y)
-
     \overload
+    \since 4.2
 
     Sets the final stop point of this linear gradient in logical
     coordinates to \a x, \a y.
@@ -1429,6 +1436,8 @@ QPointF QLinearGradient::finalStop() const
 
 
 /*!
+    \since 4.2
+
     Sets the final stop point of this linear gradient in logical
     coordinates to \a stop.
 
@@ -1606,8 +1615,8 @@ QPointF QRadialGradient::center() const
 
 /*!
     \fn void QRadialGradient::setCenter(qreal x, qreal y)
-
     \overload
+    \since 4.2
 
     Sets the center of this radial gradient in logical coordinates
     to (\a x, \a y).
@@ -1616,6 +1625,8 @@ QPointF QRadialGradient::center() const
 */
 
 /*!
+    \since 4.2
+
     Sets the center of this radial gradient in logical coordinates
     to \a center.
 
@@ -1644,6 +1655,8 @@ qreal QRadialGradient::radius() const
 
 
 /*!
+    \since 4.2
+
     Sets the radius of this radial gradient in logical coordinates
     to \a radius
 */
@@ -1669,8 +1682,8 @@ QPointF QRadialGradient::focalPoint() const
 
 /*!
     \fn void QRadialGradient::setFocalPoint(qreal x, qreal y)
-
     \overload
+    \since 4.2
 
     Sets the focal point of this radial gradient in logical
     coordinates to (\a x, \a y).
@@ -1679,6 +1692,8 @@ QPointF QRadialGradient::focalPoint() const
 */
 
 /*!
+    \since 4.2
+
     Sets the focal point of this radial gradient in logical
     coordinates to \a focalPoint.
 
@@ -1837,6 +1852,8 @@ qreal QConicalGradient::angle() const
 
 
 /*!
+    \since 4.2
+
     Sets \a angle to be the start angle for this conical gradient in
     logical coordinates.
 

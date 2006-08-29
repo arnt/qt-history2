@@ -730,8 +730,8 @@ QProcess::ProcessChannelMode QProcess::readChannelMode() const
 
 /*!
     \obsolete
-    Sets the read channel mode of the QProcess to the \a mode specified.
-    This function is equivalent to setProcessChannelMode().
+
+    Use setProcessChannelMode(\a mode) instead.
 
     \sa setProcessChannelMode()
 */
@@ -742,6 +742,7 @@ void QProcess::setReadChannelMode(ProcessChannelMode mode)
 
 /*!
     \since 4.2
+
     Returns the channel mode of the QProcess standard output and
     standard error channels.
 
@@ -755,6 +756,7 @@ QProcess::ProcessChannelMode QProcess::processChannelMode() const
 
 /*!
     \since 4.2
+
     Sets the channel mode of the QProcess standard output and standard
     error channels to the \a mode specified.
     This mode will be used the next time start() is called. For example:
@@ -860,6 +862,8 @@ void QProcess::closeWriteChannel()
 }
 
 /*!
+    \since 4.2
+
     Redirects the process' standard input to the file indicated by \a
     fileName. When an input redirection is in place, the QProcess
     object will be in read-only mode (calling write() will result in
@@ -881,6 +885,8 @@ void QProcess::setStandardInputFile(const QString &fileName)
 }
 
 /*!
+    \since 4.2
+
     Redirects the process' standard output to the file \a
     fileName. When the redirection is in place, the standard output
     read channel is closed: reading from it using read() will always
@@ -910,6 +916,8 @@ void QProcess::setStandardOutputFile(const QString &fileName, OpenMode mode)
 }
 
 /*!
+    \since 4.2
+
     Redirects the process' standard error to the file \a
     fileName. When the redirection is in place, the standard error
     read channel is closed: reading from it using read() will always
@@ -935,6 +943,8 @@ void QProcess::setStandardErrorFile(const QString &fileName, OpenMode mode)
 }
 
 /*!
+    \since 4.2
+
     Pipes the standard output stream of this process to the \a
     destination process' standard input.
 

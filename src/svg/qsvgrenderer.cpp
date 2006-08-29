@@ -161,6 +161,7 @@ QRect QSvgRenderer::viewBox() const
 /*!
     \property QSvgRenderer::viewBox
     \brief the rectangle specifying the visible area of the document in logical coordinates
+    \since 4.2
 */
 void QSvgRenderer::setViewBox(const QRect &viewbox)
 {
@@ -363,6 +364,8 @@ void QSvgRenderer::setViewBox(const QRectF &viewbox)
 }
 
 /*!
+    \since 4.2
+
     Returns bounding rectangle of the item with the given \a id.
     The transformation matrix of parent elements is not affecting
     the bounds of the element.
@@ -378,6 +381,8 @@ QRectF QSvgRenderer::boundsOnElement(const QString &id) const
 
 
 /*!
+    \since 4.2
+
     Returns true if the element with the given \a id exists
     in the currently parsed SVG file.
 */
@@ -391,6 +396,8 @@ bool QSvgRenderer::elementExists(const QString &id) const
 }
 
 /*!
+    \since 4.2
+
     Returns the transformation matrix setup for the element
     with the given \a id. That includes the transformation on
     the element itself. 

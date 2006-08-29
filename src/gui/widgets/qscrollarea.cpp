@@ -395,6 +395,8 @@ void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 }
 
 /*!
+    \since 4.2
+
     Scrolls the contents of the scroll area so that the \a childWidget
     of the scroll area's widget() is visible inside the region of the
     viewport with margins specified in pixels by \a xmargin and \a
@@ -426,6 +428,7 @@ void QScrollArea::ensureWidgetVisible(QWidget *childWidget, int xmargin, int yma
 /*!
     \property QScrollArea::alignment
     \brief the alignment of the scroll area's widget
+    \since 4.2
 
     By default, the widget stays rooted to the top-left corner of the
     scroll area.

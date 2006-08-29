@@ -116,7 +116,7 @@ void QStandardItemPrivate::setChild(int row, int column, QStandardItem *item,
         if (item->d_func()->parent == 0) {
             item->d_func()->setParentAndModel(q, model);
         } else {
-            qWarning("QStandardItem::setChild(): ignoring duplicate insertion of item %p",
+            qWarning("QStandardItem::setChild: Ignoring duplicate insertion of item %p",
                      item);
             return;
         }
@@ -326,7 +326,7 @@ bool QStandardItemPrivate::insertRows(int row, int count, const QList<QStandardI
                 if (item->d_func()->parent == 0) {
                     item->d_func()->setParentAndModel(q, model);
                 } else {
-                    qWarning("QStandardItem::insertRows(): ignoring duplicate insertion of item %p",
+                    qWarning("QStandardItem::insertRows: Ignoring duplicate insertion of item %p",
                              item);
                     item = 0;
                 }
@@ -369,7 +369,7 @@ bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QSta
                 if (item->d_func()->parent == 0) {
                     item->d_func()->setParentAndModel(q, model);
                 } else {
-                    qWarning("QStandardItem::insertColumns(): ignoring duplicate insertion of item %p",
+                    qWarning("QStandardItem::insertColumns: Ignoring duplicate insertion of item %p",
                              item);
                     item = 0;
                 }
@@ -1263,6 +1263,8 @@ QStandardItemModel *QStandardItem::model() const
 }
 
 /*!
+    \since 4.2
+
     Sets the number of child item rows to \a rows. If this is less than
     rowCount(), the data in the unwanted rows is discarded.
 
@@ -1280,6 +1282,8 @@ void QStandardItem::setRowCount(int rows)
 }
 
 /*!
+    \since 4.2
+
     Returns the number of child item rows that the item has.
 
     \sa setRowCount(), columnCount()
@@ -1291,6 +1295,8 @@ int QStandardItem::rowCount() const
 }
 
 /*!
+    \since 4.2
+
     Sets the number of child item columns to \a columns. If this is less than
     columnCount(), the data in the unwanted columns is discarded.
 
@@ -1308,6 +1314,8 @@ void QStandardItem::setColumnCount(int columns)
 }
 
 /*!
+    \since 4.2
+
     Returns the number of child item columns that the item has.
 
     \sa setColumnCount(), rowCount()
@@ -1319,6 +1327,8 @@ int QStandardItem::columnCount() const
 }
 
 /*!
+    \since 4.2
+
     Inserts a row at \a row containing \a items. If necessary, the column
     count is increased to the size of \a items.
 
@@ -1391,6 +1401,7 @@ void QStandardItem::insertColumns(int column, int count)
 
 /*!
     \fn void QStandardItem::appendColumn(const QList<QStandardItem*> &items)
+    \since 4.2
 
     Appends a column containing \a items. If necessary, the row count is
     increased to the size of \a items.
@@ -1601,6 +1612,8 @@ QList<QStandardItem*> QStandardItem::takeRow(int row)
 }
 
 /*!
+    \since 4.2
+
     Removes \a column without deleting the column items, and returns a list of
     pointers to the removed items. For items in the column that have not been
     set, the corresponding pointers in the list will be 0.
@@ -1748,6 +1761,7 @@ void QStandardItem::write(QDataStream &out) const
 
 /*!
     \relates QStandardItem
+    \since 4.2
 
     Reads a QStandardItem from stream \a in into \a item.
 
@@ -1763,6 +1777,7 @@ QDataStream &operator>>(QDataStream &in, QStandardItem &item)
 
 /*!
     \relates QStandardItem
+    \since 4.2
 
     Writes the QStandardItem \a item to stream \a out.
 
@@ -2117,7 +2132,7 @@ void QStandardItemModel::setHorizontalHeaderItem(int column, QStandardItem *item
         if (item->model() == 0) {
             item->d_func()->setModel(this);
         } else {
-            qWarning("QStandardItem::setHorizontalHeaderItem(): ignoring duplicate insertion of item %p",
+            qWarning("QStandardItem::setHorizontalHeaderItem: Ignoring duplicate insertion of item %p",
                      item);
             return;
         }
@@ -2173,7 +2188,7 @@ void QStandardItemModel::setVerticalHeaderItem(int row, QStandardItem *item)
         if (item->model() == 0) {
             item->d_func()->setModel(this);
         } else {
-            qWarning("QStandardItem::setVerticalHeaderItem(): ignoring duplicate insertion of item %p",
+            qWarning("QStandardItem::setVerticalHeaderItem: Ignoring duplicate insertion of item %p",
                      item);
             return;
         }
@@ -2558,9 +2573,10 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
 }
 
 /*!
-  Returns the supported drop actions.
-  QStandardItemModel supports both copy and move.
-  */
+    \reimp
+
+    QStandardItemModel supports both copy and move.
+*/
 Qt::DropActions QStandardItemModel::supportedDropActions () const
 {
     return Qt::CopyAction | Qt::MoveAction;

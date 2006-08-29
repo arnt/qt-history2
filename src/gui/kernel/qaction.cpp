@@ -425,6 +425,7 @@ Qt::ShortcutContext QAction::shortcutContext() const
 /*!
     \property QAction::autoRepeat
     \brief whether the action can auto repeat
+    \since 4.2
 
     If true, the action will auto repeat when the keyboard shortcut
     combination is held down, provided that keyboard auto repeat is
@@ -1219,11 +1220,13 @@ void QAction::activate(ActionEvent event)
 
 /*!
     \property QAction::menuRole
-    \brief The action's menu role.
+    \brief the action's menu role
+    \since 4.2
 
     This indicates what role the action serves in the application menu on Mac
     OS X. By default all action have the TextHeuristicRole, which means that
-    the action is added based on it's text, see QMenuBar for more information.
+    the action is added based on its text (see QMenuBar for more information).
+
     The menu role can only be changed before the actions are put into the menu
     bar in Mac OS X (usually just before the first application window is
     shown).

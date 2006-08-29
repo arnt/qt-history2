@@ -4407,6 +4407,7 @@ int QApplication::doubleClickInterval()
     \property QApplication::keyboardInputInterval
     \brief the time limit in milliseconds that distinguishes a key press
     from two consecutive key presses
+    \since 4.2
 
     The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
     operating system's value is used.

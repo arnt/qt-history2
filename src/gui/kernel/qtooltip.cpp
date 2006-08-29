@@ -300,6 +300,7 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 
 /*!
     \fn void QToolTip::hideText()
+    \since 4.2
 
     Hides the tool tip. This is the same as calling showText() with an
     empty string.
@@ -321,6 +322,8 @@ QPalette QToolTip::palette()
 }
 
 /*!
+    \since 4.2
+
     Returns the font used to render tooltips.
 */
 QFont QToolTip::font()
@@ -329,6 +332,8 @@ QFont QToolTip::font()
 }
 
 /*!
+    \since 4.2
+
     Sets the \a palette used to render tooltips.
 */
 void QToolTip::setPalette(const QPalette &palette)
@@ -337,6 +342,8 @@ void QToolTip::setPalette(const QPalette &palette)
 }
 
 /*!
+    \since 4.2
+
     Sets the \a font used to render tooltips.
 */
 void QToolTip::setFont(const QFont &font)

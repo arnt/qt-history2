@@ -510,8 +510,8 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
     recommend using the application name as the window's title.
 
     If none of the standard message boxes is suitable, you can create a
-    QMessageBox from scratch. You can use QMessageBox::addButton() to add
-    the standard buttons in QMessageBox::StandardButton. QMessageBox::addButton()
+    QMessageBox from scratch. You can use addButton() to add
+    the standard buttons in StandardButton. addButton()
     has an additional overload, that takes a custom text and the button role
     as an argument. The button role is used to automatically determine the
     position of the button within the dialog box.
@@ -535,6 +535,7 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 
 /*!
     \enum QMessageBox::StandardButton
+    \since 4.2
 
     These enums describe flags for standard buttons. Each button has a
     defined \l ButtonRole.
@@ -626,6 +627,8 @@ QMessageBox::~QMessageBox()
 }
 
 /*!
+    \since 4.2
+
     Adds the given \a button to the message box with the specified \a
     role.
 
@@ -643,6 +646,7 @@ void QMessageBox::addButton(QAbstractButton *button, ButtonRole role)
 }
 
 /*!
+    \since 4.2
     \overload
 
     Creates a button with the given \a text, adds it to the message box for the
@@ -656,6 +660,7 @@ QPushButton *QMessageBox::addButton(const QString& text, ButtonRole role)
 }
 
 /*!
+    \since 4.2
     \overload
 
     Adds a standard \a button to the message box if it is valid to do so, and
@@ -673,6 +678,8 @@ QPushButton *QMessageBox::addButton(StandardButton button)
 }
 
 /*!
+    \since 4.2
+
     Removes \a button from the button box without deleting it.
 
     \sa addButton(), setStandardButtons()
@@ -691,6 +698,7 @@ void QMessageBox::removeButton(QAbstractButton *button)
 /*!
     \property QMessageBox::standardButtons
     \brief collection of standard buttons in the message box
+    \since 4.2
 
     This property controls which standard buttons are used by the message box.
 
@@ -716,6 +724,8 @@ QMessageBox::StandardButtons QMessageBox::standardButtons() const
 }
 
 /*!
+    \since 4.2
+
     Returns the standard button enum value corresponding to the given \a button,
     or NoButton if the given \a button isn't a standard button.
 
@@ -728,6 +738,8 @@ QMessageBox::StandardButton QMessageBox::standardButton(QAbstractButton *button)
 }
 
 /*!
+    \since 4.2
+
     Returns a pointer corresponding to the standard button \a which,
     or 0 if the standard button doesn't exist in this message box.
 
@@ -740,6 +752,8 @@ QAbstractButton *QMessageBox::button(StandardButton which) const
 }
 
 /*!
+    \since 4.2
+
     Returns the button that is activated when escape is presed.  Returns 0
     if no escape button was set.
 
@@ -752,6 +766,8 @@ QAbstractButton *QMessageBox::escapeButton() const
 }
 
 /*!
+    \since 4.2
+
     Sets the button that gets activated when the \key Escape key is
     pressed to \a button.
 
@@ -799,6 +815,8 @@ void QMessageBoxPrivate::detectEscapeButton()
 }
 
 /*!
+    \since 4.2
+
     Returns the button that was clicked by the user,
     or 0 if the user hit the \key Escape key and
     no \l{setEscapeButton()}{escape button} was set.
@@ -825,6 +843,8 @@ QAbstractButton *QMessageBox::clickedButton() const
 }
 
 /*!
+    \since 4.2
+
     Returns the button that should be the message box's
     \l{QPushButton::setDefault()}{default button}. Returns 0
     if no default button was set.
@@ -838,6 +858,8 @@ QPushButton *QMessageBox::defaultButton() const
 }
 
 /*!
+    \since 4.2
+
     Sets the message box's \l{QPushButton::setDefault()}{default button}
     to \a button.
 
@@ -984,14 +1006,16 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
                     || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text())));
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMessageBox::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMessageBox::closeEvent(QCloseEvent *e)
 {
@@ -1005,7 +1029,8 @@ void QMessageBox::closeEvent(QCloseEvent *e)
     setResult(d->execReturnCode(d->detectedEscapeButton));
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMessageBox::changeEvent(QEvent *ev)
 {
@@ -1017,7 +1042,8 @@ void QMessageBox::changeEvent(QEvent *ev)
     QDialog::changeEvent(ev);
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMessageBox::keyPressEvent(QKeyEvent *e)
 {
@@ -1056,7 +1082,8 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
     QDialog::keyPressEvent(e);
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QMessageBox::showEvent(QShowEvent *e)
 {
@@ -1112,6 +1139,8 @@ static QMessageBox::StandardButton showNewMessageBox(QWidget *parent,
 }
 
 /*!
+    \since 4.2
+
     Opens an information message box with the title \a title and
     the text \a text. The standard buttons \a buttons is added to the
     message box. \a defaultButton specifies the button be used as the
@@ -1137,6 +1166,8 @@ QMessageBox::StandardButton QMessageBox::information(QWidget *parent, const QStr
 
 
 /*!
+    \since 4.2
+
     Opens a question message box with the title \a title and
     the text \a text. The standard buttons \a buttons is added to the
     message box. \a defaultButton specifies the button be used as the
@@ -1160,6 +1191,8 @@ QMessageBox::StandardButton QMessageBox::question(QWidget *parent, const QString
 }
 
 /*!
+    \since 4.2
+
     Opens a warning message box with the title \a title and
     the text \a text. The standard buttons \a buttons is added to the
     message box. \a defaultButton specifies the button be used as the
@@ -1183,6 +1216,8 @@ QMessageBox::StandardButton QMessageBox::warning(QWidget *parent, const QString 
 }
 
 /*!
+    \since 4.2
+
     Opens a critical message box with the title \a title and
     the text \a text. The standard buttons \a buttons is added to the
     message box. \a defaultButton specifies the button be used as the
@@ -1210,6 +1245,7 @@ QMessageBox::StandardButton QMessageBox::critical(QWidget *parent, const QString
     text. The about box's parent is \a parent.
 
     about() looks for a suitable icon in four locations:
+
     \list 1
     \o It prefers \link QWidget::windowIcon() parent->icon() \endlink
     if that exists.
@@ -1224,7 +1260,7 @@ QMessageBox::StandardButton QMessageBox::critical(QWidget *parent, const QString
     \sa QWidget::windowIcon() QApplication::activeWindow()
 */
 void QMessageBox::about(QWidget *parent, const QString &title,
-                          const QString &text)
+                        const QString &text)
 {
     QMessageBox mb(title, text, Information, Ok + Default, 0, 0, parent);
     QIcon icon = mb.windowIcon();
@@ -1854,6 +1890,7 @@ void QMessageBox::setButtonText(int button, const QString &text)
 /*!
     \property QMessageBox::detailedText
     \brief the text to be displayed in the details area.
+    \since 4.2
 
     The text will be interpreted as a plain text. The default value of this property is an empty string.
 */
@@ -1894,6 +1931,7 @@ void QMessageBox::setDetailedText(const QString &text)
 /*!
     \property QMessageBox::informativeText
     \brief the informative text that provides a fuller description for the message
+    \since 4.2
 
     Infromative text can be used to expand upon the text() to give more information
     to the user. On the Mac, this text appears in small system font below the text().
@@ -1944,9 +1982,13 @@ void QMessageBox::setInformativeText(const QString &text)
 }
 
 /*!
-    \overload
+    \since 4.2
 
-    Sets the title of the message box to \a title.
+    This function shadows QWidget::setWindowTitle().
+
+    Sets the title of the message box to \a title. On Mac OS X,
+    the window title is ignored (as required by the Mac OS X
+    Guidelines).
 */
 void QMessageBox::setWindowTitle(const QString &title)
 {
@@ -1960,7 +2002,10 @@ void QMessageBox::setWindowTitle(const QString &title)
 
 
 /*!
-    This function shadows QWidget::setWindowModality()
+    \since 4.2
+
+    This function shadows QWidget::setWindowModality().
+
     Sets the modality of the message box to \a windowModality.
 
     On Mac OS X, if the modality is set to Qt::WindowModal and the message box

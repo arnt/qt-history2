@@ -834,6 +834,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
 
 /*!
   \fn void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order)
+  \since 4.2
 
   Sorts the children of the item using the given \a order,
   by the values in the given \a column.

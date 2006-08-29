@@ -4078,9 +4078,10 @@ QString QUrl::path() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if this URL contains a Query (i.e., if ? was seen on it).
 
-    \since 4.2
     \sa hasQueryItem(), encodedQuery()
 */
 bool QUrl::hasQuery() const
@@ -4414,9 +4415,10 @@ QString QUrl::fragment() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if this URL contains a fragment (i.e., if # was seen on it).
 
-    \since 4.2
     \sa fragment(), setFragment()
 */
 bool QUrl::hasFragment() const
@@ -4944,6 +4946,8 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 }
 
 /*!
+    \since 4.2
+
     Returns the Unicode form of the given domain name
     \a domain, which is encoded in the ASCII Compatible Encoding (ACE).
     The result of this function is considered equivalent to \a domain.
@@ -4963,6 +4967,8 @@ QString QUrl::fromAce(const QByteArray &domain)
 }
 
 /*!
+    \since 4.2
+
     Returns the ASCII Compatible Encoding of the given domain name \a domain.
     The result of this function is considered equivalent to \a domain.
     
@@ -4988,6 +4994,8 @@ QByteArray QUrl::toAce(const QString &domain)
 }
 
 /*!
+    \since 4.2
+
     Returns the current whitelist of top-level domains that are allowed
     to have non-ASCII characters in their compositions.
 
@@ -4999,6 +5007,8 @@ QStringList QUrl::idnWhitelist()
 }
 
 /*!
+    \since 4.2
+
     Sets the whitelist of Top-Level Domains (TLDs) that are allowed to have
     non-ASCII characters in domains to the value of \a list.
 
@@ -5376,6 +5386,8 @@ QDebug operator<<(QDebug d, const QUrl &url)
 #endif
 
 /*!
+    \since 4.2
+
     Returns a text string that explains why an URL is invalid in the case being;
     otherwise returns an empty string.
 */

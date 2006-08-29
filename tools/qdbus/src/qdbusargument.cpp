@@ -188,6 +188,7 @@ bool QDBusArgumentPrivate::checkRead()
 
 /*!
     \fn qdbus_cast(const QDBusArgument &argument)
+    \since 4.2
 
     Attempts to demarshall the contents of the QDBusArgument object
     into the type \c{T}.

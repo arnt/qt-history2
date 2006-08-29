@@ -92,6 +92,8 @@
 
 /*!
     \fn void Q3PopupMenu::setMargin(int margin)
+    \since 4.2
+
     Sets the width of the margin around the contents of the widget to \a margin.
     
     This function uses QWidget::setContentsMargins() to set the margin.
@@ -100,6 +102,8 @@
 
 /*!
     \fn int Q3PopupMenu::margin() const 
+    \since 4.2
+
     Returns the with of the the margin around the contents of the widget.
     
     This function uses QWidget::getContentsMargins() to get the margin.

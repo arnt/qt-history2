@@ -619,6 +619,8 @@ QVariant QAbstractItemView::inputMethodQuery(Qt::InputMethodQuery query) const
 }
 
 /*!
+    \since 4.2
+
     Sets the given item \a delegate used by this view and model for
     the given \a row.
 */
@@ -640,6 +642,8 @@ void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *de
 }
 
 /*!
+   \since 4.2
+
    Returns the item delegate used by this view and model for
    the given \a row.
 */
@@ -650,6 +654,8 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
 }
 
 /*!
+    \since 4.2
+
     Sets the given item \a delegate used by this view and model for
     the given \a column.
 */
@@ -671,6 +677,8 @@ void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelega
 }
 
 /*!
+   \since 4.2
+
    Returns the item delegate used by this view and model for
    the given \a column.
 */

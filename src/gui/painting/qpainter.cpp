@@ -1882,6 +1882,8 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 }
 
 /*!
+    \since 4.2
+
     Sets the transformation matrix to \a matrix and enables transformations.
 
     If \a combine is true, then \a matrix is combined with the current
@@ -1947,6 +1949,8 @@ void QPainter::setWorldMatrix(const QMatrix &matrix, bool combine)
 }
 
 /*!
+    \since 4.2
+
     Returns the world transformation matrix.
 
     \sa {QPainter#Coordinate Transformations}{Coordinate Transformations}, {The Coordinate System}
@@ -1986,6 +1990,8 @@ const QMatrix &QPainter::matrix() const
 
 
 /*!
+    \since 4.2
+
     Returns the transformation matrix combining the current
     window/viewport and world transformation.
 
@@ -2050,6 +2056,8 @@ void QPainter::resetMatrix()
 
 
 /*!
+    \since 4.2
+
     Enables transformations if \a enable is true, or disables
     transformations if \a enable is false. The world transformation
     matrix is not changed.
@@ -2078,6 +2086,8 @@ void QPainter::setWorldMatrixEnabled(bool enable)
 }
 
 /*!
+    \since 4.2
+
     Returns true if world transformation is enabled; otherwise returns
     false.
 
@@ -5188,6 +5198,8 @@ void QPainter::setRenderHint(RenderHint hint, bool on)
 }
 
 /*!
+    \since 4.2
+
     Sets the given render \a hints on the painter if \a on is true;
     otherwise clears the render hints.
 
@@ -6550,6 +6562,8 @@ QFont QPaintEngineState::font() const
 }
 
 /*!
+    \since 4.2
+
     Returns the matrix in the current paint engine
     state.
 
@@ -6667,6 +6681,8 @@ QPainter *QPaintEngineState::painter() const
 
 
 /*!
+    \since 4.2
+
     Returns the opacity in the current paint engine state.
 */
 

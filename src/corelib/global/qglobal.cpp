@@ -279,7 +279,6 @@
 
 /*!
     \fn bool QFlags::testFlag(Enum flag) const
-
     \since 4.2
 
     Returns true if the \a flag is set, otherwise false.
@@ -2222,6 +2221,8 @@ static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
 #endif
 
 /*!
+    \since 4.2
+
     Thread-safe version of the standard C++ \c srand() function.
 
     Sets the argument \a seed to be used to generate a new random number sequence of
@@ -2249,6 +2250,8 @@ void qsrand(uint seed)
 }
 
 /*!
+    \since 4.2
+
     Thread-safe version of the standard C++ \c rand() function.
 
     Returns a value between 0 and \c RAND_MAX (defined in \c <cstdlib> and

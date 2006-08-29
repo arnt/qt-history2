@@ -535,6 +535,8 @@ void QLineEdit::setValidator(const QValidator *v)
 
 #ifndef QT_NO_COMPLETER
 /*!
+    \since 4.2
+
     Sets this line edit to provide auto completions from the completer, \a c.
     The completion mode is set using QCompleter::setCompletionMode().
 
@@ -570,6 +572,8 @@ void QLineEdit::setCompleter(QCompleter *c)
 }
 
 /*!
+    \since 4.2
+
     Returns the current QCompleter that provides completions.
 */
 QCompleter *QLineEdit::completer() const

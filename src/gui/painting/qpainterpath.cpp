@@ -346,6 +346,7 @@ static void qt_debug_path(const QPainterPath &path)
 
 /*!
     \fn bool QPainterPath::Element::operator==(const Element &other) const
+    \since 4.2
 
     Returns true if this element is equal to \a other;
     otherwise returns false.
@@ -355,6 +356,7 @@ static void qt_debug_path(const QPainterPath &path)
 
 /*!
     \fn bool QPainterPath::Element::operator!=(const Element &other) const
+    \since 4.2
 
     Returns true if this element is not equal to \a other;
     otherwise returns false.
@@ -431,6 +433,7 @@ static void qt_debug_path(const QPainterPath &path)
 
 /*!
     \fn void QPainterPath::setElementPositionAt(int index, qreal x, qreal y)
+    \since 4.2
 
     Sets the x and y coordinate of the element at index \a index to \a
     x and \a y.
@@ -849,8 +852,8 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
 /*!
     \fn void QPainterPath::arcMoveTo(qreal x, qreal y, qreal width, qreal height, qreal angle)
-
     \overload
+    \since 4.2
 
     Creates a move to that lies on the arc that occupies the
     QRectF(\a x, \a y, \a width, \a height) at \a angle.
@@ -859,12 +862,15 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
 /*!
     \fn void QPainterPath::arcMoveTo(const QRectF &rectangle, qreal angle)
+    \sice 4.2
 
     Creates a move to that lies on the arc that occupies the given \a
     rectangle at \a angle.
 
     Angles are specified in degrees. Clockwise arcs can be specified
     using negative angles.
+
+    \sa moveTo(), arcTo()
 */
 
 void QPainterPath::arcMoveTo(const QRectF &rect, qreal angle)

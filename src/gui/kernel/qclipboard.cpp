@@ -504,6 +504,8 @@ bool QClipboard::ownsSelection() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if this clipboard object owns the find buffer data;
     otherwise returns false.
 */
@@ -525,7 +527,7 @@ bool QClipboard::ownsFindBuffer() const
 */
 
 /*! \internal
-    Emits the apropriate changed signal for \a mode.
+    Emits the appropriate changed signal for \a mode.
 */
 void QClipboard::emitChanged(Mode mode)
 {

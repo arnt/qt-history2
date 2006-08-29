@@ -1042,6 +1042,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 /*!
     \property QApplication::styleSheet
     \brief the application style sheet
+    \since 4.2
 
     \sa QWidget::setStyle()
 */
@@ -4188,6 +4189,8 @@ uint QApplicationPrivate::currentPlatform(){
 }
 
 /*!
+    \since 4.2
+
     Returns the current keyboard input locale.
 */
 QLocale QApplication::keyboardInputLocale()
@@ -4198,6 +4201,8 @@ QLocale QApplication::keyboardInputLocale()
 }
 
 /*!
+    \since 4.2
+
     Returns the current keyboard input direction.
 */
 Qt::LayoutDirection QApplication::keyboardInputDirection()

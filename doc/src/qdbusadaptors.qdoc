@@ -627,7 +627,7 @@
 /*!
     \macro Q_ASYNC
     \relates QDBusAbstractAdaptor
-    \brief Marks a method as "asynchronous"
+    \since 4.2
 
     The Q_ASYNC macro can be used to mark a method to be called and not wait for it to finish
     processing before returning from QDBusInterface::call(). The called method cannot return any

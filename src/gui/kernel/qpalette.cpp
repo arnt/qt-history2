@@ -739,6 +739,8 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 }
 
 /*!
+    \since 4.2
+
     Returns true if the ColorGroup \a cg and ColorRole \a cr has been
     set previously on this palette; otherwise returns false.
 

@@ -657,6 +657,7 @@ bool QUrlInfo::operator==(const QUrlInfo &other) const
 
 /*!
     \fn bool QUrlInfo::operator!=(const QUrlInfo &other) const
+    \since 4.2
 
     Returns true if this QUrlInfo is not equal to \a other; otherwise
     returns false.

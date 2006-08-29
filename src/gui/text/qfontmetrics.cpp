@@ -387,6 +387,8 @@ int QFontMetrics::xHeight() const
 }
 
 /*!
+    \since 4.2
+
     Returns the average width of glyphs in the font.
 */
 int QFontMetrics::averageCharWidth() const
@@ -767,7 +769,6 @@ int QFontMetrics::underlinePos() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
     return qRound(engine->underlinePosition());
 }
 
@@ -1148,6 +1149,8 @@ qreal QFontMetricsF::xHeight() const
 }
 
 /*!
+    \since 4.2
+
     Returns the average width of glyphs in the font.
 */
 qreal QFontMetricsF::averageCharWidth() const

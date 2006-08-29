@@ -2378,9 +2378,11 @@ void QTableWidget::clear()
 }
 
 /*!
+    \since 4.2
+
     Removes all items not in the headers from the view.
     This will also remove all selections.
-    The table dimentions stay the same.
+    The table dimensions stay the same.
 */
 void QTableWidget::clearContents()
 {

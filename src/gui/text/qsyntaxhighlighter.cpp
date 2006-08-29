@@ -368,6 +368,8 @@ QTextDocument *QSyntaxHighlighter::document() const
 }
 
 /*!
+    \since 4.2
+
     Redoes the highlighting of the whole document.
 */
 void QSyntaxHighlighter::rehighlight()

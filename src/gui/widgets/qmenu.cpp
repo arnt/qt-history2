@@ -1253,6 +1253,8 @@ QAction *QMenu::activeAction() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if there are no actions inserted into the menu, false
     otherwise.
 
@@ -2476,15 +2478,20 @@ void QMenu::internalDelayedPopup()
 }
 
 /*!
-    \fn void QMenu::aboutToHide();
+    \fn void QMenu::aboutToHide()
+    \since 4.2
 
     This signal is emitted just before the menu is hidden from the user.
+
+    \sa aboutToShow(), hide()
 */
 
 /*!
     \fn void QMenu::aboutToShow()
 
     This signal is emitted just before the menu is shown to the user.
+
+    \sa aboutToHide(), show()
 */
 
 /*!
@@ -2493,8 +2500,7 @@ void QMenu::internalDelayedPopup()
     This signal is emitted when a menu action is triggered; \a action
     is the action that caused the signal to be emitted.
 
-    Normally, you connect each menu action's
-    \l{QAction::triggered()}{triggered()} signal to its
+    Normally, you connect each menu action's \l{QAction::}{triggered()} signal to its
     own custom slot, but sometimes you will want to connect several
     actions to a single slot, for example, when you have a group of
     closely related actions, such as "left justify", "center", "right

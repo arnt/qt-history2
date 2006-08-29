@@ -826,10 +826,12 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 }
 
 /*!
-      Returns true if the text browser can go backward in the document history
-      using backward().
+    \since 4.2
 
-      \sa backwardAvailable(), backward()
+    Returns true if the text browser can go backward in the document history
+    using backward().
+
+    \sa backwardAvailable(), backward()
 */
 bool QTextBrowser::isBackwardAvailable() const
 {
@@ -838,10 +840,12 @@ bool QTextBrowser::isBackwardAvailable() const
 }
 
 /*!
-      Returns true if the text browser can go forward in the document history
-      using forward().
+    \since 4.2
 
-      \sa forwardAvailable(), forward()
+    Returns true if the text browser can go forward in the document history
+    using forward().
+
+    \sa forwardAvailable(), forward()
 */
 bool QTextBrowser::isForwardAvailable() const
 {
@@ -850,6 +854,8 @@ bool QTextBrowser::isForwardAvailable() const
 }
 
 /*!
+    \since 4.2
+
     Clears the history of visited documents and disables the forward and
     backward navigation.
 

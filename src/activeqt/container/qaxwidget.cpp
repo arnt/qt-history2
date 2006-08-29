@@ -1745,6 +1745,8 @@ QAxWidget::~QAxWidget()
 }
 
 /*!
+    \since 4.2
+
     Calls QAxBase::initialize(\a ptr), and embeds the control in this
     widget by calling createHostWindow(false) if successful.
 

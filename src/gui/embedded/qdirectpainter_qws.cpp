@@ -158,17 +158,26 @@ QDirectPainter::~QDirectPainter()
     */
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::setGeometry(const QRect &r)
 {
     setRegion(r);
 }
 
+/*!
+    \since 4.2
+*/
 QRect QDirectPainter::geometry() const
 {
     Q_D(const QDirectPainter);
     return d->requested_region.boundingRect();
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::setRegion(const QRegion &region)
 {
     Q_D(QDirectPainter);
@@ -177,44 +186,68 @@ void QDirectPainter::setRegion(const QRegion &region)
     d->surface->setRegion(region);
 }
 
+/*!
+    \since 4.2
+*/
 QRegion QDirectPainter::requestedRegion() const
 {
     Q_D(const QDirectPainter);
     return d->requested_region;
 }
 
+/*!
+    \since 4.2
+*/
 QRegion QDirectPainter::allocatedRegion() const
 {
     Q_D(const QDirectPainter);
     return d->surface->region();
 }
 
+/*!
+    \since 4.2
+*/
 WId QDirectPainter::winId() const
 {
     Q_D(const QDirectPainter);
     return d->surface->windowId();
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::regionChanged(const QRegion &exposedRegion)
 {
     Q_UNUSED(exposedRegion);
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::startPainting(bool lockDisplay)
 {
     Q_UNUSED(lockDisplay);
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::endPainting()
 {
 }
 
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::raise()
 {
     QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Raise);
 }
 
+/*!
+    \since 4.2
+*/
 void QDirectPainter::lower()
 {
     QWidget::qwsDisplay()->setAltitude(winId(), QWSChangeAltitudeCommand::Lower);
@@ -266,6 +299,8 @@ uchar* QDirectPainter::frameBuffer()
 }
 
 /*!
+    \since 4.2
+
     Returns the reserved region.
 
     \sa reserveRegion(), frameBuffer()

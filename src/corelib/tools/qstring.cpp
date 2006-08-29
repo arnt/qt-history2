@@ -132,7 +132,7 @@ const QString::Null QString::null = QString::Null();
 
   Disables automatic conversions from 8-bit strings (char *) to unicode QStrings
 
-  \sa QT_NO_CAST_TO_ASCII, QT_ASCII_CAST_WARNINGS
+  \sa QT_NO_CAST_TO_ASCII
 */
 
 /*!
@@ -141,12 +141,12 @@ const QString::Null QString::null = QString::Null();
 
   disables automatic conversion from QString to ASCII 8-bit strings (char *)
 
-  \sa QT_NO_CAST_FROM_ASCII, QT_ASCII_CAST_WARNINGS
+  \sa QT_NO_CAST_FROM_ASCII
 */
 
 /*!
   \macro QT_ASCII_CAST_WARNINGS
-  \since 4.2
+  \internal
   \relates QString
 
   This macro can be defined to force a warning whenever a function is
@@ -607,6 +607,8 @@ inline int QString::grow(int size)
 */
 
 /*!
+    \since 4.2
+
     Returns a copy of the \a string string encoded in ucs4.
 
     If \a size is -1 (the default), the \a string has to be 0 terminated.
@@ -639,6 +641,7 @@ QString QString::fromWCharArray(const wchar_t *string, int size)
 */
 
 /*!
+  \since 4.2
 
   Fills the \a array with the data contained in this QString object.
   The array is encoded in utf16 on platforms where
@@ -3046,6 +3049,8 @@ QByteArray QString::toUtf8() const
 }
 
 /*!
+    \since 4.2
+
     Returns a UCS-4 representation of the string as a QVector<uint>.
 
     \sa fromUtf8(), toAscii(), toLatin1(), toLocal8Bit(), QTextCodec, fromUcs4(), toWCharArray()
@@ -3429,6 +3434,8 @@ QString QString::fromUtf16(const ushort *unicode, int size)
 
 
 /*!
+    \since 4.2
+
     Returns a QString initialized with the first \a size characters
     of the Unicode string \a unicode (ISO-10646-UCS-4 encoded).
 

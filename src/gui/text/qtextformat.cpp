@@ -488,6 +488,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
 /*!
     \enum QTextFormat::PageBreakFlag
+    \since 4.2
 
     \value PageBreak_Auto The page break is determined automatically depending on the
                           available space on the current page
@@ -1204,12 +1205,14 @@ bool QTextCharFormat::fontUnderline() const
 
 /*!
     \fn UnderlineStyle QTextCharFormat::underlineStyle() const
+    \since 4.2
 
     Returns the style of underlining the text.
 */
 
 /*!
     \fn void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
+    \since 4.2
 
     Sets the style of underlining the text to \a style.
 */
@@ -1705,6 +1708,7 @@ QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
 /*!
     \fn QTextFormat::PageBreakFlags QTextBlockFormat::pageBreakPolicy() const
+    \since 4.2
 
     Returns the currently set page break policy for the paragraph. The default is
     QTextFormat::PageBreak_Auto.
@@ -1714,6 +1718,7 @@ QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
 /*!
     \fn void QTextBlockFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+    \since 4.2
 
     Sets the page break policy for the paragraph to \a policy.
 
@@ -1930,6 +1935,7 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
 /*!
     \fn QTextFormat::PageBreakFlags QTextFrameFormat::pageBreakPolicy() const
+    \since 4.2
 
     Returns the currently set page break policy for the frame/table. The default is
     QTextFormat::PageBreak_Auto.
@@ -1939,6 +1945,7 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
 /*!
     \fn void QTextFrameFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+    \since 4.2
 
     Sets the page break policy for the frame/table to \a policy.
 

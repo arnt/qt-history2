@@ -328,6 +328,8 @@ bool Q3TabDialog::hasOkButton() const
 
 
 /*!
+    \internal
+
     Implemented to delay show()'ing of every page.
 */
 void Q3TabDialog::show()

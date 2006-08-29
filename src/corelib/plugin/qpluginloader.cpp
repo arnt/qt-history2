@@ -242,6 +242,8 @@ QString QPluginLoader::fileName() const
 }
 
 /*!
+    \since 4.2
+
     Returns a text string with the description of the last error that occured.
 */
 QString QPluginLoader::errorString() const

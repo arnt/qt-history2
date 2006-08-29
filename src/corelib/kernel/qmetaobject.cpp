@@ -625,10 +625,12 @@ QMetaProperty QMetaObject::property(int index) const
 }
 
 /*!
-    Returns the property that has the USER flag set to true.
+    \since 4.2
+
+    Returns the property that has the \c USER flag set to true.
 
     \sa QMetaProperty::isUser()
- */
+*/
 QMetaProperty QMetaObject::userProperty() const
 {
     const int propCount = propertyCount();
@@ -733,6 +735,8 @@ static char *qNormalizeType(char *d, int &templdepth, QByteArray &result)
 
 
 /*!
+    \since 4.2
+
     Normalizes a \a type.
 
     See QMetaObject::normalizedSignature() for a description on how

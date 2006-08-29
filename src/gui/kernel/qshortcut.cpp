@@ -288,6 +288,7 @@ QString QShortcut::whatsThis() const
 /*!
     \property QShortcut::autoRepeat
     \brief whether the shortcut can auto repeat
+    \since 4.2
 
     If true, the shortcut will auto repeat when the keyboard shortcut
     combination is held down, provided that keyboard auto repeat is

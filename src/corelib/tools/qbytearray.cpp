@@ -126,7 +126,6 @@ char *qstrncpy(char *dst, const char *src, uint len)
 }
 
 /*! \fn uint qstrlen(const char *str)
-
     \relates QByteArray
 
     A safe \c strlen() function.
@@ -138,8 +137,8 @@ char *qstrncpy(char *dst, const char *src, uint len)
 */
 
 /*! \fn uint qstrnlen(const char *str, uint maxlen)
-
     \relates QByteArray
+    \since 4.2
 
     A safe \c strnlen() function.
 

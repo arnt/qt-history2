@@ -1438,6 +1438,7 @@ const QValidator *QComboBox::validator() const
 
 /*!
     \fn void QComboBox::setCompleter(QCompleter *completer)
+    \since 4.2
 
     Sets the \a completer to use instead of the current completer.
     If \a completer is 0, auto completion is disabled.
@@ -1456,6 +1457,8 @@ void QComboBox::setCompleter(QCompleter *c)
 }
 
 /*!
+    \since 4.2
+
     Returns the completer that is used to auto complete text input for the
     combobox.
 

@@ -193,6 +193,8 @@ void QWSMouseHandler::limitToScreen(QPoint &position)
 }
 
 /*!
+    \since 4.2
+
     Set the screen of the QWSMouseHandler to \a screen.
 */
 void QWSMouseHandler::setScreen(const QScreen *screen)

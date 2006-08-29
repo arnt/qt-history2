@@ -1300,7 +1300,7 @@ void QTabBar::changeEvent(QEvent *e)
 
 /*!
     \property QTabBar::elideMode
-    \brief How to elide text in the tab bar
+    \brief how to elide text in the tab bar
     \since 4.2
 
     This property controls how items are elided when there is not

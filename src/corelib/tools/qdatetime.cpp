@@ -705,6 +705,8 @@ bool QDate::setYMD(int y, int m, int d)
 }
 
 /*!
+    \since 4.2
+
     Sets the date's \a year, \a month, and \a day. Returns true if
     the date is valid; otherwise returns false.
 
@@ -714,7 +716,7 @@ bool QDate::setYMD(int y, int m, int d)
 
     \sa isValid()
 */
- bool QDate::setDate(int year, int month, int day)
+bool QDate::setDate(int year, int month, int day)
 {
     if (!isValid(year, month, day)) {
         jd = 0;
@@ -2482,6 +2484,8 @@ QDateTime QDateTime::currentDateTime()
 }
 
 /*!
+    \since 4.2
+
     Returns a datetime whose date and time are the number of \a seconds
     that have passed since 1970-01-01T00:00:00, Coordinated Universal Time
     (Qt::UTC). On systems that do not support timezones, the time

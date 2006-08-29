@@ -568,6 +568,7 @@ bool QGroupBox::isChecked() const
 
 /*!
     \fn void QGroupBox::clicked(bool checked)
+    \since 4.2
 
     This signal is emitted when the check box is activated (i.e. pressed down
     then released while the mouse cursor is inside the button), or when the

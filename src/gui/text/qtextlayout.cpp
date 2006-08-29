@@ -753,6 +753,8 @@ QTextLine QTextLayout::lineForTextPosition(int pos) const
 }
 
 /*!
+    \since 4.2
+
     The global position of the layout. This is independent of the
     bounding rectangle and of the layout process.
 

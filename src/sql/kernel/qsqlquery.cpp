@@ -877,6 +877,8 @@ bool QSqlQuery::exec()
 */
 
 /*!
+    \since 4.2
+
     Executes a previously prepared SQL query in a batch. All the bound parameters
     have to be lists of variants. If the database doesn't support batch executions,
     the driver will simulate it using conventional exec() calls.

@@ -1715,6 +1715,7 @@ void QWidget::createWinId()
 /*!
     \property QWidget::styleSheet
     \brief the widget's style sheet
+    \since 4.2
 
     \sa setStyle(), QApplication::styleSheet
 */
@@ -7625,6 +7626,8 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 }
 
 /*!
+    \since 4.2
+
     If \a enable is true, auto repeat of the shortcut with the
     given \a id is enabled; otherwise it is disabled.
 
@@ -8251,6 +8254,7 @@ QRect QWidgetPrivate::frameStrut() const
 
 /*!
     \preliminary
+    \since 4.2
 */
 void QWidget::setWindowSurface(QWindowSurface *surface)
 {
@@ -8263,6 +8267,7 @@ void QWidget::setWindowSurface(QWindowSurface *surface)
 
 /*!
     \preliminary
+    \since 4.2
 */
 QWindowSurface *QWidget::windowSurface() const
 {

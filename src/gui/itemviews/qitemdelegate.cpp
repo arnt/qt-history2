@@ -239,7 +239,8 @@ QItemDelegate::~QItemDelegate()
 
 /*!
   \property QItemDelegate::clipping
-  \brief if the delegate should clip the paint events.
+  \brief if the delegate should clip the paint events
+  \since 4.2
 
   This property will set the paint clip to the size of the item.
   The default value is off.  It is useful for cases such
@@ -641,6 +642,8 @@ void QItemDelegate::drawCheck(QPainter *painter,
 }
 
 /*!
+    \since 4.2
+
     Renders the item background for the given \a index,
     using the given \a painter and style \a option.
 */

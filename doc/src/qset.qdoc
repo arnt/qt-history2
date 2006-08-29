@@ -277,6 +277,7 @@
 */
 
 /*! \fn QSet::const_iterator QSet::find(const T &value) const
+    \since 4.2
 
     Returns a const iterator pointing to the item \a value in the set.
 
@@ -297,6 +298,7 @@
 */
 
 /*! \fn QSet::const_iterator QSet::constFind(const T &value) const
+    \since 4.2
 
     Returns a const iterator pointing to the item \a value in the
     set.
@@ -633,6 +635,7 @@
 /*!
     \class QSet::const_iterator
     \brief The QSet::const_iterator class provides an STL-style const iterator for QSet.
+    \since 4.2
 
     QSet features both \l{STL-style iterators} and
     \l{Java-style iterators}. The STL-style iterators are more

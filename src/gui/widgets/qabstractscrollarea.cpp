@@ -33,8 +33,7 @@
 #endif
 
 /*!
-    \class QAbstractScrollArea qabstractscrollarea.h
-
+    \class QAbstractScrollArea
     \brief The QAbstractScrollArea widget provides a scrolling area with
     on-demand scroll bars.
 
@@ -80,6 +79,7 @@
     dragLeaveEvent(), dropEvent(), contextMenuEvent().  and
     resizeEvent().
 
+    \sa QScrollArea
 */
 
 QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
@@ -580,6 +580,8 @@ void QAbstractScrollArea::setHorizontalScrollBar(QScrollBar *scrollBar)
 }
 
 /*!
+    \since 4.2
+
     Returns the widget in the corner between the two scroll bars.
 
     By default, no corner widget is present.
@@ -732,6 +734,8 @@ void QAbstractScrollArea::setViewportMargins(int left, int top, int right, int b
 }
 
 /*!
+    \reimp
+
     This is the main event handler for the QAbstractScrollArea widget (\e not
     the scrolling area viewport()). The event is passed in \a e.
 */

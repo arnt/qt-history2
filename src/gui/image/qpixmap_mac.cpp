@@ -923,6 +923,8 @@ QPixmap QPixmap::copy(const QRect &rect) const
 
 
 /*!
+    \since 4.2
+
     Creates a \c CGImageRef equivalent to the QPixmap. Returns the \c CGImageRef handle.
 
     It is the caller's responsibility to release the \c CGImageRef data
@@ -938,6 +940,8 @@ CGImageRef QPixmap::toMacCGImageRef() const
 }
 
 /*!
+    \since 4.2
+
     Returns a QPixmap that is equivalent to the given \a image.
 
     \warning This function is only available on Mac OS X.

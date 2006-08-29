@@ -805,6 +805,8 @@ void QTextEdit::setCurrentFont(const QFont &f)
 }
 
 /*!
+    \since 4.2
+
     Undoes the last operation.
 
     If there is no operation to undo, i.e. there is no undo step in
@@ -834,6 +836,7 @@ void QTextEdit::redo()
 
 /*!
     \fn void QTextEdit::redo()
+    \since 4.2
 
     Redoes the last operation.
 
@@ -1803,6 +1806,7 @@ void QTextEdit::setReadOnly(bool ro)
 
 /*!
     \property QTextEdit::textInteractionFlags
+    \since 4.2
 
     Specifies how the label should interact with user input if it displays text.
 
@@ -2148,6 +2152,8 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 */
 
 /*!
+    \since 4.2
+
     Sets the text edit's \a text. The text can be plain text or HTML
     and the text edit will try to guess the right format.
 

@@ -1069,8 +1069,6 @@ void Q3ComboBox::setCurrentItem( int index )
 }
 
 /*!
-    \obsolete
-
     Returns true if auto-resize is enabled; otherwise returns false.
 
     \sa autoResize
@@ -1082,8 +1080,6 @@ bool Q3ComboBox::autoResize() const
 }
 
 /*!
-    \obsolete
-
     If \a enable is true, enable auto-resize; disable it otherwise.
 
     \sa autoResize

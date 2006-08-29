@@ -554,7 +554,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
 }
 
 /*!
-  \fn void QDateTimeEdit::setSelectedSection(Section section)
+  \since 4.2
 
   Selects \a section. If \a section doesn't exist in the currently
   displayed sections this function does nothing. If \a section is
@@ -660,6 +660,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
 /*!
     \property QDateTimeEdit::calendarPopup
     \brief the current calender popup showing mode.
+    \since 4.2
 
     The calendar popup will be shown upon clicking the arrow button.
     This property is valid only if there is a vaild date display format.

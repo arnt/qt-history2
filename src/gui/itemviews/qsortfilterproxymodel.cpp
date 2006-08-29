@@ -1647,6 +1647,7 @@ void QSortFilterProxyModel::setFilterKeyColumn(int column)
 
 /*!
     \property QSortFilterProxyModel::filterCaseSensitivity
+
     \brief the case sensitivity of the QRegExp pattern used to filter the
     contents of the source model
 

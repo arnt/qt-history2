@@ -195,6 +195,7 @@
 
 /*!
   \fn void QHeaderView::geometriesChanged()
+  \since 4.2
 
   This signal is emitted when the header geometries has changed.
 */
@@ -1322,6 +1323,9 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
 }
 
 /*!
+    \internal
+    \since 4.2
+
     Updates the section specified by the given \a logicalIndex.
 */
 

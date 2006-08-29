@@ -616,6 +616,8 @@ void QGLFormat::setSamples(int numSamples)
 }
 
 /*!
+    \since 4.2
+
     Set the preferred swap interval. This can be used to sync the GL
     drawing into a system window to the vertical refresh of the screen.
     Setting an \a interval value of 0 will turn the vertical refresh syncing
@@ -637,10 +639,12 @@ void QGLFormat::setSwapInterval(int interval)
 }
 
 /*!
+    \since 4.2
+
     Returns the currently set swap interval. -1 is returned if setting
     the swap interval isn't supported in the system GL implementation
     (e.g. under X11).
- */
+*/
 int QGLFormat::swapInterval() const
 {
     return d->swapInterval;
@@ -757,9 +761,11 @@ int QGLFormat::depthBufferSize() const
 }
 
 /*!
+    \since 4.2
+
     Set the preferred red buffer size to \a size.
 
-    \sa redBufferSize()
+    \sa setGreenBufferSize(), setBlueBufferSize(), setAlphaBufferSize()
 */
 void QGLFormat::setRedBufferSize(int size)
 {
@@ -771,6 +777,8 @@ void QGLFormat::setRedBufferSize(int size)
 }
 
 /*!
+    \since 4.2
+
     Returns the red buffer size.
 
     \sa setRedBufferSize()
@@ -781,9 +789,11 @@ int QGLFormat::redBufferSize() const
 }
 
 /*!
+    \since 4.2
+
     Set the preferred green buffer size to \a size.
 
-    \sa greenBufferSize()
+    \sa setRedBufferSize(), setBlueBufferSize(), setAlphaBufferSize()
 */
 void QGLFormat::setGreenBufferSize(int size)
 {
@@ -795,6 +805,8 @@ void QGLFormat::setGreenBufferSize(int size)
 }
 
 /*!
+    \since 4.2
+
     Returns the green buffer size.
 
     \sa setGreenBufferSize()
@@ -805,9 +817,11 @@ int QGLFormat::greenBufferSize() const
 }
 
 /*!
+    \since 4.2
+
     Set the preferred blue buffer size to \a size.
 
-    \sa blueBufferSize()
+    \sa setRedBufferSize(), setGreenBufferSize(), setAlphaBufferSize()
 */
 void QGLFormat::setBlueBufferSize(int size)
 {
@@ -819,6 +833,8 @@ void QGLFormat::setBlueBufferSize(int size)
 }
 
 /*!
+    \since 4.2
+
     Returns the blue buffer size.
 
     \sa setBlueBufferSize()
@@ -832,7 +848,7 @@ int QGLFormat::blueBufferSize() const
     Set the preferred alpha buffer size to \a size.
     This function implicitly enables the alpha channel.
 
-    \sa alpha(), setAlpha(), alphaBufferSize()
+    \sa setRedBufferSize(), setGreenBufferSize(), setAlphaBufferSize()
 */
 void QGLFormat::setAlphaBufferSize(int size)
 {
@@ -994,6 +1010,7 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
 
 /*!
     \enum QGLFormat::OpenGLVersionFlag
+    \since 4.2
 
     This enum describes the various OpenGL versions that are
     recognized by Qt. Use the QGLFormat::openGLVersionFlags() function
@@ -1037,6 +1054,8 @@ QGLFormat::OpenGLVersionFlags Q_AUTOTEST_EXPORT qOpenGLVersionFlagsFromString(co
 */
 
 /*!
+    \since 4.2
+
     Identifies, at runtime, which OpenGL versions that are supported
     by the current platform.
 

@@ -685,7 +685,6 @@ QString QImageReader::fileName() const
     example, the "jpeg" format supports a quality range from 0 (low
     quality, high compression) to 100 (high quality, low compression).
 
-
     \sa quality()
 */
 void QImageReader::setQuality(int quality)
@@ -1167,6 +1166,8 @@ QString QImageReader::errorString() const
 }
 
 /*!
+    \since 4.2
+
     Returns true if the reader supports \a option; otherwise returns
     false.
 

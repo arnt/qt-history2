@@ -1646,13 +1646,14 @@ int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *r
 }
 
 /*!
-    Use insertAction() instead, using a separator action. For example,
-    to add a separator after the previously added action use code like
-    this:
-    \code
-    QAction *action = new QAction(this);
-    action->setSeparator(true);
-    menubar->addAction(action);
+    \since 4.2
+
+    Use addSeparator() or insertAction() instead.
+
+    \oldcode
+        menuBar->insertSeparator();
+    \newcode
+        menuBar->addSeparator();
     \endcode
 */
 int QMenuBar::insertSeparator(int index)

@@ -202,7 +202,6 @@ Q3ProgressBar *Q3ProgressDialog::bar() const
 
 
 /*!
-  \obsolete
   Constructs a progress dialog.
 
   Default settings:
@@ -233,7 +232,6 @@ Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, const char *name,
 }
 
 /*!
-  \obsolete
   Constructs a progress dialog.
 
    The \a labelText is text used to remind the user what is progressing.
@@ -364,8 +362,6 @@ void Q3ProgressDialog::init(QWidget *creator,
 
 /*!
     \fn void Q3ProgressDialog::cancelled()
-
-    \obsolete
 
     Use canceled() instead.
 */
@@ -510,8 +506,6 @@ bool Q3ProgressDialog::wasCanceled() const
   \property Q3ProgressDialog::wasCancelled
   \brief whether the dialog was canceled
   \since 4.2
-
-  \obsolete
 
   Use \l wasCanceled instead.
 */

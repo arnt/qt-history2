@@ -1987,6 +1987,8 @@ QLocale &QLocale::operator=(const QLocale &other)
 }
 
 /*!
+    \since 4.2
+
     Sets the \a options related to number conversions for this
     QLocale instance.
 */
@@ -1996,6 +1998,8 @@ void QLocale::setNumberOptions(NumberOptions options)
 }
 
 /*!
+    \since 4.2
+
     Returns the options related to number conversions for this
     QLocale instance.
 
@@ -2881,6 +2885,8 @@ QLocale QLocale::system()
 }
 
 /*!
+    \since 4.2
+
     Returns the localized name of \a month, in the format specified
     by \a type.
 
@@ -2906,6 +2912,8 @@ QString QLocale::monthName(int month, FormatType type) const
 }
 
 /*!
+    \since 4.2
+
     Returns the localized name of \a day, in the format specified by
     \a type.
 

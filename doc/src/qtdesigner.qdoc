@@ -1172,6 +1172,7 @@
 /*!
     \macro QDESIGNER_WIDGET_EXPORT
     \relates QDesignerCustomWidgetInterface
+    \since 4.1
 
     This macro is used when defining custom widgets to ensure that they are
     correctly exported from plugins for use with \QD.
