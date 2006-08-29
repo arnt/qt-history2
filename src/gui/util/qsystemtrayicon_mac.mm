@@ -161,7 +161,8 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
         //[item setView:[[NSView alloc] init]];
         [item setTarget:self];
         [item setAction:@selector(triggerSelector:)];
-        [item setDoubleAction:@selector(doubleClickSelector:)];
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
+            [item setDoubleAction:@selector(doubleClickSelector:)];
     }
     return self;
 }
