@@ -3074,12 +3074,14 @@ IconTheme QWindowsStylePrivate::parseIndexFile(const QString &themeName) const
 
 QPixmap QWindowsStylePrivate::findIconHelper(int size,
                                                    const QString &themeName,
-                                                   const QString &iconName) const
+                                                   const QString &iconName,
+                                                   QStringList &visited) const
 {
     QPixmap pixmap;
 
     if (!themeName.isEmpty()) {
 
+        visited << themeName;
         IconTheme theme = themeList.value(themeName);
 
         if (!theme.isValid()) {
@@ -3106,8 +3108,8 @@ QPixmap QWindowsStylePrivate::findIconHelper(int size,
             //search recursively through inherited themes
             for (int i = 0 ; pixmap.isNull() && i < parents.size() ; ++i) {
                QString parentTheme = parents[i].trimmed();
-               if (parentTheme != themeName)
-                  pixmap = findIconHelper(size, parentTheme, iconName);
+               if (!visited.contains(parentTheme)) //guard against endless recursion
+                  pixmap = findIconHelper(size, parentTheme, iconName, visited);
             }
         }
     }
@@ -3124,9 +3126,10 @@ QPixmap QWindowsStylePrivate::findIcon(int size, const QString &name) const
     if (QPixmapCache::find(pixmapName, pixmap))
         return pixmap;
 
-    if (!themeName.isEmpty())
-        pixmap = findIconHelper(size, themeName, name);
-
+    if (!themeName.isEmpty()) {
+        QStringList visited;
+        pixmap = findIconHelper(size, themeName, name, visited);
+    }
     QPixmapCache::insert(pixmapName, pixmap);
 
     return pixmap;

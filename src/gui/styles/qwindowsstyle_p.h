@@ -80,7 +80,7 @@ public:
     //icon detection on X11
     QPixmap findIcon(int size, const QString &) const;
 #ifdef Q_WS_X11
-    QPixmap findIconHelper(int size, const QString &, const QString &) const;
+    QPixmap findIconHelper(int size, const QString &, const QString &, QStringList &visited) const;
     IconTheme parseIndexFile(const QString &themeName) const;
     mutable QString themeName;
     QStringList iconDirs;
