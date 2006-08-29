@@ -719,19 +719,31 @@ QVariant QWindowsMimeHtml::convertToMime(const QString &mime, IDataObject *pData
         qDebug("raw :");
         qDebug(html);
 #endif
-        //int ms = data.size();
         int start = html.indexOf("StartFragment:");
         int end = html.indexOf("EndFragment:");
-        if(start != -1)
-            start = html.mid(start+14, 10).toInt();
-        if(end != -1)
-            end = html.mid(end+12, 10).toInt();
+      
+        if (start != -1) {
+            int startOffset = start + 14;
+            int i = startOffset;
+            while (html.at(i) != '\r' && html.at(i) != '\n')
+                ++i;
+            QByteArray bytecount = html.mid(startOffset, i - startOffset);
+            start = bytecount.toInt();
+        }
+
+        if (end != -1) {
+            int endOffset = end + 12;
+            int i = endOffset ;
+            while (html.at(i) != '\r' && html.at(i) != '\n')
+                ++i;
+            QByteArray bytecount = html.mid(endOffset , i - endOffset);
+            end = bytecount.toInt();
+        }
+        
         if (end > start && start > 0) {
             html = "<!--StartFragment-->" + html.mid(start, end - start);
             html += "<!--EndFragment-->";
             html.replace("\r", "");
-            //result.replace("<o:p>", "");
-            //result.replace("</o:p>", "");
             result = QString::fromUtf8(html);
         }
     }
