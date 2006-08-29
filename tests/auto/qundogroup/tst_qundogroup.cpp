@@ -3,6 +3,9 @@
 #include <QUndoStack>
 #include <QAction>
 
+// skip all tests in the IRIX gcc build - can't be built at the moment
+#if !defined(__sgi) || defined(__sgi) && !defined(__GNUC__)
+
 /******************************************************************************
 ** Commands
 */
@@ -544,6 +547,20 @@ void tst_QUndoGroup::checkSignals()
                 true,       // undoChanged
                 true)       // redoChanged
 }
+#else
+class tst_QUndoGroup : public QObject
+{
+    Q_OBJECT
+public:
+    tst_QUndoGroup() {}
+
+private slots:
+    void setActive() { QSKIP( "Not tested on irix-g++", SkipAll); }
+    void addRemoveStack() { QSKIP( "Not tested on irix-g++", SkipAll); }
+    void deleteStack() { QSKIP( "Not tested on irix-g++", SkipAll); }
+    void checkSignals() { QSKIP( "Not tested on irix-g++", SkipAll); }
+};
+#endif
 
 QTEST_MAIN(tst_QUndoGroup)
 
