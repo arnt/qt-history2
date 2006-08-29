@@ -985,6 +985,9 @@ void QWidget::setMask(const QRegion& region)
         if (isWindow()) {
             d->data.fstrut_dirty = true;
             d->invalidateBuffer(rect());
+            QWindowSurface *surface = d->extra->topextra->backingStore->windowSurface;
+            if (surface)
+                surface->setGeometry(frameGeometry());
         } else {
             parentR += d->extra->mask;
             parentWidget()->update(parentR.translated(geometry().topLeft()));
