@@ -312,9 +312,6 @@ void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 void QWSWindow::raise()
 {
     qwsServerPrivate->raiseWindow(this);
-    const int n = d->embedded.size();
-    for (int i = 0; i < n; ++i)
-        d->embedded.at(i)->raise();
 }
 
 /*!
@@ -2760,6 +2757,10 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
         return;
 
     int windowPos = 0;
+
+    const int nEmbed = changingw->d->embedded.size();
+    for (int ie = 0; ie < nEmbed; ++ie)
+        changingw->d->embedded.at(ie)->raise();
 
     //change position in list:
     for (int i = 0; i < windows.size(); ++i) {
