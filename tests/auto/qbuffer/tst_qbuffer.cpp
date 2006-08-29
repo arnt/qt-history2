@@ -29,20 +29,21 @@ private slots:
     void writeBlock_data();
     void writeBlock();
     void seek();
-    void seekTest_data();    
-    void seekTest();    
+    void seekTest_data();
+    void seekTest();
     void read_rawdata();
     void isSequential();
     void signalTest_data();
     void signalTest();
     void isClosedAfterClose();
-    void readLine_data();    
-    void readLine();    
-    void canReadLine_data();    
-    void canReadLine();    
+    void readLine_data();
+    void readLine();
+    void canReadLine_data();
+    void canReadLine();
     void atEnd();
     void readLineBoundaries();
-    
+    void writeAfterQByteArrayResize();
+
 protected slots:
     void readyReadSlot();
     void bytesWrittenSlot(qint64 written);
@@ -106,15 +107,15 @@ void tst_QBuffer::readBlock()
             (qint64)(arraySize - arraySize/2));
     QVERIFY(b.atEnd());
 }
-    
+
 void tst_QBuffer::readBlockPastEnd()
 {
     QByteArray arr(4096 + 3616, 'd');
     QBuffer buf(&arr);
-	
+
     buf.open(QIODevice::ReadOnly);
     char dummy[4096];
-	
+
     buf.read(1);
 
     QCOMPARE(buf.read(dummy, 4096), qint64(4096));
@@ -247,11 +248,11 @@ void tst_QBuffer::seekTest()
     QCOMPARE(buf.pos(), qint64(-1));
 #endif
     buf.open(QIODevice::ReadWrite);
-    QCOMPARE(buf.pos(), qint64(0));    
-    
+    QCOMPARE(buf.pos(), qint64(0));
+
     QByteArray data = str.toLatin1();
     QCOMPARE(buf.write( data.constData(), data.size() ), qint64(data.size()));
- 
+
     QTest::ignoreMessage(QtWarningMsg, "QBuffer::seek: Invalid pos: -1");
     DO_INVALID_SEEK(-1);
     QTest::ignoreMessage(QtWarningMsg, (QByteArray("QBuffer::seek: Invalid pos: ")
@@ -265,11 +266,11 @@ void tst_QBuffer::seekTest()
 
     // Special case: valid to seek one position past the buffer.
     // Its then legal to write, but not read.
-    char c = 'a';    
+    char c = 'a';
     QVERIFY(buf.seek(qint64(str.size())));
     QCOMPARE(buf.read(&c, qint64(1)), qint64(0));
     QCOMPARE(c, 'a');
-    QCOMPARE(buf.write(&c, qint64(1)), qint64(1));    
+    QCOMPARE(buf.write(&c, qint64(1)), qint64(1));
 }
 
 void tst_QBuffer::read_rawdata()
@@ -379,20 +380,20 @@ void tst_QBuffer::readLine()
     QFETCH(QByteArray, expected);
 
     QBuffer buf;
-    buf.setBuffer(&src);    
+    buf.setBuffer(&src);
     char *result = new char[maxlen + 1];
     result[maxlen] = '\0';
 
     QVERIFY(buf.open(QIODevice::ReadOnly));
 
     qint64 bytes_read = buf.readLine(result, maxlen);
-    
+
     QCOMPARE(bytes_read, qint64(expected.size()));
     QCOMPARE(QByteArray(result), expected);
 
-    buf.close();    
+    buf.close();
     delete[] result;
-    
+
 }
 
 void tst_QBuffer::canReadLine_data()
@@ -448,7 +449,7 @@ void tst_QBuffer::readLineBoundaries()
     out1.close();
 */
     buffer.seek(0);
-    
+
     char c;
     buffer.getChar(&c);
     buffer.ungetChar(c);
@@ -457,6 +458,23 @@ void tst_QBuffer::readLineBoundaries()
     out2.open(QFile::WriteOnly);
     while (!buffer.atEnd())
         out2.write(buffer.readLine());
+}
+
+void tst_QBuffer::writeAfterQByteArrayResize()
+{
+    QBuffer buffer;
+    QVERIFY(buffer.open(QIODevice::WriteOnly));
+
+    buffer.write(QByteArray().fill('a', 1000));
+    QCOMPARE(buffer.buffer().size(), 1000);
+
+    // resize the QByteArray behind QBuffer's back
+    buffer.buffer().clear();
+    buffer.seek(0);
+    QCOMPARE(buffer.buffer().size(), 0);
+
+    buffer.write(QByteArray().fill('b', 1000));
+    QCOMPARE(buffer.buffer().size(), 1000);
 }
 
 QTEST_MAIN(tst_QBuffer)
