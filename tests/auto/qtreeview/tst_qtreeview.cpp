@@ -282,14 +282,14 @@ void tst_QTreeView::setHeader()
     QTreeView view;
     QVERIFY(view.header() != 0);
     QCOMPARE(view.header()->orientation(), Qt::Horizontal);
-    QCOMPARE(view.header()->parent(), &view);
+    QCOMPARE(view.header()->parent(), (QObject *)&view);
     for (int x = 0; x < 2; ++x) {
         QSignalSpy destroyedSpy(view.header(), SIGNAL(destroyed()));
         Qt::Orientation orient = x ? Qt::Vertical : Qt::Horizontal;
         QHeaderView *head = new QHeaderView(orient);
         view.setHeader(head);
         QCOMPARE(destroyedSpy.count(), 1);
-        QCOMPARE(head->parent(), &view);
+        QCOMPARE(head->parent(), (QObject *)&view);
         QCOMPARE(view.header(), head);
         view.setHeader(head);
         QCOMPARE(view.header(), head);
@@ -319,8 +319,8 @@ void tst_QTreeView::setModel()
                 oldSelectionModel ? oldSelectionModel : dummy, SIGNAL(destroyed()));
             view.setModel(model);
 //                QCOMPARE(selectionModelDestroyedSpy.count(), (x == 0 || i == 1) ? 0 : 1);
-            QCOMPARE(view.model(), model);
-            QCOMPARE(view.header()->model(), model);
+            QCOMPARE(view.model(), (QAbstractItemModel *)model);
+            QCOMPARE(view.header()->model(), (QAbstractItemModel *)model);
             QCOMPARE(view.selectionModel() != oldSelectionModel, (i == 0));
             view.update();
             QApplication::processEvents();
@@ -426,7 +426,7 @@ void tst_QTreeView::noDelegate()
     QTreeView view;
     view.setModel(&model);
     view.setItemDelegate(0);
-    QCOMPARE(view.itemDelegate(), (QItemDelegate*)0);
+    QCOMPARE(view.itemDelegate(), (QAbstractItemDelegate *)0);
     view.show();
     QApplication::processEvents();
 }
