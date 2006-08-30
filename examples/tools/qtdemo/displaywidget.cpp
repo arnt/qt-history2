@@ -194,7 +194,7 @@ int DisplayWidget::shapesCount() const
 void DisplayWidget::enableUpdates()
 {
     if (!timer.isActive())
-        timer.start(50, this);
+        timer.start(25, this);
 }
 
 void DisplayWidget::timerEvent(QTimerEvent *event)

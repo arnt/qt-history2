@@ -25,7 +25,7 @@ bool DisplayShape::animate()
 {
     if (!targetPos.isNull()) {
         QLineF displacement(pos, targetPos);
-        QPointF newPosition = displacement.pointAt(0.25);
+        QPointF newPosition = displacement.pointAt(0.15);
         if (displacement.length() <= 1.0) {
             pos = targetPos;
             targetPos = QPointF();
