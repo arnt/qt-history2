@@ -270,10 +270,10 @@ void QTextBrowserPrivate::keypadMove(bool next)
     Q_Q(QTextBrowser);
 
     const int height = viewport->height();
-    const int yOffset = vbar->value();
+    const int yOffset = vbar->value(); // current y
+    const int overlap = 20;
     if (control->setFocusToNextOrPreviousAnchor(next)) {
-        const int cursYOffset = qRound(control->cursorRect().top());
-        const int overlap = 20;
+        const int cursYOffset = int(control->cursorRect().top()); // desired y (cursor)
         if (next) {
             if (cursYOffset > yOffset + height) {
                 vbar->setValue(yOffset + height - overlap);
@@ -283,33 +283,29 @@ void QTextBrowserPrivate::keypadMove(bool next)
                     return;
                 }
             } else if (cursYOffset < yOffset) {
-                if (yOffset < vbar->maximum())
-                    vbar->setValue(yOffset + height - overlap);
-                else
+                if (yOffset >= vbar->maximum()) {
+                    // We have to wrap back to the beginning.
                     vbar->setValue(0);
-                emit q->highlighted(QUrl());
-                emit q->highlighted(QString());
-                return;
-            }
-        } else {
-            if (cursYOffset < yOffset) {
-                vbar->setValue(yOffset - height + overlap);
-                if (cursYOffset < vbar->value()) {
                     emit q->highlighted(QUrl());
                     emit q->highlighted(QString());
                     return;
                 }
-            } else if (cursYOffset > yOffset + height) {
-                if (yOffset > 0)
+            }
+        } else {
+            // Going up.
+            if (cursYOffset > yOffset + height) {
+                if (yOffset > 0) {
                     vbar->setValue(yOffset - height + overlap);
-                else
+                } else {
                     vbar->setValue(vbar->maximum());
+                }
                 emit q->highlighted(QUrl());
                 emit q->highlighted(QString());
                 return;
             }
         }
 
+        // Ensure that the new selection is highlighted.
         QTextCursor cursor = control->textCursor();
         if (cursor.selectionStart() != cursor.position())
             cursor.setPosition(cursor.selectionStart());
@@ -318,22 +314,35 @@ void QTextBrowserPrivate::keypadMove(bool next)
         emit q->highlighted(QUrl(charFmt.anchorHref()));
         emit q->highlighted(charFmt.anchorHref());
     } else {
-        const int yOffset = vbar->value();
-        const int overlap = 20;
+        // Couldn't find any links.
         if (next) {
             if (yOffset == vbar->maximum())
+                // We're at the end, so wrap around to the beginning.
                 vbar->setValue(0);
             else
+                // Page down.
                 vbar->setValue(yOffset + height - overlap);
         } else {
+            // Going up.
             if (yOffset == 0)
+                // We're at the top already; we want to wrap back to the end.
                 vbar->setValue(vbar->maximum());
             else
+                // Page up.
                 vbar->setValue(yOffset - height + overlap);
         }
         QTextCursor cursor = control->textCursor();
         cursor.clearSelection();
+
+        // setTextCursor ensures that the cursor is visible. save & restore
+        // the scrollbar values therefore
+        const int savedXOffset = hbar->value();
+        const int savedYOffset = vbar->value();
+
         control->setTextCursor(cursor);
+
+        hbar->setValue(savedXOffset);
+        vbar->setValue(savedYOffset);
 
         emit q->highlighted(QUrl());
         emit q->highlighted(QString());
