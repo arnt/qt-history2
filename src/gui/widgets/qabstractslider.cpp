@@ -563,10 +563,10 @@ void QAbstractSlider::triggerAction(SliderAction action)
         setSliderPosition(d->value - d->singleStep);
         break;
     case SliderPageStepAdd:
-        d->setAdjustedSliderPosition(d->value + d->pageStep);
+        setSliderPosition(d->value + d->pageStep);
         break;
     case SliderPageStepSub:
-        d->setAdjustedSliderPosition(d->value - d->pageStep);
+        setSliderPosition(d->value - d->pageStep);
         break;
     case SliderToMinimum:
         setSliderPosition(d->minimum);
@@ -619,7 +619,12 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
             d->repeatActionTimer.start(d->repeatActionTime, this);
             d->repeatActionTime = 0;
         }
-        triggerAction(d->repeatAction);
+        if (d->repeatAction == SliderPageStepAdd)
+            d->setAdjustedSliderPosition(d->value + d->pageStep);
+        else if (d->repeatAction == SliderPageStepSub)
+            d->setAdjustedSliderPosition(d->value - d->pageStep);
+        else
+            triggerAction(d->repeatAction);
     }
 }
 
