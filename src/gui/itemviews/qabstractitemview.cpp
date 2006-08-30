@@ -124,21 +124,23 @@ void QAbstractItemViewPrivate::init()
 
     Some of QAbstractItemView's functions are concerned with
     scrolling, for example setHorizontalScrollMode() and
-    setVerticalScrollMode(). Several other functions are concerned with
-    selection control; for example setSelectionMode(), and
-    setSelectionBehavior(). This class provides a default selection
-    model to work with (selectionModel()), but this can be replaced
-    by using setSelectionModel() with an instance of
-    QItemSelectionModel.
+    setVerticalScrollMode(). To set the range of the scrollbars, you
+    can, for example, reimplement the view's resizeEvent() function:
 
-    When implementing a view that will have scrollbars you want to overload
-    resizeEvent() to set the scrollbars range so they will turn on and off, for example:
     \code
-        horizontalScrollBar()->setRange(0, realWidth - width());
+        void MyView::resizeEvent(QResizeEvent *event) {
+            horizontalScrollBar()->setRange(0, realWidth - width());
+            ...
+        }
     \endcode
-    Note that QAbstractScrollArea won't turn on/off the scroolbars based upon the
-    ranges until the widget is shown.  They should be manually turned
-    on and off in if other functions require that information.
+
+    Note that the range is not updated until the widget is shown.
+
+    Several other functions are concerned with selection control; for
+    example setSelectionMode(), and setSelectionBehavior(). This class
+    provides a default selection model to work with
+    (selectionModel()), but this can be replaced by using
+    setSelectionModel() with an instance of QItemSelectionModel.
 
     For complete control over the display and editing of items you can
     specify a delegate with setItemDelegate().
