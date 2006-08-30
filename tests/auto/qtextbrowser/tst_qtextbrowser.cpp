@@ -82,7 +82,7 @@ void tst_QTextBrowser::init()
 {
 #ifndef Q_OS_IRIX
     QDir::setCurrent(SRCDIR);
-#endif    
+#endif
     browser = new TestBrowser;
     browser->show();
 }
@@ -210,8 +210,6 @@ void tst_QTextBrowser::anchors()
 
 void tst_QTextBrowser::resourceAutoDetection()
 {
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
     QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
     QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'qrc:/some/resource' for reading");
     browser->setHtml("<img src=\":/some/resource\"/>");
@@ -357,8 +355,6 @@ void tst_QTextBrowser::clearHistory()
 void tst_QTextBrowser::sourceInsideLoadResource()
 {
     QUrl url("pagewithimage.html");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
-    QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
     QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
     QTest::ignoreMessage(QtWarningMsg, "QTextBrowser: Cannot open 'foobar.png' for reading");
     browser->setSource(url);
