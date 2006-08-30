@@ -41,6 +41,7 @@ static const struct {
     { 0, 0 }
 };
 
+static bool slow = false;
 static QStringList defines;
 
 static QHash<QString, Tree *> trees;
@@ -83,6 +84,7 @@ static void processQdocconfFile(const QString &fileName)
 	config.setStringList(defaults[i].key, QStringList() << defaults[i].value);
 	++i;
     }
+    config.setStringList(CONFIG_SLOW, QStringList(slow ? "true" : "false"));
 
     Location::initialize( config );
     config.load( fileName );
@@ -242,6 +244,8 @@ int main( int argc, char **argv )
         } else if ( opt.startsWith("-D") ) {
             QString define = opt.mid(2);
             defines += define;
+        } else if (opt == "-slow") {
+            slow = true;
 	} else {
 	    qdocFiles.append( opt );
 	}

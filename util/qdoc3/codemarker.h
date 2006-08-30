@@ -84,6 +84,8 @@ public:
     static QString stringForNode( const Node *node );
 
 protected:
+    bool hurryUp() const { return !slow; }
+
     virtual QString sortName( const Node *node );
     QString protect(const QString &string);
     QString typified(const QString &string);
@@ -99,6 +101,7 @@ private:
     QRegExp lt;
     QRegExp gt;
     QRegExp quot;
+    bool slow;
 
     static QString defaultLang;
     static QList<CodeMarker *> markers;

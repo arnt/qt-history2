@@ -8,6 +8,15 @@
 #include "text.h"
 #include "tree.h"
 
+static int insertTagAround(QString &result, int pos, int len, const QString &tagName,
+                           const QString &attributes = QString())
+{
+    int oldLen = result.length();
+    result.insert(pos + len, "</" + tagName + ">");
+    result.insert(pos, "<" + tagName + (attributes.isEmpty() ? QString() : " " + attributes) + ">");
+    return result.length() - oldLen;
+}
+
 CppCodeMarker::CppCodeMarker()
 {
 }
@@ -18,7 +27,7 @@ CppCodeMarker::~CppCodeMarker()
 
 bool CppCodeMarker::recognizeCode(const QString & /* code */)
 {
-    return false;
+    return true;
 }
 
 bool CppCodeMarker::recognizeExtension(const QString& ext)
@@ -278,7 +287,7 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
 
     QStringList::ConstIterator inc = includes.begin();
     while ( inc != includes.end() ) {
-	code += "#include &lt;<@include>" + *inc + "</@include>&gt;\n";
+	code += "#include &lt;<@headerfile>" + *inc + "</@headerfile>&gt;\n";
 	++inc;
     }
     return addMarkUp( code, 0, "" );
@@ -610,17 +619,98 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
 QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* relative */,
 				  const QString& /* dirPath */ )
 {
-    QStringList lines = protectedCode.split("\n");
-    QStringList::Iterator li = lines.begin();
-    while ( li != lines.end() ) {
-	QString s = *li;
-	if ( s.startsWith("#") ) {
-	    s = "<@preprocessor>" + s + "</@preprocessor>";
-	} else {
-	    // ###
-	}
-	*li = s;
-	++li;
+    if (hurryUp())
+        return protectedCode;
+
+    static QRegExp globalInclude("#include +&lt;([^<>&]+)&gt;");
+    static QRegExp yHasTypeX("(?:^|\n *)([a-zA-Z_][a-zA-Z_0-9]*)"
+	                     "(?:&lt;[^;{}]+&gt;)?(?: *(?:\\*|&amp;) *| +)"
+	                     "([a-zA-Z_][a-zA-Z_0-9]*)? *[,;()=]");
+    static QRegExp xNewY("([a-zA-Z_][a-zA-Z_0-9]*) *= *new +([a-zA-Z_0-9]+)");
+    static QRegExp xDotY("\\b([a-zA-Z_][a-zA-Z_0-9]*) *(?:\\.|-&gt;|,[ \n]*S(?:IGNAL|LOT)\\() *"
+	                 "([a-zA-Z_][a-zA-Z_0-9]*)(?= *\\()");
+
+    QString result = protectedCode;
+    int pos;
+
+    /*
+        Mark global includes. For example:
+
+            #include &lt;<@headerfile>QString</@headerfile>
+    */
+    pos = 0;
+    while ((pos = result.indexOf(globalInclude, pos)) != -1)
+        pos += globalInclude.matchedLength()
+               + insertTagAround(result, globalInclude.pos(1), globalInclude.cap(1).length(),
+                                 "@headerfile");
+
+    /*
+        Look for variable definitions and similar constructs, mark
+        the data type, and remember the type of the variable.
+    */
+    QMap<QString, QSet<QString> > typesForVariable;
+    pos = 0;
+    while ((pos = yHasTypeX.indexIn(result, pos)) != -1) {
+	QString x = yHasTypeX.cap(1);
+	QString y = yHasTypeX.cap(2);
+
+	if (!y.isEmpty())
+	    typesForVariable[y].insert(x);
+
+	/*
+            Without the minus one at the end, 'void member(Class
+            var)' would give 'member' as a variable of type 'void',
+            but would ignore 'Class var'. (### Is that true?)
+	*/
+        pos += yHasTypeX.matchedLength()
+               + insertTagAround(result, yHasTypeX.pos(1), x.length(), "@type") - 1;
     }
-    return lines.join( "\n" );
+
+    /*
+        Look for 'var = new Class'.
+    */
+    pos = 0;
+    while ((pos = xNewY.indexIn(result, pos)) != -1) {
+	QString x = xNewY.cap(1);
+	QString y = xNewY.cap(2);
+	typesForVariable[x].insert(y);
+
+	pos += xNewY.matchedLength() + insertTagAround(result, xNewY.pos(2), y.length(), "@type");
+    }
+
+    /*
+        Insert some stuff that cannot harm.
+    */
+    typesForVariable["qApp"].insert("QApplication");
+
+    /*
+        Find use of any of
+
+            var.method()
+	    var->method()
+	    var, SIGNAL(method())
+	    var, SLOT(method()).
+    */
+    pos = 0;
+    while ((pos = xDotY.indexIn(result, pos)) != -1) {
+	QString x = xDotY.cap(1);
+	QString y = xDotY.cap(2);
+
+	QSet<QString> types = typesForVariable.value(x);
+        pos += xDotY.matchedLength()
+               + insertTagAround(result, xDotY.pos(2), xDotY.cap(2).length(), "@func",
+                                 (types.count() == 1) ? "target=\""
+                                                        + protect(*types.begin() + "::" + y)
+                                                        + "()\""
+                                                      : QString());
+    }
+
+    /*
+        Alter the code in a minor way, so that we have a way of
+        including comments in comments.
+    */
+    result.replace("/ *", "/*");
+    result.replace("* /", "*/");
+
+    return result;
 }

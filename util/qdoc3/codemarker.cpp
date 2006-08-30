@@ -9,7 +9,7 @@ QString CodeMarker::defaultLang;
 QList<CodeMarker *> CodeMarker::markers;
 
 CodeMarker::CodeMarker()
-    : amp( "&" ), lt( "<" ), gt( ">" ), quot( "\"" )
+    : amp( "&" ), lt( "<" ), gt( ">" ), quot( "\"" ), slow(false)
 {
     markers.prepend( this );
 }
@@ -19,8 +19,9 @@ CodeMarker::~CodeMarker()
     markers.removeAll( this );
 }
 
-void CodeMarker::initializeMarker( const Config& /* config */ )
+void CodeMarker::initializeMarker( const Config &config)
 {
+    slow = config.getBool(CONFIG_SLOW);
 }
 
 void CodeMarker::terminateMarker()
@@ -93,12 +94,20 @@ CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 
 const Node *CodeMarker::nodeForString( const QString& string )
 {
-    return (const Node *) string.toULongLong();
+    if (sizeof(const Node *) == sizeof(uint)) {
+        return reinterpret_cast<const Node *>(string.toUInt());
+    } else {
+        return reinterpret_cast<const Node *>(string.toULongLong());
+    }
 }
 
 QString CodeMarker::stringForNode( const Node *node )
 {
-    return QString::number((qulonglong) node);
+    if (sizeof(const Node *) == sizeof(uint)) {
+        return QString::number(reinterpret_cast<uint>(node));
+    } else {
+        return QString::number(reinterpret_cast<qulonglong>(node));
+    }
 }
 
 QString CodeMarker::protect( const QString& string )

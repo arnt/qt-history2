@@ -15,7 +15,7 @@ QsCodeMarker::~QsCodeMarker()
 
 bool QsCodeMarker::recognizeCode( const QString& /* code */ )
 {
-    return false;
+    return true;
 }
 
 bool QsCodeMarker::recognizeExtension( const QString& ext )

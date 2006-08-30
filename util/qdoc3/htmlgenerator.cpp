@@ -18,7 +18,7 @@ static bool showBrokenLinks = false;
 
 HtmlGenerator::HtmlGenerator()
     : inLink(false), inContents(false), inSectionHeading(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
-      funcLeftParen("\\S(\\()"), tre(0)
+      funcLeftParen("\\S(\\()"), tre(0), slow(false)
 {
 }
 
@@ -79,6 +79,8 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
         ++edition;
     }
+
+    slow = config.getBool(CONFIG_SLOW);
 
     // Copy the stylesheets from the directory containing the qdocconf file.
     // ### This should be changed to use a special directory in doc/src.
@@ -216,32 +218,29 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::C:
         out() << formattingLeftMap()[ATOM_FORMATTING_TELETYPE];
         if ( inLink ) {
-            out() << protect( plainCode(atom->string()) );
+            out() << protect(plainCode(atom->string()));
         } else {
-            out() << highlightedCode( atom->string(), marker, relative );
+            out() << highlightedCode(atom->string(), marker, relative);
         }
         out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
         break;
     case Atom::Code:
-        out() << "<pre>" << trimmedTrailing(protectPreformatted(plainCode(indent(codeIndent, atom->string()))))
+	out() << "<pre>" << highlightedCode(atom->string(), marker, relative)
               << "</pre>\n";
-        break;
-    case Atom::CodeBad:
-        out() << "<pre><font color=\"#404040\">"
-              << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
-              << "</font></pre>\n";
-        break;
+	break;
     case Atom::CodeNew:
         out() << "<p>you can rewrite it as</p>\n"
-              << "<pre>" << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
+              << "<pre>" << highlightedCode(atom->string(), marker, relative)
               << "</pre>\n";
         break;
     case Atom::CodeOld:
-        out() << "<p>For example, if you have code like</p>\n"
-              << "<pre><font color=\"#404040\">"
+        out() << "<p>For example, if you have code like</p>\n";
+        // fallthrough
+    case Atom::CodeBad:
+        out() << "<pre><font color=\"#404040\">"
               << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
-              << "</font></pre>\n";
-        break;
+               << "</font></pre>\n";
+	break;
     case Atom::FootnoteLeft:
         // ### For now
         if (in_para) {
@@ -1647,7 +1646,7 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
         marked.replace("<@type>", "");
         marked.replace("</@type>", "");
     }
-    out() << highlightedCode( marked, marker, relative );
+    out() << highlightedCode(marked, marker, relative);
 }
 
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
@@ -1950,17 +1949,6 @@ QString HtmlGenerator::protect( const QString& string )
 #undef APPEND
 }
 
-QString HtmlGenerator::protectPreformatted(const QString &string)
-{
-    if (string.isEmpty())
-        return string;
-
-    QString html = protect(string);
-    if (html.at(0) == QLatin1Char(' '))
-        html.replace(0, 1, "&nbsp;");
-    return html;
-}
-
 QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *marker,
                                        const Node *relative)
 {
@@ -1969,8 +1957,8 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
 
     QString html = markedCode;
 
-    int k = 0;
-    while ((k = html.indexOf(linkTag, k)) != -1) {
+    int pos = 0;
+    while ((pos = html.indexOf(linkTag, pos)) != -1) {
         QString begin;
         QString end;
         QString link = linkForNode(CodeMarker::nodeForString(linkTag.cap(2)), relative);
@@ -1982,26 +1970,46 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
 
         html.replace( linkTag.pos(3), linkTag.cap(3).length(), end );
         html.replace( linkTag.pos(1), linkTag.cap(1).length(), begin );
-        ++k;
+        ++pos;
     }
 
-    QRegExp typeTag("(<@type>)(.*)(</@type>)");
+    QRegExp typeTag("(<@(type|headerfile)>)(.*)(</@\\2>)");
     typeTag.setMinimal(true);
 
-    k = 0;
-    while ((k = html.indexOf(typeTag, k)) != -1) {
+    pos = 0;
+    while ((pos = html.indexOf(typeTag, pos)) != -1) {
         QString begin;
         QString end;
-        QString link = linkForNode(marker->resolveTarget(typeTag.cap(2), tre, relative), relative);
+        QString link = linkForNode(marker->resolveTarget(typeTag.cap(3), tre, relative), relative);
 
         if (!link.isEmpty()) {
             begin = "<a href=\"" + link + "\">";
             end = "</a>";
         }
 
-        html.replace( typeTag.pos(3), typeTag.cap(3).length(), end );
-        html.replace( typeTag.pos(1), typeTag.cap(1).length(), begin );
-        ++k;
+	html.replace( typeTag.pos(4), typeTag.cap(4).length(), end );
+	html.replace( typeTag.pos(1), typeTag.cap(1).length(), begin );
+	++pos;
+    }
+
+    if (slow) {
+        QRegExp funcTag("(<@func target=\"([^\"]*)\">)(.*)(</@func>)");
+        funcTag.setMinimal(true);
+        pos = 0;
+        while ((pos = html.indexOf(funcTag, pos)) != -1) {
+            QString begin;
+            QString end;
+            QString link = linkForNode(marker->resolveTarget(funcTag.cap(2), tre, relative), relative);
+
+            if (!link.isEmpty()) {
+                begin = "<a href=\"" + link + "\">";
+                end = "</a>";
+            }
+
+	    html.replace( funcTag.pos(4), funcTag.cap(4).length(), end );
+	    html.replace( funcTag.pos(1), funcTag.cap(1).length(), begin );
+	    ++pos;
+        }
     }
 
 #if 0

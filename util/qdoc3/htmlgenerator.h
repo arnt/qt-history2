@@ -34,7 +34,6 @@ public:
     virtual void generateTree(const Tree *tree, CodeMarker *marker);
 
     static QString protect( const QString& string );
-    static QString protectPreformatted( const QString& string );
 
 protected:
     virtual void startText( const Node *relative, CodeMarker *marker );
@@ -145,6 +144,7 @@ private:
     QString navigationLinks;
     QStringList stylesheets;
     const Tree *tre;
+    bool slow;
     QMap<QString, QMap<QString, const Node *> > moduleClassMap;
     QMap<QString, QMap<QString, const Node *> > moduleNamespaceMap;
     QMap<QString, const Node *> nonCompatClasses;
