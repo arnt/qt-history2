@@ -14,7 +14,7 @@ SUBDIRS     = \
 
 contains(QT_CONFIG, opengl):DEMOS_SUBDIRS += demos_chip
 unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += demos_dbus_viewer
-!contains(QT_EDITION, Console):!cross_compile:SUBDIRS += demos_arthurplugin
+!contains(QT_EDITION, Console):!cross_compile:!embedded:SUBDIRS += demos_arthurplugin
 
 !cross_compile:SUBDIRS += demos_sqlbrowser
 
