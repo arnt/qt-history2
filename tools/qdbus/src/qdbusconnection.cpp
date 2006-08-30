@@ -135,25 +135,30 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 
     \brief The QDBusConnection class represents a connection to the D-Bus bus daemon.
 
-    This class is the initial point in a D-Bus session. Using it, you can get access to remote
-    objects, interfaces; connect remote signals to your object's slots; register objects, etc.
+    This class is the initial point in a D-Bus session. Using it, you
+    can get access to remote objects, interfaces; connect remote
+    signals to your object's slots; register objects, etc.
 
-    D-Bus connections are created using the QDBusConnection::connectToBus() function, which opens a
-    connection to the server daemon and does the initial handshaking, associating that connection
-    with a name. Further attempts to connect using the same name will return the same
+    D-Bus connections are created using the connectToBus() function,
+    which opens a connection to the server daemon and does the initial
+    handshaking, associating that connection with a name. Further
+    attempts to connect using the same name will return the same
     connection.
 
-    The connection is then torn down using the QDBusConnection::disconnectFromBus() function.
+    The connection is then torn down using the disconnectFromBus()
+    function.
 
-    As a convenience for the two most common connection types, the QDBusConnection::sessionBus() and
-    QDBusConnection::systemBus() functions return open connections to the session server daemon and the system
-    server daemon, respectively. Those connections are opened when first used and are closed when
-    the QCoreApplication destructor is run.
+    As a convenience for the two most common connection types, the
+    sessionBus() and systemBus() functions return open connections to
+    the session server daemon and the system server daemon,
+    respectively. Those connections are opened when first used and are
+    closed when the QCoreApplication destructor is run.
 
-    D-Bus also supports peer-to-peer connections, without the need for a bus server daemon. Using
-    this facility, two applications can talk to each other and exchange messages. This can be
-    achieved by passing an address to QDBusConnection::connectionToBus()
-    function, which was opened by another D-Bus application using QDBusServer.
+    D-Bus also supports peer-to-peer connections, without the need for
+    a bus server daemon. Using this facility, two applications can
+    talk to each other and exchange messages. This can be achieved by
+    passing an address to connectToBus() function, which was opened by
+    another D-Bus application using QDBusServer.
 */
 
 /*!
@@ -176,11 +181,12 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 
     \value ExportAdaptors                       export the contents of adaptors found in this object
 
-    \value ExportSlots                          export this object's scriptable slots
-    \value ExportSignals                        export this object's scriptable signals
-    \value ExportProperties                     export this object's scriptable properties
-    \value ExportContents                       shorthand form for ExportSlots | ExportSignals |
-                                                ExportProperties
+    \value ExportScriptableSlots                export this object's scriptable slots
+    \value ExportScriptableSignals              export this object's scriptable signals
+    \value ExportScriptableProperties           export this object's scriptable properties
+    \value ExportScriptableContents             shorthand form for ExportScriptableSlots |
+                                                ExportScriptableSignals |
+                                                ExportScriptableProperties
 
     \value ExportNonScriptableSlots             export this object's non-scriptable slots
     \value ExportNonScriptableSignals           export this object's non-scriptable signals
@@ -189,10 +195,17 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
                                                 ExportNonScriptableSignals |
                                                 ExportNonScriptableProperties
 
+    \value ExportAllSlots                       export all of this object's slots
+    \value ExportAllSignal                      export all of this object's signals
+    \value ExportAllProperties                  export all of this object's properties
+    \value ExportAllContents                    export all of this object's contents
+
     \value ExportChildObjects                   export this object's child objects
 
-    \warning It is currently not possible to export signals from objects. If you pass the flag
-    ExportSignals or ExportNonScriptableSignals, the registerObject() function will print a warning.
+    \warning It is currently not possible to export signals from
+    objects. If you pass the ExportScriptableSignals,
+    ExportNonScriptableSignals, or ExportAllSignal, the
+    registerObject() function will print a warning.
 
     \sa registerObject(), QDBusAbstractAdaptor, {usingadaptors.html}{Using adaptors}
 */
@@ -211,7 +224,7 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 /*!
     Creates a QDBusConnection object attached to the connection with name \a name.
 
-    This does not open the connection. You have to call QDBusConnection::addConnection to open it.
+    This does not open the connection. You have to call connectToBus() to open it.
 */
 QDBusConnection::QDBusConnection(const QString &name)
 {
@@ -246,8 +259,8 @@ QDBusConnection::QDBusConnection(QDBusConnectionPrivate *dd)
 }
 
 /*!
-    Disposes of this object. This does not close the connection: you have to call
-    QDBusConnection::disconnectFromBus to do that.
+    Disposes of this object. This does not close the connection: you
+    have to call disconnectFromBus() to do that.
 */
 QDBusConnection::~QDBusConnection()
 {
@@ -256,9 +269,11 @@ QDBusConnection::~QDBusConnection()
 }
 
 /*!
-    Creates a copy of the connection \a other in this object. The connection this object referenced
-    before the copy is not spontaneously disconnected. See QDBusConnection::disconnectFromBus for more
-    information.
+    Creates a copy of the connection \a other in this object. Note
+    that the connection this object referenced before the copy, is not
+    spontaneously disconnected.
+
+    \sa disconnectFromBus()
 */
 QDBusConnection &QDBusConnection::operator=(const QDBusConnection &other)
 {
@@ -273,8 +288,9 @@ QDBusConnection &QDBusConnection::operator=(const QDBusConnection &other)
 }
 
 /*!
-    Opens a connection of type \a type to one of the known busses and associate with it the
-    connection name \a name. Returns a QDBusConnection object associated with that connection.
+    Opens a connection of type \a type to one of the known busses and
+    associate with it the connection name \a name. Returns a
+    QDBusConnection object associated with that connection.
 */
 QDBusConnection QDBusConnection::connectToBus(BusType type, const QString &name)
 {
@@ -351,9 +367,10 @@ QDBusConnection QDBusConnection::connectToBus(const QString &address,
 /*!
     Closes the connection of name \a name.
 
-    Note that if there are still QDBusConnection objects associated with the same connection, the
-    connection will not be closed until all references are dropped. However, no further references
-    can be created using the QDBusConnection::QDBusConnection constructor.
+    Note that if there are still QDBusConnection objects associated
+    with the same connection, the connection will not be closed until
+    all references are dropped. However, no further references can be
+    created using the QDBusConnection constructor.
 */
 void QDBusConnection::disconnectFromBus(const QString &name)
 {
@@ -362,8 +379,9 @@ void QDBusConnection::disconnectFromBus(const QString &name)
 }
 
 /*!
-    Sends the \a message over this connection, without waiting for a reply. This is suitable for
-    errors, signals, and return values as well as calls whose return values are not necessary.
+    Sends the \a message over this connection, without waiting for a
+    reply. This is suitable for errors, signals, and return values as
+    well as calls whose return values are not necessary.
 
     Returns true if the message was queued successfully, false otherwise.
 */
@@ -381,14 +399,20 @@ bool QDBusConnection::send(const QDBusMessage &message) const
 }
 
 /*!
-    Sends the \a message over this connection and returns immediately after queueing it. When the
-    reply is received, the slot \a method is called in the object \a receiver. This function is
-    suitable for method calls only.
+    Sends the \a message over this connection and blocks, waiting for
+    a reply, for at most \a timeout milliseconds.  When the reply is
+    received, the given \a method is called in the \a receiver object.
+    The default \a timeout is -1, meaning that the function won't wait
+    for a reply before calling the specified \a method.
 
-    This function guarantees that the slot will be called exactly once with the reply, as long as
-    the parameter types match. If they don't, the reply cannot be delivered.
+    This function is suitable for method calls only. It is guaranteed
+    that the slot will be called exactly once with the reply, as long
+    as the parameter types match. If they don't, the reply cannot be
+    delivered.
 
-    Returns the identification of the message that was sent or 0 if nothing was sent.
+    Returns the identification of the message that was sent or 0 if
+    nothing was sent.
+
 */
 bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *receiver,
                                        const char *method, int timeout) const
@@ -415,12 +439,12 @@ bool QDBusConnection::callWithCallback(const QDBusMessage &message, QObject *rec
     See the QDBusInterface::call() function for a more friendly way
     of placing calls.
 
-    \warning If \a mode is \c UseEventLoop, this function will
+    \warning If \a mode is QDBus::BlockWithGui, this function will
              reenter the Qt event loop in order to wait for the
              reply. During the wait, it may deliver signals and other
              method calls to your application. Therefore, it must be
              prepared to handle a reentrancy whenever a call is
-             placed with sendWithReply().
+             placed with call().
 */
 QDBusMessage QDBusConnection::call(const QDBusMessage &message, QDBus::CallMode mode, int timeout) const
 {
@@ -475,10 +499,13 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
 
 /*!
     \overload
-    Connects the signal to the slot \a slot in object \a receiver. Unlike the other
-    QDBusConnection::connect overload, this function allows one to specify the parameter signature
-    to be connected using the \a signature variable. The function will then verify that this
-    signature can be delivered to the slot specified by \a slot and return false otherwise.
+
+    Connects the signal to the slot \a slot in object \a
+    receiver. Unlike the other connect() overload, this function
+    allows one to specify the parameter signature to be connected
+    using the \a signature variable. The function will then verify
+    that this signature can be delivered to the slot specified by \a
+    slot and return false otherwise.
 */
 bool QDBusConnection::connect(const QString &service, const QString &path, const QString& interface,
                               const QString &name, const QString &signature,
@@ -526,10 +553,13 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
 
 /*!
     \overload
-    Disconnects the signal from the slot \a slot in object \a receiver. Unlike the other
-    QDBusConnection::disconnect overload, this function allows one to specify the parameter signature
-    to be disconnected using the \a signature variable. The function will then verify that this
-    signature is connected to the slot specified by \a slot and return false otherwise.
+
+    Disconnects the signal from the slot \a slot in object \a
+    receiver. Unlike the other disconnect() overload, this function
+    allows one to specify the parameter signature to be disconnected
+    using the \a signature variable. The function will then verify
+    that this signature is connected to the slot specified by \a slot
+    and return false otherwise.
 */
 bool QDBusConnection::disconnect(const QString &service, const QString &path, const QString& interface,
                                  const QString &name, const QString &signature,
@@ -577,15 +607,16 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
 }
 
 /*!
-    Registers the object \a object at path \a path and returns true if the registration was
-    successful. The \a options parameter specifies how much of the object \a object will be exposed
-    through D-Bus.
+    Registers the object \a object at path \a path and returns true if
+    the registration was successful. The \a options parameter
+    specifies how much of the object \a object will be exposed through
+    D-Bus.
 
     This function does not replace existing objects: if there is already an object registered at
     path \a path, this function will return false. Use unregisterObject() to unregister it first.
 
-    You cannot register an object as a child object of an object that was registered with
-    QDBusConnection::ExportChildObjects.
+    You cannot register an object as a child object of an object that
+    was registered with QDBusConnection::ExportChildObjects.
 */
 bool QDBusConnection::registerObject(const QString &path, QObject *object, RegisterOptions options)
 {
@@ -741,8 +772,9 @@ QDBusConnectionInterface *QDBusConnection::interface() const
 /*!
     Returns true if this QDBusConnection object is connected.
 
-    If it isn't connected, calling QDBusConnection::connectToBus on the same connection name
-    will not make be connected. You need to call the QDBusConnection constructor again.
+    If it isn't connected, calling connectToBus() on the same
+    connection name will not make be connected. You need to call the
+    QDBusConnection constructor again.
 */
 bool QDBusConnection::isConnected() const
 {
@@ -752,8 +784,9 @@ bool QDBusConnection::isConnected() const
 /*!
     Returns the last error that happened in this connection.
 
-    This function is provided for low-level code. If you're using QDBusInterface::call, error codes are
-    reported by its return value.
+    This function is provided for low-level code. If you're using
+    QDBusInterface::call(), error codes are reported by its return
+    value.
 
     \sa QDBusInterface, QDBusMessage
 */
@@ -766,9 +799,9 @@ QDBusError QDBusConnection::lastError() const
     Returns the unique connection name for this connection, if this QDBusConnection object is
     connected, or an empty QString otherwise.
 
-    A Unique Connection Name is a string in the form ":x.xxx" (where x are decimal digits) that is
-    assigned by the D-Bus server daemon upon connection. It uniquely identifies this client in the
-    bus.
+    A Unique Connection Name is a string in the form ":x.xxx" (where x
+    are decimal digits) that is assigned by the D-Bus server daemon
+    upon connection. It uniquely identifies this client in the bus.
 
     This function returns an empty QString for peer-to-peer connections.
 */
@@ -849,3 +882,28 @@ void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 {
     _q_manager()->setSender(s);
 }
+
+/*!
+    \namespace QDBus
+
+    \brief The QDBus namespace contains miscellaneous identifiers used
+    throughout the QtDBus library.
+*/
+
+/*!
+    \enum QDBus::CallMode
+
+    This enum describes the various modes for function calls.
+
+    \value NoBlock The program execution continues after calling the function.
+    \value Block The program execution is blocked until the function call returns.
+
+    \value BlockWithGui The program execution is blocked until the
+                        function call returns, but the GUI stays
+                        responsive (processing input events).
+
+    \value AutoDetect The mode is autodetected.
+
+
+    \sa QDBusConnection::call()
+*/
