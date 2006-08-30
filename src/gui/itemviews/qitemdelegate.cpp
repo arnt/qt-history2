@@ -1010,7 +1010,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 #endif
             // Opening a modal dialog will start a new eventloop
             // that will process the deleteLater event.
-            if (QApplication::activeModalWidget())
+            if (QApplication::activeModalWidget() && !QApplication::activeModalWidget()->isAncestorOf(editor))
                 return false;
             emit commitData(editor);
             emit closeEditor(editor, NoHint);
