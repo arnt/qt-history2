@@ -397,13 +397,11 @@ static const Qt::KeyboardModifiers ModsTbl[] = {
 };
 
 // Translate a VK into a Qt key code, or unicode character
-static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *)
+static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
 {
     Q_ASSERT(vk > 0 && vk < 256);
     int code = 0;
     QChar unicodeBuffer[5];
-    unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
-    GetKeyboardState(kbdBuffer);
     int res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
     if (res)
         code = unicodeBuffer[0].toUpper().unicode();
@@ -809,8 +807,11 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
         int code = 0;
         if (isNumpad && (nModifiers & AltAny)) {
             code = KeyTbl[msg.wParam];
-        } else if (!isDeadKey)
-            code = toKeyOrUnicode(msg.wParam, scancode, 0);
+        } else if (!isDeadKey) {
+            unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
+            GetKeyboardState(kbdBuffer);
+            code = toKeyOrUnicode(msg.wParam, scancode, kbdBuffer);
+        }
 
         // Invert state logic:
         // If the key actually pressed is a modifier key, then we remove its modifier key from the
