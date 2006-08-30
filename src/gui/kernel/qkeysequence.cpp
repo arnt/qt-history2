@@ -142,8 +142,8 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     \row    \i SelectEndOfLine      \i Shift+End                        \i Ctrl+Shift+Right       \i Shift+End      \i Shift+End
     \row    \i SelectStartOfBlock   \i (none)                           \i Alt+Shift+Up           \i (none)         \i (none)
     \row    \i SelectEndOfBlock     \i (none)                           \i Alt+Shift+Down         \i (none)         \i (none)
-    \row    \i SelectStartOfDocument\i Ctrl+Shift+Home                  \i Ctrl+Shift+Up          \i Ctrl+Shift+Home\i Ctrl+Shift+Home
-    \row    \i SelectEndOfDocument  \i Ctrl+Shift+End                   \i Ctrl+Shift+Down        \i Ctrl+Shift+End \i Ctrl+Shift+End
+    \row    \i SelectStartOfDocument\i Ctrl+Shift+Home                  \i Ctrl+Shift+Up, Shift+Home          \i Ctrl+Shift+Home\i Ctrl+Shift+Home
+    \row    \i SelectEndOfDocument  \i Ctrl+Shift+End                   \i Ctrl+Shift+Down, Shift+End        \i Ctrl+Shift+End \i Ctrl+Shift+End
     \row    \i DeleteStartOfWord    \i Ctrl+Backspace                   \i Alt+Backspace          \i Ctrl+Backspace \i Ctrl+Backspace
     \row    \i DeleteEndOfWord      \i Ctrl+Del                         \i (none)                 \i Ctrl+Del       \i Ctrl+Del
     \row    \i DeleteEndOfLine      \i (none)                           \i (none)                 \i Ctrl+K         \i Ctrl+K
@@ -318,7 +318,9 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::Paste,                   0,          Qt::SHIFT | Qt::Key_Insert,             QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11}, 
     {QKeySequence::Cut,                     0,          Qt::SHIFT | Qt::Key_Delete,             QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11}, //## Check if this should work on mac
     {QKeySequence::SelectStartOfLine,       0,          Qt::SHIFT | Qt::Key_Home,               QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
+    {QKeySequence::SelectStartOfDocument,   0,          Qt::SHIFT | Qt::Key_Home,               QApplicationPrivate::KB_Mac},
     {QKeySequence::SelectEndOfLine,         0,          Qt::SHIFT | Qt::Key_End,                QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
+    {QKeySequence::SelectEndOfDocument,     0,          Qt::SHIFT | Qt::Key_End,                QApplicationPrivate::KB_Mac},
     {QKeySequence::SelectPreviousChar,      0,          Qt::SHIFT | Qt::Key_Left,               QApplicationPrivate::KB_All},
     {QKeySequence::SelectPreviousLine,      0,          Qt::SHIFT | Qt::Key_Up,                 QApplicationPrivate::KB_All},
     {QKeySequence::SelectNextChar,          0,          Qt::SHIFT | Qt::Key_Right,              QApplicationPrivate::KB_All},
@@ -392,7 +394,7 @@ const QKeyBinding QKeySequencePrivate::keyBindings[] = {
     {QKeySequence::SelectEndOfDocument,     0,          Qt::CTRL | Qt::SHIFT | Qt::Key_End,     QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
     {QKeySequence::SelectPreviousWord,      0,          Qt::CTRL | Qt::SHIFT | Qt::Key_Left,    QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
     {QKeySequence::SelectStartOfLine,       1,          Qt::CTRL | Qt::SHIFT | Qt::Key_Left,    QApplicationPrivate::KB_Mac },
-    {QKeySequence::SelectStartOfDocument,   0,          Qt::CTRL | Qt::SHIFT | Qt::Key_Up,      QApplicationPrivate::KB_Mac},
+    {QKeySequence::SelectStartOfDocument,   1,          Qt::CTRL | Qt::SHIFT | Qt::Key_Up,      QApplicationPrivate::KB_Mac},
     {QKeySequence::SelectNextWord,          0,          Qt::CTRL | Qt::SHIFT | Qt::Key_Right,   QApplicationPrivate::KB_Win | QApplicationPrivate::KB_X11},
     {QKeySequence::SelectEndOfLine,         1,          Qt::CTRL | Qt::SHIFT | Qt::Key_Right,   QApplicationPrivate::KB_Mac },
     {QKeySequence::SelectEndOfDocument,     1,          Qt::CTRL | Qt::SHIFT | Qt::Key_Down,    QApplicationPrivate::KB_Mac},
