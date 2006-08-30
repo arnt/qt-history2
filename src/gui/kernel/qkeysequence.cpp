@@ -813,6 +813,16 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
     modifs += *gmodifs; // Test non-translated ones last
 
     QString sl = accel;
+#ifdef Q_WS_MAC
+    for (int i = 0; i < modifs.size(); ++i) {
+        const QModifKeyName &mkf = modifs.at(i);
+        if (sl.contains(mkf.name)) {
+            ret |= mkf.qt_key;
+            accel.remove(mkf.name);
+            sl = accel;
+        }
+    }
+#else
     int i = 0;
     int lastI = 0;
     while ((i = sl.indexOf('+', i + 1)) != -1) {
@@ -831,6 +841,7 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
         }
         lastI = i + 1;
     }
+#endif
 
     int p = accel.lastIndexOf(QLatin1Char('+'), str.length() - 2); // -2 so that Ctrl++ works
     if(p > 0)
