@@ -230,7 +230,7 @@ void tst_QFtp::connectToHost_data()
 
     QTest::newRow( "ok01" ) << QString("fluke.troll.no") << (uint)21 << (int)QFtp::Connected;
 
-    QTest::newRow( "error01" ) << QString("shusaku.troll.no") << (uint)2121 << (int)QFtp::Unconnected;
+    QTest::newRow( "error01" ) << QString("fluke.troll.no") << (uint)2222 << (int)QFtp::Unconnected;
     QTest::newRow( "error02" ) << QString("foo.bar") << (uint)21 << (int)QFtp::Unconnected;
 }
 
