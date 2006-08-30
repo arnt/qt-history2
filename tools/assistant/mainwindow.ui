@@ -384,7 +384,7 @@
   </action>
   <action name="actionSyncToc" >
    <property name="icon" >
-    <iconset resource="assistant.qrc" >:/trolltech/assistant/images/synctoc.png</iconset>
+    <iconset resource="assistant.qrc" >:/trolltech/assistant/images/win/synctoc.png</iconset>
    </property>
    <property name="text" >
     <string>Sync with Table of Contents</string>

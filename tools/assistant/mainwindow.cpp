@@ -104,6 +104,7 @@ MainWindow::MainWindow()
     ui.actionFilePrint->setIcon(QIcon(MacIconPath + QLatin1String("/print.png")));
     ui.actionZoomOut->setIcon(QIcon(MacIconPath + QLatin1String("/zoomout.png")));
     ui.actionZoomIn->setIcon(QIcon(MacIconPath + QLatin1String("/zoomin.png")));
+    ui.actionSyncToc->setIcon(QIcon(MacIconPath + QLatin1String("/synctoc.png")));
     ui.actionHelpWhatsThis->setIcon(QIcon(MacIconPath + QLatin1String("/whatsthis.png")));
 #endif
 }
