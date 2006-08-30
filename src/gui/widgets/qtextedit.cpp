@@ -1017,55 +1017,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QTextEdit);
 
-    bool readOnly = !(d->control->textInteractionFlags() & Qt::TextEditable);
-
-    if (readOnly) {
-        switch (e->key()) {
-            case Qt::Key_Space:
-                e->accept();
-                if (e->modifiers() & Qt::ShiftModifier)
-                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
-                else
-                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
-            default:
-                d->sendControlEvent(e);
-                if (!e->isAccepted()) {
-                    QAbstractScrollArea::keyPressEvent(e);
-                }
-                break;
-        }
-    }
-
-    if (e == QKeySequence::MoveToStartOfLine) {
-        if (readOnly) {
-            e->accept();
-            d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
-            return;
-        }
-    } else if (e == QKeySequence::MoveToEndOfLine) {
-        if (readOnly) {
-            e->accept();
-            d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
-            return;
-        }
-    } else if (e == QKeySequence::MoveToPreviousPage) {
-            e->accept();
-            d->pageUpDown(QTextCursor::Up, QTextCursor::MoveAnchor);
-            return;
-    } else if (e == QKeySequence::MoveToNextPage) {
-            e->accept();
-            d->pageUpDown(QTextCursor::Down, QTextCursor::MoveAnchor);
-            return;
-    } else if (e == QKeySequence::SelectPreviousPage) {
-            e->accept();
-            d->pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
-            return;
-    } else if (e ==QKeySequence::SelectNextPage) {
-            e->accept();
-            d->pageUpDown(QTextCursor::Down, QTextCursor::KeepAnchor);
-            return;
-    }
-
 #ifdef QT_KEYPAD_NAVIGATION
     switch (e->key()) {
         case Qt::Key_Select:
@@ -1096,8 +1047,50 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     }
 #endif
 
-    if (readOnly)
+    if (!(d->control->textInteractionFlags() & Qt::TextEditable)) {
+        switch (e->key()) {
+            case Qt::Key_Space:
+                e->accept();
+                if (e->modifiers() & Qt::ShiftModifier)
+                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
+                else
+                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
+                break;
+            default:
+                d->sendControlEvent(e);
+                if (!e->isAccepted() && e->modifiers() == Qt::NoModifier) {
+                    if (e->key() == Qt::Key_Home) {
+                        d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
+                        e->accept();
+                    } else if (e->key() == Qt::Key_End) {
+                        d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
+                        e->accept();
+                    }
+                }
+                if (!e->isAccepted()) {
+                    QAbstractScrollArea::keyPressEvent(e);
+                }
+        }
         return;
+    }
+
+    if (e == QKeySequence::MoveToPreviousPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Up, QTextCursor::MoveAnchor);
+            return;
+    } else if (e == QKeySequence::MoveToNextPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Down, QTextCursor::MoveAnchor);
+            return;
+    } else if (e == QKeySequence::SelectPreviousPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
+            return;
+    } else if (e ==QKeySequence::SelectNextPage) {
+            e->accept();
+            d->pageUpDown(QTextCursor::Down, QTextCursor::KeepAnchor);
+            return;
+    }
 
     {
         QTextCursor cursor = d->control->textCursor();
