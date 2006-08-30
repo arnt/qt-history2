@@ -1355,6 +1355,7 @@ QTabBar *QMainWindowLayout::getTabBar()
         result = new QTabBar(parentWidget());
         result->setShape(QTabBar::RoundedSouth);
         result->setDrawBase(true);
+        result->setElideMode(Qt::ElideRight);
         connect(result, SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
     }
 
