@@ -262,7 +262,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setOpenExternalLinks(true);
 #ifndef Q_WS_MAC
-    label->setContentsMargins(2, 7, 0, 6);
+    label->setContentsMargins(2, 0, 0, 0);
     label->setIndent(9);
 #else
     label->setContentsMargins(16, 0, 0, 10);
@@ -312,23 +312,6 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 #endif
 }
 
-static bool isPreformatted(const QString &text, Qt::TextFormat textFormat)
-{
-    static const char * const patterns[2] = {
-        "<[ \n\t]*[bB][rR]\\b[^<>]*>",
-        "[^ \n\t][ \t]*\n[ \t]*[^ \n\t]"
-    };
-
-    int isPlainText;
-    if (textFormat == Qt::AutoText) {
-        isPlainText = !Qt::mightBeRichText(text);
-    } else {
-        isPlainText = (textFormat == Qt::PlainText);
-    }
-
-    return text.contains(QRegExp(QLatin1String(patterns[isPlainText])));
-}
-
 int QMessageBoxPrivate::layoutMinimumWidth()
 {
     Q_Q(QMessageBox);
@@ -342,12 +325,13 @@ void QMessageBoxPrivate::updateSize()
     Q_Q(QMessageBox);
 
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
-#ifndef Q_WS_MAC
-    int softLimit = qMin(screenSize.width()/2, 500);
-#else
+    int hardLimit = qMin(screenSize.width() - 480, 1000); // can never get bigger than this
+#ifdef Q_WS_MAC
     int softLimit = qMin(screenSize.width()/2, 420);
+#else
+    // note: ideally on windows, hard and soft limits but it breaks compat
+    int softLimit = qMin(screenSize.width()/2, 500);
 #endif
-    int hardLimit = qMin(4 * screenSize.width()/5, 1000); // can never get bigger than this
 
     if (informativeLabel)
         informativeLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -356,13 +340,8 @@ void QMessageBoxPrivate::updateSize()
     int width = layoutMinimumWidth();
 
     if (width > softLimit) {
-        if (!isPreformatted(label->text(), label->textFormat())) {
-            label->setWordWrap(true);
-            width = qMax(softLimit, layoutMinimumWidth());
-        } else if (width > hardLimit) {
-            label->setWordWrap(true);
-            width = qMax(hardLimit, layoutMinimumWidth());
-        }
+        label->setWordWrap(true);
+        width = qMax(softLimit, layoutMinimumWidth());
 
         if (width > hardLimit) {
             label->d_func()->ensureTextControl();
@@ -1951,7 +1930,7 @@ void QMessageBox::setInformativeText(const QString &text)
         delete d->informativeLabel;
         d->informativeLabel = 0;
 #ifndef Q_WS_MAC
-        d->label->setContentsMargins(2, 7, 0, 6);
+        d->label->setContentsMargins(2, 0, 0, 0);
 #endif
         return;
     }
@@ -1964,7 +1943,7 @@ void QMessageBox::setInformativeText(const QString &text)
         label->setOpenExternalLinks(true);
         label->setWordWrap(true);
 #ifndef Q_WS_MAC
-        d->label->setContentsMargins(2, 7, 0, 0);
+        d->label->setContentsMargins(2, 0, 0, 0);
         label->setContentsMargins(2, 0, 0, 6);
         label->setIndent(9);
 #else
