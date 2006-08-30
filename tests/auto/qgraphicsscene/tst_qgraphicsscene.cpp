@@ -959,6 +959,8 @@ void tst_QGraphicsScene::hoverEvents_siblings()
     view.scale(1.7, 1.7);
     view.show();
 
+    QCursor::setPos(view.mapToGlobal(QPoint(-5, -5)));
+    
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
     mouseEvent.setScenePos(QPointF(-1000, -1000));
     QApplication::sendEvent(&scene, &mouseEvent);
@@ -966,11 +968,17 @@ void tst_QGraphicsScene::hoverEvents_siblings()
     for (int j = 1; j >= 0; --j) {
         int i = j ? 0 : 14;
         forever {
-            QVERIFY(!items.at(i)->isHovered);
+            if (j)
+                QVERIFY(!items.at(i)->isHovered);
+            else
+                QVERIFY(!items.at(i)->isHovered);
             QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
             mouseEvent.setScenePos(items.at(i)->mapToScene(0, 0));
             QApplication::sendEvent(&scene, &mouseEvent);
-            qApp->processEvents();
+
+            qApp->processEvents(); // this posts updates from the scene to the view
+            qApp->processEvents(); // which trigger a repaint here
+
             QVERIFY(items.at(i)->isHovered);
             if (j && i > 0)
                 QVERIFY(!items.at(i - 1)->isHovered);
@@ -984,7 +992,9 @@ void tst_QGraphicsScene::hoverEvents_siblings()
         QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
         mouseEvent.setScenePos(QPointF(-1000, -1000));
         QApplication::sendEvent(&scene, &mouseEvent);
-        qApp->processEvents();
+
+        qApp->processEvents(); // this posts updates from the scene to the view
+        qApp->processEvents(); // which trigger a repaint here
     }
 
     for (int i = 0; i < 15; ++i)
@@ -1029,7 +1039,10 @@ void tst_QGraphicsScene::hoverEvents_parentChild()
             }
             mouseEvent.setScenePos(items.at(i)->mapToScene(0, 0));
             QApplication::sendEvent(&scene, &mouseEvent);
-            qApp->processEvents();
+
+            qApp->processEvents(); // this posts updates from the scene to the view
+            qApp->processEvents(); // which trigger a repaint here
+
             QVERIFY(items.at(i)->isHovered);
             if (i < 14)
                 QVERIFY(!items.at(i + 1)->isHovered);
@@ -1040,7 +1053,9 @@ void tst_QGraphicsScene::hoverEvents_parentChild()
 
         mouseEvent.setScenePos(QPointF(-1000, -1000));
         QApplication::sendEvent(&scene, &mouseEvent);
-        qApp->processEvents();
+
+        qApp->processEvents(); // this posts updates from the scene to the view
+        qApp->processEvents(); // which trigger a repaint here
     }
 
     scene.removeItem(items.first());
