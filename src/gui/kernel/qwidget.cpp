@@ -4487,14 +4487,18 @@ QByteArray QWidget::saveGeometry() const
 {
     QByteArray array;
     QDataStream stream(&array, QIODevice::WriteOnly);
-    quint32 version = 1;
-    stream << version;
-
-    stream << frameGeometry();
-    stream << normalGeometry();
-    stream << QApplication::desktop()->screenNumber(this);
-    stream << bool(windowState() & Qt::WindowMaximized);
-    stream << bool(windowState() & Qt::WindowFullScreen);
+    stream.setVersion(QDataStream::Qt_4_0);
+    const quint32 magicNumber = 0x1D9D0CB;
+    quint16 majorVersion = 1;
+    quint16 minorVersion = 0;
+    stream << magicNumber
+           << majorVersion
+           << minorVersion
+           << frameGeometry()
+           << normalGeometry()
+           << qint32(QApplication::desktop()->screenNumber(this))
+           << quint8(windowState() & Qt::WindowMaximized)
+           << quint8(windowState() & Qt::WindowFullScreen);
     return array;
 }
 
@@ -4523,23 +4527,38 @@ QByteArray QWidget::saveGeometry() const
 */
 bool QWidget::restoreGeometry(const QByteArray &geometry)
 {
+    if (geometry.size() < 4)
+        return false;
     QDataStream stream(geometry);
-    const quint32 currentVersion = 1;
-    quint32 dataVersion;
-    stream >> dataVersion;
-    if (dataVersion != currentVersion)
+    stream.setVersion(QDataStream::Qt_4_0);
+
+    const quint32 magicNumber = 0x1D9D0CB;
+    quint32 storedMagicNumber;
+    stream >> storedMagicNumber;
+    if (storedMagicNumber != magicNumber)
         return false;
 
+    const quint16 currentMajorVersion = 1;
+    quint16 majorVersion = 0;
+    quint16 minorVersion = 0;
+ 
+    stream >> majorVersion >> minorVersion;
+
+    if (majorVersion != currentMajorVersion)
+        return false;
+    // (Allow all minor versions.)
+
     QRect restoredFrameGeometry;
-    stream >> restoredFrameGeometry;
     QRect restoredNormalGeometry;
-    stream >> restoredNormalGeometry;
-    int restoredScreenNumber;
-    stream >> restoredScreenNumber;
-    bool maximized;
-    stream >> maximized;
-    bool fullScreen;
-    stream >> fullScreen;
+    qint32 restoredScreenNumber;
+    quint8 maximized;
+    quint8 fullScreen;
+
+    stream >> restoredFrameGeometry
+           >> restoredNormalGeometry
+           >> restoredScreenNumber
+           >> maximized
+           >> fullScreen;
 
     const int frameHeight = 20;
     if (!restoredFrameGeometry.isValid())
