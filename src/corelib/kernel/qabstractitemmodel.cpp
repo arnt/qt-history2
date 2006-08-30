@@ -875,9 +875,21 @@ void QAbstractItemModelPrivate::reset()
 
     \section1 Subclassing
 
+    \bold{Note:} Some general guidelines for subclassing models are
+    available in the \l{Model Subclassing Reference}.
+
     When subclassing QAbstractItemModel, at the very least you must
     implement index(), parent(), rowCount(), columnCount(), and
-    data(). To enable editing in your model, you must also implement
+    data(). These functions are used in all read-only models, and
+    form the basis of editable models.
+
+    You can also reimplement hasChildren() to provide special behavior
+    for models where the implementation of rowCount() is expensive.
+    This makes it possible for models to restrict the amount of data
+    requested by views, and can be used as a way to implement lazy
+    population of model data.
+
+    To enable editing in your model, you must also implement
     setData(), and reimplement flags() to ensure that \c
     ItemIsEditable is returned.  You can also reimplement headerData()
     and setHeaderData() to control the way the headers for your model
@@ -2233,6 +2245,9 @@ QModelIndexList QAbstractItemModel::persistentIndexList() const
 
     \section1 Subclassing
 
+    \bold{Note:} Some general guidelines for subclassing models are
+    available in the \l{Model Subclassing Reference}.
+
     When subclassing QAbstractTableModel, you must implement rowCount(),
     columnCount(), and data(). Default implementations of the index() and
     parent() functions are provided by QAbstractTableModel.
@@ -2361,6 +2376,9 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
     by default informs views that the model contains only one column.
 
     \section1 Subclassing
+
+    \bold{Note:} Some general guidelines for subclassing models are
+    available in the \l{Model Subclassing Reference}.
 
     When subclassing QAbstractListModel, you must provide implementations
     of the rowCount() and data() functions. Well behaved models also provide

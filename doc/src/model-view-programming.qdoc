@@ -1782,6 +1782,9 @@
     view, and which does not allow data to be dropped into it, are fewer than
     those for a fully-enabled drag and drop model.
 
+    See also the \l{Model Subclassing Reference} for more information about
+    enabling drag and drop support in new models.
+
     \section1 Using Convenience Views
 
     Each of the types of item used with QListWidget, QTableWidget, and QTreeWidget
@@ -2245,6 +2248,41 @@
     model's structure, perhaps involving internal reorganization or sorting of data,
     it is necessary to emit the \l{QAbstractItemModel::layoutChanged()}{layoutChanged()}
     signal to cause any attached views to be updated.
+
+    \section2 Lazy Population of Model Data
+
+    Lazy population of model data effectively allows requests for information
+    about the model to be deferred until it is actually needed by views.
+
+    Some models need to obtain data from remote sources, or must perform
+    time-consuming operations to obtain information about the way the
+    data is organized. Since views generally request as much information
+    as possible in order to accurately display model data, it can be useful
+    to restrict the amount of information returned to them to reduce
+    unnecessary follow-up requests for data.
+
+    In hierarchical models where finding the number of children of a given
+    item is an expensive operation, it is useful to ensure that the model's
+    \l{QAbstractItemModel::}{rowCount()} implementation is only called when
+    necessary. In such cases, the \l{QAbstractItemModel::}{hasChildren()}
+    function can be reimplemented to provide an inexpensive way for views to
+    check for the presence of children and, in the case of QTreeView, draw
+    the appropriate decoration for their parent item.
+
+    Whether the reimplementation of \l{QAbstractItemModel::}{hasChildren()}
+    returns \c true or \c false, it may not be necessary for the view to call
+    \l{QAbstractItemModel::}{rowCount()} to find out how many children are
+    present. For example, QTreeView does not need to know how many children
+    there are if the parent item has not been expanded to show them.
+
+    If it is known that many items will have children, reimplementing
+    \l{QAbstractItemModel::}{hasChildren()} to unconditionally return \c true
+    is sometimes a useful approach to take. This ensures that each item can
+    be later examined for children while making initial population of model
+    data as fast as possible. The only disadvantage is that items without
+    children may be displayed incorrectly in some views until the user
+    attempts to view the non-existent child items.
+
 
     \section1 Navigation and Model Index Creation
 

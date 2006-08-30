@@ -1145,6 +1145,21 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     example.)
 
+    \section1 Subclassing
+
+    \bold{Note:} Some general guidelines for subclassing models are
+    available in the \l{Model Subclassing Reference}.
+
+    Since QAbstractProxyModel and its subclasses are derived from
+    QAbstractItemModel, much of the same advice about subclassing normal
+    models also applies to proxy models. In addition, it is worth noting
+    that many of the default implementations of functions in this class
+    are written so that they call the equivalent functions in the relevant
+    source model. This simple proxying mechanism may need to be overridden
+    for source models with more complex behavior; for example, if the
+    source model provides a custom hasChildren() implementation, you
+    should also provide one in the proxy model.
+
     \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming},
     {Basic Sort/Filter Model Example}, {Custom Sort/Filter Model Example}
 */
