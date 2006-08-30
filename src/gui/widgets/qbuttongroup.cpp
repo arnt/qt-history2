@@ -71,9 +71,15 @@
     \property QButtonGroup::exclusive
     \brief whether the button group is exclusive
 
-    If this property is true, then the buttons in the group are
-    checked (toggled), and to untoggle a button you must click on
-    another button in the group. The default value is true.
+    If this property is true then only one button in the group can be checked
+    at any given time. The user can click on any button to check it, and that
+    button will replace the existing one as the checked button in the group.
+
+    In an exclusive group, the user cannot uncheck the currently checked button
+    by clicking on it; instead, another button in the group must be clicked
+    to set the new checked button for that group.
+
+    By default, this property is true.
 */
 
 /*!
