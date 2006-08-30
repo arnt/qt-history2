@@ -306,9 +306,6 @@ Qt::DropAction QDragManager::drag(QDrag *o)
 
     qt_qws_dnd_dragging = true;
 
-    if (!QWidget::mouseGrabber())
-        qt_qws_dnd_deco->grabMouse();
-
     eventLoop = new QEventLoop;
     (void) eventLoop->exec();
     delete eventLoop;
