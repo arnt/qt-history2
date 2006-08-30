@@ -36,7 +36,7 @@ XFormView::XFormView(QWidget *parent)
     pts->setPointSize(QSize(15, 15));
     pts->setShapeBrush(QBrush(QColor(151, 0, 0, alpha)));
     pts->setShapePen(QPen(QColor(255, 100, 50, alpha)));
-    pts->setConnectionPen(QPen(QColor(151, 0, 0, alpha), 0, Qt::DotLine, Qt::FlatCap, Qt::BevelJoin));
+    pts->setConnectionPen(QPen(QColor(151, 0, 0, 50)));
     pts->setBoundingRect(QRectF(0, 0, 500, 500));
     ctrlPoints << QPointF(250, 250) << QPointF(350, 250);
     pts->setPoints(ctrlPoints);
