@@ -1334,20 +1334,19 @@ void QDockAreaLayoutInfo::apply(bool animate)
         if (tabBarVisible) {
             switch (tabBarShape) {
                 case QTabBar::RoundedNorth:
-                    tab_rect = QRect(rect.left(), rect.top(),
-                                        qMin(tbh.width(), rect.width()), tbh.height());
+                    tab_rect = QRect(rect.left(), rect.top(), rect.width(), tbh.height());
                     break;
                 case QTabBar::RoundedSouth:
-                    tab_rect = QRect(rect.left(), rect.bottom() - tbh.height(),
-                                        qMin(tbh.width(), rect.width()), tbh.height());
+                    tab_rect = QRect(rect.left(), rect.bottom() - tbh.height() + 1,
+                                        rect.width(), tbh.height());
                     break;
                 case QTabBar::RoundedEast:
-                    tab_rect = QRect(rect.right() - tbh.width(), rect.top(),
-                                        tbh.width(), qMin(tbh.height(), rect.height()));
+                    tab_rect = QRect(rect.right() - tbh.width() + 1, rect.top(),
+                                        tbh.width(), rect.height());
                     break;
                 case QTabBar::RoundedWest:
                     tab_rect = QRect(rect.left(), rect.top(),
-                                        tbh.width(), qMin(tbh.height(), rect.height()));
+                                        tbh.width(), rect.height());
                     break;
                 default:
                     break;

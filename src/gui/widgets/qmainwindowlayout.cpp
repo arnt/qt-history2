@@ -1354,6 +1354,7 @@ QTabBar *QMainWindowLayout::getTabBar()
     } else {
         result = new QTabBar(parentWidget());
         result->setShape(QTabBar::RoundedSouth);
+        result->setDrawBase(true);
         connect(result, SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
     }
 
