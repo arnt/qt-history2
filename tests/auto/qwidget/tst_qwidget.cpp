@@ -106,6 +106,8 @@ private slots:
     void lower();
     void stackUnder();
     void testContentsPropagation();
+    void saveRestoreGeometry();
+    void restoreVersion1Geometry();
 
     void windowTitle();
     void windowModified();
@@ -1792,6 +1794,89 @@ void tst_QWidget::testContentsPropagation()
     QCOMPARE(widgetSnapshot, correct);
 }
 
+/*
+    Test that saving and restoring window geometry with
+    saveGeometry() and restoreGeometry() works.
+*/
+void tst_QWidget::saveRestoreGeometry()
+{
+    const QPoint position(100, 100);
+    const QSize size(200, 200);
+    
+    QByteArray savedGeometry;
+
+    {
+        QWidget widget;
+        widget.move(position);
+        widget.resize(size);
+        widget.show();
+//        QCOMPARE(widget.pos(), position);
+        QCOMPARE(widget.pos().x(), position.x());
+        QCOMPARE(widget.size(), size);
+        savedGeometry = widget.saveGeometry();
+    }
+
+#if 0
+    // Code for saving a new geometry.dat file.
+    QFile f("geometry.dat");
+    f.open(QIODevice::WriteOnly);
+    f.write(savedGeometry);
+    f.close();
+#endif
+
+    {
+        QWidget widget;
+        
+        const QByteArray empty;
+        const QByteArray one("a");
+        const QByteArray two("ab");
+        const QByteArray three("abc");
+        const QByteArray four("abca");
+        const QByteArray garbage("abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc");
+        
+        QVERIFY(widget.restoreGeometry(empty) == false);
+        QVERIFY(widget.restoreGeometry(one) == false);
+        QVERIFY(widget.restoreGeometry(two) == false);
+        QVERIFY(widget.restoreGeometry(three) == false);
+        QVERIFY(widget.restoreGeometry(four) == false);
+        QVERIFY(widget.restoreGeometry(garbage) == false);
+
+        QVERIFY(widget.restoreGeometry(savedGeometry));
+//        QCOMPARE(widget.pos(), position);
+        QCOMPARE(widget.pos().x(), position.x());
+        QCOMPARE(widget.size(), size);
+        widget.show();
+//        QCOMPARE(widget.pos(), position);
+        QCOMPARE(widget.pos().x(), position.x());
+        QCOMPARE(widget.size(), size);
+    }
+}
+
+/*
+    Test that the current version of restoreGeometry() can restore geometry
+    saved width saveGeometry() version 1.0.
+*/
+void tst_QWidget::restoreVersion1Geometry()
+{
+    const QPoint position(100, 100);
+    const QSize size(200, 200);
+  
+    QFile f(":geometry.dat");
+    QVERIFY(f.exists());
+    f.open(QIODevice::ReadOnly);
+    const QByteArray savedGeometry = f.readAll();;
+    QCOMPARE(savedGeometry.count(), 46);
+
+    QWidget widget;
+    QVERIFY(widget.restoreGeometry(savedGeometry));
+//    QCOMPARE(widget.pos(), position);
+    QCOMPARE(widget.pos().x(), position.x());
+    QCOMPARE(widget.size(), size);
+    widget.show();
+//    QCOMPARE(widget.pos(), position);
+    QCOMPARE(widget.pos().x(), position.x());
+    QCOMPARE(widget.size(), size);
+}
 
 void tst_QWidget::widgetAt()
 {

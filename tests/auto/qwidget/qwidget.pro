@@ -1,6 +1,6 @@
 load(qttest_p4)
 SOURCES  += tst_qwidget.cpp
-
+RESOURCES     = qwidget.qrc
 
 QT += qt3support
 
