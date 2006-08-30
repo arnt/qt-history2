@@ -3457,7 +3457,6 @@ void QCleanlooksStyle::polish(QApplication *app)
         dataDirs = "/usr/local/share/:/usr/share/";
 
     d->iconDirs = dataDirs.split(":");
-    app->setPalette(standardPalette());
 #endif
 }
 

@@ -895,7 +895,10 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
     }
 
-    if ((button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
+    const char *style = QApplication::style()->metaObject()->className();
+    bool ignorePalette = qstrcmp(style, "QCleanlooksStyle") == 0 && resBG == "#efebe7";
+
+    if (!ignorePalette && (button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
