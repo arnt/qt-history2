@@ -167,7 +167,11 @@ static QSize adjustForFrame(QWidget *widget)
     if (widget->isWindow())
         return QSize(0, 0);
     int fw = widget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
-    return QSize(2*fw, fw);
+    QSize result(2*fw, fw);
+#ifdef Q_OS_WIN
+    result += QSize(0, 3);
+#endif
+    return result;
 }
 
 QSize QDockAreaLayoutItem::minimumSize() const
