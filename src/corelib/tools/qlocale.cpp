@@ -1055,7 +1055,6 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         return macDateToString(in.toDate(), (type == DateToStringShort));
     case TimeToStringShort:
     case TimeToStringLong:
-        qDebug() << "happened";
         return macTimeToString(in.toTime(), (type == TimeToStringShort));
 
     case NegativeSign:
