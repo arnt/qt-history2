@@ -41,8 +41,8 @@ ArthurFrame::ArthurFrame(QWidget *parent)
     glw->setAutoFillBackground(false);
     glw->disableAutoBufferSwap();
 
-    enableOpenGL(true);
-    enableOpenGL(false);
+    m_use_opengl = false;
+    glw->hide();
 #endif
     m_document = 0;
     m_show_doc = false;
