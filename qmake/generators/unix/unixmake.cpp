@@ -562,13 +562,13 @@ UnixMakefileGenerator::processPrlFiles()
                                 QString framework;
                                 if(xf.length() > 11)
                                     framework = xf.mid(11);
-            else
+                                else
                                     framework = l.at(++x);
                                 if(framework == opt) {
                                     found = true;
-                break;
-        }
-    }
+                                    break;
+                                }
+                            }
                         }
                         if(!found) {
                             lflags.append("-framework");
@@ -606,6 +606,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
     QStringList links;
     QString target="$(TARGET)";
+    QStringList &targets = project->values(t + ".targets");
     if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
         target = project->first("QMAKE_BUNDLE_NAME");
         bundle = true;
@@ -613,34 +614,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         target = "$(QMAKE_TARGET)";
     } else if(project->first("TEMPLATE") == "lib") {
         if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
-           !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
-            const QString src_prl = project->first("QMAKE_INTERNAL_PRL_FILE"),
-                          dst_prl = filePrefixRoot(root, targetdir + src_prl.section('/', -1));
-            ret += "-$(INSTALL_FILE) \"" + src_prl + "\" \"" + dst_prl + "\"";
-            if(!uninst.isEmpty())
-                uninst.append("\n\t");
-            uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
-        }
-        if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool")) {
-            const QString src_lt = libtoolFileName(),
-                          dst_lt = filePrefixRoot(root, targetdir + src_lt.section('/', -1));
-            if(!ret.isEmpty())
-                ret += "\n\t";
-            ret += "-$(INSTALL_FILE) \"" + src_lt + "\" \"" + dst_lt + "\"";
-            if(!uninst.isEmpty())
-                uninst.append("\n\t");
-            uninst.append("-$(DEL_FILE) \"" + dst_lt + "\"");
-        }
-        if(project->isActiveConfig("create_pc")) {
-            const QString src_pc = pkgConfigFileName(),
-                          dst_pc = filePrefixRoot(root, targetdir + src_pc.section('/', -1));
-            if(!ret.isEmpty())
-                ret += "\n\t";
-            ret += "-$(INSTALL_FILE) \"" + src_pc + "\" \"" + dst_pc + "\"";
-            if(!uninst.isEmpty())
-                uninst.append("\n\t");
-            uninst.append("-$(DEL_FILE) \"" + dst_pc + "\"");
-        }
+           !project->isEmpty("QMAKE_INTERNAL_PRL_FILE"))
+            targets += project->first("QMAKE_INTERNAL_PRL_FILE");
+        if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool"))
+            targets += libtoolFileName();
+        if(project->isActiveConfig("create_pc"))
+            targets += pkgConfigFileName();
         if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
             if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")) {
                 if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
@@ -650,6 +629,16 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
                 }
             }
         }
+    }
+    for(int i = 0; i < targets.size(); ++i) {
+        QString src = targets.at(i),
+                dst = filePrefixRoot(root, targetdir + src.section('/', -1));
+        if(!ret.isEmpty())
+            ret += "\n\t";
+        ret += "-$(INSTALL_FILE) \"" + src + "\" \"" + dst + "\"";
+        if(!uninst.isEmpty())
+            uninst.append("\n\t");
+        uninst.append("-$(DEL_FILE) \"" + dst + "\"");
     }
 
     if(!bundle && project->isActiveConfig("compile_libtool")) {
