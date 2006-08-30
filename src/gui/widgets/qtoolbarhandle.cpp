@@ -99,7 +99,9 @@ void QToolBarHandle::mousePressEvent(QMouseEvent *event)
     if (!found)
         return;
 
-    Q_ASSERT(!state);
+    if (state != 0)
+        delete state;
+
     state = new DragState;
     state->offset = mapTo(parentWidget(), event->pos());
     if (orientation() == Qt::Horizontal) {
