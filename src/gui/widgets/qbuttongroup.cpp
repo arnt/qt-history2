@@ -32,7 +32,10 @@
     buttons except the one that was clicked. By default, a button
     group is exclusive. The buttons in a button group are usually
     checkable QPushButton's, \l{QCheckBox}es (normally for
-    non-exclusive button groups), or \l{QRadioButton}s.
+    non-exclusive button groups), or \l{QRadioButton}s. If you create
+    an exclusive button group, you should ensure that one of the
+    buttons in the group is initially checked; otherwise, the group
+    will initially be in a state where no buttons are checked.
 
     A button is added to the group with addButton(). It can be removed
     from the group with removeButton(). If the group is exclusive, the
