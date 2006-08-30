@@ -220,10 +220,10 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("movenextchar") << (int)QKeySequence::MoveToNextChar<< QString("RIGHT");
     QTest::newRow("zoomIn") << (int)QKeySequence::ZoomIn<< QString("CTRL++");
     QTest::newRow("zoomOut") << (int)QKeySequence::ZoomOut<< QString("CTRL+-");
-    QTest::newRow("help") << (int)QKeySequence::HelpContents<< QString("F1");
     QTest::newRow("whatsthis") << (int)QKeySequence::WhatsThis<< QString("SHIFT+F1");
 
 #ifndef Q_WS_MAC
+    QTest::newRow("help") << (int)QKeySequence::HelpContents<< QString("F1");
     QTest::newRow("nextChild") << (int)QKeySequence::NextChild<< QString("CTRL+Tab");
     QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild<< QString("CTRL+SHIFT+TAB");
     QTest::newRow("forward") << (int)QKeySequence::Forward << QString("ALT+RIGHT");
@@ -231,6 +231,7 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock<< QString(""); //mac only
     QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("CTRL+SHIFT+END"); //mac only
 #else
+    QTest::newRow("help") << (int)QKeySequence::HelpContents<< QString("Ctrl+?");
     QTest::newRow("nextChild") << (int)QKeySequence::NextChild << QString("CTRL+}");
     QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild << QString("CTRL+{");
     QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock << QString("ALT+DOWN");
@@ -415,6 +416,9 @@ void tst_QKeySequence::translated()
 {
     QFETCH(QString, transKey);
     QFETCH(QString, compKey);
+#ifdef Q_WS_MAC
+    QSKIP("No need to translate modifiers on Mac OS X", SkipAll);
+#endif
 
     qApp->installTranslator(ourTranslator);
     qApp->installTranslator(qtTranslator);
