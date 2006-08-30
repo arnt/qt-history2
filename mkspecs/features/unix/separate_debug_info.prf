@@ -1,5 +1,5 @@
 
-!staticlib:!static:!contains(TEMPLATE, subdirs) {
+!staticlib:!static:!contains(TEMPLATE, subdirs):!isEmpty(QMAKE_SEPARATE_DEBUG_INFO) {
     QMAKE_POST_LINK = $$QMAKE_SEPARATE_DEBUG_INFO $$QMAKE_POST_LINK
     
     !isEmpty(target.path) {
