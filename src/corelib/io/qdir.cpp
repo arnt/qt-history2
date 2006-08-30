@@ -1042,10 +1042,14 @@ QDir::Filters QDir::filter() const
     \value NoDotAndDotDot Do not list the special entries "." and "..".
     \value AllEntries  List directories, files, drives and symlinks (this does not list
                 broken symlinks unless you specify System).
-    \value Readable  List files for which the application has read access.
-    \value Writable  List files for which the application has write access.
+    \value Readable    List files for which the application has read
+                       access. The Readable value needs to be combined
+                       with Dirs or Files.
+    \value Writable    List files for which the application has write
+                       access. The Writable value needs to be combined
+                       with Dirs or Files.
     \value Executable  List files for which the application has
-                       execute access. Executables needs to be
+                       execute access. The Executable value needs to be
                        combined with Dirs or Files.
     \value Modified  Only list files that have been modified (ignored
                      under Unix).
