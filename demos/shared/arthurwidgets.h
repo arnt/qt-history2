@@ -62,15 +62,7 @@ public slots:
     void showSource();
 
 #if defined(QT_OPENGL_SUPPORT)
-    void enableOpenGL(bool use_opengl)
-    {
-        m_use_opengl = use_opengl;
-        if (use_opengl)
-            glw->show();
-        else
-            glw->hide();
-    }
-
+    void enableOpenGL(bool use_opengl);
     bool usesOpenGL() { return m_use_opengl; }
 #endif
 

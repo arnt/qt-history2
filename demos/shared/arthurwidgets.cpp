@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "arthurwidgets.h"
+#include <QApplication>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
@@ -29,20 +30,8 @@ ArthurFrame::ArthurFrame(QWidget *parent)
     , m_prefer_image(false)
 {
 #ifdef QT_OPENGL_SUPPORT
-    QGLFormat f = QGLFormat::defaultFormat();
-    f.setSampleBuffers(true);
-    f.setStencil(true);
-    f.setAlpha(true);
-    f.setAlphaBufferSize(8);
-    QGLFormat::setDefaultFormat(f);
-
-    glw = new GLWidget(this);
-    glw->setGeometry(0, 0, width(), height());
-    glw->setAutoFillBackground(false);
-    glw->disableAutoBufferSwap();
-
+    glw = 0;
     m_use_opengl = false;
-    glw->hide();
 #endif
     m_document = 0;
     m_show_doc = false;
@@ -66,6 +55,33 @@ ArthurFrame::ArthurFrame(QWidget *parent)
 }
 
 
+#ifdef QT_OPENGL_SUPPORT
+void ArthurFrame::enableOpenGL(bool use_opengl)
+{
+    m_use_opengl = use_opengl;
+
+    if (!glw) {
+        QGLFormat f = QGLFormat::defaultFormat();
+        f.setSampleBuffers(true);
+        f.setStencil(true);
+        f.setAlpha(true);
+        f.setAlphaBufferSize(8);
+        QGLFormat::setDefaultFormat(f);
+
+        glw = new GLWidget(this);
+        glw->setAutoFillBackground(false);
+        glw->disableAutoBufferSwap();
+        QApplication::postEvent(this, new QResizeEvent(size(), size()));
+    }
+
+    if (use_opengl) {
+        glw->show();
+    } else {
+        glw->hide();
+    }
+}
+#endif
+
 void ArthurFrame::paintEvent(QPaintEvent *e)
 {
     static QImage *static_image = 0;
@@ -73,7 +89,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     if (preferImage()
 #ifdef QT_OPENGL_SUPPORT
         && !m_use_opengl
-#endif        
+#endif
         ) {
         if (!static_image) {
             static_image = new QImage(size(), QImage::Format_RGB32);
@@ -147,7 +163,7 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     if (preferImage()
 #ifdef QT_OPENGL_SUPPORT
         && !m_use_opengl
-#endif        
+#endif
         ) {
         painter.end();
         painter.begin(this);
@@ -163,7 +179,8 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
 void ArthurFrame::resizeEvent(QResizeEvent *e)
 {
 #ifdef QT_OPENGL_SUPPORT
-    glw->setGeometry(0, 0, e->size().width()-1, e->size().height()-1);
+    if (glw)
+        glw->setGeometry(0, 0, e->size().width()-1, e->size().height()-1);
 #endif
     QWidget::resizeEvent(e);
 }
