@@ -79,18 +79,9 @@ static bool qt_resolve_pbuffer_extensions()
     return resolved;
 }
 
-bool
-QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+static void qt_format_to_attrib_list(const QGLFormat &f, int attribs[])
 {
-    if (!qt_resolve_pbuffer_extensions()) {
-        qWarning("QGLPixelBuffer: pbuffers are not supported on this system.");
-        return false;
-    }
-
     int i = 0;
-    int attribs[40];
-    int num_configs = 0;
-
     attribs[i++] = GLX_RENDER_TYPE;
     attribs[i++] = GLX_RGBA_BIT;
     attribs[i++] = GLX_DRAWABLE_TYPE;
@@ -141,6 +132,20 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
     }
 
     attribs[i] = XNone;
+}
+
+bool
+QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+{
+    if (!qt_resolve_pbuffer_extensions()) {
+        qWarning("QGLPixelBuffer: pbuffers are not supported on this system.");
+        return false;
+    }
+
+    int attribs[40];
+    int num_configs = 0;
+
+    qt_format_to_attrib_list(f, attribs);
 
     GLXFBConfig *configs = glXChooseFBConfig(X11->display, X11->defaultScreen, attribs, &num_configs);
     if (configs && num_configs) {
@@ -235,7 +240,6 @@ void QGLPixelBuffer::releaseFromDynamicTexture()
 {
 }
 
-
 bool QGLPixelBuffer::hasOpenGLPbuffers()
 {
     bool ret = qt_resolve_pbuffer_extensions();
@@ -243,16 +247,11 @@ bool QGLPixelBuffer::hasOpenGLPbuffers()
     if (!ret)
 	return false;
 
-    int i = 0;
     int attribs[40];
     int num_configs = 0;
 
-    attribs[i++] = GLX_RENDER_TYPE;
-    attribs[i++] = GLX_RGBA_BIT;
-    attribs[i++] = GLX_DRAWABLE_TYPE;
-    attribs[i++] = GLX_PBUFFER_BIT;
-    attribs[i] = XNone;
-
+    qt_format_to_attrib_list(QGLFormat::defaultFormat(), attribs);
+    
     GLXFBConfig *configs = glXChooseFBConfig(X11->display, X11->defaultScreen, attribs, &num_configs);
     GLXPbuffer pbuf = 0;
     GLXContext ctx = 0;
