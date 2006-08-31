@@ -138,6 +138,12 @@ void PreviewView::paintPage(QPainter *painter, int page)
     QRectF docRect(QPointF(0, page * pgSize.height()), pgSize);
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.clip = docRect;
+
+    // don't use the system palette text as default text color, on HP/UX
+    // for example that's white, and white text on white paper doesn't
+    // look that nice
+    ctx.palette.setColor(QPalette::Text, Qt::black);
+
     painter->translate(0, - page * pgSize.height());
     painter->setClipRect(docRect);
     doc->documentLayout()->draw(painter, ctx);
