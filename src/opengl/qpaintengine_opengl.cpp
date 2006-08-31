@@ -2278,6 +2278,7 @@ public:
     QGLGlyphCoord *lookup(QFontEngine *, glyph_t);
     void cacheGlyphs(QGLContext *, const QTextItemInt &, const QVarLengthArray<glyph_t> &);
     void cleanCache();
+    void allocTexture(int width, int height, GLuint texture);
 
 public slots:
     void fontEngineDestroyed(QObject *);
@@ -2353,6 +2354,15 @@ void QGLGlyphCache::cleanCache()
     qt_context_cache.clear();
 }
 
+void QGLGlyphCache::allocTexture(int width, int height, GLuint texture)
+{
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8_ALPHA8,
+                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+}
+
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                                 const QVarLengthArray<glyph_t> &glyphs)
 {
@@ -2407,18 +2417,11 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         glGenTextures(1, &font_texture);
         int tex_height = nearest_gl_texture_size(qRound(ti.ascent.toReal() + ti.descent.toReal())+2);
         int tex_width = nearest_gl_texture_size(tex_height*30); // ###
-        if (tex_width > 2048)
-            tex_width = 2048;
-
-        uchar *tex_data = (uchar *) malloc(tex_width*tex_height*2);
-        memset(tex_data, 0, tex_width*tex_height*2);
-        glBindTexture(GL_TEXTURE_2D, font_texture);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8_ALPHA8,
-                     tex_width, tex_height, 0,
-                     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
-        free(tex_data);
+        int max_tex_size;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
+        if (tex_width > max_tex_size)
+            tex_width = max_tex_size;
+        allocTexture(tex_width, tex_height, font_texture);
         font_tex = new QGLFontTexture;
         font_tex->texture = font_texture;
         font_tex->x_offset = x_margin;
@@ -2442,16 +2445,42 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             int glyph_height = qRound(ti.ascent.toReal() + ti.descent.toReal())+2;
 
             if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
+                int strip_height = nearest_gl_texture_size(qRound(ti.ascent.toReal() + ti.descent.toReal())+2);
                 font_tex->x_offset = x_margin;
-                font_tex->y_offset += glyph_height + y_margin;
+                font_tex->y_offset += strip_height;
+                if (font_tex->y_offset >= font_tex->height) {
+                    // get hold of the old font texture
+                    uchar *old_tex_data = (uchar *) malloc(font_tex->width*font_tex->height*2);
+                    int old_tex_height = font_tex->height;
+                    glGetTexImage(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, old_tex_data);
+
+                    // realloc a larger texture
+                    glDeleteTextures(1, &font_tex->texture);
+                    glGenTextures(1, &font_tex->texture);
+                    font_tex->height += strip_height;
+                    allocTexture(font_tex->width, font_tex->height, font_tex->texture);
+
+                    // write back the old texture data
+                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, font_tex->width, old_tex_height,
+                                    GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, old_tex_data);
+                    free(old_tex_data);
+
+                    // update the texture coords and the y offset for the existing glyphs in
+                    // the cache, because of the texture size change
+                    QGLGlyphHash::iterator it = cache->begin();
+                    while (it != cache->end()) {
+                        it.value()->height = (it.value()->height * old_tex_height) / font_tex->height;
+                        it.value()->y = (it.value()->y * old_tex_height) / font_tex->height;
+                        ++it;
+                    }
+                }
             }
 
-            const int scale = 1;
             QGLGlyphCoord *qgl_glyph = new QGLGlyphCoord;
-            qgl_glyph->x = float(font_tex->x_offset) / font_tex->width;
-            qgl_glyph->y = float(font_tex->y_offset) / font_tex->height;
-            qgl_glyph->width = float(glyph_width/scale) / font_tex->width;
-            qgl_glyph->height = float(glyph_height/scale) / font_tex->height;
+            qgl_glyph->x = qreal(font_tex->x_offset) / font_tex->width;
+            qgl_glyph->y = qreal(font_tex->y_offset) / font_tex->height;
+            qgl_glyph->width = qreal(glyph_width) / font_tex->width;
+            qgl_glyph->height = qreal(glyph_height) / font_tex->height;
             qgl_glyph->log_width = qgl_glyph->width * font_tex->width;
             qgl_glyph->log_height = qgl_glyph->height * font_tex->height;
             qgl_glyph->x_offset = -metrics.x;
@@ -2484,7 +2513,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 
             if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
                 font_tex->x_offset = x_margin;
-                font_tex->y_offset += glyph_height + y_margin;
+                font_tex->y_offset += font_tex->height;
             } else {
                 font_tex->x_offset += glyph_width + x_margin;
             }
