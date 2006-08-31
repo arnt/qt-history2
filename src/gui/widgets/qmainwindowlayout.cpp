@@ -439,7 +439,7 @@ static bool findWidgetRecursively(QLayoutItem *li, QWidget *w)
 
 Qt::DockWidgetArea QMainWindowLayout::dockWidgetArea(QDockWidget *widget) const
 {
-    QList<int> pathToWidget = dockWidgetLayout.indexOf(widget);
+    QList<int> pathToWidget = dockWidgetLayout.indexOf(widget, IndexOfFindsAll);
     if (pathToWidget.isEmpty())
         return Qt::NoDockWidgetArea;
     int pos = pathToWidget.first();
