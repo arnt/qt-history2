@@ -1537,6 +1537,14 @@ static bool parseCSStoXMLAttrs(QString css,
                     valueStr.append(",");
             }
             valueStr.append(")");
+        } else if (val.type == QCss::Value::KnownIdentifier) {
+            switch (val.variant.toInt()) {
+            case QCss::Value_None:
+                valueStr = QLatin1String("none");
+                break;
+            default:
+                break;
+            }
         }
             
         attributes.append(decl.property, QString(),
