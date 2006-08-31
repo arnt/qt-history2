@@ -1507,17 +1507,11 @@ static bool parseStyle(QSvgNode *node,
                        const QXmlAttributes &attributes,
                        QSvgHandler *);
 
-static bool parseCSStoXMLAttrs(QString css,
+static void parseCSStoXMLAttrs(const QVector<QCss::Declaration> &declarations,
                                QXmlAttributes &attributes)
 {
-    css.prepend(QLatin1String("dummy {"));
-    css.append(QLatin1Char('}'));
-    QCss::StyleSheet sheet;
-    QCss::Parser(css).parse(&sheet);
-    if (sheet.styleRules.count() != 1)
-        return false;
-    for (int i = 0; i < sheet.styleRules.at(0).declarations.count(); ++i) {
-        const QCss::Declaration &decl = sheet.styleRules.at(0).declarations.at(i);
+    for (int i = 0; i < declarations.count(); ++i) {
+        const QCss::Declaration &decl = declarations.at(i);
         if (decl.property.isEmpty())
             continue;
         if (decl.values.count() != 1)
@@ -1550,9 +1544,20 @@ static bool parseCSStoXMLAttrs(QString css,
         attributes.append(decl.property, QString(),
                           decl.property, valueStr);
     }
-    return attributes.count();
 }
 
+static bool parseCSStoXMLAttrs(QString css,
+                               QXmlAttributes &attributes)
+{
+    css.prepend(QLatin1String("dummy {"));
+    css.append(QLatin1Char('}'));
+    QCss::StyleSheet sheet;
+    QCss::Parser(css).parse(&sheet);
+    if (sheet.styleRules.count() != 1)
+        return false;
+    parseCSStoXMLAttrs(sheet.styleRules.at(0).declarations, attributes);
+    return attributes.count();
+}
 
 static void cssStyleLookup(QSvgNode *node,
                            QSvgHandler *handler,
@@ -1563,39 +1568,7 @@ static void cssStyleLookup(QSvgNode *node,
     QVector<QCss::Declaration> decls = selector->declarationsForNode(cssNode);
 
     QXmlAttributes attributes;
-    for (int i = 0; i < decls.count(); ++i) {
-        const QCss::Declaration &decl = decls.at(i);
-
-        if (decl.property.isEmpty())
-            continue;
-        if (decl.values.count() != 1)
-            continue;
-        QCss::Value val = decl.values.first();
-        QString valueStr = val.variant.toString();
-        if (val.type == QCss::Value::Uri) {
-            valueStr.prepend(QLatin1String("url("));
-            valueStr.append(QLatin1Char(')'));
-        } else if (val.type == QCss::Value::Function) {
-            QStringList lst = val.variant.toStringList();
-            valueStr.append(lst.first());
-            valueStr.append("(");
-            for (int i = 1; i < lst.count(); ++i) {
-                valueStr.append(lst.at(i));
-            }
-            valueStr.append(")");
-        } else if (val.type == QCss::Value::KnownIdentifier) {
-            switch (val.variant.toInt()) {
-            case QCss::Value_None:
-                valueStr = QLatin1String("none");
-                break;
-            default:
-                break;
-            }
-        }
-
-        attributes.append(decl.property, QString(),
-                          decl.property, valueStr);
-    }
+    parseCSStoXMLAttrs(decls, attributes);
     parseStyle(node, attributes, handler);
 }
 
