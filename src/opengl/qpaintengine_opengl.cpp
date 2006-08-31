@@ -2490,6 +2490,8 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             int padded_width = glyph_im.width();
             if (padded_width%2 != 0)
                 ++padded_width;
+	    if (padded_width == 0 || glyph_im.height() == 0)
+		break;
 
             int idx = 0;
             uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
@@ -2571,6 +2573,8 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     for (int i=0; i< glyphs.size(); ++i) {
         QGLGlyphCoord *g = qt_glyph_cache()->lookup(ti.fontEngine, glyphs[i]);
 
+	if (!g)
+	    continue;
         qreal x1, x2, y1, y2;
         x1 = g->x;
         y1 = g->y;
