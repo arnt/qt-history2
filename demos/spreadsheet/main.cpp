@@ -19,8 +19,13 @@ static QString encode_pos(int row, int col) {
 
 static void decode_pos(const QString &pos, int *row, int *col)
 {
-    *col = pos.at(0).toLatin1() - 'A';
-    *row = pos.right(pos.size() - 1).toInt() - 1;
+    if (pos.isEmpty()) {
+        *col = -1;
+        *row = -1;
+    } else {
+        *col = pos.at(0).toLatin1() - 'A';
+        *row = pos.right(pos.size() - 1).toInt() - 1;
+    }
 }
 
 class SpreadSheetDelegate : public QItemDelegate
