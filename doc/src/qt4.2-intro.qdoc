@@ -184,10 +184,10 @@
   \section1 Inter-Process Communication (D-BUS)
 
   Qt 4.2 provides support for Inter-Process Communication (IPC) using
-  the D-BUS protocol on Linux and Unix systems. This service-oriented
-  protocol provides fast, low latency communication that can be used
-  for same-machine communication between applications, yet also allows
-  Remote Procedure Calling (RPC) mechanisms to be implemented.
+  the D-BUS protocol. This service-oriented protocol provides fast,
+  low latency communication that can be used for same-machine
+  communication between applications, yet also allows Remote Procedure
+  Calling (RPC) mechanisms to be implemented.
 
   Using the QtDBus module, an application can provide services to
   other applications by exporting objects, as well as use such
