@@ -456,6 +456,10 @@ for package in $PACKAGES; do
         rm -f "$package_dir/Contents/Resources/InstallationCheck.strings"
         cp opensourceStuff/InstallationCheck "$package_dir/Contents/Resources"
         cp opensourceStuff/InstallationCheck.strings "$package_dir/Contents/Resources"
+        if [ "$package" = "libraries" ]; then
+            rm -f "$package_dir/Contents/Resources/postflight"
+        fi
+
     fi
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
