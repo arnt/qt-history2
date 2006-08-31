@@ -6,7 +6,7 @@ QT -= gui
 CONFIG += qdbus
 
 # Input
-HEADERS += complexping.h
+HEADERS += complexping.h ping-common.h
 SOURCES += complexping.cpp
 
 # install

@@ -12,3 +12,9 @@ CONFIG += qdbus
 # DBUS_ADAPTORS += car.xml
 HEADERS += car.h car_adaptor_p.h
 SOURCES += car.cpp main.cpp car_adaptor.cpp
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/car
+sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.xml
+sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/car
+INSTALLS += target sources

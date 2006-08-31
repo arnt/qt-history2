@@ -13,3 +13,9 @@ CONFIG += qdbus uitools
 FORMS += controller.ui
 HEADERS += car_interface_p.h controller.h
 SOURCES += main.cpp car_interface.cpp controller.cpp
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/controller
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro *.xml
+sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus/remotecontrolledcar/controller
+INSTALLS += target sources
