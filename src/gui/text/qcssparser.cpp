@@ -507,7 +507,7 @@ static QBrush parseBrushValue(Value v)
         return QBrush();
 
     QStringList gradFuncs;
-    gradFuncs << "lineargradient" << "radialgradient" << "conicalgradient" << "gradient";
+    gradFuncs << "qlineargradient" << "qradialgradient" << "qconicalgradient" << "qgradient";
     int gradType = -1;
 
     if (lst.at(0).compare(QLatin1String("gradient"), Qt::CaseInsensitive) != 0
