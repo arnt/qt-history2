@@ -891,6 +891,7 @@ void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 
 /*!
     \namespace QDBus
+    \inmodule QtDBus
 
     \brief The QDBus namespace contains miscellaneous identifiers used
     throughout the QtDBus library.
@@ -899,17 +900,19 @@ void QDBusConnectionPrivate::setSender(const QDBusConnectionPrivate *s)
 /*!
     \enum QDBus::CallMode
 
-    This enum describes the various modes for function calls.
+    This enum describes the various ways of placing a function call. The valid modes are:
 
-    \value NoBlock The program execution continues after calling the function.
-    \value Block The program execution is blocked until the function call returns.
+    \value NoBlock              Place the call but don't wait for the reply (the reply's contents
+                                will be discarded).
+    \value Block                Don't use an event loop to wait for a reply, but instead block on
+                                network operations while waiting. This means the
+                                user-interface may not be updated until the function returns.
+    \value BlockWithGui         Use the Qt event loop to wait for a reply. This means that the
+                                user-interface will stay responsive (processing input events),
+                                but it also means other events may happen, like signal delivery
+                                and other D-Bus method calls.
+    \value AutoDetect           Automatically detect if the called function has a reply.
 
-    \value BlockWithGui The program execution is blocked until the
-                        function call returns, but the GUI stays
-                        responsive (processing input events).
-
-    \value AutoDetect The mode is autodetected.
-
-
-    \sa QDBusConnection::call()
+    When using BlockWithGui, applications must be prepared for reentrancy in any function.
 */
+

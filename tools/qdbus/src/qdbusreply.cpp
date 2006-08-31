@@ -47,10 +47,9 @@
     However, if it does fail under those conditions, the value returned by QDBusReply::value() is
     a default-constructed value. It may be undistinguishable from a valid return value.
 
-    QDBusReply objects are used for remote calls that have no output arguments or return values
-    (i.e., they have a "void" return type). In this case, you can only test if the reply succeeded
-    or not, by calling !isValid(), and isValid() inspecting the error condition by calling
-    error(). You cannot call value().
+    QDBusReply objects are used for remote calls that have no output
+    arguments or return values (i.e., they have a "void" return
+    type). Use the isValid() function to test if the reply succeeded.
 
     \sa QDBusMessage, QDBusInterface
 */

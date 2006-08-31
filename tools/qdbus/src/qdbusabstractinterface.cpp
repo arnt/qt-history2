@@ -147,23 +147,6 @@ void QDBusAbstractInterfacePrivate::_q_serviceOwnerChanged(const QString &name,
 */
 
 /*!
-    \enum QDBus::CallMode
-
-    Specifies how a call should be placed. The valid options are:
-    \value AutoDetect           Automatically detect if the called function has a reply to be returned
-    \value NoBlock              Place the call but don't wait for the reply (the reply's contents
-                                will be discarded)
-    \value Block                Don't use an event loop to wait for a reply, but instead block on
-                                network operations while waiting. This option means the
-                                user-interface may not be updated for the duration of the call.
-    \value BlockWithGui         Use the Qt event loop to wait for a reply. This option means the
-                                user-interface will update, but it also means other events may
-                                happen, like signal delivery and other D-Bus method calls.
-
-    When using BlockWithGui, applications must be prepared for reentrancy in any function.
-*/
-
-/*!
     \internal
     This is the constructor called from QDBusInterface::QDBusInterface.
 */

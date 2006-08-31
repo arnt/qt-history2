@@ -41,10 +41,13 @@
     interface.
 
     The most common uses of this class are to register and unregister
-    service names on the bus (see requestName() and releaseName()),
-    query about existing names (see listNames(), nameHasOwner() and
-    getNameOwner()), and to receive notification that a client has
-    registered or de-registered (see the nameOwnerChanged() signal).
+    service names on the bus using the registerService() and
+    unregisterService() functions, query about existing names using
+    the isServiceRegistered(), registeredServiceNames() and
+    serviceOwner() functions, and to receive notification that a
+    client has registered or de-registered through the
+    serviceRegistered(), serviceUnregistered() and serviceOwnerChanged()
+    signals.
 */
 
 /*!
@@ -144,8 +147,9 @@ QDBusConnectionInterface::~QDBusConnectionInterface()
 }
 
 /*!
-    Returns the unique connection name of the primary owner of the name \a name. If the requested
-    name doesn't have an owner, returns a org.freedesktop.DBus.Error.NameHasNoOwner error.
+    Returns the unique connection name of the primary owner of the
+    name \a name. If the requested name doesn't have an owner, returns
+    a \c org.freedesktop.DBus.Error.NameHasNoOwner error.
 */
 QDBusReply<QString> QDBusConnectionInterface::serviceOwner(const QString &name) const
 {

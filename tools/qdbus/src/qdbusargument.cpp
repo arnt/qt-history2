@@ -188,17 +188,18 @@ bool QDBusArgumentPrivate::checkRead()
 
 /*!
     \fn qdbus_cast(const QDBusArgument &argument)
+    \relates QDBusArgument
     \since 4.2
 
-    Attempts to demarshall the contents of the QDBusArgument object
-    into the type \c{T}.
+    Attempts to demarshall the contents of \a argument into the type
+    \c{T}. For example:
 
-    This function is used like the following:
     \code
         MyType item = qdbus_cast<Type>(argument);
     \endcode
 
-    It's also valid to note that it is equivalent to the following:
+    Note that it is equivalent to the following:
+
     \code
         MyType item;
         argument >> item;

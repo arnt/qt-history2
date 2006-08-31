@@ -203,10 +203,12 @@ void QDBusMessagePrivate::setType(const QDBusMessage *message, QDBusMessage::Mes
     \inmodule QtDBus
     \since 4.2
 
-    \brief The QDBusMessage class represents one message sent or received over the D-Bus bus.
+    \brief The QDBusMessage class represents one message sent or
+    received over the D-Bus bus.
 
-    This object can represent any of four different types of messages possible on the bus
-    (see MessageType)
+    This object can represent any of the four different types of
+    messages (MessageType) that can occur on the bus:
+
     \list
       \o Method calls
       \o Method return values
@@ -214,7 +216,9 @@ void QDBusMessagePrivate::setType(const QDBusMessage *message, QDBusMessage::Mes
       \o Error codes
     \endlist
 
-    Objects of this type are created with the static functions createSignal or createMethodCall.
+    Objects of this type are created with the static createError(),
+    createMethodCall() and createSignal() functions. Use the
+    QDBusConnection::send() function to send the messages.
 */
 
 /*!
@@ -229,14 +233,15 @@ void QDBusMessagePrivate::setType(const QDBusMessage *message, QDBusMessage::Mes
 */
 
 /*!
-    Constructs a new DBus message representing a signal emission. A DBus signal is emitted
-    from one application and is received by all applications that are listening for that signal
-    from that interface.
+    Constructs a new DBus message with the given \a path, \a interface
+    and \a name, representing a signal emission.
 
-    The signal will be constructed to represent a signal coming from the path \a path, interface \a
-    interface, signal name \a name using the given \a connection.
+    A DBus signal is emitted from one application and is received by
+    all applications that are listening for that signal from that
+    interface.
 
-    The QDBusMessage object that is returned can be sent with QDBusConnection::send().
+    The QDBusMessage object that is returned can be sent using the
+    QDBusConnection::send() function.
 */
 QDBusMessage QDBusMessage::createSignal(const QString &path, const QString &interface,
                                         const QString &name)
@@ -297,8 +302,17 @@ QDBusMessage QDBusMessage::createError(const QString &name, const QString &msg)
 }
 
 /*!
-    Constructs a new DBus message representing a the reply to the
-    message , with the given \a arguments.
+    \fn QDBusMessage QDBusMessage::createError(const QDBusError &error)
+
+    Constructs a new DBus message representing the given \a error.
+*/
+
+
+/*!
+    \fn QDBusMessage QDBusMessage::createReply(const QList<QVariant> &arguments) const
+
+    Constructs a new DBus message representing a reply, with the given
+    \a arguments.
 */
 QDBusMessage QDBusMessage::createReply(const QVariantList &arguments) const
 {
@@ -332,22 +346,23 @@ QDBusMessage QDBusMessage::createErrorReply(const QString name, const QString &m
 }
 
 /*!
-   \fn QDBusMessage QDBusMessage::createReply(const QVariant &retval)
-    Constructs a new DBus message representing a the reply to the
-    message , with the given \a retval.
+   \fn QDBusMessage QDBusMessage::createReply(const QVariant &argument) const
+
+    Constructs a new DBus message representing a reply, with the
+    given \a argument.
 */
 
 /*!
-  \fn QDBusMessage QDBusMessage::createErrorReply(const QDBusError &error)
+    \fn QDBusMessage QDBusMessage::createErrorReply(const QDBusError &error) const
 
-  Constructs a new DBus message representing an error reply message,
-  from the given \a &error object.
+    Constructs a new DBus message representing an error reply message,
+    from the given \a error object.
 */
 
 /*!
     Constructs an empty, invalid QDBusMessage object.
 
-    \sa methodCall(), signal()
+    \sa createError(), createMethodCall(), createSignal()
 */
 QDBusMessage::QDBusMessage()
 {
@@ -445,9 +460,10 @@ QString QDBusMessage::signature() const
 }
 
 /*!
-    Returns the flag that indicates if this message should see a reply or not. This is only
-    meaningful for MethodCall messages: any other kind of message cannot have replies and this
-    function will always return false for them.
+    Returns the flag that indicates if this message should see a reply
+    or not. This is only meaningful for \l {MethodCallMessage}{method
+    call messages}: any other kind of message cannot have replies and
+    this function will always return false for them.
 */
 bool QDBusMessage::isReplyRequired() const
 {

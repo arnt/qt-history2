@@ -90,18 +90,23 @@ Q_GLOBAL_STATIC(ErrorMessageMapping, errorMessages)
     \brief The QDBusError class represents an error received from the
     D-Bus bus or from remote applications found in the bus.
 
-    When dealing with the D-Bus bus service or with remote applications over D-Bus, a number of
-    error conditions can happen. This error conditions are sometimes signalled by a returned error
-    value or by a QDBusError.
+    When dealing with the D-Bus bus service or with remote
+    applications over D-Bus, a number of error conditions can
+    happen. This error conditions are sometimes signalled by a
+    returned error value or by a QDBusError.
 
-    C++ and Java exceptions are a valid analogy for D-Bus errors: instead of returning normally with
-    a return value, remote applications and the bus may decide to throw an error condition. However,
-    the QtDBus implementation does not use the C++ exception-throwing mechanism, so you will receive
-    QDBusErrors in the return reply (see QDBusReply::error()).
+    C++ and Java exceptions are a valid analogy for D-Bus errors:
+    instead of returning normally with a return value, remote
+    applications and the bus may decide to throw an error
+    condition. However, the QtDBus implementation does not use the C++
+    exception-throwing mechanism, so you will receive QDBusErrors in
+    the return reply (see QDBusReply::error()).
 
-    QDBusError objects are used to inspect the error name and message as received from the bus and
-    remote applications. You should not create such objects yourself to signal error conditions when
-    called from D-Bus: instead, use QDBusMessage::error and QDBusConnection::send.
+    QDBusError objects are used to inspect the error name and message
+    as received from the bus and remote applications. You should not
+    create such objects yourself to signal error conditions when
+    called from D-Bus: instead, use QDBusMessage::createError() and
+    QDBusConnection::send().
 
     \sa QDBusConnection::send(), QDBusMessage, QDBusReply
 */
@@ -231,7 +236,7 @@ QDBusError::ErrorType QDBusError::type() const
 
 /*!
     Returns this error's name. Error names are similar to D-Bus Interface names, like
-    "org.freedesktop.DBus.InvalidArgs".
+    \c org.freedesktop.DBus.InvalidArgs.
 
     \sa type()
 */

@@ -16,13 +16,16 @@
 
 /*!
     \class QDBusServer
+    \inmodule QtDBus
+    \since 4.2
 
-    The QDBusServer is useful for doing D-Bus peer-to-peer communication
+    \brief The QDBusServer class provides peer-to-peer communication
     between processes on the same computer.
 */
 
 /*!
-  Constructs a QDBusServer with the given \a address, and the given \a parent.
+    Constructs a QDBusServer with the given \a address, and the given
+    \a parent.
 */
 QDBusServer::QDBusServer(const QString &address, QObject *parent)
     : QObject(parent)
@@ -39,7 +42,7 @@ QDBusServer::QDBusServer(const QString &address, QObject *parent)
 /*!
     Returns true if this QDBusServer object is connected.
 
-    If it isn't connected, you need to call the QDBusServer constructor again.
+    If it isn't connected, you need to call the constructor again.
 */
 bool QDBusServer::isConnected() const
 {
@@ -57,7 +60,7 @@ QDBusError QDBusServer::lastError() const
 }
 
 /*!
-    Returns the address this server is assosiated width.
+    Returns the address this server is assosiated with.
 */
 QString QDBusServer::address() const
 {
