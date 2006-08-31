@@ -280,7 +280,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 
     QGridLayout *grid = new QGridLayout;
 #ifndef Q_WS_MAC
-    grid->addWidget(iconLabel, 0, 0, 3, 1, Qt::AlignTop);
+    grid->addWidget(iconLabel, 0, 0, 2, 1, Qt::AlignTop);
     grid->addWidget(label, 0, 1, 1, 1);
     // -- leave space for information label --
     grid->addWidget(buttonBox, 2, 0, 1, 2);
