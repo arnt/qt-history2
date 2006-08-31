@@ -1,6 +1,6 @@
 /*!
   \page qt4.2-intro.html
-  \title What's New in the Qt 4.2 Technical Preview
+  \title What's New in the Qt 4.2
 
   Qt 4.2 provides many improvements and enhancements over the previous releases
   in the Qt 4 series. This documents covers the most important features in this
@@ -180,6 +180,24 @@
   applications to clear the undo buffer when certain operations are performed,
   such as saving a file.
 
+  \target D-BUS
+  \section1 Inter-Process Communication (D-BUS)
+
+  Qt 4.2 provides support for Inter-Process Communication (IPC) using
+  the D-BUS protocol on Linux and Unix systems. This service-oriented
+  protocol provides fast, low latency communication that can be used
+  for same-machine communication between applications, yet also allows
+  Remote Procedure Calling (RPC) mechanisms to be implemented.
+
+  Using the QtDBus module, an application can provide services to
+  other applications by exporting objects, as well as use such
+  exported services itself. The QtDBus module also extends Qt's \l
+  {Signals and Slots} mechanism, making it possible to connect to
+  other applications.
+
+  See the \l{Introduction to D-BUS} document for more information
+  about using D-BUS with Qt.
+
   \section1 New Widgets and GUI Features
 
   Qt 4.2 also provides a number of new features for graphical user interface
@@ -230,15 +248,6 @@
   underlying functionality in Qt. Many of these changes involve introducing
   higher level functionality that aims to make application development easier
   while providing a more robust working environment for users.
-
-  \target D-BUS
-  Qt 4.2 provides \bold{support for Inter-Process Communication (IPC) using the
-  D-BUS protocol} on Linux and Unix systems. This service-oriented protocol
-  provides fast, low latency communication that can be used for same-machine
-  communication between applications, yet also allows Remote Procedure Calling
-  (RPC) mechanisms to be implemented.
-  See the \l{Introduction to D-BUS} document for more information about using
-  D-BUS with Qt.
 
   The QFileSystemWatcher class enables applications to \bold{monitor files and
   directories for changes}. This feature is often used by applications and
@@ -302,6 +311,7 @@
   Alongside many general improvements and optimizations, the \bold{transformed
   screen driver has been optimized} to improve performance when rendering rotated
   content.
+
   \omit
 
   \section1 Other Improvements
