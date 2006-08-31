@@ -64,6 +64,7 @@ public:
     void setToolTip(const QString &tip);
 
     static bool isSystemTrayAvailable();
+    static bool supportsMessages();
 
     enum MessageIcon { NoIcon, Information, Warning, Critical };
     void showMessage(const QString &title, const QString &msg,

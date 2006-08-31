@@ -33,6 +33,7 @@ private slots:
     void getSetCheck();
     void showHide();
     void showMessage();
+    void supportsMessages();
 };
 
 tst_QSystemTrayIcon::tst_QSystemTrayIcon()
@@ -88,6 +89,19 @@ void tst_QSystemTrayIcon::getSetCheck()
     icon.setContextMenu(&menu);
     QCOMPARE(false, icon.contextMenu() == 0);
 }
+
+void tst_QSystemTrayIcon::supportsMessages()
+{
+    // This is rather idiotic, but it does improve coverage
+    QCOMPARE(QSystemTrayIcon::supportsMessages(),
+#ifndef Q_WS_MAC
+            true
+#else
+            false
+#endif
+            );
+}
+
 
 QTEST_MAIN(tst_QSystemTrayIcon)
 #include "tst_qsystemtrayicon.moc"

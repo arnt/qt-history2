@@ -85,7 +85,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
     if (trayIcon->isVisible()) {
         QMessageBox::information(this, tr("System tray example"),
-                    tr("Application will continue running. Quit using context menu in the system tray"));
+                                 tr("Application will continue running. Quit using"
+                                     " the context menu in the system tray"));
         hide();
         e->ignore();
     }
@@ -106,14 +107,14 @@ void MainWindow::toggleVisibility()
 
 void MainWindow::showMessage()
 {
-#ifdef Q_WS_MAC
-    QMessageBox::information(this, tr("System tray example"),
-        tr("Balloon tips are not supported on Mac OS X"));
-#else
-    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(typeCombo->currentIndex());
-    trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, 10000);
-    trayIcon->setToolTip(titleEdit->text());
-#endif
+    if (!QSystemTrayIcon::supportsMessages()) {
+        QMessageBox::information(this, tr("System tray example"),
+                                 tr("Balloon tips are not supported on this platform"));
+    } else {
+        QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(typeCombo->currentIndex());
+        trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, 10000);
+        trayIcon->setToolTip(titleEdit->text());
+    }
 }
 
 void MainWindow::balloonClicked()

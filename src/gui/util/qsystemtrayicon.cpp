@@ -310,6 +310,21 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 }
 
 /*!
+    Returns true if the system tray supports balloon messages; otherwise returns false.
+
+    Mac OS X does not support ballon messages currently.
+
+    \so showMessage()
+*/
+bool QSystemTrayIcon::supportsMessages()
+{
+#ifdef Q_WS_MAC
+    return false;
+#endif
+    return true;
+}
+
+/*!
     \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, MessageIcon icon, int milliseconds)
 
     Shows a balloon message for the entry with the given \a title, \a message and
@@ -320,10 +335,9 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 
     Note that display of messages are dependent on the system configuration and user
     preferences, and that messages may not appear at all. Hence, it should not be
-    relied upon as the sole means for providing critical information. Mac OS X does
-    not support balloon messages.
+    relied upon as the sole means for providing critical information.
 
-    \sa show()
+    \sa show() supportsMessages()
   */
 void QSystemTrayIcon::showMessage(const QString& title, const QString& msg,
                             QSystemTrayIcon::MessageIcon icon, int msecs)
