@@ -182,7 +182,9 @@ public:
     ~QKeyEvent();
 
     int key() const { return k; }
+#ifndef QT_NO_SHORTCUT
     bool matches(QKeySequence::StandardKey key) const;
+#endif
     Qt::KeyboardModifiers modifiers() const;
     inline QString text() const { return txt; }
     inline bool isAutoRepeat() const { return autor; }
@@ -672,8 +674,10 @@ private:
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif
 
+#ifndef QT_NO_SHORTCUT
 inline bool operator==(QKeyEvent *e, QKeySequence::StandardKey key){return (e ? e->matches(key) : false);}
 inline bool operator==(QKeySequence::StandardKey key, QKeyEvent *e){return (e ? e->matches(key) : false);}
+#endif // QT_NO_SHORTCUT
 
 QT_END_HEADER
 

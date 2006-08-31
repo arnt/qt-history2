@@ -769,7 +769,7 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     return QInputEvent::modifiers();
 }
 
-
+#ifndef QT_NO_SHORTCUT
 /*!
     \fn bool QKeyEvent::matches(QKeySequence::StandardKey key) const
     \since 4.2
@@ -825,6 +825,7 @@ bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
     }
     return false; //we could not find matching keySequences at all
 }
+#endif // QT_NO_SHORTCUT
 
 
 /*!
