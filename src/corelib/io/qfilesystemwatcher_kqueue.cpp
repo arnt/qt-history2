@@ -110,6 +110,17 @@ QStringList QKqueueFileSystemWatcherEngine::addPaths(const QStringList &paths,
             continue;
         }
         int id = (S_ISDIR(st.st_mode)) ? -fd : fd;
+        if (id < 0) {
+            if (directories->contains(path)) {
+                ::close(fd);
+                continue;
+            }
+        } else {
+            if (files->contains(path)) {
+                ::close(fd);
+                continue;
+            }
+        }
 
         struct kevent kev;
         EV_SET(&kev,

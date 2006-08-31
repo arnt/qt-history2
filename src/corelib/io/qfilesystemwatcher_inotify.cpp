@@ -176,6 +176,8 @@ QInotifyFileSystemWatcherEngine::QInotifyFileSystemWatcherEngine(int fd)
     : inotifyFd(fd)
 {
     fcntl(inotifyFd, F_SETFD, FD_CLOEXEC);
+
+    moveToThread(this);
 }
 
 QInotifyFileSystemWatcherEngine::~QInotifyFileSystemWatcherEngine()
@@ -205,6 +207,14 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
         QString path = it.next();
         QFileInfo fi(path);
         bool isDir = fi.isDir();
+        if (isDir) {
+            if (directories->contains(path))
+                continue;
+        } else {
+            if (files->contains(path))
+                continue;
+        }
+
         int wd = inotify_add_watch(inotifyFd,
                                    QFile::encodeName(path),
                                    (isDir
@@ -276,7 +286,7 @@ QStringList QInotifyFileSystemWatcherEngine::removePaths(const QStringList &path
 
 void QInotifyFileSystemWatcherEngine::stop()
 {
-    quit();
+    QMetaObject::invokeMethod(this, "quit");
 }
 
 void QInotifyFileSystemWatcherEngine::readFromInotify()

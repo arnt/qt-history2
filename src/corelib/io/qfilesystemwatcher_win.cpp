@@ -74,8 +74,8 @@ void QWindowsFileSystemWatcherEngine::run()
                 int at = r - WAIT_OBJECT_0;
                 Q_ASSERT(at < handlesCopy.count());
                 HANDLE handle = handlesCopy.at(at);
-                
-                // When removing a path, FindCloseChangeNotification might actually fire a notification 
+
+                // When removing a path, FindCloseChangeNotification might actually fire a notification
                 // for some reason, so we must check if the handle exist in the handles vector
                 if (handles.contains(handle)) {
                     //qDebug("Acknowledged handle: %d, %p", at, handle);
@@ -130,13 +130,21 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
     while (it.hasNext()) {
         QString path = it.next();
         QString normalPath = path;
-        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\'))) 
+        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\')))
             normalPath.chop(1);
         QFileInfo fileInfo(normalPath.toLower());
         if (!fileInfo.exists())
             continue;
 
         bool isDir = fileInfo.isDir();
+        if (isDir) {
+            if (directories->contains(path))
+                continue;
+        } else {
+            if (files->contains(path))
+                continue;
+        }
+
         const QString absolutePath = fileInfo.absolutePath();
         HANDLE handle = handleForDir.value(absolutePath);
         if (!handle) {
@@ -144,7 +152,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                 handle = FindFirstChangeNotificationW((TCHAR *) absolutePath.utf16(),
                                                       false,
                                                       ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME 
+                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
                                                         : FILE_NOTIFY_CHANGE_FILE_NAME)
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
@@ -154,7 +162,7 @@ QStringList QWindowsFileSystemWatcherEngine::addPaths(const QStringList &paths,
                 handle = FindFirstChangeNotificationA(absolutePath.toLocal8Bit(),
                                                       false,
                                                       ((isDir
-                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME 
+                                                        ? FILE_NOTIFY_CHANGE_DIR_NAME
                                                         : FILE_NOTIFY_CHANGE_FILE_NAME)
                                                        | FILE_NOTIFY_CHANGE_ATTRIBUTES
                                                        | FILE_NOTIFY_CHANGE_SIZE
@@ -204,7 +212,7 @@ QStringList QWindowsFileSystemWatcherEngine::removePaths(const QStringList &path
     while (it.hasNext()) {
         QString path = it.next();
         QString normalPath = path;
-        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\'))) 
+        if (normalPath.endsWith(QLatin1Char('/')) || normalPath.endsWith(QLatin1Char('\\')))
             normalPath.chop(1);
         QFileInfo fileInfo(normalPath.toLower());
 
