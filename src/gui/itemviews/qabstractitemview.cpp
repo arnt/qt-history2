@@ -2288,9 +2288,16 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 
     // search from start with wraparound
     const QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
-    const QModelIndexList match = d->model->match(start, Qt::DisplayRole, searchString);
-    if (match.value(0).isValid())
-        setCurrentIndex(match.first());
+    QModelIndex current = start;
+    QModelIndexList match;
+    do {
+        match = d->model->match(current, Qt::DisplayRole, searchString);
+        if (match.value(0).isValid() && (match.value(0).flags() & Qt::ItemIsEnabled)) {
+            setCurrentIndex(match.first());
+            break;
+        }
+        current = current.sibling((match.value(0).row()+1)%d->model->rowCount(d->root), 0);
+    } while (current != start && match.value(0).isValid());
 }
 
 /*!

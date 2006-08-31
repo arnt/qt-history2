@@ -2307,19 +2307,11 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         if (!d->lineEdit && !e->text().isEmpty()) {
             // use keyboardSearch from the listView so we do not duplicate code
             view()->setCurrentIndex(d->currentIndex);
+            int currentRow = view()->currentIndex().row();
             view()->keyboardSearch(e->text());
-            int firstHit = view()->currentIndex().row();
-            if (view()->currentIndex().isValid()
-                && view()->currentIndex() != d->currentIndex) {
-                do {
-                    newIndex = view()->currentIndex().row();
-                    if ((view()->currentIndex().flags() & Qt::ItemIsEnabled) && newIndex >= 0 && newIndex < count()) {
-                        setCurrentIndex(newIndex);
-                        d->emitActivated(d->currentIndex);
-                        break;
-                    }
-                    view()->keyboardSearch(e->text());
-                } while (view()->currentIndex().isValid() && firstHit != view()->currentIndex().row());
+            if (currentRow != view()->currentIndex().row()) {
+                setCurrentIndex(view()->currentIndex().row());
+                d->emitActivated(d->currentIndex);
             }
         }
     }
