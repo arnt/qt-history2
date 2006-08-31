@@ -1498,6 +1498,14 @@ static void unsetPalette(QWidget *w)
     w->setFont(font);
 }
 
+static void updateWidget(QWidget *widget)
+{
+    QEvent e(QEvent::StyleChange);
+    QApplication::sendEvent(widget, &e);
+    widget->update();
+    widget->updateGeometry();
+}
+
 static void updateWidgets(const QList<const QWidget *>& widgets)
 {
     for (int i = 0; i < widgets.size(); ++i) {
@@ -1506,10 +1514,6 @@ static void updateWidgets(const QList<const QWidget *>& widgets)
         styleRulesCache.remove(widget);
         renderRulesCache.remove(widget);
         widget->style()->polish(widget);
-        QEvent e(QEvent::StyleChange);
-        QApplication::sendEvent(widget, &e);
-        widget->update();
-        widget->updateGeometry();
     }
 }
 
@@ -1574,6 +1578,7 @@ void QStyleSheetStyle::polish(QWidget *w)
     } else {
         setPalette(w);
     }
+    updateWidget(w);
 }
 
 void QStyleSheetStyle::polish(QApplication *app)

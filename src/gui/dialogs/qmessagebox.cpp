@@ -258,7 +258,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 
     label = new QLabel;
     label->setObjectName(QLatin1String("qt_msgbox_label"));
-    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
+    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, q)));
     label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setOpenExternalLinks(true);
 #if defined(Q_WS_MAC)
@@ -274,7 +274,7 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
 
     buttonBox = new QDialogButtonBox;
     buttonBox->setObjectName(QLatin1String("qt_msgbox_buttonbox"));
-    buttonBox->setCenterButtons(q->style()->styleHint(QStyle::SH_MessageBox_CenterButtons));
+    buttonBox->setCenterButtons(q->style()->styleHint(QStyle::SH_MessageBox_CenterButtons, 0, q));
     QObject::connect(buttonBox, SIGNAL(clicked(QAbstractButton*)),
                      q, SLOT(_q_buttonClicked(QAbstractButton*)));
 
@@ -304,7 +304,6 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     }
     q->setModal(true);
 
-    q->ensurePolished(); // get the right font
 #ifdef Q_WS_MAC
     QFont f = q->font();
     f.setBold(true);
@@ -1020,9 +1019,29 @@ void QMessageBox::closeEvent(QCloseEvent *e)
 void QMessageBox::changeEvent(QEvent *ev)
 {
     Q_D(QMessageBox);
-    if (ev->type() == QEvent::StyleChange) {
+    switch (ev->type()) {
+    case QEvent::StyleChange:
+    {
         if (d->icon != NoIcon)
             setIcon(d->icon);
+        Qt::TextInteractionFlags flags = style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, this);
+        d->label->setTextInteractionFlags(flags);
+        d->buttonBox->setCenterButtons(style()->styleHint(QStyle::SH_MessageBox_CenterButtons, 0, this));
+        if (d->informativeLabel)
+            d->informativeLabel->setTextInteractionFlags(flags);
+        // intentional fall through
+    }
+    case QEvent::FontChange:
+    case QEvent::ApplicationFontChange:
+#ifdef Q_WS_MAC   
+    {
+        QFont f = font();
+        f.setBold(true);
+        d->label->setFont(f);   
+    }
+#endif
+    default:
+        break;
     }
     QDialog::changeEvent(ev);
 }
@@ -1944,7 +1963,7 @@ void QMessageBox::setInformativeText(const QString &text)
     if (!d->informativeLabel) {
         QLabel *label = new QLabel;
         label->setObjectName(QLatin1String("qt_msgbox_informativelabel"));
-        label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
+        label->setTextInteractionFlags(Qt::TextInteractionFlags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, this)));
         label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
         label->setOpenExternalLinks(true);
         label->setWordWrap(true);
