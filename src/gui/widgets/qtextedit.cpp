@@ -1126,6 +1126,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                         if (document()->isEmpty()) {
                             setEditFocus(false);
                         } else if (!d->deleteAllTimer.isActive()) {
+                            e->accept();
                             d->deleteAllTimer.start(750, this);
                         }
                     } else {
