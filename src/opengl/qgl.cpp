@@ -3334,7 +3334,7 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
         glGetDoublev(GL_PROJECTION_MATRIX, &proj[0][0]);
         glGetIntegerv(GL_VIEWPORT, &view[0]);
 
-        GLdouble win_x, win_y, win_z;
+        GLdouble win_x = 0, win_y = 0, win_z = 0;
         qgluProject(x, y, z, &model[0][0], &proj[0][0], &view[0],
                     &win_x, &win_y, &win_z);
         win_y = height() - win_y; // y is inverted
