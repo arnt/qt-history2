@@ -165,6 +165,7 @@ QDBusError::QDBusError(const DBusError *error)
 
     code = errorMessages()->get(error->name);
     msg = QString::fromUtf8(error->message);
+    nm = QString::fromUtf8(error->name);
 }
 
 /*!
@@ -180,7 +181,8 @@ QDBusError::QDBusError(const QDBusMessage &qdmsg)
     if (qdmsg.arguments().count())
         msg = qdmsg.arguments().at(0).toString();
 
-    code = errorMessages()->get(qdmsg.member().toUtf8().constData());
+    code = errorMessages()->get(qdmsg.errorName().toUtf8().constData());
+    nm = qdmsg.errorName();
 }
 
 /*!
@@ -190,6 +192,7 @@ QDBusError::QDBusError(const QDBusMessage &qdmsg)
 QDBusError::QDBusError(ErrorType error, const QString &mess)
     : code(error)
 {
+    nm = QLatin1String(errorMessages()->get(error));
     msg = mess;
 }
 
@@ -198,7 +201,7 @@ QDBusError::QDBusError(ErrorType error, const QString &mess)
     Constructs a QDBusError from another QDBusError object
 */
 QDBusError::QDBusError(const QDBusError &other)
-        : code(other.code), msg(other.msg)
+        : code(other.code), msg(other.msg), nm(other.nm)
 {
 }
 
@@ -211,6 +214,7 @@ QDBusError &QDBusError::operator=(const QDBusError &other)
 {
     code = other.code;
     msg = other.msg;
+    nm = other.nm;
     return *this;
 }
 
@@ -234,7 +238,7 @@ QDBusError::ErrorType QDBusError::type() const
 
 QString QDBusError::name() const
 {
-    return QLatin1String(errorMessages()->get(code));
+    return nm;
 }
 
 /*!

@@ -53,17 +53,17 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
             int typeId = qDBusNameToTypeId(mp.typeName());
             if (!typeId)
                 continue;
-            const char *signature = QDBusMetaType::typeToSignature( typeId );
+            const char *signature = QDBusMetaType::typeToSignature(typeId);
             if (!signature)
                 continue;
 
             retval += QString(QLatin1String("    <property name=\"%1\" type=\"%2\" access=\"%3\""))
-                      .arg(QLatin1String( mp.name() ))
-                      .arg(QLatin1String( signature ))
-                      .arg(QLatin1String( accessvalues[access] ));
+                      .arg(QLatin1String(mp.name()))
+                      .arg(QLatin1String(signature))
+                      .arg(QLatin1String(accessvalues[access]));
 
             if (QDBusMetaType::signatureToType(signature) == QVariant::Invalid) {
-                const char *typeName = QVariant::typeToName( QVariant::Type(typeId) );
+                const char *typeName = QVariant::typeToName(QVariant::Type(typeId));
                 retval += QString::fromLatin1(">\n      <annotation name=\"com.trolltech.QtDBus.QtTypeName\" value=\"%3\"/>\n    </property>\n")
                           .arg(QLatin1String(typeName));
             } else {
@@ -101,7 +101,7 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
         // check the return type first
         int typeId = qDBusNameToTypeId(mm.typeName());
         if (typeId) {
-            const char *typeName = QDBusMetaType::typeToSignature( typeId );
+            const char *typeName = QDBusMetaType::typeToSignature(typeId);
             if (typeName) {
                 xml += QString(QLatin1String("      <arg type=\"%1\" direction=\"out\"/>\n"))
                        .arg(QLatin1String(typeName));
@@ -143,7 +143,7 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
 
             bool isOutput = isSignal || j > inputCount;
 
-            const char *signature = QDBusMetaType::typeToSignature( types.at(j) );
+            const char *signature = QDBusMetaType::typeToSignature(types.at(j));
             xml += QString(QLatin1String("      <arg %1type=\"%2\" direction=\"%3\"/>\n"))
                    .arg(name)
                    .arg(QLatin1String(signature))
@@ -194,17 +194,17 @@ QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, con
             interface = QLatin1String(mo->className());
             interface.replace(QLatin1String("::"), QLatin1String("."));
 
-            if (interface.startsWith( QLatin1String("QDBus") )) {
-                interface.prepend( QLatin1String("com.trolltech.QtDBus.") );
-            } else if (interface.startsWith( QLatin1Char('Q') ) &&
+            if (interface.startsWith(QLatin1String("QDBus"))) {
+                interface.prepend(QLatin1String("com.trolltech.QtDBus."));
+            } else if (interface.startsWith(QLatin1Char('Q')) &&
                        interface.length() >= 2 && interface.at(1).isUpper()) {
                 // assume it's Qt
-                interface.prepend( QLatin1String("com.trolltech.Qt.") );
-            } else if (!QCoreApplication::instance() ||
+                interface.prepend( QLatin1String("com.trolltech.Qt."));
+            } else if (!QCoreApplication::instance()||
                        QCoreApplication::instance()->applicationName().isEmpty()) {
-                interface.prepend( QLatin1String("local.") );
+                interface.prepend( QLatin1String("local."));
             } else {
-                interface.prepend(QLatin1Char('.')).prepend( QCoreApplication::instance()->applicationName() );
+                interface.prepend(QLatin1Char('.')).prepend(QCoreApplication::instance()->applicationName());
                 QStringList domainName =
                     QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
                                                                              QString::SkipEmptyParts);
@@ -229,3 +229,4 @@ QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo, con
     return QString(QLatin1String("  <interface name=\"%1\">\n%2  </interface>\n"))
         .arg(interface, xml);
 }
+

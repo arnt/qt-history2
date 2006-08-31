@@ -68,6 +68,7 @@ public:
 private:
     ErrorType code;
     QString msg;
+    QString nm;
     void *unused;
 };
 

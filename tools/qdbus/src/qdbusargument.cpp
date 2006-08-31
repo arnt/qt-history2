@@ -120,7 +120,7 @@ bool QDBusArgumentPrivate::checkRead()
             int count;
             QString name;
         };
-        QDBUS_DECLARE_METATYPE(MyStructure)
+        QT_DECLARE_METATYPE(MyStructure)
 
         // Marshall the MyStructure data into a D-BUS argument
         QDBusArgument &operator<<(QDBusArgument &argument, const MyStructure &mystruct)

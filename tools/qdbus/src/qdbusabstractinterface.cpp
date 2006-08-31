@@ -275,9 +275,6 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode,
 {
     Q_D(QDBusAbstractInterface);
 
-    if (!isValid())
-        return QDBusMessage::createError(method, QString::fromLatin1("the interface was disabled"));
-
     QString m = method;
     // split out the signature from the method
     int pos = method.indexOf(QLatin1Char('.'));
@@ -337,9 +334,6 @@ bool QDBusAbstractInterface::callWithCallback(const QString &method,
                                               QObject *receiver, const char *slot)
 {
     Q_D(QDBusAbstractInterface);
-
-    if (!isValid())
-        return false;
 
     QString m = method;
     // split out the signature from the method

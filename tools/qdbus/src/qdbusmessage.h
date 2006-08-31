@@ -58,6 +58,7 @@ public:
     QString path() const;
     QString interface() const;
     QString member() const;
+    QString errorName() const;
     MessageType type() const;
     QString signature() const;
 

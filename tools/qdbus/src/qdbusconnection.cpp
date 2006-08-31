@@ -72,8 +72,14 @@ void QDBusConnectionManager::removeConnection(const QString &name)
 
     QDBusConnectionPrivate *d = 0;
     d = connectionHash.take(name);
-    if (d && !d->ref.deref())
+    if (d && !d->ref.deref()) {
         delete d;
+    } else {
+        d->closeConnection();
+        qWarning("QDBusConnection: closed connection %s"
+                 "is still referred to by other QDBusConnection objects",
+                 name.toLocal8Bit().constData());
+    }
 }
 
 QDBusConnectionManager::~QDBusConnectionManager()
@@ -525,10 +531,9 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
     if (name2.isNull())
         name2.detach();
 
-    //QString owner = d->getNameOwner(service);
-    //if (owner.isEmpty()) return false; // ###  service name owner might get started later
-    hook.signature = signature;
-    if (!d->prepareHook(hook, key, service, /*owner,*/ path, interface, name, receiver, slot, 0, false))
+    QString owner = d->getNameOwner(service); // we don't care if the owner is empty
+    hook.signature = signature;               // it might get started later
+    if (!d->prepareHook(hook, key, service, owner, path, interface, name, receiver, slot, 0, false))
         return false;           // don't connect
 
     // avoid duplicating:
@@ -537,7 +542,8 @@ bool QDBusConnection::connect(const QString &service, const QString &path, const
     QDBusConnectionPrivate::SignalHookHash::ConstIterator end = d->signalHooks.constEnd();
     for ( ; it != end && it.key() == key; ++it) {
         const QDBusConnectionPrivate::SignalHook &entry = it.value();
-        if (entry.sender == hook.sender &&
+        if (entry.service == hook.service &&
+            entry.owner == hook.owner &&
             entry.path == hook.path &&
             entry.signature == hook.signature &&
             entry.obj == hook.obj &&
@@ -579,10 +585,9 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
     if (name2.isNull())
         name2.detach();
 
-    //QString owner = d->getNameOwner(service);
-    //if (owner.isEmpty()) return false; // ### service name owner might get started later
+    QString owner = d->getNameOwner(service); // we don't care of owner is empty
     hook.signature = signature;
-    if (!d->prepareHook(hook, key, service, /*owner,*/ path, interface, name, receiver, slot, 0, false))
+    if (!d->prepareHook(hook, key, service, owner, path, interface, name, receiver, slot, 0, false))
         return false;           // don't disconnect
 
     // avoid duplicating:
@@ -591,7 +596,8 @@ bool QDBusConnection::disconnect(const QString &service, const QString &path, co
     QDBusConnectionPrivate::SignalHookHash::ConstIterator end = d->signalHooks.constEnd();
     for ( ; it != end && it.key() == key; ++it) {
         const QDBusConnectionPrivate::SignalHook &entry = it.value();
-        if (entry.sender == hook.sender &&
+        if (entry.service == hook.service &&
+            entry.owner == hook.owner &&
             entry.path == hook.path &&
             entry.signature == hook.signature &&
             entry.obj == hook.obj &&

@@ -214,9 +214,7 @@ void QDBusMessagePrivate::setType(const QDBusMessage *message, QDBusMessage::Mes
       \o Error codes
     \endlist
 
-    Objects of this type are created with the static functions signal or methodCall.
-    Method return values and errors are sent using the sendError() and sendReply() functions
-    and are only available on received method calls.
+    Objects of this type are created with the static functions createSignal or createMethodCall.
 */
 
 /*!
@@ -418,12 +416,23 @@ QString QDBusMessage::interface() const
 }
 
 /*!
-    Returns the name of the signal that was emitted, the name of the error that was
-    received or the name of the method that was called.
+    Returns the name of the signal that was emitted or the name of the method that was called.
 */
 QString QDBusMessage::member() const
 {
-    return d_ptr->name;
+    if (d_ptr->type != ErrorMessage)
+        return d_ptr->name;
+    return QString();
+}
+
+/*!
+    Returns the name of the error that was received.
+*/
+QString QDBusMessage::errorName() const
+{
+    if (d_ptr->type == ErrorMessage)
+        return d_ptr->name;
+    return QString();
 }
 
 /*!

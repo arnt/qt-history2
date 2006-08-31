@@ -867,22 +867,18 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
 void QDBusConnectionPrivate::_q_serviceOwnerChanged(const QString &name,
                                                     const QString &oldOwner, const QString &newOwner)
 {
+    Q_UNUSED(oldOwner);
+
     if (isServiceRegisteredByThread(oldOwner))
         unregisterService(name);
     if (isServiceRegisteredByThread(newOwner))
         registerService(name);
 
-    //qDebug() << "QDBusConnectionPrivaste::_q_serviceOwnerChanged" << name << oldOwner << newOwner;
-
-    // ### if the service is disabled, it's not gona send us signals, is it ?
-    // ### so why should we care about disabling the signal hooks
-    #if 0
     QMutableHashIterator<QString, SignalHook> it(signalHooks);
     it.toFront();
     while (it.hasNext())
-        if (it.next().value().owner == oldOwner && it.value().sender == name)
+        if (it.next().value().service == name)
             it.value().owner = newOwner;
-    #endif
 }
 
 int QDBusConnectionPrivate::findSlot(QObject* obj, const QByteArray &normalizedName,
@@ -900,7 +896,7 @@ int QDBusConnectionPrivate::findSlot(QObject* obj, const QByteArray &normalizedN
 }
 
 bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hook, QString &key,
-                                         const QString &service, /*const QString &owner,*/
+                                         const QString &service, const QString &owner,
                                          const QString &path, const QString &interface, const QString &name,
                                          QObject *receiver, const char *signal, int minMIdx,
                                          bool buildSignature)
@@ -917,11 +913,8 @@ bool QDBusConnectionPrivate::prepareHook(QDBusConnectionPrivate::SignalHook &hoo
         return false;
     }
 
-    //if (owner.isEmpty())
-    //    return false; // getNameOwner failed
-
-    hook.sender = service;
-    //hook.owner = owner;
+    hook.service = service;
+    hook.owner = owner; // we don't care if the service has an owner yet
     hook.path = path;
     hook.obj = receiver;
 
@@ -1181,9 +1174,7 @@ bool QDBusConnectionPrivate::handleSignal(const QString &key, const QDBusMessage
     //qDBusDebug() << signalHooks.keys();
     for ( ; it != end && it.key() == key; ++it) {
         const SignalHook &hook = it.value();
-        //if (hook.owner.isEmpty()) // the service was disabled
-        //    continue; // ### if the service is disabled, it's not gona send us signals, is it ?
-        if (!hook.sender.isEmpty() && hook.sender != msg.service())
+        if (!hook.owner.isEmpty() && hook.owner != msg.service())
             continue;
         if (!hook.path.isEmpty() && hook.path != msg.path())
             continue;
@@ -1539,9 +1530,9 @@ void QDBusConnectionPrivate::connectRelay(const QString &service, const QString 
     // we set up a relay from D-Bus into it
     SignalHook hook;
     QString key;
-    //QString owner = getNameOwner(service);
+    QString owner = getNameOwner(service);
 
-    if (!prepareHook(hook, key, service, /*owner,*/ path, interface, QString(), receiver, signal,
+    if (!prepareHook(hook, key, service, owner, path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))
         return;                 // don't connect
 
@@ -1551,7 +1542,8 @@ void QDBusConnectionPrivate::connectRelay(const QString &service, const QString 
     SignalHookHash::ConstIterator end = signalHooks.constEnd();
     for ( ; it != end && it.key() == key; ++it) {
         const SignalHook &entry = it.value();
-        if (entry.sender == hook.sender &&
+        if (entry.service == hook.service &&
+            entry.owner == hook.owner &&
             entry.path == hook.path &&
             entry.signature == hook.signature &&
             entry.obj == hook.obj &&
@@ -1572,9 +1564,9 @@ void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QStri
     SignalHook hook;
     QString key;
 
-    //QString owner = getNameOwner(service);
+    QString owner = getNameOwner(service);
 
-    if (!prepareHook(hook, key, service, /*owner,*/ path, interface, QString(), receiver, signal,
+    if (!prepareHook(hook, key, service, owner, path, interface, QString(), receiver, signal,
                      QDBusAbstractInterface::staticMetaObject.methodCount(), true))
         return;                 // don't connect
 
@@ -1584,7 +1576,8 @@ void QDBusConnectionPrivate::disconnectRelay(const QString &service, const QStri
     SignalHookHash::Iterator end = signalHooks.end();
     for ( ; it != end && it.key() == key; ++it) {
         const SignalHook &entry = it.value();
-        if (entry.sender == hook.sender &&
+        if (entry.service == hook.service &&
+            entry.owner == hook.owner &&
             entry.path == hook.path &&
             entry.signature == hook.signature &&
             entry.obj == hook.obj &&
