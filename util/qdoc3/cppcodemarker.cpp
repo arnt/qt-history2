@@ -776,6 +776,12 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
             result.remove(pos + len - 2, 1);
             result.remove(pos + 1, 1);
             len -= 2;
+
+            int endcodePos = result.indexOf("\\ endcode", pos);
+            if (endcodePos != -1 && endcodePos < pos + len) {
+                result.remove(endcodePos + 1, 1);
+                len -= 1;
+            }
         }
         pos += len + insertTagAround(result, pos, len, "@comment");
     }
