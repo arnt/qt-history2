@@ -8,9 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += qdbus
 
-# Generate adaptor class
-system(dbusxml2cpp -c CarAdaptor -a car_adaptor_p.h:car_adaptor.cpp car.xml)
-
 # Input
+# DBUS_ADAPTORS += car.xml
 HEADERS += car.h car_adaptor_p.h
 SOURCES += car.cpp main.cpp car_adaptor.cpp

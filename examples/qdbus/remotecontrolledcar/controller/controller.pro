@@ -8,10 +8,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += qdbus uitools
 
-# Generate interface class
-system(dbusxml2cpp -c CarInterface -p car_interface_p.h:car_interface.cpp car.xml)
-
 # Input
+# DBUS_INTERFACES += car.xml
 FORMS += controller.ui
 HEADERS += car_interface_p.h controller.h
 SOURCES += main.cpp car_interface.cpp controller.cpp
