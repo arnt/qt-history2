@@ -239,7 +239,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::CodeBad:
         out() << "<pre><font color=\"#404040\">"
               << trimmedTrailing(protect(plainCode(indent(codeIndent, atom->string()))))
-               << "</font></pre>\n";
+              << "</font></pre>\n";
 	break;
     case Atom::FootnoteLeft:
         // ### For now
@@ -1955,7 +1955,7 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
     QRegExp linkTag("(<@link node=\"([^\"]+)\">).*(</@link>)");
     linkTag.setMinimal(true);
 
-    QString html = markedCode;
+    QString html = indent(codeIndent, markedCode);
 
     int pos = 0;
     while ((pos = html.indexOf(linkTag, pos)) != -1) {
@@ -2013,11 +2013,15 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
 	++pos;
     }
 
+    html.replace("<@comment>", "<span class=\"comment\">");
+    html.replace("<@preprocessor>", "<span class=\"preprocessor\">");
+    html.replace("<@string>", "<span class=\"string\">");
+    html.replace("<@char>", "<span class=\"char\">");
+    html.replace(QRegExp("</@(?:comment|preprocessor|string|char)>"), "</span>");
+
 #if 0
     html.replace( QRegExp("<@char>"), "<font color=blue>" );
     html.replace( QRegExp("</@char>"), "</font>" );
-    html.replace( QRegExp("<@comment>"), "<font color=red>" );
-    html.replace( QRegExp("</@comment>"), "</font>" );
     html.replace( QRegExp("<@func>"), "<font color=green>" );
     html.replace( QRegExp("</@func>"), "</font>" );
     html.replace( QRegExp("<@id>"), "<i>" );
@@ -2030,12 +2034,12 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
     html.replace( QRegExp("</@op>"), "</b>" );
     html.replace( QRegExp("<@param>"), "<i>" );
     html.replace( QRegExp("</@param>"), "</i>" );
-    html.replace( QRegExp("<@preprocessor>"), "<font color=blue>" );
-    html.replace( QRegExp("</@preprocessor>"), "</font>" );
     html.replace( QRegExp("<@string>"), "<font color=green>" );
     html.replace( QRegExp("</@string>"), "</font>" );
 #endif
     html.replace( QRegExp("</?@[^>]*>"), "" );
+
+    html.prepend("<!-- " + markedCode + " -->");
     return html;
 }
 

@@ -633,6 +633,10 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     static QRegExp classX("[:,][ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
                           "([a-zA-Z_][a-zA-Z_0-9]*)");
     static QRegExp globalX("[\n{()=] *([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(");
+    static QRegExp comment("/(?: \\*(?:[^*]+|\\*(?! /))*\\* /|/[^\n]+)");
+    static QRegExp preprocessor("(?:^|\n)#[^\n]*(?:(?:\\\\\n|\\n#)[^\n]*)*");
+    static QRegExp literals("&quot;(?:[^\\\\&]|\\\\[^\n]|&(?!quot;))*&quot;"
+                            "|'(?:[^\\\\]|\\\\(?:[^x0-9']|x[0-9a-f]{1,4}|[0-9]{1,3}))'");
 
     QString result = protectedCode;
     int pos;
@@ -669,6 +673,23 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
         pos += yHasTypeX.matchedLength()
                + insertTagAround(result, yHasTypeX.pos(1), x.length(), "@type") - 1;
     }
+
+    /*
+        Do syntax highlighting of preprocessor directives.
+    */
+    pos = 0;
+    while ((pos = preprocessor.indexIn(result, pos)) != -1)
+        pos += preprocessor.matchedLength()
+               + insertTagAround(result, pos, preprocessor.matchedLength(), "@preprocessor");
+
+    /*
+        Deal with string and character literals.
+    */
+    pos = 0;
+    while ((pos = literals.indexIn(result, pos)) != -1)
+        pos += literals.matchedLength()
+               + insertTagAround(result, pos, literals.matchedLength(),
+                                 result.at(pos) == QLatin1Char(' ') ? "@string" : "@char");
 
     /*
         Look for 'var = new Class'.
@@ -709,6 +730,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
 	QString y = xDotY.cap(2);
 
 	QSet<QString> types = typesForVariable.value(x);
+qDebug("types for variable '%s.%s': %d", qPrintable(x), qPrintable(y), types.count());
         pos += xDotY.matchedLength()
                + insertTagAround(result, xDotY.pos(2), xDotY.cap(2).length(), "@func",
                                  (types.count() == 1) ? "target=\""
@@ -744,11 +766,20 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     }
 
     /*
-        Alter the code in a minor way, so that we have a way of
-        including comments in comments.
+        Do syntax highlighting of comments. Also alter the code in a
+        minor way, so that we can include comments in documentation
+        comments.
     */
-    result.replace("/ *", "/*");
-    result.replace("* /", "*/");
+    pos = 0;
+    while ((pos = comment.indexIn(result, pos)) != -1) {
+        int len = comment.matchedLength();
+        if (result.at(pos + 1) == QLatin1Char(' ')) {
+            result.remove(pos + len - 2, 1);
+            result.remove(pos + 1, 1);
+            len -= 2;
+        }
+        pos += len + insertTagAround(result, pos, len, "@comment");
+    }
 
     return result;
 }
