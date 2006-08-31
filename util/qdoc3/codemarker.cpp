@@ -103,8 +103,8 @@ const Node *CodeMarker::nodeForString( const QString& string )
 
 QString CodeMarker::stringForNode( const Node *node )
 {
-    if (sizeof(const Node *) == sizeof(uint)) {
-        return QString::number(reinterpret_cast<uint>(node));
+    if (sizeof(const Node *) == sizeof(ulong)) {
+        return QString::number(reinterpret_cast<ulong>(node));
     } else {
         return QString::number(reinterpret_cast<qulonglong>(node));
     }
