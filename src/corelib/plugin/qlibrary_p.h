@@ -64,6 +64,7 @@ public:
     QString lastModified;
 
     QString errorString;
+    QLibrary::LoadHints loadHints;
 
     bool isPlugin();
 

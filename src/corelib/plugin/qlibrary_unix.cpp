@@ -38,8 +38,14 @@ bool QLibraryPrivate::load_sys()
             pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
         if (!pHnd) {
             QFileInfo fi(fileName);
+            int dlFlags = DYNAMIC_PATH | BIND_NONFATAL;
+            if (loadHints & QLibrary::ResolveAllSymbols) {
+                dlFlags |= BIND_IMMEDIATE;
+            } else {
+                dlFlags |= BIND_DEFERRED;
+            }
             pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"),
-                                   BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+                                   dlFlags, 0);
         }
     }
     if (!pHnd) {
@@ -128,7 +134,20 @@ bool QLibraryPrivate::load_sys()
         }
 #endif
     }
-
+    int dlFlags = 0;
+    if (loadHints & QLibrary::ResolveAllSymbols) {
+        dlFlags |= RTLD_NOW;
+    } else {
+        dlFlags |= RTLD_LAZY;
+    }
+    if (loadHints & QLibrary::ExportExternalSymbols) {
+        dlFlags |= RTLD_GLOBAL;
+    }
+#if defined(Q_OS_AIX)	// Not sure if any other platform actually support this thing.
+    if (loadHints & QLibrary::LoadArchiveMember) {
+        dlFlags |= RTLD_MEMBER;
+    }
+#endif
     QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
@@ -136,8 +155,16 @@ bool QLibraryPrivate::load_sys()
                 continue;
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
                 continue;
-            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
-            pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
+            if (loadHints & QLibrary::LoadArchiveMember) {
+                attempt = name;
+                int lparen = attempt.indexOf(QLatin1Char('('));
+                if (lparen == -1)
+                    lparen = attempt.count();
+                attempt = path + prefixes.at(prefix) + attempt.insert(lparen, suffixes.at(suffix));
+            } else {
+                attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
+            }
+            pHnd = dlopen(QFile::encodeName(attempt), dlFlags);
         }
     }
 #ifdef Q_OS_MAC
@@ -145,7 +172,7 @@ bool QLibraryPrivate::load_sys()
         if (CFBundleRef bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
+            pHnd = dlopen(QFile::encodeName(str), dlFlags);
             attempt = str;
         }
     }

@@ -15,6 +15,7 @@
 #define QLIBRARY_H
 
 #include <QtCore/qobject.h>
+#include <QtCore/QFlags>
 
 QT_BEGIN_HEADER
 
@@ -28,7 +29,15 @@ class Q_CORE_EXPORT QLibrary : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
+    Q_PROPERTY(LoadHints loadHints READ loadHints WRITE setLoadHints)
 public:
+    enum LoadHint {
+        ResolveAllSymbols = 0x01,
+        ExportExternalSymbols = 0x02,
+        LoadArchiveMember = 0x04
+    };
+    Q_DECLARE_FLAGS(LoadHints, LoadHint)
+    
     explicit QLibrary(QObject *parent = 0);
     explicit QLibrary(const QString& fileName, QObject *parent = 0);
     explicit QLibrary(const QString& fileName, int verNum, QObject *parent = 0);
@@ -50,6 +59,8 @@ public:
     void setFileNameAndVersion(const QString &fileName, int verNum);
     QString errorString() const;
 
+    void setLoadHints(LoadHints hints);
+    LoadHints loadHints() const;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QString library() const { return fileName(); }
     inline QT3_SUPPORT void setAutoUnload( bool ) {}
@@ -59,6 +70,8 @@ private:
     bool did_load;
     Q_DISABLE_COPY(QLibrary)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QLibrary::LoadHints)
 
 #endif //QT_NO_LIBRARY
 

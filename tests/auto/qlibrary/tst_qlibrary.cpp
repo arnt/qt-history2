@@ -84,6 +84,8 @@ private slots:
     void version();
     void errorString_data();
     void errorString();
+    void loadHints();
+    void loadHints_data();
 
 };
 
@@ -330,6 +332,56 @@ void tst_QLibrary::errorString()
     QRegExp re(errorString);
     QVERIFY(re.exactMatch(lib.errorString()));
     QCOMPARE(ok, success);
+}
+
+void tst_QLibrary::loadHints_data()
+{
+    QTest::addColumn<QString>("lib");
+    QTest::addColumn<int>("loadHints");
+    QTest::addColumn<bool>("result");
+
+    QLibrary::LoadHints lh;
+#if QT_VERSION >= 0x040300 && defined(Q_OS_AIX)
+# if QT_POINTER_SIZE == 4
+    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr.o)" << int(QLibrary::LoadArchiveMember) << (bool)TRUE;
+# else
+    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr_64.o)" << int(QLibrary::LoadArchiveMember) << (bool)TRUE;
+#endif
+#endif	// QT_VERSION
+
+#if QT_VERSION >= 0x040103
+    QString currDir = QDir::currentPath();
+    lh |= QLibrary::ResolveAllSymbols;
+# if defined Q_OS_WIN32
+    QTest::newRow( "ok01 (with suffix)" ) << currDir + "/mylib.dll" << int(lh) << (bool)TRUE;
+    QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/mylib.dl2" << int(lh) << (bool)TRUE;
+    QTest::newRow( "ok03 (with many dots)" ) << currDir + "/system.trolltech.test.mylib.dll" << int(lh) << (bool)TRUE;
+# elif defined Q_OS_UNIX
+    QTest::newRow( "ok01 (with suffix)" ) << currDir + "/libmylib" SUFFIX << int(lh) << (bool)TRUE;
+    QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/libmylib.so2" << int(lh) << (bool)TRUE;
+    QTest::newRow( "ok03 (with non-standard suffix)" ) << currDir + "/system.trolltech.test.mylib.so" << int(lh) << (bool)TRUE;
+# endif  // Q_OS_UNIX
+#endif   // QT_VERSION
+
+}
+
+void tst_QLibrary::loadHints()
+{
+    QFETCH( QString, lib );
+    QFETCH( int, loadHints);
+    QFETCH( bool, result );
+    QLibrary library( lib );
+    if (int(loadHints) != 0) {
+        QLibrary::LoadHints lh(loadHints);
+        lh |= library.loadHints();
+    	library.setLoadHints(lh);
+    } 
+    bool ok = library.load();
+    if ( result ) {
+	QVERIFY( ok );
+    } else {
+	QVERIFY( !ok );
+    }
 }
 
 QTEST_APPLESS_MAIN(tst_QLibrary)
