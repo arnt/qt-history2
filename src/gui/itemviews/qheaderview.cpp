@@ -1723,6 +1723,10 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     if (pos < 0)
         return;
+    if (e->buttons() == Qt::NoButton) {
+        d->state = QHeaderViewPrivate::NoState;
+        d->pressed = -1;
+    }
     switch (d->state) {
         case QHeaderViewPrivate::ResizeSection: {
             Q_ASSERT(d->originalSize != -1);
