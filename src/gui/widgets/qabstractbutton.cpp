@@ -790,7 +790,7 @@ bool QAbstractButton::autoRepeat() const
     If \l autoRepeat is enabled, then autoRepeatDelay defines the initial
     delay in milliseconds before auto-repetition kicks in.
 
-    \sa autoRepet, autoRepeatInterval
+    \sa autoRepeat, autoRepeatInterval
 */
 
 void QAbstractButton::setAutoRepeatDelay(int autoRepeatDelay)
