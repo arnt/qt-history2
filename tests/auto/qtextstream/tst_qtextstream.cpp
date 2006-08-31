@@ -269,6 +269,11 @@ private:
 // Testing get/set functions
 void tst_QTextStream::getSetCheck()
 {
+    // Initialize codecs
+    int argc = 0;
+    char **argv = 0;
+    QCoreApplication app(argc, argv);
+
     QTextStream obj1;
     // QTextCodec * QTextStream::codec()
     // void QTextStream::setCodec(QTextCodec *)
