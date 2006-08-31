@@ -871,7 +871,14 @@ void QTextCodec::setCodecForLocale(QTextCodec *c)
     localeMapper = c;
 }
 
-/*! Returns a pointer to the codec most suitable for this locale. */
+/*!
+    Returns a pointer to the codec most suitable for this locale.
+
+    On Windows, the codec will be based on a system locale. On Unix
+    systems, starting with Qt 4.2, the codec will be using the \e
+    iconv library. Note that in both cases the codec's name will be
+    "System".
+*/
 
 QTextCodec* QTextCodec::codecForLocale()
 {
