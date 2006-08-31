@@ -1019,20 +1019,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             && cursor.hasSelection()) {
 
             e->accept();
-
-            QTextCursor tmp = cursor;
-            if (tmp.selectionStart() != tmp.position())
-                tmp.setPosition(tmp.selectionStart());
-            tmp.movePosition(QTextCursor::NextCharacter);
-            const QString href = tmp.charFormat().anchorHref();
-            if (!href.isEmpty()) {
-#ifndef QT_NO_DESKTOPSERVICES
-                if (openExternalLinks)
-                    QDesktopServices::openUrl(href);
-                else
-#endif
-                    emit q->linkActivated(href);
-            }
+            activateLinkUnderCursor();
             return;
         }
     }
@@ -1277,10 +1264,15 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
                                           Qt::MouseButtons buttons, const QPoint &globalPos)
 {
     Q_Q(QTextControl);
-    cursorIsFocusIndicator = false;
 
     if (interactionFlags & Qt::LinksAccessibleByMouse) {
         anchorOnMousePress = q->anchorAt(pos);
+
+        if (cursorIsFocusIndicator) {
+            cursorIsFocusIndicator = false;
+            repaintSelection();
+            cursor.clearSelection();
+        }
     }
     if (!(button & Qt::LeftButton))
         return;
@@ -1288,6 +1280,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
     if (!((interactionFlags & Qt::TextSelectableByMouse) || (interactionFlags & Qt::TextEditable)))
         return;
 
+    cursorIsFocusIndicator = false;
     const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
 
@@ -1333,6 +1326,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         } else {
 
             if (cursor.hasSelection()
+                && !cursorIsFocusIndicator
                 && cursorPos >= cursor.selectionStart()
                 && cursorPos <= cursor.selectionEnd()
                 && doc->documentLayout()->hitTest(pos, Qt::ExactHit) != -1) {
@@ -1466,13 +1460,12 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
             return;
 
         if (!cursor.hasSelection()
-            || (anchor == anchorOnMousePress && hadSelectionOnMousePress))
-#ifndef QT_NO_DESKTOPSERVICES
-            if (openExternalLinks)
-                QDesktopServices::openUrl(anchor);
-            else
-#endif
-                emit q->linkActivated(anchor);
+            || (anchor == anchorOnMousePress && hadSelectionOnMousePress)) {
+
+            anchorOnMousePress = QString();
+            setCursorPosition(pos);
+            activateLinkUnderCursor();
+        }
     }
 }
 
@@ -1965,6 +1958,19 @@ bool QTextControl::canPaste() const
     return false;
 }
 
+void QTextControl::setCursorIsFocusIndicator(bool b)
+{
+    Q_D(QTextControl);
+    d->cursorIsFocusIndicator = b;
+    d->repaintCursor();
+}
+
+bool QTextControl::cursorIsFocusIndicator() const
+{
+    Q_D(const QTextControl);
+    return d->cursorIsFocusIndicator;
+}
+
 QMimeData *QTextControl::createMimeDataFromSelection() const
 {
     Q_D(const QTextControl);
@@ -2159,6 +2165,43 @@ bool QTextControlPrivate::findNextPrevAnchor(bool next, int &start, int &end)
     }
 
     return false;
+}
+
+void QTextControlPrivate::activateLinkUnderCursor()
+{
+    QTextCursor tmp = cursor;
+    if (tmp.selectionStart() != tmp.position())
+        tmp.setPosition(tmp.selectionStart());
+    tmp.movePosition(QTextCursor::NextCharacter);
+    const QString href = tmp.charFormat().anchorHref();
+    if (href.isEmpty())
+        return;
+
+    if (!cursor.hasSelection()) {
+        QTextCursor linkFinder = cursor;
+
+        while (linkFinder.charFormat().anchorHref() == href) {
+            linkFinder.movePosition(QTextCursor::PreviousCharacter);
+        }
+        int startPos = linkFinder.position();
+
+        linkFinder = cursor;
+        while (linkFinder.charFormat().anchorHref() == href)
+            linkFinder.movePosition(QTextCursor::NextCharacter);
+
+        cursor.setPosition(startPos);
+        cursor.setPosition(linkFinder.position() - 1, QTextCursor::KeepAnchor);
+    }
+
+    cursorIsFocusIndicator = true;
+    repaintCursor();
+
+#ifndef QT_NO_DESKTOPSERVICES
+    if (openExternalLinks)
+        QDesktopServices::openUrl(href);
+    else
+#endif
+        emit q_func()->linkActivated(href);
 }
 
 bool QTextControl::setFocusToNextOrPreviousAnchor(bool next)

@@ -41,10 +41,17 @@ public:
     void init();
 
     struct HistoryEntry {
+        inline HistoryEntry()
+            : hpos(0), vpos(0), focusIndicatorPosition(-1),
+              focusIndicatorAnchor(-1) {}
         QUrl url;
         int hpos;
         int vpos;
+        int focusIndicatorPosition, focusIndicatorAnchor;
     };
+
+    HistoryEntry createHistoryEntry() const;
+    void restoreHistoryEntry(const HistoryEntry entry);
 
     QStack<HistoryEntry> stack;
     QStack<HistoryEntry> forwardStack;
@@ -350,6 +357,37 @@ void QTextBrowserPrivate::keypadMove(bool next)
 }
 #endif
 
+QTextBrowserPrivate::HistoryEntry QTextBrowserPrivate::createHistoryEntry() const
+{
+    HistoryEntry entry;
+    entry.url = q_func()->source();
+    entry.hpos = hbar->value();
+    entry.vpos = vbar->value();
+
+    const QTextCursor cursor = control->textCursor();
+    if (control->cursorIsFocusIndicator()
+        && cursor.hasSelection()) {
+
+        entry.focusIndicatorPosition = cursor.position();
+        entry.focusIndicatorAnchor = cursor.anchor();
+    }
+    return entry;
+}
+
+void QTextBrowserPrivate::restoreHistoryEntry(const HistoryEntry entry)
+{
+    setSource(entry.url);
+    hbar->setValue(entry.hpos);
+    vbar->setValue(entry.vpos);
+    if (entry.focusIndicatorAnchor != -1 && entry.focusIndicatorPosition != -1) {
+        QTextCursor cursor(control->document());
+        cursor.setPosition(entry.focusIndicatorAnchor);
+        cursor.setPosition(entry.focusIndicatorPosition, QTextCursor::KeepAnchor);
+        control->setCursorIsFocusIndicator(true);
+        control->setTextCursor(cursor);
+    }
+}
+
 /*!
     \class QTextBrowser qtextbrowser.h
     \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
@@ -523,36 +561,34 @@ void QTextBrowser::setSource(const QUrl &url)
 {
     Q_D(QTextBrowser);
 
-    int hpos = d->hbar->value();
-    int vpos = d->vbar->value();
+    const QTextBrowserPrivate::HistoryEntry historyEntry = d->createHistoryEntry();
 
     d->setSource(url);
 
     if (!url.isValid())
         return;
 
-    if (!d->stack.isEmpty() && d->stack.top().url == url) {
-        // the same url you are already watching
+    // the same url you are already watching?
+    if (!d->stack.isEmpty() && d->stack.top().url == url)
+        return;
+
+    if (!d->stack.isEmpty())
+        d->stack.top() = historyEntry;
+
+    QTextBrowserPrivate::HistoryEntry entry;
+    entry.url = url;
+    entry.hpos = 0;
+    entry.vpos = 0;
+    d->stack.push(entry);
+
+    emit backwardAvailable(d->stack.count() > 1);
+
+    if (!d->forwardStack.isEmpty() && d->forwardStack.top().url == url) {
+        d->forwardStack.pop();
+        emit forwardAvailable(d->forwardStack.count() > 0);
     } else {
-        if (!d->stack.isEmpty()) {
-            d->stack.top().hpos = hpos;
-            d->stack.top().vpos = vpos;
-        }
-        QTextBrowserPrivate::HistoryEntry entry;
-        entry.url = url;
-        entry.hpos = 0;
-        entry.vpos = 0;
-        d->stack.push(entry);
-
-        emit backwardAvailable(d->stack.count() > 1);
-
-        if (!d->forwardStack.isEmpty() && d->forwardStack.top().url == url) {
-            d->forwardStack.pop();
-            emit forwardAvailable(d->forwardStack.count() > 0);
-        } else {
-            d->forwardStack.clear();
-            emit forwardAvailable(false);
-        }
+        d->forwardStack.clear();
+        emit forwardAvailable(false);
     }
 }
 
@@ -626,9 +662,7 @@ void QTextBrowser::backward()
     d->forwardStack.push(d->stack.pop());
     d->forwardStack.top().hpos = d->hbar->value();
     d->forwardStack.top().vpos = d->vbar->value();
-    d->setSource(d->stack.top().url);
-    d->hbar->setValue(d->stack.top().hpos);
-    d->vbar->setValue(d->stack.top().vpos);
+    d->restoreHistoryEntry(d->stack.top());
     emit backwardAvailable(d->stack.count() > 1);
     emit forwardAvailable(true);
 }
@@ -650,9 +684,7 @@ void QTextBrowser::forward()
         d->stack.top().vpos = d->vbar->value();
     }
     d->stack.push(d->forwardStack.pop());
-    setSource(d->stack.top().url);
-    d->hbar->setValue(d->stack.top().hpos);
-    d->vbar->setValue(d->stack.top().vpos);
+    d->restoreHistoryEntry(d->stack.top());
     emit backwardAvailable(true);
     emit forwardAvailable(!d->forwardStack.isEmpty());
 }

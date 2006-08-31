@@ -111,6 +111,7 @@ public:
     void inputMethodEvent(QInputMethodEvent *);
 
     bool findNextPrevAnchor(bool next, int &start, int &end);
+    void activateLinkUnderCursor();
 
     QTextDocument *doc;
     bool cursorOn;

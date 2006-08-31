@@ -66,6 +66,7 @@ private slots:
     void relativeNonLocalUrls();
     void adjacentAnchors();
     void loadResourceOnRelativeLocalFiles();
+    void focusIndicator();
 
 private:
     TestBrowser *browser;
@@ -387,7 +388,7 @@ void tst_QTextBrowser::anchorsWithSelfBuiltHtml()
 class HelpBrowser : public QTextBrowser
 {
 public:
-    virtual QVariant loadResource(int type, const QUrl &name) {
+    virtual QVariant loadResource(int /*type*/, const QUrl &name) {
         QString url = name.toString();
         if(url == "qhelp://docs/index.html") {
             return "index";
@@ -447,6 +448,55 @@ void tst_QTextBrowser::loadResourceOnRelativeLocalFiles()
     QVERIFY(v.isValid());
     QVERIFY(v.type() == QVariant::ByteArray);
     QVERIFY(!v.toByteArray().isEmpty());
+}
+
+void tst_QTextBrowser::focusIndicator()
+{
+    HackBrowser *browser = new HackBrowser;
+    browser->setSource(QUrl("firstpage.html"));
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->focusTheNextChild();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to second page"));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->focusTheNextChild();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to second page"));
+
+    browser->forward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to third page from second page"));
+
+    browser->backward();
+    browser->backward();
+
+    QVERIFY(browser->textCursor().hasSelection());
+    QCOMPARE(browser->textCursor().selectedText(), QString("Link to second page"));
+
+    QTest::keyClick(browser, Qt::Key_Enter);
+    QVERIFY(!browser->textCursor().hasSelection());
+
+    delete browser;
 }
 
 QTEST_MAIN(tst_QTextBrowser)

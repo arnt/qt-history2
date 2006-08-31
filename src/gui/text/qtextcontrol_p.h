@@ -134,6 +134,9 @@ public:
 
     bool canPaste() const;
 
+    void setCursorIsFocusIndicator(bool b);
+    bool cursorIsFocusIndicator() const;
+
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
