@@ -2279,6 +2279,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     w->close();
     QVERIFY(w == 0);
+    delete w;
 
     // focusOut (crashes)
     //w = new Widget;
@@ -2295,6 +2296,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     QTest::keyPress(w, Qt::Key_A);
     QVERIFY(w == 0);
+    delete w;
 
     // key release
     w = new Widget;
@@ -2302,6 +2304,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     QTest::keyRelease(w, Qt::Key_A);
     QVERIFY(w == 0);
+    delete w;
 
     // mouse press
     w = new Widget;
@@ -2309,6 +2312,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     QTest::mousePress(w, Qt::LeftButton);
     QVERIFY(w == 0);
+    delete w;
 
     // mouse release
     w = new Widget;
@@ -2316,6 +2320,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     QTest::mouseRelease(w, Qt::LeftButton);
     QVERIFY(w == 0);
+    delete w;
 
     // mouse double click
     w = new Widget;
@@ -2323,6 +2328,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     QTest::mouseDClick(w, Qt::LeftButton);
     QVERIFY(w == 0);
+    delete w;
 
     // hide event (crashes)
     //w = new Widget;
@@ -2336,6 +2342,7 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     w->addAction(new QAction(w));
     QVERIFY(w == 0);
+    delete w;
 
     // change event
     w = new Widget;
@@ -2343,13 +2350,16 @@ void tst_QWidget::testDeletionInEventHandlers()
     w->deleteThis = true;
     w->setMouseTracking(true);
     QVERIFY(w == 0);
+    delete w;
 
     w = new Widget;
     w->setMouseTracking(true);
     w->show();
     w->deleteThis = true;
     QTest::mouseMove(w, QPoint(0,0));
+    QTest::qWait(2000); // mouseMove is async
     QVERIFY(w == 0);
+    delete w;
 }
 
 void tst_QWidget::style()
