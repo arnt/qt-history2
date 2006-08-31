@@ -1393,6 +1393,7 @@ QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
 
     QWidgetItem *dockWidgetItem = dockWidgetLayout.convertToGap(pathToDockWidget);
     currentGapPos = pathToDockWidget;
+    currentGapRect = r;
     updateGapIndicator();
 
 //    dump(qDebug() << "QMainWindowLayout::unplug()", savedDockWidgetLayout);
@@ -1405,9 +1406,8 @@ void QMainWindowLayout::updateGapIndicator()
     if (widgetAnimator->animating() || currentGapPos.isEmpty()) {
         gapIndicator->hide();
     } else {
-        QRect r = dockWidgetLayout.gapRect(currentGapPos);
-        if (gapIndicator->geometry() != r)
-            gapIndicator->setGeometry(r);
+        if (gapIndicator->geometry() != currentGapRect)
+            gapIndicator->setGeometry(currentGapRect);
         if (!gapIndicator->isVisible())
             gapIndicator->show();
     }
@@ -1459,6 +1459,8 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
         return QList<int>();
     }
 
+    currentGapRect = newLayout.gapRect(currentGapPos);
+
     parentWidget()->update(dockWidgetLayout.separatorRegion());
     dockWidgetLayout = newLayout;
     applyDockWidgetLayout(dockWidgetLayout);
@@ -1475,18 +1477,17 @@ void QMainWindowLayout::plug(QWidgetItem *dockWidgetItem, const QList<int> &path
     Q_ASSERT(dockWidget != 0);
 
     QList<int> previousPath = dockWidgetLayout.indexOf(dockWidget, IndexOfFindsInvisible);
-    QRect gapRect = dockWidgetLayout.gapRect(pathToGap);
     dockWidgetLayout.convertToWidget(pathToGap, dockWidgetItem);
     if (!previousPath.isEmpty())
         dockWidgetLayout.remove(previousPath);
 
     if (animationEnabled) {
         pluggingWidget = dockWidget;
-        QRect globalRect = gapRect;
+        QRect globalRect = currentGapRect;
         globalRect.moveTopLeft(parentWidget()->mapToGlobal(globalRect.topLeft()));
         widgetAnimator->animate(dockWidget, globalRect, animationEnabled);
     } else {
-        dockWidget->d_func()->plug(gapRect);
+        dockWidget->d_func()->plug(currentGapRect);
         applyDockWidgetLayout(dockWidgetLayout);
         savedDockWidgetLayout.clear();
         currentGapPos.clear();
@@ -1513,8 +1514,7 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
     if (widget != pluggingWidget)
         return;
 
-    QRect gapRect = dockWidgetLayout.gapRect(currentGapPos);
-    pluggingWidget->d_func()->plug(gapRect);
+    pluggingWidget->d_func()->plug(currentGapRect);
 
     applyDockWidgetLayout(dockWidgetLayout, false);
 #ifndef QT_NO_TABBAR
@@ -1526,6 +1526,8 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
 
     currentGapPos.clear();
     pluggingWidget = 0;
+
+    updateGapIndicator();
 }
 
 void QMainWindowLayout::restore()

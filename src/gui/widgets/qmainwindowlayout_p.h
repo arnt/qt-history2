@@ -121,6 +121,7 @@ public:
     void plug(QWidgetItem *dockWidgetItem, const QList<int> &pathToGap);
     void restore();
     QList<int> currentGapPos;
+    QRect currentGapRect;
     QDockWidget *pluggingWidget;
     QRubberBand *gapIndicator;
     void updateGapIndicator();
