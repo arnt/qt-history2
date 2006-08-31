@@ -1,5 +1,5 @@
 SOURCES = dbus.cpp
-DESTDIR = ../../../bin
+DESTDIR = ../../../../bin
 TARGET = dbus
 QT = core
 CONFIG += qdbus

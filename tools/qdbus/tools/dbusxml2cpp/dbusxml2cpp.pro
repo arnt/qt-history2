@@ -1,5 +1,5 @@
 SOURCES = dbusxml2cpp.cpp
-DESTDIR = ../../../bin
+DESTDIR = ../../../../bin
 TARGET = dbusxml2cpp
 QT = core xml
 CONFIG += qdbus
