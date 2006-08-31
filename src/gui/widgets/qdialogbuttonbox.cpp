@@ -393,6 +393,16 @@ void QDialogButtonBoxPrivate::layoutButtons()
         ++currentLayout;
     }
 
+    QWidget *lastWidget = 0;
+    for (int i = 0; i < buttonLayout->count(); ++i) {
+        QLayoutItem *item = buttonLayout->itemAt(i);
+        if (QWidget *widget = item->widget()) {
+            if (lastWidget)
+                QWidget::setTabOrder(lastWidget, widget);
+            lastWidget = widget;
+        }
+    }
+
     if (center)
         buttonLayout->addStretch();
 }
