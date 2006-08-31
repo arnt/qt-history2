@@ -291,6 +291,7 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
     }
 
     QTextCharFormat format;
+    format.setFont(m_view->font());
     bool header = (m_weekNumbersShown && col == HeaderColumn)
                   || (horizontalHeaderFormat != QCalendarWidget::NoHorizontalHeader && row == HeaderRow);
     format.setBackground(pal.brush(cg, header ? QPalette::AlternateBase : QPalette::Base));
@@ -298,8 +299,11 @@ QTextCharFormat QCalendarModel::formatForCell(int row, int col) const
         format.merge(m_headerFormat);
     }
 
-    if (col >= m_firstColumn && col < m_firstColumn + ColumnCount)
-        format.merge(m_dayFormats.value(Qt::DayOfWeek(dayOfWeekForColumn(col))));
+    if (col >= m_firstColumn && col < m_firstColumn + ColumnCount) {
+        Qt::DayOfWeek dayOfWeek = Qt::DayOfWeek(dayOfWeekForColumn(col));
+        if (m_dayFormats.contains(dayOfWeek))
+            format.merge(m_dayFormats.value(dayOfWeek));
+    }
 
     if(!header) {
         QDate date = dateForCell(row, col);
@@ -483,7 +487,6 @@ QCalendarView::QCalendarView(QWidget *parent)
     readOnly(false),
     validDateClicked(false)
 {
-    setMouseTracking(true);
     setTabKeyNavigation(false);
     setShowGrid(false);
     verticalHeader()->setVisible(false);
@@ -605,6 +608,9 @@ void QCalendarView::mousePressEvent(QMouseEvent *event)
     if (readOnly)
         return;
 
+    if (event->button() != Qt::LeftButton)
+        return;
+
     QDate date = handleMouseEvent(event);
     if (date.isValid()) {
         validDateClicked = true;
@@ -621,12 +627,6 @@ void QCalendarView::mousePressEvent(QMouseEvent *event)
 
 void QCalendarView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->buttons() == 0) {
-        // allow mouse tracking move events as long as a
-        // button is pressed.
-        return;
-    }
-
     QCalendarModel *calendarModel = ::qobject_cast<QCalendarModel *>(model());
     if (!calendarModel) {
         QTableView::mouseMoveEvent(event);
@@ -636,20 +636,18 @@ void QCalendarView::mouseMoveEvent(QMouseEvent *event)
     if (readOnly)
         return;
 
-    if (validDateClicked || (event->buttons() & Qt::LeftButton)) {
+    if (validDateClicked) {
        QDate date = handleMouseEvent(event);
         if (date.isValid()) {
-            validDateClicked = true;
             int row = -1, col = -1;
             static_cast<QCalendarModel *>(model())->cellForDate(date, &row, &col);
             if (row != -1 && col != -1) {
                 selectionModel()->setCurrentIndex(model()->index(row, col), QItemSelectionModel::NoUpdate);
             }
         }
-    }
-    else
+    } else {
         event->ignore();
-
+    }
 }
 
 void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
@@ -660,21 +658,24 @@ void QCalendarView::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    if (event->buttons())
+    if (event->button() != Qt::LeftButton)
         return;
 
     if (readOnly)
         return;
 
-    QDate date = handleMouseEvent(event);
-    if (date.isValid()) {
-        emit changeDate(date, true);
-        emit clicked(date);
-        if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
-            emit editingFinished();
-    }
-    else
+    if (validDateClicked) {
+        QDate date = handleMouseEvent(event);
+        if (date.isValid()) {
+            emit changeDate(date, true);
+            emit clicked(date);
+            if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+                emit editingFinished();
+        }
+        validDateClicked = false;
+    } else {
         event->ignore();
+    }
 }
 
 class QCalendarDelegate : public QItemDelegate
@@ -699,7 +700,7 @@ public:
     QCalToolButton(QWidget * parent)
         :QToolButton(parent), hover(false) ,oldState(false)
          {  }
-private: 
+private:
     bool hover, oldState;
 protected:
     void enterEvent(QEvent * e)
@@ -734,7 +735,7 @@ protected:
         if (newState || hover) //act as normal button
             setPalette(toolPalette);
         else {
-            //set the highlight color for button text 
+            //set the highlight color for button text
             toolPalette.setColor(QPalette::ButtonText, toolPalette.color(QPalette::HighlightedText));
             setPalette(toolPalette);
         }
@@ -767,6 +768,7 @@ public:
 
     void createHeader(QWidget *widget);
     void updateMonthMenu();
+    void updateHeader();
     void updateCurrentPage(QDate &newDate);
     inline QDate getCurrentDate();
 
@@ -838,6 +840,8 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     nextMonth->setIcon(q->style()->standardPixmap(QStyle::SP_ArrowRight));
     prevMonth->setAutoRepeat(true);
     nextMonth->setAutoRepeat(true);
+    prevMonth->setFocusProxy(m_view);
+    nextMonth->setFocusProxy(m_view);
 
     monthButton = new QCalToolButton(headerBackground);
     monthButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
@@ -870,10 +874,6 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     headerLayout->insertStretch(headerLayout->count());
     headerLayout->addWidget(nextMonth);
     headerBackground->setLayout(headerLayout);
-
-    //Take space for 5 digits.
-    QFontMetrics fm=yearButton->fontMetrics();
-    yearButton->setMaximumWidth(fm.boundingRect(QString("55555")).width());
 
     yearEdit->setFocusPolicy(Qt::StrongFocus);
     prevMonth->setFocusPolicy(Qt::StrongFocus);
@@ -912,7 +912,6 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
 
     QDate minDate = q->minimumDate();
     QDate maxDate = q->maximumDate();
-    m_view->setFocus();
     if (minDate.isValid()&& minDate.daysTo(newDate) < 0)
         newDate = minDate;
     if (maxDate.isValid()&& maxDate.daysTo(newDate) > 0)
@@ -929,7 +928,6 @@ void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
 
 void QCalendarWidgetPrivate::_q_monthChanged(QAction *act)
 {
-    monthButton->setFocus();
     monthButton->setText(act->text());
     QDate currentDate = getCurrentDate();
     QDate newDate = currentDate.addMonths(act->data().toInt()-currentDate.month());
@@ -979,21 +977,21 @@ void QCalendarWidgetPrivate::_q_yearClicked()
 
 void QCalendarWidgetPrivate::showMonth(int year, int month)
 {
-    monthButton->setText(QDate::longMonthName(month));
-    //add space for an extra character
-    QFontMetrics fm=monthButton->fontMetrics();
-    monthButton->setMaximumWidth(fm.boundingRect(QDate::longMonthName(month)).width()+
-        fm.boundingRect(QChar('y')).width());
-    yearButton->setText(QString::number(year));
-    yearEdit->setValue(year);
-
     if (m_model->shownYear == year && m_model->shownMonth == month)
         return;
     Q_Q(QCalendarWidget);
     m_model->showMonth(year, month);
+    updateHeader();
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
     update();
+}
+
+void QCalendarWidgetPrivate::updateHeader()
+{
+    monthButton->setText(QDate::longMonthName(m_model->shownMonth));
+    yearButton->setText(QString::number(m_model->shownYear));
+    yearEdit->setValue(m_model->shownYear);
 }
 
 void QCalendarWidgetPrivate::update()
@@ -1156,6 +1154,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_delegate = new QCalendarDelegate(d, this);
     d->m_view->setItemDelegate(d->m_delegate);
     d->update();
+    d->updateHeader();
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -1214,14 +1213,15 @@ QSize QCalendarWidget::minimumSizeHint() const
     int rows = 7;
     int cols = 8;
 
-    const int margin = (style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1) * 2;
+    const int marginH = (style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1) * 2;
+    const int marginV = (style()->pixelMetric(QStyle::PM_FocusFrameVMargin) + 1) * 2;
     if (horizontalHeaderFormat() == QCalendarWidget::NoHorizontalHeader) {
         rows = 6;
     } else {
         for (int i = 1; i <= 7; i++) {
             QFontMetrics fm(d->m_model->formatForCell(0, i).font());
-            w = qMax(w, fm.width(d->m_model->dayName(i)) + margin);
-            h = qMax(h, fm.height());
+            w = qMax(w, fm.width(d->m_model->dayName(i)) + marginH);
+            h = qMax(h, fm.height() + marginV);
         }
     }
     if (verticalHeaderFormat() == QCalendarWidget::NoVerticalHeader) {
@@ -1230,18 +1230,23 @@ QSize QCalendarWidget::minimumSizeHint() const
     }
     QFontMetrics fm(d->m_model->formatForCell(1, 1).font());
     for (int i = 1; i <= end; i++) {
-        w = qMax(w, fm.width(QString::number(i) + margin));
-        h = qMax(h, fm.height());
+        w = qMax(w, fm.width(QString::number(i) + marginH));
+        h = qMax(h, fm.height() + marginV);
     }
 
-    if (d->m_view->showGrid())
-        w += 1;       // hardcoded in tableview
+    if (d->m_view->showGrid()) {
+        // hardcoded in tableview
+        w += 1;
+        h += 1;
+    }
 
     w += 4; // add some space (heuristic)
-    h += 5;
+    h += 4;
 
     //add the size of the header.
-    QSize headerSize = d->headerBackground->sizeHint();
+    QSize headerSize(0, 0);
+    if (d->headerVisible)
+        headerSize = d->headerBackground->sizeHint();
     w *= cols;
     w = qMax(headerSize.width(), w);
     h = (h * rows) + headerSize.height();
@@ -1696,6 +1701,7 @@ void QCalendarWidget::setGridVisible(bool show)
     Q_D(QCalendarWidget);
     d->m_view->setShowGrid(show);
     d->m_view->viewport()->update();
+    d->m_view->updateGeometry();
 }
 
 /*!
@@ -1883,6 +1889,17 @@ void QCalendarWidget::setHeaderVisible(bool show)
     d->headerVisible = show;
     (show)?d->headerBackground->show():d->headerBackground->hide();
     updateGeometry();
+}
+
+/*!
+  \reimp
+*/
+bool QCalendarWidget::event(QEvent *event)
+{
+    Q_D(QCalendarWidget);
+    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange)
+        d->m_view->updateGeometry();
+    return QWidget::event(event);
 }
 
 /*!

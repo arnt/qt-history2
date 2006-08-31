@@ -107,6 +107,7 @@ public:
     QTextCharFormat dateTextFormat(const QDate &date) const;
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
 protected:
+    bool event(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent * event);
     void keyPressEvent(QKeyEvent * event);
