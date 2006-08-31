@@ -699,8 +699,6 @@ void QWSDisplay::Data::init()
         QWSIdentifyCommand cmd;
         qt_server_enqueue(&cmd);
     }
-    QApplicationPrivate *ap = QApplicationPrivate::instance();
-    ap->setMaxWindowRect(qt_screen, qt_screen->region().boundingRect());
 
     // Allow some memory for the graphics driver too
     //### Note that sharedRamSize() has side effects; it must be called
