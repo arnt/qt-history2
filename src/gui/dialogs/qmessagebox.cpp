@@ -261,11 +261,11 @@ void QMessageBoxPrivate::init(const QString &title, const QString &text)
     label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     label->setOpenExternalLinks(true);
-#ifndef Q_WS_MAC
+#if defined(Q_WS_MAC)
+    label->setContentsMargins(16, 0, 0, 10);
+#elif !defined(Q_WS_QWS)
     label->setContentsMargins(2, 0, 0, 0);
     label->setIndent(9);
-#else
-    label->setContentsMargins(16, 0, 0, 10);
 #endif
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel;
@@ -325,9 +325,15 @@ void QMessageBoxPrivate::updateSize()
     Q_Q(QMessageBox);
 
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
+#ifdef Q_WS_QWS
+    int hardLimit = screenSize.width() - 4 * 2; // XXX
+#else
     int hardLimit = qMin(screenSize.width() - 480, 1000); // can never get bigger than this
+#endif
 #ifdef Q_WS_MAC
     int softLimit = qMin(screenSize.width()/2, 420);
+#elif defined(Q_WS_QWS)
+    int softLimit = hardLimit;
 #else
     // note: ideally on windows, hard and soft limits but it breaks compat
     int softLimit = qMin(screenSize.width()/2, 500);
@@ -371,7 +377,7 @@ void QMessageBoxPrivate::updateSize()
         width = windowTitleWidth;
 
     q->layout()->activate();
-    int height = (q->layout()->hasHeightForWidth()) 
+    int height = (q->layout()->hasHeightForWidth())
                      ? q->layout()->totalHeightForWidth(width)
                      : q->layout()->totalMinimumSize().height();
     q->setFixedSize(width, height);
