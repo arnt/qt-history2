@@ -1142,9 +1142,17 @@ void tst_QProcess::failToStart()
     QSignalSpy finishedSpy(&process, SIGNAL(finished(int)));
     QSignalSpy finishedSpy2(&process, SIGNAL(finished(int, QProcess::ExitStatus)));
 
+// Mac OS X has a really low defualt process limit (100), so spawning 
+// to many processes here will cause test failures later on.
+#ifdef Q_OS_MAC
+	const int attempts = 25;
+#else
+	const int attempts = 50;
+#endif
+
     for (int j = 0; j < 8; ++j) {
-        for (int i = 0; i < 50; ++i) {
-            QCOMPARE(errorSpy.count(), j * 50 + i);
+        for (int i = 0; i < attempts; ++i) {
+            QCOMPARE(errorSpy.count(), j * attempts + i);
             process.start("/blurp");
 
             switch (j) {
@@ -1168,7 +1176,7 @@ void tst_QProcess::failToStart()
             }
 
             QCOMPARE(process.error(), QProcess::FailedToStart);
-            QCOMPARE(errorSpy.count(), j * 50 + i + 1);
+            QCOMPARE(errorSpy.count(), j * attempts + i + 1);
             QCOMPARE(finishedSpy.count(), 0);
             QCOMPARE(finishedSpy2.count(), 0);
         }
