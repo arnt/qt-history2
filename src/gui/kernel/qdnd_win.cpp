@@ -192,8 +192,11 @@ void QOleDropSource::createCursors()
             QPoint pmDest = QPoint(qMax(0, -hotSpot.x()), qMax(0, -hotSpot.y()));
             QPoint newHotSpot = hotSpot;
 
+			bool limitedCursorSize = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
+				                  || (QSysInfo::WindowsVersion == QSysInfo::WV_NT);
+
 #ifndef Q_OS_TEMP
-            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+            if (limitedCursorSize) {
                 // Limited cursor size
                 int reqw = GetSystemMetrics(SM_CXCURSOR);
                 int reqh = GetSystemMetrics(SM_CYCURSOR);
