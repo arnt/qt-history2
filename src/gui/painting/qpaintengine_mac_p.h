@@ -143,7 +143,7 @@ public:
     void setStrokePen(const QPen &pen);
     float penOffset();
     QPointF devicePixelSize(CGContextRef context);
-    float adjustPenWidth(int penWidth);
+    float adjustPenWidth(float penWidth);
     inline void setTransform(const QMatrix *matrix=0)
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));

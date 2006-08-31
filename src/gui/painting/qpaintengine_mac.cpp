@@ -858,10 +858,10 @@ QPointF QCoreGraphicsPaintEnginePrivate::devicePixelSize(CGContextRef context)
     Adjusts the pen width so we get correct line widths in the
     non-transformed, aliased case.
 */
-float QCoreGraphicsPaintEnginePrivate::adjustPenWidth(int penWidth)
+float QCoreGraphicsPaintEnginePrivate::adjustPenWidth(float penWidth)
 {
     Q_Q(QCoreGraphicsPaintEngine);
-    if (complexXForm && q->state->renderHints() & QPainter::Antialiasing)
+    if (complexXForm || q->state->renderHints() & QPainter::Antialiasing)
         return penWidth;
 
     if (penWidth < 2) {
