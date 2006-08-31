@@ -1024,7 +1024,7 @@ void QMessageBox::changeEvent(QEvent *ev)
     {
         if (d->icon != NoIcon)
             setIcon(d->icon);
-        Qt::TextInteractionFlags flags = style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, this);
+        Qt::TextInteractionFlags flags(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags, 0, this));
         d->label->setTextInteractionFlags(flags);
         d->buttonBox->setCenterButtons(style()->styleHint(QStyle::SH_MessageBox_CenterButtons, 0, this));
         if (d->informativeLabel)
@@ -1033,11 +1033,11 @@ void QMessageBox::changeEvent(QEvent *ev)
     }
     case QEvent::FontChange:
     case QEvent::ApplicationFontChange:
-#ifdef Q_WS_MAC   
+#ifdef Q_WS_MAC
     {
         QFont f = font();
         f.setBold(true);
-        d->label->setFont(f);   
+        d->label->setFont(f);
     }
 #endif
     default:
