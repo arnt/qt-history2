@@ -730,7 +730,6 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
 	QString y = xDotY.cap(2);
 
 	QSet<QString> types = typesForVariable.value(x);
-qDebug("types for variable '%s.%s': %d", qPrintable(x), qPrintable(y), types.count());
         pos += xDotY.matchedLength()
                + insertTagAround(result, xDotY.pos(2), xDotY.cap(2).length(), "@func",
                                  (types.count() == 1) ? "target=\""
