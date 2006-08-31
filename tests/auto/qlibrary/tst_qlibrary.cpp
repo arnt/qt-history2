@@ -288,7 +288,7 @@ void tst_QLibrary::errorString_data()
 #ifdef Q_OS_WIN
     QTest::newRow("bad load()") << (int)Load << QString("nosuchlib.dll") << false << QString("QLibrary::load_sys: Cannot load nosuchlib.dll \\(The specified module could not be found.\\)");
 //    QTest::newRow("bad unload") << (int)Unload << QString("nosuchlib.dll") << false << QString("QLibrary::unload_sys: Cannot unload nosuchlib.dll (The specified module could not be found.)");
-#elif Q_OS_MAC
+#elif defined Q_OS_MAC
 
 #else
 
