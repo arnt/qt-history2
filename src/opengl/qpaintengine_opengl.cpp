@@ -2513,7 +2513,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 
             if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
                 font_tex->x_offset = x_margin;
-                font_tex->y_offset += font_tex->height;
+                font_tex->y_offset += glyph_height + y_margin;
             } else {
                 font_tex->x_offset += glyph_width + x_margin;
             }
