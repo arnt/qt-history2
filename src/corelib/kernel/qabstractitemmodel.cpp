@@ -2196,6 +2196,8 @@ void QAbstractItemModel::changePersistentIndexList(const QModelIndexList &from,
     QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
     QBitArray changed(persistentIndexes.count());
     for (int i = 0; i < from.count(); ++i) {
+        if (from.at(i) == to.at(i))
+            continue;
         for (int j = 0; j < persistentIndexes.count(); ++j) {
             if (!changed.at(j) && persistentIndexes.at(j)->index == from.at(i)) {
                 persistentIndexes.at(j)->index = to.at(i);
