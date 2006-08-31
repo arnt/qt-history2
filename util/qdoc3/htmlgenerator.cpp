@@ -225,12 +225,12 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
         break;
     case Atom::Code:
-	out() << "<pre>" << highlightedCode(atom->string(), marker, relative)
+	out() << "<pre>" << trimmedTrailing(highlightedCode(atom->string(), marker, relative))
               << "</pre>\n";
 	break;
     case Atom::CodeNew:
         out() << "<p>you can rewrite it as</p>\n"
-              << "<pre>" << highlightedCode(atom->string(), marker, relative)
+              << "<pre>" << trimmedTrailing(highlightedCode(atom->string(), marker, relative))
               << "</pre>\n";
         break;
     case Atom::CodeOld:
@@ -1143,10 +1143,10 @@ void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker,
 
 void HtmlGenerator::generateIncludes(const InnerNode *inner, CodeMarker *marker)
 {
-    if (!inner->includes().isEmpty()) {
-        QString code = highlightedCode(marker->markedUpIncludes(inner->includes()), marker, inner);
-        out() << "<pre>" << trimmedTrailing(code) << "</pre>";
-    }
+    if (!inner->includes().isEmpty())
+        out() << "<pre>" << trimmedTrailing(highlightedCode(marker->markedUpIncludes(
+                                inner->includes()), marker, inner))
+              << "</pre>";
 }
 
 void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker,
@@ -1973,7 +1973,28 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
         ++pos;
     }
 
-    QRegExp typeTag("(<@(type|headerfile)>)(.*)(</@\\2>)");
+    if (slow) {
+        QRegExp funcTag("(<@func target=\"([^\"]*)\">)(.*)(</@func>)");
+        funcTag.setMinimal(true);
+        pos = 0;
+        while ((pos = html.indexOf(funcTag, pos)) != -1) {
+            QString link = linkForNode(marker->resolveTarget(funcTag.cap(2), tre, relative),
+                                       relative);
+
+            if (!link.isEmpty()) {
+                QString begin("<a href=\"" + link + "\">");
+                QString end("</a>");
+
+	        html.replace( funcTag.pos(4), funcTag.cap(4).length(), end );
+	        html.replace( funcTag.pos(1), funcTag.cap(1).length(), begin );
+            } else {
+	        pos += funcTag.matchedLength() - 1;
+            }
+        }
+    }
+
+    // we include @func to treat constructors the same as @type
+    QRegExp typeTag("(<@(type|headerfile|func)(?: +[^>]*)?>)(.*)(</@\\2>)");
     typeTag.setMinimal(true);
 
     pos = 0;
@@ -1990,26 +2011,6 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
 	html.replace( typeTag.pos(4), typeTag.cap(4).length(), end );
 	html.replace( typeTag.pos(1), typeTag.cap(1).length(), begin );
 	++pos;
-    }
-
-    if (slow) {
-        QRegExp funcTag("(<@func target=\"([^\"]*)\">)(.*)(</@func>)");
-        funcTag.setMinimal(true);
-        pos = 0;
-        while ((pos = html.indexOf(funcTag, pos)) != -1) {
-            QString begin;
-            QString end;
-            QString link = linkForNode(marker->resolveTarget(funcTag.cap(2), tre, relative), relative);
-
-            if (!link.isEmpty()) {
-                begin = "<a href=\"" + link + "\">";
-                end = "</a>";
-            }
-
-	    html.replace( funcTag.pos(4), funcTag.cap(4).length(), end );
-	    html.replace( funcTag.pos(1), funcTag.cap(1).length(), begin );
-	    ++pos;
-        }
     }
 
 #if 0

@@ -65,7 +65,9 @@ static void printHelp()
 			      "    -version  "
 			      "Display version of qdoc and exit\n"
 			      "    -D<name>  "
-			      "Define <name> as a macro while parsing sources") );
+			      "Define <name> as a macro while parsing sources\n"
+			      "    -slow     "
+			      "Turn on features that slow down qdoc") );
 }
 
 static void printVersion()

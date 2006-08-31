@@ -629,6 +629,10 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     static QRegExp xNewY("([a-zA-Z_][a-zA-Z_0-9]*) *= *new +([a-zA-Z_0-9]+)");
     static QRegExp xDotY("\\b([a-zA-Z_][a-zA-Z_0-9]*) *(?:\\.|-&gt;|,[ \n]*S(?:IGNAL|LOT)\\() *"
 	                 "([a-zA-Z_][a-zA-Z_0-9]*)(?= *\\()");
+    static QRegExp xIsStaticZOfY("[\n:;{(=] *(([a-zA-Z_0-9]+)::([a-zA-Z_0-9]+))(?= *\\()");
+    static QRegExp classX("[:,][ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
+                          "([a-zA-Z_][a-zA-Z_0-9]*)");
+    static QRegExp globalX("[\n{()=] *([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(");
 
     QString result = protectedCode;
     int pos;
@@ -684,6 +688,14 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     typesForVariable["qApp"].insert("QApplication");
 
     /*
+        Add link to ': Class'.
+    */
+    pos = 0;
+    while ((pos = classX.indexIn(result, pos)) != -1)
+	pos += classX.matchedLength()
+               + insertTagAround(result, classX.pos(1), classX.cap(1).length(), "@type") - 1;
+
+    /*
         Find use of any of
 
             var.method()
@@ -703,6 +715,32 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
                                                         + protect(*types.begin() + "::" + y)
                                                         + "()\""
                                                       : QString());
+    }
+
+    /*
+        Add link to 'Class::method()'.
+    */
+    pos = 0;
+    while ((pos = xIsStaticZOfY.indexIn(result, pos)) != -1) {
+	QString x = xIsStaticZOfY.cap(1);
+	QString z = xIsStaticZOfY.cap(3);
+
+        pos += insertTagAround(result, xIsStaticZOfY.pos(3), z.length(), "@func",
+                               "target=\"" + protect(x) + "()\"");
+        pos += insertTagAround(result, xIsStaticZOfY.pos(2), xIsStaticZOfY.cap(2).length(),
+                               "@type");
+        pos += xIsStaticZOfY.matchedLength() - 1;
+    }
+
+    /*
+        Add link to 'globalFunction()'.
+    */
+    pos = 0;
+    while ((pos = globalX.indexIn(result, pos)) != -1) {
+        QString x = globalX.cap(1);
+	pos += globalX.matchedLength()
+               + insertTagAround(result, globalX.pos(1), x.length(), "@func",
+                                 "target=\"" + protect(x) + "()\"") - 1;
     }
 
     /*
