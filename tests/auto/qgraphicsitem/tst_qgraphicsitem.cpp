@@ -1715,7 +1715,8 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
     QGraphicsView view(&scene);
     view.show();
 
-    QTest::qWait(100);
+    qApp->processEvents();
+    qApp->processEvents();
 
     // Send a hover enter event
     QGraphicsSceneHoverEvent hoverEnterEvent(QEvent::GraphicsSceneHoverEnter);
@@ -1725,7 +1726,8 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
 
     // Check that we get a repaint
     int npaints = tester->repaints;
-    QTest::qWait(25);
+    qApp->processEvents();
+    qApp->processEvents();
     QCOMPARE(tester->events.size(), 1);
     QCOMPARE(tester->repaints, npaints + 1);
     QCOMPARE(tester->events.last(), QEvent::GraphicsSceneHoverEnter);
@@ -1737,7 +1739,9 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
     QApplication::sendEvent(&scene, &hoverMoveEvent);
 
     // Check that we don't get a repaint
-    QTest::qWait(25);
+    qApp->processEvents();
+    qApp->processEvents();
+
     QCOMPARE(tester->events.size(), 2);
     QCOMPARE(tester->repaints, npaints + 1);
     QCOMPARE(tester->events.last(), QEvent::GraphicsSceneHoverMove);
@@ -1749,7 +1753,9 @@ void tst_QGraphicsItem::hoverEventsGenerateRepaints()
     QApplication::sendEvent(&scene, &hoverLeaveEvent);
 
     // Check that we get a repaint
-    QTest::qWait(25);
+    qApp->processEvents();
+    qApp->processEvents();
+
     QCOMPARE(tester->events.size(), 3);
     QCOMPARE(tester->repaints, npaints + 2);
     QCOMPARE(tester->events.last(), QEvent::GraphicsSceneHoverLeave);
