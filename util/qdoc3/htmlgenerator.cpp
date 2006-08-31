@@ -2039,7 +2039,7 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
 #endif
     html.replace( QRegExp("</?@[^>]*>"), "" );
 
-    html.prepend("<!-- " + markedCode + " -->");
+    // html.prepend("<!-- " + markedCode + " -->");
     return html;
 }
 
