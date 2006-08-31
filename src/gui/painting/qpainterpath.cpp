@@ -862,7 +862,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
 /*!
     \fn void QPainterPath::arcMoveTo(const QRectF &rectangle, qreal angle)
-    \sice 4.2
+    \since 4.2
 
     Creates a move to that lies on the arc that occupies the given \a
     rectangle at \a angle.
