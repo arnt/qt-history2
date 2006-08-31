@@ -1945,8 +1945,11 @@ void QTextEdit::scrollToAnchor(const QString &name)
 */
 void QTextEdit::zoomIn(int range)
 {
+    const int newSize = f.pointSize() + range;
+    if (newSize <= 0)
+        return;
     QFont f = font();
-    f.setPointSize(f.pointSize() + range);
+    f.setPointSize(newSize);
     setFont(f);
 }
 
