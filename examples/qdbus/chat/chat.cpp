@@ -33,11 +33,12 @@ ChatMainWindow::ChatMainWindow()
 
     // add our D-Bus interface and connect to D-Bus
     new ChatAdaptor(this);
-    QDBusConnection::systemBus().registerObject("/", this);
+    QDBusConnection::sessionBus().registerObject("/", this);
 
     com::trolltech::chat *iface;
-    iface = new com::trolltech::chat(QString(), QString(), QDBusConnection::systemBus(), this);
-    connect(iface, SIGNAL(message(QString,QString)), this, SLOT(messageSlot(QString,QString)));
+    iface = new com::trolltech::chat(QString(), QString(), QDBusConnection::sessionBus(), this);
+    //connect(iface, SIGNAL(message(QString,QString)), this, SLOT(messageSlot(QString,QString)));
+    QDBusConnection::sessionBus().connect(QString(), QString(), "com.trolltech.ChatInterface", "message", this, SLOT(messageSlot(QString,QString)));
     connect(iface, SIGNAL(action(QString,QString)), this, SLOT(actionSlot(QString,QString)));
 
     NicknameDialog dialog;
@@ -86,7 +87,10 @@ void ChatMainWindow::textChangedSlot(const QString &newText)
 
 void ChatMainWindow::sendClickedSlot()
 {
-    emit message(m_nickname, messageLineEdit->text());
+    //emit message(m_nickname, messageLineEdit->text());
+    QDBusMessage msg = QDBusMessage::createSignal("/", "com.trolltech.ChatInterface", "message");
+    msg << m_nickname << messageLineEdit->text();
+    QDBusConnection::sessionBus().send(msg);
     messageLineEdit->setText(QString());
 }
 
@@ -120,8 +124,8 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    if (!QDBusConnection::systemBus().isConnected()) {
-        qWarning("Cannot connect to the D-BUS system bus.\n"
+    if (!QDBusConnection::sessionBus().isConnected()) {
+        qWarning("Cannot connect to the D-BUS session bus.\n"
                  "Please check your system settings and try again.\n");
         return 1;
     }
