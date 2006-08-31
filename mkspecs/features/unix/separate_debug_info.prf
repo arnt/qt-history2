@@ -1,12 +1,7 @@
 
 !staticlib:!static:!contains(TEMPLATE, subdirs):!isEmpty(QMAKE_SEPARATE_DEBUG_INFO) {
     QMAKE_POST_LINK = $$QMAKE_SEPARATE_DEBUG_INFO $$QMAKE_POST_LINK
-    
-    !isEmpty(target.path) {
-        install_separate_debug_info.commands = -target_path=$$target.path && $$QMAKE_INSTALL_SEPARATE_DEBUG_INFO
-        install_separate_debug_info.CONFIG += no_path
-    
-        INSTALLS += install_separate_debug_info
-    }
+
+    target.targets += "$(DESTDIR)/`basename $(TARGET)`.debug"
 }
 
