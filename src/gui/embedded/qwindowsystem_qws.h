@@ -107,8 +107,10 @@ private:
 
     void createSurface(const QString &key, const QByteArray &data);
 
+#ifndef QT_NO_QWSEMBEDWIDGET
     void startEmbed(QWSWindow *window);
     void stopEmbed(QWSWindow *window);
+#endif
 
 private:
     int id;
@@ -412,7 +414,10 @@ public:
     void sendSelectionClearEvent(int windowid);
     void sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int windowid);
     void sendRegionEvent(int winid, QRegion rgn, int type);
-    void sendEmbedEvent(int winid, QWSEmbedEvent::Type type);
+#ifndef QT_NO_QWSEMBEDWIDGET
+    void sendEmbedEvent(int winid, QWSEmbedEvent::Type type,
+                        const QRegion &region = QRegion());
+#endif
     QWSCommand* readMoreCommand();
 
     int clientId() const { return cid; }

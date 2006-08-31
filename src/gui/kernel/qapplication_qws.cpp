@@ -85,6 +85,8 @@
 #ifndef QT_NO_DIRECTPAINTER
 class QDirectPainter;
 extern void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type);
+extern void qt_directpainter_embedevent(QDirectPainter *dp,
+                                        const QWSEmbedEvent *e);
 #endif
 
 const int qwsSharedRamSize = 1 * 1024; // misc data, written by server, read by clients
@@ -186,8 +188,8 @@ static void setMaxWindowRect(const QRect &rect)
         }
     }
 
-    const QSize screenSize(screen->width(), screen->height());
-    QRect r = screen->mapFromDevice(rect, screen->mapToDevice(QSize(screen->width(), screen->height())));
+    const QSize devSize(screen->deviceWidth(), screen->deviceHeight());
+    QRect r = screen->mapFromDevice(rect, devSize);
 
     QApplicationPrivate *ap = QApplicationPrivate::instance();
     ap->setMaxWindowRect(screen, r);
@@ -257,7 +259,9 @@ public:
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionEvent(const QWSRegionEvent *);
+#ifndef QT_NO_QWSEMBEDWIDGET
     void translateEmbedEvent(const QWSEmbedEvent *event);
+#endif
     bool translateWheelEvent(const QWSMouseEvent *me);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -2456,23 +2460,27 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     }
 #endif
 
-    QPointer<QETWidget>  widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+    QPointer<QETWidget> widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
 
 #ifndef QT_NO_DIRECTPAINTER
-    if (!widget && event->type == QWSEvent::Region) {
-        if (d->directPainters) {
-            QDirectPainter *dp = d->directPainters->value(WId(event->window()));
-            if (dp) {
-                QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
-                QRegion reg;
-                reg.setRects(e->rectangles, e->simpleData.nrectangles);
-                qt_directpainter_region(dp, reg, e->simpleData.type);
-                return 1;
-            }
+    if (!widget && d->directPainters) {
+        QDirectPainter *dp = d->directPainters->value(WId(event->window()));
+        if (dp == 0) {
+        } else if (event->type == QWSEvent::Region) {
+            QWSRegionEvent *e = static_cast<QWSRegionEvent*>(event);
+            QRegion reg;
+            reg.setRects(e->rectangles, e->simpleData.nrectangles);
+            qt_directpainter_region(dp, reg, e->simpleData.type);
+            return 1;
+#ifndef QT_NO_QWSEMBEDWIDGET
+        } else if (event->type == QWSEvent::Embed) {
+            QWSEmbedEvent *e = static_cast<QWSEmbedEvent*>(event);
+            qt_directpainter_embedevent(dp, e);
+            return 1;
+ #endif // QT_NO_QWSEMBEDWIDGET
         }
     }
-#endif
-
+#endif // QT_NO_DIRECTPAINTER
 
 #ifndef QT_NO_QWS_MANAGER
     if (d->last_manager && event->type == QWSEvent::Mouse) {
@@ -2750,9 +2758,11 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             break;
         }
         break;
+#ifndef QT_NO_QWSEMBEDWIDGET
     case QWSEvent::Embed:
         widget->translateEmbedEvent(static_cast<QWSEmbedEvent*>(event));
         break;
+#endif
     default:
         break;
     }
@@ -3363,10 +3373,17 @@ bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
     return true;
 }
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 void QETWidget::translateEmbedEvent(const QWSEmbedEvent *event)
 {
-    Q_UNUSED(event);
+    Q_D(QWidget);
+
+    if (event->simpleData.type | QWSEmbedEvent::Region) {
+        const QRegion region = event->region;
+        setGeometry(region.boundingRect());
+    }
 }
+#endif // QT_NO_QWSEMBEDWIDGET
 
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {

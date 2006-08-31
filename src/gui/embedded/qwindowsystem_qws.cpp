@@ -172,9 +172,21 @@ static bool force_reject_strokeIM = false;
 class QWSWindowPrivate
 {
 public:
+    QWSWindowPrivate();
+
     QRegion allocatedRegion;
+#ifndef QT_NO_QWSEMBEDWIDGET
     QList<QWSWindow*> embedded;
+    QWSWindow *embedder;
+#endif
 };
+
+QWSWindowPrivate::QWSWindowPrivate()
+#ifndef QT_NO_QWSEMBEDWIDGET
+    : embedder(0)
+#endif
+{
+}
 
 /*!
     \class QWSWindow
@@ -312,6 +324,11 @@ void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 void QWSWindow::raise()
 {
     qwsServerPrivate->raiseWindow(this);
+#ifndef QT_NO_QWSEMBEDWIDGET
+    const int n = d->embedded.size();
+    for (int i = 0; i < n; ++i)
+        d->embedded.at(i)->raise();
+#endif
 }
 
 /*!
@@ -321,9 +338,11 @@ void QWSWindow::raise()
 void QWSWindow::lower()
 {
     qwsServerPrivate->lowerWindow(this);
+#ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
     for (int i = 0; i < n; ++i)
         d->embedded.at(i)->lower();
+#endif
 }
 
 /*!
@@ -333,9 +352,11 @@ void QWSWindow::lower()
 void QWSWindow::show()
 {
     operation(QWSWindowOperationEvent::Show);
+#ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
     for (int i = 0; i < n; ++i)
         d->embedded.at(i)->show();
+#endif
 }
 
 /*!
@@ -345,9 +366,11 @@ void QWSWindow::show()
 void QWSWindow::hide()
 {
     operation(QWSWindowOperationEvent::Hide);
+#ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
     for (int i = 0; i < n; ++i)
         d->embedded.at(i)->hide();
+#endif
 }
 
 /*!
@@ -358,9 +381,11 @@ void QWSWindow::hide()
 void QWSWindow::setActiveWindow()
 {
     qwsServerPrivate->setFocus(this, true);
+#ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
     for (int i = 0; i < n; ++i)
         d->embedded.at(i)->setActiveWindow();
+#endif
 }
 
 void QWSWindow::setName(const QString &n)
@@ -435,15 +460,19 @@ inline void QWSWindow::setAllocatedRegion(const QRegion &region)
     d->allocatedRegion = region;
 }
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 inline void QWSWindow::startEmbed(QWSWindow *w)
 {
     d->embedded.append(w);
+    w->d->embedder = this;
 }
 
 inline void QWSWindow::stopEmbed(QWSWindow *w)
 {
+    w->d->embedder = 0;
     d->embedded.removeAll(w);
 }
+#endif // QT_NO_QWSEMBEDWIDGET
 
 /*********************************************************************
  *
@@ -708,15 +737,18 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     sendEvent(&event);
 }
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 /*!
    \internal
 */
-void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type)
+void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
+                               const QRegion &region)
 {
     QWSEmbedEvent event;
-    event.setData(windowid, type);
+    event.setData(windowid, type, region);
     sendEvent(&event);
 }
+#endif // QT_NO_QWSEMBEDWIDGET
 
 /*!
    \fn void QWSClient::connectionClosed()
@@ -2436,9 +2468,9 @@ void QWSServerPrivate::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
         changingw->onTop = true;
     }
     if (alt == QWSChangeAltitudeCommand::Lower)
-        lowerWindow(changingw, alt);
+        changingw->lower();
     else
-        raiseWindow(changingw, alt);
+        changingw->raise();
 
 //      if (!changingw->forClient(client)) {
 //         refresh();
@@ -2691,29 +2723,30 @@ void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
     QWSWindow *embedder = findWindow(cmd->simpleData.embedder, client);
     QWSWindow *embedded = findWindow(cmd->simpleData.embedded);
 
-    Q_ASSERT(embedder); // XXX
-    Q_ASSERT(embedded); // XXX
+    if (!embedder) {
+        qWarning("QWSServer: Embed request from window %i failed: No such id");
+        return;
+    }
+
+    if (!embedded) {
+        qWarning("QWSServer: Request to embed window %i failed: No such id");
+        return;
+    }
 
     switch (cmd->simpleData.type) {
     case QWSEmbedEvent::StartEmbed:
         embedder->startEmbed(embedded);
-        update_regions();
         break;
     case QWSEmbedEvent::StopEmbed:
         embedded->stopEmbed(embedded);
-        update_regions();
         break;
     case QWSEmbedEvent::Region:
-        // XXX: not neccessary if region is forwarded below
-        embedded->client()->sendRegionEvent(cmd->simpleData.embedded,
-                                            cmd->region,
-                                            QWSRegionEvent::Request);
         break;
     }
 
-    // XXX: also forward region..
     embedded->client()->sendEmbedEvent(embedded->winId(),
-                                       cmd->simpleData.type);
+                                       cmd->simpleData.type, cmd->region);
+    update_regions();
 }
 
 QWSWindow* QWSServerPrivate::newWindow(int id, QWSClient* client)
@@ -2758,10 +2791,6 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
         return;
 
     int windowPos = 0;
-
-    const int nEmbed = changingw->d->embedded.size();
-    for (int ie = 0; ie < nEmbed; ++ie)
-        changingw->d->embedded.at(ie)->raise();
 
     //change position in list:
     for (int i = 0; i < windows.size(); ++i) {
@@ -2823,6 +2852,7 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
 
 void QWSServerPrivate::update_regions()
 {
+    static QRegion prevAvailable = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion available = QRect(0, 0, qt_screen->width(), qt_screen->height());
     QRegion unbuffered;
 
@@ -2835,10 +2865,16 @@ void QWSServerPrivate::update_regions()
         QWSWindow *w = windows.at(i);
         QRegion r = (w->requested_region & available);
 
+#ifndef QT_NO_QWSEMBEDWIDGET
         // Subtract regions needed for embedded windows
         const int n = w->d->embedded.size();
         for (int i = 0; i < n; ++i)
             r -= w->d->embedded.at(i)->requested_region;
+
+        // Limited to the embedder region
+        if (w->d->embedder)
+            r &= w->d->embedder->requested_region;
+#endif // QT_NO_QWSEMBEDWIDGET
 
         if (!w->isOpaque()) {
             transparentWindows.append(w);
@@ -2851,6 +2887,7 @@ void QWSServerPrivate::update_regions()
         QWSWindowSurface *surface = w->windowSurface();
         if (surface && !surface->isBuffered())
             unbuffered += r;
+
         if (r == w->allocatedRegion())
             continue;
 
@@ -2871,6 +2908,11 @@ void QWSServerPrivate::update_regions()
         w->client()->sendRegionEvent(w->winId(), r,
                                      QWSRegionEvent::Allocation);
     }
+
+    QRegion expose = (available - prevAvailable);
+    prevAvailable = available;
+    if (!expose.isEmpty())
+        exposeRegion(expose);
 
     // XXX ungrab display lock
 }

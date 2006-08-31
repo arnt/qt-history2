@@ -223,6 +223,7 @@ struct QWSRegionEvent : QWSEvent {
     QRect *rectangles;
 };
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 struct QWSEmbedEvent : QWSEvent
 {
     QWSEmbedEvent() : QWSEvent(QWSEvent::Embed, sizeof(simpleData),
@@ -231,16 +232,31 @@ struct QWSEmbedEvent : QWSEvent
 
     typedef enum Type { StartEmbed = 1, StopEmbed = 2, Region = 4 };
 
-    void setData(int winId, Type type) {
+    void setData(const char *d, int len, bool allocateMem = true) {
+        QWSEvent::setData(d, len, allocateMem);
+        region.setRects(reinterpret_cast<const QRect *>(rawDataPtr),
+                        simpleData.nrectangles);
+    }
+
+    void setData(int winId, Type type, const QRegion &reg = QRegion()) {
         simpleData.window = winId;
+        simpleData.nrectangles = reg.rects().size();
         simpleData.type = type;
+        region = reg;
+        const QVector<QRect> rects = reg.rects();
+        QWSEvent::setData(reinterpret_cast<const char*>(rects.data()),
+                          rects.size() * sizeof(QRect));
     }
 
     struct SimpleData {
         int window;
+        int nrectangles;
         Type type;
     } simpleData;
+
+    QRegion region;
 };
+#endif // QT_NO_QWSEMBEDWIDGET
 
 #ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyReplyEvent : QWSEvent {

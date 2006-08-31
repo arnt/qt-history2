@@ -662,6 +662,7 @@ struct QWSIMUpdateCommand: public QWSCommand
 
 #endif
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 struct QWSEmbedCommand : public QWSCommand
 {
     QWSEmbedCommand() : QWSCommand(QWSCommand::Embed,
@@ -700,5 +701,6 @@ struct QWSEmbedCommand : public QWSCommand
 
     QRegion region;
 };
+#endif // QT_NO_QWSEMBEDWIDGET
 
 #endif // QWSCOMMAND_QWS_P_H

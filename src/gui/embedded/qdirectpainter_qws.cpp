@@ -19,6 +19,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwidget.h"
 #include "qimage.h"
+#include <qwsevent_qws.h>
 #include <private/qwindowsurface_qws_p.h>
 #include <private/qwsdisplay_qws_p.h>
 
@@ -129,11 +130,16 @@ void qt_directpainter_region(QDirectPainter *dp, const QRegion &alloc, int type)
             QDirectPainterPrivate::seenStaticRegion = true;
         else
             dp->regionChanged(r);
-    } else if (type == QWSRegionEvent::Request) {
-        dp->setRegion(alloc);
     }
 }
 
+#ifndef QT_NO_QWSEMBEDWIDGET
+void qt_directpainter_embedevent(QDirectPainter *dp, const QWSEmbedEvent *event)
+{
+    if (event->type | QWSEmbedEvent::Region)
+        dp->setRegion(event->region);
+}
+#endif
 
 QDirectPainter::QDirectPainter(QObject *parentObject, SurfaceFlag flag)
     :QObject(*new QDirectPainterPrivate, parentObject)
