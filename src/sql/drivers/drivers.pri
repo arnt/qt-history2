@@ -6,7 +6,13 @@ contains(sql-drivers, psql) {
     HEADERS +=      drivers/psql/qsql_psql.h
     SOURCES +=      drivers/psql/qsql_psql.cpp
 
-    unix:!contains( LIBS, .*pq.* ):LIBS *= -lpq
+    unix {
+        !isEmpty(QT_LFLAGS_PSQL) {
+            LIBS *= $$QT_LFLAGS_PSQL
+            QMAKE_CXXFLAGS *= $$QT_CFLAGS_PSQL
+        }
+        !contains(LIBS, .*pq.*):LIBS *= -lpq
+    }
 
     win32 {
 	!win32-g++:!contains( LIBS, .*pq.* ):LIBS *= -llibpq
@@ -19,12 +25,18 @@ contains(sql-drivers, mysql) {
     HEADERS +=      drivers/mysql/qsql_mysql.h
     SOURCES +=      drivers/mysql/qsql_mysql.cpp
 
-    unix:use_mysqlclient_r {
-        !contains( LIBS, .*mysqlclient_r.* ):LIBS    *= -lmysqlclient_r
-    } else:unix {
-        !contains( LIBS, .*mysqlclient.* ):LIBS    *= -lmysqlclient
+    unix {
+        isEmpty(QT_LFLAGS_MYSQL) {
+            !contains(LIBS, .*mysqlclient.*):!contains(LIBS, .*mysqld.*) {
+                use_libmysqlclient_r:LIBS *= -lmysqlclient_r
+                else:LIBS *= -lmysqlclient
+            }
+        } else {
+            LIBS *= $$QT_LFLAGS_MYSQL
+            QMAKE_CXXFLAGS *= $$QT_CFLAGS_MYSQL
+        }
     }
-    
+
     win32:!contains(LIBS, .*mysql.*):!contains(LIBS, .*mysqld.*) {
         !win32-g++:LIBS     *= -llibmysql    
 	win32-g++:LIBS	    *= -lmysql
