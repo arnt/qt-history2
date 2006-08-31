@@ -1637,6 +1637,7 @@ void QTextEdit::setTabStopWidth(int width)
 {
     Q_D(QTextEdit);
     d->control->setTabStopWidth(width);
+    d->relayoutDocument();
 }
 
 /*!
@@ -2093,6 +2094,7 @@ void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
 {
     Q_D(QTextEdit);
     d->control->setWordWrapMode(mode);
+    d->relayoutDocument();
 }
 
 /*!
