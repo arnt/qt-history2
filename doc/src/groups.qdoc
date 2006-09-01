@@ -34,7 +34,7 @@
 
     \row
     \o \l{Advanced Widgets}
-    \o Advanced GUI widgets such as listviews and progress bars.
+    \o Advanced GUI widgets such as tab widgets and progress bars.
 
     \row
     \o \l{Basic Widgets}
