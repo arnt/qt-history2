@@ -15,7 +15,7 @@
 
 #if defined(Q_WS_QWS)
 #include <GLES/egl.h>
-#include <GL/gl.h>
+#include <GLES/gl.h>
 #include <qdirectpainter_qws.h>
 #endif
 

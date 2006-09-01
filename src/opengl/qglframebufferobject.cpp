@@ -299,8 +299,13 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     // init texture
     glGenTextures(1, &texture);
     glBindTexture(target, texture);
+#ifndef Q_WS_QWS
     glTexImage2D(target, 0, GL_RGBA8, size.width(), size.height(), 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#else
+    glTexImage2D(target, 0, GL_RGBA, size.width(), size.height(), 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#endif
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

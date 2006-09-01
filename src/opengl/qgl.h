@@ -36,6 +36,14 @@ Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
 
 #if defined(Q_WS_MAC)
 # include <OpenGL/gl.h>
+#elif defined(Q_WS_QWS)
+# include <GLES/gl.h>
+#ifndef GL_DOUBLE
+# define GL_DOUBLE GL_FLOAT
+#endif
+#ifndef GLdouble
+typedef GLfloat GLdouble;
+#endif
 #else
 # include <GL/gl.h>
 #endif
@@ -212,9 +220,9 @@ public:
     virtual void swapBuffers() const;
 
     GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
-                       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA);
     GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
-                       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA);
     GLuint bindTexture(const QString &fileName);
 
     void deleteTexture(GLuint tx_id);
@@ -344,9 +352,9 @@ public:
     QPaintEngine *paintEngine() const;
 
     GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
-                       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA);
     GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
-                       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA);
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 

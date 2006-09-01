@@ -239,7 +239,11 @@ void QGLPixelBuffer::updateDynamicTexture(GLuint texture_id) const
     if (d->invalid)
         return;
     glBindTexture(GL_TEXTURE_2D, texture_id);
+#ifndef Q_WS_QWS
     glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, d->req_size.width(), d->req_size.height(), 0);
+#else
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, d->req_size.width(), d->req_size.height(), 0);
+#endif
 }
 
 /*!
@@ -382,7 +386,11 @@ int QGLPixelBuffer::metric(PaintDeviceMetric metric) const
 GLuint QGLPixelBuffer::bindTexture(const QImage &image, GLenum target)
 {
     Q_D(QGLPixelBuffer);
+#ifndef Q_WS_QWS
     return d->qctx->bindTexture(image, target, GL_RGBA8);
+#else
+    return d->qctx->bindTexture(image, target, GL_RGBA);
+#endif
 }
 
 
@@ -397,7 +405,11 @@ GLuint QGLPixelBuffer::bindTexture(const QImage &image, GLenum target)
 GLuint QGLPixelBuffer::bindTexture(const QPixmap &pixmap, GLenum target)
 {
     Q_D(QGLPixelBuffer);
+#ifndef Q_WS_QWS
     return d->qctx->bindTexture(pixmap, target, GL_RGBA8);
+#else
+    return d->qctx->bindTexture(pixmap, target, GL_RGBA);
+#endif
 }
 
 /*! \overload

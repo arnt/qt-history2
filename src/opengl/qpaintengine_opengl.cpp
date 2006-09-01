@@ -220,8 +220,8 @@ public:
     inline void doneCurrent();
     inline QSize size() const;
     inline QGLFormat format() const;
-    inline GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
-    inline GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
+    inline GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA);
+    inline GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA);
     inline QColor backgroundColor() const;
     inline QGLContext *context() const;
     inline bool autoFillBackground() const;
@@ -935,6 +935,7 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
 
 void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 {
+#ifndef Q_WS_QWS //###
     const int PAL_SIZE = 1024;
     unsigned int palbuf[PAL_SIZE];
     generateGradientColorTable(g.stops(), palbuf, PAL_SIZE);
@@ -958,11 +959,13 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
     }
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, PAL_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, palbuf);
+#endif
 }
 
 
 inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
 {
+#ifndef Q_WS_QWS //###
     QGL_FUNC_CONTEXT;
     if (style == Qt::LinearGradientPattern) {
         if (has_glsl)
@@ -992,6 +995,7 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
                 glDisable(GL_FRAGMENT_PROGRAM_ARB);
         }
     }
+#endif
 }
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
@@ -1077,10 +1081,14 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_ES_Version_2_0)
         d->has_glsl = qt_resolve_GLSL_functions(ctx);
 
+#ifndef Q_WS_QWS
     glPushAttrib(GL_ALL_ATTRIB_BITS);
+#endif
     if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
         glDisable(GL_MULTISAMPLE);
+#ifndef Q_WS_QWS
     glDisable(GL_TEXTURE_1D);
+#endif
     glDisable(GL_TEXTURE_2D);
     if (QGLExtensions::glExtensions & QGLExtensions::TextureRectangle)
         glDisable(GL_TEXTURE_RECTANGLE_NV);
@@ -1093,13 +1101,22 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
-    if (d->drawable.autoFillBackground())
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+    if (d->drawable.autoFillBackground()) {
+        GLbitfield clearBits = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+#ifndef Q_WS_QWS
+        clearBits |= GL_ACCUM_BUFFER_BIT;
+#endif
+        glClear(clearBits);
+    }
     QSize sz(d->drawable.size());
     glViewport(0, 0, sz.width(), sz.height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+#ifdef Q_WS_QWS
+    glOrthof(0, sz.width(), sz.height(), 0, -999999, 999999);
+#else
     glOrtho(0, sz.width(), sz.height(), 0, -999999, 999999);
+#endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -1108,6 +1125,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
         && (pdev != d->shader_dev))
     {
+#ifndef Q_WS_QWS
         if (d->shader_dev) {
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
@@ -1175,6 +1193,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
         }
+#endif
     }
 
     setDirty(QPaintEngine::DirtyPen);
@@ -1186,7 +1205,10 @@ bool QOpenGLPaintEngine::end()
 {
     Q_D(QOpenGLPaintEngine);
     QGL_D_FUNC_CONTEXT;
+#ifndef Q_WS_QWS
     glPopAttrib();
+#endif
+
     if (d->has_glsl)
         glUseProgram(0); // GLSL program state is not part of GL_ALL_ATTRIB_BITS
     glFlush();
@@ -1269,6 +1291,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
 void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 {
+#ifndef Q_WS_QWS
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
     bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
     Qt::BrushStyle style = brush.style();
@@ -1358,6 +1381,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         glUseProgram(0);
     else
         glDisable(GL_FRAGMENT_PROGRAM_ARB);
+#endif
 }
 
 #ifdef Q_WS_QWS
@@ -1457,7 +1481,11 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     }
     glMatrixMode(GL_MODELVIEW);
 
+#ifndef Q_WS_QWS
     GLdouble mat[4][4];
+#else
+    GLfloat mat[4][4];
+#endif
     QMatrix mtx = matrix;
     mat[0][0] = mtx.m11();
     mat[0][1] = mtx.m12();
@@ -1479,7 +1507,11 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     mat[3][2] = 0;
     mat[3][3] = 1;
 
+#ifndef Q_WS_QWS
     glLoadMatrixd(&mat[0][0]);
+#else    
+    glLoadMatrixf(&mat[0][0]);
+#endif
 }
 #endif
 
@@ -1498,7 +1530,11 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
         d->setGLPen(Qt::white);
     } else {
         d->setGLPen(pen.color());
+#ifdef Q_WS_QWS
+        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
         glColor4ubv(d->pen_color);
+#endif
     }
 
 #ifndef Q_WS_QWS
@@ -1548,7 +1584,11 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     if (!(d->brush_style >= Qt::LinearGradientPattern
         && d->brush_style <= Qt::ConicalGradientPattern)) {
         d->setGLBrush(brush.color());
+#ifdef Q_WS_QWS
+        glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+#else
         glColor4ubv(d->brush_color);
+#endif
     }
 }
 
@@ -1561,7 +1601,11 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     Q_D(QOpenGLPaintEngine);
 
     d->matrix = mtx;
+#ifndef Q_WS_QWS
     GLdouble mat[4][4];
+#else
+    GLfloat mat[4][4];
+#endif
 
     mat[0][0] = mtx.m11();
     mat[0][1] = mtx.m12();
@@ -1599,7 +1643,11 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
                            0.0001);
 
     glMatrixMode(GL_MODELVIEW);
+#ifndef Q_WS_QWS
     glLoadMatrixd(&mat[0][0]);
+#else
+    glLoadMatrixf(&mat[0][0]);
+#endif
 }
 
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
@@ -1644,10 +1692,14 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         glClear(GL_STENCIL_BUFFER_BIT);
         glClearStencil(0x1);
     } else {
+#ifndef Q_WS_QWS        
         glClearDepth(0x0);
+#endif
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthMask(true);
+#ifndef Q_WS_QWS
         glClearDepth(0x1);
+#endif
     }
 
     const QVector<QRect> rects = d->crgn.rects();
@@ -1767,8 +1819,11 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
         if (d->has_brush) {
             d->setGradientOps(d->brush_style);
+#ifdef Q_WS_QWS
+            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+#else
             glColor4ubv(d->brush_color);
-
+#endif
             glVertexPointer(2, GL_FLOAT, 0, vertexArray);
             glEnableClientState(GL_VERTEX_ARRAY);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -1777,10 +1832,17 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
         if (d->has_pen) {
             d->setGradientOps(d->pen_brush_style);
+#ifdef Q_WS_QWS
+            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
             glColor4ubv(d->pen_color);
+#endif
             if (d->has_fast_pen) {
+#ifdef Q_WS_QWS
+                glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
                 glColor4ubv(d->pen_color);
-
+#endif
                 vertexArray[8] = vertexArray[0];
                 vertexArray[9] = vertexArray[1];
 
@@ -1847,7 +1909,11 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
         if (d->has_fast_pen) {
+#ifdef Q_WS_QWS
+            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
             glColor4ubv(d->pen_color);
+#endif
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&lines[0]);
 
             if (sizeof(qreal) == sizeof(double)) {
@@ -1863,7 +1929,11 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             glDrawArrays(GL_LINES, 0, lineCount*2);
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
+#ifdef Q_WS_QWS
+            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
             glColor4ubv(d->pen_color);
+#endif
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
 #ifndef Q_WS_QWS
@@ -1911,7 +1981,11 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             glDrawArrays(GL_TRIANGLE_FAN, 0, pointCount);
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
+#ifdef Q_WS_QWS
+            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+#else
             glColor4ubv(d->brush_color);
+#endif
 #ifndef Q_WS_QWS
             d->beginPath(mode);
             d->moveTo(points[0]);
@@ -1932,7 +2006,11 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
+#ifdef Q_WS_QWS
+        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
         glColor4ubv(d->pen_color);
+#endif
         if (d->has_fast_pen) {
             QVarLengthArray<float> vertexArray(pointCount*2);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
@@ -1984,7 +2062,11 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         // Don't split "simple" paths...
         if (path.elementCount() > 32) {
             qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
+#ifdef Q_WS_QWS
+            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+#else
             glColor4ubv(d->brush_color);
+#endif
             for (int i=0; i<d->int_buffer.size(); ++i) {
                 d->beginPath(path.fillRule() == Qt::WindingFill
                              ? QPaintEngine::WindingMode
@@ -2012,7 +2094,11 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                 d->endPath();
             }
         } else {
+#ifdef Q_WS_QWS
+            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+#else
             glColor4ubv(d->brush_color);
+#endif
             d->beginPath(path.fillRule() == Qt::WindingFill
                          ? QPaintEngine::WindingMode
                          : QPaintEngine::OddEvenMode);
@@ -2036,14 +2122,18 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             d->endPath();
         }
 #else
-        glColor4ubv(d->brush_color);
+        glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
         d->fillPath(path);
 #endif
     }
-
     if (d->has_pen) {
+#ifdef Q_WS_QWS
+        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
         glColor4ubv(d->pen_color);
+#endif
         d->setGradientOps(d->pen_brush_style);
+#ifndef Q_WS_QWS
         if (d->has_fast_pen) {
             QBezier beziers[32];
             for (int i=0; i<path.elementCount(); ++i) {
@@ -2100,16 +2190,15 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             }
             glEnd(); // GL_LINE_STRIP
         } else {
-#ifndef Q_WS_QWS
             d->beginPath(WindingMode);
             d->stroker->strokePath(path, d, QMatrix());
             d->endPath();
+        }
 #else
             QPainterPath npath = d->strokeForPath(path);
             d->fillPath(npath);
 #endif
         }
-    }
 }
 
 void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
@@ -2143,7 +2232,9 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+#ifndef Q_WS_QWS
     glPushAttrib(GL_CURRENT_BIT);
+#endif
     glColor4f(d->opacity, d->opacity, d->opacity, d->opacity);
     glEnable(GL_TEXTURE_2D);
 
@@ -2154,8 +2245,8 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     // wrapping is done correctly
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
-    glRotated(180.0, 0.0, 1.0, 0.0);
-    glRotated(180.0, 0.0, 0.0, 1.0);
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
 
     float vertexArray[4*2];
     float texCoordArray[4*2];
@@ -2174,7 +2265,9 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
+#ifndef Q_WS_QWS
     glPopAttrib();
+#endif
 }
 
 void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
@@ -2194,7 +2287,9 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
                                          const QRectF &sr, GLenum target)
 {
     Q_D(QOpenGLPaintEngine);
+#ifndef Q_WS_QWS
     glPushAttrib(GL_CURRENT_BIT);
+#endif
     glColor4f(d->opacity, d->opacity, d->opacity, d->opacity);
     glEnable(target);
 
@@ -2227,7 +2322,9 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glDisable(target);
+#ifndef Q_WS_QWS
     glPopAttrib();
+#endif
 }
 
 #ifdef Q_WS_WIN
@@ -2359,8 +2456,13 @@ void QGLGlyphCache::allocTexture(int width, int height, GLuint texture)
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#ifndef Q_WS_QWS
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8_ALPHA8,
                  width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+#else
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA,
+                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+#endif
 }
 
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
@@ -2557,7 +2659,11 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qt_glyph_cache()->cacheGlyphs(d->drawable.context(), ti, glyphs);
 
     d->setGradientOps(Qt::SolidPattern); // turns off gradient ops
+#ifdef Q_WS_QWS
+    glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
+#else
     glColor4ubv(d->pen_color);
+#endif
     glEnable(GL_TEXTURE_2D);
 
     // do the actual drawing

@@ -196,8 +196,7 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
     \sa QGLContext, QGLWidget
 */
 
-static inline void
-transform_point(GLdouble out[4], const GLdouble m[16], const GLdouble in[4])
+static inline void transform_point(GLdouble out[4], const GLdouble m[16], const GLdouble in[4])
 {
 #define M(row,col)  m[col*4+row]
     out[0] =
@@ -210,8 +209,8 @@ transform_point(GLdouble out[4], const GLdouble m[16], const GLdouble in[4])
         M(3, 0) * in[0] + M(3, 1) * in[1] + M(3, 2) * in[2] + M(3, 3) * in[3];
 #undef M
 }
-static inline GLint
-qgluProject(GLdouble objx, GLdouble objy, GLdouble objz,
+
+static inline GLint qgluProject(GLdouble objx, GLdouble objy, GLdouble objz,
 	   const GLdouble model[16], const GLdouble proj[16],
 	   const GLint viewport[4],
 	   GLdouble * winx, GLdouble * winy, GLdouble * winz)
@@ -3017,8 +3016,10 @@ void QGLWidget::glDraw()
     if (!isValid())
         return;
     makeCurrent();
+#ifndef Q_WS_QWS
     if (d->glcx->deviceIsPixmap())
         glDrawBuffer(GL_FRONT);
+#endif
     if (!d->glcx->initialized()) {
         glInit();
         resizeGL(d->glcx->device()->width(), d->glcx->device()->height()); // New context needs this "resize"
@@ -3043,6 +3044,9 @@ void QGLWidget::glDraw()
 
 void QGLWidget::qglColor(const QColor& c) const
 {
+#ifdef Q_WS_QWS
+    glColor4f(c.red()/255.0, c.green()/255.0, c.blue()/255.0, c.alpha()/255.0);
+#else
     Q_D(const QGLWidget);
     const QGLContext *ctx = QGLContext::currentContext();
     if (ctx) {
@@ -3056,6 +3060,7 @@ void QGLWidget::qglColor(const QColor& c) const
         } else
             glIndexi(ctx->colorIndex(c));
     }
+#endif
 }
 
 /*!
@@ -3068,6 +3073,10 @@ void QGLWidget::qglColor(const QColor& c) const
 
 void QGLWidget::qglClearColor(const QColor& c) const
 {
+#ifdef Q_WS_QWS
+    glClearColor((GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
+                 (GLfloat)c.blue() / 255.0, (GLfloat) c.alpha() / 255.0);
+#else
     Q_D(const QGLWidget);
     const QGLContext *ctx = QGLContext::currentContext();
     if (ctx) {
@@ -3082,6 +3091,7 @@ void QGLWidget::qglClearColor(const QColor& c) const
         } else
             glClearIndex(ctx->colorIndex(c));
     }
+#endif
 }
 
 
@@ -3226,6 +3236,7 @@ int QGLWidget::fontDisplayListBase(const QFont & font, int listBase)
 
 static void qt_drawFontLining(double x, double y, const QString &str, const QFont &font)
 {
+#ifndef Q_WS_QWS
     QFontMetrics fm(font);
     int h = fm.lineWidth();
     int w = fm.width(str);
@@ -3241,6 +3252,9 @@ static void qt_drawFontLining(double x, double y, const QString &str, const QFon
         int pos = fm.overlinePos();
         glRectd(x, y - pos, x + w, y - pos + h);
     }
+#else
+    qWarning("drawFontLining not implemented on embedded");
+#endif
 }
 
 /*!
@@ -3270,9 +3284,9 @@ static void qt_drawFontLining(double x, double y, const QString &str, const QFon
 
 void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font, int listBase)
 {
+#ifndef Q_WS_QWS
     makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
@@ -3301,6 +3315,7 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glPopAttrib();
+#endif
 }
 
 /*! \overload
@@ -3313,6 +3328,7 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font
 void QGLWidget::renderText(double x, double y, double z, const QString & str, const QFont & font,
                            int listBase)
 {
+#ifndef Q_WS_QWS
     makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -3354,6 +3370,7 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
         glPopMatrix();
     }
     glPopAttrib();
+#endif
 }
 
 QGLFormat QGLWidget::format() const
