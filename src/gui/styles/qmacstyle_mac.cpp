@@ -2751,7 +2751,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     HIThemeTextInfo tti;
                     tti.version = qt_mac_hitheme_version;
                     tti.state = tds;
-                    QColor textColor = btn->palette.text().color();
+                    QColor textColor = btn->palette.buttonText().color();
                     float colorComp[] = { textColor.redF(), textColor.greenF(),
                                           textColor.blueF(), textColor.alphaF() };
                     CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
@@ -3858,7 +3858,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 HIThemeTextInfo tti;
                 tti.version = qt_mac_hitheme_version;
                 tti.state = tds;
-                QColor textColor = groupBox->palette.text().color();
+                QColor textColor = groupBox->palette.windowText().color();
                 float colorComp[] = { textColor.redF(), textColor.greenF(),
                                       textColor.blueF(), textColor.alphaF() };
                 CGContextSetFillColorSpace(cg, QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()));
