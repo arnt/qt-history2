@@ -1056,7 +1056,6 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const QHeaderView *header = d->header;
     const QModelIndex current = currentIndex();
     const QModelIndex hover = d->hover;
-    const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
     const int left = d->leftAndRight.first;
@@ -1066,7 +1065,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const bool allColumnsShowFocus = d->allColumnsShowFocus;
 
     bool currentRowHasFocus = false;
-    if (allColumnsShowFocus && focus) { // check if the focus index is before or after the visible columns
+    if (allColumnsShowFocus && current.isValid()) { // check if the focus index is before or after the visible columns
         const int r = index.row();
         for (int c = 0; c < left && !currentRowHasFocus; ++c)
             currentRowHasFocus = (index.sibling(r, c) == current);
@@ -1101,7 +1100,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
         if (d->selectionModel->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
-        if (focus && current == modelIndex) {
+        if (current == modelIndex) {
             if (allColumnsShowFocus)
                 currentRowHasFocus = true;
             else
@@ -1142,7 +1141,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             QRect branches(reverse ? position + width - i : position, y, i, height);
             QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Active : QPalette::Disabled;
-            if (cg == QPalette::Active && (!(option.state & QStyle::State_Active) || !focus))
+            if (cg == QPalette::Active && !(option.state & QStyle::State_Active))
                 cg = QPalette::Inactive;
 
             if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
