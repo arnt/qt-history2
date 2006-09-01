@@ -177,7 +177,9 @@ void MainWindow::updateModel()
             completer->setPopup(treeView);
             treeView->setRootIsDecorated(false);
             treeView->header()->hide();
-            treeView->resizeColumnToContents(0);
+            treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+            treeView->header()->setResizeMode(1, QHeaderView::Fixed);
+            treeView->header()->resizeSection(1, treeView->fontMetrics().width("x")*3);
             contentsLabel->setText(tr("Enter name of your country"));
         }
         break;
@@ -205,12 +207,14 @@ void MainWindow::useComboBox(bool combo)
         comboBox->setEditable(true);
         comboBox->setCompleter(completer);
         (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(comboBox, 4, 0, 1, 2);
+        comboBox->setFocus();
     } else {
         delete comboBox;
         comboBox = 0;
         lineEdit = new QLineEdit;
         lineEdit->setCompleter(completer);
         (static_cast<QGridLayout *>(centralWidget()->layout()))->addWidget(lineEdit, 4, 0, 1, 2);
+        lineEdit->setFocus();
     }
 }
 

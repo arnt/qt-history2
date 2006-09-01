@@ -19,6 +19,7 @@
 #include <QApplication>
 #include <QModelIndex>
 #include <QAbstractItemModel>
+#include <QScrollBar>
 
 TextEdit::TextEdit(QWidget *parent)
 : QTextEdit(parent), c(0)
@@ -121,6 +122,9 @@ void TextEdit::keyPressEvent(QKeyEvent *e)
         c->setCompletionPrefix(completionPrefix);
         c->popup()->setCurrentIndex(c->completionModel()->index(0, 0));
     }
-    c->complete(cursorRect()); // popup it up!
+    QRect cr = cursorRect();
+    cr.setWidth(c->popup()->sizeHintForColumn(0)
+                + c->popup()->verticalScrollBar()->sizeHint().width());
+    c->complete(cr); // popup it up!
 }
 

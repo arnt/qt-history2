@@ -757,11 +757,13 @@ void QCompleterPrivate::showPopup(const QRect& rect)
     QPoint pos;
     int rw, rh, w;
     int h = (popup->sizeHintForRow(0) * qMin(7, popup->model()->rowCount()) + 3) + 3;
+    QScrollBar *hsb = popup->horizontalScrollBar();
+    if (hsb && hsb->isVisible())
+        h += popup->horizontalScrollBar()->sizeHint().height();
+
     if (rect.isValid()) {
-        int sbw = popup->horizontalScrollBar()->sizeHint().width();
-        w = popup->sizeHintForColumn(column) + sbw;
         rh = rect.height();
-        rw = rect.width() + w;
+        w = rw = rect.width();
         pos = widget->mapToGlobal(dir == Qt::RightToLeft ? rect.bottomRight() : rect.bottomLeft());
     } else {
         rh = widget->height();
