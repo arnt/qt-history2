@@ -2560,7 +2560,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                     // realloc a larger texture
                     glDeleteTextures(1, &font_tex->texture);
                     glGenTextures(1, &font_tex->texture);
-                    font_tex->height += strip_height;
+                    font_tex->height = nearest_gl_texture_size(font_tex->height + strip_height);
                     allocTexture(font_tex->width, font_tex->height, font_tex->texture);
 
                     // write back the old texture data
