@@ -17,6 +17,8 @@
 #include <GLES/egl.h>
 #include <GLES/gl.h>
 #include <qdirectpainter_qws.h>
+
+#include <qscreen_qws.h>
 #endif
 
 #include <private/qfont_p.h>
@@ -29,6 +31,11 @@
 #include <qstack.h>
 #include <qdesktopwidget.h>
 #include <qdebug.h>
+
+//#define USE_PIXMAP_SURFACE
+#ifdef USE_PIXMAP_SURFACE
+#include "qegl_qws.h"
+#endif
 
 /*****************************************************************************
   QOpenGL debug facilities
@@ -46,6 +53,19 @@ bool QGLFormat::hasOpenGLOverlays()
     return true;
 }
 
+#define QT_EGL_CHECK(x) \
+    if (!(x)) { \
+        EGLint err = eglGetError(); \
+        printf("egl " #x " failure %x!\n", err); \
+    } \
+
+#define QT_EGL_ERR(txt) \
+    do { \
+        EGLint err = eglGetError(); \
+        if (err != EGL_SUCCESS) \
+            printf( txt " failure %x!\n", err); \
+    } while (0)
+
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
@@ -59,7 +79,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         EGL_GREEN_SIZE,      8,
         EGL_BLUE_SIZE,       8,
         EGL_ALPHA_SIZE,      8,
-        EGL_ALPHA_MASK_SIZE, 8, 
+        EGL_ALPHA_MASK_SIZE, 8,
         EGL_DEPTH_SIZE,     16,
         EGL_STENCIL_SIZE,   EGL_DONT_CARE,
         EGL_SURFACE_TYPE,   EGL_WINDOW_BIT,
@@ -74,17 +94,35 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             configAttribs[5] = 5;
             configAttribs[7] = 0;
         }
+    } else if (d->paintDevice->devType() == QInternal::Widget) {
+#ifdef USE_PIXMAP_SURFACE
+        if (qt_screen->pixmapDepth() == 16) {
+            configAttribs[1] = 5;
+            configAttribs[3] = 6;
+            configAttribs[5] = 5;
+            configAttribs[7] = 0;
+        }
+        configAttribs[15] = EGL_PIXMAP_BIT;
+#else
+        configAttribs[1] = 0;
+        configAttribs[3] = 0;
+        configAttribs[5] = 0;
+        configAttribs[7] = 0;
+        configAttribs[9] = 0;
+#endif
     }
-
     if (deviceIsPixmap() || d->paintDevice->devType() == QInternal::Image)
         configAttribs[15] = EGL_PIXMAP_BIT;
 
     //Ask for an available display
     d->dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    QT_EGL_CHECK(d->dpy);
 
     //Display initialization(dont care about the OGLES version numbers)
     if (!eglInitialize(d->dpy, NULL, NULL))
         return false;
+
+    eglBindAPI(EGL_OPENGL_ES_API);
 
     if (!eglChooseConfig(d->dpy, configAttribs, &configs[0],
                          5, &matchingConfigs))
@@ -94,13 +132,13 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (matchingConfigs < 1)
         return false;
 
-    memcpy(&d->config, configs, sizeof(EGLConfig));
-
+    //memcpy(&d->config, configs, sizeof(EGLConfig));
+    d->config = configs[0];
 
     GLint res;
     eglGetConfigAttrib(d->dpy, d->config, EGL_LEVEL,&res);
     d->glFormat.setPlane(res);
-
+    QT_EGL_ERR("eglGetConfigAttrib");
     /*
     if(deviceIsPixmap())
         res = 0;
@@ -149,11 +187,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         shareContext = 0;
     }
 
-    EGLContext ctx = eglCreateContext(d->dpy, d->config,
-                                      (shareContext ? shareContext->d_func()->cx : 0),
-                                      configAttribs);
+    EGLContext ctx = eglCreateContext(d->dpy, d->config, 0, 0);
+                                      //(shareContext ? shareContext->d_func()->cx : 0),
+                                      //configAttribs);
     if(!ctx) {
         GLenum err = eglGetError();
+        qDebug("eglCreateContext err %x", err);
         if(err == EGL_BAD_MATCH || err == EGL_BAD_CONTEXT) {
             if(shareContext && shareContext->d_func()->cx) {
                 qWarning("QGLContext::chooseContext(): Context sharing mismatch!");
@@ -186,14 +225,20 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
                                             (NativeWindowType)d->paintDevice,
                                             configAttribs);
     } else {
+#ifndef USE_PIXMAP_SURFACE
         d->surface = eglCreateWindowSurface(d->dpy, d->config,
-                                            (NativeWindowType)d->paintDevice,
-                                            configAttribs);
+                                            (NativeWindowType)d->paintDevice, 0);
+        if (!d->surface) {
+             GLenum err = eglGetError();
+             qDebug("eglCreateWindowSurface err %x", err);
+        }
+        qDebug() << "create Window surface" << d->surface;
+#endif
     }
-        
+
+
     if (!d->surface)
         return false;
-    
     return true;
 }
 
@@ -223,9 +268,10 @@ void QGLContext::makeCurrent()
     }
 
     bool ok = eglMakeCurrent(d->dpy, d->surface, d->surface, d->cx);
-    if (!ok)
-        qWarning("QGLContext::makeCurrent(): Failed.");
-
+    if (!ok) {
+        EGLint err = eglGetError();
+        qWarning("QGLContext::makeCurrent(): Failed %x.", err);
+    }
     if (ok) {
         if (!qgl_context_storage.hasLocalData() && QThread::currentThread())
             qgl_context_storage.setLocalData(new QGLThreadContext);
@@ -239,6 +285,8 @@ void QGLContext::doneCurrent()
 {
     Q_D(QGLContext);
     eglMakeCurrent(d->dpy, d->surface, d->surface, 0);
+
+    QT_EGL_ERR("QGLContext::doneCurrent");
     if (qgl_context_storage.hasLocalData())
         qgl_context_storage.localData()->context = 0;
     currentCtx = 0;
@@ -250,7 +298,8 @@ void QGLContext::swapBuffers() const
     Q_D(const QGLContext);
     if(!d->valid)
         return;
-    eglSwapBuffers(d->dpy, d->cx);
+    eglSwapBuffers(d->dpy, d->surface);
+    QT_EGL_ERR("QGLContext::swapBuffers");
 }
 
 QColor QGLContext::overlayTransparentColor() const
@@ -273,8 +322,109 @@ void *QGLContext::getProcAddress(const QString &proc) const
     return (void*)eglGetProcAddress(reinterpret_cast<const char *>(proc.toLatin1().data()));
 }
 
+
+class QGLDirectPainter : public QDirectPainter
+{
+public:
+    QGLDirectPainter(QGLContextPrivate *cd, QGLWidgetPrivate *wd) :glxPriv(cd), glwPriv(wd), image(0), nativePix(0) {}
+    ~QGLDirectPainter() {
+    }
+    void regionChanged(const QRegion &);
+    void render();
+
+    QRect geom;
+    QGLContextPrivate *glxPriv;
+    QGLWidgetPrivate *glwPriv;
+    QImage *image;
+    NativeWindowType nativePix;
+};
+
+
+void QGLDirectPainter::regionChanged(const QRegion&)
+{
+#ifdef USE_PIXMAP_SURFACE
+    if (geometry() != geom) {
+        geom = geometry();
+        uchar *fbp = QDirectPainter::frameBuffer() + geom.top() * QDirectPainter::linestep()
+                     + ((QDirectPainter::screenDepth()+7)/8) * geom.left();
+
+        QImage *oldImage = image;
+        NativeWindowType oldPix = nativePix;
+        image = new QImage(fbp, geom.width(), geom.height(), QDirectPainter::screenDepth(),
+                           QDirectPainter::linestep(), 0, 0, QImage::IgnoreEndian);
+#if 0 // debug
+        static int i = 0;
+        i = (i+13) %255;
+        for (int y = 0; y < image->height(); ++y)
+            for (int x = 0; x < image->width(); ++x)
+                image->setPixel(x, y, 0xff4000 + i);
+#endif
+        QT_EGL_ERR("before eglDestroySurface");
+        if (glxPriv->surface != EGL_NO_SURFACE) {
+            eglDestroySurface(glxPriv->dpy, glxPriv->surface);
+            QT_EGL_ERR("eglDestroySurface");
+        }
+#if 1
+        nativePix = QEGL::createNativePixmap(image);
+        glxPriv->surface =    eglCreatePixmapSurface(glxPriv->dpy, glxPriv->config, nativePix, 0);////const EGLint *attrib list);
+#elif 0
+        glxPriv->surface = QtEGL::createEGLSurface(image, glxPriv->dpy, glxPriv->config);
+#else
+        glxPriv->surface = eglCreateWindowSurface(image, glxPriv->dpy, glxPriv->config);
+#endif
+        QT_EGL_ERR("createEGLSurface");
+        glxPriv->valid =  glxPriv->surface != EGL_NO_SURFACE;
+        glwPriv->resizeHandler(geom.size());
+        delete oldImage;
+        QEGL::destroyNativePixmap(oldPix);
+    }
+#endif
+    if (0) {
+    QRegion alloc = allocatedRegion();
+    int max = 0;
+    QRect allocR;
+
+    for (int i=0; i < alloc.rects().count(); ++i) {
+        QRect r = alloc.rects().at(i);
+        int a = r.width()*r.height();
+        if (a  > max) {
+            max = a;
+            allocR = r;
+        }
+    }
+    allocR.translate(-geom.topLeft());
+    glScissor(allocR.left(), geom.height() - allocR.bottom(), allocR.width(), allocR.height());
+
+    glwPriv->render(allocR);
+    }
+}
+
+void QGLWidgetPrivate::render(const QRegion &r)
+{
+    Q_Q(QGLWidget);
+    QPaintEvent e(r);
+    q->paintEvent(&e); //### slightly hacky...
+}
+
+void QGLWidgetPrivate::resizeHandler(const QSize &s)
+{
+    Q_Q(QGLWidget);
+
+    q->makeCurrent();
+    if (!glcx->initialized())
+        q->glInit();
+    eglWaitNative(EGL_CORE_NATIVE_ENGINE);
+    QT_EGL_ERR("QGLWidgetPrivate::resizeHandler");
+
+    q->resizeGL(s.width(), s.height());
+}
+
 bool QGLWidget::event(QEvent *e)
 {
+#if 0 // ??? we have to make sure update() works...
+    if (e->type() == QEvent::Paint)
+        return true; // We don't paint when the GL widget needs to be painted, but when the directpainter does
+#endif
     return QWidget::event(e);
 }
 
@@ -287,15 +437,12 @@ void QGLWidget::setMouseTracking(bool enable)
 void QGLWidget::resizeEvent(QResizeEvent *)
 {
     Q_D(QGLWidget);
-    if (!isValid())
-        return;
-    makeCurrent();
-    if (!d->glcx->initialized())
-        glInit();
-    eglWaitNative(EGL_CORE_NATIVE_ENGINE);
-    resizeGL(width(), height());
-    
-    d->directPainter.setGeometry(geometry());
+//     if (!isValid())
+//         return;
+
+    if (!d->directPainter)
+        d->directPainter = new QGLDirectPainter(d->glcx->d_func(), d);
+    d->directPainter->setGeometry(geometry());
     //handle overlay
 }
 
@@ -335,6 +482,7 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     Q_Q(QGLWidget);
+    directPainter = 0;
     QGLExtensions::init();
     glcx = 0;
     autoSwap = true;
@@ -376,8 +524,10 @@ void QGLExtensions::init()
         return;
     init_done = true;
 
+#if 0 //### to avoid confusing experimental EGL: don't create two GL widgets
     QGLWidget dmy;
     dmy.makeCurrent();
     init_extensions();
+#endif
 }
 

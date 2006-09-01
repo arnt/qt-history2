@@ -43,7 +43,7 @@ class QMacWindowChangeEvent;
 
 #ifdef Q_WS_QWS
 #include <GLES/egl.h>
-#include "QtGui/qdirectpainter_qws.h"
+class QGLDirectPainter;
 #endif
 
 // extension prototypes
@@ -165,7 +165,9 @@ public:
     void updatePaintDevice();
     QMacWindowChangeEvent *watcher;
 #elif defined(Q_WS_QWS)
-    QDirectPainter directPainter;
+    QGLDirectPainter *directPainter;
+    void resizeHandler(const QSize &);
+    void render(const QRegion&);
 #endif
 };
 
@@ -349,7 +351,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
 #ifndef GL_BGRA
 #define GL_BGRA 0x80E1
 #endif
-    
+
 struct QGLThreadContext {
     QGLContext *context;
 };

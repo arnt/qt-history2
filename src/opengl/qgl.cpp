@@ -1245,6 +1245,12 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
 #if defined(Q_WS_MAC)
     update = false;
 #endif
+#if defined(Q_WS_QWS)
+    dpy = 0;
+    cx = 0;
+    config = 0;
+    surface = 0;
+#endif
     crWin = false;
     initDone = false;
     sharing = false;
