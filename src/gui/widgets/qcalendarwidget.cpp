@@ -130,8 +130,6 @@ public:
 
     void internalUpdate() { updateGeometries(); }
     void setReadOnly(bool enable);
-    int sizeHintForRow(int row) { return QTableView::sizeHintForRow(row); }
-    int sizeHintForColumn(int col) { return QTableView::sizeHintForColumn(col); }
 
 signals:
     void changeDate(const QDate &date, bool changeMonth);
@@ -1211,25 +1209,41 @@ QSize QCalendarWidget::minimumSizeHint() const
     int w = 0;
     int h = 0;
 
+    int end = 53;
     int rows = 7;
     int cols = 8;
     int startRow = 0;
     int startCol = 0;
 
+    const int marginH = (style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1) * 2;
+
     if (horizontalHeaderFormat() == QCalendarWidget::NoHorizontalHeader) {
         rows = 6;
         startRow = 1;
+    } else {
+        for (int i = 1; i <= 7; i++) {
+            QFontMetrics fm(d->m_model->formatForCell(0, i).font());
+            w = qMax(w, fm.width(d->m_model->dayName(i)) + marginH);
+            h = qMax(h, fm.height());
+        }
     }
+
     if (verticalHeaderFormat() == QCalendarWidget::NoVerticalHeader) {
         cols = 7;
         startCol = 1;
     }
 
-    for (int i = startRow; i < 7; i++)
-        h = qMax(h, d->m_view->sizeHintForRow(i));
+    QFontMetrics fm(d->m_model->formatForCell(1, 1).font());
+    for (int i = 1; i <= end; i++) {
+        w = qMax(w, fm.width(QString::number(i)) + marginH);
+        h = qMax(h, fm.height());
+    }
 
-    for (int i = startCol; i < 8; i++)
-        w = qMax(w, d->m_view->sizeHintForColumn(i));
+    if (d->m_view->showGrid()) {
+        // hardcoded in tableview
+        w += 1;
+        h += 1;
+    }
 
     h = qMax(h, d->m_view->verticalHeader()->minimumSectionSize());
     w = qMax(w, d->m_view->horizontalHeader()->minimumSectionSize());
