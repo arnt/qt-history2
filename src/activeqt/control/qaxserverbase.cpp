@@ -3952,9 +3952,13 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
         OLEINPLACEFRAMEINFO frameInfo;
         frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
 
-	m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-        QSize size(rcPos.right - rcPos.left, rcPos.bottom - rcPos.top);
-        resize(size);
+	HRESULT hres = m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+        if (hres == S_OK) {
+            QSize size(rcPos.right - rcPos.left, rcPos.bottom - rcPos.top);
+            resize(size);
+        } else {
+            qt.widget->adjustSize();
+        }
         if (spInPlaceUIWindow) spInPlaceUIWindow->Release(); // no need for it
     }
 
