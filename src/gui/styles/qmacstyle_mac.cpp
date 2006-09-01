@@ -269,7 +269,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     if (widg && widg->testAttribute(Qt::WA_SetFont)) {
         // If you're using a custom font and it's bigger than the default font,
         // then no constraints for you. If you are smaller, we can try to help you out
-        QFont font = qt_app_fonts_hash()->value(widg->className(), QFont());
+        QFont font = qt_app_fonts_hash()->value(widg->metaObject()->className(), QFont());
         if (widg->font().pointSize() > font.pointSize())
             return ret;
     }
@@ -558,7 +558,7 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     if (widg && widg->testAttribute(Qt::WA_SetFont)) {
         // If we are here the font is smaller, so we can "guess the size"
         // based on the difference.
-        QFont font = qt_app_fonts_hash()->value(widg->className(), QFont());
+        QFont font = qt_app_fonts_hash()->value(widg->metaObject()->className(), QFont());
         int difference = font.pointSize() - widg->font().pointSize();
         if (difference > 1 && difference < 4)
             return QAquaSizeSmall;
@@ -624,7 +624,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
             size_desc = "Mini";
         qDebug("%s - %s: %s taken (%d, %d) [%d, %d]",
                widg ? widg->objectName().toLatin1().constData() : "*Unknown*",
-               widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(),
+               widg ? widg->metaObject()->className() : "*Unknown*", size_desc, widg->width(), widg->height(),
                sz->width(), sz->height());
     }
 #endif
