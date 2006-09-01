@@ -1509,7 +1509,7 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
 
 #ifndef Q_WS_QWS
     glLoadMatrixd(&mat[0][0]);
-#else    
+#else
     glLoadMatrixf(&mat[0][0]);
 #endif
 }
@@ -1692,7 +1692,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         glClear(GL_STENCIL_BUFFER_BIT);
         glClearStencil(0x1);
     } else {
-#ifndef Q_WS_QWS        
+#ifndef Q_WS_QWS
         glClearDepth(0x0);
 #endif
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -2468,6 +2468,7 @@ void QGLGlyphCache::allocTexture(int width, int height, GLuint texture)
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                                 const QVarLengthArray<glyph_t> &glyphs)
 {
+#ifndef Q_WS_QWS //###
     QGLContextHash::const_iterator dev_it = qt_context_cache.constFind(context);
     QGLFontGlyphHash *font_cache = 0;
     QGLContext *context_key = 0;
@@ -2625,6 +2626,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             cache->insert(glyphs[i], qgl_glyph);
         }
     }
+#endif
 }
 
 QGLGlyphCoord *QGLGlyphCache::lookup(QFontEngine *, glyph_t g)
