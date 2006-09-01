@@ -102,13 +102,14 @@ void TextEdit::keyPressEvent(QKeyEvent *e)
        }
     }
 
-    QTextEdit::keyPressEvent(e);
+    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
+    if (!c || !isShortcut) // dont process the shortcut when we have a completer
+        QTextEdit::keyPressEvent(e);
 
     if (!c)
         return;
 
     static QString eow("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
-    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
     bool hasModifier = e->modifiers() != Qt::NoModifier;
     QString completionPrefix = textUnderCursor();
 
