@@ -314,13 +314,13 @@ QDateTime
 
         QFileInfo info1("C:\\Documents and Settings\\Bob\\untabify.lnk");
         info1.isSymLink();          // returns true
-        info1.absoluteFilePath();   // returns "C:\\Documents and Settings\\Bob\\untabify.lnk"
+        info1.absoluteFilePath();   // returns "C:/Documents and Settings/Bob/untabify.lnk"
         info1.size();               // returns 743
-        info1.symLinkTarget();      // returns "C:\\Pretty++\\untabify"
+        info1.symLinkTarget();      // returns "C:/Pretty++/untabify"
 
         QFileInfo info2(info1.symLinkTarget());
         info1.isSymLink();          // returns false
-        info1.absoluteFilePath();   // returns "C:\\Pretty++\\untabify"
+        info1.absoluteFilePath();   // returns "C:/Pretty++/untabify"
         info1.size();               // returns 63942
 
         #endif
