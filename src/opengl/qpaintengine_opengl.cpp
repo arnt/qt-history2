@@ -2415,9 +2415,9 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
     if (it == qt_font_textures.constEnd()) {
         GLuint font_texture;
         glGenTextures(1, &font_texture);
-        int tex_height = nearest_gl_texture_size(qRound(ti.ascent.toReal() + ti.descent.toReal())+2);
-        int tex_width = nearest_gl_texture_size(tex_height*30); // ###
-        int max_tex_size;
+        GLint tex_height = nearest_gl_texture_size(qRound(ti.ascent.toReal() + ti.descent.toReal())+2);
+        GLint tex_width = nearest_gl_texture_size(tex_height*30); // ###
+        GLint max_tex_size;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
         if (tex_width > max_tex_size)
             tex_width = max_tex_size;
