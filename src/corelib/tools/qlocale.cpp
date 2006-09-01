@@ -945,7 +945,6 @@ static QString macToQtFormat(const QString &sys_fmt)
             case 'w':
             case 'W':
             case 'g':
-            case 'A':
                 break;
 
             case 'u': // extended year - use 'y'
