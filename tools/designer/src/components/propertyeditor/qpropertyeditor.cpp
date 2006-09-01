@@ -108,8 +108,6 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
 
     if (property && property->isSeparator()) {
         painter->fillRect(rect, opt.palette.dark());
-    } else if (selectionModel()->isSelected(index)) {
-        painter->fillRect(rect, opt.palette.brush(QPalette::Highlight));
     }
 
     if (model()->hasChildren(index)) {
