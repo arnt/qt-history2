@@ -133,7 +133,7 @@ public:
     QList<int> supportedResolutions() const;
 
 #ifdef Q_WS_WIN
-    QList<QPrinter::PaperSource> supportedPaperSources() const;
+    QList<PaperSource> supportedPaperSources() const;
 #endif
 
     void setFontEmbeddingEnabled(bool enable);
