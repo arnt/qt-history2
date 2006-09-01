@@ -4219,6 +4219,13 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
+    case SP_DialogSaveButton:
+        {
+            pixmap = d->findIcon(24, QLatin1String("stock_save.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
     case SP_TitleBarMenuButton:
     case SP_TitleBarShadeButton:
     case SP_TitleBarUnshadeButton:
