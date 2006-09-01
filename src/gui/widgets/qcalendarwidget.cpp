@@ -992,6 +992,13 @@ void QCalendarWidgetPrivate::updateHeader()
     monthButton->setText(QDate::longMonthName(m_model->shownMonth));
     yearButton->setText(QString::number(m_model->shownYear));
     yearEdit->setValue(m_model->shownYear);
+
+    QFontMetrics fm = monthButton->fontMetrics();
+    monthButton->setMaximumWidth(fm.boundingRect(QDate::longMonthName(m_model->shownMonth)).width() +
+        fm.boundingRect(QChar('y')).width());
+
+    fm = yearButton->fontMetrics();
+    yearButton->setMaximumWidth(fm.boundingRect(QString("55555")).width());
 }
 
 void QCalendarWidgetPrivate::update()
@@ -1245,13 +1252,32 @@ QSize QCalendarWidget::minimumSizeHint() const
         h += 1;
     }
 
+    w += 1; // default column span
+
     h = qMax(h, d->m_view->verticalHeader()->minimumSectionSize());
     w = qMax(w, d->m_view->horizontalHeader()->minimumSectionSize());
 
     //add the size of the header.
     QSize headerSize(0, 0);
-    if (d->headerVisible)
-        headerSize = d->headerBackground->sizeHint();
+    if (d->headerVisible) {
+        int headerH = d->headerBackground->sizeHint().height();
+        int headerW = 0;
+
+        headerW += d->prevMonth->sizeHint().width();
+        headerW += d->nextMonth->sizeHint().width();
+
+        QFontMetrics fm = d->monthButton->fontMetrics();
+        int monthW = 0;
+        for (int i = 1; i < 12; i++)
+            monthW = qMax(monthW, fm.boundingRect(QDate::longMonthName(i)).width());
+        monthW += fm.boundingRect(QChar('y')).width();
+        headerW += monthW;
+
+        fm = d->yearButton->fontMetrics();
+        headerW += fm.boundingRect(QString("55555")).width();
+
+        headerSize = QSize(headerW, headerH);
+    }
     w *= cols;
     w = qMax(headerSize.width(), w);
     h = (h * rows) + headerSize.height();
@@ -1902,8 +1928,10 @@ void QCalendarWidget::setHeaderVisible(bool show)
 bool QCalendarWidget::event(QEvent *event)
 {
     Q_D(QCalendarWidget);
-    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange)
+    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange) {
+        d->updateHeader();
         d->m_view->updateGeometry();
+    }
     return QWidget::event(event);
 }
 
