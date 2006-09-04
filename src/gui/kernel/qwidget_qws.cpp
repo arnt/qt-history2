@@ -95,6 +95,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         qWarning("Qtopia Core " QT_VERSION_STR " does not support tool windows with frames.\n"
                  "This behavior will change in a later release. To ensure compatibility with\n"
                  "future versions, use (Qt::Tool | Qt::FramelessWindowHint).");
+        toolWarningShown = true;
     }
 #endif
 
