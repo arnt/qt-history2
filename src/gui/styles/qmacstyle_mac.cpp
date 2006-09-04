@@ -4295,15 +4295,37 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             case SC_GroupBoxLabel:
             case SC_GroupBoxCheckBox: {
                 // Cheat and use the smaller font if we need to
-                QFontMetrics fm = groupBox->fontMetrics;
                 bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
-                if (!checkable)
-                    fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
-
-                int h = fm.height();
-                int tw = fm.size(Qt::TextShowMnemonic, groupBox->text).width();
-                int margin = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 12;
+                bool flat = (groupBox->features & QStyleOptionFrameV2::Flat);
+                bool fontIsSet = (widget && widget->testAttribute(Qt::WA_SetFont));
+                int tw;
+                int h;
+                int margin =  flat ? 0 : 12;
                 ret = groupBox->rect.adjusted(margin, 0, -margin, 0);
+
+                if (!fontIsSet) {
+                    HIThemeTextInfo tti;
+                    tti.version = qt_mac_hitheme_version;
+                    tti.state = kThemeStateActive;
+                    tti.fontID = checkable ? kThemeSystemFont : kThemeSmallSystemFont;
+                    tti.horizontalFlushness = kHIThemeTextHorizontalFlushCenter;
+                    tti.verticalFlushness = kHIThemeTextVerticalFlushCenter;
+                    tti.options = kHIThemeTextBoxOptionNone;
+                    tti.truncationPosition = kHIThemeTextTruncationNone;
+                    tti.truncationMaxLines = 1 + groupBox->text.count(QLatin1Char('\n'));
+                    float width;
+                    float height;
+                    QCFString groupText = removeMnemonics(groupBox->text);
+                    HIThemeGetTextDimensions(groupText, 0, &tti, &width, &height, 0);
+                    tw = int(width);
+                    h = int(height);
+                } else {
+                    QFontMetrics fm = groupBox->fontMetrics;
+                    if (!checkable && !fontIsSet)
+                        fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
+                    h = fm.height();
+                    tw = fm.size(Qt::TextShowMnemonic, groupBox->text).width();
+                }
                 ret.setHeight(h);
 
                 QRect labelRect = alignedRect(groupBox->direction, groupBox->textAlignment,
@@ -4315,7 +4337,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                         int newSum = indicatorWidth + 1;
                         int newLeft = labelRect.left() + (rtl ? -newSum : newSum);
                         labelRect.moveLeft(newLeft);
-                    } else if (groupBox->features & QStyleOptionFrameV2::Flat) {
+                    } else if (flat) {
                         int newLeft = labelRect.left() - (rtl ? 3 : -3);
                         labelRect.moveLeft(newLeft);
                         labelRect.moveTop(labelRect.top() + 5);
