@@ -1290,9 +1290,28 @@ public:
 
 void tst_QWidget::resizeEvent()
 {
+
+    QWidget wParent;
+    ResizeWidget wChild(&wParent);
+    wParent.show();
+    QCOMPARE (wChild.m_resizeEventCount, 1); // initial resize event before paint
+    wParent.hide();
+    wChild.resize(QSize(640,480));
+    QCOMPARE (wChild.m_resizeEventCount, 1);
+    wParent.show();
+    QCOMPARE (wChild.m_resizeEventCount, 2);
+
+    ResizeWidget wTopLevel;
+    wTopLevel.show();
+    QCOMPARE (wTopLevel.m_resizeEventCount, 1); // initial resize event before paint for toplevels
+    wTopLevel.hide();
+    wTopLevel.resize(QSize(640,480));
+    QCOMPARE (wTopLevel.m_resizeEventCount, 1);
+    wTopLevel.show();
+    QCOMPARE (wTopLevel.m_resizeEventCount, 2);
+
+
     ResizeWidget w;
-    w.resize(QSize(640,480));
-    w.show();
     qApp->processEvents();
     w.m_resizeEventCount = 0;
     w.showFullScreen();
@@ -1802,7 +1821,7 @@ void tst_QWidget::saveRestoreGeometry()
 {
     const QPoint position(100, 100);
     const QSize size(200, 200);
-    
+
     QByteArray savedGeometry;
 
     {
@@ -1826,14 +1845,14 @@ void tst_QWidget::saveRestoreGeometry()
 
     {
         QWidget widget;
-        
+
         const QByteArray empty;
         const QByteArray one("a");
         const QByteArray two("ab");
         const QByteArray three("abc");
         const QByteArray four("abca");
         const QByteArray garbage("abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc");
-        
+
         QVERIFY(widget.restoreGeometry(empty) == false);
         QVERIFY(widget.restoreGeometry(one) == false);
         QVERIFY(widget.restoreGeometry(two) == false);
@@ -1860,7 +1879,7 @@ void tst_QWidget::restoreVersion1Geometry()
 {
     const QPoint position(100, 100);
     const QSize size(200, 200);
-  
+
     QFile f(":geometry.dat");
     QVERIFY(f.exists());
     f.open(QIODevice::ReadOnly);
