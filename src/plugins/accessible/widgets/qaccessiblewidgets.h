@@ -34,6 +34,8 @@ public:
     QRect rect(int child) const;
     int childAt(int x, int y) const;
 
+    int childCount() const;
+
 protected:
     QTextEdit *textEdit() const;
 

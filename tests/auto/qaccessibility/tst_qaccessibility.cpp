@@ -2085,10 +2085,10 @@ void tst_QAccessibility::textEditTest()
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(&edit);
     QCOMPARE(iface->text(QAccessible::Value, 0), text);
-    QCOMPARE(iface->childCount(), 3);
-    QCOMPARE(iface->text(QAccessible::Value, 1), QString("hello world"));
-    QCOMPARE(iface->text(QAccessible::Value, 2), QString("how are you today?"));
-    QCOMPARE(iface->text(QAccessible::Value, 3), QString());
+    QCOMPARE(iface->childCount(), 6);
+    QCOMPARE(iface->text(QAccessible::Value, 4), QString("hello world"));
+    QCOMPARE(iface->text(QAccessible::Value, 5), QString("how are you today?"));
+    QCOMPARE(iface->text(QAccessible::Value, 6), QString());
 #else
     QSKIP("Test needs Qt >= 0x040000 and accessibility support.", SkipAll);
 #endif

@@ -168,4 +168,10 @@ QVariant QAccessibleTextEdit::invokeMethodEx(QAccessible::Method method, int chi
 
     return QVariant();
 }
+
+int QAccessibleTextEdit::childCount() const
+{
+    return childOffset + textEdit()->document()->blockCount();
+}
+
 #endif // QT_NO_ACCESSIBILITY
