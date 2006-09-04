@@ -105,3 +105,13 @@ AIX:
 - Use "-qmkshrobj" compiler option to generate shared libraries instead of
   the deprecated makeC++SharedLib tool.
 
+
+Demos / Examples
+
+        Created a new directory containing desktop examples and moved the
+        Screenshot example into it.
+
+Documentation
+
+        Updated information about the mailing list to be used for porting
+        issues (qt-interest).
