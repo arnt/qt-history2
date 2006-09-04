@@ -1310,6 +1310,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
+        CFRetain(qt_root_win);
         if(HIViewRef hiview = HIViewGetRoot(qt_root_win)) {
             CFRetain(hiview);
             setWinId((WId)hiview);
