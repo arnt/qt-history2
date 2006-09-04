@@ -10,8 +10,95 @@ Applications compiled for 4.1 will continue to run with 4.2.
 *                           General                                        *
 ****************************************************************************
 
-Qt library
-----------
+- dropped support for MySQL version 3.
 
-- dropped support for MySQL version 3.x.
+- Auto-detect PostgreSQL and MySQL using pg_config and mysql_config on UNIX
+  based systems in the configure script
+
+- Added "-system-sqlite" option to configure to use the system's SQLite library
+  instead of Qt's SQLite version.
+
+- Updated Qt's SQLite version to 3.3.6.
+
+- Added QT_ASCII_CAST_WARNINGS define that will output a warning on implicit
+  ascii to unicode conversion when set. Only works if the compiler supports
+  deprecated API warnings.
+
+- Added Q_REQUIRED_RESULT to some functions. This macro triggers a warning
+  if the result of a function is discarded. Currently only supported by gcc.
+
+- Added QDataWidgetMapper class that can be used to make widgets data aware
+  by mapping them to sections of an item model.
+
+- Improved Accessibility for item-based views and QTextEdit.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+- QFlags
+        Added testFlag() convenience function.
+
+- QMetaObject
+        Added userProperty().
+        Added normalizedType().
+
+- QMetaType
+        Normalizes all type names before registering them.
+        Handle Qt's integer typedefs (qint8, qint16, ...).
+
+- QSqlQuery
+        Added execBatch() for executing SQL commands in a batch. Currently
+        only implemented for the Oracle driver.
+        Fixed a case where executedQuery() would not return the executed query.
+
+- QSqlRelationalTableModel
+        Work when sorting a relational column when using the PostgreSQL driver.
+        revertAll() now correctly reverts relational columns.
+
+- QVariant
+        Added support for all QMetaType types.
+
+
+Database drivers
+-------------------------
+
+- Interbase driver
+        Fix data truncation for 64 bit integers on 64 bit operating systems.
+
+- MySQL driver
+        When using MySQL 5.0.7 or larger, let the server do the text encoding
+        conversion.
+        Added UNIX_SOCKET connection option.
+        Improved handling of TEXT fields.
+
+- OCI driver
+        Improved speed for meta data retrieval.
+        Fix potential crash on Windows with string OUT parameters.
+        Improve handling of mixed-case table and field names.
+
+- ODBC driver
+        Improved error reporting if driver doesn't support static result sets.
+        Improved support for the Sybase ODBC driver.
+
+- SQLite driver
+        Also return temporary tables when using QSqlDatabase::tables().
+        Improved handling of mixed-case field names.
+
+
+
+QTestLib
+-------------------------
+
+- Added "-silent" options that outputs only test failures and warnings.
+- Reset failure count when re-executing a test object
+- Added nicer output for QRectF, QSizeF and QPointF
+
+Platform-Specific changes
+-------------------------
+
+AIX:
+
+- Use "-qmkshrobj" compiler option to generate shared libraries instead of
+  the deprecated makeC++SharedLib tool.
 
