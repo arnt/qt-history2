@@ -130,11 +130,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    if (!QDBusConnection::sessionBus().registerService("com.trolltech.ChatExample")) {
-        qDebug( "Unable to connect to dbus service: %s", qPrintable( QDBusConnection::sessionBus().lastError().message() ) );
-        return 1;
-    }
-
     ChatMainWindow chat;
     chat.show();
     return app.exec();
