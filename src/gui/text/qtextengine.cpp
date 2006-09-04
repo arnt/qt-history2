@@ -1648,10 +1648,10 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
 
         QFontEngine *fe = fnt.d->engineForScript(QUnicodeTables::Common);
         // the lookup can be really slow when we use XLFD fonts
-        bool isXldfEngine = (fe->type() == QFontEngine::XLFD)
+        bool isXlfdEngine = (fe->type() == QFontEngine::XLFD)
                             || (fe->type() == QFontEngine::Multi
                                 && static_cast<QFontEngineMulti*>(fe)->engine(0)->type() == QFontEngine::XLFD);
-        if (!isXldfEngine && fe->canRender(&ellipsisChar, 1)) {
+        if (!isXlfdEngine && fe->canRender(&ellipsisChar, 1)) {
             QGlyphLayout glyph;
             int nGlyphs = 1;
             fe->stringToCMap(&ellipsisChar, 1, &glyph, &nGlyphs, 0);
