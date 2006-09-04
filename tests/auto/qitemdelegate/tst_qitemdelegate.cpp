@@ -204,7 +204,7 @@ void tst_QItemDelegate::editorGetsEnterKeyPress()
     QList<QLineEdit*> lineEditors = view.findChildren<QLineEdit*>();
     Q_ASSERT(lineEditors.count() == 1);
     QLineEdit *editor = lineEditors.at(0);
-    editor->setValidator(new FooValidator());
+    editor->setValidator(new FooValidator(editor));
 
     QTest::keyPress(editor, Qt::Key_Enter);
     QCoreApplication::instance()->processEvents();
@@ -402,27 +402,32 @@ void tst_QItemDelegate::eventFilter()
     QVERIFY(delegate.eventFilter(&widget, event));
     QCOMPARE(closeEditorSpy.count(), 1);
     QCOMPARE(commitDataSpy.count(), 1);
+    delete event;
 
     event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Backtab, Qt::NoModifier);
     QVERIFY(delegate.eventFilter(&widget, event));
     QCOMPARE(closeEditorSpy.count(), 2);
     QCOMPARE(commitDataSpy.count(), 2);
+    delete event;
 
     event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
     QVERIFY(delegate.eventFilter(&widget, event));
     QCOMPARE(closeEditorSpy.count(), 3);
     QCOMPARE(commitDataSpy.count(), 2);
+    delete event;
 
     event = new QKeyEvent(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier);
     QVERIFY(!delegate.eventFilter(&widget, event));
     QCOMPARE(closeEditorSpy.count(), 3);
     QCOMPARE(commitDataSpy.count(), 2);
+    delete event;
 
     //Subtest focusEvent
     event = new QFocusEvent(QEvent::FocusOut);
     QVERIFY(!delegate.eventFilter(&widget, event));
     QCOMPARE(closeEditorSpy.count(), 4);
     QCOMPARE(commitDataSpy.count(), 3);
+    delete event;
 }
 
 
