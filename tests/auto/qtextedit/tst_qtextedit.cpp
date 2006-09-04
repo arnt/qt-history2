@@ -24,6 +24,10 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qtextdocumentfragment.h>
 
+#ifdef Q_WS_MAC
+#include <Carbon/Carbon.h>
+#endif
+
 class QTextEdit;
 
 //TESTED_CLASS=
@@ -34,7 +38,6 @@ class tst_QTextEdit : public QObject
     Q_OBJECT
 public:
     tst_QTextEdit();
-
 
 public slots:
     void init();
@@ -99,10 +102,23 @@ private slots:
 private:
     void createSelection();
     int blockCount() const;
+    bool nativeClipboardWorking();
 
     QTextEdit *ed;
     qreal rootFrameMargin;
 };
+
+bool tst_QTextEdit::nativeClipboardWorking()
+{
+#ifdef Q_WS_MAC
+    PasteboardRef pasteboard;
+    OSStatus status = PasteboardCreate(0, &pasteboard);
+    if (status == noErr)
+        CFRelease(pasteboard);
+    return status == noErr;
+#endif
+    return true;
+}
 
 // Testing get/set functions
 void tst_QTextEdit::getSetCheck()
@@ -360,6 +376,8 @@ void tst_QTextEdit::createSelection()
 
 void tst_QTextEdit::clearMustNotChangeClipboard()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Clipboard not working with cron-started unit tests", SkipAll);
     ed->textCursor().insertText("Hello World");
     QString txt("This is different text");
     QApplication::clipboard()->setText(txt);
@@ -609,6 +627,9 @@ void tst_QTextEdit::setTextCursor()
 
 void tst_QTextEdit::undoAvailableAfterPaste()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Clipboard not working with cron-started unit tests", SkipAll);
+
     QSignalSpy spy(ed->document(), SIGNAL(undoAvailable(bool)));
 
     const QString txt("Test");
@@ -745,6 +766,9 @@ void tst_QTextEdit::preserveCharFormatInAppend()
 
 void tst_QTextEdit::copyAndSelectAllInReadonly()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Clipboard not working with cron-started unit tests", SkipAll);
+
     ed->setReadOnly(true);
     ed->setPlainText("Hello World");
 
@@ -1131,6 +1155,9 @@ void tst_QTextEdit::selectWordsFromStringsContainingSeparators()
 
 void tst_QTextEdit::canPaste()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Clipboard not working with cron-started unit tests", SkipAll);
+
     QApplication::clipboard()->setText(QString());
     QVERIFY(!ed->canPaste());
     QApplication::clipboard()->setText("Test");

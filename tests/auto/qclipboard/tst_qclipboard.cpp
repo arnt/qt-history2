@@ -11,6 +11,9 @@
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
+#ifdef Q_WS_MAC
+#include <Carbon/Carbon.h>
+#endif
 
 
 //TESTED_CLASS=QClipboard
@@ -25,7 +28,23 @@ private slots:
     void modes();
     void testSignals();
     void copy_exit_paste();
+
+private:
+    bool nativeClipboardWorking();
 };
+
+
+bool tst_QClipboard::nativeClipboardWorking()
+{
+#ifdef Q_WS_MAC
+    PasteboardRef pasteboard;
+    OSStatus status = PasteboardCreate(0, &pasteboard);
+    if (status == noErr)
+        CFRelease(pasteboard);
+    return status == noErr;
+#endif
+    return true;
+}
 
 /*
     Tests that the capability functions are implemented on all
@@ -50,10 +69,13 @@ void tst_QClipboard::modes()
 {
     QClipboard * const clipboard =  QApplication::clipboard();
 
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard not working in this setup", SkipAll);
+
     const QString defaultMode = "deafult mode text;";
     clipboard->setText(defaultMode);
     QCOMPARE(clipboard->text(), defaultMode);
-    
+
     if (clipboard->supportsSelection()) {
         const QString selectionMode = "selection mode text";
         clipboard->setText(selectionMode, QClipboard::Selection);
@@ -75,6 +97,9 @@ void tst_QClipboard::modes()
 */
 void tst_QClipboard::testSignals()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard not working in this setup", SkipAll);
+
     QClipboard * const clipboard =  QApplication::clipboard();
 
     QSignalSpy dataChangedSpy(clipboard, SIGNAL(dataChanged()));
@@ -88,7 +113,7 @@ void tst_QClipboard::testSignals()
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(searchChangedSpy.count(), 0);
     QCOMPARE(selectionChangedSpy.count(), 0);
-    
+
     // Test the selction mode signal.
     if (clipboard->supportsSelection()) {
         clipboard->setText(text, QClipboard::Selection);
@@ -119,6 +144,8 @@ void tst_QClipboard::copy_exit_paste()
     QSKIP("This test does not make sense on X11 and embedded, copied data disappears from the clipboard when the application exits ", SkipAll);
     // ### It's still possible to test copy/paste - just keep the apps running
 #endif
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard not working in this setup", SkipAll);
     const QStringList stringArgument = QStringList() << "Test string.";
     QCOMPARE(QProcess::execute("copier/copier", stringArgument), 0);
     QCOMPARE(QProcess::execute("paster/paster", stringArgument), 0);

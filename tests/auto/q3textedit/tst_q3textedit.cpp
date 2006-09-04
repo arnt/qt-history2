@@ -18,6 +18,9 @@
 #include <qimage.h>
 #include <private/q3richtext_p.h>
 
+#ifdef Q_WS_MAC
+#include <Carbon/Carbon.h>
+#endif
 
 //TESTED_CLASS=
 //TESTED_FILES=compat/text/q3textedit.h compat/text/q3textedit.cpp
@@ -77,10 +80,25 @@ private slots:
     void anchorTest();
 
 private:
+    bool nativeClipboardWorking();
     Q3TextEdit *textEdit;
     bool redoA, undoA, copyA;
 
 };
+
+bool tst_Q3TextEdit::nativeClipboardWorking()
+{
+#ifdef Q_WS_MAC
+    PasteboardRef pasteboard;
+    OSStatus status = PasteboardCreate(0, &pasteboard);
+    if (status == noErr)
+        CFRelease(pasteboard);
+    return status == noErr;
+#endif
+    return true;
+}
+
+
 
 class My3TextEdit : public Q3TextEdit
 {
@@ -307,6 +325,9 @@ void tst_Q3TextEdit::cursorPosition_data()
 
 void tst_Q3TextEdit::cursorPosition()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard and cron-started unit tests do not work", SkipAll);
+
     QFETCH( QString, text );
     QFETCH( int, paragraph );
     QFETCH( int, index );
@@ -376,6 +397,9 @@ void tst_Q3TextEdit::copyPaste_data()
 // tests copying richtext and pasting as plain text
 void tst_Q3TextEdit::copyPaste()
 {
+    if (!nativeClipboardWorking())
+        QSKIP("Native clipboard and cron-started unit tests do not work", SkipAll);
+
     QFETCH( QString, text );
     QFETCH( QString, expectedText );
 

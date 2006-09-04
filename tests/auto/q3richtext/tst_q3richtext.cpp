@@ -13,6 +13,9 @@
 #include <qapplication.h>
 #include <qclipboard.h>
 
+#ifdef Q_WS_MAC
+#include <Carbon/Carbon.h>
+#endif
 
 //TESTED_FILES=
 
@@ -362,12 +365,23 @@ void tst_Q3RichText::keyPressEvent()
     QApplication::sendEvent( textedit.viewport(), &ke );
     QCOMPARE( textedit.text(), QString("his is a test") );
 
-    textedit.setText( "This is a test" );
-    QApplication::clipboard()->setText(" and this is another test");
-    textedit.moveCursor( Q3TextEdit::MoveLineEnd, FALSE );
-    ke = QKeyEvent( QEvent::KeyPress, Qt::Key_Insert, 0, Qt::ShiftModifier );
-    QApplication::sendEvent( textedit.viewport(), &ke );
-    QCOMPARE( textedit.text(), QString("This is a test and this is another test") );
+    bool nativeClipboardWorking = true;
+#if defined (Q_WS_MAC)
+    PasteboardRef pasteboard;
+    OSStatus status = PasteboardCreate(0, &pasteboard);
+    if (status == noErr)
+        CFRelease(pasteboard);
+    nativeClipboardWorking = status == noErr;
+#endif
+
+    if (nativeClipboardWorking) {
+        textedit.setText( "This is a test" );
+        QApplication::clipboard()->setText(" and this is another test");
+        textedit.moveCursor( Q3TextEdit::MoveLineEnd, FALSE );
+        ke = QKeyEvent( QEvent::KeyPress, Qt::Key_Insert, 0, Qt::ShiftModifier );
+        QApplication::sendEvent( textedit.viewport(), &ke );
+        QCOMPARE( textedit.text(), QString("This is a test and this is another test") );
+    }
 
 #if defined (Q_WS_WIN)
     textedit.setText( "This is a test" );
@@ -390,28 +404,29 @@ void tst_Q3RichText::keyPressEvent()
     QApplication::sendEvent( textedit.viewport(), &ke );
     QCOMPARE( textedit.text(), QString( "This is a tes" ) );
 
-    textedit.setText( "This is a test" );
-    QApplication::clipboard()->setText("");
-    textedit.selectAll();
-    ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F16, 0, Qt::NoButton );
-    QApplication::sendEvent( textedit.viewport(), &ke );
-    QCOMPARE( QApplication::clipboard()->text(), QString("This is a test") );
+    if (nativeClipboardWorking) {
+        textedit.setText( "This is a test" );
+        QApplication::clipboard()->setText("");
+        textedit.selectAll();
+        ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F16, 0, Qt::NoButton );
+        QApplication::sendEvent( textedit.viewport(), &ke );
+        QCOMPARE( QApplication::clipboard()->text(), QString("This is a test") );
 
-    textedit.setText( "This is a test" );
-    textedit.moveCursor( Q3TextEdit::MoveLineEnd, FALSE );
-    QApplication::clipboard()->setText(" and this is another test");
-    ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F18, 0, Qt::NoButton );
-    QApplication::sendEvent( textedit.viewport(), &ke );
-    QCOMPARE( textedit.text(), QString("This is a test and this is another test") );
+        textedit.setText( "This is a test" );
+        textedit.moveCursor( Q3TextEdit::MoveLineEnd, FALSE );
+        QApplication::clipboard()->setText(" and this is another test");
+        ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F18, 0, Qt::NoButton );
+        QApplication::sendEvent( textedit.viewport(), &ke );
+        QCOMPARE( textedit.text(), QString("This is a test and this is another test") );
 
-    textedit.setText( "This is a test" );
-    QApplication::clipboard()->setText("");
-    textedit.selectAll();
-    ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F20, 0, Qt::NoButton );
-    QApplication::sendEvent( textedit.viewport(), &ke );
-    QCOMPARE( textedit.text(), QString("") );
-    QCOMPARE( QApplication::clipboard()->text(), QString("This is a test") );
-
+        textedit.setText( "This is a test" );
+        QApplication::clipboard()->setText("");
+        textedit.selectAll();
+        ke = QKeyEvent( QEvent::KeyPress, Qt::Key_F20, 0, Qt::NoButton );
+        QApplication::sendEvent( textedit.viewport(), &ke );
+        QCOMPARE( textedit.text(), QString("") );
+        QCOMPARE( QApplication::clipboard()->text(), QString("This is a test") );
+    }
 }
 
 QTEST_MAIN(tst_Q3RichText)

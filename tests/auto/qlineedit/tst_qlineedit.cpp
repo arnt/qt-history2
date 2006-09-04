@@ -18,6 +18,7 @@
 
 
 #ifdef Q_WS_MAC
+#include <Carbon/Carbon.h> // For the random function.
 #include <cstdlib> // For the random function.
 #endif
 
@@ -2695,7 +2696,16 @@ void tst_QLineEdit::setSelection()
 
 void tst_QLineEdit::cut()
 {
-
+#ifdef Q_WS_MAC
+    {
+        PasteboardRef pasteboard;
+        OSStatus status = PasteboardCreate(0, &pasteboard);
+        if (status == noErr)
+            CFRelease(pasteboard);
+        else
+            QSKIP("Autotests run from cron and pasteboard don't get along quite ATM", SkipAll);
+    }
+#endif
     // test newlines in cut'n'paste
     testWidget->setText("A\nB\nC\n");
     testWidget->setSelection(0, 6);
