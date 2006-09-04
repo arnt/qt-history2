@@ -32,12 +32,12 @@ class Q_CORE_EXPORT QLibrary : public QObject
     Q_PROPERTY(LoadHints loadHints READ loadHints WRITE setLoadHints)
 public:
     enum LoadHint {
-        ResolveAllSymbols = 0x01,
-        ExportExternalSymbols = 0x02,
-        LoadArchiveMember = 0x04
+        ResolveAllSymbolsHint = 0x01,
+        ExportExternalSymbolsHint = 0x02,
+        LoadArchiveMemberHint = 0x04
     };
     Q_DECLARE_FLAGS(LoadHints, LoadHint)
-    
+
     explicit QLibrary(QObject *parent = 0);
     explicit QLibrary(const QString& fileName, QObject *parent = 0);
     explicit QLibrary(const QString& fileName, int verNum, QObject *parent = 0);
@@ -54,8 +54,8 @@ public:
     static bool isLibrary(const QString &fileName);
 
     void setFileName(const QString &fileName);
-    QString fileName() const;   
-       
+    QString fileName() const;
+
     void setFileNameAndVersion(const QString &fileName, int verNum);
     QString errorString() const;
 

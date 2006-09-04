@@ -135,16 +135,16 @@ bool QLibraryPrivate::load_sys()
 #endif
     }
     int dlFlags = 0;
-    if (loadHints & QLibrary::ResolveAllSymbols) {
+    if (loadHints & QLibrary::ResolveAllSymbolsHint) {
         dlFlags |= RTLD_NOW;
     } else {
         dlFlags |= RTLD_LAZY;
     }
-    if (loadHints & QLibrary::ExportExternalSymbols) {
+    if (loadHints & QLibrary::ExportExternalSymbolsHint) {
         dlFlags |= RTLD_GLOBAL;
     }
 #if defined(Q_OS_AIX)	// Not sure if any other platform actually support this thing.
-    if (loadHints & QLibrary::LoadArchiveMember) {
+    if (loadHints & QLibrary::LoadArchiveMemberHint) {
         dlFlags |= RTLD_MEMBER;
     }
 #endif
@@ -155,7 +155,7 @@ bool QLibraryPrivate::load_sys()
                 continue;
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
                 continue;
-            if (loadHints & QLibrary::LoadArchiveMember) {
+            if (loadHints & QLibrary::LoadArchiveMemberHint) {
                 attempt = name;
                 int lparen = attempt.indexOf(QLatin1Char('('));
                 if (lparen == -1)

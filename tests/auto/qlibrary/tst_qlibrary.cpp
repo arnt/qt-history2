@@ -106,7 +106,7 @@ void tst_QLibrary::version_data()
     QTest::addColumn<QString>("lib");
     QTest::addColumn<int>("loadversion");
     QTest::addColumn<int>("resultversion");
- 
+
     QTest::newRow( "ok00, version 1" ) << "mylib" << 1 << 1;
     QTest::newRow( "ok00, version 2" ) << "mylib" << 2 << 2;
     QTest::newRow( "ok00, default to last version" ) << "mylib" << -1 << 2;
@@ -132,7 +132,7 @@ void tst_QLibrary::version()
     Q_UNUSED(loadversion);
     Q_UNUSED(resultversion);
 #endif
-    
+
 }
 
 void tst_QLibrary::load_data()
@@ -262,7 +262,7 @@ void tst_QLibrary::isLibrary_data()
     QTest::newRow("bad (libmylib.1.0.0.foo)") << QString("libmylib.1.0.0.foo") << false;
 #elif defined(Q_OS_WIN)
     QTest::newRow("good (with many dots)" ) << "/system.trolltech.test.mylib.dll" << true;
-#endif    
+#endif
 }
 
 void tst_QLibrary::isLibrary()
@@ -299,12 +299,12 @@ void tst_QLibrary::errorString_data()
 
 void tst_QLibrary::errorString()
 {
-    QFETCH(int, operation); 
+    QFETCH(int, operation);
     QFETCH(QString, fileName);
     QFETCH(bool, success);
     QFETCH(QString, errorString);
-    
-    
+
+
     QLibrary lib(fileName);
 
     bool ok = false;
@@ -343,15 +343,15 @@ void tst_QLibrary::loadHints_data()
     QLibrary::LoadHints lh;
 #if QT_VERSION >= 0x040300 && defined(Q_OS_AIX)
 # if QT_POINTER_SIZE == 4
-    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr.o)" << int(QLibrary::LoadArchiveMember) << (bool)TRUE;
+    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr.o)" << int(QLibrary::LoadArchiveMemberHint) << (bool)TRUE;
 # else
-    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr_64.o)" << int(QLibrary::LoadArchiveMember) << (bool)TRUE;
+    QTest::newRow( "ok03 (Archive member)" ) << "libGL.a(shr_64.o)" << int(QLibrary::LoadArchiveMemberHint) << (bool)TRUE;
 #endif
 #endif	// QT_VERSION
 
 #if QT_VERSION >= 0x040103
     QString currDir = QDir::currentPath();
-    lh |= QLibrary::ResolveAllSymbols;
+    lh |= QLibrary::ResolveAllSymbolsHint;
 # if defined Q_OS_WIN32
     QTest::newRow( "ok01 (with suffix)" ) << currDir + "/mylib.dll" << int(lh) << (bool)TRUE;
     QTest::newRow( "ok02 (with non-standard suffix)" ) << currDir + "/mylib.dl2" << int(lh) << (bool)TRUE;
@@ -375,7 +375,7 @@ void tst_QLibrary::loadHints()
         QLibrary::LoadHints lh(loadHints);
         lh |= library.loadHints();
     	library.setLoadHints(lh);
-    } 
+    }
     bool ok = library.load();
     if ( result ) {
 	QVERIFY( ok );

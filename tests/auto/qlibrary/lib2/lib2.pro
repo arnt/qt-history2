@@ -5,6 +5,7 @@ SOURCES		= mylib.c
 TARGET = mylib
 DESTDIR = ../
 VERSION = 2
+QT = core
 
 win32-msvc: DEFINES += WIN32_MSVC
 win32-borland: DEFINES += WIN32_BORLAND

@@ -893,21 +893,21 @@ QString QLibrary::errorString() const
     \property QLibrary::loadHints
     \brief Give the load() function some hints on how it should behave.
 
-    You can give some hints on how the symbols are resolved. Usually, 
-    the symbols are not resolved at load time, but resolved lazily, 
-    (that is, when resolve() is called).  If you set the loadHint to 
-    ResolveAllSymbols, then all symbols will be resolved at load time 
-    if the platform supports it. Setting ExportExternalSymbols will 
-    make the external symbols in the library available for resolution 
-    in subsequent loaded libraries. If LoadArchiveMember is set, the fileName
-    is composed of two components: A path which is a reference to an 
+    You can give some hints on how the symbols are resolved. Usually,
+    the symbols are not resolved at load time, but resolved lazily,
+    (that is, when resolve() is called).  If you set the loadHint to
+    ResolveAllSymbolsHint, then all symbols will be resolved at load time
+    if the platform supports it. Setting ExportExternalSymbolsHint will
+    make the external symbols in the library available for resolution
+    in subsequent loaded libraries. If LoadArchiveMemberHint is set, the fileName
+    is composed of two components: A path which is a reference to an
     archive file followed by the second component which is the reference to
     the archive member. For instance, the fileName \c libGL.a(shr_64.o) will refer
-    to the library \c shr_64.o in the archive file named \c libGL.a. This 
+    to the library \c shr_64.o in the archive file named \c libGL.a. This
     is only supported on the AIX platform.
-    The interpretation of the loadHints is platform dependent, and if 
+    The interpretation of the loadHints is platform dependent, and if
     you use it you are probably making some assumptions on which platform
-    you are compiling for, so use them only if you understand the consequences 
+    you are compiling for, so use them only if you understand the consequences
     of them.
 
 */
@@ -928,9 +928,9 @@ bool qt_debug_component()
     return true;    //compatibility?
 #else
     static int debug_env = -1;
-    if (debug_env == -1) 
+    if (debug_env == -1)
        debug_env = ::qgetenv("QT_DEBUG_PLUGINS").toInt();
-    
+
     return debug_env != 0;
 #endif
 }

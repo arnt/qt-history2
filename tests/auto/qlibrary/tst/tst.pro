@@ -1,6 +1,7 @@
 load(qttest_p4)
 SOURCES         += ../tst_qlibrary.cpp
 TARGET  = ../tst_qlibrary
+QT = core
 
 win32 {
   CONFIG(debug, debug|release) {
