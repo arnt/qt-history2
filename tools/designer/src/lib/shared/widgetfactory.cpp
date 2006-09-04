@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::WidgetFactory
+*/
+
 #include "widgetfactory_p.h"
 #include "widgetdatabase_p.h"
 #include "qlayout_widget_p.h"

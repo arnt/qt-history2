@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ComboBoxTaskMenu
+*/
+
 #include "combobox_taskmenu.h"
 #include "inplace_editor.h"
 #include "listwidgeteditor.h"

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtBrushEditor
+*/
+
 #include "qtbrusheditor.h"
 #include "qtbrushpatterndialog.h"
 #include "qtgradientdialog.h"
@@ -130,7 +134,7 @@ void QtBrushEditorPrivate::slotApplyClicked()
 
 void QtBrushEditorPrivate::slotAddToCustomClicked()
 {
-    QString name = m_brushManager->addBrush(q_ptr->tr("New Brush"), m_brush);
+    QString name = m_brushManager->addBrush(QApplication::translate("qdesigner_internal::QtBrushEditor", "New Brush", 0, QApplication::UnicodeUTF8), m_brush);
     m_brushManager->setCurrentBrush(name);
 
     if (m_brushToItem.contains(name))

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtBrushPatternDialog
+*/
+
 #include "qtbrushpatterndialog.h"
 #include "ui_qtbrushpatterndialog.h"
 

@@ -33,6 +33,8 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner_internal {
+
 class QDESIGNER_SHARED_EXPORT Spacer: public QWidget
 {
     Q_OBJECT
@@ -72,5 +74,7 @@ private:
     bool interactive;
     QSize sh;
 };
+
+} // namespace qdesigner_internal
 
 #endif // SPACER_WIDGET_H

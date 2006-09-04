@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>TreeWidgetEditor</class>
- <widget class="QDialog" name="TreeWidgetEditor" >
+ <class>qdesigner_internal::TreeWidgetEditor</class>
+ <widget class="QDialog" name="qdesigner_internal::TreeWidgetEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -438,7 +438,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>TreeWidgetEditor</receiver>
+   <receiver>qdesigner_internal::TreeWidgetEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -454,7 +454,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>TreeWidgetEditor</receiver>
+   <receiver>qdesigner_internal::TreeWidgetEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

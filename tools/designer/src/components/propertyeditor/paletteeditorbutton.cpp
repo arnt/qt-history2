@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::PaletteEditorButton
+*/
+
 #include "paletteeditorbutton.h"
 #include "paletteeditor.h"
 

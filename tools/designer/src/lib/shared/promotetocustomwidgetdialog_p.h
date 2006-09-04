@@ -30,11 +30,11 @@
 
 class QDesignerWidgetDataBaseInterface;
 
+namespace qdesigner_internal {
+
 namespace Ui {
     class PromoteToCustomWidgetDialog;
 } // namespace Ui
-
-namespace qdesigner_internal {
 
 class PromoteToCustomWidgetDialog : public QDialog
 {

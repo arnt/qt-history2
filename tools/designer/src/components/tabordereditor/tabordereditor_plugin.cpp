@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::TabOrderEditorPlugin
+*/
+
 #include <QtGui/QAction>
 
 #include "tabordereditor_plugin.h"

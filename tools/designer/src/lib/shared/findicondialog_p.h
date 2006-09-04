@@ -34,12 +34,12 @@ class QDesignerFormWindowInterface;
 class QListWidgetItem;
 class QModelIndex;
 
+namespace qdesigner_internal {
+
 namespace Ui
 {
     class FindIconDialog;
 } // namespace Ui
-
-namespace qdesigner_internal {
 
 class ResourceEditor;
 
@@ -76,7 +76,7 @@ private:
     void setActiveBox(InputBox box);
     InputBox activeBox() const;
 
-    Ui::FindIconDialog *ui;
+    qdesigner_internal::Ui::FindIconDialog *ui;
     QDesignerFormWindowInterface *m_form;
 
     void setViewDir(const QString &path);

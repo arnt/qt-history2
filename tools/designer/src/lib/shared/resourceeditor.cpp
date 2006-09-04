@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ResourceEditor
+*/
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>

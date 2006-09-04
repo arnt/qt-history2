@@ -11,14 +11,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>PaletteEditor</class>
- <widget class="QDialog" name="PaletteEditor" >
+ <class>qdesigner_internal::PaletteEditor</class>
+ <widget class="QDialog" name="qdesigner_internal::PaletteEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>391</height>
+    <width>365</width>
+    <height>409</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -160,7 +160,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="3" >
-       <widget class="qdesigner_internal::PreviewFrame" name="previewFrame" >
+       <widget class="qdesigner_internal::PreviewFrame" native="1" name="previewFrame" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -203,7 +203,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>PaletteEditor</receiver>
+   <receiver>qdesigner_internal::PaletteEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -219,7 +219,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>PaletteEditor</receiver>
+   <receiver>qdesigner_internal::PaletteEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

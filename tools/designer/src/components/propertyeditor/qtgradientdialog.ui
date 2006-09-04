@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>QtGradientDialog</class>
- <widget class="QDialog" name="QtGradientDialog" >
+ <class>qdesigner_internal::QtGradientDialog</class>
+ <widget class="QDialog" name="qdesigner_internal::QtGradientDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -67,7 +67,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>QtGradientDialog</receiver>
+   <receiver>qdesigner_internal::QtGradientDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -83,7 +83,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QtGradientDialog</receiver>
+   <receiver>qdesigner_internal::QtGradientDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

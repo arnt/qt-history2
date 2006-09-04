@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::OrderDialog
+*/
+
 #include "orderdialog_p.h"
 #include <QtDesigner/QtDesigner>
 

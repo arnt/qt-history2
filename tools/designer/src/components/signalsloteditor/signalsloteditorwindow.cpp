@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ConnectionModel
+*/
+
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDebug>
 #include <QtGui/QStandardItemModel>

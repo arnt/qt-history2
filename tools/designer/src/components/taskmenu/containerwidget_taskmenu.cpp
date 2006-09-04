@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ContainerWidgetTaskMenu
+*/
+
 #include "containerwidget_taskmenu.h"
 
 #include <QtDesigner/QtDesigner>

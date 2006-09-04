@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>QtGradientStopsEditor</class>
- <widget class="QWidget" name="QtGradientStopsEditor" >
+ <class>qdesigner_internal::QtGradientStopsEditor</class>
+ <widget class="QWidget" name="qdesigner_internal::QtGradientStopsEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -63,16 +63,16 @@
       <number>3</number>
      </property>
      <property name="maximum" >
-      <double>1</double>
+      <double>1.000000000000000</double>
      </property>
      <property name="minimum" >
-      <double>0</double>
+      <double>0.000000000000000</double>
      </property>
      <property name="singleStep" >
-      <double>0.01</double>
+      <double>0.010000000000000</double>
      </property>
      <property name="value" >
-      <double>0</double>
+      <double>0.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -381,9 +381,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qdesigner_internal::QtDoubleSpinBox</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>qtspinbox.h</header>
+   <class>qdesigner_internal::QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header>qtcolorbutton.h</header>
   </customwidget>
   <customwidget>
    <class>qdesigner_internal::QtGradientStopsWidget</class>
@@ -396,14 +396,14 @@
    <header>qtspinbox.h</header>
   </customwidget>
   <customwidget>
+   <class>qdesigner_internal::QtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qtspinbox.h</header>
+  </customwidget>
+  <customwidget>
    <class>qdesigner_internal::QtColorLine</class>
    <extends>QFrame</extends>
    <header>qtcolorline.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qdesigner_internal::QtColorButton</class>
-   <extends>QToolButton</extends>
-   <header>qtcolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

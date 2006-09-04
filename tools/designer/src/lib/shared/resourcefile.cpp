@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ResourceModel
+*/
+
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>

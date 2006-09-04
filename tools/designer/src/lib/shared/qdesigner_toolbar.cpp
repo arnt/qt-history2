@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::Sentinel
+*/
+
 #include "qdesigner_toolbar_p.h"
 #include "qdesigner_command_p.h"
 #include "actionrepository_p.h"

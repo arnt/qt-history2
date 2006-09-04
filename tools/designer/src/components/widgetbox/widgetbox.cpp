@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::WidgetBoxTreeView
+*/
+
 #include "widgetbox.h"
 
 // sdk

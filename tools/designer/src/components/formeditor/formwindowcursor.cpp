@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::FormWindowCursor
+*/
+
 #include "formwindowcursor.h"
 #include "formwindow.h"
 

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ListWidgetTaskMenu
+*/
+
 #include "listwidget_taskmenu.h"
 #include "inplace_editor.h"
 #include "listwidgeteditor.h"

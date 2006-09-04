@@ -15,4 +15,6 @@
 
 #include "signalsloteditor_plugin.h"
 
+using namespace qdesigner_internal;
+
 Q_EXPORT_PLUGIN(SignalSlotEditorPlugin)

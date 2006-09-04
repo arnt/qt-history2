@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtGradientStopsWidget
+*/
+
 #include "qtgradientstopswidget.h"
 #include "qtgradientstopsmodel.h"
 #include <QMap>

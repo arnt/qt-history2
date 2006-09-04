@@ -21,8 +21,11 @@
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
 
-class SignalSlotEditorTool;
 class QDesignerFormWindowInterface;
+
+namespace qdesigner_internal {
+
+class SignalSlotEditorTool;
 
 class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditorPlugin: public QObject, public QDesignerFormEditorPluginInterface
 {
@@ -51,5 +54,7 @@ private:
     bool m_initialized;
     QAction *m_action;
 };
+
+}  // namespace qdesigner_internal
 
 #endif // SIGNALSLOTEDITOR_PLUGIN_H

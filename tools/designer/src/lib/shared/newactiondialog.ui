@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>NewActionDialog</class>
- <widget class="QDialog" name="NewActionDialog" >
+ <class>qdesigner_internal::NewActionDialog</class>
+ <widget class="QDialog" name="qdesigner_internal::NewActionDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -162,7 +162,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>NewActionDialog</receiver>
+   <receiver>qdesigner_internal::NewActionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -178,7 +178,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>NewActionDialog</receiver>
+   <receiver>qdesigner_internal::NewActionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

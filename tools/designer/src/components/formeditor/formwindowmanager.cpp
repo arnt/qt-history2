@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::FormWindowManager
+*/
+
 #include "formwindowmanager.h"
 #include "formwindow_dnditem.h"
 #include "widgetdatabase_p.h"

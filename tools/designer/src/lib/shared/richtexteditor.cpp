@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::RichTextEditorDialog
+*/
+
 #include <QtCore/QPointer>
 #include <QtCore/QMap>
 

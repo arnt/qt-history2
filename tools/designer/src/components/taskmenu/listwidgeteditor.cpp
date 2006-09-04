@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::ListWidgetEditor
+*/
+
 #include "listwidgeteditor.h"
 #include <findicondialog_p.h>
 #include <iconloader_p.h>

@@ -1323,15 +1323,18 @@ void QDesignerResource::createResources(DomResources *resources)
     foreach (DomResource *res, dom_include) {
         QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         while (!QFile::exists(path)) {
-            if (QMessageBox::warning(m_formWindow->core()->topLevel(), QObject::tr("Loading qrc file"),
-                QObject::tr("The specified qrc file <p><b>%1</b></p><p>could not be found. "
-                "Do you want to update the file location?</p>").arg(path),
-                QObject::tr("&Yes"), QObject::tr("&No"),
+            if (QMessageBox::warning(m_formWindow->core()->topLevel(), QApplication::translate("qdesigner_internal::QDesignerResource",
+                "Loading qrc file", 0, QApplication::UnicodeUTF8),
+                QApplication::translate("qdesigner_internal::QDesignerResource",
+                "The specified qrc file <p><b>%1</b></p><p>could not be found. Do you want to update the file location?</p>", 0, QApplication::UnicodeUTF8).arg(path),
+                QApplication::translate("qdesigner_internal::QDesignerResource", "&Yes", 0, QApplication::UnicodeUTF8),
+                QApplication::translate("qdesigner_internal::QDesignerResource", "&No", 0, QApplication::UnicodeUTF8),
                 QString(), 0, 1) == 0) {
                 QFileInfo fi(path);
                 path = QFileDialog::getOpenFileName(m_formWindow->core()->topLevel(),
-                    QObject::tr("New location for %1").arg(fi.fileName()), fi.absolutePath(),
-                    QObject::tr("Resource files (*.qrc)"));
+                    QApplication::translate("qdesigner_internal::QDesignerResource",
+                    "New location for %1", 0, QApplication::UnicodeUTF8).arg(fi.fileName()), fi.absolutePath(),
+                    QApplication::translate("qdesigner_internal::QDesignerResource", "Resource files (*.qrc)", 0, QApplication::UnicodeUTF8));
                 if (path.isEmpty())
                     break;
             } else {

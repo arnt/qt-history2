@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>FindIconDialog</class>
- <widget class="QDialog" name="FindIconDialog" >
+ <class>qdesigner_internal::FindIconDialog</class>
+ <widget class="QDialog" name="qdesigner_internal::FindIconDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -153,7 +153,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>FindIconDialog</receiver>
+   <receiver>qdesigner_internal::FindIconDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -169,7 +169,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>FindIconDialog</receiver>
+   <receiver>qdesigner_internal::FindIconDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

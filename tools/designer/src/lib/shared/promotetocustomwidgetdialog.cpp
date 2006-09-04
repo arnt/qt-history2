@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::PromoteToCustomWidgetDialog
+*/
+
 #include "promotetocustomwidgetdialog_p.h"
 #include "ui_promotetocustomwidgetdialog.h"
 

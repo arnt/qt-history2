@@ -11,12 +11,18 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::SignalSlotEditorPlugin
+*/
+
 #include <QtGui/QAction>
 
 #include "signalsloteditor_plugin.h"
 #include "signalsloteditor_tool.h"
 
 #include <QtDesigner/QtDesigner>
+
+using namespace qdesigner_internal;
 
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
     : m_initialized(false), m_action(0)

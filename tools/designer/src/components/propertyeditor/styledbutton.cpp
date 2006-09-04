@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::StyledButton
+*/
+
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>

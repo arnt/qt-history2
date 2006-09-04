@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
+ <class>qdesigner_internal::Dialog</class>
+ <widget class="QDialog" name="qdesigner_internal::Dialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -204,7 +204,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>qdesigner_internal::Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -220,7 +220,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>qdesigner_internal::Dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

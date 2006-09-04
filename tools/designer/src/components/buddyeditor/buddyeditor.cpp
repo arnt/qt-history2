@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::BuddyEditor
+*/
+
 #include <QtCore/qdebug.h>
 
 #include "buddyeditor.h"

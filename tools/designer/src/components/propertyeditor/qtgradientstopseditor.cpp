@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtGradientStopsEditor
+*/
+
 #include "qtgradientstopseditor.h"
 #include "ui_qtgradientstopseditor.h"
 #include "qtgradientstopsmodel.h"
@@ -134,9 +138,9 @@ void QtGradientStopsEditorPrivate::updateZoom()
 
 void QtGradientStopsEditorPrivate::slotHsvClicked()
 {
-    m_ui.hueLabel->setText(q_ptr->tr("Hue"));
-    m_ui.saturationLabel->setText(q_ptr->tr("Saturation"));
-    m_ui.valueLabel->setText(q_ptr->tr("Value"));
+    m_ui.hueLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Hue", 0, QApplication::UnicodeUTF8));
+    m_ui.saturationLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Saturation", 0, QApplication::UnicodeUTF8));
+    m_ui.valueLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Value", 0, QApplication::UnicodeUTF8));
     m_ui.hueColorLine->setColorComponent(QtColorLine::Hue);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Saturation);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Value);
@@ -145,9 +149,9 @@ void QtGradientStopsEditorPrivate::slotHsvClicked()
 
 void QtGradientStopsEditorPrivate::slotRgbClicked()
 {
-    m_ui.hueLabel->setText(q_ptr->tr("Red"));
-    m_ui.saturationLabel->setText(q_ptr->tr("Green"));
-    m_ui.valueLabel->setText(q_ptr->tr("Blue"));
+    m_ui.hueLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Red", 0, QApplication::UnicodeUTF8));
+    m_ui.saturationLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Green", 0, QApplication::UnicodeUTF8));
+    m_ui.valueLabel->setText(QApplication::translate("qdesigner_internal::QtGradientStopsEditor", "Blue", 0, QApplication::UnicodeUTF8));
     m_ui.hueColorLine->setColorComponent(QtColorLine::Red);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Green);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Blue);

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtGradientEditor
+*/
+
 #include "qtgradienteditor.h"
 #include "ui_qtgradienteditor.h"
 

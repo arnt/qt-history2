@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::TableWidgetEditor
+*/
+
 #include "tablewidgeteditor.h"
 #include <findicondialog_p.h>
 #include <iconloader_p.h>

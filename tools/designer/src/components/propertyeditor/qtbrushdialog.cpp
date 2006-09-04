@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRNASLATOR qdesigner_internal::QtBrushDialog
+*/
+
 #include "qtbrushdialog.h"
 #include "ui_qtbrushdialog.h"
 

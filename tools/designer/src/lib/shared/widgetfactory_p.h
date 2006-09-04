@@ -46,6 +46,7 @@ namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT WidgetFactory: public QDesignerWidgetFactoryInterface
 {
+    Q_OBJECT
 public:
     WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent = 0);
     ~WidgetFactory();

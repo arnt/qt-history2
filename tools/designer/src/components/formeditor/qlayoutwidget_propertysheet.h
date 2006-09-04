@@ -16,9 +16,10 @@
 
 #include <qdesigner_propertysheet_p.h>
 
-class QLayoutWidget;
 
 namespace qdesigner_internal {
+
+class QLayoutWidget;
 
 class QLayoutWidgetPropertySheet: public QDesignerPropertySheet
 {

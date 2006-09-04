@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>QtBrushPatternEditor</class>
- <widget class="QWidget" name="QtBrushPatternEditor" >
+ <class>qdesigner_internal::QtBrushPatternEditor</class>
+ <widget class="QWidget" name="qdesigner_internal::QtBrushPatternEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -325,6 +325,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>qdesigner_internal::QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header>qtcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>qdesigner_internal::QtBrushWidget</class>
    <extends>QFrame</extends>
    <header>qtbrushwidget.h</header>
@@ -333,11 +338,6 @@
    <class>qdesigner_internal::QtColorLine</class>
    <extends>QFrame</extends>
    <header>qtcolorline.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qdesigner_internal::QtColorButton</class>
-   <extends>QToolButton</extends>
-   <header>qtcolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

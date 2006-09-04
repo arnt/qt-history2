@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>PromoteToCustomWidgetDialog</class>
- <widget class="QDialog" name="PromoteToCustomWidgetDialog" >
+ <class>qdesigner_internal::PromoteToCustomWidgetDialog</class>
+ <widget class="QDialog" name="qdesigner_internal::PromoteToCustomWidgetDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -184,7 +184,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>PromoteToCustomWidgetDialog</receiver>
+   <receiver>qdesigner_internal::PromoteToCustomWidgetDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -200,7 +200,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>PromoteToCustomWidgetDialog</receiver>
+   <receiver>qdesigner_internal::PromoteToCustomWidgetDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::QtBrushPatternEditor
+*/
+
 #include "qtbrushpatterneditor.h"
 #include "ui_qtbrushpatterneditor.h"
 
@@ -49,9 +53,9 @@ public:
 
 void QtBrushPatternEditorPrivate::slotHsvClicked()
 {
-    m_ui.hueLabel->setText(q_ptr->tr("Hue"));
-    m_ui.saturationLabel->setText(q_ptr->tr("Saturation"));
-    m_ui.valueLabel->setText(q_ptr->tr("Value"));
+    m_ui.hueLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Hue", 0, QApplication::UnicodeUTF8));
+    m_ui.saturationLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Saturation", 0, QApplication::UnicodeUTF8));
+    m_ui.valueLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Value", 0, QApplication::UnicodeUTF8));
     m_ui.hueColorLine->setColorComponent(QtColorLine::Hue);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Saturation);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Value);
@@ -60,9 +64,9 @@ void QtBrushPatternEditorPrivate::slotHsvClicked()
 
 void QtBrushPatternEditorPrivate::slotRgbClicked()
 {
-    m_ui.hueLabel->setText(q_ptr->tr("Red"));
-    m_ui.saturationLabel->setText(q_ptr->tr("Green"));
-    m_ui.valueLabel->setText(q_ptr->tr("Blue"));
+    m_ui.hueLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Red", 0, QApplication::UnicodeUTF8));
+    m_ui.saturationLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Green", 0, QApplication::UnicodeUTF8));
+    m_ui.valueLabel->setText(QApplication::translate("qdesigner_internal::QtBrushPatternEditor", "Blue", 0, QApplication::UnicodeUTF8));
     m_ui.hueColorLine->setColorComponent(QtColorLine::Red);
     m_ui.saturationColorLine->setColorComponent(QtColorLine::Green);
     m_ui.valueColorLine->setColorComponent(QtColorLine::Blue);

@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::FormWindow
+*/
+
 #include "formwindow.h"
 #include "formwindow_dnditem.h"
 #include "formwindow_widgetstack.h"

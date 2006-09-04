@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::GroupBoxTaskMenu
+*/
+
 #include "groupbox_taskmenu.h"
 #include "inplace_editor.h"
 

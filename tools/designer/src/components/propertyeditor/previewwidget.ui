@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>PreviewWidget</class>
- <widget class="QWidget" name="PreviewWidget" >
+ <class>qdesigner_internal::PreviewWidget</class>
+ <widget class="QWidget" name="qdesigner_internal::PreviewWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>

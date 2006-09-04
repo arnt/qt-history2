@@ -11,6 +11,13 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::PaletteEditor
+*/
+/*
+TRANSLATOR qdesigner_internal::PaletteModel
+*/
+
 #include "paletteeditor.h"
 #include <iconloader_p.h>
 

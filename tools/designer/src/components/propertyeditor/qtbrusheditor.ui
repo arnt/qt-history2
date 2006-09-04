@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <class>QtBrushEditor</class>
- <widget class="QWidget" name="QtBrushEditor" >
+ <class>qdesigner_internal::QtBrushEditor</class>
+ <widget class="QWidget" name="qdesigner_internal::QtBrushEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -36,7 +36,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <layout class="QGridLayout" >
        <property name="margin" >
         <number>0</number>

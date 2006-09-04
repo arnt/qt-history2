@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+/*
+TRANSLATOR qdesigner_internal::WidgetEditorTool
+*/
+
 #include "tool_widgeteditor.h"
 #include "formwindow.h"
 

@@ -44,6 +44,8 @@ IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QS
 
 // ---------------------------------------------------------------------------------
 
+namespace qdesigner_internal {
+
 class IconProperty : public AbstractProperty<QIcon>
 {
 public:
@@ -344,6 +346,8 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 
     emit pixmapChanged(m_pixmap);
 }
+
+}  // namespace qdesigner_internal
 
 IconProperty::IconProperty(QDesignerFormEditorInterface *core, const QIcon &value, const QString &name)
     : AbstractProperty<QIcon>(value, name)
