@@ -78,6 +78,10 @@ public:
     int currentElapsed() const;
     bool animated() const;
     void setAnimated(bool a);
+    int animationDuration() const;
+    int currentFrame() const;
+    void setCurrentFrame(int);
+    void setFramesPerSecond(int num);
 private:
     void adjustWindowBounds(QPainter *p, 
                             const QRectF &desired,
@@ -93,6 +97,8 @@ private:
 
     QTime m_time;
     bool  m_animated;
+    int   m_animationDuration;
+    int   m_fps;
 };
 
 inline QSize QSvgTinyDocument::size() const
@@ -133,6 +139,11 @@ inline bool QSvgTinyDocument::preserveAspectRatio() const
 inline int QSvgTinyDocument::currentElapsed() const
 {
     return m_time.elapsed();
+}
+
+inline int QSvgTinyDocument::animationDuration() const
+{
+    return m_animationDuration;
 }
 
 #endif // QSVGTINYDOCUMENT_P_H

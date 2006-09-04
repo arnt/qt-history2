@@ -80,6 +80,9 @@ public:
     bool inStyle() const;
 
     QSvgStyleSelector *selector() const;
+
+    void setAnimPeriod(int start, int end);
+    int animationDuration() const;
 public:
     bool startElement(const QString &namespaceURI, const QString &localName,
                       const QString &qName, const QXmlAttributes &attributes);
@@ -116,6 +119,9 @@ private:
     bool m_inStyle;
 
     QSvgStyleSelector *m_selector;
+
+    int m_animStart;
+    int m_animEnd;
 private:
     static QHash<QString, FactoryMethod> s_groupFactory;
     static QHash<QString, FactoryMethod> s_graphicsFactory;

@@ -25,7 +25,9 @@
 
 QSvgTinyDocument::QSvgTinyDocument()
     : QSvgStructureNode(0),
-      m_animated(false)
+      m_animated(false),
+      m_animationDuration(0),
+      m_fps(30)
 {
 }
 
@@ -47,11 +49,13 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
         return 0;
     }
 
+    QSvgTinyDocument *doc = 0;
     QXmlInputSource xmlInputSource(&file);
     if (reader.parse(xmlInputSource)) {
-        return handler.document();
+        doc = handler.document();
+        doc->m_animationDuration = handler.animationDuration();
     }
-    return 0;
+    return doc;
 }
 
 QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
@@ -61,12 +65,14 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QByteArray &contents)
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
 
+    QSvgTinyDocument *doc = 0;    
     QXmlInputSource xmlInputSource;
     xmlInputSource.setData(contents);
     if (reader.parse(xmlInputSource)) {
-        return handler.document();
+        doc = handler.document();
+        doc->m_animationDuration = handler.animationDuration();
     }
-    return 0;
+    return doc;
 }
 
 void QSvgTinyDocument::draw(QPainter *p, const QRectF &bounds)
@@ -282,5 +288,29 @@ QMatrix QSvgTinyDocument::matrixForElement(const QString &id) const
     mat = dummy.worldMatrix();
     
     return mat;
+}
+
+int QSvgTinyDocument::currentFrame() const
+{
+    double runningPercentage = qMin(m_time.elapsed()/double(m_animationDuration), 1.);
+
+    int totalFrames = m_fps * m_animationDuration;
+    
+    return int(runningPercentage * totalFrames);
+}
+
+void QSvgTinyDocument::setCurrentFrame(int frame)
+{
+    int totalFrames = m_fps * m_animationDuration;
+    double framePercentage = frame/double(totalFrames);
+    double timeForFrame = m_animationDuration * framePercentage; //in S
+    timeForFrame *= 1000; //in ms
+    int timeToAdd = int(timeForFrame - m_time.elapsed());
+    m_time = m_time.addMSecs(timeToAdd);
+}
+
+void QSvgTinyDocument::setFramesPerSecond(int num)
+{
+    m_fps = num;
 }
 

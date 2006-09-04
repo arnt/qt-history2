@@ -74,7 +74,7 @@ class QSvgRendererPrivate : public QObjectPrivate
 public:
     explicit QSvgRendererPrivate()
         : QObjectPrivate(),
-          render(0), timer(0), currentFrame(0),
+          render(0), timer(0),
           fps(30)
     {}
     ~QSvgRendererPrivate()
@@ -83,7 +83,6 @@ public:
     }
     QSvgTinyDocument *render;
     QTimer *timer;
-    int currentFrame;
     int fps;
 };
 
@@ -223,7 +222,7 @@ void QSvgRenderer::setFramesPerSecond(int num)
 int QSvgRenderer::currentFrame() const
 {
     Q_D(const QSvgRenderer);
-    return d->currentFrame;
+    return d->render->currentFrame();
 }
 
 /*!
@@ -232,7 +231,7 @@ int QSvgRenderer::currentFrame() const
 void QSvgRenderer::setCurrentFrame(int frame)
 {
     Q_D(QSvgRenderer);
-    d->currentFrame = frame;
+    d->render->setCurrentFrame(frame);
 }
 
 /*!
@@ -245,7 +244,8 @@ void QSvgRenderer::setCurrentFrame(int frame)
 */
 int QSvgRenderer::animationDuration() const
 {
-    return 0;
+    Q_D(const QSvgRenderer);
+    return d->render->animationDuration();
 }
 
 /*!

@@ -1847,6 +1847,7 @@ static bool parseAnimateColorNode(QSvgNode *parent,
 
     parent->appendStyleProperty(anim, attributes.value(QLatin1String("id")));
     parent->document()->setAnimated(true);
+    handler->setAnimPeriod(begin, end);
     return true;
 }
 
@@ -1860,7 +1861,7 @@ static bool parseAimateMotionNode(QSvgNode *parent,
 
 static bool parseAnimateTransformNode(QSvgNode *parent,
                                       const QXmlAttributes &attributes,
-                                      QSvgHandler *)
+                                      QSvgHandler *handler)
 {
     QString typeStr    = attributes.value(QLatin1String("type"));
     QString values     = attributes.value(QLatin1String("values"));
@@ -1937,6 +1938,7 @@ static bool parseAnimateTransformNode(QSvgNode *parent,
 
     parent->appendStyleProperty(anim, attributes.value(QLatin1String("id")));
     parent->document()->setAnimated(true);
+    handler->setAnimPeriod(begin, end);
     return true;
 }
 
@@ -2745,6 +2747,9 @@ static QSvgNode *createUseNode(QSvgNode *parent,
     QString xStr = attributes.value(QLatin1String("x"));
     QString yStr = attributes.value(QLatin1String("y"));
     QSvgStructureNode *group = 0;
+
+    if (linkId.isEmpty())
+        linkId = attributes.value(QLatin1String("href")).remove(0, 1);
     switch (parent->type()) {
     case QSvgNode::DOC:
     case QSvgNode::DEFS:
@@ -3134,4 +3139,15 @@ bool QSvgHandler::processingInstruction(const QString &target, const QString &da
     }
 
     return true;
+}
+
+void QSvgHandler::setAnimPeriod(int start, int end)
+{
+    m_animStart = qMax(qMin(start, m_animStart), 0);
+    m_animEnd   = qMax(end, m_animEnd);
+}
+
+int QSvgHandler::animationDuration() const
+{
+    return m_animEnd;
 }
