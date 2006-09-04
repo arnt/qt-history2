@@ -1102,6 +1102,15 @@ void QMessageBox::showEvent(QShowEvent *e)
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::Alert);
 #endif
+#ifdef Q_WS_WIN
+    HMENU systemMenu = GetSystemMenu((HWND)winId(), FALSE);
+    if (!d->detectedEscapeButton) {
+        EnableMenuItem(systemMenu, SC_CLOSE, MF_BYCOMMAND|MF_GRAYED);
+    }
+    else {
+        EnableMenuItem(systemMenu, SC_CLOSE, MF_BYCOMMAND|MF_ENABLED);
+    }
+#endif
     QDialog::showEvent(e);
 }
 
