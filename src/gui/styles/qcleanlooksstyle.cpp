@@ -538,7 +538,7 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
     QLinearGradient gradient(tmp.center().x(), tmp.top(), tmp.center().x(), tmp.bottom());
     gradient.setColorAt(0, mdiButtonGradientStartColor);
     gradient.setColorAt(1, mdiButtonGradientStopColor);
-    QColor mdiButtonBorderColor(active ? option->palette.highlight().color().dark(180): option->palette.dark().color().dark(120));
+    QColor mdiButtonBorderColor(active ? option->palette.highlight().color().dark(180): option->palette.dark().color().dark(110));
 
     painter->setPen(QPen(mdiButtonBorderColor, 1));
     painter->drawLine(tmp.left() + 2, tmp.top(), tmp.right() - 2, tmp.top());
@@ -650,11 +650,11 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     Q_ASSERT(option);
     QRect rect = option->rect;
     int state = option->state;
-    QColor outlineColor = option->palette.dark().color();
+    QColor outlineColor = option->palette.dark().color().light(110);
     QColor buttonShadow = option->palette.button().color().dark(110);
     QColor buttonShadowAlpha = option->palette.background().color().dark(110);
     buttonShadowAlpha.setAlpha(128);
-    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),60);
+    QColor grooveColor = mergedColors(option->palette.dark().color().light(110), option->palette.button().color(),60);
     QColor gripShadow = grooveColor.dark(110);
     QColor shadow = option->palette.background().color().dark(120);
 
@@ -726,7 +726,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_FrameMenu:
         painter->save();
         {
-            painter->setPen(QPen(option->palette.dark().color().dark(110), 1));
+            painter->setPen(QPen(option->palette.dark().color(), 1));
             painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
             QColor frameLight = option->palette.background().color().light(160);
             QColor frameShadow = option->palette.background().color().dark(110);
@@ -791,7 +791,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         {
             QRect rect= option->rect;
-            painter->setPen(QPen(option->palette.dark().color().dark(160), 0));
+            painter->setPen(QPen(option->palette.dark().color().dark(150), 0));
             painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
             painter->setPen(QPen(option->palette.light(), 0));
             painter->drawLine(QPoint(rect.left() + 1, rect.top() + 1),
@@ -848,7 +848,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                 painter->setPen(QPen(option->palette.light().color()));
                 painter->drawLine(option->rect.bottomLeft() + QPoint(2, 0),
                                 option->rect.bottomRight() - QPoint(2, 0));
-                painter->setPen(QPen(option->palette.dark().color(), 1));
+                painter->setPen(QPen(option->palette.dark().color().light(110), 1));
             }
             painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
             painter->drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
@@ -870,10 +870,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             checkRect.setWidth(rect.width() - 1);
             checkRect.setHeight(rect.height() - 1);
             if (state & State_Sunken)
-                painter->setBrush(option->palette.dark().color().light(120));
+                painter->setBrush(option->palette.dark().color().light(130));
             else
                 painter->setBrush(option->palette.base());
-            painter->setPen(QPen(option->palette.dark(), 0));
+            painter->setPen(QPen(option->palette.dark().color().light(110), 0));
             painter->drawRect(checkRect);
             if (checkbox->state & (State_On | State_Sunken  | State_NoChange)) {
                 QImage image(qt_cleanlooks_checkbox_checked);
@@ -946,7 +946,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QRect rect = focusFrame->rect;
             painter->save();
             painter->setBackgroundMode(Qt::TransparentMode);
-            painter->setBrush(QBrush(focusFrame->palette.dark().color().dark(130), Qt::Dense4Pattern));
+            painter->setBrush(QBrush(focusFrame->palette.dark().color().dark(120), Qt::Dense4Pattern));
             painter->setBrushOrigin(rect.topLeft());
             painter->setPen(Qt::NoPen);
             painter->drawRect(rect.left(), rect.top(), rect.width(), 1);    // Top
@@ -971,7 +971,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QColor highlightedGradientStartColor = option->palette.button().color().light(107);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
             QColor gradientStartColor = option->palette.button().color().light(108);
-            QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(140), 70);
+            QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(150), 70);
 
             rect.adjust(0, 1, 0, -1);
             QRect gradRect = rect.adjusted(1, 1, -1, -1);
@@ -1010,7 +1010,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             if (isDefault)
                 painter->setPen(QPen(Qt::black, 1));
             else
-                painter->setPen(QPen(option->palette.dark().color().dark(110), 1));
+                painter->setPen(QPen(option->palette.dark().color(), 1));
 
             painter->drawLine(QPoint(r.left(), r.top() + 2),
                               QPoint(r.left(), r.bottom() - 2));
@@ -1024,7 +1024,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
 
             if (!isDefault && !hasFocus && isEnabled)
-                painter->setPen(QPen(option->palette.dark().color().dark(120), 0));
+                painter->setPen(QPen(option->palette.dark().color().dark(110), 0));
 
             painter->drawLine(QPoint(r.left() + 2, r.top()),
                               QPoint(r.right() - 2, r.top()));
@@ -1078,13 +1078,13 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->save();
         {
             QColor tabFrameColor = mergedColors(option->palette.background().color(),
-                                                option->palette.dark().color().light(125), 80);
+                                                option->palette.dark().color().light(135), 80);
 
             painter->fillRect(option->rect, tabFrameColor);
         }
 #ifndef QT_NO_TABWIDGET
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
-            QColor borderColor = option->palette.dark().color();
+            QColor borderColor = option->palette.dark().color().light(110);
             QColor alphaCornerColor = mergedColors(borderColor, option->palette.background().color());
             QColor innerShadow = mergedColors(borderColor, option->palette.base().color());
 
@@ -1177,7 +1177,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawLine(innerLeftLine);
             painter->drawLine(innerTopLine);
 
-            painter->setPen(option->palette.dark().color().light(130));
+            painter->setPen(option->palette.dark().color().light(140));
             painter->drawLine(innerRightLine);
             painter->drawLine(innerBottomLine);
 
@@ -1231,7 +1231,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             painter->fillRect(option->rect, fillColor);
 
-            QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),40);
+            QColor grooveColor = mergedColors(option->palette.dark().color().light(110), option->palette.button().color(),40);
             QColor gripShadow = grooveColor.dark(110);
             QPalette palette = option->palette;
             bool vertical = !(option->state & State_Horizontal);
@@ -1288,7 +1288,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             int sx = x;
             int sy = y;
             int s = 4;
-            QColor dark = option->palette.dark().color().light(110);
+            QColor dark = option->palette.dark().color().light(120);
             if (option->direction == Qt::RightToLeft) {
                 sx = x + sw;
                 for (int i = 0; i < 4; ++i) {
@@ -1453,14 +1453,14 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 QColor gradientStopColor = option->palette.button().color().dark(105);
 
                 if (header->orientation == Qt::Vertical) {
-                    cachePainter.setPen(QPen(option->palette.dark().color()));
+                    cachePainter.setPen(QPen(option->palette.dark().color().light(110)));
                     cachePainter.drawLine(pixmapRect.topRight(), pixmapRect.bottomRight());
                     if (header->position != QStyleOptionHeader::End) {
                         cachePainter.setPen(QPen(shadow));
                         cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, -1), pixmapRect.bottomRight() + QPoint(-3, -1));                                cachePainter.setPen(QPen(option->palette.light().color()));
                         cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, 0), pixmapRect.bottomRight() + QPoint(-3, 0));                              }
                 } else {
-                    cachePainter.setPen(QPen(option->palette.dark().color()));
+                    cachePainter.setPen(QPen(option->palette.dark().color().light(110)));
                     cachePainter.drawLine(pixmapRect.bottomLeft(), pixmapRect.bottomRight());
                     cachePainter.setPen(QPen(shadow));
                     cachePainter.drawLine(pixmapRect.topRight() + QPoint(-1, 3), pixmapRect.bottomRight() + QPoint(-1, -3));                                  cachePainter.setPen(QPen(option->palette.light().color()));
@@ -1477,7 +1477,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
         painter->save();
         {
             painter->fillRect(rect, option->palette.base());
-            QColor borderColor = option->palette.dark().color();
+            QColor borderColor = option->palette.dark().color().light(110);
             painter->setPen(QPen(borderColor, 0));
             painter->drawLine(QPoint(rect.left() + 1, rect.top()), QPoint(rect.right() - 1, rect.top()));
             painter->drawLine(QPoint(rect.left() + 1, rect.bottom()), QPoint(rect.right() - 1, rect.bottom()));
@@ -1912,7 +1912,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
         painter->save();
         {
             QColor shadow = mergedColors(option->palette.background().color().dark(120),
-                                 option->palette.dark().color().light(130), 60);
+                                 option->palette.dark().color().light(140), 60);
 
             QLinearGradient gradient(rect.topLeft(), QPoint(rect.bottomLeft().x(), rect.bottomLeft().y()*2));
             gradient.setColorAt(0, option->palette.button().color());
@@ -1934,7 +1934,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
         painter->save();
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             QColor tabFrameColor = mergedColors(option->palette.background().color(),
-                                                option->palette.dark().color().light(125), 80);
+                                                option->palette.dark().color().light(135), 80);
 
             bool rtlHorTabs = (tab->direction == Qt::RightToLeft
                                && (tab->shape == QTabBar::RoundedNorth
@@ -1970,8 +1970,8 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             QColor light = tab->palette.light().color();
             QColor midlight = tab->palette.midlight().color();
-            QColor dark = tab->palette.dark().color();
-            QColor shadow = tab->palette.dark().color().dark(120);
+            QColor dark = tab->palette.dark().color().light(110);
+            QColor shadow = tab->palette.dark().color().dark(110);
             QColor background = tab->palette.background().color();
             int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             if (selected)
@@ -2129,8 +2129,8 @@ QPalette QCleanlooksStyle::standardPalette () const
     QColor backGround(239, 235, 231);
     QColor light = backGround.light(150);
     QColor base = Qt::white;
-    QColor dark = QColor(170, 156, 143);
-    QColor darkDisabled = QColor(209, 200, 191);
+    QColor dark = QColor(170, 156, 143).dark(110);
+    QColor darkDisabled = QColor(209, 200, 191).dark(110);
 
     //### Find the correct disabled text color
     palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(190, 190, 190));
@@ -2165,7 +2165,7 @@ QPalette QCleanlooksStyle::standardPalette () const
 void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
-    QColor borderColor = option->palette.dark().color().light(110);
+    QColor borderColor = option->palette.dark().color().light(120);
     QColor alphaCornerColor;
     if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
@@ -2173,12 +2173,12 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     } else {
         alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
     }
-    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(), 50);
+    QColor grooveColor = mergedColors(option->palette.dark().color().light(110), option->palette.button().color(), 50);
     QColor gripShadow = grooveColor.dark(110);
     QColor buttonShadow = option->palette.button().color().dark(110);
 
     QColor gradientStartColor = option->palette.button().color().light(108);
-    QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(140), 70);
+    QColor gradientStopColor = mergedColors(option->palette.button().color().dark(108), option->palette.dark().color().light(150), 70);
 
     QColor highlightedGradientStartColor = option->palette.button().color();
     QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
@@ -2230,7 +2230,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.setPen(QPen(option->palette.light().color()));
                     cachePainter.drawLine(option->rect.bottomLeft() + QPoint(2, 0),
                                           option->rect.bottomRight() - QPoint(2, 0));
-                    cachePainter.setPen(QPen(option->palette.dark().color(), 1));
+                    cachePainter.setPen(QPen(option->palette.dark().color().light(110), 1));
 
                     // top and bottom lines
                     cachePainter.drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right()- 2, r.bottom()));
@@ -2399,7 +2399,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
             QColor titleBarGradientStart(active ? palette.highlight().color(): palette.background().color());
             QColor titleBarGradientStop(active ? palette.highlight().color().dark(150): palette.background().color().dark(120));
-            QColor titleBarFrameBorder(active ? palette.highlight().color().dark(180): palette.dark().color().dark(120));
+            QColor titleBarFrameBorder(active ? palette.highlight().color().dark(180): palette.dark().color().dark(110));
             QColor titleBarHighlight(active ? palette.highlight().color().light(120): palette.background().color().light(120));
             QColor textColor(active ? 0xffffff : 0xff000000);
             QColor textAlphaColor(active ? 0xffffff : 0xff000000 );
@@ -2703,7 +2703,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             gradient.setColorAt(1, gradientStopColor);
                         }
                     }
-                    painter->setPen(QPen(option->palette.dark().color().dark(120), 0));
+                    painter->setPen(QPen(option->palette.dark().color().dark(110), 0));
                     painter->setBrush(gradient);
                     painter->drawRect(pixmapRect);
 
@@ -2820,7 +2820,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     subButton = QImage(qt_scrollbar_button_up);
                 }
                 subButton.setColor(1, alphaCornerColor.rgba());
-                subButton.setColor(2, option->palette.dark().color().dark(110).rgba());
+                subButton.setColor(2, option->palette.dark().color().rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                     subButton.setColor(3, gradientStopColor.dark(140).rgba());
                     subButton.setColor(4, gradientStopColor.dark(120).rgba());
@@ -2872,7 +2872,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         addButton = QImage(qt_scrollbar_button_down);
                     }
                     addButton.setColor(1, alphaCornerColor.rgba());
-                    addButton.setColor(2, option->palette.dark().color().dark(110).rgba());
+                    addButton.setColor(2, option->palette.dark().color().rgba());
                     if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
                         addButton.setColor(3, gradientStopColor.dark(140).rgba());
                         addButton.setColor(4, gradientStopColor.dark(120).rgba());
@@ -2956,7 +2956,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(),
                         editRect.bottom() - 3, option->palette.base());
 
-                    cachePainter.setPen(option->palette.dark().color());
+                    cachePainter.setPen(option->palette.dark().color().light(110));
                     if (!sunken) {
                         int borderSize = 2;
                         if (comboBox->direction == Qt::RightToLeft) {
@@ -3011,7 +3011,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                                   QPoint(downArrowRect.left() , downArrowRect.bottom() - borderSize));
                         }
                     } else {
-                        cachePainter.setPen(option->palette.dark().color());
+                        cachePainter.setPen(option->palette.dark().color().light(110));
                         if (comboBox->direction == Qt::RightToLeft) {
                             cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
                                                   QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - borderSize));
@@ -3141,7 +3141,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         groove.adjust(0, 0, 0, -1);
 
                     // draw groove
-                    painter->setPen(QPen(palette.dark(), 0));
+                    painter->setPen(QPen(palette.dark().color().light(110), 0));
 
                     QLinearGradient gradient1;
                     if (horizontal) {
@@ -3152,7 +3152,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         gradient1.setStart(groove.left(), groove.center().y());
                         gradient1.setFinalStop(groove.right(), groove.center().y());
                     }
-                    gradient1.setColorAt(0, palette.dark().color().light(110));
+                    gradient1.setColorAt(0, palette.dark().color().light(120));
                     gradient1.setColorAt(1, palette.button().color().dark(115));
 
                     QLinearGradient gradient2;
@@ -3181,7 +3181,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     QColor highlightedGradientStartColor = option->palette.button().color();
                     QColor highlightedGradientStopColor = option->palette.light().color();
                     QColor gradientStartColor = mergedColors(option->palette.button().color().light(120),
-                                               option->palette.dark().color().light(140), 50);
+                                               option->palette.dark().color().light(150), 50);
                     QColor gradientStopColor = gradientStartColor.dark(115);
                     QRect gradRect = handle.adjusted(1, 1, -1, -1);
 
@@ -3205,16 +3205,16 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     int yOff = horizontal ? 1 : 0;
                     painter->drawLine(innerBorder.topLeft() + QPoint(0, yOff) , innerBorder.topRight() + QPoint(0, yOff));
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
-                    painter->setPen(QPen(option->palette.dark().color().light(130), 0));
+                    painter->setPen(QPen(option->palette.dark().color().light(140), 0));
                     painter->drawLine(innerBorder.bottomLeft(), innerBorder.bottomRight());
                     painter->drawLine(innerBorder.topRight(), innerBorder.bottomRight());
 
-                    painter->setPen(QPen(option->palette.dark().color().dark(120), 1));
+                    painter->setPen(QPen(option->palette.dark().color().dark(110), 1));
                     painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right() - 2, r.bottom()));
 
-                    QColor cornerAlpha = option->palette.dark().color().dark(140);
+                    QColor cornerAlpha = option->palette.dark().color().dark(130);
                     cornerAlpha.setAlpha(150);
                     painter->setPen(cornerAlpha);
                     painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
@@ -3222,7 +3222,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
                     painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
 
-                    painter->setPen(QPen(option->palette.dark().color().dark(140), 1));
+                    painter->setPen(QPen(option->palette.dark().color().dark(130), 1));
                     painter->drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
                      //draw grips
                     if (horizontal) {
