@@ -38,7 +38,7 @@ ChatMainWindow::ChatMainWindow()
     com::trolltech::chat *iface;
     iface = new com::trolltech::chat(QString(), QString(), QDBusConnection::sessionBus(), this);
     //connect(iface, SIGNAL(message(QString,QString)), this, SLOT(messageSlot(QString,QString)));
-    QDBusConnection::sessionBus().connect(QString(), QString(), "com.trolltech.ChatInterface", "message", this, SLOT(messageSlot(QString,QString)));
+    QDBusConnection::sessionBus().connect(QString(), QString(), "com.trolltech.chat", "message", this, SLOT(messageSlot(QString,QString)));
     connect(iface, SIGNAL(action(QString,QString)), this, SLOT(actionSlot(QString,QString)));
 
     NicknameDialog dialog;
