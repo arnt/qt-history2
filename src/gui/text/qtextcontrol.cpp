@@ -422,6 +422,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
     doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
     _q_updateCurrentCharFormatAndSelection();
     doc->setModified(false);
+    q->ensureCursorVisible();
     emit q->cursorPositionChanged();
 }
 
