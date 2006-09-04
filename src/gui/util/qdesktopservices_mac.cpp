@@ -75,14 +75,6 @@ OSType translateLocation(Location type)
     }
 }
 */
-/*
-    Returns wether the given fsRef is something valid.
-*/
-static Boolean FSRefIsValid(const FSRef &fsRef)
-{
-  return (FSGetCatalogInfo(&fsRef, kFSCatInfoNone, NULL, NULL, NULL, NULL) == noErr);
-}
-
 static bool lsOpen(const QUrl &url)
 {
     if (!url.isValid())
@@ -110,11 +102,19 @@ static bool openDocument(const QUrl &file)
    return QProcess::startDetached("open", QStringList() << file.toLocalFile());
 }
 
+#if 0
+/*
+    Returns wether the given fsRef is something valid.
+*/
+static Boolean FSRefIsValid(const FSRef &fsRef)
+{
+  return (FSGetCatalogInfo(&fsRef, kFSCatInfoNone, NULL, NULL, NULL, NULL) == noErr);
+}
+
 /*
     Constructs a full unicode path from a FSRef (I can't find a system function
     that does this.. )
 */
-/*
 static QString getFullPath(FSRef ref)
 {
     QString path;
@@ -164,7 +164,8 @@ QString QDesktopServices::displayName(const Location type)
         return QString();
 
     return static_cast<QString>(displayName);
-}*/
+}
+#endif
 
 
 #endif // QT_NO_DESKTOPSERVICES

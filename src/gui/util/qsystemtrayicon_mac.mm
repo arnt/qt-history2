@@ -127,12 +127,12 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
     return true;
 }
 
-void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QString &title,
-                                             QSystemTrayIcon::MessageIcon icon, int msecs)
+void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
+                                             QSystemTrayIcon::MessageIcon, int)
 {
+#if 0
     if(sys) {
         QMacCocoaAutoReleasePool pool;
-#if 0        
         //[[sys->item item:] setTitle:(NSString*)QCFString::toCFStringRef(message)];
 #elif 0
         Q_Q(QSystemTrayIcon);
@@ -143,10 +143,9 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
         QPoint p(qRound([w frame].origin.x), qRound([w frame].origin.y));
         qDebug() << p;
         QBalloonTip::showBalloon(icon, message, title, q, QPoint(0, 0), msecs);
-#else
-        //do growl? we need to weak link the framework and stuff then, less than desirable - IMO.
-#endif        
+        // else do growl? we need to weak link the framework and stuff then, less than desirable - IMO.
     }
+#endif
 }
 
 @implementation NSStatusItem (Qt)
@@ -174,6 +173,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
     return item;
 }
 - (void)triggerSelector:(id)sender {
+    Q_UNUSED(sender);
     if(!icon)
         return;
     qtsystray_sendActivated(icon, QSystemTrayIcon::Trigger);
@@ -184,6 +184,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QStri
     }
 }
 - (void)doubleClickSelector:(id)sender {
+    Q_UNUSED(sender);
     if(!icon)
         return;
     qtsystray_sendActivated(icon, QSystemTrayIcon::DoubleClick);
