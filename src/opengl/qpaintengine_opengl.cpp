@@ -1081,6 +1081,11 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_ES_Version_2_0)
         d->has_glsl = qt_resolve_GLSL_functions(ctx);
 
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
 #ifndef Q_WS_QWS
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 #endif
@@ -1208,6 +1213,10 @@ bool QOpenGLPaintEngine::end()
 #ifndef Q_WS_QWS
     glPopAttrib();
 #endif
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
 
     if (d->has_glsl)
         glUseProgram(0); // GLSL program state is not part of GL_ALL_ATTRIB_BITS
@@ -2590,11 +2599,13 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             qgl_glyph->y_offset = metrics.y;
 
             QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_Indexed8));
+
+            if (glyph_im.isNull())
+                break;
+
             int padded_width = glyph_im.width();
             if (padded_width%2 != 0)
                 ++padded_width;
-	    if (padded_width == 0 || glyph_im.height() == 0)
-		break;
 
             int idx = 0;
             uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
@@ -2632,7 +2643,12 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 QGLGlyphCoord *QGLGlyphCache::lookup(QFontEngine *, glyph_t g)
 {
     Q_ASSERT(current_cache != 0);
-    return current_cache->find(g).value(); // ### careful here
+    // ### careful here
+    QGLGlyphHash::const_iterator it = current_cache->constFind(g);
+    if (it == current_cache->constEnd())
+        return 0;
+    else
+        return it.value();
 }
 
 Q_GLOBAL_STATIC(QGLGlyphCache, qt_glyph_cache)
@@ -2681,8 +2697,10 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     for (int i=0; i< glyphs.size(); ++i) {
         QGLGlyphCoord *g = qt_glyph_cache()->lookup(ti.fontEngine, glyphs[i]);
 
+        // we don't cache glyphs with no width/height
 	if (!g)
 	    continue;
+
         qreal x1, x2, y1, y2;
         x1 = g->x;
         y1 = g->y;
