@@ -2462,16 +2462,19 @@ void QGLGlyphCache::cleanCache()
 
 void QGLGlyphCache::allocTexture(int width, int height, GLuint texture)
 {
+    uchar *tex_data = (uchar *) malloc(width*height*2);
+    memset(tex_data, 0, width*height*2);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #ifndef Q_WS_QWS
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8_ALPHA8,
-                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
 #else
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA,
-                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 0);
+                 width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
 #endif
+    free(tex_data);
 }
 
 void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
