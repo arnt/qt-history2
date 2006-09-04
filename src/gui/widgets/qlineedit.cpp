@@ -1775,13 +1775,31 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         end(1);
     }
     else if (event == QKeySequence::MoveToNextChar) {
-        cursorForward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+#ifndef Q_WS_WIN
+        if (d->hasSelectedText()) {
+#else
+        if (d->hasSelectedText() && d->completer 
+            && d->completer->completionMode() == QCompleter::InlineCompletion) {
+#endif
+            d->moveCursor(d->selend, false);
+        } else {
+            cursorForward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+        }
     }
     else if (event == QKeySequence::SelectNextChar) {
         cursorForward(1, layoutDirection() == Qt::LeftToRight ? 1 : -1);
     }
     else if (event == QKeySequence::MoveToPreviousChar) {
-        cursorBackward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+#ifndef Q_WS_WIN
+        if (d->hasSelectedText()) {
+#else
+        if (d->hasSelectedText() && d->completer
+            && d->completer->completionMode() == QCompleter::InlineCompletion) {
+#endif
+            d->moveCursor(d->selstart, false);
+        } else {
+            cursorBackward(0, layoutDirection() == Qt::LeftToRight ? 1 : -1);
+        }
     }
     else if (event == QKeySequence::SelectPreviousChar) {
         cursorBackward(1, layoutDirection() == Qt::LeftToRight ? 1 : -1);
