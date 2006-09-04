@@ -314,7 +314,9 @@ void QFrame::setFrameStyle(int style)
 void QFrame::setLineWidth(int w)
 {
     Q_D(QFrame);
-    d->lineWidth = (short)w;
+    if (short(w) == d->lineWidth)
+        return;
+    d->lineWidth = short(w);
     d->updateFrameWidth();
 }
 
@@ -336,7 +338,9 @@ int QFrame::lineWidth() const
 void QFrame::setMidLineWidth(int w)
 {
     Q_D(QFrame);
-    d->midLineWidth = (short)w;
+    if (short(w) == d->midLineWidth)
+        return;
+    d->midLineWidth = short(w);
     d->updateFrameWidth();
 }
 
