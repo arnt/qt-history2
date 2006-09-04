@@ -3578,6 +3578,8 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     spans[current].y = y;
                 } else {
                     d += incrE;
+                    if (x == 0)
+                        spans[current].x = 0;
                 }
 
                 if (x < 0 || y < 0)
@@ -3624,6 +3626,8 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     spans[index].y = y;
                 } else {
                     d += incrE;
+                    if (x == 0)
+                        spans[NSPANS - 1 - current].x = 0;
                 }
 
                 if (x < 0 || y > y1)
