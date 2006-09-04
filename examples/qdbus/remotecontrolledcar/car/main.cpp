@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     QGraphicsView view(&scene);
     view.setRenderHint(QPainter::Antialiasing);
     view.setBackgroundBrush(Qt::darkGray);
-    view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "DBus Controlled Car"));
+    view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Qt DBus Controlled Car"));
     view.resize(400, 300);
     view.show();
 
