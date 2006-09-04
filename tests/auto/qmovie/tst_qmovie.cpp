@@ -51,9 +51,9 @@ void tst_QMovie::getSetCheck()
     // void QMovie::setDevice(QIODevice *)
     QFile *var1 = new QFile;
     obj1.setDevice(var1);
-    QCOMPARE(var1, obj1.device());
+    QCOMPARE(obj1.device(), (QIODevice *)var1);
     obj1.setDevice((QIODevice *)0);
-    QCOMPARE((QIODevice *)0, obj1.device());
+    QCOMPARE(obj1.device(), (QIODevice *)0);
     delete var1;
 
     // CacheMode QMovie::cacheMode()
