@@ -20,9 +20,9 @@ StyleWidget::StyleWidget(QWidget *parent)
     bdiag = new RenderArea(new QBrush(Qt::BDiagPattern));
     fdiag = new RenderArea(new QBrush(Qt::FDiagPattern));
     diagCross = new RenderArea(new QBrush(Qt::DiagCrossPattern));
-    linear = new RenderArea(new QBrush(Qt::LinearGradientPattern));
-    radial = new RenderArea(new QBrush(Qt::RadialGradientPattern));
-    conical = new RenderArea(new QBrush(Qt::ConicalGradientPattern));
+    linear = new RenderArea(new QBrush(QLinearGradient()));
+    radial = new RenderArea(new QBrush(QRadialGradient()));
+    conical = new RenderArea(new QBrush(QConicalGradient()));
     texture = new RenderArea(new QBrush(QPixmap("qt-logo.png")));
 
     solidLabel = new QLabel("Qt::SolidPattern");
