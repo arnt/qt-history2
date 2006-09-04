@@ -834,6 +834,21 @@
     This process is discussed in more detail in the 
     \l{Deploying an Application on Qt/Mac#Architecture Dependencies}{deployment guide for Mac OS X}.
 
+    \section2 Creating and Moving Xcode Projects
+
+    Developers on Mac OS X can take advantage of \c{qmake}'s support for Xcode
+    project files, as described in
+    \l{Qt/Mac is Mac OS X Native#Development Tools}{Qt/Mac is Mac OS X Native},
+    by running \c qmake to generate an Xcode project from an existing \c qmake
+    project files. For example:
+
+    \code
+    qmake -spec macx-xcode project.pro
+    \endcode
+
+    Note that, if a project is later moved on the disk, \c qmake must be run
+    again to process the project file and create a new Xcode project file.
+
     \section1 Windows
 
     Features specific to this platform include support for creating Visual
