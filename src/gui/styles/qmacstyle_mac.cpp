@@ -17,6 +17,7 @@
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 //#define DEBUG_SIZE_CONSTRAINT
 
+#include <private/qcombobox_p.h>
 #include <private/qmacstylepixmaps_mac_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
@@ -1395,7 +1396,7 @@ void QMacStyle::polish(QWidget* w)
         w->setPalette(pal);
     }
 
-    if (::qobject_cast<QMenu*>(w)) {
+    if (qobject_cast<QMenu*>(w)) {
         px = QPixmap(200, 200);
         HIThemeMenuDrawInfo mtinfo;
         mtinfo.version = qt_mac_hitheme_version;
@@ -1405,6 +1406,15 @@ void QMacStyle::polish(QWidget* w)
                                   kHIThemeOrientationNormal);
         w->setWindowOpacity(0.95);
     }
+
+    if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
+        if (!combo->editable()) {
+            if (QWidget *widget = combo->findChild<QComboBoxPrivateContainer *>()) {
+                widget->setWindowOpacity(0.95);
+            }
+        }
+    }
+
     if (!px.isNull()) {
         QPalette pal = w->palette();
         QBrush background(px);
@@ -1434,6 +1444,13 @@ void QMacStyle::unpolish(QWidget* w)
         pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
         w->setWindowOpacity(1.0);
+    }
+
+    if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
+        if (!combo->editable()) {
+            if (QWidget *widget = combo->findChild<QComboBoxPrivateContainer *>())
+                widget->setWindowOpacity(1.0);
+        }
     }
 
     if (QRubberBand *rubber = ::qobject_cast<QRubberBand*>(w)) {

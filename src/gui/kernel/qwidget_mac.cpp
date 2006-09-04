@@ -1197,7 +1197,7 @@ void QWidgetPrivate::createWindow_sys()
     if (qt_mac_is_macsheet(q))
         q->setWindowOpacity(0.95);
     else if (topExtra->opacity != 255)
-        q->setWindowOpacity(topExtra->opacity);
+        q->setWindowOpacity(topExtra->opacity / 255.0f);
 
     // Since we only now have a window, sync our state.
     qt_mac_update_opaque_sizegrip(q);
