@@ -39,6 +39,9 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QFlags
         Added testFlag() convenience function.
 
+- QItemDelegate
+        Use a widget's USER property to set and get the editor data.
+
 - QMetaObject
         Added userProperty().
         Added normalizedType().
