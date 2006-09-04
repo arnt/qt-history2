@@ -24,7 +24,7 @@
     QGraphicsItem is part of \l{The Graphics View Framework}
 
     \img graphicsview-items.png
-    
+
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
 
@@ -822,8 +822,8 @@ bool QGraphicsItem::isVisible() const
     when it becomes invisible, it will lose focus, and the focus is not
     regained by simply making the item visible again.
 
-    Items are visible by default; it is unnecessary to call setVisible(true)
-    on a new item.
+    Items are visible by default; it is unnecessary to call
+    setVisible() on a new item.
 
     \sa isVisible(), show(), hide()
 */
@@ -855,7 +855,7 @@ void QGraphicsItem::setVisible(bool visible)
 
     Hides the item. (Items are visible by default.)
 
-    This convenience function is equivalent to calling setVisible(false).
+    This convenience function is equivalent to calling \c setVisible(false).
 
     \sa show(), setVisible()
 */
@@ -865,7 +865,7 @@ void QGraphicsItem::setVisible(bool visible)
 
     Shows the item. (Items are visible by default.)
 
-    This convenience function is equivalent to calling setVisible(true).
+    This convenience function is equivalent to calling \c setVisible(true).
 
     \sa hide(), setVisible()
 */
@@ -1218,7 +1218,7 @@ QPointF QGraphicsItem::pos() const
 
 /*!
     Returns the item's position in scene coordinates. This is
-    equivalent to calling mapToScene(0, 0).
+    equivalent to calling \c mapToScene(0, 0).
 
     \sa pos(), sceneMatrix(), {The Graphics View Coordinate System}
 */
@@ -1383,7 +1383,7 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 
 /*!
     Resets this item's tranformation matrix to the identity matrix. This is
-    equivalent to calling setMatrix(QMatrix()).
+    equivalent to calling \c setMatrix(QMatrix()).
 
     \sa setMatrix(), matrix()
 */
@@ -2502,7 +2502,7 @@ void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     \endcode
 
     Items do not receive drag and drop events by default; to enable this
-    feature, call setAcceptDrops(true).
+    feature, call \c setAcceptDrops(true).
 
     The default implementation does nothing.
 
@@ -2523,7 +2523,7 @@ void QGraphicsItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
     Items do not receive drag and drop events by default; to enable this
-    feature, call setAcceptDrops(true).
+    feature, call \c setAcceptDrops(true).
 
     The default implementation does nothing.
 
@@ -2547,7 +2547,7 @@ void QGraphicsItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
     the specified position.
 
     Items do not receive drag and drop events by default; to enable this
-    feature, call setAcceptDrops(true).
+    feature, call \c setAcceptDrops(true).
 
     The default implementation does nothing.
 
@@ -2566,7 +2566,7 @@ void QGraphicsItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
     Items do not receive drag and drop events by default; to enable this
-    feature, call setAcceptDrops(true).
+    feature, call \c setAcceptDrops(true).
 
     The default implementation does nothing.
 
@@ -3154,14 +3154,16 @@ QPainterPath QAbstractGraphicsShapeItem::opaqueArea() const
     \ingroup multimedia
 
     To set the item's path, pass a QPainterPath to QGraphicsPathItem's
-    constructor, or call setPath(). path() returns the current path.
+    constructor, or call the setPath() function. The path() function
+    returns the current path.
 
-    QGraphicsPathItem uses the path to provide a reasonable implementation of
-    boundingRect(), shape(), and contains(). The paint() function draws the
-    path using the item's associated pen and brush, which you can set by
-    calling setPen() and setBrush().
+    \image graphicsview-pathitem.png
 
-    \img graphicsview-pathitem.png
+    QGraphicsPathItem uses the path to provide a reasonable
+    implementation of boundingRect(), shape(), and contains(). The
+    paint() function draws the path using the item's associated pen
+    and brush, which you can set by calling the setPen() and
+    setBrush() functions.
 
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
@@ -3177,9 +3179,9 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsPath item using \a path as the default path.
-    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
-    constructor.
+    Constructs a QGraphicsPath item using \a path as the default
+    path. The \a parent and \a scene parameters are passed to
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
                                      QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3190,8 +3192,8 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
 }
 
 /*!
-    Constructs a QGraphicsPath. \a parent and \a scene are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsPath. The \a parent and \a scene parameters
+    are passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QAbstractGraphicsShapeItem(*new QGraphicsPathItemPrivate, parent, scene)
@@ -3218,7 +3220,7 @@ QPainterPath QGraphicsPathItem::path() const
 }
 
 /*!
-    Sets the item's path to \a path.
+    Sets the item's path to be the given \a path.
 
     \sa path()
 */
@@ -3291,7 +3293,7 @@ bool QGraphicsPathItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsPathItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueArea();   
+    return QAbstractGraphicsShapeItem::opaqueArea();
 }
 
 /*!
@@ -3337,14 +3339,16 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     \ingroup multimedia
 
     To set the item's rectangle, pass a QRectF to QGraphicsRectItem's
-    constructor, or call setRect(). rect() returns the current rectangle.
+    constructor, or call the setRect() function. The rect() function
+    returns the current rectangle.
 
-    QGraphicsRectItem uses the rect and the pen width to provide a reasonable
-    implementation of boundingRect(), shape(), and contains(). The paint()
-    function draws the rectangle using the item's associated pen and brush,
-    which you can set by calling setPen() and setBrush().
+    \image graphicsview-rectitem.png
 
-    \img graphicsview-rectitem.png
+    QGraphicsRectItem uses the rectangle and the pen width to provide
+    a reasonable implementation of boundingRect(), shape(), and
+    contains(). The paint() function draws the rectangle using the
+    item's associated pen and brush, which you can set by calling the
+    setPen() and setBrush() functions.
 
     \sa QGraphicsPathItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
@@ -3359,8 +3363,8 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsRectItem, using \a rect as the default rectangle.
-    \a parent and \a scene are passed to
+    Constructs a QGraphicsRectItem, using \a rect as the default
+    rectangle.  The \a parent and \a scene parameters are passed to
     QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
@@ -3371,10 +3375,14 @@ QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
 }
 
 /*!
-    Constructs a QGraphicsRectItem with a default rectangle defined
-    by \a x, \a y, \a w and \a h.
+    \fn QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal width, qreal height,
+                                     QGraphicsItem *parent, QGraphicsScene *scene)
 
-    \a parent is passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsRectItem with a default rectangle defined
+    by (\a x, \a y) and the given \a width and \a height.
+
+    The \a parent parameter is passed to QAbstractGraphicsShapeItem's
+    constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
                                      QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3384,8 +3392,8 @@ QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
 }
 
 /*!
-    Constructs a QGraphicsRectItem. \a parent and \a scene are
-    passed to QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsRectItem. The \a parent and \a scene
+    parameters are passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
@@ -3411,7 +3419,9 @@ QRectF QGraphicsRectItem::rect() const
 }
 
 /*!
-    Sets the item's rectangle to \a rect.
+    \fn void QGraphicsRectItem::setRect(const QRectF &rectangle)
+
+    Sets the item's rectangle to be the given \a rectangle.
 
     \sa rect()
 */
@@ -3424,11 +3434,14 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
 }
 
 /*!
-    \fn void QGraphicsRectItem::setRect(qreal x, qreal y, qreal w, qreal h)
-    \fn void QGraphicsEllipseItem::setRect(qreal x, qreal y, qreal w, qreal h)
+    \fn void QGraphicsRectItem::setRect(qreal x, qreal y, qreal width, qreal height)
+    \fn void QGraphicsEllipseItem::setRect(qreal x, qreal y, qreal width, qreal height)
 
-    This convenience function is equivalent to calling
-    setRect(QRectF(\a x, \a y, \a w, \a h));
+    Sets the item's rectangle to the rectangle defined by (\a x, \a y)
+    and the given \a width and \a height.
+
+    This convenience function is equivalent to calling \c
+    {setRect(QRectF(x, y, width, height))}
 
     \sa rect()
 */
@@ -3495,7 +3508,7 @@ bool QGraphicsRectItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsRectItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueArea();   
+    return QAbstractGraphicsShapeItem::opaqueArea();
 }
 
 /*!
@@ -3543,18 +3556,21 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     QGraphicsEllipseItem respresents an ellipse with a fill and an outline,
     and you can also use it for ellipse segments (see startAngle(),
     spanAngle()).
-    
+
+    \table
+        \row
+            \o \inlineimage graphicsview-ellipseitem.png
+            \o \inlineimage graphicsview-ellipseitem-pie.png
+    \endtable
+
     To set the item's ellipse, pass a QRectF to QGraphicsEllipseItem's
-    constructor, or call setRect(). rect() returns the current ellipse
-    geometry.
+    constructor, or call setRect(). The rect() function returns the
+    current ellipse geometry.
 
     QGraphicsEllipseItem uses the rect and the pen width to provide a
     reasonable implementation of boundingRect(), shape(), and contains(). The
     paint() function draws the ellipse using the item's associated pen and
     brush, which you can set by calling setPen() and setBrush().
-
-    \img graphicsview-ellipseitem.png
-    \img graphicsview-ellipseitem-pie.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
@@ -3568,16 +3584,16 @@ public:
     inline QGraphicsEllipseItemPrivate()
         : startAngle(0), spanAngle(360 * 16)
     { }
-    
+
     QRectF rect;
     int startAngle;
     int spanAngle;
 };
 
 /*!
-    Constructs a QGraphicsEllipseItem using \a rect as the default rectangle.
-    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
-    constructor.
+    Constructs a QGraphicsEllipseItem using \a rect as the default
+    rectangle.  The \a parent and \a scene parameters are passed to
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent,
                                            QGraphicsScene *scene)
@@ -3587,9 +3603,12 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *pa
 }
 
 /*!
-    Constructs a QGraphicsEllipseItem using \a x \a y \a w \a h as the default rectangle.
-    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
-    constructor.
+    \fn QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent, QGraphicsScene *scene)
+
+    Constructs a QGraphicsEllipseItem using the rectangle defined by
+    (\a x, \a y) and the given \a width and \a height, as the default
+    rectangle. The \a parent and \a scene parameters are passed to
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h,
                                            QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3601,8 +3620,8 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h,
 
 
 /*!
-    Constructs a QGraphicsEllipseItem. \a parent and \a scene are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsEllipseItem. The \a parent and \a scene
+    parameters are passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
@@ -3777,7 +3796,7 @@ bool QGraphicsEllipseItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsEllipseItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueArea();   
+    return QAbstractGraphicsShapeItem::opaqueArea();
 }
 
 /*!
@@ -3823,15 +3842,17 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     \since 4.2
     \ingroup multimedia
 
-    To set the item's polygon, pass a QPolygonF to QGraphicsPolygonItem's
-    constructor, or call setPolygon(). polygon() returns the current polygon.
+    To set the item's polygon, pass a QPolygonF to
+    QGraphicsPolygonItem's constructor, or call the setPolygon()
+    function. The polygon() function returns the current polygon.
 
-    QGraphicsPolygonItem uses the polygon and the pen width to provide a
-    reasonable implementation of boundingRect(), shape(), and contains(). The
-    paint() function draws the polygon using the item's associated pen and
-    brush, which you can set by calling setPen() and setBrush().
+    \image graphicsview-polygonitem.png
 
-    \img graphicsview-polygonitem.png
+    QGraphicsPolygonItem uses the polygon and the pen width to provide
+    a reasonable implementation of boundingRect(), shape(), and
+    contains(). The paint() function draws the polygon using the
+    item's associated pen and brush, which you can set by calling the
+    setPen() and setBrush() functions.
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
@@ -3845,14 +3866,14 @@ public:
     inline QGraphicsPolygonItemPrivate()
         : fillRule(Qt::OddEvenFill)
     { }
-    
+
     QPolygonF polygon;
     Qt::FillRule fillRule;
 };
 
 /*!
     Constructs a QGraphicsPolygonItem with \a polygon as the default
-    polygon. \a parent and \a scene are passed to
+    polygon. The \a parent and \a scene parameters are passed to
     QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
@@ -3863,8 +3884,8 @@ QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
 }
 
 /*!
-    Constructs a QGraphicsPolygonItem. \a parent and \a scene are passed to
-    QAbstractGraphicsShapeItem's constructor.
+    Constructs a QGraphicsPolygonItem. The \a parent and \a scene
+    parameters are passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QAbstractGraphicsShapeItem(*new QGraphicsPolygonItemPrivate, parent, scene)
@@ -3891,7 +3912,7 @@ QPolygonF QGraphicsPolygonItem::polygon() const
 }
 
 /*!
-    Sets the item's polygon to \a polygon.
+    Sets the item's polygon to be the given \a polygon.
 
     \sa polygon()
 */
@@ -3991,7 +4012,7 @@ bool QGraphicsPolygonItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsPolygonItem::opaqueArea() const
 {
-    return QAbstractGraphicsShapeItem::opaqueArea();   
+    return QAbstractGraphicsShapeItem::opaqueArea();
 }
 
 /*!
@@ -4036,15 +4057,16 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     \since 4.2
     \ingroup multimedia
 
-    To set the item's line, pass a QLineF to QGraphicsLineItem's constructor,
-    or call setLine(). line() returns the current line. By default the line is
-    black with a width of 1.0, but you can change this by calling setPen(). 
+    To set the item's line, pass a QLineF to QGraphicsLineItem's
+    constructor, or call the setLine() function. The line() function
+    returns the current line. By default the line is black with a
+    width of 0, but you can change this by calling setPen().
+
+    \img graphicsview-lineitem.png
 
     QGraphicsLineItem uses the line and the pen width to provide a reasonable
     implementation of boundingRect(), shape(), and contains(). The paint()
     function draws the line using the item's associated pen.
-
-    \img graphicsview-lineitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem, {The
@@ -4060,8 +4082,9 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsLineItem, using \a line as the default line.  \a
-    parent and \a scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem, using \a line as the default
+    line. The \a parent and \a scene parameters are passed to
+    QGraphicsItem's constructor.
 */
 QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
@@ -4071,8 +4094,9 @@ QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
 }
 
 /*!
-    Constructs a QGraphicsLineItem, using \a x1 \a y1 - \a x2 \a y2 as the default line.  \a
-    parent and \a scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem, using the line between (\a x1, \a
+    y1) and (\a x2, \a y2) as the default line.  The \a parent and \a
+    scene parameters are passed to QGraphicsItem's constructor.
 */
 QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
@@ -4084,8 +4108,8 @@ QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGr
 
 
 /*!
-    Constructs a QGraphicsLineItem.  \a parent and \a scene are
-    passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsLineItem. The \a parent and \a scene
+    parameters are passed to QGraphicsItem's constructor.
 */
 QGraphicsLineItem::QGraphicsLineItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
@@ -4100,7 +4124,8 @@ QGraphicsLineItem::~QGraphicsLineItem()
 }
 
 /*!
-    Returns the item's pen, or a QPen() with a width of 1.0 if no pen has been set.
+    Returns the item's pen, or a black solid 0-width pen if no pen has
+    been set.
 
     \sa setPen()
 */
@@ -4112,7 +4137,7 @@ QPen QGraphicsLineItem::pen() const
 
 /*!
     Sets the item's pen to \a pen. If no pen is set, the line will be painted
-    using a black solid 0-width line.
+    using a black solid 0-width pen.
 
     \sa pen()
 */
@@ -4125,7 +4150,7 @@ void QGraphicsLineItem::setPen(const QPen &pen)
 }
 
 /*!
-    Returns the item's line, or QLineF() if no line has been set.
+    Returns the item's line, or a null line if no line has been set.
 
     \sa setLine()
 */
@@ -4136,7 +4161,7 @@ QLineF QGraphicsLineItem::line() const
 }
 
 /*!
-    Sets the item's line to \a line.
+    Sets the item's line to be the given \a line.
 
     \sa line()
 */
@@ -4152,7 +4177,10 @@ void QGraphicsLineItem::setLine(const QLineF &line)
     \fn void QGraphicsLineItem::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
     \overload
 
-    This is the same as calling setLine(QLineF(\a x1, \a y1, \a x2, \a y2)).
+    Sets the item's line to be the line between (\a x1, \a y1) and (\a
+    x2, \a y2).
+
+    This is the same as calling \c {setLine(QLineF(x1, y1, x2, y2))}.
 */
 
 /*!
@@ -4245,7 +4273,7 @@ bool QGraphicsLineItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsLineItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!
@@ -4291,20 +4319,22 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     \ingroup multimedia
 
     To set the item's pixmap, pass a QPixmap to QGraphicsPixmapItem's
-    constructor, or call setPixmap(). pixmap() returns the current pixmap.
+    constructor, or call the setPixmap() function. The pixmap()
+    function returns the current pixmap.
 
     QGraphicsPixmapItem uses pixmap's optional alpha mask to provide a
     reasonable implementation of boundingRect(), shape(), and contains().
+
+    \image graphicsview-pixmapitem.png
 
     The pixmap is drawn at the item's (0, 0) coordinate, as returned by
     offset(). You can change the drawing offset by calling setOffset().
 
     You can set the pixmap's transformation mode by calling
-    setTransformationMode(). By default, Qt::FastTransformation is used, which
-    provides fast, non-smooth scaling. Call transformationMode() to get the
-    current transformation mode for the item.
-
-    \img graphicsview-pixmapitem.png
+    setTransformationMode(). By default, Qt::FastTransformation is
+    used, which provides fast, non-smooth scaling. Call
+    transformationMode() to get the current transformation mode for
+    the item.
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, {The
@@ -4374,8 +4404,9 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsPixmapItem, using \a pixmap as the default pixmap.
-    \a parent and \a scene are passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsPixmapItem, using \a pixmap as the default
+    pixmap.  The \a parent and \a scene parameteres are passed to
+    QGraphicsItem's constructor.
 */
 QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap,
                                          QGraphicsItem *parent, QGraphicsScene *scene)
@@ -4385,8 +4416,8 @@ QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap,
 }
 
 /*!
-    Constructs a QGraphicsPixmapItem.  \a parent and \a scene are passed to
-    QGraphicsItem's constructor.
+    Constructs a QGraphicsPixmapItem. The \a parent and \a scene
+    parameteres are passed to QGraphicsItem's constructor.
 */
 QGraphicsPixmapItem::QGraphicsPixmapItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent, scene)
@@ -4549,7 +4580,7 @@ bool QGraphicsPixmapItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsPixmapItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!
@@ -4822,7 +4853,7 @@ bool QGraphicsTextItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsTextItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!
@@ -5318,7 +5349,7 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
 
 /*!
     Constructs a QGraphicsSimpleTextItem.
-    
+
     \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
@@ -5470,7 +5501,7 @@ bool QGraphicsSimpleTextItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsSimpleTextItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!
@@ -5525,8 +5556,8 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsItemGroup. \a parent and \a scene are
-    passed to QGraphicsItem's constructor.
+    Constructs a QGraphicsItemGroup. The \a parent and \a scene
+    parameters are passed to QGraphicsItem's constructor.
 */
 QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsItemGroupPrivate, parent, scene)
@@ -5542,9 +5573,9 @@ QGraphicsItemGroup::~QGraphicsItemGroup()
 }
 
 /*!
-    Adds \a item to this item group. \a item will be reparented to this group,
-    but its position and transformation relative to the scene will stay
-    intact.
+    Adds the given \a item to this item group. The item will be
+    reparented to this group, but its position and transformation
+    relative to the scene will stay intact.
 
     \sa removeFromGroup(), QGraphicsScene::createItemGroup()
 */
@@ -5574,9 +5605,10 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
 }
 
 /*!
-    Removes \a item from this group. \a item will be reparented to this
-    group's parent item, or to 0 if this group has no parent.  \a item's
-    position and transformation relative to the scene will stay intact.
+    Removes the specified \a item from this group. The item will be
+    reparented to this group's parent item, or to 0 if this group has
+    no parent.  Its position and transformation relative to the scene
+    will stay intact.
 
     \sa addToGroup(), QGraphicsScene::destroyItemGroup()
 */
@@ -5636,7 +5668,7 @@ bool QGraphicsItemGroup::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsItemGroup::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();   
+    return QGraphicsItem::opaqueArea();
 }
 
 /*!

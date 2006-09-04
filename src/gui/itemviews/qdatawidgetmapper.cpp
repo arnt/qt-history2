@@ -501,7 +501,7 @@ void QDataWidgetMapper::revert()
 
     For every mapped section, the item delegate reads the current
     value from the widget and sets it in the model. Finally, the
-    model's submit() method is invoked.
+    model's \l {QAbstractItemModel::}{submit()} method is invoked.
 
     Returns true if all the values were submitted, otherwise false.
 
@@ -531,7 +531,7 @@ bool QDataWidgetMapper::submit()
     if the orientation is horizontal (the default), otherwise
     with data from the first column.
 
-    This is equivalent to calling setCurrentIndex(0).
+    This is equivalent to calling \c setCurrentIndex(0).
 
     \sa toLast(), setCurrentIndex()
  */
@@ -591,7 +591,7 @@ void QDataWidgetMapper::toPrevious()
 /*!
     \property QDataWidgetMapper::currentIndex
     \brief the current row or column
-    
+
     The widgets are populated with with data from the row at \a index
     if the orientation is horizontal (the default), otherwise with
     data from the column at \a index.
@@ -623,9 +623,11 @@ int QDataWidgetMapper::currentIndex() const
     orientation is horizontal (the default), otherwise to the
     column of the \a index.
 
-    Calls setCurrentIndex() internally. This convenience slot
-    can be connected to the signal currentRowChanged() or
-    currentColumnChanged() of another view's selection model.
+    Calls setCurrentIndex() internally. This convenience slot can be
+    connected to the signal \l
+    {QItemSelectionModel::}{currentRowChanged()} or \l
+    {QItemSelectionModel::}{currentColumnChanged()} of another view's
+    \l {QItemSelectionModel}{selection model}.
 
     The following example illustrates how to update all widgets
     with new data whenever the selection of a QTableView named

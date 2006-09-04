@@ -23,8 +23,8 @@
     \fn void QGraphicsItemAnimation::newTransformation(const QPointF &pos, const QMatrix &matrix);
 
     This signal is emitted whenever the current transformation has changed
-    (i.e., by calling QGraphicsItemAnimation::setStep()). \a pos is the target
-    item's new position, and \a matrix is its new transformation.
+    (i.e., by calling QGraphicsItemAnimation::setStep()). The target
+    item's new position is \a pos, and \a matrix is its new transformation.
 */
 
 #include "qgraphicsitemanimation.h"

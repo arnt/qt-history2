@@ -396,11 +396,11 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 
     Constructs an OpenGL framebuffer object and binds a 2D GL texture
     to the buffer of the size \a size. The texture is bound to the
-    GL_COLOR_ATTACHMENT0 target in the framebuffer object.
+    \c GL_COLOR_ATTACHMENT0 target in the framebuffer object.
 
     The \a target parameter is used to specify the GL texture
-    target. The default target is GL_TEXTURE_2D. Keep in mind that
-    GL_TEXTURE_2D textures must have a power of 2 width and height
+    target. The default target is \c GL_TEXTURE_2D. Keep in mind that
+    \c GL_TEXTURE_2D textures must have a power of 2 width and height
     (e.g. 256x512).
 
     It is important that you have a current GL context set when
@@ -420,7 +420,7 @@ QGLFramebufferObject::QGLFramebufferObject(const QSize &size, GLenum target)
 /*! \overload
 
     Constructs an OpenGL framebuffer object and binds a 2D GL texture
-    to the buffer of the width \a width and height \a height.
+    to the buffer of the given \a width and \a height.
 
     \sa size(), texture()
 */

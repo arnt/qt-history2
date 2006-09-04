@@ -249,13 +249,21 @@ void QFontComboBoxPrivate::_q_currentChanged(const QString &text)
     is emitted in addition to currentIndexChanged().
 
     Call setWritingSystem() to tell QFontComboBox to show only fonts
-    that support a given writing system, and
-    setFontFilters(FontFilters) to filter out certain types of fonts
-    as e.g. non scalable fonts or monospaced fonts.
+    that support a given writing system, and setFontFilters() to
+    filter out certain types of fonts as e.g. non scalable fonts or
+    monospaced fonts.
 
     \image windowsxp-fontcombobox.png Screenshot of QFontComboBox on Windows XP
 
     \sa QComboBox, QFont, QFontInfo, QFontMetrics, QFontDatabase, {Character Map Example}
+*/
+
+/*!
+    \fn void QFontComboBox::setWritingSystem(QFontDatabase::WritingSystem script)
+*/
+
+/*!
+    \fn void QFontComboBox::setCurrentFont(const QFont &font);
 */
 
 /*!
@@ -324,9 +332,9 @@ QFontDatabase::WritingSystem QFontComboBox::writingSystem() const
 /*!
   \enum QFontComboBox::FontFilter
 
-  This enum can be used to only shopw certain types of fonts in the font combo box.
+  This enum can be used to only show certain types of fonts in the font combo box.
 
-  \value AllFonts
+  \value AllFonts Show all fonts
   \value ScalableFonts Only show scalable fonts
   \value NonScalableFonts Only show non scalable fonts
   \value MonospacedFonts Only show monospaced fonts
