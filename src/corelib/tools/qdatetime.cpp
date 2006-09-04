@@ -605,7 +605,7 @@ QString QDate::toString(Qt::DateFormat f) const
     getDateFromJulianDay(jd, &y, &m, &d);
     switch (f) {
     case Qt::LocalDate:
-        return QLocale().toString(*this, QLocale::LongFormat);
+        return QLocale().toString(*this, QLocale::ShortFormat);
     default:
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
@@ -1315,7 +1315,7 @@ QString QTime::toString(Qt::DateFormat f) const
 
     switch (f) {
     case Qt::LocalDate:
-        return QLocale().toString(*this, QLocale::LongFormat);
+        return QLocale().toString(*this, QLocale::ShortFormat);
     default:
     case Qt::ISODate:
     case Qt::TextDate:
