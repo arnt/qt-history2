@@ -614,7 +614,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 
     if (stream.status() != QDataStream::Ok) {
         newLayout.deleteAllLayoutItems();
-        applyDockWidgetLayout(dockWidgetLayout); // hides tabBars allocated by newLayout
+        applyDockWidgetLayout(dockWidgetLayout, false); // hides tabBars allocated by newLayout
         return false;
     }
 
@@ -645,7 +645,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     newLayout.centralWidgetItem = dockWidgetLayout.centralWidgetItem;
     dockWidgetLayout.deleteAllLayoutItems();
     dockWidgetLayout = newLayout;
-    applyDockWidgetLayout(dockWidgetLayout);
+    applyDockWidgetLayout(dockWidgetLayout, false);
 #ifndef QT_NO_TABBAR
     foreach (QTabBar *tab_bar, usedTabBars)
         tab_bar->show();
