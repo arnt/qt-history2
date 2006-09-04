@@ -1251,9 +1251,11 @@ void tst_QTreeWidget::insertTopLevelItems()
     }
 
     { // test adding more top level items
-        testWidget->insertTopLevelItem(insertTopLevelIndex, new QTreeWidgetItem(QStringList(insertText.at(0))));
+        QTreeWidgetItem *topsy = new QTreeWidgetItem(QStringList(insertText.at(0)));
+        testWidget->insertTopLevelItem(insertTopLevelIndex, topsy);
         if (expectedTopLevelIndex == -1) {
             QCOMPARE(testWidget->topLevelItemCount(), initialText.count());
+            delete topsy;
         } else {
             QTreeWidgetItem *item = testWidget->topLevelItem(expectedTopLevelIndex);
             QVERIFY(item != 0);
@@ -1265,9 +1267,11 @@ void tst_QTreeWidget::insertTopLevelItems()
     { // test adding more children
         QTreeWidgetItem *topLevel = testWidget->topLevelItem(0);
         QVERIFY(topLevel != 0);
-        topLevel->insertChild(insertChildIndex, new QTreeWidgetItem(QStringList(insertText.at(0))));
+        QTreeWidgetItem *child = new QTreeWidgetItem(QStringList(insertText.at(0)));
+        topLevel->insertChild(insertChildIndex, child);
         if (expectedChildIndex == -1) {
             QCOMPARE(topLevel->childCount(), initialText.count());
+            delete child;
         } else {
             QTreeWidgetItem *item = topLevel->child(expectedChildIndex);
             QVERIFY(item != 0);
