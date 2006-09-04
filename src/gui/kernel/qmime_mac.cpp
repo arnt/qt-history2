@@ -408,11 +408,10 @@ QVariant QMacPasteBoardMimeFileUri::convertToMime(const QString &mime, QList<QBy
         return QVariant();
     QList<QVariant> ret;
     for(int i = 0; i < data.size(); ++i) {
-        const QByteArray &datum = data.at(i);
-        QString url = QString::fromUtf8(datum, datum.size());
-        if(url.startsWith(QLatin1String("file://localhost/"))) //mac encodes a bit differently
-            url.remove(7, 9);
-        ret.append(QUrl(url));
+        QUrl url = QUrl::fromEncoded(data.at(i));
+        if (url.host().toLower() == QLatin1String("localhost"))
+            url.setHost(QString());
+        ret.append(url);
     }
     return QVariant(ret);
 }
@@ -425,14 +424,11 @@ QList<QByteArray> QMacPasteBoardMimeFileUri::convertFromMime(const QString &mime
     QList<QVariant> urls = data.toList();
     for(int i = 0; i < urls.size(); ++i) {
         QUrl url = urls.at(i).toUrl();
-        QString uri;
-        if(url.scheme().isEmpty())
-            uri = QUrl::fromLocalFile(url.toString()).toString();
-        else
-            uri = url.toString();
-        if(uri.startsWith(QLatin1String("file:///")))
-            uri.insert(7, "localhost"); //Mac likes localhost to be in it!
-        ret.append(uri.toUtf8());
+        if (url.scheme().isEmpty())
+            url.setScheme(QLatin1String("file"));
+        if (url.host().isEmpty() && url.scheme().toLower() == QLatin1String("file"))
+            url.setHost(QLatin1String("localhost"));
+        ret.append(url.toEncoded());
     }
     return ret;
 }
