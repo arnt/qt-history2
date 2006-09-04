@@ -824,7 +824,7 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 /*!
     \fn Qt::CheckState QListWidgetItem::checkState() const
 
-    Returns the checked state of the list item (see \l{Qt::CheckState}.
+    Returns the checked state of the list item (see \l{Qt::CheckState}).
 
     \sa flags()
 */
