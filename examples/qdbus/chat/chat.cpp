@@ -88,7 +88,7 @@ void ChatMainWindow::textChangedSlot(const QString &newText)
 void ChatMainWindow::sendClickedSlot()
 {
     //emit message(m_nickname, messageLineEdit->text());
-    QDBusMessage msg = QDBusMessage::createSignal("/", "com.trolltech.ChatInterface", "message");
+    QDBusMessage msg = QDBusMessage::createSignal("/", "com.trolltech.chat", "message");
     msg << m_nickname << messageLineEdit->text();
     QDBusConnection::sessionBus().send(msg);
     messageLineEdit->setText(QString());
@@ -130,8 +130,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (!QDBusConnection::sessionBus().registerService("com.trolltech.ChatExample")) {
+        qDebug( "Unable to connect to dbus service: %s", qPrintable( QDBusConnection::sessionBus().lastError().message() ) );
+        return 1;
+    }
+
     ChatMainWindow chat;
     chat.show();
     return app.exec();
 }
-
