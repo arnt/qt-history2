@@ -152,6 +152,7 @@ private slots:
     void nanAndInf();
     void compare_data();
     void compare();
+    void resizeAfterFromRawData();
 };
 
 typedef QList<int> IntList;
@@ -688,7 +689,7 @@ void tst_QString::constructorQByteArray_data()
 
     QTest::newRow( "2" ) << ba1 << QString("abc");
 
-    QTest::newRow( "3" ) << QByteArray::fromRawData("abcd", 3) << QString("abc");    
+    QTest::newRow( "3" ) << QByteArray::fromRawData("abcd", 3) << QString("abc");
 }
 
 void tst_QString::constructorQByteArray()
@@ -699,7 +700,7 @@ void tst_QString::constructorQByteArray()
     QString str1(src);
     QCOMPARE(str1.length(), expected.length());
     QCOMPARE( str1, expected );
-        
+
     QTextCodec::setCodecForCStrings( QTextCodec::codecForMib(4) ); // Latin 1
     QString strBA(src);
     QTextCodec::setCodecForCStrings( 0 );
@@ -1507,7 +1508,7 @@ void tst_QString::prepend_bytearray_data()
     ba.resize( 1 );
     ba[0] = 0;
     QTest::newRow( "emptyString" ) << QString("foobar ") << ba << QString("foobar ");
-    
+
     // empty byte array
     ba.resize( 0 );
     QTest::newRow( "emptyByteArray" ) << QString(" foobar") << ba << QString(" foobar");
@@ -3981,6 +3982,16 @@ void tst_QString::compare()
 #else
     QSKIP("needs Qt >= 4.2", SkipAll);
 #endif
+}
+
+void tst_QString::resizeAfterFromRawData()
+{
+    QString buffer("hello world");
+
+    QString array = QString::fromRawData(buffer.constData(), buffer.size());
+    QVERIFY(array.constData() == buffer.constData());
+    array.resize(5);
+    QVERIFY(array.constData() == buffer.constData());
 }
 
 QTEST_APPLESS_MAIN(tst_QString)

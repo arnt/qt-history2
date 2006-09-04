@@ -1309,8 +1309,9 @@ void QByteArray::resize(int size)
             realloc(qAllocMore(size, sizeof(Data)));
         if (d->alloc >= size) {
             d->size = size;
-            d->data = d->array;
-            d->array[size] = '\0';
+            if (d->data == d->array) {
+                d->array[size] = '\0';
+            }
         }
     }
 }

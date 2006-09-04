@@ -76,6 +76,8 @@ private slots:
     void number();
     void toInt_data();
     void toInt();
+
+    void resizeAfterFromRawData();
 };
 
 tst_QByteArray::tst_QByteArray()
@@ -419,7 +421,7 @@ void tst_QByteArray::qstrlen()
     QCOMPARE(::qstrlen((char*)0), (uint)0);
     QCOMPARE(::qstrlen(src), (uint)20);
 }
-    
+
 void tst_QByteArray::qstrnlen()
 {
     const char *src = "Something about ... \0 a string.";
@@ -857,6 +859,16 @@ void tst_QByteArray::toULongLong()
     QCOMPARE(str.toULongLong(0, base), result);
     QCOMPARE(str.toULongLong(&b, base), result);
     QCOMPARE(b, ok);
+}
+
+void tst_QByteArray::resizeAfterFromRawData()
+{
+    QByteArray buffer("hello world");
+
+    QByteArray array = QByteArray::fromRawData(buffer.constData(), buffer.size());
+    QVERIFY(array.constData() == buffer.constData());
+    array.resize(5);
+    QVERIFY(array.constData() == buffer.constData());
 }
 
 QTEST_APPLESS_MAIN(tst_QByteArray)

@@ -866,8 +866,9 @@ void QString::resize(int size)
             realloc(grow(size));
         if (d->alloc >= size) {
             d->size = size;
-            d->data = d->array;
-            d->array[size] = '\0';
+            if (d->data == d->array) {
+                d->array[size] = '\0';
+            }
         }
     }
 }
