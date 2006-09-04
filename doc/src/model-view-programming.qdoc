@@ -1857,16 +1857,21 @@
     by reimplementing the QAbstractItemModel::flags() function to provide suitable
     flags.
 
-    For example, a model which provides a simple list based on QAbstractListModel can
-    enable drag and drop for each of the items by ensuring that the flags returned
-    contains the \l Qt::ItemIsDragEnabled and \l Qt::ItemIsDropEnabled values:
+    For example, a model which provides a simple list based on QAbstractListModel
+    can enable drag and drop for each of the items by ensuring that the flags
+    returned contain the \l Qt::ItemIsDragEnabled and \l Qt::ItemIsDropEnabled
+    values:
 
     \quotefromfile snippets/qlistview-dnd/model.cpp
-    \skipto Model::flags
+    \skipto Model::flags(const
     \printuntil /^\}/
 
     Note that items can be dropped into the top level of the model, but dragging is
     only enabled for valid items.
+
+    In the above code, since the model is derived from QStringListModel, we
+    obtain a default set of flags by calling its implementation of the flags()
+    function.
 
     \section2 Encoding Exported Data
 
