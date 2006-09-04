@@ -74,7 +74,7 @@ void QDBusConnectionManager::removeConnection(const QString &name)
     d = connectionHash.take(name);
     if (d && !d->ref.deref()) {
         delete d;
-    } else {
+    } else if (d) {
         d->closeConnection();
         qWarning("QDBusConnection: closed connection %s"
                  "is still referred to by other QDBusConnection objects",
