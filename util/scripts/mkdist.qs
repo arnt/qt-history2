@@ -177,6 +177,7 @@ licenseRemove["eval"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
                                 new RegExp("^README.qws"),
+                                new RegExp("^bin/qtusagereporter"),
                                 new RegExp("^examples/activeqt"),
                                 new RegExp("^mkspecs/macx-mwerks"),
                                 new RegExp("^mkspecs/win32-borland"),

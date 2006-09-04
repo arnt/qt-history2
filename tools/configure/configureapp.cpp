@@ -1253,7 +1253,7 @@ bool Configure::verifyConfiguration()
 void Configure::generateBuildKey()
 {
     QString spec = dictionary["QMAKESPEC"];
-    
+
     QString compiler = "msvc"; // ICC is compatible
     if (spec.endsWith("-g++"))
         compiler = "mingw";
@@ -2284,6 +2284,8 @@ void Configure::readLicense()
             dictionary["DONE"] = "error";
             return;
         }
+        if (!dictionary.contains("METERED LICENSE"))
+            QFile::remove(dictionary["QT_SOURCE_TREE"] + "/bin/qtusagereporter.exe");
     }
 #endif // COMMERCIAL_VERSION
 }

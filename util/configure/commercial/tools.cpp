@@ -50,7 +50,7 @@ bool Tools::checkInternalLicense(QMap<QString,QString> &dictionary)
             dictionary["DONE"] = "error";
             return false;
         }
-        
+
         cout << endl << "This is the Qt/Windows Trolltech Edition." << endl << endl;
         dictionary["EDITION"] = "Trolltech";
         dictionary["LICENSE FILE"] = licenseFile;
@@ -215,6 +215,9 @@ void Tools::checkLicense(QMap<QString,QString> &dictionary, QMap<QString,QString
 
     if (licenseFeatures & KeyDecoder::USCustomer)
         fromLicenseFile += "-US";
+
+    if (licenseFeatures & KeyDecoder::FloatingLicense)
+        dictionary["METERED LICENSE"] = "true";
 
     if (!QFileInfo(toLicenseFile).exists()) {
         if (!CopyFileA(QDir::toNativeSeparators(fromLicenseFile).toLocal8Bit(),

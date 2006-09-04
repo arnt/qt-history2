@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // report Qt usage for commercial customers with a "metered license"
+    // report Qt usage for commercial customers with a "metered license" (currently experimental)
 #if QT_EDITION != QT_EDITION_OPENSOURCE
     QString reporterPath = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QDir::separator()
                            + "qtusagereporter";

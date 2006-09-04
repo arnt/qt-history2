@@ -344,7 +344,7 @@ EOF
         esac
     fi
     case "$LicenseFeatureCode" in
-    G)
+    G|L)
         # US
         case "$LicenseType" in
         Commercial)
@@ -361,7 +361,7 @@ EOF
             ;;
         esac
         ;;
-    2)
+    2|5)
         # non-US
         case "$LicenseType" in
         Commercial)
@@ -377,6 +377,24 @@ EOF
             cp -f "$relpath/.LICENSE-EDUCATIONAL" "$outpath/LICENSE"
             ;;
         esac
+        ;;
+    *)
+        echo
+        echo "Invalid license key. Please check the license key."
+        exit 1
+        ;;
+    esac
+    case "$LicenseFeatureCode" in
+    G|2)
+        # delete qtusagereporter for non-metered licenses
+        rm -f "$relpath/bin/qtusagereporter"
+        ;;
+    L|5)
+        # copy qtusagereporter for metered licenses
+        if [ '!' -f "$outpath/bin/qtusagereporter" ]; then
+            mkdir -p "$outpath/bin"
+            cp -f "$relpath/bin/qtusagereporter" "$outpath/bin/qtusagereporter"
+        fi
         ;;
     *)
         echo

@@ -14,6 +14,7 @@
 #include "preprocessor.h"
 #include "moc.h"
 #include "outputrevision.h"
+#include "../../corelib/global/qconfig.cpp"
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -185,6 +186,20 @@ int main(int _argc, char **_argv)
             }
         }
     }
+
+    // report Qt usage for commercial customers with a "metered license" (currently experimental)
+#if QT_EDITION != QT_EDITION_OPENSOURCE
+#ifdef QT_CONFIGURE_BINARIES_PATH
+    const char *binariesPath = QT_CONFIGURE_BINARIES_PATH;
+    QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
+                           + "qtusagereporter";
+#if defined(Q_OS_WIN)
+    reporterPath += ".exe";
+#endif
+    if (QFile::exists(reporterPath))
+        system(qPrintable(reporterPath + " moc"));
+#endif
+#endif
 
     argc = argv.count();
 
