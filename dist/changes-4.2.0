@@ -42,6 +42,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Backup file is being created by Designer while overwriting the existing file.
 
+- Added functions qrand() and qsrand() that provide thread safe rand() and srand().
+
 - Starting from Qt 4.2 a new commercial licensing scheme will be
   supported. Customers who chose the new "metered license" will pay
   according to their monthly actual Qt usage and not according to how
@@ -287,6 +289,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QGraphicsPixmapItem
         Added setShapeMode() and shapeMode().
         Improved calculation of the item' shape.
+
+- QGLFormat
+        Added openGLVersionFlags() function.
+
+- QOpenGLPaintEngine
+        Now supports all composition modes of QPainter natively through OpenGL.
 
 Database drivers
 -------------------------
