@@ -30,6 +30,7 @@ class Q_CORE_EXPORT QLibrary : public QObject
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
     Q_PROPERTY(LoadHints loadHints READ loadHints WRITE setLoadHints)
+    Q_FLAGS(LoadHint LoadHints)
 public:
     enum LoadHint {
         ResolveAllSymbolsHint = 0x01,
