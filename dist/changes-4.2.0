@@ -91,6 +91,8 @@ tools like gdb and valgrind automatically pick up the separate .debug files.
 This way it is possible to get useful backtraces even with release builds of
 Qt.
 
+Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
+
 
 ****************************************************************************
 *                          Library                                         *
