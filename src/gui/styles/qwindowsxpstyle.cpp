@@ -98,8 +98,10 @@
 #ifndef TMT_FILLCOLOR
 #  define TMT_FILLCOLOR 3802
 #endif
-#ifndef TMT_TEXTSHADOWCOLOR
-#  define TMT_TEXTSHADOWCOLOR 3818
+// TMT_TEXTSHADOWCOLOR is wrongly defined in mingw
+#if TMT_TEXTSHADOWCOLOR != 3818
+#undef TMT_TEXTSHADOWCOLOR
+#define TMT_TEXTSHADOWCOLOR 3818
 #endif
 #ifndef TST_NONE
 #  define TST_NONE 0
