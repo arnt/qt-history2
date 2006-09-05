@@ -107,6 +107,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
         Implemented the numberOptions property, for specifying how
         string-to-number and number-to-string conversions should be performed.
 
+- QPainter
+	Fixed a crash when drawing cosmetic lines outside the paint device 
+	boundaries.
+	Fixed a pixel artifact when drawing cosmetic diagonal lines.
+	Optimized drawing of cosmetic lines of between 315 and 360 degrees.
+
 - QSettings
         Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
 
@@ -187,6 +193,40 @@ QTestLib
 Platform-Specific changes
 -------------------------
 
+Qtopia Core:
+
+- Fixed issue with the VNC driver that prevented client applications to connect
+  in some cases.
+- Fixed a leak of shared memory segments in the VNC driver.
+- Reduced CPU consumption in the VNC driver.
+- Improved memory usage when using screen with depth less than 16 bits.
+- Optimized CPU usage when widgets are partially hidden.
+- Improved error handling when clients connects to the server.
+- Introduced the QWSWindowSurface as a technique to create accelerated 
+  QPaintEngines.
+- Fixed leakage of semaphore arrays during an application crash.
+- Fixed a build issue preventing the use of mmx instructions when available.
+- Implemented the Qt::WA_PaintOnScreen flag for top-level widgets.
+- Removed internal limitation of 10 display servers.
+- Implemented support for multiple screens.
+- Fixed the -exceptions configure switch.
+- Implemented dynamic selection of the underlying driver for the VNC and 
+  Transformed screen drivers.
+- Improved detection of 18 bit framebuffers.
+- Improved performance when using a rotated screen with 18 or 24 bit depth.
+- New improved algorithm for mouse calibration which works for all screen
+  orientations.
+- Fixed an issue of getting delayed mouse events when using the vr41xx driver.
+- Improved event compression in the vr41xx mouse handler.
+- Fixed sn issue causing mouse release events with wrong positions when using a
+  calibrated and filtered mouse handler on a rotated screen.
+- Fixed 16 bit screens on big-endian CPUs.
+- Implemented QWSEmbedWidget which enables window embedding.
+- Made the tty device configureable for the LinuxFb screen driver.
+- Improved speed of drawing gradients.
+- Fixed a deadlock issue when using drag and drop and a calibrated mouse 
+  handler.
+
 UNIX:
 
 - QApplication
@@ -221,3 +261,7 @@ Documentation
 
         Updated information about the mailing list to be used for porting
         issues (qt-interest).
+
+Tools
+
+	Fixed an issue preventing QVFb from starting on some systems.
