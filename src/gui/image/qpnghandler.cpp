@@ -377,8 +377,10 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
         return false;
     }
 
+    row_pointers = 0;
     if (setjmp(png_ptr->jmpbuf)) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+        delete [] row_pointers;
         png_ptr = 0;
         state = Error;
         return false;
@@ -388,6 +390,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
 
     if (outImage->isNull()) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+        delete [] row_pointers;
         png_ptr = 0;
         state = Error;
         return false;
@@ -402,7 +405,7 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
 
     uchar *data = outImage->bits();
     int bpl = outImage->bytesPerLine();
-    row_pointers=new png_bytep[height];
+    row_pointers = new png_bytep[height];
 
     for (uint y = 0; y < height; y++)
         row_pointers[y] = data + y * bpl;
@@ -450,10 +453,9 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     }
 #endif
 
-    delete [] row_pointers;
-
     png_read_end(png_ptr, end_info);
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+    delete [] row_pointers;
     png_ptr = 0;
     state = Ready;
 
