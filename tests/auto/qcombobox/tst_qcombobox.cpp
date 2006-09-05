@@ -238,22 +238,22 @@ void tst_QComboBox::getSetCheck()
     // void QComboBox::setValidator(const QValidator *)
     QIntValidator *var9 = new QIntValidator(0);
     obj1.setValidator(var9);
-    QCOMPARE(var9, obj1.validator());
+    QCOMPARE(obj1.validator(), (const QValidator *)var9);
     obj1.setValidator((QValidator *)0);
-    QCOMPARE((QValidator *)0, obj1.validator());
+    QCOMPARE(obj1.validator(), (const QValidator *)0);
     delete var9;
 
     // QAbstractItemDelegate * QComboBox::itemDelegate()
     // void QComboBox::setItemDelegate(QAbstractItemDelegate *)
     MyAbstractItemDelegate *var10 = new MyAbstractItemDelegate;
     obj1.setItemDelegate(var10);
-    QCOMPARE(var10, obj1.itemDelegate());
+    QCOMPARE(obj1.itemDelegate(), (QAbstractItemDelegate *)var10);
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this, but handles the situation by ignoring it.
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current)
     QTest::ignoreMessage(QtWarningMsg, "QComboBox::setItemDelegate: cannot set a 0 delegate");
     obj1.setItemDelegate((QAbstractItemDelegate *)0);
-    QCOMPARE(var10, obj1.itemDelegate());
+    QCOMPARE(obj1.itemDelegate(), (QAbstractItemDelegate *)var10);
 #endif
     // delete var10; // No delete, since QComboBox takes ownership
 
@@ -261,13 +261,13 @@ void tst_QComboBox::getSetCheck()
     // void QComboBox::setModel(QAbstractItemModel *)
     MyAbstractItemModel *var11 = new MyAbstractItemModel;
     obj1.setModel(var11);
-    QCOMPARE(var11, obj1.model());
+    QCOMPARE(obj1.model(), (QAbstractItemModel *)var11);
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this, but handles the situation by ignoring it.
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current)
     QTest::ignoreMessage(QtWarningMsg, "QComboBox::setModel: cannot set a 0 model");
     obj1.setModel((QAbstractItemModel *)0);
-    QCOMPARE(var11, obj1.model());
+    QCOMPARE(obj1.model(), (QAbstractItemModel *)var11);
 #endif
     delete var11;
 
@@ -285,13 +285,13 @@ void tst_QComboBox::getSetCheck()
     // void QComboBox::setView(QAbstractItemView *)
     MyAbstractItemView *var13 = new MyAbstractItemView;
     obj1.setView(var13);
-    QCOMPARE(var13, obj1.view());
+    QCOMPARE(obj1.view(), (QAbstractItemView *)var13);
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current view)
     QTest::ignoreMessage(QtWarningMsg, "QComboBox::setView: cannot set a 0 view");
     obj1.setView((QAbstractItemView *)0);
-    QCOMPARE(var13, obj1.view());
+    QCOMPARE(obj1.view(), (QAbstractItemView *)var13);
 #endif
     delete var13;
 
