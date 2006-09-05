@@ -952,6 +952,8 @@ QX11EmbedContainer::QX11EmbedContainer(QWidget *parent)
     XSetErrorHandler(x11ErrorHandler);
     initXEmbedAtoms(x11Info().display());
 
+    createWinId();
+
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     // ### PORT setKeyCompression(false);
