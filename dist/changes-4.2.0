@@ -77,6 +77,21 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - New style: CleanLooks, a clone of the GNOME ClearLooks style, provides
   native look for Qt applications on GNOME.
 
+Build System
+------------
+
+Qt/X11 and Qtopia Core only:
+
+The Qt libraries are only built once now, like in Qt 3. The _debug suffix
+has been removed and Qt is built by default with optimizations.
+On modern systems flags are added to the Qt build to also generate debugging
+information, which is then stored in a separate .debug file. The additional
+debug information does not affect the performance of the optimized code and
+tools like gdb and valgrind automatically pick up the separate .debug files.
+This way it is possible to get useful backtraces even with release builds of
+Qt.
+
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
@@ -301,6 +316,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
         Added support for QMatrix as a known metatype.
         Added conversion from QBrush to QColor and QPixmap, and from
         QColor and QPixmap to QBrush.
+        Fix QVariant(Qt::blue) not creating a variant of type QVariant::Color.
 
 - QMainWindow
         Dockwidgets can be tabbed.
@@ -487,6 +503,70 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QTimeLine
         New class for controlling a time line.
 
+- QTextDocument
+        Added convenience functions:
+            setTextWidth()/textWidth()
+            idealWidth()
+            size()
+            adjustSize()
+            drawContents()
+            blockCount(),
+            setMaximumBlockCount()/maximumBlockCount()
+        Added support for forced page breaks before/after paragraphs and tables.
+        Added CSS support to the HTML import.
+        Added defaultStyleSheet property that is applied automatically for every HTML import.
+        Performance improvements in the HTML import, especially with tables.
+        Improved pagination of tables across page boundaries.
+
+- QTextTableCell
+        Added setFormat() to set the cell's character format
+
+- QTextCursor
+        Added columnNumber(), blockNumber() and insertHtml() convenience functions.
+
+- QTextBrowser
+        Fix various bugs with the handling of relative URLs and custom protocols.
+        Added isBackwardAvailable/isForwardAvailable/clearHistory functions.
+
+- QTextEdit
+        Fix append() to use the current character format.
+        Change mergeCurrentCharFormat() to behave as QTextCursor::mergeCharFormat,
+        without applying the format also to the word under the cursor.
+        QTextEdit now ensures that the cursor is visible the first time the widget
+        is shown or when replacing the contents entirely with setPlainText/setHtml.
+        Re-added setText() as non-compatibility function with well-defined heuristics.
+        Added a moveCursor() convenience function.
+        Change default margin from 4 to 2 pixels for consistency with QLineEdit.
+        Added support for extra selections.
+
+- QTextFormat
+        Fix the default value for QTextBlockFormat::alignment() to return a logical
+        left alignment instead of an invalid alignment.
+        Added UnderlineStyle formatting, including SpellCheckUnderline.
+
+- QObject
+        Added support for dynamically added properties through setProperty()/property()
+        and dynamicPropertyNames().
+        Fix a crash when a child deletes its sibling.
+
+- QSyntaxHighlighter
+        Various performance improvements.
+
+- QFontDatabase
+        Added functions for adding application local fonts at run-time
+        (addApplicationFont, removeApplicationFont, applicationFontFamilies, etc.)
+
+- QLabel
+        Added support for text selection and hyperlinks.
+
+- QMenu
+        Support widgets in menus through QWidgetAction
+        Collapse multiple consecutive separators. This can be turned off with the
+        collapsibleSeparators property.
+
+- QFontMetrics/QFontMetricsF
+        Added elidedText() function.
+
 I/O and Networking
 ------------------
 
@@ -495,6 +575,7 @@ I/O and Networking
 
 - QSettings
         Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
+        Store keysequences as readable entries in .ini files.
 
 - QUrl
         Added errorString().
@@ -715,3 +796,7 @@ Assistant
         Added "Find as you type" feature to search documentation page.
         Added "Sync with Table Of contents" to select the current page in the 
         contents list.
+
+Moc
+        Fixed support for enums and flags in classes that are part in namespaces.
+
