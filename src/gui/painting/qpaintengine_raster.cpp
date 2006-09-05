@@ -2239,6 +2239,14 @@ HDC QRasterPaintEngine::getDC() const
 void QRasterPaintEngine::releaseDC(HDC) const
 {
 }
+
+void QRasterPaintEngine::disableClearType()
+{
+    Q_D(QRasterPaintEngine);
+    d->clear_type_text = false;
+    d->fontRasterBuffer->setupHDC(d->clear_type_text);
+}
+
 #endif
 
 

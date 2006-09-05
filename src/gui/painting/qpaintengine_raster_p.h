@@ -109,6 +109,8 @@ public:
 #ifdef Q_WS_WIN
     HDC getDC() const;
     void releaseDC(HDC hdc) const;
+
+    void disableClearType();
 #endif
 #ifdef Q_WS_QWS
     //QWS hack

@@ -31,6 +31,7 @@
 #include <private/qpdf_p.h>
 #include "qpaintengine.h"
 #include "qvarlengtharray.h"
+#include <private/qpaintengine_raster_p.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979
@@ -954,6 +955,10 @@ QByteArray QFontEngineWin::getSfntTable(uint tag) const
     return table;
 }
 
+#if !defined(CLEARTYPE_QUALITY)
+#    define CLEARTYPE_QUALITY       5
+#endif
+
 QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
 {
     glyph_metrics_t gm = boundingBox(glyph);
@@ -967,6 +972,14 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
     im.fill(Qt::transparent);
     QPainter p(&im);
+
+    // try hard to disable cleartype rendering
+    static_cast<QRasterPaintEngine *>(p.paintEngine())->disableClearType();
+    HFONT oldHFont = hfont;
+    LOGFONT nonCleartypeFont = logfont;
+    nonCleartypeFont.lfQuality = ANTIALIASED_QUALITY;
+    hfont = CreateFontIndirect(&nonCleartypeFont);
+
     p.setPen(Qt::black);
     p.setBrush(Qt::NoBrush);
 
@@ -984,6 +997,10 @@ QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
     glyphLayout.advance.x = glyph_width;
 
     p.drawTextItem(QPointF(-glyph_x, -glyph_y), ti);
+
+    DeleteObject(hfont);
+    hfont = oldHFont;
+
     p.end();
 
     QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);
