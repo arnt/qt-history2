@@ -39,7 +39,7 @@ bool QLibraryPrivate::load_sys()
         if (!pHnd) {
             QFileInfo fi(fileName);
             int dlFlags = DYNAMIC_PATH | BIND_NONFATAL;
-            if (loadHints & QLibrary::ResolveAllSymbols) {
+            if (loadHints & QLibrary::ResolveAllSymbolsHint) {
                 dlFlags |= BIND_IMMEDIATE;
             } else {
                 dlFlags |= BIND_DEFERRED;
