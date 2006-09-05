@@ -32,6 +32,10 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Improved Accessibility for item-based views and QTextEdit.
 
+- Added the QtUndo framework for implementing undo/redo functionality in applications.
+
+- Numerous bugs fixed in Designer: action editor, proprty editor.
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
@@ -62,6 +66,19 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QVariant
         Added support for all QMetaType types.
 
+- QMainWindow
+        Dockwidgets can be tabbed.
+        When a dockwidget hovers over a mainwindow, the mainwindow animates
+        to show how it will accept the dockwidget if dropped.
+
+- QLocale
+        Fixed bug in the string-to-number functions which sometimes caused them
+        to fail on negiative numbers which contained thousand-separators.
+        Implemented the numberOptions property, for specifying how
+        string-to-number and number-to-string conversions should be performed.
+
+- QSettings
+        Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
 
 Database drivers
 -------------------------
