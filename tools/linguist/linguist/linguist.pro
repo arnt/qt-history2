@@ -14,7 +14,6 @@ SOURCES        += finddialog.cpp \
 	translatedialog.cpp \
         batchtranslationdialog.cpp \
         translationsettingsdialog.cpp \
-	about.cpp \
 	statistics.cpp \
 	messagemodel.cpp \
 	phrasemodel.cpp \
@@ -32,7 +31,6 @@ HEADERS        += finddialog.h \
 	translatedialog.h \
         batchtranslationdialog.h \
         translationsettingsdialog.h \
-        about.h \
 	statistics.h \
 	messagemodel.h \
 	phrasemodel.h \
@@ -73,8 +71,7 @@ phrasebooks.path=$$[QT_INSTALL_DATA]/phrasebooks
 ### will this work on windows?
 phrasebooks.files = $$QT_SOURCE_TREE/tools/linguist/phrasebooks/*
 INSTALLS += phrasebooks
-FORMS    += about.ui \
-            statistics.ui \
+FORMS    += statistics.ui \
             phrasebookbox.ui \
             batchtranslation.ui \
             translatedialog.ui \

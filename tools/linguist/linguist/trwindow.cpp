@@ -24,7 +24,6 @@
 #include "msgedit.h"
 #include "phrasebookbox.h"
 #include "printout.h"
-#include "about.h"
 #include "statistics.h"
 #include "messagemodel.h"
 #include "phrasemodel.h"
@@ -858,35 +857,43 @@ void TrWindow::manual()
 
 void TrWindow::about()
 {
-    AboutDialog about(this);
-    about.versionLabel->setText(tr(
-                    "Version %1"
+
+    QMessageBox box(this);
+    box.setTextFormat(Qt::RichText);
+    QString version = tr("Version %1");
 #if QT_EDITION == QT_EDITION_OPENSOURCE
-                    " Open Source Edition"
+    QString open = tr(" Open Source Edition");
+    version.append(open);
 #endif
-                    ).arg(QT_VERSION_STR));
-    about.infoText->setTextFormat(Qt::RichText);
-    about.infoText->setText(tr(
-                    "<br/>Qt Linguist is a tool for adding translations to Qt "
-                    "applications.<br/><br/>"
+    version = version.arg(QT_VERSION_STR);
+
+    QString edition =
 #if QT_EDITION == QT_EDITION_OPENSOURCE
-                    "This version of Qt Linguist is part of the Qt Open Source Edition, for use "
+                    tr("This version of Qt Linguist is part of the Qt Open Source Edition, for use "
                     "in the development of Open Source applications. "
                     "Qt is a comprehensive C++ framework for cross-platform application "
                     "development.<br/><br/>"
                     "You need a commercial Qt license for development of proprietary (closed "
                     "source) applications. Please see <tt>http://www.trolltech.com/company/model"
-                    ".html</tt> for an overview of Qt licensing.<br/>"
+                    ".html</tt> for an overview of Qt licensing.");
 #else
-                    "This program is licensed to you under the terms of the "
+                    tr("This program is licensed to you under the terms of the "
                     "Qt Commercial License Agreement. For details, see the file LICENSE "
-                    "that came with this software distribution.<br/>"
+                    "that came with this software distribution.");
 #endif
-                    "<br/>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved."
-                    "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+    
+    box.setText(tr("<center><img src=\":/images/splash.png\"/></img><p>%1</p></center>"
+                    "<p>Qt Linguist is a tool for adding translations to Qt "
+                    "applications.</p>"
+                    "<p>%2</p>"
+                    "<p>Copyright (C) 2000-$THISYEAR$ $TROLLTECH$. All rights reserved."
+                    "</p><p>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
                     " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
-                    " PARTICULAR PURPOSE.<br/> "));
-    about.exec();
+                    " PARTICULAR PURPOSE.</p>").arg(version).arg(edition));
+    
+    box.setWindowTitle(QApplication::translate("AboutDialog", "Qt Linguist"));
+    box.setIcon(QMessageBox::NoIcon);
+    box.exec();
 }
 
 void TrWindow::aboutQt()
