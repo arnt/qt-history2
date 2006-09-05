@@ -1734,7 +1734,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         d->fillPath(path, QX11PaintEnginePrivate::BrushGC, true);
 
     if (d->has_pen
-        && ((X11->use_xrender && (d->has_alpha_pen
+        && ((X11->use_xrender && (d->has_alpha_pen || d->has_alpha_brush
                                   || (d->render_hints & QPainter::Antialiasing)))
             || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate)
             || (d->cpen.style() > Qt::SolidLine))) {
