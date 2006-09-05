@@ -1483,7 +1483,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 p->setClipRegion(region);
                 p->setPen(QPen(tbb->palette.dark(), 0));
                 p->drawLine(tbb->rect.left(), tbb->rect.top(),
-                            tbb->rect.right() - 1, tbb->rect.top());
+                            tbb->rect.right(), tbb->rect.top());
                 break;
             case QTabBar::RoundedEast:
                 region -= tbb->selectedTabRect.adjusted(0, -1 , 0, 1);
