@@ -102,9 +102,12 @@ bool ResourceFile::load()
         QString prefix = fixPrefix(relt.attribute(QLatin1String("prefix")));
         if (prefix.isEmpty())
             prefix = QLatin1String("/");
+
+        QString lang = relt.attribute(QLatin1String("lang"));
+
         int idx = indexOfPrefix(prefix);
         if (idx == -1) {
-            m_prefix_list.append(Prefix(prefix, uniqueItems(file_list)));
+            m_prefix_list.append(Prefix(prefix, lang, uniqueItems(file_list)));
         } else {
             Prefix &pref = m_prefix_list[idx];
             pref.file_list += file_list;
@@ -138,15 +141,20 @@ bool ResourceFile::save()
 
     foreach (QString name, name_list) {
         FileList file_list;
+        QString lang;
         foreach (Prefix pref, m_prefix_list) {
-            if (pref.name == name)
+            if (pref.name == name){
                 file_list += pref.file_list;
+                lang = pref.lang;
+            }
         }
         file_list = uniqueItems(file_list);
 
         QDomElement relt = doc.createElement(QLatin1String("qresource"));
         root.appendChild(relt);
         relt.setAttribute(QLatin1String("prefix"), name);
+        if(!lang.isEmpty())
+            relt.setAttribute(QLatin1String("lang"), lang);
 
         foreach (const File &file, file_list) {
             QDomElement felt = doc.createElement(QLatin1String("file"));
@@ -270,6 +278,17 @@ void ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
     m_prefix_list[prefix_idx].name = fixPrefix(prefix);
 }
 
+void ResourceFile::replaceLang(int prefix_idx, const QString &lang)
+{
+    m_prefix_list[prefix_idx].lang = lang;
+}
+
+void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &alias)
+{
+    m_prefix_list[prefix_idx].file_list[file_idx].alias = alias;
+}
+
+
 void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
 {
     m_prefix_list[pref_idx].file_list[file_idx] = file;
@@ -347,6 +366,11 @@ int ResourceFile::prefixCount() const
 QString ResourceFile::prefix(int idx) const
 {
     return m_prefix_list.at(idx).name;
+}
+
+QString ResourceFile::lang(int idx) const
+{
+    return m_prefix_list.at(idx).lang;
 }
 
 int ResourceFile::fileCount(int prefix_idx) const
@@ -476,10 +500,24 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
         case Qt::DisplayRole:
-            if (d == -1)
-                result = m_resource_file.prefix(index.row());
-            else
-                result = QFileInfo(m_resource_file.file(d, index.row())).fileName();
+            {
+                QString stringRes = "";
+                if (d == -1){
+                    stringRes = m_resource_file.prefix(index.row());
+                    QString lang = m_resource_file.lang(index.row());
+                    if(!lang.isEmpty())
+                        stringRes += " (" + lang + ")";
+                }
+                else
+                {
+                    stringRes = QFileInfo(m_resource_file.file(d, index.row())).fileName();
+
+                    QString alias = m_resource_file.alias(d, index.row());
+                    if(!alias.isEmpty())
+                        stringRes += " (" + alias + ")";
+                }
+                result = stringRes;
+            }
             break;
         case Qt::DecorationRole:
             if (d != -1) {
@@ -493,15 +531,21 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             break;
         case Qt::ToolTipRole:
             if (d != -1) {
+                QString stringRes;
                 QString conv_file = m_resource_file.relativePath(m_resource_file.file(d, index.row()));
-                result = conv_file.replace(QDir::separator(), QLatin1Char('/'));
+                stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
+                
+                QString alias_file = m_resource_file.alias(d, index.row());
+                if(!alias_file.isEmpty())
+                        stringRes += " (" + alias_file + ")";
+
+                result = stringRes;
             }
             break;
 
         default:
             break;
     };
-
     return result;
 }
 
@@ -521,6 +565,21 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
         prefix = m_resource_file.prefix(d);
         file = m_resource_file.file(d, index.row());
     }
+}
+
+QString ResourceModel::lang(const QModelIndex &index) const
+{
+    if(!index.isValid())
+        return QString();
+
+    return m_resource_file.lang(index.row());
+}
+
+QString ResourceModel::alias(const QModelIndex &index) const
+{
+    if(!index.parent().isValid())
+        return QString();
+    return m_resource_file.alias(index.parent().row(), index.row());
 }
 
 QModelIndex ResourceModel::getIndex(const QString &prefixed_file)
@@ -619,6 +678,33 @@ void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &pr
 
     m_resource_file.replacePrefix(prefix_idx, prefix);
     emit dataChanged(prefix_model_idx, prefix_model_idx);
+    setDirty(true);
+}
+
+void ResourceModel::changeLang(const QModelIndex &model_idx, const QString &lang)
+{
+    if (!model_idx.isValid())
+        return;
+
+    QModelIndex prefix_model_idx = prefixIndex(model_idx);
+    int prefix_idx = model_idx.row();
+    if (m_resource_file.lang(prefix_idx) == lang)
+        return;
+
+    m_resource_file.replaceLang(prefix_idx, lang);
+    emit dataChanged(prefix_model_idx, prefix_model_idx);
+    setDirty(true);
+}
+
+void ResourceModel::changeAlias(const QModelIndex &index, const QString &alias)
+{
+    if (!index.parent().isValid())
+        return;
+
+    if(m_resource_file.alias(index.parent().row(), index.row()) == alias)
+        return;
+    m_resource_file.replaceAlias(index.parent().row(), index.row(), alias);
+    emit dataChanged(index, index);
     setDirty(true);
 }
 

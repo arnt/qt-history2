@@ -52,19 +52,26 @@ public:
 
     int prefixCount() const;
     QString prefix(int idx) const;
+    QString lang(int idx) const;
+    
     int fileCount(int prefix_idx) const;
     QString file(int prefix_idx, int file_idx) const;
     QString alias(int prefix_idx, int file_idx) const;
 
     void addFile(int prefix_idx, const QString &file);
     void addPrefix(const QString &prefix);
+    
     void removePrefix(int prefix_idx);
     void removeFile(int prefix_idx, int file_idx);
+    
     void replacePrefix(int prefix_idx, const QString &prefix);
+    void replaceLang(int prefix_idx, const QString &lang);
+    void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
     void replaceFile(int pref_idx, int file_idx, const QString &file);
 
     int indexOfPrefix(const QString &prefix) const;
     int indexOfFile(int pref_idx, const QString &file) const;
+    
     bool contains(const QString &prefix, const QString &file = QString()) const;
     bool contains(int pref_idx, const QString &file) const;
 
@@ -87,10 +94,10 @@ public:
     };
     typedef QList<File> FileList;
     struct Prefix {
-        Prefix(const QString &_name = QString(),
-                const FileList &_file_list = FileList())
-            : name(_name), file_list(_file_list) {}
+        Prefix(const QString &_name = QString(), const QString &_lang = QString(), const FileList &_file_list = FileList())
+            : name(_name), lang(_lang), file_list(_file_list) {}
         QString name;
+        QString lang;
         FileList file_list;
     };
     typedef QList<Prefix> PrefixList;
@@ -122,9 +129,14 @@ public:
     void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }
     void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
 
+    QString lang(const QModelIndex &index) const;
+    QString alias(const QModelIndex &index) const;
+    
     virtual QModelIndex addNewPrefix();
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
     virtual void changePrefix(const QModelIndex &idx, const QString &prefix);
+    virtual void changeLang(const QModelIndex &idx, const QString &lang);
+    virtual void changeAlias(const QModelIndex &idx, const QString &alias);
     virtual QModelIndex deleteItem(const QModelIndex &idx);
     QModelIndex getIndex(const QString &prefix, const QString &file);
     QModelIndex getIndex(const QString &prefixed_file);
