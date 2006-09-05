@@ -403,6 +403,8 @@ Demos / Examples
         Screenshot example into it.
         New network example. Chat client which uses QUdpSocket to broadcast
         on all QNetworkInterface's interfaces to discover its peers.
+        Spreadsheet demo now uses the  QItemDelegate, QCompleter and 
+        QDateTimeEdit with calendar Popup.
 
 Documentation
 
@@ -416,5 +418,7 @@ Tools
 *                          Tools                                           *
 ****************************************************************************
 Assistant
-        Middle clicking on links will open up new tabs
-        Added "Find as you type" feature to search documentation page
+        Middle clicking on links will open up new tabs.
+        Added "Find as you type" feature to search documentation page.
+        Added "Sync with Table Of contents" to select the current page in the 
+        contents list.
