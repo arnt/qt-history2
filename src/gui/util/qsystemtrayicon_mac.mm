@@ -246,8 +246,16 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
     }
 }
 -(void)selectedAction:(id)a {
-    const int index = [self indexOfItem:a];
-    if(QAction *action = qmenu->actions()[index]) {
+    const int activated = [self indexOfItem:a];
+    QAction *action = 0;
+    QList<QAction*> actions = qmenu->actions();
+    for(int i = 0, cnt = 0; i < actions.size(); ++i) {
+        if(actions.at(i)->isVisible() && (cnt++) == activated) {
+            action = actions.at(i);
+            break;
+        }
+    }
+    if(action) {
         action->activate(QAction::Trigger);
         qt_mac_trayicon_activate_action(qmenu, action);
     }
