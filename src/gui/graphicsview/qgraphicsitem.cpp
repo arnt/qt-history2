@@ -70,7 +70,7 @@
                               20 + penWidth / 2, 20 + penWidth / 2);
             }
 
-            void paint(QPainter *painter, QStyleOptionGraphicsItem *option,
+            void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                        QWidget *widget)
             {
                 painter->drawRoundRect(-10, -10, 20, 20);
