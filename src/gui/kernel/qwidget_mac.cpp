@@ -909,9 +909,11 @@ void QWidgetPrivate::determineWindowClass()
     QWidget *parentWidget = q->parentWidget();
 
     if (type == Qt::ToolTip)
-        flags |= Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint;
+        flags |= Qt::FramelessWindowHint;
 
-    if(parentWidget && (parentWidget->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
+    if(type == Qt::Popup || type == Qt::ToolTip || type == Qt::SplashScreen)
+        flags |= Qt::WindowStaysOnTopHint;
+    else if(parentWidget && (parentWidget->window()->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
         flags |= Qt::WindowStaysOnTopHint;
 
     if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Look at this, again!
