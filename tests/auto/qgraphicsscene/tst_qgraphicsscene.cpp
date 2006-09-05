@@ -960,7 +960,7 @@ void tst_QGraphicsScene::hoverEvents_siblings()
     view.show();
 
     QCursor::setPos(view.mapToGlobal(QPoint(-5, -5)));
-    
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
     mouseEvent.setScenePos(QPointF(-1000, -1000));
     QApplication::sendEvent(&scene, &mouseEvent);
@@ -996,9 +996,6 @@ void tst_QGraphicsScene::hoverEvents_siblings()
         qApp->processEvents(); // this posts updates from the scene to the view
         qApp->processEvents(); // which trigger a repaint here
     }
-
-    for (int i = 0; i < 15; ++i)
-        scene.removeItem(items.at(i));
 }
 
 void tst_QGraphicsScene::hoverEvents_parentChild()
@@ -1057,8 +1054,6 @@ void tst_QGraphicsScene::hoverEvents_parentChild()
         qApp->processEvents(); // this posts updates from the scene to the view
         qApp->processEvents(); // which trigger a repaint here
     }
-
-    scene.removeItem(items.first());
 }
 
 void tst_QGraphicsScene::createItemGroup()
