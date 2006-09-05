@@ -208,8 +208,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     builtinPlugins += m_core->pluginManager()->instances();
     foreach (QObject *plugin, builtinPlugins) {
         if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
-            m_toolActions->addAction(formEditorPlugin->action());
-            formEditorPlugin->action()->setCheckable(true);
+            if (QAction *action = formEditorPlugin->action()) {
+                m_toolActions->addAction(action);
+                action->setCheckable(true);
+            }
         }
     }
 
