@@ -17,6 +17,7 @@
 #include "qpainter.h"
 #include "qstyleoption.h"
 #include "qsvgrenderer.h"
+#include "qpixmapcache.h"
 #include "qdebug.h"
 
 #include "private/qobject_p.h"
@@ -27,9 +28,10 @@ public:
     Q_DECLARE_PUBLIC(QGraphicsSvgItem)
 
     QGraphicsSvgItemPrivate()
-        : renderer(0), shared(false), dirty(true),
-          cached(true)
-    { }
+        : renderer(0), maximumCacheSize(1024, 768), shared(false), 
+          dirty(true), cached(true)
+    {
+    }
 
     void init()
     {
@@ -44,10 +46,20 @@ public:
         q_func()->update();
     }
 
+    inline void updateDefaultSize()
+    {
+        QRectF bounds;
+        if (elemId.isEmpty()) {
+            bounds = QRectF(QPointF(0, 0), renderer->defaultSize());
+        } else {
+            bounds = renderer->boundsOnElement(elemId);
+        }
+        boundingRect.setSize(bounds.size());
+    }
+
     QSvgRenderer *renderer;
-    QPixmap pixmap;
     QRectF boundingRect;
-    QSize  pixmapSize;
+    QSize  maximumCacheSize;
     bool shared;
     bool dirty;
     QString elemId;
@@ -121,6 +133,7 @@ QGraphicsSvgItem::QGraphicsSvgItem(const QString &fileName, QGraphicsItem *paren
     Q_D(QGraphicsSvgItem);
     d->init();
     d->renderer->load(fileName);
+    d->updateDefaultSize();
 }
 
 /*!
@@ -154,7 +167,12 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     if (!d->renderer->isValid())
         return;
 
-    if (!d->cached) {
+    QMatrix m = painter->worldMatrix();
+    QRect deviceRect = m.mapRect(d->boundingRect).toRect();
+    
+    if (!d->cached ||
+        deviceRect.size().width() > d->maximumCacheSize.width() || 
+        deviceRect.size().height() > d->maximumCacheSize.height()) {
         if (d->elemId.isEmpty())
             d->renderer->render(painter, d->boundingRect);
         else
@@ -162,32 +180,43 @@ void QGraphicsSvgItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         return;
     }
 
+    QString uniqueId = QString("%1_%2_%3_%4_%5").arg((long)this)
+                       .arg(m.m11()).arg(m.m12()).arg(m.m21()).arg(m.m22());
+
+    QPixmap pix;
+    if (!QPixmapCache::find(uniqueId, pix)) {
+        pix = QPixmap(deviceRect.size());
+        d->dirty = true;
+#if 0
+        qDebug()<<"Cache doesn't contain item "<<uniqueId
+                <<", size = "<<QPixmapCache::cacheLimit();
+#endif
+    }
+
+    QPointF viewPoint = m.mapRect(d->boundingRect).topLeft();
+    QPointF viewOrigo = m.map(QPointF(0,  0));
+
     if (d->dirty) {
-        if (d->pixmap.isNull())
-            d->pixmap = QPixmap(d->pixmapSize);
-        d->pixmap.fill(Qt::transparent);
-        QPainter p(&d->pixmap);
+        pix.fill(Qt::transparent);
+        QPainter p(&pix);
+
+        QPointF offset = viewOrigo - viewPoint;
+        p.translate(offset);
+        p.setWorldMatrix(m, true);
+        p.translate(m.inverted().map(QPointF(0, 0)));
 
         if (d->elemId.isEmpty())
-            d->renderer->render(&p);
+            d->renderer->render(&p, d->boundingRect);
         else
-            d->renderer->render(&p, d->elemId);
+            d->renderer->render(&p, d->elemId, d->boundingRect);
+
         p.end();
+        QPixmapCache::insert(uniqueId,  pix);
         d->dirty = false;
     }
-    if (d->pixmapSize != d->boundingRect.size().toSize()) {
-        //transform the painter - we adjust the pixmapSize on
-        //matrix changes so our pixmap is already of the correct
-        //size. now we need to readjust the painter to not combine
-        //the adjusted pixmap size with the scaling factor of the
-        //matrix
-        QMatrix mat = painter->worldMatrix();
-        mat.scale(d->boundingRect.width()/d->pixmapSize.width(),
-                  d->boundingRect.height()/d->pixmapSize.height());
-        painter->setWorldMatrix(mat);
-    }
 
-    painter->drawPixmap(0, 0, d->pixmap);
+    painter->setWorldMatrix(QMatrix());
+    painter->drawPixmap(viewPoint, pix);
 }
 
 /*!
@@ -200,32 +229,45 @@ int QGraphicsSvgItem::type() const
 
 
 /*!
-    Sets the size of the item to \a size.
+    Sets the maximum cache size of the item to \a size.
 
     This function doesn't take the current transformation matrix into
     account and sets the untransformed size.
+    The cache correspods to the QPixmap which is used to cache the
+    results of the rendering.
+    Use QPixmap::setCacheLimit() to set limitations on the whole cache
+    and use setMaximumCacheSize when setting cache size for individual
+    items.
+
 */
-void QGraphicsSvgItem::setSize(const QSize &size)
+void QGraphicsSvgItem::setMaximumCacheSize(const QSize &size)
 {
     Q_D(QGraphicsSvgItem);
-    d->boundingRect.setSize(size);
-    d->pixmapSize = size;
-    if (d->cached)
-        d->pixmap = QPixmap(d->pixmapSize);
+
+    if (size.isEmpty()) {
+        qWarning("Can't set the size of a QGraphicsSvgItem cache to an empty rectangle");
+        return;
+    }
+
+    d->maximumCacheSize = size;
     d->dirty = true;
     update();
 }
 
 /*!
-    Returns the current size of the item.
+    Returns the current maximum size of the cache for this item.
 
     This function doesn't take the current transformation matrix into
-    account and return the untransformed size.
+    account and returns the untransformed size.
+    The default maximum cache size is 1024x768.
+    QPixmapCache::cacheLimit() sets the
+    cumulative bounds on the whole cache, maximumCacheSize refers
+    to a maximum cache size for this particular item.
 */
-QSize QGraphicsSvgItem::size() const
+QSize QGraphicsSvgItem::maximumCacheSize() const
 {
     Q_D(const QGraphicsSvgItem);
-    return d->pixmapSize;
+    return d->maximumCacheSize;
 }
 
 /*!
@@ -237,6 +279,7 @@ void QGraphicsSvgItem::setElementId(const QString &id)
     Q_D(QGraphicsSvgItem);
     d->elemId = id;
     d->dirty = true;
+    d->updateDefaultSize();
     update();
 }
 
@@ -267,41 +310,27 @@ void QGraphicsSvgItem::setSharedRenderer(QSvgRenderer *renderer)
     d->renderer = renderer;
     d->shared = true;
     d->dirty = true;
+
+    d->updateDefaultSize();
+
     update();
 }
-
-/*!
-    \reimp
-*/
-QVariant QGraphicsSvgItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
-    Q_D(QGraphicsSvgItem);
-    if (change == QGraphicsItem::ItemMatrixChange) {
-        QRectF rect = qvariant_cast<QMatrix>(value).mapRect(d->boundingRect);
-        //qDebug()<<"New coords are "<<rect;
-        d->pixmapSize = rect.size().toSize();
-        if (d->cached)
-            d->pixmap = QPixmap(d->pixmapSize);
-        d->dirty = true;
-        return value;
-    }
-    return QGraphicsItem::itemChange(change, value);
-}
-
 
 /*!
     If \a caching is true, enables caching on the item; otherwise
     disables it.
 
-    By defaylt, caching is on. For performance reasons, it is advised
-    to keep the caching on.
+    By default, caching is on. For performance reasons, it is advised
+    to keep the caching enabled.
+    Note that caching will not work if either the amount of cached
+    items exceeded QPixmapCache::cacheLimit() or if the current
+    item on the given view is greater than the
+    QGraphicsSvgItem::maximumCacheSize().
 */
 void QGraphicsSvgItem::setCachingEnabled(bool caching)
 {
     Q_D(QGraphicsSvgItem);
-    if (caching) {
-        d->pixmap = QPixmap(d->pixmapSize);
-    }
+
     d->cached = caching;
     d->dirty = true;
     update();
@@ -310,6 +339,11 @@ void QGraphicsSvgItem::setCachingEnabled(bool caching)
 /*!
     Returns true if the contents of the SVG file to be
     renderer is cached.
+
+    Note that caching will not work if either the amount of cached
+    items exceeded QPixmapCache::cacheLimit() or if the current
+    item on the given view is greater than the
+    QGraphicsSvgItem::maximumCacheSize().
 */
 bool QGraphicsSvgItem::isCachingEnabled() const
 {
@@ -317,23 +351,6 @@ bool QGraphicsSvgItem::isCachingEnabled() const
     return d->cached;
 }
 
-/*!
-    If the item is caching the contents of the SVG file
-    to be renderer then this method returns its contents
-    in the pixmap of the size of this item. The size of the
-    pixmap is adjusted by the current transformation matrix
-    of this item.
-    If the item isn't cached the method returns a null pixmap.
-*/
-QPixmap QGraphicsSvgItem::cache() const
-{
-    Q_D(const QGraphicsSvgItem);
-    if (d->cached)
-        return d->pixmap;
-    else
-        return QPixmap();
-
-}
 
 #include "moc_qgraphicssvgitem.cpp"
 

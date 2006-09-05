@@ -39,14 +39,11 @@ public:
     void setElementId(const QString &id);
     QString elementId() const;
 
-    void setSize(const QSize &size);
-    QSize size() const;
-
     void setCachingEnabled(bool);
     bool isCachingEnabled() const;
 
-    QPixmap cache() const;
-
+    void setMaximumCacheSize(const QSize &size);
+    QSize maximumCacheSize() const;
 
     virtual QRectF boundingRect() const;
 
@@ -56,8 +53,6 @@ public:
 
     enum { Type = 13 };
     virtual int type() const;
-protected:
-    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
     Q_DISABLE_COPY(QGraphicsSvgItem)
