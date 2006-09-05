@@ -254,9 +254,9 @@ void QPixelTool::mouseMoveEvent(QMouseEvent *e)
 
     int x = e->x() / m_zoom;
     int y = e->y() / m_zoom;
-    QImage im = m_buffer.toImage().convertToFormat(QImage::Format_RGB32);
 
-    if (x < im.width() && y < im.height()) {
+    QImage im = m_buffer.toImage().convertToFormat(QImage::Format_RGB32);
+    if (x < im.width() && y < im.height() && x >= 0 && y >= 0) {
         m_currentColor = im.pixel(x, y);
         update();
     }
