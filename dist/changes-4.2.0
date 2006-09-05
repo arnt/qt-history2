@@ -44,12 +44,13 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Designer: Promoted widgets inherit the task menu items of the base class.
 
+- Designer: Don't order enums alphabetically in the property editor.
+
 - Designer, uic: Added support for more variant types:
   QStringList, QRectF, QSizeF, QPointF, QUrl, QChar, qlonglong and qulonglong.
 
-- moc: Generate correct output when Q_PROPERTY uses a type in a namespace.
-
-- Added the QStandardItem class, which together with the new
+- uic3: Add linenumbers to warnings. Make warnings know the objectName of the
+  widget in Questio
   QStandardItemModel API provides a classic item-based approach to
   working with models.
 
@@ -102,6 +103,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added possibility to copy elements to clipboard on read-only views.
         Improved handling of QAbstractItemModel::supportedDropActions().
 
+- QDirModel
+        Fix conversion from bytes to (kb|mb|gb) in QDirModel for display of
+        file size.
 - QComboBox
         Fixed drawing issues related to certain FocusPolicies.
         Now respects the ItemFlags of an Item (ItemIsEnabled,...).
@@ -279,12 +283,24 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Propagate Key_Enter to the editor before committing data, so the
         editor has a chance to perform custom input validation/fixup.
 		
+- QAbstractSpinBox
+        Add a hasAcceptableInput() property. 
+        Make sure fixup/validate are called for non-qt subclasses of
+        QAbstractSpinBox as well.
+        Fix geometry issues when toggling frame on and off for spinboxes.
+        Add a property for correctionMode. 
+        Add a property for acceleration.
+
 - QLineEdit
         Unicode context menu gets shown if language extensions are present.
         No longer emitting editingFinished() if a validator is set and the
         text doesn't validate.
-		Ctrl+A now triggers select all on all platforms.
+        Ctrl+A now triggers select all on all platforms.
+        Call fixup on focusOut() if !hasAcceptableInput()
 
+- QStackedLayout/QStackedWidget
+        Crash when removing widgets fixed.
+        
 - QMessageBox
         Added detailedText property to be able to show additional information.
 
@@ -309,11 +325,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Added missing Qt3Support signal selected().
         Clarify documentation for setCornerWidget().
 	Draw the tab widget's frame correctly when the tab bar is hidden.
+        Give the internal widgets, widgetstack and tabbar, names.
 
 - QToolTip
         Added convenience function hideText(). Added a function showText that
         takes a QRect argument that specifies the valid area for the tooltip. E.g.
         If you move the cursor outside this area the tooltip will hide.
+        Add a widget attribute to show tooltips for inactive windows.
 
 - QVariant
         Added support for all QMetaType types.
@@ -431,9 +449,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	QPushButton looks more native when pressed.
 	
 - QWorkspace
-		Resolved issue causing the maximized controls to overlap with menu in reverse mode.
-		Fixed issue where child windows could grow a few pixels when restoring geometry in certain styles.
-		Ensure that right-to-left layout is respected when positioning new windows.
+        Resolved issue causing the maximized controls to overlap with menu in
+        reverse mode.
+        Fixed issue where child windows could grow a few pixels when restoring
+        geometry in certain styles.
+        Ensure that right-to-left layout is respected when positioning new
+        windows.
+        Crash fix when not having a titleBar.
 		
 - QCursor
         Added Qt::OpenHandCursor and Qt::ClosedHandCursor.
@@ -448,7 +470,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         New class that provide auto completion support.
 
 - QMenu
-		Made it possible for popup menus to cover the taskbar in Windows and KDE.
+        Made it possible for popup menus to cover the taskbar in Windows and KDE.
 		
 - QMessageBox
         API overhaul to support for more than 3 buttons
@@ -457,7 +479,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added detailedText property to display detailed text
 
 - QButtonGroup
-        Added pressed() and released() signals
+        Added pressed() and released() signals.
+        Fix a bug with when removing buttons from button groups. Remove the
+        internal mapping as well.
 
 - QAbstractButton
         Returns QPalette::Button and QPalette::ButtonText for backgroundRole()
@@ -480,8 +504,15 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QOpenGLPaintEngine
         Now supports all composition modes of QPainter natively through OpenGL.
 
+
+- QDateTime 
+        Fix a parsing issue in QDateTime::fromString(const QString &s,
+        Qt::DateFormat f)
+
 - QDateTimeEdit
         Added a new property to show the calendar popup for choosing th
+        Add a setSelectedSection function.
+
 - QImageReader
         Optimizations to ensure that the most likely formats and plugins are
         tested first for reading unknown image formats.
