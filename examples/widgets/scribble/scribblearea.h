@@ -37,7 +37,7 @@ public:
 
 public slots:
     void clearImage();
-    void printPdf();
+    void print();
 
 protected:
     void mousePressEvent(QMouseEvent *event);

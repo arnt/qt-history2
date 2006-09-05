@@ -134,11 +134,10 @@ void ScribbleArea::resizeImage(QImage *image, const QSize &newSize)
     *image = newImage;
 }
 
-void ScribbleArea::printPdf()
+void ScribbleArea::print()
 {
     QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-
+ 
     QPrintDialog *printDialog = new QPrintDialog(&printer, this);
     if (printDialog->exec() == QDialog::Accepted) {
         QPainter painter(&printer);

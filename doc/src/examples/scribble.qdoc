@@ -56,8 +56,7 @@
     clearImage() slot clears the image displayed in the scribble
     area. We need the private \c drawLineTo() function to actually do
     the drawing, and \c resizeImage() to change the size of a
-    QImage. The \c printPdf() slot handles conversion and export of
-    images to PDF files.
+    QImage. The \c print() slot handles printing.
 
     We also need the following private variables:
 
@@ -214,9 +213,9 @@
     (where RR, GG, and BB are the red, green and blue
     color channels, ff is the hexadecimal value 255).
 
-    Export to a PDF file is handled by the \c printPdf() slot:
+    Printing is handled by the \c print() slot:
 
-    \skipto printPdf()
+    \skipto print()
     \printuntil printDialog
 
     We construct a high resolution QPrinter object for the required
