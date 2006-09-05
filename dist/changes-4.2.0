@@ -51,12 +51,19 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Compiler warnings with mingw g++ 3.4.6 removed
 
+- Plastique style has improved support for palettes, and now requires XRender
+  support on X11 for alpha transparency.
+
+- New style: CleanLooks, a clone of the GNOME ClearLooks style, provides
+  native look for Qt applications on GNOME.
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
 
 - QAbstractItemView
         Added possibility to copy elements to clipboard on read-only views.
+        Improved handling of QAbstractItemModel::supportedDropActions().
 
 - QComboBox
         Fixed drawing issues related to certain FocusPolicies.
@@ -75,6 +82,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
         Added saveStateRequest() and commitDataRequest() signals so
         QApplication does not need to be subclassed for session management.
         Added a property styleSheet to set/read the application style sheet
+        Support sending key events to non-widget objects.
 
 - QAbstractItemModel
         When dropping rows only inserts rows that were actually dropped, not
@@ -142,9 +150,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
         one rather then replacing.
 		Fixed issue with rendering of selected pixmaps.
 		
-- QTemporaryFile
-        Add support for file extensions and other suffix's.
-
 - QLineEdit
         Unicode context menu gets shown if language extensions are present.
         No longer emitting editingFinished() if a validator is set and the
@@ -173,12 +178,14 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QTabWidget
 	Added missing Qt3Support signal selected().
+        Clarify documentation for setCornerWidget().
 
 - QToolTip
 	Added convenience function hideText().
 
 - QVariant
         Added support for all QMetaType types.
+        Added support for QMatrix as a known metatype.
 
 - QMainWindow
         Dockwidgets can be tabbed.
@@ -188,6 +195,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QAbstractScrollArea
         Added ability to set a corner widget.
+        Added support for assigning custom scroll bars.
 
 - QLocale
         Fixed bug in the string-to-number functions which sometimes caused them
@@ -204,9 +212,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
 	Fixed a pixel artifact when drawing cosmetic diagonal lines.
 	Optimized drawing of cosmetic lines of between 315 and 360 degrees.
 
-- QSettings
-        Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
-
 - quintptr and qptrdiff
         New integral typedefs have been added.
 
@@ -214,9 +219,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
         These classes now track the state of the lock they are
         holding. They will not unlock on destruction if unlock() has
         been called.
-
-- QFileSystemWatcher
-        New class that watches file and directories for changes.
 
 - QFrame
 		Fixed a rendering issue when showing horizontal and vertical lines
@@ -240,6 +242,18 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - Q3ListBox
         Fixed inconsistencies to Qt3 for selectAll().
         Fixed possible crash after deleting items.
+
+- Q3Canvas
+        Fixed several clipping bugs introduced in 4.1.0.
+
+- Q3CanvasView
+        Calling setCanvas() now always triggers a full update.
+
+- Q3Process
+        Stability fixes in Q3Process::start().
+
+- Q3TextStream
+        New class, added for compatiblity with Qt 3.
 
 - Qt::NoDockWidgetArea
         Added to the Qt::ToolBarArea enum
@@ -286,6 +300,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
 		Fixed issue where child windows could grow a few pixels when restoring geometry in certain styles.
 		Ensure that right-to-left layout is respected when positioning new windows.
 		
+- QCursor
+        Added Qt::OpenHandCursor and Qt::ClosedHandCursor.
+
+- QDialog
+        Stability improved for when the default button is deleted.
+
 - QSystemTrayIcon
         New class that adds an icon into the system tray
 
@@ -309,11 +329,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
         and foregroundRole(), respectively, rather than QPalette::Background
         and QPalette::Foreground.
 
-- QUrl
-        Added errorString().
-        Properly parsing of +' when calling queryItems().
-        Properly parsing of authority when calling setAuthority().
-
 - QStackedWidget
 		Fixed issue where the size hint of the current widget would not be respected.
 		
@@ -324,10 +339,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QWhatsThis
 		Improved look and feel. More native appearence on Windows.
 		
-- QGraphicsPixmapItem
-        Added setShapeMode() and shapeMode().
-        Improved calculation of the item' shape.
-
 - QGLFormat
         Added openGLVersionFlags() function.
 
@@ -336,6 +347,108 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QDateTimeEdit
         Added a new property to show the calendar popup for choosing the date.
+
+- QImage
+        Added QImage::read(QImage *), which can read images without
+        reallocating data.
+        load() and save() no longer require you to pass the format string.
+
+- QImageReader
+        Optimizations to ensure that the most likely formats and plugins are
+        tested first for reading unknown image formats.
+        Improved reading of BMP images from sequiental QIODevices.
+        Support for scaledSize() for JPEG images.
+        It is now possible to query the supported options of an image by
+        calling supportedOptions().
+        Stability fixes for the built-in XBM reader.
+
+- QImageWriter
+        It is now possible to query the supported options of an image by
+        calling supportedOptions().
+
+- QPixmap
+        load() and save() no longer require you to pass the format string.
+
+- QTimeLine
+        New class for controlling a time line.
+
+I/O and Networking
+------------------
+
+- QFileSystemWatcher
+        New class that watches file and directories for changes.
+
+- QSettings
+        Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
+
+- QUrl
+        Added errorString().
+        Properly parsing of +' when calling queryItems().
+        Properly parsing of authority when calling setAuthority().
+        Added missing implementation of QUrl::StripTrailingSlash in
+        QUrl::toEncoded().
+
+- QFtp
+        Improved parsing of the modified date in list().
+        Ensure that all data has been received when downloading, before the
+        data connection is closed.
+        Support for FTP servers that reject commands with a 202 response.
+
+- QHttpHeader
+        Improved support for case-insensitive header searching.
+
+- QHttp
+        Support percent encoded paths when used with a proxy server.
+        Improved handling of unexpected remote socket close.
+
+- QTextCodec
+        Allow accessing locale-dependent features of Qt (such as
+        QFile::exists()), during global destruction.
+
+- QTextStream
+        Added QTextStream::pos(), which returns the current byte-position
+        of the stream.
+
+- QProcess
+        Fixed a lock-up on Windows when writing data to a dead child process.
+
+- QDir
+        Improved support for i18n file paths in QDir::tempPath().
+        Improved support for UNC paths when the application is run from a
+        share.
+        mkpath() now properly supports UNC paths.
+        Obsolete QDir::convertSeparators().
+        Introduce QDir::toNativeSeparators() and QDir::fromNativeSeparators().
+        Added QDebug streaming operator.
+
+- QIODevice
+        Fixed a casting bug in QIODevice::getChar().
+        Now uses an internal buffer when opened in buffered mode, which
+        improves reading performance significantly. Some behavioral
+        differences have been introduced.
+
+- QFile
+        Improved support for UNC paths when the application is run from a
+        share.
+        Added support for physical drives (e.g., "//./Physical01").
+        Ensure that QFile::error() and QIODevice::errorString() are set
+        whenever possible.
+
+- QFileInfo
+        Improved support for UNC paths when the application is run from a
+        share.
+        Improved support for drive-local relative paths, such as "D:".
+
+- QTemporaryFile
+        Add support for file extensions and other suffixes.
+        Fixed one constructor which could corrupt the temporary file path.
+
+- QUdpSocket
+        Fixes for UDP broadcasting on Windows.
+
+- QTcpSocket
+        Fixed a rare data corruption problem occurring on heavily loaded
+        windows servers.
 
 Database drivers
 -------------------------
@@ -361,8 +474,6 @@ Database drivers
 - SQLite driver
         Also return temporary tables when using QSqlDatabase::tables().
         Improved handling of mixed-case field names.
-
-
 
 QTestLib
 -------------------------
@@ -437,6 +548,9 @@ X11:
         by the Motif application.
 
 -       Added support to internally detect the current desktop environment.
+
+- Font rendering
+        Stability fixes when rendering huge scaled fonts.
 
 Demos / Examples
 
