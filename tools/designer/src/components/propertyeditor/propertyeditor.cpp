@@ -576,7 +576,10 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new FlagsProperty(f.items, f.value.toInt(), pname);
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
-            QStringList keys;
+
+            EnumType e = qvariant_cast<EnumType>(value);
+            QStringList keys = e.items.keys();
+#if 0
             const QMetaObject *meta = object->metaObject();
             const int index = meta->indexOfProperty(qPrintable(pname));
             if (index != -1) {
@@ -589,8 +592,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 for (int j = 0; j < en.keyCount(); ++j)
                     keys << (scope + QString::fromLatin1(en.key(j)));
             }
-
-            EnumType e = qvariant_cast<EnumType>(value);
+#endif
             p = new MapProperty(e.items, e.value, pname, keys);
         }
 

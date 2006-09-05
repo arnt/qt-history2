@@ -1087,11 +1087,23 @@ void QDesignerActions::showFormSettings()
 {
     QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow();
     QDesignerFormWindow *window = m_workbench->findFormWindow(formWindow);
-    FormWindowSettings dlg(formWindow);
-    if (dlg.exec() && window) {
+
+    QExtensionManager *mgr = core()->extensionManager();
+
+    QDialog *settingsDialog = 0;
+
+    if (QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*>(mgr, core()))
+        settingsDialog = lang->createFormWindowSettingsDialog(formWindow, /*parent=*/ 0);
+
+    if (! settingsDialog)
+        settingsDialog = new FormWindowSettings(formWindow);
+
+    if (settingsDialog->exec() && window) {
         formWindow->setDirty(true);
         window->updateChanged();
     }
+
+    delete settingsDialog;
 }
 
 void QDesignerActions::backupForms()

@@ -1252,6 +1252,9 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     }
 
+    QExtensionManager *mgr = core()->extensionManager();
+    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (mgr, core());
+
     if (qVariantCanConvert<EnumType>(value)) {
         EnumType e = qvariant_cast<EnumType>(value);
         int v = e.value.toInt();
@@ -1270,7 +1273,12 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                     p->setAttributeStdset(0);
             }
             p->setAttributeName(propertyName);
-            p->setElementEnum(it.key());
+
+            QString id = it.key();
+            if (lang)
+                id = lang->neutralEnumerator(id);
+
+            p->setElementEnum(id);
             return p;
         }
 
@@ -1283,6 +1291,11 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 
         while (it.hasNext()) {
             uint x = it.next().value().toUInt();
+
+            QString id = it.key();
+            if (lang)
+                id = lang->neutralEnumerator(id);
+
             if (v == x) {
                 DomProperty *p = new DomProperty;
                 // check if we have a standard cpp set function
@@ -1294,12 +1307,13 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                         p->setAttributeStdset(0);
                 }
                 p->setAttributeName(propertyName);
-                p->setElementSet(it.key());
+
+                p->setElementSet(id);
                 return p;
             }
 
             if ((v & x) == x)
-                keys.push_back(it.key());
+                keys.push_back(id);
         }
 
         if (keys.isEmpty())
