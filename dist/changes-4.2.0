@@ -48,6 +48,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
   many Qt developers they have. This license scheme is initially only
   available for Linux, Windows and MacOS X.
 
+- Compiler warnings with mingw g++ 3.4.6 removed
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
@@ -71,6 +73,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QApplication
         Added saveStateRequest() and commitDataRequest() signals so
         QApplication does not need to be subclassed for session management.
+        Added a property styleSheet to set/read the application style sheet
 
 - QAbstractItemModel
         When dropping rows only inserts rows that were actually dropped, not
@@ -244,6 +247,27 @@ Applications compiled for 4.1 will continue to run with 4.2.
         called from non-QThread threads; this does not happen anymore
         in Qt 4.2).
 
+- QString
+        Added support for Case insensitive comparisons in QString::compare()
+
+- QWidget
+        Added a property styleSheet to set/read the widget style sheet
+
+- QSystemTrayIcon
+        New class that adds an icon into the system tray
+
+- QCompleter
+        New class that provide auto completion support.
+
+- QMessageBox
+        API overhaul to support for more than 3 buttons
+        Added support to display buttons in platform dependant order
+        Added support to display informative text using informativeText property
+        Added detailedText property to display detailed text
+
+- QButtonGroup
+        Added pressed() and released() signals
+
 Database drivers
 -------------------------
 
@@ -354,3 +378,10 @@ Documentation
 Tools
 
 	Fixed an issue preventing QVFb from starting on some systems.
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+Assistant
+        Middle clicking on links will open up new tabs
+        Added "Find as you type" feature to search documentation page
