@@ -52,6 +52,19 @@ Applications compiled for 4.1 will continue to run with 4.2.
 *                          Library                                         *
 ****************************************************************************
 
+- QAbstractItemView
+        Added possibility to copy elements to clipboard on read-only views.
+
+- QComboBox
+        Fixed drawing issues related to certain FocusPolicies.
+        Now respects the ItemFlags of an Item (ItemIsEnabled,...).
+        Fixed cases where popup could be shown completly on screen, but weren't.
+        Added InsertAlphabetically insert policy.
+        Fixed not displaying QPixmap as Icon.
+
+- QFileDialog
+        Fixed case where view mode got disabled.
+
 - QFlags
         Added testFlag() convenience function.
 
@@ -118,6 +131,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QTemporaryFile
         Add support for file extensions and other suffix's.
 
+- QLineEdit
+        Unicode context menu gets shown if language extensions are present.
+
+- QMessageBox
+        Added detailedText property to be able to show additional information.
+
 - QMetaObject
         Added userProperty().
         Added normalizedType().
@@ -140,6 +159,9 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QToolTip
 	Added convenience function hideText().
+
+- QTreeView
+        Fixed item being able to be expanded when all children are hidden.
 
 - QVariant
         Added support for all QMetaType types.
@@ -181,6 +203,21 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - Qt::GroupSwitchModifier
         Added to the Qt::KeyboardModifiers enum. It represents
         e.g. the "AltGr" key found on many keyboards.
+
+- Q3ListView
+        Fixed possible crash in Q3ListView after calling clear().
+        Fixed inconsistent drag and drop behaviour to Qt3.
+
+- Q3Table
+        Improved behaviour for combobox table elements.
+
+- Q3ButtonGroup
+        Fixed inconsistencies to Qt3 for exlusivness of elements.
+        Fixed ID managment to be consistent with Qt3.
+
+- Q3ListBox
+        Fixed inconsistencies to Qt3 for selectAll().
+        Fixed possible crash after deleting items.
 
 - Qt::NoDockWidgetArea
         Added to the Qt::ToolBarArea enum
