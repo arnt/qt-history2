@@ -1347,7 +1347,7 @@ void tst_QObject::moveToThread()
 
         socket->connectToHost(server.serverAddress(), server.serverPort());
 
-        server.waitForNewConnection();
+        QVERIFY(server.waitForNewConnection(1000));
         QTcpSocket *serverSocket = server.nextPendingConnection();
         QVERIFY(serverSocket);
 
