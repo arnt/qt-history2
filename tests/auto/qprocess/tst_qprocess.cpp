@@ -22,6 +22,14 @@
 
 Q_DECLARE_METATYPE(QList<QProcess::ExitStatus>);
 
+#define QPROCESS_VERIFY(Process, Fn) \
+{ \
+const bool ret = Process.Fn; \
+if (ret == false) \
+	qWarning("QProcess error: %d: %s", Process.error(), qPrintable(Process.errorString())); \
+QVERIFY(ret); \
+}
+
 class tst_QProcess : public QObject
 {
     Q_OBJECT
@@ -1306,8 +1314,8 @@ void tst_QProcess::setStandardInputFile()
     process.start("testProcessEcho/testProcessEcho");
 #endif
 
-    QVERIFY(process.waitForFinished());
-    QByteArray all = process.readAll();
+    QPROCESS_VERIFY(process, waitForFinished()); 
+	QByteArray all = process.readAll();
     QCOMPARE(all.size(), int(sizeof data) - 1); // testProcessEcho drops the ending \0
     QVERIFY(all == data);
 }
@@ -1373,7 +1381,7 @@ void tst_QProcess::setStandardOutputFile()
     process.start("testProcessEcho2/testProcessEcho2");
 #endif
     process.write(testdata, sizeof testdata);
-    QVERIFY(process.waitForFinished());
+    QPROCESS_VERIFY(process,waitForFinished()); 
 
     // open the file again and verify the data
     QVERIFY(file.open(QIODevice::ReadOnly));
@@ -1422,8 +1430,8 @@ void tst_QProcess::setStandardOutputProcess()
     QByteArray data("Hello, World");
     source.write(data);
     source.closeWriteChannel();
-    QVERIFY(source.waitForFinished());
-    QVERIFY(sink.waitForFinished());
+    QPROCESS_VERIFY(source, waitForFinished());
+    QPROCESS_VERIFY(sink, waitForFinished());
     QByteArray all = sink.readAll();
 
     if (!merged)
