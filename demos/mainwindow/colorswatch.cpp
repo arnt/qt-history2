@@ -123,14 +123,13 @@ void ColorDock::paintEvent(QPaintEvent *)
     QSize sz = size();
     QSize szHint = sizeHint();
     QSize minSzHint = minimumSizeHint();
-    QSize pMinSzHint = parentWidget() == 0
-                        ? QSize(-1, -1) : parentWidget()->minimumSizeHint();
+    QSize maxSz = maximumSize();
     QString text = QString::fromLatin1("sz: %1x%2\nszHint: %3x%4\nminSzHint: %5x%6\n"
-                                        "pMinSzHint: %8x%9")
+                                        "maxSz: %8x%9")
                     .arg(sz.width()).arg(sz.height())
                     .arg(szHint.width()).arg(szHint.height())
                     .arg(minSzHint.width()).arg(minSzHint.height())
-                    .arg(pMinSzHint.width()).arg(pMinSzHint.height());
+                    .arg(maxSz.width()).arg(maxSz.height());
 
     QRect r = fontMetrics().boundingRect(rect(), Qt::AlignLeft|Qt::AlignTop, text);
     r.adjust(-2, -2, 1, 1);
@@ -144,11 +143,11 @@ void ColorDock::paintEvent(QPaintEvent *)
 #endif // DEBUG_SIZEHINTS
 }
 
-static QSpinBox *createSpinBox(int value, QWidget *parent)
+static QSpinBox *createSpinBox(int value, QWidget *parent, int max = 1000)
 {
     QSpinBox *result = new QSpinBox(parent);
     result->setMinimum(-1);
-    result->setMaximum(1000);
+    result->setMaximum(max);
     result->setValue(value);
     return result;
 }
@@ -164,7 +163,9 @@ void ColorDock::changeSizeHints()
     topLayout->addLayout(inputLayout);
 
     inputLayout->addWidget(new QLabel(tr("Size Hint:"), &dialog), 0, 0);
-    inputLayout->addWidget(new QLabel(tr("Min. Size Hint:"), &dialog), 1, 0);
+    inputLayout->addWidget(new QLabel(tr("Min Size Hint:"), &dialog), 1, 0);
+    inputLayout->addWidget(new QLabel(tr("Max Size:"), &dialog), 2, 0);
+    inputLayout->addWidget(new QLabel(tr("Dockwgt Max Size:"), &dialog), 3, 0);
 
     QSpinBox *szHintW = createSpinBox(szHint.width(), &dialog);
     inputLayout->addWidget(szHintW, 0, 1);
@@ -176,6 +177,17 @@ void ColorDock::changeSizeHints()
     QSpinBox *minSzHintH = createSpinBox(minSzHint.height(), &dialog);
     inputLayout->addWidget(minSzHintH, 1, 2);
 
+    QSize maxSz = maximumSize();
+    QSpinBox *maxSzW = createSpinBox(maxSz.width(), &dialog, QWIDGETSIZE_MAX);
+    inputLayout->addWidget(maxSzW, 2, 1);
+    QSpinBox *maxSzH = createSpinBox(maxSz.height(), &dialog, QWIDGETSIZE_MAX);
+    inputLayout->addWidget(maxSzH, 2, 2);
+
+    QSize dwMaxSz = parentWidget()->maximumSize();
+    QSpinBox *dwMaxSzW = createSpinBox(dwMaxSz.width(), &dialog, QWIDGETSIZE_MAX);
+    inputLayout->addWidget(dwMaxSzW, 3, 1);
+    QSpinBox *dwMaxSzH = createSpinBox(dwMaxSz.height(), &dialog, QWIDGETSIZE_MAX);
+    inputLayout->addWidget(dwMaxSzH, 3, 2);
 
     inputLayout->setColumnStretch(1, 1);
     inputLayout->setColumnStretch(2, 1);
@@ -199,6 +211,10 @@ void ColorDock::changeSizeHints()
 
     szHint = QSize(szHintW->value(), szHintH->value());
     minSzHint = QSize(minSzHintW->value(), minSzHintH->value());
+    maxSz = QSize(maxSzW->value(), maxSzH->value());
+    setMaximumSize(maxSz);
+    dwMaxSz = QSize(dwMaxSzW->value(), dwMaxSzH->value());
+    parentWidget()->setMaximumSize(dwMaxSz);
     updateGeometry();
     update();
 }

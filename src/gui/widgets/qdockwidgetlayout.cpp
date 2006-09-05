@@ -349,7 +349,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
     if (isEmpty())
         return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 
-    int a = 0, b = 0;
+    int a = 0, b = QWIDGETSIZE_MAX;
     bool first = true;
     for (int i = 0; i < item_list.size(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
@@ -361,7 +361,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
 
 #ifndef QT_NO_TABBAR
         if (tabbed) {
-            a = qMax(a, pick(o, max_size));
+            a = qMin(a, pick(o, max_size));
         } else
 #endif
         {
@@ -369,7 +369,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
                 a += sep;
             a += pick(o, max_size);
         }
-        b = qMax(b, perp(o, max_size));
+        b = qMin(b, perp(o, max_size));
 
         a = qMin(a, int(QWIDGETSIZE_MAX));
         b = qMin(b, int(QWIDGETSIZE_MAX));
@@ -773,12 +773,16 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
 
     if (delta > 0) {
         int growlimit = 0;
-        for (int i = 0; i<=index; ++i)
-            if (growlimit != QLAYOUTSIZE_MAX)
-                if (list[i].maximumSize == QLAYOUTSIZE_MAX)
-                    growlimit = QLAYOUTSIZE_MAX;
-                else
-                    growlimit += list[i].maximumSize - list[i].size;
+        for (int i = 0; i<=index; ++i) {
+            const QLayoutStruct &ls = list.at(i);
+            if (ls.empty)
+                continue;
+            if (ls.maximumSize == QLAYOUTSIZE_MAX) {
+                growlimit = QLAYOUTSIZE_MAX;
+                break;
+            }
+            growlimit += ls.maximumSize - ls.size;
+        }
         if (delta > growlimit)
             delta = growlimit;
 
@@ -791,12 +795,16 @@ static int separatorMove(QVector<QLayoutStruct> &list, int index, int delta, int
             d += grow(list[i], delta - d);
     } else if (delta < 0) {
         int growlimit = 0;
-        for (int i = index + 1; i < list.count(); ++i)
-            if (growlimit != QLAYOUTSIZE_MAX)
-                if (list[i].maximumSize == QLAYOUTSIZE_MAX)
-                    growlimit = QLAYOUTSIZE_MAX;
-                else
-                    growlimit += list[i].maximumSize - list[i].size;
+        for (int i = index + 1; i < list.count(); ++i) {
+            const QLayoutStruct &ls = list.at(i);
+            if (ls.empty)
+                continue;
+            if (ls.maximumSize == QLAYOUTSIZE_MAX) {
+                growlimit = QLAYOUTSIZE_MAX;
+                break;
+            }
+            growlimit += ls.maximumSize - ls.size;
+        }
         if (-delta > growlimit)
             delta = -growlimit;
 
