@@ -30,6 +30,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - Added QDataWidgetMapper class that can be used to make widgets data aware
   by mapping them to sections of an item model.
 
+- Added QDesktopServices class that can be used to open urls.
+
 - Improved Accessibility for item-based views and QTextEdit.
 
 - Added the QtUndo framework for implementing undo/redo functionality in applications.
@@ -50,6 +52,21 @@ Applications compiled for 4.1 will continue to run with 4.2.
 *                          Library                                         *
 ****************************************************************************
 
+- QFlags
+        Added testFlag() convenience function.
+
+- QApplication
+        Added saveStateRequest() and commitDataRequest() signals so
+        QApplication does not need to be subclassed for session management.
+
+- QAbstractItemModel
+        When dropping rows only inserts rows that were actually dropped, not
+        the continuous row count from first to last.
+        Added supportedDragActions property which is now used by
+        QAbstractItemView when starting a drag.
+        When updating changed persistant index's ignore those that haven't
+        actually changed.
+
 - QAbstractItemView
 	Make sure that the doubleClicked() signal is only emitted
 	when the left button has been doubleclicked.
@@ -57,9 +74,33 @@ Applications compiled for 4.1 will continue to run with 4.2.
 	rectangle.
 	Fixed regression for shift-selections in ExtendedSelection for
 	all views.
+        Added dragDropMode property and implemented move support in all of
+        the views and models.
 
-- QFlags
-        Added testFlag() convenience function.
+- QListWidget/QTreeWidget/QTableWidget
+        When setting flags on a item the dataChanged() signal is now emitted
+        Removed Unnecessary Q_ASSERT's
+
+- QTableWidget
+        Added clearContents() function which will not reset the headers.
+
+- QTreeWidget
+        Added indexOfTopLevelItem() const function.
+        Inserting of items is now faster.
+        Fix crash when calling QTreeWidgetItem::setData with a negative number.
+
+- QTreeView
+        When setting the root index to be the already current root index no
+        action be be taken anymore.
+        When hidding items the view no longer performs a complete relayout.
+        Fix possible segfault in isRowHidden()
+        Significantly speed up isRowHidden() for the common case.
+        Faster row painting.
+        After expanding, fetchMore is called on the expanded index giving
+        the model a way to dynamically populate the children.
+
+- QItemSelectionModel
+        Overall speed up particularly when isSelected() is used.
 
 - QComboBox
 	Fix the type of the modelColumn property from bool to int.
@@ -69,6 +110,13 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QItemDelegate
         Use a widget's USER property to set and get the editor data.
+        Removed Unnecessary Q_ASSERT's
+        Add property to enable clipping when painting.
+        When the model specifies a font, resolve the font over the existing
+        one rather then replacing.
+
+- QTemporaryFile
+        Add support for file extensions and other suffix's.
 
 - QMetaObject
         Added userProperty().
@@ -101,9 +149,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
         When a dockwidget hovers over a mainwindow, the mainwindow animates
         to show how it will accept the dockwidget if dropped.
 
+- QAbstractScrollArea
+        Added ability to set a corner widget.
+
 - QLocale
         Fixed bug in the string-to-number functions which sometimes caused them
-        to fail on negiative numbers which contained thousand-separators.
+        to fail on negative numbers which contained thousand-separators.
         Implemented the numberOptions property, for specifying how
         string-to-number and number-to-string conversions should be performed.
 
@@ -252,6 +303,8 @@ X11:
         "x-motif-dnd/ATOM", where ATOM is the name of the Atom offered
         by the Motif application.
 
+-       Added support to internally detect the current desktop environment.
+
 Demos / Examples
 
         Created a new directory containing desktop examples and moved the
@@ -261,7 +314,6 @@ Documentation
 
         Updated information about the mailing list to be used for porting
         issues (qt-interest).
-
 Tools
 
 	Fixed an issue preventing QVFb from starting on some systems.
