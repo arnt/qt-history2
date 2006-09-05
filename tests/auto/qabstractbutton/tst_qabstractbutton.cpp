@@ -331,7 +331,9 @@ void tst_QAbstractButton::setText()
     QCOMPARE( testWidget->text(), QString("simple") );
     testWidget->setText("&ampersand");
     QCOMPARE( testWidget->text(), QString("&ampersand") );
+#ifndef Q_WS_MAC // no mneonics on Mac.
     QCOMPARE( testWidget->shortcut(), QKeySequence("ALT+A"));
+#endif
     testWidget->setText("te&st");
     QCOMPARE( testWidget->text(), QString("te&st") );
 }
