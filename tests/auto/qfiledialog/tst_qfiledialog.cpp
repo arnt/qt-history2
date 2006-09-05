@@ -95,7 +95,7 @@ void tst_QFiledialog::getSetCheck()
     // void QFileDialog::setItemDelegate(QAbstractItemDelegate *)
     MyAbstractItemDelegate *var6 = new MyAbstractItemDelegate;
     obj1.setItemDelegate(var6);
-    QCOMPARE(var6, obj1.itemDelegate());
+    QCOMPARE(obj1.itemDelegate(), (QAbstractItemDelegate *)var6);
 #if QT_VERSION >= 0x040200
     // Itemviews in Qt < 4.2 have asserts for this. Qt >= 4.2 should handle this gracefully
     obj1.setItemDelegate((QAbstractItemDelegate *)0);
