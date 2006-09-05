@@ -32,7 +32,7 @@ Profile *Profile::createDefaultProfile(const QString &docPath)
     if (!docPath.isEmpty())
         path = docPath;
     path = QDir::cleanPath(path) + QLatin1String("/html/");
-    
+
     Profile *profile = new Profile;
     profile->valid = true;
     profile->type = DefaultProfile;
@@ -148,10 +148,10 @@ void Profile::removeDocFileEntry(const QString &docfile)
 
 QString Profile::storableFilePath(const QString &fileName)
 {
-    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");    
+    QString path = QLibraryInfo::location(QLibraryInfo::DocumentationPath).replace("\\", "/");
     QString fName = fileName;
     if (fName.startsWith(path))
-        fName.replace(0, path.length(), "$DOCPATH$");        
+        fName.replace(0, path.length(), "$DOCPATH$");
     return fName;
 }
 
