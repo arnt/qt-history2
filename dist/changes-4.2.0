@@ -42,6 +42,26 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Backup file is being created by Designer while overwriting the existing file.
 
+- Designer: Promoted widgets inherit the task menu items of the base class.
+
+- Designer, uic: Added support for more variant types:
+  QStringList, QRectF, QSizeF, QPointF, QUrl, QChar, qlonglong and qulonglong.
+
+- moc: Generate correct output when Q_PROPERTY uses a type in a namespace.
+
+- Added the QStandardItem class, which together with the new
+  QStandardItemModel API provides a classic item-based approach to
+  working with models.
+
+- Added Qt::ForegroundRole and Qt::BackgroundRole, allowing itemviews to
+  use any QBrush (not just QColor, as previously) when rendering items.
+
+- Itemviews selections are maintained when the layout of the model changes
+  (e.g. due to sorting).
+
+- Itemviews convenience views can perform dynamic sorting of items
+  when item data change.
+
 - Added functions qrand() and qsrand() that provide thread safe rand() and srand().
 
 - Added the Cleanlooks style for improved integration with GNOME based desktops.
@@ -102,6 +122,25 @@ Applications compiled for 4.1 will continue to run with 4.2.
 	all views.
         Added dragDropMode property and implemented move support in all of
         the views and models.
+	For edit triggers SelectedClicked and DoubleClicked, only trigger
+	editing when the left button is clicked.
+	Trigger SelectedClicked editing on mouse release, not mouse press.
+	Don't emit doubleClicked() when the clicks happened on two
+	different items.
+	Keyboard search can be programmatically reset by calling
+	keyboardSearch() with an empty string as argument.
+	Don't allow drops on items that don't have the
+	Qt::ItemIsDropEnabled flag set.
+	Added signals modelAboutToBeReset() and layoutAboutToBeChanged().
+	Don't assert in dropMimeData() if mimeTypes() returns an
+	empty list.
+	Consistent behavior of drag and drop when rootIndex()
+	is a valid model index.
+	Made it possible to check a check box with only a single click
+	when using the CurrentChanged edit trigger.
+	Propagate WhatsThis event when the relevant item doesn't
+	have a valid WhatsThis value.
+	Added PositionAtCenter scrollHint.
 
 - QKeySequence
 		Added a set of platform dependent standard shortcuts.
@@ -138,10 +177,79 @@ Applications compiled for 4.1 will continue to run with 4.2.
 	Update documentation to clarify between activated(),
 	highlighted() and currentIndexChanged() and what they
 	actually mean.
+	If the combobox isn't editable, use Qt::DisplayRole rather
+	than Qt::EditRole to query the model.
+
+- QErrorMessage
+	Made qtHandler() work when the message handler is invoked
+	from other threads than the GUI thread.
 
 - QGroupBox
 		Activating a groupbox by a shortcut will now show the focus rect.
 	
+- QHeaderView
+	Use the current resize mode to determine section sizes when
+	new rows are inserted.
+
+- QHostAddress
+	Added QDataStream streaming operators.
+
+- QImageReader
+	Made size() return an invalid QSize if the image I/O handler
+	does not support the QImageIOHandler::Size extension.
+	Added support for reading negative BMP images.
+
+- QImageWriter
+	Produce error when attempting to write an image to a device
+	that is not writable.
+
+- QListView
+	Added batchSize property.
+	Don't un-hide currently hidden rows when new rows are inserted.
+	Fixed partial repainting bug with alternatingRowColors.
+	If the resize mode has been set, don't reset it in setViewMode().
+
+- QModelIndex
+	Added flags() convenience function.
+
+- QScrollBar
+	Trigger a SliderMove action when the slider value is changed
+	through a wheel event.
+
+- QSortFilterProxyModel
+	Handle source model changes (e.g. data changes, item insertion
+	and removal) in a fine-grained manner, so that the proxy model
+	behaves more like a "real" model.
+	Added properties sortRole, filterRole and dynamicSortFilter.
+	Perform stable sorting of items.
+	Made dropping one item on top of another item work.
+	Update persistent indexes when the layout of the
+	source model changes.
+	Made match() respect the current sorting and filtering.
+	Forward mimeTypes() and supportedDropActions() calls to
+	source model.
+
+- QStandardItemModel
+	Added an item-based API for use with QStandardItem.
+	Reimplemented sort().
+	Added sortRole property.
+
+- QTableView
+	Added API for spanning cells.
+
+- QTreeView
+	Scrollbar no longer disappears after removing and re-inserting
+	an item while the view is hidden.
+	Fixed memory corruption that could occur when inserting
+	and removing rows.
+	Don't draw branches for hidden rows.
+
+- QTreeWidget
+	Added invisibleRootItem().
+	Made addTopLevelItems() add items in correct (not reverse) order.
+	Ensure that the header is repainted instantly when
+	the header data changes.
+
 - QItemDelegate
         Use a widget's USER property to set and get the editor data.
         Removed Unnecessary Q_ASSERT's
@@ -149,6 +257,10 @@ Applications compiled for 4.1 will continue to run with 4.2.
         When the model specifies a font, resolve the font over the existing
         one rather then replacing.
 		Fixed issue with rendering of selected pixmaps.
+        Call QItemEditorFactory with the data's userType() so that
+        the factory can distinguish between multiple user types.
+        Propagate Key_Enter to the editor before committing data, so the
+        editor has a chance to perform custom input validation/fixup.
 		
 - QLineEdit
         Unicode context menu gets shown if language extensions are present.
@@ -179,6 +291,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QTabWidget
 	Added missing Qt3Support signal selected().
         Clarify documentation for setCornerWidget().
+	Draw the tab widget's frame correctly when the tab bar is hidden.
 
 - QToolTip
 	Added convenience function hideText().
@@ -186,6 +299,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QVariant
         Added support for all QMetaType types.
         Added support for QMatrix as a known metatype.
+        Added conversion from QBrush to QColor and QPixmap, and from
+        QColor and QPixmap to QBrush.
 
 - QMainWindow
         Dockwidgets can be tabbed.
@@ -551,6 +666,10 @@ X11:
 
 - Font rendering
         Stability fixes when rendering huge scaled fonts.
+
+- QCursor
+        Don't crash if the X11 context has been released before the cursor
+        is destructed.
 
 Demos / Examples
 
