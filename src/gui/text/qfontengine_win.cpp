@@ -954,6 +954,53 @@ QByteArray QFontEngineWin::getSfntTable(uint tag) const
     return table;
 }
 
+QImage QFontEngineWin::alphaMapForGlyph(glyph_t glyph)
+{
+    glyph_metrics_t gm = boundingBox(glyph);
+    int glyph_x = int(floor(gm.x.toReal()));
+    int glyph_y = int(floor(gm.y.toReal()));
+    int glyph_width = int(ceil((gm.x + gm.width).toReal())) -  glyph_x + 2;
+    int glyph_height = int(ceil((gm.y + gm.height).toReal())) - glyph_y + 2;
+
+    if (glyph_width <= 0 || glyph_height <= 0)
+        return QImage();
+    QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
+    im.fill(Qt::transparent);
+    QPainter p(&im);
+    p.setPen(Qt::black);
+    p.setBrush(Qt::NoBrush);
+
+    QTextItemInt ti;
+    ti.ascent = ascent();
+    ti.descent = descent();
+    ti.width = glyph_width;
+    ti.fontEngine = this;
+
+    ti.num_glyphs = 1;
+    QGlyphLayout glyphLayout;
+    ti.glyphs = &glyphLayout;
+    glyphLayout.glyph = glyph;
+    memset(&glyphLayout.attributes, 0, sizeof(glyphLayout.attributes));
+    glyphLayout.advance.x = glyph_width;
+
+    p.drawTextItem(QPointF(-glyph_x, -glyph_y), ti);
+    p.end();
+
+    QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);
+    QVector<QRgb> colors(256);
+    for (int i=0; i<256; ++i)
+        colors[i] = qRgba(0, 0, 0, i);
+    indexed.setColorTable(colors);
+
+    for (int y=0; y<im.height(); ++y) {
+        uchar *dst = (uchar *) indexed.scanLine(y);
+        uint *src = (uint *) im.scanLine(y);
+        for (int x=0; x<im.width(); ++x)
+            dst[x] = qAlpha(src[x]);
+    }
+
+    return indexed;
+}
 
 
 // -------------------------------------- Multi font engine
