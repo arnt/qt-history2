@@ -10,7 +10,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 *                           General                                        *
 ****************************************************************************
 
-- dropped support for MySQL version 3.
+- Dropped support for MySQL version 3.
 
 - Auto-detect PostgreSQL and MySQL using pg_config and mysql_config on UNIX
   based systems in the configure script
@@ -46,11 +46,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Added the Cleanlooks style for improved integration with GNOME based desktops.
 
-- Starting from Qt 4.2 a new commercial licensing scheme will be
-  supported. Customers who chose the new "metered license" will pay
-  according to their monthly actual Qt usage and not according to how
-  many Qt developers they have. This license scheme is initially only
-  available for Linux, Windows and MacOS X.
+- Added experimental support for Qt usage reporting ("metered licenses") 
+  on Linux, Windows and MacOS X. Reporting is disabled by default. 
 
 - Compiler warnings with mingw g++ 3.4.6 removed
 
