@@ -193,9 +193,6 @@ void tst_QLibrary::unload()
 
     QLibrary library( lib );
     library.load();
-#ifdef Q_WS_MAC
-    QEXPECT_FAIL("ok00", "dlcompat cannot unload libraries", Continue);
-#endif
     bool ok = library.unload();
     if ( result ) {
 	QVERIFY( ok );
