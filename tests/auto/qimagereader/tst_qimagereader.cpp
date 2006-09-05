@@ -835,56 +835,141 @@ void tst_QImageReader::readFromResources_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QByteArray>("format");
     QTest::addColumn<QSize>("size");
+    QTest::addColumn<QString>("message");
 
-    QTest::newRow("images/corrupt.bmp") << QString("images/corrupt.bmp") << QByteArray("bmp") << QSize(-1, -1);
-    QTest::newRow("images/negativeheight.bmp") << QString("images/negativeheight.bmp") << QByteArray("bmp") << QSize(127, 64);
-    QTest::newRow("images/font.bmp") << QString("images/font.bmp") << QByteArray("bmp") << QSize(240, 8);
-    QTest::newRow("images/noclearcode.bmp") << QString("images/noclearcode.bmp") << QByteArray("bmp") << QSize(29, 18);
-    QTest::newRow("images/colorful.bmp") << QString("images/colorful.bmp") << QByteArray("bmp") << QSize(320, 200);
-    QTest::newRow("images/16bpp.bmp") << QString("images/16bpp.bmp") << QByteArray("bmp") << QSize(320, 240);
-    QTest::newRow("images/crash-signed-char.bmp") << QString("images/crash-signed-char.bmp") << QByteArray("bmp") << QSize(360, 280);
-    QTest::newRow("images/4bpp-rle.bmp") << QString("images/4bpp-rle.bmp") << QByteArray("bmp") << QSize(640, 480);
+    QTest::newRow("images/corrupt.bmp") << QString("images/corrupt.bmp")
+                                        << QByteArray("bmp") << QSize(-1, -1)
+                                        << QString("");
+    QTest::newRow("images/negativeheight.bmp") << QString("images/negativeheight.bmp")
+                                               << QByteArray("bmp") << QSize(127, 64)
+                                               << QString("");
+    QTest::newRow("images/font.bmp") << QString("images/font.bmp")
+                                     << QByteArray("bmp") << QSize(240, 8)
+                                     << QString("");
+    QTest::newRow("images/noclearcode.bmp") << QString("images/noclearcode.bmp")
+                                            << QByteArray("bmp") << QSize(29, 18)
+                                            << QString("");
+    QTest::newRow("images/colorful.bmp") << QString("images/colorful.bmp")
+                                         << QByteArray("bmp") << QSize(320, 200)
+                                         << QString("");
+    QTest::newRow("images/16bpp.bmp") << QString("images/16bpp.bmp")
+                                      << QByteArray("bmp") << QSize(320, 240)
+                                      << QString("");
+    QTest::newRow("images/crash-signed-char.bmp") << QString("images/crash-signed-char.bmp")
+                                                  << QByteArray("bmp") << QSize(360, 280)
+                                                  << QString("");
+    QTest::newRow("images/4bpp-rle.bmp") << QString("images/4bpp-rle.bmp")
+                                         << QByteArray("bmp") << QSize(640, 480)
+                                         << QString("");
 #ifdef QTEST_HAVE_GIF
-    QTest::newRow("images/corrupt.gif") << QString("images/corrupt.gif") << QByteArray("gif") << QSize(-1, -1);
-    QTest::newRow("images/trolltech.gif") << QString("images/trolltech.gif") << QByteArray("gif") << QSize(128, 64);
-    QTest::newRow("images/noclearcode.gif") << QString("images/noclearcode.gif") << QByteArray("gif") << QSize(29, 18);
-    QTest::newRow("images/earth.gif") << QString("images/earth.gif") << QByteArray("gif") << QSize(320, 200);
-    QTest::newRow("images/bat1.gif") << QString("images/bat1.gif") << QByteArray("gif") << QSize(32, 32);
-    QTest::newRow("images/bat2.gif") << QString("images/bat2.gif") << QByteArray("gif") << QSize(32, 32);
+    QTest::newRow("images/corrupt.gif") << QString("images/corrupt.gif")
+                                        << QByteArray("gif") << QSize(-1, -1)
+                                        << QString("");
+    QTest::newRow("images/trolltech.gif") << QString("images/trolltech.gif")
+                                          << QByteArray("gif") << QSize(128, 64)
+                                          << QString("");
+    QTest::newRow("images/noclearcode.gif") << QString("images/noclearcode.gif")
+                                            << QByteArray("gif") << QSize(29, 18)
+                                            << QString("");
+    QTest::newRow("images/earth.gif") << QString("images/earth.gif")
+                                      << QByteArray("gif") << QSize(320, 200)
+                                      << QString("");
+    QTest::newRow("images/bat1.gif") << QString("images/bat1.gif")
+                                     << QByteArray("gif") << QSize(32, 32)
+                                     << QString("");
+    QTest::newRow("images/bat2.gif") << QString("images/bat2.gif")
+                                     << QByteArray("gif") << QSize(32, 32)
+                                     << QString("");
 #endif
 #ifdef QTEST_HAVE_JPEG
-    QTest::newRow("images/corrupt.jpg") << QString("images/corrupt.jpg") << QByteArray("jpg") << QSize(-1, -1);
-    QTest::newRow("images/beavis.jpg") << QString("images/beavis.jpg") << QByteArray("jpg") << QSize(350, 350);
-    QTest::newRow("images/YCbCr_cmyk.jpg") << QString("images/YCbCr_cmyk.jpg") << QByteArray("jpg") << QSize(75, 50);
-    QTest::newRow("images/YCbCr_rgb.jpg") << QString("images/YCbCr_rgb.jpg") << QByteArray("jpg") << QSize(75, 50);
+    QTest::newRow("images/corrupt.jpg") << QString("images/corrupt.jpg")
+                                        << QByteArray("jpg") << QSize(-1, -1)
+                                        << QString("JPEG datastream contains no image");
+    QTest::newRow("images/beavis.jpg") << QString("images/beavis.jpg")
+                                       << QByteArray("jpg") << QSize(350, 350)
+                                       << QString("");
+    QTest::newRow("images/YCbCr_cmyk.jpg") << QString("images/YCbCr_cmyk.jpg")
+                                           << QByteArray("jpg") << QSize(75, 50)
+                                           << QString("");
+    QTest::newRow("images/YCbCr_rgb.jpg") << QString("images/YCbCr_rgb.jpg")
+                                          << QByteArray("jpg") << QSize(75, 50)
+                                          << QString("");
 #endif
 #ifdef QTEST_HAVE_MNG
-    QTest::newRow("images/corrupt.mng") << QString("images/corrupt.mng") << QByteArray("mng") << QSize(-1, -1);
-    QTest::newRow("images/fire.mng") << QString("images/fire.mng") << QByteArray("mng") << QSize(30, 60);
-    QTest::newRow("images/ball.mng") << QString("images/ball.mng") << QByteArray("mng") << QSize(32, 32);
+    QTest::newRow("images/corrupt.mng") << QString("images/corrupt.mng")
+                                        << QByteArray("mng") << QSize(-1, -1)
+                                        << QString("MNG error 901: Application signalled I/O error; chunk IHDR; subcode 0:0");
+    QTest::newRow("images/fire.mng") << QString("images/fire.mng")
+                                     << QByteArray("mng") << QSize(30, 60)
+                                     << QString("");
+    QTest::newRow("images/ball.mng") << QString("images/ball.mng")
+                                     << QByteArray("mng") << QSize(32, 32)
+                                     << QString("");
 #endif
-    QTest::newRow("images/image.pbm") << QString("images/image.pbm") << QByteArray("pbm") << QSize(16, 6);
-    QTest::newRow("images/image.pgm") << QString("images/image.pgm") << QByteArray("pgm") << QSize(24, 7);
-    QTest::newRow("images/corrupt.png") << QString("images/corrupt.png") << QByteArray("png") << QSize(-1, -1);
-    QTest::newRow("images/away.png") << QString("images/away.png") << QByteArray("png") << QSize(16, 16);
-    QTest::newRow("images/image.png") << QString("images/image.png") << QByteArray("png") << QSize(22, 22);
-    QTest::newRow("images/pngwithcompressedtext.png") << QString("images/pngwithcompressedtext.png") << QByteArray("png") << QSize(32, 32);
-    QTest::newRow("images/pngwithtext.png") << QString("images/pngwithtext.png") << QByteArray("png") << QSize(32, 32);
-    QTest::newRow("images/kollada.png") << QString("images/kollada.png") << QByteArray("png") << QSize(436, 160);
-    QTest::newRow("images/black.png") << QString("images/black.png") << QByteArray("png") << QSize(48, 48);
-    QTest::newRow("images/YCbCr_cmyk.png") << QString("images/YCbCr_cmyk.png") << QByteArray("png") << QSize(75, 50);
-    QTest::newRow("images/teapot.ppm") << QString("images/teapot.ppm") << QByteArray("ppm") << QSize(256, 256);
-    QTest::newRow("images/image.ppm") << QString("images/image.ppm") << QByteArray("ppm") << QSize(4, 4);
+    QTest::newRow("images/image.pbm") << QString("images/image.pbm")
+                                      << QByteArray("pbm") << QSize(16, 6)
+                                      << QString("");
+    QTest::newRow("images/image.pgm") << QString("images/image.pgm")
+                                      << QByteArray("pgm") << QSize(24, 7)
+                                      << QString("");
+    QTest::newRow("images/corrupt.png") << QString("images/corrupt.png")
+                                        << QByteArray("png") << QSize(-1, -1)
+                                        << QString("");
+    QTest::newRow("images/away.png") << QString("images/away.png")
+                                     << QByteArray("png") << QSize(16, 16)
+                                     << QString("");
+    QTest::newRow("images/image.png") << QString("images/image.png")
+                                      << QByteArray("png") << QSize(22, 22)
+                                      << QString("");
+    QTest::newRow("images/pngwithcompressedtext.png") << QString("images/pngwithcompressedtext.png")
+                                                      << QByteArray("png") << QSize(32, 32)
+                                                      << QString("");
+    QTest::newRow("images/pngwithtext.png") << QString("images/pngwithtext.png")
+                                            << QByteArray("png") << QSize(32, 32)
+                                            << QString("");
+    QTest::newRow("images/kollada.png") << QString("images/kollada.png")
+                                        << QByteArray("png") << QSize(436, 160)
+                                        << QString("");
+    QTest::newRow("images/black.png") << QString("images/black.png")
+                                      << QByteArray("png") << QSize(48, 48)
+                                      << QString("");
+    QTest::newRow("images/YCbCr_cmyk.png") << QString("images/YCbCr_cmyk.png")
+                                           << QByteArray("png") << QSize(75, 50)
+                                           << QString("");
+    QTest::newRow("images/teapot.ppm") << QString("images/teapot.ppm")
+                                       << QByteArray("ppm") << QSize(256, 256)
+                                       << QString("");
+    QTest::newRow("images/image.ppm") << QString("images/image.ppm")
+                                      << QByteArray("ppm") << QSize(4, 4)
+                                      << QString("");
 //    QTest::newRow("images/corrupt.xbm") << QString("images/corrupt.xbm") << QByteArray("xbm") << QSize(-1, -1);
-    QTest::newRow("images/gnus.xbm") << QString("images/gnus.xbm") << QByteArray("xbm") << QSize(271, 273);
-    QTest::newRow("images/corrupt-colors.xpm") << QString("images/corrupt-colors.xpm") << QByteArray("xpm") << QSize(-1, -1);
-    QTest::newRow("images/corrupt-pixels.xpm") << QString("images/corrupt-pixels.xpm") << QByteArray("xpm") << QSize(-1, -1);
-    QTest::newRow("images/marble.xpm") << QString("images/marble.xpm") << QByteArray("xpm") << QSize(240, 240);
-    QTest::newRow("images/test.xpm") << QString("images/test.xpm") << QByteArray("xpm") << QSize(256, 256);
-    QTest::newRow("images/black.xpm") << QString("images/black.xpm") << QByteArray("xpm") << QSize(48, 48);
-    QTest::newRow("images/namedcolors.xpm") << QString("images/namedcolors.xpm") << QByteArray("xpm") << QSize(8, 8);
-    QTest::newRow("images/nontransparent.xpm") << QString("images/nontransparent.xpm") << QByteArray("xpm") << QSize(8, 8);
-    QTest::newRow("images/transparent.xpm") << QString("images/transparent.xpm") << QByteArray("xpm") << QSize(8, 8);
+    QTest::newRow("images/gnus.xbm") << QString("images/gnus.xbm")
+                                     << QByteArray("xbm") << QSize(271, 273)
+                                     << QString("");
+    QTest::newRow("images/corrupt-colors.xpm") << QString("images/corrupt-colors.xpm")
+                                               << QByteArray("xpm") << QSize(-1, -1)
+                                               << QString("QImage: XPM color specification is missing: bla9an.n#x");
+    QTest::newRow("images/corrupt-pixels.xpm") << QString("images/corrupt-pixels.xpm")
+                                               << QByteArray("xpm") << QSize(-1, -1)
+                                               << QString("QImage: XPM pixels missing on image line 3");
+    QTest::newRow("images/marble.xpm") << QString("images/marble.xpm")
+                                       << QByteArray("xpm") << QSize(240, 240)
+                                       << QString("");
+    QTest::newRow("images/test.xpm") << QString("images/test.xpm")
+                                     << QByteArray("xpm") << QSize(256, 256)
+                                     << QString("");
+    QTest::newRow("images/black.xpm") << QString("images/black.xpm")
+                                      << QByteArray("xpm") << QSize(48, 48)
+                                      << QString("");
+    QTest::newRow("images/namedcolors.xpm") << QString("images/namedcolors.xpm")
+                                            << QByteArray("xpm") << QSize(8, 8)
+                                            << QString("");
+    QTest::newRow("images/nontransparent.xpm") << QString("images/nontransparent.xpm")
+                                               << QByteArray("xpm") << QSize(8, 8)
+                                               << QString("");
+    QTest::newRow("images/transparent.xpm") << QString("images/transparent.xpm")
+                                            << QByteArray("xpm") << QSize(8, 8)
+                                            << QString("");
 }
 
 void tst_QImageReader::readFromResources()
@@ -892,10 +977,17 @@ void tst_QImageReader::readFromResources()
     QFETCH(QString, fileName);
     QFETCH(QByteArray, format);
     QFETCH(QSize, size);
+    QFETCH(QString, message);
 
     for (int i = 0; i < 2; ++i) {
         QString file = i ? (":/" + fileName) : fileName;
         {
+            // suppress warnings if we expect them
+            if (!message.isEmpty()) {
+                for (int j = 0; j < 5; ++j)
+                    QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
+            }
+
             // 1) full filename, no format
             QImageReader reader(file);
             QImage image = reader.read();
@@ -948,6 +1040,10 @@ void tst_QImageReader::readFromResources()
     }
 
     // Check that the results are identical
+    if (!message.isEmpty()) {
+        QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
+        QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
+    }
     QCOMPARE(QImageReader(fileName).read(), QImageReader(":/" + fileName).read());
 }
 
@@ -956,25 +1052,33 @@ void tst_QImageReader::readCorruptImage_data()
 {
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<bool>("shouldFail");
+    QTest::addColumn<QString>("message");
 #if defined QTEST_HAVE_JPEG
-    QTest::newRow("corrupt jpeg") << QString("images/corrupt.jpg") << true;
+    QTest::newRow("corrupt jpeg") << QString("images/corrupt.jpg") << true
+                                  << QString("JPEG datastream contains no image");
 #endif
 #if defined QTEST_HAVE_GIF
-    QTest::newRow("corrupt gif") << QString("images/corrupt.gif") << true;
+    QTest::newRow("corrupt gif") << QString("images/corrupt.gif") << true << QString("");
 #endif
 #ifdef QTEST_HAVE_MNG
-    QTest::newRow("corrupt mng") << QString("images/corrupt.mng") << true;
+    QTest::newRow("corrupt mng") << QString("images/corrupt.mng") << true
+                                 << QString("MNG error 901: Application signalled I/O error; chunk IHDR; subcode 0:0");
 #endif
-    QTest::newRow("corrupt png") << QString("images/corrupt.png") << true;
-    QTest::newRow("corrupt bmp") << QString("images/corrupt.bmp") << true;
-    QTest::newRow("corrupt xpm (colors)") << QString("images/corrupt-colors.xpm") << true;
-    QTest::newRow("corrupt xpm (pixels)") << QString("images/corrupt-pixels.xpm") << true;
-    QTest::newRow("corrupt xbm") << QString("images/corrupt.xbm") << false;
+    QTest::newRow("corrupt png") << QString("images/corrupt.png") << true << QString("");
+    QTest::newRow("corrupt bmp") << QString("images/corrupt.bmp") << true << QString("");
+    QTest::newRow("corrupt xpm (colors)") << QString("images/corrupt-colors.xpm") << true
+                                          << QString("QImage: XPM color specification is missing: bla9an.n#x");
+    QTest::newRow("corrupt xpm (pixels)") << QString("images/corrupt-pixels.xpm") << true
+                                          << QString("QImage: XPM pixels missing on image line 3");
+    QTest::newRow("corrupt xbm") << QString("images/corrupt.xbm") << false << QString("");
 }
 void tst_QImageReader::readCorruptImage()
 {
     QFETCH(QString, fileName);
     QFETCH(bool, shouldFail);
+    QFETCH(QString, message);
+    if (!message.isEmpty())
+        QTest::ignoreMessage(QtWarningMsg, message.toLatin1());
     QImageReader reader(fileName);
     QVERIFY(reader.canRead());
     QCOMPARE(reader.read().isNull(), shouldFail);
