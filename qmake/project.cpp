@@ -1881,6 +1881,7 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
             bool singleLine = true;
             if(args.count() > 1)
                 singleLine = (args[1].toLower() == "true");
+            QString output;
             while(proc && !feof(proc)) {
                 int read_in = fread(buff, 1, 255, proc);
                 if(!read_in)
@@ -1890,8 +1891,9 @@ QMakeProject::doProjectExpand(QString func, QList<QStringList> args_list,
                         buff[i] = ' ';
                 }
                 buff[read_in] = '\0';
-                ret += split_value_list(buff);
+                output += buff;
             }
+            ret += split_value_list(output);
         }
         break; }
     case E_UNIQUE: {
