@@ -309,7 +309,9 @@ Qt.
 	Draw the tab widget's frame correctly when the tab bar is hidden.
 
 - QToolTip
-	Added convenience function hideText().
+        Added convenience function hideText(). Added a function showText that
+        takes a QRect argument that specifies the valid area for the tooltip. E.g.
+        If you move the cursor outside this area the tooltip will hide.
 
 - QVariant
         Added support for all QMetaType types.
@@ -477,13 +479,7 @@ Qt.
         Now supports all composition modes of QPainter natively through OpenGL.
 
 - QDateTimeEdit
-        Added a new property to show the calendar popup for choosing the date.
-
-- QImage
-        Added QImage::read(QImage *), which can read images without
-        reallocating data.
-        load() and save() no longer require you to pass the format string.
-
+        Added a new property to show the calendar popup for choosing th
 - QImageReader
         Optimizations to ensure that the most likely formats and plugins are
         tested first for reading unknown image formats.
