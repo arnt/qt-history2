@@ -106,6 +106,46 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QSettings
         Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
 
+- quintptr and qptrdiff
+        New integral typedefs have been added.
+
+- QMutexLocker, QReadLocker, and QWriteLocker
+        These classes now track the state of the lock they are
+        holding. They will not unlock on destruction if unlock() has
+        been called.
+
+- QFileSystemWatcher
+        New class that watches file and directories for changes.
+
+- Qt::GroupSwitchModifier
+        Added to the Qt::KeyboardModifiers enum. It represents
+        e.g. the "AltGr" key found on many keyboards.
+
+- Qt::NoDockWidgetArea
+        Added to the Qt::ToolBarArea enum
+
+- Qt::NoToolBarArea
+        Added to the Qt::DockWidgetArea enum
+
+- QEvent::KeyboardLayoutChange
+        New event type. This event is sent when the keyboard layout changes.
+
+- QObject
+        QObject::thread() will always return a valid thread, even if
+        the object was created before QApplication or in a non-QThread
+        thread.
+
+        When QObject::thread() is zero, events are no longer sent to
+        the object (Previous versions of Qt would send posted events
+        to objects with no thread; this does not happen anymore in Qt
+        4.2).
+
+- QThread
+        Related to the above, QThread::currentThread() always returns
+        a valid pointer (Previous versions of Qt would return zero if
+        called from non-QThread threads; this does not happen anymore
+        in Qt 4.2).
+
 Database drivers
 -------------------------
 
@@ -143,11 +183,30 @@ QTestLib
 Platform-Specific changes
 -------------------------
 
+UNIX:
+
+- QApplication
+        Use Glib's mainloop functions when available to implement event dispatching.
+
+- QTextCodec
+        Use iconv(3) when available to implement the codec returned by
+        QTextCodec::codecForLocale(). The new codec's name is "System"
+        (i.e. QTextCodec::codecForLocale()->name() returns "System"
+        when iconv(3) support is enabled).
+
 AIX:
 
 - Use "-qmkshrobj" compiler option to generate shared libraries instead of
   the deprecated makeC++SharedLib tool.
 
+X11:
+
+- Motif Drop support
+        Support for drops from Motif applications has been refactored
+        and is now working properly. QMimeData reports non-textual
+        data offered in Motif Drops using a mime-type with the form
+        "x-motif-dnd/ATOM", where ATOM is the name of the Atom offered
+        by the Motif application.
 
 Demos / Examples
 
