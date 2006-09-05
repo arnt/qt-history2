@@ -26,14 +26,16 @@ void tst_QItemEditorFactory::createCustomEditor()
 #else
     QItemEditorFactory editorFactory;
 
-    editorFactory.registerEditor(QVariant::Rect,
-            new QStandardItemEditorCreator<QDoubleSpinBox>());
+    QItemEditorCreatorBase *creator = new QStandardItemEditorCreator<QDoubleSpinBox>();
+    editorFactory.registerEditor(QVariant::Rect, creator);
 
     QWidget parent;
 
     QWidget *w = editorFactory.createEditor(QVariant::Rect, &parent);
     QCOMPARE(w->metaObject()->className(), "QDoubleSpinBox");
     QCOMPARE(w->metaObject()->userProperty().type(), QVariant::Double);
+
+    delete creator;
 #endif
 }
 
