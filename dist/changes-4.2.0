@@ -296,6 +296,9 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QOpenGLPaintEngine
         Now supports all composition modes of QPainter natively through OpenGL.
 
+- QDateTimeEdit
+        Added a new property to show the calendar popup for choosing the date.
+
 Database drivers
 -------------------------
 
