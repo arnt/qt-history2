@@ -36,12 +36,32 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Numerous bugs fixed in Designer: action editor, proprty editor.
 
+- Starting from Qt 4.2 a new commercial licensing scheme will be
+  supported. Customers who chose the new "metered license" will pay
+  according to their monthly actual Qt usage and not according to how
+  many Qt developers they have. This license scheme is initially only
+  available for Linux, Windows and MacOS X.
+
 ****************************************************************************
 *                          Library                                         *
 ****************************************************************************
 
+- QAbstractItemView
+	Make sure that the doubleClicked() signal is only emitted
+	when the left button has been doubleclicked.
+	Change setSelection(...) to work when given a non-normalized
+	rectangle.
+	Fixed regression for shift-selections in ExtendedSelection for
+	all views.
+
 - QFlags
         Added testFlag() convenience function.
+
+- QComboBox
+	Fix the type of the modelColumn property from bool to int.
+	Update documentation to clarify between activated(),
+	highlighted() and currentIndexChanged() and what they
+	actually mean.
 
 - QItemDelegate
         Use a widget's USER property to set and get the editor data.
@@ -62,6 +82,12 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QSqlRelationalTableModel
         Work when sorting a relational column when using the PostgreSQL driver.
         revertAll() now correctly reverts relational columns.
+
+- QTabWidget
+	Added missing Qt3Support signal selected().
+
+- QToolTip
+	Added convenience function hideText().
 
 - QVariant
         Added support for all QMetaType types.
