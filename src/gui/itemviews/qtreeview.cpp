@@ -302,7 +302,10 @@ int QTreeView::indentation() const
 void QTreeView::setIndentation(int i)
 {
     Q_D(QTreeView);
-    d->indent = i;
+    if (i != d->indent) {
+        d->indent = i;
+        d->viewport->update();
+    }
 }
 
 /*!
