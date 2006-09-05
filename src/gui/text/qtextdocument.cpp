@@ -1376,6 +1376,12 @@ UserCanceled:
 
     \value HtmlResource  The resource contains HTML.
     \value ImageResource The resource contains image data.
+                         Currently supported data types are QVariant::Pixmap and
+                         QVariant::Image. If the corresponding variant is of type
+                         QVariant::ByteArray then Qt attempts to load the image using
+                         QImage::loadFromData. QVariant::Icon is currently not supported.
+                         The icon needs to be converted to one of the supported types first,
+                         for example using QIcon::pixmap.
     \value StyleSheetResource The resource contains CSS.
     \value UserResource  The first available value for user defined
                          resource types.
