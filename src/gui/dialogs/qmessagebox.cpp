@@ -500,6 +500,40 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
     as an argument. The button role is used to automatically determine the
     position of the button within the dialog box.
 
+    When using an instance of QMessageBox with standard buttons, you can test the
+    return value of exec() to determine which button was clicked. For example,
+    \code
+        QMessageBox msgBox;
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        switch (msgBox.exec()) {
+        case QMessageBox::Yes:
+            // yes was clicked
+            break;
+        case QMessageBox::No:
+            // no was clicked
+            break;
+        default:
+            // should never be reached
+            break;
+        }
+    \endcode
+
+    When using an instance of QMessageBox with custom buttons, you can test the
+    value of clickedButton() after calling exec(). For example,
+    \code
+        QMessageBox msgBox;
+        QPushButton *connectButton = msgBox.addButton(tr("Connect"), QMessageBox::ActionRole);
+        QPushButton *abortButton = msgBox.addButton(QMessageBox::Abort);
+
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == connectButton) {
+            // connect
+        } else if (msgBox.clickedButton() == abortButton) {
+            // abort
+        }
+    \endcode
+
     The text(), icon() and iconPixmap() functions provide access to the
     current text and pixmap of the message box. The setText(), setIcon()
     and setIconPixmap() let you change it. The difference between
@@ -811,9 +845,11 @@ void QMessageBoxPrivate::detectEscapeButton()
 
     \code
         QMessageBox messageBox(this);
+        QAbstractButton *disconnectButton =
+              messageBox.addButton(tr("Disconnect"), QMessageBox::ActionRole);
         ...
         messageBox.exec();
-        if (messageBox.clickedButton() == okButton) {
+        if (messageBox.clickedButton() == disconnectButton) {
             ...
         }
     \endcode
