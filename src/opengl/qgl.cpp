@@ -14,6 +14,7 @@
 #include "qapplication.h"
 #include "qplatformdefs.h"
 #include "qgl.h"
+#include <qdebug.h>
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qgl_p.h"
@@ -2926,14 +2927,10 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
             QPixmap p = QPixmap::fromImage(image);
             return p;
         }
-#elif defined(Q_WS_MAC)
-        QPixmap alpha(pm.size());
-        alpha.fill(qRgba(255, 255, 255, 255));
-        pm.setAlphaChannel(alpha);
 #endif
         return pm;
-    } else
-        return QPixmap();
+    }
+    return QPixmap();
 }
 
 

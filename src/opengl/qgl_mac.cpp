@@ -195,24 +195,26 @@ AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
     attribs[cnt++] = AGL_LEVEL;
     attribs[cnt++] = format.plane();
 
-    if (format.redBufferSize() != -1) {    
+    if (format.redBufferSize() != -1) {
         attribs[cnt++] = AGL_RED_SIZE;
         attribs[cnt++] = format.redBufferSize();
     }
-    if (format.greenBufferSize() != -1) {    
+    if (format.greenBufferSize() != -1) {
         attribs[cnt++] = AGL_GREEN_SIZE;
         attribs[cnt++] = format.greenBufferSize();
     }
-    if (format.blueBufferSize() != -1) {    
+    if (format.blueBufferSize() != -1) {
         attribs[cnt++] = AGL_BLUE_SIZE;
         attribs[cnt++] = format.blueBufferSize();
     }
     if (device_is_pixmap) {
         attribs[cnt++] = AGL_PIXEL_SIZE;
         attribs[cnt++] = static_cast<QPixmap *>(paintDevice)->depth();
-    }
-    if (device_is_pixmap) {
         attribs[cnt++] = AGL_OFFSCREEN;
+        if(!format.alpha()) {
+            attribs[cnt++] = AGL_ALPHA_SIZE;
+            attribs[cnt++] = 8;
+        }
     } else {
         if(format.doubleBuffer())
             attribs[cnt++] = AGL_DOUBLEBUFFER;
