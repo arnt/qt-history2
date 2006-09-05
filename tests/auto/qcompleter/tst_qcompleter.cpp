@@ -477,19 +477,19 @@ void tst_QCompleter::changingModel()
         completer->setCompletionPrefix("p");
         completer->setCurrentRow(completer->completionCount() - 1);
         QCOMPARE(completer->currentCompletion(), QString("p4"));
-    
+
         // Test addition of data
-        QTreeWidgetItem *p5item = new QTreeWidgetItem;
-        p5item->setText(completionColumn, "p5");
-        treeWidget->addTopLevelItem(p5item);
+        QTreeWidgetItem p5item;
+        p5item.setText(completionColumn, "p5");
+        treeWidget->addTopLevelItem(&p5item);
         completer->setCompletionPrefix("p5");
         QCOMPARE(completer->currentCompletion(), QString("p5"));
-    
+
         // Test removal of data
-        int p5index = treeWidget->indexOfTopLevelItem(p5item);
+        int p5index = treeWidget->indexOfTopLevelItem(&p5item);
         treeWidget->takeTopLevelItem(p5index);
         QCOMPARE(completer->currentCompletion(), QString(""));
-    
+
         // Test clear
         treeWidget->clear();
         QCOMPARE(completer->currentIndex(), QModelIndex());
@@ -818,6 +818,7 @@ void tst_QCompleter::historySearch()
 
 void tst_QCompleter::setters()
 {
+    delete completer;
     completer = new CsvCompleter;
     QVERIFY(completer->popup() != 0);
     QPointer<QDirModel> dirModel = new QDirModel(completer);
@@ -836,6 +837,7 @@ void tst_QCompleter::setters()
 
 void tst_QCompleter::modelDeletion()
 {
+    delete completer;
     completer = new CsvCompleter;
     QStringList list;
     list << "item1" << "item2" << "item3";
