@@ -321,8 +321,10 @@ bool QTreeView::rootIsDecorated() const
 void QTreeView::setRootIsDecorated(bool show)
 {
     Q_D(QTreeView);
-    d->rootDecoration = show;
-    d->viewport->update();
+    if (show != d->rootDecoration) {
+        d->rootDecoration = show;
+        d->viewport->update();
+    }
 }
 
 /*!
