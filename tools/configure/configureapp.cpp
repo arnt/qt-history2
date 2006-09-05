@@ -156,9 +156,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "ZLIB" ]	    = "auto";
 
     dictionary[ "GIF" ]		    = "auto";
+    dictionary[ "TIFF" ]          = "no";
     dictionary[ "JPEG" ]	    = "auto";
     dictionary[ "PNG" ]		    = "auto";
     dictionary[ "MNG" ]		    = "auto";
+    dictionary[ "LIBTIFF" ]       = "no";
     dictionary[ "LIBJPEG" ]	    = "auto";
     dictionary[ "LIBPNG" ]	    = "auto";
     dictionary[ "LIBMNG" ]	    = "auto";
@@ -319,6 +321,14 @@ void Configure::parseCmdLine()
 	    dictionary[ "GIF" ] = "no";
 	else if( configCmdLine.at(i) == "-qt-gif" )
 	    dictionary[ "GIF" ] = "plugin";
+
+        else if( configCmdLine.at(i) == "-no-tiff" ) {
+              dictionary[ "TIFF"] = "no";
+              dictionary[ "LIBTIFF" ] = "no";
+        } else if( configCmdLine.at(i) == "-system-libtiff" ) {
+              dictionary[ "TIFF" ] = "plugin";
+              dictionary[ "LIBTIFF" ] = "system";
+        }
 
         else if( configCmdLine.at(i) == "-no-libjpeg" ) {
 	    dictionary[ "JPEG" ] = "no";
@@ -865,9 +875,9 @@ bool Configure::displayHelp()
                     "[-no-style-<style>] [-qt-style-<style>] [-redo]\n"
                     "[-saveconfig <config>] [-loadconfig <config>] [-no-zlib]\n"
                     "[-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng]\n"
-                    "[-qt-libpng] [-system-libpng] [-no-libjpeg] [-qt-libjpeg]\n"
-                    "[-system-libjpeg] [-no-libmng] [-qt-libmng] [-system-libmng]\n"
-                    "[-no-qt3support]\n\n", 0, 7);
+                    "[-qt-libpng] [-system-libpng] [-no-libtiff] [-system-libtiff]\n"
+                    "[-no-libjpeg] [-qt-libjpeg] [-system-libjpeg] [-no-libmng]\n"
+                    "[-qt-libmng] [-system-libmng] [-no-qt3support]\n\n", 0, 7);
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
@@ -968,6 +978,9 @@ bool Configure::displayHelp()
         desc("LIBMNG", "no",    "-no-libmng",           "Do not compile in MNG support.");
         desc("LIBMNG", "qt",    "-qt-libmng",           "Use the libmng bundled with Qt.");
         desc("LIBMNG", "system","-system-libmng",       "Use libmng from the operating system.\nSee See http://www.libmng.com\n");
+
+        desc("LIBTIFF", "no",    "-no-libtiff",         "Do not compile the plugin for TIFF support.");
+        desc("LIBTIFF", "system","-system-libtiff",     "Use libtiff from the operating system.\nSee http://www.libtiff.org\n");
 
         desc("LIBJPEG", "no",    "-no-libjpeg",         "Do not compile the plugin for JPEG support.");
         desc("LIBJPEG", "qt",    "-qt-libjpeg",         "Use the libjpeg bundled with Qt.");
@@ -1086,6 +1099,9 @@ QString Configure::defaultTo(const QString &option)
     if (option == "GIF")
         return "no"; // We cannot have this on by default yet
 
+    if (option == "TIFF")
+        return "no"; // See GIF
+
     // By default we do not want to compile OCI driver when compiling with
     // MinGW, due to lack of such support from Oracle. It prob. wont work.
     // (Customer may force the use though)
@@ -1127,6 +1143,8 @@ bool Configure::checkAvailability(const QString &part)
         available = findFile("png.h");
     else if (part == "LIBMNG")
         available = findFile("libmng.h");
+    else if (part == "LIBTIFF")
+        available = findFile("tiffio.h");
 
     else if (part == "SQL_MYSQL")
         available = findFile("mysql.h") && findFile("libmySQL.lib");
@@ -1172,6 +1190,8 @@ void Configure::autoDetection()
         dictionary["PNG"] = defaultTo("PNG");
     if (dictionary["MNG"] == "auto")
         dictionary["MNG"] = defaultTo("MNG");
+    if (dictionary["TIFF"] == "auto")
+        dictionary["TIFF"] == defaultTo("TIFF");
 
     if (dictionary["LIBJPEG"] == "auto")
         dictionary["LIBJPEG"] = checkAvailability("LIBJPEG") ? defaultTo("LIBJPEG") : "qt";
@@ -1179,6 +1199,8 @@ void Configure::autoDetection()
         dictionary["LIBPNG"] = checkAvailability("LIBPNG") ? defaultTo("LIBPNG") : "qt";
     if (dictionary["LIBMNG"] == "auto")
         dictionary["LIBMNG"] = checkAvailability("LIBMNG") ? defaultTo("LIBMNG") : "qt";
+    if (dictionary["LIBTIFF"] == "auto")
+        dictionary["LIBTIFF"] = checkAvailability("LIBTIFF") ? defaultTo("LIBTIFF") : "no";
 
     // SQL detection (not on by default)
     if (dictionary["SQL_MYSQL"] == "auto")
@@ -1235,6 +1257,7 @@ bool Configure::verifyConfiguration()
      system-mng no-mng mng
      system-png no-png png
      system-zlib no-zlib zlib
+     system-tiff no-tiff
      no-gif gif
      dll staticlib
 
@@ -1336,6 +1359,11 @@ void Configure::generateOutputVars()
 	qtConfig += "no-gif";
     else if( dictionary[ "GIF" ] == "plugin" )
 	qmakeFormatPlugins += "gif";
+
+    if( dictionary[ "TIFF" ] == "no" )
+          qtConfig += "no-tiff";
+    if( dictionary[ "LIBTIFF" ] == "system" )
+        qtConfig += "system-tiff";
 
     if( dictionary[ "JPEG" ] == "no" )
 	qtConfig += "no-jpeg";
@@ -1692,6 +1720,7 @@ void Configure::generateConfigfiles()
         if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEFORMAT_PNG";
         if(dictionary["MNG"] == "no")               qconfigList += "QT_NO_IMAGEFORMAT_MNG";
         if(dictionary["JPEG"] == "no")              qconfigList += "QT_NO_IMAGEFORMAT_JPEG";
+        if(dictionary["TIFF"] == "no")              qconfigList += "QT_NO_IMAGEFORMAT_TIFF";
         if(dictionary["ZLIB"] == "no") {
             qconfigList += "QT_NO_ZLIB";
             qconfigList += "QT_NO_COMPRESS";
@@ -1867,6 +1896,7 @@ void Configure::displayConfig()
     cout << "Third Party Libraries:" << endl;
     cout << "    ZLIB support............" << dictionary[ "ZLIB" ] << endl;
     cout << "    GIF support............." << dictionary[ "GIF" ] << endl;
+    cout << "    TIFF support............" << dictionary[ "TIFF" ] << endl;
     cout << "    JPEG support............" << dictionary[ "JPEG" ] << endl;
     cout << "    PNG support............." << dictionary[ "PNG" ] << endl;
     cout << "    MNG support............." << dictionary[ "MNG" ] << endl << endl;
