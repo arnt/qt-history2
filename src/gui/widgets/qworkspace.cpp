@@ -2967,7 +2967,7 @@ void QWorkspaceChild::adjustToFullscreen()
         bool noBorder = style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar);
         int th = titlebar ? titlebar->sizeHint().height() : 0;
         int w = parentWidget()->width() + 2*fw;
-        int h = parentWidget()->height() + 2*fw + th;
+        int h = parentWidget()->height() + (noBorder ? fw : 2*fw) + th;
         w = qMax(w, childWidget->minimumWidth());
         h = qMax(h, childWidget->minimumHeight());
         setGeometry(-fw, (noBorder ? 0 : -fw) - th, w, h);
