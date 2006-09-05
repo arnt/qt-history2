@@ -2556,17 +2556,17 @@ void tst_QDateTimeEdit::calendarPopup()
     QVERIFY(wid != 0);
     testWidget->hide();
 
-    QTimeEdit *timeEdit = new QTimeEdit();
-    timeEdit->setCalendarPopup(true);
-    timeEdit->show();
+    QTimeEdit timeEdit;
+    timeEdit.setCalendarPopup(true);
+    timeEdit.show();
 
-    opt.initFrom(timeEdit);
+    opt.initFrom(&timeEdit);
     opt.subControls = QStyle::SC_ComboBoxArrow;
-    rect = style->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, timeEdit);
-    QTest::mouseClick(timeEdit, Qt::LeftButton, 0, QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()/2));
-    QWidget *wid2 = timeEdit->findChild<QWidget *>("qt_datetimedit_calendar");
+    rect = style->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, &timeEdit);
+    QTest::mouseClick(&timeEdit, Qt::LeftButton, 0, QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()/2));
+    QWidget *wid2 = timeEdit.findChild<QWidget *>("qt_datetimedit_calendar");
     QVERIFY(wid2 == 0);
-    timeEdit->hide();
+    timeEdit.hide();
 }
 
 #endif
