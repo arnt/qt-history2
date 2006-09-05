@@ -951,6 +951,9 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     data.fnt.x11SetScreen(xinfo.screen());
 #endif // Q_WS_X11
 
+    q->setAttribute(Qt::WA_PendingMoveEvent);
+    q->setAttribute(Qt::WA_PendingResizeEvent);
+
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
@@ -4541,7 +4544,7 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
     const quint16 currentMajorVersion = 1;
     quint16 majorVersion = 0;
     quint16 minorVersion = 0;
- 
+
     stream >> majorVersion >> minorVersion;
 
     if (majorVersion != currentMajorVersion)
@@ -7048,10 +7051,6 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 
         QEvent e(QEvent::ParentChange);
         QApplication::sendEvent(this, &e);
-
-//### ????
-        setAttribute(Qt::WA_PendingMoveEvent);
-        setAttribute(Qt::WA_PendingResizeEvent);
     }
 
     if (!wasCreated) {
