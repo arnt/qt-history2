@@ -470,8 +470,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                     widget->d_func()->hd = old_qdref;
 
 #ifdef DEBUG_WIDGET_PAINT
-                qDebug("asked to draw %p [%s::%s] %p [%d] [%dx%d]", hiview, widget->metaObject()->className(),
-                       widget->objectName().local8Bit().data(),
+                qDebug("asked to draw %p[%p] [%s::%s] %p[%p] [%d] [%dx%d]", widget, hiview, widget->metaObject()->className(),
+                       widget->objectName().local8Bit().data(), widget->parentWidget(),
                        (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (HIViewRef)0),
                        HIViewIsCompositingEnabled(hiview), qt_mac_posInWindow(widget).x(), qt_mac_posInWindow(widget).y());
 #if 0
@@ -1335,6 +1335,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
     updateIsOpaque();
 
+    // newly created windows are positioned at the window system's
+    // (0,0) position. If the parent uses wrect mapping to expand the
+    // coordinate system, we must also adjust this widget's window
+    // system position
+    if (!topLevel && !parentWidget->data->wrect.topLeft().isNull())
+        setWSGeometry();
+
     if(destroyid) {
         HIViewRemoveFromSuperview(destroyid);
         CFRelease(destroyid);
@@ -2027,6 +2034,13 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
                 HIRect bounds = CGRectMake(xrect.x(), xrect.y(),
                                            xrect.width(), xrect.height());
                 HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
+                if (q->testAttribute(Qt::WA_OutsideWSRange)) {
+                    q->setAttribute(Qt::WA_OutsideWSRange, false);
+                    if (!dontShow) {
+                        q->setAttribute(Qt::WA_Mapped);
+                        HIViewSetVisible(qt_mac_hiview_for(q), true);
+                    }
+                }
                 return;
             }
         }
@@ -2068,7 +2082,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
             QWidget *w = static_cast<QWidget *>(object);
-            if (!w->isWindow())
+            if (!w->isWindow() && w->testAttribute(Qt::WA_WState_Created))
                 w->d_func()->setWSGeometry();
         }
     }
