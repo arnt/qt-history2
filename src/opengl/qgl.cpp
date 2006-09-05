@@ -3308,6 +3308,8 @@ void QGLWidget::renderText(int x, int y, const QString & str, const QFont & font
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glAlphaFunc(GL_GREATER, 0.0);
+    glEnable(GL_ALPHA_TEST);
     glRasterPos2i(0, 0);
     glBitmap(0, 0, 0, 0, x, -y, NULL);
     glListBase(fontDisplayListBase(font, listBase));
@@ -3345,6 +3347,8 @@ void QGLWidget::renderText(double x, double y, double z, const QString & str, co
     glRasterPos3d(x, y, z);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glAlphaFunc(GL_GREATER, 0.0);
+    glEnable(GL_ALPHA_TEST);
     glListBase(fontDisplayListBase(font, listBase));
     QByteArray cstr(str.toLatin1());
     glCallLists(cstr.size(), GL_UNSIGNED_BYTE, cstr.constData());
