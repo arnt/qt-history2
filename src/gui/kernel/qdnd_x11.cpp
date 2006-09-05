@@ -1283,6 +1283,7 @@ void QDragManager::cancel(bool deleteSource)
     killTimer(heartbeat);
     heartbeat = -1;
     beingCancelled = true;
+    qt_xdnd_dragging = false;
 
     if (qt_xdnd_current_target)
         qt_xdnd_send_leave();
@@ -1556,6 +1557,8 @@ void QDragManager::drop()
     Q_ASSERT(heartbeat != -1);
     killTimer(heartbeat);
     heartbeat = -1;
+    qt_xdnd_dragging = false;
+
     if (!qt_xdnd_current_target)
         return;
 
