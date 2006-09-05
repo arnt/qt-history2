@@ -111,9 +111,13 @@ win32|x11|embedded {
 }
 
 embedded {
+        HEADERS += \
+                painting/qprintengine_qws_p.h
+                
 	SOURCES += \
 		painting/qcolormap_qws.cpp \
-		painting/qpaintdevice_qws.cpp
+		painting/qpaintdevice_qws.cpp \
+                painting/qprintengine_qws.cpp
 } 
 
 x11|embedded {

@@ -24,6 +24,8 @@
 #include <private/qprintengine_win_p.h>
 #elif defined (Q_WS_MAC)
 #include <private/qprintengine_mac_p.h>
+#elif defined (Q_WS_QWS)
+#include <private/qprintengine_qws_p.h>
 #endif
 #include <private/qprintengine_ps_p.h>
 
@@ -44,6 +46,7 @@
 void QPrinterPrivate::createDefaultEngines()
 {
     QPrinter::OutputFormat realOutputFormat = outputFormat;
+#if !defined (Q_WS_QWS)
 #if defined (Q_OS_UNIX) && ! defined (Q_WS_MAC)
     if(outputFormat == QPrinter::NativeFormat) {
 #if !defined(QT_NO_CUPS)
@@ -53,6 +56,7 @@ void QPrinterPrivate::createDefaultEngines()
 #endif
             realOutputFormat = QPrinter::PostScriptFormat;
     }
+#endif
 #endif
 
     switch (realOutputFormat) {
@@ -65,6 +69,10 @@ void QPrinterPrivate::createDefaultEngines()
         QMacPrintEngine *macEngine = new QMacPrintEngine(printerMode);
         paintEngine = macEngine;
         printEngine = macEngine;
+#elif defined (Q_WS_QWS)
+        QWSPrintEngine *qwsEngine = new QWSPrintEngine(printerMode);
+        paintEngine = qwsEngine;
+        printEngine = qwsEngine;
 #elif defined (Q_OS_UNIX)
         Q_ASSERT(false);
 #endif

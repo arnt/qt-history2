@@ -42,7 +42,12 @@ public:
     void addButton(QPushButton *button);
 #endif
 
+#ifdef Q_WS_QWS
+    bool eventFilter(QObject *, QEvent *);
+#endif
+
 private:
+#ifndef Q_WS_QWS
     Q_PRIVATE_SLOT(d_func(), void _q_printToFileChanged(int))
     Q_PRIVATE_SLOT(d_func(), void _q_rbPrintRangeToggled(bool))
     Q_PRIVATE_SLOT(d_func(), void _q_printerChanged(int))
@@ -51,6 +56,20 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_btnBrowseClicked())
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_btnPropertiesClicked())
+#endif
+#ifdef Q_WS_QWS
+    Q_PRIVATE_SLOT(d_func(), void _q_okClicked())
+    Q_PRIVATE_SLOT(d_func(),void _q_printerOrFileSelected(QAbstractButton *b))
+    Q_PRIVATE_SLOT(d_func(),void _q_paperSizeSelected(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_orientSelected(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_pageOrderSelected(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_colorModeSelected(QAbstractButton *))
+    Q_PRIVATE_SLOT(d_func(), void _q_setNumCopies(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_printRangeSelected(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_setFirstPage(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_setLastPage(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_fileNameEditChanged(const QString &text))
+#endif
 };
 
 #endif // QT_NO_PRINTDIALOG

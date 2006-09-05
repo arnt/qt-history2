@@ -32,11 +32,16 @@ mac {
 	SOURCES += dialogs/qprintdialog_mac.cpp \
                    dialogs/qpagesetupdialog_mac.cpp
 }
-!mac:unix {
+!mac:!embedded:unix {
 	SOURCES += dialogs/qprintdialog_unix.cpp \
 		   dialogs/qpagesetupdialog_unix.cpp
 	FORMS += dialogs/qprintdialog.ui \
 		dialogs/qprintpropertiesdialog.ui
+}
+
+embedded {
+        SOURCES += dialogs/qprintdialog_qws.cpp \
+		   dialogs/qpagesetupdialog_unix.cpp
 }
 
 SOURCES += \

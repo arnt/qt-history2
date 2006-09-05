@@ -4,7 +4,7 @@
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** $TROLLTECH_DUAL_LICENSE$
+** $LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -30,13 +30,14 @@
 #include "QtGui/qprinter.h"
 #include "QtGui/qprintengine.h"
 #include "QtCore/qbytearray.h"
-#include "private/qpaintengine_qws_p.h"
+#include "private/qpaintengine_p.h"
 
 class QWSPrintEnginePrivate;
+class QRasterPaintEngine;
 class QPrinterPrivate;
-class QPixmap;
+class QImage;
 
-class QWSPrintEngine : public QWSPaintEngine, public QPrintEngine
+class QWSPrintEngine : public QPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QWSPrintEngine)
 public:
@@ -45,54 +46,14 @@ public:
     // override QWSPaintEngine
     bool begin(QPaintDevice *dev);
     bool end();
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
+    QPaintEngine::Type type() const { return QPaintEngine::X11; }
 
-    // Printer functions...
-    void setPrinterName(const QString &);
-    QString printerName() const;
+    QPaintEngine *paintEngine() const;
 
-    void setOutputToFile(bool);
-    bool outputToFile() const;
-
-    void setOutputFileName(const QString &);
-    QString outputFileName()const;
-
-    void setPrintProgram(const QString &);
-    QString printProgram() const;
-
-    void setDocName(const QString &);
-    QString docName() const;
-
-    void setCreator(const QString &);
-    QString creator() const;
-
-    void setOrientation(QPrinter::Orientation);
-    QPrinter::Orientation orientation() const;
-
-    void setPageSize(QPrinter::PageSize);
-    QPrinter::PageSize pageSize() const;
-
-    void setPageOrder(QPrinter::PageOrder);
-    QPrinter::PageOrder pageOrder() const;
-
-    void setResolution(int);
-    int resolution() const;
-
-    void setColorMode(QPrinter::ColorMode);
-    QPrinter::ColorMode colorMode() const;
-
-    void setFullPage(bool);
-    bool fullPage() const;
-
-    void setNumCopies(int);
-    int numCopies() const;
-
-    void setCollateCopies(bool);
-    bool collateCopies() const;
-    void setPaperSource(QPrinter::PaperSource);
-    QPrinter::PaperSource paperSource() const;
-
-    QList<int> supportedResolutions() const;
-
+    void updateState(const QPaintEngineState &state);
+    
     QRect paperRect() const;
     QRect pageRect() const;
 
@@ -102,6 +63,9 @@ public:
     QPrinter::PrinterState printerState() const;
 
     int metric(QPaintDevice::PaintDeviceMetric metricType) const;
+
+    QVariant property(PrintEnginePropertyKey key) const;
+    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
 
 private:
     friend class QPrintDialog;
@@ -139,7 +103,7 @@ private:
 
 #define	QT_QWS_PRINTER_DEFAULT_DPI	   200
 
-class QWSPrintEnginePrivate : public QWSPaintEnginePrivate
+class QWSPrintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWSPrintEngine)
 public:
@@ -152,6 +116,7 @@ public:
 	colorMode(QPrinter::GrayScale),
 	paperSource(QPrinter::OnlyOne),
         resolution(QT_QWS_PRINTER_DEFAULT_DPI),
+        paintEngine(0),
 	numCopies(1),
         outputToFile(false),
         fullPage(false),
@@ -163,6 +128,8 @@ public:
     {
     }
     ~QWSPrintEnginePrivate();
+
+    void initialize();
 
     QPrinter::PrinterMode mode;
 
@@ -181,15 +148,16 @@ public:
     QPrinter::PaperSource paperSource;
 
     int resolution;
+    QPaintEngine *paintEngine;
     int numCopies;
 
-    uint outputToFile : 1;
-    uint fullPage : 1;
-    uint collateCopies : 1;
+    bool outputToFile;
+    bool fullPage;
+    bool collateCopies;
 
     int pageNumber;
 
-    QPixmap *pageImage;
+    QImage *pageImage;
 
     QWSPrintBuffer buffer;
 

@@ -219,6 +219,10 @@ private:
     friend class QPSPrintEngine;
     friend class QMacPrintEngine;
     friend class QMacPrintEnginePrivate;
+#ifdef Q_WS_QWS
+    friend class QWSPrintEngine;
+    friend class QWSPrintEnginePrivate;
+#endif
     friend class QPainter;
     friend class QPainterPrivate;
     friend class QWidget;

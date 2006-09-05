@@ -14,8 +14,11 @@
 #ifndef QT_NO_PRINTER
 
 #include <private/qprintengine_qws_p.h>
-#include <qbitmap.h>
+#include <private/qpaintengine_raster_p.h>
+#include <qimage.h>
 #include <qfile.h>
+#include <qdebug.h>
+#include <QCopChannel>
 
 #define MM(n) int((n * 720 + 127) / 254)
 #define IN(n) int(n * 72)
@@ -59,220 +62,110 @@ static const PaperSize paperSizes[QPrinter::NPageSize] =
 };
 
 QWSPrintEngine::QWSPrintEngine(QPrinter::PrinterMode mode)
-    : QWSPaintEngine(*(new QWSPrintEnginePrivate( mode )))
+    : QPaintEngine(*(new QWSPrintEnginePrivate( mode )))
 {
+    d_func()->initialize();
 }
 
 bool QWSPrintEngine::begin(QPaintDevice *)
 {
+    Q_D(QWSPrintEngine);
+    d->paintEngine->state = state;
+    Q_ASSERT_X(d->printerState == QPrinter::Idle, "QWSPrintEngine", "printer already active");
+    
     // Create a new off-screen monochrome image to handle the drawing process.
     QSize size = paperRect().size();
-    if ( d_func()->pageImage )
-	delete d_func()->pageImage;
-    d_func()->pageImage = new QBitmap( size );
-    if ( !(d_func()->pageImage) )
+    if ( d->pageImage )
+	delete d->pageImage;
+    d->pageImage = new QImage( size, QImage::Format_RGB32 );
+    if ( !(d->pageImage) )
 	return false;
 
     // Begin the paint process on the image.
-    if ( !QWSPaintEngine::begin( d_func()->pageImage ) )
-	return false;
+    if (!d->paintEngine->begin(d->pageImage))
+        return false;
 
     // Clear the first page to all-white.
     clearPage();
 
     // Clear the print buffer and output the image header.
-    d_func()->buffer.clear();
-    d_func()->writeG3FaxHeader();
+    d->buffer.clear();
+    d->writeG3FaxHeader();
 
     // The print engine is currently active.
-    d_func()->printerState = QPrinter::Active;
+    d->printerState = QPrinter::Active;
     return true;
 }
 
 bool QWSPrintEngine::end()
 {
-    // Stop painting on the internal image.
-    QWSPaintEngine::end();
+    Q_D(QWSPrintEngine);
+
+    d->paintEngine->end();
 
     // Flush the last page.
     flushPage();
 
     // Output the fax data to a file (TODO: send to the print queuing daemon).
     QString filename;
-    if ( outputToFile() )
-	filename = outputFileName();
+    if ( !d->outputFileName.isEmpty() )
+        filename = QString(::getenv("HOME")) + "/Documents/" + d->outputFileName;
     else
-	filename = "qwsfax.tiff";
+        filename = QString(::getenv("HOME")) + "/tmp/" + "qwsfax.tiff";
+
+    setProperty(QPrintEngine::PPK_OutputFileName, filename);
     QFile file( filename );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Truncate ) ) {
 	qDebug( "Failed to open %s for printer output",
 		filename.toLatin1().constData() );
     } else {
-	file.write( d_func()->buffer.data() );
+	file.write( d->buffer.data() );
 	file.close();
     }
 
     // Free up the memory for the image buffer.
-    d_func()->buffer.clear();
+    d->buffer.clear();
 
     // Finalize the print job.
-    d_func()->printerState = QPrinter::Idle;
+    d->printerState = QPrinter::Idle;
+
+    // call qcop service
+    QMap<QString, QVariant> map;
+    for ( int x = 0; x <= QPrintEngine::PPK_Duplex; x++ )
+        map.insert( QString::number(x), property((QPrintEngine::PrintEnginePropertyKey)(x)));
+    QVariant variant(map);
+    
+    QByteArray data;
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out << variant;
+    QCopChannel::send("QPE/Service/Print", "print(QVariant)", data);
+
     return true;
 }
 
-void QWSPrintEngine::setPrinterName(const QString &name)
+QPaintEngine *QWSPrintEngine::paintEngine() const
 {
-    d_func()->printerName = name;
+    return d_func()->paintEngine;
 }
 
-QString QWSPrintEngine::printerName() const
+void QWSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
-    return d_func()->printerName;
+    Q_D(QWSPrintEngine);
+    Q_ASSERT(d->printerState == QPrinter::Active);
+    d->paintEngine->drawPixmap(r, pm, sr);
 }
 
-void QWSPrintEngine::setOutputToFile(bool toFile)
+void QWSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
-    d_func()->outputToFile = toFile;
+    Q_D(QWSPrintEngine);
+    Q_ASSERT(d->printerState == QPrinter::Active);
+    d->paintEngine->drawTextItem(p, ti);
 }
 
-bool QWSPrintEngine::outputToFile() const
+void QWSPrintEngine::updateState(const QPaintEngineState &state)
 {
-    return d_func()->outputToFile;
-}
-
-void QWSPrintEngine::setOutputFileName(const QString &name)
-{
-    d_func()->outputFileName = name;
-}
-
-QString QWSPrintEngine::outputFileName() const
-{
-    return d_func()->outputFileName;
-}
-
-void QWSPrintEngine::setPrintProgram(const QString &name)
-{
-    d_func()->printProgram = name;
-}
-
-QString QWSPrintEngine::printProgram() const
-{
-    return d_func()->printProgram;
-}
-
-void QWSPrintEngine::setDocName(const QString &name)
-{
-    d_func()->docName = name;
-}
-
-QString QWSPrintEngine::docName() const
-{
-    return d_func()->docName;
-}
-
-void QWSPrintEngine::setCreator(const QString &creator)
-{
-    d_func()->creator = creator;
-}
-
-QString QWSPrintEngine::creator() const
-{
-    return d_func()->creator;
-}
-
-void QWSPrintEngine::setOrientation(QPrinter::Orientation orientation)
-{
-    d_func()->orientation = orientation;
-}
-
-QPrinter::Orientation QWSPrintEngine::orientation() const
-{
-    return d_func()->orientation;
-}
-
-void QWSPrintEngine::setPageSize(QPrinter::PageSize ps)
-{
-    d_func()->pageSize = ps;
-}
-
-QPrinter::PageSize QWSPrintEngine::pageSize() const
-{
-    return d_func()->pageSize;
-}
-
-void QWSPrintEngine::setPageOrder(QPrinter::PageOrder po)
-{
-    d_func()->pageOrder = po;
-}
-
-QPrinter::PageOrder QWSPrintEngine::pageOrder() const
-{
-    return d_func()->pageOrder;
-}
-
-void QWSPrintEngine::setResolution(int res)
-{
-    d_func()->resolution = res;
-}
-
-int QWSPrintEngine::resolution() const
-{
-    return d_func()->resolution;
-}
-
-void QWSPrintEngine::setColorMode(QPrinter::ColorMode cm)
-{
-    d_func()->colorMode = cm;
-}
-
-QPrinter::ColorMode QWSPrintEngine::colorMode() const
-{
-    return d_func()->colorMode;
-}
-
-void QWSPrintEngine::setFullPage(bool fp)
-{
-    d_func()->fullPage = fp;
-}
-
-bool QWSPrintEngine::fullPage() const
-{
-    return d_func()->fullPage;
-}
-
-void QWSPrintEngine::setNumCopies(int numCopies)
-{
-    d_func()->numCopies = numCopies;
-}
-
-int QWSPrintEngine::numCopies() const
-{
-    return d_func()->numCopies;
-}
-
-void QWSPrintEngine::setCollateCopies(bool collate)
-{
-    d_func()->collateCopies = collate;
-}
-
-bool QWSPrintEngine::collateCopies() const
-{
-    return d_func()->collateCopies;
-}
-
-void QWSPrintEngine::setPaperSource(QPrinter::PaperSource ps)
-{
-    d_func()->paperSource = ps;
-}
-
-QPrinter::PaperSource QWSPrintEngine::paperSource() const
-{
-    return d_func()->paperSource;
-}
-
-QList<int> QWSPrintEngine::supportedResolutions() const
-{
-    return QList<int>() << QT_QWS_PRINTER_DEFAULT_DPI;
+    Q_D(QWSPrintEngine);
+    d->paintEngine->updateState(state);
 }
 
 QRect QWSPrintEngine::paperRect() const
@@ -353,9 +246,122 @@ int QWSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
     return val;
 }
 
+QVariant QWSPrintEngine::property(PrintEnginePropertyKey key) const
+{
+    Q_D(const  QWSPrintEngine);
+    QVariant ret;
+
+    switch (key) {
+    case PPK_CollateCopies:
+        ret = d->collateCopies;
+        break;
+    case PPK_ColorMode:
+        ret = d->colorMode;
+        break;
+    case PPK_Creator:
+        ret = d->creator;
+        break;
+    case PPK_DocumentName:
+        ret = d->docName;
+        break;
+    case PPK_FullPage:
+        ret = d->fullPage;
+        break;
+    case PPK_NumberOfCopies:
+        ret = d->numCopies;
+        break;
+    case PPK_Orientation:
+        ret = d->orientation;
+        break;
+    case PPK_OutputFileName:
+        ret = d->outputFileName;
+        break;
+    case PPK_PageOrder:
+        ret = d->pageOrder;
+        break;
+    case PPK_PageRect:
+        ret = pageRect();
+        break;
+    case PPK_PageSize:
+        ret = d->pageSize;
+        break;
+    case PPK_PaperRect:
+        ret = paperRect();
+        break;
+    case PPK_PaperSource:
+        ret = d->paperSource;
+        break;
+    case PPK_PrinterName:
+        ret = d->printerName;
+        break;
+    case PPK_PrinterProgram:
+        ret = d->printProgram;
+        break;
+    case PPK_Resolution:
+        ret = d->resolution;
+        break;
+    case PPK_SupportedResolutions:
+        ret = QList<QVariant>() << QT_QWS_PRINTER_DEFAULT_DPI;
+        break;
+    default:
+        break;
+    }
+    return ret;
+}
+
+void QWSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+{
+    Q_D(QWSPrintEngine);
+    switch (key) {
+    case PPK_CollateCopies:
+        d->collateCopies = value.toBool();
+        break;
+    case PPK_ColorMode:
+        d->colorMode = QPrinter::ColorMode(value.toInt());
+        break;
+    case PPK_Creator:
+        d->creator = value.toString();
+        break;
+    case PPK_DocumentName:
+        d->docName = value.toString();
+        break;
+    case PPK_FullPage:
+        d->fullPage = value.toBool();
+        break;
+    case PPK_NumberOfCopies:
+        d->numCopies = value.toInt();
+        break;
+    case PPK_Orientation:
+        d->orientation = QPrinter::Orientation(value.toInt());
+        break;
+    case PPK_OutputFileName:
+        d->outputFileName = value.toString();
+        break;
+    case PPK_PageOrder:
+        d->pageOrder = QPrinter::PageOrder(value.toInt());
+        break;
+    case PPK_PageSize:
+        d->pageSize = QPrinter::PageSize(value.toInt());
+        break;
+    case PPK_PaperSource:
+        d->paperSource = QPrinter::PaperSource(value.toInt());
+    case PPK_PrinterName:
+        d->printerName = value.toString();
+        break;
+    case PPK_PrinterProgram:
+        d->printProgram = value.toString();
+        break;
+    case PPK_Resolution:
+        d->resolution = value.toInt();
+        break;
+    default:
+        break;
+    }
+}
+
 void QWSPrintEngine::clearPage()
 {
-    d_func()->pageImage->fill( Qt::color0 );
+    d_func()->pageImage->fill(QColor(255, 255, 255).rgb());
 }
 
 void QWSPrintEngine::flushPage()
@@ -367,6 +373,11 @@ QWSPrintEnginePrivate::~QWSPrintEnginePrivate()
 {
     if ( pageImage )
 	delete pageImage;
+}
+
+void QWSPrintEnginePrivate::initialize()
+{
+    paintEngine = new QRasterPaintEngine();
 }
 
 void QWSPrintEnginePrivate::writeG3FaxHeader()
@@ -416,6 +427,8 @@ void QWSPrintEnginePrivate::writeG3FaxHeader()
 // are beyond this limit, or pad lines to reach this limit.
 #define	TIFF_FAX_WIDTH			1728
 
+static int yVal;
+
 void QWSPrintEnginePrivate::writeG3FaxPage()
 {
     // Pad the image file to a word boundary, just in case.
@@ -448,7 +461,7 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
     int yres =
 	writeG3IFDEntry( TIFF_IFD_Y_RESOLUTION, TIFF_TYPE_RATIONAL, 1, 0 );
     writeG3IFDEntry( TIFF_IFD_PLANAR_CONFIG, TIFF_TYPE_SHORT, 1, 1 );
-    writeG3IFDEntry( TIFF_IFD_T4_OPTIONS, TIFF_TYPE_LONG, 1, 0 );
+    writeG3IFDEntry( TIFF_IFD_T4_OPTIONS, TIFF_TYPE_LONG, 1, 2 );
     writeG3IFDEntry( TIFF_IFD_RESOLUTION_UNIT, TIFF_TYPE_SHORT, 1, 2 );
     writeG3IFDEntry( TIFF_IFD_PAGE_NUMBER, TIFF_TYPE_SHORT, 2,
 		     TIFF_SHORT_PAIR( pageNumber, 0 ) );
@@ -472,42 +485,77 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
 
     // Output the image data.
     int width = pageImage->width();
+    QImage::Format imageFormat = pageImage->format();
     for ( int y = 0; y < pageImage->height(); ++y ) {
+        yVal = y;
 	unsigned char *scan = pageImage->scanLine(y);
 	int prev, pixel, len;
-	writeG3EOL();
+        writeG3EOL();
 	prev = 0;
 	len = 0;
+
+        uint currentColor = qRgb(255, 255, 255); // start with white
+        
 	for ( int x = 0; x < width && x < TIFF_FAX_WIDTH; ++x ) {
-	    pixel = ((scan[x >> 3] & (1 << (x & 7))) != 0);
-	    if ( pixel != prev ) {
-		if ( prev ) {
-		    writeG3BlackRun( len );
-		} else {
-		    writeG3WhiteRun( len );
-		}
-		prev = pixel;
-		len = 1;
-	    } else {
-		++len;
-	    }
+            if ( imageFormat == QImage::Format_RGB32 ) {
+                // read color of the current pixel
+                uint *p = (uint *)scan + x;
+                
+                if ( *p == currentColor ) { // if it is the same color
+                    len++; // imcrement length
+                } else { // otherwise write color into the buffer
+                    if ( len > 0 ) {
+                        if ( currentColor == qRgb(0, 0, 0) )
+                            writeG3BlackRun( len );
+                        else
+                            writeG3WhiteRun( len );
+                    }
+                    // initialise length and color;
+                    len = 1;
+                    currentColor = *p;
+                }
+            } else if ( imageFormat == QImage::Format_Mono ) {
+    	        pixel = ((scan[x >> 3] & (1 << (x & 7))) != 0);
+    	        if ( pixel != prev ) {
+		    if ( prev ) {
+		        writeG3BlackRun( len );
+                    } else {
+	    	        writeG3WhiteRun( len );
+		    }
+		    prev = pixel;
+		    len = 1;
+	        } else {
+		    ++len;
+	        }
+            } 
 	}
 
-	// Output the last run on the line, and pad to TIFF_FAX_WIDTH.
-	if ( len != 0 ) {
-	    if ( prev ) {
-		writeG3BlackRun( len );
-		if ( width < TIFF_FAX_WIDTH ) {
-		    writeG3WhiteRun( TIFF_FAX_WIDTH - width );
-		}
-	    } else {
-		if ( width < TIFF_FAX_WIDTH ) {
-		    writeG3WhiteRun( len + ( TIFF_FAX_WIDTH - width ) );
-		} else {
-		    writeG3WhiteRun( len );
-		}
+        if ( imageFormat == QImage::Format_RGB32 ) {
+    	    // Output the last run on the line, and pad to TIFF_FAX_WIDTH.
+            if ( len != 0 ) {
+                if ( currentColor == qRgb(0, 0, 0) )
+                    writeG3BlackRun( len );
+                else 
+                    writeG3WhiteRun( len );
+            }
+            if ( width < TIFF_FAX_WIDTH )
+                writeG3WhiteRun( TIFF_FAX_WIDTH - width );
+        } else if ( imageFormat == QImage::Format_Mono ) {
+            if ( len != 0 ) {
+	        if ( prev ) {
+		    writeG3BlackRun( len );
+		    if ( width < TIFF_FAX_WIDTH ) {
+		        writeG3WhiteRun( TIFF_FAX_WIDTH - width );
+		    }
+	        } else {
+		    if ( width < TIFF_FAX_WIDTH ) {
+		        writeG3WhiteRun( len + ( TIFF_FAX_WIDTH - width ) );
+		    } else {
+		        writeG3WhiteRun( len );
+		    }
+	        }
 	    }
-	}
+        }
     }
 
     // Flush the last partial byte, which is padded with zero fill bits.
@@ -516,6 +564,10 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
 	partialByte = 0;
 	partialBits = 0;
     }
+
+    // end of page add six EOLs
+    for ( int i = 0; i < 6; i++ )
+        writeG3EOL();
 
     // Update the byte count for the image data strip.
     buffer.patch( stripBytes, buffer.size() - start );
@@ -755,7 +807,21 @@ void QWSPrintEnginePrivate::writeG3BlackRun( int len )
 
 void QWSPrintEnginePrivate::writeG3EOL()
 {
-    writeG3Code( 0x0001, 12 );
+    int bitToPad;
+    if ( partialBits <= 4 ) {
+        bitToPad = 4 - partialBits;
+    } else {
+        bitToPad = 8 - partialBits + 4;
+    }
+
+    partialByte = ( ( partialByte << bitToPad + 12 ) | 0x0001 );
+    partialBits += bitToPad + 12;
+
+    while ( partialBits >= 8 ) {
+        partialBits -= 8;
+        buffer.append( (char)(partialByte >> partialBits ) );
+    }
+//    writeG3Code( 0x0001, 12 );
 }
 
 void QWSPrintBuffer::append( short value )
@@ -792,7 +858,7 @@ void QWSPrintBuffer::patch( int posn, int value )
 	_data[posn + 2] = (char)(value >> 8);
 	_data[posn + 3] = (char)value;
     } else {
-	_data[posn]     = (char)value;
+        _data[posn]     = (char)value;
 	_data[posn + 1] = (char)(value >> 8);
 	_data[posn + 2] = (char)(value >> 16);
 	_data[posn + 3] = (char)(value >> 24);
