@@ -504,7 +504,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     if (index.parent() != d->root || index.column() != d->column)
         return;
-
+    
     const QRect area = d->viewport->rect();
     const QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
@@ -2079,7 +2079,7 @@ void QListViewPrivate::createItems(int to)
     for (int row = count; row < to; ++row) {
         size = itemSize(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
-	items.append(item);
+        items.append(item);
     }
 }
 
@@ -2139,12 +2139,12 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     } else { // TopToBottom
         pos.setY(flowPositions.at(index.row()));
         pos.setX(segmentPositions.at(segment));
-	if (wrap) { // make the items as wide as the segment
-	    int right = (segment + 1 >= segmentPositions.count()
-		         ? contentsSize.width()
-		         : segmentPositions.at(segment + 1));
-	    size.setWidth(right - pos.x());
-	}
+        if (wrap) { // make the items as wide as the segment
+            int right = (segment + 1 >= segmentPositions.count()
+                     ? contentsSize.width()
+                     : segmentPositions.at(segment + 1));
+            size.setWidth(right - pos.x());
+        }
     }
 
     return QListViewItem(QRect(pos, size), index.row());
@@ -2273,9 +2273,12 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 
 QPoint QListViewPrivate::draggedItemsDelta() const
 {
-    return (movement == QListView::Snap
-            ? snapToGrid(draggedItemsPos) - snapToGrid(pressedPosition)
-            : draggedItemsPos - pressedPosition);
+    if (movement == QListView::Snap) {
+        QPoint snapdelta = QPoint((offset().x() % gridSize.width()), 
+                                  (offset().y() % gridSize.height()));
+        return snapToGrid(draggedItemsPos + snapdelta) - snapToGrid(pressedPosition) - snapdelta;
+    }
+    return draggedItemsPos - pressedPosition;
 }
 
 QRect QListViewPrivate::draggedItemsRect() const
@@ -2356,7 +2359,7 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
         const int topCoordinate = flowPositions.at(topIndex);
         int bottomIndex = topIndex;
         int bottomCoordinate = topCoordinate;
-        while ((bottomCoordinate - topCoordinate) <= (viewportSize) 
+        while ((bottomCoordinate - topCoordinate) <= (viewportSize)
                && bottomIndex <= flowCount)
             bottomCoordinate = flowPositions.at(++bottomIndex);
         const int itemCount = bottomIndex - topIndex - 1;
