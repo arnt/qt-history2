@@ -82,6 +82,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
         QAbstractItemView when starting a drag.
         When updating changed persistant index's ignore those that haven't
         actually changed.
+        Fixed endian issue with createIndex().
 
 - QAbstractItemView
 	Make sure that the doubleClicked() signal is only emitted
@@ -114,6 +115,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
         Faster row painting.
         After expanding, fetchMore is called on the expanded index giving
         the model a way to dynamically populate the children.
+        Fixed item being able to be expanded when all children are hidden.
+        Added horizontal scrolling using left/right arrow.
 
 - QItemSelectionModel
         Overall speed up particularly when isSelected() is used.
@@ -136,6 +139,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QLineEdit
         Unicode context menu gets shown if language extensions are present.
+        No longer emitting editingFinished() if a validator is set and the
+        text doesn't validate.
 
 - QMessageBox
         Added detailedText property to be able to show additional information.
@@ -162,9 +167,6 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - QToolTip
 	Added convenience function hideText().
-
-- QTreeView
-        Fixed item being able to be expanded when all children are hidden.
 
 - QVariant
         Added support for all QMetaType types.
@@ -268,6 +270,24 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - QButtonGroup
         Added pressed() and released() signals
 
+- QAbstractButton
+        Returns QPalette::Button and QPalette::ButtonText for backgroundRole()
+        and foregroundRole(), respectively, rather than QPalette::Background
+        and QPalette::Foreground.
+
+- QUrl
+        Added errorString().
+        Properly parsing of +' when calling queryItems().
+        Properly parsing of authority when calling setAuthority().
+
+- QStatusBar
+        Added insertWidget().
+        Added insertPermanentWidget().
+
+- QGraphicsPixmapItem
+        Added setShapeMode() and shapeMode().
+        Improved calculation of the item' shape.
+
 Database drivers
 -------------------------
 
@@ -370,6 +390,8 @@ Demos / Examples
 
         Created a new directory containing desktop examples and moved the
         Screenshot example into it.
+        New network example. Chat client which uses QUdpSocket to broadcast
+        on all QNetworkInterface's interfaces to discover its peers.
 
 Documentation
 
