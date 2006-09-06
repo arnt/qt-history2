@@ -869,6 +869,21 @@
     \l{qmake Variable Reference#TEMPLATE}{project template} to either \c vcapp
     (for application projects) or \c vclib (for library projects).
 
+    This can also be set using a command line option; for example:
+
+    \code
+    qmake -t vcapp
+    \endcode
+
+    \omit
+    Visual Studio 2005 users can use the following command line to generate
+    a project; this also creates a solution file as required:
+
+    \code
+    qmake -r -spec win32-msvc2005 -tp vc
+    \endcode
+    \endomit
+
     Each time you update the project file, you need to run \c qmake to generate
     an updated Visual Studio project.
 
