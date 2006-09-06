@@ -30,7 +30,13 @@
 #include <private/qglpixelbuffer_p.h>
 #include <private/qbezier_p.h>
 #include <qglframebufferobject.h>
+
+//#define Q_USE_QT_TESSELLATOR
 #ifdef Q_WS_QWS
+#define Q_USE_QT_TESSELLATOR
+#endif
+
+#ifdef Q_USE_QT_TESSELLATOR
 #include "qttessellator_p.h"
 #else
 #include <private/qstroker_p.h>
@@ -55,7 +61,7 @@
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
 struct QSubpath
 {
     int start, end;
@@ -344,7 +350,7 @@ public:
         , txop(QPainterPrivate::TxNone)
         , inverseScale(1)
         , moveToCount(0)
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
         , dashStroker(0)
         , stroker(0)
         , tessVector(MAX_TESS_POINTS)
@@ -377,7 +383,7 @@ public:
 
     void updateGradient(const QBrush &brush);
 
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     void beginPath(QPaintEngine::PolygonDrawMode mode);
     void endPath();
     inline void moveTo(const QPointF &p);
@@ -433,14 +439,14 @@ public:
     qreal inverseScale;
 
     int moveToCount;
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     QStroker basicStroker;
     QDashStroker *dashStroker;
     QStrokerOps *stroker;
 #endif
     QPointF path_start;
 
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     QDataBuffer<QSubpath> subpath_buffer;
     QDataBuffer<int> int_buffer;
     QDataBuffer<GLdouble> tessVector;
@@ -471,7 +477,7 @@ public:
     GLuint conical_tex_location;
 };
 
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
 void QOpenGLPaintEnginePrivate::beginPath(QPaintEngine::PolygonDrawMode mode)
 {
     Q_ASSERT(mode != QPaintEngine::PolylineMode);
@@ -1006,7 +1012,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
                                            | ConicalGradientFill
                                            | PatternBrush)))
 {
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     Q_D(QOpenGLPaintEngine);
     d->basicStroker.setMoveToHook(strokeMoveTo);
     d->basicStroker.setLineToHook(strokeLineTo);
@@ -1039,7 +1045,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     Q_D(QOpenGLPaintEngine);
     if (d->dashStroker)
         delete d->dashStroker;
@@ -1393,7 +1399,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 #endif
 }
 
-#ifdef Q_WS_QWS
+#ifdef Q_USE_QT_TESSELLATOR
 static inline void qt_XTrapToTriangle(QVector<float> &vertices, const qt_XTrapezoid &trap)
 {
     QPointF topLeft;
@@ -1546,7 +1552,7 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
 #endif
     }
 
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
     d->basicStroker.setJoinStyle(pen.joinStyle());
     d->basicStroker.setCapStyle(pen.capStyle());
     d->basicStroker.setMiterLimit(pen.miterLimit());
@@ -1860,7 +1866,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 glDrawArrays(GL_LINE_STRIP, 0, 5);
                 glDisableClientState(GL_VERTEX_ARRAY);
             } else {
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
                 d->beginPath(QPaintEngine::WindingMode);
                 d->stroker->begin(d);
                 d->stroker->moveTo(qt_real_to_fixed(left), qt_real_to_fixed(top));
@@ -1945,7 +1951,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 #endif
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
                 d->beginPath(QPaintEngine::WindingMode);
                 d->stroker->begin(d);
                 d->stroker->moveTo(qt_real_to_fixed(l.x1()), qt_real_to_fixed(l.y1()));
@@ -1995,7 +2001,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 #else
             glColor4ubv(d->brush_color);
 #endif
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
             d->beginPath(mode);
             d->moveTo(points[0]);
             for (int i=1; i<pointCount; ++i)
@@ -2040,7 +2046,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
             d->beginPath(WindingMode);
             d->stroker->strokePolygon(points, pointCount, mode != PolylineMode, d, QMatrix());
             d->endPath();
@@ -2067,7 +2073,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->has_brush) {
         d->setGradientOps(d->brush_style);
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
         // Don't split "simple" paths...
         if (path.elementCount() > 32) {
             qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
@@ -2142,7 +2148,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         glColor4ubv(d->pen_color);
 #endif
         d->setGradientOps(d->pen_brush_style);
-#ifndef Q_WS_QWS
+#ifndef Q_USE_QT_TESSELLATOR
         if (d->has_fast_pen) {
             QBezier beziers[32];
             for (int i=0; i<path.elementCount(); ++i) {
