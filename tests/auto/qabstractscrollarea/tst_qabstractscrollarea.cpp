@@ -31,6 +31,7 @@ public:
 private slots:
     void scrollBarWidgets();
     void setScrollBars();
+    void objectNaming();
 };
 
 tst_QAbstractScrollArea::tst_QAbstractScrollArea()
@@ -43,20 +44,19 @@ tst_QAbstractScrollArea::~tst_QAbstractScrollArea()
 
 void tst_QAbstractScrollArea::scrollBarWidgets()
 {
-#if (QT_VERSION >= 0x040200)
     QWidget *w1 = new QWidget(0);
     QWidget *w2 = new QWidget(0);
-    QWidget *w3 = new QWidget(0); 
+    QWidget *w3 = new QWidget(0);
 
     Qt::Alignment all = Qt::AlignLeft | Qt::AlignRight | Qt::AlignTop | Qt::AlignBottom;
 
     QWidgetList w1List = QWidgetList() << w1;
     QWidgetList w2List = QWidgetList() << w2;
     QWidgetList w3List = QWidgetList() << w3;
-    
+
     QWidgetList w1w2List = w1List + w2List;
     QWidgetList allList = w1List + w2List + w3List;
-    
+
     QAbstractScrollArea area;
     area.show();
     QCOMPARE(area.scrollBarWidgets(all), QWidgetList());
@@ -65,7 +65,7 @@ void tst_QAbstractScrollArea::scrollBarWidgets()
     QCOMPARE(area.scrollBarWidgets(all), w1List);
     QCOMPARE(area.scrollBarWidgets(Qt::AlignLeft), w1List);
     QCOMPARE(area.scrollBarWidgets(Qt::AlignRight), QWidgetList());
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList()); 
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList());
     QCOMPARE(area.scrollBarWidgets(Qt::AlignBottom), QWidgetList());
 
     area.addScrollBarWidget(w2, Qt::AlignBottom);
@@ -83,12 +83,12 @@ void tst_QAbstractScrollArea::scrollBarWidgets()
     QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList());
     QCOMPARE(area.scrollBarWidgets(Qt::AlignBottom), w2List);
 
-    //reparent 
+    //reparent
     w2->setParent(w1);
     QCOMPARE(area.scrollBarWidgets(all), w1List);
     QCOMPARE(area.scrollBarWidgets(Qt::AlignLeft), w1List);
     QCOMPARE(area.scrollBarWidgets(Qt::AlignRight), QWidgetList());
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList()); 
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList());
     QCOMPARE(area.scrollBarWidgets(Qt::AlignBottom), QWidgetList());
 
     // add after reparent
@@ -112,21 +112,19 @@ void tst_QAbstractScrollArea::scrollBarWidgets()
     delete w2;
     delete w3;
 
-    QCOMPARE(area.scrollBarWidgets(all), QWidgetList());    
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignLeft), QWidgetList());    
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignRight), QWidgetList());    
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList());    
-    QCOMPARE(area.scrollBarWidgets(Qt::AlignBottom), QWidgetList());    
-#endif
+    QCOMPARE(area.scrollBarWidgets(all), QWidgetList());
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignLeft), QWidgetList());
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignRight), QWidgetList());
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignTop), QWidgetList());
+    QCOMPARE(area.scrollBarWidgets(Qt::AlignBottom), QWidgetList());
 }
 
 void tst_QAbstractScrollArea::setScrollBars()
 {
-#if (QT_VERSION >= 0x040200)
     QScrollArea scrollArea;
     scrollArea.resize(300, 300);
     scrollArea.show();
-    
+
     QPointer<QScrollBar> vbar = scrollArea.verticalScrollBar();
     QPointer<QScrollBar> hbar = scrollArea.horizontalScrollBar();
 
@@ -157,7 +155,7 @@ void tst_QAbstractScrollArea::setScrollBars()
     QVERIFY(!hbar);
 
     qApp->processEvents();
-    
+
     // Check that all properties have been populated
     QVERIFY(scrollArea.verticalScrollBar()->invertedAppearance());
     QVERIFY(scrollArea.verticalScrollBar()->invertedControls());
@@ -177,7 +175,15 @@ void tst_QAbstractScrollArea::setScrollBars()
     QCOMPARE(scrollArea.horizontalScrollBar()->pageStep(), 42);
     QCOMPARE(scrollArea.horizontalScrollBar()->singleStep(), 3);
     QCOMPARE(scrollArea.horizontalScrollBar()->value(), 43);
-#endif
+}
+
+// we need to make sure the viewport internal widget is named
+// qt_scrollarea_viewport, otherwise we're going to confuse Squish
+// and friends.
+void tst_QAbstractScrollArea::objectNaming()
+{
+    QScrollArea area;
+    QCOMPARE(area.viewport()->objectName(), QString("qt_scrollarea_viewport"));
 }
 
 QTEST_MAIN(tst_QAbstractScrollArea)
