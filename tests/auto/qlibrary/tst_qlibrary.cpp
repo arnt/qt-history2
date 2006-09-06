@@ -143,6 +143,7 @@ void tst_QLibrary::load_data()
     QString currDir = QDir::currentPath();
     QTest::newRow( "ok00" ) << currDir + "/mylib" << (bool)TRUE;
     QTest::newRow( "bad00" ) << currDir + "/nolib" << (bool)FALSE;
+    QTest::newRow( "bad00" ) << currDir + "/qlibrary.pro" << (bool)FALSE;
 
 #ifdef Q_OS_MAC
     QTest::newRow("ok (libmylib ver. 1)") << currDir + "/libmylib" <<(bool)TRUE;

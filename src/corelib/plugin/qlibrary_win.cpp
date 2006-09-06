@@ -23,6 +23,9 @@ extern QString qt_error_string(int code);
 bool QLibraryPrivate::load_sys()
 {
     QString attempt = fileName;
+
+    //avoid 'Bad Image' messagebox
+    UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
     QT_WA({
             pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
         } , {
@@ -40,6 +43,7 @@ bool QLibraryPrivate::load_sys()
         }
     }
 
+    SetErrorMode(oldmode);
     if (!pHnd) {
         errorString = QLibrary::tr("QLibrary::load_sys: Cannot load %1 (%2)").arg(fileName).arg(::qt_error_string());
     }
