@@ -231,6 +231,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
             [item setTarget:self];
             [item setAction:@selector(selectedAction:)];
             [item setState:action->isChecked() ? NSOnState : NSOffState];
+            [item setToolTip:(NSString*)QCFString::toCFStringRef(action->toolTip())];
             if(action->menu()) {
                 QNSMenu *sub = [[QNSMenu alloc] initWithQMenu:action->menu()];
                 [item setSubmenu:sub];
