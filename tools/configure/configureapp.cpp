@@ -1000,7 +1000,7 @@ bool Configure::displayHelp()
         desc("BUILD_QMAKE", "no", "-no-qmake",          "Do not compile qmake.");
         desc("BUILD_QMAKE", "yes", "-qmake",            "Compile qmake.\n");
 
-        desc("NOPROCESS", "yes", "-dont-process",        "Do not generate Makefiles/Project files.");
+        desc("NOPROCESS", "yes", "-dont-process",        "Do not generate Makefiles/Project files. This will override -no-fast if specified.");
         desc("NOPROCESS", "no",  "-process",             "Generate Makefiles/Project files.\n");
 
         desc("RTTI", "no",      "-no-rtti",             "Do not compile runtime type information.");
