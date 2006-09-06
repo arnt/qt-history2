@@ -1965,6 +1965,7 @@ void tst_QAccessibility::menuTest()
 
 // Not working at the moment, task to fix is #100019.
 #ifndef Q_OS_MAC
+    qDebug() << interface->rect(0) << interface->rect(1);
     QVERIFY(interface->rect(0).contains(interface->rect(1)));
     QVERIFY(interface->rect(0).contains(interface->rect(2)));
     // QVERIFY(interface->rect(0).contains(interface->rect(3))); //separator might be invisible
