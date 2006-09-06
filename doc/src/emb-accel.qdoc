@@ -17,10 +17,10 @@
     \title Adding an Accelerated Graphics Driver
     \ingroup qtopiacore
 
-    Qtopia Core uses Qt's premade raster-based implementation of
-    QPaintEngine (\c QRasterPaintEngine) to implement painting
-    operations. In addition QScreen implements window
-    composition. Both are complete software implementations.
+    Qtopia Core uses \c QRasterPaintEngine, Qt's ready-made raster-based
+    implementation of QPaintEngine to implement painting operations. In
+    addition QScreen implements window composition. Both are complete
+    software implementations.
 
     Painting is normally performed in two steps: each window is rendered onto
     a QWSWindowSurface using QPaintEngine, and then the server composes the
@@ -28,21 +28,21 @@
     want to do is creating a subclass of QScreen and accelerate the final
     copying to the screen by reimplementing QScreen::blit() and
     QScreen::solidFill(). Further acceleration may be achieved by subclassing
-    the QRasterPaintEngine. Note that this is still work in progress, and
+    the \c QRasterPaintEngine. Note that this is still work in progress, and
     details are subject to change.
 
     \section1 Subclassing QRasterPaintEngine
 
-    QRasterPaintEngine inherits from QPaintEngine, so to accelerate a
+    \c QRasterPaintEngine inherits from QPaintEngine, so to accelerate a
     graphics primitive, simply reimplement it in your
-    QRasterPaintEngine subclass. If there are cases you do not
+    \c QRasterPaintEngine subclass. If there are cases you do not
     implement yourself (such as certain pens, brushes, modes, etc.),
-    just call the QRasterPaintEngine version.
+    just call the \c QRasterPaintEngine version.
 
-    To activate a subclass of QRasterPaintEngine you need to create a subclass
-    of QCustomRasterPaintDevice and reimplement
+    To activate a subclass of \c QRasterPaintEngine you need to create a
+    subclass of QCustomRasterPaintDevice and reimplement
     QCustomRasterPaintDevice::paintEngine(). Note the
-    QCustomRasterPaintDevice::memory() function which must must be
+    \c{QCustomRasterPaintDevice::memory()} function which must must be
     reimplemented to return a pointer a buffer where the painting is to be
     done. You must then create a subclass of QWSWindowSurface and return your
     QCustomRasterPaintDevice in QWSWindowSurface::paintDevice().
@@ -52,11 +52,11 @@
     \section1 Acceleration Without a Framebuffer
 
     If you are writing a driver for a device with an graphic I/O controller and
-    no framebuffer support, you need to subclass QRasterPaintDevice as
+    no framebuffer support, you need to subclass \c QRasterPaintDevice as
     described above. However, QCustomRasterPaintDevice::memory() must in this
     case return 0, meaning no buffer available. In this case the two fallback
-    functions QRasterPaintEngine::drawColorSpans() and
-    QRasterPaintEngine::drawBufferSpan() is called instead whenever a color
+    functions \c{QRasterPaintEngine::drawColorSpans()} and
+    \c{QRasterPaintEngine::drawBufferSpan()} is called instead whenever a color
     or buffer should be written into memory. You can then reimplement these
     functions and do the appropriate communication with the I/O controller
     instead.
