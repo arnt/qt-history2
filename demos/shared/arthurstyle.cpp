@@ -95,6 +95,7 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
 
             painter->save();
             const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
+            Q_ASSERT(pushButton);
             QWidget *parent = pushButton->parentWidget();
             if (parent && qobject_cast<QGroupBox *>(parent)) {
                 QLinearGradient lg(0, 0, 0, parent->height());
