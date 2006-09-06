@@ -124,7 +124,7 @@ QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
     tmpAttributes = 0;
     tmpLogClusters = 0;
 
-    supports_kerning = false;
+    kerning_feature_selected = false;
 
     FT_Error error;
     if ((error = HB_Load_GDEF_Table(face, &gdef))) {
@@ -208,7 +208,7 @@ bool QOpenType::checkScript(unsigned int script)
 
 void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Features *features)
 {
-    if (current_script == script)
+    if (current_script == script && kerning_feature_selected == item->kerning_enabled)
         return;
 
     assert(script < QUnicodeTables::ScriptCount);
@@ -245,7 +245,7 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
     }
 
     // reset
-    supports_kerning = false;
+    kerning_feature_selected = false;
 
     if (gpos) {
         HB_GPOS_Clear_Features(gpos);
@@ -275,7 +275,7 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
                             ++feature_tag_list;
                             continue;
                         }
-                        supports_kerning = true;
+                        kerning_feature_selected = true;
                     }
                     error = HB_GPOS_Select_Feature(gpos, *feature_tag_list, script_index, 0xffff, &feature_index);
                     if (!error)
@@ -433,7 +433,7 @@ bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLo
 //             DEBUG("   ->\tadv=%d\tpos=(%d/%d)",
 //                    glyphs[i].advance.x.toInt(), glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt());
         }
-        item->kerning_applied = supports_kerning;
+        item->kerning_applied = kerning_feature_selected;
     } else {
         qt_heuristicPosition(item);
     }

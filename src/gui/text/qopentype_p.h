@@ -71,7 +71,7 @@ private:
     bool supported_scripts[QUnicodeTables::ScriptCount];
     FT_ULong current_script;
     bool positioned : 1;
-    bool supports_kerning : 1;
+    bool kerning_feature_selected : 1;
     HB_Buffer hb_buffer;
     QGlyphLayout::Attributes *tmpAttributes;
     unsigned int *tmpLogClusters;
