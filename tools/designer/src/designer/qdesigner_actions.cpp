@@ -28,6 +28,7 @@
 #include <qdesigner_formbuilder_p.h>
 #include <QtGui/QUndoCommand>
 #include <pluginmanager_p.h>
+#include <abstractlanguage.h>
 
 #include <QtAssistant/QAssistantClient>
 
