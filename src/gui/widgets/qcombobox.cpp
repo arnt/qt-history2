@@ -1904,7 +1904,7 @@ void QComboBox::showPopup()
     QStyleOptionComboBox opt = d->getStyleOption();
     QRect listRect(style()->subControlRect(QStyle::CC_ComboBox, &opt,
                                            QStyle::SC_ComboBoxListBoxPopup, this));
-    QRect screen = QApplication::desktop()->availableGeometry(this);
+    QRect screen = QApplication::desktop()->screenGeometry(this);
     QPoint below = mapToGlobal(listRect.bottomLeft());
     int belowHeight = screen.bottom() - below.y();
     QPoint above = mapToGlobal(listRect.topLeft());
@@ -1928,12 +1928,12 @@ void QComboBox::showPopup()
     if (listRect.width() > screen.width() )
         listRect.setWidth(screen.width());
     if (mapToGlobal(listRect.bottomRight()).x() > screen.right()) {
-        below.setX(screen.right() - listRect.width() + 1);
-        above.setX(screen.right() - listRect.width() + 1);
+        below.setX(screen.x() + screen.width() - listRect.width());
+        above.setX(screen.x() + screen.width() - listRect.width());
     }
-    if (mapToGlobal(listRect.topLeft()).x() < 0 ) {
-        below.setX(0);
-        above.setX(0);
+    if (mapToGlobal(listRect.topLeft()).x() < screen.x() ) {
+        below.setX(screen.x());
+        above.setX(screen.x());
     }
 
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
