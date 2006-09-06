@@ -67,7 +67,9 @@ void tst_QStackedLayout::getSetCheck()
     // has no problem handling out-of-bounds indices.
     // ("convenience function" => "just another way of achieving the
     // same goal")
-#ifdef Q_WS_WIN
+#ifdef Q_WS_MAC
+	QTest::ignoreMessage(QtWarningMsg, "QStackedLayout::setCurrentWidget: widget 0x0 not contained in stack");
+#elif defined(Q_WS_WIN)
 	QTest::ignoreMessage(QtWarningMsg, "QStackedLayout::setCurrentWidget: widget 00000000 not contained in stack");
 #else
 	QTest::ignoreMessage(QtWarningMsg, "QStackedLayout::setCurrentWidget: widget (nil) not contained in stack");
