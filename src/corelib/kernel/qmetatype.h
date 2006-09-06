@@ -73,7 +73,7 @@ public:
     static int type(const char *typeName);
     static const char *typeName(int type);
     static bool isRegistered(int type);
-    static void *construct(int type, const void *copy);
+    static void *construct(int type, const void *copy = 0);
     static void destroy(int type, void *data);
 
 #ifndef QT_NO_DATASTREAM
