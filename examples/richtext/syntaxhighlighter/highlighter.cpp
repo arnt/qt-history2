@@ -85,17 +85,17 @@ void Highlighter::highlightBlock(const QString &text)
         startIndex = text.indexOf(commentStartExpression);
 
     while (startIndex >= 0) {
-       int endIndex = text.indexOf(commentEndExpression, startIndex);
-       int commentLength;
-       if (endIndex == -1) {
-           setCurrentBlockState(1);
-           commentLength = text.length() - startIndex;
-       } else {
-           commentLength = endIndex - startIndex
-                           + commentEndExpression.matchedLength();
-       }
-       setFormat(startIndex, commentLength, multiLineCommentFormat);
-       startIndex = text.indexOf(commentStartExpression,
-                                               startIndex + commentLength);
+        int endIndex = text.indexOf(commentEndExpression, startIndex);
+        int commentLength;
+        if (endIndex == -1) {
+            setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        } else {
+            commentLength = endIndex - startIndex
+                            + commentEndExpression.matchedLength();
+        }
+        setFormat(startIndex, commentLength, multiLineCommentFormat);
+        startIndex = text.indexOf(commentStartExpression,
+                                                startIndex + commentLength);
     }
 }
