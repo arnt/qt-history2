@@ -2018,7 +2018,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     double pw = d->pen.widthF();
 
-    if (d->txop > QPainterPrivate::TxTranslate || pw > 1) {
+    if (!d->fast_pen && (d->txop > QPainterPrivate::TxTranslate || pw > 1)) {
         QBrush oldBrush = d->brush;
         d->brush = Qt::NoBrush;
 
@@ -2047,9 +2047,8 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         QVarLengthArray<QT_FT_Span, 4096> array(pointCount);
 
         QT_FT_Span span = { 0, 1, 0, 255 };
-        qreal dx = d->matrix.dx();
-        qreal dy = d->matrix.dy();
         const QPointF *end = points + pointCount;
+        qreal trans_x, trans_y;
         int x, y;
         int left = 0;
         int right = d->deviceRect.width();
@@ -2057,8 +2056,9 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         int bottom = d->deviceRect.height();
         int count = 0;
         while (points < end) {
-            x = qFloor(points->x() + dx);
-            y = qFloor(points->y() + dy);
+            d->matrix.map(points->x(), points->y(), &trans_x, &trans_y);
+            x = qFloor(trans_x);
+            y = qFloor(trans_y);
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
                 span.y = y;
