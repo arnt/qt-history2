@@ -67,8 +67,8 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Added the Cleanlooks style for improved integration with GNOME based desktops.
 
-- Added experimental support for Qt usage reporting ("metered licenses") 
-  on Linux, Windows and MacOS X. Reporting is disabled by default. 
+- Added experimental support for Qt usage reporting ("metered licenses")
+  on Linux, Windows and MacOS X. Reporting is disabled by default.
 
 - Compiler warnings with mingw g++ 3.4.5 removed
 
@@ -166,7 +166,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QKeySequence
 		Added a set of platform dependent standard shortcuts.
-		
+
 - QListWidget/QTreeWidget/QTableWidget
         When setting flags on a item the dataChanged() signal is now emitted
         Removed Unnecessary Q_ASSERT's
@@ -208,7 +208,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QGroupBox
 		Activating a groupbox by a shortcut will now show the focus rect.
-	
+
 - QHeaderView
 	Use the current resize mode to determine section sizes when
 	new rows are inserted.
@@ -283,13 +283,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         the factory can distinguish between multiple user types.
         Propagate Key_Enter to the editor before committing data, so the
         editor has a chance to perform custom input validation/fixup.
-		
+
 - QAbstractSpinBox
-        Add a hasAcceptableInput() property. 
+        Add a hasAcceptableInput() property.
         Make sure fixup/validate are called for non-qt subclasses of
         QAbstractSpinBox as well.
         Fix geometry issues when toggling frame on and off for spinboxes.
-        Add a property for correctionMode. 
+        Add a property for correctionMode.
         Add a property for acceleration.
 
 - QLineEdit
@@ -304,7 +304,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QStackedLayout/QStackedWidget
         Crash when removing widgets fixed.
-        
+
 - QMetaObject
         Added userProperty().
         Added normalizedType().
@@ -334,6 +334,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         If you move the cursor outside this area the tooltip will hide.
         Add a widget attribute to show tooltips for inactive windows.
 
+- QToolBar
+	Various fixes to better support toolbuttons, button groups and
+	comboboxes in the toolbar extension menu.
+
 - QVariant
         Added support for all QMetaType types.
         Added support for QMatrix as a known metatype.
@@ -359,12 +363,16 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QMotifStyle
 		Ensure that the font set on a menu item is respected.
-		
+
 - QPainter
-	Fixed a crash when drawing cosmetic lines outside the paint device 
+	Fixed a crash when drawing cosmetic lines outside the paint device
 	boundaries.
 	Fixed a pixel artifact when drawing cosmetic diagonal lines.
 	Optimized drawing of cosmetic lines of between 315 and 360 degrees.
+
+- QRasterPaintEngine
+	Fixed blending of 8 bit indexed images with alpha values.
+	Fixed drawing onto QImages that were wider than 2048 pixels.
 
 - quintptr and qptrdiff
         New integral typedefs have been added.
@@ -378,7 +386,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
     Fixed a rendering issue when showing horizontal and vertical lines
     created using Designer.
     Addded QStyle::SE_FrameContents to control the contents rect of a QFrame
-		
+
 - Qt::GroupSwitchModifier
         Added to the Qt::KeyboardModifiers enum. It represents
         e.g. the "AltGr" key found on many keyboards.
@@ -409,6 +417,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - Q3TextStream
         New class, added for compatiblity with Qt 3.
+
+- Q3IconView
+	Fix a case where selected icons disappeared.
 
 - Qt::NoDockWidgetArea
         Added to the Qt::ToolBarArea enum
@@ -446,10 +457,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	XP style, so that the two styles can use the same layout interchangeably. Note that splitter handles are
 	fully stylable through CSS, if a custom style or handle is required.
 	Disabled combo boxes now have the same background color as disabled line edits.
-	
+
 - QWindowsXPStyle
 	QPushButton looks more native when pressed.
-	
+
 - QWorkspace
         Resolved issue causing the maximized controls to overlap with menu in
         reverse mode.
@@ -458,7 +469,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Ensure that right-to-left layout is respected when positioning new
         windows.
         Crash fix when not having a titleBar.
-		
+
 - QCursor
         Added Qt::OpenHandCursor and Qt::ClosedHandCursor.
 
@@ -473,7 +484,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QMenu
         Made it possible for popup menus to cover the taskbar in Windows and KDE.
-		
+
 - QMessageBox
         API overhaul to support for more than 3 buttons
         Added support to display buttons in platform dependant order
@@ -496,22 +507,46 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QStackedWidget
 		Fixed issue where the size hint of the current widget would not be respected.
-		
+
 - QStatusBar
         Added insertWidget().
         Added insertPermanentWidget().
-		
+
 - QWhatsThis
 		Improved look and feel. More native appearence on Windows.
-		
+
 - QGLFormat
         Added openGLVersionFlags() function.
+	Added support for setting the swap interval for a context
+	(i.e. syncing to the vertical retrace).
+	Added support for setting red, green and blue buffer sizes.
+
+- QGLWidget
+	Fixed a resource leak that could occur when binding QImages
+	with the bindTexture() function.
+	Fixed renderText() to produce proper output when depth buffering is enabled.
+	Fixed bindTexture() to respect premultiplied QImage formats.
+	Respect the updatesEnabled() property.
+
 
 - QOpenGLPaintEngine
         Now supports all composition modes of QPainter natively through OpenGL.
+	Fixed a case where very large polygons failed to render correctly.
+	Only do a glClear() in begin() if the
+	QGLWidget::autoFillBackground() property is true.
+	Only do a buffer swap in end() if QGLWidget::autoBufferSwap()
+	is true.
+	Improved text drawing, both speed and quality.
 
+- QGLFramebufferObject
+	New class that encapsulates an OpenGL framebuffer object.
 
-- QDateTime 
+- QX11PaintEngine
+	Speed up polygon drawing with a solid pixmap brush.
+	Fixed masked pixmap brushes.
+	Speed up QImage drawing.
+
+- QDateTime
         Fix a parsing issue in QDateTime::fromString(const QString &s,
         Qt::DateFormat f)
 
@@ -689,6 +724,7 @@ I/O and Networking
 
 - QIcon
         Fixed issue where actualSize() might return a larger value than the requested size.
+	Added aQDataStream operators for QIcon.
 
 Database drivers
 -------------------------
@@ -734,7 +770,7 @@ Qtopia Core:
 - Improved memory usage when using screen with depth less than 16 bits.
 - Optimized CPU usage when widgets are partially hidden.
 - Improved error handling when clients connects to the server.
-- Introduced the QWSWindowSurface as a technique to create accelerated 
+- Introduced the QWSWindowSurface as a technique to create accelerated
   QPaintEngines.
 - Fixed leakage of semaphore arrays during an application crash.
 - Fixed a build issue preventing the use of mmx instructions when available.
@@ -742,7 +778,7 @@ Qtopia Core:
 - Removed internal limitation of 10 display servers.
 - Implemented support for multiple screens.
 - Fixed the -exceptions configure switch.
-- Implemented dynamic selection of the underlying driver for the VNC and 
+- Implemented dynamic selection of the underlying driver for the VNC and
   Transformed screen drivers.
 - Improved detection of 18 bit framebuffers.
 - Improved performance when using a rotated screen with 18 or 24 bit depth.
@@ -756,7 +792,7 @@ Qtopia Core:
 - Implemented QWSEmbedWidget which enables window embedding.
 - Made the tty device configureable for the LinuxFb screen driver.
 - Improved speed of drawing gradients.
-- Fixed a deadlock issue when using drag and drop and a calibrated mouse 
+- Fixed a deadlock issue when using drag and drop and a calibrated mouse
   handler.
 
 UNIX:
@@ -766,7 +802,7 @@ UNIX:
 
 - QPlastiqueStyle
 		Added support for picking up KDE icons on systems that support it.
-		
+
 - QTextCodec
         Use iconv(3) when available to implement the codec returned by
         QTextCodec::codecForLocale(). The new codec's name is "System"
@@ -796,14 +832,20 @@ X11:
         Don't crash if the X11 context has been released before the cursor
         is destructed.
 
+- QGLWidget
+	Fix crashes occuring with TightVNC.
+	Make QGLWidget work better with the software Mesa library.
+
 Demos / Examples
 
         Created a new directory containing desktop examples and moved the
         Screenshot example into it.
         New network example. Chat client which uses QUdpSocket to broadcast
         on all QNetworkInterface's interfaces to discover its peers.
-        Spreadsheet demo now uses the  QItemDelegate, QCompleter and 
+        Spreadsheet demo now uses the  QItemDelegate, QCompleter and
         QDateTimeEdit with calendar Popup.
+	Added an OpenGL button to some of the demos, that will toggle
+	usage of the OpenGL paintengine.
 
 Documentation
 
@@ -816,9 +858,9 @@ Tools
 Windows:
 		Ensured that widgets do not show themselves in a hover state if a popup has focus.
 		Fixed issues with rendering system icons on 16-bit displays.
-		Fixed issue where fonts or colors would be reset on the application whenever windows produced 
+		Fixed issue where fonts or colors would be reset on the application whenever windows produced
 		a WM_SETTINGSCHANGE event.
-		
+
 - QFileDialog
 		Added support for relative filepaths in native dialogs.
 
@@ -831,14 +873,21 @@ Windows:
 		of the clipboard header.
 		Improved support for drag and drop of unicode text.
 
-	
+- QGLWidget/QOpenGLPaintEngine
+	Usage of GL/WGL extension function pointers have been fixed. They are now
+	correctly resolved within the context they are used.
+
+- QGLColormap
+	Fix cases where the colormap was not applied correctly.
+
+
 ****************************************************************************
 *                          Tools                                           *
 ****************************************************************************
 Assistant
         Middle clicking on links will open up new tabs.
         Added "Find as you type" feature to search documentation page.
-        Added "Sync with Table Of contents" to select the current page in the 
+        Added "Sync with Table Of contents" to select the current page in the
         contents list.
 
 Moc
