@@ -206,6 +206,7 @@ void QAbstractScrollAreaPrivate::init()
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
     viewportFilter = new QAbstractScrollAreaFilter(this);
     viewport = new QWidget(q);
+    viewport->setObjectName(QLatin1String("qt_scrollarea_viewport"));
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAutoFillBackground(true);
     viewport->installEventFilter(viewportFilter);
