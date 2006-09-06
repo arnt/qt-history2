@@ -1778,7 +1778,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 #ifndef Q_WS_WIN
         if (d->hasSelectedText()) {
 #else
-        if (d->hasSelectedText() && d->completer 
+        if (d->hasSelectedText() && d->completer
             && d->completer->completionMode() == QCompleter::InlineCompletion) {
 #endif
             d->moveCursor(d->selend, false);
@@ -2600,6 +2600,8 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         setCursorVisible(false);
         cursor = pos;
         setCursorVisible(true);
+        if (!q->contentsRect().contains(cursorRect()))
+            q->update();
     }
     QStyleOptionFrame opt = getStyleOption();
     if (mark && !q->style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
