@@ -72,18 +72,15 @@ void tst_QStackedWidget::getSetCheck()
     obj1.addWidget(var2);
     obj1.setCurrentWidget(var2);
     QCOMPARE(var2, obj1.currentWidget());
-#if QT_VERSION >= 0x040200
+
+// Disabled, task to fix is 128939.
+#if 0
     // Layouts assert on any unknown widgets here, 0-pointers included.
     // This seems wrong behavior, since the setCurrentIndex(int), which
     // is really a convenience function for setCurrentWidget(QWidget*),
     // has no problem handling out-of-bounds indices.
     // ("convenience function" => "just another way of achieving the
     // same goal")
-#ifdef Q_WS_WIN
-    QTest::ignoreMessage(QtWarningMsg, "QStackedWidget::setCurrentWidget: widget 00000000 not contained in stack");
-#else
-	QTest::ignoreMessage(QtWarningMsg, "QStackedWidget::setCurrentWidget: widget (nil) not contained in stack");
-#endif
 	obj1.setCurrentWidget((QWidget *)0);
     QCOMPARE(obj1.currentWidget(), var2);
 #endif
