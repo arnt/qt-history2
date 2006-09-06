@@ -2724,12 +2724,14 @@ void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
     QWSWindow *embedded = findWindow(cmd->simpleData.embedded);
 
     if (!embedder) {
-        qWarning("QWSServer: Embed request from window %i failed: No such id");
+        qWarning("QWSServer: Embed request from window %i failed: No such id",
+                 static_cast<int>(cmd->simpleData.embedder));
         return;
     }
 
     if (!embedded) {
-        qWarning("QWSServer: Request to embed window %i failed: No such id");
+        qWarning("QWSServer: Request to embed window %i failed: No such id",
+                 static_cast<int>(cmd->simpleData.embedded));
         return;
     }
 
