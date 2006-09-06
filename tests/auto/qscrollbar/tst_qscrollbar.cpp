@@ -54,8 +54,7 @@ void tst_QScrollBar::scrollSingleStep()
     connect(testWidget, SIGNAL(actionTriggered(int)), this, SLOT(hideAndShow(int)));
 
     // Get rect for the area to click on
-    QStyleOptionSlider opt;
-    opt.initFrom(testWidget);
+    const QStyleOptionSlider opt = qt_qscrollbarStyleOption(testWidget);
     QRect sr = testWidget->style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                                    QStyle::SC_ScrollBarAddLine, testWidget);
 
