@@ -16,6 +16,7 @@
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qstyleoption.h>
+#include <qscrollbar.h>
 
 #include <qplastiquestyle.h>
 #include <qwindowsstyle.h>
@@ -48,6 +49,7 @@ public:
     virtual ~tst_QStyle();
 private:
     void testAllFunctions(QStyle *);
+    void testScrollBarSubControls(QStyle *);
 private slots:
     void drawItemPixmap();
     void initTestCase();
@@ -148,6 +150,22 @@ void tst_QStyle::testAllFunctions(QStyle *style)
         if (icn.isNull()) {
             qWarning("missing StandardIcon: %d", i);
         }
+    }
+    
+    testScrollBarSubControls(style);
+
+}
+
+void tst_QStyle::testScrollBarSubControls(QStyle *)
+{
+    QScrollBar scrollBar;
+    scrollBar.show();
+    const QStyleOptionSlider opt = qt_qscrollbarStyleOption(&scrollBar);
+    foreach (int subControl, QList<int>() << 1 << 2 << 4 << 8) {
+        QRect sr = testWidget->style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+                                    QStyle::SubControl(subControl), &scrollBar);
+        
+        QVERIFY(sr.isNull() == false);
     }
 }
 
