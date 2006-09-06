@@ -11,934 +11,1043 @@
 
     \since 4.2
 
-
-    Starting with 4.2, Qt provides a simple way to customize the appearance of
-    widgets using Style Sheets. The concepts, terminology and syntax of Qt Style
-    Sheets are reminescent of HTML Cascading Style Sheets (CSS).
-
-    Style Sheets can enable one to provide, for example, yellow backgrounds for
-    mandatory fields, red color for "potentially detructive" push buttons etc.
-    Stylesheets may also be used to customize the look and feel of your
-    application without having to subclass QStyle. For instance, you can have
-    all the message boxes in your application to have their text selectable by
-    specifying a simple style sheet. Style Sheets can be replaced on the fly
-    enabling a user to choose between Style Sheets at run time.
-
-    Qt Designer provides Style Sheet integration making it straightforward to
-    review the effects of a Style Sheet and allowing one to preview the same
-    widget in different styles (QStyle).
+    Starting with Qt 4.2, Qt provides a simple way to customize the appearance
+    of widgets using Style Sheets. The concepts, terminology and syntax of Qt
+    Style Sheets are reminescent of HTML Cascading Style Sheets (CSS).
 
     Topics:
 
     \tableofcontents
 
     \section1 Introduction
+    
+    Style Sheets can enable one to provide, for example, yellow backgrounds for
+    mandatory fields, red color for "potentially destructive" push buttons, mac
+    style combo boxes etc. Style Sheets provide the guarantee that the  widgets
+    look consistent across platforms i.e the red color push button looks red on
+    all platforms (and all QStyle's).
+    
+    Stylesheets may also be used to customize the look and feel of your
+    application without having to subclass QStyle. For instance, you can have
+    all the message boxes in your application to have their text selectable by
+    specifying a simple style sheet. You may also use style sheets to create
+    radio buttons and combo boxes that look entirely different from the native
+    ones.
+    
+    Style Sheets can be replaced on the fly enabling a user to choose between
+    Style Sheets at application run time.
 
-        Prior to Qt 4.2, Colors and backgrounds on widgets were set using the
-        QPalette. For instance, setting the QPalette::Button role to red and
-        setting the palette on a push button, made a red push button. However, a
-        red push button, was not guaranteed on all styles since style authors
-        are restricted by strict style guidelines  or are restricted by the
-        native theme engine. For example, the QWindowsXPStyle (the default
-        style for Windows XP) cannot draw red push buttons because it is limited
-        to using pixmaps from the native theme engine and hence cannot respect
-        the palette colors. It can, however, provide you a push button with red
-        color text by specifying QPalette::ButtonText role to
-        red.QPlastiqueStyle can provide both.
+    Qt Designer provides Style Sheet integration making it straightforward to
+    review the effects of a Style Sheet and allowing one to preview the same
+    widget in different styles (QStyle).
 
-        A related problem is that styles use different roles to pick colors for
-        their widgets. For example, in QWindowsStyle, a combo box looks like a
-        line edit and it picks up QPalette::Base and QPalette::Text for the
-        background and foreground. In QCleanLooks style, a combo box looks more
-        like a button and hence QPalette::Button and QPalette::ButtonText are
-        used. As a result, even though the style may be able to provide the
-        requested color, it needs to be set in the right role depending on the
-        style.
 
-        When developing a cross platform application, assumptions regarding the
-        QStyle used to render your application cannot be made since the default
-        style for the application is determined at run time depending on the
-        environment. As a result, even though the push buttons appeared as
-        desired in your development environment, it is not guaranteed to look
-        similar in other environments. This selective "respect" for palette
-        entries by the style made it hard to design widgets that were conformant
-        with company/application policies and guidelines.
+    \section1 Background
 
-        Unlike having to deal with palette and style inconsistencies to get the
-        right style desired for a widget, with Qt Style Sheets a widget is
-        guaranteed to have the properties mentioned in the stylesheet overriding
-        the properties of the native widgets, where necessary. When it is not
-        possible to render a widget in the native style using the properties
-        metioned in the Style Sheet, the widget is NOT rendered using the native
-        style (and is rendered using the provided characteristics instead). For
-        example, by just setting ONLY the background-color on a QPushButton,
-        gives you a "flat" push button (i.e no borders). This is because in one
-        or more native styles, the push button cannot be rendered in requested
-        color. You can easily customize the appearance of what you think is a
-        good push button completely using a Style Sheet in these cases. Note
-        that if you rather not put in the effort to specify a Style Sheet, an
-        alternate approach is to hard code a QStyle for the QPushButton and
-        setting the palette appropriately.
+    Prior to Qt 4.2, Colors and backgrounds on widgets were set using the
+    QPalette. For instance, setting the QPalette::Button role to red and setting
+    the palette on a push button, made a red push button. However, a red push
+    button, was not guaranteed on all styles since style authors are restricted
+    by strict style guidelines  or are restricted by the native theme engine.
+    For example, the QWindowsXPStyle (the default style for Windows XP) cannot
+    draw red push buttons because it is limited to using pixmaps from the native
+    theme engine and hence cannot respect the palette colors. It can, however,
+    provide you a push button with red color text by specifying
+    QPalette::ButtonText role to red.QPlastiqueStyle can provide both.
 
-        Qt Style Sheets let you customize almost every aspect of a widget with a
-        syntax that has been inspired by Cascading Style Sheets (CSS). Similar
-        to CSS, Style Sheets in Qt cascade. Styles Sheets can be set on the
-        application using QApplication::setStyleSheet or on a widget or window
-        using QWidget::setStyleSheet. Style Sheet of the widget, the parent
-        widget(s) and the application are cascaded to derive the final Style
-        Sheet for the widget.
+    A related problem is that styles use different roles to pick colors for
+    their widgets. For example, in QWindowsStyle, a combo box looks like a line
+    edit and it picks up QPalette::Base and QPalette::Text for the background
+    and foreground. In QCleanLooks style, a combo box looks more like a button
+    and hence QPalette::Button and QPalette::ButtonText are used. As a result,
+    even though the style may be able to provide the requested color, it needs
+    to be set in the right role depending on the style.
 
-        Qt applications can have a style set using QApplication::setStyle.
-        Styles can also be set on individual widgets using QWidget::setStyle. It
-        is important to note that QStyle in Qt are not propagated. Setting a
-        style on a QGroupBox, for instance, does not propagate the style to the
-        children of the QGroupBox. Since Style Sheets, by their nature
-        propagate, a QStyle is automatically propagated from parent to child
-        when using Style Sheets. Additionally, a widget is always rendered using
-        QWidget::style(), if a custom style has been set.
+    When developing a cross platform application, assumptions regarding the
+    QStyle used to render your application cannot be made since the default
+    style for the application is determined at run time depending on the
+    environment. As a result, even though the push buttons appeared as desired
+    in your development environment, it is not guaranteed to look similar in
+    other environments. This selective "respect" for palette entries by the
+    style made it hard to design widgets that were conformant with
+    company/application policies and guidelines.
+
+
+    \section1 Style Sheet Approach
+
+    Unlike having to deal with palette and style inconsistencies to get the
+    right style desired for a widget, with Qt Style Sheets a widget is
+    guaranteed to have the properties mentioned in the stylesheet overriding the
+    properties of the native widgets, where necessary. When it is not possible
+    to render a widget in the native style using the properties metioned in the
+    Style Sheet, the widget is \e{not} rendered using the native style (and is
+    rendered using the provided characteristics instead). For example, by just
+    setting \e{only} the background-color on a QPushButton, gives you a "flat"
+    push button (i.e no borders). This is because in one or more native styles,
+    the push button cannot be rendered in requested color. You can easily
+    customize the appearance of what you think is a good push button completely
+    using a Style Sheet in these cases. Note that if you rather not put in the
+    effort to specify a Style Sheet, an alternate approach is to hard code a
+    QStyle for the QPushButton and setting the palette appropriately.
+
+    The syntax for Qt Style Sheets has been inspired by Cascading Style Sheets
+    (CSS). Similar to CSS, Style Sheets in Qt cascade. Styles Sheets can be set
+    on the application using QApplication::setStyleSheet() or on a widget or
+    window using QWidget::setStyleSheet(). Style Sheet of the widget, the parent
+    widget(s) and the application are cascaded to derive the final Style Sheet
+    for the widget.
+
+    Qt applications can have a style set using QApplication::setStyle(). Styles
+    can also be set on individual widgets using QWidget::setStyle(). It is
+    important to note that QStyle in Qt are not propagated. Setting a style on a
+    QGroupBox, for instance, does not propagate the style to the children of the
+    QGroupBox. Since Style Sheets, by their nature propagate, a QStyle is
+    automatically propagated from parent to child when using Style Sheets.
+    Additionally, a widget is always rendered using QWidget::style(), if
+    a style was set explicity using QWidget::setStyle().
 
 
     \section1 Limitations
 
-        Qt Style Sheet is not supported for Mac OS X. Also, only a subset of
-        widget's are currently styleable. Please see \l"{ Supported Widgets }"
-        for a complete list.
+    Qt Style Sheet is not supported with QMacStyle which is the default style
+    for Qt application on Mac OS X. Also, only a subset of widget's are
+    currently styleable. Please see \l"{ Supported Widgets }" for a complete
+    list.
 
-        We expect that the limitations above will be removed for Qt 4.3.
+    We expect that these limitations will be removed for Qt 4.3.
+
 
     \section1 Terminology and Syntax
 
-        In the coming section, we cover the basic Style Sheet terminology and
-        syntax. You will find the rules and terminology are almost identical to
-        those of HTML CSS.
+    In the coming section, we cover the basic Style Sheet terminology and
+    syntax. You will find the rules and terminology are almost identical to
+    those of HTML CSS.
 
-        \section2 Style Rule
+    \section2 Style Rule
 
-            A Style Rule is a string made up of a selector and a declaration.
-            For example,
-            \code
-                QPushButton { color: red }
-            \endcode
+    A Style Rule is a string made up of a selector and a declaration.
+    For example,
+    \code
+        QPushButton { color: red }
+    \endcode
 
-            In the above Style Rule, "QPushButton" is the Selector and the  "{
-            color: red }" is the Declaration. The above rule suggests that
-            QPushButton and its derivatives need to have the foreground color as
-            red. The Selector determines whether a rule applies to a widget. The
-            above rule for example will not be applicable to QLineEdits' since
-            QLineEdit is not a QPushButton. The above rule will, however, apply
-            to a MyPushButton which derives from QPushButton.
+    In the above Style Rule, "QPushButton" is the Selector and the  "{ color:
+    red }" is the Declaration. The above rule suggests that QPushButton and its
+    derivatives need to have the foreground color as red. The Selector
+    determines whether a rule applies to a widget. The above rule for example
+    will not be applicable to QLineEdits' since QLineEdit is not a QPushButton.
+    The above rule will, however, apply to a MyPushButton which derives from
+    QPushButton.
 
-        \section2 Style Sheet
-            A Style Sheet is a list of Style Rules. For example,
-            \code
-                QPushButton { color: red }
-                QLineEdit { color: pink }
-            \endcode
+    \section2 Style Sheet
+    A Style Sheet is a list of Style Rules. For example,
+    \code
+        QPushButton { color: red }
+        QLineEdit { color: pink }
+    \endcode
 
-        \section2 Declaration
-            A Declaration is a semicolon separated list of "attribute: value".
-            For example,
-            \code
-                QPushButton { color: red; background-color: white; }
-            \endcode
+    \section2 Declaration
 
-            Note: The semicolon at the end is optional.
+    A Declaration is a semicolon separated list of "attribute: value".
+    For example,
+    \code
+        QPushButton { color: red; background-color: white; }
+    \endcode
 
-            Each widget supports a set of attributes and values as specified
-            below.
+    Note: The semicolon at the end is optional.
 
-        \section2 Selectors
-            Selectors help in determining if the corresponding Declaration
-            applies. Selector come in a variety of flavors.
+    Each widget supports a set of attributes and values as specified in
+    \l{Supported Widgets} and \l{Supported Properties}. In this document, the
+    term "attribute" and "property" are used interchangeably.
+
+    \section2 Selectors
+    Selectors help in determining if the corresponding Declaration applies.
+    Selector come in a variety of flavors.
+
+    \table
+    \header
+        \o Selector Type (CSS Term)
+        \o Selector Pattern Example
+        \o Description
+
+    \row
+        \o Univeral Selector
+        \o *
+        \o Matches everything
+
+    \row
+        \o Type Selector
+        \o QPushButton
+        \o Matches QPushButton and derivatives of QPushButton
+
+    \row
+        \o Class Selector
+        \o .QPushButton
+        \o Matches QPushButton (and not its derivates)
+
+    \row
+        \o Attribute Selector
+        \o QPushButton[flat="false"]
+        \o Matches QPushButtons that are non-flat. Yoy may use this selector
+           format format to test for any Q_PROPERTY. For example, 
+           QPushButton[checked="true"] matches checkable push buttons.
+           \e{Property names and values are case sensitive.}
+
+    \row
+        \o ID Selector
+        \o #updateButton
+        \o Matches any button whose QObject::objectName() is updateButton.
+
+    \row
+        \o Descendant Selector
+        \o QDialog QPushButton
+        \o Matches all QPushButton's that are inside a QDialog.
+
+    \row
+        \o Child Selector
+        \o #myFrame > QPushButton
+        \o Matches all QPushButton's that are children of any widget that has
+           the QObject::objectName() "myFrame".
+    \endtable
+
+    The patterns above can be chained using comma. For example,
+    \code
+        QPushButton, QLineEdit { color: red }
+    \endcode
+    is equivalent to (note that the ordering of Selectors is preserved)
+    \code
+        QPushButton { color: red }
+        QLineEdit { color: red }
+    \endcode
+
+    Qt Style Sheet supports CSS2.1 pattern matching. We redirect the interested
+    reader to \l{http://www.w3.org/TR/REC-CSS2/selector.html#q1}.
+
+    \section2 Pseudo States
+
+    Selectors may contain Pseudo States or GUI states that denote that the
+    Declaration be applied only when a certain GUI State is entered. Pseudo
+    States must always appear at the end of a Selector pattern. For example,
+    \code
+        QPushButton:hover { color: gray; }
+    \endcode
+    The above rule applies when the mouse hovers over a QPushButton.
+
+    Pseudo States can also be chained to imply a logical AND,
+    \code
+        QCheckBox:hover:checked { color: white }
+    \endcode
+    The above rule applies when the mouse hovers over a checked QCheckBox.
+
+    The following Pseudo States are supported,
+    \table
+    \header
+        \o Pseudo State
+        \o Description
+
+    \row
+        \o :checked
+        \o The widget is checked (widget like QRadioButton, QCheckBox)
+
+    \row
+        \o :disabled
+        \o The widget is disabled
 
 
-            \table
-            \header
-                \o Selector Pattern
-                \o Description
+    \row
+        \o :enabled
+        \o The widget is enabled
 
-            \row
-                \o \c *
-                \o Matches everything
+    \row
+        \o :focus
+        \o The widget has input focus
 
-            \row
-                \o \c QPushButton
-                \o Matches QPushButton and derivatives of QPushButton
+    \row
+        \o :hover
+        \o Mouse hover's over the widget
 
-            \row
-                \o \c .QPushButton
-                \o Matches QPushButton (and not its derivates)
+    \row
+        \o :indeterminate
+        \o The widget has indeterminate check state (widget like QRadioButton,
+           QCheckBox)
 
-            \row
-                \o QPushButton[flat="false"]
-                \o Matches QPushButtons that are non-flat. Yoy may use this
-                   selector format to test for any Q_PROPERTY. For example,
-                   QPushButton[checked="true"] matches checkable push buttons.
+    \row
+        \o :off
+        \o For widgets that can be toggled, this applies to widgets in the off
+           state.
 
-            \row
-                \o #updateButton
-                \o Matches any button whose QObject::objectName() is
-                   updateButton
+    \row
+        \o :on
+        \o For widgets that can be toggled, this applies to widgets in the on
+           state.
 
-            \endtable
+    \row
+        \o :pressed
+        \o The widget is being pressed using mouse
 
-            The patterns above can be chained using comma. For example,
-            \code
-                QPushButton, QLineEdit { color: red }
-            \endcode
-            is equivalent to
-            \code
-                QPushButton { color: red }
-                QLineEdit { color: red }
-            \endcode
+    \row
+        \o :unchecked
+        \o The widget is unchecked (widget like QRadioButton, QCheckBox)
 
-            Note that selector patterns can be more complex than above and Qt
-            Style Sheet supports CSS2.1 pattern matching. We redirect the
-            interested reader to http://www.w3.org/TR/REC-CSS2/selector.html#q1.
+    \endtable
 
-            \section2 Pseudo States
-                Selectors may contain Pseudo States or GUI states that denote
-                that the Declaration be applied only when a certain GUI State is
-                entered. Pseudo States must always appear at the end of a Simple
-                selector Pattern. For example,
-                \code
-                    QPushButton:hover { color: gray; }
-                \endcode
-                The above rule applies when the mouse hovers over a QPushButton.
+    \section2 Pseudo Elements
 
-                Pseudo States can also be chained to imply a logical AND,
-                \code
-                    QCheckBox:hover:checked { color: white }
-                \endcode
-                The above rule applies when the mouse hovers over a checked
-                QCheckBox.
+    For styling complex widgets, it is necessary to gain access to sub elements
+    of the widget, like the menu indicator in a QPushButton or drop down arrow
+    in a QComboBox. For example,
+    \code
+        QPushButton::menu-indicator { image: url(indicator.png) }
+    \endcode
 
-                The following Pseudo States are supported,
-                \table
-                \header
-                    \o Pseudo State
-                    \o Description
+    The above Rule, styles the menu indicator arrow for QPushButton's with
+    menus. The "::" syntax is borrowed from CSS3 Pseudo Element syntax. Qt
+    Pseudo Elements differ conceptually from CSS3 Pseudo Elements and should not
+    be confused.
 
-                \row
-                    \o :checked
-                    \o The widget is checked (widget like
-                    QRadioButton, QCheckBox)
+    Pseudo Elements can be coupled with Pseudo States. For example,
+    \code
+        QPushButton::menu-indicator:hover {
+            image: url(indicator_bright.png)
+        }
+    \endcode
 
-                \row
-                    \o :disabled
-                    \o The widget is disabled
+    The following pseduo elements have been defined. See also
+    \l{Supported Widgets}.
+    
+    \table
+    \header
+        \o Pseudo Element
+        \o Description
 
+    \row
+        \o \c menu-indicator
+        \o The menu indicator in a QPushButton
 
-                \row
-                    \o :enabled
-                    \o The widget is enabled
+    \row
+        \o \c down-arrow
+        \o The down arrow in a QComboBox, QSpinBox
 
-                \row
-                    \o :focus
-                    \o The widget has input focus
+    \row
+        \o \c up-arrow
+        \o The up arrow in a QComboBox, QSpinBox
 
-                \row
-                    \o :hover
-                    \o Mouse hover's over the widget
+    \row
+        \o \c indicator
+        \o The indicator of a QCheckBox, QRadioButton, QGroupBox
 
-                \row
-                    \o :indeterminate
-                    \o The widget has indeterminate check
-                    state (widget like
-                    QRadioButton, QCheckBox)
+    \row
+        \o \c up-button
+        \o The up button in a QSpinBox
 
-                \row
-                    \o :off
-                    \o For widgets that can be toggled, this
-                    applies to widgets in the off state.
+    \row
+        \o \c down-button
+        \o  The down button in a QSpinBox
 
-                \row
-                    \o :on
-                    \o For widgets that can be toggled, this
-                    applies to widgets in the on state.
+    \row
+        \o \c title
+        \o  The title of a QGroupBox item
 
-                \row
-                    \o :pressed
-                    \o The widget is being pressed using
-                       mouse
+    \row
+        \o \c item
+        \o An item in a QMenuBar, QMenu, QStatusBar
 
-                \row
-                    \o :unchecked
-                    \o The widget is unchecked (widget like
-                    QRadioButton, QCheckBox)
-
-                \endtable
-
-        \section2 Pseudo Elements
-            For styling complex widgets, it is necessary to gain access to sub
-            elements of the widget, like the menu indicator in a QPushButton or
-            drop down arrow in a QComboBox. For example,
-            \code
-                QPushButton::menu-indicator { image: url(indicator.png) }
-            \endcode
-
-            The above Rule, styles the menu indicator arrow for QPushButton's
-            with menus. Note that Pseudo Elements can be coupled with Pseudo
-            States. For example,
-            \code
-                QPushButton::menu-indicator:hover {
-                    image: url(indicator_bright.png)
-                }
-            \endcode
-
-            The following pseduo elements have been defined.
-            \table
-            \header
-                \o Pseudo Element
-                \o Description
-
-            \row
-                \o \c menu-indicator
-                \o The menu indicator in a QPushButton
-
-            \row
-                \o \c down-arrow
-                \o The down arrow in a QComboBox, QSpinBox
-
-            \row
-                \o \c up-arrow
-                \o The up arrow in a QComboBox, QSpinBox
-
-            \row
-                \o \c indicator
-                \o The indicator of a QCheckBox, QRadioButton, QGroupBox
-
-            \row
-                \o \c up-button
-                \o The up button in a QSpinBox
-
-            \row
-                \o \c down-button
-                \o  The down button in a QSpinBox
-
-            \row
-                \o \c title
-                \o  The title of a QGroupBox item
-
-            \row
-                \o \c item
-                \o An item in a QMenuBar, QMenu, QStatusBar
-
-        \endtable
+    \endtable
 
 
     \section1 Style Sheet computation
 
-        Often conflicts arise since the Style Rules specify the same property
-        with different values. For example consider the Style Sheet set on a
-        QPushButton,
-        \code
-            QAbstractButton { color: gray; }
-            QPushButton { color: red; }
-         \endcode
+    Often conflicts arise since the Style Rules specify the same property with
+    different values. For example, consider the Style Sheet set on a
+    QPushButton,
+    \code
+        QAbstractButton { color: gray; }
+        QPushButton { color: red; }
+    \endcode
 
-        Both the rules above apply to QPushButton and there is conflict for the
-        property "color". In such a case,
-        the latest rule takes precedence. So for the above example, the color is
-        computed as "red".
+    Both the rules above apply to QPushButton and there is conflict for the
+    property "color". In such a case, the latest rule takes precedence. So for
+    the above example, the color is computed as "red".
 
-        Additionally, Some selectors that are more specific that the other.
-        Declarations that have more specific Selectors are chosen regardless of
-        the order in which they appear. For example,
-        \code
-            #updateButton { color: white; }
-            QAbstractButton { color: gray; }
-            QPushButton { color: red; }
-        \endcode
+    Additionally, some Selectors are more specific that the other. Declarations
+    that have more specific Selectors are chosen regardless of the order in
+    which they appear. For example,
+    \code
+        #updateButton { color: white; }
+        QAbstractButton { color: gray; }
+        QPushButton { color: red; }
+    \endcode
 
-        Assuming the above style sheet is set on a QPushButton with objectName
-        "updateButton", the computed color
-        is "white". This is because the selector "#updateButton" is more
-        specific than "QPushButton" or "QAbstractButton".
-        Note that QAbstractButton and QPushButton have the same specificity (i.e
-        the deepness of ancestry does not matter ??).
+    Assuming the above style sheet is set on a QPushButton with objectName
+    "updateButton", the computed color is "white". This is because the selector
+    "#updateButton" is more specific than "QPushButton" or "QAbstractButton".
+    Note that QAbstractButton and QPushButton have the same specificity (i.e)
+    even though QPushButton is closer to QAbstractButton in the inheritance
+    heirarchy, as far as Style Sheet Selectors are concerted they have the same
+    specificity.
 
-        Similarly, selectors with pseudo states are more specific that ones that
-        do not specify pseduo states.
-        \code
-            QPushButton:hover { color: white; }
-            QPushButton { color: red; }
-        \endcode
+    Similarly, selectors with pseudo states are more specific that ones that do
+    not specify pseduo states.
+    \code
+        QPushButton:hover { color: white; }
+        QPushButton { color: red; }
+    \endcode
 
-        When the mouse is not hovering over the button, its color is "red". When
-        the mouse hovers over it, it becomes "white".
+    When the mouse is not hovering over the button, its color is "red". When
+    the mouse hovers over it, it becomes "white".
 
-        Here's a tricky one,
-        \code
-            QPushButton:hover { color: white; }
-            QPushButton:enabled { color: red; }
-        \endcode
+    Here's a tricky one,
+    \code
+        QPushButton:hover { color: white; }
+        QPushButton:enabled { color: red; }
+    \endcode
 
-        When the mouse does not hover the color of the button is "red". Its
-        interesting (and anti-intuitive) to note that when the mouse does hover
-        the color is still "red" and not white as one might expect. This is
-        because both rules have same specificity when the mouse hovers over the
-        button. The button has the enabled and the hover state at the same time.
-        As far as Style Sheets are concerned, "hover" state has no precedence
-        over "enabled" state. In general to overcome conflict issues, its best
-        to keep rules as specific as possible. The above rule can be rewritten
-        as,
-        \code
-            QPushButton:hover:enabled { color: white; }
-            QPushButton:enabled { color: red; }
-        \endcode
+    When the mouse does not hover the color of the button is "red". Its
+    interesting (and anti-intuitive) to note that when the mouse does hover the
+    color is still "red" and not white as one might expect. This is because both
+    rules have same specificity when the mouse hovers over the button. The
+    button has the enabled and the hover state at the same time. As far as Style
+    Sheets are concerned, "hover" state has no precedence over "enabled" state.
+    In general to overcome conflict issues, its best to keep rules as specific
+    as possible. The above rule can be rewritten as,
+    \code
+        QPushButton:hover:enabled { color: white; }
+        QPushButton:enabled { color: red; }
+    \endcode
+    Now when you hover over a button, the color is "white" as expected. This is
+    because the first rule is more specific that the second.
 
-        Now when you hover over a button, the color is "white" as expected. This
-        is because the first rule is more specific that the second.
+    An alternate approach is to just simply reorder the rules,
+    \code
+        QPushButton:enabled { color: red; }
+        QPushButton:hover { color: white; }
+    \endcode
 
-        As mentioned, style sheets can be set on the QApplication, parent
-        widgets and the widget itself. Style Sheet are cascaded (or merged) one
-        after the other starting with QApplication Style Sheet, followed by the
-        ancestor's Style Sheet (as they appear in the widget heirarchy) and the
-        widget Style Sheet itself. Property values are calculated as above. It
-        should be noted that setting the style sheet on the widget does not
-        automatically give it "priority" over the other rules in the parent
-        widgets or the QApplication. It is entirely dependant on the specificity
-        of the selectors and their order of appearance as described above. To
-        illustrate consider the following example,
-        \code
-            QPushButton:enabled { color: brown; } /* app style sheet */
-            :enabled { color: white; } /* widget style sheet */
-        \endcode
+    As mentioned, style sheets can be set on the QApplication, parent widgets
+    and the widget itself. Style Sheet are cascaded (or merged) one after the
+    other starting with QApplication Style Sheet, followed by the ancestor's
+    Style Sheet (as they appear in the widget heirarchy) and the widget Style
+    Sheet itself. Property values are calculated as above. It should be noted
+    that setting the style sheet on the widget does not automatically give it
+    "priority" over the other rules in the parent widgets or the QApplication.
+    It is entirely dependant on the specificity of the selectors and their order
+    of appearance as described above. To illustrate consider the following
+    example,
+    \code
+        QPushButton:enabled { color: brown; } // Aplication style sheet
+    \endcode
+    \code
+        :enabled { color: white; } // widget style sheet
+    \endcode
+    The style sheets are just merged and since "QPushButton:enabled" is more
+    specific than ":enabled", the button appears "brown".
 
-        As discussed above, the style sheets are just merged and since
-        "QPushButton:enabled" is more specific
-        than ":enabled", the button appears "brown".
+    The cascading nature of style sheets is a complex topic and whole books have
+    been written on the topic. The cascade is similar to the CSS2 specification.
+    We encourage you to read the gory details at
+    \l{http://www.w3.org/TR/CSS2/cascade.html#cascade}.
 
-        The cascading nature of style sheets is a complex topic and whole books
-        have been written on the topic. The
-        cascade is similar to the CSS2 specification. We encourage you to read
-        the gory details at
-        http://www.w3.org/TR/CSS2/cascade.html#cascade
 
-        \section1 Examples
+    \section1 Examples
 
-            In this section, we will see examples of how to style widgets using
-            Style Sheets. Qt Designer is an excellent tool to preview style
-            sheet styles. Just right-click on the any widget in Designer and
-            select "Edit styleSheet...".
+    In this section, we will see examples of how to style widgets using Style
+    Sheets. Qt Designer is an excellent tool to preview style sheet styles. Just
+    right-click on the any widget in Designer and select "Edit styleSheet...".
 
-            \section2 Simple Style Sheets
-                You can change the color of a line edit by
-                \code
-                    QLineEdit { color: red; }
-                \endcode
+    \section2 Simple Style Sheets
 
-                Changing the background color of a line edit
-                \code
-                    QLineEdit { background-color: beige; }
-                \endcode
+    You can change the color of a line edit by
+    \code
+        QLineEdit { color: red; }
+    \endcode
 
-                Changing the color of a push button to red when normal and to
-                green when hovered.
-                \code
-                    QPushButton { color: red }
-                    QPushButton:hover { color: green; }
-                \endcode
+    Changing the background color of a line edit
+    \code
+        QLineEdit { background-color: beige; }
+    \endcode
 
-            \section2 The Style Sheet Box Model
-                Widgets are styled using the Box model similar to CSS. The
-                widget's rectangle is split up as below.
+    Changing the color of a push button to red when normal and to green when
+    hovered.
+    \code
+        QPushButton { color: red }
+        QPushButton:hover { color: green; }
+    \endcode
 
-                The margins are specified using the "margin" property. The
-                Border is specified using the "border" property. The padding is
-                specified using the "padding" property. The margin rect is
-                transparent. The border rect is the area where a border is drawn
-                using one of the Border Styles. The padding specifies spacing
-                between the border and the content.
+    \section2 The Style Sheet Box Model
 
-            \section2 Complex example
-                Lets attempt a red color QPushButton
-                \code
-                    QPushButton { background-color: red; }
-                \endcode
+    Widgets are styled using the Box model similar to CSS. The widget's
+    rectangle is split up as below.
 
-                Notice that the push button has no borders. The reason is that
-                styles like WindowsXP have no concept of red color push buttons
-                and hence Qt decides to render the button entirely on the
-                properties listed in the Style Sheet. Let us improve the
-                situation by specifying a border.
-                \code
-                QPushButton {
-                    background-color: red;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-color: beige;
-                }
-                \endcode
+    The margins are specified using the "margin" property. The Border is
+    specified using the "border" property. The padding is specified using the
+    "padding" property. The margin rect is transparent. The border rect is the
+    area where a border is drawn using one of the Border Styles. The padding
+    specifies spacing between the border and the content.
 
-                There's thats much better. But the button is cramped. We can
-                specify some spacing between the border and the text using
-                "padding". Additionally, we want to enforce a minimum width and
-                height so it looks aesthetically more pleasing.
-                \code
-                QPushButton {
-                    background-color: red;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-color: beige;
-                    min-width: 10em;
-                    min-height: 2em;
-                    padding: 3px;
-                }
-                \endcode
+    \section2 Example 1 - A red QPushButton
 
-                It looks like a button but does not feel like one when pressed.
-                Lets change the border style when pressed.
-                \code
-                    QPushButton {
-                        background-color: red;
-                        border-style: outset;
-                        border-width: 2px;
-                        border-color: beige;
-                        min-width: 10em;
-                        min-height: 2em;
-                        padding: 3px;
-                    }
-                    QPushButton:pressed {
-                        border-style: inset;
-                    }
-                \endcode
+    Lets attempt a red color QPushButton
+    \code
+        QPushButton { background-color: red; }
+    \endcode
 
-                You can similary customize the entire appearance of the push
-                button.
+    Notice that the push button has no borders. The reason is that styles like
+    WindowsXP have no concept of red color push buttons and hence Qt decides to
+    render the button entirely on the properties listed in the Style Sheet. Let
+    us improve the situation by specifying a border.
+    \code
+        QPushButton {
+            background-color: red;
+            border-style: outset;
+            border-width: 2px;
+            border-color: beige;
+        }
+    \endcode
 
-            \section2 Pseudo Elements
-                Pseudo elements give access to sub elements of a widget. For
-                example, a QPushButton with a menu has a "menu indicator". Let
-                us create our custom menu indicator for the above push button.
-                \code
-                    QPushButton::menu-indicator {
-                        image: url(menu-indicator.png);
-                    }
-                \endcode
+    There's thats much better. But the button is cramped. We can specify some
+    spacing between the border and the text using "padding". Additionally, we
+    want to enforce a minimum width and height so it looks aesthetically more
+    pleasing.
+    \code
+        QPushButton {
+            background-color: red;
+            border-style: outset;
+            border-width: 2px;
+            border-color: beige;
+            min-width: 10em;
+            min-height: 2em;
+            padding: 3px;
+        }
+    \endcode
 
-                The menu-indicator is placed at the bottom right corner of the
-                padding rect. This was a default provided by Qt since it was not
-                explicitly provided in the style sheet. Pseudo Elements can be
-                positioned at an any place inside the widget. First you specify
-                the origin rect for the pseudo element. This is specified using
-                -qt-origin and can take the values "margin", "border",
-                "padding", "content" denoting the corresponding rectangle inside
-                the widget (see box model). Second, the alignment of the pseudo
-                element within the origin rect is specified using -qt-position.
-                You can use the css position attributes top, right, bottom,
-                left to move the pseduo element.
+    It looks like a button but does not feel like one when pressed. Lets change
+    the border style when pressed. Additionally, lets make the button rounded so
+    it looks more pleasing.
+    \code
+        QPushButton {
+            background-color: red;
+            border-style: outset;
+            border-width: 2px;
+            border-color: beige;
+            min-width: 10em;
+            min-height: 2em;
+            padding: 3px;
+            border-radius: 10px;
+        }
+        QPushButton:pressed {
+            border-style: inset;
+        }
+    \endcode
 
-                With this knowledge, let us attempt to position it at a more
-                agreeable position.
-                \code
-                QPushButton::menu-indicator {
-                    image: url(menu-indicator.png);
-                    -qt-position: right center;
-                    -qt-origin: padding
-                }
-                \endcode
+    \section2 Example 2 - Styling QPushButton's menu indicator        
+              (Pseudo Elements)
+    Pseudo elements give access to sub elements of a widget. For example, a
+    QPushButton with a menu has a "menu indicator". Let us create our custom
+    menu indicator for the above push button.
+    \code
+        QPushButton::menu-indicator {
+            image: url(menu-indicator.png);
+        }
+    \endcode
 
-                This places the menu indicator in the right center of the
-                padding rect. We can move it a litte more to the left by
-                \code
-                QPushButton::menu-indicator {
-                    image: url(menu-indicator.png);
-                    -qt-position: right center;
-                    -qt-origin: padding;
-                    left: -2px;
-                }
-                \endcode
+    The menu-indicator is placed at the bottom right corner of the padding rect.
+    This was a default provided by Qt since it was not explicitly provided in
+    the style sheet. Pseudo Elements can be positioned at an any place inside
+    the widget. First you specify the origin rect for the pseudo element. This
+    is specified using -qt-origin and can take the values "margin", "border",
+    "padding", "content" denoting the corresponding rectangle inside the widget
+    (see box model). Second, the alignment of the pseudo element within the
+    origin rect is specified using -qt-position. You can use the css position
+    attributes top, right, bottom, left to move the pseduo element.
+
+    With this knowledge, let us attempt to position it at a more agreeable
+    position.
+    \code
+        QPushButton::menu-indicator {
+            image: url(menu-indicator.png);
+            -qt-position: right center;
+            -qt-origin: padding
+        }
+    \endcode
+
+    This places the menu indicator in the right center of the padding rect. We
+    can move it a litte more to the left by
+    \code
+        QPushButton::menu-indicator {
+            image: url(menu-indicator.png);
+            -qt-position: right center;
+            -qt-origin: padding;
+            left: -2px;
+        }
+    \endcode
+
+    \section2 Example 3 - Styling QLineEdit (complex selectors)
+    
+    Since red seems to be our favorite color, lets make all the QLineEdit's in
+    the application red by setting the following QApplication stylesheet,
+    \code
+        QLineEdit { color: red; }
+    \endcode
+
+    We would like to give a visual indication that a QLineEdit is read only by
+    making it appear gray.
+    \code
+        QLineEdit { color: red; }
+        QLineEdit[readOnly="true"] { color: gray; }
+    \endcode
+
+    For reasons best unknown, our design team additionally wants all QLineEdit's
+    in the registration form (with QObject::objectName() "registrationDialog")
+    to be brown.
+    \code
+        QLineEdit { color: red; }
+        QLineEdit[readOnly="true"] { color: gray; }
+        #registrationDialog QLineEdit { color: brown; }
+    \endcode
+
+    Few GUI design meetings later, we decide that ALL our dialogs to have brown
+    colored QLineEdits,
+    \code
+        QDialog QLineEdit { color: brown; }
+        QLineEdit { color: red; }
+        QLineEdit[readOnly="true"] { color: gray; }
+    \endcode
+
+    Notice that the order of the Rule that provides the brown color is
+    immaterial since it is more specific that the others.
+
+    \section2 Example 4 - Styling QComboBox
+            TODO
 
     \section1 Supported Widgets
-                                    TODO
 
+    \table
+    \header
+        \o Widget
+        \o How to Style
+
+        \row
+            \o QLineEdit
+            \o whatever
+
+    \endtable
 
     \section1 Style Sheet Property Reference
 
-        \section2 Style Sheet Types
-            \table
-                \header
-                    \o Type
-                    \o Value
-                    \o Note
-
-                \row
-                    \o \Alignment
-                    \o  top, bottom, left, right, center
-                    \o  Separate the alignment values using space to specify a
-                        horizontal and vertical alignment. For example,
-                        "top left" - same as Qt::AlignTop | Qt::AlignLeft
-                        "bottom center" - same as Qt::AlignBottom |
-                        Qt::AlignHCenter
-                        "center" - same as Qt::AlignCenter
-
-                \row
-                    \o Border Style
-                    \o dashed | dotdash | dotdotdash | dotted | double | groove
-                       | inset | none | outset | ridge | solid
-                    \o Borders are drawn similar to corresponding QPen enums
-
-                \row
-                    \o Brush
-                    \o Color | Uri | Gradient
-
-                \row
-                    \o Color
-                    \o rgb(r, g, b) | #aarrggbb | standard named color
-                    \o Accepts values that are accepted by QColor
-
-                \row
-                    \o Font
-                    \o Shorthand font property similar to CSS
-
-                \row
-                    \o Length
-                    \o a number followed by a unit/metric
-                    \o When no metrics are provided the value is assumed to be
-                    in pixels. Supported units/metrics are
-                        px - pixels (default if no metric is specified)
-                        em - the m width of the font
-                        ex - the ex width of the font
-
-                \row
-                    \o Origin
-                    \o margin | border | padding | content
-                    \o Indicates the origin rectangle.
-                        Margin - The margin rectangle
-                        Border - The border rectangle
-                        Padding - The padding rectangle
-                        Content - The content rectangle
-                        See also \l{Box Model}
-
-                \row
-                    \o Repeat
-                    \o repeat-x | repeat-y | repeat | no-repeat
-                    \o A value indicating the nature of repetition
-                        repeat-x - repeat in the x direction
-                        repeat-y - repeat in the y direction
-                        repeat   - repeat in x and y direction
-                        no-repeat - dont repeat.
-                \row
-                    \o Uri
-                    \o uri(image)
-                    \o image is the name of a file on the local disk or the Qt
-                       Resource System
-
-            \endtable
-
-
-        \section2 Properties
-
-            Note: Unless otherwise specified, properties below apply to all
-            elements.
-
-            \table
-            \header
-                \o Name
-                \o Type
-                \o Description
-
-            \row
-                \o -qt-origin
-                \o Origin
-                \o The origin rect of the pseudo element within the
-                parent element. See \l{Positioning Pseudo Elements}
-
-            \row
-                \o -qt-position
-                \o Alignment
-                \o The alignment of the pseudo element within the origin rect
-                specified by -qt-origin. See \l{Positioning Pseudo Elements}nts
-
-            \row
-                \o alternate-background
-                \o Brush
-                \o An Alternating background color used in item views. This
-                applies to QListView, QTableView, QTreeView and their
-                derivatives
-
-            \row
-                \o background
-                \o background-color | background-image | background-repeat |
-            background-attachment | background-position
-                \o The background characteristics of the element.
-
-            \row
-                \o background-color
-                \o Brush
-                \o The background color used for the element.
-
-            \row
-                \o background-image
-                \o Uri
-                \o The background image used for the element. The background
-                image is drawn after the element has been filled with the
-                background-color. Trasparent parts of the image shine
-                through.
-
-            \row
-                \o background-origin
-                \o Origin
-                \o The box model rectangle that defined the elements
-                background rectangle.
-
-            \row
-                \o background-position
-                \o Alignment
-                \o Alignment of the background image within in background-
-                origin.
-
-            \row
-                \o background-repeat
-                \o Repeat
-                \o How the background image repeats
-
-            \row
-                \o border-bottom-color
-                \o Color
-                \o The border color of bottom edge
-
-            \row
-                \o border-bottom-left-radius
-                \o Size
-                \o The border radius of the bottom left corner
-
-            \row
-                \o border-bottom-right-radius
-                \o Size
-                \o The border radius of the bottom right corner
-
-            \row
-                \o border-bottom-style
-                \o Border Style
-                \o The border style of the bottom edge
-
-            \row
-                \o border-color
-                \o Color
-                \o The border color of all the edges
-
-            \row
-                \o border-bottom-width
-                \o Length
-                \o The border width of the bottom edge
-
-            \row
-                \o border-image
-                \o none | <uri> [<cuts>]{4} [stretch | repeat | round]{0,2}
-                \o Explain css3 border-image in gory detail here....
-
-            \row
-                \o border-left-color
-                \o Color
-                \o The border color of the left edge
-
-            \row
-                \o border-left-style
-                \o Border Style
-                \o The border style of the left edge
-
-            \row
-                \o border-left-width
-                \o Length
-                \o The border width of the left edge
-
-            \row
-                \o border-radius
-                \o Size
-                \o The border radius of 4 the edges.
-
-            \row
-                \o border-right-color
-                \o Color
-                \o The border color of the right edge
-
-            \row
-                \o border-right-style
-                \o Border Style
-                \o The border style of the right edge
-
-            \row
-                \o border-right-width
-                \o Length
-                \o The border width of the right edge
-
-            \row
-                \o border-style
-                \o Style
-                \o The border style of all the edges
-
-            \row
-                \o border-top-color
-                \o Color
-                \o The border color of the top edge
-
-            \row
-                \o border-top-left-radius
-                \o Size
-                \o The border radius of the top left corner
-
-            \row
-                \o border-top-right-radius
-                \o Size
-                \o The border radius of the top right corner
-
-            \row
-                \o border-top-style
-                \o Border Style
-                \o The border style of the top edge
-
-            \row
-                \o border-top-width
-                \o Length
-                \o The border width of the top edge
-
-            \row
-                \o bottom
-                \o Length
-                \o Specifies the bottom edge of a pseudo element. Only absolute
-                   positioning is supported.
-
-            \row
-                \o color
-                \o Color
-                \o The foreground color of text
-
-            \row
-                \o font
-                \o Font
-                \o The font used to render text
-
-            \row
-                \o font-family
-                \o Name of font family
-                \o Specifies the font family
-
-            \row
-                \o font-size
-                \o xx-small / ???
-                \o Specifies the size of the font
-
-            \row
-                \o font-style
-                \o normal | italic | oblique
-                \o Specifies the font style
-
-            \row
-                \o font-weight
-                \o 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
-                \o Specifies the weight of the font
-
-            \row
-                \o height
-                \o Length
-                \o Specifies the height of the pseudo element
-
-            \row
-                \o image
-                \o uri
-                \o Specifies an image that is drawn at the center of a pseudo
-                element
-
-            \row
-                \o left
-                \o Length
-                \o Specifies the left edge of a pseudo element. Only absolute
-                   positioning is supported.
-
-            \row
-                \o margin
-                \o Length{4}
-                \o The margins for the element.
-
-            \row
-                \o margin-bottom
-                \o Length
-                \o The bottom margin
-
-            \row
-                \o margin-left
-                \o Length
-                \o The left margin
-
-            \row
-                \o margin-right
-                \o Length
-                \o The right margin
-
-            \row
-                \o margin-top
-                \o Length
-                \o The top margin
-
-            \row
-                \o min-height
-                \o Length
-                \o The minimum height of the element
-
-            \row
-                \o min-width
-                \o Length
-                \o The minimum width of the element
-
-            \row
-                \o padding
-                \o Length{4}
-                \o The padding of the element
-
-            \row
-                \o padding-bottom
-                \o Length
-                \o The padding at the bottom
-
-            \row
-                \o padding-left
-                \o Length
-                \o The padding at the left
-
-            \row
-                \o padding-top
-                \o Length
-                \o The padding at the top
-
-            \row
-                \o padding-right
-                \o Length
-                \o The padding at the right
-
-            \row
-                \o right
-                \o Length
-                \o Specifies the right edge of a pseudo element. Only absolute
-                   positioning is supported.
-
-            \row
-                \o selection-background
-                \o Brush
-                \o Specifies the background of selected text or items.
-
-            \row
-                \o selection-foreground
-                \o Color
-                \o Specifies the foreground of selected text or items.
-
-            \row
-                \o spacing
-                \o Length
-                \o The spacing between sublements
-
-            \row
-                \o top
-                \o Length
-                \o Specifies the top edge of a pseudo element. Only absolute
-                positioning is supported.
-
-            \row
-                \o width
-                \o Length
-                \o Specifies the width of a pseudo element.
-
-        \endtable
+    \section2 Style Sheet Types
+
+    \table
+    \header
+        \o Type
+        \o Value
+        \o Note
+
+    \row
+        \o \Alignment
+        \o  top, bottom, left, right, center
+        \o  Separate the alignment values using space to specify a horizontal
+            and vertical alignment. For example,
+            "top left" - same as Qt::AlignTop | Qt::AlignLeft
+            "bottom center" - same as Qt::AlignBottom | Qt::AlignHCenter
+            "center" - same as Qt::AlignCenter
+
+    \row
+        \o Border Style
+        \o dashed | dotdash | dotdotdash | dotted | double | groove | inset 
+            | none | outset | ridge | solid
+        \o Borders are drawn similar to corresponding QPen enums
+
+    \row
+        \o Brush
+        \o Color | Uri | Gradient
+
+    \row
+        \o Color
+        \o rgb(r, g, b) | #aarrggbb | standard named color
+        \o Accepts values that are accepted by QColor
+
+    \row
+        \o Font
+        \o Shorthand font property similar to CSS
+
+    \row
+        \o Length
+        \o a number followed by a unit/metric
+        \o When no metrics are provided the value is assumed to be in pixels.
+           Supported units/metrics are
+               px - pixels (default if no metric is specified)
+               em - the m width of the font
+               ex - the ex width of the font
+
+    \row
+        \o Origin
+        \o margin | border | padding | content
+        \o Indicates the origin rectangle.
+               Margin - The margin rectangle
+               Border - The border rectangle
+               Padding - The padding rectangle
+               Content - The content rectangle
+           See also \l{Box Model}
+
+    \row
+        \o Repeat
+        \o repeat-x | repeat-y | repeat | no-repeat
+        \o A value indicating the nature of repetition
+               repeat-x - repeat in the x direction
+               repeat-y - repeat in the y direction
+               repeat   - repeat in x and y direction
+               no-repeat - dont repeat.
+    \row
+        \o Uri
+        \o uri(image)
+        \o image is the name of a file on the local disk or the Qt Resource
+           System
+
+    \endtable
+
+    \section2 Properties
+
+    Note: Unless otherwise specified, properties below apply to all elements.
+    Properties prefixed with "-qt-" are specific to Qt and do not have and
+    equivalent in CSS.
+
+    \table
+    \header
+        \o Name
+        \o Type
+        \o Description
+
+    \row
+        \o -qt-button-layout
+        \o 0 (WinLayout), 1(MacLayout), 2(KdeLayout), 3(GnomeLayout)
+        \o The layout of buttons in a QDialogButtonBox
+
+    \row
+        \o -qt-etch-disabled-text
+        \o 0 or 1
+        \o Controls whether disabled text is drawn etched
+
+    \row
+        \o -qt-gridline-color
+        \o Color
+        \o Color of the grid line in a QTableView
+
+    \row
+        \o -qt-lineedit-password-character
+        \o Number
+        \o Unicode number that specifies the password character
+
+    \row
+        \o -qt-messagebox-text-interaction-flags
+        \o Number based on Qt::TextInteractionFlag
+        \o The interaction behaviour for text in a message box
+
+    \row
+        \o -qt-opacity
+        \o A number for 0 to 255
+        \o The opacity for tooltips
+
+    \row
+        \o -qt-origin
+        \o Origin
+        \o The origin rect of the pseudo element within the
+        parent element. See \l{Positioning Pseudo Elements}
+
+    \row
+        \o -qt-position
+        \o Alignment
+        \o The alignment of the pseudo element within the origin rect
+           specified by -qt-origin. See \l{Positioning Pseudo Elements}
+
+    \row
+        \o -qt-show-decoration-selected
+        \o 0 or 1
+        \o Controls whether selections in a QListView cover the entire
+           row or just the extent of the text
+
+    \row
+        \o alternate-background
+        \o Brush
+        \o An Alternating background color used in item views. This applies to
+           QListView, QTableView, QTreeView and their derivatives
+
+    \row
+        \o background
+        \o background-color | background-image | background-repeat
+           | background-attachment | background-position
+        \o The background characteristics of the element.
+
+    \row
+        \o background-color
+        \o Brush
+        \o The background color used for the element.
+
+    \row
+        \o background-image
+        \o Uri
+        \o The background image used for the element. The background image is
+           drawn after the element has been filled with the background-color. 
+           Transparent parts of the image shine through.
+
+    \row
+        \o background-origin
+        \o Origin
+        \o The box model rectangle that defined the elements background rect.
+
+    \row
+        \o background-position
+        \o Alignment
+        \o Alignment of the background image within in background-origin.
+
+    \row
+        \o background-repeat
+        \o Repeat
+        \o How the background image repeats
+
+    \row
+        \o border-bottom-color
+        \o Color
+        \o The border color of bottom edge
+
+    \row
+        \o border-bottom-left-radius
+        \o Size
+        \o The border radius of the bottom left corner
+
+    \row
+        \o border-bottom-right-radius
+        \o Size
+        \o The border radius of the bottom right corner
+
+    \row
+        \o border-bottom-style
+        \o Border Style
+        \o The border style of the bottom edge
+
+    \row
+        \o border-color
+        \o Color
+        \o The border color of all the edges
+
+    \row
+        \o border-bottom-width
+        \o Length
+        \o The border width of the bottom edge
+
+    \row
+        \o border-image
+        \o none | <uri> [<cuts>]{4} [stretch | repeat | round]{0,2}
+        \o Explain css3 border-image in gory detail here....
+
+    \row
+        \o border-left-color
+        \o Color
+        \o The border color of the left edge
+
+    \row
+        \o border-left-style
+        \o Border Style
+        \o The border style of the left edge
+
+    \row
+        \o border-left-width
+        \o Length
+        \o The border width of the left edge
+
+    \row
+        \o border-radius
+        \o Size
+        \o The border radius of 4 the edges.
+
+    \row
+        \o border-right-color
+        \o Color
+        \o The border color of the right edge
+
+    \row
+        \o border-right-style
+        \o Border Style
+        \o The border style of the right edge
+
+    \row
+        \o border-right-width
+        \o Length
+        \o The border width of the right edge
+
+    \row
+        \o border-style
+        \o Style
+        \o The border style of all the edges
+
+    \row
+        \o border-top-color
+        \o Color
+        \o The border color of the top edge
+
+    \row
+        \o border-top-left-radius
+        \o Size
+        \o The border radius of the top left corner
+
+    \row
+        \o border-top-right-radius
+        \o Size
+        \o The border radius of the top right corner
+
+    \row
+        \o border-top-style
+        \o Border Style
+        \o The border style of the top edge
+
+    \row
+        \o border-top-width
+        \o Length
+        \o The border width of the top edge
+
+    \row
+        \o bottom
+        \o Length
+        \o Specifies the bottom edge of a pseudo element. Only absolute
+           positioning is supported.
+
+    \row
+        \o color
+        \o Color
+        \o The foreground color of text
+
+    \row
+        \o font
+        \o Font
+        \o The font used to render text
+
+    \row
+        \o font-family
+        \o Name of font family
+        \o Specifies the font family
+
+    \row
+        \o font-size
+        \o xx-small / ???
+        \o Specifies the size of the font
+
+    \row
+        \o font-style
+        \o normal | italic | oblique
+        \o Specifies the font style
+
+    \row
+        \o font-weight
+        \o 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
+        \o Specifies the weight of the font
+
+    \row
+        \o height
+        \o Length
+        \o Specifies the height of the pseudo element
+
+    \row
+        \o image
+        \o uri
+        \o Specifies an image that is drawn at the center of a pseudo
+        element
+
+    \row
+        \o left
+        \o Length
+        \o Specifies the left edge of a pseudo element. Only absolute
+           positioning is supported.
+
+    \row
+        \o margin
+        \o Length{4}
+        \o The margins for the element.
+
+    \row
+        \o margin-bottom
+        \o Length
+        \o The bottom margin
+
+    \row
+        \o margin-left
+        \o Length
+        \o The left margin
+
+    \row
+        \o margin-right
+        \o Length
+        \o The right margin
+
+    \row
+        \o margin-top
+        \o Length
+        \o The top margin
+
+    \row
+        \o min-height
+        \o Length
+        \o The minimum height of the element
+
+    \row
+        \o min-width
+        \o Length
+        \o The minimum width of the element
+
+    \row
+        \o padding
+        \o Length{4}
+        \o The padding of the element
+
+    \row
+        \o padding-bottom
+        \o Length
+        \o The padding at the bottom
+
+    \row
+        \o padding-left
+        \o Length
+        \o The padding at the left
+
+    \row
+        \o padding-top
+        \o Length
+        \o The padding at the top
+
+    \row
+        \o padding-right
+        \o Length
+        \o The padding at the right
+
+    \row
+        \o right
+        \o Length
+        \o Specifies the right edge of a pseudo element. Only absolute
+           positioning is supported.
+
+    \row
+        \o selection-background
+        \o Brush
+        \o Specifies the background of selected text or items.
+
+    \row
+        \o selection-foreground
+        \o Color
+        \o Specifies the foreground of selected text or items.
+
+    \row
+        \o spacing
+        \o Length
+        \o The spacing between sublements
+
+    \row
+        \o top
+        \o Length
+        \o Specifies the top edge of a pseudo element. Only absolute
+           positioning is supported.
+
+    \row
+        \o width
+        \o Length
+        \o Specifies the width of a pseudo element.
+
+    \endtable
 */
