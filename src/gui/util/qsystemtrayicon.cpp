@@ -314,7 +314,7 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 
     Mac OS X does not support ballon messages currently.
 
-    \so showMessage()
+    \sa showMessage()
 */
 bool QSystemTrayIcon::supportsMessages()
 {

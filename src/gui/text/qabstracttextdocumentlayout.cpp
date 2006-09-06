@@ -266,6 +266,7 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
 /*!
     Sets the size of the inline object \a item in accordance with the
     text \a format.
+    \a posInDocument specifies the position of the object within the document.
 */
 void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
 {
@@ -286,6 +287,7 @@ void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int
 /*!
     Lays out the inline object \a item using the given text \a format.
     The base class implementation does nothing.
+    \a posInDocument specifies the position of the object within the document.
 
     \sa drawInlineObject()
 */
@@ -302,6 +304,7 @@ void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, i
     Called to draw the inline object \a object on the given \a painter within
     the rectangle specified by \a rect using the text format specified by
     \a format.
+    \a posInDocument specifies the position of the object within the document.
 
     \sa draw()
 */

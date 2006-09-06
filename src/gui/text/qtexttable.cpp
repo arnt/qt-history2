@@ -70,7 +70,7 @@
 /*!
     \since 4.2
 
-    Sets the cell's character format. This can for example be used to change
+    Sets the cell's character format to \a format. This can for example be used to change
     the background color of the entire cell:
 
     QTextTableCell cell = table->cellAt(2, 3);

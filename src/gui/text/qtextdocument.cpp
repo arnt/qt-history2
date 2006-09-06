@@ -420,9 +420,10 @@ bool QTextDocument::isUndoRedoEnabled() const
     return d->isUndoRedoEnabled();
 }
 
-/*
+/*!
     \property QTextDocument::maximumBlockCount
     \since 4.2
+    \brief Specifies the limit for blocks in the document.
 
     Specifies the maximum number of blocks the document may have. If there are
     more blocks in the document that specified with this property blocks are removed
@@ -438,7 +439,6 @@ bool QTextDocument::isUndoRedoEnabled() const
 
     This property is undefined in documents with tables or frames.
 */
-
 int QTextDocument::maximumBlockCount() const
 {
     Q_D(const QTextDocument);

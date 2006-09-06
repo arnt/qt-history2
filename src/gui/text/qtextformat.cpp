@@ -1717,7 +1717,7 @@ QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 */
 
 /*!
-    \fn void QTextBlockFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+    \fn void QTextBlockFormat::setPageBreakPolicy(PageBreakFlags policy)
     \since 4.2
 
     Sets the page break policy for the paragraph to \a policy.
@@ -1944,7 +1944,7 @@ QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 */
 
 /*!
-    \fn void QTextFrameFormat::setPageBreakPolicy(QTextFormat::PageBreakFlags policy)
+    \fn void QTextFrameFormat::setPageBreakPolicy(PageBreakFlags policy)
     \since 4.2
 
     Sets the page break policy for the frame/table to \a policy.
