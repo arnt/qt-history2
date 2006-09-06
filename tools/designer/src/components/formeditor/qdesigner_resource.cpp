@@ -31,6 +31,7 @@
 #include <pluginmanager_p.h>
 #include <metadatabase_p.h>
 #include <widgetfactory_p.h>
+#include <abstractlanguage.h>
 
 #include <qdesigner_widget_p.h>
 #include <qlayout_widget_p.h>
