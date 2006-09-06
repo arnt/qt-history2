@@ -43,7 +43,10 @@ private slots:
     void timeout();
     void livelock_data();
     void livelock();
-    void zeroTimerInfiniteRecursion();
+    void timerInfiniteRecursion_data();
+    void timerInfiniteRecursion();
+    void recurringTimer_data();
+    void recurringTimer();
 };
 
 class TimerHelper : public QObject
@@ -213,13 +216,13 @@ void tst_QTimer::livelock()
     QVERIFY(tester.postEventAtRightTime);
 }
 
-class ZeroTimerInfiniteRecursionObject : public QObject
+class TimerInfiniteRecursionObject : public QObject
 {
 public:
     bool inTimerEvent;
     bool timerEventRecursed;
 
-    ZeroTimerInfiniteRecursionObject()
+    TimerInfiniteRecursionObject()
         : inTimerEvent(false), timerEventRecursed(false)
     { }
 
@@ -239,13 +242,62 @@ public:
     }
 };
 
-
-void tst_QTimer::zeroTimerInfiniteRecursion()
+void tst_QTimer::timerInfiniteRecursion_data()
 {
-    ZeroTimerInfiniteRecursionObject object;
-    (void) object.startTimer(0);
+    QTest::addColumn<int>("interval");
+    QTest::newRow("zero timer") << 0;
+    QTest::newRow("non-zero timer") << 1;
+}
+
+
+void tst_QTimer::timerInfiniteRecursion()
+{
+    QFETCH(int, interval);
+    TimerInfiniteRecursionObject object;
+    (void) object.startTimer(interval);
     QApplication::processEvents();
     QVERIFY(!object.timerEventRecursed);
+}
+
+class RecurringTimerObject : public QObject
+{
+Q_OBJECT
+public:
+    int times;
+    int target;
+
+    RecurringTimerObject(int target)
+        : times(0), target(target) { }
+
+    void timerEvent(QTimerEvent *timerEvent)
+    {
+        if (++times == target) {
+            killTimer(timerEvent->timerId());
+            emit done();
+        }
+    }
+    
+    signals:
+    void done();
+};
+
+void tst_QTimer::recurringTimer_data()
+{
+    QTest::addColumn<int>("interval");
+    QTest::newRow("zero timer") << 0;
+    QTest::newRow("non-zero timer") << 1;
+}
+
+void tst_QTimer::recurringTimer()
+{
+    const int target = 5;
+    QFETCH(int, interval);
+    RecurringTimerObject object(target);
+    QObject::connect(&object, SIGNAL(done()), &QTestEventLoop::instance(), SLOT(exitLoop()));
+    (void) object.startTimer(interval);
+    QTestEventLoop::instance().enterLoop(5);
+
+    QCOMPARE(object.times, target);
 }
 
 QTEST_MAIN(tst_QTimer)
