@@ -66,11 +66,11 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     Translations are done in the "QShortcut" context.
 
     \bold{Note:} On Mac OS X, references to "Ctrl", Qt::CTRL, Qt::Control
-    and Qt::ControlModifier correspond to the Command keys on the Macintosh
-    keyboard, and references to "Meta", Qt::META, Qt::Meta and
-    Qt::MetaModifier correspond to the Control keys. Developers on Mac OS X
-    can use the same shortcut descriptions across all platforms, and their
-    applications will automatically work as expected on Mac OS X.
+    and Qt::ControlModifier correspond to the \key Command keys on the
+    Macintosh keyboard, and references to "Meta", Qt::META, Qt::Meta and
+    Qt::MetaModifier correspond to the \key Control keys. Developers on
+    Mac OS X can use the same shortcut descriptions across all platforms,
+    and their applications will automatically work as expected on Mac OS X.
 
     The toString() function produces human-readable strings for use
     in menus. On Mac OS X, the appropriate symbols are used to describe
@@ -80,10 +80,12 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
 
     QKeySequence defines many \l{StandardKey} standard keyboard shortcuts to
     reduce the amount of effort required when setting up actions in a typical
-    application. The table below shows the different key sequences that these
-    standard shortcuts represent on some common platforms. Note that on OS X, 
-    the CTRL value corresponds to the Command keys on the Macintosh keyboard, 
-    and the META value corresponds to the Control keys.
+    application. The table below shows some common key sequences that are
+    often used for these standard shortcuts by applications on four widely-used
+    platforms.
+    Note that on Mac OS X, the \key Ctrl value corresponds to the \key Command
+    keys on the Macintosh keyboard, and the \key Meta value corresponds to the
+    \key Control keys.
 
     \table
     \header \i StandardKey      \i Windows                              \i Mac OS X                 \i KDE          \i GNOME
