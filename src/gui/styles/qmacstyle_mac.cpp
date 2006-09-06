@@ -3470,7 +3470,10 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
         break;
     case SE_LineEditContents:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
-        rect.adjust(0, +2, 0, 0);
+        if(widget->parentWidget() && qobject_cast<const QComboBox*>(widget->parentWidget()))
+            rect.adjust(-1, -2, 0, 0);
+        else
+            rect.adjust(0, +2, 0, 0);
         break;
     default:
         rect = QWindowsStyle::subElementRect(sr, opt, widget);
@@ -4280,7 +4283,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                  }
                 break;
             case SC_ComboBoxEditField:
-                // ret = ret; <-- Already done
+                if(combo->editable)
+                    ret.adjust(0, 0, 0, -2);
                 break;
             case SC_ComboBoxArrow:
                 ret.setX(ret.x() + ret.width());
