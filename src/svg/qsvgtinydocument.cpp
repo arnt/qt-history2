@@ -80,6 +80,12 @@ void QSvgTinyDocument::draw(QPainter *p, const QRectF &bounds)
     if (m_time.isNull()) {
         m_time.start();
     }
+
+    if (m_viewBox.isNull()) {
+        QMatrix matx = QMatrix();
+        m_viewBox = transformedBounds(matx);
+    }
+
     p->save();
 
     //sets default style on the painter
@@ -246,10 +252,10 @@ QRectF QSvgTinyDocument::boundsOnElement(const QString &id) const
     QRectF bounds;
     QMatrix matx;
 
-    QSvgNode *node = scopeNode(id);
+    const QSvgNode *node = scopeNode(id);
 
     if (!node) {
-        return bounds;
+        node = this;
     }
     
     bounds = node->transformedBounds(matx);
