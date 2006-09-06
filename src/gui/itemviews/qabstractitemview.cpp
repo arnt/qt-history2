@@ -2745,7 +2745,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     QStyleOptionViewItem option;
     option.init(this);
     option.font = font();
-    if (!(hasFocus() || isAncestorOf(QApplication::focusWidget())))
+    if (!hasFocus())
         option.state &= ~QStyle::State_Active;
 
     option.state &= ~QStyle::State_HasFocus;

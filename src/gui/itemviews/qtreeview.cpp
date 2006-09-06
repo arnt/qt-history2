@@ -1054,6 +1054,16 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
     }
 }
 
+/// ### move to QObject :)
+static inline bool ancestorOf(QObject *widget, QObject *other)
+{
+    for (QObject *parent = other; parent != 0; parent = parent->parent()) {
+        if (parent == widget)
+            return true;
+    }
+    return false;
+}
+
 /*!
     Draws the row in the tree view that contains the model item \a index,
     using the \a painter given. The \a option control how the item is
@@ -1079,6 +1089,22 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const bool alternate = d->alternatingColors;
     const bool enabled = (state & QStyle::State_Enabled) != 0;
     const bool allColumnsShowFocus = d->allColumnsShowFocus;
+
+    // when the row contains an index widget which has focus,
+    // we want to paint the entire row as active
+    bool indexWidgetHasFocus = false;
+    if ((current.row() == index.row()) && !d->editors.isEmpty()) {
+        const int r = index.row();
+        QWidget *fw = QApplication::focusWidget();
+        for (int c = 0; c < header->count(); ++c) {
+            if (QWidget *editor = indexWidget(index.sibling(r, c))) {
+                if (ancestorOf(editor, fw)) {
+                    indexWidgetHasFocus = true;
+                    break;
+                }
+            }
+        }
+    }
 
     bool currentRowHasFocus = false;
     if (allColumnsShowFocus && current.isValid()) { // check if the focus index is before or after the visible columns
@@ -1114,9 +1140,13 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             continue;
         }
 
+        // fake activeness when row editor has focus
+        if (indexWidgetHasFocus)
+            opt.state |= QStyle::State_Active;
+
         if (d->selectionModel->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
-        if (current == modelIndex) {
+        if ((current == modelIndex) && hasFocus()) {
             if (allColumnsShowFocus)
                 currentRowHasFocus = true;
             else
@@ -1155,9 +1185,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             painter->fillRect(opt.rect, fill);
             QRect branches(reverse ? position + width - i : position, y, i, height);
-            QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
+            QPalette::ColorGroup cg = opt.state & QStyle::State_Enabled
                               ? QPalette::Active : QPalette::Disabled;
-            if (cg == QPalette::Active && !(option.state & QStyle::State_Active))
+            if (cg == QPalette::Active && !(opt.state & QStyle::State_Active))
                 cg = QPalette::Inactive;
 
             if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
