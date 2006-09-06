@@ -872,7 +872,14 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         parent = d->model->parent(parent);
     }
 
-    QRect rect = visualRect(index);
+    int viewIndex = d->viewIndex(index);
+    if (viewIndex < 0)
+        return;
+    QRect rect(columnViewportPosition(index.column()),
+               d->coordinateForItem(viewIndex),
+               columnWidth(index.column()),
+               d->itemHeight(viewIndex));
+
     if (rect.isEmpty())
         return;
 
