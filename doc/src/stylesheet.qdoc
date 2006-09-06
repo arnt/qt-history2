@@ -448,10 +448,43 @@
     \l{http://www.w3.org/TR/CSS2/cascade.html#cascade}.
 
 
+    \section1 The Box Model
+    
+    Widgets are styled using the Box model similar to CSS. The widget's
+    rectangle is split up as below.
+    
+    \image stylesheet-boxmodel.png
+
+    The margins are specified using the "margin" property. The Border is
+    specified using the "border" property. The padding is specified using the
+    "padding" property. The margin rect is transparent. The border rect is the
+    region where a border is drawn using one of the Border Styles. The padding
+    provides spacing between the border and the content.
+    
+    
+    \section1 Border Images
+    
+    The "border-style" property provide various styles that can be used as a 
+    border. When none of them suit our taste, ideally we would like to provide
+    an image to suggest the way border needs to be drawn. This, however, has 
+    the drawback that when the widget is resized, these images need to be 
+    scaled, resulting in blurry borders.
+    
+    CSS 3 specification provides an elegant solution to this problem through 
+    the border-image property. 
+    
+    \image stylesheet-borderimage.png
+    
+    The first image is the image that is provided in the Style Sheet. The image
+    is first cut up into nine parts by providing 4 cuts - top, right, bottom 
+    and left. These cut images are then stretched or tiled into their 
+    respective border space. There is more detailed explanation at
+    \l{http://www.w3.org/TR/css3-background/#the-border-image}.
+    
     \section1 Examples
 
     In this section, we will see examples of how to style widgets using Style
-    Sheets. Qt Designer is an excellent tool to preview style sheet styles. Just
+    Sheets. Qt Designer is an excellent tool to preview style sheets. Just
     right-click on the any widget in Designer and select "Edit styleSheet...".
 
     \section2 Simple Style Sheets
@@ -472,17 +505,6 @@
         QPushButton { color: red }
         QPushButton:hover { color: green; }
     \endcode
-
-    \section2 The Style Sheet Box Model
-
-    Widgets are styled using the Box model similar to CSS. The widget's
-    rectangle is split up as below.
-
-    The margins are specified using the "margin" property. The Border is
-    specified using the "border" property. The padding is specified using the
-    "padding" property. The margin rect is transparent. The border rect is the
-    area where a border is drawn using one of the Border Styles. The padding
-    specifies spacing between the border and the content.
 
     \section2 Example 1 - A red QPushButton
 
@@ -837,7 +859,7 @@
     \row
         \o border-image
         \o none | <uri> [<cuts>]{4} [stretch | repeat | round]{0,2}
-        \o Explain css3 border-image in gory detail here....
+        \o See \l{Border Image}
 
     \row
         \o border-left-color
