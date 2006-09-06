@@ -329,10 +329,10 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 
         QByteArray subType;
         int numFormats = _qt_NumFormats;
-        while (numFormats >= 0) {
+        while (device && numFormats >= 0) {
             const _qt_BuiltInFormatStruct *formatStruct = &_qt_BuiltInFormats[currentFormat];
 
-            const qint64 pos = device ? device->pos() : 0;
+            const qint64 pos = device->pos();
             switch (formatStruct->type) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
             case _qt_PngFormat:
@@ -371,7 +371,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             default:
                 break;
             }
-            if (device && !device->isSequential())
+            if (!device->isSequential())
                 device->seek(pos);
 
             if (handler) {
