@@ -1,10 +1,6 @@
 #include <QtGui/QtGui>
 #include <QtTest/QtTest>
 
-#if QT_VERSION < 0x040200
-QTEST_NOOP_MAIN
-#else
-
 class tst_QDataWidgetMapper: public QObject
 {
     Q_OBJECT
@@ -15,6 +11,8 @@ private slots:
     void currentIndexChanged();
     void changingValues();
     void setData();
+
+    void comboBox();
 };
 
 static QStandardItemModel *testModel(QObject *parent = 0)
@@ -269,6 +267,42 @@ void tst_QDataWidgetMapper::setData()
     QCOMPARE(model->data(model->index(0, 0)).toString(), QString("new text"));
 }
 
+// a combo box is evil since it is either read/only or read/write
+void tst_QDataWidgetMapper::comboBox()
+{
+    QDataWidgetMapper mapper;
+    QAbstractItemModel *model = testModel(&mapper);
+    mapper.setModel(model);
+    mapper.setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+
+    QComboBox readOnlyBox;
+    readOnlyBox.setEditable(false);
+    readOnlyBox.addItem("item -1 -1");
+    readOnlyBox.addItem("item 0 0");
+    readOnlyBox.addItem("item 0 x");
+
+    QComboBox readWriteBox;
+    readWriteBox.setEditable(true);
+
+    // populat the combo boxes with data
+    mapper.addMapping(&readOnlyBox, 0);
+    mapper.addMapping(&readWriteBox, 1);
+    mapper.toFirst();
+
+    QEXPECT_FAIL("", "See task 125493", Abort);
+    QCOMPARE(readOnlyBox.currentText(), QString("item 0 0"));
+    QCOMPARE(readWriteBox.currentText(), QString("item 0 1"));
+
+    // set some new values on the boxes
+    readOnlyBox.setCurrentIndex(1);
+    readWriteBox.setEditText("item 0 y");
+
+    mapper.submit();
+
+    // make sure the new values are in the model
+    QCOMPARE(model->data(model->index(0, 0)).toString(), QString("1"));
+    QCOMPARE(model->data(model->index(0, 1)).toString(), QString("item 0 y"));
+}
+
 QTEST_MAIN(tst_QDataWidgetMapper)
 #include "tst_qdatawidgetmapper.moc"
-#endif // QT_VERSION
