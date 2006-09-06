@@ -230,6 +230,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
             [item setEnabled:action->isEnabled()];
             [item setTarget:self];
             [item setAction:@selector(selectedAction:)];
+            [item setState:action->isChecked() ? NSOnState : NSOffState];
             if(action->menu()) {
                 QNSMenu *sub = [[QNSMenu alloc] initWithQMenu:action->menu()];
                 [item setSubmenu:sub];
