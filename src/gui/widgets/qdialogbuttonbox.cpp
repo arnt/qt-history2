@@ -451,6 +451,8 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
         icon = QStyle::SP_DialogDiscardButton;
         if (layoutPolicy == QDialogButtonBox::MacLayout)
             buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Don't Save");
+        else if (layoutPolicy == QDialogButtonBox::GnomeLayout)
+            buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Close without Saving");
         else
             buttonText = QT_TRANSLATE_NOOP("QDialogButtonBox", "Discard");
         break;
