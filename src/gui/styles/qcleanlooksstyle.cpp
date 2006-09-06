@@ -3990,6 +3990,56 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
             }
             break;
         }
+    case SP_FileIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_DriveFDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-dev-floppy.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_ComputerIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-fs-client.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_DesktopIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-fs-desktop.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_TrashIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-fs-trash-empty.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-dev-cdrom.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
+    case SP_DriveHDIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("gnome-dev-harddisk.png"));
+            if (!pixmap.isNull())
+                icon.addPixmap(pixmap);
+            break;
+        }
     case SP_FileLinkIcon:
         {
             QPixmap link = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));

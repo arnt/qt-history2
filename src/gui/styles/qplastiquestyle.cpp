@@ -5528,10 +5528,48 @@ void QPlastiqueStylePrivate::lookupIconTheme() const
 /*!
     \internal
 */
-QIcon QPlastiqueStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+QIcon QPlastiqueStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                                   const QWidget *widget) const
 {
-    QIcon icon(standardPixmap(standardIcon, opt, widget));
+Q_D(const QPlastiqueStyle);
+    QIcon icon(standardPixmap(standardIcon, option, widget));
+    if (!qApp->desktopSettingsAware())
+        return icon;
+
+    QPixmap pixmap;
+    switch (standardIcon) {
+    case SP_DirClosedIcon:
+    case SP_DirIcon:
+        pixmap = d->findIcon(32, QLatin1String("folder.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap);
+        break;
+    case SP_FileIcon:
+        pixmap = d->findIcon(32, QLatin1String("empty.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap);
+        break;
+    case SP_FileLinkIcon:
+        pixmap = d->findIcon(32, QLatin1String("link_overlay.png"));
+        if (!pixmap.isNull()) {
+            QPixmap fileIcon = d->findIcon(32, QLatin1String("empty.png"));
+            QPainter painter(&fileIcon);
+            painter.drawPixmap(0, 0, 32, 32, pixmap);
+            icon.addPixmap(fileIcon);
+        }
+        break;
+    case SP_DirLinkIcon:
+        pixmap = d->findIcon(32, QLatin1String("link_overlay.png"));
+        if (!pixmap.isNull()) {
+            QPixmap fileIcon = d->findIcon(32, QLatin1String("folder.png"));
+            QPainter painter(&fileIcon);
+            painter.drawPixmap(0, 0, 32, 32, pixmap);
+            icon.addPixmap(fileIcon);
+        }
+        break;
+    default:
+        break;
+    }
     return icon;
 }
 
