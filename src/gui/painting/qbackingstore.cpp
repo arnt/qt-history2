@@ -322,9 +322,20 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     QPoint pos(widget->mapTo(tlw, rect.topLeft()));
 
 #ifdef Q_WS_QWS
-    pos += topLevelOffset();
-#endif
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(windowSurface);
+    if (!surface)
+        return;
+
+    // clip to surface region
+    const QRegion clip = surface->clipRegion();
+    QRegion r = QRect(pos, rect.size());
+    r = (r & clip).translated(dx, dy) & clip;
+    r.translate(-dx, -dy);
+
+    windowSurface->scroll(r.translated(topLevelOffset()), dx, dy);
+#else
     windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
+#endif
 }
 
 
