@@ -1296,7 +1296,7 @@ QSize QAbstractButton::iconSize() const
     Q_D(const QAbstractButton);
     if (d->iconSize.isValid())
         return d->iconSize;
-    int e = style()->pixelMetric(QStyle::PM_SmallIconSize);
+    int e = style()->pixelMetric(QStyle::PM_ButtonIconSize);
     return QSize(e, e);
 }
 

@@ -3393,6 +3393,9 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 1;
         break;
     case PM_SmallIconSize:
+        ret = 16;
+        break;
+    case PM_ButtonIconSize:
         ret = 24;
         break;
     default:

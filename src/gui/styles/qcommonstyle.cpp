@@ -3420,6 +3420,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = pixelMetric(PM_SmallIconSize, opt, widget);
         break;
 
+    case PM_ButtonIconSize:
     case PM_SmallIconSize:
         ret = 16;
         break;

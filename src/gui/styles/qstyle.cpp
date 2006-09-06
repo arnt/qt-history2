@@ -1240,6 +1240,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_TabBarIconSize The default icon size for a tab bar.
     \value PM_SizeGripSize The size of a size grip.
     \value PM_MessageBoxIconSize The size of the standard icons in a message box
+    \value PM_ButtonIconSize The default size of button icons
 
     \value PM_CustomBase Base value for custom pixel metrics.  Custom
     values must be greater than this value.

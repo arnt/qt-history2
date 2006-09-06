@@ -473,6 +473,7 @@ public:
         PM_SizeGripSize,
         PM_DockWidgetTitleMargin,
         PM_MessageBoxIconSize,
+        PM_ButtonIconSize,
 
 
         // do not add any values below/greater than this
