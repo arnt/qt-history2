@@ -67,6 +67,11 @@ struct MacTimerInfo {
     QObject *obj;
     bool pending;
     EventLoopTimerRef mac_timer;
+    
+    bool operator==(const MacTimerInfo &other)
+    {
+        return (id == other.id);
+    }
 };
 typedef QList<MacTimerInfo> MacTimerList;
 

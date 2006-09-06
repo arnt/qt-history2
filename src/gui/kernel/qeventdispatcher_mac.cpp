@@ -542,10 +542,16 @@ int QEventDispatcherMacPrivate::activateTimers()
     int ret = 0;
     for (int i = 0; i < macTimerList->size(); ++i) {
         const MacTimerInfo &t = macTimerList->at(i);
-        if(!t.interval) {
+        if(!t.interval && !t.pending) {
             ret++;
+            const_cast<MacTimerInfo &>(t).pending = true;
+            MacTimerInfo tcopy = macTimerList->at(i);
             QTimerEvent e(t.id);
             QApplication::sendEvent(t.obj, &e);
+
+            if (macTimerList->contains(tcopy))
+                const_cast<MacTimerInfo &>(t).pending = false;
+
             if(ret == zero_timer_count)
                 break;
         }
