@@ -1263,8 +1263,6 @@ QStandardItemModel *QStandardItem::model() const
 }
 
 /*!
-    \since 4.2
-
     Sets the number of child item rows to \a rows. If this is less than
     rowCount(), the data in the unwanted rows is discarded.
 
@@ -1282,8 +1280,6 @@ void QStandardItem::setRowCount(int rows)
 }
 
 /*!
-    \since 4.2
-
     Returns the number of child item rows that the item has.
 
     \sa setRowCount(), columnCount()
@@ -1295,8 +1291,6 @@ int QStandardItem::rowCount() const
 }
 
 /*!
-    \since 4.2
-
     Sets the number of child item columns to \a columns. If this is less than
     columnCount(), the data in the unwanted columns is discarded.
 
@@ -1314,8 +1308,6 @@ void QStandardItem::setColumnCount(int columns)
 }
 
 /*!
-    \since 4.2
-
     Returns the number of child item columns that the item has.
 
     \sa setColumnCount(), rowCount()
@@ -1327,8 +1319,6 @@ int QStandardItem::columnCount() const
 }
 
 /*!
-    \since 4.2
-
     Inserts a row at \a row containing \a items. If necessary, the column
     count is increased to the size of \a items.
 
@@ -1401,7 +1391,6 @@ void QStandardItem::insertColumns(int column, int count)
 
 /*!
     \fn void QStandardItem::appendColumn(const QList<QStandardItem*> &items)
-    \since 4.2
 
     Appends a column containing \a items. If necessary, the row count is
     increased to the size of \a items.
@@ -1612,8 +1601,6 @@ QList<QStandardItem*> QStandardItem::takeRow(int row)
 }
 
 /*!
-    \since 4.2
-
     Removes \a column without deleting the column items, and returns a list of
     pointers to the removed items. For items in the column that have not been
     set, the corresponding pointers in the list will be 0.
