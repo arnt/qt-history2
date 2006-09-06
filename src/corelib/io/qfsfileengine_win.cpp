@@ -1077,8 +1077,12 @@ bool QFSFileEnginePrivate::doStat() const
             if (!could_stat) {
                 if (!fname.isEmpty() && fname.at(0).isLetter() && fname.mid(1, fname.length()) == ":/") {
                     // an empty drive ??
-                    fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
-                    could_stat = true;
+                    DWORD drivesBitmask = ::GetLogicalDrives();
+                    int drivebit = 1 << (fname.at(0).toUpper().unicode() - QLatin1Char('A').unicode());
+                    if (drivesBitmask & drivebit) {
+                        fileAttrib = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_HIDDEN;
+                        could_stat = true;
+                    }
                 } else {
                     QString path = QDir::toNativeSeparators(fname);
                     bool is_dir = false;

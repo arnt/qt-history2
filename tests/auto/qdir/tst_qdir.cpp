@@ -260,6 +260,20 @@ void tst_QDir::exists_data()
     QTest::newRow("unc 7") << "//gennan/testshare/adirthatshouldnotexist" << false;
     QTest::newRow("unc 8") << "//gennan/asharethatshouldnotexist" << false;
     QTest::newRow("unc 9") << "//foobar" << false;
+    
+    QTest::newRow("This drive should exist") <<  "C:/" << true; 
+    // find a non-existing drive and check if it does not exist 
+    QFileInfoList drives = QFSFileEngine::drives();
+    char drive = 'Z';
+    QString driv;
+    do {
+        driv = QString::fromAscii("%1:/").arg(drive);
+        if (!drives.contains(driv)) break;
+        --drive;
+    } while (drive >= 'A');
+    if (drive >= 'A') {
+        QTest::newRow("This drive should not exist") <<  driv << false;
+    }
 #endif
 }
 
