@@ -204,6 +204,9 @@ void tst_QFileSystemWatcher::watchDirectory()
     // remove the file again, should get a signal from the watcher
     QVERIFY(testFile.remove());
 
+    timer.start(5000);
+    eventLoop.exec();
+
     // remove the directory, should get a signal from the watcher
     QVERIFY(QDir().rmdir("testDir"));
 
@@ -211,10 +214,13 @@ void tst_QFileSystemWatcher::watchDirectory()
     timer.start(5000);
     eventLoop.exec();
 
-    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(changedSpy.count(), 2);
     QCOMPARE(changedSpy.at(0).count(), 1);
-
+    QCOMPARE(changedSpy.at(1).count(), 1);
+    
     fileName = changedSpy.at(0).at(0).toString();
+    QCOMPARE(fileName, testDir.dirName());
+    fileName = changedSpy.at(1).at(0).toString();
     QCOMPARE(fileName, testDir.dirName());
 
     changedSpy.clear();
