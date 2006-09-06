@@ -82,9 +82,6 @@ private slots:
     void spaceArgsTest_data();
     void spaceArgsTest();
     void exitCodeTest();
-    void failToStart();
-    void failToStartWithWait();
-    void failToStartWithEventLoop();
     void systemEnvironment();
     void spaceInName();
     void lockupsInStartDetached();
@@ -94,6 +91,9 @@ private slots:
     void setStandardOutputFile();
     void setStandardOutputProcess_data();
     void setStandardOutputProcess();
+    void failToStart();
+    void failToStartWithWait();
+    void failToStartWithEventLoop();
 
 protected slots:
     void readFromProcess();
