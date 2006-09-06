@@ -495,3 +495,29 @@ QStringList QUiLoader::availableWidgets() const
 
     return available.keys();
 }
+
+/*!
+    Sets the working directory of the loader. The loader looks for
+    other resources, such as icons and resource files, in paths relative
+    to this directory.
+
+    \sa workingDirectory()
+*/
+
+void QUiLoader::setWorkingDirectory(const QDir &dir)
+{
+    Q_D(QUiLoader);
+    d->builder.setWorkingDirectory(dir);
+}
+
+/*!
+    Returns the working directory of the loader.
+
+    \sa setWorkingDirectory()
+*/
+
+QDir QUiLoader::workingDirectory() const
+{
+    Q_D(const QUiLoader);
+    return d->builder.workingDirectory();
+}

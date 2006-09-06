@@ -24,6 +24,7 @@ class QAction;
 class QActionGroup;
 class QString;
 class QIODevice;
+class QDir;
 
 class QUiLoaderPrivate;
 class QUiLoader : public QObject
@@ -43,6 +44,9 @@ public:
     virtual QLayout *createLayout(const QString &className, QObject *parent = 0, const QString &name = QString());
     virtual QActionGroup *createActionGroup(QObject *parent = 0, const QString &name = QString());
     virtual QAction *createAction(QObject *parent = 0, const QString &name = QString());
+
+    void setWorkingDirectory(const QDir &dir);
+    QDir workingDirectory() const;
 
 private:
     Q_DECLARE_PRIVATE(QUiLoader)
