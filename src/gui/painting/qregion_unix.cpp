@@ -2559,18 +2559,20 @@ QVector<QRect> QRegion::rects() const
 }
 
 /*!
-  Sets the region to be the given set of rectangles.  The rectangles
-  \e must be optimal Y-X sorted bands as follows:
-   <ul>
-    <li> The rectangles must not intersect
-    <li> All rectangles with a given top coordinate must have the same height.
-    <li> No two rectangles may abut horizontally (they should be combined
-                into a single wider rectangle in that case).
-    <li> The rectangles must be sorted ascendingly by Y as the major sort key
-                and X as the minor sort key.
-   </ul>
-  \internal
+  Sets the region using the array of rectangles specified by \a rects.
+  The rectangles \e must be optimally Y-X sorted and follow these restrictions:
+
+  \list
+  \o The rectangles must not intersect.
+  \o All rectangles with a given top coordinate must have the same height.
+  \o No two rectangles may abut horizontally (they should be combined
+     into a single wider rectangle in that case).
+  \o The rectangles must be sorted in ascending order, with Y as the major
+     sort key and X as the minor sort key.
+  \endlist
+  \omit
   Only some platforms have that restriction (QWS and X11 and Mac OS X).
+  \endomit
 */
 void QRegion::setRects(const QRect *rects, int num)
 {
