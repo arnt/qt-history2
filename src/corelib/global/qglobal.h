@@ -780,9 +780,13 @@ QT_BEGIN_HEADER
 
 typedef int QNoImplicitBoolCast;
 
+#if defined(__arm__) || defined(__mips__)
+#define QT_NO_FPU
+#endif
+
 #if defined(QT_COORD_TYPE)
 typedef QT_COORD_TYPE qreal;
-#elif defined(__arm__)
+#elif defined(QT_NO_FPU)
 typedef float qreal;
 #else
 typedef double qreal;
