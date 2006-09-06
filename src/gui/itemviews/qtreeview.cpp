@@ -310,10 +310,14 @@ void QTreeView::setIndentation(int i)
 
 /*!
   \property QTreeView::rootIsDecorated
-  \brief whether to show controls for expanding and collapsing items
+  \brief whether to show controls for expanding and collapsing top-level items
 
-  This property holds whether root items are displayed with controls for
-  expanding and collapsing them.
+  Items with children are typically shown with controls to expand and collapse
+  them, allowing their children to be shown or hidden. If this property is
+  false, these controls are not shown for top-level items. This can be used to
+  make a single level tree structure appear like a simple list of items.
+
+  By default, this property is true.
 */
 bool QTreeView::rootIsDecorated() const
 {
