@@ -1107,7 +1107,9 @@ qreal QTextLine::naturalTextWidth() const
 /*!
     Lays out the line with the given \a width. The line is filled from
     its starting position with as many characters as will fit into
-    the line.
+    the line. In case the text cannot be split at the end of the line,
+    it will be filled with additional characters to the next whitespace
+    or end of the text.
 */
 void QTextLine::setLineWidth(qreal width)
 {
@@ -1120,7 +1122,10 @@ void QTextLine::setLineWidth(qreal width)
 
 /*!
     Lays out the line. The line is filled from its starting position
-    with as many characters as are specified by \a numColumns.
+    with as many characters as are specified by \a numColumns. In case
+    the text cannot be split until \a numColumns characters, the line
+    will be filled with as many characters to the next whitespace or
+    end of the text.
 */
 void QTextLine::setNumColumns(int numColumns)
 {
