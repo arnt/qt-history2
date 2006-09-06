@@ -152,25 +152,21 @@ QVFbScreen::~QVFbScreen()
 
 bool QVFbScreen::connect(const QString &displaySpec)
 {
-    qDebug() << "QVFbScreen::connect:" << displaySpec;
     QStringList displayArgs = displaySpec.split(':');
     if (displayArgs.contains(QLatin1String("Gray")))
         grayscale = true;
 
     key_t key = ftok(QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(displayId)), 'b');
 
-    qDebug() << "QVFbScreen::connect - key:" << key;
     if (key == -1)
         return false;
 
     int shmId = shmget(key, 0, 0);
-    qDebug() << "QVFbScreen::connect - shmId:" << shmId;
     if (shmId != -1)
         d_ptr->shmrgn = (unsigned char *)shmat(shmId, 0, 0);
     else
         return false;
 
-    qDebug() << "QVFbScreen::connect - shmrgn:" << ((long)d_ptr->shmrgn);
     if ((long)d_ptr->shmrgn == -1 || d_ptr->shmrgn == 0) {
         qDebug("No shmrgn %ld", (long)d_ptr->shmrgn);
         return false;
@@ -231,7 +227,6 @@ bool QVFbScreen::connect(const QString &displaySpec)
             d_ptr->hdr->serverVersion = QT_VERSION;
     }
 
-    qDebug() << "QVFbScreen::connect - done";
     return true;
 }
 
