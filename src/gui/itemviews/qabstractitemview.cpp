@@ -1833,8 +1833,20 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         event->ignore();
         break;
     case Qt::Key_Space:
+    case Qt::Key_Select:
         if (!edit(currentIndex(), AnyKeyPressed, event))
             d->selectionModel->select(currentIndex(), selectionCommand(currentIndex(), event));
+#ifdef QT_KEYPAD_NAVIGATION
+        if ( event->key()==Qt::Key_Select ) {
+            // Also do Key_Enter action.
+            if (currentIndex().isValid()) {
+                if (state() != EditingState)
+                    emit activated(currentIndex());
+            } else {
+                event->ignore();
+            }
+        }
+#endif
         break;
 #ifdef Q_WS_MAC
     case Qt::Key_Enter:
@@ -1853,7 +1865,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-    case Qt::Key_Select:
         if (currentIndex().isValid()) {
             if (state() != EditingState)
                 emit activated(currentIndex());
@@ -2949,7 +2960,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
     if (event) {
         switch (event->type()) {
         case QEvent::KeyPress:
-            if (static_cast<const QKeyEvent*>(event)->key() == Qt::Key_Space)
+            if (static_cast<const QKeyEvent*>(event)->key() == Qt::Key_Space
+             || static_cast<const QKeyEvent*>(event)->key() == Qt::Key_Select)
                 return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             break;
         case QEvent::MouseButtonPress:
@@ -3023,9 +3035,15 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             case Qt::Key_PageUp:
             case Qt::Key_PageDown:
             case Qt::Key_Tab:
+#ifdef QT_KEYPAD_NAVIGATION
+                return QItemSelectionModel::NoUpdate;
+#else
                 if (modifiers & Qt::ControlModifier)
                     return QItemSelectionModel::NoUpdate;
+#endif
                 break;
+            case Qt::Key_Select:
+                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
             case Qt::Key_Space:// Toggle on Ctrl-Qt::Key_Space, Select on Space
                 if (modifiers & Qt::ControlModifier)
                     return QItemSelectionModel::Toggle|selectionBehaviorFlags();
