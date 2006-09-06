@@ -98,6 +98,7 @@ private slots:
     void setHtmlInsideResizeEvent();
     void colorfulAppend();
     void ensureVisibleWithRtl();
+    void preserveCharFormatAfterSetPlainText();
 
 private:
     void createSelection();
@@ -1254,6 +1255,17 @@ void tst_QTextEdit::ensureVisibleWithRtl()
     QCOMPARE(ed->horizontalScrollBar()->value(), ed->horizontalScrollBar()->maximum());
     ed->moveCursor(QTextCursor::End);
     QCOMPARE(ed->horizontalScrollBar()->value(), 0);
+}
+
+void tst_QTextEdit::preserveCharFormatAfterSetPlainText()
+{
+    ed->setTextColor(Qt::blue);
+    ed->setPlainText("This is blue");
+    ed->append("This should still be blue");
+    QTextBlock block = ed->document()->begin();
+    block = block.next();
+    QCOMPARE(block.text(), QString("This should still be blue"));
+    QVERIFY(block.begin().fragment().charFormat().foreground().color() == QColor(Qt::blue));
 }
 
 QTEST_MAIN(tst_QTextEdit)
