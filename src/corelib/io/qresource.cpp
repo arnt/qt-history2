@@ -57,6 +57,7 @@ public:
     { return tree == other.tree && names == other.names && payloads == other.payloads; }
     inline bool operator!=(const QResourceRoot &other) const
     { return !operator==(other); }
+    virtual bool isDynamicRoot() const { return false; }
 
 protected:
     inline void setSource(const uchar *t, const uchar *n, const uchar *d) {
@@ -756,7 +757,7 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 
 class QDynamicResourceRoot: public QResourceRoot
 {
-    QString root;
+    QString root, fileName;
     // for mmap'ed files, this is what needs to be unmapped.
     uchar *unmapPointer;
     unsigned int unmapLength;
@@ -776,9 +777,11 @@ public:
             unmapLength = 0;
         }
     }
+    QString mappingFile() const { return fileName; }
     virtual QString mappingRoot() const { return root; }
+    virtual bool isDynamicRoot() const { return true; }
 
-    bool registerSelf(const QString &filename) {
+    bool registerSelf(const QString &f) {
         bool ok = false;
 #ifdef QT_USE_MMAP
 
@@ -789,7 +792,7 @@ public:
 #define MAP_FAILED -1
 #endif
 
-        int fd = QT_OPEN(QFile::encodeName(filename), O_RDONLY,
+        int fd = QT_OPEN(QFile::encodeName(f), O_RDONLY,
 #if defined(Q_OS_WIN)
                          _S_IREAD | _S_IWRITE
 #else
@@ -816,7 +819,7 @@ public:
         }
 #endif // QT_USE_MMAP
         if(!ok) {
-            QFile file(filename);
+            QFile file(f);
             if (!file.exists())
                 return false;
             unmapLength = file.size();
@@ -833,8 +836,11 @@ public:
             }
             fromMM = false;
         }
-        if(!ok)
+        if(!ok) {
+	    fileName = QString();
             return false;
+	}
+	fileName = f;
 
         //setup the data now
         int offset = 0;
@@ -870,6 +876,18 @@ public:
     }
 };
 
+
+static QString qt_resource_fixResourceRoot(QString r) {
+    if(!r.isEmpty()) {
+        if(r.startsWith(QLatin1Char(':')))
+            r = r.mid(1);
+        if(!r.isEmpty())
+            r = QDir::cleanPath(r);
+    }
+    return r;
+}
+
+
 /*!
    \fn bool QResource::registerResource(const QString &rccFileName, const QString &mapRoot)
 
@@ -883,18 +901,11 @@ public:
 bool
 QResource::registerResource(const QString &rccFilename, const QString &resourceRoot)
 {
-    QString r = resourceRoot;
-    if(!r.isEmpty()) {
-        if(r.startsWith(QLatin1Char(':')))
-            r = r.mid(1);
-        if(!r.isEmpty()) {
-            r = QDir::cleanPath(r);
-            if(r[0] != QLatin1Char('/')) {
-                qWarning("QDir::registerResource: Registering a resource [%s] must be rooted in an absolute path (start with /) [%s]",
-                         rccFilename.toLocal8Bit().data(), resourceRoot.toLocal8Bit().data());
-                return false;
-            }
-        }
+    QString r = qt_resource_fixResourceRoot(resourceRoot);
+    if(!r.isEmpty() && r[0] != QLatin1Char('/')) {
+        qWarning("QDir::registerResource: Registering a resource [%s] must be rooted in an absolute path (start with /) [%s]",
+                 rccFilename.toLocal8Bit().data(), resourceRoot.toLocal8Bit().data());
+        return false;
     }
 
     QDynamicResourceRoot *root = new QDynamicResourceRoot(r);
@@ -921,8 +932,19 @@ QResource::registerResource(const QString &rccFilename, const QString &resourceR
 bool
 QResource::unregisterResource(const QString &rccFilename, const QString &resourceRoot)
 {
-    Q_UNUSED(rccFilename); //### implement!
-    Q_UNUSED(resourceRoot); //### implement!
+    QString r = qt_resource_fixResourceRoot(resourceRoot);
+    ResourceList *list = resourceList();
+    for(int i = 0; i < list->size(); ++i) {
+        QResourceRoot *res = list->at(i);
+        if(res->isDynamicRoot()) {
+	    QDynamicResourceRoot *root = reinterpret_cast<QDynamicResourceRoot*>(res);
+	    if(root->mappingFile() == rccFilename && root->mappingRoot() == r) {
+                if(!root->ref.deref())
+                    delete root;
+		return true;
+            }
+	}
+    }
     return false;
 }
 
