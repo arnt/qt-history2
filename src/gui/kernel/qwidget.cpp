@@ -337,26 +337,218 @@ void QWidget::setAutoFillBackground(bool enabled)
     QMainWindow and the various subclasses of QDialog are the most
     common window types.
 
-    A widget without a parent widget is always an independent window.
-
-    Non-window widgets are child widgets. These are child windows
-    in their parent widgets. You cannot usually distinguish a child
-    widget from its parent visually. Most other widgets in Qt are
-    useful only as child widgets. (It is possible to make, say, a
-    button into a window, but most people prefer to put
-    their buttons inside other widgets, e.g. QDialog.)
-
-    If you want to use a QWidget to hold child widgets you will
-    probably want to add a layout to the parent QWidget. (See \link
-    layout.html Layouts\endlink.)
+    Every widget's constructor accepts one or two standard arguments:
+    \list 1
+    \i \c{QWidget *parent = 0} is the parent of the new widget.
+    If it is 0 (the default), the new widget will be a window.
+    If not, it will be a child of \e parent, and be constrained by \e
+    parent's geometry (unless you specify Qt::Window as
+    window flag).
+    \i \c{Qt::WindowFlags f = 0} (where available) sets the window flags; the
+    default is suitable for almost all widgets, but to get, for
+    example, a window without a window system frame, you
+    must use special flags.
+    \endlist
 
     QWidget has many member functions, but some of them have little
-    direct functionality: for example, QWidget has a font property,
+    direct functionality; for example, QWidget has a font property,
     but never uses this itself. There are many subclasses which
-    provide real functionality, such as QPushButton, QListWidget and
-    QTabWidget, etc.
+    provide real functionality, such as QLabel, QPushButton, QListWidget,
+    and QTabWidget.
 
-    \section1 Groups of functions:
+    \section1 Top-Level and Child Widgets
+
+    A widget without a parent widget is always an independent window
+    (top-level widget). For these widgets, setWindowTitle() and
+    setWindowIcon() set the title bar and icon respectively.
+
+    Non-window widgets are child widgets, and are displayed within
+    their parent widgets. Most widgets in Qt are mainly useful as child
+    widgets. For example, it is possible to display a button as a
+    top-level window, but most people prefer to put their buttons
+    inside other widgets, such as QDialog.
+
+    \image parent-child-widgets.png A parent widget containing various child widgets.
+
+    The above diagram shows a QGroupBox widget being used to hold various child
+    widgets in a layout provided by QGridLayout. The QLabel child widgets have
+    been outlined to indicate their full sizes.
+
+    If you want to use a QWidget to hold child widgets you will
+    usually want to add a layout to the parent QWidget. See
+    \l{Layout Classes} for more information about these.
+
+    \section1 Composite Widgets
+
+    When a widgets is used as a container to group a number of child widgets,
+    it is known as a composite widget. These can be created by constructing
+    a widget with the required visual properties - a QFrame, for example - and
+    adding child widgets to it, usually managed by a layout. The above diagram
+    shows such a composite widget that was created using \l{Qt Designer}.
+
+    Composite widgets can also be created by subclassing a standard widget,
+    such as QWidget or QFrame, and adding the necessary layout and child widgets
+    in the constructor of the subclass. Many of the
+    \l{Qt Examples}{examples provided with Qt} use this approach, and it is
+    also covered in the \l{Qt Tutorial}.
+
+    \section1 Custom Widgets and Painting
+
+    Since QWidget is a subclass of QPaintDevice, subclasses can be used to
+    display custom content that is composed using a series of painting
+    operations with an instance of the QPainter class. This approach
+    contrasts with the canvas-style approach used by the
+    \l{Graphics View}{Graphics View Framework} where items are added to a
+    scene by the application and are rendered by the framework itself.
+
+    Each widget performs all painting operations from within its
+    paintEvent() function. This is called whenever the widget needs to be
+    redrawn, either as a result of some external change or when requested
+    by the application.
+
+    The \l{widgets/analogclock}{Analog Clock example} shows how a simple
+    widget can handle paint events.
+
+    \section1 Size Hints and Size Policies
+
+    When implementing a new widget, it is almost always useful to
+    reimplement sizeHint() to provide a reasonable default size for the
+    widget and to set the correct size policy with setSizePolicy().
+
+    By default, composite widgets which do not provide a size hint will
+    be sized according to the space requirements of their child widgets.
+
+    The size policy lets you supply good default behavior for the layout
+    management system, so that other widgets can contain and manage
+    yours easily. The default size policy indicates that the size hint
+    represents the preferred size of the widget, and this is often good
+    enough for many widgets.
+
+    \section1 Events
+
+    Widgets respond to events that are typically caused by user actions.
+    Qt delivers events to widgets by calling specific event handler functions
+    with instances of QEvent subclasses containing information about each
+    event.
+
+    If your widget only contains child widgets, you probably do not need to
+    implement any event handlers. If you want to detect a mouse click in
+    a child widget call the child's underMouse() function inside the
+    widget's mousePressEvent().
+
+    The \l{widgets/scribble}{Scribble example} implements
+    a wider set of events to handle mouse movement, button presses, and
+    window resizing.
+
+    You will need to supply the behavior and content for your own widgets,
+    but here is a brief overview of the events that are relevant to
+    QWidget, starting with the most common ones:
+
+    \list
+
+    \i paintEvent() is called whenever the widget needs to be
+    repainted. Every widget which displays custom content must implement
+    it. Painting using a QPainter can only take place in a paintEvent()
+    or a function called by a paintEvent().
+
+    \i resizeEvent() is called when the widget has been resized.
+
+    \i mousePressEvent() is called when a mouse button is pressed when
+    the mouse is inside it, or when it has grabbed the mouse using
+    grabMouse().
+
+    \i mouseReleaseEvent() is called when a mouse button is released.
+    A widget receives mouse release events when it has received the
+    corresponding mouse press event. This means that if the user
+    presses the mouse inside \e your widget, then drags the mouse to
+    somewhere else before releasing the mouse button, \e your widget
+    receives the release event. There is one exception: if a popup
+    menu appears while the mouse button is held down, this popup
+    immediately steals the mouse events.
+
+    \i mouseDoubleClickEvent() is called when the user double clicks
+    in the widget. If the user double-clicks, the widget receives a
+    mouse press event, a mouse release event and finally this event
+    instead of a second mouse press event.
+    (Some mouse move events may also be received if the user doesn't
+    hold the mouse steady during this operation.)
+    It is \e{not possible} to distinguish a click from a double click
+    until the second click arrives. (This is one reason why most GUI
+    books recommend that double clicks be an extension of single clicks,
+    rather than trigger a different action.)
+
+    \endlist
+
+    Widgets that accept keyboard input need to reimplement a few more
+    event handlers:
+
+    \list
+
+    \i keyPressEvent() is called whenever a key is pressed, and again
+    when a key has been held down long enough for it to auto-repeat.
+    Note that the \key Tab and \key Shift+Tab keys are only passed to
+    the widget if they are not used by the focus-change mechanisms.
+    To force those keys to be processed by your widget, you must
+    reimplement QWidget::event().
+
+    \i focusInEvent() is called when the widget gains keyboard focus
+    (assuming you have called setFocusPolicy()). Well written widgets
+    indicate that they own the keyboard focus in a clear but discreet
+    way.
+
+    \i focusOutEvent() is called when the widget loses keyboard focus.
+
+    \endlist
+
+    Some widgets will also need to reimplement some of the less common
+    event handlers:
+
+    \list
+
+    \i mouseMoveEvent() is called whenever the mouse moves while a
+    button is held down. This can be useful during drag and drop
+    operations. If you call setMouseTracking(true), you get mouse move
+    events even when no buttons are held down. (See also the guide to
+    \l{Drag and Drop}.)
+
+    \i keyReleaseEvent() is called whenever a key is released, and also
+    while it is held down if the key is auto-repeating. In that case
+    the widget receives a pair of key release and key press events
+    for every repeat. Note that the \key Tab and \key Shift+Tab keys are
+    only passed to the widget if they are not used by the focus-change
+    mechanisms. To force those keys to be processed by your widget, you
+    must reimplement QWidget::event().
+
+    \i wheelEvent() is called whenever the user turns the mouse wheel
+    while the widget has the focus.
+
+    \i enterEvent() is called when the mouse enters the widget's screen
+    space. (This excludes screen space owned by any children of the
+    widget.)
+
+    \i leaveEvent() is called when the mouse leaves the widget's screen
+    space. Note that if the mouse enters a child widget it will not
+    cause a leaveEvent.
+
+    \i moveEvent() is called when the widget has been moved relative to its
+    parent.
+
+    \i closeEvent() is called when the user closes the widget (or when
+    close() is called).
+
+    \endlist
+
+    There are also some rather obscure events described in the QEvent::Type
+    documentation. You need to reimplement event() directly to handle
+    these.
+    The default implementation of event() handles \key Tab and \key Shift+Tab
+    (to move the keyboard focus), and passes on most other events to
+    one of the more specialized handlers above.
+
+    Events and the mechanism used to deliver them are covered in the
+    \l{Events and Event Filters} document.
+
+    \section1 Groups of functions
 
     \table
     \header \i Context \i Functions
@@ -511,155 +703,6 @@ void QWidget::setAutoFillBackground(bool enabled)
         focusPreviousChild()
 
     \endtable
-
-    Every widget's constructor accepts one or two standard arguments:
-    \list 1
-    \i \c{QWidget *parent = 0} is the parent of the new widget.
-    If it is 0 (the default), the new widget will be a window.
-    If not, it will be a child of \e parent, and be constrained by \e
-    parent's geometry (unless you specify Qt::Window as
-    window flag).
-    \i \c{Qt::WindowFlags f = 0} (where available) sets the window flags; the
-    default is suitable for almost all widgets, but to get, for
-    example, a window without a window system frame, you
-    must use special flags.
-    \endlist
-
-    The \l widgets/calculator example program is good example of a simple
-    widget. It contains event handlers (as all widgets must),
-    routines that are specific to it (as all useful widgets
-    do), and has children and connections. Everything it does
-    is done in response to an event: this is by far the most common way
-    to design GUI applications.
-
-    You will need to supply the content for your widgets yourself, but
-    here is a brief run-down of the events, starting with the most common
-    ones:
-
-    \list
-
-    \i paintEvent() - called whenever the widget needs to be
-    repainted. Every widget which displays output must implement it.
-    Painting using a QPainter can only take place in a paintEvent() or
-    a function called by a paintEvent().
-
-    \i resizeEvent() - called when the widget has been resized.
-
-    \i mousePressEvent() - called when a mouse button is pressed.
-    There are six mouse-related events, but the mouse press and mouse
-    release events are by far the most important. A widget receives
-    mouse press events when the mouse is inside it, or when it has
-    grabbed the mouse using grabMouse().
-
-    \i mouseReleaseEvent() - called when a mouse button is released.
-    A widget receives mouse release events when it has received the
-    corresponding mouse press event. This means that if the user
-    presses the mouse inside \e your widget, then drags the mouse to
-    somewhere else, then releases, \e your widget receives the release
-    event. There is one exception: if a popup menu appears while the
-    mouse button is held down, this popup immediately steals the mouse
-    events.
-
-    \i mouseDoubleClickEvent() - not quite as obvious as it might seem.
-    If the user double-clicks, the widget receives a mouse press event
-    (perhaps a mouse move event or two if they don't hold the mouse
-    quite steady), a mouse release event and finally this event. It is
-    \e{not possible} to distinguish a click from a double click until you've
-    seen whether the second click arrives. (This is one reason why most GUI
-    books recommend that double clicks be an extension of single clicks,
-    rather than trigger a different action.)
-
-    \endlist
-
-    If your widget only contains child widgets, you probably do not need to
-    implement any event handlers. If you want to detect a mouse click in
-    a child widget call the child's underMouse() function inside the
-    parent widget's mousePressEvent().
-
-    Widgets that accept keyboard input need to reimplement a few more
-    event handlers:
-
-    \list
-
-    \i keyPressEvent() - called whenever a key is pressed, and again
-    when a key has been held down long enough for it to auto-repeat.
-    Note that the Tab and Shift+Tab keys are only passed to the widget
-    if they are not used by the focus-change mechanisms. To force those
-    keys to be processed by your widget, you must reimplement
-    QWidget::event().
-
-    \i focusInEvent() - called when the widget gains keyboard focus
-    (assuming you have called setFocusPolicy()). Well written widgets
-    indicate that they own the keyboard focus in a clear but discreet
-    way.
-
-    \i focusOutEvent() - called when the widget loses keyboard focus.
-
-    \endlist
-
-    Some widgets will also need to reimplement some of the less common
-    event handlers:
-
-    \list
-
-    \i mouseMoveEvent() - called whenever the mouse moves while a
-    button is held down. This is useful for, for example, dragging. If
-    you call setMouseTracking(true), you get mouse move events even
-    when no buttons are held down. (See also the \link dnd.html drag
-    and drop\endlink information.)
-
-    \i keyReleaseEvent() - called whenever a key is released, and also
-    while it is held down if the key is auto-repeating. In that case
-    the widget receives a key release event and immediately a key press
-    event for every repeat. Note that the Tab and Shift+Tab keys are
-    only passed to the widget if they are not used by the focus-change
-    mechanisms. To force those keys to be processed by your widget, you
-    must reimplement QWidget::event().
-
-    \i wheelEvent() -- called whenever the user turns the mouse wheel
-    while the widget has the focus.
-
-    \i enterEvent() - called when the mouse enters the widget's screen
-    space. (This excludes screen space owned by any children of the
-    widget.)
-
-    \i leaveEvent() - called when the mouse leaves the widget's screen
-    space. Note that if the mouse enters a child widget it will not
-    cause a leaveEvent.
-
-    \i moveEvent() - called when the widget has been moved relative to its
-    parent.
-
-    \i closeEvent() - called when the user closes the widget (or when
-    close() is called).
-
-    \endlist
-
-    There are also some rather obscure events. They are listed in
-    \c qevent.h and you need to reimplement event() to handle them.
-    The default implementation of event() handles Tab and Shift+Tab
-    (to move the keyboard focus), and passes on most other events to
-    one of the more specialized handlers above.
-
-    When implementing a widget, there are a few more things to
-    consider.
-
-    \list
-
-    \i In the constructor, be sure to set up your member variables
-    early on, before there's any chance that you might receive an event.
-
-    \i It is almost always useful to reimplement sizeHint() and to set
-    the correct size policy with setSizePolicy(), so users of your class
-    can set up layout management more easily. A size policy lets you
-    supply good defaults for the layout management handling, so that
-    other widgets can contain and manage yours easily. sizeHint()
-    indicates a "good" size for the widget.
-
-    \i If your widget is a window, setWindowTitle() and
-    setWindowIcon() set the title bar and icon respectively.
-
-    \endlist
 
     \section1 Transparency and Double Buffering
 
