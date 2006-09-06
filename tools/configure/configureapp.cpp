@@ -128,12 +128,12 @@ Configure::Configure( int& argc, char** argv )
     QFile profile(qtDir + "/src/qbase.pri");
     if (profile.open(QFile::ReadOnly)) {
 	QTextStream read(&profile);
+	QRegExp version_regexp("^\\s*VERSION=(.*)$");
 	QString line;
 	while (!read.atEnd()) {
 	    line = read.readLine();
-	    if (line.contains("VERSION") && !line.startsWith("#")) {
-		version = line.mid(line.indexOf('=') + 1);
-		version = version.trimmed();
+	    if (version_regexp.exactMatch(line)) {
+		version = version_regexp.cap(1).trimmed();
 		if (!version.isEmpty())
 		    break;
 	    }
@@ -1466,8 +1466,10 @@ void Configure::generateOutputVars()
 
     if ( dictionary[ "SHARED" ] == "yes" ) {
 	QString version = dictionary[ "VERSION" ];
-	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version.left(version.indexOf("."));
-	version.remove(QLatin1Char('.'));
+	if (!version.isEmpty()) {
+            qmakeVars += "QMAKE_QT_VERSION_OVERRIDE = " + version.left(version.indexOf("."));
+            version.remove(QLatin1Char('.'));
+        }
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
     } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
@@ -1477,7 +1479,7 @@ void Configure::generateOutputVars()
 	qtConfig += "accessibility";
 
     if( !qmakeLibs.isEmpty() )
-	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
+        qmakeVars += "LIBS           += " + qmakeLibs.join( " " );
 
     if (dictionary[ "QT3SUPPORT" ] == "yes")
         qtConfig += "qt3support";
@@ -1512,24 +1514,24 @@ void Configure::generateOutputVars()
     if( !dictionary[ "QT_INSTALL_DEMOS" ].size() )
 	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::toNativeSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/demos" );
 
-    qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::toNativeSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString( "MOC_DIR=" ) + QDir::toNativeSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
-    qmakeVars += QString("RCC_DIR=") + QDir::toNativeSeparators("tmp/rcc/" + dictionary["QMAKE_OUTDIR"]);
+    qmakeVars += QString("OBJECTS_DIR     = ") + QDir::toNativeSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString("MOC_DIR         = ") + QDir::toNativeSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
+    qmakeVars += QString("RCC_DIR         = ") + QDir::toNativeSeparators("tmp/rcc/" + dictionary["QMAKE_OUTDIR"]);
 
     if (!qmakeDefines.isEmpty())
-        qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
+        qmakeVars += QString("DEFINES        += ") + qmakeDefines.join( " " );
     if (!qmakeIncludes.isEmpty())
-        qmakeVars += QString( "INCLUDEPATH+=" ) + qmakeIncludes.join( " " );
+        qmakeVars += QString("INCLUDEPATH    += ") + qmakeIncludes.join( " " );
     if (!qmakeSql.isEmpty())
-        qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
+        qmakeVars += QString("sql-drivers    += ") + qmakeSql.join( " " );
     if (!qmakeSqlPlugins.isEmpty())
-        qmakeVars += QString( "sql-plugins+=" ) + qmakeSqlPlugins.join( " " );
+        qmakeVars += QString("sql-plugins    += ") + qmakeSqlPlugins.join( " " );
     if (!qmakeStyles.isEmpty())
-        qmakeVars += QString( "styles+=" ) + qmakeStyles.join( " " );
+        qmakeVars += QString("styles         += ") + qmakeStyles.join( " " );
     if (!qmakeStylePlugins.isEmpty())
-        qmakeVars += QString( "style-plugins+=" ) + qmakeStylePlugins.join( " " );
+        qmakeVars += QString("style-plugins  += ") + qmakeStylePlugins.join( " " );
     if (!qmakeFormatPlugins.isEmpty())
-        qmakeVars += QString( "imageformat-plugins+=" ) + qmakeFormatPlugins.join( " " );
+        qmakeVars += QString("imageformat-plugins += ") + qmakeFormatPlugins.join( " " );
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "Configure could not detect your compiler. QMAKESPEC must either" << endl
@@ -1561,25 +1563,25 @@ void Configure::generateCachefile()
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
-	if(QFile::exists(dictionary[ "QT_SOURCE_TREE" ] + "/mkspecs/" + dictionary[ "QMAKESPEC" ]))
-	    cacheStream << "QMAKESPEC="
-			<< dictionary[ "QT_SOURCE_TREE" ] << "/mkspecs/" << dictionary[ "QMAKESPEC" ] << endl;
+	cacheStream << "CONFIG         += " << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
+	QString mkspec_path=dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\" + dictionary[ "QMAKESPEC" ];
+	if(QFile::exists(mkspec_path))
+	    cacheStream << "QMAKESPEC       = " << mkspec_path << endl;
 	else
-	    cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-        cacheStream << "ARCH=" << dictionary[ "ARCHITECTURE" ] << endl;
-	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
-	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
+	    cacheStream << "QMAKESPEC       = " << dictionary[ "QMAKESPEC" ] << endl;
+        cacheStream << "ARCH            = " << dictionary[ "ARCHITECTURE" ] << endl;
+	cacheStream << "QT_BUILD_TREE   = " << dictionary[ "QT_SOURCE_TREE" ] << endl;
+	cacheStream << "QT_SOURCE_TREE  = " << dictionary[ "QT_SOURCE_TREE" ] << endl;
 
         if (dictionary["QT_EDITION"] != "QT_EDITION_OPENSOURCE")
-            cacheStream << "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
+            cacheStream << "DEFINES        *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
 
 	//so that we can build without an install first (which would be impossible)
-	cacheStream << "QMAKE_MOC = $$QT_BUILD_TREE/bin/moc.exe" << endl;
-	cacheStream << "QMAKE_UIC = $$QT_BUILD_TREE/bin/uic.exe" << endl;
-	cacheStream << "QMAKE_UIC3 = $$QT_BUILD_TREE/bin/uic3.exe" << endl;
-	cacheStream << "QMAKE_RCC = $$QT_BUILD_TREE/bin/rcc.exe" << endl;
-	cacheStream << "QMAKE_DUMPCPP = $$QT_BUILD_TREE/bin/dumpcpp.exe" << endl;
+	cacheStream << "QMAKE_MOC       = $$QT_BUILD_TREE/bin/moc.exe" << endl;
+	cacheStream << "QMAKE_UIC       = $$QT_BUILD_TREE/bin/uic.exe" << endl;
+	cacheStream << "QMAKE_UIC3      = $$QT_BUILD_TREE/bin/uic3.exe" << endl;
+	cacheStream << "QMAKE_RCC       = $$QT_BUILD_TREE/bin/rcc.exe" << endl;
+	cacheStream << "QMAKE_DUMPCPP   = $$QT_BUILD_TREE/bin/dumpcpp.exe" << endl;
 	cacheStream << "QMAKE_INCDIR_QT = $$QT_BUILD_TREE/include" << endl;
 	cacheStream << "QMAKE_LIBDIR_QT = $$QT_BUILD_TREE/lib" << endl;
         cacheStream.flush();
