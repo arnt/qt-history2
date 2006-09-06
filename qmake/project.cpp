@@ -1382,6 +1382,21 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
                 return true;
         }
     }
+#elif defined(Q_OS_WIN)
+    else if(spec == "default") {
+        // We can't resolve symlinks as they do on Unix, so configure.exe puts the source of the
+        // qmake.conf at the end of the default/qmake.conf in the QMAKESPEC_ORG variable. 
+        const QStringList &spec_org = (place ? (*place)["QMAKESPEC_ORIGINAL"]
+                                             : vars["QMAKESPEC_ORIGINAL"]);
+        if (!spec_org.isEmpty()) {
+            spec = spec_org.at(0);
+            int lastSlash = spec.lastIndexOf('/');
+            if(lastSlash != -1)
+                spec = spec.mid(lastSlash + 1);
+            if((regex && re.exactMatch(spec)) || (!regex && spec == x))
+                return true;
+        }
+    }
 #endif
 
     //simple matching

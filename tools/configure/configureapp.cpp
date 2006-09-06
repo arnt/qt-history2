@@ -1797,6 +1797,16 @@ void Configure::generateConfigfiles()
         return;
     }
 
+    outName = defSpec + "/qmake.conf";
+    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+    outFile.setFileName(outName);
+    if (outFile.open(QFile::Append | QFile::WriteOnly | QFile::Text)) {
+        outStream.setDevice(&outFile);
+        outStream << endl << "QMAKESPEC_ORIGINAL=" << pltSpec << endl;
+        outStream.flush();
+	outFile.close();
+    }
+
     outDir = dictionary[ "QT_SOURCE_TREE" ];
 
     // Generate the new qconfig.cpp file
