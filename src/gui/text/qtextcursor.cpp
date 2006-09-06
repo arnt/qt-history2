@@ -1241,7 +1241,7 @@ void QTextCursor::selectedTableCells(int *firstRow, int *numRows, int *firstColu
 
 
 /*!
-    Clears the current selection.
+    Clears the current selection by setting the anchor to the cursor position.
 
     Note that it does \bold{not} delete the text of the selection.
 
