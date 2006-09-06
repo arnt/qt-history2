@@ -28,7 +28,7 @@ Chip::Chip(const QColor &color, int x, int y)
 
 QRectF Chip::boundingRect() const
 {
-    return QRectF(3, 3, 104, 74);
+    return QRectF(0, 0, 110, 70);
 }
 
 void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -47,7 +47,7 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
         painter->setPen(QPen(Qt::black, 0));
         painter->setBrush(fillColor);
-        painter->drawRect(boundingRect().adjusted(5, 5, -5, -5));
+        painter->drawRect(13, 13, 97, 57);
         return;
     }
 
