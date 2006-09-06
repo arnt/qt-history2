@@ -70,7 +70,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - Added experimental support for Qt usage reporting ("metered licenses") 
   on Linux, Windows and MacOS X. Reporting is disabled by default. 
 
-- Compiler warnings with mingw g++ 3.4.6 removed
+- Compiler warnings with mingw g++ 3.4.5 removed
 
 - Plastique style has improved support for palettes, and now requires XRender
   support on X11 for alpha transparency.
@@ -133,6 +133,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         When updating changed persistant index's ignore those that haven't
         actually changed.
         Fixed endian issue with createIndex().
+        Added FixedString matching for match()
 
 - QAbstractItemView
 	Make sure that the doubleClicked() signal is only emitted
@@ -297,13 +298,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         text doesn't validate.
         Ctrl+A now triggers select all on all platforms.
         Call fixup on focusOut() if !hasAcceptableInput()
+        Added auto completion support (setCompleter())
+        Addded QStyle::SE_LineEditContents to control the contents rect of a QLineEdit
+        Fixed painting errors when contents margins were set
 
 - QStackedLayout/QStackedWidget
         Crash when removing widgets fixed.
         
-- QMessageBox
-        Added detailedText property to be able to show additional information.
-
 - QMetaObject
         Added userProperty().
         Added normalizedType().
@@ -374,8 +375,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         been called.
 
 - QFrame
-		Fixed a rendering issue when showing horizontal and vertical lines
-		created using Designer.
+    Fixed a rendering issue when showing horizontal and vertical lines
+    created using Designer.
+    Addded QStyle::SE_FrameContents to control the contents rect of a QFrame
 		
 - Qt::GroupSwitchModifier
         Added to the Qt::KeyboardModifiers enum. It represents
@@ -477,16 +479,20 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added support to display buttons in platform dependant order
         Added support to display informative text using informativeText property
         Added detailedText property to display detailed text
+        Improved sizing of message box (especially on the Mac OS X)
+        Really long text in a message box is automatically wrapped
 
 - QButtonGroup
         Added pressed() and released() signals.
         Fix a bug with when removing buttons from button groups. Remove the
         internal mapping as well.
+        checkedButton() returns correct value with non-exclusive groups
 
 - QAbstractButton
         Returns QPalette::Button and QPalette::ButtonText for backgroundRole()
         and foregroundRole(), respectively, rather than QPalette::Background
         and QPalette::Foreground.
+        Ensured that nextCheckState() is called only when there is a state change.
 
 - QStackedWidget
 		Fixed issue where the size hint of the current widget would not be respected.
@@ -596,6 +602,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QFontMetrics/QFontMetricsF
         Added elidedText() function.
 
+- QDialogButtonBox
+        New class that orders buttons depending on the platform
+
 I/O and Networking
 ------------------
 
@@ -674,6 +683,12 @@ I/O and Networking
 - QTcpSocket
         Fixed a rare data corruption problem occurring on heavily loaded
         windows servers.
+
+- QAbstractProxyModel
+        Added default implementations for data(), headerData() and flags()
+
+- QIcon
+        Fixed issue where actualSize() might return a larger value than the requested size.
 
 Database drivers
 -------------------------
