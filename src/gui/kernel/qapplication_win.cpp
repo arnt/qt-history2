@@ -1058,8 +1058,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
             QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && (mw->windowType() == Qt::Dialog))
                 mw = mw->parentWidget()->window();
-            Q_ASSERT(mw->testAttribute(Qt::WA_WState_Created));
-            if (mw != QApplicationPrivate::active_window)
+            if (mw->testAttribute(Qt::WA_WState_Created) && mw != QApplicationPrivate::active_window)
                 SetWindowPos(mw->internalWinId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
     } else {
