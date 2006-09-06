@@ -858,7 +858,15 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             // get new items rect
             d->setDirtyRegion(itemsRect.translated(d->draggedItemsDelta()));
             // set the item under the cursor to current
-            QModelIndex index = indexAt(e->pos());
+            QModelIndex index;
+            if (d->movement == Snap) {
+                QRect rect(d->snapToGrid(e->pos() + d->offset()), d->gridSize);
+                d->intersectingSet(rect);
+                index = d->intersectVector.count() > 0
+                                    ? d->intersectVector.last() : QModelIndex();
+            } else {
+                index = indexAt(e->pos());
+            }
             // check if we allow drops here
             if (e->source() == this && d->draggedItems.contains(index))
                 e->accept(); // allow changing item position
