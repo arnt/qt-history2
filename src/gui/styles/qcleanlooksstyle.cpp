@@ -3393,7 +3393,7 @@ int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
         ret = 1;
         break;
     case PM_SmallIconSize:
-        ret = 20;
+        ret = 24;
         break;
     default:
         break;
@@ -3413,6 +3413,10 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_PushButton:
         if (size.width() < 80)
             newSize.setWidth(80);
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
+            if (!btn->icon.isNull() && btn->iconSize.height() > 16)
+                newSize -= QSize(0, 2);
+        }
         break;
     case CT_GroupBox:
     case CT_RadioButton:
