@@ -16,29 +16,24 @@
 #if !defined(QT_NO_STYLE_CLEANLOOKS) || defined(QT_PLUGIN)
 
 #include "qwindowsstyle_p.h"
-#include <QComboBox>
+#include <qcombobox.h>
+#include <qabstractbutton.h>
 #include <qpainter.h>
-#include <QDir>
-#include <QHash>
+#include <qdir.h>
+#include <qhash.h>
 #include <qstyleoption.h>
-#include <QApplication>
-#include <QComboBox>
-#include <QDockWidget>
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QMenu>
-#include <QFont>
-#include <QGroupBox>
-#include <QPainterPath>
-#include <QProcess>
-#include <QPushButton>
-#include <QPixmapCache>
-#include <QProgressBar>
-#include <QDialogButtonBox>
-#include <QScrollBar>
-#include <QSpinBox>
-#include <QSlider>
-#include <QSplitter>
+#include <qapplication.h>
+#include <qmainwindow.h>
+#include <qfont.h>
+#include <qgroupbox.h>
+#include <qprocess.h>
+#include <qpixmapcache.h>
+#include <qdialogbuttonbox.h>
+#include <qscrollbar.h>
+#include <qspinbox.h>
+#include <qslider.h>
+#include <qsplitter.h>
+#include <qprogressbar.h>
 
 static const bool UsePixmapCache = true;
 
