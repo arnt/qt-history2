@@ -31,11 +31,14 @@ public:
     Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH );
     ~Skin( );
     void setView( QVFbView *v );
+    void setSecondaryView( QVFbView *v );
     void setZoom( double );
     bool isValid() {return skinValid;}
 
     bool hasCursor() const;
     static QSize screenSize(const QString &skinFile);
+    static QSize secondaryScreenSize(const QString &skinFile);
+    static bool hasSecondaryScreen(const QString &skinFile);
 
 protected slots:
     void skinKeyRepeat();
@@ -50,6 +53,7 @@ protected:
 private:
     QVFb *parent;
     QVFbView *view;
+    QVFbView *secondaryView;
     QPoint parentpos;
     QPoint clickPos;
     bool buttonPressed;
@@ -63,6 +67,8 @@ private:
     static bool parseSkinFileHeader(QTextStream& ts,
 		    int *viewX1, int *viewY1,
 		    int *viewW, int *viewH,
+		    int *secondaryViewX1, int *secondaryViewY1,
+		    int *secondaryViewW, int *secondaryViewH,
 		    int *numberOfAreas,
 		    QString* skinImageUpFileName,
 		    QString* skinImageDownFileName,
@@ -81,6 +87,7 @@ private:
     QPixmap skinImageClosed;
     QPixmap skinCursor;
     int viewX1, viewY1;
+    int secondaryViewX1, secondaryViewY1;
     int numberOfAreas;
 
     typedef struct {

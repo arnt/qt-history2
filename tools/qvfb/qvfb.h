@@ -91,6 +91,7 @@ private:
     Skin *skin;
     double skinscaleH,skinscaleV;
     QVFbView *view;
+    QVFbView *secondaryView;
     QVFbRateDialog *rateDlg;
     QMenu *viewMenu;
     QAction *cursorAction;

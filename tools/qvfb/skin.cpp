@@ -66,8 +66,30 @@ QSize Skin::screenSize(const QString &skinFile)
     f.open( QIODevice::ReadOnly );
     QTextStream ts( &f );
     int viewW=0, viewH=0;
-    parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, 0, 0, 0, 0, 0);
+    int secondaryViewW=0, secondaryViewH=0;
+    parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, &secondaryViewW, &secondaryViewH,
+            0, 0, 0, 0, 0, 0, 0);
     return QSize(viewW,viewH);
+}
+
+QSize Skin::secondaryScreenSize(const QString &skinFile)
+{
+    QString _skinFileName = skinFileName(skinFile,0);
+    if ( _skinFileName.isEmpty() )
+        return QSize(0,0);
+    QFile f( _skinFileName );
+    f.open( QIODevice::ReadOnly );
+    QTextStream ts( &f );
+    int viewW=0, viewH=0;
+    int secondaryViewW=0, secondaryViewH=0;
+    parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, &secondaryViewW, &secondaryViewH,
+            0, 0, 0, 0, 0, 0, 0);
+    return QSize(secondaryViewW,secondaryViewH);
+}
+
+bool Skin::hasSecondaryScreen(const QString &skinFile)
+{
+    return secondaryScreenSize(skinFile) != QSize(0, 0);
 }
 
 QString Skin::skinFileName(const QString &rawSkinFile, QString* prefix)
@@ -97,6 +119,8 @@ QString Skin::skinFileName(const QString &rawSkinFile, QString* prefix)
 bool Skin::parseSkinFileHeader(QTextStream& ts,
 		    int *viewX1, int *viewY1,
 		    int *viewW, int *viewH,
+		    int *secondaryViewX1, int *secondaryViewY1,
+		    int *secondaryViewW, int *secondaryViewH,
 		    int *numberOfAreas,
 		    QString* skinImageUpFileName,
 		    QString* skinImageDownFileName,
@@ -138,6 +162,12 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 			if ( viewY1 ) *viewY1 = l[1].toInt();
 			if ( viewW ) *viewW = l[2].toInt();
 			if ( viewH ) *viewH = l[3].toInt();
+		    } else if ( key == "Screen2" ) {
+			QStringList l = value.split(" ");
+			if ( secondaryViewX1 ) *secondaryViewX1 = l[0].toInt();
+			if ( secondaryViewY1 ) *secondaryViewY1 = l[1].toInt();
+			if ( secondaryViewW ) *secondaryViewW = l[2].toInt();
+			if ( secondaryViewH ) *secondaryViewH = l[3].toInt();
 		    } else if ( key == "Cursor" ) {
 			QStringList l = value.split(" ");
 			if ( skinCursorFileName ) *skinCursorFileName = l[0];
@@ -169,7 +199,8 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 }
 
 Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
-    QWidget(p), view(0), buttonPressed(false), buttonIndex(0), skinValid(false),
+    QWidget(p), view(0), secondaryView(0),
+    buttonPressed(false), buttonIndex(0), skinValid(false),
     zoom(1.0), numberOfAreas(0), areas(0),
     cursorw(0),
     joystick(-1), joydown(0),
@@ -188,7 +219,12 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     f.open( QIODevice::ReadOnly );
     QStringList closedAreas;
     QTextStream ts( &f );
-    parseSkinFileHeader(ts, &viewX1, &viewY1, &viewW, &viewH, &numberOfAreas,
+    int secondaryViewW =0;
+    int secondaryViewH =0;
+    parseSkinFileHeader(ts,
+            &viewX1, &viewY1, &viewW, &viewH,
+            &secondaryViewX1, &secondaryViewY1, &secondaryViewW, &secondaryViewH,
+            &numberOfAreas,
 	&skinImageUpFileName, &skinImageDownFileName, &skinImageClosedFileName,
 	&skinCursorFileName, &cursorHot, &closedAreas);
 
@@ -373,6 +409,8 @@ void Skin::setZoom( double z )
     loadImages();
     if ( view )
 	view->move( int(viewX1*zoom), int(viewY1*zoom) );
+    if (secondaryView)
+	secondaryView->move( int(secondaryViewX1*zoom), int(secondaryViewY1*zoom) );
 }
 
 void Skin::setView( QVFbView *v )
@@ -386,6 +424,11 @@ void Skin::setView( QVFbView *v )
     setupDefaultButtons();
 }
 
+void Skin::setSecondaryView( QVFbView *v )
+{
+    secondaryView = v;
+    secondaryView->move( int(secondaryViewX1*zoom), int(secondaryViewY1*zoom) );
+}
 
 void Skin::paintEvent( QPaintEvent * )
 {

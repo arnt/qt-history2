@@ -157,6 +157,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWi
     : QMainWindow( parent, flags )
 {
     view = 0;
+    secondaryView = 0;
     scroller = 0;
     this->skin = 0;
     currentSkinIndex = -1;
@@ -193,6 +194,8 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 {
     delete view;
     view = 0;
+    delete secondaryView;
+    secondaryView = 0;
     delete scroller;
     scroller = 0;
     delete skin;
@@ -217,6 +220,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	    skin->setView( view );
 	    view->setContentsMargins( 0, 0, 0, 0 );
 	    view->setFixedSize( sw, sh );
+
 	    setCentralWidget( skin );
 	    adjustSize();
 	    skinscaleH = (double)sw/pw;
@@ -224,6 +228,15 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	    if ( skinscaleH != 1.0 || skinscaleH != 1.0 )
 		setZoom(skinscaleH);
 	    view->show();
+
+            if (Skin::hasSecondaryScreen(skin_name)) {
+                QSize ssize = Skin::secondaryScreenSize(skin_name);
+                // assumes same depth and rotation
+                secondaryView = new QVFbView( display_id+1, ssize.width(), ssize.height(), d, rot, skin );
+                skin->setSecondaryView(secondaryView);
+                secondaryView->show();
+            }
+
 	    if ( vis ) show();
 	} else {
 	    delete skin;
@@ -260,8 +273,13 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	scroller->show();
 	// delete defaultbuttons.conf if it was left behind...
 	unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absoluteFilePath().toLatin1().constData());
+        if (secondaryView)
+            unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId()+1)).absoluteFilePath().toLatin1().constData());
     }
     view->setRate(refreshRate);
+    if (secondaryView) {
+        secondaryView->setRate(refreshRate);
+    }
     // Resize QVFb to the new size
     QSize newSize = view->sizeHint();
 
@@ -279,8 +297,12 @@ void QVFb::enableCursor( bool e )
 {
     if ( skin && skin->hasCursor() ) {
 	view->setCursor( Qt::BlankCursor );
+        if (secondaryView)
+            secondaryView->setCursor( Qt::BlankCursor );
     } else {
 	view->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
+        if (secondaryView)
+            secondaryView->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
     }
     cursorAction->setChecked( e );
 }
@@ -338,11 +360,18 @@ QMenu* QVFb::createHelpMenu()
 void QVFb::setZoom(double z)
 {
     view->setZoom(z,z*skinscaleV/skinscaleH);
+    if (secondaryView)
+        secondaryView->setZoom(z,z*skinscaleV/skinscaleH);
+
     if (skin) {
 	skin->setZoom(z/skinscaleH);
 	view->setFixedSize(
 	    int(view->displayWidth()*z),
 	    int(view->displayHeight()*z*skinscaleV/skinscaleH));
+        if (secondaryView)
+            secondaryView->setFixedSize(
+                    int(secondaryView->displayWidth()*z),
+                    int(secondaryView->displayHeight()*z*skinscaleV/skinscaleH));
     }
 }
 
@@ -386,9 +415,15 @@ void QVFb::setZoom4()
 void QVFb::saveImage()
 {
     QImage img = view->image();
-    QString filename = QFileDialog::getSaveFileName(this, "Save image", "snapshot.png", "Portable Network Graphics (*.png)");
+    QString filename = QFileDialog::getSaveFileName(this, "Save Main Screen image", "snapshot.png", "Portable Network Graphics (*.png)");
     if (!filename.isEmpty())
         img.save(filename,"PNG");
+    if (secondaryView) {
+        QImage img = view->image();
+        QString filename = QFileDialog::getSaveFileName(this, "Save Second Screen image", "snapshot.png", "Portable Network Graphics (*.png)");
+        if (!filename.isEmpty())
+            img.save(filename,"PNG");
+    }
 }
 
 void QVFb::toggleAnimation()
@@ -421,6 +456,8 @@ void QVFb::setRate(int i)
 {
     refreshRate = i;
     view->setRate(i);
+    if (secondaryView)
+        secondaryView->setRate(i);
 }
 
 
