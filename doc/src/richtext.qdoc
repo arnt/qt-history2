@@ -215,7 +215,6 @@ QTextFrame::iterator to traverse the frame's child elements:
 \skipto QTextFrame::iterator
 \printuntil if (childFrame)
 \printuntil }
-\printuntil }
 
 Note that the iterator selects both frames and blocks, so it is necessary
 to check which it is referring to. This allows us to navigate the document
