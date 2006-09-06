@@ -227,7 +227,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.indentation(), INT_MIN);
     obj1.setIndentation(INT_MAX);
     QCOMPARE(obj1.indentation(), INT_MAX);
-    
+
     // bool QTreeView::rootIsDecorated()
     // void QTreeView::setRootIsDecorated(bool)
     QCOMPARE(obj1.rootIsDecorated(), true);
@@ -235,7 +235,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.rootIsDecorated(), false);
     obj1.setRootIsDecorated(true);
     QCOMPARE(obj1.rootIsDecorated(), true);
-    
+
     // bool QTreeView::uniformRowHeights()
     // void QTreeView::setUniformRowHeights(bool)
     QCOMPARE(obj1.uniformRowHeights(), false);
@@ -243,7 +243,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.uniformRowHeights(), false);
     obj1.setUniformRowHeights(true);
     QCOMPARE(obj1.uniformRowHeights(), true);
-    
+
     // bool QTreeView::itemsExpandable()
     // void QTreeView::setItemsExpandable(bool)
     QCOMPARE(obj1.itemsExpandable(), true);
@@ -251,7 +251,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.itemsExpandable(), false);
     obj1.setItemsExpandable(true);
     QCOMPARE(obj1.itemsExpandable(), true);
-    
+
     // bool QTreeView::allColumnsShowFocus
     // void QTreeView::setAllColumnsShowFocus
     QCOMPARE(obj1.allColumnsShowFocus(), false);
@@ -259,7 +259,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.allColumnsShowFocus(), false);
     obj1.setAllColumnsShowFocus(true);
     QCOMPARE(obj1.allColumnsShowFocus(), true);
-    
+
     // bool QTreeView::isAnimationsEnabled
     // void QTreeView::setAnimationsEnabled
     QCOMPARE(obj1.isAnimationsEnabled(), false);
@@ -267,7 +267,7 @@ void tst_QTreeView::getSetCheck()
     QCOMPARE(obj1.isAnimationsEnabled(), false);
     obj1.setAnimationsEnabled(true);
     QCOMPARE(obj1.isAnimationsEnabled(), true);
-    
+
     // bool QTreeView::setSortingEnabled
     // void QTreeView::isSortingEnabled
     QCOMPARE(obj1.isSortingEnabled(), false);
@@ -326,7 +326,7 @@ void tst_QTreeView::setModel()
             QApplication::processEvents();
         }
         QCOMPARE(modelDestroyedSpy.count(), 0);
-        
+
         view.setModel(0);
         QCOMPARE(view.model(), (QAbstractItemModel*)0);
         // ### shouldn't selectionModel also be 0 now?
@@ -500,14 +500,14 @@ void tst_QTreeView::expandAndCollapse()
         view.setVisible(y == 0);
         for (int x = 0; x < 2; ++x) {
             view.setItemsExpandable(x == 0);
-            
+
             // Test bad args
             view.expand(QModelIndex());
             QCOMPARE(view.isExpanded(QModelIndex()), false);
             view.collapse(QModelIndex());
             QCOMPARE(expandedSpy.count(), 0);
             QCOMPARE(collapsedSpy.count(), 0);
-            
+
             // expand a first level item
             QVERIFY(!view.isExpanded(a));
             view.expand(a);
@@ -516,12 +516,12 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 0);
             args = expandedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), a);
-            
+
             view.expand(a);
             QVERIFY(view.isExpanded(a));
             QCOMPARE(expandedSpy.count(), 0);
             QCOMPARE(collapsedSpy.count(), 0);
-            
+
             // expand a second level item
             QVERIFY(!view.isExpanded(b));
             view.expand(b);
@@ -531,12 +531,12 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 0);
             args = expandedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), b);
-            
+
             view.expand(b);
             QVERIFY(view.isExpanded(b));
             QCOMPARE(expandedSpy.count(), 0);
             QCOMPARE(collapsedSpy.count(), 0);
-            
+
             // collapse the first level item
             view.collapse(a);
             QVERIFY(!view.isExpanded(a));
@@ -545,12 +545,12 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 1);
             args = collapsedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), a);
-        
+
             view.collapse(a);
             QVERIFY(!view.isExpanded(a));
             QCOMPARE(expandedSpy.count(), 0);
             QCOMPARE(collapsedSpy.count(), 0);
-            
+
             // expand the first level item again
             view.expand(a);
             QVERIFY(view.isExpanded(a));
@@ -559,7 +559,7 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 0);
             args = expandedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), a);
-        
+
             // collapse the second level item
             view.collapse(b);
             QVERIFY(view.isExpanded(a));
@@ -568,7 +568,7 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 1);
             args = collapsedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), b);
-            
+
             // collapse the first level item
             view.collapse(a);
             QVERIFY(!view.isExpanded(a));
@@ -577,7 +577,7 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(collapsedSpy.count(), 1);
             args = collapsedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), a);
-        
+
             // expand and remove row
             QPersistentModelIndex c = model.index(9, 0, b);
             view.expand(a);
@@ -592,7 +592,7 @@ void tst_QTreeView::expandAndCollapse()
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), a);
             args = expandedSpy.takeFirst();
             QCOMPARE(qvariant_cast<QModelIndex>(args.at(0)), b);
-            
+
             view.collapse(a);
             view.collapse(b);
             QVERIFY(!view.isExpanded(a));
@@ -1006,10 +1006,29 @@ void tst_QTreeView::scrollTo()
     view.scrollTo(QModelIndex(), QTreeView::PositionAtTop);
     view.setModel(&model);
 
+    // ### check the scrollbar values an make sure it actually scrolls to the item
+    // ### check for bot item based and pixel based scrolling
+    // ### create a data function for this test
+
     view.scrollTo(QModelIndex());
     view.scrollTo(model.index(0,0,QModelIndex()));
     view.scrollTo(model.index(0,0,QModelIndex()), QTreeView::PositionAtTop);
     view.scrollTo(model.index(0,0,QModelIndex()), QTreeView::PositionAtBottom);
+
+    //
+
+    view.show();
+    view.resize(200, 20);
+    view.verticalScrollBar()->setValue(0);
+
+    view.scrollTo(model.index(0,0,QModelIndex()));
+    QVERIFY(!view.visualRect(model.index(0,0,QModelIndex())).isEmpty()); // item is visible
+    QCOMPARE(view.verticalScrollBar()->value(), 0);
+
+    view.header()->resizeSection(0, 5); // now we only see the branches
+    view.scrollTo(model.index(5, 0, QModelIndex()), QTreeView::PositionAtTop);
+    QCOMPARE(view.verticalScrollBar()->value(), 5);
+
     // TODO force it to move to the left and then the right
 }
 
