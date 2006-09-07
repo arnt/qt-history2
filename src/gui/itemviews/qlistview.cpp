@@ -504,7 +504,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     if (index.parent() != d->root || index.column() != d->column)
         return;
-    
+
     const QRect area = d->viewport->rect();
     const QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
@@ -2282,7 +2282,7 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 QPoint QListViewPrivate::draggedItemsDelta() const
 {
     if (movement == QListView::Snap) {
-        QPoint snapdelta = QPoint((offset().x() % gridSize.width()), 
+        QPoint snapdelta = QPoint((offset().x() % gridSize.width()),
                                   (offset().y() % gridSize.height()));
         return snapToGrid(draggedItemsPos + snapdelta) - snapToGrid(pressedPosition) - snapdelta;
     }
@@ -2352,7 +2352,7 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
         --steps;
     }
     // at this point we know that positions has at least one entry
-    return pageSteps;
+    return qMax(pageSteps, 1);
 }
 
 int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewportSize,
