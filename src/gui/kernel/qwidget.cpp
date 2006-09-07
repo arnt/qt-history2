@@ -1763,7 +1763,7 @@ void QWidget::createWinId()
     \brief the widget's style sheet
     \since 4.2
 
-    \sa setStyle(), QApplication::styleSheet
+    \sa setStyle(), QApplication::styleSheet, {Customizing Qt widgets using Style Sheets}
 */
 QString QWidget::styleSheet() const
 {

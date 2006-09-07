@@ -1,79 +1,52 @@
 /*!
     \page stylesheet.html
-    \title Customizing Qt widgets using Style Sheets
+    \title Customizing Widgets Using Style Sheets
     \ingroup architecture
 
-    \keyword Style Sheet
-    \keyword StyleSheet
-    \keyword Style
-    \keyword CSS
-    \keyword Cascading Style Sheet
+    \keyword style sheet
 
-    \since 4.2
+    Starting with version 4.2, Qt supports style sheets as a simple way to
+    customize the appearance of widgets, in addition to what is already possible
+    by subclassing QStyle. The concepts, terminology, and syntax of
+    Qt Style Sheets are heavily inspired by HTML Cascading Style Sheets (CSS)
+    but adapted to widgets.
 
-    Starting with Qt 4.2, Qt provides a simple way to customize the appearance
-    of widgets using Style Sheets. The concepts, terminology and syntax of Qt
-    Style Sheets are reminescent of HTML Cascading Style Sheets (CSS).
+    Style sheets let you perform all kinds of customizations that are difficult
+    or impossible to perform using QPalette or QStyle alone. If you want
+    yellow backgrounds for mandatory fields, red backgrounds for potentially destructive
+    push buttons, Mac OS X style comboboxes, style sheets are the answer. Style
+    sheets are applied on top of the current \l{QStyle}{widget style}, meaning that your
+    applications will still look native, but any style sheet constraints will be taken
+    into consideration. Unlike palette fiddling, style sheeds offer guarantees: If you
+    set the background color of a QPushButton to be red, you can be assured that the
+    button will have a red background in all styles, on all platforms.
+    Qt Designer provides style sheet integration, making it easy to
+    view the effects of a style sheet in different \l{QStyle}{widget styles}.
+
+    Style sheets can also be used to provide a distinctive look and feel for your
+    application, without having to subclass QStyle. For example, you can specify
+    arbitrary images for radio buttons and comboboxes to make them stand out.
+    Using this technique, you can also achieve minor customizations that would normally
+    require subclassing one or several style classes, such as specifying a
+    \l{QStyle::styleHint()}{style hint}.
 
     Topics:
 
     \tableofcontents
 
-    \section1 Introduction
-    
-    Style Sheets can enable one to provide, for example, yellow backgrounds for
-    mandatory fields, red color for "potentially destructive" push buttons, mac
-    style combo boxes etc. Style Sheets provide the guarantee that the  widgets
-    look consistent across platforms i.e the red color push button looks red on
-    all platforms (and all QStyle's).
-    
-    Stylesheets may also be used to customize the look and feel of your
-    application without having to subclass QStyle. For instance, you can have
-    all the message boxes in your application to have their text selectable by
-    specifying a simple style sheet. You may also use style sheets to create
-    radio buttons and combo boxes that look entirely different from the native
-    ones.
-    
-    Style Sheets can be replaced on the fly enabling a user to choose between
-    Style Sheets at application run time.
-
-    Qt Designer provides Style Sheet integration making it straightforward to
-    review the effects of a Style Sheet and allowing one to preview the same
-    widget in different styles (QStyle).
-
-
-    \section1 Background
-
-    Prior to Qt 4.2, Colors and backgrounds on widgets were set using the
-    QPalette. For instance, setting the QPalette::Button role to red and setting
-    the palette on a push button, made a red push button. However, a red push
-    button, was not guaranteed on all styles since style authors are restricted
-    by strict style guidelines  or are restricted by the native theme engine.
-    For example, the QWindowsXPStyle (the default style for Windows XP) cannot
-    draw red push buttons because it is limited to using pixmaps from the native
-    theme engine and hence cannot respect the palette colors. It can, however,
-    provide you a push button with red color text by specifying
-    QPalette::ButtonText role to red.QPlastiqueStyle can provide both.
-
-    A related problem is that styles use different roles to pick colors for
-    their widgets. For example, in QWindowsStyle, a combo box looks like a line
-    edit and it picks up QPalette::Base and QPalette::Text for the background
-    and foreground. In QCleanLooks style, a combo box looks more like a button
-    and hence QPalette::Button and QPalette::ButtonText are used. As a result,
-    even though the style may be able to provide the requested color, it needs
-    to be set in the right role depending on the style.
-
-    When developing a cross platform application, assumptions regarding the
-    QStyle used to render your application cannot be made since the default
-    style for the application is determined at run time depending on the
-    environment. As a result, even though the push buttons appeared as desired
-    in your development environment, it is not guaranteed to look similar in
-    other environments. This selective "respect" for palette entries by the
-    style made it hard to design widgets that were conformant with
-    company/application policies and guidelines.
-
-
     \section1 Style Sheet Approach
+
+    Prior to Qt 4.2, colors and backgrounds on widgets could only be set by
+    specifying a QPalette. For example, in most styles, setting the
+    QPalette::Button role to red for a QPushButton would a red push button.
+    However, this wasn't guaranteed to work for all styles, since
+    style authors are restricted by the different platforms' style guidelines
+    and/or by the native theme engine (which explains why red buttons weren't
+    quite as red on Windows XP and Mac OS X). A related problem is that different
+    styles use different palette roles for rendering the widgets, to comply
+    to the style. For example, in Motif style, the palette role used to draw
+    the background of a QComboBox depends on whether the QComboBox is editable
+    or not.
 
     Unlike having to deal with palette and style inconsistencies to get the
     right style desired for a widget, with Qt Style Sheets a widget is
@@ -111,7 +84,7 @@
 
     Qt Style Sheet is not supported with QMacStyle which is the default style
     for Qt application on Mac OS X. Also, only a subset of widget's are
-    currently styleable. Please see \l"{ Supported Widgets }" for a complete
+    currently styleable. Please see \l"{Supported Widgets}" for a complete
     list.
 
     We expect that these limitations will be removed for Qt 4.3.
@@ -157,8 +130,8 @@
     Note: The semicolon at the end is optional.
 
     Each widget supports a set of attributes and values as specified in
-    \l{Supported Widgets} and \l{Supported Properties}. In this document, the
-    term "attribute" and "property" are used interchangeably.
+    \l{Widgets}. In this document, the term "attribute" and "property" are 
+    used interchangeably.
 
     \section2 Selectors
     Selectors help in determining if the corresponding Declaration applies.
@@ -302,8 +275,9 @@
 
     The above Rule, styles the menu indicator arrow for QPushButton's with
     menus. The "::" syntax is borrowed from CSS3 Pseudo Element syntax. Qt
-    Pseudo Elements differ conceptually from CSS3 Pseudo Elements and should not
-    be confused.
+    Pseudo Elements differ conceptually from CSS3 Pseudo Elements and should 
+    not be confused. An important deviation is that element rules do not
+    cascade into pseudo element rules.
 
     Pseudo Elements can be coupled with Pseudo States. For example,
     \code
@@ -312,8 +286,14 @@
         }
     \endcode
 
-    The following pseduo elements have been defined. See also
-    \l{Supported Widgets}.
+    Pseudo Elements usually need to have their "width" and "height" defined
+    (unless it has an "image"  which implicitly sets the geometry). They are
+    treated just the same as normal elements and can be styled using the
+    \l{The Box Model}.
+    
+    The following pseduo elements have been defined. See, 
+    {Styling using Pseudo Elements (1)} and {Styling using Pseudo Elements (2)}
+    for examples on how to position pseudo elements.
     
     \table
     \header
@@ -499,7 +479,6 @@
         QLineEdit { background-color: beige; }
     \endcode
 
-
     The foreground and background of the selected text a line edit can be
     changes using,
     \code
@@ -587,7 +566,7 @@
     the widget. First you specify the origin rect for the pseudo element. This
     is specified using -qt-origin and can take the values "margin", "border",
     "padding", "content" denoting the corresponding rectangle inside the widget
-    (see box model). Second, the alignment of the pseudo element within the
+    (see \l{The Box Model}). Second, the alignment of the pseudo element within the
     origin rect is specified using -qt-position. You can use the css position
     attributes top, right, bottom, left to move the pseduo element.
 
@@ -649,8 +628,11 @@
 
     Notice that the order of the Rule that provides the brown color is
     immaterial since it is more specific that the others.
+    
+    
+    \section1 Style Sheet Reference
 
-    \section1 Supported Widgets
+    \section2 Supported Widgets
 
     \table
     \header
@@ -665,6 +647,10 @@
            
     \row
         \o QComboBox
+        \o The Combo Box frame is treated as as box which is styled using the 
+           box model. The drop down button is styled using the "drop-down"
+           pseudo element. The arrow mark inside the drop down is styled
+           using the "down-arrow" pseudo element.
 
     \row
         \o QDialog
@@ -672,28 +658,42 @@
 
     \row
         \o QDialogButtonBox
+        \o The layout of buttons can be altered using the -qt-button-layout
+           property.
 
     \row
         \o QDateTimeEdit
-
+        \o Styled like a QSpinBox
+        
     \row
         \o QDoubleSpinBox
-
+        \o Styled like a QSpinBox
+        
     \row
         \o QFrame
         \o Supports the box model. "hover" pseudo state is not supported.
 
     \row
         \o QGroupBox
+        \o Supports the box model. The title is styled using the "title"
+           pseudo element. The indicator of checkable group box's are styled
+           using the "indicator" pseudo element.
 
     \row
         \o QMenu
+        \o Supports the box model. Individual items are styled using the
+           "item" pseudo element.
 
     \row
         \o QMenuBar
+        \o Supports the box model. "spacing" specifies the spacing between
+           menu items. Individual items are styled using the "item" pseudo
+           element.
 
     \row
         \o QMessageBox
+        \o -qt-messagebox-text-interaction-flags can be used to alter the
+           interaction with text in the message box.
 
     \row
         \o QLabel
@@ -705,6 +705,9 @@
 
     \row
         \o QListView        
+        \o Supports the box model. -qt-show-decoration-selected controls
+           selection behavior. When set to 1, entire rows are selected;
+           when set to 0, it just selects the extent of text.
 
     \row
         \o QPushButton
@@ -724,32 +727,45 @@
 
     \row
         \o QSpinBox
-
+        \o The frame of the spin box is treated like a box and is styled using
+           the box model. The up button and arrow are styled using the 
+           "up-button" and "up-arrow" pseduo elements. The down button and 
+           arrow are styled using the "down-button" and "down-arrow" pseudo
+           elements.
+           
     \row
         \o QSplitter
         \o Supports the box model and the "image" property.
 
     \row
         \o QStatusBar
+        \o The frame for individual items can be style using the "item" pseudo
+           element.
 
     \row
         \o QTableView
-
+        \o Supports the box model. The color of the grid can be changed
+           using -qt-gridline-color.
+           
     \row
         \o QTextEdit
+        \o Supports the box model.
+
+    \row
+        \o QToolTip
+        \o Supports the box model. -qt-opacity controls the opacity of the
+           tool tip.
 
     \row
         \o QTreeView
-
+        \o Supports the box model. 
     \row
         \o QWidget
         \o Supports only the "background" property
 
-\endtable
+    \endtable
 
-    \section1 Style Sheet Property Reference
-
-    \section2 Style Sheet Types
+    \section2 Types
 
     \table
     \header
@@ -816,7 +832,8 @@
         \o Uri
         \o uri(image)
         \o image is the name of a file on the local disk or the Qt Resource
-           System
+           System. Setting an image implicitly sets the width and height
+           of the element.
 
     \endtable
 
@@ -866,13 +883,13 @@
         \o -qt-origin
         \o Origin
         \o The origin rect of the pseudo element within the
-        parent element. See \l{Positioning Pseudo Elements}
+        parent element. See \l{Pseudo Elements}
 
     \row
         \o -qt-position
         \o Alignment
         \o The alignment of the pseudo element within the origin rect
-           specified by -qt-origin. See \l{Positioning Pseudo Elements}
+           specified by -qt-origin. See \l{Pseudo Elements}
 
     \row
         \o -qt-show-decoration-selected
