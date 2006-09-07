@@ -29,11 +29,17 @@ int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
 
-    if (d->printer->outputFormat() != QPrinter::NativeFormat) 
+    if (d->printer->outputFormat() != QPrinter::NativeFormat)
         return Rejected;
 
     QMacPrintEngine *engine = static_cast<QMacPrintEngine *>(d->printer->paintEngine());
     QMacPrintEnginePrivate *ep = static_cast<QMacPrintEnginePrivate *>(engine->d_ptr);
+
+    // If someone is reusing a QPrinter object, the end released all our old
+    // information. In this case, we must reinitialize.
+    if (ep->session == 0)
+        ep->initialize();
+
     Boolean ret;
     { //simulate modality
 	QWidget modal_widg(0, Qt::Window);

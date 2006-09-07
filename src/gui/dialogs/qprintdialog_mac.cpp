@@ -53,7 +53,7 @@ int QPrintDialog::exec()
 
     // If someone is reusing a QPrinter object, the end released all our old
     // information. In this case, we must reinitialize.
-    if (d->ep->settings == 0)
+    if (d->ep->session == 0)
         d->ep->initialize();
 
     // Carbon's documentation lies.
