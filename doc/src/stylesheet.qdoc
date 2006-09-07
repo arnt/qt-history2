@@ -1,6 +1,6 @@
 /*!
     \page stylesheet.html
-    \title Customizing Widgets Using Style Sheets
+    \title Customizing Widgets using Style Sheets
     \ingroup architecture
 
     \keyword style sheet
@@ -29,8 +29,6 @@
     Using this technique, you can also achieve minor customizations that would normally
     require subclassing one or several style classes, such as specifying a
     \l{QStyle::styleHint()}{style hint}.
-
-    Topics:
 
     \tableofcontents
 
@@ -84,8 +82,8 @@
 
     Qt Style Sheet is not supported with QMacStyle which is the default style
     for Qt application on Mac OS X. Also, only a subset of widget's are
-    currently styleable. Please see \l"{Supported Widgets}" for a complete
-    list.
+    currently styleable. Please see the complete
+    \l{#Supported Widgets}{list of supported widgets}.
 
     We expect that these limitations will be removed for Qt 4.3.
 
@@ -294,7 +292,7 @@
     The following pseduo elements have been defined. See, 
     {Styling using Pseudo Elements (1)} and {Styling using Pseudo Elements (2)}
     for examples on how to position pseudo elements.
-    
+
     \table
     \header
         \o Pseudo Element
@@ -595,7 +593,7 @@
             TODO
 
     \section2 Complex Selector Example
-    
+
     Since red seems to be our favorite color, lets make all the QLineEdit's in
     the application red by setting the following QApplication stylesheet,
     \code

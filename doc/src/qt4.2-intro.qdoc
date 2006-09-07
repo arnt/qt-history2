@@ -145,19 +145,19 @@
   shows how text completion can be used with a selection of different models and
   data sets.
 
-  \section1 Widget Stylesheets
+  \section1 Widget Style Sheets
 
   \omit
   \image stylesheets-example-detail.png
   \endomit
 
-  \bold{Widgets can be styled using stylesheets} that follow a syntax similar to
+  \bold{Widgets can be styled using style sheets} that follow a syntax similar to
   that used by Cascading Style Sheets (CSS) for HTML. Many of the more common
-  customizations to widget styles can be made using stylesheets, making it largely
+  customizations to widget styles can be made using style sheets, making it largely
   unnecessary for developers to create entire custom widget styles with QStyle
   subclasses.
 
-  The stylesheet for any given widget can be accessed via its
+  The style sheet for any given widget can be accessed via its
   \l{QWidget::}{styleSheet} property.
 
   This functionality is being constantly improved, and full documentation
@@ -264,8 +264,8 @@
   \endlist
 
   The \bold{HTML import and export facilities have been enhanced} in the
-  \l{Rich Text Processing}{rich text classes}, and now include support for CSS
-  stylesheets.
+  \l{Rich Text Processing}{rich text classes}, and now include support for
+  CSS-like style sheets.
 
   \bold{A \l{QTimeLine}{time line class} has been introduced for use in widgets
   that provide animations.} By using a mechanism that uses signals and slots to
