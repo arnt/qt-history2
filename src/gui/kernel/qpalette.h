@@ -56,8 +56,8 @@ public:
                      Text, BrightText, ButtonText, Base, Window, Shadow,
                      Highlight, HighlightedText,
                      Link, LinkVisited, // ### Qt 5: remove
-                     AlternateBase, NColorRoles, NoRole = NColorRoles
-                     , Foreground = WindowText, Background = Window // ### Qt 5: remove
+                     AlternateBase, NoRole, NColorRoles = NoRole,
+                     Foreground = WindowText, Background = Window // ### Qt 5: remove
                    };
 
     inline ColorGroup currentColorGroup() const { return static_cast<ColorGroup>(current_group); }
