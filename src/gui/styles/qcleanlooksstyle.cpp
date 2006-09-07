@@ -654,6 +654,45 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor shadow = option->palette.background().color().dark(120);
 
     switch(elem) {
+        case PE_FrameTabBarBase:
+        if (const QStyleOptionTabBarBase *tbb
+                = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
+            QRegion region(tbb->rect);
+            painter->save();
+            painter->setPen(QPen(tbb->palette.dark(), 0));
+            switch (tbb->shape) {
+            case QTabBar::RoundedNorth:
+                region -= tbb->selectedTabRect;
+                painter->setClipRegion(region);
+                painter->drawLine(tbb->rect.topLeft(), tbb->rect.topRight());
+                break;
+            case QTabBar::RoundedWest:
+                region -= tbb->selectedTabRect;
+                painter->setClipRegion(region);
+                painter->drawLine(tbb->rect.left(), tbb->rect.top(), tbb->rect.left(), tbb->rect.bottom());
+                break;
+            case QTabBar::RoundedSouth:
+                region -= tbb->selectedTabRect;
+                painter->setClipRegion(region);
+                painter->drawLine(tbb->rect.left(), tbb->rect.bottom(),
+                            tbb->rect.right(), tbb->rect.bottom());
+                break;
+            case QTabBar::RoundedEast:
+                region -= tbb->selectedTabRect;
+                painter->setClipRegion(region);
+                painter->drawLine(tbb->rect.topRight(), tbb->rect.bottomRight());
+                break;
+            case QTabBar::TriangularNorth:
+            case QTabBar::TriangularEast:
+            case QTabBar::TriangularWest:
+            case QTabBar::TriangularSouth:
+                painter->restore();
+                QWindowsStyle::drawPrimitive(elem, option, painter, widget);
+                return;
+            }
+            painter->restore();
+        }
+        return;
     case PE_IndicatorViewItemCheck:
         {
             QStyleOptionButton button;
@@ -2009,9 +2048,8 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             }
 
             if (flip) {
-                int tmp = rect.width();
-                rect.setWidth(rect.height());
-                rect.setHeight(tmp);
+                QRect tmp = rect;
+                rect = QRect(tmp.y(), tmp.x(), tmp.height(), tmp.width());
                 int temp = x1;
                 x1 = y1;
                 y1 = temp;
@@ -2023,19 +2061,20 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
             if (option->palette.button().gradient()) {
                 if (selected)
-                    gradient.setStops(option->palette.button().gradient()->stops());
+                    gradient.setStops(option->palette.background().gradient()->stops());
                 else
                     gradient.setStops(option->palette.background().gradient()->stops());
             }
             else if (selected) {
                 gradient.setColorAt(0, option->palette.background().color().light(104));
                 gradient.setColorAt(1, tabFrameColor);
+                painter->fillRect(rect.adjusted(0, 2, 0, -1), gradient);
             } else {
                 y1 += 2;
-                gradient.setColorAt(0, option->palette.button().color());
-                gradient.setColorAt(1, option->palette.button().color().dark(115));
+                gradient.setColorAt(0, option->palette.background().color());
+                gradient.setColorAt(1, option->palette.background().color().dark(115));
+                painter->fillRect(rect.adjusted(0, 2, 0, -2), gradient);
             }
-            painter->fillRect(rect.adjusted(0, 2, 0, -1), gradient);
 
             // Delete border
             if (selected) {
