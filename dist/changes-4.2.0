@@ -92,8 +92,13 @@ tools like gdb and valgrind automatically pick up the separate .debug files.
 This way it is possible to get useful backtraces even with release builds of
 Qt.
 
-Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
+Remove last vestiges of the module options in configure, previously they
+were available but did not function.
 
+Implement a -build option in configure to conditionally compile only
+certain sections of Qt.
+
+Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 ****************************************************************************
 *                          Library                                         *
@@ -124,6 +129,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         QApplication does not need to be subclassed for session management.
         Added a property styleSheet to set/read the application style sheet
         Support sending key events to non-widget objects.
+        argc/argc as passed to QApplication constructor will always be zero
+        terminated on all platforms after QApplication consumes options for itself.
 
 - QAbstractItemModel
         When dropping rows only inserts rows that were actually dropped, not
@@ -194,6 +201,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QItemSelectionModel
         Overall speed up particularly when isSelected() is used.
 
+- QClipBoard
+         Support for find text buffer.
+
 - QComboBox
 	Fix the type of the modelColumn property from bool to int.
 	Update documentation to clarify between activated(),
@@ -233,6 +243,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QModelIndex
 	Added flags() convenience function.
+
+- QSlider
+    Supports Jump-to-here positioning.
 
 - QScrollBar
 	Trigger a SliderMove action when the slider value is changed
@@ -305,6 +318,17 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QStackedLayout/QStackedWidget
         Crash when removing widgets fixed.
 
+- QStyle
+       Added SH_Slider_AbsoluteSetButtons and SH_Slider_PageSetButtons
+       style hint selectors.
+       Added SH_Menu_SelectionWrap style hint selector.
+       Added SH_Menu_SpaceActivesItem style hint selector.
+      
+- QMacPasteBoardMime
+        New class to handle pastboard access on Qt/Mac. This obsoletes
+        QMacMime as the underlying system has changed to support Apple's
+        new Paste Board Manager.
+
 - QMetaObject
         Added userProperty().
         Added normalizedType().
@@ -312,6 +336,11 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QMetaType
         Normalizes all type names before registering them.
         Handle Qt's integer typedefs (qint8, qint16, ...).
+
+- QResource
+        New class added as a namespace for various static functions that
+        effect resource lookup as well as a way to navigate resources
+        directly without levels of indirection through QFile/QFileEngine. 
 
 - QSqlQuery
         Added execBatch() for executing SQL commands in a batch. Currently
@@ -450,7 +479,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added support for Case insensitive comparisons in QString::compare()
 
 - QWidget
-        Added a property styleSheet to set/read the widget style sheet
+        Added a property styleSheet to set/read the widget style sheet.
 
 - QWindowsStyle
 	We no longer draw splitter handles in Windows style. This resolves an inconsistency with
@@ -483,6 +512,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         New class that provide auto completion support.
 
 - QMenu
+        Added aboutToHide() SIGNAL.
+        Added isEmpty() accessor.
         Made it possible for popup menus to cover the taskbar in Windows and KDE.
 
 - QMessageBox
@@ -568,6 +599,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         calling supportedOptions().
 
 - QPixmap
+        Various Qt/Mac masking and alpha transparency fixes.
         load() and save() no longer require you to pass the format string.
 
 - QTimeLine
@@ -855,6 +887,28 @@ Tools
 
 	Fixed an issue preventing QVFb from starting on some systems.
 
+Mac OS X:
+    10.2 support dropped.
+    QuickDraw support in QPaintEngine dropped, everything folded into
+    CoreGraphics.
+    All libraries in Qt are now built as frameworks when -framework mode
+    selected (default) upon configure.
+
+- QPixmap
+        Functions to convert to/from a CGImageRef (for CoreGraphics interop) added.
+
+- QMenuBar
+        Support for explicit merging of items on Qt/Mac, without automatic detection.
+        Localization of merged items possible on Qt/Mac now.
+
+- QWidget
+        All HIViewRef's as created inside Qt/Mac support (and defautly
+        enable) kWindowStandardHandlerAttribute.
+        Can now wrap a native HIViewRef with QWidget::create().
+        Now creates top levels with parents that have WindowStaysOnTopHint
+        set to also have WindowStaysOnTopHint.
+
+
 Windows:
 		Ensured that widgets do not show themselves in a hover state if a popup has focus.
 		Fixed issues with rendering system icons on 16-bit displays.
@@ -891,5 +945,42 @@ Assistant
         contents list.
 
 Moc
-        Fixed support for enums and flags in classes that are part in namespaces.
+        Fixed support for enums and flags in classes that are part in
+        namespaces.
 
+Rcc
+       Support -binary option to generate resources to be registered at runtime.
+
+Qmake
+      Support an objective c compiler in qmake on platforms that support it
+      via OBJECTIVE_SOURCES. Additionaly an objective c precompiled header
+      is generated as necessary.
+      Support for a qt.conf to allow easy changing of internal target
+      directories in qmake.
+      Recursive switch (-r) now supported in shadow builds
+      Introduced QMAKE_CFLAGS_STATIC_LIB for modifying flags passed to
+      temporary files when compiling a static library.
+      Added a target.targets for extra qmake INSTALLS.
+      Support for spaces in input files (SOURCES, HEADERS, etc) as well as
+      proper quoting handed in qmake to escape spaces.
+      $files() function is now completely consistent with wildcard matching as
+      specified to input file variables.
+      Added QMAKE_FUNC_* variables to EXTRA_COMPILERS for late evaluation of
+      paths to be calculated at generation time.
+      $$fromfile() will no longer parse input file multiple times.
+      Support -F arguments in LIBS line in xcode generator.
+      $$quote() has changed to only do an explicit quote, no escape
+      sequences are expanded. A new function $$escape_expand() has been
+      added to allow expansion of escape sequences (\n, \t, etc)
+      Added a $$QMAKE_HOST variable to express host information about
+      the machine running qmake.
+      Added $$replace() function.
+      PWD is always consulted first when attempting to resolve an include
+      for dependency analysis.
+      Support for utf8 encoded text in .pro files.
+      Variables $$_PRO_FILE_ and $$_PRO_FILE_PWD_ added for features to
+      detect where the .pro really lives.
+      Added QMAKE_FRAMEWORK_VERSION to override the version inside a
+      .framework, though VERSION is still the default value.
+      Support for custom bundle types, on Mac OS X.
+      Support for Mac OS X resources (.rsrc) in REZ_FILES.
