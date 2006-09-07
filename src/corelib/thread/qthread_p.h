@@ -150,11 +150,14 @@ private:
 class QThreadPrivate : public QObjectPrivate
 {
 public:
-    QThreadPrivate(QThread *threadInstance)
-    { Q_ASSERT(!QThread::instance); QThread::instance = threadInstance; }
-    QThreadData data;
+    QThreadPrivate() : data(new QThreadData) {}
+    ~QThreadPrivate() { delete data; }
+
+    QThreadData *data;
+
     static void setCurrentThread(QThread*) {}
     static QThread *threadForId(int) { return QThread::currentThread(); }
+    static void createEventDispatcher(QThreadData *data);
 
     Q_DECLARE_PUBLIC(QThread)
 };

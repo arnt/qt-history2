@@ -13,8 +13,6 @@
 
 #include "qthread.h"
 
-#ifndef QT_NO_THREAD
-
 #include "qplatformdefs.h"
 
 #include <private/qcoreapplication_p.h>
@@ -31,6 +29,7 @@
 #include <errno.h>
 #include <string.h>
 
+#ifndef QT_NO_THREAD
 
 static pthread_once_t current_thread_data_once = PTHREAD_ONCE_INIT;
 static pthread_key_t current_thread_data_key;
@@ -87,6 +86,8 @@ typedef void*(*QtThreadCallback)(void*);
 }
 #endif
 
+#endif // QT_NO_THREAD
+
 void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
 #if !defined(QT_NO_GLIB)
@@ -97,6 +98,8 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
         data->eventDispatcher = new QEventDispatcherUNIX;
     data->eventDispatcher->startingUp();
 }
+
+#ifndef QT_NO_THREAD
 
 void *QThreadPrivate::start(void *arg)
 {

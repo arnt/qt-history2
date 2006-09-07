@@ -65,14 +65,18 @@ QThreadData *QThreadData::get2(QThread *thread)
 
 void QThreadData::ref()
 {
+#ifndef QT_NO_THREAD
     (void) _ref.ref();
     Q_ASSERT(_ref != 0);
+#endif
 }
 
 void QThreadData::deref()
 {
+#ifndef QT_NO_THREAD
     if (!_ref.deref())
         delete this;
+#endif
 }
 
 
@@ -103,9 +107,6 @@ QThreadPrivate::~QThreadPrivate()
 {
     data->deref();
 }
-
-
-
 
 /*
   QAdoptedThread
@@ -509,10 +510,22 @@ QThread::Priority QThread::priority() const
 
 #else // QT_NO_THREAD
 
+#include <private/qcoreapplication_p.h>
+
 QThread* QThread::instance = 0;
 
-QThread::QThread() : QObject(*new QThreadPrivate(this), (QObject*)0)
+QThread::QThread() : QObject(*new QThreadPrivate, (QObject*)0)
 {
+    Q_D(QThread);
+    d->data->thread = this;
+    QCoreApplicationPrivate::theMainThread = this;
+}
+
+QThreadData* QThreadData::current()
+{
+    if (QThread::instance)
+        return QThread::instance->d_func()->data;
+    return 0;
 }
 
 #endif // QT_NO_THREAD
