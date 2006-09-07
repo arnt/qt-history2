@@ -1626,7 +1626,7 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
 QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
 {
     QMenu menu;
-    for(QList<QAction*>::Iterator it = actions.begin(); it != actions.end(); ++it)
+    for(QList<QAction*>::ConstIterator it = actions.constBegin(); it != actions.constEnd(); ++it)
         menu.addAction((*it));
     return menu.exec(pos, at);
 }
