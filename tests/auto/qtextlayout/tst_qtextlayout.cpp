@@ -227,6 +227,9 @@ void tst_QTextLayout::simpleBoundingRect()
 
 void tst_QTextLayout::threeLineBoundingRect()
 {
+#if defined(Q_WS_MAC)
+    QSKIP("QTestFontEngine on the mac does not support logclusters at the moment", SkipAll);
+#endif
     /* stricter check. break text into three lines */
 
     QString firstWord("hello");
@@ -328,6 +331,9 @@ void tst_QTextLayout::forcedBreaks()
 
 void tst_QTextLayout::breakAny()
 {
+#if defined(Q_WS_MAC)
+    QSKIP("QTestFontEngine on the mac does not support logclusters at the moment", SkipAll);
+#endif
     QString text = "ABCD";
 
     QTextLayout layout(text, testFont);
@@ -425,6 +431,9 @@ void tst_QTextLayout::charWordStopOnLineSeparator()
 
 void tst_QTextLayout::xToCursorAtEndOfLine()
 {
+#if defined(Q_WS_MAC)
+    QSKIP("QTestFontEngine on the mac does not support logclusters at the moment", SkipAll);
+#endif
     QString text = "FirstLine SecondLine";
     text.replace('\n', QChar::LineSeparator);
 
