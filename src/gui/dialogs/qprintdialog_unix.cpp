@@ -980,7 +980,7 @@ void QPrintDialogPrivate::applyPrinterProperties(QPrinter *p)
     else
         ui.chbColor->setChecked(false);
 
-    ui.chbDuplex->setChecked(p->doubleSidePrinting());
+    ui.chbDuplex->setChecked(p->doubleSidedPrinting());
 
     QString file = p->outputFileName();
     if (!file.isEmpty()) {
@@ -1179,7 +1179,7 @@ bool QPrintDialogPrivate::setupPrinter()
     // copies
     p->setNumCopies(ui.sbNumCopies->value());
     p->setCollateCopies(ui.chbCollate->isChecked());
-    p->setDoubleSidePrinting(ui.chbDuplex->isChecked());
+    p->setDoubleSidedPrinting(ui.chbDuplex->isChecked());
 
     // paper format
     p->setPageSize(static_cast<QPrinter::PageSize>(ui.cbPaperSize->itemData(ui.cbPaperSize->currentIndex()).toInt()));
