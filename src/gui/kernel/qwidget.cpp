@@ -548,10 +548,10 @@ void QWidget::setAutoFillBackground(bool enabled)
     Events and the mechanism used to deliver them are covered in the
     \l{Events and Event Filters} document.
 
-    \section1 Groups of functions
+    \section1 Groups of Functions and Properties
 
     \table
-    \header \i Context \i Functions
+    \header \i Context \i Functions and Properties
 
     \row \i Window functions \i
         show(),
@@ -561,19 +561,9 @@ void QWidget::setAutoFillBackground(bool enabled)
         close().
 
     \row \i Top-level windows \i
-        isWindowModified(),
-        setWindowModified(),
-        windowTitle(),
-        setWindowTitle(),
-        windowIcon(),
-        setWindowIcon(),
-        windowIconText(),
-        setWindowIconText(),
-        isActiveWindow(),
-        activateWindow(),
-        showMinimized().
-        showMaximized(),
-        showFullScreen(),
+        \l windowModified, \l windowTitle, \l windowIcon, \l windowIconText,
+        \l isActiveWindow, activateWindow(), \l minimized, showMinimized(),
+        \l maximized, showMaximized(), \l fullScreen, showFullScreen(),
         showNormal().
 
     \row \i Window contents \i
@@ -582,83 +572,44 @@ void QWidget::setAutoFillBackground(bool enabled)
         scroll().
 
     \row \i Geometry \i
-        pos(),
-        size(),
-        rect(),
-        x(),
-        y(),
-        width(),
-        height(),
-        sizePolicy(),
-        setSizePolicy(),
-        sizeHint(),
-        updateGeometry(),
-        layout(),
-        move(),
-        resize(),
-        setGeometry(),
-        frameGeometry(),
-        geometry(),
-        childrenRect(),
+        \l pos, x(), y(), \l rect, \l size, width(), height(), move(), resize(),
+        \l sizePolicy, sizeHint(), minimumSizeHint(),
+        updateGeometry(), layout(), 
+        \l frameGeometry, \l geometry, \l childrenRect, \l childrenRegion,
         adjustSize(),
-        mapFromGlobal(),
-        mapFromParent()
-        mapToGlobal(),
-        mapToParent(),
-        maximumSize(),
-        minimumSize(),
-        sizeIncrement(),
-        setMaximumSize(),
-        setMinimumSize(),
-        setSizeIncrement(),
-        setBaseSize(),
-        setFixedSize()
+        mapFromGlobal(), mapToGlobal(),
+        mapFromParent(), mapToParent(),
+        \l maximumSize, \l minimumSize, \l sizeIncrement,
+        \l baseSize, setFixedSize()
 
     \row \i Mode \i
-        isVisible(),
-        isVisibleTo(),
-        isMinimized(),
-        isEnabled(),
-        isEnabledTo(),
-        isModal(),
+        \l visible, isVisibleTo(),
+        \l enabled, isEnabledTo(),
+        \l modal,
         isWindow(),
-        setEnabled(),
-        hasMouseTracking(),
-        setMouseTracking(),
-        updatesEnabled(),
-        setUpdatesEnabled(),
+        \l mouseTracking,
+        \l updatesEnabled,
         visibleRegion().
 
     \row \i Look and feel \i
         style(),
         setStyle(),
-        cursor(),
-        setCursor()
-        font(),
-        setFont(),
-        palette(),
-        setPalette(),
-        backgroundRole(),
-        setBackgroundRole(),
-        fontMetrics(),
-        fontInfo().
+        \l styleSheet,
+        \l cursor,
+        \l font,
+        \l palette,
+        backgroundRole(), setBackgroundRole(),
+        fontInfo(), fontMetrics().
 
     \row \i Keyboard focus functions \i
-        setFocusPolicy(),
-        focusPolicy(),
-        hasFocus(),
-        setFocus(),
-        clearFocus(),
-        setTabOrder(),
-        setFocusProxy().
+        \l focus, \l focusPolicy,
+        setFocus(), clearFocus(), setTabOrder(), setFocusProxy(),
+        focusNextChild(), focusPreviousChild().
 
     \row \i Mouse and keyboard grabbing \i
-        grabMouse(),
-        releaseMouse(),
-        grabKeyboard(),
-        releaseKeyboard(),
-        mouseGrabber(),
-        keyboardGrabber().
+        grabMouse(), releaseMouse(),
+        grabKeyboard(), releaseKeyboard(),
+        mouseGrabber(), keyboardGrabber().
 
     \row \i Event handlers \i
         event(),
@@ -688,21 +639,25 @@ void QWidget::setAutoFillBackground(bool enabled)
         changeEvent(),
 
     \row \i System functions \i
-        parentWidget(),
-        window(),
-        setParent(),
-        winId(),
-        find(),
-        metric().
+        parentWidget(), window(), setParent(), winId(),
+        find(), metric().
 
-    \row \i What's this help \i
-        setWhatsThis()
-
-    \row \i Focus functions \i
-        focusNextChild(),
-        focusPreviousChild()
+    \row \i Interactive help \i
+        setToolTip(), setWhatsThis()
 
     \endtable
+
+    \section1 Widget Style Sheets
+
+    In addition to the standard widget styles for each platform, widgets can
+    also be styled according to rules specified in a \l{styleSheet}{style sheet}.
+    This feature enables you to customize the appearance of specific widgets
+    to provide visual cues to users about their purpose; for example, a button
+    could be styled in a particular way to indicate that it performs a
+    destructive action.
+
+    The use of widgets style sheets is described in more detail in
+    \l{Customizing Widgets using Style Sheets}.
 
     \section1 Transparency and Double Buffering
 
@@ -1763,7 +1718,7 @@ void QWidget::createWinId()
     \brief the widget's style sheet
     \since 4.2
 
-    \sa setStyle(), QApplication::styleSheet, {Customizing Qt widgets using Style Sheets}
+    \sa setStyle(), QApplication::styleSheet, {Customizing Widgets using Style Sheets}
 */
 QString QWidget::styleSheet() const
 {
@@ -4122,8 +4077,6 @@ void QWidget::clearFocus()
     for \key Tab, and returns true if it can find a new widget, or
     false if it can't.
 
-    This is the same as focusNextPrevChild(true).
-
     \sa focusPreviousChild()
 */
 
@@ -4133,8 +4086,6 @@ void QWidget::clearFocus()
     Finds a new widget to give the keyboard focus to, as appropriate
     for \key Shift+Tab, and returns true if it can find a new widget,
     or false if it can't.
-
-    This is the same as focusNextPrevChild(false).
 
     \sa focusNextChild()
 */
@@ -6399,9 +6350,8 @@ void QWidget::closeEvent(QCloseEvent *event)
     The handler is called when the widget's \l contextMenuPolicy is
     Qt::DefaultContextMenu.
 
-    The default implementation calls event->ignore(), which rejects the
-    context event. See the \l QContextMenuEvent documentation for
-    more details.
+    The default implementation ignores the context event.
+    See the \l QContextMenuEvent documentation for more details.
 
     \sa event(), QContextMenuEvent customContextMenuRequested()
 */
