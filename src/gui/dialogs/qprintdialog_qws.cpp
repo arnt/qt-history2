@@ -64,7 +64,7 @@ public:
     QRadioButton *printColor;
     QRadioButton *printGray;
     QPrinter::ColorMode colorMode2;
-    
+
     QComboBox *orientationCombo, *sizeCombo;
     QPrinter::PageSize pageSize;
     QPrinter::Orientation orientation;
@@ -72,14 +72,14 @@ public:
     QSpinBox *copies;
     int numCopies;
     QPrinter::PageSize indexToPageSize[QPrinter::NPageSize];
-    
+
     QComboBox *rangeCombo;
     QSpinBox *firstPage;
     QSpinBox *lastPage;
-    
+
     QComboBox *pageOrderCombo;
     QPrinter::PageOrder pageOrder2;
-    
+
     QString faxNum;
 
     void init();
@@ -94,14 +94,14 @@ public:
     void _q_printRangeSelected(int);
     void _q_setFirstPage(int);
     void _q_setLastPage(int);
-    void _q_fileNameEditChanged(const QString &text); 
+    void _q_fileNameEditChanged(const QString &text);
 
     void setupDestination();
     void setupPrinterSettings();
     void setupPaper();
     void setupOptions();
 
-    void setPrinter(QPrinter *p, bool pickUpSettings);        
+    void setPrinter(QPrinter *p, bool pickUpSettings);
 };
 
 static void isc(QPrintDialogPrivate *d, const QString & text,
@@ -222,12 +222,13 @@ void QPrintDialogPrivate::_q_setLastPage(int lp)
 
 void QPrintDialogPrivate::_q_fileNameEditChanged(const QString &text)
 {
+    Q_UNUSED(text);
 }
 
 void QPrintDialogPrivate::setupDestination()
 {
     Q_Q(QPrintDialog);
-    
+
     // print destinations
     printerOrFile = new QButtonGroup(q);
     QObject::connect(printerOrFile, SIGNAL(buttonClicked(QAbstractButton *)),
@@ -237,12 +238,12 @@ void QPrintDialogPrivate::setupDestination()
     printerOrFile->addButton(printToPrinterButton);
     printToFileButton = q->findChild<QRadioButton *>("printToFileButton");
     printerOrFile->addButton(printToFileButton);
-    
+
     // file name
     fileName = q->findChild<QLineEdit *>("fileName");
     QObject::connect(fileName, SIGNAL(textChanged(QString)),
             q, SLOT(_q_fileNameEditChanged(QString)));
-    
+
     outputToFile = false;
 }
 
@@ -328,7 +329,7 @@ void QPrintDialogPrivate::setupPaper()
 void QPrintDialogPrivate::setupOptions()
 {
     Q_Q(QPrintDialog);
-    
+
     // no. of copies
     copies = q->findChild<QSpinBox *>("copies");
     QObject::connect(copies, SIGNAL(valueChanged(int)),
@@ -363,6 +364,8 @@ void QPrintDialogPrivate::setupOptions()
 
 bool QPrintDialog::eventFilter(QObject *o, QEvent *e)
 {
+    Q_UNUSED(o);
+
     Q_D(QPrintDialog);
     switch (e->type()){
     case QEvent::KeyPress:
@@ -375,7 +378,7 @@ bool QPrintDialog::eventFilter(QObject *o, QEvent *e)
     default:
         break;
     }
-    return false; 
+    return false;
 }
 
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
@@ -426,7 +429,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
         // page order
         pageOrder2 = p->pageOrder();
         pageOrderCombo->setCurrentIndex((int)pageOrder2);
-        
+
         // color mode
         colorMode2 = p->colorMode();
         if (colorMode2 == QPrinter::Color)

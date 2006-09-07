@@ -3376,8 +3376,6 @@ bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
 #ifndef QT_NO_QWSEMBEDWIDGET
 void QETWidget::translateEmbedEvent(const QWSEmbedEvent *event)
 {
-    Q_D(QWidget);
-
     if (event->simpleData.type | QWSEmbedEvent::Region) {
         const QRegion region = event->region;
         setGeometry(region.boundingRect());

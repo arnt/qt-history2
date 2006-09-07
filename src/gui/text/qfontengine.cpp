@@ -201,6 +201,8 @@ enum { EdgeRight = 0x1,
 
 static void collectSingleContour(qreal x0, qreal y0, uint *grid, int x, int y, int w, int h, QPainterPath *path)
 {
+    Q_UNUSED(h);
+
     path->moveTo(x + x0, y + y0);
     while (GRID(x, y)) {
         if (GRID(x, y) & EdgeRight) {
