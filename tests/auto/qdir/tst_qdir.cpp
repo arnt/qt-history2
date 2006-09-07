@@ -264,11 +264,15 @@ void tst_QDir::exists_data()
     QTest::newRow("This drive should exist") <<  "C:/" << true; 
     // find a non-existing drive and check if it does not exist 
     QFileInfoList drives = QFSFileEngine::drives();
+    QStringList driveLetters;
+    for (int i = 0; i < drives.count(); ++i) {
+        driveLetters+=drives.at(i).absoluteFilePath();
+    }
     char drive = 'Z';
     QString driv;
     do {
         driv = QString::fromAscii("%1:/").arg(drive);
-        if (!drives.contains(driv)) break;
+        if (!driveLetters.contains(driv)) break;
         --drive;
     } while (drive >= 'A');
     if (drive >= 'A') {
