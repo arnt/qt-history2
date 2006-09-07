@@ -86,6 +86,10 @@ QTextControlPrivate::QTextControlPrivate()
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
+#ifdef QT_NO_SHORTCUT
+    Q_UNUSED(e);
+#endif
+
     Q_Q(QTextControl);
     if (cursor.isNull())
         return false;
@@ -96,7 +100,9 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
 
-
+    if (false) {
+    }
+#ifndef QT_NO_SHORTCUT
     if (e == QKeySequence::MoveToNextChar) {
             op = QTextCursor::Right;
     }
@@ -204,9 +210,11 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     else if (e == QKeySequence::MoveToEndOfDocument) {
             op = QTextCursor::End;
     }
+#endif // QT_NO_SHORTCUT
     else {
         return false;
     }
+
 // Except for pageup and pagedown, Mac OS X has very different behavior, we don't do it all, but
 // here's the breakdown:
 // Shift still works as an anchor, but only one of the other keys can be down Ctrl (Command),
@@ -993,6 +1001,7 @@ void QTextControl::setHtml(const QString &text)
 void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
+#ifndef QT_NO_SHORTCUT
     if (e == QKeySequence::SelectAll) {
             e->accept();
             q->selectAll();
@@ -1005,6 +1014,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             return;
     }
 #endif
+#endif // QT_NO_SHORTCUT
 
     if (interactionFlags & Qt::TextSelectableByKeyboard
         && cursorMoveKeyEvent(e))
@@ -1064,7 +1074,10 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         goto accept;
     }
 
-    if (e == QKeySequence::Undo) {
+    if (false) {
+    }
+#ifndef QT_NO_SHORTCUT
+    else if (e == QKeySequence::Undo) {
             q->undo();
     }
     else if (e == QKeySequence::Redo) {
@@ -1097,6 +1110,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
         cursor.deleteChar();
     }
+#endif // QT_NO_SHORTCUT
     else {
         goto process;
     }

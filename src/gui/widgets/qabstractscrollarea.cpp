@@ -955,10 +955,13 @@ void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractScrollArea::keyPressEvent(QKeyEvent * e)
 {
     Q_D(QAbstractScrollArea);
-    if (e == QKeySequence::MoveToPreviousPage) {
+    if (false){
+#ifndef QT_NO_SHORTCUT
+    } else if (e == QKeySequence::MoveToPreviousPage) {
         d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
     } else if (e == QKeySequence::MoveToNextPage) {
         d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
+#endif
     } else {
         switch (e->key()) {
         case Qt::Key_Up:

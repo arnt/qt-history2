@@ -1074,6 +1074,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         return;
     }
 
+#ifndef QT_NO_SHORTCUT
     if (e == QKeySequence::MoveToPreviousPage) {
             e->accept();
             d->pageUpDown(QTextCursor::Up, QTextCursor::MoveAnchor);
@@ -1091,6 +1092,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             d->pageUpDown(QTextCursor::Down, QTextCursor::KeepAnchor);
             return;
     }
+#endif // QT_NO_SHORTCUT
 
     {
         QTextCursor cursor = d->control->textCursor();

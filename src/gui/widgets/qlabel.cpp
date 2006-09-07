@@ -859,7 +859,7 @@ bool QLabel::event(QEvent *e)
         }
     } else
 #endif
-    if (e->type() == QEvent::Resize && d->doc) {
+    if (type == QEvent::Resize && d->doc) {
         d->textDirty = true;
     } else if (e->type() == QEvent::StyleChange) {
         d->updateLabel();
@@ -1163,8 +1163,8 @@ void QLabelPrivate::clearContents()
     pixmap = 0;
 
     text.clear();
-#ifndef QT_NO_SHORTCUT
     Q_Q(QLabel);
+#ifndef QT_NO_SHORTCUT
     q->releaseShortcut(shortcutId);
     shortcutId = -1;
 #endif

@@ -1749,7 +1749,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     }
 #endif
 
-#ifndef QT_NO_CLIPBOARD
+#if !defined(QT_NO_CLIPBOARD) && !defined(QT_NO_SHORTCUT)
     if (event == QKeySequence::Copy) {
         QVariant variant = model()->data(currentIndex(), Qt::DisplayRole);
         if (variant.type() == QVariant::String)

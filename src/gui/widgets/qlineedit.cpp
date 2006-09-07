@@ -1729,7 +1729,10 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     }
     bool unknown = false;
 
-    if (event == QKeySequence::Undo) {
+    if (false) {
+    }
+#ifndef QT_NO_SHORTCUT
+    else if (event == QKeySequence::Undo) {
         if (!d->readOnly)
             undo();
     }
@@ -1845,6 +1848,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             del();
         }
     }
+#endif // QT_NO_SHORTCUT
     else {
 #ifdef Q_WS_MAC
         if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
