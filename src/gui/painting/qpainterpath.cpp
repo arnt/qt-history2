@@ -2021,8 +2021,14 @@ static bool qt_painterpath_check_crossing(const QPainterPath *path, const QRectF
 /*!
     \fn bool QPainterPath::intersects(const QRectF &rectangle) const
 
-    Returns true if any point in the given \a rectangle is inside the
+    Returns true if any point in the given \a rectangle intersects the
     path; otherwise returns false.
+
+    There is an intersection if any of the lines making up the
+    rectangle crosses a part of the path or if any part of the
+    rectangle overlaps with any area enclosed by the path. This
+    function respects the current fillRule to determine what is
+    considered inside the path.
 
     \sa contains()
 */
