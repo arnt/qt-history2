@@ -128,7 +128,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     Generally speaking, no user interaction can take place before
     calling exec(). As a special case, modal widgets like QMessageBox
-    can be used before calling exec(), because modal widgets call
+    can be used before calling exec(), because modal widgets 
     use their own local event loop.
 
     To make your application perform idle processing (i.e. executing a
