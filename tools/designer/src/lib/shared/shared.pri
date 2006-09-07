@@ -51,7 +51,8 @@ HEADERS += \
     $$PWD/actionprovider_p.h \
     $$PWD/orderdialog_p.h \
     $$PWD/newactiondialog_p.h \
-    $$PWD/resourceeditor_p.h
+    $$PWD/resourceeditor_p.h \
+    $$PWD/stylesheeteditor_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -90,4 +91,6 @@ SOURCES += \
     $$PWD/qdesigner_menu.cpp \
     $$PWD/orderdialog.cpp \
     $$PWD/newactiondialog.cpp \
-    $$PWD/resourceeditor.cpp
+    $$PWD/resourceeditor.cpp \
+    $$PWD/stylesheeteditor.cpp
+

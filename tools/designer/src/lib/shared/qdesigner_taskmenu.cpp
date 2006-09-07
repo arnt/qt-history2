@@ -16,6 +16,7 @@
 #include "qdesigner_promotedwidget_p.h"
 #include <QtGui/QUndoCommand>
 #include "richtexteditor_p.h"
+#include "stylesheeteditor_p.h"
 #include "promotetocustomwidgetdialog_p.h"
 #include "widgetfactory_p.h"
 #include "widgetdatabase_p.h"
@@ -387,31 +388,9 @@ void QDesignerTaskMenu::changeWhatsThis()
 void QDesignerTaskMenu::changeStyleSheet()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
-        QDialog *dialog = new QDialog;
-        dialog->setWindowTitle(tr("Edit Style Sheet"));
-        QVBoxLayout *layout = new QVBoxLayout;
-        QTextEdit *editor = new QTextEdit;
-        QDialogButtonBox *buttonBox = new QDialogButtonBox;
-        buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        QObject::connect(buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
-        QObject::connect(buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
-
-        layout->addWidget(editor);;
-        layout->addWidget(buttonBox);
-        dialog->setLayout(layout);
-
-        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(fw->core()->extensionManager(), m_widget);
-        Q_ASSERT(sheet != 0);
-
-        editor->setText(sheet->property(sheet->indexOf("styleSheet")).toString());
-        editor->setFocus();
-
-        if (dialog->exec()) {
-            QString text = editor->toPlainText();
-            fw->cursor()->setWidgetProperty(m_widget, "styleSheet", QVariant(text));
-        }
-
-        delete dialog;
+        StyleSheetEditorDialog *dlg = new StyleSheetEditorDialog(fw, m_widget);
+        dlg->exec();
+        delete dlg;
     }
 }
 
