@@ -36,8 +36,6 @@
 
 class QDesignerFormWindowInterface;
 
-namespace qdesigner_internal {
-
 class QDESIGNER_SHARED_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
@@ -206,7 +204,5 @@ protected:
     inline QLayout *theLayout() const
     { Q_ASSERT(me()->widget()); return me()->widget()->layout(); }
 };
-
-} // namespace qdesigner_internal
 
 #endif // QDESIGNER_WIDGET_H

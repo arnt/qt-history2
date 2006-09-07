@@ -39,7 +39,7 @@ class FriendlyLayout: public QLayout
 public:
     inline FriendlyLayout(): QLayout() { Q_ASSERT(0); }
 
-    friend class QLayoutWidgetItem;
+    friend class ::QLayoutWidgetItem;
 };
 
 } // namespace qdesigner_internal

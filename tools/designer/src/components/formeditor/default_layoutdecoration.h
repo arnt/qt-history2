@@ -22,12 +22,12 @@
 #include <QtCore/QPair>
 #include <QtCore/QRect>
 
-namespace qdesigner_internal {
-
-class FormWindow;
 class QLayoutWidget;
 class QLayoutSupport;
 
+namespace qdesigner_internal {
+
+class FormWindow;
 
 class QT_FORMEDITOR_EXPORT QDesignerLayoutDecoration: public QObject, public QDesignerLayoutDecorationExtension
 {
