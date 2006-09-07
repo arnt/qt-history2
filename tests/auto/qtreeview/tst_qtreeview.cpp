@@ -260,13 +260,13 @@ void tst_QTreeView::getSetCheck()
     obj1.setAllColumnsShowFocus(true);
     QCOMPARE(obj1.allColumnsShowFocus(), true);
 
-    // bool QTreeView::isAnimationsEnabled
-    // void QTreeView::setAnimationsEnabled
-    QCOMPARE(obj1.isAnimationsEnabled(), false);
-    obj1.setAnimationsEnabled(false);
-    QCOMPARE(obj1.isAnimationsEnabled(), false);
-    obj1.setAnimationsEnabled(true);
-    QCOMPARE(obj1.isAnimationsEnabled(), true);
+    // bool QTreeView::isAnimated
+    // void QTreeView::setAnimated
+    QCOMPARE(obj1.isAnimated(), false);
+    obj1.setAnimated(false);
+    QCOMPARE(obj1.isAnimated(), false);
+    obj1.setAnimated(true);
+    QCOMPARE(obj1.isAnimated(), true);
 
     // bool QTreeView::setSortingEnabled
     // void QTreeView::isSortingEnabled

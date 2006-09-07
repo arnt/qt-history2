@@ -679,7 +679,7 @@ bool QTreeView::isSortingEnabled() const
 
 /*!
     \since Qt 4.2
-    \property QTreeView::animationsEnabled
+    \property QTreeView::animated
     \brief whether animations are enabled
 
     If this property is true the treeview will animate expandsion
@@ -688,13 +688,13 @@ bool QTreeView::isSortingEnabled() const
     the animation.
 */
 
-void QTreeView::setAnimationsEnabled(bool enable)
+void QTreeView::setAnimated(bool animate)
 {
     Q_D(QTreeView);
-    d->animationsEnabled = enable;
+    d->animationsEnabled = animate;
 }
 
-bool QTreeView::isAnimationsEnabled() const
+bool QTreeView::isAnimated() const
 {
     Q_D(const QTreeView);
     return d->animationsEnabled;

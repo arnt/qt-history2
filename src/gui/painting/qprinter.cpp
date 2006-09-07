@@ -1000,13 +1000,11 @@ bool QPrinter::fontEmbeddingEnabled() const
   Enables double side printing if \a enable is true; otherwise disables it.
 
   Currently this option is only supported on X11.
-
-  \sa doubleSidePrinting()
 */
-void QPrinter::setDoubleSidePrinting(bool enable)
+void QPrinter::setDoubleSidedPrinting(bool doubleSided)
 {
     Q_D(QPrinter);
-    d->printEngine->setProperty(QPrintEngine::PPK_Duplex, enable);
+    d->printEngine->setProperty(QPrintEngine::PPK_Duplex, doubleSided);
 }
 
 
@@ -1016,10 +1014,8 @@ void QPrinter::setDoubleSidePrinting(bool enable)
   Returns true if double side printing is enabled.
 
   Currently this option is only supported on X11.
-
-  \sa setDoubleSidePrinting()
 */
-bool QPrinter::doubleSidePrinting()
+bool QPrinter::doubleSidedPrinting() const
 {
     Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_Duplex).toBool();

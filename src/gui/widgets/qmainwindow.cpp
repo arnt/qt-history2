@@ -676,7 +676,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 
 #ifndef QT_NO_DOCKWIDGET
 
-/*! \property QMainWindow::animationEnabled
+/*! \property QMainWindow::animated
     \brief whether manipulating dock widgets is animated
     \since 4.2
 
@@ -686,12 +686,12 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
     is true.
 */
 
-bool QMainWindow::isAnimationEnabled() const
+bool QMainWindow::isAnimated() const
 {
     return d_func()->layout->animationEnabled;
 }
 
-void QMainWindow::setAnimationEnabled(bool enabled)
+void QMainWindow::setAnimated(bool enabled)
 {
     d_func()->layout->animationEnabled = enabled;
 }

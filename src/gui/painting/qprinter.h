@@ -139,8 +139,8 @@ public:
     void setFontEmbeddingEnabled(bool enable);
     bool fontEmbeddingEnabled() const;
 
-    void setDoubleSidePrinting(bool enable);
-    bool doubleSidePrinting();
+    void setDoubleSidedPrinting(bool enable);
+    bool doubleSidedPrinting() const;
 
 #ifdef Q_WS_WIN
     void setWinPageSize(int winPageSize);

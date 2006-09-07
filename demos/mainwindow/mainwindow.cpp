@@ -201,8 +201,8 @@ void MainWindow::setupDockWidgets()
 {
     QAction *action = dockWidgetMenu->addAction(tr("Animation"));
     action->setCheckable(true);
-    action->setChecked(isAnimationEnabled());
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(setAnimationEnabled(bool)));
+    action->setChecked(isAnimated());
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setAnimated(bool)));
 
     action = dockWidgetMenu->addAction(tr("Nesting"));
     action->setCheckable(true);

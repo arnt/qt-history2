@@ -33,7 +33,7 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
     Q_PROPERTY(bool itemsExpandable READ itemsExpandable WRITE setItemsExpandable)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
-    Q_PROPERTY(bool animationsEnabled READ isAnimationsEnabled WRITE setAnimationsEnabled)
+    Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus)
 
 public:
@@ -76,8 +76,8 @@ public:
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;
 
-    void setAnimationsEnabled(bool enable);
-    bool isAnimationsEnabled() const;
+    void setAnimated(bool enable);
+    bool isAnimated() const;
 
     void setAllColumnsShowFocus(bool enable);
     bool allColumnsShowFocus() const;

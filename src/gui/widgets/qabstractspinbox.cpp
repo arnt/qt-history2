@@ -313,7 +313,7 @@ void QAbstractSpinBox::setFrame(bool enable)
 }
 
 /*!
-    \property QAbstractSpinBox::accelerate
+    \property QAbstractSpinBox::accelerated
     \brief whether the spin box will accelerate the frequency of the steps when
     pressing the step Up/Down buttons.
     \since 4.2
@@ -322,13 +322,13 @@ void QAbstractSpinBox::setFrame(bool enable)
     the longer you hold the button down. This only applied
 */
 
-void QAbstractSpinBox::setAccelerate(bool accelerate)
+void QAbstractSpinBox::setAccelerated(bool accelerate)
 {
     Q_D(QAbstractSpinBox);
     d->accelerate = accelerate;
 
 }
-bool QAbstractSpinBox::accelerate() const
+bool QAbstractSpinBox::isAccelerated() const
 {
     Q_D(const QAbstractSpinBox);
     return d->accelerate;

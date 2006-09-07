@@ -36,7 +36,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 #ifndef QT_NO_DOCKWIDGET
-    Q_PROPERTY(bool animationEnabled READ isAnimationEnabled WRITE setAnimationEnabled)
+    Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
     Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
 #endif
 
@@ -50,7 +50,7 @@ public:
     Qt::ToolButtonStyle toolButtonStyle() const;
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
-    bool isAnimationEnabled() const;
+    bool isAnimated() const;
     bool isDockNestingEnabled() const;
 
     bool isSeparator(const QPoint &pos) const;
@@ -112,7 +112,7 @@ public:
 
 #ifndef QT_NO_DOCKWIDGET
 public Q_SLOTS:
-    void setAnimationEnabled(bool enabled);
+    void setAnimated(bool enabled);
     void setDockNestingEnabled(bool enabled);
 #endif
 

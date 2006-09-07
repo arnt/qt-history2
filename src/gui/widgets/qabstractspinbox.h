@@ -40,7 +40,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
     Q_PROPERTY(QString text READ text)
-    Q_PROPERTY(bool accelerate READ accelerate WRITE setAccelerate)
+    Q_PROPERTY(bool accelerated READ isAccelerated WRITE setAccelerated)
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
 
@@ -80,8 +80,8 @@ public:
     void setFrame(bool);
     bool hasFrame() const;
 
-    void setAccelerate(bool on);
-    bool accelerate() const;
+    void setAccelerated(bool on);
+    bool isAccelerated() const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
