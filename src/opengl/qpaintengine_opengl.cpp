@@ -317,7 +317,7 @@ inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLi
 inline QColor QGLDrawable::backgroundColor() const
 {
     if (widget)
-        return widget->palette().brush(QPalette::Background).color();
+        return widget->palette().brush(widget->backgroundRole()).color();
     return QApplication::palette().brush(QPalette::Background).color();
 }
 
@@ -854,7 +854,6 @@ static bool qt_resolve_GLSL_functions(QGLContext *)
         qt_glShaderSource = (_glShaderSource) cx.getProcAddress(QLatin1String("glShaderSource"));
         qt_glCompileShader = (_glCompileShader) cx.getProcAddress(QLatin1String("glCompileShader"));
         qt_glDeleteShader = (_glDeleteShader) cx.getProcAddress(QLatin1String("glDeleteShader"));
-        qt_glCreateProgram = (_glCreateProgram) cx.getProcAddress(QLatin1String("glCreateProgram"));
 
         qt_glCreateProgram = (_glCreateProgram) cx.getProcAddress(QLatin1String("glCreateProgram"));
         qt_glAttachShader = (_glAttachShader) cx.getProcAddress(QLatin1String("glAttachShader"));
@@ -881,7 +880,7 @@ static bool qt_resolve_GLSL_functions(QGLContext *)
         && qt_glCompileShader
         && qt_glDeleteShader
         && qt_glCreateProgram
-        && qt_glCreateProgram
+        && qt_glAttachShader
         && qt_glDetachShader
         && qt_glLinkProgram
         && qt_glUseProgram
