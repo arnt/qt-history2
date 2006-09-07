@@ -3331,6 +3331,8 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
                             int(newRect.origin.y - outRect.origin.y),
                             int(outRect.size.width - newRect.size.width),
                             int(outRect.size.height - newRect.size.height));
+            if (!off_rct.isValid())
+                off_rct = QRect();
             newRect = qt_hirectForQRect(btn->rect, off_rct);
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&newRect, &bdi, &outRect);
