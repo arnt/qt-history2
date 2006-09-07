@@ -877,13 +877,13 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         parent = d->model->parent(parent);
     }
 
-    int viewIndex = d->viewIndex(index);
-    if (viewIndex < 0)
+    int item = d->viewIndex(index);
+    if (item < 0)
         return;
     QRect rect(columnViewportPosition(index.column()),
-               d->coordinateForItem(viewIndex),
+               d->coordinateForItem(item),
                columnWidth(index.column()),
-               d->itemHeight(viewIndex));
+               d->itemHeight(item));
 
     if (rect.isEmpty())
         return;
@@ -899,7 +899,6 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     bool above = (hint == EnsureVisible && rect.top() < area.top());
     bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        int item = d->viewIndex(index);
         if (hint == PositionAtTop || above) {
             verticalScrollBar()->setValue(item);
         } else if (hint == PositionAtCenter || hint == PositionAtBottom || below) {
