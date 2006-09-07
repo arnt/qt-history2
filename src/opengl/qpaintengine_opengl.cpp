@@ -2608,33 +2608,31 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 
             QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_Indexed8));
 
-            if (glyph_im.isNull())
-                break;
+            if (!glyph_im.isNull()) {
+                int padded_width = glyph_im.width();
+                if (padded_width%2 != 0)
+                    ++padded_width;
 
-            int padded_width = glyph_im.width();
-            if (padded_width%2 != 0)
-                ++padded_width;
+                int idx = 0;
+                uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
+                memset(tex_data, 0, padded_width*glyph_im.height()*2);
 
-            int idx = 0;
-            uchar *tex_data = (uchar *) malloc(padded_width*glyph_im.height()*2);
-            memset(tex_data, 0, padded_width*glyph_im.height()*2);
-
-            for (int y=0; y<glyph_im.height(); ++y) {
-                uchar *s = (uchar *) glyph_im.scanLine(y);
-                for (int x=0; x<glyph_im.width(); ++x) {
-                    tex_data[idx] = *s;
-                    tex_data[idx+1] = *s;
-                    ++s;
-                    idx += 2;
+                for (int y=0; y<glyph_im.height(); ++y) {
+                    uchar *s = (uchar *) glyph_im.scanLine(y);
+                    for (int x=0; x<glyph_im.width(); ++x) {
+                        tex_data[idx] = *s;
+                        tex_data[idx+1] = *s;
+                        ++s;
+                        idx += 2;
+                    }
+                    if (glyph_im.width()%2 != 0)
+                        idx += 2;
                 }
-                if (glyph_im.width()%2 != 0)
-                    idx += 2;
+                glTexSubImage2D(GL_TEXTURE_2D, 0, font_tex->x_offset, font_tex->y_offset,
+                                padded_width, glyph_im.height(),
+                                GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
+                free(tex_data);
             }
-            glTexSubImage2D(GL_TEXTURE_2D, 0, font_tex->x_offset, font_tex->y_offset,
-                            padded_width, glyph_im.height(),
-                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
-            free(tex_data);
-
             if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
                 font_tex->x_offset = x_margin;
                 font_tex->y_offset += glyph_height + y_margin;
