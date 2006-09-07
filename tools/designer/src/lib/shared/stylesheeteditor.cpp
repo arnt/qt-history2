@@ -18,6 +18,7 @@ TRANSLATOR qdesigner_internal::StyleSheetEditorDialog
 #include "stylesheeteditor_p.h"
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QVBoxLayout>
 #include <QtDesigner/QtDesigner>
 
 namespace qdesigner_internal {

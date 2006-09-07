@@ -29,6 +29,8 @@
 #include <QtGui/QDialog>
 #include "shared_global_p.h"
 
+class QDesignerFormWindowInterface;
+
 namespace qdesigner_internal {
 
 class QDESIGNER_SHARED_EXPORT StyleSheetEditor : public QTextEdit
