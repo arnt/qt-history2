@@ -896,8 +896,8 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     // vertical
-    bool above = (hint == EnsureVisible && rect.top() < area.top());
-    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+    bool above = (hint == EnsureVisible && (rect.top() < area.top() || area.height() < rect.height()));
+    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom() && rect.height() < area.height());
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
         if (hint == PositionAtTop || above) {
             verticalScrollBar()->setValue(item);
