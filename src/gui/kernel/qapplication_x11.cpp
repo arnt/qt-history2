@@ -3579,6 +3579,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             && replayPopupMouseEvent) {
             // the active popup was closed, replay the mouse event
             if (!(windowType() == Qt::Popup)) {
+                if (buttons == button)
+                    qt_button_down = this;
                 QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
                               buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);
