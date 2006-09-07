@@ -924,7 +924,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             iAttributes[i++] = TRUE;
             iAttributes[i++] = WGL_SAMPLES_ARB;
             si = i;
-            iAttributes[i++] = d->glFormat.samples() == -1 ? 16 : d->glFormat.samples();
+            iAttributes[i++] = d->glFormat.samples() == -1 ? 4 : d->glFormat.samples();
         }
         iAttributes[i] = 0;
 
