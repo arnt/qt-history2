@@ -4631,9 +4631,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS Q_WS_QWS"
 
     # Add excluded decorations to $QCONFIG_FLAGS
-    grep '^decorations -=' "$QMAKE_VARS_FILE" | while read decor; do
+    decors=`grep '^decorations -= ' "$QMAKE_VARS_FILE" | ${AWK} '{print $3}'`
+    for decor in $decors; do
         NODECORATION=`echo $decor | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
-        QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
+        QCONFIG_FLAGS="${QCONFIG_FLAGS} QT_NO_QWS_DECORATION_${NODECORATION}"
     done
 
     # Figure which embedded drivers which are turned off
