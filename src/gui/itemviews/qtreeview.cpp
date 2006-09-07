@@ -664,11 +664,12 @@ void QTreeView::setSortingEnabled(bool enable)
     d->sortingEnabled = enable;
     header()->setSortIndicatorShown(enable);
     header()->setClickable(enable);
-    if (enable)
+    if (enable) {
         connect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
-    else
+        sortByColumn(header()->sortIndicatorSection());
+    } else {
         disconnect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
-    sortByColumn(header()->sortIndicatorSection());
+    }
 }
 
 bool QTreeView::isSortingEnabled() const
