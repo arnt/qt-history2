@@ -893,12 +893,12 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
 void QCalendarWidgetPrivate::updateMonthMenu()
 {
     int beg = 1, end = 12;
-    if (m_model->date.year() <= m_model->minimumDate.year())
+    if (m_model->shownYear == m_model->minimumDate.year())
         beg = m_model->minimumDate.month();
-    if (m_model->date.year() == m_model->maximumDate.year())
+    if (m_model->shownYear == m_model->maximumDate.year())
         end = m_model->maximumDate.month();
     monthMenu->clear();
-    for(int i=beg; i<=end; i++) {
+    for(int i = beg; i <= end; i++) {
         QString monthName(QDate::longMonthName(i));
         QAction *act = monthMenu->addAction(monthName);
         act->setData(i);
@@ -985,6 +985,7 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
     update();
+    updateMonthMenu();
 }
 
 void QCalendarWidgetPrivate::updateHeader()
