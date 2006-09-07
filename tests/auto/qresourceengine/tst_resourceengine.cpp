@@ -16,6 +16,8 @@ class tst_ResourceEngine: public QObject
 
 private slots:
     void initTestCase();
+    void checkUnregisterResource_data();
+    void checkUnregisterResource();
     void checkStructure_data();
     void checkStructure();
     void searchPath_data();
@@ -353,6 +355,41 @@ void tst_ResourceEngine::searchPath()
 
     QCOMPARE(actual, expected);
     qf.close();
+}
+
+void tst_ResourceEngine::checkUnregisterResource_data()
+{
+    QTest::addColumn<QString>("rcc_file");
+    QTest::addColumn<QString>("root");
+    QTest::addColumn<QString>("file_check");
+    QTest::addColumn<int>("size");
+
+    QTest::newRow("currentdir.txt") << QString("runtime_resource.rcc") << QString("/check_unregister/")
+                                    << QString(":/check_unregister/runtime_resource/test/abc/123/+++/currentdir.txt") << 27;
+}
+
+void tst_ResourceEngine::checkUnregisterResource()
+{
+    QFETCH(QString, rcc_file);
+    QFETCH(QString, root);
+    QFETCH(QString, file_check);
+    QFETCH(int, size);
+
+
+
+    QVERIFY(!QFile::exists(file_check));
+    QVERIFY(QResource::registerResource(rcc_file, root));
+    QVERIFY(QFile::exists(file_check));
+    QVERIFY(QResource::unregisterResource(rcc_file, root));
+    QVERIFY(!QFile::exists(file_check));
+    QVERIFY(QResource::registerResource(rcc_file, root));
+    QVERIFY(QFile::exists(file_check));
+    QFileInfo fileInfo(file_check);
+    fileInfo.setCaching(false);
+    QVERIFY(fileInfo.exists());
+    QVERIFY(QResource::unregisterResource(rcc_file, root));
+    QVERIFY(!QFile::exists(file_check));
+    QCOMPARE((int)fileInfo.size(), size);
 }
 
 QTEST_MAIN(tst_ResourceEngine)
