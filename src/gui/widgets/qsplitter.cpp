@@ -44,14 +44,43 @@
     QSplitterHandle is typically what people think about when they think about
     a splitter. It is the handle that is used to resize the widgets.
 
-    A typical developer using QSplitter will never have to worry about QSplitterHandle.
-    It is provided for developers who want splitter handles that do more. The typical
-    way one would create splitter handles is to subclass QSplitter and then
-    reimplement QSplitter::createHandle() to instatiate the custom splitter
-    handle.
+    A typical developer using QSplitter will never have to worry about
+    QSplitterHandle. It is provided for developers who want splitter handles
+    that provide extra features, such as popup menus.
 
-    Most of the functions inside QSplitterHandle are forwards to QSplitter or
-    like orientation() and opaqueResize(), controlled by the QSplitter.
+    The typical way one would create splitter handles is to subclass QSplitter then
+    reimplement QSplitter::createHandle() to instantiate the custom splitter
+    handle. For example, a minimum QSplitter subclass might look like this:
+
+    \quotefromfile snippets/splitterhandle/splitter.h
+    \skipto class Splitter : public QSplitter
+    \printuntil /^\};/
+
+    The \l{QSplitter::}{createHandle()} implementation simply constructs a
+    custom splitter handle, called \c Splitter in this example:
+
+    \quotefromfile snippets/splitterhandle/splitter.cpp
+    \skipto createHandle()
+    \printuntil /^\}/
+
+    Information about a given handle can be obtained using functions like
+    orientation() and opaqueResize(), and is retrieved from its parent splitter.
+    Details like these can be used to give custom handles different appearances
+    depending on the splitter's orientation.
+
+    The complexity of a custom handle subclass depends on the tasks that it
+    needs to perform. A simple subclass might only provide a paintEvent()
+    implementation:
+
+    \quotefromfile snippets/splitterhandle/splitter.cpp
+    \skipto paintEvent
+    \printuntil /^\}/
+
+    In this example, a predefined gradient is set up differently depending on
+    the orientation of the handle. QSplitterHandle provides a reasonable
+    size hint for the handle, so the subclass does not need to provide a
+    reimplementation of sizeHint() unless the handle has special size
+    requirements.
 
     \sa QSplitter
 */
