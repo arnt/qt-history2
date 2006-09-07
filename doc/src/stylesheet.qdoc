@@ -487,26 +487,36 @@
     Sheets. Qt Designer is an excellent tool to preview style sheets. Just
     right-click on the any widget in Designer and select "Edit styleSheet...".
 
-    \section2 Simple Style Sheets
+    \section2 Simple Style Sheet (1)
 
     You can change the color of a line edit by
     \code
         QLineEdit { color: red; }
     \endcode
 
-    Changing the background color of a line edit
+    You can change the background color of a line edit by
     \code
         QLineEdit { background-color: beige; }
     \endcode
 
-    Changing the color of a push button to red when normal and to green when
-    hovered.
+
+    The foreground and background of the selected text a line edit can be
+    changes using,
+    \code
+        QLineEdit { 
+            selection-foreground: white; 
+            selection-background: gray;
+        }
+    \endcode
+    
+    Changing the color of a push button to red when normal and to green when 
+    hovered is achieved using,
     \code
         QPushButton { color: red }
         QPushButton:hover { color: green; }
     \endcode
 
-    \section2 Example 1 - A red QPushButton
+    \section2 Simple Style Sheet (2)
 
     Lets attempt a red color QPushButton
     \code
@@ -561,8 +571,7 @@
         }
     \endcode
 
-    \section2 Example 2 - Styling QPushButton's menu indicator        
-              (Pseudo Elements)
+    \section2 Styling using Pseudo Elements (1)
     Pseudo elements give access to sub elements of a widget. For example, a
     QPushButton with a menu has a "menu indicator". Let us create our custom
     menu indicator for the above push button.
@@ -603,7 +612,10 @@
         }
     \endcode
 
-    \section2 Example 3 - Styling QLineEdit (complex selectors)
+    \section2 Styling using Pseudo Elements (2)
+            TODO
+
+    \section2 Complex Selector Example
     
     Since red seems to be our favorite color, lets make all the QLineEdit's in
     the application red by setting the following QApplication stylesheet,
@@ -638,9 +650,6 @@
     Notice that the order of the Rule that provides the brown color is
     immaterial since it is more specific that the others.
 
-    \section2 Example 4 - Styling QComboBox
-            TODO
-
     \section1 Supported Widgets
 
     \table
@@ -648,11 +657,95 @@
         \o Widget
         \o How to Style
 
-        \row
-            \o QLineEdit
-            \o whatever
+    \row
+        \o QCheckBox
+        \o Supports the box model. The indicator can be styled using the
+           "indicator" pseduo element. The "spacing" property controls the
+           spacing between the indicator and the text.
+           
+    \row
+        \o QComboBox
 
-    \endtable
+    \row
+        \o QDialog
+        \o Supports only the "background" property.
+
+    \row
+        \o QDialogButtonBox
+
+    \row
+        \o QDateTimeEdit
+
+    \row
+        \o QDoubleSpinBox
+
+    \row
+        \o QFrame
+        \o Supports the box model. "hover" pseudo state is not supported.
+
+    \row
+        \o QGroupBox
+
+    \row
+        \o QMenu
+
+    \row
+        \o QMenuBar
+
+    \row
+        \o QMessageBox
+
+    \row
+        \o QLabel
+        \o Supports the box model. "hover" pseudo state is not supported.
+        
+    \row
+        \o QLineEdit
+        \o Support the box model.
+
+    \row
+        \o QListView        
+
+    \row
+        \o QPushButton
+        \o Supports the box model. The menu indicator is styled using the
+           "menu-indicator" pseduo element. Appearance of toggle push buttons
+           is modified using the "on" and "off" pseudo states.
+
+    \row
+        \o QRadioButton
+        \o Supports the box model. The indicator can be styled using the
+           "indicator" pseduo element. The "spacing" property controls the
+           spacing between the indicator and the text.
+
+    \row
+        \o QSizeGrip
+        \o Supports "width", "height" and "image" property.
+
+    \row
+        \o QSpinBox
+
+    \row
+        \o QSplitter
+        \o Supports the box model and the "image" property.
+
+    \row
+        \o QStatusBar
+
+    \row
+        \o QTableView
+
+    \row
+        \o QTextEdit
+
+    \row
+        \o QTreeView
+
+    \row
+        \o QWidget
+        \o Supports only the "background" property
+
+\endtable
 
     \section1 Style Sheet Property Reference
 
@@ -665,13 +758,13 @@
         \o Note
 
     \row
-        \o \Alignment
-        \o  top, bottom, left, right, center
-        \o  Separate the alignment values using space to specify a horizontal
-            and vertical alignment. For example,
-            "top left" - same as Qt::AlignTop | Qt::AlignLeft
-            "bottom center" - same as Qt::AlignBottom | Qt::AlignHCenter
-            "center" - same as Qt::AlignCenter
+        \o Alignment
+        \o top, bottom, left, right, center
+        \o Separate the alignment values using space to specify a horizontal
+           and vertical alignment. For example,
+           "top left" - same as Qt::AlignTop | Qt::AlignLeft
+           "bottom center" - same as Qt::AlignBottom | Qt::AlignHCenter
+           "center" - same as Qt::AlignCenter
 
     \row
         \o Border Style
