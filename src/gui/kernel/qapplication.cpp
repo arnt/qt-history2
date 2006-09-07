@@ -1044,7 +1044,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
     \brief the application style sheet
     \since 4.2
 
-    \sa QWidget::setStyle(), {Customizing Qt widgets using Style Sheets}
+    \sa QWidget::setStyle(), {Customizing Widgets using Style Sheets}
 */
 QString QApplication::styleSheet() const
 {
