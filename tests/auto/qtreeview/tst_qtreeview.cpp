@@ -1019,11 +1019,11 @@ void tst_QTreeView::scrollTo()
 
     view.show();
     view.resize(200, 20);
+    QApplication::processEvents();
     view.verticalScrollBar()->setValue(0);
 
     view.scrollTo(model.index(0,0,QModelIndex()));
     QVERIFY(!view.visualRect(model.index(0,0,QModelIndex())).isEmpty()); // item is visible
-    QApplication::processEvents();
     QCOMPARE(view.verticalScrollBar()->value(), 0);
 
     view.header()->resizeSection(0, 5); // now we only see the branches
