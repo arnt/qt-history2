@@ -933,6 +933,8 @@ bool
 QResource::unregisterResource(const QString &rccFilename, const QString &resourceRoot)
 {
     QString r = qt_resource_fixResourceRoot(resourceRoot);
+    
+    QMutexLocker lock(resourceMutex());
     ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResourceRoot *res = list->at(i);
