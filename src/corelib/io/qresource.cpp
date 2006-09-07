@@ -933,7 +933,7 @@ bool
 QResource::unregisterResource(const QString &rccFilename, const QString &resourceRoot)
 {
     QString r = qt_resource_fixResourceRoot(resourceRoot);
-    
+
     QMutexLocker lock(resourceMutex());
     ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
@@ -941,6 +941,7 @@ QResource::unregisterResource(const QString &rccFilename, const QString &resourc
         if(res->isDynamicRoot()) {
 	    QDynamicResourceRoot *root = reinterpret_cast<QDynamicResourceRoot*>(res);
 	    if(root->mappingFile() == rccFilename && root->mappingRoot() == r) {
+                resourceList()->removeAt(i);
                 if(!root->ref.deref())
                     delete root;
 		return true;
