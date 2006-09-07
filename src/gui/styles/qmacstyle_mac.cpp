@@ -1408,7 +1408,7 @@ void QMacStyle::polish(QWidget* w)
     }
 
     if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
-        if (!combo->editable()) {
+        if (!combo->isEditable()) {
             if (QWidget *widget = combo->findChild<QComboBoxPrivateContainer *>()) {
                 widget->setWindowOpacity(0.95);
             }
@@ -1447,7 +1447,7 @@ void QMacStyle::unpolish(QWidget* w)
     }
 
     if (QComboBox *combo = qobject_cast<QComboBox *>(w)) {
-        if (!combo->editable()) {
+        if (!combo->isEditable()) {
             if (QWidget *widget = combo->findChild<QComboBoxPrivateContainer *>())
                 widget->setWindowOpacity(1.0);
         }
