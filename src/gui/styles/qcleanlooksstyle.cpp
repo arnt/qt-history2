@@ -17,7 +17,7 @@
 
 #include "qwindowsstyle_p.h"
 #include <qcombobox.h>
-#include <qabstractbutton.h>
+#include <qpushbutton.h>
 #include <qpainter.h>
 #include <qdir.h>
 #include <qhash.h>
@@ -3453,6 +3453,12 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             if (!btn->icon.isNull() && btn->iconSize.height() > 16)
                 newSize -= QSize(0, 2);
+        }
+        if (const QPushButton *button = qobject_cast<const QPushButton *>(widget)) {
+            if (qobject_cast<const QDialogButtonBox *>(button->parentWidget())) {
+                if (size.height() < 32)
+                    newSize.setHeight(32);
+            }
         }
         break;
     case CT_GroupBox:
