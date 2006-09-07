@@ -321,10 +321,10 @@ void QPixmap::setMask(const QBitmap &newmask)
 
     if(newmask.isNull()) {
         detach();
-        data->has_alpha = data->has_mask = false;
         QPixmap opaque(width(), height());
         opaque.fill(QColor(255, 255, 255, 255));
         data->macSetAlphaChannel(&opaque, true);
+        data->has_alpha = data->has_mask = false;
         return;
     }
 
