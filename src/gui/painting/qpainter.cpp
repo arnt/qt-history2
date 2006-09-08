@@ -4652,7 +4652,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
-               p.x(), p.y(), qPrintable(ti.text()));
+               p.x(), p.y(), qPrintable(_ti.text()));
 #endif
 
 #ifndef QT_NO_DEBUG
