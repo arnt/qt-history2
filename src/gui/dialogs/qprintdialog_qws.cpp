@@ -16,6 +16,8 @@
 #include <private/qabstractprintdialog_p.h>
 #include "qprintdialog.h"
 
+#ifndef QT_NO_PRINTDIALOG
+
 #include "qapplication.h"
 #include "qbuttongroup.h"
 #include "qradiobutton.h"
@@ -503,3 +505,4 @@ void QPrintDialogPrivate::init()
 
 #include "moc_qprintdialog.cpp"
 
+#endif // QT_NO_PRINTDIALOG
