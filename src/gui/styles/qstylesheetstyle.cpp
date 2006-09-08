@@ -245,7 +245,7 @@ static const char *knownStyleHints[] = {
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
 
-QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget, 
+QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget,
                          const QString &part, QStyle *style)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
@@ -253,7 +253,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     int w = -1, h = -1, minw = -1, minh = -1;
     if (v.extractGeometry(&w, &h, &minw, &minh))
         geo = new QStyleSheetGeometryData(w, h, minw, minh);
-    
+
     int left = 0, top = 0;
     Origin origin = Origin_Unknown;
     Qt::Alignment position = 0;
@@ -1169,7 +1169,8 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
             QString objName;
             if (!wid->objectName().isEmpty())
                 objName = QLatin1String("#") + wid->objectName() + ".";
-            Parser parser2(objName + wid->className() + QLatin1String("{") 
+            Parser parser2(objName + wid->metaObject()->className()
+                           + QLatin1String("{")
                            + wid->styleSheet() + QLatin1String("}"));
             if (!parser2.parse(&ss))
                 qWarning() << "Could not parse stylesheet of " << wid;
@@ -1494,7 +1495,7 @@ static void unsetPalette(QWidget *w)
     } else
 #endif
         pal = qApp->palette(w);
-    
+
     w->setPalette(pal);
     w->setFont(font);
 }
