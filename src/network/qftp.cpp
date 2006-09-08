@@ -1753,7 +1753,7 @@ int QFtp::cd(const QString &dir)
     of the operation (it is safe to delete it when the
     commandFinished() signal is emitted). In this case the readyRead()
     signal is \e not emitted and you cannot read data with the
-    readBlcok or readAll() functions.
+    read() or readAll() functions.
 
     If you don't read the data immediately it becomes available, i.e.
     when the readyRead() signal is emitted, it is still available
