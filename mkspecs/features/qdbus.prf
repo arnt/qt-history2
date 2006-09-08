@@ -2,8 +2,8 @@
 qtAddLibrary(QtDBus)
 
 isEmpty(QMAKE_QDBUSXML2CPP) {
-    win32:QMAKE_QDBUSXML2CPP = $$[QT_INSTALL_BINS]\dbusxml2cpp.exe
-    else:QMAKE_QDBUSXML2CPP = $$[QT_INSTALL_BINS]/dbusxml2cpp
+    win32:QMAKE_QDBUSXML2CPP = $$[QT_INSTALL_BINS]\qdbusxml2cpp.exe
+    else:QMAKE_QDBUSXML2CPP = $$[QT_INSTALL_BINS]/qdbusxml2cpp
 }
 
 for(DBUS_ADAPTOR, $$list($$unique(DBUS_ADAPTORS))) {
