@@ -231,6 +231,16 @@
     pbuffer is normally done using full hardware acceleration which
     can be significantly faster than rendering into a QPixmap.
 
+    \section2 Framebuffer Object
+
+    The QtOpenGL module also provides the QGLFramebufferObject class
+    which inherits QPaintDevice directly.
+
+    QGLFramebufferObject encapsulates an OpenGL framebuffer object.
+    Framebuffer objects can also be used for off-screen rendering, and
+    offer several advantages over pixel buffers for this purpose.
+    These are described in the QGLFramebufferObject class documentation.
+
     \section2 Picture
 
     The QPicture class is a paint device that records and replays
