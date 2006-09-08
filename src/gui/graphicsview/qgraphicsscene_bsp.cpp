@@ -45,7 +45,7 @@ public:
     {
         for (int i = 0; i < items->size(); ++i) {
             QGraphicsItem *item = items->at(i);
-            if (!item->d_func()->itemDiscovered) {
+            if (!item->d_func()->itemDiscovered && item->isVisible()) {
                 item->d_func()->itemDiscovered = 1;
                 foundItems->prepend(item);
             }

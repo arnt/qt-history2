@@ -1297,7 +1297,8 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
-    QList<QGraphicsItem *> itemList = d->scene->items(mapToScene(sourceRect));
+    QList<QGraphicsItem *> itemList = d->scene->items(mapToScene(sourceRect),
+                                                      Qt::IntersectsItemBoundingRect);
     QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
     int numItems = itemList.size();
     for (int i = 0; i < numItems; ++i)
@@ -1416,49 +1417,61 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPoint &pos) const
 /*!
     \overload
 
-    Returns a list of all the items that are either contained by or intersect
-    with \a rect. \a rect is in viewport coordinates.
+    Returns a list of all the items that, depending on \a mode, are either
+    contained by or intersect with \a rect. \a rect is in viewport
+    coordinates.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a rect are returned.
 
     \sa itemAt(), items(), mapToScene()
 */
-QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect) const
+QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect, Qt::ItemSelectionMode mode) const
 {
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(rect));
+    return d->scene->items(mapToScene(rect), mode);
 }
 
 /*!
     \overload
 
-    Returns a list of all the items that are either contained by or intersect
-    with \a polygon. \a polygon is in viewport coordinates.
+    Returns a list of all the items that, depending on \a mode, are either
+    contained by or intersect with \a polygon. \a polygon is in viewport
+    coordinates.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a polygon are returned.
 
     \sa itemAt(), items(), mapToScene()
 */
-QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon) const
+QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon, Qt::ItemSelectionMode mode) const
 {
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(polygon));
+    return d->scene->items(mapToScene(polygon), mode);
 }
 
 /*!
     \overload
 
-    Returns a list of all the items that are either contained by or intersect
-    with \a path. \a path is in viewport coordinates.
+    Returns a list of all the items that, depending on \a mode, are either
+    contained by or intersect with \a path. \a path is in viewport
+    coordinates.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a path are returned.
 
     \sa itemAt(), items(), mapToScene()
 */
-QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path) const
+QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path, Qt::ItemSelectionMode mode) const
 {
     Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
-    return d->scene->items(mapToScene(path));
+    return d->scene->items(mapToScene(path), mode);
 }
 
 /*!
@@ -2348,7 +2361,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     QList<QGraphicsItem *> itemList;
     QSet<QGraphicsItem *> tmp;
     foreach (QRectF rect, exposedRects) {
-        foreach (QGraphicsItem *item, d->scene->items(rect)) {
+        foreach (QGraphicsItem *item, d->scene->items(rect, Qt::IntersectsItemBoundingRect)) {
             if (!tmp.contains(item)) {
                 tmp << item;
                 itemList << item;

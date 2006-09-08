@@ -171,13 +171,6 @@
 
 Q_DECLARE_METATYPE(QGraphicsItem *)
 
-static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
-{
-    QPainterPath path;
-    path.addPolygon(poly);
-    return path.contains(rect)|| path.intersects(rect);
-};
-
 /*!
     \internal
 */
@@ -204,14 +197,13 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
         QList<QGraphicsItem *> items = that->bspTree.items(rect);
         for (int i = 0; i < items.size(); ++i)
             items.at(i)->d_func()->itemDiscovered = 0;
-
         return items;
     }
 
     QList<QGraphicsItem *> itemsInRect;
     foreach (QGraphicsItem *item, q->items()) {
         QRectF boundingRect = item->sceneBoundingRect();
-        if (boundingRect.intersects(rect) || boundingRect.contains(rect))
+        if (item->isVisible() && (boundingRect.intersects(rect) || boundingRect.contains(rect)))
             itemsInRect << item;
     }
     return itemsInRect;
@@ -898,7 +890,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
-    QList<QGraphicsItem *> itemList = items(sourceRect);
+    QList<QGraphicsItem *> itemList = items(sourceRect, Qt::IntersectsItemBoundingRect);
     QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
     int numItems = itemList.size();
     for (int i = 0; i < numItems; ++i)
@@ -1035,13 +1027,14 @@ QList<QGraphicsItem *> QGraphicsScene::items() const
 */
 QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 {
+    Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsAtPoint;
 
     // Find all items within a 1x1 rect area starting at pos. This can be
     // inefficient for scenes that use small coordinates (like unity
     // coordinates), or for detailed graphs. ### The index should support
     // fetching items at a pos to avoid this limitation.
-    foreach (QGraphicsItem *item, items(QRectF(pos, QSizeF(1, 1)))) {
+    foreach (QGraphicsItem *item, items(QRectF(pos, QSizeF(1, 1)), Qt::IntersectsItemBoundingRect)) {
         if (item->contains(item->mapFromScene(pos)))
             itemsAtPoint << item;
     }
@@ -1053,12 +1046,15 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 
     \overload
 
-    Returns all visible items that are either inside or intersect with
-    the given \a rectangle.
+    Returns all visible items that, depending on \a mode, are either inside or
+    intersect with the rectangle \a rect.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a rect are returned.
 
     \sa itemAt()
 */
-QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
+QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect, Qt::ItemSelectionMode mode) const
 {
     Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsInRect;
@@ -1066,10 +1062,21 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
     // The index returns a rough estimate of what items are inside the rect.
     // Refine it by iterating through all returned items.
     foreach (QGraphicsItem *item, d->estimateItemsInRect(rect)) {
-        if (item->isVisible()) {
-            QRectF mappedRect = item->sceneBoundingRect();
-            if (rect.intersects(mappedRect) || rect.contains(mappedRect))
-                itemsInRect << item;
+        QPainterPath path;
+        if (mode == Qt::ContainsItemShape || mode == Qt::IntersectsItemShape) {
+            path = item->mapToScene(item->shape());
+        } else {
+            path.addPolygon(item->mapToScene(item->boundingRect()));
+        }
+
+        bool rectIntersectsItem = path.intersects(rect);
+        bool rectContainsItem = rectIntersectsItem && !path.isEmpty() && rect.contains(path.elementAt(0));
+        bool itemContainsRect = rectIntersectsItem && path.contains(rect.topLeft());
+
+        if (rectIntersectsItem && (mode == Qt::IntersectsItemShape
+                                   || mode == Qt::IntersectsItemBoundingRect
+                                   || (rectContainsItem && !itemContainsRect))) {
+            itemsInRect << item;
         }
     }
     d->sortItems(&itemsInRect);
@@ -1079,62 +1086,83 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
 /*!
     \overload
 
-    Returns all visible items that are either inside or intersect with
-    the given \a polygon.
+    Returns all visible items that, depending on \a mode, are either inside or
+    intersect with the polygon \a polygon.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a polygon are returned.
 
     \sa itemAt()
 */
-QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon) const
+QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon, Qt::ItemSelectionMode mode) const
 {
+    Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsInPolygon;
-    foreach (QGraphicsItem *item, items(polygon.boundingRect())) {
-        if (qt_rectInPoly(polygon, item->sceneBoundingRect()))
+
+    // The index returns a rough estimate of what items are inside the rect.
+    // Refine it by iterating through all returned items.
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(polygon.boundingRect())) {
+        QPainterPath polyPath;
+        polyPath.addPolygon(polygon);
+        if (item->collidesWithPath(item->mapFromScene(polyPath), mode))
             itemsInPolygon << item;
     }
+    d->sortItems(&itemsInPolygon);
     return itemsInPolygon;
 }
 
 /*!
     \overload
 
-    Returns all visible items that are either inside or intersect with
-    the given painter \a path.
+    Returns all visible items that, depending on \a path, are either inside or
+    intersect with the path \a path.
+
+    The default value for \a mode is Qt::IntersectsItemShape; all items whose
+    exact shape intersects with or is contained by \a path are returned.
 
     \sa itemAt()
 */
-QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path) const
+QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path, Qt::ItemSelectionMode mode) const
 {
+    Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> tmp;
-    foreach (QGraphicsItem *item, items(path.controlPointRect())) {
-        if (item->collidesWithPath(item->sceneMatrix().inverted().map(path)))
+
+    // The index returns a rough estimate of what items are inside the rect.
+    // Refine it by iterating through all returned items.
+    foreach (QGraphicsItem *item, d->estimateItemsInRect(path.controlPointRect())) {
+        if (item->collidesWithPath(item->mapFromScene(path), mode))
             tmp << item;
     }
+    d->sortItems(&tmp);
     return tmp;
 }
 
 /*!
     Returns a list of all items that collide with \a item. Collisions are
-    determined by calling QGraphicsItem::collidesWithItem(). By default, two items
-    collide if their shapes intersect, or if one item's shape contains another
-    item's shape. The items' Z values are ignored.
+    determined by calling QGraphicsItem::collidesWithItem(); the collision
+    detection is determined by \a mode. By default, all items whose shape
+    intersects \a item or is contained inside \a item's shape are returned.
 
     The items are returned in descending Z order (i.e., the first item in the
     list is the top-most item, and the last item is the bottom-most item).
 
     \sa items(), itemAt(), QGraphicsItem::collidesWithItem()
 */
-QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item) const
+QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item,
+                                                      Qt::ItemSelectionMode mode) const
 {
+    Q_D(const QGraphicsScene);
     if (!item) {
         qWarning("QGraphicsScene::collidingItems: cannot find collisions for null item");
         return QList<QGraphicsItem *>();
     }
 
     QList<QGraphicsItem *> tmp;
-    foreach (QGraphicsItem *itemInVicinity, items(item->sceneBoundingRect())) {
-        if (item != itemInVicinity && item->collidesWithItem(itemInVicinity))
+    foreach (QGraphicsItem *itemInVicinity, d->estimateItemsInRect(item->sceneBoundingRect())) {
+        if (item != itemInVicinity && item->collidesWithItem(itemInVicinity, mode))
             tmp << itemInVicinity;
     }
+    d->sortItems(&tmp);
     return tmp;
 }
 

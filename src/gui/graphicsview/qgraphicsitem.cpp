@@ -1629,8 +1629,9 @@ bool QGraphicsItem::contains(const QPointF &point) const
 
 /*!
     Returns true if this item collides with \a other; otherwise returns false.
-    In item collides with another if the items either intersect, or
-    if either item is contained within the other.
+    The ways items collide is determined by \a mode. The default value for \a
+    mode is Qt::IntersectsItemShape; \a other collides with this item if it
+    either intersect or are contained by this item's shape.
 
     The default implementation is based on shape intersection, and it calls
     shape() on both items. Because the complexity of arbitrary shape-shape
@@ -1649,78 +1650,101 @@ bool QGraphicsItem::contains(const QPointF &point) const
 
     \sa contains(), shape()
 */
-bool QGraphicsItem::collidesWithItem(QGraphicsItem *other) const
+bool QGraphicsItem::collidesWithItem(QGraphicsItem *other, Qt::ItemSelectionMode mode) const
 {
     if (other == this)
         return true;
     if (!other)
         return false;
-
-    QMatrix matrixA = sceneMatrix();
-    QMatrix matrixB = other->sceneMatrix();
-
-    QRectF rectA = matrixA.mapRect(boundingRect());
-    QRectF rectB = matrixB.mapRect(other->boundingRect());
-    if (!rectA.intersects(rectB) && !rectA.contains(rectB)) {
-        // This we can determine efficiently. If the two rects neither
-        // intersect nor contain eachother, then the two items do not collide.
-        return false;
-    }
-
-    return collidesWithPath(mapFromItem(other, other->shape()));
+    return collidesWithPath(mapFromItem(other, other->shape()), mode);
 }
 
 /*!
-    Returns true if this item collides with \a path (i.e., intersects with,
-    contains or is contained by \a path), which is in local coordinates;
-    otherwise returns false.
+    Returns true if this item collides with \a path.
+
+    The collision is determined by \a mode. The default value for \a mode is
+    Qt::IntersectsItemShape; \a path collides with this item if it either
+    intersects or is contained by this item's shape.
 
     \sa collidesWithItem(), contains(), shape()
 */
-bool QGraphicsItem::collidesWithPath(const QPainterPath &path) const
+bool QGraphicsItem::collidesWithPath(const QPainterPath &path, Qt::ItemSelectionMode mode) const
 {
-    QMatrix matrix = sceneMatrix();
-
+    if (path.isEmpty()) {
+        // No collision with empty paths.
+        return false;
+    }
+    
     QRectF rectA = boundingRect();
     QRectF rectB = path.controlPointRect();
-    if (!rectA.intersects(rectB) && !rectA.contains(rectB) && !rectB.contains(rectA)) {
+    if (!rectA.intersects(rectB)) {
         // This we can determine efficiently. If the two rects neither
         // intersect nor contain eachother, then the two items do not collide.
         return false;
     }
 
-    // When precisely on top of eachother, they collide.
-    QPainterPath thisPath = shape();
-    if (thisPath == path)
+    // For further testing, we need this item's shape or bounding rect.
+    bool checkShape = (mode == Qt::IntersectsItemShape || mode == Qt::ContainsItemShape);
+    QPainterPath thisShape;
+    if (checkShape)
+        thisShape = shape();
+    else
+        thisShape.addRect(boundingRect());
+    if (thisShape.isEmpty()) {
+        // Empty shape? No collision.
+        return false;
+    }
+    if (thisShape == path) {
+        // When precisely on top of eachother, they collide regardless.
+        return true;
+    }
+
+    // Check for intersections or whether one contains the other.
+    bool checkIntersections = (mode == Qt::IntersectsItemShape || mode == Qt::IntersectsItemBoundingRect);
+    bool pathIntersectsItem = path.contains(thisShape.elementAt(0));
+    if (checkIntersections && pathIntersectsItem)
+        return true;
+    bool itemIntersectsPath = thisShape.contains(path.elementAt(0));
+    if (checkIntersections && itemIntersectsPath)
         return true;
 
-    // Convert this item and the other item's areas to polygons.
-    QPolygonF polyA = thisPath.toFillPolygon();
+    // No complete intersections; we need to intersect the path outlines.
+    QPolygonF polyA = thisShape.toFillPolygon();
     QPolygonF polyB = path.toFillPolygon();
 
-    // Check if any lines intersect, O(N^2)
-    for (int a = 1; a < polyA.size(); ++a) {
+    // Check if any lines intersect, O(N^2).
+    bool outlineIntersects = false;
+    for (int a = 1; !outlineIntersects && a < polyA.size(); ++a) {
         QLineF lineA(polyA.at(a - 1), polyA.at(a));
         for (int b = 1; b < polyB.size(); ++b) {
             QLineF lineB(polyB.at(b - 1), polyB.at(b));
-            if (lineA.intersect(lineB, 0) == QLineF::BoundedIntersection)
-                return true;
+            if (lineA.intersect(lineB, 0) == QLineF::BoundedIntersection) {
+                outlineIntersects = true;
+                break;
+            }
         }
     }
 
-    // No intersections, check if any point in A is inside B or vice verca.
-    return (!polyA.isEmpty() && path.contains(polyA.first()))
-        || (!polyB.isEmpty() && thisPath.contains(polyB.first()));
+    // Only containment is OK.
+    if (mode == Qt::ContainsItemShape || mode == Qt::ContainsItemBoundingRect)
+        return !outlineIntersects && path.contains(polyA.first());
+
+    // Any intersection or containment is OK.
+    return outlineIntersects || path.contains(polyA.first()) || thisShape.contains(polyB.first());
 }
 
 /*!
     Returns a list of all items that collide with this item.
 
+    The way collisions are detected is determined by \a mode. The default
+    value for \a mode is Qt::IntersectsItemShape; All items whose shape
+    intersects or is contained by this item's shape are returned.
+
     \sa QGraphicsScene::collidingItems(), collidesWithItem()
 */
-QList<QGraphicsItem *> QGraphicsItem::collidingItems() const
+QList<QGraphicsItem *> QGraphicsItem::collidingItems(Qt::ItemSelectionMode mode) const
 {
-    return d_ptr->scene ? d_ptr->scene->collidingItems(this) : QList<QGraphicsItem *>();
+    return d_ptr->scene ? d_ptr->scene->collidingItems(this, mode) : QList<QGraphicsItem *>();
 }
 
 /*!

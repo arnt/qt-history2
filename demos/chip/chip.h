@@ -23,8 +23,8 @@ public:
     Chip(const QColor &color, int x, int y);
 
     QRectF boundingRect() const;
+    QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget);
-    bool contains(const QPointF &point) const;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

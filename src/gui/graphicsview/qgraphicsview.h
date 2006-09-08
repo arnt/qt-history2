@@ -128,9 +128,9 @@ public:
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;
     inline QList<QGraphicsItem *> items(int x, int y) const;
-    QList<QGraphicsItem *> items(const QRect &rect) const;
-    QList<QGraphicsItem *> items(const QPolygon &polygon) const;
-    QList<QGraphicsItem *> items(const QPainterPath &path) const;
+    QList<QGraphicsItem *> items(const QRect &rect, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    QList<QGraphicsItem *> items(const QPolygon &polygon, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    QList<QGraphicsItem *> items(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QGraphicsItem *itemAt(const QPoint &pos) const;
     inline QGraphicsItem *itemAt(int x, int y) const;
 

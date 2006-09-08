@@ -1815,6 +1815,39 @@
 */
 
 /*!
+    \enum Qt::ItemSelectionMode
+
+    This enum is used in QGraphicsItem, QGraphicsScene and QGraphicsView to
+    specify how items are selected, or how to determine if a shapes and items
+    collide.
+
+    \value ContainsItemShape The output list contains only items whose
+           \l{QGraphicsItem::shape()}{shape} is fully contained inside the
+           selection area. Items that intersect with the area's outline are
+           not included.
+
+    \value IntersectsItemShape The output list contains both items whose
+           \l{QGraphicsItem::shape()}{shape} is fully contained inside the
+           selection area, and items that intersect with the area's
+           outline. This is a common mode for rubber band selection.
+
+    \value ContainsItemBoundingRect The output list contains only items whose
+           \l{QGraphicsItem::boundingRect()}{bounding rectangle} is fully
+           contained inside the selection area. Items that intersect with the
+           area's outline are not included.
+
+    \value IntersectsItemBoundingRect The output list contains both items
+           whose \l{QGraphicsItem::boundingRect()}{bounding rectangle} is
+           fully contained inside the selection area, and items that intersect
+           with the area's outline. This method is commonly used for
+           determining areas that need redrawing.
+
+    \sa QGraphicsScene::items(), QGraphicsScene::collidingItems(),
+        QGraphicsView::items(), QGraphicsItem::collidesWithItem(),
+        QGraphicsItem::collidesWithPath()
+*/
+
+/*!
     \enum Qt::FillRule
 
     Specifies which method should be used to fill the paths and polygons.

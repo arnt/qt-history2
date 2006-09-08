@@ -1197,6 +1197,14 @@ public:
         UniteClip
     };
 
+    // Shape = 0x1, BoundingRect = 0x2
+    enum ItemSelectionMode {
+        ContainsItemShape = 0x0,
+        IntersectsItemShape = 0x1,
+        ContainsItemBoundingRect = 0x2,
+        IntersectsItemBoundingRect = 0x3
+    };
+
     enum TransformationMode {
         FastTransformation,
         SmoothTransformation

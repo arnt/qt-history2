@@ -96,10 +96,10 @@ public:
 
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPointF &pos) const;
-    QList<QGraphicsItem *> items(const QRectF &rect) const;
-    QList<QGraphicsItem *> items(const QPolygonF &polygon) const;
-    QList<QGraphicsItem *> items(const QPainterPath &path) const;
-    QList<QGraphicsItem *> collidingItems(const QGraphicsItem *item) const;
+    QList<QGraphicsItem *> items(const QRectF &rect, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    QList<QGraphicsItem *> items(const QPolygonF &polygon, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    QList<QGraphicsItem *> items(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    QList<QGraphicsItem *> collidingItems(const QGraphicsItem *item, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QGraphicsItem *itemAt(const QPointF &pos) const;
     inline QGraphicsItem *itemAt(qreal x, qreal y) const
     { return itemAt(QPointF(x, y)); }

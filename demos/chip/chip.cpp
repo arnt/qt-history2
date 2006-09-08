@@ -31,11 +31,18 @@ QRectF Chip::boundingRect() const
     return QRectF(0, 0, 110, 70);
 }
 
+QPainterPath Chip::shape() const
+{
+    QPainterPath path;
+    path.addRect(14, 14, 82, 42);
+    return path;
+}
+
 void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);
 
-    QColor fillColor = color;
+    QColor fillColor = (option->state & QStyle::State_Selected) ? Qt::black : color;
     if (option->state & QStyle::State_MouseOver)
         fillColor = fillColor.light(125);
     
@@ -112,14 +119,6 @@ void Chip::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
             path.lineTo(stuff.at(i));
         painter->drawPath(path);
     }
-}
-
-bool Chip::contains(const QPointF &point) const
-{
-    // Inside filled rect
-    if (point.x() >= 14.0 && point.x() <= 93.0 && point.y() >= 14.0 && point.y() <= 53.0)
-        return true;
-    return false;
 }
 
 void Chip::mousePressEvent(QGraphicsSceneMouseEvent *event)
