@@ -62,6 +62,7 @@ public:
     virtual void detach() = 0;
 
     virtual const QImage image() const = 0;
+    virtual QPaintDevice *paintDevice() = 0;
 
     QWidget *window() const;
 
