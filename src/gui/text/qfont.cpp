@@ -433,8 +433,6 @@ void qt_font_tread_test()
 QFont::QFont(const QFont &font, QPaintDevice *pd)
     : resolve_mask(font.resolve_mask)
 {
-    Q_ASSERT_X(qApp, "QFont",
-               "Must construct a QApplication before a QFont");
     Q_ASSERT(pd != 0);
     int dpi = pd->logicalDpiY();
 #ifdef Q_WS_X11
@@ -463,9 +461,6 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
 QFont::QFont(QFontPrivate *data)
     : resolve_mask(QFontPrivate::Complete)
 {
-    Q_ASSERT_X(qApp, "QFont",
-               "Must construct a QApplication before a QFont");
-
     qt_font_tread_test();
 
     d = data;
@@ -495,8 +490,6 @@ void QFont::detach()
 QFont::QFont()
     :d(QApplication::font().d), resolve_mask(0)
 {
-    Q_ASSERT_X(qApp, "QFont",
-               "Must construct a QApplication before a QFont");
     d->ref.ref();
 }
 
@@ -519,9 +512,6 @@ QFont::QFont()
 QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     :d(new QFontPrivate)
 {
-    Q_ASSERT_X(qApp, "QFont",
-               "Must construct a QApplication before a QFont");
-
     qt_font_tread_test();
 
     resolve_mask = QFontPrivate::Family;
@@ -550,8 +540,6 @@ QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
 */
 QFont::QFont(const QFont &font)
 {
-    Q_ASSERT_X(qApp, "QFont",
-               "Must construct a QApplication before a QFont");
     d = font.d;
     d->ref.ref();
     resolve_mask = font.resolve_mask;
