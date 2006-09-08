@@ -177,6 +177,7 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
 #ifndef QT_NO_THREAD
     QThreadStorageData::finish(threadData->tls);
+    threadData->tls = 0;
 #endif
 
     // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
@@ -402,7 +403,7 @@ void QCoreApplication::init()
     setlocale(LC_ALL, "");                // use correct char set mapping
     setlocale(LC_NUMERIC, "C");        // make sprintf()/scanf() work
 #endif
-    
+
 #ifdef Q_WS_WIN
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
