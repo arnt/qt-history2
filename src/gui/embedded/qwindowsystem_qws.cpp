@@ -907,13 +907,6 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
 */
 
 /*!
-    \variable qwsServer
-    \relates QWSServer
-
-    A global pointer referring to the unique server object.
-*/
-
-/*!
     \enum QWSServer::IMState
     \obsolete
 
