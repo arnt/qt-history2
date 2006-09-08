@@ -406,7 +406,8 @@ void QWSManagerPrivate::paint(QPaintDevice *paintDevice, const QRegion &region)
 
     QWSWindowSurface *surface;
     surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
-    const QRegion surfaceClip = region.translated(bs->topLevelOffset());
+    const QRegion clippedRegion = region & surface->clipRegion();
+    const QRegion surfaceClip = clippedRegion.translated(bs->topLevelOffset());
     paintDevice->paintEngine()->setSystemClip(surfaceClip);
 
     QPainter painter(paintDevice);
