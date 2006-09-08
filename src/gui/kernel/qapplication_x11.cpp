@@ -895,10 +895,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
     }
 
-    const char *style = QApplication::style()->metaObject()->className();
-    bool ignorePalette = qstrcmp(style, "QCleanlooksStyle") == 0 && resBG == "#efebe7";
-
-    if (!ignorePalette && (button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
+    if ((button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
@@ -935,8 +932,9 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                           btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
 
         if (!selectBackground.isEmpty() && !selectForeground.isEmpty()) {
-            QColor highlight = QColor(selectBackground).toHsv();
-            QColor highlightText = QColor(selectForeground).toHsv();
+            QColor highlight = QColor(selectBackground);
+            QColor highlightText = QColor(selectForeground);
+                        
             pal.setColor(QPalette::Highlight, highlight);
             pal.setColor(QPalette::HighlightedText, highlightText);
 
