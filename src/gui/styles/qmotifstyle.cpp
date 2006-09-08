@@ -716,22 +716,22 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         int sw = pixelMetric(PM_SplitterWidth);
         if (opt->state & State_Horizontal) {
             int yPos = opt->rect.y() + opt->rect.height() / 2;
-            int kPos = opt->rect.width() - motifOffset - sw;
+            int kPos = opt->rect.right() - motifOffset - sw;
             int kSize = sw - 2;
 
-            qDrawShadeLine(p, 0, yPos, kPos, yPos, opt->palette);
+            qDrawShadeLine(p, opt->rect.left(), yPos, kPos, yPos, opt->palette);
             qDrawShadePanel(p, kPos, yPos - sw / 2 + 1, kSize, kSize,
                             opt->palette, false, 1, &opt->palette.brush(QPalette::Button));
-            qDrawShadeLine(p, kPos + kSize - 1, yPos, opt->rect.width(), yPos, opt->palette);
+            qDrawShadeLine(p, kPos + kSize - 1, yPos, opt->rect.right(), yPos, opt->palette);
         } else {
             int xPos = opt->rect.x() + opt->rect.width() / 2;
             int kPos = motifOffset;
             int kSize = sw - 2;
 
-            qDrawShadeLine(p, xPos, kPos + kSize - 1, xPos, opt->rect.height(), opt->palette);
-            qDrawShadePanel(p, xPos - sw / 2 + 1, kPos, kSize, kSize, opt->palette,
+            qDrawShadeLine(p, xPos, opt->rect.top() + kPos + kSize - 1, xPos, opt->rect.bottom(), opt->palette);
+            qDrawShadePanel(p, xPos - sw / 2 + 1, opt->rect.top() + kPos, kSize, kSize, opt->palette,
                             false, 1, &opt->palette.brush(QPalette::Button));
-            qDrawShadeLine(p, xPos, 0, xPos, kPos, opt->palette);
+            qDrawShadeLine(p, xPos, opt->rect.top(), xPos, opt->rect.top() + kPos, opt->palette);
         }
         break; }
 
@@ -941,9 +941,9 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 QRect tabRect = opt->rect;
                 QColor tabLight = opt->palette.light().color();
                 QColor tabDark = opt->palette.dark().color();
-                
-                p->fillRect(opt->rect.adjusted(default_frame, default_frame, 
-                                               -default_frame, -default_frame), 
+
+                p->fillRect(opt->rect.adjusted(default_frame, default_frame,
+                                               -default_frame, -default_frame),
                                                tab->palette.background());
 
                 if(tab->shape == QTabBar::RoundedWest) {
