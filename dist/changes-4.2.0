@@ -78,6 +78,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - New style: CleanLooks, a clone of the GNOME ClearLooks style, provides
   native look for Qt applications on GNOME.
 
+
 Build System
 ------------
 
@@ -228,6 +229,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QHostAddress
 	Added QDataStream streaming operators.
+
+- QImage
+	Added support for 16bit RGB format.
 
 - QImageReader
 	Made size() return an invalid QSize if the image I/O handler
@@ -480,6 +484,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QString
         Added support for Case insensitive comparisons in QString::compare()
+	Add toUcs4 and fromUcs4 methods.
 
 - QWidget
         Added a property styleSheet to set/read the widget style sheet.
@@ -663,6 +668,12 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added functions for adding application local fonts at run-time
         (addApplicationFont, removeApplicationFont, applicationFontFamilies, etc.)
 
+- QFontDialog
+	Allow setting a custom window title
+
+- QFontComboBox
+	New class
+
 - QLabel
         Added support for text selection and hyperlinks.
 
@@ -673,9 +684,23 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QFontMetrics/QFontMetricsF
         Added elidedText() function.
+	Added averageCharWidth() method.
+
+- QFont
+	Added NoFontMerging as a flag to QFont::StyleStrategy.
 
 - QDialogButtonBox
         New class that orders buttons depending on the platform
+
+- QPrinter
+	Support Postscript as an output format for QPrinter on all platforms.
+	Significantly reduce the size of the generated output when
+	using the Postscript and PDF drivers.
+	Fixed fromPage/toPage when generating PDF
+
+- QCalendarWidget
+	New class
+	
 
 I/O and Networking
 ------------------
@@ -846,6 +871,13 @@ UNIX:
         (i.e. QTextCodec::codecForLocale()->name() returns "System"
         when iconv(3) support is enabled).
 
+- Printing
+	Improved CUPS support. Send PDF instead of Postscript to CUPS
+	Added a new and improved QPrintDialog.
+	on systems that have a recent CUPS library (improves print
+	quality)
+	Improved font embedding on systems without FontConfig
+
 AIX:
 
 - Use "-qmkshrobj" compiler option to generate shared libraries instead of
@@ -864,6 +896,9 @@ X11:
 
 - Font rendering
         Stability fixes when rendering huge scaled fonts.
+	Enable open type shaping for the Latin, Cyrillic and Greek writing systems.
+	Improved subpixel antialing.
+	Speed improvements in font loading
 
 - QCursor
         Don't crash if the X11 context has been released before the cursor
@@ -920,6 +955,7 @@ Windows:
 		Fixed issues with rendering system icons on 16-bit displays.
 		Fixed issue where fonts or colors would be reset on the application whenever windows produced
 		a WM_SETTINGSCHANGE event.
+		Fixed a bug with japanese input methods.
 
 - QFileDialog
 		Added support for relative filepaths in native dialogs.
