@@ -1865,12 +1865,15 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if (currentIndex().isValid()) {
-            if (state() != EditingState)
+        // Emit activated() and propagate the event if we're not in
+        // EditingState, or if we are in EditingState yet the view (not the
+        // editor) has focus.
+        if (state() != EditingState || hasFocus()) {
+            if (currentIndex().isValid())
                 emit activated(currentIndex());
-        } else {
+            // Do NOT accept (QDialog default button).
             event->ignore();
-        }
+        } // Otherwise, just eat the event.
         break;
 #endif
     case Qt::Key_A:
