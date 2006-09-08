@@ -578,22 +578,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         } else if (qVariantCanConvert<EnumType>(value)) {
 
             EnumType e = qvariant_cast<EnumType>(value);
-            QStringList keys = e.items.keys();
-#if 0
-            const QMetaObject *meta = object->metaObject();
-            const int index = meta->indexOfProperty(qPrintable(pname));
-            if (index != -1) {
-                // make a list of keys in enum-declared order
-                // (don't want alphabetical order when editing)
-                QMetaEnum en = meta->property(index).enumerator();
-                QString scope = QString::fromUtf8(en.scope());
-                if (!scope.isEmpty())
-                    scope += QString::fromUtf8("::");
-                for (int j = 0; j < en.keyCount(); ++j)
-                    keys << (scope + QString::fromLatin1(en.key(j)));
-            }
-#endif
-            p = new MapProperty(e.items, e.value, pname, keys);
+            p = new MapProperty(e.items, e.value, pname, e.names);
         }
 
         if (!p) {

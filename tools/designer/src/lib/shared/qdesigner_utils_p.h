@@ -37,6 +37,7 @@ class EnumType
 public:
     QVariant value;
     QMap<QString, QVariant> items;
+    QStringList names;
 };
 
 
