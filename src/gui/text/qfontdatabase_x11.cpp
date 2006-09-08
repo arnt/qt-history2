@@ -1580,6 +1580,12 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
         }
     }
 
+    // enforce non-antialiasing if requested. the ft font engine looks at this property.
+    if (request.styleStrategy & QFont::NoAntialias) {
+        FcPatternDel(match, FC_ANTIALIAS);
+        FcPatternAddBool(match, FC_ANTIALIAS, false);
+    }
+
     engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
     if (engine->invalid()) {
         FM_DEBUG("   --> invalid!\n");
