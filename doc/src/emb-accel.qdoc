@@ -39,25 +39,28 @@
     implement yourself (such as certain pens, brushes, modes, etc.),
     just call the \c QRasterPaintEngine version.
 
-    To activate a subclass of \c QRasterPaintEngine you need to create a
-    subclass of QCustomRasterPaintDevice and reimplement
-    QCustomRasterPaintDevice::paintEngine(). Note the
-    \c{QCustomRasterPaintDevice::memory()} function which must must be
-    reimplemented to return a pointer a buffer where the painting is to be
-    done. You must then create a subclass of QWSWindowSurface and return your
-    QCustomRasterPaintDevice in QWSWindowSurface::paintDevice().
+    To activate a subclass of \c QRasterPaintEngine you need to create
+    a subclass of \c QCustomRasterPaintDevice and reimplement \c
+    QCustomRasterPaintDevice::paintEngine(). Note the \c
+    QCustomRasterPaintDevice::memory() function which must must be
+    reimplemented to return a pointer a buffer where the painting is
+    to be done. You must then create a subclass of QWSWindowSurface
+    and return your \c QCustomRasterPaintDevice in
+    QWSWindowSurface::paintDevice().
 
-    Finally, reimplement QScreen::createSurface() to return your QWSWindowSurface subclass.
+    Finally, reimplement QScreen::createSurface() to return your
+    QWSWindowSurface subclass.
 
     \section1 Acceleration Without a Framebuffer
 
-    If you are writing a driver for a device with an graphic I/O controller and
-    no framebuffer support, you need to subclass \c QRasterPaintDevice as
-    described above. However, QCustomRasterPaintDevice::memory() must in this
-    case return 0, meaning no buffer available. In this case the two fallback
+    If you are writing a driver for a device with an graphic I/O
+    controller and no framebuffer support, you need to subclass \c
+    QRasterPaintDevice as described above. However, \c
+    QCustomRasterPaintDevice::memory() must in this case return 0,
+    meaning no buffer available. In this case the two fallback
     functions \c{QRasterPaintEngine::drawColorSpans()} and
-    \c{QRasterPaintEngine::drawBufferSpan()} is called instead whenever a color
-    or buffer should be written into memory. You can then reimplement these
-    functions and do the appropriate communication with the I/O controller
-    instead.
+    \c{QRasterPaintEngine::drawBufferSpan()} is called instead
+    whenever a color or buffer should be written into memory. You can
+    then reimplement these functions and do the appropriate
+    communication with the I/O controller instead.
 */

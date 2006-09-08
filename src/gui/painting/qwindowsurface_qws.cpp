@@ -83,6 +83,12 @@ public:
 */
 
 /*!
+    \fn QPaintDevice* QWSWindowSurface::paintDevice()
+
+    Returns the associated paint device.
+*/
+
+/*!
     \enum QWSWindowSurface::SurfaceFlag
 
     This enum is used to specify various properties for the window surface.
