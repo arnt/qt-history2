@@ -1862,6 +1862,8 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             int num;
             XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
             XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
+        } else if (d->has_clipping) {
+            XSetClipRectangles(d->dpy, cgc, 0, 0, 0, 0, Unsorted);
         }
         XSetFillStyle(d->dpy, cgc, FillOpaqueStippled);
         XSetTSOrigin(d->dpy, cgc, -sx, -sy);
