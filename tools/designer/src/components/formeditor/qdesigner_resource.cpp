@@ -629,11 +629,6 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w->setAttributeNative(true);
     }
 
-    if (widgetInfo != 0 && m_usedCustomWidgets.contains(widgetInfo)) {
-        if (widgetInfo->name() != w->attributeClass())
-            w->setAttributeClass(widgetInfo->name());
-    }
-
     QString className = w->attributeClass();
     if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
@@ -656,6 +651,9 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
                 break;
             }
         }
+    } else if (widgetInfo != 0 && m_usedCustomWidgets.contains(widgetInfo)) {
+        if (widgetInfo->name() != w->attributeClass())
+            w->setAttributeClass(widgetInfo->name());
     }
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {

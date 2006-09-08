@@ -539,6 +539,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
     QList<Group> groups;
 
     QExtensionManager *m = m_core->extensionManager();
+    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (m, m_core);
 
     bool isMainContainer = false;
     if (QWidget *widget = qobject_cast<QWidget*>(object)) {
@@ -557,7 +558,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         IProperty *p = 0;
         if (qVariantCanConvert<FlagType>(value)) {
             FlagType f = qvariant_cast<FlagType>(value);
+
             if (pname == QLatin1String("alignment")) {
+                // ### fixme!!!
                 if (qobject_cast<QLineEdit *>(object)) {
                     QStringList align_keys = QStringList()
                                              << QString::fromUtf8("Qt::AlignLeft")
@@ -573,11 +576,35 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                     p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
                 }
             } else {
+                if (lang) {
+                    QMap<QString, QVariant> items;
+                    QMapIterator<QString, QVariant> it (f.items);
+                    while (it.hasNext()) {
+                        it.next();
+                        QString id = lang->enumerator(it.key());
+                        items.insert(id, it.value());
+                    }
+                    f.items = items;
+                }
+
                 p = new FlagsProperty(f.items, f.value.toInt(), pname);
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
-
             EnumType e = qvariant_cast<EnumType>(value);
+
+            if (lang) {
+                QMap<QString, QVariant> items;
+                QMapIterator<QString, QVariant> it (e.items);
+                e.names.clear();
+                while (it.hasNext()) {
+                    it.next();
+                    QString id = lang->enumerator(it.key());
+                    items.insert(id, it.value());
+                    e.names.append(id);
+                }
+                e.items = items;
+            }
+
             p = new MapProperty(e.items, e.value, pname, e.names);
         }
 
