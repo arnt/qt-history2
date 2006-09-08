@@ -503,7 +503,13 @@ struct QMetaTypeGuiHelper
     QMetaType::LoadOperator loadOp;
 #endif
 };
-extern Q_DECL_IMPORT const QMetaTypeGuiHelper *qMetaTypeGuiHelper;
+
+#ifdef QT_MAKEDLL
+#  define Q_VARIANT_DECL_IMPORT Q_DECL_IMPORT
+#else
+#  define Q_VARIANT_DECL_IMPORT
+#endif
+extern Q_VARIANT_DECL_IMPORT const QMetaTypeGuiHelper *qMetaTypeGuiHelper;
 
 
 #ifdef QT_NO_DATASTREAM
