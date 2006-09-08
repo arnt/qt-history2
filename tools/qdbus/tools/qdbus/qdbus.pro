@@ -1,6 +1,6 @@
-SOURCES = dbus.cpp
+SOURCES = qdbus.cpp
 DESTDIR = ../../../../bin
-TARGET = dbus
+TARGET = qdbus
 QT = core
 CONFIG += qdbus
 CONFIG -= app_bundle

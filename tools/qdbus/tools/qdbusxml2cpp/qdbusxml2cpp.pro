@@ -1,6 +1,6 @@
-SOURCES = dbusxml2cpp.cpp
+SOURCES = qdbusxml2cpp.cpp
 DESTDIR = ../../../../bin
-TARGET = dbusxml2cpp
+TARGET = qdbusxml2cpp
 QT = core xml
 CONFIG += qdbus
 CONFIG -= app_bundle
