@@ -848,7 +848,7 @@ int QGLFormat::blueBufferSize() const
     Set the preferred alpha buffer size to \a size.
     This function implicitly enables the alpha channel.
 
-    \sa setRedBufferSize(), setGreenBufferSize(), setAlphaBufferSize()
+    \sa setRedBufferSize(), setGreenBufferSize(), alphaBufferSize()
 */
 void QGLFormat::setAlphaBufferSize(int size)
 {
