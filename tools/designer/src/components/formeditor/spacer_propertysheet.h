@@ -16,9 +16,9 @@
 
 #include <qdesigner_propertysheet_p.h>
 
-namespace qdesigner_internal {
-
 class Spacer;
+
+namespace qdesigner_internal {
 
 class SpacerPropertySheet: public QDesignerPropertySheet
 {
