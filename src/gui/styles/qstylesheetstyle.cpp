@@ -1126,13 +1126,14 @@ public:
     }
     QString attribute(NodePtr node, const QString& name) const
     {
-        return (name == "class" && WIDGET(node)->metaObject()->indexOfProperty("class") == -1)
+        return (name == "class" && !WIDGET(node)->property("class").isValid())
             ? WIDGET(node)->metaObject()->className()
             : WIDGET(node)->property(name.toLatin1()).toString();
     }
     bool hasAttribute(NodePtr node, const QString& name) const
     { return name == "class"
-             || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1; }
+             || WIDGET(node)->metaObject()->indexOfProperty(name.toLatin1()) != -1
+             || WIDGET(node)->dynamicPropertyNames().contains(name.toLatin1()); }
     bool hasAttributes(NodePtr) const
     { return true; }
     QStringList nodeIds(NodePtr node) const
