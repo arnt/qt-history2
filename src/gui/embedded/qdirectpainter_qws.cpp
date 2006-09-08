@@ -65,6 +65,13 @@
     \sa QScreen, QDecoration
 */
 
+/*!
+    \fn QRegion QDirectPainter::region()
+    \obsolete
+
+    Use QDirectPainter::reservedRegion() instead.
+*/
+
 static inline QScreen *getPrimaryScreen()
 {
     QScreen *screen = QScreen::instance();
@@ -141,8 +148,11 @@ void qt_directpainter_embedevent(QDirectPainter *dp, const QWSEmbedEvent *event)
 }
 #endif
 
-QDirectPainter::QDirectPainter(QObject *parentObject, SurfaceFlag flag)
-    :QObject(*new QDirectPainterPrivate, parentObject)
+/*!
+    Constructs a QDirectPainter with parent \a parent and flag \a flags.
+*/
+QDirectPainter::QDirectPainter(QObject *parent, SurfaceFlag flag)
+    :QObject(*new QDirectPainterPrivate, parent)
 {
     Q_D(QDirectPainter);
     d->surface = new QWSDirectPainterSurface(true);
@@ -156,6 +166,11 @@ QDirectPainter::QDirectPainter(QObject *parentObject, SurfaceFlag flag)
     ad->directPainters->insert(d->surface->windowId(), this);
 }
 
+/*!
+    Destroys the object.
+
+    The reserved region will be released.
+*/
 QDirectPainter::~QDirectPainter()
 {
     /* should not be necessary
@@ -166,14 +181,26 @@ QDirectPainter::~QDirectPainter()
 
 /*!
     \since 4.2
+
+    Request to reserve the rectangle \a rect of the screen.
+
+    The requested rectangle will be the maximum available rectangle for
+    this object. The actually allocated region may be less, for instance
+    if the rectangle overlaps with another QDirectPainter.
+
+    \sa allocatedRegion(), setRegion()
 */
-void QDirectPainter::setGeometry(const QRect &r)
+void QDirectPainter::setGeometry(const QRect &rect)
 {
-    setRegion(r);
+    setRegion(rect);
 }
 
 /*!
     \since 4.2
+
+    Returns the bounding rect of the requested region.
+
+    \sa requestedRegion()
 */
 QRect QDirectPainter::geometry() const
 {
@@ -183,6 +210,12 @@ QRect QDirectPainter::geometry() const
 
 /*!
     \since 4.2
+
+    Request to reserve the region \a region of the screen.
+
+    The requested region will be the maximum available region for
+    this object. The actually allocated region may be less, for instance
+    if the region overlaps with another QDirectPainter.
 */
 void QDirectPainter::setRegion(const QRegion &region)
 {
@@ -194,6 +227,10 @@ void QDirectPainter::setRegion(const QRegion &region)
 
 /*!
     \since 4.2
+
+    Returns the region requested by this QDirectPainter.
+
+    \sa setRegion(), allocatedRegion()
 */
 QRegion QDirectPainter::requestedRegion() const
 {
@@ -203,6 +240,8 @@ QRegion QDirectPainter::requestedRegion() const
 
 /*!
     \since 4.2
+
+    Returns the region allocated to this QDirectPainter.
 */
 QRegion QDirectPainter::allocatedRegion() const
 {
@@ -212,6 +251,8 @@ QRegion QDirectPainter::allocatedRegion() const
 
 /*!
     \since 4.2
+
+    Returns the window system identifier of the widget.
 */
 WId QDirectPainter::winId() const
 {
@@ -221,10 +262,12 @@ WId QDirectPainter::winId() const
 
 /*!
     \since 4.2
+
+    This function is called whenever the allocated region changes.
 */
-void QDirectPainter::regionChanged(const QRegion &exposedRegion)
+void QDirectPainter::regionChanged(const QRegion &region)
 {
-    Q_UNUSED(exposedRegion);
+    Q_UNUSED(region);
 }
 
 /*!

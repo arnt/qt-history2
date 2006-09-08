@@ -37,7 +37,6 @@ public:
     QRegion requestedRegion() const;
     QRegion allocatedRegion() const;
 
-    //convenience functions
     void setGeometry(const QRect&);
     QRect geometry() const;
 
@@ -53,7 +52,7 @@ public:
 
     static QRegion reserveRegion(const QRegion&);
     static QRegion reservedRegion();
-    static QRegion region() { return reservedRegion(); }  // deprecated
+    static QRegion region() { return reservedRegion(); }
 
     static uchar* frameBuffer();
     static int screenDepth();
