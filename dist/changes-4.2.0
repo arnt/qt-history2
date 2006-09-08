@@ -118,12 +118,20 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 ****************************************************************************
 
 - QAbstractItemView
-        Added possibility to copy elements to clipboard on read-only views.
-        Improved handling of QAbstractItemModel::supportedDropActions().
+	Added possibility to copy elements to clipboard on read-only views.
+	Improved handling of QAbstractItemModel::supportedDropActions().
+	Make sure the current item is selected when using keyboard search.
+	Make sure the view starts with a valid current index.
+	Only commit data on currentChanged if the editor is not persistent.
+	Fixed crash when users open modal dialogs when closing the editor.
+	Added verticalScrollMode and horizontalScrollMode properties.
+	Added setItemDelegateForRow() and setItemDelegateForColumn().
 
 - QDirModel
-        Fix conversion from bytes to (kb|mb|gb) in QDirModel for display of
-        file size.
+	Fix conversion from bytes to (kb|mb|gb) in QDirModel for display of
+	file size.
+	Remove hardcoded filtering of the '.' and '..' entries.
+
 - QComboBox
         Fixed drawing issues related to certain FocusPolicies.
         Now respects the ItemFlags of an Item (ItemIsEnabled,...).
@@ -155,6 +163,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Fixed endian issue with createIndex().
         Added FixedString matching for match()
         QAbstractItemModel now uses stable sorting.
+	Add persistentIndexList() function.
 
 - QAbstractItemView
 	Make sure that the doubleClicked() signal is only emitted
@@ -163,8 +172,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	rectangle.
 	Fixed regression for shift-selections in ExtendedSelection for
 	all views.
-        Added dragDropMode property and implemented move support in all of
-        the views and models.
+	Added dragDropMode property and implemented move support in all of
+	the views and models.
 	For edit triggers SelectedClicked and DoubleClicked, only trigger
 	editing when the left button is clicked.
 	Trigger SelectedClicked editing on mouse release, not mouse press.
@@ -184,9 +193,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Propagate WhatsThis event when the relevant item doesn't
 	have a valid WhatsThis value.
 	Added PositionAtCenter scrollHint.
+	Let items be checked and unchecked using the keyboard.
 
 - QKeySequence
-		Added a set of platform dependent standard shortcuts.
+	Added a set of platform dependent standard shortcuts.
 
 - QLibrary
         Drop using dlcompat for library loading and resolving on Mac OS X and
@@ -195,33 +205,52 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         dlcompat itself).
 
 - QListWidget/QTreeWidget/QTableWidget
-        When setting flags on a item the dataChanged() signal is now emitted
-        Removed Unnecessary Q_ASSERT's
+	When setting flags on a item the dataChanged() signal is now emitted.
+	Removed Unnecessary Q_ASSERT's.
+	Add more convenience functions in QListWidget, QTableWidget and QTreeWidget
+	for selecting, hiding, showing, expanding and collapsing nodes.
+	Make sure items are resorted when the data changes.
 
 - QTableWidget
-        Added clearContents() function which will not reset the headers.
-        QTableWidget now uses stable sorting.
+	Added clearContents() function which will not reset the headers.
+	QTableWidget now uses stable sorting.
+	Allow sorting of non-numerical data. 
+	Add convenience table item constructor that takes an icon
+	aswell as a string.
 
 - QTreeWidget
-        Added indexOfTopLevelItem() const function.
-        Inserting of items is now faster.
-        Fix crash when calling QTreeWidgetItem::setData with a negative number.
-        QTreeWidget now uses stable sorting.
+	Added indexOfTopLevelItem() const function.
+	Inserting of items is now faster.
+	Fix crash when calling QTreeWidgetItem::setData with a negative number.
+	QTreeWidget now uses stable sorting.
+	Made construction of single column items a bit more convenient. 
 
 - QTreeView
-        When setting the root index to be the already current root index no
-        action be be taken anymore.
-        When hidding items the view no longer performs a complete relayout.
-        Fix possible segfault in isRowHidden()
-        Significantly speed up isRowHidden() for the common case.
-        Faster row painting.
-        After expanding, fetchMore is called on the expanded index giving
-        the model a way to dynamically populate the children.
-        Fixed item being able to be expanded when all children are hidden.
-        Added horizontal scrolling using left/right arrow.
+	When setting the root index to be the already current root index no
+	action be be taken anymore.
+	When hidding items the view no longer performs a complete relayout.
+	Fix possible segfault in isRowHidden()
+	Significantly speed up isRowHidden() for the common case.
+	Faster row painting.
+	After expanding, fetchMore is called on the expanded index giving
+	the model a way to dynamically populate the children.
+	Fixed item being able to be expanded when all children are hidden.
+	Added horizontal scrolling using left/right arrow.
+	Add a property for showing the focus rectangle in a treeview over
+	all columns.
+	Add more keybindings for expanding and collapsing the treenodes.
+	Added the expandAll() and collapseAll() slots.
+	Added animated expanding and collapsing of branches.
+	Take all rows into account when computing the size hint for a column.
+	Added setSortingEnabled property.
 
 - QItemSelectionModel
-        Overall speed up particularly when isSelected() is used.
+	Overall speed up particularly when isSelected() is used.
+	Added functions for getting the selected rows or columns.
+	Update the current index when it is being removed.
+	Make the QAbstractItemView::clearSelection only clear the
+	selection and not the currentIndex.
+	Add hasSelection().
 
 - QClipBoard
          Support for find text buffer.
@@ -239,19 +268,34 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	from other threads than the GUI thread.
 
 - QGroupBox
-		Activating a groupbox by a shortcut will now show the focus rect.
+	Activating a groupbox by a shortcut will now show the focus rect.
                 Added a clicked() signal
 
 - QHeaderView
 	Use the current resize mode to determine section sizes when
 	new rows are inserted.
+          Recover the internal state if other widgets steal the mouse release event.
+	Remove moved sections without asserting.
+	Be more robust with regards to arguments sent to the rowsInserted slot.
+	Let the stretchLastSection property override the globalReisizeMode in
+	the resizeSections() function.
+	Rename ResizeMode::Custom to ResizeMode::Fixed.
+	Added swapSections() convenience function.
+	Added a more "splitter-like" resize mode.
+	Added the posibility for the user to turn off stretch mode by resizing the
+	header section. This includes the stretchLastSection property.
+	Added a minimumSectionSize property.
+	Get the section size hint from the Qt::SizeHintRole (if set).
+	Added the ResizeToContents resize mode.
+	Center all header contents by default.
+	Improved the internal structure to be more memory efficient.
 
 - QHostAddress
 	Added QDataStream streaming operators.
 
 - QImage
 	Added support for 16bit RGB format.
-
+<
 - QImageReader
 	Made size() return an invalid QSize if the image I/O handler
 	does not support the QImageIOHandler::Size extension.
@@ -266,6 +310,12 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Don't un-hide currently hidden rows when new rows are inserted.
 	Fixed partial repainting bug with alternatingRowColors.
 	If the resize mode has been set, don't reset it in setViewMode().
+	Fix crash when hiding the first item and uniformItemSizes is set.
+	Added property for wrapping the item text.
+	Allow the user to select items consecutively when shift-selecting.
+	Only select the top item if the user clicks on an area with several
+	items are stacked on top of each other.
+	Optimize hiding and showing of items.
 
 - QMap and QHash
         Prevent conversion of iterator or const_iterator to bool
@@ -310,6 +360,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Made match() respect the current sorting and filtering.
 	Forward mimeTypes() and supportedDropActions() calls to
 	source model.
+	Added the ability to filter on all the columns.
+	Added the filterChanged() function for implementing
+	custom filtering.
 
 - QStandardItemModel
 	Added an item-based API for use with QStandardItem.
@@ -318,6 +371,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QTableView
 	Added API for spanning cells.
+	Select the cell when the user right clicks on it.
+	Added corner widget.
+	Added setSortingEnabled property.
 
 - QTreeView
 	Scrollbar no longer disappears after removing and re-inserting
@@ -333,16 +389,18 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	the header data changes.
 
 - QItemDelegate
-        Use a widget's USER property to set and get the editor data.
-        Removed Unnecessary Q_ASSERT's
-        Add property to enable clipping when painting.
-        When the model specifies a font, resolve the font over the existing
-        one rather then replacing.
-		Fixed issue with rendering of selected pixmaps.
-        Call QItemEditorFactory with the data's userType() so that
-        the factory can distinguish between multiple user types.
-        Propagate Key_Enter to the editor before committing data, so the
-        editor has a chance to perform custom input validation/fixup.
+	Use a widget's USER property to set and get the editor data.
+	Removed Unnecessary Q_ASSERT's
+	Add property to enable clipping when painting.
+	When the model specifies a font, resolve the font over the existing
+	one rather then replacing.
+	Fixed issue with rendering of selected pixmaps.
+	Call QItemEditorFactory with the data's userType() so that
+	the factory can distinguish between multiple user types.
+	Propagate Key_Enter to the editor before committing data, so the
+	editor has a chance to perform custom input validation/fixup.
+	Let the lineedit grow to accomodate long strings.
+	Made it easer to subclass the item delegate.
 
 - QAbstractSpinBox
         Add a hasAcceptableInput() property.
@@ -573,6 +631,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added a property styleSheet to set/read the widget style sheet.
         Added saveGeometry(), restoreGeometry() convenience functions for 
         saving and restoring a window's geometry.
+        Let the style propagate to child widgets.
 
 - QWindowsStyle
 	We no longer draw splitter handles in Windows style. This resolves an inconsistency with
@@ -903,6 +962,7 @@ I/O and Networking
 - QIcon
         Fixed issue where actualSize() might return a larger value than the requested size.
 	Added aQDataStream operators for QIcon.
+	Added Selected mode.
 
 Database drivers
 -------------------------
@@ -1105,7 +1165,11 @@ Windows:
 		Fixed a bug with japanese input methods.
 
 - QFileDialog
-		Added support for relative filepaths in native dialogs.
+	Added support for relative filepaths in native dialogs.
+	Let setLabelText() also change the context menu entries.
+	Deny entry into directories where the user don't have execution permision.
+	Disable renaming and deletion actions for non-editable items.
+	Added a message box asking the user to confirm when deleting files.
 
 - Designer
 		Docked Window mode is now the default on Windows.
