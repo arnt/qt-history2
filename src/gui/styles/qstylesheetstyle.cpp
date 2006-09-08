@@ -1126,7 +1126,7 @@ public:
     }
     QString attribute(NodePtr node, const QString& name) const
     {
-        return (name == "class")
+        return (name == "class" && WIDGET(node)->metaObject()->indexOfProperty("class") == -1)
             ? WIDGET(node)->metaObject()->className()
             : WIDGET(node)->property(name.toLatin1()).toString();
     }
@@ -1168,8 +1168,8 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
             // Try #objName.className { stylesheet } only for w
             QString objName;
             if (!wid->objectName().isEmpty())
-                objName = QLatin1String("#") + wid->objectName() + ".";
-            Parser parser2(objName + wid->metaObject()->className()
+                objName = QLatin1String("#") + wid->objectName();
+            Parser parser2(objName + QLatin1String(".") + wid->metaObject()->className()
                            + QLatin1String("{")
                            + wid->styleSheet() + QLatin1String("}"));
             if (!parser2.parse(&ss))
