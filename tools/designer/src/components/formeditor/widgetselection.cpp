@@ -55,7 +55,7 @@ public:
 };
 
 WidgetHandle::WidgetHandle(FormWindow *parent, WidgetHandle::Type t, WidgetSelection *s)
-    : InvisibleWidget(parent)
+    : InvisibleWidget(parent->mainContainer())
 {
     active = true;
     widget = 0;

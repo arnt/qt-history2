@@ -2172,7 +2172,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
             if (!widget)
                 return;
             selectWidget(widget, true);
-            widget->setFocus(Qt::MouseFocusReason); // ### workaround for QWorkSpace (?) bug
+            mainContainer()->setFocus(Qt::MouseFocusReason); // in case focus was in e.g. object inspector
         } else {
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
