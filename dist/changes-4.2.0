@@ -68,7 +68,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - Added the Cleanlooks style for improved integration with GNOME based desktops.
 
 - Added experimental support for Qt usage reporting ("metered licenses")
-  on Linux, Windows and MacOS X. Reporting is disabled by default.
+  on Linux, Windows and Mac OS X. Reporting is disabled by default.
 
 - Compiler warnings with mingw g++ 3.4.5 removed
 
@@ -334,15 +334,37 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Crash when removing widgets fixed.
 
 - QStyle
-       Added SH_Slider_AbsoluteSetButtons and SH_Slider_PageSetButtons
-       style hint selectors.
-       Added SH_Menu_SelectionWrap style hint selector.
-       Added SH_Menu_SpaceActivesItem style hint selector.
+        Added SH_Slider_AbsoluteSetButtons, SH_Slider_PageSetButtons,
+        SH_Menu_KeyboardSearch, SH_TabBar_ElideMode, SH_DialogButtonLayout,
+        SH_ComboBox_PopupFrameStyle, SH_MessageBox_TextInteractionFlags,
+        SH_DialogButtonBox_ButtonsHaveIcons, SH_SpellCheckUnderlineStyle,
+        SH_MessageBox_CenterButtons, SH_Menu_SelectionWrap,
+        SH_ItemView_MovementWithoutUpdatingSelection as style hint selectors
+
+        Added SP_DirIcon, SP_DialogOkButton, SP_DialogCancelButton,
+        SP_DialogHelpButton, SP_DialogOpenButton, SP_DialogSaveButton,
+        SP_DialogCloseButton, SP_DialogApplyButton, SP_DialogResetButton,
+        SP_DialogDiscardButton, SP_DialogYesButton, SP_DialogNoButton,
+        SP_ArrowUp, SP_ArrowDown, SP_ArrowLeft, SP_ArrowRight, SP_ArrowBack,
+        SP_ArrowForward as standard pixmap selectors.
+
+        Added PE_PanelScrollAreaCorner and PE_Widget as primitive element selectors.
+
+        Added SE_LineEditContents and SE_FrameContents as subelement selectors.
+
+        Added PM_MessageBoxIconSize and PM_ButtonIconSize as pixel metric selectors.
+
+- QMacStyle
+        QMacStyle only uses HITheme for drawing now (no use of Appreance Manager)
+        Fixed placement of text on buttons and group boxes for non-latin locales
+        Fixed rendering of small and mini buttons
+        Attempt to be a bit smarter before changing a push button to bevel button when the size gets too small
+        Draw the focus ring for lineedits when they are near the "top" of the widget hierarchy
       
-- QMacPasteBoardMime
+- QMacPasteboardMime
         New class to handle pastboard access on Qt/Mac. This obsoletes
         QMacMime as the underlying system has changed to support Apple's
-        new Paste Board Manager.
+        new Pasteboard Manager. Any old QMacMime's will not be used.
 
 - QMetaObject
         Added userProperty().
@@ -366,11 +388,17 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Work when sorting a relational column when using the PostgreSQL driver.
         revertAll() now correctly reverts relational columns.
 
+- QTabBar
+        QTabBar text can now be elided, this is controlled by the elideMode property
+        You can now turn on or off the "scroll buttons" for the tab bar with teh usesScrollButtons property.
+
+
 - QTabWidget
 	Added missing Qt3Support signal selected().
         Clarify documentation for setCornerWidget().
 	Draw the tab widget's frame correctly when the tab bar is hidden.
         Give the internal widgets, widgetstack and tabbar, names.
+        Added iconSize, elideMode, and usesScrollButtons as properties (see QTabBar)
 
 - QToolTip
         Added convenience function hideText(). Added a function showText that
