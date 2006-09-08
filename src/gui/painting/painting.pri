@@ -21,6 +21,7 @@ HEADERS += \
 	painting/qprintengine_ps_p.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
+	painting/qprintengine.h \
 	painting/qregion.h \
 	painting/qstroker_p.h \
         painting/qstylepainter.h \
