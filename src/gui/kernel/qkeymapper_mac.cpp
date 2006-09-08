@@ -627,7 +627,6 @@ QKeyMapperPrivate::translateKeyEvent(QWidget *widget, EventHandlerCallRef er, Ev
         }
 
         if (qApp->inputContext() && qApp->inputContext()->isComposing()) {
-            qDebug() << "COMPOSING";
             handled_event = false;
             break;
         }
