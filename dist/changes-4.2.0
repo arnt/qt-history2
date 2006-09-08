@@ -78,7 +78,15 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - New style: CleanLooks, a clone of the GNOME ClearLooks style, provides
   native look for Qt applications on GNOME.
 
+- Tulip containers: 
+    Added typedefs for STL compatability.
+    Added fucntion overloads to make the API easier to use.
 
+- Porting
+    qt3to4 now appends to the log file instead of overwriting it.
+    Fix one case were qt3to4 was inserting unix-stlye line endings on Windows.
+    New classes, Q3VGroupBox and Q3HGroupBox were added to ease porting.
+    
 Build System
 ------------
 
@@ -389,6 +397,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QAbstractScrollArea
         Added ability to set a corner widget.
+        Added ability to set scroll bar widgets.
         Added support for assigning custom scroll bars.
 
 - QLocale
@@ -933,6 +942,11 @@ Mac OS X:
     CoreGraphics.
     All libraries in Qt are now built as frameworks when -framework mode
     selected (default) upon configure.
+    Many accessibility improvements, including better VoiceOver support. The
+    following widgets have had their accessibilty updated for this release:
+    QSplitter, QScrollBar, QLabel, QCheckBox, QRadioButton, QTabBar/Widget,
+    QSlider, QScrollBar
+    Hidden files are now reported as hidden by QFileInfo, QDirModel, etc.
 
 - QPixmap
         Functions to convert to/from a CGImageRef (for CoreGraphics interop) added.
@@ -947,9 +961,25 @@ Mac OS X:
         Can now wrap a native HIViewRef with QWidget::create().
         Now creates top levels with parents that have WindowStaysOnTopHint
         set to also have WindowStaysOnTopHint.
+
 - QClipboard
         Data copied to the clipboard now stays available after the application exits.
+        Added support for the Find clipboard buffer.
+        
+- QAbstractScrollArea
+        Improve look and feel by aligning the scroll bars with the size grip.
 
+- QPainter
+        Fix off-by-one error when drawing certain primitves
+        Fix off-by-many error when drawing certain primitives using a scale matrix.
+
+- QComboBox
+        Improve the popup sizing so it's always wide enough to display its contents.
+        Improve the popup placement so it stays on screen and does not overlap the Dock.
+
+- QScrollBar
+        Gracefully handle the case where the scrollbar is to short to draw all its controls.
+        
 Windows:
 		Ensured that widgets do not show themselves in a hover state if a popup has focus.
 		Fixed issues with rendering system icons on 16-bit displays.
