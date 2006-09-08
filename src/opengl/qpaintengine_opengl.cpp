@@ -2034,13 +2034,11 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 vertexArray[i*2+1] = points[i].y();
             }
             glEnableClientState(GL_VERTEX_ARRAY);
-
             if (mode != PolylineMode) {
-                vertexArray[i*2] = points[0].x();
-                vertexArray[i*2+1] = points[0].y();
+                vertexArray.append(points[0].x());
+                vertexArray.append(points[0].y());
                 glDrawArrays(GL_LINE_STRIP, 0, pointCount+1);
-            }
-            else {
+            } else {
                 glDrawArrays(GL_LINE_STRIP, 0, pointCount);
             }
             glDisableClientState(GL_VERTEX_ARRAY);
