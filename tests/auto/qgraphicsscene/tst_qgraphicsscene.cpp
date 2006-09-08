@@ -96,8 +96,11 @@ private slots:
     void items_QPointF_data();
     void items_QPointF();
     void items_QRectF();
+    void items_QRectF_2();
     void items_QPolygonF();
+    void items_QPolygonF_2();
     void items_QPainterPath();
+    void items_QPainterPath_2();
     void selection();
     void addItem();
     void addEllipse();
@@ -396,6 +399,48 @@ void tst_QGraphicsScene::items_QRectF()
     QCOMPARE(scene.items(QRectF(-10, 10, 40, 10)), QList<QGraphicsItem *>() << item3 << item4);
 }
 
+void tst_QGraphicsScene::items_QRectF_2()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *ellipse = scene.addEllipse(QRectF(0, 0, 100, 100));
+    
+    // None of the rects contain the ellipse's shape nor bounding rect
+    QVERIFY(scene.items(QRectF(1, 1, 10, 10), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(1, 89, 10, 10), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 1, 10, 10), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 89, 10, 10), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(1, 1, 10, 10), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QRectF(1, 89, 10, 10), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 1, 10, 10), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 89, 10, 10), Qt::ContainsItemBoundingRect).isEmpty());
+
+    // None intersects with the item's shape, but they all intersects with the
+    // item's bounding rect.
+    QVERIFY(scene.items(QRectF(1, 1, 10, 10), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(1, 89, 10, 10), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 1, 10, 10), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(89, 89, 10, 10), Qt::IntersectsItemShape).isEmpty());
+    QCOMPARE(scene.items(QRectF(1, 1, 10, 10), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(1, 89, 10, 10), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(89, 1, 10, 10), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(89, 89, 10, 10), Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    // This rect does not contain the shape nor the bounding rect
+    QVERIFY(scene.items(QRectF(5, 5, 90, 90), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QRectF(5, 5, 90, 90), Qt::ContainsItemBoundingRect).isEmpty());
+
+    // It will, however, intersect with both
+    QCOMPARE(scene.items(QRectF(5, 5, 90, 90), Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(5, 5, 90, 90), Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    // A rect that contains the whole ellipse will both contain and intersect
+    // with both the ellipse's shape and bounding rect.
+    QCOMPARE(scene.items(QRectF(-5, -5, 110, 110), Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(-5, -5, 110, 110), Qt::ContainsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(-5, -5, 110, 110), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QRectF(-5, -5, 110, 110), Qt::ContainsItemBoundingRect).first(), ellipse);
+}
+
 void tst_QGraphicsScene::items_QPolygonF()
 {
     QGraphicsScene scene;
@@ -444,6 +489,48 @@ void tst_QGraphicsScene::items_QPolygonF()
     QCOMPARE(scene.items(poly2), QList<QGraphicsItem *>() << item3 << item4);
 }
 
+void tst_QGraphicsScene::items_QPolygonF_2()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *ellipse = scene.addEllipse(QRectF(0, 0, 100, 100));
+    
+    // None of the rects contain the ellipse's shape nor bounding rect
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 1, 10, 10)), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 89, 10, 10)), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 1, 10, 10)), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 89, 10, 10)), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 1, 10, 10)), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 89, 10, 10)), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 1, 10, 10)), Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 89, 10, 10)), Qt::ContainsItemBoundingRect).isEmpty());
+
+    // None intersects with the item's shape, but they all intersects with the
+    // item's bounding rect.
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 1, 10, 10)), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(1, 89, 10, 10)), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 1, 10, 10)), Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(89, 89, 10, 10)), Qt::IntersectsItemShape).isEmpty());
+    QCOMPARE(scene.items(QPolygonF(QRectF(1, 1, 10, 10)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(1, 89, 10, 10)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(89, 1, 10, 10)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(89, 89, 10, 10)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    // This rect does not contain the shape nor the bounding rect
+    QVERIFY(scene.items(QPolygonF(QRectF(5, 5, 90, 90)), Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(QPolygonF(QRectF(5, 5, 90, 90)), Qt::ContainsItemBoundingRect).isEmpty());
+
+    // It will, however, intersect with both
+    QCOMPARE(scene.items(QPolygonF(QRectF(5, 5, 90, 90)), Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(5, 5, 90, 90)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    // A rect that contains the whole ellipse will both contain and intersect
+    // with both the ellipse's shape and bounding rect.
+    QCOMPARE(scene.items(QPolygonF(QRectF(-5, -5, 110, 110)), Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(-5, -5, 110, 110)), Qt::ContainsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(-5, -5, 110, 110)), Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(QPolygonF(QRectF(-5, -5, 110, 110)), Qt::ContainsItemBoundingRect).first(), ellipse);
+}
+
 void tst_QGraphicsScene::items_QPainterPath()
 {
     QGraphicsScene scene;
@@ -490,6 +577,59 @@ void tst_QGraphicsScene::items_QPainterPath()
 
     QCOMPARE(scene.items(path1), QList<QGraphicsItem *>() << item1 << item2);
     QCOMPARE(scene.items(path2), QList<QGraphicsItem *>() << item3 << item4);
+}
+
+void tst_QGraphicsScene::items_QPainterPath_2()
+{
+    QGraphicsScene scene;
+    QGraphicsItem *ellipse = scene.addEllipse(QRectF(0, 0, 100, 100));
+
+    QPainterPath p1; p1.addRect(QRectF(1, 1, 10, 10));
+    QPainterPath p2; p2.addRect(QRectF(1, 89, 10, 10));
+    QPainterPath p3; p3.addRect(QRectF(89, 1, 10, 10));
+    QPainterPath p4; p4.addRect(QRectF(89, 89, 10, 10));
+    
+    // None of the rects contain the ellipse's shape nor bounding rect
+    QVERIFY(scene.items(p1, Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(p2, Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(p3, Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(p4, Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(p1, Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(p2, Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(p3, Qt::ContainsItemBoundingRect).isEmpty());
+    QVERIFY(scene.items(p4, Qt::ContainsItemBoundingRect).isEmpty());
+
+    // None intersects with the item's shape, but they all intersects with the
+    // item's bounding rect.
+    QVERIFY(scene.items(p1, Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(p2, Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(p3, Qt::IntersectsItemShape).isEmpty());
+    QVERIFY(scene.items(p4, Qt::IntersectsItemShape).isEmpty());
+    QCOMPARE(scene.items(p1, Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(p2, Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(p3, Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(p4, Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    QPainterPath p5;
+    p5.addRect(QRectF(5, 5, 90, 90));
+    
+    // This rect does not contain the shape nor the bounding rect
+    QVERIFY(scene.items(p5, Qt::ContainsItemShape).isEmpty());
+    QVERIFY(scene.items(p5, Qt::ContainsItemBoundingRect).isEmpty());
+
+    // It will, however, intersect with both
+    QCOMPARE(scene.items(p5, Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(p5, Qt::IntersectsItemBoundingRect).first(), ellipse);
+
+    QPainterPath p6;
+    p6.addRect(QRectF(-5, -5, 110, 110));
+
+    // A rect that contains the whole ellipse will both contain and intersect
+    // with both the ellipse's shape and bounding rect.
+    QCOMPARE(scene.items(p6, Qt::IntersectsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(p6, Qt::ContainsItemShape).first(), ellipse);
+    QCOMPARE(scene.items(p6, Qt::IntersectsItemBoundingRect).first(), ellipse);
+    QCOMPARE(scene.items(p6, Qt::ContainsItemBoundingRect).first(), ellipse);
 }
 
 void tst_QGraphicsScene::selection()
