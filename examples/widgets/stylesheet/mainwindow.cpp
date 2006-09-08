@@ -99,8 +99,11 @@ void MainWindow::loadLayout(const QString& layout)
     QAction *editStyleAction = qFindChild<QAction *>(mw, "editStyleAction");
     QObject::connect(editStyleAction, SIGNAL(triggered()), this, SLOT(editStyle()));
 
-    if (oldmw)
+    if (oldmw) {
         mw->move(oldmw->frameGeometry().topLeft());
+	mw->setStyleSheet(oldmw->styleSheet());
+	setStyle(sse.styleCombo->currentText());
+    }
 
     mw->show();
 
