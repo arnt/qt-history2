@@ -933,7 +933,8 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 
     q->setAttribute(Qt::WA_WState_Hidden);
 
-    data.crect = QRect(0,0,100,30);
+    //give potential windows a bigger "pre-initial" size; create_sys() will give them a new size later
+    data.crect = parentWidget ? QRect(0,0,100,30) : QRect(0,0,640,480);
 
     focus_next = focus_prev = q;
 
@@ -955,7 +956,8 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
-    if (QApplicationPrivate::app_compile_version < 0x040200)
+    if (QApplicationPrivate::app_compile_version < 0x040200
+        || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))
         q->create();
 
 
@@ -7002,6 +7004,12 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
         focusWidget()->clearFocus();
 
     d->setParent_sys(parent, f);
+
+    if ((QApplicationPrivate::app_compile_version < 0x040200
+         || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))
+        && !testAttribute(Qt::WA_WState_Created))
+        create();
+
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     d->resolveFont();

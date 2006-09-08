@@ -54,6 +54,9 @@ public:
 #endif
     static QStringList arguments();
 
+    static void setAttribute(Qt::ApplicationAttribute attribute, bool on = true);
+    static bool testAttribute(Qt::ApplicationAttribute attribute);
+
     static void setOrganizationDomain(const QString &orgDomain);
     static QString organizationDomain();
     static void setOrganizationName(const QString &orgName);

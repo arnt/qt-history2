@@ -77,6 +77,9 @@ public:
     static QAbstractEventDispatcher *eventDispatcher;
     static bool is_app_running;
     static bool is_app_closing;
+
+    static uint attribs;
+    static inline bool testAttribute(uint flag) { return attribs & (1 << flag); }
 };
 
 #endif // QCOREAPPLICATION_P_H

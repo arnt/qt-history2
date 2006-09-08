@@ -73,6 +73,8 @@ private slots:
     void style();
 
     void allWidgets();
+
+    void setAttribute();
 private:
     inline QChar pathSeparator(void)
     {
@@ -408,6 +410,7 @@ void tst_QApplication::lastWindowClosed()
     delete dialog;
 }
 
+#define QT_TST_QAPP_DEBUG
 void tst_QApplication::libraryPaths()
 {
     int argc = 1;
@@ -430,6 +433,7 @@ void tst_QApplication::libraryPaths()
     app.addLibraryPath(appDirPath);
     app.addLibraryPath(appDirPath + "/..");
 #ifdef QT_TST_QAPP_DEBUG
+    qDebug() << "appDirPath" << appDirPath;
     qDebug() << "After adding appDirPath && appDirPath + /..:" << app.libraryPaths();
 #endif
     QCOMPARE(app.libraryPaths().count(), count + 1);
@@ -1142,6 +1146,34 @@ void tst_QApplication::allWidgets()
     w = 0;
     QVERIFY(!app.allWidgets().contains(w)); // removal test
 }
+
+
+void tst_QApplication::setAttribute()
+{
+    int argc = 1;
+    QApplication app(argc, &argv0, QApplication::GuiServer);
+    QVERIFY(!QApplication::testAttribute(Qt::AA_ImmediateWidgetCreation));
+    QWidget  *w = new QWidget;
+    QVERIFY(!w->testAttribute(Qt::WA_WState_Created));
+    delete w;
+
+    QApplication::setAttribute(Qt::AA_ImmediateWidgetCreation);
+    QVERIFY(QApplication::testAttribute(Qt::AA_ImmediateWidgetCreation));
+    w = new QWidget;
+    QVERIFY(w->testAttribute(Qt::WA_WState_Created));
+    QWidget *w2 = new QWidget(w);
+    w2->setParent(0);
+    QVERIFY(w2->testAttribute(Qt::WA_WState_Created));
+    delete w;
+    delete w2;
+
+    QApplication::setAttribute(Qt::AA_ImmediateWidgetCreation, false);
+    QVERIFY(!QApplication::testAttribute(Qt::AA_ImmediateWidgetCreation));
+    w = new QWidget;
+    QVERIFY(!w->testAttribute(Qt::WA_WState_Created));
+    delete w;
+}
+
 
 //QTEST_APPLESS_MAIN(tst_QApplication)
 int main(int argc, char *argv[])

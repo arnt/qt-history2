@@ -127,6 +127,7 @@ Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 
 QCoreApplication *QCoreApplication::self = 0;
 QAbstractEventDispatcher *QCoreApplicationPrivate::eventDispatcher = 0;
+uint QCoreApplicationPrivate::attribs;
 
 #ifdef Q_OS_UNIX
 Qt::HANDLE qt_application_thread_id = 0;
@@ -472,6 +473,34 @@ QCoreApplication::~QCoreApplication()
         QCoreApplicationPrivate::eventDispatcher->closingDown();
     QCoreApplicationPrivate::eventDispatcher = 0;
 }
+
+
+/*!
+    Sets the attribute \a attribute  if \a on is true;
+    otherwise clears the attribute.
+
+    \sa testAttribute()
+*/
+void QCoreApplication::setAttribute(Qt::ApplicationAttribute attribute, bool on)
+{
+    if (on)
+        QCoreApplicationPrivate::attribs |= 1 << attribute;
+    else
+        QCoreApplicationPrivate::attribs &= ~(1 << attribute);
+}
+
+/*!
+  Returns true if attribute \a attribute is set;
+  otherwise returns false.
+
+  \sa setAttribute()
+ */
+bool QCoreApplication::testAttribute(Qt::ApplicationAttribute attribute)
+{
+    return QCoreApplicationPrivate::testAttribute(attribute);
+}
+
+
 
 /*!
   Sends \a event to \a receiver: \a {receiver}->event(\a event).
