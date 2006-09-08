@@ -318,7 +318,7 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
         } else if (decl.property.compare(QLatin1String("image-region"), Qt::CaseInsensitive) == 0) {
             imageRect = decl.rectValue();
         } else if (decl.propertyId == UnknownProperty) {
-            qWarning() <<  "Unknown property " << decl.property;
+            qWarning("Unknown property %s", qPrintable(decl.property));
         }
     }
 
@@ -1173,7 +1173,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
                            + QLatin1String("{")
                            + wid->styleSheet() + QLatin1String("}"));
             if (!parser2.parse(&ss))
-                qWarning() << "Could not parse stylesheet of " << wid;
+                qWarning("Could not parse stylesheet of widget %p", wid);
         }
         widgetSs.prepend(ss);
     }
