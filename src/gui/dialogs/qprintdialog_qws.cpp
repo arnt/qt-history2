@@ -112,6 +112,7 @@ static void isc(QPrintDialogPrivate *d, const QString & text,
 void QPrintDialogPrivate::_q_okClicked()
 {
     Q_Q(QPrintDialog);
+#ifndef QT_NO_MESSAGEBOX
     if (outputToFile && fileName->isModified() && QFileInfo(fileName->text()).exists()) {
         int confirm = QMessageBox::warning(
             q, q->tr("File exists"),
@@ -120,6 +121,8 @@ void QPrintDialogPrivate::_q_okClicked()
         if (confirm == QMessageBox::No)
             return;
     }
+#endif // QT_NO_MESSAGEBOX
+
     lastPage->interpretText();
     firstPage->interpretText();
     copies->interpretText();
