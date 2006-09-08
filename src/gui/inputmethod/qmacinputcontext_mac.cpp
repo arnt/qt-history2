@@ -28,7 +28,7 @@ static QTextFormat qt_mac_compose_format()
 }
 
 QMacInputContext::QMacInputContext(QObject *parent)
-    : QInputContext(parent), composing(false), textDocument(0)
+    : QInputContext(parent), composing(false), recursionGuard(false), textDocument(0)
 {
 //    createTextDocument();
 }
@@ -68,10 +68,14 @@ void QMacInputContext::mouseHandler(int pos, QMouseEvent *e)
 
 void QMacInputContext::reset()
 {
+    if (recursionGuard)
+        return;
+    recursionGuard = true;
     createTextDocument();
     composing = false;
     ActivateTSMDocument(textDocument);
     FixTSMDocument(textDocument);
+    recursionGuard = false;
 }
 
 void QMacInputContext::setFocusWidget(QWidget *w)
@@ -170,11 +174,6 @@ QMacInputContext::globalEventProcessor(EventHandlerCallRef, EventRef event, void
             GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
                               sizeof(fixed_length), 0, &fixed_length);
             if(fixed_length == -1 || fixed_length == (long)unilen) {
-                if (text != context->currentText && context->currentText.isEmpty()) {
-                    // We've recursed into here and we shouldn't need to do anything
-                    // more... hopefully.
-                    return noErr;
-                }
                 QInputMethodEvent e;
                 e.setCommitString(text);
                 context->currentText = QString();

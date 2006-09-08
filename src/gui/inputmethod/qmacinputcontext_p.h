@@ -52,6 +52,7 @@ protected:
     void mouseHandler(int pos, QMouseEvent *);
 private:
     bool composing;
+    bool recursionGuard;
     TSMDocumentID textDocument;
     QString currentText;
 };
