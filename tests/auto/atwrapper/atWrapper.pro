@@ -1,10 +1,9 @@
 # -*- Mode: makefile -*-
-ARTHUR=../../arthur
+ARTHUR=$$QT_SOURCE_TREE/tests/arthur
 COMMON_FOLDER = $$ARTHUR/common
 include($$ARTHUR/arthurtester.pri)
 TEMPLATE = app
-DEPENDPATH += .
-INCLUDEPATH += . $$ARTHUR
+INCLUDEPATH += $$ARTHUR
 
 QT += xml svg network
 

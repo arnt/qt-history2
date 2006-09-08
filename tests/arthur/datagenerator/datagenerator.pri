@@ -1,1 +1,2 @@
-SOURCES += $$PWD/datagenerator.cpp $$PWD/xmlgenerator.cpp
+VPATH += $$PWD
+SOURCES += datagenerator.cpp xmlgenerator.cpp
