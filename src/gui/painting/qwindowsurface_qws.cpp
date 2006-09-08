@@ -388,7 +388,8 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(window());
-    QRegion toFlush = region + dirtyRegion();
+    QRegion toFlush = (region + dirtyRegion()) & d_ptr->clip;
+    const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
 #ifndef QT_NO_QWS_MANAGER
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
@@ -402,7 +403,9 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     toFlush.translate(window()->mapToGlobal(QPoint(0, 0)));
 
     window()->qwsDisplay()->repaintRegion(window()->data->winid, opaque, toFlush);
+
     d_ptr->dirty = QRegion();
+    setDirty(stillDirty);
 }
 
 /*!
