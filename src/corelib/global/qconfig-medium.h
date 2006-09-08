@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-// Dialogs
+/* Dialogs */
 #ifndef QT_NO_COLORDIALOG
 #  define QT_NO_COLORDIALOG
+#endif
+#ifndef QT_NO_FILEDIALOG
+#  define QT_NO_FILEDIALOG
 #endif
 #ifndef QT_NO_FONTDIALOG
 #  define QT_NO_FONTDIALOG
 #endif
 #ifndef QT_NO_INPUTDIALOG
 #  define QT_NO_INPUTDIALOG
-#endif
-#ifndef QT_NO_FILEDIALOG
-#  define QT_NO_FILEDIALOG
 #endif
 #ifndef QT_NO_PRINTDIALOG
 #  define QT_NO_PRINTDIALOG
@@ -34,12 +34,12 @@
 #  define QT_NO_TABDIALOG
 #endif
 
-// Fonts
+/* Fonts */
 #ifndef QT_NO_QWS_QPF
 #  define QT_NO_QWS_QPF
 #endif
 
-// Images
+/* Images */
 #ifndef QT_NO_IMAGEFORMAT_BMP
 #  define QT_NO_IMAGEFORMAT_BMP
 #endif
@@ -53,7 +53,7 @@
 #  define QT_NO_MOVIE
 #endif
 
-// Internationalization
+/* Internationalization */
 #ifndef QT_NO_BIG_CODECS
 #  define QT_NO_BIG_CODECS
 #endif
@@ -73,7 +73,7 @@
 #  define QT_NO_TRANSLATION_UTF8
 #endif
 
-// ItemViews
+/* ItemViews */
 #ifndef QT_NO_TABLEVIEW
 #  define QT_NO_TABLEVIEW
 #endif
@@ -81,7 +81,7 @@
 #  define QT_NO_TREEVIEW
 #endif
 
-// Kernel
+/* Kernel */
 #ifndef QT_NO_ACTION
 #  define QT_NO_ACTION
 #endif
@@ -110,7 +110,7 @@
 #  define QT_NO_WHEELEVENT
 #endif
 
-// Networking
+/* Networking */
 #ifndef QT_NO_COP
 #  define QT_NO_COP
 #endif
@@ -136,7 +136,7 @@
 #  define QT_NO_FTP
 #endif
 
-// Painting
+/* Painting */
 #ifndef QT_NO_COLORNAMES
 #  define QT_NO_COLORNAMES
 #endif
@@ -147,7 +147,10 @@
 #  define QT_NO_PRINTER
 #endif
 
-// Qtopia Core
+/* Qtopia Core */
+#ifndef QT_NO_QWSEMBEDWIDGET
+#  define QT_NO_QWSEMBEDWIDGET
+#endif
 #ifndef QT_NO_QWS_SOUNDSERVER
 #  define QT_NO_QWS_SOUNDSERVER
 #endif
@@ -155,7 +158,7 @@
 #  define QT_NO_QWS_PROPERTIES
 #endif
 
-// Styles
+/* Styles */
 #ifndef QT_NO_STYLE_MOTIF
 #  define QT_NO_STYLE_MOTIF
 #endif
@@ -163,7 +166,12 @@
 #  define QT_NO_STYLE_CDE
 #endif
 
-// Widgets
+/* Utilities */
+#ifndef QT_NO_UNDOCOMMAND
+#  define QT_NO_UNDOCOMMAND
+#endif
+
+/* Widgets */
 #ifndef QT_NO_LCDNUMBER
 #  define QT_NO_LCDNUMBER
 #endif
