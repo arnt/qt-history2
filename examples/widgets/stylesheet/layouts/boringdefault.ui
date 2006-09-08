@@ -1,0 +1,184 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>442</width>
+    <height>497</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QGridLayout" >
+    <property name="margin" >
+     <number>9</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item row="3" column="1" colspan="2" >
+     <widget class="QLineEdit" name="passwordEdit" >
+      <property name="echoMode" >
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" >
+     <widget class="QLabel" name="passwordLabel" >
+      <property name="text" >
+       <string>Select password</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" >
+     <widget class="QLabel" name="ageLabel" >
+      <property name="text" >
+       <string>Age</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2" >
+     <widget class="QLineEdit" name="nameEdit" />
+    </item>
+    <item row="6" column="2" >
+     <widget class="QDialogButtonBox" name="buttonBox" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons" >
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" >
+     <widget class="QLabel" name="nameLabel" >
+      <property name="text" >
+       <string>Name</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2" >
+     <widget class="QRadioButton" name="femaleRadioButton" >
+      <property name="text" >
+       <string>Female</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1" colspan="2" >
+     <widget class="QListWidget" name="professionList" >
+      <item>
+       <property name="text" >
+        <string>Developer</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>Student</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>Fisherman</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="2" >
+     <widget class="QSpinBox" name="ageSpinBox" />
+    </item>
+    <item row="1" column="0" >
+     <widget class="QLabel" name="sexLabel" >
+      <property name="text" >
+       <string>Sex</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" >
+     <widget class="QRadioButton" name="maleRadioButton" >
+      <property name="text" >
+       <string>Male</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="3" >
+     <widget class="QCheckBox" name="agreeCheckBox" >
+      <property name="text" >
+       <string>I have read the terms and conditions</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" >
+     <widget class="QLabel" name="professionLabel" >
+      <property name="text" >
+       <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:MS Shell Dlg 2; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Profession&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+      <property name="textFormat" >
+       <enum>Qt::RichText</enum>
+      </property>
+      <property name="wordWrap" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>442</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File" >
+    <property name="title" >
+     <string>&amp;File</string>
+    </property>
+    <addaction name="editStyleAction" />
+    <addaction name="separator" />
+    <addaction name="exitAction" />
+   </widget>
+   <widget class="QMenu" name="menu_Help" >
+    <property name="title" >
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="aboutAction" />
+    <addaction name="separator" />
+    <addaction name="aboutQtAction" />
+   </widget>
+   <addaction name="menu_File" />
+   <addaction name="menu_Help" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="exitAction" >
+   <property name="text" >
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="aboutQtAction" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="editStyleAction" >
+   <property name="text" >
+    <string>Edit &amp;Style</string>
+   </property>
+  </action>
+  <action name="aboutAction" >
+   <property name="text" >
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

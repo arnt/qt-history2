@@ -139,6 +139,7 @@
     <example filename="sliders" name="Sliders" />
     <example filename="spinboxes" name="Spin Boxes" />
     <example filename="styles" name="Styles" />
+    <example filename="stylesheet" name="Style Sheet" />
     <example filename="tetrix" name="Tetrix" />
     <example filename="tooltips" name="Tool Tips" />
     <example filename="wiggly" name="Wiggly" />

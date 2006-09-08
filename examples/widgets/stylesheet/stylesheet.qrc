@@ -1,0 +1,8 @@
+<RCC>
+<qresource prefix="/" >
+    <file>layouts/boringdefault.ui</file>
+    <file>layouts/waterfall.ui</file>
+    <file>qss/boringdefault.qss</file>
+    <file>qss/coffee.qss</file>
+</qresource>
+</RCC>
