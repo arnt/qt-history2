@@ -574,7 +574,7 @@ void QWidget::setAutoFillBackground(bool enabled)
     \row \i Geometry \i
         \l pos, x(), y(), \l rect, \l size, width(), height(), move(), resize(),
         \l sizePolicy, sizeHint(), minimumSizeHint(),
-        updateGeometry(), layout(), 
+        updateGeometry(), layout(),
         \l frameGeometry, \l geometry, \l childrenRect, \l childrenRegion,
         adjustSize(),
         mapFromGlobal(), mapToGlobal(),
@@ -7464,6 +7464,10 @@ void QWidget::setWindowModified(bool mod)
   Note that by default tooltips are only shown for active windows. You
   can change this behavior by setting the attribute
   Qt::WA_AlwaysShowToolTips to true.
+
+  If you want to control a tooltip's behavior, you can intercept the
+  event() function and catch the QEvent::ToolTip event (e.g., if you
+  want to customize the area for which the tooltip should be shown).
 
   \sa QToolTip statusTip whatsThis
 */
