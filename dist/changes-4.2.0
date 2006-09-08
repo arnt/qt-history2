@@ -184,6 +184,12 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QKeySequence
 		Added a set of platform dependent standard shortcuts.
 
+- QLibrary
+        Drop using dlcompat for library loading and resolving on Mac OS X and
+        instead use the native calls.  This does mean that you can unload
+        libraries on Mac OS X 10.4 or later, but not on 10.3 (since that uses
+        dlcompat itself).
+
 - QListWidget/QTreeWidget/QTableWidget
         When setting flags on a item the dataChanged() signal is now emitted
         Removed Unnecessary Q_ASSERT's
@@ -230,6 +236,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QGroupBox
 		Activating a groupbox by a shortcut will now show the focus rect.
+                Added a clicked() signal
 
 - QHeaderView
 	Use the current resize mode to determine section sizes when
@@ -359,7 +366,14 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Fixed placement of text on buttons and group boxes for non-latin locales
         Fixed rendering of small and mini buttons
         Attempt to be a bit smarter before changing a push button to bevel button when the size gets too small
+
         Draw the focus ring for lineedits when they are near the "top" of the widget hierarchy
+        The tickmarks are drawn correctly
+
+        implement standardIconImplementation()
+        Fix look of lineedits.
+        "Colorless" controls now look better.
+        Correct the sort indicator.
       
 - QMacPasteboardMime
         New class to handle pastboard access on Qt/Mac. This obsoletes
@@ -390,8 +404,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QTabBar
         QTabBar text can now be elided, this is controlled by the elideMode property
-        You can now turn on or off the "scroll buttons" for the tab bar with teh usesScrollButtons property.
-
+        You can now turn on or off the "scroll buttons" for the tab bar with the usesScrollButtons property.
+        Non-pixmap based styles will now fill the background of the tab with the palette's window role.
 
 - QTabWidget
 	Added missing Qt3Support signal selected().
@@ -494,6 +508,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - Q3IconView
 	Fix a case where selected icons disappeared.
 
+- Q3Socket
+        No longer (incorrectly) reports itself as non-sequential.
+
 - Qt::NoDockWidgetArea
         Added to the Qt::ToolBarArea enum
 
@@ -502,6 +519,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QEvent::KeyboardLayoutChange
         New event type. This event is sent when the keyboard layout changes.
+
+- QTabletEvent:
+        Make sure to dispatch QTabletEvents with the proper relative coordinates
+        Add proximity as another type of a tablet event (currently only sent to QApplication).
 
 - QObject
         QObject::thread() will always return a valid thread, even if
@@ -549,6 +570,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QCursor
         Added Qt::OpenHandCursor and Qt::ClosedHandCursor.
 
+- QDesktopWidget
+        Remove a potential out-of-bounds read.
+
 - QDialog
         Stability improved for when the default button is deleted.
 
@@ -562,6 +586,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added aboutToHide() SIGNAL.
         Added isEmpty() accessor.
         Made it possible for popup menus to cover the taskbar in Windows and KDE.
+        Popups no longer show up in Expose
+        Use the proper PageUp and PageDown behavior on Mac OS X.
+
 
 - QMessageBox
         API overhaul to support for more than 3 buttons
@@ -570,6 +597,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Added detailedText property to display detailed text
         Improved sizing of message box (especially on the Mac OS X)
         Really long text in a message box is automatically wrapped
+        A message box that is set to be window modal will automatically become a sheet on Mac OS X.
+        Use QStyle::standardIcon() for getting its icon
 
 - QButtonGroup
         Added pressed() and released() signals.
@@ -631,6 +660,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QDateTimeEdit
         Added a new property to show the calendar popup for choosing th
         Add a setSelectedSection function.
+
+- QDialogButtonBox
+        New class for placing buttons in a platform specific manner in a dialog.
 
 - QImageReader
         Optimizations to ensure that the most likely formats and plugins are
@@ -734,6 +766,11 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Significantly reduce the size of the generated output when
 	using the Postscript and PDF drivers.
 	Fixed fromPage/toPage when generating PDF
+        Make QPrinter objects resuable on Mac OS X.
+
+- QProcess
+        Always use utf8 encoding when passing commands on Mac OS X.
+
 
 - QCalendarWidget
 	New class
@@ -975,12 +1012,20 @@ Mac OS X:
     QSplitter, QScrollBar, QLabel, QCheckBox, QRadioButton, QTabBar/Widget,
     QSlider, QScrollBar
     Hidden files are now reported as hidden by QFileInfo, QDirModel, etc.
+    Windows now have a transparent size grip, an attribute for specifying an opaque size grip was added. 
+    Metrowerks generator has been removed.
+    Follow the antialiasing threshold setting
+    
+
+    The documentation now has "Xcode-compatible" links so that it can be added
+    into Xcode's documentation viewer. This needs to be done by the developer
+    as regenerating Xcode's index takes quite a long time
 
 - QPixmap
         Functions to convert to/from a CGImageRef (for CoreGraphics interop) added.
 
 - QMenuBar
-        Support for explicit merging of items on Qt/Mac, without automatic detection.
+        Support for explicit merging of items on Qt/Mac, without automatic detection (QAction::MenuRole)
         Localization of merged items possible on Qt/Mac now.
 
 - QWidget
@@ -993,6 +1038,7 @@ Mac OS X:
 - QClipboard
         Data copied to the clipboard now stays available after the application exits.
         Added support for the Find clipboard buffer.
+        Fix encoding of Urls in mimes.
         
 - QAbstractScrollArea
         Improve look and feel by aligning the scroll bars with the size grip.
@@ -1020,6 +1066,8 @@ Windows:
 
 - Designer
 		Docked Window mode is now the default on Windows.
+                Preview of widgets is no longer modal on Mac OS X.
+                Passing really long relative pathes into the resource will no longer cause a crash.
 
 - Improved windows mime handling
 		Resolved an issue related to drag and drop of attachments from some applications.
