@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
+#include <private/qprintengine_qws_p.h>
+
 #ifndef QT_NO_PRINTER
 
-#include <private/qprintengine_qws_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <qimage.h>
 #include <qfile.h>
@@ -72,7 +73,7 @@ bool QWSPrintEngine::begin(QPaintDevice *)
     Q_D(QWSPrintEngine);
     d->paintEngine->state = state;
     Q_ASSERT_X(d->printerState == QPrinter::Idle, "QWSPrintEngine", "printer already active");
-    
+
     // Create a new off-screen monochrome image to handle the drawing process.
     QSize size = paperRect().size();
     if ( d->pageImage )
@@ -134,7 +135,7 @@ bool QWSPrintEngine::end()
     for ( int x = 0; x <= QPrintEngine::PPK_Duplex; x++ )
         map.insert( QString::number(x), property((QPrintEngine::PrintEnginePropertyKey)(x)));
     QVariant variant(map);
-    
+
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
     out << variant;
@@ -495,12 +496,12 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
 	len = 0;
 
         uint currentColor = qRgb(255, 255, 255); // start with white
-        
+
 	for ( int x = 0; x < width && x < TIFF_FAX_WIDTH; ++x ) {
             if ( imageFormat == QImage::Format_RGB32 ) {
                 // read color of the current pixel
                 uint *p = (uint *)scan + x;
-                
+
                 if ( *p == currentColor ) { // if it is the same color
                     len++; // imcrement length
                 } else { // otherwise write color into the buffer
@@ -527,7 +528,7 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
 	        } else {
 		    ++len;
 	        }
-            } 
+            }
 	}
 
         if ( imageFormat == QImage::Format_RGB32 ) {
@@ -535,7 +536,7 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
             if ( len != 0 ) {
                 if ( currentColor == qRgb(0, 0, 0) )
                     writeG3BlackRun( len );
-                else 
+                else
                     writeG3WhiteRun( len );
             }
             if ( width < TIFF_FAX_WIDTH )
