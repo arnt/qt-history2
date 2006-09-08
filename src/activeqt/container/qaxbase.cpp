@@ -505,6 +505,9 @@ public:
         // protect initialization
         QMutexLocker locker(&cache_mutex);
         mo_cache_ref++;
+
+        qRegisterMetaType<IUnknown*>("IUnknown*", &ptr);
+        qRegisterMetaType<IDispatch*>("IDispatch*", &disp);
     }
 
     ~QAxBasePrivate()
