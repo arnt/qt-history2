@@ -233,7 +233,7 @@ void tst_QMessageBox::statics()
         QTimer::singleShot(1000, this, SLOT(sendKey()));
         sb = (*statics[i])(0, "caption",
            "text", QMessageBox::Yes | QMessageBox::No | QMessageBox::Help,
-           QMessageBox::NoButton);
+           QMessageBox::Yes);
         QCOMPARE(sb, QMessageBox::Yes);
 
         keyToSend = Qt::Key_Enter;
@@ -288,8 +288,8 @@ void tst_QMessageBox::staticSourceCompat()
     // source compat tests for < 4.2
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBox::information(0, "title", "text", QMessageBox::Yes, QMessageBox::No);
-    QCOMPARE(ret, int(QMessageBox::Yes));
+    ret = QMessageBox::information(0, "title", "text", QMessageBox::Ok, QMessageBox::No);
+    QCOMPARE(ret, int(QMessageBox::Ok));
 
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
@@ -360,8 +360,8 @@ void tst_QMessageBox::staticBinaryCompat()
     // binary compat tests for < 4.2
     keyToSend = Qt::Key_Enter;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
-    ret = QMessageBox::information(0, "title", "text", Old_Yes, Old_No, 0);
-    QCOMPARE(ret, int(Old_Yes));
+    ret = QMessageBox::information(0, "title", "text", Old_Ok, Old_No, 0);
+    QCOMPARE(ret, int(Old_Ok));
 
     keyToSend = Qt::Key_Escape;
     QTimer::singleShot(1000, this, SLOT(sendKey()));
