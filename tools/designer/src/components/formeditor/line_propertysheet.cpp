@@ -52,6 +52,15 @@ void LinePropertySheet::setProperty(int index, const QVariant &value)
     QDesignerPropertySheet::setProperty(index, value);
 }
 
+QString LinePropertySheet::propertyGroup(int index) const
+{
+    QString g = QDesignerPropertySheet::propertyGroup(index);
+    if (g == QLatin1String("QObject"))
+        return g;
+
+    return QLatin1String("Line");
+}
+
 LinePropertySheetFactory::LinePropertySheetFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
 {

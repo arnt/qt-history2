@@ -30,6 +30,7 @@ public:
 
     virtual void setProperty(int index, const QVariant &value);
     virtual bool isVisible(int index) const;
+    virtual QString propertyGroup(int index) const;
 };
 
 class LinePropertySheetFactory: public QExtensionFactory
