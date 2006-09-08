@@ -145,7 +145,9 @@ private:
 #endif
     void invokeRepaintRegion(QWSRepaintRegionCommand *cmd,
                               QWSClient *client);
+#ifndef QT_NO_QWSEMBEDWIDGET
     void invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client);
+#endif
 #ifndef QT_NO_QWS_INPUTMETHODS
     void invokeIMResponse(const QWSIMResponseCommand *cmd,
                          QWSClient *client);

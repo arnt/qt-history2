@@ -75,9 +75,11 @@ QWSEvent *QWSEvent::factory(int type)
         event = new QWSIMInitEvent;
         break;
 #endif
+#ifndef QT_NO_QWSEMBEDWIDGET
     case QWSEvent::Embed:
         event = new QWSEmbedEvent;
         break;
+#endif
     default:
         qCritical("QWSEvent::factory() : Unknown event type %08x!", type);
     }

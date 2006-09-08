@@ -414,9 +414,11 @@ void QWSWindow::focus(bool get)
     event.simpleData.get_focus = get;
     c->sendEvent(&event);
 
+#ifndef QT_NO_QWSEMBEDWIDGET
     const int n = d->embedded.size();
     for (int i = 0; i < n; ++i)
         d->embedded.at(i)->focus(get);
+#endif
 }
 
 void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
@@ -1553,10 +1555,12 @@ void QWSServerPrivate::doClient(QWSClient *client)
                                 cs->client);
             cs->client->d_func()->unlockCommunication();
             break;
+#ifndef QT_NO_QWSEMBEDWIDGET
         case QWSCommand::Embed:
             invokeEmbed(static_cast<QWSEmbedCommand*>(cs->command),
                         cs->client);
             break;
+#endif
         }
         delete cs;
     }
@@ -2710,6 +2714,7 @@ void QWSServerPrivate::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
     repaint_region(cmd->simpleData.windowid, cmd->simpleData.opaque, r);
 }
 
+#ifndef QT_NO_QWSEMBEDWIDGET
 void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
 {
     // Should find these two windows in a single loop
@@ -2743,6 +2748,7 @@ void QWSServerPrivate::invokeEmbed(QWSEmbedCommand *cmd, QWSClient *client)
                                        cmd->simpleData.type, cmd->region);
     update_regions();
 }
+#endif // QT_NO_QWSEMBEDWIDGET
 
 QWSWindow* QWSServerPrivate::newWindow(int id, QWSClient* client)
 {
