@@ -682,6 +682,24 @@ QList<T> QList<T>::fromVector(const QVector<T> &vector)
 Q_DECLARE_SEQUENTIAL_ITERATOR(Vector)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(Vector)
 
+/*
+   ### Fix for Qt 5
+   ### This needs to be removed for next releases of Qt. It is a workaround for vc++ because 
+   ### Qt exports QPolygon and QPolygonF that inherit QVector<QPoint> and 
+   ### QVector<QPointF> respectively.
+*/
+#ifdef Q_CC_MSVC
+#include <QPointF>
+#include <QPoint>
+#if defined(QT_BUILD_CORE_LIB)
+#define Q_TEMPLATE_EXTERN
+#else
+#define Q_TEMPLATE_EXTERN extern
+#endif
+Q_TEMPLATE_EXTERN template class Q_CORE_EXPORT QVector<QPointF>;
+Q_TEMPLATE_EXTERN template class Q_CORE_EXPORT QVector<QPoint>;
+#endif
+
 QT_END_HEADER
 
 #endif // QVECTOR_H
