@@ -156,14 +156,14 @@ public:
     }
 };
 
-class QMacPasteBoardMime;
+class QMacPasteboardMime;
 class QMimeData;
 
-class QMacPasteBoard
+class QMacPasteboard
 {
     struct Promise {
-        Promise(QMacPasteBoardMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
-        QMacPasteBoardMime *convertor;
+        Promise(QMacPasteboardMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
+        QMacPasteboardMime *convertor;
         QString mime;
         QVariant data;
     };
@@ -175,10 +175,10 @@ class QMacPasteBoard
     mutable bool mac_mime_source;
     static OSStatus promiseKeeper(PasteboardRef, PasteboardItemID, CFStringRef, void *);
 public:
-    QMacPasteBoard(PasteboardRef p, uchar mime_type=0);
-    QMacPasteBoard(uchar mime_type);
-    QMacPasteBoard(CFStringRef name=0, uchar mime_type=0);
-    ~QMacPasteBoard();
+    QMacPasteboard(PasteboardRef p, uchar mime_type=0);
+    QMacPasteboard(uchar mime_type);
+    QMacPasteboard(CFStringRef name=0, uchar mime_type=0);
+    ~QMacPasteboard();
 
     bool hasFlavor(QString flavor) const;
     bool hasOSType(int c_flavor) const;

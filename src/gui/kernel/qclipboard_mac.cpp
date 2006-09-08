@@ -40,9 +40,9 @@ void qt_event_send_clipboard_changed(); //qapplication_mac.cpp
   QClipboard member functions for mac.
  *****************************************************************************/
 
-static QMacPasteBoard *qt_mac_pasteboards[2] = {0, 0};
+static QMacPasteboard *qt_mac_pasteboards[2] = {0, 0};
 
-static inline QMacPasteBoard *qt_mac_pasteboard(QClipboard::Mode mode)
+static inline QMacPasteboard *qt_mac_pasteboard(QClipboard::Mode mode)
 {
     // Assert on the mode, unsupported modes should be caught before
     // calling this function.
@@ -64,8 +64,8 @@ static void qt_mac_cleanupPasteboard() {
 static bool qt_mac_updateScrap(QClipboard::Mode mode)
 {
     if(!qt_mac_pasteboards[0]) {
-        qt_mac_pasteboards[0] = new QMacPasteBoard(kPasteboardClipboard, QMacPasteBoardMime::MIME_CLIP);
-        qt_mac_pasteboards[1] = new QMacPasteBoard(kPasteboardFind, QMacPasteBoardMime::MIME_CLIP);
+        qt_mac_pasteboards[0] = new QMacPasteboard(kPasteboardClipboard, QMacPasteboardMime::MIME_CLIP);
+        qt_mac_pasteboards[1] = new QMacPasteboard(kPasteboardFind, QMacPasteboardMime::MIME_CLIP);
         qAddPostRoutine(qt_mac_cleanupPasteboard);
         return true;
     }
@@ -156,21 +156,21 @@ bool QClipboard::ownsMode(Mode mode) const
 #endif // QT_NO_CLIPBOARD
 
 /*****************************************************************************
-   QMacPasteBoard code
+   QMacPasteboard code
 *****************************************************************************/
 
-QMacPasteBoard::QMacPasteBoard(PasteboardRef p, uchar mt)
+QMacPasteboard::QMacPasteboard(PasteboardRef p, uchar mt)
 {
     mac_mime_source = false;
-    mime_type = mt ? mt : uchar(QMacPasteBoardMime::MIME_ALL);
+    mime_type = mt ? mt : uchar(QMacPasteboardMime::MIME_ALL);
     paste = p;
     CFRetain(paste);
 }
 
-QMacPasteBoard::QMacPasteBoard(uchar mt)
+QMacPasteboard::QMacPasteboard(uchar mt)
 {
     mac_mime_source = false;
-    mime_type = mt ? mt : uchar(QMacPasteBoardMime::MIME_ALL);
+    mime_type = mt ? mt : uchar(QMacPasteboardMime::MIME_ALL);
     paste = 0;
     OSStatus err = PasteboardCreate(0, &paste);
     if(err == noErr) {
@@ -180,10 +180,10 @@ QMacPasteBoard::QMacPasteBoard(uchar mt)
     }
 }
 
-QMacPasteBoard::QMacPasteBoard(CFStringRef name, uchar mt)
+QMacPasteboard::QMacPasteboard(CFStringRef name, uchar mt)
 {
     mac_mime_source = false;
-    mime_type = mt ? mt : uchar(QMacPasteBoardMime::MIME_ALL);
+    mime_type = mt ? mt : uchar(QMacPasteboardMime::MIME_ALL);
     paste = 0;
     OSStatus err = PasteboardCreate(name, &paste);
     if(err == noErr) {
@@ -193,7 +193,7 @@ QMacPasteBoard::QMacPasteBoard(CFStringRef name, uchar mt)
     }
 }
 
-QMacPasteBoard::~QMacPasteBoard()
+QMacPasteboard::~QMacPasteboard()
 {
     // Copy all promised data to the clip board before exiting.
     for (int i = 0; i < promises.count(); ++i) {
@@ -207,14 +207,14 @@ QMacPasteBoard::~QMacPasteBoard()
 }
 
 PasteboardRef
-QMacPasteBoard::pasteBoard() const
+QMacPasteboard::pasteBoard() const
 {
     return paste;
 }
 
-OSStatus QMacPasteBoard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef flavor, void *data)
+OSStatus QMacPasteboard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef flavor, void *data)
 {
-    QMacPasteBoard *qpaste = (QMacPasteBoard*) data;
+    QMacPasteboard *qpaste = (QMacPasteboard*) data;
     const int promise_id = (int)id;
 
     { //protect the marker!
@@ -232,7 +232,7 @@ OSStatus QMacPasteBoard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
         return cantGetFlavorErr;
     }
 
-    QMacPasteBoard::Promise promise = qpaste->promises[promise_id];
+    QMacPasteboard::Promise promise = qpaste->promises[promise_id];
     const QString flavorAsQString = QCFString::toQString(flavor);
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: Calling in promise for %s[%d] [%s] (%s)", qPrintable(promise.mime), promise_id,
@@ -253,7 +253,7 @@ OSStatus QMacPasteBoard::promiseKeeper(PasteboardRef paste, PasteboardItemID id,
 }
 
 bool
-QMacPasteBoard::hasOSType(int c_flavor) const
+QMacPasteboard::hasOSType(int c_flavor) const
 {
     if (!paste)
         return false;
@@ -297,7 +297,7 @@ QMacPasteBoard::hasOSType(int c_flavor) const
 }
 
 bool
-QMacPasteBoard::hasFlavor(QString c_flavor) const
+QMacPasteboard::hasFlavor(QString c_flavor) const
 {
     if (!paste)
         return false;
@@ -331,21 +331,21 @@ QMacPasteBoard::hasFlavor(QString c_flavor) const
     return false;
 }
 
-class QMacPasteBoardMimeSource : public QMimeData {
-    const QMacPasteBoard *paste;
+class QMacPasteboardMimeSource : public QMimeData {
+    const QMacPasteboard *paste;
 public:
-    QMacPasteBoardMimeSource(const QMacPasteBoard *p) : QMimeData(), paste(p) { }
-    ~QMacPasteBoardMimeSource() { }
+    QMacPasteboardMimeSource(const QMacPasteboard *p) : QMimeData(), paste(p) { }
+    ~QMacPasteboardMimeSource() { }
     virtual QStringList formats() const { return paste->formats(); }
     virtual QVariant retrieveData(const QString &format, QVariant::Type type) const { return paste->retrieveData(format, type); }
 };
 
 QMimeData
-*QMacPasteBoard::mimeData() const
+*QMacPasteboard::mimeData() const
 {
     if(!mime) {
         mac_mime_source = true;
-        mime = new QMacPasteBoardMimeSource(this);
+        mime = new QMacPasteboardMimeSource(this);
 
     }
     return mime;
@@ -360,7 +360,7 @@ private:
 };
 
 void
-QMacPasteBoard::setMimeData(QMimeData *mime_src)
+QMacPasteboard::setMimeData(QMimeData *mime_src)
 {
     if (!paste)
         return;
@@ -376,7 +376,7 @@ QMacPasteBoard::setMimeData(QMimeData *mime_src)
 #ifdef DEBUG_PASTEBOARD
         qDebug("PasteBoard: setMimeData [%p]", mime_src);
 #endif
-        QList<QMacPasteBoardMime*> all = QMacPasteBoardMime::all(mime_type);
+        QList<QMacPasteboardMime*> all = QMacPasteboardMime::all(mime_type);
         QStringList formats = mime_src->formats();
 #ifdef DEBUG_PASTEBOARD
         for(int i = 0; i < formats.size(); ++i)
@@ -385,11 +385,11 @@ QMacPasteBoard::setMimeData(QMimeData *mime_src)
 
         for (int i = 0, count = 0; i < formats.size(); ++i) {
             QString mimeType = formats.at(i);
-            for(QList<QMacPasteBoardMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-                QMacPasteBoardMime *c = (*it);
+            for(QList<QMacPasteboardMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+                QMacPasteboardMime *c = (*it);
                 QString flavor(c->flavorFor(mimeType));
                 if(!flavor.isEmpty()) {
-                    promises.append(QMacPasteBoard::Promise(c, mimeType,
+                    promises.append(QMacPasteboard::Promise(c, mimeType,
                                                             static_cast<QMacMimeData*>(mime_src)->variantData(mimeType)));
 #ifdef DEBUG_PASTEBOARD
                     qDebug(" -  adding %s[%d] [%s] <%s>", qPrintable(mimeType), count, qPrintable(flavor),
@@ -409,7 +409,7 @@ QMacPasteBoard::setMimeData(QMimeData *mime_src)
 }
 
 QStringList
-QMacPasteBoard::formats() const
+QMacPasteboard::formats() const
 {
     if (!paste)
         return QStringList();
@@ -425,12 +425,12 @@ QMacPasteBoard::formats() const
     {
         extern CFStringRef qt_mac_mime_typeUTI; //qmime_mac.cpp
         if(hasFlavor(QCFString::toQString(qt_mac_mime_typeUTI))) {
-            qmt = QMacPasteBoardMime::MIME_QT_CONVERTOR;
+            qmt = QMacPasteboardMime::MIME_QT_CONVERTOR;
 #ifdef PASTEBOARD_USE_QT3SUPPORT
         } else {
             extern int qt_mac_mime_type; //qmime_mac.cpp
             if(hasOSType(qt_mac_mime_type))
-                qmt = QMacPasteBoardMime::MIME_QT3_CONVERTOR;
+                qmt = QMacPasteboardMime::MIME_QT3_CONVERTOR;
 #endif
         }
     }
@@ -454,7 +454,7 @@ QMacPasteBoard::formats() const
 #ifdef DEBUG_PASTEBOARD
             qDebug(" -%s [0x%x]", qPrintable(QString(flavor)), qmt);
 #endif
-            QString mimeType = QMacPasteBoardMime::flavorToMime(qmt, flavor);
+            QString mimeType = QMacPasteboardMime::flavorToMime(qmt, flavor);
             if(!mimeType.isEmpty()) {
 #ifdef DEBUG_PASTEBOARD
                 qDebug("   -<%d> %s [%s]", ret.size(), qPrintable(mimeType), qPrintable(QString(flavor)));
@@ -467,7 +467,7 @@ QMacPasteBoard::formats() const
 }
 
 bool
-QMacPasteBoard::hasFormat(const QString &format) const
+QMacPasteboard::hasFormat(const QString &format) const
 {
     if (!paste)
         return false;
@@ -482,12 +482,12 @@ QMacPasteBoard::hasFormat(const QString &format) const
     {
         extern CFStringRef qt_mac_mime_typeUTI; //qmime_mac.cpp
         if(hasFlavor(QCFString::toQString(qt_mac_mime_typeUTI))) {
-            qmt = QMacPasteBoardMime::MIME_QT_CONVERTOR;
+            qmt = QMacPasteboardMime::MIME_QT_CONVERTOR;
 #ifdef PASTEBOARD_USE_QT3SUPPORT
         } else {
             extern int qt_mac_mime_type; //qmime_mac.cpp
             if(hasOSType(qt_mac_mime_type))
-                qmt = QMacPasteBoardMime::MIME_QT3_CONVERTOR;
+                qmt = QMacPasteboardMime::MIME_QT3_CONVERTOR;
 #endif
         }
     }
@@ -511,7 +511,7 @@ QMacPasteBoard::hasFormat(const QString &format) const
 #ifdef DEBUG_PASTEBOARD
             qDebug(" -%s [0x%x]", qPrintable(QString(flavor)), qmt);
 #endif
-            QString mimeType = QMacPasteBoardMime::flavorToMime(qmt, flavor);
+            QString mimeType = QMacPasteboardMime::flavorToMime(qmt, flavor);
 #ifdef DEBUG_PASTEBOARD
             if(!mimeType.isEmpty())
                 qDebug("   - %s", qPrintable(mimeType));
@@ -524,7 +524,7 @@ QMacPasteBoard::hasFormat(const QString &format) const
 }
 
 QVariant
-QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
+QMacPasteboard::retrieveData(const QString &format, QVariant::Type) const
 {
     if (!paste)
         return QVariant();
@@ -539,12 +539,12 @@ QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
     {
         extern CFStringRef qt_mac_mime_typeUTI; //qmime_mac.cpp
         if(hasFlavor(QCFString::toQString(qt_mac_mime_typeUTI))) {
-            qmt = QMacPasteBoardMime::MIME_QT_CONVERTOR;
+            qmt = QMacPasteboardMime::MIME_QT_CONVERTOR;
 #ifdef PASTEBOARD_USE_QT3SUPPORT
         } else {
             extern int qt_mac_mime_type; //qmime_mac.cpp
             if(hasOSType(qt_mac_mime_type))
-                qmt = QMacPasteBoardMime::MIME_QT3_CONVERTOR;
+                qmt = QMacPasteboardMime::MIME_QT3_CONVERTOR;
 #endif
         }
     }
@@ -552,9 +552,9 @@ QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
 #ifdef DEBUG_PASTEBOARD
     qDebug("Pasteboard: retrieveData [%s]", qPrintable(format));
 #endif
-    const QList<QMacPasteBoardMime *> mimes = QMacPasteBoardMime::all(qmt);
+    const QList<QMacPasteboardMime *> mimes = QMacPasteboardMime::all(qmt);
     for(int mime = 0; mime < mimes.size(); ++mime) {
-        QMacPasteBoardMime *c = mimes.at(mime);
+        QMacPasteboardMime *c = mimes.at(mime);
         QString c_flavor = c->flavorFor(format);
         if(!c_flavor.isEmpty()) {
             // Handle text/plain a little differently. Try handling Unicode first.
@@ -607,7 +607,7 @@ QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
 }
 
 void
-QMacPasteBoard::clear()
+QMacPasteboard::clear()
 {
 #ifdef DEBUG_PASTEBOARD
     qDebug("PasteBoard: clear!");
@@ -618,7 +618,7 @@ QMacPasteBoard::clear()
 }
 
 bool
-QMacPasteBoard::sync() const
+QMacPasteboard::sync() const
 {
     if (!paste)
         return false;

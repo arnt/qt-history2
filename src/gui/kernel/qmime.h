@@ -105,22 +105,22 @@ public:
     virtual QList<QByteArray> convertFromMime(const QString &mime, QVariant data, int flav)=0;
 };
 
-class Q_GUI_EXPORT QMacPasteBoardMime {
+class Q_GUI_EXPORT QMacPasteboardMime {
     char type;
 public:
-    enum QMacPasteBoardMimeType { MIME_DND=0x01,
+    enum QMacPasteboardMimeType { MIME_DND=0x01,
                                   MIME_CLIP=0x02,
                                   MIME_QT_CONVERTOR=0x04,
                                   MIME_QT3_CONVERTOR=0x08,
                                   MIME_ALL=MIME_DND|MIME_CLIP
     };
-    explicit QMacPasteBoardMime(char);
-    virtual ~QMacPasteBoardMime();
+    explicit QMacPasteboardMime(char);
+    virtual ~QMacPasteboardMime();
 
     static void initialize();
 
-    static QList<QMacPasteBoardMime*> all(uchar);
-    static QMacPasteBoardMime *convertor(uchar, const QString &mime, QString flav);
+    static QList<QMacPasteboardMime*> all(uchar);
+    static QMacPasteboardMime *convertor(uchar, const QString &mime, QString flav);
     static QString flavorToMime(uchar, QString flav);
 
     virtual QString convertorName() = 0;
