@@ -182,8 +182,10 @@ void tst_QLibrary::unload_data()
     QTest::addColumn<bool>("result");
 
     QString currDir = QDir::currentPath();
-    QTest::newRow( "ok00" ) << currDir + "/mylib" << (bool)TRUE;
-
+#ifdef Q_WS_MAC
+    if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_3)
+        QEXPECT_FAIL("ok00", "dlcompat cannot unload libraries", Continue);
+#endif
     QTest::newRow( "ok01" ) << currDir + "/nolib" << (bool)TRUE;
 }
 
