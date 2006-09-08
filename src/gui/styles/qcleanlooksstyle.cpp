@@ -514,8 +514,8 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 {
     QColor dark;
     dark.setHsv(option->palette.button().color().hue(), 
-                (int)(option->palette.button().color().saturation()*1.9), 
-                (int)(option->palette.button().color().value()*0.7));
+                qMin(255, (int)(option->palette.button().color().saturation()*1.9)), 
+                qMin(255, (int)(option->palette.button().color().value()*0.7)));
     
     QColor highlight = option->palette.highlight().color();
     
@@ -658,11 +658,11 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor darkOutline;
     QColor dark;
     darkOutline.setHsv(button.hue(), 
-                (int)(button.saturation()*3.0), 
-                (int)(button.value()*0.6));
+                qMin(255, (int)(button.saturation()*3.0)), 
+                qMin(255, (int)(button.value()*0.6)));
     dark.setHsv(button.hue(), 
-                (int)(button.saturation()*1.9), 
-                (int)(button.value()*0.7));
+                qMin(255, (int)(button.saturation()*1.9)), 
+                qMin(255, (int)(button.value()*0.7)));
     QColor tabFrameColor = mergedColors(option->palette.background().color(),
                                                 dark.light(135), 60);
     
@@ -1022,8 +1022,8 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QColor buttonColor = option->palette.button().color();
             QColor gradientStopColor;
             gradientStopColor.setHsv(buttonColor.hue(), 
-                                     (int)(buttonColor.saturation()*1.9), 
-                                     (int)(buttonColor.value()*0.94));
+                                     qMin(255, (int)(buttonColor.saturation()*1.9)), 
+                                     qMin(255, (int)(buttonColor.value()*0.94)));
             
             
             rect.adjust(0, 1, 0, -1);
@@ -1258,12 +1258,12 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
     QColor button = option->palette.button().color();
     QColor dark;
     dark.setHsv(button.hue(), 
-                (int)(button.saturation()*1.9), 
-                (int)(button.value()*0.7));
+                qMin(255, (int)(button.saturation()*1.9)), 
+                qMin(255, (int)(button.value()*0.7)));
     QColor darkOutline;
     darkOutline.setHsv(button.hue(), 
-                (int)(button.saturation()*2.0), 
-                (int)(button.value()*0.6));
+                qMin(255, (int)(button.saturation()*2.0)), 
+                qMin(255, (int)(button.value()*0.6)));
     QRect rect = option->rect;
     QColor shadow = mergedColors(option->palette.background().color().dark(120),
                                  dark.light(130), 60);
@@ -2240,14 +2240,14 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     QColor grooveColor;
     QColor darkOutline;
     dark.setHsv(button.hue(), 
-                (int)(button.saturation()*1.9), 
-                (int)(button.value()*0.7));
+                qMin(255, (int)(button.saturation()*1.9)), 
+                qMin(255, (int)(button.value()*0.7)));
     grooveColor.setHsv(button.hue(), 
-                (int)(button.saturation()*2.6), 
-                (int)(button.value()*0.9));
+                qMin(255, (int)(button.saturation()*2.6)), 
+                qMin(255, (int)(button.value()*0.9)));
     darkOutline.setHsv(button.hue(), 
-                (int)(button.saturation()*3.0), 
-                (int)(button.value()*0.6));
+                qMin(255, (int)(button.saturation()*3.0)), 
+                qMin(255, (int)(button.value()*0.6)));
 
     QColor alphaCornerColor;
     if (widget) {
@@ -2322,7 +2322,6 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                 }
 
-                if (isEnabled) {
                     // gradients
                     qt_cleanlooks_draw_gradient(&cachePainter, upRect,
                                             gradientStartColor.dark(106),
@@ -2330,6 +2329,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(0, 0, 0, 1),
                                             gradientStartColor.dark(106),
                                             gradientStopColor, TopDown, option->palette.button());
+                if (isEnabled) {
                     if(upIsActive) {
                         if (sunken) {
                             cachePainter.fillRect(upRect.adjusted(1, 0, 0, 0), gradientStopColor.dark(110));
