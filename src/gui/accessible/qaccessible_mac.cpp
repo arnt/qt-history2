@@ -268,6 +268,9 @@ public:
     inline QObject * object() const
     { return base->interface->object(); }
 
+    inline QObject * cachedObject() const
+    { return m_cachedObject; }
+
     inline QRect rect() const
     { return base->interface->rect(child); }
 
@@ -296,13 +299,14 @@ public:
     { return child; }
 
     inline bool isValid() const
-    { return (base != 0); }
+    { return (base != 0 && base->interface->isValid()); }
 
     QInterfaceItem parent() const
     { return navigate(QAccessible::Ancestor, 1); }
 
 protected:
     QInterfaceItemBase *base;
+    QObject *m_cachedObject;
     int child;
 };
 
@@ -321,6 +325,7 @@ QInterfaceItem::QInterfaceItem()
 */
 QInterfaceItem::QInterfaceItem(QAccessibleInterface *interface, int child)
 :base(new QInterfaceItemBase(interface))
+,m_cachedObject(interface->object())
 ,child(child)
 { }
 
@@ -330,6 +335,7 @@ QInterfaceItem::QInterfaceItem(QAccessibleInterface *interface, int child)
 */
 QInterfaceItem::QInterfaceItem(QInterfaceItem other, int child)
 :base(other.base)
+,m_cachedObject(other.object())
 ,child(child)
 {
     ++base->refCount;
@@ -337,6 +343,7 @@ QInterfaceItem::QInterfaceItem(QInterfaceItem other, int child)
 
 QInterfaceItem::QInterfaceItem(const QInterfaceItem &other)
 :base(other.base)
+,m_cachedObject(other.object())
 ,child(other.child)
 {
     ++base->refCount;
@@ -367,9 +374,10 @@ bool QInterfaceItem::operator==(const QInterfaceItem &other) const
 
 uint qHash(QInterfaceItem item)
 {
-    if (item.isValid() == false)
-        return 0;
-    return qHash(item.object()) + qHash(item.id());
+    if (item.isValid())
+        return qHash(item.object()) + qHash(item.id());
+    else
+        return qHash(item.cachedObject()) + qHash(item.id());
 }
 
 QInterfaceItem::~QInterfaceItem()
@@ -563,8 +571,6 @@ void QAccessibleHierarchyManager::objectDestroyed()
     while (i != qobjectToInterfaces.end() && i.key() == destroyed) {
         const QInterfaceItem interface = i.value();
         ++i;
-        if (interface.isValid() == false)
-            continue;
         const QAXUIElement element = interfaceToElement.value(interface);
         interfaceToElement.remove(interface);
         if (element.isValid() == false)
