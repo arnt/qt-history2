@@ -141,6 +141,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         actually changed.
         Fixed endian issue with createIndex().
         Added FixedString matching for match()
+        QAbstractItemModel now uses stable sorting.
 
 - QAbstractItemView
 	Make sure that the doubleClicked() signal is only emitted
@@ -180,11 +181,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QTableWidget
         Added clearContents() function which will not reset the headers.
+        QTableWidget now uses stable sorting.
 
 - QTreeWidget
         Added indexOfTopLevelItem() const function.
         Inserting of items is now faster.
         Fix crash when calling QTreeWidgetItem::setData with a negative number.
+        QTreeWidget now uses stable sorting.
 
 - QTreeView
         When setting the root index to be the already current root index no
@@ -480,6 +483,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QWidget
         Added a property styleSheet to set/read the widget style sheet.
+        Added saveGeometry(), restoreGeometry() convenience functions for 
+        saving and restoring a window's geometry.
 
 - QWindowsStyle
 	We no longer draw splitter handles in Windows style. This resolves an inconsistency with
@@ -907,7 +912,8 @@ Mac OS X:
         Can now wrap a native HIViewRef with QWidget::create().
         Now creates top levels with parents that have WindowStaysOnTopHint
         set to also have WindowStaysOnTopHint.
-
+- QClipboard
+        Data copied to the clipboard now stays available after the application exits.
 
 Windows:
 		Ensured that widgets do not show themselves in a hover state if a popup has focus.
