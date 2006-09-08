@@ -50,9 +50,13 @@ Applications compiled for 4.1 will continue to run with 4.2.
   QStringList, QRectF, QSizeF, QPointF, QUrl, QChar, qlonglong and qulonglong.
 
 - uic3: Add linenumbers to warnings. Make warnings know the objectName of the
-  widget in Questio
+  widget in question.
   QStandardItemModel API provides a classic item-based approach to
   working with models.
+
+- lupdate and lrelease: Disable .qm file compression by default (pass
+  -compress to obtain the old behavior). Make verbose the default
+  behavior (pass -silent to obtain the old behavior).
 
 - Added Qt::ForegroundRole and Qt::BackgroundRole, allowing itemviews to
   use any QBrush (not just QColor, as previously) when rendering items.
@@ -263,8 +267,29 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Fixed partial repainting bug with alternatingRowColors.
 	If the resize mode has been set, don't reset it in setViewMode().
 
+- QMap and QHash
+        Prevent conversion of iterator or const_iterator to bool
+        (e.g., if (map->find(value))), because the conversion always
+        returned true. Qt 4.1 code that doesn't compile because of
+        this change was most probably buggy.
+        Added uniqueKeys().
+
 - QModelIndex
 	Added flags() convenience function.
+
+- QRect, QRectF, QRegion
+        Renamed unite() united(), intersect() intersected(),
+        subtract() subtracted(), and eor() xored().
+
+- QRegExp
+        Added RegExp2 syntax, which provides greedy qualifiers (+, *, etc.).
+        Marks (QChar::isMark()) are now treated as word characters,
+        affecting the behavior of '\b', '\w', and '\W' for languages
+        that use diacritic marks (e.g., Arabic).
+        Fix reentrancy issue with regexp cache.
+
+- QSet
+        Added QSet::iterator and QMutableSetIterator.
 
 - QSlider
     Supports Jump-to-here positioning.
@@ -653,6 +678,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Fixed masked pixmap brushes.
 	Speed up QImage drawing.
 
+- QDate
+        Support dates all the way down to Julian Day 1 (2 January
+        4713 B.C.) using the Julian calendar when appropriate.
+
 - QDateTime
         Fix a parsing issue in QDateTime::fromString(const QString &s,
         Qt::DateFormat f)
@@ -725,6 +754,13 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         left alignment instead of an invalid alignment.
         Added UnderlineStyle formatting, including SpellCheckUnderline.
 
+- QTranslator
+        Added support for plural forms, through a new QObject::tr() overload.
+        Don't generate a LanguageChange event when the translator fails to load.
+        Fixed a bug in isEmpty().
+        Added Q_DECLARE_TR_FUNCTIONS() as a means for declaring tr() functions
+        in non-QObject classes.
+
 - QObject
         Added support for dynamically added properties through setProperty()/property()
         and dynamicPropertyNames().
@@ -788,6 +824,7 @@ I/O and Networking
 - QSettings
         Fixed bug causing bytearrays to be incorrectly stored on Win95/98/Me.
         Store keysequences as readable entries in .ini files.
+        Detect NFS to prevent hanging when lockd isn't running.
 
 - QUrl
         Added errorString().
@@ -841,11 +878,13 @@ I/O and Networking
         Added support for physical drives (e.g., "//./Physical01").
         Ensure that QFile::error() and QIODevice::errorString() are set
         whenever possible.
+        Renamed readLink() symLinkTarget().
 
 - QFileInfo
         Improved support for UNC paths when the application is run from a
         share.
         Improved support for drive-local relative paths, such as "D:".
+        Renamed readLink() symLinkTarget().
 
 - QTemporaryFile
         Add support for file extensions and other suffixes.
@@ -1053,6 +1092,7 @@ Mac OS X:
 - QComboBox
         Improve the popup sizing so it's always wide enough to display its contents.
         Improve the popup placement so it stays on screen and does not overlap the Dock.
+        Honor minimumContentsLength in minimumSizeHint() and sizeHint().
 
 - QScrollBar
         Gracefully handle the case where the scrollbar is to short to draw all its controls.
