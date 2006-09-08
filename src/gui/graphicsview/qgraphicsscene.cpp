@@ -106,22 +106,22 @@
     maintain its item focus information, and once the scene regains focus, it
     will make sure the last focus item regains focus.
 
-    For mouse-over effects, QGraphicsScene dispatches \e {hover events}. If an
-    item accepts hover events (see QGraphicsItem::acceptsHoverEvents), it will
-    receive a HoverEnter event when the mouse enters its area. As the mouse
-    continues moving inside the item's area, QGraphicsScene will send it
-    HoverMove events. When the mouse leaves the item's area, the item will
-    receive a HoverLeave event. A special rule applies when items are stacked
-    on top of eachother: if the mouse enters an item that is on top of the
-    last item that received a HoverEnter, the first item will not receive a
-    HoverLeave until the mouse leaves the last stacked item. ###
+    For mouse-over effects, QGraphicsScene dispatches \e {hover
+    events}. If an item accepts hover events (see
+    QGraphicsItem::acceptsHoverEvents()), it will receive a \l
+    {QEvent::}{GraphicsSceneHoverEnter} event when the mouse enters
+    its area. As the mouse continues moving inside the item's area,
+    QGraphicsScene will send it \l {QEvent::}{GraphicsSceneHoverMove}
+    events. When the mouse leaves the item's area, the item will
+    receive a \l {QEvent::}{GraphicsSceneHoverLeave} event.
 
-    All mouse events are delivered to the current \e {mouse grabber} item. An
-    item becomes the scene's mouse grabber if it accepts mouse events (see
-    QGraphicsItem::acceptsMouseEvents), and it receives a mouse press. It
-    stays the mouse grabber until it receives a mouse release when no other
-    mouse buttons are pressed. You can call mouseGrabberItem() to determine
-    what item is currently grabbing the mouse.
+    All mouse events are delivered to the current \e {mouse grabber}
+    item. An item becomes the scene's mouse grabber if it accepts
+    mouse events (see QGraphicsItem::acceptedMouseButtons()) and it
+    receives a mouse press. It stays the mouse grabber until it
+    receives a mouse release when no other mouse buttons are
+    pressed. You can call mouseGrabberItem() to determine what item is
+    currently grabbing the mouse.
 
     \sa QGraphicsItem, QGraphicsView
 */
@@ -319,7 +319,7 @@ void QGraphicsScenePrivate::_q_generateBspTree()
 
     QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
     growingItemsBoundingRect |= newItemsBoundingRect;
-    
+
     int oldDepth = qMax(int(::log(float(lastItemCount))), 5);
     int newDepth = qMax(int(::log(float(allItems.size()))), 5);
     static const int slack = 100;
@@ -617,7 +617,7 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
     // If nobody could take focus, we clear it.
     if (!setFocus)
         q->setFocusItem(0, Qt::MouseFocusReason);
-    
+
     // Find a mouse grabber by sending mouse press events to all mouse grabber
     // candidates one at a time, until the event is accepted. It's accepted by
     // default, so the receiver has to explicitly ignore it for it to pass
@@ -731,8 +731,8 @@ void QGraphicsScenePrivate::sortItems(QList<QGraphicsItem *> *itemList)
 }
 
 /*!
-    Constructs a QGraphicsScene object. \a parent is passed to
-    QObject's constructor.
+    Constructs a QGraphicsScene object. The \a parent parameter is
+    passed to QObject's constructor.
 */
 QGraphicsScene::QGraphicsScene(QObject *parent)
     : QObject(*new QGraphicsScenePrivate, parent)
@@ -740,8 +740,9 @@ QGraphicsScene::QGraphicsScene(QObject *parent)
 }
 
 /*!
-    Constructs a QGraphicsScene object, using \a sceneRect for its scene
-    rect. \a parent is passed to QObject's constructor.
+    Constructs a QGraphicsScene object, using \a sceneRect for its
+    scene rectangle. The \a parent parameter is passed to QObject's
+    constructor.
 
     \sa sceneRect
 */
@@ -752,8 +753,10 @@ QGraphicsScene::QGraphicsScene(const QRectF &sceneRect, QObject *parent)
 }
 
 /*!
-    Constructs a QGraphicsScene object, using \a x, \a y, \a width, \a height
-    for its scene rect. \a parent is passed to QObject's constructor.
+    Constructs a QGraphicsScene object, using the rectangle specified
+    by (\a x, \a y), and the given \a width and \a height for its
+    scene rectangle. The \a parent parameter is passed to QObject's
+    constructor.
 
     \sa sceneRect
 */
@@ -791,11 +794,11 @@ QGraphicsScene::~QGraphicsScene()
 
 /*!
     \property QGraphicsScene::sceneRect
-    \brief the scene rect; the bounding rect of the scene
+    \brief the scene rectangle; the bounding rectangle of the scene
 
-    The scene rect defines the extent of the scene. It is primarily used by
-    QGraphicsView to determine the view's default scrollable area, and by
-    QGraphicsScene to manage item indexing.
+    The scene rectangle defines the extent of the scene. It is
+    primarily used by QGraphicsView to determine the view's default
+    scrollable area, and by QGraphicsScene to manage item indexing.
 
     If unset, sceneRect() will return the largest bounding rect of all items
     on the scene since the scene was created (i.e., a rectangle that grows
@@ -830,7 +833,7 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
 /*!
      \fn qreal QGraphicsScene::height() const
 
-     This convenience function is equivalent to calling sceneRect().height().
+     This convenience function is equivalent to calling \c sceneRect().height().
 
      \sa width()
 */
@@ -966,7 +969,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 
     For the common case, the default index method BspTreeIndex works fine.  If
     your scene uses many animations and you are experiencing slowness, you can
-    disable indexing by calling setItemIndexMethod(NoIndex).
+    disable indexing by calling \c setItemIndexMethod(NoIndex).
 */
 QGraphicsScene::ItemIndexMethod QGraphicsScene::itemIndexMethod() const
 {
@@ -1046,10 +1049,12 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 }
 
 /*!
+    \fn QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rectangle) const
+
     \overload
 
-    Returns all visible items that are either inside or intersect with the
-    rectangle \a rect.
+    Returns all visible items that are either inside or intersect with
+    the given \a rectangle.
 
     \sa itemAt()
 */
@@ -1074,8 +1079,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
 /*!
     \overload
 
-    Returns all visible items that are either inside or intersect with the
-    polygon \a polygon.
+    Returns all visible items that are either inside or intersect with
+    the given \a polygon.
 
     \sa itemAt()
 */
@@ -1092,8 +1097,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon) const
 /*!
     \overload
 
-    Returns all visible items that are either inside or intersect with the
-    path \a path.
+    Returns all visible items that are either inside or intersect with
+    the given painter \a path.
 
     \sa itemAt()
 */
@@ -1134,8 +1139,10 @@ QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item)
 }
 
 /*!
-    Returns the topmost item at position \a pos, or 0 if there are no
-    items at this position.
+    \fn QGraphicsItem *QGraphicsScene::itemAt(const QPointF &position) const
+
+    Returns the topmost item at the specified \a position, or 0 if
+    there are no items at this position.
 
     \sa items(), collidingItems()
 */
@@ -1149,7 +1156,11 @@ QGraphicsItem *QGraphicsScene::itemAt(const QPointF &pos) const
     \fn QGraphicsScene::itemAt(qreal x, qreal y) const
     \overload
 
-    This convenience function is equivalent to calling itemAt(QPointF(\a x, \a y)).
+    Returns the topmost item at the position specified by (\a x, \a
+    y), or 0 if there are no items at this position.
+
+    This convenience function is equivalent to calling \c
+    {itemAt(QPointF(x, y))}.
 */
 
 /*!
@@ -1713,8 +1724,8 @@ void QGraphicsScene::clearFocus()
     \list
     \o If the item receives a mouse release event when there are no other
     buttons pressed, it loses the mouse grab.
-    \o If the item becomes invisible (i.e., someone calls item->setVisible(false)),
-    or if it becomes disabled (i.e., someone calls item->setEnabled(false)),
+    \o If the item becomes invisible (i.e., someone calls \c {item->setVisible(false))},
+    or if it becomes disabled (i.e., someone calls \c {item->setEnabled(false))},
     it loses the mouse grab.
     \o If the item is removed from the scene, it loses the mouse grab.
     \endlist
@@ -1775,10 +1786,12 @@ void QGraphicsScene::setBackgroundBrush(const QBrush &brush)
     \property QGraphicsScene::foregroundBrush
     \brief the foreground brush of the scene.
 
-    Change this property to set the scene's foreground to a different color,
-    gradient or texture. If the style of \a brush is Qt::NoBrush (e.g., if you
-    passed QBrush()), the foreground is not drawn.  The foreground is drawn
-    after (on top of) the items. The default foreground brush is Qt::NoBrush.
+    Change this property to set the scene's foreground to a different
+    color, gradient or texture.
+
+    The foreground is drawn after (on top of) the items. The default
+    foreground brush is Qt::NoBrush ( i.e. the foreground is not
+    drawn).
 
     Example:
 
@@ -1795,8 +1808,9 @@ void QGraphicsScene::setBackgroundBrush(const QBrush &brush)
     \endcode
 
     QGraphicsScene::render() calls drawForeground() to draw the scene
-    foreground. For more detailed control over how the foreground is drawn,
-    you can reimplement drawForeground() in a subclass of QGraphicsScene.
+    foreground. For more detailed control over how the foreground is
+    drawn, you can reimplement the drawForeground() function in a
+    QGraphicsScene subclass.
 */
 QBrush QGraphicsScene::foregroundBrush() const
 {
@@ -1815,7 +1829,7 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
     the scene to be able to support complex input method operations as support
     for surrounding text and reconversions.
 
-    \a query specifies which property is queried.
+    The \a query parameter specifies which property is queried.
 
     \sa QWidget::inputMethodQuery()
 */
@@ -2488,8 +2502,8 @@ void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
     the foreground are drawn. Reimplement this function to provide a custom
     background for the scene.
 
-    All painting is done in \e scene coordinates. \a rect is the exposed
-    rectangle.
+    All painting is done in \e scene coordinates. The \a rect
+    parameter is the exposed rectangle.
 
     \sa drawForeground(), drawItems()
 */
@@ -2511,8 +2525,8 @@ void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
     and all items have been drawn. Reimplement this function to provide a
     custom foreground for the scene.
 
-    All painting is done in \e scene coordinates. \a rect is the exposed
-    rectangle.
+    All painting is done in \e scene coordinates. The \a rect
+    parameter is the exposed rectangle.
 
     \sa drawBackground(), drawItems()
 */
@@ -2528,21 +2542,23 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 }
 
 /*!
-    Paints the items \a items using \a painter, after the background has been
-    drawn, and before the foreground has been drawn. Reimplement this function
-    to provide custom painting of all items for the scene. The default
-    implementation prepares the painter matrix, and calls
-    QGraphicsItem::paint() on all items. \a options is the list of style
-    option objects for each item in \a items. \a numItems is the number of
-    items in \a items and options in \a options. \a widget is optional;
-    if specified, it should point to the widget that is being painted on.
+    Paints the given \a items using the provided \a painter, after the
+    background has been drawn, and before the foreground has been
+    drawn.  All painting is done in \e scene coordinates. Before
+    drawing each item, the painter must be transformed using
+    QGraphicsItem::sceneMatrix().
 
-    All painting is done in \e scene coordinates. Before drawing each item,
-    the painter must be transformed using QGraphicsItem::sceneMatrix().
+    The \a options parameter is the list of style option objects for
+    each item in \a items. The \a numItems parameter is the number of
+    items in \a items and options in \a options. The \a widget
+    parameter is optional; if specified, it should point to the widget
+    that is being painted on.
 
-    By reimplementing this function, you gain complete control over how each
-    item is drawn, and in some cases this can increase drawing performance
-    significantly.
+    The default implementation prepares the painter matrix, and calls
+    QGraphicsItem::paint() on all items. Reimplement this function to
+    provide custom painting of all items for the scene; gaining
+    complete control over how each item is drawn. In some cases this
+    can increase drawing performance significantly.
 
     Example:
 
@@ -2582,9 +2598,10 @@ void QGraphicsScene::drawItems(QPainter *painter,
 /*!
     \fn QGraphicsScene::changed(const QList<QRectF> &region)
 
-    This signal is emitted by QGraphicsScene when control reaches the event
-    loop, if the scene content changes. \a region contains a list of scene
-    rectangles that indicate the area that has been changed.
+    This signal is emitted by QGraphicsScene when control reaches the
+    event loop, if the scene content changes. The \a region parameter
+    contains a list of scene rectangles that indicate the area that
+    has been changed.
 
     \sa QGraphicsView::update()
 */
@@ -2593,7 +2610,7 @@ void QGraphicsScene::drawItems(QPainter *painter,
     \fn QGraphicsScene::sceneRectChanged(const QRectF &rect)
 
     This signal is emitted by QGraphicsScene whenever the scene rect changes.
-    \a rect is the new scene rect.
+    The \a rect parameter is the new scene rectangle.
 
     \sa QGraphicsView::updateSceneRect()
 */
@@ -2606,8 +2623,8 @@ void QGraphicsScene::drawItems(QPainter *painter,
     need updating. It also launches a single-shot timer to ensure that
     updated() will be emitted later.
 
-    \a item is the item that changed, and \a rect is the area of the item that
-    changed. \a rect is in item coordinates.
+    The \a item parameter is the item that changed, and \a rect is the
+    area of the item that changed given in item coordinates.
 */
 void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
 {
