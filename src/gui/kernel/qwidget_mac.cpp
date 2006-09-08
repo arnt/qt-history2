@@ -911,7 +911,7 @@ void QWidgetPrivate::determineWindowClass()
     if (type == Qt::ToolTip)
         flags |= Qt::FramelessWindowHint;
 
-    if(type == Qt::Popup || type == Qt::ToolTip || type == Qt::SplashScreen)
+    if(type == Qt::Popup || type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint;
     else if(parentWidget && (parentWidget->window()->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
         flags |= Qt::WindowStaysOnTopHint;
