@@ -1158,23 +1158,24 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
         qWarning("Could not parse application stylesheet");
     styleSelector.styleSheets += appSs;
 
-    QList<QCss::StyleSheet> inheritedSs;
-    for (QWidget *wid = w->parentWidget(); wid; wid = wid->parentWidget()) {
+    QList<QCss::StyleSheet> widgetSs;
+    for (QWidget *wid = w; wid; wid = wid->parentWidget()) {
         if (wid->styleSheet().isEmpty())
             continue;
         StyleSheet ss;
         Parser parser(wid->styleSheet());
-        if (!parser.parse(&ss))
-            qWarning() << "Could not parse stylesheet of " << wid;
-        inheritedSs.prepend(ss);
+        if (!parser.parse(&ss) && wid == w) {
+            // Try #objName.className { stylesheet } only for w
+            QString objName;
+            if (!wid->objectName().isEmpty())
+                objName = QLatin1String("#") + wid->objectName() + ".";
+            Parser parser2(objName + wid->className() + QLatin1String("{") 
+                           + wid->styleSheet() + QLatin1String("}"));
+            if (!parser2.parse(&ss))
+                qWarning() << "Could not parse stylesheet of " << wid;
+        }
+        widgetSs.prepend(ss);
     }
-    styleSelector.styleSheets += inheritedSs;
-
-    StyleSheet widgetSs;
-    Parser parser2(w->styleSheet());
-    if (!parser2.parse(&widgetSs))
-        qWarning() << "Could not parse stylesheet of " << w;
-
     styleSelector.styleSheets += widgetSs;
 
     StyleSelector::NodePtr n;
