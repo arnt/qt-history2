@@ -513,12 +513,12 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
 static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover, bool sunken)
 {
     QColor dark;
-    dark.setHsv(option->palette.button().color().hue(), 
-                qMin(255, (int)(option->palette.button().color().saturation()*1.9)), 
+    dark.setHsv(option->palette.button().color().hue(),
+                qMin(255, (int)(option->palette.button().color().saturation()*1.9)),
                 qMin(255, (int)(option->palette.button().color().value()*0.7)));
-    
+
     QColor highlight = option->palette.highlight().color();
-    
+
     bool active = (option->titleBarState & QStyle::State_Active);
     QColor titleBarHighlight(active ? highlight.light(106): option->palette.background().color().light(106));
 
@@ -657,17 +657,18 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     buttonShadowAlpha.setAlpha(128);
     QColor darkOutline;
     QColor dark;
-    darkOutline.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*3.0)), 
+    darkOutline.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*3.0)),
                 qMin(255, (int)(button.value()*0.6)));
-    dark.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*1.9)), 
+    dark.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*1.9)),
                 qMin(255, (int)(button.value()*0.7)));
     QColor tabFrameColor = mergedColors(option->palette.background().color(),
                                                 dark.light(135), 60);
-    
+
     switch(elem) {
-        case PE_FrameTabBarBase:
+#ifndef QT_NO_TABBAR
+    case PE_FrameTabBarBase:
         if (const QStyleOptionTabBarBase *tbb
                 = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
             QRegion region(tbb->rect);
@@ -706,6 +707,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->restore();
         }
         return;
+#endif // QT_NO_TABBAR
     case PE_IndicatorViewItemCheck:
         {
             QStyleOptionButton button;
@@ -1018,14 +1020,14 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QColor highlightedGradientStartColor = option->palette.button().color().light(107);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
             QColor gradientStartColor = option->palette.button().color().light(108);
-            
+
             QColor buttonColor = option->palette.button().color();
             QColor gradientStopColor;
-            gradientStopColor.setHsv(buttonColor.hue(), 
-                                     qMin(255, (int)(buttonColor.saturation()*1.9)), 
+            gradientStopColor.setHsv(buttonColor.hue(),
+                                     qMin(255, (int)(buttonColor.saturation()*1.9)),
                                      qMin(255, (int)(buttonColor.value()*0.94)));
-            
-            
+
+
             rect.adjust(0, 1, 0, -1);
             QRect gradRect = rect.adjusted(1, 1, -1, -1);
             if (isEnabled) {
@@ -1058,7 +1060,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 
             QRect r = rect.adjusted(0, 0, 0, 0);
 
-            if (!isEnabled) 
+            if (!isEnabled)
                 painter->setPen(QPen(dark.light(115)));
             else if (isDefault)
                 painter->setPen(QPen(Qt::black, 1));
@@ -1257,19 +1259,19 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 {
     QColor button = option->palette.button().color();
     QColor dark;
-    dark.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*1.9)), 
+    dark.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*1.9)),
                 qMin(255, (int)(button.value()*0.7)));
     QColor darkOutline;
-    darkOutline.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*2.0)), 
+    darkOutline.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*2.0)),
                 qMin(255, (int)(button.value()*0.6)));
     QRect rect = option->rect;
     QColor shadow = mergedColors(option->palette.background().color().dark(120),
                                  dark.light(130), 60);
     QColor tabFrameColor = mergedColors(option->palette.background().color(),
                                                 dark.light(135), 60);
-    
+
     QColor highlight = option->palette.highlight().color();
     QColor highlightText = option->palette.highlightedText().color();
     if (qAbs(qGray(highlight.rgb()) - qGray(highlightText.rgb())) < 150) {
@@ -1676,11 +1678,11 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             QRect r = option->rect;
             if (act) {
-                qt_cleanlooks_draw_gradient(painter, r.adjusted(1, 1, -1, -1), 
-                                            highlight, 
-                                            highlightOutline, TopDown, 
+                qt_cleanlooks_draw_gradient(painter, r.adjusted(1, 1, -1, -1),
+                                            highlight,
+                                            highlightOutline, TopDown,
                                             option->palette.highlight());
-                
+
                 painter->setPen(QPen(highlightOutline, 0));
                 painter->drawLine(QPoint(r.left(), r.top() + 1), QPoint(r.left(), r.bottom()));
                 painter->drawLine(QPoint(r.right(), r.top() + 1), QPoint(r.right(), r.bottom()));
@@ -2039,7 +2041,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             QColor light = tab->palette.light().color();
             QColor midlight = tab->palette.midlight().color();
-            
+
             QColor background = tab->palette.background().color();
             int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             if (selected)
@@ -2195,7 +2197,7 @@ QPalette QCleanlooksStyle::standardPalette () const
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 141, 126));
 
     QColor backGround(239, 235, 231);
-    
+
     QColor light = backGround.light(150);
     QColor base = Qt::white;
     QColor dark = QColor(170, 156, 143).dark(110);
@@ -2239,14 +2241,14 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     QColor dark;
     QColor grooveColor;
     QColor darkOutline;
-    dark.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*1.9)), 
+    dark.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*1.9)),
                 qMin(255, (int)(button.value()*0.7)));
-    grooveColor.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*2.6)), 
+    grooveColor.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*2.6)),
                 qMin(255, (int)(button.value()*0.9)));
-    darkOutline.setHsv(button.hue(), 
-                qMin(255, (int)(button.saturation()*3.0)), 
+    darkOutline.setHsv(button.hue(),
+                qMin(255, (int)(button.saturation()*3.0)),
                 qMin(255, (int)(button.value()*0.6)));
 
     QColor alphaCornerColor;
