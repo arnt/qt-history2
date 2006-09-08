@@ -17,6 +17,7 @@
 #include "qlist.h"
 #include <qpagesetupdialog.h>
 #include <qapplication.h>
+#include <qfileinfo.h>
 
 #ifndef QT_NO_PRINTER
 
@@ -450,8 +451,6 @@ QPrinter::~QPrinter()
     \since 4.1
 
     Sets the output format for this printer to \a format.
-
-    Setting the output format will reset the state of the printer.
 */
 void QPrinter::setOutputFormat(OutputFormat format)
 {
@@ -461,9 +460,24 @@ void QPrinter::setOutputFormat(OutputFormat format)
     if (d->outputFormat == format)
         return;
     d->outputFormat = format;
-    if (d->use_default_engine)
-        delete d->printEngine;
+
+    QPrintEngine *oldPrintEngine = d->printEngine;
+    const bool def_engine = d->use_default_engine;
+    d->printEngine = 0;
+
     d->createDefaultEngines();
+
+    if (oldPrintEngine) {
+        for (int i = 0; i < QPrintEngine::PPK_CustomBase; ++i) {
+            QPrintEngine::PrintEnginePropertyKey key = (QPrintEngine::PrintEnginePropertyKey)i;
+            QVariant prop = oldPrintEngine->property(key);
+            if (prop.isValid())
+                d->printEngine->setProperty(key, prop);
+        }
+    }
+
+    if (def_engine)
+        delete oldPrintEngine;
 
 #else
     Q_UNUSED(format);
@@ -559,6 +573,9 @@ QString QPrinter::outputFileName() const
   Setting a null or empty name (0 or "") disables printing to a file. Setting a
   non-empty name enables printing to a file.
 
+  If the file name has the suffix ".ps" then PostScript is automatically selected
+  as output format. If the file name has the ".pdf" suffix PDF is generated.
+
   \sa outputFileName(), setOutputToFile()
 */
 
@@ -566,6 +583,15 @@ void QPrinter::setOutputFileName(const QString &fileName)
 {
     Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setOutputFileName");
+
+    QFileInfo fi(fileName);
+    if (!fi.suffix().compare(QLatin1String("ps"), Qt::CaseInsensitive))
+        setOutputFormat(QPrinter::PostScriptFormat);
+    else if (!fi.suffix().compare(QLatin1String("pdf"), Qt::CaseInsensitive))
+        setOutputFormat(QPrinter::PdfFormat);
+    else if (fileName.isEmpty())
+        setOutputFormat(QPrinter::NativeFormat);
+
     d->printEngine->setProperty(QPrintEngine::PPK_OutputFileName, fileName);
 }
 

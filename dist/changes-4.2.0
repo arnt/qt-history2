@@ -767,6 +767,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	using the Postscript and PDF drivers.
 	Fixed fromPage/toPage when generating PDF
         Make QPrinter objects resuable on Mac OS X.
+        setOutputFormat now preserves previously set printer properties.
+        setOutputFileName automatically chooses PostScript or PDF as output format
+        for .ps or .pdf suffices.
 
 - QProcess
         Always use utf8 encoding when passing commands on Mac OS X.

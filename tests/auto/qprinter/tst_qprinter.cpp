@@ -60,6 +60,8 @@ private slots:
     void testPageSetupDialog();
     void testMulitpleSets_data();
     void testMulitpleSets();
+    void changingOutputFormat();
+    void outputFormatFromSuffix();
 private:
 };
 
@@ -371,12 +373,12 @@ void tst_QPrinter::testNonExistentPrinter()
     printer.setPrinterName("some non existing printer");
     printer.setPageSize(QPrinter::A4);
     printer.setOrientation(QPrinter::Portrait);
-    printer.setFullPage(true);  
+    printer.setFullPage(true);
     printer.pageSize();
     printer.orientation();
     printer.fullPage();
     printer.printerName();
-    
+
     // nor metrics
     QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmWidth), 0);
     QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmHeight), 0);
@@ -389,7 +391,7 @@ void tst_QPrinter::testNonExistentPrinter()
     QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmPhysicalDpiX), 0);
     QCOMPARE(printer.printEngine()->metric(QPaintDevice::PdmPhysicalDpiY), 0);
 
-    QVERIFY(!painter.begin(&printer));     
+    QVERIFY(!painter.begin(&printer));
 #endif
 }
 
@@ -469,6 +471,29 @@ void tst_QPrinter::testMulitpleSets()
     computePageValue(printer, paperWidth, paperHeight);
     QVERIFY(qAbs(paperWidth - heightMMAfter) <= 2);
     QVERIFY(qAbs(paperHeight - widthMMAfter) <= 2);
+}
+
+void tst_QPrinter::changingOutputFormat()
+{
+    QPrinter p;
+    p.setOutputFormat(QPrinter::PostScriptFormat);
+    p.setNumCopies(42);
+    p.setPageSize(QPrinter::A8);
+    p.setOutputFormat(QPrinter::PdfFormat);
+    QCOMPARE(p.numCopies(), 42);
+    QCOMPARE(p.pageSize(), QPrinter::A8);
+}
+
+void tst_QPrinter::outputFormatFromSuffix()
+{
+    QPrinter p;
+    QVERIFY(p.outputFormat() == QPrinter::NativeFormat);
+    p.setOutputFileName("test.ps");
+    QVERIFY(p.outputFormat() == QPrinter::PostScriptFormat);
+    p.setOutputFileName("test.pdf");
+    QVERIFY(p.outputFormat() == QPrinter::PdfFormat);
+    p.setOutputFileName(QString());
+    QVERIFY(p.outputFormat() == QPrinter::NativeFormat);
 }
 
 QTEST_MAIN(tst_QPrinter)
