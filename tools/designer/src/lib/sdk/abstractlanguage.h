@@ -40,6 +40,7 @@ public:
 
     virtual QDialog *createFormWindowSettingsDialog(QDesignerFormWindowInterface *formWindow, QWidget *parentWidget) = 0;
 
+    virtual QString classNameOf(QObject *object) const = 0;
     virtual QString enumerator(const QString &neutralName) const = 0;
     virtual QString neutralEnumerator(const QString &enumName) const = 0;
 };

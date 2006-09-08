@@ -623,11 +623,16 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     else
         w = QAbstractFormBuilder::createDom(widget, ui_parentWidget, recursive);
 
+    Q_ASSERT( w != 0 );
+
     if (!qobject_cast<QLayoutWidget*>(widget) && w->attributeClass() == QLatin1String("QWidget")) {
         w->setAttributeNative(true);
     }
 
-    Q_ASSERT( w != 0 );
+    if (widgetInfo != 0 && m_usedCustomWidgets.contains(widgetInfo)) {
+        if (widgetInfo->name() != w->attributeClass())
+            w->setAttributeClass(widgetInfo->name());
+    }
 
     QString className = w->attributeClass();
     if (m_internal_to_qt.contains(className))

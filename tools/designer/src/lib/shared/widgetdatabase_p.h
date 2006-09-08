@@ -111,7 +111,7 @@ public:
     virtual QDesignerFormEditorInterface *core() const;
 
     virtual QDesignerWidgetDataBaseItemInterface *item(int index) const;
-    int indexOfObject(QObject *o, bool resolveName = true) const;
+    virtual int indexOfObject(QObject *o, bool resolveName = true) const;
 
     void grabDefaultPropertyValues();
 

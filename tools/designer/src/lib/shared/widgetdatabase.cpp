@@ -14,6 +14,7 @@
 #include "widgetdatabase_p.h"
 #include "widgetfactory_p.h"
 #include "spacer_widget_p.h"
+#include "abstractlanguage.h"
 
 #include <pluginmanager_p.h>
 #include <QtDesigner/customwidget.h>
@@ -234,12 +235,18 @@ QDesignerFormEditorInterface *WidgetDataBase::core() const
 
 int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
 {
-    bool resolveName = true; // ### resolveName = false is ignored
+    QExtensionManager *mgr = m_core->extensionManager();
+    QDesignerLanguageExtension *lang = qt_extension<QDesignerLanguageExtension*> (mgr, m_core);
 
-    if (resolveName)
-        return QDesignerWidgetDataBaseInterface::indexOfClassName(QLatin1String(WidgetFactory::classNameOf(object)));
+    QString id;
 
-    return QDesignerWidgetDataBaseInterface::indexOfObject(object, resolveName);
+    if (lang)
+        id = lang->classNameOf(object);
+
+    if (id.isEmpty())
+        id = QString::fromUtf8 (WidgetFactory::classNameOf(object));
+
+    return QDesignerWidgetDataBaseInterface::indexOfClassName(id);
 }
 
 QDesignerWidgetDataBaseItemInterface *WidgetDataBase::item(int index) const
