@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/home/espenr/dev/qt-4.1.4/configure -no-opengl -system-zlib -release -static -no-qt3support
+cd src
+make sub-tools-moc sub-tools-rcc sub-corelib sub-network
