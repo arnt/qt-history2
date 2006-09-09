@@ -25,9 +25,10 @@
 // We mean it.
 //
 
+#include "QtGui/qprinter.h"
+
 #ifndef QT_NO_PRINTER
 
-#include "QtGui/qprinter.h"
 #include "QtGui/qprintengine.h"
 #include "QtCore/qbytearray.h"
 #include "private/qpaintengine_p.h"
@@ -53,7 +54,7 @@ public:
     QPaintEngine *paintEngine() const;
 
     void updateState(const QPaintEngineState &state);
-    
+
     QRect paperRect() const;
     QRect pageRect() const;
 
