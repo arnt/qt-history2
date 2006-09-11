@@ -66,7 +66,7 @@ static const char * const dock_widget_close_xpm[] = {
     "$	c #B5B0AC",
     "%	c #A4A09D",
     "           ",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "+#       #+",
     "@ $@   @$ @",
     "@ @@@ @@@ @",
@@ -76,7 +76,7 @@ static const char * const dock_widget_close_xpm[] = {
     "@ @@@ @@@ @",
     "@ $@   @$ @",
     "+%       #+",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "           "};
 
 static const char * const qt_cleanlooks_arrow_down_xpm[] = {
@@ -113,7 +113,7 @@ static const char * const dock_widget_restore_xpm[] = {
     "$	c #B5B0AC",
     "%	c #A4A09D",
     "           ",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "+#       #+",
     "@   #@@@# @",
     "@   @   @ @",
@@ -123,7 +123,7 @@ static const char * const dock_widget_restore_xpm[] = {
     "@ @   @   @",
     "@ #@@@#   @",
     "+%       #+",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "           "};
 
 static const char * const workspace_minimize[] = {
@@ -136,7 +136,7 @@ static const char * const workspace_minimize[] = {
     "$	c #B5B0AC",
     "%	c #A4A09D",
     "           ",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "+#       #+",
     "@         @",
     "@         @",
@@ -146,7 +146,7 @@ static const char * const workspace_minimize[] = {
     "@         @",
     "@         @",
     "+%       #+",
-    ".+@@@@@@@+.",
+    " +@@@@@@@+ ",
     "           "};
 
 
