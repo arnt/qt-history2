@@ -1339,6 +1339,7 @@ void tst_QWidget::resizeEvent()
 void tst_QWidget::showMinimized()
 {
     QWidget plain;
+    plain.move(100, 100);
     Q3HBox layouted;
     QLineEdit le(&layouted);
     QLineEdit le2(&layouted);
