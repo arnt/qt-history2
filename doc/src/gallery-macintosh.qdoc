@@ -128,7 +128,7 @@ The QToolBox class provides a column of tabbed widget items.\raw HTML
 </td>
 <td align="center">
 \endraw
-\inlineimage macintosh-.png
+\inlineimage macintosh-treeview.png
 \raw HTML
 </td>
 </tr><tr>
@@ -138,25 +138,16 @@ The QListView class provides a default model/view implementation of a list/icon 
 </td>
 <td halign="justify" valign="top">
 \endraw
-\raw HTML
+The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.\raw HTML
 </td>
 </tr>
 <tr>
-<td align="center">
-\endraw
-\inlineimage macintosh-treeview.png
-\raw HTML
-</td>
 <td align="center">
 \endraw
 \inlineimage macintosh-tableview.png
 \raw HTML
 </td>
 </tr><tr>
-<td halign="justify" valign="top">
-\endraw
-The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.\raw HTML
-</td>
 <td halign="justify" valign="top">
 \endraw
 The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.\raw HTML
