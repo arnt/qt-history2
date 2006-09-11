@@ -775,7 +775,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_FrameMenu:
         painter->save();
         {
-            painter->setPen(QPen(dark, 1));
+            painter->setPen(QPen(darkOutline, 1));
             painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
             QColor frameLight = option->palette.background().color().light(160);
             QColor frameShadow = option->palette.background().color().dark(110);
