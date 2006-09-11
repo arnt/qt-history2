@@ -1308,6 +1308,9 @@ QRegExpEngine::QRegExpEngine(const QRegExpEngineKey &key)
 
 QRegExpEngine::~QRegExpEngine()
 {
+#ifndef QT_NO_REGEXP_LOOKAHEAD
+    qDeleteAll(ahead);
+#endif
 }
 
 void QRegExpMatchState::prepareForMatch(QRegExpEngine *eng)
