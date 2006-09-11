@@ -45,6 +45,20 @@ private:
 
 #endif // QT_NO_LINEEDIT
 
+#ifndef QT_NO_COMBOBOX
+
+class QBooleanComboBox : public QComboBox
+{
+    Q_OBJECT
+    Q_PROPERTY(bool value READ value WRITE setValue USER true)
+
+public:
+    QBooleanComboBox(QWidget *parent);
+    void setValue(bool);
+    bool value() const;
+};
+
+#endif // QT_NO_COMBOBOX
 
 /*!
     \class QItemEditorFactory
@@ -155,10 +169,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     switch (type) {
 #ifndef QT_NO_COMBOBOX
     case QVariant::Bool: {
-        QComboBox *cb = new QComboBox(parent);
+        QBooleanComboBox *cb = new QBooleanComboBox(parent);
         cb->setFrame(false);
-        cb->addItem(QObject::tr("False"));
-        cb->addItem(QObject::tr("True"));
         return cb; }
 #endif
 #ifndef QT_NO_SPINBOX
@@ -326,7 +338,7 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \sa QMetaObject::userProperty(), QItemEditorFactory::registerEditor()
 */
 
-/*! 
+/*!
     \class QStandardItemEditorCreator
     \since 4.2
     \ingroup model-view
@@ -397,8 +409,31 @@ void QExpandingLineEdit::resizeToContents()
     }
 }
 
-#include "qitemeditorfactory.moc"
-
 #endif // QT_NO_LINEEDIT
+
+#ifndef QT_NO_COMBOBOX
+
+QBooleanComboBox::QBooleanComboBox(QWidget *parent)
+    : QComboBox(parent)
+{
+    addItem(QObject::tr("False"));
+    addItem(QObject::tr("True"));
+}
+
+void QBooleanComboBox::setValue(bool value)
+{
+    setCurrentIndex(value ? 1 : 0);
+}
+
+bool QBooleanComboBox::value() const
+{
+    return (currentIndex() == 1);
+}
+
+#endif // QT_NO_COMBOBOX
+
+#if !defined(QT_NO_LINEEDIT) && !defined(QT_NO_COMBOBOX)
+#include "qitemeditorfactory.moc"
+#endif
 
 #endif // QT_NO_ITEMVIEWS
