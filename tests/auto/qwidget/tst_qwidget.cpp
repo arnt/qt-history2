@@ -125,6 +125,10 @@ private slots:
 
     void childDeletesItsSibling();
 
+    void setMinimumSize();
+    void setMaximumSize();
+    void setFixedSize();
+
 #ifdef Q_WS_WIN
     void getDC();
 #endif
@@ -2656,6 +2660,63 @@ void tst_QWidget::childDeletesItsSibling()
     QVERIFY(!child);
     QVERIFY(!siblingDeleter);
 
+}
+
+void tst_QWidget::setMinimumSize()
+{
+    QWidget w;
+    QSize defaultSize = w.size();
+
+    w.setMinimumSize(defaultSize + QSize(100, 100));
+    QCOMPARE(w.size(), defaultSize + QSize(100, 100));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setMinimumSize(defaultSize + QSize(50, 50));
+    QCOMPARE(w.size(), defaultSize + QSize(100, 100));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setMinimumSize(defaultSize + QSize(200, 200));
+    QCOMPARE(w.size(), defaultSize + QSize(200, 200));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+}
+
+void tst_QWidget::setMaximumSize()
+{
+    QWidget w;
+    QSize defaultSize = w.size();
+
+    w.setMinimumSize(defaultSize + QSize(100, 100));
+    QCOMPARE(w.size(), defaultSize + QSize(100, 100));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setMaximumSize(defaultSize + QSize(200, 200));
+    QCOMPARE(w.size(), defaultSize + QSize(100, 100));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setMaximumSize(defaultSize + QSize(50, 50));
+    QCOMPARE(w.size(), defaultSize + QSize(50, 50));
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+}
+
+void tst_QWidget::setFixedSize()
+{
+    QWidget w;
+    QSize defaultSize = w.size();
+
+    w.setFixedSize(defaultSize + QSize(100, 100));
+    QCOMPARE(w.size(), defaultSize + QSize(100, 100));
+    QEXPECT_FAIL("", "Bug in <= 4.2", Continue);
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setFixedSize(defaultSize + QSize(200, 200));
+    QCOMPARE(w.size(), defaultSize + QSize(200, 200));
+    QEXPECT_FAIL("", "Bug in <= 4.2", Continue);
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
+
+    w.setFixedSize(defaultSize + QSize(50, 50));
+    QCOMPARE(w.size(), defaultSize + QSize(50, 50));
+    QEXPECT_FAIL("", "Bug in <= 4.2", Continue);
+    QVERIFY(!w.testAttribute(Qt::WA_Resized));
 }
 
 #ifdef Q_WS_WIN

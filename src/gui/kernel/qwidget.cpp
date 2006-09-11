@@ -2837,21 +2837,14 @@ QSize QWidget::baseSize() const
         : QSize(0, 0);
 }
 
-/*!
-    \overload
-
-    This function corresponds to setMinimumSize(QSize(minw, minh)).
-    Sets the minimum width to \a minw and the minimum height to \a
-    minh.
-*/
-
-void QWidget::setMinimumSize(int minw, int minh)
+void QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
 {
-    Q_D(QWidget);
+    Q_Q(QWidget);
+
 #ifdef Q_WS_QWS
     if (isWindow()) {
         QApplicationPrivate *ap = QApplicationPrivate::instance();
-        const QRect maxWindowRect = ap->maxWindowRect(d->getScreen());
+        const QRect maxWindowRect = ap->maxWindowRect(getScreen());
         if (!maxWindowRect.isEmpty()) {
             // ### This is really just a work-around. Layout shouldn't be
             // asking for minimum sizes bigger than the screen.
@@ -2865,7 +2858,7 @@ void QWidget::setMinimumSize(int minw, int minh)
     if (minw > QWIDGETSIZE_MAX || minh > QWIDGETSIZE_MAX) {
         qWarning("QWidget::setMinimumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName().toLocal8Bit().data(), metaObject()->className(), QWIDGETSIZE_MAX,
+                 q->objectName().toLocal8Bit().data(), q->metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         minw = qMin<int>(minw, QWIDGETSIZE_MAX);
         minh = qMin<int>(minh, QWIDGETSIZE_MAX);
@@ -2873,17 +2866,33 @@ void QWidget::setMinimumSize(int minw, int minh)
     if (minw < 0 || minh < 0) {
         qWarning("QWidget::setMinimumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                objectName().toLocal8Bit().data(), metaObject()->className(), minw, minh);
+                q->objectName().toLocal8Bit().data(), q->metaObject()->className(), minw, minh);
         minw = qMax(minw, 0);
         minh = qMax(minh, 0);
     }
-    d->createExtra();
-    if (d->extra->minw == minw && d->extra->minh == minh)
+    createExtra();
+    if (extra->minw == minw && extra->minh == minh)
         return;
-    d->extra->minw = minw;
-    d->extra->minh = minh;
-    d->extra->explicitMinSize = (minw ? Qt::Horizontal : 0) | (minh ? Qt::Vertical : 0);
+    extra->minw = minw;
+    extra->minh = minh;
+    extra->explicitMinSize = (minw ? Qt::Horizontal : 0) | (minh ? Qt::Vertical : 0);
+}
 
+/*!
+    \overload
+
+    This function corresponds to setMinimumSize(QSize(minw, minh)).
+    Sets the minimum width to \a minw and the minimum height to \a
+    minh.
+*/
+
+void QWidget::setMinimumSize(int minw, int minh)
+{
+    Q_D(QWidget);
+    d->setMinimumSize_helper(minw, minh);
+
+    if (isWindow())
+        d->setConstraints_sys();
     if (minw > width() || minh > height()) {
         bool resized = testAttribute(Qt::WA_Resized);
         bool maximized = isMaximized();
@@ -2892,9 +2901,33 @@ void QWidget::setMinimumSize(int minw, int minh)
         if (maximized)
             data->window_state = data->window_state | Qt::WindowMaximized;
     }
-    if (isWindow())
-        d->setConstraints_sys();
+
     updateGeometry();
+}
+
+void QWidgetPrivate::setMaximumSize_helper(int maxw, int maxh)
+{
+    Q_Q(QWidget);
+    if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
+        qWarning("QWidget::setMaximumSize: (%s/%s) "
+                "The largest allowed size is (%d,%d)",
+                 q->objectName().toLocal8Bit().data(), q->metaObject()->className(), QWIDGETSIZE_MAX,
+                QWIDGETSIZE_MAX);
+        maxw = qMin<int>(maxw, QWIDGETSIZE_MAX);
+        maxh = qMin<int>(maxh, QWIDGETSIZE_MAX);
+    }
+    if (maxw < 0 || maxh < 0) {
+        qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
+                "are not possible",
+                q->objectName().toLocal8Bit().data(), q->metaObject()->className(), maxw, maxh);
+        maxw = qMax(maxw, 0);
+        maxh = qMax(maxh, 0);
+    }
+    createExtra();
+    if (extra->maxw == maxw && extra->maxh == maxh)
+        return;
+    extra->maxw = maxw;
+    extra->maxh = maxh;
 }
 
 /*!
@@ -2907,33 +2940,16 @@ void QWidget::setMinimumSize(int minw, int minh)
 void QWidget::setMaximumSize(int maxw, int maxh)
 {
     Q_D(QWidget);
-    if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
-        qWarning("QWidget::setMaximumSize: (%s/%s) "
-                "The largest allowed size is (%d,%d)",
-                 objectName().toLocal8Bit().data(), metaObject()->className(), QWIDGETSIZE_MAX,
-                QWIDGETSIZE_MAX);
-        maxw = qMin<int>(maxw, QWIDGETSIZE_MAX);
-        maxh = qMin<int>(maxh, QWIDGETSIZE_MAX);
-    }
-    if (maxw < 0 || maxh < 0) {
-        qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
-                "are not possible",
-                objectName().toLocal8Bit().data(), metaObject()->className(), maxw, maxh);
-        maxw = qMax(maxw, 0);
-        maxh = qMax(maxh, 0);
-    }
-    d->createExtra();
-    if (d->extra->maxw == maxw && d->extra->maxh == maxh)
-        return;
-    d->extra->maxw = maxw;
-    d->extra->maxh = maxh;
+    d->setMaximumSize_helper(maxw, maxh);
+
+    if (isWindow())
+        d->setConstraints_sys();
     if (maxw < width() || maxh < height()) {
         bool resized = testAttribute(Qt::WA_Resized);
         resize(qMin(maxw,width()), qMin(maxh,height()));
         setAttribute(Qt::WA_Resized, resized); //not a user resize
     }
-    if (isWindow())
-        d->setConstraints_sys();
+
     updateGeometry();
 }
 
@@ -2990,9 +3006,7 @@ void QWidget::setBaseSize(int basew, int baseh)
 
 void QWidget::setFixedSize(const QSize & s)
 {
-    setMinimumSize(s);
-    setMaximumSize(s);
-    resize(s);
+    setFixedSize(s.width(), s.height());
 }
 
 
@@ -3005,8 +3019,13 @@ void QWidget::setFixedSize(const QSize & s)
 
 void QWidget::setFixedSize(int w, int h)
 {
-    setMinimumSize(w, h);
-    setMaximumSize(w, h);
+    Q_D(QWidget);
+    d->setMinimumSize_helper(w, h);
+    d->setMaximumSize_helper(w, h);
+
+    if (isWindow())
+        d->setConstraints_sys();
+
     resize(w, h);
 }
 
