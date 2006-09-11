@@ -673,7 +673,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                 = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
             QRegion region(tbb->rect);
             painter->save();
-            painter->setPen(QPen(button.dark(120), 0));
+            painter->setPen(QPen(darkOutline.light(110), 0));
             switch (tbb->shape) {
             case QTabBar::RoundedNorth:
                 region -= tbb->selectedTabRect;
@@ -1040,7 +1040,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                     painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
                 } else {
-                    if (option->state & State_MouseOver ) {
+                    if (option->state & State_Enabled && option->state & State_MouseOver ) {
                         qt_cleanlooks_draw_gradient(painter, gradRect,
                                                     highlightedGradientStartColor,
                                                     highlightedGradientStopColor, TopDown, option->palette.button());
@@ -2826,7 +2826,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
                                                    pixmapRect.right(), pixmapRect.center().y());
                     }
-                    if (sunken || (option->state & State_MouseOver)) {
+                    if (sunken) {
                         gradient.setColorAt(0, gradientStartColor.light(110));
                         gradient.setColorAt(1, gradientStopColor.light(110));
                     } else {
@@ -3266,7 +3266,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     QColor gradientStopColor = gradientStartColor.dark(115);
                     QRect gradRect = handle.adjusted(1, 1, -1, -1);
 
-                    if (option->state & State_MouseOver) {
+                    if (option->state & State_Enabled && option->state & State_MouseOver) {
                         gradientStartColor = gradientStartColor.light(110);
                         gradientStopColor = gradientStopColor.light(110);
                     }
@@ -3278,6 +3278,8 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         r = handle.adjusted(0, 1, 0, -1);
                     else
                         r = handle.adjusted(1, 0, -1, 0);
+                        
+                    QColor outline = option->state & State_Enabled ? dark : dark.light(130);
 
                     qt_cleanlooks_draw_gradient(painter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(0, 1, 0, -1),
                                                 gradientStartColor,
@@ -3286,16 +3288,16 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     int yOff = horizontal ? 1 : 0;
                     painter->drawLine(innerBorder.topLeft() + QPoint(0, yOff) , innerBorder.topRight() + QPoint(0, yOff));
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
-                    painter->setPen(QPen(dark.light(140), 0));
+                    painter->setPen(QPen(outline.light(140), 0));
                     painter->drawLine(innerBorder.bottomLeft(), innerBorder.bottomRight());
                     painter->drawLine(innerBorder.topRight(), innerBorder.bottomRight());
 
-                    painter->setPen(QPen(dark.dark(110), 1));
+                    painter->setPen(QPen(outline.dark(110), 1));
                     painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                     painter->drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right() - 2, r.bottom()));
 
-                    QColor cornerAlpha = dark.dark(130);
+                    QColor cornerAlpha = outline.dark(130);
                     cornerAlpha.setAlpha(150);
                     painter->setPen(cornerAlpha);
                     painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
@@ -3303,7 +3305,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
                     painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
 
-                    painter->setPen(QPen(dark.dark(130), 1));
+                    painter->setPen(QPen(outline.dark(130), 1));
                     painter->drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
                      //draw grips
                     if (horizontal) {
