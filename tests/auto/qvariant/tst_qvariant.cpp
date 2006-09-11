@@ -543,12 +543,12 @@ void tst_QVariant::toInt_data()
     bytearray[2] = 's';
     bytearray[3] = 't';
 //    bytearray[4] = '\0';
-    QTest::newRow( "QByteArray1" ) << QVariant( bytearray ) << 0 << false; 
+    QTest::newRow( "QByteArray1" ) << QVariant( bytearray ) << 0 << false;
     bytearray[0] = '4';
     bytearray[1] = '5';
     bytearray[2] = '0';
     bytearray[3] = '0';
-    QTest::newRow( "QByteArray2" ) << QVariant( bytearray ) << 4500 << true; 
+    QTest::newRow( "QByteArray2" ) << QVariant( bytearray ) << 4500 << true;
 }
 
 void tst_QVariant::toInt()
@@ -845,7 +845,7 @@ void tst_QVariant::toColor()
     QFETCH( QColor, result );
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::Color ) );
-    QColor d = value.value<QColor>();
+    QColor d = qVariantValue<QColor>(value);
     QCOMPARE( d, result );
 }
 
@@ -869,7 +869,7 @@ void tst_QVariant::toPixmap()
     QFETCH( QPixmap, result );
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::Pixmap ) );
-    QPixmap d = value.value<QPixmap>();
+    QPixmap d = qVariantValue<QPixmap>(value);
     QCOMPARE( d, result );
 }
 
@@ -891,7 +891,7 @@ void tst_QVariant::toBrush()
     QFETCH( QBrush, result );
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::Brush ) );
-    QBrush d = value.value<QBrush>();
+    QBrush d = qVariantValue<QBrush>(value);
     QCOMPARE( d, result );
 }
 
@@ -899,7 +899,7 @@ void tst_QVariant::toFont_data()
 {
     QTest::addColumn<QVariant>("value");
     QTest::addColumn<QFont>("result");
-    
+
     QFont f("times",12,-1,false);
     QTest::newRow( "string" ) << QVariant( QString( "times,12,-1,5,50,0,0,0,0,0" ) ) << f;
 }
@@ -910,7 +910,7 @@ void tst_QVariant::toFont()
     QFETCH( QFont, result );
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::Font ) );
-    QFont d = value.value<QFont>();
+    QFont d = qVariantValue<QFont>(value);
     QCOMPARE( d, result );
 }
 
@@ -918,7 +918,7 @@ void tst_QVariant::toKeySequence_data()
 {
     QTest::addColumn<QVariant>("value");
     QTest::addColumn<QKeySequence>("result");
-    
+
 
     QTest::newRow( "int" ) << QVariant( 67108929 ) << QKeySequence( Qt::CTRL + Qt::Key_A );
 
@@ -935,7 +935,7 @@ void tst_QVariant::toKeySequence()
     QFETCH( QKeySequence, result );
     QVERIFY( value.isValid() );
     QVERIFY( value.canConvert( QVariant::KeySequence ) );
-    QKeySequence d = value.value<QKeySequence>();
+    QKeySequence d = qVariantValue<QKeySequence>(value);
     QCOMPARE( d, result );
 }
 
