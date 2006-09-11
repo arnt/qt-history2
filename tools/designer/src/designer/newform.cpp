@@ -90,12 +90,6 @@ void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWi
     }
 }
 
-void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
-{
-    if (item->data(0, TemplateNameRole).isValid())
-        createButton->animateClick(0);
-}
-
 void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 {
     int role = ui.buttonBox->buttonRole(btn);
