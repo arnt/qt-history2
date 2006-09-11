@@ -883,11 +883,13 @@ private slots:
 
 void tst_QHttp::unexpectedRemoteClose()
 {
+#ifdef TEST_QNETWORK_PROXY
     QFETCH_GLOBAL(int, proxyType);
     if (proxyType == QNetworkProxy::Socks5Proxy) {
         // This test doesn't make sense for SOCKS5
         return;
     }
+#endif
 
     Server server;
     server.listen();
