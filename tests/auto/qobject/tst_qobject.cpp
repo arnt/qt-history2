@@ -1047,7 +1047,7 @@ class PropertyObject : public QObject
     Q_PROPERTY(QString string READ string WRITE setString)
     Q_PROPERTY(QVariant variant READ variant WRITE setVariant)
     Q_PROPERTY(CustomType* custom READ custom WRITE setCustom)
-    Q_PROPERTY(float myFloat READ myFloat WRITE setMyFloat);
+    Q_PROPERTY(float myFloat READ myFloat WRITE setMyFloat)
 
 public:
     enum Alpha {
