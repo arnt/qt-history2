@@ -201,7 +201,7 @@ void tst_QItemDelegate::editorGetsEnterKeyPress()
     view.edit(model.index(0, 0));
 
     // get the editor and install custom validator on it
-    QList<QLineEdit*> lineEditors = view.findChildren<QLineEdit*>();
+    QList<QLineEdit*> lineEditors = qFindChildren<QLineEdit *>(&view);
     Q_ASSERT(lineEditors.count() == 1);
     QLineEdit *editor = lineEditors.at(0);
     editor->setValidator(new FooValidator(editor));
