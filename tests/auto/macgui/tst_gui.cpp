@@ -48,9 +48,7 @@ void tst_gui::clickButtonSelfTest()
     QVERIFY(interface.iface);
     
     clearSequence();
-    const int delay = 6000;
-    addToSequence(new ClickLaterAction(box, Qt::LeftButton), delay);
-    addToSequence(new ClickLaterAction(interface, Qt::LeftButton), 1000);
+    addToSequence(new ClickLaterAction(interface, Qt::LeftButton), 3000);
     runSequence();
 
     // Show dialog and and enter event loop.
