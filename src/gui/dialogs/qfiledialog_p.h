@@ -189,9 +189,6 @@ protected:
             e->accept();
         } else {
             QListView::keyPressEvent(e);
-            // We want to consume Enter/Return
-            if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)
-                e->accept();
         }
     }
 private:
@@ -214,9 +211,6 @@ protected:
             e->accept();
         } else {
             QTreeView::keyPressEvent(e);
-            // We want to consume Enter/Return
-            if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)
-                e->accept();
         }
     }
 private:
