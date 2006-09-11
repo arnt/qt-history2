@@ -3164,8 +3164,8 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
         if (w) {
             w->installEventFilter(itemDelegate);
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
-            itemDelegate->setEditorData(w, index);
             itemDelegate->updateEditorGeometry(w, options, index);
+            itemDelegate->setEditorData(w, index);
             addEditor(index, w);
             QWidget::setTabOrder(q, w);
 #ifndef QT_NO_LINEEDIT
