@@ -1240,7 +1240,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else {
         q->setAttribute(Qt::WA_WState_Visible, false);
 
-        if (topLevel) {
+        if (topLevel && (type != Qt::Drawer)) {
             if(QDesktopWidget *dsk = QApplication::desktop()) { // calc pos/size from screen
                 const bool wasResized = q->testAttribute(Qt::WA_Resized);
                 const bool wasMoved = q->testAttribute(Qt::WA_Moved);
@@ -1727,7 +1727,7 @@ void QWidgetPrivate::show_sys()
                 movey = avail.bottom() - r.height();
             if(r.right() > avail.right())
                 movex = avail.right() - r.width();
-            q->setGeometry(qMax(avail.left(), movex), qMax(avail.top(), movey), q->width(), q->height());
+            q->move(qMax(avail.left(), movex), qMax(avail.top(), movey));
         }
     }
     data.fstrut_dirty = true;
