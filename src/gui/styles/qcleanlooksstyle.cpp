@@ -1274,10 +1274,6 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
     QColor highlight = option->palette.highlight().color();
     QColor highlightText = option->palette.highlightedText().color();
-    if (qAbs(qGray(highlight.rgb()) - qGray(highlightText.rgb())) < 150) {
-        if (qGray(highlightText.rgb()) < 128)
-            highlight = highlight.light(); //ensure that we have a high contrast
-    }
 
     switch(element) {
      case CE_RadioButton: //fall through
@@ -2480,14 +2476,8 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool active = (titleBar->titleBarState & State_Active);
             QRect fullRect = titleBar->rect;
             QPalette palette = option->palette;
-
-
             QColor highlight = option->palette.highlight().color();
-            QColor highlightText = option->palette.highlightedText().color();
-            if (qAbs(qGray(highlight.rgb()) - qGray(highlightText.rgb())) < 150) {
-                highlightText = Qt::white; //ensure that we have a high contrast
-            }
-
+            
             QColor titleBarGradientStart(active ? highlight: palette.background().color());
             QColor titleBarGradientStop(active ? highlight.dark(150): palette.background().color().dark(120));
             QColor titleBarFrameBorder(active ? highlight.dark(180): dark.dark(110));
@@ -2534,7 +2524,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             painter->setPen(active? (titleBar->palette.text().color().light(120)) :
                                      titleBar->palette.text().color() );
             painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
-            painter->setPen(highlightText);
+            painter->setPen(Qt::white);
             if (active)
                 painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
@@ -3599,6 +3589,14 @@ void QCleanlooksStyle::polish(QWidget *widget)
 void QCleanlooksStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
+    //this is a workaround for some themes such as Human, where the contrast
+    //between text and background is too low.    
+    QColor highlight = pal.highlight().color();
+    QColor highlightText = pal.highlightedText().color();
+    if (qAbs(qGray(highlight.rgb()) - qGray(highlightText.rgb())) < 150) {
+        if (qGray(highlightText.rgb()) < 128)
+            pal.setBrush(QPalette::Highlight, highlight.light(145));
+    }
 }
 
 /*!
