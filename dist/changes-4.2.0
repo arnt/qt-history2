@@ -295,7 +295,11 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QImage
 	Added support for 16bit RGB format.
-<
+        Added QPoint overloads to various (int x, int y) functions
+        Faster/better rotation of images for 90/180/270 degrees
+        QImage::convertToFormat() now supports the color lookup table.
+        Improved algorithm for smooth scaling to provide better results
+
 - QImageReader
 	Made size() return an invalid QSize if the image I/O handler
 	does not support the QImageIOHandler::Size extension.
@@ -330,6 +334,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QRect, QRectF, QRegion
         Renamed unite() united(), intersect() intersected(),
         subtract() subtracted(), and eor() xored().
+        Added QRegion::intersects(QRegion) and QRegion::intersects(QRect)
 
 - QRegExp
         Added RegExp2 syntax, which provides greedy qualifiers (+, *, etc.).
@@ -538,11 +543,15 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Fixed a crash when drawing cosmetic lines outside the paint device
 	boundaries.
 	Fixed a pixel artifact when drawing cosmetic diagonal lines.
+        Fixed opaque backgrounds to be identical on all platforms.
 	Optimized drawing of cosmetic lines of between 315 and 360 degrees.
+        Added QPainter::setRenderHints()
 
 - QRasterPaintEngine
 	Fixed blending of 8 bit indexed images with alpha values.
 	Fixed drawing onto QImages that were wider than 2048 pixels.
+	Fixed alphablending and antialiasing on ARGB32 images 
+        Optimized drawPoints()
 
 - quintptr and qptrdiff
         New integral typedefs have been added.
@@ -560,6 +569,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - Qt::GroupSwitchModifier
         Added to the Qt::KeyboardModifiers enum. It represents
         e.g. the "AltGr" key found on many keyboards.
+
+- QColor
+        Fixed corruption in setRed, setGreen and setBlue for HSV/CMYK colors.
 
 - Q3ListView
         Fixed possible crash in Q3ListView after calling clear().
@@ -630,6 +642,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QWidget
         Added a property styleSheet to set/read the widget style sheet.
         Added saveGeometry(), restoreGeometry() convenience functions for 
+        Fixed memory leak for Qt::WA_PaintOnScreen widgets with paintEngine() == 0.
         saving and restoring a window's geometry.
         Let the style propagate to child widgets.
 
@@ -706,6 +719,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QWhatsThis
 		Improved look and feel. More native appearence on Windows.
 
+- QGradient
+        Added default constructors and setter functions for all gradients and their attributes.
+
 - QGLFormat
         Added openGLVersionFlags() function.
 	Added support for setting the swap interval for a context
@@ -766,8 +782,9 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         calling supportedOptions().
 
 - QPixmap
+	Fixed crash when setting mask or alphachannel while pixmap is being painted
         Various Qt/Mac masking and alpha transparency fixes.
-        load() and save() no longer require you to pass the format string.
+        load() and save() no longer require you to pass the format string.	
 
 - QTimeLine
         New class for controlling a time line.
@@ -865,6 +882,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         setOutputFormat now preserves previously set printer properties.
         setOutputFileName automatically chooses PostScript or PDF as output format
         for .ps or .pdf suffices.
+        Support printing onto printers that do not have a DEVMODE on windows
 
 - QProcess
         Always use utf8 encoding when passing commands on Mac OS X.
@@ -928,8 +946,20 @@ I/O and Networking
 - QIODevice
         Fixed a casting bug in QIODevice::getChar().
         Now uses an internal buffer when opened in buffered mode, which
-        improves reading performance significantly. Some behavioral
-        differences have been introduced.
+        improves reading performance significantly.
+
+        Some behavioral differences have been introduced: the following
+        functions now need to call the base implementation when reimplemented:
+
+        QIODevice::atEnd()
+        QIODevice::bytesAvailable()
+        QIODevice::size()
+        QIODevice::canReadLine()
+
+        QIODevice::pos() should return the base implementation directly;
+        QIODevice now handles the device position
+        internally. QIODevice::seek() should always end up calling the base
+        implementation.
 
 - QFile
         Improved support for UNC paths when the application is run from a
@@ -961,6 +991,7 @@ I/O and Networking
 
 - QIcon
         Fixed issue where actualSize() might return a larger value than the requested size.
+        Fixed improper in pixmap caching
 	Added aQDataStream operators for QIcon.
 	Added Selected mode.
 
@@ -1126,6 +1157,11 @@ Mac OS X:
 - QPixmap
         Functions to convert to/from a CGImageRef (for CoreGraphics interop) added.
 
+- QKeyEvent
+        The text() of a QKeyEvent is filled with the control character if the user pressed
+        the real control key (meta in Qt) and another key. This makes our behavior more
+        in line with Qt on other platforms.
+
 - QMenuBar
         Support for explicit merging of items on Qt/Mac, without automatic detection (QAction::MenuRole)
         Localization of merged items possible on Qt/Mac now.
@@ -1136,6 +1172,7 @@ Mac OS X:
         Can now wrap a native HIViewRef with QWidget::create().
         Now creates top levels with parents that have WindowStaysOnTopHint
         set to also have WindowStaysOnTopHint.
+        Make sure QWidget::getDC() always returns a valid HDC
 
 - QClipboard
         Data copied to the clipboard now stays available after the application exits.
@@ -1148,6 +1185,16 @@ Mac OS X:
 - QPainter
         Fix off-by-one error when drawing certain primitves
         Fix off-by-many error when drawing certain primitives using a scale matrix.
+	Fix clipping so that setting an empty clip will clip away everything
+	Fixed changing between custom dash patterns
+        Added QPainter::combinedMatrix() which contains both world and viewport/window xform
+        Added QPainter::setOpacity()
+        Added MiterJoins that are compliant with SVG miter joins.
+
+- QPainterPath
+        Added QPainterPath::arcMoveTo()	
+        Added QPainterPath::setElementPosition()
+        
 
 - QComboBox
         Improve the popup sizing so it's always wide enough to display its contents.
