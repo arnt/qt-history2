@@ -1433,7 +1433,6 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     switch (role) {
     case Qt::EditRole:
     case Qt::DisplayRole: {
-        const QString text = value.toString();
         if (values.count() <= column) {
             if (model && this == model->headerItem)
                 model->setColumnCount(column + 1);
@@ -1442,10 +1441,10 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         }
         if (display.count() <= column) {
             for (int i = display.count() - 1; i < column - 1; ++i)
-                display.append(QString());
-            display.append(text);
-        } else if (display[column] != text) {
-            display[column] = text;
+                display.append(QVariant());
+            display.append(value);
+        } else if (display[column] != value) {
+            display[column] = value;
         } else {
             return; // value is unchanged
         }
