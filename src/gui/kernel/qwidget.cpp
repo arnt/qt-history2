@@ -2842,7 +2842,7 @@ void QWidgetPrivate::setMinimumSize_helper(int minw, int minh)
     Q_Q(QWidget);
 
 #ifdef Q_WS_QWS
-    if (isWindow()) {
+    if (q->isWindow()) {
         QApplicationPrivate *ap = QApplicationPrivate::instance();
         const QRect maxWindowRect = ap->maxWindowRect(getScreen());
         if (!maxWindowRect.isEmpty()) {
