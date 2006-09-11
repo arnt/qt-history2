@@ -262,7 +262,7 @@ void tst_QGraphicsView::scene()
     QVERIFY(!view.scene());
     view.setScene(0);
     QVERIFY(!view.scene());
- 
+
     QGraphicsScene scene;
     view.setScene(&scene);
     QCOMPARE(view.scene(), &scene);
@@ -301,7 +301,7 @@ void tst_QGraphicsView::sceneRect_growing()
     QGraphicsScene scene;
     for (int i = 0; i < 100; ++i)
         scene.addText(QString("(0, %1)").arg((i - 50) * 20))->setPos(0, (i - 50) * 20);
-   
+
     QGraphicsView view(&scene);
     view.setFixedSize(200, 200);
     view.show();
@@ -313,13 +313,13 @@ void tst_QGraphicsView::sceneRect_growing()
     QTest::qWait(25);
 
     QPointF topLeft = view.mapToScene(0, 0);
-    
+
     for (int i = 0; i < 5; ++i) {
         size *= 2;
         scene.setSceneRect(-size, -size, size * 2, size * 2);
 
         QTest::qWait(25);
-        
+
         QCOMPARE(view.sceneRect(), scene.sceneRect());
         QCOMPARE(view.mapToScene(0, 0), topLeft);
         view.setSceneRect(-size, -size, size * 2, size * 2);
@@ -332,7 +332,7 @@ void tst_QGraphicsView::setSceneRect()
 {
     QRectF rect1(-100, -100, 200, 200);
     QRectF rect2(-300, -300, 150, 150);
-    
+
     QGraphicsScene scene;
     QGraphicsView view(&scene);
 
@@ -351,7 +351,7 @@ void tst_QGraphicsView::setSceneRect()
     view.setSceneRect(rect2);
     QCOMPARE(scene.sceneRect(), rect2);
     QCOMPARE(view.sceneRect(), rect2);
-    
+
     scene.setSceneRect(rect1);
     QCOMPARE(scene.sceneRect(), rect1);
     QCOMPARE(view.sceneRect(), rect2);
@@ -374,7 +374,7 @@ void tst_QGraphicsView::viewport()
 
     view.show();
     QTest::qWait(25);
-    
+
     view.setViewport(0);
     QVERIFY(widget.isNull());
     QVERIFY(view.viewport() != 0);
@@ -466,7 +466,7 @@ void tst_QGraphicsView::dragMode_rubberBand()
     scene.addRect(QRectF(-100, 75, 25, 25))->setFlag(QGraphicsItem::ItemIsSelectable);
 
     view.setDragMode(QGraphicsView::RubberBandDrag);
-    
+
     for (int i = 0; i < 2; ++i) {
         // RubberBandDrag
         Qt::CursorShape cursorShape = view.viewport()->cursor().shape();
@@ -482,7 +482,7 @@ void tst_QGraphicsView::dragMode_rubberBand()
         QCOMPARE(view.viewport()->cursor().shape(), cursorShape);
 
         QTest::qWait(25);
-        
+
         {
             // Move
             QMouseEvent event(QEvent::MouseMove,
@@ -492,7 +492,7 @@ void tst_QGraphicsView::dragMode_rubberBand()
         }
         QCOMPARE(view.horizontalScrollBar()->value(), horizontalScrollBarValue);
         QCOMPARE(view.verticalScrollBar()->value(), verticalScrollBarValue);
-        QVERIFY(view.findChild<QRubberBand *>());
+        QVERIFY(qFindChild<QRubberBand *>(&view));
 
         QTest::qWait(25);
 
@@ -520,10 +520,10 @@ void tst_QGraphicsView::dragMode_rubberBand()
         QCOMPARE(view.viewport()->cursor().shape(), cursorShape);
 
         QTest::qWait(25);
-        
+
         if (view.scene())
             QCOMPARE(scene.selectedItems().size(), 1);
-        
+
         view.setScene(&scene);
         view.centerOn(0, 0);
     }
@@ -593,17 +593,17 @@ void tst_QGraphicsView::foregroundBrush()
         gradient3.setColorAt(1, Qt::transparent);
         gradient3.setSpread(QGradient::RepeatSpread);
         scene.setBackgroundBrush(gradient3);
-        
+
         QApplication::processEvents();
     }
 
     view.setSceneRect(-1000, -1000, 2000, 2000);
     for (int i = -500; i < 500; i += 10) {
-        view.centerOn(i, 0);        
+        view.centerOn(i, 0);
         QTest::qWait(10);
     }
     for (int i = -500; i < 500; i += 10) {
-        view.centerOn(0, i);        
+        view.centerOn(0, i);
         QTest::qWait(10);
     }
 }
@@ -633,12 +633,12 @@ void tst_QGraphicsView::matrix()
             QTest::qWait(10);
         }
     }
-    
+
     // Test transformation extremes, see if they cause crashes
     {
         QGraphicsScene scene;
         scene.addText("GraphicsView rotated clockwise");
-    
+
         QGraphicsView view(&scene);
         view.show();
         for (int i = 0; i < 160; ++i) {
@@ -710,7 +710,7 @@ void tst_QGraphicsView::centerOnPoint()
     scene.addEllipse(QRectF(50, -100, 50, 50));
     scene.addEllipse(QRectF(-100, 50, 50, 50));
     scene.addEllipse(QRectF(50, 50, 50, 50));
-    
+
     QGraphicsView view(&scene);
     view.setSceneRect(-400, -400, 800, 800);
     view.setFixedSize(100, 100);
@@ -731,7 +731,7 @@ void tst_QGraphicsView::centerOnPoint()
                                     .arg(viewCenter.x()).arg(viewCenter.y()).arg(x).arg(y);
                     QFAIL(qPrintable(error));
                 }
-            
+
                 QTest::qWait(1);
             }
         }
@@ -755,12 +755,12 @@ void tst_QGraphicsView::centerOnItem()
     items[1]->setPos(100, -100);
     items[2]->setPos(-100, 100);
     items[3]->setPos(100, 100);
-    
+
     QGraphicsView view(&scene);
     view.setSceneRect(-1000, -1000, 2000, 2000);
     view.show();
     int tolerance = 7;
-        
+
     for (int x = 0; x < 3; ++x) {
         for (int i = 0; i < 4; ++i) {
             view.centerOn(items[i]);
@@ -779,7 +779,7 @@ void tst_QGraphicsView::centerOnItem()
 
             QTest::qWait(250);
         }
-        
+
         // gneh gneh gneh
         view.rotate(13);
         view.scale(1.5, 1.5);
@@ -803,7 +803,7 @@ void tst_QGraphicsView::ensureVisibleRect()
     items[3]->setPos(100, 100);
 
     QGraphicsItem *icon = scene.addEllipse(QRectF(-10, -10, 20, 20), QPen(Qt::black), QBrush(Qt::gray));
-    
+
     QGraphicsView view(&scene);
     view.setSceneRect(-500, -500, 1000, 1000);
     view.setFixedSize(250, 250);
@@ -837,13 +837,13 @@ void tst_QGraphicsView::ensureVisibleRect()
 
                 QRect viewRect = view.viewport()->rect();
                 QPoint viewPoint = view.mapFromScene(x, y);
-                
+
                 QVERIFY(viewRect.contains(viewPoint));
                 QVERIFY(qAbs(viewPoint.x() - viewRect.left()) >= margin -1);
                 QVERIFY(qAbs(viewPoint.x() - viewRect.right()) >= margin -1);
                 QVERIFY(qAbs(viewPoint.y() - viewRect.top()) >= margin -1);
                 QVERIFY(qAbs(viewPoint.y() - viewRect.bottom()) >= margin -1);
-                
+
                 QTest::qWait(10);
             }
         }
@@ -897,7 +897,7 @@ void tst_QGraphicsView::fitInView()
     QVERIFY(!view.itemAt(144, 11));
     QVERIFY(!view.itemAt(29, 69));
     QVERIFY(!view.itemAt(251, 167));
-    
+
     view.fitInView(items[0], Qt::KeepAspectRatio);
     QTest::qWait(250);
     QCOMPARE(view.itemAt(328, 170), items[0]);
@@ -931,8 +931,8 @@ void tst_QGraphicsView::itemsAtPoint()
     scene.addRect(QRectF(-10, -10, 20, 20))->setZValue(3);
 
     QGraphicsView view;
-    QVERIFY(view.items(0, 0).isEmpty());    
-    
+    QVERIFY(view.items(0, 0).isEmpty());
+
     view.setScene(&scene);
     view.setSceneRect(-10000, -10000, 20000, 20000);
     view.show();
@@ -960,9 +960,9 @@ void tst_QGraphicsView::itemsInRect()
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(6);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(3);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(7);
-    
+
     QGraphicsView view;
-    QVERIFY(view.items(QRect(-100, -100, 200, 200)).isEmpty());    
+    QVERIFY(view.items(QRect(-100, -100, 200, 200)).isEmpty());
     view.setScene(&scene);
     view.setSceneRect(-10000, -10000, 20000, 20000);
     view.show();
@@ -1002,9 +1002,9 @@ void tst_QGraphicsView::itemsInPoly()
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(6);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(3);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(7);
-    
+
     QGraphicsView view;
-    QVERIFY(view.items(QPolygon()).isEmpty());    
+    QVERIFY(view.items(QPolygon()).isEmpty());
     view.setScene(&scene);
     view.setSceneRect(-10000, -10000, 20000, 20000);
     view.show();
@@ -1044,9 +1044,9 @@ void tst_QGraphicsView::itemsInPath()
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(6);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(3);
     scene.addRect(QRectF(30, -10, 20, 20))->setZValue(7);
-    
+
     QGraphicsView view;
-    QVERIFY(view.items(QPainterPath()).isEmpty());    
+    QVERIFY(view.items(QPainterPath()).isEmpty());
     view.setScene(&scene);
     view.translate(100, 400);
     view.rotate(22.3);
@@ -1089,7 +1089,7 @@ void tst_QGraphicsView::itemAt()
 
     QGraphicsView view;
     QCOMPARE(view.itemAt(0, 0), (QGraphicsItem *)0);
-    
+
     view.setScene(&scene);
     view.setSceneRect(-10000, -10000, 20000, 20000);
     view.show();
@@ -1102,10 +1102,10 @@ void tst_QGraphicsView::mapToScene()
 {
     // Uncomment the commented-out code to see what's going on. It doesn't
     // affect the test; it just slows it down.
-    
+
     QGraphicsScene scene;
     scene.addPixmap(QPixmap("3D-Qt-1-2.png"));
-    
+
     QGraphicsView view;
     view.setScene(&scene);
     view.setSceneRect(-500, -500, 1000, 1000);
@@ -1146,7 +1146,7 @@ void tst_QGraphicsView::mapToScene()
 
                     int h = view.horizontalScrollBar()->value();
                     int v = view.verticalScrollBar()->value();
-                
+
                     for (int x = 0; x < view.width(); ++x) {
                         for (int y = 0; y < view.height(); ++y) {
                             QCOMPARE(view.mapToScene(QPoint(x, y)), QPointF(h + x, v + y));
@@ -1180,7 +1180,7 @@ void tst_QGraphicsView::mapToSceneRect()
     view.show();
     QPoint center = view.viewport()->rect().center();
     QRect rect(center + QPoint(10, 0), QSize(10, 10));
-    
+
     QPolygonF poly;
     poly << view.mapToScene(rect.topLeft());
     poly << view.mapToScene(rect.topRight());
@@ -1211,7 +1211,7 @@ void tst_QGraphicsView::mapToScenePoly()
     poly2 << view.mapToScene(rect.topRight());
     poly2 << view.mapToScene(rect.bottomRight());
     poly2 << view.mapToScene(rect.bottomLeft());
-    
+
     QCOMPARE(view.mapToScene(poly), poly2);
 }
 
@@ -1295,7 +1295,7 @@ void tst_QGraphicsView::mapFromScenePoly()
     polygon << QPoint(10, 0);
     polygon << QPoint(10, 10);
     polygon << QPoint(0, 10);
-    
+
     QPolygon polygon2;
     polygon2 << QPoint(98, 98);
     polygon2 << QPoint(98, 108);
@@ -1326,7 +1326,7 @@ void tst_QGraphicsView::mapFromScenePath()
     polygon << QPoint(0, 10);
     QPainterPath path;
     path.addPolygon(polygon);
-    
+
     QPolygon polygon2;
     polygon2 << QPoint(98, 98);
     polygon2 << QPoint(98, 108);
@@ -1337,7 +1337,7 @@ void tst_QGraphicsView::mapFromScenePath()
 
     QPolygonF pathPoly = view.mapFromScene(path).toFillPolygon();
     QPolygonF path2Poly = path2.toFillPolygon();
-    
+
     for (int i = 0; i < pathPoly.size(); ++i) {
         QVERIFY(qAbs(pathPoly[i].x() - path2Poly[i].x()) < 3);
         QVERIFY(qAbs(pathPoly[i].y() - path2Poly[i].y()) < 3);
@@ -1474,12 +1474,12 @@ void tst_QGraphicsView::resizeAnchor()
         }
         view.centerOn(0, 0);
         QTest::qWait(100);
-        
+
         QPointF f = view.mapToScene(50, 50);
         QPointF center = view.mapToScene(view.viewport()->rect().center());
-        
+
         QTest::qWait(100);
-        
+
         for (int size = 200; size <= 400; size += 25) {
             view.resize(size, size);
             if (i == 0) {
