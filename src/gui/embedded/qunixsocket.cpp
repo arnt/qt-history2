@@ -523,7 +523,7 @@ gid_t QUnixSocketMessage::groupId() const
 void QUnixSocketMessage::setProcessId(pid_t pid)
 {
     if(!(d->state & QUnixSocketMessagePrivate::Credential)) {
-        (int)( d->state = d->state ) | QUnixSocketMessagePrivate::Credential;
+        d->state = (QUnixSocketMessagePrivate::AncillaryDataState)( d->state | QUnixSocketMessagePrivate::Credential );
         d->uid = ::geteuid();
         d->gid = ::getegid();
     }
@@ -540,7 +540,7 @@ void QUnixSocketMessage::setProcessId(pid_t pid)
 void QUnixSocketMessage::setUserId(uid_t uid)
 {
     if(!(d->state & QUnixSocketMessagePrivate::Credential)) {
-        (int)( d->state = d->state ) | QUnixSocketMessagePrivate::Credential;
+        d->state = (QUnixSocketMessagePrivate::AncillaryDataState)( d->state | QUnixSocketMessagePrivate::Credential );
         d->pid = ::getpid();
         d->gid = ::getegid();
     }
@@ -557,7 +557,7 @@ void QUnixSocketMessage::setUserId(uid_t uid)
 void QUnixSocketMessage::setGroupId(gid_t gid)
 {
     if(!(d->state & QUnixSocketMessagePrivate::Credential)) {
-        (int)( d->state = d->state ) | QUnixSocketMessagePrivate::Credential;
+        d->state = (QUnixSocketMessagePrivate::AncillaryDataState)( d->state | QUnixSocketMessagePrivate::Credential );
         d->pid = ::getpid();
         d->uid = ::geteuid();
     }
