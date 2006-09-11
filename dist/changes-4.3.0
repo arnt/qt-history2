@@ -1,0 +1,2 @@
+ - QPrinter
+        Added QPrinter::supportedPaperSources()
