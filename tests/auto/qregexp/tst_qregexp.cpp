@@ -978,6 +978,9 @@ void tst_QRegExp::reentrancy()
 
     for (int i = 0; i < int(sizeof(threads) / sizeof(threads[0])); ++i)
         threads[i]->wait();
+
+    for (int i = 0; i < int(sizeof(threads) / sizeof(threads[0])); ++i)
+        delete threads[i];
 }
 #endif
 
