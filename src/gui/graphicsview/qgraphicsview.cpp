@@ -1356,9 +1356,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     painter->setClipPath(path);
 
     // Render the scene.
-    d->scene->drawBackground(painter, sourceRect);
-    d->scene->drawItems(painter, numItems, itemArray, styleOptionArray);
-    d->scene->drawForeground(painter, sourceRect);
+    drawBackground(painter, sourceRect);
+    drawItems(painter, numItems, itemArray, styleOptionArray);
+    drawForeground(painter, sourceRect);
 
     delete [] itemArray;
     delete [] styleOptionArray;
