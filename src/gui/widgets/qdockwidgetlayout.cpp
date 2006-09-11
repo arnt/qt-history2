@@ -350,6 +350,11 @@ QSize QDockAreaLayoutInfo::maximumSize() const
         return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 
     int a = 0, b = QWIDGETSIZE_MAX;
+#ifndef QT_NO_TABBAR
+    if (tabbed)
+        a = QWIDGETSIZE_MAX;
+#endif
+
     bool first = true;
     for (int i = 0; i < item_list.size(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
@@ -388,11 +393,9 @@ QSize QDockAreaLayoutInfo::maximumSize() const
             case QTabBar::RoundedNorth:
             case QTabBar::RoundedSouth:
                 result.rheight() += tbh.height();
-                result.rwidth() = qMax(tbh.width(), result.width());
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::RoundedWest:
-                result.rheight() = qMax(tbh.height(), result.height());
                 result.rwidth() += tbh.width();
                 break;
             default:
