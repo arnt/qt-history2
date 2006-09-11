@@ -1724,7 +1724,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     Q_D(QX11PaintEngine);
     if (path.isEmpty())
         return;
-    bool adjust_coords = d->has_alpha_pen && !(d->render_hints & QPainter::Antialiasing);
+    bool adjust_coords = (d->has_alpha_pen || (d->cpen.style() > Qt::SolidLine)) && !(d->render_hints & QPainter::Antialiasing);
     QMatrix old_matrix = d->matrix;
     if (adjust_coords) {
         d->matrix = QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), d->matrix.m22(),
