@@ -1840,6 +1840,10 @@ void tst_QGraphicsScene::dragAndDrop_disabledOrInvisible()
         QCOMPARE(item->eventList.size(), 3);
         QCOMPARE(item->eventList.at(2), QEvent::GraphicsSceneDragLeave);
     }
+    
+    // Dummy drop event to keep the Mac from crashing.
+    QDropEvent dropEvent(QPoint(0, 0), Qt::CopyAction, &mimeData, Qt::LeftButton, 0);
+    QApplication::sendEvent(view.viewport(), &dropEvent);
 }
 
 void tst_QGraphicsScene::dragAndDrop_propagate()
@@ -1942,6 +1946,10 @@ void tst_QGraphicsScene::dragAndDrop_propagate()
         QCOMPARE(item1->eventList.at(8), QEvent::GraphicsSceneDrop);
         QCOMPARE(item2->eventList.size(), 9);
     }
+
+    // Dummy drop event to keep the Mac from crashing.
+    QDropEvent dropEvent(QPoint(0, 0), Qt::CopyAction, &mimeData, Qt::LeftButton, 0);
+    QApplication::sendEvent(view.viewport(), &dropEvent);
 }
 
 void tst_QGraphicsScene::render_data()
