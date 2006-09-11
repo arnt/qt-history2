@@ -729,6 +729,7 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
         menubar->setParent(mw);
     }
 #endif
+    bool mwVisible = mw && mw->isVisible();
     for (int i = 0; i < n; ++i) {
         QLayoutItem *item = q->itemAt(i);
         if (QWidget *w = item->widget()) {
@@ -739,8 +740,11 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
                          w->metaObject()->className(), w->objectName().toLocal8Bit().data());
             }
 #endif
+	    bool needShow = mwVisible && !(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide));
             if (pw != mw)
                 w->setParent(mw);
+	    if (needShow)
+                QMetaObject::invokeMethod(w, "_q_showIfNotHidden", Qt::QueuedConnection); //show later
         } else if (QLayout *l = item->layout()) {
             l->d_func()->reparentChildWidgets(mw);
         }
