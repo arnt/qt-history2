@@ -528,7 +528,7 @@ void tst_QColor::setAlpha()
 
 bool veryFuzzyCompare(double a, double b)
 {
-    return abs(a - b) < 0.01;
+    return qAbs(a - b) < 0.01;
 }
 
 void tst_QColor::setRed()
