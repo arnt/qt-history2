@@ -1153,8 +1153,8 @@ static inline bool qcss_selectorLessThan(const QPair<int, QCss::StyleRule> &lhs,
     return lhs.first < rhs.first;
 }
 
-void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules,
-                               QVector<QPair<int, StyleRule> > *weightedRules)
+void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, StyleSheetOrigin origin,
+                               int depth, QVector<QPair<int, StyleRule> > *weightedRules)
 {
     for (int i = 0; i < rules.count(); ++i) {
         const StyleRule &rule = rules.at(i);
@@ -1162,7 +1162,8 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules,
             const Selector& selector = rule.selectors.at(j);
             if (selectorMatches(selector, node)) {
                 QPair<int, StyleRule> weightedRule;
-                weightedRule.first = selector.specificity();
+                weightedRule.first = selector.specificity() 
+                                     + (origin == StyleSheetOrigin_Inline)*0x1000*depth;
                 weightedRule.second.selectors.append(selector);
                 weightedRule.second.declarations = rule.declarations;
                 weightedRules->append(weightedRule);
@@ -1194,11 +1195,12 @@ QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
     for (int sheetIdx = 0; sheetIdx < styleSheets.count(); ++sheetIdx) {
         const StyleSheet &styleSheet = styleSheets.at(sheetIdx);
 
-        matchRules(node, styleSheet.styleRules, &weightedRules);
+        matchRules(node, styleSheet.styleRules, styleSheet.origin, styleSheet.depth, &weightedRules);
         if (!medium.isEmpty()) {
             for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
                 if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
-                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &weightedRules);
+                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, styleSheet.origin, 
+                               styleSheet.depth, &weightedRules);
                 }
             }
         }

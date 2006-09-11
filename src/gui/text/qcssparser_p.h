@@ -384,12 +384,23 @@ struct Q_GUI_EXPORT ImportRule
     QStringList media;
 };
 
+enum StyleSheetOrigin {
+    StyleSheetOrigin_Unspecified,
+    StyleSheetOrigin_UserAgent,
+    StyleSheetOrigin_User,
+    StyleSheetOrigin_Author,
+    StyleSheetOrigin_Inline
+};
+
 struct Q_GUI_EXPORT StyleSheet
 {
+    StyleSheet() : origin(StyleSheetOrigin_Unspecified), depth(0) { }
     QVector<StyleRule> styleRules;
     QVector<MediaRule> mediaRules;
     QVector<PageRule> pageRules;
     QVector<ImportRule> importRules;
+    StyleSheetOrigin origin;
+    int depth; // applicable only for inline style sheets
 };
 
 class Q_GUI_EXPORT StyleSelector
@@ -419,7 +430,8 @@ public:
     QList<StyleSheet> styleSheets;
     QString medium;
 private:
-    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *weightedRules);
+    void matchRules(NodePtr node, const QVector<StyleRule> &rules, StyleSheetOrigin origin,
+                    int depth, QVector<QPair<int, StyleRule> > *weightedRules);
     bool selectorMatches(const Selector &rule, NodePtr node);
     bool basicSelectorMatches(const BasicSelector &rule, NodePtr node);
 };

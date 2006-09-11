@@ -1157,6 +1157,7 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
     Parser parser1(qApp->styleSheet());
     if (!parser1.parse(&appSs))
         qWarning("Could not parse application stylesheet");
+    appSs.origin = StyleSheetOrigin_Author;
     styleSelector.styleSheets += appSs;
 
     QList<QCss::StyleSheet> widgetSs;
@@ -1166,18 +1167,17 @@ static QVector<QCss::StyleRule> styleRules(QWidget *w)
         StyleSheet ss;
         Parser parser(wid->styleSheet());
         if (!parser.parse(&ss) && wid == w) {
-            // Try #objName.className { stylesheet } only for w
-            QString objName;
-            if (!wid->objectName().isEmpty())
-                objName = QLatin1String("#") + wid->objectName();
-            Parser parser2(objName + QLatin1String(".") + wid->metaObject()->className()
-                           + QLatin1String("{")
-                           + wid->styleSheet() + QLatin1String("}"));
+            Parser parser2(QLatin1String("* {") + wid->styleSheet() + QLatin1String("}"));
             if (!parser2.parse(&ss))
                 qWarning("Could not parse stylesheet of widget %p", wid);
         }
+        ss.origin = StyleSheetOrigin_Inline;
         widgetSs.prepend(ss);
     }
+
+    for (int i = 0; i < widgetSs.count(); i++)
+        widgetSs[i].depth = i + 1;
+
     styleSelector.styleSheets += widgetSs;
 
     StyleSelector::NodePtr n;
