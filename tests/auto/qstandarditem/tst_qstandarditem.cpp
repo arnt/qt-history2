@@ -252,6 +252,7 @@ void tst_QStandardItem::getSetFlags()
     QVERIFY(item.flags() & Qt::ItemIsSelectable);
     item.setCheckable(true);
     QVERIFY(item.isCheckable());
+    QCOMPARE(item.checkState(), Qt::Unchecked);
     QVERIFY(item.flags() & Qt::ItemIsUserCheckable);
     item.setTristate(true);
     QVERIFY(item.isTristate());
