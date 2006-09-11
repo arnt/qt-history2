@@ -208,7 +208,8 @@ var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt
                        new RegExp("examples/tools/codecs/encodedfiles/utf-16le.txt"),
                        new RegExp("tools/designer/src/designer/extra/names.txt") ];
 
-var finalRemove = [ new RegExp("^dist") ];
+var finalRemove = [ new RegExp("^dist"),
+                    new RegExp("^doc/html/qt.index") ];
 
 /************************************************************
  * Mapping from directories to module names
