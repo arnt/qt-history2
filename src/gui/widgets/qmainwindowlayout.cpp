@@ -1346,13 +1346,33 @@ void QMainWindowLayout::applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool
 }
 
 #ifndef QT_NO_TABBAR
+
+class QMainWindowTabBar : public QTabBar
+{
+public:
+    QMainWindowTabBar(QWidget *parent)
+        : QTabBar(parent) {}
+protected:
+    bool event(QEvent *e);
+};
+
+bool QMainWindowTabBar::event(QEvent *e)
+{
+    if (e->type() != QEvent::ToolTip)
+        return QTabBar::event(e);
+    if (size().width() < sizeHint().width())
+        return QTabBar::event(e);
+    e->accept();
+    return true;
+}
+
 QTabBar *QMainWindowLayout::getTabBar()
 {
     QTabBar *result = 0;
     if (!unusedTabBars.isEmpty()) {
         result = unusedTabBars.takeLast();
     } else {
-        result = new QTabBar(parentWidget());
+        result = new QMainWindowTabBar(parentWidget());
         result->setShape(QTabBar::RoundedSouth);
         result->setDrawBase(true);
         result->setElideMode(Qt::ElideRight);
