@@ -458,6 +458,9 @@ void tst_QPainterPath::testArcMoveTo_data()
     }
 }
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
 
 void tst_QPainterPath::testArcMoveTo()
