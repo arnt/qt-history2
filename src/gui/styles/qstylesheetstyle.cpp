@@ -86,7 +86,7 @@ struct QStyleSheetBorderData : public QSharedData
             borders[i] = b[i];
             styles[i] = s[i];
             colors[i] = c[i];
-            radii[i] = r[i];
+            radii[i] = r[i].expandedTo(QSize(0, 0));
         }
     }
 
@@ -173,6 +173,8 @@ public:
     void drawRule(QPainter *, const QRect&);
     void configurePalette(QPalette *, QPalette::ColorGroup, const QWidget *w);
     void configurePalette(QPalette *p, QPalette::ColorRole fr, QPalette::ColorRole br);
+
+    void getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, QSize *brr) const;
 
     const QStyleSheetPaletteData *palette() const { return pal; }
     const QStyleSheetBoxData *box() const { return b; }
@@ -918,9 +920,26 @@ void QRenderRule::drawBackgroundImage(QPainter *p, const QRect &rect)
     }
 }
 
+void QRenderRule::getRadii(const QRect &br, QSize *tlr, QSize *trr, QSize *blr, QSize *brr) const
+{
+    Q_ASSERT(hasBorder());
+    const QSize *radii = border()->radii;
+    *tlr = radii[0];
+    *trr = radii[1];
+    *blr = radii[2];
+    *brr = radii[3];
+    if (tlr->width() + trr->width() > br.width()
+        || blr->width() + brr->width() > br.width())
+        *tlr = *blr = QSize(0, 0);
+    if (tlr->height() + trr->height() > br.height()
+        || blr->height() + brr->height() > br.height())
+        *trr = *brr = QSize(0, 0);
+}
+
 void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
 {
     Q_ASSERT(hasBorder());
+    const QRectF br(rect);
     if (border()->hasBorderImage()) {
         drawBorderImage(p, rect);
         return;
@@ -929,21 +948,9 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
     const BorderStyle *styles = border()->styles;
     const int *borders = border()->borders;
     const QColor *colors = border()->colors;
-    const QRectF br(rect);
 
-    QSize tlr(0, 0), trr(0, 0), brr(0, 0), blr(0, 0);
-    if (border()->radii[0].isValid()) {
-        tlr = border()->radii[0];
-        trr = border()->radii[1];
-        blr = border()->radii[2];
-        brr = border()->radii[3];
-        if (tlr.width() + trr.width() > br.width()
-            || blr.width() + brr.width() > br.width())
-            tlr = blr = QSize(0, 0);
-        if (tlr.height() + trr.height() > br.height()
-            || blr.height() + brr.height() > br.height())
-            trr = brr = QSize(0, 0);
-    }
+    QSize tlr, trr, blr, brr;
+    getRadii(rect, &tlr, &trr, &blr, &brr);
 
     // Drawn in increasing order of precendence
     if (styles[BottomEdge] != BorderStyle_None) {
@@ -994,6 +1001,7 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
         if (tlr.width() || trr.width())
             qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
+    p->restore();
 }
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect)
@@ -1082,7 +1090,7 @@ void QRenderRule::configurePalette(QPalette *p, QPalette::ColorGroup cg, const Q
             p->setBrush(cg, QPalette::Button, bg->brush); // for plastique
         } else {
             p->setBrush(cg, w->backgroundRole(), bg->brush);
-            p->setBrush(cg, QPalette::Window, bg->brush);
+            //p->setBrush(cg, QPalette::Window, bg->brush);
         }
     }
 
