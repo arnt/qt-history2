@@ -1,0 +1,136 @@
+/*!
+    \example qtopiacore/svgalib
+    \title Accelerated Screen Driver Example
+
+    The svgalib example demonstrates how to write an accelerated screen driver.
+    The driver is a minimalistic implementation meant to be suitable as a 
+    template when implementing your own driver.
+
+    The example consists of two classes:
+
+    \list
+        \o \c SvgalibScreen is the main screen driver which is responsible for
+	     initializing and reseting the hardware.
+        \o \c SvgalibPlugin enables the use of SvgalibScreen as a plugin.
+    \endlist
+
+    \section1 Compiling and Running the Example
+
+    Instead of interfacing the graphics hardware directly, this example relies
+    on SVGAlib (\l {http://www.svgalib.org}) being installed on your system. 
+    SVGAlib is a small graphics library which provides acceleration for many 
+    common graphics card used on desktop computers. It should work on most 
+    workstations and has a small and simple API.
+
+    After compiling the example you should install the screen driver plugin
+    with the command \c {make install}. To start an application using the
+    example driver you can either set the environment variable \c QWS_DISPLAY
+    or start the program using the \c -display switch:
+
+    \code
+    export QWS_DISPLAY=svgalib
+    myapp -display svgalib
+    \endcode
+
+    In order to keep the example as simple as possible, the driver does not 
+    work with multiple processes.
+
+    \section1 SvgalibScreen Class Definition
+    \quotefromfile qtopiacore/svgalib/svgalibscreen.h
+
+    \skipto connect
+    \printuntil shutdownDevice
+
+    These functions are declared as pure virtual functions in QScreen and
+    must be implemented. They are used to configure or query the configuration
+    of the hardware. connect() and disconnect() are used by both the server 
+    and client processes. The connect() function must initialize all member
+    variables so that the driver is in a consistent state. initDevice() and
+    shutdownDevice() is only used by the server process and must leave the
+    hardware in a state consistent with the driver configuration.
+
+    \skipto setMode
+    \printuntil blank
+
+    setMode() and blank() are also declared as pure virtual functions in 
+    QScreen. This driver does nothing in these functions.
+
+    \skipto exposeRegion
+    \printuntil solidFill
+
+    The last three functions are the ones involved in putting pixels on the 
+    screen and is where we will do the actual acceleration.
+
+    \skipto private
+    \printuntil };
+
+    The \c context variable if a pointer to a SVGAlib spesific type. This 
+    example will not try to explain the details of using the SVGAlib library.
+
+    \section1 SvgalibScreen Class Implementation
+    \quotefromfile qtopiacore/svgalib/svgalibscreen.cpp
+
+    \skipto SvgalibScreen::connect
+
+    The connect() function is the first function that is called after the
+    constructor. It queries SVGAlib about the graphics mode and initializes
+    the variables. A screen driver \bold must initialize the following 
+    variables inherited from QScreen: \c data, \c lstep, \c w, \c h, \c dw, 
+    \c dh, \c d, \c physWidth and \c physHeight. In this example we don't have
+    any information of the real physical size of the screen, so we set these 
+    values with the assumption of screen with 72 DPI.
+
+    \printto SvgalibScreen::initDevice
+
+    The initDevice() functions is called after connect() and only on the server
+    process. This function should do the necessary hardware initialization.
+    If you want to use a hardware cursor, you should create a subclass of 
+    QScreenCursor, create an instance of it, and point the global variable 
+    \c qt_screencursor to this instance. This driver use the software cursor 
+    instead.
+
+    \printto SvgalibScreen::shutdownDevice
+
+    shutdownDevice() is only used on the server process and is called
+    before the disconnect() function. It do whatever hardware releated cleanup
+    necessary. The disconnect() function in this example does nothing.
+
+    \omit
+    Provided that you've initialized the \c QScreen::data to a valid linear
+    framebuffer you should have a fully working screen driver at this point.
+    The rest of this example will show where to take advantage of the 
+    accelerated capabilities you probably have on your hardware. However, 
+    if your graphics hardware doesn't provide a linear framebuffer, the \c data
+    variable should have been set to 0 and you \bold have to implement the
+    rest of the functionality as this example driver does.
+    \endomit
+
+    \printto SvgalibScreen::exposeRegion
+
+    The next function implemented is exposeRegion(). The default implementation
+    will do the necessary composing of the top-level windows and call 
+    solidFill() and blit() when needed. We do not want to change this behavior
+    in this driver so we just calls the default implementation. However, if 
+    you're are implementing a double buffered screen driver, this is the
+    function you would like to flip between the buffers.
+
+    \printto SvgalibScreen::solidFill
+
+    Finally we do the actual accelerated drawing of pixels in the solidFill()
+    and blit() functions:
+
+    \printto SvgalibScreen::blit
+    \printto /^}/
+
+    \omit
+    \section1 SvgalibPaintEngine Class Definition
+    \quotefromfile qtopiacore/svgalib/svgalibpaintengine.h
+    
+    \skipto class SvgalibPaintEngine
+    \printto /^};/
+
+    \section1 SvgalibPaintEngine Class Implementation
+    \quotefromfile qtopiacore/svgalib/svgalibpaintengine.cpp
+    \endomit
+        
+*/
