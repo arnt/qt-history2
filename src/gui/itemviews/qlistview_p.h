@@ -29,6 +29,7 @@
 #include "qrubberband.h"
 #include "qbitarray.h"
 #include "qbsptree_p.h"
+#include <limits.h>
 
 #ifndef QT_NO_LISTVIEW
 
@@ -42,7 +43,7 @@ public:
         : x(other.x), y(other.y), w(other.w), h(other.h),
           indexHint(other.indexHint), visited(other.visited) {}
     inline QListViewItem(QRect r, int i)
-        : x(r.x()), y(r.y()), w(r.width()), h(r.height()),
+        : x(r.x()), y(r.y()), w(qMin(r.width(), SHRT_MAX)), h(qMin(r.height(), SHRT_MAX)),
           indexHint(i), visited(0xffff) {}
     inline bool operator==(const QListViewItem &other) const {
         return (x == other.x && y == other.y && w == other.w && h == other.h &&
@@ -54,7 +55,7 @@ public:
     inline void invalidate()
         { x = -1; y = -1; w = 0; h = 0; }
     inline void resize(const QSize &size)
-        { w = size.width(); h = size.height(); }
+        { w = qMin(size.width(), SHRT_MAX); h = qMin(size.height(), SHRT_MAX); }
     inline void move(const QPoint &position)
         { x = position.x(); y = position.y(); }
     inline int width() const { return w; }
