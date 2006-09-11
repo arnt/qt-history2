@@ -637,13 +637,13 @@ void tst_Moc::namespaceTypeProperty()
     QByteArray ba = QByteArray("points");
     QVariant v = tst.property(ba);
     QVERIFY(v.isValid());
-    myNS::Points p = v.value<myNS::Points>();
+    myNS::Points p = qVariantValue<myNS::Points>(v);
     QCOMPARE(p.p1, 0xBEEF);
     QCOMPARE(p.p2, 0xBABE);
     p.p1 = 0xCAFE;
     p.p2 = 0x1EE7;
     QVERIFY(tst.setProperty(ba, QVariant::fromValue(p)));
-    myNS::Points pp = tst.property(ba).value<myNS::Points>();
+    myNS::Points pp = qVariantValue<myNS::Points>(tst.property(ba));
     QCOMPARE(p.p1, pp.p1);
     QCOMPARE(p.p2, pp.p2);
 }
