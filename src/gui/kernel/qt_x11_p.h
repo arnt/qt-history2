@@ -460,6 +460,7 @@ struct QX11Data
         _MOTIF_WM_HINTS,
 
         DTWM_IS_RUNNING,
+        KDE_FULL_SESSION,
         KWIN_RUNNING,
         KWM_RUNNING,
         GNOME_BACKGROUND_PROPERTIES,
@@ -488,6 +489,7 @@ struct QX11Data
         _NET_WM_STATE_STAYS_ON_TOP,
 
         _NET_WM_USER_TIME,
+        _NET_WM_FULL_PLACEMENT,
 
         _NET_WM_WINDOW_TYPE,
         _NET_WM_WINDOW_TYPE_DIALOG,

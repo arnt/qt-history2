@@ -29,6 +29,8 @@
 #endif
 #if defined(Q_OS_TEMP)
 #include "qt_windows.h"
+#elif defined(Q_WS_X11)
+#  include "../kernel/qt_x11_p.h"
 #endif
 
 /*!
@@ -674,6 +676,15 @@ void QDialog::showEvent(QShowEvent *event)
 /*! \internal */
 void QDialog::adjustPosition(QWidget* w)
 {
+#ifdef Q_WS_X11
+    // defined in qapplication_x11.cpp
+    extern bool qt_net_supports(Atom atom);
+
+    // if the WM advertises that it will place the windows properly for us, let it do it :)
+    if (qt_net_supports(ATOM(_NET_WM_FULL_PLACEMENT)))
+        return;
+#endif
+
     QPoint p(0, 0);
     int extraw = 0, extrah = 0, scrn = 0;
     if (w)

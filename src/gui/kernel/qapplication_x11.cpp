@@ -145,6 +145,7 @@ static const char * x11_atomnames = {
     "_MOTIF_WM_HINTS\0"
 
     "DTWM_IS_RUNNING\0"
+    "KDE_FULL_SESSION\0"
     "KWIN_RUNNING\0"
     "KWM_RUNNING\0"
     "GNOME_BACKGROUND_PROPERTIES\0"
@@ -173,6 +174,7 @@ static const char * x11_atomnames = {
     "_NET_WM_STATE_STAYS_ON_TOP\0"
 
     "_NET_WM_USER_TIME\0"
+    "_NET_WM_FULL_PLACEMENT\0"
 
     "_NET_WM_WINDOW_TYPE\0"
     "_NET_WM_WINDOW_TYPE_DIALOG\0"
@@ -934,7 +936,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         if (!selectBackground.isEmpty() && !selectForeground.isEmpty()) {
             QColor highlight = QColor(selectBackground);
             QColor highlightText = QColor(selectForeground);
-                        
+
             pal.setColor(QPalette::Highlight, highlight);
             pal.setColor(QPalette::HighlightedText, highlightText);
 
@@ -1682,32 +1684,31 @@ void qt_init(QApplicationPrivate *priv, int,
             Atom type;
             int format;
             unsigned long length, after;
-            uchar *data;
+            uchar *data = 0;
 
             if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
-                                     0, 1, False, AnyPropertyType, &type, &format, &length,
-                                     &after, &data) == Success && length) {
+                                   0, 1, False, AnyPropertyType, &type, &format, &length,
+                                   &after, &data) == Success && length) {
                 // DTWM is running, meaning most likely CDE is running...
                 X11->desktopEnvironment = DE_CDE;
-            }
-            else if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
-                                 ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
-                                 &type, &format, &length, &after, &data) == Success && length) {
-                if (data) XFree((char *)data);
+            } else if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
+                                          ATOM(GNOME_BACKGROUND_PROPERTIES), 0, 1, False, AnyPropertyType,
+                                          &type, &format, &length, &after, &data) == Success && length) {
                 X11->desktopEnvironment = DE_GNOME;
-            } else
-            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-                if (data) XFree((char *)data);
-                X11->desktopEnvironment = DE_KDE;
-            } else
-            if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-                if (data) XFree((char *)data);
+            } else if ((XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KDE_FULL_SESSION),
+                                           0, 1, False, AnyPropertyType, &type, &format, &length, &after, &data) == Success
+                        && length)
+                       || (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
+                                              0, 1, False, AnyPropertyType, &type, &format, &length,
+                                              &after, &data) == Success
+                           && length)
+                       || (XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
+                                              0, 1, False, AnyPropertyType, &type, &format, &length,
+                                              &after, &data) == Success && length)) {
                 X11->desktopEnvironment = DE_KDE;
             }
+            if (data)
+                XFree((char *)data);
         }
 
         qt_set_input_encoding();
