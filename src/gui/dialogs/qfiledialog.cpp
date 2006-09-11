@@ -1281,7 +1281,9 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
     if (absoluteInfo.exists()) {
         QModelIndex index = model->index(absoluteInfo.absoluteFilePath());
         if (index.isValid())
-            treeView->setCurrentIndex(index);
+            selections->setCurrentIndex(index,
+                                        QItemSelectionModel::ClearAndSelect
+                                        |QItemSelectionModel::Rows);
         else
             selections->clear();
         return;
