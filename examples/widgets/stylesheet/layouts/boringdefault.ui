@@ -30,14 +30,20 @@
     <item row="3" column="0" >
      <widget class="QLabel" name="passwordLabel" >
       <property name="text" >
-       <string>Select password</string>
+       <string>Select &amp;password</string>
+      </property>
+      <property name="buddy" >
+       <cstring>passwordEdit</cstring>
       </property>
      </widget>
     </item>
     <item row="2" column="0" >
      <widget class="QLabel" name="ageLabel" >
       <property name="text" >
-       <string>Age</string>
+       <string>&amp;Age</string>
+      </property>
+      <property name="buddy" >
+       <cstring>ageSpinBox</cstring>
       </property>
      </widget>
     </item>
@@ -57,14 +63,17 @@
     <item row="0" column="0" >
      <widget class="QLabel" name="nameLabel" >
       <property name="text" >
-       <string>Name</string>
+       <string>&amp;Name</string>
+      </property>
+      <property name="buddy" >
+       <cstring>nameEdit</cstring>
       </property>
      </widget>
     </item>
     <item row="1" column="2" >
      <widget class="QRadioButton" name="femaleRadioButton" >
       <property name="text" >
-       <string>Female</string>
+       <string>&amp;Female</string>
       </property>
      </widget>
     </item>
@@ -91,39 +100,33 @@
      <widget class="QSpinBox" name="ageSpinBox" />
     </item>
     <item row="1" column="0" >
-     <widget class="QLabel" name="sexLabel" >
+     <widget class="QLabel" name="genderLabel" >
       <property name="text" >
-       <string>Sex</string>
+       <string>Gender</string>
       </property>
      </widget>
     </item>
     <item row="1" column="1" >
      <widget class="QRadioButton" name="maleRadioButton" >
       <property name="text" >
-       <string>Male</string>
+       <string>&amp;Male</string>
       </property>
      </widget>
     </item>
     <item row="5" column="0" colspan="3" >
      <widget class="QCheckBox" name="agreeCheckBox" >
       <property name="text" >
-       <string>I have read the terms and conditions</string>
+       <string>I have read the terms and &amp;conditions</string>
       </property>
      </widget>
     </item>
     <item row="4" column="0" >
-     <widget class="QLabel" name="professionLabel" >
+     <widget class="QLabel" name="label" >
       <property name="text" >
-       <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:MS Shell Dlg 2; font-size:8.25pt; font-weight:400; font-style:normal; text-decoration:none;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Profession&lt;/p>&lt;/body>&lt;/html></string>
+       <string>Pro&amp;fession</string>
       </property>
-      <property name="textFormat" >
-       <enum>Qt::RichText</enum>
-      </property>
-      <property name="wordWrap" >
-       <bool>true</bool>
+      <property name="buddy" >
+       <cstring>professionList</cstring>
       </property>
      </widget>
     </item>
@@ -135,7 +138,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>442</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
@@ -179,6 +182,15 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>maleRadioButton</tabstop>
+  <tabstop>femaleRadioButton</tabstop>
+  <tabstop>ageSpinBox</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>professionList</tabstop>
+  <tabstop>agreeCheckBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

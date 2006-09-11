@@ -29,6 +29,8 @@ void MainWindow::applyStyle()
 void MainWindow::editStyle()
 {
     if (styleEditorDialog) {
+        styleEditorDialog->show();
+        styleEditorDialog->raise();
         styleEditorDialog->activateWindow();
         return;
     }
