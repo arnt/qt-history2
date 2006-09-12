@@ -578,16 +578,16 @@ void QTextDocument::adjustSize()
     QFontMetrics fm(f);
     int mw =  fm.width(QLatin1Char('x')) * 80;
     int w = mw;
-    setPageSize(QSizeF(w, -1));
+    setTextWidth(w);
     QSizeF size = documentLayout()->documentSize();
     if (size.width() != 0) {
         w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
-        setPageSize(QSizeF(qMin(w, mw), -1));
+        setTextWidth(qMin(w, mw));
 
         size = documentLayout()->documentSize();
         if (w*3 < 5*size.height()) {
             w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
-            setPageSize(QSizeF(qMin(w, mw), -1));
+            setTextWidth(qMin(w, mw));
         }
     }
 }
