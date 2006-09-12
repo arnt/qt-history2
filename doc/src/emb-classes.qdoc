@@ -133,7 +133,7 @@
     radically different from Unix domain sockets to communicate between
     Qtopia Core applications.
 
-    \section1 QWSDisplayData
+    \section1 QWSDisplay::Data
 
     This manages a client's QWSClient, reading and interpreting events
     from the QWS server. It connects to the QWS server on application
