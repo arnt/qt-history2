@@ -260,7 +260,15 @@ Fix mkspec detection when generating project files outside of QTDIR.
         dlcompat itself).
         Added support for hints to control how libraries are opened on Unix
         systems.
+        Added QLibrary::errorString() to give the callee an idea of what caused any error.
+        Added easier way to debug plugin loading: setting QT_DEBUG_PLUGINS=1 in the 
+        environment will print out debug messages on the console.
+        Less strict requirements on the suffix of a library (i.e. you can load libraries 
+        with a suffix different than '.dll' on windows, for instance '.ax')
 
+- QPluginLoader
+        Added QPluginLoader::errorString() to give the callee an idea of what caused any error.
+        
 - QListWidget/QTreeWidget/QTableWidget
 	When setting flags on a item the dataChanged() signal is now emitted.
 	Removed Unnecessary Q_ASSERT's.
@@ -308,6 +316,9 @@ Fix mkspec detection when generating project files outside of QTDIR.
 	Make the QAbstractItemView::clearSelection only clear the
 	selection and not the currentIndex.
 	Add hasSelection().
+	Fixed some connection leaks (connections was not disconnected) when
+	QItemSelectionModel was deleted. This should also speed up some special
+	cases.
 
 - QClipBoard
          Support for find text buffer.
@@ -380,8 +391,11 @@ Fix mkspec detection when generating project files outside of QTDIR.
 	Only select the top item if the user clicks on an area with several
 	items are stacked on top of each other.
 	Optimize hiding and showing of items.
-        Fixed issue where dragging an item in Snap mode did not respect the
-        scrollbar offsets.
+	Fixed issue where dragging an item in Snap mode did not respect the
+	scrollbar offsets.
+	Fixed issue in snap mode where a (drag and) drop did not always query
+	the item that existed in the corresponding cell for ItemIsDropEnabled 
+	flag. 
 
 - QMap and QHash
         Prevent conversion of iterator or const_iterator to bool
@@ -1372,6 +1386,26 @@ Assistant
         Fixed JPEG viewing support for static builds of Assistant.
         Fixed crash when opening Assistant with old and invalid settings
 
+Linguist
+	Added new validation feature: Check for place markers.
+	Added 'Search And Translate' feature.
+	Added 'Batch translation' feature.
+	Added support for editing plural forms.
+	Extended the ts file format to support: target language, plural forms, source filename and linenumber.
+	Added 'Translated Form Preview' feature.
+	Fixed a bug how special combinations of whitespace were displayed in the source text area.
+	Show special combinations of whitespace characters in the translation editor also.
+
+lupdate
+	Added the -extensions command-line option in order to recursively scan 
+	through a large set of files with the specified extensions.
+	Changed the default behaviour of verbosity of lupdate. The default is now verbose.
+	Improved parsing of pro files.
+	Some bugfixes when parising cpp files.
+
+lrelease
+	Changed the default behaviour of compression of qm files. The default is now to not compress.
+        
 Moc
         Fixed support for enums and flags in classes that are part in
         namespaces.
