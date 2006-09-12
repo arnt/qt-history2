@@ -619,9 +619,6 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
 QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* relative */,
 				  const QString& /* dirPath */ )
 {
-    if (hurryUp())
-        return protectedCode;
-
     static QRegExp globalInclude("#include +&lt;([^<>&]+)&gt;");
     static QRegExp yHasTypeX("(?:^|\n *)([a-zA-Z_][a-zA-Z_0-9]*)"
 	                     "(?:&lt;[^;{}]+&gt;)?(?: *(?:\\*|&amp;) *| +)"
@@ -633,7 +630,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     static QRegExp classX("[:,][ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
                           "([a-zA-Z_][a-zA-Z_0-9]*)");
     static QRegExp globalX("[\n{()=] *([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(");
-    static QRegExp comment("/(?: \\*(?:[^*]+|\\*(?! /))*\\* /|/[^\n]+)");
+    static QRegExp comment("/(?: \\*(?:[^*]+|\\*(?! /))*\\* /|/[^\n]*)");
     static QRegExp preprocessor("(?:^|\n)#[^\n]*(?:(?:\\\\\n|\\n#)[^\n]*)*");
     static QRegExp literals("&quot;(?:[^\\\\&]|\\\\[^\n]|&(?!quot;))*&quot;"
                             "|'(?:[^\\\\]|\\\\(?:[^x0-9']|x[0-9a-f]{1,4}|[0-9]{1,3}))'");
@@ -641,127 +638,129 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     QString result = protectedCode;
     int pos;
 
-    /*
-        Mark global includes. For example:
+    if (!hurryUp()) {
+        /*
+            Mark global includes. For example:
 
-            #include &lt;<@headerfile>QString</@headerfile>
-    */
-    pos = 0;
-    while ((pos = result.indexOf(globalInclude, pos)) != -1)
-        pos += globalInclude.matchedLength()
-               + insertTagAround(result, globalInclude.pos(1), globalInclude.cap(1).length(),
-                                 "@headerfile");
+                #include &lt;<@headerfile>QString</@headerfile>
+        */
+        pos = 0;
+        while ((pos = result.indexOf(globalInclude, pos)) != -1)
+            pos += globalInclude.matchedLength()
+                   + insertTagAround(result, globalInclude.pos(1), globalInclude.cap(1).length(),
+                                     "@headerfile");
 
-    /*
-        Look for variable definitions and similar constructs, mark
-        the data type, and remember the type of the variable.
-    */
-    QMap<QString, QSet<QString> > typesForVariable;
-    pos = 0;
-    while ((pos = yHasTypeX.indexIn(result, pos)) != -1) {
-	QString x = yHasTypeX.cap(1);
-	QString y = yHasTypeX.cap(2);
+        /*
+            Look for variable definitions and similar constructs, mark
+            the data type, and remember the type of the variable.
+        */
+        QMap<QString, QSet<QString> > typesForVariable;
+        pos = 0;
+        while ((pos = yHasTypeX.indexIn(result, pos)) != -1) {
+	    QString x = yHasTypeX.cap(1);
+	    QString y = yHasTypeX.cap(2);
 
-	if (!y.isEmpty())
-	    typesForVariable[y].insert(x);
+	    if (!y.isEmpty())
+	        typesForVariable[y].insert(x);
 
-	/*
-            Without the minus one at the end, 'void member(Class
-            var)' would give 'member' as a variable of type 'void',
-            but would ignore 'Class var'. (### Is that true?)
-	*/
-        pos += yHasTypeX.matchedLength()
-               + insertTagAround(result, yHasTypeX.pos(1), x.length(), "@type") - 1;
-    }
+	    /*
+                Without the minus one at the end, 'void member(Class
+                var)' would give 'member' as a variable of type 'void',
+                but would ignore 'Class var'. (### Is that true?)
+	    */
+            pos += yHasTypeX.matchedLength()
+                   + insertTagAround(result, yHasTypeX.pos(1), x.length(), "@type") - 1;
+        }
 
-    /*
-        Do syntax highlighting of preprocessor directives.
-    */
-    pos = 0;
-    while ((pos = preprocessor.indexIn(result, pos)) != -1)
-        pos += preprocessor.matchedLength()
-               + insertTagAround(result, pos, preprocessor.matchedLength(), "@preprocessor");
+        /*
+            Do syntax highlighting of preprocessor directives.
+        */
+        pos = 0;
+        while ((pos = preprocessor.indexIn(result, pos)) != -1)
+            pos += preprocessor.matchedLength()
+                   + insertTagAround(result, pos, preprocessor.matchedLength(), "@preprocessor");
 
-    /*
-        Deal with string and character literals.
-    */
-    pos = 0;
-    while ((pos = literals.indexIn(result, pos)) != -1)
-        pos += literals.matchedLength()
-               + insertTagAround(result, pos, literals.matchedLength(),
-                                 result.at(pos) == QLatin1Char(' ') ? "@string" : "@char");
+        /*
+            Deal with string and character literals.
+        */
+        pos = 0;
+        while ((pos = literals.indexIn(result, pos)) != -1)
+            pos += literals.matchedLength()
+                   + insertTagAround(result, pos, literals.matchedLength(),
+                                     result.at(pos) == QLatin1Char(' ') ? "@string" : "@char");
 
-    /*
-        Look for 'var = new Class'.
-    */
-    pos = 0;
-    while ((pos = xNewY.indexIn(result, pos)) != -1) {
-	QString x = xNewY.cap(1);
-	QString y = xNewY.cap(2);
-	typesForVariable[x].insert(y);
+        /*
+            Look for 'var = new Class'.
+        */
+        pos = 0;
+        while ((pos = xNewY.indexIn(result, pos)) != -1) {
+	    QString x = xNewY.cap(1);
+	    QString y = xNewY.cap(2);
+	    typesForVariable[x].insert(y);
 
-	pos += xNewY.matchedLength() + insertTagAround(result, xNewY.pos(2), y.length(), "@type");
-    }
+	    pos += xNewY.matchedLength() + insertTagAround(result, xNewY.pos(2), y.length(), "@type");
+        }
 
-    /*
-        Insert some stuff that cannot harm.
-    */
-    typesForVariable["qApp"].insert("QApplication");
+        /*
+            Insert some stuff that cannot harm.
+        */
+        typesForVariable["qApp"].insert("QApplication");
 
-    /*
-        Add link to ': Class'.
-    */
-    pos = 0;
-    while ((pos = classX.indexIn(result, pos)) != -1)
-	pos += classX.matchedLength()
-               + insertTagAround(result, classX.pos(1), classX.cap(1).length(), "@type") - 1;
+        /*
+            Add link to ': Class'.
+        */
+        pos = 0;
+        while ((pos = classX.indexIn(result, pos)) != -1)
+	    pos += classX.matchedLength()
+                   + insertTagAround(result, classX.pos(1), classX.cap(1).length(), "@type") - 1;
 
-    /*
-        Find use of any of
+        /*
+            Find use of any of
 
-            var.method()
-	    var->method()
-	    var, SIGNAL(method())
-	    var, SLOT(method()).
-    */
-    pos = 0;
-    while ((pos = xDotY.indexIn(result, pos)) != -1) {
-	QString x = xDotY.cap(1);
-	QString y = xDotY.cap(2);
+                var.method()
+	        var->method()
+	        var, SIGNAL(method())
+	        var, SLOT(method()).
+        */
+        pos = 0;
+        while ((pos = xDotY.indexIn(result, pos)) != -1) {
+	    QString x = xDotY.cap(1);
+	    QString y = xDotY.cap(2);
 
-	QSet<QString> types = typesForVariable.value(x);
-        pos += xDotY.matchedLength()
-               + insertTagAround(result, xDotY.pos(2), xDotY.cap(2).length(), "@func",
-                                 (types.count() == 1) ? "target=\""
-                                                        + protect(*types.begin() + "::" + y)
-                                                        + "()\""
-                                                      : QString());
-    }
+	    QSet<QString> types = typesForVariable.value(x);
+            pos += xDotY.matchedLength()
+                   + insertTagAround(result, xDotY.pos(2), xDotY.cap(2).length(), "@func",
+                                     (types.count() == 1) ? "target=\""
+                                                            + protect(*types.begin() + "::" + y)
+                                                            + "()\""
+                                                          : QString());
+        }
 
-    /*
-        Add link to 'Class::method()'.
-    */
-    pos = 0;
-    while ((pos = xIsStaticZOfY.indexIn(result, pos)) != -1) {
-	QString x = xIsStaticZOfY.cap(1);
-	QString z = xIsStaticZOfY.cap(3);
+        /*
+            Add link to 'Class::method()'.
+        */
+        pos = 0;
+        while ((pos = xIsStaticZOfY.indexIn(result, pos)) != -1) {
+	    QString x = xIsStaticZOfY.cap(1);
+	    QString z = xIsStaticZOfY.cap(3);
 
-        pos += insertTagAround(result, xIsStaticZOfY.pos(3), z.length(), "@func",
-                               "target=\"" + protect(x) + "()\"");
-        pos += insertTagAround(result, xIsStaticZOfY.pos(2), xIsStaticZOfY.cap(2).length(),
-                               "@type");
-        pos += xIsStaticZOfY.matchedLength() - 1;
-    }
+            pos += insertTagAround(result, xIsStaticZOfY.pos(3), z.length(), "@func",
+                                   "target=\"" + protect(x) + "()\"");
+            pos += insertTagAround(result, xIsStaticZOfY.pos(2), xIsStaticZOfY.cap(2).length(),
+                                   "@type");
+            pos += xIsStaticZOfY.matchedLength() - 1;
+        }
 
-    /*
-        Add link to 'globalFunction()'.
-    */
-    pos = 0;
-    while ((pos = globalX.indexIn(result, pos)) != -1) {
-        QString x = globalX.cap(1);
-	pos += globalX.matchedLength()
-               + insertTagAround(result, globalX.pos(1), x.length(), "@func",
-                                 "target=\"" + protect(x) + "()\"") - 1;
+        /*
+            Add link to 'globalFunction()'.
+        */
+        pos = 0;
+        while ((pos = globalX.indexIn(result, pos)) != -1) {
+            QString x = globalX.cap(1);
+	    pos += globalX.matchedLength()
+                   + insertTagAround(result, globalX.pos(1), x.length(), "@func",
+                                     "target=\"" + protect(x) + "()\"") - 1;
+        }
     }
 
     /*
@@ -777,8 +776,10 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
             result.remove(pos + 1, 1);
             len -= 2;
 
-            int endcodePos = result.indexOf("\\ endcode", pos);
-            if (endcodePos != -1 && endcodePos < pos + len) {
+            forever {
+                int endcodePos = result.indexOf("\\ endcode", pos);
+                if (endcodePos == -1 || endcodePos >= pos + len)
+                    break;
                 result.remove(endcodePos + 1, 1);
                 len -= 1;
             }
