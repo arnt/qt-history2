@@ -861,6 +861,8 @@ void tst_QFtp::mkdir2()
     QVERIFY(!commandFinishedSpy.at(1).at(1).toBool());
     QVERIFY(commandFinishedSpy.at(2).at(1).toBool());
     QVERIFY(commandFinishedSpy.at(3).at(1).toBool());
+
+    delete ftp;
 }
 
 void tst_QFtp::mkdir2Slot(int id, bool error)
