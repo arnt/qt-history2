@@ -83,8 +83,11 @@ public:
     qint64 uploadSpeed() const;
 
     bool canTransferMore() const;
-    qint64 bytesAvailable() const { return incomingBuffer.size(); }
-    qint64 socketBytesAvailable() const { return QTcpSocket::bytesAvailable(); }
+    qint64 bytesAvailable() const { return incomingBuffer.size() + QTcpSocket::bytesAvailable(); }
+    qint64 socketBytesAvailable() const { return socket.bytesAvailable(); }
+    qint64 socketBytesToWrite() const { return socket.bytesToWrite(); }
+
+    void setReadBufferSize(int size);
 
 signals:
     void infoHashReceived(const QByteArray &infoHash);
@@ -102,9 +105,13 @@ signals:
     void bytesReceived(qint64 size);
 
 protected slots:
-    void timerEvent(QTimerEvent *event);
+    void connectToHostImplementation(const QString &hostName,
+                                     quint16 port, OpenMode openMode = ReadWrite);
+    void diconnectFromHostImplementation();
 
 protected:
+    void timerEvent(QTimerEvent *event);
+
     qint64 readData(char *data, qint64 maxlen);
     qint64 readLineData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
@@ -112,6 +119,7 @@ protected:
 private slots:
     void sendHandShake();
     void processIncomingData();
+    void socketStateChanged(QAbstractSocket::SocketState state);
 
 private:
     // Data waiting to be read/written
@@ -163,6 +171,8 @@ private:
     QByteArray peerIdString;
     QBitArray peerPieces;
     TorrentPeer *torrentPeer;
+
+    QTcpSocket socket;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(PeerWireClient::PeerWireState)

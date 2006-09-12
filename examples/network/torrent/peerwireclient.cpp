@@ -13,6 +13,7 @@
 
 #include "peerwireclient.h"
 
+#include <QHostAddress>
 #include <QTimerEvent>
 
 static const int PendingRequestTimeout = 60 * 1000;
@@ -61,6 +62,20 @@ PeerWireClient::PeerWireClient(const QByteArray &peerId, QObject *parent)
 
     connect(this, SIGNAL(readyRead()), this, SIGNAL(readyToTransfer()));
     connect(this, SIGNAL(connected()), this, SIGNAL(readyToTransfer()));
+
+    connect(&socket, SIGNAL(connected()),
+            this, SIGNAL(connected()));
+    connect(&socket, SIGNAL(readyRead()),
+            this, SIGNAL(readyRead()));
+    connect(&socket, SIGNAL(disconnected()),
+            this, SIGNAL(disconnected()));
+    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SIGNAL(error(QAbstractSocket::SocketError)));
+    connect(&socket, SIGNAL(bytesWritten(qint64)),
+            this, SIGNAL(bytesWritten(qint64)));
+    connect(&socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
+
 }
 
 // Registers the peer ID and SHA1 sum of the torrent, and initiates
@@ -276,8 +291,8 @@ qint64 PeerWireClient::writeToSocket(qint64 bytes)
             pendingBlockSizes -= block.length;
             outgoingBuffer += block.block;
         }
-        qint64 written = QTcpSocket::writeData(outgoingBuffer.constData(),
-                                               qMin<qint64>(bytes - totalWritten, outgoingBuffer.size()));
+        qint64 written = socket.write(outgoingBuffer.constData(),
+                                      qMin<qint64>(bytes - totalWritten, outgoingBuffer.size()));
         if (written <= 0)
             return totalWritten ? totalWritten : written;
         
@@ -295,7 +310,7 @@ qint64 PeerWireClient::readFromSocket(qint64 bytes)
     char buffer[1024];
     qint64 totalRead = 0;
     do {
-        qint64 bytesRead = QTcpSocket::readData(buffer, qMin<qint64>(sizeof(buffer), bytes - totalRead));
+        qint64 bytesRead = socket.read(buffer, qMin<qint64>(sizeof(buffer), bytes - totalRead));
         if (bytesRead <= 0)
             break;
         qint64 oldSize = incomingBuffer.size();
@@ -333,10 +348,28 @@ qint64 PeerWireClient::uploadSpeed() const
     return sum / (8 * 2);
 }
 
+void PeerWireClient::setReadBufferSize(int size)
+{
+    socket.setReadBufferSize(size);
+}
+
 bool PeerWireClient::canTransferMore() const
 {
-    return !incomingBuffer.isEmpty() || QTcpSocket::bytesAvailable() > 0
+    return bytesAvailable() > 0 || socket.bytesAvailable() > 0
         || !outgoingBuffer.isEmpty() || !pendingBlocks.isEmpty();
+}
+
+void PeerWireClient::connectToHostImplementation(const QString &hostName,
+                                                 quint16 port, OpenMode openMode)
+
+{
+    setOpenMode(openMode);
+    socket.connectToHost(hostName, port, openMode);
+}
+
+void PeerWireClient::diconnectFromHostImplementation()
+{
+    socket.disconnectFromHost();
 }
 
 void PeerWireClient::timerEvent(QTimerEvent *event)
@@ -386,10 +419,9 @@ void PeerWireClient::sendHandShake()
 void PeerWireClient::processIncomingData()
 {
     invalidateTimeout = true;
-
     if (!receivedHandShake) {
         // Check that we received enough data
-        if (incomingBuffer.size() < MinimalHeaderSize)
+        if (bytesAvailable() < MinimalHeaderSize)
             return;
 
         // Sanity check the protocol ID
@@ -423,7 +455,7 @@ void PeerWireClient::processIncomingData()
 
     // Handle delayed peer id arrival
     if (!gotPeerId) {
-        if (incomingBuffer.size() < 20)
+        if (bytesAvailable() < 20)
             return;
         gotPeerId = true;
         if (read(20) == peerIdString) {
@@ -440,7 +472,7 @@ void PeerWireClient::processIncomingData()
     do {
         // Find the packet length
         if (nextPacketLength == -1) {
-            if (incomingBuffer.size() < 4)
+            if (bytesAvailable() < 4)
                 return;
 
             char tmp[4];
@@ -461,7 +493,7 @@ void PeerWireClient::processIncomingData()
         }
 
         // Wait with parsing until the whole packet has been received
-        if (incomingBuffer.size() < nextPacketLength)
+        if (bytesAvailable() < nextPacketLength)
             return;
 
         // Read the packet
@@ -568,7 +600,17 @@ void PeerWireClient::processIncomingData()
             break;
         }
         nextPacketLength = -1;
-    } while (incomingBuffer.size() > 0);
+    } while (bytesAvailable() > 0);
+}
+
+void PeerWireClient::socketStateChanged(QAbstractSocket::SocketState state)
+{
+    setLocalAddress(socket.localAddress());
+    setLocalPort(socket.localPort());
+    setPeerName(socket.peerName());
+    setPeerAddress(socket.peerAddress());
+    setPeerPort(socket.peerPort());
+    setSocketState(state);
 }
 
 qint64 PeerWireClient::readData(char *data, qint64 size)

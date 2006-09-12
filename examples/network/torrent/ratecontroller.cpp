@@ -123,6 +123,6 @@ void RateController::transfer()
         }
     } while (canTransferMore && (bytesToWrite > 0 || bytesToRead > 0) && !pendingSockets.isEmpty());
 
-    if (canTransferMore)
+    if (canTransferMore || bytesToWrite == 0 || bytesToRead == 0)
         scheduleTransfer();
 }
