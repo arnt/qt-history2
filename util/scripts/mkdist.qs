@@ -173,7 +173,8 @@ var licenseRemove = new Array();
 
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 
-licenseRemove["eval"] = licenseRemove["commercial"];
+licenseRemove["eval"] = [ new RegExp("LICENSE.GPL"),
+                          new RegExp("^bin/qtusagereporter") ];
 
 licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
                                 new RegExp("^README.qws"),
