@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(balloonButton, SIGNAL(clicked()), this, SLOT(showMessage()));
     info = new QTextEdit(tr("Status messages will be visible here"));
     info->setMaximumHeight(100);
+    info->setReadOnly(true);
     QCheckBox *toggleIconCheckBox = new QCheckBox(tr("Show system tray icon"));
     toggleIconCheckBox->setChecked(true);
     QObject::connect(toggleIconCheckBox, SIGNAL(clicked(bool)), trayIcon, SLOT(setVisible(bool)));
