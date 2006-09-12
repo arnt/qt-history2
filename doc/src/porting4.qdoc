@@ -3663,7 +3663,8 @@
     Qt3Support library.
 
     See \l{Rich Text Processing} for an overview of the Qt 4 rich
-    text classes.
+    text classes, and \l{Qt Style Sheets} for a description of
+    CSS-like style sheet support in Qt 4.2 and above.
 
     \section1 QSyntaxHighlighter
 
