@@ -225,12 +225,14 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
         break;
     case Atom::Code:
-	out() << "<pre>" << trimmedTrailing(highlightedCode(atom->string(), marker, relative))
+	out() << "<pre>" << trimmedTrailing(highlightedCode(indent(codeIndent, atom->string()),
+                                                            marker, relative))
               << "</pre>\n";
 	break;
     case Atom::CodeNew:
         out() << "<p>you can rewrite it as</p>\n"
-              << "<pre>" << trimmedTrailing(highlightedCode(atom->string(), marker, relative))
+              << "<pre>" << trimmedTrailing(highlightedCode(indent(codeIndent, atom->string()),
+                                                            marker, relative))
               << "</pre>\n";
         break;
     case Atom::CodeOld:
@@ -1150,8 +1152,10 @@ void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker,
 void HtmlGenerator::generateIncludes(const InnerNode *inner, CodeMarker *marker)
 {
     if (!inner->includes().isEmpty())
-        out() << "<pre>" << trimmedTrailing(highlightedCode(marker->markedUpIncludes(
-                                inner->includes()), marker, inner))
+        out() << "<pre>" << trimmedTrailing(highlightedCode(indent(codeIndent,
+                                                                   marker->markedUpIncludes(
+                                                                        inner->includes())),
+                                                                        marker, inner))
               << "</pre>";
 }
 
@@ -1652,7 +1656,7 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
         marked.replace("<@type>", "");
         marked.replace("</@type>", "");
     }
-    out() << highlightedCode(marked, marker, relative);
+    out() << highlightedCode(indent(codeIndent, marked), marker, relative);
 }
 
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
@@ -1961,7 +1965,7 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *ma
     QRegExp linkTag("(<@link node=\"([^\"]+)\">).*(</@link>)");
     linkTag.setMinimal(true);
 
-    QString html = indent(codeIndent, markedCode);
+    QString html = markedCode;
 
     int pos = 0;
     while ((pos = html.indexOf(linkTag, pos)) != -1) {
