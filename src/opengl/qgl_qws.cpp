@@ -19,8 +19,11 @@
 #include <qdirectpainter_qws.h>
 
 #include <qscreen_qws.h>
-#endif
 
+#include <private/qwindowsurface_qws_p.h>
+
+#endif
+#include <private/qbackingstore_p.h>
 #include <private/qfont_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qgl_p.h>
@@ -31,9 +34,12 @@
 #include <qstack.h>
 #include <qdesktopwidget.h>
 #include <qdebug.h>
+#include <qvarlengtharray.h>
 
-//#define USE_PIXMAP_SURFACE
-#ifdef USE_PIXMAP_SURFACE
+
+#define Q_USE_QEGL
+//#define Q_USE_DIRECTPAINTER
+#ifdef Q_USE_QEGL
 #include "qegl_qws.h"
 #endif
 
@@ -67,12 +73,26 @@ bool QGLFormat::hasOpenGLOverlays()
     } while (0)
 
 
+#define QT_EGL_CHECK_ATTR(attr, val)     success = eglGetConfigAttrib(dpy, config, attr, &value); \
+    if (!success || value != val) \
+        return false
+
+static bool checkConfig(EGLDisplay dpy, EGLConfig config, int r, int g, int b, int a)
+{
+    EGLint value;
+    EGLBoolean success;
+    QT_EGL_CHECK_ATTR(EGL_RED_SIZE, r);
+    QT_EGL_CHECK_ATTR(EGL_GREEN_SIZE, g);
+    QT_EGL_CHECK_ATTR(EGL_BLUE_SIZE, b);
+    QT_EGL_CHECK_ATTR(EGL_ALPHA_SIZE, a);
+    return true;
+}
+
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     Q_D(QGLContext);
     d->cx = 0;
 
-    EGLConfig configs[5];
     EGLint matchingConfigs;
     EGLint configAttribs[] = {
         EGL_RED_SIZE,        8,
@@ -95,7 +115,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             configAttribs[7] = 0;
         }
     } else if (d->paintDevice->devType() == QInternal::Widget) {
-#ifdef USE_PIXMAP_SURFACE
+#ifdef Q_USE_QEGL
         if (qt_screen->pixmapDepth() == 16) {
             configAttribs[1] = 5;
             configAttribs[3] = 6;
@@ -124,16 +144,35 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
     eglBindAPI(EGL_OPENGL_ES_API);
 
-    if (!eglChooseConfig(d->dpy, configAttribs, &configs[0],
-                         5, &matchingConfigs))
+    if (!eglChooseConfig(d->dpy, configAttribs, 0, 0, &matchingConfigs))
         return false;
 
-    //If there isnt any configuration enough good
+    //If there isn't any configuration good enough
     if (matchingConfigs < 1)
         return false;
 
-    //memcpy(&d->config, configs, sizeof(EGLConfig));
+    QVarLengthArray<EGLConfig> configs(matchingConfigs);
+
+    if (!eglChooseConfig(d->dpy, configAttribs, configs.data(),
+                         matchingConfigs, &matchingConfigs))
+        return false;
+#ifdef Q_USE_QEGL
+    bool found = false;
+    for (int i = 0; i < matchingConfigs; ++i) {
+        if (checkConfig(d->dpy, configs[i], configAttribs[1], configAttribs[3], configAttribs[5], configAttribs[7])) {
+            d->config = configs[i];
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        qWarning("QGLContext::chooseContext none of the %d 'matching' configs actually match", matchingConfigs);
+        return false;
+    }
+#else
     d->config = configs[0];
+#endif
+
 
     GLint res;
     eglGetConfigAttrib(d->dpy, d->config, EGL_LEVEL,&res);
@@ -225,7 +264,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
                                             (NativeWindowType)d->paintDevice,
                                             configAttribs);
     } else {
-#ifndef USE_PIXMAP_SURFACE
+#ifndef Q_USE_QEGL
         d->surface = eglCreateWindowSurface(d->dpy, d->config,
                                             (NativeWindowType)d->paintDevice, 0);
         if (!d->surface) {
@@ -322,7 +361,7 @@ void *QGLContext::getProcAddress(const QString &proc) const
     return (void*)eglGetProcAddress(reinterpret_cast<const char *>(proc.toLatin1().data()));
 }
 
-
+#ifdef Q_USE_DIRECTPAINTER
 class QGLDirectPainter : public QDirectPainter
 {
 public:
@@ -342,7 +381,7 @@ public:
 
 void QGLDirectPainter::regionChanged(const QRegion&)
 {
-#ifdef USE_PIXMAP_SURFACE
+#ifdef Q_USE_QEGL
     if (geometry() != geom) {
         geom = geometry();
         uchar *fbp = QDirectPainter::frameBuffer() + geom.top() * QDirectPainter::linestep()
@@ -367,10 +406,8 @@ void QGLDirectPainter::regionChanged(const QRegion&)
 #if 1
         nativePix = QEGL::createNativePixmap(image);
         glxPriv->surface =    eglCreatePixmapSurface(glxPriv->dpy, glxPriv->config, nativePix, 0);////const EGLint *attrib list);
-#elif 0
-        glxPriv->surface = QtEGL::createEGLSurface(image, glxPriv->dpy, glxPriv->config);
 #else
-        glxPriv->surface = eglCreateWindowSurface(image, glxPriv->dpy, glxPriv->config);
+
 #endif
         QT_EGL_ERR("createEGLSurface");
         glxPriv->valid =  glxPriv->surface != EGL_NO_SURFACE;
@@ -398,6 +435,21 @@ void QGLDirectPainter::regionChanged(const QRegion&)
     glwPriv->render(allocR);
     }
 }
+#else
+
+class QWSGLPrivate
+{
+public:
+    QWSGLPrivate() : img(0), oldbsimg(0), nativePix(0), dirty(true) {}
+    QImage *img;
+    QImage *oldbsimg;
+    NativeWindowType nativePix;
+    bool dirty;
+};
+
+class QGLDirectPainter : public QWSGLPrivate {}; //###
+
+#endif // Q_USE_DIRECTPAINTER
 
 void QGLWidgetPrivate::render(const QRegion &r)
 {
@@ -425,6 +477,38 @@ bool QGLWidget::event(QEvent *e)
     if (e->type() == QEvent::Paint)
         return true; // We don't paint when the GL widget needs to be painted, but when the directpainter does
 #endif
+#ifndef Q_USE_DIRECTPAINTER
+    if (e->type() == QEvent::Paint) {
+        Q_D(QGLWidget);
+        QWindowSurface *ws = d->currentWindowSurface();
+        Q_ASSERT(ws);
+        QImage *bsImage = static_cast<QImage*>(ws->paintDevice());
+        if (bsImage
+            && (bsImage != d->directPainter->oldbsimg || !d->directPainter->img ||d->directPainter->img->size() != size())) {
+            QPoint offs = mapToGlobal(QPoint(0,0)) - window()->frameGeometry().topLeft();
+            uchar *fbp = bsImage->bits() + offs.y() * bsImage->bytesPerLine()
+                         + ((bsImage->depth()+7)/8) * offs.x();
+            QImage *oldImage = d->directPainter->img;
+            d->directPainter->img = new QImage(fbp, width(), height(), bsImage->depth(),
+                                            bsImage->bytesPerLine(), 0, 0, QImage::IgnoreEndian);
+
+            QGLContextPrivate *glxPriv = d->glcx->d_func();
+
+            if (glxPriv->surface != EGL_NO_SURFACE) {
+                eglDestroySurface(glxPriv->dpy, glxPriv->surface);
+                QT_EGL_ERR("eglDestroySurface");
+            }
+
+            NativeWindowType nativePix = QEGL::createNativePixmap(d->directPainter->img);
+            glxPriv->surface = eglCreatePixmapSurface(glxPriv->dpy, glxPriv->config, nativePix, 0);
+            glxPriv->valid =  glxPriv->surface != EGL_NO_SURFACE;
+            delete oldImage;
+            QEGL::destroyNativePixmap(d->directPainter->nativePix);
+            d->directPainter->nativePix = nativePix;
+        }
+
+    }
+#endif
     return QWidget::event(e);
 }
 
@@ -439,10 +523,14 @@ void QGLWidget::resizeEvent(QResizeEvent *)
     Q_D(QGLWidget);
 //     if (!isValid())
 //         return;
-
+#ifdef Q_USE_DIRECTPAINTER
     if (!d->directPainter)
         d->directPainter = new QGLDirectPainter(d->glcx->d_func(), d);
     d->directPainter->setGeometry(geometry());
+#else
+    if (!d->directPainter)
+        d->directPainter = new QGLDirectPainter;
+#endif
     //handle overlay
 }
 
