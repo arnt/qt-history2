@@ -20,6 +20,10 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Updated Qt's SQLite version to 3.3.6.
 
+- Updated Qt's FreeType version to 2.2.1.
+
+- Updated Qt's libpng version to 1.2.10.
+
 - Added QT_ASCII_CAST_WARNINGS define that will output a warning on implicit
   ascii to unicode conversion when set. Only works if the compiler supports
   deprecated API warnings.
@@ -82,6 +86,11 @@ Applications compiled for 4.1 will continue to run with 4.2.
 - New style: CleanLooks, a clone of the GNOME ClearLooks style, provides
   native look for Qt applications on GNOME.
 
+- New tool: pixeltool is a screen magnification tool, designed to help with
+  the process of fine-tuning styles and user interface features.
+
+- Added support for reading and writing TIFF images.
+
 - Tulip containers: 
     Added typedefs for STL compatability.
     Added fucntion overloads to make the API easier to use.
@@ -90,14 +99,18 @@ Applications compiled for 4.1 will continue to run with 4.2.
     qt3to4 now appends to the log file instead of overwriting it.
     Fix one case were qt3to4 was inserting unix-stlye line endings on Windows.
     New classes, Q3VGroupBox and Q3HGroupBox were added to ease porting.
+    Updated the porting rules for this release.
     
 Build System
 ------------
 
 Qt/X11 and Qtopia Core only:
 
-The Qt libraries are only built once now, like in Qt 3. The _debug suffix
-has been removed and Qt is built by default with optimizations.
+As in Qt 3, the configure script enables the -release option by default,
+causing the Qt libraries to be built with optimizations. If configured
+with the -debug option, the debug builds no longer result in libraries
+with the _debug suffix.
+
 On modern systems flags are added to the Qt build to also generate debugging
 information, which is then stored in a separate .debug file. The additional
 debug information does not affect the performance of the optimized code and
@@ -124,8 +137,11 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Make sure the view starts with a valid current index.
 	Only commit data on currentChanged if the editor is not persistent.
 	Fixed crash when users open modal dialogs when closing the editor.
+        Fixed assertion caused by interrupting a drag and drop operation
+        with a modal dialog on X11.
 	Added verticalScrollMode and horizontalScrollMode properties.
 	Added setItemDelegateForRow() and setItemDelegateForColumn().
+        Ensured that existing models are disconnected properly when replaced.
 
 - QDirModel
 	Fix conversion from bytes to (kb|mb|gb) in QDirModel for display of
@@ -203,6 +219,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         instead use the native calls.  This does mean that you can unload
         libraries on Mac OS X 10.4 or later, but not on 10.3 (since that uses
         dlcompat itself).
+        Added support for hints to control how libraries are opened on Unix
+        systems.
 
 - QListWidget/QTreeWidget/QTableWidget
 	When setting flags on a item the dataChanged() signal is now emitted.
@@ -304,10 +322,12 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Made size() return an invalid QSize if the image I/O handler
 	does not support the QImageIOHandler::Size extension.
 	Added support for reading negative BMP images.
+        Added support for TIFF images.
 
 - QImageWriter
 	Produce error when attempting to write an image to a device
 	that is not writable.
+        Added support for TIFF images.
 
 - QListView
 	Added batchSize property.
@@ -320,6 +340,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Only select the top item if the user clicks on an area with several
 	items are stacked on top of each other.
 	Optimize hiding and showing of items.
+        Fixed issue where dragging an item in Snap mode did not respect the
+        scrollbar offsets.
 
 - QMap and QHash
         Prevent conversion of iterator or const_iterator to bool
@@ -480,6 +502,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         New class added as a namespace for various static functions that
         effect resource lookup as well as a way to navigate resources
         directly without levels of indirection through QFile/QFileEngine. 
+
+- QScrollArea
+        Added the ensureWidgetVisible() function to facilitate scrolling to
+        specific child widgets in a scroll area.
 
 - QSqlQuery
         Added execBatch() for executing SQL commands in a batch. Currently
@@ -663,6 +689,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Ensure that right-to-left layout is respected when positioning new
         windows.
         Crash fix when not having a titleBar.
+        Fixed issue where maximized child windows could be clipped at the
+        bottom of the workspace.
 
 - QCursor
         Added Qt::OpenHandCursor and Qt::ClosedHandCursor.
@@ -939,8 +967,8 @@ I/O and Networking
         Improved support for UNC paths when the application is run from a
         share.
         mkpath() now properly supports UNC paths.
-        Obsolete QDir::convertSeparators().
-        Introduce QDir::toNativeSeparators() and QDir::fromNativeSeparators().
+        Obsoleted QDir::convertSeparators().
+        Introduced QDir::toNativeSeparators() and QDir::fromNativeSeparators().
         Added QDebug streaming operator.
 
 - QIODevice
@@ -1063,6 +1091,7 @@ Qtopia Core:
 - Improved speed of drawing gradients.
 - Fixed a deadlock issue when using drag and drop and a calibrated mouse
   handler.
+- Added support for dual screen device emulation in QVFb.
 
 UNIX:
 
@@ -1249,6 +1278,8 @@ Assistant
 Moc
         Fixed support for enums and flags in classes that are part in
         namespaces.
+        The -version and -help command line options are now supported for
+        consistency with the other tools.
 
 Rcc
        Support -binary option to generate resources to be registered at runtime.
