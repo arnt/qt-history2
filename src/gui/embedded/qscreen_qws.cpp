@@ -905,7 +905,7 @@ QScreen-descendant into QScreenDriverFactory or use the QScreenDriverPlugin
 to make a dynamically loadable driver.
 */
 
-QScreen *qt_get_screen(int display_id, const char *spec)
+Q_GUI_EXPORT QScreen* qt_get_screen(int display_id, const char *spec)
 {
     QString displaySpec(spec);
     QString driver = displaySpec;
