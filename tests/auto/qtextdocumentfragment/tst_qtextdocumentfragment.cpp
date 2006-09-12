@@ -167,6 +167,8 @@ private slots:
     void leftMarginInsideHtml();
     void html_margins();
     void newlineInsidePreShouldBecomeNewParagraph();
+    void html_brokenTableWithJustTr();
+    void html_brokenTableWithJustTd();
 
 private:
     inline void setHtml(const QString &html)
@@ -2431,6 +2433,65 @@ void tst_QTextDocumentFragment::newlineInsidePreShouldBecomeNewParagraph()
     QCOMPARE(block.blockFormat().bottomMargin(), qreal(45));
     QCOMPARE(block.blockFormat().leftMargin(), qreal(50));
 
+}
+
+void tst_QTextDocumentFragment::html_brokenTableWithJustTr()
+{
+    doc->setHtml("<tr><td>First Cell</td><tr><td>Second Cell");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 1);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First Cell"));
+    QCOMPARE(table->cellAt(1, 0).firstCursorPosition().block().text(), QString("Second Cell"));
+
+    doc->setHtml(""
+        "<col width=286 style='mso-width-source:userset;mso-width-alt:10459;width:215pt'>"
+        "<col width=64 span=3 style='width:48pt'>"
+        "<tr height=17 style='height:12.75pt'>"
+        "<td height=17 width=286 style='height:12.75pt;width:215pt'>1a</td>"
+        "<td width=64 style='width:48pt'>1b</td>"
+        "<td width=64 style='width:48pt'>1c</td>"
+        "<td width=64 style='width:48pt'>1d</td>"
+        "</tr>"
+        "<tr height=17 style='height:12.75pt'>"
+        "<td height=17 style='height:12.75pt'>|2a</td>"
+        "<td>2b</td>"
+        "<td>2c</td>"
+        "<td>2d</td>"
+        "</tr>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 2);
+    QCOMPARE(table->columns(), 4);
+}
+
+void tst_QTextDocumentFragment::html_brokenTableWithJustTd()
+{
+    doc->setHtml("<td>First Cell</td><td>Second Cell");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 2);
+    QCOMPARE(table->cellAt(0, 0).firstCursorPosition().block().text(), QString("First Cell"));
+    QCOMPARE(table->cellAt(0, 1).firstCursorPosition().block().text(), QString("Second Cell"));
+
+    doc->setHtml("<td height=17 width=286 style='height:12.75pt;width:215pt'>1a</td>"
+                 "<td width=64 style='width:48pt'>1b</td>"
+                 "<td width=64 style='width:48pt'>1c</td>"
+                 "<td width=64 style='width:48pt'>1d</td>");
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->rows(), 1);
+    QCOMPARE(table->columns(), 4);
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

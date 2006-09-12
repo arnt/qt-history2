@@ -751,7 +751,6 @@ void QTextHtmlParser::parseTag()
         p = at(p).parent;
 
     QTextHtmlParserNode *node = newNode(p);
-    const int nodeIndex = int(QVector<QTextHtmlParserNode>::const_iterator(node) - nodes.constBegin());
 
     // parse tag name
     node->tag = parseWord().toLower();
@@ -774,9 +773,13 @@ void QTextHtmlParser::parseTag()
     if (pos < len && txt.at(pos).isSpace())
         node->attributes = parseAttributes();
 
-    resolveParent();
+    // resolveParent() may have to change the order in the tree and
+    // insert intermediate nodes for buggy HTML, so re-initialize the 'node'
+    // pointer through the return value
+    node = resolveParent();
     resolveNode();
 
+    const int nodeIndex = nodes.count() - 1; // this new node is always the last
     node->applyCssDeclarations(declarationsForNode(nodeIndex), resourceProvider);
     applyAttributes(node->attributes);
 
@@ -950,10 +953,55 @@ QString QTextHtmlParser::parseWord()
 }
 
 // gives the new node the right parent
-void QTextHtmlParser::resolveParent()
+QTextHtmlParserNode *QTextHtmlParser::resolveParent()
 {
     QTextHtmlParserNode *node = &nodes.last();
+
     int p = node->parent;
+
+    // Excel gives us buggy HTML with just tr without surrounding table tags
+    // or with just td tags
+
+    if (node->id == Html_td) {
+        int n = p;
+        while (n && at(n).id != Html_tr)
+            n = at(n).parent;
+
+        if (!n) {
+            nodes.insert(nodes.count() - 1, QTextHtmlParserNode());
+            nodes.insert(nodes.count() - 1, QTextHtmlParserNode());
+
+            QTextHtmlParserNode *table = &nodes[nodes.count() - 3];
+            table->parent = p;
+            table->id = Html_table;
+            table->tag = QLatin1String("table");
+            table->children.append(nodes.count() - 2); // add row as child
+
+            QTextHtmlParserNode *row = &nodes[nodes.count() - 2];
+            row->parent = nodes.count() - 3; // table as parent
+            row->id = Html_tr;
+            row->tag = QLatin1String("tr");
+
+            p = nodes.count() - 2;
+            node = &nodes.last(); // re-initialize pointer
+        }
+    }
+
+    if (node->id == Html_tr) {
+        int n = p;
+        while (n && at(n).id != Html_table)
+            n = at(n).parent;
+
+        if (!n) {
+            nodes.insert(nodes.count() - 1, QTextHtmlParserNode());
+            QTextHtmlParserNode *table = &nodes[nodes.count() - 2];
+            table->parent = p;
+            table->id = Html_table;
+            table->tag = QLatin1String("table");
+            p = nodes.count() - 2;
+            node = &nodes.last(); // re-initialize pointer
+        }
+    }
 
     // permit invalid html by letting block elements be children
     // of inline elements with the exception of paragraphs:
@@ -999,6 +1047,7 @@ void QTextHtmlParser::resolveParent()
 
     // makes it easier to traverse the tree, later
     nodes[p].children.append(nodes.count() - 1);
+    return node;
 }
 
 // sets all properties on the new node

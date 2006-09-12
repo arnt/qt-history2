@@ -269,7 +269,7 @@ protected:
     void parseExclamationTag();
     QString parseEntity();
     QString parseWord();
-    void resolveParent();
+    QTextHtmlParserNode *resolveParent();
     void resolveNode();
     QStringList parseAttributes();
     void applyAttributes(const QStringList &attributes);
