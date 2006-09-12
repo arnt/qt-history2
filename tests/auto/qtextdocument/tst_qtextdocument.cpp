@@ -94,6 +94,7 @@ private slots:
     void deleteTextObjectsOnClear();
 
     void maximumBlockCount();
+    void adjustSize();
 
 private:
     QTextDocument *doc;
@@ -1583,6 +1584,16 @@ void tst_QTextDocument::maximumBlockCount()
     QCOMPARE(doc->blockCount(), 6);
     cursor.insertBlock();
     QCOMPARE(doc->blockCount(), 1);
+}
+
+void tst_QTextDocument::adjustSize()
+{
+    // avoid ugly tooltips like in task 125583
+    QString text("Test Text");
+    doc->setPlainText(text);
+    doc->rootFrame()->setFrameFormat(QTextFrameFormat());
+    doc->adjustSize();
+    QCOMPARE(doc->size().width(), doc->idealWidth());
 }
 
 QTEST_MAIN(tst_QTextDocument)

@@ -590,6 +590,7 @@ void QTextDocument::adjustSize()
             setTextWidth(qMin(w, mw));
         }
     }
+    setTextWidth(idealWidth());
 }
 
 /*!
