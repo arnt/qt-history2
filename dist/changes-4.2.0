@@ -44,11 +44,18 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Added QWidget and new widgets in this release to Designer's widget box.
 
-- Backup file is being created by Designer while overwriting the existing file.
+- Designer
+        Backup files created by Designer no longer overwrite existing files.
+        Promoted widgets inherit the task menu items of the base class.
+        Don't order enums alphabetically in the property editor.
+        Fixed issue where shortcuts could be corrupted in certain situations.
+        Line endings in .ui files now match the standard line endings for the
+        platform the files are created on.
+        Displays a warning whenever duplicate connections are made in the
+        connections editor.
+        Added shortcuts for the "Bring to Front" and "Send to Back" form
+        editor actions.
 
-- Designer: Promoted widgets inherit the task menu items of the base class.
-
-- Designer: Don't order enums alphabetically in the property editor.
 
 - Designer, uic: Added support for more variant types:
   QStringList, QRectF, QSizeF, QPointF, QUrl, QChar, qlonglong and qulonglong.
@@ -143,6 +150,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Added setItemDelegateForRow() and setItemDelegateForColumn().
         Ensured that existing models are disconnected properly when replaced.
 
+- QAbstractPrintDialog
+        Fixed handling of existing printer options so that storage of page
+        ranges using setFromTo() works as expected when printing in PDF format.
+
 - QDirModel
 	Fix conversion from bytes to (kb|mb|gb) in QDirModel for display of
 	file size.
@@ -210,6 +221,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	have a valid WhatsThis value.
 	Added PositionAtCenter scrollHint.
 	Let items be checked and unchecked using the keyboard.
+
+- QCoreApplication
+        Added flags to enable/disable application-wide features such as
+        delayed widget creation.
 
 - QKeySequence
 	Added a set of platform dependent standard shortcuts.
@@ -323,6 +338,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	does not support the QImageIOHandler::Size extension.
 	Added support for reading negative BMP images.
         Added support for TIFF images.
+        Improved handling of invalid devices.
 
 - QImageWriter
 	Produce error when attempting to write an image to a device
@@ -776,6 +792,10 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QGLFramebufferObject
 	New class that encapsulates an OpenGL framebuffer object.
 
+- QUiLoader
+        Exposed workingDirectory() and setWorkingDirectory() from
+        QAbstractFormBuilder to assist with run-time form loading.
+
 - QX11PaintEngine
 	Speed up polygon drawing with a solid pixmap brush.
 	Fixed masked pixmap brushes.
@@ -848,6 +868,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         without applying the format also to the word under the cursor.
         QTextEdit now ensures that the cursor is visible the first time the widget
         is shown or when replacing the contents entirely with setPlainText/setHtml.
+        Fixed issue where the setPlainText() discards the current character format
+        after the new text has been added to the document.
         Re-added setText() as non-compatibility function with well-defined heuristics.
         Added a moveCursor() convenience function.
         Change default margin from 4 to 2 pixels for consistency with QLineEdit.
@@ -1121,6 +1143,9 @@ AIX:
 
 X11:
 
+Ensure release events from closing a dialog with a double click are not
+propagated through to the window underneath.
+
 - Motif Drop support
         Support for drops from Motif applications has been refactored
         and is now working properly. QMimeData reports non-textual
@@ -1177,7 +1202,8 @@ Mac OS X:
     Windows now have a transparent size grip, an attribute for specifying an opaque size grip was added. 
     Metrowerks generator has been removed.
     Follow the antialiasing threshold setting
-    
+
+    Added a standard "Minimize" menu item to Assistant's Window menu.
 
     The documentation now has "Xcode-compatible" links so that it can be added
     into Xcode's documentation viewer. This needs to be done by the developer
@@ -1240,6 +1266,13 @@ Windows:
 		a WM_SETTINGSCHANGE event.
 		Fixed a bug with japanese input methods.
 
+- QAccessible
+        Don't call PlaySound for accessibility updates when no sound is registered.
+
+- QDir
+        Fixed bug where exists() would return true for a non-existent drive
+        simply because the specified string used the correct syntax.
+
 - QFileDialog
 	Added support for relative filepaths in native dialogs.
 	Let setLabelText() also change the context menu entries.
@@ -1247,10 +1280,14 @@ Windows:
 	Disable renaming and deletion actions for non-editable items.
 	Added a message box asking the user to confirm when deleting files.
 
+- QFileInfo
+        Fixed absoluteFilePath() to return a path that begins with the current
+        drive label.
+
 - Designer
-		Docked Window mode is now the default on Windows.
-                Preview of widgets is no longer modal on Mac OS X.
-                Passing really long relative pathes into the resource will no longer cause a crash.
+        Docked Window mode is now the default on Windows.
+        Preview of widgets is no longer modal on Mac OS X.
+        Passing really long relative pathes into the resource will no longer cause a crash.
 
 - Improved windows mime handling
 		Resolved an issue related to drag and drop of attachments from some applications.
@@ -1274,6 +1311,10 @@ Assistant
         Added "Find as you type" feature to search documentation page.
         Added "Sync with Table Of contents" to select the current page in the
         contents list.
+        Fixed issue where activating a context menu over a link would cause
+        the link to be activated.
+        Provides a default window title when not specified in a profile.
+        Fixed JPEG viewing support for static builds of Assistant.
 
 Moc
         Fixed support for enums and flags in classes that are part in
