@@ -1656,7 +1656,7 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
         marked.replace("<@type>", "");
         marked.replace("</@type>", "");
     }
-    out() << highlightedCode(indent(codeIndent, marked), marker, relative);
+    out() << highlightedCode(marked, marker, relative);
 }
 
 void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)

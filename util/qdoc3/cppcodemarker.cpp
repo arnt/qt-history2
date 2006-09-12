@@ -236,7 +236,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	extra.prepend( "<@extra>" );
 	extra.append( "</@extra>" );
     }
-    return addMarkUp( synopsis, relative, "" ) + extra;
+    return synopsis + extra;
 }
 
 QString CppCodeMarker::markedUpName( const Node *node )
