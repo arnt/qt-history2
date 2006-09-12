@@ -82,17 +82,7 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
     slow = config.getBool(CONFIG_SLOW);
 
-    // Copy the stylesheets from the directory containing the qdocconf file.
-    // ### This should be changed to use a special directory in doc/src.
     stylesheets = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_STYLESHEETS);
-    QStringList::ConstIterator styleIter = stylesheets.begin();
-    QDir configPath = QDir::current();
-    while (styleIter != stylesheets.end()) {
-        QString filePath = configPath.absoluteFilePath(*styleIter);
-        Config::copyFile(config.location(), filePath, filePath, outputDir());
-        ++styleIter;
-    }
-
     codeIndent = config.getInt(CONFIG_CODEINDENT);
 }
 
@@ -133,6 +123,16 @@ QString HtmlGenerator::format()
 
 void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 {
+    // Copy the stylesheets from the directory containing the qdocconf file.
+    // ### This should be changed to use a special directory in doc/src.
+    QStringList::ConstIterator styleIter = stylesheets.begin();
+    QDir configPath = QDir::current();
+    while (styleIter != stylesheets.end()) {
+        QString filePath = configPath.absoluteFilePath(*styleIter);
+        Config::copyFile(Location(), filePath, filePath, outputDir());
+        ++styleIter;
+    }
+
     tre = tree;
     nonCompatClasses.clear();
     mainClasses.clear();
@@ -2503,6 +2503,7 @@ void HtmlGenerator::generateIndex(const QString &fileBase, const QString &url,
 {
     tre->generateIndex(outputDir() + "/" + fileBase + ".index", url, title);
 }
+
 void HtmlGenerator::generateStatus( const Node *node, CodeMarker *marker )
 {
     Text text;
