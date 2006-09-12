@@ -45,9 +45,9 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Numerous bugs fixed in Designer: action editor, property editor.
 
-- Added QWidget and new widgets in this release to Designer's widget box.
-
 - Designer
+        Added QWidget and new widgets in this release to Designer's widget box.
+        Updated dialog templates to use the new QDialogButtonBox class.
         Backup files created by Designer no longer overwrite existing files.
         Promoted widgets inherit the task menu items of the base class.
         Don't order enums alphabetically in the property editor.
