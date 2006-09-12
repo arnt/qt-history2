@@ -590,8 +590,14 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         inTableHeader = true;
         break;
     case Atom::TableHeaderRight:
-        out() << "</tr></thead>\n";
-        inTableHeader = false;
+        out() << "</tr>";
+        if (matchAhead(atom, Atom::TableHeaderLeft)) {
+            skipAhead = 1;
+            out() << "\n<tr valign=\"top\" class=\"qt-style\">";
+        } else {
+            out() << "</thead>\n";
+            inTableHeader = false;
+        }
         break;
     case Atom::TableRowLeft:
         if (++numTableRows % 2 == 1)
