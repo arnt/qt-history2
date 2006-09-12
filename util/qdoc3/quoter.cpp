@@ -42,8 +42,14 @@ void Quoter::quoteFromFile( const QString& userFriendlyFilePath,
 
       Newlines are preserved because they affect codeLocation.
     */
+    codeLocation = Location( userFriendlyFilePath );
+
     plainLines = plainCode.split(splitPoint);
     markedLines = markedCode.split(splitPoint);
+    if (markedLines.count() != plainLines.count()) {
+        codeLocation.warning(tr("Something is wrong with qdoc's handling of marked code"));
+        markedLines = plainLines;
+    }
 
     /*
       Squeeze blanks (cat -s).
@@ -54,7 +60,6 @@ void Quoter::quoteFromFile( const QString& userFriendlyFilePath,
 	(*m).append( "\n" );
 	++m;
     }
-    codeLocation = Location( userFriendlyFilePath );
     codeLocation.start();
 }
 
