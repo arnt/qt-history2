@@ -1703,6 +1703,11 @@ void tst_QGraphicsItem::graphicsitem_cast()
     // and some casts that _should_ fail:
     QVERIFY(!qgraphicsitem_cast<QGraphicsEllipseItem *>(&pathItem));
     QVERIFY(!qgraphicsitem_cast<const QGraphicsTextItem *>(pPolygonItem));
+
+    // and this shouldn't crash
+    QGraphicsItem *ptr = 0;
+    QVERIFY(!qgraphicsitem_cast<QGraphicsTextItem *>(ptr));
+    QVERIFY(!qgraphicsitem_cast<QGraphicsItem *>(ptr));
 }
 
 void tst_QGraphicsItem::hoverEventsGenerateRepaints()
