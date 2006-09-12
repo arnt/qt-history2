@@ -94,7 +94,7 @@ private:
 
 class QWSLock;
 
-class QWSMemorySurface : public QWSWindowSurface
+class Q_GUI_EXPORT QWSMemorySurface : public QWSWindowSurface
 {
 public:
     QWSMemorySurface();
@@ -123,7 +123,7 @@ protected:
     QImage img;
 };
 
-class QWSLocalMemSurface : public QWSMemorySurface
+class Q_GUI_EXPORT QWSLocalMemSurface : public QWSMemorySurface
 {
 public:
     QWSLocalMemSurface();
@@ -145,7 +145,7 @@ protected:
 };
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-class QWSSharedMemSurface : public QWSMemorySurface
+class Q_GUI_EXPORT QWSSharedMemSurface : public QWSMemorySurface
 {
 public:
     QWSSharedMemSurface();
@@ -168,7 +168,7 @@ private:
 };
 #endif // QT_NO_QWS_MULTIPROCESS
 
-class QWSOnScreenSurface : public QWSMemorySurface
+class Q_GUI_EXPORT QWSOnScreenSurface : public QWSMemorySurface
 {
 public:
     QWSOnScreenSurface();
@@ -194,7 +194,7 @@ private:
     const QScreen *screen;
 };
 
-class QWSYellowSurface : public QWSWindowSurface
+class Q_GUI_EXPORT QWSYellowSurface : public QWSWindowSurface
 {
 public:
     QWSYellowSurface(bool isClient = false);
@@ -230,7 +230,7 @@ private:
 
 class QScreen;
 
-class QWSDirectPainterSurface : public QWSWindowSurface
+class Q_GUI_EXPORT QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
     QWSDirectPainterSurface(bool isClient = false);
