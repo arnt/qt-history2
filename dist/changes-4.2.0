@@ -98,7 +98,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Added support for reading and writing TIFF images.
 
-- Tulip containers: 
+- Tulip containers:
     Added typedefs for STL compatability.
     Added fucntion overloads to make the API easier to use.
 
@@ -107,9 +107,19 @@ Applications compiled for 4.1 will continue to run with 4.2.
     Fix one case were qt3to4 was inserting unix-stlye line endings on Windows.
     New classes, Q3VGroupBox and Q3HGroupBox were added to ease porting.
     Updated the porting rules for this release.
-    
+
+- Added new key mapper system, which improves the shortcut system by only
+  testing the real possible shortcuts, such as Ctrl+Shift+= and Ctrl++ on an
+  English keyboard.
+
+
 Build System
 ------------
+
+Qt/X11, Qt/Mac and Qtopia Core only:
+
+Add all QT_NO_* defines to the buildkey.
+
 
 Qt/X11 and Qtopia Core only:
 
@@ -132,6 +142,19 @@ Implement a -build option in configure to conditionally compile only
 certain sections of Qt.
 
 Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
+
+
+Windows only:
+
+Populate the buildkey, as done on all the other platforms.
+Fix dependency generation in Visual Studio Solutions (.sln) created by qmake.
+Added missing platforms to the Visual Studio Project generator (X64, SH3DSP
+and EBC).
+Use a temporary file for too long commandlines for UIC3.
+Avoid object file (.o) conflicts with MinGW when embedded a native resource
+file which is named the same as a normal source file.
+Fix mkspec detection when generating project files outside of QTDIR.
+
 
 ****************************************************************************
 *                          Library                                         *
@@ -228,6 +251,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QKeySequence
 	Added a set of platform dependent standard shortcuts.
+	Fixed incorrect parsing of translated modifiers.
 
 - QLibrary
         Drop using dlcompat for library loading and resolving on Mac OS X and
@@ -247,7 +271,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QTableWidget
 	Added clearContents() function which will not reset the headers.
 	QTableWidget now uses stable sorting.
-	Allow sorting of non-numerical data. 
+	Allow sorting of non-numerical data.
 	Add convenience table item constructor that takes an icon
 	aswell as a string.
 
@@ -256,7 +280,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 	Inserting of items is now faster.
 	Fix crash when calling QTreeWidgetItem::setData with a negative number.
 	QTreeWidget now uses stable sorting.
-	Made construction of single column items a bit more convenient. 
+	Made construction of single column items a bit more convenient.
 
 - QTreeView
 	When setting the root index to be the already current root index no
@@ -500,7 +524,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Fix look of lineedits.
         "Colorless" controls now look better.
         Correct the sort indicator.
-      
+
 - QMacPasteboardMime
         New class to handle pastboard access on Qt/Mac. This obsoletes
         QMacMime as the underlying system has changed to support Apple's
@@ -517,7 +541,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QResource
         New class added as a namespace for various static functions that
         effect resource lookup as well as a way to navigate resources
-        directly without levels of indirection through QFile/QFileEngine. 
+        directly without levels of indirection through QFile/QFileEngine.
 
 - QScrollArea
         Added the ensureWidgetVisible() function to facilitate scrolling to
@@ -553,6 +577,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QToolBar
 	Various fixes to better support toolbuttons, button groups and
 	comboboxes in the toolbar extension menu.
+	Fixed crash when calling QApplication::setStyle two times
 
 - QVariant
         Added support for all QMetaType types.
@@ -592,7 +617,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QRasterPaintEngine
 	Fixed blending of 8 bit indexed images with alpha values.
 	Fixed drawing onto QImages that were wider than 2048 pixels.
-	Fixed alphablending and antialiasing on ARGB32 images 
+	Fixed alphablending and antialiasing on ARGB32 images
         Optimized drawPoints()
 
 - quintptr and qptrdiff
@@ -683,7 +708,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QWidget
         Added a property styleSheet to set/read the widget style sheet.
-        Added saveGeometry(), restoreGeometry() convenience functions for 
+        Added saveGeometry(), restoreGeometry() convenience functions for
         Fixed memory leak for Qt::WA_PaintOnScreen widgets with paintEngine() == 0.
         saving and restoring a window's geometry.
         Let the style propagate to child widgets.
@@ -696,6 +721,8 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QWindowsXPStyle
 	QPushButton looks more native when pressed.
+	Checked toolbuttons not on a toolbar look checked.
+	Define more variables not present in MinGW's headerfiles.
 
 - QWorkspace
         Resolved issue causing the maximized controls to overlap with menu in
@@ -729,6 +756,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
         Made it possible for popup menus to cover the taskbar in Windows and KDE.
         Popups no longer show up in Expose
         Use the proper PageUp and PageDown behavior on Mac OS X.
+        Clear menuAction() when setMenu(0)
 
 
 - QMessageBox
@@ -832,7 +860,7 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 - QPixmap
 	Fixed crash when setting mask or alphachannel while pixmap is being painted
         Various Qt/Mac masking and alpha transparency fixes.
-        load() and save() no longer require you to pass the format string.	
+        load() and save() no longer require you to pass the format string.
 
 - QTimeLine
         New class for controlling a time line.
@@ -940,7 +968,12 @@ Make it possible to build Qt while having xcode set as your QMAKESPEC on OSX.
 
 - QCalendarWidget
 	New class
-	
+
+- Qt::Key
+        Added several missing miscellaneous keys:  Key_Cancel, Key_Printer, Key_Execute, Key_Sleep, Key_Play, Key_Zoom
+
+- QPushButton
+        Add a QMenu's menuAction() to QPushButton when added by setMenu(), to enable keyboard shortcuts.
 
 I/O and Networking
 ------------------
@@ -1045,6 +1078,16 @@ I/O and Networking
 	Added aQDataStream operators for QIcon.
 	Added Selected mode.
 
+- QShortcutMap
+        Handle Key_hyphen and Key_Minus as the same shortcut, as they are conceptually the same.
+
+- QAction
+        Add setAutoRepeat(bool) function, to disable action autorepeating on keyboard shortcut.
+
+- QShortcut
+        Add setAutoRepeat(bool) function, to disable action autorepeating on keyboard shortcut.
+
+
 Database drivers
 -------------------------
 
@@ -1076,6 +1119,12 @@ QTestLib
 - Added "-silent" options that outputs only test failures and warnings.
 - Reset failure count when re-executing a test object
 - Added nicer output for QRectF, QSizeF and QPointF
+
+
+Examples / Demos
+-------------------------
+- Fixed crash by incorrect painter usage in imagecomposition example
+
 
 Platform-Specific changes
 -------------------------
@@ -1199,7 +1248,7 @@ Mac OS X:
     QSplitter, QScrollBar, QLabel, QCheckBox, QRadioButton, QTabBar/Widget,
     QSlider, QScrollBar
     Hidden files are now reported as hidden by QFileInfo, QDirModel, etc.
-    Windows now have a transparent size grip, an attribute for specifying an opaque size grip was added. 
+    Windows now have a transparent size grip, an attribute for specifying an opaque size grip was added.
     Metrowerks generator has been removed.
     Follow the antialiasing threshold setting
 
@@ -1233,7 +1282,7 @@ Mac OS X:
         Data copied to the clipboard now stays available after the application exits.
         Added support for the Find clipboard buffer.
         Fix encoding of Urls in mimes.
-        
+
 - QAbstractScrollArea
         Improve look and feel by aligning the scroll bars with the size grip.
 
@@ -1247,9 +1296,9 @@ Mac OS X:
         Added MiterJoins that are compliant with SVG miter joins.
 
 - QPainterPath
-        Added QPainterPath::arcMoveTo()	
+        Added QPainterPath::arcMoveTo()
         Added QPainterPath::setElementPosition()
-        
+
 
 - QComboBox
         Improve the popup sizing so it's always wide enough to display its contents.
@@ -1258,13 +1307,16 @@ Mac OS X:
 
 - QScrollBar
         Gracefully handle the case where the scrollbar is to short to draw all its controls.
-        
+
 Windows:
 		Ensured that widgets do not show themselves in a hover state if a popup has focus.
 		Fixed issues with rendering system icons on 16-bit displays.
 		Fixed issue where fonts or colors would be reset on the application whenever windows produced
 		a WM_SETTINGSCHANGE event.
 		Fixed a bug with japanese input methods.
+		Compile SQLite SQL plugin by default, as all the other platforms.
+		Fixed build issue when not using Precompiled Headers (PCH).
+        Make Visual Studio compilers older than 2005 handle (NULL == p) statements, where p is of QPointer type.
 
 - QAccessible
         Don't call PlaySound for accessibility updates when no sound is registered.
@@ -1302,6 +1354,9 @@ Windows:
 - QGLColormap
 	Fix cases where the colormap was not applied correctly.
 
+- QWidget
+        Top-level widgets now respect the closestAcceptableSize of it layout.
+
 
 ****************************************************************************
 *                          Tools                                           *
@@ -1315,6 +1370,7 @@ Assistant
         the link to be activated.
         Provides a default window title when not specified in a profile.
         Fixed JPEG viewing support for static builds of Assistant.
+        Fixed crash when opening Assistant with old and invalid settings
 
 Moc
         Fixed support for enums and flags in classes that are part in
