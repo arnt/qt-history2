@@ -702,7 +702,7 @@ void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gl
     if (flags & QTextItem::RightToLeft) {
         for (int gl = 0; gl < numGlyphs; gl++) {
             x += glyphs[gl].advance.x.toReal();
-            y += glyphs[gl].advance.x.toReal();
+            y += glyphs[gl].advance.y.toReal();
         }
     }
     for (end = 0; end < numGlyphs; ++end) {
