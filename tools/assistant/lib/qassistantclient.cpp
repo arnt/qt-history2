@@ -315,14 +315,18 @@ void QAssistantClient::closeAssistant()
 */
 void QAssistantClient::showPage( const QString &page )
 {
-    if ( !opened ) {
+    if (opened) {
+        QTextStream os( socket );
+        os << page << "\n";
+    } else {
         pageBuffer = page;
-        openAssistant();
-        pageBuffer.clear();
-        return;
+
+        if (proc->state() == QProcess::NotRunning) {
+            openAssistant();
+            pageBuffer.clear();
+            return;
+        }
     }
-    QTextStream os( socket );
-    os << page << "\n";
 }
 
 /*!
