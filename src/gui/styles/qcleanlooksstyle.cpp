@@ -1011,11 +1011,31 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             bool down = (option->state & State_Sunken) || (option->state & State_On);
 
             bool isDefault = false;
-            if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option))
+            QRect r = option->rect;
+            r.adjust(0, 1, 0, -1);
+            if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton*>(option)) {
                 isDefault = (button->features & QStyleOptionButton::DefaultButton) &&(button->state & State_Enabled);
+                if ((button->features & QStyleOptionButton::Flat) && !down) {
+                    if (isDefault) {
+                        painter->setPen(QPen(Qt::black, 0));
+                        painter->drawLine(QPoint(r.left() + 2, r.top()),
+                                        QPoint(r.right() - 2, r.top()));
+                        painter->drawLine(QPoint(r.left(), r.top() + 2),
+                                        QPoint(r.left(), r.bottom() - 2));
+                        painter->drawLine(QPoint(r.right(), r.top() + 2),
+                                        QPoint(r.right(), r.bottom() - 2));
+                        painter->drawLine(QPoint(r.left() + 2, r.bottom()),
+                                        QPoint(r.right() - 2, r.bottom()));
+                        painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
+                        painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
+                        painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
+                        painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));                        
+                    }
+                    painter->restore();
+                    break;
+                }
+            }
             bool isEnabled = (option->state & State_Enabled);
-
-            QRect rect = option->rect;
 
             QColor highlightedGradientStartColor = option->palette.button().color().light(107);
             QColor highlightedGradientStopColor = buttonShadow.light(107);
@@ -1027,12 +1047,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                                      qMin(255, (int)(buttonColor.saturation()*1.9)),
                                      qMin(255, (int)(buttonColor.value()*0.94)));
 
-
-            rect.adjust(0, 1, 0, -1);
             QRect gradRect = rect.adjusted(1, 1, -1, -1);
             if (isEnabled) {
                 // gradient fill
-                QRect innerBorder = rect.adjusted(1, 1, -1, 0);
+                QRect innerBorder = r.adjusted(1, 1, -1, 0);
 
                 if (down) {
                     painter->fillRect(gradRect, gradientStopColor.dark(110));
@@ -1057,8 +1075,6 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             }
 
             bool hasFocus = option->state & State_HasFocus;
-
-            QRect r = rect.adjusted(0, 0, 0, 0);
 
             if (!isEnabled)
                 painter->setPen(QPen(dark.light(115)));
