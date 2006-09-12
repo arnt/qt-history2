@@ -86,6 +86,18 @@
 */
 
 /*!
+    \enum Qt::ApplicationAttribute
+
+    This enum describes attributes that change the behavior of application-wide
+    features. These are enabled and disabled using QCoreApplication::setAttribute(),
+    and can be tested for with QCoreApplication::testAttribute().
+
+    \value AA_ImmediateWidgetCreation Ensures that widgets are created as soon as
+           they are constructed. By default, resources for widgets are allocated on
+           demand to improve efficiency and minimize resource usage.
+*/
+
+/*!
     \enum Qt::MouseButton
 
     This enum type describes the different mouse buttons.
