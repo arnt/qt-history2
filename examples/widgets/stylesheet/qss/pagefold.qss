@@ -1,0 +1,57 @@
+/* layout(pagefold) */
+
+/* Set a background image for the central widget */
+QMainWindow > .QWidget {
+    background-color: gainsboro;
+    background-image: url(c:/pagefold.png);
+    background-position: top right;
+    background-repeat: no-repeat
+}
+
+/* Provide a padding for the layout inside the frame. The frame
+    exists only to provide a padding for the top right image, so we
+    explicitly disable the border! */
+#mainFrame {
+    padding-right: 30px;
+    border-style: none;
+}
+
+/* All widgets to have the following selection colors */
+QWidget {
+    -qt-selection-foreground: black;
+    -qt-selection-background: Silver;
+    color: black;
+}
+
+/* Nice to have all the label's bold */
+.QLabel {
+    font-weight: bold;
+}
+
+QStatusBar .QLabel {
+    font-weight: normal;
+}
+
+/* Mark all the mandatory fields with a reddish color. Note that when
+    loading the form, we do a setProperty("class", "mandatory") */
+.mandatory {
+    color: Brown;
+}
+
+/* This makes the entire row selected in itemviews selected */
+QAbstractItemView {
+    -qt-show-decoration-selected: 1;
+}
+
+/* Tool tips support only one padding. Also, border-radius does not set the window mask
+     so need to keep the radius as low as possible */
+QToolTip {
+    background-color: beige;
+    border-color: darkslategray;
+    border-width: 1px;
+    border-style: solid;
+    padding: 10px;
+    font: bold;
+    border-radius: 3px;
+    -qt-opacity: 200;
+}

@@ -27,18 +27,19 @@ public:
 
 private slots:
     void about();
-    void applyStyle();
-    void setStyle(const QString&);
-    void loadLayout(const QString&);
-    void loadEditor(const QString&);
+    void loadStyleSheet(const QString&);
     void editStyle();
     void previewStyleSheet();
+    void setStyle(const QString &style);
 
 private:
+    void loadLayout(const QString&);
+
     QMainWindow *mw;
     QDialog *styleEditorDialog;
 
     Ui::StyleSheetEditor sse;
+    QString currentLayout;
 };
 
 #endif

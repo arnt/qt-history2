@@ -1,3 +1,90 @@
-QWidget {
-    color: brown;
+.QWidget {
+   background-color: beige;
+}
+
+/* Nice windowsxp style password character */
+QLineEdit[echoMode="2"] {
+    -qt-lineedit-password-character: 9679;
+}
+
+/* Note that we can provide a min-width and min-height for a button,
+    so it looks elegant regardless of the width of the text */
+QPushButton {
+   background-color: palegoldenrod;
+   border-width: 2px;
+   border-color: darkkhaki;
+   border-style: solid;
+   border-radius: 5;
+   padding: 3px;
+   min-width: 9ex;
+   min-height: 2.5ex;
+}
+
+QPushButton:hover {
+   background-color: khaki;
+}
+
+/* Increase the padding, so we get a "shift" in the text when the
+    button is pressed */
+QPushButton:pressed {
+   padding-left: 5px;
+   padding-top: 5px;
+   background-color: #d0d67c;
+}
+
+QLabel, QAbstractButton {
+   font: bold;
+}
+
+/* Bold text on status bar looks awful */
+QStatusBar QLabel {
+   font: normal;
+}
+
+QStatusBar::item {
+   border-width: 1;
+   border-color: darkkhaki;
+   border-style: solid;
+   border-radius: 2;
+}
+
+QComboBox, QLineEdit, QSpinBox, QTextEdit, QListView {
+   background-color: cornsilk;
+   -qt-selection-foreground: #0a214c;
+   -qt-selection-background: wheat;
+}
+
+/* We reserve "1px" space in padding. When we get the focus,
+     we kill the padding and enlarge the border. This makes the items
+     "glow" */
+QLineEdit, QFrame {
+   border-width: 2px;
+   padding: 1px;
+   border-style: solid;
+   border-color: darkkhaki;
+   border-radius: 5px;
+}
+
+/* As mentioned above, kill the padding and increase the border */
+QLineEdit:focus, QFrame:focus {
+   border-width: 3px;
+   padding: 0px;
+}
+
+/* Nice to have the background color change when hovered */
+QRadioButton:hover, QCheckBox:hover {
+   background-color: wheat;
+}
+
+/* We want the buttons to be windows layout! */
+QDialogButtonBox {
+  -qt-button-layout: 0;
+}
+
+/* Tool tips support only one padding. Also, border-radius does not set the window mask
+     so need to keep the radius as low as possible */
+QToolTip {
+    padding: 5px;
+    border-radius: 3px;
+    -qt-opacity: 200;
 }

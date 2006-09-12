@@ -19,34 +19,17 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="1" column="1" colspan="2" >
-    <widget class="QComboBox" name="layoutCombo" >
-     <item>
-      <property name="text" >
-       <string>boringdefault</string>
-      </property>
-     </item>
-     <item>
-      <property name="text" >
-       <string>waterfall</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QLabel" name="layoutLabel" >
+   <item row="3" column="1" >
+    <widget class="QPushButton" name="previewButton" >
      <property name="text" >
-      <string>Layout</string>
-     </property>
-     <property name="textFormat" >
-      <enum>Qt::RichText</enum>
-     </property>
-     <property name="wordWrap" >
-      <bool>true</bool>
+      <string>&amp;Preview</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="2" >
+   <item row="2" column="0" colspan="2" >
+    <widget class="QTextEdit" name="styleTextEdit" />
+   </item>
+   <item row="1" column="1" >
     <widget class="QComboBox" name="styleSheetCombo" >
      <item>
       <property name="text" >
@@ -58,9 +41,14 @@
        <string>coffee</string>
       </property>
      </item>
+     <item>
+      <property name="text" >
+       <string>pagefold</string>
+      </property>
+     </item>
     </widget>
    </item>
-   <item row="2" column="0" >
+   <item row="1" column="0" >
     <widget class="QLabel" name="label_8" >
      <property name="text" >
       <string>&lt;nobr>Style Sheet&lt;/nobr></string>
@@ -70,16 +58,6 @@
      </property>
      <property name="wordWrap" >
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="3" >
-    <widget class="QTextEdit" name="styleTextEdit" />
-   </item>
-   <item row="4" column="2" >
-    <widget class="QPushButton" name="previewButton" >
-     <property name="text" >
-      <string>&amp;Preview</string>
      </property>
     </widget>
    </item>
@@ -96,7 +74,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="2" >
+   <item row="0" column="1" >
     <widget class="QComboBox" name="styleCombo" >
      <item>
       <property name="text" >

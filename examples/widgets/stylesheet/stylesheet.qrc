@@ -1,8 +1,9 @@
 <RCC>
 <qresource prefix="/" >
     <file>layouts/boringdefault.ui</file>
-    <file>layouts/waterfall.ui</file>
+    <file>layouts/pagefold.ui</file>
     <file>qss/boringdefault.qss</file>
     <file>qss/coffee.qss</file>
+    <file>qss/pagefold.qss</file>
 </qresource>
 </RCC>

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>497</height>
+    <width>388</width>
+    <height>413</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -20,65 +20,52 @@
     <property name="spacing" >
      <number>6</number>
     </property>
-    <item row="3" column="1" colspan="2" >
-     <widget class="QLineEdit" name="passwordEdit" >
-      <property name="echoMode" >
-       <enum>QLineEdit::Password</enum>
+    <item row="4" column="1" colspan="3" >
+     <widget class="QComboBox" name="countryCombo" >
+      <property name="toolTip" >
+       <string>Specify your country here</string>
       </property>
+      <property name="statusTip" >
+       <string>Specify your country here</string>
+      </property>
+      <property name="currentIndex" >
+       <number>1</number>
+      </property>
+      <item>
+       <property name="text" >
+        <string>Germany</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>India</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>Norway</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>United States Of America</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>United Kingdom</string>
+       </property>
+      </item>
      </widget>
     </item>
-    <item row="3" column="0" >
-     <widget class="QLabel" name="passwordLabel" >
-      <property name="text" >
-       <string>Select &amp;password</string>
-      </property>
-      <property name="buddy" >
-       <cstring>passwordEdit</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" >
-     <widget class="QLabel" name="ageLabel" >
-      <property name="text" >
-       <string>&amp;Age</string>
-      </property>
-      <property name="buddy" >
-       <cstring>ageSpinBox</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="2" >
-     <widget class="QLineEdit" name="nameEdit" />
-    </item>
-    <item row="6" column="2" >
-     <widget class="QDialogButtonBox" name="buttonBox" >
-      <property name="orientation" >
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="standardButtons" >
-       <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" >
-     <widget class="QLabel" name="nameLabel" >
-      <property name="text" >
-       <string>&amp;Name</string>
-      </property>
-      <property name="buddy" >
-       <cstring>nameEdit</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2" >
-     <widget class="QRadioButton" name="femaleRadioButton" >
-      <property name="text" >
-       <string>&amp;Female</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1" colspan="2" >
+    <item row="5" column="1" colspan="3" >
      <widget class="QListWidget" name="professionList" >
+      <property name="toolTip" >
+       <string>Specify your profession here</string>
+      </property>
+      <property name="statusTip" >
+       <string>Specify your profession here</string>
+      </property>
       <item>
        <property name="text" >
         <string>Developer</string>
@@ -96,31 +83,17 @@
       </item>
      </widget>
     </item>
-    <item row="2" column="1" colspan="2" >
-     <widget class="QSpinBox" name="ageSpinBox" />
-    </item>
-    <item row="1" column="0" >
-     <widget class="QLabel" name="genderLabel" >
-      <property name="text" >
-       <string>Gender</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1" >
-     <widget class="QRadioButton" name="maleRadioButton" >
-      <property name="text" >
-       <string>&amp;Male</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="3" >
-     <widget class="QCheckBox" name="agreeCheckBox" >
-      <property name="text" >
-       <string>I have read the terms and &amp;conditions</string>
-      </property>
-     </widget>
-    </item>
     <item row="4" column="0" >
+     <widget class="QLabel" name="countryLabel" >
+      <property name="text" >
+       <string>&amp;Country</string>
+      </property>
+      <property name="buddy" >
+       <cstring>professionList</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" >
      <widget class="QLabel" name="label" >
       <property name="text" >
        <string>Pro&amp;fession</string>
@@ -130,6 +103,123 @@
       </property>
      </widget>
     </item>
+    <item row="3" column="1" colspan="3" >
+     <widget class="QLineEdit" name="passwordEdit" >
+      <property name="toolTip" >
+       <string>Specify your password here</string>
+      </property>
+      <property name="statusTip" >
+       <string>Specify your password here</string>
+      </property>
+      <property name="echoMode" >
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" >
+     <widget class="QLabel" name="passwordLabel" >
+      <property name="text" >
+       <string>&amp;Password:</string>
+      </property>
+      <property name="buddy" >
+       <cstring>passwordEdit</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" >
+     <widget class="QLabel" name="ageLabel" >
+      <property name="text" >
+       <string>&amp;Age:</string>
+      </property>
+      <property name="buddy" >
+       <cstring>ageSpinBox</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="3" >
+     <widget class="QLineEdit" name="nameEdit" >
+      <property name="toolTip" >
+       <string>Specify your name here</string>
+      </property>
+      <property name="statusTip" >
+       <string>Specify your name here</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="2" colspan="2" >
+     <widget class="QDialogButtonBox" name="buttonBox" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons" >
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" >
+     <widget class="QLabel" name="nameLabel" >
+      <property name="text" >
+       <string>&amp;Name:</string>
+      </property>
+      <property name="buddy" >
+       <cstring>nameEdit</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="3" >
+     <widget class="QSpinBox" name="ageSpinBox" >
+      <property name="toolTip" >
+       <string>Specify your age here</string>
+      </property>
+      <property name="statusTip" >
+       <string>Specify your age here</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" >
+     <widget class="QLabel" name="genderLabel" >
+      <property name="text" >
+       <string>Gender:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1" >
+     <widget class="QRadioButton" name="maleRadioButton" >
+      <property name="toolTip" >
+       <string/>
+      </property>
+      <property name="text" >
+       <string>&amp;Male</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="4" >
+     <widget class="QCheckBox" name="agreeCheckBox" >
+      <property name="text" >
+       <string>I have read the terms and &amp;conditions</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2" >
+     <widget class="QRadioButton" name="femaleRadioButton" >
+      <property name="text" >
+       <string>&amp;Female</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3" >
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar" >
@@ -137,8 +227,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>442</width>
-     <height>29</height>
+     <width>388</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
