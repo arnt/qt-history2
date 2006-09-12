@@ -4117,8 +4117,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         translate(x, y);
         scale(w / sw, h / sh);
         setBackgroundMode(Qt::TransparentMode);
+        setBrush(QBrush(d->state->pen.color(), pm));
         setPen(Qt::NoPen);
-        setBrush(QPixmap(pm));
         setBrushOrigin(QPointF(-sx, -sy));
 
         drawRect(QRectF(0, 0, sw, sh));
@@ -4937,9 +4937,9 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawTiledPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], offset=[%.2f,%.2f]\n",
-           r.x(), r.y(), r.width(), r.height(),
-           pixmap.width(), pixmap.height(),
-           sp.x(), sp.y());
+               r.x(), r.y(), r.width(), r.height(),
+               pixmap.width(), pixmap.height(),
+               sp.x(), sp.y());
 #endif
 
     if (!isActive() || pixmap.isNull() || r.isEmpty())
@@ -4964,29 +4964,15 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 
     d->updateState(d->state);
     if (d->state->txop > QPainterPrivate::TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        QPixmap pm;
-        if (pixmap.hasAlphaChannel()) {
-            QImage img(qRound(r.width()), qRound(r.height()), QImage::Format_ARGB32_Premultiplied);
-            img.fill(0);
-            pm = QPixmap::fromImage(img);
-        } else {
-            pm = QPixmap(qRound(r.width()), qRound(r.height()));
-        }
-        QPainter p(&pm);
-        // Recursive call ok, since the pixmap is not transformed...
-        p.setPen(pen());
-        p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
-        p.end();
-        if (backgroundMode() == Qt::TransparentMode && pixmap.depth() == 1) {
-            QBitmap mask(pm.width(), pm.height());
-            mask.clear();
-            p.begin(&mask);
-            p.drawTiledPixmap(QRectF(0, 0, r.width(), r.height()), pixmap, QPointF(sx, sy));
-            p.end();
-            pm.setMask(mask);
-        }
-        drawPixmap(qRound(r.x()), qRound(r.y()), pm);
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform))
+    {
+        save();
+        setBackgroundMode(Qt::TransparentMode);
+        setBrush(QBrush(d->state->pen.color(), pixmap));
+        setPen(Qt::NoPen);
+        setBrushOrigin(QPointF(-sx, -sy));
+        drawRect(r);
+        restore();
         return;
     }
 

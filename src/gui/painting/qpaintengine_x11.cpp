@@ -1885,7 +1885,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             int num;
             XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
             XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
-            XCopyArea(d->dpy, pixmap.handle(), comb, cgc, 0, 0, sw, sh, 0, 0);
+            XCopyArea(d->dpy, pixmap.handle(), comb, cgc, sx, sy, sw, sh, 0, 0);
             XFreeGC(d->dpy, cgc);
 
             XSetClipMask(d->dpy, d->gc, comb);
