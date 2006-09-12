@@ -1,6 +1,8 @@
+#the next line prevents non-shadowbuilds from including the same directory twice
+#otherwise, the build command would be too long for some win32 shells.
+!exists($$QT_BUILD_TREE/tools/designer/src/components/propertyeditor/propertyeditor.h):INCLUDEPATH += $$QT_BUILD_TREE/tools/designer/src/components/propertyeditor
 
-INCLUDEPATH += $$PWD \
-    $$QT_BUILD_TREE/tools/designer/src/components/propertyeditor
+INCLUDEPATH += $$PWD
 
 FORMS += $$PWD/paletteeditor.ui \
     $$PWD/stringlisteditor.ui \
