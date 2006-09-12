@@ -42,7 +42,7 @@ Applications compiled for 4.1 will continue to run with 4.2.
 
 - Numerous bugs fixed in Designer: action editor, property editor.
 
-- QWidget added to Designer's toolbox.
+- Added QWidget and new widgets in this release to Designer's widget box.
 
 - Backup file is being created by Designer while overwriting the existing file.
 
