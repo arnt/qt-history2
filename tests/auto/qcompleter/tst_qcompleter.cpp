@@ -556,6 +556,7 @@ void tst_QCompleter::sortedEngineRowCount()
 
 void tst_QCompleter::unsortedEngineRowCount_data()
 {
+    delete completer;
     completer = new CsvCompleter;
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseSensitive);
@@ -589,6 +590,7 @@ void tst_QCompleter::unsortedEngineRowCount()
 
 void tst_QCompleter::currentRow()
 {
+    delete completer;
     completer = new CsvCompleter;
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -617,6 +619,7 @@ void tst_QCompleter::currentRow()
 
 void tst_QCompleter::sortedEngineMapFromSource()
 {
+    delete completer;
     completer = new CsvCompleter;
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -687,6 +690,7 @@ void tst_QCompleter::sortedEngineMapFromSource()
 
 void tst_QCompleter::unsortedEngineMapFromSource()
 {
+    delete completer;
     completer = new CsvCompleter;
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     setSourceModel(HISTORY_MODEL); // case insensitively sorted model
@@ -770,6 +774,7 @@ void tst_QCompleter::unsortedEngineMapFromSource()
 
 void tst_QCompleter::historySearch()
 {
+    delete completer;
     completer = new CsvCompleter;
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseSensitive);
