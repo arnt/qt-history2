@@ -5711,7 +5711,7 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
         }
     case SP_FileDialogNewFolder:
         {
-            pixmap = d->findIcon(16, QLatin1String("folder.png"));
+            pixmap = d->findIcon(16, QLatin1String("folder_new.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
