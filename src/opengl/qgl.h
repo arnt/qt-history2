@@ -36,6 +36,7 @@ Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
 
 #if defined(Q_WS_MAC)
 # include <OpenGL/gl.h>
+# include <OpenGL/glu.h>
 #elif defined(Q_WS_QWS)
 # include <GLES/gl.h>
 #ifndef GL_DOUBLE
@@ -46,6 +47,7 @@ typedef GLfloat GLdouble;
 #endif
 #else
 # include <GL/gl.h>
+# include <GL/glu.h>
 #endif
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
