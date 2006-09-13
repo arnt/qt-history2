@@ -39,16 +39,18 @@ public:
     QList<XEvent> queuedUserInputEvents;
 };
 
-static gboolean x11EventSourcePrepare(GSource *, gint *timeout)
+static gboolean x11EventSourcePrepare(GSource *s, gint *timeout)
 {
     if (timeout)
         *timeout = -1;
-    return XEventsQueued(X11->display, QueuedAfterFlush);
+    GX11EventSource *source = reinterpret_cast<GX11EventSource *>(s);
+    return XEventsQueued(X11->display, QueuedAfterFlush) || !source->d->queuedUserInputEvents.isEmpty();
 }
 
-static gboolean x11EventSourceCheck(GSource *)
+static gboolean x11EventSourceCheck(GSource *s)
 {
-    return XEventsQueued(X11->display, QueuedAfterFlush);
+    GX11EventSource *source = reinterpret_cast<GX11EventSource *>(s);
+    return XEventsQueued(X11->display, QueuedAfterFlush) || !source->d->queuedUserInputEvents.isEmpty();
 }
 
 static gboolean x11EventSourceDispatch(GSource *s, GSourceFunc callback, gpointer user_data)
