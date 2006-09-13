@@ -17,67 +17,66 @@
 
 MainWindow::MainWindow() : mw(0), styleEditorDialog(0)
 {
-    loadLayout("boringdefault");
-}
-
-void MainWindow::applyStyle()
-{
-    Q_ASSERT(mw);
-    mw->setStyleSheet(sse.styleTextEdit->toPlainText());
-}
-
-void MainWindow::editStyle()
-{
-    if (styleEditorDialog) {
-        styleEditorDialog->show();
-        styleEditorDialog->raise();
-        styleEditorDialog->activateWindow();
-        return;
-    }
+    // create the style editor dialog 
     styleEditorDialog = new QDialog;
     styleEditorDialog->setModal(false);
 
     sse.setupUi(styleEditorDialog);
 
-    QString styleName = mw->style()->metaObject()->className();
+    sse.styleCombo->clear();
+    sse.styleCombo->addItems(QStyleFactory::keys());
+    QString styleName = qApp->style()->metaObject()->className();
     styleName = styleName.mid(1 /*q*/ , styleName.length() - 6 /*style*/);
     sse.styleCombo->setCurrentIndex(sse.styleCombo->findData(styleName, Qt::CaseInsensitive));
     QObject::connect(sse.styleCombo, SIGNAL(activated(const QString&)),
                      this, SLOT(setStyle(const QString&)));
 
-    QObject::connect(sse.layoutCombo, SIGNAL(activated(const QString&)),
-                     this, SLOT(loadLayout(const QString&)));
-
     QObject::connect(sse.previewButton, SIGNAL(clicked()),
                      this, SLOT(previewStyleSheet()));
 
     QObject::connect(sse.styleSheetCombo, SIGNAL(activated(const QString&)),
-                     this, SLOT(loadEditor(const QString&)));
+                     this, SLOT(loadStyleSheet(const QString&)));
 
-    loadEditor("boringdefault");
+    // load the default
+    loadStyleSheet("boringdefault");
+}
 
+void MainWindow::editStyle()
+{
     styleEditorDialog->show();
+    styleEditorDialog->raise();
+    styleEditorDialog->activateWindow();
 }
 
-void MainWindow::previewStyleSheet()
+void MainWindow::loadStyleSheet(const QString& qss)
 {
-    mw->setStyleSheet(sse.styleTextEdit->toPlainText());
-}
+    QString layout("boringdefault");
+    QFile styleSheetFile(":/qss/" + qss + ".qss");
+    styleSheetFile.open(QFile::ReadOnly);
+    QString styleSheet = styleSheetFile.readAll();
+    styleSheetFile.close();
 
-void MainWindow::loadEditor(const QString& qss)
-{
-    QFile defaultSheet(":/qss/" + qss + ".qss");
-    if (defaultSheet.open(QFile::ReadOnly)) {
-        sse.styleTextEdit->setPlainText(defaultSheet.readAll());
-        defaultSheet.close();
-    }
-    applyStyle();
+    // load a specific layout, if requested by the stylesheet
+    QRegExp re("layout\\((\\w*)\\)");
+    if (re.indexIn(styleSheet) != -1)
+        layout = re.cap(1);
+
+    loadLayout(layout);
+
+    sse.styleTextEdit->setPlainText(styleSheet);
+    qApp->setStyleSheet(styleSheet);
+
+    mw->setWindowTitle(tr("Style Sheet Example (%1)").arg(qss));
+    mw->show();
 }
 
 void MainWindow::loadLayout(const QString& layout)
 {
-    QMainWindow *oldmw = mw;
+    if (layout == currentLayout)
+        return;
 
+    currentLayout = layout;
+    QMainWindow *oldmw = mw;
     QUiLoader loader;
     QFile file(":/layouts/" + layout + ".ui");
     file.open(QFile::ReadOnly);
@@ -86,8 +85,11 @@ void MainWindow::loadLayout(const QString& layout)
     file.close();
 
     mw->statusBar()->setSizeGripEnabled(true);
+    mw->statusBar()->addWidget(new QLabel(tr("Ready.")));
 
-    mw->setWindowTitle(tr("Style Sheet Example"));
+    // set the nameLabel as mandatory - dynamic property
+    QLabel *nameLabel = qFindChild<QLabel *>(mw, "nameLabel");
+    nameLabel->setProperty("class", "mandatory QLabel");
 
     QAction *exitAction = qFindChild<QAction *>(mw, "exitAction");
     QObject::connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -103,8 +105,7 @@ void MainWindow::loadLayout(const QString& layout)
 
     if (oldmw) {
         mw->move(oldmw->frameGeometry().topLeft());
-	mw->setStyleSheet(oldmw->styleSheet());
-	setStyle(sse.styleCombo->currentText());
+        mw->setWindowFlags(oldmw->windowFlags());
     }
 
     mw->show();
@@ -114,6 +115,11 @@ void MainWindow::loadLayout(const QString& layout)
         delete oldmw;
     }
 
+}
+
+void MainWindow::previewStyleSheet()
+{
+    qApp->setStyleSheet(sse.styleTextEdit->toPlainText());
 }
 
 void MainWindow::setStyle(const QString &s)
@@ -129,3 +135,4 @@ void MainWindow::about()
            "stylesheet in the text editor and click <u>U</u>pdate to see the "
            "results of your changes."));
 }
+

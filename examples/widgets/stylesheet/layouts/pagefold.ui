@@ -111,6 +111,9 @@
          <property name="whatsThis" >
           <string>Specify your name here</string>
          </property>
+         <property name="currentRow" >
+          <number>0</number>
+         </property>
          <item>
           <property name="text" >
            <string>Developer</string>
@@ -136,6 +139,9 @@
          <property name="statusTip" >
           <string>Specify your password</string>
          </property>
+         <property name="text" >
+          <string>Password</string>
+         </property>
          <property name="echoMode" >
           <enum>QLineEdit::Password</enum>
          </property>
@@ -148,6 +154,9 @@
          </property>
          <property name="statusTip" >
           <string>Specify your name</string>
+         </property>
+         <property name="text" >
+          <string>Name</string>
          </property>
         </widget>
        </item>
@@ -175,6 +184,12 @@
          </property>
          <property name="statusTip" >
           <string>Specify your age</string>
+         </property>
+         <property name="minimum" >
+          <number>12</number>
+         </property>
+         <property name="value" >
+          <number>22</number>
          </property>
         </widget>
        </item>
@@ -253,7 +268,7 @@
      <x>0</x>
      <y>0</y>
      <width>392</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File" >
