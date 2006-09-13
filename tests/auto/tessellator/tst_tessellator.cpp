@@ -47,11 +47,9 @@ bool test(const QPointF *pg, int pgSize, bool winding)
     l_tesselate_polygon(&traps, pg, pgSize, winding);
     area2 = compute_area_for_x(traps);
 
-    bool result;
-    if (area1 < 1)
-        result = (qAbs(area1 - area2) < 1.0);
-    else
-        result = (qAbs(area1 - area2)/area1 < .02);
+    bool result = (area2 - area1 < 0.005);
+    if (!result && area1)
+        result = (qAbs(area1 - area2)/area1 < .005);
 
 //     qDebug() << area1 << area2 << result;
 
@@ -114,9 +112,9 @@ void fillRandomVec(QVector<QPointF> &vec)
 void tst_QTessellator::testRandom()
 {
     int failures = 0;
-    for (int i = 6; i < 10; ++i) {
+    for (int i = 5; i < 12; ++i) {
         QVector<QPointF> vec(i);
-        int i = 10000;
+        int i = 5000;
         while (--i) {
             fillRandomVec(vec);
             if (!test(vec.data(), vec.size(), false)) {

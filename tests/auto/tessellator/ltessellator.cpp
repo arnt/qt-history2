@@ -1046,11 +1046,6 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
         QDEBUG() << "    yi < y";
         return;
     }
-    if ((xi == e1->x0 && yi == e1->y0)
-        || (xi == e2->x0 && yi == e2->y0)) {
-        QDEBUG() << "    top of one edge";
-        return;
-    }
     if (yi == y) {
         // PERF: avoid the EdgeSorter as it calls Edge::intersect again.
         // only add if the edges are not already in correct order

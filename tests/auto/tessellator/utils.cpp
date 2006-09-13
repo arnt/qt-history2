@@ -22,22 +22,23 @@ double compute_area(XTrapezoid *trap)
     double x3 = compute_x_at(trap->bottom, trap->left.p1, trap->left.p2);
     double x4 = compute_x_at(trap->bottom, trap->right.p1, trap->right.p2);
 
-    double top_base = qAbs(x2 - x1);
-    double bottom_base = qAbs(x4 - x3);
-    double h = (XFixedToDouble(trap->bottom) - XFixedToDouble(trap->top));
+    double top = XFixedToDouble(trap->top);
+    double bottom = XFixedToDouble(trap->bottom);
+    double h = bottom - top;
 
-    double area = 0.5 * h *(top_base + bottom_base);
+    double top_base = x2 - x1;
+    double bottom_base = x4 - x3;
 
-    if (area < 0 || qIsNan(area)) {
-#if 1
-        fprintf(stderr, "area is %f: (h=%f, top=%f, bottom=%f)\n",
-                area, h, top_base, bottom_base);
-        fprintf(stderr, "\tx1 = %f, x2 = %f, x3 = %f, x4 = %f\n",
-                x1, x2, x3, x4);
-#endif
-        //assert(area>=0);
+    if ((top_base < 0 && bottom_base > 0)
+        || (top_base > 0 && bottom_base < 0)) {
+        double y0 = top_base*h/(top_base - bottom_base) + top;
+        double area = qAbs(top_base * (y0 - top) / 2.);
+        area += qAbs(bottom_base * (bottom - y0) /2.);
+        return area;
     }
-    return area;
+
+
+    return 0.5 * h * qAbs(top_base + bottom_base);
 }
 
 double compute_area_for_x(const QVector<XTrapezoid> &traps)
