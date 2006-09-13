@@ -240,23 +240,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 // If the scroll bars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
 #ifdef Q_WS_MAC
-    // Use small scroll bars for tool windows.
-    const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
-    const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
     QWidget * const window = q->window();
-    const Qt::WindowType windowType = window->windowType();
-    if (windowType == Qt::Tool) {
-        if (hpolicy != QMacStyle::SizeSmall)
-            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
-        if (vpolicy != QMacStyle::SizeSmall)
-            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeSmall);
-    } else {
-        if (hpolicy != QMacStyle::SizeDefault)
-            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeDefault);
-        if (vpolicy != QMacStyle::SizeDefault)
-            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
-    }
-
     // Check if a native sizegrip is present.
     bool hasMacReverseSizeGrip = false;
     bool hasMacSizeGrip = false;
@@ -273,6 +257,22 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         const QPoint visualOffset = visualWindowBottomRight - scrollAreaBottomRight;
         hasMacSizeGrip = (visualOffset.manhattanLength() < vsbExt);
         hasMacReverseSizeGrip = (hasMacSizeGrip == false && (offset.manhattanLength() < hsbExt));
+    }
+
+    // Use small scroll bars for tool windows, if the window has a native size grip.
+    const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
+    const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
+    const Qt::WindowType windowType = window->windowType();
+    if (windowType == Qt::Tool && (hasMacSizeGrip || hasMacReverseSizeGrip)) {
+        if (hpolicy != QMacStyle::SizeSmall)
+            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
+        if (vpolicy != QMacStyle::SizeSmall)
+            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeSmall);
+    } else {
+        if (hpolicy != QMacStyle::SizeDefault)
+            QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeDefault);
+        if (vpolicy != QMacStyle::SizeDefault)
+            QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
     }
 #endif
     QPoint cornerOffset(needv ? vsbExt : 0, needh ? hsbExt : 0);
