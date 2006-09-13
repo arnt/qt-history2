@@ -919,8 +919,15 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                             var = QVariant(qRegisterMetaType<IDispatch**>("IDispatch**"), &arg.ppdispVal);
                         } else {
 #ifndef QAX_SERVER
-                            if (typeName != "IDispatch*" && QMetaType::type(typeName)) {
-                                int metaType = QMetaType::type(typeName.left(typeName.lastIndexOf('*')));
+                            if (typeName == "QVariant") {
+                                QAxObject *object = new QAxObject(disp);
+                                var = QVariant(qRegisterMetaType<QAxObject*>("QAxObject*"), object);
+                            } else if (typeName != "IDispatch*" && QMetaType::type(typeName)) {
+                                QByteArray typeNameStr = QByteArray(typeName);
+                                int pIndex = typeName.lastIndexOf('*');
+                                if (pIndex != -1)
+                                    typeNameStr = typeName.left(pIndex);
+                                int metaType = QMetaType::type(typeNameStr);
                                 Q_ASSERT(metaType != 0);
                                 QAxObject *object = (QAxObject*)qax_createObjectWrapper(metaType, disp);
                                 var = QVariant(QMetaType::type(typeName), &object);
