@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <qglobal.h>
 
-#include <cmath>
+#include <qnum.h>
 
 #define FloatToXFixed(i) (int)((i) * 65536)
 #define IntToXFixed(i) ((i) << 16)
@@ -32,7 +32,7 @@ double compute_area(XTrapezoid *trap)
 
     double area = 0.5 * h *(top_base + bottom_base);
 
-    if (area < 0 || std::isnan(area)) {
+    if (area < 0 || qIsNan(area)) {
 #if 1
         fprintf(stderr, "area is %f: (h=%f, top=%f, bottom=%f)\n",
                 area, h, top_base, bottom_base);
