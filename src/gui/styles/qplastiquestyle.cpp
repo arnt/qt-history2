@@ -5744,6 +5744,23 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
                 return pixmap;
             break;
         }
+    case SP_FileDialogDetailedView:
+        {
+            pixmap = d->findIcon(16, QLatin1String("view_detailed.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+
+    case SP_FileDialogListView:
+        {
+            pixmap = d->findIcon(16, QLatin1String("view_icon.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+
+
     default:
         break;
     }
