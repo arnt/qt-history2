@@ -1780,8 +1780,10 @@ Mac OS X:
       * Ensured that the proper PageUp and PageDown behavior are used.
 
 - QMenuBar
-        Support for explicit merging of items on Qt/Mac, without automatic detection (QAction::MenuRole)
-        Localization of merged items possible on Qt/Mac now.
+
+      * Added support for explicit merging of items using QAction::MenuRole.
+
+      * Added support for localization of merged items.
 
 - QMessageBox
 
