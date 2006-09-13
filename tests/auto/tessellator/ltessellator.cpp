@@ -20,6 +20,8 @@ typedef int Q27Dot5;
 #define Q27Dot5ToXFixed(i) ((i) << 11)
 #define Q27Dot5Factor 32
 
+static const int emit_clever = 0;
+
 class QTessellatorPrivate;
 
 class QTessellator {
@@ -73,6 +75,8 @@ public:
     void emitEdges(QTessellator *tessellator);
     void processIntersections();
     void processEdges();
+    void removeEdges();
+    void addEdges();
     void addIntersections();
 
     struct Vertex
@@ -216,15 +220,28 @@ QTessellatorPrivate::Edge::Edge(int _edge, int _x0, int _y0, int _x1, int _y1)
     coincides_right = false;
 }
 
-// This is basically the algorithm from graphics gems. The algorithm is cubic in the coordinates at one place.
-// Since we use 64bit integers, this implies, that the allowed range for our coordinates is limited to 21 bits.
-// With 5 bits behind the decimal, this implies that differences in coordaintes can range from 2*SHORT_MIN to 2*SHORT_MAX,
-// giving us efficiently a coordinate system from SHORT_MIN to SHORT_MAX.
+// This is basically the algorithm from graphics gems. The algorithm
+// is cubic in the coordinates at one place.  Since we use 64bit
+// integers, this implies, that the allowed range for our coordinates
+// is limited to 21 bits.  With 5 bits behind the decimal, this
+// implies that differences in coordaintes can range from 2*SHORT_MIN
+// to 2*SHORT_MAX, giving us efficiently a coordinate system from
+// SHORT_MIN to SHORT_MAX.
+//
 
-#define SAME_SIGNS( a, b )	\
+// WARNING: It's absolutely critical that the intersect() and isLeftOf() methods use
+// exactly the same algorithm to calulate yi. It's also important to be sure the algorithms
+// are transitive (ie. the conditions below are true for all input data):
+//
+// a.intersect(b) == b.intersect(a)
+// a.isLeftOf(b) != b.isLeftOf(a)
+//
+// This is tricky to get right, so be very careful when changing anything in here!
+
+#define SAME_SIGNS( a, b )                                      \
 		(((qint64) ((quint64) a ^ (quint64) b)) >= 0 )
 
-QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y, qint64 *det) const
+QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::intersect(const Edge &other, Q27Dot5 *x, Q27Dot5 *y, qint64 *d) const
 {
     qint64 a1 = y1 - y0;
     qint64 b1 = x0 - x1;
@@ -238,7 +255,7 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
 
     // Check signs of r3 and r4.  If both point 3 and point 4 lie on
     // same side of line 1, the line segments do not intersect.
-//     QDEBUG() << "        " << r3 << r4;
+    QDEBUG() << "        " << r3 << r4;
     if ( r3 != 0 &&
          r4 != 0 &&
          SAME_SIGNS( r3, r4 ))
@@ -253,7 +270,7 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
 
     // Check signs of r1 and r2.  If both point 1 and point 2 lie
     // on same side of second line segment, the line segments do not intersect.
-//     QDEBUG() << "        " << r1 << r2;
+    QDEBUG() << "        " << r1 << r2;
     if ( r1 != 0 &&
          r2 != 0 &&
          SAME_SIGNS( r1, r2 ))
@@ -261,32 +278,78 @@ QTessellatorPrivate::Edge::IntersectionStatus QTessellatorPrivate::Edge::interse
 
     // Line segments intersect: compute intersection point.
 
-    qint64 denom = a1 * b2 - a2 * b1;
-    if (det)
-        *det = denom;
-    if ( denom == 0 )
+    qint64 det = a1 * b2 - a2 * b1;
+    if (d)
+        *d = det;
+    if ( det == 0 )
         return ( DontIntersect );
-    qint64 offset = denom < 0 ? - denom / 2 : denom / 2;
 
-    // The denom/2 is to get rounding instead of truncating.  It
+    // The det/2 is to get rounding instead of truncating.  It
     // is added or subtracted to the numerator, depending upon the
     // sign of the numerator.
+    qint64 offset = det < 0 ? -det : det;
+    offset >>= 1;
+
     qint64 num = b1 * c2 - b2 * c1;
-    *x = ( num < 0 ? num - offset : num + offset ) / denom;
+    *x = ( num < 0 ? num - offset : num + offset ) / det;
 
     num = a2 * c1 - a1 * c2;
-    *y = ( num < 0 ? num - offset : num + offset ) / denom;
+    *y = ( num < 0 ? num - offset : num + offset ) / det;
 
     return ( DoIntersect );
 }
 
 #undef SAME_SIGNS
 
+bool QTessellatorPrivate::Edge::isLeftOf(const Edge &other, Q27Dot5 y) const
+{
+//     QDEBUG() << "isLeftOf" << edge << other.edge << y;
+    qint64 a1 = y1 - y0;
+    qint64 b1 = x0 - x1;
+    qint64 a2 = other.y1 - other.y0;
+    qint64 b2 = other.x0 - other.x1;
+
+    qint64 c2 = qint64(other.x1) * other.y0 - qint64(other.x0) * other.y1;
+
+    qint64 det = a1 * b2 - a2 * b1;
+    if (det == 0) {
+        // lines are parallel. Only need to check side of one point
+        // fixed ordering for coincident edges
+        qint64 r1 = a2 * x0 + b2 * y0 + c2;
+//         QDEBUG() << "det = 0" << r1;
+        if (r1 == 0)
+            return edge < other.edge;
+        return (r1 < 0);
+    }
+
+    // not parallel, need to find the y coordinate of the intersection point
+    qint64 c1 = qint64(x1) * y0 - qint64(x0) * y1;
+
+    qint64 offset = det < 0 ? -det : det;
+    offset >>= 1;
+
+    qint64 num = a2 * c1 - a1 * c2;
+    qint64 yi = ( num < 0 ? num - offset : num + offset ) / det;
+//     QDEBUG() << "    num=" << num << "offset=" << offset << "det=" << det;
+
+    if (yi > y) {
+        // intersection point below, we are to the left if the
+        // determinant is greater than 0
+//         QDEBUG() << "intersection point below" << yi << det;
+        return (det > 0);
+    }
+//     QDEBUG() << "intersection point above or same" << yi << det;
+    return (det < 0);
+}
+
 static inline bool compareVertex(const QTessellatorPrivate::Vertex *p1,
                                  const QTessellatorPrivate::Vertex *p2)
 {
-    if (p1->y == p2->y)
+    if (p1->y == p2->y) {
+        if (p1->x == p2->x)
+            return p1 < p2;
         return p1->x < p2->x;
+    }
     return p1->y < p2->y;
 }
 
@@ -306,21 +369,6 @@ static inline int previousPoint(int point, int nPoints)
     return point;
 }
 
-bool QTessellatorPrivate::Edge::isLeftOf(const Edge &other, Q27Dot5 y) const
-{
-    int p1 = positionAt(y);
-    int p2 = other.positionAt(y);
-    if (p1 == p2) {
-        y = qMax(y1, other.y1);
-        p1 = positionAt(y);
-        p2 = other.positionAt(y);
-    }
-    // get some fixed ordering for coinciding edges
-    if (p1 == p2)
-        return edge < other.edge;
-    return (p1 < p2);
-}
-
 
 Q27Dot5 QTessellatorPrivate::Edge::positionAt(Q27Dot5 y) const
 {
@@ -335,20 +383,7 @@ Q27Dot5 QTessellatorPrivate::Edge::positionAt(Q27Dot5 y) const
 
 bool QTessellatorPrivate::EdgeSorter::operator() (const Edge *e1, const Edge *e2)
 {
-    // this compares the slopes of the two edges. If they are equal we sort
-    // after edge index.
-    int xi, yi;
-    qint64 det;
-    Edge::IntersectionStatus res = e1->intersect(*e2, &xi, &yi, &det);
-    if (res == Edge::DontIntersect)
-        return e1->isLeftOf(*e2, y);
-    else if (res == Edge::Coincide)
-        return e1->edge < e2->edge;
-    bool result = (det < 0);
-    if (yi > y)
-        result = !result;
-//         qDebug() << "Checking e1=" << e1->edge << "e2=" << e2->edge << "i=("<< xi << yi << ") det=" << det << result;
-    return result;
+    return e1->isLeftOf(*e2, y);
 }
 
 
@@ -431,7 +466,7 @@ int QTessellatorPrivate::Scanline::findEdge(int edge) const
         if (item_edge == edge)
             return i;
     }
-    Q_ASSERT(false);
+    //Q_ASSERT(false);
     return -1;
 }
 
@@ -708,14 +743,6 @@ void QTessellatorPrivate::cancelCoincidingEdges()
 void QTessellatorPrivate::markEdgesToEmit()
 {
 //     QDEBUG() << "MARK";
-    for (Intersections::const_iterator it = intersections.constBegin();
-         it != intersections.constEnd(); ++it) {
-        const Intersection &i = it.key();
-        if (i.y > y)
-            break;
-//         QDEBUG() << "    got intersection edge" << i.edge << "(next=" << it->next << ")";
-        scanline.edges[scanline.findEdge(i.edge)]->mark = true;
-    }
     for (int i = currentVertex; i < vertices.nPoints; ++i) {
         const Vertex *v = vertices.sorted[i];
         if (v->y > y)
@@ -725,10 +752,36 @@ void QTessellatorPrivate::markEdgesToEmit()
         if (v->flags & LineBeforeEnds) {
             int pos = scanline.findEdge(previousPoint(v->position, vertices.nPoints));
             scanline.markEdges(pos, pos);
+            if (v->flags & LineAfterStarts) {
+                int end = nextPoint(v->position, vertices.nPoints);
+                Edge e(v->position, v->x, v->y, vertices.storage[end].x, vertices.storage[end].y);
+                int pos1 = scanline.findEdgePosition(e);
+                if (pos1 != pos) {
+                    int pos2 = pos1;
+                    if (pos1 > 0)
+                        --pos1;
+                    if (pos2 == scanline.size)
+                        --pos2;
+                    scanline.markEdges(pos1, pos2);
+                }
+            }
         }
         if (v->flags & LineAfterEnds) {
             int pos = scanline.findEdge(v->position);
             scanline.markEdges(pos, pos);
+            if (v->flags & LineBeforeStarts) {
+                int start = previousPoint(v->position, vertices.nPoints);
+                Edge e(start, vertices.storage[start].x, vertices.storage[start].y, v->x, v->y);
+                int pos1 = scanline.findEdgePosition(e);
+                if (pos1 != pos) {
+                    int pos2 = pos1;
+                    if (pos1 > 0)
+                        --pos1;
+                    if (pos2 == scanline.size)
+                        --pos2;
+                    scanline.markEdges(pos1, pos2);
+                }
+            }
         }
         if (v->flags & (LineAfterStarts|LineBeforeStarts)) {
             int pos = scanline.findEdgePosition(v->x, v->y);
@@ -779,13 +832,13 @@ void QTessellatorPrivate::emitEdges(QTessellator *tessellator)
             if (w == 0) {
                 left->y_right = y;
                 right->y_left = y;
-            } else if (left->mark || right->mark) {
+            } else if (!emit_clever || left->mark || right->mark) {
                 Q27Dot5 top = qMax(left->y_right, right->y_left);
                 if (top != y) {
                     QTessellator::Trapezoid trap;
                     fillTrapezoid(top, y, left->edge, right->edge, vertices, &trap);
                     tessellator->addTrap(trap);
-                    QDEBUG() << "    top=" << Q27Dot5ToDouble(top) << "left=" << left->edge << "right=" << right->edge;
+//                     QDEBUG() << "    top=" << Q27Dot5ToDouble(top) << "left=" << left->edge << "right=" << right->edge;
                 }
                 right->y_left = y;
                 left->y_right = y;
@@ -801,7 +854,7 @@ void QTessellatorPrivate::emitEdges(QTessellator *tessellator)
         for (int i = 0; i < scanline.size; i += 2) {
             Edge *left = scanline.edges[i];
             Edge *right = scanline.edges[i+1];
-            if (left->mark || right->mark) {
+            if (!emit_clever || left->mark || right->mark) {
                 Q27Dot5 top = qMax(left->y_right, right->y_left);
                 if (top != y) {
                     QTessellator::Trapezoid trap;
@@ -833,27 +886,50 @@ void QTessellatorPrivate::processIntersections()
         QDEBUG() << "    swapping intersecting edges ";
         int min = scanline.size;
         int max = 0;
+        Q27Dot5 xmin = INT_MAX;
+        Q27Dot5 xmax = INT_MIN;
+        int num = 0;
         while (1) {
             const Intersection &i = it.key();
             int next = it->next;
 
             int edgePos = scanline.findEdge(i.edge);
-            min = qMin(edgePos, min);
-            max = qMax(edgePos, max);
-            Edge *edge = scanline.edges[edgePos];
-            edge->y_left = edge->y_right = y;
-            intersections.remove(i);
-
+            if (edgePos >= 0) {
+                ++num;
+                min = qMin(edgePos, min);
+                max = qMax(edgePos, max);
+                Edge *edge = scanline.edges[edgePos];
+                xmin = qMin(xmin, edge->positionAt(y));
+                xmax = qMax(xmax, edge->positionAt(y));
+            }
             Intersection key;
             key.y = y;
             key.edge = next;
             it = intersections.find(key);
+            intersections.remove(i);
             if (it == intersections.end())
                 break;
         }
+        if (num < 2)
+            continue;
+
         Q_ASSERT(min != max);
-        QDEBUG() << "sorting between" << min << "and" << max;
-        qSort(scanline.edges + min, scanline.edges + max + 1, EdgeSorter(y + 1));
+        QDEBUG() << "sorting between" << min << "and" << max << "xpos=" << xmin << xmax;
+        while (min > 0 && scanline.edges[min - 1]->positionAt(y) >= xmin) {
+            QDEBUG() << "    adding edge on left";
+            --min;
+        }
+        while (max < scanline.size - 1 && scanline.edges[max + 1]->positionAt(y) <=  xmax) {
+            QDEBUG() << "    adding edge on right";
+            ++max;
+        }
+
+        for (int i = min; i <= max; ++i) {
+            Edge *edge = scanline.edges[i];
+            edge->y_left = edge->y_right = y;
+        }
+
+        qSort(scanline.edges + min, scanline.edges + max + 1, EdgeSorter(y));
 #ifdef DEBUG
         for (int i = min; i <= max; ++i)
             QDEBUG() << "        " << scanline.edges[i]->edge << "at pos" << i;
@@ -862,6 +938,60 @@ void QTessellatorPrivate::processIntersections()
             scanline.edges[i]->intersect_left = true;
             scanline.edges[i]->intersect_right = true;
         }
+    }
+}
+
+void QTessellatorPrivate::removeEdges()
+{
+    int cv = currentVertex;
+    while (cv < vertices.nPoints) {
+        const Vertex *v = vertices.sorted[cv];
+        if (v->y > y)
+            break;
+        if (v->flags & LineBeforeEnds) {
+            QDEBUG() << "    removing edge" << previousPoint(v->position, vertices.nPoints);
+            int pos = scanline.findEdge(previousPoint(v->position, vertices.nPoints));
+            if (pos > 0)
+                scanline.edges[pos - 1]->intersect_right = true;
+            if (pos < scanline.size - 1)
+                scanline.edges[pos + 1]->intersect_left = true;
+            scanline.removeAt(pos);
+        }
+        if (v->flags & LineAfterEnds) {
+            QDEBUG() << "    removing edge" << v->position;
+            int pos = scanline.findEdge(v->position);
+            if (pos > 0)
+                scanline.edges[pos - 1]->intersect_right = true;
+            if (pos < scanline.size - 1)
+                scanline.edges[pos + 1]->intersect_left = true;
+            scanline.removeAt(pos);
+        }
+        ++cv;
+    }
+}
+
+void QTessellatorPrivate::addEdges()
+{
+    while (currentVertex < vertices.nPoints) {
+        const Vertex *v = vertices.sorted[currentVertex];
+        if (v->y > y)
+            break;
+        if (v->flags & LineBeforeStarts) {
+            // add new edge
+            int start = previousPoint(v->position, vertices.nPoints);
+            Edge e(start, vertices.storage[start].x, vertices.storage[start].y, v->x, v->y);
+            int pos = scanline.findEdgePosition(e);
+            QDEBUG() << "    adding edge" << start << "at position" << pos;
+            scanline.insert(pos, e);
+        }
+        if (v->flags & LineAfterStarts) {
+            int end = nextPoint(v->position, vertices.nPoints);
+            Edge e(v->position, v->x, v->y, vertices.storage[end].x, vertices.storage[end].y);
+            int pos = scanline.findEdgePosition(e);
+            QDEBUG() << "    adding edge" << v->position << "at position" << pos;
+            scanline.insert(pos, e);
+        }
+        ++currentVertex;
     }
 }
 
@@ -1027,9 +1157,17 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
 {
     const IntersectionLink emptyLink = {-1, -1};
 
-    QDEBUG("checking edges %d and %d", e1->edge, e2->edge);
+    int next = nextPoint(e1->edge, vertices.nPoints);
+    if (e2->edge == next)
+        return;
+    int prev = previousPoint(e1->edge, vertices.nPoints);
+    if (e2->edge == prev)
+        return;
+
     Q27Dot5 xi, yi;
-    QTessellatorPrivate::Edge::IntersectionStatus type = e1->intersect(*e2, &xi, &yi);
+    qint64 det;
+    QTessellatorPrivate::Edge::IntersectionStatus type = e1->intersect(*e2, &xi, &yi, &det);
+    QDEBUG("checking edges %d and %d,det=%lld", e1->edge, e2->edge, det);
     if (type == QTessellatorPrivate::Edge::DontIntersect) {
         QDEBUG() << "    no intersection";
         return;
@@ -1044,15 +1182,20 @@ void QTessellatorPrivate::addIntersection(const Edge *e1, const Edge *e2)
     // don't emit an intersection if it's at the start of a line segment or above us
     if (yi < y) {
         QDEBUG() << "    yi < y";
-        return;
+        QTessellatorPrivate::EdgeSorter sorter(y);
+        if (sorter(e1, e2))
+            return;
+        QDEBUG() << "        ----->>>>>> WRONG ORDER!";
+        yi = y;
     }
     if (yi == y) {
         // PERF: avoid the EdgeSorter as it calls Edge::intersect again.
         // only add if the edges are not already in correct order
         QTessellatorPrivate::EdgeSorter sorter(y);
-        QDEBUG() << "yi == y" << e1->isLeftOf(*e2, y) << e1->positionAt(y) << e2->positionAt(y) << sorter(e1, e2);
+        //QDEBUG() << "yi == y" << e1->isLeftOf(*e2, y) << e1->positionAt(y) << e2->positionAt(y) << sorter(e1, e2);
         if (sorter(e1, e2))
             return;
+        yi = y;
     }
     QDEBUG() << "   between edges " << e1->edge << "and" << e2->edge << "at point ("
              << Q27Dot5ToDouble(xi) << "/" << Q27Dot5ToDouble(yi) << ")";
@@ -1246,24 +1389,32 @@ QRectF QTessellator::tesselate(const QPointF *points, int nPoints)
         if (!d->intersections.isEmpty())
             d->y = qMin(d->y, d->intersections.constBegin().key().y);
 
-        // qDebug()<< "===== SCANLINE: y =" << Q27Dot5ToDouble(y) << " =====";
-#ifdef DEBUG
         QDEBUG()<< "===== SCANLINE: y =" << Q27Dot5ToDouble(d->y) << " =====";
+
+        d->markEdgesToEmit();
+        d->emitEdges(this);
+//        d->processEdges();
+        d->removeEdges();
+        d->processIntersections();
+        d->addEdges();
+        d->addIntersections();
+
+#ifdef DEBUG
+        QDEBUG()<< "===== edges:";
         for (int i = 0; i < d->scanline.size; ++i) {
             QDEBUG() << "   " << d->scanline.edges[i]->edge
                      << "p0= (" << Q27Dot5ToDouble(d->scanline.edges[i]->x0)
                      << "/" << Q27Dot5ToDouble(d->scanline.edges[i]->y0)
                      << ") p1= (" << Q27Dot5ToDouble(d->scanline.edges[i]->x1)
-                     << "/" << Q27Dot5ToDouble(d->scanline.edges[i]->y1) << ")";
+                     << "/" << Q27Dot5ToDouble(d->scanline.edges[i]->y1) << ")"
+                     << "x=" << Q27Dot5ToDouble(d->scanline.edges[i]->positionAt(d->y))
+                     << "isLeftOfNext="
+                     << ((i < d->scanline.size - 1)
+                         ? d->scanline.edges[i]->isLeftOf(*d->scanline.edges[i+1], d->y)
+                         : true);
         }
 #endif
-
-        d->markEdgesToEmit();
-        d->emitEdges(this);
-        d->processIntersections();
-        d->processEdges();
-        d->addIntersections();
-    }
+}
 
     d->scanline.done();
     d->intersections.clear();

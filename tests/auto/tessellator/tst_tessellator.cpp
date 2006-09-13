@@ -2,11 +2,14 @@
 #include <QCoreApplication>
 #include <QVector>
 #include <qdebug.h>
+#include <qpolygon.h>
+#include <qmatrix.h>
 
 #include "ltessellator.h"
 #include "qttesselator.h"
 #include "utils.h"
 #include "simple.h"
+#include "arc.h"
 
 
 //TESTED_CLASS=
@@ -23,6 +26,7 @@ public:
 private slots:
     void testStandardSet();
     void testRandom();
+    void testArc();
 };
 
 
@@ -53,8 +57,6 @@ bool test(const QPointF *pg, int pgSize, bool winding)
 
 //     qDebug() << area1 << area2 << result;
 
-    if (!result)
-        Q_ASSERT(false);
     return result;
 }
 
@@ -127,8 +129,51 @@ void tst_QTessellator::testRandom()
             }
         }
     }
-    QCOMPARE(failures, 0);
+    QVERIFY(failures == 0);
 }
+
+
+// we need a higher threshold for failure here than in the above tests, as this basically draws
+// a very thin outline, where the discretization in the new tesselator shows
+bool test_arc(const QPolygonF &poly, bool winding)
+{
+    QVector<XTrapezoid> traps;
+    double area1 = 0;
+    double area2 = 0;
+
+    qt_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
+    area1 = compute_area_for_x(traps);
+
+    traps.clear();
+
+    l_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
+    area2 = compute_area_for_x(traps);
+
+    bool result = (area2 - area1 < 2);
+    if (!result && area1)
+        result = (qAbs(area1 - area2)/area1 < .05);
+
+    return result;
+}
+
+
+
+void tst_QTessellator::testArc()
+{
+    FullData arc = arcData();
+
+    QMatrix mat;
+    for (int i = 0; i < 1000; ++i) {
+        mat.rotate(.01);
+        mat.scale(.99, .99);
+        QPolygonF poly = arc.at(0);
+        QPolygonF vec = poly * mat;
+        QVERIFY(test_arc(vec, true));
+        QVERIFY(test_arc(vec, false));
+    }
+}
+
+
 
 QTEST_MAIN(tst_QTessellator)
 #include "tst_tessellator.moc"
