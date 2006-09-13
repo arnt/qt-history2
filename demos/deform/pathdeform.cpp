@@ -439,13 +439,29 @@ void PathDeformRenderer::setRadius(int radius)
     double max = qMax(m_radius, (double)radius);
     m_radius = radius;
     generateLensPixmap();
-    if (!m_animated || m_radius < max)
-        update(circle_bounds(m_pos, max, m_fontSize));
+    if (!m_animated || m_radius < max) {
+#ifdef QT_OPENGL_SUPPORT
+        if (usesOpenGL()) {
+            update();
+        } else
+#endif
+        {
+            update(circle_bounds(m_pos, max, m_fontSize));
+        }
+    }
 }
 
 void PathDeformRenderer::setIntensity(int intensity)
 {
     m_intensity = intensity;
-    if (!m_animated)
-        update(circle_bounds(m_pos, m_radius, m_fontSize));
+    if (!m_animated) {
+#ifdef QT_OPENGL_SUPPORT
+        if (usesOpenGL()) {
+            update();
+        } else
+#endif
+        {
+            update(circle_bounds(m_pos, m_radius, m_fontSize));
+        }
+    }
 }
