@@ -299,17 +299,28 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     for (int i = 0; i < declarations.count(); i++) {
         const Declaration& decl = declarations.at(i);
         if (decl.propertyId == BorderImage) {
-            if (!bd)
-                bd = new QStyleSheetBorderData;
-            if (!bd->bi)
-                bd->bi = new QStyleSheetBorderImageData;
-
-            QStyleSheetBorderImageData *bi = bd->bi;
             QString uri;
-            decl.borderImageValue(&uri, bi->cuts, &bi->horizStretch, &bi->vertStretch);
-            if (!uri.isEmpty())
+            QCss::TileMode horizStretch, vertStretch;
+            int cuts[4];
+
+            decl.borderImageValue(&uri, cuts, &horizStretch, &vertStretch);
+            if (uri.isEmpty() || uri == QLatin1String("none")) {
+                if (bd && bd->bi)
+                    bd->bi->pixmap = QPixmap();
+            } else {
+                if (!bd)
+                    bd = new QStyleSheetBorderData;
+                if (!bd->bi)
+                    bd->bi = new QStyleSheetBorderImageData;
+
+                QStyleSheetBorderImageData *bi = bd->bi;
                 bi->pixmap = QPixmap(uri);
-        } else if (decl.propertyId == Image) {
+                for (int i = 0; i < 4; i++)
+                    bi->cuts[i] = cuts[i];
+                bi->horizStretch = horizStretch;
+                bi->vertStretch = vertStretch;
+            }
+        } else if (decl.propertyId == QtImage) {
             image = QPixmap(decl.uriValue());
             if (!imageRect.isValid())
                 imageRect = QRect(0, 0, image.width(), image.height());
@@ -383,7 +394,9 @@ void QRenderRule::fixupBorder()
     if (bd == 0)
         return;
 
-    if (!bd->hasBorderImage()) {
+    if (!bd->hasBorderImage() || bd->bi->pixmap.isNull()) {
+        delete bd->bi;
+        bd->bi = 0;
         // ignore the color, border of edges that have none border-style
         QColor color = pal ? pal->foreground : QColor();
         for (int i = 0; i < 4; i++) {
@@ -1001,7 +1014,6 @@ void QRenderRule::drawBorder(QPainter *p, const QRect& rect)
         if (tlr.width() || trr.width())
             qDrawRoundedCorners(p, x1, y1, x2, y2, tlr, trr, TopEdge, styles[TopEdge], colors[TopEdge]);
     }
-    p->restore();
 }
 
 void QRenderRule::drawBackground(QPainter *p, const QRect& rect)
