@@ -249,7 +249,7 @@ void tst_QLineEdit::getSetCheck()
 
 tst_QLineEdit::tst_QLineEdit()
 {
-    validInput = FALSE;
+    validInput = false;
 }
 
 tst_QLineEdit::~tst_QLineEdit()
@@ -289,12 +289,12 @@ void tst_QLineEdit::init()
     testWidget->clear();
     testWidget->setEchoMode(QLineEdit::Normal);
     testWidget->setMaxLength(32767);
-    testWidget->setReadOnly(FALSE);
+    testWidget->setReadOnly(false);
     testWidget->setText("");
     testWidget->setInputMask("");
-    testWidget->setFrame(TRUE);
+    testWidget->setFrame(true);
     testWidget->setValidator(0);
-    testWidget->setDragEnabled(TRUE);
+    testWidget->setDragEnabled(true);
 }
 
 void tst_QLineEdit::cleanup()
@@ -337,7 +337,8 @@ void tst_QLineEdit::setInputMask_data()
     QTest::addColumn<bool>("insert_text");
 
     // both keyboard and insert()
-    for (bool insert_text = FALSE; insert_text != TRUE; insert_text = TRUE) {
+    for (int i=0; i<2; i++) {
+        bool insert_text = i==0 ? false : true;
         QString insert_mode = "keys ";
         if (insert_text)
             insert_mode = "insert ";
@@ -539,6 +540,7 @@ void tst_QLineEdit::setInputMask()
     QFETCH(bool, insert_text);
 
     QEXPECT_FAIL( "keys blank=input", "To eat blanks or not? Known issue. Task 43172", Abort);
+    QEXPECT_FAIL( "insert blank=input", "To eat blanks or not? Known issue. Task 43172", Abort);
 
     // First set the input mask
     testWidget->setInputMask(mask);
@@ -709,7 +711,7 @@ void tst_QLineEdit::hasAcceptableInputMask()
 
     // test that invalid input (for required) work for optionalMask
     testWidget->setInputMask(optionalMask);
-    validInput = FALSE;
+    validInput = false;
     testWidget->setText(invalid);
     qApp->sendEvent(testWidget, &lostFocus);
     QVERIFY(validInput);
@@ -719,12 +721,12 @@ void tst_QLineEdit::hasAcceptableInputMask()
 
     // test requiredMask
     testWidget->setInputMask(requiredMask);
-    validInput = TRUE;
+    validInput = true;
     testWidget->setText(invalid);
     validInput = testWidget->hasAcceptableInput();
     QVERIFY(!validInput);
 
-    validInput = FALSE;
+    validInput = false;
     testWidget->setText(valid);
     qApp->sendEvent(testWidget, &lostFocus);
     QVERIFY(validInput);
@@ -828,10 +830,10 @@ void tst_QLineEdit::undo_data()
 
     for (int i=0; i<2; i++) {
         QString keys_str = "keyboard";
-        bool use_keys = TRUE;
+        bool use_keys = true;
         if (i==0) {
             keys_str = "insert";
-            use_keys = FALSE;
+            use_keys = false;
         }
 
         {
@@ -1271,9 +1273,9 @@ void tst_QLineEdit::lostFocus()
 void tst_QLineEdit::editingFinished()
 {
     if (testWidget->hasAcceptableInput())
-	validInput = TRUE;
+	validInput = true;
     else
-	validInput = FALSE;
+	validInput = false;
 }
 
 void tst_QLineEdit::text_data()
@@ -1339,10 +1341,10 @@ void tst_QLineEdit::displayText_data()
         bool use_setText;
         if (i==0) {
             key_mode_str = "setText_";
-            use_setText = TRUE;
+            use_setText = true;
         } else {
             key_mode_str = "useKeys_";
-            use_setText = FALSE;
+            use_setText = false;
         }
         s = key_mode_str + "Normal";
         m = QLineEdit::Normal;
@@ -1463,14 +1465,14 @@ void tst_QLineEdit::maxLength_data()
     QTest::addColumn<bool>("insertBeforeSettingMaxLength");
     QTest::addColumn<bool>("use_setText");
 
-    QTest::newRow("keyclick before0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(TRUE) << bool(FALSE);
-    QTest::newRow("keyclick before1") << QString("this is a test.") << QString("this is a ") << 10 << bool(TRUE) << bool(FALSE);
-    QTest::newRow("keyclick after0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(FALSE) << bool(FALSE);
-    QTest::newRow("keyclick after1") << QString("this is a test.") << QString("this is a ") << 10 << bool(FALSE) << bool(FALSE);
-    QTest::newRow("settext before0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(TRUE) << bool(TRUE);
-    QTest::newRow("settext before1") << QString("this is a test.") << QString("this is a ") << 10 << bool(TRUE) << bool(TRUE);
-    QTest::newRow("settext after0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(FALSE) << bool(TRUE);
-    QTest::newRow("settext after1") << QString("this is a test.") << QString("this is a ") << 10 << bool(FALSE) << bool(TRUE);
+    QTest::newRow("keyclick before0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(true) << bool(false);
+    QTest::newRow("keyclick before1") << QString("this is a test.") << QString("this is a ") << 10 << bool(true) << bool(false);
+    QTest::newRow("keyclick after0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(false) << bool(false);
+    QTest::newRow("keyclick after1") << QString("this is a test.") << QString("this is a ") << 10 << bool(false) << bool(false);
+    QTest::newRow("settext before0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(true) << bool(true);
+    QTest::newRow("settext before1") << QString("this is a test.") << QString("this is a ") << 10 << bool(true) << bool(true);
+    QTest::newRow("settext after0") << QString("this is a test.") << QString("this is a test.") << 20 << bool(false) << bool(true);
+    QTest::newRow("settext after1") << QString("this is a test.") << QString("this is a ") << 10 << bool(false) << bool(true);
 }
 
 void tst_QLineEdit::maxLength()
@@ -1525,20 +1527,20 @@ void tst_QLineEdit::isReadOnly()
     QCOMPARE(testWidget->text(), QString("the quick brown fox"));
 
     // do a quick check to verify that we can indeed edit the text
-    testWidget->home(FALSE);
-    testWidget->cursorForward(FALSE, 10);
+    testWidget->home(false);
+    testWidget->cursorForward(false, 10);
     QTest::keyClicks(testWidget, "dark ");
     QCOMPARE(testWidget->text(), QString("the quick dark brown fox"));
 
-    testWidget->setReadOnly(TRUE);
+    testWidget->setReadOnly(true);
     QVERIFY(testWidget->isReadOnly());
 
     // verify that we cannot edit the text anymore
-    testWidget->home(FALSE);
-    testWidget->cursorForward(FALSE, 10);
+    testWidget->home(false);
+    testWidget->cursorForward(false, 10);
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QCOMPARE(testWidget->text(), QString("the quick dark brown fox"));
-    testWidget->cursorForward(FALSE, 10);
+    testWidget->cursorForward(false, 10);
     QTest::keyClicks(testWidget, "this should not have any effect!! ");
     QCOMPARE(testWidget->text(), QString("the quick dark brown fox"));
 }
@@ -1610,29 +1612,29 @@ void tst_QLineEdit::cursorPosition()
     // The quick brown fox jumps over the lazy dog
 
     // next we will check some of the cursor movement functions
-    testWidget->end(FALSE);
+    testWidget->end(false);
     QCOMPARE(testWidget->cursorPosition() , 43);
-    testWidget->cursorForward(FALSE, -1);
+    testWidget->cursorForward(false, -1);
     QCOMPARE(testWidget->cursorPosition() , 42);
-    testWidget->cursorBackward(FALSE, 1);
+    testWidget->cursorBackward(false, 1);
     QCOMPARE(testWidget->cursorPosition() , 41);
-    testWidget->home(FALSE);
+    testWidget->home(false);
     QCOMPARE(testWidget->cursorPosition() , 0);
-    testWidget->cursorForward(FALSE, 1);
+    testWidget->cursorForward(false, 1);
     QCOMPARE(testWidget->cursorPosition() , 1);
-    testWidget->cursorForward(FALSE, 9);
+    testWidget->cursorForward(false, 9);
     QCOMPARE(testWidget->cursorPosition() , 10);
-    testWidget->cursorWordForward(FALSE); // 'fox'
+    testWidget->cursorWordForward(false); // 'fox'
     QCOMPARE(testWidget->cursorPosition(), 16);
-    testWidget->cursorWordForward(FALSE); // 'jumps'
+    testWidget->cursorWordForward(false); // 'jumps'
     QCOMPARE(testWidget->cursorPosition(), 20);
-    testWidget->cursorWordBackward(FALSE); // 'fox'
+    testWidget->cursorWordBackward(false); // 'fox'
     QCOMPARE(testWidget->cursorPosition(), 16);
-    testWidget->cursorWordBackward(FALSE); // 'brown'
-    testWidget->cursorWordBackward(FALSE); // 'quick'
-    testWidget->cursorWordBackward(FALSE); // 'The'
+    testWidget->cursorWordBackward(false); // 'brown'
+    testWidget->cursorWordBackward(false); // 'quick'
+    testWidget->cursorWordBackward(false); // 'The'
     QCOMPARE(testWidget->cursorPosition(), 0);
-    testWidget->cursorWordBackward(FALSE); // 'The'
+    testWidget->cursorWordBackward(false); // 'The'
     QCOMPARE(testWidget->cursorPosition(), 0);
 
     // Cursor position should be 0 here!
@@ -1832,49 +1834,49 @@ void tst_QLineEdit::selectedText()
     // 012345678901234567890123456789012345678901234567890
     // Abc defg hijklmno, p 'qrst' uvw xyz
 
-    testWidget->home(FALSE);
+    testWidget->home(false);
     QVERIFY(!testWidget->hasSelectedText());
     QCOMPARE(testWidget->selectedText(), QString());
 
     // play a bit with the cursorForward, cursorBackward(), etc
-    testWidget->cursorForward(TRUE, 9);
+    testWidget->cursorForward(true, 9);
     QVERIFY(testWidget->hasSelectedText());
     QCOMPARE(testWidget->selectedText(), QString("Abc defg "));
     QVERIFY(selection_count == 1);
 
-    testWidget->cursorForward(TRUE, 2);
+    testWidget->cursorForward(true, 2);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hi"));
     QVERIFY(selection_count == 2);
 
-    testWidget->cursorWordForward(TRUE);
+    testWidget->cursorWordForward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hijklmno"));
     QVERIFY(selection_count == 3);
 
-    testWidget->cursorWordForward(TRUE);
+    testWidget->cursorWordForward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hijklmno, "));
     QVERIFY(selection_count == 4);
 
-    testWidget->cursorWordForward(TRUE);
+    testWidget->cursorWordForward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hijklmno, p "));
     QVERIFY(selection_count == 5);
 
-    testWidget->cursorWordBackward(TRUE);
+    testWidget->cursorWordBackward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hijklmno, "));
     QVERIFY(selection_count == 6);
 
-    testWidget->cursorWordBackward(TRUE);
+    testWidget->cursorWordBackward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg "));
     QVERIFY(selection_count == 7);
 
-    testWidget->cursorWordForward(TRUE);
-    testWidget->cursorWordForward(TRUE);
-    testWidget->cursorWordForward(TRUE);
-    testWidget->cursorWordForward(TRUE);
+    testWidget->cursorWordForward(true);
+    testWidget->cursorWordForward(true);
+    testWidget->cursorWordForward(true);
+    testWidget->cursorWordForward(true);
     QCOMPARE(testWidget->selectedText(), QString("Abc defg hijklmno, p 'qrst' "));
     QVERIFY(selection_count == 11);
 
     // reset selection
-    testWidget->home(FALSE);
+    testWidget->home(false);
     QVERIFY(!testWidget->hasSelectedText());
     QCOMPARE(testWidget->selectedText(), QString());
     selection_count = 0;
@@ -2112,10 +2114,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("no mask, no validator, input '123<cr>'")
 	    << QString()
-	    << FALSE
+	    << false
 	    << keys
 	    << QString("123")
-	    << TRUE;
+	    << true;
     }
     {
 	QTestEventList keys;
@@ -2125,10 +2127,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("mask '999', no validator, input '12<cr>'")
 	    << QString("999")
-	    << FALSE
+	    << false
 	    << keys
 	    << QString("12")
-	    << FALSE;
+	    << false;
     }
     {
 	QTestEventList keys;
@@ -2139,10 +2141,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("mask '999', no validator, input '123<cr>'")
 	    << QString("999")
-	    << FALSE
+	    << false
 	    << keys
 	    << QString("123")
-	    << TRUE;
+	    << true;
     }
     {
 	QTestEventList keys;
@@ -2153,10 +2155,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("no mask, intfix validator(0,999), input '123<cr>'")
 	    << QString()
-	    << TRUE
+	    << true
 	    << keys
 	    << QString("123")
-	    << TRUE;
+	    << true;
     }
     {
 	QTestEventList keys;
@@ -2168,10 +2170,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("no mask, intfix validator(0,999), input '7777<cr>'")
 	    << QString()
-	    << TRUE
+	    << true
 	    << keys
 	    << QString("777")
-	    << TRUE;
+	    << true;
     }
     {
 	QTestEventList keys;
@@ -2181,10 +2183,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("mask '999', intfix validator(0,999), input '12<cr>'")
 	    << QString("999")
-	    << TRUE
+	    << true
 	    << keys
 	    << QString("12")
-	    << FALSE;
+	    << false;
     }
     {
 	QTestEventList keys;
@@ -2192,10 +2194,10 @@ void tst_QLineEdit::returnPressed_maskvalidator_data() {
 	keys.addKeyClick(Qt::Key_Return);
 	QTest::newRow("mask '999', intfix validator(0,999), input '<cr>'")
 	    << QString("999")
-	    << TRUE
+	    << true
 	    << keys
 	    << QString("000")
-	    << TRUE;
+	    << true;
     }
 }
 
@@ -2265,11 +2267,11 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
     QTest::addColumn<bool>("is_valid");
 
     for (int i=0; i<2; i++) {
-        bool useKeys = FALSE;
+        bool useKeys = false;
         QString inputMode = "insert ";
         if (i!=0) {
             inputMode = "useKeys ";
-            useKeys = TRUE;
+            useKeys = true;
         }
 
         // valid data
@@ -2279,7 +2281,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("1")
             << QString("1")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         QTest::newRow(QString(inputMode + "range [3,7] valid '3'").toLatin1())
 	    << 3
@@ -2287,7 +2289,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("3")
             << QString("3")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         QTest::newRow(QString(inputMode + "range [3,7] valid '7'").toLatin1())
 	    << 3
@@ -2295,7 +2297,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("7")
             << QString("7")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         QTest::newRow(QString(inputMode + "range [0,100] valid '9'").toLatin1())
 	    << 0
@@ -2303,7 +2305,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("9")
             << QString("9")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         QTest::newRow(QString(inputMode + "range [0,100] valid '12'").toLatin1())
 	    << 0
@@ -2311,7 +2313,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("12")
             << QString("12")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         QTest::newRow(QString(inputMode + "range [-100,100] valid '-12'").toLatin1())
             << -100
@@ -2319,7 +2321,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("-12")
             << QString("-12")
             << bool(useKeys)
-            << bool(TRUE);
+            << bool(true);
 
         // invalid data
 	// characters not allowed in QIntValidator
@@ -2329,7 +2331,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("a")
             << QString("")
             << bool(useKeys)
-            << bool(FALSE);
+            << bool(false);
 
         QTest::newRow(QString(inputMode + "range [0,9] inv 'A'").toLatin1())
 	    << 0
@@ -2337,7 +2339,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("A")
             << QString("")
             << bool(useKeys)
-            << bool(FALSE);
+            << bool(false);
 	// minus sign only allowed with a range on the negative side
         QTest::newRow(QString(inputMode + "range [0,100] inv '-'").toLatin1())
 	    << 0
@@ -2345,28 +2347,28 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("-")
             << QString("")
             << bool(useKeys)
-            << bool(FALSE);
+            << bool(false);
         QTest::newRow(QString(inputMode + "range [0,100] inv '153'").toLatin1())
 	    << 0
             << 100
             << QString("153")
             << QString(useKeys ? "15" : "")
 	    << bool(useKeys)
-	    << bool(useKeys ? TRUE : FALSE);
+	    << bool(useKeys ? true : false);
         QTest::newRow(QString(inputMode + "range [-100,100] inv '-153'").toLatin1())
             << -100
             << 100
             << QString("-153")
             << QString(useKeys ? "-15" : "")
             << bool(useKeys)
-            << bool(useKeys ? TRUE : FALSE);
+            << bool(useKeys ? true : false);
         QTest::newRow(QString(inputMode + "range [3,7] inv '2'").toLatin1())
 	    << 3
             << 7
             << QString("2")
             << QString("2")
             << bool(useKeys)
-            << bool(FALSE);
+            << bool(false);
 
         QTest::newRow(QString(inputMode + "range [3,7] inv '8'").toLatin1())
 	    << 3
@@ -2374,7 +2376,7 @@ void tst_QLineEdit::setValidator_QIntValidator_data()
             << QString("8")
             << QString("")
             << bool(useKeys)
-            << bool(FALSE);
+            << bool(false);
     }
 }
 
@@ -2399,7 +2401,7 @@ void tst_QLineEdit::setValidator_QIntValidator()
         QTest::keyClicks(testWidget, input);
         return_count = 0;
         QTest::keyClick(testWidget, Qt::Key_Return);
-        QCOMPARE(return_count, int(is_valid)); // assuming that is_valid = TRUE equals 1
+        QCOMPARE(return_count, int(is_valid)); // assuming that is_valid = true equals 1
     }
 //qDebug("2 input: '" + input + "' Exp: '" + expectedText + "'");
 //    QCOMPARE(testWidget->displayText(), expectedText);
@@ -2424,7 +2426,7 @@ void tst_QLineEdit::frame_data()
 
 void tst_QLineEdit::frame()
 {
-    testWidget->setFrame(FALSE);
+    testWidget->setFrame(false);
     // verify that the editor is shown without a frame
 #ifndef NO_PIXMAP_TESTS
 #if defined Q_WS_WIN
@@ -2433,7 +2435,7 @@ void tst_QLineEdit::frame()
 #endif
     QVERIFY(!testWidget->hasFrame());
 
-    testWidget->setFrame(TRUE);
+    testWidget->setFrame(true);
     // verify that the editor is shown with a frame
 #ifndef NO_PIXMAP_TESTS
 #if defined Q_WS_WIN
@@ -2617,8 +2619,8 @@ void tst_QLineEdit::insert()
 
     QCOMPARE(testWidget->text(), QString("This is a test"));
 
-    testWidget->cursorWordBackward(FALSE);
-    testWidget->cursorBackward(FALSE, 1);
+    testWidget->cursorWordBackward(false);
+    testWidget->cursorBackward(false, 1);
     testWidget->insert(" nice");
     QCOMPARE(testWidget->text(), QString("This is a nice test"));
 
@@ -2641,39 +2643,39 @@ void tst_QLineEdit::setSelection_data()
 
     start = 0; length = 1; pos = 1;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("A") << TRUE;
+	<< text << start << length << pos << QString("A") << true;
 
     start = 0; length = 2; pos = 2;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("Ab") << TRUE;
+	<< text << start << length << pos << QString("Ab") << true;
 
     start = 0; length = 4; pos = 4;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("Abc ") << TRUE;
+	<< text << start << length << pos << QString("Abc ") << true;
 
     start = -1; length = 0; pos = text.length();
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString() << FALSE;
+	<< text << start << length << pos << QString() << false;
 
     start = 34; length = 1; pos = 35;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("z") << TRUE;
+	<< text << start << length << pos << QString("z") << true;
 
     start = 34; length = 2; pos = 35;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("z") << TRUE;
+	<< text << start << length << pos << QString("z") << true;
 
     start = 34; length = -1; pos = 33;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("y") << TRUE;
+	<< text << start << length << pos << QString("y") << true;
 
     start = 1; length = -2; pos = 0;
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString("A") << TRUE;
+	<< text << start << length << pos << QString("A") << true;
 
     start = -1; length = -1; pos = text.length();
     QTest::newRow(QString("selection start: %1 length: %2").arg(start).arg(length).toLatin1())
-	<< text << start << length << pos << QString() << FALSE;
+	<< text << start << length << pos << QString() << false;
 }
 
 
@@ -2749,18 +2751,18 @@ void tst_QLineEdit::cut()
     testWidget->del();
     QCOMPARE(testWidget->text(), QString("hijklmno Abcdefg"));
 
-    testWidget->end(FALSE);
+    testWidget->end(false);
     QTest::keyClick(testWidget, ' ');
     testWidget->paste();
     QCOMPARE(testWidget->text(), QString("hijklmno Abcdefg defg"));
 
-    testWidget->home(FALSE);
-    testWidget->cursorWordForward(TRUE);
+    testWidget->home(false);
+    testWidget->cursorWordForward(true);
     testWidget->cut();
-    testWidget->end(FALSE);
+    testWidget->end(false);
     QTest::keyClick(testWidget, ' ');
     testWidget->paste();
-    testWidget->cursorBackward(TRUE, 1);
+    testWidget->cursorBackward(true, 1);
     testWidget->cut();
     QCOMPARE(testWidget->text(), QString("Abcdefg defg hijklmno"));
 }
