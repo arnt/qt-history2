@@ -417,6 +417,7 @@
 
 /*!
     \group shared
+    \ingroup architecture
 
     \title Implicitly Shared Classes
 
