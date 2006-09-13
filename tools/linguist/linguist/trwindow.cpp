@@ -983,6 +983,7 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
                 MetaTranslatorMessage::Obsolete);
         } else {
             me->showNothing();
+            m_ui.actionDoneAndNext->setEnabled(false);
         }
     }
     else {
