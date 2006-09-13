@@ -1478,8 +1478,6 @@ Qmake
       Introduced QMAKE_CFLAGS_STATIC_LIB for modifying flags passed to
       temporary files when compiling a static library.
       Added a target.targets for extra qmake INSTALLS.
-      Support for spaces in input files (SOURCES, HEADERS, etc) as well as
-      proper quoting handed in qmake to escape spaces.
       $files() function is now completely consistent with wildcard matching as
       specified to input file variables.
       Added QMAKE_FUNC_* variables to EXTRA_COMPILERS for late evaluation of
