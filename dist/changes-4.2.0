@@ -313,6 +313,11 @@ Fix mkspec detection when generating project files outside of QTDIR.
     Made qtHandler() work when the message handler is invoked
     from other threads than the GUI thread.
 
+- QGridLayout
+    Do not segfault when cellRect() is called before first setGeometry(), 
+    (even though the result is documented to be undefined).
+    Fixed maximum size when adding spacing.
+
 - QGroupBox
     Activating a groupbox by a shortcut will now show the focus rect.
                 Added a clicked() signal
@@ -389,6 +394,8 @@ Fix mkspec detection when generating project files outside of QTDIR.
         Renamed unite() united(), intersect() intersected(),
         subtract() subtracted(), and eor() xored().
         Added QRegion::intersects(QRegion) and QRegion::intersects(QRect)
+        Fixed case where rect1&rect2&rect3 would return non-empty result
+        for disjoint rectangles.
 
 - QRegExp
         Added RegExp2 syntax, which provides greedy qualifiers (+, *, etc.).
@@ -663,6 +670,9 @@ Fix mkspec detection when generating project files outside of QTDIR.
 - QColor
         Fixed corruption in setRed, setGreen and setBlue for HSV/CMYK colors.
 
+- Q3Grid, Q3Hbox, Q3VBox
+        Fixed layout problem.
+
 - Q3ListView
         Fixed possible crash in Q3ListView after calling clear().
         Fixed inconsistent drag and drop behaviour to Qt3.
@@ -730,11 +740,17 @@ Fix mkspec detection when generating project files outside of QTDIR.
     Add toUcs4 and fromUcs4 methods.
 
 - QWidget
+        Delayed creation: window system resources are no longer allocated in
+        the QWidget constructor, but later on demand.
         Added a property styleSheet to set/read the widget style sheet.
         Added saveGeometry(), restoreGeometry() convenience functions for
         Fixed memory leak for Qt::WA_PaintOnScreen widgets with paintEngine() == 0.
         saving and restoring a window's geometry.
         Let the style propagate to child widgets.
+        Reduced flicker when adding widget to layout with visible parent.
+        Fixed child visibility when calling setLayout() on visible widget..
+        Speed up creation/destruction/showing of widgets with many children.
+        Avoid painting obscured widget when updating overlapping widgets.
 
 - QWindowsStyle
     We no longer draw splitter handles in Windows style. This resolves an inconsistency with
@@ -884,6 +900,7 @@ Fix mkspec detection when generating project files outside of QTDIR.
     Fixed crash when setting mask or alphachannel while pixmap is being painted
         Various Qt/Mac masking and alpha transparency fixes.
         load() and save() no longer require you to pass the format string.
+    Make grabWidget() work before widget is first show()n.
 
 - QTimeLine
         New class for controlling a time line.
@@ -1157,10 +1174,17 @@ Platform-Specific changes
 
 Qtopia Core:
 
+- Introduced new API for accelerated graphics hardware drivers.
+- Implemented support for multiple screens.
+- Added support for OpenGL ES in QGLWidget. 
+- Implemented support for actual screen resolution in QFont.
+- Implemented QWSEmbedWidget which enables window embedding.
+
 - Fixed issue with the VNC driver that prevented client applications to connect
   in some cases.
 - Fixed a leak of shared memory segments in the VNC driver.
 - Reduced CPU consumption in the VNC driver.
+- Fixed keyboard shortcut problem when using the VNC driver.
 - Improved memory usage when using screen with depth less than 16 bits.
 - Optimized CPU usage when widgets are partially hidden.
 - Improved error handling when clients connects to the server.
@@ -1170,7 +1194,6 @@ Qtopia Core:
 - Fixed a build issue preventing the use of mmx instructions when available.
 - Implemented the Qt::WA_PaintOnScreen flag for top-level widgets.
 - Removed internal limitation of 10 display servers.
-- Implemented support for multiple screens.
 - Fixed the -exceptions configure switch.
 - Implemented dynamic selection of the underlying driver for the VNC and
   Transformed screen drivers.
@@ -1183,12 +1206,21 @@ Qtopia Core:
 - Fixed sn issue causing mouse release events with wrong positions when using a
   calibrated and filtered mouse handler on a rotated screen.
 - Fixed 16 bit screens on big-endian CPUs.
-- Implemented QWSEmbedWidget which enables window embedding.
 - Made the tty device configureable for the LinuxFb screen driver.
 - Improved speed of drawing gradients.
 - Fixed a deadlock issue when using drag and drop and a calibrated mouse
   handler.
 - Added support for dual screen device emulation in QVFb.
+- Extended QDirectPainter to include non-blocking API and support for 
+  overlapping windows.
+- No longer disrupt serial port communication by default by trying to 
+  autodetect serial mice. Set QWS_MOUSE_PROTO to use a serial mouse.
+- Fixed cases where wrong cursor was shown.
+- Fixed case where QWidget::normalGeometry() would return wrong value.
+- Allow widgets inside QScrollArea to have a minimum size larger than the 
+  screen size.
+- Allow (0,0) as a valid size for toplevel windows.
+
 
 UNIX:
 
