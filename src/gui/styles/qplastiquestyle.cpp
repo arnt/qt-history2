@@ -5704,7 +5704,7 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
         }
     case SP_FileDialogToParent:
         {
-            pixmap = d->findIcon(16, QLatin1String("up.png"));
+            pixmap = d->findIcon(32, QLatin1String("up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -5718,28 +5718,28 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
         }
     case SP_ArrowUp:
         {
-            pixmap = d->findIcon(16, QLatin1String("up.png"));
+            pixmap = d->findIcon(32, QLatin1String("up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowDown:
         {
-            pixmap = d->findIcon(16, QLatin1String("down.png"));
+            pixmap = d->findIcon(32, QLatin1String("down.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowRight:
         {
-            pixmap = d->findIcon(16, QLatin1String("forward.png"));
+            pixmap = d->findIcon(32, QLatin1String("forward.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ArrowLeft:
         {
-            pixmap = d->findIcon(16, QLatin1String("back.png"));
+            pixmap = d->findIcon(32, QLatin1String("back.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
