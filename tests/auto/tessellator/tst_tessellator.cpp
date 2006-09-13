@@ -116,8 +116,8 @@ void tst_QTessellator::testRandom()
     int failures = 0;
     for (int i = 5; i < 12; ++i) {
         QVector<QPointF> vec(i);
-        int i = 5000;
-        while (--i) {
+        int k = 5000;
+        while (--k) {
             fillRandomVec(vec);
             if (!test(vec.data(), vec.size(), false)) {
                 simplifyTestFailure(vec, false);
