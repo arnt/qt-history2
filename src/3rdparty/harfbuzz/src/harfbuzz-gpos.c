@@ -193,6 +193,8 @@ FT_Error  HB_Done_GPOS_Table( HB_GPOSHeader* gpos )
   _HB_OPEN_Free_FeatureList( &gpos->FeatureList, memory );
   _HB_OPEN_Free_ScriptList( &gpos->ScriptList, memory );
 
+  FREE( gpos );
+
   return FT_Err_Ok;
 }
 
