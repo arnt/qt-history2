@@ -584,10 +584,16 @@ void EditorPage::updateHeight(int /*h*/)
     layoutWidgets();
 }
 
+/*! internal
+    Returns all translations for an item.
+    The number of translations is dependent on if we have a plural form or not.
+    If we don't have a plural form, then this should only contain one item.
+    Otherwise it will contain the number of numerus forms for the particular language.
+*/
 QStringList EditorPage::translations() const
 {
     QStringList translations;
-    for (int i = 0; i < m_transTexts.count(); ++i) {
+    for (int i = 0; i < m_transTexts.count() && m_transTexts[i]->isVisible(); ++i) {
         translations << m_transTexts[i]->translation();
     }
     return translations;
