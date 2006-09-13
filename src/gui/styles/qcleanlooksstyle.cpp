@@ -4190,21 +4190,27 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            pixmap = d->findIcon(48, QLatin1String("stock_dialog-info.png"));
+            pixmap = d->findIcon(48, QLatin1String("dialog-info.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(48, QLatin1String("stock_dialog-info.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            pixmap = d->findIcon(48, QLatin1String("stock_dialog-warning.png"));
+            pixmap = d->findIcon(48, QLatin1String("dialog-warning.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(48, QLatin1String("stock_dialog-warning.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            pixmap = d->findIcon(48, QLatin1String("stock_dialog-error.png"));
+            pixmap = d->findIcon(48, QLatin1String("dialog-error.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(48, QLatin1String("stock_dialog-error.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
