@@ -108,8 +108,6 @@ void MainWindow::loadLayout(const QString& layout)
         mw->setWindowFlags(oldmw->windowFlags());
     }
 
-    mw->show();
-
     if (oldmw) {
         oldmw->hide();
         delete oldmw;

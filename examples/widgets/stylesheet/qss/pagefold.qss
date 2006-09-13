@@ -3,7 +3,7 @@
 /* Set a background image for the central widget */
 QMainWindow > .QWidget {
     background-color: gainsboro;
-    background-image: url(c:/pagefold.png);
+    background-image: url(:/images/pagefold.png);
     background-position: top right;
     background-repeat: no-repeat
 }
