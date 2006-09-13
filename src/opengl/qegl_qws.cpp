@@ -17,7 +17,7 @@ Example QEGL interface layer for the "vanilla" EGL implementation from
 Hybrid Graphics, Ltd.
 */
 
-#include "qegl_qws.h"
+#include "qegl_qws_p.h"
 #include <qimage.h>
 #include <qrect.h>
 #include <vanilla/eglVanilla.h>
