@@ -8,12 +8,26 @@ QMainWindow > .QWidget {
     background-repeat: no-repeat
 }
 
+/* Make text in message boxes selectable */
+QMessageBox {
+    /* LinksAccessibleByMouse+TextSelectableByMouse*/
+    -qt-messagebox-text-interaction-flags: 5;
+}
+    
 /* Provide a padding for the layout inside the frame. The frame
     exists only to provide a padding for the top right image, so we
     explicitly disable the border! */
 #mainFrame {
     padding-right: 30px;
     border-style: none;
+    border-image: none; /* since we set a border-image below */
+}
+
+/* Note that mainFrame wont have this border-image since we have
+    explicitly set it to 'none' using a more specific selector */
+QFrame, QLineEdit {
+    border-image: url(:/images/frame.png) 3;
+    border-width: 3;
 }
 
 /* All widgets to have the following selection colors */
@@ -23,19 +37,11 @@ QWidget {
     color: black;
 }
 
-/* Nice to have all the label's bold */
-.QLabel {
-    font-weight: bold;
-}
-
-QStatusBar .QLabel {
-    font-weight: normal;
-}
-
-/* Mark all the mandatory fields with a reddish color. Note that when
-    loading the form, we do a setProperty("class", "mandatory") */
-.mandatory {
-    color: Brown;
+/* This makes the entire row selected in itemviews selected */
+QAbstractItemView {
+    -qt-show-decoration-selected: 1;
+    padding: 2px; /* items are too close to the border image */
+    background-color: transparent;
 }
 
 /* This makes the entire row selected in itemviews selected */
@@ -43,15 +49,108 @@ QAbstractItemView {
     -qt-show-decoration-selected: 1;
 }
 
+/* Nice windowsxp style password character for password lineedits */
+QLineEdit[echoMode="2"] {
+    -qt-lineedit-password-character: 9679;
+}
+
 /* Tool tips support only one padding. Also, border-radius does not set the window mask
      so need to keep the radius as low as possible */
 QToolTip {
-    background-color: beige;
+    background-color: rgb(200,200,255);
     border-color: darkslategray;
     border-width: 1px;
     border-style: solid;
-    padding: 10px;
+    padding: 3px;
     font: bold;
     border-radius: 3px;
     -qt-opacity: 200;
+}
+
+/* The radio button */
+QRadioButton {
+    -qt-spacing: 5px;
+}
+
+/* not needed to set width, height but good practice */    
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QRadioButton::indicator::unchecked {
+    -qt-image: url(:/images/radiobutton_unchecked.png);
+}
+
+QRadioButton::indicator:unchecked:hover {
+    -qt-image: url(:/images/radiobutton_unchecked_hover.png);
+}
+
+QRadioButton::indicator:unchecked:pressed {
+    -qt-image: url(:/images/radiobutton_unchecked_pressed.png);
+}
+
+QRadioButton::indicator::checked {
+    -qt-image: url(:/images/radiobutton_checked.png);
+}
+
+QRadioButton::indicator:checked:hover {
+    -qt-image: url(:/images/radiobutton_checked_hover.png);
+}
+
+/* this state never really happens. its here for completness */
+QRadioButton::indicator:checked:pressed {
+    -qt-image: url(:/images/radiobutton_checked_pressed.png);
+}
+
+/* The Push Button */
+QPushButton {
+    border-image: url(:/images/pushbutton.png) 3;
+    border-width: 3;
+    min-width: 5em;
+    min-height: 1.4em;
+}
+
+QPushButton:hover {
+    border-image: url(:/images/pushbutton_hover.png) 3;
+    border-width: 3;
+}
+
+QPushButton:pressed {
+    border-image: url(:/images/pushbutton_pressed.png) 3;
+    border-width: 3;
+}
+
+/* The check box */
+QCheckBox {
+    -qt-spacing: 5px;
+}
+
+QCheckBox::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QCheckBox::indicator:unchecked {
+    -qt-image: url(:/images/checkbox_unchecked.png);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    -qt-image: url(:/images/checkbox_unchecked_hover.png);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    -qt-image: url(:/images/checkbox_unchecked_pressed.png);
+}
+
+QCheckBox::indicator:checked {
+    -qt-image: url(:/images/checkbox_checked.png);
+}
+
+QCheckBox::indicator:checked:hover {
+    -qt-image: url(:/images/checkbox_checked_hover.png);
+}
+
+QCheckBox::indicator:checked:pressed {
+    -qt-image: url(:/images/checkbox_checked_pressed.png);
 }

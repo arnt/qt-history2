@@ -14,13 +14,139 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.44"
-   sodipodi:docbase="C:\Documents and Settings\Girish\Desktop"
+   sodipodi:docbase="c:\depot\qt\4.2\doc\src\diagrams\stylesheet"
    sodipodi:docname="pagefold.svg"
-   inkscape:export-filename="c:\pagefold.png"
-   inkscape:export-xdpi="28.110001"
-   inkscape:export-ydpi="28.110001">
+   inkscape:export-filename="c:\lineedit.png"
+   inkscape:export-xdpi="18.619444"
+   inkscape:export-ydpi="18.619444">
   <defs
      id="defs4">
+    <linearGradient
+       id="linearGradient14054">
+      <stop
+         id="stop14056"
+         offset="0"
+         style="stop-color:white;stop-opacity:1;" />
+      <stop
+         id="stop14058"
+         offset="1"
+         style="stop-color:white;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient11371">
+      <stop
+         id="stop11373"
+         offset="0"
+         style="stop-color:black;stop-opacity:1;" />
+      <stop
+         id="stop11375"
+         offset="1"
+         style="stop-color:#611a02;stop-opacity:0.88659793;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient11290">
+      <stop
+         id="stop11292"
+         offset="0"
+         style="stop-color:#c8c8c8;stop-opacity:0.86666667;" />
+      <stop
+         id="stop11294"
+         offset="1"
+         style="stop-color:#ded5cf;stop-opacity:0.86274511;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient10355">
+      <stop
+         id="stop10357"
+         offset="0"
+         style="stop-color:#eeeae6;stop-opacity:0.86274511;" />
+      <stop
+         id="stop10359"
+         offset="1"
+         style="stop-color:white;stop-opacity:0.86666667;" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient8520">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop8522" />
+      <stop
+         style="stop-color:white;stop-opacity:0;"
+         offset="1"
+         id="stop8524" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient8477">
+      <stop
+         style="stop-color:#ded5cf;stop-opacity:0.86274511;"
+         offset="0"
+         id="stop8479" />
+      <stop
+         style="stop-color:white;stop-opacity:0.86666667;"
+         offset="1"
+         id="stop8481" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6598">
+      <stop
+         style="stop-color:#d0c7c7;stop-opacity:0.84705883;"
+         offset="0"
+         id="stop6600" />
+      <stop
+         id="stop6606"
+         offset="0.5"
+         style="stop-color:#997e7e;stop-opacity:0.42352942;" />
+      <stop
+         style="stop-color:#887f7f;stop-opacity:0;"
+         offset="1"
+         id="stop6602" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6584">
+      <stop
+         style="stop-color:#887f7f;stop-opacity:0.84705883;"
+         offset="0"
+         id="stop6586" />
+      <stop
+         style="stop-color:#887f7f;stop-opacity:0.84705883;"
+         offset="1"
+         id="stop6588" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6569">
+      <stop
+         style="stop-color:#d8cfcf;stop-opacity:0.11340206;"
+         offset="0"
+         id="stop6571" />
+      <stop
+         style="stop-color:#9f9f9f;stop-opacity:0.84705883;"
+         offset="1"
+         id="stop6573" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5655">
+      <stop
+         id="stop5657"
+         offset="0"
+         style="stop-color:#795e5e;stop-opacity:1;" />
+      <stop
+         id="stop5659"
+         offset="1"
+         style="stop-color:#170000;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4756">
+      <stop
+         style="stop-color:#dfc8c8;stop-opacity:1;"
+         offset="0"
+         id="stop4758" />
+      <stop
+         style="stop-color:#f7f7f7;stop-opacity:1;"
+         offset="1"
+         id="stop4760" />
+    </linearGradient>
     <linearGradient
        id="linearGradient7289">
       <stop
@@ -74,6 +200,139 @@
        x2="665.18542"
        y2="103.28822"
        gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6584"
+       id="radialGradient6596"
+       cx="56.730461"
+       cy="175.79576"
+       fx="56.730461"
+       fy="175.79576"
+       r="33.814732"
+       gradientTransform="matrix(-2.331063e-2,0.911966,-0.685725,-1.752744e-2,186.5197,128.41)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6598"
+       id="linearGradient6604"
+       x1="39.926405"
+       y1="177.065"
+       x2="63.861485"
+       y2="207.90289"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6569"
+       id="radialGradient7498"
+       cx="73.741135"
+       cy="177.065"
+       fx="73.741135"
+       fy="177.065"
+       r="39.288086"
+       gradientTransform="matrix(1,0,0,0.987144,0,2.276301)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6569"
+       id="radialGradient7532"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.987144,0,2.276301)"
+       cx="73.741135"
+       cy="177.065"
+       fx="73.741135"
+       fy="177.065"
+       r="39.288086" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6598"
+       id="linearGradient7560"
+       gradientUnits="userSpaceOnUse"
+       x1="39.926405"
+       y1="177.065"
+       x2="63.861485"
+       y2="207.90289" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6584"
+       id="radialGradient7562"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-2.331063e-2,0.911966,-0.685725,-1.752744e-2,186.5197,128.41)"
+       cx="56.730461"
+       cy="175.79576"
+       fx="56.730461"
+       fy="175.79576"
+       r="33.814732" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11290"
+       id="linearGradient11306"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.718783,0,0,1.40468,-208.8971,-30.27314)"
+       x1="331.16711"
+       y1="199.51926"
+       x2="331.16711"
+       y2="177.27299" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient8520"
+       id="linearGradient11310"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.986928,0,0,1,8.175633,-10.42983)"
+       x1="358.32635"
+       y1="172.3678"
+       x2="358.32635"
+       y2="177.58272" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient10355"
+       id="linearGradient11314"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.718783,0,0,1.40468,-211.1668,-83.31197)"
+       x1="331.16711"
+       y1="199.51926"
+       x2="331.16711"
+       y2="177.27299" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient8520"
+       id="linearGradient11318"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.986928,0,0,1,8.324065,-66.639)"
+       x1="358.32635"
+       y1="172.3678"
+       x2="358.32635"
+       y2="177.58272" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient8477"
+       id="linearGradient11328"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.718783,0,0,1.40468,-211.0184,-139.5212)"
+       x1="331.16711"
+       y1="199.51926"
+       x2="331.16711"
+       y2="177.27299" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11371"
+       id="radialGradient11369"
+       cx="58.5"
+       cy="327.36218"
+       fx="58.5"
+       fy="327.36218"
+       r="29.5"
+       gradientTransform="matrix(1,0,0,0.983051,0,5.548512)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6569"
+       id="linearGradient14052"
+       x1="216"
+       y1="342.36218"
+       x2="176"
+       y2="297.36218"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1,0)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -85,9 +344,9 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="375"
-     inkscape:cy="1030.2995"
+     inkscape:zoom="1"
+     inkscape:cx="351.31088"
+     inkscape:cy="694.14899"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="1600"
@@ -138,5 +397,343 @@
        id="path4608"
        inkscape:export-xdpi="28.74"
        inkscape:export-ydpi="28.74" />
+    <rect
+       style="fill:#f7f7f7;fill-opacity:0.78947371;stroke:#8b8b8b;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1872"
+       width="298.86383"
+       height="60.557034"
+       x="24.819391"
+       y="12.94127"
+       rx="14.293656"
+       inkscape:export-filename="c:\lineedit.png"
+       inkscape:export-xdpi="28.74"
+       inkscape:export-ydpi="28.74" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#f7f7f7;fill-opacity:0.78431374;stroke:#8b8b8b;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2978"
+       sodipodi:cx="73.741135"
+       sodipodi:cy="177.065"
+       sodipodi:rx="31.31473"
+       sodipodi:ry="30.809652"
+       d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+       transform="translate(-20.20305,-25.25381)"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_unchecked.png"
+       inkscape:export-xdpi="17.299999"
+       inkscape:export-ydpi="17.299999" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:url(#radialGradient7498);stroke-width:15.94671249;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3867"
+       sodipodi:cx="73.741135"
+       sodipodi:cy="177.065"
+       sodipodi:rx="31.31473"
+       sodipodi:ry="30.809652"
+       d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+       transform="matrix(0.909446,0,0,0.907961,60.2157,-8.95693)"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_unchecked_hover.png"
+       inkscape:export-xdpi="16.336388"
+       inkscape:export-ydpi="16.336388" />
+    <path
+       sodipodi:type="arc"
+       style="fill:url(#linearGradient6604);fill-opacity:1;stroke:url(#radialGradient6596);stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path3869"
+       sodipodi:cx="73.741135"
+       sodipodi:cy="177.065"
+       sodipodi:rx="31.31473"
+       sodipodi:ry="30.809652"
+       d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+       transform="translate(144.4518,-28.78935)"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_unchecked_pressed.png"
+       inkscape:export-xdpi="17.299999"
+       inkscape:export-ydpi="17.299999" />
+    <g
+       id="g7526"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_checked.png"
+       inkscape:export-xdpi="17.299999"
+       inkscape:export-ydpi="17.299999">
+      <path
+         inkscape:export-ydpi="17.299999"
+         inkscape:export-xdpi="17.299999"
+         inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton.png"
+         transform="translate(-19.1929,50.00255)"
+         d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+         sodipodi:ry="30.809652"
+         sodipodi:rx="31.31473"
+         sodipodi:cy="177.065"
+         sodipodi:cx="73.741135"
+         id="path7500"
+         style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:#8b8b8b;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.772198,0,0,0.675157,10.75109,73.06635)"
+         d="M 64.649762 229.59293 A 8.586297 7.5761442 0 1 1  47.477168,229.59293 A 8.586297 7.5761442 0 1 1  64.649762 229.59293 z"
+         sodipodi:ry="7.5761442"
+         sodipodi:rx="8.586297"
+         sodipodi:cy="229.59293"
+         sodipodi:cx="56.063465"
+         id="path7512"
+         style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:#b7adad;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.80921056"
+         sodipodi:type="arc" />
+    </g>
+    <g
+       id="g7536"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_checked_hover.png"
+       inkscape:export-xdpi="16.379999"
+       inkscape:export-ydpi="16.379999">
+      <path
+         inkscape:export-ydpi="16.336388"
+         inkscape:export-xdpi="16.336388"
+         inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_hover.png"
+         transform="matrix(0.909446,0,0,0.907961,66.27656,65.28928)"
+         d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+         sodipodi:ry="30.809652"
+         sodipodi:rx="31.31473"
+         sodipodi:cy="177.065"
+         sodipodi:cx="73.741135"
+         id="path7530"
+         style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:url(#radialGradient7532);stroke-width:15.94671249;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.772198,0,0,0.675157,90.04808,71.04611)"
+         d="M 64.649762 229.59293 A 8.586297 7.5761442 0 1 1  47.477168,229.59293 A 8.586297 7.5761442 0 1 1  64.649762 229.59293 z"
+         sodipodi:ry="7.5761442"
+         sodipodi:rx="8.586297"
+         sodipodi:cy="229.59293"
+         sodipodi:cx="56.063465"
+         id="path7534"
+         style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:#b7adad;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.80921056"
+         sodipodi:type="arc" />
+    </g>
+    <g
+       id="g7556"
+       transform="matrix(1.074683,0,0,1.060652,-15.71476,-12.762)"
+       inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_checked_pressed.png"
+       inkscape:export-xdpi="16.379999"
+       inkscape:export-ydpi="16.379999">
+      <path
+         transform="matrix(0.772198,0,0,0.675157,174.3959,72.05619)"
+         d="M 64.649762 229.59293 A 8.586297 7.5761442 0 1 1  47.477168,229.59293 A 8.586297 7.5761442 0 1 1  64.649762 229.59293 z"
+         sodipodi:ry="7.5761442"
+         sodipodi:rx="8.586297"
+         sodipodi:cy="229.59293"
+         sodipodi:cx="56.063465"
+         id="path7524"
+         style="fill:#f7f7f7;fill-opacity:0.78431373;stroke:#b7adad;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.80921056"
+         sodipodi:type="arc" />
+      <path
+         inkscape:transform-center-x="70.710678"
+         inkscape:export-ydpi="17.299999"
+         inkscape:export-xdpi="17.299999"
+         inkscape:export-filename="c:\depot\qt\4.2\examples\widgets\stylesheet\images\radiobutton_pressed.png"
+         transform="translate(143.4416,50.00254)"
+         d="M 105.05586 177.065 A 31.31473 30.809652 0 1 1  42.426405,177.065 A 31.31473 30.809652 0 1 1  105.05586 177.065 z"
+         sodipodi:ry="30.809652"
+         sodipodi:rx="31.31473"
+         sodipodi:cy="177.065"
+         sodipodi:cx="73.741135"
+         id="path7540"
+         style="fill:url(#linearGradient7560);fill-opacity:1;stroke:url(#radialGradient7562);stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         sodipodi:type="arc" />
+    </g>
+    <g
+       id="g11333">
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton.png"
+         rx="8.4277067"
+         y="109.12024"
+         x="302.04776"
+         height="40.971741"
+         width="119.00411"
+         id="rect8557"
+         style="fill:black;fill-opacity:0.0657895;stroke:none;stroke-width:2.38755798;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton.png"
+         rx="8.5229921"
+         y="103.71593"
+         x="298.01132"
+         height="42.515831"
+         width="120.34961"
+         id="rect8559"
+         style="fill:url(#linearGradient11328);fill-opacity:1;stroke:#8b8b8b;stroke-width:3.40678048;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton.png"
+         ry="3.3333139"
+         rx="0.90303022"
+         y="107.7652"
+         x="298.56201"
+         height="34.143112"
+         width="3.1697834"
+         id="rect8561"
+         style="fill:white;fill-opacity:0.66447371;stroke:none;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton.png"
+         ry="1.5026071"
+         rx="0.78104818"
+         y="105.7288"
+         x="305.26501"
+         height="3.0052142"
+         width="106.77315"
+         id="rect8563"
+         style="fill:url(#linearGradient11318);fill-opacity:1;stroke:none;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <g
+       id="g11345">
+      <rect
+         inkscape:export-ydpi="34.630936"
+         inkscape:export-xdpi="34.630936"
+         inkscape:export-filename="c:\pushbutton_pressed.png"
+         rx="8.4277067"
+         y="218.36829"
+         x="304.1691"
+         height="40.971741"
+         width="119.00411"
+         id="rect10379"
+         style="fill:black;fill-opacity:0.0657895;stroke:none;stroke-width:2.38755798;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630936"
+         inkscape:export-xdpi="34.630936"
+         inkscape:export-filename="c:\pushbutton_pressed.png"
+         rx="8.5229921"
+         y="212.96397"
+         x="300.13266"
+         height="42.515831"
+         width="120.34961"
+         id="rect10381"
+         style="fill:url(#linearGradient11306);fill-opacity:1;stroke:#8b8b8b;stroke-width:3.40678048;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <g
+       id="g11339">
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton_hover.png"
+         rx="8.4277067"
+         y="165.32945"
+         x="301.89935"
+         height="40.971741"
+         width="119.00411"
+         id="rect7570"
+         style="fill:black;fill-opacity:0.0657895;stroke:none;stroke-width:2.38755798;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton_hover.png"
+         rx="8.5229921"
+         y="159.92514"
+         x="297.86288"
+         height="42.515831"
+         width="120.34961"
+         id="rect8483"
+         style="fill:url(#linearGradient11314);fill-opacity:1;stroke:#8b8b8b;stroke-width:3.40678048;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton_hover.png"
+         ry="1.5026071"
+         rx="0.78104818"
+         y="161.93797"
+         x="305.11658"
+         height="3.0052142"
+         width="106.77315"
+         id="rect8518"
+         style="fill:url(#linearGradient11310);fill-opacity:1;stroke:none;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         inkscape:export-ydpi="34.630928"
+         inkscape:export-xdpi="34.630928"
+         inkscape:export-filename="c:\pushbutton_hover.png"
+         ry="3.3333139"
+         rx="0.90303022"
+         y="164.66541"
+         x="298.93549"
+         height="34.143112"
+         width="3.1697834"
+         id="rect11331"
+         style="fill:white;fill-opacity:0.66447371;stroke:none;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <rect
+       style="fill:white;fill-opacity:0.50196078;stroke:#818181;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect12262"
+       width="54"
+       height="52"
+       x="38"
+       y="309.36218"
+       rx="0"
+       inkscape:export-filename="c:\checkbox_unchecked.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444" />
+    <rect
+       style="fill:white;fill-opacity:0.50196078;stroke:#9a9a9a;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect14034"
+       width="54"
+       height="52"
+       x="111"
+       y="310.36218"
+       rx="0"
+       inkscape:export-filename="c:\checkbox_unchecked_hover.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444" />
+    <rect
+       style="fill:url(#linearGradient14052);fill-opacity:1;stroke:#9a9a9a;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect14036"
+       width="54"
+       height="52"
+       x="182"
+       y="308.36218"
+       rx="0"
+       inkscape:export-filename="c:\checkbox_unchecked_pressed.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444" />
+    <rect
+       style="fill:white;fill-opacity:0.50196078;stroke:#818181;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect14062"
+       width="54"
+       height="52"
+       x="114"
+       y="382.36218"
+       rx="0"
+       inkscape:export-filename="c:\checkbox_unchecked.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444" />
+    <rect
+       style="fill:white;fill-opacity:0.50196078;stroke:#818181;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect14064"
+       width="54"
+       height="52"
+       x="186"
+       y="381.36218"
+       rx="0"
+       inkscape:export-filename="c:\checkbox_unchecked.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444" />
+    <g
+       id="g14074"
+       inkscape:export-filename="c:\checkbox_checked.png"
+       inkscape:export-xdpi="18.619444"
+       inkscape:export-ydpi="18.619444">
+      <rect
+         inkscape:export-ydpi="18.619444"
+         inkscape:export-xdpi="18.619444"
+         inkscape:export-filename="c:\checkbox_unchecked.png"
+         rx="0"
+         y="383.36218"
+         x="41"
+         height="52"
+         width="54"
+         id="rect14060"
+         style="fill:white;fill-opacity:0.50196078;stroke:#818181;stroke-width:10;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:1;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <path
+         id="path14066"
+         d="M 53,410.36218 C 62,421.36218 62,421.36218 62,421.36218 L 83,398.36218"
+         style="fill:white;fill-opacity:0.50196078;fill-rule:evenodd;stroke:#818181;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>

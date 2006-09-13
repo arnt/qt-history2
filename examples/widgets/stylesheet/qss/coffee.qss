@@ -36,6 +36,12 @@ QLabel, QAbstractButton {
    font: bold;
 }
 
+/* Mark all the mandatory fields with a reddish color. Note that when
+    loading the form, we do a setProperty("class", "mandatory") */
+.mandatory {
+    color: brown;
+}
+
 /* Bold text on status bar looks awful */
 QStatusBar QLabel {
    font: normal;

@@ -7,5 +7,24 @@
     <file>qss/pagefold.qss</file>
 
     <file>images/pagefold.png</file>
+    <file>images/frame.png</file>
+    <file>images/radiobutton_unchecked.png</file>
+    <file>images/radiobutton_unchecked_pressed.png</file>
+    <file>images/radiobutton_unchecked_hover.png</file>
+    <file>images/radiobutton_checked.png</file>
+    <file>images/radiobutton_checked_pressed.png</file>
+    <file>images/radiobutton_checked_hover.png</file>
+
+    <file>images/pushbutton.png</file>
+    <file>images/pushbutton_hover.png</file>
+    <file>images/pushbutton_pressed.png</file>
+
+    <file>images/checkbox_unchecked.png</file>
+    <file>images/checkbox_unchecked_pressed.png</file>
+    <file>images/checkbox_unchecked_hover.png</file>
+    <file>images/checkbox_checked.png</file>
+    <file>images/checkbox_checked_pressed.png</file>
+    <file>images/checkbox_checked_hover.png</file>
+
 </qresource>
 </RCC>
