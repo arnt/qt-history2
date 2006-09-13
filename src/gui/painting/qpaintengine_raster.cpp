@@ -2170,12 +2170,12 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     if (!d->brushData.blend && !d->penData.blend)
         return;
 
+    const QRectF r = d->matrix.mapRect(rect);
     if (d->fast_pen
         && (d->pen.style() == Qt::SolidLine || d->pen.style() == Qt::NoPen)
-        && qMax(rect.width(), rect.height()) < 128 // integer math breakdown
+        && qMax(r.width(), r.height()) < 128 // integer math breakdown
         && d->txop <= QPainterPrivate::TxScale) // no shear
     {
-        const QRectF r = d->matrix.mapRect(rect);
         const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
         drawEllipse_midpoint_i(QRect(int(r.x()), int(r.y()),
                                      int_dim(r.x(), r.width()), int_dim(r.y(), r.height())),
