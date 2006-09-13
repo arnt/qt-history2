@@ -94,7 +94,8 @@
 
     \value AA_ImmediateWidgetCreation Ensures that widgets are created as soon as
            they are constructed. By default, resources for widgets are allocated on
-           demand to improve efficiency and minimize resource usage.
+           demand to improve efficiency and minimize resource usage. Setting or clearing
+           this attribute will influence widgets constructed after the change.
 */
 
 /*!
@@ -1985,7 +1986,7 @@
                           indicate that a dragging operation is in progress that
                           involves scrolling.
     \value WhatsThisCursor  \inlineimage cursor-whatsthis.png
-                          An arrow with a question mark, typically used 
+                          An arrow with a question mark, typically used
     \value BusyCursor     \inlineimage cursor-wait.png
                           An hourglass or watch cursor, usually shown during
                           operations that allow the user to interact with
