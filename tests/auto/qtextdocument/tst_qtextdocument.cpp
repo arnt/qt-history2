@@ -212,6 +212,10 @@ void tst_QTextDocument::find_data()
                               << "Blah" << int(QTextDocument::FindWholeWords) << 0 << 15 << 19;
     QTest::newRow("7wholewords") << QString::fromAscii("HelloBlahWorld Blah Hah")
                               << "Blah" << int(QTextDocument::FindWholeWords | QTextDocument::FindBackward) << 23 << 15 << 19;
+
+    QTest::newRow("across-paragraphs") << QString::fromAscii("First Parag\nSecond Parag with a lot more text")
+                                       << "Parag" << int(QTextDocument::FindBackward)
+                                       << 15 << 6 << 11;
 }
 
 void tst_QTextDocument::find()

@@ -990,8 +990,8 @@ QTextCursor QTextDocument::find(const QRegExp & expr, int from, FindFlags option
             const QString blockText = block.text();
             if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
                 return cursor;
-            blockOffset = block.length() - 1;
             block = block.previous();
+            blockOffset = block.length() - 1;
         }
     }
 
