@@ -71,16 +71,17 @@ struct QCssKnownValue
 };
 
 static const QCssKnownValue properties[NumProperties - 1] = {
+    { "-qt-alternate-background", QtAlternateBackground },
     { "-qt-block-indent", QtBlockIndent },
+    { "-qt-image", QtImage },
     { "-qt-list-indent", QtListIndent },
     { "-qt-origin", QtOrigin },
     { "-qt-paragraph-type", QtParagraphType },
     { "-qt-position", QtPosition },
-    { "-qt-selection-background", SelectionBackground },
-    { "-qt-selection-foreground", SelectionForeground },
-    { "-qt-spacing", Spacing },
+    { "-qt-selection-background", QtSelectionBackground },
+    { "-qt-selection-foreground", QtSelectionForeground },
+    { "-qt-spacing", QtSpacing },
     { "-qt-table-type", QtTableType },
-    { "alternate-background", AlternateBackground },
     { "background", Background },
     { "background-color", BackgroundColor },
     { "background-image", BackgroundImage },
@@ -122,7 +123,6 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-style", FontStyle },
     { "font-weight", FontWeight },
     { "height", Height },
-    { "image", Image },
     { "left", Left },
     { "margin" , Margin },
     { "margin-bottom", MarginBottom },
@@ -352,7 +352,7 @@ bool ValueExtractor::extractBox(int *margins, int *paddings, int *spacing)
         case MarginTop: margins[TopEdge] = lengthValue(decl); break;
         case MarginBottom: margins[BottomEdge] = lengthValue(decl); break;
         case Margin: lengthValues(decl, margins); break;
-        case Spacing: if (spacing) *spacing = lengthValue(decl); break;
+        case QtSpacing: if (spacing) *spacing = lengthValue(decl); break;
 
         default: continue;
         }
@@ -802,9 +802,9 @@ bool ValueExtractor::extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush
         const Declaration &decl = declarations.at(i);
         switch (decl.propertyId) {
         case Color: *fg = decl.colorValue(); break;
-        case SelectionForeground: *sfg = decl.colorValue(); break;
-        case SelectionBackground: *sbg = decl.brushValue(); break;
-        case AlternateBackground: *abg = decl.brushValue(); break;
+        case QtSelectionForeground: *sfg = decl.colorValue(); break;
+        case QtSelectionBackground: *sbg = decl.brushValue(); break;
+        case QtAlternateBackground: *abg = decl.brushValue(); break;
         default: continue;
         }
         hit = true;
