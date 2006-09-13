@@ -593,7 +593,7 @@ void EditorPage::updateHeight(int /*h*/)
 QStringList EditorPage::translations() const
 {
     QStringList translations;
-    for (int i = 0; i < m_transTexts.count() && m_transTexts[i]->isVisible(); ++i) {
+    for (int i = 0; i < m_transTexts.count() && m_transTexts.at(i)->isVisible(); ++i) {
         translations << m_transTexts[i]->translation();
     }
     return translations;
