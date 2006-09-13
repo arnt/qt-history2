@@ -72,7 +72,7 @@ QString CppCodeMarker::markedUpCode(const QString &code, const Node *relative,
     return addMarkUp(protect(code), relative, dirPath);
 }
 
-QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
+QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node * /* relative */,
 					SynopsisStyle style)
 {
     const int MaxEnumValues = 6;
@@ -631,7 +631,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
                           "([a-zA-Z_][a-zA-Z_0-9]*)");
     static QRegExp globalX("[\n{()=] *([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(");
     static QRegExp comment("/(?:( )?\\*(?:[^*]+|\\*(?! /))*\\*\1/|/[^\n]*)");
-    static QRegExp preprocessor("(?:^|\n)#[^\n]*(?:(?:\\\\\n|\\n#)[^\n]*)*");
+    static QRegExp preprocessor("(?:^|\n)(#[^\n]*(?:(?:\\\\\n|\\n#)[^\n]*)*)");
     static QRegExp literals("&quot;(?:[^\\\\&]|\\\\[^\n]|&(?!quot;))*&quot;"
                             "|'(?:[^\\\\]|\\\\(?:[^x0-9']|x[0-9a-f]{1,4}|[0-9]{1,3}))'");
 
@@ -678,7 +678,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
         pos = 0;
         while ((pos = preprocessor.indexIn(result, pos)) != -1)
             pos += preprocessor.matchedLength()
-                   + insertTagAround(result, pos + 1, preprocessor.matchedLength() - 1,
+                   + insertTagAround(result, preprocessor.pos(1), preprocessor.cap(1).length(),
                                      "@preprocessor");
 
         /*
