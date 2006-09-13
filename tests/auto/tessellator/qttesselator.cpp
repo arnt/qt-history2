@@ -2,7 +2,6 @@
 #include <QPointF>
 #include <QVector>
 #include <QList>
-#include <QVariant>
 #include <QVarLengthArray>
 
 #include "utils.h"
