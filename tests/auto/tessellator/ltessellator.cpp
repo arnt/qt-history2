@@ -363,9 +363,9 @@ void QTessellatorPrivate::Scanline::init(int maxActiveEdges)
 {
     if (!edges || maxActiveEdges > default_alloc) {
         max_edges = maxActiveEdges;
-        int size = qMax(maxActiveEdges + 1, default_alloc + 1);
-        edges = (Edge **)realloc(edges, size*sizeof(Edge *));
-        edge_table = (Edge *)realloc(edge_table, size*sizeof(Edge));
+        int s = qMax(maxActiveEdges + 1, default_alloc + 1);
+        edges = (Edge **)realloc(edges, s*sizeof(Edge *));
+        edge_table = (Edge *)realloc(edge_table, s*sizeof(Edge));
     }
     size = 0;
     first_unused = 0;
@@ -568,7 +568,7 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
     int j = 0;
     int i = 0;
     while (i < vertices.nPoints) {
-        Q27Dot5 y = y_next;
+        Q27Dot5 y_curr = y_next;
 
         *vv = v;
 
@@ -593,9 +593,9 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
                 goto next_point;
             Vertex *v0 = vertices.storage;
             v0->flags &= ~(LineBeforeStarts|LineBeforeEnds|LineBeforeHorizontal);
-            if (y_prev < y)
+            if (y_prev < y_curr)
                 v0->flags |= LineBeforeEnds;
-            else if (y_prev > y)
+            else if (y_prev > y_curr)
                 v0->flags |= LineBeforeStarts;
             else
                 v0->flags |= LineBeforeHorizontal;
@@ -606,17 +606,17 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
         }
 
         v->flags = 0;
-        if (y_prev < y)
+        if (y_prev < y_curr)
             v->flags |= LineBeforeEnds;
-        else if (y_prev > y)
+        else if (y_prev > y_curr)
             v->flags |= LineBeforeStarts;
         else
             v->flags |= LineBeforeHorizontal;
 
 
-        if (y < y_next)
+        if (y_curr < y_next)
             v->flags |= LineAfterStarts;
-        else if (y > y_next)
+        else if (y_curr > y_next)
             v->flags |= LineAfterEnds;
         else
             v->flags |= LineAfterHorizontal;
@@ -624,7 +624,7 @@ QRectF QTessellatorPrivate::collectAndSortVertices(const QPointF *points, int *m
         if ((v->flags & (LineBeforeStarts|LineAfterStarts))
             && !(v->flags & (LineAfterEnds|LineBeforeEnds)))
             *maxActiveEdges += 2;
-        y_prev = y;
+        y_prev = y_curr;
         ++v;
         ++vv;
         ++j;
@@ -767,16 +767,16 @@ void QTessellatorPrivate::emitEdges(QTessellator *tessellator)
     // emit edges
     if (winding) {
         // winding fill rule
-        int winding = 0;
+        int w = 0;
 
         scanline.edges[0]->y_left = y;
 
         for (int i = 0; i < scanline.size - 1; ++i) {
             Edge *left = scanline.edges[i];
             Edge *right = scanline.edges[i+1];
-            winding += left->winding;
+            w += left->winding;
 //             qDebug() << "i=" << i << "edge->winding=" << left->winding << "winding=" << winding;
-            if (winding == 0) {
+            if (w == 0) {
                 left->y_right = y;
                 right->y_left = y;
             } else if (left->mark || right->mark) {

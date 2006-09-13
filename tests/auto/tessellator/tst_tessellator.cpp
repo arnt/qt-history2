@@ -33,19 +33,18 @@ QPointF creatPoint()
     return QPointF(x, y);
 }
 
-bool test(const QPointF *pg, int pgSize)
+bool test(const QPointF *pg, int pgSize, bool winding)
 {
     QVector<XTrapezoid> traps;
     double area1 = 0;
     double area2 = 0;
 
-    qt_tesselate_polygon(&traps, pg, pgSize, true);
+    qt_tesselate_polygon(&traps, pg, pgSize, winding);
     area1 = compute_area_for_x(traps);
 
     traps.clear();
 
-    l_tesselate_polygon(&traps, pg, pgSize, true);
-
+    l_tesselate_polygon(&traps, pg, pgSize, winding);
     area2 = compute_area_for_x(traps);
 
     bool result;
@@ -54,17 +53,21 @@ bool test(const QPointF *pg, int pgSize)
     else
         result = (qAbs(area1 - area2)/area1 < .02);
 
+//     qDebug() << area1 << area2 << result;
+
+    if (!result)
+        Q_ASSERT(false);
     return result;
 }
 
 
-void simplifyTestFailure(QVector<QPointF> failure)
+void simplifyTestFailure(QVector<QPointF> failure, bool winding)
 {
     int i = 1;
     while (i < failure.size() - 1) {
         QVector<QPointF> t = failure;
         t.remove(i);
-        if (test(t.data(), t.size())) {
+        if (test(t.data(), t.size(), winding)) {
             ++i;
             continue;
         }
@@ -85,8 +88,12 @@ void tst_QTessellator::testStandardSet()
 
     foreach(FullData data, sampleSet) {
         for (int i = 0; i < data.size(); ++i) {
-            if (!test(data[i].data(), data[i].size())) {
-                simplifyTestFailure(data[i]);
+            if (!test(data[i].data(), data[i].size(), false)) {
+                simplifyTestFailure(data[i], false);
+                QCOMPARE(true, false);
+            }
+            if (!test(data[i].data(), data[i].size(), true)) {
+                simplifyTestFailure(data[i], true);
                 QCOMPARE(true, false);
             }
         }
@@ -106,18 +113,23 @@ void fillRandomVec(QVector<QPointF> &vec)
 
 void tst_QTessellator::testRandom()
 {
-    QVector<QPointF> vec(8);
     int failures = 0;
-    int i = 10000;
-    while (--i) {
-        fillRandomVec(vec);
-        if (!test(vec.data(), vec.size())) {
-            simplifyTestFailure(vec);
-            ++failures;
+    for (int i = 6; i < 10; ++i) {
+        QVector<QPointF> vec(i);
+        int i = 10000;
+        while (--i) {
+            fillRandomVec(vec);
+            if (!test(vec.data(), vec.size(), false)) {
+                simplifyTestFailure(vec, false);
+                ++failures;
+            }
+            if (!test(vec.data(), vec.size(), true)) {
+                simplifyTestFailure(vec, true);
+                ++failures;
+            }
         }
     }
-    if (failures > 0)
-        qDebug("random test had %d failures", failures);
+    QCOMPARE(failures, 0);
 }
 
 QTEST_MAIN(tst_QTessellator)

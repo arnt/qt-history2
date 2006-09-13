@@ -10,13 +10,9 @@
 
 static double compute_x_at(XFixed y, XPointFixed p1, XPointFixed p2)
 {
-    if ((p2.x - p1.x) == 0)
-        return XFixedToDouble(p2.x);
-
-    double m1 = XFixedToDouble(p2.y - p1.y)/XFixedToDouble(p2.x - p1.x);
-    double b1 = XFixedToDouble(p1.y) - m1*XFixedToDouble(p1.x);
-
-    return (XFixedToDouble(y)-b1)/m1;
+    double d = XFixedToDouble(p2.x - p1.x);
+    return
+        XFixedToDouble(p1.x) + d*XFixedToDouble(y - p1.y)/XFixedToDouble(p2.y - p1.y);
 }
 
 double compute_area(XTrapezoid *trap)
