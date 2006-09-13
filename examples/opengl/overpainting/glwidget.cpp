@@ -103,7 +103,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         setZRotation(zRot + 8 * dx);
     }
     lastPos = event->pos();
-    update();
 }
 
 void GLWidget::paintEvent(QPaintEvent *event)
@@ -285,17 +284,9 @@ void GLWidget::animate()
 
     while (iter.hasNext()) {
         Bubble *bubble = iter.next();
-
-        QRectF oldRect = bubble->rect();
         bubble->move(rect());
-        QRectF newRect = bubble->rect();
-
-        QRectF area = oldRect | newRect;
-        area.setCoords(floor(area.left()), floor(area.top()),
-                       ceil(area.right()), ceil(area.bottom()));
-
-        update(area.toRect().adjusted(-1, -1, 1, 1));
     }
+    update();
 }
 
 void GLWidget::setupViewport(int width, int height)
