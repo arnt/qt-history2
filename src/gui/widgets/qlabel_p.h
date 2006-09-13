@@ -84,6 +84,7 @@ public:
     Qt::TextFormat textformat;
     QTextDocument* doc;
     QTextControl *control;
+    QTextCursor shortcutCursor;
     Qt::TextInteractionFlags textInteractionFlags;
 
     void ensureTextLayouted() const;

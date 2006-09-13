@@ -890,6 +890,14 @@ void QLabel::paintEvent(QPaintEvent *)
     else
 #endif
     if (d->doc) {
+        const bool underline = (bool)style->styleHint(QStyle::SH_UnderlineShortcut, 0, this, 0);
+        if (d->shortcutId != -1
+            && underline != d->shortcutCursor.charFormat().fontUnderline()) {
+                QTextCharFormat fmt;
+                fmt.setFontUnderline(underline);
+                d->shortcutCursor.mergeCharFormat(fmt);
+        }
+
         d->ensureTextLayouted();
         QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
         QRect lr = d->layoutRect();
@@ -1062,15 +1070,12 @@ void QLabelPrivate::updateShortcut()
     Q_ASSERT(!isRichText());
 
     // Underline the first character that follows an ampersand
-    QTextCursor cursor = doc->find(QLatin1String("&"));
-    if (cursor.isNull())
+    shortcutCursor = doc->find(QLatin1String("&"));
+    if (shortcutCursor.isNull())
         return;
     shortcutId = q->grabShortcut(QKeySequence::mnemonic(text));
-    cursor.deleteChar(); // remove the ampersand
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-    QTextCharFormat fmt;
-    fmt.setFontUnderline(true);
-    cursor.mergeCharFormat(fmt);
+    shortcutCursor.deleteChar(); // remove the ampersand
+    shortcutCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
 }
 
 #endif // QT_NO_SHORTCUT
