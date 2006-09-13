@@ -328,6 +328,13 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
 #endif
 
     qws_write_uint(socket, type);
+
+    if (rawLen > MAX_COMMAND_SIZE) {
+        qWarning("qws_write_command: Message of size %d too big. "
+                 "Truncated to %d", rawLen, MAX_COMMAND_SIZE);
+        rawLen = MAX_COMMAND_SIZE;
+    }
+
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
 
     // Add total length of command here, allowing for later command expansion...
