@@ -94,8 +94,6 @@ attend
 attendees
 attributes
 authors
-auto-detect
-auto-detecting
 availability
 available
 avoid
@@ -195,7 +193,6 @@ charts
 check
 checks
 Chicago
-chit-chat
 chosen
 chunk
 circle
@@ -212,11 +209,9 @@ client
 clients
 close
 closed
-co-author
 code
 colon
 color
-color-coded
 colorize
 colorizer
 colors
@@ -304,7 +299,6 @@ CPU
 create
 creates
 creating
-cross-platform
 crucial
 cultures
 current
@@ -390,7 +384,6 @@ draw
 drawing
 drawn
 drop
-drop-in
 Duff
 during
 DVD
@@ -412,7 +405,6 @@ ellipses
 elliptical
 else
 email
-e-mail
 embedded
 emit
 emits
@@ -424,7 +416,6 @@ enclose
 end
 endnote
 endnotes
-end-user
 engineer
 engineering
 English
@@ -521,7 +512,6 @@ for
 form
 format
 formats
-format-specific
 forms
 formula
 formulas
@@ -535,7 +525,6 @@ full
 fully
 function
 functionality
-function-based
 functions
 future
 gain
@@ -555,7 +544,6 @@ go
 goes
 got
 gradient
-gradient-filled
 graph
 graphical
 graphics
@@ -595,8 +583,6 @@ help
 helper
 here
 high
-high-complexity
-high-level
 highlight
 highly
 hints
@@ -769,8 +755,6 @@ lookups
 loop
 lout
 low
-lower-case
-low-level
 macro
 made
 magazine
@@ -845,9 +829,6 @@ next
 nicely
 no
 none
-non-Qt
-non-trivial
-non-zero
 normally
 Norway
 not
@@ -881,7 +862,6 @@ one
 ones
 online
 only
-on-screen
 onto
 opacity
 opaque
@@ -967,7 +947,6 @@ pixels
 place
 places
 planning
-platform-independent
 platforms
 play
 players
@@ -975,7 +954,6 @@ playing
 please
 pleasing
 plugin
-plugin-enabled
 plugins
 plus
 PNG
@@ -1041,7 +1019,6 @@ pursuing
 put
 Qt
 Qtopia
-Qt-related
 quality
 quarter
 quarterly
@@ -1054,7 +1031,6 @@ radial
 ragged
 range
 rate
-rate-controlled
 rates
 rather
 ratio
@@ -1067,7 +1043,6 @@ ready
 real
 realistic
 really
-real-time
 received
 recent
 recognized
@@ -1131,7 +1106,6 @@ right
 roadshow
 role
 Roman
-round-trip
 router
 routers
 rule
@@ -1140,7 +1114,6 @@ runner
 runners
 running
 runs
-run-time
 sake
 sales
 salespeople
@@ -1154,7 +1127,6 @@ say
 scalable
 scale
 scanline
-scanline-level
 scene
 scenes
 schedule
@@ -1312,7 +1284,6 @@ target
 targets
 TCP
 team
-technically-focused
 technique
 technology
 template
@@ -1395,13 +1366,11 @@ updates
 upload
 uploading
 uploads
-up-to-date
 us
 use
 used
 useful
 user
-user-friendly
 users
 uses
 using
