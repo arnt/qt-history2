@@ -604,6 +604,19 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
             }
         }
         break;
+    case QVariant::Invalid: // default-parameters not set
+        if (out && arg.vt == (VT_ERROR|VT_BYREF)) {
+            *arg.plVal = DISP_E_PARAMNOTFOUND;
+        } else {
+            arg.vt = VT_ERROR;
+            arg.lVal = DISP_E_PARAMNOTFOUND;
+            if (out) {
+                arg.plVal = new long(arg.lVal);
+                arg.vt |= VT_BYREF;
+            }
+        }
+        break;
+
     default:
         return false;
     }
