@@ -33,20 +33,22 @@ QVFbMouseHandler::QVFbMouseHandler(const QString &driver, const QString &device)
     if (device.isEmpty())
         mouseDev = QLatin1String("/dev/vmouse");
 
-    mouseFD = -1;
-    if ((mouseFD = open(mouseDev.toLatin1().constData(), O_RDWR | O_NDELAY)) < 0) {
-        qWarning("Cannot open %s (%s)", mouseDev.toLatin1().constData(),
-                strerror(errno));
-    } else {
-        // Clear pending input
-        char buf[2];
-        while (read(mouseFD, buf, 1) > 0) { }
-
-        mouseIdx = 0;
-
-        mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
-        connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+    mouseFD = open(mouseDev.toLatin1().constData(), O_RDWR | O_NDELAY);
+    if (mouseFD == -1) {
+        perror("QVFbMouseHandler::QVFbMouseHandler");
+        qWarning("QVFbMouseHander: Unable to open device %s",
+                 qPrintable(mouseDev));
+        return;
     }
+
+    // Clear pending input
+    char buf[2];
+    while (read(mouseFD, buf, 1) > 0) { }
+
+    mouseIdx = 0;
+
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
+    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 }
 
 QVFbMouseHandler::~QVFbMouseHandler()
