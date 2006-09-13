@@ -2072,8 +2072,8 @@ void tst_QGraphicsScene::render()
         gridLayout->addWidget(new QLabel(tr("MISMATCH: %1").arg(QTest::currentDataTag())), 0, 0, 1, 2);
         gridLayout->addWidget(new QLabel(tr("Current")), 1, 0);
         gridLayout->addWidget(new QLabel(tr("Expected")), 1, 1);
-        gridLayout->addWidget(expectedLabel, 2, 0);
-        gridLayout->addWidget(newLabel, 2, 1);
+        gridLayout->addWidget(expectedLabel, 2, 1);
+        gridLayout->addWidget(newLabel, 2, 0);
 
         QWidget widget;
         widget.setLayout(gridLayout);
