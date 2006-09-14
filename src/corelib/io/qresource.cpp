@@ -462,15 +462,17 @@ QStringList QResource::children() const
 
 /*!
   Adds \a path to the search paths searched in to find resources that are
-  not specified with an absolute path. The default search path is to search
-  only in the root (\c{:/}). The last path added will be consulted first
-  upon next QResource creation.
+  not specified with an absolute path. The \a path must be an absolute
+  path (start with \c{/}).
+
+  The default search path is to search only in the root (\c{:/}). The last
+  path added will be consulted first upon next QResource creation.
 */
 
 void
 QResource::addSearchPath(const QString &path)
 {
-    if(path[0] != QLatin1Char('/')) {
+    if (!path.startsWith(QLatin1Char('/'))) {
         qWarning("QDir::addResourceSearchPath: Search paths must be absolute (start with /) [%s]",
                  path.toLocal8Bit().data());
         return;
