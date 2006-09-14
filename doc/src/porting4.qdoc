@@ -3287,7 +3287,7 @@
     \o If you use Q3SocketDevice for UDP, you can now use QUdpSocket instead.
 
     \o If you use Q3SocketDevice for other uses, Qt 4 offers no
-    alternative right now. However, there is a \c QSocketLayer
+    alternative right now. However, there is a \c QAbstractSocketEngine
     internal class that offers a low-level socket API similar to
     Q3SocketDevice. Should the need for such functionality arise in
     Qt 4 applications, we will consider making this class public in a
