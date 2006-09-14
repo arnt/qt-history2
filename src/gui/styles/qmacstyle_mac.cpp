@@ -1122,6 +1122,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
             break;
         case QEvent::MouseButtonRelease:
         case QEvent::FocusOut:
+        case QEvent::PaletteChange:
         case QEvent::Show: {
             QList<QPushButton *> list = qFindChildren<QPushButton *>(btn->window());
             for (int i = 0; i < list.size(); ++i) {
@@ -1129,10 +1130,12 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
                 if ((e->type() == QEvent::FocusOut
                      && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
                      && pBtn != btn)
-                    || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease)
+                    || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease
+                         || e->type() == QEvent::PaletteChange)
                         && pBtn->isDefault())) {
-                    if (pBtn->window()->isActiveWindow())
+                    if (pBtn->window()->isActiveWindow()) {
                         startAnimate(AquaPushButton, pBtn);
+                    }
                     break;
                 }
             }
