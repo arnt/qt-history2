@@ -4,7 +4,7 @@
 
 /* Nice windowsxp style password character */
 QLineEdit[echoMode="2"] {
-    -qt-lineedit-password-character: 9679;
+    lineedit-password-character: 9679;
 }
 
 /* Note that we can provide a min-width and min-height for a button,
@@ -56,8 +56,8 @@ QStatusBar::item {
 
 QComboBox, QLineEdit, QSpinBox, QTextEdit, QListView {
    background-color: cornsilk;
-   -qt-selection-foreground: #0a214c;
-   -qt-selection-background: wheat;
+   selection-color: #0a214c;
+   selection-background-color: wheat;
 }
 
 /* We reserve "1px" space in padding. When we get the focus,
@@ -84,7 +84,7 @@ QRadioButton:hover, QCheckBox:hover {
 
 /* We want the buttons to be windows layout! */
 QDialogButtonBox {
-  -qt-button-layout: 0;
+  button-layout: 0;
 }
 
 /* Tool tips support only one padding. Also, border-radius does not set the window mask
@@ -92,5 +92,5 @@ QDialogButtonBox {
 QToolTip {
     padding: 5px;
     border-radius: 3px;
-    -qt-opacity: 200;
+    opacity: 200;
 }

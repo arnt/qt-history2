@@ -26,31 +26,26 @@ QFrame, QLineEdit {
 /* Make text in message boxes selectable */
 QMessageBox {
     /* LinksAccessibleByMouse+TextSelectableByMouse*/
-    -qt-messagebox-text-interaction-flags: 5;
+    messagebox-text-interaction-flags: 5;
 }
     
 /* All widgets to have the following selection colors */
 QWidget {
-    -qt-selection-foreground: black;
-    -qt-selection-background: Silver;
+    selection-color: black;
+    selection-background-color: Silver;
     color: black;
 }
 
 /* This makes the entire row selected in itemviews selected */
 QAbstractItemView {
-    -qt-show-decoration-selected: 1;
+    show-decoration-selected: 1;
     padding: 2px; /* items are too close to the border image */
     background-color: transparent;
 }
 
-/* This makes the entire row selected in itemviews selected */
-QAbstractItemView {
-    -qt-show-decoration-selected: 1;
-}
-
 /* Nice windowsxp style password character for password lineedits */
 QLineEdit[echoMode="2"] {
-    -qt-lineedit-password-character: 9679;
+    lineedit-password-character: 9679;
 }
 
 /* Tool tips support only one padding. Also, border-radius does not set the window mask
@@ -63,12 +58,12 @@ QToolTip {
     padding: 3px;
     font: bold;
     border-radius: 3px;
-    -qt-opacity: 200;
+    opacity: 200;
 }
 
 /* The radio button */
 QRadioButton {
-    -qt-spacing: 5px;
+    spacing: 5px;
 }
 
 /* not needed to set width, height but good practice */    
@@ -78,28 +73,28 @@ QRadioButton::indicator {
 }
 
 QRadioButton::indicator::unchecked {
-    -qt-image: url(:/images/radiobutton_unchecked.png);
+    image: url(:/images/radiobutton_unchecked.png);
 }
 
 QRadioButton::indicator:unchecked:hover {
-    -qt-image: url(:/images/radiobutton_unchecked_hover.png);
+    image: url(:/images/radiobutton_unchecked_hover.png);
 }
 
 QRadioButton::indicator:unchecked:pressed {
-    -qt-image: url(:/images/radiobutton_unchecked_pressed.png);
+    image: url(:/images/radiobutton_unchecked_pressed.png);
 }
 
 QRadioButton::indicator::checked {
-    -qt-image: url(:/images/radiobutton_checked.png);
+    image: url(:/images/radiobutton_checked.png);
 }
 
 QRadioButton::indicator:checked:hover {
-    -qt-image: url(:/images/radiobutton_checked_hover.png);
+    image: url(:/images/radiobutton_checked_hover.png);
 }
 
 /* this state never really happens. its here for completness */
 QRadioButton::indicator:checked:pressed {
-    -qt-image: url(:/images/radiobutton_checked_pressed.png);
+    image: url(:/images/radiobutton_checked_pressed.png);
 }
 
 /* The Push Button and Combo box. Our non-ediable combo box
@@ -128,8 +123,8 @@ QMenuBar::item:on {
 
 /* Combo box specifics */
 QComboBox::drop-down {
-    -qt-origin: padding;
-    -qt-position: top right;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
     width: 15px;
     border-left-style: solid;
     border-left-color: darkgray;
@@ -137,9 +132,9 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-    -qt-origin: content;
-    -qt-position: center;
-    -qt-image: url(:/images/down_arrow.png);
+    subcontrol-origin: content;
+    subcontrol-position: center;
+    image: url(:/images/down_arrow.png);
     width: 7px;
     height: 7px;
 }
@@ -151,7 +146,7 @@ QComboBox::down-arrow:on {
 
 /* The check box */
 QCheckBox {
-    -qt-spacing: 5px;
+    spacing: 5px;
 }
 
 QCheckBox::indicator {
@@ -160,32 +155,32 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-    -qt-image: url(:/images/checkbox_unchecked.png);
+    image: url(:/images/checkbox_unchecked.png);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    -qt-image: url(:/images/checkbox_unchecked_hover.png);
+    image: url(:/images/checkbox_unchecked_hover.png);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    -qt-image: url(:/images/checkbox_unchecked_pressed.png);
+    image: url(:/images/checkbox_unchecked_pressed.png);
 }
 
 QCheckBox::indicator:checked {
-    -qt-image: url(:/images/checkbox_checked.png);
+    image: url(:/images/checkbox_checked.png);
 }
 
 QCheckBox::indicator:checked:hover {
-    -qt-image: url(:/images/checkbox_checked_hover.png);
+    image: url(:/images/checkbox_checked_hover.png);
 }
 
 QCheckBox::indicator:checked:pressed {
-    -qt-image: url(:/images/checkbox_checked_pressed.png);
+    image: url(:/images/checkbox_checked_pressed.png);
 }
 
 /* Size Grip */
 QSizeGrip {
-    -qt-image: url(:/images/sizegrip.png);
+    image: url(:/images/sizegrip.png);
     width: 16px;
     height: 16px;
 }

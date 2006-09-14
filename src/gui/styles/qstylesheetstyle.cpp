@@ -228,21 +228,21 @@ static QHash<const QWidget *, QRenderRules> renderRulesCache;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 static const char *knownStyleHints[] = {
-    "-qt-activate-on-singleclick",
-    "-qt-button-layout",
-    "-qt-combobox-list-mousetracking",
-    "-qt-combobox-popup",
-    "-qt-etch-disabled-text",
-    "-qt-gridline-color",
-    "-qt-lineedit-password-character",
-    "-qt-menubar-altkey-navigation",
-    "-qt-menubar-separator",
-    "-qt-messagebox-text-interaction-flags",
-    "-qt-mouse-tracking",
-    "-qt-opacity",
-    "-qt-show-decoration-selected",
-    "-qt-spinbox-click-autorepeat-rate",
-    "-qt-spincontrol-disable-on-bounds"
+    "activate-on-singleclick",
+    "button-layout",
+    "combobox-list-mousetracking",
+    "combobox-popup",
+    "etch-disabled-text",
+    "gridline-color",
+    "lineedit-password-character",
+    "menubar-altkey-navigation",
+    "menubar-separator",
+    "messagebox-text-interaction-flags",
+    "mouse-tracking",
+    "opacity",
+    "show-decoration-selected",
+    "spinbox-click-autorepeat-rate",
+    "spincontrol-disable-on-bounds"
 };
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
@@ -2301,21 +2301,21 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
     QRenderRule rule = renderRule(w, opt);
     QString s;
     switch (sh) {
-        case SH_LineEdit_PasswordCharacter: s = "-qt-lineedit-password-character"; break;
-        case SH_EtchDisabledText: s = "-qt-etch-disabled-text"; break;
-        case SH_ItemView_ActivateItemOnSingleClick: s = "-qt-activate-on-singleclick"; break;
-        case SH_ItemView_ShowDecorationSelected: s = "-qt-show-decoration-selected"; break;
-        case SH_Table_GridLineColor: s = "-qt-gridline-color"; break;
-        case SH_DialogButtonLayout: s = "-qt-button-layout"; break;
-        case SH_ToolTipLabel_Opacity: s = "-qt-opacity"; break;
-        case SH_ComboBox_Popup: s = "-qt-combobox-popup"; break;
-        case SH_ComboBox_ListMouseTracking: s = "-qt-combobox-list-mousetracking"; break;
-        case SH_MenuBar_AltKeyNavigation: s = "-qt-menubar-altkey-navigation"; break;
-        case SH_DrawMenuBarSeparator: s = "-qt-menubar-separator"; break;
-        case SH_MenuBar_MouseTracking: s = "-qt-mouse-tracking"; break;
-        case SH_SpinBox_ClickAutoRepeatRate: s = "-qt-spinbox-click-autorepeat-rate"; break;
-        case SH_SpinControls_DisableOnBounds: s = "-qt-spincontrol-disable-on-bounds"; break;
-        case SH_MessageBox_TextInteractionFlags: s = "-qt-messagebox-text-interaction-flags"; break;
+        case SH_LineEdit_PasswordCharacter: s = "lineedit-password-character"; break;
+        case SH_EtchDisabledText: s = "etch-disabled-text"; break;
+        case SH_ItemView_ActivateItemOnSingleClick: s = "activate-on-singleclick"; break;
+        case SH_ItemView_ShowDecorationSelected: s = "show-decoration-selected"; break;
+        case SH_Table_GridLineColor: s = "gridline-color"; break;
+        case SH_DialogButtonLayout: s = "button-layout"; break;
+        case SH_ToolTipLabel_Opacity: s = "opacity"; break;
+        case SH_ComboBox_Popup: s = "combobox-popup"; break;
+        case SH_ComboBox_ListMouseTracking: s = "combobox-list-mousetracking"; break;
+        case SH_MenuBar_AltKeyNavigation: s = "menubar-altkey-navigation"; break;
+        case SH_DrawMenuBarSeparator: s = "menubar-separator"; break;
+        case SH_MenuBar_MouseTracking: s = "mouse-tracking"; break;
+        case SH_SpinBox_ClickAutoRepeatRate: s = "spinbox-click-autorepeat-rate"; break;
+        case SH_SpinControls_DisableOnBounds: s = "spincontrol-disable-on-bounds"; break;
+        case SH_MessageBox_TextInteractionFlags: s = "messagebox-text-interaction-flags"; break;
         default: break;
     }
     if (!s.isEmpty() && rule.hasStyleHint(s)) {
