@@ -58,6 +58,7 @@ void OrderDialog::accept()
         if (QWidget *w = qvariant_cast<QWidget*>(ui.pageList->item(i)->data(Qt::UserRole)))
             m_pages->append(w);
     }
+    QDialog::accept();
 }
 
 void OrderDialog::on_upButton_clicked()
