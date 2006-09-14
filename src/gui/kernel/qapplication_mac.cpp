@@ -358,15 +358,6 @@ void qt_mac_update_os_settings()
             pal.setBrush(QPalette::Disabled, QPalette::Highlight,
                          QColor(c.red / 256, c.green / 256, c.blue / 256));
         }
-        if(!GetThemeBrushAsColor(kThemeBrushButtonActiveDarkShadow, 32, true, &c))
-            pal.setBrush(QPalette::Active, QPalette::Shadow,
-                         QColor(c.red / 256, c.green / 256, c.blue / 256));
-        if(!GetThemeBrushAsColor(kThemeBrushButtonInactiveDarkShadow, 32, true, &c)) {
-            pal.setBrush(QPalette::Inactive, QPalette::Shadow,
-                         QColor(c.red / 256, c.green / 256, c.blue / 256));
-            pal.setBrush(QPalette::Disabled, QPalette::Shadow,
-                         QColor(c.red / 256, c.green / 256, c.blue / 256));
-        }
         if(!GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c)) {
             qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
             pal.setColor(QPalette::Active, QPalette::Text, qc);
