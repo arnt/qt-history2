@@ -1208,6 +1208,7 @@ void QWidgetPrivate::createWindow_sys()
     setWindowTitle_helper(extra->topextra->caption);
     setWindowIconText_helper(extra->topextra->iconText);
     setWindowModified_sys(q->isWindowModified());
+    updateFrameStrut();
 }
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
