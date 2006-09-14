@@ -113,6 +113,7 @@ enum Property {
     Bottom,
     QtOrigin,
     QtPosition,
+    Position,
     NumProperties
 };
 
@@ -204,6 +205,15 @@ enum Origin {
     NumKnownOrigins
 };
 
+enum PositionMode {
+    PositionMode_Unknown,
+    PositionMode_Static,
+    PositionMode_Relative,
+    PositionMode_Absolute,
+    PositionMode_Fixed,
+    NumKnownPositionModes
+};
+
 struct Q_GUI_EXPORT Value
 {
     enum Type {
@@ -252,6 +262,7 @@ struct Q_GUI_EXPORT Declaration
     Origin originValue() const;
     Repeat repeatValue() const;
     Qt::Alignment alignmentValue() const;
+    PositionMode positionValue() const;
 
     bool intValue(int *i, const char *unit = 0) const;
     bool realValue(qreal *r, const char *unit = 0) const;
@@ -341,7 +352,8 @@ struct Q_GUI_EXPORT ValueExtractor
     void extractFont(QFont *font, int *fontSizeAdjustment);
     bool extractBackground(QBrush *, QString *, Repeat *, Qt::Alignment *, QCss::Origin *);
     bool extractGeometry(int *w, int *h, int *mw, int *mh);
-    bool extractPosition(int *l, int *t, QCss::Origin *, Qt::Alignment *);
+    bool extractPosition(int *l, int *t, int *r, int *b, QCss::Origin *, Qt::Alignment *, 
+                         QCss::PositionMode *);
     bool extractBox(int *margins, int *paddings, int *spacing = 0);
     bool extractBorder(int *borders, QColor *colors, BorderStyle *Styles, QSize *radii);
     bool extractPalette(QColor *fg, QColor *sfg, QBrush *sbg, QBrush *abg);

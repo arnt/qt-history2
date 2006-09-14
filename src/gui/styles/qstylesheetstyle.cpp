@@ -141,12 +141,13 @@ struct QStyleSheetGeometryData : public QSharedData
 
 struct QStyleSheetPositionData : public QSharedData
 {
-    QStyleSheetPositionData(int l, int t, Origin o, Qt::Alignment p)
-        : left(l), top(t), origin(o), position(p) { }
+    QStyleSheetPositionData(int l, int t, int r, int b, Origin o, Qt::Alignment p, QCss::PositionMode m)
+        : left(l), top(t), bottom(b), right(r), origin(o), position(p), mode(m) { }
 
-    int left, top;
+    int left, top, bottom, right;
     Origin origin;
     Qt::Alignment position;
+    QCss::PositionMode mode;
 };
 
 class QRenderRule
@@ -213,7 +214,9 @@ public:
     int styleHint(const QString& sh) const { return styleHints.value(sh); }
 
     void fixupBorder();
+#if 0
     void fixupGeometry(const QWidget *w, QString part, QStyle *);
+#endif
 
     QSharedDataPointer<QStyleSheetPaletteData> pal;
     QSharedDataPointer<QStyleSheetBoxData> b;
@@ -247,8 +250,8 @@ static const char *knownStyleHints[] = {
 
 static const char **endKnownStyleHints = knownStyleHints + sizeof(knownStyleHints)/sizeof(char *);
 
-QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *widget,
-                         const QString &part, QStyle *style)
+QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget *,
+                         const QString &, QStyle *)
 : pal(0), b(0), bg(0), bd(0), geo(0), p(0)
 {
     ValueExtractor v(declarations);
@@ -256,11 +259,12 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     if (v.extractGeometry(&w, &h, &minw, &minh))
         geo = new QStyleSheetGeometryData(w, h, minw, minh);
 
-    int left = 0, top = 0;
+    int left = 0, top = 0, right = 0, bottom = 0;
     Origin origin = Origin_Unknown;
     Qt::Alignment position = 0;
-    if (v.extractPosition(&left, &top, &origin, &position))
-        p = new QStyleSheetPositionData(left, top, origin, position);
+    QCss::PositionMode mode = PositionMode_Static;
+    if (v.extractPosition(&left, &top, &right, &bottom, &origin, &position, &mode))
+        p = new QStyleSheetPositionData(left, top, right, bottom, origin, position, mode);
 
     int margins[4], paddings[4], spacing = -1;
     for (int i = 0; i < 4; i++)
@@ -336,7 +340,9 @@ QRenderRule::QRenderRule(const QVector<Declaration> &declarations, const QWidget
     }
 
     fixupBorder();
+#if 0
     fixupGeometry(widget, part, style);
+#endif
 }
 
 QRect QRenderRule::borderRect(const QRect& r) const
@@ -422,6 +428,7 @@ void QRenderRule::fixupBorder()
     bi->cutBorderImage();
 }
 
+#if 0
 void QRenderRule::fixupGeometry(const QWidget *w, QString part, QStyle *style)
 {
     if (part.isEmpty() || hasGeometry())
@@ -448,6 +455,7 @@ void QRenderRule::fixupGeometry(const QWidget *w, QString part, QStyle *style)
     }
     geo = new QStyleSheetGeometryData(width, height, width, height);
 }
+#endif
 
 void QStyleSheetBorderImageData::cutBorderImage()
 {
@@ -1432,12 +1440,29 @@ static QRect positionRect(const QRenderRule& rule1, const QRenderRule& rule2, in
     const QStyleSheetPositionData *p = rule2.position();
     Origin origin = (p && p->origin != Origin_Unknown) ? p->origin : defOrigin;
     QRect originRect = rule1.originRect(rect, origin);
-    QSize sz = expandedSize(rule2.size(), originRect, pe);
-    sz = sz.expandedTo(rule2.minimumContentsSize());
+    PositionMode mode = p ? p->mode : PositionMode_Static;
     Qt::Alignment position = (p && p->position != 0) ? p->position : defPosition;
-    QRect r = QStyle::alignedRect(dir, position, sz, originRect);
-    if (p)
-        r.translate(dir == Qt::LeftToRight ? p->left : -p->left, p->top);
+    QRect r;
+
+    if (mode != PositionMode_Absolute) {
+        QSize sz = expandedSize(rule2.size(), originRect, pe);
+        sz = sz.expandedTo(rule2.minimumContentsSize());
+        r = QStyle::alignedRect(dir, position, sz, originRect);
+        if (p) {
+            int left = p->left ? p->left : -p->right;
+            int top = p->top ? p->top : -p->bottom;
+            r.translate(dir == Qt::LeftToRight ? left : -left, top);
+        }
+    } else {
+        if (p)
+            r = originRect.adjusted(dir == Qt::LeftToRight ? p->left : p->right, p->top, 
+                                    dir == Qt::LeftToRight ? -p->right : -p->left, -p->bottom);
+        if (rule2.hasContentsSize()) {
+            QSize sz = expandedSize(rule2.size(), r, pe);
+            sz = sz.expandedTo(rule2.minimumContentsSize());
+            r = QStyle::alignedRect(dir, position, sz, r);
+        }
+    }
     return r;
 }
 

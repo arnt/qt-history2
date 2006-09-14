@@ -135,6 +135,7 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "padding-top", PaddingTop },
     { "page-break-after", PageBreakAfter },
     { "page-break-before", PageBreakBefore },
+    { "position", Position },
     { "right", Right },
     { "selection-background-color", QtSelectionBackground },
     { "selection-color", QtSelectionForeground },
@@ -225,6 +226,13 @@ static const QCssKnownValue tileModes[NumKnownTileModes - 1] = {
     { "stretch", TileMode_Stretch },
 };
 
+static const QCssKnownValue positions[NumKnownPositionModes - 1] = {
+    { "absolute", PositionMode_Absolute },
+    { "fixed", PositionMode_Fixed },
+    { "relative", PositionMode_Relative },
+    { "static", PositionMode_Static }
+};
+
 static bool operator<(const QString &name, const QCssKnownValue &prop)
 {
     return QString::compare(name, QLatin1String(prop.name), Qt::CaseInsensitive) < 0;
@@ -312,8 +320,8 @@ bool ValueExtractor::extractGeometry(int *w, int *h, int *mw, int *mh)
     return hit;
 }
 
-bool ValueExtractor::extractPosition(int *left, int *top, QCss::Origin *origin,
-                                     Qt::Alignment *position)
+bool ValueExtractor::extractPosition(int *left, int *top, int *right, int *bottom, QCss::Origin *origin,
+                                     Qt::Alignment *position, QCss::PositionMode *mode)
 {
     extractFont();
     bool hit = false;
@@ -322,10 +330,11 @@ bool ValueExtractor::extractPosition(int *left, int *top, QCss::Origin *origin,
         switch (decl.propertyId) {
         case Left: *left = lengthValue(decl); break;
         case Top: *top = lengthValue(decl); break;
-        case Right: *left = -lengthValue(decl); break;
-        case Bottom: *top = -lengthValue(decl); break;
+        case Right: *right = lengthValue(decl); break;
+        case Bottom: *bottom = lengthValue(decl); break;
         case QtOrigin: *origin = decl.originValue(); break;
         case QtPosition: *position = decl.alignmentValue(); break;
+        case Position: *mode = decl.positionValue(); break;
         default: continue;
         }
         hit = true;
@@ -950,6 +959,14 @@ Origin Declaration::originValue() const
         return Origin_Unknown;
     return static_cast<Origin>(findKnownValue(values.first().variant.toString(),
                                origins, NumKnownOrigins));
+}
+
+PositionMode Declaration::positionValue() const
+{
+    if (values.count() != 1)
+        return PositionMode_Unknown;
+    return static_cast<PositionMode>(findKnownValue(values.first().variant.toString(),
+                                     positions, NumKnownPositionModes));
 }
 
 QString Declaration::uriValue() const
