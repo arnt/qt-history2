@@ -28,6 +28,8 @@ public slots:
     void init();
     void cleanup();
 private slots:
+    void toStringLocale();
+    void toString();
     void msecsTo_data();
     void msecsTo();
     void secsTo_data();
@@ -56,7 +58,6 @@ private slots:
     void fromStringFormat_data();
     void fromStringFormat();
     void toString_data();
-    void toString();
     void toString_format_data();
     void toString_format();
 };
@@ -649,6 +650,20 @@ void tst_QTime::toString_format()
     QFETCH( QString, str );
 
     QCOMPARE( t.toString( format ), str );
+}
+
+void tst_QTime::toStringLocale()
+{
+    QTime time(18, 30);
+    QCOMPARE(time.toString(Qt::SystemLocaleDate),
+                QLocale::system().toString(time, QLocale::ShortFormat));
+    QCOMPARE(time.toString(Qt::LocaleDate),
+                QLocale().toString(time, QLocale::ShortFormat));
+    QLocale::setDefault(QLocale::German);
+    QCOMPARE(time.toString(Qt::SystemLocaleDate),
+                QLocale::system().toString(time, QLocale::ShortFormat));
+    QCOMPARE(time.toString(Qt::LocaleDate),
+                QLocale().toString(time, QLocale::ShortFormat));
 }
 
 QTEST_APPLESS_MAIN(tst_QTime)

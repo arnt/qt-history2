@@ -25,6 +25,7 @@ public slots:
     void init();
     void cleanup();
 private slots:
+    void toString();
     void isValid_data();
     void isValid();
     void julianDay_data();
@@ -142,7 +143,7 @@ void tst_QDate::isValid_data()
     QTest::newRow("imminent overflow") << 11754508 << 12 << 13 << 4294967295U << true;
 #endif
 }
- 
+
 void tst_QDate::isValid()
 {
     QFETCH(int, year);
@@ -702,6 +703,20 @@ void tst_QDate::yearsZeroToNinetyNine()
         QVERIFY(!dt.isValid());
     }
 
+}
+
+void tst_QDate::toString()
+{
+    QDate date(1974,12,1);
+    QCOMPARE(date.toString(Qt::SystemLocaleDate),
+                QLocale::system().toString(date, QLocale::ShortFormat));
+    QCOMPARE(date.toString(Qt::LocaleDate),
+                QLocale().toString(date, QLocale::ShortFormat));
+    QLocale::setDefault(QLocale::German);
+    QCOMPARE(date.toString(Qt::SystemLocaleDate),
+                QLocale::system().toString(date, QLocale::ShortFormat));
+    QCOMPARE(date.toString(Qt::LocaleDate),
+                QLocale().toString(date, QLocale::ShortFormat));
 }
 
 QTEST_APPLESS_MAIN(tst_QDate)
