@@ -159,7 +159,7 @@ public:
     QRectF sceneBoundingRect() const;
     virtual QPainterPath shape() const;
     virtual bool contains(const QPointF &point) const;
-    virtual bool collidesWithItem(QGraphicsItem *other, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
+    virtual bool collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     virtual bool collidesWithPath(const QPainterPath &path, Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     QList<QGraphicsItem *> collidingItems(Qt::ItemSelectionMode mode = Qt::IntersectsItemShape) const;
     bool isObscured() const;

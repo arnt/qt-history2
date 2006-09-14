@@ -1650,7 +1650,7 @@ bool QGraphicsItem::contains(const QPointF &point) const
 
     \sa contains(), shape()
 */
-bool QGraphicsItem::collidesWithItem(QGraphicsItem *other, Qt::ItemSelectionMode mode) const
+bool QGraphicsItem::collidesWithItem(const QGraphicsItem *other, Qt::ItemSelectionMode mode) const
 {
     if (other == this)
         return true;
