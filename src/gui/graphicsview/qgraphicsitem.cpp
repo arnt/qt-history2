@@ -5512,8 +5512,10 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
     QTextLayout layout(&engine);
     setupTextLayout(&layout);
 
+    QPen p;
+    p.setBrush(d->brush);
+    painter->setPen(p);
     if (d->pen.style() == Qt::NoPen && d->brush.style() == Qt::SolidPattern) {
-        painter->setPen(d->brush);
         painter->setBrush(Qt::NoBrush);
     } else {
         QTextLayout::FormatRange range;
@@ -5523,9 +5525,6 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
         QList<QTextLayout::FormatRange> formats;
         formats.append(range);
         layout.setAdditionalFormats(formats);
-        QPen p;
-        p.setBrush(d->brush);
-        painter->setPen(p);
     }
 
     layout.draw(painter, QPointF(0, 0));
