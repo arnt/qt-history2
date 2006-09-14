@@ -465,7 +465,12 @@
     \value TextDate The default Qt format.
     \value ISODate ISO 8601 extended format (YYYY-MM-DD, or with time,
     YYYY-MM-DDTHH:MM:SS).
-    \value LocalDate The locale-dependent format.
+    \value LocalDate \e{This attribute has been deprecated.} Use Qt::LocaleDate or
+    Qt::SystemLocaleDate instead.
+    \value SystemLocaleDate The format used by the operating system.
+    \value LocaleDate The format used by the default application locale. This is the
+    locale set with QLocale::setDefault(), or the operating system locale if no
+    default locale has been set.
 */
 
 

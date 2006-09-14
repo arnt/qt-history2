@@ -468,7 +468,7 @@ QString QDate::shortMonthName(int month)
         qWarning("QDate::shortMonthName: Parameter out ouf range");
         month = 1;
     }
-    return QLocale().monthName(month, QLocale::ShortFormat);
+    return QLocale::system().monthName(month, QLocale::ShortFormat);
 }
 
 /*!
@@ -502,7 +502,7 @@ QString QDate::longMonthName(int month)
         qWarning("QDate::longMonthName: Parameter out ouf range");
         month = 1;
     }
-    return QLocale().monthName(month, QLocale::LongFormat);
+    return QLocale::system().monthName(month, QLocale::LongFormat);
 }
 
 /*!
@@ -531,7 +531,7 @@ QString QDate::shortDayName(int weekday)
         qWarning("QDate::shortDayName: Parameter out of range");
         weekday = 1;
     }
-    return QLocale().dayName(weekday, QLocale::ShortFormat);
+    return QLocale::system().dayName(weekday, QLocale::ShortFormat);
 }
 
 /*!
@@ -560,7 +560,7 @@ QString QDate::longDayName(int weekday)
         qWarning("QDate::longDayName: Parameter out of range");
         weekday = 1;
     }
-    return QLocale().dayName(weekday, QLocale::LongFormat);
+    return QLocale::system().dayName(weekday, QLocale::LongFormat);
 }
 #endif //QT_NO_TEXTDATE
 
@@ -586,8 +586,17 @@ QString QDate::longDayName(int weekday)
     year, MM is the month of the year (between 01 and 12), and DD is
     the day of the month between 01 and 31.
 
-    If the \a format is Qt::LocalDate, the string format depends on the locale
-    settings of the system.
+    If the \a format is Qt::LocalDate or Qt::SystemLocaleDate, the string
+    format depends on the locale settings of the system. Identical to
+    calling QLocale::system().toString(date, QLocale::ShortFormat).
+    \e{Qt::LocalDate has been deprecated, please use Qt::SystemLocaleDate
+    instead.}
+
+    If the \a format is Qt::LocaleDate, the string
+    format depends on the default application locale. This is the
+    locale set with QLocale::setDefault(), or the system locale if no
+    default locale has been set. Identical to calling
+    QLocale().toString(date, QLocale::ShortFormat);
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -604,7 +613,9 @@ QString QDate::toString(Qt::DateFormat f) const
     int y, m, d;
     getDateFromJulianDay(jd, &y, &m, &d);
     switch (f) {
-    case Qt::LocalDate:
+    case Qt::SystemLocaleDate:
+        return QLocale::system().toString(*this, QLocale::ShortFormat);
+    case Qt::LocaleDate:
         return QLocale().toString(*this, QLocale::ShortFormat);
     default:
 #ifndef QT_NO_TEXTDATE
@@ -1302,6 +1313,18 @@ int QTime::msec() const
     ISO 8601 extended specification for representations of dates,
     which is also HH:MM:SS.
 
+    If \a f is Qt::LocalDate or Qt::SystemLocaleDate, the string
+    format depends on the locale settings of the system. Identical to
+    calling QLocale::system().toString(time, QLocale::ShortFormat).
+    \e{Qt::LocalDate has been deprecated, please use Qt::SystemLocaleDate
+    instead.}
+
+    If \a f is Qt::LocaleDate, the string
+    format depends on the default application locale. This is the
+    locale set with QLocale::setDefault(), or the system locale if no
+    default locale has been set. Identical to calling
+    QLocale().toString(time, QLocale::ShortFormat);
+
     If \a f is Qt::LocalDate, the string format depends on the locale
     settings of the system.
 
@@ -1314,7 +1337,9 @@ QString QTime::toString(Qt::DateFormat f) const
         return QString();
 
     switch (f) {
-    case Qt::LocalDate:
+    case Qt::SystemLocaleDate:
+        return QLocale::system().toString(*this, QLocale::ShortFormat);
+    case Qt::LocaleDate:
         return QLocale().toString(*this, QLocale::ShortFormat);
     default:
     case Qt::ISODate:
@@ -2056,8 +2081,17 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
     to the ISO 8601 extended specification for representations of
     dates and times, taking the form YYYY-MM-DDTHH:MM:SS.
 
-    If the \a format is Qt::LocalDate, the string format depends
-    on the locale settings of the system.
+    If the \a format is Qt::LocalDate or Qt::SystemLocaleDate, the string
+    format depends on the locale settings of the system. Identical to
+    calling QLocale::system().toString(dateTime, QLocale::ShortFormat).
+    \e{Qt::LocalDate has been deprecated, please use Qt::SystemLocaleDate
+    instead.}
+
+    If the \a format is Qt::LocaleDate, the string
+    format depends on the default application locale. This is the
+    locale set with QLocale::setDefault(), or the system locale if no
+    default locale has been set. Identical to calling
+    QLocale().toString(dateTime, QLocale::ShortFormat);
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -2122,12 +2156,12 @@ QString QDateTime::toString(Qt::DateFormat f) const
         buf += QString::number(d->date.year());
     }
 #endif
-    else if (f == Qt::LocalDate) {
-        buf = d->date.toString(Qt::LocalDate);
+    else if (f == Qt::LocaleDate || f == Qt::SystemLocaleDate) {
+        buf = d->date.toString(f);
         if (buf.isEmpty())
             return QString();   // failed to convert
         buf += QLatin1Char(' ');
-        buf += d->time.toString(Qt::LocalDate);
+        buf += d->time.toString(f);
     }
     return buf;
 }
