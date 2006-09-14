@@ -1525,6 +1525,14 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     [ "$OPT_VERBOSE" = "yes" ] && echo "Performing shadow build..."
 fi
 
+if [ "$PLATFORM_X11" = "yes" -o "$PLATFORM_QWS" = "yes" ] && [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
+    echo
+    echo "WARNING: -debug-and-release is not supported anymore on Qt/X11 and Qtopia Core"
+    echo "By default, Qt is built in release mode with separate debug information, so"
+    echo "-debug-and-release is not necessary anymore"
+    echo
+fi
+
 # detect build style
 if [ "$CFG_DEBUG" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -2482,7 +2490,7 @@ Configure options:
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
     -debug-and-release . Compile and link two versions of Qt, with and without
-                         debugging turned on. [Default on Mac]
+                         debugging turned on. [Mac only]
 
  *  -shared ............ Create and use shared Qt libraries.
     -static ............ Create and use static Qt libraries.
