@@ -176,7 +176,7 @@ bool QTransformedScreen::connect(const QString &displaySpec)
     else if (!dspec.compare(QLatin1String("Transformed"), Qt::CaseInsensitive))
         dspec = QString();
 
-    const QString displayIdSpec = QString(":%1").arg(displayId);
+    const QString displayIdSpec = QString(" :%1").arg(displayId);
     if (dspec.endsWith(displayIdSpec))
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
