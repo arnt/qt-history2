@@ -67,8 +67,9 @@ public Q_SLOTS:
     void setStep(qreal x);
     void reset();
 
-Q_SIGNALS:
-    void newTransformation(const QPointF &pos, const QMatrix &matrix);
+protected:
+    virtual void beforeAnimationStep(qreal step);
+    virtual void afterAnimationStep(qreal step);
 
 private:
     Q_DISABLE_COPY(QGraphicsItemAnimation)

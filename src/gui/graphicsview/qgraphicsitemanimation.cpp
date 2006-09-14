@@ -411,21 +411,24 @@ void QGraphicsItemAnimation::setStep(qreal x)
         return;
     }
 
-    d->step = x;
-    if (!d->item)
-        return;
+    beforeAnimationStep(x);
 
-    if (!d->xPosition.isEmpty() || !d->yPosition.isEmpty())
-	d->item->setPos(posAt(x));
-    if (!d->rotation.isEmpty()
-	|| !d->verticalScale.isEmpty()
-	|| !d->horizontalScale.isEmpty()
-	|| !d->verticalShear.isEmpty()
-	|| !d->horizontalShear.isEmpty()
-	|| !d->xTranslation.isEmpty()
-	|| !d->yTranslation.isEmpty()) {
-	d->item->setMatrix(d->startMatrix * matrixAt(x));
+    d->step = x;
+    if (d->item) {
+        if (!d->xPosition.isEmpty() || !d->yPosition.isEmpty())
+            d->item->setPos(posAt(x));
+        if (!d->rotation.isEmpty()
+            || !d->verticalScale.isEmpty()
+            || !d->horizontalScale.isEmpty()
+            || !d->verticalShear.isEmpty()
+            || !d->horizontalShear.isEmpty()
+            || !d->xTranslation.isEmpty()
+            || !d->yTranslation.isEmpty()) {
+            d->item->setMatrix(d->startMatrix * matrixAt(x));
+        }
     }
+
+    afterAnimationStep(x);
 }
 
 /*!
@@ -437,6 +440,26 @@ void QGraphicsItemAnimation::reset()
         return;
     d->startPos = d->item->pos();
     d->startMatrix = d->item->matrix();
+}
+
+/*!
+  \fn void QGraphicsItemAnimation::beforeAnimationStep(qreal step)
+  This method is meant to be overridden by subclassed that needs to
+  execute additional code before a new step takes place.
+*/
+void QGraphicsItemAnimation::beforeAnimationStep(qreal step)
+{
+    Q_UNUSED(step);
+}
+
+/*!
+  \fn void QGraphicsItemAnimation::afterAnimationStep(qreal step)
+  This method is meant to be overridden by subclassed that needs to
+  execute additional code after a new step has taken place.
+*/
+void QGraphicsItemAnimation::afterAnimationStep(qreal step)
+{
+    Q_UNUSED(step);
 }
 
 #endif // QT_NO_GRAPHICSVIEW
