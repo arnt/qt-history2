@@ -1672,7 +1672,7 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
             at = findXdndDropTransactionByWindow(req->requestor);
         }
         if (at == -1 && req->time == CurrentTime) {
-            // bastards! previous Qt versions always requested the data on a child of the target window
+            // previous Qt versions always requested the data on a child of the target window
             // using CurrentTime... but it could be asking for either drop data or the current drag's data
             Window target = findXdndAwareParent(req->requestor);
             if (target) {
