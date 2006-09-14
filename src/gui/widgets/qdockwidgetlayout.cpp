@@ -2645,8 +2645,6 @@ QLayoutItem *QDockWidgetLayout::itemAt(int *x, int index) const
 
     for (int i = 0; i < PosCount; ++i) {
         const QDockAreaLayoutInfo &dock = docks[i];
-        if (dock.isEmpty())
-            continue;
         if (QLayoutItem *ret = dock.itemAt(x, index))
             return ret;
     }
@@ -2663,8 +2661,6 @@ QLayoutItem *QDockWidgetLayout::takeAt(int *x, int index)
 
     for (int i = 0; i < PosCount; ++i) {
         QDockAreaLayoutInfo &dock = docks[i];
-        if (dock.isEmpty())
-            continue;
         if (QLayoutItem *ret = dock.takeAt(x, index))
             return ret;
     }
