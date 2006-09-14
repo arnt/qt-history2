@@ -83,7 +83,7 @@ public:
 
     inline bool isReserved() const { return surfaceFlags() & Reserved; }
     inline bool isBuffered() const { return surfaceFlags() & Buffered; }
-    inline bool isOpaque() const { return !isBuffered() || surfaceFlags() & Opaque; }
+    inline bool isOpaque() const { return surfaceFlags() & Opaque; }
 
 protected:
     void setSurfaceFlags(SurfaceFlags type);
