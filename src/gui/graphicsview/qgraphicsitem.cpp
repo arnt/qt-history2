@@ -1686,7 +1686,7 @@ bool QGraphicsItem::collidesWithPath(const QPainterPath &path, Qt::ItemSelection
         // No collision with empty paths.
         return false;
     }
-    
+
     QRectF rectA = boundingRect();
     QRectF rectB = path.controlPointRect();
     if (!rectA.intersects(rectB)) {
@@ -5308,12 +5308,15 @@ QTextCursor QGraphicsTextItem::textCursor() const
     return dd->control->textCursor();
 }
 
-class QGraphicsSimpleTextItemPrivate : public QGraphicsItemPrivate
+class QGraphicsSimpleTextItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsSimpleTextItem)
 public:
+    inline QGraphicsSimpleTextItemPrivate() {
+        pen.setStyle(Qt::NoPen);
+        brush.setStyle(Qt::SolidPattern);
+    }
     QString text;
-    QPen pen;
     QFont font;
     QRectF boundingRect;
 
@@ -5382,7 +5385,7 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
     \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
-    : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
 }
 
@@ -5392,7 +5395,7 @@ QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphic
     \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent , QGraphicsScene *scene)
-    : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
     setText(text);
 }
@@ -5446,25 +5449,6 @@ QFont QGraphicsSimpleTextItem::font() const
 }
 
 /*!
-    Sets the pen that is used to draw the item's text to \a pen.
-*/
-void QGraphicsSimpleTextItem::setPen(const QPen &pen)
-{
-    Q_D(QGraphicsSimpleTextItem);
-    d->pen = pen;
-    update();
-}
-
-/*!
-    Returns the pen that is used to draw the item's text.
-*/
-QPen QGraphicsSimpleTextItem::pen() const
-{
-    Q_D(const QGraphicsSimpleTextItem);
-    return d->pen;
-}
-
-/*!
     \reimp
 */
 QRectF QGraphicsSimpleTextItem::boundingRect() const
@@ -5500,7 +5484,7 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
 {
     Q_UNUSED(widget);
     Q_D(QGraphicsSimpleTextItem);
-    painter->setPen(d->pen);
+
     painter->setFont(d->font);
 
     QString tmp = d->text;
@@ -5508,6 +5492,23 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
     QStackTextEngine engine(tmp, d->font);
     QTextLayout layout(&engine);
     setupTextLayout(&layout);
+
+    if (d->pen.style() == Qt::NoPen && d->brush.style() == Qt::SolidPattern) {
+        painter->setPen(d->brush);
+        painter->setBrush(Qt::NoBrush);
+    } else {
+        QTextLayout::FormatRange range;
+        range.start = 0;
+        range.length = layout.text().length();
+        range.format.setTextOutline(d->pen);
+        QList<QTextLayout::FormatRange> formats;
+        formats.append(range);
+        layout.setAdditionalFormats(formats);
+        QPen p;
+        p.setBrush(d->brush);
+        painter->setPen(p);
+    }
+
     layout.draw(painter, QPointF(0, 0));
 
     if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
@@ -5522,7 +5523,7 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
 */
 bool QGraphicsSimpleTextItem::isObscuredBy(const QGraphicsItem *item) const
 {
-    return QGraphicsItem::isObscuredBy(item);
+    return QAbstractGraphicsShapeItem::isObscuredBy(item);
 }
 
 /*!
@@ -5530,7 +5531,7 @@ bool QGraphicsSimpleTextItem::isObscuredBy(const QGraphicsItem *item) const
 */
 QPainterPath QGraphicsSimpleTextItem::opaqueArea() const
 {
-    return QGraphicsItem::opaqueArea();
+    return QAbstractGraphicsShapeItem::opaqueArea();
 }
 
 /*!

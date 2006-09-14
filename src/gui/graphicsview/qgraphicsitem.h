@@ -649,7 +649,7 @@ private:
 };
 
 class QGraphicsSimpleTextItemPrivate;
-class Q_GUI_EXPORT QGraphicsSimpleTextItem : public QGraphicsItem
+class Q_GUI_EXPORT QGraphicsSimpleTextItem : public QAbstractGraphicsShapeItem
 {
 public:
     QGraphicsSimpleTextItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
@@ -662,15 +662,12 @@ public:
     void setFont(const QFont &font);
     QFont font() const;
 
-    void setPen(const QPen &pen);
-    QPen pen() const;
-
     QRectF boundingRect() const;
     QPainterPath shape() const;
     bool contains(const QPointF &point) const;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    
+
     bool isObscuredBy(const QGraphicsItem *item) const;
     QPainterPath opaqueArea() const;
 
