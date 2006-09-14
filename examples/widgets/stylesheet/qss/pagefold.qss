@@ -1,6 +1,5 @@
-/* layout(pagefold) */
+/* layout(pagefold) . Note: Style is not RTL compliant. */
 
-/* Set a background image for the central widget */
 QMainWindow > .QWidget {
     background-color: gainsboro;
     background-image: url(:/images/pagefold.png);
@@ -8,12 +7,6 @@ QMainWindow > .QWidget {
     background-repeat: no-repeat
 }
 
-/* Make text in message boxes selectable */
-QMessageBox {
-    /* LinksAccessibleByMouse+TextSelectableByMouse*/
-    -qt-messagebox-text-interaction-flags: 5;
-}
-    
 /* Provide a padding for the layout inside the frame. The frame
     exists only to provide a padding for the top right image, so we
     explicitly disable the border! */
@@ -30,6 +23,12 @@ QFrame, QLineEdit {
     border-width: 3;
 }
 
+/* Make text in message boxes selectable */
+QMessageBox {
+    /* LinksAccessibleByMouse+TextSelectableByMouse*/
+    -qt-messagebox-text-interaction-flags: 5;
+}
+    
 /* All widgets to have the following selection colors */
 QWidget {
     -qt-selection-foreground: black;
@@ -103,22 +102,51 @@ QRadioButton::indicator:checked:pressed {
     -qt-image: url(:/images/radiobutton_checked_pressed.png);
 }
 
-/* The Push Button */
+/* The Push Button and Combo box. Our non-ediable combo box
+   is very similar to a combo box. So they share the same border image! */
 QPushButton {
-    border-image: url(:/images/pushbutton.png) 3;
-    border-width: 3;
-    min-width: 5em;
-    min-height: 1.4em;
+    min-width: 4em;
+    min-height: 1.2em;
 }
 
-QPushButton:hover {
+QPushButton, QComboBox[editable="false"] {
+    border-image: url(:/images/pushbutton.png) 3;
+    border-width: 3;
+}
+
+QPushButton:hover, QComboBox[editable="false"]:hover,
+QMenuBar::item:hover {
     border-image: url(:/images/pushbutton_hover.png) 3;
     border-width: 3;
 }
 
-QPushButton:pressed {
+QPushButton:pressed, QComboBox[editable="false"]:on,
+QMenuBar::item:on {
     border-image: url(:/images/pushbutton_pressed.png) 3;
     border-width: 3;
+}
+
+/* Combo box specifics */
+QComboBox::drop-down {
+    -qt-origin: padding;
+    -qt-position: top right;
+    width: 15px;
+    border-left-style: solid;
+    border-left-color: darkgray;
+    border-left-width: 1px;
+}
+
+QComboBox::down-arrow {
+    -qt-origin: content;
+    -qt-position: center;
+    -qt-image: url(:/images/down_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
 }
 
 /* The check box */
@@ -154,3 +182,21 @@ QCheckBox::indicator:checked:hover {
 QCheckBox::indicator:checked:pressed {
     -qt-image: url(:/images/checkbox_checked_pressed.png);
 }
+
+/* Size Grip */
+QSizeGrip {
+    -qt-image: url(:/images/sizegrip.png);
+    width: 16px;
+    height: 16px;
+}
+
+/* QMenuBar */
+QMenuBar {
+    border-image: none;
+    border-style: none;
+    border-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: darkslategray;
+    padding: 2px;
+}
+

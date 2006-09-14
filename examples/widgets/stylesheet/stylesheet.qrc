@@ -26,5 +26,7 @@
     <file>images/checkbox_checked_pressed.png</file>
     <file>images/checkbox_checked_hover.png</file>
 
+    <file>images/down_arrow.png</file>
+    <file>images/sizegrip.png</file>
 </qresource>
 </RCC>
