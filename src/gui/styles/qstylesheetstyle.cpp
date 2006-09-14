@@ -1313,6 +1313,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
 
         switch (pseudoElement) {
         case PseudoElement_DropDown:
+        case PseudoElement_DropDownArrow:
             state |= (opt->state & QStyle::State_On); // propagate popup state as on/off
             break;
         case PseudoElement_SpinBoxUpButton:
@@ -1344,9 +1345,19 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
         // Add hacks for simple controls here
 #ifndef QT_NO_LINEEDIT
         // LineEdit sets Sunken flag to indicate Sunken frame (argh)
-        if (qobject_cast<const QLineEdit *>(w))
+        if (qobject_cast<const QLineEdit *>(w)) {
             state &= ~QStyle::State_Sunken;
+        } else
 #endif
+#ifndef QT_NO_MENUBAR
+        if (qobject_cast<const QMenuBar *>(w)) {
+            if (state & QStyle::State_Sunken) {
+                state &= ~QStyle::State_Sunken;
+                state |= QStyle::State_On;
+            }
+        } else
+#endif
+        { } // required for the above ifdef'ery
     }
 
     return renderRule(w, knownPseudoElements[pseudoElement].name, state);
