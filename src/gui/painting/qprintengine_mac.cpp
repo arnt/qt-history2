@@ -362,15 +362,19 @@ void QMacPrintEnginePrivate::initialize()
             qWarning("QPrinter::initialize: Cannot get printer resolution");
     }
 
-    bool settingsOK = (settings == 0) ? PMCreatePrintSettings(&settings) == noErr : true;
-    if (settingsOK)
+    bool settingsInitialized = (settings != 0);
+    bool settingsOK = !settingsInitialized ? PMCreatePrintSettings(&settings) == noErr : true;
+    if (settingsOK && !settingsInitialized)
         settingsOK = PMSessionDefaultPrintSettings(session, settings) == noErr;
 
 
-    bool formatOK = (format == 0) ? PMCreatePageFormat(&format) == noErr : true;
+    bool formatInitialized = (format != 0);
+    bool formatOK = !formatInitialized ? PMCreatePageFormat(&format) == noErr : true;
     if (formatOK) {
-        formatOK = PMSessionDefaultPageFormat(session, format) == noErr;
-        formatOK = PMSetResolution(format, &resolution) == noErr;
+        if (!formatInitialized) {
+            formatOK = PMSessionDefaultPageFormat(session, format) == noErr;
+            formatOK = PMSetResolution(format, &resolution) == noErr;
+        }
         formatOK = PMSessionValidatePageFormat(session, format, kPMDontWantBoolean) == noErr;
     }
 
