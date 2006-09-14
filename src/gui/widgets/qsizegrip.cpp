@@ -43,6 +43,7 @@ public:
     int d;
     bool hiddenByUser;
     bool atBottom;
+    bool gotMousePress;
 };
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
@@ -130,6 +131,8 @@ void QSizeGripPrivate::init()
     Q_Q(QSizeGrip);
     hiddenByUser = false;
     atBottom = qt_sizegrip_atBottom(q);
+    gotMousePress = false;
+
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
     q->setCursor(q->isRightToLeft() ^ atBottom ? Qt::SizeFDiagCursor : Qt::SizeBDiagCursor);
@@ -200,6 +203,7 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
     Q_D(QSizeGrip);
+    d->gotMousePress = true;
     d->p = e->globalPos();
     d->r = qt_sizegrip_topLevelWidget(this)->geometry();
 }
@@ -216,6 +220,9 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         return;
 
     Q_D(QSizeGrip);
+    if (d->gotMousePress == false)
+        return;
+
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
     if (tlw->testAttribute(Qt::WA_WState_ConfigPending))
         return;
@@ -311,6 +318,7 @@ bool QSizeGrip::event(QEvent *e)
         break;
 #endif
     case QEvent::MouseButtonRelease:
+        d->gotMousePress = false;
         d->p = QPoint();
         break;
     default:
