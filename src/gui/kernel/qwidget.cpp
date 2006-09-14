@@ -1858,12 +1858,13 @@ void QWidgetPrivate::inheritStyle()
         return;
     }
 
-    // now inherit the style from parent
+    // If we have stylesheet on app or parent has stylesheet style, we need
+    // to be running a proxy
     QStyle *origStyle = proxy ? proxy->base : (extra ? extra->style : 0);
-
-    if (!qApp->styleSheet().isEmpty()
-        || q->parentWidget() && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style())) {
-        QStyle *newStyle = q->parentWidget() ? q->parentWidget()->style() : 0;
+    QWidget *parent = q->parentWidget();
+    QStyle *parentStyle = parent && parent->d_func()->extra ? parent->d_func()->extra->style : 0;
+    if (!qApp->styleSheet().isEmpty() || qobject_cast<QStyleSheetStyle *>(parentStyle)) {
+        QStyle *newStyle = parentStyle;
         if (q->testAttribute(Qt::WA_SetStyle))
             newStyle = new QStyleSheetStyle(origStyle);
         else if (QStyleSheetStyle *newProxy = qobject_cast<QStyleSheetStyle *>(newStyle))
@@ -1873,7 +1874,7 @@ void QWidgetPrivate::inheritStyle()
         return;
     }
 
-    // So, we have no stylesheet on parent and we have an empty stylesheet
+    // So, we have no stylesheet on parent/app and we have an empty stylesheet
     // we just need our original style back
     if (origStyle == (extra ? extra->style : 0)) // is it any different?
         return;
