@@ -333,6 +333,16 @@
 
 Q_DECLARE_METATYPE(QGraphicsItem *)
 
+/*
+    ### More this into QGraphicsItemPrivate
+ */
+class QGraphicsItemCustomDataStore
+{
+public:
+    QMap<const QGraphicsItem *, QMap<int, QVariant> > data;
+};
+Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
+    
 /*!
     \internal
 
@@ -497,6 +507,8 @@ QGraphicsItem::~QGraphicsItem()
         d_ptr->scene->d_func()->_q_removeItemLater(this);
 
     delete d_ptr;
+
+    qt_dataStore()->data.remove(this);
 }
 
 /*!
@@ -2233,13 +2245,6 @@ bool QGraphicsItem::isAncestorOf(const QGraphicsItem *child) const
     return false;
 }
 
-class QGraphicsItemCustomDataStore
-{
-public:
-    QMap<QGraphicsItem *, QMap<int, QVariant> > data;
-};
-Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
-
 /*!
     Returns this item's custom data for the key \a key as a QVariant.
 
@@ -2264,9 +2269,9 @@ Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
 QVariant QGraphicsItem::data(int key) const
 {
     QGraphicsItemCustomDataStore *store = qt_dataStore();
-    if (!store->data.contains(const_cast<QGraphicsItem *>(this)))
+    if (!store->data.contains(this))
         return QVariant();
-    return store->data.value(const_cast<QGraphicsItem *>(this)).value(key);
+    return store->data.value(this).value(key);
 }
 
 /*!
