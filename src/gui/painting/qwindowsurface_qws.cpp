@@ -820,6 +820,8 @@ void QWSOnScreenSurface::attachToScreen(const QScreen *s)
         format = QImage::Format_ARGB32_Premultiplied;
         break;
     default:
+        qFatal("QWSOnScreenSurface::attachToScreen(): screen depth %d "
+               "not implemented", screen->depth());
         return;
     }
     QWSMemorySurface::img = QImage(base, screen->width(),
