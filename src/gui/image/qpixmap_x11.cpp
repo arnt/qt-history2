@@ -550,6 +550,7 @@ void QPixmap::setMask(const QBitmap &newmask)
         return;
 
     if (newmask.isNull()) { // clear mask
+        detach();
 #ifndef QT_NO_XRENDER
         if (data->picture && data->d == 32) {
             QPixmap pixmap;
