@@ -1592,7 +1592,8 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
     maximum = (variantCompare(min, max) < 0 ? max : min);
 
     reset();
-    setValue(bound(value), EmitIfChanged);
+    if (!(bound(value) == value))
+        setValue(bound(value), EmitIfChanged);
 }
 
 /*!
