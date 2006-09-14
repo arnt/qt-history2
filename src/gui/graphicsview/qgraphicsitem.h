@@ -580,6 +580,9 @@ public:
     QFont font() const;
     void setFont(const QFont &font);
 
+    void setDefaultTextColor(const QColor &c);
+    QColor defaultTextColor() const;
+
     QRectF boundingRect() const;
     QPainterPath shape() const;
     bool contains(const QPointF &point) const;

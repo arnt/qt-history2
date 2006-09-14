@@ -342,7 +342,7 @@ public:
     QMap<const QGraphicsItem *, QMap<int, QVariant> > data;
 };
 Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
-    
+
 /*!
     \internal
 
@@ -4816,6 +4816,25 @@ QFont QGraphicsTextItem::font() const
 void QGraphicsTextItem::setFont(const QFont &font)
 {
     dd->textControl()->document()->setDefaultFont(font);
+}
+
+/*!
+    Sets the color for unformatted text to \a col.
+*/
+void QGraphicsTextItem::setDefaultTextColor(const QColor &col)
+{
+    QTextControl *c = dd->textControl();
+    QPalette pal = c->palette();
+    pal.setColor(QPalette::Text, col);
+    c->setPalette(pal);
+}
+
+/*!
+    Returns the default text color that is used to for unformatted text.
+*/
+QColor QGraphicsTextItem::defaultTextColor() const
+{
+    return dd->textControl()->palette().color(QPalette::Text);
 }
 
 /*!
