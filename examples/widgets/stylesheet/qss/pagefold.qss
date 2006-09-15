@@ -19,7 +19,7 @@ QMainWindow > .QWidget {
 /* Note that mainFrame wont have this border-image since we have
     explicitly set it to 'none' using a more specific selector */
 QFrame, QLineEdit, QComboBox[editable="true"], QSpinBox {
-    border-image: url(:/images/frame.png) 3;
+    border-image: url(:/images/frame.png) 4;
     border-width: 3;
 }
 
@@ -120,32 +120,31 @@ QRadioButton::indicator:checked:pressed {
    is very similar to a combo box. So they share the same border image! */
 QPushButton {
     min-width: 4em;
-    min-height: 1.2em;
-}
-
-QComboBox[editable="false"] {
-    padding-left: 3px;
 }
 
 QPushButton, QComboBox[editable="false"],
 QComboBox[editable="true"]::drop-down {
-    border-image: url(:/images/pushbutton.png) 3;
-    border-width: 3;
+    border-image: url(:/images/pushbutton.png) 5;
+    border-width: 5;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
 QComboBox[editable="true"]::drop-down:hover, QMenuBar::item:hover {
-    border-image: url(:/images/pushbutton_hover.png) 3;
-    border-width: 3;
+    border-image: url(:/images/pushbutton_hover.png) 5;
+    border-width: 5;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
 QComboBox[editable="true"]::drop-down:on, QMenuBar::item:on {
-    border-image: url(:/images/pushbutton_pressed.png) 3;
-    border-width: 3;
+    border-image: url(:/images/pushbutton_pressed.png) 5;
+    border-width: 5;
 }
 
-/* Combo box */
+/* Read only Combo box */
+QComboBox[editable="false"] {
+    padding-left: 3px;
+}
+
 QComboBox[editable="false"]::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -155,36 +154,48 @@ QComboBox[editable="false"]::drop-down {
     border-left-width: 1px;
 }
 
-QComboBox[editable="true"] {
-    padding-right: 17px;
+QComboBox[editable="false"]::down-arrow {
+    subcontrol-origin: content;
+    subcontrol-position: center;
+    position: relative;
+    left: 1px; /* 1 pixel dropdown border */
 }
 
-QComboBox[editable="true"]::drop-down,
-QComboBox[editable="true"]::drop-down:hover,
-QComboBox[editable="true"]::drop-down:on {
-    border-width: 2px;  /* scale down border image */
+/* Combo box arrow is on when popup is open */
+QComboBox[editable="false"]::down-arrow:on {
+    position: relative;
+    top: 1px;
+    left: 2px;
+}
+
+/* Editable Combo box */
+QComboBox[editable="true"] {
+    padding-right: 16px;
 }
 
 QComboBox[editable="true"]::drop-down {
     subcontrol-origin: border;
     subcontrol-position: top right;
+    width: 13px;
     position: absolute;
-    width: 15px;
-    border-width: 2px;
+    top: 2px;
+    bottom: 2px;
+    right: 2px;
 }
 
-QComboBox::down-arrow {
-    subcontrol-origin: content;
-    subcontrol-position: center;
+QComboBox[editable="true"]::drop-down,
+QComboBox[editable="true"]::drop-down:hover,
+QComboBox[editable="true"]::drop-down:on {
+    border-width: 0px;  
+    border-left-width: 3px; /* we need only left and center part */
 }
 
-/* Combo box arrow is on when popup is open */
-QComboBox::down-arrow:on {
+/* shift the arrow when its open */
+QComboBox[editable="true"]::down-arrow:on {
     position: relative;
     top: 1px;
     left: 1px;
 }
-
 
 /* The check box */
 QCheckBox {
@@ -239,14 +250,14 @@ QMenuBar {
 
 /* QSpinBox */
 QSpinBox { 
-    padding-right: 13px;
+    padding-right: 15px;
 }
 
 QSpinBox::up-button {
     subcontrol-origin: border;
     subcontrol-position: top right;
 
-    width: 13px;
+    width: 16px; /* 16 + 2*1px border-width = 15px padding + 3px parent border */
     border-image: url(:/images/spinup.png) 1;
     border-width: 1px;
 }
@@ -263,9 +274,10 @@ QSpinBox::down-button {
     subcontrol-origin: border;
     subcontrol-position: bottom right;
 
-    width: 13px;
+    width: 16px;
     border-image: url(:/images/spindown.png) 1;
     border-width: 1px;
+    border-top-width: 0;
 }
 
 QSpinBox::down-button:hover {
@@ -275,4 +287,3 @@ QSpinBox::down-button:hover {
 QSpinBox::down-button:pressed {
     border-image: url(:/images/spindown_pressed.png) 1;
 }
-
