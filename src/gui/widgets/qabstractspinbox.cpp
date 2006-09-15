@@ -684,6 +684,7 @@ void QAbstractSpinBox::changeEvent(QEvent *event)
             d->spinClickTimerInterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->spinClickThresholdTimerInterval = thresholdTime;
             d->reset();
+            d->updateEditFieldGeometry();
             break;
         case QEvent::EnabledChange:
             if (!isEnabled()) {
