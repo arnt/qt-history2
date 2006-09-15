@@ -33,16 +33,16 @@
 #include "QtCore/qbytearray.h"
 #include "private/qpaintengine_p.h"
 
-class QWSPrintEnginePrivate;
+class QtopiaPrintEnginePrivate;
 class QRasterPaintEngine;
 class QPrinterPrivate;
 class QImage;
 
-class QWSPrintEngine : public QPaintEngine, public QPrintEngine
+class QtopiaPrintEngine : public QPaintEngine, public QPrintEngine
 {
-    Q_DECLARE_PRIVATE(QWSPrintEngine)
+    Q_DECLARE_PRIVATE(QtopiaPrintEngine)
 public:
-    QWSPrintEngine(QPrinter::PrinterMode mode);
+    QtopiaPrintEngine(QPrinter::PrinterMode mode);
 
     // override QWSPaintEngine
     bool begin(QPaintDevice *dev);
@@ -76,11 +76,11 @@ private:
     void flushPage();
 };
 
-class QWSPrintBuffer
+class QtopiaPrintBuffer
 {
 public:
-    QWSPrintBuffer( bool bigEndian=FALSE ) { _bigEndian = bigEndian; }
-    ~QWSPrintBuffer() {}
+    QtopiaPrintBuffer( bool bigEndian=FALSE ) { _bigEndian = bigEndian; }
+    ~QtopiaPrintBuffer() {}
 
     const QByteArray& data() const { return _data; }
 
@@ -104,11 +104,11 @@ private:
 
 #define	QT_QWS_PRINTER_DEFAULT_DPI	   200
 
-class QWSPrintEnginePrivate : public QPaintEnginePrivate
+class QtopiaPrintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QWSPrintEngine)
+    Q_DECLARE_PUBLIC(QtopiaPrintEngine)
 public:
-    QWSPrintEnginePrivate(QPrinter::PrinterMode m) :
+    QtopiaPrintEnginePrivate(QPrinter::PrinterMode m) :
 	mode(m),
 	printerState(QPrinter::Idle),
 	orientation(QPrinter::Portrait),
@@ -128,7 +128,7 @@ public:
 	partialBits(0)
     {
     }
-    ~QWSPrintEnginePrivate();
+    ~QtopiaPrintEnginePrivate();
 
     void initialize();
 
@@ -160,7 +160,7 @@ public:
 
     QImage *pageImage;
 
-    QWSPrintBuffer buffer;
+    QtopiaPrintBuffer buffer;
 
     // Definitions that are only relevant to G3FAX output.
     int ifdPatch;

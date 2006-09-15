@@ -494,7 +494,8 @@ void QPrintDialogPrivate::init()
     Q_Q(QPrintDialog);
     numCopies = 1;
 
-    (*_qt_print_dialog_creator)(q);
+    if (_qt_print_dialog_creator)
+        (*_qt_print_dialog_creator)(q);
 
     setupDestination();
     setupPrinterSettings();

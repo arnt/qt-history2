@@ -62,17 +62,17 @@ static const PaperSize paperSizes[QPrinter::NPageSize] =
     {  IN(11),     IN(17) }     // Tabloid
 };
 
-QWSPrintEngine::QWSPrintEngine(QPrinter::PrinterMode mode)
-    : QPaintEngine(*(new QWSPrintEnginePrivate( mode )))
+QtopiaPrintEngine::QtopiaPrintEngine(QPrinter::PrinterMode mode)
+    : QPaintEngine(*(new QtopiaPrintEnginePrivate( mode )))
 {
     d_func()->initialize();
 }
 
-bool QWSPrintEngine::begin(QPaintDevice *)
+bool QtopiaPrintEngine::begin(QPaintDevice *)
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
     d->paintEngine->state = state;
-    Q_ASSERT_X(d->printerState == QPrinter::Idle, "QWSPrintEngine", "printer already active");
+    Q_ASSERT_X(d->printerState == QPrinter::Idle, "QtopiaPrintEngine", "printer already active");
 
     // Create a new off-screen monochrome image to handle the drawing process.
     QSize size = paperRect().size();
@@ -98,9 +98,9 @@ bool QWSPrintEngine::begin(QPaintDevice *)
     return true;
 }
 
-bool QWSPrintEngine::end()
+bool QtopiaPrintEngine::end()
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
 
     d->paintEngine->end();
 
@@ -144,32 +144,32 @@ bool QWSPrintEngine::end()
     return true;
 }
 
-QPaintEngine *QWSPrintEngine::paintEngine() const
+QPaintEngine *QtopiaPrintEngine::paintEngine() const
 {
     return d_func()->paintEngine;
 }
 
-void QWSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
+void QtopiaPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
     Q_ASSERT(d->printerState == QPrinter::Active);
     d->paintEngine->drawPixmap(r, pm, sr);
 }
 
-void QWSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QtopiaPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
     Q_ASSERT(d->printerState == QPrinter::Active);
     d->paintEngine->drawTextItem(p, ti);
 }
 
-void QWSPrintEngine::updateState(const QPaintEngineState &state)
+void QtopiaPrintEngine::updateState(const QPaintEngineState &state)
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
     d->paintEngine->updateState(state);
 }
 
-QRect QWSPrintEngine::paperRect() const
+QRect QtopiaPrintEngine::paperRect() const
 {
     PaperSize s = paperSizes[d_func()->pageSize];
     int w = qRound(s.width*d_func()->resolution/72.);
@@ -180,7 +180,7 @@ QRect QWSPrintEngine::paperRect() const
         return QRect(0, 0, h, w);
 }
 
-QRect QWSPrintEngine::pageRect() const
+QRect QtopiaPrintEngine::pageRect() const
 {
     QRect r = paperRect();
     if (d_func()->fullPage)
@@ -189,7 +189,7 @@ QRect QWSPrintEngine::pageRect() const
     return QRect(d_func()->resolution/3, d_func()->resolution/3, r.width()-2*d_func()->resolution/3, r.height()-2*d_func()->resolution/3);
 }
 
-bool QWSPrintEngine::newPage()
+bool QtopiaPrintEngine::newPage()
 {
     flushPage();
     clearPage();
@@ -197,17 +197,17 @@ bool QWSPrintEngine::newPage()
     return true;
 }
 
-bool QWSPrintEngine::abort()
+bool QtopiaPrintEngine::abort()
 {
     return false;
 }
 
-QPrinter::PrinterState QWSPrintEngine::printerState() const
+QPrinter::PrinterState QtopiaPrintEngine::printerState() const
 {
     return d_func()->printerState;
 }
 
-int QWSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
+int QtopiaPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     int val;
     QRect r = d_func()->fullPage ? paperRect() : pageRect();
@@ -241,15 +241,15 @@ int QWSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
         val = 1;
         break;
     default:
-        qWarning("QWSPrintEngine::metric: Invalid metric command");
+        qWarning("QtopiaPrintEngine::metric: Invalid metric command");
         return 0;
     }
     return val;
 }
 
-QVariant QWSPrintEngine::property(PrintEnginePropertyKey key) const
+QVariant QtopiaPrintEngine::property(PrintEnginePropertyKey key) const
 {
-    Q_D(const  QWSPrintEngine);
+    Q_D(const  QtopiaPrintEngine);
     QVariant ret;
 
     switch (key) {
@@ -310,9 +310,9 @@ QVariant QWSPrintEngine::property(PrintEnginePropertyKey key) const
     return ret;
 }
 
-void QWSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+void QtopiaPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
-    Q_D(QWSPrintEngine);
+    Q_D(QtopiaPrintEngine);
     switch (key) {
     case PPK_CollateCopies:
         d->collateCopies = value.toBool();
@@ -360,28 +360,28 @@ void QWSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
     }
 }
 
-void QWSPrintEngine::clearPage()
+void QtopiaPrintEngine::clearPage()
 {
     d_func()->pageImage->fill(QColor(255, 255, 255).rgb());
 }
 
-void QWSPrintEngine::flushPage()
+void QtopiaPrintEngine::flushPage()
 {
     d_func()->writeG3FaxPage();
 }
 
-QWSPrintEnginePrivate::~QWSPrintEnginePrivate()
+QtopiaPrintEnginePrivate::~QtopiaPrintEnginePrivate()
 {
     if ( pageImage )
 	delete pageImage;
 }
 
-void QWSPrintEnginePrivate::initialize()
+void QtopiaPrintEnginePrivate::initialize()
 {
     paintEngine = new QRasterPaintEngine();
 }
 
-void QWSPrintEnginePrivate::writeG3FaxHeader()
+void QtopiaPrintEnginePrivate::writeG3FaxHeader()
 {
     // Write the TIFF file magic number (little-endian TIFF).
     buffer.append( (char)'I' );
@@ -430,7 +430,7 @@ void QWSPrintEnginePrivate::writeG3FaxHeader()
 
 static int yVal;
 
-void QWSPrintEnginePrivate::writeG3FaxPage()
+void QtopiaPrintEnginePrivate::writeG3FaxPage()
 {
     // Pad the image file to a word boundary, just in case.
     buffer.pad();
@@ -574,7 +574,7 @@ void QWSPrintEnginePrivate::writeG3FaxPage()
     buffer.patch( stripBytes, buffer.size() - start );
 }
 
-int QWSPrintEnginePrivate::writeG3IFDEntry
+int QtopiaPrintEnginePrivate::writeG3IFDEntry
 	( int tag, int type, int count, int value )
 {
     buffer.append( (short)tag );
@@ -584,7 +584,7 @@ int QWSPrintEnginePrivate::writeG3IFDEntry
     return buffer.size() - 4;    // Offset of the value for back-patching.
 }
 
-void QWSPrintEnginePrivate::writeG3Code( int code, int bits )
+void QtopiaPrintEnginePrivate::writeG3Code( int code, int bits )
 {
     partialByte = ( ( partialByte << bits ) | code );
     partialBits += bits;
@@ -594,7 +594,7 @@ void QWSPrintEnginePrivate::writeG3Code( int code, int bits )
     }
 }
 
-void QWSPrintEnginePrivate::writeG3WhiteRun( int len )
+void QtopiaPrintEnginePrivate::writeG3WhiteRun( int len )
 {
     static struct {
 	unsigned short code;
@@ -700,7 +700,7 @@ void QWSPrintEnginePrivate::writeG3WhiteRun( int len )
     writeG3Code( whiteCodes[len].code, whiteCodes[len].bits );
 }
 
-void QWSPrintEnginePrivate::writeG3BlackRun( int len )
+void QtopiaPrintEnginePrivate::writeG3BlackRun( int len )
 {
     static struct {
 	unsigned short code;
@@ -806,7 +806,7 @@ void QWSPrintEnginePrivate::writeG3BlackRun( int len )
     writeG3Code( blackCodes[len].code, blackCodes[len].bits );
 }
 
-void QWSPrintEnginePrivate::writeG3EOL()
+void QtopiaPrintEnginePrivate::writeG3EOL()
 {
     int bitToPad;
     if ( partialBits <= 4 ) {
@@ -825,7 +825,7 @@ void QWSPrintEnginePrivate::writeG3EOL()
 //    writeG3Code( 0x0001, 12 );
 }
 
-void QWSPrintBuffer::append( short value )
+void QtopiaPrintBuffer::append( short value )
 {
     if ( _bigEndian ) {
 	_data.append( (char)(value >> 8) );
@@ -836,7 +836,7 @@ void QWSPrintBuffer::append( short value )
     }
 }
 
-void QWSPrintBuffer::append( int value )
+void QtopiaPrintBuffer::append( int value )
 {
     if ( _bigEndian ) {
 	_data.append( (char)(value >> 24) );
@@ -851,7 +851,7 @@ void QWSPrintBuffer::append( int value )
     }
 }
 
-void QWSPrintBuffer::patch( int posn, int value )
+void QtopiaPrintBuffer::patch( int posn, int value )
 {
     if ( _bigEndian ) {
 	_data[posn]     = (char)(value >> 24);
@@ -866,7 +866,7 @@ void QWSPrintBuffer::patch( int posn, int value )
     }
 }
 
-void QWSPrintBuffer::pad()
+void QtopiaPrintBuffer::pad()
 {
     while ( ( _data.size() % 4 ) != 0 )
 	_data.append( (char)0 );

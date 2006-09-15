@@ -47,7 +47,7 @@
 void QPrinterPrivate::createDefaultEngines()
 {
     QPrinter::OutputFormat realOutputFormat = outputFormat;
-#if !defined (Q_WS_QWS)
+#if !defined (QTOPIA_PRINTENGINE)
 #if defined (Q_OS_UNIX) && ! defined (Q_WS_MAC)
     if(outputFormat == QPrinter::NativeFormat) {
 #if !defined(QT_NO_CUPS)
@@ -70,8 +70,8 @@ void QPrinterPrivate::createDefaultEngines()
         QMacPrintEngine *macEngine = new QMacPrintEngine(printerMode);
         paintEngine = macEngine;
         printEngine = macEngine;
-#elif defined (Q_WS_QWS)
-        QWSPrintEngine *qwsEngine = new QWSPrintEngine(printerMode);
+#elif defined (QTOPIA_PRINTENGINE)
+        QtopiaPrintEngine *qwsEngine = new QtopiaPrintEngine(printerMode);
         paintEngine = qwsEngine;
         printEngine = qwsEngine;
 #elif defined (Q_OS_UNIX)

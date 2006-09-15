@@ -220,8 +220,8 @@ private:
     friend class QMacPrintEngine;
     friend class QMacPrintEnginePrivate;
 #ifdef Q_WS_QWS
-    friend class QWSPrintEngine;
-    friend class QWSPrintEnginePrivate;
+    friend class QtopiaPrintEngine;
+    friend class QtopiaPrintEnginePrivate;
 #endif
     friend class QPainter;
     friend class QPainterPrivate;

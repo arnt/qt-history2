@@ -40,8 +40,15 @@ mac {
 }
 
 embedded {
-        SOURCES += dialogs/qprintdialog_qws.cpp \
-		   dialogs/qpagesetupdialog_unix.cpp
+        contains(QT_CONFIG,qtopia) {
+            SOURCES += dialogs/qprintdialog_qws.cpp \
+                       dialogs/qpagesetupdialog_unix.cpp
+        } else {
+            SOURCES += dialogs/qprintdialog_unix.cpp \
+                       dialogs/qpagesetupdialog_unix.cpp
+            FORMS += dialogs/qprintdialog.ui \
+                     dialogs/qprintpropertiesdialog.ui
+        }
 }
 
 SOURCES += \

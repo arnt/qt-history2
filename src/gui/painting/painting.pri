@@ -112,6 +112,9 @@ win32|x11|embedded {
 }
 
 embedded {
+        contains(QT_CONFIG,qtopia) {
+            DEFINES += QTOPIA_PRINTENGINE
+        }
         HEADERS += \
                 painting/qprintengine_qws_p.h
                 
@@ -122,8 +125,12 @@ embedded {
 } 
 
 x11|embedded {
-	SOURCES += painting\qcups.cpp
-	HEADERS += painting\qcups_p.h
+        contains(QT_CONFIG,qtopia) {
+            DEFINES += QT_NO_CUPS QT_NO_LPR
+        } else {
+            SOURCES += painting\qcups.cpp
+            HEADERS += painting\qcups_p.h
+        }
 } else {
 	DEFINES += QT_NO_CUPS QT_NO_LPR
 }
