@@ -5493,6 +5493,9 @@ void QPlastiqueStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
     pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
+#ifdef Q_WS_MAC
+    pal.setBrush(QPalette::Shadow, Qt::black);
+#endif
 }
 
 /*!
