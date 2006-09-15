@@ -33,7 +33,6 @@ private slots:
     void getSetCheck();
     void fileName();
     void autoRemove();
-    void write();
     void openCloseOpenClose();
 public:
 };
@@ -174,15 +173,6 @@ void tst_QTemporaryFile::autoRemove()
 	}
 	QVERIFY(!QFile::exists(fileName));
 
-}
-
-void tst_QTemporaryFile::write()
-{
-    QByteArray data("OLE\nOLE\nOLE");
-    QTemporaryFile file;
-    QVERIFY(file.open());
-    QCOMPARE((int)file.write(data), data.size());
-    file.close();
 }
 
 void tst_QTemporaryFile::openCloseOpenClose()
