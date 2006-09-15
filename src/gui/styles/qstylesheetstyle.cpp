@@ -785,6 +785,9 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
               &t = borders[TopEdge],  &b = borders[BottomEdge];
     QRectF pr = br.adjusted(l, t, -r, -b);
 
+    QPainter::RenderHints oldHints = p->renderHints();
+    p->setRenderHint(QPainter::SmoothPixmapTransform);
+
     const QStyleSheetBorderImageData *bi = border()->borderImage();
     const QPixmap& pix = bi->pixmap;
     const int *c = bi->cuts;
@@ -890,6 +893,8 @@ void QRenderRule::drawBorderImage(QPainter *p, const QRect& rect)
     default:
         break;
     }
+
+    p->setRenderHints(oldHints);
 }
 
 QRect QRenderRule::originRect(const QRect &rect, Origin origin) const
