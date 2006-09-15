@@ -41,6 +41,7 @@ mac {
 
 embedded {
         contains(QT_CONFIG,qtopia) {
+            DEFINES += QTOPIA_PRINTDIALOG
             SOURCES += dialogs/qprintdialog_qws.cpp \
                        dialogs/qpagesetupdialog_unix.cpp
         } else {

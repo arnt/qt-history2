@@ -57,7 +57,7 @@ private:
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_btnPropertiesClicked())
 #endif
-#ifdef Q_WS_QWS
+#ifdef QTOPIA_PRINTDIALOG
     Q_PRIVATE_SLOT(d_func(), void _q_okClicked())
     Q_PRIVATE_SLOT(d_func(),void _q_printerOrFileSelected(QAbstractButton *b))
     Q_PRIVATE_SLOT(d_func(),void _q_paperSizeSelected(int))
