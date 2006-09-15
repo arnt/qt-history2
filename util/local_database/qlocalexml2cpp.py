@@ -126,6 +126,8 @@ def convertFormat(format):
             elif s.startswith("z"):
                 result += "t"
                 i += 1
+            elif s.startswith("v"):
+                i += 1
             else:
                 result += format[i]
                 i += 1
@@ -390,9 +392,12 @@ print
 
 # Language code list
 print "static const unsigned char language_code_list[] ="
-print "\"  \" // Unused"
+print "\"  \\0\" // Unused"
 for key in language_map.keys():
-    print "\"%2s\" // %s" % (language_map[key][1], language_map[key][0])
+    code = language_map[key][1]
+    if len(code) == 2:
+        code += r"\0"
+    print "\"%2s\" // %s" % (code, language_map[key][0])
 print ";"
 
 print

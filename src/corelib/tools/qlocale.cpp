@@ -87,20 +87,26 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
 
 #include "qlocale_data_p.h"
 
+// Assumes that code is a
+// QChar code[3];
+// If the code is two-digit the third digit must be 0
 static QLocale::Language codeToLanguage(const QChar *code)
 {
     ushort uc1 = code[0].unicode();
     ushort uc2 = code[1].unicode();
+    ushort uc3 = code[2].unicode();
 
     const unsigned char *c = language_code_list;
-    for (; *c != 0; c += 2) {
-        if (uc1 == c[0] && uc2 == c[1])
-            return QLocale::Language((c - language_code_list)/2);
+    for (; *c != 0; c += 3) {
+        if (uc1 == c[0] && uc2 == c[1] && uc3 == c[2])
+            return QLocale::Language((c - language_code_list)/3);
     }
 
     return QLocale::C;
 }
 
+// Assumes that code is a
+// QChar code[2];
 static QLocale::Country codeToCountry(const QChar *code)
 {
     ushort uc1 = code[0].unicode();
@@ -120,11 +126,16 @@ static QString languageToCode(QLocale::Language language)
     if (language == QLocale::C)
         return QLatin1String("C");
 
+    const unsigned char *c = language_code_list + 3*(uint(language));
+
     QString code;
-    code.resize(2);
-    const unsigned char *c = language_code_list + 2*(uint(language));
+    code.resize(c[2] == 0 ? 2 : 3);
+
     code[0] = ushort(c[0]);
     code[1] = ushort(c[1]);
+    if (c[2] != 0)
+        code[2] = ushort(c[2]);
+
     return code;
 }
 
@@ -169,48 +180,75 @@ static const QLocalePrivate *findLocale(QLocale::Language language, QLocale::Cou
     return locale_data + idx;
 }
 
+static bool splitLocaleName(const QString &name, QChar *lang_begin, QChar *cntry_begin)
+{
+    for (int i = 0; i < 3; ++i)
+        lang_begin[i] = 0;
+    for (int i = 0; i < 2; ++i)
+        cntry_begin[i] = 0;
+
+    int l = name.length();
+
+    QChar *lang = lang_begin;
+    QChar *cntry = cntry_begin;
+
+    int state = 0;
+    const QChar *uc = name.unicode();
+    for (int i = 0; i < l; ++i) {
+        if (uc->unicode() == '.' || uc->unicode() == '@')
+            break;
+
+        switch (state) {
+            case 0:
+                // parsing language
+                if (uc->unicode() == '_') {
+                    state = 1;
+                    break;
+                }
+                if (lang - lang_begin == 3)
+                    return false;
+                if (uc->unicode() < 'a' || uc->unicode() > 'z')
+                    return false;
+
+                *lang = *uc;
+                ++lang;
+                break;
+            case 1:
+                // parsing country
+                if (cntry - cntry_begin == 2) {
+                    cntry_begin[0] = 0;
+                    break;
+                }
+
+                *cntry = *uc;
+                ++cntry;
+                break;
+        }
+
+        ++uc;
+    }
+
+    int lang_len = lang - lang_begin;
+
+    return lang_len == 2 || lang_len == 3;
+}
+
 static void getLangAndCountry(const QString &name, QLocale::Language &lang, QLocale::Country &cntry)
 {
     lang = QLocale::C;
     cntry = QLocale::AnyCountry;
 
-    uint l = name.length();
+    QChar lang_code[3];
+    QChar cntry_code[2];
+    if (!splitLocaleName(name, lang_code, cntry_code))
+        return;
 
-    do {
-        if (l < 2)
-            break;
+    lang = codeToLanguage(lang_code);
+    if (lang == QLocale::C)
+        return;
 
-        const QChar *uc = name.unicode();
-        if (l > 2
-                && uc[2] != QLatin1Char('_')
-                && uc[2] != QLatin1Char('.')
-                && uc[2] != QLatin1Char('@'))
-            break;
-
-        QChar lang_code[2];
-        lang_code[0] = uc[0];
-        lang_code[1] = uc[1];
-        // CLDR has changed the code for Bokmal from "no" to "nb". We want to support
-        // both, but we have no alias mechanism in the database.
-        if (lang_code[0] == QLatin1Char('n') && lang_code[1] == QLatin1Char('b'))
-            lang_code[1] = QLatin1Char('o');
-        lang = codeToLanguage(lang_code);
-        if (lang == QLocale::C)
-            break;
-
-        if (l == 2 || uc[2] == QLatin1Char('.') || uc[2] == QLatin1Char('@'))
-            break;
-
-        // we have uc[2] == '_'
-        if (l < 5)
-            break;
-
-        if (l > 5 && uc[5] != QLatin1Char('.') && uc[5] != QLatin1Char('@'))
-            break;
-
-        cntry = codeToCountry(uc + 3);
-    } while (false);
-
+    if (cntry_code[0].unicode() != 0)
+        cntry = codeToCountry(cntry_code);
 }
 
 static const QLocalePrivate *findLocale(const QString &name)

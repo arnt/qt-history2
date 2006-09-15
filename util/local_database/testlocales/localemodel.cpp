@@ -4,7 +4,7 @@
 #include <QDate>
 #include <qdebug.h>
 
-static const int g_model_cols = 5;
+static const int g_model_cols = 6;
 
 struct LocaleListItem
 {
@@ -20,6 +20,7 @@ const LocaleListItem g_locale_list[] = {
     {      4,    67 }, // Afar/Eritrea
     {      4,    69 }, // Afar/Ethiopia
     {      5,   195 }, // Afrikaans/SouthAfrica
+    {      5,   148 }, // Afrikaans/Namibia
     {      6,     2 }, // Albanian/Albania
     {      7,    69 }, // Amharic/Ethiopia
     {      8,   186 }, // Arabic/SaudiArabia
@@ -43,6 +44,7 @@ const LocaleListItem g_locale_list[] = {
     {     10,   100 }, // Assamese/India
     {     12,    15 }, // Azerbaijani/Azerbaijan
     {     14,   197 }, // Basque/Spain
+    {     15,    18 }, // Bengali/Bangladesh
     {     15,   100 }, // Bengali/India
     {     16,    25 }, // Bhutani/Bhutan
     {     20,    33 }, // Bulgarian/Bulgaria
@@ -73,6 +75,7 @@ const LocaleListItem g_locale_list[] = {
     {     31,   107 }, // English/Jamaica
     {     31,   133 }, // English/Malta
     {     31,   134 }, // English/MarshallIslands
+    {     31,   148 }, // English/Namibia
     {     31,   154 }, // English/NewZealand
     {     31,   160 }, // English/NorthernMarianaIslands
     {     31,   163 }, // English/Pakistan
@@ -105,6 +108,9 @@ const LocaleListItem g_locale_list[] = {
     {     43,    56 }, // Greek/Cyprus
     {     44,    86 }, // Greenlandic/Greenland
     {     46,   100 }, // Gujarati/India
+    {     47,    83 }, // Hausa/Ghana
+    {     47,   156 }, // Hausa/Niger
+    {     47,   157 }, // Hausa/Nigeria
     {     48,   105 }, // Hebrew/Israel
     {     49,   100 }, // Hindi/India
     {     50,    98 }, // Hungarian/Hungary
@@ -116,10 +122,17 @@ const LocaleListItem g_locale_list[] = {
     {     59,   108 }, // Japanese/Japan
     {     61,   100 }, // Kannada/India
     {     63,   110 }, // Kazakh/Kazakhstan
+    {     64,   179 }, // Kinyarwanda/Rwanda
     {     65,   116 }, // Kirghiz/Kyrgyzstan
     {     66,   114 }, // Korean/RepublicOfKorea
+    {     67,   102 }, // Kurdish/Iran
+    {     67,   103 }, // Kurdish/Iraq
+    {     67,   207 }, // Kurdish/SyrianArabRepublic
+    {     67,   217 }, // Kurdish/Turkey
     {     69,   117 }, // Laothian/Lao
     {     71,   118 }, // Latvian/Latvia
+    {     72,    49 }, // Lingala/DemocraticRepublicOfCongo
+    {     72,    50 }, // Lingala/PeoplesRepublicOfCongo
     {     73,   124 }, // Lithuanian/Lithuania
     {     74,   127 }, // Macedonian/Macedonia
     {     76,   130 }, // Malay/Malaysia
@@ -128,7 +141,7 @@ const LocaleListItem g_locale_list[] = {
     {     78,   133 }, // Maltese/Malta
     {     80,   100 }, // Marathi/India
     {     82,   143 }, // Mongolian/Mongolia
-    {     85,   161 }, // Norwegian/Norway
+    {     84,   150 }, // Nepali/Nepal
     {     87,   100 }, // Oriya/India
     {     88,     1 }, // Pashto/Afghanistan
     {     89,   102 }, // Persian/Iran
@@ -137,6 +150,7 @@ const LocaleListItem g_locale_list[] = {
     {     91,   173 }, // Portuguese/Portugal
     {     91,    30 }, // Portuguese/Brazil
     {     92,   100 }, // Punjabi/India
+    {     92,   163 }, // Punjabi/Pakistan
     {     95,   177 }, // Romanian/Romania
     {     96,   178 }, // Russian/RussianFederation
     {     96,   222 }, // Russian/Ukraine
@@ -147,6 +161,9 @@ const LocaleListItem g_locale_list[] = {
     {    101,   241 }, // SerboCroatian/SerbiaAndMontenegro
     {    101,    27 }, // SerboCroatian/BosniaAndHerzegowina
     {    101,   238 }, // SerboCroatian/Yugoslavia
+    {    102,   195 }, // Sesotho/SouthAfrica
+    {    103,   195 }, // Setswana/SouthAfrica
+    {    107,   195 }, // Siswati/SouthAfrica
     {    108,   191 }, // Slovak/Slovakia
     {    109,   192 }, // Slovenian/Slovenia
     {    110,   194 }, // Somali/Somalia
@@ -177,24 +194,51 @@ const LocaleListItem g_locale_list[] = {
     {    113,   210 }, // Swahili/Tanzania
     {    114,   205 }, // Swedish/Sweden
     {    114,    73 }, // Swedish/Finland
+    {    116,   209 }, // Tajik/Tajikistan
     {    117,   100 }, // Tamil/India
     {    118,   178 }, // Tatar/RussianFederation
     {    119,   100 }, // Telugu/India
     {    120,   211 }, // Thai/Thailand
     {    122,    67 }, // Tigrinya/Eritrea
     {    122,    69 }, // Tigrinya/Ethiopia
+    {    124,   195 }, // Tsonga/SouthAfrica
     {    125,   217 }, // Turkish/Turkey
     {    129,   222 }, // Ukrainian/Ukraine
+    {    130,   100 }, // Urdu/India
     {    130,   163 }, // Urdu/Pakistan
     {    131,   228 }, // Uzbek/Uzbekistan
     {    131,     1 }, // Uzbek/Afghanistan
     {    132,   232 }, // Vietnamese/VietNam
     {    134,   224 }, // Welsh/UnitedKingdom
+    {    136,   195 }, // Xhosa/SouthAfrica
+    {    138,   157 }, // Yoruba/Nigeria
+    {    140,   195 }, // Zulu/SouthAfrica
     {    141,   161 }, // Nynorsk/Norway
     {    142,    27 }, // Bosnian/BosniaAndHerzegowina
     {    143,   131 }, // Divehi/Maldives
     {    144,   224 }, // Manx/UnitedKingdom
-    {    145,   224 } // Cornish/UnitedKingdom
+    {    145,   224 }, // Cornish/UnitedKingdom
+    {    146,    83 }, // Akan/Ghana
+    {    147,   100 }, // Konkani/India
+    {    148,    83 }, // Ga/Ghana
+    {    149,   157 }, // Igbo/Nigeria
+    {    150,   111 }, // Kamba/Kenya
+    {    151,   207 }, // Syriac/SyrianArabRepublic
+    {    152,    67 }, // Blin/Eritrea
+    {    153,    67 }, // Geez/Eritrea
+    {    153,    69 }, // Geez/Ethiopia
+    {    154,   157 }, // Koro/Nigeria
+    {    155,    69 }, // Sidamo/Ethiopia
+    {    156,   157 }, // Atsam/Nigeria
+    {    157,    67 }, // Tigre/Eritrea
+    {    158,   157 }, // Jju/Nigeria
+    {    159,   106 }, // Friulian/Italy
+    {    160,   195 }, // Venda/SouthAfrica
+    {    161,    83 }, // Ewe/Ghana
+    {    161,   212 }, // Ewe/Togo
+    {    163,   225 }, // Hawaiian/UnitedStates
+    {    164,   157 }, // Tyap/Nigeria
+    {    165,   129 }  // Chewa/Malawi
 };
 static const int g_locale_list_count = sizeof(g_locale_list)/sizeof(g_locale_list[0]);
 
@@ -216,7 +260,9 @@ QVariant LocaleModel::data(const QModelIndex &index, int role) const
         || index.row() >= g_locale_list_count + 2)
         return QVariant();
 
-    QVariant data = m_data_list.at(index.column());
+    QVariant data;
+    if (index.column() < g_model_cols - 1)
+        data = m_data_list.at(index.column());
 
     if (index.row() == 0) {
         if (role == Qt::ToolTipRole)
@@ -232,6 +278,8 @@ QVariant LocaleModel::data(const QModelIndex &index, int role) const
                 return data.toTime();
             case 4:
                 return data.toTime();
+            case 5:
+                return QVariant();
             default:
                 break;
         }
@@ -265,6 +313,10 @@ QVariant LocaleModel::data(const QModelIndex &index, int role) const
                 if (role == Qt::ToolTipRole)
                     return locale.timeFormat(QLocale::ShortFormat);
                 return locale.toString(data.toTime(), QLocale::ShortFormat);
+            case 5:
+                if (role == Qt::ToolTipRole)
+                    return QVariant();
+                return locale.name();
             default:
                 break;
         }
@@ -290,6 +342,8 @@ QVariant LocaleModel::headerData(int section, Qt::Orientation orientation, int r
                 return QLatin1String("Long Time");
             case 4:
                 return QLatin1String("Short Time");
+            case 5:
+                return QLatin1String("Name");
             default:
                 break;
         }
@@ -343,6 +397,8 @@ Qt::ItemFlags LocaleModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
+    if (index.row() == 0 && index.column() == g_model_cols - 1)
+        return 0;
     if (index.row() == 0)
         return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -352,7 +408,7 @@ bool LocaleModel::setData(const QModelIndex &index, const QVariant &value, int r
 {
     if (!index.isValid()
         || index.row() != 0
-        || index.column() >= g_model_cols
+        || index.column() >= g_model_cols - 1
         || role != Qt::EditRole
         || m_data_list.at(index.column()).type() != value.type())
         return false;

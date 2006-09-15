@@ -178,7 +178,27 @@ public:
         Divehi = 143,
         Manx = 144,
         Cornish = 145,
-        LastLanguage = Cornish
+        Akan = 146,
+        Konkani = 147,
+        Ga = 148,
+        Igbo = 149,
+        Kamba = 150,
+        Syriac = 151,
+        Blin = 152,
+        Geez = 153,
+        Koro = 154,
+        Sidamo = 155,
+        Atsam = 156,
+        Tigre = 157,
+        Jju = 158,
+        Friulian = 159,
+        Venda = 160,
+        Ewe = 161,
+        Walamo = 162,
+        Hawaiian = 163,
+        Tyap = 164,
+        Chewa = 165,
+        LastLanguage = Chewa
     };
 
     enum Country {
