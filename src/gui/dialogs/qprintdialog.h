@@ -47,7 +47,7 @@ public:
 #endif
 
 private:
-#ifndef Q_WS_QWS
+#ifndef QTOPIA_PRINTDIALOG
     Q_PRIVATE_SLOT(d_func(), void _q_printToFileChanged(int))
     Q_PRIVATE_SLOT(d_func(), void _q_rbPrintRangeToggled(bool))
     Q_PRIVATE_SLOT(d_func(), void _q_printerChanged(int))
@@ -56,8 +56,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_btnBrowseClicked())
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_btnPropertiesClicked())
-#endif
-#ifdef QTOPIA_PRINTDIALOG
+#else // QTOPIA_PRINTDIALOG
     Q_PRIVATE_SLOT(d_func(), void _q_okClicked())
     Q_PRIVATE_SLOT(d_func(),void _q_printerOrFileSelected(QAbstractButton *b))
     Q_PRIVATE_SLOT(d_func(),void _q_paperSizeSelected(int))
@@ -69,7 +68,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_setFirstPage(int))
     Q_PRIVATE_SLOT(d_func(), void _q_setLastPage(int))
     Q_PRIVATE_SLOT(d_func(), void _q_fileNameEditChanged(const QString &text))
-#endif
+#endif // QTOPIA_PRINTDIALOG
 };
 
 #endif // QT_NO_PRINTDIALOG
