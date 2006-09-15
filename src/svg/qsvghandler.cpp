@@ -2429,9 +2429,14 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
         ncy = cy.toDouble();
     if (!r.isEmpty())
         nr = r.toDouble();
-    qreal nfx = fx.toDouble();
-    qreal nfy = fy.toDouble();
-
+    
+    qreal nfx = ncx;
+    if (!fx.isEmpty())
+        nfx = fx.toDouble();
+    qreal nfy = ncy;
+    if (!fy.isEmpty())
+        nfy = fy.toDouble();
+    
     if (units == QLatin1String("userSpaceOnUse")) {
         needsResolving = false;
     }
