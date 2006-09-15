@@ -15,6 +15,7 @@
 #define SVGALIBSCREEN_H
 
 #include <QScreen>
+
 #include <vga.h>
 #include <vgagl.h>
 
@@ -35,6 +36,9 @@ public:
     void exposeRegion(QRegion r, int changing);
     void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
     void solidFill(const QColor &color, const QRegion &region);
+
+    QWSWindowSurface* createSurface(QWidget *widget) const;
+    QWSWindowSurface* createSurface(const QString &key) const;
 
 private:
     GraphicsContext *context;

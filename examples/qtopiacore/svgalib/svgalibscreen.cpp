@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "svgalibscreen.h"
+#include "svgalibsurface.h"
 
 #include <QVector>
 #include <QApplication>
 #include <QColor>
-
-#include <qdebug.h>
+#include <QWidget>
 
 bool SvgalibScreen::connect(const QString &displaySpec)
 {
@@ -73,7 +73,6 @@ bool SvgalibScreen::initDevice()
     QScreen::data = vga_getgraphmem();
 
     QScreenCursor::initSoftwareCursor();
-
     return true;
 }
 
@@ -131,4 +130,23 @@ void SvgalibScreen::blit(const QImage &img, const QPoint &topLeft,
                       static_cast<void*>(const_cast<uchar*>(img.bits())),
                       r.x() - topLeft.x(), r.y() - topLeft.y());
     }
+}
+
+QWSWindowSurface* SvgalibScreen::createSurface(QWidget *widget) const
+{
+    static int onScreenPaint = -1;
+    if (onScreenPaint == -1)
+        onScreenPaint = qgetenv("QT_ONSCREEN_PAINT").toInt();
+
+    if (onScreenPaint > 0 || widget->testAttribute(Qt::WA_PaintOnScreen))
+        return new SvgalibSurface(widget);
+
+    return QScreen::createSurface(widget);
+}
+
+QWSWindowSurface* SvgalibScreen::createSurface(const QString &key) const
+{
+    if (key == QLatin1String("svgalib"))
+        return new SvgalibSurface;
+    return QScreen::createSurface(key);
 }
