@@ -288,7 +288,7 @@ bool QSvgRenderer::load(const QByteArray &contents)
         else
             d->timer->stop();
         connect(d->timer, SIGNAL(timeout()),
-                this, SLOT(repaintNeeded()));
+                this, SIGNAL(repaintNeeded()));
         d->timer->start(1000/d->fps);
     } else if (d->timer) {
         d->timer->stop();
