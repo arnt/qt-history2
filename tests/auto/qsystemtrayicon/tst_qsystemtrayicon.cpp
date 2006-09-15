@@ -96,7 +96,7 @@ void tst_QSystemTrayIcon::supportsMessages()
 #ifndef Q_WS_MAC
     QCOMPARE(QSystemTrayIcon::supportsMessages(), true );
 #else
-    QCOMPARE(QSystemTrayIcon::supportsMessages(), true );
+    QCOMPARE(QSystemTrayIcon::supportsMessages(), false );
 #endif
 
 }
