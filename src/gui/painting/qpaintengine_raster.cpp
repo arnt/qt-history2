@@ -523,7 +523,47 @@ static void qt_debug_path(const QPainterPath &path)
 #endif
 
 
+/*!
+    \class QRasterPaintEngine
+    \preliminary
 
+    \brief The QRasterPaintEngine class enables acceleration of
+    painting operations using the available hardware.
+
+    Note that this functionality is only available in Qtopia Core.
+
+    In Qtopia Core, painting is a pure software implementation. But
+    starting with Qtopia Core 4.2, it is possible to add an
+    accelerated graphics driver to take advantage of available
+    hardware resources.
+
+    The painting operations can be accelerated by deriving from the
+    QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
+    there are several other issues to be aware of; see the \l {Adding
+    an Accelerated Graphics Driver} documentation for details.
+
+    \sa QCustomRasterPaintDevice, QPaintEngine
+*/
+
+/*!
+    \fn Type QRasterPaintEngine::type() const
+    \reimp
+*/
+
+/*!
+    \typedef QSpan
+    \relates QRasterPaintEngine
+
+    A struct equivalent to QT_FT_Span, containing a position (x,
+    y), the span's length in pixels and its color/coverage (a value
+    ranging from 0 to 255).
+*/
+
+/*!
+    Creates a raster based paint engine with the complete set of \l
+    {QPaintEngine::PaintEngineFeature}{paint engine features and
+    capabilities}.
+*/
 QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
                    QPaintEngine::PaintEngineFeatures(AllFeatures)
@@ -532,6 +572,9 @@ QRasterPaintEngine::QRasterPaintEngine()
     init();
 }
 
+/*!
+    \internal
+*/
 QRasterPaintEngine::QRasterPaintEngine(QRasterPaintEnginePrivate &dd)
     : QPaintEngine(dd, QPaintEngine::PaintEngineFeatures(AllFeatures))
 {
@@ -576,7 +619,9 @@ void QRasterPaintEngine::init()
     d->dashStroker = 0;
 }
 
-
+/*!
+    Destroys the paint engine.
+*/
 QRasterPaintEngine::~QRasterPaintEngine()
 {
     Q_D(QRasterPaintEngine);
@@ -603,7 +648,9 @@ QRasterPaintEngine::~QRasterPaintEngine()
     delete d->dashStroker;
 }
 
-
+/*!
+    \reimp
+*/
 bool QRasterPaintEngine::begin(QPaintDevice *device)
 {
     Q_D(QRasterPaintEngine);
@@ -764,7 +811,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     return true;
 }
 
-
+/*!
+    \reimp
+*/
 bool QRasterPaintEngine::end()
 {
     Q_D(QRasterPaintEngine);
@@ -786,6 +835,9 @@ bool QRasterPaintEngine::end()
     return true;
 }
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::releaseBuffer()
 {
     Q_D(QRasterPaintEngine);
@@ -793,12 +845,18 @@ void QRasterPaintEngine::releaseBuffer()
     d->rasterBuffer = new QRasterBuffer;
 }
 
+/*!
+    \internal
+*/
 QSize QRasterPaintEngine::size() const
 {
     Q_D(const QRasterPaintEngine);
     return QSize(d->rasterBuffer->width(), d->rasterBuffer->height());
 }
 
+/*!
+    \internal
+*/
 #ifndef QT_NO_DEBUG
 void QRasterPaintEngine::saveBuffer(const QString &s) const
 {
@@ -807,6 +865,9 @@ void QRasterPaintEngine::saveBuffer(const QString &s) const
 }
 #endif
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 {
     Q_D(QRasterPaintEngine);
@@ -816,7 +877,9 @@ void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 
 
 /*!
-  Force the contents of the buffer out on the underlying device.
+    \internal
+
+    Force the contents of the buffer out on the underlying device.
 */
 void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 {
@@ -885,6 +948,9 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 #endif
 }
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
 {
     Q_D(QRasterPaintEngine);
@@ -922,6 +988,9 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
     d->brushData.setupMatrix(brushMatrix, d->txop, d->bilinear);
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 {
     Q_D(QRasterPaintEngine);
@@ -1057,7 +1126,9 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     }
 }
 
-
+/*!
+    \internal
+*/
 void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1068,7 +1139,9 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
     updateClipPath(p, op);
 }
 
-
+/*!
+    \internal
+*/
 void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
     Q_D(QRasterPaintEngine);
@@ -1095,7 +1168,9 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
     }
 }
 
-
+/*!
+    \internal
+*/
 void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1149,6 +1224,9 @@ static void fillRect(const QRect &r, QSpanData *data)
     }
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1191,6 +1269,9 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     }
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1206,6 +1287,9 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
     }
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawPath(const QPainterPath &path)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1245,7 +1329,9 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
 
 }
 
-
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QRasterPaintEngine);
@@ -1353,6 +1439,9 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QRasterPaintEngine);
@@ -1441,6 +1530,9 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1491,6 +1583,9 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
                                    Qt::ImageConversionFlags)
 {
@@ -1532,6 +1627,9 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     }
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1581,6 +1679,10 @@ static inline bool monoVal(const uchar* s, int x)
 {
     return  (s[x>>3] << (x&7)) & 0x80;
 }
+
+/*!
+    \internal
+*/
 void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h)
 {
     Q_D(QRasterPaintEngine);
@@ -1666,7 +1768,11 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
         d->penData.blend(current, spans, &d->penData);
 }
 
-/* Fills a rect with the current pen */
+/*!
+    \internal
+
+     Fills a rect with the current pen
+*/
 void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h)
 {
     Q_D(QRasterPaintEngine);
@@ -1692,6 +1798,9 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h)
 }
 #endif
 
+/*!
+    \reimp
+*/
 #ifdef Q_WS_X11
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
@@ -1820,6 +1929,9 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 #endif // Q_WS_WIN
 
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
@@ -2011,7 +2123,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 }
 #endif
 
-
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_D(QRasterPaintEngine);
@@ -2071,7 +2185,9 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
     }
 }
 
-
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2126,6 +2242,9 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
     }
 }
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2164,6 +2283,9 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 // 4 pixels.
 #define int_dim(pos, dim) (int(pos+dim) - int(pos))
 
+/*!
+    \reimp
+*/
 void QRasterPaintEngine::drawEllipse(const QRectF &rect)
 {
     Q_D(QRasterPaintEngine);
@@ -2220,6 +2342,9 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     }
 }
 
+/*!
+    \internal
+*/
 #ifdef Q_WS_MAC
 CGContextRef
 QRasterPaintEngine::macCGContext() const
@@ -2229,6 +2354,9 @@ QRasterPaintEngine::macCGContext() const
 }
 #endif
 
+/*!
+    \internal
+*/
 #ifdef Q_WS_WIN
 HDC QRasterPaintEngine::getDC() const
 {
@@ -2236,10 +2364,16 @@ HDC QRasterPaintEngine::getDC() const
     return d->rasterBuffer->hdc();
 }
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::releaseDC(HDC) const
 {
 }
 
+/*!
+    \internal
+*/
 void QRasterPaintEngine::disableClearType()
 {
     Q_D(QRasterPaintEngine);
@@ -2249,13 +2383,25 @@ void QRasterPaintEngine::disableClearType()
 
 #endif
 
-
+/*!
+    \internal
+*/
 QPoint QRasterPaintEngine::coordinateOffset() const
 {
     Q_D(const QRasterPaintEngine);
     return QPoint(d->deviceRect.x(), d->deviceRect.y());
 }
 
+/*!
+    Reimplement this function to draw the given color \a spans with
+    the specified \a color. The \a count parameter specified the
+    number of spans.
+
+    Note that this function must be reimplemented on devices where the
+    framebuffer is not memory-mapped.
+
+    \sa drawBufferSpan()
+*/
 #ifdef Q_WS_QWS
 void QRasterPaintEngine::drawColorSpans(const QSpan *spans, int count, uint color)
 {
@@ -2266,6 +2412,23 @@ void QRasterPaintEngine::drawColorSpans(const QSpan *spans, int count, uint colo
            "a non memory-mapped device");
 }
 
+/*!
+    \fn void QRasterPaintEngine::drawBufferSpan(const uint *buffer, int size, int x, int y, int length, uint alpha)
+
+    Reimplement this function to draw a buffer that contains more than
+    one color.
+
+    The \a size parameter specifies the total size of the given \a
+    buffer, while the \a length parameter specifies the number of
+    pixels to draw. The buffer's position is given by (\a x, \a
+    y). The provided \a alpha value is added to each pixel in the
+    buffer when drawing.
+
+    Note that this function must be reimplemented on devices where the
+    framebuffer is not memory-mapped.
+
+    \sa drawColorSpans()
+*/
 void QRasterPaintEngine::drawBufferSpan(const uint *buffer, int bufsize,
                                         int x, int y, int length, uint const_alpha)
 {
@@ -2843,6 +3006,74 @@ int QCustomRasterPaintDevice::bytesPerLine() const
     return (width() * depth() + 7) / 8;
 }
 #endif // Q_WS_QWS
+
+
+/*!
+    \class QCustomRasterPaintDevice
+    \preliminary
+
+    \brief The QCustomRasterPaintDevice class enables acceleration of
+    painting operations using the available hardware.
+
+    Note that this functionality is only available in Qtopia Core.
+
+    In Qtopia Core, painting is a pure software implementation. But
+    starting with Qtopia Core 4.2, it is possible to add an
+    accelerated graphics driver to take advantage of available
+    hardware resources.
+
+    The painting operations can be accelerated by deriving from the
+    QRasterPaintEngine and QCustomRasterPaintDevice classes. Note that
+    there are several other issues to be aware of; see the \l {Adding
+    an Accelerated Graphics Driver} documentation for details.
+
+    \sa QRasterPaintEngine, QPaintDevice
+*/
+
+/*!
+    \fn QCustomRasterPaintDevice::QCustomRasterPaintDevice(QWidget *widget)
+
+    Constructs a custom raster based paint device for the given
+    top-level \a widget.
+*/
+
+/*!
+    \fn int QCustomRasterPaintDevice::bytesPerLine() const
+
+    Returns the number of bytes per line in the framebuffer. Note that
+    this number might be larger than the framebuffer width.
+*/
+
+/*!
+    \fn int QCustomRasterPaintDevice::devType() const
+    \internal
+*/
+
+/*!
+    \fn QImage::Format QCustomRasterPaintDevice::format() const
+
+    Returns the format of the device's memory buffet.
+
+    The default format is QImage::Format_ARGB32_Premultiplied. The
+    only other valid format is QImage::Format_RGB16.
+*/
+
+/*!
+    \fn void * QCustomRasterPaintDevice::memory () const
+
+    Returns a pointer to the paint device's memory buffer, or 0 if
+    there is no such buffer.
+*/
+
+/*!
+    \fn int QCustomRasterPaintDevice::metric ( PaintDeviceMetric m ) const
+    \reimp
+*/
+
+/*!
+    \fn QSize QCustomRasterPaintDevice::size () const
+    \internal
+*/
 
 
 QClipData::QClipData(int height)
