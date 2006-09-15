@@ -42,7 +42,7 @@ public:
     void addButton(QPushButton *button);
 #endif
 
-#ifdef Q_WS_QWS
+#ifdef QTOPIA_PRINTDIALOG
     bool eventFilter(QObject *, QEvent *);
 #endif
 
