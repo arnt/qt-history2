@@ -4233,7 +4233,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QRectF &sourceRect,
                          Qt::ImageConversionFlags flags)
 {
-    if (!isActive() || image.isNull())
+    if (!isActive() || image.isNull() || targetRect.isEmpty())
         return;
 
     Q_D(QPainter);
