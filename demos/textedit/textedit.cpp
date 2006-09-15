@@ -128,13 +128,13 @@ void TextEdit::setupFileActions()
     QAction *a;
 
     a = new QAction(QIcon(rsrcPath + "/filenew.png"), tr("&New"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_N);
+    a->setShortcut(QKeySequence::New);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
 
     a = new QAction(QIcon(rsrcPath + "/fileopen.png"), tr("&Open..."), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_O);
+    a->setShortcut(QKeySequence::Open);
     connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
     menu->addAction(a);
@@ -142,7 +142,7 @@ void TextEdit::setupFileActions()
     menu->addSeparator();
 
     actionSave = a = new QAction(QIcon(rsrcPath + "/filesave.png"), tr("&Save"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_S);
+    a->setShortcut(QKeySequence::Save);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     a->setEnabled(false);
     tb->addAction(a);
@@ -154,7 +154,7 @@ void TextEdit::setupFileActions()
     menu->addSeparator();
 
     a = new QAction(QIcon(rsrcPath + "/fileprint.png"), tr("&Print..."), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_P);
+    a->setShortcut(QKeySequence::Print);
     connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
     menu->addAction(a);
@@ -188,24 +188,24 @@ void TextEdit::setupEditActions()
 
     QAction *a;
     a = actionUndo = new QAction(QIcon(rsrcPath + "/editundo.png"), tr("&Undo"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_Z);
+    a->setShortcut(QKeySequence::Undo);
     tb->addAction(a);
     menu->addAction(a);
     a = actionRedo = new QAction(QIcon(rsrcPath + "/editredo.png"), tr("&Redo"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_Y);
+    a->setShortcut(QKeySequence::Redo);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
     a = actionCut = new QAction(QIcon(rsrcPath + "/editcut.png"), tr("Cu&t"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_X);
+    a->setShortcut(QKeySequence::Cut);
     tb->addAction(a);
     menu->addAction(a);
     a = actionCopy = new QAction(QIcon(rsrcPath + "/editcopy.png"), tr("&Copy"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_C);
+    a->setShortcut(QKeySequence::Copy);
     tb->addAction(a);
     menu->addAction(a);
     a = actionPaste = new QAction(QIcon(rsrcPath + "/editpaste.png"), tr("&Paste"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_V);
+    a->setShortcut(QKeySequence::Paste);
     tb->addAction(a);
     menu->addAction(a);
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
