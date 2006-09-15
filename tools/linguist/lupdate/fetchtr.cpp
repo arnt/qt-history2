@@ -118,7 +118,6 @@ static void startTokenizer( const char *fileName, int (*getCharFunc)(), QTextCod
     getChar = getCharFunc;
 
     yyFileName = fileName;
-    yyCh = getChar();
     yySavedBraceDepth.clear();
     yySavedParenDepth.clear();
     yyBraceDepth = 0;
@@ -126,6 +125,7 @@ static void startTokenizer( const char *fileName, int (*getCharFunc)(), QTextCod
     yyCurLineNo = 1;
     yyBraceLineNo = 1;
     yyParenLineNo = 1;
+    yyCh = getChar();
 	yyCodecForTr = codecForTr;
 	if (!yyCodecForTr)
 		yyCodecForTr = QTextCodec::codecForName("ISO-8859-1");
