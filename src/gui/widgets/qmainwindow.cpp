@@ -159,82 +159,7 @@ void QMainWindowPrivate::init()
     QRubberBand provides an indication to the user about where the
     QDockWidget will be placed when the mouse button is released.
 
-    \section2 Dragging over Neighbors
-
-    All un-nested QDockWidgets in the same dock area are considered
-    neighbors. When dragging a QDockWidget over its neighbor:
-
-    \list
-
-    \o QMainWindow will split the neighbor perpendicularly to the
-    direction of the QDockWidgets.
-
-    \o QMainWindow will swap the position of the QDockWidget being
-    dragged and its neighbor once the user has dragged the mouse past
-    the center point of the neighboring QDockWidget.
-
-    \endlist
-
-    The following diagram depicts this behavior:
-
-    \image dockwidget-neighbors.png Diagram
-
-    \section2 Dragging over other QDockWidgets
-
-    When dragging nested QDockWidgets, or when dragging to a
-    different dock area, QMainWindow will split the QDockWindow under
-    the mouse. Be aware that the QDockWidget under the mouse will
-    only be split by the QDockWidget being dragged if both can fit in
-    the space currently occupied by the QDockWidget under the mouse.
-
-    A QDockWidget can be split horizontally or vertically, with the
-    QDockWidget being dragged being placed in one of four possible
-    locations, as shown in the diagram below:
-
-    \image dockwidget-cross.png Diagram
-
-    \omit ### When dragging a nested QDockWidget \endomit
-
-    \section2 Dragging to a Different Qt::DockWidgetArea
-
-    The QDockWidget::floatable property influences feedback when the
-    user drags a QDockWidget over the central widget:
-
-    \list
-
-    \o If \l{QDockWidget::floating}{floating} is \c true,
-    QMainWindow chooses a dock area based on the position of the mouse
-    pointer. If the mouse is within 50 pixels of the
-    central widget's edge, the adjacent dock area is chosen.
-    When dragging into the corners of these 50 pixel regions, the
-    current corner() configuration is used to make the decision.
-    Otherwise, the QRubberBand is shown under the mouse pointer, as
-    above.
-
-    \o If \l{QDockWidget::floating}{floating} is \c false,
-    QMainWindow chooses a dock area based on the distance between the
-    mouse pointer and the center of the central widget. If the mouse
-    comes within 50 pixels of the central widget's edge, the adjacent
-    dock area is always chosen. When dragging into the corners of
-    these 50 pixel regions, the current corner() configuration is
-    used to make the decision.
-
-    \endlist
-
-    In either case, dragging the mouse over another QDockWidget causes
-    QMainWindow to choose the other QDockWidget's dock area.
-
-    When dragging outside the QMainWindow, the QDockWidget::floating
-    property again controls feedback during dragging. When the
-    property is \c false, dragging outside of the QMainWindow will show
-    the rubberband over the QDockWidget's current location. This
-    indicates that the QDockWidget cannot be moved outside of the
-    QMainWindow. When the QDockWidget::floatable property is \c true,
-    dragging outside of the QMainWindow will show the QRubberBand
-    under the mouse pointer. This indicates that the QDockWidget will
-    be floating when the mouse button is released.
-
-    \section1 Managing Dock Widgets and Toolbars
+    \section3 Managing Dock Widgets and Toolbars
 
     By default, QMainWindow provides a context menu that can be used to toggle
     the visibility of the toolbars and dock widgets attached to a main window.
@@ -805,6 +730,10 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     split places the second dock widget to the right of the first; a
     Qt::Vertical split places the second dock widget below the first.
 
+    \e Note: if \a first is currently in a tabbed docked area, \a second will
+    be added as a new tab, not as a neighbor of \a next. This is because a
+    single tab can contain only one dock widget.
+
     \e Note: The Qt::LayoutDirection influences the order of the dock widgets
     in the two parts of the divided area. When right-to-left layout direction
     is enabled, the placing of the dock widgets will be reversed.
@@ -815,6 +744,21 @@ void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
     if (!dockwidget->isAreaAllowed(dockWidgetArea(after)))
         qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
     d_func()->layout->splitDockWidget(after, dockwidget, orientation);
+    if (isVisible())
+        d_func()->layout->relayout();
+}
+
+/*!
+    \fn void QMainWindow::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
+
+    Moves \a second dock widget on top of \a first dock widget, creating a tabbed
+    docked area in the main window.
+*/
+void QMainWindow::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
+{
+    if (!second->isAreaAllowed(dockWidgetArea(first)))
+        qWarning("QMainWindow::splitDockWidget(): specified 'area' is not an allowed for this widget");
+    d_func()->layout->tabifyDockWidget(first, second);
     if (isVisible())
         d_func()->layout->relayout();
 }

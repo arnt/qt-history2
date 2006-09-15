@@ -89,6 +89,7 @@ public:
     void remove(QList<int> path);
     void unnest(int index);
     void split(int index, Qt::Orientation orientation, QWidgetItem *dockWidgetItem);
+    void tab(int index, QWidgetItem *dockWidgetItem);
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
     QDockAreaLayoutInfo *info(QWidget *widget);
@@ -249,6 +250,7 @@ public:
     void addDockWidget(DockPos pos, QDockWidget *dockWidget, Qt::Orientation orientation);
     void splitDockWidget(QDockWidget *after, QDockWidget *dockWidget,
                          Qt::Orientation orientation);
+    void tabifyDockWidget(QDockWidget *first, QDockWidget *second);
 
     void apply(bool animate);
 

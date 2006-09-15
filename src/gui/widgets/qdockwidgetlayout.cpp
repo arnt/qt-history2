@@ -1483,6 +1483,21 @@ int QDockAreaLayoutInfo::prev(int index) const
     return -1;
 }
 
+void QDockAreaLayoutInfo::tab(int index, QWidgetItem *dockWidgetItem)
+{
+    if (tabbed) {
+        item_list.append(QDockAreaLayoutItem(dockWidgetItem));
+    } else {
+        QDockAreaLayoutInfo *new_info
+            = new QDockAreaLayoutInfo(sep, o, tabBarShape, mainWindow);
+        item_list[index].subinfo = new_info;
+        new_info->item_list.append(item_list.at(index).widgetItem);
+        item_list[index].widgetItem = 0;
+        new_info->item_list.append(dockWidgetItem);
+        new_info->tabbed = true;
+    }
+}
+
 void QDockAreaLayoutInfo::split(int index, Qt::Orientation orientation,
                                        QWidgetItem *dockWidgetItem)
 {
@@ -1519,9 +1534,10 @@ QLayoutItem *QDockAreaLayoutInfo::itemAt(int *x, int index) const
         if (item.subinfo) {
             if (QLayoutItem *ret = item.subinfo->itemAt(x, index))
                 return ret;
+        } else if (item.widgetItem) {
+            if ((*x)++ == index)
+                return item.widgetItem;
         }
-        if ((*x)++ == index)
-            return item.widgetItem;
     }
     return 0;
 }
@@ -1535,11 +1551,12 @@ QLayoutItem *QDockAreaLayoutInfo::takeAt(int *x, int index)
                 unnest(i);
                 return ret;
             }
-        }
-        if ((*x)++ == index) {
-            QLayoutItem *ret = item.widgetItem;
-            item_list.removeAt(i);
-            return ret;
+        } else if (item.widgetItem) {
+            if ((*x)++ == index) {
+                QLayoutItem *ret = item.widgetItem;
+                item_list.removeAt(i);
+                return ret;
+            }
         }
     }
     return 0;
@@ -2532,6 +2549,17 @@ void QDockWidgetLayout::addDockWidget(DockPos pos, QDockWidget *dockWidget,
         new_info.item_list.append(dockWidgetItem);
         info = new_info;
     }
+}
+
+void QDockWidgetLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
+{
+    QList<int> path = indexOf(first);
+    if (path.isEmpty())
+        return;
+
+    QDockAreaLayoutInfo *info = this->info(path);
+    Q_ASSERT(info != 0);
+    info->tab(path.last(), new QWidgetItem(second));
 }
 
 void QDockWidgetLayout::splitDockWidget(QDockWidget *after,

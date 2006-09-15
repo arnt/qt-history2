@@ -306,6 +306,18 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     connect(floatingAction, SIGNAL(triggered(bool)), floatableAction, SLOT(setDisabled(bool)));
     connect(movableAction, SIGNAL(triggered(bool)), floatableAction, SLOT(setEnabled(bool)));
 
+    tabMenu = new QMenu(this);
+    tabMenu->setTitle(tr("Tab into"));
+    connect(tabMenu, SIGNAL(triggered(QAction*)), this, SLOT(tabInto(QAction*)));
+
+    splitHMenu = new QMenu(this);
+    splitHMenu->setTitle(tr("Split horizontally into"));
+    connect(splitHMenu, SIGNAL(triggered(QAction*)), this, SLOT(splitInto(QAction*)));
+
+    splitVMenu = new QMenu(this);
+    splitVMenu->setTitle(tr("Split vertically into"));
+    connect(splitVMenu, SIGNAL(triggered(QAction*)), this, SLOT(splitInto(QAction*)));
+
     menu = new QMenu(colorName, this);
     menu->addAction(toggleViewAction());
     QAction *action = menu->addAction(tr("Raise"));
@@ -320,6 +332,10 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFl
     menu->addActions(allowedAreasActions->actions());
     menu->addSeparator();
     menu->addActions(areaActions->actions());
+    menu->addSeparator();
+    menu->addMenu(splitHMenu);
+    menu->addMenu(splitVMenu);
+    menu->addMenu(tabMenu);
 
     connect(menu, SIGNAL(aboutToShow()), this, SLOT(updateContextMenu()));
 
@@ -381,6 +397,54 @@ void ColorSwatch::updateContextMenu()
         topAction->setEnabled(areas & Qt::TopDockWidgetArea);
         bottomAction->setEnabled(areas & Qt::BottomDockWidgetArea);
     }
+
+    tabMenu->clear();
+    splitHMenu->clear();
+    splitVMenu->clear();
+    QList<ColorSwatch*> dock_list = qFindChildren<ColorSwatch*>(mainWindow);
+    foreach (ColorSwatch *dock, dock_list) {
+//        if (!dock->isVisible() || dock->isFloating())
+//            continue;
+        tabMenu->addAction(dock->windowTitle());
+        splitHMenu->addAction(dock->windowTitle());
+        splitVMenu->addAction(dock->windowTitle());
+    }
+}
+
+void ColorSwatch::splitInto(QAction *action)
+{
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
+    QList<ColorSwatch*> dock_list = qFindChildren<ColorSwatch*>(mainWindow);
+    ColorSwatch *target = 0;
+    foreach (ColorSwatch *dock, dock_list) {
+        if (action->text() == dock->windowTitle()) {
+            target = dock;
+            break;
+        }
+    }
+    if (target == 0)
+        return;
+
+    Qt::Orientation o = action->parent() == splitHMenu
+                        ? Qt::Horizontal : Qt::Vertical;
+    mainWindow->splitDockWidget(target, this, o);
+}
+
+void ColorSwatch::tabInto(QAction *action)
+{
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(parentWidget());
+    QList<ColorSwatch*> dock_list = qFindChildren<ColorSwatch*>(mainWindow);
+    ColorSwatch *target = 0;
+    foreach (ColorSwatch *dock, dock_list) {
+        if (action->text() == dock->windowTitle()) {
+            target = dock;
+            break;
+        }
+    }
+    if (target == 0)
+        return;
+
+    mainWindow->tabifyDockWidget(target, this);
 }
 
 void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)

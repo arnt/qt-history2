@@ -43,6 +43,10 @@ class ColorSwatch : public QDockWidget
 
     QAction *changeSizeHintsAction;
 
+    QMenu *tabMenu;
+    QMenu *splitHMenu;
+    QMenu *splitVMenu;
+
 public:
     ColorSwatch(const QString &colorName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
@@ -71,6 +75,9 @@ private slots:
     void placeRight(bool p);
     void placeTop(bool p);
     void placeBottom(bool p);
+
+    void splitInto(QAction *action);
+    void tabInto(QAction *action);
 };
 
 #endif

@@ -409,10 +409,17 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
     dockWidgetLayout.addDockWidget(pos, dockwidget, orientation);
 }
 
+void QMainWindowLayout::tabifyDockWidget(QDockWidget *first, QDockWidget *second)
+{
+    addChildWidget(second);
+    dockWidgetLayout.tabifyDockWidget(first, second);
+}
+
 void QMainWindowLayout::splitDockWidget(QDockWidget *after,
                                                QDockWidget *dockwidget,
                                                Qt::Orientation orientation)
 {
+    addChildWidget(dockwidget);
     dockWidgetLayout.splitDockWidget(after, dockwidget, orientation);
 }
 #endif // QT_NO_DOCKWIDGET

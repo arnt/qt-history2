@@ -76,6 +76,7 @@ public:
     void splitDockWidget(QDockWidget *after,
                          QDockWidget *dockwidget,
                          Qt::Orientation orientation);
+    void tabifyDockWidget(QDockWidget *first, QDockWidget *second);
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
 #endif
 
