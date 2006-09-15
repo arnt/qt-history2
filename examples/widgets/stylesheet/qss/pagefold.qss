@@ -18,7 +18,7 @@ QMainWindow > .QWidget {
 
 /* Note that mainFrame wont have this border-image since we have
     explicitly set it to 'none' using a more specific selector */
-QFrame, QLineEdit {
+QFrame, QLineEdit, QComboBox[editable="true"], QSpinBox {
     border-image: url(:/images/frame.png) 3;
     border-width: 3;
 }
@@ -39,8 +39,6 @@ QWidget {
 /* This makes the entire row selected in itemviews selected */
 QAbstractItemView {
     show-decoration-selected: 1;
-    padding: 2px; /* items are too close to the border image */
-    background-color: transparent;
 }
 
 /* Nice windowsxp style password character for password lineedits */
@@ -97,6 +95,27 @@ QRadioButton::indicator:checked:pressed {
     image: url(:/images/radiobutton_checked_pressed.png);
 }
 
+/* generic images */
+*::down-arrow, *::menu-indicator {
+    image: url(:/images/down_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+*::down-arrow:disabled, *::down-arrow:off {
+   image: url(:/images/down_arrow_disabled.png);
+}
+
+*::up-arrow {
+    image: url(:/images/up_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+*::up-arrow:disabled, *::up-arrow:off {
+   image: url(:/images/up_arrow_disabled.png);
+}
+
 /* The Push Button and Combo box. Our non-ediable combo box
    is very similar to a combo box. So they share the same border image! */
 QPushButton {
@@ -104,25 +123,30 @@ QPushButton {
     min-height: 1.2em;
 }
 
-QPushButton, QComboBox[editable="false"] {
+QComboBox[editable="false"] {
+    padding-left: 3px;
+}
+
+QPushButton, QComboBox[editable="false"],
+QComboBox[editable="true"]::drop-down {
     border-image: url(:/images/pushbutton.png) 3;
     border-width: 3;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
-QMenuBar::item:hover {
+QComboBox[editable="true"]::drop-down:hover, QMenuBar::item:hover {
     border-image: url(:/images/pushbutton_hover.png) 3;
     border-width: 3;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
-QMenuBar::item:on {
+QComboBox[editable="true"]::drop-down:on, QMenuBar::item:on {
     border-image: url(:/images/pushbutton_pressed.png) 3;
     border-width: 3;
 }
 
-/* Combo box specifics */
-QComboBox::drop-down {
+/* Combo box */
+QComboBox[editable="false"]::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 15px;
@@ -131,18 +155,36 @@ QComboBox::drop-down {
     border-left-width: 1px;
 }
 
+QComboBox[editable="true"] {
+    padding-right: 17px;
+}
+
+QComboBox[editable="true"]::drop-down,
+QComboBox[editable="true"]::drop-down:hover,
+QComboBox[editable="true"]::drop-down:on {
+    border-width: 2px;  /* scale down border image */
+}
+
+QComboBox[editable="true"]::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    position: absolute;
+    width: 15px;
+    border-width: 2px;
+}
+
 QComboBox::down-arrow {
     subcontrol-origin: content;
     subcontrol-position: center;
-    image: url(:/images/down_arrow.png);
-    width: 7px;
-    height: 7px;
 }
 
+/* Combo box arrow is on when popup is open */
 QComboBox::down-arrow:on {
+    position: relative;
     top: 1px;
     left: 1px;
 }
+
 
 /* The check box */
 QCheckBox {
@@ -193,5 +235,44 @@ QMenuBar {
     border-bottom-style: solid;
     border-bottom-color: darkslategray;
     padding: 2px;
+}
+
+/* QSpinBox */
+QSpinBox { 
+    padding-right: 13px;
+}
+
+QSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+
+    width: 13px;
+    border-image: url(:/images/spinup.png) 1;
+    border-width: 1px;
+}
+
+QSpinBox::up-button:hover {
+    border-image: url(:/images/spinup_hover.png) 1;
+}
+
+QSpinBox::up-button:pressed {
+    border-image: url(:/images/spinup_pressed.png) 1;
+}
+
+QSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+
+    width: 13px;
+    border-image: url(:/images/spindown.png) 1;
+    border-width: 1px;
+}
+
+QSpinBox::down-button:hover {
+    border-image: url(:/images/spindown_hover.png) 1;
+}
+
+QSpinBox::down-button:pressed {
+    border-image: url(:/images/spindown_pressed.png) 1;
 }
 

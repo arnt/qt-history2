@@ -3,7 +3,7 @@ FORMS       = forms/stylesheeteditor.ui
 RESOURCES   = stylesheet.qrc
 SOURCES     = mainwindow.cpp \
               main.cpp
-CONFIG      += uitools console
+CONFIG      += uitools 
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/designer/stylesheet

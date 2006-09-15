@@ -38,7 +38,8 @@ MainWindow::MainWindow() : mw(0), styleEditorDialog(0)
                      this, SLOT(loadStyleSheet(const QString&)));
 
     // load the default
-    loadStyleSheet("boringdefault");
+    sse.styleSheetCombo->setCurrentIndex(sse.styleSheetCombo->findText("coffee"));
+    loadStyleSheet(sse.styleSheetCombo->currentText());
 }
 
 void MainWindow::editStyle()
@@ -90,6 +91,10 @@ void MainWindow::loadLayout(const QString& layout)
     // set the nameLabel as mandatory - dynamic property
     QLabel *nameLabel = qFindChild<QLabel *>(mw, "nameLabel");
     nameLabel->setProperty("class", "mandatory QLabel");
+
+    // turn on auto completion
+    QComboBox *nameCombo = qFindChild<QComboBox *>(mw, "nameCombo");
+    nameCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
     QAction *exitAction = qFindChild<QAction *>(mw, "exitAction");
     QObject::connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
