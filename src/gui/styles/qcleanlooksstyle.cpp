@@ -894,9 +894,21 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                 painter->setPen(QPen(darkoutline, 0));
             }
             else {
-                painter->setPen(QPen(option->palette.light().color()));
-                painter->drawLine(option->rect.bottomLeft() + QPoint(2, 0),
-                                option->rect.bottomRight() - QPoint(2, 0));
+                QColor highlight = Qt::white;
+                highlight.setAlpha(130);
+                painter->setPen(option->palette.base().color().dark(120));
+                painter->drawLine(QPoint(r.left() + 1, r.top() + 1),
+                                  QPoint(r.right() - 1, r.top() + 1));
+                painter->drawLine(QPoint(r.left() + 1, r.top() + 1),
+                                  QPoint(r.left() + 1, r.bottom() - 1));
+                painter->setPen(option->palette.base().color());
+                painter->drawLine(QPoint(r.right() - 1, r.top() + 1),
+                                  QPoint(r.right() - 1, r.bottom() - 1));
+                painter->setPen(highlight);
+                painter->drawLine(QPoint(r.left() + 1, r.bottom() + 1),
+                                  QPoint(r.right() - 1, r.bottom() + 1));
+                painter->drawPoint(QPoint(r.left(), r.bottom()));
+                painter->drawPoint(QPoint(r.right(), r.bottom() ));
                 painter->setPen(QPen(darkOutline.light(115), 1));
             }
             painter->drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
@@ -2333,9 +2345,23 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                     cachePainter.setPen(QPen(option->palette.background().color(), 1));
                     cachePainter.drawLine(QPoint(r.left() + 2, r.top() + 1), QPoint(r.right() - 2, r.top() + 1));
-                    cachePainter.setPen(QPen(option->palette.light().color()));
-                    cachePainter.drawLine(option->rect.bottomLeft() + QPoint(2, 0),
-                                          option->rect.bottomRight() - QPoint(2, 0));
+                    QColor highlight = Qt::white;
+                    highlight.setAlpha(130);
+                    cachePainter.setPen(option->palette.base().color().dark(120));
+                    cachePainter.drawLine(QPoint(r.left() + 1, r.top() + 1),
+                                  QPoint(r.right() - 1, r.top() + 1));
+                    cachePainter.drawLine(QPoint(r.left() + 1, r.top() + 1),
+                                  QPoint(r.left() + 1, r.bottom() - 1));
+                    cachePainter.setPen(option->palette.base().color());
+                    cachePainter.drawLine(QPoint(r.right() - 1, r.top() + 1),
+                                  QPoint(r.right() - 1, r.bottom() - 1));
+                    cachePainter.drawLine(QPoint(r.left() + 1, r.bottom() - 1),
+                                  QPoint(r.right() - 1, r.bottom() - 1));
+                    cachePainter.setPen(highlight);
+                    cachePainter.drawLine(QPoint(r.left() + 2, r.bottom() + 1),
+                                  QPoint(r.right() - 2, r.bottom() + 1));
+                    cachePainter.drawPoint(QPoint(r.left() + 1, r.bottom()));
+                    cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() ));
                     cachePainter.setPen(QPen(darkOutline.light(115), 1));
 
                     // top and bottom lines
@@ -2488,7 +2514,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 if (!(spinBox->stepEnabled & QAbstractSpinBox::StepUpEnabled))
                     cachePainter.fillRect(upRect, disabledColor);
                 if (!(spinBox->stepEnabled & QAbstractSpinBox::StepDownEnabled))
-                    cachePainter.fillRect(downRect, disabledColor);
+                    cachePainter.fillRect(downRect.adjusted(0, 0, 0, 1), disabledColor);
 
                 cachePainter.end();
                 if (UsePixmapCache)
