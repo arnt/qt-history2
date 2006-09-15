@@ -1,6 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = mousecalibration \
-                svgalib
+SUBDIRS       = mousecalibration 
 
 # install
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS README *.pro
