@@ -927,6 +927,47 @@ static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *opti
 }
 #endif
 
+// sets ups a clip region for combo box and spin box
+static void qt_plastique_setup_region(QPainter *painter, const QStyleOption *option, const QWidget *widget)
+{
+    if (!widget)
+        return;
+
+    // Clip away a couple of pixels off the end of the edit field for
+    // editable comboboxes and spin boxes.
+#ifndef QT_NO_COMBOBOX
+    const QComboBox *comboBox = qobject_cast<const QComboBox *>(widget);
+#else
+    const bool comboBox = false;
+#endif
+#ifndef QT_NO_SPINBOX
+    const QAbstractSpinBox *spinBox = qobject_cast<const QAbstractSpinBox *>(widget);
+#else
+    const bool spinBox = false;
+#endif
+    if (comboBox || spinBox) {
+        QRegion region = painter->clipRegion();
+        if (region.isEmpty())
+            region = option->rect;
+        if (option->direction == Qt::RightToLeft) {
+            region -= QRect(1, 0, 1, 2);
+            region -= QRect(1, option->rect.bottom() - 1, 1, 2);
+#ifndef QT_NO_COMBOBOX
+            if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
+                region -= QRect(option->rect.right() - 1, option->rect.top(), 2, option->rect.height());
+#endif
+        } else {
+            region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
+            region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
+#ifndef QT_NO_COMBOBOX
+            if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
+                region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
+#endif
+        }
+        painter->setClipRegion(region);
+    }
+}
+
 class QPlastiqueStylePrivate : public QWindowsStylePrivate
 {
     Q_DECLARE_PUBLIC(QPlastiqueStyle)
@@ -1245,43 +1286,13 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         break;
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *lineEdit = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
-            painter->save();
-
-            // Clip away a couple of pixels off the end of the edit field for
-            // editable comboboxes and spin boxes.
-            if (widget) {
-#ifndef QT_NO_COMBOBOX
-                QComboBox *comboBox = qobject_cast<QComboBox *>(widget->parentWidget());
-#else
-                const bool comboBox = false;
-#endif
-#ifndef QT_NO_SPINBOX
-                QAbstractSpinBox *spinBox = qobject_cast<QAbstractSpinBox *>(widget->parentWidget());
-#else
-                const bool spinBox = false;
-#endif
-                if (comboBox || spinBox) {
-                    QRegion region = painter->clipRegion();
-                    if (region.isEmpty())
-                        region = option->rect;
-                    if (option->direction == Qt::RightToLeft) {
-                        region -= QRect(1, 0, 1, 2);
-                        region -= QRect(1, option->rect.bottom() - 1, 1, 2);
-#ifndef QT_NO_COMBOBOX
-                        if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
-                            region -= QRect(option->rect.right() - 1, option->rect.top(), 2, option->rect.height());
-#endif
-                    } else {
-                        region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
-                        region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
-#ifndef QT_NO_COMBOBOX
-                        if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
-                            region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
-#endif
-                    }
-                    painter->setClipRegion(region);
-                }
+            // Panel of a line edit inside combo box or spin box is drawn in CC_ComboBox and CC_SpinBox
+            if (widget && (qobject_cast<const QComboBox *>(widget->parentWidget())
+                           || qobject_cast<const QAbstractSpinBox *>(widget->parentWidget()))) {
+               break;
             }
+
+            painter->save();
 
             // Fill the line edit insides
             QRect filledRect = lineEdit->rect.adjusted(1, 1, -1, -1);
@@ -1298,7 +1309,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                               filledRect.right() - 1, filledRect.top());
             painter->drawLine(filledRect.left() + 1, filledRect.bottom(),
                               filledRect.right() - 1, filledRect.bottom());
-            qt_plastique_draw_frame(painter, option->rect, option, QFrame::Sunken);
+            if (lineEdit->lineWidth != 0)
+                qt_plastique_draw_frame(painter, option->rect, option, QFrame::Sunken);
 
             painter->restore();
             break;
@@ -4070,6 +4082,20 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     painter->drawPoint(centerX, downArrowRect.top() + 3);
                 }
             }
+
+            qt_plastique_setup_region(painter, option, widget);
+            if (const QAbstractSpinBox *spin = qobject_cast<const QAbstractSpinBox *>(widget)) {
+                if (const QLineEdit *lineEdit = qFindChild<const QLineEdit *>(spin)) {
+                    QStyleOptionFrame frameOpt;
+                    frameOpt.initFrom(lineEdit);
+                    frameOpt.rect = lineEdit->contentsRect();
+                    frameOpt.lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth);
+                    frameOpt.midLineWidth = 0;
+                    frameOpt.state |= QStyle::State_Sunken;
+                    drawPrimitive(QStyle::PE_PanelLineEdit, &frameOpt, painter, widget);
+                }
+            }
+
             painter->restore();
         }
         break;
@@ -4083,7 +4109,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             int xoffset = sunken ? (reverse ? -1 : 1) : 0;
             int yoffset = sunken ? 1 : 0;
             QRect rect = comboBox->rect;
-            QPen oldPen = painter->pen();
+            painter->save();
 
             // Fill
             if (comboBox->editable) {
@@ -4298,7 +4324,20 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 drawPrimitive(PE_FrameFocusRect, &focus, painter, widget);
             }
 
-            painter->setPen(oldPen);
+            if (comboBox->editable) {
+                qt_plastique_setup_region(painter, option, widget);
+                if (const QComboBox *combo = qobject_cast<const QComboBox *>(widget)) {
+                    QStyleOptionFrame frameOpt;
+                    frameOpt.initFrom(combo->lineEdit());
+                    frameOpt.rect = combo->lineEdit()->contentsRect();
+                    frameOpt.lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth);
+                    frameOpt.midLineWidth = 0;
+                    frameOpt.state |= QStyle::State_Sunken;
+                    drawPrimitive(QStyle::PE_PanelLineEdit, &frameOpt, painter, widget);
+                }
+            }
+
+            painter->restore();
         }
         break;
 #endif // QT_NO_COMBOBOX
