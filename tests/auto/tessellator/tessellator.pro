@@ -3,4 +3,3 @@ SOURCES += tst_tessellator.cpp ltessellator.cpp qttesselator.cpp utils.cpp simpl
 HEADERS += ltessellator.h qttesselator.h utils.h XRenderFake.h simple.h qnum.h dataparser.h arc.h
 
 RESOURCES += datafiles.qrc
-QT = core gui
