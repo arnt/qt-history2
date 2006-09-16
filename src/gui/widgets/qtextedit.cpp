@@ -332,7 +332,7 @@ void QTextEditPrivate::ensureViewportLayouted()
     The text is set or replaced using setHtml() which deletes any
     existing text and replaces it with the text passed in the
     setHtml() call. If you call setHtml() with legacy HTML, and then
-    call text(), the text that is returned may have different markup,
+    call toHtml(), the text that is returned may have different markup,
     but will render the same. The entire text can be deleted with clear().
 
     Text itself can be inserted using the QTextCursor class or using the
