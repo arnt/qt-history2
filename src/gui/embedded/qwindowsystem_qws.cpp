@@ -208,7 +208,7 @@ QWSWindowPrivate::QWSWindowPrivate()
 
     In addition, it is possible to determine whether the window is
     visible using the isVisible() function, if the window is
-    completely obsured by another window or by the bounds of the
+    completely obscured by another window or by the bounds of the
     screen using the isFullyObscured() function, and whether the
     window has an alpha channel different from 255 using the
     isOpaque() function. Finally, QWSWindow provides the
