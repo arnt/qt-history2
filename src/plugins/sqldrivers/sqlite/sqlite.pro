@@ -6,6 +6,7 @@ SOURCES		= smain.cpp \
 
 !system-sqlite:!contains( LIBS, .*sqlite.* ) {
     CONFIG(release, debug|release):DEFINES *= NDEBUG
+    DEFINES += SQLITE_OMIT_LOAD_EXTENSION
     INCLUDEPATH += ../../../3rdparty/sqlite
 
     SOURCES += ../../../3rdparty/sqlite/alter.c \
