@@ -823,6 +823,8 @@ void QPdfBaseEngine::drawRects (const QRectF *rects, int rectCount)
     Q_D(QPdfBaseEngine);
     if (d->clipEnabled && d->allClipped)
         return;
+    if (!d->hasPen && !d->hasBrush)
+        return;
 
     QBrush penBrush = d->pen.brush();
     if (d->simplePen || !d->hasPen) {
@@ -881,6 +883,8 @@ void QPdfBaseEngine::drawPath (const QPainterPath &p)
 {
     Q_D(QPdfBaseEngine);
     if (d->clipEnabled && d->allClipped)
+        return;
+    if (!d->hasPen && !d->hasBrush)
         return;
 
     if (d->simplePen) {
