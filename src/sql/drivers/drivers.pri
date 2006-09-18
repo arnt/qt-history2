@@ -148,6 +148,7 @@ contains(sql-drivers, sqlite) {
                         ../3rdparty/sqlite/vdbe.c \
                         ../3rdparty/sqlite/vdbefifo.c \
                         ../3rdparty/sqlite/vdbemem.c \
+                        ../3rdparty/sqlite/vtab.c \
                         ../3rdparty/sqlite/where.c
         unix:SOURCES += ../3rdparty/sqlite/os_unix.c
         win32:SOURCES +=  ../3rdparty/sqlite/os_win.c
