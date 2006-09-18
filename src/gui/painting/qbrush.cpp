@@ -769,6 +769,7 @@ bool QBrush::isOpaque() const
 */
 void QBrush::setMatrix(const QMatrix &matrix)
 {
+    detach(d->style);
     d->transform = matrix;
 }
 
