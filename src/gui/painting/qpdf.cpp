@@ -1709,14 +1709,23 @@ QRect QPdfBaseEnginePrivate::pageRect() const
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     if (QCUPSSupport::isAvailable() && cups.currentPPD()) {
         r = cups.pageRect();
+        if (r == cups.paperRect())
+            // if cups doesn't define any margins, give it at least approx 3.5 mm
+            r = QRect(10, 10, r.width() - 20, r.height() - 20);
     } else
 #endif
     {
         QPdf::PaperSize s = QPdf::paperSize(pageSize);
         r = QRect(72/3, 72/3, s.width - 2*72/3, s.height - 2*72/3);
     }
-    return QRect(qRound(r.left()*resolution/72.), qRound(r.top()*resolution/72.),
-                 qRound(r.width()*resolution/72.), qRound(r.height()*resolution/72.));
+    int x = qRound(r.left()*resolution/72.);
+    int y = qRound(r.top()*resolution/72.);
+    int w = qRound(r.width()*resolution/72.);
+    int h = qRound(r.height()*resolution/72.);
+    if (orientation == QPrinter::Portrait)
+        return QRect(x, y, w, h);
+    else
+        return QRect(y, x, h, w);
 }
 
 
