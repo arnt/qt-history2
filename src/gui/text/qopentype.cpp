@@ -265,9 +265,10 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
                 }
             }
 #endif
-            FT_ULong *feature_tag_list;
-            error = HB_GPOS_Query_Features(gpos, script_index, 0xffff, &feature_tag_list);
+            FT_ULong *feature_tag_list_buffer;
+            error = HB_GPOS_Query_Features(gpos, script_index, 0xffff, &feature_tag_list_buffer);
             if (!error) {
+                FT_ULong *feature_tag_list = feature_tag_list_buffer;
                 while (*feature_tag_list) {
                     FT_UShort feature_index;
                     if (*feature_tag_list == FT_MAKE_TAG('k', 'e', 'r', 'n')) {
@@ -282,6 +283,8 @@ void QOpenType::selectScript(QShaperItem *item, unsigned int script, const Featu
                         HB_GPOS_Add_Feature(gpos, feature_index, PositioningProperties);
                     ++feature_tag_list;
                 }
+                FT_Memory memory = gpos->memory;
+                FREE(feature_tag_list_buffer);
             }
         }
     }

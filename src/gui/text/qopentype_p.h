@@ -31,6 +31,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "harfbuzz.h"
+#include "ftglue.h"
 
 enum { PositioningProperties = 0x80000000 };
 
