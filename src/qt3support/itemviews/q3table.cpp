@@ -5878,25 +5878,27 @@ void Q3Table::takeItem(Q3TableItem *i)
 {
     if (!i)
         return;
-    QRect rect = cellGeometry(i->row(), i->col());
-    contents.setAutoDelete(false);
-    int bottom = i->row() + i->rowSpan();
-    if (bottom > numRows())
-        bottom = numRows();
-    int right = i->col() + i->colSpan();
-    if (right > numCols())
-        right = numCols();
-    for (int r = i->row(); r < bottom; ++r) {
-        for (int c = i->col(); c < right; ++c)
-            contents.remove(indexOf(r, c));
+    if (i->row() != -1 && i->col() != -1) {
+        QRect rect = cellGeometry(i->row(), i->col());
+        contents.setAutoDelete(false);
+        int bottom = i->row() + i->rowSpan();
+        if (bottom > numRows())
+            bottom = numRows();
+        int right = i->col() + i->colSpan();
+        if (right > numCols())
+            right = numCols();
+        for (int r = i->row(); r < bottom; ++r) {
+            for (int c = i->col(); c < right; ++c)
+                contents.remove(indexOf(r, c));
+        }
+        contents.setAutoDelete(true);
+        repaintContents(rect, false);
+        int orow = i->row();
+        int ocol = i->col();
+        i->setRow(-1);
+        i->setCol(-1);
+        i->updateEditor(orow, ocol);
     }
-    contents.setAutoDelete(true);
-    repaintContents(rect, false);
-    int orow = i->row();
-    int ocol = i->col();
-    i->setRow(-1);
-    i->setCol(-1);
-    i->updateEditor(orow, ocol);
     i->t = 0;
 }
 
