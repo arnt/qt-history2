@@ -1785,11 +1785,7 @@ void tst_QTextDocumentFragment::defaultFont()
     doc->setPlainText("Hello World");
     QTextDocumentFragment fragment(doc);
     const QString html = fragment.toHtml();
-#if QT_VERSION >= 0x040200
-    QLatin1String str("<body style=\" font-family:Courier New; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
-#else
-    QLatin1String str("<body style=\" white-space: pre-wrap; font-family:Courier New; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
-#endif
+    QLatin1String str("<body style=\" font-family:'Courier New'; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
     QVERIFY(html.contains(str));
 }
 
@@ -1809,11 +1805,7 @@ void tst_QTextDocumentFragment::defaultFont2()
     cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     QTextDocumentFragment fragment(cursor);
     const QString html = fragment.toHtml();
-#if QT_VERSION >= 0x040200
-    QLatin1String str("<body style=\" font-family:Courier New; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
-#else
-    QLatin1String str("<body style=\" white-space: pre-wrap; font-family:Courier New; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
-#endif
+    QLatin1String str("<body style=\" font-family:'Courier New'; font-size:100pt; font-weight:600; font-style:italic; text-decoration: line-through;\">");
     QVERIFY(html.contains(str));
 }
 #endif
