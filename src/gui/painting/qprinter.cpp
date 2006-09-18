@@ -25,7 +25,7 @@
 #include <private/qprintengine_win_p.h>
 #elif defined (Q_WS_MAC)
 #include <private/qprintengine_mac_p.h>
-#elif defined (Q_WS_QWS)
+#elif defined (QTOPIA_PRINTENGINE)
 #include <private/qprintengine_qws_p.h>
 #endif
 #include <private/qprintengine_ps_p.h>

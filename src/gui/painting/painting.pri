@@ -113,15 +113,14 @@ win32|x11|embedded {
 
 embedded {
         contains(QT_CONFIG,qtopia) {
-            DEFINES += QTOPIA_PRINTENGINE
+		DEFINES += QTOPIA_PRINTENGINE
+		HEADERS += painting/qprintengine_qws_p.h
+		SOURCES += painting/qprintengine_qws.cpp
         }
-        HEADERS += \
-                painting/qprintengine_qws_p.h
                 
 	SOURCES += \
 		painting/qcolormap_qws.cpp \
-		painting/qpaintdevice_qws.cpp \
-                painting/qprintengine_qws.cpp
+		painting/qpaintdevice_qws.cpp
 } 
 
 x11|embedded {
