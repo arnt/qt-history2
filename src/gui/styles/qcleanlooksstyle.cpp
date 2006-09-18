@@ -4112,10 +4112,10 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     case SP_DirIcon:
         icon.addPixmap(standardPixmap(SP_DirClosedIcon, option, widget),
                        QIcon::Normal, QIcon::Off);
-        pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
+        pixmap = d->findIcon(16, QLatin1String("gnome-fs-directory.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
-        pixmap = d->findIcon(48, QLatin1String("stock_folder.png"));
+        pixmap = d->findIcon(48, QLatin1String("gnome-fs-directory.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
         pixmap = d->findIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
@@ -4130,7 +4130,7 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
             QPixmap link = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!link.isNull()) {
                 icon.addPixmap(standardPixmap(SP_DirLinkIcon, option, widget));
-                pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
+                pixmap = d->findIcon(16, QLatin1String("gnome-fs-directory.png"));
                 if (!pixmap.isNull()) {
                     QPainter painter(&pixmap);
                     painter.drawPixmap(8, 8, 8, 8, link);
@@ -4195,7 +4195,9 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
             QPixmap link = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!link.isNull()) {
                 icon.addPixmap(standardPixmap(SP_FileLinkIcon,option, widget));
-                pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
+                pixmap = d->findIcon(16, QLatin1String("unknown.png"));
+                if (pixmap.isNull())
+                    pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
                 if (!pixmap.isNull()) {
                     QPainter painter(&pixmap);
                     painter.drawPixmap(8, 8, 8, 8, link);
@@ -4270,38 +4272,48 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_FileIcon:
         {
-            pixmap = d->findIcon(24, QLatin1String("stock_new.png"));
+            pixmap = d->findIcon(24, QLatin1String("unknown.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("stock_new.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileLinkIcon:
         {
-            pixmap = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            pixmap = d->findIcon(24, QLatin1String("emblem-symbolic-link.png"));
             if (!pixmap.isNull()) {
-                QPixmap fileIcon = d->findIcon(24, QLatin1String("stock_new.png"));
-                QPainter painter(&fileIcon);
-                painter.drawPixmap(12, 12, 12, 12, pixmap);
-                return fileIcon;
+                QPixmap fileIcon = d->findIcon(24, QLatin1String("unknown.png"));
+                if (fileIcon.isNull())
+                    fileIcon = d->findIcon(24, QLatin1String("stock_new.png"));
+                if (!fileIcon.isNull()) {
+                    QPainter painter(&fileIcon);
+                    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                    painter.drawPixmap(12, 12, 12, 12, pixmap);
+                    return fileIcon;
+                }
             }
             break;
        }
     case SP_DirClosedIcon:
     case SP_DirIcon:
         {
-            pixmap = d->findIcon(24, QLatin1String("stock_folder.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-fs-directory.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DirLinkIcon:
         {
-            pixmap = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            pixmap = d->findIcon(24, QLatin1String("emblem-symbolic-link.png"));
             if (!pixmap.isNull()) {
-                QPixmap dirIcon = d->findIcon(24, QLatin1String("stock_folder.png"));
-                QPainter painter(&dirIcon);
-                painter.drawPixmap(12, 12, 12, 12, pixmap);
-                return dirIcon;
+                QPixmap dirIcon = d->findIcon(24, QLatin1String("gnome-fs-directory.png"));
+                if (!dirIcon.isNull()) {
+                    QPainter painter(&dirIcon);
+                    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                    painter.drawPixmap(12, 12, 12, 12, pixmap);
+                    return dirIcon;
+                }
             }
             break;
        }
@@ -4392,7 +4404,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_DialogCloseButton:
         {
-            pixmap = d->findIcon(24, QLatin1String("dialog-close.png"));
+            pixmap = d->findIcon(24, QLatin1String("gtk-close.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4400,6 +4412,8 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DialogApplyButton:
         {
             pixmap = d->findIcon(24, QLatin1String("dialog-apply.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("stock-apply.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4413,7 +4427,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_DialogHelpButton:
         {
-            pixmap = d->findIcon(24, QLatin1String("document-open.png"));
+            pixmap = d->findIcon(24, QLatin1String("gtk-help.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4421,6 +4435,8 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DialogOkButton:
         {
             pixmap = d->findIcon(24, QLatin1String("dialog-ok.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("stock-ok.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4428,6 +4444,8 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DialogCancelButton:
         {
             pixmap = d->findIcon(24, QLatin1String("dialog-cancel.png"));
+            if (pixmap.isNull())
+                pixmap = d->findIcon(24, QLatin1String("stock-cancel.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;

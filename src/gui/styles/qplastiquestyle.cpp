@@ -5595,18 +5595,22 @@ Q_D(const QPlastiqueStyle);
         pixmap = d->findIcon(32, QLatin1String("link_overlay.png"));
         if (!pixmap.isNull()) {
             QPixmap fileIcon = d->findIcon(32, QLatin1String("empty.png"));
-            QPainter painter(&fileIcon);
-            painter.drawPixmap(0, 0, 32, 32, pixmap);
-            icon.addPixmap(fileIcon);
+            if (!fileIcon.isNull()) {
+                QPainter painter(&fileIcon);
+                painter.drawPixmap(0, 0, 32, 32, pixmap);
+                icon.addPixmap(fileIcon);
+            }
         }
         break;
     case SP_DirLinkIcon:
         pixmap = d->findIcon(32, QLatin1String("link_overlay.png"));
         if (!pixmap.isNull()) {
             QPixmap fileIcon = d->findIcon(32, QLatin1String("folder.png"));
-            QPainter painter(&fileIcon);
-            painter.drawPixmap(0, 0, 32, 32, pixmap);
-            icon.addPixmap(fileIcon);
+            if (!fileIcon.isNull()) {
+                QPainter painter(&fileIcon);
+                painter.drawPixmap(0, 0, 32, 32, pixmap);
+                icon.addPixmap(fileIcon);
+            }
         }
         break;
     default:
@@ -5676,9 +5680,11 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
             pixmap = d->findIcon(16, QLatin1String("link_overlay.png"));
             if (!pixmap.isNull()) {
                 QPixmap fileIcon = d->findIcon(16, QLatin1String("empty.png"));
-                QPainter painter(&fileIcon);
-                painter.drawPixmap(0, 0, 16, 16, pixmap);
-                return fileIcon;
+                if (!fileIcon.isNull()) {
+                    QPainter painter(&fileIcon);
+                    painter.drawPixmap(0, 0, 16, 16, pixmap);
+                    return fileIcon;
+                }
             }
             break;
        }
@@ -5695,9 +5701,11 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
             pixmap = d->findIcon(16, QLatin1String("link_overlay.png"));
             if (!pixmap.isNull()) {
                 QPixmap dirIcon = d->findIcon(16, QLatin1String("folder.png"));
-                QPainter painter(&dirIcon);
-                painter.drawPixmap(0, 0, 16, 16, pixmap);
-                return dirIcon;
+                if (!dirIcon.isNull()) {
+                    QPainter painter(&dirIcon);
+                    painter.drawPixmap(0, 0, 16, 16, pixmap);
+                    return dirIcon;
+                }
             }
             break;
        }
