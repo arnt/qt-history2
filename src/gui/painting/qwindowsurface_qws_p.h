@@ -47,6 +47,8 @@ public:
     virtual void setGeometry(const QRect &rect);
     virtual QRect geometry() const = 0;
 
+    virtual void scroll(const QRegion &region, int dx, int dy) = 0;
+
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
 

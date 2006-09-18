@@ -109,6 +109,14 @@ public:
 */
 
 /*!
+    \fn void QWSWindowSurface::scroll(const QRegion &region, int dx, int dy)
+
+    Scrolls the region \a region dx pixels to the right and dy downward.
+
+    Both dx and dy may be negative.
+*/
+
+/*!
     \fn bool QWSWindowSurface::isValidFor(const QWidget *window) const
 
     Returns true if the surface is a valid surface for the top-level \a window;
