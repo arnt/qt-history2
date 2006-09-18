@@ -4283,13 +4283,12 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                     // that the combobox width is big enough to show all items
                     // in the popup.
                     const int leftOffset = 6;
-                    const int downOffset = 2;
-                    ret.adjust(-leftOffset, downOffset, leftOffset + 1, 0);
+                    ret.adjust(-leftOffset, 0, leftOffset + 1, 0);
                  }
                 break;
             case SC_ComboBoxEditField:
                 if(combo->editable)
-                    ret.adjust(0, 0, 0, -2);
+                    ret.adjust(0, -2, 0, -1);
                 break;
             case SC_ComboBoxArrow:
                 ret.setX(ret.x() + ret.width());
