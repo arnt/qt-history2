@@ -1510,9 +1510,9 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     html += QLatin1String("</style>");
     html += QLatin1String("</head><body style=\"");
 
-    html += QLatin1String(" font-family:");
+    html += QLatin1String(" font-family:'");
     html += defaultCharFormat.fontFamily();
-    html += QLatin1Char(';');
+    html += QLatin1String("';");
 
     if (defaultCharFormat.hasProperty(QTextFormat::FontPointSize)) {
         html += QLatin1String(" font-size:");
@@ -1581,9 +1581,9 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     {
         const QString family = format.fontFamily();
         if (!family.isEmpty() && family != defaultCharFormat.fontFamily()) {
-            html += QLatin1String(" font-family:");
+            html += QLatin1String(" font-family:'");
             html += family;
-            html += QLatin1Char(';');
+            html += QLatin1String("';");
             attributesEmitted = true;
         }
     }

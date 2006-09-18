@@ -161,17 +161,11 @@ void tst_QTextDocument::init()
     defaultFont.setUnderline(false);
     defaultFont.setStrikeOut(false);
 
-#if QT_VERSION >= 0x040200
     htmlHead = QString("<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                        "p, li { white-space: pre-wrap; }\n"
                        "</style></head>"
-                       "<body style=\" font-family:%1; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\">\n");
+                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\">\n");
     htmlHead = htmlHead.arg(defaultFont.family()).arg(defaultFont.pointSizeF()).arg(defaultFont.weight() * 8).arg((defaultFont.italic() ? "italic" : "normal"));
-#else
-    htmlHead = QString("<html><head><meta name=\"qrichtext\" content=\"1\" /></head>"
-                       "<body style=\" white-space: pre-wrap; font-family:%1; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\">");
-    htmlHead = htmlHead.arg(defaultFont.family()).arg(defaultFont.pointSizeF()).arg(defaultFont.weight() * 8).arg((defaultFont.italic() ? "italic" : "normal"));
-#endif
 
     htmlTail = QString("</body></html>");
 }
@@ -480,7 +474,7 @@ void tst_QTextDocument::toHtml_data()
         cursor.insertText("Blah", fmt);
 
         QTest::newRow("font-family") << QTextDocumentFragment(&doc)
-                                  << QString("<p DEFAULTBLOCKSTYLE><span style=\" font-family:Times;\">Blah</span></p>");
+                                  << QString("<p DEFAULTBLOCKSTYLE><span style=\" font-family:'Times';\">Blah</span></p>");
     }
 
     {
@@ -1181,21 +1175,13 @@ void tst_QTextDocument::toHtmlBodyBgColor()
     fmt.setBackground(QColor("#0000ff"));
     doc.rootFrame()->setFrameFormat(fmt);
 
-#if QT_VERSION >= 0x040200
     QString expectedHtml("<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                        "p, li { white-space: pre-wrap; }\n"
                        "</style></head>"
-                       "<body style=\" font-family:%1; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\""
+                       "<body style=\" font-family:'%1'; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\""
                        " bgcolor=\"#0000ff\">\n"
                        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Blah</p>"
                        "</body></html>");
-#else
-    QString expectedHtml("<html><head><meta name=\"qrichtext\" content=\"1\" /></head>"
-                       "<body style=\" white-space: pre-wrap; font-family:%1; font-size:%2pt; font-weight:%3; font-style:%4; text-decoration:none;\""
-                       " bgcolor=\"#0000ff\">"
-                       "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Blah</p>"
-                       "</body></html>");
-#endif
 
     expectedHtml = expectedHtml.arg(defaultFont.family()).arg(defaultFont.pointSizeF()).arg(defaultFont.weight() * 8).arg((defaultFont.italic() ? "italic" : "normal"));
 
