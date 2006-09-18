@@ -395,6 +395,7 @@ EOF
             mkdir -p "$outpath/bin"
             cp -f "$relpath/bin/qtusagereporter" "$outpath/bin/qtusagereporter"
         fi
+        QT_CONFIG="$QT_CONFIG qtusagereporter"
         ;;
     *)
         echo

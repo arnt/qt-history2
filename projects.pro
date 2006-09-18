@@ -121,3 +121,9 @@ false:macx { #mac install location
     macdocs.path = /Developer/Documentation/Qt
     INSTALLS += macdocs
 }
+
+!win32:contains(QT_CONFIG, qtusagereporter) {
+    usagereporter.path=$$[QT_INSTALL_BINS]
+    usagereporter.files=$$QT_BUILD_TREE/bin/qtusagereporter
+    INSTALLS += usagereporter
+}
