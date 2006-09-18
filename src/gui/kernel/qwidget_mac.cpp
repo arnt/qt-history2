@@ -470,22 +470,25 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                     widget->d_func()->hd = old_qdref;
 
 #ifdef DEBUG_WIDGET_PAINT
-                qDebug("asked to draw %p[%p] [%s::%s] %p[%p] [%d] [%dx%d]", widget, hiview, widget->metaObject()->className(),
-                       widget->objectName().local8Bit().data(), widget->parentWidget(),
-                       (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (HIViewRef)0),
-                       HIViewIsCompositingEnabled(hiview), qt_mac_posInWindow(widget).x(), qt_mac_posInWindow(widget).y());
+                const bool doDebug = true;
+                if(doDebug)  {
+                    qDebug("asked to draw %p[%p] [%s::%s] %p[%p] [%d] [%dx%d]", widget, hiview, widget->metaObject()->className(),
+                           widget->objectName().local8Bit().data(), widget->parentWidget(),
+                           (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (HIViewRef)0),
+                           HIViewIsCompositingEnabled(hiview), qt_mac_posInWindow(widget).x(), qt_mac_posInWindow(widget).y());
 #if 0
-                QVector<QRect> region_rects = qrgn.rects();
-                qDebug("Region! %d", region_rects.count());
-                for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
-                           region_rects[i].width(), region_rects[i].height());
-                region_rects = widget->d_func()->clp.rects();
-                qDebug("Widget Region! %d", region_rects.count());
-                for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
-                           region_rects[i].width(), region_rects[i].height());
+                    QVector<QRect> region_rects = qrgn.rects();
+                    qDebug("Region! %d", region_rects.count());
+                    for(int i = 0; i < region_rects.count(); i++)
+                        qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
+                               region_rects[i].width(), region_rects[i].height());
+                    region_rects = widget->d_func()->clp.rects();
+                    qDebug("Widget Region! %d", region_rects.count());
+                    for(int i = 0; i < region_rects.count(); i++)
+                        qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
+                               region_rects[i].width(), region_rects[i].height());
 #endif
+                }
 #endif
                 if (widget->isVisible() && widget->updatesEnabled()) { //process the actual paint event.
                     if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
@@ -509,8 +512,9 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef er, EventRef event,
                         && (widget->isWindow() || widget->autoFillBackground()) || widget->testAttribute(Qt::WA_TintedBackground)) {
                         QRect rr = qrgn.boundingRect();
 #ifdef DEBUG_WIDGET_PAINT
-                        qDebug(" Handling erase for [%s::%s]", widget->metaObject()->className(),
-                               widget->objectName().local8Bit().data());
+                        if(doDebug)
+                            qDebug(" Handling erase for [%s::%s]", widget->metaObject()->className(),
+                                   widget->objectName().local8Bit().data());
 #endif
                         if (!redirectionOffset.isNull()) {
                             QPainter::setRedirected(widget, widget, redirectionOffset);
@@ -1336,13 +1340,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 registerDropSite(true);
         }
     }
-    updateIsOpaque();
 
-    // newly created windows are positioned at the window system's
-    // (0,0) position. If the parent uses wrect mapping to expand the
-    // coordinate system, we must also adjust this widget's window
-    // system position
-    if (!topLevel && !parentWidget->data->wrect.topLeft().isNull())
+    updateIsOpaque();
+    if (!topLevel && initializeWindow)
         setWSGeometry();
 
     if(destroyid) {
