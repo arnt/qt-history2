@@ -336,6 +336,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 }
                 generateAnnotatedList(fake, marker, groupMembersMap);
             }
+        } else if (atom->string() == "relatedinline") {
+            const FakeNode *fake = static_cast<const FakeNode *>(relative);
+            if (fake && !fake->groupMembers().isEmpty()) {
+                // Reverse the list into the original scan order.
+                // Should be sorted.  But on what?  It may not be a
+                // regular class or page definition.
+                QList<const Node *> list;
+                foreach (const Node *node, fake->groupMembers())
+                    list.prepend(node);
+                foreach (const Node *node, list)
+                    generateBody(node, marker );
+            }
         }
 
         break;
