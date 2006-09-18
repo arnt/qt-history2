@@ -3,223 +3,294 @@
     \example qtopiacore/svgalib
     \title Accelerated Screen Driver Example
 
-    The svgalib example demonstrates how to write an accelerated screen driver.
-    The driver is a minimalistic implementation meant to be suitable as a 
-    template when implementing your own driver.
+    The accelerated screen driver example shows how to write an
+    accelerated screen driver for Qtopia Core.
 
-    Instead of interfacing the graphics hardware directly, this example relies
-    on SVGAlib (\l {http://www.svgalib.org}) being installed on your system. 
-    SVGAlib is a small graphics library which provides acceleration for many 
-    common graphics card used on desktop computers. It should work on most 
-    workstations and has a small and simple API.
+    Painting in Qtopia Core is a pure software implementation and is
+    normally performed in two steps: Each window is rendered onto a
+    QWSWindowSurface using QPaintEngine, and then the server composes
+    the surface images and copies them to the screen. Qtopia Core uses
+    QRasterPaintEngine (a raster-based implementation of QPaintEngine)
+    to implement painting operations and QScreen to implement window
+    composition.
 
-    After compiling the example you should install the screen driver plugin
-    with the command \c {make install}. To start an application using the
-    example driver you can either set the environment variable \c QWS_DISPLAY
-    or start the program using the \c -display switch:
+    Starting with Qtopia Core 4.2, it is possible to add an
+    accelerated graphics driver to take advantage of available
+    hardware resources, using the following approach:
+
+    \list 1
+        \o \l {Step 1: Create a Custom Screen}{Create a Custom Screen}
+
+        \o \l {Step 2: Implement a Custom Raster Paint Engine}
+        {Implement a Custom Raster Paint Engine}
+
+        \o \l {Step 3: Make the Widgets Aware of Your Paint
+        Engine}{Make the Widgets Aware of Your Paint Engine}
+
+    \endlist
+
+    Instead of interfacing the graphics hardware directly, this
+    example relies on \l {http://www.svgalib.org}{SVGAlib} being
+    installed on your system.  \l {http://www.svgalib.org}{SVGAlib} is
+    a small graphics library which provides acceleration for many
+    common graphics card used on desktop computers. It should work on
+    most workstations and has a small and simple API.
+
+    The driver implementation in this example can be used as a
+    template when implementing your own driver. After compiling the
+    example you should install the screen driver plugin with the
+    command \c {make install}. To start an application using the
+    example driver, you can either set the environment variable \c
+    QWS_DISPLAY or start the program using the \c -display switch:
 
     \code
-    myapp -qws -display svgalib
+        myApplication -qws -display svgalib
     \endcode
 
-    In order to keep the example as simple as possible, the driver does not 
-    work with multiple processes and only with screen modes having 32 bits
-    per pixel.
+    Note that in order to keep the example as simple as possible, our
+    driver only works with screen modes having 32 bits per pixel and
+    does not work with multiple processes.
 
-    \section1 Creating a Custom Screen
+    \section1 Step 1: Create a Custom Screen
 
-    \section2 SvgalibScreen Class Definition
+    The custom screen is created by deriving from the QScreen class:
+
     \quotefromfile qtopiacore/svgalib/svgalibscreen.h
-
-    \skipto connect
-    \printuntil shutdownDevice
-
-    These functions are declared as pure virtual functions in QScreen and
-    must be implemented. They are used to configure or query the configuration
-    of the hardware. connect() and disconnect() are used by both the server 
-    and client processes. The connect() function must initialize all member
-    variables so that the driver is in a consistent state. initDevice() and
-    shutdownDevice() is only used by the server process and must leave the
-    hardware in a state consistent with the driver configuration.
-
-    \skipto setMode
-    \printuntil blank
-
-    setMode() and blank() are also declared as pure virtual functions in 
-    QScreen. This driver does nothing in these functions.
-
-    \skipto exposeRegion
+    \skipto class
     \printuntil solidFill
-
-    The last three functions are the ones involved in putting pixels on the 
-    screen and is where we will do the actual acceleration.
-
     \skipto private
     \printuntil };
 
-    The \c context variable is a pointer to a SVGAlib spesific type. This 
-    example will not try to explain the details of using the SVGAlib library.
+    The \l {QScreen::}{connect()}, \l {QScreen::}{disconnect()}, \l
+    {QScreen::}{initDevice()} and \l {QScreen::}{shutdownDevice()}
+    functions are declared as pure virtual functions in QScreen and
+    must be implemented. The mentioned functions are used to configure
+    the hardware, or query its configuration: The \l
+    {QScreen::}{connect()} and \l {QScreen::}{disconnect()} functions
+    are used by both the server and client processes. The \l
+    {QScreen::}{connect()} function must initialize all member
+    variables so that the driver is in a consistent state. The \l
+    {QScreen::}{initDevice()} and \l {QScreen::}{shutdownDevice()} is
+    only used by the server process and must leave the hardware in a
+    state consistent with the driver configuration.
+
+    The \l {QScreen::}{setMode()} and \l {QScreen::}{blank()} are also
+    declared as pure virtual functions in QScreen, but our driver does
+    nothing in these functions. The last three functions are the ones
+    involved in putting pixels on the screen and is where we will do
+    the actual acceleration.
+
+    The \c context variable is a pointer to a SVGAlib specific
+    type. Note that this example will not try to explain the details
+    of using the SVGAlib library.
 
     \section2 SvgalibScreen Class Implementation
+
+    The \l {QScreen::}{connect()} function is the first function that
+    is called after the constructor. It queries \l
+    {http://www.svgalib.org}{SVGAlib} about the graphics mode and
+    initializes the variables.
+
     \quotefromfile qtopiacore/svgalib/svgalibscreen.cpp
-
     \skipto SvgalibScreen::connect
-
-    The connect() function is the first function that is called after the
-    constructor. It queries SVGAlib about the graphics mode and initializes
-    the variables. A screen driver \bold must initialize the following 
-    variables inherited from QScreen: \c data, \c lstep, \c w, \c h, \c dw, 
-    \c dh, \c d, \c physWidth and \c physHeight. In this example we don't have
-    any information of the real physical size of the screen, so we set these 
-    values with the assumption of screen with 72 DPI.
-
-    \printto SvgalibScreen::initDevice
-
-    The initDevice() functions is called after connect() and only on the server
-    process. This function should do the necessary hardware initialization.
-    If you want to use a hardware cursor, you should create a subclass of 
-    QScreenCursor, create an instance of it, and point the global variable 
-    \c qt_screencursor to this instance. This driver use the software cursor 
-    instead.
-
-    \printto SvgalibScreen::shutdownDevice
-
-    shutdownDevice() is only used on the server process and is called
-    before the disconnect() function. It do whatever hardware releated cleanup
-    necessary. The disconnect() function in this example does nothing.
-
-    At this point you will have a fully working screen driver provided that 
-    the \c QScreen::data variable is initialized to point to avalid linear
-    framebuffer. The rest of this example will show where to take advantage of
-    the accelerated capabilities available on the hardware.
-
-    \printto SvgalibScreen::exposeRegion
-
-    The next function implemented is exposeRegion(). The default implementation
-    will do the necessary composing of the top-level windows and call 
-    solidFill() and blit() when needed. We do not want to change this behavior
-    in this driver so we just calls the default implementation. However, if 
-    you're are implementing a double buffered screen driver, this is the
-    function you would like to flip between the buffers.
-
-    \printto SvgalibScreen::solidFill
-
-    Finally we do the actual accelerated drawing of pixels in the solidFill()
-    and blit() functions:
-
-    \printto SvgalibScreen::blit
     \printuntil /^\}/
 
-    \section1 The Svgalib Paint Engine
+    A screen driver \e must initialize the following variables
+    inherited from QScreen: \c data, \c lstep, \c w, \c h, \c dw, \c
+    dh, \c d, \c physWidth and \c physHeight. In this example we do
+    not have any information of the real physical size of the screen,
+    so we set these values with the assumption of a screen with 72
+    DPI.
 
-    Subclassing QRasterPaintEngine is a powerful mechanism for accelerating
-    graphic primitives while getting software fallbacks for all the primitives
-    you don't accelerate. This example will only accelerate on of the 
-    drawRects() functions.
+    \skipto initDevice
+    \printuntil /^\}/
+
+    The \l {QScreen::}{initDevice()} function is called after \l
+    {QScreen::}{connect()}, but only on the server process. This
+    function should do the necessary hardware initialization. We have
+    chosen to use the software cursor in this example. If you want to
+    use a hardware cursor, you should create a subclass of
+    QScreenCursor, create an instance of it, and make the global
+    variable \c qt_screencursor point to this instance.
+
+    \skipto shutdownDevice
+    \printuntil /^\}/
+
+    The \l {QScreen::}{shutdownDevice()} function is only used on the
+    server process and is called before the \l
+    {QScreen::}{disconnect()} function. It does whatever hardware
+    releated cleanup that is necessary (the \l
+    {QScreen::}{disconnect()} function in this example does nothing).
+
+    Note that you at this point will have a fully working screen
+    driver provided that the \c QScreen::data variable is initialized
+    to point to a valid linear framebuffer. The rest of this example
+    will show where to take advantage of the accelerated capabilities
+    available on the hardware.
+
+    \skipto exposeRegion
+    \printuntil /^\}/
+
+    The next function we implement is \l
+    {QScreen::}{exposeRegion()}. The default implementation will do
+    the necessary composing of the top-level windows and call \l
+    {QScreen::}{solidFill()} and \l {QScreen::}{blit()} whenever it is
+    required. We do not want to change this behavior in this driver so
+    we just call the default implementation. However, if you are
+    implementing a double buffered screen driver, this is where you
+    would like to flip between the buffers.
+
+    Finally, we accelerate the final copying of pixels to the screen
+    by reimplementing the \l {QScreen::}{solidFill()} and \l
+    {QScreen::}{blit()} functions:
+
+    \skipto solidFill
+    \printuntil /^\}/
+
+    \skipto blit
+    \printuntil /^\}/
+
+    \section1 Step 2: Implement a Custom Raster Paint Engine
+
+    The acceleration of the painting operations, on the other hand, is
+    done by subclassing the QRasterPaintEngine class. Subclassing
+    QRasterPaintEngine is a powerful mechanism for accelerating
+    graphic primitives while getting software fallbacks for all the
+    primitives you do not accelerate. This example will only
+    accelerate one of the \l {QRasterPaintEngine::}{drawRects()}
+    functions:
 
     \quotefromfile qtopiacore/svgalib/svgalibpaintengine.h
     \skipto #include
     \printuntil };
+
+    Only non-rotated, aliased and opaque rectangles will be
+    accelerated. We store this state in the private member variables.
+    The private functions \c setClip() and \c updateClip() are helper
+    functions used when updating the engine's state.
 
     \table
     \header \o Private Header Files
     \row
     \o
 
-    Note the include statement used by this class. The files prefixed with 
+    Note the include statement used by this class. The files prefixed with
     \c private/ are so-called private headers file within Qtopia Core. Private
-    header files are not part of a Qtopia Core installation and are only 
-    present while compiling Qtopia Core. To be able to compile using private 
-    header files you need to use a \c qmake binary within a compiled 
-    Qtopia Core package. Also note that private header files may change 
+    header files are not part of a Qtopia Core installation and are only
+    present while compiling Qtopia Core. To be able to compile using private
+    header files you need to use a \c qmake binary within a compiled
+    Qtopia Core package. Also note that private header files may change
     without notice between releases.
 
     \endtable
 
-    This example will only accelerate rectangles being non-rotated, aliased 
-    and opaque. We store this state in the private member variables.
-    The private functions setClip() and updateClip() are helper functions
-    used when updating the state.
+    \section2 SvgalibPaintEngine Class Implementation
 
-    The begin() function should initialize the internal state and must call
-    QRasterPaintEngine::begin() to initialize the state stored in 
-    QRasterPaintEngine.
+    The \c begin() function should initialize the internal state of
+    the paint engine, and must also call QRasterPaintEngine::begin()
+    to initialize the state stored in QRasterPaintEngine:
 
     \quotefromfile qtopiacore/svgalib/svgalibpaintengine.cpp
     \skipto SvgalibPaintEngine::begin
     \printuntil /^\}/
 
-    The implementation of end() removes the clipping constraints possible set
-    in SVGAlib. QRasterPaintEngine::end() must be called to allow
-    QRasterPaintEngine to clean up it's internal state.
+    The implementation of \c end() removes the clipping constraints
+    that might have been set in \l {http://www.svgalib.org}{SVGAlib}:
+
     \skipto SvgalibPaintEngine::end
     \printuntil /^\}/
 
-    All internal state is updated in updateState(). We accept a matrix
-    as simple enough if doesn't do any shear and save the matrix for future
-    usage. The pen is accepted as simple enough if it is opaque and only one
-    pixel wide. The other state is updated in the same manner. Again it's 
-    important that the QRasterPaintEngine::updateState() function is called.
+    The QRasterPaintEngine::end() function must be called to allow
+    QRasterPaintEngine to clean up it's internal state.
+
     \skipto SvgalibPaintEngine::updateState
     \printuntil /^\}/
 
-    The helper function setClip() enables clipping to the given region. An 
-    important detail is an empty region meaning that clipping is disabled. 
+    The \l {QRasterPaintEngine::}{updateState()} function updates the
+    paint engine's internal state. We accept its matrix if it doesn't
+    do any shearing, and save the matrix for future usage. The pen is
+    accepted if it is opaque and only one pixel wide. The rest of the
+    engine's properties are updated following the same pattern. Again
+    it is important that the QRasterPaintEngine::updateState()
+    function is called.
+
     \skipto SvgalibPaintEngine::setClip
     \printuntil /^\}/
 
-    The updateClip() function checks if the clip is "simple", meaning it can be
-    represented by only one rectangle, and updates the clip region in SVGAlib.
+    The \c setClip() helper function enables clipping to the given
+    region. Note that an empty region means that clipping is disabled.
+
     \skipto SvgalibPaintEngine::updateClip
     \printuntil /^\}/
 
-    Finally the real acceleration happens in the drawRects() function. The 
-    QRasterPaintEngine fallback is used whenever the rectangle is not simple
-    enough.
+    The \c updateClip() function checks if the clip is "simple",i.e.,
+    that it can be represented by only one rectangle, and updates the
+    clip region in \l {http://www.svgalib.org}{SVGAlib}.
+
     \skipto SvgalibPaintEngine::drawRects
     \printuntil /^\}/
 
-    \section1 Making Widgets Aware of SvgalibPaintEngine
+    Finally, the actual acceleration is implemented in the drawRects()
+    function. The QRasterPaintEngine fallback is used whenever the
+    rectangle is not simple enough.
 
-    Two new classes are needed for making widgets aware of the new paint
-    engine: The SvgalibPaintDevice which derives from QCustomRasterPaintDevice
-    and SvgalibSurface which derives from QWSWindowSurface. 
+    \section1 Step 3: Make the Widgets Aware of Your Paint Engine
+
+    To activate your paint engine, two new classes are needed: The \c
+    SvgalibPaintDevice which derives from QCustomRasterPaintDevice and
+    the \c SvgalibSurface class which derives from QWSWindowSurface.
+
+    \section2 The SvgalibPaintDevice Class
+
+    First you must create a subclass of the QCustomRasterPaintDevice
+    class and reimplement its \l
+    {QCustomRasterPaintDevice::}{paintEngine()} and \l
+    {QCustomRasterPaintDevice::}{memory()} functions:
 
     \quotefromfile qtopiacore/svgalib/svgalibpaintdevice.h
     \skipto class SvgalibPaintDevice
     \printuntil };
 
-    The paintEngine() function to returns an instance of the 
-    SvgalibPaintEngine. The memory() functions returns a pointer to the 
-    buffer which should be used when drawing the widget. This driver is 
-    drawing directly on the screen without any buffering and returns a 
-    pointer to the framebuffer. The metric() function is implemented to
-    reflect the metrics of this buffer.
+    The \l {QCustomRasterPaintDevice::}{paintEngine()} function should
+    return an instance of the \c SvgalibPaintEngine class. The \l
+    {QCustomRasterPaintDevice::}{memory()} function should return a
+    pointer to the buffer which should be used when drawing the
+    widget. This driver is drawing directly on the screen without any
+    buffering, and its \l {QCustomRasterPaintDevice::}{memory()}
+    function returns a pointer to the framebuffer. For this reason,
+    the \l {QPaintDevice::}{metric()} function is implemented to
+    reflect the metrics of this buffer:
 
-    \quotefromfile qtopiacore/svgalib/svgalibpaintdevice.cpp
-    \skipto SvgalibPaintDevice::metric
-    \printuntil /^\}/
-    
-    A QWSWindowSurface manages the memory used when drawing a widget. This 
-    example is drawing directly onto the framebuffer which is already supported
-    in Qt using the Qt::WA_PaintOnScreen widget attribute. SvgalibSurface is
-    therefore deriving from QOnScreenSurface which is used in the
-    implementation of Qt::Wa_PaintOnScreen.
+    \section2 The SvgalibSurface Class
+
+    Then you must create a custom window surface. The QWSWindowSurface
+    class manages the memory used when drawing a widget.
 
     \quotefromfile qtopiacore/svgalib/svgalibsurface.h
     \skipto class SvgalibSurface
     \printuntil };
 
-    Finally we need to make a small modification to our SvgalibScreen class.
-    The createSurface() functions are factory functions which decides what
-    kind of surface a top-level window is using. In this example we only use 
-    the SvgalibSurface if the window has the Qt::WA_PaintOnScreen attribute
-    or the environment variable QT_ONSCREEN_PAINT is set.
+    This example is drawing directly onto the framebuffer which is
+    already supported in Qt using the Qt::WA_PaintOnScreen widget
+    attribute. The \c SvgalibSurface class is therefore deriving from
+    QWSOnScreenSurface which is used in the implementation of
+    Qt::WA_PaintOnScreen.
+
+    \section2 Enable the Screen to Create an Instance of Your Window Surface
+
+    Finally, you must make a minor modification to your \c SvgalibScreen
+    class:
 
     \quotefromfile qtopiacore/svgalib/svgalibscreen.cpp
     \skipto SvgalibScreen::createSurface
     \printuntil /^\}/
     \skipto SvgalibScreen::createSurface
     \printuntil /^\}/
+
+    The \l {QScreen::}{createSurface()} functions are factory
+    functions that decides what kind of surface a top-level window is
+    using. In this example we only use the \c SvgalibSurface class if
+    the window has the Qt::WA_PaintOnScreen attribute or the
+    environment variable \c QT_ONSCREEN_PAINT is set.
 */
 
