@@ -4272,7 +4272,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (h < 0)
         h = sh;
 
-    if (sw <= 0 || sh <= 0)
+    if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
     if (d->state->txop > QPainterPrivate::TxTranslate
