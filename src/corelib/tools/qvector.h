@@ -684,13 +684,13 @@ Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(Vector)
 
 /*
    ### Fix for Qt 5
-   ### This needs to be removed for next releases of Qt. It is a workaround for vc++ because 
-   ### Qt exports QPolygon and QPolygonF that inherit QVector<QPoint> and 
+   ### This needs to be removed for next releases of Qt. It is a workaround for vc++ because
+   ### Qt exports QPolygon and QPolygonF that inherit QVector<QPoint> and
    ### QVector<QPointF> respectively.
 */
 #ifdef Q_CC_MSVC
-#include <QPointF>
-#include <QPoint>
+#include <QtCore/QPointF>
+#include <QtCore/QPoint>
 #if defined(QT_BUILD_CORE_LIB)
 #define Q_TEMPLATE_EXTERN
 #else
