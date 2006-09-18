@@ -1015,7 +1015,7 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
             if (cur.left(home.length()) != home)
                 cur = home;
 #ifdef Q_WS_X11
-            cur += QLatin1String("print.ps");
+            cur += QLatin1String("print.pdf");
 #endif
             ui.leFile->setText(cur);
         } else {
