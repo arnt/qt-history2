@@ -43,6 +43,8 @@ private slots:
     void pseudoElement();
     void gradient_data();
     void gradient();
+    void extractFontFamily_data();
+    void extractFontFamily();
 };
 
 void tst_CssParser::scanner_data()
@@ -54,7 +56,7 @@ void tst_CssParser::scanner_data()
     QDir d(SRCDIR);
 #else
     QDir d(QDir::current());
-#endif    
+#endif
     d.cd("testdata");
     d.cd("scanner");
     foreach (QFileInfo test, d.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
@@ -1234,7 +1236,7 @@ void tst_CssParser::pseudoElement_data()
     QTest::addColumn<QString>("css");
     QTest::addColumn<QString>("pseudoElement");
     QTest::addColumn<int>("declCount");
-    
+
     // QComboBox::dropDown { border-image: blah; }
     QTest::newRow("no pseudo-elements") << QString("dummy:hover { color: red }") << "" << 1;
     QTest::newRow("no pseudo-elements") << QString("dummy:hover { color: red }") << "pe" << 0;
@@ -1243,23 +1245,23 @@ void tst_CssParser::pseudoElement_data()
     QTest::newRow("1 pseudo-element (2)") << QString("dummy::pe:hover { color: red }") << "x" << 0;
     QTest::newRow("1 pseudo-element (2)") << QString("whatever::pe:hover { color: red }") << "pe" << 0;
 
-    QTest::newRow("1 pseudo-element (3)") 
+    QTest::newRow("1 pseudo-element (3)")
         << QString("dummy { color: white; } dummy::pe:hover { color: red }") << "x" << 0;
-    QTest::newRow("1 pseudo-element (4)") 
+    QTest::newRow("1 pseudo-element (4)")
         << QString("dummy { color: white; } dummy::pe:hover { color: red } dummy { x:y }") << "" << 2;
-    QTest::newRow("1 pseudo-element (5)") 
+    QTest::newRow("1 pseudo-element (5)")
         << QString("dummy { color: white; } dummy::pe:hover { color: red }") << "pe" << 1;
-    QTest::newRow("1 pseudo-element (6)") 
+    QTest::newRow("1 pseudo-element (6)")
       << QString("dummy { color: white; } dummy::pe:hover { color: red } dummy::pe:checked { x: y} ") << "pe" << 2;
 
-    QTest::newRow("2 pseudo-elements (1)") 
-      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+    QTest::newRow("2 pseudo-elements (1)")
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ")
       << "" << 1;
-    QTest::newRow("2 pseudo-elements (1)") 
-      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+    QTest::newRow("2 pseudo-elements (1)")
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ")
       << "pe1" << 1;
-    QTest::newRow("2 pseudo-elements (2)") 
-      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ") 
+    QTest::newRow("2 pseudo-elements (2)")
+      << QString("dummy { color: white; } dummy::pe1:hover { color: red } dummy::pe2:checked { x: y} ")
       << "pe2" << 1;
 }
 
@@ -1303,25 +1305,25 @@ void tst_CssParser::gradient_data()
     QTest::addColumn<qreal>("stop1");
     QTest::addColumn<QColor>("color1");
 
-    QTest::newRow("color-string") << 
+    QTest::newRow("color-string") <<
      "selection-background-color: qlineargradient(x1:1, y1:2, x2:3, y2:4, "
          "stop:0.2 red, stop:0.5 green)" << QPointF(1, 2) << QPointF(3, 4)
          << 0 << 0.2 << QColor("red") << 0.5 << QColor("green");
 
-    QTest::newRow("color-#") << 
+    QTest::newRow("color-#") <<
      "selection-background-color: qgradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
          "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << QPointF(0, 0) << QPointF(0, 1)
          << 1 << 0.2 << QColor("#123") << 0.5 << QColor("#456");
 
 
     /* wont pass: stop values are expected to be sorted
-     QTest::newRow("unsorted-stop") << 
+     QTest::newRow("unsorted-stop") <<
      "selection-background: lineargradient(x1:0, y1:0, x2:0, y2:1, "
          "stop:0.5 green, stop:0.2 red)" << QPointF(0, 0) << QPointF(0, 1)
          0 << 0.2 << QColor("red") << 0.5 << QColor("green");
     */
 }
- 
+
 void tst_CssParser::gradient()
 {
     QFETCH(QString, css);
@@ -1360,6 +1362,39 @@ void tst_CssParser::gradient()
     QVERIFY(lg->stops().at(0).second == color0);
     QVERIFY(lg->stops().at(1).first == stop1);
     QVERIFY(lg->stops().at(1).second == color1);
+}
+
+void tst_CssParser::extractFontFamily_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<QString>("expectedFamily");
+
+    QTest::newRow("quoted-family-name") << "font-family: 'Times New Roman'" << QString("Times New Roman");
+    QTest::newRow("unquoted-family-name") << "font-family: Times New Roman" << QString("Times New Roman");
+    QTest::newRow("unquoted-family-name2") << "font-family: Times        New     Roman" << QString("Times New Roman");
+    QTest::newRow("multiple") << "font-family: Times New   Roman  , foobar, 'baz'" << QString("Times New Roman");
+}
+
+void tst_CssParser::extractFontFamily()
+{
+    QFETCH(QString, css);
+    css.prepend("dummy {");
+    css.append("}");
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    QCOMPARE(sheet.styleRules.count(), 1);
+    const QVector<QCss::Declaration> decls = sheet.styleRules.at(0).declarations;
+    QVERIFY(!decls.isEmpty());
+    QCss::ValueExtractor extractor(decls);
+
+    int adjustment = 0;
+    QFont fnt;
+    extractor.extractFont(&fnt, &adjustment);
+
+    QTEST(fnt.family(), "expectedFamily");
 }
 
 QTEST_MAIN(tst_CssParser)

@@ -725,11 +725,23 @@ static bool setFontWeightFromValue(const Value &value, QFont *font)
     return true;
 }
 
-static bool setFontFamilyFromValue(const Value &value, QFont *font)
+static bool setFontFamilyFromValues(const QVector<Value> &values, QFont *font)
 {
-    QString fam = value.variant.toString();
-    if (fam.isEmpty()) return false;
-    font->setFamily(fam);
+    QString family;
+    for (int i = 0; i < values.count(); ++i) {
+        const Value &v = values.at(i);
+        if (v.type == Value::TermOperatorComma)
+            break;
+        const QString str = v.variant.toString();
+        if (str.isEmpty())
+            break;
+        family += str;
+        family += QLatin1Char(' ');
+    }
+    family = family.simplified();
+    if (family.isEmpty())
+        return false;
+    font->setFamily(family);
     return true;
 }
 
@@ -771,7 +783,9 @@ static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font
     }
 
     if (i < values.count()) {
-        setFontFamilyFromValue(values.at(i), font);
+        QString fam = values.at(i).variant.toString();
+        if (!fam.isEmpty())
+            font->setFamily(fam);
     }
 }
 
@@ -792,7 +806,7 @@ void ValueExtractor::extractFont(QFont *font, int *fontSizeAdjustment)
             case FontSize: setFontSizeFromValue(val, font, fontSizeAdjustment); break;
             case FontStyle: setFontStyleFromValue(val, font); break;
             case FontWeight: setFontWeightFromValue(val, font); break;
-            case FontFamily: setFontFamilyFromValue(val, font); break;
+            case FontFamily: setFontFamilyFromValues(decl.values, font); break;
             case TextDecoration: setTextDecorationFromValues(decl.values, font); break;
             case Font: parseShorthandFontProperty(decl.values, font, fontSizeAdjustment); break;
             default: break;
@@ -1179,7 +1193,7 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, St
             const Selector& selector = rule.selectors.at(j);
             if (selectorMatches(selector, node)) {
                 QPair<int, StyleRule> weightedRule;
-                weightedRule.first = selector.specificity() 
+                weightedRule.first = selector.specificity()
                                      + (origin == StyleSheetOrigin_Inline)*0x1000*depth;
                 weightedRule.second.selectors.append(selector);
                 weightedRule.second.declarations = rule.declarations;
@@ -1216,7 +1230,7 @@ QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
         if (!medium.isEmpty()) {
             for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
                 if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
-                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, styleSheet.origin, 
+                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, styleSheet.origin,
                                styleSheet.depth, &weightedRules);
                 }
             }
