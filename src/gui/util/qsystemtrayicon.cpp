@@ -281,8 +281,6 @@ bool QSystemTrayIcon::event(QEvent *e)
     specifies the reason for activation. QSystemTrayIcon::ActivationReason enumerates
     the various reasons.
 
-    The DoubleClick reason is not sent on Mac OS X 10.3 (Panther).
-
     \sa QSystemTrayIcon::ActivationReason
 */
 

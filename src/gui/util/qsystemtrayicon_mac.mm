@@ -8,16 +8,26 @@ extern void qtsystray_sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayico
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
-
 @interface QNSStatusItem : NSObject {
     NSStatusItem *item;
     QSystemTrayIcon *icon;
+    NSImageView *imageCell;
 }
 -(id)initWithIcon:(QSystemTrayIcon*)icon;
 -(void)free;
 -(NSStatusItem*)item;
 - (void)triggerSelector:(id)sender;
 - (void)doubleClickSelector:(id)sender;
+@end
+
+@interface QNSImageView : NSImageView {
+    BOOL down;
+    QNSStatusItem *parent;
+}
+-(id)initWithParent:(QNSStatusItem*)myParent;
+-(void)mouseDown:(NSEvent *)mouseEvent;
+-(void)drawRect:(NSRect)rect;
+-(void)menuTrackingDone:(NSNotification*)notification;
 @end
 
 @interface QNSMenu : NSMenu {
@@ -33,12 +43,12 @@ void qt_mac_trayicon_activate_action(QMenu *menu, QAction *action)
     emit menu->triggered(action);
 }
 
-NSImage *qt_mac_create_ns_image(const QPixmap &pm) 
+NSImage *qt_mac_create_ns_image(const QPixmap &pm)
 {
     QMacCocoaAutoReleasePool pool;
     if(CGImageRef image = pm.toMacCGImageRef()) {
         NSRect imageRect = NSMakeRect(0.0, 0.0, CGImageGetWidth(image), CGImageGetHeight(image));
-        NSImage *newImage = [[NSImage alloc] initWithSize:imageRect.size]; 
+        NSImage *newImage = [[NSImage alloc] initWithSize:imageRect.size];
         [newImage lockFocus];
         {
             CGContextRef imageContext = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
@@ -53,14 +63,14 @@ NSImage *qt_mac_create_ns_image(const QPixmap &pm)
 class QSystemTrayIconSys
 {
 public:
-    QSystemTrayIconSys(QSystemTrayIcon *icon) { 
+    QSystemTrayIconSys(QSystemTrayIcon *icon) {
         QMacCocoaAutoReleasePool pool;
         item = [[QNSStatusItem alloc] initWithIcon:icon];
     }
-    ~QSystemTrayIconSys() { 
+    ~QSystemTrayIconSys() {
         QMacCocoaAutoReleasePool pool;
         [item free];
-        [item release]; 
+        [item release];
     }
     QNSStatusItem *item;
 };
@@ -98,7 +108,9 @@ void QSystemTrayIconPrivate::updateIcon_sys()
     if(sys && !icon.isNull()) {
         QMacCocoaAutoReleasePool pool;
         const short scale = GetMBarHeight()-4;
-        [[sys->item item] setImage:qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)))];
+        NSImage *nsimage = qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)));
+        [(NSImageView*)[[sys->item item] view] setImage: nsimage];
+        [nsimage release];
     }
 }
 
@@ -118,7 +130,8 @@ void QSystemTrayIconPrivate::updateToolTip_sys()
 {
     if(sys) {
         QMacCocoaAutoReleasePool pool;
-        [[sys->item item] setToolTip:(NSString*)QCFString::toCFStringRef(toolTip)];
+        QCFString string(toolTip);
+        [(NSImageView*)[[sys->item item] view] setToolTip:(NSString*)static_cast<CFStringRef>(string)];
     }
 }
 
@@ -151,24 +164,73 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
 @implementation NSStatusItem (Qt)
 @end
 
+@implementation QNSImageView
+-(id)initWithParent:(QNSStatusItem*)myParent {
+    self = [super init];
+    parent = myParent;
+    down = NO;
+    return self;
+}
+
+-(void)menuTrackingDone:(NSNotification*)notification
+{
+    Q_UNUSED(notification);
+    down = NO;
+    [self setNeedsDisplay:YES];
+}
+
+-(void)mouseDown:(NSEvent *)mouseEvent {
+    int clickCount = [mouseEvent clickCount];
+    down = !down;
+
+    if (clickCount != 0)
+        [self setNeedsDisplay:YES];
+
+    if (clickCount == 1)
+        [parent triggerSelector:self];
+    else if (clickCount >= 2)
+        [parent doubleClickSelector:self];
+
+    while (down) {
+        mouseEvent = [[self window] nextEventMatchingMask: NSLeftMouseDownMask | NSLeftMouseUpMask | NSLeftMouseDraggedMask];
+        switch ([mouseEvent type]) {
+            case NSLeftMouseDown:
+            case NSLeftMouseUp:
+                [self menuTrackingDone:nil];
+                break;
+            case NSLeftMouseDragged:
+            default:
+                /* Ignore any other kind of event. */
+                break;
+        }
+    };
+}
+
+
+-(void)drawRect:(NSRect)rect {
+    [[parent item] drawStatusBarBackgroundInRect:rect withHighlight:down];
+    [super drawRect:rect];
+}
+@end
+
 @implementation QNSStatusItem
 -(id)initWithIcon:(QSystemTrayIcon*)i {
     self = [super init];
     if(self) {
         icon = i;
         item = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength] retain];
-        //[item setView:[[NSView alloc] init]];
-        [item setTarget:self];
-        [item setAction:@selector(triggerSelector:)];
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
-            [item setDoubleAction:@selector(doubleClickSelector:)];
+        imageCell = [[QNSImageView alloc] initWithParent:self];
+        [item setView: imageCell];
     }
     return self;
 }
 -(void)free {
     [[NSStatusBar systemStatusBar] removeStatusItem:item];
+    [imageCell release];
     [item release];
+
 }
+
 -(NSStatusItem*)item {
     return item;
 }
@@ -177,9 +239,13 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
     if(!icon)
         return;
     qtsystray_sendActivated(icon, QSystemTrayIcon::Trigger);
-    if(icon->contextMenu()) {
+    if (icon->contextMenu()) {
         NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
-        [item popUpStatusItemMenu:m];
+        [[NSNotificationCenter defaultCenter] addObserver:imageCell
+                                              selector:@selector(menuTrackingDone:)
+                                              name:NSMenuDidEndTrackingNotification
+                                              object:m];
+        [item popUpStatusItemMenu: m];
         [m release];
     }
 }
@@ -201,7 +267,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
     return self;
 }
 -(void)menuNeedsUpdate:(QNSMenu*)menu {
-    for(int i = [menu numberOfItems]-1; i >= 0; --i) 
+    for(int i = [menu numberOfItems]-1; i >= 0; --i)
         [menu removeItemAtIndex:i];
     QList<QAction*> actions = menu->qmenu->actions();;
     for(int i = 0; i < actions.size(); ++i) {
