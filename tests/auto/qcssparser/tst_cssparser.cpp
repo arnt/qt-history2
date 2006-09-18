@@ -1304,12 +1304,12 @@ void tst_CssParser::gradient_data()
     QTest::addColumn<QColor>("color1");
 
     QTest::newRow("color-string") << 
-     "-qt-selection-background: qlineargradient(x1:1, y1:2, x2:3, y2:4, "
+     "selection-background-color: qlineargradient(x1:1, y1:2, x2:3, y2:4, "
          "stop:0.2 red, stop:0.5 green)" << QPointF(1, 2) << QPointF(3, 4)
          << 0 << 0.2 << QColor("red") << 0.5 << QColor("green");
 
     QTest::newRow("color-#") << 
-     "-qt-selection-background: qgradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
+     "selection-background-color: qgradient(type: linear, x1:0, y1:0, x2:0, y2:1, "
          "spread: reflect, stop:0.2 #123, stop:0.5 #456)" << QPointF(0, 0) << QPointF(0, 1)
          << 1 << 0.2 << QColor("#123") << 0.5 << QColor("#456");
 
