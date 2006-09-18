@@ -73,6 +73,7 @@ public:
     \brief The QWSWindowSurface class provides the drawing area of a top-level
     window.
     \since 4.2
+    \ingroup qws
     \preliminary
 
     This class is used for implementing different types of memory allocation
@@ -111,9 +112,9 @@ public:
 /*!
     \fn void QWSWindowSurface::scroll(const QRegion &region, int dx, int dy)
 
-    Scrolls the region \a region dx pixels to the right and dy downward.
+    Scrolls the given \a region \a dx pixels to the right and \a dy downward.
 
-    Both dx and dy may be negative.
+    Both \a dx and \a dy may be negative.
 */
 
 /*!
