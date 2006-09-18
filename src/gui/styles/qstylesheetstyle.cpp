@@ -2080,7 +2080,16 @@ QPixmap QStyleSheetStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixma
 QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                  const QPoint &pt, const QWidget *w) const
 {
-    return ParentStyle::hitTestComplexControl(cc, opt, pt, w);
+    switch (cc) {
+    case CC_GroupBox:
+    case CC_ComboBox:
+    case CC_Slider:
+        return ParentStyle::hitTestComplexControl(cc, opt, pt, w);
+    default:
+        break;
+    }
+
+    return baseStyle()->hitTestComplexControl(cc, opt, pt, w);
 }
 
 QRect QStyleSheetStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pixmap) const
