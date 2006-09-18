@@ -14,13 +14,15 @@
 #include "svgalibsurface.h"
 #include "svgalibpaintdevice.h"
 
-SvgalibSurface::SvgalibSurface() : QWSOnScreenSurface(), pdevice(0)
+#include <vgagl.h>
+
+SvgalibSurface::SvgalibSurface() : QWSWindowSurface(), pdevice(0)
 {
     setSurfaceFlags(Opaque);
 }
 
 SvgalibSurface::SvgalibSurface(QWidget *w)
-    : QWSOnScreenSurface(w)
+    : QWSWindowSurface(w)
 {
     setSurfaceFlags(Opaque);
     pdevice = new SvgalibPaintDevice(w);
@@ -29,5 +31,26 @@ SvgalibSurface::SvgalibSurface(QWidget *w)
 SvgalibSurface::~SvgalibSurface()
 {
     delete pdevice;
+}
+
+void SvgalibSurface::setGeometry(const QRect &rect)
+{
+    brect = rect;
+    QWSWindowSurface::setGeometry(rect);
+}
+
+QPoint SvgalibSurface::painterOffset() const
+{
+    return brect.topLeft() + QWSWindowSurface::painterOffset();
+}
+
+void SvgalibSurface::scroll(const QRegion &region, int dx, int dy)
+{
+    const QVector<QRect> rects = region.rects();
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect r = rects.at(i);
+        gl_copybox(r.left(), r.top(), r.width(), r.height(),
+                   r.left() + dx, r.top() + dy);
+    }
 }
 

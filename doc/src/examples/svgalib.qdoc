@@ -1,4 +1,3 @@
-// TODO: mention use of private header files
 /*!
     \example qtopiacore/svgalib
     \title Accelerated Screen Driver Example
@@ -270,11 +269,14 @@
     \skipto class SvgalibSurface
     \printuntil };
 
-    This example is drawing directly onto the framebuffer which is
-    already supported in Qt using the Qt::WA_PaintOnScreen widget
-    attribute. The \c SvgalibSurface class is therefore deriving from
-    QWSOnScreenSurface which is used in the implementation of
-    Qt::WA_PaintOnScreen.
+    Most of the pure virtual functions inherited from QWSWindowSurface is
+    trivially implemented as inline functions. However the 
+    \l {QWSWindowSurface::}{scroll()} function actually makes use of some
+    hardware acceleration:
+
+    \quotefromfile qtopiacore/svgalib/svgalibsurface.cpp
+    \skipto SvgalibSurface::scroll
+    \printuntil /^\}/
 
     \section2 Enable the Screen to Create an Instance of Your Window Surface
 
