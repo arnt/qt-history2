@@ -8,14 +8,18 @@ extern void qtsystray_sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayico
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
+@class QNSImageView;
+
 @interface QNSStatusItem : NSObject {
     NSStatusItem *item;
     QSystemTrayIcon *icon;
-    NSImageView *imageCell;
+    QNSImageView *imageCell;
 }
 -(id)initWithIcon:(QSystemTrayIcon*)icon;
 -(void)free;
+-(QSystemTrayIcon*)icon;
 -(NSStatusItem*)item;
+-(QRectF)geometry;
 - (void)triggerSelector:(id)sender;
 - (void)doubleClickSelector:(id)sender;
 @end
@@ -25,6 +29,7 @@ extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
     QNSStatusItem *parent;
 }
 -(id)initWithParent:(QNSStatusItem*)myParent;
+-(QSystemTrayIcon*)icon;
 -(void)mouseDown:(NSEvent *)mouseEvent;
 -(void)drawRect:(NSRect)rect;
 -(void)menuTrackingDone:(NSNotification*)notification;
@@ -89,10 +94,9 @@ void QSystemTrayIconPrivate::install_sys()
 QPoint QSystemTrayIconPrivate::globalPos_sys() const
 {
     if(sys) {
-        if(NSWindow *window = [[[sys->item item] view] window]) {
-            NSRect rect = [window frame];
-            return QPoint(qRound(rect.origin.x), qRound(rect.origin.y));
-        }
+        const QRectF geom = [sys->item geometry];
+        if(!geom.isNull())
+            return geom.topLeft().toPoint();
     }
     return QPoint();
 }
@@ -171,22 +175,28 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
     down = NO;
     return self;
 }
+-(QSystemTrayIcon*)icon {
+    return [parent icon];
+}
 
 -(void)menuTrackingDone:(NSNotification*)notification
 {
     Q_UNUSED(notification);
     down = NO;
+    if([self icon]->contextMenu())
+        [self icon]->contextMenu()->hide();
+    
     [self setNeedsDisplay:YES];
 }
 
 -(void)mouseDown:(NSEvent *)mouseEvent {
     int clickCount = [mouseEvent clickCount];
     down = !down;
+    if(!down && [self icon]->contextMenu())
+        [self icon]->contextMenu()->hide();
+    [self setNeedsDisplay:YES];
 
-    if (clickCount != 0)
-        [self setNeedsDisplay:YES];
-
-    if (clickCount == 1)
+    if (down && clickCount == 1)
         [parent triggerSelector:self];
     else if (clickCount >= 2)
         [parent doubleClickSelector:self];
@@ -231,8 +241,20 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
 
 }
 
+-(QSystemTrayIcon*)icon {
+    return icon;
+}
+
 -(NSStatusItem*)item {
     return item;
+}
+-(QRectF)geometry {
+    if(NSWindow *window = [[item view] window]) {
+        NSRect screenRect = [[window screen] frame];
+        NSRect windowRect = [window frame];
+        return QRectF(windowRect.origin.x, screenRect.size.height-windowRect.origin.y, windowRect.size.width, windowRect.size.height);
+    }
+    return QRectF();
 }
 - (void)triggerSelector:(id)sender {
     Q_UNUSED(sender);
@@ -240,13 +262,22 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
         return;
     qtsystray_sendActivated(icon, QSystemTrayIcon::Trigger);
     if (icon->contextMenu()) {
-        NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
-        [[NSNotificationCenter defaultCenter] addObserver:imageCell
-                                              selector:@selector(menuTrackingDone:)
-                                              name:NSMenuDidEndTrackingNotification
-                                              object:m];
-        [item popUpStatusItemMenu: m];
-        [m release];
+#if 0
+        const QRectF geom = [self geometry];
+        if(!geom.isNull()) {
+            icon->contextMenu()->exec(geom.topLeft().toPoint(), 0);
+            [imageCell menuTrackingDone:nil];
+        } else 
+#endif
+        {
+            NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
+            [[NSNotificationCenter defaultCenter] addObserver:imageCell
+                                                  selector:@selector(menuTrackingDone:)
+                                                  name:NSMenuDidEndTrackingNotification
+                                                  object:m];
+            [item popUpStatusItemMenu: m];
+            [m release];
+        }
     }
 }
 - (void)doubleClickSelector:(id)sender {
