@@ -1300,8 +1300,8 @@ void Configure::generateBuildKey()
     if (!dictionary["USER_BUILD_KEY"].isEmpty())
         buildKey += dictionary["USER_BUILD_KEY"] + " ";
 
-    QString build32Key = buildKey + "Windows x64 " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
-    QString build64Key = buildKey + "Windows " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
+    QString build32Key = buildKey + "Windows " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
+    QString build64Key = buildKey + "Windows x64 " + compiler + " %1 " + build_options.join(" ") + " " + build_defines.join(" ");
     build32Key = build32Key.simplified();
     build64Key = build64Key.simplified();
     build32Key.prepend("#  define ");
