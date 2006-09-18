@@ -325,7 +325,8 @@ void QMessageBoxPrivate::updateSize()
 
     QSize screenSize = QApplication::desktop()->availableGeometry(QCursor::pos()).size();
 #ifdef Q_WS_QWS
-    int hardLimit = screenSize.width() - 4 * 2; // XXX
+    // the width of the screen, less the window border.
+    int hardLimit = screenSize.width() - (q->frameGeometry().width() - q->geometry().width());
 #else
     int hardLimit = qMin(screenSize.width() - 480, 1000); // can never get bigger than this
 #endif
