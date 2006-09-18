@@ -316,7 +316,7 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 */
 bool QSystemTrayIcon::supportsMessages()
 {
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) || defined(Q_WS_QWS)
     return false;
 #endif
     return true;
