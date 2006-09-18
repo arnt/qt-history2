@@ -891,13 +891,14 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
     if (d->doc) {
         const bool underline = (bool)style->styleHint(QStyle::SH_UnderlineShortcut, 0, this, 0);
+#ifndef QT_NO_SHORTCUT
         if (d->shortcutId != -1
             && underline != d->shortcutCursor.charFormat().fontUnderline()) {
                 QTextCharFormat fmt;
                 fmt.setFontUnderline(underline);
                 d->shortcutCursor.mergeCharFormat(fmt);
         }
-
+#endif
         d->ensureTextLayouted();
         QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
         QRect lr = d->layoutRect();
