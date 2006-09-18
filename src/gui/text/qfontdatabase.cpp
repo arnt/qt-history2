@@ -495,10 +495,10 @@ QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
 
 static const int scriptForWritingSystem[] = {
     QUnicodeTables::Common, // Any
-    QUnicodeTables::Common, // Latin
-    QUnicodeTables::Common, // Greek
-    QUnicodeTables::Common, // Cyrillic
-    QUnicodeTables::Common, // Armenian
+    QUnicodeTables::Latin, // Latin
+    QUnicodeTables::Greek, // Greek
+    QUnicodeTables::Cyrillic, // Cyrillic
+    QUnicodeTables::Armenian, // Armenian
     QUnicodeTables::Hebrew, // Hebrew
     QUnicodeTables::Arabic, // Arabic
     QUnicodeTables::Syriac, // Syriac
@@ -517,7 +517,7 @@ static const int scriptForWritingSystem[] = {
     QUnicodeTables::Lao, // Lao
     QUnicodeTables::Tibetan, // Tibetan
     QUnicodeTables::Myanmar, // Myanmar
-    QUnicodeTables::Common, // Georgian
+    QUnicodeTables::Georgian, // Georgian
     QUnicodeTables::Khmer, // Khmer
     QUnicodeTables::Common, // SimplifiedChinese
     QUnicodeTables::Common, // TraditionalChinese
