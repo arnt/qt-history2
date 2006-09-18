@@ -426,8 +426,14 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
 #ifndef QT_NO_TEXTEDIT
     if (detailsButton && detailsText && button == detailsButton) {
         detailsButton->setText(detailsText->isHidden() ? detailsText->label(HideLabel) : detailsText->label(ShowLabel));
-        detailsText->setMaximumWidth(buttonBox->width());
+#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC) 
+        q->layout()->setEnabled(false);
+#endif
         detailsText->setHidden(!detailsText->isHidden());
+        updateSize();
+#if defined(Q_OS_UNIX) && !defined(Q_WS_MAC)
+        q->layout()->setEnabled(true);
+#endif
     } else
 #endif
     {
@@ -1970,7 +1976,7 @@ void QMessageBox::setDetailedText(const QString &text)
         d->detailsText->hide();
     }
     if (!d->detailsButton) {
-        d->detailsButton = addButton(d->detailsText->label(ShowLabel), QMessageBox::ActionRole);
+        d->detailsButton = new QPushButton(d->detailsText->label(ShowLabel), this);
         QPushButton hideDetails(d->detailsText->label(HideLabel));
         d->detailsButton->setFixedSize(d->detailsButton->sizeHint().expandedTo(hideDetails.sizeHint()));
     }
