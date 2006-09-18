@@ -1287,9 +1287,15 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelLineEdit:
         if (const QStyleOptionFrame *lineEdit = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             // Panel of a line edit inside combo box or spin box is drawn in CC_ComboBox and CC_SpinBox
-            if (widget && (qobject_cast<const QComboBox *>(widget->parentWidget())
-                           || qobject_cast<const QAbstractSpinBox *>(widget->parentWidget()))) {
-               break;
+            if (widget) {
+#ifndef QT_NO_COMBOBOX
+                if (qobject_cast<const QComboBox *>(widget->parentWidget()))
+                    break;
+#endif
+#ifndef QT_NO_SPINBOX
+                if (qobject_cast<const QAbstractSpinBox *>(widget->parentWidget()))
+                    break;
+#endif
             }
 
             painter->save();
@@ -1315,7 +1321,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->restore();
             break;
         }
-#endif
+#endif // QT_NO_LINEEDIT
     case PE_FrameDockWidget:
     case PE_FrameMenu:
     case PE_FrameStatusBar: {
