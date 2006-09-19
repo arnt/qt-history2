@@ -47,7 +47,6 @@ public slots:
     void init();
     void cleanup();
 private slots:
-    void getSetCheck();
     void record_data() { generic_data(); }
     void record();
     void open_data() { generic_data(); }
@@ -118,27 +117,6 @@ private:
 
     tst_Databases dbs;
 };
-
-// Testing get/set functions
-void tst_QSqlDatabase::getSetCheck()
-{
-    if (dbs.dbNames.count() == 0) {
-        QSKIP("No dbs available", SkipAll);
-        return;
-    }
-    QSqlDatabase obj1 = QSqlDatabase::database(dbs.dbNames.at(0));
-
-    // int QSqlDatabase::port()
-    // void QSqlDatabase::setPort(int)
-    obj1.setPort(1234);
-    QCOMPARE(obj1.port(), 1234);
-    obj1.setPort(0);
-    QCOMPARE(obj1.port(), 0); // 0 is a valid port number for MySQL
-    obj1.setPort(INT_MIN);
-    QCOMPARE(obj1.port(), INT_MIN);
-    obj1.setPort(INT_MAX);
-    QCOMPARE(obj1.port(), INT_MAX);
-}
 
 // number of records to be inserted per testfunction
 static const int ITERATION_COUNT = 2;
@@ -1005,10 +983,10 @@ void tst_QSqlDatabase::recordMySQL()
 	FieldDef("blob", QVariant::ByteArray,	    QByteArray(Q3CString("blah2"))),
 	FieldDef("mediumblob", QVariant::ByteArray,QByteArray(Q3CString("blah3"))),
 	FieldDef("longblob", QVariant::ByteArray,  QByteArray(Q3CString("blah4"))),
-	FieldDef("tinytext", QVariant::CString,    Q3CString("blah5")),
-	FieldDef("text", QVariant::CString,	    Q3CString("blah6")),
-	FieldDef("mediumtext", QVariant::CString,  Q3CString("blah7")),
-	FieldDef("longtext", QVariant::CString,    Q3CString("blah8")),
+	FieldDef("tinytext", QVariant::String,    QString("blah5")),
+	FieldDef("text", QVariant::String,	    QString("blah6")),
+	FieldDef("mediumtext", QVariant::String,  QString("blah7")),
+	FieldDef("longtext", QVariant::String,    QString("blah8")),
 	// SET OF?
 
 	FieldDef(QString::null, QVariant::Invalid)

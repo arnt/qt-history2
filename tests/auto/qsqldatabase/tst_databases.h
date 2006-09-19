@@ -120,7 +120,7 @@ public:
 //      addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3307 );
 //	addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3308 ); // MySQL 4.1.1
 //      addDb( "QMYSQL3", "testdb", "troll", "trond", "horsehead.troll.no", 3309 ); // MySQL 5.0.18 Linux
-//      addDb( "QMYSQL3", "testdb", "troll", "trond", "iceblink.troll.no"); // MySQL 5.0.13 Windows
+      addDb( "QMYSQL3", "testdb", "troll", "trond", "iceblink.troll.no"); // MySQL 5.0.13 Windows
 
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no" );
 //	addDb( "QPSQL7", "testdb", "troll", "trond", "horsehead.troll.no", 5434 ); // multi-byte
@@ -136,11 +136,11 @@ public:
 //	addDb("QIBASE", "c:\\qttest.gdb", "SYSDBA", "masterkey", "iceblink.troll.no");
 
 	// use in-memory database to prevent local files
-	addDb("QSQLITE", ":memory:");
+//	addDb("QSQLITE", ":memory:");
 //      addDb("QSQLITE", "/tmp/foo.db");
 
 #if defined (Q_OS_WIN32)
-	addDb( "QODBC3", "DRIVER={SQL SERVER};SERVER=ICEBLINK\\ICEBLINK;", "troll", "trond", "" );
+//	addDb( "QODBC3", "DRIVER={SQL SERVER};SERVER=ICEBLINK\\ICEBLINK;", "troll", "trond", "" );
 #endif //Q_OS_WIN32
 
 #if 0
