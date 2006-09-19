@@ -837,7 +837,6 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     phraseTv->setRootIsDecorated(false);
     phraseTv->setItemsExpandable(false);
     QPalette pal = phraseTv->palette();
-    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
     phraseTv->setPalette(pal);
 
     phraseTv->header()->setResizeMode(QHeaderView::Stretch);

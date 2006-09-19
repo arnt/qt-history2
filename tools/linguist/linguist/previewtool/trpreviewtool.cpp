@@ -60,7 +60,6 @@ TrPreviewTool::TrPreviewTool(QWidget *parent, Qt::WindowFlags flags)
     ui.viewForms->setModel(m_uiFilesModel);
     ui.viewForms->setAlternatingRowColors(true);
     QPalette pal = palette();
-    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
     ui.viewForms->setPalette(pal);
 
 }
