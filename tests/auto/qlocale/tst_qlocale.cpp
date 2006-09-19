@@ -57,6 +57,8 @@ private slots:
     void negativeNumbers();
     void numberOptions();
     void testNames();
+    void dayName_data();
+    void dayName();
 
 private:
     QString m_decimal, m_thousand, m_sdate, m_ldate, m_time;
@@ -1156,6 +1158,28 @@ void tst_QLocale::testNames()
             QCOMPARE((int)QLocale(lang + QLatin1String(".foo")).language(), item.language);
         }
     }
+}
+
+void tst_QLocale::dayName_data()
+{
+    QTest::addColumn<QString>("locale_name");
+    QTest::addColumn<QString>("dayName");
+    QTest::addColumn<int>("day");
+
+    QTest::newRow("nb_NO")  << QString("nb_NO") << QString("tirsdag") << 2;
+    QTest::newRow("nn_NO")  << QString("nn_NO") << QString("tysdag") << 2;
+
+}
+
+void tst_QLocale::dayName()
+{
+    QFETCH(QString, locale_name);
+    QFETCH(QString, dayName);
+    QFETCH(int, day);
+
+    QLocale l(locale_name);
+    QCOMPARE(l.dayName(day), dayName);
+
 }
 
 QTEST_APPLESS_MAIN(tst_QLocale)
