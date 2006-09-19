@@ -331,10 +331,8 @@
 
 #include <math.h>
 
-Q_DECLARE_METATYPE(QGraphicsItem *)
-
 /*
-    ### More this into QGraphicsItemPrivate
+    ### Move this into QGraphicsItemPrivate
  */
 class QGraphicsItemCustomDataStore
 {

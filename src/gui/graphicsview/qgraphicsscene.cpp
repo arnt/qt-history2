@@ -169,8 +169,6 @@
 #include <math.h>
 #include <qdebug.h>
 
-Q_DECLARE_METATYPE(QGraphicsItem *)
-
 /*!
     \internal
 */
@@ -1027,7 +1025,6 @@ QList<QGraphicsItem *> QGraphicsScene::items() const
 */
 QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 {
-    Q_D(const QGraphicsScene);
     QList<QGraphicsItem *> itemsAtPoint;
 
     // Find all items within a 1x1 rect area starting at pos. This can be

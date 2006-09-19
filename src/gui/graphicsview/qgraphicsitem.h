@@ -26,7 +26,7 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 #ifndef QT_NO_GRAPHICSVIEW
-
+    
 class QBrush;
 class QCursor;
 class QFocusEvent;
@@ -273,6 +273,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)
+Q_DECLARE_METATYPE(QGraphicsItem *)
 
 inline void QGraphicsItem::setPos(qreal ax, qreal ay)
 { setPos(QPointF(ax, ay)); }
