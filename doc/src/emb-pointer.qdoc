@@ -8,14 +8,29 @@
     Pointer handling in Qtopia Core works for both mouse and
     mouse-like devices such as touch panels and trackballs. The
     various drivers can be enabled and disabled using the \c configure
-    script. For example:
+    script.
 
+    For example:
+
+\if (defined(QTOPIA_PHONE)
+   \code
+        ./configure -extra-qtopiacore-config -qt-mouse-tslib
+    \endcode
+
+    To list the available mouse drivers run:
     \code
+<qtopia-root-dir>/qtopiacore/qt/configure -embedded -help |grep -a1 mouse
+    \endcode
+    \bold{Note:} By default only the PC mouse driver is enabled.
+
+\else
+   \code
         configure -qt-mouse-tslib
     \endcode
 
     Run \c{./configure -help} to list the available drivers. In the
     default Qt configuration, only the "pc" mouse driver is enabled.
+\endif
 
     \section1 Available Drivers
 
@@ -33,6 +48,10 @@
 
     Other drivers can be added by deriving from the QWSMouseHandler
     and QMouseDriverPlugin classes and using Qt's plugin mechanism.
+
+    \if (defined(QTOPIA_PHONE)
+    For a tutorial on how to add a new keyboard driver plug-in see : \l {Tutorial: Implementing a Device Plug-in}.
+    \endif
 
     \section1 Specifying a Driver
 
