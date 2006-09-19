@@ -797,8 +797,8 @@ void tst_QUndoStack::setClean()
 void tst_QUndoStack::clear()
 {
     QUndoStack stack;
-    QAction *undo_action = stack.createUndoAction(0, QString("foo"));
-    QAction *redo_action = stack.createRedoAction(0, QString("bar"));
+    QAction *undo_action = stack.createUndoAction(this, QString("foo"));
+    QAction *redo_action = stack.createRedoAction(this, QString("bar"));
     QSignalSpy indexChangedSpy(&stack, SIGNAL(indexChanged(int)));
     QSignalSpy cleanChangedSpy(&stack, SIGNAL(cleanChanged(bool)));
     QSignalSpy canUndoChangedSpy(&stack, SIGNAL(canUndoChanged(bool)));
