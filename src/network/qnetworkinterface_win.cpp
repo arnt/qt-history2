@@ -60,7 +60,7 @@ static QHostAddress addressFromSockaddr(sockaddr *sa)
 
 static QHostAddress netmaskFromPrefixLength(uint len, int family)
 {
-    Q_ASSERT(len < 128);
+    Q_ASSERT(len <= 128);
     union {
         quint8 u8[16];
         quint32 ipv4;
