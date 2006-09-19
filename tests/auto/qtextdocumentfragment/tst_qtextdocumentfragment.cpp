@@ -65,6 +65,7 @@ private slots:
     void ignoreStyleTags();
     void hrefAnchor();
     void namedAnchorFragments();
+    void namedAnchorFragments2();
     void dontInheritAlignmentInTables();
     void cellBlockCount();
     void cellBlockCount2();
@@ -770,6 +771,25 @@ void tst_QTextDocumentFragment::namedAnchorFragments()
     QVERIFY(it.fragment().charFormat().isAnchor() == false);
 }
 
+void tst_QTextDocumentFragment::namedAnchorFragments2()
+{
+    const char html[] = "<p>    <a name=\"foo\"> Hello";
+    setHtml(QString::fromLatin1(html));
+
+    QCOMPARE(doc->toPlainText(), QString("Hello"));
+
+    QTextBlock::Iterator it = doc->begin().begin();
+    QVERIFY(!it.atEnd());
+
+    QCOMPARE(it.fragment().text(), QString::fromAscii("H"));
+    QVERIFY(it.fragment().charFormat().isAnchor());
+
+    ++it;
+
+    QCOMPARE(it.fragment().text(), QString::fromAscii("ello"));
+    QVERIFY(!it.fragment().charFormat().isAnchor());
+}
+
 void tst_QTextDocumentFragment::dontInheritAlignmentInTables()
 {
     const char html[] = "<table align=center><tr><td>Hey</td></tr></table>";
@@ -1079,7 +1099,6 @@ void tst_QTextDocumentFragment::html_whitespace_data()
     QTest::addColumn<QString>("html");
     QTest::addColumn<QString>("expectedPlainText");
 
-    // skip
     QTest::newRow("1") << QString("<span>This is some test</span><span> with spaces between words</span>")
                        << QString("This is some test with spaces between words");
 
@@ -1104,6 +1123,12 @@ void tst_QTextDocumentFragment::html_whitespace_data()
 
     QTest::newRow("8") << QString("<table><tr><td><i>Blah</i></td></tr></table> <i>Blub</i>")
                        << QString("\nBlah\nBlub");
+
+    QTest::newRow("task116492") << QString("<p>a<font=\"Times\"> b </font>c</p>")
+                                << QString("a b c");
+
+    QTest::newRow("task121653") << QString("abc<b> def</b>")
+                                << QString("abc def");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()
@@ -1112,8 +1137,6 @@ void tst_QTextDocumentFragment::html_whitespace()
     QFETCH(QString, expectedPlainText);
 
     setHtml(html);
-
-    QEXPECT_FAIL("1", "Not supported currently.....", Abort);
 
     QCOMPARE(doc->toPlainText(), expectedPlainText);
 }

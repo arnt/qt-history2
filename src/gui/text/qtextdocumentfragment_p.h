@@ -102,6 +102,11 @@ private:
 
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
 
+    void createBlock(const QTextHtmlParserNode *node);
+
+    void appendText(const QTextHtmlParserNode *node);
+    bool compressNextWhitespace;
+
     struct List
     {
         QTextListFormat format;

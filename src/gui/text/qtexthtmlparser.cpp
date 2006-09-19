@@ -694,25 +694,6 @@ void QTextHtmlParser::parse() {
         } else if (c == QLatin1Char('&')) {
             nodes.last().text += parseEntity();
         } else {
-            if (c.isSpace() && c != QChar(QChar::Nbsp) && c != QChar::ParagraphSeparator) {
-                if (wsm == QTextHtmlParserNode::WhiteSpacePre
-                    || textEditMode) {
-                    if (c == QLatin1Char('\n')) {
-                        if (textEditMode)
-                            continue;
-                    } else if (c == QLatin1Char('\r')) {
-                        continue;
-                    }
-                } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) { // non-pre mode: collapse whitespace except nbsp
-                    while (pos < len && txt.at(pos).isSpace()
-                           && txt.at(pos) != QChar::Nbsp)
-                        pos++;
-                    if (wsm == QTextHtmlParserNode::WhiteSpaceNoWrap)
-                        c = QChar::Nbsp;
-                    else
-                        c = QLatin1Char(' ');
-                }
-            }
             nodes.last().text += c;
         }
     }
@@ -793,11 +774,6 @@ void QTextHtmlParser::parseTag()
         pos++;
     }
     pos++;
-
-    if (node->wsm != QTextHtmlParserNode::WhiteSpacePre
-        && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap
-        && !textEditMode)
-        eatSpace();
 
     if (node->mayNotHaveChildren() || tagClosed) {
         newNode(node->parent);

@@ -392,6 +392,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, 
     : indent(0), setNamedAnchorInNextOutput(false), doc(_doc), containsCompleteDoc(false)
 {
     cursor = QTextCursor(doc);
+    compressNextWhitespace = false;
 
     QString html = _html;
     const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
@@ -423,6 +424,7 @@ void QTextHtmlImporter::import()
     cursor.beginEditBlock();
     bool hasBlock = true;
     bool forceBlockMerging = false;
+    compressNextWhitespace = !textEditMode;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
 
@@ -508,8 +510,11 @@ void QTextHtmlImporter::import()
             List l;
             l.format = listFmt;
             lists.append(l);
+            compressNextWhitespace = true;
 
-            if (node->text.isEmpty())
+            // broken html: <ul>Text here<li>Foo
+            const QString simpl = node->text.simplified();
+            if (simpl.isEmpty() || simpl.at(0).isSpace())
                 continue;
         } else if (node->id == Html_table) {
             Table t = scanTable(i);
@@ -658,52 +663,93 @@ void QTextHtmlImporter::import()
             continue;
         hasBlock = false;
 
-        QTextCharFormat format = node->charFormat();
-        QString text = node->text;
-        if (setNamedAnchorInNextOutput) {
-            QTextCharFormat fmt = format;
-            fmt.setAnchor(true);
-            fmt.setAnchorName(namedAnchor);
-            cursor.insertText(QString(text.at(0)), fmt);
-
-            text.remove(0, 1);
-            format.setAnchor(false);
-            format.setAnchorName(QString());
-
-            setNamedAnchorInNextOutput = false;
-        }
-
-        int textStart = 0;
-        for (int i = 0; i < text.length(); ++i) {
-            QChar ch = text.at(i);
-
-            const int textEnd = i;
-
-            if (ch == QLatin1Char('\n')
-                || ch == QChar::ParagraphSeparator) {
-
-                if (textEnd > textStart)
-                    cursor.insertText(text.mid(textStart, textEnd - textStart), format);
-
-                textStart = i + 1;
-
-                QTextBlockFormat fmt = cursor.blockFormat();
-
-                if (fmt.hasProperty(QTextFormat::BlockBottomMargin)) {
-                    QTextBlockFormat tmp = fmt;
-                    tmp.clearProperty(QTextFormat::BlockBottomMargin);
-                    cursor.setBlockFormat(tmp);
-                }
-
-                fmt.clearProperty(QTextFormat::BlockTopMargin);
-                cursor.insertBlock(fmt);
-            }
-        }
-        if (textStart < text.length())
-            cursor.insertText(text.mid(textStart, text.length() - textStart), format);
+        appendText(node);
     }
 
     cursor.endEditBlock();
+}
+
+void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
+{
+    QTextCharFormat format = node->charFormat();
+
+    if (node->wsm == QTextHtmlParserNode::WhiteSpacePre
+        || node->wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
+        compressNextWhitespace = false;
+
+    const QString text = node->text;
+    QString textToInsert;
+    textToInsert.reserve(text.size());
+
+    for (int i = 0; i < text.length(); ++i) {
+        QChar ch = text.at(i);
+
+        if (ch.isSpace()
+            && ch != QChar::Nbsp
+            && ch != QChar::ParagraphSeparator) {
+
+            if (compressNextWhitespace)
+                continue;
+
+            if (node->wsm == QTextHtmlParserNode::WhiteSpacePre
+                || textEditMode
+               ) {
+                if (ch == QLatin1Char('\n')) {
+                    if (textEditMode)
+                        continue;
+                } else if (ch == QLatin1Char('\r')) {
+                    continue;
+                }
+            } else if (node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap) {
+                compressNextWhitespace = true;
+                if (node->wsm == QTextHtmlParserNode::WhiteSpaceNoWrap)
+                    ch = QChar::Nbsp;
+                else
+                    ch = QLatin1Char(' ');
+            }
+        } else {
+            compressNextWhitespace = false;
+        }
+
+        if (ch == QLatin1Char('\n')
+            || ch == QChar::ParagraphSeparator) {
+
+            if (!textToInsert.isEmpty()) {
+                cursor.insertText(textToInsert, format);
+                textToInsert.clear();
+            }
+
+            QTextBlockFormat fmt = cursor.blockFormat();
+
+            if (fmt.hasProperty(QTextFormat::BlockBottomMargin)) {
+                QTextBlockFormat tmp = fmt;
+                tmp.clearProperty(QTextFormat::BlockBottomMargin);
+                cursor.setBlockFormat(tmp);
+            }
+
+            fmt.clearProperty(QTextFormat::BlockTopMargin);
+            cursor.insertBlock(fmt);
+        } else {
+            if (setNamedAnchorInNextOutput) {
+                if (!textToInsert.isEmpty()) {
+                    cursor.insertText(textToInsert, format);
+                    textToInsert.clear();
+                }
+
+                format.setAnchor(true);
+                format.setAnchorName(namedAnchor);
+                cursor.insertText(ch, format);
+                setNamedAnchorInNextOutput = false;
+                format.clearProperty(QTextFormat::IsAnchor);
+                format.clearProperty(QTextFormat::AnchorName);
+            } else {
+                textToInsert += ch;
+            }
+        }
+    }
+
+    if (!textToInsert.isEmpty())
+        cursor.insertText(textToInsert, format);
 }
 
 // returns true if a block tag was closed
