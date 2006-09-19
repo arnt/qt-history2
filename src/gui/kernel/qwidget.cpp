@@ -7037,6 +7037,15 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
     d->resolveLayoutDirection();
 
     if (newParent) {
+        // propagate enabled updates enabled state to non-windows
+        if (!isWindow()) {
+            if (!testAttribute(Qt::WA_ForceDisabled))
+                d->setEnabled_helper(parent ? parent->isEnabled() : true);
+            if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
+                d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
+        }
+        d->inheritStyle();
+
         // send and post remaining QObject events
         if (parent && d->sendChildEvents) {
             QChildEvent e(QEvent::ChildAdded, this);
@@ -7045,15 +7054,7 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
             QApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
         }
-
-        // propagate enabled updates enabled state to non-windows
-        if (!isWindow()) {
-            if (!testAttribute(Qt::WA_ForceDisabled))
-                d->setEnabled_helper(parent ? parent->isEnabled() : true);
-            if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
-                d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
-        }
-
+        
 //### already hidden above ---> must probably do something smart on the mac
 // #ifdef Q_WS_MAC
 //             extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
@@ -7067,8 +7068,6 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
             QChildEvent e(QEvent::ChildPolished, this);
             QCoreApplication::sendEvent(parent, &e);
         }
-
-        d->inheritStyle();
 
         QEvent e(QEvent::ParentChange);
         QApplication::sendEvent(this, &e);
