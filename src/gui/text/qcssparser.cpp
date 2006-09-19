@@ -422,6 +422,25 @@ bool ValueExtractor::extractBorder(int *borders, QColor *colors, BorderStyle *st
         case BorderBottomRightRadius: radii[3] = sizeValue(decl); break;
         case BorderRadius: sizeValues(decl, radii); break;
 
+        case BorderLeft: 
+            borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]); 
+            break;
+        case BorderTop: 
+            borderValue(decl, &borders[TopEdge], &styles[TopEdge], &colors[TopEdge]); 
+            break;
+        case BorderRight: 
+            borderValue(decl, &borders[RightEdge], &styles[RightEdge], &colors[RightEdge]); 
+            break;
+        case BorderBottom: 
+            borderValue(decl, &borders[BottomEdge], &styles[BottomEdge], &colors[BottomEdge]); 
+            break;
+        case Border: 
+            borderValue(decl, &borders[LeftEdge], &styles[LeftEdge], &colors[LeftEdge]);
+            borders[TopEdge] = borders[RightEdge] = borders[BottomEdge] = borders[LeftEdge];
+            styles[TopEdge] = styles[RightEdge] = styles[BottomEdge] = styles[LeftEdge];
+            colors[TopEdge] = colors[RightEdge] = colors[BottomEdge] = colors[LeftEdge];
+            break;
+
         default: continue;
         }
         hit = true;
@@ -578,6 +597,45 @@ static QBrush parseBrushValue(Value v)
     }
 
     return QBrush();
+}
+
+static BorderStyle parseStyleValue(Value v)
+{
+    if (v.type == Value::KnownIdentifier) {
+        if (v.variant.toInt() == Value_None)
+            return BorderStyle_None;
+        return BorderStyle_Unknown;
+    }
+
+    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
+                                        borderStyles, NumKnownBorderStyles));
+}
+
+void ValueExtractor::borderValue(const Declaration &decl, int *width, QCss::BorderStyle *style, QColor *color)
+{
+    *width = 0;
+    *style = BorderStyle_None;
+    *color = QColor();
+
+    if (decl.values.isEmpty())
+        return;
+
+    int i = 0;
+    if (decl.values.at(i).type == Value::Length || decl.values.at(i).type == Value::Number) {
+        *width = lengthValue(decl.values.at(i));
+        if (++i >= decl.values.count())
+            return;
+    }
+
+    *style = parseStyleValue(decl.values.at(i));
+    if (*style != BorderStyle_Unknown) {
+        if (++i >= decl.values.count())
+            return;
+    } else {
+        *style = BorderStyle_None;
+    }
+
+    *color = parseColorValue(decl.values.at(i));
 }
 
 static void parseShorthandBackgroundProperty(const QVector<Value> &values, QBrush *brush, QString *image, Repeat *repeat, Qt::Alignment *alignment)
@@ -929,30 +987,18 @@ void Declaration::colorValues(QColor *c) const
     else if (i == 3) c[3] = c[1];
 }
 
-BorderStyle Declaration::styleValue(Value v) const
-{
-    if (v.type == Value::KnownIdentifier) {
-        if (v.variant.toInt() == Value_None)
-            return BorderStyle_None;
-        return BorderStyle_Unknown;
-    }
-
-    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(),
-                                        borderStyles, NumKnownBorderStyles));
-}
-
 BorderStyle Declaration::styleValue() const
 {
     if (values.count() != 1)
         return BorderStyle_None;
-    return styleValue(values.first());
+    return parseStyleValue(values.first());
 }
 
 void Declaration::styleValues(BorderStyle *s) const
 {
     int i;
     for (i = 0; i < qMin(values.count(), 4); i++)
-        s[i] = styleValue(values.at(i));
+        s[i] = parseStyleValue(values.at(i));
     if (i == 0) s[0] = s[1] = s[2] = s[3] = BorderStyle_None;
     else if (i == 1) s[3] = s[2] = s[1] = s[0];
     else if (i == 2) s[2] = s[0], s[3] = s[1];

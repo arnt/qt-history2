@@ -256,7 +256,6 @@ struct Q_GUI_EXPORT Declaration
     QBrush brushValue() const;
 
     BorderStyle styleValue() const;
-    BorderStyle styleValue(Value v) const;
     void styleValues(BorderStyle *s) const;
 
     Origin originValue() const;
@@ -360,6 +359,7 @@ struct Q_GUI_EXPORT ValueExtractor
 
 private:
     void extractFont();
+    void borderValue(const Declaration &decl, int *width, QCss::BorderStyle *style, QColor *color);
     int lengthValue(const Declaration &decl);
     int lengthValue(const Value& v);
     void lengthValues(const Declaration &decl, int *m);

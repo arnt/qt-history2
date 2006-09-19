@@ -45,6 +45,8 @@ private slots:
     void gradient();
     void extractFontFamily_data();
     void extractFontFamily();
+    void extractBorder_data();
+    void extractBorder();
 };
 
 void tst_CssParser::scanner_data()
@@ -1395,6 +1397,54 @@ void tst_CssParser::extractFontFamily()
     extractor.extractFont(&fnt, &adjustment);
 
     QTEST(fnt.family(), "expectedFamily");
+}
+
+void tst_CssParser::extractBorder_data()
+{
+    QTest::addColumn<QString>("css");
+    QTest::addColumn<int>("expectedTopWidth");
+    QTest::addColumn<int>("expectedTopStyle");
+    QTest::addColumn<QColor>("expectedTopColor");
+
+    QTest::newRow("all values") << "border: 2px solid green" << 2 << (int)QCss::BorderStyle_Solid << QColor("green");
+    QTest::newRow("just width") << "border: 2px" << 2 << (int)QCss::BorderStyle_None << QColor();
+    QTest::newRow("just style") << "border: solid" << 0 << (int)QCss::BorderStyle_Solid << QColor();
+    QTest::newRow("just color") << "border: green" << 0 << (int)QCss::BorderStyle_None << QColor("green");
+    QTest::newRow("width+style") << "border: 2px solid" << 2 << (int)QCss::BorderStyle_Solid << QColor();
+    QTest::newRow("style+color") << "border: solid green" << 0 << (int)QCss::BorderStyle_Solid << QColor("green");
+    QTest::newRow("width+color") << "border: 3px green" << 3 << (int)QCss::BorderStyle_None << QColor("green");
+
+    QTest::newRow("top-width+color") << "border-top: 3px green" << 3 << (int)QCss::BorderStyle_None << QColor("green");
+}
+
+void tst_CssParser::extractBorder()
+{
+    QFETCH(QString, css);
+    QFETCH(int, expectedTopWidth);
+    QFETCH(int, expectedTopStyle);
+    QFETCH(QColor, expectedTopColor);
+
+    css.prepend("dummy {");
+    css.append("}");
+
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    QVERIFY(parser.parse(&sheet));
+
+    QCOMPARE(sheet.styleRules.count(), 1);
+    const QVector<QCss::Declaration> decls = sheet.styleRules.at(0).declarations;
+    QVERIFY(!decls.isEmpty());
+    QCss::ValueExtractor extractor(decls);
+
+    int widths[4];
+    QColor colors[4];
+    QCss::BorderStyle styles[4];
+    QSize radii[4];
+
+    extractor.extractBorder(widths, colors, styles, radii);
+    QVERIFY(widths[QCss::TopEdge] == expectedTopWidth);
+    QVERIFY(styles[QCss::TopEdge] == expectedTopStyle);
+    QVERIFY(colors[QCss::TopEdge] == expectedTopColor);
 }
 
 QTEST_MAIN(tst_CssParser)
