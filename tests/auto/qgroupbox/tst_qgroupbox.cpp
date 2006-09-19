@@ -11,6 +11,8 @@
 #include <QLineEdit>
 #include <QStyle>
 #include <QStyleOptionGroupBox>
+#include <QVBoxLayout>
+#include <QRadioButton>
 
 #include "qgroupbox.h"
 
@@ -44,6 +46,8 @@ private slots:
     void clicked_data();
     void clicked();
     void toggledVsClicked();
+    void childrenAreDisabled();
+    
 private:
     bool checked;
     qint64 timeStamp;
@@ -384,6 +388,42 @@ void tst_QGroupBox::clickTimestampSlot()
 void tst_QGroupBox::toggleTimestampSlot()
 {
     toggleTimeStamp = ++timeStamp;
+}
+
+void tst_QGroupBox::childrenAreDisabled()
+{
+    QGroupBox box;
+    box.setCheckable(true);
+    box.setChecked(false);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(new QRadioButton);
+    layout->addWidget(new QRadioButton);
+    layout->addWidget(new QRadioButton);
+    box.setLayout(layout);
+
+    foreach (QObject *object, box.children()) {
+        if (QWidget *widget = qobject_cast<QWidget *>(object)) {
+            QVERIFY(!widget->isEnabled());
+            QVERIFY(!widget->testAttribute(Qt::WA_ForceDisabled));
+        }
+    }
+
+    box.setChecked(true);
+    foreach (QObject *object, box.children()) {
+        if (QWidget *widget = qobject_cast<QWidget *>(object)) {
+            QVERIFY(widget->isEnabled());
+            QVERIFY(!widget->testAttribute(Qt::WA_ForceDisabled));
+        }
+    }
+
+    box.setChecked(false);
+    foreach (QObject *object, box.children()) {
+        if (QWidget *widget = qobject_cast<QWidget *>(object)) {
+            QVERIFY(!widget->isEnabled());
+            QVERIFY(!widget->testAttribute(Qt::WA_ForceDisabled));
+        }
+    }
 }
 
 QTEST_MAIN(tst_QGroupBox)
