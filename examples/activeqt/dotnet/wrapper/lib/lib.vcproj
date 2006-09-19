@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(QTDIR)\include"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG"
 				IgnoreStandardIncludePath="FALSE"
 				MinimalRebuild="FALSE"
@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qt-mt330.lib"
+				AdditionalDependencies="QtCored4.lib"
 				OutputFile="lib.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(QTDIR)/lib"
@@ -63,8 +63,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				AdditionalIncludeDirectories="&quot;$(QTDIR)\include&quot;;&quot;$(QTDIR)\include\QtCore&quot;"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(QTDIR)\include"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				MinimalRebuild="FALSE"
 				UsePrecompiledHeader="0"
@@ -73,7 +73,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qt-mt330.lib"
+				AdditionalDependencies="QtCore4.lib"
 				OutputFile="$(OutDir)/lib.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(QTDIR)/lib"
