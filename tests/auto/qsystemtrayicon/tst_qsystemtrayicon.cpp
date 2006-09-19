@@ -59,12 +59,12 @@ void tst_QSystemTrayIcon::showMessage()
 {
     QSystemTrayIcon icon;
     icon.setIcon(QIcon("icons/icon.png"));
-    
+
     icon.showMessage("Title", "Messagecontents");
     icon.showMessage("Title", "Messagecontents", QSystemTrayIcon::NoIcon);
     icon.showMessage("Title", "Messagecontents", QSystemTrayIcon::Warning);
     icon.showMessage("Title", "Messagecontents", QSystemTrayIcon::Critical);
-    
+
     icon.show();
     icon.showMessage("Title", "Messagecontents");
     icon.showMessage("Title", "Messagecontents", QSystemTrayIcon::NoIcon);
@@ -79,7 +79,7 @@ void tst_QSystemTrayIcon::getSetCheck()
     QCOMPARE(true, icon.toolTip().isEmpty());
     icon.setToolTip("testToolTip");
     QCOMPARE(true, "testToolTip" == icon.toolTip());
-   
+
     QCOMPARE(true, icon.icon().isNull());
     icon.setIcon(QIcon("icons/icon.png"));
     QCOMPARE(false, icon.icon().isNull());
@@ -93,7 +93,7 @@ void tst_QSystemTrayIcon::getSetCheck()
 void tst_QSystemTrayIcon::supportsMessages()
 {
     // This is rather idiotic, but it does improve coverage
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
     QCOMPARE(QSystemTrayIcon::supportsMessages(), true );
 #else
     QCOMPARE(QSystemTrayIcon::supportsMessages(), false );
