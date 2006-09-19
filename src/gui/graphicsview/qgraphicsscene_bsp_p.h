@@ -27,7 +27,7 @@
 
 #include <QtCore/qlist.h>
 
-#ifndef QT_NO_GRAPHICSVIEW
+#if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
 
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>

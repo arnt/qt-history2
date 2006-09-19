@@ -21,6 +21,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+#if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
+
 class QMimeData;
 class QWidget;
 
@@ -226,4 +228,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_GRAPHICSVIEW
 #endif

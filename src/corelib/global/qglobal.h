@@ -1819,6 +1819,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #define QT_MODULE_QT3SUPPORT            0x080
 #define QT_MODULE_SVG                   0x100
 #define QT_MODULE_ACTIVEQT              0x200
+#define QT_MODULE_GRAPHICSVIEW          0x400
 
 /* Qt editions */
 #define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
@@ -1836,7 +1837,8 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
                                  | QT_MODULE_XML \
                                  | QT_MODULE_QT3SUPPORTLIGHT \
                                  | QT_MODULE_QT3SUPPORT \
-                                 | QT_MODULE_SVG)
+                                 | QT_MODULE_SVG \
+                                 | QT_MODULE_GRAPHICSVIEW)
 #define QT_EDITION_DESKTOP      (QT_EDITION_OPENSOURCE \
                                  | QT_MODULE_ACTIVEQT)
 #define QT_EDITION_UNIVERSAL    QT_EDITION_DESKTOP

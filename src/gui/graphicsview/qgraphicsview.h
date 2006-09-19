@@ -22,7 +22,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_GRAPHICSVIEW
+#if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
 
 class QGraphicsItem;
 class QGraphicsScene;
@@ -53,7 +53,7 @@ public:
         AnchorViewCenter,
         AnchorUnderMouse
     };
-    
+
     enum CacheModeFlag {
         CacheNone = 0x0,
         CacheBackground = 0x1
@@ -84,7 +84,7 @@ public:
 
     ViewportAnchor resizeAnchor() const;
     void setResizeAnchor(ViewportAnchor anchor);
-    
+
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 

@@ -82,7 +82,7 @@ Desktop Edition licensees can use all the modules provided with their
 Qt package.
 
 Desktop Light Edition licensees may only use the classes contained in
-the QtCore, QtGui and Q3Support modules.
+the QtCore, QtGui (except QGraphicsView) and Q3Support modules.
 
 Console Edition licensees may use the classes contained in the QtCore,
 QtNetwork, QtSql and QtXml modules.
