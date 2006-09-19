@@ -732,6 +732,7 @@ protected:
         QPalette toolPalette = parentWidget()->palette();
         bool newState = (menu()) ? menu()->isVisible():isDown();
 
+#ifndef Q_WS_MAC
         if (newState || hover) //act as normal button
             setPalette(toolPalette);
         else {
@@ -739,6 +740,7 @@ protected:
             toolPalette.setColor(QPalette::ButtonText, toolPalette.color(QPalette::HighlightedText));
             setPalette(toolPalette);
         }
+#endif
         if (newState != oldState) {
             //update the hover if the button is released
             hover = oldState ? false : hover;
