@@ -728,6 +728,9 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
         widget_under_mouse
             = form_under_mouse->widgetAt(form_under_mouse->mapFromGlobal(globalPos));
 
+        if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), form_under_mouse->findContainer(widget_under_mouse, false))) {
+            widget_under_mouse = c->widget(c->currentIndex());
+        }
         Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget_under_mouse));
     }
 

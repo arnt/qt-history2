@@ -189,6 +189,7 @@ public:
     void dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidget *target,
                         const QPoint &global_mouse_pos);
 
+    QWidget *findContainer(QWidget *w, bool excludeLayout) const;
 signals:
     void contextMenuRequested(QMenu *menu, QWidget *widget);
 
@@ -262,7 +263,6 @@ private:
     QPoint mapToForm(const QWidget *w, const QPoint &pos) const;
     bool canBeBuddy(QWidget *w) const;
 
-    QWidget *findContainer(QWidget *w, bool excludeLayout) const;
     QWidget *findTargetContainer(QWidget *widget) const;
 
     bool isPageOfContainerWidget(QWidget *widget) const;
