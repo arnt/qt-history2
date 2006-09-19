@@ -1701,12 +1701,15 @@ bool TrWindow::danger( const MessageItem *m,
         foreach (QString s, lookupWords) {
             if (phraseDict.contains(s)) {
                 PhraseBook ent = phraseDict.value(s);
-                phraseFound = false;
+                phraseFound = true;
                 foreach (Phrase p, ent) {
-                    if (fsource.indexOf(friendlyString(p.source())) < 0 ||
-                        ftranslation.indexOf(friendlyString(p.target())) >= 0) {
-                        phraseFound = true;
-                        break;
+                    if (fsource == friendlyString(p.source())) {
+                        if (ftranslation.indexOf(friendlyString(p.target())) >= 0) {
+                            phraseFound = true;
+                            break;
+                        } else {
+                            phraseFound = false;
+                        }
                     }
                 }
                 if (!phraseFound) {
