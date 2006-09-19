@@ -791,7 +791,7 @@ const QByteArray QWSSharedMemSurface::data() const
     reinterpret_cast<int*>(ptr)[1] = img.width();
     reinterpret_cast<int*>(ptr)[2] = img.height();
     reinterpret_cast<int*>(ptr)[3] = (memlock ? memlock->id() : -1);
-    ptr += 4 * sizeof(uchar*);
+    ptr += 4 * sizeof(int);
 
     *reinterpret_cast<QImage::Format*>(ptr) = img.format();
     ptr += sizeof(QImage::Format);
