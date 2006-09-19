@@ -1048,8 +1048,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     // a real toplevel window needs a backing store
 #ifndef Q_WS_MAC
-    if (isWindow())
+    if (isWindow()) {
+        delete d->topData()->backingStore;
         d->topData()->backingStore = new QWidgetBackingStore(this);
+    }
 #endif
 
     d->setModal_sys();
@@ -7054,7 +7056,7 @@ void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
             QApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
         }
-        
+
 //### already hidden above ---> must probably do something smart on the mac
 // #ifdef Q_WS_MAC
 //             extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
