@@ -547,7 +547,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     const bool wrapText = opt.features & QStyleOptionViewItemV2::WrapText;
     d->textOption.setWrapMode(wrapText ? QTextOption::WordWrap : QTextOption::ManualWrap);
     d->textOption.setTextDirection(option.direction);
-    d->textOption.setAlignment(option.displayAlignment);
+    d->textOption.setAlignment(QStyle::visualAlignment(option.direction, option.displayAlignment));
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(option.font);
     d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
