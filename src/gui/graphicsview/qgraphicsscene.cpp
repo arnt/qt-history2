@@ -1900,6 +1900,57 @@ void QGraphicsScene::update(const QRectF &rect)
 }
 
 /*!
+    Invalidates and schedules a redraw of the \a layers in \a rect on the
+    scene. Any cached content in \a layers is unconditionally invalidated and
+    redrawn.
+
+    You can use this function overload to notify QGraphicsScene of changes to
+    the background or the foreground of the scene. This function is commonly
+    used for scenes with tile-based backgrounds to notify changes when
+    QGraphicsView has enabled
+    \l{QGraphicsView::CacheBackground}{CacheBackground}.
+
+    Example:
+
+    \code
+      QRectF TileScene::rectForTile(int x, int y) const
+      {
+          // Return the rectangle for the tile at position (x, y).
+          return QRectF(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+      }
+
+      void TileScene::setTile(int x, int y, const QPixmap &pixmap)
+      {
+          // Sets or replaces the tile at position (x, y) with pixmap.
+          if (x >= 0 && x < numTilesH && y >= 0 && y < numTilesV) {
+              tiles[y][x] = pixmap;
+              invalidate(rectForTile(x, y), BackgroundLayer);
+          }
+      }
+
+      void TileScene::drawBackground(QPainter *painter, const QRectF &exposed)
+      {
+          // Draws all tiles that intersect the exposed area.
+          for (int y = 0; y < numTilesV; ++y) {
+              for (int x = 0; x < numTilesH; ++x) {
+                  QRectF rect = rectForTile(x, y);
+                  if (exposed.intersects(rect))
+                      painter->drawPixmap(rect.topLeft(), tiles[y][x]);
+              }
+          }
+      }
+    \endcode
+
+    \sa QGraphicsView::resetCachedContent()
+*/
+void QGraphicsScene::invalidate(const QRectF &rect, SceneLayers layers)
+{
+    foreach (QGraphicsView *view, views())
+        view->invalidateScene(rect, layers);
+    update(rect);
+}
+
+/*!
     Returns a list of all the views that display this scene.
 
     \sa QGraphicsView::scene()

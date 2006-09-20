@@ -73,6 +73,14 @@ public:
         NoIndex = -1
     };
 
+    enum SceneLayer {
+        ItemLayer = 0x1,
+        BackgroundLayer = 0x2,
+        ForegroundLayer = 0x4,
+        AllLayers = 0xffff
+    };
+    Q_DECLARE_FLAGS(SceneLayers, SceneLayer)
+
     QGraphicsScene(QObject *parent = 0);
     QGraphicsScene(const QRectF &sceneRect, QObject *parent = 0);
     QGraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = 0);
@@ -141,6 +149,7 @@ public:
 
 public Q_SLOTS:
     void update(const QRectF &rect = QRectF());
+    void invalidate(const QRectF &rect = QRectF(), SceneLayers layers = AllLayers);
     void advance();
 
 protected:
@@ -184,6 +193,8 @@ private:
     friend class QGraphicsView;
     friend class QGraphicsViewPrivate;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsScene::SceneLayers)
 
 QT_END_HEADER
 

@@ -796,6 +796,33 @@ void QGraphicsView::resetCachedContent()
 }
 
 /*!
+    Invalidates and schedules a redraw of \a layers inside \a rect. \a rect is
+    in scene coordinates. Any cached content for \a layers inside \a rect is
+    unconditionally invalidated and redrawn.
+
+    You can call this function to notify QGraphicsView of changes to the
+    background or the foreground of the scene. It is commonly used for scenes
+    with tile-based backgrounds to notify changes when QGraphicsView has
+    enabled background cacheing.
+
+    \sa QGrahicsScene::invalidate(), update()
+*/
+void QGraphicsView::invalidateScene(const QRectF &rect, QGraphicsScene::SceneLayers layers)
+{
+    Q_D(QGraphicsView);
+    if ((layers & QGraphicsScene::BackgroundLayer) && !d->mustResizeBackgroundPixmap) {
+        QRect viewRect = mapFromScene(rect).boundingRect();
+        if (viewport()->rect().intersects(viewRect)) {
+            // The updated background area is exposed; schedule this area for
+            // redrawing.
+            d->backgroundPixmapExposed += viewRect;
+            if (d->scene)
+                d->scene->update(rect);
+        }
+    }
+}
+
+/*!
     \property QGraphicsView::interactive
     \brief whether the view allowed scene interaction.
 

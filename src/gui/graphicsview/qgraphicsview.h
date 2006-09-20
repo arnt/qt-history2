@@ -17,6 +17,7 @@
 #include <QtCore/qmetatype.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qscrollarea.h>
+#include <QtGui/qgraphicsscene.h>
 
 QT_BEGIN_HEADER
 
@@ -25,7 +26,6 @@ QT_MODULE(Gui)
 #if !defined(QT_NO_GRAPHICSVIEW) || (QT_EDITION & QT_MODULE_GRAPHICSVIEW) != QT_MODULE_GRAPHICSVIEW
 
 class QGraphicsItem;
-class QGraphicsScene;
 class QPainterPath;
 class QPolygonF;
 class QStyleOptionGraphicsItem;
@@ -157,6 +157,7 @@ public:
 
 public Q_SLOTS:
     void updateScene(const QList<QRectF> &rects);
+    void invalidateScene(const QRectF &rect = QRectF(), QGraphicsScene::SceneLayers layers = QGraphicsScene::AllLayers);
     void updateSceneRect(const QRectF &rect);
 
 protected Q_SLOTS:
