@@ -143,6 +143,7 @@ QComboBox[editable="true"]::drop-down:on, QMenuBar::item:on {
 
 QComboBox[editable="false"] {
     padding-left: 3px;
+    padding-right: 20px; /* space for the arrow */
 }
 
 QComboBox[editable="false"]::drop-down {
