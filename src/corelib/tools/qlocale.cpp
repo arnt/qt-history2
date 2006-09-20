@@ -331,10 +331,13 @@ static QString winIso3116CtryName(LCID id = LOCALE_USER_DEFAULT);
 static QString getWinLocaleInfo(LCTYPE type)
 {
     int cnt = 0;
+
+    LCID id = GetThreadLocale();
+
     QT_WA({
-        cnt = GetLocaleInfoW(LOCALE_USER_DEFAULT, type, 0, 0)*2;
+        cnt = GetLocaleInfoW(id, type, 0, 0)*2;
     } , {
-        cnt = GetLocaleInfoA(LOCALE_USER_DEFAULT, type, 0, 0);
+        cnt = GetLocaleInfoA(id, type, 0, 0);
     });
 
     if (cnt == 0) {
@@ -345,11 +348,11 @@ static QString getWinLocaleInfo(LCTYPE type)
     QByteArray buff(cnt, 0);
 
     QT_WA({
-        cnt = GetLocaleInfoW(LOCALE_USER_DEFAULT, type,
+        cnt = GetLocaleInfoW(id, type,
                                 reinterpret_cast<wchar_t*>(buff.data()),
                                 buff.size()/2);
     } , {
-        cnt = GetLocaleInfoA(LOCALE_USER_DEFAULT, type,
+        cnt = GetLocaleInfoA(id, type,
                                 buff.data(), buff.size());
     });
 
@@ -384,8 +387,10 @@ QByteArray getWinLocaleName(LCID id = LOCALE_USER_DEFAULT)
     }
 
     if (QSysInfo::WindowsVersion == QSysInfo::WV_95) {
-        result = winLangCodeToIsoName(id != LOCALE_USER_DEFAULT ? id : GetUserDefaultLangID());
+        result = winLangCodeToIsoName(id != LOCALE_USER_DEFAULT ? id : GetThreadLocale());
     } else {
+        if (id == LOCALE_USER_DEFAULT)
+            id = GetThreadLocale();
         QString resultuage = winIso639LangName(id);
         QString country = winIso3116CtryName(id);
         result += resultuage.toLatin1();
@@ -477,13 +482,15 @@ static QString winDateToString(const QDate &date, DWORD flags)
     st.wMonth = date.month();
     st.wDay = date.day();
 
+    LCID id = GetThreadLocale();
+
     QT_WA({
         TCHAR buf[255];
-        if (GetDateFormatW(LOCALE_USER_DEFAULT, flags, &st, 0, buf, 255))
+        if (GetDateFormatW(id, flags, &st, 0, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetDateFormatA(LOCALE_USER_DEFAULT, flags, &st, 0, (char*)&buf, 255))
+        if (GetDateFormatA(id, flags, &st, 0, (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     });
 
@@ -500,14 +507,15 @@ static QString winTimeToString(const QTime &time)
     st.wMilliseconds = 0;
 
     DWORD flags = 0;
+    LCID id = GetThreadLocale();
 
     QT_WA({
         TCHAR buf[255];
-        if (GetTimeFormatW(LOCALE_USER_DEFAULT, flags, &st, 0, buf, 255))
+        if (GetTimeFormatW(id, flags, &st, 0, buf, 255))
             return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
-        if (GetTimeFormatA(LOCALE_USER_DEFAULT, flags, &st, 0, (char*)&buf, 255))
+        if (GetTimeFormatA(id, flags, &st, 0, (char*)&buf, 255))
             return QString::fromLocal8Bit(buf);
     });
 
