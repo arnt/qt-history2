@@ -527,6 +527,7 @@ static void qt_debug_path(const QPainterPath &path)
     \class QRasterPaintEngine
     \preliminary
     \ingroup qws
+    \since 4.2
 
     \brief The QRasterPaintEngine class enables acceleration of
     painting operations using the available hardware.
@@ -3013,6 +3014,7 @@ int QCustomRasterPaintDevice::bytesPerLine() const
     \class QCustomRasterPaintDevice
     \preliminary
     \ingroup qws
+    \since 4.2
 
     \brief The QCustomRasterPaintDevice class enables acceleration of
     painting operations using the available hardware.
