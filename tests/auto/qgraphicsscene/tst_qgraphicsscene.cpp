@@ -129,6 +129,7 @@ private slots:
     void contextMenuEvent();
     void update();
     void views();
+    void invalidate();
 };
 
 void tst_QGraphicsScene::construction()
@@ -2156,6 +2157,70 @@ void tst_QGraphicsScene::views()
     view.setScene(0);
     QVERIFY(scene.views().size() == 1);
     QVERIFY(scene.views().at(0) == &view1);    
+}
+
+class SceneWithBackground : public QGraphicsScene
+{
+public:
+    QRectF lastExposed;
+    
+    void updateBackground(const QRectF &rect)
+    {
+        invalidate(rect, BackgroundLayer);
+    }
+    
+protected:
+    void drawBackground(QPainter *painter, const QRectF &exposed)
+    {
+        lastExposed = exposed;
+        Q_UNUSED(painter);
+    }
+};
+
+void tst_QGraphicsScene::invalidate()
+{
+    SceneWithBackground scene;
+    scene.setSceneRect(0, 0, 100, 100);
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(110, 110);
+    view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view.show();
+
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+
+    // Test a regular update
+    scene.lastExposed = QRectF();
+    scene.update(QRectF(0, 0, 10, 10));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QCOMPARE(scene.lastExposed, QRectF(-3, -3, 16, 16));
+
+    // Test a background update
+    scene.lastExposed = QRectF();
+    scene.updateBackground(QRectF(0, 0, 10, 10));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QCOMPARE(scene.lastExposed, QRectF(-3, -3, 16, 16));
+
+    // Enable cacheing, test regular update
+    view.setCacheMode(QGraphicsView::CacheBackground);
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    scene.lastExposed = QRectF();
+    scene.update(QRectF(0, 0, 10, 10));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QCOMPARE(scene.lastExposed, QRectF()); // No expose!
+
+    // Now update the background
+    scene.lastExposed = QRectF();
+    scene.updateBackground(QRectF(0, 0, 10, 10));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QCOMPARE(scene.lastExposed, QRectF(-1, -1, 12, 12)); // Expose!
 }
 
 QTEST_MAIN(tst_QGraphicsScene)
