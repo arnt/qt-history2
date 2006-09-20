@@ -11,29 +11,30 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef STYLESHEETEDITOR_H
+#define STYLESHEETEDITOR_H
 
-#include <QtGui>
+#include <QDialog>
 
-#include "ui_mainwindow.h"
+#include "ui_stylesheeteditor.h"
 
-class StyleSheetEditor;
-
-class MainWindow : public QMainWindow
+class StyleSheetEditor : public QDialog
 {
     Q_OBJECT
 
 public:
-    MainWindow();
+    StyleSheetEditor(QWidget *parent = 0);
 
 private slots:
-    void on_editStyleAction_triggered();
-    void on_aboutAction_triggered();
+    void on_styleCombo_activated(const QString &styleName);
+    void on_styleSheetCombo_activated(const QString &styleSheetName);
+    void on_styleTextEdit_textChanged();
+    void on_applyButton_clicked();
 
 private:
-    StyleSheetEditor *styleSheetEditor;
-    Ui::MainWindow ui;
+    void loadStyleSheet(const QString &sheetName);
+
+    Ui::StyleSheetEditor ui;
 };
 
 #endif
