@@ -658,7 +658,7 @@ QFileDialog::FileMode QFileDialog::fileMode() const
     \property QFileDialog::acceptMode
     \brief the accept mode of the dialog
 
-    The action mode defines whether the dialog is for opening or saving files.
+    The accept mode defines whether the dialog is for opening or saving files.
 
     \sa AcceptMode
 */
