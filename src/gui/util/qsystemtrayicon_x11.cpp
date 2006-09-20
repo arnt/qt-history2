@@ -68,10 +68,11 @@ bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
         if ((cm->message_type == manager_atom) && ((Atom)cm->data.l[1] == sysTraySelection)) {
 	    sysTrayWindow = cm->data.l[2];
 	    XSelectInput(display, sysTrayWindow, StructureNotifyMask);
-            for (int i = 0; i < trayIcons.count(); i++)
+            for (int i = 0; i < trayIcons.count(); i++) {
                 trayIcons[i]->addToTray();
+            }
+            retval = true;
         }
-        retval = true;
     }
 
     return retval;

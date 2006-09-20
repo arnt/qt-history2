@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    if (trayIcon->isVisible()) {
+    if (QSystemTrayIcon::isSystemTrayAvailable() && trayIcon->isVisible()) {
         QMessageBox::information(this, tr("System tray example"),
                                  tr("Application will continue running. Quit using"
                                      " the context menu in the system tray"));
