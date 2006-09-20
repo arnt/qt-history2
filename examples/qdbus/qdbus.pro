@@ -6,6 +6,7 @@ SUBDIRS = listnames \
 	  remotecontrolledcar
 
 # install
+target.path = $$[QT_INSTALL_EXAMPLES]/qdbus
 sources.files = *.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/qdbus
 INSTALLS += sources
