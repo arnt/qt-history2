@@ -1134,13 +1134,18 @@ void tst_QTextDocumentFragment::html_whitespace_data()
                                 << QString("Foo\nBar");
 
     QTest::newRow("task122650-2") << QString("<p>Foo</p>  <p>  Bar")
-                                << QString("Foo\nBar");
+                                  << QString("Foo\nBar");
+
+    QTest::newRow("task122650-3") << QString("<html>Before<pre>\nTest</pre>")
+                                  << QString("Before\nAfter");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()
 {
     QFETCH(QString, html);
     QFETCH(QString, expectedPlainText);
+
+    QEXPECT_FAIL("task122650-3", "This still needs fixing", Continue);
 
     setHtml(html);
 
