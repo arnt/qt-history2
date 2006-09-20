@@ -60,7 +60,7 @@ QWidget *SpreadSheetDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     for(int i = 1; i<index.model()->rowCount(); i++){
         QString strItem(index.model()->data(index.sibling(i, index.column()), Qt::EditRole).toString());
         if(!allStrings.contains(strItem))
-            allStrings.append(strItem);    
+            allStrings.append(strItem);
     }
     QCompleter *autoComplete = new QCompleter(allStrings);
     editor->setCompleter(autoComplete);
@@ -89,7 +89,7 @@ void SpreadSheetDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
     }
 }
 
-void SpreadSheetDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
+void SpreadSheetDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     const QModelIndex &index) const
 {
     QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
@@ -846,7 +846,7 @@ const char *htmlText =
 " output in different cells. The content that is implemented for this"
 " particular demo is:"
 "<ul>"
-"<li>Addition two cells.</li>"
+"<li>Adding two cells.</li>"
 "<li>Subtracting one cell from another.</li>"
 "<li>Multiplying two cells.</li>"
 "<li>Dividing one cell with another.</li>"
