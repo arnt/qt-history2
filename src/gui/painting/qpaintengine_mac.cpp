@@ -841,17 +841,21 @@ QPointF QCoreGraphicsPaintEnginePrivate::devicePixelSize(CGContextRef context)
 {
     CGPoint p1;  p1.x = 0;  p1.y = 0;
     CGPoint p2;  p2.x = 1;  p2.y = 1;
+   
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    const CGPoint convertedP1 = CGContextConvertPointToUserSpace(context, p1);
-    const CGPoint convertedP2 = CGContextConvertPointToUserSpace(context, p2);    
-    return QPointF(convertedP2.x - convertedP1.x, convertedP2.y - convertedP1.y);
-#else
-    const CGAffineTransform invertedCurrentTransform = CGAffineTransformInvert(CGContextGetCTM(context));
-    const CGPoint convertedP1 = CGPointApplyAffineTransform(p1, invertedCurrentTransform);
-    const CGPoint convertedP2 = CGPointApplyAffineTransform(p2, invertedCurrentTransform);
-    // The order of the points is switched in this case.
-    return QPointF(convertedP1.x - convertedP2.x, convertedP1.y - convertedP2.y);
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        const CGPoint convertedP1 = CGContextConvertPointToUserSpace(context, p1);
+        const CGPoint convertedP2 = CGContextConvertPointToUserSpace(context, p2);    
+        return QPointF(convertedP2.x - convertedP1.x, convertedP2.y - convertedP1.y);
+    } else
 # endif
+    {
+        const CGAffineTransform invertedCurrentTransform = CGAffineTransformInvert(CGContextGetCTM(context));
+        const CGPoint convertedP1 = CGPointApplyAffineTransform(p1, invertedCurrentTransform);
+        const CGPoint convertedP2 = CGPointApplyAffineTransform(p2, invertedCurrentTransform);
+        // The order of the points is switched in this case.
+        return QPointF(convertedP1.x - convertedP2.x, convertedP1.y - convertedP2.y);
+    }
 }
 
 /*
