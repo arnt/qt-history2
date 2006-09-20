@@ -393,6 +393,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, 
 {
     cursor = QTextCursor(doc);
     compressNextWhitespace = false;
+    wsm = QTextHtmlParserNode::WhiteSpaceNormal;
 
     QString html = _html;
     const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
@@ -407,7 +408,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, 
     }
 
     parse(html, resourceProvider ? resourceProvider : doc);
-//    dumpHtml();
+    //dumpHtml();
 }
 
 static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
@@ -427,6 +428,7 @@ void QTextHtmlImporter::import()
     compressNextWhitespace = !textEditMode;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
+        wsm = node->wsm;
 
         /*
          * process each node in three stages:
@@ -612,7 +614,7 @@ void QTextHtmlImporter::import()
             // ####################
 //                block.setFloatPosition(node->cssFloat);
 
-            if (node->wsm == QTextHtmlParserNode::WhiteSpacePre)
+            if (wsm == QTextHtmlParserNode::WhiteSpacePre)
                 block.setNonBreakableLines(true);
 
             if (node->background.style() != Qt::NoBrush && !node->isTableCell)
@@ -661,23 +663,25 @@ void QTextHtmlImporter::import()
         }
         if (node->text.isEmpty())
             continue;
-        hasBlock = false;
 
-        appendText(node);
+        if (appendNodeText(i))
+            hasBlock = false; // if we actually appended text then we don't
+                              // have an empty block anymore
     }
 
     cursor.endEditBlock();
 }
 
-void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
+bool QTextHtmlImporter::appendNodeText(int i)
 {
-    QTextCharFormat format = node->charFormat();
+    const int initialCursorPosition = cursor.position();
+    QTextCharFormat format = at(i).charFormat();
 
-    if (node->wsm == QTextHtmlParserNode::WhiteSpacePre
-        || node->wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
+    if (wsm == QTextHtmlParserNode::WhiteSpacePre
+        || wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
         compressNextWhitespace = false;
 
-    const QString text = node->text;
+    const QString text = at(i).text;
     QString textToInsert;
     textToInsert.reserve(text.size());
 
@@ -691,7 +695,7 @@ void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
             if (compressNextWhitespace)
                 continue;
 
-            if (node->wsm == QTextHtmlParserNode::WhiteSpacePre
+            if (wsm == QTextHtmlParserNode::WhiteSpacePre
                 || textEditMode
                ) {
                 if (ch == QLatin1Char('\n')) {
@@ -700,9 +704,9 @@ void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
                 } else if (ch == QLatin1Char('\r')) {
                     continue;
                 }
-            } else if (node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap) {
+            } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) {
                 compressNextWhitespace = true;
-                if (node->wsm == QTextHtmlParserNode::WhiteSpaceNoWrap)
+                if (wsm == QTextHtmlParserNode::WhiteSpaceNoWrap)
                     ch = QChar::Nbsp;
                 else
                     ch = QLatin1Char(' ');
@@ -728,7 +732,7 @@ void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
             }
 
             fmt.clearProperty(QTextFormat::BlockTopMargin);
-            cursor.insertBlock(fmt);
+            appendBlock(fmt, cursor.charFormat());
         } else {
             if (setNamedAnchorInNextOutput) {
                 if (!textToInsert.isEmpty()) {
@@ -748,8 +752,11 @@ void QTextHtmlImporter::appendText(const QTextHtmlParserNode *node)
         }
     }
 
-    if (!textToInsert.isEmpty())
+    if (!textToInsert.isEmpty()) {
         cursor.insertText(textToInsert, format);
+    }
+
+    return cursor.position() != initialCursorPosition;
 }
 
 // returns true if a block tag was closed
@@ -952,6 +959,10 @@ void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFor
     }
 
     cursor.insertBlock(format, charFmt);
+
+    if (wsm != QTextHtmlParserNode::WhiteSpacePre
+        && wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
+        compressNextWhitespace = true;
 }
 
 /*!

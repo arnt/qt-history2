@@ -1129,6 +1129,12 @@ void tst_QTextDocumentFragment::html_whitespace_data()
 
     QTest::newRow("task121653") << QString("abc<b> def</b>")
                                 << QString("abc def");
+
+    QTest::newRow("task122650") << QString("<p>Foo</p>    Bar")
+                                << QString("Foo\nBar");
+
+    QTest::newRow("task122650-2") << QString("<p>Foo</p>  <p>  Bar")
+                                << QString("Foo\nBar");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()

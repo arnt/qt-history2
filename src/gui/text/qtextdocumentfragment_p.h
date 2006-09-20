@@ -101,10 +101,7 @@ private:
     Table scanTable(int tableNodeIdx);
 
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
-
-    void createBlock(const QTextHtmlParserNode *node);
-
-    void appendText(const QTextHtmlParserNode *node);
+    bool appendNodeText(int i);
     bool compressNextWhitespace;
 
     struct List
@@ -165,6 +162,7 @@ private:
 
     QTextDocument *doc;
     QTextCursor cursor;
+    QTextHtmlParserNode::WhiteSpaceMode wsm;
     bool containsCompleteDoc;
 };
 
