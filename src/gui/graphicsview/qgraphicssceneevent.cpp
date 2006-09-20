@@ -48,10 +48,10 @@
 
     \value Mouse The mouse caused the event to be sent. Normally this means
     the right mouse button was clicked, but this is platform dependent.
-    
+
     \value Keyboard The keyboard caused this event to be sent. On Windows,
     this means the menu button was pressed.
-    
+
     \value Other The event was sent by some other means (i.e. not by the mouse
     or keyboard).
 */
@@ -65,6 +65,8 @@
 */
 
 #include "qgraphicssceneevent.h"
+
+#ifndef QT_NO_GRAPHICSVIEW
 
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
@@ -1072,3 +1074,5 @@ void QGraphicsSceneDragDropEvent::setMimeData(const QMimeData *data)
     Q_D(QGraphicsSceneDragDropEvent);
     d->mimeData = data;
 }
+
+#endif // QT_NO_GRAPHICSVIEW

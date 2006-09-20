@@ -784,6 +784,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
 
     if (!d->contextWidget) {
         switch (e->type()) {
+#ifndef QT_NO_GRAPHICSVIEW
             case QEvent::GraphicsSceneMouseMove:
             case QEvent::GraphicsSceneMousePress:
             case QEvent::GraphicsSceneMouseRelease:
@@ -801,6 +802,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
                 d->contextWidget = ev->widget();
                 break;
             }
+#endif // QT_NO_GRAPHICSVIEW
             default: break;
         };
     }
@@ -867,6 +869,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
         }
 #endif
 
+#ifndef QT_NO_GRAPHICSVIEW
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
             d->mousePressEvent(ev->button(), matrix.map(ev->pos()), ev->modifiers(), ev->buttons(),
@@ -912,6 +915,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             if (d->dropEvent(ev->mimeData(), matrix.map(ev->pos()), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break; }
+#endif // QT_NO_GRAPHICSVIEW
 
         case QEvent::ShortcutOverride:
             if (d->interactionFlags & Qt::TextEditable) {
