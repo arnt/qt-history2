@@ -546,6 +546,9 @@ void tst_QUndoGroup::checkSignals()
                 true,       // indexChanged
                 true,       // undoChanged
                 true)       // redoChanged
+
+    delete undo_action;
+    delete redo_action;
 }
 #else
 class tst_QUndoGroup : public QObject
