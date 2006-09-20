@@ -369,7 +369,7 @@ void QDesignerWorkbench::switchToDockedMode()
 
     QDesignerToolWindow *widgetBoxWrapper = 0;
     if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
-        widgetBoxWrapper->action()->setEnabled(true);
+        widgetBoxWrapper->action()->setVisible(true);
         widgetBoxWrapper->setWindowTitle(tr("Widget Box"));
     }
 
@@ -526,7 +526,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         m_core->setTopLevel(widgetBoxWrapper);
 #ifndef Q_WS_MAC
         widgetBoxWrapper->setMenuBar(m_globalMenuBar);
-        widgetBoxWrapper->action()->setEnabled(false);
+        widgetBoxWrapper->action()->setVisible(false);
         widgetBoxWrapper->setSaveSettingsOnClose(true);
         qDesigner->setMainWindow(widgetBoxWrapper);
         widgetBoxWrapper->setWindowTitle(tr("Qt Designer"));
