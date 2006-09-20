@@ -235,6 +235,7 @@ static const char *knownStyleHints[] = {
     "button-layout",
     "combobox-list-mousetracking",
     "combobox-popup",
+    "dither-disable-text",
     "etch-disabled-text",
     "gridline-color",
     "lineedit-password-character",
@@ -1822,10 +1823,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             QStyleOptionButton butOpt(*btn);
             rule.configurePalette(&butOpt.palette, QPalette::ButtonText, QPalette::Button);
-            if (rule.hasBox() || rule.hasDrawable()) // text can be shifted with padding
-                ParentStyle::drawControl(ce, &butOpt, p, w);
-            else
-                baseStyle()->drawControl(ce, &butOpt, p, w);
+            ParentStyle::drawControl(ce, &butOpt, p, w);
         }
         return;
 
@@ -1903,12 +1901,41 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
         }
         return;
 
+#ifndef QT_NO_COMBOBOX
     case CE_ComboBoxLabel:
-        if (rule.hasBox() || rule.hasBorder()) {
-            ParentStyle::drawControl(ce, opt, p, w);
+        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            if (!rule.hasBox() && !rule.hasBorder())
+                break;
+            QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, w);
+            p->save();
+            p->setClipRect(editRect);
+            if (!cb->currentIcon.isNull()) {
+                QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
+                                                             : QIcon::Disabled;
+                QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
+                QRect iconRect(editRect);
+                iconRect.setWidth(cb->iconSize.width() + 4);
+                iconRect = alignedRect(QApplication::layoutDirection(),
+                                       Qt::AlignLeft | Qt::AlignVCenter,
+                                       iconRect.size(), editRect);
+                if (cb->editable)
+                    p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
+                drawItemPixmap(p, iconRect, Qt::AlignCenter, pixmap);
+
+                if (cb->direction == Qt::RightToLeft)
+                    editRect.translate(-4 - cb->iconSize.width(), 0);
+                else
+                    editRect.translate(cb->iconSize.width() + 4, 0);
+            }
+            if (!cb->currentText.isEmpty() && !cb->editable) {
+                drawItemText(p, editRect.adjusted(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
+                             cb->state & State_Enabled, cb->currentText);
+            }
+            p->restore();
             return;
         }
         break;
+#endif // QT_NO_COMBOBOX
 
     case CE_SizeGrip:
         if (!rule.hasImage())
@@ -2341,6 +2368,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
     QString s;
     switch (sh) {
         case SH_LineEdit_PasswordCharacter: s = "lineedit-password-character"; break;
+        case SH_DitherDisabledText: s = "dither-disabled-text"; break;
         case SH_EtchDisabledText: s = "etch-disabled-text"; break;
         case SH_ItemView_ActivateItemOnSingleClick: s = "activate-on-singleclick"; break;
         case SH_ItemView_ShowDecorationSelected: s = "show-decoration-selected"; break;
