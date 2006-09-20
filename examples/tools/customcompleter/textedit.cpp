@@ -45,6 +45,7 @@ void TextEdit::setCompleter(QCompleter *completer)
 
     c->setWidget(this);
     c->setCompletionMode(QCompleter::PopupCompletion);
+    c->setCaseSensitivity(Qt::CaseInsensitive);
     QObject::connect(completer, SIGNAL(activated(const QString&)),
                      this, SLOT(insertCompletion(const QString&)));
 }
@@ -80,24 +81,8 @@ void TextEdit::keyPressEvent(QKeyEvent *e)
        case Qt::Key_Escape:
        case Qt::Key_Tab:
        case Qt::Key_Backtab:
-       case Qt::Key_PageUp:
-       case Qt::Key_PageDown:
-       case Qt::Key_F4:
             e->ignore(); 
             return; // let the completer do default behavior
-       case Qt::Key_Up:
-       case Qt::Key_Down: {
-            QModelIndex curIndex = c->popup()->currentIndex();
-            int row = curIndex.row() + (e->key() == Qt::Key_Up ? -1 : 1);
-            int col = curIndex.column();
-            QModelIndex nextIndex = c->completionModel()->index(row, col);
-            if (nextIndex.isValid()) {
-                c->popup()->selectionModel()->clear();
-                c->popup()->selectionModel()->setCurrentIndex(nextIndex, 
-                     QItemSelectionModel::Select | QItemSelectionModel::Rows);
-            }
-            return;
-       }           
        default:
            break;
        }
@@ -107,11 +92,12 @@ void TextEdit::keyPressEvent(QKeyEvent *e)
     if (!c || !isShortcut) // dont process the shortcut when we have a completer
         QTextEdit::keyPressEvent(e);
 
-    if (!c)
+    const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
+    if (!c || (ctrlOrShift && e->text().isEmpty()))
         return;
 
     static QString eow("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
-    bool hasModifier = e->modifiers() != Qt::NoModifier;
+    bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
 
     if (!isShortcut && (hasModifier || e->text().isEmpty()|| completionPrefix.length() < 3 

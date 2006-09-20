@@ -1642,10 +1642,6 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         // Ignoring the events lets the completer provide suitable default behavior
        switch (event->key()) {
        case Qt::Key_Escape:
-       case Qt::Key_PageUp:
-       case Qt::Key_PageDown:
-       case Qt::Key_Up:
-       case Qt::Key_Down:
             event->ignore();
             return;
        case Qt::Key_Enter:

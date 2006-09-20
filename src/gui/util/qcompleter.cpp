@@ -1017,18 +1017,6 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
 
-        // Send the event to the widget first. If the widget accepted the event, do nothing
-        // If the widget did not accept the event, provide a default implementation
-        d->eatFocusOut = false;
-        QApplication::sendEvent(d->widget, ke);
-        d->eatFocusOut = true;
-        if (e->isAccepted()) {
-            // widget lost focus, hide the popup
-            if (!d->widget->hasFocus())
-                d->popup->hide();
-            return true;
-        }
-
         QModelIndex curIndex = d->popup->currentIndex();
         QModelIndexList selList = d->popup->selectionModel()->selectedIndexes();
 
@@ -1040,28 +1028,8 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
               return true;
         }
 
-        // default implementation for keys not handled by the widget when popup is open
+        // Handle popup navigation keys.
         switch (key) {
-        case Qt::Key_Return:
-        case Qt::Key_Enter:
-        case Qt::Key_Tab:
-            d->popup->hide();
-            if (curIndex.isValid())
-                d->_q_complete(curIndex);
-            break;
-
-        case Qt::Key_F4:
-            if (ke->modifiers() & Qt::AltModifier) {
-                d->popup->hide();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Backtab:
-        case Qt::Key_Escape:
-            d->popup->hide();
-            return true;
-
         case Qt::Key_End:
         case Qt::Key_Home:
             if (ke->modifiers() & Qt::ControlModifier)
@@ -1094,6 +1062,39 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:
             return false;
+        }
+
+        // Send the event to the widget. If the widget accepted the event, do nothing
+        // If the widget did not accept the event, provide a default implementation
+        d->eatFocusOut = false;
+        QApplication::sendEvent(d->widget, ke);
+        d->eatFocusOut = true;
+        if (e->isAccepted()) {
+            // widget lost focus, hide the popup
+            if (!d->widget->hasFocus())
+                d->popup->hide();
+            return true;
+        }
+
+        // default implementation for keys not handled by the widget when popup is open
+        switch (key) {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Tab:
+            d->popup->hide();
+            if (curIndex.isValid())
+                d->_q_complete(curIndex);
+            break;
+
+        case Qt::Key_F4:
+            if (ke->modifiers() & Qt::AltModifier)
+                d->popup->hide();
+            break;
+
+        case Qt::Key_Backtab:
+        case Qt::Key_Escape:
+            d->popup->hide();
+            break;
 
         default:
             break;
