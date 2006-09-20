@@ -181,9 +181,9 @@ bool QVFbScreen::connect(const QString &displaySpec)
     lstep = d_ptr->hdr->linestep;
 
     // Handle display physical size spec.
-    QRegExp mmWidthRx("mmWidth(\\d+)");
+    QRegExp mmWidthRx("mmWidth=?(\\d+)");
     int dimIdxW = displayArgs.indexOf(mmWidthRx);
-    QRegExp mmHeightRx("mmHeight(\\d+)");
+    QRegExp mmHeightRx("mmHeight=?(\\d+)");
     int dimIdxH = displayArgs.indexOf(mmHeightRx);
     if (dimIdxW >= 0) {
         mmWidthRx.exactMatch(displayArgs.at(dimIdxW));

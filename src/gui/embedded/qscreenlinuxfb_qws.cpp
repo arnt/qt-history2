@@ -298,9 +298,9 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 
     // Handle display physical size spec.
     QStringList displayArgs = displaySpec.split(':');
-    QRegExp mmWidthRx("mmWidth(\\d+)");
+    QRegExp mmWidthRx("mmWidth=?(\\d+)");
     int dimIdxW = displayArgs.indexOf(mmWidthRx);
-    QRegExp mmHeightRx("mmHeight(\\d+)");
+    QRegExp mmHeightRx("mmHeight=?(\\d+)");
     int dimIdxH = displayArgs.indexOf(mmHeightRx);
     if (dimIdxW >= 0) {
         mmWidthRx.exactMatch(displayArgs.at(dimIdxW));
