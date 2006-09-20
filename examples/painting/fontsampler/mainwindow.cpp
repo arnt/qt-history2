@@ -42,11 +42,15 @@ void MainWindow::setupFontTree()
     fontTree->setHeaderLabels(QStringList() << tr("Font"));
 
     foreach (QString family, database.families()) {
+        const QStringList styles = database.styles(family);
+        if (styles.isEmpty())
+            continue;
+
         QTreeWidgetItem *familyItem = new QTreeWidgetItem(fontTree);
         familyItem->setText(0, family);
         familyItem->setCheckState(0, Qt::Unchecked);
 
-        foreach (QString style, database.styles(family)) {
+        foreach (QString style, styles) {
             QTreeWidgetItem *styleItem = new QTreeWidgetItem(familyItem);
             styleItem->setText(0, style);
             styleItem->setCheckState(0, Qt::Unchecked);
