@@ -61,7 +61,7 @@
         \o Mouse tracking on the widget currently does not work
         \o Connecting the triggered() signal to a slot that opens a modal
         dialog will cause a crash in Mac OS X 10.4 (known bug acknowledged by
-        Apple), a workaround is to use a QueuedConnection instead fo a
+        Apple), a workaround is to use a QueuedConnection instead of a
         DirectConnection.
     \endlist
 
