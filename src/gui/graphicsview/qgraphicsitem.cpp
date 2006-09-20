@@ -2823,7 +2823,7 @@ void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             // The item didn't move
             if (multiSelect) {
                 setSelected(!isSelected());
-            } else {
+            } else if (!d_ptr->selected) {
                 if (d_ptr->scene)
                     d_ptr->scene->clearSelection();
                 setSelected(true);
