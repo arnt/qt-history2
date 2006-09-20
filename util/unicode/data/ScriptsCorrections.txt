@@ -1,2 +1,0 @@
-0000..00FF;Latin
-0600..06FF;Arabic

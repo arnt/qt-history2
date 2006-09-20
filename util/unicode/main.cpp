@@ -497,6 +497,10 @@ static void readDerivedAge()
             age = QChar::Unicode_3_2;
         else if (ba == "4.0")
             age = QChar::Unicode_4_0;
+        else if (ba == "4.1")
+            age = QChar::Unicode_4_1;
+        else if (ba == "5.0")
+            age = QChar::Unicode_5_0;
         Q_ASSERT(age != QChar::Unicode_Unassigned);
 
         for (int codepoint = from; codepoint <= to; ++codepoint) {
@@ -833,7 +837,7 @@ static void readScripts()
                 scriptIndex = scriptNames.indexOf(scriptName);
                 Q_ASSERT(scriptIndex >= 0);
             }
-q
+
             int dotdot = codePoints.indexOf("..");
             bool unused;
             int first = -1, last = -1;

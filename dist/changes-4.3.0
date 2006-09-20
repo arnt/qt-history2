@@ -1,2 +1,5 @@
  - QPrinter
         Added QPrinter::supportedPaperSources()
+
+ - QChar
+        Updated the Unicode tables to Unicode 5.0

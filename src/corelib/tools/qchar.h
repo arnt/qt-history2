@@ -182,7 +182,9 @@ public:
         Unicode_3_0,
         Unicode_3_1,
         Unicode_3_2,
-        Unicode_4_0
+        Unicode_4_0,
+        Unicode_4_1,
+        Unicode_5_0
     };
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
 
