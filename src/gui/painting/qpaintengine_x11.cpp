@@ -1803,20 +1803,6 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 {
     Q_D(QX11PaintEngine);
     QRectF sr = _sr;
-    if (r.size() != sr.size()) {
-        QImage image = pixmap.toImage();
-        image = image.copy(sr.toRect());
-        image = image.scaled(qRound(r.width()), qRound(r.height()), Qt::IgnoreAspectRatio,
-                             d->render_hints & QPainter::SmoothPixmapTransform
-                             ? Qt::SmoothTransformation : Qt::FastTransformation);
-        sr = QRectF(0, 0, r.width(), r.height());
-        // this recursive call here prevents us from doing a pixmap assignment,
-        // and thus triggering a deep copy if pixmap is being painted on
-        // Nice trick to speed such things up...
-        drawPixmap(r, QPixmap::fromImage(image), sr);
-        return;
-    }
-
     int x = qRound(r.x());
     int y = qRound(r.y());
     int sx = qRound(sr.x());
