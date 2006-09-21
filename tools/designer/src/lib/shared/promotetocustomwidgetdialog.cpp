@@ -93,6 +93,8 @@ void PromoteToCustomWidgetDialog::checkInputs()
 
     bool enabled = !customClassName().isEmpty() && !includeFile().isEmpty();
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enabled);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(enabled);
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setDefault(!enabled);
 }
 
 void PromoteToCustomWidgetDialog::setIncludeForClass(const QString &name)
