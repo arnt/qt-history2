@@ -982,8 +982,12 @@ void QGraphicsItem::setSelected(bool selected)
     d_ptr->selected = itemChange(ItemSelectedChange, quint32(selected)).toBool();
 
     update();
-    if (selected && d_ptr->scene)
+    if (selected && d_ptr->scene) {
         d_ptr->scene->d_func()->selectedItems << this;
+    } else {
+        // QGraphicsScene::selectedItems() lazily pulls out all items that are
+        // no longer selected.
+    }
 }
 
 /*!

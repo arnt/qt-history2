@@ -65,7 +65,7 @@ public:
     bool calledEmitUpdated;
 
     QList<QGraphicsItem *> newItems;
-    QList<QGraphicsItem *> selectedItems;
+    QSet<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
     bool purgePending;

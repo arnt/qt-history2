@@ -357,6 +357,8 @@ void QGraphicsScenePrivate::_q_emitUpdated()
     being destroyed, so we cannot call any pure virtual functions on it (such
     as boundingRect()). Also, it is unnecessary to update the item's own state
     in any way.
+
+    ### Refactoring: This function shares much functionality with removeItem()
 */
 void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
 {
@@ -389,6 +391,10 @@ void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
         focusItem = 0;
     if (item == lastFocusItem)
         lastFocusItem = 0;
+
+    // Update selected & hovered item bookkeeping
+    selectedItems.remove(item);
+    hoverItems.removeAll(item);
 
     // Remove all children recursively.
     foreach (QGraphicsItem *child, item->children())
@@ -1206,9 +1212,9 @@ QList<QGraphicsItem *> QGraphicsScene::selectedItems() const
             actuallySelectedSet << item;
     }
 
-    that->d_func()->selectedItems = actuallySelectedSet.values();
+    that->d_func()->selectedItems = actuallySelectedSet;
 
-    return d->selectedItems;
+    return d->selectedItems.values();
 }
 
 /*!
@@ -1225,9 +1231,7 @@ void QGraphicsScene::setSelectionArea(const QPainterPath &path)
 {
     Q_D(const QGraphicsScene);
 
-    QSet<QGraphicsItem *> unselectItems;
-    foreach (QGraphicsItem *item, d->selectedItems)
-        unselectItems << item;
+    QSet<QGraphicsItem *> unselectItems = d->selectedItems;
 
     // Set all items in path to selected.
     foreach (QGraphicsItem *item, items(path)) {
@@ -1568,6 +1572,7 @@ QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QFont &fon
 */
 void QGraphicsScene::removeItem(QGraphicsItem *item)
 {
+    // ### Refactoring: This function shares much functionality with _q_removeItemLater()
     Q_D(QGraphicsScene);
     if (!item) {
         qWarning("QGraphicsScene::removeItem: cannot remove 0-item");
@@ -1618,6 +1623,10 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
         d->focusItem = 0;
     if (item == d->lastFocusItem)
         d->lastFocusItem = 0;
+
+    // Update selected & hovered item bookkeeping
+    d->selectedItems.remove(item);
+    d->hoverItems.removeAll(item);
 
     // Remove all children recursively
     foreach (QGraphicsItem *child, item->children())
