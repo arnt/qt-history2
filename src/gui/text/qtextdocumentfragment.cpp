@@ -672,16 +672,22 @@ void QTextHtmlImporter::import()
     cursor.endEditBlock();
 }
 
-bool QTextHtmlImporter::appendNodeText(int i)
+bool QTextHtmlImporter::appendNodeText(int node)
 {
     const int initialCursorPosition = cursor.position();
-    QTextCharFormat format = at(i).charFormat();
+    QTextCharFormat format = at(node).charFormat();
 
     if (wsm == QTextHtmlParserNode::WhiteSpacePre
         || wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
         compressNextWhitespace = false;
 
-    const QString text = at(i).text;
+    QString text = at(node).text;
+    if (at(node).id == Html_pre) {
+        // <pre> already creates a block, so don't create two
+        if (text.startsWith(QLatin1Char('\n')))
+            text.remove(0, 1);
+    }
+
     QString textToInsert;
     textToInsert.reserve(text.size());
 

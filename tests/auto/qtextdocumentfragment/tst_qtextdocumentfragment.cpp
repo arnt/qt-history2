@@ -135,9 +135,7 @@ private slots:
     void html_quotedFontFamily();
     void html_spanBackgroundColor();
     void defaultFont();
-#if QT_VERSION >= 0x040200
     void defaultFont2();
-#endif
     void html_brokenTitle_data();
     void html_brokenTitle();
     void html_blockVsInline();
@@ -170,6 +168,8 @@ private slots:
     void newlineInsidePreShouldBecomeNewParagraph();
     void html_brokenTableWithJustTr();
     void html_brokenTableWithJustTd();
+    void html_preNewlineHandling_data();
+    void html_preNewlineHandling();
 
 private:
     inline void setHtml(const QString &html)
@@ -1137,15 +1137,13 @@ void tst_QTextDocumentFragment::html_whitespace_data()
                                   << QString("Foo\nBar");
 
     QTest::newRow("task122650-3") << QString("<html>Before<pre>\nTest</pre>")
-                                  << QString("Before\nAfter");
+                                  << QString("Before\nTest");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()
 {
     QFETCH(QString, html);
     QFETCH(QString, expectedPlainText);
-
-    QEXPECT_FAIL("task122650-3", "This still needs fixing", Continue);
 
     setHtml(html);
 
@@ -2518,6 +2516,29 @@ void tst_QTextDocumentFragment::html_brokenTableWithJustTd()
     QVERIFY(table);
     QCOMPARE(table->rows(), 1);
     QCOMPARE(table->columns(), 4);
+}
+
+void tst_QTextDocumentFragment::html_preNewlineHandling_data()
+{
+    QTest::addColumn<QString>("html");
+    QTest::addColumn<QString>("expectedPlainText");
+
+    QTest::newRow("pre1") << QString("Foo<pre>Bar")
+                          << QString("Foo\nBar");
+    QTest::newRow("pre2") << QString("Foo<pre>\nBar")
+                          << QString("Foo\nBar");
+    QTest::newRow("pre2") << QString("Foo<pre>\n\nBar")
+                          << QString("Foo\n\nBar");
+    QTest::newRow("pre4") << QString("<html>Foo<pre>\nBar")
+                          << QString("Foo\nBar");
+}
+
+void tst_QTextDocumentFragment::html_preNewlineHandling()
+{
+    QFETCH(QString, html);
+
+    doc->setHtml(html);
+    QTEST(doc->toPlainText(), "expectedPlainText");
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
