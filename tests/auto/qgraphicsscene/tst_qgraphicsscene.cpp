@@ -82,6 +82,34 @@ static const int randomY[] = {603, 70, -318, 843, 450, -637, 199, -527, 407, 964
                               -588, 864, 234, 225, -303, 493, 246, 153, 338, -378, 377, -819, 140, 136,
                               467, -849, -326, -533, 166, 252, -994, -699, 904, -566, 621, -752};
 
+class HoverItem : public QGraphicsRectItem
+{
+public:
+    HoverItem()
+        : QGraphicsRectItem(QRectF(-10, -10, 20, 20)), isHovered(false)
+    { setAcceptsHoverEvents(true); }
+
+    bool isHovered;
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+    {
+        isHovered = (option->state & QStyle::State_MouseOver);
+
+        painter->setOpacity(0.75);
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(Qt::darkGray);
+        painter->drawRoundRect(boundingRect().adjusted(3, 3, -3, -3), Qt::darkGray);
+        painter->setPen(Qt::black);
+        if (isHovered) {
+            painter->setBrush(QColor(Qt::blue).light(120));
+        } else {
+            painter->setBrush(Qt::gray);
+        }
+        painter->drawRoundRect(boundingRect().adjusted(0, 0, -5, -5));
+    }
+};
+
 class tst_QGraphicsScene : public QObject
 {
     Q_OBJECT
@@ -866,7 +894,40 @@ void tst_QGraphicsScene::removeItem()
     delete item;
 
     QGraphicsItem *item2 = scene.addRect(QRectF(0, 0, 10, 10));
+    item2->setFlag(QGraphicsItem::ItemIsSelectable);
     QCOMPARE(scene.itemAt(0, 0), item2);
+
+    // Removing a selected item
+    QVERIFY(scene.selectedItems().isEmpty());
+    item2->setSelected(true);
+    QVERIFY(scene.selectedItems().contains(item2));
+    scene.removeItem(item2);
+    QVERIFY(scene.selectedItems().isEmpty());
+
+    // Removing a hovered item
+    HoverItem *hoverItem = new HoverItem;
+    scene.addItem(hoverItem);
+    scene.setSceneRect(-50, -50, 100, 100);
+
+    QGraphicsView view(&scene);
+    view.setFixedSize(150, 150);
+    view.show();
+    QTest::mouseMove(view.viewport(), view.mapFromScene(hoverItem->scenePos() + QPointF(20, 20)));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QVERIFY(!hoverItem->isHovered);
+
+    QTest::mouseMove(view.viewport(), view.mapFromScene(hoverItem->scenePos()));
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QVERIFY(hoverItem->isHovered);
+
+    scene.removeItem(hoverItem);
+    hoverItem->setAcceptsHoverEvents(false);
+    scene.addItem(hoverItem);
+    qApp->processEvents(); // update
+    qApp->processEvents(); // draw
+    QVERIFY(!hoverItem->isHovered);
 }
 
 void tst_QGraphicsScene::focusItem()
@@ -1048,34 +1109,6 @@ void tst_QGraphicsScene::mouseGrabberItem()
     delete item2;
     QCOMPARE(scene.mouseGrabberItem(), (QGraphicsItem *)0);
 }
-
-class HoverItem : public QGraphicsRectItem
-{
-public:
-    HoverItem()
-        : QGraphicsRectItem(QRectF(-10, -10, 20, 20)), isHovered(false)
-    { setAcceptsHoverEvents(true); }
-
-    bool isHovered;
-
-protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
-    {
-        isHovered = (option->state & QStyle::State_MouseOver);
-
-        painter->setOpacity(0.75);
-        painter->setPen(Qt::NoPen);
-        painter->setBrush(Qt::darkGray);
-        painter->drawRoundRect(boundingRect().adjusted(3, 3, -3, -3), Qt::darkGray);
-        painter->setPen(Qt::black);
-        if (isHovered) {
-            painter->setBrush(QColor(Qt::blue).light(120));
-        } else {
-            painter->setBrush(Qt::gray);
-        }
-        painter->drawRoundRect(boundingRect().adjusted(0, 0, -5, -5));
-    }
-};
 
 void tst_QGraphicsScene::hoverEvents_siblings()
 {
