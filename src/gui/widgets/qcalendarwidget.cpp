@@ -1175,6 +1175,7 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     d->m_view->setItemDelegate(d->m_delegate);
     d->update();
     d->updateHeader();
+    setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_view);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 

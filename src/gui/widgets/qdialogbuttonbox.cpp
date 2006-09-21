@@ -297,6 +297,7 @@ void QDialogButtonBoxPrivate::addButtonsToLayout(const QList<QAbstractButton *> 
 
 void QDialogButtonBoxPrivate::layoutButtons()
 {
+    Q_Q(QDialogButtonBox);
     const int MacGap = 19;
 
     for (int i = buttonLayout->count() - 1; i >= 0; --i) {
@@ -394,11 +395,14 @@ void QDialogButtonBoxPrivate::layoutButtons()
     }
 
     QWidget *lastWidget = 0;
+    q->setFocusProxy(0);
     for (int i = 0; i < buttonLayout->count(); ++i) {
         QLayoutItem *item = buttonLayout->itemAt(i);
         if (QWidget *widget = item->widget()) {
             if (lastWidget)
                 QWidget::setTabOrder(lastWidget, widget);
+            else
+                q->setFocusProxy(widget);
             lastWidget = widget;
         }
     }
@@ -532,6 +536,7 @@ QDialogButtonBox::QDialogButtonBox(QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(Qt::Horizontal), parent, 0)
 {
     d_func()->initLayout();
+    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
@@ -543,6 +548,7 @@ QDialogButtonBox::QDialogButtonBox(Qt::Orientation orientation, QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(orientation), parent, 0)
 {
     d_func()->initLayout();
+    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
@@ -557,6 +563,7 @@ QDialogButtonBox::QDialogButtonBox(StandardButtons buttons, Qt::Orientation orie
 {
     d_func()->initLayout();
     d_func()->createStandardButtons(buttons);
+    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
