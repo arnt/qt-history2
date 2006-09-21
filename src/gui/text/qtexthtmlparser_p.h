@@ -278,6 +278,8 @@ protected:
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
 
+    bool nodeIsChildOf(int i, QTextHTMLElements id) const;
+
     QVector<QCss::Declaration> declarationsForNode(int node) const;
     void resolveStyleSheetImports(const QCss::StyleSheet &sheet);
     void importStyleSheet(const QString &href);

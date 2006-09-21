@@ -672,20 +672,42 @@ void QTextHtmlImporter::import()
     cursor.endEditBlock();
 }
 
+static bool isPreservingWhitespaceMode(QTextHtmlParserNode::WhiteSpaceMode mode)
+{
+    return mode == QTextHtmlParserNode::WhiteSpacePre
+           || mode == QTextHtmlParserNode::WhiteSpacePreWrap
+           ;
+}
+
 bool QTextHtmlImporter::appendNodeText(int node)
 {
     const int initialCursorPosition = cursor.position();
     QTextCharFormat format = at(node).charFormat();
 
-    if (wsm == QTextHtmlParserNode::WhiteSpacePre
-        || wsm == QTextHtmlParserNode::WhiteSpacePreWrap)
+    if (isPreservingWhitespaceMode(wsm))
         compressNextWhitespace = false;
 
     QString text = at(node).text;
+
     if (at(node).id == Html_pre) {
         // <pre> already creates a block, so don't create two
         if (text.startsWith(QLatin1Char('\n')))
             text.remove(0, 1);
+    }
+
+    // try to detect if we're leaving a <pre> area
+    // we can't just check for the current id because the 'blub'
+    // node in for example <pre>foo<b>Bar</b>blub</pre> does not
+    // have an id set
+    if (isPreservingWhitespaceMode(wsm)
+        && node < count() - 1
+        && !isPreservingWhitespaceMode(at(node + 1).wsm)
+        && nodeIsChildOf(node, Html_pre)) {
+        // </pre> also ends with hasBlock = false, so there will
+        // always be a block at the end. So avoid creating two blocks
+        // for \n</pre><p>blah
+        if (text.endsWith(QLatin1Char('\n')))
+            text.chop(1);
     }
 
     QString textToInsert;
@@ -966,8 +988,7 @@ void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFor
 
     cursor.insertBlock(format, charFmt);
 
-    if (wsm != QTextHtmlParserNode::WhiteSpacePre
-        && wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
+    if (!isPreservingWhitespaceMode(wsm))
         compressNextWhitespace = true;
 }
 

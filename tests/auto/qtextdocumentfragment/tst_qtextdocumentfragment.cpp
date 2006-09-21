@@ -684,10 +684,10 @@ void tst_QTextDocumentFragment::dontRemoveInitialBlockIfItHoldsObjectIndexedChar
 
 void tst_QTextDocumentFragment::dosLineFeed()
 {
-    const char html[] = "<pre>Test\r\n</pre>";
+    const char html[] = "<pre>Test\r\n</pre>Bar";
     setHtml(QString::fromLatin1(html));
     QVERIFY(!doc->toPlainText().contains('\r'));
-    QCOMPARE(doc->toPlainText(), QString("Test\n"));
+    QCOMPARE(doc->toPlainText(), QString("Test\nBar"));
 }
 
 void tst_QTextDocumentFragment::unorderedListEnumeration()
@@ -2531,6 +2531,10 @@ void tst_QTextDocumentFragment::html_preNewlineHandling_data()
                           << QString("Foo\n\nBar");
     QTest::newRow("pre4") << QString("<html>Foo<pre>\nBar")
                           << QString("Foo\nBar");
+    QTest::newRow("pre5") << QString("<pre>Foo\n</pre>\nBar")
+                          << QString("Foo\nBar");
+    QTest::newRow("pre6") << QString("<pre>Foo<b>Bar</b>Blah\n</pre>\nMooh")
+                          << QString("FooBarBlah\nMooh");
 }
 
 void tst_QTextDocumentFragment::html_preNewlineHandling()

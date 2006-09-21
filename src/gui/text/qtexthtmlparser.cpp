@@ -1768,3 +1768,13 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 
     return decls;
 }
+
+bool QTextHtmlParser::nodeIsChildOf(int i, QTextHTMLElements id) const
+{
+    while (i) {
+        if (at(i).id == id)
+            return true;
+        i = at(i).parent;
+    }
+    return false;
+}
