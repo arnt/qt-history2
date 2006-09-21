@@ -1106,7 +1106,7 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
             if (q->state->renderHints() & QPainter::Antialiasing)
                 CGContextSetLineWidth(hd,  cosmeticPenSize);
             else
-                CGContextSetLineWidth(hd, 0.0001f);
+                CGContextSetLineWidth(hd, cosmeticPenSize * 0.9f);
         }
 
         if (!(q->state->renderHints() & QPainter::Antialiasing))
