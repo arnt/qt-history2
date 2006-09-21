@@ -1120,10 +1120,10 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
             // It is very confusing to keep the button pulsing, so just stop the animation.
             stopAnimate(AquaPushButton, btn);
             break;
-        case QEvent::MouseButtonRelease:
         case QEvent::FocusOut:
-        case QEvent::PaletteChange:
-        case QEvent::Show: {
+        case QEvent::MouseButtonRelease:
+        case QEvent::Show:
+        case QEvent::WindowActivate: {
             QList<QPushButton *> list = qFindChildren<QPushButton *>(btn->window());
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pBtn = list.at(i);
@@ -1131,7 +1131,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
                      && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
                      && pBtn != btn)
                     || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease
-                         || e->type() == QEvent::PaletteChange)
+                         || e->type() == QEvent::WindowActivate)
                         && pBtn->isDefault())) {
                     if (pBtn->window()->isActiveWindow()) {
                         startAnimate(AquaPushButton, pBtn);
