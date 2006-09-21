@@ -972,6 +972,7 @@ void QCalendarWidgetPrivate::_q_yearEditingFinished()
     yearButton->show();
     QDate currentDate(yearEdit->text().toInt(), getCurrentDate().month(), getCurrentDate().day());
     updateCurrentPage(currentDate);
+    updateMonthMenu();
 }
 
 void QCalendarWidgetPrivate::_q_yearClicked()
@@ -997,7 +998,6 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
     update();
-    updateMonthMenu();
 }
 
 void QCalendarWidgetPrivate::updateHeader()
