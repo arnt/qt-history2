@@ -684,7 +684,13 @@ void tst_QGraphicsItem::selected()
 
     QGraphicsScene scene;
     scene.addItem(item);
-    QCOMPARE(scene.selectedItems().size(), 1);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << item);
+    item->setSelected(false);
+    QVERIFY(scene.selectedItems().isEmpty());
+    item->setSelected(true);
+    QCOMPARE(scene.selectedItems(), QList<QGraphicsItem *>() << item);
+    item->setSelected(false);
+    QVERIFY(scene.selectedItems().isEmpty());
 
     // Interactive selection
     QGraphicsView view(&scene);
