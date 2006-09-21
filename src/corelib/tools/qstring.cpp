@@ -907,7 +907,7 @@ void QString::resize(int size)
     reserve() worthwhile:
 
     \quotefromfile snippets/qstring/main.cpp
-    \skipto Widget::reverseFunction()
+    \skipto Widget::reserveFunction()
     \skipto QString result
     \printuntil result.squeeze()
 

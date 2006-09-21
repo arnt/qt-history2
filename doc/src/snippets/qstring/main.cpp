@@ -43,7 +43,7 @@ public:
     void prependFunction();
     void removeFunction();
     void replaceFunction();
-    void reverseFunction();
+    void reserveFunction();
     void resizeFunction();
     void rightFunction();
     void rightJustifiedFunction();
@@ -400,20 +400,18 @@ void Widget::replaceFunction()
     // t == "A \\emph{bon mot}."
 }
 
-void Widget::reverseFunction()
+void Widget::reserveFunction()
 {
     QString result;
     int maxSize;
     bool condition;
     QChar nextChar;
 
-    int len = 0;
-
     result.reserve(maxSize);
 
-    while (condition) {
-        result[len++] = nextChar; // fill part of the space
-    }
+    while (condition)
+        result.append(nextChar);
+
     result.squeeze();
 }
 
