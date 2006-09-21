@@ -233,14 +233,16 @@ void PieView::mousePressEvent(QMouseEvent *event)
 
 void PieView::mouseMoveEvent(QMouseEvent *event)
 {
-    rubberBand->setGeometry(QRect(origin, event->pos()).normalized());
+    if (rubberBand)
+        rubberBand->setGeometry(QRect(origin, event->pos()).normalized());
     QAbstractItemView::mouseMoveEvent(event);
 }
 
 void PieView::mouseReleaseEvent(QMouseEvent *event)
 {
     QAbstractItemView::mouseReleaseEvent(event);
-    rubberBand->hide();
+    if (rubberBand)
+        rubberBand->hide();
     viewport()->update();
 }
 
