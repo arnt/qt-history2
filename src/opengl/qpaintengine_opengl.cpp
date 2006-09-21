@@ -1082,8 +1082,11 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
         qt_resolve_frag_program_extensions(ctx);
 
-    if (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0 ||
-        QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_ES_Version_2_0)
+
+    // disable GLSL usage for now, since it seems there are bugs in
+    // some implementation regarding detection of the proper extensions
+    if (0 && (QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_Version_2_0 ||
+              QGLFormat::openGLVersionFlags() & QGLFormat::OpenGL_ES_Version_2_0))
         d->has_glsl = qt_resolve_GLSL_functions(ctx);
 
     glMatrixMode(GL_PROJECTION);
