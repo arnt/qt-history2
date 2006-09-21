@@ -506,6 +506,7 @@ bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QEvent *event)
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = sceneEventFilters.lowerBound(item);
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = sceneEventFilters.upperBound(item);
     while (it != end) {
+        // ### The filterer and filteree might both be deleted.
         if (it.value()->sceneEventFilter(it.key(), event))
             return true;
         ++it;
@@ -1682,17 +1683,15 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
 
     if (d->focusItem) {
         QFocusEvent event(QEvent::FocusOut, focusReason);
-        d->sendEvent(d->focusItem, &event);
         d->lastFocusItem = d->focusItem;
+        d->sendEvent(d->focusItem, &event);
         d->focusItem = 0;
-        d->lastFocusItem->update();
     }
 
     if (item) {
         d->focusItem = item;
         QFocusEvent event(QEvent::FocusIn, focusReason);
         d->sendEvent(item, &event);
-        item->update();
     }
 }
 
