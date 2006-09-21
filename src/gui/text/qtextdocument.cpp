@@ -1243,6 +1243,10 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
 void QTextDocument::print(QPrinter *printer) const
 {
     Q_D(const QTextDocument);
+
+    if (!d->title.isEmpty())
+        printer->setDocName(d->title);
+
     QPainter p(printer);
 
     // Check that there is a valid device to print to.
