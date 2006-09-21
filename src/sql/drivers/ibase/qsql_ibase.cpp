@@ -1159,7 +1159,7 @@ QSqlRecord QIBaseResult::record() const
 
 QVariant QIBaseResult::handle() const
 {
-    return QVariant(qRegisterMetaType<isc_db_handle>("isc_stmt_handle"), d->stmt);
+    return QVariant(qRegisterMetaType<isc_stmt_handle>("isc_stmt_handle"), d->stmt);
 }
 
 /*********************************/
