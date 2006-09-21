@@ -114,6 +114,7 @@ private slots:
     void sceneEventFilter();
     void prepareGeometryChange();
     void paint();
+    void deleteItemInEventHandlers();
 };
 
 void tst_QGraphicsItem::construction()
@@ -2721,6 +2722,48 @@ void tst_QGraphicsItem::paint()
     QTest::qWait(250);
 
     QVERIFY(paintTester.widget == view.viewport());
+}
+
+class HarakiriItem : public QGraphicsRectItem
+{
+public:
+    HarakiriItem(int harakiriPoint)
+        : QGraphicsRectItem(QRectF(0, 0, 100, 100)), harakiri(harakiriPoint)
+    { }
+
+    void advance(int n)
+    {
+        if (harakiri == 1 && n == 0)
+            delete this;
+        if (harakiri == 2 && n == 1)
+            delete this;
+    }
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+    {
+        QGraphicsRectItem::paint(painter, option, widget);
+        if (harakiri == 0)
+            delete this;
+    }
+
+private:
+    int harakiri;
+};
+
+void tst_QGraphicsItem::deleteItemInEventHandlers()
+{
+    for (int i = 0; i < 3; ++i) {
+        QGraphicsScene scene;
+        scene.addItem(new HarakiriItem(i));
+        
+        QGraphicsView view(&scene);
+        view.show();
+        
+        qApp->processEvents();
+        qApp->processEvents();
+        
+        scene.advance();
+    }
 }
 
 QTEST_MAIN(tst_QGraphicsItem)
