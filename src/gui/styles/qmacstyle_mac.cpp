@@ -3800,7 +3800,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 if (titlebar->state & State_MouseOver)
                     wwdi.widgetState = kThemeStateRollover;
                 wwdi.windowType = QtWinType;
-                wwdi.attributes = wdi.attributes;
+                wwdi.attributes = wdi.attributes | kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox | kThemeWindowHasDirty;
                 wwdi.windowState = wdi.state;
                 wwdi.titleHeight = wdi.titleHeight;
                 wwdi.titleWidth = wdi.titleWidth;
@@ -3821,11 +3821,9 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                         if (active && (titlebar->activeSubControls & tmp)
                                 && (titlebar->state & State_Sunken))
                             wwdi.widgetState = kThemeStatePressed;
-                        /*
-                           if (titlebar->window() && titlebar->window()->isWindowModified()
-                           && tbw == kThemeWidgetCloseBox)
+                           if (widget && widget->window()->isWindowModified()
+                                   && tbw == kThemeWidgetCloseBox)
                            wwdi.widgetType = kThemeWidgetDirtyCloseBox;
-                           */
                         HIThemeDrawTitleBarWidget(&titleBarRect, &wwdi, cg, kHIThemeOrientationNormal);
                         p->paintEngine()->syncState();
                     }
