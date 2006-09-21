@@ -39,10 +39,15 @@ private slots:
 
     void widthTwoTimes_data();
     void widthTwoTimes();
+
+    void addAppFont();
 };
 
 tst_QFontDatabase::tst_QFontDatabase()
 {
+#ifndef Q_OS_IRIX
+    QDir::setCurrent(SRCDIR);
+#endif
 }
 
 tst_QFontDatabase::~tst_QFontDatabase()
@@ -140,6 +145,34 @@ void tst_QFontDatabase::widthTwoTimes()
     int w2 = fm.charWidth(text, 0);
 
     QCOMPARE(w1, w2);
+}
+
+void tst_QFontDatabase::addAppFont()
+{
+    QFontDatabase db;
+
+    const QStringList oldFamilies = db.families();
+    QVERIFY(!oldFamilies.isEmpty());
+
+    const int id = QFontDatabase::addApplicationFont("FreeMono.ttf");
+    if (id == -1) {
+        QSKIP("Skip the test since app fonts are not supported on this system", SkipSingle);
+        return;
+    }
+
+    const QStringList addedFamilies = QFontDatabase::applicationFontFamilies(id);
+    QVERIFY(!addedFamilies.isEmpty());
+
+    const QStringList newFamilies = db.families();
+    QVERIFY(!newFamilies.isEmpty());
+    QVERIFY(newFamilies.count() >= oldFamilies.count());
+
+    for (int i = 0; i < addedFamilies.count(); ++i)
+        QVERIFY(newFamilies.contains(addedFamilies.at(i)));
+
+    QVERIFY(QFontDatabase::removeApplicationFont(id));
+
+    QVERIFY(db.families() == oldFamilies);
 }
 
 QTEST_MAIN(tst_QFontDatabase)
