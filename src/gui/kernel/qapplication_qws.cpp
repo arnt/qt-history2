@@ -1749,8 +1749,8 @@ bool QApplicationPrivate::qws_apply_settings()
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
 #ifndef QT_NO_LIBRARY
     if (! pathlist.isEmpty()) {
-        QStringList::ConstIterator it = pathlist.begin();
-        while (it != pathlist.end())
+        QStringList::ConstIterator it = pathlist.constBegin();
+        while (it != pathlist.constEnd())
             QApplication::addLibraryPath(*it++);
     }
 #endif

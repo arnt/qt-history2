@@ -539,8 +539,8 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
 
     if(qcopServerRegexpList && !containsWildcards(ch)) {
 	// Search for wildcard matches and forward the message on.
-	QCopServerRegexpList::ConstIterator it = qcopServerRegexpList->begin();
-	for (; it != qcopServerRegexpList->end(); ++it) {
+	QCopServerRegexpList::ConstIterator it = qcopServerRegexpList->constBegin();
+	for (; it != qcopServerRegexpList->constEnd(); ++it) {
 	    if ((*it).regexp.exactMatch(ch)) {
 		QByteArray newData;
 		{

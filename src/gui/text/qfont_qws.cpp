@@ -132,7 +132,7 @@ void QFontPrivate::load(int)
 
         // append the substitute list for each family in family_list
         QStringList subs_list;
-        QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+        QStringList::ConstIterator it = family_list.constBegin(), end = family_list.constEnd();
         for (; it != end; ++it)
             subs_list += QFont::substitutes(*it);
         family_list += subs_list;
@@ -153,7 +153,7 @@ void QFontPrivate::load(int)
     // null family means find the first font matching the specified script
     family_list << QString();
 
-    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+    QStringList::ConstIterator it = family_list.constBegin(), end = family_list.constEnd();
     for (; ! engine && it != end; ++it) {
         req.family = *it;
 

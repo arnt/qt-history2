@@ -918,7 +918,7 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutAboutToBeChanged()
     QModelIndexList source_indexes = store_persistent_indexes();
     saved_persistent_indexes.clear();
     QModelIndexList::const_iterator it;
-    for(it = source_indexes.begin(); it != source_indexes.end(); ++it)
+    for(it = source_indexes.constBegin(); it != source_indexes.constEnd(); ++it)
         saved_persistent_indexes << (*it);
 }
 
@@ -932,8 +932,8 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
 
     QModelIndexList source_indexes;
     QList<QPersistentModelIndex>::const_iterator it;
-    it = saved_persistent_indexes.begin();
-    for ( ; it != saved_persistent_indexes.end(); ++it)
+    it = saved_persistent_indexes.constBegin();
+    for ( ; it != saved_persistent_indexes.constEnd(); ++it)
         source_indexes << (*it);
 
     emit q->layoutAboutToBeChanged();
