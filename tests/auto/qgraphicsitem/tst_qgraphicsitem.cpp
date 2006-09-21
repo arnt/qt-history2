@@ -700,20 +700,20 @@ void tst_QGraphicsItem::selected()
     qApp->processEvents();
 
     scene.clearSelection();
-    QCOMPARE(item->values.size(), 8);
+    QCOMPARE(item->values.size(), 10);
     QCOMPARE(item->values.last(), false);
     QVERIFY(!item->isSelected());
 
     // Click inside and check that it's selected
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item->scenePos()));
-    QCOMPARE(item->values.size(), 9);
+    QCOMPARE(item->values.size(), 11);
     QCOMPARE(item->values.last(), true);
     QVERIFY(item->isSelected());
 
     // Click outside and check that it's not selected
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item->scenePos() + QPointF(item->boundingRect().width(), item->boundingRect().height())));
 
-    QCOMPARE(item->values.size(), 10);
+    QCOMPARE(item->values.size(), 12);
     QCOMPARE(item->values.last(), false);
     QVERIFY(!item->isSelected());
 
@@ -724,13 +724,13 @@ void tst_QGraphicsItem::selected()
 
     // Click inside and check that it's selected
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item->scenePos()));
-    QCOMPARE(item->values.size(), 11);
+    QCOMPARE(item->values.size(), 13);
     QCOMPARE(item->values.last(), true);
     QVERIFY(item->isSelected());
 
     // Click inside item2 and check that it's selected, and item is not
     QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item2->scenePos()));
-    QCOMPARE(item->values.size(), 12);
+    QCOMPARE(item->values.size(), 14);
     QCOMPARE(item->values.last(), false);
     QVERIFY(!item->isSelected());
     QCOMPARE(item2->values.size(), 1);
