@@ -60,6 +60,7 @@ private:
     QGroupBox *messageGroupBox;
     QLabel *typeLabel;
     QLabel *durationLabel;
+    QLabel *durationWarningLabel;
     QLabel *titleLabel;
     QLabel *bodyLabel;
     QComboBox *typeComboBox;

@@ -20,6 +20,8 @@ Window::Window()
     createIconGroupBox();
     createMessageGroupBox();
 
+    iconLabel->setMinimumWidth(durationLabel->sizeHint().width());
+
     createActions();
     createTrayIcon();
 
@@ -150,9 +152,13 @@ void Window::createMessageGroupBox()
     durationLabel = new QLabel(tr("Duration:"));
 
     durationSpinBox = new QSpinBox;
-    durationSpinBox->setRange(1, 99);
+    durationSpinBox->setRange(5, 60);
     durationSpinBox->setSuffix(" s");
-    durationSpinBox->setValue(10);
+    durationSpinBox->setValue(15);
+
+    durationWarningLabel = new QLabel(tr("(some systems might ignore this "
+                                         "hint)"));
+    durationWarningLabel->setIndent(10);
 
     titleLabel = new QLabel(tr("Title:"));
 
@@ -167,22 +173,19 @@ void Window::createMessageGroupBox()
     showMessageButton = new QPushButton(tr("Show Message"));
     showMessageButton->setDefault(true);
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(showMessageButton);
-
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(typeLabel, 0, 0);
-    messageLayout->addWidget(typeComboBox, 0, 1);
-    messageLayout->addWidget(durationLabel, 0, 3);
-    messageLayout->addWidget(durationSpinBox, 0, 4);
-    messageLayout->addWidget(titleLabel, 1, 0);
-    messageLayout->addWidget(titleEdit, 1, 1, 1, 4);
-    messageLayout->addWidget(bodyLabel, 2, 0);
-    messageLayout->addWidget(bodyEdit, 2, 1, 2, 4);
-    messageLayout->addLayout(buttonLayout, 4, 0, 1, 5);
-    messageLayout->setColumnStretch(2, 1);
-    messageLayout->setRowStretch(3, 1);
+    messageLayout->addWidget(typeComboBox, 0, 1, 1, 2);
+    messageLayout->addWidget(durationLabel, 1, 0);
+    messageLayout->addWidget(durationSpinBox, 1, 1);
+    messageLayout->addWidget(durationWarningLabel, 1, 2, 1, 3);
+    messageLayout->addWidget(titleLabel, 2, 0);
+    messageLayout->addWidget(titleEdit, 2, 1, 1, 4);
+    messageLayout->addWidget(bodyLabel, 3, 0);
+    messageLayout->addWidget(bodyEdit, 3, 1, 2, 4);
+    messageLayout->addWidget(showMessageButton, 5, 4);
+    messageLayout->setColumnStretch(3, 1);
+    messageLayout->setRowStretch(4, 1);
     messageGroupBox->setLayout(messageLayout);
 }
 
