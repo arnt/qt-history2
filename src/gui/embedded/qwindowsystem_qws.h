@@ -408,7 +408,6 @@ public:
     void sendEvent(QWSEvent* event);
     void sendConnectedEvent(const char *display_spec);
     void sendMaxWindowRectEvent(const QRect &rect);
-    void sendFocusEvent(int winid, bool get);
     void sendPropertyNotifyEvent(int property, int state);
     void sendPropertyReplyEvent(int property, int len, const char *data);
     void sendSelectionClearEvent(int windowid);

@@ -763,11 +763,6 @@ void QWSClient::sendEmbedEvent(int windowid, QWSEmbedEvent::Type type,
 */
 
 /*!
-    \fn void QWSClient::sendFocusEvent(int winid, bool get)
-    \internal
-*/
-
-/*!
    \fn int QWSClient::clientId () const
 
    Returns an integer uniquely identfying this client.
