@@ -95,6 +95,7 @@ static void initializeDb()
 
 static inline void load(const QString & = QString(), int = -1)
 {
+    initializeDb();
 }
 
 void QFontDatabase::load(const QFontPrivate *d, int script)
@@ -229,14 +230,14 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
                                            0,
                                            kATSOptionFlagsDefault,
                                            &handle);
- 
+
         fnt->data = QByteArray();
     }
 
     if (e != noErr)
         return;
 
-    ItemCount fontCount = 0; 
+    ItemCount fontCount = 0;
     e = ATSFontFindFromContainer(handle, kATSOptionFlagsDefault,
                                /*iCount=*/0,
                                /*ioArray=*/0,

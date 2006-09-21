@@ -1170,10 +1170,14 @@ static void loadFontConfig()
 }
 #endif // QT_NO_FONTCONFIG
 
+static void initializeDb();
+
 static void load(const QString &family = QString(), int script = -1)
 {
-    if (X11->has_fontconfig)
+    if (X11->has_fontconfig) {
+        initializeDb();
         return;
+    }
 
 #ifdef QFONTDATABASE_DEBUG
     QTime t;
