@@ -97,10 +97,10 @@ bool QSystemTrayIconSys::supportsMessages()
                 if (dvi.dwMajorVersion >= 5)
                 {
 #ifndef NOTIFYICONDATAW_V2_SIZE // for mingw which has version>=3 but has this  undefined
-					notifyIconSizeA = sizeof(NOTIFYICONDATA);
+		    notifyIconSizeA = sizeof(NOTIFYICONDATAA);
                     notifyIconSizeW = sizeof(NOTIFYICONDATA);
 #elif NOTIFYICON_VERSION >= 3
-                    notifyIconSizeA = NOTIFYICONDATAW_V2_SIZE;
+                    notifyIconSizeA = NOTIFYICONDATAA_V2_SIZE;
                     notifyIconSizeW = NOTIFYICONDATAW_V2_SIZE;
 #endif
                     return true;
