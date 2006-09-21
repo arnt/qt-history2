@@ -142,6 +142,7 @@ const LocaleListItem g_locale_list[] = {
     {     80,   100 }, // Marathi/India
     {     82,   143 }, // Mongolian/Mongolia
     {     84,   150 }, // Nepali/Nepal
+    {     85,   161 }, // Norwegian/Norway
     {     87,   100 }, // Oriya/India
     {     88,     1 }, // Pashto/Afghanistan
     {     89,   102 }, // Persian/Iran
@@ -238,7 +239,7 @@ const LocaleListItem g_locale_list[] = {
     {    161,   212 }, // Ewe/Togo
     {    163,   225 }, // Hawaiian/UnitedStates
     {    164,   157 }, // Tyap/Nigeria
-    {    165,   129 }  // Chewa/Malawi
+    {    165,   129 }, // Chewa/Malawi
 };
 static const int g_locale_list_count = sizeof(g_locale_list)/sizeof(g_locale_list[0]);
 

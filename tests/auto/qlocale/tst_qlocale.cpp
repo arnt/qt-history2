@@ -224,6 +224,14 @@ void tst_QLocale::ctor()
     TEST_CTOR("en_GB@.bla", English, UnitedKingdom)
     TEST_CTOR("en_GB@bla", English, UnitedKingdom)
 
+    Q_ASSERT(QLocale::Norwegian == QLocale::NorwegianBokmal);
+    TEST_CTOR("no", Norwegian, Norway)
+    TEST_CTOR("nb", Norwegian, Norway)
+    TEST_CTOR("nn", NorwegianNynorsk, Norway)
+    TEST_CTOR("no_NO", Norwegian, Norway)
+    TEST_CTOR("nb_NO", Norwegian, Norway)
+    TEST_CTOR("nn_NO", NorwegianNynorsk, Norway)
+
 #undef TEST_CTOR
 
 }
@@ -1166,6 +1174,7 @@ void tst_QLocale::dayName_data()
     QTest::addColumn<QString>("dayName");
     QTest::addColumn<int>("day");
 
+    QTest::newRow("nb_NO")  << QString("no_NO") << QString("tirsdag") << 2;
     QTest::newRow("nb_NO")  << QString("nb_NO") << QString("tirsdag") << 2;
     QTest::newRow("nn_NO")  << QString("nn_NO") << QString("tysdag") << 2;
 

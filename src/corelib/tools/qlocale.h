@@ -118,6 +118,7 @@ public:
         NauruLanguage = 83,
         Nepali = 84,
         Norwegian = 85,
+        NorwegianBokmal = Norwegian,
         Occitan = 86,
         Oriya = 87,
         Pashto = 88,
@@ -173,7 +174,8 @@ public:
         Yoruba = 138,
         Zhuang = 139,
         Zulu = 140,
-        Nynorsk = 141,
+        NorwegianNynorsk = 141,
+        Nynorsk = NorwegianNynorsk, // ### obsolete
         Bosnian = 142,
         Divehi = 143,
         Manx = 144,

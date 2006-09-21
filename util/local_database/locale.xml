@@ -423,7 +423,7 @@
         <language>
             <name>Norwegian</name>
             <id>85</id>
-            <code>no</code>
+            <code>nb</code>
         </language>
         <language>
             <name>Occitan</name>
@@ -4583,6 +4583,25 @@
             <shortMonths>जन;फेब;मार्च;अप्रि;मे;जुन;जुला;अग;सेप्ट;अक्टो;नोभे;डिसे;</shortMonths>
             <longDays>आइतबार;सोमबार;मङ्गलबार;बुधबार;बिहीबार;शुक्रबार;शनिबार;</longDays>
             <shortDays>आइत;सोम;मङ्गल;बुध;बिही;शुक्र;शनि;</shortDays>
+        </locale>
+        <locale>
+            <language>Norwegian</language>
+            <country>Norway</country>
+            <decimal>44</decimal>
+            <group>160</group>
+            <list>59</list>
+            <percent>37</percent>
+            <zero>48</zero>
+            <minus>45</minus>
+            <exp>101</exp>
+            <longDateFormat>EEEE d. MMMM yyyy</longDateFormat>
+            <shortDateFormat>dd.MM.yy</shortDateFormat>
+            <longTimeFormat>'kl. 'HH.mm.ss z</longTimeFormat>
+            <shortTimeFormat>HH.mm</shortTimeFormat>
+            <longMonths>januar;februar;mars;april;mai;juni;juli;august;september;oktober;november;desember;</longMonths>
+            <shortMonths>jan.;feb.;mars;april;mai;juni;juli;aug.;sep.;okt.;nov.;des.;</shortMonths>
+            <longDays>søndag;mandag;tirsdag;onsdag;torsdag;fredag;lørdag;</longDays>
+            <shortDays>sø.;ma.;ti.;on.;to.;fr.;lø.;</shortDays>
         </locale>
         <locale>
             <language>Oriya</language>

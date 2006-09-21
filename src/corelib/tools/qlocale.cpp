@@ -96,6 +96,9 @@ static QLocale::Language codeToLanguage(const QChar *code)
     ushort uc2 = code[1].unicode();
     ushort uc3 = code[2].unicode();
 
+    if (uc1 == 'n' && uc2 == 'o' && uc3 == 0)
+        uc2 = 'b';
+
     const unsigned char *c = language_code_list;
     for (; *c != 0; c += 3) {
         if (uc1 == c[0] && uc2 == c[1] && uc3 == c[2])
@@ -1519,7 +1522,9 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
     \value NauruLanguage
     \value Nepali
     \value Norwegian
-    \value Nynorsk
+    \value NorwegianBokmal
+    \value Nynorsk Obsolete, please use NorwegianNynorsk
+    \value NorwegianNynorsk
     \value Occitan
     \value Oriya
     \value Pashto
@@ -1575,6 +1580,30 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
     \value Yoruba
     \value Zhuang
     \value Zulu
+    \value Bosnian
+    \value Divehi
+    \value Manx
+    \value Cornish
+    \value Akan
+    \value Konkani
+    \value Ga
+    \value Igbo
+    \value Kamba
+    \value Syriac
+    \value Blin
+    \value Geez
+    \value Koro
+    \value Sidamo
+    \value Atsam
+    \value Tigre
+    \value Jju
+    \value Friulian
+    \value Venda
+    \value Ewe
+    \value Walamo
+    \value Hawaiian
+    \value Tyap
+    \value Chewa
     \omitvalue LastLanguage
 
     \sa language()

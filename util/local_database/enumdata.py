@@ -87,7 +87,7 @@ language_list = {
     82 : [ "Mongolian",           "mn" ],
     83 : [ "Nauru",       "na" ],
     84 : [ "Nepali",              "ne" ],
-    85 : [ "Norwegian",           "no" ],
+    85 : [ "Norwegian",           "nb" ],
     86 : [ "Occitan",             "oc" ],
     87 : [ "Oriya",               "or" ],
     88 : [ "Pashto",              "ps" ],
