@@ -431,7 +431,7 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
             || matrix.m12() != 0 || matrix.m21() != 0);
 
     d->pixelSize = d->devicePixelSize(d->hd);
-    const static float sqrt2 = sqrt(2);
+    static const float sqrt2 = sqrt(2);
     d->cosmeticPenSize = sqrt(pow(d->pixelSize.y(), 2) + pow(d->pixelSize.x(), 2)) / sqrt2;
 }
 
