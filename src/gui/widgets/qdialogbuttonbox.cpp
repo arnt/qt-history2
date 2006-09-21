@@ -271,6 +271,7 @@ void QDialogButtonBoxPrivate::initLayout()
         q->setSizePolicy(sp);
         q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
+    q->setFocusPolicy(Qt::TabFocus);
 }
 
 void QDialogButtonBoxPrivate::resetLayout()
@@ -536,7 +537,6 @@ QDialogButtonBox::QDialogButtonBox(QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(Qt::Horizontal), parent, 0)
 {
     d_func()->initLayout();
-    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
@@ -548,7 +548,6 @@ QDialogButtonBox::QDialogButtonBox(Qt::Orientation orientation, QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(orientation), parent, 0)
 {
     d_func()->initLayout();
-    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
@@ -563,7 +562,6 @@ QDialogButtonBox::QDialogButtonBox(StandardButtons buttons, Qt::Orientation orie
 {
     d_func()->initLayout();
     d_func()->createStandardButtons(buttons);
-    setFocusPolicy(Qt::TabFocus);
 }
 
 /*!
