@@ -3034,7 +3034,7 @@
     \section1 File Extensions
 
     Under normal circumstances \c qmake will try to use appropriate file extensions
-    for your platform. However, it it sometimes necessary to override the default
+    for your platform. However, it is sometimes necessary to override the default
     choices for each platform and explicitly define file extensions for \c qmake to use.
     This is achieved by redefining certain built-in variables; for example the extension
     used for \l moc files can be redefined with the following assignment in a project

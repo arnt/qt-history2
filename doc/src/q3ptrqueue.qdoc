@@ -53,7 +53,7 @@
     This queue is first cleared and then each item in \a queue is
     enqueued to this queue. Only the pointers are copied.
 
-    \warning The autoDelete() flag is not modified. If it it TRUE for
+    \warning The autoDelete() flag is not modified. If it is TRUE for
     both \a queue and this queue, deleting the two lists will cause \e
     double-deletion of the items.
 */
