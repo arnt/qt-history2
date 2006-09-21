@@ -863,8 +863,8 @@ QDataStream &QDataStream::readBytes(char *&s, uint &l)
 }
 
 /*!
-    Reads \a len bytes from the stream into \a s and returns a
-    reference to the stream.
+    Reads at most \a len bytes from the stream into \a s and returns the number of
+    bytes read. If an error occurs, this function returns -1.
 
     The buffer \a s must be preallocated. The data is \e not encoded.
 
