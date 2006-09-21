@@ -932,7 +932,9 @@ void QPrintDialogPrivate::init()
     ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Portrait"), QPrinter::Portrait);
     ui.cbPaperLayout->addItem(QApplication::translate("QPrintDialog","Landscape"), QPrinter::Landscape);
 
-    ui.buttonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("QPrintDialog","Print"));
+    QPushButton *printButton = ui.buttonBox->button(QDialogButtonBox::Ok);
+    printButton->setText(QApplication::translate("QPrintDialog","Print"));
+    printButton->setDefault(true);
 
     applyPrinterProperties(p);
 
