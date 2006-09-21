@@ -55,13 +55,25 @@ static void create_current_thread_data_key()
 QThreadData *QThreadData::current()
 {
     pthread_once(&current_thread_data_once, create_current_thread_data_key);
-    QThreadData *data = reinterpret_cast<QThreadData *>(pthread_getspecific(current_thread_data_key));
-    if (!data) {
-        data = new QThreadData;
+
+    QThreadData *data = 0;
+    QThread *adopted = 0;
+    if (QInternal::activateCallbacks(QInternal::AdoptCurrentThread, (void **) &adopted)) {
+        Q_ASSERT(adopted);
+        data = QThreadData::get2(adopted);
         pthread_setspecific(current_thread_data_key, data);
-        data->thread = new QAdoptedThread(data);
-        data->deref();
-        (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+        adopted->d_func()->running = true;
+        adopted->d_func()->finished = false;
+        static_cast<QAdoptedThread *>(adopted)->init();
+    } else {
+        data = reinterpret_cast<QThreadData *>(pthread_getspecific(current_thread_data_key));
+        if (!data) {
+            data = new QThreadData;
+            pthread_setspecific(current_thread_data_key, data);
+            data->thread = new QAdoptedThread(data);
+            data->deref();
+            (void) q_atomic_test_and_set_ptr(&QCoreApplicationPrivate::theMainThread, 0, data->thread);
+        }
     }
     return data;
 }

@@ -131,8 +131,12 @@ QAdoptedThread::~QAdoptedThread()
     // fprintf(stderr, "~QAdoptedThread = %p\n", this);
 }
 
-
-
+QThread *QAdoptedThread::createThreadForAdoption()
+{
+    QThread *t = new QAdoptedThread(0);
+    t->moveToThread(t);
+    return t;
+}
 
 /*!
     \class QThread

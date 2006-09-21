@@ -136,6 +136,7 @@ public:
     ~QAdoptedThread();
     void init();
 
+    static QThread *createThreadForAdoption();
 private:
     inline void run()
     {

@@ -17,6 +17,10 @@
 #include "qlist.h"
 #include "qthreadstorage.h"
 
+#ifndef QT_NO_QOBJECT
+#include <private/qthread_p.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -2233,7 +2237,7 @@ static QThreadStorage<uint *> randTLS; // Thread Local Storage for seed value
     The sequence of random numbers generated is deterministic per thread. For example,
     if two threads call qsrand(1) and subsequently calls qrand(), the threads will get
     the same random number sequence.
-    
+
     \sa qrand()
 */
 void qsrand(uint seed)
@@ -2244,7 +2248,7 @@ void qsrand(uint seed)
     *randTLS.localData() = seed;
 #else
     // On Windows srand() and rand() already use Thread-Local-Storage
-    // to store the seed between calls 
+    // to store the seed between calls
     srand(seed);
 #endif
 }
@@ -2630,5 +2634,31 @@ bool QInternal::activateCallbacks(Callback cb, void **parameters)
             ret |= (callbacks.at(i))(parameters);
         return ret;
     }
+    return false;
+}
+
+bool QInternal::callFunction(InternalFunction func, void **args)
+{
+    Q_ASSERT_X(func >= 0 || func < QInternal::LastInternalFunction,
+               "QInternal::callFunction()", "Callback id must be a valid id");
+#ifndef QT_NO_QOBJECT
+    switch (func) {
+    case QInternal::CreateThreadForAdoption:
+        *args = QAdoptedThread::createThreadForAdoption();
+        return true;
+    case QInternal::RefAdoptedThread:
+        QThreadData::get2((QThread *) *args)->ref();
+        return true;
+    case QInternal::DerefAdoptedThread:
+        QThreadData::get2((QThread *) *args)->deref();
+        return true;
+    default:
+        break;
+    }
+#else
+    Q_UNUSED(args);
+    Q_UNUSED(func);
+#endif
+
     return false;
 }

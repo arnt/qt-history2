@@ -1391,12 +1391,22 @@ public:
     enum Callback {
         ConnectCallback,
         DisconnectCallback,
+        AdoptCurrentThread,
         LastCallback
     };
+
+    enum InternalFunction {
+        CreateThreadForAdoption,
+        RefAdoptedThread,
+        DerefAdoptedThread,
+        LastInternalFunction
+    };
+
     static bool registerCallback(Callback, qInternalCallback);
     static bool unregisterCallback(Callback, qInternalCallback);
 
     static bool activateCallbacks(Callback, void **);
+    static bool callFunction(InternalFunction func, void **);
 };
 
 #ifdef QT3_SUPPORT
