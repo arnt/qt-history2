@@ -143,6 +143,12 @@ General improvements
 
       * Improved point drawing performance.
 
+      * Fixed issue where lines were drawn between coordinates that were
+        rounded instead of truncated.
+
+      * Ensured that setClipRegion(QRegion()) clips away all painting
+        operations as originally intended.
+
 
 Third party components
 ----------------------
@@ -166,7 +172,7 @@ Build System
   library instead of Qt's SQLite version.
 
 - Added QT_ASCII_CAST_WARNINGS define that will output a warning on implicit
-  ascii to unicode conversion when set. Only works if the compiler supports
+  ascii to Unicode conversion when set. Only works if the compiler supports
   deprecated API warnings.
 
 - Added Q_REQUIRED_RESULT to some functions. This macro triggers a warning
@@ -175,7 +181,7 @@ Build System
 
 - Qt/X11, Qt/Mac and Qtopia Core only:
 
-     * Added all QT_NO_* defines to the buildkey.
+     * Added all QT_NO_* defines to the build key.
 
 
 - Qt/X11 and Qtopia Core only:
@@ -205,7 +211,7 @@ Build System
 
 - Windows only:
 
-     * Populated the buildkey, as done on all the other platforms.
+     * Populated the build key, as done on all the other platforms.
 
      * Fixed dependency generation in Visual Studio Solutions (.sln)
        created by qmake.
@@ -232,9 +238,9 @@ Build System
 
 - QAbstractButton
 
-      * Returns QPalette::Button and QPalette::ButtonText for backgroundRole()
-        and foregroundRole(), respectively, rather than QPalette::Background
-        and QPalette::Foreground.
+      * Returns QPalette::Button and QPalette::ButtonText for
+        backgroundRole() and foregroundRole(), respectively, rather than
+        QPalette::Background and QPalette::Foreground.
 
       * Ensured that nextCheckState() is called only when there is a state
         change.
@@ -244,8 +250,8 @@ Build System
       * When dropping rows only insert rows that were actually dropped, not
         the continuous row count from first to last.
 
-      * Added a supportedDragActions property to be used by QAbstractItemView
-        when starting a drag.
+      * Added a supportedDragActions property to be used by
+        QAbstractItemView when starting a drag.
 
       * When updating changed persistent indexes, ignore those that haven't
         actually changed.
@@ -264,24 +270,26 @@ Build System
 
       * Improved handling of QAbstractItemModel::supportedDropActions().
 
-      * Ensured that the current item is selected when using keyboard search.
+      * Ensured that the current item is selected when using keyboard
+        search.
 
       * Ensured that the view starts with a valid current index.
 
-      * Ensured that data is only committed in currentChanged() if the editor
-        is not persistent.
+      * Ensured that data is only committed in currentChanged() if the
+        editor is not persistent.
 
-      * Fixed crash that occurred when a modal dialogs was opened when closing
-        an editor.
+      * Fixed crash that occurred when a modal dialogs was opened when
+        closing an editor.
 
       * Added verticalScrollMode and horizontalScrollMode properties.
 
       * Added setItemDelegateForRow() and setItemDelegateForColumn().
 
-      * Ensured that existing models are disconnected properly when replaced.
+      * Ensured that existing models are disconnected properly when
+        replaced.
 
-      * Ensured that the doubleClicked() signal is only emitted when the left
-        button has been double-clicked.
+      * Ensured that the doubleClicked() signal is only emitted when the
+        left button has been double-clicked.
 
       * Changed setSelection(...) to work when given a non-normalized
         rectangle.
@@ -324,6 +332,8 @@ Build System
 
       * Added support to allow items to be checked and unchecked using the
         keyboard.
+
+      * Added support for keypad navigation.
 
 - QAbstractProxyModel
 
@@ -373,6 +383,10 @@ Build System
       * Ensured that argc and argv as passed to the QApplication constructor
         will always be zero-terminated on all platforms after QApplication
         consumes command line options for itself.
+
+- QBrush
+
+      * Added a constructor that accepts a QImage.
 
 - QButtonGroup
 
@@ -434,7 +448,7 @@ Build System
 
 - QDateTime
 
-      * Fixed parsing issue in fromString(const QString &s, Qt::DateFormat f).
+      * Fixed parsing issue in fromString(const QString &, Qt::DateFormat).
 
 - QDateTimeEdit
 
@@ -664,7 +678,7 @@ Build System
       * Added support for faster/better rotation of images by 90/180/270
         degrees.
 
-      * QImage::convertToFormat() now supports the color lookup table.
+      * convertToFormat() now supports the color lookup table.
 
       * Improved algorithm for smooth scaling to produce better results.
 
@@ -743,6 +757,8 @@ Build System
 
       * Made it easer to subclass the item delegate.
 
+      * Added support for keypad navigation.
+
 - QItemSelectionModel
 
       * Improved overall speed, particularly when isSelected() is used.
@@ -769,6 +785,10 @@ Build System
 - QLabel
 
       * Added support for text selection and hyperlinks.
+
+      * Improved handling of scaled pixmaps.
+
+      * Made handling of QMovie safer to avoid object ownership issues.
 
 - QLibrary
 
@@ -964,6 +984,8 @@ Build System
 
       * Added the setRenderHints() function.
 
+      * Fixed a memory corruption issue in drawEllipse().
+
 - QPixmap
 
       * Fixed crash caused by setting a mask or alpha channel on a pixmap
@@ -1049,6 +1071,10 @@ Build System
 
       * Added the setAutoRepeat(bool) function to disable auto-repeating
         actions on keyboard shortcuts.
+
+- QSize
+
+      * Fixed potential overflow issue in scale().
 
 - QSlider
 
@@ -1270,7 +1296,8 @@ Build System
       * Added support for forced page breaks before/after paragraphs and
         tables.
 
-      * Added CSS support to the HTML import.
+      * Added CSS support to the HTML importer, including support for
+        CSS selectors.
 
       * Added defaultStyleSheet property that is applied automatically for
         every HTML import.
@@ -1334,6 +1361,11 @@ Build System
 
       * Fixed crash that occurred when QApplication::setStyle() was called
         twice.
+
+- QToolButton
+
+      * Fixed an alignment bug for tool buttons with multi-line labels and
+        TextUnderIcon style.
 
 - QToolTip
 
@@ -1687,6 +1719,8 @@ Qtopia Core
 
       * Implemented QWSEmbedWidget which enables window embedding.
 
+      * Removed hardcoded 72 DPI display limitation.
+
 - Device handling
 
       * Fixed an issue of getting delayed mouse events when using the
@@ -1792,6 +1826,10 @@ X11
 - QMotifStyle
 
       * Ensured that the font set on a menu item is respected.
+
+- QX11EmbedContainer, QX11EmbedWidget
+
+      * Added missing error() functions.
 
 - QX11PaintEngine
   
@@ -1903,7 +1941,7 @@ Mac OS X
       * Attempt to be a bit smarter before changing a push button to bevel
         button when the size gets too small.
 
-      * Draws the focus ring for lineedits when they are near the "top" of
+      * Draws the focus ring for line edits when they are near the "top" of
         the widget hierarchy.
 
       * Ensured that the tickmarks are drawn correctly.
@@ -1915,6 +1953,9 @@ Mac OS X
       * "Colorless" controls now look better.
 
       * Fixed the sort indicator.
+
+      * Improved the look of text controls, such as QTextEdit, to fit in
+        better with the native style.
 
 - QMenu
 
@@ -1932,6 +1973,8 @@ Mac OS X
 
       * A message box that is set to be window modal will automatically
         become a sheet.
+
+      * Improved the look of the icons used to fit in with the native style.
   
 - QPainter
      
@@ -1975,7 +2018,11 @@ Mac OS X
 
       * Improved handling of the case where the scrollbar is to short to
         draw all its controls.
- 
+
+- QTextEdit
+
+      * Improved the look of the widget to fit in with the native style.
+
 - QWidget
 
       * All HIViewRef's inside Qt/Mac are created with the
@@ -2007,6 +2054,11 @@ Windows
 - Made Visual Studio compilers older than 2005 handle (NULL == p)
   statements, where p is of QPointer type.
 
+- Fixed HDC leak that could cause applications to slow down significantly.
+
+- Ensured that timers with the same ID are not skipped if they go to different
+  HWNDs.
+
 - Improved MIME data handling
 
       * Resolved an issue related to drag and drop of attachments from some
@@ -2016,6 +2068,27 @@ Windows
         include parts of the clipboard header.
  
       * Improved support for drag and drop of Unicode text.
+
+      * Made it possible to set an arbitrary hotspot on the drag cursor on
+        Windows 98/Me.
+
+- ActiveQt
+
+    * Fixed issues with the compilation of code generated by dumpcpp.
+
+    * Made ActiveQt controls behave better when inserted into Office
+      applications.
+
+    * Ensured that slots and properties are generated for hidden functions and
+      classes.
+
+    * Ensured that the quitOnLastWindowClosed property is disabled when
+      QApplication runs an ActiveX server.
+
+    * Ensured that controls become active when the user clicks into a subwidget.
+
+    * Added support for CoClassAlias class information to give COM class a
+      different name than the C++ class.
 
 - QAccessible
      
@@ -2068,6 +2141,13 @@ Windows
 
       * Added support for printers that do not have a DEVMODE.
 
+      * Fixed a drawing bug in the PDF generator on Windows 98/Me.
+
+      * Made it possible to programmatically change the number of copies
+        to be printed.
+
+      * Fixed possible crash when accessing non-existent printers.
+
 - QProcess
 
       * Fixed lock-up when writing data to a dead child process.
@@ -2076,6 +2156,13 @@ Windows
 
       * Fixed bug causing byte arrays to be incorrectly stored on
         Win95/98/Me.
+
+      * Allow keys to contain HKEY_CLASSES_ROOT and HKEY_USERS to allow all
+        registry keys to be read and prevent unintentional use of
+        HKEY_LOCAL_MACHINE.
+
+      * Fall back to the local machine handle if a key does not start with a
+        handle name.
 
 - QUdpSocket
 
@@ -2166,6 +2253,8 @@ Assistant
 - Fixed crash that could occur when opening Assistant with old and invalid
   settings.
 
+- Fixed display of Unicode text in the About dialog.
+
 
 Designer
 --------
@@ -2223,8 +2312,8 @@ Linguist
 
 - Added support for editing plural forms.
 
-- Extended the .ts file format to support target language, plural
-  forms, source filename, and line numbers.
+- Extended the .ts file format to support target language, plural forms,
+  source filename, and line numbers.
 
 - Added the "Translated Form Preview" feature.
 
