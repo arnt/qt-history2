@@ -3971,7 +3971,7 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
 */
 QRect QCleanlooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const
 {
-    return itemPixmapRect(r, flags, pixmap);
+    return QWindowsStyle::itemPixmapRect(r, flags, pixmap);
 }
 
 /*!
