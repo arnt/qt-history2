@@ -6756,6 +6756,8 @@ QLayout *QWidget::layout() const
     An alternative to calling this function is to pass this widget to
     the layout's constructor.
 
+    The QWidget will take ownership of \a layout.
+
     \sa layout(), {Layout Classes}
 */
 
