@@ -55,8 +55,6 @@ public:
 
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state, bool fixup = false) const;
 
-    QVariant valueForPosition(int pos) const;
-
     void clearSection(int index);
     QString displayText() const { return edit->displayText(); }
 
