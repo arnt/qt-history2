@@ -630,8 +630,9 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* 
     static QRegExp classX("[:,][ \n]*(?:p(?:ublic|r(?:otected|ivate))[ \n]+)?"
                           "([a-zA-Z_][a-zA-Z_0-9]*)");
     static QRegExp globalX("[\n{()=] *([a-zA-Z_][a-zA-Z_0-9]*)[ \n]*\\(");
-    static QRegExp comment("/(?:( )?\\*(?:[^*]+|\\*(?! /))*\\*\1/|/[^\n]*)");
-    static QRegExp preprocessor("(?:^|\n)(#[^\n]*(?:(?:\\\\\n|\\n#)[^\n]*)*)");
+    static QRegExp comment("/(?:( )?\\*(?:[^*]+|\\*(?! /))*\\*\\1/|/[^\n]*)");
+    static QRegExp preprocessor("(?:^|\n)(#[ \t]*(?:include|if|elif|endif|error|pragma|define"
+                                "|warning)(?:(?:\\\\\n|\\n#)[^\n]*)*)");
     static QRegExp literals("&quot;(?:[^\\\\&]|\\\\[^\n]|&(?!quot;))*&quot;"
                             "|'(?:[^\\\\]|\\\\(?:[^x0-9']|x[0-9a-f]{1,4}|[0-9]{1,3}))'");
 
