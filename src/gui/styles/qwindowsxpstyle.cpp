@@ -838,6 +838,7 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
     bool complexXForm = m.m11() != 1.0 || m.m22() != 1.0 || m.m12() != 0.0 || m.m21() != 0.0;
 
     bool useFallback = painter->paintEngine()->getDC() == 0
+                       || painter->opacity() != 1.0
                        || themeData.rotate
                        || complexXForm
 	               || themeData.mirrorVertically
@@ -2417,7 +2418,7 @@ case CE_DockWidgetTitle:
                 QFont titleFont = oldFont;
                 titleFont.setBold(true);
                 p->setFont(titleFont);
-                
+
                 int result = TST_NONE;
                 pGetThemeEnumValue(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
                 if (result != TST_NONE) {
@@ -2431,7 +2432,7 @@ case CE_DockWidgetTitle:
                                  Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                                  dwOpt->state & State_Enabled, dwOpt->title);
                 }
-                
+
                 COLORREF captionText = GetSysColor(isActive ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
                 QColor textColor = qRgb(GetRValue(captionText), GetGValue(captionText), GetBValue(captionText));
                 p->setPen(textColor);
@@ -2997,13 +2998,13 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.partId = partId;
                     theme.stateId = stateId;
                     d->drawBackground(theme);
-                    
+
                     QRect ir = subControlRect(CC_TitleBar, tb, SC_TitleBarLabel, widget);
 
                     int result = TST_NONE;
                     pGetThemeEnumValue(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
                     if (result != TST_NONE) {
-                        COLORREF textShadowRef;      
+                        COLORREF textShadowRef;
                         pGetThemeColor(theme.handle(), WP_CAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
                         QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
                         p->setPen(textShadow);
@@ -3249,7 +3250,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     case PM_ScrollBarExtent:
         {
-            XPThemeData theme(widget, 0, "SCROLLBAR", SBP_SIZEBOX); 
+            XPThemeData theme(widget, 0, "SCROLLBAR", SBP_SIZEBOX);
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
@@ -3336,7 +3337,7 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         else
             res = 0;
         break;
-        
+
     default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }
