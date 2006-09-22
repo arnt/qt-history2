@@ -803,11 +803,6 @@ bool QDockWidget::event(QEvent *event)
         if (d->widget == static_cast<QChildEvent *>(event)->child())
             d->widget = 0;
         break;
-    case QEvent::WindowActivate:
-    case QEvent::WindowDeactivate:
-        update();
-        qDebug() << "QDockWidget::event():" << this << event;
-        break;
     default:
         break;
     }
