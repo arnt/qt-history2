@@ -1031,7 +1031,8 @@ void QHashData::checkSanity()
 /*! \fn bool QHash::empty() const
 
     This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
+    to isEmpty(), returning true if the hash is empty; otherwise
+    returns false.
 */
 
 /*! \typedef QHash::ConstIterator

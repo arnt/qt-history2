@@ -245,9 +245,9 @@ void QBitArray::resize(int size)
 
 /*! \fn bool QBitArray::fill(bool value, int size = -1)
 
-    Sets every bit in the bit array to \a value. If \a size is
-    different from -1 (the default), the bit array is resized to \a
-    size beforehand.
+    Sets every bit in the bit array to \a value, returning true if successful;
+    otherwise returns false. If \a size is different from -1 (the default),
+    the bit array is resized to \a size beforehand.
 
     Example:
     \code
@@ -315,7 +315,9 @@ void QBitArray::fill(bool value, int begin, int end)
 
 /*! \fn bool QBitArray::toggleBit(int i)
 
-    Inverts the value of the bit at index position \a i.
+    Inverts the value of the bit at index position \a i, returning the
+    previous value of that bit as either true (if it was set) or false (if
+    it was unset).
 
     If the previous value was 0, the new value will be 1. If the
     previous value was 1, the new value will be 0.

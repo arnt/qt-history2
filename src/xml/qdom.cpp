@@ -6671,7 +6671,8 @@ QDomDocument::~QDomDocument()
 /*!
     \overload
 
-    This function reads the XML document from the string \a text.
+    This function reads the XML document from the string \a text, returning
+    true if the content was successfully parsed; otherwise returns false.
     Since \a text is already a Unicode string, no encoding detection
     is done.
 */
@@ -6745,7 +6746,8 @@ bool QDomDocument::setContent(const QByteArray &data, bool namespaceProcessing, 
 /*!
     \overload
 
-    This function reads the XML document from the IO device \a dev.
+    This function reads the XML document from the IO device \a dev, returning
+    true if the content was successfully parsed; otherwise returns false.
 */
 bool QDomDocument::setContent(QIODevice* dev, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn)
 {
@@ -6758,7 +6760,8 @@ bool QDomDocument::setContent(QIODevice* dev, bool namespaceProcessing, QString 
 /*!
     \overload
 
-    This function reads the XML document from the string \a text.
+    This function reads the XML document from the string \a text, returning
+    true if the content was successfully parsed; otherwise returns false.
     Since \a text is already a Unicode string, no encoding detection
     is performed.
 
@@ -6772,8 +6775,9 @@ bool QDomDocument::setContent(const QString& text, QString *errorMsg, int *error
 /*!
     \overload
 
-    This function reads the XML document from the byte array \a
-    buffer.
+    This function reads the XML document from the byte array \a buffer,
+    returning true if the content was successfully parsed; otherwise returns
+    false.
 
     No namespace processing is performed.
 */
@@ -6785,7 +6789,8 @@ bool QDomDocument::setContent(const QByteArray& buffer, QString *errorMsg, int *
 /*!
     \overload
 
-    This function reads the XML document from the IO device \a dev.
+    This function reads the XML document from the IO device \a dev, returning
+    true if the content was successfully parsed; otherwise returns false.
 
     No namespace processing is performed.
 */
@@ -6798,7 +6803,8 @@ bool QDomDocument::setContent(QIODevice* dev, QString *errorMsg, int *errorLine,
     \overload
 
     This function reads the XML document from the QXmlInputSource \a source and
-    parses it with the QXmlReader \a reader.
+    parses it with the QXmlReader \a reader, returning true if the content was
+    successfully parsed; otherwise returns false.
 
     This function doesn't change the features of the \a reader. If you want to
     use certain features for parsing you can use this function to set up the

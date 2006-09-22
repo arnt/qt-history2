@@ -798,7 +798,8 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
 /*! \fn bool QVector::empty() const
 
     This function is provided for STL compatibility. It is equivalent
-    to isEmpty().
+    to isEmpty(), returning true if the vector is empty; otherwise
+    returns false.
 */
 
 /*! \fn QVector<T> &QVector::operator+=(const QVector<T> &other)

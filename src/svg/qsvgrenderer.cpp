@@ -249,7 +249,8 @@ int QSvgRenderer::animationDuration() const
 }
 
 /*!
-    Loads the SVG file specified by \a filename.
+    Loads the SVG file specified by \a filename, returning true if the content
+    was successfully parsed; otherwise returns false.
 */
 bool QSvgRenderer::load(const QString &filename)
 {
@@ -275,7 +276,8 @@ bool QSvgRenderer::load(const QString &filename)
 }
 
 /*!
-    Loads the specified SVG format \a contents.
+    Loads the specified SVG format \a contents, returning true if the content
+    was successfully parsed; otherwise returns false.
 */
 bool QSvgRenderer::load(const QByteArray &contents)
 {
