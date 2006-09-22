@@ -4170,7 +4170,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             QCFType<HIShapeRef> shape;
             bool scrollBar = cc == CC_ScrollBar;
             if ((scrollBar && sc == SC_ScrollBarSlider)
-                    || (!scrollBar && sc == SC_SliderHandle)) {
+                || (!scrollBar && sc == SC_SliderHandle)) {
                 HIThemeGetTrackThumbShape(&tdi, &shape);
                 HIShapeGetBounds(shape, &macRect);
             } else if (!scrollBar && sc == SC_SliderGroove) {
@@ -4394,6 +4394,8 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             switch (sc) {
             case SC_SpinBoxUp:
             case SC_SpinBoxDown: {
+                if (spin->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    break;
                 const int spinner_w = 18,
                 y = pixelMetric(PM_SpinBoxFrameWidth, spin, widget),
                 x = spin->rect.width() - spinner_w + y;

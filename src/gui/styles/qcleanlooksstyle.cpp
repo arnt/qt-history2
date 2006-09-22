@@ -1041,7 +1041,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                         painter->drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
                         painter->drawPoint(QPoint(r.right() - 1, r.top() + 1));
                         painter->drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
-                        painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));                        
+                        painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
                     }
                     painter->restore();
                     break;
@@ -1549,7 +1549,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 gradient.setColorAt(1, gradientStopColor);
             }
             painter->fillRect(r, gradient);
-                
+
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(r.size());
                 cache.fill(Qt::transparent);
@@ -2531,7 +2531,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QRect fullRect = titleBar->rect;
             QPalette palette = option->palette;
             QColor highlight = option->palette.highlight().color();
-            
+
             QColor titleBarGradientStart(active ? highlight: palette.background().color());
             QColor titleBarGradientStop(active ? highlight.dark(150): palette.background().color().dark(120));
             QColor titleBarFrameBorder(active ? highlight.dark(180): dark.dark(110));
@@ -3332,7 +3332,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         r = handle.adjusted(0, 1, 0, -1);
                     else
                         r = handle.adjusted(1, 0, -1, 0);
-                        
+
                     QColor outline = option->state & State_Enabled ? dark : dark.light(130);
 
                     qt_cleanlooks_draw_gradient(painter, horizontal ? gradRect.adjusted(1, 0, -1, 0) : gradRect.adjusted(0, 1, 0, -1),
@@ -3646,7 +3646,7 @@ void QCleanlooksStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
     //this is a workaround for some themes such as Human, where the contrast
-    //between text and background is too low.    
+    //between text and background is too low.
     QColor highlight = pal.highlight().color();
     QColor highlightText = pal.highlightedText().color();
     if (qAbs(qGray(highlight.rgb()) - qGray(highlightText.rgb())) < 150) {
@@ -3698,7 +3698,7 @@ void QCleanlooksStyle::unpolish(QApplication *app)
   \reimp
 */
 QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
-                                      SubControl subControl, const QWidget *widget) const
+                                       SubControl subControl, const QWidget *widget) const
 {
     QRect rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
 
@@ -3773,13 +3773,22 @@ QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             rx = x - fw;
             switch (subControl) {
             case SC_SpinBoxUp:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
                 rect = QRect(x, fw, bs.width(), center - fw);
                 break;
             case SC_SpinBoxDown:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
+
                 rect = QRect(x, center, bs.width(), spinbox->rect.bottom() - center - fw + 1);
                 break;
             case SC_SpinBoxEditField:
-                rect = QRect(lx, fw, rx - qMax(fw - 1, 0), spinbox->rect.height() - 2*fw);
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons) {
+                    rect = QRect(lx, fw, spinbox->rect.width() - 2*fw, spinbox->rect.height() - 2*fw);
+                } else {
+                    rect = QRect(lx, fw, rx - qMax(fw - 1, 0), spinbox->rect.height() - 2*fw);
+                }
                 break;
             case SC_SpinBoxFrame:
                 rect = spinbox->rect;

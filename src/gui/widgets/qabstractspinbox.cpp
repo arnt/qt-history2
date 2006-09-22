@@ -133,6 +133,7 @@ QAbstractSpinBox::~QAbstractSpinBox()
 
     \value UpDownArrows Little arrows in the classic style.
     \value PlusMinus \bold{+} and \bold{-} symbols.
+    \value NoButtons Don't display buttons.
 
     \sa QAbstractSpinBox::buttonSymbols
 */
@@ -1467,19 +1468,24 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     opt.init(q);
     opt.activeSubControls = 0;
     opt.buttonSymbols = buttonSymbols;
-    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxFrame;
+    opt.subControls = QStyle::SC_SpinBoxFrame;
+    if (buttonSymbols != QAbstractSpinBox::NoButtons) {
+        opt.subControls |= QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+        if (buttonState & Up) {
+            opt.activeSubControls = QStyle::SC_SpinBoxUp;
+        } else if (buttonState & Down) {
+            opt.activeSubControls = QStyle::SC_SpinBoxDown;
+        }
+    }
 
-    if (buttonState & Up)
-        opt.activeSubControls = QStyle::SC_SpinBoxUp;
-    else if (buttonState & Down)
-        opt.activeSubControls = QStyle::SC_SpinBoxDown;
-    else
-        opt.activeSubControls = hoverControl;
-    if (buttonState)
+    if (buttonState) {
         opt.state |= QStyle::State_Sunken;
+    } else {
+        opt.activeSubControls = hoverControl;
+    }
 
     opt.stepEnabled = q->style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-                      ? q->stepEnabled() 
+                      ? q->stepEnabled()
                       : (QAbstractSpinBox::StepDownEnabled|QAbstractSpinBox::StepUpEnabled);
 
     opt.frame = frame;

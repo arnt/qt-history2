@@ -1865,12 +1865,23 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             const int margin = spinbox->frame ? 4 : 0;
             switch (sc) {
             case SC_SpinBoxUp:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
                 return visualRect(spinbox->direction, spinbox->rect,
                                   QRect(x, y, bs.width(), bs.height() - 1));
             case SC_SpinBoxDown:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
+
                 return visualRect(spinbox->direction, spinbox->rect,
                                   QRect(x, y + bs.height() + 1, bs.width(), bs.height() - 1));
             case SC_SpinBoxEditField:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return visualRect(spinbox->direction, spinbox->rect,
+                                      QRect(lx + margin, fw + margin,
+                                            spinbox->rect.width() - 2*fw - 2*margin,
+                                            spinbox->rect.height() - 2*fw - 2*margin));
+
                 return visualRect(spinbox->direction, spinbox->rect,
                                   QRect(lx + margin, fw + margin, rx - margin,
                                         spinbox->rect.height() - 2*fw - 2 * margin));

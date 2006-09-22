@@ -1719,14 +1719,14 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         int x = opt->rect.x();
         int y = opt->rect.y();
         int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
-                        
+
         if (opt->state & State_Horizontal) {
             int horiz_size = h / 2;
-            r.setRect(x + w - margin * 2 - horiz_size, y + 5, 
+            r.setRect(x + w - margin * 2 - horiz_size, y + 5,
                       horiz_size, h - margin * 2 - 5);
         } else {
             int vert_size = w / 2;
-            r.setRect(x + 5, y + h - margin * 2 - vert_size, 
+            r.setRect(x + 5, y + h - margin * 2 - vert_size,
                       w - margin * 2 - 5, vert_size);
         }
         r = visualRect(opt->direction, opt->rect, r);
@@ -2912,13 +2912,22 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             rx = x - fw;
             switch (sc) {
             case SC_SpinBoxUp:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
                 ret = QRect(x, y, bs.width(), bs.height());
                 break;
             case SC_SpinBoxDown:
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
+
                 ret = QRect(x, y + bs.height(), bs.width(), bs.height());
                 break;
             case SC_SpinBoxEditField:
-                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw);
+                if (spinbox->buttonSymbols == QAbstractSpinBox::NoButtons) {
+                    ret = QRect(lx, fw, spinbox->rect.width() - 2*fw, spinbox->rect.height() - 2*fw);
+                } else {
+                    ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw);
+                }
                 break;
             case SC_SpinBoxFrame:
                 ret = spinbox->rect;

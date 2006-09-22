@@ -52,7 +52,7 @@ public:
                            StepDownEnabled = 0x02 };
     Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlag)
 
-    enum ButtonSymbols { UpDownArrows, PlusMinus };
+    enum ButtonSymbols { UpDownArrows, PlusMinus, NoButtons };
 
     ButtonSymbols buttonSymbols() const;
     void setButtonSymbols(ButtonSymbols bs);

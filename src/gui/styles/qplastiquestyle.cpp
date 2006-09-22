@@ -4894,17 +4894,25 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             int center = spinBox->rect.height() / 2;
             switch (subControl) {
             case SC_SpinBoxUp:
+                if (spinBox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 rect.setRect(spinBox->rect.right() - 16, spinBox->rect.top(), 17, center + 1);
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             case SC_SpinBoxDown:
+                if (spinBox->buttonSymbols == QAbstractSpinBox::NoButtons)
+                    return QRect();
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 rect.setRect(spinBox->rect.right() - 16, center, 17, spinBox->rect.height() - center);
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             case SC_SpinBoxEditField:
-                rect = spinBox->rect.adjusted(0, 0, -16, 0);
+                if (spinBox->buttonSymbols != QAbstractSpinBox::NoButtons) {
+                    rect = spinBox->rect.adjusted(0, 0, -16, 0);
+                } else {
+                    rect = spinBox->rect;
+                }
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             default:
