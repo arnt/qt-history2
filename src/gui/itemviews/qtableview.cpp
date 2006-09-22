@@ -273,39 +273,14 @@ QRect QTableViewPrivate::visualSpanRect(const Span &span) const
 
 /*!
   \internal
-  Clips the regions corresponding to the spanning cells in \a area
-  (so we don't draw them twice).
+  Draws the spanning cells within rect \a area, and clips them off as
+  preparation for the main drawing loop.
 */
-void QTableViewPrivate::clipSpans(const QRect &area, QPainter *painter)
-{
-    QRegion region = viewport->rect();
-    QList<Span>::const_iterator it;
-    for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
-        Span span = *it;
-        int row = span.top();
-        int col = span.left();
-        if (isHidden(row, col))
-            continue;
-        QModelIndex index = model->index(row, col, root);
-        if (!index.isValid())
-            continue;
-        QRect rect = visualSpanRect(span);
-        rect.translate(scrollDelayOffset);
-        if (!rect.intersects(area))
-            continue;
-        region -= rect;
-    }
-    if (region != viewport->rect())
-        painter->setClipRegion(region);
-}
-
-/*!
-  \internal
-  Draws the spanning cells within rect \a area.
-*/
-void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QStyleOptionViewItemV2 &option)
+void QTableViewPrivate::drawAndClipSpans(const QRect &area, QPainter *painter,
+                                         const QStyleOptionViewItemV2 &option)
 {
     bool alternateBase = false;
+    QRegion region = viewport->rect();
     QList<Span>::const_iterator it;
     for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
         Span span = *it;
@@ -328,7 +303,12 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
         else
             opt.features &= ~QStyleOptionViewItemV2::Alternate;
         drawCell(painter, opt, index);
+        region -= rect;
     }
+    if (region != viewport->rect())
+        painter->setClipRegion(region);
+    else
+        painter->setClipRegion(QRegion(), Qt::NoClip);
 }
 
 /*!
@@ -665,7 +645,7 @@ void QTableView::paintEvent(QPaintEvent *event)
         dirtyArea.translate(offset);
 
         if (d->hasSpans())
-            d->clipSpans(dirtyArea, &painter);
+            d->drawAndClipSpans(dirtyArea, &painter, option);
 
         // get the horizontal start and end visual sections
         int left = horizontalHeader->visualIndexAt(dirtyArea.left());
@@ -760,11 +740,6 @@ void QTableView::paintEvent(QPaintEvent *event)
                                  colp, gridHeight);
             }
             painter.setPen(old);
-        }
-
-        if (d->hasSpans()) {
-            painter.setClipRegion(QRegion(), Qt::NoClip);
-            d->drawSpans(dirtyArea, &painter, option);
         }
 
         option.palette.setCurrentColorGroup(state & QStyle::State_Enabled
