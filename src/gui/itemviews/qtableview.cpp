@@ -256,13 +256,55 @@ bool QTableViewPrivate::spansIntersectRows(const QList<int> &rows) const
     return false;
 }
 
+QRect QTableViewPrivate::visualSpanRect(const Span &span) const
+{
+    // vertical
+    int row = span.top();
+    int rowp = verticalHeader->sectionViewportPosition(row);
+    int rowh = rowSpanHeight(row, span.height());
+    // horizontal
+    int column = span.left();
+    int colp = horizontalHeader->sectionViewportPosition(column);
+    int colw = columnSpanWidth(column, span.width());
+
+    const int i = showGrid ? 1 : 0;
+    return QRect(colp, rowp, colw - i, rowh - i);
+}
+
+/*!
+  \internal
+  Clips the regions corresponding to the spanning cells in \a area
+  (so we don't draw them twice).
+*/
+void QTableViewPrivate::clipSpans(const QRect &area, QPainter *painter)
+{
+    QRegion region = viewport->rect();
+    QList<Span>::const_iterator it;
+    for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
+        Span span = *it;
+        int row = span.top();
+        int col = span.left();
+        if (isHidden(row, col))
+            continue;
+        QModelIndex index = model->index(row, col, root);
+        if (!index.isValid())
+            continue;
+        QRect rect = visualSpanRect(span);
+        rect.translate(scrollDelayOffset);
+        if (!rect.intersects(area))
+            continue;
+        region -= rect;
+    }
+    if (region != viewport->rect())
+        painter->setClipRegion(region);
+}
+
 /*!
   \internal
   Draws the spanning cells within rect \a area.
 */
 void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QStyleOptionViewItemV2 &option)
 {
-    Q_Q(QTableView);
     bool alternateBase = false;
     QList<Span>::const_iterator it;
     for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
@@ -274,7 +316,7 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
         QModelIndex index = model->index(row, col, root);
         if (!index.isValid())
             continue;
-        QRect rect = q->visualRect(index);
+        QRect rect = visualSpanRect(span);
         rect.translate(scrollDelayOffset);
         if (!rect.intersects(area))
             continue;
@@ -622,6 +664,9 @@ void QTableView::paintEvent(QPaintEvent *event)
         QRect dirtyArea = rects.at(i);
         dirtyArea.translate(offset);
 
+        if (d->hasSpans())
+            d->clipSpans(dirtyArea, &painter);
+
         // get the horizontal start and end visual sections
         int left = horizontalHeader->visualIndexAt(dirtyArea.left());
         int right = horizontalHeader->visualIndexAt(dirtyArea.right());
@@ -717,8 +762,10 @@ void QTableView::paintEvent(QPaintEvent *event)
             painter.setPen(old);
         }
 
-        if (d->hasSpans())
+        if (d->hasSpans()) {
+            painter.setClipRegion(QRegion(), Qt::NoClip);
             d->drawSpans(dirtyArea, &painter, option);
+        }
 
         option.palette.setCurrentColorGroup(state & QStyle::State_Enabled
                                             ? QPalette::Normal : QPalette::Disabled);
@@ -1589,23 +1636,15 @@ QRect QTableView::visualRect(const QModelIndex &index) const
 
     d->executePostedLayout();
 
-    int colp, rowp, colw, rowh;
     if (d->hasSpans()) {
         QTableViewPrivate::Span span = d->span(index.row(), index.column());
-        // vertical
-        int row = span.top();
-        rowp = rowViewportPosition(row);
-        rowh = d->rowSpanHeight(row, span.height());
-        // horizontal
-        int col = span.left();
-        colp = columnViewportPosition(col);
-        colw = d->columnSpanWidth(col, span.width());
-    } else {
-        rowp = rowViewportPosition(index.row());
-        rowh = rowHeight(index.row());
-        colp = columnViewportPosition(index.column());
-        colw = columnWidth(index.column());
+        return d->visualSpanRect(span);
     }
+
+    int rowp = rowViewportPosition(index.row());
+    int rowh = rowHeight(index.row());
+    int colp = columnViewportPosition(index.column());
+    int colw = columnWidth(index.column());
 
     const int i = showGrid() ? 1 : 0;
     return QRect(colp, rowp, colw - i, rowh - i);

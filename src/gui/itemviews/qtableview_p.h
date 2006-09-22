@@ -71,6 +71,7 @@ public:
     bool spansIntersectRow(int row) const;
     bool spansIntersectColumns(const QList<int> &columns) const;
     bool spansIntersectRows(const QList<int> &rows) const;
+    void clipSpans(const QRect &area, QPainter *painter);
     void drawSpans(const QRect &area, QPainter *painter, const QStyleOptionViewItemV2 &option);
     void drawCell(QPainter *painter, const QStyleOptionViewItemV2 &option, const QModelIndex &index);
 
@@ -141,6 +142,7 @@ public:
     inline int columnSpanEndLogical(int column, int span) const {
         return sectionSpanEndLogical(horizontalHeader, column, span);
     }
+    QRect visualSpanRect(const Span &span) const;
 
 };
 
