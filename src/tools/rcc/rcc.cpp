@@ -283,7 +283,10 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             alias.remove(0, 3);
                         alias = QDir::cleanPath(mResourceRoot) + prefix + alias;
 
-                        QFileInfo file(currentPath + fileName);
+                        QString absFileName = fileName;
+                        if(QDir::isRelativePath(absFileName))
+                            absFileName.prepend(currentPath);
+                        QFileInfo file(absFileName);
                         if (!file.exists()) {
                             if(ignoreErrors)
                                 continue;
