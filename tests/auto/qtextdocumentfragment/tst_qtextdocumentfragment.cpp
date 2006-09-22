@@ -1139,6 +1139,9 @@ void tst_QTextDocumentFragment::html_whitespace_data()
 
     QTest::newRow("task122650-3") << QString("<html>Before<pre>\nTest</pre>")
                                   << QString("Before\nTest");
+
+    QTest::newRow("br-with-whitespace") << QString("Foo<br>\nBlah")
+                                        << QString("Foo\nBlah");
 }
 
 void tst_QTextDocumentFragment::html_whitespace()

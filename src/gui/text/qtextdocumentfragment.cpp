@@ -849,6 +849,8 @@ bool QTextHtmlImporter::closeTag(int i)
             // new block
             if (!closedNode->text.isEmpty())
                 blockTagClosed = true;
+        } else if (closedNode->id == Html_br) {
+            compressNextWhitespace = true;
         }
 
         closedNode = &at(closedNode->parent);
