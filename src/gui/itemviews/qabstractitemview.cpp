@@ -1834,7 +1834,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Space:
     case Qt::Key_Select:
-        if (!edit(currentIndex(), AnyKeyPressed, event))
+        if (!edit(currentIndex(), AnyKeyPressed, event) && d->selectionModel)
             d->selectionModel->select(currentIndex(), selectionCommand(currentIndex(), event));
 #ifdef QT_KEYPAD_NAVIGATION
         if ( event->key()==Qt::Key_Select ) {
