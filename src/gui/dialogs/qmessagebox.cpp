@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QtGui/qfont.h>
 #include <QtGui/qfontmetrics.h>
+#include <QtGui/qclipboard.h>
 
 enum Button { Old_Ok = 1, Old_Cancel = 2, Old_Yes = 3, Old_No = 4, Old_Abort = 5, Old_Retry = 6,
               Old_Ignore = 7, Old_YesAll = 8, Old_NoAll = 9, Old_ButtonMask = 0xFF,
@@ -1109,6 +1110,29 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
             }
             return;
         }
+
+#ifdef Q_OS_WIN
+        if (e == QKeySequence::Copy) {
+            QString separator = QString::fromLatin1("---------------------------\n");
+            QString textToCopy = separator;
+            separator.prepend(QLatin1String("\n"));
+            textToCopy += windowTitle() + separator; // title
+            textToCopy += d->label->text() + separator; // text
+
+            if (d->informativeLabel)
+                textToCopy += d->informativeLabel->text() + separator;
+            
+            QString buttonTexts;
+            QList<QAbstractButton *> buttons = d->buttonBox->buttons();
+            for (int i = 0; i < buttons.count(); i++) {
+                buttonTexts += buttons[i]->text() + QLatin1String("   ");
+            }
+            textToCopy += buttonTexts + separator;
+
+            qApp->clipboard()->setText(textToCopy);
+            return;
+        }
+#endif
 
 #ifndef QT_NO_SHORTCUT
     if (!(e->modifiers() & Qt::AltModifier)) {
