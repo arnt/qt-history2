@@ -170,6 +170,7 @@ private slots:
     void html_brokenTableWithJustTd();
     void html_preNewlineHandling_data();
     void html_preNewlineHandling();
+    void html_br();
 
 private:
     inline void setHtml(const QString &html)
@@ -2543,6 +2544,12 @@ void tst_QTextDocumentFragment::html_preNewlineHandling()
 
     doc->setHtml(html);
     QTEST(doc->toPlainText(), "expectedPlainText");
+}
+
+void tst_QTextDocumentFragment::html_br()
+{
+    doc->setHtml("Foo<br><br><br>Blah");
+    QCOMPARE(doc->toPlainText(), QString("Foo\n\n\nBlah"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)

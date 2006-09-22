@@ -1198,6 +1198,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_br:
             text = QChar(QChar::LineSeparator);
+            wsm = QTextHtmlParserNode::WhiteSpacePre;
             break;
         // ##### sub / sup
         case Html_pre:
