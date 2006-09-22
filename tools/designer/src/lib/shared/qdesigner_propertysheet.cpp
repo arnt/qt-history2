@@ -31,6 +31,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QLabel>
 #include <QtGui/QCalendarWidget>
+#include <QtGui/QDialogButtonBox>
 
 namespace qdesigner_internal {
 
@@ -62,6 +63,8 @@ static bool hasLayoutAttributes(QObject *object)
     if (qobject_cast<QStatusBar*>(object) != 0)
         return false;
     if (qobject_cast<QCalendarWidget*>(object) != 0)
+        return false;
+    if (qobject_cast<QDialogButtonBox*>(object) != 0)
         return false;
     return true;
 }
