@@ -2643,9 +2643,11 @@ bool QInternal::callFunction(InternalFunction func, void **args)
                "QInternal::callFunction()", "Callback id must be a valid id");
 #ifndef QT_NO_QOBJECT
     switch (func) {
+#ifndef QT_NO_THREAD
     case QInternal::CreateThreadForAdoption:
         *args = QAdoptedThread::createThreadForAdoption();
         return true;
+#endif
     case QInternal::RefAdoptedThread:
         QThreadData::get2((QThread *) *args)->ref();
         return true;
