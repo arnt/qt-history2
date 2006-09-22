@@ -171,6 +171,7 @@ private slots:
     void html_preNewlineHandling_data();
     void html_preNewlineHandling();
     void html_br();
+    void html_dl();
 
 private:
     inline void setHtml(const QString &html)
@@ -2553,6 +2554,12 @@ void tst_QTextDocumentFragment::html_br()
 {
     doc->setHtml("Foo<br><br><br>Blah");
     QCOMPARE(doc->toPlainText(), QString("Foo\n\n\nBlah"));
+}
+
+void tst_QTextDocumentFragment::html_dl()
+{
+    doc->setHtml("<dl><dt>term<dd>data</dl>Text afterwards");
+    QCOMPARE(doc->toPlainText(), QString("term\ndata\nText afterwards"));
 }
 
 QTEST_MAIN(tst_QTextDocumentFragment)
