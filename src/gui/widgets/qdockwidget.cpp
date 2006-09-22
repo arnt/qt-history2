@@ -245,7 +245,7 @@ void QDockWidgetPrivate::updateButtons()
     relayout();
 }
 
-// ### Qt 4.1: Add subrects to style API, this will cover our styles for now
+// ### Qt 4.3: Add subrects to style API, this will cover our styles for now
 //             Also, add posibilty to get standardIcons
 void QDockWidgetPrivate::relayout()
 {
@@ -256,27 +256,27 @@ void QDockWidgetPrivate::relayout()
     QSize floatSize = floatButton ? floatButton->sizeHint() : QSize(0,0);
 
     int minWidth  = q->fontMetrics().width(q->windowTitle()) + 2 * fw + 2 * mw;
-    int minHeight = qMax(closeSize.width(), closeSize.height()) + 2 * mw;
+    int minHeight = qMax(closeSize.width(), closeSize.height());
     minHeight = qMax(minHeight, qMax(floatSize.width(), floatSize.height()));
-    minHeight += 2; // Allow 1px frame around title area with buttons inside
 #ifdef Q_WS_MAC
     if (qobject_cast<QMacStyle *>(q->style())) {
         extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
         QFont font = qt_app_fonts_hash()->value("QToolButton", q->font());
         QFontMetrics fm(font);
-        minHeight = qMax(minHeight, fm.lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
+        minHeight = qMax(minHeight, fm.lineSpacing()); //Ensure 2 px margin around font
     } else
 #endif
     {
-        minHeight = qMax(minHeight, q->fontMetrics().lineSpacing() + 2 + 2 * mw) - fw; //Ensure 2 px margin around font
+        minHeight = qMax(minHeight, q->fontMetrics().lineSpacing()); //Ensure 2 px margin around font
     }
+    minHeight += 2 + 2*mw - fw; // Allow 1px frame around title area with buttons inside
     titleArea = QRect(QPoint(fw, fw),
                       QSize(q->rect().width() - (fw * 2), minHeight));
     int posX = titleArea.right();
 
     QPoint buttonOffset(0, 0);
 #ifdef Q_OS_WIN
-    // ### Qt 4.2: Fix this properly
+    // ### Qt 4.3: Fix this properly
     if (q->style()->inherits("QWindowsXPStyle")) {
         if(q->isFloating())
             buttonOffset = QPoint(2, -1);
@@ -285,7 +285,7 @@ void QDockWidgetPrivate::relayout()
     }
 #endif
     if (closeButton) {
-        // ### Qt 4.2: Fix this properly
+        // ### Qt 4.3: Fix this properly
         closeButton->setGeometry(QStyle::visualRect(
 				    q->layoutDirection(),
                                     titleArea, QRect(posX - closeSize.width() - mw + buttonOffset.x(),
@@ -295,7 +295,7 @@ void QDockWidgetPrivate::relayout()
     }
 
     if (floatButton) {
-        // ### Qt 4.2: Fix this properly
+        // ### Qt 4.3: Fix this properly
         floatButton->setGeometry(QStyle::visualRect(
 				    q->layoutDirection(),
                                     titleArea, QRect(posX - floatSize.width() - mw + buttonOffset.x(),
@@ -628,6 +628,7 @@ void QDockWidget::setFeatures(QDockWidget::DockWidgetFeatures features)
     d->updateButtons();
     d->toggleViewAction->setEnabled((d->features & DockWidgetClosable) == DockWidgetClosable);
     emit featuresChanged(d->features);
+    update();
 }
 
 QDockWidget::DockWidgetFeatures QDockWidget::features() const
@@ -801,6 +802,11 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::ChildRemoved:
         if (d->widget == static_cast<QChildEvent *>(event)->child())
             d->widget = 0;
+        break;
+    case QEvent::WindowActivate:
+    case QEvent::WindowDeactivate:
+        update();
+        qDebug() << "QDockWidget::event():" << this << event;
         break;
     default:
         break;

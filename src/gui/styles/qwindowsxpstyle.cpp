@@ -2357,91 +2357,115 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
-            bool isActive = dwOpt->state & State_Active;
-            QRect r = option->rect.adjusted(0, 2, -1, -3);
-            if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget)){
-                if (!dw->isFloating()){
-                    p->setPen(dwOpt->palette.color(QPalette::Dark));
-                    p->drawRect(r);
-                    QRect titleRect = visualRect(dwOpt->direction, r, r.adjusted(0, 0, -31, 0));
-                    if (!dwOpt->title.isEmpty()) {
-                        const int indent = p->fontMetrics().descent();
-                        drawItemText(p, titleRect.adjusted(indent + 1, 1, -indent - 1, -1),
-                                    Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                                    dwOpt->state & State_Enabled, dwOpt->title,
-                                    QPalette::WindowText);
-                    }
-                    return;
-                }
-            }
-            name = "WINDOW";
-            if (isActive)
-                stateId = CS_ACTIVE;
-            else
-                stateId = CS_INACTIVE;
-
+            int buttonMargin = 4;
+            int mw = pixelMetric(QStyle::PM_DockWidgetTitleMargin, dwOpt, widget);
             int fw = pixelMetric(PM_DockWidgetFrameWidth, dwOpt, widget);
-            int titleHeight = rect.height() - 2;
-            rect = rect.adjusted(-fw, -fw, fw, 0);
+            const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget);
+            bool isFloating = dw != 0 && dw->isFloating();
+            bool isActive = dwOpt->state & State_Active;
 
-            XPThemeData theme(widget, p, name, 0, stateId);
-            if (!theme.isValid())
-                break;
+            QRect r = option->rect.adjusted(0, 2, -1, -3);
+            QRect titleRect = r;            
 
-            // Draw small type title bar
-            theme.rect = rect;
-            theme.partId = WP_SMALLCAPTION;
-            d->drawBackground(theme);
-
-            // Figure out maximal button space on title bar
-            QSize closeSize = dwOpt->closable ?
-                standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget).size() : QSize(0,0);
-            QSize floatSize = dwOpt->floatable ?
-                standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget).size() : QSize(0,0);
-
-            int iconSize = qMax(closeSize.width(), closeSize.height());
-            iconSize = qMax(iconSize, qMax(floatSize.width(), floatSize.height()));
-
-            QIcon ico = widget->windowIcon();
-            bool hasIcon = (ico.serialNumber() != qApp->windowIcon().serialNumber());
-            int indent = fw;
-            if (hasIcon) {
-                QPixmap pxIco = ico.pixmap(titleHeight);
-                if (QApplication::layoutDirection() == Qt::RightToLeft)
-                    p->drawPixmap(rect.width() - indent - pxIco.width(), rect.bottom() - titleHeight - 2, pxIco);
-                else
-                    p->drawPixmap(indent, rect.bottom() - titleHeight - 2, pxIco);
-                indent += pxIco.width() + 1;
+            if (dwOpt->closable) {
+                QPixmap pm = standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget);
+                titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
             }
-            if (!dwOpt->title.isEmpty()) {
-                QFont oldFont = p->font();
-                QFont titleFont = oldFont;
-                titleFont.setBold(true);
-                p->setFont(titleFont);
 
-                int result = TST_NONE;
-                pGetThemeEnumValue(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
-                if (result != TST_NONE) {
-                    COLORREF textShadowRef;
-                    pGetThemeColor(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
-                    QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
-                    p->setPen(textShadow);
-                    drawItemText(p, rect.adjusted(indent + 2,
-                                                  rect.bottom() - p->fontMetrics().lineSpacing() - 3,
-                                                  - (2 * iconSize), - 1),
-                                 Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                                 dwOpt->state & State_Enabled, dwOpt->title);
+            if (dwOpt->floatable) {
+                QPixmap pm = standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget);
+                titleRect.adjust(0, 0, -pm.size().width() - mw - buttonMargin, 0);
+            }
+
+            if (isFloating) {
+                titleRect.adjust(0, -fw, 0, 0);
+                if (widget != 0 && widget->windowIcon().serialNumber() != qApp->windowIcon().serialNumber())
+                    titleRect.adjust(titleRect.height() + mw, 0, 0, 0);
+            } else {
+                titleRect.adjust(mw, 0, 0, 0);
+                if (!dwOpt->floatable && !dwOpt->closable)
+                    titleRect.adjust(0, 0, -mw, 0);
+            }
+
+            titleRect = visualRect(dwOpt->direction, r, titleRect);
+
+            if (!isFloating) {
+                QPen oldPen = p->pen();
+                QString titleText = p->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
+                p->setPen(dwOpt->palette.color(QPalette::Dark));
+                p->drawRect(r);
+
+                if (!titleText.isEmpty()) {
+                    drawItemText(p, titleRect,
+                                Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                                dwOpt->state & State_Enabled, titleText,
+                                QPalette::WindowText);
                 }
 
-                COLORREF captionText = GetSysColor(isActive ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
-                QColor textColor = qRgb(GetRValue(captionText), GetGValue(captionText), GetBValue(captionText));
-                p->setPen(textColor);
-                drawItemText(p, rect.adjusted(indent + 1, rect.bottom() - p->fontMetrics().lineSpacing() - 4,
-                                              - (2 * iconSize), -1),
-                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                             dwOpt->state & State_Enabled, dwOpt->title);
-                p->setFont(oldFont);
+                p->setPen(oldPen);
+            } else {
+                name = "WINDOW";
+                if (isActive)
+                    stateId = CS_ACTIVE;
+                else
+                    stateId = CS_INACTIVE;
+
+                int titleHeight = rect.height() - 2;
+                rect = rect.adjusted(-fw, -fw, fw, 0);
+
+                XPThemeData theme(widget, p, name, 0, stateId);
+                if (!theme.isValid())
+                    break;
+
+                // Draw small type title bar
+                theme.rect = rect;
+                theme.partId = WP_SMALLCAPTION;
+                d->drawBackground(theme);
+
+                // Figure out maximal button space on title bar
+
+                QIcon ico = widget->windowIcon();
+                bool hasIcon = (ico.serialNumber() != qApp->windowIcon().serialNumber());
+                if (hasIcon) {
+                    QPixmap pxIco = ico.pixmap(titleHeight);
+                    if (QApplication::layoutDirection() == Qt::RightToLeft)
+                        p->drawPixmap(rect.width() - titleHeight - pxIco.width(), rect.bottom() - titleHeight - 2, pxIco);
+                    else
+                        p->drawPixmap(fw, rect.bottom() - titleHeight - 2, pxIco);
+                }
+                if (!dwOpt->title.isEmpty()) {
+                    QPen oldPen = p->pen();
+                    QFont oldFont = p->font();
+                    QFont titleFont = oldFont;
+                    titleFont.setBold(true);
+                    p->setFont(titleFont);
+                    QString titleText 
+                        = p->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
+
+                    int result = TST_NONE;
+                    pGetThemeEnumValue(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWTYPE, &result);
+                    if (result != TST_NONE) {
+                        COLORREF textShadowRef;
+                        pGetThemeColor(theme.handle(), WP_SMALLCAPTION, isActive ? CS_ACTIVE : CS_INACTIVE, TMT_TEXTSHADOWCOLOR, &textShadowRef);
+                        QColor textShadow = qRgb(GetRValue(textShadowRef), GetGValue(textShadowRef), GetBValue(textShadowRef));
+                        p->setPen(textShadow);
+                        drawItemText(p, titleRect.adjusted(1, 1, 1, 1),
+                                    Qt::AlignLeft | Qt::AlignBottom, dwOpt->palette,
+                                    dwOpt->state & State_Enabled, titleText);
+                    }
+
+                    COLORREF captionText = GetSysColor(isActive ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+                    QColor textColor = qRgb(GetRValue(captionText), GetGValue(captionText), GetBValue(captionText));
+                    p->setPen(textColor);
+                    drawItemText(p, titleRect,
+                                Qt::AlignLeft | Qt::AlignBottom, dwOpt->palette,
+                                dwOpt->state & State_Enabled, titleText);
+                    p->setFont(oldFont);
+                    p->setPen(oldPen);
+                }
+
             }
+
             return;
         }
         break;
