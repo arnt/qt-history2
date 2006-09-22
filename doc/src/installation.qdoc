@@ -152,9 +152,17 @@ Please follow the instructions for your platform from the following list.
 \title Installing Qt/Windows
 \ingroup installation
 
-\bold{Note:} If you have obtained a binary package for this platform,
+\table
+\row \o \bold{Notes:}
+\list
+\o If you have obtained a binary package for this platform,
 consult the installation instructions provided instead of the ones in
 this document.
+\o \l{Qt Open Source Edition} is not officially supported for use with
+any version of Visual Studio. Integration with Visual Studio is available
+as part of the \l{Qt Commercial Editions}.
+\endlist
+\endtable
 
 \list 1
 \o  If you have the commercial edition of Qt, copy the license file
