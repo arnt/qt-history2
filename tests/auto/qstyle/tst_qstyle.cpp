@@ -121,19 +121,19 @@ void tst_QStyle::testAllFunctions(QStyle *style)
     opt.init(testWidget);
     testWidget->setStyle(style);
     
-    //Tests styleHint with default arguments for potensial crashes
+    //Tests styleHint with default arguments for potential crashes
     for ( int hint = 0 ; hint < QStyle::SH_ScrollBar_RollBetweenButtons ; ++hint) {
         style->styleHint(QStyle::StyleHint(hint));
         style->styleHint(QStyle::StyleHint(hint), &opt, testWidget);
     }
     
-    //Tests pixelMetric with default arguments for potensial crashes
+    //Tests pixelMetric with default arguments for potential crashes
     for ( int pm = 0 ; pm < QStyle::PM_DockWidgetTitleMargin ; ++pm) {
         style->pixelMetric(QStyle::PixelMetric(pm));
         style->pixelMetric(QStyle::PixelMetric(pm), &opt, testWidget);        
     }
 
-    //Tests drawControl with default arguments for potensial crashes
+    //Tests drawControl with default arguments for potential crashes
     for ( int control = 0 ; control < QStyle::CE_ToolBar ; ++control) {
         QPixmap surface(QSize(200, 200));
         QPainter painter(&surface);
@@ -151,9 +151,11 @@ void tst_QStyle::testAllFunctions(QStyle *style)
             qWarning("missing StandardIcon: %d", i);
         }
     }
+	
+    style->itemPixmapRect(QRect(0, 0, 100, 100), Qt::AlignHCenter, QPixmap(200, 200));
+	style->itemTextRect(QFontMetrics(qApp->font()), QRect(0, 0, 100, 100), Qt::AlignHCenter, true, QString("Test"));
     
     testScrollBarSubControls(style);
-
 }
 
 void tst_QStyle::testScrollBarSubControls(QStyle *)
