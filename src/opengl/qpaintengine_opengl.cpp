@@ -1316,8 +1316,33 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
-        QPointF start = brush.matrix().map(g->start());
-        QPointF stop = brush.matrix().map(g->finalStop());
+        QMatrix m = brush.matrix();
+        QPointF start = m.map(g->start());
+        QPointF stop;
+
+        if (qFuzzyCompare(m.m11(), m.m22()) && m.m12() == 0.0 && m.m21() == 0.0) {
+            // It is a simple uniform scale and/or translation
+            stop = m.map(g->finalStop());
+        } else {
+            // It is not enough to just transform the endpoints.
+            // We have to make sure the _pattern_ is transformed correctly.
+
+            qreal odx = g->finalStop().x() - g->start().x();
+            qreal ody = g->finalStop().y() - g->start().y();
+
+            // nx, ny and dx, dy are normal and gradient direction after transform:
+            qreal nx = m.m11()*ody - m.m21()*odx;
+            qreal ny = m.m12()*ody - m.m22()*odx;
+        
+            qreal dx = m.m11()*odx + m.m21()*ody;
+            qreal dy = m.m12()*odx + m.m22()*ody;
+
+            qreal lx = 1.0/(dx - dy*nx/ny);
+            qreal ly = 1.0/(dy - dx*ny/nx);
+            qreal l = 1.0/sqrt(lx*lx+ly*ly);
+
+            stop = start + QPointF(-ny, nx) * l/sqrt(nx*nx+ny*ny);
+        }
 
         float tr[4], f;
         tr[0] = stop.x() - start.x();
