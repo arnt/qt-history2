@@ -92,7 +92,7 @@ New features
 General improvements
 --------------------
 
-- Itemviews
+- Item views
 
       * Selections are maintained when the layout of the model changes
         (e.g., due to sorting).
@@ -105,6 +105,10 @@ General improvements
 
       * QStandardItemModel API provides a classic item-based approach to
         working with models.
+
+      * Single selection item views on Mac OS X cannot change their current
+        item without changing the current selection when using keyboard
+        navigation.
 
 - Plastique style has improved support for palettes, and now requires
   XRender support on X11 for alpha transparency.
