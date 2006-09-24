@@ -2234,8 +2234,17 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                          const QSize &csz, const QWidget *w) const
 {
-    if (!hasStyleRule(w))
+    if (!hasStyleRule(w)) {
+#ifndef QT_NO_SPINBOX
+        // dont touch the size of a embedded lineedit in a styled spin box
+        if (ct == CT_LineEdit && w && qobject_cast<QAbstractSpinBox *>(w->parentWidget())) {
+            QRenderRule rule = renderRule(w->parentWidget(), opt);
+            if (rule.hasBox() || rule.hasBorder())
+                return csz;
+        }
+#endif
         return baseStyle()->sizeFromContents(ct, opt, csz, w);
+    }
 
     QRenderRule rule = renderRule(w, opt);
     QSize sz = csz.expandedTo(rule.minimumContentsSize());
@@ -2312,7 +2321,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 
     case CT_SpinBox:
         if (rule.hasBox() || rule.hasBorder())
-            return rule.boxSize(sz);
+            return sz;
 
     case CT_SizeGrip:
         if (rule.hasContentsSize())
