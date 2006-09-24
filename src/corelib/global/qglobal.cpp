@@ -2627,7 +2627,7 @@ bool QInternal::activateCallbacks(Callback cb, void **parameters)
     Q_ASSERT_X(cb >= 0, "QInternal::activateCallback()", "Callback id must be a valid id");
 
     QInternal_CallBackTable *cbt = global_callback_table();
-    if (cb < cbt->callbacks.size()) {
+    if (cbt && cb < cbt->callbacks.size()) {
         QList<qInternalCallback> callbacks = cbt->callbacks[cb];
         bool ret = false;
         for (int i=0; i<callbacks.size(); ++i)
