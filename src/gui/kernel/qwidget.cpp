@@ -2115,10 +2115,10 @@ bool QWidget::isFullScreen() const
     supported by virtually all modern window managers.
 
     An alternative would be to bypass the window manager entirely and
-    create a window with the Qt::WX11BypassWM flag. This has other severe
-    problems though, like totally broken keyboard focus and very
-    strange effects on desktop changes or when the user raises other
-    windows.
+    create a window with the Qt::X11BypassWindowManagerHint flag. This
+    has other severe problems though, like totally broken keyboard focus
+    and very strange effects on desktop changes or when the user raises
+    other windows.
 
     X11 window managers that follow modern post-ICCCM specifications
     support full-screen mode properly.
