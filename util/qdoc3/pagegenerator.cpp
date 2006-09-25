@@ -74,7 +74,9 @@ void PageGenerator::beginSubPage( const Location& location,
     if ( !outFile->open(QFile::WriteOnly) )
 	location.fatal( tr("Cannot open output file '%1'")
 			.arg(outFile->fileName()) );
-    outStreamStack.push( new QTextStream(outFile) );
+    QTextStream *out = new QTextStream(outFile);
+    out->setCodec("ISO-8859-1");
+    outStreamStack.push(out);
 }
 
 void PageGenerator::endSubPage()
