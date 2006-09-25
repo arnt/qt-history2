@@ -270,6 +270,20 @@ void tst_Collections::list()
 	    QVERIFY(sum == 21);
 	}
 	{
+	    QList<int>::Iterator i = list.begin();
+            i += 2;
+            QCOMPARE(*i, 3);
+            i -= 1;
+            QCOMPARE(*i, 2);
+	}
+	{
+	    QList<int>::ConstIterator i = list.begin();
+            i += 2;
+            QCOMPARE(*i, 3);
+            i -= 1;
+            QCOMPARE(*i, 2);
+	}
+	{
 	    int sum = 0;
 	    int i;
 	    for (i = 0; i < list.size(); ++i)
@@ -3110,12 +3124,12 @@ void instantiateContainer()
     const ValueType value = ValueType();
     ContainerType container;
     const ContainerType constContainer(container);
- 
+
 #ifndef QT_NO_STL
     typename ContainerType::const_iterator constIt;
     constIt = constContainer.begin();
     container.constBegin();
-    
+
     constIt = constContainer.end();
     container.constEnd();
 #endif
@@ -3136,13 +3150,13 @@ void instantiateMutableIterationContainer()
 {
     instantiateContainer<ContainerType, ValueType>();
     ContainerType container;
- 
+
 #ifndef QT_NO_STL
     typename ContainerType::iterator it;
     it = container.begin();
     it = container.end();
 #endif
-    
+
     // QSet lacks count(T).
     const ValueType value = ValueType();
     container.count(value);
@@ -3163,7 +3177,7 @@ template <typename ContainerType, typename ValueType>
 void instantiateRandomAccess()
 {
     instantiateSequence<ContainerType, ValueType>();
-    
+
     ValueType value = ValueType();
     ContainerType container;
     container.indexOf(value);
@@ -3178,18 +3192,18 @@ void instantiateAssociative()
     const ValueType value = ValueType();
     ContainerType container;
     const ContainerType constContainer(container);
-   
+
     container.reserve(1);
     container.capacity();
     container.squeeze();
 
     container.remove(value);
     container.values();
-    
+
     container.unite(constContainer);
     container.intersect(constContainer);
     container.subtract(constContainer);
-    
+
     container != constContainer;
     container == constContainer;
     container & constContainer;
@@ -3210,20 +3224,20 @@ template <typename ContainerType, typename KeyType, typename ValueType>
 void instantiatePairAssociative()
 {
     instantiateMutableIterationContainer<ContainerType, KeyType>();
-    
+
     typename ContainerType::iterator it;
     typename ContainerType::const_iterator constIt;
     const KeyType key = KeyType();
     const ValueType value = ValueType();
     ContainerType container;
     const ContainerType constContainer(container);
-    
+
     it = container.insert(key, value);
     container.erase(it);
     container.find(key);
     container.constFind(key);
     constContainer.find(key);
-    
+
     container.key(value);
     container.keys();
     constContainer.keys();
@@ -3248,46 +3262,46 @@ void tst_Collections::containerInstantiation()
     // Instantiate QHash member functions.
     typedef QHash<EqualsComparable, int> Hash;
     instantiatePairAssociative<Hash, EqualsComparable, int>();
-    
+
     Hash hash;
     hash.reserve(1);
     hash.capacity();
     hash.squeeze();
-    
+
     // Instantiate QMap member functions.
     typedef QMap<LessThanComparable, int> Map;
     instantiatePairAssociative<Map, LessThanComparable, int>();
-    
+
     // Instantiate QSet member functions.
     typedef QSet<EqualsComparable> Set;
     instantiateAssociative<Set, EqualsComparable>();
-    
+
     //Instantiate QLinkedList member functions.
     typedef QLinkedList<EqualsComparable> LinkedList;
     instantiateSequence<LinkedList, EqualsComparable> ();
     {
         EqualsComparable value;
         LinkedList list;
-        list.removeAll(value); 
+        list.removeAll(value);
     }
-    
+
     //Instantiate QList member functions.
     typedef QList<EqualsComparable> List;
     instantiateRandomAccess<List, EqualsComparable>();
     {
         EqualsComparable value;
         List list;
-        list.removeAll(value); 
+        list.removeAll(value);
     }
-    
+
     //Instantiate QVector member functions.
     typedef QVector<EqualsComparable> Vector;
     instantiateRandomAccess<Vector, EqualsComparable>();
-    
+
     //Instantiate QQueue member functions.
     typedef QQueue<EqualsComparable> Queue;
     instantiateRandomAccess<Queue, EqualsComparable>();
-    
+
     //Instantiate QStack member functions.
     typedef QStack<EqualsComparable> Stack;
     instantiateRandomAccess<Stack, EqualsComparable>();
@@ -3369,7 +3383,7 @@ void testSetContainerTypedefs(Container container)
 }
 
 /*
-    Compile-time test that verifies that the Qt containers 
+    Compile-time test that verifies that the Qt containers
     have STL-compatable typedefs.
 */
 void tst_Collections::containerTypedefs()
@@ -3379,7 +3393,7 @@ void tst_Collections::containerTypedefs()
     testContainerTypedefs(QList<int>());
     testContainerTypedefs(QLinkedList<int>());
     testContainerTypedefs(QQueue<int>());
-   
+
     testPairAssociativeContainerTypedefs(QMap<int, int>());
     testPairAssociativeContainerTypedefs(QMultiMap<int, int>());
     testPairAssociativeContainerTypedefs(QHash<int, int>());
