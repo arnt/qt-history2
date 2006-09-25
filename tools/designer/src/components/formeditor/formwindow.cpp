@@ -1908,7 +1908,7 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
         if (qobject_cast<WidgetHandle*>(child_obj) != 0)
             continue;
         QWidget *child = qobject_cast<QWidget*>(child_obj);
-        if (!child || child->isWindow() ||
+        if (!child || child->isWindow() || !child->isVisible() ||
                 !child->geometry().contains(pos) || child->testAttribute(Qt::WA_TransparentForMouseEvents))
             continue;
         QPoint childPos = child->mapFromParent(pos);
