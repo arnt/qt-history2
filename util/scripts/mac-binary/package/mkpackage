@@ -456,7 +456,7 @@ for package in $PACKAGES; do
         rm -f "$package_dir/Contents/Resources/InstallationCheck.strings"
         cp opensourceStuff/InstallationCheck "$package_dir/Contents/Resources"
         cp opensourceStuff/InstallationCheck.strings "$package_dir/Contents/Resources"
-        if [ "$package" = "libraries" ] || [ "$package" = "tools" ]; then
+        if [ "$package" = "libraries" ] || [ "$package" = "tools" ] || [ "$package" = "headers" ]; then
             rm -f "$package_dir/Contents/Resources/postflight"
         fi
 
