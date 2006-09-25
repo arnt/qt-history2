@@ -64,7 +64,15 @@
     buttons and check boxes to make them stand out. Using this
     technique, you can also achieve minor customizations that would
     normally require subclassing several style classes, such as
-    specifying a \l{QStyle::styleHint()}{style hint}.
+    specifying a \l{QStyle::styleHint()}{style hint}. The
+    \l{widget/stylesheet}{Style Sheet} example depicted below defines
+    two distinctive style sheets that you can try out and modify at
+    will.
+
+    \table
+    \row \o \inlineimage stylesheet-coffee-xp.png
+         \o \inlineimage stylesheet-pagefold.png
+    \endtable
 
     When a style sheet is active, the QStyle returned by
     QWidget::style() is a wrapper "style sheet" style, \e not the
@@ -584,7 +592,7 @@
     \row
         \o \bold{\c alternate-background} \target alternate-background-attr
         \omit ### or alternate-background-color? \endomit
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The \l{QAbstractItemView::alternatingRowColors}{alternate
            background color} used in QAbstractItemView subclasses.
 
@@ -606,7 +614,7 @@
 
     \row
         \o \bold{\c background} \target background-attr
-        \o \l Background
+        \o \l{#Background}{Background}
         \o Shorthand notation for setting the background. Equivalent
            to specifying \c background-color, \c background-image, \c
            background-repeat, and/or \c background-position.
@@ -637,7 +645,7 @@
 
     \row
         \o \c background-color
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The background color used for the widget.
 
            Examples:
@@ -649,7 +657,7 @@
 
     \row
         \o \c background-image
-        \o \l Url
+        \o \l{#Url}{Url}
         \o The background image used for the widget. Semi-transparent
            parts of the image let the \c background-color shine
            through.
@@ -662,7 +670,7 @@
 
     \row
         \o \c background-repeat
-        \o \l Repeat
+        \o \l{#Repeat}{Repeat}
         \o Whether and how the background image is repeated to fill
            the \c background-origin rectangle.
 
@@ -681,7 +689,7 @@
 
     \row
         \o \c background-position
-        \o \l Alignment
+        \o \l{#Alignment}{Alignment}
         \o The alignment of the background image within the \c
            background-origin rectangle.
 
@@ -699,7 +707,7 @@
 
     \row
         \o \bold{\c background-origin} \target background-origin-attr
-        \o \l Origin
+        \o \l{#Origin}{Origin}
         \o The widget's background rectangle, to use in conjunction
            with \c background-position and \c background-image.
         
@@ -725,9 +733,56 @@
            See also \l{#background-attr}{background} and \l{The Box Model}.
 
     \row
+        \o \bold{\c border} \target border-attr
+        \o \l{#Border}{Border}
+        \o Shorthand notation for setting the widget's border. Equivalent
+           to specifying \c border-color, \c border-style, and/or
+           \c border-width.
+
+           This attribute is supported by QAbstractItemView
+           subclasses, QAbstractSpinBox subclasses, QCheckBox,
+           QComboBox, QDialog, QFrame, QGroupBox, QLabel, QLineEdit,
+           QMenu, QMenuBar, QPushButton, QRadioButton, QSplitter,
+           QTextEdit, QToolTip, and plain \l{QWidget}s.
+
+           Example:
+
+           \code
+        QLineEdit { border: 1px solid white }
+           \endcode
+
+    \row
+        \o \c border-top
+        \o \l{#Border}{Border}
+        \o Shorthand notation for setting the widget's top border.
+           Equivalent to specifying \c border-top-color, \c
+           border-top-style, and/or \c border-top-width.
+
+    \row
+        \o \c border-right
+        \o \l{#Border}{Border}
+        \o Shorthand notation for setting the widget's right border.
+           Equivalent to specifying \c border-right-color, \c
+           border-right-style, and/or \c border-right-width.
+
+    \row
+        \o \c border-bottom
+        \o \l{#Border}{Border}
+        \o Shorthand notation for setting the widget's bottom border.
+           Equivalent to specifying \c border-bottom-color, \c
+           border-bottom-style, and/or \c border-bottom-width.
+
+    \row
+        \o \c border-left
+        \o \l{#Border}{Border}
+        \o Shorthand notation for setting the widget's left border.
+           Equivalent to specifying \c border-left-color, \c
+           border-left-style, and/or \c border-left-width.
+
+    \row
         \o \bold{\c border-color} \target border-attrs
            \target border-color-attr
-        \o \l{Box Colors}
+        \o \l{#Box Colors}{Box Colors}
         \o The color of all the border's edges. Equivalent to
            specifying \c border-top-color, \c border-right-color, \c
            border-bottom-color, and \c border-left-color.
@@ -738,8 +793,9 @@
            QMenu, QMenuBar, QPushButton, QRadioButton, QSplitter,
            QTextEdit, QToolTip, and plain \l{QWidget}s.
 
-           If this attribute is not specified, it defaults to \c
-           color (i.e., the widget's foreground color).
+           If this attribute is not specified, it defaults to
+           \l{#color-attr}{color} (i.e., the widget's foreground
+           color).
 
            Example:
 
@@ -757,30 +813,30 @@
 
     \row
         \o \c border-top-color
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color of the border's top edge.
 
     \row
         \o \c border-right-color
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color of the border's right edge.
 
     \row
         \o \c border-bottom-color
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color of the border's bottom edge.
 
     \row
         \o \c border-left-color
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color of the border's left edge.
 
     \row
         \o \bold{\c border-image} \target border-image-attr
-        \o \l{Border Image}
+        \o \l{#Border Image}{Border Image}
         \o The image used to fill the border. The image is cut into
            nine parts and stretched appropriately if necessary. See
-           \l{Border Image} for details.
+           \l{#Border Image}{Border Image} for details.
 
            This attribute is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
@@ -795,7 +851,7 @@
 
     \row
         \o \bold{\c border-radius} \target border-radius-attr
-        \o \l Radius
+        \o \l{#Radius}{Radius}
         \o The radius of the border's corners. Equivalent to
            specifying \c border-top-left-radius, \c
            border-top-right-radius, \c border-bottom-right-radius,
@@ -824,24 +880,24 @@
 
     \row
         \o \c border-top-left-radius
-        \o \l Radius
+        \o \l{#Radius}{Radius}
         \o The radius of the border's top-left corner.
 
     \row
         \o \c border-top-right-radius
-        \o \l Radius
+        \o \l{#Radius}{Radius}
         \o The radius of the border's top-right corner.
 
     \row
         \o \c border-bottom-right-radius
-        \o \l Radius
+        \o \l{#Radius}{Radius}
         \o The radius of the border's bottom-right corner. Setting
            this attribute to a positive value results in a rounded
            corner.
 
     \row
         \o \c border-bottom-left-radius
-        \o \l Radius
+        \o \l{#Radius}{Radius}
         \o The radius of the border's bottom-left corner. Setting this
            attribute to a positive value results in a rounded corner.
 
@@ -874,27 +930,27 @@
 
     \row
         \o \c border-top-style
-        \o \l{Border Style}
+        \o \l{#Border Style}{Border Style}
         \o The style of the border's top edge.
 
     \row
         \o \c border-right-style
-        \o \l{Border Style}
+        \o \l{#Border Style}{Border Style}
         \o The style of the border's right edge/
 
     \row
         \o \c border-bottom-style
-        \o \l{Border Style}
+        \o \l{#Border Style}{Border Style}
         \o The style of the border's bottom edge.
 
     \row
         \o \c border-left-style
-        \o \l{Border Style}
+        \o \l{#Border Style}{Border Style}
         \o The style of the border's left edge.
 
     \row
         \o \bold{\c border-width} \target border-width-attr
-        \o \l{Box Lengths}
+        \o \l{#Box Lengths}{Box Lengths}
         \o The width of the border. Equivalent to setting \c
            border-top-width, \c border-right-width, \c
            border-bottom-width, and \c border-left-width.
@@ -923,27 +979,27 @@
 
     \row
         \o \c border-top-width
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The width of the border's top edge.
 
     \row
         \o \c border-right-width
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The width of the border's right edge.
 
     \row
         \o \c border-bottom-width
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The width of the border's bottom edge.
 
     \row
         \o \c border-left-width
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The width of the border's left edge.
 
     \row
         \o \bold{\c bottom} \target bottom-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o If \l{#position-attr}{position} is \c relative (the
            default), moves a \l{sub-control} by a certain offset up;
            specifying \tt{bottom: \e{y}} is then equivalent to
@@ -965,7 +1021,7 @@
 
     \row
         \o \bold{\c button-layout}* \target button-layout-attr
-        \o \l Number
+        \o \l{#Number}{Number}
         \o The layout of buttons in a QDialogButtonBox or
            a QMessageBox. The possible values are 0
            (\l{QDialogButtonBox::}{WinLayout}), 1
@@ -985,7 +1041,7 @@
 
     \row
         \o \bold{\c color} \target color-attr
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color used to render text.
 
            This attribute is supported by all widgets that respect
@@ -1006,7 +1062,7 @@
 
     \row
         \o \bold{\c etch-disabled-text}*
-        \o \l Boolean
+        \o \l{#Boolean}{Boolean}
         \o Whether disabled text is drawn etched.
 
            If this attribute is not specified, it defaults to the
@@ -1021,7 +1077,7 @@
 
     \row
         \o \bold{\c font} \target font-attr
-        \o \l Font
+        \o \l{#Font}{Font}
         \o Shorthand notation for setting the text's font. Equivalent
            to specifying \c font-family, \c font-size, \c font-style,
            and/or \c font-weight.
@@ -1051,7 +1107,7 @@
 
     \row
         \o \c font-size
-        \o \l{Font Size}
+        \o \l{#Font Size}{Font Size}
         \o The font size.
 
            Example:
@@ -1073,12 +1129,12 @@
 
     \row
         \o \c font-weight
-        \o \l{Font Weight}
+        \o \l{#Font Weight}{Font Weight}
         \o The weight of the font.
 
     \row
         \o \bold{\c gridline-color}* \target gridline-color-attr
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The color of the grid line in a QTableView.
 
            If this attribute is not specified, it defaults to the
@@ -1093,7 +1149,7 @@
 
     \row
         \o \bold{\c height} \target height-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The height of a \l{sub-control}.
 
            If this attribute is not specified, it defaults to a value
@@ -1109,7 +1165,7 @@
 
     \row
         \o \bold{\c image}* \target image-attr
-        \o \l Url
+        \o \l{#Url}{Url}
         \o The image that is drawn at the center of a \l{sub-control}.
 
            Example:
@@ -1120,7 +1176,7 @@
 
     \row
         \o \bold{\c left} \target left-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o If \l{#position-attr}{position} is \c relative (the
            default), moves a \l{sub-control} by a certain offset to
            the right.
@@ -1143,7 +1199,7 @@
 
     \row
         \o \bold{\c lineedit-password- \BR \c character}*
-        \o \l Number
+        \o \l{#Number}{Number}
         \o The QLineEdit password character as a Unicode number.
 
            If this attribute is not specified, it defaults to the
@@ -1182,28 +1238,28 @@
 
     \row
         \o \c margin-top
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's top margin.
 
     \row
         \o \c margin-right
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's right margin.
 
     \row
         \o \c margin-bottom
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's bottom margin.
 
     \row
         \o \c margin-left
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's left margin.
 
     \row
         \o \bold{\c messagebox-text- \target messagebox-text-interaction-flags-attr
            \BR \c interaction-flags}*
-        \o \l Number
+        \o \l{#Number}{Number}
         \o The interaction behavior for text in a message box.
            Possible values are based on Qt::TextInteractionFlags.
 
@@ -1220,7 +1276,7 @@
 
     \row
         \o \bold{\c min-height} \target min-height-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's minimum height.
 
            This attribute is supported by QAbstractItemView
@@ -1242,7 +1298,7 @@
 
     \row
         \o \bold{\c min-width} \target min-width-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's minimum width.
 
            This attribute is supported by QAbstractItemView
@@ -1264,7 +1320,7 @@
 
     \row
         \o \bold{\c opacity}* \target opacity-attr
-        \o \l Number
+        \o \l{#Number}{Number}
         \o The opacity for a widget. Possible values are from 0
            (transparent) to 255 (opaque). For the moment, this is
            only supported for \l{QToolTip}{tooltips}.
@@ -1281,7 +1337,7 @@
 
     \row
         \o \bold{\c padding} \target padding-attr
-        \o \l{Box Lengths}
+        \o \l{#Box Lengths}{Box Lengths}
         \o The widget's padding. Equivalent to specifying \c
            padding-top, \c padding-right, \c padding-bottom, and \c
            padding-left.
@@ -1305,22 +1361,22 @@
 
     \row
         \o \c padding-top
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's top padding.
 
     \row
         \o \c padding-right
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's right padding.
 
     \row
         \o \c padding-bottom
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's bottom padding.
 
     \row
         \o \c padding-left
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The widget's left padding.
 
     \row
@@ -1337,7 +1393,7 @@
 
     \row
         \o \bold{\c right} \target right-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o If \l{#position-attr}{position} is \c relative (the
            default), moves a \l{sub-control} by a certain offset to
            the left; specifying \tt{right: \e{x}} is then equivalent
@@ -1359,7 +1415,7 @@
 
     \row
         \o \bold{\c selection-background-color}* \target selection-background-color-attr
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The background of selected text or items.
 
            This attribute is supported by all widgets that respect
@@ -1380,7 +1436,7 @@
 
     \row
         \o \bold{\c selection-color}* \target selection-color-attr
-        \o \l Color
+        \o \l{#Color}{Color}
         \o The foreground of selected text or items.
 
            This attribute is supported by all widgets that respect
@@ -1403,7 +1459,7 @@
     \row
         \o \bold{\c show-decoration- \target show-decoration-selected-attr
            \BR \c selected}*
-        \o \l Boolean
+        \o \l{#Boolean}{Boolean}
         \o Controls whether selections in a QListView cover the
            entire row or just the extent of the text.
            
@@ -1420,7 +1476,7 @@
 
     \row
         \o \bold{\c spacing}* \target spacing-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o Internal spacing in the widget.
 
            This attribute is supported by QCheckBox, checkable
@@ -1440,7 +1496,7 @@
 
     \row
         \o \bold{\c subcontrol-origin}* \target subcontrol-origin-attr
-        \o \l Origin
+        \o \l{#Origin}{Origin}
         \o The origin rectangle of the \l sub-control within the
            parent element.
 
@@ -1462,7 +1518,7 @@
 
     \row
         \o \bold{\c subcontrol-position}* \target subcontrol-position-attr
-        \o \l Alignment
+        \o \l{#Alignment}{Alignment}
         \o The alignment of the \l sub-control within the origin
            rectangle specified by \l{#subcontrol-origin-attr}{subcontrol-origin}.
 
@@ -1484,7 +1540,7 @@
 
     \row
         \o \bold{\c top} \target top-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o If \l{#position-attr}{position} is \c relative (the
            default), moves a \l{sub-control} by a certain offset
            down.
@@ -1507,7 +1563,7 @@
 
     \row
         \o \bold{\c width} \target width-attr
-        \o \l Length
+        \o \l{#Length}{Length}
         \o The width of a \l{sub-control}.
 
            If this attribute is not specified, it defaults to a value
@@ -1524,6 +1580,9 @@
     \endtable
 
     \section2 List of Attribute Types
+
+    The following table summarizes the syntax and meaning of the
+    different attribute types.
 
     \table 100%
     \header
@@ -1548,12 +1607,12 @@
 
     \row
         \o \bold Background \target Background
-        \o \{ \l Color \BR
-           | \l Url \BR
-           | \l Repeat \BR
-           | \l Alignment \}*
-        \o A sequence of zero or more occurrences of \l Color, \l Url,
-           \l Repeat, and \l Alignment.
+        \o \{ \l{#Color}{Color} \BR
+           | \l{#Url}{Url} \BR
+           | \l{#Repeat}{Repeat} \BR
+           | \l{#Alignment}{Alignment} \}*
+        \o A sequence of zero or more occurrences of \l{#Color}{Color}, \l{#Url}{Url},
+           \l{#Repeat}{Repeat}, and \l{#Alignment}{Alignment}.
 
     \row
         \o \bold Boolean \target Boolean
@@ -1567,6 +1626,13 @@
     \endcode
 
     \row
+        \o \bold Border \target Border
+        \o \{ \l{#Border Style}{Border Style} \BR
+           | \l{#Length}{Length} \BR
+           | \l{#Color}{Color} \}*
+        \o Shorthand border attribute.
+
+    \row
         \o \bold{Border \target Border Image
            Image}
         \o \c none \BR
@@ -1578,8 +1644,6 @@
            corner parts are used as is, and the top, right, bottom,
            and left parts are stretched or repeated to produce a
            border with the desired size.
-
-           \omit ### \image stylesheet-borderimage.png \endomit
 
            See the
            \l{http://www.w3.org/TR/css3-background/#the-border-image}
@@ -1606,8 +1670,8 @@
     \row
         \o \bold{Box \target Box Colors
            Colors}
-        \o \l{Color}\{1,4\}
-        \o One to four occurrences of \l Color, specifying the top,
+        \o \l{#Color}{Color}\{1,4\}
+        \o One to four occurrences of \l{#Color}{Color}, specifying the top,
            right, bottom, and left edges of a box, respectively. If
            the left color is not specified, it is taken to be the
            same as the right color. If the bottom color is not
@@ -1627,8 +1691,8 @@
     \row
         \o \bold{Box \target Box Lengths
            Lengths}
-        \o \l{Length}\{1,4\}
-        \o One to four occurrences of \l Length, specifying the
+        \o \l{#Length}{Length}\{1,4\}
+        \o One to four occurrences of \l{#Length}{Length}, specifying the
            top, right, bottom, and left edges of a box,
            respectively. If the left length is not specified, it is
            taken to be the same as the right length. If the bottom
@@ -1668,7 +1732,7 @@
 
     \row
         \o \bold Font \target Font
-        \o (\l{Font Style} | \l{Font Weight}){0,2} \l{Font Size} String
+        \o (\l{#Font Style}{Font Style} | \l{#Font Weight}{Font Weight}){0,2} \l{#Font Size}{Font Size} String
         \o Shorthand font attribute.
 
     \row
@@ -1707,7 +1771,7 @@
 
     \row
         \o \bold Length \target Length
-        \o \l Number (\c px | \c em | \c ex)?
+        \o \l{#Number}{Number} (\c px | \c em | \c ex)?
         \o A number followed by a measurement unit. The supported
            units are:
 
@@ -1745,8 +1809,8 @@
 
     \row
         \o \bold Radius \target Radius
-        \o \l{Length}\{1, 2\}
-        \o One or two occurrences of \l Length. If only one length is
+        \o \l{#Length}{Length}\{1, 2\}
+        \o One or two occurrences of \l{#Length}{Length}. If only one length is
            specified, it is used as the radius of the quarter circle
            defining the corner. If two lengths are specified, the
            first length is the horizontal radius of a quarter
@@ -1890,10 +1954,10 @@
     \section1 The Box Model
 
     Widgets and sub-controls that support the
-    \l{#background-attr}{background}, \l{#border-attrs}{border-\e{xxx}},
-    \l{#margin-attr}{margin}, and \l{#padding-attr}{padding} attributes
-    follow the box model. The image below illustrates how these
-    attributes relate to each other:
+    \l{#background-attr}{background}, \l{#border-attr}{border},
+    \l{#margin-attr}{margin}, and \l{#padding-attr}{padding}
+    attributes follow the box model. The image below illustrates how
+    these attributes relate to each other:
 
     \image stylesheet-boxmodel.png
 
@@ -1920,7 +1984,7 @@
     \section1 Examples
 
     In this section, we will see examples of how to style widgets
-    using style sheets. \l{Qt Designer} is an excellent tool to
+    using style sheets. \l{Qt Designer}{Qt Designer} is an excellent tool to
     preview style sheets. Just right-click anywhere on the form
     you're designing and click \gui{Edit styleSheet}.
 
@@ -2162,8 +2226,8 @@
     \endcode
 
     Quiz: What happens if we have a read-only QLineEdit in a QDialog?
-    [Hint: The \l{Conflict Resolution} section above explains
+    [Hint: The \l{#Conflict Resolution}{Conflict Resolution} section above explains
     what happens in cases like this.]
 
-    \sa QStyle, {Supported HTML Subset}
+    \sa {Style Sheet Example}, {Supported HTML Subset}, QStyle
 */
