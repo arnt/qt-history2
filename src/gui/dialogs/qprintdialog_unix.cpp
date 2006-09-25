@@ -987,6 +987,8 @@ void QPrintDialogPrivate::applyPrinterProperties(QPrinter *p)
     QString file = p->outputFileName();
     if (!file.isEmpty()) {
         ui.chbPrintToFile->setChecked(true);
+        ui.stackedWidget->setCurrentIndex(1);
+        ui.gbDestination->setTitle(QApplication::translate("QPrintDialog","File"));
         ui.leFile->setText(file);
     }
     QString printer = p->printerName();
