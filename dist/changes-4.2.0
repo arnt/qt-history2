@@ -39,6 +39,10 @@ New features
 - QFontComboBox provides a standard font selection widget for document
   processing applications.
 
+- QGraphicsView and related classes provide the Graphics View framework, a
+  replacement for Qt 3's canvas module that provides an improved API, enhanced
+  rendering, and more responsive handling of large numbers of canvas items.
+
 - QGLFramebufferObject encapsulates OpenGL framebuffer objects.
 
 - QMacPasteboardMime handle Pasteboard access on Qt/Mac. This obsoletes
@@ -48,7 +52,7 @@ New features
 - QNetworkInterface represents a network interface, providing information
   about the host's IP addresses and network interfaces.
 
-- QResource provides static functions that affect resource lookup and
+- QResource provides static functions that control resource lookup and
   provides a way to navigate resources directly without levels of
   indirection through QFile/QFileEngine.
 
@@ -64,29 +68,36 @@ New features
 - The QUndo* classes in Qt's Undo framework provide undo/redo functionality
   for applications.
 
+- Support for the Glib event loop to enable integration between Qt and non-Qt
+  applications on the GNOME desktop environment.
+
 - Improved Accessibility for item-based views and QTextEdit.
 
-- Experimental support for Qt usage reporting ("metered licenses") on Linux,
-  Windows and Mac OS X. Reporting is disabled by default.
-
-- A new key mapper system improves the shortcut system by only testing the
-  real possible shortcuts, such as Ctrl+Shift+= and Ctrl++ on an English
-  keyboard.
-
-- Support for reading and writing TIFF images.
-
-- A new pixeltool is provided. It is a screen magnification tool, designed
-  to help with the process of fine-tuning styles and user interface
-  features.
-
-- New qrand() and qsrand() functions to provide thread safe equivalents to
-  rand() and srand().
-
 - Support for main window animations and tabbed dock widgets.
+
+- Added an SVG icon engine to enable SVG drawings to be used by QIcon.
 
 - Widgets can now be styled according to rules specified in a style sheet,
   using a syntax familiar to users of Cascading Style Sheets (CSS). Style
   sheets are set using the QWidget::styleSheet property.
+
+- Introduced a new key mapper system improves the shortcut system by only
+  testing the real possible shortcuts, such as Ctrl+Shift+= and Ctrl++ on an
+  English keyboard.
+
+- Support for reading and writing TIFF images.
+
+- Improved and enhanced QMessageBox to support native look and feel on many
+  common platforms.
+
+- Experimental support for Qt usage reporting ("metered licenses") on Linux,
+  Windows and Mac OS X. Reporting is disabled by default.
+
+- A screen magnification utility, pixeltool, is provided. It is designed to help
+  with the process of fine-tuning styles and user interface features.
+
+- New qrand() and qsrand() functions to provide thread safe equivalents to
+  rand() and srand().
 
 
 General improvements
@@ -918,6 +929,8 @@ Build System
       * Collapse multiple consecutive separators. This can be turned off
         with the collapsibleSeparators property.
 
+      * Made scrollable menus wrap, just like non-scrollable ones.
+
 - QMessageBox
 
       * Updated the API to allow more than 3 buttons to be used.
@@ -1185,6 +1198,36 @@ Build System
 
       * Added SE_FrameContents to control the contents rectangle of a
         QFrame.
+
+- QSvgHandler
+
+      * Improved style sheet parsing and handling.
+
+      * Added support for both embedded and external style sheets.
+
+      * Improved parsing of local url() references.
+
+      * Improved coordinate system handling.
+
+      * Fixed issue where the viewbox dimensions would be truncated to integer
+        values.
+
+      * Fixed support for gradient transformations.
+
+      * Fixed opacity inheritance behavior.
+
+      * Added support for gradient spreads.
+
+      * Fixed gradient stop inheritance behavior.
+
+      * Fixed parsing of fill and stroke properties specified in style sheets.
+
+      * Added support for reading and writing the duration of animated SVGs.
+
+      * Fixed incorrect rendering of SVGs that do not specify default viewboxes.
+
+      * Fixed radial gradient rendering for the case where no focal point is
+        specified.
 
 - QSyntaxHighlighter
 
@@ -1880,7 +1923,7 @@ Mac OS X
 
 - Hidden files are now reported as hidden by QFileInfo, QDirModel, etc.
 
-- Windows now have a transparent size grip, an attribute for specifying an
+- Windows now have a transparent size grips, an attribute for specifying an
   opaque size grip was added.
 
 - Metrowerks generator has been removed.
@@ -2029,7 +2072,7 @@ Mac OS X
 
 - QWidget
 
-      * All HIViewRef's inside Qt/Mac are created with the
+      * All HIViewRefs inside Qt/Mac are created with the
         kWindowStandardHandlerAttribute.
 
       * Added the ability to wrap a native HIViewRef with create().
