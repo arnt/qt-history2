@@ -35,7 +35,7 @@ public:
     virtual void doneParsingHeaderFiles( Tree *tree );
     virtual void doneParsingSourceFiles( Tree *tree );
 
-    const FunctionNode *findFunctionNode(const QString& synopsis, Tree *tree, Node *relative = 0);
+    const FunctionNode *findFunctionNode(const QString& synopsis, Tree *tree, Node *relative = 0, bool fuzzy = false);
 
 protected:
     virtual QSet<QString> topicCommands();

@@ -1,4 +1,5 @@
 include(compat.qdocconf)
+include(macros.qdocconf)
 
 project                 = Qt
 description             = Qt Reference Documentation
@@ -55,18 +56,6 @@ defines                 = Q_QDOC \
 codeindent              = 1
 extraimages.HTML        = qt-logo \
                           trolltech-logo
-
-macro.key               = "\\bold"
-macro.menu              = "\\bold"
-macro.gui               = "\\bold"
-macro.reg.HTML          = "<sup>&reg;</sup>"
-macro.raisedaster.HTML  = "<sup>*</sup>"
-macro.BR.HTML           = "<br />"
-macro.QD                = "\\e{Qt Designer}"
-macro.QA                = "\\e{Qt Assistant}"
-macro.aring.HTML        = "&aring;"
-macro.Auml.HTML         = "&Auml;"
-macro.uuml.HTML         = "&uuml;"
 
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QDESIGNER_COMPONENTS_LIBRARY \

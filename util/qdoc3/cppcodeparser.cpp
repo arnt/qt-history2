@@ -202,16 +202,68 @@ void CppCodeParser::doneParsingSourceFiles( Tree *tree )
     tree->resolveProperties();
 }
 
-const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
-						     Tree *tree, Node *relative )
+const FunctionNode *CppCodeParser::findFunctionNode(const QString& synopsis, Tree *tree,
+                                                    Node *relative, bool fuzzy)
 {
     QStringList parentPath;
     FunctionNode *clone;
     FunctionNode *func = 0;
 
-    reset( tree );
-    if ( makeFunctionNode(synopsis, &parentPath, &clone) ) {
-	func = tree->findFunctionNode( parentPath, clone, relative );
+    reset(tree);
+    if (makeFunctionNode(synopsis, &parentPath, &clone)) {
+	func = tree->findFunctionNode(parentPath, clone, relative);
+
+        /*
+            This is necessary because Roberto's parser resolves typedefs.
+        */
+        if (!func && fuzzy) {
+            func = tre->findFunctionNode(parentPath + QStringList(clone->name()), relative);
+            if (func) {
+                NodeList overloads = func->parent()->overloads(func->name());
+                NodeList candidates;
+                for (int i = 0; i < overloads.count(); ++i) {
+                    FunctionNode *overload = static_cast<FunctionNode *>(overloads.at(i));
+                    if (overload->status() != Node::Compat
+                            && overload->parameters().count() == clone->parameters().count())
+                        candidates << overload;
+                }
+                if (candidates.count() == 0)
+                    return 0;
+
+                /*
+                    There's only one function with the correct number
+                    of parameters. That must be the one.
+                */
+                if (candidates.count() == 1)
+                    return static_cast<FunctionNode *>(candidates.first());
+
+                overloads = candidates;
+                candidates.clear();
+                for (int i = 0; i < overloads.count(); ++i) {
+                    FunctionNode *overload = static_cast<FunctionNode *>(overloads.at(i));
+                    QList<Parameter> params1 = overload->parameters();
+                    QList<Parameter> params2 = clone->parameters();
+
+                    int j;
+                    for (j = 0; j < params1.count(); ++j) {
+                        if (!params2.at(j).name().startsWith(params1.at(j).name()))
+                            break;
+                    }
+                    if (j == params1.count())
+                        candidates << overload;
+                }
+
+                /*
+                    There are several functions with the correct
+                    parameter count, but only one has the correct
+                    parameter names.
+                */
+                if (candidates.count() == 1)
+                    return static_cast<FunctionNode *>(candidates.first());
+
+                return 0;
+            }
+        }
 	delete clone;
     }
     return func;

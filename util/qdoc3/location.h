@@ -27,6 +27,8 @@ public:
     void push( const QString& filePath );
     void pop();
     void setEtc( bool etc ) { etcetera = etc; }
+    void setLineNo(int no) { stkTop->lineNo = no; }
+    void setColumnNo(int no) { stkTop->columnNo = no; }
 
     bool isEmpty() const { return stkDepth == 0; }
     int depth() const { return stkDepth; }

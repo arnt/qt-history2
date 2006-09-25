@@ -266,6 +266,17 @@ int InnerNode::numOverloads( const QString& funcName ) const
     }
 }
 
+NodeList InnerNode::overloads(const QString &funcName) const
+{
+    NodeList result;
+    Node *primary = primaryFunctionMap.value(funcName);
+    if (primary) {
+        result << primary;
+	result += secondaryFunctionMap[funcName];
+    }
+    return result;
+}
+
 InnerNode::InnerNode( Type type, InnerNode *parent, const QString& name )
     : Node( type, parent, name )
 {
@@ -281,6 +292,7 @@ void InnerNode::setIncludes(const QStringList& includes)
     inc = includes;
 }
 
+// f1 is always the clone
 bool InnerNode::isSameSignature( const FunctionNode *f1,
 				 const FunctionNode *f2 )
 {
@@ -293,9 +305,18 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
     QList<Parameter>::ConstIterator p2 = f2->parameters().begin();
     while ( p2 != f2->parameters().end() ) {
 	if ( (*p1).hasType() && (*p2).hasType() ) {
-	    if ( (*p1).leftType() != (*p2).leftType() ||
-		 (*p1).rightType() != (*p2).rightType() )
+            if ( (*p1).rightType() != (*p2).rightType() )
 		return false;
+
+            QString t1 = p1->leftType();
+            QString t2 = p2->leftType();
+
+            if (t1.length() < t2.length())
+                qSwap(t1, t2);
+
+            // ### hack for C++ to handle superfluous "Foo::" prefixes gracefully
+            if (t1 != t2 && t1 != (f2->parent()->name() + "::" + t2))
+                return false;
 	}
 	++p1;
 	++p2;

@@ -122,6 +122,7 @@ public:
     const NodeList & relatedNodes() const { return related; }
     int overloadNumber( const FunctionNode *func ) const;
     int numOverloads( const QString& funcName ) const;
+    NodeList overloads(const QString &funcName) const;
     const QStringList& includes() const { return inc; }
 
 protected:

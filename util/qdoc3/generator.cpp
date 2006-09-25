@@ -69,13 +69,13 @@ void Generator::initialize(const Config &config)
         if ( !dirInfo.mkdir(outDir + "/images") )
             config.lastLocation().fatal(tr("Cannot create output directory '%1'")
                                         .arg(outDir + "/images"));
+    }
 
-        QMutableListIterator<Generator*> it(generators);
-        while (it.hasNext()) {
-            Generator *g = it.next();
-            if (!outputFormats.contains(g->format()))
-                it.remove();
-        }
+    QMutableListIterator<Generator*> it(generators);
+    while (it.hasNext()) {
+        Generator *g = it.next();
+        if (!outputFormats.contains(g->format()))
+            it.remove();
     }
 
     imageFiles = config.getStringList(CONFIG_IMAGES);

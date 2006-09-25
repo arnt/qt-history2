@@ -24,6 +24,9 @@ HEADERS += apigenerator.h \
 	   editdistance.h \
 	   generator.h \
 	   htmlgenerator.h \
+           jambiapiparser.h \
+	   javacodemarker.h \
+           javadocgenerator.h \
            location.h \
 	   loutgenerator.h \
 	   mangenerator.h \
@@ -63,6 +66,9 @@ SOURCES += apigenerator.cpp \
 	   editdistance.cpp \
 	   generator.cpp \
 	   htmlgenerator.cpp \
+           jambiapiparser.cpp \
+	   javacodemarker.cpp \
+           javadocgenerator.cpp \
            location.cpp \
 	   loutgenerator.cpp \
 	   mangenerator.cpp \

@@ -16,6 +16,9 @@
 #include "cpptoqsconverter.h"
 #include "doc.h"
 #include "htmlgenerator.h"
+#include "jambiapiparser.h"
+#include "javacodemarker.h"
+#include "javadocgenerator.h"
 #include "loutgenerator.h"
 #include "mangenerator.h"
 #include "plaincodemarker.h"
@@ -215,13 +218,16 @@ int main( int argc, char **argv )
 
     QsCodeParser qsParser( cppTree );
     QsaKernelParser qsaKernelParser( cppTree );
+    JambiApiParser jambiParser(cppTree);
 
     PlainCodeMarker plainMarker;
     CppCodeMarker cppMarker;
+    JavaCodeMarker javaMarker;
     QsCodeMarker qsMarker;
 
     ApiGenerator apiGenerator;
     HtmlGenerator htmlGenerator;
+    JavadocGenerator javadocGenerator;
     LoutGenerator loutGenerator;
     ManGenerator manGenerator;
     SgmlGenerator smglGenerator;
