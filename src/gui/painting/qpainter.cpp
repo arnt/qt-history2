@@ -4276,8 +4276,10 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (w == 0 || h == 0 || sw <= 0 || sh <= 0)
         return;
 
-    if (d->state->txop > QPainterPrivate::TxTranslate
-         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+    if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)
+        && (d->state->txop > QPainterPrivate::TxTranslate
+            || (sw != w || sh != h)))
+    {
         QPixmap pm = QPixmap::fromImage(image, flags);
         drawPixmap(targetRect, pm, sourceRect);
         return;
