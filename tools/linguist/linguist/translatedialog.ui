@@ -1,5 +1,4 @@
 <ui version="4.0" >
- <author></author>
  <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -12,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>TranslateDialog</class>
  <widget class="QDialog" name="TranslateDialog" >
   <property name="geometry" >
@@ -20,7 +18,7 @@
     <x>0</x>
     <y>0</y>
     <width>407</width>
-    <height>143</height>
+    <height>145</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -101,35 +99,44 @@
        <property name="title" >
         <string>Search options</string>
        </property>
-       <widget class="QCheckBox" name="ckMatchCase" >
-        <property name="geometry" >
-         <rect>
-          <x>10</x>
-          <y>24</y>
-          <width>80</width>
-          <height>18</height>
-         </rect>
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
         </property>
-        <property name="whatsThis" >
-         <string>Texts such as 'TeX' and 'tex' are considered as different when checked.</string>
+        <property name="spacing" >
+         <number>6</number>
         </property>
-        <property name="text" >
-         <string>Match &amp;case</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="ckMarkFinished" >
-        <property name="geometry" >
-         <rect>
-          <x>10</x>
-          <y>44</y>
-          <width>175</width>
-          <height>18</height>
-         </rect>
-        </property>
-        <property name="text" >
-         <string>Mark new translation as &amp;finished</string>
-        </property>
-       </widget>
+        <item>
+         <widget class="QCheckBox" name="ckMatchCase" >
+          <property name="whatsThis" >
+           <string>Texts such as 'TeX' and 'tex' are considered as different when checked.</string>
+          </property>
+          <property name="text" >
+           <string>Match &amp;case</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="ckMarkFinished" >
+          <property name="text" >
+           <string>Mark new translation as &amp;finished</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -203,7 +210,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>ledFindWhat</tabstop>
   <tabstop>ledTranslateTo</tabstop>
