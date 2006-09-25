@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>Style Sheet</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" >
