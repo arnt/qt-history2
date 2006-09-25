@@ -1118,7 +1118,9 @@ void QPrintDialogPrivate::refreshPageSizes()
 void QPrintDialogPrivate::_q_btnBrowseClicked()
 {
     Q_Q(QPrintDialog);
-    ui.leFile->setText(QFileDialog::getSaveFileName(q, QApplication::translate("QPrintDialog","Print To File ...")));
+    QString fileName = QFileDialog::getSaveFileName(q, QApplication::translate("QPrintDialog","Print To File ..."));
+    if (!fileName.isNull())
+        ui.leFile->setText(fileName);
 }
 #endif
 
