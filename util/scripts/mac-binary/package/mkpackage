@@ -15,6 +15,7 @@ LICENSE_US=
 LICENSETYPE=
 MAKE_META=
 MAKE_IMAGE=
+DO_CLEANUP=yes
 
 #versioning
 QT_SET_VERSION=no
@@ -36,7 +37,7 @@ CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plug
 doStringReplace()
 {
     sed -e "s,\\\$VERSION_MAJOR\\\$,$QT_MAJOR_VERSION,g" -e "s,\\\$VERSION_MINOR\\\$,$QT_MINOR_VERSION,g" \
-	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >tmp.out
+        -e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >tmp.out
 
     mv -f tmp.out "$2"
 }
@@ -93,24 +94,25 @@ while [ -n "$1" ]; do
    case "$OPTION" in
    help)
         if [ "$ARG" = "yes" ]; then
-	   echo "$0 <options> <packages>"
-	   echo
-	   echo "  -output <directory>            Where to write the generated files to"
-	   echo "  -packages <directory>          Where to find packages to create"
-	   echo "  -qtbins <directory>            Where your Qt binaries live"
-           echo "  -qtsrcs <directory>            Where to find our Qt sources (if -qtbins not set defaults to same)"
-	   echo "  -qtpackage <package>           Given a package it will be untar'd configured and built and used."
-	   echo "  -version <version>             What version the package is creating for (falls back to qglobal.h)"
-	   echo "  -license <license>             Where your license file lives"
-	   echo "  -license_us <license>          Where your U.S. license file lives"
-	   echo "  -licensetype <commercial|eval|opensource|preview-commercial|preview-opensource> The license for the package you are building"
-	   echo "  -readme <readme>               Where your readme file lives"
-	   echo "  -image                         Create a disk image of the outputs"
-	   echo "  -meta                          Create a meta package for all the outputs"
+           echo "$0 <options> <packages>"
+           echo
+           echo "  -output <directory>            Where to write the generated files to"
+           echo "  -packages <directory>          Where to find packages to create"
+           echo "  -qtbins <directory>            Where your Qt binaries live"
+               echo "  -qtsrcs <directory>            Where to find our Qt sources (if -qtbins not set defaults to same)"
+           echo "  -qtpackage <package>           Given a package it will be untar'd configured and built and used."
+           echo "  -version <version>             What version the package is creating for (falls back to qglobal.h)"
+           echo "  -license <license>             Where your license file lives"
+           echo "  -license_us <license>          Where your U.S. license file lives"
+           echo "  -licensetype <commercial|eval|opensource|preview-commercial|preview-opensource> The license for the package you are building"
+           echo "  -readme <readme>               Where your readme file lives"
+           echo "  -image                         Create a disk image of the outputs"
+           echo "  -meta                          Create a meta package for all the outputs"
            echo "  -evalpatches <evalpatches>     Eval patches can be found here"
-	   exit 1
+           echo "  -no-cleanup                    Don't remove files (can be used to restart a previous run)"
+           exit 0
         fi
-	;;
+    ;;
    readme) README="$ARG" ;;
    license) LICENSE="$ARG" ;;
    licensetype) LICENSETYPE="$ARG" ;;
@@ -124,19 +126,20 @@ while [ -n "$1" ]; do
    package) PACKAGES="$PACKAGES $ARG" ;;
    image) MAKE_IMAGE="$ARG" ;;
    evalpatches) EVAL_PATCHES="$ARG" ;;
+   cleanup) DO_CLEANUP="$ARG" ;;
    version) 
        VERSION="$ARG"
        MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
        if [ -n "$MAJOR" ]; then
-	   MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
-	   [ -z "$MINOR" ] && MINOR=0
-	   PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
-	   [ -z "$PATCH" ] && PATCH=0
-	   QT_SET_VERSION=yes
-	   QT_VERSION_STRING="$VERSION"
-	   QT_MAJOR_VERSION="$MAJOR"
-	   QT_MINOR_VERSION="$MINOR"
-	   QT_PATCH_VERSION="$PATCH"
+           MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
+           [ -z "$MINOR" ] && MINOR=0
+           PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
+           [ -z "$PATCH" ] && PATCH=0
+           QT_SET_VERSION=yes
+           QT_VERSION_STRING="$VERSION"
+           QT_MAJOR_VERSION="$MAJOR"
+           QT_MINOR_VERSION="$MINOR"
+           QT_PATCH_VERSION="$PATCH"
        else
            echo "Invalid version: $VERSION"
        fi
@@ -175,14 +178,16 @@ fi
 if [ ! -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ]; then
     if [ -z "$SOURCE_DIR" ]; then
         if [ -e "$BINARY_DIR/.qmake.cache" ]; then
-	    SOURCE_DIR=`grep QT_SOURCE_TREE $BINARY_DIR/.qmake.cache | head -1 | cut -d'=' -f2- | awk '{ print $1; }'`
+            SOURCE_DIR=`grep QT_SOURCE_TREE $BINARY_DIR/.qmake.cache | head -1 | cut -d'=' -f2- | awk '{ print $1; }'`
         else
-	    SOURCE_DIR="$BINARY_DIR"
+            SOURCE_DIR="$BINARY_DIR"
         fi
     fi
 elif [ ! -z "$SOURCE_PACKAGE" ]; then
-    rm -rf "$TMP_DIR/source"
-    mkdir -p "$TMP_DIR/source"
+    if [ "$DO_CLEANUP" = "yes" ]; then
+        rm -rf "$TMP_DIR/source"
+        mkdir -p "$TMP_DIR/source"
+    fi
     PACKAGE_NAME=`basename "$SOURCE_PACKAGE"`
     CHECKLICENSETYPE=$PARENTLICENSE
     if [ "$LICENSETYPE" = "eval" ]; then
@@ -192,12 +197,12 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     if [ -z `echo $PACKAGE_NAME | grep $CHECKLICENSETYPE` ]; then
         echo "I must have the $CHECKLICENSETYPE package, you gave me $SOURCE_PACKAGE"
         rm -rf "$TMP_DIR"
-        exit 1
+        exit 7
     fi
     EXTENSION=`echo "$PACKAGE_NAME" | sed -e 's,.*\.tar\.\(.*\),\1,'`
     PACKAGE_DEST=`echo "$PACKAGE_NAME" | sed -e 's,\(.*\)\.tar.*,\1,'`
     if [ "$LICENSETYPE" = "eval" ]; then
-	CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL -release"
+        CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL -release"
         # If you didn't set the eval patches, I'll try in the same place as the package
         if [ -z "$EVAL_PATCHES" ]; then
             PACKAGE_VERSION=`echo $PACKAGE_DEST | sed -e 's,.*src-\(.*\),\1,'`
@@ -211,16 +216,32 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure $CONFIGURE_ARGS && make); then
-          SOURCE_DIR="$QTDIR"
-          BINARY_DIR="$SOURCE_DIR"
-    else
-         rm -rf "$TMP_DIR"
-         exit 1
+    if [ "$DO_CLEANUP" = "yes" ]; then
+        if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf -); then
+            realUsageReporter="$QTDIR/bin/qtusagereporter"
+            tmpUsageReporter="$TMP_DIR/qtusagereporter"
+            if [ -e "$realUsageReporter" ]; then
+                cp "$realUsageReporter" "$tmpUsageReporter"
+            fi
+            if (cd "$QTDIR" && ./configure $CONFIGURE_ARGS); then
+                if [ -e "$tmpUsageReporter" ]; then
+                    mv "$tmpUsageReporter" "$realUsageReporter"
+                fi
+            else
+                echo "Configure error"
+                exit 1
+            fi
+            if !(cd "$QTDIR" && make); then
+                echo "Build error"
+                exit 2
+            fi
+        fi
     fi
+    SOURCE_DIR="$QTDIR"
+    BINARY_DIR="$SOURCE_DIR"
 else
    echo "Only a source package or a source/binary directory can be specified!"
-   exit 1   
+   exit 3   
 fi
 
 #find the license
@@ -245,7 +266,7 @@ if [ -z "$LICENSE" ]; then
     elif [ -e "$PACKAGE_LICENSE" ]; then
         LICENSE="$PACKAGE_LICENSE"
     elif [ -e "../../../../dist/commercial/LICENSE" ]; then
-	LICENSE="../../../../dist/commercial/LICENSE"
+        LICENSE="../../../../dist/commercial/LICENSE"
     fi
 fi
 
@@ -276,7 +297,7 @@ if [ -z "$README" ]; then
     elif [ -e "$PACKAGE_README" ]; then 
         README="$PACKAGE_README"
     elif [ -e "../../../../dist/README" ]; then
-	README="../../../../dist/README"
+        README="../../../../dist/README"
     fi
 fi
 
@@ -285,32 +306,32 @@ if [ "$QT_SET_VERSION" = "no" ] && [ ! -z "$SOURCE_DIR" ]; then
      VERSION=`grep '^# *define *QT_VERSION_STR' $SOURCE_DIR/src/corelib/global/qglobal.h`
      if [ -n "$VERSION" ]; then
         VERSION=`echo $VERSION | sed 's,^# *define *QT_VERSION_STR "*\([^ ]*\)"$,\1,'`
-	MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
-	if [ -n "$MAJOR" ]; then
-	    MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
-	    [ -z "$MINOR" ] && MINOR=0
-	    PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
-	    [ -z "$PATCH" ] && PATCH=0
-	    QT_VERSION_STRING="$VERSION"
-	    QT_MAJOR_VERSION="$MAJOR"
-	    QT_MINOR_VERSION="$MINOR"
-	    QT_PATCH_VERSION="$PATCH"
+        MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
+        if [ -n "$MAJOR" ]; then
+            MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
+            [ -z "$MINOR" ] && MINOR=0
+            PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
+            [ -z "$PATCH" ] && PATCH=0
+            QT_VERSION_STRING="$VERSION"
+            QT_MAJOR_VERSION="$MAJOR"
+            QT_MINOR_VERSION="$MINOR"
+            QT_PATCH_VERSION="$PATCH"
         else
-	    echo "Cannot process version from qglobal.h: $VERSION"
-	fi
+            echo "Cannot process version from qglobal.h: $VERSION"
+        fi
     fi
 fi
 
 if [ "$LICENSETYPE" != "opensource" ]; then
-	if [ ! -z "$SOURCE_DIR" ]; then
-	    PACKAGEDATE=`grep '^# *define *QT_PACKAGEDATE_STR' $SOURCE_DIR/src/corelib/global/qglobal.h`
-	    if [ -n "$PACKAGEDATE" ]; then
-		PACKAGEDATE=`echo $PACKAGEDATE | sed 's,^# *define *QT_PACKAGEDATE_STR "*\([^ ]*\)"$,\1,'`
-		QT_PACKAGEDATE_STRING=$PACKAGEDATE
-	    else
-		echo "Cannot process date information from qglobal.h: $PACKAGEDATE"
-	    fi
-	fi
+        if [ ! -z "$SOURCE_DIR" ]; then
+            PACKAGEDATE=`grep '^# *define *QT_PACKAGEDATE_STR' $SOURCE_DIR/src/corelib/global/qglobal.h`
+            if [ -n "$PACKAGEDATE" ]; then
+                PACKAGEDATE=`echo $PACKAGEDATE | sed 's,^# *define *QT_PACKAGEDATE_STR "*\([^ ]*\)"$,\1,'`
+                QT_PACKAGEDATE_STRING=$PACKAGEDATE
+            else
+                echo "Cannot process date information from qglobal.h: $PACKAGEDATE"
+            fi
+        fi
 fi
 
 # Put the date in a little file so we can access in later
@@ -326,9 +347,9 @@ if [ -z "$PACKAGES" ]; then
     [ -z "$MAKE_META" ] && MAKE_META=yes
     [ -z "$MAKE_IMAGE" ] && MAKE_IMAGE=yes
     for a in $PACKAGE_DIR/*; do
-	if [ -d "$a" ]; then
-	    package=`basename $a`
-	    [ "$USE_SEPARATE" = "no" ] && [ -e "$a/.build_separate" ] && continue
+        if [ -d "$a" ]; then
+            package=`basename $a`
+            [ "$USE_SEPARATE" = "no" ] && [ -e "$a/.build_separate" ] && continue
             PACKAGES="$PACKAGES $package"
         fi
     done
@@ -351,7 +372,7 @@ if [ -e "$LICENSE" ]; then
    createLicenseRTF "$LICENSE" "$TMP_DIR/licenses/License.rtf"
 else
    echo "No license file found!"
-   exit 1
+   exit 4
 fi
 
 if [ "$LICENSETYPE" = "commercial" ] || [ "$LICENSETYPE" = "eval" ]; then
@@ -360,7 +381,7 @@ if [ "$LICENSETYPE" = "commercial" ] || [ "$LICENSETYPE" = "eval" ]; then
        createLicenseRTF "$LICENSE_US" "$TMP_DIR/licenses/License-US.rtf"
     else
        echo "No U.S. license file found!"
-       exit 1
+       exit 5
     fi
 fi
 
@@ -392,8 +413,8 @@ for package in $PACKAGES; do
 
     [ "$package" = "none" ] && continue
     if [ !  -e "$PACKAGE_DIR/$package/Info.plist" ]; then
-	echo "$package is not a valid package!!"
-	continue
+        echo "$package is not a valid package!!"
+        continue
     fi
     rm -rf "$TMP_DIR/package" #cleanup
 
@@ -401,11 +422,11 @@ for package in $PACKAGES; do
     echo "Creating package [$package]..."
     mkdir -p "$TMP_DIR/package"
     if [ -x "$PACKAGE_DIR/$package/create_package.sh" ]; then
-	if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_STRING="$QT_VERSION_STRING" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
+        if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_STRING="$QT_VERSION_STRING" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
               true
               # Copy the uninstall script in for all of the packages
-              mkdir -p "$TMP_DIR/package/Developer"
-              cp "uninstall-qt.py" "$TMP_DIR/package/Developer"
+              mkdir -p "$TMP_DIR/package/Developer/Tools"
+              cp "uninstall-qt.py" "$TMP_DIR/package/Developer/Tools"
          else
               echo "  Package failed"
               continue
@@ -415,24 +436,16 @@ for package in $PACKAGES; do
     #create .pkg
     package_dir="$OUTPUT_DIR/packages/Qt_${package}.pkg"
     rm -rf "$package_dir"
+    mkdir -p "$package_dir"
     echo "  Creating installation.. ($package_dir)"
-    if [ -x "$COMMAND_PAX" ]; then
-	mkdir -p "$package_dir/Contents"
-	(cd "$TMP_DIR/package" && $COMMAND_PAX -w -x cpio -f "$package_dir/Contents/Archive.pax" "." >/dev/null 2>&1)
-	gzip "$package_dir/Contents/Archive.pax"
-	echo "pmkrpkg1" >"$package_dir/Contents/PkgInfo"
-	mkbom "$TMP_DIR/package" "$package_dir/Contents/Archive.bom"
-        #link the files (for compat)
-	mkdir -p "$package_dir/Contents/Resources"
-	ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
-	ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
-    else
-        mkdir -p $package_dir/Contents
-	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds >/dev/null 2>&1)
-	rm -rf $package_dir/Contents/Resources/*.lproj
+    doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$TMP_DIR/Info.plist"
+    if !(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -i "$TMP_DIR/Info.plist" -ds -v); then
+        echo "  Error creating package ($package_dir)"
+        continue
     fi
-    #Info.plist
-    doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$package_dir/Contents/Info.plist"
+        
+    rm -rf "$TMP_DIR/Info.plist"
+    rm -rf $package_dir/Contents/Resources/*.lproj
     #merge resources
     cp -R Resources/* "$package_dir/Contents/Resources"
     cp -R "$PACKAGEDATE_FILE" "$package_dir/Contents/Resources"
@@ -450,19 +463,19 @@ for package in $PACKAGES; do
             fi
         done
     else
-	mkdir -p "$package_dir/Contents/Resources"
+        mkdir -p "$package_dir/Contents/Resources"
         cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
         rm -f "$package_dir/Contents/Resources/InstallationCheck"
         rm -f "$package_dir/Contents/Resources/InstallationCheck.strings"
         cp opensourceStuff/InstallationCheck "$package_dir/Contents/Resources"
         cp opensourceStuff/InstallationCheck.strings "$package_dir/Contents/Resources"
-        if [ "$package" = "libraries" ] || [ "$package" = "tools" ] || [ "$package" = "headers" ]; then
+        if [ "$package" = "libraries" ] || [ "$package" = "tools" ] || [ "$packages" = "headers" ]; then
             rm -f "$package_dir/Contents/Resources/postflight"
         fi
 
     fi
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
-	[ -e "$a" ] && doStringReplace "$a" "$a"
+        [ -e "$a" ] && doStringReplace "$a" "$a"
     done
     if [ -e "$package_dir/Contents/Resources/$package.info" ]; then
          cp "$package_dir/Contents/Resources/$package.info" "$package_dir/Contents/Resources/Qt_${package}.info"
@@ -472,14 +485,14 @@ for package in $PACKAGES; do
     done
     for a in $package_dir/Contents/Resources/*Check; do
         if [ -e "$a" ]; then
-	    chmod a+x "$a"
-	    if false && [ -e "${a}.strings" ]; then
-		for lang in English Norwegian French German Spanish; do
-		    LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
-		    mkdir -p "$LOCALDIR"
-		    cp "${a}.strings" "$LOCALDIR"
+            chmod a+x "$a"
+            if false && [ -e "${a}.strings" ]; then
+                for lang in English Norwegian French German Spanish; do
+                    LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
+                    mkdir -p "$LOCALDIR"
+                    cp "${a}.strings" "$LOCALDIR"
                 done
-		#rm -f "${a}.strings"
+                #rm -f "${a}.strings"
             fi
         fi
     done
@@ -541,18 +554,18 @@ if [ "$MAKE_META" = "yes" ]; then
         cp opensourceStuff/InstallationCheck.strings "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     fi
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
-	doStringReplace "$a" "$a"
+        doStringReplace "$a" "$a"
     done
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*Check; do
         if [ -e "$a" ]; then
-	    chmod a+x "$a"
-	    if false && [ -e "${a}.strings" ]; then
-		for lang in English Norwegian French German Spanish; do
-		    LOCALDIR="$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
-		    mkdir -p "$LOCALDIR"
-		    cp "${a}.strings" "$LOCALDIR"
+            chmod a+x "$a"
+            if false && [ -e "${a}.strings" ]; then
+                for lang in English Norwegian French German Spanish; do
+                    LOCALDIR="$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+                    mkdir -p "$LOCALDIR"
+                    cp "${a}.strings" "$LOCALDIR"
                 done
-		#rm -f "${a}.strings"
+                #rm -f "${a}.strings"
             fi
         fi
     done
@@ -608,10 +621,10 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     cp "backgrounds/DriveIcon.icns" "$DISKIMAGE/.VolumeIcon.icns"
 
     for package in $PKG_CREATED; do 
-	[ -z "$package" ] && continue
-	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$DISKIMAGE/,"`
-	mkdir -p "`dirname "$OUT_PACKAGE"`"
-	cp -R "$package" "$OUT_PACKAGE"
+        [ -z "$package" ] && continue
+        OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$DISKIMAGE/,"`
+        mkdir -p "`dirname "$OUT_PACKAGE"`"
+        cp -R "$package" "$OUT_PACKAGE"
     done
     [ -e "$README" ] && cp "$README" "$DISKIMAGE/ReadMe.txt"
 
@@ -643,5 +656,7 @@ fi
 
 
 #cleanup
-rm -rf "$TMP_DIR"
+if [ "$DO_CLEANUP" = "yes" ]; then
+    rm -rf "$TMP_DIR"
+fi
 echo "Done!"
