@@ -174,7 +174,7 @@ void WidgetHandle::mousePressEvent(QMouseEvent *e)
 
     QWidget *container = widget->parentWidget();
 
-    oldPressPos = container->mapFromGlobal(e->globalPos());
+    origPressPos = container->mapFromGlobal(e->globalPos());
     geom = origGeom = widget->geometry();
 
     if (type == TaskMenu && e->button() == Qt::LeftButton) {
@@ -205,8 +205,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
     QWidget *container = widget->parentWidget();
 
     QPoint rp = container->mapFromGlobal(e->globalPos());
-    QPoint d = rp - oldPressPos;
-    oldPressPos = rp;
+    QPoint d = rp - origPressPos;
 
     QRect pr = container->rect();
     QPoint grid = formWindow->grid();
@@ -220,11 +219,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() > pr.width() - 2 * width() || rp.y() > pr.height() - 2 * height())
             return;
 
-        int w = geom.width() - d.x();
+        int w = origGeom.width() - d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
-        int h = geom.height() - d.y();
+        int h = origGeom.height() - d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
@@ -238,7 +237,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.y() > pr.height() - 2 * height())
             return;
 
-        int h = geom.height() - d.y();
+        int h = origGeom.height() - d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
@@ -250,13 +249,13 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() < 2 * width() || rp.y() > pr.height() - 2 * height())
             return;
 
-        int h = geom.height() - d.y();
+        int h = origGeom.height() - d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
         int dy = widget->height() - h;
 
-        int w = geom.width() + d.x();
+        int w = origGeom.width() + d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
@@ -267,7 +266,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() < 2 * width())
             return;
 
-        int w = geom.width() + d.x();
+        int w = origGeom.width() + d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
@@ -278,11 +277,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() < 2 * width() || rp.y() < 2 * height())
             return;
 
-        int w = geom.width() + d.x();
+        int w = origGeom.width() + d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
-        int h = geom.height() + d.y();
+        int h = origGeom.height() + d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
@@ -293,7 +292,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.y() < 2 * height())
             return;
 
-        int h = geom.height() + d.y();
+        int h = origGeom.height() + d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
@@ -304,11 +303,11 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() > pr.width() - 2 * width() || rp.y() < 2 * height())
             return;
 
-        int w = geom.width() - d.x();
+        int w = origGeom.width() - d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
-        int h = geom.height() + d.y();
+        int h = origGeom.height() + d.y();
         geom.setHeight(h);
         h = adjustPoint(h, grid.y());
 
@@ -321,7 +320,7 @@ void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
         if (rp.x() > pr.width() - 2 * width())
             return;
 
-        int w = geom.width() - d.x();
+        int w = origGeom.width() - d.x();
         geom.setWidth(w);
         w = adjustPoint(w, grid.x());
 
