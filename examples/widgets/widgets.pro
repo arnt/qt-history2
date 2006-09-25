@@ -13,12 +13,12 @@ SUBDIRS       = analogclock \
                 sliders \
                 spinboxes \
                 styles \
+                stylesheet \
                 tetrix \
                 tooltips \
                 wiggly \
                 windowflags
 
-contains(QT_BUILD_PARTS, tools):SUBDIRS += stylesheet
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets
