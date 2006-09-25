@@ -278,6 +278,11 @@ void QGraphicsScenePrivate::resetIndex()
     }
 }
 
+static inline int intmaxlog(int n)
+{
+    return  (n > 0 ? qMax(int(::log(float(n))), 5) : 0);
+}
+
 /*!
     \internal
 */
@@ -310,8 +315,8 @@ void QGraphicsScenePrivate::_q_generateBspTree()
     QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
     growingItemsBoundingRect |= newItemsBoundingRect;
 
-    int oldDepth = qMax(int(::log(float(lastItemCount))), 5);
-    int newDepth = qMax(int(::log(float(allItems.size()))), 5);
+    int oldDepth = intmaxlog(lastItemCount);
+    int newDepth = intmaxlog(allItems.size());
     static const int slack = 100;
 
     if (bspTree.leafCount() == 0 || (oldDepth != newDepth && qAbs(lastItemCount - allItems.size()) > slack)) {
