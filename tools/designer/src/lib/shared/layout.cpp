@@ -1022,6 +1022,15 @@ void GridLayout::buildGrid()
     }
 
     grid->simplify();
+
+    QList<QWidget *> widgets;
+    for (int i = 0; i < grid->numRows(); i++)
+        for (int j = 0; j < grid->numCols(); j++) {
+            QWidget *w = grid->cell(i, j);
+            if (w && !widgets.contains(w))
+                widgets.append(w);
+        }
+    m_widgets = widgets;
 }
 
 
