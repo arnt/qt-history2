@@ -34,12 +34,14 @@ public:
     bool loadFormFile(const QString& path);
     void retranslate();
     QString formFilePath();
+    virtual QSize sizeHint() const;
 
 private:
     static QUiLoader* uiLoader;
     QString formPath;
     QWidget* form;
     QHBoxLayout* layout;
+    QSize m_sizeHint;
 };
 
 class QStandardItemModel;

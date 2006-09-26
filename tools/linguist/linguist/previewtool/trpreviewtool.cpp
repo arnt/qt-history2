@@ -110,15 +110,6 @@ FormHolder* TrPreviewTool::createFormFromFile(const QString& path)
 	    delete formHolder;
 	    return 0;
     }
-
-    if(!formFileList.contains(path))
-	    formFileList.append(path);
-    QString ft = tr("Preview Form ");
-    ft += QString::number(formFileList.indexOf(path) + 1);
-    if(!formHolder->windowTitle().isEmpty())
-	    ft += QLatin1String(" [") + formHolder->windowTitle() + QLatin1Char(']');
-    formHolder->setWindowTitle(ft);
-
     workspace->addWindow(formHolder);
     return formHolder;
 }
@@ -355,10 +346,24 @@ bool FormHolder::loadFormFile(const QString& path)
 	return false;
     delete form;
     form = newForm;
+
+    if (!form->layout()) {
+        m_sizeHint = form->sizeHint();
+    }else {
+        m_sizeHint = form->size();
+    }
     form->setWindowFlags(Qt::Widget);
     layout->addWidget(form);
-    setWindowTitle(form->windowTitle());
+    QString ft = QLatin1String(" [") + tr("Preview Form") + QLatin1Char(']');
+    ft = form->windowTitle() + ft;
+    setWindowTitle(ft);
+
     return true;
+}
+
+QSize FormHolder::sizeHint() const
+{
+    return m_sizeHint;
 }
 
 void FormHolder::retranslate()
