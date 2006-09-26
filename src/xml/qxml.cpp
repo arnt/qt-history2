@@ -1274,7 +1274,14 @@ QChar QXmlInputSource::next()
         d->nextReturnedEndOfData = true;
         return EndOfData;
     }
-    return d->unicode[d->pos++];
+
+    // QXmlInputSource has no way to signal encoding errors. The best we can do
+    // is return EndOfDocument. We do *not* return EndOfData, because the reader
+    // will then just call this function again to get the next char.
+    QChar c = d->unicode[d->pos++];
+    if (c.unicode() == EndOfData)
+        c = EndOfDocument;
+    return c;
 }
 
 /*!
@@ -1365,10 +1372,11 @@ void QXmlInputSource::fetchData()
                 rawData = QByteArray((const char *) s->constData(), s->size() * sizeof(QChar));
             }
         } else if (device->isOpen() || device->open(QIODevice::ReadOnly)) {
-            rawData = device->readAll();
+            rawData = device->read(1024);
         }
     }
     setData(fromRawData(rawData));
+//    qDebug() << "QXmlInputSource::fetchData(): read" << rawData.size() << "bytes";
 }
 
 /*!
@@ -3213,13 +3221,14 @@ bool QXmlSimpleReader::parse(const QXmlInputSource *input, bool incremental)
 {
     Q_D(QXmlSimpleReader);
 
-    d->init(input);
     if (incremental) {
         d->initIncrementalParsing();
     } else {
         delete d->parseStack;
         d->parseStack = 0;
     }
+    d->init(input);
+
     // call the handler
     if (d->contentHnd) {
         d->contentHnd->setDocumentLocator(d->locator);
@@ -7713,18 +7722,19 @@ void QXmlSimpleReaderPrivate::next()
     // the following could be written nicer, but since it is a time-critical
     // function, rather optimize for speed
     ushort uc = c.unicode();
-    if (uc == '\n') {
+    c = inputSource->next();
+    // If we are not incremental parsing, we just skip over EndOfData chars to give the
+    // parser an uninterrupted stream of document chars.
+    if (c == QXmlInputSource::EndOfData && parseStack == 0)
         c = inputSource->next();
+    if (uc == '\n') {
         lineNr++;
         columnNr = -1;
     } else if (uc == '\r') {
-        c = inputSource->next();
         if (c != QLatin1Char('\n')) {
             lineNr++;
             columnNr = -1;
         }
-    } else {
-        c = inputSource->next();
     }
     ++columnNr;
 }
