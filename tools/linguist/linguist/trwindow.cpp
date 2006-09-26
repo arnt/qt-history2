@@ -626,7 +626,9 @@ void TrWindow::translate(int mode)
                     m = it.current();
                 }
                 if (m && m->compare(findText, m_findMatchSubstring, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
-                    m->setTranslation(m_translateTo);
+                    cmdl->setTranslation(it, m_translateTo);
+                    if (indxScope.isValid() && it.contextNo() == scopeNo && it.messageNo() == itemNo)
+                        me->setTranslation(m_translateTo, 0, false);
                     updateFinished(it.contextNo(), it.messageNo(), m_markFinished);
                     ++translatedCount;
                 }
@@ -644,7 +646,7 @@ void TrWindow::translate(int mode)
         {
             MessageItem *m = it.current();
             if (m && m->compare(findText, m_findMatchSubstring, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
-                m->setTranslation(m_translateTo);
+                cmdl->setTranslation(it, m_translateTo);
                 updateFinished(it.contextNo(), it.messageNo(), m_markFinished);
                 ++translatedCount;
             }

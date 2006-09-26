@@ -277,10 +277,20 @@ void MessageModel::updateAll()
     reset();
 }
 
-QModelIndex MessageModel::modelIndex(int context, int message)
+void MessageModel::setTranslation(const iterator &it, const QString &translation)
 {
-    QModelIndex idx = index(context, 0);
-    if (idx.isValid()) idx = index(message, 0, idx);
+    int c = it.contextNo();
+    int m = it.messageNo();
+    QModelIndex idx = modelIndex(c, m, 2);
+    MessageItem *msg = it.current();
+    msg->setTranslation(translation);
+    emit dataChanged(idx, idx);
+}
+
+QModelIndex MessageModel::modelIndex(int context, int message, int column)
+{
+    QModelIndex idx = index(context, column);
+    if (idx.isValid()) idx = index(message, column, idx);
     return idx;
 }
 

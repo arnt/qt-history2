@@ -179,8 +179,8 @@ public:
         }
         iterator &operator++();
         void reset();
-        int contextNo() { return m_contextNo; }
-        int messageNo() { return m_itemNo; }
+        int contextNo() const { return m_contextNo; }
+        int messageNo() const { return m_itemNo; }
     private:
         iterator() {}
         ContextList *m_contextList;
@@ -245,7 +245,8 @@ public:
     ContextItem *contextItem(int context) const;
     MessageItem *messageItem(int context, int message) const;
 
-    QModelIndex modelIndex(int context, int message);
+    QModelIndex modelIndex(int context, int message, int column = 0);
+    void setTranslation(const iterator &it, const QString &translation);
 
     int getMessageCount() const 
     {

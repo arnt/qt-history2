@@ -250,7 +250,7 @@ public:
         const QList<Phrase> &phrases);
     void setNumerusForms(const QString &invariantForm, const QStringList &numerusForms);
     bool eventFilter(QObject *, QEvent *);
-
+    void setTranslation(const QString &translation, int numerus, bool emitt);
 signals:
     void translationChanged(const QStringList &translations);
     void finished(bool finished);
@@ -300,7 +300,6 @@ public:
 private:
 
     void visualizeBackTabs(const QString &text, QTextEdit *te);
-    void setTranslation(const QString &translation, int numerus, bool emitt);
     void setEditionEnabled(bool enabled);
 
     MessageModel *srcMdl;
