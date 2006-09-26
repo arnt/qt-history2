@@ -49,7 +49,7 @@
     Other drivers can be added by deriving from the QWSMouseHandler
     and QMouseDriverPlugin classes and using Qt's plugin mechanism.
 
-    \if (defined(QTOPIA_PHONE)
+    \if defined(QTOPIA_PHONE)
     For a tutorial on how to add a new keyboard driver plug-in see : \l {Tutorial: Implementing a Device Plug-in}.
     \endif
 
