@@ -48,133 +48,360 @@
 
     \section1 Porting from Q3Canvas
 
-        QGraphicsScene is the equivalent of Q3Canvas. There are some noticable
-        differences in this new API: Whereas the Q3Canvas classes use integer
-        precision, QGraphicsScene is entirely based on double coordinates,
-        with graphical primitives such as QPointF instead of QPoint, QRectF
-        instead of QRect, and QPolygonF and QPainterPath.
+        QGraphicsScene is the closest equivalent to Q3Canvas. There
+        are some noticable differences in this new API: Whereas the
+        Q3Canvas classes use integer precision, QGraphicsScene is
+        entirely based on double coordinates, with graphical
+        primitives such as QPointF instead of QPoint, QRectF instead
+        of QRect, and QPolygonF and QPainterPath. The canvas area is
+        defined by a scene rectangle, allowing negative coordinates,
+        as opposed to Q3Canvas, which only defines a size (QSize), and
+        whose top-left corner is always (0, 0).
 
-        In addition, there is no explicit support for canvas tiles anymore,
-        and the chunks system has been replaced with an implicitly maintained
-        internal BSP tree.
+        In addition, there is no explicit support for canvas tiles
+        anymore; see \l{Porting scenes with tiles} for more
+        information.  The chunks-based indexing system has been
+        replaced with an implicitly maintained internal BSP tree.
 
+        \section2 Porting table
+        
         \table
         \header \o Q3Canvas \o QGraphicsScene
 
-        \row \o Q3Canvas::Q3Canvas() \o There is no QPixmap based constructor,
-           and the concept of tiles is gone. You can use
-           QGraphicsScene::backgroundBrush to set a brush pattern for the
-           background, or reimplement QGraphicsScene::drawBackground() in a
-           QGraphicsScene subclass. In addition, the QGraphicsScene geometry
-           is provided as a full QRectF. Instead of Q3Canvas(int width, int
-           height), you can use QGraphicsScene(int top, int left, int width,
-           int height).
+        \row \o Q3Canvas::Q3Canvas() \o There is no QPixmap based
+           constructor, and the concept of tiles is gone. You can use
+           QGraphicsScene::backgroundBrush to set a brush pattern for
+           the background, or reimplement
+           QGraphicsScene::drawBackground() in a QGraphicsScene
+           subclass (see \l{Porting scenes with tiles}). In addition,
+           the QGraphicsScene geometry is provided as a full
+           QRectF. Instead of Q3Canvas(int width, int height), you can
+           use QGraphicsScene(int top, int left, int width, int
+           height).
 
         \row \o Q3Canvas::allItems() \o QGraphicsScene::items()
+        returns a list of all items on the scene.
 
-        \row \o Q3Canvas::backgroundColor() \o QGraphicsScene::backgroundBrush
-        or QGraphicsView::backgroundBrush
+        \row \o Q3Canvas::backgroundColor() \o You can assign a color for the
+        background through the QGraphicsScene::backgroundBrush
+        or QGraphicsView::backgroundBrush properties.
 
-        \row \o Q3Canvas::backgroundPixmap() \o
-        QGraphicsScene::backgroundBrush or QGraphicsView::backgroundBrush
+        \row \o Q3Canvas::backgroundPixmap() \o You can set a tiled
+        pixmap for the background through
+        QGraphicsScene::backgroundBrush or
+        QGraphicsView::backgroundBrush. For more control on the pixmap
+        positioning, you can reimplement
+        QGraphicsScene::drawBackground() or
+        QGraphicsView::drawBackground().
 
-        \row \o Q3Canvas::chunkSize() \o See QGraphicsScene::itemIndexMethod.
+        \row \o Q3Canvas::chunkSize() \o The closest equivalent to the
+        chunks size in Q3Canvas is the depth of QGraphicsScene's BSP
+        tree. QGraphicsScene assigns a depth automatically, and the
+        size of each scene segment depends on this depth, and
+        QGraphicsScene::sceneRect(). See
+        QGraphicsScene::itemIndexMethod.
 
-        \row \o Q3Canvas::collisions() \o QGraphicsScene::items()
+        \row \o Q3Canvas::collisions() \o QGraphicsScene provides
+        several means to detect item collisions. The
+        QGraphicsScene::items() overloads return items that collide
+        with a point, a rectangle, a polygon, or an arbitrary vector
+        path (QPainterPath). You can also call
+        QGraphicsScene::collidingItems() to determine collision with
+        an item.
 
-        \row \o Q3Canvas::drawArea() \o QGraphicsScene::render()
+        \row \o Q3Canvas::drawArea() \o The QGraphicsScene::render()
+        function provides the original behavior
+        Q3Canvas::drawArea(). In addition, you can pass a source
+        rectangle for rendering only parts of the scene, and a
+        destination rectangle for rendering onto designated area of
+        the destination device. QGraphicsScene::render() can
+        optionally transform the source rectangle to fit into the
+        destination rectangle. See \l{Printing}
 
-        \row \o Q3Canvas::onCanvas() \o QGraphicsScene::sceneRect() and
-        QRectF::contains().
+        \row \o Q3Canvas::onCanvas() \o The is no equivalent to this
+        function in Graphics View. However, you can combine
+        QGraphicsScene::sceneRect() and QRectF::intersects():
+        \code
+        item->scene().sceneRect().intersects(item->sceneBoundingRect());
+        item->mapToScene(item->shape()).intersects(item->scene().sceneRect());\endcode
 
-        \row \o Q3Canvas::rect() \o QGraphicsScene::sceneRect()
+        \row \o Q3Canvas::rect() \o The equivalent,
+        QGraphicsScene::sceneRect(), returns a QRectF (double
+        precision coordinates). Its top-left corner can be an
+        arbitrary coordinate (Q3Canvas::rect().topLeft() is always (0,
+        0)).
 
-        \row \o Q3Canvas::resize() \o QGraphicsScene::setSceneRect()
+        \row \o Q3Canvas::resize() \o You can call
+        QGraphicsScene::setSceneRect(0, 0, width, height) instead.
 
-        \row \o Q3Canvas::retune() \o See QGraphicsScene::itemIndexMethod.
+        \row \o Q3Canvas::retune() \o See
+        QGraphicsScene::itemIndexMethod. You can tune the indexing by
+        setting a suitable sceneRect(). The optimal depth of
+        QGraphicsScene's BSP tree is determined automatically.
 
-        \row \o Q3Canvas::setAdvancePeriod() \o There is no concept of an
-        advance period in the new API; instead, you can connect
-        QTimer::timeout() to the QGraphicsScene::advance() slot to obtain
-        similar functionality.
+        \row \o Q3Canvas::setAdvancePeriod() \o There is no concept of
+        an advance period in the new API; instead, you can connect
+        QTimer::timeout() to the QGraphicsScene::advance() slot to
+        obtain similar functionality. This will cause all items'
+        QGraphicsItem::advance() function to be called. See also
+        QGraphicsItemAnimation.
 
-        \row \o Q3Canvas::setAllChanged() \o QGraphicsScene::update() with no arguments.
+        \row \o Q3Canvas::setAllChanged() \o You can call
+        QGraphicsScene::update() with no arguments.
 
         \row \o Q3Canvas::setChanged() \o QGraphicsScene::update()
+        will trigger a repaint of the whole scene, or parts of the
+        scene.
 
-        \row \o Q3Canvas::setDoubleBuffering() \o Double buffering is
-        implicitly enabled in all widget in Qt 4. See Qt::WA_PaintOnScreen for
-        how to disable double buffering.
+        \row \o Q3Canvas::setDoubleBuffering() \o Q3Canvas' double
+        buffering enabled cacheing of the scene contents in device
+        (i.e., viewport) coordinates. This cache layer has been moved
+        to the view instead; you can cache QGraphicsScene's background
+        through
+        QGraphicsView::setCacheMode(). QGraphicsView::resetCachedContent()
+        will reset the areas of the cache that has changed.
 
-        \row \o Q3Canvas::tile() \o No equivalent. You can use
-        QGraphicsScene::backgroundBrush() or QGraphicsScene::drawBackground() instead.
+        \row \o Q3Canvas::tile() \o See \l{Porting scenes with tiles}.
 
-        \row \o Q3Canvas::setTiles() \o No equivalent. You can use
-        QGraphicsScene::backgroundBrush() or QGraphicsScene::drawBackground()
-        instead.
+        \row \o Q3Canvas::setTiles() \o See \l{Porting scenes with tiles}.
 
-        \row \o Q3Canvas::setUnchanged() \o No equivalent. This call can
-        usually be removed with no side effects.
+        \row \o Q3Canvas::setUnchanged() \o There is no equivalent in
+        Graphics View. This call can usually be removed with no side
+        effects.
 
         \row \o Q3Canvas::setUpdatePeriod() \o There is no concept of an
         update period in the new API; instead, you can connect
         QTimer::timeout() to the QGraphicsScene::update() slot to obtain
-        similar functionality.
+        similar functionality. See also QGraphicsItemAnimation.
 
-        \row \o Q3Canvas::size() \o QGraphicsScene::sceneRect() and
-        QRectF::size().
+        \row \o Q3Canvas::size() \o
+        \tt{QGraphicsScene::sceneRect().size()} returns a QSizeF, with
+        double precision coordinates.
 
-        \row \o Q3Canvas::validChunk() \o QGraphicsScene::sceneRect() and
-        QRectF::contains().
+        \row \o Q3Canvas::validChunk() \o To determine if an area is
+        inside the scene area or not, you can combine
+        QRectF::intersects() with QGraphicsScene::sceneRect().
 
-        \row \o Q3Canvas::resized() \o QGraphicsScene::sceneRectChanged()
+        \row \o Q3Canvas::resized() \o QGraphicsScene emits
+        \l{QGraphicsScene::sceneRectChanged()}{sceneRectChanged()}
+        whenever the scene rect changes.
 
-        \row \o Q3Canvas::drawForeground() \o QGraphicsScene::drawForeground()
-        or QGraphicsView::drawForeground().
+        \row \o Q3Canvas::drawBackground() \o You can reimplement
+        QGraphicsScene::drawBackground() to render the scene
+        background. You can also reimplement
+        QGraphicsView::drawBackground() to override this background if
+        you need different backgrounds for different views.
 
-        \row \o Q3Canvas::drawBackground() \o QGraphicsScene::drawBackground()
-        or QGraphicsView::drawBackground().
+        \row \o Q3Canvas::drawForeground() \o You can reimplement
+        QGraphicsScene::drawForeground() to render the scene
+        foreground. You can also reimplement
+        QGraphicsView::drawForeground() to override this foreground if
+        you need different foregrounds for different views.
 
         \endtable
 
-    \section1 Porting from Q3CanvasView
+        \section2 Porting scenes with tiles
 
-        The equivalent of Q3CanvasView in Graphics View is called
-        QGraphicsView.  In most cases, this is the easiest class to port. In
-        addition to providing all of Q3CanvasView's functionality,
-        QGraphicsView provides new functionality. You can read more about this
-        in QGraphicsView's documentation.
+        QGraphicsScene does not provide an API for tiles. However, you
+        can achieve similar behavior by drawing pixmaps in a reimplementation of
+        QGraphicsScene::drawBackground().
+
+        Q3Canvas' tile support is based on providing one pixmap
+        containing tiles of a fixed width and height, and then
+        accessing them (reading and replacing tiles) by index. The
+        tiles in the pixmap are arranged from the left to right, top
+        to bottom.
+
+        \table
+        \row \i 0 \i 1 \i 2 \i 3
+        \row \i 4 \i 5 \i 6 \i 7
+        \endtable
+
+        With Graphics View, this pixmap can be stored as a member of a
+        subclass of QGraphicsScene. The three main functions that make
+        out the public tile API can then be declared as new members of
+        this class. Here is one example of how to implement tile support:
+
+        \code
+            class TileScene : public QGraphicsScene
+            {
+            public:
+                ...
+
+                void setTiles(const QPixmap &pixmap, int h, int v,
+                              int tileHeight, int tileWidth);
+                void setTile(int x, int y, int tilenum);
+
+            private:
+                QRect tileRect(int x, int y) const;
+                QRect tileRect(int tileNum) const;
+            
+                QVector<QVector<int> > tiles;
+                QPixmap tilePixmap;
+                int tileW, tileH;
+                int hTiles, vTiles;
+            };
+        \endcode
+
+        Depending on how your scene uses tiles, you may be able to
+        simplify this approach. In this example, we will try to mimic the behavior
+        of the Q3Canvas functions.
+
+        We start by creating a subclass of QGraphicsScene ("TileScene").
+        In this class, we declare two of the tile
+        functions from Q3Canvas, and we then add two helper function that returns the
+        rectangle for a certain tile in our tile pixmap. We will use a
+        two-dimensional vector of ints to keep track of what tiles should
+        be used at what parts of the scene.
+
+        \code
+            void TileScene::setTiles(const QPixmap &pixmap, int h, int v,
+                                     int tileHeight, int tileWidth)
+            {
+                tilePixmap = pixmap;
+                tileW = tileWidth;
+                tileH = tileHeight;
+                hTiles = h;
+                vTiles = v;
+
+                tiles.resize(v);
+                for (int y = 0; y < v; ++y)
+                    tiles[y].resize(h);
+            }
+        \endcode
+
+        In setTiles(), we store the pixmap and tile properties as
+        members of the class. Then we resize the tiles vector
+        to match the width and height of our tile grid.
+
+        \code
+            void TileScene::setTile(int x, int y, int tilenum)
+            {
+                tiles[y][x] = tilenum;
+                update(tileRect(x, y));
+            }
+        \endcode
+
+        The setTile() function updates the tiles index, and then
+        updates the corresponding rect in the scene by calling
+        tileRect().
+
+        \code
+            QRect TileScene::tileRect(int x, int y) const
+            {
+                return QRect(x * tileW, y * tileH, tileW, tileH);
+            }
+        \endcode
+
+        The first tileRect() function returns a QRect for the tile at
+        position (x, y).
+
+        \code
+            QRect TileScene::tileRect(int tileNum) const
+            {
+                int numHTiles = tilePixmap.width() / tileW;
+                int numVTiles = tilePixmap.height() / tileH;
+                return tileRect(tileNum % numHTiles, tileNum / numHTiles);
+            }
+        \endcode
+
+        The second tileRect() function returns a QRect for a tile number.
+        With these functions in place, we can implement the drawBackground()
+        function.
+
+        \code
+            void drawBackground(QPainter *painter, const QRectF &exposed)
+            {
+                for (int y = 0; y < vTiles; ++y) {
+                    for (int x = 0; x < hTiles; ++x) {
+                        QRect destRect = tileRect(x, y);
+                        if (exposed.intersects(destRect)) {
+                            painter->drawPixmap(destRect, tilePixmap,
+                                                tileRect(tiles[y][x]));
+                        }
+                    }
+                }
+            }
+        \endcode
+
+        In drawBackground(), we redraw all tiles that have been
+        exposed by intersecting each tile rect with the exposed background
+        area.
+
+     \section1 Porting from Q3CanvasView
+
+        The closest equivalent to Q3CanvasView in Graphics View is
+        called QGraphicsView.  In most cases, this is the easiest
+        class to port. In addition to providing all of Q3CanvasView's
+        functionality, QGraphicsView includes some useful new features. You
+        can read more about this in QGraphicsView's documentation.
+
+        \section2 Porting table
 
         \table
         \header \o Q3CanvasView \o QGraphicsView
 
-        \row \o Q3CanvasView::Q3CanvasView() \o QGraphicsView provides the
-        same constructors as Q3CanvasView, but without the name and flags
-        arguments.
+        \row \o Q3CanvasView::Q3CanvasView() \o QGraphicsView provides
+        the same constructors as Q3CanvasView, but without the name
+        and flags arguments. You can set the name by calling
+        \l{QWidget::setObjectName()}{setObjectName()}, and the flags by
+        calling \l{QWidget::setWindowFlags()}{setWindowFlags()}.
 
         \row \o Q3CanvasView::canvas() \o QGraphicsView::scene()
+        returns the scene that is currently associated with the
+        view. QGraphicsScene also provides the opposite function,
+        QGraphicsScene::views(), which returns a list of views
+        observing the scene.
 
-        \row \o Q3CanvasView::inverseWorldMatrix() \o QGraphicsView::matrix()
-        and QMatrix::inverted(). See also QGraphicsView::mapToScene() and
-        QGraphicsView::mapFromScene().
+        \row \o Q3CanvasView::inverseWorldMatrix() \o You can call
+        QGraphicsView::matrix() and QMatrix::inverted().
+        QGraphicsView::mapToScene() and QGraphicsView::mapFromScene()
+        allow transforming of viewport shapes to scene shapes, and
+        vice versa.
 
-        \row \o Q3CanvasView::setCanvas() \o QGraphicsView::setScene()
+        \row \o Q3CanvasView::setCanvas() \o QGraphicsView::setScene().
 
-        \row \o Q3CanvasView::setWorldMatrix() \o QGraphicsView::setMatrix(),
-        QGraphicsView::rotate(), QGraphicsView::scale(), and more.
+        \row \o Q3CanvasView::setWorldMatrix() \o
+        QGraphicsView::setMatrix(), QGraphicsView::rotate(),
+        QGraphicsView::scale(), QGraphicsView::shear() and
+        QGraphicsView::translate().
 
         \row \o Q3CanvasView::worldMatrix() \o QGraphicsView::matrix()
 
-        \row \o Q3CanvasView::drawContents() \o QGraphicsView::render()
+        \row \o Q3CanvasView::drawContents() \o The
+        QGraphicsView::drawBackground() function draws the background,
+        QGraphicsView::drawItems() draws the items, and
+        QGraphicsView::drawForeground() draws the foreground of the
+        scene in scene coordinates. You can also reimplement these
+        functions in QGraphicsScene.
 
         \endtable
 
+        \section2 Other differences
+
+        QGraphicsView can cache the visible contents of the scene,
+        similar to how Q3Canvas::setDoubleBuffering() could cache the
+        entire scene contents. You can call
+        QGraphicsView::setCacheMode() to configure cacheing, and
+        QGraphicsView::resetCachedContent() invalidates the cache.
+
+        For improved navigation support, you can set a resize or
+        transformation anchor through QGraphicsView::resizeAnchor and
+        QGraphicsView::transformationAnchor. This allows you to easily
+        rotate and zoom the view while keeping the center fixed, or
+        zooming towards the position under the mouse cursor. In
+        addition, if you set the QGraphicsView::dragMode of the view,
+        QGraphicsView will provide rubber band selection or
+        click-and-pull navigation using the
+        \l{Qt::OpenHandCursor}{OpenHandCursor} and
+        \l{Qt::ClosedHandCursor}{ClosedHandCursor} cursors.
+        
     \section1 Porting from Q3CanvasItem
 
-        The equivalent of Q3CanvasItem in Graphics View is called
-        QGraphicsItem. Deriving from this class is very common, and because of
-        that, porting from Q3CanvasItem often involves more work than Q3Canvas
-        and Q3CanvasView.
+        The closest equivalent to Q3CanvasItem in Graphics View is
+        called QGraphicsItem. Deriving from this class is very common,
+        and because of that, porting from Q3CanvasItem often involves
+        more work than Q3Canvas and Q3CanvasView.
 
         Q3CanvasItem has become easier to use, easier to subclass, and more
         powerful with QGraphicsItem. The key difference from Q3CanvasItem lies
@@ -190,15 +417,17 @@
         \table
         \header \o Q3CanvasItem \o QGraphicsItem
 
-        \row \o Q3CanvasItem::advance() \o QGraphicsItem::advance(). See also
-        QTimeLine and QGraphicsItemAnimation.
+        \row \o Q3CanvasItem::advance() \o QGraphicsItem::advance() is
+        provided for compatibility. QGraphicsScene::advance() calls
+        QGraphicsItem::advance() for all items. See also QTimeLine and
+        QGraphicsItemAnimation.
 
-        \row \o Q3CanvasItem::animated() \o No equivalent; All items are
-        advanced by QGraphicsScene::advance().
+        \row \o Q3CanvasItem::animated() \o No equivalent; all items
+        are advanced by QGraphicsScene::advance().
 
-        \row \o Q3CanvasItem::boundingRectAdvanced() \o No equivalent. You can
-        translate QGraphicsItem::boundingRect() instead (see
-        QRectF::translate()).
+        \row \o Q3CanvasItem::boundingRectAdvanced() \o No
+        equivalent. You can translate QGraphicsItem::boundingRect()
+        instead (see QRectF::translate()).
 
         \row \o Q3CanvasItem::canvas() \o QGraphicsItem::scene()
 
@@ -206,31 +435,48 @@
         QGraphicsItem::collidesWithItem() and
         QGraphicsItem::collidesWithPath().
 
-        \row \o Q3CanvasItem::collisions() \o QGraphicsItem::collidingItems()
+        \row \o Q3CanvasItem::collisions() \o
+        QGraphicsItem::collidingItems() returns a list of all items
+        that collide with an item. You can specify whether you want
+        fast, rough estimate collision between bounding rectangles, or
+        the slower, more accurate shapes.
 
-        \row \o Q3CanvasItem::draw() \o QGraphicsItem::paint(). See also
-        QStyleOptionGraphicsItem.
+        \row \o Q3CanvasItem::draw() \o QGraphicsItem::paint(). See
+        also QStyleOptionGraphicsItem, QGraphicsScene::drawItems() and
+        QGraphicsView::drawItems().
 
         \row \o Q3CanvasItem::hide() \o QGraphicsItem::hide() or
         QGraphicsItem::setVisible(). \l{QGraphicsItem}s are \e visible by
         default; \l{Q3CanvasItem}s, however, are not.
 
-        \row \o Q3CanvasItem::isActive() \o No equivalent.
+        \row \o Q3CanvasItem::isActive() \o No equivalent. To achieve
+        similar behavior, you can add this property in a custom
+        subclass of QGraphicsItem.
 
         \row \o Q3CanvasItem::isVisible() \o
         QGraphicsItem::isVisible(). \l{QGraphicsItem}s are \e visible by
         default; \l{Q3CanvasItem}s, however, are not.
 
-        \row \o Q3CanvasItem::move() \o QGraphicsItem::setPos().
-        \row \o Q3CanvasItem::rtti() \o QGraphicsItem::type() and qgraphicsitem_cast().
-        \row \o Q3CanvasItem::setActive() \o No equivalent.
-        \row \o Q3CanvasItem::setAnimated() \o No equivalent.
-        \row \o Q3CanvasItem::setCanvas() \o QGraphicsScene::addItem().
+        \row \o Q3CanvasItem::move() \o You can call
+        QGraphicsItem::setPos() to change the position of the item.
 
-        \row \o Q3CanvasItem::setVelocity() \o No equivalent. You can add x
-        and y velocity as member data of your class, and call
-        QGraphicsItem::moveBy(x, y) from inside QGraphicsItem::advance(). See
-        also QTimeLine and QGraphicsItemAnimation.
+        \row \o Q3CanvasItem::rtti() \o QGraphicsItem::type() and qgraphicsitem_cast().
+
+        \row \o Q3CanvasItem::setActive() \o No equivalent.
+
+        \row \o Q3CanvasItem::setAnimated() \o No equivalent; all
+        items are by default "animated" (i.e.,
+        QGraphicsScene::advance() advances all items on the scene).
+
+        \row \o Q3CanvasItem::setCanvas() \o You can call
+        QGraphicsScene::addItem(), or pass a pointer to the canvas to
+        QGraphicsItem's constructor.
+
+        \row \o Q3CanvasItem::setVelocity() \o No equivalent. You can
+        add x and y velocity as member data of your class, and call
+        QGraphicsItem::moveBy(x, y) from inside
+        QGraphicsItem::advance(). See also QTimeLine and
+        QGraphicsItemAnimation.
 
         \row \o Q3CanvasItem::setVisible() \o
         QGraphicsItem::setVisible(). \l{QGraphicsItem}s are \e visible by
@@ -255,10 +501,11 @@
 
         \section2 Q3CanvasPolygonalItem
 
-            The equivalent of Q3CanvasPolygonalItem in Graphics View is called
-            QAbstractGraphicsShapeItem. Unlike Q3CanvasPolygonalItem, it does
-            not define area points (Q3CanvasPolygonalItem::areaPoints());
-            instead, each item's geometry is stored in the subclasses.
+            The closest equivalent to Q3CanvasPolygonalItem in
+            Graphics View is called QAbstractGraphicsShapeItem. Unlike
+            Q3CanvasPolygonalItem, it does not define area points
+            (Q3CanvasPolygonalItem::areaPoints()); instead, each
+            item's geometry is stored as a member of the subclasses.
 
             The Q3CanvasPolygonalItem::drawShape() function is no longer
             available; instead, you can set the brush and pen from inside
@@ -278,11 +525,12 @@
             QGraphicsItem::paint(). You can set the pen and brush from inside
             this function.
 
-            \row \o Q3CanvasPolygonalItem::invalidate() \o
-            QGraphicsItem::prepareGeometryChange()
+            \row \o Q3CanvasPolygonalItem::invalidate() \o Call
+            QGraphicsItem::prepareGeometryChange() before changing the
+            item's geometry.
 
-            \row \o Q3CanvasPolygonalItem::isValid() \o No equivalent; items'
-            geometry is always in a valid state.
+            \row \o Q3CanvasPolygonalItem::isValid() \o No equivalent;
+            items' geometry is always in a valid state.
 
             \row \o Q3CanvasPolygonalItem::winding() \o This function is only
             useful for polygon items and path items; see
@@ -293,11 +541,12 @@
 
         \section2 Q3CanvasEllipse
 
-            The equivalent of Q3CanvasEllipse in Graphics View is called
-            QGraphicsEllipseItem. The most noticable difference to
-            QGraphicsEllipseItem is that the ellipse is not longer drawn
-            centered around its position; rather, it is drawn using a bounding
-            QRectF, just like QPainter::drawEllipse().
+            The closest equivalent to Q3CanvasEllipse in Graphics View
+            is called QGraphicsEllipseItem. The most noticable
+            difference to QGraphicsEllipseItem is that the ellipse is
+            not longer drawn centered around its position; rather, it
+            is drawn using a bounding QRectF, just like
+            QPainter::drawEllipse().
 
             For compatibility, you may want to shift the ellipse up and to the
             left to keep the ellipse centered. Example:
@@ -331,8 +580,8 @@
 
             \section2 Q3CanvasLine
 
-            The equivalent of Q3CanvasLine in Graphics View is called
-            QGraphicsLineItem.
+            The closest equivalent to Q3CanvasLine in Graphics View is
+            called QGraphicsLineItem.
 
             \table
             \header \o Q3CanvasLine \o QGraphicsLineItem
@@ -348,8 +597,8 @@
 
         \section2 Q3CanvasPolygon
 
-            The equivalent of Q3CanvasPolygon in Graphics View is called
-            QGraphicsPolygonItem.
+            The closest equivalent to Q3CanvasPolygon in Graphics View
+            is called QGraphicsPolygonItem.
 
             \table
             \header \o Q3CanvasPolygon \o QGraphicsPolygonItem
@@ -365,9 +614,9 @@
 
         \section2 Q3CanvasSpline
 
-            The equivalent of Q3CanvasSpline in Graphics View is called
-            QGraphicsPathItem. This item can be used to describe any type of
-            path supported by QPainter.
+            The closest equivalent to Q3CanvasSpline in Graphics View
+            is called QGraphicsPathItem. This item can be used to
+            describe any type of path supported by QPainter.
 
             Q3CanvasSpline takes its control points as a Q3PointArray, but
             QPainterPath operates on a sequence of calls to
@@ -399,8 +648,8 @@
 
         \section2 Q3CanvasRectangle
 
-            The equivalent of Q3CanvasRectangle in Graphics View is called
-            QGraphicsRectItem.
+            The closest equivalent to Q3CanvasRectangle in Graphics
+            View is called QGraphicsRectItem.
 
             \table
             \header \o Q3CanvasRectangle \o QGraphicsRectItem
