@@ -1402,6 +1402,10 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
                 WaitForSingleObject(readSemaphore, INFINITE);
         } else {
             setStatus(QSettings::AccessError);
+            if (writeSemaphore != 0) {
+                ReleaseSemaphore(writeSemaphore, 1, 0);
+                CloseHandle(writeSemaphore);
+            }
             return;
         }
     }
