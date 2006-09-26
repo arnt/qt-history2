@@ -6,7 +6,6 @@ RESOURCES     = stylesheet.qrc
 SOURCES       = main.cpp \
                 mainwindow.cpp \
                 stylesheeteditor.cpp
-CONFIG       += uitools 
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/stylesheet
