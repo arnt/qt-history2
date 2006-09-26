@@ -657,7 +657,7 @@ void QWidget::setAutoFillBackground(bool enabled)
     destructive action.
 
     The use of widgets style sheets is described in more detail in
-    \l{Customizing Widgets using Style Sheets}.
+    \l{Qt Style Sheets}.
 
     \section1 Transparency and Double Buffering
 
@@ -1722,7 +1722,7 @@ void QWidget::createWinId()
     \brief the widget's style sheet
     \since 4.2
 
-    \sa setStyle(), QApplication::styleSheet, {Customizing Widgets using Style Sheets}
+    \sa setStyle(), QApplication::styleSheet, {Qt Style Sheets}
 */
 QString QWidget::styleSheet() const
 {
