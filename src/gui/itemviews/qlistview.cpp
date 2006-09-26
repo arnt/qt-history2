@@ -1220,6 +1220,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     if (rect.isEmpty()) {
         return d->model->index(0, 0, d->root);
     }
+    if (d->gridSize.isValid()) rect.setSize(d->gridSize);
 
     QSize contents = d->contentsSize;
     QPoint pos = rect.center();

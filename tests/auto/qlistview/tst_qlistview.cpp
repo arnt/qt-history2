@@ -45,6 +45,7 @@ private slots:
     void cursorMove();
     void hideRows();
     void moveCursor();
+    void moveCursor2();
     void indexAt();
     void clicked();
     void singleSelectionRemoveRow();
@@ -142,6 +143,10 @@ public:
 
     QVariant data(const QModelIndex &idx, int role) const
     {
+
+        if (!m_icon.isNull() && role == Qt::DecorationRole) {
+            return m_icon;
+        }
         if (role != Qt::DisplayRole)
             return QVariant();
 
@@ -167,7 +172,13 @@ public:
         endRemoveRows();
     }
 
+    void setDataIcon(const QIcon &icon)
+    {
+        m_icon = icon;
+    }
+
     int colCount, rCount;
+    QIcon m_icon;
     mutable bool wrongIndex;
 };
 
@@ -351,6 +362,7 @@ void tst_QListView::hideRows()
 
 }
 
+
 void tst_QListView::moveCursor()
 {
     QtTestModel model(0);
@@ -367,6 +379,51 @@ void tst_QListView::moveCursor()
 
     QTest::keyClick(&view, Qt::Key_Down);
     QCOMPARE(view.selectionModel()->currentIndex(), model.index(1, 0));
+}
+
+class QMoveCursorListView : public QListView
+{
+public:
+    QMoveCursorListView() : QListView() {}
+    
+    enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
+        MoveHome, MoveEnd, MovePageUp, MovePageDown,
+        MoveNext, MovePrevious };
+
+    QModelIndex moveCursor(QMoveCursorListView::CursorAction action, Qt::KeyboardModifiers modifiers)
+    {
+        return QListView::moveCursor((QListView::CursorAction)action, modifiers);
+    }
+};
+
+void tst_QListView::moveCursor2()
+{
+    QtTestModel model(0);
+    model.colCount = 1;
+    model.rCount = 100;
+    QPixmap pm(32, 32);
+    pm.fill(Qt::green);    
+    model.setDataIcon(QIcon(pm));
+
+    QMoveCursorListView vu;
+    vu.setModel(&model);
+    vu.setIconSize(QSize(36,48));
+    vu.setGridSize(QSize(34,56));
+    vu.resize(300,300);
+    vu.setFlow(QListView::LeftToRight);
+    vu.setMovement(QListView::Static);
+    vu.setWrapping(true);
+    vu.setViewMode(QListView::IconMode);
+    vu.setLayoutMode(QListView::Batched);
+    vu.show();
+    vu.selectionModel()->setCurrentIndex(model.index(0,0), QItemSelectionModel::SelectCurrent);
+    QCoreApplication::processEvents();
+
+    QModelIndex idx = vu.moveCursor(QMoveCursorListView::MoveHome, Qt::NoModifier);
+    QCOMPARE(idx, model.index(0,0));
+    idx = vu.moveCursor(QMoveCursorListView::MoveDown, Qt::NoModifier);
+    QCOMPARE(idx, model.index(8,0));
+
 }
 
 
@@ -585,6 +642,8 @@ void tst_QListView::hideFirstRow()
     view.show();
     QTest::qWait(100);
 }
+
+
 
 QTEST_MAIN(tst_QListView)
 #include "tst_qlistview.moc"
