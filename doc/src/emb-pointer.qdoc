@@ -12,7 +12,7 @@
 
     For example:
 
-\if (defined(QTOPIA_PHONE)
+\if defined(QTOPIA_PHONE)
    \code
         ./configure -extra-qtopiacore-config -qt-mouse-tslib
     \endcode
