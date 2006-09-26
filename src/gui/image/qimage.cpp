@@ -1120,7 +1120,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     d->bytes_per_line = bpl;
     d->nbytes = d->bytes_per_line * h;
     if (colortable) {
-        d->colortable.reserve(numColors);
+        d->colortable.resize(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
     } else if (numColors) {
@@ -3665,23 +3665,14 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
-    switch (bpp) {
-        // initizialize the data
-        case 1:
-            memset(dImage.bits(), 0, dImage.numBytes());
-            break;
-        case 8:
-            if (dImage.d->colortable.size() < 256) {
-                // colors are left in the color table, so pick that one as transparent
-                dImage.d->colortable.append(0x0);
-                memset(dImage.bits(), dImage.d->colortable.size() - 1, dImage.numBytes());
-            } else {
-                memset(dImage.bits(), 0, dImage.numBytes());
-            }
-            break;
-        case 32:
-            memset(dImage.bits(), 0x00, dImage.numBytes());
-            break;
+    // initizialize the data
+    if (bpp == 8 && dImage.d->colortable.size() < 256) {
+        // colors are left in the color table, so pick that one as transparent
+        dImage.d->colortable.append(0x0);
+        memset(dImage.bits(), dImage.d->colortable.size() - 1,
+               dImage.numBytes());
+    } else {
+        memset(dImage.bits(), 0, dImage.numBytes());
     }
 
     if (target_format == QImage::Format_RGB32
@@ -5454,10 +5445,7 @@ void pnmscale(const QImage& src, QImage& dst)
 static QImage smoothScaled(const QImage &src, int w, int h) {
     QImage::Format sf = src.format();
     QImage source = src;
-    if (sf == QImage::Format_MonoLSB
-        || sf == QImage::Format_Mono
-        || sf == QImage::Format_Indexed8
-        || sf == QImage::Format_ARGB32_Premultiplied) {
+    if (sf != QImage::Format_RGB32 && sf != QImage::Format_ARGB32) {
         if (src.hasAlphaChannel())
             source = src.convertToFormat(QImage::Format_ARGB32);
         else
