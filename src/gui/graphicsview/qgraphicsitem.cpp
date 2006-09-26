@@ -5596,6 +5596,60 @@ QVariant QGraphicsSimpleTextItem::extension(const QVariant &variant) const
     \since 4.2
     \ingroup multimedia
 
+    A QGraphicsItemGroup is a special type of compound item that
+    treats itself and all its children as one item (i.e., all events
+    and geometries for all children are merged together). It's common
+    to use item groups in presentation tools, when the user wants to
+    group several smaller items into one big item in order to simplify
+    moving and copying of items.
+
+    If all you want is to store items inside other items, you can use
+    any QGraphicsItem directly by passing a suitable parent to
+    setParentItem().
+
+    The boundingRect() function of QGraphicsItemGroup returns the
+    bounding rectangle of all items in the item group. In addition,
+    item groups have handlesChildEvents() enabled by default, so all
+    events sent to a member of the group go to the item group (i.e.,
+    selecting one item in a group will select them all).
+
+    There are two ways to construct an item group. The easiest and
+    most common approach is to pass a list of items (e.g., all
+    selected items) to QGraphicsScene::createItemGroup(), which
+    returns a new QGraphicsItemGroup item. The other approach is to
+    manually construct a QGraphicsItemGroup item, add it to the scene
+    calling QGraphicsScene::addItem(), and then add items to the group
+    manually, one at a time by calling addToGroup(). To dismantle
+    ("ungroup") an item group, you can either call
+    QGraphicsScene::destroyItemGroup(), or you can manually remove all
+    items from the group by calling removeFromGroup().
+
+    \code
+      // Group all selected items together
+      QGraphicsItemGroup *group = scene->createItemGroup(scene->selecteditems());
+
+      // Destroy the group, and delete the group item
+      scene->destroyItemGroup(group);
+    \endcode
+
+    The operation of adding and removing items preserves the items'
+    scene-relative position and transformation, as opposed to calling
+    setParentItem(), where only the child item's parent-relative
+    position and transformation are kept.
+
+    The addtoGroup() function reparents the target item to this item
+    group, keeping the item's position and transformation intact
+    relative to the scene. Visually, this means that items added via
+    addToGroup() will remain completely unchanged as a result of this
+    operation, regardless of the item or the group's current position
+    or transformation; although the item's position and matrix are
+    likely to change.
+
+    The removeFromGroup() function has similar semantics to
+    setParentItem(); it reparents the item to the parent item of the
+    item group. As with addToGroup(), the item's scene-relative
+    position and transformation remain intact.
+
     \sa QGraphicsItem, {The Graphics View Framework}
 */
 
