@@ -403,7 +403,9 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     Q_UNUSED(offset);
 
     const bool opaque = isWidgetOpaque(window());
-    QRegion toFlush = (region + dirtyRegion()) & d_ptr->clip;
+    QRegion toFlush = (region + dirtyRegion());
+    if (!d_ptr->clip.isEmpty())
+        toFlush &= d_ptr->clip;
     const QRegion stillDirty = (d_ptr->dirty - toFlush);
 
 #ifndef QT_NO_QWS_MANAGER
