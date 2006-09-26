@@ -824,7 +824,8 @@ void QToolBar::actionEvent(QActionEvent *event)
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
             item.widget->setVisible(visible);
-            QApplication::postEvent(this, new QResizeEvent(size(), size()));
+            if (isVisible())
+                QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
 
@@ -838,7 +839,8 @@ void QToolBar::actionEvent(QActionEvent *event)
                 item.widget->setVisible(item.action->isVisible());
             } else {
                 // more elephant shaving
-                QApplication::postEvent(this, new QResizeEvent(size(), size()));
+                if (isVisible())
+                    QApplication::postEvent(this, new QResizeEvent(size(), size()));
             }
 
             break;
@@ -863,7 +865,8 @@ void QToolBar::actionEvent(QActionEvent *event)
             for (int i = 0; i< d->items.size(); ++i)
                 d->items[i].widget->show();
 
-            QApplication::postEvent(this, new QResizeEvent(size(), size()));
+            if (isVisible())
+                QApplication::postEvent(this, new QResizeEvent(size(), size()));
             break;
         }
 
