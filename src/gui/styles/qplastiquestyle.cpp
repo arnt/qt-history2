@@ -4283,9 +4283,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             if (comboBox->editable) {
-                if (const QComboBox *combo = qobject_cast<const QComboBox *>(widget)) {
+                if (qobject_cast<const QComboBox *>(widget)
+                    || qobject_cast<const QAbstractSpinBox *>(widget)) {
                     QStyleOptionFrame frameOpt;
-                    frameOpt.initFrom(combo->lineEdit());
+                    if (QLineEdit *lineedit = qFindChild<QLineEdit *>(widget))
+                        frameOpt.initFrom(lineedit);
                     frameOpt.rect = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
                     frameOpt.lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth);
                     frameOpt.midLineWidth = 0;
