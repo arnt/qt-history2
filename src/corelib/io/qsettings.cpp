@@ -1360,23 +1360,46 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         file.open(QFile::ReadOnly);
 
 #ifdef Q_OS_WIN
-    HANDLE semaphore = 0;
+    HANDLE readSemaphore = 0;
+    HANDLE writeSemaphore = 0;
     static const int FileLockSemMax = 50;
-    int numLocks = readOnly ? 1 : FileLockSemMax;
+    int numReadLocks = readOnly ? 1 : FileLockSemMax;
 
     if (file.isOpen()) {
-        QString semName = QLatin1String("QSettings semaphore ");
-        semName.append(file.fileName());
+        // Aquire the write lock if we will be writing
+        if (!readOnly) {
+            QString writeSemName = QLatin1String("QSettingsWriteSem ");
+            writeSemName.append(file.fileName());
+
+            QT_WA( {
+                writeSemaphore = CreateSemaphoreW(0, 1, 1, reinterpret_cast<const wchar_t *>(writeSemName.utf16()));
+            } , {
+                writeSemaphore = CreateSemaphoreA(0, 1, 1, writeSemName.toLocal8Bit());
+            } );
+
+            if (writeSemaphore) {
+                WaitForSingleObject(writeSemaphore, INFINITE);
+            } else {
+                setStatus(QSettings::AccessError);
+                return;
+            }
+        }
+
+        // Aquire all the read locks if we will be writing, to make sure nobody
+        // reads while we're writing. If we are only reading, aquire a single
+        // read lock.
+        QString readSemName = QLatin1String("QSettingsReadSem ");
+        readSemName.append(file.fileName());
 
         QT_WA( {
-            semaphore = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(semName.utf16()));
+            readSemaphore = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(readSemName.utf16()));
         } , {
-            semaphore = CreateSemaphoreA(0, FileLockSemMax, FileLockSemMax, semName.toLocal8Bit());
+            readSemaphore = CreateSemaphoreA(0, FileLockSemMax, FileLockSemMax, readSemName.toLocal8Bit());
         } );
 
-        if (semaphore) {
-            for (int i = 0; i < numLocks; ++i)
-                WaitForSingleObject(semaphore, INFINITE);
+        if (readSemaphore) {
+            for (int i = 0; i < numReadLocks; ++i)
+                WaitForSingleObject(readSemaphore, INFINITE);
         } else {
             setStatus(QSettings::AccessError);
             return;
@@ -1512,9 +1535,13 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         Release the file lock.
     */
 #ifdef Q_OS_WIN
-    if (semaphore != 0) {
-        ReleaseSemaphore(semaphore, numLocks, 0);
-        CloseHandle(semaphore);
+    if (readSemaphore != 0) {
+        ReleaseSemaphore(readSemaphore, numReadLocks, 0);
+        CloseHandle(readSemaphore);
+    }
+    if (writeSemaphore != 0) {
+        ReleaseSemaphore(writeSemaphore, 1, 0);
+        CloseHandle(writeSemaphore);
     }
 #endif
 }
