@@ -1605,11 +1605,16 @@ void QWidgetPrivate::updateFrameStrut()
 {
     Q_Q(QWidget);
 
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
+
     RECT rect = {0,0,0,0};
 
     QTLWExtra *top = topData();
-    uint exstyle = GetWindowLong(q->internalWinId(), GWL_EXSTYLE);
-    uint style = GetWindowLong(q->internalWinId(), GWL_STYLE);
+    uint exstyle = QT_WA_INLINE(GetWindowLongW(q->internalWinId(), GWL_EXSTYLE),
+                                GetWindowLongA(q->internalWinId(), GWL_EXSTYLE));
+    uint style = QT_WA_INLINE(GetWindowLongW(q->internalWinId(), GWL_STYLE),
+                              GetWindowLongA(q->internalWinId(), GWL_STYLE));
 
     if (AdjustWindowRectEx(&rect, style & ~WS_OVERLAPPED, FALSE, exstyle)) {
         top->frameStrut.setCoords(-rect.left, -rect.top, rect.right, rect.bottom);
