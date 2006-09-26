@@ -725,7 +725,7 @@ void Preprocessor::preprocess(const QByteArray &filename, Symbols &preprocessed)
                 fi.setFile(QFileInfo(QString::fromLocal8Bit(filename)).dir(), QString::fromLocal8Bit(include));
             for (int j = 0; j < Preprocessor::includes.size() && !fi.exists(); ++j)
                 fi.setFile(QString::fromLocal8Bit(Preprocessor::includes.at(j)), QString::fromLocal8Bit(include));
-            if (!fi.exists())
+            if (!fi.exists() || fi.isDir())
                 continue;
             include = fi.filePath().toLocal8Bit();
 
