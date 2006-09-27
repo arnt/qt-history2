@@ -957,7 +957,8 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
     if (QApplicationPrivate::app_compile_version < 0x040200
-        || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation))
+        || QApplicationPrivate::testAttribute(Qt::AA_ImmediateWidgetCreation)
+        || (f & Qt::X11BypassWindowManagerHint))
         q->create();
 
 
