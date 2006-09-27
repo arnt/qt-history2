@@ -3543,6 +3543,10 @@ void QGLExtensions::init_extensions()
         glExtensions |= MirroredRepeat;
     if (extensions.contains(QLatin1String("EXT_framebuffer_object")))
         glExtensions |= FramebufferObject;
+    if (extensions.contains(QLatin1String("EXT_stencil_two_side")))
+        glExtensions |= StencilTwoSide;
+    if (extensions.contains(QLatin1String("EXT_stencil_wrap")))
+        glExtensions |= StencilWrap;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {

@@ -91,6 +91,8 @@ typedef void (APIENTRY *_glUniform2fv) (GLint, GLsizei, GLfloat *);
 typedef void (APIENTRY *_glUniform1fv) (GLint, GLsizei, GLfloat *);
 typedef void (APIENTRY *_glUniform1i) (GLint, GLint);
 
+typedef void (APIENTRY *_glActiveStencilFaceEXT) (GLenum );
+
 // EXT_GL_framebuffer_object
 typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
 typedef void (APIENTRYP PFNGLBINDRENDERBUFFEREXTPROC) (GLenum target, GLuint renderbuffer);
@@ -206,6 +208,8 @@ public:
         qt_glUniform1fv = 0;
         qt_glUniform1i = 0;
 
+        qt_glActiveStencilFaceEXT = 0;
+
         qt_glIsRenderbufferEXT = 0;
         qt_glBindRenderbufferEXT = 0;
         qt_glDeleteRenderbuffersEXT = 0;
@@ -299,6 +303,8 @@ public:
     _glUniform1fv qt_glUniform1fv;
     _glUniform1i qt_glUniform1i;
 
+    _glActiveStencilFaceEXT qt_glActiveStencilFaceEXT;
+
     PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
     PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
     PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
@@ -329,7 +335,9 @@ public:
         TextureCompression      = 0x00000008,
         FragmentProgram         = 0x00000010,
         MirroredRepeat          = 0x00000020,
-        FramebufferObject       = 0x00000040
+        FramebufferObject       = 0x00000040,
+        StencilTwoSide          = 0x00000080,
+        StencilWrap             = 0x00000100
     };
     Q_DECLARE_FLAGS(Extensions, Extension)
 
