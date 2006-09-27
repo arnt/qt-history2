@@ -99,9 +99,25 @@ bool QVirtualScreen::connect(const QString &displayspec)
         dw = w = 640;
         dh = h = 480;
     }
+
+    const QStringList args = displayspec.split(QLatin1Char(':'),
+                                               QString::SkipEmptyParts);
+
+    QRegExp depthRegexp("^depth=(\\d+)$");
+    if (args.indexOf(depthRegexp) != -1) {
+        d = depthRegexp.cap(1).toInt();
+    }
+
+    QRegExp sizeRegexp("^size=(\\d+)x(\\d+)$");
+    if (args.indexOf(sizeRegexp) != -1) {
+        dw = w = sizeRegexp.cap(1).toInt();
+        dh = h = sizeRegexp.cap(2).toInt();
+    }
+
     const int dpi = 72;
     physWidth = qRound(dw * 25.4 / dpi);
     physHeight = qRound(dh * 25.4 / dpi);
+
     lstep = (dw * d + 7) / 8;
     size = h * lstep;
     mapsize = size;
@@ -1026,14 +1042,10 @@ void QVNCServer::sendHextile()
 {
     QWSDisplay::grab(true);
 
-    static int lineSize;
-    static uchar *screendata = 0;
     const quint32 encoding = htonl(5); // hextile encoding
 
-    if (!screendata) {
-        lineSize = MAP_TILE_SIZE*qvnc_screen->depth() / 8;
-        screendata = new uchar [MAP_TILE_SIZE*lineSize];
-    }
+    int lineSize = MAP_TILE_SIZE * qvnc_screen->depth() / 8;
+    uchar *screendata = new uchar[MAP_TILE_SIZE * lineSize];
 
     quint16 count = 0;
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
@@ -1123,6 +1135,8 @@ void QVNCServer::sendHextile()
     client->flush();
 
     header()->dirty = false;
+
+    delete[] screendata;
 
     QWSDisplay::ungrab();
 }
@@ -1295,12 +1309,14 @@ bool QVNCScreen::connect(const QString &displaySpec)
         dspec = dspec.left(dspec.size() - displayIdSpec.size());
 
     QString driver = dspec;
-    int colon = displaySpec.indexOf(':');
+    int colon = driver.indexOf(':');
     if (colon >= 0)
         driver.truncate(colon);
 
     QScreen *screen;
-    if (driver.trimmed().isEmpty() || QRegExp("\\d+").exactMatch(driver)) {
+    if (driver.trimmed().isEmpty() || !driver.compare(QLatin1String("virtual"))
+        || QRegExp("\\d+").exactMatch(driver))
+    {
         screen = new QVirtualScreen(displayId);
         screen->connect(dspec);
     } else {
