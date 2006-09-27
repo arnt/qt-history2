@@ -305,11 +305,11 @@ public:
 
 static QString srcify(const char *path)
 {
-#ifndef Q_OS_IRIX    
+#ifndef Q_OS_IRIX
     return QString(SRCDIR) + QLatin1Char('/') + QLatin1String(path);
 #else
     return QString(QLatin1String(path));
-#endif    
+#endif
 }
 
 class tst_Moc : public QObject
@@ -642,7 +642,7 @@ void tst_Moc::namespaceTypeProperty()
     QCOMPARE(p.p2, 0xBABE);
     p.p1 = 0xCAFE;
     p.p2 = 0x1EE7;
-    QVERIFY(tst.setProperty(ba, QVariant::fromValue(p)));
+    QVERIFY(tst.setProperty(ba, qVariantFromValue(p)));
     myNS::Points pp = qVariantValue<myNS::Points>(tst.property(ba));
     QCOMPARE(p.p1, pp.p1);
     QCOMPARE(p.p2, pp.p2);
