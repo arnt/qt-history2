@@ -1409,7 +1409,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
 
     QPoint mouse = QCursor::pos();
-    const bool snapToMouse = (p == mouse);
+    const bool snapToMouse = (QRect(p.x()-3, p.y()-3, 6, 6).contains(mouse));
 
     //handle popup falling "off screen"
     if (qApp->layoutDirection() == Qt::RightToLeft) {
