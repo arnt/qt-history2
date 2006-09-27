@@ -501,10 +501,10 @@ void Skin::flip(bool open)
 	return;
     if ( open ) {
 	parent->setMask( skinImageUp.mask() );
-	view->skinKeyReleaseEvent( Qt::Key(Qt::Key_Flip), "Flip" );
+	view->skinKeyReleaseEvent( Qt::Key(Qt::Key_Flip), QString() );
     } else {
 	parent->setMask( skinImageClosed.mask() );
-	view->skinKeyPressEvent( Qt::Key(Qt::Key_Flip), "Flip" );
+	view->skinKeyPressEvent( Qt::Key(Qt::Key_Flip), QString() );
     }
     flipped_open = open;
     updateSecondaryScreen();
