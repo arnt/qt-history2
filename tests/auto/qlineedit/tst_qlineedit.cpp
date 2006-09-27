@@ -165,6 +165,8 @@ private slots:
     void frame_data();
     void frame();
 
+    void leftKeyOnSelectedText();
+
     void setAlignment_data();
     void setAlignment();
     void alignment();
@@ -2977,6 +2979,21 @@ void tst_QLineEdit::charWithAltOrCtrlModifier()
     QCOMPARE(testWidget->text(), QString("+++"));
     QTest::keyPress(testWidget, Qt::Key_Plus, Qt::AltModifier | Qt::ControlModifier);
     QCOMPARE(testWidget->text(), QString("++++"));
+}
+
+void tst_QLineEdit::leftKeyOnSelectedText()
+{
+    testWidget->clear();
+    testWidget->setText("0123");
+    testWidget->setCursorPosition(4);
+    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ShiftModifier);
+    QCOMPARE(testWidget->cursorPosition(), 3);
+    QCOMPARE(testWidget->selectedText(), QString("3"));
+    QTest::keyClick(testWidget, Qt::Key_Left, Qt::ShiftModifier);
+    QCOMPARE(testWidget->cursorPosition(), 2);
+    QCOMPARE(testWidget->selectedText(), QString("23"));
+    QTest::keyClick(testWidget, Qt::Key_Left);
+    QCOMPARE(testWidget->cursorPosition(), 1);
 }
 
 QTEST_MAIN(tst_QLineEdit)
