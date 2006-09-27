@@ -4,6 +4,7 @@ COMMON_FOLDER = $$ARTHUR/common
 include($$ARTHUR/arthurtester.pri)
 TEMPLATE = app
 INCLUDEPATH += $$ARTHUR
+DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 QT += xml svg network
 

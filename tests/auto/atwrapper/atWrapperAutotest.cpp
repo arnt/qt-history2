@@ -16,9 +16,19 @@ class atWrapperAutotest: public QObject
 
 Q_OBJECT
 
+public slots:
+    void init();
+
 private slots:
     void runTest();
 };
+
+void atWrapperAutotest::init()
+{
+#ifndef Q_OS_IRIX
+    QDir::setCurrent(SRCDIR);
+#endif
+}
 
 void atWrapperAutotest::runTest()
 {
