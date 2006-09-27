@@ -663,6 +663,16 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #define GL_LINK_STATUS 0x8B82
 #endif
 
+// Stencil wrap and two-side defines
+#ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
+#define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
+#endif  
+#ifndef GL_INCR_WRAP_EXT
+#define GL_INCR_WRAP_EXT 0x8507
+#endif
+#ifndef GL_DECR_WRAP_EXT
+#define GL_DECR_WRAP_EXT 0x8508
+#endif
 extern QGLContextPrivate *qt_glctx_get_dptr(QGLContext *);
 
 #ifdef Q_WS_WIN
@@ -1554,9 +1564,10 @@ void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, in
         
         drawShapeMask(polygonPoints, pointCount);
     } else if(fill == Qt::WindingFill) {
-        stencilMask = ~0;
+       stencilMask = ~0;
 
         if (has_stencil_face_ext) {
+            QGL_FUNC_CONTEXT;
             glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 
             glActiveStencilFaceEXT(GL_BACK);
