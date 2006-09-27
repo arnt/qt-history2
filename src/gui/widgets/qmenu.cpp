@@ -654,17 +654,14 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
         if (scroll && scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
             tearRect.translate(0, q->style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q));
         q->update(tearRect);
-        if (tearRect.contains(pos)) {
+        if (tearRect.contains(pos) && motions > 6) {
             setCurrentAction(0);
             tearoffHighlighted = 1;
             if (e->type() == QEvent::MouseButtonRelease) {
-                if (tornPopup) {
-                    tornPopup->close();
-                } else {
+                if (!tornPopup)
                     tornPopup = new QTornOffMenu(q);
-                    tornPopup->setGeometry(q->geometry());
-                    tornPopup->show();
-                }
+                tornPopup->setGeometry(q->geometry());
+                tornPopup->show();
                 hideUpToMenuBar();
             }
             return true;
