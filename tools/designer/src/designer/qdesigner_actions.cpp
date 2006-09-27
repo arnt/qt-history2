@@ -48,6 +48,10 @@
 #include <QtCore/QTimer>
 #include <QtXml/QDomDocument>
 
+#ifdef Q_WS_X11
+#include <private/qt_x11_p.h>
+#endif
+
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
       m_workbench(workbench), m_assistantClient(0), m_openDirectory(QString()),
@@ -649,7 +653,21 @@ void QDesignerActions::previewForm(QAction *action)
             if (style != 0) {
                 style->setParent(widget);
                 widget->setStyle(style);
-                //widget->setPalette(style->standardPalette());
+
+#if defined Q_WS_MAC
+                if (!styleName.contains(QLatin1String("macintosh"), Qt::CaseInsensitive))
+#elif defined Q_WS_WIN
+                if (!styleName.contains(QLatin1String("windows"), Qt::CaseInsensitive))
+#elif defined Q_WS_X11
+                if ((X11->desktopEnvironment == DE_GNOME
+                     && !styleName.contains(QLatin1String("cleanlooks"), Qt::CaseInsensitive))
+                    || (X11->desktopEnvironment == DE_KDE
+                        && !styleName.contains(QLatin1String("plastique"), Qt::CaseInsensitive))
+                    || (X11->desktopEnvironment == DE_CDE
+                        && !styleName.contains(QLatin1String("cde"), Qt::CaseInsensitive)))
+#endif
+                    widget->setPalette(style->standardPalette());
+
                 QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
                 foreach (QWidget *w, lst) {
                     if (w->windowType() == Qt::Popup)
