@@ -303,6 +303,8 @@ void tst_QWidget::getSetCheck()
     QCOMPARE(false, obj1.autoFillBackground());
     obj1.setAutoFillBackground(true);
     QCOMPARE(true, obj1.autoFillBackground());
+
+    delete var1;
 }
 
 #ifdef Q_WS_X11
@@ -2519,6 +2521,10 @@ void tst_QWidget::style()
     QCOMPARE(window1->style(), &wndStyle); // auto dewrap
     QCOMPARE(widget1->style(), qApp->style()); // and child state is restored
     window1->setStyle(0); // let sanity prevail
+
+    delete window1;
+    delete widget2;
+    delete window2;
 }
 
 #ifdef Q_WS_MAC
