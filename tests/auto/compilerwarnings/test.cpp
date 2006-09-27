@@ -12,7 +12,10 @@
 #include <QtXml/QtXml>
 #include <QtSql/QtSql>
 #include <QtGui/QtGui>
+
+#ifndef QT_NO_OPENGL
 #include <QtOpenGL/QtOpenGL>
+#endif
 
 #include <QtDesigner/QtDesigner>
 
