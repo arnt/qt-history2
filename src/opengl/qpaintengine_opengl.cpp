@@ -1189,7 +1189,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             glGenProgramsARB(1, &d->radial_frag_program);
             glGenProgramsARB(1, &d->conical_frag_program);
 
-            glGetError(); // reset the error state
+            while (glGetError() != GL_NO_ERROR) {} // reset the error state
             glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->radial_frag_program);
             glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
                                strlen(radial_program), (const GLbyte *) radial_program);
