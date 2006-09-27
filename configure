@@ -2208,7 +2208,7 @@ fi
 # embedded
 if [ "$PLATFORM_QWS" = "yes" ]; then
 
-    # No OpenGL for Qtopia Core
+    # No OpenGL by default for Qtopia Core
     if [ "$CFG_OPENGL" = "auto" ]; then
         CFG_OPENGL=no
     fi
@@ -5072,9 +5072,8 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     CFG_MOUSE_PLUGIN=`echo ${CFG_MOUSE_PLUGIN}`
     echo "Mouse driver (qt) ... $CFG_MOUSE_ON"
     echo "Mouse driver (plugin) $CFG_MOUSE_PLUGIN"
-else
-    echo "OpenGL support ...... $CFG_OPENGL"
 fi
+    echo "OpenGL support ...... $CFG_OPENGL"
 if [ "$PLATFORM_X11" = "yes" ]; then
     echo "NAS sound support ... $CFG_NAS"
     echo "Session management .. $CFG_SM"
