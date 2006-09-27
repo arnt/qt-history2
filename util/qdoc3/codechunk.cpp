@@ -59,12 +59,12 @@ static int category( QChar ch )
 }
 
 CodeChunk::CodeChunk()
-    : s( "" ), bstart( -1 ), blen( 0 ), hspot( -1 )
+    : s( "" ), bstart( -1 ), blen( 0 ), hotspot( -1 )
 {
 }
 
 CodeChunk::CodeChunk( const QString& str )
-    : s( str ), bstart( 0 ), hspot( -1 )
+    : s( str ), bstart( 0 ), hotspot( -1 )
 {
     /*
       That's good enough for base class names.
@@ -77,7 +77,7 @@ CodeChunk::CodeChunk( const QString& str )
 
 CodeChunk::CodeChunk( const CodeChunk& chk )
     : s( chk.s ), b( chk.b ), bstart( chk.bstart ), blen( chk.blen ),
-      hspot( chk.hspot )
+      hotspot( chk.hotspot )
 {
 }
 
@@ -87,7 +87,7 @@ CodeChunk& CodeChunk::operator=( const CodeChunk& chk )
     b = chk.b;
     bstart = chk.bstart;
     blen = chk.blen;
-    hspot = chk.hspot;
+    hotspot = chk.hotspot;
     return *this;
 }
 
@@ -127,8 +127,8 @@ void CodeChunk::appendHotspot()
     /*
       The first hotspot is the right one.
     */
-    if ( hspot == -1 )
-	hspot = s.length();
+    if ( hotspot == -1 )
+	hotspot = s.length();
 }
 
 QString CodeChunk::toString() const

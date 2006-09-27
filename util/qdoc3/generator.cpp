@@ -19,6 +19,7 @@ QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
 QMap<QString, QStringList> Generator::imgFileExts;
+QSet<QString> Generator::outputFormats;
 QStringList Generator::imageFiles;
 QStringList Generator::imageDirs;
 QString Generator::outDir;
@@ -51,7 +52,7 @@ void Generator::terminateGenerator()
 
 void Generator::initialize(const Config &config)
 {
-    QSet<QString> outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
+    outputFormats = config.getStringSet(CONFIG_OUTPUTFORMATS);
     if ( !outputFormats.isEmpty() ) {
 	outDir = config.getString(CONFIG_OUTPUTDIR);
 	if ( outDir.isEmpty() )
@@ -71,13 +72,6 @@ void Generator::initialize(const Config &config)
                                         .arg(outDir + "/images"));
     }
 
-    QMutableListIterator<Generator*> it(generators);
-    while (it.hasNext()) {
-        Generator *g = it.next();
-        if (!outputFormats.contains(g->format()))
-            it.remove();
-    }
-
     imageFiles = config.getStringList(CONFIG_IMAGES);
     imageDirs = config.getStringList(CONFIG_IMAGEDIRS);
 
@@ -91,20 +85,22 @@ void Generator::initialize(const Config &config)
 
     QList<Generator *>::ConstIterator g = generators.begin();
     while (g != generators.end()) {
-	(*g)->initializeGenerator(config);
-        QStringList extraImages = config.getStringList(CONFIG_EXTRAIMAGES + Config::dot
-						       + (*g)->format());
-	QStringList::ConstIterator e = extraImages.begin();
-        while (e != extraImages.end()) {
-	    QString userFriendlyFilePath;
-	    QString filePath = Config::findFile(config.lastLocation(), imageFiles, imageDirs, *e,
-						imgFileExts[(*g)->format()], userFriendlyFilePath);
-	    if (!filePath.isEmpty())
-	        Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
-		    	         (*g)->outputDir() + "/images");
-	    ++e;
-	}
-	++g;
+        if (outputFormats.contains((*g)->format())) {
+	    (*g)->initializeGenerator(config);
+            QStringList extraImages = config.getStringList(CONFIG_EXTRAIMAGES + Config::dot
+						           + (*g)->format());
+	    QStringList::ConstIterator e = extraImages.begin();
+            while (e != extraImages.end()) {
+	        QString userFriendlyFilePath;
+	        QString filePath = Config::findFile(config.lastLocation(), imageFiles, imageDirs, *e,
+						    imgFileExts[(*g)->format()], userFriendlyFilePath);
+	        if (!filePath.isEmpty())
+	            Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
+		    	             (*g)->outputDir() + "/images");
+	        ++e;
+	    }
+        }
+        ++g;
     }
 
     QRegExp secondParamAndAbove( "[\2-\7]" );
@@ -148,7 +144,8 @@ void Generator::terminate()
 {
     QList<Generator *>::ConstIterator g = generators.begin();
     while ( g != generators.end() ) {
-	(*g)->terminateGenerator();
+        if (outputFormats.contains((*g)->format()))
+	    (*g)->terminateGenerator();
 	++g;
     }
 

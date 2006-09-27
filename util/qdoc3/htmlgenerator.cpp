@@ -88,31 +88,6 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
 void HtmlGenerator::terminateGenerator()
 {
-    dcfClassesRoot.ref = "classes.html";
-    dcfClassesRoot.title = "Classes";
-    qSort(dcfClassesRoot.subsections);
-
-    dcfOverviewsRoot.ref = "overviews.html";
-    dcfOverviewsRoot.title = "Overviews";
-    qSort(dcfOverviewsRoot.subsections);
-
-    dcfExamplesRoot.ref = "examples.html";
-    dcfExamplesRoot.title = "Tutorial & Examples";
-    qSort(dcfExamplesRoot.subsections);
-
-    DcfSection qtRoot;
-    appendDcfSubSection(&qtRoot, dcfClassesRoot);
-    appendDcfSubSection(&qtRoot, dcfOverviewsRoot);
-    appendDcfSubSection(&qtRoot, dcfExamplesRoot);
-
-    generateDcf(project.toLower(), "index.html", projectDescription, qtRoot);
-    generateDcf("designer", "designer-manual.html", "Qt Designer Manual", dcfDesignerRoot);
-    generateDcf("linguist", "linguist-manual.html", "Qt Linguist Manual", dcfLinguistRoot);
-    generateDcf("assistant", "assistant-manual.html", "Qt Assistant Manual", dcfAssistantRoot);
-    generateDcf("qmake", "qmake-manual.html", "qmake Manual", dcfQmakeRoot);
-
-    generateIndex(project.toLower(), projectUrl, projectDescription);
-
     Generator::terminateGenerator();
 }
 
@@ -146,7 +121,33 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     findAllFunctions(tree->root());
     findAllLegaleseTexts(tree->root());
     findAllNamespaces(tree->root());
+
     PageGenerator::generateTree(tree, marker);
+
+    dcfClassesRoot.ref = "classes.html";
+    dcfClassesRoot.title = "Classes";
+    qSort(dcfClassesRoot.subsections);
+
+    dcfOverviewsRoot.ref = "overviews.html";
+    dcfOverviewsRoot.title = "Overviews";
+    qSort(dcfOverviewsRoot.subsections);
+
+    dcfExamplesRoot.ref = "examples.html";
+    dcfExamplesRoot.title = "Tutorial & Examples";
+    qSort(dcfExamplesRoot.subsections);
+
+    DcfSection qtRoot;
+    appendDcfSubSection(&qtRoot, dcfClassesRoot);
+    appendDcfSubSection(&qtRoot, dcfOverviewsRoot);
+    appendDcfSubSection(&qtRoot, dcfExamplesRoot);
+
+    generateDcf(project.toLower(), "index.html", projectDescription, qtRoot);
+    generateDcf("designer", "designer-manual.html", "Qt Designer Manual", dcfDesignerRoot);
+    generateDcf("linguist", "linguist-manual.html", "Qt Linguist Manual", dcfLinguistRoot);
+    generateDcf("assistant", "assistant-manual.html", "Qt Assistant Manual", dcfAssistantRoot);
+    generateDcf("qmake", "qmake-manual.html", "qmake Manual", dcfQmakeRoot);
+
+    generateIndex(project.toLower(), projectUrl, projectDescription);
 }
 
 void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marker */)

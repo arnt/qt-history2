@@ -102,6 +102,7 @@ private:
     static QMap<QString, QMap<QString, QString> > fmtLeftMaps;
     static QMap<QString, QMap<QString, QString> > fmtRightMaps;
     static QMap<QString, QStringList> imgFileExts;
+    static QSet<QString> outputFormats;
     static QStringList imageFiles;
     static QStringList imageDirs;
     static QString outDir;

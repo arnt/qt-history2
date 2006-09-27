@@ -106,10 +106,10 @@ private:
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
     QString getLink(const Atom *atom, const Node *relative, CodeMarker *marker);
-    void generateDcf(const QString &fileBase, const QString &startPage, const QString &title,
-                     DcfSection &dcfRoot);
-    void generateIndex(const QString &fileBase, const QString &url,
-                       const QString &title);
+    virtual void generateDcf(const QString &fileBase, const QString &startPage,
+                             const QString &title, DcfSection &dcfRoot);
+    virtual void generateIndex(const QString &fileBase, const QString &url,
+                               const QString &title);
     void generateMacRef(const Node *node, CodeMarker *marker);
 
 #if 0

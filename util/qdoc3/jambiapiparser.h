@@ -14,6 +14,7 @@ struct ClassOrEnumInfo
 {
     QString tag;
     QString javaName;
+    QString javaImplements;
     QString cppName;
     Node *javaNode;
     Node *cppNode;
@@ -40,6 +41,7 @@ private:
     bool endElement(const QString &namespaceURI, const QString &localName,
                     const QString &qName);
     bool fatalError(const QXmlParseException &exception);
+    void jambifyDocs(Node *node);
 
     Tree *cppTre;
     Tree *javaTre;

@@ -72,6 +72,53 @@ static void setLink(Node *node, Node::LinkType linkType, const QString &arg)
     node->setLink(linkType, link, desc);
 }
 
+/*
+    This is used for fuzzy matching only, which in turn is only used
+    for Qt Jambi.
+*/
+static QString cleanType(const QString &type, const Tree *tree)
+{
+    QString result = type;
+    result.replace("qlonglong", "long long");
+    result.replace("qulonglong", "unsigned long long");
+    result.replace("qreal", "double");
+    result.replace(QRegExp("\\bu(int|short|char|long)\\b"), "unsigned \\1");
+    result.replace("QRgb", "unsigned int");
+    result.replace(" >", ">");
+    result.remove(" const[]");
+    result.replace("QStringList<QString>", "QStringList");
+    result.replace("qint8", "char");
+    result.replace("qint16", "short");
+    result.replace("qint32", "int");
+    result.replace("qint64", "long long");
+    result.replace("quint8", "unsigned char");
+    result.replace("quint16", "unsigned short");
+    result.replace("quint32", "unsigned int");
+    result.replace("quint64", "unsigned long long");
+
+    if (result.contains("QFlags")) {
+        QRegExp regExp("QFlags<(((?:[^<>]+::)*)([^<>:]+))>");
+        int pos = 0;
+        while ((pos = result.indexOf(regExp, pos)) != -1) {
+            // we assume that the path for the associated enum is the same as for the flag typedef
+            QStringList path = regExp.cap(2).split("::", QString::SkipEmptyParts);
+            const EnumNode *enume = static_cast<const EnumNode *>(
+                                                tree->findNode(QStringList(path) << regExp.cap(3),
+                                                               Node::Enum));
+            if (enume && enume->flagsType())
+                result.replace(pos, regExp.matchedLength(),
+                               (QStringList(path) << enume->flagsType()->name()).join("::"));
+            ++pos;
+        }
+    }
+    if (result.contains("::")) {
+        // remove needless (and needful) class prefixes
+        QRegExp regExp("[A-Za-z0-9_]+::");
+        result.replace(regExp, "");
+    }
+    return result;
+}
+
 CppCodeParser::CppCodeParser()
     : varComment("/\\*\\s*([a-zA-Z_0-9]+)\\s*\\*/"), sep("(?:<[^>]+>)?::")
 {
@@ -208,23 +255,31 @@ const FunctionNode *CppCodeParser::findFunctionNode(const QString& synopsis, Tre
     QStringList parentPath;
     FunctionNode *clone;
     FunctionNode *func = 0;
+    int flags = fuzzy ? int(Tree::SearchBaseClasses) : 0;
 
     reset(tree);
     if (makeFunctionNode(synopsis, &parentPath, &clone)) {
-	func = tree->findFunctionNode(parentPath, clone, relative);
+	func = tree->findFunctionNode(parentPath, clone, relative, flags);
 
         /*
             This is necessary because Roberto's parser resolves typedefs.
         */
         if (!func && fuzzy) {
-            func = tre->findFunctionNode(parentPath + QStringList(clone->name()), relative);
+            func = tre->findFunctionNode(parentPath + QStringList(clone->name()), relative, flags);
+            if (!func && clone->name().contains('_')) {
+                QStringList path = parentPath;
+                path << clone->name().split('_');
+                func = tre->findFunctionNode(path, relative, flags);
+            }
+
             if (func) {
                 NodeList overloads = func->parent()->overloads(func->name());
                 NodeList candidates;
                 for (int i = 0; i < overloads.count(); ++i) {
                     FunctionNode *overload = static_cast<FunctionNode *>(overloads.at(i));
                     if (overload->status() != Node::Compat
-                            && overload->parameters().count() == clone->parameters().count())
+                            && overload->parameters().count() == clone->parameters().count()
+                            && !overload->isConst() == !clone->isConst())
                         candidates << overload;
                 }
                 if (candidates.count() == 0)
@@ -257,6 +312,34 @@ const FunctionNode *CppCodeParser::findFunctionNode(const QString& synopsis, Tre
                     There are several functions with the correct
                     parameter count, but only one has the correct
                     parameter names.
+                */
+                if (candidates.count() == 1)
+                    return static_cast<FunctionNode *>(candidates.first());
+
+                candidates.clear();
+                for (int i = 0; i < overloads.count(); ++i) {
+                    FunctionNode *overload = static_cast<FunctionNode *>(overloads.at(i));
+                    QList<Parameter> params1 = overload->parameters();
+                    QList<Parameter> params2 = clone->parameters();
+
+                    int j;
+                    for (j = 0; j < params1.count(); ++j) {
+                        if (params1.at(j).rightType() != params2.at(j).rightType())
+                            break;
+
+                        if (cleanType(params1.at(j).leftType(), tree)
+                                != cleanType(params2.at(j).leftType(), tree))
+                            break;
+                    }
+                    if (j == params1.count())
+                        candidates << overload;
+                }
+
+                
+                /*
+                    There are several functions with the correct
+                    parameter count, but only one has the correct
+                    types, loosely compared.
                 */
                 if (candidates.count() == 1)
                     return static_cast<FunctionNode *>(candidates.first());
@@ -536,6 +619,7 @@ bool CppCodeParser::matchCompat()
     switch (tok) {
     case Tok_QT_COMPAT:
     case Tok_QT_COMPAT_CONSTRUCTOR:
+    case Tok_QT_DEPRECATED:
     case Tok_QT_MOC_COMPAT:
     case Tok_QT3_SUPPORT:
     case Tok_QT3_SUPPORT_CONSTRUCTOR:
@@ -776,9 +860,18 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	readToken();
 
 	CodeChunk restOfName;
-	if ( !matchDataType(&restOfName) )
-	    return false;
-	name = "operator " + restOfName.toString();
+        if ( tok != Tok_Tilde && matchDataType(&restOfName) ) {
+	    name = "operator " + restOfName.toString();
+        } else {
+            name = previousLexeme() + lexeme();
+	    readToken();
+	    while ( tok != Tok_LeftParen && tok != Tok_Eoi ) {
+		name += lexeme();
+		readToken();
+	    }
+        }
+        if (tok != Tok_LeftParen)
+            return false;
     } else if ( tok == Tok_LeftParen ) {
 	// constructor or destructor
 	parentPath = returnType.toString().split(sep);
@@ -809,11 +902,36 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 		    break;
 	    }
 	}
-        if (parent && tok == Tok_Semicolon && access != Node::Private) {
+        if (parent && (tok == Tok_Semicolon || tok == Tok_LeftBracket || tok == Tok_Colon)
+                && access != Node::Private) {
+            if (tok == Tok_LeftBracket) {
+	        returnType.appendHotspot();
+
+	        int bracketDepth0 = tokenizer->bracketDepth();
+	        while ( (tokenizer->bracketDepth() >= bracketDepth0 &&
+		         tok != Tok_Eoi) ||
+		        tok == Tok_RightBracket ) {
+		    returnType.append(lexeme());
+		    readToken();
+	        }
+                if (tok != Tok_Semicolon)
+                    return false;
+            } else if (tok == Tok_Colon) {
+	        returnType.appendHotspot();
+
+	        while (tok != Tok_Semicolon && tok != Tok_Eoi) {
+		    returnType.append(lexeme());
+		    readToken();
+	        }
+                if (tok != Tok_Semicolon)
+                    return false;
+            }
+
             VariableNode *var = new VariableNode(parent, name);
             var->setAccess(access);
             var->setLocation(location());
-            var->setDataType(returnType.toString());
+            var->setLeftType(returnType.left());
+            var->setRightType(returnType.right());
             if (compat)
                 var->setStatus(Node::Compat);
             var->setStatic(sta);
@@ -1037,7 +1155,7 @@ bool CppCodeParser::matchEnumItem( InnerNode *parent, EnumNode *enume )
         VariableNode *var = new VariableNode(parent, name);
         var->setAccess(access);
         var->setLocation(location());
-        var->setDataType("const int");
+        var->setLeftType("const int");
         var->setStatic(true);
     }
     return true;

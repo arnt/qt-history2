@@ -215,7 +215,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node * /* relati
         if (style == SeparateList) {
             synopsis = name + " : " + typified(variable->dataType());
         } else {
-            synopsis = typified(variable->dataType()) + " " + name;
+            synopsis = typified(variable->leftType()) + " " + name + protect(variable->rightType());
         }
 	break;
     default:

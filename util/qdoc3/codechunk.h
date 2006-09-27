@@ -22,15 +22,14 @@
 
       QMap<QString, QString>
 
-  is QMap.  When calling printHtml(), qmap.html can be specified as the link.
+  is QMap.
 
   The hotspot is the place the variable name should be inserted in the case of a
   variable (or parameter) declaration.  The base of
 
       char * []
 
-  is between '*' and '[]'.  When calling printHtml(), the hotspot can be filled
-  with arbitrary HTML.
+  is between '*' and '[]'.
 */
 class CodeChunk
 {
@@ -49,13 +48,15 @@ public:
     QString toString() const;
     QStringList toPath() const;
     const QString& base() const { return b; }
+    QString left() const { return s.left(hotspot == -1 ? s.length() : hotspot); }
+    QString right() const { return s.mid(hotspot == -1 ? s.length() : hotspot); }
 
 private:
     QString s;
     QString b;
     int bstart;
     int blen;
-    int hspot;
+    int hotspot;
 };
 
 inline bool operator==( const CodeChunk& c, const CodeChunk& d ) {

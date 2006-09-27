@@ -428,14 +428,18 @@ class VariableNode : public LeafNode
 public:
     VariableNode(InnerNode *parent, const QString &name);
 
-    void setDataType(const QString &dataType) { dt = dataType; }
+    void setLeftType(const QString &leftType) { lt = leftType; }
+    void setRightType(const QString &rightType) { rt = rightType; }
     void setStatic(bool statique) { sta = statique; }
 
-    const QString &dataType() const { return dt; }
+    const QString &leftType() const { return lt; }
+    const QString &rightType() const { return rt; }
+    QString dataType() const { return lt + rt; }
     bool isStatic() const { return sta; }
 
 private:
-    QString dt;
+    QString lt;
+    QString rt;
     bool sta;
 };
 

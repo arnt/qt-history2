@@ -15,6 +15,7 @@ public:
     void generateTree(const Tree *tree, CodeMarker *marker);
 
 protected:
+    QString fileExtension();
     void startText( const Node *relative, CodeMarker *marker );
     void endText( const Node *relative, CodeMarker *marker );
     int generateAtom( const Atom *atom, const Node *relative, CodeMarker *marker );
@@ -24,6 +25,18 @@ protected:
     void generateText( const Text& text, const Node *relative, CodeMarker *marker );
     void generateBody( const Node *node, CodeMarker *marker );
     void generateAlsoList( const Node *node, CodeMarker *marker );
+
+private:
+    void generateDcf(const QString &fileBase, const QString &startPage,
+                     const QString &title, DcfSection &dcfRoot);
+    void generateIndex(const QString &fileBase, const QString &url,
+                       const QString &title);
+    void generateIndent();
+    void generateDoc(const Node *node, CodeMarker *marker);
+
+    QString buffer;
+    QIODevice *oldDevice;
+    int currentDepth;
 };
 
 #endif

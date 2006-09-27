@@ -1,3 +1,10 @@
+/*
+    jambiapiparser.cpp
+
+    TODO:
+        * deal with enum_1
+*/
+
 #include <QtXml>
 
 #include "cppcodeparser.h"
@@ -6,7 +13,7 @@
 #include "tree.h"
 
 JambiApiParser::JambiApiParser(Tree *cppTree)
-    : cppTre(cppTree), metJapiTag(false)
+    : cppTre(cppTree), javaTre(0), metJapiTag(false)
 {
 }
 
@@ -56,7 +63,10 @@ void JambiApiParser::parseSourceFile(const Location &location, const QString &fi
 
 void JambiApiParser::doneParsingSourceFiles(Tree * /* tree */)
 {
-    javaTre = 0;
+    if (javaTre) {
+        jambifyDocs(javaTre->root());
+        javaTre = 0;
+    }
 }
 
 bool JambiApiParser::startElement(const QString & /* namespaceURI */,
@@ -78,14 +88,15 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
     for (int i = 0; i < classAndEnumStack.count(); ++i) {
         const ClassOrEnumInfo &info = classAndEnumStack.at(i);
         if (info.cppNode) {
-            if (info.cppNode->type() == Node::Class) {
-                Q_ASSERT(info.javaNode->type() == Node::Class);
-                javaParent = static_cast<InnerNode *>(info.javaNode);
-                cppParent = static_cast<InnerNode *>(info.cppNode);
-            } else if (info.cppNode->type(), Node::Enum) {
+            if (info.cppNode->type() == Node::Enum) {
                 Q_ASSERT(info.javaNode->type() == Node::Enum);
                 javaEnum = static_cast<EnumNode *>(info.javaNode);
                 cppEnum = static_cast<EnumNode *>(info.cppNode);
+            } else {
+                Q_ASSERT(info.javaNode->type() == Node::Class
+                         || info.javaNode->type() == Node::Namespace);
+                javaParent = static_cast<InnerNode *>(info.javaNode);
+                cppParent = static_cast<InnerNode *>(info.cppNode);
             }
         }
     }
@@ -96,8 +107,14 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
         ClassOrEnumInfo info;
         info.tag = qName;
         info.javaName = attributes.value("java");
+        info.javaImplements = attributes.value("javaimplements");
         info.cppName = attributes.value("cpp");
         info.cppNode = cppTre->findNode(info.cppName.split("::"), type, cppParent);
+        if (!info.cppNode && type == Node::Class) {
+            type = Node::Namespace;
+            info.cppNode = cppTre->findNode(info.cppName.split("::"), type, cppParent);
+        }
+
         if (!info.cppNode) {
             japiLocation.warning(tr("Cannot find C++ class or enum '%1'").arg(info.cppName));
         } else {
@@ -119,25 +136,60 @@ bool JambiApiParser::startElement(const QString & /* namespaceURI */,
                                                                  cppParent,
                                                                  true /* fuzzy */);
         if (!cppNode) {
-            japiLocation.warning(tr("Cannot find C++ function '%1' ('%2')")
-                                 .arg(cppSignature).arg(cppParent->name()));
-        } else {
-            FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
-            javaNode->setLocation(japiLocation);
-            javaNode->setDoc(cppNode->doc());
+            bool quiet = false;
+
+#if 0   // ### get rid of this
+            /*
+                Functions reimplemented from the second base class
+                sometimes aren't implemented in C++ (e.g.,
+                QWidget::heightMM(), inherited from QPaintDevice).
+            */
+            QString javaImplements = classAndEnumStack.top().javaImplements;
+            if (!javaImplements.isEmpty()) {
+                if (javaImplements.endsWith("Interface"))   // evil
+                    javaImplements.chop(9);
+                Node *otherCppClass = cppTre->findNode(QStringList(javaImplements), Node::Class);
+                if (otherCppClass
+                        && cppParser.findFunctionNode(cppSignature, cppTre, otherCppClass,
+                                                      true /* fuzzy */))
+                    quiet = true;
+            }
+#endif
+
+            /*
+                Default constructors sometimes don't exist in C++.
+            */
+            if (!quiet && javaSignature == "public " + javaParent->name() + "()")
+                quiet = true;
+
+            if (!quiet)
+                japiLocation.warning(tr("Cannot find C++ function '%1' ('%2')")
+                                     .arg(cppSignature).arg(cppParent->name()));
         }
+
+        FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
+        javaNode->setLocation(japiLocation);
+        if (cppNode)
+            javaNode->setDoc(cppNode->doc());
     } else if (qName == "variablesetter" || qName == "variablegetter") {
         QString javaSignature = attributes.value("java");
         QString cppVariable = attributes.value("cpp");
 
         VariableNode *cppNode = static_cast<VariableNode *>(cppParent->findNode(cppVariable,
                                                                                 Node::Variable));
+        FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
+        javaNode->setLocation(japiLocation);
+
         if (!cppNode) {
+#if 0
             japiLocation.warning(tr("Cannot find C++ variable '%1' ('%2')")
                                  .arg(cppVariable).arg(cppParent->name()));
+#endif
+            javaNode->setDoc(Doc(japiLocation,
+                                 "This method is used internally internal by Qt "
+                                 "Jambi. Do not use it in your applications.",
+                                 QSet<QString>()));
         } else {
-            FunctionNode *javaNode = new FunctionNode(javaParent, javaSignature /* wrong! */);
-            javaNode->setLocation(japiLocation);
             javaNode->setDoc(cppNode->doc());
         }
     } else if (qName == "enum-value") {
@@ -168,4 +220,20 @@ bool JambiApiParser::fatalError(const QXmlParseException &exception)
     japiLocation.setColumnNo(exception.columnNumber());
     japiLocation.warning(tr("Syntax error in JAPI file (%1)").arg(exception.message()));
     return true;
+}
+
+void JambiApiParser::jambifyDocs(Node *node)
+{
+    const Doc &doc = node->doc();
+    if (!doc.isEmpty()) {
+        Doc newDoc;
+//        newDoc.setLocation(doc.location());
+
+    }
+
+    if (node->isInnerNode()) {
+        InnerNode *innerNode = static_cast<InnerNode *>(node);
+        foreach (Node *child, innerNode->childNodes())
+            jambifyDocs(child);
+    }
 }
