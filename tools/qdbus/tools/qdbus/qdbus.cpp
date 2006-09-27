@@ -293,8 +293,8 @@ static void printAllServices(QDBusConnectionInterface *bus)
         servicesWithAliases[owner].append(serviceName);
     }
 
-    for (QMap<QString,QStringList>::const_iterator it = servicesWithAliases.begin();
-         it != servicesWithAliases.end(); ++it) {
+    for (QMap<QString,QStringList>::const_iterator it = servicesWithAliases.constBegin();
+         it != servicesWithAliases.constEnd(); ++it) {
         QStringList names = it.value();
         names.sort();
         printf("%s\n", qPrintable(names.join("\n ")));
