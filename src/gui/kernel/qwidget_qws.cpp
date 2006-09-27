@@ -1094,3 +1094,10 @@ QPaintEngine *QWidget::paintEngine() const
 void QWidgetPrivate::setModal_sys()
 {
 }
+
+QWindowSurface *QWidgetPrivate::currentWindowSurface()
+{
+    Q_Q(QWidget);
+    QWidgetBackingStore *bs =  q->window()->d_func()->maybeBackingStore();
+    return bs ? bs->windowSurface : 0;
+}

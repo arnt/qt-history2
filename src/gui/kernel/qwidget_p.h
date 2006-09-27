@@ -158,7 +158,9 @@ public:
 #ifndef Q_WS_MAC
     QWidgetBackingStore *maybeBackingStore() const;
 #endif
-
+#ifdef Q_WS_QWS
+    QWindowSurface *currentWindowSurface();
+#endif
     void init(QWidget *desktopWidget, Qt::WindowFlags f);
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
     void createRecursively();
