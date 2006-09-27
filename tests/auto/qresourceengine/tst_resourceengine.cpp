@@ -16,6 +16,8 @@ class tst_ResourceEngine: public QObject
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
+
     void checkUnregisterResource_data();
     void checkUnregisterResource();
     void checkStructure_data();
@@ -31,6 +33,13 @@ void tst_ResourceEngine::initTestCase()
 {
     QVERIFY(QResource::registerResource("runtime_resource.rcc"));
     QVERIFY(QResource::registerResource("runtime_resource.rcc", "/secondary_root/"));
+}
+
+void tst_ResourceEngine::cleanupTestCase()
+{
+    // make sure we don't leak memory
+    QVERIFY(QResource::unregisterResource("runtime_resource.rcc"));
+    QVERIFY(QResource::unregisterResource("runtime_resource.rcc", "/secondary_root/"));
 }
 
 void tst_ResourceEngine::checkStructure_data()
