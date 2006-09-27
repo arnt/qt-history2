@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
 # Directories
-SUBDIRS += bic \
+SUBDIRS += tessellator \
+	   bic \
            collections \
            compile \
            compilerwarnings \
