@@ -106,6 +106,8 @@ void tst_q3buttongroup::buttonIds()
 
     group.remove(group.find(5));
     QCOMPARE(group.count() , 10);
+
+    delete button2;
 }
 
 
