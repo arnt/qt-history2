@@ -1060,7 +1060,7 @@ const char *QTextCodec::locale()
     QByteArray l = QLocale::system().name().toLatin1();
     int len = qMin(l.length(), 5);
     memcpy(locale, l.constData(), len);
-    locale[len+1] = '\0';
+    locale[len] = '\0';
 
     return locale;
 }
