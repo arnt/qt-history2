@@ -32,6 +32,12 @@ ArthurFrame::ArthurFrame(QWidget *parent)
 #ifdef QT_OPENGL_SUPPORT
     glw = 0;
     m_use_opengl = false;
+    QGLFormat f = QGLFormat::defaultFormat();
+    f.setSampleBuffers(true);
+    f.setStencil(true);
+    f.setAlpha(true);
+    f.setAlphaBufferSize(8);
+    QGLFormat::setDefaultFormat(f);
 #endif
     m_document = 0;
     m_show_doc = false;
@@ -61,13 +67,6 @@ void ArthurFrame::enableOpenGL(bool use_opengl)
     m_use_opengl = use_opengl;
 
     if (!glw) {
-        QGLFormat f = QGLFormat::defaultFormat();
-        f.setSampleBuffers(true);
-        f.setStencil(true);
-        f.setAlpha(true);
-        f.setAlphaBufferSize(8);
-        QGLFormat::setDefaultFormat(f);
-
         glw = new GLWidget(this);
         glw->setAutoFillBackground(false);
         glw->disableAutoBufferSwap();
