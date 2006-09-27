@@ -62,13 +62,13 @@ private:
     double zoom;
     void calcRegions();
     void flip(bool open);
+    void updateSecondaryScreen();
 
     static QString skinFileName(const QString &skinFile, QString* prefix);
+    static void parseRect(const QString &, QRect *);
     static bool parseSkinFileHeader(QTextStream& ts,
-		    int *viewX1, int *viewY1,
-		    int *viewW, int *viewH,
-		    int *secondaryViewX1, int *secondaryViewY1,
-		    int *secondaryViewW, int *secondaryViewH,
+                    QRect *screen, QRect *outsideScreen,
+                    QRect *outsideScreenClosed,
 		    int *numberOfAreas,
 		    QString* skinImageUpFileName,
 		    QString* skinImageDownFileName,
@@ -86,8 +86,9 @@ private:
     QPixmap skinImageDown;
     QPixmap skinImageClosed;
     QPixmap skinCursor;
-    int viewX1, viewY1;
-    int secondaryViewX1, secondaryViewY1;
+    QRect screenRect;
+    QRect backScreenRect;
+    QRect closedScreenRect;
     int numberOfAreas;
 
     typedef struct {
