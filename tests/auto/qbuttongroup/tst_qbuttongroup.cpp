@@ -279,23 +279,23 @@ void tst_QButtonGroup::exclusive()
 
 void tst_QButtonGroup::testSignals()
 {
-    QButtonGroup *buttons = new QButtonGroup;
-    QPushButton *pb1 = new QPushButton;
-    QPushButton *pb2 = new QPushButton;
-    QPushButton *pb3 = new QPushButton;
-    buttons->addButton(pb1);
-    buttons->addButton(pb2, 23);
-    buttons->addButton(pb3);
+    QButtonGroup buttons;
+    QPushButton pb1;
+    QPushButton pb2;
+    QPushButton pb3;
+    buttons.addButton(&pb1);
+    buttons.addButton(&pb2, 23);
+    buttons.addButton(&pb3);
 
     qRegisterMetaType<QAbstractButton *>("QAbstractButton *");
-    QSignalSpy clickedSpy(buttons, SIGNAL(buttonClicked(QAbstractButton *)));
-    QSignalSpy clickedIdSpy(buttons, SIGNAL(buttonClicked(int)));
-    QSignalSpy pressedSpy(buttons, SIGNAL(buttonPressed(QAbstractButton *)));
-    QSignalSpy pressedIdSpy(buttons, SIGNAL(buttonPressed(int)));
-    QSignalSpy releasedSpy(buttons, SIGNAL(buttonReleased(QAbstractButton *)));
-    QSignalSpy releasedIdSpy(buttons, SIGNAL(buttonReleased(int)));
+    QSignalSpy clickedSpy(&buttons, SIGNAL(buttonClicked(QAbstractButton *)));
+    QSignalSpy clickedIdSpy(&buttons, SIGNAL(buttonClicked(int)));
+    QSignalSpy pressedSpy(&buttons, SIGNAL(buttonPressed(QAbstractButton *)));
+    QSignalSpy pressedIdSpy(&buttons, SIGNAL(buttonPressed(int)));
+    QSignalSpy releasedSpy(&buttons, SIGNAL(buttonReleased(QAbstractButton *)));
+    QSignalSpy releasedIdSpy(&buttons, SIGNAL(buttonReleased(int)));
 
-    pb1->animateClick();
+    pb1.animateClick();
     QTestEventLoop::instance().enterLoop(1);
 
     QCOMPARE(clickedSpy.count(), 1);
@@ -315,7 +315,7 @@ void tst_QButtonGroup::testSignals()
     releasedSpy.clear();
     releasedIdSpy.clear();
 
-    pb2->animateClick();
+    pb2.animateClick();
     QTestEventLoop::instance().enterLoop(1);
 
     QCOMPARE(clickedSpy.count(), 1);
@@ -373,34 +373,34 @@ void tst_QButtonGroup::task106609()
 
 void tst_QButtonGroup::checkedButton()
 {
-    QButtonGroup *buttons = new QButtonGroup;
-    buttons->setExclusive(false);
-    QPushButton *pb1 = new QPushButton;
-    pb1->setCheckable(true);
-    QPushButton *pb2 = new QPushButton;
-    pb2->setCheckable(true);
-    buttons->addButton(pb1);
-    buttons->addButton(pb2, 23);
-    
-    QVERIFY(buttons->checkedButton() == 0);
-    pb1->setChecked(true);
-    QVERIFY(buttons->checkedButton() == pb1);
-    pb2->setChecked(true);
-    QVERIFY(buttons->checkedButton() == pb2);
-    pb2->setChecked(false);
-    QVERIFY(buttons->checkedButton() == pb1);
-    pb1->setChecked(false);
-    QVERIFY(buttons->checkedButton() == 0);
+    QButtonGroup buttons;
+    buttons.setExclusive(false);
+    QPushButton pb1;
+    pb1.setCheckable(true);
+    QPushButton pb2;
+    pb2.setCheckable(true);
+    buttons.addButton(&pb1);
+    buttons.addButton(&pb2, 23);
 
-    buttons->setExclusive(true);
-    QVERIFY(buttons->checkedButton() == 0);
-    pb1->setChecked(true);
-    QVERIFY(buttons->checkedButton() == pb1);
-    pb2->setChecked(true);
-    QVERIFY(buttons->checkedButton() == pb2);
+    QVERIFY(buttons.checkedButton() == 0);
+    pb1.setChecked(true);
+    QVERIFY(buttons.checkedButton() == &pb1);
+    pb2.setChecked(true);
+    QVERIFY(buttons.checkedButton() == &pb2);
+    pb2.setChecked(false);
+    QVERIFY(buttons.checkedButton() == &pb1);
+    pb1.setChecked(false);
+    QVERIFY(buttons.checkedButton() == 0);
+
+    buttons.setExclusive(true);
+    QVERIFY(buttons.checkedButton() == 0);
+    pb1.setChecked(true);
+    QVERIFY(buttons.checkedButton() == &pb1);
+    pb2.setChecked(true);
+    QVERIFY(buttons.checkedButton() == &pb2);
     // checked button cannot be unchecked
-    pb2->setChecked(false);
-    QVERIFY(buttons->checkedButton() == pb2);
+    pb2.setChecked(false);
+    QVERIFY(buttons.checkedButton() == &pb2);
 }
 
 QTEST_MAIN(tst_QButtonGroup)
