@@ -59,6 +59,15 @@ public:
     inline QIcon::State iconState(QStyle::State state) const
         { return state & QStyle::State_Open ? QIcon::On : QIcon::Off; }
 
+    inline static QString replaceNewLine(QString text)
+        {
+            const QChar nl = QLatin1Char('\n');
+            for (int i = 0; i < text.count(); ++i)
+                if (text.at(i) == nl)
+                    text[i] = QChar::LineSeparator;
+            return text;
+        }
+
     void _q_commitDataAndCloseEditor(QWidget *editor);
 
     QItemEditorFactory *f;
@@ -326,9 +335,9 @@ void QItemDelegate::paint(QPainter *painter,
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
         if (value.type() == QVariant::Double)
-            text = QLocale().toString(value.toDouble()).replace('\n', QChar::LineSeparator);
+            text = QLocale().toString(value.toDouble());
         else
-            text = value.toString().replace('\n', QChar::LineSeparator);
+            text = QItemDelegatePrivate::replaceNewLine(value.toString());
 
         displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
@@ -475,7 +484,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         return;
     Q_ASSERT(index.isValid());
     QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
-    QString text = index.data(Qt::DisplayRole).toString().replace('\n', QChar::LineSeparator);
+    QString text = QItemDelegatePrivate::replaceNewLine(index.data(Qt::DisplayRole).toString());
     QRect pixmapRect = QRect(QPoint(0, 0), option.decorationSize).intersected(pixmap.rect());
     QRect textRect = textRectangle(0, option.rect, option.font, text);
     QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
@@ -551,7 +560,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     d->textOption.setAlignment(QStyle::visualAlignment(option.direction, option.displayAlignment));
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(option.font);
-    d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
+    d->textLayout.setText(QItemDelegatePrivate::replaceNewLine(text));
 
     QSizeF textLayoutSize = d->doTextLayout(textRect.width());
 
@@ -894,7 +903,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             return QRect(QPoint(0, 0), option.decorationSize);
         case QVariant::String:
         default: {
-            QString text = value.toString().replace('\n', QChar::LineSeparator);
+            QString text = QItemDelegatePrivate::replaceNewLine(value.toString());
             value = index.data(Qt::FontRole);
             QFont fnt = qvariant_cast<QFont>(value).resolve(option.font);
             return textRectangle(0, d->textLayoutBounds(option), fnt, text); }
@@ -928,7 +937,7 @@ QRect QItemDelegate::textRectangle(QPainter * /*painter*/, const QRect &rect,
     d->textOption.setWrapMode(QTextOption::WordWrap);
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(font);
-    d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
+    d->textLayout.setText(QItemDelegatePrivate::replaceNewLine(text));
     const QSize size = d->doTextLayout(rect.width()).toSize();
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     return QRect(0, 0, size.width() + 2 * textMargin, size.height());
