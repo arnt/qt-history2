@@ -805,66 +805,28 @@ static const char *const conical_program =
 static const char *const conical_glsl_program =
 #include "util/conical.glsl_quoted"
 
-#ifdef Q_WS_WIN
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
     if (glActiveStencilFaceEXT != 0)
-    return true;
-    
-    glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) wglGetProcAddress("glActiveStencilFaceEXT");
-    return glActiveStencilFaceEXT;
-}
-#else
-bool qt_resolve_stencil_face_extension(QGLContext *ctx)
-{
-    static int resolved = false;
+        return true;
 
-    if (!resolved) {
-        QGLContext cx(QGLFormat::defaultFormat());
-        qt_glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) cx.getProcAddress(QLatin1String("glActiveStencilFaceEXT"));
-        resolved = true;
-    }
+    QGLContext cx(QGLFormat::defaultFormat());
+    qt_glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) ctx->getProcAddress(QLatin1String("glActiveStencilFaceEXT"));
 
     return qt_glActiveStencilFaceEXT;
 }
-#endif
     
-#ifdef Q_WS_WIN
-bool qt_resolve_frag_program_extensions(QGLContext *ctx)
+static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
 {
     if (glProgramStringARB != 0)
         return true;
 
     // ARB_fragment_program
-    glProgramStringARB = (_glProgramStringARB) wglGetProcAddress("glProgramStringARB");
-    glBindProgramARB = (_glBindProgramARB) wglGetProcAddress("glBindProgramARB");
-    glDeleteProgramsARB = (_glDeleteProgramsARB) wglGetProcAddress("glDeleteProgramsARB");
-    glGenProgramsARB = (_glGenProgramsARB) wglGetProcAddress("glGenProgramsARB");
-    glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) wglGetProcAddress("glProgramLocalParameter4fvARB");
-
-    return glProgramStringARB
-        && glBindProgramARB
-        && glDeleteProgramsARB
-        && glGenProgramsARB
-        && glProgramLocalParameter4fvARB;
-}
-#else
-static bool qt_resolve_frag_program_extensions(QGLContext *)
-{
-    static int resolved = false;    
-    if (!resolved) {
-
-        QGLContext cx(QGLFormat::defaultFormat());
-
-        // ARB_fragment_program
-        qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress(QLatin1String("glProgramStringARB"));
-        qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress(QLatin1String("glBindProgramARB"));
-        qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress(QLatin1String("glDeleteProgramsARB"));
-        qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress(QLatin1String("glGenProgramsARB"));
-        qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress(QLatin1String("glProgramLocalParameter4fvARB"));
-
-        resolved = true;
-    }
+    qt_glProgramStringARB = (_glProgramStringARB) ctx->getProcAddress(QLatin1String("glProgramStringARB"));
+    qt_glBindProgramARB = (_glBindProgramARB) ctx->getProcAddress(QLatin1String("glBindProgramARB"));
+    qt_glDeleteProgramsARB = (_glDeleteProgramsARB) ctx->getProcAddress(QLatin1String("glDeleteProgramsARB"));
+    qt_glGenProgramsARB = (_glGenProgramsARB) ctx->getProcAddress(QLatin1String("glGenProgramsARB"));
+    qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) ctx->getProcAddress(QLatin1String("glProgramLocalParameter4fvARB"));
 
     return qt_glProgramStringARB
         && qt_glBindProgramARB
@@ -872,88 +834,34 @@ static bool qt_resolve_frag_program_extensions(QGLContext *)
         && qt_glGenProgramsARB
         && qt_glProgramLocalParameter4fvARB;
 }
-#endif
 
-#ifdef Q_WS_WIN
-bool qt_resolve_GLSL_functions(QGLContext *ctx)
+static bool qt_resolve_GLSL_functions(QGLContext *ctx)
 {
     if (glCreateShader != 0)
         return true;
 
     // GLSL
-    glCreateShader = (_glCreateShader) wglGetProcAddress("glCreateShader");
-    glShaderSource = (_glShaderSource) wglGetProcAddress("glShaderSource");
-    glCompileShader = (_glCompileShader) wglGetProcAddress("glCompileShader");
-    glDeleteShader = (_glDeleteShader) wglGetProcAddress("glDeleteShader");
+    qt_glCreateShader = (_glCreateShader) ctx->getProcAddress(QLatin1String("glCreateShader"));
+    qt_glShaderSource = (_glShaderSource) ctx->getProcAddress(QLatin1String("glShaderSource"));
+    qt_glCompileShader = (_glCompileShader) ctx->getProcAddress(QLatin1String("glCompileShader"));
+    qt_glDeleteShader = (_glDeleteShader) ctx->getProcAddress(QLatin1String("glDeleteShader"));
 
-    glCreateProgram = (_glCreateProgram) wglGetProcAddress("glCreateProgram");
-    glAttachShader = (_glAttachShader) wglGetProcAddress("glAttachShader");
-    glDetachShader = (_glDetachShader) wglGetProcAddress("glDetachShader");
-    glLinkProgram = (_glLinkProgram) wglGetProcAddress("glLinkProgram");
-    glUseProgram = (_glUseProgram) wglGetProcAddress("glUseProgram");
-    glDeleteProgram = (_glDeleteProgram) wglGetProcAddress("glDeleteProgram");
+    qt_glCreateProgram = (_glCreateProgram) ctx->getProcAddress(QLatin1String("glCreateProgram"));
+    qt_glAttachShader = (_glAttachShader) ctx->getProcAddress(QLatin1String("glAttachShader"));
+    qt_glDetachShader = (_glDetachShader) ctx->getProcAddress(QLatin1String("glDetachShader"));
+    qt_glLinkProgram = (_glLinkProgram) ctx->getProcAddress(QLatin1String("glLinkProgram"));
+    qt_glUseProgram = (_glUseProgram) ctx->getProcAddress(QLatin1String("glUseProgram"));
+    qt_glDeleteProgram = (_glDeleteProgram) ctx->getProcAddress(QLatin1String("glDeleteProgram"));
 
-    glGetShaderInfoLog = (_glGetShaderInfoLog) wglGetProcAddress("glGetShaderInfoLog");
-    glGetProgramiv = (_glGetProgramiv) wglGetProcAddress("glGetProgramiv");
+    qt_glGetShaderInfoLog = (_glGetShaderInfoLog) ctx->getProcAddress(QLatin1String("glGetShaderInfoLog"));
+    qt_glGetProgramiv = (_glGetProgramiv) ctx->getProcAddress(QLatin1String("glGetProgramiv"));
 
-    glGetUniformLocation =  (_glGetUniformLocation) wglGetProcAddress("glGetUniformLocation");
-    glUniform4fv = (_glUniform4fv) wglGetProcAddress("glUniform4fv");
-    glUniform3fv = (_glUniform3fv) wglGetProcAddress("glUniform3fv");
-    glUniform2fv = (_glUniform2fv) wglGetProcAddress("glUniform2fv");
-    glUniform1fv = (_glUniform1fv) wglGetProcAddress("glUniform1fv");
-    glUniform1i = (_glUniform1i) wglGetProcAddress("glUniform1i");
-
-    return glCreateShader
-        && glShaderSource
-        && glCompileShader
-        && glDeleteShader
-        && glCreateProgram
-        && glDetachShader
-        && glLinkProgram
-        && glUseProgram
-        && glDeleteProgram
-        && glGetShaderInfoLog
-        && glGetProgramiv
-        && glGetUniformLocation
-        && glUniform4fv
-        && glUniform3fv
-        && glUniform2fv
-        && glUniform1fv
-        && glUniform1i;
-}
-#else
-static bool qt_resolve_GLSL_functions(QGLContext *)
-{
-    static int resolved = false;
-
-    if (!resolved) {
-        QGLContext cx(QGLFormat::defaultFormat());
-
-        // GLSL
-        qt_glCreateShader = (_glCreateShader) cx.getProcAddress(QLatin1String("glCreateShader"));
-        qt_glShaderSource = (_glShaderSource) cx.getProcAddress(QLatin1String("glShaderSource"));
-        qt_glCompileShader = (_glCompileShader) cx.getProcAddress(QLatin1String("glCompileShader"));
-        qt_glDeleteShader = (_glDeleteShader) cx.getProcAddress(QLatin1String("glDeleteShader"));
-
-        qt_glCreateProgram = (_glCreateProgram) cx.getProcAddress(QLatin1String("glCreateProgram"));
-        qt_glAttachShader = (_glAttachShader) cx.getProcAddress(QLatin1String("glAttachShader"));
-        qt_glDetachShader = (_glDetachShader) cx.getProcAddress(QLatin1String("glDetachShader"));
-        qt_glLinkProgram = (_glLinkProgram) cx.getProcAddress(QLatin1String("glLinkProgram"));
-        qt_glUseProgram = (_glUseProgram) cx.getProcAddress(QLatin1String("glUseProgram"));
-        qt_glDeleteProgram = (_glDeleteProgram) cx.getProcAddress(QLatin1String("glDeleteProgram"));
-
-        qt_glGetShaderInfoLog = (_glGetShaderInfoLog) cx.getProcAddress(QLatin1String("glGetShaderInfoLog"));
-        qt_glGetProgramiv = (_glGetProgramiv) cx.getProcAddress(QLatin1String("glGetProgramiv"));
-
-        qt_glGetUniformLocation = (_glGetUniformLocation) cx.getProcAddress(QLatin1String("glGetUniformLocation"));
-        qt_glUniform4fv = (_glUniform4fv) cx.getProcAddress(QLatin1String("glUniform4fv"));
-        qt_glUniform3fv = (_glUniform3fv) cx.getProcAddress(QLatin1String("glUniform3fv"));
-        qt_glUniform2fv = (_glUniform2fv) cx.getProcAddress(QLatin1String("glUniform2fv"));
-        qt_glUniform1fv = (_glUniform1fv) cx.getProcAddress(QLatin1String("glUniform1fv"));
-        qt_glUniform1i = (_glUniform1i) cx.getProcAddress(QLatin1String("glUniform1i"));
-
-        resolved = true;
-    }
+    qt_glGetUniformLocation = (_glGetUniformLocation) ctx->getProcAddress(QLatin1String("glGetUniformLocation"));
+    qt_glUniform4fv = (_glUniform4fv) ctx->getProcAddress(QLatin1String("glUniform4fv"));
+    qt_glUniform3fv = (_glUniform3fv) ctx->getProcAddress(QLatin1String("glUniform3fv"));
+    qt_glUniform2fv = (_glUniform2fv) ctx->getProcAddress(QLatin1String("glUniform2fv"));
+    qt_glUniform1fv = (_glUniform1fv) ctx->getProcAddress(QLatin1String("glUniform1fv"));
+    qt_glUniform1i = (_glUniform1i) ctx->getProcAddress(QLatin1String("glUniform1i"));
 
     return qt_glCreateShader
         && qt_glShaderSource
@@ -974,7 +882,6 @@ static bool qt_resolve_GLSL_functions(QGLContext *)
         && qt_glUniform1fv
         && qt_glUniform1i;
 }
-#endif
 
 void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops& s, unsigned int *colorTable, int size)
 {
