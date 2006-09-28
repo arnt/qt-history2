@@ -836,7 +836,7 @@ void QAbstractItemView::selectAll()
                                     d->model->columnCount(d->root) - 1,
                                     d->root);
     selection.append(QItemSelectionRange(tl, br));
-    d->selectionModel->select(selection, QItemSelectionModel::ClearAndSelect);
+    d->selectionModel->select(selection, selectionCommand(tl));
 }
 
 /*!
