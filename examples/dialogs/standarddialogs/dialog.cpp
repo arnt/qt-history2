@@ -17,8 +17,9 @@
 
 #define MESSAGE \
     Dialog::tr("<p>Message boxes have a caption, a text, " \
-               "and up to three buttons, each with standard or custom texts." \
-               "<p>Click a button or press Esc.")
+               "and any number of buttons, each with standard or custom texts." \
+               "<p>Click a button to close the message box. Pressing the Esc button " \
+               "will activate the detected escape button (if any).")
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)

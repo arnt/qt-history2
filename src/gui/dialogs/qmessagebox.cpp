@@ -508,6 +508,17 @@ void QMessageBoxPrivate::_q_buttonClicked(QAbstractButton *button)
     as an argument. The button role is used to automatically determine the
     position of the button within the dialog box.
 
+    The Escape button is specified using setEscapeButton(). If no escape button is
+    specified, QMessageBox attempts to automatically detect an escape button as 
+    follows:
+    1. If there is only one button, it is made the escape button.
+    2. If there is a QMessageBox::Cancel button, it is made the escape button.
+    3. On Mac OS X only, if there is exactly one button with the role
+       QMessageBox::RejectRole, it is made the escape button.
+
+    When an escape button could not be automatically detected, pressing Esc has
+    no effect.
+
     When using an instance of QMessageBox with standard buttons, you can test the
     return value of exec() to determine which button was clicked. For example,
     \code
@@ -1660,9 +1671,10 @@ int QMessageBox::information(QWidget *parent, const QString &title, const QStrin
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    Note: If you do not specify an Escape button then if the Escape
-    button is pressed then -1 will be returned.  It is suggested that
-    you specify an Escape button to prevent this from happening.
+    Note: If you do not specify an Escape button and no Escape button
+    could be automatically detected, the dialog will not close with the
+    Esc key. It is suggested that you specify an Escape button to prevent 
+    this from happening.
 
     \sa question(), warning(), critical()
 */
@@ -1744,9 +1756,10 @@ int QMessageBox::question(QWidget *parent, const QString &title, const QString& 
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    Note: If you do not specify an Escape button then if the Escape
-    button is pressed then -1 will be returned.  It is suggested that
-    you specify an Escape button to prevent this from happening.
+    Note: If you do not specify an Escape button and no Escape button
+    could be automatically detected, the dialog will not close with the
+    Esc key. It is suggested that you specify an Escape button to prevent 
+    this from happening.
 
     \sa information(), warning(), critical()
 */
@@ -1828,9 +1841,10 @@ int QMessageBox::warning(QWidget *parent, const QString &title, const QString& t
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    Note: If you do not specify an Escape button then if the Escape
-    button is pressed then -1 will be returned.  It is suggested that
-    you specify an Escape button to prevent this from happening.
+    Note: If you do not specify an Escape button and no Escape button
+    could be automatically detected, the dialog will not close with the
+    Esc key. It is suggested that you specify an Escape button to prevent 
+    this from happening.
 
     \sa information(), question(), critical()
 */
