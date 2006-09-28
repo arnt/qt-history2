@@ -326,9 +326,10 @@ void QItemDelegate::paint(QPainter *painter,
     value = index.data(Qt::DisplayRole);
     if (value.isValid()) {
         if (value.type() == QVariant::Double)
-            text = QLocale().toString(value.toDouble());
+            text = QLocale().toString(value.toDouble()).replace('\n', QChar::LineSeparator);
         else
-            text = value.toString();
+            text = value.toString().replace('\n', QChar::LineSeparator);
+
         displayRect = textRectangle(painter, d->textLayoutBounds(opt), opt.font, text);
     }
 
@@ -474,7 +475,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         return;
     Q_ASSERT(index.isValid());
     QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
-    QString text = index.data(Qt::DisplayRole).toString();
+    QString text = index.data(Qt::DisplayRole).toString().replace('\n', QChar::LineSeparator);
     QRect pixmapRect = QRect(QPoint(0, 0), option.decorationSize).intersected(pixmap.rect());
     QRect textRect = textRectangle(0, option.rect, option.font, text);
     QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
@@ -893,7 +894,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             return QRect(QPoint(0, 0), option.decorationSize);
         case QVariant::String:
         default: {
-            QString text = value.toString();
+            QString text = value.toString().replace('\n', QChar::LineSeparator);
             value = index.data(Qt::FontRole);
             QFont fnt = qvariant_cast<QFont>(value).resolve(option.font);
             return textRectangle(0, d->textLayoutBounds(option), fnt, text); }
