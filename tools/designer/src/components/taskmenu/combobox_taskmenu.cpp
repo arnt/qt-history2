@@ -24,6 +24,7 @@ TRANSLATOR qdesigner_internal::ComboBoxTaskMenu
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>
+#include <QtGui/QFontComboBox>
 #include <QtGui/QStyleOption>
 
 #include <QtCore/QEvent>
@@ -89,7 +90,8 @@ ComboBoxTaskMenuFactory::ComboBoxTaskMenuFactory(QExtensionManager *extensionMan
 
 QObject *ComboBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QComboBox *button = qobject_cast<QComboBox*>(object)) {
+    QComboBox *button = qobject_cast<QComboBox*>(object);
+    if (button && !qobject_cast<QFontComboBox*>(object)) {
         if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
             return new ComboBoxTaskMenu(button, parent);
         }

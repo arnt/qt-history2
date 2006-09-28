@@ -33,6 +33,7 @@
 #include <QTableWidget>
 #include <QToolBox>
 #include <QComboBox>
+#include <QFontComboBox>
 #include <private/qobject_p.h>
 
 typedef QMap<QString, bool> widget_map;
@@ -218,13 +219,15 @@ QWidget *FormBuilderPrivate::create(DomWidget *ui_widget, QWidget *parentWidget)
             }
         }
     } else if (QComboBox *combow = qobject_cast<QComboBox*>(w)) {
-        int cnt = combow->count();
-        for (int i = 0; i < cnt; ++i) {
-            QString text = QApplication::translate(m_class.toUtf8(),
-                                                    combow->itemText(i).toUtf8(),
-                                                    "",
-                                                    QCoreApplication::UnicodeUTF8);
-            combow->setItemText(i, text);
+        if (!qobject_cast<QFontComboBox*>(w)) {
+            int cnt = combow->count();
+            for (int i = 0; i < cnt; ++i) {
+                QString text = QApplication::translate(m_class.toUtf8(),
+                        combow->itemText(i).toUtf8(),
+                        "",
+                        QCoreApplication::UnicodeUTF8);
+                combow->setItemText(i, text);
+            }
         }
     } else if (QToolBox *toolw = qobject_cast<QToolBox*>(w)) {
         int cnt = toolw->count();

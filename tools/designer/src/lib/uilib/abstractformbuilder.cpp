@@ -25,6 +25,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
 #include <QtGui/QComboBox>
+#include <QtGui/QFontComboBox>
 #include <QtGui/QGridLayout>
 #include <QtGui/QIcon>
 #include <QtGui/QListWidget>
@@ -2212,7 +2213,8 @@ void QAbstractFormBuilder::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, 
     } else if (QTableWidget *tableWidget = qobject_cast<QTableWidget*>(widget)) {
         saveTableWidgetExtraInfo(tableWidget, ui_widget, ui_parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
-        saveComboBoxExtraInfo(comboBox, ui_widget, ui_parentWidget);
+        if (!qobject_cast<QFontComboBox*>(widget))
+            saveComboBoxExtraInfo(comboBox, ui_widget, ui_parentWidget);
     }
 }
 
@@ -2456,7 +2458,8 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
     } else if (QTableWidget *tableWidget = qobject_cast<QTableWidget*>(widget)) {
         loadTableWidgetExtraInfo(ui_widget, tableWidget, parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
-        loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
+        if (!qobject_cast<QFontComboBox *>(widget))
+            loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
     } else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget)) {
         DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
         if (currentIndex)
