@@ -1401,10 +1401,12 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                     cupsArgList << printerName;
                 }
 
-                cupsArgList << QLatin1String("-o");
                 const ppd_option_t* pageSizes = cups.pageSizes();
-                cupsArgList << QString::fromLatin1("media=%1").arg(
-                    QString::fromLocal8Bit(pageSizes->choices[pageSize].choice));
+		if (pageSizes) {
+                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << QString::fromLatin1("media=%1").arg(
+                        QString::fromLocal8Bit(pageSizes->choices[pageSize].choice));
+		}
 
                 if (copies > 1) {
                     cupsArgList << QLatin1String("-#");
@@ -1465,7 +1467,6 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                 (void)execvp( "lpr", lprargs );
                 (void)execv( "/bin/lpr", lprargs);
                 (void)execv( "/usr/bin/lpr", lprargs);
-
 #endif
             } else {
                 // if no print program has been specified, be smart

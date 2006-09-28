@@ -262,6 +262,8 @@ QStringList QCUPSSupport::options() const
 void QCUPSSupport::collectMarkedOptions(QStringList& list, const ppd_group_t* group) const
 {
     if (group == 0) {
+        if (!currPPD)
+            return;
         for (int i = 0; i < currPPD->num_groups; ++i) {
             collectMarkedOptions(list, &currPPD->groups[i]);
             collectMarkedOptionsHelper(list, &currPPD->groups[i]);
