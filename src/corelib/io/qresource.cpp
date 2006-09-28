@@ -109,8 +109,12 @@ Q_GLOBAL_STATIC(QStringList, resourceSearchPaths)
 
     \section1 Dynamic Resource Loading
 
-    A resource can be left out of an application's binary and loaded when it
-    is needed at run-time by using the registerResource() function.
+    A resource can be left out of an application's binary and loaded when
+    it is needed at run-time by using the registerResource() function. The
+    resource file passed into registerResource() must be a binary resource
+    as created by rcc. Further information about binary resources can be
+    found in {The Qt Resource System} documentation.
+
     This can often be useful when loading a large set of application icons
     that may change based on a setting, or that can be edited by a user and
     later recreated. The resource is immediately loaded into memory, either

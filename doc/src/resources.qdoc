@@ -32,28 +32,10 @@
     part of the application's source tree. Paths are relative to the
     directory where the \c .qrc file is located.
 
-    The \c .qrc file must be mentioned in the application's \c .pro
-    file so that \c qmake knows about it. For example:
-
-    \quotefromfile mainwindows/application/application.pro
-    \skipto RESOURCES
-    \printline RESOURCES
-
-    \c qmake will produce make rules to generate a file called \c
-    qrc_application.cpp that is linked into the application. This
-    file contains all the data for the images and other resources as
-    static C++ arrays of compressed binary data. The \c
-    qrc_application.cpp file is automatically regenerated whenever
-    the \c .qrc file changes or one of the files that it refers to
-    changes. If you don't use \c .pro files, you can either invoke \c
-    rcc manually or add build rules to your build system.
-
-    \image resources.png Building resources into an application
-
-    Currently, Qt always stores the data directly in the executable,
-    even on Windows and Mac OS X, where the operating system provides
-    native support for resources. This might change in a future Qt
-    release.
+    Resource data can either be compiled into the binary and thus accessed
+    immediately in application code, or a binary resource can be created
+    and at a later point in application code registered with the resource
+    system. 
 
     By default, resources are accessible in the application under the
     same name as they have in the source tree, with a \c :/ prefix.
@@ -100,6 +82,40 @@
 
     See the QLocale documentation for a description of the format to use
     for locale strings.
+
+
+    \section2 Binary resources
+
+    For a binary resource to be created you must create the resource data
+    (commonly given the \c .rcc extension) by passing the -binary switch to
+    rcc. Once the binary resource is created you can register the resource
+    with the QResource API. 
+
+    \section2 Compiled in resources    
+
+    For a resource to be compiled into the binary the \c .qrc file must be
+    mentioned in the application's \c .pro file so that \c qmake knows
+    about it. For example:
+
+    \quotefromfile mainwindows/application/application.pro
+    \skipto RESOURCES
+    \printline RESOURCES
+
+    \c qmake will produce make rules to generate a file called \c
+    qrc_application.cpp that is linked into the application. This
+    file contains all the data for the images and other resources as
+    static C++ arrays of compressed binary data. The \c
+    qrc_application.cpp file is automatically regenerated whenever
+    the \c .qrc file changes or one of the files that it refers to
+    changes. If you don't use \c .pro files, you can either invoke \c
+    rcc manually or add build rules to your build system.
+
+    \image resources.png Building resources into an application
+
+    Currently, Qt always stores the data directly in the executable,
+    even on Windows and Mac OS X, where the operating system provides
+    native support for resources. This might change in a future Qt
+    release.
 
     \section1 Using Resources in the Application
 
