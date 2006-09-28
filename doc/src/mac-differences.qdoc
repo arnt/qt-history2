@@ -50,6 +50,33 @@
 
     \section1 Library Support
 
+    \section2 Qt libraries as frameworks
+    By default, Qt is built as a set of frameworks. This is the Mac OS X
+    "preferred" way of distributing libraries (and there are some
+    definite advantages to using them) see Apple's Framework Programming Guide
+    for more info:
+
+    http://developer.apple.com/documentation/MacOSX/Conceptual/BPFrameworks/index.html
+
+    In general, this shouldn't be an issue as qmake will take care of the
+    specifics for you.  However, there are a couple of things you need to keep
+    in mind when using frameworks over normal dynamic libraries. Most are
+    included in the Framework Programming Guide, but one that you may not be
+    aware of is that:
+
+    \bold {frameworks will always link with the "release" version of a library}.
+
+    This means that if you want to actually use a "debug" version of a Qt
+    framework, you must make sure that the application actually loads the debug
+    version. This is usually done by using the DYLD_IMAGE_SUFFIX environment
+    variables. However, for several reasons, this typically doesn't work so
+    well. Instead, you can temporarily swap your debug and release versions.
+    This is documented in Apple's "Debugging Magic" technical note here:
+
+    http://developer.apple.com/technotes/tn2004/tn2124.html#SECJUSTONELIB
+
+    If you do not wish to use frameworks simply configure Qt with \code {-no-framework}.
+
     \section2 Bundle-Based Libraries
 
     If you want to incorporate dynamic libraries as part of your Mac OS X
@@ -137,7 +164,7 @@
     localized application, but they will not show up translated until
     you add a localized resource folder inside the Bundle. See:
 
-    http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/index.html
+    http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/Concepts/BundleAnatomy.html
 
     And look for the heading: Adding Localized Resources
 
