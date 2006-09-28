@@ -81,7 +81,7 @@ public:
     void actionEvent(QActionEvent *e)
     {
         QMenu::actionEvent(e);
-        resize(sizeHint());
+        setFixedSize(sizeHint());
     }
 };
 #include "qmenu.moc"
