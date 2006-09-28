@@ -31,7 +31,7 @@
 
 #define PROGRAMNAME     "dbusxml2cpp"
 #define PROGRAMVERSION  "0.6"
-#define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech AS. All rights reserved."
+#define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech ASA. All rights reserved."
 
 #define ANNOTATION_NO_WAIT      "org.freedesktop.DBus.Method.NoReply"
 

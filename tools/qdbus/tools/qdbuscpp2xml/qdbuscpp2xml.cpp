@@ -39,7 +39,7 @@ extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const 
 
 #define PROGRAMNAME     "dbuscpp2xml"
 #define PROGRAMVERSION  "0.1"
-#define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech AS. All rights reserved."
+#define PROGRAMCOPYRIGHT "Copyright (C) 2006 Trolltech ASA. All rights reserved."
 
 static QString outputFile;
 static int flags;
