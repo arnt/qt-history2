@@ -95,8 +95,16 @@ QDebug operator<<(QDebug s, const QSubpath &p)
     return s;
 }
 
+static inline void qt_glColor4ubv(unsigned char *col)
+{
+#ifdef Q_WS_QWS
+        glColor4f(col[0]/255.0, col[1]/255.0, col[2]/255.0, col[3]/255.0);
+#else
+        glColor4ubv(col);
+#endif
+}
 
-void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<QSubpath> *subpaths)
+static void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<QSubpath> *subpaths)
 {
 //     qDebug() << "\nqt_painterpath_split";
 
@@ -1800,18 +1808,13 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     d->cpen = pen;
     d->has_pen = (pen_style != Qt::NoPen);
 
-
     if (d->pen_brush_style >= Qt::LinearGradientPattern
         && d->pen_brush_style <= Qt::ConicalGradientPattern) {
         d->updateGradient(pen.brush());
         d->setGLPen(Qt::white);
     } else {
         d->setGLPen(pen.color());
-#ifdef Q_WS_QWS
-        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-        glColor4ubv(d->pen_color);
-#endif
+        qt_glColor4ubv(d->pen_color);
     }
 
 #ifndef Q_USE_QT_TESSELLATOR
@@ -1863,11 +1866,7 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     if (!(d->brush_style >= Qt::LinearGradientPattern
         && d->brush_style <= Qt::ConicalGradientPattern)) {
         d->setGLBrush(brush.color());
-#ifdef Q_WS_QWS
-        glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-        glColor4ubv(d->brush_color);
-#endif
+        qt_glColor4ubv(d->brush_color);
     }
 }
 
@@ -2086,11 +2085,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
         if (d->has_brush) {
             d->setGradientOps(d->brush_style);
-#ifdef Q_WS_QWS
-            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-            glColor4ubv(d->brush_color);
-#endif
+            qt_glColor4ubv(d->brush_color);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray);
             glEnableClientState(GL_VERTEX_ARRAY);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -2099,17 +2094,8 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 
         if (d->has_pen) {
             d->setGradientOps(d->pen_brush_style);
-#ifdef Q_WS_QWS
-            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-            glColor4ubv(d->pen_color);
-#endif
+            qt_glColor4ubv(d->pen_color);
             if (d->has_fast_pen) {
-#ifdef Q_WS_QWS
-                glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-                glColor4ubv(d->pen_color);
-#endif
                 vertexArray[8] = vertexArray[0];
                 vertexArray[9] = vertexArray[1];
 
@@ -2188,11 +2174,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
         if (d->has_fast_pen) {
-#ifdef Q_WS_QWS
-            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-            glColor4ubv(d->pen_color);
-#endif
+            qt_glColor4ubv(d->pen_color);
             const qreal *vertexArray = reinterpret_cast<const qreal*>(&lines[0]);
 
             if (sizeof(qreal) == sizeof(double)) {
@@ -2208,11 +2190,7 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
             glDrawArrays(GL_LINES, 0, lineCount*2);
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
-#ifdef Q_WS_QWS
-            glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-            glColor4ubv(d->pen_color);
-#endif
+            qt_glColor4ubv(d->pen_color);
             for (int i=0; i<lineCount; ++i) {
                 const QLineF &l = lines[i];
 #ifndef Q_USE_QT_TESSELLATOR
@@ -2269,11 +2247,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             glDrawArrays(GL_TRIANGLE_FAN, 0, pointCount);
             glDisableClientState(GL_VERTEX_ARRAY);
         } else {
-#ifdef Q_WS_QWS
-            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-            glColor4ubv(d->brush_color);
-#endif
+            qt_glColor4ubv(d->brush_color);
 #ifndef Q_USE_QT_TESSELLATOR
             if (d->use_stencil_method) {
                 QPainterPath path;
@@ -2305,11 +2279,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
     if (d->has_pen) {
         d->setGradientOps(d->pen_brush_style);
-#ifdef Q_WS_QWS
-        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-        glColor4ubv(d->pen_color);
-#endif
+        qt_glColor4ubv(d->pen_color);
         if (d->has_fast_pen) {
             QVarLengthArray<float> vertexArray(pointCount*2);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
@@ -2366,22 +2336,13 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (d->has_brush) {
         d->setGradientOps(d->brush_style);
 #ifndef Q_USE_QT_TESSELLATOR
+        qt_glColor4ubv(d->brush_color);
         if (d->use_stencil_method) {
-#ifdef Q_WS_QWS
-            glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-            glColor4ubv(d->brush_color);
-#endif
             d->fillPath(path);
         } else {
             // Don't split "simple" paths...
             if (path.elementCount() > 32) {
                 qt_painterpath_split(path, &d->int_buffer, &d->subpath_buffer);
-#ifdef Q_WS_QWS
-                glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-                glColor4ubv(d->brush_color);
-#endif
                 for (int i=0; i<d->int_buffer.size(); ++i) {
                     d->beginPath(path.fillRule() == Qt::WindingFill
                                  ? QPaintEngine::WindingMode
@@ -2409,11 +2370,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                     d->endPath();
                 }
             } else {
-#ifdef Q_WS_QWS
-                glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
-#else
-                glColor4ubv(d->brush_color);
-#endif
+                qt_glColor4ubv(d->brush_color);
                 d->beginPath(path.fillRule() == Qt::WindingFill
                              ? QPaintEngine::WindingMode
                              : QPaintEngine::OddEvenMode);
@@ -2438,16 +2395,12 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
             }
         }   
 #else
-        glColor4f(d->brush_color[0]/255.0, d->brush_color[1]/255.0, d->brush_color[2]/255.0, d->brush_color[3]/255.0);
+        qt_glColor4ubv(d->brush_color);
         d->fillPath(path);
 #endif
     }
     if (d->has_pen) {
-#ifdef Q_WS_QWS
-        glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-        glColor4ubv(d->pen_color);
-#endif
+        qt_glColor4ubv(d->pen_color);
         d->setGradientOps(d->pen_brush_style);
 #ifndef Q_USE_QT_TESSELLATOR
         if (d->has_fast_pen) {
@@ -2990,11 +2943,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qt_glyph_cache()->cacheGlyphs(d->drawable.context(), ti, glyphs);
 
     d->setGradientOps(Qt::SolidPattern); // turns off gradient ops
-#ifdef Q_WS_QWS
-    glColor4f(d->pen_color[0]/255.0, d->pen_color[1]/255.0, d->pen_color[2]/255.0, d->pen_color[3]/255.0);
-#else
-    glColor4ubv(d->pen_color);
-#endif
+    qt_glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
 
     // do the actual drawing
