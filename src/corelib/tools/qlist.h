@@ -193,7 +193,7 @@ public:
         inline const_iterator &operator--() { i--; return *this; }
         inline const_iterator operator--(int) { Node *n = i; i--; return n; }
         inline const_iterator &operator+=(int j) { i+=j; return *this; }
-        inline const_iterator &operator-=(int j) { i+=j; return *this; }
+        inline const_iterator &operator-=(int j) { i-=j; return *this; }
         inline const_iterator operator+(int j) const { return const_iterator(i+j); }
         inline const_iterator operator-(int j) const { return const_iterator(i-j); }
         inline int operator-(const_iterator j) const { return i - j.i; }
