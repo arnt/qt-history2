@@ -813,7 +813,7 @@ bool qt_resolve_stencil_face_extension(QGLContext *ctx)
     QGLContext cx(QGLFormat::defaultFormat());
     glActiveStencilFaceEXT = (_glActiveStencilFaceEXT) ctx->getProcAddress(QLatin1String("glActiveStencilFaceEXT"));
 
-    return qt_glActiveStencilFaceEXT;
+    return glActiveStencilFaceEXT;
 }
     
 static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
