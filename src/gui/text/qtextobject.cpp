@@ -995,6 +995,10 @@ bool QTextBlock::contains(int position) const
 /*!
     Returns the QTextLayout that is used to lay out and display the
     block's contents.
+
+    Note that the returned QTextLayout object can only be modified from the
+    documentChanged implementation of a QAbstractTextDocumentLayout subclass.
+    Any changes applied from the outside cause undefined behavior.
  */
 QTextLayout *QTextBlock::layout() const
 {
