@@ -2735,40 +2735,244 @@ class HarakiriItem : public QGraphicsRectItem
 public:
     HarakiriItem(int harakiriPoint)
         : QGraphicsRectItem(QRectF(0, 0, 100, 100)), harakiri(harakiriPoint)
-    { }
-
-    void advance(int n)
-    {
-        if (harakiri == 1 && n == 0)
-            delete this;
-        if (harakiri == 2 && n == 1)
-            delete this;
-    }
-
+    { dead = 0; }
+    
+    static int dead;
+    
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
         QGraphicsRectItem::paint(painter, option, widget);
-        if (harakiri == 0)
+        if (harakiri == 0) {
+            dead = 1;
             delete this;
+        }
+    }
+
+    void advance(int n)
+    {
+        if (harakiri == 1 && n == 0) {
+            // delete unsupported
+            /*
+            dead = 1;
+            delete this;
+            */
+        }
+        if (harakiri == 2 && n == 1) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+protected:
+    void contextMenuEvent(QGraphicsSceneContextMenuEvent *)
+    {
+        if (harakiri == 3) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+    {
+        // ??
+        return QGraphicsRectItem::dragEnterEvent(event);
+    }
+
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+    {
+        // ??
+        return QGraphicsRectItem::dragLeaveEvent(event);
+    }
+
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+    {
+        // ??
+        return QGraphicsRectItem::dragMoveEvent(event);
+    }
+
+    void dropEvent(QGraphicsSceneDragDropEvent *event)
+    {
+        // ??
+        return QGraphicsRectItem::dropEvent(event);
+    }
+
+    void focusInEvent(QFocusEvent *)
+    {
+        if (harakiri == 4) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void focusOutEvent(QFocusEvent *)
+    {
+        if (harakiri == 5) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *)
+    {
+        if (harakiri == 6) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *)
+    {
+        if (harakiri == 7) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *)
+    {
+        if (harakiri == 8) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void inputMethodEvent(QInputMethodEvent *event)
+    {
+        // ??
+        return QGraphicsRectItem::inputMethodEvent(event);
+    }
+
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const
+    {
+        // ??
+        return QGraphicsRectItem::inputMethodQuery(query);
+    }
+
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value)
+    {
+        // deletion not supported
+        return QGraphicsRectItem::itemChange(change, value);
+    }
+
+    void keyPressEvent(QKeyEvent *)
+    {
+        if (harakiri == 9) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void keyReleaseEvent(QKeyEvent *)
+    {
+        if (harakiri == 10) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *)
+    {
+        if (harakiri == 11) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *)
+    {
+        if (harakiri == 12) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *)
+    {
+        if (harakiri == 13) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *)
+    {
+        if (harakiri == 14) {
+            dead = 1;
+            delete this;
+        }
+    }
+
+    bool sceneEvent(QEvent *event)
+    {
+        // deletion not supported
+        return QGraphicsRectItem::sceneEvent(event);
+    }
+
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+    {
+        // deletion not supported
+        return QGraphicsRectItem::sceneEventFilter(watched, event);
+    }
+
+    void wheelEvent(QGraphicsSceneWheelEvent *) 
+    {
+        if (harakiri == 16) {
+            dead = 1;
+            delete this;
+        }
     }
 
 private:
     int harakiri;
 };
 
+int HarakiriItem::dead;
+
 void tst_QGraphicsItem::deleteItemInEventHandlers()
 {
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 17; ++i) {
         QGraphicsScene scene;
-        scene.addItem(new HarakiriItem(i));
+        HarakiriItem *item = new HarakiriItem(i);
+        item->setAcceptsHoverEvents(true);
+        item->setFlag(QGraphicsItem::ItemIsFocusable);
+
+        scene.addItem(item);
+
+        item->installSceneEventFilter(item); // <- ehey!
         
         QGraphicsView view(&scene);
         view.show();
-        
+
         qApp->processEvents();
         qApp->processEvents();
-        
-        scene.advance();
+
+        if (!item->dead)
+            scene.advance();
+
+        if (!item->dead)
+            QTest::mouseMove(view.viewport(), view.mapFromScene(item->scenePos()));
+        if (!item->dead)
+            QTest::mouseClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item->scenePos()));
+        if (!item->dead)
+            QTest::mouseDClick(view.viewport(), Qt::LeftButton, 0, view.mapFromScene(item->scenePos()));
+        if (!item->dead)
+            QTest::mouseClick(view.viewport(), Qt::RightButton, 0, view.mapFromScene(item->scenePos()));
+        if (!item->dead)
+            QTest::mouseMove(view.viewport(), view.mapFromScene(item->scenePos() + QPointF(20, -20)));
+        if (!item->dead)
+            item->setFocus();
+        if (!item->dead)
+            item->clearFocus();
+        if (!item->dead)
+            item->setFocus();
+        if (!item->dead)
+            QTest::keyPress(view.viewport(), Qt::Key_A);
+        if (!item->dead)
+            QTest::keyRelease(view.viewport(), Qt::Key_A);
+        if (!item->dead)
+            QTest::keyPress(view.viewport(), Qt::Key_A);
+        if (!item->dead)
+            QTest::keyRelease(view.viewport(), Qt::Key_A);
     }
 }
 
