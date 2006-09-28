@@ -2037,6 +2037,7 @@ void QTreeView::updateGeometries()
 int QTreeView::sizeHintForColumn(int column) const
 {
     Q_D(const QTreeView);
+    d->executePostedLayout();
     if (d->viewItems.isEmpty())
         return -1;
     int w = 0;
