@@ -178,6 +178,11 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_MouseOver;
     if (widget->window()->isActiveWindow())
         state |= QStyle::State_Active;
+#ifdef Q_WS_MAC
+    extern bool qt_mac_can_clickThrough(const QWidget *w); //qwidget_mac.cpp
+    if (!(state & QStyle::State_Active) && !qt_mac_can_clickThrough(widget))
+        state &= ~QStyle::State_Enabled;
+#endif
 #ifdef QT_KEYPAD_NAVIGATION
     if (widget->hasEditFocus())
         state |= QStyle::State_HasEditFocus;
