@@ -1040,7 +1040,7 @@ static void blit_32_to_16(const blit_data *data)
 
     int h = data->h;
     while (h) {
-#if Q_BYTE_ORDER == Q_BIT_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
         for (int i = 0; i < data->w; ++i) {
             const quint16 val = qt_convRgbTo16(src[i]);
             dest[i] = ((val & 0xff00) >> 8) | ((val & 0x00ff) << 8);
