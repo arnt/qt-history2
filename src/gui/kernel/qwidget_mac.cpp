@@ -55,7 +55,8 @@
 /*****************************************************************************
   QWidget globals
  *****************************************************************************/
-static WindowGroupRef qt_mac_stays_on_top_group = 0;
+typedef QHash<Qt::WindowType, WindowGroupRef> StaysOnTopHash;
+Q_GLOBAL_STATIC(StaysOnTopHash, qt_mac_stays_on_top)
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 const UInt32 kWidgetCreatorQt = 'cute';
@@ -120,12 +121,14 @@ QPoint qt_mac_posInWindow(const QWidget *w)
     return ret;
 }
 
-static void qt_mac_release_stays_on_top_group() //cleanup function
+static void qt_mac_release_stays_on_top_group(Qt::WindowType type) //cleanup function
 {
-    ReleaseWindowGroup(qt_mac_stays_on_top_group);
-    if(GetWindowGroupRetainCount(qt_mac_stays_on_top_group) == 1) { //only the global pointer exists
-        ReleaseWindowGroup(qt_mac_stays_on_top_group);
-        qt_mac_stays_on_top_group = 0;
+    Q_ASSERT(qt_mac_stays_on_top()->contains(type));
+    WindowGroupRef group = qt_mac_stays_on_top()->value(type);
+    ReleaseWindowGroup(group);
+    if(GetWindowGroupRetainCount(group) == 1) { //only the global pointer exists
+        qt_mac_stays_on_top()->remove(type);
+        ReleaseWindowGroup(group);
     }
 }
 
@@ -191,9 +194,15 @@ Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
    stays on top window group (created with qt_mac_get_stays_on_top_group below) */
 static void qt_mac_release_window_group(WindowGroupRef group)
 {
-    if(group == qt_mac_stays_on_top_group)
-        qt_mac_release_stays_on_top_group();
-    else
+    bool just_release = true;
+    for(StaysOnTopHash::iterator it = qt_mac_stays_on_top()->begin(); it != qt_mac_stays_on_top()->end(); ++it) {
+        if(it.value() == group) {
+            qt_mac_release_stays_on_top_group(it.key());
+            just_release = false;
+            break;
+        }
+    }
+    if(just_release)
         ReleaseWindowGroup(group);
 }
 #define ReleaseWindowGroup(x) Are you sure you wanted to do that? (you wanted qt_mac_release_window_group)
@@ -201,15 +210,24 @@ static void qt_mac_release_window_group(WindowGroupRef group)
 /* We create one static stays on top window group so that all stays on top (aka popups) will
    fall into the same group and be able to be raise()'d with releation to one another (from
    within the same window group). */
-static WindowGroupRef qt_mac_get_stays_on_top_group()
+static WindowGroupRef qt_mac_get_stays_on_top_group(Qt::WindowType type)
 {
-    if(!qt_mac_stays_on_top_group) {
-        CreateWindowGroup(kWindowActivationScopeNone, &qt_mac_stays_on_top_group);
-        SetWindowGroupLevel(qt_mac_stays_on_top_group, kCGNormalWindowLevel);
-        SetWindowGroupParent(qt_mac_stays_on_top_group, GetWindowGroupOfClass(kAllWindowClasses));
+    WindowGroupRef group = 0;
+    if(!qt_mac_stays_on_top()->contains(type)) {
+        CreateWindowGroup(kWindowActivationScopeNone, &group);
+        int group_level = kCGNormalWindowLevel;
+        if(type == Qt::Dialog)
+            group_level += 1;
+        else if(type == Qt::Popup)
+            group_level += 2;
+        SetWindowGroupLevel(group, group_level);
+        SetWindowGroupParent(group, GetWindowGroupOfClass(kAllWindowClasses));
+        qt_mac_stays_on_top()->insert(type, group);
+    } else {
+        group = qt_mac_stays_on_top()->value(type);
     }
-    RetainWindowGroup(qt_mac_stays_on_top_group);
-    return qt_mac_stays_on_top_group;
+    RetainWindowGroup(group);
+    return group;
 }
 
 void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
@@ -705,14 +723,17 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 
 bool qt_mac_can_clickThrough(const QWidget *w)
 {
-    // Idea here is that if a parent doesn't have a clickthrough property,
-    // neither can it's child
-    while (w) {
-        if (w->testAttribute(Qt::WA_MacNoClickThrough))
-            return false;
-        w = w->parentWidget();
+    static int qt_mac_carbon_clickthrough = -1;
+    if (qt_mac_carbon_clickthrough < 0)
+        qt_mac_carbon_clickthrough = !qgetenv("QT_MAC_NO_COCOA_CLICKTHROUGH").isEmpty();
+    bool ret = !qt_mac_carbon_clickthrough;
+    for ( ; w; w = w->parentWidget()) {
+        if (w->testAttribute(Qt::WA_MacNoClickThrough)) {
+            ret = false;
+            break;
+        }
     }
-    return true;
+    return ret;
 }
 
 bool qt_mac_is_macdrawer(const QWidget *w)
@@ -904,27 +925,10 @@ void QWidgetPrivate::determineWindowClass()
 {
     Q_Q(QWidget);
 
-    Qt::WindowType type = q->windowType();
-    Qt::WindowFlags &flags = data.window_flags;
-
-    bool desktop = (type == Qt::Desktop);
-    bool popup = (type == Qt::Popup);
-    bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
-    QWidget *parentWidget = q->parentWidget();
-
-    if (type == Qt::ToolTip)
-        flags |= Qt::FramelessWindowHint;
-
-    if(type == Qt::Popup || type == Qt::ToolTip)
-        flags |= Qt::WindowStaysOnTopHint;
-    else if(parentWidget && (parentWidget->window()->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
-        flags |= Qt::WindowStaysOnTopHint;
-
-    if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Look at this, again!
-            && !(flags & Qt::CustomizeWindowHint)
-            && !(desktop || popup)) {
-        flags &= ~(Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-    }
+    const Qt::WindowType type = q->windowType();
+    const Qt::WindowFlags flags = data.window_flags;
+    const bool popup = (type == Qt::Popup);
+    const bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
 
     WindowClass wclass = kSheetWindowClass;
     if(qt_mac_is_macdrawer(q))
@@ -1080,17 +1084,27 @@ void QWidgetPrivate::createWindow_sys()
 {
     Q_Q(QWidget);
 
-    Qt::WindowType type = q->windowType();
-    Qt::WindowFlags flags = data.window_flags;
+    const Qt::WindowType type = q->windowType();
+    Qt::WindowFlags &flags = data.window_flags;
     QWidget *parentWidget = q->parentWidget();
 
-    bool desktop = (type == Qt::Desktop);
-    bool dialog = (type == Qt::Dialog
-                   || type == Qt::Sheet
-                   || type == Qt::Drawer
-                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
+    const bool desktop = (type == Qt::Desktop);
+    const bool dialog = (type == Qt::Dialog
+                         || type == Qt::Sheet
+                         || type == Qt::Drawer
+                         || (flags & Qt::MSWindowsFixedSizeDialogHint));
     QTLWExtra *topExtra = topData();
     quint32 wattr = topExtra->wattr;
+
+    if (type == Qt::ToolTip)
+        flags |= Qt::FramelessWindowHint;
+    if(parentWidget && (parentWidget->window()->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
+        flags |= Qt::WindowStaysOnTopHint;
+    if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Look at this, again!
+            && !(flags & Qt::CustomizeWindowHint)
+        && !(desktop || type == Qt::Popup)) {
+        flags &= ~(Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+    }
 
     Rect r;
     SetRect(&r, data.crect.left(), data.crect.top(), data.crect.right(), data.crect.bottom());
@@ -1122,7 +1136,7 @@ void QWidgetPrivate::createWindow_sys()
         topExtra->group = 0;
     }
     if (flags & Qt::WindowStaysOnTopHint) {
-        topExtra->group = qt_mac_get_stays_on_top_group();
+        topExtra->group = qt_mac_get_stays_on_top_group(type);
         SetWindowGroup(windowRef, topExtra->group);
     } else if (grp) {
         SetWindowGroup(windowRef, grp);
