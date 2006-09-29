@@ -14,6 +14,7 @@
 #include <qapplication.h>
 #include <qheaderview.h>
 #include <qitemdelegate.h>
+#include <qtreewidget.h>
 #include <qdebug.h>
 
 typedef QList<int> IntList;
@@ -33,7 +34,6 @@ public:
     void testEvent();
     void testhorizontalOffset();
     void testverticalOffset();
-
 };
 
 class tst_QHeaderView : public QObject
@@ -90,6 +90,7 @@ private slots:
     void verticalOffset();
     void stretchSectionCount();
     void hiddenSectionCount();
+    void focusPolicy();
 
 protected:
     QHeaderView *view;
@@ -1020,6 +1021,45 @@ void tst_QHeaderView::hiddenSectionCount()
     QCOMPARE(view->count(), 1);
     QCOMPARE(view->hiddenSectionCount(), 0);
     QVERIFY(view->count() >=  view->hiddenSectionCount());
+}
+
+void tst_QHeaderView::focusPolicy()
+{
+    QHeaderView view(Qt::Horizontal);
+    QCOMPARE(view.focusPolicy(), Qt::NoFocus);
+
+    QTreeWidget widget;
+    QCOMPARE(widget.header()->focusPolicy(), Qt::NoFocus);
+    QVERIFY(!widget.focusProxy());
+    QVERIFY(!widget.hasFocus());
+    QVERIFY(!widget.header()->focusProxy());
+    QVERIFY(!widget.header()->hasFocus());
+
+    widget.show();
+    widget.setFocus(Qt::OtherFocusReason);
+
+    qApp->processEvents();
+    qApp->processEvents();
+    
+    QVERIFY(widget.hasFocus());
+    QVERIFY(!widget.header()->hasFocus());
+
+    widget.setFocusPolicy(Qt::NoFocus);
+    widget.clearFocus();
+
+    qApp->processEvents();
+    qApp->processEvents();
+    
+    QVERIFY(!widget.hasFocus());
+    QVERIFY(!widget.header()->hasFocus());
+
+    QTest::keyPress(&widget, Qt::Key_Tab);
+
+    qApp->processEvents();
+    qApp->processEvents();
+
+    QVERIFY(!widget.hasFocus());
+    QVERIFY(!widget.header()->hasFocus());
 }
 
 QTEST_MAIN(tst_QHeaderView)
