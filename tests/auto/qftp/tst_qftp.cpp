@@ -82,6 +82,7 @@ private slots:
     void binaryAscii();
 
     void doneSignal();
+    void queueMoreCommandsInDoneSlot();
 
 protected slots:
     void stateChanged( int );
@@ -94,6 +95,7 @@ protected slots:
     void done( bool );
     void activeModeDone( bool );
     void mkdir2Slot(int id, bool error);
+    void cdUpSlot(bool);
 
 private:
     QFtp *newFtp();
@@ -1921,6 +1923,56 @@ void tst_QFtp::doneSignal()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.first().first().toBool(), false);
 }    
+
+void tst_QFtp::queueMoreCommandsInDoneSlot()
+{
+    QSKIP("Task 127050 && 113966", SkipSingle);
+    
+    QFtp ftp;
+    QSignalSpy doneSpy(&ftp, SIGNAL(done(bool)));
+    QSignalSpy commandFinishedSpy(&ftp, SIGNAL(commandFinished(int, bool)));
+
+    this->ftp = &ftp;
+    connect(&ftp, SIGNAL(done(bool)), this, SLOT(cdUpSlot(bool)));
+
+    ftp.connectToHost("ftp.trolltech.com");
+    ftp.login();
+    ftp.cd("qt");
+    ftp.rmdir("qtest-removedir-noexist");
+
+    while ( ftp.hasPendingCommands() || ftp.currentCommand() != QFtp::None ) {
+        QCoreApplication::instance()->processEvents(QEventLoop::AllEvents
+                                                    | QEventLoop::WaitForMoreEvents);
+    }
+
+    QCOMPARE(doneSpy.count(), 2);
+    QCOMPARE(doneSpy.first().first().toBool(), true);
+    QCOMPARE(doneSpy.last().first().toBool(), false);
+
+    QCOMPARE(commandFinishedSpy.count(), 6);
+    int firstId = commandFinishedSpy.at(0).at(0).toInt();
+    QCOMPARE(commandFinishedSpy.at(0).at(1).toBool(), false);
+    QCOMPARE(commandFinishedSpy.at(1).at(0).toInt(), firstId + 1);
+    QCOMPARE(commandFinishedSpy.at(1).at(1).toBool(), false);
+    QCOMPARE(commandFinishedSpy.at(2).at(0).toInt(), firstId + 2);
+    QCOMPARE(commandFinishedSpy.at(2).at(1).toBool(), false);
+    QCOMPARE(commandFinishedSpy.at(3).at(0).toInt(), firstId + 3);
+    QCOMPARE(commandFinishedSpy.at(3).at(1).toBool(), true);
+    QCOMPARE(commandFinishedSpy.at(4).at(0).toInt(), firstId + 4);
+    QCOMPARE(commandFinishedSpy.at(4).at(1).toBool(), false);
+    QCOMPARE(commandFinishedSpy.at(5).at(0).toInt(), firstId + 5);
+    QCOMPARE(commandFinishedSpy.at(5).at(1).toBool(), false);
+
+    this->ftp = 0;
+}
+
+void tst_QFtp::cdUpSlot(bool error)
+{
+    if (error) {
+        ftp->cd("..");
+        ftp->cd("qt");
+    }
+}
 
 QTEST_MAIN(tst_QFtp)
 #include "tst_qftp.moc"
