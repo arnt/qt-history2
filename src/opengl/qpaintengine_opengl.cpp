@@ -387,8 +387,6 @@ public:
     }
 
     inline void setGradientOps(Qt::BrushStyle style);
-    void generateGradientColorTable(const QGradientStops& s,
-                                    unsigned int *colorTable, int size);
     void createGradientPaletteTexture(const QGradient& g);
 
     void updateGradient(const QBrush &brush);
@@ -936,12 +934,67 @@ static bool qt_resolve_GLSL_functions(QGLContext *ctx)
         && glUniform1i;
 }
 
-void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops& s, unsigned int *colorTable, int size)
+class QGLGradientCache
+{
+    struct CacheInfo
+    {
+        inline CacheInfo(QGradientStops s, qreal op) :
+            stops(s), opacity(op) {}
+        uint buffer[1024];
+        QGradientStops stops;
+        qreal opacity;
+    };
+
+    typedef QMultiHash<quint64, CacheInfo> QGLGradientColorTableHash;
+
+public:
+    inline const uint *getBuffer(const QGradientStops &stops, qreal opacity) {
+        quint64 hash_val = 0;
+
+        for (int i = 0; i < stops.size() && i <= 2; i++) 
+            hash_val += stops[i].second.rgba();
+
+        QGLGradientColorTableHash::const_iterator it = cache.constFind(hash_val);
+
+        if (it == cache.constEnd())
+            return addCacheElement(hash_val, stops, opacity);
+        else {
+            do {
+                const CacheInfo &cache_info = it.value();
+                if (cache_info.stops == stops && cache_info.opacity == opacity)
+                    return cache_info.buffer;
+                ++it;
+            } while (it != cache.constEnd() && it.key() == hash_val);
+            // an exact match for these stops and opacity was not found, create new cache
+            return addCacheElement(hash_val, stops, opacity);
+        }
+    }
+
+    inline int paletteSize() const { return 1024; }
+    inline int maxCacheSize() const { return 30; }
+    inline void generateGradientColorTable(const QGradientStops& s,
+                                           uint *colorTable,
+                                           int size, qreal opacity) const;
+protected:
+    uint *addCacheElement(quint64 hash_val, const QGradientStops &stops, qreal opacity) {
+        if (cache.size() == maxCacheSize()) {
+            int elem_to_remove = qrand() % maxCacheSize();
+            cache.remove(cache.keys()[elem_to_remove]); // may remove more than 1, but OK
+        }
+        CacheInfo cache_entry(stops, opacity);
+        generateGradientColorTable(stops, cache_entry.buffer, paletteSize(), opacity);
+        return cache.insert(hash_val, cache_entry).value().buffer;
+    }
+
+    QGLGradientColorTableHash cache;
+};
+
+void QGLGradientCache::generateGradientColorTable(const QGradientStops& s, uint *colorTable, int size, qreal opacity) const
 {
     int pos = 0;
     qreal fpos = 0.0;
     qreal incr = 1.0 / qreal(size);
-    QVector<unsigned int> colors(s.size());
+    QVector<uint> colors(s.size());
 
     for (int i = 0; i < s.size(); ++i)
         colors[i] = s[i].second.rgba();
@@ -973,17 +1026,17 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
             fpos += incr;
         }
     }
-
     for (;pos < size; ++pos)
         colorTable[pos] = colors[s.size() - 1];
 }
 
+
+Q_GLOBAL_STATIC(QGLGradientCache, qt_opengl_gradient_cache)
+
 void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 {
 #ifndef Q_WS_QWS //###
-    const int PAL_SIZE = 1024;
-    unsigned int palbuf[PAL_SIZE];
-    generateGradientColorTable(g.stops(), palbuf, PAL_SIZE);
+    const uint *palbuf = qt_opengl_gradient_cache()->getBuffer(g.stops(), opacity);    
 
     if (g.spread() == QGradient::RepeatSpread || g.type() == QGradient::ConicalGradient)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1003,7 +1056,8 @@ void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, PAL_SIZE, 0, GL_BGRA, GL_UNSIGNED_BYTE, palbuf);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, qt_opengl_gradient_cache()->paletteSize(),
+                 0, GL_BGRA, GL_UNSIGNED_BYTE, palbuf);
 #endif
 }
 
