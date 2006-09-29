@@ -129,13 +129,19 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     QStyleOption opt;
     opt.init(this);
     opt.state |= QStyle::State_AutoRaise;
-    if (isEnabled() && underMouse() && !isChecked() && !isDown())
-        opt.state |= QStyle::State_Raised;
-    if (isChecked())
-        opt.state |= QStyle::State_On;
-    if (isDown())
-        opt.state |= QStyle::State_Sunken;
-    style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
+
+#ifdef Q_WS_MAC
+    if (!qobject_cast<QMacStyle *>(style()))
+#endif
+    {
+        if (isEnabled() && underMouse() && !isChecked() && !isDown())
+            opt.state |= QStyle::State_Raised;
+        if (isChecked())
+            opt.state |= QStyle::State_On;
+        if (isDown())
+            opt.state |= QStyle::State_Sunken;
+        style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
+    }
 
     int shiftHorizontal = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this) : 0;
     int shiftVertical = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this) : 0;

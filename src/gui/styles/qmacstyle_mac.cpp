@@ -2366,7 +2366,14 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         HIRect hirect = qt_hirectForQRect(opt->rect);
         HIThemeDrawButton(&hirect, &bi, cg, kHIThemeOrientationNormal, 0);
         break; }
-    case PE_Frame:
+    case PE_Frame: {
+        QPen oldPen = p->pen();
+        QPen newPen;
+        newPen.setBrush(opt->palette.dark());
+        p->setPen(newPen);
+        p->drawRect(opt->rect.adjusted(0, 0, -1, -1));
+        p->setPen(oldPen);
+        break; }
     case PE_FrameLineEdit:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->state & State_Sunken) {
@@ -2933,10 +2940,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 HIThemeWindowDrawInfo wdi;
                 wdi.version = qt_mac_hitheme_version;
                 wdi.state = tds;
-                wdi.windowType = kThemeUtilityWindow;
+                wdi.windowType = kThemeMovableDialogWindow;
                 wdi.titleHeight = opt->rect.height();
                 wdi.titleWidth = opt->rect.width();
-                wdi.attributes = kThemeWindowHasTitleText;
+                wdi.attributes = 0;
 
                 HIRect titleBarRect;
                 HIRect tmpRect = qt_hirectForQRect(opt->rect);
@@ -4776,6 +4783,18 @@ QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const Q
         closeIcon.addPixmap(openIcon.pixmap(64, 64), QIcon::Normal, QIcon::On);
         closeIcon.addPixmap(openIcon.pixmap(128, 128), QIcon::Normal, QIcon::On);
         return closeIcon;
+    }
+    case SP_TitleBarNormalButton:
+    case SP_TitleBarCloseButton: {
+        QIcon titleBarIcon;
+        if (standardIcon == SP_TitleBarCloseButton) {
+            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/closedock-16.png");
+            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/closedock-down-16.png", QSize(16, 16), QIcon::Normal, QIcon::On);
+        } else {
+            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/dockdock-16.png");
+            titleBarIcon.addFile(":/trolltech/styles/macstyle/images/dockdock-down-16.png", QSize(16, 16), QIcon::Normal, QIcon::On);
+        }
+        return titleBarIcon;
     }
     default:
         break;
