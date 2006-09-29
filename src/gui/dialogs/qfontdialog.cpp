@@ -452,6 +452,14 @@ QFont QFontDialogPrivate::getFont(bool *ok, const QFont *def, QWidget *parent,
     return result;
 }
 
+/*!
+  \internal
+  ### Qt5 - remove me
+*/
+QFont QFontDialog::getFont(bool *ok, const QFont *def, QWidget* parent)
+{
+    return getFont(ok, *def, parent, QString());
+}
 
 /*!
     \internal

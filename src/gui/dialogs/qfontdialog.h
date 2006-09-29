@@ -46,6 +46,8 @@ public:
 #endif
 
 private:
+    static QFont getFont(bool *ok, const QFont *def, QWidget* parent=0);
+
     explicit QFontDialog(QWidget* parent=0, bool modal=false, Qt::WindowFlags f=0);
     ~QFontDialog();
 
