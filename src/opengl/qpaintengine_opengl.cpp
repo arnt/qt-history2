@@ -971,11 +971,11 @@ public:
     }
 
     inline int paletteSize() const { return 1024; }
+protected:
     inline int maxCacheSize() const { return 30; }
     inline void generateGradientColorTable(const QGradientStops& s,
                                            uint *colorTable,
                                            int size, qreal opacity) const;
-protected:
     uint *addCacheElement(quint64 hash_val, const QGradientStops &stops, qreal opacity) {
         if (cache.size() == maxCacheSize()) {
             int elem_to_remove = qrand() % maxCacheSize();
