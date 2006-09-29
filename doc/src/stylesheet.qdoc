@@ -4,6 +4,7 @@
     \ingroup architecture
 
     \keyword style sheet
+    \keyword stylesheet
 
     Qt Style Sheets are a powerful mechanism that allows you to
     customize the appearance of widgets, in addition to what is
@@ -24,7 +25,7 @@
     QWidget::setStyleSheet(). If several style sheets are set at
     different levels, Qt derives the effective style sheet from all
     of those that are set. This is called cascading.
-    
+
     For example, the following style sheet specifies that all
     \l{QLineEdit}s should use yellow as their background color, and
     all \l{QCheckBox}es should use red as the text color:
@@ -47,7 +48,7 @@
     want yellow backgrounds for mandatory fields, red text for
     potentially destructive push buttons, or fancy check boxes, style
     sheets are the answer.
-    
+
     Style sheets are applied on top of the current \l{QStyle}{widget
     style}, meaning that your applications will still look native,
     but any style sheet constraints will be taken into consideration.
@@ -313,12 +314,12 @@
     hovers over the button while it is enabled, the second rule takes
     precedence. If we want the text to be white in that case, we can
     reorder the rules like this:
-    
+
     \code
         QPushButton:enabled { color: red }
         QPushButton:hover { color: white }
     \endcode
-    
+
     Alternatively, we can make the first rule more specific:
 
     \code
@@ -448,7 +449,7 @@
            sub-control. The \l{#spacing-attr}{spacing} attribute
            specifies the spacing between the check indicator and
            the text.
-           
+
     \row
         \o QComboBox
         \o The frame around the combobox can be styled using the 
@@ -478,7 +479,7 @@
         \o QLabel
         \o Supports the \l{box model}. Does not support the
            \l{#hover-ps}{:hover} pseudo-state.
-        
+
     \row
         \o QLineEdit
         \o Support the \l{box model}.
@@ -537,7 +538,7 @@
            button and  arrow are styled using the
            \l{#down-button-sub}{::down-button} and
            \l{#down-arrow-sub}{::down-arrow} sub-controls.
-           
+
     \row
         \o QSplitter
         \o Supports the \l{box model} and the \l{#image-attr}{image}
@@ -553,7 +554,7 @@
         \o Supports the \l{box model}. The color of the grid can be
            specified using the
            \l{#gridline-color-attr}{gridline-color} attribute.
-           
+
     \row
         \o QTextEdit
         \o Supports the \l{box model}.
@@ -710,7 +711,7 @@
         \o \l{#Origin}{Origin}
         \o The widget's background rectangle, to use in conjunction
            with \c background-position and \c background-image.
-        
+
            This attribute is supported by QAbstractItemView
            subclasses, QAbstractSpinBox subclasses, QCheckBox,
            QComboBox, QDialog, QFrame, QGroupBox, QLabel,
@@ -1462,7 +1463,7 @@
         \o \l{#Boolean}{Boolean}
         \o Controls whether selections in a QListView cover the
            entire row or just the extent of the text.
-           
+
            If this attribute is not specified, it defaults to the
            value specified by the current style for the
            \l{QStyle::}{SH_ItemView_ShowDecorationSelected} style
@@ -1794,7 +1795,7 @@
            | \c padding \BR
            | \c content
         \o Indicates which of four rectangles to use.
-        
+
            \list
            \o \c margin: The margin rectangle. The margin falls outside the border.
            \o \c border: The border rectangle. This is where any border is drawn.
@@ -1804,7 +1805,7 @@
                           the actual contents go, excluding any
                           padding, border, or margin.
            \endlist                          
-        
+
            See also \l{The Box Model}.
 
     \row
@@ -1901,7 +1902,7 @@
     \section2 List of Sub-Controls
 
     The following sub-controls are available:
-    
+
     \table 100%
     \header
         \o Sub-Control
@@ -2188,7 +2189,7 @@
     information).
 
     \section2 Complex Selector Example
-    
+
     Since red seems to be our favorite color, let's make the text in
     QLineEdit red by setting the following application-wide
     stylesheet:
