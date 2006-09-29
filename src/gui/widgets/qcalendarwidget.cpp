@@ -783,6 +783,7 @@ public:
     QToolButton *prevMonth;
     QCalToolButton *monthButton;
     QMenu *monthMenu;
+    QMap<int, QAction *> monthToAction;
     QCalToolButton *yearButton;
     QSpinBox *yearEdit;
     QWidget *headerBackground;
@@ -850,6 +851,13 @@ void QCalendarWidgetPrivate::createHeader(QWidget *widget)
     monthButton->setAutoRaise(true);
     monthButton->setPopupMode(QToolButton::InstantPopup);
     monthMenu = new QMenu(monthButton);
+    for (int i = 1; i <= 12; i++) {
+        QString monthName(QDate::longMonthName(i));
+        QAction *act = monthMenu->addAction(monthName);
+        act->setData(i);
+        monthToAction[i] = act;
+    }
+    monthButton->setMenu(monthMenu);
     yearButton = new QCalToolButton(headerBackground);
     yearButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     yearButton->setAutoRaise(true);
@@ -909,13 +917,12 @@ void QCalendarWidgetPrivate::updateMonthMenu()
     }
     prevMonth->setEnabled(prevEnabled);
     nextMonth->setEnabled(nextEnabled);
-    monthMenu->clear();
-    for(int i = beg; i <= end; i++) {
-        QString monthName(QDate::longMonthName(i));
-        QAction *act = monthMenu->addAction(monthName);
-        act->setData(i);
+    for (int i = 1; i <= 12; i++) {
+        bool monthEnabled = true;
+        if (i < beg || i > end)
+            monthEnabled = false;
+        monthToAction[i]->setEnabled(monthEnabled);
     }
-    monthButton->setMenu(monthMenu);
 }
 
 void QCalendarWidgetPrivate::updateCurrentPage(QDate &newDate)
@@ -972,7 +979,6 @@ void QCalendarWidgetPrivate::_q_yearEditingFinished()
     yearButton->show();
     QDate currentDate(yearEdit->text().toInt(), getCurrentDate().month(), getCurrentDate().day());
     updateCurrentPage(currentDate);
-    updateMonthMenu();
 }
 
 void QCalendarWidgetPrivate::_q_yearClicked()
@@ -998,6 +1004,7 @@ void QCalendarWidgetPrivate::showMonth(int year, int month)
     emit q->currentPageChanged(year, month);
     m_view->internalUpdate();
     update();
+    updateMonthMenu();
 }
 
 void QCalendarWidgetPrivate::updateHeader()
