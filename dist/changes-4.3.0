@@ -3,3 +3,7 @@
 
  - QChar
         Updated the Unicode tables to Unicode 5.0
+
+ - QHeaderView
+        Now uses Qt::NoFocus for its default focus policy
+

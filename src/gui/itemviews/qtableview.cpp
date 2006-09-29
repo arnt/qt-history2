@@ -535,7 +535,6 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
     connect(d->horizontalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
-    d->horizontalHeader->setFocusProxy(this);
 }
 
 /*!
@@ -566,7 +565,6 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeRowToContents(int)));
     connect(d->verticalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
-    d->verticalHeader->setFocusProxy(this);
 }
 
 /*!

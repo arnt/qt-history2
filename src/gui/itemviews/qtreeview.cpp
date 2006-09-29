@@ -279,7 +279,6 @@ void QTreeView::setHeader(QHeaderView *header)
             this, SLOT(resizeColumnToContents(int)));
     connect(d->header, SIGNAL(geometriesChanged()),
             this, SLOT(updateGeometries()));
-    d->header->setFocusProxy(this);
 
     setSortingEnabled(d->sortingEnabled);
 }

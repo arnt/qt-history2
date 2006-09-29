@@ -245,6 +245,7 @@ void QHeaderView::initialize()
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(NoFrame);
+    setFocusPolicy(Qt::NoFocus);
     d->viewport->setMouseTracking(true);
     d->viewport->setBackgroundRole(QPalette::Button);
     d->textElideMode = Qt::ElideNone;
