@@ -926,9 +926,11 @@ void QWidgetPrivate::determineWindowClass()
     Q_Q(QWidget);
 
     const Qt::WindowType type = q->windowType();
-    const Qt::WindowFlags flags = data.window_flags;
+    Qt::WindowFlags &flags = data.window_flags;
     const bool popup = (type == Qt::Popup);
     const bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
+    if (type == Qt::ToolTip)
+        flags |= Qt::FramelessWindowHint;
 
     WindowClass wclass = kSheetWindowClass;
     if(qt_mac_is_macdrawer(q))
@@ -1096,8 +1098,6 @@ void QWidgetPrivate::createWindow_sys()
     QTLWExtra *topExtra = topData();
     quint32 wattr = topExtra->wattr;
 
-    if (type == Qt::ToolTip)
-        flags |= Qt::FramelessWindowHint;
     if(parentWidget && (parentWidget->window()->windowFlags() & Qt::WindowStaysOnTopHint)) // If our parent has Qt::WStyle_StaysOnTop, so must we
         flags |= Qt::WindowStaysOnTopHint;
     if (0 && q->testAttribute(Qt::WA_ShowModal)  // ### Look at this, again!
