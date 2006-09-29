@@ -158,10 +158,8 @@
   subclasses.
 
   The style sheet for any given widget can be accessed via its
-  \l{QWidget::}{styleSheet} property.
-
-  This functionality is being constantly improved, and full documentation
-  for this feature will be introduced during the development of Qt 4.2.
+  \l{QWidget::}{styleSheet} property. Style sheets are fully described in
+  the \l{Qt Style Sheets} document.
 
   \section1 Undo Framework
 
