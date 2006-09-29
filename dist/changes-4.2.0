@@ -48,7 +48,7 @@ New features
 
 - QGLFramebufferObject encapsulates OpenGL framebuffer objects.
 
-- QMacPasteboardMime handle Pasteboard access on Qt/Mac. This obsoletes
+- QMacPasteboardMime handles Pasteboard access on Qt/Mac. This obsoletes
   QMacMime as the underlying system has changed to support Apple's new
   Pasteboard Manager. Any old QMacMime objects will not be used.
 
@@ -84,9 +84,9 @@ New features
   using a syntax familiar to users of Cascading Style Sheets (CSS). Style
   sheets are set using the QWidget::styleSheet property.
 
-- Introduced a new key mapper system improves the shortcut system by only
-  testing the real possible shortcuts, such as Ctrl+Shift+= and Ctrl++ on an
-  English keyboard.
+- Introduced a new key mapper system which improves the shortcut system by
+  only testing the real possible shortcuts, such as Ctrl+Shift+= and Ctrl++
+  on an English keyboard.
 
 - Support for reading and writing TIFF images.
 
