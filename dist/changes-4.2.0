@@ -6,6 +6,9 @@ documentation is also available at http://doc.trolltech.com/
 The Qt version 4.2 series is binary compatible with the 4.1.x series.
 Applications compiled for 4.1 will continue to run with 4.2.
 
+The Qtopia Core version 4.2 series is binary compatible with the 4.1.x
+series except for some parts of the device handling API, as detailed
+in Platform Specific Changes below.
 
 
 ****************************************************************************
@@ -1734,9 +1737,16 @@ Qtopia Core
 
       * Introduced new API for accelerated graphics hardware drivers.
 
-      * Added support for OpenGL ES in QGLWidget. 
-
       * Implemented support for multiple screens.
+
+      * QScreen has binary incompatible changes. All existing screen drivers
+        must be recompiled.
+
+      * QWSWindow, QWSClient, QWSDisplay and QWSEvent have binary 
+        incompatible changes. QWSBackingStore has been removed. 
+        Existing code using these classes must be recompiled.
+
+      * Added support for OpenGL ES in QGLWidget. 
 
       * Implemented support for actual screen resolution in QFont.
 
@@ -1762,13 +1772,17 @@ Qtopia Core
       * Implemented the Qt::WA_PaintOnScreen flag for top-level widgets.
 
       * Extended QDirectPainter to include non-blocking API and support for 
-        overlapping windows.
+        overlapping windows. Existing code that subclasses QDirectPainter 
+        must be recompiled.
 
       * Implemented QWSEmbedWidget which enables window embedding.
 
       * Removed hardcoded 72 DPI display limitation.
 
 - Device handling
+
+      * QWSMouseHandler has binary incompatible changes. All existing mouse
+        drivers must be recompiled.
 
       * Fixed an issue of getting delayed mouse events when using the
         vr41xx driver.
