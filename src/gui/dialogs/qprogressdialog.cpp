@@ -42,7 +42,8 @@ public:
     QProgressDialogPrivate() : label(0), cancel(0), bar(0),
         shown_once(false),
         cancellation_flag(false),
-        showTime(defaultShowTime)
+        showTime(defaultShowTime),
+        escapeShortcut(0)
     {
     }
 
@@ -63,6 +64,7 @@ public:
     bool autoClose;
     bool autoReset;
     bool forceHide;
+    QShortcut *escapeShortcut;
 };
 
 void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
@@ -357,7 +359,12 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
         }
         connect(d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 #ifndef QT_NO_SHORTCUT
-        new QShortcut(Qt::Key_Escape, this, SIGNAL(canceled()));
+        d->escapeShortcut = new QShortcut(Qt::Key_Escape, this, SIGNAL(canceled()));
+#endif
+    } else {
+#ifndef QT_NO_SHORTCUT
+        delete d->escapeShortcut;
+        d->escapeShortcut = 0;
 #endif
     }
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
