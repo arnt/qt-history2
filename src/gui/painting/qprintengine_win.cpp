@@ -546,7 +546,7 @@ void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOpe
             RGN_AND,    // Qt::IntersectClip
             RGN_OR      // Qt::UniteClip
         };
-        Q_ASSERT(op > 0 && op <= sizeof(ops) / sizeof(int));
+        Q_ASSERT(op > 0 && unsigned(op) <= sizeof(ops) / sizeof(int));
         SelectClipPath(d->hdc, ops[op]);
     }
 
@@ -1355,7 +1355,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
             WORD *data;
 
             QT_WA({
-                available = DeviceCapabilitiesW(d->name.utf16(), d->port.utf16(), DC_BINS, 0,
+                available = DeviceCapabilitiesW((const WCHAR *)d->name.utf16(), (const WCHAR *)d->port.utf16(), DC_BINS, 0,
                                                 d->devModeW());
             }, {
                 available = DeviceCapabilitiesA(d->name.toLatin1(), d->port.toLatin1(), DC_BINS, 0,
@@ -1367,7 +1367,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
             data = (WORD *) malloc(available * sizeof(WORD));
 
             QT_WA({
-                count = DeviceCapabilitiesW(d->name.utf16(), d->port.utf16(), DC_BINS, data,
+                count = DeviceCapabilitiesW((const WCHAR *)d->name.utf16(), (const WCHAR *)d->port.utf16(), DC_BINS, (WCHAR *)data,
                                             d->devModeW());
             }, {
                 count = DeviceCapabilitiesA(d->name.toLatin1(), d->port.toLatin1(), DC_BINS,

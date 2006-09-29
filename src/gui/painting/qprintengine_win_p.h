@@ -87,15 +87,15 @@ public:
 	hPrinter(0),
         globalDevMode(0),
 	devMode(0),
-        hdc(0),
 	pInfo(0),
+        hdc(0),
         mode(QPrinter::ScreenResolution),
 	state(QPrinter::Idle),
         resolution(0),
+        num_copies(1),
         printToFile(false),
         fullPage(false),
-        reinit(false),
-        num_copies(1)
+        reinit(false)
     {
     }
 
