@@ -51,16 +51,16 @@ inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, in
 {
     register int tmp;
     register int ret;
-    asm volatile("lwarx  %0,0,%2\n"
-                 "cmpw   %0,%3\n"
+    asm volatile("lwarx  %0,0,%3\n"
+                 "cmpw   %0,%4\n"
                  "bne-   $+20\n"
-                 "stwcx. %4,0,%2\n"
+                 "stwcx. %5,0,%3\n"
                  "bne-   $-16\n"
                  "li     %1,1\n"
                  "b      $+8\n"
                  "li     %1,0\n"
                  "eieio\n"
-                 : "=&r" (tmp), "=&r" (ret)
+                 : "=&r" (tmp), "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (expected), "r" (newval)
                  : "cc", "memory");
     return ret;
@@ -71,15 +71,15 @@ inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, in
     register int tmp;
     register int ret;
     asm volatile("eieio\n"
-                 "lwarx  %0,0,%2\n"
-                 "cmpw   %0,%3\n"
+                 "lwarx  %0,0,%3\n"
+                 "cmpw   %0,%4\n"
                  "bne-   $+20\n"
-                 "stwcx. %4,0,%2\n"
+                 "stwcx. %5,0,%3\n"
                  "bne-   $-16\n"
                  "li     %1,1\n"
                  "b      $+8\n"
                  "li     %1,0\n"
-                 : "=&r" (tmp), "=&r" (ret)
+                 : "=&r" (tmp), "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (expected), "r" (newval)
                  : "cc", "memory");
     return ret;
@@ -89,15 +89,15 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
 {
     register void *tmp;
     register int ret;
-    asm volatile(LPARX"  %0,0,%2\n"
-                 CMPP"   %0,%3\n"
+    asm volatile(LPARX"  %0,0,%3\n"
+                 CMPP"   %0,%4\n"
                  "bne-   $+20\n"
-                 STPCX"  %4,0,%2\n"
+                 STPCX"  %5,0,%3\n"
                  "bne-   $-16\n"
                  "li     %1,1\n"
                  "b      $+8\n"
                  "li     %1,0\n"
-                 : "=&r" (tmp), "=&r" (ret)
+                 : "=&r" (tmp), "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (expected), "r" (newval)
                  : "cc", "memory");
     return ret;
@@ -107,11 +107,11 @@ inline int q_atomic_increment(volatile int *ptr)
 {
     register int ret;
     register int one = 1;
-    asm volatile("lwarx  %0, 0, %1\n"
-                 "add    %0, %2, %0\n"
-                 "stwcx. %0, 0, %1\n"
+    asm volatile("lwarx  %0, 0, %2\n"
+                 "add    %0, %3, %0\n"
+                 "stwcx. %0, 0, %2\n"
                  "bne-   $-12\n"
-                 : "=&r" (ret)
+                 : "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (one)
                  : "cc", "memory");
     return ret;
@@ -121,11 +121,11 @@ inline int q_atomic_decrement(volatile int *ptr)
 {
     register int ret;
     register int one = -1;
-    asm volatile("lwarx  %0, 0, %1\n"
-                 "add    %0, %2, %0\n"
-                 "stwcx. %0, 0, %1\n"
+    asm volatile("lwarx  %0, 0, %2\n"
+                 "add    %0, %3, %0\n"
+                 "stwcx. %0, 0, %2\n"
                  "bne-   $-12\n"
-                 : "=&r" (ret)
+                 : "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (one)
                  : "cc", "memory");
     return ret;
@@ -134,10 +134,10 @@ inline int q_atomic_decrement(volatile int *ptr)
 inline int q_atomic_set_int(volatile int *ptr, int newval)
 {
     register int ret;
-    asm volatile("lwarx  %0, 0, %1\n"
-                 "stwcx. %2, 0, %1\n"
+    asm volatile("lwarx  %0, 0, %2\n"
+                 "stwcx. %2, 0, %2\n"
                  "bne-   $-8\n"
-                 : "=&r" (ret)
+                 : "=&r" (ret), "=m" (*ptr)
                  : "r" (ptr), "r" (newval)
                  : "cc", "memory");
     return ret;
@@ -146,10 +146,10 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 {
     register void *ret;
-    asm volatile(LPARX"  %0, 0, %1\n"
-                 STPCX"  %2, 0, %1\n"
+    asm volatile(LPARX"  %0, 0, %2\n"
+                 STPCX"  %2, 0, %2\n"
                  "bne-   $-8\n"
-                 : "=&r" (ret)
+                 : "=&r" (ret), "=m" (*reinterpret_cast<volatile int*>(ptr))
                  : "r" (ptr), "r" (newval)
                  : "cc", "memory");
     return ret;

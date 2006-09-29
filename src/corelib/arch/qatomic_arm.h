@@ -23,8 +23,8 @@ extern Q_CORE_EXPORT char q_atomic_lock;
 inline char q_atomic_swp(volatile char *ptr, char newval)
 {
     register int ret;
-    asm volatile("swpb %0,%1,[%2]"
-                 : "=&r"(ret)
+    asm volatile("swpb %0,%2,[%3]"
+                 : "=&r"(ret), "=m" (*ptr)
                  : "r"(newval), "r"(ptr)
                  : "cc", "memory");
     return ret;
