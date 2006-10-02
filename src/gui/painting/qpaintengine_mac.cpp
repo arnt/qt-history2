@@ -616,7 +616,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         return;
 
     bool differentSize = (QRectF(0, 0, pm.width(), pm.height()) != sr), doRestore = false;
-    CGRect rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
+    CGRect rect = CGRectMake(qRound(r.x()), qRound(r.y()), qRound(r.width()), qRound(r.height()));
     QCFType<CGImageRef> image;
     if(pm.depth() == 1) {
         doRestore = true;
@@ -633,7 +633,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
             image = CGImageCreateWithImageInRect(CGImageRef(pm.macCGHandle()),
-                                                 CGRectMake(sr.x(), sr.y(), sr.width(), sr.height()));
+                                                 CGRectMake(qRound(sr.x()), qRound(sr.y()), qRound(sr.width()), qRound(sr.height())));
         } else
 #endif
         {
