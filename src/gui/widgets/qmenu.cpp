@@ -723,7 +723,15 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             break;
     }
     if (action_e == QAction::Trigger) {
-        hideUpToMenuBar();
+        for(QWidget *widget = qApp->activePopupWidget(); widget; ) {
+            if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
+                if(qmenu == q)
+                    hideUpToMenuBar();
+                widget = qmenu->d_func()->causedPopup.widget;
+            } else {
+                break;
+            }
+        }
 #ifndef QT_NO_WHATSTHIS
         if (inWhatsThisMode) {
             QString s = action->whatsThis();
