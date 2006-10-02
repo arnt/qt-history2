@@ -380,7 +380,10 @@ int QDialog::exec()
 
     QEventLoop eventLoop;
     d->eventLoop = &eventLoop;
+    QPointer<QDialog> guard = this;
     (void) eventLoop.exec();
+    if (guard.isNull())
+        return QDialog::Rejected;
     d->eventLoop = 0;
 
     setAttribute(Qt::WA_ShowModal, wasShowModal);

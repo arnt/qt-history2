@@ -42,6 +42,7 @@ private slots:
     void showAsTool();
     void toolDialogPosition();
     void deleteMainDefault();
+    void deleteInExec();
 
 private:
     QDialog *testWidget;
@@ -346,6 +347,13 @@ void tst_QDialog::deleteMainDefault()
     delete button;
     dialog.show();
     QTestEventLoop::instance().enterLoop(2);
+}
+
+void tst_QDialog::deleteInExec()
+{
+    QDialog *dialog = new QDialog(0);
+    QMetaObject::invokeMethod(dialog, "deleteLater", Qt::QueuedConnection);
+    QCOMPARE(dialog->exec(), int(QDialog::Rejected));
 }
 
 QTEST_MAIN(tst_QDialog)
