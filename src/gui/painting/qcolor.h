@@ -149,6 +149,11 @@ public:
 
     operator QVariant() const;
 
+#ifdef Q_WS_X11
+    static bool allowX11ColorNames();
+    static void setAllowX11ColorNames(bool enabled);
+#endif
+
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QColor(int x, int y, int z, Spec colorSpec)
     { if (colorSpec == Hsv) setHsv(x, y, z); else setRgb(x, y, z); }

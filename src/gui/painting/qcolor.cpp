@@ -19,6 +19,15 @@
 #include "qvariant.h"
 #include "qdebug.h"
 
+#ifdef Q_WS_X11
+#  include "qapplication.h"
+#  include "qx11info_x11.h"
+#  include "private/qt_x11_p.h"
+
+static bool allowX11ColorNames = false;
+
+#endif
+
 #include <math.h>
 #include <stdio.h>
 #include <limits.h>
@@ -473,11 +482,13 @@ QString QColor::name() const
        provided by the World Wide Web Consortium; for example, "steelblue" or "gainsboro".
        These color names work on all platforms.
     \i \c transparent - representing the absence of a color.
+    \i \e{X11 only}: If allowX11ColorNames() returns true, any valid X11 color name. See
+       the documentation for \c XParseColor() for information about valid X11 color names.
     \endlist
 
     The color is invalid if \a name cannot be parsed.
 
-    \sa QColor(), name(), isValid()
+    \sa QColor(), name(), isValid(), allowX11ColorNames()
 */
 
 void QColor::setNamedColor(const QString &name)
@@ -503,8 +514,19 @@ void QColor::setNamedColor(const QString &name)
     if (qt_get_named_rgb(n, &rgb)) {
         setRgb(rgb);
     } else {
-        qWarning("QColor::setNamedColor: Unknown color name '%s'", n.constData());
-        invalidate();
+#ifdef Q_WS_X11
+        XColor result;
+        if (allowX11ColorNames()
+            && QApplication::instance()
+            && QX11Info::display()
+            && XParseColor(QX11Info::display(), QX11Info::appColormap(), n.constData(), &result)) {
+            setRgb(result.red >> 8, result.green >> 8, result.blue >> 8);
+        } else
+#endif
+        {
+            qWarning("QColor::setNamedColor: Unknown color name '%s'", n.constData());
+            invalidate();
+        }
     }
 }
 
@@ -1884,6 +1906,31 @@ QColor::operator QVariant() const
 {
     return QVariant(QVariant::Color, this);
 }
+
+#ifdef Q_WS_X11
+/*!
+    Returns true if setNamedColor() is allowed to look up colors in
+    the X11 color database. By default, this function returns false.
+
+    \sa setAllowX11ColorNames()
+*/
+bool QColor::allowX11ColorNames()
+{
+    return ::allowX11ColorNames;
+}
+
+/*!
+    Allow setNamedColor() to look up colors in the X11 color database
+    if \a enabled. By default, setNamedColor() does \e not look up
+    colors in the X11 color database.
+
+    \sa setNamedColor(), allowX11ColorNames()
+*/
+void QColor::setAllowX11ColorNames(bool enabled)
+{
+    ::allowX11ColorNames = enabled;
+}
+#endif
 
 /*! \internal
 
