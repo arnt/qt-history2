@@ -368,7 +368,7 @@ EOF
             cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}" "$outpath/LICENSE"
             ;;
         Evaluation)
-            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION" $"outpath/LICENSE"
+            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION" "$outpath/LICENSE"
             ;;
         Academic)
             cp -f "$relpath/.LICENSE-ACADEMIC" "$outpath/LICENSE"
