@@ -295,8 +295,6 @@ static bool popupGrabOk;
 
 bool qt_sm_blockUserInput = false;                // session management
 
-bool qt_reuse_double_buffer = true;
-
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
 #if !defined (QT_NO_TABLET)
@@ -665,9 +663,6 @@ bool QApplicationPrivate::x11_apply_settings()
 
     qt_use_rtl_extensions =
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
-
-    qt_reuse_double_buffer =
-        settings.value(QLatin1String("reuseDoubleBuffer"), true).toBool();
 
 #ifndef QT_NO_XIM
     if (qt_xim_preferred_style == 0) {

@@ -28,7 +28,6 @@
 #include "qdebug.h"
 #include "private/qbackingstore_p.h"
 
-extern bool qt_reuse_double_buffer; // declared in qapplication_x11.cpp
 extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_x11.cpp
 
 #include <private/qpixmap_p.h>
