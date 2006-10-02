@@ -619,7 +619,7 @@ static QByteArray getFullyQualifiedClassName(const QList<QByteArray> &classes, c
     for (int n = namespaces.count() - 1; n >= 0; --n) {
         QByteArray ns;
         for (int i = 0; i <= n; ++i) {
-            ns+=namespaces[i] + "::";
+            ns+=namespaces[i].toAscii() + "::";
         }
         if (classes.indexOf(ns + context) != -1) {
             context = ns + context;
