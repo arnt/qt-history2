@@ -65,6 +65,7 @@ public:
         delete mac_menu;
 #endif
     }
+    void init();
 
     //item calculations
     mutable uint itemsDirty : 1;
@@ -126,6 +127,7 @@ public:
         QPointer<QWidget> widget;
         QPointer<QAction> action;
     };
+    virtual QList<QPointer<QWidget> > calcCausedStack() const;
     QMenuCaused causedPopup;
     void hideUpToMenuBar();
 
@@ -150,7 +152,7 @@ public:
     QAction *menuAction;
 
     //firing of events
-    void activateAction(QAction *, QAction::ActionEvent);
+    void activateAction(QAction *, QAction::ActionEvent, bool self=true);
 
     void _q_actionTriggered();
     void _q_actionHovered();

@@ -188,6 +188,7 @@ private:
     friend class QWidget;
     friend class QActionGroup;
     friend class QMenu;
+    friend class QMenuPrivate;
     friend class QMenuBar;
     friend class QShortcutMap;
     friend class QToolButton;

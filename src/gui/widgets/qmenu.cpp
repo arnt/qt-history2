@@ -54,25 +54,38 @@ QBasicTimer QMenuPrivate::sloppyDelayTimer;
 class QTornOffMenu : public QMenu
 {
     Q_OBJECT
-public:
-    QTornOffMenu(QMenu *p) : QMenu(0)
+    class QTornOffMenuPrivate : public QMenuPrivate
     {
-        d_func()->tornoff = 1;
-        d_func()->causedPopup.widget = ((QTornOffMenu*)p)->d_func()->causedPopup.widget;
-        d_func()->causedPopup.action = ((QTornOffMenu*)p)->d_func()->causedPopup.action;
-
+        Q_DECLARE_PUBLIC(QMenu)
+    public:
+        QTornOffMenuPrivate(QMenu *p) : causedMenu(p) {
+            tornoff = 1;
+            causedPopup.widget = 0;
+            causedPopup.action = ((QTornOffMenu*)p)->d_func()->causedPopup.action;
+            causedStack = ((QTornOffMenu*)p)->d_func()->calcCausedStack();
+        }
+        QList<QPointer<QWidget> > calcCausedStack() const { return causedStack; }
+        QPointer<QMenu> causedMenu;
+        QList<QPointer<QWidget> > causedStack;
+    };
+public:
+    QTornOffMenu(QMenu *p) : QMenu(*(new QTornOffMenuPrivate(p)))
+    {
         setParent(p, Qt::Window | Qt::Tool);
 	setAttribute(Qt::WA_DeleteOnClose, true);
         setWindowTitle(p->windowTitle());
         setEnabled(p->isEnabled());
-        QObject::connect(this, SIGNAL(activated(int)), p, SIGNAL(activated(int)));
-        QObject::connect(this, SIGNAL(highlighted(int)), p, SIGNAL(highlighted(int)));
+        //QObject::connect(this, SIGNAL(triggered(QAction*)), this, SLOT(onTrigger(QAction*)));
+        //QObject::connect(this, SIGNAL(hovered(QAction*)), this, SLOT(onHovered(QAction*)));
         QList<QAction*> items = p->actions();
         for(int i = 0; i < items.count(); i++)
             addAction(items.at(i));
     }
-    void syncWithMenu(QMenu *, QActionEvent *act)
+    void syncWithMenu(QMenu *menu, QActionEvent *act)
     {
+        Q_D(QTornOffMenu);
+        if(menu != d->causedMenu)
+            return;
         if (act->type() == QEvent::ActionAdded) {
             insertAction(act->before(), act->action());
         } else if (act->type() == QEvent::ActionRemoved)
@@ -83,8 +96,29 @@ public:
         QMenu::actionEvent(e);
         setFixedSize(sizeHint());
     }
+public slots:
+    void onTrigger(QAction *action) { d_func()->activateAction(action, QAction::Trigger, false); }
+    void onHovered(QAction *action) { d_func()->activateAction(action, QAction::Hover, false); }
+private:
+    Q_DECLARE_PRIVATE(QTornOffMenu)
+    friend class QMenuPrivate;
 };
 #include "qmenu.moc"
+
+void QMenuPrivate::init()
+{
+    Q_Q(QMenu);
+#ifndef QT_NO_WHATSTHIS
+    q->setAttribute(Qt::WA_CustomWhatsThis);
+#endif
+    q->setMouseTracking(q->style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, q));
+    if (q->style()->styleHint(QStyle::SH_Menu_Scrollable, 0, q)) {
+        scroll = new QMenuPrivate::QMenuScroller;
+        scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
+    }
+    menuAction = new QAction(q);
+    menuAction->d_func()->menu = q;
+}
 
 //Windows and KDE allows menus to cover the taskbar, while GNOME and Mac don't
 const QRect QMenuPrivate::popupGeometry(int screen = -1) const
@@ -99,6 +133,21 @@ const QRect QMenuPrivate::popupGeometry(int screen = -1) const
 #else
         return QApplication::desktop()->availableGeometry(screen);
 #endif
+}
+
+QList<QPointer<QWidget> > QMenuPrivate::calcCausedStack() const
+{
+    QList<QPointer<QWidget> > ret;
+    for(QWidget *widget = causedPopup.widget; widget; ) {
+        ret.append(widget);
+        if (QTornOffMenu *qtmenu = ::qobject_cast<QTornOffMenu*>(widget))
+            ret += qtmenu->d_func()->causedStack;
+        if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget))
+            widget = qmenu->d_func()->causedPopup.widget;
+        else
+            break;
+    }
+    return ret;
 }
 
 void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
@@ -697,7 +746,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
     return false;
 }
 
-void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
+void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e, bool self)
 {
     Q_Q(QMenu);
 #ifndef QT_NO_WHATSTHIS
@@ -714,14 +763,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
        Then I iterate over the list to actually send the events. --Sam
     */
-    QList<QPointer<QWidget> > causedStack;
-    for(QWidget *widget = causedPopup.widget; widget; ) {
-        causedStack.append(widget);
-        if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget))
-            widget = qmenu->d_func()->causedPopup.widget;
-        else
-            break;
-    }
+    const QList<QPointer<QWidget> > causedStack = calcCausedStack();
     if (action_e == QAction::Trigger) {
         for(QWidget *widget = qApp->activePopupWidget(); widget; ) {
             if (QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
@@ -743,6 +785,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
     }
 
+    if(self)
     action->activate(action_e);
 
     for(int i = 0; i < causedStack.size(); ++i) {
@@ -943,16 +986,7 @@ QMenu::QMenu(QWidget *parent)
     : QWidget(*new QMenuPrivate, parent, Qt::Popup)
 {
     Q_D(QMenu);
-#ifndef QT_NO_WHATSTHIS
-    setAttribute(Qt::WA_CustomWhatsThis);
-#endif
-    setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
-    if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
-        d->scroll = new QMenuPrivate::QMenuScroller;
-        d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
-    }
-    d->menuAction = new QAction(this);
-    d->menuAction->d_func()->menu = this;
+    d->init();
 }
 
 /*!
@@ -968,16 +1002,17 @@ QMenu::QMenu(const QString &title, QWidget *parent)
     : QWidget(*new QMenuPrivate, parent, Qt::Popup)
 {
     Q_D(QMenu);
-#ifndef QT_NO_WHATSTHIS
-    setAttribute(Qt::WA_CustomWhatsThis);
-#endif
-    setMouseTracking(style()->styleHint(QStyle::SH_Menu_MouseTracking));
-    if (style()->styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
-        d->scroll = new QMenuPrivate::QMenuScroller;
-        d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
-    }
-    d->menuAction = new QAction(title, this);
-    d->menuAction->d_func()->menu = this;
+    d->init();
+    d->menuAction->setText(title);
+}
+
+/*! \internal
+ */
+QMenu::QMenu(QMenuPrivate &dd, QWidget *parent)
+    : QWidget(dd, parent, Qt::Popup)
+{
+    Q_D(QMenu);
+    d->init();
 }
 
 /*!
@@ -2363,8 +2398,10 @@ void QMenu::actionEvent(QActionEvent *e)
     if (d->tornPopup)
         d->tornPopup->syncWithMenu(this, e);
     if (e->type() == QEvent::ActionAdded) {
-        connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
-        connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
+        if(!d->tornoff) {
+            connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
+            connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
+        }
 
         if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
             QWidget *widget = wa->requestWidget(this);

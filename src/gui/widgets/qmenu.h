@@ -348,6 +348,9 @@ private:
     int findIdForAction(QAction*) const;
 #endif
 
+protected:
+    QMenu(QMenuPrivate &dd, QWidget* parent = 0);
+
 private:
     Q_DISABLE_COPY(QMenu)
 
