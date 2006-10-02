@@ -957,7 +957,7 @@ void Q3Header::setLabel(int section, const QIcon& icon,
 {
     if (section < 0 || section >= count())
         return;
-    d->icons.insert(section, new QIcon(icon));
+    d->icons[section] = new QIcon(icon);
     setLabel(section, s, size);
 }
 
