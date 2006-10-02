@@ -7,6 +7,9 @@
 **
 ****************************************************************************/
 
+#include <qthread.h>
+#include <qtcpserver.h>
+#include <qtcpsocket.h>
 #include <QtTest/QtTest>
 #include <qfile.h>
 #include <qstring.h>
@@ -19,24 +22,122 @@ static const char *refString = "setDocumentLocator(locator={columnNumber=1, line
 
 //TESTED_FILES=
 
+#define TEST_PORT 1088
+
+class XmlServer : public QThread
+{
+    Q_OBJECT
+public:
+    XmlServer();
+    bool quit_soon;
+
+protected:
+    virtual void run();
+};
+
+XmlServer::XmlServer()
+{
+    quit_soon = false;
+}
+
+#define CHUNK_SIZE 1
+
+void XmlServer::run()
+{
+    QTcpServer srv;
+
+    if (!srv.listen(QHostAddress::Any, TEST_PORT))
+        return;
+
+    for (;;) {
+        srv.waitForNewConnection(100);
+
+        if (QTcpSocket *sock = srv.nextPendingConnection()) {
+            QByteArray fileName;
+            for (;;) {
+                char c;
+                if (sock->getChar(&c)) {
+                    if (c == '\n')
+                        break;
+                    fileName.append(c);
+                } else {
+                    if (!sock->waitForReadyRead(-1))
+                        break;
+                }
+            }
+
+            QFile file(QString::fromLocal8Bit(fileName));
+            if (!file.open(QIODevice::ReadOnly)) {
+                qWarning() << "XmlServer::run(): could not open" << fileName;
+                sock->abort();
+                delete sock;
+                continue;
+            }
+
+            QByteArray data = file.readAll();
+            for (int i = 0; i < data.size();) {
+//                sock->putChar(data.at(i));
+                int cnt = qMin(CHUNK_SIZE, data.size() - i);
+                sock->write(data.constData() + i, cnt);
+                i += cnt;
+                sock->flush();
+                usleep(15);
+                if (quit_soon) {
+                    sock->abort();
+                    break;
+                }
+            }
+
+            sock->disconnectFromHost();
+            delete sock;
+        }
+
+        if (quit_soon)
+            break;
+    }
+
+    srv.close();
+}
+
 class tst_QXmlSimpleReader : public QObject
 {
     Q_OBJECT
 
     public:
 	tst_QXmlSimpleReader();
+	~tst_QXmlSimpleReader();
 
     private slots:
+
 	void testGoodXmlFile();
 	void testGoodXmlFile_data();
 	void testBadXmlFile();
 	void testBadXmlFile_data();
 	void testIncrementalParsing();
 	void testIncrementalParsing_data();
-    void setDataQString();
-    void inputFromQIODevice();
-    void inputFromString();
+        void setDataQString();
+        void inputFromQIODevice();
+        void inputFromString();
+        void inputFromSocket_data();
+        void inputFromSocket();
+
+    private:
+        XmlServer *server;
 };
+
+tst_QXmlSimpleReader::tst_QXmlSimpleReader()
+{
+    server = new XmlServer();
+    server->start();
+    sleep(1);
+}
+
+tst_QXmlSimpleReader::~tst_QXmlSimpleReader()
+{
+    server->quit_soon = true;
+    server->wait();
+}
+
 
 static QStringList findXmlFiles(QString dir_name)
 {
@@ -52,10 +153,6 @@ static QStringList findXmlFiles(QString dir_name)
     }
 
     return result;
-}
-
-tst_QXmlSimpleReader::tst_QXmlSimpleReader()
-{
 }
 
 
@@ -325,5 +422,38 @@ void tst_QXmlSimpleReader::inputFromString()
     QVERIFY(reader.parse(&input));
 }
 
-QTEST_APPLESS_MAIN(tst_QXmlSimpleReader)
+void tst_QXmlSimpleReader::inputFromSocket_data()
+{
+    QStringList files = findXmlFiles(QLatin1String("encodings"));
+    QVERIFY(files.count() > 0);
+
+    QTest::addColumn<QString>("file_name");
+
+    foreach (const QString &file_name, files)
+        QTest::newRow(file_name.toLatin1()) << file_name;
+}
+
+void tst_QXmlSimpleReader::inputFromSocket()
+{
+    QFETCH(QString, file_name);
+
+    QTcpSocket sock;
+    sock.connectToHost("localhost", TEST_PORT);
+    QVERIFY(sock.waitForConnected());
+
+    sock.write(file_name.toLocal8Bit() + "\n");
+    QVERIFY(sock.waitForBytesWritten());
+
+    QXmlInputSource input(&sock);
+
+    QXmlSimpleReader reader;
+    QXmlDefaultHandler handler;
+    reader.setContentHandler(&handler);
+
+    QVERIFY(reader.parse(&input));
+
+//    qDebug() << "tst_QXmlSimpleReader::inputFromSocket(): success" << file_name;
+}
+
+QTEST_MAIN(tst_QXmlSimpleReader)
 #include "tst_qxmlsimplereader.moc"

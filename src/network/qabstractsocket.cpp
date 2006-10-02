@@ -1388,7 +1388,9 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 
     // require calling connectToHost() before waitForReadyRead()
     if (state() == UnconnectedState) {
-        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
+        /* If all you have is a QIODevice pointer to an abstractsocket, you cannot check
+           this, so you cannot avoid this warning. */
+//        qWarning("QAbstractSocket::waitForReadyRead() is not allowed in UnconnectedState");
         return false;
     }
 
