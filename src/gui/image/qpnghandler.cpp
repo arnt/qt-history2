@@ -462,8 +462,8 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     // sanity check palette entries
     if (color_type == PNG_COLOR_TYPE_PALETTE
         && outImage->format() == QImage::Format_Indexed8) {
-        uchar color_table_size = outImage->numColors();
-        for (uint y=0; y<height; ++y) {
+        int color_table_size = outImage->numColors();
+        for (int y=0; y<(int)height; ++y) {
             uchar *p = outImage->scanLine(y);
             uchar *end = p + width;
             while (p < end) {
