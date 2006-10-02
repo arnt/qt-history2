@@ -226,7 +226,8 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     \fn QTimeLine::valueChanged(qreal value)
 
     QTimeLine emits this signal at regular intervals when in \l Running state,
-    but only if the current value changes. \a value is the current value.
+    but only if the current value changes. \a value is the current value. \a value is
+    a number between 0.0 and 1.0
 
     \sa QTimeLine::setDuration(), QTimeLine::valueForTime(), QTimeLine::updateInterval
 */

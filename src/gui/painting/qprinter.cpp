@@ -1023,7 +1023,7 @@ bool QPrinter::fontEmbeddingEnabled() const
 /*!
   \since 4.2
 
-  Enables double side printing if \a enable is true; otherwise disables it.
+  Enables double sided printing if \a doubleSided is true; otherwise disables it.
 
   Currently this option is only supported on X11.
 */
