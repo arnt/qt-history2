@@ -1099,9 +1099,10 @@ void QListView::paintEvent(QPaintEvent *e)
         painter.translate(delta.x(), delta.y());
         d->drawItems(&painter, d->draggedItems);
     }
-
-    // Paint the dropIndicator
-    d_func()->paintDropIndicator(&painter);
+    // FIXME: Until the we can provide a proper drop indicator
+    // in IconMode, it makes no sense to show it
+    if (d->viewMode == ListMode)
+        d->paintDropIndicator(&painter);
 #endif
 
 #ifndef QT_NO_RUBBERBAND
