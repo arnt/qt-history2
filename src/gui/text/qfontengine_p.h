@@ -43,6 +43,13 @@ class QPainterPath;
 class QTextEngine;
 struct QGlyphLayout;
 
+#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
+    (((quint32)(ch1)) << 24) | \
+    (((quint32)(ch2)) << 16) | \
+    (((quint32)(ch3)) << 8) | \
+    ((quint32)(ch4)) \
+   )
+
 class Q_GUI_EXPORT QFontEngine : public QObject
 {
     Q_OBJECT

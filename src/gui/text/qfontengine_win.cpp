@@ -72,13 +72,6 @@ static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor);
 static unsigned char *getCMap(HDC hdc, bool &);
 static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode);
 
-#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
-    (((DWORD)(ch4)) << 24) | \
-    (((DWORD)(ch3)) << 16) | \
-    (((DWORD)(ch2)) << 8) | \
-    ((DWORD)(ch1)) \
-   )
-
 static inline quint32 getUInt(unsigned char *p)
 {
     quint32 val;

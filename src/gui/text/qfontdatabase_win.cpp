@@ -104,13 +104,6 @@ static bool localizedName(const QString &name)
     return false;
 }
 
-#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
-    (((DWORD)(ch4)) << 24) | \
-    (((DWORD)(ch3)) << 16) | \
-    (((DWORD)(ch2)) << 8) | \
-    ((DWORD)(ch1)) \
-    )
-
 static inline quint16 getUShort(const unsigned char *p)
 {
     quint16 val;

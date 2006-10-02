@@ -514,13 +514,6 @@ bool QFontEngineMacMulti::canRender(const QChar *string, int len)
     return e == noErr || e == kATSUFontsMatched;
 }
 
-#define MAKE_TAG(ch1, ch2, ch3, ch4) (\
-    (((quint32)(ch1)) << 24) | \
-    (((quint32)(ch2)) << 16) | \
-    (((quint32)(ch3)) << 8) | \
-    ((quint32)(ch4)) \
-   )
-
 QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDef &def, QFontEngineMacMulti *multiEngine)
     : fmFont(fmFont), multiEngine(multiEngine), cmap(0), symbolCMap(false)
 {
@@ -913,7 +906,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
 {
     const glyph_metrics_t br = boundingBox(glyph);
     QImage im(qRound(br.width)+2, qRound(br.height)+2, QImage::Format_RGB32);
-    im.fill(0);    
+    im.fill(0);
 
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
@@ -949,7 +942,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
     CGSize advance;
     advance.width = 0;
     advance.height = 0;
-    CGGlyph cgGlyph = glyph;    
+    CGGlyph cgGlyph = glyph;
     CGContextShowGlyphsWithAdvances(ctx, &cgGlyph, &advance, 1);
 
     if (synthesisFlags & QFontEngine::SynthesizedBold) {
@@ -959,7 +952,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
 
     CGContextRelease(ctx);
 
-    QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);    
+    QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);
     for (int y=0; y<im.height(); ++y) {
         uint *src = (uint*) im.scanLine(y);
         uchar *dst = indexed.scanLine(y);
@@ -969,7 +962,7 @@ QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
             ++src;
         }
     }
-    
+
     return indexed;
 }
 

@@ -522,12 +522,6 @@ private:
     uchar *start;
 };
 
-#define MAKE_TAG( str )                      \
-    ( ( (quint32)str[0] << 24 ) |           \
-      ( (quint32)str[1] << 16 ) |           \
-      ( (quint32)str[2] <<  8 ) |           \
-      (quint32)str[3]         )
-
 struct QTtfTable {
     Tag tag;
     QByteArray data;
@@ -638,7 +632,7 @@ static QTtfTable generateHead(const qttf_head_table &head)
 {
     const int head_size = 54;
     QTtfTable t;
-    t.tag = MAKE_TAG("head");
+    t.tag = MAKE_TAG('h', 'e', 'a', 'd');
     t.data.resize(head_size);
 
     QTtfStream s(t.data);
@@ -709,7 +703,7 @@ static QTtfTable generateHhea(const qttf_hhea_table &hhea)
 {
     const int hhea_size = 36;
     QTtfTable t;
-    t.tag = MAKE_TAG("hhea");
+    t.tag = MAKE_TAG('h', 'h', 'e', 'a');
     t.data.resize(hhea_size);
 
     QTtfStream s(t.data);
@@ -760,7 +754,7 @@ static QTtfTable generateMaxp(const qttf_maxp_table &maxp)
 {
     const int maxp_size = 32;
     QTtfTable t;
-    t.tag = MAKE_TAG("maxp");
+    t.tag = MAKE_TAG('m', 'a', 'x', 'p');
     t.data.resize(maxp_size);
 
     QTtfStream s(t.data);
@@ -838,7 +832,7 @@ static QTtfTable generateName(const QList<QTtfNameRecord> &name)
     const int char_size = 2;
 
     QTtfTable t;
-    t.tag = MAKE_TAG("name");
+    t.tag = MAKE_TAG('n', 'a', 'm', 'e');
 
     const int name_size = 6 + 12*name.size();
     int string_size = 0;
@@ -1196,15 +1190,15 @@ static QList<QTtfTable> generateGlyphTables(qttf_font_tables &tables, const QLis
     tables.hhea.numberOfHMetrics = nGlyphs;
 
     QTtfTable glyf;
-    glyf.tag = MAKE_TAG("glyf");
+    glyf.tag = MAKE_TAG('g', 'l', 'y', 'f');
 
     QTtfTable loca;
-    loca.tag = MAKE_TAG("loca");
+    loca.tag = MAKE_TAG('l', 'o', 'c', 'a');
     loca.data.resize(glyf_size < max_size_small ? (nGlyphs+1)*sizeof(quint16) : (nGlyphs+1)*sizeof(quint32));
     QTtfStream ls(loca.data);
 
     QTtfTable hmtx;
-    hmtx.tag = MAKE_TAG("hmtx");
+    hmtx.tag = MAKE_TAG('h', 'm', 't', 'x');
     hmtx.data.resize(nGlyphs*4);
     QTtfStream hs(hmtx.data);
 
@@ -1303,7 +1297,7 @@ static QByteArray bindFont(const QList<QTtfTable>& _tables)
         for (int i = 0; i < tables.size(); ++i) {
             const QTtfTable &t = tables.at(i);
             const quint32 size = (t.data.size() + 3) & ~3;
-            if (t.tag == MAKE_TAG("head"))
+            if (t.tag == MAKE_TAG('h', 'e', 'a', 'd'))
                 head_offset = table_offset;
             f << t.tag
               << checksum(t.data)
@@ -1427,7 +1421,7 @@ QByteArray QFontSubset::toTruetype() const
     tables.append(generateMaxp(font.maxp));
     // name
     QTtfTable name_table;
-    name_table.tag = MAKE_TAG("name");
+    name_table.tag = MAKE_TAG('n', 'a', 'm', 'e');
     if (!noEmbed)
         name_table.data = fontEngine->getSfntTable(name_table.tag);
     if (name_table.data.isEmpty()) {
@@ -1445,7 +1439,7 @@ QByteArray QFontSubset::toTruetype() const
 
     if (!noEmbed) {
         QTtfTable os2;
-        os2.tag = MAKE_TAG("OS/2");
+        os2.tag = MAKE_TAG('O', 'S', '/', '2');
         os2.data = fontEngine->getSfntTable(os2.tag);
         if (!os2.data.isEmpty())
             tables.append(os2);
