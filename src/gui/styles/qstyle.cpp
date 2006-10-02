@@ -1633,6 +1633,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_DriveCDIcon The CD icon.
     \value SP_DriveDVDIcon The DVD icon.
     \value SP_DriveNetIcon The network icon.
+    \value SP_DirHomeIcon The home directory icon.
     \value SP_DirOpenIcon The open directory icon.
     \value SP_DirClosedIcon The closed directory icon.
     \value SP_DirIcon The directory icon.

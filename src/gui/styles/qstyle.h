@@ -665,6 +665,7 @@ public:
         SP_ArrowRight,
         SP_ArrowBack,
         SP_ArrowForward,
+        SP_DirHomeIcon,
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
     };

@@ -5547,16 +5547,18 @@ Q_D(const QPlastiqueStyle);
 
     QPixmap pixmap;
     switch (standardIcon) {
+    case SP_DirHomeIcon:
+        icon.addPixmap(d->findIcon(32, QLatin1String("folder_home.png")));
+        break;
     case SP_DirClosedIcon:
     case SP_DirIcon:
-        pixmap = d->findIcon(32, QLatin1String("folder.png"));
-        if (!pixmap.isNull())
-            icon.addPixmap(pixmap);
+        icon.addPixmap(d->findIcon(32, QLatin1String("folder.png")));
+        break;
+    case SP_DriveHDIcon:
+        icon.addPixmap(d->findIcon(32, QLatin1String("hdd_unmount.png")));
         break;
     case SP_FileIcon:
-        pixmap = d->findIcon(32, QLatin1String("empty.png"));
-        if (!pixmap.isNull())
-            icon.addPixmap(pixmap);
+        icon.addPixmap(d->findIcon(32, QLatin1String("empty.png")));
         break;
     case SP_FileLinkIcon:
         pixmap = d->findIcon(32, QLatin1String("link_overlay.png"));
@@ -5599,6 +5601,13 @@ QPixmap QPlastiqueStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     d->lookupIconTheme();
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
+    case SP_DirHomeIcon:
+        {
+            pixmap = d->findIcon(16, QLatin1String("folder_home.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
     case SP_MessageBoxInformation:
         {
             pixmap = d->findIcon(32, QLatin1String("messagebox_info.png"));

@@ -3855,6 +3855,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap sp, const QStyleOption *opti
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/cdr-16.png"));
     case SP_DriveDVDIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dvd-16.png"));
+    case SP_DirHomeIcon:
     case SP_DirOpenIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-16.png"));
     case SP_DirIcon:
@@ -4016,6 +4017,7 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/down-32.png"));
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/down-128.png"));
         break;
+   case SP_DirHomeIcon:
    case SP_DirIcon:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-16.png"),
                      QSize(), QIcon::Normal, QIcon::Off);
