@@ -30,6 +30,7 @@ TRANSLATOR qdesigner_internal::RichTextEditorDialog
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPushButton>
+#include <QtGui/QDialogButtonBox>
 
 #include <QtCore/qdebug.h>
 
@@ -311,17 +312,17 @@ RichTextEditorDialog::RichTextEditorDialog(QWidget *parent)
     layout->addWidget(tool_bar);
     layout->addWidget(m_editor);
 
-    QHBoxLayout *layout2 = new QHBoxLayout;
-    layout->addLayout(layout2);
-
-    layout2->addStretch();
-    QPushButton *cancel_button = new QPushButton(tr("&Cancel"), this);
-    connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    QPushButton *ok_button = new QPushButton(tr("&OK"), this);
-    connect(ok_button, SIGNAL(clicked()), this, SLOT(accept()));
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                        | QDialogButtonBox::Cancel, Qt::Horizontal,
+                                                       this);
+    QPushButton *ok_button = buttonBox->button(QDialogButtonBox::Ok);
+    ok_button->setText(tr("&OK"));
     ok_button->setDefault(true);
-    layout2->addWidget(ok_button);
-    layout2->addWidget(cancel_button);
+    buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("&Cancel"));
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    layout->addWidget(buttonBox);
 }
 
 RichTextEditor *RichTextEditorDialog::editor()
