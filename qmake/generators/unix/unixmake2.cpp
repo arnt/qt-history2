@@ -839,16 +839,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
         destdir += Option::dir_sep;
     t << "distclean: " << "clean\n";
-    if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
+    if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
         t << "\t-$(DEL_FILE) -r " << destdir << project->first("QMAKE_BUNDLE_NAME") << endl;
-    else if(project->isActiveConfig("compile_libtool"))
+    } else if(project->isActiveConfig("compile_libtool")) {
         t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;
-    else
-        t << "\t-$(DEL_FILE) " << "$(TARGET)" << " " << endl;
-    if(!project->isActiveConfig("staticlib") && project->values("QMAKE_APP_FLAG").isEmpty() &&
-       !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
-        t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
+    } else if(!project->isActiveConfig("staticlib") && project->values("QMAKE_APP_FLAG").isEmpty() &&
+       !project->isActiveConfig("plugin")) {
+        t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << endl
+          << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
           << destdir << "$(TARGET2) $(TARGETA)" << endl;
+    } else {
+        t << "\t-$(DEL_FILE) " << "$(TARGET)" << " " << endl;
+    }
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())
