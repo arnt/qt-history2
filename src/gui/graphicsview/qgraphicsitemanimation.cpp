@@ -17,6 +17,30 @@
     support for QGraphicsItem.
     \since 4.2
     \ingroup multimedia
+
+
+    The QGraphicsItemAnimation class animates a QGraphicsItem. You can
+    schedule changes to the item's transformation matrix at
+    specified steps. The QGraphicsItemAnimation class has a 
+    current step value. When this value changes the transformations 
+    scheduled at that step are performed. The current step of the 
+    animation is set with the \c setStep() function.
+
+    It is usual to use the class with a QTimeLine. The timeline's
+    \l{QTimeLine::}{valueChanged()} signal is then connected to the 
+    \c setStep() slot. For example, you can set up an item for rotation
+    by calling \c setRotationAt() for different step values.
+    The animations timeline is set with the setTimeLine() function.
+
+    An example animation with a timeline follows:
+
+    \quotefromfile snippets/timeline/main.cpp
+    \skipto QGraphicsItem *ball
+    \printuntil timer->start();
+    
+    Note that steps lie between 0.0 and 1.0.
+
+    \sa QTimeLine, {The Graphics View Framework}
 */
 
 #include "qgraphicsitemanimation.h"
@@ -111,7 +135,7 @@ QGraphicsItemAnimation::~QGraphicsItemAnimation()
 }
 
 /*!
-  Returns the item operated on by the animation object.
+  Returns the item on which the animation object operates.
 
   \sa setItem()
 */
@@ -132,7 +156,7 @@ void QGraphicsItemAnimation::setItem(QGraphicsItem *item)
 }
 
 /*!
-  Returns the time line object used to control the rate at which the animation
+  Returns the timeline object used to control the rate at which the animation
   occurs.
 
   \sa setTimeLine()
@@ -143,7 +167,7 @@ QTimeLine *QGraphicsItemAnimation::timeLine() const
 }
 
 /*!
-  Sets the time line object used to control the rate of animation to the \a timeLine
+  Sets the timeline object used to control the rate of animation to the \a timeLine
   specified.
 
   \sa timeLine()
@@ -155,7 +179,7 @@ void QGraphicsItemAnimation::setTimeLine(QTimeLine *timeLine)
 }
 
 /*!
-  Returns the point corresponding to the given \a step value.
+  Returns the position of the item at the given \a step value.
 
   \sa setPosAt()
 */
@@ -373,8 +397,8 @@ void QGraphicsItemAnimation::setShearAt(qreal step, qreal sh, qreal sv)
 }
 
 /*!
-  Clears the lists of points and transformations used for the animation, but
-  retains the item and time line.
+  Clears the scheduled transformations used for the animation, but
+  retains the item and timeline.
 */
 void QGraphicsItemAnimation::clear()
 {
@@ -392,9 +416,8 @@ void QGraphicsItemAnimation::clear()
 /*!
   \fn void QGraphicsItemAnimation::setStep(qreal step)
 
-  Sets the current \a step value for the animation, causing the item to be
-  transformed according to the specified parameter and the transformations
-  previously set up for the animation.
+  Sets the current \a step value for the animation, causing the
+  transformations scheduled at this step to be performed.
 */
 void QGraphicsItemAnimation::setStep(qreal x)
 {
