@@ -2447,6 +2447,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         p->drawLine(opt->rect.topLeft(), opt->rect.topRight());
         p->drawLine(opt->rect.topLeft(), opt->rect.bottomLeft());
         } break;
+    case PE_FrameStatusBar:
+        QCommonStyle::drawPrimitive(pe, opt, p, w);
+        break;        
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;

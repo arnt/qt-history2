@@ -1576,6 +1576,10 @@ case PE_FrameDockWidget:
     break;
 #endif // QT_NO_DOCKWIDGET
 
+    case PE_FrameStatusBar:
+        qDrawShadePanel(p, opt->rect, opt->palette, true, 1, 0);
+        break;
+    
     case PE_FrameTabWidget:
         if (use2000style) {
             QRect rect = opt->rect;
