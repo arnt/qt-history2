@@ -2646,6 +2646,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 } else {
                     const QString dep = subtarget->target + "-" + (*qut_it);
                     t << dep << ": " << mkfile;
+                    if(!subtarget->depends.isEmpty())
+                        t << " " << valGlue(subtarget->depends, QString(), "-" + (*qut_it), "-" + (*qut_it));
                     deps += " " + dep;
                 }
 
