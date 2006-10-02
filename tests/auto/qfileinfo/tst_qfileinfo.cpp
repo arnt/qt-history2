@@ -98,6 +98,8 @@ private slots:
 #ifdef Q_OS_UNIX
     void isWritable();
 #endif
+	void testDecomposedUnicodeNames_data();
+	void testDecomposedUnicodeNames();
 };
 
 // Testing get/set functions
@@ -750,6 +752,31 @@ void tst_QFileInfo::isWritable()
         QVERIFY(!QFileInfo("/etc/passwd").isWritable());
 }
 #endif
+
+
+void tst_QFileInfo::testDecomposedUnicodeNames_data()
+{
+    QTest::addColumn<QString>("filePath");
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<bool>("exists");
+	QString currPath = QDir::currentPath();
+    QTest::newRow("latin-only") << currPath + "/TestFiles/4.pdf" << "4.pdf" << true;
+	QTest::newRow("one-decomposed uni") << currPath + QString::fromUtf8("/TestFiles/4 ä.pdf") << QString::fromUtf8("4 ä.pdf") << true;
+	QTest::newRow("many-decomposed uni") << currPath + QString::fromUtf8("/TestFiles/4 äääcopy.pdf") << QString::fromUtf8("4 äääcopy.pdf") << true;
+	QTest::newRow("no decomposed") << currPath + QString::fromUtf8("/TestFiles/4 øøøcopy.pdf") << QString::fromUtf8("4 øøøcopy.pdf") << true;
+}
+
+void tst_QFileInfo::testDecomposedUnicodeNames()
+{
+#ifndef Q_OS_MAC
+    Q_SKIP("This is a OS X only test (unless you know more about filesystems, then maybe you should try it ;)", SkipAll);
+#endif
+    QFETCH(QString, filePath);
+
+    QFileInfo file(filePath);
+    QTEST(file.fileName(), "fileName");
+    QTEST(file.exists(), "exists");
+}
 
 QTEST_MAIN(tst_QFileInfo)
 #include "tst_qfileinfo.moc"

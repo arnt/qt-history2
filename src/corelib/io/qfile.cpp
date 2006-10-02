@@ -31,8 +31,8 @@ static QByteArray locale_encode(const QString &f)
 #ifndef Q_OS_DARWIN
     return f.toLocal8Bit();
 #else
-    // Mac always expects UTF-8
-    return f.toUtf8();
+    // Mac always expects UTF-8... and decomposed...
+    return f.normalized(QString::NormalizationForm_D).toUtf8();
 #endif
 }
 
@@ -41,8 +41,8 @@ static QString locale_decode(const QByteArray &f)
 #ifndef Q_OS_DARWIN
     return QString::fromLocal8Bit(f);
 #else
-    // Mac always expects UTF-8
-    return QUnicodeTables::normalize(QString::fromUtf8(f), QString::NormalizationForm_C);
+    // Mac always gives us UTF-8 and decomposed, we want that composed...
+    return QString::fromUtf8(f).normalized(QString::NormalizationForm_C);
 #endif
 }
 
