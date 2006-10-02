@@ -63,6 +63,7 @@ public:
     QFileIconProviderPrivate();
     QIcon getIcon(QStyle::StandardPixmap name) const;
     QFileIconProvider *q_ptr;
+    QString homePath;
 
 private:
     QIcon file;
@@ -78,7 +79,7 @@ private:
     QIcon desktop;
     QIcon trashcan;
     QIcon generic;
-
+    QIcon home;
 };
 
 QFileIconProviderPrivate::QFileIconProviderPrivate()
@@ -95,6 +96,8 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     computer = style->standardIcon(QStyle::SP_ComputerIcon);
     desktop = style->standardIcon(QStyle::SP_DesktopIcon);
     trashcan = style->standardIcon(QStyle::SP_TrashIcon);
+    home = style->standardIcon(QStyle::SP_DirHomeIcon);
+    homePath = QDir::home().path();
 }
 
 QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
@@ -122,6 +125,8 @@ QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
         return desktop;
     case QStyle::SP_TrashIcon:
         return trashcan;
+    case QStyle::SP_DirHomeIcon:
+        return home;
     default:
         return QIcon();
     }
@@ -213,11 +218,17 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
       return d->getIcon(QStyle::SP_FileLinkIcon);
     else
       return d->getIcon(QStyle::SP_FileIcon);
-  if (info.isDir())
-    if (info.isSymLink())
+  if (info.isDir()) {
+    if (info.isSymLink()) {
       return d->getIcon(QStyle::SP_DirLinkIcon);
-    else
-      return d->getIcon(QStyle::SP_DirIcon);
+    } else {
+      if (info.filePath() == d->homePath) {
+        return d->getIcon(QStyle::SP_DirHomeIcon);
+      } else {
+        return d->getIcon(QStyle::SP_DirIcon);
+      }
+    }
+  }
   return QIcon();
 }
 
