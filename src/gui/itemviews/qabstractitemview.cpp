@@ -1866,7 +1866,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (state() != EditingState || hasFocus()) {
-            if (currentIndex().isValid())
+            if (currentIndex().isValid() && !edit(currentIndex(), AnyKeyPressed, event))
                 emit activated(currentIndex());
         } else {
             event->ignore();
