@@ -479,16 +479,29 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
         if (i >= 0) d->hiddenIndexes.remove(i);
     }
 
-    if (isVisible()) {
+    if (hide && isVisible()) {
         int p = d->viewIndex(parent);
         if (p >= 0) {
-            for (uint i = 0; i < d->viewItems.at(p).total; ++i) {
-                if (d->viewItems.at(p + 1 + i).index == index) {
-                    d->viewItems[p].total--;
-                    d->viewItems.remove(p + 1 + i);
+            const int first = p + 1;
+            const int last = first + d->viewItems.at(p).total - 1;
+            for (int i = first; i <= last; ) {
+                const int count = d->viewItems.at(i).total + 1;
+                if (d->viewItems.at(i).index == index) {
+                    // remove child and its children
+                    d->viewItems.remove(i, count);
+                    // update children count of ancestors 
+                    int level = d->viewItems.at(p).level;
+                    do {
+                        for ( ; int(d->viewItems.at(p).level) != level; --p) ;
+                        d->viewItems[p].total -= count;
+                        --level;
+                    } while (level >= 0);
                     break;
+                } else {
+                    i += count;
                 }
             }
+            updateGeometries();
             d->viewport->update();
         }
         else
