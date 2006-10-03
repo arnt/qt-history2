@@ -363,7 +363,7 @@ public:
         , stroker(0)
         , tessVector(MAX_TESS_POINTS)
 #endif
-        , shader_dev(0)
+        , shader_ctx(0)
         , grad_palette(0)
         , has_glsl(false)
         , use_stencil_method(false)
@@ -492,7 +492,7 @@ public:
     QDataBuffer<GLdouble> tessVector;
 #endif
 
-    QPaintDevice *shader_dev;
+    QGLContext *shader_ctx;
     GLuint grad_palette;
 
     GLuint radial_frag_program;
@@ -1237,10 +1237,12 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glEnable(GL_BLEND);
 
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
-        && (pdev != d->shader_dev))
+        && d->drawable.context() != d->shader_ctx
+        && !qgl_share_reg()->checkSharing(d->drawable.context(), d->shader_ctx))
     {
 #ifndef Q_WS_QWS
-        if (d->shader_dev) {
+        if (d->shader_ctx) {
+            d->shader_ctx->makeCurrent();
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
@@ -1253,8 +1255,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 glDeleteProgramsARB(1, &d->radial_frag_program);
                 glDeleteProgramsARB(1, &d->conical_frag_program);
             }
+            d->drawable.makeCurrent();
         }
-        d->shader_dev = pdev;
+        d->shader_ctx = d->drawable.context();
         gccaps |= LinearGradientFill;
         glGenTextures(1, &d->grad_palette);
 
@@ -1434,7 +1437,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
             // nx, ny and dx, dy are normal and gradient direction after transform:
             qreal nx = m.m11()*ody - m.m21()*odx;
             qreal ny = m.m12()*ody - m.m22()*odx;
-        
+
             qreal dx = m.m11()*odx + m.m21()*ody;
             qreal dy = m.m12()*odx + m.m22()*ody;
 
