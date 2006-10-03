@@ -1601,11 +1601,28 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         return;
 
     case PE_Frame:
+    {
         if (flags & State_Raised)
             return;
         name = "LISTVIEW";
         partId = LVP_LISTGROUP;
-        break;
+        XPThemeData theme(0, 0, name, partId, 0);
+        int fillType;
+        if (pGetThemeEnumValue(theme.handle(), partId, stateId, TMT_BORDERCOLOR, &fillType) == S_OK) {
+            if (fillType == BT_BORDERFILL) {
+                int borderSize = 1;
+                COLORREF bcRef;
+                pGetThemeColor(theme.handle(), partId, stateId, TMT_BORDERCOLOR, &bcRef);
+                QColor bordercolor(qRgb(GetRValue(bcRef), GetGValue(bcRef), GetBValue(bcRef)));
+                pGetThemeInt(theme.handle(), partId, stateId, TMT_BORDERCOLOR, &borderSize);
+                QPen oldPen = p->pen();
+                p->setPen(QPen(bordercolor, 1));
+                p->drawRect(option->rect.adjusted(0, 0, -1, -1));
+                p->setPen(oldPen);
+                return;
+            }
+        }
+    }
 
     case PE_FrameLineEdit:
         if (qstyleoption_cast<const QStyleOptionFrame *>(option))
@@ -2231,6 +2248,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             }
 
             int xpos = x;
+            QRect vrect = QRect(xpos, y, checkcol, h);
 
             // draw icon ------------------------------------------------------
             if (!menuitem->icon.isNull()) {
@@ -2242,14 +2260,19 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                                  menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
-                QRect iconRect(0, 0, pixw, pixh);
-                iconRect.moveCenter(QRect(xpos, y, checkcol, h).center());
-                QRect vIconRect = visualRect(option->direction, option->rect, iconRect); 
+                //if (act && !dis && !checked)
+                //    qDrawShadePanel(p, vrect, menuitem->palette, false, 1, &menuitem->palette.brush(QPalette::Button));
+                QRect pmr(0, 0, pixw, pixh);
+                pmr.moveCenter(vrect.center());
                 p->setPen(menuitem->palette.text().color());
                 p->setBrush(Qt::NoBrush);
                 if (checked)
-                    p->drawRect(vIconRect.adjusted(-1, -2, 1, 1));
-                p->drawPixmap(vIconRect.topLeft(), pixmap);
+                    p->drawRect(pmr.adjusted(-1, -2, 1, 1));
+                p->drawPixmap(pmr.topLeft(), pixmap);
+
+                //int xp = xpos + checkcol + 1;
+                //fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
+                //p->fillRect(QRect(xp, y, w - checkcol - 1, h), fill);
 
             // draw checkmark -------------------------------------------------
             } else if (checked) {
@@ -2259,12 +2282,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     newMi.state |= State_Enabled;
                 if (act)
                     newMi.state |= State_On;
-
-                QRect checkMarkRect = QRect(menuitem->rect.x() + windowsItemFrame, 
-                                            menuitem->rect.y() + windowsItemFrame,
-                                            checkcol - 2 * windowsItemFrame, 
-                                            menuitem->rect.height() - 2*windowsItemFrame);
-                newMi.rect = visualRect(option->direction, option->rect, checkMarkRect);
+                newMi.rect = QRect(menuitem->rect.x() + windowsItemFrame, menuitem->rect.y() + windowsItemFrame,
+                                   checkcol - 2 * windowsItemFrame, menuitem->rect.height() - 2*windowsItemFrame);
                 drawPrimitive(PE_IndicatorMenuCheckMark, &newMi, p, widget);
             }
 
@@ -2276,17 +2295,18 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             xpos = menuitem->rect.x() + xm;
             QRect textRect(xpos, y + windowsItemVMargin, w - xm - windowsRightBorder - tab + 1, h - 2 * windowsItemVMargin);
-            QRect vTextRect = visualRect(option->direction, option->rect, textRect);
+            QRect vTextRect = textRect;
             QString s = menuitem->text;
             if (!s.isEmpty()) {
                 p->save();
                 int t = s.indexOf('\t');
-                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine | Qt::AlignLeft;
+                int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
+                text_flags |= (option->direction == Qt::RightToLeft ? Qt::AlignRight : Qt::AlignLeft);
                 // draw tab text ----------------
                 if (t >= 0) {
-                    QRect vShortcutRect = visualRect(option->direction, option->rect, QRect(textRect.topRight(), menuitem->rect.bottomRight()));
+                    QRect vShortcutRect = QRect(textRect.topRight(), menuitem->rect.bottomRight());
                     if (dis && !act) {
                         p->setPen(menuitem->palette.light().color());
                         p->drawText(vShortcutRect.adjusted(1,1,1,1), text_flags, s.mid(t + 1));
@@ -2314,7 +2334,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 PrimitiveElement arrow;
                 arrow = (option->direction == Qt::RightToLeft) ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
-                QRect vSubMenuRect = visualRect(option->direction, option->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
+                QRect vSubMenuRect = QRect(xpos, y + h / 2 - dim / 2, dim, dim);
                 QStyleOptionMenuItem newMI = *menuitem;
                 newMI.rect = vSubMenuRect;
                 newMI.state = dis ? State_None : State_Enabled;
@@ -3551,7 +3571,40 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
 
     QSize sz(contentsSize);
 
-    switch (ct) {
+    switch (ct) {/*
+    case CT_LineEdit:
+    case CT_SpinBox:
+        {
+            HTHEME theme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), L"Button");
+            qDebug("HERE");
+
+            if (theme) {
+                int stateId;
+                if (!(option->state & State_Enabled))
+                    stateId = ETS_DISABLED;
+                else if (option->state & State_MouseOver)
+                    stateId = ETS_HOT;
+                else
+                    stateId = ETS_NORMAL;
+                
+                int size;
+                int result = pGetThemeMetric(theme,
+                                                NULL,
+                                                EP_EDITTEXT,
+                                                stateId,
+                                                TMT_HEIGHT,
+                                                &size);
+                if (result == S_OK) {
+                    
+                    sz.setHeight(qMax(sz.height(), size));
+                    
+                    qDebug("OK");
+                } else {
+                    qDebug("FAIL");
+                }
+            }
+        }
+        break;*/
     case CT_TabWidget:
         sz += QSize(6, 6);
         break;
