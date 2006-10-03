@@ -2275,7 +2275,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         d->setGradientOps(d->pen_brush_style);
         qt_glColor4ubv(d->pen_color);
         if (d->has_fast_pen) {
-            QVarLengthArray<float> vertexArray(pointCount*2);
+            QVarLengthArray<float> vertexArray(pointCount*2 + 2);
             glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
             int i;
             for (i=0; i<pointCount; ++i) {
@@ -2284,8 +2284,8 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             glEnableClientState(GL_VERTEX_ARRAY);
             if (mode != PolylineMode) {
-                vertexArray.append(points[0].x());
-                vertexArray.append(points[0].y());
+                vertexArray[i*2] = points[0].x();
+                vertexArray[i*2+1] = points[0].y();
                 glDrawArrays(GL_LINE_STRIP, 0, pointCount+1);
             } else {
                 glDrawArrays(GL_LINE_STRIP, 0, pointCount);
