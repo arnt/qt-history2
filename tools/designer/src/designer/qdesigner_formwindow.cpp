@@ -32,6 +32,7 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags),
@@ -133,22 +134,21 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
 {
     if (m_editor->isDirty()) {
         raise();
-        QMessageBox box(tr("Save Form?"),
-                tr("Do you want to save the changes you made to \"%1\" before closing?")
-                .arg(m_editor->fileName().isEmpty() ? action()->text() : m_editor->fileName()),
-                QMessageBox::Information,
-                QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::Sheet);
-        box.setButtonText(QMessageBox::Yes, m_editor->fileName().isEmpty() ? tr("Save...") : tr("Save"));
-        box.setButtonText(QMessageBox::No, tr("Don't Save"));
+        QMessageBox box(QMessageBox::Information, tr("Save Form?"),
+                tr("Do you want to save the changes to this document before closing?"),
+                QMessageBox::Discard | QMessageBox::Cancel | QMessageBox::Save, m_editor);
+        box.setInformativeText(tr("If you don't save, your changes will be lost."));
+        box.setWindowModality(Qt::WindowModal);
+        static_cast<QPushButton *>(box.button(QMessageBox::Save))->setDefault(true);
+
         switch (box.exec()) {
-            case QMessageBox::Yes: {
+            case QMessageBox::Save: {
                 bool ok = workbench()->saveForm(m_editor);
                 ev->setAccepted(ok);
                 m_editor->setDirty(!ok);
                 break;
             }
-            case QMessageBox::No:
+            case QMessageBox::Discard:
                 m_editor->setDirty(false); // Not really necessary, but stops problems if we get close again.
                 ev->accept();
                 break;

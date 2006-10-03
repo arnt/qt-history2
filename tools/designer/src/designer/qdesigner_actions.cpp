@@ -731,8 +731,10 @@ bool QDesignerActions::readInForm(const QString &fileName)
     // Otherwise load it.
     QFile f(fn);
     if (!f.open(QFile::ReadOnly)) {
-        QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
-                .arg(f.fileName()).arg(f.errorString()));
+        QMessageBox box(QMessageBox::Warning, tr("Read Error"), tr("Couldn't open file"),
+                        QMessageBox::Ok, core()->topLevel());
+        box.setInformativeText(tr("%1 could not be opened.\nReason: %2").arg(f.fileName()).arg(f.errorString()));
+        box.exec();
         return false;
     }
 
@@ -798,60 +800,64 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
 
     QByteArray utf8Array = fw->contents().toUtf8();
     m_workbench->updateBackup(fw);
-    
+
     QFile f(saveFile);
     while (!f.open(QFile::WriteOnly)) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not open file: %1"
-                                "\nReason: %2"
-                                "\nWould you like to retry or change your file?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::Sheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Select New File"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                break;
-                case QMessageBox::No: {
-                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                            QDir::current().absolutePath(), QLatin1String("*.ui"));
-                    if (fileName.isEmpty()) {
-                        removeBackup(backupFile);
-                        return false;
-                    }
-                    if (f.fileName() != fileName) {
-                        removeBackup(backupFile);
-                        fi.setFile(fileName);
-                        backupFile = QString();
-                        if (fi.exists())
-                            backupFile = createBackup(fileName);
-                    }
-                    f.setFileName(fileName);
-                    fw->setFileName(fileName);
-                    break; }
-            case QMessageBox::Cancel:
+        QMessageBox box(QMessageBox::Warning,
+                        tr("Save Form?"),
+                        tr("Could not open file"),
+                        QMessageBox::NoButton, fw);
+
+        box.setWindowModality(Qt::WindowModal);
+        box.setInformativeText(tr("The file, %1, could not be opened"
+                               "\nReason: %2"
+                               "\nWould you like to retry or change your file?")
+                                .arg(f.fileName()).arg(f.errorString()));
+        QPushButton *retryButton = box.addButton(tr("Retry"), QMessageBox::AcceptRole);
+        retryButton->setDefault(true);
+        QPushButton *switchButton = box.addButton(tr("Select New File"), QMessageBox::AcceptRole);
+        QPushButton *cancelButton = box.addButton(QMessageBox::Cancel);
+        box.exec();
+
+        if (box.clickedButton() == cancelButton) {
+            removeBackup(backupFile);
+            return false;
+        } else if (box.clickedButton() == switchButton) {
+            QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                                                            QDir::current().absolutePath(),
+                                                            QLatin1String("*.ui"));
+            if (fileName.isEmpty()) {
                 removeBackup(backupFile);
                 return false;
+            }
+            if (f.fileName() != fileName) {
+                removeBackup(backupFile);
+                fi.setFile(fileName);
+                backupFile = QString();
+                if (fi.exists())
+                    backupFile = createBackup(fileName);
+            }
+            f.setFileName(fileName);
+            fw->setFileName(fileName);
         }
+        // loop back around...
     }
     while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
-                        fw, Qt::Sheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                f.resize(0);
-                break;
-            case QMessageBox::No:
-                return false;
-        }
+        QMessageBox box(QMessageBox::Warning, tr("Save Form?"),
+                        tr("Could not write file"),
+                        QMessageBox::NoButton, fw);
+        box.setWindowModality(Qt::WindowModal);
+        box.setInformativeText(tr("It was not possible to write the entire file, %1, to disk."
+                                "\nReason:%2\nWould you like to retry?")
+                                .arg(f.fileName()).arg(f.errorString()));
+        QPushButton *retryButton = box.addButton(tr("Retry"), QMessageBox::AcceptRole);
+        retryButton->setDefault(true);
+        QPushButton *noRetry = box.addButton(tr("Retry"), QMessageBox::RejectRole);
+        box.exec();
+        if (box.clickedButton() == retryButton)
+            f.resize(0);
+        else if (box.clickedButton() == noRetry)
+            return false;
     }
     f.close();
     removeBackup(backupFile);

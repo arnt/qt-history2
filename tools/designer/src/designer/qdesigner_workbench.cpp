@@ -29,17 +29,18 @@
 #include <QtDesigner/private/qdesigner_integration_p.h>
 #include <QtDesigner/private/pluginmanager_p.h>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QWorkspace>
+#include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QDockWidget>
+#include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
-#include <QtGui/QToolBar>
-#include <QtGui/QActionGroup>
 #include <QtGui/QMessageBox>
-#include <QtGui/QHeaderView>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolBar>
+#include <QtGui/QWorkspace>
 
 #include <QtCore/QVariant>
 #include <QtCore/QUrl>
@@ -760,19 +761,20 @@ bool QDesignerWorkbench::handleClose()
                 return false;
             }
         } else {
-            QMessageBox box(tr("Save Forms?"),
+            QMessageBox box(QMessageBox::Warning, tr("Save Forms?"),
                     tr("There are %1 forms with unsaved changes."
                         " Do you want to review these changes before quitting?")
                     .arg(dirtyForms.size()),
-                    QMessageBox::Warning,
-                    QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                    QMessageBox::Cancel | QMessageBox::Escape, 0);
-            box.setButtonText(QMessageBox::Yes, tr("Review Changes"));
-            box.setButtonText(QMessageBox::No, tr("Discard Changes"));
+                    QMessageBox::Cancel | QMessageBox::Discard | QMessageBox::Save);
+            box.setInformativeText(tr("If you don't review your documents, all your changes will be lost."));
+            box.button(QMessageBox::Discard)->setText(tr("Discard Changes"));
+            QPushButton *save = static_cast<QPushButton *>(box.button(QMessageBox::Save));
+            save->setText(tr("Review Changes"));
+            box.setDefaultButton(save);
             switch (box.exec()) {
             case QMessageBox::Cancel:
                 return false;
-            case QMessageBox::Yes:
+            case QMessageBox::Save:
                foreach (QDesignerFormWindow *fw, dirtyForms) {
                    fw->show();
                    fw->raise();
@@ -781,7 +783,7 @@ bool QDesignerWorkbench::handleClose()
                    }
                }
                break;
-            case QMessageBox::No:
+            case QMessageBox::Discard:
               foreach (QDesignerFormWindow *fw, dirtyForms) {
                   fw->editor()->setDirty(false);
                   fw->setWindowModified(false);
