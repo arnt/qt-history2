@@ -122,7 +122,7 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     if (dist > 0)
         v -= dist;
 
-    return bound(v);
+    return !invertedAppearance ? bound(v) : maximum - bound(v);
 }
 
 /*!

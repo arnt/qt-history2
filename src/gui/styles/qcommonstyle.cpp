@@ -1999,13 +1999,14 @@ static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
     int width = dial->rect.width();
     int height = dial->rect.height();
     int r = qMin(width, height) / 2;
+    int currentSliderValue = dial->upsideDown ? dial->sliderValue : (dial->maximum - dial->sliderValue);
     if (dial->maximum == dial->minimum)
         a = Q_PI / 2;
     else if (dial->dialWrapping)
-        a = Q_PI * 3 / 2 - (dial->sliderValue - dial->minimum) * 2 * Q_PI
+        a = Q_PI * 3 / 2 - (currentSliderValue - dial->minimum) * 2 * Q_PI
             / (dial->maximum - dial->minimum);
     else
-        a = (Q_PI * 8 - (dial->sliderValue - dial->minimum) * 10 * Q_PI
+        a = (Q_PI * 8 - (currentSliderValue - dial->minimum) * 10 * Q_PI
             / (dial->maximum - dial->minimum)) / 6;
 
     int xc = width / 2;
@@ -2512,8 +2513,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             int height = dial->rect.height();
             qreal r = qMin(width, height) / 2.0;
             qreal d_ = r / 6.0;
-            qreal dx = d_ + (width - 2 * r) / 2.0 + 1;
-            qreal dy = d_ + (height - 2 * r) / 2.0 + 1;
+            qreal dx = dial->rect.x() + d_ + (width - 2 * r) / 2.0 + 1;
+            qreal dy = dial->rect.y() + d_ + (height - 2 * r) / 2.0 + 1;
             QRect br = QRect(int(dx), int(dy), int(r * 2 - 2 * d_ - 2), int(r * 2 - 2 * d_ - 2));
 
             QPalette pal = opt->palette;
