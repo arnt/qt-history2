@@ -3217,14 +3217,16 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     frame.lineWidth = groupBox->lineWidth;
                     frame.midLineWidth = groupBox->midLineWidth;
                     frame.rect = subControlRect(CC_GroupBox, option, SC_GroupBoxFrame, widget);
+                    
                     painter->save();
                     QRegion region(groupBox->rect);
                     bool ltr = groupBox->direction == Qt::LeftToRight;
                     region -= checkBoxRect.united(textRect).adjusted(ltr ? -4 : 0, 0, ltr ? 0 : 4, 0);
-                    painter->setClipRegion(region);
+                    if (!groupBox->text.isEmpty() ||  groupBox->subControls & SC_GroupBoxCheckBox)
+                        painter->setClipRegion(region);
                     frame.palette.setBrush(QPalette::Dark, option->palette.mid().color().light(110));
                     drawPrimitive(PE_FrameGroupBox, &frame, painter);
-                    painter->restore();
+                    painter->restore();  
                 }
             }
             // Draw title
@@ -3244,16 +3246,14 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             textRect.adjust(checkBoxRect.right() + 4, 0, checkBoxRect.right() + 4, 0);
                         }
                     }
-
                     painter->drawText(textRect, Qt::TextShowMnemonic | Qt::AlignLeft| alignment, groupBox->text);
                 }
-                // Draw checkbox
-                if (groupBox->subControls & SC_GroupBoxCheckBox) {
-                    QStyleOptionButton box;
-                    box.QStyleOption::operator=(*groupBox);
-                    box.rect = checkBoxRect;
-                    drawPrimitive(PE_IndicatorCheckBox, &box, painter, widget);
-                }
+            }
+            if (groupBox->subControls & SC_GroupBoxCheckBox) {
+                QStyleOptionButton box;
+                box.QStyleOption::operator=(*groupBox);
+                box.rect = checkBoxRect;
+                drawPrimitive(PE_IndicatorCheckBox, &box, painter, widget);
             }
         }
         painter->restore();
