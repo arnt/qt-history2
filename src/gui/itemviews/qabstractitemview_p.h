@@ -115,7 +115,8 @@ public:
 
     inline void paintDropIndicator(QPainter *painter)
     {
-        if (showDropIndicator && state == QAbstractItemView::DraggingState)
+        if (showDropIndicator && state == QAbstractItemView::DraggingState
+            && viewport->cursor().shape() != Qt::ForbiddenCursor)
             if (dropIndicatorRect.height() == 0) // FIXME: should be painted by style
                 painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
             else painter->drawRect(dropIndicatorRect);
