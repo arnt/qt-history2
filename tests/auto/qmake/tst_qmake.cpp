@@ -54,6 +54,7 @@ private slots:
     void install_depends();
     void quotedfilenames();
     void prompt();
+    void one_space();
 
 private:
     TestCompiler test_compiler;
@@ -295,6 +296,20 @@ void tst_qmake::prompt()
     qmake.write("promptetiprompt\n");
     QVERIFY(qmake.waitForFinished(20000));
 #endif
+}
+
+void tst_qmake::one_space()
+{
+    QString workDir = base_path + "/testdata/one_space";
+
+    QVERIFY( test_compiler.qmake( workDir, "one_space" ));
+    QVERIFY( test_compiler.make( workDir ));
+    QVERIFY( test_compiler.exists( workDir, "one space", Exe, "1.0.0" ));
+    QVERIFY( test_compiler.makeClean( workDir ));
+    QVERIFY( test_compiler.exists( workDir, "one space", Exe, "1.0.0" )); // Should still exist after a make clean
+    QVERIFY( test_compiler.makeDistClean( workDir ));
+    QVERIFY( !test_compiler.exists( workDir, "one space", Exe, "1.0.0" )); // Should not exist after a make distclean
+    QVERIFY( test_compiler.removeMakefile( workDir ) );
 }
 
 QTEST_MAIN(tst_qmake)
