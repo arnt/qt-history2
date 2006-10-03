@@ -388,6 +388,39 @@ bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
+// reimplemented to ensure that only one dataChanged() signal is emitted
+bool QTableModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
+{
+    if (!index.isValid())
+        return false;
+
+    QTableWidgetItem *itm = item(index);
+    if (itm) {
+        itm->model = 0; // prohibits item from calling itemChanged()
+        bool changed = false;
+        for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it) {
+            if (itm->data(it.key()) != it.value()) {
+                itm->setData(it.key(), it.value());
+                changed = true;
+            }
+        }
+        itm->model = this;
+        if (changed)
+            itemChanged(itm);
+        return true;
+    }
+
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
+    if (!view)
+        return false;
+
+    itm = createItem();
+    for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
+        itm->setData(it.key(), it.value());
+    view->setItem(index.row(), index.column(), itm);
+    return true;
+}
+
 Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())

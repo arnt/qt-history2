@@ -63,6 +63,7 @@ private slots:
     void sortItems();
     void setItemWithSorting_data();
     void setItemWithSorting();
+    void setItemData();
 
 private:
     QTableWidget *testWidget;
@@ -1260,6 +1261,38 @@ void tst_QTableWidget::setItemWithSorting()
         QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
     }
 }
+
+void tst_QTableWidget::setItemData()
+{
+    QTableWidget table(10, 10);
+    table.setSortingEnabled(false);
+    QSignalSpy dataChangedSpy(table.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+
+    QTableWidgetItem *item = new QTableWidgetItem;
+    table.setItem(0, 0, item);
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QModelIndex idx = qvariant_cast<QModelIndex>(dataChangedSpy.takeFirst().at(0));
+
+    QMap<int, QVariant> data;
+    data.insert(Qt::DisplayRole, QLatin1String("Display"));
+    data.insert(Qt::ToolTipRole, QLatin1String("ToolTip"));
+    table.model()->setItemData(idx, data);
+
+    QCOMPARE(table.model()->data(idx, Qt::DisplayRole).toString(), QLatin1String("Display"));
+    QCOMPARE(table.model()->data(idx, Qt::ToolTipRole).toString(), QLatin1String("ToolTip"));
+    QCOMPARE(dataChangedSpy.count(), 1);
+    QCOMPARE(idx, qvariant_cast<QModelIndex>(dataChangedSpy.takeFirst().at(0)));
+
+    table.model()->setItemData(idx, data);
+    QCOMPARE(dataChangedSpy.count(), 0);
+
+    data.clear();
+    data.insert(Qt::DisplayRole, QLatin1String("dizplaye"));
+    table.model()->setItemData(idx, data);
+    QCOMPARE(table.model()->data(idx, Qt::DisplayRole).toString(), QLatin1String("dizplaye"));
+    QCOMPARE(dataChangedSpy.count(), 1);
+}
+
 #endif // QT_VERSION
 
 QTEST_MAIN(tst_QTableWidget)
