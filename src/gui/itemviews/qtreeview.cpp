@@ -525,7 +525,8 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     // refresh the height cache here; we don't really lose anything by getting the size hint,
     // since QAbstractItemView::dataChanged() will get the visualRect for the items anyway
 
-    QModelIndex top = (topLeft.column() == 0) ? topLeft
+    QModelIndex top = (topLeft.column() == 0)
+                      ? topLeft
                       : d->model->sibling(topLeft.row(), 0, topLeft);
     int topViewIndex = d->viewIndex(top);
     bool sizeChanged = false;
@@ -1127,8 +1128,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         const int r = index.row();
         for (int c = 0; c < left && !currentRowHasFocus; ++c)
             currentRowHasFocus = (index.sibling(r, c) == current);
-        for (int c = right; c < header->count() && !currentRowHasFocus; ++c)
-            currentRowHasFocus = (index.sibling(r, c) == current);
+        QModelIndex parent = d->model->parent(index);
+        for (int c = right; c < header->count() && !currentRowHasFocus; ++c) {
+            currentRowHasFocus = (d->model->index(r, c, parent) == current);
+        }
     }
 
     // ### special case: treeviews with multiple columns draw
@@ -2112,8 +2115,9 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 
     // ### Temporary hack to speed up the function
     option.rect.setWidth(-1);
+    QModelIndex parent = d->model->parent(index);
     for (int column = start; column <= end; ++column) {
-        QModelIndex idx = index.sibling(index.row(), column);
+        QModelIndex idx = d->model->index(index.row(), column, parent);
         if (idx.isValid()) {
             if (QWidget *editor = d->editorForIndex(idx))
                 height = qMax(height, editor->size().height());
