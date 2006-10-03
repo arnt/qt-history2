@@ -1760,23 +1760,10 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     pm.data->uninit = false;
     pm.x11SetScreen(scr);
 
-#ifndef QT_NO_XRENDER
-    if (pm.data->picture) {
-        XRenderPictFormat *format = XRenderFindVisualFormat(dpy, window_attr.visual);
-        XRenderPictureAttributes pattr;
-        pattr.subwindow_mode = IncludeInferiors;
-        Picture src_pict = XRenderCreatePicture(dpy, window, format, CPSubwindowMode, &pattr);
-        Picture dst_pict = pm.x11PictureHandle();
-        XRenderComposite(dpy, PictOpSrc, src_pict, 0, dst_pict, x, y, x, y, 0, 0, w, h);
-        XRenderFreePicture(dpy, src_pict);
-    } else
-#endif
-        {
-            GC gc = XCreateGC(dpy, pm.handle(), 0, 0);
-            XSetSubwindowMode(dpy, gc, IncludeInferiors);
-            XCopyArea(dpy, window, pm.handle(), gc, x, y, w, h, 0, 0);
-            XFreeGC(dpy, gc);
-        }
+    GC gc = XCreateGC(dpy, pm.handle(), 0, 0);
+    XSetSubwindowMode(dpy, gc, IncludeInferiors);
+    XCopyArea(dpy, window, pm.handle(), gc, x, y, w, h, 0, 0);
+    XFreeGC(dpy, gc);
 
     return pm;
 }
