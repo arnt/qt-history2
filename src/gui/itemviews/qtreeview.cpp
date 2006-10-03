@@ -982,6 +982,8 @@ void QTreeView::timerEvent(QTimerEvent *event)
 void QTreeView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTreeView);
+    bool layout = d->delayedLayout.isActive();
+    d->delayedLayout.stop();
     QPainter painter(viewport());
     if (d->isAnimating()) {
         drawTree(&painter, event->region() - d->animationRect());
@@ -992,6 +994,8 @@ void QTreeView::paintEvent(QPaintEvent *event)
         d->paintDropIndicator(&painter);
 #endif
     }
+    if (layout)
+        d->doDelayedItemsLayout();
 }
 
 /*!
