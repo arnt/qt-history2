@@ -4224,16 +4224,10 @@ void Q3IconView::contentsMousePressEvent(QMouseEvent *e)
 void Q3IconView::contentsMousePressEventEx(QMouseEvent *e)
 {
     if (d->rubber) {
-        QPainter p;
-        p.begin(viewport());
-        p.setPen(QPen(Qt::color0, 1));
-        p.setBrush(Qt::NoBrush);
-
-        drawRubber(&p);
         d->dragging = false;
-        p.end();
         delete d->rubber;
         d->rubber = 0;
+        viewport()->update();
 
         if (d->scrollTimer) {
             disconnect(d->scrollTimer, SIGNAL(timeout()), this, SLOT(doAutoScroll()));
