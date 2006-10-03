@@ -2054,8 +2054,10 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                 && tab->position == QStyleOptionTab::Beginning));
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab);
-
+            
+            bool atBeginning = ((tab->position == (tab->direction == Qt::LeftToRight ? 
+                                QStyleOptionTab::Beginning : QStyleOptionTab::End)) || onlyTab);
+            
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             bool previousSelected =
                 ((!rtlHorTabs
