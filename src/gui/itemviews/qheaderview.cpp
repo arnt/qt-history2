@@ -768,21 +768,21 @@ void QHeaderView::resizeSections(QHeaderView::ResizeMode mode)
   \fn void QHeaderView::hideSection(int logicalIndex)
     Hides the section specified by \a logicalIndex.
 
-    \sa showSection(), isSectionHidden(),  hiddenSectionCount()
+    \sa showSection(), isSectionHidden(), hiddenSectionCount(), setSectionHidden()
 */
 
 /*!
   \fn void QHeaderView::showSection(int logicalIndex)
    Shows the section specified by \a logicalIndex.
 
-   \sa hideSection(), isSectionHidden()
+   \sa hideSection(), isSectionHidden(), hiddenSectionCount(), setSectionHidden()
 */
 
 /*!
     Returns true if the section specified by \a logicalIndex is
     explicitly hidden from the user; otherwise returns false.
 
-    \sa setSectionHidden(), hiddenSectionCount()
+    \sa hideSection(), showSection(), setSectionHidden(), hiddenSectionCount()
 */
 
 bool QHeaderView::isSectionHidden(int logicalIndex) const
