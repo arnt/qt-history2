@@ -199,7 +199,7 @@ MakefileGenerator
         basevars["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
 
         //create project
-        QMakeProject *build_proj = new QMakeProject(project->properities(), basevars);
+        QMakeProject *build_proj = new QMakeProject(project->properties(), basevars);
 
         //all the user configs must be set again afterwards (for .pro tests and for .prf tests)
         const QStringList old_after_user_config = Option::after_user_configs;
@@ -266,7 +266,7 @@ SubdirsMetaMakefileGenerator::init()
                 subdir = QFileInfo(subdir.filePath() + "/" + subdir.fileName() + Option::pro_ext);
 
             //handle sub project
-            QMakeProject *sub_proj = new QMakeProject(project->properities());
+            QMakeProject *sub_proj = new QMakeProject(project->properties());
             for (int ind = 0; ind < sub->indent; ++ind)
                 printf(" ");
             sub->input_dir = subdir.absolutePath();

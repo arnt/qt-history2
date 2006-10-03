@@ -203,7 +203,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
 //just a parsable entity
 struct ParsableBlock
 {
-    ParsableBlock() { }
+    ParsableBlock() : ref_cnt(1) { }
     virtual ~ParsableBlock() { }
 
     struct Parse {
@@ -213,7 +213,11 @@ struct ParsableBlock
     };
     QList<Parse> parser;
 
+    inline int ref() { return ++ref_cnt; }
+    inline int deref() { return --ref_cnt; }
+
 protected:
+    int ref_cnt;
     virtual bool continueBlock() = 0;
     bool eval(QMakeProject *p, QMap<QString, QStringList> &place);
 };
@@ -523,8 +527,16 @@ QMakeProject::~QMakeProject()
 {
     if(own_prop)
         delete prop;
-    qDeleteAll(replaceFunctions);
-    qDeleteAll(testFunctions);
+    for(QMap<QString, FunctionBlock*>::iterator it = replaceFunctions.begin(); it != replaceFunctions.end(); ++it) {
+        if(!it.value()->deref())
+            delete it.value();
+    }
+    replaceFunctions.clear();
+    for(QMap<QString, FunctionBlock*>::iterator it = testFunctions.begin(); it != testFunctions.end(); ++it) {
+        if(!it.value()->deref())
+            delete it.value();
+    }
+    testFunctions.clear();
 }
 
 
@@ -541,6 +553,19 @@ QMakeProject::init(QMakeProperty *p, const QMap<QString, QStringList> *vars)
         own_prop = false;
     }
     reset();
+}
+
+QMakeProject::QMakeProject(QMakeProject *p, const QMap<QString, QStringList> *vars)
+{
+    init(p->properties(), vars ? vars : &p->variables());
+    for(QMap<QString, FunctionBlock*>::iterator it = p->replaceFunctions.begin(); it != p->replaceFunctions.end(); ++it) {
+        it.value()->ref();
+        replaceFunctions.insert(it.key(), it.value());
+    }
+    for(QMap<QString, FunctionBlock*>::iterator it = p->testFunctions.begin(); it != p->testFunctions.end(); ++it) {
+        it.value()->ref();
+        testFunctions.insert(it.key(), it.value());
+    }
 }
 
 void
@@ -812,11 +837,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                                 map = &testFunctions;
                             else
                                 map = &replaceFunctions;
+#if 0
                             if(!map || map->contains(args[0])) {
                                 fprintf(stderr, "%s:%d: Function[%s] multiply defined.\n",
                                         parser.file.toLatin1().constData(), parser.line_no, args[0].toLatin1().constData());
                                 return false;
                             }
+#endif
                             function = new FunctionBlock;
                             map->insert(args[0], function);
                             test = true;
@@ -1385,7 +1412,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 #elif defined(Q_OS_WIN)
     else if(spec == "default") {
         // We can't resolve symlinks as they do on Unix, so configure.exe puts the source of the
-        // qmake.conf at the end of the default/qmake.conf in the QMAKESPEC_ORG variable. 
+        // qmake.conf at the end of the default/qmake.conf in the QMAKESPEC_ORG variable.
         const QStringList &spec_org = (place ? (*place)["QMAKESPEC_ORIGINAL"]
                                              : vars["QMAKESPEC_ORIGINAL"]);
         if (!spec_org.isEmpty()) {
@@ -1532,11 +1559,12 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     if(flags & (IncludeFlagNewProject|IncludeFlagNewParser)) {
         // The "project's variables" are used in other places (eg. export()) so it's not
         // possible to use "place" everywhere. Instead just set variables and grab them later
-        QMakeProject proj;
-        proj.variables() = place;
+        QMakeProject proj(this, &place);
         if(flags & IncludeFlagNewParser) {
+#if 1
             if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
                 proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
+#endif
             parsed = proj.read(file, proj.variables());
         } else {
             parsed = proj.read(file);

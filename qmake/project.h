@@ -91,6 +91,7 @@ class QMakeProject
 public:
     QMakeProject() { init(0, 0); }
     QMakeProject(QMakeProperty *p) { init(p, 0); }
+    QMakeProject(QMakeProject *p, const QMap<QString, QStringList> *nvars=0);
     QMakeProject(const QMap<QString, QStringList> &nvars) { init(0, &nvars); }
     QMakeProject(QMakeProperty *p, const QMap<QString, QStringList> &nvars) { init(p, &nvars); }
     ~QMakeProject();
@@ -103,7 +104,7 @@ public:
 
     QString projectFile();
     QString configFile();
-    inline QMakeProperty *properities() { return prop; }
+    inline QMakeProperty *properties() { return prop; }
 
     QStringList expand(const QString &v);
     QStringList expand(const QString &func, const QList<QStringList> &args);
