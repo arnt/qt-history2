@@ -1272,6 +1272,10 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
 #endif // QT_NO_TABWIDGET
     painter->restore();
     break ;
+
+    case PE_FrameStatusBar:
+    break;
+
 #endif // QT_NO_TABBAR
     default:
         QWindowsStyle::drawPrimitive(elem, option, painter, widget);
