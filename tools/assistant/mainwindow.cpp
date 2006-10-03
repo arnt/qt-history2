@@ -173,6 +173,11 @@ void MainWindow::setup()
     // to poulate the contents in this case.
     if (tabIndex == 0) 
         helpDock->currentTabChanged(tabIndex);
+
+    ui.actionEditFind->setShortcut(QKeySequence::Find);
+    ui.actionEditFindNext->setShortcut(QKeySequence::FindNext);
+    ui.actionEditFindPrev->setShortcut(QKeySequence::FindPrevious);
+    
     QObject::connect(ui.actionEditFind, SIGNAL(triggered()), tabs, SLOT(find()));
     QObject::connect(ui.actionEditFindNext, SIGNAL(triggered()), tabs, SLOT(findNext()));
     QObject::connect(ui.actionEditFindPrev, SIGNAL(triggered()), tabs, SLOT(findPrevious()));
