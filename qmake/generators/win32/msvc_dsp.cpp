@@ -203,7 +203,7 @@ DspMakefileGenerator::init()
     if(project->values("QMAKESPEC").isEmpty())
         project->values("QMAKESPEC").append(qgetenv("QMAKESPEC"));
 
-    project->values("QMAKE_LIBS") += project->values("LIBS");
+    project->values("QMAKE_LIBS") += escapeFilePaths(project->values("LIBS"));
     processVars();
 
     if(!project->values("VERSION").isEmpty()) {

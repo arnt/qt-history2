@@ -135,15 +135,15 @@ void NmakeMakefileGenerator::init()
         return;
     }
 
-    project->values("QMAKE_LIBS") += project->values("LIBS");
+    project->values("QMAKE_LIBS") += escapeFilePaths(project->values("LIBS"));
     processVars();
 
     if (!project->values("RES_FILE").isEmpty()) {
-        project->values("QMAKE_LIBS") += project->values("RES_FILE");
+        project->values("QMAKE_LIBS") += escapeFilePaths(project->values("RES_FILE"));
     }
 
     if(!project->values("DEF_FILE").isEmpty())
-        project->values("QMAKE_LFLAGS").append(QString("/DEF:") + project->first("DEF_FILE"));
+        project->values("QMAKE_LFLAGS").append(QString("/DEF:") + escapeFilePath(project->first("DEF_FILE")));
 
     if(!project->values("VERSION").isEmpty()) {
         QString version = project->values("VERSION")[0];

@@ -1275,7 +1275,7 @@ void VcprojGenerator::initOld()
         project->values("QMAKE_LFLAGS").append("/VERSION:" + major + "." + minor);
     }
 
-    project->values("QMAKE_LIBS") += project->values("LIBS");
+    project->values("QMAKE_LIBS") += escapeFilePaths(project->values("LIBS"));
 
      // Get filename w/o extention -----------------------------------
     QString msvcproj_project = "";
