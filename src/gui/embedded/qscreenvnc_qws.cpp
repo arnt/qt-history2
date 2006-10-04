@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <qdebug.h>
 #include <qpolygon.h>
+#include <qstringlist.h>
 #include <qregexp.h>
 #include "qwsdisplay_qws.h"
 
