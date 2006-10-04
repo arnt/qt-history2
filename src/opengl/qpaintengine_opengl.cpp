@@ -979,9 +979,6 @@ public:
 
 protected:
     inline int maxCacheSize() const { return 500; }
-    inline void generateGradientColorTable(const QGradientStops& s,
-                                           uint *colorTable,
-                                           int size, qreal opacity) const;
     QPainterPath addCacheElement(quint64 hash_val, QPainterPath path, const QPen &pen) {
         if (cache.size() == maxCacheSize()) {
             int elem_to_remove = qrand() % maxCacheSize();
