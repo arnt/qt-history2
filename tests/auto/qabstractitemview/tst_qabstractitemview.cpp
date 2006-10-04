@@ -137,9 +137,8 @@ private slots:
     void setModel_data();
     void setModel();
     void noModel();
-#if QT_VERSION > 0x040100
     void dragSelect();
-#endif
+    void rowDelegate();
 };
 
 class MyAbstractItemDelegate : public QAbstractItemDelegate
@@ -148,6 +147,8 @@ public:
     MyAbstractItemDelegate() : QAbstractItemDelegate() {};
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const {}
     QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const { return QSize(); }
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+                          const QModelIndex &) const { return new QWidget(parent); }
 };
 
 // Testing get/set functions
@@ -287,7 +288,7 @@ void tst_QAbstractItemView::emptyModels()
     QVERIFY(!view->model());
     QVERIFY(!view->selectionModel());
     //QVERIFY(view->itemDelegate() != 0);
-    
+
     basic_tests(view);
     delete view;
 }
@@ -333,7 +334,7 @@ void tst_QAbstractItemView::basic_tests(TestView *view)
     // setItemDelegate
     //view->setItemDelegate(0);
     // Will asswert as it should
-    
+
     // setSelectionMode
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     QCOMPARE(view->selectionMode(), QAbstractItemView::SingleSelection);
@@ -369,7 +370,7 @@ void tst_QAbstractItemView::basic_tests(TestView *view)
     QCOMPARE(view->editTriggers(), QAbstractItemView::AnyKeyPressed);
     view->setEditTriggers(QAbstractItemView::AllEditTriggers);
     QCOMPARE(view->editTriggers(), QAbstractItemView::AllEditTriggers);
-   
+
     // setAutoScroll
     view->setAutoScroll(false);
     QCOMPARE(view->hasAutoScroll(), false);
@@ -422,7 +423,7 @@ void tst_QAbstractItemView::basic_tests(TestView *view)
 
     QCOMPARE(view->sizeHintForIndex(QModelIndex()), QSize());
     QCOMPARE(view->indexAt(QPoint(-1, -1)), QModelIndex());
-    
+
     if (!view->model()){
         QCOMPARE(view->indexAt(QPoint(10, 10)), QModelIndex());
         QCOMPARE(view->sizeHintForRow(0), -1);
@@ -469,7 +470,7 @@ void tst_QAbstractItemView::basic_tests(TestView *view)
 
     // Will assert as it should
     // view->setIndexWidget(QModelIndex(), 0);
-    
+
     view->tst_moveCursor(TestView::MoveUp, Qt::NoModifier);
     view->tst_horizontalOffset();
     view->tst_verticalOffset();
@@ -504,7 +505,7 @@ void tst_QAbstractItemView::basic_tests(TestView *view)
     QVERIFY(view->tst_state()==TestView::ExpandingState);
     view->tst_setState(TestView::CollapsingState);
     QVERIFY(view->tst_state()==TestView::CollapsingState);
-    
+
     view->tst_startAutoScroll();
     view->tst_stopAutoScroll();
     view->tst_doAutoScroll();
@@ -540,7 +541,6 @@ void tst_QAbstractItemView::noModel()
     QCOMPARE(view.model(), (QAbstractItemModel*)0);
 }
 
-#if QT_VERSION > 0x040100
 void tst_QAbstractItemView::dragSelect()
 {
     // From task #86108
@@ -561,8 +561,25 @@ void tst_QAbstractItemView::dragSelect()
         QVERIFY(view.selectionModel()->selectedIndexes().isEmpty());
     }
 }
-#endif // QT_VERSION
+
+void tst_QAbstractItemView::rowDelegate()
+{
+    QStandardItemModel model(4,4);
+    MyAbstractItemDelegate delegate;
+
+    QTableView view;
+    view.setModel(&model);
+    view.setItemDelegateForRow(3, &delegate);
+    view.show();
+
+    QModelIndex index = model.index(3, 0);
+    view.openPersistentEditor(index);
+    QWidget *w = view.indexWidget(index);
+    QVERIFY(w);
+    QCOMPARE(w->metaObject()->className(), "QWidget");
+}
+
 
 QTEST_MAIN(tst_QAbstractItemView)
 #include "tst_qabstractitemview.moc"
-    
+
