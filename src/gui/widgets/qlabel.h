@@ -135,6 +135,7 @@ private:
 
     friend class QTipLabel;
     friend class QMessageBoxPrivate;
+    friend class QBalloonTip;
 };
 
 QT_END_HEADER

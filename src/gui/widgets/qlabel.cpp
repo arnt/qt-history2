@@ -1329,8 +1329,8 @@ void QLabelPrivate::ensureTextLayouted() const
         flags |= (q->layoutDirection() == Qt::RightToLeft) ? QTextDocumentLayout::RTL : QTextDocumentLayout::LTR;
         lout->setBlockTextFlags(flags);
 
-        if (wrap) {
-            // ensure that we break at words and not just about anywhere
+        if (wrap && lout->wordWrapMode() == QTextOption::NoWrap) {
+            // don't overwrite wrap mode set behind our back by our friends
             lout->setWordWrapMode(QTextOption::WordWrap);
         }
 

@@ -28,6 +28,8 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qbitmap.h"
+#include "private/qlabel_p.h"
+#include "qapplication.h"
 
 /*!
     \class QSystemTrayIcon
@@ -396,6 +398,19 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     msgLabel->setTextFormat(Qt::PlainText);
     msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
+    // smart size for the message label
+    int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 3;
+    if (msgLabel->sizeHint().width() > limit) {
+        msgLabel->setWordWrap(true);
+        if (msgLabel->sizeHint().width() > limit) {
+            msgLabel->d_func()->ensureTextControl();
+            if (QTextControl *control = msgLabel->d_func()->control) {
+                control->setWordWrapMode(QTextOption::WrapAnywhere);
+            }
+        }
+        msgLabel->setFixedSize(limit, msgLabel->heightForWidth(limit));
+    }
+ 
     QIcon si;
     switch (icon) {
     case QSystemTrayIcon::Warning:
@@ -419,16 +434,15 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
         iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         iconLabel->setMargin(2);
         layout->addWidget(iconLabel, 0, 0);
-	layout->addWidget(titleLabel, 0, 1);
+        layout->addWidget(titleLabel, 0, 1);
     } else {
-	layout->addWidget(titleLabel, 0, 0, 1, 2);
+        layout->addWidget(titleLabel, 0, 0, 1, 2);
     }
 
     layout->addWidget(closeButton, 0, 2);
     layout->addWidget(msgLabel, 1, 0, 1, 3);
     layout->setSizeConstraint(QLayout::SetFixedSize);
     layout->setMargin(3);
-    layout->setSpacing(1);
     setLayout(layout);
 
     QPalette pal = palette();
