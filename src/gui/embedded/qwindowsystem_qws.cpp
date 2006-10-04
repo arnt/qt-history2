@@ -1854,10 +1854,9 @@ QWSMouseHandler *QWSServer::mouseHandler()
     Sets the primary mouse handler to be the given \a handler.
 
     Note that it is recommended to use the plugin mechanism instead,
-    deriving from the QMouseDriverPlugin and QMouseDriverFactory
-    classes.
+    deriving from the QMouseDriverPlugin class.
 
-    \sa mouseHandler()
+    \sa mouseHandler(), QMouseDriverPlugin
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
@@ -3103,9 +3102,9 @@ QWSKeyboardHandler* QWSServer::keyboardHandler()
     Sets the primary keyboard handler to be the given \a handler.
 
     Note that it is recommended to use the plugin mechanism instead,
-    deriving from the QKbdDriverPlugin and QKbdDriverFactory classes.
+    deriving from the QKbdDriverPlugin class.
 
-    \sa keyboardHandler()
+    \sa keyboardHandler(), QKbdDriverPlugin
 */
 void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 {
