@@ -85,6 +85,7 @@ private slots:
     void insertAfterSelect();
     void removeAfterSelect();
     void hiddenItems();
+    void spanningItems();
 };
 
 class QtTestModel: public QAbstractItemModel
@@ -1154,6 +1155,40 @@ void tst_QTreeView::hiddenItems()
     QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
     QApplication::processEvents();
     QCOMPARE(view.isExpanded(firstIndex), false);
+}
+
+void tst_QTreeView::spanningItems()
+{
+    QtTestModel model;
+    model.rows = model.cols = 10;
+    QTreeView view;
+    view.setModel(&model);
+    view.show();
+
+    int itemWidth = view.header()->sectionSize(0);
+    int itemHeight = view.visualRect(model.index(0, 0, QModelIndex())).height();
+
+    // every second row is spanning
+    for (int i = 1; i < model.rowCount(QModelIndex()); i += 2)
+        view.setRowSpanning(i , QModelIndex(), true);
+
+    // non-spanning item
+    QPoint p(itemWidth / 2, itemHeight / 2); // column 0, row 0
+    view.setCurrentIndex(QModelIndex());
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    QApplication::processEvents();
+    QCOMPARE(view.currentIndex(), model.index(0, 0, QModelIndex()));
+    QCOMPARE(view.header()->sectionSize(0) - view.indentation(),
+             view.visualRect(model.index(0, 0, QModelIndex())).width());
+
+    // spanning item
+    p.setX(itemWidth + (itemWidth / 2)); // column 1
+    p.setY(itemHeight + (itemHeight / 2)); // row 1
+    QTest::mouseClick(view.viewport(), Qt::LeftButton, Qt::NoModifier, p);
+    QApplication::processEvents();
+    QCOMPARE(view.currentIndex(), model.index(1, 0, QModelIndex()));
+    QCOMPARE(view.header()->length() - view.indentation(),
+             view.visualRect(model.index(1, 0, QModelIndex())).width());
 }
 
 QTEST_MAIN(tst_QTreeView)
