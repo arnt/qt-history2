@@ -9,7 +9,9 @@
 
 #include <QtTest/QtTest>
 
+#include <qatomic.h>
 #include <qcoreapplication.h>
+#include <qdatetime.h>
 #include <qmutex.h>
 #include <qthread.h>
 #include <qwaitcondition.h>
@@ -28,6 +30,7 @@ public:
     virtual ~tst_QMutex();
 
 private slots:
+    void tryLock();
     void lock_unlock_locked_tryLock();
 
     void stressTest();
@@ -42,6 +45,172 @@ tst_QMutex::tst_QMutex()
 
 tst_QMutex::~tst_QMutex()
 {
+}
+
+QAtomic lockCount(0);
+QMutex normalMutex, recursiveMutex(QMutex::Recursive);
+QSemaphore testsTurn;
+QSemaphore threadsTurn;
+
+void tst_QMutex::tryLock()
+{
+    // test non-recursive mutex
+    {
+        class Thread : public QThread
+        {
+        public:
+            void run()
+            {
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(!normalMutex.tryLock());
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(normalMutex.tryLock());
+                QVERIFY(lockCount.testAndSet(0, 1));
+                QVERIFY(!normalMutex.tryLock());
+                QVERIFY(lockCount.testAndSet(1, 0));
+                normalMutex.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QTime timer;
+                timer.start();
+                QVERIFY(!normalMutex.tryLock(1000));
+                QVERIFY(timer.elapsed() >= 1000);
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                timer.start();
+                QVERIFY(normalMutex.tryLock(1000));
+                QVERIFY(timer.elapsed() <= 1000);
+                QVERIFY(lockCount.testAndSet(0, 1));
+                timer.start();
+                QVERIFY(!normalMutex.tryLock(1000));
+                QVERIFY(timer.elapsed() >= 1000);
+                QVERIFY(lockCount.testAndSet(1, 0));
+                normalMutex.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+            }
+        };
+
+        Thread thread;
+        thread.start();
+
+        testsTurn.acquire();
+        normalMutex.lock();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        normalMutex.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        normalMutex.lock();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        normalMutex.unlock();
+        threadsTurn.release();
+
+        // wait for thread to finish
+        testsTurn.acquire();
+        threadsTurn.release();
+        thread.wait();
+    }
+
+    // test recursive mutex
+    {
+        class Thread : public QThread
+        {
+        public:
+            void run()
+            {
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(!recursiveMutex.tryLock());
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(recursiveMutex.tryLock());
+                QVERIFY(lockCount.testAndSet(0, 1));
+                QVERIFY(recursiveMutex.tryLock());
+                QVERIFY(lockCount.testAndSet(1, 2));
+                QVERIFY(lockCount.testAndSet(2, 1));
+                recursiveMutex.unlock();
+                QVERIFY(lockCount.testAndSet(1, 0));
+                recursiveMutex.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QTime timer;
+                timer.start();
+                QVERIFY(!recursiveMutex.tryLock(1000));
+                QVERIFY(timer.elapsed() >= 1000);
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                timer.start();
+                QVERIFY(recursiveMutex.tryLock(1000));
+                QVERIFY(timer.elapsed() <= 1000);
+                QVERIFY(lockCount.testAndSet(0, 1));
+                QVERIFY(recursiveMutex.tryLock(1000));
+                QVERIFY(lockCount.testAndSet(1, 2));
+                QVERIFY(lockCount.testAndSet(2, 1));
+                recursiveMutex.unlock();
+                QVERIFY(lockCount.testAndSet(1, 0));
+                recursiveMutex.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+            }
+        };
+
+        Thread thread;
+        thread.start();
+
+        testsTurn.acquire();
+        recursiveMutex.lock();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        recursiveMutex.lock();
+        QVERIFY(lockCount.testAndSet(1, 2));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(2, 1));
+        recursiveMutex.unlock();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        recursiveMutex.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        recursiveMutex.lock();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        recursiveMutex.lock();
+        QVERIFY(lockCount.testAndSet(1, 2));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(2, 1));
+        recursiveMutex.unlock();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        recursiveMutex.unlock();
+        threadsTurn.release();
+
+        // stop thread
+        testsTurn.acquire();
+        threadsTurn.release();
+        thread.wait();
+    }
 }
 
 class mutex_Thread : public QThread

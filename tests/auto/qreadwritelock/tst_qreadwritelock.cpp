@@ -180,6 +180,12 @@ void tst_QReadWriteLock::readWriteLockUnlockLoop()
 
 }
 
+QAtomic lockCount(0);
+QReadWriteLock readWriteLock;
+QSemaphore testsTurn;
+QSemaphore threadsTurn;
+
+
 void tst_QReadWriteLock::tryReadLock()
 {
     QReadWriteLock rwlock;
@@ -199,6 +205,82 @@ void tst_QReadWriteLock::tryReadLock()
     QVERIFY(!rwlock.tryLockForRead());
     rwlock.unlock();
 
+    // functionality test
+    {
+        class Thread : public QThread
+        {
+        public:
+            void run()
+            {
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(!readWriteLock.tryLockForRead());
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QVERIFY(readWriteLock.tryLockForRead());
+                lockCount.ref();
+                QVERIFY(readWriteLock.tryLockForRead());
+                lockCount.ref();
+                lockCount.deref();
+                readWriteLock.unlock();
+                lockCount.deref();
+                readWriteLock.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                QTime timer;
+                timer.start();
+                QVERIFY(!readWriteLock.tryLockForRead(1000));
+                QVERIFY(timer.elapsed() >= 1000);
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                timer.start();
+                QVERIFY(readWriteLock.tryLockForRead(1000));
+                QVERIFY(timer.elapsed() <= 1000);
+                lockCount.ref();
+                QVERIFY(readWriteLock.tryLockForRead(1000));
+                lockCount.ref();
+                lockCount.deref();
+                readWriteLock.unlock();
+                lockCount.deref();
+                readWriteLock.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+            }
+        };
+
+        Thread thread;
+        thread.start();
+
+        testsTurn.acquire();
+        readWriteLock.lockForWrite();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        readWriteLock.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        readWriteLock.lockForWrite();
+        QVERIFY(lockCount.testAndSet(0, 1));
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        QVERIFY(lockCount.testAndSet(1, 0));
+        readWriteLock.unlock();
+        threadsTurn.release();
+
+        // stop thread
+        testsTurn.acquire();
+        threadsTurn.release();
+        thread.wait();
+    }
 }
 
 void tst_QReadWriteLock::tryWriteLock()
@@ -217,6 +299,69 @@ void tst_QReadWriteLock::tryWriteLock()
     QVERIFY(!rwlock.tryLockForWrite());
     rwlock.unlock();
 
+    // functionality test
+    {
+        class Thread : public QThread
+        {
+        public:
+            void run()
+            {
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                Q_ASSERT(!readWriteLock.tryLockForWrite());
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                Q_ASSERT(readWriteLock.tryLockForWrite());
+                Q_ASSERT(lockCount.testAndSet(0, 1));
+                Q_ASSERT(lockCount.testAndSet(1, 0));
+                readWriteLock.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                Q_ASSERT(!readWriteLock.tryLockForWrite(1000));
+                testsTurn.release();
+
+                threadsTurn.acquire();
+                Q_ASSERT(readWriteLock.tryLockForWrite(1000));
+                Q_ASSERT(lockCount.testAndSet(0, 1));
+                Q_ASSERT(lockCount.testAndSet(1, 0));
+                readWriteLock.unlock();
+                testsTurn.release();
+
+                threadsTurn.acquire();
+            }
+        };
+
+        Thread thread;
+        thread.start();
+
+        testsTurn.acquire();
+        readWriteLock.lockForRead();
+        lockCount.ref();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        lockCount.deref();
+        readWriteLock.unlock();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        readWriteLock.lockForRead();
+        lockCount.ref();
+        threadsTurn.release();
+
+        testsTurn.acquire();
+        lockCount.deref();
+        readWriteLock.unlock();
+        threadsTurn.release();
+
+        // stop thread
+        testsTurn.acquire();
+        threadsTurn.release();
+        thread.wait();
+    }
 }
 
 bool threadDone;
@@ -644,9 +789,9 @@ void tst_QReadWriteLock::limitedReaders()
 /*
     Test a race-condition that may happen if one thread is in unlock() while
     another thread deletes the rw-lock.
-    
+
     MainThread              DeleteOnUnlockThread
-                        
+
     write-lock
     unlock
       |                     write-lock
@@ -664,11 +809,11 @@ public:
         m_waitMutex->lock();
         m_startup->wakeAll();
         m_waitMutex->unlock();
-        
+
         // DeleteOnUnlockThread and the main thread will race from this point
         (*m_lock)->lockForWrite();
         (*m_lock)->unlock();
-        delete *m_lock; 
+        delete *m_lock;
     }
 private:
     QReadWriteLock **m_lock;
@@ -683,7 +828,7 @@ void tst_QReadWriteLock::deleteOnUnlock()
     QMutex waitMutex;
 
     DeleteOnUnlockThread thread2(&lock, &startup, &waitMutex);
-    
+
     QTime t;
     t.start();
     while(t.elapsed() < 4000) {
@@ -693,10 +838,10 @@ void tst_QReadWriteLock::deleteOnUnlock()
         thread2.start();
         startup.wait(&waitMutex);
         waitMutex.unlock();
-        
+
         // DeleteOnUnlockThread and the main thread will race from this point
         lock->unlock();
-        
+
         thread2.wait();
     }
 }

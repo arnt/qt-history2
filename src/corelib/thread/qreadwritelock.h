@@ -33,9 +33,11 @@ public:
 
     void lockForRead();
     bool tryLockForRead();
+    bool tryLockForRead(int timeout);
 
     void lockForWrite();
     bool tryLockForWrite();
+    bool tryLockForWrite(int timeout);
 
     void unlock();
 
@@ -140,9 +142,11 @@ public:
 
     static inline void lockForRead() { }
     static inline bool tryLockForRead() { return true; }
+    static inline bool tryLockForRead(int timeout) { Q_UNUSED(timeout); return true; }
 
     static inline void lockForWrite() { }
     static inline bool tryLockForWrite() { return true; }
+    static inline bool tryLockForWrite(int timeout) { Q_UNUSED(timeout); return true; }
 
     static inline void unlock() { }
 

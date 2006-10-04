@@ -32,14 +32,13 @@ public:
     ~QMutexPrivate();
 
     ulong self();
-    void wait();
+    bool wait(int timeout = -1);
     void wakeUp();
 
-    QAtomic lock;
+    const bool recursive;
+    QAtomic contenders;
     ulong owner;
     uint count;
-
-    bool recursive;
 
 #if defined(Q_OS_UNIX)
     bool wakeup;

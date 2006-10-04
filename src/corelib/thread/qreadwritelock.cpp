@@ -22,11 +22,11 @@ struct QReadWriteLockPrivate
 {
     QReadWriteLockPrivate()
     : accessCount(0), waitingReaders(0), waitingWriters(0) {}
-    
+
     QMutex mutex;
     QWaitCondition readerWait;
     QWaitCondition writerWait;
-   
+
     int accessCount;
     int waitingReaders;
     int waitingWriters;
@@ -140,13 +140,44 @@ void QReadWriteLock::lockForRead()
 bool QReadWriteLock::tryLockForRead()
 {
    QMutexLocker lock(&d->mutex);
-    
+
     if (d->accessCount < 0)
         return false;
-    
+
     ++d->accessCount;
     Q_ASSERT_X(d->accessCount > 0, "QReadWriteLock::lockForRead()", "Overflow in lock counter");
-    
+
+    return true;
+}
+
+/*! \overload
+
+    Attempts to lock for reading. This function returns true if the
+    lock was obtained; otherwise it returns false. If another thread
+    has locked for writing, this function will wait for at most \a
+    timeout milliseconds for the lock to become available.
+
+    Note: Passing a negative number as the \a timeout is equivalent to
+    calling lockForRead(), i.e. this function will wait forever until
+    lock can be locked for reading when \a timeout is negative.
+
+    If the lock was obtained, the lock must be unlocked with unlock()
+    before another thread can successfully lock it.
+
+    \sa unlock() lockForRead()
+*/
+bool QReadWriteLock::tryLockForRead(int timeout)
+{
+    QMutexLocker lock(&d->mutex);
+    while (d->accessCount < 0 || d->waitingWriters) {
+        ++d->waitingReaders;
+        bool success = d->readerWait.wait(&d->mutex, timeout < 0 ? ULONG_MAX : timeout);
+        --d->waitingReaders;
+        if (!success)
+            return false;
+     }
+    ++d->accessCount;
+    Q_ASSERT_X(d->accessCount > 0, "QReadWriteLock::lockForRead()", "Overflow in lock counter");
     return true;
 }
 
@@ -182,10 +213,40 @@ void QReadWriteLock::lockForWrite()
 bool QReadWriteLock::tryLockForWrite()
 {
     QMutexLocker lock(&d->mutex);
-    
+
     if (d->accessCount != 0)
         return false;
-    
+
+    d->accessCount = -1;
+    return true;
+}
+
+/*! \overload
+
+    Attempts to lock for writing. This function returns true if the
+    lock was obtained; otherwise it returns false. If another thread
+    has locked for reading, this function will wait for at most \a
+    timeout milliseconds for the lock to become available.
+
+    Note: Passing a negative number as the \a timeout is equivalent to
+    calling lockForWrite(), i.e. this function will wait forever until
+    lock can be locked for writing when \a timeout is negative.
+
+    If the lock was obtained, the lock must be unlocked with unlock()
+    before another thread can successfully lock it.
+
+    \sa unlock() lockForWrite()
+*/
+bool QReadWriteLock::tryLockForWrite(int timeout)
+{
+    QMutexLocker lock(&d->mutex);
+    while (d->accessCount != 0) {
+        ++d->waitingWriters;
+        bool success = d->writerWait.wait(&d->mutex, timeout < 0 ? ULONG_MAX : timeout);
+        --d->waitingWriters;
+        if (!success)
+            return false;
+    }
     d->accessCount = -1;
     return true;
 }
@@ -201,16 +262,16 @@ bool QReadWriteLock::tryLockForWrite()
 void QReadWriteLock::unlock()
 {
     QMutexLocker lock(&d->mutex);
-    
+
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
-  
+
     if ((d->accessCount > 0 && --d->accessCount == 0) || (d->accessCount == -1 && ++d->accessCount == 0)) {
         if (d->waitingWriters) {
             d->writerWait.wakeOne();
         } else if (d->waitingReaders) {
             d->readerWait.wakeAll();
         }
-   }      
+   }
 }
 
 /*!

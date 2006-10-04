@@ -18,7 +18,7 @@
 #include "qmutex_p.h"
 
 QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
-    : lock(0), owner(0), count(0), recursive(mode == QMutex::Recursive),
+    : recursive(mode == QMutex::Recursive), contenders(0), owner(0), count(0),
       event(QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
                          CreateEventA(0, FALSE, FALSE, 0)))
 {
@@ -32,10 +32,9 @@ QMutexPrivate::~QMutexPrivate()
 ulong QMutexPrivate::self()
 { return GetCurrentThreadId(); }
 
-void QMutexPrivate::wait()
-{ 
-    if (WaitForSingleObject(event, INFINITE) != WAIT_OBJECT_0)
-        qWarning("QMutexPrivate::wait: Waiting on event failed");
+bool QMutexPrivate::wait(int timeout)
+{
+    return WaitForSingleObject(event, timeout < 0 ? INFINITE : timeout) ==  WAIT_OBJECT_0;
 }
 
 void QMutexPrivate::wakeUp()

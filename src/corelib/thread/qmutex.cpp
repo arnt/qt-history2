@@ -166,24 +166,28 @@ void QMutex::lock()
 {
     ulong self = d->self();
 
-    int sentinel;
+    int contender;
     forever {
-        sentinel = d->lock;
-        if (d->lock.testAndSetAcquire(sentinel, sentinel + 1))
+        contender = d->contenders;
+        if (d->contenders.testAndSetAcquire(contender, contender + 1))
             break;
     }
-    if (sentinel != 0) {
-        if (!d->recursive || d->owner != self) {
+
+    bool isLocked = contender == 0;
+    if (!isLocked) {
+        isLocked = d->recursive && d->owner == self;
+        if (!isLocked) {
             if (d->owner == self) {
                 qWarning("QMutex::lock: Deadlock detected in thread %ld", d->owner);
             }
 
             // didn't get the lock, wait for it
-            d->wait();
+            isLocked = d->wait();
+            Q_ASSERT_X(isLocked, "QMutex::lock", "Internal error, infinite wait has timed out.");
         }
 
         // don't need to wait for the lock anymore
-        d->lock.deref();
+        d->contenders.deref();
     }
     d->owner = self;
     ++d->count;
@@ -204,26 +208,79 @@ bool QMutex::tryLock()
 {
     ulong self = d->self();
 
-    int sentinel;
+    int contender;
     forever {
-        sentinel = d->lock;
-        if (d->lock.testAndSetAcquire(sentinel, sentinel + 1))
+        contender = d->contenders;
+        if (d->contenders.testAndSetAcquire(contender, contender + 1))
             break;
     }
-    if (sentinel != 0) {
-        // we're not going to wait for lock
-        d->lock.deref();
 
-        if (!d->recursive || d->owner != self) {
+    bool isLocked = contender == 0;
+    if (!isLocked) {
+        isLocked = d->recursive && d->owner == self;
+
+        // we're not going to wait for lock
+        d->contenders.deref();
+
+        if (!isLocked) {
             // some other thread has the mutex locked, or we tried to
             // recursively lock an non-recursive mutex
-            return false;
+            return isLocked;
         }
     }
     d->owner = self;
     ++d->count;
+    Q_ASSERT_X(d->count != 0, "QMutex::tryLock", "Overflow in recursion counter");
+    return isLocked;
+}
+
+/*! \overload
+
+    Attempts to lock the mutex. This function returns true if the lock
+    was obtained; otherwise it returns false. If another thread has
+    locked the mutex, this function will wait for at most \a timeout
+    milliseconds for the mutex to become available.
+
+    Note: Passing a negative number as the \a timeout is equivalent to
+    calling lock(), i.e. this function will wait forever until mutex
+    can be locked if \a timeout is negative.
+
+    If the lock was obtained, the mutex must be unlocked with unlock()
+    before another thread can successfully lock it.
+
+    \sa lock(), unlock()
+*/
+bool QMutex::tryLock(int timeout)
+{
+    ulong self = d->self();
+
+    int contender;
+    forever {
+        contender = d->contenders;
+        if (d->contenders.testAndSetAcquire(contender, contender + 1))
+            break;
+    }
+
+    bool isLocked = contender == 0;
+    if (!isLocked) {
+         isLocked = d->recursive && d->owner == self;
+         if (!isLocked) {
+            // didn't get the lock, wait for it
+            isLocked = d->wait(timeout);
+        }
+
+        // don't need to wait for the lock anymore
+        d->contenders.deref();
+        if (!isLocked)
+            return false;
+    }
+
+    d->owner = self;
+    ++d->count;
+    Q_ASSERT_X(d->count != 0, "QMutex::tryLock", "Overflow in recursion counter");
     return true;
 }
+
 
 /*!
     Unlocks the mutex. Attempting to unlock a mutex in a different
@@ -239,7 +296,7 @@ void QMutex::unlock()
 
     if (!--d->count) {
         d->owner = 0;
-        if (!d->lock.testAndSetRelease(1, 0))
+        if (!d->contenders.testAndSetRelease(1, 0))
             d->wakeUp();
     }
 }

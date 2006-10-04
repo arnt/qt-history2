@@ -19,6 +19,8 @@
 #include "qatomic.h"
 #include "qmutex_p.h"
 
+#include <errno.h>
+
 static void report_error(int code, const char *where, const char *what)
 {
     if (code != 0)
@@ -27,7 +29,7 @@ static void report_error(int code, const char *where, const char *what)
 
 
 QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
-    : lock(0), owner(0), count(0), recursive(mode == QMutex::Recursive), wakeup(false)
+    : recursive(mode == QMutex::Recursive), contenders(0), owner(0), count(0), wakeup(false)
 {
     report_error(pthread_mutex_init(&mutex, NULL), "QMutex", "mutex init");
     report_error(pthread_cond_init(&cond, NULL), "QMutex", "cv init");
@@ -42,13 +44,37 @@ QMutexPrivate::~QMutexPrivate()
 ulong QMutexPrivate::self()
 { return (ulong) pthread_self(); }
 
-void QMutexPrivate::wait()
+bool QMutexPrivate::wait(int timeout)
 {
     report_error(pthread_mutex_lock(&mutex), "QMutex::lock", "mutex lock");
-    while (!wakeup)
-        report_error(pthread_cond_wait(&cond, &mutex), "QMutex::lock", "cv wait");
+    int errorCode;
+    forever {
+        if (timeout < 0) {
+            errorCode = pthread_cond_wait(&cond, &mutex);
+        } else {
+            struct timeval tv;
+            gettimeofday(&tv, 0);
+
+            timespec ti;
+            ti.tv_nsec = (tv.tv_usec + (timeout % 1000) * 1000) * 1000;
+            ti.tv_sec = tv.tv_sec + (timeout / 1000) + (ti.tv_nsec / 1000000000);
+            ti.tv_nsec %= 1000000000;
+
+            errorCode = pthread_cond_timedwait(&cond, &mutex, &ti);
+        }
+        if (errorCode == 0 && !wakeup) {
+            // many vendors warn of spurios wakeups from
+            // pthread_cond_wait(), especially after signal delivery,
+            // even though POSIX doesn't allow for it... sigh
+            continue;
+        }
+        if (errorCode && errorCode != ETIMEDOUT)
+            report_error(errorCode, "QMutex::lock()", "cv wait");
+        break;
+    }
     wakeup = false;
     report_error(pthread_mutex_unlock(&mutex), "QMutex::lock", "mutex unlock");
+    return errorCode == 0;
 }
 
 void QMutexPrivate::wakeUp()
