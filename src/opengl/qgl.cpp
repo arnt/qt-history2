@@ -2514,7 +2514,7 @@ QGLWidget::~QGLWidget()
 bool QGLWidget::isValid() const
 {
     Q_D(const QGLWidget);
-    return d->glcx->isValid();
+    return d->glcx && d->glcx->isValid();
 }
 
 /*!
