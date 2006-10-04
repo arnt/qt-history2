@@ -32,6 +32,7 @@ UnixMakefileGenerator::writePrlFile(QTextStream &t)
 {
     MakefileGenerator::writePrlFile(t);
     // libtool support
+
     if(project->isActiveConfig("create_libtool") && project->first("TEMPLATE") == "lib") { //write .la
         if(project->isActiveConfig("compile_libtool"))
             warn_msg(WarnLogic, "create_libtool specified with compile_libtool can lead to conflicting .la\n"
@@ -693,13 +694,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 for(int file = 0; file < files.count(); file++) {
                     const QString dst = path + Option::dir_sep + fileInfo(files[file]).fileName();
                     t << dst << ": " << files[file] << "\n\t"
-                      << mkdir_p_asstring(path) << "\n\t"
-                      << "@$(DEL_FILE) " << dst << "\n\t";
+                      << mkdir_p_asstring(path) << "\n\t";
                     QFileInfo fi(fileInfo(files[file]));
                     if(fi.isDir())
-                        t << "@$(COPY_DIR) " << files[file] << " " << dst << endl;
+                        t << "@$(DEL_DIR) " << dst << "\n\t"
+                          << "@$(COPY_DIR) " << files[file] << " " << dst << endl;
                     else
-                        t << "@$(COPY_FILE) " << files[file] << " " << dst << endl;
+                        t << "@$(DEL_FILE) " << dst << "\n\t"
+                          << "@$(COPY_FILE) " << files[file] << " " << dst << endl;
                 }
             }
         }
@@ -1235,7 +1237,9 @@ UnixMakefileGenerator::writeLibtoolFile()
         "dlopen=''\n"
         "dlpreopen=''\n\n";
 
-    QString install_dir = project->first("target.path");
+    QString install_dir = project->first("QMAKE_LIBTOOL_LIBDIR");
+    if(install_dir.isEmpty())
+        install_dir = project->first("target.path");
     if(install_dir.isEmpty())
         install_dir = project->first("DESTDIR");
     t << "# Directory that this library needs to be installed in:\n"
