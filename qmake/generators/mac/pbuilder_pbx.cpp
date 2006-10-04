@@ -845,10 +845,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     }
                 }
                 if(!library.isEmpty()) {
+                    const int slsh = library.lastIndexOf(Option::dir_sep);
                     if(name.isEmpty()) {
-                        int slsh = library.lastIndexOf(Option::dir_sep);
                         if(slsh != -1)
                             name = library.right(library.length() - slsh - 1);
+                    }
+                    if(slsh != -1) {
+                        const QString path = QFileInfo(library.left(slsh)).absoluteFilePath();
+                        if(!path.isEmpty() && !libdirs.contains(path))
+                            libdirs += path;
                     }
                     library = fileFixify(library);
                     QString key = keyFor(library);
@@ -1158,7 +1163,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "CC = \"" << fixListForOutput("QMAKE_CC") << "\";" << "\n"
       << "\t\t\t\t" << "CPLUSPLUS = \"" << fixListForOutput("QMAKE_CXX") << "\";" << "\n"
       << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixListForOutput("INCLUDEPATH") << " " << fixForOutput(specdir()) << "\";" << "\n"
-      << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << fixListForOutput(var("QMAKE_PBX_LIBPATHS")) << "\";" << "\n"
+      << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << fixListForOutput("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "OTHER_CFLAGS = \"" <<
         fixListForOutput("QMAKE_CFLAGS") << fixForOutput(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
