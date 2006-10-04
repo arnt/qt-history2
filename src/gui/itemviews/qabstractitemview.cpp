@@ -2037,8 +2037,6 @@ void QAbstractItemView::updateEditorData()
 void QAbstractItemView::updateEditorGeometries()
 {
     Q_D(QAbstractItemView);
-    if (!d->itemDelegate)
-        return;
     QStyleOptionViewItem option = viewOptions();
     _q_abstractitemview_editor_iterator it = d->editors.begin();
     while (it != d->editors.end()) {
@@ -2048,7 +2046,9 @@ void QAbstractItemView::updateEditorGeometries()
             option.rect = visualRect(index);
             if (option.rect.isValid()) {
                 editor->show();
-                d->itemDelegate->updateEditorGeometry(editor, option, index);
+                QAbstractItemDelegate *delegate = d->delegateForIndex(index);
+                if (delegate)
+                    delegate->updateEditorGeometry(editor, option, index);
             } else {
                 editor->hide();
             }
@@ -2124,7 +2124,8 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
         setState(NoState);
         d->removeEditor(editor);
         bool hadFocus = editor->hasFocus();
-        editor->removeEventFilter(d->itemDelegate);
+        QModelIndex index = d->indexForEditor(editor);
+        editor->removeEventFilter(d->delegateForIndex(index));
         if (hadFocus)
             setFocus(); // this will send a focusLost event to the editor
         QApplication::sendPostedEvents(editor, 0);
@@ -2515,14 +2516,16 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 {
     // Single item changed
     Q_D(QAbstractItemView);
-    if (!d->itemDelegate)
-        return;
     if (topLeft == bottomRight && topLeft.isValid()) {
-        if (d->hasEditor(topLeft))
-            d->itemDelegate->setEditorData(d->editorForIndex(topLeft), topLeft);
-        else if (isVisible() && !d->delayedLayout.isActive())
+        if (d->hasEditor(topLeft)) {
+            QAbstractItemDelegate *delegate = d->delegateForIndex(topLeft);
+            if (!delegate)
+                return;
+            delegate->setEditorData(d->editorForIndex(topLeft), topLeft);
+        } else if (isVisible() && !d->delayedLayout.isActive()) {
             // otherwise the items will be update later anyway
             d->viewport->update(visualRect(topLeft));
+        }
         return;
     }
     d->updateEditorData(topLeft, bottomRight);
@@ -3153,16 +3156,17 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
                                           const QStyleOptionViewItem &options)
 {
     Q_Q(QAbstractItemView);
-    if (!itemDelegate)
-        return 0;
     QWidget *w = editorForIndex(index);
     if (!w) {
-        w = itemDelegate->createEditor(viewport, options, index);
+        QAbstractItemDelegate *delegate = delegateForIndex(index);
+        if (!delegate)
+            return 0;
+        w = delegate->createEditor(viewport, options, index);
         if (w) {
-            w->installEventFilter(itemDelegate);
+            w->installEventFilter(delegate);
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
-            itemDelegate->updateEditorGeometry(w, options, index);
-            itemDelegate->setEditorData(w, index);
+            delegate->updateEditorGeometry(w, options, index);
+            delegate->setEditorData(w, index);
             addEditor(index, w);
             QWidget::setTabOrder(q, w);
 #ifndef QT_NO_LINEEDIT
@@ -3177,20 +3181,19 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
 void QAbstractItemViewPrivate::updateEditorData(const QModelIndex &tl, const QModelIndex &br)
 {
     // we are counting on having relatively few editors
-    if (!itemDelegate)
-        return;
     const bool checkIndexes = tl.isValid() && br.isValid();
     const QModelIndex parent = tl.parent();
     _q_abstractitemview_editor_iterator it = editors.begin();
     for (; it != editors.end(); ++it) {
         QWidget *editor = editorForIterator(it);
         const QModelIndex index = indexForIterator(it);
-        if (editor && index.isValid()
+        QAbstractItemDelegate *delegate = delegateForIndex(index);
+        if (delegate && editor && index.isValid()
             && (!checkIndexes
                 || (index.row() >= tl.row() && index.row() <= br.row()
                     && index.column() >= tl.column() && index.column() <= br.column()
                     && index.parent() == parent))) {
-            itemDelegate->setEditorData(editor, index);
+            delegate->setEditorData(editor, index);
         }
     }
 }
@@ -3273,13 +3276,12 @@ void QAbstractItemViewPrivate::addEditor(const QModelIndex &index, QWidget *edit
 bool QAbstractItemViewPrivate::sendDelegateEvent(const QModelIndex &index, QEvent *event) const
 {
     Q_Q(const QAbstractItemView);
-    if (!itemDelegate)
-        return false;
     QModelIndex buddy = model->buddy(index);
     QStyleOptionViewItem options = q->viewOptions();
     options.rect = q->visualRect(buddy);
     options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
-    return (event && delegateForIndex(index)->editorEvent(event, model, options, buddy));
+    QAbstractItemDelegate *delegate = delegateForIndex(index);
+    return (event && delegate && delegate->editorEvent(event, model, options, buddy));
 }
 
 bool QAbstractItemViewPrivate::openEditor(const QModelIndex &index, QEvent *event)
