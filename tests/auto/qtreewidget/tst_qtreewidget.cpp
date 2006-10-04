@@ -2118,8 +2118,11 @@ void tst_QTreeWidget::changeDataWithSorting()
     for (int i = 0; i < expectedItems.count(); ++i)
         QCOMPARE(w.topLevelItem(i)->text(0), expectedItems.at(i));
 
-    for (int k = 0; k < persistent.count(); ++k)
+    for (int k = 0; k < persistent.count(); ++k) {
         QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
+        QModelIndex index = model->index(persistent.at(k).row(), 0, QModelIndex());
+        QCOMPARE(persistent.at(k).internalPointer(), index.internalPointer());
+    }
 
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
