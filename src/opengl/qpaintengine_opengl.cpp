@@ -1518,8 +1518,8 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
         tr[2] = 0;
         tr[3] = -(start.x()*tr[0] + start.y()*tr[1]);
         setGLBrush(Qt::white);
-        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-        glTexGenfv(GL_S, GL_EYE_PLANE, tr);
+        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+        glTexGenfv(GL_S, GL_OBJECT_PLANE, tr);
 
         glBindTexture(GL_TEXTURE_1D, grad_palette);
         createGradientPaletteTexture(*brush.gradient());
