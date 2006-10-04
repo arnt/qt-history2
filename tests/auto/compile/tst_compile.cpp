@@ -29,6 +29,7 @@ private slots:
     void overrideCFunction();
     void stdSortQList();
     void stdSortQVector();
+    void templateCallOrder();
 };
 
 #if defined(Q_CC_MSVC) && _MSC_VER < 1300
@@ -433,6 +434,42 @@ void tst_Compiler::stdSortQList()
 void tst_Compiler::stdSortQVector()
 { QSKIP("Compiler's STL broken", SkipAll); }
 #endif
+
+// the C func will set it to 1, the template to 2
+static int whatWasCalled = 0;
+
+void callOrderFunc(void *)
+{
+    whatWasCalled = 1;
+}
+
+template <typename T>
+void callOrderFunc(void *, T * = 0)
+{
+    whatWasCalled = 2;
+}
+
+/*
+   This test will check what will get precendence - the C function
+   or the template.
+
+   It also makes sure this template "override" will compile on all systems
+   and not result in ambiguities.
+*/
+void tst_Compiler::templateCallOrder()
+{
+    QCOMPARE(whatWasCalled, 0);
+
+    // call it with a void *
+    void *f = 0;
+    callOrderFunc(f);
+    QCOMPARE(whatWasCalled, 1);
+
+    // call it with a char *
+    char *c = 0;
+    callOrderFunc(c);
+    QCOMPARE(whatWasCalled, 1);
+}
 
 QTEST_APPLESS_MAIN(tst_Compiler)
 #include "tst_compile.moc"
