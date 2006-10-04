@@ -31,9 +31,10 @@
 
 struct QTreeViewItem
 {
-    QTreeViewItem() : expanded(false), total(0), level(0), height(0) {}
-    QModelIndex index; // we remove items whenever the indexes are invalidated (make persistent ?)
+    QTreeViewItem() : expanded(false), spanning(false), total(0), level(0), height(0) {}
+    QModelIndex index; // we remove items whenever the indexes are invalidated
     uint expanded : 1;
+    uint spanning : 1;
     uint total : 30; // total number of children visible
     uint level : 16; // indentation
     int height : 16; // row height
@@ -133,6 +134,7 @@ public:
     // used for drawing
     mutable QPair<int,int> leftAndRight;
     mutable int current;
+    mutable bool spanning;
 
     // used when expanding and collapsing items
     QVector<QPersistentModelIndex> expandedIndexes;
@@ -142,6 +144,9 @@ public:
 
     // used when hiding and showing items
     QVector<QPersistentModelIndex> hiddenIndexes;
+
+    // used for spanning rows
+    QVector<QPersistentModelIndex> spanningIndexes;
 
     // used for updating resized columns
     int columnResizeTimerID;

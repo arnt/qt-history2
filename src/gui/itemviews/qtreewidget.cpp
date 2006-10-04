@@ -552,6 +552,7 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     if (changed) {
         emit layoutAboutToBeChanged();
         itm->children = lst;
+        qDebug() << "ensuredSorted" << lst.count();
         changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
         emit layoutChanged();
     }
@@ -882,6 +883,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
 
   \sa setHidden()
 */
+
 /*!
   \fn void QTreeWidgetItem::setExpanded(bool expand)
   \since 4.2
@@ -896,6 +898,25 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortO
   \since 4.2
 
   Returns true if the item is expanded, otherwise returns false.
+
+  \sa setExpanded()
+*/
+
+/*!
+  \fn void QTreeWidgetItem::setSpanning(bool span)
+  \since 4.3
+
+  Sets the first section to span all columns if \a expand is true,
+  otherwise all item sections are shown.
+
+  \sa isExpanded()
+*/
+
+/*!
+  \fn bool QTreeWidgetItem::isSpanning() const
+  \since 4.3
+
+  Returns true if the item is spanning, otherwise returns false.
 
   \sa setExpanded()
 */
@@ -1615,17 +1636,9 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
         else
             child->par = this;
         if (view->isSortingEnabled()) {
-#if 0
-            Qt::SortOrder order = view->header()->sortIndicatorOrder();
-            QList<QTreeWidgetItem*>::iterator it;
-            it = model->sortedInsertionIterator(children.begin(), children.end(),
-                                                order, child);
-            index = qMax(it - children.begin(), 0);
-#else
             // do a delayed sort instead
             index = children.count(); // append
             model->sortPending = true;
-#endif
         }
         model->beginInsertItems(this, index, 1);
         int cols = model->columnCount();
@@ -2717,6 +2730,43 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 {
     Q_D(QTreeWidget);
     setExpanded(d->index(item), expand);
+}
+
+/*!
+  \since 4.3
+
+  Returns true if the given \a item is set to show only one section over all columns;
+  otherwise returns false.
+
+  \sa setItemSpanning()
+*/
+bool QTreeWidget::isItemSpanning(const QTreeWidgetItem *item) const
+{
+    Q_D(const QTreeWidget);
+    if (item == d->model()->headerItem)
+        return false; // We can't set the header items to spanning
+    const QModelIndex index = d->index(item);
+    return isRowSpanning(index.row(), index.parent());
+}
+
+/*!
+  \since 4.3
+
+  Sets the given \a item to only show one section for all columns if \a span is true;
+  otherwise the item will show one section per column.
+
+  \sa itemChanged()
+*/
+void QTreeWidget::setItemSpanning(const QTreeWidgetItem *item, bool span)
+{
+    Q_D(QTreeWidget);
+    if (item == d->model()->headerItem) {
+        // We can't set header items to spanning
+        return;
+    } else {
+        const QModelIndex index = d->index(item);
+        setRowSpanning(index.row(), index.parent(), span);
+    }
 }
 
 /*!
