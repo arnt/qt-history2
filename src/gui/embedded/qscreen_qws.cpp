@@ -1181,11 +1181,11 @@ static void blit_32_to_24(const blit_data *data)
     while (h) {
         uchar *d = dest;
         for (int i = 0; i < data->w; ++i) {
-            uint s = src[i];
-            *d = s & 0xff;
-            *(d+1) = (s >> 8) & 0xff;
-            *(d+2) = (s >> 16) & 0xff;
-            d+=3;
+            QRgb s = src[i];
+            *d = qBlue(s);
+            *(d+1) = qGreen(s);
+            *(d+2) = qRed(s);
+            d += 3;
         }
         src += sbpl;
         dest += dbpl;
