@@ -142,23 +142,35 @@
 #include "QtGui/qheaderview.h"
 #include "QtGui/qdesktopwidget.h"
 
+QCompletionModel::QCompletionModel(QCompleterPrivate *c, QObject *parent)
+    : QAbstractProxyModel(*new QCompletionModelPrivate, parent),
+      c(c), engine(0), showAll(false)
+{
+    createEngine();
+}
+
+int QCompletionModel::columnCount(const QModelIndex &) const
+{
+    Q_D(const QCompletionModel);
+    return d->model->columnCount();
+}
+
 void QCompletionModel::setSourceModel(QAbstractItemModel *source)
 {
-    if (model)
-        QObject::disconnect(model, 0, this, 0);
+    Q_D(const QCompletionModel);
+    QObject::disconnect(d->model, 0, this, 0);
 
     QAbstractProxyModel::setSourceModel(source);
-    model = sourceModel();
 
     // TODO: Optimize updates in the source model
-    connect(model, SIGNAL(modelReset()), this, SLOT(invalidate()));
-    connect(model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
-    connect(model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(modelReset()), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
+    connect(d->model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(invalidate()));
+    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(invalidate()));
 
     invalidate();
 }
@@ -187,6 +199,7 @@ void QCompletionModel::createEngine()
 
 QModelIndex QCompletionModel::mapToSource(const QModelIndex& index) const
 {
+    Q_D(const QCompletionModel);
     if (!index.isValid())
         return QModelIndex();
 
@@ -207,7 +220,7 @@ QModelIndex QCompletionModel::mapToSource(const QModelIndex& index) const
         row = index.row();
     }
 
-    return model->index(row, index.column(), parent);
+    return d->model->index(row, index.column(), parent);
 }
 
 QModelIndex QCompletionModel::mapFromSource(const QModelIndex& idx) const
@@ -279,6 +292,7 @@ QModelIndex QCompletionModel::currentIndex(bool sourceIndex) const
 
 QModelIndex QCompletionModel::index(int row, int column, const QModelIndex& parent) const
 {
+    Q_D(const QCompletionModel);
     if (row < 0 || column < 0 || column >= columnCount(parent) || parent.isValid())
         return QModelIndex();
 
@@ -293,7 +307,7 @@ QModelIndex QCompletionModel::index(int row, int column, const QModelIndex& pare
                 return QModelIndex();
         }
     } else {
-        if (row >= model->rowCount(engine->curParent))
+        if (row >= d->model->rowCount(engine->curParent))
             return QModelIndex();
     }
 
@@ -311,6 +325,7 @@ int QCompletionModel::completionCount() const
 
 int QCompletionModel::rowCount(const QModelIndex &parent) const
 {
+    Q_D(const QCompletionModel);
     if (parent.isValid())
         return 0;
 
@@ -319,7 +334,7 @@ int QCompletionModel::rowCount(const QModelIndex &parent) const
         if (engine->curParts.count() != 1  && !engine->matchCount()
             && !engine->curParent.isValid())
             return 0;
-        return model->rowCount(engine->curParent);
+        return d->model->rowCount(engine->curParent);
     }
 
     return completionCount();
@@ -335,11 +350,12 @@ void QCompletionModel::setFiltered(bool filtered)
 
 bool QCompletionModel::hasChildren(const QModelIndex &parent) const
 {
+    Q_D(const QCompletionModel);
     if (parent.isValid())
         return false;
 
     if (showAll)
-        return model->hasChildren(mapToSource(parent));
+        return d->model->hasChildren(mapToSource(parent));
 
     if (!engine->matchCount())
         return false;
@@ -349,13 +365,13 @@ bool QCompletionModel::hasChildren(const QModelIndex &parent) const
 
 QVariant QCompletionModel::data(const QModelIndex& index, int role) const
 {
-    return model->data(mapToSource(index), role);
+    Q_D(const QCompletionModel);
+    return d->model->data(mapToSource(index), role);
 }
 
 void QCompletionModel::modelDestroyed()
 {
     QAbstractProxyModel::setSourceModel(0); // switch to static empty model
-    model = sourceModel();
     invalidate();
 }
 
@@ -384,6 +400,9 @@ void QCompletionEngine::filter(const QStringList& parts)
     curMatch = QMatchData();
     historyMatch = filterHistory();
 
+    if (!model)
+        return;
+
     QModelIndex parent;
     for (int i = 0; i < curParts.count() - 1; i++) {
         QString part = curParts[i];
@@ -405,9 +424,9 @@ void QCompletionEngine::filter(const QStringList& parts)
 
 QMatchData QCompletionEngine::filterHistory()
 {
-    if (curParts.count() <= 1 || c->proxy->showAll)
+    QAbstractItemModel *source = c->proxy->sourceModel();
+    if (curParts.count() <= 1 || c->proxy->showAll || !source)
         return QMatchData();
-    QAbstractItemModel *source = c->proxy->model;
     bool dirModel = false;
 #ifndef QT_NO_DIRMODEL
     dirModel = (qobject_cast<QDirModel *>(source) != 0);
@@ -869,7 +888,7 @@ QWidget *QCompleter::widget() const
 void QCompleter::setModel(QAbstractItemModel *model)
 {
     Q_D(QCompleter);
-    QAbstractItemModel *oldModel = d->proxy->model;
+    QAbstractItemModel *oldModel = d->proxy->sourceModel();
     d->proxy->setSourceModel(model);
     if (d->popup)
         setPopup(d->popup); // set the model and make new connections
@@ -1381,6 +1400,8 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
         return QString();
 
     QAbstractItemModel *sourceModel = d->proxy->sourceModel();
+    if (!sourceModel)
+        return QString();
 #ifndef QT_NO_DIRMODEL
     QDirModel *dirModel = qobject_cast<QDirModel *>(sourceModel);
     if (!dirModel)

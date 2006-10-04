@@ -35,6 +35,7 @@
 #include "qcompleter.h"
 #include "QtGui/qitemdelegate.h"
 #include "QtGui/qpainter.h"
+#include "private/qabstractproxymodel_p.h"
 
 class QCompletionModel;
 
@@ -169,14 +170,14 @@ private:
     QAbstractItemView *view;
 };
 
+class QCompletionModelPrivate;
+
 class QCompletionModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
 public:
-    QCompletionModel(QCompleterPrivate *c, QObject *parent) :
-        QAbstractProxyModel(parent), c(c), engine(0), showAll(false)
-    { model = sourceModel(); createEngine(); }
+    QCompletionModel(QCompleterPrivate *c, QObject *parent);
     ~QCompletionModel() { delete engine; }
 
     void createEngine();
@@ -189,7 +190,7 @@ public:
 
     QModelIndex index(int row, int column, const QModelIndex & = QModelIndex()) const;
     int rowCount(const QModelIndex &index = QModelIndex()) const;
-    int columnCount(const QModelIndex& = QModelIndex()) const { return model->columnCount(); }
+    int columnCount(const QModelIndex &index = QModelIndex()) const;
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex & = QModelIndex()) const { return QModelIndex(); }
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
@@ -199,13 +200,19 @@ public:
     QModelIndex mapFromSource(const QModelIndex& sourceIndex) const;
 
     QCompleterPrivate *c;
-    QAbstractItemModel *model;
     QCompletionEngine *engine;
     bool showAll;
+
+    Q_DECLARE_PRIVATE(QCompletionModel)
 
 public Q_SLOTS:
     void invalidate();
     void modelDestroyed();
+};
+
+class QCompletionModelPrivate : public QAbstractProxyModelPrivate
+{
+    Q_DECLARE_PUBLIC(QCompletionModel)
 };
 
 #endif // QT_NO_COMPLETER
