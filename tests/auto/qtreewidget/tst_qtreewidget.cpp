@@ -2115,14 +2115,15 @@ void tst_QTreeWidget::changeDataWithSorting()
 
     QTreeWidgetItem *item = w.topLevelItem(itemIndex);
     item->setText(0, newValue);
-    for (int i = 0; i < expectedItems.count(); ++i)
+    for (int i = 0; i < expectedItems.count(); ++i) {
         QCOMPARE(w.topLevelItem(i)->text(0), expectedItems.at(i));
-
-    for (int k = 0; k < persistent.count(); ++k) {
-        QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
-        QModelIndex index = model->index(persistent.at(k).row(), 0, QModelIndex());
-        QCOMPARE(persistent.at(k).internalPointer(), index.internalPointer());
+        for (int j = 0; j < persistent.count(); ++j)
+            if (persistent.at(j).row() == i) // the same toplevel row
+                QCOMPARE(persistent.at(j).internalPointer(), w.topLevelItem(i));
     }
+
+    for (int k = 0; k < persistent.count(); ++k)
+        QCOMPARE(persistent.at(k).row(), expectedRows.at(k));
 
     QCOMPARE(dataChangedSpy.count(), 1);
     QCOMPARE(layoutChangedSpy.count(), reorderingExpected ? 1 : 0);
