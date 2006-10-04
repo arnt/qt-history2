@@ -935,6 +935,9 @@ void tst_QUndoStack::childCommand()
                 true,       // indexChanged
                 true,       // undoChanged
                 true)       // redoChanged
+
+    delete undo_action;
+    delete redo_action;
 }
 
 void tst_QUndoStack::macroBeginEnd()
@@ -1222,6 +1225,9 @@ void tst_QUndoStack::macroBeginEnd()
                 true,       // indexChanged
                 true,       // undoChanged
                 true)       // redoChanged
+
+    delete undo_action;
+    delete redo_action;
 }
 
 void tst_QUndoStack::compression()
@@ -1504,6 +1510,9 @@ void tst_QUndoStack::compression()
                 true,       // indexChanged
                 true,       // undoChanged
                 true)       // redoChanged
+
+    delete undo_action;
+    delete redo_action;
 }
 
 QTEST_MAIN(tst_QUndoStack)
