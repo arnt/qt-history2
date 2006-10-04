@@ -189,6 +189,11 @@ void QSystemTrayIconSys::mouseDoubleClickEvent(QMouseEvent *ev)
         emit q->activated(QSystemTrayIcon::DoubleClick);
 }
 
+void QSystemTrayIconSys::wheelEvent(QWheelEvent *e)
+{
+    QApplication::sendEvent(q, e);
+}
+
 bool QSystemTrayIconSys::event(QEvent *e)
 {
     if (e->type() == QEvent::ToolTip) {

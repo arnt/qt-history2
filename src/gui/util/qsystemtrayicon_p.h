@@ -128,6 +128,7 @@ protected:
     bool x11Event(XEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
     bool event(QEvent *e);
 
 private:

@@ -65,8 +65,9 @@
 
     The activated() signal is emitted when the user activates the icon.
 
-    Only on X11 when a tooltip is requested the QSystemTrayIcon receives a QHelpEvent
-    of type QEvent::ToolTip. This is not supported on any other platform.
+    Only on X11, when a tooltip is requested, the QSystemTrayIcon receives a QHelpEvent
+    of type QEvent::ToolTip. Additionally, the QSystemTrayIcon receives wheel events of 
+    type QEvent::Wheel. These are not supported on any other platform.
 
     \sa QDesktopServices, QDesktopWidget, {Desktop Integration}
 */
