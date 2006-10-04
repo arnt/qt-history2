@@ -542,9 +542,9 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
     }
 }
 
-QPoint QSystemTrayIconPrivate::globalPos_sys() const
+QRect QSystemTrayIconPrivate::geometry_sys() const
 {
-    return QPoint();
+    return QRect();
 }
 
 void QSystemTrayIconPrivate::remove_sys()

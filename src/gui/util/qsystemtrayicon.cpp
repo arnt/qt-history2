@@ -205,20 +205,19 @@ QString QSystemTrayIcon::toolTip() const
     \sa show(), visible
 */
 
-#if 0
 /*!
-  Returns the global position of the system tray icon.
+    \since 4.3
+    Returns the geometry of the system tray icon in screen coordinates.
 
-  \sa visible
+    \sa visible
 */
-QPoint QSystemTrayIcon::pos() const
+QRect QSystemTrayIcon::geometry() const
 {
     Q_D(const QSystemTrayIcon);
     if (!d->visible)
-        return QPoint();
-    return d->globalPos_sys();
+        return QRect();
+    return d->geometry_sys();
 }
-#endif
 
 /*!
     \property QSystemTrayIcon::visible

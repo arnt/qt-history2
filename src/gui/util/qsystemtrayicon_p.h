@@ -51,7 +51,7 @@ public:
     void updateIcon_sys();
     void updateToolTip_sys();
     void updateMenu_sys();
-    QPoint globalPos_sys() const;
+    QRect geometry_sys() const;
     void showMessage_sys(const QString &msg, const QString &title, QSystemTrayIcon::MessageIcon icon, int secs);
     static bool isSystemTrayAvailable_sys();
 

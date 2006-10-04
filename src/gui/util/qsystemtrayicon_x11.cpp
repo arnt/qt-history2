@@ -217,9 +217,11 @@ void QSystemTrayIconPrivate::install_sys()
         sys = new QSystemTrayIconSys(q);
 }
 
-QPoint QSystemTrayIconPrivate::globalPos_sys() const
+QRect QSystemTrayIconPrivate::geometry_sys() const
 {
-    return QPoint();
+    if (!sys)
+	return QRect();
+    return QRect(sys->mapToGlobal(QPoint(0, 0)), sys->size());
 }
 
 void QSystemTrayIconPrivate::remove_sys()

@@ -91,14 +91,14 @@ void QSystemTrayIconPrivate::install_sys()
     }
 }
 
-QPoint QSystemTrayIconPrivate::globalPos_sys() const
+QRect QSystemTrayIconPrivate::geometry_sys() const
 {
     if(sys) {
         const QRectF geom = [sys->item geometry];
         if(!geom.isNull())
-            return geom.topLeft().toPoint();
+            return geom.toRect();
     }
-    return QPoint();
+    return QRect();
 }
 
 void QSystemTrayIconPrivate::remove_sys()
