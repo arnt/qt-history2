@@ -552,7 +552,6 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     if (changed) {
         emit layoutAboutToBeChanged();
         itm->children = lst;
-        qDebug() << "ensuredSorted" << lst.count();
         changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
         emit layoutChanged();
     }
