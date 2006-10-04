@@ -302,8 +302,8 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
                 else if (oldRow > oldPersistentRow && newRow <= oldPersistentRow)
                     newPersistentRow = oldPersistentRow + 1;
                 if (newPersistentRow != oldPersistentRow)
-                    newPersistentIndexes[k] = index(newPersistentRow,
-                                                    pi.column(), pi.parent());
+                    newPersistentIndexes[k] = createIndex(newPersistentRow,
+                                                          pi.column(), pi.internalPointer());
             }
         }
     }

@@ -2117,9 +2117,10 @@ void tst_QTreeWidget::changeDataWithSorting()
     item->setText(0, newValue);
     for (int i = 0; i < expectedItems.count(); ++i) {
         QCOMPARE(w.topLevelItem(i)->text(0), expectedItems.at(i));
-        for (int j = 0; j < persistent.count(); ++j)
+        for (int j = 0; j < persistent.count(); ++j) {
             if (persistent.at(j).row() == i) // the same toplevel row
                 QCOMPARE(persistent.at(j).internalPointer(), w.topLevelItem(i));
+        }
     }
 
     for (int k = 0; k < persistent.count(); ++k)

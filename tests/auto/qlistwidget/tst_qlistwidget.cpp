@@ -1224,8 +1224,13 @@ void tst_QListWidget::changeDataWithSorting()
 
     QListWidgetItem *item = w.item(itemIndex);
     item->setText(newValue);
-    for (int i = 0; i < expectedItems.count(); ++i)
+    for (int i = 0; i < expectedItems.count(); ++i) {
         QCOMPARE(w.item(i)->text(), expectedItems.at(i));
+        for (int j = 0; j < persistent.count(); ++j) {
+            if (persistent.at(j).row() == i) // the same toplevel row
+                QCOMPARE(persistent.at(j).internalPointer(), w.item(i));
+        }
+    }
 
     for (int k = 0; k < persistent.count(); ++k)
         QCOMPARE(persistent.at(k).row(), expectedRows.at(k));

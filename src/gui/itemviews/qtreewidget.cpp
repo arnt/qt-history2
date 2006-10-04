@@ -543,8 +543,8 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
                 else if (oldRow > oldPersistentRow && newRow <= oldPersistentRow)
                     newPersistentRow = oldPersistentRow + 1;
                 if (newPersistentRow != oldPersistentRow)
-                    newPersistentIndexes[k] = index(newPersistentRow,
-                                                    pi.column(), pi.parent());
+                    newPersistentIndexes[k] = createIndex(newPersistentRow,
+                                                          pi.column(), pi.internalPointer());
             }
         }
     }
