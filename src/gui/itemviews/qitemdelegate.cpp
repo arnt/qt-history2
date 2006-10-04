@@ -1047,7 +1047,8 @@ bool QItemDelegate::editorEvent(QEvent *event,
         return false;
 
     // make sure that we have the right event type
-    if (event->type() == QEvent::MouseButtonRelease) {
+    if ((event->type() == QEvent::MouseButtonRelease)
+        || (event->type() == QEvent::MouseButtonDblClick)) {
         const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
         QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                               check(option, option.rect, Qt::Checked).size(),
@@ -1055,6 +1056,8 @@ bool QItemDelegate::editorEvent(QEvent *event,
                                                     option.rect.width(), option.rect.height()));
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
+        if (event->type() == QEvent::MouseButtonDblClick)
+            return true;
     } else if (event->type() == QEvent::KeyPress) {
         if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space
          && static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
