@@ -1731,7 +1731,7 @@ QOCIDriver::QOCIDriver(QObject* parent)
                         (dvoid **) 0);
     if (r != 0) {
         qOraWarning("QOCIDriver: unable to alloc error handle:", d);
-        setLastError(qMakeError(tr("QOCIDriver", "Unable to initialize"),
+        setLastError(qMakeError(tr("Unable to initialize", "QOCIDriver"),
                      QSqlError::ConnectionError, d));
     }
 }
