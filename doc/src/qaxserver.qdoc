@@ -307,7 +307,7 @@
     \o QVariant
     \o VARIANT
     \row
-    \o QValueList\<QVariant\>
+    \o QVariantList (same as QList\<QVariant\>)
     \o SAFEARRAY(VARIANT)
     \row
     \o QStringList
