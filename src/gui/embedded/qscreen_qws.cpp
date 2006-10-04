@@ -106,7 +106,8 @@ void QScreenCursor::hide()
 {
     if (enable) {
         enable = false;
-        qt_screen-> exposeRegion(boundingRect(), 0);
+        if (!hwaccel)
+            qt_screen->exposeRegion(boundingRect(), 0);
     }
 }
 
@@ -121,7 +122,8 @@ void QScreenCursor::show()
 {
     if (!enable) {
         enable = true;
-        qt_screen-> exposeRegion(boundingRect(), 0);
+        if (!hwaccel)
+            qt_screen->exposeRegion(boundingRect(), 0);
     }
 }
 
@@ -136,16 +138,14 @@ void QScreenCursor::show()
 */
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
-    QRect r = boundingRect();
+    const QRect r = boundingRect();
 
     hotspot = QPoint(hotx, hoty);
     cursor = image;
     size = image.size();
 
-    if (enable) {
-        qt_screen-> exposeRegion(r | boundingRect(), 0);
-    }
-
+    if (enable && !hwaccel)
+        qt_screen->exposeRegion(r | boundingRect(), 0);
 }
 
 /*!
@@ -158,17 +158,16 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 */
 void QScreenCursor::move(int x, int y)
 {
-    QRegion r = boundingRect();
+    const QRegion r = boundingRect();
     pos = QPoint(x,y);
-    if (enable) {
-        qt_screen-> exposeRegion(r | boundingRect(), 0);
-    }
+    if (enable && !hwaccel)
+        qt_screen->exposeRegion(r | boundingRect(), 0);
 }
 
 
 void QScreenCursor::initSoftwareCursor()
 {
-    qt_screencursor=new QScreenCursor();
+    qt_screencursor = new QScreenCursor;
 }
 
 
