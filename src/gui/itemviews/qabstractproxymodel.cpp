@@ -85,6 +85,8 @@ void QAbstractProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 QAbstractItemModel *QAbstractProxyModel::sourceModel() const
 {
     Q_D(const QAbstractProxyModel);
+    if (d->model == QAbstractItemModelPrivate::staticEmptyModel())
+        return 0;
     return d->model;
 }
 

@@ -98,6 +98,7 @@ private:
 void tst_QSortFilterProxyModel::getSetCheck()
 {
     QSortFilterProxyModel obj1;
+    QCOMPARE(obj1.sourceModel(), (const QAbstractItemModel *)0);
     // int QSortFilterProxyModel::filterKeyColumn()
     // void QSortFilterProxyModel::setFilterKeyColumn(int)
     obj1.setFilterKeyColumn(0);
