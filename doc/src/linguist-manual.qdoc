@@ -166,7 +166,7 @@
     portably using escape sequences, for example:
 
     \code
-        label->setText(tr("F\252r \310lise"));
+        label->setText(tr("F\374r \310lise"));
     \endcode
 
     \section1 lupdate
