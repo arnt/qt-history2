@@ -1868,8 +1868,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         if (state() != EditingState || hasFocus()) {
             if (currentIndex().isValid() && !edit(currentIndex(), AnyKeyPressed, event))
                 emit activated(currentIndex());
-        } else {
-            event->ignore();
         }
         break;
 #endif
