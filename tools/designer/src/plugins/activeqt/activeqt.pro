@@ -1,16 +1,10 @@
-TARGET      = qaxwidget
+TARGET      = $$qtLibraryTarget(qaxwidget)
 TEMPLATE    = lib
 DESTDIR 	= $$QT_BUILD_TREE/plugins/designer
 
 CONFIG     += qt warn_on qaxcontainer plugin designer debug_and_release
 
-CONFIG(debug, debug|release) {
-    mac:TARGET = $$member(TARGET, 0)_debug
-    win32:TARGET = $$member(TARGET, 0)d
-}
-
-INCLUDEPATH += $$QT_SOURCE_TREE/src/activeqt/shared/ \
-	../../lib/uilib
+INCLUDEPATH += $$QT_SOURCE_TREE/src/activeqt/shared/ ../../lib/uilib
 
 # Input
 SOURCES += plugin.cpp \

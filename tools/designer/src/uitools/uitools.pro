@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = QtUiTools
+TARGET = $$qtLibraryTarget(QtUiTools)
 QT += xml
 CONFIG += qt staticlib
 DESTDIR = ../../../../lib
@@ -17,13 +17,6 @@ QMAKE_TARGET_COMPANY = Trolltech ASA
 QMAKE_TARGET_PRODUCT = UiLoader
 QMAKE_TARGET_DESCRIPTION = QUiLoader
 QMAKE_TARGET_COPYRIGHT = Copyright (C) 2003-2006 Trolltech ASA
-
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      mac:TARGET = $$member(TARGET, 0)_debug
-      win32:TARGET = $$member(TARGET, 0)d
-   }
-}
 
 include(../lib/uilib/uilib.pri)
 

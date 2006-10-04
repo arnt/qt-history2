@@ -42,7 +42,6 @@ contains(QT_CONFIG, largefile):CONFIG += largefile
 #mac frameworks
 mac:!static:contains(QT_CONFIG, qt_framework) {
    #QMAKE_FRAMEWORK_VERSION = 4.0
-   QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
    CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
    CONFIG(debug, debug|release) {
       !build_pass:CONFIG += build_all
@@ -121,12 +120,7 @@ DEFINES += QT_NO_CAST_TO_ASCII QT_ASCII_CAST_WARNINGS
 contains(QT_CONFIG, qt3support):DEFINES *= QT3_SUPPORT
 DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our generated code
 
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      mac:TARGET = $$member(TARGET, 0)_debug
-      win32:TARGET = $$member(TARGET, 0)d
-   }
-}
+TARGET = $$qtLibraryTarget($$TARGET) #do this towards the end
 
 moc_dir.name = moc_location
 moc_dir.variable = QMAKE_MOC

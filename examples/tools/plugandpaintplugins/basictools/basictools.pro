@@ -3,13 +3,8 @@ CONFIG       += plugin static
 INCLUDEPATH  += ../..
 HEADERS       = basictoolsplugin.h
 SOURCES       = basictoolsplugin.cpp
-TARGET        = pnp_basictools
+TARGET        = $$qtLibraryTarget(pnp_basictools)
 win32:DESTDIR = ./
-
-CONFIG(debug, debug|release) {
-   mac:TARGET = $$member(TARGET, 0)_debug
-   win32:TARGET = $$member(TARGET, 0)d
-}
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools/plugandpaint/plugins

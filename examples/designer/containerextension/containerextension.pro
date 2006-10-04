@@ -1,11 +1,7 @@
 TEMPLATE = lib
+TARGET   = $$qtLibraryTarget($$TARGET)
 CONFIG  += designer plugin debug_and_release
 DESTDIR  = $$QT_BUILD_TREE/plugins/designer
-
-CONFIG(debug, debug|release) {
-    mac: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,d)
-}
 
 HEADERS += multipagewidget.h \
            multipagewidgetplugin.h \ 

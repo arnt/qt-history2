@@ -51,12 +51,7 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
    }
 }
 
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      mac:TARGET = $$member(TARGET, 0)_debug
-      win32:TARGET = $$member(TARGET, 0)d
-   }
-}
+TARGET = $$qtLibraryTarget($$TARGET) #done towards the end
 
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
