@@ -148,6 +148,7 @@ public:
     ~QGLWidgetPrivate() {}
 
     void init(QGLContext *context, const QGLWidget* shareWidget);
+    void initContext(QGLContext *context, const QGLWidget* shareWidget);
     bool renderCxPm(QPixmap *pixmap);
     void cleanupColormaps();
 

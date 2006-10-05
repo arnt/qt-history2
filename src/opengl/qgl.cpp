@@ -3553,3 +3553,24 @@ void QGLExtensions::init_extensions()
         qt_glCompressedTexImage2DARB = (pfn_glCompressedTexImage2DARB) cx.getProcAddress(QLatin1String("glCompressedTexImage2DARB"));
     }
 }
+
+/*
+  This is the shared initialization for all platforms. Called from QGLWidgetPrivate::init()
+*/
+void QGLWidgetPrivate::initContext(QGLContext *context, const QGLWidget* shareWidget)
+{
+    Q_Q(QGLWidget);
+
+    QGLExtensions::init();
+    glcx = 0;
+    autoSwap = true;
+
+    if (context && !context->device())
+        context->setDevice(q);
+    q->setContext(context, shareWidget ? shareWidget->context() : 0);
+
+    if (!glcx)
+        glcx = new QGLContext(QGLFormat::defaultFormat(), q);
+
+    q->setAttribute(Qt::WA_NoSystemBackground);
+}

@@ -1233,21 +1233,9 @@ void *QGLContext::getProcAddress(const QString &proc) const
 void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
     Q_Q(QGLWidget);
-
-    QGLExtensions::init();
-    glcx = 0;
-    autoSwap = true;
-
-    if (!ctx->device())
-        ctx->setDevice(q);
-
-    if (shareWidget) {
-        q->setContext(ctx, shareWidget->context());
-    } else {
-        q->setContext(ctx);
-    }
-    q->setAttribute(Qt::WA_NoSystemBackground);
-
+    olcx = 0;
+    initContext(ctx, shareWidget);
+    
     if (q->isValid() && q->context()->format().hasOverlay()) {
         olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
         if (!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {

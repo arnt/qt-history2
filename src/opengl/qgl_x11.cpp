@@ -957,18 +957,8 @@ void QGLOverlayWidget::paintGL()
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
 {
     Q_Q(QGLWidget);
-    QGLExtensions::init();
-    glcx = 0;
+    initContext(context, shareWidget);
     olw = 0;
-    autoSwap = true;
-    if (!context->device())
-        context->setDevice(q);
-
-    if (shareWidget)
-        q->setContext(context, shareWidget->context());
-    else
-        q->setContext(context);
-    q->setAttribute(Qt::WA_NoSystemBackground, true);
 
     if (q->isValid() && context->format().hasOverlay()) {
         QString olwName = q->objectName();
