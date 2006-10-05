@@ -411,7 +411,8 @@ void QCompletionEngine::filter(const QStringList& parts)
             return;
         parent = model->index(emi, c->column, parent);
     }
-
+    if (model->canFetchMore(parent))
+        c->proxy->sourceModel()->fetchMore(parent);
     // Note that we set the curParent to a valid parent, even if we have no matches
     // When filtering is disabled, we show all the items under this parent
     curParent = parent;
