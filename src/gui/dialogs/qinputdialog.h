@@ -24,8 +24,6 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_INPUTDIALOG
 
-class QSpinBox;
-class QComboBox;
 class QInputDialogPrivate;
 
 class Q_GUI_EXPORT QInputDialog : public QDialog
@@ -34,9 +32,15 @@ class Q_GUI_EXPORT QInputDialog : public QDialog
     Q_DECLARE_PRIVATE(QInputDialog)
 
 private:
+    // ### Qt 5: remove
     enum Type { LineEdit, SpinBox, DoubleSpinBox, ComboBox, EditableComboBox };
 
+    // ### Qt 5: remove
     QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WindowFlags f);
+
+    QInputDialog(
+        const QString &title, const QString &label, QWidget *parent, QWidget *input,
+        Qt::WindowFlags f);
     ~QInputDialog();
 
 public:
