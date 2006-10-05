@@ -252,7 +252,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &, const QString &,
     if(NSWindow *window = [[item view] window]) {
         NSRect screenRect = [[window screen] frame];
         NSRect windowRect = [window frame];
-        return QRectF(windowRect.origin.x, screenRect.size.height-windowRect.origin.y, windowRect.size.width, windowRect.size.height);
+        return QRectF(windowRect.origin.x, screenRect.size.height-windowRect.origin.y-windowRect.size.height, windowRect.size.width, windowRect.size.height);
     }
     return QRectF();
 }
