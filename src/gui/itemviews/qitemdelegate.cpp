@@ -326,7 +326,7 @@ void QItemDelegate::paint(QPainter *painter,
                                    icon.actualSize(option.decorationSize, iconMode, iconState));
         } else {
             pixmap = decoration(opt, value);
-            decorationRect = QRect(QPoint(0, 0), option.decorationSize).intersected(pixmap.rect());
+            decorationRect = QRect(QPoint(0, 0), pixmap.size());
         }
     }
 
