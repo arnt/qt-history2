@@ -47,8 +47,8 @@ ulong QMutexPrivate::self()
 bool QMutexPrivate::wait(int timeout)
 {
     report_error(pthread_mutex_lock(&mutex), "QMutex::lock", "mutex lock");
-    int errorCode;
-    forever {
+    int errorCode = 0;
+    while (!wakeup) {
         if (timeout < 0) {
             errorCode = pthread_cond_wait(&cond, &mutex);
         } else {
@@ -62,15 +62,11 @@ bool QMutexPrivate::wait(int timeout)
 
             errorCode = pthread_cond_timedwait(&cond, &mutex, &ti);
         }
-        if (errorCode == 0 && !wakeup) {
-            // many vendors warn of spurios wakeups from
-            // pthread_cond_wait(), especially after signal delivery,
-            // even though POSIX doesn't allow for it... sigh
-            continue;
-        }
-        if (errorCode && errorCode != ETIMEDOUT)
+        if (errorCode) {
+            if (errorCode == ETIMEDOUT)
+                break;
             report_error(errorCode, "QMutex::lock()", "cv wait");
-        break;
+        }
     }
     wakeup = false;
     report_error(pthread_mutex_unlock(&mutex), "QMutex::lock", "mutex unlock");
