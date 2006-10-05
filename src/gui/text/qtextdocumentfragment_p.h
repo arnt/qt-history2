@@ -125,6 +125,8 @@ private:
         inline TableCellIterator(QTextTable *t = 0) : table(t), row(0), column(0) {}
 
         inline TableCellIterator &operator++() {
+            if (atEnd())
+                return *this;
             do {
                 const QTextTableCell cell = table->cellAt(row, column);
                 if (!cell.isValid())

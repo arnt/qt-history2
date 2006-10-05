@@ -559,7 +559,7 @@ void QTextHtmlImporter::import()
 
             if (node->isTableCell && !tables.isEmpty()) {
                 Table &t = tables.last();
-                if (!t.isTextFrame) {
+                if (!t.isTextFrame && !t.currentCell.atEnd()) {
                     const QTextTableCell cell = t.currentCell.cell();
                     if (cell.isValid())
                         cursor.setPosition(cell.firstPosition());

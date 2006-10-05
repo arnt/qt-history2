@@ -166,6 +166,7 @@ private slots:
     void leftMarginInsideHtml();
     void html_margins();
     void newlineInsidePreShouldBecomeNewParagraph();
+    void invalidColspan();
     void html_brokenTableWithJustTr();
     void html_brokenTableWithJustTd();
     void html_preNewlineHandling_data();
@@ -2462,6 +2463,18 @@ void tst_QTextDocumentFragment::newlineInsidePreShouldBecomeNewParagraph()
     QCOMPARE(block.blockFormat().bottomMargin(), qreal(45));
     QCOMPARE(block.blockFormat().leftMargin(), qreal(50));
 
+}
+
+void tst_QTextDocumentFragment::invalidColspan()
+{
+    doc->setHtml("<table><tr rowspan=-1><td colspan=-1>Blah</td></tr></table>");
+
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::NextBlock);
+    QTextTable *table = cursor.currentTable();
+    QVERIFY(table);
+    QCOMPARE(table->columns(), 1);
+    QCOMPARE(table->rows(), 1);
 }
 
 void tst_QTextDocumentFragment::html_brokenTableWithJustTr()

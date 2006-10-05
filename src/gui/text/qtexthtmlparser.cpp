@@ -1544,9 +1544,11 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                     QColor c; c.setNamedColor(value);
                     node->background = c;
                 } else if (key == QLatin1String("rowspan")) {
-                    setIntAttribute(&node->tableCellRowSpan, value);
+                    if (setIntAttribute(&node->tableCellRowSpan, value))
+                        node->tableCellRowSpan = qMax(1, node->tableCellRowSpan);
                 } else if (key == QLatin1String("colspan")) {
-                    setIntAttribute(&node->tableCellColSpan, value);
+                    if (setIntAttribute(&node->tableCellColSpan, value))
+                        node->tableCellColSpan = qMax(1, node->tableCellColSpan);
                 }
                 break;
             case Html_table:
