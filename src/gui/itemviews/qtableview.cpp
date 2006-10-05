@@ -256,6 +256,10 @@ bool QTableViewPrivate::spansIntersectRows(const QList<int> &rows) const
     return false;
 }
 
+/*!
+  \internal
+  Returns the visual rect for the given \a span.
+*/
 QRect QTableViewPrivate::visualSpanRect(const Span &span) const
 {
     // vertical
