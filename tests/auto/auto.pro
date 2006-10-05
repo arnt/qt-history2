@@ -134,6 +134,7 @@ SUBDIRS += bic \
            qimageiohandler \
            qimagereader \
            qimagewriter \
+           qinputdialog \
            qintvalidator \
            qiodevice \
            qitemdelegate \
