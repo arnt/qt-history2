@@ -697,7 +697,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                       << mkdir_p_asstring(path) << "\n\t";
                     QFileInfo fi(fileInfo(files[file]));
                     if(fi.isDir())
-                        t << "@$(DEL_DIR) " << dst << "\n\t"
+                        t << "@$(DEL_FILE) -r " << dst << "\n\t"
                           << "@$(COPY_DIR) " << files[file] << " " << dst << endl;
                     else
                         t << "@$(DEL_FILE) " << dst << "\n\t"
