@@ -5,8 +5,8 @@
 #include <qpolygon.h>
 #include <qmatrix.h>
 
-#include "ltessellator.h"
-#include "qttesselator.h"
+#include "oldtessellator.h"
+#include "testtessellator.h"
 #include "utils.h"
 #include "simple.h"
 #include "arc.h"
@@ -43,12 +43,12 @@ bool test(const QPointF *pg, int pgSize, bool winding)
     double area1 = 0;
     double area2 = 0;
 
-    qt_tesselate_polygon(&traps, pg, pgSize, winding);
+    old_tesselate_polygon(&traps, pg, pgSize, winding);
     area1 = compute_area_for_x(traps);
 
     traps.clear();
 
-    l_tesselate_polygon(&traps, pg, pgSize, winding);
+    test_tesselate_polygon(&traps, pg, pgSize, winding);
     area2 = compute_area_for_x(traps);
 
     bool result = (area2 - area1 < 0.005);
@@ -141,17 +141,17 @@ bool test_arc(const QPolygonF &poly, bool winding)
     double area1 = 0;
     double area2 = 0;
 
-    qt_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
+    old_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
     area1 = compute_area_for_x(traps);
 
     traps.clear();
 
-    l_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
+    test_tesselate_polygon(&traps, poly.data(), poly.size(), winding);
     area2 = compute_area_for_x(traps);
 
-    bool result = (area2 - area1 < 2);
+    bool result = (area2 - area1 < .02);
     if (!result && area1)
-        result = (qAbs(area1 - area2)/area1 < .05);
+        result = (qAbs(area1 - area2)/area1 < .02);
 
     return result;
 }

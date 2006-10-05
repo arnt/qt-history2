@@ -1,8 +1,10 @@
-#include "qttesselator.h"
+#include "oldtessellator.h"
 #include <QPointF>
 #include <QVector>
 #include <QList>
+#include <QVariant>
 #include <QVarLengthArray>
+#include <qdebug.h>
 
 #include "utils.h"
 
@@ -96,10 +98,11 @@ static inline bool compareIntersections(const QIntersectionPoint &i1, const QInt
     if (qAbs(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
         return i1.x < i2.x;
     } else {
-        qreal x1 = !qIsFinite(i1.edge->b) ? XFixedToDouble(i1.edge->p1.x) :
-                   (currentY+1.f - i1.edge->b)*i1.edge->m;
-        qreal x2 = !qIsFinite(i2.edge->b) ? XFixedToDouble(i2.edge->p1.x) :
-                   (currentY+1.f - i2.edge->b)*i2.edge->m;
+        qreal x1 = (i1.edge->p1.x != i1.edge->p2.x) ?
+                   ((currentY+1 - i1.edge->b)*i1.edge->m) : XFixedToDouble(i1.edge->p1.x);
+        qreal x2 = (i2.edge->p1.x != i2.edge->p2.x) ?
+                   ((currentY+1 - i2.edge->b)*i2.edge->m) : XFixedToDouble(i2.edge->p1.x);
+//         qDebug() << ">>>" << currentY << i1.edge << i2.edge << x1 << x2;
         return x1 < x2;
     }
 }
@@ -131,7 +134,13 @@ static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &le
 static void dump_edges(const QList<const QEdge *> &et)
 {
     for (int x = 0; x < et.size(); ++x) {
-        qDebug() << "edge#" << x << et.at(x)->p1 << et.at(x)->p2 << "b: " << et.at(x)->b << "m:" << et.at(x)->m << et.at(x);
+        qDebug() << "edge#" << x << et.at(x) << "("
+                 << XFixedToDouble(et.at(x)->p1.x)
+                 << XFixedToDouble(et.at(x)->p1.y)
+                 << ") ("
+                 << XFixedToDouble(et.at(x)->p2.x)
+                 << XFixedToDouble(et.at(x)->p2.y)
+                 << ") b: " << et.at(x)->b << "m:" << et.at(x)->m;
     }
 }
 
@@ -149,8 +158,15 @@ static void dump_trap(const XTrapezoid &t)
 #endif
 
 
-void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
-                                 bool winding)
+typedef int Q27Dot5;
+#define Q27Dot5ToDouble(i) (i/32.)
+#define FloatToQ27Dot5(i) (int)((i) * 32)
+#define IntToQ27Dot5(i) ((i) << 5)
+#define Q27Dot5ToXFixed(i) ((i) << 11)
+#define Q27Dot5Factor 32
+
+void old_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
+                           bool winding)
 {
     QVector<QEdge> edges;
     edges.reserve(128);
@@ -160,17 +176,19 @@ void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgS
     //painter.begin(pg, pgSize);
     Q_ASSERT(pg[0] == pg[pgSize-1]);
     // generate edge table
+//     qDebug() << "POINTS:";
     for (int x = 0; x < pgSize-1; ++x) {
 	QEdge edge;
-	edge.winding = pg[x].y() > pg[x+1].y() ? 1 : -1;
-        QPointF p1, p2;
-	if (edge.winding > 0) {
-	    p1 = pg[x+1];
-	    p2 = pg[x];
-	} else {
-	    p1 = pg[x];
-	    p2 = pg[x+1];
-	}
+        QPointF p1(Q27Dot5ToDouble(FloatToQ27Dot5(pg[x].x())),
+                   Q27Dot5ToDouble(FloatToQ27Dot5(pg[x].y())));
+        QPointF p2(Q27Dot5ToDouble(FloatToQ27Dot5(pg[x+1].x())),
+                   Q27Dot5ToDouble(FloatToQ27Dot5(pg[x+1].y())));
+
+//         qDebug() << "    "
+//                  << p1;
+	edge.winding = p1.y() > p2.y() ? 1 : -1;
+	if (edge.winding > 0)
+            qSwap(p1, p2);
         edge.p1.x = XDoubleToFixed(p1.x());
         edge.p1.y = XDoubleToFixed(p1.y());
         edge.p2.x = XDoubleToFixed(p2.x());
@@ -253,7 +271,7 @@ void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgS
             if (!et.size()) {
                 break;
 	    } else {
- 		y = XFixedToDouble(et.at(0)->p1.y);
+ 		y = currentY = XFixedToDouble(et.at(0)->p1.y);
                 continue;
 	    }
         }
@@ -325,6 +343,9 @@ void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgS
 
 	// sort intersection points
  	qSort(&isects[0], &isects[isects.size()-1], compareIntersections);
+//         qDebug() << "INTERSECTION_POINTS:";
+//  	for (int i = 0; i < isects.size(); ++i)
+//             qDebug() << isects[i].edge << isects[i].x;
 
         if (winding) {
             // winding fill rule

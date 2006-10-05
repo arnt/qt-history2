@@ -1,8 +1,7 @@
 TEMPLATE = subdirs
 
 # Directories
-SUBDIRS += tessellator \
-	   bic \
+SUBDIRS += bic \
            collections \
            compile \
            compilerwarnings \
@@ -252,6 +251,7 @@ SUBDIRS += tessellator \
            qtcpserver \
            qtcpsocket \
            qtemporaryfile \
+	   qtessellator \
            qtextblock \
            qtextbrowser \
            qtextcodec \
