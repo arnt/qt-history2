@@ -1299,7 +1299,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString var = tmp[i], val = qgetenv(var.toLatin1());
         if(val.isEmpty() && var == "TB")
             val = "/usr/bin/";
-        t << "\t\t\t\t" << var << " = " << escapeFilePath(val) << ";" << "\n";
+        val = escapeFilePath(val);
+        if(val.trimmed().isEmpty())
+            val = "\"\"";
+        t << "\t\t\t\t" << var << " = " << val << ";" << "\n";
     }
     t << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "conditionalBuildSettings = {" << "\n"
