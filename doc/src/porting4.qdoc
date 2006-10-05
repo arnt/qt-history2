@@ -204,7 +204,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l qt3to4 tool handles performs the conversion
+    \l qt3to4 tool performs the conversion
     automatically.
 
     \table
@@ -225,7 +225,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l qt3to4 tool handles performs the conversion automatically.
+    \l qt3to4 tool performs the conversion automatically.
 
     \table
     \header \o Qt 3 enum value name \o Qt 4 enum value name
