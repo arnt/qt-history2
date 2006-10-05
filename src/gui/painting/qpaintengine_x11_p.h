@@ -35,6 +35,7 @@
 
 class QX11PaintEnginePrivate;
 class QFontEngineFT;
+class QXRenderTessellator;
 
 typedef unsigned long Picture;
 
@@ -124,6 +125,9 @@ public:
         txop = QPainterPrivate::TxNone;
         has_clipping = false;
         render_hints = 0;
+#ifndef QT_NO_XRENDER
+        tessellator = 0;
+#endif
     }
     enum GCMode {
         PenGC,
@@ -191,6 +195,9 @@ public:
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     int xlibMaxLinePoints;
+#ifndef QT_NO_XRENDER
+    QXRenderTessellator *tessellator;
+#endif
 };
 
 #endif // QPAINTENGINE_X11_P_H

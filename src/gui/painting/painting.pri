@@ -25,6 +25,7 @@ HEADERS += \
 	painting/qregion.h \
 	painting/qstroker_p.h \
         painting/qstylepainter.h \
+        painting/qtessellator_p.h \
 	painting/qmatrix.h \
 	painting/qwmatrix.h
 
@@ -46,6 +47,7 @@ SOURCES += \
 	painting/qprinter.cpp \
 	painting/qstroker.cpp \
         painting/qstylepainter.cpp \
+        painting/qtessellator.cpp \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
