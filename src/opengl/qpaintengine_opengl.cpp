@@ -1303,7 +1303,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     {
 #ifndef Q_WS_QWS
         if (d->shader_ctx) {
-            d->shader_ctx->makeCurrent();
             glBindTexture(GL_TEXTURE_1D, 0);
             glDeleteTextures(1, &d->grad_palette);
 
@@ -1316,7 +1315,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 glDeleteProgramsARB(1, &d->radial_frag_program);
                 glDeleteProgramsARB(1, &d->conical_frag_program);
             }
-            d->drawable.makeCurrent();
         }
         d->shader_ctx = d->drawable.context();
         gccaps |= LinearGradientFill;
