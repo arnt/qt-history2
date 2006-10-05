@@ -216,14 +216,14 @@ UnixMakefileGenerator::init()
             }
         }
         if(!bundle.isEmpty()) {
-            project->values("QMAKE_BUNDLE_NAME") = QStringList(bundle);
+            project->values("QMAKE_BUNDLE") = QStringList(bundle);
             project->values("ALL_DEPS") += project->first("QMAKE_PKGINFO");
         } else {
-            project->values("QMAKE_BUNDLE_NAME").clear();
+            project->values("QMAKE_BUNDLE").clear();
             project->values("QMAKE_BUNDLE_LOCATION").clear();
         }
     } else { //no bundling here
-        project->values("QMAKE_BUNDLE_NAME").clear();
+        project->values("QMAKE_BUNDLE").clear();
         project->values("QMAKE_BUNDLE_LOCATION").clear();
     }
 
@@ -608,8 +608,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QStringList links;
     QString target="$(TARGET)";
     QStringList &targets = project->values(t + ".targets");
-    if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-        target = project->first("QMAKE_BUNDLE_NAME");
+    if(!project->isEmpty("QMAKE_BUNDLE")) {
+        target = project->first("QMAKE_BUNDLE");
         bundle = true;
     } else if(project->first("TEMPLATE") == "app") {
         target = "$(QMAKE_TARGET)";

@@ -1077,9 +1077,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "isa = PBXNativeTarget;" << "\n"
           << "\t\t\t" << "name = \"Qt Preprocessor Steps\";" << "\n"
           << "\t\t\t" << "productName = \"Qt Preprocessor Steps\";" << "\n"
-          << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_PRESCRIPTS_BUILDREFERENCE") << ";" << "\n"
-          << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n"
-          << "\t\t" << "};" << "\n";
+          << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_PRESCRIPTS_BUILDREFERENCE") << ";" << "\n";
+        if(!project->isEmpty("QMAKE_PBX_PRODUCT_TYPE"))
+            t << "\t\t\t" << "productType = \"" + project->first("QMAKE_PBX_PRODUCT_TYPE") + "\";" << "\n";
+        else
+            t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
+        t << "\t\t" << "};" << "\n";
         //dependency
         t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPTS_DEPENDENCY") << " = {" << "\n"
           << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
@@ -1106,7 +1109,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "isa = PBXFileReference;" << "\n";
     if(project->first("TEMPLATE") == "app") {
         QString targ = project->first("QMAKE_ORIG_TARGET");
-        if(project->isActiveConfig("app_bundle")) {
+        if(project->isActiveConfig("bundle") && !project->isEmpty("QMAKE_BUNDLE_EXTENSION")) {
+            if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
+                targ = project->first("QMAKE_BUNDLE_NAME");
+            targ += project->first("QMAKE_BUNDLE_EXTENSION");
+            if(!project->isEmpty("QMAKE_PBX_BUNDLE_TYPE"))
+                t << "\t\t\t" << "explicitFileType = \"" + project->first("QMAKE_PBX_BUNDLE_TYPE") + "\";" << "\n";
+        } else if(project->isActiveConfig("app_bundle")) {
+            if(!project->isEmpty("QMAKE_APPLICATION_BUNDLE_NAME"))
+                targ = project->first("QMAKE_APPLICATION_BUNDLE_NAME");
             targ += ".app";
             t << "\t\t\t" << "explicitFileType = wrapper.application;" << "\n";
         } else {
@@ -1128,7 +1139,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         int slsh = lib.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
             lib = lib.right(lib.length() - slsh - 1);
-        if(!project->isActiveConfig("staticlib") && project->isActiveConfig("lib_bundle")) {
+        if(project->isActiveConfig("bundle") && !project->isEmpty("QMAKE_BUNDLE_EXTENSION")) {
+            if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
+                lib = project->first("QMAKE_BUNDLE_NAME");
+            lib += project->first("QMAKE_BUNDLE_EXTENSION");
+            if(!project->isEmpty("QMAKE_PBX_BUNDLE_TYPE"))
+                t << "\t\t\t" << "explicitFileType = \"" + project->first("QMAKE_PBX_BUNDLE_TYPE") + "\";" << "\n";
+        } else if(!project->isActiveConfig("staticlib") && project->isActiveConfig("lib_bundle")) {
+            if(!project->isEmpty("QMAKE_FRAMEWORK_BUNDLE_NAME"))
+                lib = project->first("QMAKE_FRAMEWORK_BUNDLE_NAME");
             lib += ".framework";
             t << "\t\t\t" << "explicitFileType = wrapper.framework;" << "\n";
         } else {
@@ -1316,15 +1335,23 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
     if(project->first("TEMPLATE") == "app") {
         if(project->isActiveConfig("console")) {
-            if(pbVersion >= 38)
-                t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
-            else
+            if(pbVersion >= 38) {
+                if(!project->isEmpty("QMAKE_PBX_PRODUCT_TYPE"))
+                    t << "\t\t\t" << "productType = \"" + project->first("QMAKE_PBX_PRODUCT_TYPE") + "\";" << "\n";
+                else
+                    t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
+            } else {
                 t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+            }
         } else {
-            if(pbVersion >= 38)
-                t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
+            if(pbVersion >= 38) {
+                if(!project->isEmpty("QMAKE_PBX_PRODUCT_TYPE"))
+                    t << "\t\t\t" << "productType = \"" + project->first("QMAKE_PBX_PRODUCT_TYPE") + "\";" << "\n";
             else
+                    t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
+            } else {
                 t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n";
+            }
             t << "\t\t\t" << "productSettingsXML = \"";
             bool read_plist = false;
             if(exists("Info.plist")) {
@@ -1375,7 +1402,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t\t" << "name = " << escapeFilePath(lib) << ";" << "\n"
           << "\t\t\t" << "productName = " << escapeFilePath(lib) << ";" << "\n";
         if(pbVersion >= 38) {
-            if(project->isActiveConfig("staticlib"))
+            if(!project->isEmpty("QMAKE_PBX_PRODUCT_TYPE"))
+                t << "\t\t\t" << "productType = \"" + project->first("QMAKE_PBX_PRODUCT_TYPE") + "\";" << "\n";
+            else if(project->isActiveConfig("staticlib"))
                 t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
             else if(project->isActiveConfig("lib_bundle"))
                 t << "\t\t\t" << "productType = \"com.apple.product-type.framework\";" << "\n";
