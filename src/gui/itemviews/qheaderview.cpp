@@ -2397,8 +2397,9 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
   Interactive - the user decides the size
   Stretch - take up whatever space is left
   Fixed - the size is set programatically outside the header
+  ResizeToContentes - the size is set based on the contents of the row or column in the parent view
 
-  The globalMode will not affect the last section if stretchLastSection is true.
+  The resize mode will not affect the last section if stretchLastSection is true.
  */
 void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
 {
