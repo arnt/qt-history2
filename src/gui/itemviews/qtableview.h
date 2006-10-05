@@ -133,6 +133,8 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QTableView)
     Q_DISABLE_COPY(QTableView)
+    Q_PRIVATE_SLOT(d_func(), void _q_selectRow(int))
+    Q_PRIVATE_SLOT(d_func(), void _q_selectColumn(int))
 };
 
 #endif // QT_NO_TABLEVIEW

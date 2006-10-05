@@ -171,7 +171,7 @@ public:
     void flipSortIndicator(int section);
     void cascadingResize(int visual, int newSize);
 
-    enum State { NoState, ResizeSection, MoveSection } state;
+    enum State { NoState, ResizeSection, MoveSection, SelectSections } state;
 
     int offset;
     Qt::Orientation orientation;

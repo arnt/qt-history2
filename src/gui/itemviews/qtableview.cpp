@@ -536,6 +536,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(columnCountChanged(int,int)));
     connect(d->horizontalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectColumn(int)));
+    connect(d->horizontalHeader, SIGNAL(sectionTouched(int)), this, SLOT(_q_selectColumn(int)));
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
     connect(d->horizontalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
@@ -566,6 +567,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     connect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(rowCountChanged(int,int)));
     connect(d->verticalHeader, SIGNAL(sectionPressed(int)), this, SLOT(selectRow(int)));
+    connect(d->verticalHeader, SIGNAL(sectionTouched(int)), this, SLOT(_q_selectRow(int)));
     connect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeRowToContents(int)));
     connect(d->verticalHeader, SIGNAL(geometriesChanged()), this, SLOT(updateGeometries()));
@@ -1536,12 +1538,16 @@ void QTableView::setSortingEnabled(bool enable)
     d->sortingEnabled = enable;
     horizontalHeader()->setSortIndicatorShown(enable);
     if (enable) {
+        disconnect(d->horizontalHeader, SIGNAL(sectionTouched(int)),
+                   this, SLOT(_q_selectColumn(int)));
         disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                    this, SLOT(selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
                 this, SLOT(sortByColumn(int)));
         sortByColumn(horizontalHeader()->sortIndicatorSection());
     } else {
+        connect(d->horizontalHeader, SIGNAL(sectionTouched(int)),
+                this, SLOT(_q_selectColumn(int)));
         connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
                 this, SLOT(selectColumn(int)));
         disconnect(horizontalHeader(), SIGNAL(sectionClicked(int)),
@@ -1877,25 +1883,7 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 void QTableView::selectRow(int row)
 {
     Q_D(QTableView);
-
-    if (selectionBehavior() == SelectColumns ||
-        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
-        return;
-
-    if (row >= 0 && row < d->model->rowCount(d->root)) {
-        QModelIndex index = d->model->index(row, 0, d->root);
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index);
-        d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-        if (!(command & QItemSelectionModel::Current))
-            d->rowSectionAnchor = row;
-        QModelIndex tl = d->model->index(qMin(d->rowSectionAnchor, row), 0, d->root);
-        QModelIndex br = d->model->index(qMax(d->rowSectionAnchor, row),
-                                         d->model->columnCount(d->root) - 1, d->root);
-        if (verticalHeader()->sectionsMoved() && tl.row() != br.row())
-            setSelection(visualRect(tl)|visualRect(br), command);
-        else
-            d->selectionModel->select(QItemSelection(tl, br), command);
-    }
+    d->selectRow(row, true);
 }
 
 /*!
@@ -1907,25 +1895,7 @@ void QTableView::selectRow(int row)
 void QTableView::selectColumn(int column)
 {
     Q_D(QTableView);
-
-    if (selectionBehavior() == SelectRows ||
-        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
-        return;
-
-    if (column >= 0 && column < d->model->columnCount(d->root)) {
-        QModelIndex index = d->model->index(0, column, d->root);
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index);
-        d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-        if (!(command & QItemSelectionModel::Current))
-            d->columnSectionAnchor = column;
-        QModelIndex tl = d->model->index(0, qMin(d->columnSectionAnchor, column), d->root);
-        QModelIndex br = d->model->index(d->model->rowCount(d->root) - 1,
-                                         qMax(d->columnSectionAnchor, column), d->root);
-        if (horizontalHeader()->sectionsMoved() && tl.column() != br.column())
-            setSelection(visualRect(tl)|visualRect(br), command);
-        else
-            d->selectionModel->select(QItemSelection(tl, br), command);
-    }
+    d->selectColumn(column, true);
 }
 
 /*!
@@ -2119,4 +2089,64 @@ int QTableView::columnSpan(int row, int column) const
     return d->columnSpan(row, column);
 }
 
+void QTableViewPrivate::_q_selectRow(int row)
+{
+    selectRow(row, false);
+}
+
+void QTableViewPrivate::_q_selectColumn(int column)
+{
+    selectColumn(column, false);
+}
+
+void QTableViewPrivate::selectRow(int row, bool anchor)
+{
+    Q_Q(QTableView);
+
+    if (q->selectionBehavior() == QTableView::SelectColumns
+        || (q->selectionMode() == QTableView::SingleSelection
+            && q->selectionBehavior() == QTableView::SelectItems))
+        return;
+
+    if (row >= 0 && row < model->rowCount(root)) {
+        QModelIndex index = model->index(row, 0, root);
+        QItemSelectionModel::SelectionFlags command = q->selectionCommand(index);
+        selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        if (!(command & QItemSelectionModel::Current) && anchor)
+            rowSectionAnchor = row;
+        QModelIndex tl = model->index(qMin(rowSectionAnchor, row), 0, root);
+        QModelIndex br = model->index(qMax(rowSectionAnchor, row), model->columnCount(root) - 1, root);
+        if (verticalHeader->sectionsMoved() && tl.row() != br.row())
+            q->setSelection(q->visualRect(tl)|q->visualRect(br), command);
+        else
+            selectionModel->select(QItemSelection(tl, br), command);
+    }
+}
+
+void QTableViewPrivate::selectColumn(int column, bool anchor)
+{
+    Q_Q(QTableView);
+
+    if (q->selectionBehavior() == QTableView::SelectRows
+        || (q->selectionMode() == QTableView::SingleSelection
+            && q->selectionBehavior() == QTableView::SelectItems))
+        return;
+
+    if (column >= 0 && column < model->columnCount(root)) {
+        QModelIndex index = model->index(0, column, root);
+        QItemSelectionModel::SelectionFlags command = q->selectionCommand(index);
+        selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        if (!(command & QItemSelectionModel::Current) && anchor)
+            columnSectionAnchor = column;
+        QModelIndex tl = model->index(0, qMin(columnSectionAnchor, column), root);
+        QModelIndex br = model->index(model->rowCount(root) - 1,
+                                      qMax(columnSectionAnchor, column), root);
+        if (horizontalHeader->sectionsMoved() && tl.column() != br.column())
+            q->setSelection(q->visualRect(tl)|q->visualRect(br), command);
+        else
+            selectionModel->select(QItemSelection(tl, br), command);
+    }
+}
+
+#include "moc_qtableview.cpp"
 #endif // QT_NO_TABLEVIEW

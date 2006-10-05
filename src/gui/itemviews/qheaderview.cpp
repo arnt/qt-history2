@@ -155,6 +155,16 @@
 */
 
 /*!
+    \fn void QHeaderView::sectionTouched(int logicalIndex)
+
+    This signal is emitted when the cursor moves over the section and the
+    left mouse button is pressed. The section's logical index is specified
+    by \a logicalIndex.
+
+    \sa setClickable(), sectionPressed()
+*/
+
+/*!
     \fn void QHeaderView::sectionDoubleClicked(int logicalIndex)
 
     This signal is emitted when a section is double-clicked. The
@@ -1700,8 +1710,9 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             d->setupSectionIndicator(d->section, pos);
         }
         if (d->clickableSections && d->pressed != -1) {
-            updateSection(d->pressed);
             emit sectionPressed(d->pressed);
+            updateSection(d->pressed);
+            d->state = QHeaderViewPrivate::SelectSections;
         }
     } else if (resizeMode(handle) == Interactive) {
         Q_ASSERT(d->originalSize == -1);
@@ -1766,6 +1777,17 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             }
             return;
         }
+        case QHeaderViewPrivate::SelectSections: {
+            int logical = logicalIndexAt(pos);
+            if (logical == d->pressed)
+                return; // nothing to do
+            d->pressed = logical;
+            if (d->clickableSections && logical != -1) {
+                emit sectionTouched(d->pressed);
+                updateSection(d->pressed);
+            }
+            return;
+        }
         case QHeaderViewPrivate::NoState: {
 #ifndef QT_NO_CURSOR
             int handle = d->sectionHandleAt(pos);
@@ -1814,6 +1836,8 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     case QHeaderViewPrivate::ResizeSection:
         d->originalSize = -1;
         d->clearCascadingSections();
+        break;
+    default:
         break;
     }
     d->state = QHeaderViewPrivate::NoState;

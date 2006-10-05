@@ -134,6 +134,7 @@ Q_SIGNALS:
     void sectionResized(int logicalIndex, int oldSize, int newSize);
     void sectionPressed(int logicalIndex);
     void sectionClicked(int logicalIndex);
+    void sectionTouched(int logicalIndex);
     void sectionDoubleClicked(int logicalIndex);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int logicalIndex);
