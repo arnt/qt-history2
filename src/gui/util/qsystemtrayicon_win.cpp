@@ -63,7 +63,7 @@ public:
     bool showMessageW(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs);
     bool showMessageA(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs);
     bool supportsMessages();
-    QPoint findIconPosition(const int a_iButtonID);
+    QRect findIconGeometry(const int a_iButtonID);
     QRect findTrayGeometry();
     HBITMAP createIconMask(const QBitmap &bitmap);
     void createIcon();
@@ -418,16 +418,14 @@ QRect QSystemTrayIconSys::findTrayGeometry()
 }
 
 /*
-* This function tries to determine the icon center position from the tray, in order to obtain
-* the source of balloon tips, when emulated by Qt.
+* This function tries to determine the icon geometry from the tray
 *
-* If no visible icon is found a point centered on the left side of the tray is returned.
-*
-* If everything fails, (-1, -1) is returned.
+* If it fails an invalid rect is returned.
 */
-QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
+QRect QSystemTrayIconSys::findIconGeometry(const int iconId)
 {
-    QPoint ret(-1, -1);
+    QRect ret;
+    
     TBBUTTON buttonData;
     DWORD processID = 0;
 
@@ -462,7 +460,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 
     if ( buttonCount < 1 || !data ) {
 	CloseHandle(trayProcess);
-	return ret;
+        return ret;
     }
 
     //search for our icon among all toolbar buttons
@@ -487,10 +485,11 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
             RECT iconRect = {0, 0};
             if(ReadProcessMemory(trayProcess, data, &iconRect, sizeof(RECT), &numBytes)) {
     	        MapWindowPoints(trayHandle, NULL, (LPPOINT)&iconRect, 2);
-                QRect geometry(iconRect.left, iconRect.top,
-                                iconRect.right - iconRect.left,
-                                iconRect.bottom - iconRect.top);
-                ret = geometry.center();
+                QRect geometry(iconRect.left + 1, iconRect.top + 1,
+                                iconRect.right - iconRect.left - 2,
+                                iconRect.bottom - iconRect.top - 2);
+                if (geometry.isValid())
+                    ret = geometry;
                 break;
             }
         }
@@ -531,7 +530,7 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
         });
     } else {
         //use fallbacks
-        QPoint iconPos = sys->findIconPosition(0);
+        QPoint iconPos = sys->findIconGeometry(0).center();
         if(iconPos != QPoint(-1, -1)) {
             QBalloonTip::showBalloon(type, title, message, sys->q, iconPos, uSecs, true);
         } else {
@@ -544,7 +543,9 @@ void QSystemTrayIconPrivate::showMessage_sys(const QString &title, const QString
 
 QRect QSystemTrayIconPrivate::geometry_sys() const
 {
-    return QRect();
+    if (!sys)
+        return QRect();
+    return sys->findIconGeometry(0);
 }
 
 void QSystemTrayIconPrivate::remove_sys()
