@@ -28,13 +28,12 @@ public:
     void move(int x, int y);
     void show();
     void hide();
-    bool supportsAlphaCursor() const;
-    bool isVisible() const;
-    bool isAccelerated() const;
 
     void addCursor(QScreenCursor *cursor);
 
 private:
+    void setCurrentCursor(QScreenCursor *newCursor);
+
     QScreenCursor *currentCursor;
     QList<QScreenCursor*> cursors;
 };
@@ -46,6 +45,19 @@ void QMultiScreenCursor::set(const QImage &image, int hotx, int hoty)
         currentCursor->set(image, hotx, hoty);
 }
 
+void QMultiScreenCursor::setCurrentCursor(QScreenCursor *newCursor)
+{
+    currentCursor = newCursor;
+
+    QScreenCursor::cursor = currentCursor->cursor;
+    QScreenCursor::size = currentCursor->size;
+    QScreenCursor::pos = currentCursor->pos;
+    QScreenCursor::hotspot = currentCursor->hotspot;
+    QScreenCursor::enable = currentCursor->enable;
+    QScreenCursor::hwaccel = currentCursor->hwaccel;
+    QScreenCursor::supportsAlpha = currentCursor->supportsAlpha;
+}
+
 // XXX: this is a mess!
 void QMultiScreenCursor::move(int x, int y)
 {
@@ -54,7 +66,7 @@ void QMultiScreenCursor::move(int x, int y)
     const int newIndex = qt_screen->subScreenIndexAt(pos);
 
     if (!currentCursor && oldIndex != -1)
-        currentCursor = cursors.at(oldIndex);
+        setCurrentCursor(cursors.at(oldIndex));
     QScreenCursor *oldCursor = currentCursor;
 
     if (oldIndex != -1) {
@@ -66,16 +78,18 @@ void QMultiScreenCursor::move(int x, int y)
     }
 
     if (newIndex != -1) {
-        currentCursor = cursors.at(newIndex);
+        QScreenCursor *newCursor = cursors.at(newIndex);
+        newCursor->set(cursor, hotspot.x(), hotspot.y());
 
-        currentCursor->set(cursor, hotspot.x(), hotspot.y());
         if (oldCursor) {
-            if (oldCursor->isVisible())
-                currentCursor->show();
+            if (newCursor->isVisible())
+                newCursor->show();
             oldCursor->hide();
         }
 
-        currentCursor->move(x, y);
+        newCursor->move(x, y);
+
+        setCurrentCursor(newCursor);
     }
 }
 
@@ -89,27 +103,6 @@ void QMultiScreenCursor::hide()
 {
     if (currentCursor)
         currentCursor->hide();
-}
-
-bool QMultiScreenCursor::supportsAlphaCursor() const
-{
-    if (currentCursor)
-        return currentCursor->supportsAlphaCursor();
-    return false;
-}
-
-bool QMultiScreenCursor::isVisible() const
-{
-    if (currentCursor)
-        return currentCursor->isVisible();
-    return false;
-}
-
-bool QMultiScreenCursor::isAccelerated() const
-{
-    if (currentCursor)
-        return currentCursor->isAccelerated();
-    return false;
 }
 
 void QMultiScreenCursor::addCursor(QScreenCursor *cursor)
