@@ -15,7 +15,7 @@ TARGET   = QAxContainer
 }
 
 CONFIG  += qt warn_on staticlib
-DESTDIR  = $$QT_BUILD_TREE/lib
+QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/lib
 
 LIBS    += -lole32 -loleaut32 -luser32 -lgdi32 -ladvapi32
 win32-g++:LIBS += -luuid

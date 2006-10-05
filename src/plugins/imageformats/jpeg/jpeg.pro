@@ -63,6 +63,6 @@ contains(QT_CONFIG, system-jpeg) {
 	    ../../../3rdparty/libjpeg/jmemnobs.c
 }
 
-DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
+QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target

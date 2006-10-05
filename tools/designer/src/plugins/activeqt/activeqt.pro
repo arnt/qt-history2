@@ -1,6 +1,6 @@
 TARGET      = $$qtLibraryTarget(qaxwidget)
 TEMPLATE    = lib
-DESTDIR 	= $$QT_BUILD_TREE/plugins/designer
+QTDIR_build:DESTDIR 	= $$QT_BUILD_TREE/plugins/designer
 
 CONFIG     += qt warn_on qaxcontainer plugin designer debug_and_release
 

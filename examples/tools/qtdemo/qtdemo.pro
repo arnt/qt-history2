@@ -1,5 +1,5 @@
 CONFIG        += assistant x11inc
-DESTDIR       = $$QT_BUILD_TREE/bin
+QTDIR_build:DESTDIR       = $$QT_BUILD_TREE/bin
 HEADERS       = displayshape.h \
                 displaywidget.h \
                 launcher.h

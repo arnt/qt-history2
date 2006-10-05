@@ -3,8 +3,10 @@ TARGET = QtDesignerComponents
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += qt depend_prl
 win32|mac: CONFIG += debug_and_release
-DESTDIR = $$QT_BUILD_TREE/lib
-DLLDESTDIR = $$QT_BUILD_TREE/bin
+QTDIR_build { 
+    DESTDIR = $$QT_BUILD_TREE/lib
+    DLLDESTDIR = $$QT_BUILD_TREE/bin
+}
 
 # QtDesignerComponents uses
 DEFINES += QT_STATICPLUGIN

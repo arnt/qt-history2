@@ -8,6 +8,6 @@ SOURCES += main.cpp \
            qsvgiconengine.cpp
 QT += svg
 
-DESTDIR  = $$QT_BUILD_TREE/plugins/iconengines
+QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/iconengines
 target.path += $$[QT_INSTALL_PLUGINS]/iconengines
 INSTALLS += target

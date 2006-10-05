@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET   = $$qtLibraryTarget($$TARGET)
 CONFIG  += designer plugin debug_and_release
-DESTDIR  = $$QT_BUILD_TREE/plugins/designer
+QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/designer
 
 HEADERS += tictactoe.h \
            tictactoedialog.h \

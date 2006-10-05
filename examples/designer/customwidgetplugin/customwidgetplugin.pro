@@ -1,7 +1,7 @@
 CONFIG      += designer plugin debug_and_release
 TARGET      = $$qtLibraryTarget($$TARGET)
 TEMPLATE    = lib
-DESTDIR     = $$QT_BUILD_TREE/plugins/designer
+QTDIR_build:DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 HEADERS     = analogclock.h \
               customwidgetplugin.h

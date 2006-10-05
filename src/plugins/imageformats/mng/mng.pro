@@ -38,6 +38,6 @@ contains(QT_CONFIG, system-mng) {
             ../../../3rdparty/libmng/libmng_zlib.c
 }
 
-DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
+QTDIR_build:DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target

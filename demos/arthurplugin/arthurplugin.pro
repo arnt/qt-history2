@@ -3,7 +3,7 @@ QTDIR       = $$QT_SOURCE_TREE
 
 CONFIG      += designer plugin debug_and_release
 TEMPLATE    = lib
-DESTDIR     = $$QT_BUILD_TREE/plugins/designer
+QTDIR_build:DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 contains(QT_CONFIG, opengl) {
 	DEFINES += QT_OPENGL_SUPPORT
