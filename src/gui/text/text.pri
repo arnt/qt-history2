@@ -32,7 +32,8 @@ HEADERS += \
 	text/qtexttable.h \
 	text/qtextlist.h \
 	text/qsyntaxhighlighter.h \
-	text/qcssparser_p.h
+	text/qcssparser_p.h \
+	text/qtexttable_p.h
 
 SOURCES += \
 	text/qfont.cpp \
