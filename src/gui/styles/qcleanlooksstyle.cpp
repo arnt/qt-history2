@@ -1520,12 +1520,14 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             painter->drawRect(r);
 
             if (!dwOpt->title.isEmpty()) {
-                const int indent = painter->fontMetrics().descent() + 2;
-                drawItemText(painter, r.adjusted(indent + 1, 0, - indent - 1, -1),
-                            Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
-                            dwOpt->state & State_Enabled, dwOpt->title,
-                            QPalette::WindowText);
-            }
+                QRect titleRect = visualRect(dwOpt->direction, r, option->rect.adjusted(5, 0, -35, 0));
+                QString titleText = painter->fontMetrics().elidedText(dwOpt->title, Qt::ElideRight, titleRect.width());
+                drawItemText(painter, 
+                             titleRect,
+                             Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                             dwOpt->state & State_Enabled, titleText,
+                             QPalette::WindowText);
+                }
         }
         painter->restore();
         break;
