@@ -406,8 +406,17 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode 
     return QPixmap::fromImage(data->image.transformed(matrix, mode));
 }
 
+QPixmap QPixmap::transformed(const QTransform &matrix, Qt::TransformationMode mode ) const
+{
+    return QPixmap::fromImage(data->image.transformed(matrix, mode));
+}
 
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
+{
+    return QImage::trueMatrix(m, w, h);
+}
+
+QTransform QPixmap::trueMatrix(const QTransform &m, int w, int h)
 {
     return QImage::trueMatrix(m, w, h);
 }
