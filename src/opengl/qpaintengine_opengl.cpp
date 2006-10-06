@@ -23,6 +23,7 @@
 #include <private/qgl_p.h>
 #include "qmap.h"
 #include <private/qpaintengine_opengl_p.h>
+#include <private/qdatabuffer_p.h>
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
@@ -71,6 +72,16 @@
 #define DEBUG_ONCE for (static bool DEBUG_ONCE_FLAG = false; !DEBUG_ONCE_FLAG; DEBUG_ONCE_FLAG = true)
 #endif
 
+static inline void qt_glColor4ubv(unsigned char *col)
+{
+#ifdef Q_WS_QWS
+        glColor4f(col[0]/255.0, col[1]/255.0, col[2]/255.0, col[3]/255.0);
+#else
+        glColor4ubv(col);
+#endif
+}
+
+
 #ifndef Q_USE_QT_TESSELLATOR
 struct QSubpath
 {
@@ -103,15 +114,6 @@ QDebug operator<<(QDebug s, const QSubpath &p)
       << "bottom:" << p.bottom
       << p.processed << p.added;
     return s;
-}
-
-static inline void qt_glColor4ubv(unsigned char *col)
-{
-#ifdef Q_WS_QWS
-        glColor4f(col[0]/255.0, col[1]/255.0, col[2]/255.0, col[3]/255.0);
-#else
-        glColor4ubv(col);
-#endif
 }
 
 static void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDataBuffer<QSubpath> *subpaths)
@@ -423,6 +425,15 @@ public:
     void fillVertexArray(Qt::FillRule fillRule);
     void drawVertexArrays();
 
+    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+                         const QRectF &bounds, Qt::FillRule fill);
+
+#else
+    void fillPath(const QPainterPath &path);
+    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
+                         const QRectF &bounds, Qt::FillRule fill);
+#endif
+
     inline QPainterPath strokeForPath(const QPainterPath &path) {
         QPainterPathStroker stroker;
         if (cpen.style() == Qt::CustomDashLine)
@@ -433,7 +444,7 @@ public:
         stroker.setCapStyle(cpen.capStyle());
         stroker.setJoinStyle(cpen.joinStyle());
         stroker.setMiterLimit(cpen.miterLimit());
-        
+
         qreal width = cpen.widthF();
         if (width == 0)
             stroker.setWidth(1);
@@ -444,15 +455,6 @@ public:
         stroke.setFillRule(Qt::WindingFill);
         return stroke;
     }
-
-    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
-                         const QRectF &bounds, Qt::FillRule fill);
-
-#else
-    void fillPath(const QPainterPath &path);
-    void fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
-                         const QRectF &bounds, Qt::FillRule fill);
-#endif
 
     QPen cpen;
     QBrush cbrush;
@@ -782,7 +784,7 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 // Stencil wrap and two-side defines
 #ifndef GL_STENCIL_TEST_TWO_SIDE_EXT
 #define GL_STENCIL_TEST_TWO_SIDE_EXT 0x8910
-#endif  
+#endif
 #ifndef GL_INCR_WRAP_EXT
 #define GL_INCR_WRAP_EXT 0x8507
 #endif
@@ -956,7 +958,7 @@ bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 
     return glActiveStencilFaceEXT;
 }
-    
+
 static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
 {
     if (glProgramStringARB != 0)
@@ -1097,7 +1099,7 @@ public:
     inline const uint *getBuffer(const QGradientStops &stops, qreal opacity) {
         quint64 hash_val = 0;
 
-        for (int i = 0; i < stops.size() && i <= 2; i++) 
+        for (int i = 0; i < stops.size() && i <= 2; i++)
             hash_val += stops[i].second.rgba();
 
         QGLGradientColorTableHash::const_iterator it = cache.constFind(hash_val);
@@ -1182,7 +1184,7 @@ Q_GLOBAL_STATIC(QGLGradientCache, qt_opengl_gradient_cache)
 void QOpenGLPaintEnginePrivate::createGradientPaletteTexture(const QGradient& g)
 {
 #ifndef Q_WS_QWS //###
-    const uint *palbuf = qt_opengl_gradient_cache()->getBuffer(g.stops(), opacity);    
+    const uint *palbuf = qt_opengl_gradient_cache()->getBuffer(g.stops(), opacity);
 
     if (g.spread() == QGradient::RepeatSpread || g.type() == QGradient::ConicalGradient)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1285,8 +1287,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-#ifndef Q_USE_QT_TESSELLATOR
     Q_D(QOpenGLPaintEngine);
+#ifndef Q_USE_QT_TESSELLATOR
     if (d->dashStroker)
         delete d->dashStroker;
 #endif
@@ -1777,6 +1779,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
 #endif
 }
 
+#ifndef Q_USE_QT_TESSELLATOR
 void QOpenGLPaintEnginePrivate::pathToVertexArrays(const QPainterPath &path)
 {
     const QPainterPath::Element &first = path.elementAt(0);
@@ -1830,18 +1833,18 @@ void QOpenGLPaintEnginePrivate::fillVertexArray(Qt::FillRule fillRule)
 
     // Disable color writes.
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    
+
     GLuint stencilMask = 0;
-    
+
     if (fillRule == Qt::OddEvenFill) {
         stencilMask = 1;
-        
+
         // Enable stencil writes.
         glStencilMask(stencilMask);
-        
+
         // Set stencil xor mode.
         glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
-	
+
         // Disable stencil func.
         glStencilFunc(GL_ALWAYS, 0, ~0);
 
@@ -1924,81 +1927,94 @@ void QOpenGLPaintEnginePrivate::fillPath(const QPainterPath &path)
     pathToVertexArrays(path);
     fillVertexArray(path.fillRule());
 }
+#endif
 
 #ifdef Q_USE_QT_TESSELLATOR
-static inline void qt_XTrapToTriangle(QVector<float> &vertices, const qt_XTrapezoid &trap)
+class QOpenGLTessellator : public QTessellator
 {
-    QPointF topLeft;
-    QPointF topRight;
-    QPointF bottomLeft;
-    QPointF bottomRight;
+public:
+    QOpenGLTessellator() : vertices(0), allocated(0), size(0) {}
+    ~QOpenGLTessellator() { free(vertices); }
+    float *vertices;
+    int allocated;
+    int size;
+    void addTrap(const Trapezoid &trap);
+    QRect tessellate(const QPointF *points, int nPoints, bool winding) {
+        size = 0;
+        setWinding(winding);
+        return QTessellator::tessellate(points, nPoints).toRect();
+    }
+    void done() {
+        if (allocated > 512) {
+            free(vertices);
+            vertices = 0;
+            allocated = 0;
+        }
+    }
+};
 
-    topLeft.setY(qt_XFixedToDouble(trap.top));
-    topRight.setY(qt_XFixedToDouble(trap.top));
-    bottomLeft.setY(qt_XFixedToDouble(trap.bottom));
-    bottomRight.setY(qt_XFixedToDouble(trap.bottom));
+void QOpenGLTessellator::addTrap(const Trapezoid &trap)
+{
+    if (size > allocated - 12) {
+        allocated = qMax(2*allocated, 512);
+        vertices = (float *)realloc(vertices, allocated * sizeof(float));
+    }
 
-    qreal p1x = qt_XFixedToDouble(trap.left.p1.x);
-    qreal p2x = qt_XFixedToDouble(trap.left.p2.x);
+    float top = Q27Dot5ToDouble(trap.top);
+    float bottom = Q27Dot5ToDouble(trap.bottom);
 
-    qt_XFixed yf = trap.left.p1.y - trap.left.p2.y;
-    if (!yf)
+    Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
+    if (!y)
         return;
+    qreal m = Q27Dot5ToDouble(-trap.topLeft->x + trap.bottomLeft->x) / Q27Dot5ToDouble(y);
+    qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
+    qreal topLeftX
+        = tx + m * Q27Dot5ToDouble(trap.topLeft->y - trap.top);
+    qreal bottomLeftX
+        = tx + m * Q27Dot5ToDouble(trap.topLeft->y - trap.bottom);
+//     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
+//              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
+//     qDebug() << "      topLeft=" << Q27Dot5ToDouble(trap.topLeft->x) << Q27Dot5ToDouble(trap.topLeft->y);
+//     qDebug() << "      bottomLeft=" << Q27Dot5ToDouble(trap.bottomLeft->x) << Q27Dot5ToDouble(trap.bottomLeft->y);
 
-    qreal y = qt_XFixedToDouble(yf);
+//     qDebug() << " -> m=" << m << "tx=" << tx;
+//     qDebug() << " -> topLeftX" << topLeftX << "bottomLeftX" << bottomLeftX;
 
-    qreal topLeftX    = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.left.p1.y) - qt_XFixedToDouble(trap.top))/y;
-    qreal bottomLeftX = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.left.p1.y) - qt_XFixedToDouble(trap.bottom))/y;
-
-
-    p1x = qt_XFixedToDouble(trap.right.p1.x);
-    p2x = qt_XFixedToDouble(trap.right.p2.x);
-    yf =  trap.right.p1.y - trap.right.p2.y;
-    if (!yf)
+    y = trap.topRight->y - trap.bottomRight->y;
+    if (!y)
         return;
+    m = Q27Dot5ToDouble(-trap.topRight->x + trap.bottomRight->x) / Q27Dot5ToDouble(y);
+    tx = Q27Dot5ToDouble(trap.topRight->x);
+    qreal topRightX
+        = tx + m * Q27Dot5ToDouble(trap.topRight->y - trap.top);
+    qreal bottomRightX
+        = tx + m * Q27Dot5ToDouble(trap.topRight->y - trap.bottom);
 
-    y = qt_XFixedToDouble(yf);
+    vertices[size++] = topLeftX;
+    vertices[size++] = top;
+    vertices[size++] = topRightX;
+    vertices[size++] = top;
+    vertices[size++] = bottomLeftX;
+    vertices[size++] = bottom;
 
-    qreal topRightX    = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.right.p1.y) - qt_XFixedToDouble(trap.top))/y;
-    qreal bottomRightX = p1x+(p2x-p1x)*(qt_XFixedToDouble(trap.right.p1.y) - qt_XFixedToDouble(trap.bottom))/y;
-
-    topLeft.setX(topLeftX);
-    topRight.setX(topRightX);
-    bottomLeft.setX(bottomLeftX);
-    bottomRight.setX(bottomRightX);
-
-    //qDebug()<<topLeft<<topRight<<bottomLeft<<bottomRight;
-
-#define ADD_VERTEX(vtx) vertices.append((vtx).x()); vertices.append((vtx).y())
-    ADD_VERTEX(topLeft);
-    ADD_VERTEX(topRight);
-    ADD_VERTEX(bottomLeft);
-
-    ADD_VERTEX(bottomLeft);
-    ADD_VERTEX(topRight);
-    ADD_VERTEX(bottomRight);
-#undef ADD_VERTEX
+    vertices[size++] = bottomLeftX;
+    vertices[size++] = bottom;
+    vertices[size++] = topRightX;
+    vertices[size++] = top;
+    vertices[size++] = bottomRightX;
+    vertices[size++] = bottom;
 }
 
 void QOpenGLPaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
                                                 const QRectF &bounds, Qt::FillRule fill)
 {
-    QVector<qt_XTrapezoid> traps;
-    traps.reserve(128);
-    QRect br;
-    qt_polygon_trapezoidation(&traps, polygonPoints, pointCount,
-                              fill == Qt::WindingFill, &br);
-    //each trap decomposed in 2 triangles, each triangle 3 vertices,
-    //each triangle 2 coords
-    QVector<float> vertices(traps.count() * 12);
-    for (int i = 0; i < traps.count(); ++i) {
-        const qt_XTrapezoid &trap = traps[i];
-        qt_XTrapToTriangle(vertices, trap);
-    }
+    Q_UNUSED(bounds);
+    QOpenGLTessellator tessellator;
+    tessellator.tessellate(polygonPoints, pointCount, fill == Qt::WindingFill);
 
-    glVertexPointer(2, GL_FLOAT, 0, vertices.constData());
+    glVertexPointer(2, GL_FLOAT, 0, tessellator.vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.count()/2);
+    glDrawArrays(GL_TRIANGLES, 0, tessellator.size/2);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -2506,12 +2522,12 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 QPainterPath path;
                 path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
                 path.moveTo(points[0]);
- 
+
                 for (int i=1; i<pointCount; ++i)
                     path.lineTo(points[i]);
                 //path.closeSubpath();
                 d->fillPath(path);
-            } else { 
+            } else {
                 d->beginPath(mode);
                 d->moveTo(points[0]);
                 for (int i=1; i<pointCount; ++i)
@@ -2644,7 +2660,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                 }
                 d->endPath();
             }
-        }   
+        }
 #else
         qt_glColor4ubv(d->brush_color);
         d->fillPath(path);
