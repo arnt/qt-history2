@@ -47,15 +47,8 @@ void QMultiScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QMultiScreenCursor::setCurrentCursor(QScreenCursor *newCursor)
 {
+    *this = *newCursor;
     currentCursor = newCursor;
-
-    QScreenCursor::cursor = currentCursor->cursor;
-    QScreenCursor::size = currentCursor->size;
-    QScreenCursor::pos = currentCursor->pos;
-    QScreenCursor::hotspot = currentCursor->hotspot;
-    QScreenCursor::enable = currentCursor->enable;
-    QScreenCursor::hwaccel = currentCursor->hwaccel;
-    QScreenCursor::supportsAlpha = currentCursor->supportsAlpha;
 }
 
 // XXX: this is a mess!
