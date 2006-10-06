@@ -48,7 +48,7 @@
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
-//#define DISABLE_DEBUG_ONCE
+#define DISABLE_DEBUG_ONCE
 
 #ifdef DISABLE_DEBUG_ONCE
 #define DEBUG_ONCE_STR(str) ;
