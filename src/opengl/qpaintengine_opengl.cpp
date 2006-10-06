@@ -960,6 +960,26 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
+    if (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject) {
+#ifndef Q_WS_QWS
+        if (!d->offscreenFbo || d->offscreenSize != sz || d->drawable.context() != d->shader_ctx) {
+            delete d->offscreenFbo;
+            d->offscreenFbo = new QGLFramebufferObject(sz.width(), sz.height());
+
+            if (!d->offscreenFbo->isValid())
+                DEBUG_ONCE qDebug() << "QOpenGLPaintEngine: Invalid fbo," << "old size was" << d->offscreenSize << ", new size is" << sz;
+
+            d->offscreenSize = sz;
+            d->invOffscreenSize = QSizeF(1.0 / sz.width(), 1.0 / sz.height());
+        }
+
+        d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
+
+        if (!d->has_valid_offscreen_fbo)
+            qWarning() << "QOpenGLPaintEngine: Unable to create valid framebuffer object.";
+#endif
+    }
+
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
         && d->drawable.context() != d->shader_ctx
         && !qgl_share_reg()->checkSharing(d->drawable.context(), d->shader_ctx))
@@ -1063,24 +1083,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
         }
 #endif
-    }
-
-    if (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject) {
-        if (!d->offscreenFbo || d->offscreenSize != sz) {
-            delete d->offscreenFbo;
-            d->offscreenFbo = new QGLFramebufferObject(sz.width(), sz.height());
-
-            if (!d->offscreenFbo->isValid())
-                DEBUG_ONCE qDebug() << "QOpenGLPaintEngine: Invalid fbo," << "old size was" << d->offscreenSize << ", new size is" << sz;
-
-            d->offscreenSize = sz;
-            d->invOffscreenSize = QSizeF(1.0 / sz.width(), 1.0 / sz.height());
-        }
-
-        d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
-
-        if (!d->has_valid_offscreen_fbo)
-            qWarning() << "QOpenGLPaintEngine: Unable to create valid framebuffer object.";
     }
 
     setDirty(QPaintEngine::DirtyPen);
@@ -2695,6 +2697,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 {
+#ifndef Q_WS_QWS
     QGL_FUNC_CONTEXT;
     static const float inv = 1.0f / 255.0f;
 
@@ -2733,6 +2736,7 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
     } else {
         Q_ASSERT(false);
     }
+#endif
 }
 
 
@@ -2744,6 +2748,7 @@ void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
 
 void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCoordArray)
 {
+#ifndef Q_WS_QWS
     Q_ASSERT(has_ellipse_program && has_brush && has_fast_brush);
 
     if (use_antialiasing) {
@@ -2769,11 +2774,13 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 
     if (use_antialiasing)
         glDisable(GL_BLEND);
+#endif
 }
 
 
 void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray)
 {
+#ifndef Q_WS_QWS
     Q_ASSERT(has_ellipse_program && has_brush);
 
     DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using offscreen buffer");
@@ -2831,11 +2838,13 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     glDisable(GL_BLEND);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
+#endif
 }
 
 
 void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *texCoordArray)
 {
+#ifndef Q_WS_QWS
     Q_ASSERT(has_ellipse_program && has_brush);
 
     DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using stencil buffer");
@@ -2887,11 +2896,13 @@ void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *te
 
     glDisable(GL_STENCIL_TEST);
     glDisableClientState(GL_VERTEX_ARRAY);
+#endif
 }
 
 
 void QOpenGLPaintEnginePrivate::drawEllipsePen(const QRectF &rect)
 {
+#ifndef Q_WS_QWS
     Q_ASSERT(has_pen);
 
     setGradientOps(pen_brush_style);
@@ -2933,11 +2944,13 @@ void QOpenGLPaintEnginePrivate::drawEllipsePen(const QRectF &rect)
 
             fillPath(stroke);
     }
+#endif
 }
 
 
 void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 {
+#ifndef Q_WS_QWS
     Q_D(QOpenGLPaintEngine);
 
     DEBUG_ONCE_STR(d->has_glsl ? "QOpenGLPainter: Using GLSL" : "QOpenGLPainter: Using fragment programs");
@@ -2981,6 +2994,9 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
 
         QPaintEngine::drawEllipse(rect);
     }
+#else
+    QPaintEngine::drawEllipse(rect);
+#endif
 }
 
 #include "qpaintengine_opengl.moc"
