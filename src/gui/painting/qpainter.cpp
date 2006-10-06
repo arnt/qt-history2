@@ -3615,7 +3615,7 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
     if (lineEmulation) {
         // ###
 //         if (lineEmulation == QPaintEngine::PrimitiveTransform
-//             && d->state->txop == QPainterPrivate::TxTranslate) {
+//             && d->state->txop == QTransform::TxTranslate) {
 //         } else {
         QPainterPath polylinePath(points[0]);
         for (int i=1; i<pointCount; ++i)
@@ -3651,7 +3651,7 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
     if (lineEmulation) {
         // ###
 //         if (lineEmulation == QPaintEngine::PrimitiveTransform
-//             && d->state->txop == QPainterPrivate::TxTranslate) {
+//             && d->state->txop == QTransform::TxTranslate) {
 //         } else {
         QPainterPath polylinePath(points[0]);
         for (int i=1; i<pointCount; ++i)

@@ -2043,7 +2043,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
-    if (QT_WA_INLINE(false, d->txop >= QPainterPrivate::TxScale)) {
+    if (QT_WA_INLINE(false, d->txop >= QTransform::TxScale)) {
         QPaintEngine::drawTextItem(p, textItem);
         return;
     }
@@ -2200,7 +2200,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     return;
 
 #elif defined Q_WS_QWS
-    if (d->txop < QPainterPrivate::TxScale) {
+    if (d->txop < QTransform::TxScale) {
 #ifndef QT_NO_FREETYPE
         if (!(ti.fontEngine->type() == QFontEngine::Freetype
               && static_cast<QFontEngineFT*>(ti.fontEngine)->drawAsOutline()))

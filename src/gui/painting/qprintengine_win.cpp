@@ -365,7 +365,7 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     QRgb brushColor = state->pen().brush().color().rgb();
     bool fallBack = state->pen().brush().style() != Qt::SolidPattern
                     || qAlpha(brushColor) != 0xff
-                    || QT_WA_INLINE(false, d->txop >= QPainterPrivate::TxScale);
+                    || QT_WA_INLINE(false, d->txop >= QTransform::TxScale);
 
 
     if (!fallBack) {
@@ -560,16 +560,17 @@ void QWin32PrintEngine::updateMatrix(const QTransform &m)
     d->painterMatrix = m;
     d->matrix = d->painterMatrix * stretch;
 
-    if (d->matrix.m12() != 0 || d->matrix.m21() != 0)
-        d->txop = QPainterPrivate::TxRotShear;
+    if (d->matrix.m12() != 0 || d->matrix.m21() != 0 ||
+        d->matrix.m13() != 0 || d->matrix.m23() != 0)
+        d->txop = QTransform::TxRotShear;
     else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
-        d->txop = QPainterPrivate::TxScale;
+        d->txop = QTransform::TxScale;
     else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
-        d->txop = QPainterPrivate::TxTranslate;
+        d->txop = QTransform::TxTranslate;
     else
-        d->txop = QPainterPrivate::TxNone;
+        d->txop = QTransform::TxNone;
 
-    d->complex_xform = (d->txop > QPainterPrivate::TxTranslate);
+    d->complex_xform = (d->txop > QTransform::TxTranslate);
 }
 
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
@@ -908,7 +909,7 @@ void QWin32PrintEnginePrivate::initialize()
     if (name.isEmpty())
         return;
 
-    txop = QPainterPrivate::TxNone;
+    txop = QTransform::TxNone;
 
     bool ok;
     QT_WA( {
