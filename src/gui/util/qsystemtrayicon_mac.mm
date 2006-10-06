@@ -341,13 +341,14 @@ private:
 
             [item setTitle:(NSString*)QCFString::toCFStringRef(qt_mac_no_ampersands(text))];
             [item setEnabled:action->isEnabled()];
-            [item setTarget:self];
-            [item setAction:@selector(selectedAction:)];
             [item setState:action->isChecked() ? NSOnState : NSOffState];
             [item setToolTip:(NSString*)QCFString::toCFStringRef(action->toolTip())];
             if(action->menu()) {
                 QNSMenu *sub = [[QNSMenu alloc] initWithQMenu:action->menu()];
                 [item setSubmenu:sub];
+            } else {
+                [item setAction:@selector(selectedAction:)];
+                [item setTarget:self];
             }
             if(!accel.isEmpty()) {
                 quint32 modifier, key;
