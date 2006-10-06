@@ -3249,18 +3249,28 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
         } else {
             // It isn't possible to draw a transparent size grip with the
             // native API, so we do it ourselves here.
-            QPen blackish(QColor(128, 128, 128));
-            QPen greyish(QColor(200, 200, 200));
-
-            for (int l = 0; l < 3; ++ l) {
-                const int offset = (l * 4 + 3);
-                const QPoint start(opt->rect.width() - offset, opt->rect.height() - 2);
-                const QPoint end(opt->rect.width() - 2, opt->rect.height() - offset);
-                p->setPen(blackish);
+            const bool metal = qt_mac_is_metal(w);
+            QPen lineColor = metal ? QColor(236, 236, 236) : QColor(82, 82, 82, 192);
+            QPen metalHighlight = QColor(5, 5, 5, 192);
+            lineColor.setWidth(1);
+            p->save();
+            p->setRenderHint(QPainter::Antialiasing);
+            p->setPen(lineColor);
+            const int NumLines = metal ? 4 : 3;
+            for (int l = 0; l < NumLines; ++l) {
+                const int offset = (l * 4 + (metal ? 2 : 3));
+                const QPoint start(opt->rect.width() - offset, opt->rect.height() - 1);
+                const QPoint end(opt->rect.width() - 1, opt->rect.height() - offset);
                 p->drawLine(start, end);
-                p->setPen(greyish);
-                p->drawLine(start + QPoint(-1, 0), end + QPoint(0, -1));
+                if (metal) {
+                    p->setPen(metalHighlight);
+                    p->setRenderHint(QPainter::Antialiasing, false);
+                    p->drawLine(start + QPoint(0, -1), end + QPoint(0, -1));
+                    p->setRenderHint(QPainter::Antialiasing, true);
+                    p->setPen(lineColor);
+                }
             }
+            p->restore();
         }
         break;
         }
