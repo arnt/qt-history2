@@ -44,7 +44,7 @@ public:
 
 private:
     void fillRect(QImage *image, int x, int y, int w, int h, QRgb col);
-    QRgb color(uchar index) const;
+    inline QRgb color(uchar index) const;
 
     // GIF specific stuff
     QRgb* globalcmap;
@@ -481,16 +481,27 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                             }
                         }
                         oldcode=incode;
+                        const int h = image->height();
+                        const QRgb *map = lcmap ? localcmap : globalcmap;
+                        QRgb *line = 0;
+                        if (!out_of_bounds && h > y)
+                            line = (QRgb*)image->scanLine(y);
                         while (sp>stack) {
-                            --sp;
-                            if (!out_of_bounds && image->height() > y && *sp!=trans_index)
-                                ((QRgb*)image->scanLine(y))[x] = color(*sp);
+                            const uchar index = *(--sp);
+                            if (!out_of_bounds && h > y && index!=trans_index) {
+                                if (index > ncols)
+                                    line[x] = Q_TRANSPARENT;
+                                else
+                                    line[x] = map ? map[index] : 0;
+                            }
                             x++;
                             if (x>=swidth) out_of_bounds = true;
                             if (x>=left+width) {
                                 x=left;
                                 out_of_bounds = left>=swidth || y>=sheight;
                                 nextY(image);
+                                if (!out_of_bounds && h > y)
+                                    line = (QRgb*)image->scanLine(y);
                             }
                         }
                     }
@@ -693,7 +704,7 @@ void QGIFFormat::nextY(QImage *image)
     if (y >= sheight) out_of_bounds=true; //y=bottom;
 }
 
-QRgb QGIFFormat::color(uchar index) const
+inline QRgb QGIFFormat::color(uchar index) const
 {
     if (index == trans_index || index > ncols)
         return Q_TRANSPARENT;
