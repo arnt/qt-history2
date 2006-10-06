@@ -75,6 +75,8 @@ public:
                    Qt::ImageConversionFlags conversionFlags);
     void drawTextItem(const QPointF &p, const QTextItem &ti);
 
+    void drawEllipse(const QRectF &rect);
+
 #ifdef Q_WS_WIN
     HDC handle() const;
 #else

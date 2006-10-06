@@ -61,6 +61,16 @@
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
+#define DISABLE_DEBUG_ONCE
+
+#ifdef DISABLE_DEBUG_ONCE
+#define DEBUG_ONCE_STR(str) ;
+#define DEBUG_ONCE if (0)
+#else
+#define DEBUG_ONCE_STR(str) for (static bool DEBUG_ONCE_FLAG = false; !DEBUG_ONCE_FLAG; DEBUG_ONCE_FLAG = true) qDebug() << (str);
+#define DEBUG_ONCE for (static bool DEBUG_ONCE_FLAG = false; !DEBUG_ONCE_FLAG; DEBUG_ONCE_FLAG = true)
+#endif
+
 #ifndef Q_USE_QT_TESSELLATOR
 struct QSubpath
 {
@@ -355,6 +365,7 @@ public:
     QOpenGLPaintEnginePrivate()
         : opacity(1)
         , has_fast_pen(false)
+        , has_fast_brush(false)
         , txop(QTransform::TxNone)
         , inverseScale(1)
         , moveToCount(0)
@@ -368,6 +379,10 @@ public:
         , has_glsl(false)
         , use_stencil_method(false)
         , has_stencil_face_ext(false)
+        , has_ellipse_program(false)
+        , use_antialiasing(false)
+        , offscreenFbo(0)
+        , has_valid_offscreen_fbo(false)
         {}
 
     inline void setGLPen(const QColor &c) {
@@ -450,6 +465,7 @@ public:
     uint has_pen : 1;
     uint has_brush : 1;
     uint has_fast_pen : 1;
+    uint has_fast_brush : 1;
 
     QTransform matrix;
     GLubyte pen_color[4];
@@ -473,20 +489,51 @@ public:
     QDataBuffer<GLdouble> tessVector;
 #endif
 
+    void activateEllipseProgram();
+    void deactivateEllipseProgram();
+
+    void activateTextureCopyProgram();
+    void deactivateTextureCopyProgram();
+
+    void drawFastEllipse(float *vertexArray, float *texCoordArray);
+    void drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray);
+    void drawStencilEllipse(float *vertexArray, float *texCoordArray);
+    void drawEllipsePen(const QRectF &rect);
+
     QGLContext *shader_ctx;
     GLuint grad_palette;
 
     GLuint radial_frag_program;
     GLuint conical_frag_program;
+    GLuint ellipse_frag_program;
+    GLuint ellipse_aa_frag_program;
+    GLuint texture_copy_frag_program;
 
     bool has_glsl;
     bool use_stencil_method;
     bool has_stencil_face_ext;
+    bool has_ellipse_program;
+    bool use_antialiasing;
+    bool has_texture_copy_program;
+
+    QGLFramebufferObject *offscreenFbo;
+    QSize offscreenSize;
+    bool has_valid_offscreen_fbo;
+
     GLuint radial_glsl_prog;
     GLuint radial_glsl_shader;
 
     GLuint conical_glsl_prog;
     GLuint conical_glsl_shader;
+
+    GLuint ellipse_glsl_prog;
+    GLuint ellipse_glsl_shader;
+
+    GLuint ellipse_aa_glsl_prog;
+    GLuint ellipse_aa_glsl_shader;
+
+    GLuint texture_copy_glsl_prog;
+    GLuint texture_copy_glsl_shader;
 
     GLuint radial_inv_location;
     GLuint radial_inv_mat_offset_location;
@@ -498,6 +545,12 @@ public:
     GLuint conical_inv_mat_offset_location;
     GLuint conical_angle_location;
     GLuint conical_tex_location;
+
+    GLuint ellipse_solid_color_location;
+    GLuint ellipse_aa_solid_color_location;
+
+    GLuint texture_copy_texture_location;
+    GLuint texture_copy_texture_size_location;
 
     qreal max_x;
     qreal max_y;
@@ -860,6 +913,39 @@ static const char *const conical_program =
 static const char *const conical_glsl_program =
 #include "util/conical.glsl_quoted"
 
+/*  ellipse fragment program
+    parameter: 0 = solid_color
+
+               These programs are included from ellipse.frag, see also src/opengl/util/README-GLSL
+*/
+static const char *const ellipse_program =
+#include "util/ellipse.frag"
+
+static const char *const ellipse_glsl_program =
+#include "util/ellipse.glsl_quoted"
+
+/*  antialiased ellipse fragment program
+    parameter: 1 = solid_color
+
+               These programs are included from ellipse_aa.frag, see also src/opengl/util/README-GLSL
+*/
+static const char *const ellipse_aa_program =
+#include "util/ellipse_aa.frag"
+
+static const char *const ellipse_aa_glsl_program =
+#include "util/ellipse_aa.glsl_quoted"
+
+/*  texture copy fragment program
+    parameter: 0 = texture_size
+
+               This program is included from texture_copy.frag, see also src/opengl/util/README-GLSL
+*/
+static const char *const texture_copy_program =
+#include "util/texture_copy.frag"
+
+static const char *const texture_copy_glsl_program =
+#include "util/texture_copy.glsl_quoted"
+
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
     if (glActiveStencilFaceEXT != 0)
@@ -1204,6 +1290,9 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
     if (d->dashStroker)
         delete d->dashStroker;
 #endif
+
+    if (d->offscreenFbo)
+        delete d->offscreenFbo;
 }
 
 bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_src, GLuint &shader)
@@ -1223,12 +1312,23 @@ bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_s
     return status_ok;
 }
 
+static bool qt_createFragmentProgram(GLuint &program, const char *shader_src)
+{
+    glGenProgramsARB(1, &program);
+    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, program);
+    glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+                       strlen(shader_src), reinterpret_cast<const GLbyte *>(shader_src));
+
+    return glGetError() == GL_NO_ERROR;
+}
+
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
     d->has_fast_pen = false;
+    d->has_fast_brush = false;
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
@@ -1311,10 +1411,19 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 glDeleteProgram(d->radial_glsl_prog);
                 glDeleteShader(d->conical_glsl_shader);
                 glDeleteProgram(d->conical_glsl_prog);
+                glDeleteShader(d->ellipse_glsl_shader);
+                glDeleteProgram(d->ellipse_glsl_prog);
+                glDeleteShader(d->ellipse_aa_glsl_shader);
+                glDeleteProgram(d->ellipse_aa_glsl_prog);
             } else if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
                 glDeleteProgramsARB(1, &d->radial_frag_program);
                 glDeleteProgramsARB(1, &d->conical_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
             }
+
+            d->has_ellipse_program = false;
+            d->has_texture_copy_program = false;
         }
         d->shader_ctx = d->drawable.context();
         gccaps |= LinearGradientFill;
@@ -1348,6 +1457,36 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             d->conical_tex_location = glGetUniformLocation(prog, "palette");
             glUseProgram(0);
 
+            if (  qt_createGLSLProgram(ctx, d->ellipse_glsl_prog, ellipse_glsl_program, d->ellipse_glsl_shader)
+               && qt_createGLSLProgram(ctx, d->ellipse_aa_glsl_prog, ellipse_aa_glsl_program, d->ellipse_aa_glsl_shader))
+                d->has_ellipse_program = true;
+            else
+                qWarning() << "QOpenGLPaintEngine: Unable to use ellipse GLSL fragment shader.";
+
+            prog = d->ellipse_glsl_prog;
+            glUseProgram(prog);
+            d->ellipse_solid_color_location = glGetUniformLocation(prog, "solid_color");
+            glUseProgram(0);
+
+            prog = d->ellipse_aa_glsl_prog;
+            glUseProgram(prog);
+            d->ellipse_aa_solid_color_location = glGetUniformLocation(prog, "solid_color");
+            glUseProgram(0);
+
+            if (qt_createGLSLProgram(ctx, d->texture_copy_glsl_prog, texture_copy_glsl_program, d->texture_copy_glsl_shader))
+                d->has_texture_copy_program = true;
+            else
+                qWarning() << "QOpenGLPaintEngine: Unable to use texture copy GLSL fragment shader.";
+
+            prog = d->texture_copy_glsl_prog;
+            glUseProgram(prog);
+            d->texture_copy_texture_location = glGetUniformLocation(prog, "texture");
+            d->texture_copy_texture_size_location = glGetUniformLocation(prog, "texture_size");
+
+            glUniform1i(d->texture_copy_texture_location, 0);
+
+            glUseProgram(0);
+
         } else if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
             glGenProgramsARB(1, &d->radial_frag_program);
             glGenProgramsARB(1, &d->conical_frag_program);
@@ -1368,8 +1507,47 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 gccaps |= ConicalGradientFill;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
+
+            if (  qt_createFragmentProgram(d->ellipse_frag_program, ellipse_program)
+               && qt_createFragmentProgram(d->ellipse_aa_frag_program, ellipse_aa_program))
+                d->has_ellipse_program = true;
+            else
+                qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
+
+            if (qt_createFragmentProgram(d->texture_copy_frag_program, texture_copy_program))
+                d->has_texture_copy_program = true;
+            else
+                qWarning() << "QOpenGLPaintEngine: Unable to use texture copy fragment shader.";
         }
 #endif
+    }
+
+    if (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject) {
+        if (!d->offscreenFbo || d->offscreenSize != sz) {
+            delete d->offscreenFbo;
+            d->offscreenFbo = new QGLFramebufferObject(sz.width(), sz.height());
+
+            if (!d->offscreenFbo->isValid())
+                DEBUG_ONCE qDebug() << "QOpenGLPaintEngine: Invalid fbo," << "old size was" << d->offscreenSize << ", new size is" << sz;
+
+            d->offscreenSize = sz;
+
+            float texture_size[4] = { sz.width(), sz.height(), 0.0f, 0.0f };
+
+            if (d->has_glsl) {
+                glUseProgram(d->texture_copy_glsl_prog);
+                glUniform2fv(d->texture_copy_texture_size_location, 1, texture_size);
+                glUseProgram(0);
+            } else {
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->texture_copy_frag_program);
+                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, texture_size);
+            }
+        }
+
+        d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
+
+        if (!d->has_valid_offscreen_fbo)
+            qWarning() << "QOpenGLPaintEngine: Unable to create valid framebuffer object.";
     }
 
     setDirty(QPaintEngine::DirtyPen);
@@ -1394,6 +1572,7 @@ bool QOpenGLPaintEngine::end()
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.doneCurrent();
+
     return true;
 }
 
@@ -1403,6 +1582,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
 
     bool update_fast_pen = false;
+    bool update_fast_brush = false;
 
     if (flags & DirtyOpacity) {
         update_fast_pen = true;
@@ -1428,6 +1608,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyBrush) {
         updateBrush(state.brush(), state.brushOrigin());
+        update_fast_brush = true;
     }
 
     if (flags & DirtyFont) {
@@ -1466,6 +1647,13 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
             (pen_width == 0 || (pen_width == 1 && d->txop <= QTransform::TxTranslate))
             && d->cpen.style() == Qt::SolidLine
             && d->cpen.isSolid();
+    }
+
+    if (update_fast_brush) {
+        Q_D(QOpenGLPaintEngine);
+        d->has_fast_brush =
+            (d->has_brush
+            && d->brush_style == Qt::SolidPattern);
     }
 }
 
@@ -2051,7 +2239,12 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     if (!(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers))
         return;
-    if (hints & QPainter::Antialiasing)
+
+    Q_D(QOpenGLPaintEngine);
+
+    d->use_antialiasing = hints & QPainter::Antialiasing;
+
+    if (d->use_antialiasing)
         glEnable(GL_MULTISAMPLE);
     else
         glDisable(GL_MULTISAMPLE);
@@ -3040,6 +3233,309 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glDisable(GL_TEXTURE_2D);
+}
+
+
+void QOpenGLPaintEnginePrivate::activateEllipseProgram()
+{
+    static const float inv = 1.0f / 255.0f;
+
+    if (brush_style == Qt::SolidPattern || !has_fast_brush) {
+        float solid_color[4];
+
+        if (has_fast_brush) {
+            const GLubyte *col = brush_color;
+
+            for (int i = 0; i < 4; ++i)
+                solid_color[i] = col[i] * inv;
+        } else {
+            for (int i = 0; i < 4; ++i)
+                solid_color[i] = 1.0f;
+        }
+
+        if (use_antialiasing) {
+            if (has_glsl) {
+                glUseProgram(ellipse_aa_glsl_prog);
+                glUniform4fv(ellipse_aa_solid_color_location, 1, solid_color);
+            } else {
+                glEnable(GL_FRAGMENT_PROGRAM_ARB);
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_frag_program);
+                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, solid_color);
+            }
+        } else {
+            if (has_glsl) {
+                glUseProgram(ellipse_glsl_prog);
+                glUniform4fv(ellipse_solid_color_location, 1, solid_color);
+            } else {
+                glEnable(GL_FRAGMENT_PROGRAM_ARB);
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_frag_program);
+                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
+            }
+        }
+    } else {
+        Q_ASSERT(false);
+    }
+}
+
+
+void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
+{
+    setGradientOps(brush_style);
+}
+
+
+void QOpenGLPaintEnginePrivate::activateTextureCopyProgram()
+{
+    if (has_glsl) {
+        glUseProgram(texture_copy_glsl_prog);
+    } else {
+        glEnable(GL_FRAGMENT_PROGRAM_ARB);
+        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, texture_copy_frag_program);
+    }
+}
+
+
+void QOpenGLPaintEnginePrivate::deactivateTextureCopyProgram()
+{
+    setGradientOps(brush_style);
+}
+
+
+void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCoordArray)
+{
+    Q_ASSERT(has_ellipse_program && has_brush && has_fast_brush);
+
+    if (use_antialiasing) {
+        DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast antialiased ellipse");
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else
+        DEBUG_ONCE_STR("QOpenGLPainterPrivate::drawFastEllipse(): Drawing fast aliased ellipse");
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+
+    activateEllipseProgram();
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    deactivateEllipseProgram();
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    if (use_antialiasing)
+        glDisable(GL_BLEND);
+}
+
+
+void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray)
+{
+    Q_ASSERT(has_ellipse_program && has_brush && has_texture_copy_program);
+
+    DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using offscreen buffer");
+
+    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    setGradientOps(brush_style);
+    qt_glColor4ubv(brush_color);
+
+    offscreenFbo->bind();
+    // draw the brush to the offscreen
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+
+    setGradientOps(Qt::NoBrush);
+
+    activateEllipseProgram();
+    // mask out the coverage in the offscreen
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    deactivateEllipseProgram();
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    offscreenFbo->release();
+
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+    qt_add_rect_to_array(rect.adjusted(1, 1, -1, -1), vertexArray);
+
+    glBindTexture(GL_TEXTURE_2D, offscreenFbo->texture());
+    activateTextureCopyProgram();
+    // draw the result to the screen
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    deactivateTextureCopyProgram();
+
+    glDisable(GL_BLEND);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+
+void QOpenGLPaintEnginePrivate::drawStencilEllipse(float *vertexArray, float *texCoordArray)
+{
+    Q_ASSERT(has_ellipse_program && has_brush);
+
+    DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using stencil buffer");
+
+    // initialize the stencil buffer
+    glDepthMask(GL_FALSE);
+
+    glEnable(GL_STENCIL_TEST);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glStencilMask(1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
+    glStencilFunc(GL_ALWAYS, 0, ~0);
+
+    // draw the coverage to the stencil buffer
+    glVertexPointer(2, GL_FLOAT, 0, vertexArray);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoordArray);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    activateEllipseProgram();
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    deactivateEllipseProgram();
+
+    glDisable(GL_TEXTURE_COORD_ARRAY);
+
+    // now draw the brush using the stencil buffer as mask
+    glStencilFunc(GL_NOTEQUAL, 0, 1);
+    glStencilMask(0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glDepthMask(GL_TRUE);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    setGradientOps(brush_style);
+    qt_glColor4ubv(brush_color);
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    // finally, clear the stencil buffer
+    glStencilMask(~0);
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    glDisable(GL_STENCIL_TEST);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+
+void QOpenGLPaintEnginePrivate::drawEllipsePen(const QRectF &rect)
+{
+    Q_ASSERT(has_pen);
+
+    setGradientOps(pen_brush_style);
+    qt_glColor4ubv(pen_color);
+
+    QPainterPath path;
+    path.addEllipse(rect);
+
+    QPolygonF polygon = path.toFillPolygon();
+    const int pointCount = polygon.size();
+
+    const QPointF *points = polygon.data();
+
+    if (has_fast_pen) {
+        QVarLengthArray<float> vertexArray((pointCount + 1) * 2);
+        glVertexPointer(2, GL_FLOAT, 0, vertexArray.data());
+
+        for (int i = 0; i < pointCount; ++i) {
+            vertexArray[i * 2] = points[i].x();
+            vertexArray[i * 2 + 1] = points[i].y();
+        }
+
+        vertexArray[pointCount * 2] = points[0].x();
+        vertexArray[pointCount * 2 + 1] = points[0].y();
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDrawArrays(GL_LINE_STRIP, 0, pointCount + 1);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    } else {
+#ifndef Q_USE_QT_TESSELLATOR
+        if (use_stencil_method) {
+#endif
+            QPainterPath path(points[0]);
+
+            for (int i = 1; i < pointCount; ++i)
+                path.lineTo(points[i]);
+
+            QPainterPath stroke = strokeForPath(path);
+
+            if (stroke.isEmpty())
+                return;
+
+            fillPath(stroke);
+#ifndef Q_USE_QT_TESSELLATOR
+        } else {
+            beginPath(QPaintEngine::WindingMode);
+            stroker->strokePolygon(points, pointCount, true, this, QTransform());
+            endPath();
+        }
+#endif
+    }
+}
+
+
+void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
+{
+    Q_D(QOpenGLPaintEngine);
+
+    DEBUG_ONCE_STR(d->has_glsl ? "QOpenGLPainter: Using GLSL" : "QOpenGLPainter: Using fragment programs");
+
+    bool can_draw =
+        (  d->has_ellipse_program
+        && d->has_brush
+        && (  d->has_fast_brush
+           || (d->has_valid_offscreen_fbo && d->has_texture_copy_program)
+           || !d->use_antialiasing));
+
+    if (can_draw) {
+        int grow = d->use_antialiasing ? 4 : 0;
+
+        float vertexArray[4 * 2];
+        float texCoordArray[4 * 2];
+
+        QRectF boundingRect = grow ? rect.adjusted(-grow, -grow, grow, grow) : rect;
+        qt_add_rect_to_array(boundingRect, vertexArray);
+
+        if (grow) {
+            float wfactor = 2 * grow / float(rect.width());
+            float hfactor = 2 * grow / float(rect.height());
+
+            qt_add_texcoords_to_array(-1.0 - wfactor, -1.0 - hfactor, 1.0 + wfactor, 1.0 + hfactor, texCoordArray);
+        } else {
+            qt_add_texcoords_to_array(-1.0, -1.0, 1.0, 1.0, texCoordArray);
+        }
+
+        if (d->has_fast_brush)
+            d->drawFastEllipse(vertexArray, texCoordArray);
+        else if (d->use_antialiasing)
+            d->drawOffscreenEllipse(boundingRect, vertexArray, texCoordArray);
+        else
+            d->drawStencilEllipse(vertexArray, texCoordArray);
+
+        if (d->has_pen)
+            d->drawEllipsePen(rect);
+    } else {
+        DEBUG_ONCE_STR("QOpenGLPaintEngine: Falling back to QPaintEngine::drawEllipse()");
+
+        QPaintEngine::drawEllipse(rect);
+    }
 }
 
 #include "qpaintengine_opengl.moc"
