@@ -3600,6 +3600,8 @@ HRESULT QAxServerBase::internalActivate()
     if (!m_spClientSite)
 	return S_OK;
     if (!m_spInPlaceSite)
+        m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void**)&m_spInPlaceSite);
+    if (!m_spInPlaceSite)
 	return E_FAIL;
 
     HRESULT hr = E_FAIL;
