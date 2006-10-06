@@ -1950,8 +1950,10 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         else if (key == Qt::Key_Right)
             key = Qt::Key_Left;
     }
+#ifndef Q_WS_MAC
     if (key == Qt::Key_Tab) //means down
         key = Qt::Key_Down;
+#endif
 
     bool key_consumed = false;
     switch(key) {
