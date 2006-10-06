@@ -2680,7 +2680,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     // fall back to drawing a polygon if the scale factor is large, or
     // we use a gradient pen
-    if ((d->matrix.det() > 2) || (d->pen_brush_style >= Qt::LinearGradientPattern
+    if ((d->matrix.det() > 1) || (d->pen_brush_style >= Qt::LinearGradientPattern
                                   && d->pen_brush_style <= Qt::ConicalGradientPattern)) {
         QPaintEngine::drawTextItem(p, textItem);
         return;
