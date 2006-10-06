@@ -221,7 +221,7 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
 
-    QMatrix matrix = pState->matrix();
+    QTransform matrix = pState->transform();
     matrix.translate(_x, _y);
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
@@ -983,7 +983,7 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
 
-    QMatrix matrix = pState->matrix();
+    QTransform matrix = pState->transform();
     matrix.translate(_x, _y);
     QFixed x = QFixed::fromReal(matrix.dx());
     QFixed y = QFixed::fromReal(matrix.dy());
