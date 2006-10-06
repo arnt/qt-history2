@@ -1574,7 +1574,6 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 */
 QAction *QMenu::exec()
 {
-    createWinId();
     return exec(pos());
 }
 
@@ -1623,6 +1622,7 @@ QAction *QMenu::exec()
 QAction *QMenu::exec(const QPoint &p, QAction *action)
 {
     Q_D(QMenu);
+    createWinId();
     QEventLoop eventLoop;
     d->eventLoop = &eventLoop;
     popup(p, action);
