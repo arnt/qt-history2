@@ -268,9 +268,6 @@ public:
     void activateEllipseProgram();
     void deactivateEllipseProgram();
 
-    void activateTextureCopyProgram();
-    void deactivateTextureCopyProgram();
-
     void drawFastEllipse(float *vertexArray, float *texCoordArray);
     void drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray);
     void drawStencilEllipse(float *vertexArray, float *texCoordArray);
@@ -283,17 +280,16 @@ public:
     GLuint conical_frag_program;
     GLuint ellipse_frag_program;
     GLuint ellipse_aa_frag_program;
-    GLuint texture_copy_frag_program;
 
     bool has_glsl;
     bool use_stencil_method;
     bool has_stencil_face_ext;
     bool has_ellipse_program;
     bool use_antialiasing;
-    bool has_texture_copy_program;
 
     QGLFramebufferObject *offscreenFbo;
     QSize offscreenSize;
+    QSizeF invOffscreenSize;
     bool has_valid_offscreen_fbo;
 
     GLuint radial_glsl_prog;
@@ -308,9 +304,6 @@ public:
     GLuint ellipse_aa_glsl_prog;
     GLuint ellipse_aa_glsl_shader;
 
-    GLuint texture_copy_glsl_prog;
-    GLuint texture_copy_glsl_shader;
-
     GLuint radial_inv_location;
     GLuint radial_inv_mat_offset_location;
     GLuint radial_fmp_location;
@@ -324,9 +317,6 @@ public:
 
     GLuint ellipse_solid_color_location;
     GLuint ellipse_aa_solid_color_location;
-
-    GLuint texture_copy_texture_location;
-    GLuint texture_copy_texture_size_location;
 
     qreal max_x;
     qreal max_y;
@@ -546,17 +536,6 @@ static const char *const ellipse_aa_program =
 
 static const char *const ellipse_aa_glsl_program =
 #include "util/ellipse_aa.glsl_quoted"
-
-/*  texture copy fragment program
-    parameter: 0 = texture_size
-
-               This program is included from texture_copy.frag, see also src/opengl/util/README-GLSL
-*/
-static const char *const texture_copy_program =
-#include "util/texture_copy.frag"
-
-static const char *const texture_copy_glsl_program =
-#include "util/texture_copy.glsl_quoted"
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
@@ -838,13 +817,17 @@ inline void QOpenGLPaintEnginePrivate::setGradientOps(Qt::BrushStyle style)
         if (style == Qt::RadialGradientPattern) {
             if (has_glsl)
                 glUseProgram(radial_glsl_prog);
-            else
+            else {
                 glEnable(GL_FRAGMENT_PROGRAM_ARB);
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, radial_frag_program);
+            }
         } else if (style == Qt::ConicalGradientPattern) {
             if (has_glsl)
                 glUseProgram(conical_glsl_prog);
-            else
+            else {
                 glEnable(GL_FRAGMENT_PROGRAM_ARB);
+                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, conical_frag_program);
+            }
         } else {
             if (has_glsl)
                 glUseProgram(0);
@@ -1003,7 +986,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             }
 
             d->has_ellipse_program = false;
-            d->has_texture_copy_program = false;
         }
         d->shader_ctx = d->drawable.context();
         gccaps |= LinearGradientFill;
@@ -1053,20 +1035,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
             d->ellipse_aa_solid_color_location = glGetUniformLocation(prog, "solid_color");
             glUseProgram(0);
 
-            if (qt_createGLSLProgram(ctx, d->texture_copy_glsl_prog, texture_copy_glsl_program, d->texture_copy_glsl_shader))
-                d->has_texture_copy_program = true;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use texture copy GLSL fragment shader.";
-
-            prog = d->texture_copy_glsl_prog;
-            glUseProgram(prog);
-            d->texture_copy_texture_location = glGetUniformLocation(prog, "texture");
-            d->texture_copy_texture_size_location = glGetUniformLocation(prog, "texture_size");
-
-            glUniform1i(d->texture_copy_texture_location, 0);
-
-            glUseProgram(0);
-
         } else if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram) {
             glGenProgramsARB(1, &d->radial_frag_program);
             glGenProgramsARB(1, &d->conical_frag_program);
@@ -1093,11 +1061,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 d->has_ellipse_program = true;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
-
-            if (qt_createFragmentProgram(ctx, d->texture_copy_frag_program, texture_copy_program))
-                d->has_texture_copy_program = true;
-            else
-                qWarning() << "QOpenGLPaintEngine: Unable to use texture copy fragment shader.";
         }
 #endif
     }
@@ -1111,17 +1074,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 DEBUG_ONCE qDebug() << "QOpenGLPaintEngine: Invalid fbo," << "old size was" << d->offscreenSize << ", new size is" << sz;
 
             d->offscreenSize = sz;
-
-            float texture_size[4] = { sz.width(), sz.height(), 0.0f, 0.0f };
-
-            if (d->has_glsl) {
-                glUseProgram(d->texture_copy_glsl_prog);
-                glUniform2fv(d->texture_copy_texture_size_location, 1, texture_size);
-                glUseProgram(0);
-            } else {
-                glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->texture_copy_frag_program);
-                glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, texture_size);
-            }
+            d->invOffscreenSize = QSizeF(1.0 / sz.width(), 1.0 / sz.height());
         }
 
         d->has_valid_offscreen_fbo = d->offscreenFbo->isValid();
@@ -2785,25 +2738,7 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
 
 void QOpenGLPaintEnginePrivate::deactivateEllipseProgram()
 {
-    setGradientOps(brush_style);
-}
-
-
-void QOpenGLPaintEnginePrivate::activateTextureCopyProgram()
-{
-    QGL_FUNC_CONTEXT;
-    if (has_glsl) {
-        glUseProgram(texture_copy_glsl_prog);
-    } else {
-        glEnable(GL_FRAGMENT_PROGRAM_ARB);
-        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, texture_copy_frag_program);
-    }
-}
-
-
-void QOpenGLPaintEnginePrivate::deactivateTextureCopyProgram()
-{
-    setGradientOps(brush_style);
+    setGradientOps(Qt::NoBrush);
 }
 
 
@@ -2839,7 +2774,7 @@ void QOpenGLPaintEnginePrivate::drawFastEllipse(float *vertexArray, float *texCo
 
 void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *vertexArray, float *texCoordArray)
 {
-    Q_ASSERT(has_ellipse_program && has_brush && has_texture_copy_program);
+    Q_ASSERT(has_ellipse_program && has_brush);
 
     DEBUG_ONCE_STR("QOpenGLPainter: Drawing ellipse using offscreen buffer");
 
@@ -2867,20 +2802,34 @@ void QOpenGLPaintEnginePrivate::drawOffscreenEllipse(const QRectF &rect, float *
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     deactivateEllipseProgram();
 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     offscreenFbo->release();
 
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    qt_add_rect_to_array(rect.adjusted(1, 1, -1, -1), vertexArray);
+    QRectF slimmed = rect.adjusted(1, 1, -1, -1);
 
+    qt_add_rect_to_array(slimmed, vertexArray);
+
+    for (int i = 1; i < 8; i += 2) {
+        QPointF mapped = matrix.map(QPointF(vertexArray[i & ~1], vertexArray[i]));
+
+        mapped.setX(mapped.x() * invOffscreenSize.width());
+        mapped.setY(1 - mapped.y() * invOffscreenSize.height());
+
+        texCoordArray[i & ~1] = mapped.x();
+        texCoordArray[i] = mapped.y();
+    }
+
+    glColor4f(1, 1, 1, 1);
+
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, offscreenFbo->texture());
-    activateTextureCopyProgram();
     // draw the result to the screen
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    deactivateTextureCopyProgram();
+    glDisable(GL_TEXTURE_2D);
 
     glDisable(GL_BLEND);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -2997,7 +2946,7 @@ void QOpenGLPaintEngine::drawEllipse(const QRectF &rect)
         (  d->has_ellipse_program
         && d->has_brush
         && (  d->has_fast_brush
-           || (d->has_valid_offscreen_fbo && d->has_texture_copy_program)
+           || d->has_valid_offscreen_fbo
            || !d->use_antialiasing));
 
     if (can_draw) {
