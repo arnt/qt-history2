@@ -1361,12 +1361,12 @@ void QOpenGLTessellator::addTrap(const Trapezoid &trap)
     Q27Dot5 y = trap.topLeft->y - trap.bottomLeft->y;
     if (!y)
         return;
-    qreal m = Q27Dot5ToDouble(-trap.topLeft->x + trap.bottomLeft->x) / Q27Dot5ToDouble(y);
+    qreal m = (-Q27Dot5ToDouble(trap.topLeft->x) + Q27Dot5ToDouble(trap.bottomLeft->x)) / Q27Dot5ToDouble(y);
     qreal tx = Q27Dot5ToDouble(trap.topLeft->x);
     qreal topLeftX
-        = tx + m * Q27Dot5ToDouble(trap.topLeft->y - trap.top);
+        = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.top));
     qreal bottomLeftX
-        = tx + m * Q27Dot5ToDouble(trap.topLeft->y - trap.bottom);
+        = tx + m * (Q27Dot5ToDouble(trap.topLeft->y) - Q27Dot5ToDouble(trap.bottom));
 //     qDebug() << "trap: top=" << Q27Dot5ToDouble(trap.top)
 //              << "bottom=" << Q27Dot5ToDouble(trap.bottom);
 //     qDebug() << "      topLeft=" << Q27Dot5ToDouble(trap.topLeft->x) << Q27Dot5ToDouble(trap.topLeft->y);
@@ -1378,12 +1378,12 @@ void QOpenGLTessellator::addTrap(const Trapezoid &trap)
     y = trap.topRight->y - trap.bottomRight->y;
     if (!y)
         return;
-    m = Q27Dot5ToDouble(-trap.topRight->x + trap.bottomRight->x) / Q27Dot5ToDouble(y);
+    m = (Q27Dot5ToDouble(-trap.topRight->x) + Q27Dot5ToDouble(trap.bottomRight->x)) / Q27Dot5ToDouble(y);
     tx = Q27Dot5ToDouble(trap.topRight->x);
     qreal topRightX
-        = tx + m * Q27Dot5ToDouble(trap.topRight->y - trap.top);
+        = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.top));
     qreal bottomRightX
-        = tx + m * Q27Dot5ToDouble(trap.topRight->y - trap.bottom);
+        = tx + m * (Q27Dot5ToDouble(trap.topRight->y) - Q27Dot5ToDouble(trap.bottom));
 
     vertices[size++] = topLeftX;
     vertices[size++] = top;
