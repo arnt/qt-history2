@@ -37,7 +37,7 @@
 class QVNCCursor : public QScreenCursor
 {
 public:
-    QVNCCursor(QVNCScreenPlugin *s) : screen(s) { hwaccel = true; }
+    QVNCCursor(QVNCScreen *s) : screen(s) { hwaccel = true; }
     ~QVNCCursor() {}
 
     void hide();
@@ -46,7 +46,7 @@ public:
     void move(int x, int y);
 
 private:
-    QVNCScreenPlugin *screen;
+    QVNCScreen *screen;
 };
 #endif // QT_NO_QWS_CURSOR
 
@@ -161,33 +161,33 @@ public:
     quint32 length;
 };
 
-class QVNCServerPlugin;
+class QVNCServer;
 
-class QVNCScreenPluginPrivate
+class QVNCScreenPrivate
 {
 public:
-    QVNCScreenPluginPrivate(QVNCScreenPlugin *parent);
-    ~QVNCScreenPluginPrivate();
+    QVNCScreenPrivate(QVNCScreen *parent);
+    ~QVNCScreenPrivate();
 
     bool doOnScreenSurface;
     QVNCHeader hdr;
-    QVNCServerPlugin *vncServer;
+    QVNCServer *vncServer;
     QScreen *subscreen;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     QSharedMemory *shm;
 #endif
 
-    QVNCScreenPlugin *q_ptr;
+    QVNCScreen *q_ptr;
 };
 
-class QVNCServerPlugin : public QObject
+class QVNCServer : public QObject
 {
     Q_OBJECT
 public:
-    QVNCServerPlugin(QVNCScreenPlugin *screen);
-    QVNCServerPlugin(QVNCScreenPlugin *screen, int id);
-    ~QVNCServerPlugin();
+    QVNCServer(QVNCScreen *screen);
+    QVNCServer(QVNCScreen *screen, int id);
+    ~QVNCServer();
 
     enum ClientMsg { SetPixelFormat = 0,
                      FixColourMapEntries = 1,
@@ -236,7 +236,7 @@ private:
     bool wantUpdate;
     int nibble;
     bool sameEndian;
-    QVNCScreenPlugin *qvnc_screen;
+    QVNCScreen *qvnc_screen;
 };
 
 #endif // QT_NO_QWS_VNC
