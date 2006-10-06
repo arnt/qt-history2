@@ -1960,13 +1960,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             Rect nr;
             GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
                               sizeof(nr), 0, &nr);
+            const QRect oldRect = widget->data->crect;
             QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
             if((flags & kWindowBoundsChangeOriginChanged)) {
-                int ox = widget->data->crect.x(), oy = widget->data->crect.y();
-                int nx = nr.left, ny = nr.top;
-                if(nx != ox ||  ny != oy) {
-                    widget->data->crect.setRect(nx, ny, widget->width(), widget->height());
-                    QMoveEvent qme(widget->data->crect.topLeft(), QPoint(ox, oy));
+                if(nr.left != oldRect.x() || nr.top != oldRect.y()) {
+                    widget->data->crect.moveTo(nr.left, nr.top);
+                    QMoveEvent qme(widget->data->crect.topLeft(), oldRect.topLeft());
                     QApplication::sendSpontaneousEvent(widget, &qme);
                 }
             }
@@ -1992,13 +1991,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     }
                 }
 
-                int nw = newRect.width();
-                int nh = newRect.height();
-                if (widget->width() != nw || widget->height() != nh) {
-                    extern bool qt_mac_geometry_spontaneous; //qwidget_mac.cpp
-                    qt_mac_geometry_spontaneous = true;
-                    widget->resize(nw, nh);
-                    qt_mac_geometry_spontaneous = false;
+                if (oldRect.width() != newRect.width() || oldRect.height() != newRect.height()) {
+                    widget->data->crect.setSize(newRect.size());
+                    HIRect bounds = CGRectMake(0, 0, newRect.width(), newRect.height());
+                    HIViewSetFrame(qt_mac_hiview_for(widget), &bounds);
+                    QResizeEvent qre(newRect.size(), oldRect.size());
+                    QApplication::sendSpontaneousEvent(widget, &qre);
+                    qt_event_request_window_change();
                 }
             }
         } else if(ekind == kEventWindowHidden) {

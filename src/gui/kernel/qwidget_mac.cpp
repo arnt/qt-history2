@@ -2121,8 +2121,6 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     }
 }
 
-bool qt_mac_geometry_spontaneous = false;
-
 void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Q_Q(QWidget);
@@ -2198,17 +2196,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
             if(isResize) { //send the resize event..
                 QResizeEvent e(q->size(), olds);
-                if(qt_mac_geometry_spontaneous)
-                    QApplication::sendSpontaneousEvent(q, &e);
-                else
-                    QApplication::sendEvent(q, &e);
+                QApplication::sendEvent(q, &e);
             }
             if(isMove && q->pos() != oldp) { //send the move event..
                 QMoveEvent e(q->pos(), oldp);
-                if(qt_mac_geometry_spontaneous)
-                    QApplication::sendSpontaneousEvent(q, &e);
-                else
-                    QApplication::sendEvent(q, &e);
+                QApplication::sendEvent(q, &e);
             }
         }
     }
