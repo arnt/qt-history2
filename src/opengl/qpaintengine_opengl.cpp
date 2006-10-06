@@ -48,7 +48,7 @@
 #define QREAL_MAX 9e100
 #define QREAL_MIN -9e100
 
-#define DISABLE_DEBUG_ONCE
+//#define DISABLE_DEBUG_ONCE
 
 #ifdef DISABLE_DEBUG_ONCE
 #define DEBUG_ONCE_STR(str) ;
@@ -280,6 +280,7 @@ public:
     GLuint conical_frag_program;
     GLuint ellipse_frag_program;
     GLuint ellipse_aa_frag_program;
+    GLuint ellipse_aa_radial_frag_program;
 
     bool has_glsl;
     bool use_stencil_method;
@@ -536,6 +537,9 @@ static const char *const ellipse_aa_program =
 
 static const char *const ellipse_aa_glsl_program =
 #include "util/ellipse_aa.glsl_quoted"
+
+static const char *const ellipse_aa_radial_program =
+#include "util/ellipse_aa_radial.frag"
 
 bool qt_resolve_stencil_face_extension(QGLContext *ctx)
 {
@@ -850,9 +854,6 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
-    Q_D(QOpenGLPaintEngine);
-    if (d->offscreenFbo)
-        delete d->offscreenFbo;
 }
 
 bool qt_createGLSLProgram(QGLContext *ctx, GLuint &program, const char *shader_src, GLuint &shader)
@@ -1003,6 +1004,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 glDeleteProgramsARB(1, &d->conical_frag_program);
                 glDeleteProgramsARB(1, &d->ellipse_frag_program);
                 glDeleteProgramsARB(1, &d->ellipse_aa_frag_program);
+                glDeleteProgramsARB(1, &d->ellipse_aa_radial_frag_program);
             }
 
             d->has_ellipse_program = false;
@@ -1077,7 +1079,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
                 qWarning() << "QOpenGLPaintEngine: Unable to use conical gradient fragment shader.";
 
             if (  qt_createFragmentProgram(ctx, d->ellipse_frag_program, ellipse_program)
-               && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program))
+               && qt_createFragmentProgram(ctx, d->ellipse_aa_frag_program, ellipse_aa_program)
+               && qt_createFragmentProgram(ctx, d->ellipse_aa_radial_frag_program, ellipse_aa_radial_program))
                 d->has_ellipse_program = true;
             else
                 qWarning() << "QOpenGLPaintEngine: Unable to use ellipse fragment shader.";
@@ -1188,7 +1191,8 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
         Q_D(QOpenGLPaintEngine);
         d->has_fast_brush =
             (d->has_brush
-            && d->brush_style == Qt::SolidPattern);
+            && (d->brush_style == Qt::SolidPattern
+               || d->brush_style == Qt::RadialGradientPattern && d->use_antialiasing));
     }
 }
 
@@ -1271,6 +1275,14 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+
+                if (has_ellipse_program) {
+                    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
+                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, inv); // inv_matrix
+                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, pt); // inv_matrix_offset
+                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 2, pt1); // fmp
+                    glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 4, f); // fmp2_m_radius2
+                }
             }
             glBindTexture(GL_TEXTURE_1D, grad_palette);
             createGradientPaletteTexture(*brush.gradient());
@@ -2733,6 +2745,11 @@ void QOpenGLPaintEnginePrivate::activateEllipseProgram()
                 glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, solid_color);
             }
         }
+    } else if (brush_style == Qt::RadialGradientPattern) {
+        glEnable(GL_FRAGMENT_PROGRAM_ARB);
+        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, ellipse_aa_radial_frag_program);
+
+        DEBUG_ONCE_STR("QOpenGLPaintEnginePrivate: Using fast radial program");
     } else {
         Q_ASSERT(false);
     }
