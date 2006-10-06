@@ -1994,8 +1994,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
                 int nw = newRect.width();
                 int nh = newRect.height();
-                if (widget->width() != nw || widget->height() != nh)
+                if (widget->width() != nw || widget->height() != nh) {
+                    extern bool qt_mac_geometry_spontaneous; //qwidget_mac.cpp
+                    qt_mac_geometry_spontaneous = true;
                     widget->resize(nw, nh);
+                    qt_mac_geometry_spontaneous = false;
+                }
             }
         } else if(ekind == kEventWindowHidden) {
         } else if(ekind == kEventWindowShown) {
