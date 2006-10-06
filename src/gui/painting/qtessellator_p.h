@@ -4,7 +4,7 @@
 class QTessellatorPrivate;
 
 typedef int Q27Dot5;
-#define Q27Dot5ToDouble(i) (i/32.)
+#define Q27Dot5ToDouble(i) ((i)/32.)
 #define FloatToQ27Dot5(i) (int)((i) * 32)
 #define IntToQ27Dot5(i) ((i) << 5)
 #define Q27Dot5ToXFixed(i) ((i) << 11)
