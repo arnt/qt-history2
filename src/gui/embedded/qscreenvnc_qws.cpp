@@ -11,335 +11,86 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
+#include "qscreenvnc_qws.h"
 
 #ifndef QT_NO_QWS_VNC
 
-#include "qtimer.h"
+#include "qscreenvnc_p.h"
 #include "qwindowsystem_qws.h"
-#include "qscreenvnc_qws.h"
-#include <private/qsharedmemory_p.h>
-#include <stdlib.h>
-#include <qdebug.h>
-#include <qpolygon.h>
-#include <qstringlist.h>
-#include <qregexp.h>
 #include "qwsdisplay_qws.h"
+#include "qscreendriverfactory_qws.h"
+#include <QtCore/qtimer.h>
+#include <QtCore/qregexp.h>
+#include <QtGui/qwidget.h>
+#include <QtGui/qpolygon.h>
+#include <QtGui/qpainter.h>
+#include <qdebug.h>
+#include <private/qwindowsurface_qws_p.h>
+
+#include <stdlib.h>
 
 //#define QT_QWS_VNC_DEBUG
 
 extern QString qws_qtePipeFilename();
 
-#define MAP_TILE_SIZE            16
-#define MAP_WIDTH            1280/MAP_TILE_SIZE
-#define MAP_HEIGHT            1024/MAP_TILE_SIZE
-#define UPDATE_FREQUENCY    40
-
-class QVirtualScreen : public QScreen
+void QVNCCursor::hide()
 {
-public:
-    QVirtualScreen(int displayId);
-    ~QVirtualScreen();
+    QScreenCursor::hide();
+    if (enable)
+        screen->setDirty(boundingRect());
+}
 
-    bool initDevice();
-    bool connect(const QString &displaySpec);
-    void disconnect();
-    void shutdownDevice();
-    void setMode(int,int,int) {}
+void QVNCCursor::show()
+{
+    QScreenCursor::show();
+    if (!enable)
+        screen->setDirty(boundingRect());
+}
 
-private:
-#ifndef QT_NO_QWS_MULTIPROCESS
-    QSharedMemory *shm;
-#endif
-};
+void QVNCCursor::set(const QImage &image, int hotx, int hoty)
+{
+    QRegion dirty = boundingRect();
+    QScreenCursor::set(image, hotx, hoty);
+    dirty |= boundingRect();
+    if (enable) {
+        const QVector<QRect> rects = dirty.rects();
+        for (int i = 0; i < rects.size(); ++i)
+            screen->setDirty(rects.at(i));
+    }
+}
 
-QVirtualScreen::QVirtualScreen(int displayId)
-    : QScreen(displayId)
+void QVNCCursor::move(int x, int y)
+{
+    QRegion dirty = boundingRect();
+    QScreenCursor::move(x, y);
+    dirty |= boundingRect();
+    if (enable) {
+        const QVector<QRect> rects = dirty.rects();
+        for (int i = 0; i < rects.size(); ++i)
+            screen->setDirty(rects.at(i));
+    }
+}
+
+QVNCScreenPrivate::QVNCScreenPrivate(QVNCScreen *parent)
+    : doOnScreenSurface(false), vncServer(0), subscreen(0), q_ptr(parent)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     shm = 0;
 #endif
 }
 
-QVirtualScreen::~QVirtualScreen()
+QVNCScreenPrivate::~QVNCScreenPrivate()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     delete shm;
 #else
-    delete[] QScreen::data;
-    QScreen::data = 0;
+    if (!subscreen) {
+        delete[] q_ptr->data;
+        q_ptr->data = 0;
+    }
 #endif
-}
-
-bool QVirtualScreen::initDevice()
-{
-    if (d == 4) {
-        screencols = 16;
-        int val = 0;
-        for (int idx = 0; idx < 16; idx++, val += 17) {
-            screenclut[idx]=qRgb(val, val, val);
-        }
-    }
-    return true;
-}
-
-bool QVirtualScreen::connect(const QString &displayspec)
-{
-    Q_UNUSED(displayspec);
-
-    d = qgetenv("QWS_DEPTH").toInt();
-    if (!d)
-        d = 16;
-
-    QByteArray str = qgetenv("QWS_SIZE");
-    if(!str.isEmpty()) {
-        sscanf(str.constData(), "%dx%d", &w, &h);
-        dw = w;
-        dh = h;
-    } else {
-        dw = w = 640;
-        dh = h = 480;
-    }
-
-    const QStringList args = displayspec.split(QLatin1Char(':'),
-                                               QString::SkipEmptyParts);
-
-    QRegExp depthRegexp("^depth=(\\d+)$");
-    if (args.indexOf(depthRegexp) != -1) {
-        d = depthRegexp.cap(1).toInt();
-    }
-
-    QRegExp sizeRegexp("^size=(\\d+)x(\\d+)$");
-    if (args.indexOf(sizeRegexp) != -1) {
-        dw = w = sizeRegexp.cap(1).toInt();
-        dh = h = sizeRegexp.cap(2).toInt();
-    }
-
-    const int dpi = 72;
-    physWidth = qRound(dw * 25.4 / dpi);
-    physHeight = qRound(dh * 25.4 / dpi);
-
-    lstep = (dw * d + 7) / 8;
-    size = h * lstep;
-    mapsize = size;
-
-    QWSServer::setDefaultMouse("None");
-    QWSServer::setDefaultKeyboard("None");
-
-#ifndef QT_NO_QWS_MULTIPROCESS
-    shm = new QSharedMemory(size, qws_qtePipeFilename(), displayId);
-    if (!shm->create())
-        qDebug("QVNCScreen could not create shared memory");
-    if (!shm->attach())
-        qDebug("QVNCScreen could not attach to shared memory");
-    QScreen::data = reinterpret_cast<uchar*>(shm->base());
-#else
-    QScreen::data = new uchar[size];
-#endif
-    return true;
-}
-
-void QVirtualScreen::disconnect()
-{
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if (shm)
-        shm->detach();
-#endif
-}
-
-void QVirtualScreen::shutdownDevice()
-{
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if (shm)
-        shm->destroy();
-#endif
-}
-
-struct QVNCHeader
-{
-    bool dirty;
-    uchar map[MAP_HEIGHT][MAP_WIDTH];
-};
-
-//===========================================================================
-
-class QRfbRect
-{
-public:
-    QRfbRect() {}
-    QRfbRect(quint16 _x, quint16 _y, quint16 _w, quint16 _h) {
-        x = _x; y = _y; w = _w; h = _h;
-    }
-
-    void read(QTcpSocket *s);
-    void write(QTcpSocket *s);
-
-    quint16 x;
-    quint16 y;
-    quint16 w;
-    quint16 h;
-};
-
-class QRfbPixelFormat
-{
-public:
-    static int size() { return 16; }
-
-    void read(QTcpSocket *s);
-    void write(QTcpSocket *s);
-
-    int bitsPerPixel;
-    int depth;
-    bool bigEndian;
-    bool trueColor;
-    int redBits;
-    int greenBits;
-    int blueBits;
-    int redShift;
-    int greenShift;
-    int blueShift;
-};
-
-class QRfbServerInit
-{
-public:
-    QRfbServerInit() { name = 0; }
-    ~QRfbServerInit() { delete[] name; }
-
-    int size() const { return QRfbPixelFormat::size() + 8 + strlen(name); }
-    void setName(const char *n);
-
-    void read(QTcpSocket *s);
-    void write(QTcpSocket *s);
-
-    quint16 width;
-    quint16 height;
-    QRfbPixelFormat format;
-    char *name;
-};
-
-class QRfbSetEncodings
-{
-public:
-    bool read(QTcpSocket *s);
-
-    quint16 count;
-};
-
-class QRfbFrameBufferUpdateRequest
-{
-public:
-    bool read(QTcpSocket *s);
-
-    char incremental;
-    QRfbRect rect;
-};
-
-class QRfbKeyEvent
-{
-public:
-    bool read(QTcpSocket *s);
-
-    char down;
-    int  keycode;
-    int  unicode;
-};
-
-class QRfbPointerEvent
-{
-public:
-    bool read(QTcpSocket *s);
-
-    uint buttons;
-    quint16 x;
-    quint16 y;
-};
-
-class QRfbClientCutText
-{
-public:
-    bool read(QTcpSocket *s);
-
-    quint32 length;
-};
-
-class QVNCServer;
-
-#define QT_NO_QWS_MULTIPROCESS
-
-class QVNCScreenPrivate
-{
-public:
-    QVNCScreenPrivate() : vncServer(0), subscreen(0) {}
-    ~QVNCScreenPrivate();
-
-    QVNCHeader hdr;
-    QVNCServer *vncServer;
-    QScreen *subscreen;
-};
-
-QVNCScreenPrivate::~QVNCScreenPrivate()
-{
     delete subscreen;
 }
-
-class QVNCServer : public QObject
-{
-    Q_OBJECT
-public:
-    QVNCServer(QVNCScreen *screen);
-    QVNCServer(QVNCScreen *screen, int id);
-    ~QVNCServer();
-
-    enum ClientMsg { SetPixelFormat = 0,
-                     FixColourMapEntries = 1,
-                     SetEncodings = 2,
-                     FramebufferUpdateRequest = 3,
-                     KeyEvent = 4,
-                     PointerEvent = 5,
-                     ClientCutText = 6 };
-
-    enum ServerMsg { FramebufferUpdate = 0,
-                     SetColourMapEntries = 1 };
-
-private:
-    void setPixelFormat();
-    void setEncodings();
-    void frameBufferUpdateRequest();
-    void pointerEvent();
-    void keyEvent();
-    void clientCutText();
-    bool checkFill(const uchar *data, int numPixels);
-    int getPixel(uchar **);
-    void sendHextile();
-    void sendRaw();
-    inline QVNCHeader* header() { return &qvnc_screen->d_ptr->hdr; }
-
-private slots:
-    void newConnection();
-    void readClient();
-    void checkUpdate();
-    void discardClient();
-
-private:
-    void init(uint port);
-    enum ClientState { Protocol, Init, Connected };
-    QTimer *timer;
-    QTcpServer *serverSocket;
-    QTcpSocket *client;
-    ClientState state;
-    quint8 msgType;
-    bool handleMsg;
-    QRfbPixelFormat pixelFormat;
-    Qt::KeyboardModifiers keymod;
-    int encodingsPending;
-    int cutTextPending;
-    bool supportHextile;
-    bool wantUpdate;
-    int nibble;
-    bool sameEndian;
-    QVNCScreen *qvnc_screen;
-};
 
 //===========================================================================
 
@@ -839,10 +590,8 @@ void QVNCServer::frameBufferUpdateRequest()
 
     if (ev.read(client)) {
         if (!ev.incremental) {
-            QWSDisplay::grab(true);
             QRect r(ev.rect.x, ev.rect.y, ev.rect.w, ev.rect.h);
             qvnc_screen->setDirty(r.translated(qvnc_screen->offset()));
-            QWSDisplay::ungrab();
         }
         wantUpdate = true;
         checkUpdate();
@@ -899,139 +648,209 @@ void QVNCServer::clientCutText()
     }
 }
 
-bool QVNCServer::checkFill(const uchar *data, int numPixels)
+// stride in bytes
+bool QVNCServer::checkFill(const uchar *data, int width, int height,
+                                 int stride)
 {
-    if (qvnc_screen->depth() == 8) {
-        if (*data != *(data+1) || *data != *(data+2) || *data != *(data+3))
+    switch (qvnc_screen->depth()) {
+    case 4: {
+        const quint8 *data8 = reinterpret_cast<const quint8*>(data);
+        if ((data8[0] & 0xf) != (data8[1] >> 4))
             return false;
-        quint32 pixels = *((quint32 *)data);
-        data += 4;
-        for (int i = 1; i < numPixels/4; i++) {
-            if (pixels != *((quint32*)data))
-                return false;
-            data += 4;
-        }
-    } else if (qvnc_screen->depth() == 16) {
-        if (*((ushort *)data) != *(((ushort *)data)+1))
+        width /= 2;
+    } // fallthrough
+    case 8: {
+        const quint8 *data8 = reinterpret_cast<const quint8*>(data);
+        if (data8[0] != data8[1])
             return false;
-        quint32 pixels = *((quint32 *)data);
-        data += 4;
-        for (int i = 1; i < numPixels/2; i++) {
-            if (pixels != *((quint32 *)data))
-                return false;
-            data += 4;
+        width /= 2;
+    } // fallthrough
+    case 16: {
+        const quint16 *data16 = reinterpret_cast<const quint16*>(data);
+        if (data16[0] != data16[1])
+            return false;
+        width /= 2;
+    } // fallthrough
+    case 32: {
+        const quint32 *data32 = reinterpret_cast<const quint32*>(data);
+        const quint32 first = data32[0];
+        const int linestep = (stride / sizeof(quint32)) - width;
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                if (*(data32++) != first)
+                    return false;
+            }
+            data32 += linestep;
         }
-    } else if (qvnc_screen->depth() == 32) {
-        quint32 pixel = *((quint32 *)data);
-        data += 4;
-        for (int i = 1; i < numPixels; i++) {
-            if (pixel != *((quint32 *)data))
-                return false;
-            data += 4;
-        }
-    } else if (qvnc_screen->depth() == 4) {
-        uchar pixel = *data++;
-        for (int i = 2; i < numPixels/2; i++) {
-            if (pixel != *data)
-                return false;
-            data++;
-        }
+        return true;
+    }
+    default:
+        return false;
     }
 
     return true;
 }
 
-int QVNCServer::getPixel(uchar **data)
+// count: number of pixels
+void QVNCServer::convertPixels(char *dst, const char *src, int count)
 {
-    int r, g, b;
+    const int screendepth = qvnc_screen->depth();
 
-    if (qvnc_screen->depth() == 8) {
-        QRgb rgb = qvnc_screen->clut()[**data];
-        r = qRed(rgb);
-        g = qGreen(rgb);
-        b = qBlue(rgb);
-        (*data)++;
-    } else if (qvnc_screen->depth() == 16) {
-        ushort p = *((ushort *)*data);
-        r = (p >> 11) & 0x1f;
-        g = (p >> 5) & 0x3f;
-        b = p & 0x1f;
-        r <<= 3;
-        g <<= 2;
-        b <<= 3;
-        *data += 2;
-    } else if (qvnc_screen->depth() == 32) {
-        uint p = *((uint *)*data);
-        r = (p >> 16) & 0xff;
-        g = (p >> 8) & 0xff;
-        b = p & 0xff;
-        *data += 4;
-    } else if (qvnc_screen->depth() == 4) {
-        if (!nibble) {
-            r = ((**data) & 0x0f) << 4;
-        } else {
-            r = (**data) & 0xf0;
-            (*data)++;
+    // cutoffs
+    if (sameEndian) {
+        if (screendepth == pixelFormat.bitsPerPixel) { // memcpy cutoffs
+
+            switch (screendepth) {
+            case 32:
+                memcpy(dst, src, count * sizeof(quint32));
+                return;
+            case 16:
+                if (pixelFormat.redBits == 5
+                    && pixelFormat.greenBits == 6
+                    && pixelFormat.blueBits == 5)
+                {
+                    memcpy(dst, src, count * sizeof(quint16));
+                    return;
+                }
+            }
+        } else if (screendepth == 16 && pixelFormat.bitsPerPixel == 32) {
+            const quint16 *src16 = reinterpret_cast<const quint16*>(src);
+            quint32 *dst32 = reinterpret_cast<quint32*>(dst);
+            for (int i = 0; i < count; ++i)
+                *dst32++ = qt_conv16ToRgb(*src16++);
+            return;
         }
-        nibble = !nibble;
-        g = b = r;
-    } else {
-        r = g = b = 0;
-        qDebug("QVNCServer: don't support %dbpp display", qvnc_screen->depth());
     }
 
-    r >>= (8 - pixelFormat.redBits);
-    g >>= (8 - pixelFormat.greenBits);
-    b >>= (8 - pixelFormat.blueBits);
+    const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
 
-    if (sameEndian)
-        return (r << pixelFormat.redShift) |
-            (g << pixelFormat.greenShift) |
-            (b << pixelFormat.blueShift);
+    nibble = 0;
+
+    for (int i = 0; i < count; ++i) {
+        int r, g, b;
+
+        switch (screendepth) {
+        case 4: {
+            if (!nibble) {
+                r = ((*src) & 0x0f) << 4;
+            } else {
+                r = (*src) & 0xf0;
+                src++;
+            }
+            nibble = !nibble;
+            g = b = r;
+            break;
+        }
+        case 8: {
+            QRgb rgb = qvnc_screen->clut()[*src];
+            r = qRed(rgb);
+            g = qGreen(rgb);
+            b = qBlue(rgb);
+            src++;
+            break;
+        }
+        case 16: {
+            quint16 p = *reinterpret_cast<const quint16*>(src);
+            r = (p >> 11) & 0x1f;
+            g = (p >> 5) & 0x3f;
+            b = p & 0x1f;
+            r <<= 3;
+            g <<= 2;
+            b <<= 3;
+            src += sizeof(quint16);
+            break;
+        }
+        case 32: {
+            quint32 p = *reinterpret_cast<const quint32*>(src);
+            r = (p >> 16) & 0xff;
+            g = (p >> 8) & 0xff;
+            b = p & 0xff;
+            src += sizeof(quint32);
+            break;
+        }
+        default: {
+            r = g = b = 0;
+            qDebug("QVNCServer: don't support %dbpp display", screendepth);
+            return;
+        }
+        }
+
+        r >>= (8 - pixelFormat.redBits);
+        g >>= (8 - pixelFormat.greenBits);
+        b >>= (8 - pixelFormat.blueBits);
+
+        int pixel = (r << pixelFormat.redShift) |
+                    (g << pixelFormat.greenShift) |
+                    (b << pixelFormat.blueShift);
+
+        if (sameEndian || pixelFormat.bitsPerPixel == 8) {
+            memcpy(dst, &pixel, bytesPerPixel); // XXX: do a simple for-loop instead?
+            dst += bytesPerPixel;
+            continue;
+        }
 
 
-    int pixel = (r << pixelFormat.redShift) |
-                (g << pixelFormat.greenShift) |
-                (b << pixelFormat.blueShift);
+        if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+            switch (pixelFormat.bitsPerPixel) {
+            case 16:
+                pixel = (((pixel & 0x0000ff00) << 8)  |
+                         ((pixel & 0x000000ff) << 24));
+                break;
+            case 32:
+                pixel = (((pixel & 0xff000000) >> 24) |
+                         ((pixel & 0x00ff0000) >> 8)  |
+                         ((pixel & 0x0000ff00) << 8)  |
+                         ((pixel & 0x000000ff) << 24));
+                break;
+            default:
+                qDebug("Cannot handle %d bpp client", pixelFormat.bitsPerPixel);
+            }
+        } else { // QSysInfo::ByteOrder == QSysInfo::LittleEndian
+            switch (pixelFormat.bitsPerPixel) {
+            case 16:
+                pixel = (((pixel & 0xff000000) >> 8) |
+                         ((pixel & 0x00ff0000) << 8));
+                break;
+            case 32:
+                pixel = (((pixel & 0xff000000) >> 24) |
+                         ((pixel & 0x00ff0000) >> 8)  |
+                         ((pixel & 0x0000ff00) << 8)  |
+                         ((pixel & 0x000000ff) << 24));
+                break;
+            default:
+                qDebug("Cannot handle %d bpp client",
+                       pixelFormat.bitsPerPixel);
+                break;
+            }
+        }
+        memcpy(dst, &pixel, bytesPerPixel); // XXX: simple for-loop instead?
+        dst += bytesPerPixel;
+    }
+}
 
-    if ( QSysInfo::ByteOrder == QSysInfo::BigEndian ) { // server runs on a big endian system
-      if ( pixelFormat.bitsPerPixel == 16 ) {
-           if ( pixelFormat.bigEndian ) { // client expects big endian
-              pixel = ((pixel & 0x0000ffff) << 16);
-           } else { // client expects little endian
-              pixel = (((pixel & 0x0000ff00) << 8)  |
-                        ((pixel & 0x000000ff) << 24));
-           }
-       } else if ( pixelFormat.bitsPerPixel == 32 ) {
-           if ( !pixelFormat.bigEndian ) { // client expects little endian
-               pixel = (((pixel & 0xff000000) >> 24) |
-                        ((pixel & 0x00ff0000) >> 8)  |
-                        ((pixel & 0x0000ff00) << 8)  |
-                        ((pixel & 0x000000ff) << 24));
-           }
-       } else {
-          qDebug( "Cannot handle %d bpp client", pixelFormat.bitsPerPixel );
-       }
-   } else { // server runs on a little endian system
-      if ( pixelFormat.bitsPerPixel == 16 ) {
-           if ( pixelFormat.bigEndian ) { // client expects big endian
-              pixel = (((pixel & 0xff000000) >> 8) |
-                        ((pixel & 0x00ff0000) << 8));
-           }
-       } else if ( pixelFormat.bitsPerPixel == 32 ) {
-           if ( pixelFormat.bigEndian ) { // client expects big endian
-               pixel = (((pixel & 0xff000000) >> 24) |
-                        ((pixel & 0x00ff0000) >> 8)  |
-                        ((pixel & 0x0000ff00) << 8)  |
-                        ((pixel & 0x000000ff) << 24));
-           }
-       } else {
-          qDebug( "Cannot handle %d bpp client", pixelFormat.bitsPerPixel );
-       }
-   }
+// XXX
+static inline QImage::Format formatForDepth(int depth)
+{
+    switch (depth) {
+    case 16:
+        return QImage::Format_RGB16;
+    case 32:
+        return QImage::Format_RGB32;
+    default:
+        return QImage::Format_Invalid;
+    }
+}
 
-   return pixel;
+static void blendCursor(QImage &image, const QRect &imageRect)
+{
+    const QRect cursorRect = qt_screencursor->boundingRect();
+    const QRect intersection = (cursorRect & imageRect);
+    const QRect destRect = intersection.translated(-imageRect.topLeft());
+    const QRect srcRect = intersection.translated(-cursorRect.topLeft());
 
+    QPainter painter(&image);
+    painter.drawImage(destRect, qt_screencursor->image(), srcRect);
+    painter.end();
 }
 
 /*
@@ -1044,39 +863,40 @@ void QVNCServer::sendHextile()
     QWSDisplay::grab(true);
 
     const quint32 encoding = htonl(5); // hextile encoding
-
-    int lineSize = MAP_TILE_SIZE * qvnc_screen->depth() / 8;
-    uchar *screendata = new uchar[MAP_TILE_SIZE * lineSize];
+    const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
 
     quint16 count = 0;
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     if (header()->dirty) {
-        for (int y = 0; y < vtiles; y++)
-            for (int x = 0; x < htiles; x++)
+        for (int y = 0; y < vtiles; ++y)
+            for (int x = 0; x < htiles; ++x)
                 if (header()->map[y][x])
-                    count++;
+                    ++count;
     }
 
-    char tmp = 0;
-    client->write(&tmp, 1); // msg type
-    client->write(&tmp, 1); // padding
+    char tmp[2] = { 0, 0 }; // msg type, padding
+    client->write(tmp, sizeof(tmp));
     count = htons(count);
-    client->write((char *)&count, 2);
+    client->write((char *)&count, sizeof(count));
 
     if (!header()->dirty) {
         QWSDisplay::ungrab();
         return;
     }
 
+    const QImage screenImage(qvnc_screen->base(), qvnc_screen->deviceWidth(),
+                             qvnc_screen->deviceHeight(),
+                             formatForDepth(qvnc_screen->depth()));
+
     QRfbRect rect;
     rect.h = MAP_TILE_SIZE;
-    for (int y = 0; y < vtiles; y++) {
-        rect.y = y * MAP_TILE_SIZE;
+    rect.y = 0;
+    for (int y = 0; y < vtiles; ++y) {
         if (rect.y + MAP_TILE_SIZE > qvnc_screen->height())
             rect.h = qvnc_screen->height() - rect.y;
         rect.w = MAP_TILE_SIZE;
-        for (int x = 0; x < htiles; x++) {
+        for (int x = 0; x < htiles; ++x) {
             if (!header()->map[y][x])
                 continue;
             header()->map[y][x] = 0;
@@ -1088,56 +908,61 @@ void QVNCServer::sendHextile()
 
             client->write((char *)&encoding, sizeof(encoding));
 
-            // grab screen memory
-            uchar *sptr = screendata;
-            const uchar *data = qvnc_screen->base() +
-                                rect.y * qvnc_screen->linestep() +
-                                rect.x * qvnc_screen->depth() / 8;
+            const uchar *screendata = qvnc_screen->base() +
+                                      rect.y * qvnc_screen->linestep() +
+                                      rect.x * qvnc_screen->depth() / 8;
+            int linestep = qvnc_screen->linestep();
 
-            for (int i = 0; i < rect.h; i++) {
-                memcpy(sptr, data, lineSize);
-                sptr += lineSize;
-                data += qvnc_screen->linestep();
+            // hardware cursors must be blended with the screen memory
+            QImage tileImage;
+            if (qt_screencursor->isAccelerated()) {
+                const QRect tileRect(rect.x, rect.y, rect.w, rect.h);
+                const QRect cursorRect = qt_screencursor->boundingRect()
+                                         .translated(-qvnc_screen->offset());
+                if (tileRect.intersects(cursorRect)) {
+                    tileImage = screenImage.copy(tileRect);
+                    blendCursor(tileImage,
+                                tileRect.translated(qvnc_screen->offset()));
+                    screendata = tileImage.bits();
+                    linestep = tileImage.bytesPerLine();
+                }
             }
 
-            sptr = screendata;
-            if (checkFill(screendata, rect.w * rect.h)) {
+            if (checkFill(screendata, rect.w, rect.h, linestep)) {
                 // This area is a single color
                 //qDebug("Send empty block");
                 quint8 subenc = 2; // BackgroundSpecified subencoding
                 client->write((char *)&subenc, 1);
-                int pixel;
-                pixel = getPixel(&sptr);
-                client->write((char *)&pixel, pixelFormat.bitsPerPixel/8);
+
+                char buffer[4];
+                convertPixels(buffer, (const char*)screendata, 1);
+                client->write(buffer, bytesPerPixel);
             } else {
                 const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
                 const int bufferSize = rect.w * rect.h * bytesPerPixel + 1;
-                char *buffer = new char[bufferSize];
+                const int padding = sizeof(quint32) - sizeof(char);
+                char *buffer = new char[bufferSize + padding];
 
-                buffer[0] = 1; // Raw subencoding
+                buffer[padding] = 1; // Raw subencoding
 
                 // convert pixels
-                char *b = buffer + 1;
-                for (int i = rect.y; i < rect.y+rect.h; i++) {
-                    nibble = 0;
-                    for (int j = 0; j < rect.w; j++) {
-                        const int pixel = getPixel(&sptr);
-                        memcpy(b, &pixel, bytesPerPixel);
-                        b += bytesPerPixel;
-                    }
+                char *b = buffer + padding + 1;
+                const int bstep = rect.w * bytesPerPixel;
+                for (int i = 0; i < rect.h; ++i) {
+                    convertPixels(b, (const char*)screendata, rect.w);
+                    screendata += linestep;
+                    b += bstep;
                 }
-                client->write(buffer, bufferSize);
+                client->write(buffer + padding, bufferSize);
                 delete[] buffer;
             }
         }
         if (client->state() == QAbstractSocket::UnconnectedState)
             break;
+        rect.y += MAP_TILE_SIZE;
     }
     client->flush();
-
     header()->dirty = false;
-
-    delete[] screendata;
 
     QWSDisplay::ungrab();
 }
@@ -1150,54 +975,91 @@ void QVNCServer::sendRaw()
 {
     QWSDisplay::grab(true);
 
-    QRegion rgn;
+    const int bytesPerPixel = pixelFormat.bitsPerPixel / 8;
+    const quint32 encoding = htonl(0); // raw
 
+    quint16 count = 0;
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     if (header()->dirty) {
-        // make a region from the dirty rects and send the region's merged
-        // rects.
-        for (int y = 0; y < vtiles; y++)
-            for (int x = 0; x < htiles; x++)
+        for (int y = 0; y < vtiles; ++y)
+            for (int x = 0; x < htiles; ++x)
                 if (header()->map[y][x])
-                    rgn += QRect(x*MAP_TILE_SIZE, y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE);
-
-        rgn &= QRect(0, 0, qvnc_screen->deviceWidth()-1,
-                    qvnc_screen->deviceHeight()-1);
+                    ++count;
     }
 
-    char tmp = 0;
-    client->write(&tmp, 1); // msg type
-    client->write(&tmp, 1); // padding
-    quint16 count = htons(rgn.rects().count());
-    client->write((char *)&count, 2);
+    char tmp[2] = { 0, 0 }; // msg type, padding
+    client->write(tmp, sizeof(tmp));
+    client->write((char *)&count, sizeof(count));
 
-    if (rgn.rects().count()) {
-        for (int idx = 0; idx < rgn.rects().count(); idx++) {
-            QRfbRect rect;
-            rect.x = rgn.rects()[idx].x();
-            rect.y = rgn.rects()[idx].y();
-            rect.w = rgn.rects()[idx].width();
-            rect.h = rgn.rects()[idx].height();
+    if (!header()->dirty) {
+        QWSDisplay::ungrab();
+        return;
+    }
+
+    const QImage screenImage(qvnc_screen->base(), qvnc_screen->deviceWidth(),
+                             qvnc_screen->deviceHeight(),
+                             formatForDepth(qvnc_screen->depth()));
+
+    QRfbRect rect;
+    rect.h = MAP_TILE_SIZE;
+    rect.y = 0;
+    for (int y = 0; y < vtiles; ++y) {
+        if (rect.y + MAP_TILE_SIZE > qvnc_screen->height())
+            rect.h = qvnc_screen->height() - rect.y;
+        rect.w = MAP_TILE_SIZE;
+        for (int x = 0; x < htiles; ++x) {
+            if (!header()->map[y][x])
+                continue;
+            header()->map[y][x] = 0;
+
+            rect.x = x * MAP_TILE_SIZE;
+            if (rect.x + MAP_TILE_SIZE > qvnc_screen->deviceWidth())
+                rect.w = qvnc_screen->deviceWidth() - rect.x;
             rect.write(client);
 
-            quint32 encoding = htonl(0);        // raw encoding
-            client->write((char *)&encoding, 4);
+            client->write((char *)&encoding, sizeof(encoding));
 
-            int pixel;
-            for (int i = rect.y; i < rect.y+rect.h; i++) {
-                uchar *data = qvnc_screen->base() + i * qvnc_screen->linestep() +
-                                rect.x * qvnc_screen->depth() / 8;
-                nibble = rect.x & 1;
-                for (int j = 0; j < rect.w; j++) {
-                    pixel = getPixel(&data);
-                    client->write((char *)&pixel, pixelFormat.bitsPerPixel/8);
+            const uchar *screendata = qvnc_screen->base() +
+                                      rect.y * qvnc_screen->linestep() +
+                                      rect.x * qvnc_screen->depth() / 8;
+            int linestep = qvnc_screen->linestep();
+
+            // hardware cursors must be blended with the screen memory
+            QImage tileImage;
+            if (qt_screencursor->isAccelerated()) {
+                const QRect tileRect(rect.x, rect.y, rect.w, rect.h);
+                const QRect cursorRect = qt_screencursor->boundingRect()
+                                         .translated(-qvnc_screen->offset());
+                if (tileRect.intersects(cursorRect)) {
+                    tileImage = screenImage.copy(tileRect);
+                    blendCursor(tileImage,
+                                tileRect.translated(qvnc_screen->offset()));
+                    screendata = tileImage.bits();
+                    linestep = tileImage.bytesPerLine();
                 }
             }
+
+            const int bufferSize = rect.w * rect.h * bytesPerPixel;
+            char *buffer = new char[bufferSize];
+
+            // convert pixels
+            char *b = buffer;
+            const int bstep = rect.w * bytesPerPixel;
+            for (int i = 0; i < rect.h; ++i) {
+                convertPixels(b, (const char*)screendata, rect.w);
+                screendata += linestep;
+                b += bstep;
+            }
+            client->write(buffer, bufferSize);
+            delete[] buffer;
         }
-        header()->dirty = false;
-        memset(header()->map, 0, MAP_WIDTH*vtiles);
+        if (client->state() == QAbstractSocket::UnconnectedState)
+            break;
+        rect.y += MAP_TILE_SIZE;
     }
+    client->flush();
+    header()->dirty = false;
 
     QWSDisplay::ungrab();
 }
@@ -1230,7 +1092,7 @@ void QVNCServer::discardClient()
 
     Note that this class is only available in \l {Qtopia Core}.
     Custom screen drivers can be added by subclassing the
-    QScreenDriverPlugin class, using the QScreenDriverFactory class to
+    QScreenDriver class, using the QScreenDriverFactory class to
     dynamically load the driver into the application.
 
     The VNC protocol allows you to view and interact with the
@@ -1242,7 +1104,7 @@ void QVNCServer::discardClient()
     class. This is easily achieved by manipulating the \c
     VNCSCREEN_BASE definition in the header file.
 
-    \sa QScreen, QScreenDriverPlugin, {Running Applications}
+    \sa QScreen, QScreenDriver, {Running Applications}
 */
 
 /*!
@@ -1252,8 +1114,9 @@ void QVNCServer::discardClient()
     identifies the Qtopia Core server to connect to.
 */
 QVNCScreen::QVNCScreen(int display_id)
-    : QScreen(display_id), d_ptr(new QVNCScreenPrivate)
+    : QScreen(display_id)
 {
+    d_ptr = new QVNCScreenPrivate(this);
 }
 
 /*!
@@ -1315,28 +1178,76 @@ bool QVNCScreen::connect(const QString &displaySpec)
         driver.truncate(colon);
 
     QScreen *screen;
-    if (driver.trimmed().isEmpty() || !driver.compare(QLatin1String("virtual"))
-        || QRegExp("\\d+").exactMatch(driver))
-    {
-        screen = new QVirtualScreen(displayId);
-        screen->connect(dspec);
-    } else {
+    if (QScreenDriverFactory::keys().contains(driver, Qt::CaseInsensitive)) {
         const int id = getDisplayId(dspec);
         screen = qt_get_screen(id, dspec.toLatin1().constData());
+
+        QScreen::d = screen->depth();
+        QScreen::w = screen->width();
+        QScreen::h = screen->height();
+        QScreen::dw = screen->deviceWidth();
+        QScreen::dh = screen->deviceHeight();
+        QScreen::lstep = screen->linestep();
+        QScreen::data = screen->base();
+        QScreen::physWidth = screen->physicalWidth();
+        QScreen::physHeight = screen->physicalHeight();
+        setOffset(screen->offset());
+
+        d_ptr->subscreen = screen;
+
+    } else { // create virtual screen
+        d = qgetenv("QWS_DEPTH").toInt();
+        if (!d)
+            d = 16;
+
+        QByteArray str = qgetenv("QWS_SIZE");
+        if(!str.isEmpty()) {
+            sscanf(str.constData(), "%dx%d", &w, &h);
+            dw = w;
+            dh = h;
+        } else {
+            dw = w = 640;
+            dh = h = 480;
+        }
+
+        const QStringList args = displaySpec.split(QLatin1Char(':'),
+                                                   QString::SkipEmptyParts);
+
+        if (args.contains(QLatin1String("paintonscreen"), Qt::CaseInsensitive))
+            d_ptr->doOnScreenSurface = true;
+
+        QRegExp depthRegexp("^depth=(\\d+)$");
+        if (args.indexOf(depthRegexp) != -1)
+            d = depthRegexp.cap(1).toInt();
+
+        QRegExp sizeRegexp("^size=(\\d+)x(\\d+)$");
+        if (args.indexOf(sizeRegexp) != -1) {
+            dw = w = sizeRegexp.cap(1).toInt();
+            dh = h = sizeRegexp.cap(2).toInt();
+        }
+
+        const int dpi = 72;
+        physWidth = qRound(dw * 25.4 / dpi);
+        physHeight = qRound(dh * 25.4 / dpi);
+
+        lstep = (dw * d + 7) / 8;
+        size = h * lstep;
+        mapsize = size;
+
+        QWSServer::setDefaultMouse("None");
+        QWSServer::setDefaultKeyboard("None");
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+        d_ptr->shm = new QSharedMemory(size, qws_qtePipeFilename(), displayId);
+        if (!d_ptr->shm->create())
+            qDebug("QVNCScreen could not create shared memory");
+        if (!d_ptr->shm->attach())
+            qDebug("QVNCScreen could not attach to shared memory");
+        QScreen::data = reinterpret_cast<uchar*>(d_ptr->shm->base());
+#else
+        QScreen::data = new uchar[size];
+#endif
     }
-
-    QScreen::d = screen->depth();
-    QScreen::w = screen->width();
-    QScreen::h = screen->height();
-    QScreen::dw = screen->deviceWidth();
-    QScreen::dh = screen->deviceHeight();
-    QScreen::lstep = screen->linestep();
-    QScreen::data = screen->base();
-    QScreen::physWidth = screen->physicalWidth();
-    QScreen::physHeight = screen->physicalHeight();
-    setOffset(screen->offset());
-
-    d_ptr->subscreen = screen;
 
     // XXX
     qt_screen = this;
@@ -1349,8 +1260,14 @@ bool QVNCScreen::connect(const QString &displaySpec)
 */
 void QVNCScreen::disconnect()
 {
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->disconnect();
+    } else {
+#ifndef QT_NO_QWS_MULTIPROCESS
+        if (d_ptr->shm)
+            d_ptr->shm->detach();
+#endif
+    }
 }
 
 /*!
@@ -1376,6 +1293,9 @@ bool QVNCScreen::initDevice()
     if (d_ptr->subscreen)
         return d_ptr->subscreen->initDevice();
 
+#ifndef QT_NO_QWS_CURSOR
+    qt_screencursor = new QVNCCursor(this);
+#endif
     return true;
 }
 
@@ -1385,8 +1305,14 @@ bool QVNCScreen::initDevice()
 void QVNCScreen::shutdownDevice()
 {
     delete d_ptr->vncServer;
-    if (d_ptr->subscreen)
+    if (d_ptr->subscreen) {
         d_ptr->subscreen->shutdownDevice();
+    } else {
+#ifndef QT_NO_QWS_MULTIPROCESS
+        if (d_ptr->shm)
+            d_ptr->shm->destroy();
+#endif
+    }
 }
 
 /*!
@@ -1546,6 +1472,13 @@ void QVNCScreen::solidFill(const QColor &color, const QRegion &region)
         QScreen::solidFill(color, region);
 }
 
+// XXX: duplicated from qscreen_qws.cpp
+static inline bool isWidgetOpaque(const QWidget *w)
+{
+    const QBrush brush = w->palette().brush(w->backgroundRole());
+    return (brush.style() == Qt::NoBrush || brush.isOpaque());
+}
+
 /*!
     \reimp
 */
@@ -1553,6 +1486,14 @@ QWSWindowSurface* QVNCScreen::createSurface(QWidget *widget) const
 {
     if (d_ptr->subscreen)
         return d_ptr->subscreen->createSurface(widget);
+
+    // XXX: will not work together with transparent windows until full
+    // compositioning is implemented
+    if (d_ptr->doOnScreenSurface) {
+        if (isWidgetOpaque(widget) && (depth() == 16 || depth() == 32))
+            return new QWSOnScreenSurface(widget);
+    }
+
     return QScreen::createSurface(widget);
 }
 
@@ -1575,8 +1516,6 @@ QRegion QVNCScreen::region() const
         return d_ptr->subscreen->region();
     return QScreen::region();
 }
-
-#include "qscreenvnc_qws.moc"
 
 #endif // QT_NO_QWS_VNC
 

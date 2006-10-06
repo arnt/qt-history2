@@ -65,6 +65,7 @@ public:
 
 private:
     friend class QVNCServer;
+    friend class QVNCScreenPrivate;
     QVNCScreenPrivate *d_ptr;
 };
 

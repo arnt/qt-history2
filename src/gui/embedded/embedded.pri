@@ -112,7 +112,8 @@ embedded {
 	}
 
 	contains( gfx-drivers, vnc ) {
-		HEADERS += embedded/qscreenvnc_qws.h
+		HEADERS += embedded/qscreenvnc_qws.h \
+			   embedded/qscreenvnc_p.h
 		SOURCES += embedded/qscreenvnc_qws.cpp
 	}
 
