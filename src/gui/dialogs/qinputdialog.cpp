@@ -284,20 +284,18 @@ void QInputDialogPrivate::init(const QString &title, const QString &lbl, QWidget
 */
 
 /*!
-  Constructs the dialog. \a label is the text which is shown to
-  the user (it should tell the user what they are expected to enter).
-  \a parent is the dialog's parent widget. \a type is used to specify
-  which type of dialog to construct. \a f parameter is passed on to
-  the QDialog constructor.
+  Constructs an input dialog of the specified \a type with the given \a parent
+  widget and window \a flags. The \a text is shown in the dialog with the input
+  field, and is typically used to tell the user what they are expected to enter.
 
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 // ### Qt 5: remove
-QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WindowFlags f)
+QInputDialog::QInputDialog(const QString &text, QWidget* parent, Type type, Qt::WindowFlags f)
     : QDialog(*new QInputDialogPrivate, parent, f)
 {
     Q_D(QInputDialog);
-    d->init(label, type);
+    d->init(text, type);
 }
 
 /*!
