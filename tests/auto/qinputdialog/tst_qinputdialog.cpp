@@ -23,7 +23,6 @@
 class tst_QInputDialog : public QObject
 {
     Q_OBJECT
-//private:
     QWidget *parent;
     void (*testFunc)(QInputDialog *);
     static void testFuncGetInteger(QInputDialog *dialog);
@@ -31,10 +30,6 @@ class tst_QInputDialog : public QObject
     static void testFuncGetText(QInputDialog *dialog);
     static void testFuncGetItem(QInputDialog *dialog);
     void timerEvent(QTimerEvent *event);
-    void testGetInteger(int min, int max);
-    void testGetDouble(double min, double max, int decimals);
-    void testGetText(const QString& value);
-    void testGetItem(const QStringList& items, bool editable);
 private slots:
     void getInteger_data();
     void getInteger();
@@ -128,33 +123,16 @@ static void testInvalidateAndRestore(
         normalizeNumericString(QString("%1").arg(sbox->value())));
 }
 
-template <typename WidgetType>
-static WidgetType *getChild(QWidget *parent, WidgetType * = 0)
-{
-    WidgetType *result = 0;
-    const int sleepusecs = 10, waitsecs = 10; // tunables
-    for (int usecsleft = waitsecs * 1000000; result == 0 && usecsleft > 0;
-         usecsleft -= sleepusecs) {
-        foreach (QObject *child, parent->children()) {
-            if ((result = qobject_cast<WidgetType *>(child)) != 0)
-                break;
-        }
-        if (result == 0)
-            usleep(sleepusecs);
-    }
-    return result;
-}
-
 template <typename SpinBoxType, typename ValueType>
 static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * = 0)
 {
-    SpinBoxType *sbox = getChild<SpinBoxType>(dialog);
+    SpinBoxType *sbox = dialog->findChild<SpinBoxType *>();
     Q_ASSERT(sbox);
 
-    QLineEdit *ledit = getChild<QLineEdit>(sbox);
+    QLineEdit *ledit = static_cast<QObject *>(sbox)->findChild<QLineEdit *>();
     Q_ASSERT(ledit);
 
-    QDialogButtonBox *bbox = getChild<QDialogButtonBox>(dialog);
+    QDialogButtonBox *bbox = dialog->findChild<QDialogButtonBox *>();
     Q_ASSERT(bbox);
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
@@ -176,10 +154,10 @@ static void testGetNumeric(QInputDialog *dialog, SpinBoxType * = 0, ValueType * 
 
 static void testGetText(QInputDialog *dialog)
 {
-    QLineEdit *ledit = getChild<QLineEdit>(dialog);
+    QLineEdit *ledit = dialog->findChild<QLineEdit *>();
     Q_ASSERT(ledit);
 
-    QDialogButtonBox *bbox = getChild<QDialogButtonBox>(dialog);
+    QDialogButtonBox *bbox = dialog->findChild<QDialogButtonBox *>();
     Q_ASSERT(bbox);
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
@@ -192,10 +170,10 @@ static void testGetText(QInputDialog *dialog)
 
 static void testGetItem(QInputDialog *dialog)
 {
-    QComboBox *cbox = getChild<QComboBox>(dialog);
+    QComboBox *cbox = dialog->findChild<QComboBox *>();
     Q_ASSERT(cbox);
 
-    QDialogButtonBox *bbox = getChild<QDialogButtonBox>(dialog);
+    QDialogButtonBox *bbox = dialog->findChild<QDialogButtonBox *>();
     Q_ASSERT(bbox);
     QPushButton *okButton = bbox->button(QDialogButtonBox::Ok);
     Q_ASSERT(okButton);
@@ -230,72 +208,10 @@ void tst_QInputDialog::testFuncGetItem(QInputDialog *dialog)
 void tst_QInputDialog::timerEvent(QTimerEvent *event)
 {
     killTimer(event->timerId());
-
-    QInputDialog *dialog = getChild<QInputDialog>(parent);
+    QInputDialog *dialog = parent->findChild<QInputDialog *>();
     Q_ASSERT(dialog);
-
     testFunc(dialog);
-
     dialog->done(QDialog::Accepted); // cause static function call to return
-}
-
-void tst_QInputDialog::testGetInteger(int min, int max)
-{
-    Q_ASSERT(min < max);
-    parent = new QWidget;
-    testFunc = &tst_QInputDialog::testFuncGetInteger;
-    startTimer(0);
-    bool ok = false;
-    const int value = min + (max - min) / 2;
-    const int result = QInputDialog::getInteger(parent, "", "", value, min, max, 1, &ok);
-    QVERIFY(ok);
-    QCOMPARE(result, value);
-    delete parent;
-}
-
-void tst_QInputDialog::testGetDouble(double min, double max, int decimals)
-{
-    Q_ASSERT(min < max && decimals >= 0 && decimals <= 13);
-    parent = new QWidget;
-    testFunc = &tst_QInputDialog::testFuncGetDouble;
-    startTimer(0);
-    bool ok = false;
-    // avoid decimals due to inconsistent roundoff behavior in QInputDialog::getDouble()
-    // (at one decimal, 10.25 is rounded off to 10.2, while at two decimals, 10.025 is
-    // rounded off to 10.03)
-    const double value = static_cast<int>(min + (max - min) / 2);
-    const double result =
-        QInputDialog::getDouble(parent, "", "", value, min, max, decimals, &ok);
-    QVERIFY(ok);
-    QCOMPARE(result, value);
-    delete parent;
-}
-
-void tst_QInputDialog::testGetText(const QString& value)
-{
-    parent = new QWidget;
-    testFunc = &tst_QInputDialog::testFuncGetText;
-    startTimer(0);
-    bool ok = false;
-    const QString result =
-        QInputDialog::getText(parent, "", "", QLineEdit::Normal, value, &ok);
-    QVERIFY(ok);
-    QCOMPARE(result, value);
-    delete parent;
-}
-
-void tst_QInputDialog::testGetItem(const QStringList& items, bool editable)
-{
-    parent = new QWidget;
-    testFunc = &tst_QInputDialog::testFuncGetItem;
-    startTimer(0);
-    bool ok = false;
-    const int index = items.size() / 2;
-    const QString result =
-        QInputDialog::getItem(parent, "", "", items, index, editable, &ok);
-    QVERIFY(ok);
-    QCOMPARE(result, items[index]);
-    delete parent;
 }
 
 void tst_QInputDialog::getInteger_data()
@@ -313,7 +229,16 @@ void tst_QInputDialog::getInteger()
 {
     QFETCH(int, min);
     QFETCH(int, max);
-    testGetInteger(min, max);
+    Q_ASSERT(min < max);
+    parent = new QWidget;
+    testFunc = &tst_QInputDialog::testFuncGetInteger;
+    startTimer(0);
+    bool ok = false;
+    const int value = min + (max - min) / 2;
+    const int result = QInputDialog::getInteger(parent, "", "", value, min, max, 1, &ok);
+    QVERIFY(ok);
+    QCOMPARE(result, value);
+    delete parent;
 }
 
 void tst_QInputDialog::getDouble_data()
@@ -343,7 +268,20 @@ void tst_QInputDialog::getDouble()
     QFETCH(double, min);
     QFETCH(double, max);
     QFETCH(int, decimals);
-    testGetDouble(min, max, decimals);
+    Q_ASSERT(min < max && decimals >= 0 && decimals <= 13);
+    parent = new QWidget;
+    testFunc = &tst_QInputDialog::testFuncGetDouble;
+    startTimer(0);
+    bool ok = false;
+    // avoid decimals due to inconsistent roundoff behavior in QInputDialog::getDouble()
+    // (at one decimal, 10.25 is rounded off to 10.2, while at two decimals, 10.025 is
+    // rounded off to 10.03)
+    const double value = static_cast<int>(min + (max - min) / 2);
+    const double result =
+        QInputDialog::getDouble(parent, "", "", value, min, max, decimals, &ok);
+    QVERIFY(ok);
+    QCOMPARE(result, value);
+    delete parent;
 }
 
 void tst_QInputDialog::getText_data()
@@ -359,7 +297,14 @@ void tst_QInputDialog::getText_data()
 void tst_QInputDialog::getText()
 {
     QFETCH(QString, text);
-    testGetText(text);
+    parent = new QWidget;
+    testFunc = &tst_QInputDialog::testFuncGetText;
+    startTimer(0);
+    bool ok = false;
+    const QString result = QInputDialog::getText(parent, "", "", QLineEdit::Normal, text, &ok);
+    QVERIFY(ok);
+    QCOMPARE(result, text);
+    delete parent;
 }
 
 void tst_QInputDialog::getItem_data()
@@ -378,7 +323,15 @@ void tst_QInputDialog::getItem()
 {
     QFETCH(QStringList, items);
     QFETCH(bool, editable);
-    testGetItem(items, editable);
+    parent = new QWidget;
+    testFunc = &tst_QInputDialog::testFuncGetItem;
+    startTimer(0);
+    bool ok = false;
+    const int index = items.size() / 2;
+    const QString result = QInputDialog::getItem(parent, "", "", items, index, editable, &ok);
+    QVERIFY(ok);
+    QCOMPARE(result, items[index]);
+    delete parent;
 }
 
 QTEST_MAIN(tst_QInputDialog)
