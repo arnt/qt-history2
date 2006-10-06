@@ -47,7 +47,7 @@ void QMultiScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QMultiScreenCursor::setCurrentCursor(QScreenCursor *newCursor)
 {
-    *this = *newCursor;
+    *((QScreenCursor*)this) = *newCursor;
     currentCursor = newCursor;
 }
 
