@@ -1161,17 +1161,22 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
                && widget->windowType() != Qt::Popup && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qobject_cast<QDockWidget *>(widget))) {
                 const bool wasActive = widget->window()->isActiveWindow();
-                widget->activateWindow();
                 if(!wasActive && windowPart == inContent) {
                     HIViewRef child;
                     const HIPoint hiPT = CGPointMake(pt.x() - widget->geometry().x(), pt.y() - widget->geometry().y());
                     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
+                    bool clickThrough = true;
                     if(HIViewGetSubviewHit((HIViewRef)widget->internalWinId(), &hiPT, true, &child) == noErr && child) {
-                        if(!qt_mac_can_clickThrough(QWidget::find((WId)child))) {
-                            if(mouse_down_unhandled)
-                                (*mouse_down_unhandled) = true;
-                            return false;
-                        }
+                        QWidget *w = QWidget::find((WId)child);
+                        if(!qt_mac_can_clickThrough(w))
+                            clickThrough = false;
+                    } else if(!qt_mac_can_clickThrough(widget)) {
+                        clickThrough = false;
+                    }
+                    if(!clickThrough) {
+                        if(mouse_down_unhandled)
+                            (*mouse_down_unhandled) = true;
+                        return false;
                     }
                 }
             }
